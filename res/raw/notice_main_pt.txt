@@ -1,4 +1,5 @@
-Mr Keyboard - dicionario pt-BR (res/raw/main_pt.dict), versao 60 (Mr Keyboard 1.60)
+Mr Keyboard - dicionario pt-BR (res/raw/main_pt.dict) e previsao de duas palavras
+(assets/mr_trigrams.bin), Mr Keyboard 1.62. Os dois vem das mesmas fontes abaixo.
 
 1) Lista de palavras base
 dictionaries/pt_BR_wordlist.combined.gz (versao 54) do Android Open Source Project

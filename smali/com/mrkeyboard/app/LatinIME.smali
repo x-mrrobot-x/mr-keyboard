@@ -6637,7 +6637,7 @@
 
     move-result-object v1
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPredict;->list(Lcom/mrkeyboard/app/Suggest;Landroid/view/inputmethod/InputConnection;)Ljava/util/List;
+    invoke-static {p0, v0, v1}, Lcom/mrkeyboard/app/MrPredict;->list(Landroid/content/Context;Lcom/mrkeyboard/app/Suggest;Landroid/view/inputmethod/InputConnection;)Ljava/util/List;
 
     move-result-object v0
 

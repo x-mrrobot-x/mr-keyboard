@@ -1302,6 +1302,9 @@
 
     invoke-virtual {v0, p2, p4, p0, v4}, Lcom/mrkeyboard/app/BinaryDictionary;->getBigrams(Lcom/mrkeyboard/app/WordComposer;Ljava/lang/CharSequence;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
 
+    # Mr Keyboard v1.62: continuacoes das duas palavras anteriores (MrTrigram) com a letra digitada
+    invoke-static {p0, p2, p4}, Lcom/mrkeyboard/app/MrPredict;->firstLetter(Lcom/mrkeyboard/app/Suggest;Lcom/mrkeyboard/app/WordComposer;Ljava/lang/CharSequence;)V
+
     .line 273
     :cond_5
     invoke-virtual {p2}, Lcom/mrkeyboard/app/WordComposer;->getTypedWord()Ljava/lang/CharSequence;
@@ -1735,6 +1738,16 @@
 
     .line 352
     iget-object p1, p0, Lcom/mrkeyboard/app/Suggest;->mSuggestions:Ljava/util/ArrayList;
+
+    # Mr Keyboard v1.62: correcao barata volta para as 3 posicoes visiveis; autocorrecao so com
+    # sugestao proxima da digitada (MrFuzzy.finish)
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/Suggest;->mHaveCorrection:Z
+
+    invoke-static {p1, v0}, Lcom/mrkeyboard/app/MrFuzzy;->finish(Ljava/util/List;Z)Z
+
+    move-result v0
+
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/Suggest;->mHaveCorrection:Z
 
     return-object p1
 .end method

@@ -28,6 +28,8 @@ Regras (detalhes e números em docs/revisao-1.6.0.md)
              (first, upon, still) saem, assim como palavras gramaticais de outras línguas que
              vieram de nomes e títulos (FOREIGN_WORDS: della, vous, mein); os estrangeirismos de
              verdade voltam pela regra do corpus;
+           - siglas (2+ maiúsculas, até 5 letras) que não aparecem no corpus saem, menos as técnicas
+             (TECH_ACRONYMS);
            - palavras marcadas como possivelmente ofensivas (lista do AOSP) nunca são alvo de
              bigrama (não aparecem como previsão); as vulgaridades (VULGAR) ficam com f = 5, só
              aparecem quando digitadas por inteiro, como no AOSP com "bloquear palavras ofensivas".
@@ -95,6 +97,12 @@ bostas pederasta sodomita
 LOAN_EXCLUDE = set("""
 ibahia noticiadamanha kgfm bpd nits houthis dia-a-dia point points position guidance payroll
 banking hard front dark stand card
+""".split())
+
+# Siglas técnicas que ficam mesmo sem aparecer no corpus de notícias.
+TECH_ACRONYMS = set("""
+MP3 MP4 USB PDF DNS URL XML HTML CSS SQL CPU GPU RAM ROM LED LCD HD HDMI GPS SMS MMS PIN WiFi
+IP VPN API APK DVD CD PC TV FM AM AIDS HIV DNA RNA PH QI RG CPF CNPJ CEP ONG
 """.split())
 
 # Palavras inglesas que o VERO aceita com inicial maiúscula.
@@ -412,6 +420,13 @@ def main():
                     max(final[g] for g in good) >= final[w]:
                 removed["acento no lugar errado"].append(w)
                 del final[w]
+    # siglas que não aparecem no corpus (FHM, RBN, TgN, SBbc): só atrapalham as palavras curtas
+    acr = [w for w in final if 2 <= len(w) <= 5 and sum(1 for ch in w if ch.isupper()) >= 2
+           and exact_seen[w] == 0 and w not in TECH_ACRONYMS]
+    for w in acr:
+        del final[w]
+    removed["sigla que não aparece no corpus"] = acr
+    rep.append(f"base, removidas (sigla que não aparece no corpus): {len(acr)}")
     for w in VULGAR:
         if w in final:
             final[w] = min(final[w], 5)

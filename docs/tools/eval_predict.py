@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Mede a previsão de próxima palavra de uma lista "combined" em frases separadas para teste.
 
-Uso: python3 -I eval_predict.py lista.combined.gz test.txt
+Uso: python3 -I eval_predict.py lista.combined.gz test.txt [mr_trigrams.bin]
 
 Para cada par de palavras seguidas (dentro de um trecho sem pontuação) cuja primeira palavra
 está na lista, simula o que o teclado mostra:
@@ -47,17 +47,49 @@ def load(path):
     return words, big
 
 
+def load_trigrams(path):
+    """Lê mr_trigrams.bin (make_trigrams.py) -> {(w1, w2): [w3, ...]}."""
+    import struct
+    d = open(path, "rb").read()
+    assert d[:4] == b"MRT1"
+    pos = 4
+    n = struct.unpack(">I", d[pos:pos + 4])[0]
+    pos += 4
+    vocab = []
+    for _ in range(n):
+        ln = d[pos]
+        vocab.append(d[pos + 1:pos + 1 + ln].decode("utf-8"))
+        pos += 1 + ln
+    m = struct.unpack(">I", d[pos:pos + 4])[0]
+    pos += 4
+    tri = {}
+    for _ in range(m):
+        a = int.from_bytes(d[pos:pos + 3], "big")
+        b = int.from_bytes(d[pos + 3:pos + 6], "big")
+        k = d[pos + 6]
+        pos += 7
+        lst = []
+        for _ in range(k):
+            lst.append(vocab[int.from_bytes(d[pos:pos + 3], "big")])
+            pos += 4
+        tri[(vocab[a], vocab[b])] = lst
+    return tri
+
+
 def main():
     words, big = load(sys.argv[1])
+    tri = load_trigrams(sys.argv[3]) if len(sys.argv) > 3 else {}
     n = cov = h1 = h3 = 0
     fn = fcov = f1 = f3 = 0
     for line in open(sys.argv[2], encoding="utf-8"):
         toks = TOKEN_RE.findall(URL_RE.sub(" | ", line.strip().translate(APOSTROPHES)))
         prev = None
+        prev2 = None
         first = True
         for t in toks:
             if not t[0].isalpha():
                 prev = None
+                prev2 = None
                 if t in SENTENCE_END:
                     first = True
                 continue
@@ -66,6 +98,17 @@ def main():
                 key = prev if prev in big else prev.lower() if prev.lower() in big else None
                 n += 1
                 lst = [w for w, _ in big.get(key, [])] if key else []
+                if tri and prev2 is not None:
+                    tl3 = None
+                    for c1 in (prev2, prev2.lower()):
+                        for c2 in (prev, prev.lower()):
+                            if (c1, c2) in tri:
+                                tl3 = tri[(c1, c2)]
+                                break
+                        if tl3:
+                            break
+                    if tl3:
+                        lst = tl3 + [w for w in lst if w not in tl3]
                 if lst:
                     cov += 1
                 tl = cur.lower()
@@ -81,7 +124,9 @@ def main():
                     f1 += 1
                 if any(w.lower() == tl for w in fl[:3]):
                     f3 += 1
-            prev = cur if (cur in words or cur.lower() in words) else None
+            known = cur if (cur in words or cur.lower() in words) else None
+            prev2 = prev if known is not None else None
+            prev = known
             first = False
     pct = lambda x, y: f"{100.0 * x / y:5.1f}%" if y else "  -  "
     print(f"pares avaliados: {n}")

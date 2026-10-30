@@ -8,7 +8,7 @@ Tudo continua 100% offline. Cada fase gera uma versão que pode ser instalada e 
 3. Em *Actions*, rodar **"Mr Keyboard - nativo e APK"** (botão *Run workflow*). Ele usa o NDK do runner (ou instala o r27c), compila as 3 arquiteturas, confere e testa.
 4. Opcional: para o CI assinar o APK, cadastrar em *Settings > Secrets* `KEYSTORE_B64`, `KEYSTORE_PASS`, `KEY_ALIAS`, `KEY_PASS` com a **mesma chave de hoje**. Sem isso, baixe o APK sem assinatura e assine como sempre.
 
-## Fase 1 — Recompilar a lib atual com o NDK (versão 1.61)
+## Fase 1 — Recompilar a lib atual com o NDK (feita na 1.61)
 Código em `native/` (o mesmo `dictionary.cpp` do Hacker's Keyboard, Apache-2.0), com:
 - classe JNI `com/mrkeyboard/app/BinaryDictionary` (como na lib de hoje);
 - acento certo no x86 (`followingChar` sem sinal; antes "é" virava U+FFE9);
@@ -17,7 +17,7 @@ Código em `native/` (o mesmo `dictionary.cpp` do Hacker's Keyboard, Apache-2.0)
 
 Passos: rodar o workflow → baixar `libs-nativas` → copiar as 3 pastas para `lib/` do projeto → montar e testar. Nada muda no comportamento; serve para provar que o caminho do NDK funciona.
 
-## Fase 2 — Melhorias rápidas em Java/smali (eu faço aqui)
+## Fase 2 — Melhorias rápidas em Java/smali (feita na 1.62, ver `revisao-1.6.2.md`)
 - tirar siglas sem uso (FHM, RBN) que atrapalham palavras curtas;
 - reservar um espaço da faixa para a correção ("prota" → porta);
 - previsão no início de frase (Eu, Oi, Bom...);
@@ -27,7 +27,7 @@ Passos: rodar o workflow → baixar `libs-nativas` → copiar as 3 pastas para `
 ## Fase 3 — Motor nativo novo `libmrdict` (o "mais avançado" que vale a pena)
 Código próprio em C++ dentro de `native/`, carregado por uma classe nova (`MrNative`). Se a lib não carregar, a camada Java da 1.60 continua funcionando.
 1. **Formato novo do dicionário** (gerado pelos scripts de `docs/tools`): endereços de 32 bits (acaba o limite de 4 MB), tabela de palavras + trie, listas de continuações ordenadas, probabilidade em 8 bits.
-2. **Previsão olhando as duas palavras anteriores** (trigramas, com recuo para bigrama e unigrama); o aprendizado do usuário (Java) somado por cima.
+2. **Previsão olhando as duas palavras anteriores**: a 1.62 já faz em Java (`MrTrigram`); no motor nativo os trigramas passam para o mesmo arquivo do dicionário, sem o limite de tamanho.
 3. **Correção em C++**: a busca do `MrFuzzy` portada, com mais folga de tempo, e **modelo de toque pela posição do dedo** (x, y de cada toque, guardados no `LatinIME.onKey`) em vez de só "tecla vizinha".
 4. **Testes**: o mesmo CMake compila no PC; o CI roda testes de precisão (as frases separadas do Leipzig e do Tatoeba) e de tempo, e falha se piorar.
 5. **Integração em smali**: `Suggest` chama `MrNative` quando disponível; nada no fluxo de aprendizado e privacidade muda.

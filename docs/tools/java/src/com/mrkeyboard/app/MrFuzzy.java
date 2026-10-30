@@ -90,7 +90,13 @@ public final class MrFuzzy {
     private final char[][] mResWord = new char[MAX_RESULTS][MAX_WORD * 2 + 2];
     private final int[] mResLen = new int[MAX_RESULTS];
     private final long[] mResScore = new long[MAX_RESULTS];
+    private final int[] mResCost = new int[MAX_RESULTS];
     private int mResCount;
+
+    /** Correção barata da última consulta, para reservar um espaço na faixa (finish). */
+    static final int RESERVE_MAX_COST = 45;
+    private static String sReserveTyped;
+    private static String sReserveWord;
 
     MrFuzzy(ByteBuffer dict, int size) {
         mDict = dict;
@@ -123,6 +129,8 @@ public final class MrFuzzy {
      */
     public static void afterWords(Suggest suggest, WordComposer composer) {
         try {
+            sReserveTyped = null;
+            sReserveWord = null;
             if (suggest == null || composer == null) return;
             int n = composer.size();
             if (n < 2 || n > MAX_TYPED) return;
@@ -143,10 +151,97 @@ public final class MrFuzzy {
             synchronized (f) {
                 f.search(composer, typed);
                 f.emit(suggest);
+                sReserveTyped = typed.toString();
+                sReserveWord = f.mResCount > 0 && f.mResCost[0] <= RESERVE_MAX_COST
+                        ? f.resultWord(0) : null;
             }
         } catch (RuntimeException e) {
             // nunca derrubar a digitação por causa da camada de reserva
         }
+    }
+
+    // ------------------------------------------------------------------ fim da lista (Suggest)
+
+    /**
+     * Chamado no fim de Suggest.getSuggestions com a lista final (0 = digitada) e mHaveCorrection.
+     * 1) Se a busca achou uma correção barata (troca de lugar, letra dobrada, fonética, vizinha) que
+     *    os complementos da lib empurraram para fora das 3 posições visíveis, ela volta para a 3ª
+     *    ("prota" mostra porta mesmo com protagonista na frente).
+     * 2) Autocorreção mais cuidadosa: só troca sozinha pela 2ª entrada se ela for do mapa MrFix
+     *    ou estiver a até 1 erro (palavras de até 5 letras) ou 2 erros (maiores) da digitada,
+     *    sem contar acento e caixa, e nunca por sugestão com espaço fora do mapa. Devolve o novo
+     *    valor de mHaveCorrection.
+     */
+    public static boolean finish(java.util.List<CharSequence> list, boolean haveCorrection) {
+        String savedTyped = sReserveTyped;
+        String word = sReserveWord;
+        sReserveTyped = null;
+        sReserveWord = null;
+        try {
+            if (list == null || list.isEmpty()) return haveCorrection;
+            String typed = list.get(0).toString();
+            if (word != null && typed.equals(savedTyped) && typed.length() > 0) {
+                String shown = word;
+                if (typed.length() > 1 && typed.equals(typed.toUpperCase()) && !typed.equals(typed.toLowerCase())) {
+                    shown = word.toUpperCase();
+                } else if (Character.isUpperCase(typed.charAt(0))) {
+                    shown = Character.toUpperCase(word.charAt(0)) + word.substring(1);
+                }
+                int at = -1;
+                for (int i = 1; i < list.size(); i++) {
+                    if (list.get(i).toString().equalsIgnoreCase(shown)) { at = i; break; }
+                }
+                if (at < 0 || at > 2) {
+                    if (at > 2) list.remove(at);
+                    list.add(Math.min(2, list.size()), shown);
+                }
+            }
+            if (haveCorrection && list.size() >= 2) {
+                haveCorrection = confident(typed, list.get(1).toString());
+            }
+        } catch (RuntimeException e) {
+            // lista fica como veio
+        }
+        return haveCorrection;
+    }
+
+    static boolean confident(String typed, String best) {
+        String fix = MrFix.lookup(typed);
+        if (fix != null && fix.equalsIgnoreCase(best)) return true;
+        if (best.indexOf(' ') >= 0) return false;
+        String a = baseString(typed), b = baseString(best);
+        int allowed = a.length() <= 5 ? 1 : 2;
+        return distance(a, b, allowed) <= allowed;
+    }
+
+    private static String baseString(String s) {
+        char[] c = new char[s.length()];
+        for (int i = 0; i < c.length; i++) c[i] = MrText.base(s.charAt(i));
+        return new String(c);
+    }
+
+    /** Distância de edição com troca de lugar (Damerau restrita), parando acima de max. */
+    static int distance(String a, String b, int max) {
+        int n = a.length(), m = b.length();
+        if (Math.abs(n - m) > max) return max + 1;
+        int[] p2 = new int[m + 1], p1 = new int[m + 1], cur = new int[m + 1];
+        for (int j = 0; j <= m; j++) p1[j] = j;
+        for (int i = 1; i <= n; i++) {
+            cur[0] = i;
+            int rowMin = cur[0];
+            for (int j = 1; j <= m; j++) {
+                int cost = a.charAt(i - 1) == b.charAt(j - 1) ? 0 : 1;
+                int v = Math.min(Math.min(p1[j] + 1, cur[j - 1] + 1), p1[j - 1] + cost);
+                if (i > 1 && j > 1 && a.charAt(i - 1) == b.charAt(j - 2) && a.charAt(i - 2) == b.charAt(j - 1)) {
+                    v = Math.min(v, p2[j - 2] + 1);
+                }
+                cur[j] = v;
+                if (v < rowMin) rowMin = v;
+            }
+            if (rowMin > max) return max + 1;
+            int[] t = p2; p2 = p1; p1 = cur; cur = t;
+        }
+        return p1[m];
     }
 
     // ------------------------------------------------------------------ busca
@@ -479,10 +574,10 @@ public final class MrFuzzy {
     private void offer(char[] word, int len, int freq, int cost) {
         long score = scoreFor(freq, cost);
         if (score <= 0) return;
-        insert(word, 0, len, score);
+        insert(word, 0, len, score, cost);
     }
 
-    private void insert(char[] word, int off, int len, long score) {
+    private void insert(char[] word, int off, int len, long score, int cost) {
         // repetida? fica a de maior pontuação
         for (int i = 0; i < mResCount; i++) {
             if (mResLen[i] == len && same(mResWord[i], word, off, len)) {
@@ -501,10 +596,12 @@ public final class MrFuzzy {
             mResWord[i - 1] = tmp;
             mResLen[i] = mResLen[i - 1];
             mResScore[i] = mResScore[i - 1];
+            mResCost[i] = mResCost[i - 1];
         }
         System.arraycopy(word, off, mResWord[at], 0, len);
         mResLen[at] = len;
         mResScore[at] = score;
+        mResCost[at] = cost;
         if (mResCount < MAX_RESULTS) mResCount++;
     }
 
@@ -514,6 +611,7 @@ public final class MrFuzzy {
             mResWord[k] = mResWord[k + 1];
             mResLen[k] = mResLen[k + 1];
             mResScore[k] = mResScore[k + 1];
+            mResCost[k] = mResCost[k + 1];
         }
         mResWord[mResCount - 1] = tmp;
         mResCount--;
@@ -562,7 +660,7 @@ public final class MrFuzzy {
                 bestLen = leftLen + 1 + mLookLen;
             }
         }
-        if (bestLen > 0) insert(mSplitBuf, 0, bestLen, bestScore);
+        if (bestLen > 0) insert(mSplitBuf, 0, bestLen, bestScore, C_SPLIT);
     }
 
     private static boolean oneLetterWord(char b) {

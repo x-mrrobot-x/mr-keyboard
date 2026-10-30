@@ -5,8 +5,9 @@
 #   libs-nativas  -> lib/<abi>/libjni_pckeyboard.so (copie para a pasta lib/ do projeto)
 #   apk           -> MrKeyboard-unsigned.apk (e MrKeyboard-signed.apk se houver chave nos secrets)
 #
-# Assinatura (opcional): Settings > Secrets and variables > Actions
-#   KEYSTORE_B64 (keystore em base64), KEYSTORE_PASS, KEY_ALIAS, KEY_PASS
+# Assinatura (opcional): Settings > Secrets and variables > Actions, um dos dois jeitos:
+#   keystore: KEYSTORE_B64 (arquivo em base64), KEYSTORE_PASS, KEY_ALIAS, KEY_PASS
+#   pk8+pem:  KEY_PK8_B64 e CERT_PEM_B64 (os dois arquivos em base64)
 # Use a MESMA chave que assina o app hoje; com outra chave o Android não instala por cima.
 name: Mr Keyboard - nativo e APK
 
@@ -18,6 +19,7 @@ on:
       - 'native/**'
       - 'smali/**'
       - 'res/**'
+      - 'assets/**'
       - 'apktool.yml'
       - '.github/workflows/mr-native.yml'
 
@@ -106,15 +108,34 @@ jobs:
           KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASS: ${{ secrets.KEY_PASS }}
+          KEY_PK8_B64: ${{ secrets.KEY_PK8_B64 }}
+          CERT_PEM_B64: ${{ secrets.CERT_PEM_B64 }}
         run: |
-          if [ -z "$KEYSTORE_B64" ]; then echo "sem chave: só o APK sem assinatura"; exit 0; fi
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          echo "$KEYSTORE_B64" | base64 -d > key.jks
+          if [ -n "$KEYSTORE_B64" ]; then
+            # keystore (.jks, .keystore ou .p12) + alias e senhas
+            # tira espaços e quebras de linha que entram ao copiar e colar o texto
+            printf '%s' "$KEYSTORE_B64" | tr -d ' \r\n\t' | base64 -d > key.jks || {
+              echo "::error::KEYSTORE_B64 não é base64 válido (texto cortado ou com caracteres a mais)"; exit 1; }
+            echo "keystore: $(wc -c < key.jks) bytes"
+            keytool -list -keystore key.jks -storepass "$KEYSTORE_PASS" > /dev/null 2>&1 || {
+              echo "::error::não abriu o keystore: senha (KEYSTORE_PASS) errada ou arquivo incompleto"; exit 1; }
+            keytool -list -keystore key.jks -storepass "$KEYSTORE_PASS" -alias "$KEY_ALIAS" > /dev/null 2>&1 || {
+              echo "::error::o alias KEY_ALIAS não existe no keystore"; exit 1; }
+            SIGN="--ks key.jks --ks-pass env:KEYSTORE_PASS --ks-key-alias $KEY_ALIAS --key-pass env:KEY_PASS"
+          elif [ -n "$KEY_PK8_B64" ] && [ -n "$CERT_PEM_B64" ]; then
+            # par de arquivos .pk8 + .x509.pem (ex.: a chave de teste que alguns apps de apktool usam)
+            printf '%s' "$KEY_PK8_B64" | tr -d ' \r\n\t' | base64 -d > key.pk8
+            printf '%s' "$CERT_PEM_B64" | tr -d ' \r\n\t' | base64 -d > cert.pem
+            SIGN="--key key.pk8 --cert cert.pem"
+          else
+            echo "sem chave: só o APK sem assinatura"; exit 0
+          fi
           "$BT/zipalign" -p -f 4 MrKeyboard-unsigned.apk aligned.apk
-          "$BT/apksigner" sign --ks key.jks --ks-pass env:KEYSTORE_PASS --ks-key-alias "$KEY_ALIAS" \
-            --key-pass env:KEY_PASS --out MrKeyboard-signed.apk aligned.apk
-          "$BT/apksigner" verify MrKeyboard-signed.apk
-          rm -f key.jks
+          "$BT/apksigner" sign $SIGN --out MrKeyboard-signed.apk aligned.apk
+          # o SHA-256 do certificado tem que ser igual ao do app instalado hoje
+          "$BT/apksigner" verify --print-certs MrKeyboard-signed.apk
+          rm -f key.jks key.pk8 cert.pem aligned.apk
 
       - uses: actions/upload-artifact@v4
         with:

@@ -151,6 +151,52 @@ public final class MrText {
     }
 
     /**
+     * Frequência que um bigrama do usuário (UserBigramDictionary, +2 por uso) passa a valer na
+     * previsão e na 1ª letra, na escala de 7 bits do dicionário: 2 usos = 80, 3 = 100, 5+ = 127.
+     * Antes só aparecia com 12 (6 usos) e valia o número cru, abaixo das sugestões do dicionário.
+     */
+    public static int userBigramScore(int freq) {
+        int s = 40 + 10 * freq;
+        return s > 127 ? 127 : s;
+    }
+
+    /** Texto vazio ou terminando em . ! ? (fora espaços): começo de frase. */
+    public static boolean atSentenceStart(CharSequence before) {
+        if (before == null) return true;
+        int end = before.length();
+        while (end > 0 && Character.isWhitespace(before.charAt(end - 1))) end--;
+        if (end == 0) return true;
+        char c = before.charAt(end - 1);
+        return c == '.' || c == '!' || c == '?' || c == '…';
+    }
+
+    /**
+     * As duas últimas palavras antes do cursor: {penúltima ou null, última}. A penúltima só conta se
+     * entre as duas houver apenas espaço (vírgula ou ponto quebram o contexto). null se não houver
+     * última palavra.
+     */
+    public static String[] lastTwoWords(CharSequence before) {
+        String w2 = lastWord(before);
+        if (w2 == null) return null;
+        int end = before.length();
+        while (end > 0 && Character.isWhitespace(before.charAt(end - 1))) end--;
+        int start = end;
+        while (start > 0) {
+            char c = before.charAt(start - 1);
+            if (Character.isLetter(c) || c == '\'' || c == '-') start--;
+            else break;
+        }
+        int k = start;
+        boolean space = false;
+        while (k > 0 && Character.isWhitespace(before.charAt(k - 1))) { k--; space = true; }
+        String w1 = null;
+        if (space && k > 0 && Character.isLetter(before.charAt(k - 1))) {
+            w1 = lastWord(before.subSequence(0, k));
+        }
+        return new String[] {w1, w2};
+    }
+
+    /**
      * Última palavra antes do cursor (ignorando espaços no fim). Devolve null se o texto terminar em
      * pontuação ou número, ou se não houver palavra: nesses casos a faixa mostra a pontuação.
      */

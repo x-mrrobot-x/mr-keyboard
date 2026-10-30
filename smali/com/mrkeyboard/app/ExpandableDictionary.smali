@@ -1687,9 +1687,15 @@
     .line 448
     iget v6, v0, Lcom/mrkeyboard/app/ExpandableDictionary$NextWord;->frequency:I
 
-    const/16 v0, 0xc
+    # Mr Keyboard v1.62: bigrama do usuario aparece depois de 2 usos (frequencia 4; antes 12 = 6
+    # usos) e entra na escala do dicionario (MrText.userBigramScore: 2 usos = 80, 5+ = 127)
+    const/4 v0, 0x4
 
     if-lt v6, v0, :cond_0
+
+    invoke-static {v6}, Lcom/mrkeyboard/app/MrText;->userBigramScore(I)I
+
+    move-result v6
 
     .line 451
     iget-object v0, p0, Lcom/mrkeyboard/app/ExpandableDictionary;->sb:Ljava/lang/StringBuilder;
