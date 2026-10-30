@@ -66,6 +66,10 @@ Este repositório guarda o app como projeto do [apktool](https://apktool.org/) (
 
 Sem os secrets (num fork, por exemplo), sai um APK sem assinatura no artefato `apk`.
 
+**Publicar (para quem mantém o projeto):**
+- **App:** rode o mesmo workflow com *publicar* marcado. O APK assinado vai para [Releases](../../releases) com a tag do `versionName` do `apktool.yml` (ex.: `v1.63.0`).
+- **Dicionários:** os pacotes ficam em `dicts/<idioma>/` (o `pack.json` lista os arquivos). Depois de mudar algo, aumente `version` no `pack.json` e rode *Mr Keyboard - dicionários*. Ele publica o pacote e um `catalogo.json` assinado no Release `dicionarios`. O catálogo é assinado com a própria chave do app, e o app só aceita catálogo assinado com a chave com que foi instalado.
+
 **No computador:**
 ```sh
 apktool b . -o MrKeyboard-unsigned.apk
@@ -74,10 +78,11 @@ apksigner sign --ks sua-chave.jks --out MrKeyboard.apk aligned.apk
 ```
 
 ## Créditos e licenças
-- [Hacker's Keyboard](https://github.com/klausw/hackerskeyboard), de Klaus Weidner, e o LatinIME do Android Open Source Project. Os dois estão sob a [Apache License 2.0](native/LICENSE-Apache-2.0).
+O Mr Keyboard está sob a [Apache License 2.0](LICENSE).
+- [Hacker's Keyboard](https://github.com/klausw/hackerskeyboard), de Klaus Weidner, e o LatinIME do Android Open Source Project, em que o Mr Keyboard se baseia, também estão sob a Apache License 2.0.
 - Dados do dicionário em português:
   - lista pt_BR do AOSP (Apache 2.0);
   - [Leipzig Corpora Collection](https://wortschatz-leipzig.de/) (CC BY 4.0);
   - [Tatoeba](https://tatoeba.org/) (CC BY 2.0 FR).
 
-  Créditos completos em `res/raw/notice_main_pt.txt`.
+  Créditos completos em `dicts/pt-BR/NOTICE.txt`.

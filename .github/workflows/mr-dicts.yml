@@ -1,0 +1,114 @@
+# Mr Keyboard: publica os pacotes de dicionário (pastas dicts/<id>/) no Release "dicionarios".
+#
+# Rode em Actions > Mr Keyboard - dicionários > Run workflow depois de mudar algo em dicts/.
+#   - pacote igual ao publicado (mesma "version", mesmo conteúdo): fica como está;
+#   - pacote novo ou com "version" maior no pack.json: gera <id>-<versão>.zip e envia;
+#   - conteúdo mudou e a "version" não: para com erro, sem publicar nada.
+# O catálogo (catalogo.json) é assinado com a chave do APK (os mesmos secrets do mr-native.yml).
+# O app só aceita catálogo assinado pela chave com que ele foi instalado.
+# O Release "dicionarios" não é marcado como "latest", para não tomar o lugar das versões do APK.
+# Endereço fixo do catálogo, usado pelo app:
+#   https://github.com/<dono>/<repositório>/releases/download/dicionarios/catalogo.json
+name: Mr Keyboard - dicionários
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dicionarios
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: dicionarios
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Catálogo publicado (se existir)
+        run: |
+          mkdir -p prev
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            if gh release view "$TAG" --json assets -q '.assets[].name' | grep -qx catalogo.json; then
+              # se o Release tem catálogo, ele precisa ser lido: sem ele, versões publicadas
+              # poderiam ser tratadas como novas
+              gh release download "$TAG" -p catalogo.json -D prev
+            else
+              echo "o Release $TAG ainda não tem catálogo"
+            fi
+          else
+            echo "o Release $TAG ainda não existe"
+          fi
+
+      - name: Montar pacotes e catálogo
+        run: |
+          python3 -I docs/tools/make_catalog.py --dicts dicts --out out \
+            --repo "$GITHUB_REPOSITORY" --prev prev/catalogo.json
+          if [ -f out/dados.json ]; then
+            echo "PUBLICAR=1" >> "$GITHUB_ENV"
+          else
+            echo "PUBLICAR=0" >> "$GITHUB_ENV"
+          fi
+
+      - name: Assinar o catálogo com a chave do APK
+        if: env.PUBLICAR == '1'
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+          KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.KEY_PASS }}
+          KEY_PK8_B64: ${{ secrets.KEY_PK8_B64 }}
+          CERT_PEM_B64: ${{ secrets.CERT_PEM_B64 }}
+        run: |
+          J="java -Dstdout.encoding=UTF-8 docs/tools/SignCatalog.java --data out/dados.json --out out/catalogo.json"
+          if [ -n "$KEYSTORE_B64" ]; then
+            printf '%s' "$KEYSTORE_B64" | tr -d ' \r\n\t' | base64 -d > key.jks || {
+              echo "::error::KEYSTORE_B64 não é base64 válido (texto cortado ou com caracteres a mais)"; exit 1; }
+            $J --keystore key.jks
+          elif [ -n "$KEY_PK8_B64" ] && [ -n "$CERT_PEM_B64" ]; then
+            printf '%s' "$KEY_PK8_B64" | tr -d ' \r\n\t' | base64 -d > key.pk8
+            printf '%s' "$CERT_PEM_B64" | tr -d ' \r\n\t' | base64 -d > cert.pem
+            $J --pk8 key.pk8 --cert cert.pem
+          else
+            echo "::error::sem chave nos secrets: o app não aceita catálogo sem assinatura"; exit 1
+          fi
+          rm -f key.jks key.pk8 cert.pem
+
+      - name: Publicar no Release
+        if: env.PUBLICAR == '1'
+        run: |
+          if ! gh release view "$TAG" > /dev/null 2>&1; then
+            gh release create "$TAG" --title "Dicionários / Dictionaries" --latest=false \
+              --notes-file docs/release-dicionarios.md
+          fi
+          ASSETS=$(gh release view "$TAG" --json assets -q '.assets[].name')
+          # zips primeiro (o nome leva a versão), o catálogo por último
+          while read -r f; do
+            [ -z "$f" ] && continue
+            if printf '%s\n' "$ASSETS" | grep -qx "$f"; then
+              # sobrou de uma execução que parou antes do catálogo; o catálogo no ar não aponta
+              # para ele, então pode ser trocado
+              echo "::notice::$f já estava no Release (execução anterior incompleta); substituindo"
+              gh release upload "$TAG" "out/$f" --clobber
+            else
+              gh release upload "$TAG" "out/$f"
+            fi
+          done < out/enviar.txt
+          gh release upload "$TAG" out/catalogo.json --clobber
+          echo "catálogo: https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/catalogo.json"
+
+      - uses: actions/upload-artifact@v4
+        if: env.PUBLICAR == '1'
+        with:
+          name: dicionarios
+          path: out/

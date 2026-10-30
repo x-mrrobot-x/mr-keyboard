@@ -1,0 +1,49 @@
+Mr Keyboard - pacote de dicionario pt-BR: dicionario (main.dict), previsao de duas
+palavras (trigrams.bin) e regras do idioma (rules.txt). Os dois primeiros vem das
+mesmas fontes abaixo; o rules.txt foi escrito para o Mr Keyboard.
+
+1) Lista de palavras base
+dictionaries/pt_BR_wordlist.combined.gz (versao 54) do Android Open Source Project
+(packages/inputmethods/LatinIME), obtido do espelho
+https://github.com/LineageOS/android_packages_inputmethods_LatinIME
+(commit c9e8aa87038e1194d2717ac48f207df4068cebd9).
+
+Copyright (c) 2008, The Android Open Source Project
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software distributed under
+the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.
+
+Includes Dictionaries (c) Lexiteria LLC. Used by permission.
+
+2) Palavras novas, frequencias das palavras novas e pares de palavras (bigramas)
+Contados no corpus "por_news_2024_1M" do Leipzig Corpora Collection (Wortschatz,
+Universitaet Leipzig), so com as frases de fontes brasileiras.
+D. Goldhahn, T. Eckart & U. Quasthoff: Building Large Monolingual Dictionaries at the
+Leipzig Corpora Collection: From 100 to 200 Languages. In: Proceedings of the 8th
+International Language Resources and Evaluation (LREC'12), 2012.
+https://wortschatz.uni-leipzig.de/en/download
+Licenca do corpus: Creative Commons Attribution 4.0 International (CC BY 4.0),
+https://creativecommons.org/licenses/by/4.0/
+Do corpus foram usados so contagens (nenhuma frase e distribuida).
+
+3) Pares de palavras de conversa
+Frases em portugues do Tatoeba (https://tatoeba.org), exportacao semanal
+por_sentences_detailed, sem as frases de autores ou com marcas de portugues
+europeu. Licenca: Creative Commons Attribution 2.0 France (CC BY 2.0 FR),
+https://creativecommons.org/licenses/by/2.0/fr/
+Do Tatoeba foram usadas so contagens (nenhuma frase e distribuida).
+
+4) Girias, abreviacoes de chat e a lista de correcoes (rules.txt)
+Listas escritas para o Mr Keyboard.
+
+Modificacoes em relacao a lista base: formato binario "latest" do LatinIME
+(cabecalho de 2 bytes, bigramas por palavra) lido por libjni_pckeyboard; grafias
+anteriores ao Acordo Ortografico trocadas pelas atuais (veem, leem, deem, creem);
+removidas variantes lusitanas e erros de grafia (lista em docs/revisao-1.6.0.md);
+palavras marcadas como potencialmente ofensivas com frequencia minima e fora da
+previsao; acrescentadas palavras do corpus aceitas pelo corretor VERO (usado so como
+filtro, nada dele e copiado), estrangeirismos, nomes proprios, girias e abreviacoes.
+Ferramentas: docs/tools/make_wordlist.py e docs/tools/build_dict.py.

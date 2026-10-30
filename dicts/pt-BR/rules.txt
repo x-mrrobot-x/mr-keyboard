@@ -1,0 +1,290 @@
+# Mr Keyboard - regras do idioma: Português (Brasil)
+# Formato 1. Linhas que começam com # são comentários e linhas vazias são ignoradas.
+# Cada seção começa com [nome]. Seções que o app não conhece são ignoradas.
+# Nas seções de letras, tudo em minúsculas e sem acento, exceto o ç.
+
+[sentence_start]
+# Sugestões no começo da frase, antes de digitar (até 3, da mais provável para a menos).
+Você
+Eu
+Não
+
+[corrections]
+# digitado<TAB>sugestão. O digitado é comparado em minúsculas e sem acento (até 24 letras).
+# A sugestão entra como a melhor da lista; com a autocorreção ligada, só troca a palavra
+# se a digitada não existir no dicionário.
+# abreviações de chat
+vc	você
+vcs	vocês
+tbm	também
+tb	também
+tmb	também
+pq	porque
+qdo	quando
+qnd	quando
+qndo	quando
+hj	hoje
+td	tudo
+tds	todos
+mto	muito
+mt	muito
+mta	muita
+mtos	muitos
+mtas	muitas
+msm	mesmo
+oq	o que
+obg	obrigado
+obgd	obrigado
+obgda	obrigada
+vlw	valeu
+blz	beleza
+cmg	comigo
+ctg	contigo
+nd	nada
+ngm	ninguém
+agr	agora
+dps	depois
+fds	fim de semana
+bj	beijo
+bjs	beijos
+bjo	beijo
+bjos	beijos
+abs	abraços
+pfv	por favor
+pf	por favor
+qq	qualquer
+qlq	qualquer
+sdds	saudades
+vdd	verdade
+msg	mensagem
+msgs	mensagens
+naum	não
+neh	né
+eh	é
+aki	aqui
+axo	acho
+kd	cadê
+cmo	como
+tah	tá
+qto	quanto
+qta	quanta
+qts	quantos
+fzr	fazer
+dnv	de novo
+sla	sei lá
+tmj	tamo junto
+mds	meu Deus
+sqn	só que não
+pdc	pode crer
+# juntou palavras
+concerteza	com certeza
+comcerteza	com certeza
+derrepente	de repente
+derepente	de repente
+porisso	por isso
+apartir	a partir
+denovo	de novo
+oque	o que
+daonde	de onde
+encima	em cima
+porfavor	por favor
+# fonética e grafia
+enchergar	enxergar
+excessao	exceção
+excesao	exceção
+exessao	exceção
+exesao	exceção
+previlegio	privilégio
+previlegios	privilégios
+previlegiado	privilegiado
+mendingo	mendigo
+mindingo	mendigo
+sombrancelha	sobrancelha
+sombrancelhas	sobrancelhas
+beneficiente	beneficente
+beneficiencia	beneficência
+cidadoes	cidadãos
+seje	seja
+esteje	esteja
+menas	menos
+iorgute	iogurte
+mortandela	mortadela
+asteristico	asterisco
+impecilho	empecilho
+advinhar	adivinhar
+advinha	adivinha
+metereologia	meteorologia
+bicabornato	bicarbonato
+frustado	frustrado
+frustada	frustrada
+trousse	trouxe
+salchicha	salsicha
+cardeneta	caderneta
+estrupo	estupro
+prazeiroso	prazeroso
+poblema	problema
+pobrema	problema
+enxer	encher
+enxarcar	encharcar
+fragancia	fragrância
+ancioso	ansioso
+anciosa	ansiosa
+anciedade	ansiedade
+atravez	através
+ezemplo	exemplo
+exelente	excelente
+ezame	exame
+nescessario	necessário
+nescessaria	necessária
+nescessidade	necessidade
+reinvindicar	reivindicar
+reinvindicacao	reivindicação
+reinvidicar	reivindicar
+cabelelero	cabeleireiro
+cabeleleiro	cabeleireiro
+cabelereiro	cabeleireiro
+carangueijo	caranguejo
+bandeija	bandeja
+pexe	peixe
+xuxu	chuchu
+chicara	xícara
+enxente	enchente
+ecesso	excesso
+exesso	excesso
+exessivo	excessivo
+tavez	talvez
+gilo	jiló
+beringela	berinjela
+magestade	majestade
+cosinha	cozinha
+pesquiza	pesquisa
+analizar	analisar
+paralizar	paralisar
+paralizacao	paralisação
+atraz	atrás
+mecher	mexer
+enchugar	enxugar
+chingar	xingar
+enchame	enxame
+puchar	puxar
+fachina	faxina
+brucha	bruxa
+susseso	sucesso
+suceso	sucesso
+acessor	assessor
+asessor	assessor
+discucao	discussão
+discusao	discussão
+obcessao	obsessão
+compreencao	compreensão
+extencao	extensão
+pretencao	pretensão
+atensao	atenção
+acensao	ascensão
+decer	descer
+naser	nascer
+nacer	nascer
+creser	crescer
+crecer	crescer
+picina	piscina
+pissina	piscina
+conciencia	consciência
+esceto	exceto
+expontaneo	espontâneo
+extender	estender
+explendido	esplêndido
+beje	bege
+garajem	garagem
+exitar	hesitar
+ogeriza	ojeriza
+tijela	tigela
+cangica	canjica
+rabujento	rabugento
+sargeta	sarjeta
+gorgeta	gorjeta
+geito	jeito
+jente	gente
+oje	hoje
+omem	homem
+aver	haver
+ospital	hospital
+quizer	quiser
+fisesse	fizesse
+cabecario	cabeçalho
+buginganga	bugiganga
+largatixa	lagartixa
+largato	lagarto
+superticao	superstição
+adevogado	advogado
+adivogado	advogado
+ritimo	ritmo
+adimirar	admirar
+adiquirir	adquirir
+guspe	cuspe
+chicrete	chiclete
+bicicreta	bicicleta
+ingual	igual
+cocha	coxa
+enchaqueca	enxaqueca
+cansaso	cansaço
+cancado	cansado
+passoca	paçoca
+preguisa	preguiça
+cabesa	cabeça
+comesar	começar
+conheso	conheço
+
+[phonetic]
+# Letras que soam parecido: trocar uma pela outra custa pouco na correção (vale nos dois sentidos).
+s z
+s c
+c k
+k q
+g j
+x z
+x s
+w v
+w u
+y i
+l u
+m n
+
+[vowels]
+# Vogais que se confundem na fala (custo um pouco maior que o das letras acima).
+e i
+o u
+
+[groups]
+# digitado = como está no dicionário: duas letras no lugar de uma, ou uma no lugar de duas.
+# Também valem para a primeira letra (quem digita "x" pode querer uma palavra com "ch").
+ch = x
+ks = x
+ss = ç
+sc = ç
+xc = ç
+x = ch
+c = sc
+s = sc
+c = ss
+s = xc
+c = xc
+
+[silent]
+# Letra do dicionário que pode faltar no que foi digitado, depois da letra indicada
+# (^ = começo da palavra): "omem" -> homem, "qero" -> quero, "trabalo" -> trabalho.
+^ h
+q u
+g u
+c h
+l h
+n h
+
+[extra]
+# Letra que pode sobrar no que foi digitado.
+h
+
+[one_letter_words]
+# Palavras de uma letra, usadas ao separar duas palavras digitadas juntas.
+a
+e
+o
