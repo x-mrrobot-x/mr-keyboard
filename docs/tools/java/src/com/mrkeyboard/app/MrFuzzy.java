@@ -34,9 +34,7 @@ public final class MrFuzzy {
     static final int C_INS_NEAR = 45;
     static final int C_DEL = 60;
     static final int C_DEL_DOUBLE = 30;
-    static final int C_DEL_H0 = 30;
-    static final int C_DEL_U = 40;
-    static final int C_DEL_H = 45;
+    // letras mudas: custo vem do rules.txt ([silent]; padrão MrRules.DEFAULT_SILENT_START e DEFAULT_SILENT)
     static final int C_TRANS = 40;
     static final int C_MULTI = 35;
     static final int C_SPLIT = 35;
@@ -75,8 +73,11 @@ public final class MrFuzzy {
     private final short[][] mSub = new short[MAX_TYPED][256];
     private final int[] mIns = new int[MAX_TYPED];
     private final boolean[] mFirst = new boolean[256];
-    private final boolean[] mTwoX = new boolean[MAX_TYPED + 1];
-    private final boolean[] mTwoC = new boolean[MAX_TYPED + 1];
+    /** Grupos do rules.txt: em j, as 2 letras digitadas (j-2, j-1) podem valer esta do dicionário. */
+    private final char[] mTwoD1 = new char[MAX_TYPED + 1];
+    private final char[] mTwoD2 = new char[MAX_TYPED + 1];
+    /** Regras do idioma desta consulta (do pacote; vazias sem pacote). */
+    private MrRules mR = MrRules.EMPTY;
     private final int[][] mRows = new int[MAX_TYPED + MAX_EXTRA_DEPTH + 2][MAX_TYPED + 1];
     private final char[] mPath = new char[MAX_WORD + 2];
     private int mMaxCost;
@@ -268,11 +269,20 @@ public final class MrFuzzy {
             mNearCount[j] = cnt;
             Arrays.fill(mSub[j], (short) -1);
         }
+        mR = MrRules.get();
         for (int j = 0; j < n; j++) mIns[j] = insCost(j);
         for (int j = 2; j <= n; j++) {
             char a = mTb[j - 2], b = mTb[j - 1];
-            mTwoX[j] = (a == 'c' && b == 'h') || (a == 'k' && b == 's');
-            mTwoC[j] = (a == 's' && (b == 's' || b == 'c')) || (a == 'x' && b == 'c');
+            char d1 = 0, d2 = 0;
+            char[] ta = mR.t2a, tb = mR.t2b, td = mR.t2d;
+            for (int k = 0; k < ta.length; k++) {
+                if (ta[k] == a && tb[k] == b) {
+                    if (d1 == 0) d1 = td[k];
+                    else if (d2 == 0) d2 = td[k];
+                }
+            }
+            mTwoD1[j] = d1;
+            mTwoD2[j] = d2;
         }
         firstLetters();
         mResCount = 0;
@@ -371,16 +381,26 @@ public final class MrFuzzy {
             char c = mNear[0][k];
             if (c < 256) mFirst[c] = true;
         }
-        for (char c = 'a'; c <= 'z'; c++) {
-            if (phonetic(c, t)) mFirst[c] = true;
+        MrRules r = mR;
+        for (char c = 0; c < 256; c++) {
+            // letras parecidas e vogais trocadas; letras mudas no começo ("omem" -> homem)
+            if (r.pair(c, t) != 0 || r.silentStart[c] > 0) mFirst[c] = true;
         }
-        mFirst['h'] = true;
-        if (t == 'e') mFirst['i'] = true;
-        if (t == 'i') mFirst['e'] = true;
-        if (t == 'o') mFirst['u'] = true;
-        if (t == 'u') mFirst['o'] = true;
-        if (t == 'c' && mN > 1 && mTb[1] == 'h') mFirst['x'] = true;
-        if (t == 'x') mFirst['c'] = true;
+        // grupos: "ch" digitado pode ser "x" no dicionário; "x" digitado pode ser "ch"
+        if (mN > 1) {
+            for (int k = 0; k < r.t2a.length; k++) {
+                if (r.t2a[k] == t && r.t2b[k] == mTb[1]) {
+                    char d = MrText.base(r.t2d[k]);
+                    if (d < 256) mFirst[d] = true;
+                }
+            }
+        }
+        for (int k = 0; k < r.d2t.length; k++) {
+            if (r.d2t[k] == t) {
+                char d = MrText.base(r.d2p[k]);
+                if (d < 256) mFirst[d] = true;
+            }
+        }
         if (mN > 1 && mTb[1] < 256) mFirst[mTb[1]] = true;
     }
 
@@ -435,14 +455,17 @@ public final class MrFuzzy {
             char raw = (char) c;
             char rl = c < 256 ? LOWER[c] : Character.toLowerCase(raw);
             int del = delCost(cb, pcb, depth);
-            // o dicionário tem 2 letras (pai + esta) para 1 digitada? (x -> ch, ç -> ss/sc...)
+            // o dicionário tem 2 letras (pai + esta) para 1 digitada? (grupos: x = ch, c = sc...)
             int d1 = -1, d2 = -1;
-            if (prev2 != null) {
+            if (prev2 != null && mR.d2p.length > 0) {
                 char p = parentRaw < 256 ? LOWER[parentRaw] : Character.toLowerCase(parentRaw);
-                if (p == 'c' && rl == 'h') d1 = 'x';
-                else if (p == 's' && rl == 'c') { d1 = 'c'; d2 = 's'; }
-                else if (p == 's' && rl == 's') d1 = 'c';
-                else if (p == 'x' && rl == 'c') { d1 = 's'; d2 = 'c'; }
+                char[] gp = mR.d2p, gc = mR.d2c, gt = mR.d2t;
+                for (int k = 0; k < gp.length; k++) {
+                    if (gp[k] == p && gc[k] == rl) {
+                        if (d1 < 0) d1 = gt[k];
+                        else if (d2 < 0) d2 = gt[k];
+                    }
+                }
             }
             int[] cur = mRows[depth + 1];
             int r = depth + 1;
@@ -473,7 +496,7 @@ public final class MrFuzzy {
                         v = prev2[j - 2] + C_TRANS;
                         if (v < best) best = v;
                     }
-                    if ((mTwoX[j] && rl == 'x') || (mTwoC[j] && rl == 'ç')) {
+                    if ((mTwoD1[j] != 0 && rl == mTwoD1[j]) || (mTwoD2[j] != 0 && rl == mTwoD2[j])) {
                         v = prev[j - 2] + C_MULTI;
                         if (v < best) best = v;
                     }
@@ -527,39 +550,31 @@ public final class MrFuzzy {
         char t = mTb[j];
         if (cb == t) return 0;
         if (isNear(j, cb)) return C_PROX;
-        if (phonetic(cb, t)) return C_PHON;
-        if ((cb == 'e' && t == 'i') || (cb == 'i' && t == 'e') || (cb == 'o' && t == 'u') || (cb == 'u' && t == 'o')) {
-            return C_VOWEL;
-        }
+        int kind = mR.pair(cb, t);
+        if (kind == 1) return C_PHON;
+        if (kind == 2) return C_VOWEL;
         return C_SUB;
-    }
-
-    private static boolean pair(char a, char b, char x, char y) {
-        return (a == x && b == y) || (a == y && b == x);
-    }
-
-    static boolean phonetic(char a, char b) {
-        return pair(a, b, 's', 'z') || pair(a, b, 's', 'c') || pair(a, b, 'c', 'k') || pair(a, b, 'k', 'q')
-                || pair(a, b, 'g', 'j') || pair(a, b, 'x', 'z') || pair(a, b, 'x', 's') || pair(a, b, 'w', 'v')
-                || pair(a, b, 'w', 'u') || pair(a, b, 'y', 'i') || pair(a, b, 'l', 'u') || pair(a, b, 'm', 'n');
     }
 
     /** Letra digitada a mais na posição j. */
     private int insCost(int j) {
         char t = mTb[j];
         if (j > 0 && mTb[j - 1] == t) return C_INS_DOUBLE;
-        if (t == 'h') return C_INS_H;
+        if (t < 256 && mR.extra[t]) return C_INS_H;
         if (j > 0 && isNear(j - 1, t)) return C_INS_NEAR;
         if (j + 1 < mN && isNear(j + 1, t)) return C_INS_NEAR;
         return C_INS;
     }
 
     /** Letra do dicionário que não foi digitada. */
-    private static int delCost(int cb, int pcb, int depth) {
-        if (depth == 0 && cb == 'h') return C_DEL_H0;
+    private int delCost(int cb, int pcb, int depth) {
+        MrRules r = mR;
+        if (depth == 0 && cb < 256 && r.silentStart[cb] > 0) return r.silentStart[cb];
         if (depth > 0 && cb == pcb) return C_DEL_DOUBLE;
-        if (cb == 'u' && (pcb == 'q' || pcb == 'g')) return C_DEL_U;
-        if (cb == 'h' && (pcb == 'c' || pcb == 'l' || pcb == 'n')) return C_DEL_H;
+        char[] sp = r.silPrev, sc = r.silChar;
+        for (int k = 0; k < sp.length; k++) {
+            if (sc[k] == cb && sp[k] == pcb) return r.silCost[k];
+        }
         return C_DEL;
     }
 
@@ -663,8 +678,8 @@ public final class MrFuzzy {
         if (bestLen > 0) insert(mSplitBuf, 0, bestLen, bestScore, C_SPLIT);
     }
 
-    private static boolean oneLetterWord(char b) {
-        return b == 'a' || b == 'e' || b == 'o';
+    private boolean oneLetterWord(char b) {
+        return b < 256 && mR.oneLetter[b];
     }
 
     /** Procura mTb[from..to) no trie sem considerar acento; guarda em mLookBuf a grafia mais frequente. */

@@ -272,7 +272,9 @@
 
     move-result-object p2
 
-    invoke-static {p1, p2}, Lcom/mrkeyboard/app/PluginManager;->getDictionary(Landroid/content/Context;Ljava/lang/String;)Lcom/mrkeyboard/app/BinaryDictionary;
+    # Mr Keyboard v1.63: dicionario do pacote baixado (MrPacks), que ativa as regras e as duas
+    # palavras do mesmo pacote; sem pacote, cai nos apps de dicionario (PluginManager), como antes.
+    invoke-static {p1, p2}, Lcom/mrkeyboard/app/MrPacks;->mainDictionary(Landroid/content/Context;Ljava/lang/String;)Lcom/mrkeyboard/app/BinaryDictionary;
 
     move-result-object p1
 

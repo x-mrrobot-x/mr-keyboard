@@ -11,7 +11,9 @@ import java.util.List;
  *  - as continuações das DUAS palavras anteriores (MrTrigram, quando o contexto existe);
  *  - as continuações da última palavra no dicionário principal (bigramas do .dict);
  *  - as do usuário (UserBigramDictionary, já na escala de MrText.userBigramScore).
- * No começo do texto ou depois de . ! ? mostra as palavras que mais abrem frase.
+ * No começo do texto ou depois de . ! ? mostra as palavras que mais abrem frase (do pacote,
+ * [sentence_start] do rules.txt). Sem dicionário do idioma, mostra o item "Baixar dicionário"
+ * (MrPacks.offerList), que abre a tela de dicionários.
  * Até 3 previsões; a melhor vai para o centro da faixa. Sem previsão (depois de vírgula, número),
  * LatinIME.setNextSuggestions mostra a pontuação, como antes.
  */
@@ -25,9 +27,6 @@ public final class MrPredict {
     /** Continuação de duas palavras vale mais que a de uma (é o contexto mais específico). */
     static final int TRIGRAM_BONUS = 128;
     private static final int MAX_CAND = MAX_BIGRAMS * 4 + 8;
-
-    /** Palavras que mais abrem frase nas frases de conversa (Tatoeba), na ordem da faixa. */
-    private static final String[] STARTERS = {"Você", "Eu", "Não"};
 
     private static final int[] sInitials = new int[96];
     private static int sInitialCount;
@@ -67,14 +66,19 @@ public final class MrPredict {
      */
     public static List<CharSequence> list(Context context, Suggest suggest, InputConnection ic) {
         try {
-            MrTrigram.preload(context);
             if (suggest == null || ic == null) return null;
+            if (!suggest.hasMainDictionary()) return MrPacks.offerList(context);
             CharSequence before = ic.getTextBeforeCursor(LOOKBACK, 0);
             if (MrText.atSentenceStart(before)) {
                 sCtx1 = null;
                 sCtx2 = null;
+                String[] starters = MrRules.get().starters;
+                if (starters.length == 0) return null;
+                // rules.txt lista da mais provável para a menos; na faixa: 2ª, 1ª (centro), 3ª
                 ArrayList<CharSequence> out = new ArrayList<CharSequence>(SHOW);
-                for (String s : STARTERS) out.add(s);
+                if (starters.length >= 2) out.add(starters[1]);
+                out.add(starters[0]);
+                if (starters.length >= 3) out.add(starters[2]);
                 return out;
             }
             String[] two = MrText.lastTwoWords(before);

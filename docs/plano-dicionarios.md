@@ -1,5 +1,7 @@
 # Plano: dicionários baixáveis (versão 3, aprovada)
 
+> Andamento: fase A feita (`revisao-fase-a-dicionarios.md`); fase B feita na 1.63 (`revisao-1.6.3.md`). Falta a fase C (inglês).
+
 ## Objetivo
 O APK sai **sem nenhum dicionário**. Nas configurações, o usuário baixa o pacote do idioma que usa (pt-BR agora, inglês depois). O APK fica leve e o mesmo app serve para quem fala qualquer idioma que tiver pacote.
 

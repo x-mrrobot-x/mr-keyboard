@@ -20,6 +20,9 @@
     <ListPreference android:persistent="true" android:entries="@array/settings_key_modes" android:title="@string/prefs_settings_key" android:key="settings_key" android:defaultValue="@string/settings_key_mode_auto" android:entryValues="@array/settings_key_modes_values"/>
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_typing" android:key="prediction_settings" android:summary="@string/mr_ui_cat_typing_sum" android:icon="@drawable/mr_ui_ic_typea_violet">
+    <PreferenceScreen android:title="@string/mr_dicts_title" android:summary="@string/mr_dicts_summary">
+      <intent android:action="com.mrkeyboard.app.PREFS_DICTS"/>
+    </PreferenceScreen>
     <CheckBoxPreference android:persistent="true" android:title="@string/show_suggestions" android:key="show_suggestions" android:summary="@string/show_suggestions_summary" android:defaultValue="@bool/default_suggestions"/>
     <CheckBoxPreference android:persistent="true" android:title="@string/auto_complete" android:key="auto_complete" android:summary="@string/auto_complete_summary" android:dependency="show_suggestions" android:defaultValue="@bool/enable_autocorrect"/>
     <CheckBoxPreference android:persistent="true" android:title="@string/quick_fixes" android:key="quick_fixes" android:summary="@string/quick_fixes_summary" android:defaultValue="@bool/default_quick_fixes"/>

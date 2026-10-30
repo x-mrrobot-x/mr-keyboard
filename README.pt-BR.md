@@ -16,6 +16,7 @@ Precisa de Android 8.0 ou mais novo.
   - **Anexos:** fotos, vídeos e arquivos, enviados para o app em que você está digitando;
   - **Emotes.**
 - **Sugestões de palavras** (português do Brasil por enquanto; inglês está planejado):
+  - o dicionário é baixado em *Configurações → Dicionários*, por isso o app em si tem só cerca de 1 MB;
   - correção de erros de digitação e previsão da próxima palavra;
   - aprende as palavras que você usa, nunca em campos de senha ou anônimos;
   - tudo roda no aparelho;
@@ -38,11 +39,12 @@ O comando vai num broadcast que outros apps também podem receber, então não c
 - O que você digita fica no aparelho. Sugestões, correções e palavras aprendidas são processadas e guardadas só no celular. Não há anúncios, análise de uso nem Google Play Services.
 - O app só usa a internet quando você pede:
   - **Traduzir** envia ao Google Tradutor (`translate.googleapis.com`) o texto que você digita no campo de tradução. Só esse texto, e só quando você usa.
-  - **Download de dicionários** (em desenvolvimento) só vai baixar arquivos, e só quando você tocar em *Baixar*.
+  - **Dicionários** (*Configurações → Dicionários*): o app só se conecta quando você toca em *Procurar atualizações*, *Baixar* ou *Atualizar*, e só baixa arquivos dos [releases](../../releases/tag/dicionarios) deste repositório. Cada arquivo é conferido com uma lista assinada com a chave do próprio app antes de ser usado.
 
 | Permissão | Para quê |
 |---|---|
-| Internet | Traduzir (e, depois, baixar dicionários) |
+| Internet | Traduzir e baixar dicionários |
+| Estado da rede | Ver se você está no Wi-Fi antes de baixar um dicionário |
 | Notificações | Notificação fixa opcional para abrir o teclado |
 | Armazenamento / Acesso a todos os arquivos | Anexos: listar e enviar suas fotos, vídeos e arquivos |
 | Dicionário do usuário | Ler e adicionar palavras ao dicionário pessoal do Android |
@@ -53,6 +55,7 @@ O comando vai num broadcast que outros apps também podem receber, então não c
 2. Abra o **Mr Keyboard** e toque em **Ativar teclado**. Ligue o Mr Keyboard na lista e aceite o aviso do sistema. O Android mostra esse aviso para qualquer teclado que não veio com o celular.
 3. Toque em **Definir método de entrada** e escolha o Mr Keyboard.
 4. Opcional: em **Idiomas de entrada**, escolha os layouts. Deslize a barra de espaço para os lados para alternar entre eles.
+5. Para ter sugestões de palavras: nas configurações, abra **Dicionários**, baixe o do seu idioma e ligue **Mostrar sugestões**.
 
 ## Como compilar
 Este repositório guarda o app como projeto do [apktool](https://apktool.org/) (código smali e recursos). Também tem:

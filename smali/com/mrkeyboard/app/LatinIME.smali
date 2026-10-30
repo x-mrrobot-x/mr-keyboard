@@ -10729,6 +10729,25 @@
     return-void
 
     :cond_not_sheets_pref
+    # Mr Keyboard v1.63: MrPacks instalou ou removeu um pacote de dicionario
+    const-string v0, "mr_dicts_updated_at"
+
+    invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_not_dicts_pref
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mInputLocale:Ljava/lang/String;
+
+    if-eqz v0, :cond_dicts_pref_ret
+
+    invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinIME;->initSuggest(Ljava/lang/String;)V
+
+    :cond_dicts_pref_ret
+    return-void
+
+    :cond_not_dicts_pref
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -12374,6 +12393,17 @@
 
 .method public pickSuggestionManually(ILjava/lang/CharSequence;)V
     .locals 5
+
+    # Mr Keyboard v1.63: item "Baixar dicionario" (MrPacks.offerList) abre a tela de dicionarios
+    invoke-static {p0, p2}, Lcom/mrkeyboard/app/MrPacks;->onPick(Landroid/content/Context;Ljava/lang/CharSequence;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_mr_pick_go
+
+    return-void
+
+    :cond_mr_pick_go
 
     .line 2601
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;

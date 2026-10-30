@@ -1,42 +1,53 @@
 package com.mrkeyboard.app;
 
-import android.content.Context;
-
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
 /**
- * Palavras mais prováveis depois de DUAS palavras (v1.62), de assets/mr_trigrams.bin
- * (docs/tools/make_trigrams.py). Só tem os contextos em que o par sozinho erraria; no resto a
- * previsão continua com os bigramas do .dict.
+ * Palavras mais prováveis depois de DUAS palavras (v1.62), do trigrams.bin do pacote de dicionário
+ * (desde a 1.63; antes ficava em assets). Formato em docs/tools/make_trigrams.py. Só tem os
+ * contextos em que o par sozinho erraria; no resto a previsão continua com os bigramas do .dict.
  *
- * Carrega numa thread à parte no primeiro uso (uns poucos MB na memória); enquanto não termina,
- * get() devolve null e a previsão usa só os bigramas.
+ * MrPacks chama use() ao ativar o pacote do idioma: carrega numa thread à parte (uns poucos MB na
+ * memória); enquanto não termina, find() devolve 0 e a previsão usa só os bigramas.
  */
 public final class MrTrigram {
     private MrTrigram() { }
 
-    private static volatile boolean sStarted;
-    private static volatile String[] sWords;      // em ordem de código (String.compareTo)
+    private static String[] sWords;               // em ordem de código (String.compareTo)
     private static long[] sKeys;                  // (id1 << 32) | id2, em ordem
     private static int[] sStart;                  // início das continuações de cada contexto
     private static int[] sNext;                   // ids das continuações
     private static byte[] sScore;                 // f7 de cada continuação
+    private static String sPath;                  // arquivo carregado (ou carregando)
+    private static int sGen;                      // muda a cada use(); carga velha é descartada
 
-    /** Começa a carregar o arquivo (uma vez). */
-    public static void preload(final Context context) {
-        if (sStarted || context == null) return;
-        sStarted = true;
-        final Context app = context.getApplicationContext() != null ? context.getApplicationContext() : context;
+    /** Passa a usar este arquivo (null = nenhum). Não faz nada se já é o arquivo em uso. */
+    static void use(final File file) {
+        final String path = file != null ? file.getPath() : null;
+        final int gen;
+        synchronized (MrTrigram.class) {
+            if (path == null ? sPath == null : path.equals(sPath)) return;
+            sPath = path;
+            gen = ++sGen;
+            sWords = null;
+            sKeys = null;
+            sStart = null;
+            sNext = null;
+            sScore = null;
+        }
+        if (path == null) return;
         Thread t = new Thread(new Runnable() {
             public void run() {
                 InputStream in = null;
                 try {
-                    in = app.getAssets().open("mr_trigrams.bin");
-                    load(in);
+                    in = new FileInputStream(file);
+                    load(in, gen);
                 } catch (Throwable e) {
                     // sem o arquivo a previsão segue só com os bigramas
                 } finally {
@@ -50,8 +61,17 @@ public final class MrTrigram {
         t.start();
     }
 
-    /** Lê o arquivo (também usado nos testes). */
     static void load(InputStream raw) throws IOException {
+        int gen;
+        synchronized (MrTrigram.class) {
+            gen = ++sGen;
+            sPath = "(teste)";
+        }
+        load(raw, gen);
+    }
+
+    /** Lê o arquivo (também usado nos testes). */
+    private static void load(InputStream raw, int gen) throws IOException {
         DataInputStream in = new DataInputStream(new BufferedInputStream(raw, 65536));
         byte[] magic = new byte[4];
         in.readFully(magic);
@@ -86,6 +106,7 @@ public final class MrTrigram {
         }
         start[m] = p;
         synchronized (MrTrigram.class) {
+            if (gen != sGen) return;
             sKeys = keys;
             sStart = start;
             sNext = next;
@@ -101,7 +122,7 @@ public final class MrTrigram {
         return (a << 16) | (b << 8) | c;
     }
 
-    static boolean ready() {
+    static synchronized boolean ready() {
         return sWords != null;
     }
 

@@ -240,7 +240,7 @@
           &lt;p>&amp;#8226; When typing, slide the space bar horizontally to switch between selected layouts.
         
         &lt;h2>Additional information&lt;/h2>
-        &lt;p>Please refer to the &lt;a href='https://github.com/klausw/hackerskeyboard'>project web page&lt;/a> for more information, including the user's guide, issue tracker, and discussion group.&lt;/p>
+        &lt;p>See the &lt;a href='https://github.com/x-mrrobot-x/mr-keyboard'>project page&lt;/a> for more information and to report problems.&lt;/p>
        "</string>
     <string name="main_setup_configure_imes">Enable keyboard</string>
     <string name="main_setup_input_lang">Input languages</string>

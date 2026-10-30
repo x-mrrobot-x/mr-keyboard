@@ -29,6 +29,7 @@ on:
       - 'smali/**'
       - 'res/**'
       - 'assets/**'
+      - 'dicts/**/main.dict'
       - 'apktool.yml'
       - '.github/workflows/mr-native.yml'
 
@@ -83,7 +84,7 @@ jobs:
         run: |
           cmake -S native -B build/host -DCMAKE_BUILD_TYPE=Release -DMR_HOST_TEST=ON
           cmake --build build/host -j4
-          ./build/host/dict_test res/raw/main_pt.dict native/test/amostra_palavras.tsv \
+          ./build/host/dict_test dicts/pt-BR/main.dict native/test/amostra_palavras.tsv \
               native/test/amostra_bigramas.tsv native/test/casos.tsv 5 | grep -v "^OK\|^FALHA"
 
       - uses: actions/upload-artifact@v4
@@ -114,7 +115,7 @@ jobs:
           curl -sSL -o apktool.jar \
             "https://github.com/iBotPeaches/Apktool/releases/download/v$APKTOOL_VERSION/apktool_$APKTOOL_VERSION.jar"
           java -jar apktool.jar b . -o MrKeyboard-unsigned.apk
-          unzip -lv MrKeyboard-unsigned.apk | grep -E "lib/|main_pt.dict"
+          unzip -lv MrKeyboard-unsigned.apk | grep -E "lib/"
 
       - name: Assinar (só se os secrets existirem)
         env:

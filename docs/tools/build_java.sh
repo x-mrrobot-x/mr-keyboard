@@ -1,5 +1,5 @@
 #!/bin/sh
-# Gera o smali da camada Java do Mr Keyboard (MrText, MrFix, MrFuzzy, MrPredict) a partir de
+# Gera o smali da camada Java do Mr Keyboard (MrText, MrFix, MrFuzzy, MrPredict, MrTrigram, MrRules, MrJson, MrPacks, MrPacksActivity) a partir de
 # docs/tools/java/src e copia para smali/com/mrkeyboard/app/.
 #
 # Uso (na raiz do projeto apktool):

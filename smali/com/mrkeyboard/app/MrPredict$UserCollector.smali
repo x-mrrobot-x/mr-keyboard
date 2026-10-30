@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 51
+    .line 50
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,14 +34,14 @@
     .locals 2
 
     .prologue
-    .line 55
+    .line 54
     if-eqz p1, :cond_0
 
     if-lez p3, :cond_0
 
     if-lez p4, :cond_0
 
-    .line 56
+    .line 55
     new-instance v0, Ljava/lang/String;
 
     invoke-direct {v0, p1, p2, p3}, Ljava/lang/String;-><init>([CII)V
@@ -50,7 +50,7 @@
 
     invoke-static {v0, v1, p4}, Lcom/mrkeyboard/app/MrPredict;->access$000(Ljava/lang/String;II)V
 
-    .line 58
+    .line 57
     :cond_0
     const/4 v0, 0x1
 

@@ -7,7 +7,7 @@
     "pt": "Dicionário com 173 mil palavras, pares e trios de palavras para prever a próxima e a lista de correções do português.",
     "en": "173k-word dictionary, word pairs and triples to predict the next word, and Portuguese correction rules."
   },
-  "version": 1,
+  "version": 2,
   "format": 1,
   "minApp": 1063000,
   "files": ["main.dict", "trigrams.bin", "rules.txt", "NOTICE.txt"],

@@ -17,7 +17,8 @@ import java.util.regex.Pattern;
  * nativa compilada para o PC a partir do mesmo dictionary.cpp. Só LatinIME (que precisa do
  * Android) fica de fora.
  *
- * Uso: java -Djava.library.path=<lib> -cp app.jar:stubs:. com.mrkeyboard.app.E2ETest dict test.txt [modo]
+ * Uso: java -Djava.library.path=<lib> -cp app.jar:stubs:. com.mrkeyboard.app.E2ETest dict test.txt [modo] [trigramas]
+ * (desde a 1.63 lê o rules.txt da pasta do dicionário, como o pacote baixado)
  */
 public class E2ETest {
     static final String[] ROWS = {"qwertyuiop", "asdfghjklç", "zxcvbnm"};
@@ -78,6 +79,12 @@ public class E2ETest {
         ByteBuffer buf = ByteBuffer.allocateDirect(bytes.length);
         buf.put(bytes);
         buf.rewind();
+        // 1.63: as regras do idioma vêm do pacote (rules.txt na mesma pasta do dicionário)
+        java.io.File rules = new java.io.File(new java.io.File(a[0]).getAbsoluteFile().getParentFile(), "rules.txt");
+        if (rules.isFile()) {
+            MrRules.set(MrRules.parse(new FileInputStream(rules)));
+            System.out.println("regras: " + rules + " (" + MrRules.get().corrections.size() + " correções)");
+        }
         suggest = new Suggest(null, buf);
         int mode = a.length > 2 ? Integer.parseInt(a[2]) : 1;
         suggest.setCorrectionMode(mode);
@@ -94,7 +101,6 @@ public class E2ETest {
         expect("pesquiza (fonética)", strs(sugg("pesquiza", null)), "pesquisa", 2);
         expect("asim (letra dobrada)", strs(sugg("asim", null)), "assim", 2);
         expect("omem (h mudo)", strs(sugg("omem", null)), "homem", 2);
-        expect("prota (troca de lugar)", strs(sugg("prota", null)), "porta", 2);
         expect("enchergar (ch/x)", strs(sugg("enchergar", null)), "enxergar", 2);
         expect("excessao (mapa MrFix)", strs(sugg("excessao", null)), "exceção", 2);
         expect("concerteza (espaço)", strs(sugg("concerteza", null)), "com certeza", 2);
@@ -128,8 +134,41 @@ public class E2ETest {
         expect("1ª letra 'm' com bigrama do usuário", strs(sugg("m", "muito")), "massa", 3);
         suggest.setUserBigramDictionary(null);
 
+        // 1.62: espaço reservado para correção barata
+        expect("prota (correção reservada)", strs(sugg("prota", null)), "porta", 2);
+        // 1.62: autocorreção cuidadosa (modo 3 = autocorreção ligada)
+        suggest.setCorrectionMode(3);
+        String[][] ac = {{"obrogado", "1"}, {"pesquiza", "1"}, {"asim", "1"}, {"concerteza", "1"}, {"obrig", "0"}, {"eusei", "0"}};
+        for (String[] c : ac) {
+            List<String> l = strs(sugg(c[0], null));
+            boolean auto = suggest.hasMinimalCorrection();
+            boolean ok = auto == c[1].equals("1");
+            if (!ok) fails++;
+            System.out.printf("%s autocorreção %-12s -> %-5s (%s)%n", ok ? "OK   " : "FALHA", c[0], auto, l.size() > 1 ? l.get(1) : "-");
+        }
+        suggest.setCorrectionMode(mode);
+        // 1.62: começo de frase e duas palavras
+        String[] sent = {"", "Oi. ", "Tudo bem? ", "muito ", "ele disse, "};
+        for (String t : sent) System.out.printf("      começo de frase em %-14s %s%n", "'" + t + "'", MrText.atSentenceStart(t));
+        if (a.length > 3) {
+            MrTrigram.load(new java.io.FileInputStream(a[3]));
+            String[][] ctx = {{"bom", "dia"}, {"muito", "obrigado"}, {"eu", "não"}, {"vou", "te"}, {"de", "acordo"}, {"o", "que"}, {"tudo", "bem"}};
+            for (String[] c : ctx) {
+                System.out.printf("      previsão depois de %-16s %s   (só a última: %s)%n", c[0] + " " + c[1],
+                        MrPredict.forWords(suggest, c[0], c[1]), MrPredict.forWord(suggest, c[1]));
+            }
+            MrPredict.forWords(suggest, "bom", "dia");
+            System.out.println("      1ª letra 'p' depois de 'bom dia': " + strs(sugg("p", "dia")));
+        }
+        // 1.62: bigrama do usuário aparece com 2 usos
+        TestUserBigrams u2 = new TestUserBigrams();
+        u2.addBigram("bom", "demais", 4);
+        suggest.setUserBigramDictionary(u2);
+        expect("bigrama do usuário com 2 usos", strs(MrPredict.forWord(suggest, "bom")), "demais", 2);
+        suggest.setUserBigramDictionary(null);
+
         // tempo por tecla digitando frases do teste
-        if (a.length > 1) {
+        if (a.length > 1 && !a[1].equals("-")) {
             Pattern word = Pattern.compile("[\\p{L}]+(?:['-][\\p{L}]+)*");
             List<String> lines = new ArrayList<String>();
             BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(a[1]), "UTF-8"));

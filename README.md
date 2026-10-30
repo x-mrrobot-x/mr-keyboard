@@ -16,6 +16,7 @@ Requires Android 8.0 or later.
   - **Attachments:** photos, videos and files, inserted into the app you are typing in;
   - **Emotes.**
 - **Word suggestions** (Brazilian Portuguese for now; English is planned):
+  - the dictionary is downloaded in *Settings → Dictionaries*, so the app itself is only about 1 MB;
   - typo correction and next-word prediction;
   - learns the words you use, never in password or incognito fields;
   - everything runs on the device;
@@ -38,11 +39,12 @@ The command is sent as a broadcast that other apps can also receive, so don't pu
 - What you type stays on your device. Suggestions, corrections and learned words are processed and stored only on the phone. There are no ads, no analytics and no Google Play Services.
 - The app uses the internet only when you ask it to:
   - **Translate** sends the text you type in the translate field to Google Translate (`translate.googleapis.com`). Only that text is sent, and only when you use it.
-  - **Dictionary downloads** (in development) will only download files, and only when you tap *Download*.
+  - **Dictionaries** (*Settings → Dictionaries*): the app only connects when you tap *Check for updates*, *Download* or *Update*, and it only downloads files from this repository's [releases](../../releases/tag/dicionarios). Every file is checked against a list signed with the app's own key before it is used.
 
 | Permission | Why |
 |---|---|
-| Internet | Translate (and, later, dictionary downloads) |
+| Internet | Translate and dictionary downloads |
+| Network state | Check that you are on Wi-Fi before downloading a dictionary |
 | Notifications | Optional permanent notification to bring up the keyboard |
 | Storage / All files access | Attachments: list and send your photos, videos and files |
 | User dictionary | Read and add words to Android's personal dictionary |
@@ -53,6 +55,7 @@ The command is sent as a broadcast that other apps can also receive, so don't pu
 2. Open **Mr Keyboard** and tap **Enable keyboard**. Turn on Mr Keyboard in the list and accept the system warning. Android shows that warning for every keyboard that doesn't come with the phone.
 3. Tap **Set input method** and choose Mr Keyboard.
 4. Optional: tap **Input languages** to pick layouts. Slide the space bar sideways to switch between them.
+5. For word suggestions: in the settings, open **Dictionaries**, download your language, then turn on **Show suggestions**.
 
 ## Building
 This repository holds the app as an [apktool](https://apktool.org/) project (smali code and resources). It also has:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gera assets/mr_trigrams.bin: as palavras mais prováveis depois de DUAS palavras (trigramas),
+"""Gera o trigrams.bin do pacote de dicionário (dicts/<id>/; antes da 1.63, assets/mr_trigrams.bin): as palavras mais prováveis depois de DUAS palavras (trigramas),
 lidas em Java por MrTrigram (a lib nativa só guarda pares).
 
 Uso:

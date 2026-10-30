@@ -1,0 +1,5 @@
+package android.preference;
+
+public class PreferenceCategory extends PreferenceGroup {
+    public PreferenceCategory(android.content.Context context) { super(context); }
+}

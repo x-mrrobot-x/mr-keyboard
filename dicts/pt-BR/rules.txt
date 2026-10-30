@@ -4,9 +4,10 @@
 # Nas seções de letras, tudo em minúsculas e sem acento, exceto o ç.
 
 [sentence_start]
-# Sugestões no começo da frase, antes de digitar (até 3, da mais provável para a menos).
-Você
+# Sugestões no começo da frase, antes de digitar (até 3, da mais provável para a menos;
+# a primeira fica no centro da faixa).
 Eu
+Você
 Não
 
 [corrections]
@@ -272,9 +273,11 @@ c = xc
 [silent]
 # Letra do dicionário que pode faltar no que foi digitado, depois da letra indicada
 # (^ = começo da palavra): "omem" -> homem, "qero" -> quero, "trabalo" -> trabalho.
+# Terceira coluna opcional: o custo (padrão 30 no começo e 45 depois de outra letra;
+# 25 é o custo de uma tecla vizinha, 60 o de uma letra que falta sem regra).
 ^ h
-q u
-g u
+q u 40
+g u 40
 c h
 l h
 n h

@@ -85,8 +85,8 @@ def read_pack(dicts, pid):
     files = m["files"]
     if not files or len(set(files)) != len(files):
         fail("%s: lista files vazia ou repetida" % pid)
-    if not any(n.endswith(".dict") for n in files):
-        fail("%s: o pacote precisa de um arquivo .dict" % pid)
+    if "main.dict" not in files:
+        fail("%s: o pacote precisa do main.dict (o app procura esse nome)" % pid)
     out = []
     for name in files:
         if not NAME_RE.match(name) or name == "pack.json":
