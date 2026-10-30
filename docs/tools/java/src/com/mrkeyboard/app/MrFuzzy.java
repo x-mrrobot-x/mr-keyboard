@@ -25,6 +25,13 @@ import java.util.Arrays;
 public final class MrFuzzy {
     // custos (x100)
     static final int C_PROX = 25;
+    // v1.66: tecla vizinha pela distância do toque (os vizinhos vêm em ordem de distância do
+    // ProximityKeyDetector): a mais perto custa o mesmo de antes; as mais longe, mais
+    static final int C_PROX_1 = 25;
+    static final int C_PROX_2 = 30;
+    static final int C_PROX_FAR = 35;
+    // v1.66: a 1ª letra da palavra não foi digitada ("lso" -> also, "ersonas" -> personas)
+    static final int C_DEL_FIRST = 35;
     static final int C_PHON = 25;
     static final int C_VOWEL = 45;
     static final int C_SUB = 75;
@@ -96,6 +103,11 @@ public final class MrFuzzy {
 
     /** Correção barata da última consulta, para reservar um espaço na faixa (finish). */
     static final int RESERVE_MAX_COST = 45;
+
+    /** v1.66: vizinhos de cada toque da última palavra, em ordem de distância (para finish). */
+    private static String sTouchTyped;
+    private static final char[][] sTouchNear = new char[MAX_TYPED][12];
+    private static final int[] sTouchCount = new int[MAX_TYPED];
     private static String sReserveTyped;
     private static String sReserveWord;
 
@@ -137,6 +149,7 @@ public final class MrFuzzy {
             if (n < 2 || n > MAX_TYPED) return;
             CharSequence typed = composer.getTypedWord();
             if (typed == null) return;
+            rememberTouches(composer, typed, n);
             String fix = MrFix.lookup(typed);
             if (fix != null) {
                 char[] c = fix.toCharArray();
@@ -159,6 +172,25 @@ public final class MrFuzzy {
         } catch (RuntimeException e) {
             // nunca derrubar a digitação por causa da camada de reserva
         }
+    }
+
+    /** Guarda os vizinhos de cada toque (codes[1..], já em ordem de distância do toque). */
+    private static void rememberTouches(WordComposer composer, CharSequence typed, int n) {
+        sTouchTyped = null;
+        for (int j = 0; j < n; j++) {
+            int[] codes = composer.getCodesAt(j);
+            int cnt = 0;
+            if (codes != null) {
+                char t = MrText.base(typed.charAt(j));
+                for (int k = 1; k < codes.length && cnt < sTouchNear[j].length; k++) {
+                    if (codes[k] <= 0) break;
+                    char b = MrText.base(codes[k]);
+                    if (b != t) sTouchNear[j][cnt++] = b;
+                }
+            }
+            sTouchCount[j] = cnt;
+        }
+        sTouchTyped = typed.toString();
     }
 
     // ------------------------------------------------------------------ fim da lista (Suggest)
@@ -211,6 +243,12 @@ public final class MrFuzzy {
                     return true;
                 }
             }
+            // v1.66: a mesma palavra só com maiúscula ("ds" -> DS, "cade" -> Cade) não fica em 1º
+            // quando a 2ª opção é uma tecla vizinha do toque ("ds" -> de)
+            demoteCaseVariant(list, typed);
+            // v1.66: duas palavras que trocam a mesma letra digitada: na frente a da tecla mais
+            // perto do toque ("feve": deve antes de teve se o dedo caiu mais perto do d)
+            touchOrder(list, typed);
             if (haveCorrection && list.size() >= 2) {
                 haveCorrection = confident(typed, list.get(1).toString());
             }
@@ -220,13 +258,73 @@ public final class MrFuzzy {
         return haveCorrection;
     }
 
+    /** c é a digitada (sem acento) só com maiúsculas a mais: "DS" para "ds", "Cade" para "cade". */
+    static boolean isCaseVariant(String c, String typed) {
+        if (c.length() != typed.length() || c.equals(typed)) return false;
+        if (!typed.equals(typed.toLowerCase())) return false;
+        if (c.equals(c.toLowerCase())) return false;
+        return baseString(c).equals(baseString(typed));
+    }
+
+    static void demoteCaseVariant(java.util.List<CharSequence> list, String typed) {
+        if (list.size() < 3 || !typed.equals(sTouchTyped)) return;
+        if (!isCaseVariant(list.get(1).toString(), typed)) return;
+        String b = list.get(2).toString();
+        int i = oneSubAt(typed, b);
+        if (i >= 0 && touchRank(i, b.charAt(i)) >= 0) list.add(1, list.remove(2));
+    }
+
+    /** Posição da única letra (sem acento/caixa) em que w difere da digitada, ou -1. */
+    private static int oneSubAt(String typed, String w) {
+        if (w.length() != typed.length()) return -1;
+        int at = -1;
+        for (int i = 0; i < w.length(); i++) {
+            if (MrText.base(w.charAt(i)) != MrText.base(typed.charAt(i))) {
+                if (at >= 0) return -1;
+                at = i;
+            }
+        }
+        return at;
+    }
+
+    private static int touchRank(int j, char c) {
+        if (j >= MAX_TYPED) return -1;
+        char b = MrText.base(c);
+        for (int k = 0; k < sTouchCount[j]; k++) if (sTouchNear[j][k] == b) return k;
+        return -1;
+    }
+
+    static void touchOrder(java.util.List<CharSequence> list, String typed) {
+        if (list.size() < 3 || !typed.equals(sTouchTyped)) return;
+        String a = list.get(1).toString(), b = list.get(2).toString();
+        int i = oneSubAt(typed, a);
+        if (i < 0 || oneSubAt(typed, b) != i) return;
+        int ra = touchRank(i, a.charAt(i)), rb = touchRank(i, b.charAt(i));
+        if (rb >= 0 && (ra < 0 || rb < ra)) list.add(1, list.remove(2));
+    }
+
     static boolean confident(String typed, String best) {
         String fix = MrFix.lookup(typed);
         if (fix != null && fix.equalsIgnoreCase(best)) return true;
         if (best.indexOf(' ') >= 0) return false;
         String a = baseString(typed), b = baseString(best);
         int allowed = a.length() <= 5 ? 1 : 2;
-        return distance(a, b, allowed) <= allowed;
+        if (distance(a, b, allowed) <= allowed) return true;
+        // v1.66: mesmo tamanho e cada letra trocada é uma das 2 teclas mais perto do toque: vale
+        // meio erro ("logaf" -> ligar, "tragafp" -> tratado). Não vale para nome próprio ou sigla
+        // quando a digitada está em minúsculas.
+        if (a.length() == b.length() && typed.equals(sTouchTyped)
+                && !(typed.equals(typed.toLowerCase()) && !best.equals(best.toLowerCase()))) {
+            int half = 0;
+            for (int i = 0; i < a.length(); i++) {
+                if (a.charAt(i) == b.charAt(i)) continue;
+                int r = touchRank(i, b.charAt(i));
+                if (r < 0 || r > 1) return false;
+                half++;
+            }
+            return half <= 2 * allowed;
+        }
+        return false;
     }
 
     private static String baseString(String s) {
@@ -313,6 +411,14 @@ public final class MrFuzzy {
         if (!prefix || n >= 4) {
             setMaxCost(prefix && n == 4 ? 40 : n <= 3 ? 45 : n == 4 ? 60 : 75);
             walkRoot();
+            if (!prefix && mVisits <= NODE_BUDGET) {
+                // v1.66: a 1ª letra ficou de fora; só a letra que faltou e, em palavra longa,
+                // mais um erro barato
+                setMaxCost(C_DEL_FIRST + (n >= 6 ? 30 : 0));
+                mOnlyTyped = 3;
+                walk(mRoot, 0, 0, (char) 0);
+                mOnlyTyped = 0;
+            }
             if (mResCount == 0 && !prefix && n >= 6) {
                 // 2ª passada: até dois erros, para palavras mais longas
                 setMaxCost(n <= 7 ? 100 : 120);
@@ -462,9 +568,14 @@ public final class MrFuzzy {
             if (++mVisits > NODE_BUDGET) return;
             int cb = c < 256 ? BASE[c] : MrText.base(c);
             if (depth == 0) {
-                if (cb >= 256 || !mFirst[cb]) continue;
-                if (mOnlyTyped == 1 && cb != mTb[0]) continue;
-                if (mOnlyTyped == 2 && cb == mTb[0]) continue;
+                if (cb >= 256) continue;
+                if (mOnlyTyped == 3) {
+                    if (mFirst[cb]) continue;
+                } else {
+                    if (!mFirst[cb]) continue;
+                    if (mOnlyTyped == 1 && cb != mTb[0]) continue;
+                    if (mOnlyTyped == 2 && cb == mTb[0]) continue;
+                }
             }
             char raw = (char) c;
             char rl = c < 256 ? LOWER[c] : Character.toLowerCase(raw);
@@ -498,9 +609,11 @@ public final class MrFuzzy {
             }
             if (hi + 1 <= n) cur[hi + 1] = INF;
             if (hi + 2 <= n) cur[hi + 2] = INF;
+            boolean onlyDel = depth == 0 && mOnlyTyped == 3;
             for (int j = lo; j <= hi; j++) {
                 int tj1 = mTb[j - 1];
-                int best = prev[j - 1] + sub(j - 1, cb);
+                // na passada da 1ª letra que faltou, a raiz só pode ser letra que falta
+                int best = onlyDel ? INF : prev[j - 1] + sub(j - 1, cb);
                 int v = cur[j - 1] + mIns[j - 1];
                 if (v < best) best = v;
                 v = prev[j] + del;
@@ -560,10 +673,21 @@ public final class MrFuzzy {
         return false;
     }
 
+    /** Posição de cb entre os vizinhos do toque j (0 = o mais perto), ou -1. */
+    private int nearRank(int j, char cb) {
+        char[] near = mNear[j];
+        int cnt = mNearCount[j];
+        for (int k = 0; k < cnt; k++) {
+            if (near[k] == cb) return k;
+        }
+        return -1;
+    }
+
     private int subCost(char cb, int j) {
         char t = mTb[j];
         if (cb == t) return 0;
-        if (isNear(j, cb)) return C_PROX;
+        int near = nearRank(j, cb);
+        if (near >= 0) return near == 0 ? C_PROX_1 : near == 1 ? C_PROX_2 : C_PROX_FAR;
         int kind = mR.pair(cb, t);
         if (kind == 1) return C_PHON;
         if (kind == 2) return C_VOWEL;
@@ -583,6 +707,10 @@ public final class MrFuzzy {
     /** Letra do dicionário que não foi digitada. */
     private int delCost(int cb, int pcb, int depth) {
         MrRules r = mR;
+        if (depth == 0 && mOnlyTyped == 3) {
+            int s0 = cb < 256 ? r.silentStart[cb] : 0;
+            return s0 > 0 && s0 < C_DEL_FIRST ? s0 : C_DEL_FIRST;
+        }
         if (depth == 0 && cb < 256 && r.silentStart[cb] > 0) return r.silentStart[cb];
         if (depth > 0 && cb == pcb) return C_DEL_DOUBLE;
         char[] sp = r.silPrev, sc = r.silChar;
