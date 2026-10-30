@@ -55,8 +55,8 @@ public class PacksTest {
         final Configuration conf = new Configuration();
         Res() { conf.locale = new Locale("pt_BR"); }
         public Configuration getConfiguration() { return conf; }
-        public int getIdentifier(String name, String type, String pkg) { return name.equals("mr_dicts_offer") ? 1 : 0; }
-        public String getString(int id) { return id == 1 ? "Baixar dicionário" : null; }
+        public int getIdentifier(String name, String type, String pkg) { return name.equals("mr_dicts_offer") ? 1 : name.equals("mr_tr_notice") ? 2 : 0; }
+        public String getString(int id) { return id == 1 ? "Baixar dicionário" : id == 2 ? "aviso" : null; }
         public String getString(int id, Object... a) { return getString(id); }
     }
 

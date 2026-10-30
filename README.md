@@ -15,7 +15,7 @@ Requires Android 8.0 or later.
   - **Translate:** translate text before sending it;
   - **Attachments:** photos, videos and files, inserted into the app you are typing in;
   - **Emotes.**
-- **Word suggestions** (Brazilian Portuguese for now; English is planned):
+- **Word suggestions** in Brazilian Portuguese and US English (one dictionary per language; the keyboard switches with the input language):
   - the dictionary is downloaded in *Settings → Dictionaries*, so the app itself is only about 1 MB;
   - typo correction and next-word prediction;
   - learns the words you use, never in password or incognito fields;
@@ -38,7 +38,7 @@ The command is sent as a broadcast that other apps can also receive, so don't pu
 ## Privacy
 - What you type stays on your device. Suggestions, corrections and learned words are processed and stored only on the phone. There are no ads, no analytics and no Google Play Services.
 - The app uses the internet only when you ask it to:
-  - **Translate** sends the text you type in the translate field to Google Translate (`translate.googleapis.com`). Only that text is sent, and only when you use it.
+  - **Translate** sends the text you type in the translate field to Google Translate (`translate.googleapis.com`). Only that text is sent, and only when you use it. The field says so ("Type to translate with Google"), and the app shows a notice the first time the panel opens.
   - **Dictionaries** (*Settings → Dictionaries*): the app only connects when you tap *Check for updates*, *Download* or *Update*, and it only downloads files from this repository's [releases](../../releases/tag/dicionarios). Every file is checked against a list signed with the app's own key before it is used.
 
 | Permission | Why |
@@ -83,9 +83,7 @@ apksigner sign --ks your-key.jks --out MrKeyboard.apk aligned.apk
 ## Credits and licenses
 Mr Keyboard is under the [Apache License 2.0](LICENSE).
 - [Hacker's Keyboard](https://github.com/klausw/hackerskeyboard), by Klaus Weidner, and the Android Open Source Project's LatinIME, which Mr Keyboard is based on, are also under the Apache License 2.0.
-- Portuguese dictionary data:
-  - AOSP pt_BR word list (Apache 2.0);
+- Dictionary data (full credits in `dicts/<language>/NOTICE.txt`):
+  - AOSP pt_BR and en_US word lists (Apache 2.0);
   - [Leipzig Corpora Collection](https://wortschatz-leipzig.de/) (CC BY 4.0);
   - [Tatoeba](https://tatoeba.org/) (CC BY 2.0 FR).
-
-  Full credits are in `dicts/pt-BR/NOTICE.txt`.

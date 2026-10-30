@@ -197,6 +197,20 @@ public final class MrFuzzy {
                     list.add(Math.min(2, list.size()), shown);
                 }
             }
+            // uma letra só (v1.64): Suggest não procura palavras para 1 letra, mas o mapa de
+            // correções pode ter entradas de uma letra ("i" -> I, "u" -> you no inglês)
+            if (typed.length() == 1) {
+                String fix = MrFix.lookup(typed);
+                if (fix != null && !fix.equals(typed)) {
+                    String shown = Character.isUpperCase(typed.charAt(0))
+                            ? Character.toUpperCase(fix.charAt(0)) + fix.substring(1) : fix;
+                    for (int i = list.size() - 1; i >= 1; i--) {
+                        if (list.get(i).toString().equals(shown)) list.remove(i);
+                    }
+                    list.add(1, shown);
+                    return true;
+                }
+            }
             if (haveCorrection && list.size() >= 2) {
                 haveCorrection = confident(typed, list.get(1).toString());
             }
@@ -575,6 +589,7 @@ public final class MrFuzzy {
         for (int k = 0; k < sp.length; k++) {
             if (sc[k] == cb && sp[k] == pcb) return r.silCost[k];
         }
+        if (depth > 0 && cb < 256 && r.silentAny[cb] > 0) return r.silentAny[cb];
         return C_DEL;
     }
 

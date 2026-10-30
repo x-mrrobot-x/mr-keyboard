@@ -46,6 +46,8 @@
 
 .field silPrev:[C
 
+.field final silentAny:[S
+
 .field final silentStart:[S
 
 .field starters:[Ljava/lang/String;
@@ -62,14 +64,14 @@
     .locals 1
 
     .prologue
-    .line 30
+    .line 31
     new-instance v0, Lcom/mrkeyboard/app/MrRules;
 
     invoke-direct {v0}, Lcom/mrkeyboard/app/MrRules;-><init>()V
 
     sput-object v0, Lcom/mrkeyboard/app/MrRules;->EMPTY:Lcom/mrkeyboard/app/MrRules;
 
-    .line 31
+    .line 32
     sget-object v0, Lcom/mrkeyboard/app/MrRules;->EMPTY:Lcom/mrkeyboard/app/MrRules;
 
     sput-object v0, Lcom/mrkeyboard/app/MrRules;->sCurrent:Lcom/mrkeyboard/app/MrRules;
@@ -85,29 +87,29 @@
 
     const/4 v1, 0x0
 
-    .line 25
+    .line 26
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 42
+    .line 43
     new-array v0, v1, [Ljava/lang/String;
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRules;->starters:[Ljava/lang/String;
 
-    .line 43
+    .line 44
     new-instance v0, Ljava/util/HashMap;
 
     invoke-direct {v0}, Ljava/util/HashMap;-><init>()V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRules;->corrections:Ljava/util/HashMap;
 
-    .line 45
+    .line 46
     const/high16 v0, 0x10000
 
     new-array v0, v0, [B
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRules;->pairs:[B
 
-    .line 47
+    .line 48
     new-array v0, v1, [C
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRules;->t2a:[C
@@ -120,7 +122,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRules;->t2d:[C
 
-    .line 49
+    .line 50
     new-array v0, v1, [C
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRules;->d2p:[C
@@ -133,12 +135,17 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRules;->d2t:[C
 
-    .line 51
+    .line 52
     new-array v0, v2, [S
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRules;->silentStart:[S
 
-    .line 53
+    .line 54
+    new-array v0, v2, [S
+
+    iput-object v0, p0, Lcom/mrkeyboard/app/MrRules;->silentAny:[S
+
+    .line 56
     new-array v0, v1, [C
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRules;->silPrev:[C
@@ -147,17 +154,17 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRules;->silChar:[C
 
-    .line 54
+    .line 57
     new-array v0, v1, [S
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRules;->silCost:[S
 
-    .line 55
+    .line 58
     new-array v0, v2, [Z
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRules;->extra:[Z
 
-    .line 56
+    .line 59
     new-array v0, v2, [Z
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRules;->oneLetter:[Z
@@ -169,7 +176,7 @@
     .locals 1
 
     .prologue
-    .line 35
+    .line 36
     sget-object v0, Lcom/mrkeyboard/app/MrRules;->sCurrent:Lcom/mrkeyboard/app/MrRules;
 
     return-object v0
@@ -184,7 +191,7 @@
     .end annotation
 
     .prologue
-    .line 63
+    .line 66
     new-instance v3, Ljava/io/BufferedReader;
 
     new-instance v0, Ljava/io/InputStreamReader;
@@ -195,17 +202,17 @@
 
     invoke-direct {v3, v0}, Ljava/io/BufferedReader;-><init>(Ljava/io/Reader;)V
 
-    .line 64
+    .line 67
     new-instance v4, Lcom/mrkeyboard/app/MrRules;
 
     invoke-direct {v4}, Lcom/mrkeyboard/app/MrRules;-><init>()V
 
-    .line 65
+    .line 68
     new-instance v5, Ljava/util/ArrayList;
 
     invoke-direct {v5}, Ljava/util/ArrayList;-><init>()V
 
-    .line 66
+    .line 69
     new-instance v6, Ljava/lang/StringBuilder;
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
@@ -218,18 +225,18 @@
 
     invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 67
+    .line 70
     new-instance v9, Ljava/util/ArrayList;
 
     invoke-direct {v9}, Ljava/util/ArrayList;-><init>()V
 
-    .line 68
+    .line 71
     const-string v1, ""
 
-    .line 70
+    .line 73
     const/4 v0, 0x0
 
-    .line 71
+    .line 74
     :cond_0
     :goto_0
     invoke-virtual {v3}, Ljava/io/BufferedReader;->readLine()Ljava/lang/String;
@@ -238,14 +245,14 @@
 
     if-eqz v2, :cond_1
 
-    .line 72
+    .line 75
     add-int/lit8 v0, v0, 0x1
 
     const/16 v10, 0x4e20
 
     if-le v0, v10, :cond_2
 
-    .line 140
+    .line 145
     :cond_1
     const/4 v0, 0x0
 
@@ -259,14 +266,14 @@
 
     iput-object v0, v4, Lcom/mrkeyboard/app/MrRules;->starters:[Ljava/lang/String;
 
-    .line 141
+    .line 146
     invoke-virtual {v6}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
 
     div-int/lit8 v1, v0, 0x3
 
-    .line 142
+    .line 147
     new-array v0, v1, [C
 
     iput-object v0, v4, Lcom/mrkeyboard/app/MrRules;->t2a:[C
@@ -279,13 +286,13 @@
 
     iput-object v0, v4, Lcom/mrkeyboard/app/MrRules;->t2d:[C
 
-    .line 143
+    .line 148
     const/4 v0, 0x0
 
     :goto_1
-    if-ge v0, v1, :cond_11
+    if-ge v0, v1, :cond_12
 
-    .line 144
+    .line 149
     iget-object v2, v4, Lcom/mrkeyboard/app/MrRules;->t2a:[C
 
     mul-int/lit8 v3, v0, 0x3
@@ -320,12 +327,12 @@
 
     aput-char v3, v2, v0
 
-    .line 143
+    .line 148
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
-    .line 73
+    .line 76
     :cond_2
     const/4 v10, 0x1
 
@@ -353,13 +360,13 @@
 
     move-result-object v2
 
-    .line 74
+    .line 77
     :cond_3
     invoke-virtual {v2}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v10
 
-    .line 75
+    .line 78
     invoke-virtual {v10}, Ljava/lang/String;->length()I
 
     move-result v11
@@ -376,7 +383,7 @@
 
     if-eq v11, v12, :cond_0
 
-    .line 76
+    .line 79
     const/4 v11, 0x0
 
     invoke-virtual {v10, v11}, Ljava/lang/String;->charAt(I)C
@@ -401,7 +408,7 @@
 
     if-ne v11, v12, :cond_4
 
-    .line 77
+    .line 80
     const/4 v1, 0x1
 
     invoke-virtual {v10}, Ljava/lang/String;->length()I
@@ -420,7 +427,7 @@
 
     goto/16 :goto_0
 
-    .line 80
+    .line 83
     :cond_4
     const-string v11, "sentence_start"
 
@@ -430,7 +437,7 @@
 
     if-eqz v11, :cond_5
 
-    .line 81
+    .line 84
     invoke-virtual {v5}, Ljava/util/ArrayList;->size()I
 
     move-result v2
@@ -451,7 +458,7 @@
 
     goto/16 :goto_0
 
-    .line 82
+    .line 85
     :cond_5
     const-string v11, "corrections"
 
@@ -461,17 +468,17 @@
 
     if-eqz v11, :cond_6
 
-    .line 83
+    .line 86
     const/16 v10, 0x9
 
     invoke-virtual {v2, v10}, Ljava/lang/String;->indexOf(I)I
 
     move-result v10
 
-    .line 84
+    .line 87
     if-lez v10, :cond_0
 
-    .line 85
+    .line 88
     const/4 v11, 0x0
 
     invoke-virtual {v2, v11, v10}, Ljava/lang/String;->substring(II)Ljava/lang/String;
@@ -486,7 +493,7 @@
 
     move-result-object v11
 
-    .line 86
+    .line 89
     add-int/lit8 v10, v10, 0x1
 
     invoke-virtual {v2, v10}, Ljava/lang/String;->substring(I)Ljava/lang/String;
@@ -497,7 +504,7 @@
 
     move-result-object v2
 
-    .line 87
+    .line 90
     if-eqz v11, :cond_0
 
     invoke-virtual {v2}, Ljava/lang/String;->length()I
@@ -520,7 +527,7 @@
 
     goto/16 :goto_0
 
-    .line 88
+    .line 91
     :cond_6
     const-string v2, "phonetic"
 
@@ -538,7 +545,7 @@
 
     if-eqz v2, :cond_9
 
-    .line 89
+    .line 92
     :cond_7
     const-string v2, "\\s+"
 
@@ -546,7 +553,7 @@
 
     move-result-object v2
 
-    .line 90
+    .line 93
     array-length v10, v2
 
     const/4 v11, 0x2
@@ -577,7 +584,7 @@
 
     if-ne v10, v11, :cond_0
 
-    .line 91
+    .line 94
     const/4 v10, 0x0
 
     aget-object v10, v2, v10
@@ -606,7 +613,7 @@
 
     move-result v11
 
-    .line 92
+    .line 95
     const/16 v2, 0x100
 
     if-ge v10, v2, :cond_0
@@ -617,7 +624,7 @@
 
     if-eq v10, v11, :cond_0
 
-    .line 93
+    .line 96
     const-string v2, "phonetic"
 
     invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -628,7 +635,7 @@
 
     const/4 v2, 0x1
 
-    .line 94
+    .line 97
     :goto_2
     iget-object v12, v4, Lcom/mrkeyboard/app/MrRules;->pairs:[B
 
@@ -638,7 +645,7 @@
 
     aput-byte v2, v12, v13
 
-    .line 95
+    .line 98
     iget-object v12, v4, Lcom/mrkeyboard/app/MrRules;->pairs:[B
 
     shl-int/lit8 v11, v11, 0x8
@@ -649,13 +656,13 @@
 
     goto/16 :goto_0
 
-    .line 93
+    .line 96
     :cond_8
     const/4 v2, 0x2
 
     goto :goto_2
 
-    .line 96
+    .line 99
     :cond_9
     const-string v2, "groups"
 
@@ -665,17 +672,17 @@
 
     if-eqz v2, :cond_b
 
-    .line 97
+    .line 100
     const/16 v2, 0x3d
 
     invoke-virtual {v10, v2}, Ljava/lang/String;->indexOf(I)I
 
     move-result v2
 
-    .line 98
+    .line 101
     if-lez v2, :cond_0
 
-    .line 99
+    .line 102
     const/4 v11, 0x0
 
     invoke-virtual {v10, v11, v2}, Ljava/lang/String;->substring(II)Ljava/lang/String;
@@ -696,7 +703,7 @@
 
     move-result-object v2
 
-    .line 100
+    .line 103
     invoke-virtual {v11}, Ljava/lang/String;->length()I
 
     move-result v10
@@ -713,7 +720,7 @@
 
     if-ne v10, v12, :cond_a
 
-    .line 101
+    .line 104
     const/4 v10, 0x0
 
     invoke-virtual {v11, v10}, Ljava/lang/String;->charAt(I)C
@@ -744,7 +751,7 @@
 
     const/4 v11, 0x0
 
-    .line 102
+    .line 105
     invoke-virtual {v2, v11}, Ljava/lang/String;->charAt(I)C
 
     move-result v2
@@ -757,7 +764,7 @@
 
     goto/16 :goto_0
 
-    .line 103
+    .line 106
     :cond_a
     invoke-virtual {v11}, Ljava/lang/String;->length()I
 
@@ -775,7 +782,7 @@
 
     if-ne v10, v12, :cond_0
 
-    .line 104
+    .line 107
     const/4 v10, 0x0
 
     invoke-virtual {v2, v10}, Ljava/lang/String;->charAt(I)C
@@ -806,7 +813,7 @@
 
     const/4 v10, 0x0
 
-    .line 105
+    .line 108
     invoke-virtual {v11, v10}, Ljava/lang/String;->charAt(I)C
 
     move-result v10
@@ -819,7 +826,7 @@
 
     goto/16 :goto_0
 
-    .line 107
+    .line 110
     :cond_b
     const-string v2, "silent"
 
@@ -827,16 +834,16 @@
 
     move-result v2
 
-    if-eqz v2, :cond_f
+    if-eqz v2, :cond_10
 
-    .line 108
+    .line 111
     const-string v2, "\\s+"
 
     invoke-virtual {v10, v2}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v10
 
-    .line 109
+    .line 112
     array-length v2, v10
 
     const/4 v11, 0x2
@@ -867,7 +874,7 @@
 
     if-ne v2, v11, :cond_0
 
-    .line 110
+    .line 113
     const/4 v2, 0x1
 
     aget-object v2, v10, v2
@@ -882,12 +889,12 @@
 
     move-result v11
 
-    .line 111
+    .line 114
     const/16 v2, 0x100
 
     if-ge v11, v2, :cond_0
 
-    .line 112
+    .line 115
     const/4 v2, 0x0
 
     aget-object v2, v10, v2
@@ -898,12 +905,12 @@
 
     move-result v12
 
-    .line 113
+    .line 116
     if-eqz v12, :cond_d
 
     const/16 v2, 0x1e
 
-    .line 114
+    .line 117
     :goto_3
     array-length v13, v10
 
@@ -911,7 +918,7 @@
 
     if-lt v13, v14, :cond_c
 
-    .line 116
+    .line 119
     const/4 v2, 0x2
 
     :try_start_0
@@ -923,7 +930,7 @@
 
     move-result v2
 
-    .line 120
+    .line 123
     const/4 v13, 0x1
 
     if-lt v2, v13, :cond_0
@@ -932,11 +939,11 @@
 
     if-gt v2, v13, :cond_0
 
-    .line 122
+    .line 125
     :cond_c
     if-eqz v12, :cond_e
 
-    .line 123
+    .line 126
     iget-object v10, v4, Lcom/mrkeyboard/app/MrRules;->silentStart:[S
 
     int-to-short v2, v2
@@ -945,14 +952,37 @@
 
     goto/16 :goto_0
 
-    .line 113
+    .line 116
     :cond_d
     const/16 v2, 0x2d
 
     goto :goto_3
 
-    .line 125
+    .line 127
     :cond_e
+    const/4 v12, 0x0
+
+    aget-object v12, v10, v12
+
+    const-string v13, "*"
+
+    invoke-virtual {v12, v13}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v12
+
+    if-eqz v12, :cond_f
+
+    .line 128
+    iget-object v10, v4, Lcom/mrkeyboard/app/MrRules;->silentAny:[S
+
+    int-to-short v2, v2
+
+    aput-short v2, v10, v11
+
+    goto/16 :goto_0
+
+    .line 130
+    :cond_f
     const/4 v12, 0x0
 
     aget-object v10, v10, v12
@@ -973,7 +1003,7 @@
 
     invoke-virtual {v10, v11}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 126
+    .line 131
     int-to-short v2, v2
 
     invoke-static {v2}, Ljava/lang/Short;->valueOf(S)Ljava/lang/Short;
@@ -984,58 +1014,15 @@
 
     goto/16 :goto_0
 
-    .line 128
-    :cond_f
+    .line 133
+    :cond_10
     const-string v2, "extra"
 
     invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v2
 
-    if-eqz v2, :cond_10
-
-    .line 129
-    invoke-virtual {v10}, Ljava/lang/String;->length()I
-
-    move-result v2
-
-    const/4 v11, 0x1
-
-    if-ne v2, v11, :cond_0
-
-    .line 130
-    const/4 v2, 0x0
-
-    invoke-virtual {v10, v2}, Ljava/lang/String;->charAt(I)C
-
-    move-result v2
-
-    invoke-static {v2}, Lcom/mrkeyboard/app/MrText;->base(I)C
-
-    move-result v2
-
-    .line 131
-    const/16 v10, 0x100
-
-    if-ge v2, v10, :cond_0
-
-    iget-object v10, v4, Lcom/mrkeyboard/app/MrRules;->extra:[Z
-
-    const/4 v11, 0x1
-
-    aput-boolean v11, v10, v2
-
-    goto/16 :goto_0
-
-    .line 133
-    :cond_10
-    const-string v2, "one_letter_words"
-
-    invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v2
-
-    if-eqz v2, :cond_0
+    if-eqz v2, :cond_11
 
     .line 134
     invoke-virtual {v10}, Ljava/lang/String;->length()I
@@ -1062,6 +1049,49 @@
 
     if-ge v2, v10, :cond_0
 
+    iget-object v10, v4, Lcom/mrkeyboard/app/MrRules;->extra:[Z
+
+    const/4 v11, 0x1
+
+    aput-boolean v11, v10, v2
+
+    goto/16 :goto_0
+
+    .line 138
+    :cond_11
+    const-string v2, "one_letter_words"
+
+    invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_0
+
+    .line 139
+    invoke-virtual {v10}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    const/4 v11, 0x1
+
+    if-ne v2, v11, :cond_0
+
+    .line 140
+    const/4 v2, 0x0
+
+    invoke-virtual {v10, v2}, Ljava/lang/String;->charAt(I)C
+
+    move-result v2
+
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrText;->base(I)C
+
+    move-result v2
+
+    .line 141
+    const/16 v10, 0x100
+
+    if-ge v2, v10, :cond_0
+
     iget-object v10, v4, Lcom/mrkeyboard/app/MrRules;->oneLetter:[Z
 
     const/4 v11, 0x1
@@ -1070,15 +1100,15 @@
 
     goto/16 :goto_0
 
-    .line 146
-    :cond_11
+    .line 151
+    :cond_12
     invoke-virtual {v7}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
 
     div-int/lit8 v1, v0, 0x3
 
-    .line 147
+    .line 152
     new-array v0, v1, [C
 
     iput-object v0, v4, Lcom/mrkeyboard/app/MrRules;->d2p:[C
@@ -1091,13 +1121,13 @@
 
     iput-object v0, v4, Lcom/mrkeyboard/app/MrRules;->d2t:[C
 
-    .line 148
+    .line 153
     const/4 v0, 0x0
 
     :goto_4
-    if-ge v0, v1, :cond_12
+    if-ge v0, v1, :cond_13
 
-    .line 149
+    .line 154
     iget-object v2, v4, Lcom/mrkeyboard/app/MrRules;->d2p:[C
 
     mul-int/lit8 v3, v0, 0x3
@@ -1132,20 +1162,20 @@
 
     aput-char v3, v2, v0
 
-    .line 148
+    .line 153
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_4
 
-    .line 151
-    :cond_12
+    .line 156
+    :cond_13
     invoke-virtual {v8}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
 
     div-int/lit8 v2, v0, 0x2
 
-    .line 152
+    .line 157
     new-array v0, v2, [C
 
     iput-object v0, v4, Lcom/mrkeyboard/app/MrRules;->silPrev:[C
@@ -1158,15 +1188,15 @@
 
     iput-object v0, v4, Lcom/mrkeyboard/app/MrRules;->silCost:[S
 
-    .line 153
+    .line 158
     const/4 v0, 0x0
 
     move v1, v0
 
     :goto_5
-    if-ge v1, v2, :cond_13
+    if-ge v1, v2, :cond_14
 
-    .line 154
+    .line 159
     iget-object v0, v4, Lcom/mrkeyboard/app/MrRules;->silPrev:[C
 
     mul-int/lit8 v3, v1, 0x2
@@ -1203,18 +1233,18 @@
 
     aput-short v0, v3, v1
 
-    .line 153
+    .line 158
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
     goto :goto_5
 
-    .line 156
-    :cond_13
+    .line 161
+    :cond_14
     return-object v4
 
-    .line 117
+    .line 120
     :catch_0
     move-exception v2
 
@@ -1225,16 +1255,16 @@
     .locals 0
 
     .prologue
-    .line 39
+    .line 40
     if-eqz p0, :cond_0
 
     :goto_0
     sput-object p0, Lcom/mrkeyboard/app/MrRules;->sCurrent:Lcom/mrkeyboard/app/MrRules;
 
-    .line 40
+    .line 41
     return-void
 
-    .line 39
+    .line 40
     :cond_0
     sget-object p0, Lcom/mrkeyboard/app/MrRules;->EMPTY:Lcom/mrkeyboard/app/MrRules;
 
@@ -1247,7 +1277,7 @@
     .locals 1
 
     .prologue
-    .line 59
+    .line 62
     sget-object v0, Lcom/mrkeyboard/app/MrRules;->EMPTY:Lcom/mrkeyboard/app/MrRules;
 
     if-ne p0, v0, :cond_0
@@ -1269,7 +1299,7 @@
     .prologue
     const/16 v0, 0x100
 
-    .line 161
+    .line 166
     if-ge p1, v0, :cond_0
 
     if-lt p2, v0, :cond_1
@@ -1277,7 +1307,7 @@
     :cond_0
     const/4 v0, 0x0
 
-    .line 162
+    .line 167
     :goto_0
     return v0
 

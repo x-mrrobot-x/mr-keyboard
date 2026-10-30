@@ -17,7 +17,8 @@ import java.util.HashMap;
  *   [phonetic]         "a b": letras que soam parecido (custo C_PHON)
  *   [vowels]           "a b": vogais que se confundem (custo C_VOWEL)
  *   [groups]           "digitado = dicionário": 2 letras por 1 ou 1 por 2 (custo C_MULTI)
- *   [silent]           "antes letra [custo]": letra do dicionário que pode faltar; ^ = começo
+ *   [silent]           "antes letra [custo]": letra do dicionário que pode faltar; ^ = começo,
+ *                      * = depois de qualquer letra (v1.64)
  *   [extra]            letra que pode sobrar no digitado
  *   [one_letter_words] palavras de uma letra (separar palavras juntas)
  * Seções desconhecidas e linhas que não seguem o formato são ignoradas (pacotes futuros).
@@ -49,6 +50,8 @@ public final class MrRules {
     char[] d2p = new char[0], d2c = new char[0], d2t = new char[0];
     /** custo da letra muda no começo da palavra (0 = não é muda). */
     final short[] silentStart = new short[256];
+    /** custo da letra que pode faltar depois de qualquer outra ("*", v1.64; 0 = não pode). */
+    final short[] silentAny = new short[256];
     // letra muda depois de outra: anterior, letra, custo
     char[] silPrev = new char[0], silChar = new char[0];
     short[] silCost = new short[0];
@@ -121,6 +124,8 @@ public final class MrRules {
                 }
                 if (start) {
                     m.silentStart[letter] = (short) cost;
+                } else if (p[0].equals("*")) {
+                    m.silentAny[letter] = (short) cost;
                 } else {
                     sil.append(MrText.base(p[0].charAt(0))).append(letter);
                     silCosts.add((short) cost);

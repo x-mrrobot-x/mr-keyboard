@@ -15,7 +15,7 @@ Precisa de Android 8.0 ou mais novo.
   - **Traduzir:** traduz o texto antes de enviar;
   - **Anexos:** fotos, vídeos e arquivos, enviados para o app em que você está digitando;
   - **Emotes.**
-- **Sugestões de palavras** (português do Brasil por enquanto; inglês está planejado):
+- **Sugestões de palavras** em português do Brasil e inglês americano (um dicionário por idioma; o teclado troca junto com o idioma de entrada):
   - o dicionário é baixado em *Configurações → Dicionários*, por isso o app em si tem só cerca de 1 MB;
   - correção de erros de digitação e previsão da próxima palavra;
   - aprende as palavras que você usa, nunca em campos de senha ou anônimos;
@@ -38,7 +38,7 @@ O comando vai num broadcast que outros apps também podem receber, então não c
 ## Privacidade
 - O que você digita fica no aparelho. Sugestões, correções e palavras aprendidas são processadas e guardadas só no celular. Não há anúncios, análise de uso nem Google Play Services.
 - O app só usa a internet quando você pede:
-  - **Traduzir** envia ao Google Tradutor (`translate.googleapis.com`) o texto que você digita no campo de tradução. Só esse texto, e só quando você usa.
+  - **Traduzir** envia ao Google Tradutor (`translate.googleapis.com`) o texto que você digita no campo de tradução. Só esse texto, e só quando você usa. O próprio campo avisa ("Digite para traduzir com o Google"), e o app mostra um aviso na primeira vez que o painel abre.
   - **Dicionários** (*Configurações → Dicionários*): o app só se conecta quando você toca em *Procurar atualizações*, *Baixar* ou *Atualizar*, e só baixa arquivos dos [releases](../../releases/tag/dicionarios) deste repositório. Cada arquivo é conferido com uma lista assinada com a chave do próprio app antes de ser usado.
 
 | Permissão | Para quê |
@@ -83,9 +83,7 @@ apksigner sign --ks sua-chave.jks --out MrKeyboard.apk aligned.apk
 ## Créditos e licenças
 O Mr Keyboard está sob a [Apache License 2.0](LICENSE).
 - [Hacker's Keyboard](https://github.com/klausw/hackerskeyboard), de Klaus Weidner, e o LatinIME do Android Open Source Project, em que o Mr Keyboard se baseia, também estão sob a Apache License 2.0.
-- Dados do dicionário em português:
-  - lista pt_BR do AOSP (Apache 2.0);
+- Dados dos dicionários (créditos completos em `dicts/<idioma>/NOTICE.txt`):
+  - listas pt_BR e en_US do AOSP (Apache 2.0);
   - [Leipzig Corpora Collection](https://wortschatz-leipzig.de/) (CC BY 4.0);
   - [Tatoeba](https://tatoeba.org/) (CC BY 2.0 FR).
-
-  Créditos completos em `dicts/pt-BR/NOTICE.txt`.

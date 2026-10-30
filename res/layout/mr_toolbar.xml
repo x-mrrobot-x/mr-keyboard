@@ -196,7 +196,7 @@
             android:layout_marginBottom="5dp"
             android:minHeight="36dp"
             android:singleLine="true"
-            android:hint="Digite aqui para traduzir"
+            android:hint="@string/mr_tr_hint"
             android:inputType="textCapSentences" />
         <TextView
             android:textSize="12sp"

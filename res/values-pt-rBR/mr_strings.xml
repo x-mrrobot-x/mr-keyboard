@@ -85,4 +85,7 @@
     <string name="mr_dicts_err_space">Falta espaço: são precisos %1$s livres.</string>
     <string name="mr_dicts_err_cancel">Download cancelado.</string>
     <string name="mr_dicts_err_io">Não foi possível gravar o dicionário (%1$s).</string>
+    <!-- v1.64: aviso do Traduzir (MrNotice) -->
+    <string name="mr_tr_hint">Digite para traduzir com o Google</string>
+    <string name="mr_tr_notice">O texto deste campo vai para o Google Tradutor. O resto fica no aparelho.</string>
 </resources>

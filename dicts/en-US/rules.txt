@@ -1,0 +1,421 @@
+# Mr Keyboard - language rules: English (US)
+# Format 1. Lines starting with # are comments; empty lines are ignored.
+# Each section starts with [name]. Sections the app does not know are ignored.
+# In the letter sections, everything is lowercase and without accents.
+
+[sentence_start]
+# Suggestions at the start of a sentence, before typing (up to 3, most likely first;
+# the first one goes in the middle of the strip). The most common sentence starters in the
+# Tatoeba English sentences, with "You" instead of "He" (better for messages).
+I
+The
+You
+
+[corrections]
+# typed<TAB>suggestion. "typed" is compared in lowercase and without accents (up to 24 letters).
+# The suggestion becomes the best one in the list; with autocorrect on, it only replaces the
+# word if the typed one is not in the dictionary. Sources: the shortcut/not_a_word entries of
+# the AOSP en_US word list (Apache 2.0) and lists written for Mr Keyboard.
+# contrações sem apóstrofo
+dont	don't
+doesnt	doesn't
+didnt	didn't
+cant	can't
+wont	won't
+isnt	isn't
+arent	aren't
+wasnt	wasn't
+werent	weren't
+havent	haven't
+hasnt	hasn't
+hadnt	hadn't
+wouldnt	wouldn't
+couldnt	couldn't
+shouldnt	shouldn't
+mustnt	mustn't
+neednt	needn't
+im	I'm
+ive	I've
+ill	I'll
+id	I'd
+youre	you're
+youve	you've
+youll	you'll
+youd	you'd
+theyre	they're
+theyve	they've
+theyll	they'll
+theyd	they'd
+weve	we've
+thats	that's
+whats	what's
+wheres	where's
+whos	who's
+hows	how's
+whys	why's
+whens	when's
+theres	there's
+heres	here's
+lets	let's
+shes	she's
+hes	he's
+itll	it'll
+thatll	that'll
+wouldve	would've
+couldve	could've
+shouldve	should've
+mightve	might've
+mustve	must've
+aint	ain't
+yall	y'all
+hed	he'd
+itd	it'd
+thatd	that'd
+howd	how'd
+whatd	what'd
+whered	where'd
+whyd	why'd
+whatre	what're
+howll	how'll
+wholl	who'll
+whove	who've
+whyve	why've
+howve	how've
+wherell	where'll
+whyll	why'll
+maam	ma'am
+il	I'll
+shel	she'll
+wel	we'll
+wer	we're
+shouldent	shouldn't
+didint	didn't
+itsa	it's a
+# abreviações de chat
+i	I
+u	you
+ur	your
+pls	please
+plz	please
+thx	thanks
+thnx	thanks
+ty	thank you
+tho	though
+thru	through
+cuz	because
+coz	because
+bc	because
+idk	I don't know
+imo	in my opinion
+imho	in my humble opinion
+btw	by the way
+tbh	to be honest
+nvm	never mind
+msg	message
+ppl	people
+abt	about
+rn	right now
+asap	ASAP
+bday	birthday
+gf	girlfriend
+bf	boyfriend
+bro	brother
+ofc	of course
+wyd	what are you doing
+hbu	how about you
+smth	something
+sth	something
+prob	probably
+probs	probably
+prolly	probably
+def	definitely
+ttyl	talk to you later
+wat	what
+wut	what
+helo	hello
+brb	be right back
+np	no problem
+yw	you're welcome
+omw	on my way
+irl	in real life
+jk	just kidding
+dm	DM
+pic	picture
+pics	pictures
+wknd	weekend
+tmrw	tomorrow
+tmr	tomorrow
+tmw	tomorrow
+2day	today
+yday	yesterday
+# palavras juntas
+alot	a lot
+aswell	as well
+incase	in case
+infact	in fact
+atleast	at least
+eachother	each other
+thankyou	thank you
+noone	no one
+ofcourse	of course
+inspite	in spite
+everytime	every time
+andteh	and the
+inteh	in the
+unitedstates	United States
+visavis	vis-a-vis
+# erros comuns
+teh	the
+adn	and
+uf	if
+un	in
+mot	not
+bern	been
+wierd	weird
+recieve	receive
+recieved	received
+beleive	believe
+belive	believe
+definately	definitely
+definatly	definitely
+seperate	separate
+seperately	separately
+occured	occurred
+occurence	occurrence
+untill	until
+wich	which
+becuase	because
+beacuse	because
+becasue	because
+becuz	because
+tommorow	tomorrow
+tomorow	tomorrow
+tommorrow	tomorrow
+acomodate	accommodate
+accomodate	accommodate
+acheive	achieve
+adress	address
+arguement	argument
+begining	beginning
+calender	calendar
+cemetary	cemetery
+collegue	colleague
+comming	coming
+commitee	committee
+concious	conscious
+embarass	embarrass
+enviroment	environment
+existance	existence
+familar	familiar
+finaly	finally
+foriegn	foreign
+freind	friend
+freinds	friends
+goverment	government
+grammer	grammar
+happend	happened
+harrass	harass
+immediatly	immediately
+independant	independent
+knowlege	knowledge
+liason	liaison
+libary	library
+lisence	license
+maintainance	maintenance
+millenium	millennium
+mispell	misspell
+neccessary	necessary
+necesary	necessary
+noticable	noticeable
+occassion	occasion
+persistant	persistent
+posession	possession
+prefered	preferred
+publically	publicly
+realy	really
+recomend	recommend
+recommed	recommend
+refered	referred
+relevent	relevant
+religous	religious
+resistence	resistance
+responsability	responsibility
+rythm	rhythm
+sieze	seize
+succesful	successful
+sucessful	successful
+supercede	supersede
+suprise	surprise
+suprised	surprised
+tatoo	tattoo
+threshhold	threshold
+truely	truly
+writting	writing
+thier	their
+peice	piece
+probly	probably
+differnt	different
+diffrent	different
+basicly	basically
+beautifull	beautiful
+beatiful	beautiful
+buisness	business
+busness	business
+carribean	Caribbean
+charachter	character
+completly	completely
+curiousity	curiosity
+decieve	deceive
+dissapoint	disappoint
+dissapointed	disappointed
+excercise	exercise
+exellent	excellent
+experiance	experience
+fourty	forty
+gaurd	guard
+gaurantee	guarantee
+guarentee	guarantee
+hieght	height
+humourous	humorous
+ignorence	ignorance
+interupt	interrupt
+irrelevent	irrelevant
+jewlery	jewelry
+lenght	length
+mischevious	mischievous
+naturaly	naturally
+neice	niece
+nieghbor	neighbor
+occuring	occurring
+paralell	parallel
+parliment	parliament
+pavillion	pavilion
+percieve	perceive
+playwrite	playwright
+posible	possible
+potatoe	potato
+preceed	precede
+presance	presence
+privelege	privilege
+priviledge	privilege
+pronounciation	pronunciation
+questionaire	questionnaire
+reccomend	recommend
+recieving	receiving
+rediculous	ridiculous
+refrence	reference
+remeber	remember
+rember	remember
+restaraunt	restaurant
+resturant	restaurant
+sargent	sergeant
+scedule	schedule
+sentance	sentence
+sincerly	sincerely
+speach	speech
+stregth	strength
+strenght	strength
+tendancy	tendency
+thouroughly	thoroughly
+tounge	tongue
+tyrany	tyranny
+vaccuum	vacuum
+vegtable	vegetable
+vehical	vehicle
+visable	visible
+whereever	wherever
+youself	yourself
+yourslef	yourself
+beggining	beginning
+bizzare	bizarre
+cauhgt	caught
+cheif	chief
+comittee	committee
+enought	enough
+figth	fight
+freindly	friendly
+helpfull	helpful
+hopefuly	hopefully
+intresting	interesting
+knwo	know
+konw	know
+nkow	know
+ahve	have
+hte	the
+thsi	this
+tihs	this
+taht	that
+waht	what
+wnat	want
+whta	what
+wiht	with
+wtih	with
+jsut	just
+juts	just
+becaue	because
+beause	because
+somthing	something
+someting	something
+anyting	anything
+nothign	nothing
+everythign	everything
+thign	thing
+thnig	thing
+htis	this
+fo	of
+ot	to
+nad	and
+tha	the
+
+[phonetic]
+# Letters that sound alike: replacing one with the other is cheap (both directions).
+c k
+c s
+s z
+k q
+g j
+i y
+
+[vowels]
+# Vowels that get mixed up (unstressed vowels, "seperate", "definately").
+a e
+a i
+e i
+o u
+
+[groups]
+# typed = in the dictionary: two letters for one, or one for two.
+f = ph
+k = ck
+c = ck
+ks = x
+
+[silent]
+# Dictionary letter that may be missing from what was typed, after the given letter
+# (^ = start of the word): "nife" -> knife, "rite" -> write, "wat" -> what, "thum" -> thumb.
+# * = after any letter (needs Mr Keyboard 1.64; older versions ignore these lines): vowels
+# that get dropped when typing fast ("wnt" -> want, "frst" -> first).
+# Optional third column: the cost (default 30 at the start and 45 after another letter;
+# 25 is the cost of a neighboring key, 60 the cost of a missing letter with no rule).
+^ k
+^ w
+^ h
+w h
+g h
+c h
+r h
+m b
+g u
+b u
+s c
+v e
+* a 45
+* e 45
+* i 45
+* o 45
+* u 45
+
+[one_letter_words]
+# One-letter words, used to split two words typed together.
+a
+i

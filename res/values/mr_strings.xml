@@ -85,4 +85,7 @@
     <string name="mr_dicts_err_space">Not enough storage: %1$s free are needed.</string>
     <string name="mr_dicts_err_cancel">Download canceled.</string>
     <string name="mr_dicts_err_io">Could not save the dictionary (%1$s).</string>
+    <!-- v1.64: aviso do Traduzir (MrNotice) -->
+    <string name="mr_tr_hint">Type to translate with Google</string>
+    <string name="mr_tr_notice">Text in this field goes to Google Translate. The rest stays on your device.</string>
 </resources>

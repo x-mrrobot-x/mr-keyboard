@@ -1374,6 +1374,11 @@
 .method private static enterTranslate()V
     .locals 3
 
+    # Mr Keyboard v1.64: na primeira vez, avisa que o texto deste campo vai para o Google Tradutor
+    sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrNotice;->translate(Landroid/content/Context;)V
+
     # Se o painel "Personalizar teclado" estiver aberto, fecha para voltar a mostrar o teclado.
     invoke-static {}, Lcom/mrkeyboard/app/MrTune;->close()V
 
