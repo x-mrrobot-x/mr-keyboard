@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" xmlns:hk="http://schemas.android.com/apk/res-auto" android:title="@string/pref_screen_actions_title" android:key="prefs_actions">
+  <PreferenceCategory android:title="@string/title_sheet_category" android:key="sheet_actions" android:icon="@drawable/mr_ui_ic_grid_blue">
+    <PreferenceScreen android:title="@string/pref_screen_sheets_title" android:summary="@string/mr_ui_sheets_summary">
+      <intent android:action="com.mrkeyboard.app.PREFS_SHEETS"/>
+    </PreferenceScreen>
+    <CheckBoxPreference android:persistent="true" android:title="@string/title_sheet_return" android:key="pref_sheet_return" android:defaultValue="true" android:summaryOn="@string/summary_sheet_return_true" android:summaryOff="@string/summary_sheet_return_false"/>
+  </PreferenceCategory>
+  <PreferenceCategory android:title="@string/title_swipe_gestures" android:key="swipe_actions" android:icon="@drawable/mr_ui_ic_swipe_amber">
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/swipe_action_entries" android:title="@string/title_swipe_up" android:key="pref_swipe_up" android:defaultValue="@string/default_swipe_up" android:entryValues="@array/swipe_action_values"/>
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/swipe_action_entries" android:title="@string/title_swipe_down" android:key="pref_swipe_down" android:defaultValue="@string/default_swipe_down" android:entryValues="@array/swipe_action_values"/>
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/swipe_action_entries" android:title="@string/title_swipe_left" android:key="pref_swipe_left" android:defaultValue="@string/default_swipe_left" android:entryValues="@array/swipe_action_values"/>
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/swipe_action_entries" android:title="@string/title_swipe_right" android:key="pref_swipe_right" android:defaultValue="@string/default_swipe_right" android:entryValues="@array/swipe_action_values"/>
+  </PreferenceCategory>
+  <PreferenceCategory android:title="@string/title_hardware_key_actions" android:key="key_actions" android:icon="@drawable/mr_ui_ic_keycap_blue">
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/swipe_action_entries" android:title="@string/title_vol_up" android:key="pref_vol_up" android:defaultValue="@string/default_vol_up" android:entryValues="@array/swipe_action_values"/>
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/swipe_action_entries" android:title="@string/title_vol_down" android:key="pref_vol_down" android:defaultValue="@string/default_vol_down" android:entryValues="@array/swipe_action_values"/>
+  </PreferenceCategory>
+</PreferenceScreen>

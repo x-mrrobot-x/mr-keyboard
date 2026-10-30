@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/mr_ui_mint_soft" />
+            <stroke android:width="1dp" android:color="@color/mr_ui_mint_line" />
+            <corners android:radius="11dp" />
+        </shape>
+    </item>
+    <item android:left="7dp" android:top="7dp" android:right="7dp" android:bottom="7dp">
+        <vector android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+            <path android:pathData="M12,3.5 a8.5,8.5 0 1 0 0,17 a8.5,8.5 0 1 0 0,-17 z M12,3.5 c-3.2,2.6 -3.2,14.4 0,17 M12,3.5 c3.2,2.6 3.2,14.4 0,17 M3.5,12 h17" android:fillColor="#00000000" android:strokeColor="@color/mr_ui_mint" android:strokeWidth="1.8" android:strokeLineCap="round" android:strokeLineJoin="round" />
+        </vector>
+    </item>
+</layer-list>

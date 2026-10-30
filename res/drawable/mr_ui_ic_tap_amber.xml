@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/mr_ui_amber_soft" />
+            <stroke android:width="1dp" android:color="@color/mr_ui_amber_line" />
+            <corners android:radius="11dp" />
+        </shape>
+    </item>
+    <item android:left="7dp" android:top="7dp" android:right="7dp" android:bottom="7dp">
+        <vector android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+            <path android:pathData="M7,4 L7,17.5 L10.6,14.4 L13.2,20 L15.6,18.9 L13,13.4 L17.8,13.2 Z" android:fillColor="@color/mr_ui_amber" />
+        </vector>
+    </item>
+</layer-list>

@@ -1,0 +1,122 @@
+# Mr Keyboard: compila a lib nativa com o NDK (3 arquiteturas), testa no PC e monta o APK.
+#
+# O repositório é a pasta do projeto apktool (apktool.yml, smali/, res/, lib/, native/, docs/).
+# Resultado em Actions > (execução) > Artifacts:
+#   libs-nativas  -> lib/<abi>/libjni_pckeyboard.so (copie para a pasta lib/ do projeto)
+#   apk           -> MrKeyboard-unsigned.apk (e MrKeyboard-signed.apk se houver chave nos secrets)
+#
+# Assinatura (opcional): Settings > Secrets and variables > Actions
+#   KEYSTORE_B64 (keystore em base64), KEYSTORE_PASS, KEY_ALIAS, KEY_PASS
+# Use a MESMA chave que assina o app hoje; com outra chave o Android não instala por cima.
+name: Mr Keyboard - nativo e APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'native/**'
+      - 'smali/**'
+      - 'res/**'
+      - 'apktool.yml'
+      - '.github/workflows/mr-native.yml'
+
+env:
+  NDK_VERSION: 27.2.12479018
+  APKTOOL_VERSION: 2.11.1
+
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: NDK (usa o do runner ou instala pelo sdkmanager)
+        id: ndk
+        run: |
+          NDK="$ANDROID_HOME/ndk/$NDK_VERSION"
+          if [ ! -d "$NDK" ]; then
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;$NDK_VERSION" > /dev/null
+          fi
+          test -f "$NDK/build/cmake/android.toolchain.cmake"
+          echo "dir=$NDK" >> "$GITHUB_OUTPUT"
+
+      - name: Compilar para arm64-v8a, armeabi-v7a e x86
+        run: |
+          NDK="${{ steps.ndk.outputs.dir }}"
+          for abi in arm64-v8a armeabi-v7a x86; do
+            cmake -S native -B "build/$abi" \
+              -DCMAKE_TOOLCHAIN_FILE="$NDK/build/cmake/android.toolchain.cmake" \
+              -DANDROID_ABI="$abi" -DANDROID_PLATFORM=android-26 -DCMAKE_BUILD_TYPE=Release
+            cmake --build "build/$abi" -j4
+            mkdir -p "out/lib/$abi"
+            cp "build/$abi/libjni_pckeyboard.so" "out/lib/$abi/"
+          done
+          ls -l out/lib/*/
+
+      - name: Conferir (alinhamento de 16 KB, registro das funções JNI)
+        run: |
+          RE="${{ steps.ndk.outputs.dir }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
+          for so in out/lib/*/libjni_pckeyboard.so; do
+            echo "== $so"
+            "$RE" -lW "$so" | grep LOAD
+            "$RE" -lW "$so" | grep LOAD | awk '{ if ($NF != "0x4000") { print "alinhamento errado: " $NF; exit 1 } }'
+            "$RE" --dyn-syms "$so" | grep -q JNI_OnLoad
+            strings "$so" | grep -q "com/mrkeyboard/app/BinaryDictionary"
+          done
+
+      - name: Teste no PC com o mesmo código (dicionário do projeto)
+        run: |
+          cmake -S native -B build/host -DCMAKE_BUILD_TYPE=Release -DMR_HOST_TEST=ON
+          cmake --build build/host -j4
+          ./build/host/dict_test res/raw/main_pt.dict native/test/amostra_palavras.tsv \
+              native/test/amostra_bigramas.tsv native/test/casos.tsv 5 | grep -v "^OK\|^FALHA"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libs-nativas
+          path: out/lib
+
+  apk:
+    needs: native
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: libs-nativas
+          path: lib
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Montar o APK com o apktool
+        run: |
+          curl -sSL -o apktool.jar \
+            "https://github.com/iBotPeaches/Apktool/releases/download/v$APKTOOL_VERSION/apktool_$APKTOOL_VERSION.jar"
+          java -jar apktool.jar b . -o MrKeyboard-unsigned.apk
+          unzip -lv MrKeyboard-unsigned.apk | grep -E "lib/|main_pt.dict"
+
+      - name: Assinar (só se os secrets existirem)
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+          KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.KEY_PASS }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then echo "sem chave: só o APK sem assinatura"; exit 0; fi
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          echo "$KEYSTORE_B64" | base64 -d > key.jks
+          "$BT/zipalign" -p -f 4 MrKeyboard-unsigned.apk aligned.apk
+          "$BT/apksigner" sign --ks key.jks --ks-pass env:KEYSTORE_PASS --ks-key-alias "$KEY_ALIAS" \
+            --key-pass env:KEY_PASS --out MrKeyboard-signed.apk aligned.apk
+          "$BT/apksigner" verify MrKeyboard-signed.apk
+          rm -f key.jks
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: MrKeyboard-*.apk

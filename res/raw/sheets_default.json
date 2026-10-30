@@ -1,0 +1,1525 @@
+{
+  "version": 1,
+  "sheets": [
+    {
+      "id": "symbols",
+      "name": "Símbolos",
+      "badge": "123",
+      "builtin": true,
+      "rows": [
+        {
+          "keys": [
+            {
+              "label": "`",
+              "type": "text",
+              "value": "`",
+              "width": 1.0
+            },
+            {
+              "label": "``",
+              "type": "text",
+              "value": "``",
+              "width": 1.0
+            },
+            {
+              "label": "()",
+              "type": "text",
+              "value": "()",
+              "width": 1.0
+            },
+            {
+              "label": "{}",
+              "type": "text",
+              "value": "{}",
+              "width": 1.0
+            },
+            {
+              "label": "[]",
+              "type": "text",
+              "value": "[]",
+              "width": 1.0
+            },
+            {
+              "label": "<>",
+              "type": "text",
+              "value": "<>",
+              "width": 1.0
+            },
+            {
+              "label": "</>",
+              "type": "text",
+              "value": "</>",
+              "width": 1.0
+            },
+            {
+              "label": "${}",
+              "type": "text",
+              "value": "${}",
+              "width": 1.0
+            },
+            {
+              "label": "=\"\"",
+              "type": "text",
+              "value": "=\"\"",
+              "width": 1.0
+            },
+            {
+              "label": "={}",
+              "type": "text",
+              "value": "={}",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "'",
+              "type": "text",
+              "value": "'",
+              "width": 1.0
+            },
+            {
+              "label": "''",
+              "type": "text",
+              "value": "''",
+              "width": 1.0
+            },
+            {
+              "label": "if",
+              "type": "text",
+              "value": "if",
+              "width": 1.0
+            },
+            {
+              "label": "else",
+              "type": "text",
+              "value": "else",
+              "width": 1.0
+            },
+            {
+              "label": "of",
+              "type": "text",
+              "value": "of",
+              "width": 1.0
+            },
+            {
+              "label": "in",
+              "type": "text",
+              "value": "in",
+              "width": 1.0
+            },
+            {
+              "label": "map",
+              "type": "text",
+              "value": "map",
+              "width": 1.0
+            },
+            {
+              "label": ":wq",
+              "type": "text",
+              "value": ":wq",
+              "width": 1.0
+            },
+            {
+              "label": "<",
+              "type": "text",
+              "value": "<",
+              "width": 1.0
+            },
+            {
+              "label": ">",
+              "type": "text",
+              "value": ">",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "\"",
+              "type": "text",
+              "value": "\"",
+              "width": 1.0
+            },
+            {
+              "label": "\"\"",
+              "type": "text",
+              "value": "\"\"",
+              "width": 1.0
+            },
+            {
+              "label": "&&",
+              "type": "text",
+              "value": "&&",
+              "width": 1.0
+            },
+            {
+              "label": "||",
+              "type": "text",
+              "value": "||",
+              "width": 1.0
+            },
+            {
+              "label": "===",
+              "type": "text",
+              "value": "===",
+              "width": 1.0
+            },
+            {
+              "label": "==",
+              "type": "text",
+              "value": "==",
+              "width": 1.0
+            },
+            {
+              "label": "!=",
+              "type": "text",
+              "value": "!=",
+              "width": 1.0
+            },
+            {
+              "label": "!==",
+              "type": "text",
+              "value": "!==",
+              "width": 1.0
+            },
+            {
+              "label": "{",
+              "type": "text",
+              "value": "{",
+              "width": 1.0
+            },
+            {
+              "label": "}",
+              "type": "text",
+              "value": "}",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "++",
+              "type": "text",
+              "value": "++",
+              "width": 1.0
+            },
+            {
+              "label": "--",
+              "type": "text",
+              "value": "--",
+              "width": 1.0
+            },
+            {
+              "label": "+=",
+              "type": "text",
+              "value": "+=",
+              "width": 1.0
+            },
+            {
+              "label": "-=",
+              "type": "text",
+              "value": "-=",
+              "width": 1.0
+            },
+            {
+              "label": "=>",
+              "type": "text",
+              "value": "=>",
+              "width": 1.0
+            },
+            {
+              "label": "~",
+              "type": "text",
+              "value": "~",
+              "width": 1.0
+            },
+            {
+              "label": "=",
+              "type": "text",
+              "value": "=",
+              "width": 1.0
+            },
+            {
+              "label": "^",
+              "type": "text",
+              "value": "^",
+              "width": 1.0
+            },
+            {
+              "label": "[",
+              "type": "text",
+              "value": "[",
+              "width": 1.0
+            },
+            {
+              "label": "]",
+              "type": "text",
+              "value": "]",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "#",
+              "type": "text",
+              "value": "#",
+              "width": 1.0
+            },
+            {
+              "label": "$",
+              "type": "text",
+              "value": "$",
+              "width": 1.0
+            },
+            {
+              "label": "%",
+              "type": "text",
+              "value": "%",
+              "width": 1.0
+            },
+            {
+              "label": "&",
+              "type": "text",
+              "value": "&",
+              "width": 1.0
+            },
+            {
+              "label": "_",
+              "type": "text",
+              "value": "_",
+              "width": 1.0
+            },
+            {
+              "label": "*",
+              "type": "text",
+              "value": "*",
+              "width": 1.0
+            },
+            {
+              "label": "-",
+              "type": "text",
+              "value": "-",
+              "width": 1.0
+            },
+            {
+              "label": "+",
+              "type": "text",
+              "value": "+",
+              "width": 1.0
+            },
+            {
+              "label": "(",
+              "type": "text",
+              "value": "(",
+              "width": 1.0
+            },
+            {
+              "label": ")",
+              "type": "text",
+              "value": ")",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "@",
+              "type": "text",
+              "value": "@",
+              "width": 1.0
+            },
+            {
+              "label": "\\",
+              "type": "text",
+              "value": "\\",
+              "width": 1.0
+            },
+            {
+              "label": "|",
+              "type": "text",
+              "value": "|",
+              "width": 1.0
+            },
+            {
+              "label": "/",
+              "type": "text",
+              "value": "/",
+              "width": 1.0
+            },
+            {
+              "label": ":",
+              "type": "text",
+              "value": ":",
+              "width": 1.0
+            },
+            {
+              "label": ";",
+              "type": "text",
+              "value": ";",
+              "width": 1.0
+            },
+            {
+              "label": "!",
+              "type": "text",
+              "value": "!",
+              "width": 1.0
+            },
+            {
+              "label": "?",
+              "type": "text",
+              "value": "?",
+              "width": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tasker",
+      "name": "Tasker",
+      "badge": "TSK",
+      "builtin": true,
+      "rows": [
+        {
+          "keys": [
+            {
+              "label": "Wi-Fi",
+              "type": "tasker",
+              "value": "wifi",
+              "width": 1.0
+            },
+            {
+              "label": "BT",
+              "type": "tasker",
+              "value": "bluetooth",
+              "width": 1.0
+            },
+            {
+              "label": "Dados",
+              "type": "tasker",
+              "value": "mobile_data",
+              "width": 1.0
+            },
+            {
+              "label": "Lant",
+              "type": "tasker",
+              "value": "flashlight",
+              "width": 1.0
+            },
+            {
+              "label": "DND",
+              "type": "tasker",
+              "value": "dnd",
+              "width": 1.0
+            },
+            {
+              "label": "Avião",
+              "type": "tasker",
+              "value": "airplane",
+              "width": 1.0
+            },
+            {
+              "label": "GPS",
+              "type": "tasker",
+              "value": "location",
+              "width": 1.0
+            },
+            {
+              "label": "Rota",
+              "type": "tasker",
+              "value": "autorotate",
+              "width": 1.0
+            },
+            {
+              "label": "Hotsp",
+              "type": "tasker",
+              "value": "hotspot",
+              "width": 1.0
+            },
+            {
+              "label": "Som",
+              "type": "tasker",
+              "value": "ringer",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "%WIN",
+              "type": "text",
+              "value": "%WIN",
+              "width": 1.0
+            },
+            {
+              "label": "%SIG",
+              "type": "text",
+              "value": "%SIG",
+              "width": 1.0
+            },
+            {
+              "label": "%SMSRF",
+              "type": "text",
+              "value": "%SMSRF",
+              "width": 1.0
+            },
+            {
+              "label": "%SMSRB",
+              "type": "text",
+              "value": "%SMSRB",
+              "width": 1.0
+            },
+            {
+              "label": "%SMSRN",
+              "type": "text",
+              "value": "%SMSRN",
+              "width": 1.0
+            },
+            {
+              "label": "%MFREE",
+              "type": "text",
+              "value": "%MFREE",
+              "width": 1.0
+            },
+            {
+              "label": "%AIRPLANE",
+              "type": "text",
+              "value": "%AIRPLANE",
+              "width": 1.0
+            },
+            {
+              "label": "%BLUE",
+              "type": "text",
+              "value": "%BLUE",
+              "width": 1.0
+            },
+            {
+              "label": "%TNET",
+              "type": "text",
+              "value": "%TNET",
+              "width": 1.0
+            },
+            {
+              "label": "%UIMODE",
+              "type": "text",
+              "value": "%UIMODE",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "%par1",
+              "type": "text",
+              "value": "%par1",
+              "width": 1.0
+            },
+            {
+              "label": "%par2",
+              "type": "text",
+              "value": "%par2",
+              "width": 1.0
+            },
+            {
+              "label": "%cllr1",
+              "type": "text",
+              "value": "%caller1",
+              "width": 1.0
+            },
+            {
+              "label": "%evt1",
+              "type": "text",
+              "value": "%evtprm1",
+              "width": 1.0
+            },
+            {
+              "label": "%evt2",
+              "type": "text",
+              "value": "%evtprm2",
+              "width": 1.0
+            },
+            {
+              "label": "%err",
+              "type": "text",
+              "value": "%err",
+              "width": 1.0
+            },
+            {
+              "label": "%emsg",
+              "type": "text",
+              "value": "%errmsg",
+              "width": 1.0
+            },
+            {
+              "label": "%hdata",
+              "type": "text",
+              "value": "%http_data",
+              "width": 1.0
+            },
+            {
+              "label": "%hcode",
+              "type": "text",
+              "value": "%http_response_code",
+              "width": 1.0
+            },
+            {
+              "label": "%hhead",
+              "type": "text",
+              "value": "%http_headers",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "%a()",
+              "type": "text",
+              "value": "%arr()",
+              "width": 1.0
+            },
+            {
+              "label": "%a(#)",
+              "type": "text",
+              "value": "%arr(#)",
+              "width": 1.0
+            },
+            {
+              "label": "%a(1)",
+              "type": "text",
+              "value": "%arr(1)",
+              "width": 1.0
+            },
+            {
+              "label": "%a(%i)",
+              "type": "text",
+              "value": "%arr(%i)",
+              "width": 1.0
+            },
+            {
+              "label": "%i+1",
+              "type": "text",
+              "value": "%i + 1",
+              "width": 1.0
+            },
+            {
+              "label": ".*",
+              "type": "text",
+              "value": ".*",
+              "width": 1.0
+            },
+            {
+              "label": "(.*)",
+              "type": "text",
+              "value": "(.*)",
+              "width": 1.0
+            },
+            {
+              "label": "\\d+",
+              "type": "text",
+              "value": "\\d+",
+              "width": 1.0
+            },
+            {
+              "label": "\\s*",
+              "type": "text",
+              "value": "\\s*",
+              "width": 1.0
+            },
+            {
+              "label": "[^,]+",
+              "type": "text",
+              "value": "[^,]+",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "flash",
+              "type": "text",
+              "value": "flash(txt);",
+              "width": 1.0
+            },
+            {
+              "label": "global",
+              "type": "text",
+              "value": "global(name)",
+              "width": 1.0
+            },
+            {
+              "label": "setGl",
+              "type": "text",
+              "value": "setGlobal(name, val);",
+              "width": 1.0
+            },
+            {
+              "label": "local",
+              "type": "text",
+              "value": "local(name)",
+              "width": 1.0
+            },
+            {
+              "label": "setLc",
+              "type": "text",
+              "value": "setLocal(name, val);",
+              "width": 1.0
+            },
+            {
+              "label": "perfT",
+              "type": "text",
+              "value": "performTask(name, 10);",
+              "width": 1.0
+            },
+            {
+              "label": "shell",
+              "type": "text",
+              "value": "shell(cmd, true, 10)",
+              "width": 1.0
+            },
+            {
+              "label": "setClp",
+              "type": "text",
+              "value": "setClip(txt, false);",
+              "width": 1.0
+            },
+            {
+              "label": "exit",
+              "type": "text",
+              "value": "exit();",
+              "width": 1.0
+            },
+            {
+              "label": "var",
+              "type": "text",
+              "value": "var x = ;",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "%",
+              "type": "text",
+              "value": "%",
+              "width": 1.0
+            },
+            {
+              "label": "(",
+              "type": "text",
+              "value": "(",
+              "width": 1.0
+            },
+            {
+              "label": ")",
+              "type": "text",
+              "value": ")",
+              "width": 1.0
+            },
+            {
+              "label": ",",
+              "type": "text",
+              "value": ",",
+              "width": 1.0
+            },
+            {
+              "label": ";",
+              "type": "text",
+              "value": ";",
+              "width": 1.0
+            },
+            {
+              "label": ".",
+              "type": "text",
+              "value": ".",
+              "width": 1.0
+            },
+            {
+              "label": "=",
+              "type": "text",
+              "value": "=",
+              "width": 1.0
+            },
+            {
+              "label": "_",
+              "type": "text",
+              "value": "_",
+              "width": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "html",
+      "name": "HTML",
+      "badge": "HTML",
+      "builtin": true,
+      "rows": [
+        {
+          "keys": [
+            {
+              "label": "<div>",
+              "type": "text",
+              "value": "<div></div>",
+              "width": 1.0
+            },
+            {
+              "label": "<span>",
+              "type": "text",
+              "value": "<span></span>",
+              "width": 1.0
+            },
+            {
+              "label": "<p>",
+              "type": "text",
+              "value": "<p></p>",
+              "width": 1.0
+            },
+            {
+              "label": "<a>",
+              "type": "text",
+              "value": "<a href=\"\"></a>",
+              "width": 1.0
+            },
+            {
+              "label": "<img>",
+              "type": "text",
+              "value": "<img src=\"\" alt=\"\">",
+              "width": 1.0
+            },
+            {
+              "label": "<ul>",
+              "type": "text",
+              "value": "<ul></ul>",
+              "width": 1.0
+            },
+            {
+              "label": "<li>",
+              "type": "text",
+              "value": "<li></li>",
+              "width": 1.0
+            },
+            {
+              "label": "<br>",
+              "type": "text",
+              "value": "<br>",
+              "width": 1.0
+            },
+            {
+              "label": "<hr>",
+              "type": "text",
+              "value": "<hr>",
+              "width": 1.0
+            },
+            {
+              "label": "<btn>",
+              "type": "text",
+              "value": "<button></button>",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "<h1>",
+              "type": "text",
+              "value": "<h1></h1>",
+              "width": 1.0
+            },
+            {
+              "label": "<h2>",
+              "type": "text",
+              "value": "<h2></h2>",
+              "width": 1.0
+            },
+            {
+              "label": "<h3>",
+              "type": "text",
+              "value": "<h3></h3>",
+              "width": 1.0
+            },
+            {
+              "label": "<b>",
+              "type": "text",
+              "value": "<b></b>",
+              "width": 1.0
+            },
+            {
+              "label": "<i>",
+              "type": "text",
+              "value": "<i></i>",
+              "width": 1.0
+            },
+            {
+              "label": "<form>",
+              "type": "text",
+              "value": "<form></form>",
+              "width": 1.0
+            },
+            {
+              "label": "<inp>",
+              "type": "text",
+              "value": "<input type=\"text\" name=\"\">",
+              "width": 1.0
+            },
+            {
+              "label": "<lbl>",
+              "type": "text",
+              "value": "<label></label>",
+              "width": 1.0
+            },
+            {
+              "label": "<tbl>",
+              "type": "text",
+              "value": "<table></table>",
+              "width": 1.0
+            },
+            {
+              "label": "<tr>",
+              "type": "text",
+              "value": "<tr></tr>",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "<td>",
+              "type": "text",
+              "value": "<td></td>",
+              "width": 1.0
+            },
+            {
+              "label": "<th>",
+              "type": "text",
+              "value": "<th></th>",
+              "width": 1.0
+            },
+            {
+              "label": "<sel>",
+              "type": "text",
+              "value": "<select></select>",
+              "width": 1.0
+            },
+            {
+              "label": "<opt>",
+              "type": "text",
+              "value": "<option></option>",
+              "width": 1.0
+            },
+            {
+              "label": "<txta>",
+              "type": "text",
+              "value": "<textarea></textarea>",
+              "width": 1.0
+            },
+            {
+              "label": "<nav>",
+              "type": "text",
+              "value": "<nav></nav>",
+              "width": 1.0
+            },
+            {
+              "label": "<hdr>",
+              "type": "text",
+              "value": "<header></header>",
+              "width": 1.0
+            },
+            {
+              "label": "<ftr>",
+              "type": "text",
+              "value": "<footer></footer>",
+              "width": 1.0
+            },
+            {
+              "label": "<sect>",
+              "type": "text",
+              "value": "<section></section>",
+              "width": 1.0
+            },
+            {
+              "label": "<main>",
+              "type": "text",
+              "value": "<main></main>",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "doctyp",
+              "type": "text",
+              "value": "<!DOCTYPE html>",
+              "width": 1.0
+            },
+            {
+              "label": "<html>",
+              "type": "text",
+              "value": "<html lang=\"pt-BR\">",
+              "width": 1.0
+            },
+            {
+              "label": "<head>",
+              "type": "text",
+              "value": "<head>",
+              "width": 1.0
+            },
+            {
+              "label": "<meta>",
+              "type": "text",
+              "value": "<meta charset=\"UTF-8\">",
+              "width": 1.0
+            },
+            {
+              "label": "viewp",
+              "type": "text",
+              "value": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+              "width": 1.0
+            },
+            {
+              "label": "<titl>",
+              "type": "text",
+              "value": "<title></title>",
+              "width": 1.0
+            },
+            {
+              "label": "<link>",
+              "type": "text",
+              "value": "<link rel=\"stylesheet\" href=\"\">",
+              "width": 1.0
+            },
+            {
+              "label": "<scrpt>",
+              "type": "text",
+              "value": "<script src=\"\"></script>",
+              "width": 1.0
+            },
+            {
+              "label": "<styl>",
+              "type": "text",
+              "value": "<style></style>",
+              "width": 1.0
+            },
+            {
+              "label": "<body>",
+              "type": "text",
+              "value": "<body>",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "class",
+              "type": "text",
+              "value": "class=\"\"",
+              "width": 1.0
+            },
+            {
+              "label": "id",
+              "type": "text",
+              "value": "id=\"\"",
+              "width": 1.0
+            },
+            {
+              "label": "style",
+              "type": "text",
+              "value": "style=\"\"",
+              "width": 1.0
+            },
+            {
+              "label": "href",
+              "type": "text",
+              "value": "href=\"\"",
+              "width": 1.0
+            },
+            {
+              "label": "src",
+              "type": "text",
+              "value": "src=\"\"",
+              "width": 1.0
+            },
+            {
+              "label": "alt",
+              "type": "text",
+              "value": "alt=\"\"",
+              "width": 1.0
+            },
+            {
+              "label": "type",
+              "type": "text",
+              "value": "type=\"\"",
+              "width": 1.0
+            },
+            {
+              "label": "name",
+              "type": "text",
+              "value": "name=\"\"",
+              "width": 1.0
+            },
+            {
+              "label": "value",
+              "type": "text",
+              "value": "value=\"\"",
+              "width": 1.0
+            },
+            {
+              "label": "onclk",
+              "type": "text",
+              "value": "onclick=\"\"",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "&nbsp;",
+              "type": "text",
+              "value": "&nbsp;",
+              "width": 1.0
+            },
+            {
+              "label": "&lt;",
+              "type": "text",
+              "value": "&lt;",
+              "width": 1.0
+            },
+            {
+              "label": "&gt;",
+              "type": "text",
+              "value": "&gt;",
+              "width": 1.0
+            },
+            {
+              "label": "&amp;",
+              "type": "text",
+              "value": "&amp;",
+              "width": 1.0
+            },
+            {
+              "label": "<!-->",
+              "type": "text",
+              "value": "<!--  -->",
+              "width": 1.0
+            },
+            {
+              "label": "</",
+              "type": "text",
+              "value": "</",
+              "width": 1.0
+            },
+            {
+              "label": "/>",
+              "type": "text",
+              "value": "/>",
+              "width": 1.0
+            },
+            {
+              "label": "=",
+              "type": "text",
+              "value": "=",
+              "width": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "frases",
+      "name": "Frases rápidas",
+      "badge": "FRS",
+      "builtin": true,
+      "rows": [
+        {
+          "keys": [
+            {
+              "label": "bdia",
+              "type": "text",
+              "value": "Bom dia!",
+              "width": 1.0
+            },
+            {
+              "label": "btard",
+              "type": "text",
+              "value": "Boa tarde!",
+              "width": 1.0
+            },
+            {
+              "label": "bnoit",
+              "type": "text",
+              "value": "Boa noite!",
+              "width": 1.0
+            },
+            {
+              "label": "oi",
+              "type": "text",
+              "value": "Oi, tudo bem?",
+              "width": 1.0
+            },
+            {
+              "label": "eae",
+              "type": "text",
+              "value": "E aí, tranquilo?",
+              "width": 1.0
+            },
+            {
+              "label": "cmv",
+              "type": "text",
+              "value": "Como c tah?",
+              "width": 1.0
+            },
+            {
+              "label": "tdb",
+              "type": "text",
+              "value": "Tudo bem?",
+              "width": 1.0
+            },
+            {
+              "label": "tranq",
+              "type": "text",
+              "value": "Tranquilo?",
+              "width": 1.0
+            },
+            {
+              "label": "tdbm",
+              "type": "text",
+              "value": "Tudo bem sim, e você?",
+              "width": 1.0
+            },
+            {
+              "label": "sdd",
+              "type": "text",
+              "value": "Quanto tempo! Saudade!",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "blz",
+              "type": "text",
+              "value": "Beleza!",
+              "width": 1.0
+            },
+            {
+              "label": "vlw",
+              "type": "text",
+              "value": "Valeu!",
+              "width": 1.0
+            },
+            {
+              "label": "obg",
+              "type": "text",
+              "value": "Obrigado!",
+              "width": 1.0
+            },
+            {
+              "label": "dnd",
+              "type": "text",
+              "value": "De nada!",
+              "width": 1.0
+            },
+            {
+              "label": "tmj",
+              "type": "text",
+              "value": "Tamo junto!",
+              "width": 1.0
+            },
+            {
+              "label": "sim",
+              "type": "text",
+              "value": "Sim, claro!",
+              "width": 1.0
+            },
+            {
+              "label": "nao",
+              "type": "text",
+              "value": "Não, obrigado.",
+              "width": 1.0
+            },
+            {
+              "label": "talvz",
+              "type": "text",
+              "value": "Talvez, vou ver e te aviso.",
+              "width": 1.0
+            },
+            {
+              "label": "ok",
+              "type": "text",
+              "value": "Ok, combinado!",
+              "width": 1.0
+            },
+            {
+              "label": "fmz",
+              "type": "text",
+              "value": "Fechado!",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "agr",
+              "type": "text",
+              "value": "Agora não posso, te falo depois.",
+              "width": 1.0
+            },
+            {
+              "label": "jaja",
+              "type": "text",
+              "value": "Já já eu te respondo.",
+              "width": 1.0
+            },
+            {
+              "label": "caminh",
+              "type": "text",
+              "value": "Já estou a caminho!",
+              "width": 1.0
+            },
+            {
+              "label": "cheg",
+              "type": "text",
+              "value": "Cheguei!",
+              "width": 1.0
+            },
+            {
+              "label": "ptz",
+              "type": "text",
+              "value": "Pode ser!",
+              "width": 1.0
+            },
+            {
+              "label": "qhr",
+              "type": "text",
+              "value": "Que horas fica bom pra você?",
+              "width": 1.0
+            },
+            {
+              "label": "hj",
+              "type": "text",
+              "value": "Hoje não vai dar, desculpa.",
+              "width": 1.0
+            },
+            {
+              "label": "amh",
+              "type": "text",
+              "value": "Amanhã a gente vê isso.",
+              "width": 1.0
+            },
+            {
+              "label": "vdd",
+              "type": "text",
+              "value": "É verdade!",
+              "width": 1.0
+            },
+            {
+              "label": "kkk",
+              "type": "text",
+              "value": "kkkkkkk",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "oq",
+              "type": "text",
+              "value": "O que você acha?",
+              "width": 1.0
+            },
+            {
+              "label": "qmv",
+              "type": "text",
+              "value": "Quem vai?",
+              "width": 1.0
+            },
+            {
+              "label": "ond",
+              "type": "text",
+              "value": "Onde você está?",
+              "width": 1.0
+            },
+            {
+              "label": "qdo",
+              "type": "text",
+              "value": "Quando você pode?",
+              "width": 1.0
+            },
+            {
+              "label": "pq",
+              "type": "text",
+              "value": "Por quê?",
+              "width": 1.0
+            },
+            {
+              "label": "cmo",
+              "type": "text",
+              "value": "Como assim?",
+              "width": 1.0
+            },
+            {
+              "label": "ent",
+              "type": "text",
+              "value": "Entendi!",
+              "width": 1.0
+            },
+            {
+              "label": "nent",
+              "type": "text",
+              "value": "Não entendi, pode explicar?",
+              "width": 1.0
+            },
+            {
+              "label": "lig",
+              "type": "text",
+              "value": "Pode me ligar?",
+              "width": 1.0
+            },
+            {
+              "label": "tmp",
+              "type": "text",
+              "value": "Tem um minuto?",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "dsc",
+              "type": "text",
+              "value": "Desculpa a demora!",
+              "width": 1.0
+            },
+            {
+              "label": "psm",
+              "type": "text",
+              "value": "Pode deixar comigo!",
+              "width": 1.0
+            },
+            {
+              "label": "tbm",
+              "type": "text",
+              "value": "Também!",
+              "width": 1.0
+            },
+            {
+              "label": "cuid",
+              "type": "text",
+              "value": "Se cuida!",
+              "width": 1.0
+            },
+            {
+              "label": "abç",
+              "type": "text",
+              "value": "Um abraço!",
+              "width": 1.0
+            },
+            {
+              "label": "bjs",
+              "type": "text",
+              "value": "Beijos!",
+              "width": 1.0
+            },
+            {
+              "label": "bfds",
+              "type": "text",
+              "value": "Bom fim de semana!",
+              "width": 1.0
+            },
+            {
+              "label": "bsem",
+              "type": "text",
+              "value": "Boa semana!",
+              "width": 1.0
+            },
+            {
+              "label": "pbns",
+              "type": "text",
+              "value": "Parabéns!",
+              "width": 1.0
+            },
+            {
+              "label": "fa",
+              "type": "text",
+              "value": "Feliz aniversário!",
+              "width": 1.0
+            }
+          ]
+        },
+        {
+          "keys": [
+            {
+              "label": "dnv",
+              "type": "text",
+              "value": "De novo?",
+              "width": 1.0
+            },
+            {
+              "label": "ctz",
+              "type": "text",
+              "value": "Com certeza!",
+              "width": 1.0
+            },
+            {
+              "label": "tlg",
+              "type": "text",
+              "value": "Tô ligado!",
+              "width": 1.0
+            },
+            {
+              "label": "nd",
+              "type": "text",
+              "value": "Nada demais.",
+              "width": 1.0
+            },
+            {
+              "label": "rs",
+              "type": "text",
+              "value": "rsrs",
+              "width": 1.0
+            },
+            {
+              "label": "msm",
+              "type": "text",
+              "value": "Mesma coisa!",
+              "width": 1.0
+            },
+            {
+              "label": "sdds",
+              "type": "text",
+              "value": "Saudades!",
+              "width": 1.0
+            },
+            {
+              "label": "flw",
+              "type": "text",
+              "value": "Falou, até mais!",
+              "width": 1.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

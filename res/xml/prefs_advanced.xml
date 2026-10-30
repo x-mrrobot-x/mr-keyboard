@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" xmlns:hk="http://schemas.android.com/apk/res-auto" android:title="@string/pref_screen_advanced_title" android:key="prefs_advanced">
+  <PreferenceCategory android:title="@string/mr_ui_cat_keys" android:key="key_settings" android:summary="@string/mr_ui_cat_keys_sum" android:icon="@drawable/mr_ui_ic_keycap_blue">
+    <CheckBoxPreference android:persistent="true" android:title="@string/title_caps_lock" android:key="pref_caps_lock" android:defaultValue="@bool/default_caps_lock" android:summaryOn="@string/summary_caps_lock_true" android:summaryOff="@string/summary_caps_lock_false"/>
+    <CheckBoxPreference android:persistent="true" android:title="@string/title_shift_lock_modifiers" android:key="pref_shift_lock_modifiers" android:defaultValue="@bool/default_shift_lock_modifiers" android:summaryOn="@string/summary_shift_lock_modifiers_true" android:summaryOff="@string/summary_shift_lock_modifiers_false"/>
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/ctrl_a_override_entries" android:title="@string/title_ctrl_a_override" android:key="pref_ctrl_a_override" android:defaultValue="@string/default_ctrl_a_override" android:entryValues="@array/ctrl_a_override_values"/>
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/chording_ctrl_key_entries" android:title="@string/title_chording_ctrl_key" android:key="pref_chording_ctrl_key" android:defaultValue="@string/default_chording_ctrl_key" android:entryValues="@array/chording_ctrl_key_values"/>
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/chording_alt_key_entries" android:title="@string/title_chording_alt_key" android:key="pref_chording_alt_key" android:defaultValue="@string/default_chording_alt_key" android:entryValues="@array/chording_alt_key_values"/>
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/chording_meta_key_entries" android:title="@string/title_chording_meta_key" android:key="pref_chording_meta_key" android:defaultValue="@string/default_chording_meta_key" android:entryValues="@array/chording_meta_key_values"/>
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/slide_keys_entries" android:title="@string/title_slide_keys" android:key="pref_slide_keys_int" android:defaultValue="0" android:entryValues="@array/slide_keys_values"/>
+  </PreferenceCategory>
+  <PreferenceCategory android:title="@string/mr_ui_cat_input" android:key="input_mode_settings" android:summary="@string/mr_ui_cat_input_sum" android:icon="@drawable/mr_ui_ic_monitor_violet">
+    <CheckBoxPreference android:persistent="true" android:title="@string/title_fullscreen_override" android:key="fullscreen_override" android:defaultValue="@bool/default_fullscreen_override" android:summaryOn="@string/summary_fullscreen_override_true" android:summaryOff="@string/summary_fullscreen_override_false"/>
+    <CheckBoxPreference android:persistent="true" android:title="@string/title_force_keyboard_on" android:key="force_keyboard_on" android:defaultValue="@bool/default_force_keyboard_on" android:summaryOn="@string/summary_force_keyboard_on_true" android:summaryOff="@string/summary_force_keyboard_on_false"/>
+  </PreferenceCategory>
+  <PreferenceCategory android:title="@string/mr_ui_cat_apps" android:key="application_settings" android:icon="@drawable/mr_ui_ic_grid_mint">
+    <CheckBoxPreference android:persistent="true" android:title="@string/title_connectbot_tab_hack" android:key="connectbot_tab_hack" android:defaultValue="true" android:summaryOn="@string/summary_connectbot_tab_hack_true" android:summaryOff="@string/summary_connectbot_tab_hack_false"/>
+  </PreferenceCategory>
+  <PreferenceCategory android:title="@string/mr_ui_cat_debug" android:key="debug_advanced" android:icon="@drawable/mr_ui_ic_terminal_rose">
+    <CheckBoxPreference android:persistent="true" android:title="@string/title_touch_pos" android:key="pref_touch_pos" android:defaultValue="false" android:summaryOn="@string/summary_touch_pos_true" android:summaryOff="@string/summary_touch_pos_false"/>
+  </PreferenceCategory>
+</PreferenceScreen>

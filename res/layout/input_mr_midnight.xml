@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.mrkeyboard.app.LatinKeyboardView
+    android:textStyle="bold"
+    android:id="@id/LatinkeyboardBaseView"
+    android:background="@color/mr_midnight_kbd_bg"
+    android:tag="mr_midnight"
+    android:paddingBottom="@dimen/keyboard_bottom_padding"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    latin:keyBackground="@drawable/btn_keyboard_key_midnight"
+    latin:keyCursorColor="@color/mr_text_primary"
+    latin:keyHintColor="#ff8d95a0"
+    latin:keyTextColor="@color/mr_text_primary"
+    latin:keyTextStyle="bold"
+    latin:popupLayout="@layout/input_popup_slate"
+    latin:recolorSymbols="true"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:latin="http://schemas.android.com/apk/res-auto" />

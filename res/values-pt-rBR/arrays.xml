@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="chording_alt_key_entries">
+        <item>Nenhuma (ignorada quando não modifica outras teclas)</item>
+        <item>Alt esquerdo</item>
+        <item>Alt direito</item>
+    </string-array>
+    <string-array name="chording_ctrl_key_entries">
+        <item>Nenhuma (ignorada quando não modifica outras teclas)</item>
+        <item>Ctrl esquerdo</item>
+        <item>Ctrl direito</item>
+    </string-array>
+    <string-array name="chording_meta_key_entries">
+        <item>Nenhuma (ignorada quando não modifica outras teclas)</item>
+        <item>Meta esquerdo</item>
+        <item>Meta direito</item>
+    </string-array>
+    <string-array name="click_method_entries">
+        <item>Padrão do sistema (ignorar volume do clique)</item>
+        <item>Volume absoluto do clique</item>
+        <item>Seguir o volume de mídia</item>
+        <item>Inverter o volume de mídia</item>
+    </string-array>
+    <string-array name="ctrl_a_override_entries">
+        <item>Desativar Ctrl-A, usar Ctrl-Alt-A</item>
+        <item>Desativar Ctrl-A completamente</item>
+        <item>Usar Ctrl-A (sem substituição)</item>
+    </string-array>
+    <string-array name="hint_modes">
+        <item>Ocultar rótulos de dica</item>
+        <item>Mostrar pontuação ASCII</item>
+        <item>Mostrar todos os rótulos de dica</item>
+    </string-array>
+    <string-array name="keyboard_mode_entries">
+        <item>Padrão (atalhos + Ctrl/Alt)</item>
+        <item>Compacto (QWERTY)</item>
+        <item>Completo (linha F1–F12)</item>
+    </string-array>
+    <string-array name="popup_content_entries">
+        <item>Sem pop-ups</item>
+        <item>Sem pop-ups, usar repetição automática</item>
+        <item>Somente únicos: 3 ⇒ ³, e ⇒ é</item>
+        <item>Incluir com Shift: 3 ⇒ #³, e ⇒ é</item>
+        <item>Incluir maiúscula: 3 ⇒ #³, e ⇒ Eé</item>
+        <item>Incluir a própria tecla: 3 ⇒ 3#³, e ⇒ eEé</item>
+    </string-array>
+    <string-array name="render_mode_entries">
+        <item>Desenho direto (economiza memória)</item>
+        <item>Com buffer por software (padrão)</item>
+        <item>Acelerado por hardware (experimental)</item>
+    </string-array>
+    <string-array name="slide_keys_entries">
+        <item>Ignorar teclas durante o movimento de deslizar (recomendado)</item>
+        <item>Enviar a primeira tecla tocada</item>
+        <item>Enviar a última tecla tocada</item>
+        <item>Enviar a primeira e a última tecla</item>
+        <item>Enviar todas as teclas tocadas durante o movimento de deslizar</item>
+    </string-array>
+    <string-array name="swipe_action_entries">
+        <item>(nenhuma ação)</item>
+        <item>Fechar teclado</item>
+        <item>Alternar linha de extensão</item>
+        <item>Abrir configurações</item>
+        <item>Alternar sugestões</item>
+        <item>Entrada de voz</item>
+        <item>Alternar layout do teclado</item>
+        <item>Aumentar altura</item>
+        <item>Diminuir altura</item>
+        <item>Idioma anterior</item>
+        <item>Próximo idioma</item>
+        <item>Próxima folha</item>
+        <item>Folha anterior</item>
+    </string-array>
+    <string-array name="voice_input_modes">
+        <item>No teclado principal</item>
+        <item>No teclado de símbolos</item>
+        <item>Desativada</item>
+    </string-array>
+    <string-array name="voice_input_modes_summary">
+        <item>Microfone no teclado principal</item>
+        <item>Microfone no teclado de símbolos</item>
+        <item>A entrada de voz está desativada</item>
+    </string-array>
+</resources>

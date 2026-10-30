@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="asPercent" format="boolean" />
+    <attr name="backgroundAlpha" format="integer" />
+    <attr name="backgroundDimAmount" format="float" />
+    <attr name="capsLabel" format="string" />
+    <attr name="codes" format="string|integer" />
+    <attr name="displayFormat" format="string" />
+    <attr name="extension" format="boolean" />
+    <attr name="horizontalGap" format="dimension|fraction" />
+    <attr name="horizontalPad" format="dimension|fraction" />
+    <attr name="iconPreview" format="reference" />
+    <attr name="invertSymbols" format="boolean" />
+    <attr name="isCursor" format="boolean" />
+    <attr name="isModifier" format="boolean" />
+    <attr name="isRepeatable" format="boolean" />
+    <attr name="isSticky" format="boolean" />
+    <attr name="keyBackground" format="reference" />
+    <attr name="keyCursorColor" format="color" />
+    <attr name="keyEdgeFlags">
+        <flag name="left" value="0x00000001" />
+        <flag name="right" value="0x00000002" />
+    </attr>
+    <attr name="keyHeight" format="dimension|fraction" />
+    <attr name="keyHintColor" format="color" />
+    <attr name="keyHysteresisDistance" format="dimension" />
+    <attr name="keyIcon" format="reference" />
+    <attr name="keyLabel" format="string" />
+    <attr name="keyOutputText" format="string" />
+    <attr name="keyPreviewHeight" format="dimension" />
+    <attr name="keyPreviewLayout" format="reference" />
+    <attr name="keyPreviewOffset" format="dimension" />
+    <attr name="keyTextColor" format="color" />
+    <attr name="keyTextSize" format="dimension" />
+    <attr name="keyTextStyle">
+        <flag name="bold" value="0x00000001" />
+        <flag name="italic" value="0x00000002" />
+        <flag name="normal" value="0x00000000" />
+    </attr>
+    <attr name="keyWidth" format="dimension|fraction" />
+    <attr name="keyboardMode" format="reference" />
+    <attr name="keyboardViewStyle" format="reference" />
+    <attr name="labelTextSize" format="dimension" />
+    <attr name="layoutColumns" format="integer" />
+    <attr name="layoutRows" format="integer" />
+    <attr name="logScale" format="boolean" />
+    <attr name="maxValue" format="float" />
+    <attr name="minValue" format="float" />
+    <attr name="popupCharacters" format="string" />
+    <attr name="popupKeyboard" format="reference" />
+    <attr name="popupLayout" format="reference" />
+    <attr name="recolorSymbols" format="boolean" />
+    <attr name="rowEdgeFlags">
+        <flag name="bottom" value="0x00000008" />
+        <flag name="top" value="0x00000004" />
+    </attr>
+    <attr name="shadowColor" format="color" />
+    <attr name="shadowRadius" format="float" />
+    <attr name="shiftLabel" format="string" />
+    <attr name="step" format="float" />
+    <attr name="symbolColorScheme">
+        <flag name="black" value="0x00000001" />
+        <flag name="white" value="0x00000000" />
+    </attr>
+    <attr name="verticalCorrection" format="dimension" />
+    <attr name="verticalGap" format="dimension|fraction" />
+    <attr name="verticalPad" format="dimension|fraction" />
+</resources>

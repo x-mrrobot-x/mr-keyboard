@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mr_main_tagline">Setup assistant</string>
+    <string name="mr_section_setup">Setup</string>
+    <string name="mr_section_test">Test field</string>
+    <string name="mr_section_guide">Quick guide</string>
+    <string name="mr_ui_step1_desc">Turn Mr Keyboard on in the system keyboard list</string>
+    <string name="mr_ui_step2_desc">Pick Mr Keyboard as your current keyboard</string>
+    <string name="mr_ui_step3_desc">Choose the available languages and layouts</string>
+    <string name="mr_ui_optional">Optional</string>
+    <string name="mr_ui_settings_desc">Theme, height, suggestions, gestures and more</string>
+    <string name="mr_ui_hero_summary">Customize theme, height, gestures and more</string>
+    <string name="mr_ui_cat_appearance">Appearance</string>
+    <string name="mr_ui_cat_appearance_sum">Theme, height and shape of the keys</string>
+    <string name="mr_ui_cat_layout">Keyboard layout</string>
+    <string name="mr_ui_cat_layout_sum">Row modes and settings key</string>
+    <string name="mr_ui_cat_typing">Typing and suggestions</string>
+    <string name="mr_ui_cat_typing_sum">Suggestions, correction and capitalization</string>
+    <string name="mr_ui_cat_languages">Languages and voice</string>
+    <string name="mr_ui_cat_languages_sum">Input languages, voice and app language</string>
+    <string name="mr_ui_cat_touch">Touch response</string>
+    <string name="mr_ui_cat_touch_sum">Feedback, gestures and long press</string>
+    <string name="mr_ui_cat_general">General</string>
+    <string name="mr_ui_cat_general_sum">Notification and advanced options</string>
+    <string name="mr_ui_cat_about">About and diagnostics</string>
+    <string name="mr_ui_cat_about_sum">Version and input connection details</string>
+    <string name="mr_ui_cat_keys">Key behavior</string>
+    <string name="mr_ui_cat_keys_sum">Shift, Ctrl, Alt and slide keys</string>
+    <string name="mr_ui_cat_input">Input mode</string>
+    <string name="mr_ui_cat_input_sum">Fullscreen editor and on-screen keyboard</string>
+    <string name="mr_ui_cat_apps">Specific apps</string>
+    <string name="mr_ui_cat_debug">Debugging</string>
+    <string name="mr_ui_cat_haptic">Vibration</string>
+    <string name="mr_ui_cat_sound">Sound</string>
+    <string name="mr_ui_cat_visual">Visual</string>
+    <string name="mr_ui_cat_labels">Labels and scale</string>
+    <string name="pref_screen_advanced_title">Advanced settings</string>
+    <string name="mr_ui_advanced_summary">Key behavior, input mode and debugging</string>
+    <string name="pref_screen_sheets_title">Keyboard sheets</string>
+    <string name="mr_ui_sheets_summary">Edit keys, create, rename and reorder sheets</string>
+</resources>

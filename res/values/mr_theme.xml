@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Mr Keyboard · tema das telas de configuração (redesign).
+    Usado apenas pelas Activities de configuração e tela inicial. Os estilos MrPrefTitle/MrPrefSummary/
+    MrPrefSummaryValue/MrCategoryTitle/MrButton* foram mantidos porque os layouts antigos mr_pref_* ainda os citam.
+-->
+<resources>
+    <!-- ================= Linhas de preferência ================= -->
+    <style name="MrPref">
+        <item name="android:layout">@layout/mr_ui_pref_row</item>
+    </style>
+    <style name="MrPrefScreen">
+        <item name="android:layout">@layout/mr_ui_pref_row</item>
+        <item name="android:widgetLayout">@layout/mr_ui_widget_chevron</item>
+    </style>
+    <style name="MrPrefCheckBox">
+        <item name="android:layout">@layout/mr_ui_pref_row</item>
+        <item name="android:widgetLayout">@layout/mr_ui_widget_switch</item>
+    </style>
+    <style name="MrPrefDialog">
+        <item name="android:layout">@layout/mr_ui_pref_row_value</item>
+        <item name="android:widgetLayout">@layout/mr_ui_widget_caret</item>
+        <item name="android:positiveButtonText">@android:string/ok</item>
+        <item name="android:negativeButtonText">@android:string/cancel</item>
+    </style>
+    <style name="MrPrefCategory">
+        <item name="android:layout">@layout/mr_ui_pref_category</item>
+        <item name="android:shouldDisableView">false</item>
+        <item name="android:selectable">false</item>
+    </style>
+    <!-- ================= Textos (novos) ================= -->
+    <style name="MrUiTitle" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/mr_ui_text_state</item>
+        <item name="android:textSize">16.0sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="MrUiSummary" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/mr_ui_text2_state</item>
+        <item name="android:textSize">13.0sp</item>
+    </style>
+    <style name="MrUiValue" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/mr_ui_accent_state</item>
+        <item name="android:textSize">13.5sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="MrUiCatTitle" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/mr_ui_text</item>
+        <item name="android:textSize">16.0sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="MrUiCatSummary" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/mr_ui_text2</item>
+        <item name="android:textSize">12.5sp</item>
+    </style>
+    <style name="MrUiSection" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/mr_ui_text2</item>
+        <item name="android:textSize">14.0sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="MrUiOverlay" parent="@android:style/Widget.Button">
+        <item name="android:background">@drawable/mr_ui_ripple_card</item>
+        <item name="android:minWidth">0.0dip</item>
+        <item name="android:minHeight">0.0dip</item>
+        <item name="android:padding">0.0dip</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:focusable">true</item>
+    </style>
+    <!-- ================= Lista de preferências ================= -->
+    <style name="MrListView" parent="@android:style/Widget.Material.ListView">
+        <item name="android:divider">@android:color/transparent</item>
+        <item name="android:dividerHeight">0.0dip</item>
+        <item name="android:listSelector">@android:color/transparent</item>
+        <item name="android:clipToPadding">false</item>
+        <item name="android:paddingTop">6.0dip</item>
+        <item name="android:paddingBottom">64.0dip</item>
+        <item name="android:scrollbarStyle">outsideOverlay</item>
+    </style>
+    <!-- ================= Tema ================= -->
+    <style name="Theme.MrKeyboard.Settings" parent="@android:style/Theme.Material">
+        <!-- Sem ActionBar do framework: o cabecalho e desenhado por SettingsHeader (como em Main). -->
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:listDivider">@drawable/mr_list_divider_none</item>
+        <item name="android:windowBackground">@color/mr_ui_bg</item>
+        <item name="android:colorBackground">@color/mr_ui_bg</item>
+        <item name="android:colorPrimary">@color/mr_ui_card</item>
+        <item name="android:colorPrimaryDark">@color/mr_ui_bg</item>
+        <item name="android:colorAccent">@color/mr_accent</item>
+        <item name="android:colorControlActivated">@color/mr_accent</item>
+        <item name="android:colorControlNormal">@color/mr_ui_text2</item>
+        <item name="android:colorControlHighlight">@color/mr_ripple</item>
+        <item name="android:colorEdgeEffect">@color/mr_accent</item>
+        <item name="android:statusBarColor">@color/mr_ui_bg</item>
+        <item name="android:navigationBarColor">@color/mr_ui_bg</item>
+        <item name="android:textColorPrimary">@color/mr_ui_text_state</item>
+        <item name="android:textColorSecondary">@color/mr_ui_text2_state</item>
+        <item name="android:textColorTertiary">@color/mr_ui_text3</item>
+        <item name="android:textColorHint">@color/mr_ui_text3</item>
+        <item name="android:textColorHighlight">@color/mr_accent_30</item>
+        <item name="android:textColorLink">@color/mr_accent</item>
+        <item name="android:actionBarStyle">@style/MrActionBar</item>
+        <item name="android:listViewStyle">@style/MrListView</item>
+        <item name="android:alertDialogTheme">@style/Theme.MrKeyboard.Dialog</item>
+        <item name="android:preferenceStyle">@style/MrPref</item>
+        <item name="android:preferenceScreenStyle">@style/MrPrefScreen</item>
+        <item name="android:preferenceCategoryStyle">@style/MrPrefCategory</item>
+        <item name="android:checkBoxPreferenceStyle">@style/MrPrefCheckBox</item>
+        <item name="android:dialogPreferenceStyle">@style/MrPrefDialog</item>
+    </style>
+    <!-- Tela inicial (Main): sem ActionBar, o cabeçalho é desenhado no próprio layout -->
+    <style name="Theme.MrKeyboard.Main" parent="@style/Theme.MrKeyboard.Settings">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+    <!-- Barra de título: plana, com linha fina inferior -->
+    <style name="MrActionBarTitle" parent="@android:style/TextAppearance.Material.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/mr_ui_text</item>
+        <item name="android:textSize">19.0sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+    <style name="MrActionBar" parent="@android:style/Widget.Material.ActionBar">
+        <item name="android:background">@drawable/mr_ui_actionbar_bg</item>
+        <item name="android:elevation">0.0dip</item>
+        <item name="android:titleTextStyle">@style/MrActionBarTitle</item>
+    </style>
+    <!-- Diálogos (listas, barras de valor, campos de texto) -->
+    <style name="Theme.MrKeyboard.Dialog" parent="@android:style/Theme.Material.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/mr_ui_dialog_bg</item>
+        <item name="android:backgroundDimAmount">0.72</item>
+        <item name="android:colorBackground">@color/mr_ui_card</item>
+        <item name="android:colorAccent">@color/mr_accent</item>
+        <item name="android:colorControlActivated">@color/mr_accent</item>
+        <item name="android:colorControlNormal">@color/mr_ui_text2</item>
+        <item name="android:colorControlHighlight">@color/mr_ripple</item>
+        <item name="android:textColorPrimary">@color/mr_ui_text</item>
+        <item name="android:textColorSecondary">@color/mr_ui_text2</item>
+        <item name="android:textColorHint">@color/mr_ui_text3</item>
+        <item name="android:textColorHighlight">@color/mr_accent_30</item>
+        <item name="android:textColorAlertDialogListItem">@color/mr_ui_text</item>
+    </style>
+</resources>

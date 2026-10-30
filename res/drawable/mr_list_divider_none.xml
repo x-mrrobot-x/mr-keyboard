@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Divisor de lista invisível e sem altura: o espaço entre os cartões vem de mr_row_gap -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <size android:width="0.0dip" android:height="0.0dip" />
+    <solid android:color="@android:color/transparent" />
+</shape>

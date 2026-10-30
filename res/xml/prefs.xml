@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" xmlns:hk="http://schemas.android.com/apk/res-auto" android:title="@string/english_ime_settings" android:key="english_ime_settings">
+  <Preference android:key="mr_hero" android:title="@string/english_ime_name" android:summary="@string/mr_ui_hero_summary" android:layout="@layout/mr_ui_pref_hero" android:selectable="false" android:persistent="false"/>
+  <PreferenceCategory android:title="@string/mr_ui_cat_appearance" android:key="graphics_settings" android:summary="@string/mr_ui_cat_appearance_sum" android:icon="@drawable/mr_ui_ic_keyboard_cyan">
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/keyboard_layout_modes" android:title="@string/keyboard_layout" android:key="pref_keyboard_layout" android:defaultValue="8" android:entryValues="@array/keyboard_layout_modes_values"/>
+    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_keyboard_height_portrait" android:key="settings_height_portrait" android:defaultValue="@string/default_height_portrait" hk:displayFormat="%.0f%%" hk:maxValue="75.0" hk:minValue="15.0" hk:step="1.0"/>
+    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_keyboard_height_landscape" android:key="settings_height_landscape" android:defaultValue="@string/default_height_landscape" hk:displayFormat="%.0f%%" hk:maxValue="75.0" hk:minValue="15.0" hk:step="1.0"/>
+    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_key_spacing" android:key="pref_key_spacing" android:defaultValue="@string/default_key_spacing" hk:displayFormat="%.0f dp" hk:maxValue="16.0" hk:minValue="0.0" hk:step="1.0"/>
+    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_key_radius" android:key="pref_key_radius" android:defaultValue="@string/default_key_radius" hk:displayFormat="%.0f dp" hk:maxValue="30.0" hk:minValue="0.0" hk:step="1.0"/>
+    <PreferenceScreen android:title="@string/pref_screen_view_title" android:summary="@string/summary_pref_screen_view">
+      <intent android:action="com.mrkeyboard.app.PREFS_VIEW"/>
+    </PreferenceScreen>
+  </PreferenceCategory>
+  <PreferenceCategory android:title="@string/mr_ui_cat_layout" android:key="layout_settings" android:summary="@string/mr_ui_cat_layout_sum" android:icon="@drawable/mr_ui_ic_grid_blue">
+    <PreferenceScreen android:title="@string/pref_screen_sheets_title" android:summary="@string/mr_ui_sheets_summary">
+      <intent android:action="com.mrkeyboard.app.PREFS_SHEETS"/>
+    </PreferenceScreen>
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/keyboard_mode_entries" android:title="@string/title_keyboard_mode_portrait" android:key="pref_keyboard_mode_portrait" android:defaultValue="@string/default_keyboard_mode_portrait" android:entryValues="@array/keyboard_mode_values"/>
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/keyboard_mode_entries" android:title="@string/title_keyboard_mode_landscape" android:key="pref_keyboard_mode_landscape" android:defaultValue="@string/default_keyboard_mode_landscape" android:entryValues="@array/keyboard_mode_values"/>
+    <ListPreference android:persistent="true" android:entries="@array/settings_key_modes" android:title="@string/prefs_settings_key" android:key="settings_key" android:defaultValue="@string/settings_key_mode_auto" android:entryValues="@array/settings_key_modes_values"/>
+  </PreferenceCategory>
+  <PreferenceCategory android:title="@string/mr_ui_cat_typing" android:key="prediction_settings" android:summary="@string/mr_ui_cat_typing_sum" android:icon="@drawable/mr_ui_ic_typea_violet">
+    <CheckBoxPreference android:persistent="true" android:title="@string/show_suggestions" android:key="show_suggestions" android:summary="@string/show_suggestions_summary" android:defaultValue="@bool/default_suggestions"/>
+    <CheckBoxPreference android:persistent="true" android:title="@string/auto_complete" android:key="auto_complete" android:summary="@string/auto_complete_summary" android:dependency="show_suggestions" android:defaultValue="@bool/enable_autocorrect"/>
+    <CheckBoxPreference android:persistent="true" android:title="@string/quick_fixes" android:key="quick_fixes" android:summary="@string/quick_fixes_summary" android:defaultValue="@bool/default_quick_fixes"/>
+    <CheckBoxPreference android:persistent="true" android:title="@string/prefs_enable_recorrection" android:key="recorrection_enabled" android:summary="@string/prefs_enable_recorrection_summary" android:defaultValue="@bool/default_recorrection_enabled"/>
+    <CheckBoxPreference android:persistent="true" android:title="@string/auto_cap" android:key="auto_cap" android:defaultValue="@bool/default_auto_cap"/>
+    <CheckBoxPreference android:persistent="true" android:title="@string/title_suggestions_in_landscape" android:key="suggestions_in_landscape" android:defaultValue="@bool/default_suggestions_in_landscape" android:summaryOn="@string/summary_suggestions_in_landscape_true" android:summaryOff="@string/summary_suggestions_in_landscape_false"/>
+    <com.mrkeyboard.app.AutoSummaryEditTextPreference android:layout="@layout/mr_ui_pref_row_value" android:title="@string/title_suggested_punctuation" android:key="pref_suggested_punctuation" android:defaultValue="@string/suggested_punctuations"/>
+  </PreferenceCategory>
+  <PreferenceCategory android:title="@string/mr_ui_cat_languages" android:key="ui_language_settings" android:summary="@string/mr_ui_cat_languages_sum" android:icon="@drawable/mr_ui_ic_globe_mint">
+    <PreferenceScreen android:title="@string/language_selection_title" android:summary="@string/language_selection_summary">
+      <intent android:action="com.mrkeyboard.app.INPUT_LANGUAGE_SELECTION"/>
+    </PreferenceScreen>
+    <ListPreference android:persistent="true" android:entries="@array/voice_input_modes" android:title="@string/voice_input" android:key="voice_mode" android:defaultValue="@string/voice_mode_symbols" android:entryValues="@array/voice_input_modes_values"/>
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/ui_language_entries" android:title="@string/title_ui_language" android:key="pref_ui_language" android:defaultValue="system" android:dialogTitle="@string/title_ui_language" android:entryValues="@array/ui_language_values"/>
+  </PreferenceCategory>
+  <PreferenceCategory android:title="@string/mr_ui_cat_touch" android:key="altchar_settings" android:summary="@string/mr_ui_cat_touch_sum" android:icon="@drawable/mr_ui_ic_tap_amber">
+    <PreferenceScreen android:title="@string/pref_screen_feedback_title" android:summary="@string/summary_pref_screen_feedback">
+      <intent android:action="com.mrkeyboard.app.PREFS_FEEDBACK"/>
+    </PreferenceScreen>
+    <PreferenceScreen android:title="@string/pref_screen_actions_title" android:summary="@string/summary_pref_screen_actions">
+      <intent android:action="com.mrkeyboard.app.PREFS_ACTIONS"/>
+    </PreferenceScreen>
+    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_long_press_duration" android:key="pref_long_press_duration" android:defaultValue="@string/default_long_press_duration" hk:displayFormat="%.0f ms" hk:logScale="true" hk:maxValue="2000.0" hk:minValue="100.0"/>
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/popup_content_entries" android:title="@string/title_popup_content" android:key="pref_popup_content" android:defaultValue="@string/default_popup_content" android:entryValues="@array/popup_content_values"/>
+  </PreferenceCategory>
+  <PreferenceCategory android:title="@string/mr_ui_cat_general" android:key="general_settings" android:summary="@string/mr_ui_cat_general_sum" android:icon="@drawable/mr_ui_ic_gear_slate">
+    <CheckBoxPreference android:persistent="true" android:title="@string/title_keyboard_notification" android:key="keyboard_notification" android:defaultValue="@bool/default_keyboard_notification" android:summaryOn="@string/summary_keyboard_notification_true" android:summaryOff="@string/summary_keyboard_notification_false"/>
+    <PreferenceScreen android:title="@string/pref_screen_advanced_title" android:summary="@string/mr_ui_advanced_summary">
+      <intent android:action="com.mrkeyboard.app.PREFS_ADVANCED"/>
+    </PreferenceScreen>
+  </PreferenceCategory>
+  <PreferenceCategory android:title="@string/mr_ui_cat_about" android:key="debugging" android:summary="@string/mr_ui_cat_about_sum" android:icon="@drawable/mr_ui_ic_info_slate">
+    <Preference android:title="@string/title_version" android:key="label_version" android:summary="@string/auto_version"/>
+    <Preference android:title="@string/title_input_connection_details" android:key="input_connection_info"/>
+  </PreferenceCategory>
+</PreferenceScreen>

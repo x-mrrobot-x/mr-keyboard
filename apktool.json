@@ -1,0 +1,36 @@
+{
+  "apkFileName": "Mr Keyboard_v1.42.0.apk",
+  "PackageInfo": {
+    "forcedPackageId": "127",
+    "renameManifestPackage": null
+  },
+  "doNotCompress": [
+    "resources.arsc",
+    "png",
+    "webp",
+    "ogg"
+  ],
+  "compressionType": false,
+  "sparseResources": false,
+  "version": "2.4.0-261014",
+  "sharedLibrary": false,
+  "VersionInfo": {
+    "versionName": "v1.60.0",
+    "versionCode": "1060000"
+  },
+  "UsesFramework": {
+    "ids": [1],
+    "tag": null
+  },
+  "unknownFiles": {
+    "META-INF/com.android.support_support-core-utils.version": "8",
+    "META-INF/com.android.support_support-compat.version": "8"
+  },
+  "apkFilePath": "/storage/emulated/0/Download/Mr_Keyboard_v1_41_1_src/Mr Keyboard_v1.41.1_src.apk",
+  "compactEntries": false,
+  "isFrameworkApk": false,
+  "sdkInfo": {
+    "minSdkVersion": "26",
+    "targetSdkVersion": "36"
+  }
+}

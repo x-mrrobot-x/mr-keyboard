@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+"""Mede a previsão de próxima palavra de uma lista "combined" em frases separadas para teste.
+
+Uso: python3 -I eval_predict.py lista.combined.gz test.txt
+
+Para cada par de palavras seguidas (dentro de um trecho sem pontuação) cuja primeira palavra
+está na lista, simula o que o teclado mostra:
+  - depois do espaço: as 3 primeiras continuações da palavra anterior (MrPredict);
+  - depois da 1ª letra: as continuações que começam com a mesma letra-base, até 3 (Suggest com
+    uma letra digitada).
+Conta acerto quando a palavra real está entre as mostradas (sem diferenciar maiúscula/acento só
+na inicial). Saída: cobertura e acertos top-1/top-3.
+"""
+import collections
+import gzip
+import re
+import sys
+import unicodedata
+
+LETTER = r"[^\W\d_]"
+TOKEN_RE = re.compile(rf"{LETTER}+(?:['-]{LETTER}+)*|\S")
+URL_RE = re.compile(
+    r"(?:https?://|www\.)\S+|\S+@\S+\.\S+|[@#]\w+"
+    r"|\b[\w-]+(?:\.[\w-]+)*\.(?:com|net|org|gov|edu|br|io|tv|me|app|info|jus|leg)\b\S*", re.I)
+SENTENCE_END = set('.!?:;"“”«»()[]{}—–…')
+APOSTROPHES = str.maketrans({"’": "'", "‘": "'", "ʼ": "'"})
+
+
+def base_char(c):
+    return unicodedata.normalize("NFD", c)[0].lower()
+
+
+def load(path):
+    words, big = set(), collections.defaultdict(list)
+    cur = None
+    with gzip.open(path, "rt", encoding="utf-8") as fh:
+        for line in fh:
+            if line.startswith(" word="):
+                d = dict(kv.split("=", 1) for kv in line.strip().split(","))
+                cur = d["word"]
+                words.add(cur)
+            elif line.startswith("  bigram=") and cur is not None:
+                d = dict(kv.split("=", 1) for kv in line.strip().split(","))
+                big[cur].append((d["bigram"], int(d["f"])))
+    for k in big:
+        big[k].sort(key=lambda x: -x[1])
+    return words, big
+
+
+def main():
+    words, big = load(sys.argv[1])
+    n = cov = h1 = h3 = 0
+    fn = fcov = f1 = f3 = 0
+    for line in open(sys.argv[2], encoding="utf-8"):
+        toks = TOKEN_RE.findall(URL_RE.sub(" | ", line.strip().translate(APOSTROPHES)))
+        prev = None
+        first = True
+        for t in toks:
+            if not t[0].isalpha():
+                prev = None
+                if t in SENTENCE_END:
+                    first = True
+                continue
+            cur = t
+            if prev is not None:
+                key = prev if prev in big else prev.lower() if prev.lower() in big else None
+                n += 1
+                lst = [w for w, _ in big.get(key, [])] if key else []
+                if lst:
+                    cov += 1
+                tl = cur.lower()
+                if lst and lst[0].lower() == tl:
+                    h1 += 1
+                if any(w.lower() == tl for w in lst[:3]):
+                    h3 += 1
+                fl = [w for w in lst if base_char(w[0]) == base_char(cur[0])]
+                fn += 1
+                if fl:
+                    fcov += 1
+                if fl and fl[0].lower() == tl:
+                    f1 += 1
+                if any(w.lower() == tl for w in fl[:3]):
+                    f3 += 1
+            prev = cur if (cur in words or cur.lower() in words) else None
+            first = False
+    pct = lambda x, y: f"{100.0 * x / y:5.1f}%" if y else "  -  "
+    print(f"pares avaliados: {n}")
+    print(f"após o espaço : cobertura {pct(cov, n)}  top-1 {pct(h1, n)}  top-3 {pct(h3, n)}")
+    print(f"após 1ª letra : cobertura {pct(fcov, fn)}  top-1 {pct(f1, fn)}  top-3 {pct(f3, fn)}")
+
+
+if __name__ == "__main__":
+    main()

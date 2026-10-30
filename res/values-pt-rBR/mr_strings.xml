@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mr_main_tagline">Assistente de configuração</string>
+    <string name="mr_section_setup">Configuração inicial</string>
+    <string name="mr_section_test">Campo de teste</string>
+    <string name="mr_section_guide">Guia rápido</string>
+    <string name="mr_ui_step1_desc">Ative o Mr Keyboard na lista de teclados do sistema</string>
+    <string name="mr_ui_step2_desc">Escolha o Mr Keyboard como teclado atual</string>
+    <string name="mr_ui_step3_desc">Escolha os idiomas e layouts disponíveis</string>
+    <string name="mr_ui_optional">Opcional</string>
+    <string name="mr_ui_settings_desc">Tema, altura, sugestões, gestos e muito mais</string>
+    <string name="mr_ui_hero_summary">Personalize tema, altura, gestos e muito mais</string>
+    <string name="mr_ui_cat_appearance">Aparência</string>
+    <string name="mr_ui_cat_appearance_sum">Tema, altura e formato das teclas</string>
+    <string name="mr_ui_cat_layout">Layout do teclado</string>
+    <string name="mr_ui_cat_layout_sum">Modos de linhas e tecla de configurações</string>
+    <string name="mr_ui_cat_typing">Digitação e sugestões</string>
+    <string name="mr_ui_cat_typing_sum">Sugestões, correção e capitalização</string>
+    <string name="mr_ui_cat_languages">Idiomas e voz</string>
+    <string name="mr_ui_cat_languages_sum">Idiomas de entrada, voz e idioma do app</string>
+    <string name="mr_ui_cat_touch">Resposta ao toque</string>
+    <string name="mr_ui_cat_touch_sum">Feedback, gestos e toque longo</string>
+    <string name="mr_ui_cat_general">Geral</string>
+    <string name="mr_ui_cat_general_sum">Notificação e opções avançadas</string>
+    <string name="mr_ui_cat_about">Sobre e diagnóstico</string>
+    <string name="mr_ui_cat_about_sum">Versão e detalhes da conexão de entrada</string>
+    <string name="mr_ui_cat_keys">Comportamento das teclas</string>
+    <string name="mr_ui_cat_keys_sum">Shift, Ctrl, Alt e teclas de deslize</string>
+    <string name="mr_ui_cat_input">Modo de entrada</string>
+    <string name="mr_ui_cat_input_sum">Editor em tela cheia e teclado na tela</string>
+    <string name="mr_ui_cat_apps">Aplicativos específicos</string>
+    <string name="mr_ui_cat_debug">Depuração</string>
+    <string name="mr_ui_cat_haptic">Vibração</string>
+    <string name="mr_ui_cat_sound">Som</string>
+    <string name="mr_ui_cat_visual">Visual</string>
+    <string name="mr_ui_cat_labels">Rótulos e escala</string>
+    <string name="pref_screen_advanced_title">Configurações avançadas</string>
+    <string name="mr_ui_advanced_summary">Comportamento das teclas, modo de entrada e depuração</string>
+    <string name="pref_screen_sheets_title">Folhas do teclado</string>
+    <string name="mr_ui_sheets_summary">Edite teclas, crie, renomeie e reordene folhas</string>
+</resources>

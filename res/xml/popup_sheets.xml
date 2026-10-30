@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Keyboard
+    android:horizontalGap="0.0px"
+    android:keyHeight="@dimen/popup_key_height"
+    android:keyWidth="16.0%p"
+    android:verticalGap="0.0px"
+    xmlns:android="http://schemas.android.com/apk/res-auto">
+    <Row
+        android:rowEdgeFlags="bottom|top">
+        <Key
+            android:codes="@integer/key_sheet_abc"
+            android:keyEdgeFlags="left"
+            android:keyLabel="ABC" />
+        <Key
+            android:codes="@integer/key_sheet_sym"
+            android:keyLabel="123" />
+        <Key
+            android:codes="@integer/key_sheet_tasker"
+            android:keyLabel="TSK" />
+        <Key
+            android:codes="@integer/key_sheet_html"
+            android:keyLabel="HTML" />
+        <Key
+            android:codes="@integer/key_sheet_frases"
+            android:keyEdgeFlags="right"
+            android:keyLabel="FRS" />
+    </Row>
+</Keyboard>
