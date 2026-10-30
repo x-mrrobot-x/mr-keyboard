@@ -167,7 +167,8 @@ public final class MrText {
         while (end > 0 && Character.isWhitespace(before.charAt(end - 1))) end--;
         if (end == 0) return true;
         char c = before.charAt(end - 1);
-        return c == '.' || c == '!' || c == '?' || c == '…';
+        // ¿ e ¡ abrem frase no espanhol (v1.65): "¿" -> mostra os começos de frase
+        return c == '.' || c == '!' || c == '?' || c == '…' || c == '¿' || c == '¡';
     }
 
     /**

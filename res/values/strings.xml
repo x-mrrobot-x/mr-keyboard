@@ -341,7 +341,7 @@
     <string name="voice_mode_off">2</string>
     <string name="voice_mode_symbols">1</string>
     <string name="word_separators">".\u0009 ,;:!?
-()[]*&amp;@{}/&lt;>_+=|\""</string>
+()[]*&amp;@{}/&lt;>_+=|\"¿¡"</string>
     <string name="title_ui_language">Settings language</string>
     <string name="ui_language_system">System default</string>
     <string name="ui_language_english">English</string>

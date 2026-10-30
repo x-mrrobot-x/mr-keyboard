@@ -1,0 +1,207 @@
+# Mr Keyboard - reglas del idioma: español
+# Formato 1. Las líneas que empiezan con # son comentarios; las líneas vacías se ignoran.
+# Cada sección empieza con [nombre]. Las secciones que la app no conoce se ignoran.
+# En las secciones de letras, todo en minúsculas y sin tilde.
+
+[sentence_start]
+# Sugerencias al comienzo de la frase, antes de escribir (hasta 3, la más probable primero;
+# la primera va en el centro de la barra). Los comienzos más comunes de las frases en español
+# de Tatoeba ("Me" en lugar de "La", para no repetir artículo).
+No
+El
+Me
+
+[corrections]
+# escrito<TAB>sugerencia. "escrito" se compara en minúsculas y sin tilde (hasta 24 letras).
+# La sugerencia pasa a ser la mejor de la lista; con la autocorrección activada, solo reemplaza
+# la palabra si la escrita no está en el diccionario. Listas escritas para Mr Keyboard.
+# abreviaciones de chat
+q	que
+k	que
+ke	que
+xq	porque
+pq	porque
+porq	porque
+xk	porque
+pk	porque
+tb	también
+tmb	también
+tbn	también
+tbm	también
+xfa	por favor
+porfa	por favor
+pf	por favor
+dnd	dónde
+tqm	te quiero mucho
+tkm	te quiero mucho
+bn	bien
+ntp	no te preocupes
+msj	mensaje
+msjs	mensajes
+finde	fin de semana
+toy	estoy
+salu2	saludos
+kiero	quiero
+aki	aquí
+kien	quién
+kn	con
+cmo	cómo
+xa	para
+hla	hola
+weno	bueno
+vdd	verdad
+mñn	mañana
+mñna	mañana
+ns	no sé
+nse	no sé
+sk	es que
+nd	nada
+tmp	tampoco
+xo	pero
+grax	gracias
+grcs	gracias
+dsp	después
+dps	después
+tons	entonces
+ntonces	entonces
+bss	besos
+bs	besos
+bsos	besos
+# palabras juntas
+enserio	en serio
+osea	o sea
+almenos	al menos
+talvez	tal vez
+porfavor	por favor
+apesar	a pesar
+derrepente	de repente
+encambio	en cambio
+deacuerdo	de acuerdo
+sinembargo	sin embargo
+atravez	a través
+através	a través
+aver	a ver
+nose	no sé
+aveces	a veces
+enfin	en fin
+apartir	a partir
+enrealidad	en realidad
+alomejor	a lo mejor
+amenudo	a menudo
+# errores comunes
+haiga	haya
+nadien	nadie
+hechar	echar
+dijistes	dijiste
+hicistes	hiciste
+fuistes	fuiste
+vinistes	viniste
+estuvistes	estuviste
+pusistes	pusiste
+tuvistes	tuviste
+dijieron	dijeron
+trajieron	trajeron
+cocreta	croqueta
+almóndiga	albóndiga
+asín	así
+iva	iba
+ivan	iban
+ivamos	íbamos
+haver	haber
+abia	había
+abía	había
+ubo	hubo
+ise	hice
+ize	hice
+hiba	iba
+exepto	excepto
+expontáneo	espontáneo
+preveer	prever
+inflacción	inflación
+dentrífico	dentífrico
+metereología	meteorología
+vagaje	bagaje
+nesecito	necesito
+nesesito	necesito
+nececito	necesito
+desicion	decisión
+decicion	decisión
+ecsamen	examen
+esamen	examen
+ola	hola
+haora	ahora
+aora	ahora
+aorita	ahorita
+ahy	ahí
+haci	así
+asi	así
+veses	veces
+aser	hacer
+acer	hacer
+asiendo	haciendo
+hize	hice
+hiso	hizo
+quisas	quizás
+quizas	quizás
+tambien	también
+despues	después
+tenia	tenía
+habia	había
+estabamos	estábamos
+dijeramos	dijéramos
+exelente	excelente
+ecselente	excelente
+interezante	interesante
+nesesario	necesario
+nececario	necesario
+travez	través
+agusto	a gusto
+
+[phonetic]
+# Letras que suenan parecido: cambiar una por otra cuesta poco (en los dos sentidos).
+b v
+s z
+s c
+c z
+c k
+k q
+g j
+y i
+x s
+
+[vowels]
+# Vocales que se confunden.
+e i
+o u
+
+[groups]
+# escrito = en el diccionario: dos letras por una, o una por dos.
+y = ll
+ll = y
+k = qu
+ks = x
+cs = x
+s = sc
+
+[silent]
+# Letra del diccionario que puede faltar en lo escrito, después de la letra indicada
+# (^ = comienzo de la palabra, * = después de cualquier letra; "*" necesita Mr Keyboard 1.64):
+# la h no suena ("ola" -> hola, "aora" -> ahora, "proibir" -> prohibir) y la u de "qu"/"gu".
+# Tercera columna opcional: el costo (por defecto 30 al comienzo y 45 después de otra letra;
+# 25 es el costo de una tecla vecina, 60 el de una letra que falta sin regla).
+^ h
+* h 40
+q u 40
+g u 40
+
+[extra]
+# Letra que puede sobrar en lo escrito.
+h
+
+[one_letter_words]
+# Palabras de una letra, para separar dos palabras escritas juntas.
+a
+e
+o
+u
+y

@@ -15,7 +15,7 @@ Precisa de Android 8.0 ou mais novo.
   - **Traduzir:** traduz o texto antes de enviar;
   - **Anexos:** fotos, vídeos e arquivos, enviados para o app em que você está digitando;
   - **Emotes.**
-- **Sugestões de palavras** em português do Brasil e inglês americano (um dicionário por idioma; o teclado troca junto com o idioma de entrada):
+- **Sugestões de palavras** em português do Brasil, inglês americano e espanhol (um dicionário por idioma; o teclado troca junto com o idioma de entrada):
   - o dicionário é baixado em *Configurações → Dicionários*, por isso o app em si tem só cerca de 1 MB;
   - correção de erros de digitação e previsão da próxima palavra;
   - aprende as palavras que você usa, nunca em campos de senha ou anônimos;
@@ -84,6 +84,6 @@ apksigner sign --ks sua-chave.jks --out MrKeyboard.apk aligned.apk
 O Mr Keyboard está sob a [Apache License 2.0](LICENSE).
 - [Hacker's Keyboard](https://github.com/klausw/hackerskeyboard), de Klaus Weidner, e o LatinIME do Android Open Source Project, em que o Mr Keyboard se baseia, também estão sob a Apache License 2.0.
 - Dados dos dicionários (créditos completos em `dicts/<idioma>/NOTICE.txt`):
-  - listas pt_BR e en_US do AOSP (Apache 2.0);
+  - listas pt_BR, en_US e es do AOSP (Apache 2.0);
   - [Leipzig Corpora Collection](https://wortschatz-leipzig.de/) (CC BY 4.0);
   - [Tatoeba](https://tatoeba.org/) (CC BY 2.0 FR).

@@ -107,7 +107,7 @@
     .line 165
     if-nez p0, :cond_1
 
-    .line 170
+    .line 171
     :cond_0
     :goto_0
     return v0
@@ -149,7 +149,7 @@
 
     move-result v1
 
-    .line 170
+    .line 171
     const/16 v2, 0x2e
 
     if-eq v1, v2, :cond_0
@@ -163,6 +163,14 @@
     if-eq v1, v2, :cond_0
 
     const/16 v2, 0x2026
+
+    if-eq v1, v2, :cond_0
+
+    const/16 v2, 0xbf
+
+    if-eq v1, v2, :cond_0
+
+    const/16 v2, 0xa1
 
     if-eq v1, v2, :cond_0
 
@@ -521,25 +529,25 @@
 
     const/4 v2, 0x0
 
-    .line 179
+    .line 180
     invoke-static {p0}, Lcom/mrkeyboard/app/MrText;->lastWord(Ljava/lang/CharSequence;)Ljava/lang/String;
 
     move-result-object v5
 
-    .line 180
+    .line 181
     if-nez v5, :cond_0
 
-    .line 196
+    .line 197
     :goto_0
     return-object v0
 
-    .line 181
+    .line 182
     :cond_0
     invoke-interface {p0}, Ljava/lang/CharSequence;->length()I
 
     move-result v1
 
-    .line 182
+    .line 183
     :goto_1
     if-lez v1, :cond_1
 
@@ -559,19 +567,19 @@
 
     goto :goto_1
 
-    .line 184
+    .line 185
     :cond_1
     :goto_2
     if-lez v1, :cond_3
 
-    .line 185
+    .line 186
     add-int/lit8 v4, v1, -0x1
 
     invoke-interface {p0, v4}, Ljava/lang/CharSequence;->charAt(I)C
 
     move-result v4
 
-    .line 186
+    .line 187
     invoke-static {v4}, Ljava/lang/Character;->isLetter(C)Z
 
     move-result v6
@@ -589,7 +597,7 @@
     :cond_2
     add-int/lit8 v1, v1, -0x1
 
-    .line 188
+    .line 189
     goto :goto_2
 
     :cond_3
@@ -597,7 +605,7 @@
 
     move v1, v2
 
-    .line 191
+    .line 192
     :goto_3
     if-lez v4, :cond_4
 
@@ -621,7 +629,7 @@
 
     goto :goto_3
 
-    .line 193
+    .line 194
     :cond_4
     if-eqz v1, :cond_5
 
@@ -639,7 +647,7 @@
 
     if-eqz v1, :cond_5
 
-    .line 194
+    .line 195
     invoke-interface {p0, v2, v4}, Ljava/lang/CharSequence;->subSequence(II)Ljava/lang/CharSequence;
 
     move-result-object v0
@@ -648,7 +656,7 @@
 
     move-result-object v0
 
-    .line 196
+    .line 197
     :cond_5
     const/4 v1, 0x2
 
@@ -669,21 +677,21 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 204
+    .line 205
     if-nez p0, :cond_1
 
-    .line 218
+    .line 219
     :cond_0
     :goto_0
     return-object v0
 
-    .line 205
+    .line 206
     :cond_1
     invoke-interface {p0}, Ljava/lang/CharSequence;->length()I
 
     move-result v1
 
-    .line 206
+    .line 207
     :goto_1
     if-lez v1, :cond_2
 
@@ -703,24 +711,24 @@
 
     goto :goto_1
 
-    .line 207
+    .line 208
     :cond_2
     if-eqz v1, :cond_0
 
     move v2, v1
 
-    .line 209
+    .line 210
     :goto_2
     if-lez v2, :cond_4
 
-    .line 210
+    .line 211
     add-int/lit8 v3, v2, -0x1
 
     invoke-interface {p0, v3}, Ljava/lang/CharSequence;->charAt(I)C
 
     move-result v3
 
-    .line 211
+    .line 212
     invoke-static {v3}, Ljava/lang/Character;->isLetter(C)Z
 
     move-result v4
@@ -738,10 +746,10 @@
     :cond_3
     add-int/lit8 v2, v2, -0x1
 
-    .line 213
+    .line 214
     goto :goto_2
 
-    .line 214
+    .line 215
     :cond_4
     :goto_3
     if-ge v2, v1, :cond_5
@@ -760,7 +768,7 @@
 
     goto :goto_3
 
-    .line 215
+    .line 216
     :cond_5
     :goto_4
     if-le v1, v2, :cond_6
@@ -781,18 +789,18 @@
 
     goto :goto_4
 
-    .line 216
+    .line 217
     :cond_6
     if-ge v2, v1, :cond_0
 
-    .line 217
+    .line 218
     sub-int v3, v1, v2
 
     const/16 v4, 0x2f
 
     if-gt v3, v4, :cond_0
 
-    .line 218
+    .line 219
     invoke-interface {p0, v2, v1}, Ljava/lang/CharSequence;->subSequence(II)Ljava/lang/CharSequence;
 
     move-result-object v0
