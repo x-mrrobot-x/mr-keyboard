@@ -4,7 +4,7 @@
 #   - pacote igual ao publicado (mesma "version", mesmo conteúdo): fica como está;
 #   - pacote novo ou com "version" maior no pack.json: gera <id>-<versão>.zip e envia;
 #   - conteúdo mudou e a "version" não: para com erro, sem publicar nada.
-# O catálogo (catalogo.json) é assinado com a chave do APK (os mesmos secrets do mr-native.yml).
+# O catálogo (catalogo.json) é assinado com a chave do APK (os mesmos secrets do mr-apk.yml).
 # O app só aceita catálogo assinado pela chave com que ele foi instalado.
 # O Release "dicionarios" não é marcado como "latest", para não tomar o lugar das versões do APK.
 # Endereço fixo do catálogo, usado pelo app:

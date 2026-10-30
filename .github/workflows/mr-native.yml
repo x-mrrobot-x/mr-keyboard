@@ -1,36 +1,22 @@
-# Mr Keyboard: compila a lib nativa com o NDK (3 arquiteturas), testa no PC e monta o APK.
+# Mr Keyboard: compila a lib nativa com o NDK (3 arquiteturas) e testa no PC.
 #
-# O repositório é a pasta do projeto apktool (apktool.yml, smali/, res/, lib/, native/, docs/).
-# Resultado em Actions > (execução) > Artifacts:
-#   libs-nativas  -> lib/<abi>/libjni_pckeyboard.so (copie para a pasta lib/ do projeto)
-#   apk           -> MrKeyboard-unsigned.apk (e MrKeyboard-signed.apk se houver chave nos secrets)
+# Só roda quando o código nativo muda (native/**) ou quando você manda (Run workflow).
+# O APK NÃO depende deste workflow: ele usa as libs que já estão em lib/ (ver mr-apk.yml).
 #
-# Publicar uma versão: Run workflow com "publicar" marcado. O APK assinado vai para Releases com a
-# tag do versionName do apktool.yml (ex.: v1.63.0) e as notas de docs/revisao-<versão>.md.
-# Uma tag que já existe não é sobrescrita: aumente versionCode/versionName antes.
-#
-# Assinatura (opcional): Settings > Secrets and variables > Actions, um dos dois jeitos:
-#   keystore: KEYSTORE_B64 (arquivo em base64), KEYSTORE_PASS, KEY_ALIAS, KEY_PASS
-#   pk8+pem:  KEY_PK8_B64 e CERT_PEM_B64 (os dois arquivos em base64)
-# Use a MESMA chave que assina o app hoje; com outra chave o Android não instala por cima.
-name: Mr Keyboard - nativo e APK
+# Quando native/ mudar:
+#   1. rode (ou espere o push rodar) este workflow;
+#   2. baixe o artifact "libs-nativas" e extraia na RAIZ do projeto (cria/atualiza lib/<abi>/ e native-src.sha256);
+#   3. faça o commit de lib/ e native-src.sha256 junto com a mudança.
+# O native-src.sha256 diz de qual código a lib foi compilada. O mr-apk.yml compara com o native/ atual:
+# se forem diferentes, avisa (e não deixa publicar) para você não lançar um APK com lib velha.
+name: Mr Keyboard - lib nativa
 
 on:
   workflow_dispatch:
-    inputs:
-      publicar:
-        description: 'Publicar o APK assinado em Releases'
-        type: boolean
-        default: false
   push:
     branches: [main]
     paths:
       - 'native/**'
-      - 'smali/**'
-      - 'res/**'
-      - 'assets/**'
-      - 'dicts/**/main.dict'
-      - 'apktool.yml'
       - '.github/workflows/mr-native.yml'
 
 permissions:
@@ -38,7 +24,6 @@ permissions:
 
 env:
   NDK_VERSION: 27.2.12479018
-  APKTOOL_VERSION: 2.11.1
 
 jobs:
   native:
@@ -87,106 +72,14 @@ jobs:
           ./build/host/dict_test dicts/pt-BR/main.dict native/test/amostra_palavras.tsv \
               native/test/amostra_bigramas.tsv native/test/casos.tsv 5 | grep -v "^OK\|^FALHA"
 
+      - name: Registrar de qual código a lib foi compilada
+        run: |
+          # só o que entra na compilação (CMakeLists e src/); os arquivos de teste não mudam a lib
+          find native/CMakeLists.txt native/src -type f -print0 | LC_ALL=C sort -z \
+            | xargs -0 sha256sum | sha256sum | cut -d' ' -f1 > out/native-src.sha256
+          cat out/native-src.sha256
+
       - uses: actions/upload-artifact@v4
         with:
           name: libs-nativas
-          path: out/lib
-
-  apk:
-    needs: native
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: libs-nativas
-          path: lib
-
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-
-      - name: Montar o APK com o apktool
-        run: |
-          curl -sSL -o apktool.jar \
-            "https://github.com/iBotPeaches/Apktool/releases/download/v$APKTOOL_VERSION/apktool_$APKTOOL_VERSION.jar"
-          java -jar apktool.jar b . -o MrKeyboard-unsigned.apk
-          unzip -lv MrKeyboard-unsigned.apk | grep -E "lib/"
-
-      - name: Assinar (só se os secrets existirem)
-        env:
-          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
-          KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASS: ${{ secrets.KEY_PASS }}
-          KEY_PK8_B64: ${{ secrets.KEY_PK8_B64 }}
-          CERT_PEM_B64: ${{ secrets.CERT_PEM_B64 }}
-        run: |
-          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          if [ -n "$KEYSTORE_B64" ]; then
-            # keystore (.jks, .keystore ou .p12) + alias e senhas
-            # tira espaços e quebras de linha que entram ao copiar e colar o texto
-            printf '%s' "$KEYSTORE_B64" | tr -d ' \r\n\t' | base64 -d > key.jks || {
-              echo "::error::KEYSTORE_B64 não é base64 válido (texto cortado ou com caracteres a mais)"; exit 1; }
-            echo "keystore: $(wc -c < key.jks) bytes"
-            keytool -list -keystore key.jks -storepass "$KEYSTORE_PASS" > /dev/null 2>&1 || {
-              echo "::error::não abriu o keystore: senha (KEYSTORE_PASS) errada ou arquivo incompleto"; exit 1; }
-            keytool -list -keystore key.jks -storepass "$KEYSTORE_PASS" -alias "$KEY_ALIAS" > /dev/null 2>&1 || {
-              echo "::error::o alias KEY_ALIAS não existe no keystore"; exit 1; }
-            SIGN="--ks key.jks --ks-pass env:KEYSTORE_PASS --ks-key-alias $KEY_ALIAS --key-pass env:KEY_PASS"
-          elif [ -n "$KEY_PK8_B64" ] && [ -n "$CERT_PEM_B64" ]; then
-            # par de arquivos .pk8 + .x509.pem (ex.: a chave de teste que alguns apps de apktool usam)
-            printf '%s' "$KEY_PK8_B64" | tr -d ' \r\n\t' | base64 -d > key.pk8
-            printf '%s' "$CERT_PEM_B64" | tr -d ' \r\n\t' | base64 -d > cert.pem
-            SIGN="--key key.pk8 --cert cert.pem"
-          else
-            echo "sem chave: só o APK sem assinatura"; exit 0
-          fi
-          "$BT/zipalign" -p -f 4 MrKeyboard-unsigned.apk aligned.apk
-          "$BT/apksigner" sign $SIGN --out MrKeyboard-signed.apk aligned.apk
-          # o SHA-256 do certificado tem que ser igual ao do app instalado hoje
-          "$BT/apksigner" verify --print-certs MrKeyboard-signed.apk
-          rm -f key.jks key.pk8 cert.pem aligned.apk
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: apk
-          path: MrKeyboard-*.apk
-
-      - name: Publicar em Releases
-        if: ${{ inputs.publicar }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          [ -f MrKeyboard-signed.apk ] || {
-            echo "::error::sem APK assinado (faltam os secrets da chave): nada publicado"; exit 1; }
-          VER=$(sed -n 's/^  versionName: *//p' apktool.yml | tr -d "'\" ")
-          N="${VER#v}"
-          TAG="v$N"
-          if gh release view "$TAG" > /dev/null 2>&1; then
-            echo "::error::a versão $TAG já foi publicada; aumente versionCode e versionName no apktool.yml"; exit 1
-          fi
-          # notas: docs/revisao-1.6.3.md para a v1.63.0 (o padrão dos arquivos), ou docs/revisao-<versão>.md
-          MAJ=${N%%.*}; REST=${N#*.}; MIN=${REST%%.*}; PAT=${REST#*.}
-          NOTAS="docs/revisao-$N.md"
-          if [ ${#MIN} -eq 2 ] && [ "$PAT" = "0" ] && [ -f "docs/revisao-$MAJ.${MIN:0:1}.${MIN:1:1}.md" ]; then
-            NOTAS="docs/revisao-$MAJ.${MIN:0:1}.${MIN:1:1}.md"
-          fi
-          APK="MrKeyboard-$TAG.apk"
-          cp MrKeyboard-signed.apk "$APK"
-          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          CERT=$("$BT/apksigner" verify --print-certs "$APK" | sed -n 's/.*certificate SHA-256 digest: //p' | head -1)
-          {
-            echo "Download: **$APK** · [installation / instalação](https://github.com/$GITHUB_REPOSITORY#installation)"
-            echo
-            echo "- SHA-256 do APK: \`$(sha256sum "$APK" | cut -d' ' -f1)\`"
-            echo "- Certificado (SHA-256): \`$CERT\`"
-            echo
-            if [ -f "$NOTAS" ]; then cat "$NOTAS"; else echo "Mr Keyboard $TAG"; fi
-          } > notas.md
-          gh release create "$TAG" "$APK" --title "Mr Keyboard $TAG" --notes-file notas.md \
-            --target "$GITHUB_SHA" --latest
+          path: out

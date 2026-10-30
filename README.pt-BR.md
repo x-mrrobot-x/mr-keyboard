@@ -51,7 +51,7 @@ O comando vai num broadcast que outros apps também podem receber, então não c
 | Vibração | Vibrar ao tocar nas teclas |
 
 ## Instalação
-1. Baixe o APK em [Releases](../../releases) e instale.
+1. Baixe o APK na [última versão](../../releases/latest) (link direto: [MrKeyboard.apk](../../releases/latest/download/MrKeyboard.apk)) e instale.
 2. Abra o **Mr Keyboard** e toque em **Ativar teclado**. Ligue o Mr Keyboard na lista e aceite o aviso do sistema. O Android mostra esse aviso para qualquer teclado que não veio com o celular.
 3. Toque em **Definir método de entrada** e escolha o Mr Keyboard.
 4. Opcional: em **Idiomas de entrada**, escolha os layouts. Deslize a barra de espaço para os lados para alternar entre eles.
@@ -62,15 +62,12 @@ Este repositório guarda o app como projeto do [apktool](https://apktool.org/) (
 - `native/`: o motor de dicionário em C++ (CMake);
 - `docs/`: anotações de cada versão e as ferramentas usadas para gerar o dicionário e as classes Java.
 
-**Pelo GitHub Actions** (*Actions → Mr Keyboard - nativo e APK → Run workflow*), o workflow:
-1. compila a lib nativa para arm64-v8a, armeabi-v7a e x86 com o NDK 27;
-2. gera o APK com o apktool 2.11.1;
-3. assina, se existirem os secrets `KEYSTORE_B64`, `KEYSTORE_PASS`, `KEY_ALIAS` e `KEY_PASS`.
-
-Sem os secrets (num fork, por exemplo), sai um APK sem assinatura no artefato `apk`.
+**Pelo GitHub Actions** são dois workflows:
+- *Mr Keyboard - APK* roda a cada push que muda o app (`smali/`, `res/`, `lib/`, `apktool.yml`). Gera o APK com o apktool 2.11.1 usando as bibliotecas que já estão em `lib/` e assina, se existirem os secrets `KEYSTORE_B64`, `KEYSTORE_PASS`, `KEY_ALIAS` e `KEY_PASS`. Sem os secrets (num fork, por exemplo), sai um APK sem assinatura no artefato `apk`.
+- *Mr Keyboard - lib nativa* roda só quando `native/` muda (ou à mão). Compila a biblioteca para arm64-v8a, armeabi-v7a e x86 com o NDK 27 e roda o teste no PC. Extraia o artefato `libs-nativas` na raiz do projeto e faça o commit de `lib/` e `native-src.sha256`. O workflow do APK compara esse hash com o `native/` atual e não deixa publicar se a `lib/` estiver desatualizada.
 
 **Publicar (para quem mantém o projeto):**
-- **App:** rode o mesmo workflow com *publicar* marcado. O APK assinado vai para [Releases](../../releases) com a tag do `versionName` do `apktool.yml` (ex.: `v1.63.0`).
+- **App:** rode *Mr Keyboard - APK* com *publicar* marcado. O APK assinado vai para [Releases](../../releases) com a tag do `versionName` do `apktool.yml` (ex.: `v1.66.0`), como `MrKeyboard-v1.66.0.apk` e como `MrKeyboard.apk` (nome fixo, usado pelo link direto acima).
 - **Dicionários:** os pacotes ficam em `dicts/<idioma>/` (o `pack.json` lista os arquivos). Depois de mudar algo, aumente `version` no `pack.json` e rode *Mr Keyboard - dicionários*. Ele publica o pacote e um `catalogo.json` assinado no Release `dicionarios`. O catálogo é assinado com a própria chave do app, e o app só aceita catálogo assinado com a chave com que foi instalado.
 
 **No computador:**

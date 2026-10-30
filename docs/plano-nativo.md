@@ -15,7 +15,7 @@ Código em `native/` (o mesmo `dictionary.cpp` do Hacker's Keyboard, Apache-2.0)
 - alinhamento de 16 KB, exigido por aparelhos com Android 15+ que usam páginas de 16 KB (a lib de hoje foi feita em 2018 com alinhamento de 4 KB);
 - teste no PC no próprio CI (`native/test`).
 
-Passos: rodar o workflow → baixar `libs-nativas` → copiar as 3 pastas para `lib/` do projeto → montar e testar. Nada muda no comportamento; serve para provar que o caminho do NDK funciona.
+Passos: rodar o workflow → baixar `libs-nativas` → extrair na raiz do projeto (atualiza `lib/` e `native-src.sha256`) → montar e testar. Desde a 1.66 o APK é montado por outro workflow (`mr-apk.yml`), com as libs de `lib/`; ver `revisao-ci-workflows.md`. Nada muda no comportamento; serve para provar que o caminho do NDK funciona.
 
 ## Fase 2 — Melhorias rápidas em Java/smali (feita na 1.62, ver `revisao-1.6.2.md`)
 - tirar siglas sem uso (FHM, RBN) que atrapalham palavras curtas;
