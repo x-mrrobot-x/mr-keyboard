@@ -21,10 +21,15 @@ ES_CHAT=${ES_CHAT:-$DATA/es/split/chat_test.txt}
 unset JAVA_TOOL_OPTIONS
 mkdir -p "$OUT"
 
-# ---- lib nativa de PC (do mesmo dictionary.cpp)
+# ---- libs nativas de PC: libjni_pckeyboard.so (native/, o mesmo dictionary.cpp) e libmrengine.so (engine/, motor nativo).
+# Com as duas no java.library.path as medições usam o motor nativo (resultado idêntico ao do Java); JAVA_OPTS=-Dmr.native=off força o Java.
 if [ ! -f "$OUT/host/libjni_pckeyboard.so" ]; then
   cmake -S native -B "$OUT/host" -DCMAKE_BUILD_TYPE=Release > "$OUT/cmake.log" 2>&1
   cmake --build "$OUT/host" >> "$OUT/cmake.log" 2>&1
+fi
+if [ ! -f "$OUT/host-engine/libmrengine.so" ]; then
+  cmake -S engine -B "$OUT/host-engine" -DCMAKE_BUILD_TYPE=Release >> "$OUT/cmake.log" 2>&1
+  cmake --build "$OUT/host-engine" >> "$OUT/cmake.log" 2>&1
 fi
 # ---- jar do app (classes.dex -> dex2jar)
 JAR=${1:-}
@@ -39,7 +44,7 @@ rm -rf "$OUT/stubs" "$OUT/cls"; mkdir -p "$OUT/stubs" "$OUT/cls"
 javac -nowarn -encoding UTF-8 -cp "$JAR" -d "$OUT/stubs" $(find $E/android_stubs -name '*.java')
 javac -nowarn -encoding UTF-8 -cp "$JAR:$OUT/stubs" -d "$OUT/cls" $E/E2ETest.java $E/CorrEval.java $E/PrefixEval.java $E/OovEval.java $E/RecentEval.java
 CP="$OUT/cls:$OUT/stubs:$JAR"
-run() { java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote -Djava.library.path="$OUT/host" -cp "$CP" "$@"; }
+run() { java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote -Djava.library.path="$OUT/host:$OUT/host-engine" $JAVA_OPTS -cp "$CP" "$@"; }
 
 # ---- erros e sessões sintéticos (semente fixa)
 python3 -I $E/gen_typos_all.py pt "$PT_NEWS" "$PT_CHAT" "$OUT/typos_pt.tsv" > /dev/null

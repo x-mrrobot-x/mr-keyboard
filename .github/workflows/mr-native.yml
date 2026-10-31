@@ -1,14 +1,19 @@
-# Mr Keyboard: compila a lib nativa com o NDK (3 arquiteturas) e testa no PC.
+# Mr Keyboard: compila as duas libs nativas com o NDK (3 arquiteturas) e testa no PC.
 #
-# Só roda quando o código nativo muda (native/**) ou quando você manda (Run workflow).
+#   native/  -> libjni_pckeyboard.so  leitor do dicionário (Hacker's Keyboard / LatinIME)
+#   engine/  -> libmrengine.so        motor nativo (1.77): busca de correção e trigramas em C++
+#
+# Só roda quando o código nativo muda (native/** ou engine/**) ou quando você manda (Run workflow).
 # O APK NÃO depende deste workflow: ele usa as libs que já estão em lib/ (ver mr-apk.yml).
 #
-# Quando native/ mudar:
+# Quando native/ ou engine/ mudar:
 #   1. rode (ou espere o push rodar) este workflow;
-#   2. baixe o artifact "libs-nativas" e extraia na RAIZ do projeto (cria/atualiza lib/<abi>/ e native-src.sha256);
-#   3. faça o commit de lib/ e native-src.sha256 junto com a mudança.
-# O native-src.sha256 diz de qual código a lib foi compilada. O mr-apk.yml compara com o native/ atual:
-# se forem diferentes, avisa (e não deixa publicar) para você não lançar um APK com lib velha.
+#   2. baixe o artifact "libs-nativas" e extraia na RAIZ do projeto, mesclando (cria/atualiza lib/<abi>/, native-src.sha256,
+#      mrengine-src.sha256 e mrengine-info.txt);
+#   3. faça o commit de lib/ e desses arquivos junto com a mudança.
+# native-src.sha256 e mrengine-src.sha256 dizem de qual código cada lib foi compilada. O mr-apk.yml compara com o código
+# atual: se forem diferentes, avisa (e não deixa publicar) para você não lançar um APK com lib velha.
+# A paridade do motor com o Java (Java x C++ ao vivo) roda no mr-checks.yml, que tem o APK montado.
 name: Mr Keyboard - lib nativa
 
 on:
@@ -17,6 +22,7 @@ on:
     branches: [main]
     paths:
       - 'native/**'
+      - 'engine/**'
       - '.github/workflows/mr-native.yml'
 
 permissions:
@@ -41,43 +47,81 @@ jobs:
           test -f "$NDK/build/cmake/android.toolchain.cmake"
           echo "dir=$NDK" >> "$GITHUB_OUTPUT"
 
-      - name: Compilar para arm64-v8a, armeabi-v7a e x86
+      - name: Compilar para arm64-v8a, armeabi-v7a e x86 (as duas libs)
         run: |
           NDK="${{ steps.ndk.outputs.dir }}"
           for abi in arm64-v8a armeabi-v7a x86; do
-            cmake -S native -B "build/$abi" \
-              -DCMAKE_TOOLCHAIN_FILE="$NDK/build/cmake/android.toolchain.cmake" \
-              -DANDROID_ABI="$abi" -DANDROID_PLATFORM=android-26 -DCMAKE_BUILD_TYPE=Release
-            cmake --build "build/$abi" -j4
+            for proj in native engine; do
+              cmake -S "$proj" -B "build/$abi/$proj" \
+                -DCMAKE_TOOLCHAIN_FILE="$NDK/build/cmake/android.toolchain.cmake" \
+                -DANDROID_ABI="$abi" -DANDROID_PLATFORM=android-26 -DCMAKE_BUILD_TYPE=Release
+              cmake --build "build/$abi/$proj" -j4
+            done
             mkdir -p "out/lib/$abi"
-            cp "build/$abi/libjni_pckeyboard.so" "out/lib/$abi/"
+            cp "build/$abi/native/libjni_pckeyboard.so" "build/$abi/engine/libmrengine.so" "out/lib/$abi/"
           done
           ls -l out/lib/*/
 
-      - name: Conferir (alinhamento de 16 KB, registro das funções JNI)
+      - name: Conferir (alinhamento de 16 KB, registro das funções JNI, sem libc++_shared)
         run: |
           RE="${{ steps.ndk.outputs.dir }}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
-          for so in out/lib/*/libjni_pckeyboard.so; do
+          for so in out/lib/*/libjni_pckeyboard.so out/lib/*/libmrengine.so; do
             echo "== $so"
             "$RE" -lW "$so" | grep LOAD
             "$RE" -lW "$so" | grep LOAD | awk '{ if ($NF != "0x4000") { print "alinhamento errado: " $NF; exit 1 } }'
             "$RE" --dyn-syms "$so" | grep -q JNI_OnLoad
-            strings "$so" | grep -q "com/mrkeyboard/app/BinaryDictionary"
+            # o app não traz libc++_shared.so
+            if "$RE" -d "$so" | grep -q "libc++_shared"; then echo "depende de libc++_shared.so"; exit 1; fi
+          done
+          for so in out/lib/*/libjni_pckeyboard.so; do strings "$so" | grep -q "com/mrkeyboard/app/BinaryDictionary"; done
+          for so in out/lib/*/libmrengine.so; do
+            strings "$so" | grep -q "com/mrkeyboard/app/MrNative"
+            strings "$so" | grep -q "nSearch"
           done
 
-      - name: Teste no PC com o mesmo código (dicionário do projeto)
+      - name: Teste no PC da lib do dicionário (dict_test, com o dicionário do projeto)
         run: |
-          cmake -S native -B build/host -DCMAKE_BUILD_TYPE=Release -DMR_HOST_TEST=ON
-          cmake --build build/host -j4
-          ./build/host/dict_test dicts/pt-BR/main.dict native/test/amostra_palavras.tsv \
+          cmake -S native -B build/host-native -DCMAKE_BUILD_TYPE=Release -DMR_HOST_TEST=ON
+          cmake --build build/host-native -j4
+          ./build/host-native/dict_test dicts/pt-BR/main.dict native/test/amostra_palavras.tsv \
               native/test/amostra_bigramas.tsv native/test/casos.tsv 5 | grep -v "^OK\|^FALHA"
 
-      - name: Registrar de qual código a lib foi compilada
+      - name: Teste no PC do motor (engine/ com os dicionários de dicts/ - busca, trigramas, arquivos estragados, bordas)
         run: |
-          # só o que entra na compilação (CMakeLists e src/); os arquivos de teste não mudam a lib
+          cmake -S engine -B build/host-engine -DCMAKE_BUILD_TYPE=Release -DMR_HOST_TEST=ON
+          cmake --build build/host-engine -j4
+          ./build/host-engine/mr_test dicts 100
+          ./build/host-engine/mr_bench dicts 5
+
+      - name: Ponte JNI do motor (RegisterNatives e argumentos ruins, com o Java do runner)
+        run: |
+          mkdir -p build/jc
+          javac -nowarn -encoding UTF-8 -d build/jc engine/test/java/com/mrkeyboard/app/*.java
+          java -Dfile.encoding=UTF-8 -cp build/jc com.mrkeyboard.app.JniSmoke build/host-engine/libmrengine.so dicts
+
+      - name: Motor com ASan + UBSan (arquivos estragados)
+        run: |
+          cmake -S engine -B build/san-engine -DCMAKE_BUILD_TYPE=RelWithDebInfo -DMR_HOST_TEST=ON -DMR_SANITIZE=ON
+          cmake --build build/san-engine -j4
+          ./build/san-engine/mr_test dicts 150
+
+      - name: Registrar de qual código as libs foram compiladas
+        run: |
+          # só o que entra na compilação (CMakeLists e src/); os arquivos de teste não mudam as libs
           find native/CMakeLists.txt native/src -type f -print0 | LC_ALL=C sort -z \
             | xargs -0 sha256sum | sha256sum | cut -d' ' -f1 > out/native-src.sha256
-          cat out/native-src.sha256
+          # a conta do motor é feita de dentro de engine/ (caminhos CMakeLists.txt e src/...); o mr-apk.yml faz a mesma
+          (cd engine && find CMakeLists.txt src -type f -print0 | LC_ALL=C sort -z \
+            | xargs -0 sha256sum | sha256sum | cut -d' ' -f1) > out/mrengine-src.sha256
+          V=$(grep -o 'kEngineVersion = [0-9]*' engine/src/mr_engine.h | grep -o '[0-9]*$')
+          {
+            echo "contrato do motor (kEngineVersion): $V"
+            echo "lib do dicionario (sha256 de native/CMakeLists.txt + native/src): $(cat out/native-src.sha256)"
+            echo "motor (sha256 de engine/CMakeLists.txt + engine/src): $(cat out/mrengine-src.sha256)"
+            echo "commit: $GITHUB_SHA"
+            (cd out && sha256sum lib/*/*.so)
+          } > out/mrengine-info.txt
+          cat out/mrengine-info.txt
 
       - uses: actions/upload-artifact@v4
         with:

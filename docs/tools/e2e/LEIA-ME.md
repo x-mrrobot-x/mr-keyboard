@@ -14,19 +14,13 @@ mesmo `dictionary.cpp`. Só o `LatinIME` (que precisa do Android) fica de fora. 
 | `RecentEval` (`gen_sessions.py`) | palavras recentes: a próxima palavra está entre as 3 mostradas depois do espaço e depois de 1 a 3 letras, em sessões simuladas, com e sem `MrRecent` (`-Drecent=0`). |
 | `E2ETest`, `E2EEn`, `E2EEs` | verificações de ponta a ponta com expectativas fixas (TUDO OK ou FALHA). |
 | `Parity`, `TouchEval`, `TypoEval` | comparação de duas versões lista a lista, toques imprecisos e erros sintéticos (1.64 a 1.66). |
-| `NativeParity` | motor nativo (1.77): a busca do `MrFuzzy` e a lista final de `Suggest` pelo Java e pela `libmrengine.so`, palavra por palavra, pontuação, custo e nós visitados; trigramas pelos dois caminhos; tempo dos dois. Sai com 1 se houver qualquer diferença. |
-| `NativeDump`, `TriDump` | geram os arquivos de ouro do repositório `mr-engine` (`testdata/`) a partir do Java: tabelas, regras e as respostas esperadas. |
+| `NativeParity` | motor nativo (1.77): a busca do `MrFuzzy` e a lista final de `Suggest` pelo Java e pela `libmrengine.so`, palavra por palavra, pontuação, custo e nós visitados; trigramas pelos dois caminhos; tempo dos dois. Sai com 1 se houver qualquer diferença. Roda no CI via `run_native_parity.sh`. |
 
 ### Motor nativo (1.77)
-Precisa da `libmrengine.so` **de PC** (o repositório `mr-engine`: `cmake -S . -B build/host -DCMAKE_BUILD_TYPE=Release && cmake --build build/host`).
-Com o jar do app e as classes de teste montados como no `run_eval.sh`:
-
-```bash
-java -Djava.library.path=/pasta/com/libmrengine.so:/pasta/com/libjni_pckeyboard.so -cp ... com.mrkeyboard.app.NativeParity \
-     dicts/pt-BR/main.dict erros_pt.tsv dicts/pt-BR/trigrams.bin     # -Dpairs=frases.txt para os pares de trigramas
-```
-Qualquer outra classe desta pasta (`CorrEval`, `PrefixEval`…) também usa a lib quando ela está no `java.library.path`;
-`-Dmr.native=off` força o Java. Nas medições comparativas rode as duas vezes.
+`bash docs/tools/e2e/run_native_parity.sh [jar_do_app.jar]` compila as libs de PC (`engine/` e `native/`), gera as consultas do próprio
+`dicts/` (`engine/tools/gen_parity_queries.py`) e roda o `NativeParity` nos 3 idiomas; é o mesmo que o *Mr Keyboard - verificações* roda.
+Qualquer outra classe desta pasta (`CorrEval`, `PrefixEval`…) também usa a lib quando ela está no `java.library.path` (o `run_eval.sh`
+já põe as duas); `JAVA_OPTS=-Dmr.native=off` força o Java. Nas medições comparativas rode as duas vezes.
 
 ## Limites da medição
 - Os textos de teste (Leipzig, Tatoeba) vêm **embaralhados**, sem conversa de verdade. `gen_sessions.py` fabrica duas

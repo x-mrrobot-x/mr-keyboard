@@ -1,6 +1,6 @@
 # Motor de sugestões e dicionários: melhorias que restam
 
-Atualizado depois da 1.77.1. Os números vêm das medições no PC (`docs/tools/e2e/`, veja o `LEIA-ME.md` de lá) e das notas de cada versão (`docs/revisao-*.md`).
+Atualizado depois da 1.77.2. Os números vêm das medições no PC (`docs/tools/e2e/`, veja o `LEIA-ME.md` de lá) e das notas de cada versão (`docs/revisao-*.md`).
 
 ## Já feito
 | Item | O que era | Versão |

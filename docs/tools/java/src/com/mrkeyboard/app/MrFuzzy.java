@@ -490,11 +490,20 @@ public final class MrFuzzy {
 
     /** A digitada (sem acento/caixa) é o começo de alguma palavra do dicionário? */
     private boolean isPrefix() {
+        mGuard = 0;
         return prefixRec(mRoot, 0);
     }
 
+    /**
+     * v1.77.2: teto de nós de isPrefix e do lookup do split (as buscas recursivas que não passam pelo walk). Num dicionário
+     * de verdade elas visitam no máximo algumas centenas de nós (medido: 41 e 379 em 43 mil consultas); num arquivo estragado,
+     * com ponteiros em ciclo e letras repetidas, cresciam exponencialmente e travavam o teclado.
+     */
+    private int mGuard;
+
     private boolean prefixRec(int pos, int j) {
         if (pos < 0 || pos >= mSize) return false;
+        if (++mGuard > NODE_BUDGET) return false;
         int count = mDict.get(pos) & 0xFF;
         pos++;
         char want = mTb[j];
@@ -838,6 +847,7 @@ public final class MrFuzzy {
 
     private void split() {
         int n = mN;
+        mGuard = 0;
         long bestScore = 0;
         int bestLen = 0;
         for (int k = 1; k <= n - 2; k++) {
@@ -875,6 +885,7 @@ public final class MrFuzzy {
 
     private void lookupRec(int pos, int j, int to, int depth) {
         if (pos < 0 || pos >= mSize) return;
+        if (++mGuard > NODE_BUDGET) return;
         int count = mDict.get(pos) & 0xFF;
         pos++;
         char want = mTb[j];

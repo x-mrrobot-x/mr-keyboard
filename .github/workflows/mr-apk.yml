@@ -1,6 +1,7 @@
 # Mr Keyboard: monta o APK com o apktool, assina e (opcional) publica em Releases.
 #
-# Não compila nada nativo: usa as libs que já estão em lib/. Para atualizá-las, veja mr-native.yml.
+# Não compila nada nativo: usa as libs que já estão em lib/ (libjni_pckeyboard.so de native/ e libmrengine.so de engine/).
+# Para atualizá-las, veja mr-native.yml.
 #
 # Resultado em Actions > (execução) > Artifacts:
 #   apk -> MrKeyboard-unsigned.apk (e MrKeyboard-signed.apk se houver chave nos secrets)
@@ -62,7 +63,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Conferir se lib/ foi compilada do native/ atual
+      - name: Conferir se lib/ foi compilada do native/ e do engine/ atuais
         id: lib
         env:
           PUBLICAR: ${{ inputs.publicar }}
@@ -70,13 +71,26 @@ jobs:
           ATUAL=$(find native/CMakeLists.txt native/src -type f -print0 | LC_ALL=C sort -z \
             | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
           GRAVADO=$(cat native-src.sha256 2>/dev/null | tr -d ' \r\n' || true)
-          if [ "$ATUAL" = "$GRAVADO" ]; then
-            echo "lib/ confere com o native/ atual"
+          # o motor: a conta é feita de dentro de engine/ (a mesma do mr-native.yml)
+          ATUAL_MOTOR=$(cd engine && find CMakeLists.txt src -type f -print0 | LC_ALL=C sort -z \
+            | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
+          GRAVADO_MOTOR=$(cat mrengine-src.sha256 2>/dev/null | tr -d ' \r\n' || true)
+          FALTA=""
+          for abi in arm64-v8a armeabi-v7a x86; do
+            for l in libjni_pckeyboard.so libmrengine.so; do
+              [ -s "lib/$abi/$l" ] || FALTA="$FALTA lib/$abi/$l"
+            done
+          done
+          if [ "$ATUAL" = "$GRAVADO" ] && [ "$ATUAL_MOTOR" = "$GRAVADO_MOTOR" ] && [ -z "$FALTA" ]; then
+            echo "lib/ confere com o native/ e o engine/ atuais"
             echo "lib_ok=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           echo "lib_ok=false" >> "$GITHUB_OUTPUT"
-          MSG="lib/ não foi compilada a partir do native/ atual. Rode 'Mr Keyboard - lib nativa', extraia o artifact libs-nativas na raiz do projeto e faça o commit."
+          [ "$ATUAL" = "$GRAVADO" ] || echo "native/ mudou: native-src.sha256 é $GRAVADO e o código atual dá $ATUAL"
+          [ "$ATUAL_MOTOR" = "$GRAVADO_MOTOR" ] || echo "engine/ mudou: mrengine-src.sha256 é $GRAVADO_MOTOR e o código atual dá $ATUAL_MOTOR"
+          [ -z "$FALTA" ] || echo "faltam em lib/:$FALTA"
+          MSG="lib/ não foi compilada a partir do native/ e do engine/ atuais. Rode 'Mr Keyboard - lib nativa', extraia o artifact libs-nativas na raiz do projeto e faça o commit."
           if [ "$PUBLICAR" = "true" ]; then
             echo "::error::$MSG Nada foi publicado."; exit 1
           fi

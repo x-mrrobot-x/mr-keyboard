@@ -7,15 +7,17 @@ import java.util.*;
 
 /**
  * Paridade do motor nativo (v1.77): para cada palavra das listas, a busca de correção do MrFuzzy roda pelo
- * caminho Java e pelo caminho C++ (libmrengine.so) e as duas têm de dar o MESMO resultado: mesmas palavras,
+ * caminho Java e pelo caminho C++ (libmrengine.so, pela JNI) e as duas têm de dar o MESMO resultado: mesmas palavras,
  * mesma ordem, mesma pontuação, mesmo custo e o mesmo número de nós visitados. Depois compara a lista final
  * de Suggest.getSuggestions (o que a faixa mostra) e mede o tempo dos dois caminhos.
  *
- * Também confere os trigramas: MrTrigram.find pelo Java e pela lib, para os pares das sessões.
+ * Também confere os trigramas: MrTrigram.find pelo Java e pela lib, para os pares de -Dpairs.
+ * As consultas saem do próprio dicionário: engine/tools/gen_parity_queries.py (o docs/tools/e2e/run_native_parity.sh faz tudo).
  *
- * Uso: java -Djava.library.path=<pasta das libs> -cp ... com.mrkeyboard.app.NativeParity dicionario.dict erros.tsv [trigramas.bin]
- *   -Dlimit=N  só as N primeiras linhas;  -Dpairs=arquivo.txt  frases para os pares de trigramas
- *   -Drows=...  layout das teclas vizinhas;  -Dshow=20  mostra até 20 diferenças
+ * Uso: java -Djava.library.path=<pastas das libs> -cp ... com.mrkeyboard.app.NativeParity dicionario.dict erros.tsv [trigramas.bin]
+ *   -Dlimit=N  só as N primeiras linhas;  -Dpairs=arquivo.txt  linhas "w1 w2" para os pares de trigramas
+ *   -Drows=...  layout das teclas vizinhas;  -Dshow=20  mostra até 20 diferenças;  -Drounds=1  uma rodada só (padrão 2: a 2ª mede o tempo)
+ *   -Dsuggmax=N  quantas palavras passam pelo Suggest completo (padrão 4000)
  * Sai com código 1 se houver qualquer diferença (ou se a lib não carregar).
  */
 public class NativeParity {
@@ -70,7 +72,8 @@ public class NativeParity {
         List<String> shown = new ArrayList<String>();
         long tJava = 0, tNative = 0;
         // 2 rodadas: a 2ª com os caches quentes, que é a que vale para o tempo
-        for (int round = 0; round < 2; round++) {
+        int rounds = Integer.getInteger("rounds", 2);
+        for (int round = 0; round < rounds; round++) {
             tJava = 0; tNative = 0; total = 0; diffs = 0; shown.clear();
             for (String w : words) {
                 if (w.length() > MrFuzzy.MAX_TYPED + 4) continue;

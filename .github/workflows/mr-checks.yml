@@ -20,6 +20,8 @@
 #   verify_dex.sh        o verificador do dex2jar não acha erro no dex montado
 #   smali_regcheck.py    de novo, no smali decodificado do APK montado
 #   run_java_tests.sh    com o jar do APK: testes do espanhol (SheetStrings/MrEs)
+#   run_native_parity.sh motor nativo (engine/): a busca de correção, a lista de sugestões e os trigramas pelo Java e pela
+#                        libmrengine.so de PC têm de dar o mesmo resultado nos 3 idiomas, com os dicionários de dicts/
 name: Mr Keyboard - verificações
 
 on:
@@ -33,6 +35,8 @@ on:
       - 'apktool.json'
       - 'docs/tools/**'
       - 'docs/revisao-*.md'
+      - 'engine/**'
+      - 'native/**'
       - '.github/workflows/mr-checks.yml'
   push:
     branches: [main]
@@ -44,6 +48,8 @@ on:
       - 'apktool.json'
       - 'docs/tools/**'
       - 'docs/revisao-*.md'
+      - 'engine/**'
+      - 'native/**'
       - '.github/workflows/mr-checks.yml'
 
 permissions:
@@ -129,3 +135,9 @@ jobs:
 
       - name: Testes do espanhol com o jar do APK
         run: sh docs/tools/run_java_tests.sh "$RUNNER_TEMP/dex/classes.jar"
+
+      - name: Motor nativo - paridade Java x C++ ao vivo (3 idiomas, dicionários de dicts/)
+        env:
+          WORDS: '1200'
+          SUGG: '1000'
+        run: bash docs/tools/e2e/run_native_parity.sh "$RUNNER_TEMP/dex/classes.jar"
