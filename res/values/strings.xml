@@ -33,8 +33,6 @@
     <string name="auto_version">custom</string>
     <string name="default_chording_alt_key">0</string>
     <string name="default_chording_ctrl_key">0</string>
-    <string name="default_chording_meta_key">0</string>
-    <string name="default_click_method">1</string>
     <string name="default_click_volume">0.8</string>
     <string name="default_ctrl_a_override">2</string>
     <string name="default_height_landscape">60%</string>
@@ -44,7 +42,6 @@
     <string name="default_keyboard_mode_portrait">0</string>
     <string name="default_long_press_duration">100 ms</string>
     <string name="default_popup_content">0</string>
-    <string name="default_render_mode">1</string>
     <string name="default_swipe_down">close</string>
     <string name="default_swipe_left">sheet_prev</string>
     <string name="default_swipe_right">sheet_next</string>

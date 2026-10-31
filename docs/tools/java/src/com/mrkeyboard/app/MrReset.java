@@ -17,8 +17,8 @@ import android.widget.Toast;
  * dicionários instalados.
  *
  * KEYS tem de ter toda chave que as telas de configurações (res/xml/prefs*.xml) oferecem, a
- * "pref_sheet_return" (que fica na página Folhas do teclado) e as chaves que já saíram das telas; o
- * script docs/tools/check_reset_keys.py confere isso.
+ * "pref_sheet_return" (que fica na página Folhas do teclado) e as chaves antigas, que o teclado já
+ * não lê e só estão aqui para limpar valores guardados; o script docs/tools/check_reset_keys.py confere.
  */
 public final class MrReset implements Preference.OnPreferenceClickListener {
     static final String[] KEYS = {

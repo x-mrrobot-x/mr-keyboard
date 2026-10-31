@@ -168,7 +168,7 @@
     iput v3, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->keyClickVolume:F
 
     .line 53
-    iput v2, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->keyClickMethod:I
+    iput v0, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->keyClickMethod:I
 
     .line 54
     iput-boolean v0, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->capsLock:Z
@@ -310,24 +310,6 @@
 
     invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addStringPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;)V
 
-    const-string v0, "pref_slide_keys_int"
-
-    .line 136
-    new-instance v1, Lcom/mrkeyboard/app/GlobalKeyboardSettings$3;
-
-    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$3;-><init>(Lcom/mrkeyboard/app/GlobalKeyboardSettings;)V
-
-    invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addStringPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;)V
-
-    const-string v0, "pref_touch_pos"
-
-    .line 142
-    new-instance v1, Lcom/mrkeyboard/app/GlobalKeyboardSettings$4;
-
-    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$4;-><init>(Lcom/mrkeyboard/app/GlobalKeyboardSettings;)V
-
-    invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addBooleanPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$BooleanPref;)V
-
     const-string v0, "pref_popup_content"
 
     .line 148
@@ -364,15 +346,6 @@
 
     invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addStringPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;)V
 
-    const-string v0, "pref_top_row_scale"
-
-    .line 172
-    new-instance v1, Lcom/mrkeyboard/app/GlobalKeyboardSettings$9;
-
-    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$9;-><init>(Lcom/mrkeyboard/app/GlobalKeyboardSettings;)V
-
-    invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addStringPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;)V
-
     const-string v0, "pref_ctrl_a_override"
 
     .line 178
@@ -400,15 +373,6 @@
 
     invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addStringPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;)V
 
-    const-string v0, "pref_chording_meta_key"
-
-    .line 196
-    new-instance v1, Lcom/mrkeyboard/app/GlobalKeyboardSettings$13;
-
-    invoke-direct {v1, p0, p2}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$13;-><init>(Lcom/mrkeyboard/app/GlobalKeyboardSettings;Landroid/content/res/Resources;)V
-
-    invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addStringPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;)V
-
     const-string v0, "pref_click_volume"
 
     .line 202
@@ -417,33 +381,6 @@
     invoke-direct {v1, p0, p2}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$14;-><init>(Lcom/mrkeyboard/app/GlobalKeyboardSettings;Landroid/content/res/Resources;)V
 
     invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addStringPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;)V
-
-    const-string v0, "pref_click_method"
-
-    .line 208
-    new-instance v1, Lcom/mrkeyboard/app/GlobalKeyboardSettings$15;
-
-    invoke-direct {v1, p0, p2}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$15;-><init>(Lcom/mrkeyboard/app/GlobalKeyboardSettings;Landroid/content/res/Resources;)V
-
-    invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addStringPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;)V
-
-    const-string v0, "pref_caps_lock"
-
-    .line 214
-    new-instance v1, Lcom/mrkeyboard/app/GlobalKeyboardSettings$16;
-
-    invoke-direct {v1, p0, p2}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$16;-><init>(Lcom/mrkeyboard/app/GlobalKeyboardSettings;Landroid/content/res/Resources;)V
-
-    invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addBooleanPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$BooleanPref;)V
-
-    const-string v0, "pref_shift_lock_modifiers"
-
-    .line 220
-    new-instance v1, Lcom/mrkeyboard/app/GlobalKeyboardSettings$17;
-
-    invoke-direct {v1, p0, p2}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$17;-><init>(Lcom/mrkeyboard/app/GlobalKeyboardSettings;Landroid/content/res/Resources;)V
-
-    invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addBooleanPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$BooleanPref;)V
 
     .line 227
     iget-object p2, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->mBoolPrefs:Ljava/util/Map;

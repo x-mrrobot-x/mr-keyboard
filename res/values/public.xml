@@ -77,15 +77,12 @@
     <public type="attr" name="verticalPad" id="0x7f030131" />
     <public type="bool" name="config_swipeDisambiguation" id="0x7f040005" />
     <public type="bool" name="default_auto_cap" id="0x7f040007" />
-    <public type="bool" name="default_caps_lock" id="0x7f040008" />
-    <public type="bool" name="default_connectbot_tab_hack" id="0x7f040009" />
     <public type="bool" name="default_force_keyboard_on" id="0x7f04000a" />
     <public type="bool" name="default_fullscreen_override" id="0x7f04000b" />
     <public type="bool" name="default_keyboard_notification" id="0x7f04000c" />
     <public type="bool" name="default_popup_preview" id="0x7f04000d" />
     <public type="bool" name="default_quick_fixes" id="0x7f04000e" />
     <public type="bool" name="default_recorrection_enabled" id="0x7f04000f" />
-    <public type="bool" name="default_shift_lock_modifiers" id="0x7f040010" />
     <public type="bool" name="default_suggestions" id="0x7f040011" />
     <public type="bool" name="default_suggestions_in_landscape" id="0x7f040012" />
     <public type="bool" name="enable_autocorrect" id="0x7f040013" />
@@ -314,8 +311,6 @@
     <public type="string" name="auto_version" id="0x7f0c0049" />
     <public type="string" name="default_chording_alt_key" id="0x7f0c004e" />
     <public type="string" name="default_chording_ctrl_key" id="0x7f0c004f" />
-    <public type="string" name="default_chording_meta_key" id="0x7f0c0050" />
-    <public type="string" name="default_click_method" id="0x7f0c0051" />
     <public type="string" name="default_click_volume" id="0x7f0c0052" />
     <public type="string" name="default_ctrl_a_override" id="0x7f0c0053" />
     <public type="string" name="default_height_landscape" id="0x7f0c0054" />
@@ -325,7 +320,6 @@
     <public type="string" name="default_keyboard_mode_portrait" id="0x7f0c0058" />
     <public type="string" name="default_long_press_duration" id="0x7f0c0059" />
     <public type="string" name="default_popup_content" id="0x7f0c005a" />
-    <public type="string" name="default_render_mode" id="0x7f0c005b" />
     <public type="string" name="default_swipe_down" id="0x7f0c005c" />
     <public type="string" name="default_swipe_left" id="0x7f0c005d" />
     <public type="string" name="default_swipe_right" id="0x7f0c005e" />

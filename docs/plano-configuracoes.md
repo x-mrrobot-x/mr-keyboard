@@ -110,7 +110,7 @@ De 7 para 6 categorias na tela principal. Os nomes das páginas ficam mais diret
 Resumo: **39 ficam** (alguns com nome novo de página), **6 mudam de lugar** e **6 saem**. De 51 para 45 configurações, mais o botão novo "Restaurar padrões".
 
 ## Como fica o comportamento do que sai
-Nenhuma é "desligada": o código continua lendo a chave e, sem a tela, usa o valor padrão que já usa hoje.
+Nenhuma é "desligada": sem a tela, o teclado usa o valor padrão que já usava. (No plano, o código continuava lendo a chave; na 1.70, a limpeza do motor tirou a leitura e deixou o valor fixo no código, ver `revisao-1.7.0.md`.)
 - `pref_render_mode`: padrão 1 (buffer por software). `pref_slide_keys_int`: padrão 0 (ignorar teclas ao deslizar, o "recomendado" da tela). `connectbot_tab_hack`: padrão ligado. `pref_touch_pos`: desligado. `pref_click_method` e `pref_click_volume`: padrão 0 (volume do sistema, o controle de volume do clique não age).
 - Quem tinha mudado algum desses valores perde a mudança (aqui você reseta sempre, então não há migração).
 

@@ -85,13 +85,9 @@
 
 .field private static final PREF_AUTO_COMPLETE:Ljava/lang/String; = "auto_complete"
 
-.field static final PREF_CONNECTBOT_TAB_HACK:Ljava/lang/String; = "connectbot_tab_hack"
-
 .field static final PREF_FORCE_KEYBOARD_ON:Ljava/lang/String; = "force_keyboard_on"
 
 .field static final PREF_FULLSCREEN_OVERRIDE:Ljava/lang/String; = "fullscreen_override"
-
-.field static final PREF_FULL_KEYBOARD_IN_PORTRAIT:Ljava/lang/String; = "full_keyboard_in_portrait"
 
 .field static final PREF_HEIGHT_LANDSCAPE:Ljava/lang/String; = "settings_height_landscape"
 
@@ -110,8 +106,6 @@
 .field private static final PREF_QUICK_FIXES:Ljava/lang/String; = "quick_fixes"
 
 .field private static final PREF_RECORRECTION_ENABLED:Ljava/lang/String; = "recorrection_enabled"
-
-.field static final PREF_RENDER_MODE:Ljava/lang/String; = "pref_render_mode"
 
 .field public static final PREF_SELECTED_LANGUAGES:Ljava/lang/String; = "selected_languages"
 
@@ -8541,19 +8535,7 @@
 
     iput-boolean v4, p0, Lcom/mrkeyboard/app/LatinIME;->mReCorrectionEnabled:Z
 
-    const-string v4, "connectbot_tab_hack"
-
-    const v5, 0x7f040009
-
-    .line 382
-    invoke-virtual {v3, v5}, Landroid/content/res/Resources;->getBoolean(I)Z
-
-    move-result v5
-
-    .line 381
-    invoke-interface {v1, v4, v5}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
-
-    move-result v4
+    const/4 v4, 0x1
 
     iput-boolean v4, p0, Lcom/mrkeyboard/app/LatinIME;->mConnectbotTabHack:Z
 
@@ -8688,23 +8670,6 @@
     move-result v5
 
     iput v5, v4, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->longpressTimeout:I
-
-    .line 395
-    sget-object v4, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
-
-    const-string v5, "pref_render_mode"
-
-    const v6, 0x7f0c005b
-
-    invoke-virtual {v3, v6}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
-
-    move-result-object v6
-
-    invoke-static {v1, v5, v6}, Lcom/mrkeyboard/app/LatinIME;->getPrefInt(Landroid/content/SharedPreferences;Ljava/lang/String;Ljava/lang/String;)I
-
-    move-result v5
-
-    iput v5, v4, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->renderMode:I
 
     const-string v4, "pref_swipe_up"
 
@@ -10937,33 +10902,6 @@
     goto/16 :goto_1
 
     :cond_6
-    const-string v3, "connectbot_tab_hack"
-
-    .line 2972
-    invoke-virtual {v3, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v3
-
-    if-eqz v3, :cond_7
-
-    const-string p2, "connectbot_tab_hack"
-
-    const v3, 0x7f040009
-
-    .line 2975
-    invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getBoolean(I)Z
-
-    move-result v0
-
-    .line 2973
-    invoke-interface {p1, p2, v0}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
-
-    move-result p1
-
-    iput-boolean p1, p0, Lcom/mrkeyboard/app/LatinIME;->mConnectbotTabHack:Z
-
-    goto/16 :goto_1
-
     :cond_7
     const-string v3, "fullscreen_override"
 
@@ -11258,36 +11196,6 @@
     goto/16 :goto_1
 
     :cond_10
-    const-string v3, "pref_render_mode"
-
-    .line 3021
-    invoke-virtual {v3, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v3
-
-    if-eqz v3, :cond_11
-
-    .line 3022
-    sget-object p2, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
-
-    const-string v1, "pref_render_mode"
-
-    const v3, 0x7f0c005b
-
-    .line 3023
-    invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 3022
-    invoke-static {p1, v1, v0}, Lcom/mrkeyboard/app/LatinIME;->getPrefInt(Landroid/content/SharedPreferences;Ljava/lang/String;Ljava/lang/String;)I
-
-    move-result p1
-
-    iput p1, p2, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->renderMode:I
-
-    goto/16 :goto_0
-
     :cond_11
     const-string v3, "pref_swipe_up"
 

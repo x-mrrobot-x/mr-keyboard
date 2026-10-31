@@ -110,14 +110,6 @@
 
     if-nez v1, :cond_end
 
-    const-string v1, "pref_top_row_scale"
-
-    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v1
-
-    if-nez v1, :cond_end
-
     const-string v1, "pref_label_scale_v2"
 
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
