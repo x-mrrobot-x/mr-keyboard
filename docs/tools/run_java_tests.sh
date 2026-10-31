@@ -2,7 +2,8 @@
 # Testes de PC da camada Java que não precisam do APK (roda na raiz do projeto):
 #   - compila os stubs (docs/tools/java/stubs) e os fontes (docs/tools/java/src), como o build_java.sh;
 #   - AuthorTest: cartão do autor e link da tela principal (MrAuthor, MrLink).
-#   - RecorrectTest: quais palavras ganham sugestões ao tocar nelas (MrRecorrect).
+#   - RecorrectTest: palavra sob o cursor, quais palavras ganham sugestões e teclas vizinhas (MrRecorrect).
+#   - RecentTest: palavras recentes na previsão e na hora de completar (MrRecent).
 # Com o caminho do jar do APK (classes.dex -> d2j-dex2jar), roda também:
 #   - EsTest: SheetStrings/MrEs com contextos em espanhol, português, inglês e francês.
 # Uso: sh docs/tools/run_java_tests.sh [app.jar]
@@ -21,6 +22,10 @@ java -cp "$T/test_author:$T/ov_author:$T/stubs:$T/main" com.mrkeyboard.app.Autho
 echo "== RecorrectTest"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_rec" $D/recorrect_test/RecorrectTest.java
 java -cp "$T/test_rec:$T/stubs:$T/main" com.mrkeyboard.app.RecorrectTest
+
+echo "== RecentTest"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_recent" $D/recent_test/RecentTest.java
+java -cp "$T/test_recent:$T/stubs:$T/main" com.mrkeyboard.app.RecentTest
 
 if [ -n "$APPJAR" ]; then
   echo "== EsTest"

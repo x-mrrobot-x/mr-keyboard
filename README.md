@@ -19,6 +19,7 @@ Requires Android 8.0 or later.
   - dictionaries are downloaded in *Settings → Suggestions and dictionaries*, so the app itself is only about 1 MB. Each language you download is added to the keyboard: slide the space bar sideways to switch between them;
   - typo correction and next-word prediction;
   - learns the words you use, never in password or incognito fields;
+  - suggests the names and words you just wrote in the same conversation (kept only in memory and cleared when you change field or app);
   - everything runs on the device;
   - off by default: turn on *Show suggestions* on the same screen.
 - **Themes:** Mr Keyboard Neon, Dark Tech (soft and raised) and Midnight Steel. Key spacing and corner roundness work in every theme.

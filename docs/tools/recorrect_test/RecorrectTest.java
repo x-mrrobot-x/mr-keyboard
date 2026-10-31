@@ -41,6 +41,13 @@ public class RecorrectTest {
         }
     }
 
+    static boolean contains(int[] codes, int c) { return contains(codes, c, 0); }
+
+    static boolean contains(int[] codes, int c, int from) {
+        for (int i = from; i < codes.length; i++) if (codes[i] == c) return true;
+        return false;
+    }
+
     static String str(EditingUtil.SelectedWord w) { return w == null ? "null" : w.word + "[" + w.start + "," + w.end + ")"; }
 
     static boolean is(EditingUtil.SelectedWord w, String word, int start, int end) {
@@ -142,6 +149,74 @@ public class RecorrectTest {
 
         check("sem conexão ou sem separadores = sem palavra", MrRecorrect.wordAt(null, 0, 0, SEP) == null
                 && MrRecorrect.wordAt(new Editor("ola", 1, 1), 1, 1, null) == null);
+
+        // ---------------------------------------------------------------- composer: palavra reaberta com vizinhas
+        Keyboard qwerty = new Keyboard();
+        String[] rows = {"qwertyuiop", "asdfghjkl", "zxcvbnm"};
+        int[] x0 = {0, 50, 150};
+        for (int r = 0; r < 3; r++) {
+            for (int k = 0; k < rows[r].length(); k++) {
+                qwerty.keys.add(new Keyboard.Key(rows[r].charAt(k), x0[r] + k * 100, r * 120, 100, 120));
+            }
+        }
+        qwerty.keys.add(new Keyboard.Key(' ', 250, 360, 500, 120));   // espaço: nunca é vizinha
+        KeyboardSwitcher ks = new KeyboardSwitcher();
+        ks.view = new LatinKeyboardView();
+        ks.view.keyboard = qwerty;
+
+        WordComposer wc = MrRecorrect.composer(ks, "gato");
+        int[] g = wc.getCodesAt(0);
+        check("composer: 1 posição por letra e a palavra igual", wc.size() == 4 && "gato".contentEquals(wc.getTypedWord()));
+        check("composer: o 1º código é a letra e o vetor tem o tamanho da digitação",
+                g[0] == 'g' && g.length == MrRecorrect.NEARBY);
+        check("composer: vizinhas do g em ordem de distância (f,h a 100; v a 120; t,y a 130; b e c ficam fora do alcance)",
+                (g[1] == 'f' && g[2] == 'h' || g[1] == 'h' && g[2] == 'f') && g[3] == 'v'
+                        && (g[4] == 't' && g[5] == 'y' || g[4] == 'y' && g[5] == 't') && g[6] == -1
+                        && !contains(g, 'b') && !contains(g, 'c'));
+        check("composer: tecla longe (p) e o espaço não entram", !contains(g, 'p') && !contains(g, ' ') && !contains(g, 'g', 1));
+        int[] a0 = MrRecorrect.composer(ks, "azul").getCodesAt(0);
+        check("composer: letra da borda tem menos vizinhas (a: s a 100, q e w a 130; z fora do alcance)", a0[0] == 'a'
+                && a0[1] == 's' && contains(a0, 'q') && contains(a0, 'w') && !contains(a0, 'z') && a0[4] == -1 && !contains(a0, 'a', 1));
+        WordComposer up = MrRecorrect.composer(ks, "Obrigado");
+        check("composer: maiúscula inicial marcada e o código 0 é a letra como foi digitada",
+                up.isFirstCharCapitalized() && up.getCodesAt(0)[0] == 'O' && contains(up.getCodesAt(0), 'i') && contains(up.getCodesAt(0), 'p'));
+        WordComposer acc = MrRecorrect.composer(ks, "ação");
+        check("composer: letra com acento (ã, ç) usa as vizinhas da tecla da letra base e mantém a letra digitada",
+                acc.getCodesAt(0)[0] == 'a' && acc.getCodesAt(1)[0] == 'ç' && contains(acc.getCodesAt(1), 'x')
+                && contains(acc.getCodesAt(1), 'v') && contains(acc.getCodesAt(1), 'f') && !contains(acc.getCodesAt(1), 'c')
+                && contains(MrRecorrect.composer(ks, "ã").getCodesAt(0), 's'));
+        check("composer: caractere sem tecla nenhuma (@) fica só ele", MrRecorrect.composer(ks, "@").getCodesAt(0)[1] == -1);
+        int[] solo = MrRecorrect.composer(null, "casa").getCodesAt(0);
+        check("composer: sem teclado (nulo) só as letras", solo[0] == 'c' && solo[1] == -1);
+        KeyboardSwitcher noView = new KeyboardSwitcher();
+        check("composer: sem a tela do teclado só as letras", MrRecorrect.composer(noView, "casa").getCodesAt(0)[1] == -1);
+        KeyboardSwitcher sym = new KeyboardSwitcher();
+        sym.view = new LatinKeyboardView();
+        sym.view.keyboard = new Keyboard();
+        sym.view.keyboard.keys.add(new Keyboard.Key('1', 0, 0, 100, 120));
+        sym.view.keyboard.keys.add(new Keyboard.Key('2', 100, 0, 100, 120));
+        check("composer: teclado de símbolos (sem a letra) só as letras", MrRecorrect.composer(sym, "casa").getCodesAt(0)[1] == -1);
+        Keyboard broken = new Keyboard() {
+            public java.util.List<Key> getKeys() { throw new IllegalStateException("teclado trocando"); }
+        };
+        KeyboardSwitcher bad = new KeyboardSwitcher();
+        bad.view = new LatinKeyboardView();
+        bad.view.keyboard = broken;
+        check("composer: erro ao ler o teclado não derruba, só as letras", MrRecorrect.composer(bad, "casa").getCodesAt(0)[1] == -1);
+        Keyboard dense = new Keyboard();
+        String dcodes = "abcdefghijklmnopqrstuvwxyz!@#$";
+        for (int i = 0; i < dcodes.length(); i++) dense.keys.add(new Keyboard.Key(dcodes.charAt(i), (i % 6) * 40, (i / 6) * 40, 100, 100));
+        KeyboardSwitcher ds = new KeyboardSwitcher();
+        ds.view = new LatinKeyboardView();
+        ds.view.keyboard = dense;
+        int[] dc = MrRecorrect.composer(ds, "m").getCodesAt(0);
+        Keyboard.Key km = dense.keys.get(dcodes.indexOf('m'));
+        boolean sorted = true;
+        for (int j = 2; j < dc.length; j++) {
+            Keyboard.Key kp = dense.keys.get(dcodes.indexOf(dc[j - 1])), kj = dense.keys.get(dcodes.indexOf(dc[j]));
+            if (kp.squaredDistanceFrom(km.x + 50, km.y + 50) > kj.squaredDistanceFrom(km.x + 50, km.y + 50)) sorted = false;
+        }
+        check("composer: nunca passa de " + MrRecorrect.NEARBY + " códigos e vem em ordem de distância", dc.length == MrRecorrect.NEARBY && sorted);
 
         System.out.println(fail == 0 ? "TUDO OK (" + ok + " verificações)" : fail + " FALHA(S)");
         if (fail != 0) System.exit(1);

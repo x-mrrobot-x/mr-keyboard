@@ -4,6 +4,9 @@ import android.os.Build;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.SurroundingText;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Recorreção (v1.74, "Tocar para corrigir palavras"): acha a palavra sob o cursor e decide se ela
  * merece sugestões. LatinIME.setOldSuggestions chama {@link #wordAt} e {@link #eligible}.
@@ -11,6 +14,10 @@ import android.view.inputmethod.SurroundingText;
  * Antes o método só mostrava sugestões de palavras que o dicionário já conhecia ou que tinham sido
  * digitadas na sessão; uma palavra errada fora disso (a que mais precisa de correção) ficava sem nada.
  * Agora toda palavra com letras serve; só ficam de fora o que não é palavra para corrigir.
+ *
+ * Teclas vizinhas (v1.75): a palavra reaberta é remontada com as teclas ao redor de cada letra, tiradas do
+ * teclado que está na tela, como na digitação ({@link #composer}). Antes ela levava só as letras e a correção
+ * por tecla vizinha ("fato" para gato) não funcionava na palavra reaberta.
  *
  * Leitura do texto (por versão do Android, conforme a documentação):
  *  - API 31+: InputConnection.getSurroundingText devolve o texto em volta, a seleção e o
@@ -116,5 +123,94 @@ public final class MrRecorrect {
 
     private static boolean isSeparator(char c, String separators) {
         return separators.indexOf(c) >= 0;
+    }
+
+    // ------------------------------------------------------------------ palavra reaberta com teclas vizinhas
+
+    /** Tamanho do vetor de códigos da digitação (ProximityKeyDetector.getMaxNearbyKeys). */
+    static final int NEARBY = 12;
+
+    /**
+     * A palavra como se tivesse sido digitada agora: cada letra leva, depois dela, as teclas vizinhas do
+     * teclado atual, da mais perto para a mais longe (o mesmo que o ProximityKeyDetector faz no toque,
+     * com o centro da tecla no lugar do dedo). Sem teclado de letras na tela, só as letras.
+     */
+    static WordComposer composer(KeyboardSwitcher switcher, CharSequence word) {
+        WordComposer wc = new WordComposer();
+        Keyboard kb = null;
+        List<Keyboard.Key> keys = null;
+        try {
+            LatinKeyboardView view = switcher != null ? switcher.getInputView() : null;
+            kb = view != null ? view.getKeyboard() : null;
+            keys = kb != null ? kb.getKeys() : null;
+        } catch (RuntimeException e) {
+            kb = null;
+            keys = null;
+        }
+        for (int i = 0; i < word.length(); i++) {
+            char c = word.charAt(i);
+            wc.add(c, codesFor(kb, keys, c));
+        }
+        wc.setFirstCharCapitalized(word.length() > 0 && Character.isUpperCase(word.charAt(0)));
+        return wc;
+    }
+
+    /** [c, vizinhas da mais perto à mais longe, -1 ...], com NEARBY posições. */
+    static int[] codesFor(Keyboard kb, List<Keyboard.Key> keys, char c) {
+        int[] codes = new int[NEARBY];
+        Arrays.fill(codes, -1);
+        codes[0] = c;
+        if (kb == null || keys == null) return codes;
+        try {
+            Keyboard.Key key = keyFor(keys, c);
+            if (key == null) return codes;
+            int cx = key.x + key.width / 2;
+            int cy = key.y + key.height / 2;
+            int[] near = kb.getNearestKeys(cx, cy);
+            if (near == null) return codes;
+            int reach = (int) (1.4f * key.width);
+            reach *= reach;
+            int[] dist = new int[NEARBY];
+            int n = 1;
+            char base = MrText.base(c);
+            for (int idx : near) {
+                if (idx < 0 || idx >= keys.size()) continue;
+                Keyboard.Key k = keys.get(idx);
+                if (k == key || k.codes == null || k.codes.length == 0) continue;
+                int code = k.codes[0];
+                if (code <= 32 || MrText.base(code) == base) continue;
+                int d = k.squaredDistanceFrom(cx, cy);
+                if (d > reach) continue;
+                boolean seen = false;
+                for (int j = 1; j < n; j++) {
+                    if (MrText.base(codes[j]) == MrText.base(code)) { seen = true; break; }
+                }
+                if (seen) continue;
+                int at = n < NEARBY ? n : NEARBY - 1;
+                if (n >= NEARBY && dist[at] <= d) continue;
+                while (at > 1 && dist[at - 1] > d) {
+                    codes[at] = codes[at - 1];
+                    dist[at] = dist[at - 1];
+                    at--;
+                }
+                codes[at] = code;
+                dist[at] = d;
+                if (n < NEARBY) n++;
+            }
+        } catch (RuntimeException e) {
+            // fica o que já foi montado
+        }
+        return codes;
+    }
+
+    /** A tecla da letra c (sem acento nem caixa) no teclado, ou null (teclado de símbolos, p. ex.). */
+    private static Keyboard.Key keyFor(List<Keyboard.Key> keys, char c) {
+        char base = MrText.base(c);
+        for (int i = 0, n = keys.size(); i < n; i++) {
+            Keyboard.Key k = keys.get(i);
+            if (k.codes == null || k.codes.length == 0 || k.codes[0] <= 32) continue;
+            if (k.codes[0] == c || MrText.base(k.codes[0]) == base) return k;
+        }
+        return null;
     }
 }

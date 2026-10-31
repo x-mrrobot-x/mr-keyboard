@@ -9,7 +9,7 @@ para app mais novo, atualizar, remover, o item "Baixar dicionário" e a regra do
 1. Chave de teste: `keytool -genkeypair -keyalg RSA -alias mrkeyboard -keystore /tmp/fa/test.p12 -storetype PKCS12 -storepass senha123 -keypass senha123 -dname CN=Teste`
    e `keytool -exportcert -rfc -alias mrkeyboard -keystore /tmp/fa/test.p12 -storepass senha123 -file /tmp/fa/cert.pem`;
    para o caso "outra chave", um par EC em `/tmp/fa/ec.pk8` e `/tmp/fa/eccert.pem` (openssl).
-2. `python3 -I docs/tools/packs_test/make_fixtures.py . /tmp/pt/fx` e assinar cada `dados.json` com
+2. `python3 -I docs/tools/packs_test/make_fixtures.py <raiz> /tmp/pt/fx`, em que `<raiz>` tem `docs/tools` e um `dicts/` **só com o pt-BR** (o gerador supõe que o 1º pacote é o pt-BR; com os três ele monta fixtures trocadas). O `ThreeLangTest` lê o catálogo de 3 pacotes de `/tmp/v165out` (`make_catalog.py --dicts dicts --out /tmp/v165out --repo x-mrrobot-x/mr-keyboard --tag v1.73.0`, assinado). e assinar cada `dados.json` com
    `docs/tools/SignCatalog.java` (`catalogo.json`; em `ok/` também `catalogo_ec.json` com a chave EC
    e `catalogo_tamper.json` com a série trocada depois de assinar).
 3. Stubs: `docs/tools/java/stubs/android` + os desta pasta (`stubs/`, que substituem os de mesmo nome).

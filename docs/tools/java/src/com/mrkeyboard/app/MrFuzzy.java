@@ -31,7 +31,8 @@ public final class MrFuzzy {
     static final int C_PROX_2 = 30;
     static final int C_PROX_FAR = 35;
     // v1.66: a 1ª letra da palavra não foi digitada ("lso" -> also, "ersonas" -> personas)
-    static final int C_DEL_FIRST = 35;
+    // v1.75: 35 -> 30 (o piso do custo de mudar o tamanho; a faixa da busca depende dele, veja setMaxCost)
+    static final int C_DEL_FIRST = 30;
     static final int C_PHON = 25;
     static final int C_VOWEL = 45;
     static final int C_SUB = 75;
@@ -39,7 +40,11 @@ public final class MrFuzzy {
     static final int C_INS_DOUBLE = 30;
     static final int C_INS_H = 40;
     static final int C_INS_NEAR = 45;
-    static final int C_DEL = 60;
+    // v1.75: letra do dicionário que não foi digitada ("coo" -> como): 60 -> 40. Com 60 a troca por tecla
+    // vizinha (25) sempre ganhava da letra que falta, mesmo com a palavra certa muito mais comum. Medido no PC
+    // (14 mil erros por idioma): letra do meio que falta, nas 2 posições, pt 67% -> 87%, en 69% -> 78%,
+    // es 58% -> 80%; digitar certo (palavra entre as 3 primeiras depois de 2 a 5 letras) igual ou melhor.
+    static final int C_DEL = 40;
     static final int C_DEL_DOUBLE = 30;
     // letras mudas: custo vem do rules.txt ([silent]; padrão MrRules.DEFAULT_SILENT_START e DEFAULT_SILENT)
     static final int C_TRANS = 40;
@@ -147,6 +152,8 @@ public final class MrFuzzy {
             if (suggest == null || composer == null) return;
             int n = composer.size();
             if (n < 2 || n > MAX_TYPED) return;
+            // v1.75: palavras digitadas há pouco nesta conversa que começam pelo que foi digitado
+            MrRecent.complete(suggest, composer);
             CharSequence typed = composer.getTypedWord();
             if (typed == null) return;
             rememberTouches(composer, typed, n);

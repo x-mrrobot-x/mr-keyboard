@@ -931,62 +931,15 @@
     if-nez v2, :cond_5
 
     :cond_3
-    new-instance v2, Lcom/mrkeyboard/app/WordComposer;
+    # Mr Keyboard v1.75: a palavra reaberta leva as teclas vizinhas do teclado atual, como na
+    # digitacao (antes so as letras: "fato" para gato nao era corrigido por tecla vizinha)
+    iget-object v4, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
 
-    invoke-direct {v2}, Lcom/mrkeyboard/app/WordComposer;-><init>()V
-
-    const/4 v4, 0x0
-
-    .line 2743
-    :goto_1
     iget-object v5, p1, Lcom/mrkeyboard/app/EditingUtil$SelectedWord;->word:Ljava/lang/CharSequence;
 
-    invoke-interface {v5}, Ljava/lang/CharSequence;->length()I
+    invoke-static {v4, v5}, Lcom/mrkeyboard/app/MrRecorrect;->composer(Lcom/mrkeyboard/app/KeyboardSwitcher;Ljava/lang/CharSequence;)Lcom/mrkeyboard/app/WordComposer;
 
-    move-result v5
-
-    if-ge v4, v5, :cond_4
-
-    .line 2744
-    iget-object v5, p1, Lcom/mrkeyboard/app/EditingUtil$SelectedWord;->word:Ljava/lang/CharSequence;
-
-    invoke-interface {v5, v4}, Ljava/lang/CharSequence;->charAt(I)C
-
-    move-result v5
-
-    new-array v6, v0, [I
-
-    iget-object v7, p1, Lcom/mrkeyboard/app/EditingUtil$SelectedWord;->word:Ljava/lang/CharSequence;
-
-    .line 2745
-    invoke-interface {v7, v4}, Ljava/lang/CharSequence;->charAt(I)C
-
-    move-result v7
-
-    aput v7, v6, v3
-
-    .line 2744
-    invoke-virtual {v2, v5, v6}, Lcom/mrkeyboard/app/WordComposer;->add(I[I)V
-
-    add-int/lit8 v4, v4, 0x1
-
-    goto :goto_1
-
-    .line 2747
-    :cond_4
-    iget-object v4, p1, Lcom/mrkeyboard/app/EditingUtil$SelectedWord;->word:Ljava/lang/CharSequence;
-
-    .line 2748
-    invoke-interface {v4, v3}, Ljava/lang/CharSequence;->charAt(I)C
-
-    move-result v4
-
-    invoke-static {v4}, Ljava/lang/Character;->isUpperCase(C)Z
-
-    move-result v4
-
-    .line 2747
-    invoke-virtual {v2, v4}, Lcom/mrkeyboard/app/WordComposer;->setFirstCharCapitalized(Z)V
+    move-result-object v2
 
     :cond_5
     if-nez v2, :cond_7
@@ -1081,6 +1034,12 @@
     return-void
 
     :cond_1
+    # Mr Keyboard v1.75: palavras recentes (so na memoria, so neste campo): o que foi escrito ha pouco
+    # ajuda a completar e a prever. Chega aqui depois das guardas de privacidade acima
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggest:Lcom/mrkeyboard/app/Suggest;
+
+    invoke-static {v0, p1}, Lcom/mrkeyboard/app/MrRecent;->record(Lcom/mrkeyboard/app/Suggest;Ljava/lang/CharSequence;)V
+
     if-eqz p1, :cond_5
 
     if-nez p3, :cond_2
@@ -11425,6 +11384,11 @@
     iget v0, p1, Landroid/view/inputmethod/EditorInfo;->fieldId:I
 
     iput v0, p2, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->editorFieldId:I
+
+    # Mr Keyboard v1.75: campo ou app novo = palavras recentes do zero (mesmo campo, teclado reaberto: mantem)
+    iget-object v1, p1, Landroid/view/inputmethod/EditorInfo;->packageName:Ljava/lang/String;
+
+    invoke-static {v1, v0}, Lcom/mrkeyboard/app/MrRecent;->onField(Ljava/lang/String;I)V
 
     .line 766
     sget-object p2, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;

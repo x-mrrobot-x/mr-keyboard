@@ -19,6 +19,7 @@ Precisa de Android 8.0 ou mais novo.
   - os dicionários são baixados em *Configurações → Sugestões e dicionários*, por isso o app em si tem só cerca de 1 MB. Cada idioma baixado entra no teclado: deslize a barra de espaço para os lados para alternar entre eles;
   - correção de erros de digitação e previsão da próxima palavra;
   - aprende as palavras que você usa, nunca em campos de senha ou anônimos;
+  - sugere os nomes e as palavras que você acabou de escrever na mesma conversa (só na memória, apagados ao trocar de campo ou de app);
   - tudo roda no aparelho;
   - vem desligado: ligue *Mostrar sugestões* na mesma tela.
 - **Temas:** Mr Keyboard Neon, Dark Tech (suave e em relevo) e Midnight Steel. O espaçamento e o arredondamento das teclas valem em todos os temas.

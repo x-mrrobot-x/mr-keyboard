@@ -10,7 +10,8 @@
 #   mres_check.py        texto em português do editor de folhas/anexos passa pela tabela do espanhol
 #   res_check.py         recursos: XML válido, public.xml, referências, recursos sem uso, espanhol x português
 #   smali_regcheck.py    registradores do smali (pega o erro que fechou as Configurações na 1.67)
-#   run_java_tests.sh    testes de PC da camada Java (cartão do autor, link da tela principal, palavra sob o cursor na recorreção)
+#   run_java_tests.sh    testes de PC da camada Java (cartão do autor, link da tela principal, recorreção: palavra sob o cursor e
+#                        teclas vizinhas, palavras recentes)
 #   test_make_catalog.py monta o catálogo de dicionários (um zip por idioma, série, versões antigas)
 #   publish_test/run.sh  publish_release.sh de ponta a ponta com um gh de mentira e a assinatura de verdade
 # montagem (alguns minutos):

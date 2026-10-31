@@ -72,6 +72,7 @@ public final class MrPredict {
             if (MrText.atSentenceStart(before)) {
                 sCtx1 = null;
                 sCtx2 = null;
+                MrRecent.breakPair();   // v1.75: a frase nova não forma par com a anterior
                 String[] starters = MrRules.get().starters;
                 if (starters.length == 0) return null;
                 // rules.txt lista da mais provável para a menos; na faixa: 2ª, 1ª (centro), 3ª
@@ -121,6 +122,14 @@ public final class MrPredict {
             user.getBigrams(null, prev, sUserCollector, null);
             if (hasLower) user.getBigrams(null, lower, sUserCollector, null);
         }
+        // v1.75: o que foi escrito há pouco nesta conversa: pares recentes entram como candidatos e quem já é
+        // candidato e foi digitado há pouco sobe
+        String[] after = MrRecent.nextAfter(prev, 2);
+        for (int i = 0; i < after.length; i++) add(after[i], 0, MrRecent.PAIR_SCORE - 5 * i);
+        for (int i = 0; i < sCount; i++) {
+            int bonus = MrRecent.bonus(sWord[i]);
+            if (bonus > 0) sUser[i] += bonus;
+        }
         if (sCount == 0) return null;
         int[] best = {-1, -1, -1};
         for (int i = 0; i < sCount; i++) {
@@ -148,7 +157,10 @@ public final class MrPredict {
     public static void firstLetter(Suggest suggest, WordComposer composer, CharSequence prev) {
         try {
             String c1 = sCtx1, c2 = sCtx2;
-            if (suggest == null || composer == null || prev == null || c1 == null || c2 == null) return;
+            if (suggest == null || composer == null) return;
+            // v1.75: palavras recentes que começam pela letra digitada
+            MrRecent.complete(suggest, composer);
+            if (prev == null || c1 == null || c2 == null) return;
             if (composer.size() != 1 || !c2.equalsIgnoreCase(prev.toString())) return;
             int typed = composer.getTypedWord().charAt(0);
             String[] w = new String[3];
