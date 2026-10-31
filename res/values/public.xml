@@ -503,7 +503,6 @@
     <public type="string" name="prefs_enable_recorrection_summary" id="0x7f0c0137" />
     <public type="string" name="quick_fixes" id="0x7f0c0139" />
     <public type="string" name="quick_fixes_summary" id="0x7f0c013a" />
-    <public type="string" name="recorrect_warning" id="0x7f0c013b" />
     <public type="string" name="seek_pref_0" id="0x7f0c013e" />
     <public type="string" name="seek_pref_max" id="0x7f0c013f" />
     <public type="string" name="seek_pref_val" id="0x7f0c0140" />

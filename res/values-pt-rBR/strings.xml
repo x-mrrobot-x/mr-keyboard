@@ -23,7 +23,6 @@
     <string name="prefs_enable_recorrection_summary">Toque nas palavras digitadas para corrigi-las</string>
     <string name="quick_fixes">Correções rápidas</string>
     <string name="quick_fixes_summary">Corrige erros de digitação comuns</string>
-    <string name="recorrect_warning">Obs.: a recorreção não funciona corretamente em dispositivos anteriores ao Gingerbread, por falta de suporte do sistema operacional.</string>
     <string name="show_suggestions">Mostrar sugestões</string>
     <string name="show_suggestions_summary">Exibir palavras sugeridas durante a digitação</string>
     <string name="sound_on_keypress">Som ao pressionar a tecla</string>

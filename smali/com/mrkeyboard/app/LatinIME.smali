@@ -926,40 +926,10 @@
 
     const/4 v3, 0x0
 
+    # Mr Keyboard v1.74: antes só entrava palavra do dicionário; agora qualquer palavra tocada
+    # (a errada é a que mais precisa de sugestão). Sem a marca dos toques, só os caracteres.
     if-nez v2, :cond_5
 
-    .line 2739
-    iget-object v4, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggest:Lcom/mrkeyboard/app/Suggest;
-
-    iget-object v5, p1, Lcom/mrkeyboard/app/EditingUtil$SelectedWord;->word:Ljava/lang/CharSequence;
-
-    .line 2740
-    invoke-virtual {v4, v5}, Lcom/mrkeyboard/app/Suggest;->isValidWord(Ljava/lang/CharSequence;)Z
-
-    move-result v4
-
-    if-nez v4, :cond_3
-
-    iget-object v4, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggest:Lcom/mrkeyboard/app/Suggest;
-
-    iget-object v5, p1, Lcom/mrkeyboard/app/EditingUtil$SelectedWord;->word:Ljava/lang/CharSequence;
-
-    .line 2741
-    invoke-interface {v5}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
-
-    move-result-object v5
-
-    invoke-virtual {v5}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
-
-    move-result-object v5
-
-    invoke-virtual {v4, v5}, Lcom/mrkeyboard/app/Suggest;->isValidWord(Ljava/lang/CharSequence;)Z
-
-    move-result v4
-
-    if-eqz v4, :cond_5
-
-    .line 2742
     :cond_3
     new-instance v2, Lcom/mrkeyboard/app/WordComposer;
 
@@ -6698,14 +6668,14 @@
 .method private setOldSuggestions()V
     .locals 5
 
-    .line 2768
+    # Mr Keyboard v1.74: corpo restaurado (a recorreção tinha ficado só com o ramo "sem palavra"):
+    # acha a palavra tocada, mostra as sugestões dela e a marca como composição para o toque trocar
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
 
     if-eqz v0, :cond_0
 
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
 
-    .line 2769
     invoke-virtual {v0}, Lcom/mrkeyboard/app/CandidateView;->isShowingAddToDictionaryHint()Z
 
     move-result v0
@@ -6714,7 +6684,6 @@
 
     return-void
 
-    .line 2772
     :cond_0
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
 
@@ -6724,37 +6693,76 @@
 
     return-void
 
-    .line 2775
     :cond_1
-    iget-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
-
     const/4 v2, 0x1
 
-    if-nez v1, :cond_2
+    iget-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
 
-    .line 2777
+    if-nez v1, :cond_abort
+
     iget v1, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionStart:I
 
     iget v3, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionEnd:I
 
     iget-object v4, p0, Lcom/mrkeyboard/app/LatinIME;->mWordSeparators:Ljava/lang/String;
 
-    .line 2778
-    invoke-static {v0, v1, v3, v4}, Lcom/mrkeyboard/app/EditingUtil;->getWordAtCursorOrSelection(Landroid/view/inputmethod/InputConnection;IILjava/lang/String;)Lcom/mrkeyboard/app/EditingUtil$SelectedWord;
+    # API 31+: leitura num retrato só (getSurroundingText); antes disso, o EditingUtil de sempre
+    invoke-static {v0, v1, v3, v4}, Lcom/mrkeyboard/app/MrRecorrect;->wordAt(Landroid/view/inputmethod/InputConnection;IILjava/lang/String;)Lcom/mrkeyboard/app/EditingUtil$SelectedWord;
 
-    .line 2781
+    move-result-object v1
+
+    if-eqz v1, :cond_none
+
+    iget-object v3, v1, Lcom/mrkeyboard/app/EditingUtil$SelectedWord;->word:Ljava/lang/CharSequence;
+
+    invoke-static {v3}, Lcom/mrkeyboard/app/MrRecorrect;->eligible(Ljava/lang/CharSequence;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_none
+
+    invoke-interface {v0}, Landroid/view/inputmethod/InputConnection;->beginBatchEdit()Z
+
+    invoke-direct {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->applyTypedAlternatives(Lcom/mrkeyboard/app/EditingUtil$SelectedWord;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_fail
+
+    # setComposingRegion pode falhar (conexão inválida, editor sem suporte): sem a palavra marcada
+    # o toque numa sugestão não a trocaria, então desiste
+    iget v3, v1, Lcom/mrkeyboard/app/EditingUtil$SelectedWord;->start:I
+
+    iget v4, v1, Lcom/mrkeyboard/app/EditingUtil$SelectedWord;->end:I
+
+    invoke-interface {v0, v3, v4}, Landroid/view/inputmethod/InputConnection;->setComposingRegion(II)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_fail
+
+    invoke-static {}, Lcom/mrkeyboard/app/TextEntryState;->selectedForCorrection()V
+
+    goto :cond_end
+
+    :cond_fail
     invoke-direct {p0, v2}, Lcom/mrkeyboard/app/LatinIME;->abortCorrection(Z)V
 
-    .line 2782
+    :cond_end
+    invoke-interface {v0}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
+
+    return-void
+
+    :cond_none
+    invoke-direct {p0, v2}, Lcom/mrkeyboard/app/LatinIME;->abortCorrection(Z)V
+
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->setNextSuggestions()V
 
-    goto :goto_0
+    return-void
 
-    .line 2784
-    :cond_2
+    :cond_abort
     invoke-direct {p0, v2}, Lcom/mrkeyboard/app/LatinIME;->abortCorrection(Z)V
 
-    :goto_0
     return-void
 .end method
 
@@ -10877,28 +10885,8 @@
     .line 2966
     iget-boolean p1, p0, Lcom/mrkeyboard/app/LatinIME;->mReCorrectionEnabled:Z
 
-    if-eqz p1, :cond_18
-
-    .line 2968
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getApplicationContext()Landroid/content/Context;
-
-    move-result-object p1
-
-    const p2, 0x7f0c013b
-
-    .line 2969
-    invoke-virtual {v0, p2}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
-
-    move-result-object p2
-
-    .line 2968
-    invoke-static {p1, p2, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
-
-    move-result-object p1
-
-    .line 2970
-    invoke-virtual {p1}, Landroid/widget/Toast;->show()V
-
+    # Mr Keyboard v1.74: sem o aviso "recorreção não funciona em aparelho anterior ao Gingerbread"
+    # (o app exige Android 8; o aviso não se aplica e aparecia cortado)
     goto/16 :goto_1
 
     :cond_6

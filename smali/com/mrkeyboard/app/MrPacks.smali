@@ -786,32 +786,29 @@
     :goto_0
     return-object v0
 
-    .line 914
+    .line 911
     :cond_0
     :try_start_0
-    invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
+    sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
+
+    const/16 v1, 0x1c
+
+    if-lt v0, v1, :cond_2
+
+    .line 912
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks$Api28;->signers(Landroid/content/Context;)[Landroid/content/pm/Signature;
 
     move-result-object v0
 
-    invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
-
-    move-result-object v1
-
-    const/16 v2, 0x40
-
-    invoke-virtual {v0, v1, v2}, Landroid/content/pm/PackageManager;->getPackageInfo(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;
-
-    move-result-object v0
-
-    .line 915
-    iget-object v4, v0, Landroid/content/pm/PackageInfo;->signatures:[Landroid/content/pm/Signature;
+    move-object v4, v0
 
     .line 917
+    :goto_1
     if-eqz v4, :cond_1
 
     array-length v0, v4
 
-    if-nez v0, :cond_2
+    if-nez v0, :cond_3
 
     :cond_1
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
@@ -836,9 +833,32 @@
     .line 925
     throw v0
 
-    .line 918
+    .line 914
     :cond_2
     :try_start_1
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+
+    move-result-object v1
+
+    const/16 v2, 0x40
+
+    invoke-virtual {v0, v1, v2}, Landroid/content/pm/PackageManager;->getPackageInfo(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;
+
+    move-result-object v0
+
+    .line 915
+    iget-object v0, v0, Landroid/content/pm/PackageInfo;->signatures:[Landroid/content/pm/Signature;
+
+    move-object v4, v0
+
+    goto :goto_1
+
+    .line 918
+    :cond_3
     const-string v0, "X.509"
 
     invoke-static {v0}, Ljava/security/cert/CertificateFactory;->getInstance(Ljava/lang/String;)Ljava/security/cert/CertificateFactory;
@@ -853,10 +873,10 @@
     move v2, v3
 
     .line 920
-    :goto_1
+    :goto_2
     array-length v0, v4
 
-    if-ge v2, v0, :cond_3
+    if-ge v2, v0, :cond_4
 
     .line 921
     new-instance v0, Ljava/io/ByteArrayInputStream;
@@ -885,9 +905,9 @@
 
     move v2, v0
 
-    goto :goto_1
+    goto :goto_2
 
-    :cond_3
+    :cond_4
     move-object v0, v1
 
     .line 923

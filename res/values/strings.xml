@@ -250,7 +250,6 @@
     <string name="prefs_enable_recorrection_summary">Touch entered words to correct them</string>
     <string name="quick_fixes">Quick fixes</string>
     <string name="quick_fixes_summary">Corrects commonly typed mistakes</string>
-    <string name="recorrect_warning">FYI: recorrection does not work correctly on pre-Gingerbread devices due to missing operating system support.</string>
     <string name="seek_pref_0">0%</string>
     <string name="seek_pref_max">100%</string>
     <string name="seek_pref_val">x%</string>
