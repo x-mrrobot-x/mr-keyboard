@@ -94,7 +94,7 @@ public class PacksTest {
                 byte[] b;
                 if (url.equals(MrPacks.sCatalogUrl)) b = Files.readAllBytes(Paths.get(catalogFile));
                 else {
-                    String base = "https://github.com/x-mrrobot-x/mr-keyboard/releases/download/dicionarios/";
+                    String base = "https://github.com/x-mrrobot-x/mr-keyboard/releases/download/v1.73.0/";
                     if (!url.startsWith(base)) throw new IOException("url inesperada " + url);
                     b = Files.readAllBytes(Paths.get(zipDir + url.substring(base.length())));
                     if (corruptAt >= 0) b[corruptAt] ^= 0x55;
@@ -152,6 +152,9 @@ public class PacksTest {
         check("validId aceita pt-BR, en, fil; recusa PT-br, pt_BR, ../x",
                 MrPacks.validId("pt-BR") && MrPacks.validId("en") && MrPacks.validId("fil") && !MrPacks.validId("PT-br")
                 && !MrPacks.validId("pt_BR") && !MrPacks.validId("../x") && !MrPacks.validId("pt-BRA"), null);
+        check("o catálogo é lido da release mais recente (a mesma do APK)",
+                MrPacks.CATALOG_URL.equals("https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalogo.json"),
+                MrPacks.CATALOG_URL);
         check("safeName recusa ../x, a/b, .x, vazio", MrPacks.safeName("pt-BR-2.zip") && !MrPacks.safeName("../x")
                 && !MrPacks.safeName("a/b") && !MrPacks.safeName(".x") && !MrPacks.safeName(""), null);
         boolean bad = false;

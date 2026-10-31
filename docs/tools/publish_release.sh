@@ -7,8 +7,8 @@
 # O APK tem nome fixo, MrKeyboard.apk (link direto do README: .../releases/latest/download/MrKeyboard.apk), e o
 # app lê o catálogo em .../releases/latest/download/catalogo.json.
 #
-# Os dicionários: parte do catálogo mais novo que existir (a release mais recente ou a antiga "dicionarios",
-# a de maior série), reaproveita os zips dos pacotes que não mudaram e só gera os que subiram de version em
+# Os dicionários: parte do catálogo mais novo que existir (a release mais recente ou, enquanto ainda existir,
+# a antiga "dicionarios"; vale a de maior série), reaproveita os zips dos pacotes que não mudaram e só gera os que subiram de version em
 # dicts/ (make_catalog.py --tag). A release sai como rascunho, os anexos são conferidos e só então ela é
 # publicada: nunca fica uma release pela metade como "latest".
 #
@@ -68,6 +68,7 @@ if [ -z "$CERT" ]; then
   para "Não consegui ler o certificado do APK."
 fi
 # ---- dicionários: parte do catálogo de maior série entre a release mais recente e a antiga "dicionarios"
+# (se ela já foi apagada, o loop só a ignora; nesse caso a série vem da release mais recente)
 mkdir -p prev out
 PREV_TAG=""; PREV_SERIAL=-1
 LATEST=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" -q .tag_name 2> /dev/null || true)
@@ -88,7 +89,7 @@ if [ -n "$PREV_TAG" ]; then
   PREV_ARGS="--prev prev/$PREV_TAG/catalogo.json --reuse prev/zips"
   echo "dicionários: partindo do catálogo de $PREV_TAG (série $PREV_SERIAL)"
 else
-  echo "dicionários: nenhum catálogo publicado ainda; começando na série 1"
+  echo "::warning::Nenhum catálogo de dicionários publicado antes: a série começa em 1. Apps que já guardaram uma série maior vão recusar este catálogo; só siga se for mesmo o primeiro."
 fi
 python3 -I docs/tools/make_catalog.py --dicts dicts --out out --repo "$GITHUB_REPOSITORY" --tag "$TAG" $PREV_ARGS
 sh docs/tools/sign_catalog.sh out/dados.json out/catalogo.json

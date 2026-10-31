@@ -1,5 +1,7 @@
 # Plano: dicionários baixáveis (versão 3, aprovada)
 
+> **Desde a 1.73** os pacotes saem na release de cada lançamento, junto do APK (`revisao-1.7.3.md`, `revisao-ci-release-unica.md`, `revisao-ci-aposentar-dicionarios.md`); o Release `dicionarios` e o workflow `mr-dicts.yml` foram aposentados. As seções 1 e 3 abaixo descrevem o desenho original.
+
 > Andamento: fase A feita (`revisao-fase-a-dicionarios.md`); fase B feita na 1.63 (`revisao-1.6.3.md`). fase C (inglês) feita na 1.64 (`revisao-1.6.4.md`); espanhol na 1.65 (`revisao-1.6.5.md`). Na 1.67 a tela virou **Sugestões e dicionários** e saíram as opções de Wi-Fi e de procura automática (`revisao-1.6.7.md`); a seção 5 e a decisão 3 abaixo descrevem a versão da 1.63.
 
 ## Objetivo

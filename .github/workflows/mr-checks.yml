@@ -5,6 +5,7 @@
 #
 # rapidas  (segundos, só Python e Java):
 #   check_version.py     versão do apktool.yml/json coerente e notas da versão em docs/
+#   check_catalog_url.py o app lê o catálogo de dicionários da release mais recente (junto do APK)
 #   check_reset_keys.py  "Restaurar padrões" cobre toda chave das telas de configurações
 #   mres_check.py        texto em português do editor de folhas/anexos passa pela tabela do espanhol
 #   res_check.py         recursos: XML válido, public.xml, referências, recursos sem uso, espanhol x português
@@ -65,6 +66,9 @@ jobs:
 
       - name: Versão e notas da versão
         run: python3 docs/tools/check_version.py
+
+      - name: Catálogo de dicionários lido da release do APK
+        run: python3 docs/tools/check_catalog_url.py
 
       - name: Restaurar padrões cobre todas as chaves
         run: python3 docs/tools/check_reset_keys.py

@@ -2,7 +2,7 @@ import json, hashlib, zipfile, io, os, sys, subprocess, copy
 import sys
 B=sys.argv[1] if len(sys.argv) > 1 else '.'; O=sys.argv[2] if len(sys.argv) > 2 else '/tmp/pt/fx'
 os.makedirs(O, exist_ok=True)
-subprocess.run(['python3','-I',B+'/docs/tools/make_catalog.py','--dicts',B+'/dicts','--out',O+'/ok','--repo','x-mrrobot-x/mr-keyboard','--now','2026-10-30T18:00:00+00:00'],check=True)
+subprocess.run(['python3','-I',B+'/docs/tools/make_catalog.py','--dicts',B+'/dicts','--out',O+'/ok','--repo','x-mrrobot-x/mr-keyboard','--tag','v1.73.0','--now','2026-10-30T18:00:00+00:00'],check=True)
 base=json.loads(open(O+'/ok/dados.json',encoding='utf-8').read())
 zbytes=open(O+'/ok/pt-BR-%d.zip'%base['packs'][0]['version'],'rb').read()
 files={n:z for n,z in [(i.filename,None) for i in zipfile.ZipFile(io.BytesIO(zbytes)).infolist()]}

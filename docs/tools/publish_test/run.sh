@@ -145,5 +145,11 @@ novo; legado 5
 publicar automatico true KEYSTORE_B64=
 check "sem chave para o catálogo: erro e nada criado" "$([ $COD != 0 ] && [ ! -d "$S/rel/v1.72.0" ] && echo 1 || echo 0)"
 
+# ---- 11) o estado real de hoje: a latest (v1.72.0) só tem o APK e a antiga "dicionarios" tem o catálogo (série 5)
+novo v1.73.0; legado 5; nota "$W/docs/revisao-1.7.3.md"
+mkdir -p "$S/rel/v1.72.0/assets"; echo false > "$S/rel/v1.72.0/draft"; echo apk > "$S/rel/v1.72.0/assets/MrKeyboard.apk"; echo v1.72.0 > "$S/latest"
+publicar automatico true X=1
+check "latest sem catálogo + dicionarios antiga: v1.73.0 sai com série 5, tudo anexado e vira a latest" "$([ $COD = 0 ] && [ "$(serie "$S/rel/v1.73.0/assets/catalogo.json")" = 5 ] && [ "$(lista v1.73.0)" = "MrKeyboard.apk catalogo.json en-US-2.zip es-1.zip pt-BR-2.zip " ] && [ "$(cat "$S/latest")" = v1.73.0 ] && echo 1 || echo 0)" "$SAIDA"
+
 rm -rf "$T"
 if [ $falhas = 0 ]; then echo "TUDO OK ($ok verificações)"; else echo "$falhas FALHA(S) em $((ok+falhas)) verificações"; exit 1; fi

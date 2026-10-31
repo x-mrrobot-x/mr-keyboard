@@ -3,11 +3,12 @@
 
 Dois modos:
 
-1) Release "dicionarios" (o que o workflow mr-dicts.yml faz hoje):
+1) Modo antigo, sem --tag (a release "dicionarios" e o mr-dicts.yml já foram aposentados; hoje só os testes
+   usam este modo, para reproduzir o catálogo que os apps antigos conhecem):
      python3 make_catalog.py --dicts dicts --out out --repo dono/repo [--prev catalogo.json]
    Só gera o que é novo e, se nada mudou, não escreve dados.json.
 
-2) Release única, com o APK (publish_release.sh): acrescente --tag da release (ex.: v1.73.0):
+2) Release única, com o APK (publish_release.sh, o modo de verdade): acrescente --tag da release (ex.: v1.73.0):
      python3 make_catalog.py --dicts dicts --out out --repo dono/repo --tag v1.73.0 \
          [--prev catalogo.json --reuse pasta_com_os_zips_anteriores]
    O catálogo e os zips ficam na própria release: o baseUrl aponta para ela e a pasta --out sai com

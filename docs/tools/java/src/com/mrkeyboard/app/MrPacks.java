@@ -54,7 +54,7 @@ public final class MrPacks {
     private MrPacks() { }
 
     static final String CATALOG_URL =
-            "https://github.com/x-mrrobot-x/mr-keyboard/releases/download/dicionarios/catalogo.json";
+            "https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalogo.json"; // v1.73: na release do APK
     static final String SIG_PREFIX = "mr-keyboard/catalogo/v1\n";
     static final int CATALOG_FORMAT = 1;
     static final int PACK_FORMAT = 1;

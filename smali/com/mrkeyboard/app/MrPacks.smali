@@ -19,7 +19,7 @@
 # static fields
 .field static final CATALOG_FORMAT:I = 0x1
 
-.field static final CATALOG_URL:Ljava/lang/String; = "https://github.com/x-mrrobot-x/mr-keyboard/releases/download/dicionarios/catalogo.json"
+.field static final CATALOG_URL:Ljava/lang/String; = "https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalogo.json"
 
 .field static final DEFAULT_IDS:[Ljava/lang/String;
 
@@ -99,7 +99,7 @@
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sNet:Lcom/mrkeyboard/app/MrPacks$Net;
 
     .line 366
-    const-string v0, "https://github.com/x-mrrobot-x/mr-keyboard/releases/download/dicionarios/catalogo.json"
+    const-string v0, "https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalogo.json"
 
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sCatalogUrl:Ljava/lang/String;
 
