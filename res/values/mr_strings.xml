@@ -6,7 +6,7 @@
     <string name="mr_section_guide">Quick guide</string>
     <string name="mr_ui_step1_desc">Turn Mr Keyboard on in the system keyboard list</string>
     <string name="mr_ui_step2_desc">Pick Mr Keyboard as your current keyboard</string>
-    <string name="mr_ui_step3_desc">Download the dictionaries and turn on suggestions</string>
+    <string name="mr_ui_step3_desc">Download dictionaries and turn on suggestions</string>
     <string name="mr_ui_optional">Optional</string>
     <string name="mr_ui_settings_desc">Theme, height, suggestions, gestures and more</string>
     <string name="mr_ui_hero_summary">Customize theme, height, gestures and more</string>
@@ -41,7 +41,7 @@
     <!-- v1.63: dicionários baixáveis (MrPacks, MrPacksActivity) -->
     <string name="mr_dicts_title">Suggestions and dictionaries</string>
     <string name="mr_dicts_summary">Download dictionaries and set up word suggestions</string>
-    <string name="mr_dicts_cat_langs">Languages</string>
+    <string name="mr_dicts_cat_langs">Dictionaries</string>
     <string name="mr_dicts_cat_suggestions">Suggestions</string>
     <string name="mr_dicts_state_notdl">Not downloaded</string>
     <string name="mr_dicts_state_unavailable">Not available right now</string>
@@ -49,6 +49,8 @@
     <string name="mr_lang_pt_BR">Portuguese (Brazil)</string>
     <string name="mr_lang_en_US">English (US)</string>
     <string name="mr_lang_es">Spanish</string>
+    <string name="mr_dicts_updates_one">1 update available</string>
+    <string name="mr_dicts_updates_many">%1$d updates available</string>
     <string name="mr_dicts_cat_privacy">Privacy</string>
     <string name="mr_dicts_check">Check for updates</string>
     <string name="mr_dicts_check_never">Tap to see the available dictionaries</string>
@@ -73,7 +75,7 @@
     <string name="mr_dicts_installed_turn_on">Dictionary installed. Turn on \"Show suggestions\" below to use it.</string>
     <string name="mr_dicts_removed_ok">Dictionary removed.</string>
     <string name="mr_dicts_privacy_title">Nothing you type is sent</string>
-    <string name="mr_dicts_privacy_text">The app only connects when you tap Check for updates, Download, Update or a language that is not downloaded yet, and it only downloads files. The files are hosted on GitHub, which sees your device\'s IP address, as with any download.</string>
+    <string name="mr_dicts_privacy_text">The app only connects when you tap Check for updates, Download, Update or a language that is not downloaded yet, and it only downloads files. The files are hosted on GitHub.</string>
     <string name="mr_dicts_offer">Get dictionary</string>
     <string name="mr_dicts_err_network">No internet connection. Try again later.</string>
     <string name="mr_dicts_err_http">The server answered with code %1$d. Try again later.</string>

@@ -12,6 +12,10 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
 import android.text.AutoText;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.widget.Toast;
 
 import java.io.File;
@@ -157,35 +161,70 @@ public class MrPacksActivity extends PreferenceActivity {
         if (mCheck != null) mCheck.setSummary(checkState());
     }
 
-    private String state(String id, MrPacks.Pack p) {
+    /** Cor da paleta do app (mr_colors.xml) pelo nome, ou 0 se não existir. */
+    private int color(String name) {
+        int id = getResources().getIdentifier(name, "color", getPackageName());
+        return id != 0 ? getResources().getColor(id) : 0;
+    }
+
+    /** Fim da parte do texto que leva a cor: até " · " ou ":" (o resto, como tamanho e versão, fica cinza). */
+    private static int headEnd(String s) {
+        int a = s.indexOf(" · "), b = s.indexOf(':');
+        if (a < 0) a = s.length();
+        if (b < 0) b = s.length();
+        return Math.min(a, b);
+    }
+
+    /** O começo do texto (o estado) na cor da paleta; o resto no cinza de sempre. */
+    private CharSequence paint(String text, String colorName, boolean whole) {
+        int c = colorName == null ? 0 : color(colorName);
+        if (c == 0 || text.length() == 0) return text;
+        SpannableString sp = new SpannableString(text);
+        sp.setSpan(new ForegroundColorSpan(c), 0, whole ? text.length() : headEnd(text), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return sp;
+    }
+
+    /**
+     * Estado do cartão, com cor no estado: instalado verde, baixando ou instalando âmbar,
+     * atualização azul, falha vermelho; não baixado fica no cinza do resumo.
+     */
+    private CharSequence state(String id, MrPacks.Pack p) {
         int inst = MrPacks.installedVersion(this, id);
         if (id.equals(MrPacks.sJobId)) {
-            return MrPacks.sJobInstalling ? t("mr_dicts_state_installing")
-                    : t("mr_dicts_state_downloading", MrPacks.sJobPercent);
+            return paint(MrPacks.sJobInstalling ? t("mr_dicts_state_installing")
+                    : t("mr_dicts_state_downloading", MrPacks.sJobPercent), "mr_ui_amber", true);
         }
-        if (id.equals(mErrorId) && mError != null) return mError;
+        if (id.equals(mErrorId) && mError != null) return paint(mError, "mr_ui_rose", true);
         boolean newer = p != null && p.version > inst;
         if (newer && MrPacks.appTooOld(this, p)) {
-            return inst > 0 ? t("mr_dicts_state_installed", inst, MrPacks.sizeText(dirSize(id, inst)))
-                    + " · " + t("mr_dicts_state_needs_app") : t("mr_dicts_state_needs_app");
+            return paint(inst > 0 ? t("mr_dicts_state_installed", inst, MrPacks.sizeText(dirSize(id, inst)))
+                    + " · " + t("mr_dicts_state_needs_app") : t("mr_dicts_state_needs_app"), "mr_ui_rose", true);
         }
         if (inst > 0) {
-            if (newer) return t("mr_dicts_state_update", p.version, MrPacks.sizeText(p.size));
-            return t("mr_dicts_state_installed", inst, MrPacks.sizeText(dirSize(id, inst)));
+            if (newer) return paint(t("mr_dicts_state_update", p.version, MrPacks.sizeText(p.size)), "mr_ui_blue", false);
+            return paint(t("mr_dicts_state_installed", inst, MrPacks.sizeText(dirSize(id, inst))), "mr_ui_mint", false);
         }
         if (p != null) return t("mr_dicts_state_available", MrPacks.sizeText(p.size));
         return t(mCat != null ? "mr_dicts_state_unavailable" : "mr_dicts_state_notdl");
     }
 
-    private String checkState() {
+    private CharSequence checkState() {
         if (mChecking) return t("mr_dicts_checking");
-        if (mCheckError != null) return mCheckError;
+        if (mCheckError != null) return paint(mCheckError, "mr_ui_rose", true);
         long at = MrPacks.checkedAt(this);
         if (at == 0) return t("mr_dicts_check_never");
         String when = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(new Date(at));
         String s = t("mr_dicts_check_last", when);
         if (mCat != null && mCat.packs.isEmpty()) s = s + " · " + t("mr_dicts_empty");
-        return s;
+        int n = MrPacks.updatesAvailable(this, mCat);
+        if (n == 0) return s;
+        SpannableStringBuilder b = new SpannableStringBuilder(s);
+        b.append(" · ");
+        int from = b.length();
+        b.append(t(n == 1 ? "mr_dicts_updates_one" : "mr_dicts_updates_many", n));
+        int blue = color("mr_ui_blue");
+        if (blue != 0) b.setSpan(new ForegroundColorSpan(blue), from, b.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return b;
     }
 
     private long dirSize(String id, int version) {

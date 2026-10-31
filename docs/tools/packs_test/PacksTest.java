@@ -262,6 +262,8 @@ public class PacksTest {
         catalogFile = FX + "v3/catalogo.json"; zipDir = FX + "v3/";
         r = errOf(() -> MrPacks.fetchCatalog(ctx));
         final MrPacks.Catalog c3 = MrPacks.cachedCatalog(ctx);
+        check("atualizações: catálogo v3 com a v2 instalada = 1 (sem catálogo = 0)",
+                MrPacks.updatesAvailable(ctx, c3) == 1 && MrPacks.updatesAvailable(ctx, null) == 0, MrPacks.updatesAvailable(ctx, c3));
         corruptAt = 2000000;
         r = errOf(() -> MrPacks.install(ctx, c3, c3.packs.get(0)));
         check("zip com um byte trocado é recusado (sha256)", r.equals("mr_dicts_err_corrupt [sha256]"), r);
@@ -293,6 +295,7 @@ public class PacksTest {
         final MrPacks.Catalog cm = MrPacks.cachedCatalog(ctx);
         r = errOf(() -> MrPacks.install(ctx, cm, cm.packs.get(0)));
         check("pacote para app mais novo não instala", r.equals("mr_dicts_err_app_old") && MrPacks.appTooOld(ctx, cm.packs.get(0)), r);
+        check("atualizações: pacote que pede app mais novo não conta", MrPacks.updatesAvailable(ctx, cm) == 0, MrPacks.updatesAvailable(ctx, cm));
         check("depois de tudo: v2 instalada e intacta", MrPacks.installedVersion(ctx, "pt-BR") == 2
                 && list(d2).size() == 5 && list(d2.getParentFile()).equals(Arrays.asList("2")), list(d2.getParentFile()));
 
@@ -305,6 +308,7 @@ public class PacksTest {
                 && list(d2.getParentFile()).equals(Arrays.asList("7")), list(d2.getParentFile()));
         Suggest s7 = new Suggest(ctx, new int[] {0});
         check("teclado usa a v7", s7.hasMainDictionary() && MrRules.get().corrections.size() == 217, null);
+        check("atualizações: com a v7 instalada não há mais nada a atualizar", MrPacks.updatesAvailable(ctx, c7) == 0, MrPacks.updatesAvailable(ctx, c7));
 
         // ---- remover
         MrPacks.remove(ctx, "pt-BR");

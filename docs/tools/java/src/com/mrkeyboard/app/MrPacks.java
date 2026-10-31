@@ -443,6 +443,17 @@ public final class MrPacks {
         return out;
     }
 
+    /** Quantos pacotes instalados têm versão mais nova no catálogo e podem ser atualizados por este app. */
+    static int updatesAvailable(Context c, Catalog cat) {
+        if (cat == null) return 0;
+        int n = 0;
+        for (Pack p : cat.packs) {
+            int inst = installedVersion(c, p.id);
+            if (inst > 0 && p.version > inst && !appTooOld(c, p)) n++;
+        }
+        return n;
+    }
+
     // ------------------------------------------------------------------ idiomas do teclado
 
     /** Chave das preferências padrão com os idiomas do teclado, lida pelo LanguageSwitcher. */

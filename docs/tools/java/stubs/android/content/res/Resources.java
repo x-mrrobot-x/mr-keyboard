@@ -5,4 +5,5 @@ public class Resources {
     public String getString(int id) { return null; }
     public String getString(int id, Object... formatArgs) { return null; }
     public Configuration getConfiguration() { return null; }
+    public int getColor(int id) { return 0; }
 }

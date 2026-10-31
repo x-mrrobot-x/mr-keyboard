@@ -6,7 +6,7 @@
     <string name="mr_section_guide">Guia rápido</string>
     <string name="mr_ui_step1_desc">Ative o Mr Keyboard na lista de teclados do sistema</string>
     <string name="mr_ui_step2_desc">Escolha o Mr Keyboard como teclado atual</string>
-    <string name="mr_ui_step3_desc">Baixe os dicionários e ligue as sugestões</string>
+    <string name="mr_ui_step3_desc">Baixe dicionários e ative as sugestões</string>
     <string name="mr_ui_optional">Opcional</string>
     <string name="mr_ui_settings_desc">Tema, altura, sugestões, gestos e muito mais</string>
     <string name="mr_ui_hero_summary">Personalize tema, altura, gestos e muito mais</string>
@@ -41,7 +41,7 @@
     <!-- v1.63: dicionários baixáveis (MrPacks, MrPacksActivity) -->
     <string name="mr_dicts_title">Sugestões e dicionários</string>
     <string name="mr_dicts_summary">Baixe dicionários e ajuste as sugestões de palavras</string>
-    <string name="mr_dicts_cat_langs">Idiomas</string>
+    <string name="mr_dicts_cat_langs">Dicionários</string>
     <string name="mr_dicts_cat_suggestions">Sugestões</string>
     <string name="mr_dicts_state_notdl">Não baixado</string>
     <string name="mr_dicts_state_unavailable">Indisponível no momento</string>
@@ -49,6 +49,8 @@
     <string name="mr_lang_pt_BR">Português (Brasil)</string>
     <string name="mr_lang_en_US">Inglês (EUA)</string>
     <string name="mr_lang_es">Espanhol</string>
+    <string name="mr_dicts_updates_one">1 atualização disponível</string>
+    <string name="mr_dicts_updates_many">%1$d atualizações disponíveis</string>
     <string name="mr_dicts_cat_privacy">Privacidade</string>
     <string name="mr_dicts_check">Procurar atualizações</string>
     <string name="mr_dicts_check_never">Toque para ver os dicionários disponíveis</string>
@@ -73,7 +75,7 @@
     <string name="mr_dicts_installed_turn_on">Dicionário instalado. Ligue \"Mostrar sugestões\" abaixo para usar.</string>
     <string name="mr_dicts_removed_ok">Dicionário removido.</string>
     <string name="mr_dicts_privacy_title">Nada do que você digita é enviado</string>
-    <string name="mr_dicts_privacy_text">O app só se conecta quando você toca em Procurar atualizações, Baixar, Atualizar ou em um idioma que ainda não foi baixado, e só baixa arquivos. Os arquivos ficam no GitHub, que vê o endereço IP do aparelho, como em qualquer download.</string>
+    <string name="mr_dicts_privacy_text">O app só se conecta quando você toca em Procurar atualizações, Baixar, Atualizar ou em um idioma que ainda não foi baixado, e só baixa arquivos. Os arquivos ficam no GitHub.</string>
     <string name="mr_dicts_offer">Baixar dicionário</string>
     <string name="mr_dicts_err_network">Sem conexão com a internet. Tente mais tarde.</string>
     <string name="mr_dicts_err_http">O servidor respondeu com o código %1$d. Tente mais tarde.</string>
