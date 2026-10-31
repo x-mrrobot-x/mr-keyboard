@@ -218,6 +218,15 @@ public class RecorrectTest {
         }
         check("composer: nunca passa de " + MrRecorrect.NEARBY + " códigos e vem em ordem de distância", dc.length == MrRecorrect.NEARBY && sorted);
 
+        // ---------------------------------------------------------------- faixa: palavra reaberta válida vai ao centro
+        Suggest dic = new Suggest();
+        dic.valid.addAll(java.util.Arrays.asList("gato", "fato", "casa"));
+        check("isValid: palavra do dicionário", MrRecorrect.isValid(dic, "gato"));
+        check("isValid: com maiúscula inicial vale pela minúscula (Gato)", MrRecorrect.isValid(dic, "Gato") && MrRecorrect.isValid(dic, "CASA"));
+        check("isValid: palavra errada não vale (gaato) e nome fora do dicionário também", !MrRecorrect.isValid(dic, "gaato") && !MrRecorrect.isValid(dic, "Fernanda"));
+        check("isValid: nulo, vazio e sem Suggest dão false, sem lançar", !MrRecorrect.isValid(dic, null) && !MrRecorrect.isValid(dic, "")
+                && !MrRecorrect.isValid(null, "gato"));
+
         System.out.println(fail == 0 ? "TUDO OK (" + ok + " verificações)" : fail + " FALHA(S)");
         if (fail != 0) System.exit(1);
     }

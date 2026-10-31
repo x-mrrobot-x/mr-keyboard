@@ -60,22 +60,22 @@
     .end annotation
 
     .prologue
-    .line 160
+    .line 177
     const/16 v2, 0xc
 
     new-array v4, v2, [I
 
-    .line 161
+    .line 178
     const/4 v2, -0x1
 
     invoke-static {v4, v2}, Ljava/util/Arrays;->fill([II)V
 
-    .line 162
+    .line 179
     const/4 v2, 0x0
 
     aput p2, v4, v2
 
-    .line 163
+    .line 180
     if-eqz p0, :cond_0
 
     if-nez p1, :cond_1
@@ -83,25 +83,25 @@
     :cond_0
     move-object v2, v4
 
-    .line 203
+    .line 220
     :goto_0
     return-object v2
 
-    .line 165
+    .line 182
     :cond_1
     :try_start_0
     invoke-static/range {p1 .. p2}, Lcom/mrkeyboard/app/MrRecorrect;->keyFor(Ljava/util/List;C)Lcom/mrkeyboard/app/Keyboard$Key;
 
     move-result-object v7
 
-    .line 166
+    .line 183
     if-nez v7, :cond_2
 
     move-object v2, v4
 
     goto :goto_0
 
-    .line 167
+    .line 184
     :cond_2
     iget v2, v7, Lcom/mrkeyboard/app/Keyboard$Key;->x:I
 
@@ -111,7 +111,7 @@
 
     add-int v8, v2, v3
 
-    .line 168
+    .line 185
     iget v2, v7, Lcom/mrkeyboard/app/Keyboard$Key;->y:I
 
     iget v3, v7, Lcom/mrkeyboard/app/Keyboard$Key;->height:I
@@ -120,21 +120,21 @@
 
     add-int v9, v2, v3
 
-    .line 169
+    .line 186
     move-object/from16 v0, p0
 
     invoke-virtual {v0, v8, v9}, Lcom/mrkeyboard/app/Keyboard;->getNearestKeys(II)[I
 
     move-result-object v10
 
-    .line 170
+    .line 187
     if-nez v10, :cond_3
 
     move-object v2, v4
 
     goto :goto_0
 
-    .line 171
+    .line 188
     :cond_3
     const v2, 0x3fb33333    # 1.4f
 
@@ -146,23 +146,23 @@
 
     float-to-int v2, v2
 
-    .line 172
+    .line 189
     mul-int v11, v2, v2
 
-    .line 173
+    .line 190
     const/16 v2, 0xc
 
     new-array v12, v2, [I
 
-    .line 174
+    .line 191
     const/4 v3, 0x1
 
-    .line 175
+    .line 192
     invoke-static/range {p2 .. p2}, Lcom/mrkeyboard/app/MrText;->base(I)C
 
     move-result v13
 
-    .line 176
+    .line 193
     array-length v14, v10
 
     const/4 v2, 0x0
@@ -174,7 +174,7 @@
 
     aget v2, v10, v6
 
-    .line 177
+    .line 194
     if-ltz v2, :cond_f
 
     invoke-interface/range {p1 .. p1}, Ljava/util/List;->size()I
@@ -185,7 +185,7 @@
 
     move v2, v3
 
-    .line 176
+    .line 193
     :goto_2
     add-int/lit8 v3, v6, 0x1
 
@@ -195,7 +195,7 @@
 
     goto :goto_1
 
-    .line 178
+    .line 195
     :cond_4
     move-object/from16 v0, p1
 
@@ -205,7 +205,7 @@
 
     check-cast v2, Lcom/mrkeyboard/app/Keyboard$Key;
 
-    .line 179
+    .line 196
     if-eq v2, v7, :cond_f
 
     iget-object v5, v2, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
@@ -222,7 +222,7 @@
 
     goto :goto_2
 
-    .line 180
+    .line 197
     :cond_5
     iget-object v5, v2, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
 
@@ -230,7 +230,7 @@
 
     aget v15, v5, v15
 
-    .line 181
+    .line 198
     const/16 v5, 0x20
 
     if-le v15, v5, :cond_f
@@ -245,13 +245,13 @@
 
     goto :goto_2
 
-    .line 182
+    .line 199
     :cond_6
     invoke-virtual {v2, v8, v9}, Lcom/mrkeyboard/app/Keyboard$Key;->squaredDistanceFrom(II)I
 
     move-result v16
 
-    .line 183
+    .line 200
     move/from16 v0, v16
 
     if-le v0, v11, :cond_7
@@ -260,17 +260,17 @@
 
     goto :goto_2
 
-    .line 184
+    .line 201
     :cond_7
     const/4 v2, 0x0
 
-    .line 185
+    .line 202
     const/4 v5, 0x1
 
     :goto_3
     if-ge v5, v3, :cond_8
 
-    .line 186
+    .line 203
     aget v17, v4, v5
 
     invoke-static/range {v17 .. v17}, Lcom/mrkeyboard/app/MrText;->base(I)C
@@ -289,7 +289,7 @@
 
     const/4 v2, 0x1
 
-    .line 188
+    .line 205
     :cond_8
     if-eqz v2, :cond_a
 
@@ -297,13 +297,13 @@
 
     goto :goto_2
 
-    .line 185
+    .line 202
     :cond_9
     add-int/lit8 v5, v5, 0x1
 
     goto :goto_3
 
-    .line 189
+    .line 206
     :cond_a
     const/16 v2, 0xc
 
@@ -311,7 +311,7 @@
 
     move v2, v3
 
-    .line 190
+    .line 207
     :goto_4
     const/16 v5, 0xc
 
@@ -327,13 +327,13 @@
 
     goto :goto_2
 
-    .line 189
+    .line 206
     :cond_b
     const/16 v2, 0xb
 
     goto :goto_4
 
-    .line 191
+    .line 208
     :cond_c
     :goto_5
     const/4 v5, 0x1
@@ -348,35 +348,35 @@
 
     if-le v5, v0, :cond_d
 
-    .line 192
+    .line 209
     add-int/lit8 v5, v2, -0x1
 
     aget v5, v4, v5
 
     aput v5, v4, v2
 
-    .line 193
+    .line 210
     add-int/lit8 v5, v2, -0x1
 
     aget v5, v12, v5
 
     aput v5, v12, v2
 
-    .line 194
+    .line 211
     add-int/lit8 v2, v2, -0x1
 
     goto :goto_5
 
-    .line 196
+    .line 213
     :cond_d
     aput v15, v4, v2
 
-    .line 197
+    .line 214
     aput v16, v12, v2
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 198
+    .line 215
     const/16 v2, 0xc
 
     if-ge v3, v2, :cond_f
@@ -385,14 +385,14 @@
 
     goto/16 :goto_2
 
-    .line 200
+    .line 217
     :catch_0
     move-exception v2
 
     :cond_e
     move-object v2, v4
 
-    .line 203
+    .line 220
     goto/16 :goto_0
 
     :cond_f
@@ -409,12 +409,12 @@
 
     const/4 v0, 0x0
 
-    .line 139
+    .line 156
     new-instance v4, Lcom/mrkeyboard/app/WordComposer;
 
     invoke-direct {v4}, Lcom/mrkeyboard/app/WordComposer;-><init>()V
 
-    .line 143
+    .line 160
     if-eqz p0, :cond_1
 
     :try_start_0
@@ -422,7 +422,7 @@
 
     move-result-object v1
 
-    .line 144
+    .line 161
     :goto_0
     if-eqz v1, :cond_2
 
@@ -430,7 +430,7 @@
 
     move-result-object v1
 
-    .line 145
+    .line 162
     :goto_1
     if-eqz v1, :cond_0
 
@@ -444,7 +444,7 @@
     :goto_2
     move v2, v3
 
-    .line 150
+    .line 167
     :goto_3
     invoke-interface {p1}, Ljava/lang/CharSequence;->length()I
 
@@ -452,19 +452,19 @@
 
     if-ge v2, v5, :cond_3
 
-    .line 151
+    .line 168
     invoke-interface {p1, v2}, Ljava/lang/CharSequence;->charAt(I)C
 
     move-result v5
 
-    .line 152
+    .line 169
     invoke-static {v1, v0, v5}, Lcom/mrkeyboard/app/MrRecorrect;->codesFor(Lcom/mrkeyboard/app/Keyboard;Ljava/util/List;C)[I
 
     move-result-object v6
 
     invoke-virtual {v4, v5, v6}, Lcom/mrkeyboard/app/WordComposer;->add(I[I)V
 
-    .line 150
+    .line 167
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_3
@@ -472,25 +472,25 @@
     :cond_1
     move-object v1, v0
 
-    .line 143
+    .line 160
     goto :goto_0
 
     :cond_2
     move-object v1, v0
 
-    .line 144
+    .line 161
     goto :goto_1
 
-    .line 146
+    .line 163
     :catch_0
     move-exception v1
 
     move-object v1, v0
 
-    .line 148
+    .line 165
     goto :goto_2
 
-    .line 154
+    .line 171
     :cond_3
     invoke-interface {p1}, Ljava/lang/CharSequence;->length()I
 
@@ -513,7 +513,7 @@
     :cond_4
     invoke-virtual {v4, v3}, Lcom/mrkeyboard/app/WordComposer;->setFirstCharCapitalized(Z)V
 
-    .line 155
+    .line 172
     return-object v4
 .end method
 
@@ -843,6 +843,66 @@
     goto :goto_0
 .end method
 
+.method static isValid(Lcom/mrkeyboard/app/Suggest;Ljava/lang/CharSequence;)Z
+    .locals 3
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 136
+    if-eqz p0, :cond_0
+
+    if-eqz p1, :cond_0
+
+    invoke-interface {p1}, Ljava/lang/CharSequence;->length()I
+
+    move-result v1
+
+    if-nez v1, :cond_1
+
+    .line 141
+    :cond_0
+    :goto_0
+    return v0
+
+    .line 138
+    :cond_1
+    :try_start_0
+    invoke-interface {p1}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 139
+    invoke-virtual {p0, v1}, Lcom/mrkeyboard/app/Suggest;->isValidWord(Ljava/lang/CharSequence;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_2
+
+    invoke-virtual {v1}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {p0, v1}, Lcom/mrkeyboard/app/Suggest;->isValidWord(Ljava/lang/CharSequence;)Z
+    :try_end_0
+    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+
+    move-result v1
+
+    if-eqz v1, :cond_0
+
+    :cond_2
+    const/4 v0, 0x1
+
+    goto :goto_0
+
+    .line 140
+    :catch_0
+    move-exception v1
+
+    goto :goto_0
+.end method
+
 .method private static keyFor(Ljava/util/List;C)Lcom/mrkeyboard/app/Keyboard$Key;
     .locals 7
     .annotation system Ldalvik/annotation/Signature;
@@ -859,12 +919,12 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 208
+    .line 225
     invoke-static {p1}, Lcom/mrkeyboard/app/MrText;->base(I)C
 
     move-result v3
 
-    .line 209
+    .line 226
     invoke-interface {p0}, Ljava/util/List;->size()I
 
     move-result v4
@@ -874,14 +934,14 @@
     :goto_0
     if-ge v1, v4, :cond_3
 
-    .line 210
+    .line 227
     invoke-interface {p0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/mrkeyboard/app/Keyboard$Key;
 
-    .line 211
+    .line 228
     iget-object v5, v0, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
 
     if-eqz v5, :cond_0
@@ -900,7 +960,7 @@
 
     if-gt v5, v6, :cond_1
 
-    .line 209
+    .line 226
     :cond_0
     add-int/lit8 v0, v1, 0x1
 
@@ -908,7 +968,7 @@
 
     goto :goto_0
 
-    .line 212
+    .line 229
     :cond_1
     iget-object v5, v0, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
 
@@ -926,7 +986,7 @@
 
     if-ne v5, v3, :cond_0
 
-    .line 214
+    .line 231
     :cond_2
     :goto_1
     return-object v0

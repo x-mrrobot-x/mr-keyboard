@@ -6825,7 +6825,13 @@
 
     move-result-object p1
 
-    const/4 v1, 0x0
+    # Mr Keyboard v1.76: palavra reaberta que e do dicionario fica no centro da faixa (como na digitacao);
+    # so a que nao e do dicionario deixa a melhor correcao no centro
+    iget-object v1, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggest:Lcom/mrkeyboard/app/Suggest;
+
+    invoke-static {v1, p1}, Lcom/mrkeyboard/app/MrRecorrect;->isValid(Lcom/mrkeyboard/app/Suggest;Ljava/lang/CharSequence;)Z
+
+    move-result v1
 
     invoke-direct {p0, v0, p1, v1, v1}, Lcom/mrkeyboard/app/LatinIME;->showSuggestions(Ljava/util/List;Ljava/lang/CharSequence;ZZ)V
 

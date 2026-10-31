@@ -125,6 +125,23 @@ public final class MrRecorrect {
         return separators.indexOf(c) >= 0;
     }
 
+    // ------------------------------------------------------------------ faixa da palavra reaberta
+
+    /**
+     * A palavra reaberta é uma palavra do dicionário (como está ou em minúsculas)? Se for, a faixa a mostra no
+     * centro, como na digitação ("gato" no meio e "fato", "gatos" nos lados); se não for, no centro fica a
+     * melhor correção. Sem isso, as teclas vizinhas faziam "fato" tomar o centro de uma palavra certa (1.75).
+     */
+    static boolean isValid(Suggest suggest, CharSequence word) {
+        if (suggest == null || word == null || word.length() == 0) return false;
+        try {
+            String w = word.toString();
+            return suggest.isValidWord(w) || suggest.isValidWord(w.toLowerCase());
+        } catch (RuntimeException e) {
+            return false;
+        }
+    }
+
     // ------------------------------------------------------------------ palavra reaberta com teclas vizinhas
 
     /** Tamanho do vetor de códigos da digitação (ProximityKeyDetector.getMaxNearbyKeys). */
