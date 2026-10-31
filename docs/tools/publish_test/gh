@@ -1,0 +1,60 @@
+#!/bin/bash
+# gh de mentira para testar publish_release.sh. Estado em $FAKE_STATE/rel/<tag>/{assets/,draft,notes.md} e $FAKE_STATE/latest.
+# FAKE_DROP=<arquivo>: o "upload" do release create deixa esse arquivo de fora (simula anexo que não subiu).
+S=$FAKE_STATE
+echo "gh $*" >> "$S/log"
+cmd="$1 $2"
+case "$cmd" in
+  "api repos/"*) ;;
+esac
+if [ "$1" = "api" ]; then
+  [ -f "$S/latest" ] && cat "$S/latest" && exit 0
+  exit 1
+fi
+tag=$3
+case "$cmd" in
+  "release view")
+    [ -d "$S/rel/$tag" ] || exit 1
+    case "$*" in
+      *"isDraft"*) cat "$S/rel/$tag/draft" ;;
+      *"assets"*) ls "$S/rel/$tag/assets" ;;
+    esac
+    exit 0 ;;
+  "release download")
+    [ -d "$S/rel/$tag" ] || exit 1
+    pat=""; dir=""
+    shift 3
+    while [ $# -gt 0 ]; do
+      case "$1" in -p) pat=$2; shift 2 ;; -D) dir=$2; shift 2 ;; *) shift ;; esac
+    done
+    mkdir -p "$dir"; achou=0
+    for f in "$S/rel/$tag/assets"/*; do
+      [ -f "$f" ] || continue
+      case "$(basename "$f")" in $pat) cp "$f" "$dir/"; achou=1 ;; esac
+    done
+    [ $achou = 1 ] || { echo "no assets match the file pattern" >&2; exit 1; }
+    exit 0 ;;
+  "release create")
+    shift 3
+    mkdir -p "$S/rel/$tag/assets"; echo false > "$S/rel/$tag/draft"
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        --draft) echo true > "$S/rel/$tag/draft"; shift ;;
+        --notes-file) cp "$2" "$S/rel/$tag/notes.md"; shift 2 ;;
+        --title|--target) shift 2 ;;
+        --latest) echo "$tag" > "$S/latest"; shift ;;
+        --*) shift ;;
+        *) [ "$(basename "$1")" = "$FAKE_DROP" ] || cp "$1" "$S/rel/$tag/assets/$(basename "$1")"; shift ;;
+      esac
+    done
+    exit 0 ;;
+  "release edit")
+    [ -d "$S/rel/$tag" ] || exit 1
+    case "$*" in *"--draft=false"*) echo false > "$S/rel/$tag/draft" ;; esac
+    case "$*" in *"--latest"*) echo "$tag" > "$S/latest" ;; esac
+    exit 0 ;;
+  "release delete")
+    rm -rf "$S/rel/$tag"; [ "$(cat "$S/latest" 2>/dev/null)" = "$tag" ] && rm -f "$S/latest"
+    exit 0 ;;
+esac
+exit 0

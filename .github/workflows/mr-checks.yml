@@ -10,6 +10,8 @@
 #   res_check.py         recursos: XML válido, public.xml, referências, recursos sem uso, espanhol x português
 #   smali_regcheck.py    registradores do smali (pega o erro que fechou as Configurações na 1.67)
 #   run_java_tests.sh    testes de PC da camada Java (cartão do autor e link da tela principal)
+#   test_make_catalog.py monta o catálogo de dicionários (um zip por idioma, série, versões antigas)
+#   publish_test/run.sh  publish_release.sh de ponta a ponta com um gh de mentira e a assinatura de verdade
 # montagem (alguns minutos):
 #   check_java_smali.sh  o smali Mr*.smali é o que o build_java.sh gera hoje dos fontes Java
 #   apktool b            o smali todo monta (o aapt2 acusa recurso que falta)
@@ -78,6 +80,12 @@ jobs:
 
       - name: Testes de PC da camada Java
         run: sh docs/tools/run_java_tests.sh
+
+      - name: Catálogo de dicionários
+        run: python3 -I docs/tools/test_make_catalog.py
+
+      - name: Publicação da Release (com gh de mentira)
+        run: bash docs/tools/publish_test/run.sh
 
   montagem:
     runs-on: ubuntu-24.04

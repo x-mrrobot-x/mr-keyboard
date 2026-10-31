@@ -7,18 +7,25 @@
 #
 # Publicar uma versão: acontece sozinho no push na main quando o versionName do apktool.yml é novo (ainda
 # não tem Release com essa tag) e há chave de assinatura nos secrets. Também dá para rodar à mão (Run
-# workflow, "publicar" marcado), o que trata qualquer impedimento como erro. O APK assinado vai para
-# Releases com a tag do versionName (ex.: v1.72.0) e as notas de docs/revisao-<versão>.md.
-# Os arquivos anexados são MrKeyboard-v<versão>.apk e MrKeyboard.apk (nome fixo, para o link da
-# documentação: .../releases/latest/download/MrKeyboard.apk). A lógica está em docs/tools/publish_release.sh.
-# Uma tag que já existe não é sobrescrita: aumente versionCode/versionName antes. No push automático, sem
-# chave, com a versão já publicada ou com a lib/ desatualizada, nada é publicado (só um aviso) e o APK
-# fica nos artefatos.
+# workflow, "publicar" marcado), o que trata qualquer impedimento como erro.
+# Cada lançamento é UMA Release, com a tag do versionName (ex.: v1.72.0) e as notas de docs/revisao-<versão>.md:
+#   MrKeyboard.apk     o APK assinado (nome fixo, para o link da documentação:
+#                      .../releases/latest/download/MrKeyboard.apk)
+#   catalogo.json      o catálogo de dicionários, assinado com a mesma chave do APK (o app lê
+#                      .../releases/latest/download/catalogo.json)
+#   <id>-<versão>.zip  um zip por idioma de dicts/ (só a versão atual de cada idioma)
+# A lógica está em docs/tools/publish_release.sh (testada por docs/tools/publish_test/run.sh). Uma tag que
+# já existe não é sobrescrita: aumente versionCode/versionName antes. Mudou só um dicionário? Suba a
+# version dele em dicts/<id>/pack.json e a versão do app: sai uma Release nova, completa.
+# No push automático, sem chave, com a versão já publicada ou com a lib/ desatualizada, nada é publicado
+# (só um aviso) e o APK fica nos artefatos.
 #
 # Assinatura (opcional): Settings > Secrets and variables > Actions, um dos dois jeitos:
 #   keystore: KEYSTORE_B64 (arquivo em base64), KEYSTORE_PASS, KEY_ALIAS, KEY_PASS
 #   pk8+pem:  KEY_PK8_B64 e CERT_PEM_B64 (os dois arquivos em base64)
 # Use a MESMA chave que assina o app hoje; com outra chave o Android não instala por cima.
+# A mesma chave assina o catálogo de dicionários (docs/tools/sign_catalog.sh); o app só aceita o catálogo
+# assinado pela chave do próprio APK.
 name: Mr Keyboard - APK
 
 on:
@@ -133,4 +140,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           MODO: ${{ inputs.publicar && 'manual' || 'automatico' }}
           LIB_OK: ${{ steps.lib.outputs.lib_ok }}
+          # a chave que assinou o APK também assina o catálogo de dicionários da Release
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+          KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.KEY_PASS }}
+          KEY_PK8_B64: ${{ secrets.KEY_PK8_B64 }}
+          CERT_PEM_B64: ${{ secrets.CERT_PEM_B64 }}
         run: bash docs/tools/publish_release.sh
