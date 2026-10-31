@@ -1,8 +1,9 @@
 #!/bin/bash
 # Publica o APK assinado em Releases (usado pelo workflow "Mr Keyboard - APK").
 # A tag é o versionName do apktool.yml (v1.72.0) e as notas vêm de docs/revisao-<versão>.md
-# (ou docs/revisao-1.M.M.md para v1.MM.0). Anexa MrKeyboard-v<versão>.apk e MrKeyboard.apk (nome fixo,
-# usado pelo link direto do README: .../releases/latest/download/MrKeyboard.apk).
+# (ou docs/revisao-1.M.M.md para v1.MM.0). O texto da release é a seção "## Notas da release" desse arquivo
+# (curta, para quem vai baixar) mais o link para o arquivo inteiro. Anexa um APK só, MrKeyboard.apk (nome
+# fixo, usado pelo link direto do README: .../releases/latest/download/MrKeyboard.apk).
 #
 # Variáveis:
 #   MODO   manual (rodou à mão com "publicar") ou automatico (push na main)
@@ -47,22 +48,35 @@ NOTAS="docs/revisao-$N.md"
 if [ ${#MIN} -eq 2 ] && [ "$PAT" = "0" ] && [ -f "docs/revisao-$MAJ.${MIN:0:1}.${MIN:1:1}.md" ]; then
   NOTAS="docs/revisao-$MAJ.${MIN:0:1}.${MIN:1:1}.md"
 fi
-APK="MrKeyboard-$TAG.apk"
+APK=MrKeyboard.apk
+# um APK só, com nome fixo: dá o link que não muda a cada versão (README: .../releases/latest/download/MrKeyboard.apk)
 cp MrKeyboard-signed.apk "$APK"
-# mesmo arquivo com nome fixo: dá o link que não muda a cada versão
-cp MrKeyboard-signed.apk MrKeyboard.apk
 CERT=$("$BT/apksigner" verify --print-certs "$APK" | sed -n 's/.*certificate SHA-256 digest: //p' | head -1)
 if [ -z "$CERT" ]; then
   para "Não consegui ler o certificado do APK."
 fi
+# texto da release: só a seção "## Notas da release" do arquivo de notas (curta, para quem vai baixar);
+# o arquivo inteiro (texto de desenvolvimento) fica no repositório, com o link no fim
+RESUMO=""
+if [ -f "$NOTAS" ]; then
+  RESUMO=$(awk '/^## Notas da release/{f=1; next} /^## /{f=0} f' "$NOTAS" | sed '/./,$!d')
+fi
+if [ -z "$RESUMO" ]; then
+  echo "::warning::$NOTAS não tem a seção '## Notas da release'; a release sai só com o título."
+  RESUMO="Mr Keyboard $TAG"
+fi
 {
   echo "Download: **$APK** · [installation / instalação](https://github.com/$GITHUB_REPOSITORY#installation)"
   echo
+  echo "$RESUMO"
+  echo
   echo "- SHA-256 do APK: \`$(sha256sum "$APK" | cut -d' ' -f1)\`"
   echo "- Certificado (SHA-256): \`$CERT\`"
-  echo
-  if [ -f "$NOTAS" ]; then cat "$NOTAS"; else echo "Mr Keyboard $TAG"; fi
+  if [ -f "$NOTAS" ]; then
+    echo
+    echo "[Notas completas (em português) / Full notes (Portuguese)](https://github.com/$GITHUB_REPOSITORY/blob/$TAG/$NOTAS)"
+  fi
 } > notas.md
-gh release create "$TAG" "$APK" MrKeyboard.apk --title "Mr Keyboard $TAG" --notes-file notas.md \
+gh release create "$TAG" "$APK" --title "Mr Keyboard $TAG" --notes-file notas.md \
   --target "$GITHUB_SHA" --latest
 echo "Publicado: $TAG ($NOTAS)"

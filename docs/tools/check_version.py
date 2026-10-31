@@ -2,7 +2,7 @@
 """Confere a versão: apktool.yml e apktool.json iguais, versionCode coerente com versionName e notas da versão.
 
 Rode na raiz do projeto. versionCode = maior*1000000 + menor*1000 + correção (v1.72.0 -> 1072000).
-As notas seguem o que o workflow de publicação procura: docs/revisao-<versão>.md ou, para v1.MM.0,
+As notas (com a seção "## Notas da release", que vira o texto da Release) seguem o que o workflow de publicação procura: docs/revisao-<versão>.md ou, para v1.MM.0,
 docs/revisao-1.M.M.md (v1.72.0 -> docs/revisao-1.7.2.md).
 """
 import json, os, re, sys
@@ -25,8 +25,11 @@ else:
     notas = ['docs/revisao-%s.md' % nome]
     if pat == 0 and 10 <= menor <= 99:
         notas.append('docs/revisao-%d.%d.%d.md' % (maior, menor // 10, menor % 10))
-    if not any(os.path.exists(n) for n in notas):
+    achadas = [n for n in notas if os.path.exists(n)]
+    if not achadas:
         problemas.append('sem notas da versão: crie um destes arquivos: ' + ' ou '.join(notas))
+    elif not re.search(r'^## Notas da release\s*$', open(achadas[0], encoding='utf-8').read(), re.M):
+        problemas.append('%s sem a seção "## Notas da release" (o texto curto que vai na Release do GitHub)' % achadas[0])
 print('versão v%s (código %d)' % (nome, codigo))
 for p in problemas:
     print('PROBLEMA:', p)

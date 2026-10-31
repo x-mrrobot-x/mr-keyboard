@@ -3,6 +3,15 @@
 ## Pedido
 Dois pontos da análise e do uso: o cartão "by x-mrrobot-x" (Sobre) abria o GitHub por um `<intent>` no XML, e o guia da tela principal tem o link "página do projeto" (*Informações adicionais*). Em aparelho sem navegador o toque não pode fechar o app.
 
+## Notas da release
+**Português**
+- Corrige o fechamento do app ao tocar no cartão "by x-mrrobot-x" ou no link "página do projeto" em aparelho sem navegador: agora aparece um aviso.
+- Reúne as mudanças das versões 1.67 a 1.71: configurações reorganizadas em 6 categorias, tela "Sugestões e dicionários", interface em espanhol, altura ajustável da barra de ferramentas, volume do clique, "Restaurar padrões" e 4 temas, todos com espaçamento e arredondamento das teclas.
+
+**English**
+- Fixes the app closing when you tap the "by x-mrrobot-x" card or the "project page" link on a device with no browser: a notice is shown instead.
+- Includes the changes of versions 1.67 to 1.71: settings reorganized in 6 categories, the "Suggestions and dictionaries" screen, Spanish interface, adjustable toolbar height, click volume, "Restore defaults" and 4 themes, all with key spacing and roundness.
+
 ## O que mudou
 - **`MrLink`** (Java → smali): a regra de abrir link num lugar só.
   - `open(Context, url)`: intent `ACTION_VIEW` com `startActivity` dentro de `try/catch` de `ActivityNotFoundException`. Sem app para abrir o link, mostra um aviso e devolve `false`.
