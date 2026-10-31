@@ -74,6 +74,10 @@
 
     const-string v0, "Limite m\u00e1ximo de 10 itens no popup."
 
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
     goto :goto_15
 
     :cond_13

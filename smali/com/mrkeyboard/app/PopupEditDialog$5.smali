@@ -240,6 +240,10 @@
 
     const-string v2, "Itens do popup ("
 
+    invoke-static/range {v2 .. v2}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
     goto :goto_73
 
     :cond_71

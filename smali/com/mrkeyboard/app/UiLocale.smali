@@ -18,6 +18,34 @@
     return-void
 .end method
 
+.method public static current(Landroid/content/Context;)Ljava/lang/String;
+    .locals 3
+
+    :try_start_0
+    invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    const-string v1, "pref_ui_language"
+
+    const-string v2, "system"
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+    :try_end_0
+    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+
+    return-object v0
+
+    :catch_0
+    move-exception v0
+
+    const-string v0, "system"
+
+    return-object v0
+.end method
+
 .method private static parse(Ljava/lang/String;)Ljava/util/Locale;
     .locals 4
 

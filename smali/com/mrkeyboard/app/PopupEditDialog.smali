@@ -504,6 +504,10 @@
 
     const-string v0, "Ir para: "
 
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
     goto :goto_57
 
     :cond_55
@@ -556,6 +560,10 @@
     if-eqz v0, :cond_81
 
     const-string v0, "Texto: "
+
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
 
     goto :goto_83
 
@@ -876,6 +884,10 @@
 
     const-string v4, "Popup no toque longo"
 
+    invoke-static/range {v4 .. v4}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
     goto :goto_6c
 
     :cond_6a
@@ -909,6 +921,10 @@
     if-eqz v16, :cond_8a
 
     const-string v3, "Escolha o que abre ao segurar esta tecla pressionada:"
+
+    invoke-static/range {v3 .. v3}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
 
     goto :goto_8c
 
@@ -970,6 +986,10 @@
 
     const-string v4, "Nenhum"
 
+    invoke-static/range {v4 .. v4}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
     goto :goto_c5
 
     :cond_c3
@@ -985,6 +1005,10 @@
 
     const-string v4, "Caracteres"
 
+    invoke-static/range {v4 .. v4}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
     goto :goto_d0
 
     :cond_ce
@@ -999,6 +1023,10 @@
     if-eqz v16, :cond_d9
 
     const-string v4, "Teclas / A\u00e7\u00f5es"
+
+    invoke-static/range {v4 .. v4}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
 
     goto :goto_db
 
@@ -1081,6 +1109,10 @@
     .line 222
     const-string v4, "Digite uma sequ\u00eancia de caracteres (cada letra vira um bot\u00e3o no popup, ex.: \u00e1\u00e0\u00e2\u00e3\u00e4):"
 
+    invoke-static/range {v4 .. v4}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
     goto :goto_127
 
     .line 223
@@ -1108,6 +1140,10 @@
     if-eqz v16, :cond_13d
 
     const-string v3, "Ex.: \u00b9\u00b2\u00b3\u00a3\u00a2\u20ac\u00a5"
+
+    invoke-static/range {v3 .. v3}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
 
     goto :goto_13f
 
@@ -1221,6 +1257,10 @@
 
     const-string v0, "+ Adicionar item ao popup"
 
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
     goto :goto_1a7
 
     :cond_1a5
@@ -1303,6 +1343,10 @@
     if-eqz v16, :cond_1f7
 
     const-string v0, "Nenhum popup ser\u00e1 exibido ao segurar esta tecla."
+
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
 
     goto :goto_1f9
 
@@ -1494,6 +1538,10 @@
 
     const-string v1, "Concluir"
 
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
     goto :goto_2aa
 
     :cond_2a8
@@ -1518,6 +1566,10 @@
     if-eqz v16, :cond_2be
 
     const-string v1, "Cancelar"
+
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
 
     goto :goto_2c0
 

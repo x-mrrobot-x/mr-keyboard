@@ -70,6 +70,10 @@
 
     const-string v0, "Limite m\u00e1ximo de 6 fileiras edit\u00e1veis atingido."
 
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
     goto :goto_1a
 
     :cond_18

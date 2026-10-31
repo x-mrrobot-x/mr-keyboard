@@ -222,10 +222,10 @@
           &lt;p>&amp;#8226; Press the &lt;b>Set input method&lt;/b> button above.&lt;/p>
           &lt;p>&amp;#8226; Select &lt;i>Mr Keyboard&lt;/i> from the list.&lt;/p>
 
-        &lt;h3>Optional: Select input languages:&lt;/h3>
-          &lt;p>&amp;#8226; Press the &lt;b>Input languages&lt;/b> button above to select which keyboard layouts you want to use. You &lt;b>must&lt;/b> configure this if you want to use a language or layout other than the one corresponding to your system's default language.&lt;/p>
-          &lt;p>&amp;#8226; Press the &lt;i>Back&lt;/i> button to return to this page.&lt;/p>
-          &lt;p>&amp;#8226; When typing, slide the space bar horizontally to switch between selected layouts.
+        &lt;h3>Optional: word suggestions:&lt;/h3>
+          &lt;p>&amp;#8226; Press the &lt;b>Word suggestions&lt;/b> button above to open &lt;i>Suggestions and dictionaries&lt;/i>.&lt;/p>
+          &lt;p>&amp;#8226; Tap your language to download its dictionary, then turn on &lt;b>Show suggestions&lt;/b>.&lt;/p>
+          &lt;p>&amp;#8226; When typing, slide the space bar horizontally to switch between the languages you downloaded.&lt;/p>
         
         &lt;h2>Additional information&lt;/h2>
         &lt;p>See the &lt;a href='https://github.com/x-mrrobot-x/mr-keyboard'>project page&lt;/a> for more information and to report problems.&lt;/p>
@@ -310,6 +310,7 @@
     <string name="ui_language_system">System default</string>
     <string name="ui_language_english">English</string>
     <string name="ui_language_portuguese_br">Português (Brasil)</string>
+    <string name="ui_language_spanish">Español</string>
     <string name="summary_pref_screen_view">Spacing, roundness and key labels</string>
     <string name="summary_pref_screen_feedback">Key vibration, click sound and key preview</string>
     <string name="summary_pref_screen_actions">Actions for swipes and the volume keys</string>

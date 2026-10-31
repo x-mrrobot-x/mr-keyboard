@@ -39,7 +39,7 @@
                 android:layout_marginBottom="5dp"
                 android:singleLine="true"
                 android:ellipsize="end"
-                android:contentDescription="Clipboard"
+                android:contentDescription="@string/mr_tb_clipboard"
                 android:drawableLeft="@drawable/ic_mr_clip" />
             <TextView
                 android:textSize="12sp"
@@ -59,7 +59,7 @@
                 android:layout_marginBottom="5dp"
                 android:singleLine="true"
                 android:ellipsize="end"
-                android:contentDescription="Traduzir"
+                android:contentDescription="@string/mr_tb_translate"
                 android:drawableLeft="@drawable/ic_mr_trans" />
             <TextView
                 android:textSize="12sp"
@@ -79,7 +79,7 @@
                 android:layout_marginBottom="5dp"
                 android:singleLine="true"
                 android:ellipsize="end"
-                android:contentDescription="Anexos"
+                android:contentDescription="@string/mr_tb_attachments"
                 android:drawableLeft="@drawable/ic_mr_attach" />
             <TextView
                 android:textSize="12sp"
@@ -96,7 +96,7 @@
                 android:layout_marginRight="3dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:contentDescription="Emotes"
+                android:contentDescription="@string/mr_tb_emotes"
                 android:drawableLeft="@drawable/ic_mr_emote" />
             <TextView
                 android:textSize="12sp"
@@ -113,7 +113,7 @@
                 android:layout_marginRight="3dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:contentDescription="Folhas do teclado"
+                android:contentDescription="@string/pref_screen_sheets_title"
                 android:drawableLeft="@drawable/ic_mr_sheets" />
             <TextView
                 android:textSize="12sp"
@@ -130,7 +130,7 @@
                 android:layout_marginRight="3dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:contentDescription="Personalizar teclado"
+                android:contentDescription="@string/mr_tb_customize"
                 android:drawableLeft="@drawable/ic_mr_tune" />
         </LinearLayout>
         <!-- Sugestoes de palavras (MrSugg): faixa CandidateView, com margem lateral. -->
@@ -282,7 +282,7 @@
             android:ellipsize="end"
             android:drawableLeft="@drawable/ic_mr_rec"
             android:drawablePadding="6dp"
-            android:text="Gravando" />
+            android:text="@string/mr_rec_on" />
         <TextView
             android:textSize="12sp"
             android:fontFamily="sans-serif-medium"
@@ -318,7 +318,7 @@
             android:ellipsize="end"
             android:drawableLeft="@drawable/ic_mr_trash"
             android:drawablePadding="6dp"
-            android:text="Limpar" />
+            android:text="@string/mr_tb_clear" />
     </LinearLayout>
     <LinearLayout
         android:orientation="vertical"
@@ -343,7 +343,7 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:ellipsize="end"
-            android:text="Toque para inserir  ·  Segure para apagar" />
+            android:text="@string/mr_tb_clip_hint" />
         <GridView
             android:tag="l_clip"
             android:focusable="false"
@@ -376,7 +376,7 @@
             android:layout_weight="1"
             android:drawableTop="@drawable/ic_mr_clip_lg"
             android:drawablePadding="8dp"
-            android:text="Nada copiado ainda\nO que você copiar aparece aqui" />
+            android:text="@string/mr_tb_clip_empty" />
     </LinearLayout>
     <LinearLayout
         android:orientation="horizontal"
@@ -396,7 +396,7 @@
             android:tag="shot_back"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
-            android:contentDescription="Voltar"
+            android:contentDescription="@string/mr_tb_back"
             android:drawableLeft="@drawable/ic_mr_back" />
         <com.mrkeyboard.app.MrCenteredIconButton
             style="@style/MrShotBtn"
@@ -407,7 +407,7 @@
             android:includeFontPadding="false"
             android:drawablePadding="0dp"
             android:layout_height="36dp"
-            android:contentDescription="Fotos"
+            android:contentDescription="@string/mr_tb_photos"
             android:drawableTop="@drawable/ic_mr_shots_c" />
         <com.mrkeyboard.app.MrCenteredIconButton
             style="@style/MrShotBtn"
@@ -418,7 +418,7 @@
             android:includeFontPadding="false"
             android:drawablePadding="0dp"
             android:layout_height="36dp"
-            android:contentDescription="Vídeos"
+            android:contentDescription="@string/mr_tb_videos"
             android:drawableTop="@drawable/ic_mr_video_c" />
         <com.mrkeyboard.app.MrCenteredIconButton
             style="@style/MrShotBtn"
@@ -429,22 +429,22 @@
             android:includeFontPadding="false"
             android:drawablePadding="0dp"
             android:layout_height="36dp"
-            android:contentDescription="Arquivos"
+            android:contentDescription="@string/mr_tb_files"
             android:drawableTop="@drawable/ic_mr_file_c" />
         <TextView
             style="@style/MrShotBtn"
             android:tag="shot_refresh"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
-            android:contentDescription="Atualizar"
+            android:contentDescription="@string/mr_tb_refresh"
             android:drawableLeft="@drawable/ic_mr_refresh" />
         <TextView
             style="@style/MrShotBtn"
             android:tag="shot_clear_cache"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
-            android:text="Cache"
-            android:contentDescription="Limpar caches de anexos"
+            android:text="@string/mr_tb_cache"
+            android:contentDescription="@string/mr_tb_cache_clear"
             android:tooltipText="Limpar"
             android:drawablePadding="4dp"
             android:drawableLeft="@drawable/ic_mr_cache" />
@@ -491,7 +491,7 @@
             android:layout_weight="1"
             android:drawableTop="@drawable/ic_mr_shots_lg"
             android:drawablePadding="8dp"
-            android:text="Carregando…" />
+            android:text="@string/mr_shot_loading" />
     </LinearLayout>
     <LinearLayout
         android:orientation="horizontal"
@@ -546,7 +546,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
                 android:singleLine="true"
-                android:contentDescription="Recentes"
+                android:contentDescription="@string/mr_tb_emoji_recent"
                 android:drawableLeft="@drawable/ic_mr_cat_r" />
             <TextView
                 android:textSize="18sp"
@@ -563,7 +563,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
                 android:singleLine="true"
-                android:contentDescription="Carinhas e pessoas"
+                android:contentDescription="@string/mr_tb_emoji_people"
                 android:drawableLeft="@drawable/ic_mr_cat_0" />
             <TextView
                 android:textSize="18sp"
@@ -580,7 +580,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
                 android:singleLine="true"
-                android:contentDescription="Animais e natureza"
+                android:contentDescription="@string/mr_tb_emoji_nature"
                 android:drawableLeft="@drawable/ic_mr_cat_1" />
             <TextView
                 android:textSize="18sp"
@@ -597,7 +597,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
                 android:singleLine="true"
-                android:contentDescription="Comida e bebida"
+                android:contentDescription="@string/mr_tb_emoji_food"
                 android:drawableLeft="@drawable/ic_mr_cat_2" />
             <TextView
                 android:textSize="18sp"
@@ -614,7 +614,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
                 android:singleLine="true"
-                android:contentDescription="Atividades"
+                android:contentDescription="@string/mr_tb_emoji_activities"
                 android:drawableLeft="@drawable/ic_mr_cat_3" />
             <TextView
                 android:textSize="18sp"
@@ -631,7 +631,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
                 android:singleLine="true"
-                android:contentDescription="Viagens e lugares"
+                android:contentDescription="@string/mr_tb_emoji_travel"
                 android:drawableLeft="@drawable/ic_mr_cat_4" />
             <TextView
                 android:textSize="18sp"
@@ -648,7 +648,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
                 android:singleLine="true"
-                android:contentDescription="Objetos"
+                android:contentDescription="@string/mr_tb_emoji_objects"
                 android:drawableLeft="@drawable/ic_mr_cat_5" />
             <TextView
                 android:textSize="18sp"
@@ -665,7 +665,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
                 android:singleLine="true"
-                android:contentDescription="Símbolos"
+                android:contentDescription="@string/mr_tb_emoji_symbols"
                 android:drawableLeft="@drawable/ic_mr_cat_6" />
             <TextView
                 android:textSize="18sp"
@@ -682,7 +682,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
                 android:singleLine="true"
-                android:contentDescription="Bandeiras"
+                android:contentDescription="@string/mr_tb_emoji_flags"
                 android:drawableLeft="@drawable/ic_mr_cat_7" />
             </LinearLayout>
         </HorizontalScrollView>
@@ -743,7 +743,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:text="Idioma de entrada" />
+                android:text="@string/mr_tb_lang_in" />
             <ListView
                 android:tag="l_in"
                 android:focusable="false"
@@ -787,7 +787,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:text="Idioma de saída" />
+                android:text="@string/mr_tb_lang_out" />
             <ListView
                 android:tag="l_out"
                 android:focusable="false"
@@ -847,7 +847,7 @@
             android:layout_weight="1"
             android:singleLine="true"
             android:ellipsize="end"
-            android:text="Personalizar teclado" />
+            android:text="@string/mr_tb_customize" />
     </LinearLayout>
     <FrameLayout
         android:tag="kbd_host"
@@ -895,7 +895,7 @@
                             android:layout_height="wrap_content"
                             android:singleLine="true"
                             android:ellipsize="end"
-                            android:text="Altura do teclado vertical" />
+                            android:text="@string/mr_tune_v" />
                         <LinearLayout
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
@@ -944,7 +944,7 @@
                             android:layout_height="wrap_content"
                             android:singleLine="true"
                             android:ellipsize="end"
-                            android:text="Escala dos rótulos das teclas" />
+                            android:text="@string/title_label_scale" />
                         <LinearLayout
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
@@ -993,7 +993,7 @@
                             android:layout_height="wrap_content"
                             android:singleLine="true"
                             android:ellipsize="end"
-                            android:text="Espaçamento das teclas" />
+                            android:text="@string/title_key_spacing" />
                         <LinearLayout
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
@@ -1042,7 +1042,7 @@
                             android:layout_height="wrap_content"
                             android:singleLine="true"
                             android:ellipsize="end"
-                            android:text="Arredondamento das teclas" />
+                            android:text="@string/mr_tb_radius" />
                         <LinearLayout
                             android:orientation="horizontal"
                             android:gravity="center_vertical"

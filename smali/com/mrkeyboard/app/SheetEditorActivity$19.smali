@@ -221,6 +221,10 @@
 
     const-string v9, "Fileira "
 
+    invoke-static/range {v9 .. v9}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v9
+
     goto :goto_9d
 
     :cond_9b
@@ -258,6 +262,10 @@
     if-eqz v5, :cond_be
 
     const-string v5, " teclas)"
+
+    invoke-static/range {v5 .. v5}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
 
     goto :goto_c0
 

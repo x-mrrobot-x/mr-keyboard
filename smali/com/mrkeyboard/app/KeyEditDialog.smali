@@ -146,6 +146,10 @@
 
     const-string p0, "Folha anterior (ciclo)"
 
+    invoke-static/range {p0 .. p0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
     goto :goto_13
 
     :cond_11
@@ -168,6 +172,10 @@
     if-eqz p0, :cond_21
 
     const-string p0, "ABC \u2014 Teclado principal"
+
+    invoke-static/range {p0 .. p0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
 
     goto :goto_23
 
@@ -253,6 +261,10 @@
     if-eqz p0, :cond_65
 
     const-string p0, "Pr\u00f3xima folha (ciclo)"
+
+    invoke-static/range {p0 .. p0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
 
     goto :goto_67
 
@@ -937,6 +949,10 @@
 
     const-string v4, "Editar item do popup"
 
+    invoke-static/range {v4 .. v4}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
     goto :goto_51
 
     :cond_47
@@ -949,6 +965,10 @@
     if-eqz v13, :cond_4f
 
     const-string v4, "Editar tecla"
+
+    invoke-static/range {v4 .. v4}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
 
     goto :goto_51
 
@@ -979,6 +999,10 @@
     if-eqz v13, :cond_6a
 
     const-string v1, "Tipo de a\u00e7\u00e3o"
+
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
 
     goto :goto_6c
 
@@ -1024,11 +1048,19 @@
     :goto_88
     const-string v5, "Ir p/ folha"
 
+    invoke-static/range {v5 .. v5}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
     const-string v10, "Sheet"
 
     const/16 v16, 0x3
 
     const-string v17, "Especial"
+
+    invoke-static/range {v17 .. v17}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v17
 
     const-string v18, "Special"
 
@@ -1037,6 +1069,10 @@
     const-string v20, "Tasker"
 
     const-string v21, "Texto"
+
+    invoke-static/range {v21 .. v21}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v21
 
     const-string v22, "Text"
 
@@ -1130,6 +1166,10 @@
     if-eqz v13, :cond_dc
 
     const-string v5, "Separador"
+
+    invoke-static/range {v5 .. v5}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
 
     goto :goto_de
 
@@ -1291,6 +1331,10 @@
 
     const-string v1, "R\u00f3tulo vis\u00edvel na tecla"
 
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
     goto :goto_16b
 
     :cond_169
@@ -1307,6 +1351,10 @@
     if-eqz v13, :cond_177
 
     const-string v1, "Texto exibido no bot\u00e3o (auto se vazio)"
+
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
 
     goto :goto_179
 
@@ -1356,6 +1404,10 @@
 
     const-string v1, "Texto inserido ao tocar"
 
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
     goto :goto_1a0
 
     :cond_19e
@@ -1372,6 +1424,10 @@
     if-eqz v13, :cond_1ac
 
     const-string v1, "Caractere, tag HTML ou frase completa..."
+
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
 
     goto :goto_1ae
 
@@ -1436,6 +1492,10 @@
 
     const-string v0, "Comando Tasker (prefixo tskcmd: autom\u00e1tico)"
 
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
     goto :goto_1e1
 
     :cond_1df
@@ -1452,6 +1512,10 @@
     if-eqz v13, :cond_1ed
 
     const-string v0, "Ex.: wifi, bt, flash, meu_perfil"
+
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
 
     goto :goto_1ef
 
@@ -1586,6 +1650,10 @@
 
     const-string v0, "Tecla especial selecionada"
 
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
     goto :goto_263
 
     :cond_261
@@ -1662,6 +1730,10 @@
     if-eqz v13, :cond_2a3
 
     const-string v0, "Folha de destino"
+
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
 
     goto :goto_2a5
 
@@ -1771,6 +1843,10 @@
 
     .line 320
     const-string v0, "Cria um espa\u00e7o vazio invis\u00edvel nesta posi\u00e7\u00e3o do teclado real. Use o controle de largura abaixo para definir o tamanho do v\u00e3o."
+
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
 
     goto :goto_303
 
@@ -2020,6 +2096,10 @@
 
     const-string v1, "Toque longo (popup)"
 
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
     goto :goto_3e1
 
     :cond_3df
@@ -2071,6 +2151,10 @@
 
     const-string v1, "Salvar"
 
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
     goto :goto_411
 
     :cond_40f
@@ -2085,6 +2169,10 @@
     if-eqz v13, :cond_41a
 
     const-string v1, "Cancelar"
+
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
 
     goto :goto_41c
 
@@ -2205,6 +2293,10 @@
 
     const-string v1, "Duplicar"
 
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
     goto :goto_48d
 
     :cond_48b
@@ -2251,6 +2343,10 @@
     if-eqz v13, :cond_4b5
 
     const-string v1, "Excluir"
+
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
 
     goto :goto_4b7
 
@@ -2570,6 +2666,10 @@
 
     const-string v4, "Pr\u00f3xima folha (ciclo)"
 
+    invoke-static/range {v4 .. v4}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
     goto :goto_24
 
     :cond_22
@@ -2593,6 +2693,10 @@
 
     const-string v4, "Folha anterior (ciclo)"
 
+    invoke-static/range {v4 .. v4}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
     goto :goto_38
 
     :cond_36
@@ -2615,6 +2719,10 @@
     if-eqz v0, :cond_4a
 
     const-string v4, "ABC \u2014 Teclado principal"
+
+    invoke-static/range {v4 .. v4}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
 
     goto :goto_4c
 
@@ -2759,6 +2867,10 @@
 
     const-string p0, "Escolher folha de destino"
 
+    invoke-static/range {p0 .. p0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
+
     goto :goto_c2
 
     :cond_c0
@@ -2782,6 +2894,10 @@
     if-eqz v0, :cond_d4
 
     const-string p1, "Cancelar"
+
+    invoke-static/range {p1 .. p1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p1
 
     goto :goto_d6
 

@@ -23,7 +23,7 @@ Requires Android 8.0 or later.
   - off by default: turn on *Show suggestions* on the same screen.
 - **Themes:** Mr Keyboard Neon, Dark Tech (soft and raised) and Midnight Steel. Key spacing and corner roundness work in every theme.
 - **Gestures and keys:** swipe up/down/left/right and the volume keys can run keyboard actions.
-- **Settings in English or Portuguese.**
+- **App in English, Portuguese or Spanish:** it follows the system language, or pick one in *Settings → General → App language*.
 
 ## Tasker integration
 Any key whose output text starts with `tskcmd:` sends a command instead of typing. The first row of the **TSK** sheet already has some, and you can create your own in the sheet editor (e.g. output text `tskcmd:lights_on`).

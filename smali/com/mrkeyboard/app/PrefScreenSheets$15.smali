@@ -66,6 +66,10 @@
 
     const-string p2, "Todas as folhas foram restauradas para o padr\u00e3o."
 
+    invoke-static/range {p2 .. p2}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p2
+
     goto :goto_18
 
     :cond_16

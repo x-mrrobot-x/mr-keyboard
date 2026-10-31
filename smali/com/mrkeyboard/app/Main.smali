@@ -3,6 +3,10 @@
 .source "Main.java"
 
 
+# instance fields
+.field private mLang:Ljava/lang/String;
+
+
 # direct methods
 .method public constructor <init>()V
     .locals 0
@@ -16,7 +20,13 @@
 
 # virtual methods
 .method protected attachBaseContext(Landroid/content/Context;)V
-    .locals 0
+    .locals 1
+
+    invoke-static {p1}, Lcom/mrkeyboard/app/UiLocale;->current(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v0
+
+    iput-object v0, p0, Lcom/mrkeyboard/app/Main;->mLang:Ljava/lang/String;
 
     invoke-static {p1}, Lcom/mrkeyboard/app/UiLocale;->wrap(Landroid/content/Context;)Landroid/content/Context;
 
@@ -24,6 +34,29 @@
 
     invoke-super {p0, p1}, Landroid/app/Activity;->attachBaseContext(Landroid/content/Context;)V
 
+    return-void
+.end method
+
+.method protected onResume()V
+    .locals 2
+
+    invoke-super {p0}, Landroid/app/Activity;->onResume()V
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/UiLocale;->current(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v0
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/Main;->mLang:Ljava/lang/String;
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_same_lang
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/Main;->recreate()V
+
+    :cond_same_lang
     return-void
 .end method
 
@@ -52,7 +85,19 @@
 
     invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    const-string p1, "<p><i>Version: "
+    const-string p1, "<p><i>"
+
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const p1, 0x7f0c0195
+
+    invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/Main;->getString(I)Ljava/lang/String;
+
+    move-result-object p1
+
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string p1, ": "
 
     invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 

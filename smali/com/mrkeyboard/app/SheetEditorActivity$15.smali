@@ -118,6 +118,10 @@
 
     const-string v0, "Folha exclu\u00edda."
 
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
     goto :goto_3d
 
     :cond_3b

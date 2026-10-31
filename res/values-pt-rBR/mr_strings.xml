@@ -101,4 +101,32 @@
     <string name="title_bar_scale">Altura da barra de ferramentas e sugestões</string>
     <string name="title_show_settings_key">Mostrar tecla de configurações</string>
     <string name="summary_show_settings_key">Engrenagem na linha de baixo do modo Padrão</string>
+    <!-- textos da barra (antes fixos no mr_toolbar.xml) -->
+    <string name="mr_tb_clipboard">Área de transferência</string>
+    <string name="mr_tb_translate">Traduzir</string>
+    <string name="mr_tb_attachments">Anexos</string>
+    <string name="mr_tb_emotes">Emotes</string>
+    <string name="mr_tb_customize">Personalizar teclado</string>
+    <string name="mr_tb_back">Voltar</string>
+    <string name="mr_tb_photos">Fotos</string>
+    <string name="mr_tb_videos">Vídeos</string>
+    <string name="mr_tb_files">Arquivos</string>
+    <string name="mr_tb_refresh">Atualizar</string>
+    <string name="mr_tb_cache">Cache</string>
+    <string name="mr_tb_cache_clear">Limpar caches de anexos</string>
+    <string name="mr_tb_clear">Limpar</string>
+    <string name="mr_tb_clip_hint">Toque para inserir  ·  Segure para apagar</string>
+    <string name="mr_tb_clip_empty">Nada copiado ainda\nO que você copiar aparece aqui</string>
+    <string name="mr_tb_lang_in">Idioma de entrada</string>
+    <string name="mr_tb_lang_out">Idioma de saída</string>
+    <string name="mr_tb_radius">Arredondamento das teclas</string>
+    <string name="mr_tb_emoji_recent">Recentes</string>
+    <string name="mr_tb_emoji_people">Carinhas e pessoas</string>
+    <string name="mr_tb_emoji_nature">Animais e natureza</string>
+    <string name="mr_tb_emoji_food">Comida e bebida</string>
+    <string name="mr_tb_emoji_activities">Atividades</string>
+    <string name="mr_tb_emoji_travel">Viagens e lugares</string>
+    <string name="mr_tb_emoji_objects">Objetos</string>
+    <string name="mr_tb_emoji_symbols">Símbolos</string>
+    <string name="mr_tb_emoji_flags">Bandeiras</string>
 </resources>

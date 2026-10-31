@@ -91,6 +91,10 @@
 
     const-string p1, "A tecla Apagar (\u232b) no canto inferior direito \u00e9 fixa por seguran\u00e7a."
 
+    invoke-static/range {p1 .. p1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p1
+
     goto :goto_15
 
     :cond_9
@@ -105,6 +109,10 @@
     if-eqz p1, :cond_13
 
     const-string p1, "A fileira inferior do sistema \u00e9 fixa em todas as folhas."
+
+    invoke-static/range {p1 .. p1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p1
 
     goto :goto_15
 

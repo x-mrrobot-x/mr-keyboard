@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="chording_alt_key_entries">
+        <item>Ninguna (se ignora cuando no modifica otras teclas)</item>
+        <item>Alt izquierdo</item>
+        <item>Alt derecho</item>
+    </string-array>
+    <string-array name="chording_ctrl_key_entries">
+        <item>Ninguna (se ignora cuando no modifica otras teclas)</item>
+        <item>Ctrl izquierdo</item>
+        <item>Ctrl derecho</item>
+    </string-array>
+    <string-array name="ctrl_a_override_entries">
+        <item>Desactivar Ctrl-A, usar Ctrl-Alt-A</item>
+        <item>Desactivar Ctrl-A por completo</item>
+        <item>Usar Ctrl-A (sin reemplazo)</item>
+    </string-array>
+    <string-array name="hint_modes">
+        <item>Ocultar</item>
+        <item>Solo símbolos ASCII</item>
+        <item>Todos los símbolos</item>
+    </string-array>
+    <string-array name="keyboard_mode_entries">
+        <item>Estándar (atajos + Ctrl/Alt)</item>
+        <item>Compacto (QWERTY)</item>
+        <item>Completo (fila F1–F12)</item>
+    </string-array>
+    <string-array name="popup_content_entries">
+        <item>Sin popups</item>
+        <item>Sin popups, usar repetición automática</item>
+        <item>Solo únicos: 3 ⇒ ³, e ⇒ é</item>
+        <item>Incluir mayúscula: 3 ⇒ #³, e ⇒ Eé</item>
+        <item>Incluir la propia tecla: 3 ⇒ 3#³, e ⇒ eEé</item>
+    </string-array>
+    <string-array name="swipe_action_entries">
+        <item>(ninguna acción)</item>
+        <item>Cerrar teclado</item>
+        <item>Alternar fila de extensión</item>
+        <item>Abrir configuración</item>
+        <item>Alternar sugerencias</item>
+        <item>Entrada de voz</item>
+        <item>Cambiar diseño del teclado</item>
+        <item>Aumentar altura</item>
+        <item>Disminuir altura</item>
+        <item>Idioma anterior</item>
+        <item>Idioma siguiente</item>
+        <item>Hoja siguiente</item>
+        <item>Hoja anterior</item>
+    </string-array>
+    <string-array name="voice_input_modes">
+        <item>En el teclado principal</item>
+        <item>En el teclado de símbolos</item>
+        <item>Desactivada</item>
+    </string-array>
+    <string-array name="voice_input_modes_summary">
+        <item>Micrófono en el teclado principal</item>
+        <item>Micrófono en el teclado de símbolos</item>
+        <item>La entrada de voz está desactivada</item>
+    </string-array>
+</resources>

@@ -3346,7 +3346,15 @@
 
     move-result v0
 
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrLocaleCtx;->of(Landroid/content/Context;)Landroid/content/Context;
+
+    move-result-object v1
+
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getLayoutInflater()Landroid/view/LayoutInflater;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v1}, Landroid/view/LayoutInflater;->cloneInContext(Landroid/content/Context;)Landroid/view/LayoutInflater;
 
     move-result-object v1
 

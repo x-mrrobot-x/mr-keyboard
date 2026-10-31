@@ -713,6 +713,10 @@
  move-result v0
  if-eqz v0, :load
  const-string v0, "Limpando caches…"
+
+ invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+ move-result-object v0
  invoke-static {v0}, Lcom/mrkeyboard/app/MrShots;->showClearSummary(Ljava/lang/String;)V
  # Progress text is not a completed result.
  const/4 v0, 0x0
@@ -1266,6 +1270,10 @@
     if-eqz v0, :query_succeeded
     sget-object v0, Lcom/mrkeyboard/app/MrShots;->sEmpty:Landroid/widget/TextView;
     const-string v1, "Não foi possível atualizar. Toque para tentar novamente."
+
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
     return-void
     :query_succeeded
@@ -3251,6 +3259,10 @@
  sput-boolean v1, Lcom/mrkeyboard/app/MrShots;->sBusy:Z
  :notify
  const-string v0, "Fila de anexos ocupada. Tente novamente."
+
+ invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+ move-result-object v0
  invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->toast(Ljava/lang/String;)V
  :done
  return-void
@@ -3575,6 +3587,10 @@
  const/4 v0, 0x0
  sput-boolean v0, Lcom/mrkeyboard/app/MrShots;->sBusy:Z
  const-string v0, "O campo de destino mudou. Selecione o anexo novamente."
+
+ invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+ move-result-object v0
  invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->toast(Ljava/lang/String;)V
  return-void
 .end method
@@ -3873,9 +3889,17 @@
  if-eqz v0, :done
  if-eqz p0, :partial
  const-string v1, "Cache limpo. Toque numa categoria ou em Atualizar."
+
+ invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+ move-result-object v1
  goto :label
  :partial
  const-string v1, "Limpeza parcial. Toque em Cache para tentar novamente."
+
+ invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+ move-result-object v1
  :label
  invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
  :done
@@ -3892,6 +3916,10 @@
 .method static showWait()V
  .locals 1
  const-string v0, "Limpando caches…"
+
+ invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+ move-result-object v0
  invoke-static {v0}, Lcom/mrkeyboard/app/MrShots;->showText(Ljava/lang/String;)V
  return-void
 .end method

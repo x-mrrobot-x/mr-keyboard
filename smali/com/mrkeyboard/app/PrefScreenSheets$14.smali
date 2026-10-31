@@ -74,6 +74,10 @@
 
     const-string p2, "Folha restaurada."
 
+    invoke-static/range {p2 .. p2}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p2
+
     goto :goto_1c
 
     :cond_1a

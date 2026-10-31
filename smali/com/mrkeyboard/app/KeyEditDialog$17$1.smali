@@ -190,6 +190,10 @@
 
     const-string v0, "Informe o texto ou r\u00f3tulo da tecla."
 
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
     goto :goto_87
 
     :cond_85
@@ -321,6 +325,10 @@
     if-eqz v0, :cond_f3
 
     const-string v0, "Informe o nome do comando Tasker."
+
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
 
     goto :goto_f5
 

@@ -75,6 +75,10 @@
 
     const-string v1, "Importadas "
 
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
     goto :goto_1d
 
     :cond_1b
@@ -94,6 +98,10 @@
     if-eqz v0, :cond_2c
 
     const-string v0, " folhas!"
+
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
 
     goto :goto_2e
 
@@ -138,6 +146,10 @@
     if-eqz v1, :cond_4e
 
     const-string v1, "JSON inv\u00e1lido: "
+
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
 
     goto :goto_50
 

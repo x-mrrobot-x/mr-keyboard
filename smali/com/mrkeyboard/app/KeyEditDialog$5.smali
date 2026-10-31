@@ -76,6 +76,10 @@
 
     const-string v3, "Largura proporcional: "
 
+    invoke-static/range {v3 .. v3}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
     goto :goto_1c
 
     :cond_1a

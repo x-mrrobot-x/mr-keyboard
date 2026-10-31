@@ -125,10 +125,12 @@
         <item>@string/ui_language_system</item>
         <item>@string/ui_language_english</item>
         <item>@string/ui_language_portuguese_br</item>
+        <item>@string/ui_language_spanish</item>
     </string-array>
     <string-array name="ui_language_values">
         <item>system</item>
         <item>en</item>
         <item>pt-BR</item>
+        <item>es</item>
     </string-array>
 </resources>

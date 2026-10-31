@@ -101,4 +101,32 @@
     <string name="title_bar_scale">Toolbar and suggestions height</string>
     <string name="title_show_settings_key">Show settings key</string>
     <string name="summary_show_settings_key">Gear on the bottom row of the Standard mode</string>
+    <!-- textos da barra (antes fixos no mr_toolbar.xml) -->
+    <string name="mr_tb_clipboard">Clipboard</string>
+    <string name="mr_tb_translate">Translate</string>
+    <string name="mr_tb_attachments">Attachments</string>
+    <string name="mr_tb_emotes">Emotes</string>
+    <string name="mr_tb_customize">Customize keyboard</string>
+    <string name="mr_tb_back">Back</string>
+    <string name="mr_tb_photos">Photos</string>
+    <string name="mr_tb_videos">Videos</string>
+    <string name="mr_tb_files">Files</string>
+    <string name="mr_tb_refresh">Refresh</string>
+    <string name="mr_tb_cache">Cache</string>
+    <string name="mr_tb_cache_clear">Clear attachment caches</string>
+    <string name="mr_tb_clear">Clear</string>
+    <string name="mr_tb_clip_hint">Tap to insert  ·  Hold to delete</string>
+    <string name="mr_tb_clip_empty">Nothing copied yet\nWhat you copy appears here</string>
+    <string name="mr_tb_lang_in">Input language</string>
+    <string name="mr_tb_lang_out">Output language</string>
+    <string name="mr_tb_radius">Key roundness</string>
+    <string name="mr_tb_emoji_recent">Recent</string>
+    <string name="mr_tb_emoji_people">Smileys &amp; People</string>
+    <string name="mr_tb_emoji_nature">Animals &amp; Nature</string>
+    <string name="mr_tb_emoji_food">Food &amp; Drink</string>
+    <string name="mr_tb_emoji_activities">Activities</string>
+    <string name="mr_tb_emoji_travel">Travel &amp; Places</string>
+    <string name="mr_tb_emoji_objects">Objects</string>
+    <string name="mr_tb_emoji_symbols">Symbols</string>
+    <string name="mr_tb_emoji_flags">Flags</string>
 </resources>

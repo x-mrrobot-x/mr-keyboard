@@ -1,6 +1,8 @@
 package android.content;
 
 public class ContextWrapper extends Context {
+    public ContextWrapper() { }
+    public ContextWrapper(Context base) { }
     protected void attachBaseContext(Context base) { }
     public android.content.res.AssetManager getAssets() { return null; }
     public Context getApplicationContext() { return null; }

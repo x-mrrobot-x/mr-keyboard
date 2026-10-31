@@ -900,6 +900,12 @@
 
     iget-object p0, v0, Lcom/mrkeyboard/app/SpecialKeyPicker$SpecialEntry;->namePt:Ljava/lang/String;
 
+
+    invoke-static/range {p0 .. p0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+
+    move-result-object p0
+
     goto :goto_18
 
     :cond_16
@@ -939,6 +945,10 @@
     if-eqz p0, :cond_39
 
     const-string p0, "C\u00f3digo personalizado ("
+
+    invoke-static/range {p0 .. p0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p0
 
     goto :goto_3b
 
@@ -1098,6 +1108,10 @@
 
     const-string v6, "Escolher tecla especial"
 
+    invoke-static/range {v6 .. v6}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v6
+
     goto :goto_28
 
     :cond_26
@@ -1129,6 +1143,10 @@
     if-eqz v3, :cond_42
 
     const-string v0, "Buscar nome, categoria ou c\u00f3digo..."
+
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
 
     goto :goto_44
 
@@ -1211,6 +1229,10 @@
 
     const-string v2, "C\u00f3digo avan\u00e7ado..."
 
+    invoke-static/range {v2 .. v2}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
     goto :goto_8d
 
     :cond_8b
@@ -1225,6 +1247,10 @@
     if-eqz v3, :cond_96
 
     const-string v2, "Cancelar"
+
+    invoke-static/range {v2 .. v2}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
 
     goto :goto_98
 
@@ -1331,6 +1357,10 @@
     .line 278
     const-string v4, "Informe o c\u00f3digo inteiro da tecla (ex.: -21 para seta \u2190, 9 para Tab, -306 para Barra):"
 
+    invoke-static/range {v4 .. v4}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
     goto :goto_2e
 
     .line 279
@@ -1415,6 +1445,10 @@
 
     const-string v3, "C\u00f3digo avan\u00e7ado"
 
+    invoke-static/range {v3 .. v3}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
     goto :goto_7a
 
     :cond_78
@@ -1435,6 +1469,10 @@
 
     const-string v1, "Aplicar"
 
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
     goto :goto_89
 
     :cond_87
@@ -1453,6 +1491,10 @@
     if-eqz v0, :cond_97
 
     const-string p1, "Cancelar"
+
+    invoke-static/range {p1 .. p1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object p1
 
     goto :goto_99
 

@@ -68,6 +68,10 @@
 
     const-string v2, "Lista de teclas ("
 
+    invoke-static/range {v2 .. v2}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
     goto :goto_18
 
     :cond_16
@@ -127,6 +131,10 @@
 
     const-string v2, "Caracteres: "
 
+    invoke-static/range {v2 .. v2}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
+
     goto :goto_4e
 
     :cond_4c
@@ -168,6 +176,10 @@
     if-eqz v1, :cond_71
 
     const-string v1, "Nenhum (toque para configurar)  \u25b8"
+
+    invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
 
     goto :goto_73
 

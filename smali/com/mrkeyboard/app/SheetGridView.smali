@@ -1543,6 +1543,10 @@
 
     const-string v5, "+ Adicionar tecla"
 
+    invoke-static/range {v5 .. v5}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
     goto :goto_dd
 
     :cond_db

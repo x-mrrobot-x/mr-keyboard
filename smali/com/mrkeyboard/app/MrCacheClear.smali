@@ -116,6 +116,10 @@
  :details_failed
  move-exception v1
  const-string v1, "Limpeza finalizada. Detalhes indisponíveis."
+
+ invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+ move-result-object v1
  invoke-static {v1}, Lcom/mrkeyboard/app/MrShots;->showClearSummary(Ljava/lang/String;)V
  :toast_start
  iget-object v0, p0, Lcom/mrkeyboard/app/MrCacheClear;->app:Landroid/content/Context;
@@ -126,9 +130,17 @@
  cmp-long v1, v1, v3
  if-eqz v1, :toast_ok
  const-string v1, "Limpeza parcial"
+
+ invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+ move-result-object v1
  goto :toast_make
  :toast_ok
  const-string v1, "Cache limpo"
+
+ invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+ move-result-object v1
  :toast_make
  const/4 v2, 0x0
  invoke-static {v0, v1, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
@@ -166,10 +178,18 @@
  cmp-long v1, v1, v3
  if-eqz v1, :all
  const-string v1, "Limpeza parcial\nAlguns itens temporários não puderam ser removidos.\nSeus arquivos originais não foram alterados.\nToque em Cache para tentar novamente."
+
+ invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+ move-result-object v1
  invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
  goto :end
  :all
  const-string v1, "Cache limpo\nSeus arquivos originais não foram alterados.\nCópias temporárias: "
+
+ invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+ move-result-object v1
  invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
  iget-object v1, p0, Lcom/mrkeyboard/app/MrCacheClear;->result:[J
  const/4 v2, 0x0
@@ -184,6 +204,10 @@
  move-result-object v2
  invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
  const-string v2, ")\nMiniaturas: "
+
+ invoke-static/range {v2 .. v2}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+ move-result-object v2
  invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
  iget v2, p0, Lcom/mrkeyboard/app/MrCacheClear;->thumbs:I
  invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
@@ -194,10 +218,18 @@
  move-result-object v2
  invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
  const-string v2, ")\nListas: "
+
+ invoke-static/range {v2 .. v2}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+ move-result-object v2
  invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
  iget v2, p0, Lcom/mrkeyboard/app/MrCacheClear;->lists:I
  invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
  const-string v2, "\nToque numa categoria ou em Atualizar."
+
+ invoke-static/range {v2 .. v2}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+ move-result-object v2
  invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
  :end
  invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;

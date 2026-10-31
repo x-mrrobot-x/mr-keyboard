@@ -130,6 +130,12 @@
 
     iget-object v8, v6, Lcom/mrkeyboard/app/SpecialKeyPicker$SpecialEntry;->namePt:Ljava/lang/String;
 
+
+    invoke-static/range {v8 .. v8}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+
+    move-result-object v8
+
     goto :goto_38
 
     :cond_36
@@ -142,6 +148,12 @@
     if-eqz v9, :cond_3f
 
     iget-object v9, v6, Lcom/mrkeyboard/app/SpecialKeyPicker$SpecialEntry;->catPt:Ljava/lang/String;
+
+
+    invoke-static/range {v9 .. v9}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+
+    move-result-object v9
 
     goto :goto_41
 
@@ -170,6 +182,19 @@
 
     .line 159
     :goto_50
+    invoke-virtual {v10, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v10
+
+    if-nez v10, :cond_58
+
+    # também acha pelo nome já traduzido (espanhol)
+    sget-object v10, Ljava/util/Locale;->US:Ljava/util/Locale;
+
+    invoke-virtual {v8, v10}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
+
+    move-result-object v10
+
     invoke-virtual {v10, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result v10
@@ -593,6 +618,10 @@
     if-eqz v2, :cond_1db
 
     const-string v2, "Nenhuma tecla encontrada."
+
+    invoke-static/range {v2 .. v2}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v2
 
     goto :goto_1dd
 
