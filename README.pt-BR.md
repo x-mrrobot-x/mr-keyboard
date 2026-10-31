@@ -21,7 +21,7 @@ Precisa de Android 8.0 ou mais novo.
   - aprende as palavras que você usa, nunca em campos de senha ou anônimos;
   - tudo roda no aparelho;
   - vem desligado: ligue *Mostrar sugestões* na mesma tela.
-- **Temas:** Mr Keyboard Neon, Dark Tech (suave e em relevo), Midnight Steel, Material Dark/Light, Stone, Gingerbread e outros.
+- **Temas:** Mr Keyboard Neon, Dark Tech (suave e em relevo) e Midnight Steel. O espaçamento e o arredondamento das teclas valem em todos os temas.
 - **Gestos e teclas:** deslizar para cima, baixo, esquerda e direita e as teclas de volume podem executar ações do teclado.
 - **Configurações em português ou inglês.**
 

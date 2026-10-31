@@ -3,20 +3,10 @@
     <color name="candidate_normal">#ffffffff</color>
     <color name="candidate_other">#fffcae00</color>
     <color name="candidate_recommended">#fffcae00</color>
-    <color name="key_background_lxx_dark">#ff263238</color>
-    <color name="key_background_lxx_light">#ffeceff1</color>
-    <color name="key_background_pressed_lxx_dark">#19ffffff</color>
-    <color name="key_background_pressed_lxx_light">#2637474f</color>
-    <color name="key_hint_letter_color_lxx_dark">#80ffffff</color>
-    <color name="key_hint_letter_color_lxx_light">#b337474f</color>
-    <color name="key_text_color_lxx_dark">#ccffffff</color>
-    <color name="key_text_color_lxx_light">#ff000000</color>
     <color name="latinkeyboard_bar_language_shadow_white">#80000000</color>
-    <color name="latinkeyboard_dim_color_black">#ff222222</color>
     <color name="latinkeyboard_dim_color_white">#ffdddddd</color>
     <color name="latinkeyboard_extension_background">#a0000000</color>
     <color name="latinkeyboard_feedback_language_text">#ffffffff</color>
-    <color name="latinkeyboard_key_color_black">#ff000000</color>
     <color name="latinkeyboard_key_color_white">#ffffffff</color>
     <color name="latinkeyboard_transparent">#00000000</color>
 </resources>

@@ -8,10 +8,6 @@
     <public type="array" name="chording_alt_key_values" id="0x7f020001" />
     <public type="array" name="chording_ctrl_key_entries" id="0x7f020002" />
     <public type="array" name="chording_ctrl_key_values" id="0x7f020003" />
-    <public type="array" name="chording_meta_key_entries" id="0x7f020004" />
-    <public type="array" name="chording_meta_key_values" id="0x7f020005" />
-    <public type="array" name="click_method_entries" id="0x7f020006" />
-    <public type="array" name="click_method_values" id="0x7f020007" />
     <public type="array" name="ctrl_a_override_entries" id="0x7f020008" />
     <public type="array" name="ctrl_a_override_values" id="0x7f020009" />
     <public type="array" name="hint_modes" id="0x7f02000a" />
@@ -22,12 +18,6 @@
     <public type="array" name="keyboard_mode_values" id="0x7f02000f" />
     <public type="array" name="popup_content_entries" id="0x7f020010" />
     <public type="array" name="popup_content_values" id="0x7f020011" />
-    <public type="array" name="render_mode_entries" id="0x7f020014" />
-    <public type="array" name="render_mode_values" id="0x7f020015" />
-    <public type="array" name="settings_key_modes" id="0x7f020016" />
-    <public type="array" name="settings_key_modes_values" id="0x7f020017" />
-    <public type="array" name="slide_keys_entries" id="0x7f020018" />
-    <public type="array" name="slide_keys_values" id="0x7f020019" />
     <public type="array" name="swipe_action_entries" id="0x7f02001a" />
     <public type="array" name="swipe_action_values" id="0x7f02001b" />
     <public type="array" name="voice_input_modes" id="0x7f02001c" />
@@ -103,20 +93,10 @@
     <public type="color" name="candidate_normal" id="0x7f050026" />
     <public type="color" name="candidate_other" id="0x7f050027" />
     <public type="color" name="candidate_recommended" id="0x7f050028" />
-    <public type="color" name="key_background_lxx_dark" id="0x7f050032" />
-    <public type="color" name="key_background_lxx_light" id="0x7f050033" />
-    <public type="color" name="key_background_pressed_lxx_dark" id="0x7f050034" />
-    <public type="color" name="key_background_pressed_lxx_light" id="0x7f050035" />
-    <public type="color" name="key_hint_letter_color_lxx_dark" id="0x7f050036" />
-    <public type="color" name="key_hint_letter_color_lxx_light" id="0x7f050037" />
-    <public type="color" name="key_text_color_lxx_dark" id="0x7f050038" />
-    <public type="color" name="key_text_color_lxx_light" id="0x7f050039" />
     <public type="color" name="latinkeyboard_bar_language_shadow_white" id="0x7f05003b" />
-    <public type="color" name="latinkeyboard_dim_color_black" id="0x7f05003c" />
     <public type="color" name="latinkeyboard_dim_color_white" id="0x7f05003d" />
     <public type="color" name="latinkeyboard_extension_background" id="0x7f05003e" />
     <public type="color" name="latinkeyboard_feedback_language_text" id="0x7f05003f" />
-    <public type="color" name="latinkeyboard_key_color_black" id="0x7f050040" />
     <public type="color" name="latinkeyboard_key_color_white" id="0x7f050041" />
     <public type="color" name="latinkeyboard_transparent" id="0x7f050042" />
     <public type="dimen" name="candidate_min_touchable_width" id="0x7f06004c" />
@@ -139,50 +119,29 @@
     <public type="dimen" name="mini_keyboard_vertical_correction" id="0x7f06006c" />
     <public type="dimen" name="popup_key_height" id="0x7f06007c" />
     <public type="dimen" name="spacebar_vertical_correction" id="0x7f06007d" />
-    <public type="drawable" name="btn_keyboard_key_gingerbread" id="0x7f070066" />
     <public type="drawable" name="btn_keyboard_key_gingerbread_popup" id="0x7f070067" />
     <public type="drawable" name="btn_keyboard_key_ics" id="0x7f070068" />
-    <public type="drawable" name="btn_keyboard_key_lxx_dark" id="0x7f07006f" />
-    <public type="drawable" name="btn_keyboard_key_lxx_light" id="0x7f070070" />
-    <public type="drawable" name="btn_keyboard_key_popup_lxx_dark" id="0x7f070079" />
-    <public type="drawable" name="btn_keyboard_key_popup_lxx_light" id="0x7f07007a" />
-    <public type="drawable" name="btn_keyboard_key_stone" id="0x7f070083" />
     <public type="drawable" name="btn_keyboard_key_neon" id="0x7f0700e7" />
     <public type="drawable" name="key_neon_lock" id="0x7f0700e8" />
     <public type="drawable" name="key_neon_normal" id="0x7f0700e9" />
     <public type="drawable" name="key_neon_on" id="0x7f0700ea" />
     <public type="drawable" name="key_neon_pressed" id="0x7f0700eb" />
     <public type="drawable" name="icon" id="0x7f070096" />
-    <public type="drawable" name="btn_keyboard_key_dark_normal" id="0x7f070058" />
     <public type="drawable" name="btn_keyboard_key_dark_normal_holo" id="0x7f070059" />
-    <public type="drawable" name="btn_keyboard_key_dark_normal_lock" id="0x7f07005a" />
     <public type="drawable" name="btn_keyboard_key_dark_normal_lock_holo" id="0x7f07005b" />
-    <public type="drawable" name="btn_keyboard_key_dark_normal_off" id="0x7f07005c" />
     <public type="drawable" name="btn_keyboard_key_dark_normal_off_holo" id="0x7f07005d" />
-    <public type="drawable" name="btn_keyboard_key_dark_normal_on" id="0x7f07005e" />
     <public type="drawable" name="btn_keyboard_key_dark_normal_on_holo" id="0x7f07005f" />
-    <public type="drawable" name="btn_keyboard_key_dark_pressed" id="0x7f070060" />
     <public type="drawable" name="btn_keyboard_key_dark_pressed_holo" id="0x7f070061" />
-    <public type="drawable" name="btn_keyboard_key_dark_pressed_off" id="0x7f070062" />
     <public type="drawable" name="btn_keyboard_key_dark_pressed_off_holo" id="0x7f070063" />
-    <public type="drawable" name="btn_keyboard_key_dark_pressed_on" id="0x7f070064" />
     <public type="drawable" name="btn_keyboard_key_dark_pressed_on_holo" id="0x7f070065" />
-    <public type="drawable" name="btn_keyboard_key_light_normal" id="0x7f070069" />
     <public type="drawable" name="btn_keyboard_key_light_normal_holo" id="0x7f07006a" />
     <public type="drawable" name="btn_keyboard_key_light_popup_normal" id="0x7f07006b" />
     <public type="drawable" name="btn_keyboard_key_light_popup_selected" id="0x7f07006c" />
-    <public type="drawable" name="btn_keyboard_key_light_pressed" id="0x7f07006d" />
     <public type="drawable" name="btn_keyboard_key_light_pressed_holo" id="0x7f07006e" />
-    <public type="drawable" name="btn_keyboard_key_normal_lock_stone" id="0x7f070071" />
-    <public type="drawable" name="btn_keyboard_key_normal_off_stone" id="0x7f070074" />
-    <public type="drawable" name="btn_keyboard_key_normal_on_stone" id="0x7f070077" />
-    <public type="drawable" name="btn_keyboard_key_normal_stone" id="0x7f070078" />
-    <public type="drawable" name="btn_keyboard_key_pressed_stone" id="0x7f070082" />
     <public type="drawable" name="candidate_feedback_background" id="0x7f070089" />
     <public type="drawable" name="hint_popup" id="0x7f07008e" />
     <public type="drawable" name="icon_hk_notification" id="0x7f070097" />
     <public type="drawable" name="keyboard_background" id="0x7f070098" />
-    <public type="drawable" name="keyboard_dark_background" id="0x7f07009b" />
     <public type="drawable" name="keyboard_key_feedback_background" id="0x7f07009c" />
     <public type="drawable" name="keyboard_key_feedback_more_background" id="0x7f07009d" />
     <public type="drawable" name="keyboard_popup_panel_background" id="0x7f07009e" />
@@ -228,22 +187,6 @@
     <public type="drawable" name="sym_keyboard_space" id="0x7f0700de" />
     <public type="drawable" name="sym_keyboard_space_led" id="0x7f0700df" />
     <public type="drawable" name="sym_keyboard_tab" id="0x7f0700e0" />
-    <public type="drawable" name="keyboard_background_lxx_dark" id="0x7f070099" />
-    <public type="drawable" name="keyboard_background_lxx_light" id="0x7f07009a" />
-    <public type="drawable" name="btn_keyboard_key_active_lxx_dark" id="0x7f070053" />
-    <public type="drawable" name="btn_keyboard_key_active_lxx_light" id="0x7f070054" />
-    <public type="drawable" name="btn_keyboard_key_active_pressed_lxx_dark" id="0x7f070055" />
-    <public type="drawable" name="btn_keyboard_key_active_pressed_lxx_light" id="0x7f070056" />
-    <public type="drawable" name="btn_keyboard_key_normal_off_lxx_dark" id="0x7f070072" />
-    <public type="drawable" name="btn_keyboard_key_normal_off_lxx_light" id="0x7f070073" />
-    <public type="drawable" name="btn_keyboard_key_normal_on_lxx_dark" id="0x7f070075" />
-    <public type="drawable" name="btn_keyboard_key_normal_on_lxx_light" id="0x7f070076" />
-    <public type="drawable" name="btn_keyboard_key_popup_selected_lxx_dark" id="0x7f07007c" />
-    <public type="drawable" name="btn_keyboard_key_popup_selected_lxx_light" id="0x7f07007d" />
-    <public type="drawable" name="btn_keyboard_key_pressed_off_lxx_dark" id="0x7f07007e" />
-    <public type="drawable" name="btn_keyboard_key_pressed_off_lxx_light" id="0x7f07007f" />
-    <public type="drawable" name="btn_keyboard_key_pressed_on_lxx_dark" id="0x7f070080" />
-    <public type="drawable" name="btn_keyboard_key_pressed_on_lxx_light" id="0x7f070081" />
     <public type="drawable" name="mr_ui_icon_mono" id="0x7f0700ec" />
     <public type="drawable" name="ic_mr_file_lg" id="0x7f0700ed" />
     <public type="drawable" name="ic_mr_vid_badge" id="0x7f0700ee" />
@@ -326,17 +269,8 @@
     <public type="integer" name="key_voice" id="0x7f090037" />
     <public type="layout" name="candidate_preview" id="0x7f0a001c" />
     <public type="layout" name="candidates" id="0x7f0a001d" />
-    <public type="layout" name="input_gingerbread" id="0x7f0a001e" />
     <public type="layout" name="input_ics" id="0x7f0a001f" />
-    <public type="layout" name="input_ics_darker" id="0x7f0a0020" />
-    <public type="layout" name="input_material_dark" id="0x7f0a0021" />
-    <public type="layout" name="input_material_light" id="0x7f0a0022" />
-    <public type="layout" name="input_popup_material_dark" id="0x7f0a0023" />
-    <public type="layout" name="input_popup_material_light" id="0x7f0a0024" />
-    <public type="layout" name="input_stone_bold" id="0x7f0a0025" />
-    <public type="layout" name="input_stone_popup" id="0x7f0a0027" />
     <public type="layout" name="input_trans" id="0x7f0a0028" />
-    <public type="layout" name="input_trans_neon" id="0x7f0a0029" />
     <public type="layout" name="key_preview" id="0x7f0a002a" />
     <public type="layout" name="keyboard_popup" id="0x7f0a002b" />
     <public type="layout" name="main" id="0x7f0a002c" />
@@ -400,7 +334,6 @@
     <public type="string" name="default_vol_up" id="0x7f0c0061" />
     <public type="string" name="english_ime_name" id="0x7f0c0064" />
     <public type="string" name="english_ime_settings" id="0x7f0c0065" />
-    <public type="string" name="has_dictionary" id="0x7f0c0066" />
     <public type="string" name="hint_add_to_dictionary" id="0x7f0c0067" />
     <public type="string" name="key_ab01_alt" id="0x7f0c006c" />
     <public type="string" name="key_ab01_main" id="0x7f0c006d" />
@@ -554,15 +487,7 @@
     <public type="string" name="label_next_key" id="0x7f0c0103" />
     <public type="string" name="label_phone_key" id="0x7f0c0104" />
     <public type="string" name="label_send_key" id="0x7f0c0105" />
-    <public type="string" name="language_selection_summary" id="0x7f0c0107" />
-    <public type="string" name="language_selection_title" id="0x7f0c0108" />
-    <public type="string" name="layout_gingerbread" id="0x7f0c010a" />
     <public type="string" name="layout_ics" id="0x7f0c010c" />
-    <public type="string" name="layout_ics_darker" id="0x7f0c010d" />
-    <public type="string" name="layout_material_dark" id="0x7f0c010e" />
-    <public type="string" name="layout_material_light" id="0x7f0c010f" />
-    <public type="string" name="layout_stone_bold" id="0x7f0c0110" />
-    <public type="string" name="layout_trans_neon" id="0x7f0c0113" />
     <public type="string" name="main_body" id="0x7f0c0114" />
     <public type="string" name="main_setup_configure_imes" id="0x7f0c0115" />
     <public type="string" name="main_setup_input_lang" id="0x7f0c0117" />
@@ -582,7 +507,6 @@
     <public type="string" name="pref_screen_view_title" id="0x7f0c0132" />
     <public type="string" name="prefs_enable_recorrection" id="0x7f0c0136" />
     <public type="string" name="prefs_enable_recorrection_summary" id="0x7f0c0137" />
-    <public type="string" name="prefs_settings_key" id="0x7f0c0138" />
     <public type="string" name="quick_fixes" id="0x7f0c0139" />
     <public type="string" name="quick_fixes_summary" id="0x7f0c013a" />
     <public type="string" name="recorrect_warning" id="0x7f0c013b" />
@@ -590,46 +514,28 @@
     <public type="string" name="seek_pref_max" id="0x7f0c013f" />
     <public type="string" name="seek_pref_val" id="0x7f0c0140" />
     <public type="string" name="sentence_separators" id="0x7f0c0142" />
-    <public type="string" name="settings_key_mode_always_hide" id="0x7f0c0143" />
-    <public type="string" name="settings_key_mode_always_show" id="0x7f0c0145" />
-    <public type="string" name="settings_key_mode_auto" id="0x7f0c0147" />
-    <public type="string" name="settings_key_mode_auto_name" id="0x7f0c0148" />
     <public type="string" name="show_suggestions" id="0x7f0c0149" />
     <public type="string" name="show_suggestions_summary" id="0x7f0c014a" />
     <public type="string" name="sound_on_keypress" id="0x7f0c014b" />
     <public type="string" name="status_bar_notification_info_overflow" id="0x7f0c014c" />
     <public type="string" name="suggested_punctuations" id="0x7f0c014f" />
     <public type="string" name="suggested_punctuations_default" id="0x7f0c0150" />
-    <public type="string" name="summary_caps_lock_false" id="0x7f0c0151" />
-    <public type="string" name="summary_caps_lock_true" id="0x7f0c0152" />
-    <public type="string" name="summary_connectbot_tab_hack_false" id="0x7f0c0153" />
-    <public type="string" name="summary_connectbot_tab_hack_true" id="0x7f0c0154" />
     <public type="string" name="summary_force_keyboard_on_false" id="0x7f0c0155" />
     <public type="string" name="summary_force_keyboard_on_true" id="0x7f0c0156" />
     <public type="string" name="summary_fullscreen_override_false" id="0x7f0c0157" />
     <public type="string" name="summary_fullscreen_override_true" id="0x7f0c0158" />
     <public type="string" name="summary_keyboard_notification_false" id="0x7f0c0159" />
     <public type="string" name="summary_keyboard_notification_true" id="0x7f0c015a" />
-    <public type="string" name="summary_shift_lock_modifiers_false" id="0x7f0c015b" />
-    <public type="string" name="summary_shift_lock_modifiers_true" id="0x7f0c015c" />
     <public type="string" name="summary_suggestions_in_landscape_false" id="0x7f0c015d" />
     <public type="string" name="summary_suggestions_in_landscape_true" id="0x7f0c015e" />
-    <public type="string" name="summary_touch_pos_false" id="0x7f0c015f" />
-    <public type="string" name="summary_touch_pos_true" id="0x7f0c0160" />
     <public type="string" name="title_candidate_scale" id="0x7f0c016d" />
-    <public type="string" name="title_caps_lock" id="0x7f0c016e" />
     <public type="string" name="title_chording_alt_key" id="0x7f0c016f" />
     <public type="string" name="title_chording_ctrl_key" id="0x7f0c0170" />
-    <public type="string" name="title_chording_meta_key" id="0x7f0c0171" />
-    <public type="string" name="title_click_method" id="0x7f0c0172" />
-    <public type="string" name="title_click_volume" id="0x7f0c0173" />
-    <public type="string" name="title_connectbot_tab_hack" id="0x7f0c0174" />
     <public type="string" name="title_ctrl_a_override" id="0x7f0c0175" />
     <public type="string" name="title_force_keyboard_on" id="0x7f0c0177" />
     <public type="string" name="title_fullscreen_override" id="0x7f0c0178" />
     <public type="string" name="title_hardware_key_actions" id="0x7f0c0179" />
     <public type="string" name="title_hint_mode" id="0x7f0c017a" />
-    <public type="string" name="title_input_connection_details" id="0x7f0c017b" />
     <public type="string" name="title_keyboard_height_landscape" id="0x7f0c017f" />
     <public type="string" name="title_keyboard_height_portrait" id="0x7f0c0180" />
     <public type="string" name="title_keyboard_mode_landscape" id="0x7f0c0181" />
@@ -638,9 +544,6 @@
     <public type="string" name="title_label_scale" id="0x7f0c0185" />
     <public type="string" name="title_long_press_duration" id="0x7f0c0187" />
     <public type="string" name="title_popup_content" id="0x7f0c0188" />
-    <public type="string" name="title_render_mode" id="0x7f0c0189" />
-    <public type="string" name="title_shift_lock_modifiers" id="0x7f0c018a" />
-    <public type="string" name="title_slide_keys" id="0x7f0c018b" />
     <public type="string" name="title_suggested_punctuation" id="0x7f0c018c" />
     <public type="string" name="title_suggestions_in_landscape" id="0x7f0c018d" />
     <public type="string" name="title_swipe_down" id="0x7f0c018e" />
@@ -648,8 +551,6 @@
     <public type="string" name="title_swipe_left" id="0x7f0c0190" />
     <public type="string" name="title_swipe_right" id="0x7f0c0191" />
     <public type="string" name="title_swipe_up" id="0x7f0c0192" />
-    <public type="string" name="title_top_row_scale" id="0x7f0c0193" />
-    <public type="string" name="title_touch_pos" id="0x7f0c0194" />
     <public type="string" name="title_version" id="0x7f0c0195" />
     <public type="string" name="title_vibrate_len" id="0x7f0c0196" />
     <public type="string" name="title_vol_down" id="0x7f0c0197" />
@@ -677,7 +578,6 @@
     <public type="xml" name="kbd_qwerty" id="0x7f0f000b" />
     <public type="xml" name="kbd_symbols" id="0x7f0f000c" />
     <public type="xml" name="kbd_symbols_shift" id="0x7f0f000d" />
-    <public type="xml" name="language_prefs" id="0x7f0f000e" />
     <public type="xml" name="method" id="0x7f0f000f" />
     <public type="xml" name="popup_at" id="0x7f0f0010" />
     <public type="xml" name="popup_comma" id="0x7f0f0011" />
@@ -713,8 +613,6 @@
     <public type="string" name="mr_notif_ticker" id="0x7f0c01c9" />
     <public type="string" name="mr_notif_denied" id="0x7f0c01ca" />
     <public type="string" name="mr_shot_pick_more" id="0x7f0c01cb" />
-    <public type="string" name="mr_shot_photos" id="0x7f0c01cc" />
-    <public type="string" name="mr_shot_videos" id="0x7f0c01cd" />
     <public type="string" name="mr_shot_none_vid" id="0x7f0c01ce" />
     <public type="string" name="mr_shot_none_files" id="0x7f0c01cf" />
     <public type="string" name="mr_shot_allow_files" id="0x7f0c01d0" />

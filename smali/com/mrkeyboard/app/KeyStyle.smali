@@ -196,21 +196,9 @@
 
     .line 57
     :cond_49
-    # Midnight Steel (9): mesmo modo do Dark Tech (relevo)
-    const-string v1, "9"
-
-    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_mid_no
-
+    # v1.69: todos os temas que sobraram (Neon, Dark Tech suave e relevo, Midnight Steel) são de forma
+    # e aceitam espaçamento e arredondamento; qualquer valor antigo guardado cai no modo relevo.
     const/4 v0, 0x2
-
-    goto :goto_4a
-
-    :cond_mid_no
-    const/4 v0, 0x0
 
     .line 60
     :goto_4a

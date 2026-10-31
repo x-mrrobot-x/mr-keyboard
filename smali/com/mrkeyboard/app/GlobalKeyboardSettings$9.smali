@@ -65,6 +65,9 @@
 
     move-result p1
 
+    # v1.69: a opcao "altura da 5a linha" saiu; a linha de cima das teclas fica sempre na altura normal
+    const/high16 p1, 0x3f800000    # 1.0f
+
     iput p1, v0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->topRowScale:F
 
     return-void

@@ -6,10 +6,6 @@
 .implements Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;
 
 
-# instance fields
-.field private mRenderModePreference:Landroid/preference/ListPreference;
-
-
 # direct methods
 .method public constructor <init>()V
     .locals 0
@@ -62,17 +58,6 @@
 
     .line 36
     invoke-interface {p1, p0}, Landroid/content/SharedPreferences;->registerOnSharedPreferenceChangeListener(Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;)V
-
-    const-string p1, "pref_render_mode"
-
-    .line 37
-    invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/PrefScreenView;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
-
-    move-result-object p1
-
-    check-cast p1, Landroid/preference/ListPreference;
-
-    iput-object p1, p0, Lcom/mrkeyboard/app/PrefScreenView;->mRenderModePreference:Landroid/preference/ListPreference;
 
     return-void
 .end method

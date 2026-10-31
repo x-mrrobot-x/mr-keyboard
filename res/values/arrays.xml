@@ -20,28 +20,6 @@
         <item>113</item>
         <item>114</item>
     </string-array>
-    <string-array name="chording_meta_key_entries">
-        <item>None (ignored when not modifying other keys)</item>
-        <item>Left Meta</item>
-        <item>Right Meta</item>
-    </string-array>
-    <string-array name="chording_meta_key_values">
-        <item>0</item>
-        <item>117</item>
-        <item>118</item>
-    </string-array>
-    <string-array name="click_method_entries">
-        <item>System default (ignore click volume)</item>
-        <item>Absolute click volume</item>
-        <item>Follow media volume</item>
-        <item>Reverse media volume</item>
-    </string-array>
-    <string-array name="click_method_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
     <string-array name="ctrl_a_override_entries">
         <item>Disable Ctrl-A, use Ctrl-Alt-A instead</item>
         <item>Disable Ctrl-A completely</item>
@@ -53,9 +31,9 @@
         <item>2</item>
     </string-array>
     <string-array name="hint_modes">
-        <item>Hide hint labels</item>
-        <item>Show ASCII punctuation</item>
-        <item>Show all hint labels</item>
+        <item>Hide</item>
+        <item>ASCII symbols only</item>
+        <item>All symbols</item>
     </string-array>
     <string-array name="hint_modes_values">
         <item>0</item>
@@ -64,24 +42,12 @@
     </string-array>
     <string-array name="keyboard_layout_modes">
         <item>@string/layout_ics</item>
-        <item>@string/layout_ics_darker</item>
-        <item>@string/layout_material_dark</item>
-        <item>@string/layout_material_light</item>
-        <item>@string/layout_gingerbread</item>
-        <item>@string/layout_stone_bold</item>
-        <item>@string/layout_trans_neon</item>
         <item>@string/layout_mr_soft</item>
         <item>@string/layout_mr_slate</item>
         <item>@string/layout_mr_midnight</item>
     </string-array>
     <string-array name="keyboard_layout_modes_values">
         <item>0</item>
-        <item>6</item>
-        <item>4</item>
-        <item>5</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
         <item>7</item>
         <item>8</item>
         <item>9</item>
@@ -100,7 +66,6 @@
         <item>No popups</item>
         <item>No popups, use auto-repeat</item>
         <item>Unique only: 3 ⇒ ³, e ⇒ é</item>
-        <item>Add shifted: 3 ⇒ #³, e ⇒ é</item>
         <item>Add upper: 3 ⇒ #³, e ⇒ Eé</item>
         <item>Add self: 3 ⇒ 3#³, e ⇒ eEé</item>
     </string-array>
@@ -108,41 +73,8 @@
         <item>256</item>
         <item>768</item>
         <item>0</item>
-        <item>1</item>
         <item>3</item>
         <item>7</item>
-    </string-array>
-    <string-array name="render_mode_entries">
-        <item>Direct draw (saves memory)</item>
-        <item>Software buffered (default)</item>
-        <item>Hardware accelerated (experimental)</item>
-    </string-array>
-    <string-array name="render_mode_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
-    <string-array name="settings_key_modes">
-        <item>@string/settings_key_mode_auto_name</item>
-    </string-array>
-    <string-array name="settings_key_modes_values">
-        <item>@string/settings_key_mode_auto</item>
-        <item>@string/settings_key_mode_always_show</item>
-        <item>@string/settings_key_mode_always_hide</item>
-    </string-array>
-    <string-array name="slide_keys_entries">
-        <item>Ignore keys during sliding movement (Recommended)</item>
-        <item>Send first key touched</item>
-        <item>Send last key touched</item>
-        <item>Send first and last key</item>
-        <item>Send all keys touched during sliding movement</item>
-    </string-array>
-    <string-array name="slide_keys_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
     </string-array>
     <string-array name="swipe_action_entries">
         <item>(no action)</item>

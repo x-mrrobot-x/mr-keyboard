@@ -45,8 +45,6 @@
 
 .field private static final PREDICTION_SETTINGS_KEY:Ljava/lang/String; = "prediction_settings"
 
-.field static final PREF_SETTINGS_KEY:Ljava/lang/String; = "settings_key"
-
 .field private static final QUICK_FIXES_KEY:Ljava/lang/String; = "quick_fixes"
 
 .field private static final TAG:Ljava/lang/String; = "LatinIMESettings"
@@ -68,8 +66,6 @@
 
 
 # instance fields
-.field private mInputConnectionInfo:Landroid/preference/Preference;
-
 .field private mKeyboardModeLandscapePreference:Landroid/preference/ListPreference;
 
 .field private mKeyboardModePortraitPreference:Landroid/preference/ListPreference;
@@ -79,8 +75,6 @@
 .field private mOkClicked:Z
 
 .field private mQuickFixes:Landroid/preference/CheckBoxPreference;
-
-.field private mSettingsKeyPreference:Landroid/preference/ListPreference;
 
 .field private mVoiceModeOff:Ljava/lang/String;
 
@@ -712,78 +706,9 @@
 .end method
 
 .method private updateSummaries()V
-    .locals 5
+    .locals 0
 
-    .line 244
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIMESettings;->getResources()Landroid/content/res/Resources;
-
-    move-result-object v0
-
-    .line 245
-    iget-object v1, p0, Lcom/mrkeyboard/app/LatinIMESettings;->mSettingsKeyPreference:Landroid/preference/ListPreference;
-
-    const v2, 0x7f020016
-
-    .line 246
-    invoke-virtual {v0, v2}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
-
-    move-result-object v0
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/LatinIMESettings;->mSettingsKeyPreference:Landroid/preference/ListPreference;
-
-    iget-object v3, p0, Lcom/mrkeyboard/app/LatinIMESettings;->mSettingsKeyPreference:Landroid/preference/ListPreference;
-
-    .line 247
-    invoke-virtual {v3}, Landroid/preference/ListPreference;->getValue()Ljava/lang/String;
-
-    move-result-object v3
-
-    invoke-virtual {v2, v3}, Landroid/preference/ListPreference;->findIndexOfValue(Ljava/lang/String;)I
-
-    move-result v2
-
-    aget-object v0, v0, v2
-
-    .line 245
-    invoke-virtual {v1, v0}, Landroid/preference/ListPreference;->setSummary(Ljava/lang/CharSequence;)V
-
-    .line 249
-    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIMESettings;->mInputConnectionInfo:Landroid/preference/Preference;
-
-    const-string v1, "%s type=%s"
-
-    const/4 v2, 0x2
-
-    new-array v2, v2, [Ljava/lang/Object;
-
-    sget-object v3, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
-
-    iget-object v3, v3, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->editorPackageName:Ljava/lang/String;
-
-    const/4 v4, 0x0
-
-    aput-object v3, v2, v4
-
-    sget-object v3, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
-
-    iget v3, v3, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->editorInputType:I
-
-    .line 251
-    invoke-static {v3}, Lcom/mrkeyboard/app/LatinIMESettings;->inputTypeDesc(I)Ljava/lang/String;
-
-    move-result-object v3
-
-    const/4 v4, 0x1
-
-    aput-object v3, v2, v4
-
-    .line 249
-    invoke-static {v1, v2}, Ljava/lang/String;->format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
-
+    # v1.69: sem resumo da tecla de configuracoes (virou interruptor) nem detalhes da conexao (saiu)
     return-void
 .end method
 
@@ -884,26 +809,6 @@
 
     iput-object p1, p0, Lcom/mrkeyboard/app/LatinIMESettings;->mVoicePreference:Landroid/preference/ListPreference;
 
-    const-string p1, "settings_key"
-
-    .line 74
-    invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/LatinIMESettings;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
-
-    move-result-object p1
-
-    check-cast p1, Landroid/preference/ListPreference;
-
-    iput-object p1, p0, Lcom/mrkeyboard/app/LatinIMESettings;->mSettingsKeyPreference:Landroid/preference/ListPreference;
-
-    const-string p1, "input_connection_info"
-
-    .line 75
-    invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/LatinIMESettings;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
-
-    move-result-object p1
-
-    iput-object p1, p0, Lcom/mrkeyboard/app/LatinIMESettings;->mInputConnectionInfo:Landroid/preference/Preference;
-
     const-string p1, "label_version"
 
     .line 76
@@ -974,6 +879,19 @@
     xor-int/lit8 p1, p1, 0x1
 
     iput-boolean p1, p0, Lcom/mrkeyboard/app/LatinIMESettings;->mVoiceOn:Z
+
+    # v1.69: "Restaurar padrões" (Geral)
+    const-string v0, "mr_reset"
+
+    invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinIMESettings;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
+
+    move-result-object v0
+
+    new-instance v1, Lcom/mrkeyboard/app/MrReset;
+
+    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrReset;-><init>(Landroid/content/Context;)V
+
+    invoke-virtual {v0, v1}, Landroid/preference/Preference;->setOnPreferenceClickListener(Landroid/preference/Preference$OnPreferenceClickListener;)V
 
     return-void
 .end method

@@ -3819,6 +3819,11 @@
     # sugestoes de palavras na linha da barra (MrSugg)
     invoke-static {v0}, Lcom/mrkeyboard/app/MrSugg;->setup(Landroid/view/View;)V
 
+    # v1.69: altura da barra de ferramentas e sugestoes (MrBar)
+    sget-object v1, Lcom/mrkeyboard/app/MrTools;->sBarMain:Landroid/view/View;
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrBar;->attach(Landroid/view/View;)V
+
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
 
     invoke-virtual {p1}, Landroid/view/View;->getParent()Landroid/view/ViewParent;

@@ -7,4 +7,5 @@ public class Activity extends android.view.ContextThemeWrapper {
     public void setTitle(CharSequence title) { }
     public boolean isFinishing() { return false; }
     public boolean isDestroyed() { return false; }
+    public void recreate() { }
 }

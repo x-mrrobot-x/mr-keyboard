@@ -134,6 +134,14 @@
 
     if-nez v1, :cond_end
 
+    const-string v1, "pref_bar_scale"
+
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_end
+
     const-string v1, "pref_key_spacing"
 
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z

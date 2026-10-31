@@ -29,6 +29,8 @@ public class PacksTest {
         public int getInt(String k, int d) { Object o = m.get(k); return o instanceof Integer ? (Integer) o : d; }
         public long getLong(String k, long d) { Object o = m.get(k); return o instanceof Long ? (Long) o : d; }
         public boolean getBoolean(String k, boolean d) { Object o = m.get(k); return o instanceof Boolean ? (Boolean) o : d; }
+        public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener l) { }
+        public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener l) { }
         public Editor edit() {
             final HashMap<String, Object> pend = new HashMap<String, Object>();
             final HashSet<String> rem = new HashSet<String>();
@@ -216,6 +218,15 @@ public class PacksTest {
         check("sem pacote: não existe selected_languages (teclado usa o idioma do aparelho)",
                 ctx.getSharedPreferences("default", 0).getString("selected_languages", "-").equals("-"), null);
 
+        // ---- altura da barra de ferramentas e sugestões
+        check("barra: escala vazia, inválida ou fora da faixa fica entre 60% e 150% (padrão 100%)",
+                MrBar.scale(null) == 1f && MrBar.scale("abc") == 1f && MrBar.scale("1.0") == 1f && MrBar.scale("0.3") == 0.6f
+                && MrBar.scale("2") == 1.5f && MrBar.scale("0.8") == 0.8f && MrBar.scale("NaN") == 1f,
+                MrBar.scale("0.3") + " " + MrBar.scale("2"));
+        check("barra: altura = 48 dp x densidade x escala (arredondada)",
+                MrBar.heightPx(2f, 1f) == 96 && MrBar.heightPx(2.5f, 0.6f) == 72 && MrBar.heightPx(3f, 1.5f) == 216,
+                MrBar.heightPx(2f, 1f) + " " + MrBar.heightPx(2.5f, 0.6f));
+
         // ---- instalação
         final MrPacks.Catalog c1 = MrPacks.cachedCatalog(ctx);
         final MrPacks.Pack p1 = c1.packs.get(0);
@@ -233,6 +244,16 @@ public class PacksTest {
         check("pacote instalado vira idioma do teclado (pt_BR,)",
                 "pt_BR,".equals(ctx.getSharedPreferences("default", 0).getString("selected_languages", "-")),
                 ctx.getSharedPreferences("default", 0).getString("selected_languages", "-"));
+        SharedPreferences dp = ctx.getSharedPreferences("default", 0);
+        dp.edit().putString("pref_keyboard_layout", "9").putBoolean("show_suggestions", true).putString("pref_key_spacing", "10")
+                .putString("pref_render_mode", "2").putString("emote_recent", "a,b").putString("selected_languages", "xx,").commit();
+        MrReset.apply(ctx);
+        check("restaurar padrões: as chaves de configuração somem (tema, sugestões, espaçamento, chaves antigas)",
+                dp.getString("pref_keyboard_layout", "-").equals("-") && !dp.getBoolean("show_suggestions", false)
+                && dp.getString("pref_key_spacing", "-").equals("-") && dp.getString("pref_render_mode", "-").equals("-"), null);
+        check("restaurar padrões: não apaga o que não é configuração e acerta os idiomas (emotes, pt_BR,, pacote)",
+                "a,b".equals(dp.getString("emote_recent", "-")) && "pt_BR,".equals(dp.getString("selected_languages", "-"))
+                && MrPacks.installedVersion(ctx, "pt-BR") == 2, dp.getString("selected_languages", "-"));
         check("aviso ao teclado (mr_dicts_updated_at)", ctx.getSharedPreferences("default", 0).getLong("mr_dicts_updated_at", 0) > 0, null);
 
         // ---- uso pelo teclado: o mesmo caminho do aparelho (Suggest(Context,int[]) -> MrPacks.mainDictionary)

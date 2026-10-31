@@ -29,8 +29,6 @@
 
 .field public static final DEFAULT_LAYOUT_ID:Ljava/lang/String; = "0"
 
-.field private static final DEFAULT_SETTINGS_KEY_MODE:I = 0x7f0c0147
-
 .field private static final KBD_COMPACT:I = 0x7f0f0001
 
 .field private static final KBD_COMPACT_FN:I = 0x7f0f0002
@@ -90,10 +88,6 @@
 .field public static final MODE_WEB:I = 0x7
 
 .field public static final PREF_KEYBOARD_LAYOUT:Ljava/lang/String; = "pref_keyboard_layout"
-
-.field private static final SETTINGS_KEY_MODE_ALWAYS_SHOW:I = 0x7f0c0145
-
-.field private static final SETTINGS_KEY_MODE_AUTO:I = 0x7f0c0147
 
 .field private static TAG:Ljava/lang/String; = "PCKeyboardKbSw"
 
@@ -190,12 +184,12 @@
     :array_0
     .array-data 4
         0x7f0a001f
-        0x7f0a001e
-        0x7f0a0025
-        0x7f0a0029
-        0x7f0a0021
-        0x7f0a0022
-        0x7f0a0020
+        0x7f0a003e
+        0x7f0a003e
+        0x7f0a003e
+        0x7f0a003e
+        0x7f0a003e
+        0x7f0a003e
         0x7f0a003d
         0x7f0a003e
         0x7f0a003f
@@ -1236,73 +1230,19 @@
 .end method
 
 .method private updateSettingsKeyState(Landroid/content/SharedPreferences;)V
-    .locals 4
+    .locals 2
 
-    .line 675
-    iget-object v0, p0, Lcom/mrkeyboard/app/KeyboardSwitcher;->mInputMethodService:Lcom/mrkeyboard/app/LatinIME;
+    # v1.69: interruptor "Mostrar tecla de configuracoes" (antes uma lista com 3 valores)
+    const-string v0, "show_settings_key"
 
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinIME;->getResources()Landroid/content/res/Resources;
+    const/4 v1, 0x1
 
-    move-result-object v0
+    invoke-interface {p1, v0, v1}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
 
-    const-string v1, "settings_key"
+    move-result v0
 
-    const v2, 0x7f0c0147
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/KeyboardSwitcher;->mHasSettingsKey:Z
 
-    .line 678
-    invoke-virtual {v0, v2}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
-
-    move-result-object v3
-
-    .line 676
-    invoke-interface {p1, v1, v3}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object p1
-
-    const v1, 0x7f0c0145
-
-    .line 683
-    invoke-virtual {v0, v1}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
-
-    move-result-object v1
-
-    .line 682
-    invoke-virtual {p1, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v1
-
-    if-nez v1, :cond_1
-
-    .line 685
-    invoke-virtual {v0, v2}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 684
-    invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result p1
-
-    if-eqz p1, :cond_0
-
-    goto :goto_0
-
-    :cond_0
-    const/4 p1, 0x0
-
-    .line 688
-    iput-boolean p1, p0, Lcom/mrkeyboard/app/KeyboardSwitcher;->mHasSettingsKey:Z
-
-    goto :goto_1
-
-    :cond_1
-    :goto_0
-    const/4 p1, 0x1
-
-    .line 686
-    iput-boolean p1, p0, Lcom/mrkeyboard/app/KeyboardSwitcher;->mHasSettingsKey:Z
-
-    :goto_1
     return-void
 .end method
 
@@ -1804,7 +1744,7 @@
     goto :goto_0
 
     :cond_0
-    const-string v0, "settings_key"
+    const-string v0, "show_settings_key"
 
     .line 658
     invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z

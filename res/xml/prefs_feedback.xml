@@ -6,10 +6,9 @@
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_sound" android:key="sound_settings" android:icon="@drawable/mr_ui_ic_speaker_mint">
     <CheckBoxPreference android:persistent="true" android:title="@string/sound_on_keypress" android:key="sound_on"/>
-    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/click_method_entries" android:title="@string/title_click_method" android:key="pref_click_method" android:defaultValue="@string/default_click_method" android:entryValues="@array/click_method_values"/>
-    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_click_volume" android:key="pref_click_volume" android:defaultValue="@string/default_click_volume" hk:asPercent="true" hk:maxValue="1.0" hk:minValue="0.0"/>
+    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_click_volume" android:key="pref_click_volume" android:dependency="sound_on" android:defaultValue="@string/default_click_volume" hk:asPercent="true" hk:maxValue="1.0" hk:minValue="0.0" hk:step="0.05"/>
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_visual" android:key="visual_feedback_settings" android:icon="@drawable/mr_ui_ic_eye_cyan">
-    <CheckBoxPreference android:persistent="true" android:title="@string/popup_on_keypress" android:key="popup_on" android:defaultValue="@bool/default_popup_preview"/>
+    <CheckBoxPreference android:persistent="true" android:title="@string/popup_on_keypress" android:key="popup_on" android:summary="@string/summary_popup_on" android:defaultValue="@bool/default_popup_preview"/>
   </PreferenceCategory>
 </PreferenceScreen>

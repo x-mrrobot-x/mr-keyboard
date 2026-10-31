@@ -21,7 +21,7 @@ Requires Android 8.0 or later.
   - learns the words you use, never in password or incognito fields;
   - everything runs on the device;
   - off by default: turn on *Show suggestions* on the same screen.
-- **Themes:** Mr Keyboard Neon, Dark Tech (soft and raised), Midnight Steel, Material Dark/Light, Stone, Gingerbread and more.
+- **Themes:** Mr Keyboard Neon, Dark Tech (soft and raised) and Midnight Steel. Key spacing and corner roundness work in every theme.
 - **Gestures and keys:** swipe up/down/left/right and the volume keys can run keyboard actions.
 - **Settings in English or Portuguese.**
 

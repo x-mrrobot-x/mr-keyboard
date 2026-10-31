@@ -1,0 +1,79 @@
+package com.mrkeyboard.app;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
+import android.preference.PreferenceManager;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
+import android.widget.Switch;
+import android.widget.TextView;
+
+/**
+ * Cartão com o interruptor "Voltar à folha principal ao digitar" (v1.69), no alto da página
+ * Folhas do teclado. Mesmo visual do cartão do teclado principal ABC. A chave é
+ * "pref_sheet_return" (padrão ligado), lida pelo LatinIME.returnToMainSheet.
+ */
+public final class MrSheetOpt {
+    private MrSheetOpt() { }
+
+    static final String KEY = "pref_sheet_return";
+
+    private static int dp(Context c, float v) {
+        return Math.round(v * c.getResources().getDisplayMetrics().density);
+    }
+
+    public static View row(final Context c) {
+        final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+
+        LinearLayout card = new LinearLayout(c);
+        card.setOrientation(LinearLayout.HORIZONTAL);
+        card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setPadding(dp(c, 14), dp(c, 12), dp(c, 14), dp(c, 12));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(0xFF0A1018);
+        bg.setCornerRadius(dp(c, 16));
+        bg.setStroke(Math.max(1, dp(c, 1)), 0xFF1A2535);
+        card.setBackground(bg);
+
+        LinearLayout texts = new LinearLayout(c);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        final TextView title = new TextView(c);
+        title.setText(MrPacks.text(c, "title_sheet_return"));
+        title.setTextColor(0xFFE9F0F9);
+        title.setTextSize(14.5f);
+        title.setTypeface(null, Typeface.BOLD);
+        final TextView summary = new TextView(c);
+        summary.setTextColor(0xFF93A3BA);
+        summary.setTextSize(12.5f);
+        texts.addView(title);
+        texts.addView(summary);
+        card.addView(texts, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        final Switch sw = new Switch(c);
+        boolean on = sp.getBoolean(KEY, true);
+        sw.setChecked(on);
+        summary.setText(MrPacks.text(c, on ? "summary_sheet_return_true" : "summary_sheet_return_false"));
+        sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton button, boolean checked) {
+                sp.edit().putBoolean(KEY, checked).apply();
+                summary.setText(MrPacks.text(c, checked ? "summary_sheet_return_true" : "summary_sheet_return_false"));
+            }
+        });
+        card.addView(sw);
+        card.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                sw.toggle();
+            }
+        });
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(0, dp(c, 14), 0, dp(c, 10));
+        card.setLayoutParams(lp);
+        return card;
+    }
+}

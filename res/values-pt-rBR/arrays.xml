@@ -10,26 +10,15 @@
         <item>Ctrl esquerdo</item>
         <item>Ctrl direito</item>
     </string-array>
-    <string-array name="chording_meta_key_entries">
-        <item>Nenhuma (ignorada quando não modifica outras teclas)</item>
-        <item>Meta esquerdo</item>
-        <item>Meta direito</item>
-    </string-array>
-    <string-array name="click_method_entries">
-        <item>Padrão do sistema (ignorar volume do clique)</item>
-        <item>Volume absoluto do clique</item>
-        <item>Seguir o volume de mídia</item>
-        <item>Inverter o volume de mídia</item>
-    </string-array>
     <string-array name="ctrl_a_override_entries">
         <item>Desativar Ctrl-A, usar Ctrl-Alt-A</item>
         <item>Desativar Ctrl-A completamente</item>
         <item>Usar Ctrl-A (sem substituição)</item>
     </string-array>
     <string-array name="hint_modes">
-        <item>Ocultar rótulos de dica</item>
-        <item>Mostrar pontuação ASCII</item>
-        <item>Mostrar todos os rótulos de dica</item>
+        <item>Ocultar</item>
+        <item>Só símbolos ASCII</item>
+        <item>Todos os símbolos</item>
     </string-array>
     <string-array name="keyboard_mode_entries">
         <item>Padrão (atalhos + Ctrl/Alt)</item>
@@ -37,24 +26,11 @@
         <item>Completo (linha F1–F12)</item>
     </string-array>
     <string-array name="popup_content_entries">
-        <item>Sem pop-ups</item>
-        <item>Sem pop-ups, usar repetição automática</item>
+        <item>Sem popups</item>
+        <item>Sem popups, usar repetição automática</item>
         <item>Somente únicos: 3 ⇒ ³, e ⇒ é</item>
-        <item>Incluir com Shift: 3 ⇒ #³, e ⇒ é</item>
         <item>Incluir maiúscula: 3 ⇒ #³, e ⇒ Eé</item>
         <item>Incluir a própria tecla: 3 ⇒ 3#³, e ⇒ eEé</item>
-    </string-array>
-    <string-array name="render_mode_entries">
-        <item>Desenho direto (economiza memória)</item>
-        <item>Com buffer por software (padrão)</item>
-        <item>Acelerado por hardware (experimental)</item>
-    </string-array>
-    <string-array name="slide_keys_entries">
-        <item>Ignorar teclas durante o movimento de deslizar (recomendado)</item>
-        <item>Enviar a primeira tecla tocada</item>
-        <item>Enviar a última tecla tocada</item>
-        <item>Enviar a primeira e a última tecla</item>
-        <item>Enviar todas as teclas tocadas durante o movimento de deslizar</item>
     </string-array>
     <string-array name="swipe_action_entries">
         <item>(nenhuma ação)</item>
