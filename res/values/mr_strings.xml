@@ -24,6 +24,7 @@
     <string name="mr_ui_cat_about_sum">Version and author</string>
     <string name="mr_ui_author_title">by x-mrrobot-x</string>
     <string name="mr_ui_author_summary">Mr Keyboard developer</string>
+    <string name="mr_ui_link_no_browser">No app found to open the link</string>
     <string name="mr_ui_cat_input">Behavior</string>
     <string name="mr_ui_cat_input_sum">Editor and virtual keyboard</string>
     <string name="mr_ui_cat_haptic">Vibration</string>

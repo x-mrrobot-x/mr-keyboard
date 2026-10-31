@@ -45,8 +45,6 @@
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_about" android:key="debugging" android:summary="@string/mr_ui_cat_about_sum" android:icon="@drawable/mr_ui_ic_info_slate">
     <Preference android:title="@string/title_version" android:key="label_version" android:summary="@string/auto_version"/>
-    <Preference android:title="@string/mr_ui_author_title" android:key="mr_author" android:summary="@string/mr_ui_author_summary" android:persistent="false">
-      <intent android:action="android.intent.action.VIEW" android:data="https://github.com/x-mrrobot-x"/>
-    </Preference>
+    <Preference android:title="@string/mr_ui_author_title" android:key="mr_author" android:summary="@string/mr_ui_author_summary" android:persistent="false"/>
   </PreferenceCategory>
 </PreferenceScreen>

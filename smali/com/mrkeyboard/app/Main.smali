@@ -143,6 +143,8 @@
 
     invoke-virtual {v0, p1, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;Landroid/widget/TextView$BufferType;)V
 
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLink;->protect(Landroid/widget/TextView;)V
+
     const p1, 0x7f08004f
 
     .line 51

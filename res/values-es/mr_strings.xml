@@ -24,6 +24,7 @@
     <string name="mr_ui_cat_about_sum">Versión y autor</string>
     <string name="mr_ui_author_title">by x-mrrobot-x</string>
     <string name="mr_ui_author_summary">Desarrollador de Mr Keyboard</string>
+    <string name="mr_ui_link_no_browser">No hay ninguna app para abrir el enlace</string>
     <string name="mr_ui_cat_input">Comportamiento</string>
     <string name="mr_ui_cat_input_sum">Editor y teclado en pantalla</string>
     <string name="mr_ui_cat_haptic">Vibración</string>

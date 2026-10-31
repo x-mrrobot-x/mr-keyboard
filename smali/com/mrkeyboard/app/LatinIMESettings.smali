@@ -893,6 +893,22 @@
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setOnPreferenceClickListener(Landroid/preference/Preference$OnPreferenceClickListener;)V
 
+    # cartão do autor: abre o GitHub sem fechar o app se não houver navegador
+    const-string v0, "mr_author"
+
+    invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinIMESettings;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_no_author
+
+    new-instance v1, Lcom/mrkeyboard/app/MrAuthor;
+
+    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrAuthor;-><init>(Landroid/content/Context;)V
+
+    invoke-virtual {v0, v1}, Landroid/preference/Preference;->setOnPreferenceClickListener(Landroid/preference/Preference$OnPreferenceClickListener;)V
+
+    :cond_no_author
     return-void
 .end method
 
