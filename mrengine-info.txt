@@ -1,0 +1,6 @@
+contrato (kEngineVersion): 1
+codigo (sha256 de CMakeLists.txt + src/): de68890a3cedfb12f642dae46e9454286cd8dcb340f33f21b0589552007ab28e
+commit: 6eb5fedc86e219a520a51295d3b9045beb6213f5
+ec3347b12e01e202df87667e37fe6d3621ffc35336d4eb81226b88c974c4d9cf  out/lib/arm64-v8a/libmrengine.so
+ec7cb9d8bd6dbfa336400dbc791bdc55921996bb95dfcca91aa06f811cecb11b  out/lib/armeabi-v7a/libmrengine.so
+2eccc641efe66cc474c021cd4897b47aa4938331d6388e8070d07ce2ca142973  out/lib/x86/libmrengine.so
