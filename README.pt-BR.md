@@ -60,9 +60,10 @@ Este repositório guarda o app como projeto do [apktool](https://apktool.org/) (
 - `native/`: o motor de dicionário em C++ (CMake);
 - `docs/`: anotações de cada versão e as ferramentas usadas para gerar o dicionário e as classes Java.
 
-**Pelo GitHub Actions** são dois workflows:
+**Pelo GitHub Actions** são três workflows:
 - *Mr Keyboard - APK* roda a cada push que muda o app (`smali/`, `res/`, `lib/`, `apktool.yml`). Gera o APK com o apktool 2.11.1 usando as bibliotecas que já estão em `lib/` e assina, se existirem os secrets `KEYSTORE_B64`, `KEYSTORE_PASS`, `KEY_ALIAS` e `KEY_PASS`. Sem os secrets (num fork, por exemplo), sai um APK sem assinatura no artefato `apk`.
 - *Mr Keyboard - lib nativa* roda só quando `native/` muda (ou à mão). Compila a biblioteca para arm64-v8a, armeabi-v7a e x86 com o NDK 27 e roda o teste no PC. Extraia o artefato `libs-nativas` na raiz do projeto e faça o commit de `lib/` e `native-src.sha256`. O workflow do APK compara esse hash com o `native/` atual e não deixa publicar se a `lib/` estiver desatualizada.
+- *Mr Keyboard - verificações* roda nos pushes na `main` e nos pull requests que mudam o app. Confere a versão e as notas, os recursos (inclusive os textos em espanhol), a lista de chaves do "Restaurar padrões", os registradores do smali e se o smali gerado da camada Java está em dia, monta o app para verificar o dex e roda os testes de PC. Os mesmos scripts estão em `docs/tools/` e rodam também no seu computador.
 
 **Publicar (para quem mantém o projeto):**
 - **App:** rode *Mr Keyboard - APK* com *publicar* marcado. O APK assinado vai para [Releases](../../releases) com a tag do `versionName` do `apktool.yml` (ex.: `v1.66.0`), como `MrKeyboard-v1.66.0.apk` e como `MrKeyboard.apk` (nome fixo, usado pelo link direto acima).

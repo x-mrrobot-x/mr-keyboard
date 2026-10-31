@@ -1,0 +1,118 @@
+# Mr Keyboard: verificações automáticas. Não publica nada e não guarda APK.
+#
+# Roda a cada push na main e em pull request que mexa no app (ou à mão, em Run workflow).
+# Cada passo é um script de docs/tools/ que também roda no seu computador (veja o comentário do script).
+#
+# rapidas  (segundos, só Python e Java):
+#   check_version.py     versão do apktool.yml/json coerente e notas da versão em docs/
+#   check_reset_keys.py  "Restaurar padrões" cobre toda chave das telas de configurações
+#   mres_check.py        texto em português do editor de folhas/anexos passa pela tabela do espanhol
+#   res_check.py         recursos: XML válido, public.xml, referências, recursos sem uso, espanhol x português
+#   smali_regcheck.py    registradores do smali (pega o erro que fechou as Configurações na 1.67)
+#   run_java_tests.sh    testes de PC da camada Java (cartão do autor e link da tela principal)
+# montagem (alguns minutos):
+#   check_java_smali.sh  o smali Mr*.smali é o que o build_java.sh gera hoje dos fontes Java
+#   apktool b            o smali todo monta (o aapt2 acusa recurso que falta)
+#   verify_dex.sh        o verificador do dex2jar não acha erro no dex montado
+#   smali_regcheck.py    de novo, no smali decodificado do APK montado
+#   run_java_tests.sh    com o jar do APK: testes do espanhol (SheetStrings/MrEs)
+name: Mr Keyboard - verificações
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'smali/**'
+      - 'res/**'
+      - 'AndroidManifest.xml'
+      - 'apktool.yml'
+      - 'apktool.json'
+      - 'docs/tools/**'
+      - 'docs/revisao-*.md'
+      - '.github/workflows/mr-checks.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'smali/**'
+      - 'res/**'
+      - 'AndroidManifest.xml'
+      - 'apktool.yml'
+      - 'apktool.json'
+      - 'docs/tools/**'
+      - 'docs/revisao-*.md'
+      - '.github/workflows/mr-checks.yml'
+
+permissions:
+  contents: read
+
+env:
+  APKTOOL_VERSION: 2.11.1
+  DEX2JAR_URL: https://github.com/pxb1988/dex2jar/releases/download/v2.1/dex2jar-2.1.zip
+  DEX2JAR_SHA256: 7a9bdf843d43de4d1e94ec2e7b6f55825017b0c4a7ee39ff82660e2493a46f08
+
+jobs:
+  rapidas:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Versão e notas da versão
+        run: python3 docs/tools/check_version.py
+
+      - name: Restaurar padrões cobre todas as chaves
+        run: python3 docs/tools/check_reset_keys.py
+
+      - name: Textos do editor de folhas em espanhol
+        run: python3 docs/tools/mres_check.py
+
+      - name: Recursos
+        run: python3 docs/tools/res_check.py
+
+      - name: Registradores do smali
+        run: python3 docs/tools/smali_regcheck.py smali
+
+      - name: Testes de PC da camada Java
+        run: sh docs/tools/run_java_tests.sh
+
+  montagem:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Baixar apktool e dex2jar
+        run: |
+          curl -sSL -o apktool.jar \
+            "https://github.com/iBotPeaches/Apktool/releases/download/v$APKTOOL_VERSION/apktool_$APKTOOL_VERSION.jar"
+          curl -sSL -o dex2jar.zip "$DEX2JAR_URL"
+          echo "$DEX2JAR_SHA256  dex2jar.zip" | sha256sum -c -
+          unzip -q dex2jar.zip -d tools
+
+      - name: Smali da camada Java em dia
+        env:
+          DX_JAR: ${{ github.workspace }}/tools/dex-tools-2.1/lib/dx-27.0.3.jar
+          APKTOOL_JAR: ${{ github.workspace }}/apktool.jar
+        run: sh docs/tools/check_java_smali.sh
+
+      - name: Montar o APK (só para verificar)
+        run: java -jar apktool.jar b . -o verificar.apk
+
+      - name: Verificar o dex
+        run: sh docs/tools/verify_dex.sh verificar.apk tools/dex-tools-2.1 "$RUNNER_TEMP/dex"
+
+      - name: Registradores do smali montado
+        run: |
+          java -jar apktool.jar d -f -o "$RUNNER_TEMP/dec" verificar.apk > /dev/null
+          python3 docs/tools/smali_regcheck.py "$RUNNER_TEMP"/dec/smali*
+
+      - name: Testes do espanhol com o jar do APK
+        run: sh docs/tools/run_java_tests.sh "$RUNNER_TEMP/dex/classes.jar"
