@@ -49,7 +49,7 @@
 
     iget-object v1, p0, Lcom/mrkeyboard/app/Main$3;->val$that:Landroid/app/Activity;
 
-    const-class v2, Lcom/mrkeyboard/app/InputLanguageSelection;
+    const-class v2, Lcom/mrkeyboard/app/MrPacksActivity;
 
     invoke-direct {v0, v1, v2}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
 

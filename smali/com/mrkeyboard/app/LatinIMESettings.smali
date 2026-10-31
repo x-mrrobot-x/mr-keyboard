@@ -1050,34 +1050,8 @@
     .line 92
     invoke-super {p0}, Landroid/preference/PreferenceActivity;->onResume()V
 
-    .line 93
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIMESettings;->getListView()Landroid/widget/ListView;
-
-    move-result-object v0
-
-    invoke-static {v0}, Landroid/text/AutoText;->getSize(Landroid/view/View;)I
-
-    move-result v0
-
-    const/4 v1, 0x1
-
-    if-ge v0, v1, :cond_0
-
-    const-string v0, "prediction_settings"
-
-    .line 95
-    invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinIMESettings;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
-
-    move-result-object v0
-
-    check-cast v0, Landroid/preference/PreferenceGroup;
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/LatinIMESettings;->mQuickFixes:Landroid/preference/CheckBoxPreference;
-
-    .line 96
-    invoke-virtual {v0, v2}, Landroid/preference/PreferenceGroup;->removePreference(Landroid/preference/Preference;)Z
-
-    :cond_0
+    # v1.67: "Correções rápidas" foi para a tela Sugestões e dicionários (MrPacksActivity),
+    # que esconde a opção sozinha quando o Android não tem autotexto para o idioma.
     const-string v0, "LatinIMESettings"
 
     .line 99

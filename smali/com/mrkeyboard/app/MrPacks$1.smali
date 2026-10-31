@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 334
+    .line 331
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -41,12 +41,12 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 336
+    .line 333
     new-instance v0, Ljava/net/URL;
 
     invoke-direct {v0, p1}, Ljava/net/URL;-><init>(Ljava/lang/String;)V
 
-    .line 337
+    .line 334
     const-string v1, "https"
 
     invoke-virtual {v0}, Ljava/net/URL;->getProtocol()Ljava/lang/String;
@@ -67,7 +67,7 @@
 
     throw v0
 
-    .line 338
+    .line 335
     :cond_0
     invoke-virtual {v0}, Ljava/net/URL;->openConnection()Ljava/net/URLConnection;
 
@@ -75,59 +75,59 @@
 
     check-cast v0, Ljava/net/HttpURLConnection;
 
-    .line 339
+    .line 336
     const/16 v1, 0x3a98
 
     invoke-virtual {v0, v1}, Ljava/net/HttpURLConnection;->setConnectTimeout(I)V
 
-    .line 340
+    .line 337
     const/16 v1, 0x7530
 
     invoke-virtual {v0, v1}, Ljava/net/HttpURLConnection;->setReadTimeout(I)V
 
-    .line 341
+    .line 338
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Ljava/net/HttpURLConnection;->setInstanceFollowRedirects(Z)V
 
-    .line 342
+    .line 339
     invoke-virtual {v0, v4}, Ljava/net/HttpURLConnection;->setUseCaches(Z)V
 
-    .line 344
+    .line 341
     const-string v1, "User-Agent"
 
     const-string v2, "MrKeyboard"
 
     invoke-virtual {v0, v1, v2}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 345
+    .line 342
     const-string v1, "Accept-Encoding"
 
     const-string v2, "identity"
 
     invoke-virtual {v0, v1, v2}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 346
+    .line 343
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getResponseCode()I
 
     move-result v1
 
-    .line 347
+    .line 344
     const/16 v2, 0xc8
 
     if-eq v1, v2, :cond_1
 
-    .line 348
+    .line 345
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->disconnect()V
 
-    .line 349
+    .line 346
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$HttpError;
 
     invoke-direct {v0, v1}, Lcom/mrkeyboard/app/MrPacks$HttpError;-><init>(I)V
 
     throw v0
 
-    .line 351
+    .line 348
     :cond_1
     const-string v1, "https"
 
@@ -145,10 +145,10 @@
 
     if-nez v1, :cond_2
 
-    .line 352
+    .line 349
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->disconnect()V
 
-    .line 353
+    .line 350
     new-instance v0, Ljava/io/IOException;
 
     const-string v1, "https"
@@ -157,7 +157,7 @@
 
     throw v0
 
-    .line 355
+    .line 352
     :cond_2
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getContentLength()I
 
@@ -167,7 +167,7 @@
 
     aput-wide v2, p2, v4
 
-    .line 356
+    .line 353
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getInputStream()Ljava/io/InputStream;
 
     move-result-object v0

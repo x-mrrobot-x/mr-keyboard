@@ -6,12 +6,12 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
+import android.text.AutoText;
 import android.widget.Toast;
 
 import java.io.File;
@@ -22,10 +22,16 @@ import java.util.HashMap;
 import java.util.Locale;
 
 /**
- * Tela "Dicionários" (v1.63): lista os pacotes do catálogo e os instalados, com baixar, atualizar e
- * remover. Só se conecta quando o usuário toca em "Procurar atualizações" ou "Baixar"/"Atualizar"
- * (ou ao abrir, se ele ligou essa opção). Montada em código, com o mesmo visual das outras telas
- * de configurações (tema, cabeçalho de SettingsHeader e idioma de UiLocale).
+ * Tela "Sugestões e dicionários" (v1.63, refeita na 1.67). Uma tela só para os idiomas e as
+ * sugestões:
+ *  - cartões de idioma (pt-BR, en-US e es sempre, mais o que o catálogo trouxer), cada um com o
+ *    estado do dicionário; tocar abre os detalhes (baixar, atualizar, remover). Idioma com
+ *    dicionário instalado é idioma do teclado (MrPacks.syncLanguages);
+ *  - as opções de sugestões (res/xml/prefs_suggestions.xml, nas preferências padrão);
+ *  - a nota de privacidade.
+ * Só se conecta quando o usuário toca em "Procurar atualizações", em "Baixar"/"Atualizar" ou em
+ * um idioma não instalado quando ainda não há catálogo guardado (para mostrar o tamanho antes de
+ * baixar). Usa o mesmo visual das outras telas (tema, cabeçalho de SettingsHeader e UiLocale).
  */
 public class MrPacksActivity extends PreferenceActivity {
     private final Handler mHandler = new Handler(Looper.getMainLooper());
@@ -37,6 +43,8 @@ public class MrPacksActivity extends PreferenceActivity {
     private String mCheckError;
     private String mError;
     private String mErrorId;
+    /** Idioma tocado enquanto o catálogo era buscado: abre os detalhes quando chegar. */
+    private String mOpenId;
 
     private final Runnable mPoll = new Runnable() {
         public void run() {
@@ -55,42 +63,23 @@ public class MrPacksActivity extends PreferenceActivity {
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         setTitle(t("mr_dicts_title"));
-        PreferenceManager pm = getPreferenceManager();
-        pm.setSharedPreferencesName(MrPacks.PREFS);
-        PreferenceScreen root = pm.createPreferenceScreen(this);
-
-        mLangs = category(root, "mr_dicts_cat_langs", "mr_ui_ic_globe_mint");
-
-        PreferenceCategory opts = category(root, "mr_dicts_cat_options", "mr_ui_ic_gear_slate");
-        CheckBoxPreference wifi = new CheckBoxPreference(this);
-        wifi.setKey(MrPacks.KEY_WIFI);
-        wifi.setTitle(t("mr_dicts_wifi"));
-        wifi.setSummary(t("mr_dicts_wifi_sum"));
-        wifi.setDefaultValue(Boolean.TRUE);
-        wifi.setPersistent(true);
-        opts.addPreference(wifi);
-        CheckBoxPreference auto = new CheckBoxPreference(this);
-        auto.setKey(MrPacks.KEY_AUTO);
-        auto.setTitle(t("mr_dicts_auto"));
-        auto.setSummary(t("mr_dicts_auto_sum"));
-        auto.setDefaultValue(Boolean.FALSE);
-        auto.setPersistent(true);
-        opts.addPreference(auto);
-
-        PreferenceCategory priv = category(root, "mr_dicts_cat_privacy", "mr_ui_ic_info_slate");
-        Preference text = new Preference(this);
-        text.setTitle(t("mr_dicts_privacy_title"));
-        text.setSummary(t("mr_dicts_privacy_text"));
-        text.setSelectable(false);
-        text.setPersistent(false);
-        priv.addPreference(text);
-
-        setPreferenceScreen(root);
+        addPreferencesFromResource(getResources().getIdentifier("prefs_suggestions", "xml", getPackageName()));
         ListDividerFix.apply(this);
-
+        mLangs = (PreferenceCategory) findPreference("mr_cat_langs");
+        hideQuickFixesIfUnsupported();
         mCat = MrPacks.cachedCatalog(this);
         rebuild();
-        if (MrPacks.autoCheck(this)) check();
+    }
+
+    /**
+     * "Correções rápidas" usa a tabela de autotexto do Android, que só existe para alguns idiomas:
+     * sem ela a opção não faz nada e sai da tela (como era na tela de configurações).
+     */
+    private void hideQuickFixesIfUnsupported() {
+        if (AutoText.getSize(getListView()) >= 1) return;
+        Preference quick = findPreference("quick_fixes");
+        Preference group = findPreference("mr_cat_suggestions");
+        if (quick != null && group instanceof PreferenceGroup) ((PreferenceGroup) group).removePreference(quick);
     }
 
     @Override
@@ -111,32 +100,29 @@ public class MrPacksActivity extends PreferenceActivity {
 
     // ------------------------------------------------------------------ lista
 
-    private PreferenceCategory category(PreferenceScreen root, String title, String icon) {
-        PreferenceCategory c = new PreferenceCategory(this);
-        c.setTitle(t(title));
-        int id = getResources().getIdentifier(icon, "drawable", getPackageName());
-        if (id != 0) c.setIcon(id);
-        root.addPreference(c);
-        return c;
+    /** Nome do idioma quando o catálogo ainda não foi visto (cartões padrão). */
+    private String langName(String id) {
+        String key = "mr_lang_" + id.replace('-', '_');
+        return getResources().getIdentifier(key, "string", getPackageName()) != 0 ? t(key) : id;
     }
 
-    /** Monta de novo a lista de idiomas (pacotes do catálogo e instalados). */
+    /** Monta de novo a lista de idiomas (padrão, catálogo e instalados) e põe o teclado em dia. */
     private void rebuild() {
         if (mLangs == null) return;
         mLangs.removeAll();
         mPackPrefs.clear();
-        ArrayList<String> ids = new ArrayList<String>();
-        if (mCat != null) for (MrPacks.Pack p : mCat.packs) ids.add(p.id);
-        for (String id : MrPacks.installedIds(this)) if (!ids.contains(id)) ids.add(id);
+        ArrayList<String> catIds = new ArrayList<String>();
+        if (mCat != null) for (MrPacks.Pack p : mCat.packs) catIds.add(p.id);
         Locale loc = getResources().getConfiguration().locale;
+        ArrayList<String> ids = MrPacks.cardIds(catIds, MrPacks.installedIds(this), loc.getLanguage());
         for (final String id : ids) {
             MrPacks.Pack p = mCat != null ? mCat.find(id) : null;
             Preference pr = new Preference(this);
             pr.setPersistent(false);
-            pr.setTitle(p != null ? p.name(loc) : id);
+            pr.setTitle(p != null ? p.name(loc) : langName(id));
             pr.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 public boolean onPreferenceClick(Preference preference) {
-                    showPack(id);
+                    open(id);
                     return true;
                 }
             });
@@ -153,6 +139,12 @@ public class MrPacksActivity extends PreferenceActivity {
             }
         });
         mLangs.addPreference(mCheck);
+        Preference hint = new Preference(this);
+        hint.setPersistent(false);
+        hint.setSelectable(false);
+        hint.setSummary(t("mr_dicts_langs_hint"));
+        mLangs.addPreference(hint);
+        MrPacks.syncLanguages(this, ids);
         update();
     }
 
@@ -182,7 +174,7 @@ public class MrPacksActivity extends PreferenceActivity {
             return t("mr_dicts_state_installed", inst, MrPacks.sizeText(dirSize(id, inst)));
         }
         if (p != null) return t("mr_dicts_state_available", MrPacks.sizeText(p.size));
-        return "";
+        return t(mCat != null ? "mr_dicts_state_unavailable" : "mr_dicts_state_notdl");
     }
 
     private String checkState() {
@@ -204,6 +196,16 @@ public class MrPacksActivity extends PreferenceActivity {
     }
 
     // ------------------------------------------------------------------ ações
+
+    /** Toque em um idioma: sem catálogo guardado e sem pacote instalado, busca o catálogo antes. */
+    private void open(String id) {
+        if (mCat == null && MrPacks.installedVersion(this, id) == 0) {
+            mOpenId = id;
+            check();
+        } else {
+            showPack(id);
+        }
+    }
 
     private void check() {
         if (mChecking) return;
@@ -229,7 +231,13 @@ public class MrPacksActivity extends PreferenceActivity {
                         mChecking = false;
                         mCheckError = fe;
                         if (fc != null) mCat = fc;
-                        if (!gone()) rebuild();
+                        String open = mOpenId;
+                        mOpenId = null;
+                        if (gone()) return;
+                        rebuild();
+                        if (open != null) {
+                            if (fe != null) toast(fe); else showPack(open);
+                        }
                     }
                 });
             }

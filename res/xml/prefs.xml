@@ -23,18 +23,9 @@
     <PreferenceScreen android:title="@string/mr_dicts_title" android:summary="@string/mr_dicts_summary">
       <intent android:action="com.mrkeyboard.app.PREFS_DICTS"/>
     </PreferenceScreen>
-    <CheckBoxPreference android:persistent="true" android:title="@string/show_suggestions" android:key="show_suggestions" android:summary="@string/show_suggestions_summary" android:defaultValue="@bool/default_suggestions"/>
-    <CheckBoxPreference android:persistent="true" android:title="@string/auto_complete" android:key="auto_complete" android:summary="@string/auto_complete_summary" android:dependency="show_suggestions" android:defaultValue="@bool/enable_autocorrect"/>
-    <CheckBoxPreference android:persistent="true" android:title="@string/quick_fixes" android:key="quick_fixes" android:summary="@string/quick_fixes_summary" android:defaultValue="@bool/default_quick_fixes"/>
-    <CheckBoxPreference android:persistent="true" android:title="@string/prefs_enable_recorrection" android:key="recorrection_enabled" android:summary="@string/prefs_enable_recorrection_summary" android:defaultValue="@bool/default_recorrection_enabled"/>
     <CheckBoxPreference android:persistent="true" android:title="@string/auto_cap" android:key="auto_cap" android:defaultValue="@bool/default_auto_cap"/>
-    <CheckBoxPreference android:persistent="true" android:title="@string/title_suggestions_in_landscape" android:key="suggestions_in_landscape" android:defaultValue="@bool/default_suggestions_in_landscape" android:summaryOn="@string/summary_suggestions_in_landscape_true" android:summaryOff="@string/summary_suggestions_in_landscape_false"/>
-    <com.mrkeyboard.app.AutoSummaryEditTextPreference android:layout="@layout/mr_ui_pref_row_value" android:title="@string/title_suggested_punctuation" android:key="pref_suggested_punctuation" android:defaultValue="@string/suggested_punctuations"/>
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_languages" android:key="ui_language_settings" android:summary="@string/mr_ui_cat_languages_sum" android:icon="@drawable/mr_ui_ic_globe_mint">
-    <PreferenceScreen android:title="@string/language_selection_title" android:summary="@string/language_selection_summary">
-      <intent android:action="com.mrkeyboard.app.INPUT_LANGUAGE_SELECTION"/>
-    </PreferenceScreen>
     <ListPreference android:persistent="true" android:entries="@array/voice_input_modes" android:title="@string/voice_input" android:key="voice_mode" android:defaultValue="@string/voice_mode_symbols" android:entryValues="@array/voice_input_modes_values"/>
     <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/ui_language_entries" android:title="@string/title_ui_language" android:key="pref_ui_language" android:defaultValue="system" android:dialogTitle="@string/title_ui_language" android:entryValues="@array/ui_language_values"/>
   </PreferenceCategory>

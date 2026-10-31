@@ -2,9 +2,9 @@
 
 Roda as classes do APK (dex → jar com o dex2jar) e a lib nativa compilada para o PC, com um Android
 de mentira (preferências em memória, rede lida de arquivos). Cobre: catálogo assinado, série que
-não volta, catálogo alterado ou de outra chave, HTTP com erro, só Wi-Fi, cancelar, instalar, zip
+não volta, catálogo alterado ou de outra chave, HTTP com erro, cancelar, instalar, zip
 alterado ou cortado, arquivo a mais no zip (inclusive `../`), arquivo com SHA-256 errado, pacote
-para app mais novo, atualizar, remover e o item "Baixar dicionário".
+para app mais novo, atualizar, remover, o item "Baixar dicionário" e a regra dos idiomas do teclado (cartões e selected_languages).
 
 1. Chave de teste: `keytool -genkeypair -keyalg RSA -alias mrkeyboard -keystore /tmp/fa/test.p12 -storetype PKCS12 -storepass senha123 -keypass senha123 -dname CN=Teste`
    e `keytool -exportcert -rfc -alias mrkeyboard -keystore /tmp/fa/test.p12 -storepass senha123 -file /tmp/fa/cert.pem`;

@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
-import android.net.ConnectivityManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
@@ -61,8 +60,6 @@ public final class MrPacks {
     static final int PACK_FORMAT = 1;
     static final String PREFS = "mr_packs";
     static final String SIGNAL_KEY = "mr_dicts_updated_at";
-    static final String KEY_WIFI = "wifi_only";
-    static final String KEY_AUTO = "auto_check";
     static final String KEY_SERIAL = "serial";
     static final String KEY_CATALOG = "catalog";
     static final String KEY_CHECKED = "checked_at";
@@ -398,14 +395,6 @@ public final class MrPacks {
         return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
-    static boolean wifiOnly(Context c) {
-        return prefs(c).getBoolean(KEY_WIFI, true);
-    }
-
-    static boolean autoCheck(Context c) {
-        return prefs(c).getBoolean(KEY_AUTO, false);
-    }
-
     private static String sCachedData;
     private static Catalog sCached;
 
@@ -454,6 +443,55 @@ public final class MrPacks {
         return out;
     }
 
+    // ------------------------------------------------------------------ idiomas do teclado
+
+    /** Chave das preferências padrão com os idiomas do teclado, lida pelo LanguageSwitcher. */
+    static final String LANGS_KEY = "selected_languages";
+
+    /** Idiomas que sempre aparecem como cartões na tela, mesmo sem catálogo (e offline). */
+    static final String[] DEFAULT_IDS = {"pt-BR", "en-US", "es"};
+
+    /**
+     * Ordem dos cartões: o idioma do app primeiro, depois os padrão, os do catálogo e, por último,
+     * os instalados que o catálogo não lista (sem repetir). Só os de mesmo idioma sobem; a ordem
+     * entre os demais não muda.
+     */
+    static ArrayList<String> cardIds(List<String> catalogIds, List<String> installed, String uiLanguage) {
+        ArrayList<String> all = new ArrayList<String>();
+        for (String id : DEFAULT_IDS) all.add(id);
+        if (catalogIds != null) for (String id : catalogIds) if (validId(id) && !all.contains(id)) all.add(id);
+        if (installed != null) for (String id : installed) if (!all.contains(id)) all.add(id);
+        ArrayList<String> out = new ArrayList<String>();
+        String lang = uiLanguage == null ? "" : uiLanguage.toLowerCase(Locale.ROOT);
+        for (String id : all) if (splitLocale(id)[0].equals(lang)) out.add(id);
+        for (String id : all) if (!out.contains(id)) out.add(id);
+        return out;
+    }
+
+    /**
+     * Valor de "selected_languages" para os pacotes instalados, na ordem dos cartões
+     * ("pt_BR,en_US,"), ou null se não há nenhum (o teclado volta a usar o idioma do aparelho).
+     */
+    static String languageKeys(List<String> order, List<String> installed) {
+        StringBuilder sb = new StringBuilder();
+        for (String id : order) if (installed.contains(id)) sb.append(id.replace('-', '_')).append(',');
+        return sb.length() == 0 ? null : sb.toString();
+    }
+
+    /**
+     * Deixa os idiomas do teclado iguais aos pacotes instalados: baixou o dicionário, o idioma entra
+     * no teclado (a barra de espaço alterna entre eles); removeu, sai. Só grava se mudou.
+     */
+    static void syncLanguages(Context c, List<String> order) {
+        String keys = languageKeys(order, installedIds(c));
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+        String now = sp.getString(LANGS_KEY, null);
+        if (keys == null ? now == null : keys.equals(now)) return;
+        SharedPreferences.Editor e = sp.edit();
+        if (keys == null) e.remove(LANGS_KEY); else e.putString(LANGS_KEY, keys);
+        e.apply();
+    }
+
     static File root(Context c) {
         return new File(c.getFilesDir(), "dicts");
     }
@@ -469,17 +507,6 @@ public final class MrPacks {
     static volatile int sJobPercent;
     static volatile boolean sJobInstalling;
     static volatile boolean sCancel;
-
-    static boolean isMetered(Context c) throws PackException {
-        ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (cm == null) return true;
-        try {
-            if (cm.getActiveNetwork() == null) throw new PackException("mr_dicts_err_network");
-            return cm.isActiveNetworkMetered();
-        } catch (SecurityException e) {
-            return true;
-        }
-    }
 
     static long appVersion(Context c) {
         try {
@@ -507,7 +534,6 @@ public final class MrPacks {
         File tmp = new File(new File(base, p.id), p.version + ".tmp");
         try {
             if (appTooOld(c, p)) throw new PackException("mr_dicts_err_app_old");
-            if (wifiOnly(c) && isMetered(c)) throw new PackException("mr_dicts_err_wifi");
             long need = p.size + p.installedSize + (2L << 20);
             if (!base.exists()) base.mkdirs();
             if (base.getUsableSpace() < need) throw new PackException("mr_dicts_err_space", sizeText(need));

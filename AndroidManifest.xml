@@ -10,9 +10,6 @@
         android:name="android.permission.VIBRATE" />
     <uses-permission
         android:name="android.permission.INTERNET" />
-    <!-- v1.63: só para saber se a rede é Wi-Fi/sem cobrança antes de baixar um dicionário -->
-    <uses-permission
-        android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission
         android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission
@@ -109,20 +106,6 @@
                     android:name="android.intent.action.MAIN" />
                 <action
                     android:name="com.mrkeyboard.app.PREFS_DICTS" />
-                <category
-                    android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:label="@string/language_selection_title"
-            android:name="com.mrkeyboard.app.InputLanguageSelection"
-            android:exported="false"
-            android:theme="@style/Theme.MrKeyboard.Settings">
-            <intent-filter>
-                <action
-                    android:name="android.intent.action.MAIN" />
-                <action
-                    android:name="com.mrkeyboard.app.INPUT_LANGUAGE_SELECTION" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
             </intent-filter>

@@ -15,12 +15,12 @@ Requires Android 8.0 or later.
   - **Translate:** translate text before sending it;
   - **Attachments:** photos, videos and files, inserted into the app you are typing in;
   - **Emotes.**
-- **Word suggestions** in Brazilian Portuguese, US English and Spanish (one dictionary per language; the keyboard switches with the input language):
-  - the dictionary is downloaded in *Settings → Dictionaries*, so the app itself is only about 1 MB;
+- **Word suggestions** in Brazilian Portuguese, US English and Spanish (one dictionary per language):
+  - dictionaries are downloaded in *Settings → Suggestions and dictionaries*, so the app itself is only about 1 MB. Each language you download is added to the keyboard: slide the space bar sideways to switch between them;
   - typo correction and next-word prediction;
   - learns the words you use, never in password or incognito fields;
   - everything runs on the device;
-  - off by default: turn on *Show suggestions* in the settings.
+  - off by default: turn on *Show suggestions* on the same screen.
 - **Themes:** Mr Keyboard Neon, Dark Tech (soft and raised), Midnight Steel, Material Dark/Light, Stone, Gingerbread and more.
 - **Gestures and keys:** swipe up/down/left/right and the volume keys can run keyboard actions.
 - **Settings in English or Portuguese.**
@@ -39,12 +39,11 @@ The command is sent as a broadcast that other apps can also receive, so don't pu
 - What you type stays on your device. Suggestions, corrections and learned words are processed and stored only on the phone. There are no ads, no analytics and no Google Play Services.
 - The app uses the internet only when you ask it to:
   - **Translate** sends the text you type in the translate field to Google Translate (`translate.googleapis.com`). Only that text is sent, and only when you use it. The field says so ("Type to translate with Google"), and the app shows a notice the first time the panel opens.
-  - **Dictionaries** (*Settings → Dictionaries*): the app only connects when you tap *Check for updates*, *Download* or *Update*, and it only downloads files from this repository's [releases](../../releases/tag/dicionarios). Every file is checked against a list signed with the app's own key before it is used.
+  - **Dictionaries** (*Settings → Suggestions and dictionaries*): the app only connects when you tap *Check for updates*, *Download*, *Update* or a language that isn't downloaded yet, and it only downloads files from this repository's [releases](../../releases/tag/dicionarios). Every file is checked against a list signed with the app's own key before it is used.
 
 | Permission | Why |
 |---|---|
 | Internet | Translate and dictionary downloads |
-| Network state | Check that you are on Wi-Fi before downloading a dictionary |
 | Notifications | Optional permanent notification to bring up the keyboard |
 | Storage / All files access | Attachments: list and send your photos, videos and files |
 | User dictionary | Read and add words to Android's personal dictionary |
@@ -54,8 +53,7 @@ The command is sent as a broadcast that other apps can also receive, so don't pu
 1. Download the APK from the [latest release](../../releases/latest) (direct link: [MrKeyboard.apk](../../releases/latest/download/MrKeyboard.apk)) and install it.
 2. Open **Mr Keyboard** and tap **Enable keyboard**. Turn on Mr Keyboard in the list and accept the system warning. Android shows that warning for every keyboard that doesn't come with the phone.
 3. Tap **Set input method** and choose Mr Keyboard.
-4. Optional: tap **Input languages** to pick layouts. Slide the space bar sideways to switch between them.
-5. For word suggestions: in the settings, open **Dictionaries**, download your language, then turn on **Show suggestions**.
+4. For word suggestions (optional): in the settings, open **Suggestions and dictionaries**, tap your language to download its dictionary, then turn on **Show suggestions**. Download more than one language and slide the space bar sideways to switch between them.
 
 ## Building
 This repository holds the app as an [apktool](https://apktool.org/) project (smali code and resources). It also has:

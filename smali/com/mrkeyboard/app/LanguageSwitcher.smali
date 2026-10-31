@@ -247,109 +247,28 @@
 
 # virtual methods
 .method public allowAutoCap()Z
-    .locals 3
+    .locals 1
 
-    .line 120
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LanguageSwitcher;->getInputLanguage()Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 121
-    invoke-virtual {v0}, Ljava/lang/String;->length()I
-
-    move-result v1
-
-    const/4 v2, 0x2
-
-    if-le v1, v2, :cond_0
-
-    const/4 v1, 0x0
-
-    invoke-virtual {v0, v1, v2}, Ljava/lang/String;->substring(II)Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 122
-    :cond_0
-    sget-object v1, Lcom/mrkeyboard/app/InputLanguageSelection;->NOCAPS_LANGUAGES:Ljava/util/Set;
-
-    invoke-interface {v1, v0}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    xor-int/lit8 v0, v0, 0x1
+    # sem exceções por idioma desde a 1.67 (a lista da tela Idiomas de entrada saiu): pt, en e es usam maiúscula automática
+    const/4 v0, 0x1
 
     return v0
 .end method
 
 .method public allowAutoSpace()Z
-    .locals 3
+    .locals 1
 
-    .line 132
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LanguageSwitcher;->getInputLanguage()Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 133
-    invoke-virtual {v0}, Ljava/lang/String;->length()I
-
-    move-result v1
-
-    const/4 v2, 0x2
-
-    if-le v1, v2, :cond_0
-
-    const/4 v1, 0x0
-
-    invoke-virtual {v0, v1, v2}, Ljava/lang/String;->substring(II)Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 134
-    :cond_0
-    sget-object v1, Lcom/mrkeyboard/app/InputLanguageSelection;->NOAUTOSPACE_LANGUAGES:Ljava/util/Set;
-
-    invoke-interface {v1, v0}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    xor-int/lit8 v0, v0, 0x1
+    # sem exceções por idioma desde a 1.67: pt, en e es usam espaço automático
+    const/4 v0, 0x1
 
     return v0
 .end method
 
 .method public allowDeadKeys()Z
-    .locals 3
+    .locals 1
 
-    .line 126
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LanguageSwitcher;->getInputLanguage()Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 127
-    invoke-virtual {v0}, Ljava/lang/String;->length()I
-
-    move-result v1
-
-    const/4 v2, 0x2
-
-    if-le v1, v2, :cond_0
-
-    const/4 v1, 0x0
-
-    invoke-virtual {v0, v1, v2}, Ljava/lang/String;->substring(II)Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 128
-    :cond_0
-    sget-object v1, Lcom/mrkeyboard/app/InputLanguageSelection;->NODEADKEY_LANGUAGES:Ljava/util/Set;
-
-    invoke-interface {v1, v0}, Ljava/util/Set;->contains(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    xor-int/lit8 v0, v0, 0x1
+    # sem exceções por idioma desde a 1.67: pt, en e es usam teclas mortas
+    const/4 v0, 0x1
 
     return v0
 .end method

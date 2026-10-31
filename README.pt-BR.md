@@ -15,12 +15,12 @@ Precisa de Android 8.0 ou mais novo.
   - **Traduzir:** traduz o texto antes de enviar;
   - **Anexos:** fotos, vídeos e arquivos, enviados para o app em que você está digitando;
   - **Emotes.**
-- **Sugestões de palavras** em português do Brasil, inglês americano e espanhol (um dicionário por idioma; o teclado troca junto com o idioma de entrada):
-  - o dicionário é baixado em *Configurações → Dicionários*, por isso o app em si tem só cerca de 1 MB;
+- **Sugestões de palavras** em português do Brasil, inglês americano e espanhol (um dicionário por idioma):
+  - os dicionários são baixados em *Configurações → Sugestões e dicionários*, por isso o app em si tem só cerca de 1 MB. Cada idioma baixado entra no teclado: deslize a barra de espaço para os lados para alternar entre eles;
   - correção de erros de digitação e previsão da próxima palavra;
   - aprende as palavras que você usa, nunca em campos de senha ou anônimos;
   - tudo roda no aparelho;
-  - vem desligado: ligue *Mostrar sugestões* nas configurações.
+  - vem desligado: ligue *Mostrar sugestões* na mesma tela.
 - **Temas:** Mr Keyboard Neon, Dark Tech (suave e em relevo), Midnight Steel, Material Dark/Light, Stone, Gingerbread e outros.
 - **Gestos e teclas:** deslizar para cima, baixo, esquerda e direita e as teclas de volume podem executar ações do teclado.
 - **Configurações em português ou inglês.**
@@ -39,12 +39,11 @@ O comando vai num broadcast que outros apps também podem receber, então não c
 - O que você digita fica no aparelho. Sugestões, correções e palavras aprendidas são processadas e guardadas só no celular. Não há anúncios, análise de uso nem Google Play Services.
 - O app só usa a internet quando você pede:
   - **Traduzir** envia ao Google Tradutor (`translate.googleapis.com`) o texto que você digita no campo de tradução. Só esse texto, e só quando você usa. O próprio campo avisa ("Digite para traduzir com o Google"), e o app mostra um aviso na primeira vez que o painel abre.
-  - **Dicionários** (*Configurações → Dicionários*): o app só se conecta quando você toca em *Procurar atualizações*, *Baixar* ou *Atualizar*, e só baixa arquivos dos [releases](../../releases/tag/dicionarios) deste repositório. Cada arquivo é conferido com uma lista assinada com a chave do próprio app antes de ser usado.
+  - **Dicionários** (*Configurações → Sugestões e dicionários*): o app só se conecta quando você toca em *Procurar atualizações*, *Baixar*, *Atualizar* ou em um idioma que ainda não foi baixado, e só baixa arquivos dos [releases](../../releases/tag/dicionarios) deste repositório. Cada arquivo é conferido com uma lista assinada com a chave do próprio app antes de ser usado.
 
 | Permissão | Para quê |
 |---|---|
 | Internet | Traduzir e baixar dicionários |
-| Estado da rede | Ver se você está no Wi-Fi antes de baixar um dicionário |
 | Notificações | Notificação fixa opcional para abrir o teclado |
 | Armazenamento / Acesso a todos os arquivos | Anexos: listar e enviar suas fotos, vídeos e arquivos |
 | Dicionário do usuário | Ler e adicionar palavras ao dicionário pessoal do Android |
@@ -54,8 +53,7 @@ O comando vai num broadcast que outros apps também podem receber, então não c
 1. Baixe o APK na [última versão](../../releases/latest) (link direto: [MrKeyboard.apk](../../releases/latest/download/MrKeyboard.apk)) e instale.
 2. Abra o **Mr Keyboard** e toque em **Ativar teclado**. Ligue o Mr Keyboard na lista e aceite o aviso do sistema. O Android mostra esse aviso para qualquer teclado que não veio com o celular.
 3. Toque em **Definir método de entrada** e escolha o Mr Keyboard.
-4. Opcional: em **Idiomas de entrada**, escolha os layouts. Deslize a barra de espaço para os lados para alternar entre eles.
-5. Para ter sugestões de palavras: nas configurações, abra **Dicionários**, baixe o do seu idioma e ligue **Mostrar sugestões**.
+4. Para ter sugestões de palavras (opcional): nas configurações, abra **Sugestões e dicionários**, toque no seu idioma para baixar o dicionário e ligue **Mostrar sugestões**. Baixando mais de um idioma, deslize a barra de espaço para os lados para alternar entre eles.
 
 ## Como compilar
 Este repositório guarda o app como projeto do [apktool](https://apktool.org/) (código smali e recursos). Também tem:

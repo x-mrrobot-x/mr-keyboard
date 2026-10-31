@@ -10,7 +10,6 @@ public class ThreeLangTest {
     public static void main(String[] a) throws Exception {
         File tmp = Files.createTempDirectory("mr2").toFile();
         final PacksTest.Ctx ctx = new PacksTest.Ctx(tmp);
-        ctx.conn.metered = false;
         MrPacks.sTestCerts = new X509Certificate[] {(X509Certificate) CertificateFactory.getInstance("X.509")
                 .generateCertificate(new FileInputStream("/tmp/fa/cert.pem"))};
         PacksTest.catalogFile = "/tmp/v165out/catalogo.json";
@@ -20,6 +19,11 @@ public class ThreeLangTest {
         PacksTest.check("catálogo com 3 pacotes", cat.packs.size() == 3, cat.packs.get(0).id + ", " + cat.packs.get(1).id + ", " + cat.packs.get(2).id);
         for (MrPacks.Pack p : cat.packs) MrPacks.install(ctx, cat, p);
         PacksTest.check("os três instalados", MrPacks.installedIds(ctx).equals(Arrays.asList("en-US", "es", "pt-BR")), MrPacks.installedIds(ctx));
+        for (String[] c : new String[][] {{"pt", "pt_BR,en_US,es,"}, {"en", "en_US,pt_BR,es,"}, {"es", "es,pt_BR,en_US,"}}) {
+            MrPacks.syncLanguages(ctx, MrPacks.cardIds(null, MrPacks.installedIds(ctx), c[0]));
+            String got = ctx.getSharedPreferences("default", 0).getString("selected_languages", "-");
+            PacksTest.check("três instalados, app em " + c[0] + " -> " + c[1], got.equals(c[1]), got);
+        }
         String[][] cases = {{"en_US", "en-US"}, {"es_ES", "es"}, {"pt_BR", "pt-BR"}, {"es_MX", "es"}, {"en", "en-US"}, {"es", "es"}, {"pt", "pt-BR"}, {"es_US", "es"}};
         for (String[] c : cases) {
             ctx.res.conf.locale = new Locale(c[0]);

@@ -243,7 +243,7 @@
         &lt;p>See the &lt;a href='https://github.com/x-mrrobot-x/mr-keyboard'>project page&lt;/a> for more information and to report problems.&lt;/p>
        "</string>
     <string name="main_setup_configure_imes">Enable keyboard</string>
-    <string name="main_setup_input_lang">Input languages</string>
+    <string name="main_setup_input_lang">Word suggestions</string>
     <string name="main_setup_set_ime">Set input method</string>
     <string name="main_setup_settings">Settings</string>
     <string name="notification_action_settings">Settings</string>

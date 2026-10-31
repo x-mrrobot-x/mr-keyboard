@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 227
+    .line 229
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$4;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->val$fe:Ljava/lang/String;
@@ -50,10 +50,10 @@
 
 # virtual methods
 .method public run()V
-    .locals 2
+    .locals 3
 
     .prologue
-    .line 229
+    .line 231
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$4;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrPacksActivity$4;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
@@ -62,7 +62,7 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$502(Lcom/mrkeyboard/app/MrPacksActivity;Z)Z
 
-    .line 230
+    .line 232
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$4;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrPacksActivity$4;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
@@ -71,7 +71,7 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$602(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)Ljava/lang/String;
 
-    .line 231
+    .line 233
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->val$fc:Lcom/mrkeyboard/app/MrPacks$Catalog;
 
     if-eqz v0, :cond_0
@@ -84,25 +84,73 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$702(Lcom/mrkeyboard/app/MrPacksActivity;Lcom/mrkeyboard/app/MrPacks$Catalog;)Lcom/mrkeyboard/app/MrPacks$Catalog;
 
-    .line 232
+    .line 234
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$4;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrPacksActivity$4;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$000(Lcom/mrkeyboard/app/MrPacksActivity;)Z
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$800(Lcom/mrkeyboard/app/MrPacksActivity;)Ljava/lang/String;
 
-    move-result v0
+    move-result-object v0
 
-    if-nez v0, :cond_1
+    .line 235
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$4;
+
+    iget-object v1, v1, Lcom/mrkeyboard/app/MrPacksActivity$4;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
+
+    const/4 v2, 0x0
+
+    invoke-static {v1, v2}, Lcom/mrkeyboard/app/MrPacksActivity;->access$802(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)Ljava/lang/String;
+
+    .line 236
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$4;
+
+    iget-object v1, v1, Lcom/mrkeyboard/app/MrPacksActivity$4;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$000(Lcom/mrkeyboard/app/MrPacksActivity;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_2
+
+    .line 241
+    :cond_1
+    :goto_0
+    return-void
+
+    .line 237
+    :cond_2
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$4;
+
+    iget-object v1, v1, Lcom/mrkeyboard/app/MrPacksActivity$4;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$900(Lcom/mrkeyboard/app/MrPacksActivity;)V
+
+    .line 238
+    if-eqz v0, :cond_1
+
+    .line 239
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->val$fe:Ljava/lang/String;
+
+    if-eqz v1, :cond_3
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$4;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrPacksActivity$4;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$800(Lcom/mrkeyboard/app/MrPacksActivity;)V
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->val$fe:Ljava/lang/String;
 
-    .line 233
-    :cond_1
-    return-void
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$1000(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)V
+
+    goto :goto_0
+
+    :cond_3
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$4;
+
+    iget-object v1, v1, Lcom/mrkeyboard/app/MrPacksActivity$4;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
+
+    invoke-static {v1, v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$1100(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)V
+
+    goto :goto_0
 .end method

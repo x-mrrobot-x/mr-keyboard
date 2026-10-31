@@ -9,7 +9,6 @@ public class LiveTest {
     public static void main(String[] a) throws Exception {
         File tmp = Files.createTempDirectory("mrlive").toFile();
         PacksTest.Ctx ctx = new PacksTest.Ctx(tmp);
-        ctx.conn.metered = false;
         long t0 = System.nanoTime();
         byte[] env = MrPacks.fetchBytes(MrPacks.CATALOG_URL, MrPacks.MAX_CATALOG);
         Map<String, Object> e = MrJson.obj(MrJson.parse(new String(env, "UTF-8")));

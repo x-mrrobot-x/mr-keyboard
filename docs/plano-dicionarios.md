@@ -1,6 +1,6 @@
 # Plano: dicionários baixáveis (versão 3, aprovada)
 
-> Andamento: fase A feita (`revisao-fase-a-dicionarios.md`); fase B feita na 1.63 (`revisao-1.6.3.md`). fase C (inglês) feita na 1.64 (`revisao-1.6.4.md`); espanhol na 1.65 (`revisao-1.6.5.md`).
+> Andamento: fase A feita (`revisao-fase-a-dicionarios.md`); fase B feita na 1.63 (`revisao-1.6.3.md`). fase C (inglês) feita na 1.64 (`revisao-1.6.4.md`); espanhol na 1.65 (`revisao-1.6.5.md`). Na 1.67 a tela virou **Sugestões e dicionários** e saíram as opções de Wi-Fi e de procura automática (`revisao-1.6.7.md`); a seção 5 e a decisão 3 abaixo descrevem a versão da 1.63.
 
 ## Objetivo
 O APK sai **sem nenhum dicionário**. Nas configurações, o usuário baixa o pacote do idioma que usa (pt-BR agora, inglês depois). O APK fica leve e o mesmo app serve para quem fala qualquer idioma que tiver pacote.

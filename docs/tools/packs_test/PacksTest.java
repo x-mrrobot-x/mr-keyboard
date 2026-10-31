@@ -3,7 +3,6 @@ package com.mrkeyboard.app;
 import android.content.*;
 import android.content.pm.*;
 import android.content.res.*;
-import android.net.ConnectivityManager;
 import android.view.inputmethod.InputConnection;
 
 import java.io.*;
@@ -45,12 +44,6 @@ public class PacksTest {
         }
     }
 
-    static class Conn extends ConnectivityManager {
-        boolean metered = true;
-        public android.net.Network getActiveNetwork() { return new android.net.Network(); }
-        public boolean isActiveNetworkMetered() { return metered; }
-    }
-
     static class Res extends Resources {
         final Configuration conf = new Configuration();
         Res() { conf.locale = new Locale("pt_BR"); }
@@ -63,7 +56,6 @@ public class PacksTest {
     static class Ctx extends Context {
         final File dir;
         final HashMap<String, Prefs> prefs = new HashMap<String, Prefs>();
-        final Conn conn = new Conn();
         final Res res = new Res();
         Intent started;
         Ctx(File dir) { this.dir = dir; new File(dir, "files").mkdirs(); new File(dir, "cache").mkdirs(); }
@@ -83,7 +75,6 @@ public class PacksTest {
         }
         public File getFilesDir() { return new File(dir, "files"); }
         public File getCacheDir() { return new File(dir, "cache"); }
-        public Object getSystemService(String n) { return Context.CONNECTIVITY_SERVICE.equals(n) ? conn : null; }
         public void startActivity(Intent i) { started = i; }
     }
 
@@ -205,26 +196,43 @@ public class PacksTest {
         check("série guardada continua 1", MrPacks.prefs(ctx).getLong(MrPacks.KEY_SERIAL, -1) == 1, null);
         catalogFile = FX + "ok/catalogo.json";
 
+        // ---- idiomas do teclado (cartões e selected_languages)
+        check("cartões sem catálogo: os 3 padrão (idioma do app primeiro)",
+                MrPacks.cardIds(null, new ArrayList<String>(), "pt").toString().equals("[pt-BR, en-US, es]")
+                && MrPacks.cardIds(null, new ArrayList<String>(), "en").toString().equals("[en-US, pt-BR, es]")
+                && MrPacks.cardIds(null, new ArrayList<String>(), "es").toString().equals("[es, pt-BR, en-US]")
+                && MrPacks.cardIds(null, new ArrayList<String>(), "de").toString().equals("[pt-BR, en-US, es]"),
+                MrPacks.cardIds(null, new ArrayList<String>(), "en"));
+        check("cartões: catálogo e instalados entram sem repetir",
+                MrPacks.cardIds(Arrays.asList("fr-FR", "pt-BR", "es"), Arrays.asList("de-DE", "es"), "fr").toString()
+                        .equals("[fr-FR, pt-BR, en-US, es, de-DE]"),
+                MrPacks.cardIds(Arrays.asList("fr-FR", "pt-BR", "es"), Arrays.asList("de-DE", "es"), "fr"));
+        List<String> order3 = MrPacks.cardIds(null, new ArrayList<String>(), "pt");
+        check("selected_languages: só os instalados, na ordem dos cartões",
+                "pt_BR,es,".equals(MrPacks.languageKeys(order3, Arrays.asList("es", "pt-BR")))
+                && "en_US,".equals(MrPacks.languageKeys(order3, Arrays.asList("en-US")))
+                && MrPacks.languageKeys(order3, new ArrayList<String>()) == null,
+                MrPacks.languageKeys(order3, Arrays.asList("es", "pt-BR")));
+        check("sem pacote: não existe selected_languages (teclado usa o idioma do aparelho)",
+                ctx.getSharedPreferences("default", 0).getString("selected_languages", "-").equals("-"), null);
+
         // ---- instalação
         final MrPacks.Catalog c1 = MrPacks.cachedCatalog(ctx);
         final MrPacks.Pack p1 = c1.packs.get(0);
-        ctx.conn.metered = true;
-        int before = requests;
-        r = errOf(() -> MrPacks.install(ctx, c1, p1));
-        check("só Wi-Fi + rede cobrada: nem chega a conectar", r.equals("mr_dicts_err_wifi") && requests == before, r);
-        MrPacks.prefs(ctx).edit().putBoolean(MrPacks.KEY_WIFI, false).commit();
         cancelAfter = 3;
         r = errOf(() -> MrPacks.install(ctx, c1, p1));
         check("cancelar no meio do download", r.equals("mr_dicts_err_cancel") && MrPacks.installedVersion(ctx, "pt-BR") == 0, r);
         cancelAfter = -1;
-        ctx.conn.metered = false;
-        MrPacks.prefs(ctx).edit().putBoolean(MrPacks.KEY_WIFI, true).commit();
         long t0 = System.nanoTime();
         r = errOf(() -> MrPacks.install(ctx, c1, p1));
         File d2 = MrPacks.packDir(ctx, "pt-BR", 2);
-        check("instala no Wi-Fi", r.equals("ok"), r + String.format(" (%.0f ms)", (System.nanoTime() - t0) / 1e6));
+        check("instala", r.equals("ok"), r + String.format(" (%.0f ms)", (System.nanoTime() - t0) / 1e6));
         check("arquivos em files/dicts/pt-BR/2", list(d2).equals(Arrays.asList("NOTICE.txt", "main.dict", "pack.json", "rules.txt", "trigrams.bin")), list(d2));
         check("nada sobra em cache/ nem .tmp", list(ctx.getCacheDir()).isEmpty() && list(d2.getParentFile()).equals(Arrays.asList("2")), list(ctx.getCacheDir()));
+        MrPacks.syncLanguages(ctx, MrPacks.cardIds(null, MrPacks.installedIds(ctx), "pt"));
+        check("pacote instalado vira idioma do teclado (pt_BR,)",
+                "pt_BR,".equals(ctx.getSharedPreferences("default", 0).getString("selected_languages", "-")),
+                ctx.getSharedPreferences("default", 0).getString("selected_languages", "-"));
         check("aviso ao teclado (mr_dicts_updated_at)", ctx.getSharedPreferences("default", 0).getLong("mr_dicts_updated_at", 0) > 0, null);
 
         // ---- uso pelo teclado: o mesmo caminho do aparelho (Suggest(Context,int[]) -> MrPacks.mainDictionary)
@@ -303,6 +311,9 @@ public class PacksTest {
         Suggest s8 = new Suggest(ctx, new int[] {0});
         check("remover: sem dicionário, sem regras, sem pasta", !s8.hasMainDictionary() && MrRules.get().corrections.isEmpty()
                 && !new File(new File(ctx.getFilesDir(), "dicts"), "pt-BR").exists() && MrPacks.installedIds(ctx).isEmpty(), null);
+        MrPacks.syncLanguages(ctx, MrPacks.cardIds(null, MrPacks.installedIds(ctx), "pt"));
+        check("remover: o idioma sai do teclado (selected_languages some)",
+                ctx.getSharedPreferences("default", 0).getString("selected_languages", "-").equals("-"), null);
         List<CharSequence> again = MrPredict.list(ctx, s8, ic);
         check("removido: faixa volta a oferecer o download", again != null && again.size() == 1, again);
 
