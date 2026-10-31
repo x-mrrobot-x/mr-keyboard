@@ -28,6 +28,7 @@ Versão 1.67.0 (1067000). Os pacotes de dicionário não mudam.
 ## Validação
 - `build_java.sh` e `apktool b` sem erro; APK de 974 KB.
 - `d2j-asm-verify` no jar inteiro, sem erros.
+- **Registradores (novo, `docs/tools/smali_regcheck.py`):** a primeira montagem da 1.67 fechava o app ao abrir Configurações. Ao tirar de `LatinIMESettings.onResume` o trecho de "Correções rápidas", saiu junto o `const/4 v1, 0x1` que o resto do método usava como índice; o ART recusa a classe inteira nesse caso, e nem o apktool nem o `d2j-asm-verify` avisam. A ferramenta nova confere, em todo o smali, se cada registrador lido já recebeu valor em todos os caminhos. Ela acusa o erro original numa cópia e passa no smali do projeto e no dex do APK montado (0 problemas). Não confere tipos.
 - Nenhuma das 264 constantes de ID de recurso do smali mudou ou sumiu (conferido contra o APK da 1.66); o manifest não tem mais `ACCESS_NETWORK_STATE` nem `InputLanguageSelection`.
 - `PacksTest`: 55 verificações OK (as 50 de antes, sem o caso de Wi-Fi, e 6 novas: ordem dos cartões, `selected_languages` com e sem pacote, remoção tira o idioma).
 - `ThreeLangTest`: 23 OK (3 novas: app em pt, en e es dão `pt_BR,en_US,es,`, `en_US,pt_BR,es,` e `es,pt_BR,en_US,`).

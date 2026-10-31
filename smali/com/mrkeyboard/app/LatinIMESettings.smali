@@ -1052,6 +1052,9 @@
 
     # v1.67: "Correções rápidas" foi para a tela Sugestões e dicionários (MrPacksActivity),
     # que esconde a opção sozinha quando o Android não tem autotexto para o idioma.
+    # v1 = 1 vinha do trecho removido e é usado como índice mais abaixo.
+    const/4 v1, 0x1
+
     const-string v0, "LatinIMESettings"
 
     .line 99
