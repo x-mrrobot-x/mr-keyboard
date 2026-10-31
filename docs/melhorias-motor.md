@@ -1,6 +1,6 @@
 # Motor de sugestões e dicionários: melhorias que restam
 
-Atualizado depois da 1.77. Os números vêm das medições no PC (`docs/tools/e2e/`, veja o `LEIA-ME.md` de lá) e das notas de cada versão (`docs/revisao-*.md`).
+Atualizado depois da 1.77.1. Os números vêm das medições no PC (`docs/tools/e2e/`, veja o `LEIA-ME.md` de lá) e das notas de cada versão (`docs/revisao-*.md`).
 
 ## Já feito
 | Item | O que era | Versão |
@@ -8,7 +8,7 @@ Atualizado depois da 1.77. Os números vêm das medições no PC (`docs/tools/e2
 | 1 | Palavras recentes na previsão e ao completar (`MrRecent`) | 1.75 |
 | 3 | Letra que falta na correção (`C_DEL` 60 → 40; letra do meio, 2 posições: pt 67 → 87%, en 69 → 78%, es 58 → 80%) | 1.75 |
 | 5 | Teclas vizinhas na palavra reaberta pela recorreção | 1.75 (e o ajuste do centro da faixa na 1.76) |
-| 9a | Motor nativo, etapa 1: a busca de correção e os trigramas em C++ (`libmrengine.so`, repositório `mr-engine`), mesmos arquivos, resultado idêntico ao do Java, com o Java de reserva | 1.77 (ganhos medidos no PC; falta testar no aparelho) |
+| 9a | Motor nativo, etapa 1: a busca de correção e os trigramas em C++ (`libmrengine.so`, repositório `mr-engine`), mesmos arquivos, resultado idêntico ao do Java, com o Java de reserva | 1.77 (código) e 1.77.1 (lib no APK); ganhos medidos no PC, funcionamento validado no aparelho (velocidade e memória no aparelho não foram medidas) |
 
 ## O que resta, da mais barata para a mais cara
 
