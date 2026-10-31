@@ -1,6 +1,10 @@
-contrato (kEngineVersion): 1
-codigo (sha256 de CMakeLists.txt + src/): de68890a3cedfb12f642dae46e9454286cd8dcb340f33f21b0589552007ab28e
-commit: 6eb5fedc86e219a520a51295d3b9045beb6213f5
-ec3347b12e01e202df87667e37fe6d3621ffc35336d4eb81226b88c974c4d9cf  out/lib/arm64-v8a/libmrengine.so
-ec7cb9d8bd6dbfa336400dbc791bdc55921996bb95dfcca91aa06f811cecb11b  out/lib/armeabi-v7a/libmrengine.so
-2eccc641efe66cc474c021cd4897b47aa4938331d6388e8070d07ce2ca142973  out/lib/x86/libmrengine.so
+contrato do motor (kEngineVersion): 1
+lib do dicionario (sha256 de native/CMakeLists.txt + native/src): 57f975b6230d13641c1b1d894956165b0fc90b6d2cd0a18b35f4a0ade9df9b53
+motor (sha256 de engine/CMakeLists.txt + engine/src): 60b8b53af6dbbe12c2d2aa887999e8a1a5af34bf9c24430a5347e4999f57829f
+commit: 970c2158f1eaf79b7c98cde40c1ba367c9b90277
+d439792da1d7878365a7aa381c2cf5a3dfabaf2ac4bee68279fe8de125c42b16  lib/arm64-v8a/libjni_pckeyboard.so
+1781e838119e0d1ce9a1683c551a270d6509b717c67688bfb28e9dc909c14508  lib/arm64-v8a/libmrengine.so
+bc4933072a07b44ef0cff427e6d5dee7f9fe190720878a36371cc7deca499c58  lib/armeabi-v7a/libjni_pckeyboard.so
+ca09210f484d9732cc149691a6b266de085400058d20f55a6dbfe575bfe2ab16  lib/armeabi-v7a/libmrengine.so
+121bbd151bb9c4e8915f75d35e20df3712c9bc77f8a16a0a30093a5a9932d797  lib/x86/libjni_pckeyboard.so
+d514647a231a7755744f91f014597e740fb42b84b3ed008f614812dd4d580a97  lib/x86/libmrengine.so

@@ -30,14 +30,17 @@ Juntar o código do motor nativo no repositório do app (em vez de um repositór
 - Velocidade e memória do motor: as da 1.77 (busca ~1,8 a 2,0× mais rápida no PC com a ponte JNI; trigramas fora do heap Java). Nada mudou aqui.
 
 ## Não testado
-- A execução dos workflows no GitHub (`mr-native.yml` ampliado, o passo novo do `mr-apk.yml`, o passo de paridade do `mr-checks.yml`): o YAML foi validado e os trechos de shell simulados no PC, mas nenhum rodou no Actions.
-- **Em aparelho**: a `libmrengine.so` nova (com o teto) ainda precisa ser compilada pelo workflow e testada no aparelho.
+- O passo novo do `mr-apk.yml` e o passo de paridade do `mr-checks.yml` no Actions: o YAML foi validado e os trechos de shell simulados no PC. (O `mr-native.yml` ampliado rodou e gerou as libs.)
+- **Em aparelho**: a `libmrengine.so` nova (com o teto) foi compilada pelo workflow, mas ainda não foi testada no aparelho.
 
-## O que fazer, em ordem
-1. Extraia o zip por cima do repositório e faça o commit/push (se você tinha aplicado o zip "sem native" da conversa anterior, este traz o `native/` e o `mr-native.yml` de volta). O push dispara o *Mr Keyboard - lib nativa* e o *verificações*. O repositório separado `mr-engine` não é mais usado.
-2. O *Mr Keyboard - APK* desse push vai avisar que `lib/` não confere com o `engine/` atual (o `mrengine-src.sha256` é o do código antigo): é o esperado e **nada é publicado**.
-3. Quando o *lib nativa* ficar verde, baixe o artifact `libs-nativas`, extraia na raiz, mesclando, e faça o commit de `lib/`, `native-src.sha256`, `mrengine-src.sha256` e `mrengine-info.txt`. Compare o `native-src.sha256` do artifact com o atual (`57f975b6…`: `native/` não mudou) e, se quiser, o SHA-256 de `libjni_pckeyboard.so` com o das libs de hoje (`d439792d…` arm64-v8a, `bc493307…` armeabi-v7a, `121bbd15…` x86).
-4. Teste no aparelho (lista abaixo). Com tudo certo, este segundo push publica a 1.77.2.
+## Libs geradas (workflow `Mr Keyboard - lib nativa`, commit `970c2158` do repositório)
+As 6 libs de `lib/` e os três arquivos de hash (`native-src.sha256`, `mrengine-src.sha256`, `mrengine-info.txt`) vêm do artifact `libs-nativas` dessa execução. Conferido aqui:
+- Os hashes gravados são os dos fontes de hoje: `native/` `57f975b6…` e `engine/` `60b8b53a…`; o passo **Conferir se lib/ foi compilada do native/ e do engine/ atuais** do `mr-apk.yml`, simulado, dá `lib_ok=true` (também com *publicar*).
+- Os SHA-256 das 6 libs de `lib/` são os do `mrengine-info.txt`.
+- **A `libjni_pckeyboard.so` recompilada é idêntica, byte a byte, à que já estava no repositório** (arm64-v8a `d439792d…`, armeabi-v7a `bc493307…`, x86 `121bbd15…`): mover o código de `native/` pelos repositórios não mudou o binário, e o NDK e os flags reproduzem a build antiga.
+- `libmrengine.so` nova (com o teto de nós): arm64-v8a `1781e838…`, armeabi-v7a `ca09210f…`, x86 `d514647a…`. Nas 3 ABIs: alinhamento de 16 KB (`0x4000`), dependem só de `libc`, `libm` e `libdl` (a do dicionário também de `liblog`), só `JNI_OnLoad` exportado e os nomes `MrNative`/`BinaryDictionary` registrados.
+
+Falta só testar no aparelho (lista abaixo). Com tudo certo, o push publica a 1.77.2.
 
 ## Testes Android necessários
 1. Configurações → Sugestões e dicionários: **Motor de sugestões: Nativo (C++)**.
