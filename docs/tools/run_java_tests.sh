@@ -4,6 +4,7 @@
 #   - AuthorTest: cartão do autor e link da tela principal (MrAuthor, MrLink).
 #   - RecorrectTest: palavra sob o cursor, quais palavras ganham sugestões e teclas vizinhas (MrRecorrect).
 #   - RecentTest: palavras recentes na previsão e na hora de completar (MrRecent).
+#   - NativeFallbackTest: sem a libmrengine.so (motor nativo, 1.77) a correção e os trigramas seguem pelo Java.
 # Com o caminho do jar do APK (classes.dex -> d2j-dex2jar), roda também:
 #   - EsTest: SheetStrings/MrEs com contextos em espanhol, português, inglês e francês.
 # Uso: sh docs/tools/run_java_tests.sh [app.jar]
@@ -26,6 +27,10 @@ java -cp "$T/test_rec:$T/stubs:$T/main" com.mrkeyboard.app.RecorrectTest
 echo "== RecentTest"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_recent" $D/recent_test/RecentTest.java
 java -cp "$T/test_recent:$T/stubs:$T/main" com.mrkeyboard.app.RecentTest
+
+echo "== NativeFallbackTest (sem a libmrengine.so: o app tem de funcionar como na 1.76)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_native" $D/native_test/NativeFallbackTest.java
+java -cp "$T/test_native:$T/stubs:$T/main" com.mrkeyboard.app.NativeFallbackTest
 
 if [ -n "$APPJAR" ]; then
   echo "== EsTest"

@@ -43,6 +43,9 @@
     <string name="mr_dicts_state_notdl">Not downloaded</string>
     <string name="mr_dicts_state_unavailable">Not available right now</string>
     <string name="mr_dicts_langs_hint">Languages with an installed dictionary are on the keyboard. Slide on the space bar to switch between them.</string>
+    <string name="mr_engine_title">Suggestion engine</string>
+    <string name="mr_engine_native">Native (C++)</string>
+    <string name="mr_engine_java">Java (native library not found)</string>
     <string name="mr_lang_pt_BR">Portuguese (Brazil)</string>
     <string name="mr_lang_en_US">English (US)</string>
     <string name="mr_lang_es">Spanish</string>

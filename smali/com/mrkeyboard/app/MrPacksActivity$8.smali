@@ -37,7 +37,7 @@
     .end annotation
 
     .prologue
-    .line 341
+    .line 348
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity$8;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrPacksActivity$8;->val$app:Landroid/content/Context;
@@ -59,8 +59,8 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 343
-    .line 345
+    .line 350
+    .line 352
     :try_start_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$8;->val$app:Landroid/content/Context;
 
@@ -74,10 +74,10 @@
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_1
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 351
+    .line 358
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
-    .line 354
+    .line 361
     :goto_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$8;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
@@ -91,14 +91,14 @@
 
     invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 369
+    .line 376
     return-void
 
-    .line 346
+    .line 353
     :catch_0
     move-exception v1
 
-    .line 347
+    .line 354
     :try_start_1
     iget-object v2, p0, Lcom/mrkeyboard/app/MrPacksActivity$8;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
@@ -108,19 +108,19 @@
 
     move-result-object v1
 
-    .line 351
+    .line 358
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
     move-object v0, v1
 
-    .line 352
+    .line 359
     goto :goto_0
 
-    .line 348
+    .line 355
     :catch_1
     move-exception v1
 
-    .line 349
+    .line 356
     :try_start_2
     iget-object v2, p0, Lcom/mrkeyboard/app/MrPacksActivity$8;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
@@ -148,20 +148,20 @@
 
     move-result-object v1
 
-    .line 351
+    .line 358
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
     move-object v0, v1
 
-    .line 352
+    .line 359
     goto :goto_0
 
-    .line 351
+    .line 358
     :catchall_0
     move-exception v1
 
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
-    .line 352
+    .line 359
     throw v1
 .end method

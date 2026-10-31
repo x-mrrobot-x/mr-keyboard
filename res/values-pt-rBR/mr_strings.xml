@@ -43,6 +43,9 @@
     <string name="mr_dicts_state_notdl">Não baixado</string>
     <string name="mr_dicts_state_unavailable">Indisponível no momento</string>
     <string name="mr_dicts_langs_hint">Os idiomas com dicionário instalado ficam no teclado. Deslize na barra de espaço para alternar entre eles.</string>
+    <string name="mr_engine_title">Motor de sugestões</string>
+    <string name="mr_engine_native">Nativo (C++)</string>
+    <string name="mr_engine_java">Java (biblioteca nativa não encontrada)</string>
     <string name="mr_lang_pt_BR">Português (Brasil)</string>
     <string name="mr_lang_en_US">Inglês (EUA)</string>
     <string name="mr_lang_es">Espanhol</string>

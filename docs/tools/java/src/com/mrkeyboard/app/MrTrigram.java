@@ -26,6 +26,8 @@ public final class MrTrigram {
     private static byte[] sScore;                 // f7 de cada continuação
     private static String sPath;                  // arquivo carregado (ou carregando)
     private static int sGen;                      // muda a cada use(); carga velha é descartada
+    private static boolean sNative;               // v1.77: o arquivo está aberto na lib nativa (MrNative), não em sWords
+    private static final Object NATIVE_LOAD = new Object();   // uma abertura nativa por vez (a lib guarda um arquivo só)
 
     /** Passa a usar este arquivo (null = nenhum). Não faz nada se já é o arquivo em uso. */
     static void use(final File file) {
@@ -40,10 +42,17 @@ public final class MrTrigram {
             sStart = null;
             sNext = null;
             sScore = null;
+            sNative = false;
         }
-        if (path == null) return;
+        if (path == null) {
+            MrNative.triClose();
+            return;
+        }
         Thread t = new Thread(new Runnable() {
             public void run() {
+                // v1.77: a lib lê e confere o arquivo e guarda só índices (uns 4 bytes por palavra e por
+                // contexto); se não abrir (sem lib, arquivo que ela recusa) cai no carregamento Java abaixo
+                if (openNative(path, gen)) return;
                 InputStream in = null;
                 try {
                     in = new FileInputStream(file);
@@ -61,11 +70,29 @@ public final class MrTrigram {
         t.start();
     }
 
+    /** Abre o arquivo na lib nativa se esta carga ainda é a atual. true = pronto pelo caminho nativo. */
+    private static boolean openNative(String path, int gen) {
+        synchronized (NATIVE_LOAD) {
+            synchronized (MrTrigram.class) {
+                if (gen != sGen) return true;   // outra carga já tomou o lugar: não há nada a fazer aqui
+            }
+            if (!MrNative.triOpen(path)) {
+                MrNative.triClose();   // não deixa o arquivo anterior aberto na lib
+                return false;
+            }
+            synchronized (MrTrigram.class) {
+                if (gen == sGen) sNative = true;
+            }
+            return true;
+        }
+    }
+
     static void load(InputStream raw) throws IOException {
         int gen;
         synchronized (MrTrigram.class) {
             gen = ++sGen;
             sPath = "(teste)";
+            sNative = false;
         }
         load(raw, gen);
     }
@@ -123,7 +150,7 @@ public final class MrTrigram {
     }
 
     static synchronized boolean ready() {
-        return sWords != null;
+        return sWords != null || sNative;
     }
 
     private static int id(String w) {
@@ -138,9 +165,10 @@ public final class MrTrigram {
      * minúscula (início de frase).
      */
     static synchronized int find(String w1, String w2, String[] outWords, int[] outScores) {
-        if (sWords == null || w1 == null || w2 == null) return 0;
+        if ((sWords == null && !sNative) || w1 == null || w2 == null) return 0;
         String[] c1 = {w1, w1.toLowerCase()};
         String[] c2 = {w2, w2.toLowerCase()};
+        if (sNative) return MrNative.triFind(c1[0], c1[1], c2[0], c2[1], outWords, outScores);
         for (String a : c1) {
             int ia = id(a);
             if (ia < 0) continue;

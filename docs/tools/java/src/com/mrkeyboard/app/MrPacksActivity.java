@@ -148,6 +148,13 @@ public class MrPacksActivity extends PreferenceActivity {
         hint.setSelectable(false);
         hint.setSummary(t("mr_dicts_langs_hint"));
         mLangs.addPreference(hint);
+        // v1.77: diz qual motor está em uso (a reserva em Java é silenciosa; assim dá para conferir se a lib foi copiada)
+        Preference engine = new Preference(this);
+        engine.setPersistent(false);
+        engine.setSelectable(false);
+        engine.setTitle(t("mr_engine_title"));
+        engine.setSummary(t(MrNative.ready() ? "mr_engine_native" : "mr_engine_java"));
+        mLangs.addPreference(engine);
         MrPacks.syncLanguages(this, ids);
         update();
     }

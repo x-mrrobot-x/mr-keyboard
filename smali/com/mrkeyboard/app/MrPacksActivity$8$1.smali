@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 354
+    .line 361
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity$8$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$8;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrPacksActivity$8$1;->val$fe:Ljava/lang/String;
@@ -51,12 +51,12 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 356
+    .line 363
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$8$1;->val$fe:Ljava/lang/String;
 
     if-eqz v0, :cond_1
 
-    .line 357
+    .line 364
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$8$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$8;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrPacksActivity$8;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
@@ -65,7 +65,7 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$1402(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)Ljava/lang/String;
 
-    .line 358
+    .line 365
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$8$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$8;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrPacksActivity$8;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
@@ -78,7 +78,7 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$1502(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)Ljava/lang/String;
 
-    .line 359
+    .line 366
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$8$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$8;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrPacksActivity$8;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
@@ -87,7 +87,7 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$1000(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)V
 
-    .line 366
+    .line 373
     :goto_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$8$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$8;
 
@@ -105,11 +105,11 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$900(Lcom/mrkeyboard/app/MrPacksActivity;)V
 
-    .line 367
+    .line 374
     :cond_0
     return-void
 
-    .line 360
+    .line 367
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$8$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$8;
 
@@ -121,14 +121,14 @@
 
     const-string v1, "show_suggestions"
 
-    .line 361
+    .line 368
     invoke-interface {v0, v1, v3}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
 
     move-result v0
 
     if-nez v0, :cond_2
 
-    .line 362
+    .line 369
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$8$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$8;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrPacksActivity$8;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
@@ -149,7 +149,7 @@
 
     goto :goto_0
 
-    .line 364
+    .line 371
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$8$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$8;
 

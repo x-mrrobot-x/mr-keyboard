@@ -106,6 +106,12 @@ public final class MrFuzzy {
     private final int[] mResCost = new int[MAX_RESULTS];
     private int mResCount;
 
+    // v1.77: buffers do caminho nativo (MrNative); a lib escreve aqui e o resultado é copiado para mRes*
+    private final char[] mNearFlat = new char[MAX_TYPED * 16];
+    private final char[] mOutWords = new char[MAX_RESULTS * MrNative.RESULT_CHARS];
+    private final int[] mOutInfo = new int[MrNative.INFO_SIZE];
+    private final long[] mOutScores = new long[MAX_RESULTS];
+
     /** Correção barata da última consulta, para reservar um espaço na faixa (finish). */
     static final int RESERVE_MAX_COST = 45;
 
@@ -369,6 +375,7 @@ public final class MrFuzzy {
     int resultCount() { return mResCount; }
     String resultWord(int i) { return new String(mResWord[i], 0, mResLen[i]); }
     long resultScore(int i) { return mResScore[i]; }
+    int resultCost(int i) { return mResCost[i]; }
 
     void search(WordComposer composer, CharSequence typed) {
         int n = Math.min(typed.length(), MAX_TYPED);
@@ -389,6 +396,9 @@ public final class MrFuzzy {
             Arrays.fill(mSub[j], (short) -1);
         }
         mR = MrRules.get();
+        // v1.77: com a lib nativa a busca inteira (passadas e espaço faltando) roda em C++ com o mesmo resultado;
+        // sem ela (ou se ela recusar a consulta) segue o código Java abaixo
+        if (searchNative()) return;
         for (int j = 0; j < n; j++) mIns[j] = insCost(j);
         for (int j = 2; j <= n; j++) {
             char a = mTb[j - 2], b = mTb[j - 1];
@@ -434,6 +444,28 @@ public final class MrFuzzy {
         }
         sLastVisits = mVisits;
         if (n >= 4) split();
+    }
+
+    /** Busca em C++ (MrNative). false = não rodou (sem lib, buffer não direto, erro): use o Java. */
+    private boolean searchNative() {
+        int n = mN;
+        for (int j = 0; j < n; j++) System.arraycopy(mNear[j], 0, mNearFlat, j * 16, 16);
+        int count = MrNative.search(mDict, mSize, n, mTb, mNearFlat, mNearCount, mR, mOutWords, mOutInfo, mOutScores);
+        if (count < 0 || count > MAX_RESULTS) return false;
+        for (int i = 0; i < count; i++) {
+            int len = mOutInfo[1 + 2 * i];
+            if (len < 0 || len > mResWord[i].length) return false;
+        }
+        mResCount = count;
+        for (int i = 0; i < count; i++) {
+            int len = mOutInfo[1 + 2 * i];
+            System.arraycopy(mOutWords, i * MrNative.RESULT_CHARS, mResWord[i], 0, len);
+            mResLen[i] = len;
+            mResCost[i] = mOutInfo[2 + 2 * i];
+            mResScore[i] = mOutScores[i];
+        }
+        sLastVisits = mOutInfo[0];
+        return true;
     }
 
     /**
