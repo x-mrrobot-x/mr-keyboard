@@ -5,11 +5,15 @@
 # Resultado em Actions > (execução) > Artifacts:
 #   apk -> MrKeyboard-unsigned.apk (e MrKeyboard-signed.apk se houver chave nos secrets)
 #
-# Publicar uma versão: Run workflow com "publicar" marcado. O APK assinado vai para Releases com a
-# tag do versionName do apktool.yml (ex.: v1.66.0) e as notas de docs/revisao-<versão>.md.
+# Publicar uma versão: acontece sozinho no push na main quando o versionName do apktool.yml é novo (ainda
+# não tem Release com essa tag) e há chave de assinatura nos secrets. Também dá para rodar à mão (Run
+# workflow, "publicar" marcado), o que trata qualquer impedimento como erro. O APK assinado vai para
+# Releases com a tag do versionName (ex.: v1.72.0) e as notas de docs/revisao-<versão>.md.
 # Os arquivos anexados são MrKeyboard-v<versão>.apk e MrKeyboard.apk (nome fixo, para o link da
-# documentação: .../releases/latest/download/MrKeyboard.apk).
-# Uma tag que já existe não é sobrescrita: aumente versionCode/versionName antes.
+# documentação: .../releases/latest/download/MrKeyboard.apk). A lógica está em docs/tools/publish_release.sh.
+# Uma tag que já existe não é sobrescrita: aumente versionCode/versionName antes. No push automático, sem
+# chave, com a versão já publicada ou com a lib/ desatualizada, nada é publicado (só um aviso) e o APK
+# fica nos artefatos.
 #
 # Assinatura (opcional): Settings > Secrets and variables > Actions, um dos dois jeitos:
 #   keystore: KEYSTORE_B64 (arquivo em base64), KEYSTORE_PASS, KEY_ALIAS, KEY_PASS
@@ -38,6 +42,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: mr-apk-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
   APKTOOL_VERSION: 2.11.1
 
@@ -48,6 +56,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Conferir se lib/ foi compilada do native/ atual
+        id: lib
         env:
           PUBLICAR: ${{ inputs.publicar }}
         run: |
@@ -56,8 +65,10 @@ jobs:
           GRAVADO=$(cat native-src.sha256 2>/dev/null | tr -d ' \r\n' || true)
           if [ "$ATUAL" = "$GRAVADO" ]; then
             echo "lib/ confere com o native/ atual"
+            echo "lib_ok=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          echo "lib_ok=false" >> "$GITHUB_OUTPUT"
           MSG="lib/ não foi compilada a partir do native/ atual. Rode 'Mr Keyboard - lib nativa', extraia o artifact libs-nativas na raiz do projeto e faça o commit."
           if [ "$PUBLICAR" = "true" ]; then
             echo "::error::$MSG Nada foi publicado."; exit 1
@@ -117,37 +128,9 @@ jobs:
           path: MrKeyboard-*.apk
 
       - name: Publicar em Releases
-        if: ${{ inputs.publicar }}
+        if: ${{ inputs.publicar || github.event_name == 'push' }}
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          [ -f MrKeyboard-signed.apk ] || {
-            echo "::error::sem APK assinado (faltam os secrets da chave): nada publicado"; exit 1; }
-          VER=$(sed -n 's/^  versionName: *//p' apktool.yml | tr -d "'\" ")
-          N="${VER#v}"
-          TAG="v$N"
-          if gh release view "$TAG" > /dev/null 2>&1; then
-            echo "::error::a versão $TAG já foi publicada; aumente versionCode e versionName no apktool.yml"; exit 1
-          fi
-          # notas: docs/revisao-1.6.3.md para a v1.63.0 (o padrão dos arquivos), ou docs/revisao-<versão>.md
-          MAJ=${N%%.*}; REST=${N#*.}; MIN=${REST%%.*}; PAT=${REST#*.}
-          NOTAS="docs/revisao-$N.md"
-          if [ ${#MIN} -eq 2 ] && [ "$PAT" = "0" ] && [ -f "docs/revisao-$MAJ.${MIN:0:1}.${MIN:1:1}.md" ]; then
-            NOTAS="docs/revisao-$MAJ.${MIN:0:1}.${MIN:1:1}.md"
-          fi
-          APK="MrKeyboard-$TAG.apk"
-          cp MrKeyboard-signed.apk "$APK"
-          # mesmo arquivo com nome fixo: dá o link que não muda a cada versão
-          cp MrKeyboard-signed.apk MrKeyboard.apk
-          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          CERT=$("$BT/apksigner" verify --print-certs "$APK" | sed -n 's/.*certificate SHA-256 digest: //p' | head -1)
-          {
-            echo "Download: **$APK** · [installation / instalação](https://github.com/$GITHUB_REPOSITORY#installation)"
-            echo
-            echo "- SHA-256 do APK: \`$(sha256sum "$APK" | cut -d' ' -f1)\`"
-            echo "- Certificado (SHA-256): \`$CERT\`"
-            echo
-            if [ -f "$NOTAS" ]; then cat "$NOTAS"; else echo "Mr Keyboard $TAG"; fi
-          } > notas.md
-          gh release create "$TAG" "$APK" MrKeyboard.apk --title "Mr Keyboard $TAG" --notes-file notas.md \
-            --target "$GITHUB_SHA" --latest
+          MODO: ${{ inputs.publicar && 'manual' || 'automatico' }}
+          LIB_OK: ${{ steps.lib.outputs.lib_ok }}
+        run: bash docs/tools/publish_release.sh
