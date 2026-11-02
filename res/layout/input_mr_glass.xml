@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.mrkeyboard.app.LatinKeyboardView
+    android:textStyle="bold"
+    android:id="@id/LatinkeyboardBaseView"
+    android:background="@color/mr_glass_kbd_bg"
+    android:tag="mr_glass"
+    android:paddingBottom="@dimen/keyboard_bottom_padding"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    latin:keyBackground="@drawable/btn_keyboard_key_glass"
+    latin:keyCursorColor="@color/mr_glass_cursor"
+    latin:keyHintColor="@color/mr_glass_hint"
+    latin:keyPreviewLayout="@layout/key_preview_glass"
+    latin:keyTextColor="@color/mr_glass_text"
+    latin:keyTextStyle="bold"
+    latin:popupLayout="@layout/input_popup_glass"
+    latin:recolorSymbols="true"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:latin="http://schemas.android.com/apk/res-auto" />

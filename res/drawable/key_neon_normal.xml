@@ -3,14 +3,14 @@
     <!-- halo (brilho) externo -->
     <item android:left="2.0dip" android:top="2.0dip" android:right="2.0dip" android:bottom="2.0dip">
         <shape android:shape="rectangle">
-            <stroke android:width="4.0dip" android:color="#263DDC84" />
+            <stroke android:width="4.0dip" android:color="@color/mr_neon_key_normal_halo" />
             <corners android:radius="10.0dip" />
         </shape>
     </item>
     <!-- borda -->
     <item android:left="4.0dip" android:top="4.0dip" android:right="4.0dip" android:bottom="4.0dip">
         <shape android:shape="rectangle">
-            <stroke android:width="2.0dip" android:color="#d93DDC84" />
+            <stroke android:width="2.0dip" android:color="@color/mr_neon_key_normal_stroke" />
             <corners android:radius="8.0dip" />
         </shape>
     </item>

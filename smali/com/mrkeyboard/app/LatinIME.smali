@@ -9408,6 +9408,8 @@
 
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->resetSheetToAbc()V
 
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyTranslucentBlur()V
+
     return-void
 .end method
 
@@ -11359,6 +11361,22 @@
 .method public onStartInputView(Landroid/view/inputmethod/EditorInfo;Z)V
     .locals 7
 
+    # Raio das teclas mudou desde a ultima vez: refaz a view para a barra e os paineis pegarem o raio novo.
+    invoke-static {}, Lcom/mrkeyboard/app/KeyStyle;->takeRadiusDirty()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_mr_radius_ok
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
+
+    if-eqz v0, :cond_mr_radius_ok
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/KeyboardSwitcher;->recreateInputView()V
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->refreshHeightNow()V
+
+    :cond_mr_radius_ok
     # Evento novo 3 ("clique no campo"): toda vez que o teclado e aberto para um
     # campo, garante a folha principal ABC antes de montar o layout do campo.
     # (a barra de ferramentas fica com onWindowShown/onWindowHidden, para nao

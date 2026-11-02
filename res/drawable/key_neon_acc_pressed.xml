@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Neon, tecla de destaque: preenchimento verde sob o halo e a borda de key_neon_pressed -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:left="3.0dip" android:top="3.0dip" android:right="3.0dip" android:bottom="3.0dip">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/mr_neon_key_acc_pressed_base" />
+            <corners android:radius="8.0dip" />
+        </shape>
+    </item>
+    <item android:left="2.0dip" android:top="2.0dip" android:right="2.0dip" android:bottom="2.0dip">
+        <shape android:shape="rectangle">
+            <stroke android:width="4.0dip" android:color="@color/mr_neon_key_pressed_halo" />
+            <corners android:radius="10.0dip" />
+        </shape>
+    </item>
+    <item android:left="4.0dip" android:top="4.0dip" android:right="4.0dip" android:bottom="4.0dip">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/mr_neon_key_pressed_fill" />
+            <stroke android:width="2.0dip" android:color="@color/mr_neon_key_pressed_stroke" />
+            <corners android:radius="8.0dip" />
+        </shape>
+    </item>
+</layer-list>

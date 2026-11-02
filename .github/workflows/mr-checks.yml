@@ -9,7 +9,9 @@
 #   check_reset_keys.py  "Restaurar padrões" cobre toda chave das telas de configurações
 #   mres_check.py        texto em português do editor de folhas/anexos passa pela tabela do espanhol
 #   res_check.py         recursos: XML válido, public.xml, referências, recursos sem uso, espanhol x português
-#   smali_regcheck.py    registradores do smali (pega o erro que fechou as Configurações na 1.67)
+#   smali_regcheck.py    smali editado à mão: registrador lido sem valor (o erro que fechou as Configurações na 1.67),
+#                        registrador acima do limite da instrução (ex.: p0 = v17 num invoke comum) e chamada a método
+#                        que não existe
 #   run_java_tests.sh    testes de PC da camada Java (cartão do autor, link da tela principal, recorreção: palavra sob o cursor e
 #                        teclas vizinhas, palavras recentes)
 #   test_make_catalog.py monta o catálogo de dicionários (um zip por idioma, série, versões antigas)
@@ -86,7 +88,7 @@ jobs:
       - name: Recursos
         run: python3 docs/tools/res_check.py
 
-      - name: Registradores do smali
+      - name: Smali - registradores e métodos
         run: python3 docs/tools/smali_regcheck.py smali
 
       - name: Testes de PC da camada Java
@@ -128,7 +130,7 @@ jobs:
       - name: Verificar o dex
         run: sh docs/tools/verify_dex.sh verificar.apk tools/dex-tools-2.1 "$RUNNER_TEMP/dex"
 
-      - name: Registradores do smali montado
+      - name: Smali montado - registradores e métodos
         run: |
           java -jar apktool.jar d -f -o "$RUNNER_TEMP/dec" verificar.apk > /dev/null
           python3 docs/tools/smali_regcheck.py "$RUNNER_TEMP"/dec/smali*

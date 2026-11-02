@@ -2,6 +2,7 @@ package com.mrkeyboard.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.preference.PreferenceManager;
@@ -26,6 +27,11 @@ public final class MrSheetOpt {
         return Math.round(v * c.getResources().getDisplayMetrics().density);
     }
 
+    private static int color(Context c, String name) {
+        Resources r = c.getResources();
+        return r.getColor(r.getIdentifier(name, "color", c.getPackageName()));
+    }
+
     public static View row(final Context c) {
         final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
 
@@ -34,20 +40,20 @@ public final class MrSheetOpt {
         card.setGravity(Gravity.CENTER_VERTICAL);
         card.setPadding(dp(c, 14), dp(c, 12), dp(c, 14), dp(c, 12));
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(0xFF0A1018);
+        bg.setColor(color(c, "mr_ui_sunken"));
         bg.setCornerRadius(dp(c, 16));
-        bg.setStroke(Math.max(1, dp(c, 1)), 0xFF1A2535);
+        bg.setStroke(Math.max(1, dp(c, 1)), color(c, "mr_ui_stroke"));
         card.setBackground(bg);
 
         LinearLayout texts = new LinearLayout(c);
         texts.setOrientation(LinearLayout.VERTICAL);
         final TextView title = new TextView(c);
         title.setText(MrPacks.text(c, "title_sheet_return"));
-        title.setTextColor(0xFFE9F0F9);
+        title.setTextColor(color(c, "mr_ui_text"));
         title.setTextSize(14.5f);
         title.setTypeface(null, Typeface.BOLD);
         final TextView summary = new TextView(c);
-        summary.setTextColor(0xFF93A3BA);
+        summary.setTextColor(color(c, "mr_ui_text2"));
         summary.setTextSize(12.5f);
         texts.addView(title);
         texts.addView(summary);

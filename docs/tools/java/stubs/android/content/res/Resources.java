@@ -6,6 +6,7 @@ public class Resources {
     public String getString(int id, Object... formatArgs) { return null; }
     public Configuration getConfiguration() { return null; }
     public int getColor(int id) { return 0; }
+    public float getDimension(int id) { return 0; }
     public android.util.DisplayMetrics getDisplayMetrics() { return null; }
     public static final class Theme {
         public void setTo(Theme other) { }

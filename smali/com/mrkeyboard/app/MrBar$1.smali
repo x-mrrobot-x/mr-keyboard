@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 27
+    .line 30
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -31,10 +31,10 @@
 
 # virtual methods
 .method public onSharedPreferenceChanged(Landroid/content/SharedPreferences;Ljava/lang/String;)V
-    .locals 1
+    .locals 2
 
     .prologue
-    .line 29
+    .line 32
     const-string v0, "pref_bar_scale"
 
     invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -43,40 +43,45 @@
 
     if-nez v0, :cond_1
 
-    .line 32
+    .line 37
     :cond_0
-    :goto_0
     return-void
 
-    .line 30
+    .line 33
     :cond_1
-    invoke-static {}, Lcom/mrkeyboard/app/MrBar;->access$000()Ljava/lang/ref/WeakReference;
+    invoke-static {}, Lcom/mrkeyboard/app/MrBar;->access$000()Ljava/util/ArrayList;
 
     move-result-object v0
 
-    if-eqz v0, :cond_2
+    invoke-virtual {v0}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrBar;->access$000()Ljava/lang/ref/WeakReference;
+    move-result-object v1
+
+    :cond_2
+    :goto_0
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v0
 
+    check-cast v0, Ljava/lang/ref/WeakReference;
+
+    .line 34
     invoke-virtual {v0}, Ljava/lang/ref/WeakReference;->get()Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Landroid/view/View;
 
-    .line 31
-    :goto_1
-    if-eqz v0, :cond_0
+    .line 35
+    if-eqz v0, :cond_2
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrBar;->apply(Landroid/view/View;)V
 
     goto :goto_0
-
-    .line 30
-    :cond_2
-    const/4 v0, 0x0
-
-    goto :goto_1
 .end method

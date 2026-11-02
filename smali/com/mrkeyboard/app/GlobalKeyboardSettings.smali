@@ -333,7 +333,7 @@
     .line 160
     new-instance v1, Lcom/mrkeyboard/app/GlobalKeyboardSettings$7;
 
-    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$7;-><init>(Lcom/mrkeyboard/app/GlobalKeyboardSettings;)V
+    invoke-direct {v1, p0, p2}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$7;-><init>(Lcom/mrkeyboard/app/GlobalKeyboardSettings;Landroid/content/res/Resources;)V
 
     invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addStringPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;)V
 

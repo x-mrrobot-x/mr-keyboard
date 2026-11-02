@@ -80,20 +80,28 @@
     return-void
 .end method
 
-# Cor de destaque do tema atual: no tema escuro "slate" (texto #e7eef7) e o azul/ciano do
-# app (#29c5f6); nos demais temas segue a cor do texto das teclas.
+# Cor de destaque do tema atual: nos temas com paleta "tech" (Slate, Midnight e Glass) e o
+# azul/ciano do app (#29c5f6); nos demais temas segue a cor do texto das teclas.
 .method private static accent()I
     .locals 2
 
-    sget v0, Lcom/mrkeyboard/app/MrTools;->sTextColor:I
+    invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->techPalette()Z
 
-    const v1, 0xffe7eef7
+    move-result v0
 
-    if-ne v0, v1, :cond_theme
+    if-eqz v0, :cond_theme
 
-    const v0, 0xff29c5f6
+    const-string v0, "accent"
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v0
+
+    return v0
 
     :cond_theme
+    sget v0, Lcom/mrkeyboard/app/MrTools;->sTextColor:I
+
     return v0
 .end method
 
@@ -133,26 +141,44 @@
 
     iget v1, v1, Landroid/util/DisplayMetrics;->density:F
 
-    # borda de 1dp e cantos de 10dp (mesmo desenho dos outros botoes da barra)
+    # borda de 1dp e cantos que seguem o raio das teclas (raio + 2 dp, como os outros botoes da barra)
     float-to-int v2, v1
 
-    const/high16 v3, 0x41200000
+    invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
-    mul-float/2addr v3, v1
+    move-result-object v3
+
+    const/high16 v4, 0x40000000    # 2.0f
+
+    invoke-static {v3, v4}, Lcom/mrkeyboard/app/KeyStyle;->radiusPx(Landroid/content/Context;F)F
+
+    move-result v3
 
     const v4, 0xffffff
 
     and-int/2addr v4, v0
 
-    const v5, 0x26000000
+    const-string v5, "alpha_close"
+
+    invoke-static {v5}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v5
 
     or-int/2addr v5, v4
 
-    const v6, 0x59000000
+    const-string v6, "alpha_press"
+
+    invoke-static {v6}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v6
 
     or-int/2addr v6, v4
 
-    const v7, 0xcc000000
+    const-string v7, "alpha_close_line"
+
+    invoke-static {v7}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v7
 
     or-int/2addr v7, v4
 
@@ -275,13 +301,23 @@
 .end method
 
 .method private static defOf(I)Ljava/lang/String;
-    .locals 1
+    .locals 2
 
     const/4 v0, 0x1
 
     if-ne p0, v0, :cond_2
 
-    const-string v0, "0.69"
+    sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
+
+    invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v0
+
+    const v1, 0x7f0c01d1
+
+    invoke-virtual {v0, v1}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
+
+    move-result-object v0
 
     return-object v0
 

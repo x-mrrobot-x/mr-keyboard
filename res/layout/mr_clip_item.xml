@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:textSize="14sp"
-    android:textColor="#ffdddddd"
+    android:textColor="@color/mr_tb_text"
     android:gravity="center_vertical"
     android:singleLine="true"
     android:ellipsize="end"

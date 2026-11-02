@@ -36,8 +36,6 @@
 
 .field private mCurrentWordIndex:I
 
-.field private final mDescent:I
-
 .field private mDivider:Landroid/graphics/drawable/Drawable;
 
 # Espaco minimo entre o texto de cada sugestao e o divisor, em pixels, de cada lado (10dp, calculado
@@ -332,17 +330,6 @@
     sget-object p2, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {p1, p2}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
-
-    .line 127
-    iget-object p1, p0, Lcom/mrkeyboard/app/CandidateView;->mPaint:Landroid/graphics/Paint;
-
-    invoke-virtual {p1}, Landroid/graphics/Paint;->descent()F
-
-    move-result p1
-
-    float-to-int p1, p1
-
-    iput p1, p0, Lcom/mrkeyboard/app/CandidateView;->mDescent:I
 
     const p1, 0x7f06004c
 
@@ -1402,20 +1389,51 @@
     invoke-virtual {v2, v0, v0, v3, v4}, Landroid/graphics/drawable/Drawable;->setBounds(IIII)V
 
     :cond_bg
-    # linha de base do texto: (altura + tamanho do texto - descent) / 2
+    # tamanho do texto: base x escala (pref_candidate_scale), limitado a 75% da altura da faixa.
+    # A faixa segue a escala da barra (match_parent); o texto so encolhia na largura.
+    if-lez v1, :cond_nocap
+
+    iget-object v2, p0, Lcom/mrkeyboard/app/CandidateView;->mPreviewText:Landroid/widget/TextView;
+
+    invoke-virtual {v2}, Landroid/widget/TextView;->getTextSize()F
+
+    move-result v2
+
+    sget-object v3, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
+
+    iget v3, v3, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->candidateScalePref:F
+
+    mul-float/2addr v2, v3
+
+    int-to-float v3, v1
+
+    const/high16 v4, 0x3f400000    # 0.75f
+
+    mul-float/2addr v3, v4
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->min(FF)F
+
+    move-result v2
+
+    iget-object v3, p0, Lcom/mrkeyboard/app/CandidateView;->mPaint:Landroid/graphics/Paint;
+
+    invoke-virtual {v3, v2}, Landroid/graphics/Paint;->setTextSize(F)V
+
+    :cond_nocap
+    # linha de base do texto: (altura + tamanho do texto - descent) / 2, com o descent do tamanho atual
     int-to-float v2, v1
 
     iget-object v3, p0, Lcom/mrkeyboard/app/CandidateView;->mPaint:Landroid/graphics/Paint;
 
     invoke-virtual {v3}, Landroid/graphics/Paint;->getTextSize()F
 
+    move-result v4
+
+    add-float/2addr v2, v4
+
+    invoke-virtual {v3}, Landroid/graphics/Paint;->descent()F
+
     move-result v3
-
-    add-float/2addr v2, v3
-
-    iget v3, p0, Lcom/mrkeyboard/app/CandidateView;->mDescent:I
-
-    int-to-float v3, v3
 
     sub-float/2addr v2, v3
 

@@ -22,7 +22,7 @@ Requires Android 8.0 or later.
   - suggests the names and words you just wrote in the same conversation (kept only in memory and cleared when you change field or app);
   - everything runs on the device;
   - off by default: turn on *Show suggestions* on the same screen.
-- **Themes:** Mr Keyboard Neon, Dark Tech (soft and raised) and Midnight Steel. Key spacing and corner roundness work in every theme.
+- **Themes:** Mr Keyboard Neon, Dark Tech (soft and raised), Midnight Steel and Cobalt Glass (translucent with background blur on Android 12+; a semi-transparent dark background where blur is unavailable). Key spacing and corner roundness work in every theme, and the roundness also follows into the long-press popup, the key preview bubble, and the toolbar and panels.
 - **Gestures and keys:** swipe up/down/left/right and the volume keys can run keyboard actions.
 - **App in English, Portuguese or Spanish:** it follows the system language, or pick one in *Settings → General → App language*.
 

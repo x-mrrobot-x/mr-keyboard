@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:left="2.0dip" android:top="2.0dip" android:right="2.0dip" android:bottom="2.0dip">
+        <shape android:shape="rectangle">
+            <stroke android:width="4.0dip" android:color="@color/mr_neon_popup_key_halo" />
+            <corners android:radius="10.0dip" />
+        </shape>
+    </item>
+    <item android:left="4.0dip" android:top="4.0dip" android:right="4.0dip" android:bottom="4.0dip">
+        <shape android:shape="rectangle">
+            <gradient android:angle="270.0" android:startColor="@color/mr_neon_popup_key_top" android:endColor="@color/mr_neon_popup_key_bottom" />
+            <stroke android:width="2.0dip" android:color="@color/mr_neon_popup_key_stroke" />
+            <corners android:radius="8.0dip" />
+        </shape>
+    </item>
+</layer-list>

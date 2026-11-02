@@ -2,10 +2,139 @@
 <!-- Mr Keyboard · paleta "dark tech" usada apenas nas telas de configuração -->
 <resources>
     <!-- Superfícies -->
-    <color name="mr_bg">#ff0a0e14</color>
-    <color name="mr_soft_bg">#ff00020e</color>
+    <color name="mr_slate_kbd_bg">#ff0a0e14</color>
+    <color name="mr_soft_kbd_bg">#ff00020e</color>
+    <color name="mr_neon_kbd_bg">#ff09110c</color>
     <!-- Fundo do teclado do tema Midnight Steel; a barra de ferramentas usa #171e27 (MrTools.liftBar) -->
     <color name="mr_midnight_kbd_bg">#ff0c1219</color>
+    <color name="mr_glass_kbd_bg">#80090f17</color>
+    <color name="mr_glass_kbd_bg_blur">#17090f17</color>
+
+    <!-- Texto e icone das teclas de destaque (MrTheme.color, papel accent_text). So vale para tema sem a flag
+         PLAIN_ACCENT_TEXT (Neon e Soft); com a flag o tema usa o texto padrao das teclas. Padrao: branco; o Neon
+         usa texto escuro sobre o verde. -->
+    <color name="mr_accent_text">#ffffffff</color>
+    <color name="mr_neon_accent_text">#ff07130c</color>
+
+    <!-- ===== Cores da barra e dos paineis (MrTheme.color) =====
+         Leitura por nome: primeiro mr_<tema>_<papel> (ex.: mr_glass_panel_btn), depois mr_<papel>.
+         Os valores mr_panel_* sao os de sempre (Slate, Midnight, Neon, Soft); tema que precisa de
+         outra cor so declara a sua versao mr_<tema>_panel_*. -->
+    <color name="mr_panel_bar">#ff171e27</color>
+    <color name="mr_panel_btn">#ff263344</color>
+    <color name="mr_panel_btn_stroke">#ff3a4d65</color>
+    <color name="mr_panel_tab_off">#ff1e2937</color>
+    <color name="mr_panel_tab_off_stroke">#ff2c3b4f</color>
+    <color name="mr_panel_field">#ff0e141b</color>
+    <color name="mr_panel_field_stroke">#ff2a3645</color>
+    <color name="mr_panel_sheet">#ff111823</color>
+    <color name="mr_panel_sheet_stroke">#ff2a3748</color>
+    <color name="mr_panel_lang">#ff1a232e</color>
+    <color name="mr_panel_lang_stroke">#ff2c3a4b</color>
+    <color name="mr_panel_card">#33888888</color>
+    <color name="mr_panel_icon">#ffdfe7f1</color>
+    <color name="mr_panel_tab_on_text">@color/mr_panel_icon</color>
+    <color name="mr_panel_tab_off_text">#ff9db1c8</color>
+    <color name="mr_alpha_press">#59000000</color>
+    <color name="mr_alpha_flat">#4d000000</color>
+    <color name="mr_alpha_sel">#47000000</color>
+    <color name="mr_alpha_sel_text">#33000000</color>
+    <color name="mr_alpha_sheet_fill">#14000000</color>
+    <color name="mr_alpha_sheet_line">#44000000</color>
+    <color name="mr_alpha_close">#26000000</color>
+    <color name="mr_alpha_close_line">#cc000000</color>
+    <color name="mr_alpha_card">#22000000</color>
+
+    <!-- Cobalt Glass: as mesmas cores, translucidas, para o blur de fundo aparecer -->
+    <color name="mr_glass_panel_bar">#4f19222f</color>
+    <color name="mr_glass_panel_btn">#5c3c5f8e</color>
+    <color name="mr_glass_panel_btn_stroke">#248fb8e8</color>
+    <color name="mr_glass_panel_tab_off">#263c5f8e</color>
+    <color name="mr_glass_panel_tab_off_stroke">#248fb8e8</color>
+    <color name="mr_glass_panel_field">#4d07142b</color>
+    <color name="mr_glass_panel_field_stroke">#248fb8e8</color>
+    <color name="mr_glass_panel_sheet">#4f19222f</color>
+    <color name="mr_glass_panel_sheet_stroke">#338fb8e8</color>
+    <color name="mr_glass_panel_lang">#4f19222f</color>
+    <color name="mr_glass_panel_lang_stroke">#338fb8e8</color>
+
+    <color name="mr_neon_text">#ff6ee79b</color>
+    <color name="mr_neon_cursor">#ff3df0c0</color>
+    <color name="mr_neon_hint">#8c6ee79b</color>
+    <color name="mr_neon_popup_bg_top">#f5101c14</color>
+    <color name="mr_neon_popup_bg_bottom">#f509110c</color>
+    <color name="mr_neon_popup_bg_stroke">#d93ddc84</color>
+    <color name="mr_neon_popup_halo">#263ddc84</color>
+    <color name="mr_neon_popup_key_top">#403ddc84</color>
+    <color name="mr_neon_popup_key_bottom">#403ddc84</color>
+    <color name="mr_neon_popup_key_stroke">#ff3ddc84</color>
+    <color name="mr_neon_popup_key_halo">#403ddc84</color>
+    <color name="mr_neon_popup_hint">#8c6ee79b</color>
+    <color name="mr_neon_preview_top">#f5101c14</color>
+    <color name="mr_neon_preview_bottom">#f509110c</color>
+    <color name="mr_neon_preview_stroke">#ff3ddc84</color>
+    <color name="mr_neon_preview_dots">#cc3ddc84</color>
+
+    <color name="mr_soft_text">#ff9ec9ff</color>
+    <color name="mr_soft_cursor">#ff3df4fe</color>
+    <color name="mr_soft_hint">#b35ea6ff</color>
+    <color name="mr_soft_popup_bg_top">#ff05166e</color>
+    <color name="mr_soft_popup_bg_bottom">#ff00083c</color>
+    <color name="mr_soft_popup_bg_stroke">#ff3a8cff</color>
+    <color name="mr_soft_popup_key_top">#ff0a50e0</color>
+    <color name="mr_soft_popup_key_mid">#ff002cc0</color>
+    <color name="mr_soft_popup_key_bottom">#ff0a46d8</color>
+    <color name="mr_soft_popup_key_stroke">#ff2ae6fa</color>
+    <color name="mr_soft_popup_hint">#b35ea6ff</color>
+    <color name="mr_soft_preview_top">#f505166e</color>
+    <color name="mr_soft_preview_bottom">#f500083c</color>
+    <color name="mr_soft_preview_stroke">#ff3a8cff</color>
+    <color name="mr_soft_preview_dots">#cc5ea6ff</color>
+
+    <color name="mr_slate_text">#ffe7eef7</color>
+    <color name="mr_slate_cursor">#ffe7eef7</color>
+    <color name="mr_slate_hint">#999fb2c7</color>
+    <color name="mr_slate_popup_bg_top">#ff1a222d</color>
+    <color name="mr_slate_popup_bg_bottom">#ff121821</color>
+    <color name="mr_slate_popup_bg_stroke">#ff2b3b52</color>
+    <color name="mr_slate_popup_key_top">#803FB8EA</color>
+    <color name="mr_slate_popup_key_bottom">#4d3FB8EA</color>
+    <color name="mr_slate_popup_key_stroke">#ff3FB8EA</color>
+    <color name="mr_slate_popup_hint">#999fb2c7</color>
+    <color name="mr_slate_preview_top">#f51a222d</color>
+    <color name="mr_slate_preview_bottom">#f510151d</color>
+    <color name="mr_slate_preview_stroke">#ff2b3b52</color>
+    <color name="mr_slate_preview_dots">#cc29c5f6</color>
+
+    <color name="mr_midnight_text">#ffe7eef7</color>
+    <color name="mr_midnight_cursor">#ffe7eef7</color>
+    <color name="mr_midnight_hint">#ff8d95a0</color>
+    <color name="mr_midnight_popup_bg_top">#ff1a222d</color>
+    <color name="mr_midnight_popup_bg_bottom">#ff121821</color>
+    <color name="mr_midnight_popup_bg_stroke">#ff2b3b52</color>
+    <color name="mr_midnight_popup_key_top">#803FB8EA</color>
+    <color name="mr_midnight_popup_key_bottom">#4d3FB8EA</color>
+    <color name="mr_midnight_popup_key_stroke">#ff3FB8EA</color>
+    <color name="mr_midnight_popup_hint">@color/mr_midnight_hint</color>
+    <color name="mr_midnight_preview_top">#f51a222d</color>
+    <color name="mr_midnight_preview_bottom">#f510151d</color>
+    <color name="mr_midnight_preview_stroke">#ff2b3b52</color>
+    <color name="mr_midnight_preview_dots">#cc29c5f6</color>
+
+    <color name="mr_glass_text">#ffe7eef7</color>
+    <color name="mr_glass_cursor">#ffe7eef7</color>
+    <color name="mr_glass_hint">#b8c5d6e8</color>
+    <color name="mr_glass_popup_bg_top">#b31a2a40</color>
+    <color name="mr_glass_popup_bg_bottom">#b3101b2c</color>
+    <color name="mr_glass_popup_bg_stroke">#668fb8e8</color>
+    <color name="mr_glass_popup_key_top">#805f8fd0</color>
+    <color name="mr_glass_popup_key_bottom">#804673b3</color>
+    <color name="mr_glass_popup_key_stroke">#52dbeaff</color>
+    <color name="mr_glass_popup_hint">#b8c5d6e8</color>
+    <color name="mr_glass_preview_top">#b31a2a40</color>
+    <color name="mr_glass_preview_bottom">#b3101b2c</color>
+    <color name="mr_glass_preview_stroke">#668fb8e8</color>
+    <color name="mr_glass_preview_dots">#ccdbeaff</color>
 
     <!-- Acento (ciano do ícone do app) -->
     <color name="mr_accent">#ff29c5f6</color>
@@ -14,7 +143,6 @@
     <color name="mr_ripple_dark">#33000000</color>
 
     <!-- Texto -->
-    <color name="mr_text_primary">#ffe7eef7</color>
     <color name="mr_text_on_accent">#ff04141c</color>
     <color name="mr_accent_disabled">#ff1f6e8a</color>
 
@@ -52,4 +180,24 @@
     <color name="mr_ui_slate_soft">#2494a3b8</color>
     <color name="mr_ui_slate_line">#4d94a3b8</color>
     <color name="mr_ui_icon_bg">#ff041028</color>
+
+    <!-- ===== Padrao inicial do teclado e da barra (etapa 2 da padronizacao) =====
+         mr_default_*: reserva do estilo LatinKeyboardBaseView (o tema sobrescreve pelo layout).
+         mr_tb_*, mr_tune_*: valores iniciais de mr_toolbar.xml e dos drawables sem tema; o MrTools repinta o texto conforme o tema em tempo de execucao. -->
+    <color name="mr_default_key_cursor">#ffbbbbbb</color>
+    <color name="mr_default_key_hint">#ff222222</color>
+    <color name="mr_default_key_text">#ffffffff</color>
+    <color name="mr_default_key_shadow">#bb000000</color>
+    <color name="mr_default_kbd_bg">#ff202020</color>
+    <color name="mr_kbd_bg">@color/mr_default_kbd_bg</color>
+    <color name="mr_kbd_bg_blur">@color/mr_default_kbd_bg</color>
+    <color name="mr_tb_text">#ffdddddd</color>
+    <color name="mr_tb_text_dim">#99dddddd</color>
+    <color name="mr_tb_text_strong">#ffffffff</color>
+    <color name="mr_tb_btn_pressed">#55808080</color>
+    <color name="mr_tb_btn_fill">#22808080</color>
+    <color name="mr_tb_btn_stroke">#44808080</color>
+    <color name="mr_tb_divider">@color/mr_tb_btn_fill</color>
+    <color name="mr_tb_scrim">#99000000</color>
+    <color name="mr_tune_track">#66ffffff</color>
 </resources>

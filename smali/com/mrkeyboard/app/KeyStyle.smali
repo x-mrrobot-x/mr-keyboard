@@ -4,17 +4,15 @@
 
 
 # static fields
-.field private static final PREF_LAYOUT:Ljava/lang/String; = "pref_keyboard_layout"
-
 .field private static final PREF_RADIUS:Ljava/lang/String; = "pref_key_radius"
 
 .field private static final PREF_SPACING:Ljava/lang/String; = "pref_key_spacing"
 
 .field private static volatile sLoaded:Z
 
-.field private static volatile sMode:I
-
 .field private static final sPrefListener:Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;
+
+.field private static volatile sRadiusDirty:Z
 
 .field private static volatile sRadiusDp:F
 
@@ -31,11 +29,6 @@
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/KeyStyle;->sLoaded:Z
-
-    .line 16
-    const/4 v0, 0x2
-
-    sput v0, Lcom/mrkeyboard/app/KeyStyle;->sMode:I
 
     .line 17
     const/high16 v0, 0x41000000    # 8.0f
@@ -152,57 +145,7 @@
     .line 53
     :cond_2b
     :goto_2b
-    const-string v0, "pref_keyboard_layout"
-
-    const-string v1, "8"
-
-    invoke-interface {p0, v0, v1}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 54
-    nop
-
-    .line 55
-    const-string v1, "7"
-
-    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v1
-
     const/4 v2, 0x1
-
-    if-eqz v1, :cond_3f
-
-    .line 56
-    move v0, v2
-
-    goto :goto_4a
-
-    .line 57
-    :cond_3f
-    const-string v1, "8"
-
-    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_49
-
-    .line 58
-    const/4 v0, 0x2
-
-    goto :goto_4a
-
-    .line 57
-    :cond_49
-    # v1.69: todos os temas que sobraram (Neon, Dark Tech suave e relevo, Midnight Steel) são de forma
-    # e aceitam espaçamento e arredondamento; qualquer valor antigo guardado cai no modo relevo.
-    const/4 v0, 0x2
-
-    .line 60
-    :goto_4a
-    sput v0, Lcom/mrkeyboard/app/KeyStyle;->sMode:I
 
     .line 61
     const-string v0, "pref_key_radius"
@@ -237,28 +180,6 @@
     return-void
 .end method
 
-.method public static isDarkTech(Landroid/content/Context;)Z
-    .registers 1
-
-    .line 75
-    invoke-static {p0}, Lcom/mrkeyboard/app/KeyStyle;->ensureLoaded(Landroid/content/Context;)V
-
-    .line 76
-    sget p0, Lcom/mrkeyboard/app/KeyStyle;->sMode:I
-
-    if-eqz p0, :cond_9
-
-    const/4 p0, 0x1
-
-    goto :goto_a
-
-    :cond_9
-    const/4 p0, 0x0
-
-    :goto_a
-    return p0
-.end method
-
 .method public static onPrefChanged(Ljava/lang/String;)V
     .registers 3
 
@@ -275,22 +196,19 @@
 
     .line 84
     :cond_6
-    const-string v1, "pref_keyboard_layout"
+    const-string v1, "pref_key_radius"
 
     invoke-virtual {v1, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
 
-    if-eqz v1, :cond_11
+    if-eqz v1, :cond_mr_nodirty
 
-    .line 85
-    sput-boolean v0, Lcom/mrkeyboard/app/KeyStyle;->sLoaded:Z
+    const/4 v1, 0x1
 
-    .line 86
-    return-void
+    sput-boolean v1, Lcom/mrkeyboard/app/KeyStyle;->sRadiusDirty:Z
 
-    .line 88
-    :cond_11
+    :cond_mr_nodirty
     const-string v1, "pref_key_spacing"
 
     invoke-virtual {v1, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -341,30 +259,10 @@
     .line 101
     invoke-static {p3}, Lcom/mrkeyboard/app/KeyStyle;->ensureLoaded(Landroid/content/Context;)V
 
-    .line 102
-    sget v0, Lcom/mrkeyboard/app/KeyStyle;->sMode:I
-
-    .line 103
-    if-nez v0, :cond_8
-
-    .line 104
-    return-void
-
     .line 106
-    :cond_8
     const/4 v1, 0x0
 
-    const/4 v2, 0x1
-
-    if-ne v0, v2, :cond_d
-
-    goto :goto_e
-
-    :cond_d
-    move v2, v1
-
     .line 107
-    :goto_e
     invoke-virtual {p3}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object p3
@@ -390,11 +288,6 @@
     mul-float/2addr v3, v4
 
     float-to-int v3, v3
-
-    .line 110
-    const/high16 v4, 0x40000000    # 2.0f
-
-    mul-float/2addr p3, v4
 
     .line 112
     invoke-virtual {p0}, Landroid/graphics/drawable/Drawable;->getCurrent()Landroid/graphics/drawable/Drawable;
@@ -431,19 +324,13 @@
     if-eqz v7, :cond_4b
 
     .line 119
-    if-nez v1, :cond_45
+    invoke-static {v4, v1}, Lcom/mrkeyboard/app/KeyStyle;->layerGap(Landroid/graphics/drawable/LayerDrawable;I)F
 
-    if-eqz v2, :cond_45
+    move-result v7
 
-    add-float v7, v0, p3
-
-    goto :goto_46
-
-    :cond_45
-    move v7, v0
+    add-float/2addr v7, v0
 
     .line 120
-    :goto_46
     check-cast v6, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-virtual {v6, v7}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
@@ -464,14 +351,475 @@
     if-le p2, p3, :cond_59
 
     .line 127
-    sub-int/2addr p1, v3
+    const/4 v5, 0x0
 
-    sub-int/2addr p2, v3
+    invoke-static {p0, v5}, Lcom/mrkeyboard/app/KeyStyle;->borderInset(Landroid/graphics/drawable/Drawable;I)I
 
-    invoke-virtual {p0, v3, v3, p1, p2}, Landroid/graphics/drawable/Drawable;->setBounds(IIII)V
+    move-result v0
+
+    sub-int v0, v3, v0
+
+    const/4 v5, 0x1
+
+    invoke-static {p0, v5}, Lcom/mrkeyboard/app/KeyStyle;->borderInset(Landroid/graphics/drawable/Drawable;I)I
+
+    move-result v1
+
+    sub-int v1, v3, v1
+
+    const/4 v5, 0x2
+
+    invoke-static {p0, v5}, Lcom/mrkeyboard/app/KeyStyle;->borderInset(Landroid/graphics/drawable/Drawable;I)I
+
+    move-result v2
+
+    sub-int v6, p1, v3
+
+    add-int/2addr v2, v6
+
+    const/4 v5, 0x3
+
+    invoke-static {p0, v5}, Lcom/mrkeyboard/app/KeyStyle;->borderInset(Landroid/graphics/drawable/Drawable;I)I
+
+    move-result v4
+
+    sub-int v6, p2, v3
+
+    add-int/2addr v4, v6
+
+    invoke-virtual {p0, v0, v1, v2, v4}, Landroid/graphics/drawable/Drawable;->setBounds(IIII)V
 
     .line 129
     :cond_59
+    return-void
+.end method
+
+# Folga (px) da camada p1 do LayerDrawable p0 em relacao a camada de dentro, que e a ultima e a que o
+# raio das teclas descreve: recuo esquerdo da ultima camada menos o da camada p1, nunca negativo. Cada
+# camada de fora soma essa folga ao raio, o que mantem os cantos concentricos sem tabela por tema: o halo do
+# Neon e o do Soft ficam 2 dp para fora da borda e ganham +2 dp; Slate e Midnight (sombra so no eixo
+# vertical) e Glass (uma camada) nao tem folga lateral e ficam com o raio das teclas.
+.method private static layerGap(Landroid/graphics/drawable/LayerDrawable;I)F
+    .locals 2
+
+    invoke-virtual {p0}, Landroid/graphics/drawable/LayerDrawable;->getNumberOfLayers()I
+
+    move-result v0
+
+    add-int/lit8 v0, v0, -0x1
+
+    invoke-virtual {p0, v0}, Landroid/graphics/drawable/LayerDrawable;->getLayerInsetLeft(I)I
+
+    move-result v0
+
+    invoke-virtual {p0, p1}, Landroid/graphics/drawable/LayerDrawable;->getLayerInsetLeft(I)I
+
+    move-result v1
+
+    sub-int/2addr v0, v1
+
+    if-gez v0, :cond_ok
+
+    const/4 v0, 0x0
+
+    :cond_ok
+    int-to-float v0, v0
+
+    return v0
+.end method
+
+.method private static borderInset(Landroid/graphics/drawable/Drawable;I)I
+    .locals 4
+
+    const/4 v0, 0x0
+
+    if-nez p0, :cond_have
+
+    return v0
+
+    :cond_have
+    invoke-virtual {p0}, Landroid/graphics/drawable/Drawable;->getCurrent()Landroid/graphics/drawable/Drawable;
+
+    move-result-object v1
+
+    instance-of v2, v1, Landroid/graphics/drawable/LayerDrawable;
+
+    if-eqz v2, :cond_none
+
+    check-cast v1, Landroid/graphics/drawable/LayerDrawable;
+
+    invoke-virtual {v1}, Landroid/graphics/drawable/LayerDrawable;->getNumberOfLayers()I
+
+    move-result v2
+
+    if-lez v2, :cond_none
+
+    add-int/lit8 v2, v2, -0x1
+
+    if-eqz p1, :cond_left
+
+    const/4 v3, 0x1
+
+    if-eq p1, v3, :cond_top
+
+    const/4 v3, 0x2
+
+    if-eq p1, v3, :cond_right
+
+    invoke-virtual {v1, v2}, Landroid/graphics/drawable/LayerDrawable;->getLayerInsetBottom(I)I
+
+    move-result v0
+
+    goto :cond_clamp
+
+    :cond_left
+    invoke-virtual {v1, v2}, Landroid/graphics/drawable/LayerDrawable;->getLayerInsetLeft(I)I
+
+    move-result v0
+
+    goto :cond_clamp
+
+    :cond_top
+    invoke-virtual {v1, v2}, Landroid/graphics/drawable/LayerDrawable;->getLayerInsetTop(I)I
+
+    move-result v0
+
+    goto :cond_clamp
+
+    :cond_right
+    invoke-virtual {v1, v2}, Landroid/graphics/drawable/LayerDrawable;->getLayerInsetRight(I)I
+
+    move-result v0
+
+    :cond_clamp
+    if-gez v0, :cond_none
+
+    const/4 v0, 0x0
+
+    :cond_none
+    return v0
+.end method
+
+.method private static hasInset(Landroid/graphics/drawable/Drawable;)Z
+    .locals 2
+
+    const/4 v0, 0x0
+
+    :goto_side
+    const/4 v1, 0x4
+
+    if-ge v0, v1, :cond_no
+
+    invoke-static {p0, v0}, Lcom/mrkeyboard/app/KeyStyle;->borderInset(Landroid/graphics/drawable/Drawable;I)I
+
+    move-result v1
+
+    if-gtz v1, :cond_yes
+
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_side
+
+    :cond_yes
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_no
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+.method public static drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
+    .locals 2
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/KeyStyle;->hasInset(Landroid/graphics/drawable/Drawable;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_clip
+
+    invoke-virtual {p0, p1}, Landroid/graphics/drawable/Drawable;->draw(Landroid/graphics/Canvas;)V
+
+    return-void
+
+    :cond_clip
+    invoke-virtual {p1}, Landroid/graphics/Canvas;->save()I
+
+    const/4 v1, 0x0
+
+    invoke-virtual {p1, v1, v1, p2, p3}, Landroid/graphics/Canvas;->clipRect(IIII)Z
+
+    invoke-virtual {p0, p1}, Landroid/graphics/drawable/Drawable;->draw(Landroid/graphics/Canvas;)V
+
+    invoke-virtual {p1}, Landroid/graphics/Canvas;->restore()V
+
+    return-void
+.end method
+
+# Raio de cantos (px) de um elemento que segue as teclas: raio das teclas + folga p1 (dp). A folga
+# cresce de 0 ate o valor cheio quando o raio das teclas vai de 0 a 8 dp e depois fica fixa: com
+# raio 0 o elemento fica reto; no raio padrao (8 dp) vale raio + folga; acima disso so soma.
+.method public static radiusPx(Landroid/content/Context;F)F
+    .locals 4
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/KeyStyle;->ensureLoaded(Landroid/content/Context;)V
+
+    sget v0, Lcom/mrkeyboard/app/KeyStyle;->sRadiusDp:F
+
+    const/high16 v1, 0x41000000    # 8.0f
+
+    div-float v2, v0, v1
+
+    const/high16 v3, 0x3f800000    # 1.0f
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->min(FF)F
+
+    move-result v2
+
+    mul-float/2addr v2, p1
+
+    add-float/2addr v0, v2
+
+    invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+
+    move-result-object v1
+
+    iget v1, v1, Landroid/util/DisplayMetrics;->density:F
+
+    mul-float/2addr v0, v1
+
+    const/4 v1, 0x0
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->max(FF)F
+
+    move-result v0
+
+    return v0
+.end method
+
+# Aplica o raio (radiusPx com folga p2) nas camadas de forma do drawable p0 (LayerDrawable ou forma
+# unica). Camada recuada 1,5 dp ou mais da borda usa o raio menos o recuo (cantos concentricos);
+# as demais usam o raio cheio.
+.method public static applyShape(Landroid/graphics/drawable/Drawable;Landroid/content/Context;F)V
+    .locals 8
+
+    if-nez p0, :cond_have
+
+    return-void
+
+    :cond_have
+    invoke-static {p1, p2}, Lcom/mrkeyboard/app/KeyStyle;->radiusPx(Landroid/content/Context;F)F
+
+    move-result v0
+
+    instance-of v2, p0, Landroid/graphics/drawable/LayerDrawable;
+
+    if-eqz v2, :cond_single
+
+    invoke-virtual {p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+
+    move-result-object v1
+
+    iget v1, v1, Landroid/util/DisplayMetrics;->density:F
+
+    check-cast p0, Landroid/graphics/drawable/LayerDrawable;
+
+    invoke-virtual {p0}, Landroid/graphics/drawable/LayerDrawable;->getNumberOfLayers()I
+
+    move-result v2
+
+    const/4 v3, 0x0
+
+    const/high16 v4, 0x3fc00000    # 1.5f
+
+    mul-float/2addr v4, v1
+
+    :goto_loop
+    if-ge v3, v2, :cond_done
+
+    invoke-virtual {p0, v3}, Landroid/graphics/drawable/LayerDrawable;->getDrawable(I)Landroid/graphics/drawable/Drawable;
+
+    move-result-object v5
+
+    instance-of v6, v5, Landroid/graphics/drawable/GradientDrawable;
+
+    if-eqz v6, :cond_next
+
+    check-cast v5, Landroid/graphics/drawable/GradientDrawable;
+
+    invoke-virtual {p0, v3}, Landroid/graphics/drawable/LayerDrawable;->getLayerInsetLeft(I)I
+
+    move-result v6
+
+    int-to-float v6, v6
+
+    move v7, v0
+
+    cmpg-float v1, v6, v4
+
+    if-ltz v1, :cond_set
+
+    sub-float v7, v0, v6
+
+    const/4 v6, 0x0
+
+    invoke-static {v7, v6}, Ljava/lang/Math;->max(FF)F
+
+    move-result v7
+
+    :cond_set
+    invoke-virtual {v5, v7}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
+
+    :cond_next
+    add-int/lit8 v3, v3, 0x1
+
+    goto :goto_loop
+
+    :cond_single
+    instance-of v2, p0, Landroid/graphics/drawable/GradientDrawable;
+
+    if-eqz v2, :cond_done
+
+    check-cast p0, Landroid/graphics/drawable/GradientDrawable;
+
+    invoke-virtual {p0, v0}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
+
+    :cond_done
+    return-void
+.end method
+
+# true uma unica vez depois que o raio das teclas mudou (LatinIME refaz a view ao abrir o teclado).
+.method public static takeRadiusDirty()Z
+    .locals 2
+
+    sget-boolean v0, Lcom/mrkeyboard/app/KeyStyle;->sRadiusDirty:Z
+
+    const/4 v1, 0x0
+
+    sput-boolean v1, Lcom/mrkeyboard/app/KeyStyle;->sRadiusDirty:Z
+
+    return v0
+.end method
+
+# Fundo de botao que reaproveita o visual da tecla (barra de ferramentas e listas dos paineis): aplica
+# o mesmo raio das teclas em todas as camadas de todos os estados do drawable p0. O drawable copiado
+# da tecla tem formas proprias, que ficavam com o raio do XML mesmo com o controle de raio alterado.
+.method public static applyKeyLook(Landroid/graphics/drawable/Drawable;Landroid/content/Context;)V
+    .locals 10
+
+    if-nez p0, :cond_have
+
+    return-void
+
+    :cond_have
+    invoke-static {p1}, Lcom/mrkeyboard/app/KeyStyle;->ensureLoaded(Landroid/content/Context;)V
+
+    instance-of v0, p0, Landroid/graphics/drawable/DrawableContainer;
+
+    if-eqz v0, :cond_notcont
+
+    invoke-virtual {p0}, Landroid/graphics/drawable/Drawable;->getConstantState()Landroid/graphics/drawable/Drawable$ConstantState;
+
+    move-result-object v0
+
+    instance-of v1, v0, Landroid/graphics/drawable/DrawableContainer$DrawableContainerState;
+
+    if-eqz v1, :cond_done
+
+    check-cast v0, Landroid/graphics/drawable/DrawableContainer$DrawableContainerState;
+
+    invoke-virtual {v0}, Landroid/graphics/drawable/DrawableContainer$DrawableContainerState;->getChildren()[Landroid/graphics/drawable/Drawable;
+
+    move-result-object v0
+
+    array-length v1, v0
+
+    const/4 v2, 0x0
+
+    :goto_kids
+    if-ge v2, v1, :cond_done
+
+    aget-object v3, v0, v2
+
+    invoke-static {v3, p1}, Lcom/mrkeyboard/app/KeyStyle;->applyKeyLook(Landroid/graphics/drawable/Drawable;Landroid/content/Context;)V
+
+    add-int/lit8 v2, v2, 0x1
+
+    goto :goto_kids
+
+    :cond_notcont
+    invoke-virtual {p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+
+    move-result-object v1
+
+    iget v1, v1, Landroid/util/DisplayMetrics;->density:F
+
+    sget v2, Lcom/mrkeyboard/app/KeyStyle;->sRadiusDp:F
+
+    mul-float/2addr v2, v1
+
+    instance-of v6, p0, Landroid/graphics/drawable/LayerDrawable;
+
+    if-eqz v6, :cond_single
+
+    check-cast p0, Landroid/graphics/drawable/LayerDrawable;
+
+    invoke-virtual {p0}, Landroid/graphics/drawable/LayerDrawable;->getNumberOfLayers()I
+
+    move-result v6
+
+    const/4 v7, 0x0
+
+    :goto_layers
+    if-ge v7, v6, :cond_done
+
+    invoke-virtual {p0, v7}, Landroid/graphics/drawable/LayerDrawable;->getDrawable(I)Landroid/graphics/drawable/Drawable;
+
+    move-result-object v8
+
+    instance-of v9, v8, Landroid/graphics/drawable/GradientDrawable;
+
+    if-eqz v9, :cond_nextlayer
+
+    invoke-static {p0, v7}, Lcom/mrkeyboard/app/KeyStyle;->layerGap(Landroid/graphics/drawable/LayerDrawable;I)F
+
+    move-result v9
+
+    add-float/2addr v9, v2
+
+    check-cast v8, Landroid/graphics/drawable/GradientDrawable;
+
+    invoke-virtual {v8, v9}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
+
+    :cond_nextlayer
+    add-int/lit8 v7, v7, 0x1
+
+    goto :goto_layers
+
+    :cond_single
+    instance-of v6, p0, Landroid/graphics/drawable/GradientDrawable;
+
+    if-eqz v6, :cond_done
+
+    check-cast p0, Landroid/graphics/drawable/GradientDrawable;
+
+    invoke-virtual {p0, v2}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
+
+    :cond_done
     return-void
 .end method
 

@@ -20,13 +20,17 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
 
+.field final synthetic val$res:Landroid/content/res/Resources;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/GlobalKeyboardSettings;)V
+.method constructor <init>(Lcom/mrkeyboard/app/GlobalKeyboardSettings;Landroid/content/res/Resources;)V
     .locals 0
 
     .line 160
     iput-object p1, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings$7;->this$0:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
+
+    iput-object p2, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings$7;->val$res:Landroid/content/res/Resources;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,9 +40,15 @@
 
 # virtual methods
 .method public getDefault()Ljava/lang/String;
-    .locals 1
+    .locals 2
 
-    const-string v0, "0.69"
+    iget-object v0, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings$7;->val$res:Landroid/content/res/Resources;
+
+    const v1, 0x7f0c01d1
+
+    invoke-virtual {v0, v1}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
+
+    move-result-object v0
 
     return-object v0
 .end method

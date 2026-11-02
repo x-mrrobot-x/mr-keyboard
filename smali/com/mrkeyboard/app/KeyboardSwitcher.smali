@@ -91,7 +91,7 @@
 
 .field private static TAG:Ljava/lang/String; = "PCKeyboardKbSw"
 
-.field private static final THEMES:[I
+.field private static THEMES:[I
 
 .field private static final sInstance:Lcom/mrkeyboard/app/KeyboardSwitcher;
 
@@ -154,15 +154,6 @@
 
     const/16 v0, 0xa
 
-    .line 64
-    new-array v0, v0, [I
-
-    fill-array-data v0, :array_0
-
-    sput-object v0, Lcom/mrkeyboard/app/KeyboardSwitcher;->THEMES:[I
-
-    const/16 v0, 0xa
-
     .line 86
     new-array v0, v0, [I
 
@@ -180,20 +171,6 @@
     return-void
 
     nop
-
-    :array_0
-    .array-data 4
-        0x7f0a001f
-        0x7f0a003e
-        0x7f0a003e
-        0x7f0a003e
-        0x7f0a003e
-        0x7f0a003e
-        0x7f0a003e
-        0x7f0a003d
-        0x7f0a003e
-        0x7f0a003f
-    .end array-data
 
     :array_1
     .array-data 4
@@ -252,8 +229,75 @@
     return-object p0
 .end method
 
+# Layouts dos temas, lidos 1 vez do array mr_theme_layouts (res/values/mr_themes.xml); o indice e o
+# valor da preferencia pref_keyboard_layout. Tema novo = layout + 1 linha no array, sem mexer aqui.
+.method private ensureThemes()V
+    .locals 6
+
+    sget-object v0, Lcom/mrkeyboard/app/KeyboardSwitcher;->THEMES:[I
+
+    if-eqz v0, :cond_load
+
+    return-void
+
+    :cond_load
+    iget-object v0, p0, Lcom/mrkeyboard/app/KeyboardSwitcher;->mInputMethodService:Lcom/mrkeyboard/app/LatinIME;
+
+    invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v1
+
+    invoke-virtual {v0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v2, "mr_theme_layouts"
+
+    const-string v3, "array"
+
+    invoke-virtual {v1, v2, v3, v0}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+
+    move-result v0
+
+    invoke-virtual {v1, v0}, Landroid/content/res/Resources;->obtainTypedArray(I)Landroid/content/res/TypedArray;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/content/res/TypedArray;->length()I
+
+    move-result v1
+
+    new-array v2, v1, [I
+
+    const/4 v3, 0x0
+
+    :goto_loop
+    if-ge v3, v1, :cond_done
+
+    const/4 v4, 0x0
+
+    invoke-virtual {v0, v3, v4}, Landroid/content/res/TypedArray;->getResourceId(II)I
+
+    move-result v4
+
+    aput v4, v2, v3
+
+    add-int/lit8 v3, v3, 0x1
+
+    goto :goto_loop
+
+    :cond_done
+    invoke-virtual {v0}, Landroid/content/res/TypedArray;->recycle()V
+
+    sput-object v2, Lcom/mrkeyboard/app/KeyboardSwitcher;->THEMES:[I
+
+    return-void
+.end method
+
 .method private changeLatinKeyboardView(IZ)V
     .locals 5
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/KeyboardSwitcher;->ensureThemes()V
 
     .line 614
     iget v0, p0, Lcom/mrkeyboard/app/KeyboardSwitcher;->mLayoutId:I

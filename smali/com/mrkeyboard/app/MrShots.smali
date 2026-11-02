@@ -382,7 +382,7 @@
 
     if-eqz v2, :cond_end
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->isMidnight()Z
+    invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->flatBar()Z
 
     move-result v3
 

@@ -6,6 +6,6 @@
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_labels" android:key="graphics_settings" android:icon="@drawable/mr_ui_ic_eye_cyan">
     <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/hint_modes" android:title="@string/title_hint_mode" android:key="pref_hint_mode" android:defaultValue="@string/default_hint_mode" android:entryValues="@array/hint_modes_values"/>
-    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_label_scale" android:key="pref_label_scale_v2" android:defaultValue="0.69" hk:asPercent="true" hk:logScale="true" hk:maxValue="2.0" hk:minValue="0.5"/>
+    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_label_scale" android:key="pref_label_scale_v2" android:defaultValue="@string/default_label_scale" hk:asPercent="true" hk:logScale="true" hk:maxValue="2.0" hk:minValue="0.5"/>
   </PreferenceCategory>
 </PreferenceScreen>

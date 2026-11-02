@@ -62,6 +62,13 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
+    # Card com o visual da tecla: o raio acompanha o das teclas
+    invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
+
+    move-result-object v2
+
+    invoke-static {v1, v2}, Lcom/mrkeyboard/app/KeyStyle;->applyKeyLook(Landroid/graphics/drawable/Drawable;Landroid/content/Context;)V
+
     # setBackgroundDrawable pode sobrescrever o padding: reaplica os 10dp do item
     sget v1, Lcom/mrkeyboard/app/MrTools;->sPad:I
 
@@ -82,15 +89,21 @@
 
     and-int/2addr v2, v3
 
-    const/high16 v3, 0x22000000
+    const-string v3, "alpha_card"
+
+    invoke-static {v3}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v3
 
     or-int/2addr v2, v3
 
     invoke-virtual {v1, v2}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    sget v2, Lcom/mrkeyboard/app/MrTools;->sPadV:I
+    const/high16 v2, 0xc0400000    # -3.0f
 
-    int-to-float v2, v2
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
+
+    move-result v2
 
     invoke-virtual {v1, v2}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 
@@ -121,9 +134,11 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    sget v2, Lcom/mrkeyboard/app/MrTools;->sPad:I
+    const/high16 v2, 0x40000000    # 2.0f
 
-    int-to-float v2, v2
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
+
+    move-result v2
 
     invoke-virtual {v1, v2}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 

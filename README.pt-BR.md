@@ -22,7 +22,7 @@ Precisa de Android 8.0 ou mais novo.
   - sugere os nomes e as palavras que você acabou de escrever na mesma conversa (só na memória, apagados ao trocar de campo ou de app);
   - tudo roda no aparelho;
   - vem desligado: ligue *Mostrar sugestões* na mesma tela.
-- **Temas:** Mr Keyboard Neon, Dark Tech (suave e em relevo) e Midnight Steel. O espaçamento e o arredondamento das teclas valem em todos os temas.
+- **Temas:** Mr Keyboard Neon, Dark Tech (suave e em relevo), Midnight Steel e Cobalt Glass (translúcido com blur de fundo no Android 12+; fundo escuro semitransparente onde o blur não está disponível). O espaçamento e o arredondamento das teclas valem em todos os temas, e o arredondamento também vale no popup do toque longo, no balão de preview, na barra e nos painéis.
 - **Gestos e teclas:** deslizar para cima, baixo, esquerda e direita e as teclas de volume podem executar ações do teclado.
 - **App em português, inglês ou espanhol:** segue o idioma do sistema, ou escolha em *Configurações → Geral → Idioma do app*.
 

@@ -5,7 +5,7 @@
         <shape
             android:shape="rectangle">
             <solid
-                android:color="#55808080" />
+                android:color="@color/mr_tb_btn_pressed" />
             <corners
                 android:radius="10dp" />
         </shape>
@@ -14,10 +14,10 @@
         <shape
             android:shape="rectangle">
             <solid
-                android:color="#22808080" />
+                android:color="@color/mr_tb_btn_fill" />
             <stroke
                 android:width="1dp"
-                android:color="#44808080" />
+                android:color="@color/mr_tb_btn_stroke" />
             <corners
                 android:radius="10dp" />
         </shape>

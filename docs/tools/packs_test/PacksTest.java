@@ -223,12 +223,12 @@ public class PacksTest {
 
         // ---- altura da barra de ferramentas e sugestões
         check("barra: escala vazia, inválida ou fora da faixa fica entre 60% e 150% (padrão 100%)",
-                MrBar.scale(null) == 1f && MrBar.scale("abc") == 1f && MrBar.scale("1.0") == 1f && MrBar.scale("0.3") == 0.6f
-                && MrBar.scale("2") == 1.5f && MrBar.scale("0.8") == 0.8f && MrBar.scale("NaN") == 1f,
-                MrBar.scale("0.3") + " " + MrBar.scale("2"));
+                MrBar.scale(null, 0.6f, 1.5f) == 1f && MrBar.scale("abc", 0.6f, 1.5f) == 1f && MrBar.scale("1.0", 0.6f, 1.5f) == 1f && MrBar.scale("0.3", 0.6f, 1.5f) == 0.6f
+                && MrBar.scale("2", 0.6f, 1.5f) == 1.5f && MrBar.scale("0.8", 0.6f, 1.5f) == 0.8f && MrBar.scale("NaN", 0.6f, 1.5f) == 1f,
+                MrBar.scale("0.3", 0.6f, 1.5f) + " " + MrBar.scale("2", 0.6f, 1.5f));
         check("barra: altura = 48 dp x densidade x escala (arredondada)",
-                MrBar.heightPx(2f, 1f) == 96 && MrBar.heightPx(2.5f, 0.6f) == 72 && MrBar.heightPx(3f, 1.5f) == 216,
-                MrBar.heightPx(2f, 1f) + " " + MrBar.heightPx(2.5f, 0.6f));
+                MrBar.heightPx(96f, 1f) == 96 && MrBar.heightPx(120f, 0.6f) == 72 && MrBar.heightPx(144f, 1.5f) == 216,
+                MrBar.heightPx(96f, 1f) + " " + MrBar.heightPx(120f, 0.6f));
 
         // ---- instalação
         final MrPacks.Catalog c1 = MrPacks.cachedCatalog(ctx);

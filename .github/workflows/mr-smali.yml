@@ -1,0 +1,87 @@
+# Mr Keyboard: gera o smali da camada Java (MrBar, MrText, MrFix, ...) a partir de docs/tools/java/src.
+#
+# Só roda à mão (Actions > "Mr Keyboard - smali" > Run workflow). Não publica nada e não altera o repositório.
+# É o mesmo comando que o mr-checks.yml confere (docs/tools/build_java.sh, com o dx do dex2jar 2.1 e o
+# apktool das versões fixadas abaixo), então o resultado é o que o check_java_smali.sh espera, byte a byte.
+#
+# Quando usar: depois de mudar um .java em docs/tools/java/src (ou quando o passo "Smali da camada Java em dia"
+# do mr-checks.yml acusar DIFERENTE).
+#
+# Resultado em Actions > (execução) > Artifacts:
+#   smali-gerado -> só os .smali que têm fonte Java, com o caminho smali/com/mrkeyboard/app/.
+#                   Extraia na raiz do projeto (sobrescrevendo) e faça o commit.
+# O resumo da execução mostra quais arquivos do repositório estão diferentes do gerado.
+name: Mr Keyboard - smali
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  APKTOOL_VERSION: 2.11.1
+  DEX2JAR_URL: https://github.com/pxb1988/dex2jar/releases/download/v2.1/dex2jar-2.1.zip
+  DEX2JAR_SHA256: 7a9bdf843d43de4d1e94ec2e7b6f55825017b0c4a7ee39ff82660e2493a46f08
+
+jobs:
+  smali:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Baixar apktool e dex2jar
+        run: |
+          curl -sSL -o apktool.jar \
+            "https://github.com/iBotPeaches/Apktool/releases/download/v$APKTOOL_VERSION/apktool_$APKTOOL_VERSION.jar"
+          curl -sSL -o dex2jar.zip "$DEX2JAR_URL"
+          echo "$DEX2JAR_SHA256  dex2jar.zip" | sha256sum -c -
+          unzip -q dex2jar.zip -d tools
+
+      - name: Gerar o smali (build_java.sh)
+        env:
+          DX_JAR: ${{ github.workspace }}/tools/dex-tools-2.1/lib/dx-27.0.3.jar
+          APKTOOL_JAR: ${{ github.workspace }}/apktool.jar
+        run: sh docs/tools/build_java.sh
+
+      - name: Separar só o smali que tem fonte Java
+        run: |
+          # a mesma regra do check_java_smali.sh: Base.smali e Base$*.smali de cada docs/tools/java/src/.../Base.java
+          APP=smali/com/mrkeyboard/app
+          DEST=smali-gerado/$APP
+          mkdir -p "$DEST"
+          for java in docs/tools/java/src/com/mrkeyboard/app/*.java; do
+            base=$(basename "$java" .java)
+            for f in "$APP/$base.smali" "$APP/$base"'$'*.smali; do
+              if [ -f "$f" ]; then cp "$f" "$DEST/"; fi
+            done
+          done
+          echo "gerados: $(ls "$DEST" | wc -l) arquivos"
+
+      - name: Resumo - o que difere do repositório
+        run: |
+          {
+            echo "### smali da camada Java"
+            echo
+            if [ -z "$(git status --porcelain -- smali)" ]; then
+              echo "O smali do repositório já é igual ao gerado. Nada a fazer."
+            else
+              echo "Diferem do repositório (troque pelos do artifact \`smali-gerado\`):"
+              echo
+              echo '```'
+              git status --short -- smali
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smali-gerado
+          path: smali-gerado/
+          retention-days: 14
+          if-no-files-found: error

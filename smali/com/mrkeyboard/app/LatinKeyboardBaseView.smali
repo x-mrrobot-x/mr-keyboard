@@ -45,6 +45,10 @@
 
 .field private mMrAccentBg:Landroid/graphics/drawable/Drawable;
 
+.field private mPreviewBg:I
+
+.field private mPreviewMoreBg:I
+
 .field private mBackgroundDimAmount:F
 
 .field private mBuffer:Landroid/graphics/Bitmap;
@@ -241,9 +245,7 @@
 
 .field protected mWindowY:I
 
-.field private mNeonPaint:Landroid/graphics/Paint;
-
-.field private mNeonRect:Landroid/graphics/RectF;
+.field private mThemeFlags:I
 
 
 # direct methods
@@ -1721,14 +1723,33 @@
     return v1
 .end method
 
-.method private isSoftNeonTheme()Z
+# Flags do tema deste teclado (MrTheme), lidas da tag do layout 1 vez e guardadas em mThemeFlags.
+# p1 = mascara de MrTheme (FLAT_BAR, ACCENT_KEYS, TRANSLUCENT, PLAIN_ACCENT_TEXT, ...).
+.method private hasTheme(I)Z
     .locals 2
 
-    iget v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mKeyTextColor:I
+    iget v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mThemeFlags:I
 
-    const v1, -0x613601
+    if-nez v0, :cond_have
 
-    if-ne v0, v1, :cond_no
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getTag()Ljava/lang/Object;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getContext()Landroid/content/Context;
+
+    move-result-object v1
+
+    invoke-static {v1, v0}, Lcom/mrkeyboard/app/MrTheme;->flags(Landroid/content/Context;Ljava/lang/Object;)I
+
+    move-result v0
+
+    iput v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mThemeFlags:I
+
+    :cond_have
+    and-int/2addr v0, p1
+
+    if-eqz v0, :cond_no
 
     const/4 v0, 0x1
 
@@ -1740,101 +1761,37 @@
     return v0
 .end method
 
-.method private getNeonAccentContentColor()I
+# Cor do texto e do icone nas teclas de destaque dos temas sem a flag PLAIN_ACCENT_TEXT (hoje Neon e Soft): papel
+# accent_text, lido por nome (mr_<tema>_accent_text, depois mr_accent_text).
+.method private getAccentContentColor()I
     .locals 1
 
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->isSoftNeonTheme()Z
+    const-string v0, "accent_text"
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
 
     move-result v0
-
-    if-eqz v0, :cond_classic
-
-    const v0, -0x1
-
-    return v0
-
-    :cond_classic
-    const v0, -0xf8ecf4
 
     return v0
 .end method
 
-.method private getNeonAccentFillColor(Lcom/mrkeyboard/app/Keyboard$Key;)I
-    .locals 3
+# Tecla de destaque: desenha btn_keyboard_key_<tema>_accent no lugar do fundo normal (o drawable ja traz sombra,
+# halo e borda do tema). Devolve false, e a tecla sai com o fundo normal, quando a tecla nao e de destaque ou o
+# tema nao tem o drawable.
+.method private drawAccentFill(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/Keyboard$Key;)Z
+    .locals 4
 
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->isSoftNeonTheme()Z
-
-    move-result v0
-
-    iget-boolean v1, p1, Lcom/mrkeyboard/app/Keyboard$Key;->pressed:Z
-
-    if-eqz v1, :cond_not_pressed
-
-    if-eqz v0, :cond_p_classic
-
-    const v2, -0xdd774e
-
-    return v2
-
-    :cond_p_classic
-    const v2, -0xdc6fb1
-
-    return v2
-
-    :cond_not_pressed
-    iget-boolean v1, p1, Lcom/mrkeyboard/app/Keyboard$Key;->locked:Z
-
-    if-nez v1, :cond_active
-
-    iget-boolean v1, p1, Lcom/mrkeyboard/app/Keyboard$Key;->on:Z
-
-    if-eqz v1, :cond_normal
-
-    :cond_active
-    if-eqz v0, :cond_a_classic
-
-    const v2, -0x82290b
-
-    return v2
-
-    :cond_a_classic
-    const v2, -0x630f44
-
-    return v2
-
-    :cond_normal
-    if-eqz v0, :cond_n_classic
-
-    const v2, -0xd15728
-
-    return v2
-
-    :cond_n_classic
-    const v2, -0xca3b91
-
-    return v2
-.end method
-
-.method private drawNeonAccentFill(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/Keyboard$Key;)Z
-    .locals 8
-
-    invoke-direct {p0, p2}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->isNeonAccentKey(Lcom/mrkeyboard/app/Keyboard$Key;)Z
+    invoke-direct {p0, p2}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->isAccentKey(Lcom/mrkeyboard/app/Keyboard$Key;)Z
 
     move-result v0
 
     if-eqz v0, :cond_none
 
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->isSoftNeonTheme()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_classic
-
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getMrAccentBackground()Landroid/graphics/drawable/Drawable;
 
     move-result-object v0
 
-    if-eqz v0, :cond_classic
+    if-eqz v0, :cond_none
 
     invoke-virtual {p2}, Lcom/mrkeyboard/app/Keyboard$Key;->getCurrentDrawableState()[I
 
@@ -1860,76 +1817,11 @@
 
     invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/KeyStyle;->prepare(Landroid/graphics/drawable/Drawable;IILandroid/content/Context;)V
 
-    invoke-virtual {v0, p1}, Landroid/graphics/drawable/Drawable;->draw(Landroid/graphics/Canvas;)V
+    invoke-static {v0, p1, v1, v2}, Lcom/mrkeyboard/app/KeyStyle;->drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
 
     const/4 v0, 0x1
 
     return v0
-
-    :cond_classic
-    iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mNeonPaint:Landroid/graphics/Paint;
-
-    if-nez v0, :cond_neon_paint_ok
-
-    new-instance v0, Landroid/graphics/Paint;
-
-    const/4 v1, 0x1
-
-    invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
-
-    iput-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mNeonPaint:Landroid/graphics/Paint;
-
-    :cond_neon_paint_ok
-    invoke-direct {p0, p2}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getNeonAccentFillColor(Lcom/mrkeyboard/app/Keyboard$Key;)I
-
-    move-result v1
-
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
-
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getResources()Landroid/content/res/Resources;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
-
-    move-result-object v1
-
-    iget v1, v1, Landroid/util/DisplayMetrics;->density:F
-
-    const/high16 v2, 0x40a00000
-
-    mul-float/2addr v2, v1
-
-    const/high16 v3, 0x41000000
-
-    mul-float/2addr v3, v1
-
-    iget v4, p2, Lcom/mrkeyboard/app/Keyboard$Key;->width:I
-
-    int-to-float v4, v4
-
-    sub-float/2addr v4, v2
-
-    iget v5, p2, Lcom/mrkeyboard/app/Keyboard$Key;->height:I
-
-    int-to-float v5, v5
-
-    sub-float/2addr v5, v2
-
-    iget-object v6, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mNeonRect:Landroid/graphics/RectF;
-
-    if-nez v6, :cond_neon_rect_ok
-
-    new-instance v6, Landroid/graphics/RectF;
-
-    invoke-direct {v6}, Landroid/graphics/RectF;-><init>()V
-
-    iput-object v6, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mNeonRect:Landroid/graphics/RectF;
-
-    :cond_neon_rect_ok
-    invoke-virtual {v6, v2, v2, v4, v5}, Landroid/graphics/RectF;->set(FFFF)V
-
-    invoke-virtual {p1, v6, v3, v3, v0}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
     :cond_none
     const/4 v0, 0x0
@@ -1937,16 +1829,72 @@
     return v0
 .end method
 
-.method private getMrAccentBackground()Landroid/graphics/drawable/Drawable;
+.method private getPreviewBgId(Z)I
     .locals 5
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMrAccentBg:Landroid/graphics/drawable/Drawable;
+    iget v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mPreviewBg:I
 
-    if-eqz v0, :cond_load
+    if-nez v0, :cond_have
 
-    return-object v0
+    const v0, 0x7f07009c
 
-    :cond_load
+    const v1, 0x7f07009d
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getTag()Ljava/lang/Object;
+
+    move-result-object v2
+
+    instance-of v3, v2, Ljava/lang/String;
+
+    if-eqz v3, :cond_save
+
+    check-cast v2, Ljava/lang/String;
+
+    invoke-virtual {v2}, Ljava/lang/String;->length()I
+
+    move-result v3
+
+    const/4 v4, 0x3
+
+    if-le v3, v4, :cond_save
+
+    invoke-virtual {v2, v4}, Ljava/lang/String;->substring(I)Ljava/lang/String;
+
+    move-result-object v2
+
+    const-string v3, "_bg"
+
+    invoke-direct {p0, v2, v3, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->previewId(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v0
+
+    const-string v3, "_more_bg"
+
+    invoke-direct {p0, v2, v3, v1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->previewId(Ljava/lang/String;Ljava/lang/String;I)I
+
+    move-result v1
+
+    :cond_save
+    iput v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mPreviewBg:I
+
+    iput v1, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mPreviewMoreBg:I
+
+    :cond_have
+    if-eqz p1, :cond_plain
+
+    iget v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mPreviewMoreBg:I
+
+    return v0
+
+    :cond_plain
+    iget v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mPreviewBg:I
+
+    return v0
+.end method
+
+.method private previewId(Ljava/lang/String;Ljava/lang/String;I)I
+    .locals 4
+
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -1957,19 +1905,111 @@
 
     invoke-virtual {v0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
 
-    move-result-object v4
+    move-result-object v0
 
-    const-string v2, "btn_keyboard_key_mr_accent"
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "preview_"
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
 
     const-string v3, "drawable"
 
-    invoke-virtual {v1, v2, v3, v4}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+    invoke-virtual {v1, v2, v3, v0}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+
+    move-result v0
+
+    if-nez v0, :cond_ok
+
+    return p3
+
+    :cond_ok
+    return v0
+.end method
+
+# Fundo das teclas de destaque do tema: drawable btn_keyboard_key_<tema>_accent, lido por nome a partir da tag do
+# layout (mr_glass -> btn_keyboard_key_glass_accent). Sem o drawable devolve null (tecla com o fundo normal).
+.method private getMrAccentBackground()Landroid/graphics/drawable/Drawable;
+    .locals 6
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMrAccentBg:Landroid/graphics/drawable/Drawable;
+
+    if-eqz v0, :cond_load
+
+    return-object v0
+
+    :cond_load
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getTag()Ljava/lang/Object;
+
+    move-result-object v1
+
+    instance-of v2, v1, Ljava/lang/String;
+
+    if-eqz v2, :cond_null
+
+    check-cast v1, Ljava/lang/String;
+
+    invoke-virtual {v1}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    const/4 v3, 0x3
+
+    if-le v2, v3, :cond_null
+
+    invoke-virtual {v1, v3}, Ljava/lang/String;->substring(I)Ljava/lang/String;
+
+    move-result-object v1
+
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "btn_keyboard_key_"
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v3, "_accent"
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getContext()Landroid/content/Context;
+
+    move-result-object v3
+
+    invoke-virtual {v3}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v4
+
+    invoke-virtual {v3}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+
+    move-result-object v3
+
+    const-string v5, "drawable"
+
+    invoke-virtual {v4, v2, v5, v3}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v2
 
     if-eqz v2, :cond_null
 
-    invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getDrawable(I)Landroid/graphics/drawable/Drawable;
+    invoke-virtual {v4, v2}, Landroid/content/res/Resources;->getDrawable(I)Landroid/graphics/drawable/Drawable;
 
     move-result-object v0
 
@@ -1983,10 +2023,19 @@
     return-object v0
 .end method
 
-.method private getNeonIconFilter(Lcom/mrkeyboard/app/Keyboard$Key;Landroid/graphics/ColorFilter;)Landroid/graphics/ColorFilter;
+.method private getAccentIconFilter(Lcom/mrkeyboard/app/Keyboard$Key;Landroid/graphics/ColorFilter;)Landroid/graphics/ColorFilter;
     .locals 3
 
-    invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->isNeonAccentKey(Lcom/mrkeyboard/app/Keyboard$Key;)Z
+    # Slate, Midnight e Glass: icones das teclas de destaque seguem o filtro padrao do tema.
+    const/16 v0, 0x40
+
+    invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->hasTheme(I)Z
+
+    move-result v0
+
+    if-nez v0, :cond_other
+
+    invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->isAccentKey(Lcom/mrkeyboard/app/Keyboard$Key;)Z
 
     move-result v0
 
@@ -1994,7 +2043,7 @@
 
     new-instance v0, Landroid/graphics/PorterDuffColorFilter;
 
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getNeonAccentContentColor()I
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getAccentContentColor()I
 
     move-result v1
 
@@ -2008,16 +2057,25 @@
     return-object p2
 .end method
 
-.method private getNeonKeyTextColor(Lcom/mrkeyboard/app/Keyboard$Key;I)I
+.method private getAccentKeyTextColor(Lcom/mrkeyboard/app/Keyboard$Key;I)I
     .locals 1
 
-    invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->isNeonAccentKey(Lcom/mrkeyboard/app/Keyboard$Key;)Z
+    # Slate, Midnight e Glass: teclas de destaque coloridas, mas com a cor de texto padrao do tema.
+    const/16 v0, 0x40
+
+    invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->hasTheme(I)Z
+
+    move-result v0
+
+    if-nez v0, :cond_other
+
+    invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->isAccentKey(Lcom/mrkeyboard/app/Keyboard$Key;)Z
 
     move-result v0
 
     if-eqz v0, :cond_other
 
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getNeonAccentContentColor()I
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getAccentContentColor()I
 
     move-result v0
 
@@ -2027,20 +2085,64 @@
     return p2
 .end method
 
-.method private isNeonAccentKey(Lcom/mrkeyboard/app/Keyboard$Key;)Z
+# Tecla de destaque (todos os temas com tag): lista fixa de codigos (sparse-switch _0) e, com a flag ACCENT_WIDE,
+# tambem toda tecla marcada isModifier, as teclas do Tasker (texto "tskcmd:") e 123/TSK, 123 do telefone, Espaco e
+# Enter (sparse-switch _1).
+.method private isAccentKey(Lcom/mrkeyboard/app/Keyboard$Key;)Z
     .locals 2
 
-    iget v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mKeyTextColor:I
+    const/4 v0, 0x4
 
-    const v1, -0x911865
+    invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->hasTheme(I)Z
 
-    if-eq v0, v1, :cond_theme_ok
+    move-result v0
 
-    const v1, -0x613601
+    if-eqz v0, :cond_false
 
-    if-ne v0, v1, :cond_false
+    iget-object v0, p1, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
 
-    :cond_theme_ok
+    if-eqz v0, :cond_wide
+
+    array-length v1, v0
+
+    if-eqz v1, :cond_wide
+
+    const/4 v1, 0x0
+
+    aget v0, v0, v1
+
+    sparse-switch v0, :sswitch_data_0
+
+    :cond_wide
+    const/16 v0, 0x8
+
+    invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->hasTheme(I)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_false
+
+    iget-boolean v0, p1, Lcom/mrkeyboard/app/Keyboard$Key;->modifier:Z
+
+    if-nez v0, :sswitch_true
+
+    iget-object v0, p1, Lcom/mrkeyboard/app/Keyboard$Key;->text:Ljava/lang/CharSequence;
+
+    if-eqz v0, :cond_codes
+
+    invoke-virtual {v0}, Ljava/lang/Object;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    const-string v1, "tskcmd:"
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-nez v0, :sswitch_true
+
+    :cond_codes
     iget-object v0, p1, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
 
     if-eqz v0, :cond_false
@@ -2053,7 +2155,7 @@
 
     aget v0, v0, v1
 
-    sparse-switch v0, :sswitch_data_0
+    sparse-switch v0, :sswitch_data_1
 
     :cond_false
     const/4 v0, 0x0
@@ -2082,6 +2184,14 @@
         -0x5 -> :sswitch_true
         -0x1 -> :sswitch_true
         0x9 -> :sswitch_true
+    .end sparse-switch
+
+    :sswitch_data_1
+    .sparse-switch
+        -0x12c -> :sswitch_true
+        -0x2 -> :sswitch_true
+        0xa -> :sswitch_true
+        0x20 -> :sswitch_true
     .end sparse-switch
 .end method
 
@@ -2526,7 +2636,7 @@
     iget v1, v6, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mKeyTextColor:I
 
     :goto_5
-    invoke-direct {v6, v0, v1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getNeonKeyTextColor(Lcom/mrkeyboard/app/Keyboard$Key;I)I
+    invoke-direct {v6, v0, v1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getAccentKeyTextColor(Lcom/mrkeyboard/app/Keyboard$Key;I)I
 
     move-result v1
 
@@ -2658,13 +2768,13 @@
 
     invoke-static {v11, v3, v5, v1}, Lcom/mrkeyboard/app/KeyStyle;->prepare(Landroid/graphics/drawable/Drawable;IILandroid/content/Context;)V
 
-    invoke-direct {v6, v7, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->drawNeonAccentFill(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/Keyboard$Key;)Z
+    invoke-direct {v6, v7, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->drawAccentFill(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/Keyboard$Key;)Z
 
     move-result v1
 
     if-nez v1, :cond_mr_accent_drawn
 
-    invoke-virtual {v11, v7}, Landroid/graphics/drawable/Drawable;->draw(Landroid/graphics/Canvas;)V
+    invoke-static {v11, v7, v3, v5}, Lcom/mrkeyboard/app/KeyStyle;->drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
 
     :cond_mr_accent_drawn
 
@@ -3365,7 +3475,7 @@
 
     .line 1138
     :goto_e
-    invoke-direct {v6, v15, v1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getNeonIconFilter(Lcom/mrkeyboard/app/Keyboard$Key;Landroid/graphics/ColorFilter;)Landroid/graphics/ColorFilter;
+    invoke-direct {v6, v15, v1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getAccentIconFilter(Lcom/mrkeyboard/app/Keyboard$Key;Landroid/graphics/ColorFilter;)Landroid/graphics/ColorFilter;
 
     move-result-object v2
 
@@ -4256,21 +4366,24 @@
 
     move-result-object v8
 
-    if-eqz v6, :cond_7
+    invoke-direct {p0, v6}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getPreviewBgId(Z)I
 
-    const v6, 0x7f07009d
+    move-result v6
 
-    goto :goto_2
-
-    :cond_7
-    const v6, 0x7f07009c
-
-    :goto_2
     invoke-virtual {v8, v6}, Landroid/content/res/Resources;->getDrawable(I)Landroid/graphics/drawable/Drawable;
 
     move-result-object v6
 
     invoke-virtual {v7, v6}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    # Balao de preview segue o raio das teclas (raio + 2 dp)
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getContext()Landroid/content/Context;
+
+    move-result-object v7
+
+    const/high16 v8, 0x40000000    # 2.0f
+
+    invoke-static {v6, v7, v8}, Lcom/mrkeyboard/app/KeyStyle;->applyShape(Landroid/graphics/drawable/Drawable;Landroid/content/Context;F)V
 
     .line 1262
     iget-object v6, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mOffsetInWindow:[I
@@ -4939,6 +5052,21 @@
     iget-object v2, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboard:Lcom/mrkeyboard/app/LatinKeyboardBaseView;
 
     invoke-virtual {v2, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->setKeyboard(Lcom/mrkeyboard/app/Keyboard;)V
+
+    # Fundo do popup segue o raio das teclas (raio + 8 dp)
+    iget-object v9, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardContainer:Landroid/view/View;
+
+    invoke-virtual {v9}, Landroid/view/View;->getBackground()Landroid/graphics/drawable/Drawable;
+
+    move-result-object v9
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getContext()Landroid/content/Context;
+
+    move-result-object v10
+
+    const/high16 v11, 0x41000000    # 8.0f
+
+    invoke-static {v9, v10, v11}, Lcom/mrkeyboard/app/KeyStyle;->applyShape(Landroid/graphics/drawable/Drawable;Landroid/content/Context;F)V
 
     .line 1448
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardContainer:Landroid/view/View;

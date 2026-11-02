@@ -5,7 +5,7 @@
     <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/keyboard_layout_modes" android:title="@string/keyboard_layout" android:key="pref_keyboard_layout" android:defaultValue="8" android:entryValues="@array/keyboard_layout_modes_values"/>
     <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_keyboard_height_portrait" android:key="settings_height_portrait" android:defaultValue="@string/default_height_portrait" hk:displayFormat="%.0f%%" hk:maxValue="75.0" hk:minValue="15.0" hk:step="1.0"/>
     <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_keyboard_height_landscape" android:key="settings_height_landscape" android:defaultValue="@string/default_height_landscape" hk:displayFormat="%.0f%%" hk:maxValue="75.0" hk:minValue="15.0" hk:step="1.0"/>
-    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_bar_scale" android:key="pref_bar_scale" android:defaultValue="1.0" hk:asPercent="true" hk:maxValue="1.5" hk:minValue="0.6" hk:step="0.05"/>
+    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_bar_scale" android:key="pref_bar_scale" android:defaultValue="1.0" hk:asPercent="true" hk:maxValue="@string/mr_bar_scale_max" hk:minValue="@string/mr_bar_scale_min" hk:step="0.05"/>
     <PreferenceScreen android:title="@string/pref_screen_view_title" android:summary="@string/summary_pref_screen_view">
       <intent android:action="com.mrkeyboard.app.PREFS_VIEW"/>
     </PreferenceScreen>

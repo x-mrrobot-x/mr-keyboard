@@ -383,7 +383,7 @@
 
     iput p2, p0, Lcom/mrkeyboard/app/Keyboard;->mProximityThreshold:I
 
-    invoke-direct {p0, p1}, Lcom/mrkeyboard/app/Keyboard;->applyDarkTechPad(Landroid/content/Context;)V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/Keyboard;->zeroPad()V
 
     return-void
 
@@ -1655,9 +1655,9 @@
     .line 1224
     invoke-direct {v7, v8, v0}, Lcom/mrkeyboard/app/Keyboard;->parseKeyboardAttributes(Landroid/content/res/Resources;Landroid/content/res/XmlResourceParser;)V
 
-    # Dark Tech: tira o pad fixo das teclas (vertical e horizontal) para o slider
+    # Tira o pad fixo das teclas (vertical e horizontal) para o slider
     # "Espacamento das teclas" controlar sozinho o vao nos eixos X e Y.
-    invoke-direct/range {p0 .. p1}, Lcom/mrkeyboard/app/Keyboard;->applyDarkTechPad(Landroid/content/Context;)V
+    invoke-direct/range {p0 .. p0}, Lcom/mrkeyboard/app/Keyboard;->zeroPad()V
 
     goto/16 :goto_2
 
@@ -1764,14 +1764,8 @@
     return-void
 .end method
 
-.method private applyDarkTechPad(Landroid/content/Context;)V
+.method private zeroPad()V
     .locals 1
-
-    invoke-static {p1}, Lcom/mrkeyboard/app/KeyStyle;->isDarkTech(Landroid/content/Context;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_end
 
     const/4 v0, 0x0
 
@@ -1779,7 +1773,6 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/Keyboard;->mHorizontalPad:F
 
-    :cond_end
     return-void
 .end method
 

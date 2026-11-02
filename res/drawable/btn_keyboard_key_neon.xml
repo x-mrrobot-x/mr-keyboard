@@ -7,6 +7,10 @@
         android:drawable="@drawable/key_neon_pressed" />
     <item
         android:state_single="true"
+        android:state_selected="true"
+        android:drawable="@drawable/key_neon_hl" />
+    <item
+        android:state_single="true"
         android:drawable="@drawable/key_neon_normal" />
     <item
         android:state_checkable="true"
@@ -28,7 +32,7 @@
         android:drawable="@drawable/key_neon_on" />
     <item
         android:state_checkable="true"
-        android:drawable="@drawable/key_neon_normal" />
+        android:drawable="@drawable/key_neon_hl" />
     <item
         android:state_pressed="true"
         android:drawable="@drawable/key_neon_pressed" />

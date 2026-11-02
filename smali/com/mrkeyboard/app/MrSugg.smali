@@ -7,7 +7,7 @@
 #
 # A faixa de sugestoes (container de candidates.xml com o CandidateView) mora em "sg_host",
 # dentro de bar_main, e nao na area de candidatos do InputMethodService. bar_main tem dois
-# grupos que se alternam na mesma linha de 44dp: bar_tools (ferramentas) e bar_sugg.
+# grupos que se alternam na mesma linha de 48dp: bar_tools (ferramentas) e bar_sugg.
 #
 # A linha continua obedecendo a tecla da barra (MrTools.sBarOn): oculta, nao mostra nada.
 # Visivel (sem painel aberto):

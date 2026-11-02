@@ -44,8 +44,8 @@
     <attr name="layoutColumns" format="integer" />
     <attr name="layoutRows" format="integer" />
     <attr name="logScale" format="boolean" />
-    <attr name="maxValue" format="float" />
-    <attr name="minValue" format="float" />
+    <attr name="maxValue" format="float|reference" />
+    <attr name="minValue" format="float|reference" />
     <attr name="popupCharacters" format="string" />
     <attr name="popupKeyboard" format="reference" />
     <attr name="popupLayout" format="reference" />

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Registro dos temas do teclado. O indice de mr_theme_layouts e o valor guardado na preferencia
+     pref_keyboard_layout (as mesmas posicoes de keyboard_layout_modes_values, mais os valores antigos 1 a 6,
+     que abrem o Slate). Tema novo: criar res/layout/input_mr_<tema>.xml com a tag mr_<tema>, uma linha em
+     mr_theme_layouts, uma linha em mr_theme_tags e outra em mr_theme_flags (mesma posicao), o nome em
+     keyboard_layout_modes e o valor em keyboard_layout_modes_values. O raio de cada camada da tecla nao
+     precisa de registro: o KeyStyle soma ao raio das teclas a folga que o proprio drawable desenha. -->
+<resources>
+    <!-- Layout de cada tema (KeyboardSwitcher) -->
+    <array name="mr_theme_layouts">
+        <item>@layout/input_mr_neon</item>
+        <item>@layout/input_mr_slate</item>
+        <item>@layout/input_mr_slate</item>
+        <item>@layout/input_mr_slate</item>
+        <item>@layout/input_mr_slate</item>
+        <item>@layout/input_mr_slate</item>
+        <item>@layout/input_mr_slate</item>
+        <item>@layout/input_mr_soft</item>
+        <item>@layout/input_mr_slate</item>
+        <item>@layout/input_mr_midnight</item>
+        <item>@layout/input_mr_glass</item>
+    </array>
+    <!-- Tag de cada layout de tema (android:tag do LatinKeyboardView) -->
+    <string-array name="mr_theme_tags">
+        <item>mr_neon</item>
+        <item>mr_soft</item>
+        <item>mr_slate</item>
+        <item>mr_midnight</item>
+        <item>mr_glass</item>
+    </string-array>
+    <!-- Flags de cada tag, na mesma ordem de mr_theme_tags (os bits estao no topo de MrTheme.smali):
+         0x02 barra plana, 0x04 teclas de destaque, 0x08 grupo de destaque ampliado, 0x10 translucido,
+         0x20 paleta tech, 0x40 texto padrao nas teclas de destaque -->
+    <integer-array name="mr_theme_flags">
+        <item>0x0c</item>
+        <item>0x0c</item>
+        <item>0x6c</item>
+        <item>0x6e</item>
+        <item>0x7e</item>
+    </integer-array>
+</resources>

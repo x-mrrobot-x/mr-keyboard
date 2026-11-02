@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
-"""Confere, no smali, se todo registrador lido já recebeu valor em TODOS os caminhos até ali.
+"""Confere o smali editado à mão contra três erros que fecham o app ou derrubam a montagem.
 
-Existe porque editar smali à mão pode tirar a única instrução que dava valor a um registrador
-(`const/4 v1, 0x1`, por exemplo) e o resto do método continuar usando. O verificador do ART recusa a
-classe inteira ao carregar ("register vN has type Undefined"), o app fecha, e nem o apktool nem o
-d2j-asm-verify avisam.
+1. Registrador lido sem valor. Editar smali à mão pode tirar a única instrução que dava valor a um registrador
+   (`const/4 v1, 0x1`, por exemplo) e o resto do método continuar usando. O verificador do ART recusa a classe
+   inteira ao carregar ("register vN has type Undefined"), o app fecha, e nem o apktool nem o d2j-asm-verify
+   avisam. Só olha atribuição definitiva (não confere tipos).
+2. Chamada a método que não existe. Procura o método na classe, nas superclasses e nas interfaces que estão no
+   projeto; se a cadeia sai para o framework Android, não acusa (evita falso positivo).
+3. Registrador acima do limite do formato da instrução. `invoke-*` comum, `if-eq`, `iget`/`iput`, `instance-of`,
+   `new-array`, `const/4`, `move` e as formas `/2addr` e `/lit16` só aceitam v0 a v15; as de 8 bits (`const-string`,
+   `sget`, `aget`, `if-eqz`, `move-result`...) aceitam até v255. `pN` conta como v(locals+N), então um método com
+   muitos locais pode jogar o `p0` para fora do limite (ex.: `invoke-direct/range` trocado por `invoke-direct`
+   com `p0` = v17). A forma `/range` aceita até v65535.
 
-Só olha atribuição definitiva (não confere tipos). Uso:
+Uso:
 
     python3 docs/tools/smali_regcheck.py smali/                      # tudo
     python3 docs/tools/smali_regcheck.py smali/ --base outra/smali/  # só o que é novo em relação a outra árvore
@@ -109,6 +116,38 @@ def rw(op, regs):
         a = (w2(r[1]) if wide else [r[1]]) + ([r[2]] if shift else (w2(r[2]) if wide else [r[2]]))
         return a, (w2(r[0]) if wide else [r[0]])
     raise NotImplementedError(op)
+
+
+def max_regs(op, n):
+    """Maior registrador que cada um dos `n` operandos de `op` aceita no formato dex (None se não for instrução de registrador)."""
+    if op.endswith('/range'):
+        return [0xFFFF] * n
+    if op.startswith(('invoke', 'filled-new-array')) or op.endswith(('/2addr', '/lit16')):
+        return [15] * n
+    if op in ('move', 'move-wide', 'move-object', 'array-length', 'instance-of', 'new-array', 'const/4', 'rsub-int') \
+            or op.startswith(('neg-', 'not-', 'iget', 'iput')) \
+            or re.match(r'^[a-z]+-to-[a-z]+$', op) or re.match(r'^if-(eq|ne|lt|ge|gt|le)$', op):
+        return [15] * n
+    if op in ('move/from16', 'move-wide/from16', 'move-object/from16'):
+        return [0xFF, 0xFFFF][:n] + [0xFFFF] * max(0, n - 2)
+    if op in ('move/16', 'move-wide/16', 'move-object/16'):
+        return [0xFFFF] * n
+    return [0xFF] * n
+
+
+def limit_findings(insns, locals_n):
+    """Registradores acima do que o formato da instrução aceita (vale para todas as instruções, alcançadas ou não)."""
+    out = []
+    for ln, op, regs, labs in insns:
+        for x, lim in zip(regs, max_regs(op, len(regs))):
+            if x <= lim:
+                continue
+            nome = 'v%d' % x + (' (p%d)' % (x - locals_n) if x >= locals_n else '')
+            dica = ''
+            if lim == 15 and op.startswith(('invoke', 'filled-new-array')):
+                dica = ' - use %s/range' % op
+            out.append((ln, '%s fora do limite em "%s" (essa forma só aceita v0 a v%d)%s' % (nome, op, lim, dica)))
+    return out
 
 
 def param_count(sig, static):
@@ -223,7 +262,7 @@ def analyze(m):
     state = [None] * n
     state[0] = entry
     work = [0]
-    findings = []
+    findings = limit_findings(insns, locals_n)
 
     def merge(j, st):
         if state[j] is None:
@@ -284,6 +323,73 @@ def scan(root):
                     fl = [(m['start'], 'erro ao analisar: %r' % e)]
                 for ln, msg in fl:
                     res.setdefault((rel, m['head'].split()[-1]), []).append((ln, msg))
+    for k, v in refs(root).items():
+        res.setdefault(k, []).extend(v)
+    return res
+
+
+OBJECT_SIGS = frozenset((
+    '<init>()V', 'equals(Ljava/lang/Object;)Z', 'hashCode()I', 'toString()Ljava/lang/String;',
+    'getClass()Ljava/lang/Class;', 'notify()V', 'notifyAll()V', 'wait()V', 'wait(J)V', 'wait(JI)V',
+    'clone()Ljava/lang/Object;', 'finalize()V'))
+
+
+def parse_class(path):
+    text = open(path, encoding='utf-8', errors='replace').read()
+    m = re.search(r'^\.class\b.*?(L[^;\s]+;)\s*$', text, re.M)
+    if not m:
+        return None
+    sup = re.search(r'^\.super\s+(\S+)', text, re.M)
+    ifs = re.findall(r'^\.implements\s+(\S+)', text, re.M)
+    sigs = set(x.group(1) for x in re.finditer(r'^\.method\b.*?(\S+\([^)]*\)\S+)\s*$', text, re.M))
+    return m.group(1), {'super': sup.group(1) if sup else None, 'ifs': ifs, 'sigs': sigs}
+
+
+def refs(root):
+    classes = {}
+    paths = []
+    for dp, _, fs in os.walk(root):
+        for f in fs:
+            if f.endswith('.smali'):
+                p = os.path.join(dp, f)
+                c = parse_class(p)
+                if c:
+                    classes[c[0]] = c[1]
+                    paths.append((p, c[0]))
+
+    def has(cls, sig, seen=()):
+        if cls == 'Ljava/lang/Object;':
+            return sig in OBJECT_SIGS
+        info = classes.get(cls)
+        if info is None:
+            return None
+        if sig in info['sigs']:
+            return True
+        if cls in seen:
+            return False
+        unknown = False
+        for parent in [info['super']] + info['ifs']:
+            if not parent:
+                continue
+            r = has(parent, sig, seen + (cls,))
+            if r:
+                return True
+            if r is None:
+                unknown = True
+        return None if unknown else False
+
+    pat = re.compile(r'\binvoke-[\w/-]+\s+\{[^}]*\},\s*(L[^;\s]+;)->(\S+\([^)]*\)\S+)')
+    res = {}
+    for p, cls in paths:
+        rel = os.path.relpath(p, root)
+        for m in methods(p):
+            for ln, s in m['lines']:
+                if s.startswith('#'):
+                    continue
+                mm = pat.search(s)
+                if mm and has(mm.group(1), mm.group(2)) is False:
+                    res.setdefault((rel, m['head'].split()[-1]), []).append(
+                        (ln, 'método inexistente: %s->%s' % (mm.group(1), mm.group(2))))
     return res
 
 

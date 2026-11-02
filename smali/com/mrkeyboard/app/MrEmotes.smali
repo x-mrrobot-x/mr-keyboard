@@ -112,13 +112,17 @@
 
     sget v1, Lcom/mrkeyboard/app/MrTools;->sHint:I
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->isMidnight()Z
+    invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->flatBar()Z
 
     move-result v2
 
     if-eqz v2, :cond_hd_color
 
-    const v1, 0xff9db1c8
+    const-string v1, "panel_tab_off_text"
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v1
 
     :cond_hd_color
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
@@ -742,7 +746,7 @@
 
     aput-object v6, v4, v3
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->isMidnight()Z
+    invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->flatBar()Z
 
     move-result v7
 

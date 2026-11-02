@@ -40,6 +40,7 @@
     <string name="default_hint_mode">1</string>
     <string name="default_keyboard_mode_landscape">0</string>
     <string name="default_keyboard_mode_portrait">0</string>
+    <string name="default_label_scale">0.69</string>
     <string name="default_long_press_duration">100 ms</string>
     <string name="default_popup_content">0</string>
     <string name="default_swipe_down">close</string>
@@ -203,10 +204,11 @@
     <string name="label_next_key">Next</string>
     <string name="label_phone_key">123</string>
     <string name="label_send_key">Send</string>
-    <string name="layout_ics">Mr Keyboard Neon</string>
+    <string name="layout_mr_neon">Mr Keyboard Neon</string>
     <string name="layout_mr_soft">Mr Keyboard Dark Tech (soft)</string>
     <string name="layout_mr_slate">Mr Keyboard Dark Tech (raised)</string>
     <string name="layout_mr_midnight">Mr Keyboard Midnight Steel</string>
+    <string name="layout_mr_glass">Mr Keyboard Cobalt Glass</string>
     <string name="main_body">" 
         &lt;h2>Enabling Mr Keyboard&lt;/h2>
         
@@ -320,6 +322,8 @@
     <string name="title_sheet_return">Return to main sheet after typing</string>
     <string name="summary_sheet_return_true">Typing a key on 123, TSK, HTML or FRS goes back to the main sheet</string>
     <string name="summary_sheet_return_false">Stay on the current sheet after typing a key</string>
+    <string name="mr_bar_scale_max">1.5</string>
+    <string name="mr_bar_scale_min">0.6</string>
     <string name="mr_emoji_cats">Recent|Smileys &amp; People|Animals &amp; Nature|Food &amp; Drink|Activities|Travel &amp; Places|Objects|Symbols|Flags</string>
     <string name="mr_shot_allow">Tap here to allow access to photos and videos</string>
     <string name="mr_shot_loading">Loading…</string>
