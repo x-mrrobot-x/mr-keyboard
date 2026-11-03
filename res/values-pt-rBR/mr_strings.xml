@@ -133,4 +133,6 @@
     <string name="mr_tb_emoji_objects">Objetos</string>
     <string name="mr_tb_emoji_symbols">Símbolos</string>
     <string name="mr_tb_emoji_flags">Bandeiras</string>
+    <string name="mr_tune_close">Fechar</string>
+    <string name="mr_tune_reset">Restaurar padrão</string>
 </resources>

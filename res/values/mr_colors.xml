@@ -41,8 +41,6 @@
     <color name="mr_alpha_sel_text">#33000000</color>
     <color name="mr_alpha_sheet_fill">#14000000</color>
     <color name="mr_alpha_sheet_line">#44000000</color>
-    <color name="mr_alpha_close">#26000000</color>
-    <color name="mr_alpha_close_line">#cc000000</color>
     <color name="mr_alpha_card">#22000000</color>
 
     <!-- Cobalt Glass: as mesmas cores, translucidas, para o blur de fundo aparecer -->
@@ -199,5 +197,4 @@
     <color name="mr_tb_btn_stroke">#44808080</color>
     <color name="mr_tb_divider">@color/mr_tb_btn_fill</color>
     <color name="mr_tb_scrim">#99000000</color>
-    <color name="mr_tune_track">#66ffffff</color>
 </resources>

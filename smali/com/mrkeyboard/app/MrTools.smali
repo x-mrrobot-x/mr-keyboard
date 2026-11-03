@@ -3725,6 +3725,12 @@
 
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrTools;->btn(Landroid/view/View;Ljava/lang/String;I)Landroid/widget/TextView;
 
+    const-string v1, "tune_reset"
+
+    const/4 v2, -0x1
+
+    invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrTools;->btn(Landroid/view/View;Ljava/lang/String;I)Landroid/widget/TextView;
+
     const-string v1, "tune_info"
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->tag(Landroid/view/View;Ljava/lang/String;)Landroid/view/View;
@@ -4781,6 +4787,7 @@
  sput-object v0, Lcom/mrkeyboard/app/MrTune;->sPanel:Landroid/view/View;
  sput-object v0, Lcom/mrkeyboard/app/MrTune;->sBar:Landroid/view/View;
  sput-object v0, Lcom/mrkeyboard/app/MrTune;->sList:Ljava/util/ArrayList;
+ sput-object v0, Lcom/mrkeyboard/app/MrTune;->sPList:Ljava/util/ArrayList;
  sput-boolean v0, Lcom/mrkeyboard/app/MrTune;->sOn:Z
  sput-boolean v0, Lcom/mrkeyboard/app/MrTune;->sSilent:Z
  invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->release()V

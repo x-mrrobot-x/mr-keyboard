@@ -262,6 +262,7 @@
     <public type="layout" name="input_mr_midnight" id="0x7f0a003f" />
     <public type="layout" name="input_mr_glass" id="0x7f0a0040" />
     <public type="layout" name="seek_bar_dialog_preview" id="0x7f0a003c" />
+    <public type="layout" name="mr_tune_dialog" id="0x7f0a0041" />
     <public type="raw" name="sheets_default" id="0x7f0b0001" />
     <public type="string" name="added_word" id="0x7f0c001d" />
     <public type="string" name="alternates_for_a" id="0x7f0c001e" />
@@ -544,6 +545,7 @@
     <public type="style" name="KeyPreviewAnimation" id="0x7f0d009e" />
     <public type="style" name="LatinKeyboardBaseView" id="0x7f0d009f" />
     <public type="style" name="MiniKeyboardAnimation" id="0x7f0d00a0" />
+    <public type="style" name="Theme.MrKeyboard.Dialog" id="0x7f0d00a1" />
     <public type="xml" name="dictionary" id="0x7f0f0000" />
     <public type="xml" name="kbd_compact" id="0x7f0f0001" />
     <public type="xml" name="kbd_compact_fn" id="0x7f0f0002" />
@@ -595,5 +597,6 @@
     <public type="string" name="mr_shot_none_files" id="0x7f0c01cf" />
     <public type="string" name="mr_shot_allow_files" id="0x7f0c01d0" />
     <public type="string" name="default_label_scale" id="0x7f0c01d1" />
+    <public type="string" name="mr_tb_customize" id="0x7f0c01d2" />
     <public type="xml" name="prefs_advanced" id="0x7f0f0021" />
 </resources>

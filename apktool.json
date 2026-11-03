@@ -15,8 +15,8 @@
   "version": "2.4.0-261014",
   "sharedLibrary": false,
   "VersionInfo": {
-    "versionName": "v1.78.0",
-    "versionCode": "1078000"
+    "versionName": "v1.79.0",
+    "versionCode": "1079000"
   },
   "UsesFramework": {
     "ids": [1],

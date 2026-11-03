@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fundo do dialog de preferencias: igual ao mr_ui_dialog_bg (cartao #0f1621), com um pouco de transparencia (alfa 0xe6 ~ 90%). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#e60f1621" />
+    <stroke android:width="1dp" android:color="@color/mr_ui_stroke_strong" />
+    <corners android:radius="24dp" />
+</shape>

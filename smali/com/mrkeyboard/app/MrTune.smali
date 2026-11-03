@@ -2,8 +2,9 @@
 .super Ljava/lang/Object;
 .source "MrTune.java"
 
-# Ferramenta "Personalizar teclado": painel preto translucido sobre o teclado com 4
-# deslizadores (altura vertical ou horizontal conforme a orientacao, escala dos rotulos, espacamento, arredondamento).
+# Ferramenta "Personalizar teclado": 5 deslizadores (altura vertical ou horizontal conforme a orientacao,
+# altura da barra, escala dos rotulos, espacamento, arredondamento). Em paisagem aparece como painel preto
+# translucido dentro do teclado (p_tune, no mr_toolbar); em retrato abre como dialog (mr_tune_dialog).
 # Cada deslizador grava a mesma preferencia das configuracoes, entao o teclado
 # atualiza em tempo real pelo mesmo caminho (LatinIME.onSharedPreferenceChanged).
 # Excecao: a escala dos rotulos recriaria a view do teclado (e o proprio deslizador)
@@ -11,6 +12,7 @@
 
 .implements Landroid/view/View$OnClickListener;
 .implements Landroid/widget/SeekBar$OnSeekBarChangeListener;
+.implements Landroid/view/View$OnLayoutChangeListener;
 
 
 # static fields
@@ -23,6 +25,17 @@
 .field static sBar:Landroid/view/View;
 
 .field static sSilent:Z
+
+.field static sRoot:Landroid/view/View;
+
+.field static sDlg:Landroid/app/Dialog;
+
+.field static sLis:Lcom/mrkeyboard/app/MrTune;
+
+.field static sDList:Ljava/util/ArrayList;
+
+# lista de deslizadores do painel (sList pode ser trocada pela do dialog)
+.field static sPList:Ljava/util/ArrayList;
 
 
 # instance fields
@@ -80,152 +93,6 @@
     return-void
 .end method
 
-# Cor de destaque do tema atual: nos temas com paleta "tech" (Slate, Midnight e Glass) e o
-# azul/ciano do app (#29c5f6); nos demais temas segue a cor do texto das teclas.
-.method private static accent()I
-    .locals 2
-
-    invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->techPalette()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_theme
-
-    const-string v0, "accent"
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
-
-    move-result v0
-
-    return v0
-
-    :cond_theme
-    sget v0, Lcom/mrkeyboard/app/MrTools;->sTextColor:I
-
-    return v0
-.end method
-
-# Retangulo arredondado: p0 = preenchimento, p1 = cor da borda, p2 = largura da borda (px),
-# p3 = raio dos cantos (px).
-.method private static shape(IIIF)Landroid/graphics/drawable/GradientDrawable;
-    .locals 1
-
-    new-instance v0, Landroid/graphics/drawable/GradientDrawable;
-
-    invoke-direct {v0}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
-
-    invoke-virtual {v0, p0}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
-
-    invoke-virtual {v0, p2, p1}, Landroid/graphics/drawable/GradientDrawable;->setStroke(II)V
-
-    invoke-virtual {v0, p3}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
-
-    return-object v0
-.end method
-
-# Botao X do painel: icone, borda e fundo na cor de destaque do tema (fundo mais forte ao tocar).
-.method private static styleClose(Landroid/view/View;)V
-    .locals 10
-
-    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->accent()I
-
-    move-result v0
-
-    invoke-virtual {p0}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
-
-    move-result-object v1
-
-    iget v1, v1, Landroid/util/DisplayMetrics;->density:F
-
-    # borda de 1dp e cantos que seguem o raio das teclas (raio + 2 dp, como os outros botoes da barra)
-    float-to-int v2, v1
-
-    invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
-
-    move-result-object v3
-
-    const/high16 v4, 0x40000000    # 2.0f
-
-    invoke-static {v3, v4}, Lcom/mrkeyboard/app/KeyStyle;->radiusPx(Landroid/content/Context;F)F
-
-    move-result v3
-
-    const v4, 0xffffff
-
-    and-int/2addr v4, v0
-
-    const-string v5, "alpha_close"
-
-    invoke-static {v5}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
-
-    move-result v5
-
-    or-int/2addr v5, v4
-
-    const-string v6, "alpha_press"
-
-    invoke-static {v6}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
-
-    move-result v6
-
-    or-int/2addr v6, v4
-
-    const-string v7, "alpha_close_line"
-
-    invoke-static {v7}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
-
-    move-result v7
-
-    or-int/2addr v7, v4
-
-    invoke-static {v5, v7, v2, v3}, Lcom/mrkeyboard/app/MrTune;->shape(IIIF)Landroid/graphics/drawable/GradientDrawable;
-
-    move-result-object v5
-
-    invoke-static {v6, v7, v2, v3}, Lcom/mrkeyboard/app/MrTune;->shape(IIIF)Landroid/graphics/drawable/GradientDrawable;
-
-    move-result-object v6
-
-    new-instance v8, Landroid/graphics/drawable/StateListDrawable;
-
-    invoke-direct {v8}, Landroid/graphics/drawable/StateListDrawable;-><init>()V
-
-    const/4 v9, 0x1
-
-    new-array v9, v9, [I
-
-    const/4 v4, 0x0
-
-    const v7, 0x10100a7
-
-    aput v7, v9, v4
-
-    invoke-virtual {v8, v9, v6}, Landroid/graphics/drawable/StateListDrawable;->addState([ILandroid/graphics/drawable/Drawable;)V
-
-    const/4 v9, 0x0
-
-    new-array v9, v9, [I
-
-    invoke-virtual {v8, v9, v5}, Landroid/graphics/drawable/StateListDrawable;->addState([ILandroid/graphics/drawable/Drawable;)V
-
-    invoke-virtual {p0, v8}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
-
-    instance-of v1, p0, Landroid/widget/TextView;
-
-    if-eqz v1, :cond_end
-
-    check-cast p0, Landroid/widget/TextView;
-
-    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrTools;->tintColor(Landroid/widget/TextView;I)V
-
-    :cond_end
-    return-void
-.end method
-
 .method private static bind(Landroid/view/View;ILjava/lang/String;Ljava/lang/String;)V
     .locals 4
 
@@ -272,6 +139,8 @@
 .method static close()V
     .locals 2
 
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->dismissDialog()V
+
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrTune;->sOn:Z
@@ -302,6 +171,16 @@
 
 .method private static defOf(I)Ljava/lang/String;
     .locals 2
+
+    const/4 v0, 0x4
+
+    if-ne p0, v0, :cond_d4
+
+    const-string v0, "1.0"
+
+    return-object v0
+
+    :cond_d4
 
     const/4 v0, 0x1
 
@@ -339,6 +218,16 @@
 .method private static fmt(IF)Ljava/lang/String;
     .locals 3
 
+    const/4 v0, 0x4
+
+    if-ne p0, v0, :cond_f4
+
+    const/high16 v0, 0x42c80000    # 100.0f
+
+    mul-float/2addr p1, v0
+
+    :cond_f4
+
     const/4 v0, 0x1
 
     if-ne p0, v0, :cond_a
@@ -357,6 +246,10 @@
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    const/4 v0, 0x4
+
+    if-eq p0, v0, :cond_pct
 
     const/4 v0, 0x2
 
@@ -381,6 +274,16 @@
 
 .method private static keyOf(I)Ljava/lang/String;
     .locals 2
+
+    const/4 v0, 0x4
+
+    if-ne p0, v0, :cond_k4
+
+    const-string v0, "pref_bar_scale"
+
+    return-object v0
+
+    :cond_k4
 
     if-nez p0, :cond_1
 
@@ -495,6 +398,10 @@
 .method private static updateTitle()V
     .locals 3
 
+    sget-object v0, Lcom/mrkeyboard/app/MrTune;->sRoot:Landroid/view/View;
+
+    if-nez v0, :cond_a
+
     sget-object v0, Lcom/mrkeyboard/app/MrTune;->sPanel:Landroid/view/View;
 
     if-nez v0, :cond_a
@@ -575,6 +482,16 @@
 
 .method private static maxOf(I)I
     .locals 1
+
+    const/4 v0, 0x4
+
+    if-ne p0, v0, :cond_m4
+
+    const/16 v0, 0x12
+
+    return v0
+
+    :cond_m4
 
     if-nez p0, :cond_1
 
@@ -685,8 +602,13 @@
 .method static refresh()V
     .locals 8
 
+    sget-object v0, Lcom/mrkeyboard/app/MrTune;->sDList:Ljava/util/ArrayList;
+
+    if-nez v0, :cond_has
+
     sget-object v0, Lcom/mrkeyboard/app/MrTune;->sList:Ljava/util/ArrayList;
 
+    :cond_has
     if-eqz v0, :cond_end
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTune;->updateTitle()V
@@ -795,6 +717,18 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrTune;->sPanel:Landroid/view/View;
 
+    # em paisagem o painel substitui o dialog: se ele ficou aberto (ex.: girou a tela), fecha
+    if-eqz v0, :cond_nodlg
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->isLand()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_nodlg
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->dismissDialog()V
+
+    :cond_nodlg
     invoke-static {}, Lcom/mrkeyboard/app/MrTune;->updateTitle()V
 
     new-instance v0, Ljava/util/ArrayList;
@@ -802,6 +736,8 @@
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     sput-object v0, Lcom/mrkeyboard/app/MrTune;->sList:Ljava/util/ArrayList;
+
+    sput-object v0, Lcom/mrkeyboard/app/MrTune;->sPList:Ljava/util/ArrayList;
 
     const/4 v0, 0x0
 
@@ -835,6 +771,14 @@
 
     invoke-static {p0, v0, v1, v2}, Lcom/mrkeyboard/app/MrTune;->bind(Landroid/view/View;ILjava/lang/String;Ljava/lang/String;)V
 
+    const/4 v0, 0x4
+
+    const-string v1, "sk_b"
+
+    const-string v2, "vl_b"
+
+    invoke-static {p0, v0, v1, v2}, Lcom/mrkeyboard/app/MrTune;->bind(Landroid/view/View;ILjava/lang/String;Ljava/lang/String;)V
+
     const-string v0, "tune_back"
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -852,6 +796,23 @@
     invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
     :cond_noclose
+    const-string v0, "tune_reset"
+
+    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_noreset
+
+    new-instance v1, Lcom/mrkeyboard/app/MrTune;
+
+    const/4 v2, -0x2
+
+    invoke-direct {v1, v2}, Lcom/mrkeyboard/app/MrTune;-><init>(I)V
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    :cond_noreset
     const-string v0, "bar_tune"
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -859,19 +820,41 @@
     move-result-object v0
 
     sput-object v0, Lcom/mrkeyboard/app/MrTune;->sBar:Landroid/view/View;
-    sget-object v0, Lcom/mrkeyboard/app/MrTune;->sPanel:Landroid/view/View;
 
-    if-eqz v0, :cond_end
-
-    const/16 v1, 0x8
-
+    # girou para vertical com o painel aberto: fecha (o painel so existe em paisagem)
     sget-boolean v2, Lcom/mrkeyboard/app/MrTune;->sOn:Z
+
+    if-eqz v2, :cond_state
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->isLand()Z
+
+    move-result v1
+
+    if-nez v1, :cond_state
+
+    const/4 v2, 0x0
+
+    sput-boolean v2, Lcom/mrkeyboard/app/MrTune;->sOn:Z
+
+    :cond_state
+    const/16 v1, 0x8
 
     if-eqz v2, :cond_vis
 
     const/4 v1, 0x0
 
     :cond_vis
+    sget-object v0, Lcom/mrkeyboard/app/MrTune;->sBar:Landroid/view/View;
+
+    if-eqz v0, :cond_nobar
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+
+    :cond_nobar
+    sget-object v0, Lcom/mrkeyboard/app/MrTune;->sPanel:Landroid/view/View;
+
+    if-eqz v0, :cond_end
+
     invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
 
     if-eqz v2, :cond_end
@@ -884,6 +867,26 @@
 
 .method private static toProgress(IF)I
     .locals 4
+
+    const/4 v0, 0x4
+
+    if-ne p0, v0, :cond_p4
+
+    const v0, 0x3f19999a    # 0.6f
+
+    sub-float v0, p1, v0
+
+    const v1, 0x3d4ccccd    # 0.05f
+
+    div-float/2addr v0, v1
+
+    invoke-static {v0}, Ljava/lang/Math;->round(F)I
+
+    move-result v0
+
+    goto :goto_clamp
+
+    :cond_p4
 
     const/4 v0, 0x1
 
@@ -949,6 +952,24 @@
 .method private static toValue(II)F
     .locals 4
 
+    const/4 v0, 0x4
+
+    if-ne p0, v0, :cond_v4
+
+    mul-int/lit8 v0, p1, 0x5
+
+    add-int/lit8 v0, v0, 0x3c
+
+    int-to-float v0, v0
+
+    const/high16 v1, 0x42c80000    # 100.0f
+
+    div-float/2addr v0, v1
+
+    return v0
+
+    :cond_v4
+
     const/4 v0, 0x1
 
     if-ne p0, v0, :cond_lin
@@ -998,59 +1019,581 @@
     return v0
 .end method
 
+# Botao "Personalizar": em paisagem abre o painel dentro do teclado (ha pouco espaco acima dele
+# para o dialog); em retrato abre/fecha o dialog.
 .method static toggle()V
     .locals 2
 
-    sget-boolean v0, Lcom/mrkeyboard/app/MrTune;->sOn:Z
+    :try_start_t
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->isLand()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_dlg
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->togglePanel()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_dlg
+
+    return-void
+
+    :cond_dlg
+    sget-object v0, Lcom/mrkeyboard/app/MrTune;->sDlg:Landroid/app/Dialog;
 
     if-eqz v0, :cond_open
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->close()V
+    invoke-virtual {v0}, Landroid/app/Dialog;->isShowing()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_open
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->dismissDialog()V
 
     return-void
 
     :cond_open
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->showDialog()V
+    :try_end_t
+    .catch Ljava/lang/Throwable; {:try_start_t .. :try_end_t} :catch_t
+
+    return-void
+
+    :catch_t
+    move-exception v0
+
+    return-void
+.end method
+
+# Abre ou fecha o painel dentro do teclado. Devolve false se o layout nao tem o painel
+# (ai o toggle cai no dialog).
+.method private static togglePanel()Z
+    .locals 3
+
     sget-object v0, Lcom/mrkeyboard/app/MrTune;->sPanel:Landroid/view/View;
+
+    sget-object v1, Lcom/mrkeyboard/app/MrTune;->sBar:Landroid/view/View;
+
+    if-eqz v0, :cond_none
+
+    if-eqz v1, :cond_none
+
+    # o dialog nao convive com o painel
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->dismissDialog()V
+
+    sget-boolean v2, Lcom/mrkeyboard/app/MrTune;->sOn:Z
+
+    if-eqz v2, :cond_open
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->close()V
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_open
+    const/4 v2, 0x1
+
+    sput-boolean v2, Lcom/mrkeyboard/app/MrTune;->sOn:Z
+
+    # o dialog pode ter trocado sList: volta para a lista dos deslizadores do painel
+    sget-object v2, Lcom/mrkeyboard/app/MrTune;->sPList:Ljava/util/ArrayList;
+
+    if-eqz v2, :cond_nolist
+
+    sput-object v2, Lcom/mrkeyboard/app/MrTune;->sList:Ljava/util/ArrayList;
+
+    :cond_nolist
+    const/4 v2, 0x0
+
+    invoke-virtual {v0, v2}, Landroid/view/View;->setVisibility(I)V
+
+    invoke-virtual {v1, v2}, Landroid/view/View;->setVisibility(I)V
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->refresh()V
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_none
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+# Fecha o dialog de Preferencias, se estiver aberto.
+.method private static dismissDialog()V
+    .locals 3
+
+    sget-object v0, Lcom/mrkeyboard/app/MrTune;->sDlg:Landroid/app/Dialog;
+
+    if-eqz v0, :cond_end
+
+    const/4 v1, 0x0
+
+    sput-object v1, Lcom/mrkeyboard/app/MrTune;->sDlg:Landroid/app/Dialog;
+
+    sput-object v1, Lcom/mrkeyboard/app/MrTune;->sRoot:Landroid/view/View;
+
+    sput-object v1, Lcom/mrkeyboard/app/MrTune;->sDList:Ljava/util/ArrayList;
+
+    sget-object v2, Lcom/mrkeyboard/app/MrTune;->sLis:Lcom/mrkeyboard/app/MrTune;
+
+    sput-object v1, Lcom/mrkeyboard/app/MrTune;->sLis:Lcom/mrkeyboard/app/MrTune;
+
+    :try_start_d
+    if-eqz v2, :cond_nolis
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->imeDecor()Landroid/view/View;
+
+    move-result-object v1
+
+    if-eqz v1, :cond_nolis
+
+    invoke-virtual {v1, v2}, Landroid/view/View;->removeOnLayoutChangeListener(Landroid/view/View$OnLayoutChangeListener;)V
+
+    :cond_nolis
+    invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
+    :try_end_d
+    .catch Ljava/lang/Throwable; {:try_start_d .. :try_end_d} :catch_d
+
+    :cond_end
+    return-void
+
+    :catch_d
+    move-exception v0
+
+    return-void
+.end method
+
+# View raiz (decorView) da janela do teclado, ou null se ainda nao existir.
+.method private static imeDecor()Landroid/view/View;
+    .locals 2
+
+    sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
+
+    const/4 v1, 0x0
+
+    if-nez v0, :cond_a
+
+    return-object v1
+
+    :cond_a
+    invoke-virtual {v0}, Landroid/inputmethodservice/InputMethodService;->getWindow()Landroid/app/Dialog;
+
+    move-result-object v0
+
+    if-nez v0, :cond_b
+
+    return-object v1
+
+    :cond_b
+    invoke-virtual {v0}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
+
+    move-result-object v0
+
+    if-nez v0, :cond_c
+
+    return-object v1
+
+    :cond_c
+    invoke-virtual {v0}, Landroid/view/Window;->getDecorView()Landroid/view/View;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+# Topo do teclado em coordenadas da tela (-1 = desconhecido: o dialog usa a tela toda).
+.method private static imeTop()I
+    .locals 3
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->imeDecor()Landroid/view/View;
+
+    move-result-object v0
+
+    const/4 v1, -0x1
+
+    if-nez v0, :cond_a
+
+    return v1
+
+    :cond_a
+    const/4 v1, 0x2
+
+    new-array v1, v1, [I
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->getLocationOnScreen([I)V
+
+    const/4 v2, 0x1
+
+    aget v1, v1, v2
+
+    if-gtz v1, :cond_ok
+
+    const/4 v1, -0x1
+
+    :cond_ok
+    return v1
+.end method
+
+# Dialog "Preferencias": mesmo visual do dialog de altura das configuracoes (Theme.MrKeyboard.Dialog).
+# A janela cobre so a area entre o topo da tela e o teclado (camada escura + cartao centralizado) e
+# acompanha a altura do teclado ao vivo (onLayoutChange). Fica presa a janela do teclado (token do IME +
+# TYPE_APPLICATION_ATTACHED_DIALOG): nao precisa de SYSTEM_ALERT_WINDOW e funciona do API 26 ao 36.
+# FLAG_ALT_FOCUSABLE_IM mantem o teclado visivel. Os deslizadores gravam direto ao arrastar.
+.method private static showDialog()V
+    .locals 8
+
+    sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
+
+    if-nez v0, :cond_ime
+
+    return-void
+
+    :cond_ime
+    # limpa um dialog anterior (ex.: fechado pelo botao voltar) e o listener dele
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->dismissDialog()V
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->imeDecor()Landroid/view/View;
+
+    move-result-object v7
+
+    if-nez v7, :cond_dec
+
+    return-void
+
+    :cond_dec
+    invoke-virtual {v7}, Landroid/view/View;->getWindowToken()Landroid/os/IBinder;
+
+    move-result-object v1
+
+    if-nez v1, :cond_tok
+
+    return-void
+
+    :cond_tok
+    new-instance v2, Landroid/app/Dialog;
+
+    const v3, 0x7f0d00a1
+
+    invoke-direct {v2, v0, v3}, Landroid/app/Dialog;-><init>(Landroid/content/Context;I)V
+
+    const/4 v3, 0x1
+
+    invoke-virtual {v2, v3}, Landroid/app/Dialog;->requestWindowFeature(I)Z
+
+    invoke-virtual {v2}, Landroid/app/Dialog;->getContext()Landroid/content/Context;
+
+    move-result-object v3
+
+    # idioma escolhido no app (pref_ui_language): sem isso o layout sai no idioma do sistema,
+    # enquanto o titulo da altura (MrTools.str) sai no do app. Mesmo caminho da barra de ferramentas.
+    invoke-static {v3}, Lcom/mrkeyboard/app/MrLocaleCtx;->of(Landroid/content/Context;)Landroid/content/Context;
+
+    move-result-object v3
+
+    invoke-static {v3}, Landroid/view/LayoutInflater;->from(Landroid/content/Context;)Landroid/view/LayoutInflater;
+
+    move-result-object v3
+
+    const v4, 0x7f0a0041
+
+    const/4 v5, 0x0
+
+    invoke-virtual {v3, v4, v5}, Landroid/view/LayoutInflater;->inflate(ILandroid/view/ViewGroup;)Landroid/view/View;
+
+    move-result-object v3
+
+    sput-object v3, Lcom/mrkeyboard/app/MrTune;->sRoot:Landroid/view/View;
+
+    new-instance v4, Ljava/util/ArrayList;
+
+    invoke-direct {v4}, Ljava/util/ArrayList;-><init>()V
+
+    sput-object v4, Lcom/mrkeyboard/app/MrTune;->sList:Ljava/util/ArrayList;
+
+    const/4 v4, 0x0
+
+    const-string v5, "sk_h"
+
+    const-string v6, "vl_h"
+
+    invoke-static {v3, v4, v5, v6}, Lcom/mrkeyboard/app/MrTune;->bind(Landroid/view/View;ILjava/lang/String;Ljava/lang/String;)V
+
+    const/4 v4, 0x1
+
+    const-string v5, "sk_l"
+
+    const-string v6, "vl_l"
+
+    invoke-static {v3, v4, v5, v6}, Lcom/mrkeyboard/app/MrTune;->bind(Landroid/view/View;ILjava/lang/String;Ljava/lang/String;)V
+
+    const/4 v4, 0x2
+
+    const-string v5, "sk_s"
+
+    const-string v6, "vl_s"
+
+    invoke-static {v3, v4, v5, v6}, Lcom/mrkeyboard/app/MrTune;->bind(Landroid/view/View;ILjava/lang/String;Ljava/lang/String;)V
+
+    const/4 v4, 0x3
+
+    const-string v5, "sk_r"
+
+    const-string v6, "vl_r"
+
+    invoke-static {v3, v4, v5, v6}, Lcom/mrkeyboard/app/MrTune;->bind(Landroid/view/View;ILjava/lang/String;Ljava/lang/String;)V
+
+    const/4 v4, 0x4
+
+    const-string v5, "sk_b"
+
+    const-string v6, "vl_b"
+
+    invoke-static {v3, v4, v5, v6}, Lcom/mrkeyboard/app/MrTune;->bind(Landroid/view/View;ILjava/lang/String;Ljava/lang/String;)V
+
+    # lista propria do dialog: o setup do teclado recria sList quando a view do teclado e refeita
+    sget-object v4, Lcom/mrkeyboard/app/MrTune;->sList:Ljava/util/ArrayList;
+
+    sput-object v4, Lcom/mrkeyboard/app/MrTune;->sDList:Ljava/util/ArrayList;
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->refresh()V
+
+    # um unico listener: fecha (toque no fundo escuro ou OK) e acompanha o layout do teclado
+    new-instance v4, Lcom/mrkeyboard/app/MrTune;
+
+    const/4 v5, -0x1
+
+    invoke-direct {v4, v5}, Lcom/mrkeyboard/app/MrTune;-><init>(I)V
+
+    sput-object v4, Lcom/mrkeyboard/app/MrTune;->sLis:Lcom/mrkeyboard/app/MrTune;
+
+    invoke-virtual {v3, v4}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    const-string v5, "tune_ok"
+
+    invoke-virtual {v3, v5}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v5
+
+    if-eqz v5, :cond_nook
+
+    invoke-virtual {v5, v4}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    :cond_nook
+    new-instance v5, Lcom/mrkeyboard/app/MrTune;
+
+    const/4 v6, -0x2
+
+    invoke-direct {v5, v6}, Lcom/mrkeyboard/app/MrTune;-><init>(I)V
+
+    const-string v6, "tune_reset"
+
+    invoke-virtual {v3, v6}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v6
+
+    if-eqz v6, :cond_noreset
+
+    invoke-virtual {v6, v5}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    :cond_noreset
+    invoke-virtual {v2, v3}, Landroid/app/Dialog;->setContentView(Landroid/view/View;)V
+
+    invoke-virtual {v2}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
+
+    move-result-object v5
+
+    # sem fundo/dim proprios da janela: a camada escura vem do layout
+    new-instance v6, Landroid/graphics/drawable/ColorDrawable;
+
+    const/4 v3, 0x0
+
+    invoke-direct {v6, v3}, Landroid/graphics/drawable/ColorDrawable;-><init>(I)V
+
+    invoke-virtual {v5, v6}, Landroid/view/Window;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    const/4 v6, 0x2
+
+    invoke-virtual {v5, v6}, Landroid/view/Window;->clearFlags(I)V
+
+    # ALT_FOCUSABLE_IM | LAYOUT_IN_SCREEN | LAYOUT_NO_LIMITS
+    const v6, 0x20300
+
+    invoke-virtual {v5, v6}, Landroid/view/Window;->addFlags(I)V
+
+    invoke-virtual {v5}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
+
+    move-result-object v6
+
+    iput-object v1, v6, Landroid/view/WindowManager$LayoutParams;->token:Landroid/os/IBinder;
+
+    const/16 v1, 0x3eb
+
+    iput v1, v6, Landroid/view/WindowManager$LayoutParams;->type:I
+
+    # TOP | FILL_HORIZONTAL, largura total, altura = topo do teclado
+    const/16 v1, 0x37
+
+    iput v1, v6, Landroid/view/WindowManager$LayoutParams;->gravity:I
+
+    const/4 v1, -0x1
+
+    iput v1, v6, Landroid/view/WindowManager$LayoutParams;->width:I
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->imeTop()I
+
+    move-result v1
+
+    iput v1, v6, Landroid/view/WindowManager$LayoutParams;->height:I
+
+    invoke-virtual {v5, v6}, Landroid/view/Window;->setAttributes(Landroid/view/WindowManager$LayoutParams;)V
+
+    invoke-virtual {v7, v4}, Landroid/view/View;->addOnLayoutChangeListener(Landroid/view/View$OnLayoutChangeListener;)V
+
+    sput-object v2, Lcom/mrkeyboard/app/MrTune;->sDlg:Landroid/app/Dialog;
+
+    invoke-virtual {v2}, Landroid/app/Dialog;->show()V
+
+    return-void
+.end method
+
+
+# virtual methods
+# Restaura o padrao so dos ajustes deste dialog (nao mexe no resto das preferencias).
+# A escala dos rotulos e aplicada direto na view (gravacao silenciosa), como ao arrastar o deslizador.
+.method private static resetDefaults()V
+    .locals 4
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->prefs()Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    const/4 v1, 0x1
+
+    sput-boolean v1, Lcom/mrkeyboard/app/MrTune;->sSilent:Z
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v1
+
+    const-string v2, "pref_label_scale_v2"
+
+    invoke-interface {v1, v2}, Landroid/content/SharedPreferences$Editor;->remove(Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    const/4 v1, 0x1
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTune;->defOf(I)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-static {v1}, Ljava/lang/Float;->parseFloat(Ljava/lang/String;)F
+
+    move-result v1
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTune;->liveLabel(F)V
+
+    const/4 v1, 0x0
+
+    sput-boolean v1, Lcom/mrkeyboard/app/MrTune;->sSilent:Z
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v1
+
+    const-string v2, "settings_height_portrait"
+
+    invoke-interface {v1, v2}, Landroid/content/SharedPreferences$Editor;->remove(Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    const-string v2, "settings_height_landscape"
+
+    invoke-interface {v1, v2}, Landroid/content/SharedPreferences$Editor;->remove(Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    const-string v2, "pref_bar_scale"
+
+    invoke-interface {v1, v2}, Landroid/content/SharedPreferences$Editor;->remove(Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    const-string v2, "pref_key_spacing"
+
+    invoke-interface {v1, v2}, Landroid/content/SharedPreferences$Editor;->remove(Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    const-string v2, "pref_key_radius"
+
+    invoke-interface {v1, v2}, Landroid/content/SharedPreferences$Editor;->remove(Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->refresh()V
+
+    return-void
+.end method
+
+# Teclado mudou de tamanho (deslizador de altura): reajusta a altura da janela do dialog.
+.method public onLayoutChange(Landroid/view/View;IIIIIIII)V
+    .locals 5
+
+    sget-object v0, Lcom/mrkeyboard/app/MrTune;->sDlg:Landroid/app/Dialog;
 
     if-nez v0, :cond_go
 
     return-void
 
     :cond_go
-    const/4 v1, 0x1
+    :try_start_l
+    invoke-virtual {v0}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
 
-    sput-boolean v1, Lcom/mrkeyboard/app/MrTune;->sOn:Z
+    move-result-object v1
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->refresh()V
+    invoke-virtual {v1}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
 
-    const/4 v1, 0x0
+    move-result-object v2
 
-    invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->imeTop()I
 
-    sget-object v0, Lcom/mrkeyboard/app/MrTune;->sBar:Landroid/view/View;
+    move-result v3
 
-    if-eqz v0, :cond_hidebar
+    iget v4, v2, Landroid/view/WindowManager$LayoutParams;->height:I
 
-    invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+    if-eq v3, v4, :cond_same
 
-    :cond_hidebar
-    sget-object v0, Lcom/mrkeyboard/app/MrTools;->sBarMain:Landroid/view/View;
+    iput v3, v2, Landroid/view/WindowManager$LayoutParams;->height:I
 
-    if-eqz v0, :cond_done
+    invoke-virtual {v1, v2}, Landroid/view/Window;->setAttributes(Landroid/view/WindowManager$LayoutParams;)V
 
-    const/16 v1, 0x8
+    :cond_same
+    :try_end_l
+    .catch Ljava/lang/Throwable; {:try_start_l .. :try_end_l} :catch_l
 
-    invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+    return-void
 
-    :cond_done
+    :catch_l
+    move-exception v0
+
     return-void
 .end method
 
-
-# virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 0
+    .locals 2
 
+    iget v0, p0, Lcom/mrkeyboard/app/MrTune;->mIdx:I
+
+    const/4 v1, -0x2
+
+    if-ne v0, v1, :cond_close
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->resetDefaults()V
+
+    return-void
+
+    :cond_close
     invoke-static {}, Lcom/mrkeyboard/app/MrTune;->close()V
 
     return-void

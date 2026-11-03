@@ -749,11 +749,24 @@
             android:singleLine="true"
             android:ellipsize="end"
             android:text="@string/mr_tb_customize" />
+        <TextView
+            style="@style/MrToolBtn"
+            android:tag="tune_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="@string/mr_tune_reset" />
     </LinearLayout>
     <FrameLayout
         android:tag="kbd_host"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
+        <!-- Preferencias dentro do teclado (so no modo horizontal; no vertical abre o dialog). -->
         <LinearLayout
             android:orientation="vertical"
             android:tag="p_tune"
@@ -770,7 +783,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1">
                 <LinearLayout
-                    android:orientation="vertical"
+                    android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:paddingLeft="8dp"
                     android:paddingRight="8dp"
@@ -780,198 +793,279 @@
                     android:layout_height="match_parent">
                     <LinearLayout
                         android:orientation="vertical"
-                        android:layout_width="fill_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="6dp"
-                        android:paddingRight="6dp"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp">
-                        <TextView
-                            android:textSize="13sp"
-                            android:fontFamily="sans-serif-medium"
-                            android:textColor="@color/mr_tb_text_strong"
-                            android:tag="tl_h"
-                            android:paddingLeft="4dp"
+                        android:layout_weight="1">
+                        <LinearLayout
+                            android:orientation="vertical"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
-                            android:singleLine="true"
-                            android:ellipsize="end"
-                            android:text="@string/mr_tune_v" />
-                        <LinearLayout
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content">
-                            <SeekBar
-                                android:tag="sk_h"
-                                android:paddingLeft="14dp"
-                                android:paddingRight="14dp"
-                                android:thumb="@drawable/mr_seek_thumb"
-                                android:progressDrawable="@drawable/mr_seek_track"
-                                android:progressTint="@color/mr_accent"
-                                android:thumbTint="@color/mr_accent"
-                                android:progressBackgroundTint="@color/mr_tune_track"
-                                android:layout_width="0dp"
-                                android:layout_height="40dp"
-                                android:layout_weight="1" />
+                            android:paddingLeft="0dp"
+                            android:paddingRight="6dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp">
                             <TextView
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 android:fontFamily="sans-serif-medium"
-                                android:textColor="@color/mr_accent"
-                                android:gravity="center_vertical|right"
-                                android:tag="vl_h"
-                                android:layout_width="wrap_content"
+                                android:textColor="@color/mr_tb_text_strong"
+                                android:tag="tl_h"
+                                android:paddingLeft="10dp"
+                                android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
-                                android:minWidth="52dp"
                                 android:singleLine="true"
-                                android:text="33%" />
+                                android:ellipsize="end"
+                                android:text="@string/mr_tune_v" />
+                            <LinearLayout
+                                android:theme="@style/Theme.MrKeyboard.Dialog"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content">
+                                <SeekBar
+                                    android:tag="sk_h"
+                                    android:paddingStart="10dp"
+                                    android:paddingLeft="10dp"
+                                    android:paddingTop="6dp"
+                                    android:paddingBottom="6dp"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1" />
+                                <TextView
+                                    android:textSize="13sp"
+                                    android:textColor="@color/mr_accent"
+                                    android:gravity="center"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:background="@drawable/mr_ui_value_pill"
+                                    android:tag="vl_h"
+                                    android:paddingLeft="8dp"
+                                    android:paddingTop="2dp"
+                                    android:paddingRight="8dp"
+                                    android:paddingBottom="2dp"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginLeft="4dp"
+                                    android:minWidth="56dp"
+                                    android:singleLine="true"
+                                    android:text="33%" />
+                            </LinearLayout>
+                        </LinearLayout>
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="0dp"
+                            android:paddingRight="6dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp">
+                            <TextView
+                                android:textSize="13sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="@color/mr_tb_text_strong"
+                                android:tag="tl_b"
+                                android:paddingLeft="10dp"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:singleLine="true"
+                                android:ellipsize="end"
+                                android:text="@string/title_bar_scale" />
+                            <LinearLayout
+                                android:theme="@style/Theme.MrKeyboard.Dialog"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content">
+                                <SeekBar
+                                    android:tag="sk_b"
+                                    android:paddingStart="10dp"
+                                    android:paddingLeft="10dp"
+                                    android:paddingTop="6dp"
+                                    android:paddingBottom="6dp"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1" />
+                                <TextView
+                                    android:textSize="13sp"
+                                    android:textColor="@color/mr_accent"
+                                    android:gravity="center"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:background="@drawable/mr_ui_value_pill"
+                                    android:tag="vl_b"
+                                    android:paddingLeft="8dp"
+                                    android:paddingTop="2dp"
+                                    android:paddingRight="8dp"
+                                    android:paddingBottom="2dp"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginLeft="4dp"
+                                    android:minWidth="56dp"
+                                    android:singleLine="true"
+                                    android:text="100%" />
+                            </LinearLayout>
+                        </LinearLayout>
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="0dp"
+                            android:paddingRight="6dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp">
+                            <TextView
+                                android:textSize="13sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="@color/mr_tb_text_strong"
+                                android:tag="tl_l"
+                                android:paddingLeft="10dp"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:singleLine="true"
+                                android:ellipsize="end"
+                                android:text="@string/title_label_scale" />
+                            <LinearLayout
+                                android:theme="@style/Theme.MrKeyboard.Dialog"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content">
+                                <SeekBar
+                                    android:tag="sk_l"
+                                    android:paddingStart="10dp"
+                                    android:paddingLeft="10dp"
+                                    android:paddingTop="6dp"
+                                    android:paddingBottom="6dp"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1" />
+                                <TextView
+                                    android:textSize="13sp"
+                                    android:textColor="@color/mr_accent"
+                                    android:gravity="center"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:background="@drawable/mr_ui_value_pill"
+                                    android:tag="vl_l"
+                                    android:paddingLeft="8dp"
+                                    android:paddingTop="2dp"
+                                    android:paddingRight="8dp"
+                                    android:paddingBottom="2dp"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginLeft="4dp"
+                                    android:minWidth="56dp"
+                                    android:singleLine="true"
+                                    android:text="100%" />
+                            </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
                     <LinearLayout
                         android:orientation="vertical"
-                        android:layout_width="fill_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="6dp"
-                        android:paddingRight="6dp"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp">
-                        <TextView
-                            android:textSize="13sp"
-                            android:fontFamily="sans-serif-medium"
-                            android:textColor="@color/mr_tb_text_strong"
-                            android:tag="tl_l"
-                            android:paddingLeft="4dp"
+                        android:layout_weight="1">
+                        <LinearLayout
+                            android:orientation="vertical"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
-                            android:singleLine="true"
-                            android:ellipsize="end"
-                            android:text="@string/title_label_scale" />
-                        <LinearLayout
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content">
-                            <SeekBar
-                                android:tag="sk_l"
-                                android:paddingLeft="14dp"
-                                android:paddingRight="14dp"
-                                android:thumb="@drawable/mr_seek_thumb"
-                                android:progressDrawable="@drawable/mr_seek_track"
-                                android:progressTint="@color/mr_accent"
-                                android:thumbTint="@color/mr_accent"
-                                android:progressBackgroundTint="@color/mr_tune_track"
-                                android:layout_width="0dp"
-                                android:layout_height="40dp"
-                                android:layout_weight="1" />
+                            android:paddingLeft="0dp"
+                            android:paddingRight="6dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp">
                             <TextView
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 android:fontFamily="sans-serif-medium"
-                                android:textColor="@color/mr_accent"
-                                android:gravity="center_vertical|right"
-                                android:tag="vl_l"
-                                android:layout_width="wrap_content"
+                                android:textColor="@color/mr_tb_text_strong"
+                                android:tag="tl_s"
+                                android:paddingLeft="10dp"
+                                android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
-                                android:minWidth="52dp"
                                 android:singleLine="true"
-                                android:text="69%" />
+                                android:ellipsize="end"
+                                android:text="@string/title_key_spacing" />
+                            <LinearLayout
+                                android:theme="@style/Theme.MrKeyboard.Dialog"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content">
+                                <SeekBar
+                                    android:tag="sk_s"
+                                    android:paddingStart="10dp"
+                                    android:paddingLeft="10dp"
+                                    android:paddingTop="6dp"
+                                    android:paddingBottom="6dp"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1" />
+                                <TextView
+                                    android:textSize="13sp"
+                                    android:textColor="@color/mr_accent"
+                                    android:gravity="center"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:background="@drawable/mr_ui_value_pill"
+                                    android:tag="vl_s"
+                                    android:paddingLeft="8dp"
+                                    android:paddingTop="2dp"
+                                    android:paddingRight="8dp"
+                                    android:paddingBottom="2dp"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginLeft="4dp"
+                                    android:minWidth="56dp"
+                                    android:singleLine="true"
+                                    android:text="4 dp" />
+                            </LinearLayout>
                         </LinearLayout>
-                    </LinearLayout>
-                    <LinearLayout
-                        android:orientation="vertical"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="6dp"
-                        android:paddingRight="6dp"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp">
-                        <TextView
-                            android:textSize="13sp"
-                            android:fontFamily="sans-serif-medium"
-                            android:textColor="@color/mr_tb_text_strong"
-                            android:tag="tl_s"
-                            android:paddingLeft="4dp"
+                        <LinearLayout
+                            android:orientation="vertical"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
-                            android:singleLine="true"
-                            android:ellipsize="end"
-                            android:text="@string/title_key_spacing" />
-                        <LinearLayout
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content">
-                            <SeekBar
-                                android:tag="sk_s"
-                                android:paddingLeft="14dp"
-                                android:paddingRight="14dp"
-                                android:thumb="@drawable/mr_seek_thumb"
-                                android:progressDrawable="@drawable/mr_seek_track"
-                                android:progressTint="@color/mr_accent"
-                                android:thumbTint="@color/mr_accent"
-                                android:progressBackgroundTint="@color/mr_tune_track"
-                                android:layout_width="0dp"
-                                android:layout_height="40dp"
-                                android:layout_weight="1" />
+                            android:paddingLeft="0dp"
+                            android:paddingRight="6dp"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="4dp">
                             <TextView
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 android:fontFamily="sans-serif-medium"
-                                android:textColor="@color/mr_accent"
-                                android:gravity="center_vertical|right"
-                                android:tag="vl_s"
-                                android:layout_width="wrap_content"
+                                android:textColor="@color/mr_tb_text_strong"
+                                android:tag="tl_r"
+                                android:paddingLeft="10dp"
+                                android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
-                                android:minWidth="52dp"
                                 android:singleLine="true"
-                                android:text="4 dp" />
-                        </LinearLayout>
-                    </LinearLayout>
-                    <LinearLayout
-                        android:orientation="vertical"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="6dp"
-                        android:paddingRight="6dp"
-                        android:paddingTop="4dp"
-                        android:paddingBottom="4dp">
-                        <TextView
-                            android:textSize="13sp"
-                            android:fontFamily="sans-serif-medium"
-                            android:textColor="@color/mr_tb_text_strong"
-                            android:tag="tl_r"
-                            android:paddingLeft="4dp"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:singleLine="true"
-                            android:ellipsize="end"
-                            android:text="@string/mr_tb_radius" />
-                        <LinearLayout
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content">
-                            <SeekBar
-                                android:tag="sk_r"
-                                android:paddingLeft="14dp"
-                                android:paddingRight="14dp"
-                                android:thumb="@drawable/mr_seek_thumb"
-                                android:progressDrawable="@drawable/mr_seek_track"
-                                android:progressTint="@color/mr_accent"
-                                android:thumbTint="@color/mr_accent"
-                                android:progressBackgroundTint="@color/mr_tune_track"
-                                android:layout_width="0dp"
-                                android:layout_height="40dp"
-                                android:layout_weight="1" />
-                            <TextView
-                                android:textSize="14sp"
-                                android:fontFamily="sans-serif-medium"
-                                android:textColor="@color/mr_accent"
-                                android:gravity="center_vertical|right"
-                                android:tag="vl_r"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:minWidth="52dp"
-                                android:singleLine="true"
-                                android:text="8 dp" />
+                                android:ellipsize="end"
+                                android:text="@string/mr_tb_radius" />
+                            <LinearLayout
+                                android:theme="@style/Theme.MrKeyboard.Dialog"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content">
+                                <SeekBar
+                                    android:tag="sk_r"
+                                    android:paddingStart="10dp"
+                                    android:paddingLeft="10dp"
+                                    android:paddingTop="6dp"
+                                    android:paddingBottom="6dp"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1" />
+                                <TextView
+                                    android:textSize="13sp"
+                                    android:textColor="@color/mr_accent"
+                                    android:gravity="center"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:background="@drawable/mr_ui_value_pill"
+                                    android:tag="vl_r"
+                                    android:paddingLeft="8dp"
+                                    android:paddingTop="2dp"
+                                    android:paddingRight="8dp"
+                                    android:paddingBottom="2dp"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginLeft="4dp"
+                                    android:minWidth="56dp"
+                                    android:singleLine="true"
+                                    android:text="8 dp" />
+                            </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
