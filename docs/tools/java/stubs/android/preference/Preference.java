@@ -4,6 +4,9 @@ public class Preference {
     public interface OnPreferenceClickListener {
         boolean onPreferenceClick(Preference preference);
     }
+    public interface OnPreferenceChangeListener {
+        boolean onPreferenceChange(Preference preference, Object newValue);
+    }
     public Preference(android.content.Context context) { }
     public void setKey(String key) { }
     public void setTitle(CharSequence title) { }
@@ -13,4 +16,5 @@ public class Preference {
     public void setDefaultValue(Object defaultValue) { }
     public void setIcon(int iconResId) { }
     public void setOnPreferenceClickListener(OnPreferenceClickListener l) { }
+    public void setOnPreferenceChangeListener(OnPreferenceChangeListener l) { }
 }

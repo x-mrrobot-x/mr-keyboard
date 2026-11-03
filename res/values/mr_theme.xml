@@ -124,6 +124,28 @@
         <item name="android:elevation">0.0dip</item>
         <item name="android:titleTextStyle">@style/MrActionBarTitle</item>
     </style>
+    <!-- Botões exclusivos do diálogo Editor de IA (paleta fixa das configurações). -->
+    <style name="MrAiDialogIconSurface">
+        <item name="android:background">@drawable/mr_ui_card_ripple</item>
+        <item name="android:layout_width">36dp</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:layout_marginLeft">2dp</item>
+        <item name="android:layout_marginRight">2dp</item>
+    </style>
+    <style name="MrAiDialogButton">
+        <item name="android:textColor">@color/mr_ui_text2</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/mr_ui_pill_bg</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:layout_marginLeft">3dp</item>
+        <item name="android:layout_marginRight">3dp</item>
+    </style>
+
     <!-- Diálogos (listas, barras de valor, campos de texto) -->
     <style name="Theme.MrKeyboard.Dialog" parent="@android:style/Theme.Material.Dialog.Alert">
         <item name="android:windowBackground">@drawable/mr_ui_dialog_bg</item>

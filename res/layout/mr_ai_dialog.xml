@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dialog preso à janela do teclado, no mesmo tema fixo das telas de configurações. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:tag="ai_dialog_root"
+    android:background="@color/mr_ai_scrim"
+    android:clickable="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:tag="ai_card"
+        android:background="@drawable/mr_ui_dialog_bg"
+        android:fillViewport="false"
+        android:overScrollMode="never"
+        android:scrollbars="vertical"
+        android:clickable="true"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="12dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:paddingLeft="12dp"
+            android:paddingTop="8dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="44dp">
+                <TextView
+                    android:tag="ai_back"
+                    android:text="×"
+                    android:textSize="23sp"
+                    android:textColor="@color/mr_ui_text2"
+                    android:gravity="center"
+                    android:background="@drawable/mr_ui_card_ripple"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp" />
+                <TextView
+                    android:tag="ai_title"
+                    android:text="@string/mr_ai_title"
+                    android:textSize="18sp"
+                    android:textColor="@color/mr_ui_text"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="4dp"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+                <FrameLayout
+                    style="@style/MrAiDialogIconSurface"
+                    android:tag="ai_gear">
+                    <ImageView
+                        android:src="@drawable/ic_mr_gear"
+                        android:tint="@color/mr_ui_text2"
+                        android:scaleType="fitCenter"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:scrollbars="none"
+                android:overScrollMode="never"
+                android:layout_width="match_parent"
+                android:layout_height="72dp">
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:tag="ai_strip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" />
+            </HorizontalScrollView>
+
+            <View
+                android:background="@color/mr_ui_stroke"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="6dp" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:baselineAligned="false"
+                android:layout_width="match_parent"
+                android:layout_height="44dp">
+                <TextView
+                    android:tag="ai_hdr_result"
+                    android:text="@string/mr_ai_result"
+                    android:textSize="14sp"
+                    android:textColor="@color/mr_ui_text"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="4dp"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+                <LinearLayout
+                    style="@style/MrAiDialogButton"
+                    android:tag="ai_emoji"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:baselineAligned="false"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView
+                        android:tag="ai_emoji_check"
+                        android:textSize="11sp"
+                        android:textColor="@color/mr_ui_text2"
+                        android:fontFamily="sans-serif-medium"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:background="@drawable/mr_ui_edit_bg"
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp" />
+                    <TextView
+                        android:tag="ai_emoji_label"
+                        android:text="@string/mr_ai_emojify"
+                        android:textSize="12sp"
+                        android:textColor="@color/mr_ui_text2"
+                        android:fontFamily="sans-serif-medium"
+                        android:gravity="center_vertical"
+                        android:includeFontPadding="false"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:maxWidth="132dp"
+                        android:paddingLeft="6dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+                <FrameLayout
+                    style="@style/MrAiDialogIconSurface"
+                    android:tag="ai_copy">
+                    <ImageView
+                        android:src="@drawable/ic_mr_copy"
+                        android:tint="@color/mr_ui_text2"
+                        android:scaleType="fitCenter"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <TextView
+                android:tag="ai_status"
+                android:textSize="12sp"
+                android:textColor="@color/mr_ui_text2"
+                android:gravity="center_vertical"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:minHeight="24dp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp" />
+
+            <TextView
+                android:tag="ai_result"
+                android:textSize="15sp"
+                android:textColor="@color/mr_ui_text"
+                android:background="@drawable/mr_ui_edit_bg"
+                android:gravity="top|start"
+                android:paddingLeft="12dp"
+                android:paddingTop="10dp"
+                android:paddingRight="12dp"
+                android:paddingBottom="10dp"
+                android:minHeight="96dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="54dp">
+                <TextView
+                    android:tag="ai_apply"
+                    android:text="@string/mr_ai_apply"
+                    android:textSize="16sp"
+                    android:textColor="@color/mr_text_on_accent"
+                    android:fontFamily="sans-serif-medium"
+                    android:gravity="center"
+                    android:background="@drawable/mr_ui_primary_shape"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginRight="3dp" />
+                <FrameLayout
+                    style="@style/MrAiDialogIconSurface"
+                    android:tag="ai_redo">
+                    <ImageView
+                        android:src="@drawable/ic_mr_refresh"
+                        android:tint="@color/mr_ui_text2"
+                        android:scaleType="fitCenter"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center" />
+                </FrameLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

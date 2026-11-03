@@ -197,4 +197,5 @@
     <color name="mr_tb_btn_stroke">#44808080</color>
     <color name="mr_tb_divider">@color/mr_tb_btn_fill</color>
     <color name="mr_tb_scrim">#99000000</color>
+    <color name="mr_ai_scrim">#b8000000</color>
 </resources>

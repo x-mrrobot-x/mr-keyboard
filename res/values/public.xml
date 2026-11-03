@@ -263,6 +263,7 @@
     <public type="layout" name="input_mr_glass" id="0x7f0a0040" />
     <public type="layout" name="seek_bar_dialog_preview" id="0x7f0a003c" />
     <public type="layout" name="mr_tune_dialog" id="0x7f0a0041" />
+    <public type="layout" name="mr_ai_dialog" id="0x7f0a0042" />
     <public type="raw" name="sheets_default" id="0x7f0b0001" />
     <public type="string" name="added_word" id="0x7f0c001d" />
     <public type="string" name="alternates_for_a" id="0x7f0c001e" />

@@ -3637,6 +3637,12 @@
 
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrTools;->btn(Landroid/view/View;Ljava/lang/String;I)Landroid/widget/TextView;
 
+    const-string v1, "b_aied"
+
+    const/16 v2, 0x18
+
+    invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrTools;->btn(Landroid/view/View;Ljava/lang/String;I)Landroid/widget/TextView;
+
     const-string v1, "clip_back"
 
     const/4 v2, 0x7
@@ -3862,6 +3868,10 @@
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->center(Landroid/view/View;Ljava/lang/String;)V
 
     const-string v1, "b_tune"
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->center(Landroid/view/View;Ljava/lang/String;)V
+
+    const-string v1, "b_aied"
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->center(Landroid/view/View;Ljava/lang/String;)V
 
@@ -4188,6 +4198,15 @@
     return-void
 
     :cond_notsheets
+    const/16 v1, 0x18
+
+    if-ne v0, v1, :cond_not_ai_button
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->toggle()V
+
+    return-void
+
+    :cond_not_ai_button
     sparse-switch v0, :pswitch_data_0
 
     return-void
@@ -4747,6 +4766,8 @@
  invoke-interface {v0}, Ljava/util/concurrent/ExecutorService;->shutdownNow()Ljava/util/List;
  :translation_stopped
  invoke-static {}, Lcom/mrkeyboard/app/MrShots;->release()V
+
+ invoke-static {}, Lcom/mrkeyboard/app/MrAi;->release()V
  const/4 v0, 0x0
  sput-object v0, Lcom/mrkeyboard/app/MrTools;->sTranslateExec:Ljava/util/concurrent/ExecutorService;
  sput-object v0, Lcom/mrkeyboard/app/MrEmotes;->sList:Landroid/widget/ListView;

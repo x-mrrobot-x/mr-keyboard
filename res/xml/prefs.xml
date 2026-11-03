@@ -22,6 +22,9 @@
     <PreferenceScreen android:title="@string/mr_dicts_title" android:summary="@string/mr_dicts_summary">
       <intent android:action="com.mrkeyboard.app.PREFS_DICTS"/>
     </PreferenceScreen>
+    <PreferenceScreen android:title="@string/mr_ai_title" android:summary="@string/mr_ai_settings_summary">
+      <intent android:action="com.mrkeyboard.app.PREFS_AI"/>
+    </PreferenceScreen>
     <CheckBoxPreference android:persistent="true" android:title="@string/auto_cap" android:key="auto_cap" android:defaultValue="@bool/default_auto_cap"/>
     <ListPreference android:persistent="true" android:entries="@array/voice_input_modes" android:title="@string/voice_input" android:key="voice_mode" android:defaultValue="@string/voice_mode_symbols" android:entryValues="@array/voice_input_modes_values"/>
   </PreferenceCategory>

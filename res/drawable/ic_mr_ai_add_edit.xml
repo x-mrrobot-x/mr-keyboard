@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Vetor de adicionar/editar estilo personalizado do Editor de IA. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#ffffffff"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M12,3C7.03,3 3,7.03 3,12s4.03,9 9,9 9,-4.03 9,-9S16.97,3 12,3z" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#ffffffff"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M12,8v8 M8,12h8" />
+</vector>

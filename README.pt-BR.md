@@ -13,6 +13,7 @@ Precisa de Android 8.0 ou mais novo.
 - **Barra de ferramentas** acima das teclas:
   - **Sugestões:** sugestões e correções de palavras;
   - **Traduzir:** traduz o texto antes de enviar;
+  - **Editor de IA:** reescreve o texto selecionado ou o que está antes do cursor em um diálogo sobre o teclado; configure o serviço em *Configurações → Editor de IA*;
   - **Anexos:** fotos, vídeos e arquivos, enviados para o app em que você está digitando;
   - **Emotes.**
 - **Sugestões de palavras** em português do Brasil, inglês americano e espanhol (um dicionário por idioma):
@@ -22,7 +23,7 @@ Precisa de Android 8.0 ou mais novo.
   - sugere os nomes e as palavras que você acabou de escrever na mesma conversa (só na memória, apagados ao trocar de campo ou de app);
   - tudo roda no aparelho;
   - vem desligado: ligue *Mostrar sugestões* na mesma tela.
-- **Temas:** Mr Keyboard Neon, Dark Tech (suave e em relevo), Midnight Steel e Cobalt Glass (translúcido com blur de fundo no Android 12+; fundo escuro semitransparente onde o blur não está disponível). O espaçamento e o arredondamento das teclas valem em todos os temas, e o arredondamento também vale no popup do toque longo, no balão de preview, na barra e nos painéis.
+- **Temas:** Mr Keyboard Neon, Dark Tech (suave e em relevo), Midnight Steel e Cobalt Glass (translúcido com blur de fundo no Android 12+; fundo escuro semitransparente onde o blur não está disponível). O espaçamento e o arredondamento das teclas valem em todos os temas, e o arredondamento também vale no popup do toque longo, no balão de preview, na barra e nos painéis. O diálogo do Editor de IA sempre usa o tema das configurações.
 - **Gestos e teclas:** deslizar para cima, baixo, esquerda e direita e as teclas de volume podem executar ações do teclado.
 - **App em português, inglês ou espanhol:** segue o idioma do sistema, ou escolha em *Configurações → Geral → Idioma do app*.
 
@@ -40,6 +41,7 @@ O comando vai num broadcast que outros apps também podem receber, então não c
 - O que você digita fica no aparelho. Sugestões, correções e palavras aprendidas são processadas e guardadas só no celular. Não há anúncios, análise de uso nem Google Play Services.
 - O app só usa a internet quando você pede:
   - **Traduzir** envia ao Google Tradutor (`translate.googleapis.com`) o texto que você digita no campo de tradução. Só esse texto, e só quando você usa. O próprio campo avisa ("Digite para traduzir com o Google"), e o app mostra um aviso na primeira vez que o painel abre.
+  - **Editor de IA** envia somente o texto que você escolhe reescrever, e apenas ao serviço de IA que configurar. O app avisa na primeira abertura; nada é enviado até você tocar num estilo.
   - **Dicionários** (*Configurações → Sugestões e dicionários*): o app só se conecta quando você toca em *Procurar atualizações*, *Baixar*, *Atualizar* ou em um idioma que ainda não foi baixado, e só baixa arquivos da [release mais recente](../../releases/latest) deste repositório (o catálogo, `catalogo.json`, e um zip por idioma). Cada arquivo é conferido com uma lista assinada com a chave do próprio app antes de ser usado.
 
 | Permissão | Para quê |

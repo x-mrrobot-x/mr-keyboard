@@ -8,4 +8,7 @@ public class Activity extends android.view.ContextThemeWrapper {
     public boolean isFinishing() { return false; }
     public boolean isDestroyed() { return false; }
     public void recreate() { }
+    public void setContentView(android.view.View view) { }
+    public android.content.Intent getIntent() { return null; }
+    public void finish() { }
 }

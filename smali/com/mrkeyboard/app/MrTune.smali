@@ -1246,7 +1246,8 @@
 # A janela cobre so a area entre o topo da tela e o teclado (camada escura + cartao centralizado) e
 # acompanha a altura do teclado ao vivo (onLayoutChange). Fica presa a janela do teclado (token do IME +
 # TYPE_APPLICATION_ATTACHED_DIALOG): nao precisa de SYSTEM_ALERT_WINDOW e funciona do API 26 ao 36.
-# FLAG_ALT_FOCUSABLE_IM mantem o teclado visivel. Os deslizadores gravam direto ao arrastar.
+# FLAG_NOT_FOCUSABLE mantem o foco no editor sem bloquear os toques nos controles do dialog.
+# Os deslizadores gravam direto ao arrastar.
 .method private static showDialog()V
     .locals 8
 
@@ -1423,8 +1424,12 @@
 
     invoke-virtual {v5, v6}, Landroid/view/Window;->clearFlags(I)V
 
-    # ALT_FOCUSABLE_IM | LAYOUT_IN_SCREEN | LAYOUT_NO_LIMITS
-    const v6, 0x20300
+    # Evita tomar o foco do editor: NOT_FOCUSABLE + layout na tela inteira.
+    const v6, 0x20000
+
+    invoke-virtual {v5, v6}, Landroid/view/Window;->clearFlags(I)V
+
+    const v6, 0x308
 
     invoke-virtual {v5, v6}, Landroid/view/Window;->addFlags(I)V
 

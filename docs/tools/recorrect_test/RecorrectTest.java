@@ -28,6 +28,12 @@ public class RecorrectTest {
         Editor(String text, int selStart, int selEnd) { this.text = text; this.selStart = selStart; this.selEnd = selEnd; }
 
         public CharSequence getTextBeforeCursor(int n, int flags) { return ""; }
+        public CharSequence getSelectedText(int flags) { return null; }
+        public boolean commitText(CharSequence text, int newCursorPosition) { return false; }
+        public boolean deleteSurroundingText(int beforeLength, int afterLength) { return false; }
+        public boolean finishComposingText() { return true; }
+        public boolean beginBatchEdit() { return true; }
+        public boolean endBatchEdit() { return true; }
 
         public SurroundingText getSurroundingText(int before, int after, int flags) {
             snapshots++;

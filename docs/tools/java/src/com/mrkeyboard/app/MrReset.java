@@ -61,6 +61,10 @@ public final class MrReset implements Preference.OnPreferenceClickListener {
             "recorrection_enabled",
             "suggestions_in_landscape",
             "pref_suggested_punctuation",
+            "pref_ai_provider",
+            "pref_ai_endpoint",
+            "pref_ai_model",
+            "pref_ai_key",
             "pref_candidate_scale",
             "pref_sheet_return",
             "pref_render_mode",
@@ -102,6 +106,7 @@ public final class MrReset implements Preference.OnPreferenceClickListener {
         SharedPreferences.Editor e = PreferenceManager.getDefaultSharedPreferences(c).edit();
         for (String k : KEYS) e.remove(k);
         e.apply();
+        MrAi.setApiKey(c, ""); // a chave de API fica em "mr_ai", fora de KEYS e do backup
         java.util.Locale ui = c.getResources().getConfiguration().locale;
         MrPacks.syncLanguages(c, MrPacks.cardIds(null, MrPacks.installedIds(c), ui.getLanguage()));
     }

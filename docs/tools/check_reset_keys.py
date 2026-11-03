@@ -14,7 +14,9 @@ ANTIGAS = {'pref_render_mode', 'pref_slide_keys_int', 'connectbot_tab_hack', 'pr
            'pref_click_method', 'pref_top_row_scale', 'pref_caps_lock', 'pref_shift_lock_modifiers',
            'pref_chording_meta_key', 'settings_key'}
 # chaves com tela fora dos XML (páginas montadas em código)
-FORA_DE_XML = {'pref_sheet_return'}
+# pref_ai_key: a linha da tela não é persistente (o valor vai para "mr_ai", fora do backup, e o MrReset
+# apaga os dois), mas a chave continua em MrReset.KEYS para limpar qualquer cópia nas preferências padrão
+FORA_DE_XML = {'pref_sheet_return', 'pref_ai_key'}
 
 tela = set()
 for f in glob.glob('res/xml/prefs*.xml'):

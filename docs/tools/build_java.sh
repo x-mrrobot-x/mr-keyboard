@@ -1,5 +1,5 @@
 #!/bin/sh
-# Gera o smali da camada Java do Mr Keyboard (MrText, MrFix, MrFuzzy, MrPredict, MrTrigram, MrRules, MrJson, MrPacks, MrPacksActivity) a partir de
+# Gera o smali da camada Java do Mr Keyboard (MrText, MrFix, MrFuzzy, MrPredict, MrTrigram, MrRules, MrJson, MrPacks, MrPacksActivity, MrAi, MrAiDialog, MrAiPrefs, MrAiStyleActivity) a partir de
 # docs/tools/java/src e copia para smali/com/mrkeyboard/app/.
 #
 # Uso (na raiz do projeto apktool):
@@ -16,8 +16,8 @@ OUT=$(mktemp -d)
 : "${APKTOOL_JAR:?defina APKTOOL_JAR}"
 
 mkdir -p "$OUT/stubs" "$OUT/classes"
-javac -nowarn --release 8 -d "$OUT/stubs" $(find "$SRC/stubs" -name '*.java')
-javac -Xlint:-options --release 8 -g:source,lines -cp "$OUT/stubs" -d "$OUT/classes" \
+javac -encoding UTF-8 -nowarn --release 8 -d "$OUT/stubs" $(find "$SRC/stubs" -name '*.java')
+javac -encoding UTF-8 -Xlint:-options --release 8 -g:source,lines -cp "$OUT/stubs" -d "$OUT/classes" \
     $(find "$SRC/src" -name '*.java')
 java -cp "$DX_JAR" com.android.dx.command.Main --dex --min-sdk-version=26 \
     --output="$OUT/classes.dex" "$OUT/classes"

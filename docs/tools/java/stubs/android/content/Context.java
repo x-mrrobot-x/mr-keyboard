@@ -13,4 +13,5 @@ public abstract class Context {
     public abstract java.io.File getCacheDir();
     public abstract void startActivity(Intent intent);
     public android.content.res.Resources.Theme getTheme() { return null; }
+    public Object getSystemService(String name) { return null; }
 }

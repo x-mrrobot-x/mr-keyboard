@@ -13,6 +13,7 @@ Requires Android 8.0 or later.
 - **Toolbar** above the keys:
   - **Suggestions:** word suggestions and corrections;
   - **Translate:** translate text before sending it;
+  - **AI editor:** rewrite selected text or the text before the cursor in a modal dialog above the keyboard; configure the service in *Settings → AI Editor*;
   - **Attachments:** photos, videos and files, inserted into the app you are typing in;
   - **Emotes.**
 - **Word suggestions** in Brazilian Portuguese, US English and Spanish (one dictionary per language):
@@ -22,7 +23,7 @@ Requires Android 8.0 or later.
   - suggests the names and words you just wrote in the same conversation (kept only in memory and cleared when you change field or app);
   - everything runs on the device;
   - off by default: turn on *Show suggestions* on the same screen.
-- **Themes:** Mr Keyboard Neon, Dark Tech (soft and raised), Midnight Steel and Cobalt Glass (translucent with background blur on Android 12+; a semi-transparent dark background where blur is unavailable). Key spacing and corner roundness work in every theme, and the roundness also follows into the long-press popup, the key preview bubble, and the toolbar and panels.
+- **Themes:** Mr Keyboard Neon, Dark Tech (soft and raised), Midnight Steel and Cobalt Glass (translucent with background blur on Android 12+; a semi-transparent dark background where blur is unavailable). Key spacing and corner roundness work in every theme, and the roundness also follows into the long-press popup, the key preview bubble, and the toolbar and panels. The AI editor dialog always uses the settings theme.
 - **Gestures and keys:** swipe up/down/left/right and the volume keys can run keyboard actions.
 - **App in English, Portuguese or Spanish:** it follows the system language, or pick one in *Settings → General → App language*.
 
@@ -40,6 +41,7 @@ The command is sent as a broadcast that other apps can also receive, so don't pu
 - What you type stays on your device. Suggestions, corrections and learned words are processed and stored only on the phone. There are no ads, no analytics and no Google Play Services.
 - The app uses the internet only when you ask it to:
   - **Translate** sends the text you type in the translate field to Google Translate (`translate.googleapis.com`). Only that text is sent, and only when you use it. The field says so ("Type to translate with Google"), and the app shows a notice the first time the panel opens.
+  - **AI editor** sends only the text you choose to rewrite, and only to the AI service you configure. The app shows a notice on the first opening; no request is sent until you tap a style.
   - **Dictionaries** (*Settings → Suggestions and dictionaries*): the app only connects when you tap *Check for updates*, *Download*, *Update* or a language that isn't downloaded yet, and it only downloads files from this repository's [latest release](../../releases/latest) (the catalog, `catalogo.json`, and one zip per language). Every file is checked against a list signed with the app's own key before it is used.
 
 | Permission | Why |

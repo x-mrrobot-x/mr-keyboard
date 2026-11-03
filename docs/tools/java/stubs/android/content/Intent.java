@@ -6,4 +6,6 @@ public class Intent {
     public Intent(Context packageContext, Class<?> cls) { }
     public Intent(String action, android.net.Uri uri) { }
     public Intent addFlags(int flags) { return this; }
+    public Intent putExtra(String name, int value) { return this; }
+    public int getIntExtra(String name, int defaultValue) { return defaultValue; }
 }

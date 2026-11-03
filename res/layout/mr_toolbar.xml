@@ -51,6 +51,19 @@
                 android:drawableLeft="@drawable/ic_mr_trans" />
             <TextView
                 style="@style/MrToolBtn"
+                android:tag="b_aied"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:drawableLeft="@drawable/ic_mr_aied" />
+            <TextView
+                style="@style/MrToolBtn"
                 android:tag="b_shots"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"

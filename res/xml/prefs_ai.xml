@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" android:title="@string/mr_ai_title" android:key="mr_ai_settings">
+  <PreferenceCategory android:title="@string/mr_ai_cat_service" android:key="mr_ai_cat_service" android:icon="@drawable/mr_ui_ic_typea_violet">
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/mr_ai_provider_entries" android:title="@string/mr_ai_provider" android:key="pref_ai_provider" android:defaultValue="openai" android:dialogTitle="@string/mr_ai_provider" android:entryValues="@array/mr_ai_provider_values"/>
+    <EditTextPreference android:persistent="true" android:title="@string/mr_ai_endpoint" android:key="pref_ai_endpoint" android:defaultValue="https://api.openai.com/v1/chat/completions" android:dialogTitle="@string/mr_ai_endpoint" android:dialogMessage="@string/mr_ai_endpoint_dlg" android:inputType="textUri|textNoSuggestions" android:singleLine="true"/>
+    <EditTextPreference android:persistent="true" android:title="@string/mr_ai_model" android:key="pref_ai_model" android:defaultValue="gpt-6.1-terra" android:dialogTitle="@string/mr_ai_model" android:dialogMessage="@string/mr_ai_model_dlg" android:inputType="textNoSuggestions" android:singleLine="true"/>
+    <EditTextPreference android:persistent="false" android:title="@string/mr_ai_key" android:key="pref_ai_key" android:defaultValue="" android:dialogTitle="@string/mr_ai_key" android:dialogMessage="@string/mr_ai_key_dlg" android:inputType="textPassword|textNoSuggestions" android:singleLine="true"/>
+    <Preference android:title="@string/mr_ai_test" android:key="pref_ai_test" android:summary="@string/mr_ai_test_sum" android:persistent="false"/>
+    <Preference android:key="pref_ai_privacy" android:summary="@string/mr_ai_privacy" android:selectable="false" android:persistent="false"/>
+  </PreferenceCategory>
+  <PreferenceCategory android:title="@string/mr_ai_cat_styles" android:key="mr_ai_cat_styles" android:summary="@string/mr_ai_styles_hint" android:icon="@drawable/mr_ui_ic_grid_blue">
+  </PreferenceCategory>
+</PreferenceScreen>

@@ -135,4 +135,18 @@
         <item>pt-BR</item>
         <item>es</item>
     </string-array>
+    <string-array name="mr_ai_provider_entries">
+        <item>@string/mr_ai_prov_openai</item>
+        <item>@string/mr_ai_prov_groq</item>
+        <item>@string/mr_ai_prov_openrouter</item>
+        <item>@string/mr_ai_prov_gemini</item>
+        <item>@string/mr_ai_prov_custom</item>
+    </string-array>
+    <string-array name="mr_ai_provider_values">
+        <item>openai</item>
+        <item>groq</item>
+        <item>openrouter</item>
+        <item>gemini</item>
+        <item>custom</item>
+    </string-array>
 </resources>

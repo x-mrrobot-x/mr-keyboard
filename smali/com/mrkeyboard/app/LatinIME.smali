@@ -9410,6 +9410,8 @@
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyTranslucentBlur()V
 
+    invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->onImeWindowShown()V
+
     return-void
 .end method
 
@@ -9419,6 +9421,11 @@
     .locals 0
 
     invoke-super {p0}, Landroid/inputmethodservice/InputMethodService;->onWindowHidden()V
+
+    # Ao esconder o IME, fecha também as janelas anexadas ao teclado.
+    invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->dismiss()V
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->close()V
 
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->resetSheetToAbc()V
 
@@ -11360,6 +11367,10 @@
 
 .method public onStartInputView(Landroid/view/inputmethod/EditorInfo;Z)V
     .locals 7
+
+    iget-object v0, p1, Landroid/view/inputmethod/EditorInfo;->packageName:Ljava/lang/String;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrAiDialog;->onInputViewStarted(Ljava/lang/String;)V
 
     # Raio das teclas mudou desde a ultima vez: refaz a view para a barra e os paineis pegarem o raio novo.
     invoke-static {}, Lcom/mrkeyboard/app/KeyStyle;->takeRadiusDirty()Z

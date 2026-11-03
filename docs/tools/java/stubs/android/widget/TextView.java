@@ -7,4 +7,10 @@ public class TextView extends android.view.View {
     public void setTextColor(int color) { }
     public void setTextSize(float size) { }
     public void setTypeface(android.graphics.Typeface tf, int style) { }
+    public void setGravity(int gravity) { }
+    public void setHint(CharSequence hint) { }
+    public void setHintTextColor(int color) { }
+    public void setInputType(int type) { }
+    public void setSingleLine(boolean singleLine) { }
+    public void setMinLines(int minLines) { }
 }
