@@ -27,10 +27,6 @@
     <color name="mr_panel_tab_off_stroke">#ff2c3b4f</color>
     <color name="mr_panel_field">#ff0e141b</color>
     <color name="mr_panel_field_stroke">#ff2a3645</color>
-    <color name="mr_panel_sheet">#ff111823</color>
-    <color name="mr_panel_sheet_stroke">#ff2a3748</color>
-    <color name="mr_panel_lang">#ff1a232e</color>
-    <color name="mr_panel_lang_stroke">#ff2c3a4b</color>
     <color name="mr_panel_card">#33888888</color>
     <color name="mr_panel_icon">#ffdfe7f1</color>
     <color name="mr_panel_tab_on_text">@color/mr_panel_icon</color>
@@ -39,9 +35,22 @@
     <color name="mr_alpha_flat">#4d000000</color>
     <color name="mr_alpha_sel">#47000000</color>
     <color name="mr_alpha_sel_text">#33000000</color>
-    <color name="mr_alpha_sheet_fill">#14000000</color>
-    <color name="mr_alpha_sheet_line">#44000000</color>
     <color name="mr_alpha_card">#22000000</color>
+    <!-- Anexos: botao do seletor (attach_fab), Cancelar/Enviar da selecao (sel_cancel, sel_send) e marcacao dos itens.
+         Papeis *_stroke: borda de 1 dp; *_text e attach_fab_icon: texto e icone. sel_send tambem pinta o check do item marcado
+         (fundo sel_send, anel sel_send_stroke, traco sel_send_text). sel_media: camada sobre a miniatura marcada;
+         sel_card: fundo do arquivo marcado. Valores abaixo: Midnight; os demais temas declaram a sua versao. -->
+    <color name="mr_sel_cancel">#ff263344</color>
+    <color name="mr_sel_cancel_stroke">#ff324357</color>
+    <color name="mr_sel_cancel_text">#ffcfdbea</color>
+    <color name="mr_sel_send">#ff56a9cf</color>
+    <color name="mr_sel_send_stroke">#ff78bcdc</color>
+    <color name="mr_sel_send_text">#ff06161e</color>
+    <color name="mr_attach_fab">#f22a3b52</color>
+    <color name="mr_attach_fab_stroke">#ff3b4c68</color>
+    <color name="mr_attach_fab_icon">#ffe1eaf5</color>
+    <color name="mr_sel_media">#593fb8ea</color>
+    <color name="mr_sel_card">#ff25445f</color>
 
     <!-- Cobalt Glass: as mesmas cores, translucidas, para o blur de fundo aparecer -->
     <color name="mr_glass_panel_bar">#4f19222f</color>
@@ -51,10 +60,29 @@
     <color name="mr_glass_panel_tab_off_stroke">#248fb8e8</color>
     <color name="mr_glass_panel_field">#4d07142b</color>
     <color name="mr_glass_panel_field_stroke">#248fb8e8</color>
-    <color name="mr_glass_panel_sheet">#4f19222f</color>
-    <color name="mr_glass_panel_sheet_stroke">#338fb8e8</color>
-    <color name="mr_glass_panel_lang">#4f19222f</color>
-    <color name="mr_glass_panel_lang_stroke">#338fb8e8</color>
+    <color name="mr_glass_sel_cancel">#cc2c3f5c</color>
+    <color name="mr_glass_sel_cancel_stroke">#33cfe3ff</color>
+    <color name="mr_glass_sel_cancel_text">#ffeaf2ff</color>
+    <color name="mr_glass_sel_send">#eb426fb5</color>
+    <color name="mr_glass_sel_send_stroke">#66b4d2ff</color>
+    <color name="mr_glass_sel_send_text">#ffffffff</color>
+    <color name="mr_glass_attach_fab">#e03f6eab</color>
+    <color name="mr_glass_attach_fab_stroke">#40cfe3ff</color>
+    <color name="mr_glass_attach_fab_icon">#fff2f7ff</color>
+    <color name="mr_glass_sel_media">#667fb2ff</color>
+    <color name="mr_glass_sel_card">#b34f7fc4</color>
+
+    <color name="mr_neon_sel_cancel">#ff0e1f15</color>
+    <color name="mr_neon_sel_cancel_stroke">#ff23704a</color>
+    <color name="mr_neon_sel_cancel_text">#ff6ee79b</color>
+    <color name="mr_neon_sel_send">#ff52c188</color>
+    <color name="mr_neon_sel_send_stroke">#ff74d4a2</color>
+    <color name="mr_neon_sel_send_text">#ff07130c</color>
+    <color name="mr_neon_attach_fab">#f212301e</color>
+    <color name="mr_neon_attach_fab_stroke">#ff2b8a55</color>
+    <color name="mr_neon_attach_fab_icon">#ff6ee79b</color>
+    <color name="mr_neon_sel_media">#593ddc84</color>
+    <color name="mr_neon_sel_card">#ff144a2b</color>
 
     <color name="mr_neon_text">#ff6ee79b</color>
     <color name="mr_neon_cursor">#ff3df0c0</color>
@@ -73,6 +101,18 @@
     <color name="mr_neon_preview_stroke">#ff3ddc84</color>
     <color name="mr_neon_preview_dots">#cc3ddc84</color>
 
+    <color name="mr_soft_sel_cancel">#ff001769</color>
+    <color name="mr_soft_sel_cancel_stroke">#ff22499f</color>
+    <color name="mr_soft_sel_cancel_text">#ff9ec9ff</color>
+    <color name="mr_soft_sel_send">#ff2f66c9</color>
+    <color name="mr_soft_sel_send_stroke">#ff5a86d6</color>
+    <color name="mr_soft_sel_send_text">#ffffffff</color>
+    <color name="mr_soft_attach_fab">#f2072a88</color>
+    <color name="mr_soft_attach_fab_stroke">#ff2b52ac</color>
+    <color name="mr_soft_attach_fab_icon">#ffcfe3ff</color>
+    <color name="mr_soft_sel_media">#662f7bff</color>
+    <color name="mr_soft_sel_card">#ff0b3fae</color>
+
     <color name="mr_soft_text">#ff9ec9ff</color>
     <color name="mr_soft_cursor">#ff3df4fe</color>
     <color name="mr_soft_hint">#b35ea6ff</color>
@@ -88,6 +128,12 @@
     <color name="mr_soft_preview_bottom">#f500083c</color>
     <color name="mr_soft_preview_stroke">#ff3a8cff</color>
     <color name="mr_soft_preview_dots">#cc5ea6ff</color>
+
+    <color name="mr_slate_sel_cancel">#ff1c2430</color>
+    <color name="mr_slate_sel_cancel_stroke">#ff2e3a4a</color>
+    <color name="mr_slate_attach_fab">#f21f2a38</color>
+    <color name="mr_slate_attach_fab_stroke">#ff333f50</color>
+    <color name="mr_slate_sel_card">#ff1d3a56</color>
 
     <color name="mr_slate_text">#ffe7eef7</color>
     <color name="mr_slate_cursor">#ffe7eef7</color>

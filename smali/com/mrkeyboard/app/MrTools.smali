@@ -1309,6 +1309,124 @@
     return-object v0
 .end method
 
+.method static selFill()Landroid/graphics/drawable/Drawable;
+    .locals 3
+
+    const-string v0, "sel_card"
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v0
+
+    const/high16 v1, 0x40000000    # 2.0f
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
+
+    move-result v1
+
+    const/4 v2, 0x0
+
+    invoke-static {v0, v2, v2, v1}, Lcom/mrkeyboard/app/MrTools;->rrect(IIIF)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+# Fundo de botao: p0 = cor do fundo, p1 = cor da borda (1 dp), p2 = cor do texto ou icone, p3 = raio (px).
+# Ao tocar, o fundo se mistura 18% com a cor do texto. As cores vem dos papeis do tema (MrTheme.color).
+.method static roleBg(IIIF)Landroid/graphics/drawable/Drawable;
+    .locals 7
+
+    sget v0, Lcom/mrkeyboard/app/MrTools;->sPad:I
+
+    div-int/lit8 v0, v0, 0xa
+
+    invoke-static {p0, p1, v0, p3}, Lcom/mrkeyboard/app/MrTools;->rrect(IIIF)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v1
+
+    new-instance v2, Landroid/animation/ArgbEvaluator;
+
+    invoke-direct {v2}, Landroid/animation/ArgbEvaluator;-><init>()V
+
+    const v3, 0x3e3851ec    # 0.18f
+
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v4
+
+    invoke-static {p2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v5
+
+    invoke-virtual {v2, v3, v4, v5}, Landroid/animation/ArgbEvaluator;->evaluate(FLjava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Ljava/lang/Integer;
+
+    invoke-virtual {v2}, Ljava/lang/Integer;->intValue()I
+
+    move-result v2
+
+    invoke-static {v2, p1, v0, p3}, Lcom/mrkeyboard/app/MrTools;->rrect(IIIF)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v2
+
+    new-instance v3, Landroid/graphics/drawable/StateListDrawable;
+
+    invoke-direct {v3}, Landroid/graphics/drawable/StateListDrawable;-><init>()V
+
+    const/4 v4, 0x1
+
+    new-array v4, v4, [I
+
+    const/4 v5, 0x0
+
+    const v6, 0x10100a7
+
+    aput v6, v4, v5
+
+    invoke-virtual {v3, v4, v2}, Landroid/graphics/drawable/StateListDrawable;->addState([ILandroid/graphics/drawable/Drawable;)V
+
+    new-array v4, v5, [I
+
+    invoke-virtual {v3, v4, v1}, Landroid/graphics/drawable/StateListDrawable;->addState([ILandroid/graphics/drawable/Drawable;)V
+
+    return-object v3
+.end method
+
+.method static fabBg()Landroid/graphics/drawable/Drawable;
+    .locals 4
+
+    const-string v0, "attach_fab"
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v0
+
+    const-string v1, "attach_fab_stroke"
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v1
+
+    const-string v2, "attach_fab_icon"
+
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v2
+
+    const v3, 0x447a0000    # 1000.0f
+
+    invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/MrTools;->roleBg(IIIF)Landroid/graphics/drawable/Drawable;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
 # Fundo do campo "Digite aqui para traduzir": mais escuro que a barra (#0e141b), com borda fina
 # em azul-aco (#2a3645) e os mesmos cantos de 10 dp dos botoes.
 .method static fieldBg()Landroid/graphics/drawable/Drawable;
@@ -3086,6 +3204,8 @@
 
     if-eq p0, v2, :cond_sm_show
 
+    invoke-static {}, Lcom/mrkeyboard/app/MrShots;->clearSel()V
+
     const/16 v2, 0x8
 
     invoke-virtual {v0, v2}, Landroid/view/View;->setVisibility(I)V
@@ -3280,135 +3400,11 @@
     return-void
 .end method
 
-.method private static sheet(Landroid/view/View;Ljava/lang/String;)V
-    .locals 5
-
-    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrTools;->tag(Landroid/view/View;Ljava/lang/String;)Landroid/view/View;
-
-    move-result-object v0
-
-    if-eqz v0, :cond_end
-
-    new-instance v1, Landroid/graphics/drawable/GradientDrawable;
-
-    invoke-direct {v1}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
-
-    invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->techPalette()Z
-
-    move-result v2
-
-    if-nez v2, :cond_tech
-
-    sget v2, Lcom/mrkeyboard/app/MrTools;->sTextColor:I
-
-    const v3, 0xffffff
-
-    and-int/2addr v2, v3
-
-    const-string v3, "alpha_sheet_fill"
-
-    invoke-static {v3}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
-
-    move-result v3
-
-    or-int/2addr v3, v2
-
-    const-string v4, "alpha_sheet_line"
-
-    invoke-static {v4}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
-
-    move-result v4
-
-    or-int/2addr v2, v4
-
-    goto :cond_paint
-
-    :cond_tech
-    const-string v3, "panel_sheet"
-
-    invoke-static {v3}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
-
-    move-result v3
-
-    const-string v2, "panel_sheet_stroke"
-
-    invoke-static {v2}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
-
-    move-result v2
-
-    # Midnight Steel: painel de idiomas (p_lang) com fundo e borda proprios
-    invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->flatBar()Z
-
-    move-result v4
-
-    if-eqz v4, :cond_paint
-
-    const-string v4, "p_lang"
-
-    invoke-virtual {v4, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v4
-
-    if-eqz v4, :cond_paint
-
-    const-string v3, "panel_lang"
-
-    invoke-static {v3}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
-
-    move-result v3
-
-    const-string v2, "panel_lang_stroke"
-
-    invoke-static {v2}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
-
-    move-result v2
-
-    :cond_paint
-    invoke-virtual {v1, v3}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
-
-    sget v3, Lcom/mrkeyboard/app/MrTools;->sPad:I
-
-    div-int/lit8 v3, v3, 0xa
-
-    invoke-virtual {v1, v3, v2}, Landroid/graphics/drawable/GradientDrawable;->setStroke(II)V
-
-    const/high16 v2, 0x40c00000    # 6.0f
-
-    invoke-static {v2}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
-
-    move-result v2
-
-    invoke-virtual {v1, v2}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
-
-    invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
-
-    :cond_end
-    return-void
-.end method
-
-.method private static flatSheetTranslucent(Landroid/view/View;Ljava/lang/String;)V
-    .locals 1
-
-    invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->translucent()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_fg_end
-
-    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrTools;->flatSheet(Landroid/view/View;Ljava/lang/String;)V
-
-    :cond_fg_end
-    return-void
-.end method
-
+# Paineis (Clipboard, idiomas, anexos e emotes) sem moldura em todos os temas: zera as margens e as passa para o
+# preenchimento, entao o conteudo fica na mesma posicao em qualquer tema. Temas planos (Midnight, Glass) pintam o
+# fundo na cor da barra; os demais ficam sem fundo, com o da propria barra.
 .method private static flatSheet(Landroid/view/View;Ljava/lang/String;)V
     .locals 7
-
-    invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->flatBar()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_fs_end
 
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrTools;->tag(Landroid/view/View;Ljava/lang/String;)Landroid/view/View;
 
@@ -3440,6 +3436,12 @@
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
+    invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->flatBar()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_fs_none
+
     new-instance v1, Landroid/graphics/drawable/ColorDrawable;
 
     const-string v6, "panel_bar"
@@ -3450,6 +3452,12 @@
 
     invoke-direct {v1, v6}, Landroid/graphics/drawable/ColorDrawable;-><init>(I)V
 
+    goto :cond_fs_set
+
+    :cond_fs_none
+    const/4 v1, 0x0
+
+    :cond_fs_set
     invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
     invoke-virtual {v0, v2, v3, v4, v5}, Landroid/view/View;->setPadding(IIII)V
@@ -3885,19 +3893,13 @@
 
     const-string v1, "p_clip"
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->sheet(Landroid/view/View;Ljava/lang/String;)V
-
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->flatSheetTranslucent(Landroid/view/View;Ljava/lang/String;)V
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->flatSheet(Landroid/view/View;Ljava/lang/String;)V
 
     const-string v1, "p_lang"
-
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->sheet(Landroid/view/View;Ljava/lang/String;)V
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->flatSheet(Landroid/view/View;Ljava/lang/String;)V
 
     const-string v1, "p_shots"
-
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->sheet(Landroid/view/View;Ljava/lang/String;)V
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->flatSheet(Landroid/view/View;Ljava/lang/String;)V
 
@@ -3974,8 +3976,6 @@
     move-result-object v2
 
     sput-object v2, Lcom/mrkeyboard/app/MrTools;->sPEmote:Landroid/view/View;
-
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->sheet(Landroid/view/View;Ljava/lang/String;)V
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->flatSheet(Landroid/view/View;Ljava/lang/String;)V
 
@@ -4318,6 +4318,7 @@
     return-void
 
     :pswitch_9
+    invoke-static {}, Lcom/mrkeyboard/app/MrShots;->clearSel()V
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->showPanel(I)V
@@ -4325,6 +4326,7 @@
     return-void
 
     :pswitch_a
+    invoke-static {}, Lcom/mrkeyboard/app/MrShots;->clearSel()V
     invoke-static {}, Lcom/mrkeyboard/app/MrShots;->reload()V
 
     return-void
@@ -4352,6 +4354,7 @@
     return-void
 
     :pswitch_17
+    invoke-static {}, Lcom/mrkeyboard/app/MrShots;->clearSel()V
     invoke-static {}, Lcom/mrkeyboard/app/MrShots;->clearCaches()V
     return-void
 

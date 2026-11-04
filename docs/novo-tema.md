@@ -58,8 +58,12 @@ tag sem o `mr_` (`glass`, `midnight`...).
    destaque usam `mr_<tema>_accent_text` (sem ela, vale `mr_accent_text`, branco); com a flag, usam o texto padrão do tema.
 9. **Cores dos painéis:** só se o tema precisar de cores diferentes, declare `mr_<tema>_panel_<papel>` em
    `res/values/mr_colors.xml`. Sem a versão do tema vale `mr_panel_<papel>`. Os papéis são `bar`, `btn`,
-   `btn_stroke`, `tab_off`, `tab_off_stroke`, `tab_on_text`, `tab_off_text`, `field`, `field_stroke`, `sheet`,
-   `sheet_stroke`, `lang`, `lang_stroke`, `card` e `icon`.
+   `btn_stroke`, `tab_off`, `tab_off_stroke`, `tab_on_text`, `tab_off_text`, `field`, `field_stroke`, `card` e `icon`.
+   Os paineis (Clipboard, idiomas, Anexos e emotes) nao tem moldura em tema nenhum: nos temas planos o fundo e `panel_bar`.
+   Papeis proprios de Anexos (sem o prefixo `panel_`, tambem com versao `mr_<tema>_<papel>` quando o tema precisar):
+   `attach_fab`, `attach_fab_stroke`, `attach_fab_icon` (botao do seletor), `sel_cancel`, `sel_cancel_stroke`,
+   `sel_cancel_text`, `sel_send`, `sel_send_stroke`, `sel_send_text` (barra Cancelar/Enviar e check do item marcado),
+   `sel_media` (camada sobre a miniatura marcada) e `sel_card` (fundo do arquivo marcado).
 10. **Confira:** `python3 docs/tools/res_check.py` e `python3 docs/tools/smali_regcheck.py smali/ --base <smali anterior>`.
     O `res_check` avisa se os arrays de registro não batem (`mr_theme_tags` com `mr_theme_flags`, valor de
     `keyboard_layout_modes_values` fora de `mr_theme_layouts` e bits de flag inválidos), se a tag do layout não está em `mr_theme_tags`, se falta

@@ -85,6 +85,9 @@
     <string name="mr_shot_none_vid">No se encontraron videos</string>
     <string name="mr_shot_none_files">No se encontraron archivos recientes</string>
     <string name="mr_shot_allow_files">Toca aquí para permitir el acceso a todos los archivos</string>
+    <string name="mr_shot_cancel">Cancelar</string>
+    <string name="mr_shot_send">Enviar (%1$d)</string>
+    <string name="mr_shot_fail_n">No se pudieron enviar %1$d archivos adjuntos</string>
     <string name="mr_tr_long">El texto es demasiado largo (máximo 1500 caracteres).</string>
     <string name="mr_tr_detect">Detectar idioma</string>
     <string name="mr_rec_on">Grabando</string>

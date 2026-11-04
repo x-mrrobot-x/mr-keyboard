@@ -430,39 +430,82 @@
         android:layout_marginTop="2dp"
         android:layout_marginRight="6dp"
         android:layout_marginBottom="6dp">
-        <GridView
-            android:tag="g_shots"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:cacheColorHint="@android:color/transparent"
-            android:listSelector="@android:color/transparent"
-            android:overScrollMode="never"
-            android:numColumns="4"
-            android:stretchMode="columnWidth"
-            android:horizontalSpacing="6dp"
-            android:verticalSpacing="6dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:clipToPadding="false"
+        <FrameLayout
+            android:tag="shot_stage"
             android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
-        <TextView
-            android:textSize="13sp"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="@color/mr_tb_text_dim"
-            android:gravity="center"
-            android:tag="shot_empty"
-            android:visibility="gone"
-            android:padding="12dp"
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/ic_mr_shots_lg"
-            android:drawablePadding="8dp"
-            android:text="@string/mr_shot_loading" />
+            android:layout_weight="1">
+            <GridView
+                android:tag="g_shots"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:cacheColorHint="@android:color/transparent"
+                android:listSelector="@android:color/transparent"
+                android:overScrollMode="never"
+                android:numColumns="4"
+                android:stretchMode="columnWidth"
+                android:horizontalSpacing="6dp"
+                android:verticalSpacing="6dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="62dp"
+                android:clipToPadding="false"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" />
+            <TextView
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/mr_tb_text_dim"
+                android:gravity="center"
+                android:tag="shot_empty"
+                android:visibility="gone"
+                android:padding="12dp"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:drawableTop="@drawable/ic_mr_shots_lg"
+                android:drawablePadding="8dp"
+                android:text="@string/mr_shot_loading" />
+            <com.mrkeyboard.app.MrCenteredIconButton
+                style="@style/MrToolBtn"
+                android:tag="shot_pick"
+                android:layout_gravity="bottom|right"
+                android:layout_margin="8dp"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
+                android:paddingLeft="0dp"
+                android:paddingRight="0dp"
+                android:textSize="0sp"
+                android:includeFontPadding="false"
+                android:drawablePadding="0dp"
+                android:drawableTop="@drawable/ic_mr_shots_c" />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:tag="shot_selbar"
+                android:visibility="gone"
+                android:layout_gravity="bottom"
+                android:layout_margin="8dp"
+                android:layout_width="fill_parent"
+                android:layout_height="40dp">
+                <TextView
+                    style="@style/MrToolBtn"
+                    android:tag="shot_sel_cancel"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="fill_parent"
+                    android:layout_marginRight="4dp"
+                    android:text="@string/mr_shot_cancel" />
+                <TextView
+                    style="@style/MrToolBtn"
+                    android:tag="shot_sel_send"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="fill_parent"
+                    android:layout_marginLeft="4dp"
+                    android:drawablePadding="6dp"
+                    android:drawableLeft="@drawable/ic_mr_send" />
+            </LinearLayout>
+        </FrameLayout>
     </LinearLayout>
     <LinearLayout
         android:orientation="horizontal"

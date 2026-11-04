@@ -218,6 +218,12 @@
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name="com.mrkeyboard.app.ShotPick"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:exported="false"

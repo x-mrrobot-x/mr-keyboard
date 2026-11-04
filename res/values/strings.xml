@@ -334,6 +334,9 @@
     <string name="mr_shot_none_vid">No videos found</string>
     <string name="mr_shot_none_files">No recent files found</string>
     <string name="mr_shot_allow_files">Tap here to allow access to all files</string>
+    <string name="mr_shot_cancel">Cancel</string>
+    <string name="mr_shot_send">Send (%1$d)</string>
+    <string name="mr_shot_fail_n">Failed to send %1$d attachments</string>
     <string name="mr_tr_long">Text is too long (maximum of 1500 characters).</string>
     <string name="mr_tr_detect">Detect language</string>
     <string name="mr_rec_on">Recording</string>

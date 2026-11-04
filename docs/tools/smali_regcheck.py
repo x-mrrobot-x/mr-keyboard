@@ -12,6 +12,10 @@
    `sget`, `aget`, `if-eqz`, `move-result`...) aceitam até v255. `pN` conta como v(locals+N), então um método com
    muitos locais pode jogar o `p0` para fora do limite (ex.: `invoke-direct/range` trocado por `invoke-direct`
    com `p0` = v17). A forma `/range` aceita até v65535.
+4. Registradores demais num `invoke-*` ou `filled-new-array` comuns. Essas formas aceitam no máximo 5 registradores
+   (o `this` conta, e cada argumento `J` ou `D` conta 2), e o montador do smali recusa com "Invalid register count: 6.
+   Must be between 0 and 5" (ex.: `ContentResolver.query` com Uri, projeção, seleção, argumentos e ordem = 6). Use a forma
+   `/range` com registradores consecutivos. O `apktool b` acusa isso, mas só no job de montagem e sem apontar a linha.
 
 Uso:
 
@@ -147,6 +151,9 @@ def limit_findings(insns, locals_n):
             if lim == 15 and op.startswith(('invoke', 'filled-new-array')):
                 dica = ' - use %s/range' % op
             out.append((ln, '%s fora do limite em "%s" (essa forma só aceita v0 a v%d)%s' % (nome, op, lim, dica)))
+    for ln, op, regs, labs in insns:
+        if op.startswith(('invoke', 'filled-new-array')) and not op.endswith('/range') and len(regs) > 5:
+            out.append((ln, '%d registradores em "%s" (a forma comum aceita no máximo 5: o montador recusa com "Invalid register count") - use %s/range' % (len(regs), op, op)))
     return out
 
 
