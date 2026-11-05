@@ -36,6 +36,12 @@ public class MrAiStyleActivity extends Activity {
     private static final int C_SAVE = 2;
     private static final int C_DELETE = 3;
     private static final int C_EMOJI = 100;
+    // What the screen keeps when it is recreated (rotation, language, dark mode): the fields have no id, so the
+    // system would not save what was typed.
+    private static final String S_NAME = "mr_style_name";
+    private static final String S_INSTR = "mr_style_instr";
+    private static final String S_EMOJI = "mr_style_emoji";
+    private static final String S_ARMED = "mr_style_delete_armed";
 
     /** Click bridge with code (as in the other panels): calls onAction of the live screen. */
     private final class Act implements View.OnClickListener {
@@ -74,6 +80,32 @@ public class MrAiStyleActivity extends Activity {
     protected void onPause() {
         MrAiDialog.setAuxiliaryUiVisible(false);
         super.onPause();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+        if (mName == null || mInstr == null) return;
+        out.putString(S_NAME, mName.getText() == null ? "" : mName.getText().toString());
+        out.putString(S_INSTR, mInstr.getText() == null ? "" : mInstr.getText().toString());
+        out.putString(S_EMOJI, mEmoji);
+        out.putBoolean(S_ARMED, mDeleteArmed);
+        MrScreenIme.save(out, mName, mInstr);
+    }
+
+    /** Puts back what was typed and chosen before the screen was recreated; wins over what is stored. */
+    private void restoreDraft(Bundle state) {
+        if (state == null || !state.containsKey(S_NAME)) return;
+        mName.setText(state.getString(S_NAME));
+        mInstr.setText(state.getString(S_INSTR));
+        String emoji = state.getString(S_EMOJI);
+        for (int i = 0; i < EMOJIS.length; i++) {
+            if (EMOJIS[i].equals(emoji)) mEmoji = emoji;
+        }
+        if (state.getBoolean(S_ARMED, false) && mDelete != null) {
+            mDeleteArmed = true;
+            mDelete.setText(t("mr_ai_style_delete_again"));
+        }
     }
 
     private String t(String name) {
@@ -122,6 +154,8 @@ public class MrAiStyleActivity extends Activity {
         col.setPadding(dp(20), dp(16), dp(20), dp(24));
         scroll.addView(col, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        // Android 15+: the window is not resized for the keyboard; the column gets its height as bottom padding.
+        MrScreenIme.lift(scroll, col, dp(20), dp(16), dp(20), dp(24), dp(12));
 
         // header: title + close (✕), as in the reference
         LinearLayout head = new LinearLayout(this);
@@ -230,8 +264,10 @@ public class MrAiStyleActivity extends Activity {
             mName.setText(st[1]);
             mInstr.setText(st[2]);
         }
+        restoreDraft(state);
         refreshEmoji();
         setContentView(scroll);
+        MrScreenIme.restore(state, mName, mInstr);
     }
 
     private EditText field(int card, int stroke, int text, int text2, String hint, int inputType) {

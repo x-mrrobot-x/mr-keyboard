@@ -2,6 +2,7 @@ package android.app;
 
 public class Activity extends android.view.ContextThemeWrapper {
     protected void onCreate(android.os.Bundle savedInstanceState) { }
+    protected void onSaveInstanceState(android.os.Bundle outState) { }
     protected void onResume() { }
     protected void onPause() { }
     public void setTitle(CharSequence title) { }

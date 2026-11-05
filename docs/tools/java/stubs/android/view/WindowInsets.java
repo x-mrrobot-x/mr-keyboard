@@ -31,9 +31,15 @@ public final class WindowInsets {
     }
 
     private final Insets[] byType;
+    private final int visible;
 
-    private WindowInsets(Insets[] byType) {
+    private WindowInsets(Insets[] byType, int visible) {
         this.byType = byType;
+        this.visible = visible;
+    }
+
+    public boolean isVisible(int typeMask) {
+        return (visible & typeMask) == typeMask;
     }
 
     public Insets getInsets(int typeMask) {
@@ -56,7 +62,7 @@ public final class WindowInsets {
             out[i] = Insets.of(Math.max(0, in.left - left), Math.max(0, in.top - top),
                     Math.max(0, in.right - right), Math.max(0, in.bottom - bottom));
         }
-        return new WindowInsets(out);
+        return new WindowInsets(out, visible);
     }
 
     public boolean isConsumed() {
@@ -68,6 +74,12 @@ public final class WindowInsets {
 
     public static final class Builder {
         private final Insets[] byType = new Insets[Type.SIZE];
+        private int visible;
+
+        public Builder setVisible(int typeMask, boolean isVisible) {
+            visible = isVisible ? (visible | typeMask) : (visible & ~typeMask);
+            return this;
+        }
 
         public Builder() {
             for (int i = 0; i < Type.SIZE; i++) byType[i] = Insets.NONE;
@@ -81,7 +93,7 @@ public final class WindowInsets {
         }
 
         public WindowInsets build() {
-            return new WindowInsets(byType.clone());
+            return new WindowInsets(byType.clone(), visible);
         }
     }
 }

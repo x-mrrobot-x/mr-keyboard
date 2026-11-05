@@ -302,6 +302,24 @@ for src in ('MrUpdateDialog', 'MrAiDialog'):
     if not m or m.group(1) != theme_id:
         problems.append('%s.java: fallback id of the dialog theme (%s) is not the one of public.xml (%s)' % (src, m and m.group(1), theme_id))
 
+# --- the screens that the keyboard opens from its window (FLAG_ACTIVITY_NEW_TASK) share a task of their own: with the
+# affinity of the app they would join its task when it is alive and Back would land on the app's main page instead of
+# the app the user was typing in
+KEYBOARD_SCREENS = ('LatinIMESettings', 'PrefScreenSheets', 'MrPacksActivity', 'MrAiPrefs', 'MrAiStyleActivity')
+manifest_tags = re.findall(r'<activity\b[^>]*>', read_file('AndroidManifest.xml'))
+affinities = set()
+for screen in KEYBOARD_SCREENS:
+    tag = [t for t in manifest_tags if 'android:name="com.mrkeyboard.app.%s"' % screen in t]
+    aff = re.search(r'android:taskAffinity="([^"]*)"', tag[0]) if tag else None
+    if not tag:
+        problems.append('manifest: activity %s not found' % screen)
+    elif not aff or '.' not in aff.group(1) or aff.group(1) == 'com.mrkeyboard.app':
+        problems.append('manifest: %s needs its own android:taskAffinity (not the package name)' % screen)
+    else:
+        affinities.add(aff.group(1))
+if len(affinities) > 1:
+    problems.append('manifest: the screens opened by the keyboard must share one taskAffinity, found %s' % sorted(affinities))
+
 print('resources: %d defined, %d entries in public.xml, %d strings in Spanish' % (len(defs), len(pub), len(es)))
 for p in problems:
     print('PROBLEM:', p)

@@ -4099,9 +4099,33 @@
     .line 283
     invoke-virtual {v0, v2}, Lcom/mrkeyboard/app/SheetEditorActivity;->setContentView(Landroid/view/View;)V
 
+    # Recreated with the keyboard open on the test field (rotation): puts it back (Android 17 no longer does).
+    move-object/from16 v3, p1
+
+    iget-object v1, v0, Lcom/mrkeyboard/app/SheetEditorActivity;->mTestInput:Landroid/widget/EditText;
+
+    const/4 v2, 0x0
+
+    invoke-static {v3, v1, v2}, Lcom/mrkeyboard/app/MrScreenIme;->restore(Landroid/os/Bundle;Landroid/widget/EditText;Landroid/widget/EditText;)V
+
     .line 284
     invoke-direct/range {p0 .. p0}, Lcom/mrkeyboard/app/SheetEditorActivity;->refreshUi()V
 
     .line 285
+    return-void
+.end method
+
+# Remembers whether the keyboard was open on the test field, for onCreate to put it back after a rotation.
+.method protected onSaveInstanceState(Landroid/os/Bundle;)V
+    .registers 4
+
+    invoke-super {p0, p1}, Landroid/app/Activity;->onSaveInstanceState(Landroid/os/Bundle;)V
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity;->mTestInput:Landroid/widget/EditText;
+
+    const/4 v1, 0x0
+
+    invoke-static {p1, v0, v1}, Lcom/mrkeyboard/app/MrScreenIme;->save(Landroid/os/Bundle;Landroid/widget/EditText;Landroid/widget/EditText;)V
+
     return-void
 .end method

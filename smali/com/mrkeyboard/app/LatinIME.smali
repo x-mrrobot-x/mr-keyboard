@@ -11365,6 +11365,19 @@
     return-void
 .end method
 
+# The editor of an app was bound. If it is the field the user left to open the AI Editor's Settings,
+# the keyboard is asked to appear (the system does not always bring it back) and the AI Editor
+# dialog reopens when the window shows (MrAiDialog.onInputStarted / onImeWindowShown).
+.method public onStartInput(Landroid/view/inputmethod/EditorInfo;Z)V
+    .locals 0
+
+    invoke-super {p0, p1, p2}, Landroid/inputmethodservice/InputMethodService;->onStartInput(Landroid/view/inputmethod/EditorInfo;Z)V
+
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrAiDialog;->onInputStarted(Landroid/view/inputmethod/EditorInfo;)V
+
+    return-void
+.end method
+
 .method public onStartInputView(Landroid/view/inputmethod/EditorInfo;Z)V
     .locals 7
 

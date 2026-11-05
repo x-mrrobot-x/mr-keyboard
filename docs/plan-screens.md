@@ -94,16 +94,55 @@ ao rolar) entra como item principal.
   `InsetsHandler.smali` (removido), comentário do `SettingsHeader.smali`, stubs (`Application`, `Insets`,
   `WindowInsets`, `View`, `Activity`), `run_java_tests.sh`, `build_java.sh`.
 
-### Etapa 2 — Rotação no Android 17: teclado volta onde estava
-- `SheetEditorActivity` e `MrAiStyleActivity`: guardar em `onSaveInstanceState` se o teclado estava visível
-  (`getRootWindowInsets().isVisible(Type.ime())`, API 30+; abaixo disso não guarda) e, ao recriar, mostrar o
-  teclado de novo no campo que tinha o foco. É inofensivo nas outras versões.
+### Etapa 2 — Teclado ao girar a tela e retorno ao Editor de IA — FEITA
+- **`MrScreenIme`** (Java, novo): `save` guarda em `onSaveInstanceState` qual campo tinha o foco com o teclado
+  aberto (`getRootWindowInsets().isVisible(Type.ime())`, API 30+; abaixo disso não guarda nada, que é o que
+  essas versões já faziam) e a posição do cursor. `restore`, no fim do `onCreate`, devolve o foco e pede o
+  teclado quando a janela nova recebe o foco, num `post` (antes disso o sistema ignora o pedido). O motivo: no
+  Android 17 o app precisa pedir o teclado de novo depois da rotação; só continua aberto o campo que ainda tem
+  foco com `SOFT_INPUT_STATE_ALWAYS_VISIBLE`, que não usamos porque abriria o teclado em toda volta ao app.
+- **Editor de folhas** (`SheetEditorActivity`, smali): novo `onSaveInstanceState` e uma chamada a
+  `MrScreenIme.restore` depois do `setContentView`; vale para o campo de teste.
+- **Editor de estilo de IA** (`MrAiStyleActivity`):
+  - Os campos não tinham `id`, então o sistema nunca salvou o que foi digitado: girar a tela apagava o nome e as
+    instruções. Agora nome, instruções, emoji e o "Excluir" já armado sobrevivem à recriação e vencem o que está
+    guardado no estilo.
+  - O achado da Etapa 1 se confirmou na leitura do código: sem tratar o teclado, no Android 15+ o campo de
+    instruções ficava atrás dele. `MrScreenIme.lift` soma a altura do teclado (descontadas as barras) ao padding
+    de baixo da coluna e rola até o campo com o foco quando o teclado aparece, na mesma conta do editor de folhas.
+    Segue **a confirmar no aparelho**.
+- **Retorno ao diálogo do Editor de IA depois de Configurações** (pedido do usuário). Antes, o diálogo só voltava
+  se o sistema religasse o teclado sozinho (`onWindowShown`); se não religasse, não voltava nem o teclado nem o
+  diálogo. Agora `LatinIME.onStartInput` chama `MrAiDialog.onInputStarted`: quando o campo do app de onde o
+  usuário saiu volta a conectar, o teclado pede para aparecer (`requestShowSelf(0)`, API 28+; antes disso fica
+  como antes) e, quando a janela aparece, o diálogo reabre (`onImeWindowShown`, já existente).
+  - Só para o mesmo pacote, só uma vez por ida (mais uma repetição depois de 400 ms se o teclado ainda não subiu),
+    só com a tela de Configurações/Estilos já fora da frente.
+  - Limite de 2 minutos desde que a última tela auxiliar saiu da frente: depois disso o pedido é descartado,
+    para o diálogo e o teclado não aparecerem do nada na próxima vez que o app for usado.
+  - Vale também para o botão de estilos do diálogo (mesmo caminho).
+- Testes no PC: `screenime_test/ScreenImeTest.java` (57 checks) e `ai_return_test/AiReturnTest.java` (38 checks).
+  Mutações: todas pegas, exceto duas equivalentes.
+- Arquivos: `MrScreenIme.java` (+ `.smali` gerados), `MrAiDialog.java`, `MrAiStyleActivity.java`,
+  `SheetEditorActivity.smali`, `LatinIME.smali`, stubs (`Bundle`, `View`, `ViewGroup`, `ViewTreeObserver`,
+  `TextView`, `EditText`, `ScrollView`, `WindowInsets`, `InputMethodManager`, `SystemClock`,
+  `InputMethodService`, `Activity`, `Context`), `run_java_tests.sh`, `build_java.sh`.
+- **Voltar caía na página principal do teclado, às vezes** (pedido do usuário, no mesmo commit). Nenhuma tela tinha
+  tarefa própria (todas com a afinidade do app). Aberta pelo teclado com `NEW_TASK`, a tela entrava na tarefa do app
+  quando ela já existia (app aberto antes, nos recentes), em cima da página principal: o Voltar mostrava essa página.
+  Sem tarefa do app aberta, criava tarefa nova e o Voltar voltava ao app em que se digitava. Isso explica o "às
+  vezes". Causa lida no manifesto e no código (nenhum código abre a `Main` ao voltar); **a confirmar no aparelho**.
+  - Correção: `android:taskAffinity="com.mrkeyboard.app.screens"` nas cinco telas que o teclado abre
+    (`LatinIMESettings`, `PrefScreenSheets`, `MrPacksActivity`, `MrAiPrefs`, `MrAiStyleActivity`; decisão do
+    usuário: todas as telas abertas pelo teclado). As cinco dividem a mesma afinidade para o editor de estilo
+    ficar na tarefa das configurações de IA. As subtelas abertas de dentro do app não precisam: sem `NEW_TASK`
+    elas ficam na tarefa de quem as abriu. `ShotPerm`/`ShotPick` já são `singleInstance` fora dos recentes.
+  - Efeito colateral aceito: essas telas aparecem como um cartão próprio nos apps recentes.
+  - A notificação de atualização (`NEW_TASK | CLEAR_TASK` para `LatinIMESettings`) passa a limpar só a tarefa
+    dessas telas, não mais a do app inteiro.
+  - Guarda no `res_check.py`: as cinco precisam ter afinidade própria (não o nome do pacote) e a mesma.
+  - A Etapa 3 (`MrNav`) mantém essas telas com `NEW_TASK` quando vêm do teclado.
 - Os diálogos de preferência com campo de texto são recriados junto com a tela; não precisam de nada.
-- **Achado na Etapa 1 (a confirmar no aparelho):** com edge-to-edge o `adjustResize` não encolhe mais o
-  conteúdo; só avisa o tamanho do teclado pelos insets. O editor de folhas compensa isso sozinho
-  (`Api30ImeHelper`), mas o `MrAiStyleActivity` (nome e instruções do estilo de IA) não trata o teclado: no
-  Android 15+ o campo de instruções pode ficar atrás do teclado. Corrigir junto: empurrar o conteúdo acima do
-  teclado nesse editor, do mesmo jeito do editor de folhas.
 
 ### Etapa 3 — Sem duplicação
 - `MrNav` (Java): único lugar que monta o Intent de abertura de tela, com `NEW_TASK | REORDER_TO_FRONT` quando
@@ -156,6 +195,17 @@ ao rolar) entra como item principal.
 - **Android 15 e 16** (se tiver): mesmas telas; Voltar por gesto com painel do teclado aberto.
 - **Android 10–14 e 8–9** (se tiver): telas com barras na cor do tema; faixa preta do notch em paisagem é
   esperada.
+- **Editores com teclado (Android 17):** no editor de estilo de IA, digitar nome e instruções e girar a tela:
+  o texto fica e o teclado volta no mesmo campo, com o cursor no mesmo lugar. No campo de instruções, com o
+  teclado aberto, o texto digitado fica acima do teclado. No editor de folhas, abrir o campo de teste, girar:
+  o teclado volta.
+- **Retorno ao Editor de IA:** abrir o diálogo, tocar na engrenagem, voltar (gesto e botão): o teclado e o
+  diálogo reaparecem no mesmo campo. Repetir com o app de origem em outro app (navegador, mensagens) e depois
+  esperar mais de 2 minutos nas Configurações: ao voltar o diálogo NÃO deve abrir sozinho.
+- **Voltar ao app:** com o app do teclado aberto nos recentes (abra o ícone do teclado antes), digitar num outro
+  app, abrir o Editor de IA, tocar na engrenagem e voltar: tem de voltar ao app em que se digitava, não à página
+  principal. Repetir com Configurações, Pacotes e Folhas pelo teclado, e com o app do teclado fechado. Tocar na
+  notificação de atualização e voltar.
 - **Duplicação:** engrenagem do teclado 3 vezes seguidas, depois Voltar uma vez deve sair da tela; duplo toque
   rápido numa linha de Configurações abre uma subtela só.
 - **Aceleração:** com a opção desligada nada muda; ligar e conferir que a rolagem de Configurações segue
@@ -183,6 +233,8 @@ ao rolar) entra como item principal.
 - Mudanças do Android 16 (opt-out removido, voltar preditivo): https://developer.android.com/about/versions/16/behavior-changes-16
 - Mudanças do Android 17 para todos os apps (teclado após rotação): https://developer.android.com/about/versions/17/behavior-changes-all
 - Mudanças do Android 17 para targetSdk 37: https://developer.android.com/about/versions/17/behavior-changes-17
+- Teclado depois da rotação (o app precisa pedir de novo): https://gitlab.e.foundation/e/os/android_frameworks_base/-/commit/c929daed2d016360665dd6af710313f28961fac3
+- `InputMethodService.requestShowSelf` (API 28): https://gitlab.e.foundation/e/os/android_frameworks_base/-/commit/fbc2f7acd581eca7180a3d916936fb4e758279e1
 - Edge-to-edge em Views: https://developer.android.com/develop/ui/views/layout/edge-to-edge
 - Recortes de tela: https://developer.android.com/guide/topics/display-cutout
 - Dicas de insets no Android 15: https://medium.com/androiddevelopers/insets-handling-tips-for-android-15s-edge-to-edge-enforcement-872774e8839b

@@ -3,7 +3,12 @@ package com.mrkeyboard.app;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
+import android.inputmethodservice.InputMethodService;
+import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +31,17 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
     private static boolean sAuxiliaryUiVisible;
     private static boolean sSawAuxiliaryUi;
     private static String sReturnPackage;
+    /** The keyboard was already asked to appear on this return (once; plus one retry). */
+    private static boolean sKeyboardRequested;
+    /** When the last auxiliary screen left the foreground; the return has to happen soon after. */
+    private static long sLeftAuxiliaryAt;
+
+    /** Longer than this away from the Preferences/Styles screens, the AI Editor no longer comes back by itself. */
+    static final long RETURN_WINDOW_MS = 120000L;
+    /** The system may take a moment to bind the field again: one more request if the keyboard is still down. */
+    static final long RETRY_MS = 400L;
+    /** InputMethodService.requestShowSelf is public from Android 9. */
+    static final int SHOW_SELF_SDK = 28;
 
     private MrAiDialog() { }
 
@@ -52,6 +68,8 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
         sReopenAfterAuxiliaryUi = true;
         sAuxiliaryUiVisible = false;
         sSawAuxiliaryUi = false;
+        sKeyboardRequested = false;
+        sLeftAuxiliaryAt = 0L;
         sReturnPackage = null;
         try {
             LatinIME ime = MrTools.sIme;
@@ -66,6 +84,8 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
         sReopenAfterAuxiliaryUi = false;
         sAuxiliaryUiVisible = false;
         sSawAuxiliaryUi = false;
+        sKeyboardRequested = false;
+        sLeftAuxiliaryAt = 0L;
         sReturnPackage = null;
     }
 
@@ -73,11 +93,74 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
     static void setAuxiliaryUiVisible(boolean visible) {
         sAuxiliaryUiVisible = visible;
         if (visible) sSawAuxiliaryUi = true;
+        else sLeftAuxiliaryAt = SystemClock.elapsedRealtime();
+    }
+
+    /**
+     * True while the AI Editor is waiting to come back: the user left it for an auxiliary screen, that screen is no
+     * longer in front and it was left recently. A return that takes too long is dropped, so that the dialog (and the
+     * keyboard) do not appear out of nowhere the next time that app is used.
+     */
+    private static boolean returnPending() {
+        if (!sReopenAfterAuxiliaryUi || !sSawAuxiliaryUi || sAuxiliaryUiVisible) return false;
+        if (SystemClock.elapsedRealtime() - sLeftAuxiliaryAt > RETURN_WINDOW_MS) {
+            cancelReopenOnReturn();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * The editor of an app was bound to the keyboard. If it is the field the user left to open Settings, the keyboard
+     * is asked to appear: the system does not always bring it back when the Settings task closes, and without the
+     * keyboard window the dialog (attached to it) has nowhere to reopen. Once the window shows,
+     * {@link #onImeWindowShown()} reopens the dialog.
+     */
+    static void onInputStarted(EditorInfo info) {
+        try {
+            if (info == null || sKeyboardRequested || !returnPending() || sReturnPackage == null) return;
+            if (!sReturnPackage.equals(info.packageName)) return;
+            sKeyboardRequested = true;
+            showKeyboard();
+            new Handler(Looper.getMainLooper()).postDelayed(new Retry(), RETRY_MS);
+        } catch (RuntimeException e) {
+            // Without the retry the first request still stands; this must never take the keyboard down.
+        }
+    }
+
+    /** Second request, if the keyboard did not appear yet and the dialog is still waiting. */
+    static void retryKeyboard() {
+        LatinIME ime = MrTools.sIme;
+        if (ime == null || !returnPending() || ime.isInputViewShown()) return;
+        showKeyboard();
+    }
+
+    private static void showKeyboard() {
+        LatinIME ime = MrTools.sIme;
+        if (ime == null || Build.VERSION.SDK_INT < SHOW_SELF_SDK) return;
+        try {
+            Api28.show(ime);
+        } catch (RuntimeException e) {
+            // The system may refuse (no editor yet, hardware keyboard): the normal return still works.
+        }
+    }
+
+    /** Public from Android 9 (API 28); isolated in its own class, as with the other newer calls. */
+    private static final class Api28 {
+        static void show(InputMethodService ime) {
+            ime.requestShowSelf(0);
+        }
+    }
+
+    private static final class Retry implements Runnable {
+        public void run() {
+            retryKeyboard();
+        }
     }
 
     /** Called when the IME window reappears, including when returning to the previous field. */
     static void onImeWindowShown() {
-        if (!sReopenAfterAuxiliaryUi || !sSawAuxiliaryUi || sAuxiliaryUiVisible) return;
+        if (!returnPending()) return;
         LatinIME ime = MrTools.sIme;
         if (ime == null) return;
         EditorInfo info = ime.getCurrentInputEditorInfo();

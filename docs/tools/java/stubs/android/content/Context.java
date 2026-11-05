@@ -5,6 +5,7 @@ public abstract class Context {
     public static final int MODE_PRIVATE = 0;
     public static final String JOB_SCHEDULER_SERVICE = "jobscheduler";
     public static final String NOTIFICATION_SERVICE = "notification";
+    public static final String INPUT_METHOD_SERVICE = "input_method";
     public abstract android.content.res.AssetManager getAssets();
     public abstract Context getApplicationContext();
     public abstract android.content.res.Resources getResources();

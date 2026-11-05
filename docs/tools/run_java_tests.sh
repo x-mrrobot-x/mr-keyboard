@@ -13,6 +13,10 @@
 #     reads an update.json made by make_update.py and signed by SignCatalog.java (keytool key).
 #   - ScreensTest: the insets of the screens on Android 15+ (MrScreens): which Android registers it, the padding of the
 #     content area (bars and cutout) and what is left for the views below, which cannot reserve the bars a second time.
+#   - ScreenImeTest: the keyboard on the editor screens (MrScreenIme): which field has it saved when the screen is
+#     recreated, how it is asked for again once the new window has the focus, and the room made for it on Android 15+.
+#   - AiReturnTest: coming back to the AI Editor dialog after its Settings screen (MrAiDialog): the keyboard is asked to
+#     appear for the original field, once, soon after leaving, and the dialog reopens when the keyboard window shows.
 # With the path of the APK jar (classes.dex -> d2j-dex2jar), it also runs:
 #   - EsTest: SheetStrings/MrEs with Spanish, Portuguese, English and French contexts.
 # Usage: sh docs/tools/run_java_tests.sh [app.jar]
@@ -48,6 +52,14 @@ java -cp "$T/test_update:$T/stubs:$T/main" com.mrkeyboard.app.UpdateTest "$T/upd
 echo "== ScreensTest (insets of the screens)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_screens" $D/screens_test/ScreensTest.java
 java -cp "$T/test_screens:$T/stubs:$T/main" com.mrkeyboard.app.ScreensTest
+
+echo "== ScreenImeTest (keyboard on the editor screens)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_screenime" $D/screenime_test/ScreenImeTest.java
+java -cp "$T/test_screenime:$T/stubs:$T/main" com.mrkeyboard.app.ScreenImeTest
+
+echo "== AiReturnTest (return to the AI Editor dialog)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_aireturn" $D/ai_return_test/AiReturnTest.java
+java -cp "$T/test_aireturn:$T/stubs:$T/main" com.mrkeyboard.app.AiReturnTest
 
 if [ -n "$APPJAR" ]; then
   echo "== EsTest"

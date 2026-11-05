@@ -1,8 +1,9 @@
 package android.view;
 
 public class View {
+    private android.content.Context stubContext;
     public View() { }
-    public View(android.content.Context context) { }
+    public View(android.content.Context context) { stubContext = context; }
     public static final int VISIBLE = 0;
     public static final int INVISIBLE = 4;
     public static final int GONE = 8;
@@ -12,7 +13,7 @@ public class View {
         void onLayoutChange(View view, int left, int top, int right, int bottom,
                 int oldLeft, int oldTop, int oldRight, int oldBottom);
     }
-    public android.content.Context getContext() { return null; }
+    public android.content.Context getContext() { return stubContext; }
     public android.content.res.Resources getResources() { return null; }
     public ViewParent getParent() { return null; }
     public View getRootView() { return this; }
@@ -38,6 +39,28 @@ public class View {
     public OnApplyWindowInsetsListener stubInsetsListener() { return insetsListener; }
     public void requestApplyInsets() { insetsRequests++; }
     public int stubInsetsRequests() { return insetsRequests; }
+    private boolean stubFocus, stubWindowFocus;
+    private int stubTop;
+    private WindowInsets stubRoot;
+    private final ViewTreeObserver stubObserver = new ViewTreeObserver();
+    private final java.util.ArrayList<Runnable> stubPosted = new java.util.ArrayList<Runnable>();
+    /** Focus, window focus, position, root insets and posted work: kept so that the PC tests can drive and read them. */
+    public boolean requestFocus() { stubFocus = true; return true; }
+    public boolean hasFocus() { return stubFocus; }
+    public void stubClearFocus() { stubFocus = false; }
+    public View findFocus() { return stubFocus ? this : null; }
+    public boolean hasWindowFocus() { return stubWindowFocus; }
+    public void stubWindowFocus(boolean has) { stubWindowFocus = has; stubObserver.stubDispatch(has); }
+    public ViewTreeObserver getViewTreeObserver() { return stubObserver; }
+    public int getTop() { return stubTop; }
+    public void stubTop(int top) { stubTop = top; }
+    public WindowInsets getRootWindowInsets() { return stubRoot; }
+    public void stubRootInsets(WindowInsets insets) { stubRoot = insets; }
+    public boolean post(Runnable action) { stubPosted.add(action); return true; }
+    public int stubPostedCount() { return stubPosted.size(); }
+    public void stubRunPosted() {
+        while (!stubPosted.isEmpty()) stubPosted.remove(0).run();
+    }
     public void addOnLayoutChangeListener(OnLayoutChangeListener listener) { }
     public void removeOnLayoutChangeListener(OnLayoutChangeListener listener) { }
     public void setOnClickListener(OnClickListener l) { }
