@@ -39,15 +39,18 @@ The command is sent as a broadcast that other apps can also receive, so don't pu
 
 ## Privacy
 - What you type stays on your device. Suggestions, corrections and learned words are processed and stored only on the phone. There are no ads, no analytics and no Google Play Services.
-- The app uses the internet only when you ask it to:
+- The app connects to the internet only for these features:
   - **Translate** sends the text you type in the translate field to Google Translate (`translate.googleapis.com`). Only that text is sent, and only when you use it. The field says so ("Type to translate with Google"), and the app shows a notice the first time the panel opens.
   - **AI editor** sends only the text you choose to rewrite, and only to the AI service you configure. The app shows a notice on the first opening; no request is sent until you tap a style.
   - **Dictionaries** (*Settings → Suggestions and dictionaries*): the app only connects when you tap *Check for updates*, *Download*, *Update* or a language that isn't downloaded yet, and it only downloads files from this repository's [latest release](../../releases/latest) (the catalog, `catalog.json`, and the zip of each language, which is attached to the release where that language last changed). Every file is checked against a list signed with the app's own key before it is used.
+  - **App updates** (*Settings → About*): the app reads `update.json` from this repository's [latest release](../../releases/latest) when it opens (at most once a day) and every morning in the background, and shows a notice when there is a newer version. Both can be turned off. The request carries nothing about you or your phone. The file is checked against a signature made with the app's own key before it is used.
 
 | Permission | Why |
 |---|---|
-| Internet | Translate and dictionary downloads |
-| Notifications | Optional permanent notification to bring up the keyboard |
+| Internet | Translate, AI editor, dictionary downloads and update notices |
+| Notifications | Optional permanent notification to bring up the keyboard, and the new-version notice |
+| Install unknown apps | *Download and install* hands the new APK to Android, which asks you to confirm |
+| Run at startup | Keeps the morning update check scheduled after the phone restarts |
 | Storage / All files access | Attachments: list and send your photos, videos and files |
 | User dictionary | Read and add words to Android's personal dictionary |
 | Vibration | Vibrate on keypress |
@@ -57,6 +60,12 @@ The command is sent as a broadcast that other apps can also receive, so don't pu
 2. Open **Mr Keyboard** and tap **Enable keyboard**. Turn on Mr Keyboard in the list and accept the system warning. Android shows that warning for every keyboard that doesn't come with the phone.
 3. Tap **Set input method** and choose Mr Keyboard.
 4. For word suggestions (optional): in the settings, open **Suggestions and dictionaries**, tap your language to download its dictionary, then turn on **Show suggestions**. Download more than one language and slide the space bar sideways to switch between them.
+
+## Updates
+- The app looks for a new version when it opens (at most once a day) and every morning in the background. When there is one, a dialog (or a notification, for the morning check) shows what's new, with **Download and install**, **View on GitHub** and **Not now**. The line **Check for updates** and the two switches are in *Settings → About*.
+- **Download and install** downloads the APK of that release, checks its size and SHA-256 against the signed `update.json` and hands it to Android, which asks you to confirm. The first time, Android also asks you to allow Mr Keyboard to install apps (*Install unknown apps*).
+- The morning check asks Android to run it some time after 8 a.m. (phone time), when there is a network. Android decides the exact moment: with battery saver, or on phones that put apps to sleep (some Samsung, Xiaomi and Huawei models, for example), the notice can arrive hours late or not at all. The check when the app opens always runs. On Android 13 or newer, the notice needs the notification permission.
+- You can also update by hand: download the new APK from the [latest release](../../releases/latest) and install it over the old one (it has to be signed with the same key). The APK name has the version, so there is no fixed direct link; use the release page.
 
 ## Building
 This repository holds the app as an [apktool](https://apktool.org/) project (smali code and resources). It also has:

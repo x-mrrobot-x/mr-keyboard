@@ -715,7 +715,7 @@ public class UpdateTest {
         settle();
         check("after 'Not now' opening does not pop up again", MrUpdateDialog.sAskedCount == asked + 1 && requests == 1);
 
-        // the notification (stage 8) opens the dialog even with it snoozed and the switch off
+        // the notification opens the dialog even with it snoozed and the switch off
         MrUpdate.setAuto(c, false);
         final boolean[] removed = {false};
         a.intent = new android.content.Intent((String) null, (android.net.Uri) null) {

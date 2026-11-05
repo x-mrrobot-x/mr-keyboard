@@ -39,15 +39,18 @@ O comando vai num broadcast que outros apps também podem receber, então não c
 
 ## Privacidade
 - O que você digita fica no aparelho. Sugestões, correções e palavras aprendidas são processadas e guardadas só no celular. Não há anúncios, análise de uso nem Google Play Services.
-- O app só usa a internet quando você pede:
+- O app se conecta à internet só para estes recursos:
   - **Traduzir** envia ao Google Tradutor (`translate.googleapis.com`) o texto que você digita no campo de tradução. Só esse texto, e só quando você usa. O próprio campo avisa ("Digite para traduzir com o Google"), e o app mostra um aviso na primeira vez que o painel abre.
   - **Editor de IA** envia somente o texto que você escolhe reescrever, e apenas ao serviço de IA que configurar. O app avisa na primeira abertura; nada é enviado até você tocar num estilo.
   - **Dicionários** (*Configurações → Sugestões e dicionários*): o app só se conecta quando você toca em *Procurar atualizações*, *Baixar*, *Atualizar* ou em um idioma que ainda não foi baixado, e só baixa arquivos da [release mais recente](../../releases/latest) deste repositório (o catálogo, `catalog.json`, e o zip de cada idioma, anexado à release em que aquele idioma mudou pela última vez). Cada arquivo é conferido com uma lista assinada com a chave do próprio app antes de ser usado.
+  - **Atualizações do app** (*Configurações → Sobre*): o app lê o `update.json` da [release mais recente](../../releases/latest) deste repositório quando abre (no máximo uma vez por dia) e toda manhã em segundo plano, e mostra um aviso quando há versão mais nova. As duas verificações podem ser desligadas. O pedido não leva nada sobre você nem sobre o celular. O arquivo é conferido com uma assinatura feita com a chave do próprio app antes de ser usado.
 
 | Permissão | Para quê |
 |---|---|
-| Internet | Traduzir e baixar dicionários |
-| Notificações | Notificação fixa opcional para abrir o teclado |
+| Internet | Traduzir, editor de IA, baixar dicionários e avisos de atualização |
+| Notificações | Notificação fixa opcional para abrir o teclado e o aviso de versão nova |
+| Instalar apps desconhecidos | *Baixar e instalar* entrega o novo APK ao Android, que pede a sua confirmação |
+| Iniciar com o sistema | Mantém a verificação da manhã agendada depois que o celular reinicia |
 | Armazenamento / Acesso a todos os arquivos | Anexos: listar e enviar suas fotos, vídeos e arquivos |
 | Dicionário do usuário | Ler e adicionar palavras ao dicionário pessoal do Android |
 | Vibração | Vibrar ao tocar nas teclas |
@@ -57,6 +60,12 @@ O comando vai num broadcast que outros apps também podem receber, então não c
 2. Abra o **Mr Keyboard** e toque em **Ativar teclado**. Ligue o Mr Keyboard na lista e aceite o aviso do sistema. O Android mostra esse aviso para qualquer teclado que não veio com o celular.
 3. Toque em **Definir método de entrada** e escolha o Mr Keyboard.
 4. Para ter sugestões de palavras (opcional): nas configurações, abra **Sugestões e dicionários**, toque no seu idioma para baixar o dicionário e ligue **Mostrar sugestões**. Baixando mais de um idioma, deslize a barra de espaço para os lados para alternar entre eles.
+
+## Atualizações
+- O app procura versão nova quando abre (no máximo uma vez por dia) e toda manhã em segundo plano. Quando há uma, um diálogo (ou uma notificação, na verificação da manhã) mostra as novidades, com **Baixar e instalar**, **Ver no GitHub** e **Agora não**. A linha **Procurar atualização** e os dois interruptores ficam em *Configurações → Sobre*.
+- **Baixar e instalar** baixa o APK dessa release, confere o tamanho e o SHA-256 com o `update.json` assinado e entrega ao Android, que pede a sua confirmação. Na primeira vez, o Android também pede que você permita ao Mr Keyboard instalar apps (*Instalar apps desconhecidos*).
+- A verificação da manhã pede ao Android que rode depois das 8h (horário do celular), quando houver rede. Quem decide o momento exato é o Android: com economia de bateria, ou em celulares que colocam apps para dormir (alguns Samsung, Xiaomi e Huawei, por exemplo), o aviso pode chegar com horas de atraso ou não chegar. A verificação ao abrir o app sempre roda. No Android 13 ou mais novo, o aviso precisa da permissão de notificações.
+- Dá para atualizar à mão: baixe o novo APK na [última versão](../../releases/latest) e instale por cima do antigo (precisa estar assinado com a mesma chave). O nome do APK leva a versão, então não existe link direto fixo; use a página da release.
 
 ## Como compilar
 Este repositório guarda o app como projeto do [apktool](https://apktool.org/) (código smali e recursos). Também tem:
