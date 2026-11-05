@@ -3,9 +3,9 @@
 
   release_assets.py assets   out/data.json <tag> <apk> <source-zip>
                                                          the files this release must have, one per line and
-                                                         sorted: the APK, the source zip, catalog.json and ONLY the
-                                                         zips whose "release" is <tag> (a language that did not
-                                                         change keeps its zip in the release that made it)
+                                                         sorted: the APK, the source zip, catalog.json, update.json
+                                                         and ONLY the zips whose "release" is <tag> (a language that
+                                                         did not change keeps its zip in the release that made it)
   release_assets.py external out/data.json <tag>         one line "<release> <zip> <size>" for each pack whose zip
                                                          is in ANOTHER release, to check before publishing
   release_assets.py text     out/data.json <tag>         "pt-BR v3 (novo nesta versão / new in this version), ..."
@@ -36,7 +36,7 @@ def main():
     cmd, packs = sys.argv[1], load(sys.argv[2], sys.argv[3])
     tag = sys.argv[3]
     if cmd == 'assets' and len(sys.argv) == 6:
-        for name in sorted([sys.argv[4], sys.argv[5], 'catalog.json'] + [p['url'] for p in packs if p['release'] == tag]):
+        for name in sorted([sys.argv[4], sys.argv[5], 'catalog.json', 'update.json'] + [p['url'] for p in packs if p['release'] == tag]):
             print(name)
     elif cmd == 'external' and len(sys.argv) == 4:
         for p in packs:

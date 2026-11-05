@@ -14,6 +14,8 @@
 #   mr-keyboard-<tag>-source.zip   the source code of the published commit (git archive), enough to rebuild the APK
 #   catalog.json                   the dictionary catalog, signed with the same key as the APK (the app reads
 #                                  .../releases/latest/download/catalog.json)
+#   update.json                    the notice of a new version (version, size and SHA-256 of the APK, notes in
+#                                  Portuguese and English), signed the same way and read from .../latest/download/update.json
 #   mr-keyboard-dict-<id>-<version>.zip   only the languages in dicts/ that changed in this version; the others keep
 #                          their zip in the release that made it (the catalog says which one, in "release")
 # The logic is in docs/tools/publish_release.sh (tested by docs/tools/publish_test/run.sh). A tag that
@@ -37,8 +39,8 @@
 #   keystore: KEYSTORE_B64 (file in base64), KEYSTORE_PASS, KEY_ALIAS, KEY_PASS
 #   pk8+pem:  KEY_PK8_B64 and CERT_PEM_B64 (both files in base64)
 # Use the SAME key that signs the app today; with another key Android will not install over it.
-# The same key signs the dictionary catalog (docs/tools/sign_catalog.sh); the app only accepts a catalog
-# signed by the key of its own APK.
+# The same key signs the dictionary catalog and the update notice (docs/tools/sign_catalog.sh); the app only accepts
+# them signed by the key of its own APK.
 name: Mr Keyboard - APK
 
 on:
@@ -184,7 +186,7 @@ jobs:
         with:
           persist-credentials: false
 
-      # Java signs the dictionary catalog (docs/tools/sign_catalog.sh), the same Java as in the job "apk"
+      # Java signs the dictionary catalog and the update notice (docs/tools/sign_catalog.sh), the same Java as in the job "apk"
       - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin

@@ -1,13 +1,15 @@
 #!/bin/bash
 # Publishes the single release of a launch (used by the "Mr Keyboard - APK" workflow): the signed APK, the zip of
-# the source code, the dictionary catalog (signed with the same key) and the zips of the languages that changed in
-# this version.
+# the source code, the dictionary catalog and the update notice (both signed with the APK key) and the zips of the
+# languages that changed in this version.
 # The tag is the versionName from apktool.yml (v1.72.0) and the notes come from docs/release-notes/<tag>.md
 # (e.g. docs/release-notes/v1.72.0.md): a short file, Portuguese and English, that is the release text itself,
-# followed by the list of included dictionaries and the checksums.
+# followed by the list of included dictionaries and the checksums. The same two blocks go in update.json.
 # The APK is named mr-keyboard-<tag>.apk (e.g. mr-keyboard-v1.72.0.apk), so the version shows in the asset
-# list; the app reads the catalog from .../releases/latest/download/catalog.json. The source code goes as
-# mr-keyboard-<tag>-source.zip, made by make_source_zip.sh from the commit being published (git archive).
+# list; the app reads the catalog from .../releases/latest/download/catalog.json and the update notice from
+# .../releases/latest/download/update.json (make_update.py builds it, with the size and SHA-256 of the APK).
+# The source code goes as mr-keyboard-<tag>-source.zip, made by make_source_zip.sh from the commit being published
+# (git archive).
 #
 # Dictionaries: starts from the catalog of the latest release (if there is one). A pack that did not change
 # keeps its zip in the release that made it (the catalog says which one in "release"), so nothing is copied;
@@ -87,7 +89,13 @@ else
   echo "::warning::No dictionary catalog published before: the serial starts at 1. Apps that already stored a higher serial will refuse this catalog; only go on if this really is the first one."
 fi
 python3 -I docs/tools/make_catalog.py --dicts dicts --out out --tag "$TAG" $PREV_ARGS
-sh docs/tools/sign_catalog.sh out/data.json out/catalog.json
+sh docs/tools/sign_catalog.sh out/data.json out/catalog.json catalog
+
+# ---- update notice: version, APK size and SHA-256, notes of the two languages (a failure here is a bug in any mode)
+if ! python3 -I docs/tools/make_update.py --apk "$APK" --tag "$TAG" --notes "$NOTES" --apktool apktool.yml --out out/update-data.json; then
+  echo "::error::Could not make update.json (see above). Nothing was published."; exit 1
+fi
+sh docs/tools/sign_catalog.sh out/update-data.json out/update.json update
 EXPECTED=$(python3 docs/tools/release_assets.py assets out/data.json "$TAG" "$APK" "$SRC")
 DICTIONARIES=$(python3 docs/tools/release_assets.py text out/data.json "$TAG")
 
@@ -102,15 +110,8 @@ while read -r REL ZIP SIZE; do
   echo "dictionaries: $ZIP stays in $REL ($SIZE bytes, checked)"
 done < out/external.txt
 
-# ---- release text: the whole notes file (short, for people downloading)
-SUMMARY=""
-if [ -f "$NOTES" ]; then
-  SUMMARY=$(sed '/./,$!d' "$NOTES")
-fi
-if [ -z "$SUMMARY" ]; then
-  echo "::warning::$NOTES does not exist or is empty; the release goes out with the title only."
-  SUMMARY="Mr Keyboard $TAG"
-fi
+# ---- release text: the whole notes file (short, for people downloading); make_update.py already checked it
+SUMMARY=$(sed '/./,$!d' "$NOTES")
 {
   echo "Download: **$APK** · [installation / instalação](https://github.com/$GITHUB_REPOSITORY#installation)"
   echo "Código-fonte / Source code: \`$SRC\` ([como verificar / how to verify](https://github.com/$GITHUB_REPOSITORY#verifying-a-release))"
@@ -126,7 +127,7 @@ fi
 } > notes.md
 
 # ---- draft with everything attached, check the assets and only then publish
-FILES="$APK $SRC out/catalog.json"
+FILES="$APK $SRC out/catalog.json out/update.json"
 for z in $(cat out/upload.txt); do FILES="$FILES out/$z"; done
 gh release create "$TAG" $FILES --draft --title "Mr Keyboard $TAG" --notes-file notes.md --target "$GITHUB_SHA"
 ACTUAL=$(gh release view "$TAG" --json assets -q '.assets[].name' | sort)

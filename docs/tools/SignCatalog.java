@@ -15,29 +15,32 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
 /**
- * Signs the dictionary catalog with the same key that signs the APK.
+ * Signs a JSON file of the release (the dictionary catalog or the update notice) with the same key that signs the APK.
  *
  * The app checks the signature with the certificate it was itself installed with, so it only accepts
- * catalogs made by whoever has the APK key. Run with Java 11 or newer:
+ * files made by whoever has the APK key. Run with Java 11 or newer:
  *
  *   java SignCatalog.java --data out/data.json --out out/catalog.json --keystore key.jks
  *       (passwords and alias in the variables KEYSTORE_PASS, KEY_ALIAS and KEY_PASS)
  *   java SignCatalog.java --data out/data.json --out out/catalog.json --pk8 key.pk8 --cert cert.pem
+ *   add  --domain update  for update.json (the default is catalog)
  *
- * The signed message is PREFIX + the bytes of data.json; the prefix keeps the signature from being used
- * for anything else. Output (JSON):
+ * The signed message is PREFIX + the bytes of data.json, where PREFIX is "mr-keyboard/<domain>/v1\n" (domain
+ * catalog or update): the prefix keeps a signature from being used for anything else, so a signed catalog is
+ * never accepted as an update notice and the other way round. Output (JSON):
  *   {"format":1,"algorithm":"SHA256withRSA","signer":"<SHA-256 of the certificate>",
  *    "signature":"<base64>","data":"<data.json as text>"}
  */
 public class SignCatalog {
-    static final String PREFIX = "mr-keyboard/catalog/v1\n";
+    static final String[] DOMAINS = {"catalog", "update"};
 
     public static void main(String[] args) throws Exception {
-        String data = null, out = null, ks = null, pk8 = null, cert = null;
+        String data = null, out = null, ks = null, pk8 = null, cert = null, domain = "catalog";
         for (int i = 0; i + 1 < args.length; i += 2) {
             switch (args[i]) {
                 case "--data": data = args[i + 1]; break;
                 case "--out": out = args[i + 1]; break;
+                case "--domain": domain = args[i + 1]; break;
                 case "--keystore": ks = args[i + 1]; break;
                 case "--pk8": pk8 = args[i + 1]; break;
                 case "--cert": cert = args[i + 1]; break;
@@ -45,8 +48,9 @@ public class SignCatalog {
             }
         }
         if (data == null || out == null || (ks == null && (pk8 == null || cert == null))) {
-            die("usage: --data data.json --out catalog.json (--keystore file | --pk8 file --cert file)");
+            die("usage: --data data.json --out catalog.json [--domain catalog|update] (--keystore file | --pk8 file --cert file)");
         }
+        if (!java.util.Arrays.asList(DOMAINS).contains(domain)) die("unknown --domain: " + domain + " (catalog or update)");
 
         PrivateKey key;
         X509Certificate crt;
@@ -90,7 +94,7 @@ public class SignCatalog {
         if (!java.util.Arrays.equals(dataText.getBytes(StandardCharsets.UTF_8), dataBytes)) {
             die("data.json is not valid UTF-8");
         }
-        byte[] msg = message(dataBytes);
+        byte[] msg = message(domain, dataBytes);
 
         Signature s = Signature.getInstance(alg);
         s.initSign(key);
@@ -109,14 +113,14 @@ public class SignCatalog {
          .append(",\n \"signature\": ").append(quote(Base64.getEncoder().encodeToString(sig)))
          .append(",\n \"data\": ").append(quote(dataText)).append("\n}\n");
         Files.write(new File(out).toPath(), j.toString().getBytes(StandardCharsets.UTF_8));
-        System.out.println("catalog signed (" + alg + ")");
+        System.out.println(domain + " signed (" + alg + ")");
         System.out.println("certificate SHA-256: " + signer);
         System.out.println("(must equal the \"certificate SHA-256 digest\" of the APK)");
     }
 
-    static byte[] message(byte[] data) {
+    static byte[] message(String domain, byte[] data) {
         ByteArrayOutputStream b = new ByteArrayOutputStream();
-        byte[] p = PREFIX.getBytes(StandardCharsets.UTF_8);
+        byte[] p = ("mr-keyboard/" + domain + "/v1\n").getBytes(StandardCharsets.UTF_8);
         b.write(p, 0, p.length);
         b.write(data, 0, data.length);
         return b.toByteArray();

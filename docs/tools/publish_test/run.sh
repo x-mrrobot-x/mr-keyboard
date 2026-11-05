@@ -48,11 +48,16 @@ notes() {  # fake notes file (does not depend on the project's real notes)
   printf '**Português**\n- Corrige o fechamento do app de teste.\n\n**English**\n- Fixes the test app closing.\n' > "$1"
 }
 
+setver() {  # workspace tag: apktool.yml with that version and the versionCode that goes with it (v1.73.0 -> 1073000)
+  local a b c; IFS=. read -r a b c <<< "${2#v}"
+  printf "versionInfo:\n  versionCode: '%d'\n  versionName: %s\n" $((a*1000000 + b*1000 + c)) "$2" > "$1/apktool.yml"
+}
+
 fresh() {  # creates a workspace: $W (project) and $S (gh state)
   W=$(mktemp -d -p "$T"); S=$(mktemp -d -p "$T")
   cp -a "$TPL/." "$W/"; mkdir -p "$S/rel"
   notes "$W/docs/release-notes/v1.72.0.md"
-  printf "versionInfo:\n  versionCode: '1'\n  versionName: %s\n" "${1:-v1.72.0}" > "$W/apktool.yml"
+  setver "$W" "${1:-v1.72.0}"
   echo apk > "$W/mr-keyboard-signed.apk"; echo apk > "$W/mr-keyboard-unsigned.apk"
   pack "$W/dicts" pt-BR 2 aaaa; pack "$W/dicts" en-US 2 bbbb; pack "$W/dicts" es 1 cccc
   : > "$S/log"
@@ -82,6 +87,21 @@ publish() {  # mode lib_ok [extra environment]  -> $CODE, $OUT, $SHA, $T/ghout (
 zipof() { echo "$S/rel/$1/assets/mr-keyboard-$1-source.zip"; }
 serial() { python3 -c "import json,sys; print(json.loads(json.load(open(sys.argv[1]))['data'])['serial'])" "$1"; }
 relof() { python3 -c "import json,sys; print([p['release'] for p in json.loads(json.load(open(sys.argv[1]))['data'])['packs'] if p['id'] == sys.argv[2]][0])" "$1" "$2"; }
+# the public key of the test key, to check signatures with openssl (independent of the signing code)
+keytool -exportcert -rfc -alias k -keystore "$T/t.p12" -storepass pass123 2> /dev/null | openssl x509 -pubkey -noout > "$T/pub.pem"
+sigok() {  # file domain -> 1 if the signature is valid for the prefix mr-keyboard/<domain>/v1, 0 if not
+  python3 - "$1" "$2" "$T/pub.pem" "$T/m.bin" "$T/s.bin" <<'EOP'
+import base64, json, subprocess, sys
+f, dom, pub, mf, sf = sys.argv[1:6]
+j = json.load(open(f, encoding='utf-8'))
+open(mf, 'wb').write(('mr-keyboard/%s/v1\n' % dom).encode() + j['data'].encode('utf-8'))
+open(sf, 'wb').write(base64.b64decode(j['signature']))
+print(1 if subprocess.run(['openssl', 'dgst', '-sha256', '-verify', pub, '-signature', sf, mf], capture_output=True).returncode == 0 else 0)
+EOP
+}
+updfield() {  # update.json python-expression (d = the signed data) -> value
+  python3 -c "import json,sys; d=json.loads(json.load(open(sys.argv[1]))['data']); print(eval(sys.argv[2]))" "$1" "$2"
+}
 assets() { ls "$S/rel/$1/assets" | LC_ALL=C sort | tr '\n' ' '; }
 published() { [ -d "$S/rel/$1" ] && [ "$(cat "$S/rel/$1/draft")" = "false" ] && echo 1 || echo 0; }
 
@@ -89,7 +109,7 @@ published() { [ -d "$S/rel/$1" ] && [ "$(cat "$S/rel/$1/draft")" = "false" ] && 
 fresh; earlier v1.71.0 5
 publish automatic true X=1
 check "new release: publishes" "$([ $CODE = 0 ] && [ "$(published v1.72.0)" = 1 ] && echo 1 || echo 0)" "$OUT"
-check "new release: assets = APK with the version in the name + source zip + catalog, no dictionary zip" "$([ "$(assets v1.72.0)" = "catalog.json mr-keyboard-v1.72.0-source.zip mr-keyboard-v1.72.0.apk " ] && echo 1 || echo 0)" "$(assets v1.72.0)"
+check "new release: assets = APK with the version in the name + source zip + catalog + update.json, no dictionary zip" "$([ "$(assets v1.72.0)" = "catalog.json mr-keyboard-v1.72.0-source.zip mr-keyboard-v1.72.0.apk update.json " ] && echo 1 || echo 0)" "$(assets v1.72.0)"
 check "new release: no unsigned APK" "$([ -z "$(ls "$S/rel/v1.72.0/assets" | grep -i unsigned)" ] && echo 1 || echo 0)"
 check "new release: serial continues the previous catalog's (5) and the 3 languages stay in v1.71.0" "$([ "$(serial "$S/rel/v1.72.0/assets/catalog.json")" = 5 ] && [ "$(relof "$S/rel/v1.72.0/assets/catalog.json" pt-BR)" = v1.71.0 ] && [ "$(relof "$S/rel/v1.72.0/assets/catalog.json" en-US)" = v1.71.0 ] && [ "$(relof "$S/rel/v1.72.0/assets/catalog.json" es)" = v1.71.0 ] && echo 1 || echo 0)" "$(serial "$S/rel/v1.72.0/assets/catalog.json")"
 check "new release: it is the latest" "$([ "$(cat "$S/latest")" = v1.72.0 ] && echo 1 || echo 0)"
@@ -108,6 +128,16 @@ check "GITHUB_OUTPUT: published, tag, apk and source (what the workflow attests)
 ( cd "$W" && sh docs/tools/make_source_zip.sh v1.72.0 "$SHA" "$T/again.zip" > /dev/null )
 check "source zip: same commit, same bytes (reproducible)" "$(cmp -s "$T/again.zip" "$Z" && echo 1 || echo 0)"
 
+# ---- 1b2) update.json: what the app reads to learn that a new version is out
+U=$S/rel/v1.72.0/assets/update.json; A=$S/rel/v1.72.0/assets/mr-keyboard-v1.72.0.apk
+check "update.json: signed for the update (and only for the update: with the catalog prefix it does not validate)" "$([ "$(sigok "$U" update)" = 1 ] && [ "$(sigok "$U" catalog)" = 0 ] && echo 1 || echo 0)"
+check "catalog.json: signed for the catalog (and not valid as an update notice) - the prefixes keep the two apart" "$([ "$(sigok "$S/rel/v1.72.0/assets/catalog.json" catalog)" = 1 ] && [ "$(sigok "$S/rel/v1.72.0/assets/catalog.json" update)" = 0 ] && echo 1 || echo 0)"
+check "update.json: same signer (certificate) as the catalog" "$([ "$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['signer'])" "$U")" = "$(python3 -c "import json,sys; print(json.load(open(sys.argv[1]))['signer'])" "$S/rel/v1.72.0/assets/catalog.json")" ] && echo 1 || echo 0)"
+check "update.json: version and code of apktool.yml" "$([ "$(updfield "$U" "d['versionName']")" = v1.72.0 ] && [ "$(updfield "$U" "d['versionCode']")" = 1072000 ] && echo 1 || echo 0)"
+check "update.json: APK name, size and SHA-256 are those of the APK in the release" "$([ "$(updfield "$U" "d['apk']['name']")" = mr-keyboard-v1.72.0.apk ] && [ "$(updfield "$U" "d['apk']['size']")" = "$(stat -c %s "$A")" ] && [ "$(updfield "$U" "d['apk']['sha256']")" = "$(sha256sum "$A" | cut -d' ' -f1)" ] && echo 1 || echo 0)" "$(updfield "$U" "d['apk']")"
+check "update.json: notes in Portuguese and English, each from its own block" "$([ "$(updfield "$U" "'Corrige o fechamento' in d['notes']['pt-BR'] and 'Fixes' not in d['notes']['pt-BR']")" = True ] && [ "$(updfield "$U" "'Fixes the test app closing' in d['notes']['en'] and 'Corrige' not in d['notes']['en']")" = True ] && echo 1 || echo 0)"
+check "update.json: no link (the app builds the addresses from its own constants)" "$(! grep -q 'http' "$U" && echo 1 || echo 0)"
+
 # ---- 1c) only the commit counts: a change made in the folder after the commit does not enter the zip
 fresh; earlier v1.71.0 5; commit_all; C1=$(git -C "$W" rev-parse HEAD)
 echo '.class public Lcom/x/A; # DIRTY' > "$W/smali/com/x/A.smali"; echo new > "$W/smali/com/x/Uncommitted.smali"
@@ -119,18 +149,32 @@ fresh; earlier v1.71.0 5
 FORCE_SHA=0000000000000000000000000000000000000000 publish automatic true X=1
 check "commit that does not exist: error (even if automatic), nothing created and nothing for the workflow to attest" "$([ $CODE != 0 ] && [ ! -d "$S/rel/v1.72.0" ] && [ "$(cat "$S/latest")" = v1.71.0 ] && [ ! -s "$T/ghout" ] && echo "$OUT" | grep -q 'Nothing was published' && echo 1 || echo 0)" "$CODE $OUT"
 
+# ---- 1e) update.json cannot be made: error in any mode, nothing created, nothing to attest
+fresh; earlier v1.71.0 5; printf '**Português**\n- Só em português.\n' > "$W/docs/release-notes/v1.72.0.md"
+publish automatic true X=1
+check "notes without the English block: error (even if automatic), nothing created" "$([ $CODE != 0 ] && [ ! -d "$S/rel/v1.72.0" ] && [ "$(cat "$S/latest")" = v1.71.0 ] && [ ! -s "$T/ghout" ] && echo "$OUT" | grep -q 'Could not make update.json' && echo "$OUT" | grep -q 'English' && echo 1 || echo 0)" "$CODE $OUT"
+fresh; earlier v1.71.0 5; rm "$W/docs/release-notes/v1.72.0.md"
+publish automatic true X=1
+check "no notes file: error and nothing created" "$([ $CODE != 0 ] && [ ! -d "$S/rel/v1.72.0" ] && echo 1 || echo 0)" "$OUT"
+fresh; earlier v1.71.0 5; printf "versionInfo:\n  versionCode: '1'\n  versionName: v1.72.0\n" > "$W/apktool.yml"
+publish automatic true X=1
+check "versionCode that does not follow the version: error and nothing created" "$([ $CODE != 0 ] && [ ! -d "$S/rel/v1.72.0" ] && echo "$OUT" | grep -q '1072000' && echo 1 || echo 0)" "$OUT"
+fresh; earlier v1.71.0 5
+publish automatic true FAKE_DROP=update.json
+check "update.json that did not upload: error, draft deleted, nothing published" "$([ $CODE != 0 ] && [ ! -d "$S/rel/v1.72.0" ] && [ "$(cat "$S/latest")" = v1.71.0 ] && [ ! -s "$T/ghout" ] && echo 1 || echo 0)" "$CODE $OUT"
+
 # ---- 2) second release (nothing changed in the dictionaries): same serial, and the catalog still points to v1.71.0 (not to v1.72.0)
 fresh; earlier v1.71.0 5; publish automatic true X=1
-sed -i 's/v1.72.0/v1.73.0/' "$W/apktool.yml"; notes "$W/docs/release-notes/v1.73.0.md"
+setver "$W" v1.73.0; notes "$W/docs/release-notes/v1.73.0.md"
 publish automatic true X=1
 check "2nd release: publishes and becomes the latest" "$([ $CODE = 0 ] && [ "$(cat "$S/latest")" = v1.73.0 ] && echo 1 || echo 0)" "$OUT"
-check "2nd release: serial kept (5), zips still in v1.71.0 and only APK + source zip + catalog attached" "$([ "$(serial "$S/rel/v1.73.0/assets/catalog.json")" = 5 ] && [ "$(relof "$S/rel/v1.73.0/assets/catalog.json" pt-BR)" = v1.71.0 ] && [ "$(assets v1.73.0)" = "catalog.json mr-keyboard-v1.73.0-source.zip mr-keyboard-v1.73.0.apk " ] && echo 1 || echo 0)" "$(assets v1.73.0)"
+check "2nd release: serial kept (5), zips still in v1.71.0 and only APK + source zip + catalog + update.json attached" "$([ "$(serial "$S/rel/v1.73.0/assets/catalog.json")" = 5 ] && [ "$(relof "$S/rel/v1.73.0/assets/catalog.json" pt-BR)" = v1.71.0 ] && [ "$(assets v1.73.0)" = "catalog.json mr-keyboard-v1.73.0-source.zip mr-keyboard-v1.73.0.apk update.json " ] && echo 1 || echo 0)" "$(assets v1.73.0)"
 check "2nd release: the zips were checked in v1.71.0 before publishing" "$(grep -q 'api repos/owner/repo/releases/tags/v1.71.0' "$S/log" && echo 1 || echo 0)"
 
 # ---- 3) pt-BR goes up a version: serial +1 and only the new zip of that language (the others stay in v1.71.0)
-sed -i 's/v1.73.0/v1.74.0/' "$W/apktool.yml"; notes "$W/docs/release-notes/v1.74.0.md"; pack "$W/dicts" pt-BR 3 aaaaX
+setver "$W" v1.74.0; notes "$W/docs/release-notes/v1.74.0.md"; pack "$W/dicts" pt-BR 3 aaaaX
 publish automatic true X=1
-check "pt-BR v3: serial 6 and assets with only the pt-BR dictionary zip (with the prefix in the name)" "$([ $CODE = 0 ] && [ "$(serial "$S/rel/v1.74.0/assets/catalog.json")" = 6 ] && [ "$(assets v1.74.0)" = "catalog.json mr-keyboard-dict-pt-BR-3.zip mr-keyboard-v1.74.0-source.zip mr-keyboard-v1.74.0.apk " ] && echo 1 || echo 0)" "$(assets v1.74.0) serial $(serial "$S/rel/v1.74.0/assets/catalog.json")"
+check "pt-BR v3: serial 6 and assets with only the pt-BR dictionary zip (with the prefix in the name)" "$([ $CODE = 0 ] && [ "$(serial "$S/rel/v1.74.0/assets/catalog.json")" = 6 ] && [ "$(assets v1.74.0)" = "catalog.json mr-keyboard-dict-pt-BR-3.zip mr-keyboard-v1.74.0-source.zip mr-keyboard-v1.74.0.apk update.json " ] && echo 1 || echo 0)" "$(assets v1.74.0) serial $(serial "$S/rel/v1.74.0/assets/catalog.json")"
 check "pt-BR v3: pt-BR in v1.74.0, en-US and es still in v1.71.0" "$([ "$(relof "$S/rel/v1.74.0/assets/catalog.json" pt-BR)" = v1.74.0 ] && [ "$(relof "$S/rel/v1.74.0/assets/catalog.json" en-US)" = v1.71.0 ] && [ "$(relof "$S/rel/v1.74.0/assets/catalog.json" es)" = v1.71.0 ] && echo 1 || echo 0)"
 check "pt-BR v3: release text marks pt-BR as new in this version" "$(grep -q 'pt-BR v3 (novo nesta versão / new in this version)' "$S/rel/v1.74.0/notes.md" && grep -q 'en-US v2,' "$S/rel/v1.74.0/notes.md" && echo 1 || echo 0)" "$(grep 'Dicion' "$S/rel/v1.74.0/notes.md")"
 
@@ -199,7 +243,7 @@ check "no key for the catalog: error and nothing created" "$([ $CODE != 0 ] && [
 fresh v1.73.0; notes "$W/docs/release-notes/v1.73.0.md"
 mkdir -p "$S/rel/v1.72.0/assets"; echo false > "$S/rel/v1.72.0/draft"; echo apk > "$S/rel/v1.72.0/assets/mr-keyboard-v1.72.0.apk"; echo v1.72.0 > "$S/latest"
 publish automatic true X=1
-check "latest without a catalog: v1.73.0 goes out with serial 1, everything attached and becomes the latest" "$([ $CODE = 0 ] && [ "$(serial "$S/rel/v1.73.0/assets/catalog.json")" = 1 ] && [ "$(assets v1.73.0)" = "catalog.json mr-keyboard-dict-en-US-2.zip mr-keyboard-dict-es-1.zip mr-keyboard-dict-pt-BR-2.zip mr-keyboard-v1.73.0-source.zip mr-keyboard-v1.73.0.apk " ] && [ "$(cat "$S/latest")" = v1.73.0 ] && echo 1 || echo 0)" "$OUT"
+check "latest without a catalog: v1.73.0 goes out with serial 1, everything attached and becomes the latest" "$([ $CODE = 0 ] && [ "$(serial "$S/rel/v1.73.0/assets/catalog.json")" = 1 ] && [ "$(assets v1.73.0)" = "catalog.json mr-keyboard-dict-en-US-2.zip mr-keyboard-dict-es-1.zip mr-keyboard-dict-pt-BR-2.zip mr-keyboard-v1.73.0-source.zip mr-keyboard-v1.73.0.apk update.json " ] && [ "$(cat "$S/latest")" = v1.73.0 ] && echo 1 || echo 0)" "$OUT"
 
 rm -rf "$T"
 if [ $fails = 0 ]; then echo "ALL OK ($ok checks)"; else echo "$fails FAILURE(S) out of $((ok+fails)) checks"; exit 1; fi

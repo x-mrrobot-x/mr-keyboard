@@ -9,6 +9,7 @@
 #                        (also warns when a docs/plan-*.md whose target version was reached is still there)
 #   check_workflows.py   workflows: actions pinned by commit, minimal permissions, mr-apk.yml publishes only after these checks
 #   check_catalog_url.py the app reads the dictionary catalog from the latest release (next to the APK)
+#   check_update_url.py  the update notice (update.json) is made, signed and attached with the same names the app will read
 #   check_reset_keys.py  "Restaurar padrões" (Restore defaults) covers every key of the settings screens
 #   mres_check.py        Portuguese text of the sheets/attachments editor goes through the Spanish table
 #   res_check.py         resources: valid XML, public.xml, references, unused resources, Spanish vs Portuguese
@@ -18,6 +19,7 @@
 #   run_java_tests.sh    PC tests of the Java layer (author card, main-screen link, re-correction: word under the cursor and
 #                        neighbour keys, recent words)
 #   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial)
+#   test_make_update.py  builds the update notice (version, APK size and SHA-256, notes in both languages, every error that must stop a release)
 #   publish_test/run.sh  publish_release.sh end to end with a fake gh and the real signature
 # assemble (a few minutes):
 #   check_java_smali.sh  the Mr*.smali files are what build_java.sh generates today from the Java sources
@@ -88,6 +90,9 @@ jobs:
       - name: Dictionary catalog read from the APK's release
         run: python3 docs/tools/check_catalog_url.py
 
+      - name: Update notice read from the APK's release
+        run: python3 docs/tools/check_update_url.py
+
       - name: Restore defaults covers every key
         run: python3 docs/tools/check_reset_keys.py
 
@@ -105,6 +110,9 @@ jobs:
 
       - name: Dictionary catalog
         run: python3 -I docs/tools/test_make_catalog.py
+
+      - name: Update notice
+        run: python3 -I docs/tools/test_make_update.py
 
       - name: Release publishing (with a fake gh)
         run: bash docs/tools/publish_test/run.sh
