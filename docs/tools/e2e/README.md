@@ -16,6 +16,15 @@ same `dictionary.cpp`. Only `LatinIME` (which needs Android) is left out. It exi
 | `Parity`, `TouchEval`, `TypoEval` | list-by-list comparison of two versions, imprecise touches and synthetic errors (1.64 to 1.66). |
 | `NativeParity` | native engine (1.77): the `MrFuzzy` search and the final `Suggest` list through Java and through `libmrengine.so`, word by word, score, cost and nodes visited; trigrams through both paths; the time of both. It exits with 1 if there is any difference. It runs in CI via `run_native_parity.sh`. |
 
+### Strategy tests and everyday-language benchmark (after 1.83)
+- `bash docs/tools/e2e/run_strategy_tests.sh [app_jar.jar]`: `StrategyTest`, one table-driven check per strategy of `docs/suggestion-features.md` (S1...), the data
+  integrity checks (D1-D4) and the limits (L1-L5), in 3 languages through the native engine and the Java fallback. Cases marked `GAP` are known
+  gaps (they print `FIXED` when they start to pass). It runs in *Mr Keyboard - checks*.
+- `bash docs/tools/e2e/run_subtitle_eval.sh <folder with the *_top_sentences.csv> [app_jar.jar] [-Dctx=A]`: `SubtitleEval`, the hit rate of the next word
+  after the space and after 1, 2 and 3 letters on the 10,000 most common OpenSubtitles sentences (not the training data of any pack). It needs the
+  sentences, which are not in the repository (the script header says where to get them), so it does not run in CI. `-Dctx=A` is the prototype of keeping the
+  previous words' context while typing (`plan-suggestions.md`, item 1.1).
+
 ### Native engine (1.77)
 `bash docs/tools/e2e/run_native_parity.sh [app_jar.jar]` compiles the PC libs (`engine/` and `native/`), generates the queries from
 `dicts/` itself (`engine/tools/gen_parity_queries.py`) and runs `NativeParity` in the 3 languages; it is the same thing that *Mr Keyboard - checks* runs.

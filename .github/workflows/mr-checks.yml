@@ -29,6 +29,8 @@
 #   run_java_tests.sh    with the APK jar: Spanish tests (SheetStrings/MrEs)
 #   run_native_parity.sh native engine (engine/): correction search, suggestion list and trigrams through Java and through the
 #                        PC libmrengine.so must give the same result in the 3 languages, with the dictionaries in dicts/
+#   run_strategy_tests.sh one check per suggestion strategy (docs/suggestion-features.md, ids S1...), 3 languages, native engine and
+#                        Java fallback, with the dictionaries in dicts/ (a change in dicts/ alone also starts the checks)
 name: Mr Keyboard - checks
 
 on:
@@ -45,6 +47,7 @@ on:
       - 'docs/release-notes/*.md'
       - 'engine/**'
       - 'native/**'
+      - 'dicts/**'
       - '.github/workflows/*.yml'
   push:
     branches: [main]
@@ -58,6 +61,7 @@ on:
       - 'docs/release-notes/*.md'
       - 'engine/**'
       - 'native/**'
+      - 'dicts/**'
       - '.github/workflows/*.yml'
 
 permissions:
@@ -162,3 +166,6 @@ jobs:
           WORDS: '1200'
           SUGG: '1000'
         run: bash docs/tools/e2e/run_native_parity.sh "$RUNNER_TEMP/dex/classes.jar"
+
+      - name: Suggestion strategies - one check per strategy (3 languages, native and Java)
+        run: bash docs/tools/e2e/run_strategy_tests.sh "$RUNNER_TEMP/dex/classes.jar"

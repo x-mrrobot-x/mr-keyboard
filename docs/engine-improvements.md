@@ -1,6 +1,6 @@
 # Suggestion engine and dictionaries: remaining improvements
 
-Updated after 1.77.2. The numbers come from the PC measurements (`docs/tools/e2e/`, see the `README.md` there) and from the notes of each version (`docs/release-notes/` and the Git history).
+Updated after 1.77.2. The current plan that absorbs the items below (context while typing, new everyday data, format v2, the two "My words" screens) is `plan-suggestions.md`. The numbers come from the PC measurements (`docs/tools/e2e/`, see the `README.md` there) and from the notes of each version (`docs/release-notes/` and the Git history).
 
 ## Already done
 | Item | What it was | Version |
