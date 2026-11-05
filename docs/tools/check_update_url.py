@@ -16,7 +16,7 @@ generated smali too. APP_MUST_HAVE_IT is turned on when the app gets the code th
 """
 import glob, os, re, sys
 
-APP_MUST_HAVE_IT = False
+APP_MUST_HAVE_IT = True
 
 problems = []
 
@@ -62,6 +62,15 @@ for f, u in app_urls:
     smali = read(smali_path) if os.path.exists(smali_path) else ''
     if u not in smali:
         problems.append('smali/%s.smali does not exist or does not have %s; run build_java.sh' % (cls, u))
+mu = java_dir + '/com/mrkeyboard/app/MrUpdate.java'
+if os.path.exists(mu):
+    t = read(mu)
+    m = re.search(r'RELEASE_PAGE\s*=\s*"([^"]+)"', t)
+    if not m or m.group(1) != 'https://github.com/%s/releases/latest' % repo:
+        problems.append('MrUpdate.RELEASE_PAGE must be https://github.com/%s/releases/latest' % repo)
+    m = re.search(r'SIG_PREFIX\s*=\s*"([^"]*)"', t)
+    if not m or m.group(1) != 'mr-keyboard/update/v1\\n':
+        problems.append('MrUpdate.SIG_PREFIX must be "mr-keyboard/update/v1\\n" (the prefix SignCatalog.java uses for the update domain)')
 if APP_MUST_HAVE_IT and not app_urls:
     problems.append('the app has no UPDATE_URL')
 

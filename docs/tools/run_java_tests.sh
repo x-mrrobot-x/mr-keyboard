@@ -5,6 +5,8 @@
 #   - RecorrectTest: word under the cursor, which words get suggestions and neighbour keys (MrRecorrect).
 #   - RecentTest: recent words in the prediction and when completing (MrRecent).
 #   - NativeFallbackTest: without libmrengine.so (native engine, 1.77) correction and trigrams go on through Java.
+#   - UpdateTest: the notice of a new version (MrUpdate): signature, every field, versions, replay, checking windows,
+#     notes by language; it also reads an update.json made by make_update.py and signed by SignCatalog.java (keytool key).
 # With the path of the APK jar (classes.dex -> d2j-dex2jar), it also runs:
 #   - EsTest: SheetStrings/MrEs with Spanish, Portuguese, English and French contexts.
 # Usage: sh docs/tools/run_java_tests.sh [app.jar]
@@ -31,6 +33,11 @@ java -cp "$T/test_recent:$T/stubs:$T/main" com.mrkeyboard.app.RecentTest
 echo "== NativeFallbackTest (without libmrengine.so: the app must work as in 1.76)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_native" $D/native_test/NativeFallbackTest.java
 java -cp "$T/test_native:$T/stubs:$T/main" com.mrkeyboard.app.NativeFallbackTest
+
+echo "== UpdateTest (update notice: the logic, and the files made by the real tools)"
+sh $D/update_test/make_fixtures.sh "$T/update_fx"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_update" $D/update_test/UpdateTest.java
+java -cp "$T/test_update:$T/stubs:$T/main" com.mrkeyboard.app.UpdateTest "$T/update_fx"
 
 if [ -n "$APPJAR" ]; then
   echo "== EsTest"

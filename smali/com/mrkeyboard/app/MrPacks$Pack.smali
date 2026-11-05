@@ -79,7 +79,7 @@
     .locals 0
 
     .prologue
-    .line 94
+    .line 95
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -91,7 +91,7 @@
     .locals 2
 
     .prologue
-    .line 108
+    .line 109
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacks$Pack;->description:Ljava/util/Map;
 
     const-string v1, ""
@@ -107,7 +107,7 @@
     .locals 2
 
     .prologue
-    .line 104
+    .line 105
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacks$Pack;->name:Ljava/util/Map;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;

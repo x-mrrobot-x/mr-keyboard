@@ -17,7 +17,7 @@
 #                        register above the instruction limit (e.g. p0 = v17 in a plain invoke), more than 5 registers in a
 #                        plain invoke (the assembler refuses with "Invalid register count") and a call to a method that does not exist
 #   run_java_tests.sh    PC tests of the Java layer (author card, main-screen link, re-correction: word under the cursor and
-#                        neighbour keys, recent words)
+#                        neighbour keys, recent words, the update notice: signature, versions, replay, checking windows)
 #   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial)
 #   test_make_update.py  builds the update notice (version, APK size and SHA-256, notes in both languages, every error that must stop a release)
 #   publish_test/run.sh  publish_release.sh end to end with a fake gh and the real signature

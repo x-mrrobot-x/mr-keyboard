@@ -42,7 +42,8 @@ import java.util.zip.ZipInputStream;
  * (fixed User-Agent).
  *
  * Security: the catalog comes signed with the APK key and is only accepted if the signature matches
- * the certificate this app was installed with; the catalog series cannot go back. The pack zip
+ * the certificate this app was installed with (verifySigned, also used by MrUpdate for update.json); the
+ * catalog series cannot go back. The pack zip
  * and each file inside it must have the size and SHA-256 from the catalog; only the listed names
  * are extracted. The new pack only replaces the previous one after being checked.
  *
@@ -136,27 +137,41 @@ public final class MrPacks {
      * minSerial: the highest series already seen (the catalog cannot be older).
      */
     static Catalog parseCatalog(byte[] envelope, X509Certificate[] certs, long minSerial) throws PackException {
+        String data = verifySigned(envelope, CATALOG_FORMAT, SIG_PREFIX, "catalog.json", certs);
+        Catalog cat = readData(data);
+        if (cat.serial < minSerial) throw new PackException("mr_dicts_err_old_catalog");
+        return cat;
+    }
+
+    /**
+     * Checks the signature of a signed JSON file of the release (the catalog or the update notice) and returns its
+     * "data" text. envelope: the file (format, algorithm, signer, signature, data); format: the number it must have;
+     * prefix: what is signed before the data, one per kind of file, so a file of one kind is never taken for another;
+     * name: the file name, for the error text; certs: this app's certificates (the key that signs the APK).
+     */
+    static String verifySigned(byte[] envelope, int format, String prefix, String name, X509Certificate[] certs)
+            throws PackException {
         Map<String, Object> env;
         String data;
         byte[] sig;
         String alg;
         try {
             env = MrJson.obj(MrJson.parse(new String(envelope, "UTF-8")));
-            if (MrJson.num(env, "format") != CATALOG_FORMAT) throw new PackException("mr_dicts_err_new_format");
+            if (MrJson.num(env, "format") != format) throw new PackException("mr_dicts_err_new_format");
             alg = MrJson.str(env, "algorithm");
             data = MrJson.str(env, "data");
             sig = Base64.getDecoder().decode(MrJson.str(env, "signature"));
         } catch (PackException e) {
             throw e;
         } catch (Exception e) {
-            throw new PackException("mr_dicts_err_corrupt", "catalog.json");
+            throw new PackException("mr_dicts_err_corrupt", name);
         }
         if (!alg.equals("SHA256withRSA") && !alg.equals("SHA256withECDSA") && !alg.equals("SHA256withDSA")) {
             throw new PackException("mr_dicts_err_signature");
         }
         byte[] msg;
         try {
-            byte[] p = SIG_PREFIX.getBytes("UTF-8");
+            byte[] p = prefix.getBytes("UTF-8");
             byte[] d = data.getBytes("UTF-8");
             msg = new byte[p.length + d.length];
             System.arraycopy(p, 0, msg, 0, p.length);
@@ -187,9 +202,7 @@ public final class MrPacks {
             }
             throw new PackException("mr_dicts_err_signature");
         }
-        Catalog cat = readData(data);
-        if (cat.serial < minSerial) throw new PackException("mr_dicts_err_old_catalog");
-        return cat;
+        return data;
     }
 
     /** Reads the catalog data (already checked). */
@@ -273,7 +286,7 @@ public final class MrPacks {
         return p;
     }
 
-    private static String hexField(Map<String, Object> m, String k) {
+    static String hexField(Map<String, Object> m, String k) {
         String s = MrJson.str(m, k).toLowerCase(Locale.ROOT);
         if (s.length() != 64) throw new IllegalArgumentException(k);
         for (int i = 0; i < 64; i++) {
@@ -391,6 +404,11 @@ public final class MrPacks {
     static X509Certificate[] sTestCerts;
 
     static byte[] fetchBytes(String url, int max) throws PackException {
+        return fetchBytes(url, max, "catalog.json");
+    }
+
+    /** name: the file name, for the error text when it is bigger than max. */
+    static byte[] fetchBytes(String url, int max, String name) throws PackException {
         InputStream in = null;
         try {
             long[] len = new long[1];
@@ -400,7 +418,7 @@ public final class MrPacks {
             int r;
             while ((r = in.read(buf)) > 0) {
                 out.write(buf, 0, r);
-                if (out.size() > max) throw new PackException("mr_dicts_err_corrupt", "catalog.json");
+                if (out.size() > max) throw new PackException("mr_dicts_err_corrupt", name);
             }
             return out.toByteArray();
         } catch (HttpError e) {
