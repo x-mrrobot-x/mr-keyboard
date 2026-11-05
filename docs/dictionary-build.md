@@ -1,86 +1,86 @@
-# 1.6.0 — Sugestões: dicionário novo com bigramas, correção aproximada, previsão e aprendizado
+# 1.6.0 — Suggestions: new dictionary with bigrams, approximate correction, prediction and learning
 
-## Pedido
-Pacote "Equilibrado" da pesquisa de sugestões, 100% offline:
-- dicionário pt-BR maior e mais limpo, com pares de palavras (bigramas) do corpus Leipzig (CC BY);
-- correção além do prefixo: letra sobrando ou faltando, troca de lugar, erros fonéticos, espaço faltando, mapa de erros e abreviações;
-- previsão da próxima palavra depois do espaço (até 3, a melhor no centro; sem previsão, a pontuação de antes);
-- aprendizado funcionando sempre que as sugestões estão ligadas, nunca em senha nem em campo anônimo;
-- padrões mantidos: sugestões e autocorreção continuam desligadas.
+## Request
+"Balanced" package from the suggestions research, 100% offline:
+- larger and cleaner pt-BR dictionary, with word pairs (bigrams) from the Leipzig corpus (CC BY);
+- correction beyond the prefix: extra or missing letter, swapped letters, phonetic errors, missing space, error map and abbreviations;
+- next-word prediction after the space (up to 3, the best in the center; with no prediction, the punctuation from before);
+- learning working whenever suggestions are on, never in a password or incognito field;
+- defaults kept: suggestions and autocorrection stay off.
 
-## O que mudou
+## What changed
 | Item | 1.5.9 | 1.6.0 |
 |---|---|---|
-| `res/raw/main_pt.dict` | formato antigo, ~165 mil palavras, sem bigramas, 1,92 MB guardado sem compressão | formato "latest" (cabeçalho 200/1), 174.722 palavras, 400.000 bigramas (notícias + conversa do Tatoeba), 3,71 MB (limite do formato: 4 MB), comprimido no APK |
-| Grafia | tinha idéia, freqüência, vôo, pára, projecto, della, vous, the... | grafia do Acordo de 1990, sem variantes lusitanas, sem palavras gramaticais estrangeiras e sem inglês que não se usa em português |
-| Palavras novas | — | segunda-feira, bem-vindo, e-mail, trata-se, streaming, podcast, criptomoedas, WhatsApp, Instagram, Bolsonaro, gírias e abreviações de chat (vc, tbm, pq, kkk, rs, perrengue, crush...) |
-| 1ª letra digitada | bigramas só nos modos 1 e 3 e só com a mesma letra exata | sempre que há sugestões; aceita acento e maiúscula (e → é, está) |
-| Erros fora do prefixo | só tecla vizinha e uma letra sobrando | + letra faltando, troca de lugar, fonética (s/z/ç, ch/x, g/j, h mudo), letra dobrada, espaço faltando, ~200 correções e abreviações |
-| Depois do espaço | pontuação | até 3 previsões (2ª, 1ª no centro, 3ª); sem previsão, pontuação |
-| Aprendizado | só com a autocorreção ligada, e então os bigramas aprendidos nunca eram lidos | sempre que as sugestões estão ligadas; nunca em senha ou com `IME_FLAG_NO_PERSONALIZED_LEARNING` |
-| Autocorreção ligada | modo 2 (sem bigramas) | modo 3 (com bigramas) |
-| Versão | 1059000 / v1.59.0 | 1060000 / v1.60.0 (`apktool.yml` e `apktool.json`) |
+| `res/raw/main_pt.dict` | old format, ~165 thousand words, no bigrams, 1.92 MB stored uncompressed | "latest" format (header 200/1), 174,722 words, 400,000 bigrams (news + Tatoeba conversation), 3.71 MB (format limit: 4 MB), compressed in the APK |
+| Spelling | had idéia, freqüência, vôo, pára, projecto, della, vous, the... | 1990 Orthographic Agreement spelling, no Lusitanian variants, no foreign function words and no English that is not used in Portuguese |
+| New words | — | segunda-feira, bem-vindo, e-mail, trata-se, streaming, podcast, criptomoedas, WhatsApp, Instagram, Bolsonaro, chat slang and abbreviations (vc, tbm, pq, kkk, rs, perrengue, crush...) |
+| 1st letter typed | bigrams only in modes 1 and 3 and only with the exact same letter | whenever there are suggestions; accepts accent and uppercase (e → é, está) |
+| Errors outside the prefix | only neighboring key and one extra letter | + missing letter, swapped letters, phonetic (s/z/ç, ch/x, g/j, silent h), doubled letter, missing space, ~200 corrections and abbreviations |
+| After the space | punctuation | up to 3 predictions (2nd, 1st in the center, 3rd); with no prediction, punctuation |
+| Learning | only with autocorrection on, and then the learned bigrams were never read | whenever suggestions are on; never in a password or with `IME_FLAG_NO_PERSONALIZED_LEARNING` |
+| Autocorrection on | mode 2 (no bigrams) | mode 3 (with bigrams) |
+| Version | 1059000 / v1.59.0 | 1060000 / v1.60.0 (`apktool.yml` and `apktool.json`) |
 
-## Como foi feito
-### Dicionário (`docs/tools/make_wordlist.py`, `build_dict.py`)
-- Base: `pt_BR_wordlist.combined.gz` v54 do AOSP (Apache-2.0 + aviso Lexiteria). Não usei a versão do HeliBoard porque o repositório dele é GPL-3.0 e não diz a licença dos dicionários; a atualização ortográfica foi refeita no script.
-- Corpus: Leipzig `por_news_2024_1M` (CC BY 4.0), só fontes brasileiras (`split_br.py`: tira domínios .pt/.ao/.mz etc., sites com marcadores de pt-PT e dois sites sediados em Portugal): 876.742 de 1.000.000 frases. O teste usa 5.262 frases separadas do arquivo de 300 mil; as 804 delas que também estavam no de 1M saíram do treino (858.403 frases, 16,6 milhões de palavras).
-- VERO (pt-BR) e en_US do Hunspell só como filtro; nada deles é copiado.
-- Conversa: Tatoeba (CC BY 2.0 FR), 445.521 frases em português; saíram 50 autores com marcas de português europeu (autocarro, estás a), as frases com essas marcas e as repetidas, e os nomes Tom e Mary (aparecem em ~15% das frases do site). 378.366 frases para contar, 19.914 para teste (`split_tatoeba.py`). Nos pares de palavras elas contam 3 vezes; nas palavras novas contam 1 vez, para não inflar palavras raras.
-- Seleção dos pares: até 3 por palavra garantidos e o resto por contagem, até 400.000.
-- Palavras novas do corpus: 5.816 aceitas pelo VERO, 1.236 nomes próprios, estrangeirismos, neologismos, gírias e abreviações.
-- Limpeza da base (números em `docs/tools/report_list_1.6.0.txt`): 880 grafias antigas trocadas, 538 minúsculas curtas estrangeiras, 1.535 palavras inglesas sem uso em português no corpus, 203 variantes lusitanas, 53 palavras gramaticais de outras línguas, erros de grafia (enquando, encontar, asim...), formas sem acento duplicadas (familia, agua).
-- Palavras possivelmente ofensivas (lista do AOSP): nunca aparecem como previsão; 30 palavrões ficam com frequência 5 (só aparecem digitados por inteiro). As demais (crianças, negro, peito) mantêm a frequência.
-- Bigramas: contagem ≥ 2 dentro de trechos sem pontuação, até 60 por palavra (limite da lib), frequência de 7 bits a partir de P(seguinte | anterior).
-- `build_dict.py` grava em profundidade (a busca de bigramas da lib não funciona em largura) e relê o arquivo com uma cópia em Python das rotinas da lib, conferindo cada palavra, frequência e bigrama.
+## How it was done
+### Dictionary (`docs/tools/make_wordlist.py`, `build_dict.py`)
+- Base: `pt_BR_wordlist.combined.gz` v54 from AOSP (Apache-2.0 + Lexiteria notice). I did not use the HeliBoard version because its repository is GPL-3.0 and does not state the dictionaries' license; the spelling update was redone in the script.
+- Corpus: Leipzig `por_news_2024_1M` (CC BY 4.0), Brazilian sources only (`split_br.py`: removes .pt/.ao/.mz etc. domains, sites with pt-PT markers and two sites based in Portugal): 876,742 of 1,000,000 sentences. The test uses 5,262 sentences set aside from the 300 thousand file; the 804 of them that were also in the 1M file left the training set (858,403 sentences, 16.6 million words).
+- VERO (pt-BR) and Hunspell en_US only as a filter; nothing from them is copied.
+- Conversation: Tatoeba (CC BY 2.0 FR), 445,521 Portuguese sentences; 50 authors with European Portuguese markers (autocarro, estás a) were removed, along with the sentences with those markers and the repeated ones, and the names Tom and Mary (they appear in ~15% of the site's sentences). 378,366 sentences for counting, 19,914 for testing (`split_tatoeba.py`). In word pairs they count 3 times; in new words they count 1 time, so as not to inflate rare words.
+- Pair selection: up to 3 per word guaranteed and the rest by count, up to 400,000.
+- New words from the corpus: 5,816 accepted by VERO, 1,236 proper nouns, foreign words, neologisms, slang and abbreviations.
+- Base cleanup (numbers in `docs/tools/report_list_1.6.0.txt`): 880 old spellings replaced, 538 foreign short lowercase words, 1,535 English words not used in Portuguese in the corpus, 203 Lusitanian variants, 53 function words from other languages, spelling errors (enquando, encontar, asim...), duplicated unaccented forms (familia, agua).
+- Possibly offensive words (AOSP list): never appear as a prediction; 30 profanities stay at frequency 5 (they only appear when typed in full). The others (crianças, negro, peito: "children", "black", "chest") keep their frequency.
+- Bigrams: count ≥ 2 within stretches without punctuation, up to 60 per word (the lib's limit), 7-bit frequency from P(next | previous).
+- `build_dict.py` writes depth-first (the lib's bigram search does not work breadth-first) and re-reads the file with a Python copy of the lib's routines, checking every word, frequency and bigram.
 
-### Camada Java (`docs/tools/java/src`, gerada para smali com `docs/tools/build_java.sh`)
-- `MrText`: letra-base sem acento, iniciais com variantes, última palavra antes do cursor, conserto dos acentos que a lib devolve com sinal no x86, `learnable` (não aprende sugestão com espaço).
-- `MrFix`: ~200 erros comuns e abreviações (vc → você, concerteza → com certeza, excessao → exceção).
-- `MrFuzzy`: busca aproximada no mesmo buffer do .dict (sem cópia), com custos por tipo de erro. Só roda se a palavra digitada não é válida; 1ª passada com um erro, 2ª com dois só para palavras longas sem resultado; primeira letra restrita; teto de 12.000 nós.
-- `MrPredict`: previsão depois do espaço juntando bigramas do dicionário e do usuário (peso 2 para o usuário).
+### Java layer (`docs/tools/java/src`, converted to smali with `docs/tools/build_java.sh`)
+- `MrText`: base letter without accent, initials with variants, last word before the cursor, repair of the accents the lib returns with a sign on x86, `learnable` (does not learn a suggestion with a space).
+- `MrFix`: ~200 common errors and abbreviations (vc → você, concerteza → com certeza, excessao → exceção).
+- `MrFuzzy`: approximate search in the same buffer as the .dict (no copy), with costs per type of error. It only runs if the typed word is not valid; 1st pass with one error, 2nd with two only for long words with no result; first letter restricted; cap of 12,000 nodes.
+- `MrPredict`: prediction after the space, merging bigrams from the dictionary and from the user (weight 2 for the user).
 
 ### Smali
-- `BinaryDictionary`: `getBigrams` passa iniciais com acento/maiúscula (até 96 códigos) e conserta acentos do x86; novos `mrBuffer`, `mrLength`, `mrBigrams`.
-- `Suggest`: bigramas na 1ª letra em qualquer modo, filtro por `MrText.sameInitial`; `MrFuzzy.afterWords` depois do dicionário principal; uma maiúscula só não vira "tudo em maiúsculas"; novos `mrMainDict`, `mrUserBigrams`.
-- `LatinIME`: `updateCorrectionMode` (2 → 3), `checkAddToDictionary` (aprende se `isPredictionOn`, sem `mMrNoLearn`, sem espaço), `onStartInputView` (`mMrNoLearn` de `imeOptions & 0x1000000`), `setNextSuggestions` (`MrPredict.list`).
-- `apktool.yml`/`apktool.json`: "dict" saiu de `doNotCompress` (o .dict é lido por `openRawResource` + `available()`, que funciona comprimido no Android 8+).
+- `BinaryDictionary`: `getBigrams` passes initials with accent/uppercase (up to 96 codes) and repairs x86 accents; new `mrBuffer`, `mrLength`, `mrBigrams`.
+- `Suggest`: bigrams on the 1st letter in any mode, filter by `MrText.sameInitial`; `MrFuzzy.afterWords` after the main dictionary; a single capital letter does not become "all caps"; new `mrMainDict`, `mrUserBigrams`.
+- `LatinIME`: `updateCorrectionMode` (2 → 3), `checkAddToDictionary` (learns if `isPredictionOn`, without `mMrNoLearn`, without a space), `onStartInputView` (`mMrNoLearn` from `imeOptions & 0x1000000`), `setNextSuggestions` (`MrPredict.list`).
+- `apktool.yml`/`apktool.json`: "dict" left `doNotCompress` (the .dict is read by `openRawResource` + `available()`, which works compressed on Android 8+).
 
-## Validação (no PC)
-- `apktool b` sem erro; APK sem assinatura de 3,8 MB (1.5.9: 2,8 MB).
-- Lib nativa original compilada no PC (`dict_test.cpp`, com `-funsigned-char` como no ARM): 174.722/174.722 palavras válidas; `getBigrams` devolve exatamente os 400.000 pares gravados.
-- Ponta a ponta (`docs/tools/e2e/E2ETest.java`): classes reais do APK (dex2jar) + lib nativa do PC. 26 de 27 verificações certas (1ª letra com bigramas, erros, mapa, abreviações, previsão, bigrama do usuário no centro). A que falha: "prota" mostra protagonista em vez de porta, porque a digitada ainda é começo de palavra e os complementos da lib ganham.
-- Com a lib compilada como no x86 (char com sinal) as previsões com acento saem iguais.
-- Previsão: a palavra certa entre as 3 mostradas
+## Validation (on the PC)
+- `apktool b` with no errors; unsigned APK of 3.8 MB (1.5.9: 2.8 MB).
+- Original native lib compiled on the PC (`dict_test.cpp`, with `-funsigned-char` as on ARM): 174,722/174,722 valid words; `getBigrams` returns exactly the 400,000 pairs written.
+- End to end (`docs/tools/e2e/E2ETest.java`): real classes from the APK (dex2jar) + the PC's native lib. 26 of 27 checks correct (1st letter with bigrams, errors, map, abbreviations, prediction, the user's bigram in the center). The one that fails: "prota" shows protagonista instead of porta, because what was typed is still the beginning of a word and the lib's completions win.
+- With the lib compiled as on x86 (signed char) the predictions with accents come out the same.
+- Prediction: the right word among the 3 shown
 
-| Dicionário | Notícias, depois do espaço | Notícias, depois da 1ª letra | Conversa, depois do espaço | Conversa, depois da 1ª letra |
+| Dictionary | News, after the space | News, after the 1st letter | Conversation, after the space | Conversation, after the 1st letter |
 |---|---|---|---|---|
-| Leipzig 300 mil | 25,3% | 47,6% | — | — |
-| Leipzig 1M | 26,1% | 50,2% | 19,3% | 43,9% |
-| **Leipzig 1M + Tatoeba (usado)** | 25,4% | 49,2% | **25,1%** | **55,2%** |
+| Leipzig 300 thousand | 25.3% | 47.6% | — | — |
+| Leipzig 1M | 26.1% | 50.2% | 19.3% | 43.9% |
+| **Leipzig 1M + Tatoeba (used)** | 25.4% | 49.2% | **25.1%** | **55.2%** |
 
-  O teste de conversa são as frases do Tatoeba separadas para teste. A mistura perde menos de 1 ponto em notícias e ganha 6 a 11 pontos em conversa.
-- Erros sintéticos sobre palavras frequentes: a original aparece entre as 3 da busca aproximada em 97%.
-- Tempo no PC (Java com JIT): 0,20 ms por tecla em média, 0,76 ms no p99; previsão 0,06 ms. **No aparelho não medi**: estimo 5 a 15 vezes mais.
+  The conversation test is the Tatoeba sentences set aside for testing. The mix loses less than 1 point on news and gains 6 to 11 points on conversation.
+- Synthetic errors on frequent words: the original appears among the 3 of the approximate search in 97%.
+- PC time (Java with JIT): 0.20 ms per key on average, 0.76 ms at p99; prediction 0.06 ms. **I did not measure on the device**: I estimate 5 to 15 times more.
 
-## Testes Android necessários
-1. Instalar sobre a 1.5.9 (mesma assinatura). Abrir o teclado: o dicionário carrega (logcat sem "Read ... bytes, expected").
-2. Ligar sugestões. Digitar "muito " e ver 3 previsões, a do meio em cor cheia; tocar numa e ver a seguinte.
-3. Depois de "bom ", digitar "d": "dia" deve aparecer. Depois de "ele ", digitar "e": "é" deve aparecer.
-4. Digitar obrogado, asim, omem, pesquiza, enchergar, concerteza, vc, tbm: a correção aparece na faixa.
-5. Autocorreção ligada: "obrogado" + espaço vira "obrigado"; "vc" + espaço continua "vc".
-6. Aprendizado: escolher a mesma previsão algumas vezes depois de uma palavra; ela passa para o centro.
-7. Campo de senha e aba anônima do navegador: nada é aprendido (repetir o teste 6 lá e conferir fora).
-8. Tempo: digitar rápido palavras longas erradas; a faixa não pode atrasar. Medir a abertura do teclado logo após reiniciar.
-9. Aparelho ou emulador x86: previsões com acento (depois de "não ") sem caracteres estranhos.
+## Android tests required
+1. Install over 1.5.9 (same signature). Open the keyboard: the dictionary loads (logcat without "Read ... bytes, expected").
+2. Turn on suggestions. Type "muito " and see 3 predictions, the middle one in solid color; tap one and see the next.
+3. After "bom ", type "d": "dia" must appear. After "ele ", type "e": "é" must appear.
+4. Type obrogado, asim, omem, pesquiza, enchergar, concerteza, vc, tbm: the correction appears in the strip.
+5. Autocorrection on: "obrogado" + space becomes "obrigado"; "vc" + space stays "vc".
+6. Learning: choose the same prediction a few times after a word; it moves to the center.
+7. Password field and the browser's incognito tab: nothing is learned (repeat test 6 there and check outside).
+8. Timing: type long wrong words quickly; the strip must not lag. Measure the keyboard opening right after a restart.
+9. x86 device or emulator: predictions with accents (after "não ") without strange characters.
 
-## Licenças e créditos
-`res/raw/notice_main_pt.txt`: AOSP (Apache-2.0, Lexiteria), Leipzig Corpora Collection (CC BY 4.0, com a citação pedida), Tatoeba (CC BY 2.0 FR), listas próprias. Nenhuma frase dos corpora é distribuída, só contagens.
+## Licenses and credits
+The credits live in `dicts/pt-BR/NOTICE.txt` (in 1.6.0: `res/raw/notice_main_pt.txt`): AOSP (Apache-2.0, Lexiteria), Leipzig Corpora Collection (CC BY 4.0, with the requested citation), Tatoeba (CC BY 2.0 FR), own lists. No sentence from the corpora is distributed, only counts.
 
-## Limitações
-- O botão Traduzir continua enviando o texto para translate.googleapis.com quando usado (função já existente, fora deste pacote).
-- Corpus de notícias: previsões puxam para o registro jornalístico até o aprendizado se ajustar ao usuário.
-- "prota" → "porta" e outros erros que formam o começo de outra palavra só aparecem depois dos complementos.
+## Limitations
+- The "Traduzir" (Translate) button keeps sending the text to translate.googleapis.com when used (an existing function, outside this package).
+- News corpus: predictions lean toward the journalistic register until learning adjusts to the user.
+- "prota" → "porta" and other errors that form the beginning of another word only appear after the completions.
 
-## Próximos passos
-As bibliotecas nativas são compiladas com o NDK pelo GitHub Actions (`.github/workflows/mr-native.yml` e `native/`).
+## Next steps
+The native libraries are compiled with the NDK by GitHub Actions (`.github/workflows/mr-native.yml` and `native/`).

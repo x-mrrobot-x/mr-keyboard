@@ -1,15 +1,15 @@
-# Teste dos valores padrão do motor (1.69)
+# Engine default values test (1.69)
 
-Confere que o `GlobalKeyboardSettings` (os campos que o teclado lê: Caps Lock, método do clique, modo de desenho, teclas
-deslizando etc.) fica com os mesmos valores antes e depois de uma mudança, e que valores antigos guardados de opções que já
-não têm tela não mudam mais nada.
+Checks that `GlobalKeyboardSettings` (the fields the keyboard reads: Caps Lock, click method, drawing mode, sliding keys,
+etc.) keeps the same values before and after a change, and that old stored values of options that no longer
+have a screen no longer change anything.
 
-1. Stubs: `docs/tools/java/stubs/android` (compilados) e, na frente, o `stubs/` desta pasta (o `Resources` com `getBoolean` e `getInteger`).
-2. `javac -cp <stubs compilados>:<jar do APK> -d cls SettingsDefaultsTest.java`
-3. `java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote -cp cls:<Resources desta pasta compilado>:<stubs compilados>:<jar do APK> com.mrkeyboard.app.SettingsDefaultsTest <pasta do projeto decodificado> [chave=valor ...]`
-   - o jar vem do `classes.dex` do APK (`d2j-dex2jar.sh`);
-   - a pasta do projeto é a que tem `res/values/public.xml` do mesmo APK (apktool d);
-   - cada `chave=valor` simula uma preferência guardada (`true` e `false` viram booleanos).
+1. Stubs: `docs/tools/java/stubs/android` (compiled) and, in front, the `stubs/` of this folder (the `Resources` with `getBoolean` and `getInteger`).
+2. `javac -cp <compiled stubs>:<APK jar> -d cls SettingsDefaultsTest.java`
+3. `java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote -cp cls:<this folder's Resources compiled>:<compiled stubs>:<APK jar> com.mrkeyboard.app.SettingsDefaultsTest <decoded project folder> [key=value ...]`
+   - the jar comes from the APK's `classes.dex` (`d2j-dex2jar.sh`);
+   - the project folder is the one with `res/values/public.xml` from the same APK (apktool d);
+   - each `key=value` simulates a stored preference (`true` and `false` become booleans).
 
-A saída é a lista `campo=valor`. Rode com o jar de antes e o de depois e compare com `diff`: sem valores guardados as duas listas
-têm de ser iguais; com valores antigos (`pref_caps_lock=false pref_click_method=0 pref_touch_pos=true ...`) a lista nova tem de continuar igual à dos padrões.
+The output is the `field=value` list. Run it with the jar from before and the one from after and compare with `diff`: with no stored values the two lists
+must be equal; with old values (`pref_caps_lock=false pref_click_method=0 pref_touch_pos=true ...`) the new list must stay equal to the defaults one.

@@ -1,14 +1,14 @@
-# Teste do idioma espanhol no código (editor de folhas e anexos)
+# Spanish language test in the code (sheet editor and attachments)
 
-Confere `SheetStrings.isPt/p` e `MrEs` com contextos em espanhol, português, inglês e francês: no espanhol o texto em português
-passa pela tabela do `MrEs` e sai em espanhol; no português e no inglês nada muda; texto sem tradução fica igual; o texto que o código
-tinha só em português (anexos e limpeza de cache) sai no idioma do app. Também confere que a tabela não tem tradução vazia.
+Checks `SheetStrings.isPt/p` and `MrEs` with Spanish, Portuguese, English and French contexts: in Spanish the Portuguese text
+goes through the `MrEs` table and comes out in Spanish; in Portuguese and English nothing changes; text without a translation stays the same; the text the code
+had only in Portuguese (attachments and cache cleanup) comes out in the app's language. It also checks that the table has no empty translation.
 
-1. Stubs: `docs/tools/java/stubs/android` compilados, com o `Resources` de `docs/tools/settings_test/stubs` na frente; a `UiLocale` de
-   `docs/tools/packs_test/UiLocale.java` (substitui a do APK, que usa APIs que o PC não tem).
-2. `javac -cp <stubs>:<UiLocale compilada>:<jar do APK> -d cls EsTest.java`
-3. `java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote -cp cls:<stubs>:<UiLocale>:<jar do APK> com.mrkeyboard.app.EsTest`
-   (o jar vem do `classes.dex` do APK com `d2j-dex2jar.sh`).
+1. Stubs: compiled `docs/tools/java/stubs/android`, with the `Resources` from `docs/tools/settings_test/stubs` in front; the `UiLocale` from
+   `docs/tools/packs_test/UiLocale.java` (it replaces the APK's, which uses APIs that the PC does not have).
+2. `javac -cp <stubs>:<compiled UiLocale>:<APK jar> -d cls EsTest.java`
+3. `java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote -cp cls:<stubs>:<UiLocale>:<APK jar> com.mrkeyboard.app.EsTest`
+   (the jar comes from the APK's `classes.dex` with `d2j-dex2jar.sh`).
 
-`docs/tools/mres_check.py` (na raiz do projeto) confere o outro lado: que todo texto em português do smali passa por `p()`/`a()` e
-está na tabela.
+`docs/tools/mres_check.py` (at the project root) checks the other side: that every Portuguese text in the smali goes through `p()`/`a()` and
+is in the table.

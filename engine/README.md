@@ -1,69 +1,69 @@
-# engine/ — motor nativo do Mr Keyboard (etapa 1)
+# engine/ — native engine of Mr Keyboard (stage 1)
 
-A busca de correção (`MrFuzzy.java`) e a consulta de trigramas (`MrTrigram.java`) do app em C++, entregues como
-**`libmrengine.so`**. Lê os arquivos de hoje (`dicts/<idioma>/main.dict`, `trigrams.bin`), **sem formato novo**. Se a lib não
-estiver no APK, não carregar ou tiver outra versão de contrato, o app segue pelo Java, sem perder função. O resultado do C++ é
-**idêntico** ao do Java (palavras, ordem, pontuação, custo e nós visitados). Visão geral e fluxo: `docs/native-engine.md`.
+The correction search (`MrFuzzy.java`) and the trigram lookup (`MrTrigram.java`) of the app in C++, delivered as
+**`libmrengine.so`**. It reads today's files (`dicts/<language>/main.dict`, `trigrams.bin`), with **no new format**. If the lib is
+not in the APK, fails to load or has another contract version, the app carries on through Java, without losing any feature. The C++
+result is **identical** to the Java one (words, order, score, cost and visited nodes). Overview and flow: `docs/native-engine.md`.
 
-O leitor do dicionário (`libjni_pckeyboard.so`) fica em `native/` e é outro projeto de CMake; as duas libs saem do mesmo workflow
-(`.github/workflows/mr-native.yml`).
+The dictionary reader (`libjni_pckeyboard.so`) lives in `native/` and is a separate CMake project; both libs come out of the same
+workflow (`.github/workflows/mr-native.yml`).
 
-## Estrutura
-| Caminho | O que é |
+## Layout
+| Path | What it is |
 |---|---|
-| `src/mr_engine.h` | contrato: constantes, tabelas, `Fuzzy`, `TriStore`, `kEngineVersion` |
-| `src/mr_fuzzy.cpp` | porta de `MrFuzzy.java` (passadas, programação dinâmica em faixa, divisão de palavras coladas) |
-| `src/mr_tri.cpp` | porta de `MrTrigram.java` (MRT1) e conversões UTF-8 |
-| `src/mr_jni.cpp` | `JNI_OnLoad` + `RegisterNatives` de `com.mrkeyboard.app.MrNative` |
-| `test/mr_test.cpp` | busca no dicionário de verdade, independência de ordem, arquivos estragados, bordas (sem o Java) |
-| `test/mr_bench.cpp` | medição |
-| `test/java/…` | `JniSmoke` (ponte JNI, argumentos ruins) e a cópia das declarações nativas de `MrNative` |
-| `tools/gen_parity_queries.py` | consultas para a paridade, tiradas do próprio `dicts/` |
+| `src/mr_engine.h` | contract: constants, tables, `Fuzzy`, `TriStore`, `kEngineVersion` |
+| `src/mr_fuzzy.cpp` | port of `MrFuzzy.java` (passes, banded dynamic programming, splitting of run-together words) |
+| `src/mr_tri.cpp` | port of `MrTrigram.java` (MRT1) and UTF-8 conversions |
+| `src/mr_jni.cpp` | `JNI_OnLoad` + `RegisterNatives` of `com.mrkeyboard.app.MrNative` |
+| `test/mr_test.cpp` | search on the real dictionary, order independence, corrupt files, edge cases (without Java) |
+| `test/mr_bench.cpp` | measurement |
+| `test/java/…` | `JniSmoke` (JNI bridge, bad arguments) and the copy of the native declarations of `MrNative` |
+| `tools/gen_parity_queries.py` | queries for the parity test, taken from `dicts/` itself |
 
-## Rodar no PC
+## Run on the PC
 ```bash
 cmake -S engine -B build/engine -DCMAKE_BUILD_TYPE=Release -DMR_HOST_TEST=ON
 cmake --build build/engine -j4
-./build/engine/mr_test dicts 100       # busca, trigramas, arquivos estragados, bordas (dicionários de dicts/)
-./build/engine/mr_bench dicts 20       # velocidade
+./build/engine/mr_test dicts 100       # search, trigrams, corrupt files, edge cases (dictionaries in dicts/)
+./build/engine/mr_bench dicts 20       # speed
 
 cmake -S engine -B build/san -DCMAKE_BUILD_TYPE=RelWithDebInfo -DMR_HOST_TEST=ON -DMR_SANITIZE=ON
 cmake --build build/san -j4 && ./build/san/mr_test dicts 200            # ASan + UBSan
 
 javac -d build/jc engine/test/java/com/mrkeyboard/app/*.java
-java -cp build/jc com.mrkeyboard.app.JniSmoke build/engine/libmrengine.so dicts    # ponte JNI sem o app
+java -cp build/jc com.mrkeyboard.app.JniSmoke build/engine/libmrengine.so dicts    # JNI bridge without the app
 
-bash docs/tools/e2e/run_native_parity.sh      # Java x C++ ao vivo, 3 idiomas (monta o APK temporário; veja o cabeçalho do script)
+bash docs/tools/e2e/run_native_parity.sh      # Java x C++ live, 3 languages (builds the temporary APK; see the script header)
 ```
 
 
-## Compilar e colocar no app
-Mexeu em `engine/` (ou em `native/`)? O workflow **Mr Keyboard - native lib** roda no push (ou à mão: Actions → Run workflow). Ele
-testa no PC e compila as duas libs para arm64-v8a, armeabi-v7a e x86 com o NDK 27. Baixe o artifact **`native-libs`**, extraia na raiz do
-projeto (mesclando com `lib/`) e faça o commit de `lib/`, `native-src.sha256`, `mrengine-src.sha256` e `mrengine-info.txt`. O workflow do
-APK compara os hashes com o código atual e não publica se a `lib/` estiver velha.
+## Build and put it in the app
+Changed `engine/` (or `native/`)? The **Mr Keyboard - native lib** workflow runs on push (or by hand: Actions → Run workflow). It
+tests on the PC and builds both libs for arm64-v8a, armeabi-v7a and x86 with NDK 27. Download the **`native-libs`** artifact, extract it at the
+project root (merging with `lib/`) and commit `lib/`, `native-src.sha256`, `mrengine-src.sha256` and `mrengine-info.txt`. The APK
+workflow compares the hashes with the current code and does not publish if `lib/` is stale.
 
-## Contrato com o app
-- A **fonte da verdade** dos custos (`C_PROX_1`, `C_DEL`…), das regras (`rules.txt`), de `Character.toLowerCase`/`isUpperCase` e de
-  `MrText.base` é o **Java do app**. Ele entrega tudo à lib na carga (`MrNative.init`) e quando o pacote de idioma muda
-  (`MrNative.pushRules`). A lib não tem constante de ajuste própria. Mudar um custo em `MrFuzzy.java` **não exige** recompilar a lib;
-  mudar o **algoritmo** (uma passada nova, uma regra nova no `walk`) exige portar para `src/mr_fuzzy.cpp`, rodar a paridade e subir
-  `kEngineVersion`.
-- **`kEngineVersion`** (`src/mr_engine.h`) tem de ser igual a `MrNative.ENGINE_VERSION`. Sobe quando muda a assinatura de uma função
-  nativa, a ordem dos custos ou o significado de uma tabela. Versão diferente = o app não usa a lib.
-- A pontuação do Java usa `Math.pow(2.0, -custo/25.0)`; o Java entrega essa tabela calculada por ele, então o arredondamento é o mesmo
-  em qualquer aparelho.
-- Os trigramas são lidos **inteiros para a memória** (uns 3 MB) e só os índices ficam à parte. Não usa `mmap` de propósito: se um pacote
-  novo trocasse o arquivo no lugar, ler uma página mapeada derrubaria o app (SIGBUS).
-- **Nunca confiar nos arquivos**: toda leitura é conferida contra o tamanho; as buscas recursivas têm teto de nós (`MrFuzzy.NODE_BUDGET`,
-  igual no Java), porque num arquivo estragado cresceriam exponencialmente.
+## Contract with the app
+- The **source of truth** for the costs (`C_PROX_1`, `C_DEL`…), the rules (`rules.txt`), `Character.toLowerCase`/`isUpperCase` and
+  `MrText.base` is the **app's Java**. It hands everything to the lib at load time (`MrNative.init`) and when the language pack
+  changes (`MrNative.pushRules`). The lib has no tuning constant of its own. Changing a cost in `MrFuzzy.java` **does not require**
+  rebuilding the lib; changing the **algorithm** (a new pass, a new rule in `walk`) requires porting it to `src/mr_fuzzy.cpp`, running
+  the parity test and raising `kEngineVersion`.
+- **`kEngineVersion`** (`src/mr_engine.h`) must equal `MrNative.ENGINE_VERSION`. It goes up when the signature of a native function,
+  the order of the costs or the meaning of a table changes. Different version = the app does not use the lib.
+- The Java score uses `Math.pow(2.0, -cost/25.0)`; Java hands over that table computed by itself, so the rounding is the same on
+  any device.
+- The trigrams are read **whole into memory** (about 3 MB) and only the indexes are kept apart. It deliberately does not use `mmap`: if
+  a new pack replaced the file in place, reading a mapped page would bring the app down (SIGBUS).
+- **Never trust the files**: every read is checked against the size; the recursive searches have a node ceiling (`MrFuzzy.NODE_BUDGET`,
+  the same in Java), because on a corrupt file they would grow exponentially.
 
-## O que é testado
-| O quê | Como | Onde |
+## What is tested
+| What | How | Where |
 |---|---|---|
-| Resultado igual ao do Java | ≈ 2.500 erros por idioma tirados do próprio dicionário, com a lista final de `Suggest` e 24 mil pares de trigramas, pela JNI | `NativeParity`, no CI (mr-checks.yml) |
-| Busca no dicionário de verdade e independência de ordem | correções óbvias; o resultado de uma consulta não muda por causa das anteriores | `mr_test`, no CI |
-| Dicionário/trigramas estragados | cortados, bytes trocados, lixo, com ASan + UBSan: sem queda, sem leitura fora do arquivo, sem travar | `mr_test`, no CI |
-| Argumentos ruins na JNI | buffer não direto, arrays curtos, arquivo inexistente | `JniSmoke`, no CI |
+| Result equal to Java's | ≈ 2,500 errors per language taken from the dictionary itself, with the final `Suggest` list and 24 thousand trigram pairs, through the JNI | `NativeParity`, in CI (mr-checks.yml) |
+| Search on the real dictionary and order independence | obvious corrections; the result of a query does not change because of the previous ones | `mr_test`, in CI |
+| Corrupt dictionary/trigrams | cut off, swapped bytes, garbage, with ASan + UBSan: no crash, no read outside the file, no freeze | `mr_test`, in CI |
+| Bad arguments in the JNI | non-direct buffer, short arrays, nonexistent file | `JniSmoke`, in CI |
 
-Validado em aparelho (1.77): carga da lib, correção e previsão. Velocidade e memória no aparelho não foram medidas.
+Validated on a device (1.77): lib loading, correction and prediction. Speed and memory on the device were not measured.

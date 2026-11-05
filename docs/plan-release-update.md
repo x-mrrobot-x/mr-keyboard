@@ -245,8 +245,8 @@ Consequências aceitas: o app passa a ter a permissão `REQUEST_INSTALL_PACKAGES
 - [x] Varredura final de código e CI (feita no Lote F)
 
 **1c — Texto dos documentos**
-- [ ] `engine/README.md` e os `README.md` de `docs/tools/*` (antigos `LEIA-ME`); `README.md` já está em inglês
-- [ ] `docs/ai-editor.md`, `engine-improvements.md`, `native-engine.md`, `new-theme.md`, `dictionary-build.md`; verificador estrutural em cada um
+- [x] **Pronto:** `engine/README.md` e os `README.md` de `docs/tools/{e2e,packs_test,settings_test,es_test,author_test}` em inglês; `README.md` já estava em inglês e `README.pt-BR.md` continua em português. Em `packs_test` a chave de teste passou de `CN=Teste` para `CN=Test` (igual ao `publish_test/run.sh`)
+- [x] **Pronto:** `docs/ai-editor.md`, `engine-improvements.md`, `native-engine.md`, `new-theme.md`, `dictionary-build.md` em inglês. Verificador estrutural (títulos, linhas de tabela, itens, links, blocos de código sem comentários, caminhos e números) sem diferença em todos, exceto `dictionary-build.md`, onde a única mudança é a linha de créditos: agora aponta para `dicts/pt-BR/NOTICE.txt` (o `res/raw/notice_main_pt.txt` de 1.6.0 continua citado como histórico). Rótulos da interface citados ficam em português entre aspas, com a tradução entre parênteses na primeira menção (ex.: "Motor de sugestões" (Suggestion engine)); números em formato inglês (1,000; 3.71 MB). `native-engine.md` cita o nome novo do passo do workflow ("Check that lib/ was built from the current native/ and engine/") e o input `publish`
 - [ ] Este plano, por último
 
 ### Etapa 2 — Dicionários: um zip só na release em que o idioma mudou (opção B)

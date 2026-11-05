@@ -1,35 +1,35 @@
-# Editor de IA
+# AI Editor ("Editor de IA")
 
-## Abertura pela barra de ferramentas
+## Opening from the toolbar
 
-O botão `b_aied` da barra principal continua sendo o único ponto de abertura. O seu código (`0x18`) chama `MrAiDialog.toggle()` em vez de selecionar um painel do teclado.
+The `b_aied` button of the main bar is still the only way in. Its code (`0x18`) calls `MrAiDialog.toggle()` instead of selecting a keyboard panel.
 
-`MrAiDialog` cria um `Dialog` preso ao token da janela do IME (`TYPE_APPLICATION_ATTACHED_DIALOG`), usando o mesmo padrão do diálogo Preferências do `MrTune`: a janela cobre a área acima do teclado, o teclado permanece visível e o diálogo acompanha as mudanças de tamanho/orientação. O layout próprio está em `res/layout/mr_ai_dialog.xml`.
+`MrAiDialog` creates a `Dialog` attached to the IME window token (`TYPE_APPLICATION_ATTACHED_DIALOG`), using the same pattern as the "Preferências" (Preferences) dialog of `MrTune`: the window covers the area above the keyboard, the keyboard stays visible and the dialog follows size/orientation changes. Its own layout is in `res/layout/mr_ai_dialog.xml`.
 
-Foram retirados do fluxo do Editor de IA o painel `bar_ai`/`p_ai`, a integração com `MrTools.showPanel(5)`, a consulta `barVisible()`, o ajuste de altura do painel interno ao teclado e a montagem do painel durante `MrTools.wrap`. O botão da barra não expande mais conteúdo dentro do teclado.
+Removed from the AI Editor flow: the `bar_ai`/`p_ai` panel, the integration with `MrTools.showPanel(5)`, the `barVisible()` query, the height adjustment of the panel inside the keyboard and the assembly of the panel during `MrTools.wrap`. The bar button no longer expands content inside the keyboard.
 
-O cartão do diálogo usa a altura do conteúdo atual e fica centralizado na área acima do teclado; se o conteúdo não couber, ele pode rolar. Os chips medem o próprio conteúdo e a faixa horizontal permite acessar todos, inclusive rótulos longos. O cabeçalho e os botões de ícone são compactos, com os glifos centralizados, e Emojificar tem um checkbox arredondado que indica o estado. Criar usa um ícone vetorial de adicionar. Os diálogos não editáveis usam `FLAG_NOT_FOCUSABLE` para preservar o foco do campo enquanto aparecem acima do teclado, conforme o guia de visibilidade do IME do Android. Ao ocultar o teclado, `LatinIME.onWindowHidden()` fecha tanto o Editor de IA quanto o diálogo de Preferências do `MrTune`. Abrir configurações ou o editor de estilos fecha o Editor de IA e marca uma reabertura pendente; ao voltar ao editor original, `onWindowShown()` reabre o diálogo. Ao aplicar o resultado, ele fecha.
+The dialog card uses the height of the current content and is centered in the area above the keyboard; if the content does not fit, it can scroll. The chips measure their own content and the horizontal strip lets the user reach all of them, including long labels. The header and the icon buttons are compact, with the glyphs centered, and "Emojificar" (Emojify) has a rounded checkbox that shows its state. "Criar" (Create) uses a vector add icon. The non-editable dialogs use `FLAG_NOT_FOCUSABLE` to keep the focus of the field while they appear above the keyboard, following the Android IME visibility guide. When the keyboard is hidden, `LatinIME.onWindowHidden()` closes both the AI Editor and the "Preferências" dialog of `MrTune`. Opening the settings or the style editor closes the AI Editor and marks a pending reopening; when returning to the original editor, `onWindowShown()` reopens the dialog. When the result is applied, it closes.
 
-## Tema
+## Theme
 
-O diálogo usa exclusivamente `Theme.MrKeyboard.Dialog` e a paleta das configurações (`mr_ui_*`, mais `mr_ai_scrim` no fundo); as cores são lidas direto dos recursos, sem valores de reserva no código. Chips, resultado e botões não consultam `MrTheme` nem as cores do teclado (`MrTools.shotTab`, `fieldBg`, `flatBar` etc.), portanto trocar o tema do teclado não altera as cores do Editor de IA. O restante do teclado continua com suporte aos seus temas normalmente.
+The dialog uses `Theme.MrKeyboard.Dialog` exclusively and the settings palette (`mr_ui_*`, plus `mr_ai_scrim` in the background); the colors are read straight from the resources, with no fallback values in the code. Chips, result and buttons do not consult `MrTheme` or the keyboard colors (`MrTools.shotTab`, `fieldBg`, `flatBar` etc.), so changing the keyboard theme does not change the colors of the AI Editor. The rest of the keyboard keeps supporting its themes as usual.
 
-## Estrutura
+## Structure
 
-- `docs/tools/java/src/com/mrkeyboard/app/MrAi.java`: captura e valida o texto, monta a interface do diálogo, chama o provedor, atualiza o resultado e aplica/copia o texto. A rede só é usada depois que a pessoa escolhe um estilo.
-- `docs/tools/java/src/com/mrkeyboard/app/MrAiDialog.java`: ciclo de vida do diálogo anexado à janela do IME e redimensionamento acima do teclado.
-- `MrAiPrefs`: configurações do provedor, modelo, chave e estilos; `MrAiStyleActivity`: criação/edição dos estilos.
-- `res/xml/prefs_ai.xml`: configurações; `res/layout/mr_ai_dialog.xml`: interface modal; `MrNotice.aiEditor`: aviso exibido na primeira abertura.
-- `MrTools.smali` mantém os ganchos manuais da barra (botão `b_aied`), chama o diálogo pelo código `0x18` e encerra a ferramenta ao liberar o teclado.
+- `docs/tools/java/src/com/mrkeyboard/app/MrAi.java`: captures and validates the text, builds the dialog interface, calls the provider, updates the result and applies/copies the text. The network is only used after the person chooses a style.
+- `docs/tools/java/src/com/mrkeyboard/app/MrAiDialog.java`: lifecycle of the dialog attached to the IME window and resizing above the keyboard.
+- `MrAiPrefs`: settings for provider, model, key and styles; `MrAiStyleActivity`: creation/editing of the styles.
+- `res/xml/prefs_ai.xml`: settings; `res/layout/mr_ai_dialog.xml`: modal interface; `MrNotice.aiEditor`: notice shown on the first opening.
+- `MrTools.smali` keeps the manual hooks of the bar (button `b_aied`), calls the dialog through code `0x18` and ends the tool when the keyboard is released.
 
-## Rede e privacidade
+## Network and privacy
 
-O pedido usa o endpoint compatível com Chat Completions configurado em *Configurações → Editor de IA*. A chave vai somente no cabeçalho `Authorization` daquele pedido. Em campos de senha, o texto não é capturado nem enviado. O texto selecionado — ou o trecho antes do cursor — é substituído somente se ainda corresponder ao original; caso contrário, é possível copiar o resultado.
+The request uses the Chat Completions-compatible endpoint configured in *Configurações → Editor de IA* (Settings → AI Editor). The key goes only in the `Authorization` header of that request. In password fields, the text is neither captured nor sent. The selected text — or the stretch before the cursor — is replaced only if it still matches the original; otherwise, the result can be copied.
 
-O manifest não habilita tráfego HTTP sem TLS. Use um endpoint `https://`; o texto do diálogo do endereço (`mr_ai_endpoint_dlg`, em inglês, português e espanhol) informa esse requisito.
+The manifest does not enable HTTP traffic without TLS. Use an `https://` endpoint; the text of the address dialog (`mr_ai_endpoint_dlg`, in English, Portuguese and Spanish) states this requirement.
 
-Só endereços `https://` são aceitos, e a chave é sempre exigida. A chave não fica nas preferências padrão: o valor vai para o arquivo `mr_ai` (`MrAi.apiKey`/`setApiKey`), que não consta em `backup_rules.xml` nem em `data_extraction_rules.xml`, então não sai por backup na nuvem nem por transferência de aparelho. A linha `pref_ai_key` é não persistente e *Restaurar padrões* apaga o valor.
+Only `https://` addresses are accepted, and the key is always required. The key is not kept in the default preferences: the value goes to the `mr_ai` file (`MrAi.apiKey`/`setApiKey`), which is not listed in `backup_rules.xml` or `data_extraction_rules.xml`, so it does not leave through cloud backup or device transfer. The `pref_ai_key` row is non-persistent and *Restaurar padrões* (Restore defaults) clears the value.
 
-## Geração e verificações
+## Generation and checks
 
-As classes `MrAi` e `MrAiDialog` têm fonte em `docs/tools/java/src` e smali gerado em `smali/com/mrkeyboard/app/` pelo `docs/tools/build_java.sh`. `MrTools.smali` continua sendo editado à mão. O build Java usa os stubs de `docs/tools/java/stubs` apenas para compilar testes/geração; eles não entram no APK.
+The `MrAi` and `MrAiDialog` classes have their source in `docs/tools/java/src` and smali generated in `smali/com/mrkeyboard/app/` by `docs/tools/build_java.sh`. `MrTools.smali` is still edited by hand. The Java build uses the stubs in `docs/tools/java/stubs` only to compile tests/generation; they do not go into the APK.

@@ -1,35 +1,35 @@
-# Medições do motor de sugestões no PC (1.75)
+# Suggestion engine measurements on the PC (1.75)
 
-Roda as classes reais do APK (classes.dex → jar com o dex2jar) e a lib nativa compilada para o PC a partir do
-mesmo `dictionary.cpp`. Só o `LatinIME` (que precisa do Android) fica de fora. Serve para decidir mudanças no motor
-**antes** de mexer no app: cada ajuste é medido em três idiomas e só entra se ganhar sem piorar o resto.
+Runs the APK's real classes (classes.dex → jar with dex2jar) and the native lib compiled for the PC from the
+same `dictionary.cpp`. Only `LatinIME` (which needs Android) is left out. It exists to decide engine changes
+**before** touching the app: each adjustment is measured in three languages and only goes in if it gains without worsening the rest.
 
-`bash docs/tools/e2e/run_eval.sh` roda tudo (veja o cabeçalho do script para as variáveis). O que cada classe mede:
+`bash docs/tools/e2e/run_eval.sh` runs everything (see the script header for the variables). What each class measures:
 
-| Classe | O que mede |
+| Class | What it measures |
 |---|---|
-| `CorrEval` (`gen_typos_all.py`) | erros sintéticos (tecla vizinha, troca de lugar, letra que falta no começo, no meio e no fim, letra repetida): a palavra certa aparece na 1ª posição? nas 2 posições? Separa os casos em que a palavra errada é uma palavra válida. `--noprox` monta a palavra só com as letras (a recorreção até a 1.74). |
-| `PrefixEval` | digitação **sem erro**: depois de 2 a 5 letras de uma palavra do texto, ela está entre as 3 primeiras? É o freio de qualquer mudança na correção: não pode piorar. |
-| `OovEval` | palavras certas que o dicionário não conhece (nomes, gírias): com a autocorreção ligada, quantas seriam trocadas? É o risco de uma correção mais agressiva. |
-| `RecentEval` (`gen_sessions.py`) | palavras recentes: a próxima palavra está entre as 3 mostradas depois do espaço e depois de 1 a 3 letras, em sessões simuladas, com e sem `MrRecent` (`-Drecent=0`). |
-| `E2ETest`, `E2EEn`, `E2EEs` | verificações de ponta a ponta com expectativas fixas (`ALL OK` ou `FAIL`). |
-| `Parity`, `TouchEval`, `TypoEval` | comparação de duas versões lista a lista, toques imprecisos e erros sintéticos (1.64 a 1.66). |
-| `NativeParity` | motor nativo (1.77): a busca do `MrFuzzy` e a lista final de `Suggest` pelo Java e pela `libmrengine.so`, palavra por palavra, pontuação, custo e nós visitados; trigramas pelos dois caminhos; tempo dos dois. Sai com 1 se houver qualquer diferença. Roda no CI via `run_native_parity.sh`. |
+| `CorrEval` (`gen_typos_all.py`) | synthetic errors (neighboring key, swapped letters, missing letter at the start, middle and end, repeated letter): does the right word appear in 1st position? within 2 positions? It separates the cases where the wrong word is a valid word. `--noprox` builds the word from the letters only (the re-correction up to 1.74). |
+| `PrefixEval` | typing **without errors**: after 2 to 5 letters of a word from the text, is it among the first 3? It is the brake on any change to the correction: it must not get worse. |
+| `OovEval` | right words the dictionary does not know (names, slang): with autocorrection on, how many would be replaced? It is the risk of a more aggressive correction. |
+| `RecentEval` (`gen_sessions.py`) | recent words: is the next word among the 3 shown after the space and after 1 to 3 letters, in simulated sessions, with and without `MrRecent` (`-Drecent=0`). |
+| `E2ETest`, `E2EEn`, `E2EEs` | end-to-end checks with fixed expectations (`ALL OK` or `FAIL`). |
+| `Parity`, `TouchEval`, `TypoEval` | list-by-list comparison of two versions, imprecise touches and synthetic errors (1.64 to 1.66). |
+| `NativeParity` | native engine (1.77): the `MrFuzzy` search and the final `Suggest` list through Java and through `libmrengine.so`, word by word, score, cost and nodes visited; trigrams through both paths; the time of both. It exits with 1 if there is any difference. It runs in CI via `run_native_parity.sh`. |
 
-### Motor nativo (1.77)
-`bash docs/tools/e2e/run_native_parity.sh [jar_do_app.jar]` compila as libs de PC (`engine/` e `native/`), gera as consultas do próprio
-`dicts/` (`engine/tools/gen_parity_queries.py`) e roda o `NativeParity` nos 3 idiomas; é o mesmo que o *Mr Keyboard - checks* roda.
-Qualquer outra classe desta pasta (`CorrEval`, `PrefixEval`…) também usa a lib quando ela está no `java.library.path` (o `run_eval.sh`
-já põe as duas); `JAVA_OPTS=-Dmr.native=off` força o Java. Nas medições comparativas rode as duas vezes.
+### Native engine (1.77)
+`bash docs/tools/e2e/run_native_parity.sh [app_jar.jar]` compiles the PC libs (`engine/` and `native/`), generates the queries from
+`dicts/` itself (`engine/tools/gen_parity_queries.py`) and runs `NativeParity` in the 3 languages; it is the same thing that *Mr Keyboard - checks* runs.
+Any other class in this folder (`CorrEval`, `PrefixEval`…) also uses the lib when it is on the `java.library.path` (`run_eval.sh`
+already puts both there); `JAVA_OPTS=-Dmr.native=off` forces Java. In comparative measurements, run both ways.
 
-## Limites da medição
-- Os textos de teste (Leipzig, Tatoeba) vêm **embaralhados**, sem conversa de verdade. `gen_sessions.py` fabrica duas
-  aproximações: sessões **por assunto** (frases que repetem uma palavra rara: otimista, o assunto repete mais do que numa
-  conversa) e **aleatórias** (frases sem relação: pessimista, as palavras recentes só podem atrapalhar). A verdade está no meio.
-- Os erros são sintéticos e uniformes por tipo; erro de digitação real tem outra distribuição.
-- Tempos são do PC (JIT aquecido); no celular ficam algumas vezes maiores.
+## Measurement limits
+- The test texts (Leipzig, Tatoeba) come **shuffled**, with no real conversation. `gen_sessions.py` builds two
+  approximations: sessions **by topic** (sentences that repeat a rare word: optimistic, the topic repeats more than in a
+  conversation) and **random** (unrelated sentences: pessimistic, recent words can only get in the way). The truth is in between.
+- The errors are synthetic and uniform by type; real typing errors have a different distribution.
+- Times are from the PC (warmed-up JIT); on the phone they are a few times larger.
 
-## Ajustar um valor sem recompilar o app
-Copie o `.java` para uma pasta temporária, troque `static final int NOME = N;` por
-`static int NOME = Integer.getInteger("NOME", N);`, compile contra o jar e ponha a pasta na frente do classpath;
-`-DNOME=valor` muda o número sem recompilar. Foi assim que `C_DEL`, `COMP_V` e os outros foram escolhidos.
+## Adjusting a value without recompiling the app
+Copy the `.java` to a temporary folder, replace `static final int NAME = N;` with
+`static int NAME = Integer.getInteger("NAME", N);`, compile against the jar and put the folder in front of the classpath;
+`-DNAME=value` changes the number without recompiling. That is how `C_DEL`, `COMP_V` and the others were chosen.

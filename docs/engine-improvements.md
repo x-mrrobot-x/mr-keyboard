@@ -1,60 +1,60 @@
-# Motor de sugestões e dicionários: melhorias que restam
+# Suggestion engine and dictionaries: remaining improvements
 
-Atualizado depois da 1.77.2. Os números vêm das medições no PC (`docs/tools/e2e/`, veja o `README.md` de lá) e das notas de cada versão (`docs/release-notes/` e o histórico do Git).
+Updated after 1.77.2. The numbers come from the PC measurements (`docs/tools/e2e/`, see the `README.md` there) and from the notes of each version (`docs/release-notes/` and the Git history).
 
-## Já feito
-| Item | O que era | Versão |
+## Already done
+| Item | What it was | Version |
 |---|---|---|
-| 1 | Palavras recentes na previsão e ao completar (`MrRecent`) | 1.75 |
-| 3 | Letra que falta na correção (`C_DEL` 60 → 40; letra do meio, 2 posições: pt 67 → 87%, en 69 → 78%, es 58 → 80%) | 1.75 |
-| 5 | Teclas vizinhas na palavra reaberta pela recorreção | 1.75 (e o ajuste do centro da faixa na 1.76) |
-| 9a | Motor nativo, etapa 1: a busca de correção e os trigramas em C++ (`libmrengine.so`, repositório `mr-engine`), mesmos arquivos, resultado idêntico ao do Java, com o Java de reserva | 1.77 (código) e 1.77.1 (lib no APK); ganhos medidos no PC, funcionamento validado no aparelho (velocidade e memória no aparelho não foram medidas) |
+| 1 | Recent words in prediction and when completing (`MrRecent`) | 1.75 |
+| 3 | Missing letter in correction (`C_DEL` 60 → 40; middle letter, 2 positions: pt 67 → 87%, en 69 → 78%, es 58 → 80%) | 1.75 |
+| 5 | Neighbouring keys in the word reopened by re-correction | 1.75 (and the adjustment of the strip center in 1.76) |
+| 9a | Native engine, stage 1: the correction search and the trigrams in C++ (`libmrengine.so`, repository `mr-engine`), same files, result identical to Java's, with Java as the fallback | 1.77 (code) and 1.77.1 (lib in the APK); gains measured on the PC, operation validated on the device (speed and memory on the device were not measured) |
 
-## O que resta, da mais barata para a mais cara
+## What remains, from the cheapest to the most expensive
 
-### Pequenas, medíveis no PC
-**2. Suavização da previsão.**
-- Hoje a palavra certa aparece entre as 3 sugestões depois do espaço em cerca de 18 a 27% das vezes.
-- O arquivo de duas palavras usa um bônus fixo (`TRIGRAM_BONUS`); há espaço para um cálculo melhor entre duas palavras, uma palavra e frequência.
-- Falta um avaliador de previsão sem sessões (o `RecentEval` mede só o efeito das palavras recentes).
+### Small, measurable on the PC
+**2. Smoothing of the prediction.**
+- Today the right word shows up among the 3 suggestions after the space in about 18 to 27% of the cases.
+- The two-word file uses a fixed bonus (`TRIGRAM_BONUS`); there is room for a better calculation between two words, one word and frequency.
+- A prediction evaluator without sessions is missing (`RecentEval` only measures the effect of recent words).
 
-**4. Gíria e abreviação no `rules.txt`.**
-- Tamanhos hoje: pt-BR ~5 KB, en-US ~7 KB, es ~4 KB.
-- Falta conferir o que já está coberto ("vc", "tbm", "blz", "pq", erros comuns de digitação).
-- É barato, mas sem texto de conversa real não dá para medir o ganho.
+**4. Slang and abbreviations in `rules.txt`.**
+- Sizes today: pt-BR ~5 KB, en-US ~7 KB, es ~4 KB.
+- It still needs checking what is already covered ("vc", "tbm", "blz", "pq", common typing errors).
+- It is cheap, but without real chat text the gain cannot be measured.
 
-**8. Teste de precisão no CI.**
-- Guardar uma amostra pequena e fixa de frases e falhar o CI quando o acerto da correção, da digitação normal ou da previsão cair.
-- Aproveitar para levar o `PacksTest` (63 verificações) e o `ThreeLangTest` (23) para o CI; hoje só rodam à mão. Precisam da lib nativa de PC, que o `mr-native.yml` já compila.
+**8. Accuracy test in CI.**
+- Keep a small, fixed sample of sentences and fail the CI when the hit rate of correction, normal typing or prediction drops.
+- Take the chance to move `PacksTest` (63 checks) and `ThreeLangTest` (23) to CI; today they only run by hand. They need the native PC lib, which `mr-native.yml` already builds.
 
-### Médias
-**6. Posição do dedo.**
-- O app só recebe a ordem das teclas vizinhas, não a distância (limite anotado na 1.66).
-- Dá para simular no PC antes (`TouchEval`), mas exige mexer no `LatinIME` e no `PointerTracker`, em smali.
+### Medium
+**6. Finger position.**
+- The app only receives the order of the neighbouring keys, not the distance (limit noted in 1.66).
+- It can be simulated on the PC first (`TouchEval`), but it requires changing `LatinIME` and `PointerTracker`, in smali.
 
-**7. Esquecer pelo tempo e gerenciar o que foi aprendido.**
-- Hoje o banco guarda 10 mil pares e apaga 1.000 de uma vez quando enche.
-- Exigiria mudar o banco e, talvez, uma tela para ver e apagar palavras aprendidas.
+**7. Forgetting over time and managing what was learned.**
+- Today the database keeps 10 thousand pairs and deletes 1,000 at once when it fills up.
+- It would require changing the database and, perhaps, a screen to see and delete learned words.
 
-### Grandes
-**9b. Motor nativo, etapa 2: formato novo de dicionário.**
-- A etapa 1 (1.77) já tirou os trigramas do heap Java (7 a 9 MB → ~0 no heap; 3 a 4,4 MB fora dele) e deixou a busca de correção em C++, **sem mudar os arquivos**.
-- Falta o que só um formato novo resolve: remover o limite de 4 MB (22 bits de endereço) do `.dict` e guardar mais dados por palavra.
-- Só compensa para dados novos (por exemplo, Leipzig News 2023): mais pares sozinhos rendem pouco (480 mil em vez de 400 mil deu só +0,2 a +0,4 ponto, na 1.6.4). Exigiria regenerar os três pacotes e mudar o app e o motor juntos.
+### Large
+**9b. Native engine, stage 2: new dictionary format.**
+- Stage 1 (1.77) already took the trigrams out of the Java heap (7 to 9 MB → ~0 on the heap; 3 to 4.4 MB outside it) and moved the correction search to C++, **without changing the files**.
+- What is missing is what only a new format solves: removing the 4 MB limit (22 address bits) of the `.dict` and storing more data per word.
+- It only pays off for new data (for example, Leipzig News 2023): more pairs alone yield little (480 thousand instead of 400 thousand gave only +0.2 to +0.4 point, in 1.6.4). It would require regenerating the three packs and changing the app and the engine together.
 
-**10. Dados mais próximos de conversa de celular.**
-- Os dicionários vêm de notícias e do Tatoeba.
-- O limite é achar um corpus de conversa com licença livre.
+**10. Data closer to phone conversation.**
+- The dictionaries come from news and Tatoeba.
+- The limit is finding a freely licensed chat corpus.
 
-## Lacunas que as medições mostraram
-- **Palavra errada que é outra palavra válida** não é corrigida. Letra do meio que falta: 3%; falta a 1ª letra: 8 a 22% (dependendo do idioma).
-- **Erro de 3 letras que ainda começa outra palavra** ("coo", "dis") fica sem correção. Rodar a busca nesse caso corrigia mais, mas piorava a digitação normal em 2,8 a 4,8 pontos; foi descartado na 1.75.
-- **Algumas letras faltando** ficam na 3ª ou 4ª posição ("tods" → todas).
-- **Idioma misto** (português e inglês na mesma frase, com os dois dicionários baixados): ainda não conferi no código como o teclado se comporta.
+## Gaps that the measurements showed
+- **A wrong word that is another valid word** is not corrected. Missing middle letter: 3%; missing 1st letter: 8 to 22% (depending on the language).
+- **A 3-letter error that still starts another word** ("coo", "dis") is left uncorrected. Running the search in that case corrected more, but worsened normal typing by 2.8 to 4.8 points; it was discarded in 1.75.
+- **Some missing letters** end up in the 3rd or 4th position ("tods" → todas).
+- **Mixed language** (Portuguese and English in the same sentence, with both dictionaries downloaded): I have not yet checked in the code how the keyboard behaves.
 
-## Ordem sugerida
-1. **Teste de precisão no CI (8)**, para proteger o que já foi ganho.
-2. **Suavização da previsão (2)**, medida no PC antes de entrar no app.
-3. **Gíria e abreviação (4)**, depois de conferir o que o `rules.txt` já cobre.
-4. **Posição do dedo (6)** e **esquecer pelo tempo (7)**, se o teste no aparelho mostrar falta.
-5. **Formato novo de dicionário (9b)** e **dados de conversa (10)** só se o limite do formato ou a falta de dados virarem problema.
+## Suggested order
+1. **Accuracy test in CI (8)**, to protect what has already been gained.
+2. **Smoothing of the prediction (2)**, measured on the PC before it goes into the app.
+3. **Slang and abbreviations (4)**, after checking what `rules.txt` already covers.
+4. **Finger position (6)** and **forgetting over time (7)**, if the test on the device shows a need.
+5. **New dictionary format (9b)** and **chat data (10)** only if the format limit or the lack of data becomes a problem.

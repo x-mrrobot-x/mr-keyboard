@@ -1,80 +1,80 @@
-# Como adicionar um tema ao teclado
+# How to add a theme to the keyboard
 
-Cada tema é um layout com uma tag. A detecção, as flags, as cores, os drawables e o registro ficam em recursos; o smali
-só os lê (`MrTheme`, `KeyStyle`, `MrTools`). Tema novo não exige mexer no smali. Em tudo abaixo, `<tema>` é o nome da
-tag sem o `mr_` (`glass`, `midnight`...).
+Each theme is a layout with a tag. Detection, flags, colors, drawables and registration all live in resources; the smali
+only reads them (`MrTheme`, `KeyStyle`, `MrTools`). A new theme does not require touching the smali. Everywhere below,
+`<tema>` is the tag name without the `mr_` prefix (`glass`, `midnight`...).
 
-1. **Layout:** copie o mais parecido para `res/layout/input_mr_<tema>.xml`, com `android:tag="mr_<tema>"`,
-   `latin:popupLayout="@layout/input_popup_<tema>"` e `latin:keyPreviewLayout="@layout/key_preview_<tema>"`. Todas as
-   cores do layout vêm de `@color/mr_<tema>_*`, sem hex.
-2. **Flags** (`res/values/mr_themes.xml`): uma linha em `mr_theme_tags` com a tag (`mr_<tema>`) e uma em
-   `mr_theme_flags`, na mesma posição, com os bits do tema (barra plana, teclas de destaque, grupo de destaque ampliado,
-   translúcido, paleta tech, texto padrão nas teclas de destaque). Os bits estão descritos no topo de
-   `smali/com/mrkeyboard/app/MrTheme.smali` e no comentário do `mr_themes.xml`; o `0x01` (`INIT`) é do `MrTheme` e não
-   entra no valor. Todo tema com tag liga `ACCENT_KEYS` (`0x04`) e traz o seu seletor de destaque (item 5).
-   `ACCENT_WIDE` (`0x08`) amplia o grupo de destaque (item 5); todos os temas ligam.
-3. **Registro** (`res/values/mr_themes.xml`): uma linha em `mr_theme_layouts`. O índice é o valor guardado em
-   `pref_keyboard_layout`. Esse array é por valor da preferência (vários valores podem abrir o mesmo layout);
-   `mr_theme_tags` e `mr_theme_flags` são por tema. O raio das camadas da tecla não tem registro (item 5).
-4. **Seletor:** o nome em `keyboard_layout_modes` (e nas traduções) e o valor em `keyboard_layout_modes_values`.
-5. **Teclas:** `btn_keyboard_key_<tema>` e `key_<tema>_{normal,pressed,on,lock,hl}`. Os drawables só referenciam
-   `@color`, sem hex: as cores ficam em `res/values/mr_key_colors.xml`, com o nome
-   `mr_<tema>_key_<estado>_<parte>` (estado `normal`, `pressed`, `hl`, `on`, `lock` ou `acc_<estado>`; parte `halo`, `base`,
-   `fill`, `top`, `mid`, `bottom`, `stroke` ou `shadow`). As sombras neutras que se repetem entre temas são globais:
-   `mr_key_shadow`, `mr_popup_shadow` e `mr_preview_shadow`. **Teclas de destaque** (Shift,
-   Delete, setas, Tab, 123, Espaço, Enter...): `btn_keyboard_key_<tema>_accent`. O destaque **substitui** o fundo da
-   tecla, então o seletor precisa trazer tudo (sombra, halo, borda). Há duas formas: drawables próprios
-   `key_<tema>_acc_{normal,pressed,on,lock}` (Neon, Soft e Glass) ou reaproveitar `key_<tema>_hl` (repouso) e
-   `pressed/on/lock` do próprio tema (Slate e Midnight), de modo que as teclas sticky e as de destaque são
-   personalizadas juntas, em um só conjunto de arquivos. O `LatinKeyboardBaseView` lê o seletor pelo nome, a partir
-   da tag; sem ele, a tecla sai com o fundo normal.
-   **Raio das camadas da tecla:** em tempo de execução a última camada do `layer-list` (a borda, que é a tecla) recebe o
-   raio das teclas (`pref_key_radius`), e cada camada de fora soma a folga que o próprio drawable desenha: o recuo
-   esquerdo da última camada menos o da camada (`KeyStyle.layerGap`, nunca negativo). Halo recuado 2 dp a menos que a
-   borda (Neon e Soft) fica com raio + 2 dp, e cantos ficam concêntricos. Sombra só deslocada na vertical (Slate e
-   Midnight) e forma única (Glass) não têm folga lateral e ficam com o raio das teclas. Tema novo só precisa recuar as
-   camadas de fora no XML; o raio escrito nelas é reserva. Mantenha a camada de dentro por último.
-   Quais teclas são de destaque (`isAccentKey` no `LatinKeyboardBaseView`, vale para todos os temas): uma lista fixa de
-   códigos (Shift, Delete, Tab, Ctrl, Alt, ❖, setas, Home/End, PgUp/PgDn e a tecla da barra) e, com `ACCENT_WIDE`,
-   também toda tecla marcada `android:isModifier="true"` (F1, Fn, teclas F, Ins, ".", configurações...), as teclas do
-   Tasker (texto `tskcmd:`), 123/TSK (`-300`), o 123 do teclado de telefone (`-2`), Espaço e Enter. Um tema que não
-   queira o grupo ampliado desliga só o `ACCENT_WIDE`. Atenção: o estado `hl` do tema também é aplicado por
-   `LatinKey.isHl` (lista própria mais `tskcmd:`), então o destaque e o `hl` devem andar juntos em cada tema (no Slate e
-   no Midnight o destaque é o próprio `hl`).
-6. **Popup do toque longo:** `input_popup_<tema>`, `popup_<tema>_bg`, `btn_keyboard_key_popup_<tema>` e
-   `key_popup_<tema>_pressed`, para todo tema (inclusive o Neon, com halo e borda verdes). O padrão do `styles.xml` para
-   layout sem `popupLayout` é `input_popup_slate`, e o de `keyBackground` é `btn_keyboard_key_slate` (o tema padrão).
-7. **Balão de preview:** `key_preview_<tema>`, `preview_<tema>_bg` e `preview_<tema>_more_bg`. O `LatinKeyboardBaseView`
-   lê os dois drawables pelo nome (`preview_<tema>_bg` e `preview_<tema>_more_bg`) a partir da tag e, se não achar,
-   usa `keyboard_key_feedback_background` e `keyboard_key_feedback_more_background`.
-   **Raios (teclas, popup e preview):** o raio escrito nos drawables é só reserva. Em tempo de execução o `KeyStyle` o troca
-   pelo raio das teclas (`pref_key_radius`) mais uma folga: balão de preview +2 dp e fundo do popup +8 dp
-   (`LatinKeyboardBaseView`), botões, campos e painéis da barra pelo `MrTools` (`KeyStyle.radiusPx`). Com raio 0 nas
-   teclas tudo fica reto; o tema novo não precisa de código para isso.
-8. **Cores do tema** (`res/values/mr_colors.xml`): `mr_<tema>_kbd_bg`, `_text`, `_cursor`, `_hint`;
-   `_popup_bg_{top,bottom,stroke}`, `_popup_key_{top,bottom,stroke}` (o Soft tem também `_mid`; o Neon, `_popup_halo` e
-   `_popup_key_halo`) e `_popup_hint`;
-   `_preview_{top,bottom,stroke,dots}`. Se o tema **não** ligar `PLAIN_ACCENT_TEXT`, o texto e o ícone das teclas de
-   destaque usam `mr_<tema>_accent_text` (sem ela, vale `mr_accent_text`, branco); com a flag, usam o texto padrão do tema.
-9. **Cores dos painéis:** só se o tema precisar de cores diferentes, declare `mr_<tema>_panel_<papel>` em
-   `res/values/mr_colors.xml`. Sem a versão do tema vale `mr_panel_<papel>`. Os papéis são `bar`, `btn`,
-   `btn_stroke`, `tab_off`, `tab_off_stroke`, `tab_on_text`, `tab_off_text`, `field`, `field_stroke`, `card` e `icon`.
-   Os paineis (Clipboard, idiomas, Anexos e emotes) nao tem moldura em tema nenhum: nos temas planos o fundo e `panel_bar`.
-   Papeis proprios de Anexos (sem o prefixo `panel_`, tambem com versao `mr_<tema>_<papel>` quando o tema precisar):
-   `attach_fab`, `attach_fab_stroke`, `attach_fab_icon` (botao do seletor), `sel_cancel`, `sel_cancel_stroke`,
-   `sel_cancel_text`, `sel_send`, `sel_send_stroke`, `sel_send_text` (barra Cancelar/Enviar e check do item marcado),
-   `sel_media` (camada sobre a miniatura marcada) e `sel_card` (fundo do arquivo marcado).
-10. **Confira:** `python3 docs/tools/res_check.py` e `python3 docs/tools/smali_regcheck.py smali/ --base <smali anterior>`.
-    O `res_check` avisa se os arrays de registro não batem (`mr_theme_tags` com `mr_theme_flags`, valor de
-    `keyboard_layout_modes_values` fora de `mr_theme_layouts` e bits de flag inválidos), se a tag do layout não está em `mr_theme_tags`, se falta
-    a cor padrão de um papel, se falta algum recurso dos itens 5 a 7 (inclusive o seletor de destaque e os drawables que ele referencia), se o layout do tema não aponta para o seu popup e
-    preview, se sobrou cor em hex nos layouts ou nos drawables do tema, se os `input_mr_*`, `input_popup_*` e `key_preview_*` diferem
-    entre si além do nome do tema ou se o nome do tema não existe nos 3 idiomas.
+1. **Layout:** copy the closest one to `res/layout/input_mr_<tema>.xml`, with `android:tag="mr_<tema>"`,
+   `latin:popupLayout="@layout/input_popup_<tema>"` and `latin:keyPreviewLayout="@layout/key_preview_<tema>"`. Every
+   color in the layout comes from `@color/mr_<tema>_*`, with no hex.
+2. **Flags** (`res/values/mr_themes.xml`): one line in `mr_theme_tags` with the tag (`mr_<tema>`) and one in
+   `mr_theme_flags`, at the same position, with the theme's bits (flat bar, accent keys, wide accent group,
+   translucent, tech palette, default text on accent keys). The bits are described at the top of
+   `smali/com/mrkeyboard/app/MrTheme.smali` and in the comment of `mr_themes.xml`; `0x01` (`INIT`) belongs to `MrTheme` and
+   is not part of the value. Every theme with a tag turns on `ACCENT_KEYS` (`0x04`) and brings its own accent selector (item 5).
+   `ACCENT_WIDE` (`0x08`) widens the accent group (item 5); all themes turn it on.
+3. **Registration** (`res/values/mr_themes.xml`): one line in `mr_theme_layouts`. The index is the value stored in
+   `pref_keyboard_layout`. This array is per preference value (several values may open the same layout);
+   `mr_theme_tags` and `mr_theme_flags` are per theme. The key layers' radius has no registration (item 5).
+4. **Selector:** the name in `keyboard_layout_modes` (and in the translations) and the value in `keyboard_layout_modes_values`.
+5. **Keys:** `btn_keyboard_key_<tema>` and `key_<tema>_{normal,pressed,on,lock,hl}`. The drawables only reference
+   `@color`, with no hex: the colors live in `res/values/mr_key_colors.xml`, named
+   `mr_<tema>_key_<estado>_<parte>` (state `normal`, `pressed`, `hl`, `on`, `lock` or `acc_<estado>`; part `halo`, `base`,
+   `fill`, `top`, `mid`, `bottom`, `stroke` or `shadow`). The neutral shadows that repeat across themes are global:
+   `mr_key_shadow`, `mr_popup_shadow` and `mr_preview_shadow`. **Accent keys** (Shift,
+   Delete, arrows, Tab, 123, Space, Enter...): `btn_keyboard_key_<tema>_accent`. The accent **replaces** the key's
+   background, so the selector must bring everything (shadow, halo, border). There are two ways: dedicated drawables
+   `key_<tema>_acc_{normal,pressed,on,lock}` (Neon, Soft and Glass) or reusing `key_<tema>_hl` (rest) and the theme's own
+   `pressed/on/lock` (Slate and Midnight), so that sticky keys and accent keys are
+   customized together, in a single set of files. `LatinKeyboardBaseView` reads the selector by name, from
+   the tag; without it, the key gets the normal background.
+   **Key layer radius:** at runtime the last layer of the `layer-list` (the border, which is the key) gets the
+   keys' radius (`pref_key_radius`), and each outer layer adds the gap that the drawable itself draws: the last layer's
+   left inset minus the layer's own (`KeyStyle.layerGap`, never negative). A halo inset 2 dp less than the
+   border (Neon and Soft) ends up with radius + 2 dp, and corners stay concentric. A shadow that is only offset vertically (Slate and
+   Midnight) and a single shape (Glass) have no side gap and get the keys' radius. A new theme only needs to inset the
+   outer layers in the XML; the radius written in them is a fallback. Keep the inner layer last.
+   Which keys are accent keys (`isAccentKey` in `LatinKeyboardBaseView`, the same for all themes): a fixed list of
+   codes (Shift, Delete, Tab, Ctrl, Alt, ❖, arrows, Home/End, PgUp/PgDn and the bar key) and, with `ACCENT_WIDE`,
+   also every key marked `android:isModifier="true"` (F1, Fn, F keys, Ins, ".", settings...), the Tasker
+   keys (text `tskcmd:`), 123/TSK (`-300`), the phone keyboard's 123 (`-2`), Space and Enter. A theme that does not
+   want the wide group turns off only `ACCENT_WIDE`. Note: the theme's `hl` state is also applied by
+   `LatinKey.isHl` (its own list plus `tskcmd:`), so the accent and `hl` must go together in each theme (in Slate and
+   Midnight the accent is the `hl` itself).
+6. **Long-press popup:** `input_popup_<tema>`, `popup_<tema>_bg`, `btn_keyboard_key_popup_<tema>` and
+   `key_popup_<tema>_pressed`, for every theme (including Neon, with green halo and border). The `styles.xml` default for a
+   layout without `popupLayout` is `input_popup_slate`, and the `keyBackground` default is `btn_keyboard_key_slate` (the default theme).
+7. **Preview bubble:** `key_preview_<tema>`, `preview_<tema>_bg` and `preview_<tema>_more_bg`. `LatinKeyboardBaseView`
+   reads the two drawables by name (`preview_<tema>_bg` and `preview_<tema>_more_bg`) from the tag and, if it does not find them,
+   uses `keyboard_key_feedback_background` and `keyboard_key_feedback_more_background`.
+   **Radii (keys, popup and preview):** the radius written in the drawables is only a fallback. At runtime `KeyStyle` swaps it for the
+   keys' radius (`pref_key_radius`) plus a gap: preview bubble +2 dp and popup background +8 dp
+   (`LatinKeyboardBaseView`), buttons, fields and bar panels through `MrTools` (`KeyStyle.radiusPx`). With radius 0 on the
+   keys everything is square; a new theme needs no code for this.
+8. **Theme colors** (`res/values/mr_colors.xml`): `mr_<tema>_kbd_bg`, `_text`, `_cursor`, `_hint`;
+   `_popup_bg_{top,bottom,stroke}`, `_popup_key_{top,bottom,stroke}` (Soft also has `_mid`; Neon has `_popup_halo` and
+   `_popup_key_halo`) and `_popup_hint`;
+   `_preview_{top,bottom,stroke,dots}`. If the theme does **not** turn on `PLAIN_ACCENT_TEXT`, the text and icon of the accent
+   keys use `mr_<tema>_accent_text` (without it, `mr_accent_text` applies, white); with the flag, they use the theme's default text.
+9. **Panel colors:** only if the theme needs different colors, declare `mr_<tema>_panel_<papel>` in
+   `res/values/mr_colors.xml`. Without the theme's version, `mr_panel_<papel>` applies. The roles are `bar`, `btn`,
+   `btn_stroke`, `tab_off`, `tab_off_stroke`, `tab_on_text`, `tab_off_text`, `field`, `field_stroke`, `card` and `icon`.
+   The panels (Clipboard, languages, Attachments and emotes) have no frame in any theme: in the flat themes the background is `panel_bar`.
+   Attachments' own roles (without the `panel_` prefix, also with a `mr_<tema>_<papel>` version when the theme needs it):
+   `attach_fab`, `attach_fab_stroke`, `attach_fab_icon` (picker button), `sel_cancel`, `sel_cancel_stroke`,
+   `sel_cancel_text`, `sel_send`, `sel_send_stroke`, `sel_send_text` (Cancel/Send bar and the check on the selected item),
+   `sel_media` (layer over the selected thumbnail) and `sel_card` (background of the selected file).
+10. **Check:** `python3 docs/tools/res_check.py` and `python3 docs/tools/smali_regcheck.py smali/ --base <smali anterior>`.
+    `res_check` warns if the registration arrays do not match (`mr_theme_tags` with `mr_theme_flags`, a value of
+    `keyboard_layout_modes_values` outside `mr_theme_layouts`, and invalid flag bits), if the layout's tag is not in `mr_theme_tags`, if
+    the default color of a role is missing, if any resource from items 5 to 7 is missing (including the accent selector and the drawables it references), if the theme's layout does not point to its popup and
+    preview, if a hex color is left in the theme's layouts or drawables, if the `input_mr_*`, `input_popup_*` and `key_preview_*` differ
+    from each other beyond the theme name, or if the theme name does not exist in the 3 languages.
 
-## Convenção de nomes
+## Naming convention
 
-- O que vale para todos os temas, ou é decidido por flag do `MrTheme`, leva nome genérico: `isAccentKey`,
+- What applies to all themes, or is decided by a `MrTheme` flag, gets a generic name: `isAccentKey`,
   `drawAccentFill`, `getAccentContentColor`, `applyTranslucentBlur`, `MrTranslucentBlur`, `flatBar()`, `translucent()`.
-- O que existe só para um tema leva o nome dele (`neon`, `soft`, `slate`, `midnight`, `glass`), como nos recursos
-  `mr_<tema>_*`, `key_<tema>_*` e `input_popup_<tema>`.
-- Nome de tema não entra em método, campo ou classe que atenda a mais de um tema.
+- What exists for only one theme gets its name (`neon`, `soft`, `slate`, `midnight`, `glass`), as in the resources
+  `mr_<tema>_*`, `key_<tema>_*` and `input_popup_<tema>`.
+- A theme name does not go into a method, field or class that serves more than one theme.

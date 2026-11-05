@@ -1,36 +1,36 @@
-# Bibliotecas nativas e motor nativo (1.77)
+# Native libraries and native engine (1.77)
 
-O app usa duas bibliotecas nativas, as duas com o código **neste repositório** e geradas pelo mesmo workflow (`mr-native.yml`, NDK):
+The app uses two native libraries, both with the code **in this repository** and both built by the same workflow (`mr-native.yml`, NDK):
 
-| Biblioteca | Código | O que faz |
+| Library | Code | What it does |
 |---|---|---|
-| `libjni_pckeyboard.so` | `native/` | leitor do dicionário (`BinaryDictionary`): completar palavras, palavra válida, bigramas. Obrigatória. Base: Hacker's Keyboard / LatinIME (Apache-2.0) |
-| `libmrengine.so` | `engine/` | motor nativo, etapa 1 (1.77): a busca de correção (`MrFuzzy`) e a consulta de trigramas (`MrTrigram`) em C++. Opcional: sem ela o app usa o código Java |
+| `libjni_pckeyboard.so` | `native/` | dictionary reader (`BinaryDictionary`): word completion, valid word, bigrams. Mandatory. Base: Hacker's Keyboard / LatinIME (Apache-2.0) |
+| `libmrengine.so` | `engine/` | native engine, stage 1 (1.77): the correction search (`MrFuzzy`) and the trigram lookup (`MrTrigram`) in C++. Optional: without it the app uses the Java code |
 
-Os binários prontos ficam em `lib/<abi>/`. Detalhes do motor: `engine/README.md`.
+The ready-made binaries live in `lib/<abi>/`. Engine details: `engine/README.md`.
 
-## Como o app usa o motor nativo
-- `MrNative` (Java) carrega a `libmrengine.so` uma vez, em segundo plano, confere o contrato (`ENGINE_VERSION`) e entrega os custos de `MrFuzzy`,
-  as tabelas de maiúscula/minúscula/sem acento e as regras do idioma (`rules.txt`) que já estão carregados. A **fonte da verdade
-  continua no Java**; a lib não tem constante própria.
-- `MrFuzzy.search` e `MrTrigram.find` perguntam à lib; se ela não estiver lá, não carregou, recusou a consulta ou ainda está carregando,
-  seguem pelo código Java de antes. O resultado é o mesmo nos dois caminhos (teste de paridade).
-- Configurações → Sugestões e dicionários mostra **Motor de sugestões: Nativo (C++)** ou **Java (biblioteca nativa não encontrada)**.
+## How the app uses the native engine
+- `MrNative` (Java) loads `libmrengine.so` once, in the background, checks the contract (`ENGINE_VERSION`) and hands over the costs of `MrFuzzy`,
+  the uppercase/lowercase/unaccented tables and the language rules (`rules.txt`) that are already loaded. The **source of truth
+  stays in Java**; the lib has no constant of its own.
+- `MrFuzzy.search` and `MrTrigram.find` ask the lib; if it is not there, did not load, refused the query or is still loading,
+  they go through the Java code as before. The result is the same on both paths (parity test).
+- "Configurações → Sugestões e dicionários" (Settings → Suggestions and dictionaries) shows **"Motor de sugestões: Nativo (C++)"** (Suggestion engine: Native (C++)) or **"Java (biblioteca nativa não encontrada)"** (Java (native library not found)).
 
-## Mudou `native/` ou `engine/`: gerar as libs
-1. Faça o push. O workflow **Mr Keyboard - native lib** roda sozinho (ou à mão: Actions → Run workflow). Ele testa no PC (`dict_test`, `mr_test`, `JniSmoke`, ASan/UBSan) e compila as duas libs para arm64-v8a, armeabi-v7a e x86.
-2. Baixe o artifact `native-libs` e extraia na raiz do projeto, **mesclando** com o que já existe. Ele grava `lib/<abi>/libjni_pckeyboard.so` e `libmrengine.so`, `native-src.sha256` e `mrengine-src.sha256` (de qual código cada lib saiu) e `mrengine-info.txt` (contrato, commit e SHA-256 de cada `.so`).
-3. Faça o commit.
+## Changed `native/` or `engine/`: build the libs
+1. Push. The **Mr Keyboard - native lib** workflow runs by itself (or by hand: Actions → Run workflow). It tests on the PC (`dict_test`, `mr_test`, `JniSmoke`, ASan/UBSan) and builds both libs for arm64-v8a, armeabi-v7a and x86.
+2. Download the `native-libs` artifact and extract it at the project root, **merging** with what already exists. It writes `lib/<abi>/libjni_pckeyboard.so` and `libmrengine.so`, `native-src.sha256` and `mrengine-src.sha256` (which code each lib came from) and `mrengine-info.txt` (contract, commit and SHA-256 of each `.so`).
+3. Commit.
 
-O passo **Conferir se lib/ foi compilada do native/ e do engine/ atuais** do *Mr Keyboard - APK* recalcula os dois hashes e confere que as 6 libs existem; se algo não bater, avisa e **não publica** (com *publicar* marcado, dá erro). A conta do `native/` é sobre `native/CMakeLists.txt` + `native/src`; a do motor é feita de dentro de `engine/` (`CMakeLists.txt` + `src`). Testes e dados não entram.
+The step **Check that lib/ was built from the current native/ and engine/** of *Mr Keyboard - APK* recalculates both hashes and checks that the 6 libs exist; if anything does not match, it warns and **does not publish** (with *publish* checked, it fails). The `native/` calculation covers `native/CMakeLists.txt` + `native/src`; the engine one is done from inside `engine/` (`CMakeLists.txt` + `src`). Tests and data are not included.
 
-## Paridade Java × C++
-O *Mr Keyboard - checks* roda `docs/tools/e2e/run_native_parity.sh`: monta o APK, compila as duas libs de PC e roda o `NativeParity` nos 3 idiomas, com as consultas tiradas do próprio `dicts/`. A busca, a lista final de sugestões e os trigramas têm de ser **idênticos** pelo Java e pela lib (pela JNI). Isso também vale para mudanças em `dicts/` (rules, dicionários, trigramas): a paridade é refeita sobre os arquivos novos, sem nada a regenerar.
+## Java × C++ parity
+*Mr Keyboard - checks* runs `docs/tools/e2e/run_native_parity.sh`: it builds the APK, compiles the two PC libs and runs `NativeParity` in the 3 languages, with the queries taken from `dicts/` itself. The search, the final suggestion list and the trigrams must be **identical** through Java and through the lib (via the JNI). This also holds for changes in `dicts/` (rules, dictionaries, trigrams): the parity is redone over the new files, with nothing to regenerate.
 
-## Quando mexer no motor
-- Mudar um **custo** ou uma regra de idioma em `MrFuzzy.java`/`rules.txt`: só o Java; a lib recebe os valores novos sozinha.
-- Mudar o **algoritmo** de `MrFuzzy.search/walk/split` ou de `MrTrigram`: porte a mudança para `engine/src/mr_fuzzy.cpp`/`mr_tri.cpp`, rode `run_native_parity.sh` (tem de dar 0 diferenças), gere as libs (acima) e suba `kEngineVersion` (C++) e `ENGINE_VERSION` (Java) se o contrato mudou.
-- Mudar a **assinatura** de um `native` de `MrNative`: mude `engine/src/mr_jni.cpp` e `engine/test/java/.../MrNative.java` e suba a versão do contrato.
+## When to touch the engine
+- Changing a **cost** or a language rule in `MrFuzzy.java`/`rules.txt`: Java only; the lib receives the new values by itself.
+- Changing the **algorithm** of `MrFuzzy.search/walk/split` or of `MrTrigram`: port the change to `engine/src/mr_fuzzy.cpp`/`mr_tri.cpp`, run `run_native_parity.sh` (it must give 0 differences), build the libs (above) and raise `kEngineVersion` (C++) and `ENGINE_VERSION` (Java) if the contract changed.
+- Changing the **signature** of a `native` of `MrNative`: change `engine/src/mr_jni.cpp` and `engine/test/java/.../MrNative.java` and raise the contract version.
 
-## Voltar atrás
-Apagar os três `libmrengine.so` (e publicar uma versão nova): o app volta ao Java sozinho, como na 1.76. Sem a `libjni_pckeyboard.so` o teclado não lê o dicionário.
+## Rolling back
+Delete the three `libmrengine.so` (and publish a new version): the app goes back to Java by itself, as in 1.76. Without `libjni_pckeyboard.so` the keyboard does not read the dictionary.
