@@ -33,6 +33,15 @@ same `dictionary.cpp`. Only `LatinIME` (which needs Android) is left out. It exi
 - `AltEval` (by hand): false positives and hits of the suggestion for a valid but probably wrong word (`MrFuzzy.alternative`, strategy S27), over the
   valid words of the subtitle sentences; it was used to choose `ALT_GAP`, `ALT_TYPED_MAX` and the other `ALT_*` constants.
 
+- `PromoEval` (by hand): how often the likely word goes to the center of the strip because the previous words confirm it (`MrFuzzy.ALT_CTX_FIRST`,
+  `eu aida` → ainda), on the real previous words of the subtitle sentences: wrong promotions among correctly typed words and the share of the
+  real-word errors that reach the center. Needs `AltEval.java` compiled with it: `java ... PromoEval <lang> dicts <top_sentences.csv>`, `-Dmax=10000`
+  sentences, `-Dexplore=1` prints examples. Numbers of 1.85 are in "Known gaps" of `docs/suggestion-features.md`.
+- `ImportEval` (by hand, and shared with `StrategyTest` S29): how an added word of a given weight ranks in the strip. It takes names the dictionary does not
+  know, adds them as `MrLearned` does and counts how many are one of the 2 suggestions after 2, 3 and 4 letters: `ImportEval <lang> dicts` for the weights as shipped,
+  `ImportEval <lang> dicts sweep` for the same names with a stored frequency from 6 to 250; `-Dspeed=1` times a full list, `-Dexplore=1` prints the cases and
+  `-Dprobe=<word>` follows one word. It chose `MrLearned.WORD_FREQ_AT_50` (130) and the pair frequencies.
+
 ### Native engine (1.77)
 `bash docs/tools/e2e/run_native_parity.sh [app_jar.jar]` compiles the PC libs (`engine/` and `native/`), generates the queries from
 `dicts/` itself (`engine/tools/gen_parity_queries.py`) and runs `NativeParity` in the 3 languages; it is the same thing that *Mr Keyboard - checks* runs.

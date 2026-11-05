@@ -128,6 +128,12 @@ public final class MrFuzzy {
     static final int ALT_MAX_TYPED = 12;
     /** The pack keeps its possibly offensive words at this frequency (docs/dictionary-build.md): they are not questioned. */
     static final int ALT_OFFENSIVE_FREQ = 5;
+    /**
+     * v1.85.0: 1 = when the alternative is also a candidate of the previous words' context (MrPredict.inContext) and the typed word is not,
+     * it goes to the center of the strip instead of the 3rd place ("eu aida": ainda, not the neighbouring-key AIDS). 0 = always the 3rd.
+     * Still only a suggestion: a typed valid word is never replaced on its own.
+     */
+    static final int ALT_CTX_FIRST = 1;
 
     /** v1.66: neighbours of each touch of the last word, in order of distance (for finish). */
     private static String sTouchTyped;
@@ -135,6 +141,7 @@ public final class MrFuzzy {
     private static final int[] sTouchCount = new int[MAX_TYPED];
     private static String sReserveTyped;
     private static String sReserveWord;
+    private static boolean sReserveFirst;
 
     MrFuzzy(ByteBuffer dict, int size) {
         mDict = dict;
@@ -169,6 +176,7 @@ public final class MrFuzzy {
         try {
             sReserveTyped = null;
             sReserveWord = null;
+            sReserveFirst = false;
             if (suggest == null || composer == null) return;
             int n = composer.size();
             if (n < 2 || n > MAX_TYPED) return;
@@ -221,6 +229,7 @@ public final class MrFuzzy {
             if (alt != null) {
                 sReserveTyped = typed.toString();
                 sReserveWord = alt;
+                sReserveFirst = ALT_CTX_FIRST > 0 && MrPredict.inContext(alt) && !MrPredict.inContext(typed);
             }
         }
     }
@@ -294,8 +303,11 @@ public final class MrFuzzy {
     public static boolean finish(java.util.List<CharSequence> list, boolean haveCorrection) {
         String savedTyped = sReserveTyped;
         String word = sReserveWord;
+        boolean first = sReserveFirst;
+        boolean promoted = false;
         sReserveTyped = null;
         sReserveWord = null;
+        sReserveFirst = false;
         try {
             if (list == null || list.isEmpty()) return haveCorrection;
             String typed = list.get(0).toString();
@@ -310,11 +322,20 @@ public final class MrFuzzy {
                 for (int i = 1; i < list.size(); i++) {
                     if (list.get(i).toString().equalsIgnoreCase(shown)) { at = i; break; }
                 }
-                if (at < 0 || at > 2) {
+                if (first) {
+                    // v1.85.0: the context confirms it, so it takes the center (index 1); what was there moves to the 3rd place
+                    if (at != 1) {
+                        if (at > 0) list.remove(at);
+                        list.add(Math.min(1, list.size()), shown);
+                    }
+                    promoted = true;
+                } else if (at < 0 || at > 2) {
                     if (at > 2) list.remove(at);
                     list.add(Math.min(2, list.size()), shown);
                 }
             }
+            // v1.85: words the user blocked are never suggested (the typed word stays); if the best suggestion was one of them, nothing is replaced on its own
+            if (MrLearned.filter(list)) haveCorrection = false;
             // a single letter (v1.64): Suggest does not look for words for 1 letter, but the map of
             // corrections may have single-letter entries ("i" -> I, "u" -> you in English)
             if (typed.length() == 1) {
@@ -334,7 +355,7 @@ public final class MrFuzzy {
             demoteCaseVariant(list, typed);
             // v1.66: two words that swap the same typed letter: in front goes the one with the key closest
             // to the touch ("feve": deve before teve if the finger landed closer to the d)
-            touchOrder(list, typed);
+            if (!promoted) touchOrder(list, typed);
             if (haveCorrection && list.size() >= 2) {
                 haveCorrection = confident(typed, list.get(1).toString());
             }

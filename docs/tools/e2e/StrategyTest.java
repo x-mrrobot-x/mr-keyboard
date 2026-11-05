@@ -83,6 +83,18 @@ public class StrategyTest {
     }
 
     /**
+     * S27 (v1.85): like ctxType, but the word must be at exactly {@code index} of the strip at the end: 1 = the center (the previous words confirm
+     * the likely word for a valid but rare typed one: "eu aida" -> ainda), 2 = the 3rd place (nothing confirms it: "vou cassa" -> casa).
+     */
+    static void ctxAt(String tag, String p2, String p1, String typed, String want, int index, boolean gap) {
+        if (p2 == null) MrPredict.forWord(suggest, p1); else MrPredict.forWords(suggest, p2, p1);
+        List<String> l = null;
+        for (int k = 1; k <= typed.length(); k++) l = strip(typed.substring(0, k), p1);
+        record(tag, (p2 == null ? "" : p2 + " ") + p1 + " | " + typed + " -> " + want + " at " + index, l.indexOf(want) == index, gap,
+                l.subList(0, Math.min(5, l.size())).toString());
+    }
+
+    /**
      * S27 on its own (MrFuzzy.alternative): the word the strip keeps for the 3rd place when the typed word is a valid one, or null
      * (expect = null) when nothing should be offered: a common word, or a rare one whose neighbour is not much more frequent. The strip itself
      * is not used here because the lib already offers neighbouring-key words ("fone" -> fome) in every case.
@@ -141,6 +153,7 @@ public class StrategyTest {
         else if (lang.equals("en-US")) enCases();
         else if (lang.equals("es")) esCases();
         helpers();
+        importCases(lang);
         limits(lang);
         everyday(lang);
 
@@ -281,6 +294,13 @@ public class StrategyTest {
         alt("S27", "cassa", "casa");
         alt("S27", "fone", null);                                // a real word: nothing to offer
         alt("S27", "casa", null);                                // a frequent word: not even searched
+        // S27 (v1.85) the previous words confirm the likely word: it takes the center instead of the 3rd place (never replaces the typed word)
+        ctxAt("S27", null, "eu", "aida", "ainda", 1, false);
+        ctxAt("S27", null, "ele", "aida", "ainda", 1, false);
+        ctxAt("S27", null, "na", "cassa", "casa", 1, false);
+        ctxAt("S27", null, "uma", "cousa", "coisa", 1, false);
+        ctxAt("S27", null, "vou", "cassa", "casa", 2, false);    // "vou casa" is not what people write: the context does not confirm it
+        autocorrect("S27", "aida", false, false);
         typed("GAP", "ola", "olá", 2, false);
         typed("GAP", "entao", "então", 2, false);
         typed("GAP", "flw", "falou", 2, false);
@@ -305,6 +325,10 @@ public class StrategyTest {
         autocorrect("S27", "whee", false, false);
         alt("S27", "whee", "where");
         alt("S27", "they", null);
+        // S27 (v1.85) the previous words confirm the likely word
+        ctxAt("S27", null, "few", "eeks", "weeks", 1, false);
+        ctxAt("S27", null, "from", "whee", "where", 1, false);
+        ctxAt("S27", null, "the", "whee", "where", 2, false);
         // S26 context while typing
         ctxType("S26", null, "thank", "yo", "you", false);
         ctxType("S26", null, "good", "mo", "morning", false);
@@ -375,6 +399,9 @@ public class StrategyTest {
         autocorrect("S27", "vece", false, false);
         alt("S27", "vece", "veces");
         alt("S27", "hola", null);                                // a valid greeting with a low frequency: bola is not that much more frequent
+        // S27 (v1.85) the previous words confirm the likely word
+        ctxAt("S27", null, "muchas", "vece", "veces", 1, false);
+        ctxAt("S27", null, "algunas", "vece", "veces", 1, false);
         // S26 context while typing
         ctxType("S26", null, "muchas", "gr", "gracias", false);
         ctxType("S26", null, "por", "fa", "favor", false);
@@ -479,6 +506,153 @@ public class StrategyTest {
         record("S22", "MrRecorrect.eligible: word with letters", MrRecorrect.eligible("casa") && !MrRecorrect.eligible("abc123") && !MrRecorrect.eligible("a"), false, "");
         // S24 text helpers
         record("S18", "atSentenceStart after '. '", MrText.atSentenceStart("Oi. ") && MrText.atSentenceStart("") && !MrText.atSentenceStart("muito "), false, "");
+    }
+
+
+    // ------------------------------------------------------------------ S29: words and pairs added by the user (v1.85)
+
+    /**
+     * Fills the two learned dictionaries of the keyboard the way it does at start: the standard list goes through the parser and the saving of an
+     * import (MrImport.parse, MrLearned.apply) into a store in memory, and MrLearned.loadFrom puts what was imported into an auto dictionary and a
+     * user-pair dictionary, which are handed to Suggest. {@code learnedWords} are put into the auto dictionary directly with the given frequency, as the
+     * keyboard does when it learns a word (frequency 1 to 5 is "typed once or twice", from 6 the word is valid).
+     */
+    static MrWordStore importList(String list) {
+        MrMemStore st = new MrMemStore();
+        MrLearned.useStore(st);
+        MrLearned.apply(st, MrImport.parse(list, null), "xx", 1L);
+        ImportEval.Words words = new ImportEval.Words();
+        ImportEval.Pairs pairs = new ImportEval.Pairs();
+        MrLearned.loadFrom(st, words, "xx");
+        MrLearned.loadFrom(st, pairs, "xx");
+        suggest.setAutoDictionary(words);
+        suggest.setUserBigramDictionary(pairs);
+        return st;
+    }
+
+    static void unload() {
+        suggest.setAutoDictionary(null);
+        suggest.setUserBigramDictionary(null);
+        MrLearned.useStore(new MrMemStore());
+    }
+
+    /** How many of the names are one of the 2 suggestions next to the typed prefix, or {@code -1} for the names that are too short for the prefix. */
+    static int[] namesInTop2(List<String> names, int letters) {
+        int in = 0, counted = 0;
+        for (String n : names) {
+            if (letters >= n.length()) continue;
+            counted++;
+            int at = ImportEval.at(strip(n.substring(0, letters).toLowerCase(), null), n);
+            if (at == 1 || at == 2) in++;
+        }
+        return new int[] {in, counted};
+    }
+
+    static String listOf(List<String> names, int weight) {
+        StringBuilder sb = new StringBuilder("# mr-words 1\n[words]\n");
+        for (String n : names) sb.append(n).append('\t').append(weight).append('\n');
+        return sb.toString();
+    }
+
+    static void importCases(String lang) {
+        List<String> names = ImportEval.unknown(lang);
+        record("S29", "names the dictionary does not know (>= 8 to measure)", names.size() >= 8, false, String.valueOf(names.size()));
+        if (names.size() < 8) return;
+        int[] base3 = namesInTop2(names, 3);
+
+        importList(listOf(names, 50));
+        int[] w50 = namesInTop2(names, 3);
+        record("S29", "weight 50: after 3 letters the name is one of the 2 suggestions (>= 75%)", w50[0] * 4 >= w50[1] * 3, false, w50[0] + " of " + w50[1] + " (without: " + base3[0] + ")");
+        boolean valid = true;
+        for (String n : names) valid &= suggest.isValidWord(n);
+        record("S29", "an added name counts as a valid word (never corrected into another)", valid, false, "");
+        autocorrect("S29", names.get(0), false, false);
+        importList(listOf(names, 50));
+        int[] c4 = namesInTop2(names, 4);
+        record("S29", "weight 50: after 4 letters nearly all are one of the 2 suggestions (>= 85%)", c4[0] * 100 >= c4[1] * 85, false, c4[0] + " of " + c4[1]);
+        unload();
+
+        importList(listOf(names, 100));
+        int[] w100 = namesInTop2(names, 3);
+        int[] w100two = namesInTop2(names, 2);
+        record("S29", "weight 100: after 3 letters every name is one of the 2 suggestions", w100[0] == w100[1], false, w100[0] + " of " + w100[1]);
+        record("S29", "weight 100: after 2 letters more than half are", w100two[0] * 100 > w100two[1] * 55, false, w100two[0] + " of " + w100two[1]);
+        unload();
+
+        importList(listOf(names, 5));
+        int[] low = namesInTop2(names, 3);
+        record("S29", "weight 5: a low weight does not push the name up after 3 letters", low[0] <= base3[0], false, low[0] + " (without: " + base3[0] + ")");
+        unload();
+
+        // a word the keyboard learned by itself completes only once it is accepted (frequency 6), not after being typed once or twice
+        String n0 = null;
+        for (String n : names) {
+            if (n.length() > 4 && namesInTop2(java.util.Collections.singletonList(n), 4)[0] == 0) { n0 = n; break; }
+        }
+        record("S29", "a name that is not suggested without being added (to try the learned words)", n0 != null, false, String.valueOf(n0));
+        if (n0 != null) {
+            ImportEval.Words once = new ImportEval.Words();
+            once.addWord(n0, 5);
+            suggest.setAutoDictionary(once);
+            int[] seen = namesInTop2(java.util.Collections.singletonList(n0), 4);
+            record("S29", "a word typed only twice (frequency 5) is not offered as a completion", seen[0] == 0, false, "in top 2: " + seen[0]);
+            ImportEval.Words accepted = new ImportEval.Words();
+            accepted.addWord(n0, 130);
+            suggest.setAutoDictionary(accepted);
+            int[] now = namesInTop2(java.util.Collections.singletonList(n0), 4);
+            record("S29", "the same word accepted (frequency 130) is offered after 4 letters", now[0] == 1, false, "in top 2: " + now[0]);
+            unload();
+        }
+
+        // a blocked word never shows: take the first suggestion of an ordinary prefix, block it, it is gone
+        String prefix = lang.equals("pt-BR") ? "cas" : lang.equals("es") ? "cas" : "cou";
+        List<String> before = strip(prefix, null);
+        String victim = before.size() > 1 ? before.get(1) : null;
+        MrMemStore st = new MrMemStore();
+        MrLearned.useStore(st);
+        if (victim != null) {
+            MrLearned.block(st, "xx", victim, 1L);
+            ImportEval.Words w = new ImportEval.Words();
+            MrLearned.loadFrom(st, w, "xx");
+            suggest.setAutoDictionary(w);
+            List<String> after = strip(prefix, null);
+            record("S29", "a blocked word is gone from the suggestions ('" + victim + "' after '" + prefix + "')", !after.contains(victim) && !after.isEmpty(), false, after.toString());
+            MrLearned.unblock(st, st.all(MrWordStore.KIND_BLOCKED, "xx").get(0).id);
+            ImportEval.Words w2 = new ImportEval.Words();
+            MrLearned.loadFrom(st, w2, "xx");
+            suggest.setAutoDictionary(w2);
+            List<String> again = strip(prefix, null);
+            record("S29", "allowed again, it comes back", again.contains(victim), false, again.toString());
+        }
+        unload();
+
+        // pairs: absent from the 3 predictions of the main dictionary, then present at weight 50 and first at weight 100
+        String[][] pairs = ImportEval.pairs(lang);
+        int shown = 0, first = 0, absent = 0, tried = 0;
+        for (int i = 0; i < 3; i++) {
+            String[] p = pairs[i];
+            suggest.setUserBigramDictionary(null);
+            List<CharSequence> main = MrPredict.forWord(suggest, p[0]);
+            boolean wasAbsent = main == null || !E2ETest.strs(main).contains(p[1]);
+            if (!wasAbsent) continue;
+            absent++;
+            for (int weight : new int[] {50, 100}) {
+                MrMemStore ws = new MrMemStore();
+                MrLearned.useStore(ws);
+                ws.add(MrWordStore.KIND_IMPORTED_PAIR, "xx", new MrWordStore.Row(MrWordStore.KIND_IMPORTED_PAIR, p[0], p[1], weight, 1L, 1L));
+                ImportEval.Pairs up = new ImportEval.Pairs();
+                MrLearned.loadFrom(ws, up, "xx");
+                suggest.setUserBigramDictionary(up);
+                List<CharSequence> got = MrPredict.forWord(suggest, p[0]);
+                List<String> g = got == null ? new ArrayList<String>() : E2ETest.strs(got);
+                if (weight == 50) { tried++; if (g.contains(p[1])) shown++; }
+                else if (g.indexOf(p[1]) == 1) first++;
+            }
+        }
+        record("S29", "pairs the main dictionary does not predict (>= 2 to measure)", absent >= 2, false, absent + " of 3");
+        record("S29", "weight 50: an added pair gets into the 3 predictions", tried > 0 && shown == tried, false, shown + " of " + tried);
+        record("S29", "weight 100: an added pair is the first prediction", tried > 0 && first == tried, false, first + " of " + tried);
+        unload();
     }
 
     // ------------------------------------------------------------------ limits and robustness

@@ -21,4 +21,8 @@ public class Activity extends android.view.ContextThemeWrapper {
     public android.view.View findViewById(int id) { return null; }
     public void runOnUiThread(Runnable action) { }
     public void requestPermissions(String[] permissions, int requestCode) { }
+    public void startActivityForResult(android.content.Intent intent, int requestCode) { }
+    protected void onActivityResult(int requestCode, int resultCode, android.content.Intent data) { }
+    public static final int RESULT_OK = -1;
+    public android.content.ContentResolver getContentResolver() { return null; }
 }

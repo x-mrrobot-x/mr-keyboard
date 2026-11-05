@@ -20,6 +20,7 @@ Precisa de Android 8.0 ou mais novo.
   - os dicionários são baixados em *Configurações → Sugestões e dicionários*, por isso o app em si tem só cerca de 1 MB. Cada idioma baixado entra no teclado: deslize a barra de espaço para os lados para alternar entre eles;
   - correção de erros de digitação e previsão da próxima palavra;
   - aprende as palavras que você usa, nunca em campos de senha ou anônimos;
+  - *Configurações → Sugestões e dicionários → Minhas palavras*: veja, corrija, bloqueie e esqueça o que o teclado aprendeu (com cópia de segurança exportada) e adicione nomes, gírias e frases a partir de um texto colado, de um arquivo ou de uma lista de palavras, com uma prévia antes de salvar qualquer coisa;
   - sugere os nomes e as palavras que você acabou de escrever na mesma conversa (só na memória, apagados ao trocar de campo ou de app);
   - tudo roda no aparelho;
   - vem desligado: ligue *Mostrar sugestões* na mesma tela.

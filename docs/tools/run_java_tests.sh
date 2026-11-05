@@ -20,6 +20,10 @@
 #   - BarTest: the buttons of the tool bar close the dialogs that are open (MrBarClose), except the one that the button itself toggles
 #   - KeepTest: the "Customize keyboard" tool and the keyboard when the screen turns (MrKeep): the tool opens again in the form of
 #     the new orientation, the keyboard that Android 17 leaves hidden is asked to show itself, all within a short window
+#   - ImportTest, LearnedStoreTest: the screens "What the keyboard learned" and "Add words and texts" (MrImport, MrLearned on a MrWordStore in memory):
+#     cleaning of a free text (links, WhatsApp prefixes, laughs, numbers), the two-occurrence rule, the standard list (every kind of line left out), saving an
+#     import with its caps and undo, block, forget, edit, the export that is also the backup (export -> import -> export gives the same text), and what
+#     the keyboard loads into its dictionaries. The SQLite store needs Android and is checked on the device.
 #   - AiReturnTest: coming back to the AI Editor dialog after its Settings screen (MrAiDialog): the keyboard is asked to
 #     appear for the original field, once, soon after leaving, and the dialog reopens when the keyboard window shows.
 # With the path of the APK jar (classes.dex -> d2j-dex2jar), it also runs:
@@ -65,6 +69,14 @@ java -cp "$T/test_nav:$T/stubs:$T/main" com.mrkeyboard.app.NavTest
 echo "== ScreenImeTest (keyboard on the editor screens)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_screenime" $D/screenime_test/ScreenImeTest.java
 java -cp "$T/test_screenime:$T/stubs:$T/main" com.mrkeyboard.app.ScreenImeTest
+
+echo "== ImportTest (import of words and texts)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_import" $D/learned_test/ImportTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_import:$T/stubs:$T/main" com.mrkeyboard.app.ImportTest
+
+echo "== LearnedStoreTest (what the keyboard learned: block, forget, edit, undo, export)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_learned" $D/learned_test/LearnedStoreTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_learned:$T/stubs:$T/main" com.mrkeyboard.app.LearnedStoreTest
 
 echo "== AiReturnTest (return to the AI Editor dialog)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_aireturn" $D/ai_return_test/AiReturnTest.java

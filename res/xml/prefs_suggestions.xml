@@ -10,6 +10,14 @@
     <com.mrkeyboard.app.AutoSummaryEditTextPreference android:layout="@layout/mr_ui_pref_row_value" android:title="@string/title_suggested_punctuation" android:key="pref_suggested_punctuation" android:dependency="show_suggestions" android:defaultValue="@string/suggested_punctuations"/>
     <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_candidate_scale" android:key="pref_candidate_scale" android:dependency="show_suggestions" android:defaultValue="1.0" hk:asPercent="true" hk:logScale="true" hk:maxValue="3.0" hk:minValue="0.5"/>
   </PreferenceCategory>
+  <PreferenceCategory android:title="@string/mr_words_cat" android:key="mr_cat_words" android:icon="@drawable/mr_ui_ic_book_mint">
+    <Preference android:key="mr_words_learned" android:title="@string/mr_learned_title" android:summary="@string/mr_learned_summary" android:persistent="false">
+      <intent android:targetPackage="com.mrkeyboard.app" android:targetClass="com.mrkeyboard.app.MrLearnedActivity"/>
+    </Preference>
+    <Preference android:key="mr_words_import" android:title="@string/mr_import_title" android:summary="@string/mr_import_summary" android:persistent="false">
+      <intent android:targetPackage="com.mrkeyboard.app" android:targetClass="com.mrkeyboard.app.MrImportActivity"/>
+    </Preference>
+  </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_dicts_cat_privacy" android:key="mr_cat_privacy" android:icon="@drawable/mr_ui_ic_info_slate">
     <Preference android:key="mr_privacy" android:title="@string/mr_dicts_privacy_title" android:summary="@string/mr_dicts_privacy_text" android:selectable="false" android:persistent="false"/>
   </PreferenceCategory>

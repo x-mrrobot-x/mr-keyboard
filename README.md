@@ -20,6 +20,7 @@ Requires Android 8.0 or later.
   - dictionaries are downloaded in *Settings → Suggestions and dictionaries*, so the app itself is only about 1 MB. Each language you download is added to the keyboard: slide the space bar sideways to switch between them;
   - typo correction and next-word prediction;
   - learns the words you use, never in password or incognito fields;
+  - *Settings → Suggestions and dictionaries → My words*: see, fix, block and forget what the keyboard learned (with an exported backup), and add names, slang and phrases from a pasted text, a file or a word list, with a preview before anything is saved;
   - suggests the names and words you just wrote in the same conversation (kept only in memory and cleared when you change field or app);
   - everything runs on the device;
   - off by default: turn on *Show suggestions* on the same screen.

@@ -10,6 +10,10 @@ public class Intent implements android.os.Parcelable {
     public static final String ACTION_VIEW = "android.intent.action.VIEW";
     public static final String ACTION_MY_PACKAGE_REPLACED = "android.intent.action.MY_PACKAGE_REPLACED";
     public static final String EXTRA_INTENT = "android.intent.extra.INTENT";
+    public static final String ACTION_CREATE_DOCUMENT = "android.intent.action.CREATE_DOCUMENT";
+    public static final String ACTION_OPEN_DOCUMENT = "android.intent.action.OPEN_DOCUMENT";
+    public static final String CATEGORY_OPENABLE = "android.intent.category.OPENABLE";
+    public static final String EXTRA_TITLE = "android.intent.extra.TITLE";
 
     public String action, packageName, className;
     public int flags;
@@ -27,10 +31,17 @@ public class Intent implements android.os.Parcelable {
         return this;
     }
     public String getAction() { return action; }
+    public Intent addCategory(String category) { return this; }
+    public Intent setType(String type) { return this; }
+    public android.net.Uri getData() { return null; }
     public <T extends android.os.Parcelable> T getParcelableExtra(String name) { return null; }
     public Intent putExtra(String name, int value) { extras.put(name, value); return this; }
     public Intent putExtra(String name, boolean value) { extras.put(name, value); return this; }
     public Intent putExtra(String name, String value) { extras.put(name, value); return this; }
+    public String getStringExtra(String name) {
+        Object v = extras.get(name);
+        return v instanceof String ? (String) v : null;
+    }
     public boolean getBooleanExtra(String name, boolean defaultValue) {
         Object v = extras.get(name);
         return v instanceof Boolean ? (Boolean) v : defaultValue;

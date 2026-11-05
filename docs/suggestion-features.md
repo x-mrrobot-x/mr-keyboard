@@ -4,7 +4,7 @@ Living list of every suggestion, correction and prediction feature, per language
 Update it in the same commit that adds, changes or removes a feature. The ids (S1, S2...) are the tags used by
 `docs/tools/e2e/StrategyTest.java`; run `bash docs/tools/e2e/run_strategy_tests.sh` to check them all (3 languages, native engine and Java fallback).
 
-Measured on 1.84.0. Everyday-language numbers (prediction and completion hit rates on subtitle sentences) are in `plan-suggestions.md` and come from `docs/tools/e2e/run_subtitle_eval.sh`; a small set of original sentences (`docs/tools/e2e/data/everyday_<lang>.txt`) runs in CI as check S28. "Since" is the version that introduced the feature (from the version notes and the code comments).
+Measured on 1.85.0. Everyday-language numbers (prediction and completion hit rates on subtitle sentences) are in `plan-suggestions.md` and come from `docs/tools/e2e/run_subtitle_eval.sh`; a small set of original sentences (`docs/tools/e2e/data/everyday_<lang>.txt`) runs in CI as check S28. "Since" is the version that introduced the feature (from the version notes and the code comments).
 
 ## Data per language
 | | pt-BR | en-US | es |
@@ -43,7 +43,7 @@ All of them are in the three languages unless the last column says otherwise. "W
 | S13 | First letter after a word: the previous word's bigrams, with accent/capital initials | `Suggest`, `BinaryDictionary.getBigrams` | 1.60 | same in all | S13 |
 | S14 | Prediction after the space: dictionary bigrams + the user's pairs (weight 2) + recent pairs; 3 shown, best in the centre | `MrPredict.forWords` | 1.60 | same in all | S14 |
 | S15 | Prediction from the two previous words | `MrTrigram` (C++ since 1.77), `TRIGRAM_BONUS` 128 | 1.62 | 169k / 143k / 191k contexts | S15 |
-| S16 | Learning: words and pairs you use (`AutoDictionary`, `UserBigramDictionary`); never in a password field or with `IME_FLAG_NO_PERSONALIZED_LEARNING` | `LatinIME.checkAddToDictionary` (smali) | AOSP; always on with suggestions since 1.60 | per locale | **no PC test** (needs Android) |
+| S16 | Learning: words and pairs you use (`AutoDictionary`, `UserBigramDictionary`); never in a password field or with `IME_FLAG_NO_PERSONALIZED_LEARNING` | `LatinIME.checkAddToDictionary` (smali) | AOSP; always on with suggestions since 1.60 | per locale; since 1.85 a learned word also completes what is typed once it is accepted (frequency 6) | **no PC test of the database** (needs Android); S29 tests the completion |
 | S17 | Recent words of this conversation: completion (2), prediction bonus, recent pairs; memory only, cleared when the field or app changes | `MrRecent` | 1.75 | same in all | `RecentTest` (CI) |
 | S18 | Sentence starters at the start of the text or after `. ! ? … ¿ ¡` | `MrPredict.list`, `MrText.atSentenceStart` | 1.62; `¿ ¡` 1.65 | 3 words per language | S18 |
 | S19 | Careful autocorrection: replaces on its own only a map entry, or within 1 error (up to 5 letters) / 2 errors (longer), accent and case ignored; never a suggestion with a space outside the map | `MrFuzzy.finish/confident` | 1.62; touch half-error 1.66 | same in all | S19 |
@@ -54,7 +54,8 @@ All of them are in the three languages unless the last column says otherwise. "W
 | S24 | Native engine in C++ (correction search and trigrams), Java as fallback, identical results; ceiling of 12,000 nodes per query | `engine/` (`libmrengine.so`), `MrNative` | 1.77; ceiling 1.77.2 | same in all | `NativeParity` (CI), `NativeFallbackTest` (CI), L3 |
 | S25 | Android user dictionary (words added in system settings); only an enabled IME can read it since API 23 | `UserDictionary` (smali) | AOSP | by locale | **no PC test** |
 | S26 | Context while typing: from the 2nd to the 12th letter the 2 best candidates of the previous words' context (dictionary pairs, trigrams, your pairs, recent pairs) that start with what is typed join the list, scored above plain completions (`CTX_FREQ` 255, minus `CTX_STEP` 40 per rank) | `MrPredict.complete`, called from `MrFuzzy.afterWords` | 1.84 | same in all | S26, S28 |
-| S27 | A valid word that is probably another word (`cassa` → casa): when the typed word is valid but rare (frequency ≤ `ALT_TYPED_MAX` 80, above `ALT_OFFENSIVE_FREQ` 5) and a word within cost 40 is at least 60 more frequent (and ≥ 110), it takes the 3rd slot as a suggestion; never a replacement (autocorrect stays off for a valid word) | `MrFuzzy.validAlternative/alternative` | 1.84 | same in all | S27 |
+| S27 | A valid word that is probably another word (`cassa` → casa): when the typed word is valid but rare (frequency ≤ `ALT_TYPED_MAX` 80, above `ALT_OFFENSIVE_FREQ` 5) and a word within cost 40 is at least 60 more frequent (and ≥ 110), it takes the 3rd slot as a suggestion; never a replacement (autocorrect stays off for a valid word). Since 1.85, when the previous words also confirm the alternative (it is one of the context's candidates and the typed word is not: `eu aida` → ainda) it takes the **center** slot and what was there moves to the 3rd (`ALT_CTX_FIRST`); the typed word stays first | `MrFuzzy.validAlternative/alternative/finish`, `MrPredict.inContext` | 1.84; center 1.85 | same in all | S27 |
+| S29 | Words and texts you add, and what the keyboard learned: an added name completes while typing (weight 50: one of the 2 suggestions after 3 letters in about 9 of 10 cases, after 4 nearly always; weight 100: from 2 letters), counts as a valid word (never corrected into another), an added pair shapes the next-word prediction, a blocked word never shows and is never learned; a learned word completes only from frequency 6. Weight 1-100 → word frequency 6-250 (`MrLearned.WORD_FREQ_AT_50` 130) and pair frequency 4-9 (score 80-127 on the user-pair scale) | `MrLearned`, `MrImport`, `AutoDictionary`/`UserBigramDictionary` hooks and the `mAutoDictionary` lookup in `Suggest.getSuggestions` (smali), the screens `MrLearnedActivity`/`MrImportActivity` | 1.85 | same in all | S29 (16 checks per language), `ImportTest`, `LearnedStoreTest` (CI) |
 
 Integrity and robustness checks (same test class): D1 dictionary header and size, D2 the rules sections exist, D3 every correction
 points to dictionary words, D4 sentence starters are dictionary words, L1 list size, L2 long words, L3 node ceiling, L4 time per key, L5 no
@@ -62,7 +63,18 @@ prediction for an unknown word, S28 hit rates on original everyday sentences (kn
 
 Other tests in CI: `run_native_parity.sh` (Java × C++ give the same result), `packs_test/run_packs_tests.sh` (the dictionary download flow with a signed
 test catalog, and the three installed languages), `run_java_tests.sh` (the Java layer). The speed of the strip is measured by hand with
-`docs/tools/e2e/SpeedEval.java` (see "Speed" below) and the false positives of S27 with `AltEval.java`.
+`docs/tools/e2e/SpeedEval.java` (see "Speed" below), the false positives of S27 with `AltEval.java`, how often the center promotion is right or wrong with `PromoEval.java` and the weight → frequency calibration of S29 with `ImportEval.java`.
+
+## The two screens (1.85)
+Both are in *Settings → Suggestions and dictionaries → My words*, built in Java like `MrPacksActivity` (plain framework views, the `mr_ui_*` palette, strings in the three languages), with no network code.
+- **What the keyboard learned** (`MrLearnedActivity`): per language, tabs **Learned** / **Added** / **Blocked**, a switch between words and pairs, search, sort by most used or newest, pages of 50 with "Show more". A row opens **Fix** (delete + add), **Block this word**, **Forget** (and **Allow again** on the blocked tab). Menu: delete the whole list (with a confirmation), **export a copy** (`ACTION_CREATE_DOCUMENT`, a `.txt` in the standard format below: it is also the backup, because `auto_dict.db`/`userbigram_dict.db` are not in the backup rules), and a button to add words.
+- **Add words and texts** (`MrImportActivity`): paste, open a file (`ACTION_OPEN_DOCUMENT`, at most 8 MB, UTF-8 with or without BOM, or Windows-1252 when the bytes are not valid UTF-8: `MrImport.decode`) or type; choose the language; a **preview before saving** (new words with a checkbox each, pairs, words the dictionary already knows left out, ignored lines with the reason); **Undo the last import** (one level, kept in the `mr_words` preferences); **Copy instructions for an AI** (the prompt of the plan, translated). Free text rules (`MrImport`): URLs, e-mails, numbers, chat prefixes (`[12/03/24 14:05] Ana:`, `12/03/2024 14:05 - Ana:`), laughs and repeated letters, words over 32 letters are dropped; a word is added only if the main dictionary does not know it and it appears twice (once when written with a capital in the middle of a sentence); a pair needs both words valid and two occurrences. The list needs the dictionary of that language installed (the screen asks to download it first).
+- **Standard list** (`# mr-words 1`): sections `[words]` (a word, optional TAB and a weight 1-100), `[phrases]`, `[blocked]`; `[shortcuts]` is not supported yet (the line is reported as ignored). `# language:` is a hint.
+- **Storage** (`MrWordStore`): learned data stays in `auto_dict.db` and `userbigram_dict.db` as before; added words, added pairs and blocked words live in their own database `mr_words.db` (`MrSqlStore`; `MrMemStore` is the PC test twin), so the old databases did not need an `ALTER TABLE` and an upgrade from 1.84 loses nothing. Caps: 20,000 added words and 30,000 added pairs, which the cleanup of learned pairs (10,000, 1,000 at a time) never touches. After any change `MrLearned.changed(Context)` writes `mr_dicts_updated_at` and `LatinIME` reloads the user dictionaries at the next `onStartInputView`.
+- **What changed in the engine for it**: `Suggest.getSuggestions` now also asks `mAutoDictionary` for completions (before 1.85 it was only used by `isValidWord`, so a learned word never completed); `AutoDictionary.getWords` lets through only words from frequency 6 (`MrLearned.gate`); blocked words are removed at the end of `MrFuzzy.finish` and are not learned (`checkAddToDictionary`).
+- **Cost**: a full list (20,000 words and 30,000 pairs) takes about 5 MB of the Java heap; the keystroke time did not move (see "Speed").
+
+**Device checklist** (the SQLite store and the screens need Android, the PC tests use `MrMemStore`): update over 1.84 keeps the learned words; forget a word and watch it leave the strip at once; block a word and type it (it must not be suggested nor learned again); import a list of 5,000 words, then check the opening time of the keyboard and the heap; export on one phone and import on another; rotate the screen during an import and during the preview; open the screens with the dictionary of the language not installed; a password field still learns nothing; undo the last import; delete a whole list.
 
 ## Not implemented
 - Mixed language in the same sentence: one pack is active at a time (slide the space bar to change); there is no second dictionary in the same query.
@@ -83,6 +95,8 @@ test catalog, and the three installed languages), `run_java_tests.sh` (the Java 
 | Alternative for a valid word | typed 3–12 letters, frequency 6–80, cost ≤ 40, gap ≥ 60, alternative ≥ 110 | `MrFuzzy` (`ALT_*`) | tuned with `AltEval` (false positives 0.3% weighted, hit 46–58%) |
 | Prediction | 3 shown, text read before the cursor 96 chars, 248 candidates | `MrPredict` | |
 | Recent words | 96 terms, 3–30 letters | `MrRecent` | |
+| Added words and pairs (1.85) | 20,000 words, 30,000 pairs; 8 MB per file; a word of 2–32 letters, 30 words per phrase | `MrLearned` (`IMPORT_MAX_*`), `MrImportActivity`, `MrImport` | more is reported as "left out because the list is full" |
+| Weight of an added word | 1–100 → frequency 6–250 (50 → 130); pair 4–9 | `MrLearned` | measured with `ImportEval`; a learned word completes from frequency 6 |
 | Re-correction reach | 1000 chars each side of the cursor | `MrRecorrect` | |
 | Strip | 3 slots drawn (`CandidateView.mrLayout`); `MAX_SUGGESTIONS` 32 is the old scrolling-strip size | smali | the 12 of `Suggest` are not all visible: the strip shows 3 |
 
@@ -101,6 +115,9 @@ Each one has a case marked `GAP` in `StrategyTest`; when the case starts to pass
 - **Context after the 1st letter** (fixed in 1.84, S26): the hit rate with 2 letters typed went from pt-BR 48.5% → 73.1%, en-US 51.6% → 70.4%, es 37.7% → 62.1% on the subtitle sentences and, on the original sentences of CI (S28), from 30.5 → 52.7 / 39.1 → 53.7 / 27.3 → 45.4% (more numbers in `plan-suggestions.md`).
 - **A wrong word that is another valid word** (fixed in 1.84, S27): pt `cassa`, en `whee`, es `vece` now get the intended word in the 3rd slot. What stays open: a valid word that is more frequent than the cut (`ALT_TYPED_MAX`), and a valid word whose neighbour is not much more frequent (es `hola`/`bola`).
 - Chat words and apps: fixed in 1.84 for pt (`flw`, `fmz`, `wpp`, `whatsapp`, `uber`, `ifood`, `tiktok`...), en and es (`wasap`...) with `rules.txt` entries. Still open and needs data: en `tiktok` (the en-US dictionary does not have the word, and a correction cannot point to an unknown word); pt `pix` (not in the dictionary). `visavis` now points to `vis-à-vis`, which the dictionary has.
+- **Center promotion** (1.85, `PromoEval` on 10,000 subtitle sentences per language): among the errors that are another valid word the right word reaches the center in 50.0% (pt-BR), 30.2% (en-US) and 55.2% (es) of the cases, stays in the 3rd place in 10.5 / 4.3 / 7.3% and a wrong word is promoted in 2.2 / 3.0 / 3.2%; among correctly typed words 0.28% / 0.00% / 0.24% (weighted) get a wrong word in the center (pt `te sentes` → dentes, `se mexa` → mesa; es `te muevas` → nuevas). The typed word is never removed from the first place. Left open: English has the weakest context (60% of the errors get nothing).
+- **Added words** (S29): a name that is only a prefix of other words (`estou ch`, `vou ma`, es `estoy ll`) still loses to the frequent words with 2 letters; that is the point of the weight. Not measured on a device: the real screens and the SQLite store.
+- **Shortcuts** (`[shortcuts]`: type `pdc`, get a text) and **sharing text from other apps to the keyboard** were left out of 1.85 (they were optional in the plan).
 - A wrong first letter that is not a neighbour or phonetic pair is not found (`MrFuzzy.firstLetters`).
 - When the editor does not give the text before the cursor, `MrText.atSentenceStart(null)` answers "start of a sentence" and the strip shows the starters.
 
@@ -118,3 +135,16 @@ Cost of one keystroke on the PC (`docs/tools/e2e/SpeedEval.java`: 800 subtitle s
 | all keystrokes | 101,865 | 157.3 → 165.5 (+5.2%) | | |
 
 Java fallback (no native lib): all keystrokes 179.5 → 191.1 µs (+6.5%). The "after a space" and "1 letter" rows are not touched by the change, so their movement (about -12% on the spaces) is the noise of the measurement: read differences under 10% as noise. The two real costs are `MrPredict.complete` (a scan of up to 248 candidates per keystroke from the 2nd letter) and the search for an alternative to a rare valid word (a normal fuzzy search, once per keystroke of such a word); measured apart, the context alone is inside the noise (native 157.3 → 156.4 µs, Java 179.5 → 183.1 µs per keystroke on average) and the search for the alternative is the rest of the cost (the valid-word and 5-or-more-letter rows). On a phone the average keystroke stays around 1 to 2.5 ms.
+
+**1.84 → 1.85** (same method, 800 sentences x 2 rounds, one language at a time on the machine; mean µs per keystroke, 1.84 classes → 1.85 classes; native engine):
+
+| Keystroke | pt-BR | en-US | es |
+|---|---|---|---|
+| after a space | 84 → 83 | 80.8 → 84.8 | 88.3 → 90.0 |
+| 1 letter | 51 → 50 | 49.2 → 51.9 | 52.8 → 53.8 |
+| 2 to 4 letters | 224 → 221 | 236.2 → 245.7 | 230.6 → 237.2 |
+| 5 or more letters | 229 → 222 | 227.0 → 239.4 | 166.3 → 168.3 |
+| typo (not a word) | 402 → 396 | 325.7 → 344.9 | 269.7 → 275.4 |
+| valid word | 99 → 96.5 | 95.5 → 98.3 | 88.8 → 89.9 |
+
+pt-BR does not move; en-US is 3 to 5% slower and es 1 to 3% (one run each: under 10% is noise, but the sign is the same in all rows, so the likely cause is the extra `AutoDictionary` lookup that `Suggest` now makes on every keystroke; it was not isolated). With the lists full (20,000 added words and 30,000 pairs) the per-key time does not change; the cost is memory, about 5 MB of heap.

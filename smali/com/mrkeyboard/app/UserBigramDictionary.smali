@@ -2,6 +2,9 @@
 .super Lcom/mrkeyboard/app/ExpandableDictionary;
 .source "UserBigramDictionary.java"
 
+# interfaces
+.implements Lcom/mrkeyboard/app/MrLearned$Sink;
+
 
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
@@ -326,6 +329,25 @@
 .method public addBigrams(Ljava/lang/String;Ljava/lang/String;)I
     .locals 4
 
+    # Mr Keyboard v1.85: a pair that has a word the user blocked is never learned
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrLearned;->isBlocked(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_mr_blocked
+
+    invoke-static {p2}, Lcom/mrkeyboard/app/MrLearned;->isBlocked(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_mr_not_blocked
+
+    :cond_mr_blocked
+    const/4 v0, 0x0
+
+    return v0
+
+    :cond_mr_not_blocked
     .line 168
     iget-object v0, p0, Lcom/mrkeyboard/app/UserBigramDictionary;->mIme:Lcom/mrkeyboard/app/LatinIME;
 
@@ -634,6 +656,15 @@
     :cond_1
     invoke-interface {v0}, Landroid/database/Cursor;->close()V
 
+    # Mr Keyboard v1.85: the pairs the user added on purpose (screen "Add words and texts") join the learned ones
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/UserBigramDictionary;->getContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/UserBigramDictionary;->mLocale:Ljava/lang/String;
+
+    invoke-static {v0, p0, v1}, Lcom/mrkeyboard/app/MrLearned;->load(Landroid/content/Context;Lcom/mrkeyboard/app/MrLearned$Sink;Ljava/lang/String;)V
+
     return-void
 
     :catchall_0
@@ -662,3 +693,26 @@
     return-void
 .end method
 
+
+# Mr Keyboard v1.85: MrLearned.Sink (this dictionary takes the imported pairs, in memory only: they are stored by MrWordStore, not in userbigram_dict.db)
+.method public kind()I
+    .locals 1
+
+    const/4 v0, 0x1
+
+    return v0
+.end method
+
+.method public word(Ljava/lang/String;I)V
+    .locals 0
+
+    return-void
+.end method
+
+.method public pair(Ljava/lang/String;Ljava/lang/String;I)V
+    .locals 0
+
+    invoke-super {p0, p1, p2, p3}, Lcom/mrkeyboard/app/ExpandableDictionary;->setBigram(Ljava/lang/String;Ljava/lang/String;I)I
+
+    return-void
+.end method

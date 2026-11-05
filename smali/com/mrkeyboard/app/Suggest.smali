@@ -1498,6 +1498,17 @@
 
     .line 308
     :cond_f
+    # Mr Keyboard v1.85: the words the keyboard learned and the ones the user added complete what is typed (AutoDictionary.getWords
+    # lets through only the accepted ones). After the user-dictionary check above, so that they never turn a valid typed word into a correction.
+    iget-object p4, p0, Lcom/mrkeyboard/app/Suggest;->mAutoDictionary:Lcom/mrkeyboard/app/Dictionary;
+
+    if-eqz p4, :cond_mr_noauto
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/Suggest;->mNextLettersFrequencies:[I
+
+    invoke-virtual {p4, p2, p0, v0}, Lcom/mrkeyboard/app/Dictionary;->getWords(Lcom/mrkeyboard/app/WordComposer;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
+
+    :cond_mr_noauto
     iget-object p4, p0, Lcom/mrkeyboard/app/Suggest;->mMainDict:Lcom/mrkeyboard/app/BinaryDictionary;
 
     iget-object v0, p0, Lcom/mrkeyboard/app/Suggest;->mNextLettersFrequencies:[I

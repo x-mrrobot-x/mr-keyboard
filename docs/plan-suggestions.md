@@ -50,7 +50,8 @@ What this says:
 | 1.5 | **Data patches until the rebuild** - **done for `rules.txt`** | pt-BR: `flw`, `fmz`, `wpp`, `whatsapp`, `uber`, `ifood`, `tiktok`, `instagram`, `netflix`, `youtube`, `spotify`; en-US: `whatsapp`, `wasap`, `whatsap`, `wpp`, and `visavis` now points to `vis-à-vis`; es: `whatsapp`, `wasap`, `wasapp`, `guasap`, `wpp` (`pa` → para was tried and dropped: it is a prefix of many words and cost 0.2 points at 2 letters for no gain). Packs pt-BR 5, en-US 4, es 3. Left for the rebuild (they need data, and a correction cannot point to a word the dictionary lacks): en `tiktok`, pt `pix`, the frequency of `tá`, `né`, `oi` and the other chat words | `StrategyTest` D3 (no known defect left in the list) and the `GAP` cases of the chat words |
 | 1.6 | **`x86_64` libs** - **done** | `mr-native.yml` builds a 4th ABI for both libs; the artifact of that workflow (built from the current `native/` and `engine/`, same source hashes) was merged into `lib/x86_64`, and `mr-apk.yml` now requires the 4 ABIs. The 8 ELF files were checked: x86-64, 16 KB alignment (0x4000), `JNI_OnLoad`, no `libc++_shared`. The other 6 libs came back byte-identical | the artifact passes the checks of `mr-native.yml` (alignment, JNI, no `libc++_shared`) |
 
-## Phase 2 - v1.85.0: two new screens
+## Phase 2 - v1.85.0: two new screens - **delivered**
+The text below is the design; "What was delivered" at the end of this phase lists what changed while building it. How it works today is in "The two screens" of `suggestion-features.md`.
 Both go in *Settings → Suggestions and dictionaries*, in a new category **"My words"** (title in the three languages: Portuguese, English, Spanish, like the other screens; `res_check.py` must pass).
 They use the settings palette (`mr_ui_*`) and plain framework views (`ListView` + adapter, no new library), built in Java under `docs/tools/java/src/com/mrkeyboard/app/` like `MrPacksActivity`.
 
@@ -143,6 +144,24 @@ Material:
 - `StrategyTest` S29 (imported word completes with 2 letters; blocked word never shows; imported pair raises the prediction).
 - Device checklist (SQLite and screens, as S16 needs Android): upgrade over 1.84 keeps learned words; delete a word and see it disappear from the strip at once; block; import 5,000 words and watch the heap and the keyboard opening time; export on one phone, import on another; rotate the screen during an import; password field still learns nothing.
 
+### What was delivered in 1.85.0 (and where it differs from the design)
+| Design | Delivered | Why |
+|---|---|---|
+| `ALTER TABLE` to version 2 of both databases (`src`, `batch`, `added`) | A third database, `mr_words.db` (`MrSqlStore`), for added words, added pairs and blocked words; `auto_dict.db` and `userbigram_dict.db` are untouched and `MrLearned.loadFrom` pushes the added rows into the dictionaries in memory | no migration risk (an upgrade from 1.84 cannot lose what was learned); the caps and "delete everything added" are one table; a store that fails to open leaves the learned data working |
+| One "Words" list with an icon for the source, plus "Pairs" and "Blocked" tabs | Tabs **Learned / Added / Blocked** and a Words/Pairs switch | the source is the first thing to filter by, and learned rows have no date or source column |
+| Pages of 200; date added and times used on each row; long press for a multiple selection | Pages of 50 with a "Show more" button; each row shows the word (or pair) and its weight (1-100; learned frequencies are mapped to the same scale); one action menu per row, plus delete-all per tab | simpler and light on small phones; the learned databases have no date; multi-select can come later if it is asked for |
+| Reading a file: UTF-8 (BOM accepted), ISO-8859-1 fallback, at most 2 MB | At most **8 MB**, UTF-8 with or without BOM, **Windows-1252** when the bytes are not valid UTF-8 (`MrImport.decode`, PC-tested); a file cut at the limit loses only its last character | a long chat export is more than 2 MB; old Notepad/Excel files are Windows-1252, not ISO-8859-1 |
+| `[shortcuts]` (phase 2b) and "Share to Mr Keyboard" | Not done: a `[shortcuts]` line is reported as ignored ("Shortcuts are not supported yet") | both were marked optional; they need their own design (a per-user table consulted first, an extra share-sheet entry) |
+| "Imported words enter with frequency 60 of 255" | Weight 1-100 → frequency 6-250, **130 at weight 50**, calibrated with `ImportEval` (3 letters: pt-BR 11 of 12 names, en-US 15 of 18, es 18 of 19 are one of the 2 suggestions; 4 letters nearly all; weight 100 from 2 letters). Pairs: frequency 4-9 on the scale of the user's pairs (score 80-127) | 60 never reached the strip; the numbers come from the sweep, not a guess |
+| Strategy tag S29 "imported word completes with 2 letters" | S29 has 16 checks per language (weights 5, 50 and 100, the valid-word rule, learned words from frequency 6, blocked words, imported pairs); at 2 letters a weight-100 name completes in more than half of the cases and a weight-50 name seldom does | a name must not outrank everyday words when only 2 letters are typed |
+| `ImportTest`, `LearnedStoreTest` | 80 and 49 checks, in `run_java_tests.sh` | |
+
+Two things were found while building it and are part of this release:
+- **`AutoDictionary` never completed a word.** In the original code `mAutoDictionary` is only asked by `Suggest.isValidWord`; `getSuggestions` never read it, so the words the keyboard "learned" only stopped being flagged as errors. `Suggest.getSuggestions` now asks it before the main dictionary and `AutoDictionary.getWords` passes only words from frequency 6 (`MrLearned.gate`), the point where the original code already calls a learned word valid (a word typed once or twice does not show). This is a visible behaviour change and is in the release notes.
+- **The center promotion** (`eu aida` → ainda, S27, `MrFuzzy.ALT_CTX_FIRST`): when the alternative for a rare valid word is also one of the candidates of the previous words and the typed word is not, it goes to the center slot. `PromoEval`: the right word reaches the center in 50.0% (pt-BR), 30.2% (en-US) and 55.2% (es) of the real-word errors; 0.28% / 0.00% / 0.24% of the correctly typed words get a wrong word there. The typed word keeps the first place and autocorrect is unchanged.
+
+Measured: a full list (20,000 words, 30,000 pairs) takes about 5 MB of Java heap; keystroke time pt-BR unchanged, en-US +3 to 5%, es +1 to 3% (details in "Speed" of `suggestion-features.md`). **Not testable on the PC** and left to the device checklist in `suggestion-features.md`: `MrSqlStore` and the real screens.
+
 ## Phase 3 - v1.86.0: dictionary format v2 (up to 16 MB)
 Why: the packs use 88-90% of the 22-bit address space and subtitle data needs more words and pairs. A `.dict` address is 6 bits in the flags byte + 2 bytes (`0x40` children, `0x80` terminal) and bigrams carry a 3-byte address.
 - New header value (format v2, `main.dict` header `200/2`) with 24-bit group addresses and 4-byte bigram addresses (about +0.7 MB for the same content). Readers to change together: `native/src/dictionary.cpp`, `engine/src/mr_fuzzy.cpp` (3 places), `MrFuzzy.java` (`prefixRec`, `walk`, `lookupRec`, `skipBigrams`), and `build_dict.py` (`ADDRESS_LIMIT`, its own re-read check). The libs stay compatible with v1 files (the header decides).
@@ -200,7 +219,7 @@ From here I can reach GitHub but not the corpus sites (they answer 403), so plea
 
 ## Order and dependencies
 1. Phase 1 is delivered in 1.84.0.
-2. Phase 2 is independent of the data and can run while you download the corpus.
+2. Phase 2 is delivered in 1.85.0 (it was independent of the data).
 3. Phase 3 must be released before the first v2 pack.
 4. Phase 4 starts when the files arrive; es first (largest gap), then pt-BR, then en-US.
 5. Phase 5 closes the plan.

@@ -32,7 +32,7 @@ fi
 # ---- test classes
 rm -rf "$OUT/stubs" "$OUT/cls"; mkdir -p "$OUT/stubs" "$OUT/cls"
 javac -nowarn -encoding UTF-8 -cp "$JAR" -d "$OUT/stubs" $(find $E/android_stubs -name '*.java')
-javac -nowarn -encoding UTF-8 -cp "$JAR:$OUT/stubs" -d "$OUT/cls" $E/E2ETest.java $E/E2EEn.java $E/E2EEs.java $E/SubtitleEval.java $E/StrategyTest.java
+javac -nowarn -encoding UTF-8 -cp "$JAR:$OUT/stubs" -d "$OUT/cls" $E/E2ETest.java $E/E2EEn.java $E/E2EEs.java $E/SubtitleEval.java $E/ImportEval.java $E/StrategyTest.java
 CP="$OUT/cls:$OUT/stubs:$JAR"
 run() { java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote -Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 \
              -Djava.library.path="$OUT/engine:$OUT/native" "$@"; }

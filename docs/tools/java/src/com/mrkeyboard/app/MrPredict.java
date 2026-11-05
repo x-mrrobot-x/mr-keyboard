@@ -246,6 +246,29 @@ public final class MrPredict {
         }
     }
 
+    /**
+     * v1.85.0: the word is one of the candidates of the context that the word being typed saw on its 1st letter (accent and case ignored).
+     * Used by MrFuzzy to move a likely word to the center of the strip when the previous words confirm it ("eu aida" -> ainda).
+     */
+    static boolean inContext(CharSequence w) {
+        if (w == null || w.length() == 0) return false;
+        synchronized (MrPredict.class) {
+            if (!sTypedCtx || sCount == 0) return false;
+            for (int i = 0; i < sCount; i++) {
+                if (score(i) > 0 && sameWord(sWord[i], w)) return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean sameWord(String a, CharSequence b) {
+        if (a.length() != b.length()) return false;
+        for (int i = 0; i < a.length(); i++) {
+            if (MrText.base(a.charAt(i)) != MrText.base(b.charAt(i))) return false;
+        }
+        return true;
+    }
+
     /** The word starts with the n typed letters, ignoring accent and case. */
     private static boolean startsWith(String word, CharSequence typed, int n) {
         for (int i = 0; i < n; i++) {
@@ -272,7 +295,7 @@ public final class MrPredict {
     }
 
     private static void add(String w, int mainFreq, int userFreq) {
-        if (w.equalsIgnoreCase(sPrev)) return;
+        if (w.equalsIgnoreCase(sPrev) || MrLearned.isBlocked(w)) return;
         for (int i = 0; i < sCount; i++) {
             if (sWord[i].equals(w)) {
                 if (mainFreq > sMain[i]) sMain[i] = mainFreq;

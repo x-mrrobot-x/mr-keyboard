@@ -19,4 +19,6 @@ public class TextView extends android.view.View {
     public void setInputType(int type) { }
     public void setSingleLine(boolean singleLine) { }
     public void setMinLines(int minLines) { }
+    public void setMaxLines(int maxLines) { }
+    public void setLineSpacing(float add, float mult) { }
 }

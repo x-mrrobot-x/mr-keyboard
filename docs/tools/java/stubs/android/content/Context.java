@@ -4,6 +4,7 @@ package android.content;
 public abstract class Context {
     public static final int MODE_PRIVATE = 0;
     public static final String JOB_SCHEDULER_SERVICE = "jobscheduler";
+    public static final String CLIPBOARD_SERVICE = "clipboard";
     public static final String NOTIFICATION_SERVICE = "notification";
     public static final String INPUT_METHOD_SERVICE = "input_method";
     public abstract android.content.res.AssetManager getAssets();
@@ -17,4 +18,6 @@ public abstract class Context {
     public abstract void startActivity(Intent intent);
     public android.content.res.Resources.Theme getTheme() { return null; }
     public Object getSystemService(String name) { return null; }
+    public java.io.File getDatabasePath(String name) { return null; }
+    public ContentResolver getContentResolver() { return null; }
 }
