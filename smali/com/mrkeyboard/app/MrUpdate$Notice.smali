@@ -39,7 +39,7 @@
     .locals 0
 
     .prologue
-    .line 70
+    .line 73
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -51,7 +51,7 @@
     .locals 2
 
     .prologue
-    .line 82
+    .line 85
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -91,7 +91,7 @@
     .locals 2
 
     .prologue
-    .line 76
+    .line 79
     if-eqz p1, :cond_0
 
     const-string v0, "pt"
@@ -112,7 +112,7 @@
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesPt:Ljava/lang/String;
 
-    .line 77
+    .line 80
     :goto_0
     invoke-static {v0}, Lcom/mrkeyboard/app/MrUpdate;->plain(Ljava/lang/String;)Ljava/lang/String;
 
@@ -120,7 +120,7 @@
 
     return-object v0
 
-    .line 76
+    .line 79
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesEn:Ljava/lang/String;
 

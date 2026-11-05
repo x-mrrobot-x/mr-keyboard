@@ -209,5 +209,19 @@
 
     invoke-virtual {p1, v0}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
+    # v1.82: new-version notice on opening (once a day, in the background)
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdateUi;->onOpen(Landroid/app/Activity;)V
+
+    return-void
+.end method
+
+.method protected onDestroy()V
+    .locals 0
+
+    # v1.82: closes the new-version dialog with the screen
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdateUi;->release(Landroid/app/Activity;)V
+
+    invoke-super {p0}, Landroid/app/Activity;->onDestroy()V
+
     return-void
 .end method

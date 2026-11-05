@@ -16,6 +16,14 @@ It covers:
 - **Windows:** opening the app (24 h), morning job (reuses a check up to 6 h old), 1 h of waiting after a failed try, the
   manual check that ignores them all, a clock set back.
 - **Notes:** simple Markdown to plain text, Portuguese for `pt`, English for the other languages.
+- **Screens (`screens()`):** the "Check when the app opens" switch (on by default, kept in `mr_update`, not in the default
+  preferences), "Not now" (per version, 24 h, a newer version pops up at once, a clock set back does not hide the notice),
+  the text keys of the errors and the size text (1.2 MB / 1,2 MB / 512 KB).
+- **Glue of the screens (`glue()`):** `MrUpdateUi` with a fake screen and fake preference rows: opening with the switch off
+  and on, the 24 h window, "Not now", the `mr_update_show` extra of the morning notification, offline with and without a
+  known version, a screen that is finishing, and the Settings lines (a tap for each result: up to date, offline, new
+  version, version already known). The dialog is asked for through a test seam (`MrUpdateDialog.sAsked`); how it looks is
+  checked on the device.
 
 With the folder made by `update_test/make_fixtures.sh` as argument it also reads an `update.json` made by the **real tools**
 (`make_update.py` and `SignCatalog.java` with a keytool key, `--domain update`): it must be accepted, and the same data signed
@@ -26,4 +34,4 @@ sh docs/tools/run_java_tests.sh        # at the project root; or by hand:
 sh docs/tools/update_test/make_fixtures.sh /tmp/update_fx
 ```
 
-It was also run against the classes of the assembled APK (dex → jar), with the same 82 checks.
+It was also run against the classes of the assembled APK (dex → jar), with the same 118 checks.

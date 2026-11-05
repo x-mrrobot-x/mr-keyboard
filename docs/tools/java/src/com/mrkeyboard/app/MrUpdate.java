@@ -42,6 +42,9 @@ public final class MrUpdate {
     static final String KEY_TRIED = "tried_at";
     static final String KEY_SEEN = "seen_code";
     static final String KEY_NOTICE = "notice";
+    static final String KEY_AUTO = "auto";
+    static final String KEY_SNOOZE_CODE = "snooze_code";
+    static final String KEY_SNOOZE_AT = "snooze_at";
     static final int MAX_NOTICE = 32 << 10;
     static final int MAX_NOTES = 8000;
     static final long MAX_APK = 100L << 20;
@@ -184,6 +187,67 @@ public final class MrUpdate {
         } catch (MrPacks.PackException e) {
             return null;
         }
+    }
+
+    // ------------------------------------------------------------------ settings and "Not now"
+
+    /** "Check when the app opens" (Settings, About). On by default; off means no automatic check and no pop-up. */
+    static boolean auto(Context c) {
+        return prefs(c).getBoolean(KEY_AUTO, true);
+    }
+
+    static void setAuto(Context c, boolean on) {
+        prefs(c).edit().putBoolean(KEY_AUTO, on).commit();
+    }
+
+    /**
+     * "Not now" (and View on GitHub, and closing the dialog): the pop-up for this version does not come back on opening
+     * the app for WINDOW. A newer version has another versionCode and shows at once. The Settings line still shows it.
+     */
+    static void snooze(Context c, Notice n) {
+        prefs(c).edit().putLong(KEY_SNOOZE_CODE, n.versionCode).putLong(KEY_SNOOZE_AT, now()).commit();
+    }
+
+    /** True while the pop-up for this notice is snoozed. A clock that went back counts as "not snoozed". */
+    static boolean snoozed(Context c, Notice n) {
+        SharedPreferences p = prefs(c);
+        long at = p.getLong(KEY_SNOOZE_AT, 0), now = now();
+        return p.getLong(KEY_SNOOZE_CODE, 0) == n.versionCode && at > 0 && now >= at && now - at < WINDOW;
+    }
+
+    /** What to pop up on opening: the stored newer version if it is not snoozed, else null. No network. */
+    static Notice toShow(Context c) {
+        Notice n = pending(c);
+        return n != null && !snoozed(c, n) ? n : null;
+    }
+
+    /** The version name of the installed app (e.g. v1.82.0), or "" if it cannot be read. */
+    static String appName(Context c) {
+        try {
+            String v = c.getPackageManager().getPackageInfo(c.getPackageName(), 0).versionName;
+            return v != null ? v : "";
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    // ------------------------------------------------------------------ texts
+
+    /** Name (in the strings) of the reason a check failed. */
+    static String errorKey(int error) {
+        switch (error) {
+            case ERR_NETWORK: return "mr_update_err_network";
+            case ERR_HTTP: return "mr_update_err_http";
+            case ERR_SIGNATURE: return "mr_update_err_signature";
+            case ERR_OLD: return "mr_update_err_old";
+            default: return "mr_update_err_file";
+        }
+    }
+
+    /** "1.2 MB" (decimal comma in the languages that use it); under 1 MB in KB. */
+    static String sizeText(long bytes, Locale l) {
+        if (bytes < 1000000L) return String.format(l, "%d KB", Math.max(1L, (bytes + 500L) / 1000L));
+        return String.format(l, "%.1f MB", bytes / 1000000.0);
     }
 
     /** The answer from what is stored, without the network. */

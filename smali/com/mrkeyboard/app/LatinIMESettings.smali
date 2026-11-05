@@ -909,6 +909,9 @@
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setOnPreferenceClickListener(Landroid/preference/Preference$OnPreferenceClickListener;)V
 
     :cond_no_author
+    # v1.82: "Check for updates" line, switch and new-version notice on opening
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdateUi;->bind(Landroid/preference/PreferenceActivity;)V
+
     return-void
 .end method
 
@@ -952,6 +955,9 @@
     move-result-object v0
 
     invoke-interface {v0, p0}, Landroid/content/SharedPreferences;->unregisterOnSharedPreferenceChangeListener(Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;)V
+
+    # v1.82: closes the new-version dialog with the screen
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdateUi;->release(Landroid/app/Activity;)V
 
     .line 145
     invoke-super {p0}, Landroid/preference/PreferenceActivity;->onDestroy()V

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.preference.Preference;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -86,6 +87,7 @@ public class UpdateTest {
     static final class Ctx extends Context {
         final Map<String, Prefs> prefs = new HashMap<String, Prefs>();
         int versionCode;
+        String versionName = "v1.81.0";
 
         Ctx(int installed) {
             versionCode = installed;
@@ -104,6 +106,7 @@ public class UpdateTest {
                 public PackageInfo getPackageInfo(String name, int flags) {
                     PackageInfo pi = new PackageInfo();
                     pi.versionCode = versionCode;
+                    pi.versionName = versionName;
                     return pi;
                 }
             };
@@ -277,6 +280,8 @@ public class UpdateTest {
         signatures();
         versions();
         windows();
+        screens();
+        glue();
         notesText();
         if (args.length > 0) realFiles(new File(args[0]));
 
@@ -538,6 +543,243 @@ public class UpdateTest {
         // cached() with a stored notice and a state that was never written
         Ctx g = new Ctx(1081000);
         check("nothing stored: unknown, no notice", MrUpdate.cached(g).status == MrUpdate.UNKNOWN && MrUpdate.pending(g) == null);
+        at(T0);
+    }
+
+    /** What the screens rely on: the switch, "Not now", what to pop up, the texts of the errors and of the size. */
+    static void screens() throws Exception {
+        Ctx c = new Ctx(1081000);
+        check("switch 'Check when the app opens' is on by default", MrUpdate.auto(c));
+        MrUpdate.setAuto(c, false);
+        check("switch off is kept", !MrUpdate.auto(c) && !c.state().getBoolean(MrUpdate.KEY_AUTO, true));
+        MrUpdate.setAuto(c, true);
+        check("switch on again", MrUpdate.auto(c));
+        check("the switch lives in 'mr_update', not in the default preferences (outside the backup and Restore defaults)",
+                c.prefs.size() == 1 && c.prefs.containsKey(MrUpdate.PREFS));
+
+        // what to pop up on opening
+        N n = new N();
+        at(T0);
+        run(c, n);
+        MrUpdate.Notice known = MrUpdate.pending(c);
+        check("a newer version is known after the check", known != null && known.versionName.equals("v1.82.0"));
+        check("not snoozed: the pop-up shows", !MrUpdate.snoozed(c, known) && MrUpdate.toShow(c) != null);
+        MrUpdate.snooze(c, known);
+        check("'Not now': no pop-up", MrUpdate.snoozed(c, known) && MrUpdate.toShow(c) == null);
+        check("'Not now' does not hide the version from the Settings line", MrUpdate.pending(c) != null);
+        at(T0 + 23 * H + 59 * 60 * 1000);
+        check("within 24 h still snoozed", MrUpdate.toShow(c) == null);
+        at(T0 + 24 * H);
+        check("after 24 h the pop-up comes back", MrUpdate.toShow(c) != null);
+        at(T0 + 1000);
+        MrUpdate.snooze(c, known);
+        run(c, new N().code(1083000, "v1.83.0"));
+        check("a newer version than the snoozed one pops up at once", MrUpdate.pending(c).versionName.equals("v1.83.0")
+                && MrUpdate.toShow(c) != null);
+        at(T0 - H);
+        MrUpdate.snooze(c, MrUpdate.pending(c));
+        at(T0 - 2 * H);
+        check("clock set back: not snoozed (it must not hide the notice for days)", MrUpdate.toShow(c) != null);
+        at(T0);
+        Ctx up = new Ctx(1083000);
+        run(up, new N().code(1083000, "v1.83.0"));
+        check("the installed version is the newest: nothing to pop up", MrUpdate.toShow(up) == null && MrUpdate.pending(up) == null);
+
+        // texts
+        check("app name comes from the package", MrUpdate.appName(c).equals("v1.81.0"));
+        c.versionName = null;
+        check("app name with no versionName is empty, not null", MrUpdate.appName(c).equals(""));
+        check("each error has its own text key", MrUpdate.errorKey(MrUpdate.ERR_NETWORK).equals("mr_update_err_network")
+                && MrUpdate.errorKey(MrUpdate.ERR_HTTP).equals("mr_update_err_http")
+                && MrUpdate.errorKey(MrUpdate.ERR_SIGNATURE).equals("mr_update_err_signature")
+                && MrUpdate.errorKey(MrUpdate.ERR_OLD).equals("mr_update_err_old")
+                && MrUpdate.errorKey(MrUpdate.ERR_FILE).equals("mr_update_err_file")
+                && MrUpdate.errorKey(MrUpdate.ERR_NONE).equals("mr_update_err_file"));
+        check("size: 1.2 MB in English, 1,2 MB in Portuguese and Spanish",
+                MrUpdate.sizeText(1234567, Locale.ENGLISH).equals("1.2 MB")
+                        && MrUpdate.sizeText(1234567, new Locale("pt", "BR")).equals("1,2 MB")
+                        && MrUpdate.sizeText(1234567, new Locale("es")).equals("1,2 MB"));
+        check("size: under 1 MB is in KB, never 0", MrUpdate.sizeText(512345, Locale.ENGLISH).equals("512 KB")
+                && MrUpdate.sizeText(1, Locale.ENGLISH).equals("1 KB"));
+        check("size: 10.5 MB", MrUpdate.sizeText(10500000, Locale.ENGLISH).equals("10.5 MB"));
+        at(T0);
+    }
+
+    // ------------------------------------------------------------------ the glue of the screens (MrUpdateUi)
+
+    static final class FakeRow extends android.preference.Preference {
+        CharSequence summary;
+        Preference.OnPreferenceClickListener click;
+
+        FakeRow(Context c) { super(c); }
+        @Override public void setSummary(CharSequence s) { summary = s; }
+        @Override public void setOnPreferenceClickListener(Preference.OnPreferenceClickListener l) { click = l; }
+    }
+
+    static final class FakeSwitch extends android.preference.CheckBoxPreference {
+        boolean checked;
+        Preference.OnPreferenceChangeListener change;
+
+        FakeSwitch(Context c) { super(c); }
+        @Override public void setChecked(boolean b) { checked = b; }
+        @Override public boolean isChecked() { return checked; }
+        @Override public void setOnPreferenceChangeListener(Preference.OnPreferenceChangeListener l) { change = l; }
+    }
+
+    static final class FakeActivity extends android.preference.PreferenceActivity {
+        final Ctx ctx;
+        final Map<String, Preference> prefs = new HashMap<String, Preference>();
+        android.content.Intent intent;
+        boolean finishing;
+
+        FakeActivity(Ctx c) { ctx = c; }
+        @Override public Context getApplicationContext() { return ctx; }
+        @Override public SharedPreferences getSharedPreferences(String n, int m) { return ctx.getSharedPreferences(n, m); }
+        @Override public String getPackageName() { return ctx.getPackageName(); }
+        @Override public PackageManager getPackageManager() { return ctx.getPackageManager(); }
+        @Override public void runOnUiThread(Runnable r) { r.run(); }
+        @Override public boolean isFinishing() { return finishing; }
+        @Override public Preference findPreference(CharSequence k) { return prefs.get(k.toString()); }
+        @Override public android.content.Intent getIntent() { return intent; }
+    }
+
+    interface Cond { boolean ok(); }
+
+    static boolean waitFor(Cond c) throws Exception {
+        for (int i = 0; i < 250; i++) {
+            if (c.ok()) return true;
+            Thread.sleep(20);
+        }
+        return c.ok();
+    }
+
+    static void settle() throws Exception {
+        Thread.sleep(250);
+    }
+
+    /** Opening the screens, the line and the switch of Settings, with a fake screen and the fake network. */
+    static void glue() throws Exception {
+        MrPacks.sTestCerts = new X509Certificate[] {new FakeCert(rsa.getPublic())};
+        netDown = false;
+        httpCode = 0;
+        body = good(new N());
+
+        // switch off: no network, no pop-up
+        Ctx c = new Ctx(1081000);
+        MrUpdate.setAuto(c, false);
+        FakeActivity a = new FakeActivity(c);
+        requests = 0;
+        MrUpdateDialog.sAsked = null;
+        MrUpdateUi.onOpen(a);
+        settle();
+        check("opening with the switch off: no request and no pop-up", requests == 0 && MrUpdateDialog.sAsked == null);
+
+        // switch on, new version: one request, pop-up
+        MrUpdate.setAuto(c, true);
+        at(T0);
+        MrUpdateUi.onOpen(a);
+        check("opening with the switch on: asks GitHub once and pops up the new version", waitFor(() -> MrUpdateDialog.sAsked != null)
+                && requests == 1 && MrUpdateDialog.sAsked.versionName.equals("v1.82.0"));
+        int asked = MrUpdateDialog.sAskedCount;
+        at(T0 + 2 * H);
+        MrUpdateUi.onOpen(a);
+        check("opening again within 24 h: no new request, the pop-up comes back until the user answers",
+                waitFor(() -> MrUpdateDialog.sAskedCount == asked + 1) && requests == 1);
+        MrUpdate.snooze(c, MrUpdate.pending(c));
+        MrUpdateUi.onOpen(a);
+        settle();
+        check("after 'Not now' opening does not pop up again", MrUpdateDialog.sAskedCount == asked + 1 && requests == 1);
+
+        // the notification (stage 8) opens the dialog even with it snoozed and the switch off
+        MrUpdate.setAuto(c, false);
+        final boolean[] removed = {false};
+        a.intent = new android.content.Intent((String) null, (android.net.Uri) null) {
+            @Override public boolean getBooleanExtra(String n, boolean d) { return n.equals(MrUpdateUi.EXTRA_SHOW); }
+            @Override public void removeExtra(String n) { removed[0] = n.equals(MrUpdateUi.EXTRA_SHOW); }
+        };
+        MrUpdateUi.onOpen(a);
+        check("started from the notification: opens the dialog at once, even snoozed, and drops the extra",
+                MrUpdateDialog.sAskedCount == asked + 2 && removed[0] && requests == 1);
+        a.intent = null;
+
+        // offline: a notice already known still shows; nothing known, nothing shown and no error
+        MrUpdate.setAuto(c, true);
+        at(T0 + 3 * 24 * H);
+        netDown = true;
+        requests = 0;
+        MrUpdateUi.onOpen(a);
+        check("offline with a known version: the stored notice pops up (no snooze left after 24 h)",
+                waitFor(() -> MrUpdateDialog.sAskedCount == asked + 3));
+        Ctx fresh = new Ctx(1081000);
+        FakeActivity b = new FakeActivity(fresh);
+        MrUpdateUi.onOpen(b);
+        settle();
+        check("offline and nothing known: no pop-up and no exception", MrUpdateDialog.sAskedCount == asked + 3);
+        netDown = false;
+
+        // a screen that is closing gets nothing
+        Ctx d = new Ctx(1081000);
+        FakeActivity gone = new FakeActivity(d);
+        gone.finishing = true;
+        int before = MrUpdateDialog.sAskedCount;
+        at(T0);
+        MrUpdateUi.onOpen(gone);
+        settle();
+        check("screen finishing: no pop-up", MrUpdateDialog.sAskedCount == before);
+        MrUpdateUi.release(gone);
+
+        // Settings: the rows
+        Ctx e = new Ctx(1081000);
+        FakeActivity s = new FakeActivity(e);
+        FakeRow row = new FakeRow(e);
+        FakeSwitch sw = new FakeSwitch(e);
+        s.prefs.put("mr_update", row);
+        s.prefs.put("mr_update_auto", sw);
+        MrUpdate.setAuto(e, false);
+        requests = 0;
+        MrUpdateUi.bind(s);
+        check("Settings: the switch shows the stored state and the line shows the installed version",
+                !sw.checked && "mr_update_check_sum".equals(String.valueOf(row.summary)) && row.click != null && sw.change != null);
+        settle();
+        check("Settings with the switch off: opening did not touch the network", requests == 0);
+        sw.change.onPreferenceChange(sw, Boolean.TRUE);
+        check("flipping the switch is stored in 'mr_update'", MrUpdate.auto(e));
+        sw.change.onPreferenceChange(sw, Boolean.FALSE);
+        check("flipping it off is stored too", !MrUpdate.auto(e));
+
+        // manual tap: up to date
+        requests = 0;
+        at(T0);
+        body = good(new N().code(1081000, "v1.81.0"));
+        row.click.onPreferenceClick(row);
+        check("tap, same version: the line ends saying it is up to date", waitFor(() -> "mr_update_sum_uptodate".equals(String.valueOf(row.summary)))
+                && requests == 1);
+        // tap: offline
+        netDown = true;
+        row.click.onPreferenceClick(row);
+        check("tap, offline: the line says why it could not check", waitFor(() -> "mr_update_sum_error".equals(String.valueOf(row.summary))));
+        netDown = false;
+        // tap: new version
+        body = good(new N());
+        int k = MrUpdateDialog.sAskedCount;
+        row.click.onPreferenceClick(row);
+        check("tap, newer version: the line says so and the dialog opens", waitFor(() -> MrUpdateDialog.sAskedCount == k + 1)
+                && "mr_update_sum_available".equals(String.valueOf(row.summary)));
+        int reqs = requests;
+        row.click.onPreferenceClick(row);
+        check("tap with a version already known opens the dialog without going to the network", requests == reqs
+                && MrUpdateDialog.sAskedCount == k + 2);
+        // an old signed file: replay
+        Ctx f = new Ctx(1081000);
+        FakeActivity fa = new FakeActivity(f);
+        FakeRow fr = new FakeRow(f);
+        fa.prefs.put("mr_update", fr);
+        body = good(new N().code(1083000, "v1.83.0"));
+        MrUpdate.check(f);
+        body = good(new N());
+        MrUpdate.setAuto(f, false);
+        MrUpdateUi.bind(fa);
+        check("Settings with a known version: the line already says it is available", "mr_update_sum_available".equals(String.valueOf(fr.summary)));
         at(T0);
     }
 

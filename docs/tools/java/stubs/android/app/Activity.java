@@ -11,4 +11,5 @@ public class Activity extends android.view.ContextThemeWrapper {
     public void setContentView(android.view.View view) { }
     public android.content.Intent getIntent() { return null; }
     public void finish() { }
+    public void runOnUiThread(Runnable action) { }
 }

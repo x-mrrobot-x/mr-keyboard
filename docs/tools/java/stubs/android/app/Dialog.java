@@ -8,6 +8,7 @@ public class Dialog implements android.content.DialogInterface {
     public android.view.Window getWindow() { return null; }
     public void setCancelable(boolean flag) { }
     public void setCanceledOnTouchOutside(boolean cancel) { }
+    public void setOnCancelListener(android.content.DialogInterface.OnCancelListener listener) { }
     public void setOnDismissListener(android.content.DialogInterface.OnDismissListener listener) { }
     public boolean isShowing() { return false; }
     public void dismiss() { }

@@ -197,4 +197,24 @@
     <string name="mr_ai_style_need_instr">Escreva as instruções do estilo.</string>
     <string name="mr_ai_style_saved">Estilo salvo</string>
     <string name="mr_ai_style_deleted">Estilo excluído</string>
+    <!-- v1.82: new-version notice (Settings: Check for updates; dialog) -->
+    <string name="mr_update_check_title">Procurar atualização</string>
+    <string name="mr_update_check_sum">Versão instalada: %s</string>
+    <string name="mr_update_sum_checking">Procurando…</string>
+    <string name="mr_update_sum_available">Nova versão %s disponível. Toque para ver as novidades</string>
+    <string name="mr_update_sum_uptodate">Você está na versão mais recente (%s)</string>
+    <string name="mr_update_sum_error">Não foi possível procurar: %s</string>
+    <string name="mr_update_err_network">sem conexão</string>
+    <string name="mr_update_err_http">o GitHub respondeu com o erro %d</string>
+    <string name="mr_update_err_file">o aviso de atualização não é válido</string>
+    <string name="mr_update_err_signature">a assinatura do aviso não confere</string>
+    <string name="mr_update_err_old">o aviso é mais antigo que um já visto</string>
+    <string name="mr_update_auto_title">Verificar ao abrir o app</string>
+    <string name="mr_update_auto_sum">Procura versão nova no máximo 1 vez por dia, com um pedido simples ao GitHub</string>
+    <string name="mr_update_title">Nova versão disponível</string>
+    <string name="mr_update_sub">%1$s · %2$s · você está na %3$s</string>
+    <string name="mr_update_notes_none">Esta versão não tem notas.</string>
+    <string name="mr_update_install">Baixar e instalar</string>
+    <string name="mr_update_github">Ver no GitHub</string>
+    <string name="mr_update_later">Agora não</string>
 </resources>

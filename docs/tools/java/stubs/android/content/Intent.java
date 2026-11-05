@@ -7,5 +7,7 @@ public class Intent {
     public Intent(String action, android.net.Uri uri) { }
     public Intent addFlags(int flags) { return this; }
     public Intent putExtra(String name, int value) { return this; }
+    public boolean getBooleanExtra(String name, boolean defaultValue) { return defaultValue; }
+    public void removeExtra(String name) { }
     public int getIntExtra(String name, int defaultValue) { return defaultValue; }
 }
