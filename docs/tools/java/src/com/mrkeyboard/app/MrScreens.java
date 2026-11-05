@@ -5,8 +5,11 @@ import android.app.Application;
 import android.graphics.Insets;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowInsets;
+import android.view.WindowManager;
 
 /**
  * Behaviour shared by every screen (Activity) of the app, registered once in MrApplication.
@@ -19,8 +22,15 @@ import android.view.WindowInsets;
  * and one that applied the status bar a second time left a gap under the title of the settings screens. The IME inset goes
  * down too, less the part that is already padding (SheetEditorActivity works out the height of the keyboard from it).
  *
- * Below Android 15 nothing is registered: the system fits the window by itself (status and navigation bar with the colours of
- * the theme), as always.
+ * Below Android 15 the system fits the window by itself (status and navigation bar with the colours of the theme), as
+ * always, and the insets are left alone.
+ *
+ * Hardware acceleration (every Android): the manifest says <code>hardwareAccelerated="false"</code> for the app, so the
+ * screens are drawn by the processor, as they always were; the three that draw with their own code (the Sheets editor, the
+ * Sheets page and the AI Editor styles) say "true" in the manifest. Android lets a window turn the acceleration on but never
+ * off, so the setting "pref_ui_hw_accel" (Advanced, off by default) is applied here, in onActivityCreated, which runs before
+ * the window is handed to the system (the flag is read when the window is added, after onResume). It never touches the
+ * windows without a screen of their own (the translucent helpers) or the keyboard and its dialogs.
  */
 public final class MrScreens implements Application.ActivityLifecycleCallbacks, View.OnApplyWindowInsetsListener {
     /** android.R.id.content. */
@@ -29,11 +39,40 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
     static final int EDGE_TO_EDGE_SDK = 35;
     /** First Android with WindowInsets.Type and WindowInsets.inset. */
     static final int INSETS_API_SDK = 30;
+    /** Setting (Advanced screen): draw the screens of the app with hardware acceleration. Off by default. */
+    static final String KEY_HW_ACCEL = "pref_ui_hw_accel";
+    /** Windows with no screen of their own (translucent, they only hand something over): never accelerated. */
+    private static final String[] HELPERS = {
+            "com.google.android.voiceime.ActivityHelper", "com.mrkeyboard.app.ShotPerm", "com.mrkeyboard.app.ShotPick"};
 
     /** Registers the callbacks of the screens (once, in MrApplication.onCreate). */
     public static void install(Application app) {
-        if (app == null || Build.VERSION.SDK_INT < EDGE_TO_EDGE_SDK) return;
+        if (app == null) return;
         app.registerActivityLifecycleCallbacks(new MrScreens());
+    }
+
+    /**
+     * The Advanced screen calls this when a setting changes: the acceleration is read when the window is created, so
+     * that screen is created again to take the new value at once (the ones behind it take it the next time they open).
+     */
+    public static void onSetting(Activity screen, String key) {
+        if (screen != null && KEY_HW_ACCEL.equals(key)) screen.recreate();
+    }
+
+    /** True for the windows that are not screens of the app (see HELPERS). */
+    static boolean isHelper(String className) {
+        for (String name : HELPERS) if (name.equals(className)) return true;
+        return false;
+    }
+
+    /** The setting is on and this window is a screen: the flag goes on. A failure to read it leaves the screen as it was. */
+    static boolean accelerates(Activity screen) {
+        if (isHelper(screen.getClass().getName())) return false;
+        try {
+            return PreferenceManager.getDefaultSharedPreferences(screen).getBoolean(KEY_HW_ACCEL, false);
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     /**
@@ -52,6 +91,7 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
     }
 
     public void onActivityStarted(Activity activity) {
+        if (Build.VERSION.SDK_INT < EDGE_TO_EDGE_SDK) return;
         View content = activity.findViewById(CONTENT);
         if (content == null) return;
         content.setOnApplyWindowInsetsListener(this);
@@ -63,7 +103,14 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
         return Api30.fit(view, insets);
     }
 
-    public void onActivityCreated(Activity activity, Bundle savedInstanceState) { }
+    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+        if (!accelerates(activity)) return;
+        Window window = activity.getWindow();
+        if (window != null) {
+            window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+        }
+    }
 
     public void onActivityResumed(Activity activity) { }
 

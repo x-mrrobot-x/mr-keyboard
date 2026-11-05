@@ -27,6 +27,11 @@
     <string name="mr_ui_link_no_browser">Nenhum app encontrado para abrir o link</string>
     <string name="mr_ui_cat_input">Comportamento</string>
     <string name="mr_ui_cat_input_sum">Editor e teclado virtual</string>
+    <string name="mr_ui_cat_draw">Telas</string>
+    <string name="mr_ui_cat_draw_sum">Como as telas do app são desenhadas</string>
+    <string name="mr_ui_hw_accel">Aceleração por hardware</string>
+    <string name="mr_ui_hw_accel_on">As telas do app são desenhadas pela GPU; usa mais memória. Não afeta o teclado.</string>
+    <string name="mr_ui_hw_accel_off">As telas do app são desenhadas pelo processador (padrão). Não afeta o teclado.</string>
     <string name="mr_ui_cat_haptic">Vibração</string>
     <string name="mr_ui_cat_sound">Som</string>
     <string name="mr_ui_cat_visual">Visual</string>

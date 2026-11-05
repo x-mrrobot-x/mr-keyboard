@@ -7,4 +7,7 @@ public class Window {
     public android.view.WindowManager.LayoutParams getAttributes() { return null; }
     public void setAttributes(android.view.WindowManager.LayoutParams attrs) { }
     public android.view.View getDecorView() { return null; }
+    /** Flags kept so that the PC tests can read what a screen asked for (Window.setFlags: new value under a mask). */
+    public int stubFlags;
+    public void setFlags(int flags, int mask) { stubFlags = (stubFlags & ~mask) | (flags & mask); }
 }

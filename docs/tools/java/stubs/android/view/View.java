@@ -73,4 +73,9 @@ public class View {
     public View findViewWithTag(Object tag) { return null; }
     public void setAlpha(float alpha) { }
     public void setElevation(float elevation) { }
+    private boolean stubAttached, stubAccelerated;
+    /** Attached to a window and drawn with hardware acceleration: set by the PC tests, read by the code. */
+    public void stubWindowState(boolean attached, boolean accelerated) { stubAttached = attached; stubAccelerated = accelerated; }
+    public boolean isAttachedToWindow() { return stubAttached; }
+    public boolean isHardwareAccelerated() { return stubAccelerated; }
 }

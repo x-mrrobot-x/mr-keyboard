@@ -20,7 +20,7 @@
 
     .prologue
     .line 24
-    const/16 v0, 0x37
+    const/16 v0, 0x38
 
     new-array v0, v0, [Ljava/lang/String;
 
@@ -224,131 +224,137 @@
 
     const/16 v1, 0x21
 
-    const-string v2, "show_suggestions"
+    const-string v2, "pref_ui_hw_accel"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x22
 
-    const-string v2, "auto_complete"
+    const-string v2, "show_suggestions"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x23
 
-    const-string v2, "quick_fixes"
+    const-string v2, "auto_complete"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x24
 
-    const-string v2, "recorrection_enabled"
+    const-string v2, "quick_fixes"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x25
 
-    const-string v2, "suggestions_in_landscape"
+    const-string v2, "recorrection_enabled"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x26
 
-    const-string v2, "pref_suggested_punctuation"
+    const-string v2, "suggestions_in_landscape"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x27
 
-    const-string v2, "pref_ai_provider"
+    const-string v2, "pref_suggested_punctuation"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x28
 
-    const-string v2, "pref_ai_endpoint"
+    const-string v2, "pref_ai_provider"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x29
 
-    const-string v2, "pref_ai_model"
+    const-string v2, "pref_ai_endpoint"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x2a
 
-    const-string v2, "pref_ai_key"
+    const-string v2, "pref_ai_model"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x2b
 
-    const-string v2, "pref_candidate_scale"
+    const-string v2, "pref_ai_key"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x2c
 
-    const-string v2, "pref_sheet_return"
+    const-string v2, "pref_candidate_scale"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x2d
 
-    const-string v2, "pref_render_mode"
+    const-string v2, "pref_sheet_return"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x2e
 
-    const-string v2, "pref_slide_keys_int"
+    const-string v2, "pref_render_mode"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x2f
 
-    const-string v2, "connectbot_tab_hack"
+    const-string v2, "pref_slide_keys_int"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x30
 
-    const-string v2, "pref_touch_pos"
+    const-string v2, "connectbot_tab_hack"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x31
 
-    const-string v2, "pref_click_method"
+    const-string v2, "pref_touch_pos"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x32
 
-    const-string v2, "pref_top_row_scale"
+    const-string v2, "pref_click_method"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x33
 
-    const-string v2, "pref_caps_lock"
+    const-string v2, "pref_top_row_scale"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x34
 
-    const-string v2, "pref_shift_lock_modifiers"
+    const-string v2, "pref_caps_lock"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x35
 
-    const-string v2, "pref_chording_meta_key"
+    const-string v2, "pref_shift_lock_modifiers"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x36
+
+    const-string v2, "pref_chording_meta_key"
+
+    aput-object v2, v0, v1
+
+    const/16 v1, 0x37
 
     const-string v2, "settings_key"
 
@@ -363,13 +369,13 @@
     .locals 0
 
     .prologue
-    .line 84
+    .line 85
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 85
+    .line 86
     iput-object p1, p0, Lcom/mrkeyboard/app/MrReset;->mContext:Landroid/content/Context;
 
-    .line 86
+    .line 87
     return-void
 .end method
 
@@ -387,7 +393,7 @@
     .locals 5
 
     .prologue
-    .line 106
+    .line 107
     invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -396,7 +402,7 @@
 
     move-result-object v1
 
-    .line 107
+    .line 108
     sget-object v2, Lcom/mrkeyboard/app/MrReset;->KEYS:[Ljava/lang/String;
 
     array-length v3, v2
@@ -414,16 +420,16 @@
 
     goto :goto_0
 
-    .line 108
+    .line 109
     :cond_0
     invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 109
+    .line 110
     const-string v0, ""
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrAi;->setApiKey(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 110
+    .line 111
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -434,7 +440,7 @@
 
     iget-object v0, v0, Landroid/content/res/Configuration;->locale:Ljava/util/Locale;
 
-    .line 111
+    .line 112
     const/4 v1, 0x0
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->installedIds(Landroid/content/Context;)Ljava/util/ArrayList;
@@ -451,7 +457,7 @@
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrPacks;->syncLanguages(Landroid/content/Context;Ljava/util/List;)V
 
-    .line 112
+    .line 113
     return-void
 .end method
 
@@ -463,14 +469,14 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 89
+    .line 90
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrReset;->mContext:Landroid/content/Context;
 
     invoke-direct {v0, v1}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 90
+    .line 91
     iget-object v1, p0, Lcom/mrkeyboard/app/MrReset;->mContext:Landroid/content/Context;
 
     const-string v2, "mr_reset_title"
@@ -483,7 +489,7 @@
 
     invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    .line 91
+    .line 92
     iget-object v1, p0, Lcom/mrkeyboard/app/MrReset;->mContext:Landroid/content/Context;
 
     const-string v2, "mr_reset_confirm"
@@ -496,7 +502,7 @@
 
     invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    .line 92
+    .line 93
     iget-object v1, p0, Lcom/mrkeyboard/app/MrReset;->mContext:Landroid/content/Context;
 
     const-string v2, "mr_reset_do"
@@ -513,7 +519,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
-    .line 99
+    .line 100
     iget-object v1, p0, Lcom/mrkeyboard/app/MrReset;->mContext:Landroid/content/Context;
 
     const-string v2, "mr_reset_cancel"
@@ -528,10 +534,10 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/app/AlertDialog$Builder;->setNegativeButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
-    .line 100
+    .line 101
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 101
+    .line 102
     const/4 v0, 0x1
 
     return v0

@@ -27,6 +27,11 @@
     <string name="mr_ui_link_no_browser">No app found to open the link</string>
     <string name="mr_ui_cat_input">Behavior</string>
     <string name="mr_ui_cat_input_sum">Editor and virtual keyboard</string>
+    <string name="mr_ui_cat_draw">Screens</string>
+    <string name="mr_ui_cat_draw_sum">How the app screens are drawn</string>
+    <string name="mr_ui_hw_accel">Hardware acceleration</string>
+    <string name="mr_ui_hw_accel_on">The app screens are drawn by the GPU; uses more memory. The keyboard is not affected.</string>
+    <string name="mr_ui_hw_accel_off">The app screens are drawn by the processor (default). The keyboard is not affected.</string>
     <string name="mr_ui_cat_haptic">Vibration</string>
     <string name="mr_ui_cat_sound">Sound</string>
     <string name="mr_ui_cat_visual">Visual</string>

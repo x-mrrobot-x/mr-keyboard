@@ -10,7 +10,11 @@ public class Activity extends android.view.ContextThemeWrapper {
     public void setTitle(CharSequence title) { }
     public boolean isFinishing() { return false; }
     public boolean isDestroyed() { return false; }
-    public void recreate() { }
+    public int stubRecreates;
+    /** Counts the calls so that the PC tests can see that a screen was created again. */
+    public void recreate() { stubRecreates++; }
+    public android.view.Window stubWindow = new android.view.Window();
+    public android.view.Window getWindow() { return stubWindow; }
     public void setContentView(android.view.View view) { }
     public android.content.Intent getIntent() { return null; }
     public void finish() { }

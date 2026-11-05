@@ -83,8 +83,9 @@ ao rolar) entra como item principal.
 - O teclado (IME) continua passando para as telas: `inset` só desconta o que já virou padding. A conta do
   editor de folhas (`ime.bottom − systemBars.bottom`, em `Api30ImeHelper`) dá o mesmo valor de antes (852 no
   exemplo do teste, com teclado de 900 e barra de 48).
-- `MrApplication.smali` chama `MrScreens.install(this)`; a checagem de SDK (35) agora fica dentro do Java. Abaixo
-  do 35 nada é registrado, como antes. A Etapa 5 estende o `install` para ligar a aceleração.
+- `MrApplication.smali` chama `MrScreens.install(this)`; a checagem de SDK (35) fica dentro do Java, em
+  `onActivityStarted` (os insets). Desde a Etapa 5 o callback é registrado em todos os Androids, porque a opção de
+  aceleração vale em todos; abaixo do 35 os insets continuam intocados, como antes.
 - O tema continua com `statusBarColor`/`navigationBarColor` (valem no SDK 26–34 e na barra de 3 botões).
 - Teste no PC: `docs/tools/screens_test/ScreensTest.java` (25 checks: SDK que registra, padding, insets que
   sobram, paisagem com recorte, teclado). Sete mutações do `MrScreens` foram todas pegas pelo teste.
@@ -255,35 +256,68 @@ ao rolar) entra como item principal.
 - Arquivos: `MrScreens.java` (+ `MrScreens$DialogFit` e `.smali` gerados), `MrAiDialog.java` (+ smali), `res_check.py`,
   `ScreensTest.java`, stub `View`.
 
-### Etapa 5 — Aceleração por hardware com opção
-- Preferência nova `pref_ui_hw_accel` (caixa de seleção em **Avançado**, padrão **desligada**, textos em
-  inglês, espanhol e português do Brasil) que liga a aceleração nas telas do app. Desligada, as telas seguem
-  desenhando por software, exatamente como hoje.
+### Etapa 5 — Aceleração por hardware com opção — FEITA
+- Preferência nova `pref_ui_hw_accel`: caixa de seleção em **Avançado**, categoria nova "Telas" (`screen_drawing`),
+  padrão **desligada**, textos em inglês, espanhol e português do Brasil (`mr_ui_cat_draw`, `mr_ui_cat_draw_sum`,
+  `mr_ui_hw_accel`, `_on`, `_off`). Desligada, as telas seguem desenhando por software, exatamente como hoje. O
+  resumo diz que o teclado não é afetado.
 - O Android permite **ligar** a aceleração por janela, mas não desligar (documentação oficial). Por isso o
-  manifesto continua `hardwareAccelerated="false"` nas telas controladas pela opção (Main, Configurações e
-  subtelas, preferências de IA, pacotes) e o `MrScreens` liga o flag da janela em `onActivityCreated` quando a
-  preferência está ligada (a janela só é entregue ao sistema depois do `onResume`, então o flag chega a tempo;
-  o teste no aparelho confirma). Vale só para as telas do próprio app, sem as janelas auxiliares (`ShotPerm`,
-  `ShotPick`, `ActivityHelper`).
-- As três telas que **já aceleram hoje** (`PrefScreenSheets`, `SheetEditorActivity`, `MrAiStyleActivity`)
-  continuam com `hardwareAccelerated="true"` no manifesto e fora da opção: são desenhadas por código próprio,
-  já foram testadas assim, e passá-las para software pioraria o editor por padrão.
-- Ao alternar, a tela de Configurações chama `recreate()` para o efeito ser imediato.
-- Não mexe no teclado nem nos diálogos dele (o atributo do `<application>` continua `false`).
-- Entra na lista de chaves de "restaurar padrões" e o `check_reset_keys.py` é atualizado junto.
-- **Checagem do teclado (sem opção por enquanto):** pela documentação, a aceleração do IME é ligada pelo
-  sistema na API 21+, independente do atributo do app, mas isso não foi confirmado no aparelho. Numa build de
-  teste, registrar em log `isHardwareAccelerated()` da janela do teclado depois de anexada e comparar o
-  `dumpsys gfxinfo com.mrkeyboard.app` com o teclado aberto. Se estiver acelerado: nada a fazer. Se estiver em
-  software: só então avaliar uma opção própria para o teclado, com teste visual completo (o desenho do teclado
-  é por código próprio e pode sair errado com a aceleração).
+  manifesto continua `hardwareAccelerated="false"` no `<application>` e `MrScreens.onActivityCreated` liga o flag
+  da janela (`FLAG_HARDWARE_ACCELERATED`) quando a preferência está ligada. A janela só é entregue ao sistema
+  depois do `onResume`, então o flag chega a tempo (**a confirmar no aparelho**, Etapa 7).
+- Fora da opção: as janelas auxiliares sem tela (`ShotPerm`, `ShotPick`, `ActivityHelper`, por nome em
+  `MrScreens.HELPERS`) e as três telas que **já aceleram pelo manifesto** (`PrefScreenSheets`, `SheetEditorActivity`,
+  `MrAiStyleActivity`): continuam `true`, são desenhadas por código próprio e passá-las para software pioraria o
+  editor por padrão. Com a opção desligada o código não tira um flag que o manifesto já tenha posto.
+- Falha ao ler a preferência (`RuntimeException`) deixa a tela como estava: a tela sempre abre.
+- Ao alternar, `PrefScreenAdvanced.onSharedPreferenceChanged` chama `MrScreens.onSetting`, que faz `recreate()` só
+  para a chave `pref_ui_hw_accel`. Só a tela Avançado se recria na hora; as telas que já estavam abertas atrás dela
+  (Configurações, Main) pegam o novo valor na próxima vez que forem abertas. Não há `recreate` automático nas demais
+  de propósito: se o flag não pudesse ser ligado, um laço de recriação seria pior que o problema.
+- Entrou em `MrReset.KEYS` ("Restaurar padrões"): `check_reset_keys.py` agora dá 44 | 56.
+- **Checagem do teclado (sem opção por enquanto):** pela documentação, a aceleração do IME é ligada pelo sistema
+  na API 21+, independente do atributo do app, mas isso não foi confirmado no aparelho. `MrAccel` (Java, novo)
+  escreve **uma linha por processo** no log, na primeira vez que a janela do teclado aparece e já está anexada:
+  `MrAccel: keyboard window hardwareAccelerated=true|false (SDK n)`. Ler com `adb logcat -s MrAccel` e comparar com
+  `adb shell dumpsys gfxinfo com.mrkeyboard.app` com o teclado aberto. Se `true`: nada a fazer. Se `false`: só
+  então avaliar uma opção própria para o teclado, com teste visual completo (o desenho do teclado é por código
+  próprio e pode sair errado com a aceleração). O gancho é em `LatinIME.onWindowShown`; a classe nunca falha o
+  teclado (qualquer exceção é engolida).
+- Testes no PC: `ScreensTest` ficou com 90 checks (registro em todos os SDKs, insets intocados abaixo do 35,
+  padrão desligado, flag ligado em todos os SDKs, flags existentes preservados, auxiliares sem flag, preferência
+  ilegível ou ausente, tela sem janela, `onSetting`); `accel_test/AccelTest.java` com 14 (uma linha só, espera o
+  anexo da view, diz `true`/`false` conforme a janela, nada disponível não falha). Mutações: 16 das 18 foram pegas;
+  as 2 que sobraram (tirar a checagem de `null` da view e do diálogo no `MrAccel`) são equivalentes, porque o
+  `NullPointerException` cai no `catch (RuntimeException)` e o resultado é o mesmo (nada no log, nada falha).
+- Guardas em `res_check.py`: `<application>` com `hardwareAccelerated="false"` e as únicas telas `true` são as
+  três acima; a preferência (chave, `persistent`, `defaultValue="false"`, resumos) e as cinco strings nos três
+  idiomas; `MrScreens.install` sem checagem de SDK e padrão `false` no código; os dois ganchos em smali. Dez
+  mutações dos guardas, todas pegas.
+- Arquivos: `MrScreens.java` (e o smali gerado), `MrAccel.java` (novo, com `MrAccel$1.smali`), `MrReset.java`,
+  `PrefScreenAdvanced.smali`, `LatinIME.smali` (`onWindowShown`), `MrApplication.smali` (comentário),
+  `prefs_advanced.xml`, `mr_strings.xml` (3 idiomas), `res_check.py`, `build_java.sh`, `run_java_tests.sh`, stubs
+  (`Window.setFlags`, `Activity.getWindow` e contador de `recreate`, `FLAG_HARDWARE_ACCELERATED`,
+  `PreferenceManager.stubDefault`, `util/Log`, `View.isAttachedToWindow`/`isHardwareAccelerated`).
 
-### Etapa 6 — Guardas e testes
-- Java no PC: `MrScreensTest` (aritmética de insets, flags de `MrNav`, padrão da preferência).
-- `res_check.py`: sem `windowOptOutEdgeToEdgeEnforcement`, cores das barras no tema, manifesto das telas
-  (launch mode e aceleração), strings da preferência nos três idiomas. Com mutação para provar que o guarda
-  pega.
-- `check_java_smali.sh`, `verify_dex.sh`, `smali_regcheck.py` e as suítes existentes sem regressão.
+### Etapa 6 — Guardas e testes — FEITA
+- Os testes Java no PC foram escritos junto com cada etapa, em vez de num `MrScreensTest` só: `ScreensTest` (90:
+  aritmética de insets, diálogo, altura da janela, aceleração), `NavTest` (35: flags de `MrNav`), `ScreenImeTest`
+  (57), `AiReturnTest` (38), `KeepTest` (33), `BarTest` (30) e `AccelTest` (14), todos no `run_java_tests.sh`.
+- Guardas novas no `res_check.py` (as de manifesto, aceleração e strings da preferência já tinham entrado nas
+  Etapas 2–5):
+  - nenhum arquivo de `res/` nem o manifesto usa `windowOptOutEdgeToEdgeEnforcement`;
+  - `Theme.MrKeyboard.Settings` mantém `statusBarColor` e `navigationBarColor` em `@color/mr_ui_bg`, e o `Main`
+    herda dele (ou repete as cores); nenhuma das duas com outra cor;
+  - toda tela do manifesto usa um tema `Theme.MrKeyboard.*`; as três janelas auxiliares seguem translúcidas;
+  - `MrApplication.onCreate` chama `MrScreens.install`;
+  - todo `*Test.java` de pasta `*_test` está no `run_java_tests.sh`, a menos que a pasta tenha um `README.md`
+    dizendo como roda à mão (`packs_test` e `settings_test`, que precisam de rede, fixtures ou APK).
+- Nove mutações desses guardas (opt-out, cada cor da barra, herança do `Main`, tema de tela, tema das auxiliares,
+  `install`, teste fora do executor, teste novo sem registro) foram todas pegas; um `README.md` na pasta isenta
+  como previsto.
+- Bateria completa sem regressão: `check_java_smali.sh`, `verify_dex.sh`, `smali_regcheck.py`, as suítes Java,
+  `check_reset_keys.py` (44 | 56), `mres_check.py`, `res_check.py`, versão, catálogo, update, workflows,
+  `test_make_*` e `publish_test`.
 
 ### Etapa 7 — Teste no aparelho (checklist do usuário)
 - **Android 17 (o seu):** título de Configurações sem espaço extra, parado e rolando; subtelas idem; girar a tela
@@ -318,9 +352,17 @@ ao rolar) entra como item principal.
   Em paisagem o diálogo ocupa a tela inteira (cobre o teclado), o cartão fica abaixo do relógio e da câmera, rola
   se faltar altura, tocar fora do cartão fecha e, ao fechar, o teclado volta. Girar a tela com o diálogo aberto troca
   de modo sozinho. Também com o gesto e com a barra de 3 botões.
-- **Aceleração:** com a opção desligada nada muda; ligar e conferir que a rolagem de Configurações segue
-  correta (e desligar de novo volta ao normal).
-- **Teclado acelerado ou não:** resultado da checagem da Etapa 5 (log da build de teste).
+- **Aceleração das telas (Avançado > Telas):** com a opção desligada nada muda (padrão). Ligar: a tela Avançado
+  pisca e volta com a caixa marcada; abrir Configurações e uma subtela e conferir que a rolagem segue correta e
+  que nada fica sem desenhar (barra de título, ícones das categorias, listas). Desligar de novo volta ao normal.
+  As telas abertas antes de alternar só mudam quando abrem de novo (esperado). Em "Restaurar padrões" a caixa
+  volta a desmarcada. Os editores (folhas, estilos de IA) não mudam com a opção.
+- **Flag chegou a tempo:** com a opção ligada, `adb shell dumpsys gfxinfo com.mrkeyboard.app` com Configurações
+  aberta deve mostrar estatísticas de quadros da janela da tela (o `gfxinfo` só conta janelas desenhadas pelo
+  renderizador por GPU, a confirmar); desligada, sem elas. Se ligada e a janela seguir em software, o flag chegou
+  tarde e a Etapa 5 precisa mudar para o tema/manifesto por tela.
+- **Teclado acelerado ou não:** com o teclado aberto pela primeira vez, `adb logcat -s MrAccel` mostra uma linha
+  `keyboard window hardwareAccelerated=true|false (SDK n)`. Anotar o resultado nos Androids 13 e 17.
 - Opcional, para medir peso: `adb shell dumpsys gfxinfo com.mrkeyboard.app framestats` com a opção ligada e
   desligada.
 

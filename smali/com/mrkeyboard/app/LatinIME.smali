@@ -9404,6 +9404,9 @@
 
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->onImeWindowShown()V
 
+    # One line in the log, once per process: is the keyboard window drawn with hardware acceleration? (MrAccel)
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrAccel;->onShown(Landroid/inputmethodservice/InputMethodService;)V
+
     return-void
 .end method
 

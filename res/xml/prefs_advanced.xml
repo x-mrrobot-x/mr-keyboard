@@ -9,4 +9,7 @@
     <CheckBoxPreference android:persistent="true" android:title="@string/title_fullscreen_override" android:key="fullscreen_override" android:defaultValue="@bool/default_fullscreen_override" android:summaryOn="@string/summary_fullscreen_override_true" android:summaryOff="@string/summary_fullscreen_override_false"/>
     <CheckBoxPreference android:persistent="true" android:title="@string/title_force_keyboard_on" android:key="force_keyboard_on" android:defaultValue="@bool/default_force_keyboard_on" android:summaryOn="@string/summary_force_keyboard_on_true" android:summaryOff="@string/summary_force_keyboard_on_false"/>
   </PreferenceCategory>
+  <PreferenceCategory android:title="@string/mr_ui_cat_draw" android:key="screen_drawing" android:summary="@string/mr_ui_cat_draw_sum" android:icon="@drawable/mr_ui_ic_eye_cyan">
+    <CheckBoxPreference android:persistent="true" android:title="@string/mr_ui_hw_accel" android:key="pref_ui_hw_accel" android:defaultValue="false" android:summaryOn="@string/mr_ui_hw_accel_on" android:summaryOff="@string/mr_ui_hw_accel_off"/>
+  </PreferenceCategory>
 </PreferenceScreen>

@@ -2,14 +2,19 @@ package com.mrkeyboard.app;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.graphics.Insets;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowInsets;
+import android.view.WindowManager;
 
 /**
- * MrScreens (the insets of the screens on Android 15+): which Android registers it, what goes to the padding of the
- * content area, and above all what is left for the views below, which must not be able to reserve the bars again.
+ * MrScreens (the insets of the screens on Android 15+): what goes to the padding of the content area, and above all what is
+ * left for the views below, which must not be able to reserve the bars again; and the setting of hardware acceleration of the
+ * screens (every Android): off by default, the flag of the window when it is on, never for the helper windows.
  */
 public class ScreensTest {
     static int ok, fail;
@@ -40,6 +45,38 @@ public class ScreensTest {
         return b.build();
     }
 
+    /** A screen with no window (the system can hand over an activity that is already going away). */
+    static class NoWindow extends Activity {
+        public Window getWindow() { return null; }
+    }
+
+    /** Preferences in memory; "broken" makes every read fail, like a store that cannot be opened. */
+    static class Prefs implements SharedPreferences {
+        final java.util.HashMap<String, Object> map = new java.util.HashMap<String, Object>();
+        boolean broken;
+        public java.util.Map<String, ?> getAll() { return map; }
+        public String getString(String key, String def) { return def; }
+        public int getInt(String key, int def) { return def; }
+        public long getLong(String key, long def) { return def; }
+        public boolean getBoolean(String key, boolean def) {
+            if (broken) throw new IllegalStateException("cannot read");
+            Object v = map.get(key);
+            return v == null ? def : ((Boolean) v).booleanValue();
+        }
+        public Editor edit() { return null; }
+        public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener l) { }
+        public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener l) { }
+    }
+
+    static final int HW = WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
+
+    /** The screen goes through onActivityCreated; the answer is the flags of its window afterwards. */
+    static int flagsAfterCreate(Activity screen, int before) {
+        screen.getWindow().stubFlags = before;
+        new MrScreens().onActivityCreated(screen, null);
+        return screen.getWindow().stubFlags;
+    }
+
     static int registered(int sdk) {
         Build.VERSION.SDK_INT = sdk;
         Application app = new Application();
@@ -53,10 +90,16 @@ public class ScreensTest {
     }
 
     public static void main(String[] a) {
+        int[] every = {26, 28, 29, 30, 33, 34, 35, 36, 37};
+        for (int sdk : every) check("Android SDK " + sdk + ": one callback registered (the acceleration setting works on every Android)", registered(sdk) == 1);
         int[] below = {26, 28, 29, 30, 33, 34};
-        for (int sdk : below) check("Android SDK " + sdk + ": nothing is registered (the system fits the window)", registered(sdk) == 0);
-        int[] from = {35, 36, 37};
-        for (int sdk : from) check("Android SDK " + sdk + ": one callback registered", registered(sdk) == 1);
+        for (int sdk : below) {
+            Build.VERSION.SDK_INT = sdk;
+            View c = new View();
+            new MrScreens().onActivityStarted(new Screen(c));
+            check("Android SDK " + sdk + ": starting a screen leaves the insets alone (the system fits the window)",
+                    c.stubInsetsListener() == null && c.stubInsetsRequests() == 0);
+        }
         Build.VERSION.SDK_INT = 36;
         boolean nullApp = true;
         try { MrScreens.install(null); } catch (RuntimeException e) { nullApp = false; }
@@ -175,7 +218,74 @@ public class ScreensTest {
         check("position of the keyboard unknown (0 or negative): the whole display, as before",
                 MrAiDialog.windowHeight(0, 2.5f) == match && MrAiDialog.windowHeight(-1, 2.5f) == match);
 
+        // ---- hardware acceleration of the screens: the setting pref_ui_hw_accel, off by default
+        check("the key of the setting", MrScreens.KEY_HW_ACCEL.equals("pref_ui_hw_accel"));
+        check("the flag is the one of the window (0x01000000)", HW == 0x01000000);
+        Prefs prefs = new Prefs();
+        PreferenceManager.stubDefault = prefs;
+        for (int sdk : every) {
+            Build.VERSION.SDK_INT = sdk;
+            prefs.map.clear();
+            check("SDK " + sdk + ", setting never changed: the screen is drawn as always (no flag)", flagsAfterCreate(new Screen(null), 0) == 0);
+            prefs.map.put(MrScreens.KEY_HW_ACCEL, Boolean.FALSE);
+            check("SDK " + sdk + ", setting off: no flag", flagsAfterCreate(new Screen(null), 0) == 0);
+            prefs.map.put(MrScreens.KEY_HW_ACCEL, Boolean.TRUE);
+            check("SDK " + sdk + ", setting on: the window asks for hardware acceleration", flagsAfterCreate(new Screen(null), 0) == HW);
+        }
+        Build.VERSION.SDK_INT = 33;
+        check("setting on: the other flags of the window stay (0x80 and 0x1000)", flagsAfterCreate(new Screen(null), 0x1080) == (0x1080 | HW));
+        check("setting on and the window already accelerated (manifest): it stays that way", flagsAfterCreate(new Screen(null), HW) == HW);
+        prefs.map.put(MrScreens.KEY_HW_ACCEL, Boolean.FALSE);
+        check("setting off: a flag the window already had is not taken off (Android cannot turn it off, and the manifest decides)",
+                flagsAfterCreate(new Screen(null), HW) == HW);
+        prefs.map.put(MrScreens.KEY_HW_ACCEL, Boolean.TRUE);
+        check("a helper window (translucent, hands something over) is never accelerated: ShotPerm", flagsAfterCreate(new ShotPerm(), 0) == 0);
+        check("a helper window is never accelerated: ShotPick", flagsAfterCreate(new ShotPick(), 0) == 0);
+        check("the helper windows are the three of the manifest",
+                MrScreens.isHelper("com.google.android.voiceime.ActivityHelper") && MrScreens.isHelper("com.mrkeyboard.app.ShotPerm")
+                && MrScreens.isHelper("com.mrkeyboard.app.ShotPick"));
+        check("the screens of the app are not helpers",
+                !MrScreens.isHelper("com.mrkeyboard.app.MainActivity") && !MrScreens.isHelper("com.mrkeyboard.app.PrefScreenAdvanced")
+                && !MrScreens.isHelper("com.mrkeyboard.app.SheetEditorActivity") && !MrScreens.isHelper("com.mrkeyboard.app.ShotPermX")
+                && !MrScreens.isHelper("ShotPerm") && !MrScreens.isHelper(""));
+        prefs.broken = true;
+        boolean unreadable = true;
+        int unreadableFlags = -1;
+        try { unreadableFlags = flagsAfterCreate(new Screen(null), 0); } catch (RuntimeException e) { unreadable = false; }
+        check("preferences that cannot be read: the screen opens as always (no flag, no failure)", unreadable && unreadableFlags == 0);
+        prefs.broken = false;
+        PreferenceManager.stubDefault = null;
+        boolean noPrefs = true;
+        int noPrefsFlags = -1;
+        try { noPrefsFlags = flagsAfterCreate(new Screen(null), 0); } catch (RuntimeException e) { noPrefs = false; }
+        check("no preferences at all: the screen opens as always", noPrefs && noPrefsFlags == 0);
+        PreferenceManager.stubDefault = prefs;
+        boolean noWin = true;
+        try { new MrScreens().onActivityCreated(new NoWindow(), null); } catch (RuntimeException e) { noWin = false; }
+        check("a screen with no window does not break", noWin);
+        boolean rest = true;
+        try { new MrScreens().onActivityResumed(new Screen(null)); new MrScreens().onActivityPaused(new Screen(null)); } catch (RuntimeException e) { rest = false; }
+        check("the other callbacks do nothing", rest);
+
+        // ---- the Advanced screen reports a change: only this setting creates the screen again
+        Screen adv = new Screen(null);
+        MrScreens.onSetting(adv, "pref_ui_hw_accel");
+        check("the acceleration setting changed: the screen is created again", adv.stubRecreates == 1);
+        MrScreens.onSetting(adv, "fullscreen_override");
+        MrScreens.onSetting(adv, "force_keyboard_on");
+        MrScreens.onSetting(adv, "pref_ui_hw_accel_x");
+        MrScreens.onSetting(adv, null);
+        check("any other setting leaves the screen as it is", adv.stubRecreates == 1);
+        boolean nullScreen = true;
+        try { MrScreens.onSetting(null, "pref_ui_hw_accel"); } catch (RuntimeException e) { nullScreen = false; }
+        check("onSetting with no screen does not fail", nullScreen);
+
         System.out.println(fail == 0 ? "ALL OK (" + ok + " checks)" : fail + " FAILURE(S)");
         System.exit(fail == 0 ? 0 : 1);
     }
 }
+
+/** The helper windows of the manifest exist only as smali in the app; here they stand for them by name. */
+class ShotPerm extends Activity { }
+
+class ShotPick extends Activity { }

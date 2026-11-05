@@ -19,7 +19,7 @@
 
     invoke-super {p0}, Landroid/app/Application;->onCreate()V
 
-    # Insets of the screens (Android 15+, where the SDK check is): see MrScreens.
+    # Screens: insets (Android 15+, where the SDK check is) and the hardware-acceleration setting: see MrScreens.
     invoke-static {p0}, Lcom/mrkeyboard/app/MrScreens;->install(Landroid/app/Application;)V
 
     return-void

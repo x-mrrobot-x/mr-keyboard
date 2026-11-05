@@ -1,5 +1,5 @@
 #!/bin/sh
-# Generates the smali of the Mr Keyboard Java layer (MrText, MrFix, MrFuzzy, MrPredict, MrTrigram, MrRules, MrJson, MrPacks, MrPacksActivity, MrAi, MrAiDialog, MrAiPrefs, MrAiStyleActivity, MrUpdate, MrUpdateDialog, MrUpdateInstall, MrUpdateReceiver, MrUpdateSchedule, MrUpdateNotify, MrUpdateJob, MrUpdateRearm, MrUpdateUi, MrScreens, MrScreenIme, MrNav, MrKeep, MrBarClose) from
+# Generates the smali of the Mr Keyboard Java layer (MrText, MrFix, MrFuzzy, MrPredict, MrTrigram, MrRules, MrJson, MrPacks, MrPacksActivity, MrAi, MrAiDialog, MrAiPrefs, MrAiStyleActivity, MrUpdate, MrUpdateDialog, MrUpdateInstall, MrUpdateReceiver, MrUpdateSchedule, MrUpdateNotify, MrUpdateJob, MrUpdateRearm, MrUpdateUi, MrScreens, MrScreenIme, MrNav, MrKeep, MrBarClose, MrAccel) from
 # docs/tools/java/src and copies it to smali/com/mrkeyboard/app/.
 #
 # Usage (at the root of the apktool project):

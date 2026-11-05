@@ -78,6 +78,10 @@ echo "== KeepTest (tool and keyboard when the screen turns)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_keep" $D/keep_test/KeepTest.java
 java -cp "$T/test_keep:$T/stubs:$T/main" com.mrkeyboard.app.KeepTest
 
+echo "== AccelTest (log of the keyboard window)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_accel" $D/accel_test/AccelTest.java
+java -cp "$T/test_accel:$T/stubs:$T/main" com.mrkeyboard.app.AccelTest
+
 if [ -n "$APPJAR" ]; then
   echo "== EsTest"
   javac -nowarn -cp "$T/stubs" -d "$T/ov_es" $(find $D/settings_test/stubs -name '*.java')

@@ -92,5 +92,8 @@
 
     invoke-virtual {p1}, Landroid/app/backup/BackupManager;->dataChanged()V
 
+    # The acceleration is read when the window is created: this screen is created again to take the new value (MrScreens).
+    invoke-static {p0, p2}, Lcom/mrkeyboard/app/MrScreens;->onSetting(Landroid/app/Activity;Ljava/lang/String;)V
+
     return-void
 .end method

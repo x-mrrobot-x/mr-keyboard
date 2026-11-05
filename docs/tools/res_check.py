@@ -374,6 +374,92 @@ start = tools_smali.find('.method public onClick(Landroid/view/View;)V')
 if 'MrBarClose;->onClick(I)V' not in tools_smali[start:tools_smali.find('.end method', start)]:
     problems.append('MrTools.onClick must call MrBarClose.onClick (a button of the bar closes the open dialogs)')
 
+# --- hardware acceleration of the screens (MrScreens + the setting pref_ui_hw_accel): Android can turn it on by window but never
+# off, so the manifest keeps the app at "false" and only the three screens that draw with their own code at "true"; the setting
+# only adds the flag. Off by default, in the three languages, and the Advanced screen creates itself again when it changes
+manifest_text = read_file('AndroidManifest.xml')
+app_tag = re.search(r'<application\b[^>]*>', manifest_text)
+if not app_tag or 'android:hardwareAccelerated="false"' not in app_tag.group(0):
+    problems.append('manifest: <application> must keep android:hardwareAccelerated="false" (the setting of the screens adds the flag; the default is software)')
+accelerated = sorted(re.search(r'android:name="com\.mrkeyboard\.app\.(\w+)"', t).group(1)
+                     for t in manifest_tags if 'android:hardwareAccelerated="true"' in t and re.search(r'android:name="com\.mrkeyboard\.app\.(\w+)"', t))
+if accelerated != ['MrAiStyleActivity', 'PrefScreenSheets', 'SheetEditorActivity']:
+    problems.append('manifest: the screens accelerated by the manifest must be MrAiStyleActivity, PrefScreenSheets and SheetEditorActivity (found %s)' % accelerated)
+adv_xml = read_file('res/xml/prefs_advanced.xml')
+hw_pref = [t for t in re.findall(r'<CheckBoxPreference\b[^>]*>', adv_xml) if 'android:key="pref_ui_hw_accel"' in t]
+if len(hw_pref) != 1:
+    problems.append('prefs_advanced.xml: the setting pref_ui_hw_accel is missing or repeated')
+else:
+    for attr in ('android:persistent="true"', 'android:defaultValue="false"', 'android:summaryOn="@string/mr_ui_hw_accel_on"',
+                 'android:summaryOff="@string/mr_ui_hw_accel_off"', 'android:title="@string/mr_ui_hw_accel"'):
+        if attr not in hw_pref[0]:
+            problems.append('prefs_advanced.xml: pref_ui_hw_accel needs %s (off by default)' % attr)
+for lang in ('values', 'values-es', 'values-pt-rBR'):
+    texts = read_file('res/%s/mr_strings.xml' % lang)
+    for name in ('mr_ui_cat_draw', 'mr_ui_cat_draw_sum', 'mr_ui_hw_accel', 'mr_ui_hw_accel_on', 'mr_ui_hw_accel_off'):
+        if '<string name="%s">' % name not in texts:
+            problems.append('%s/mr_strings.xml: string %s of the acceleration setting is missing' % (lang, name))
+screens_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrScreens.java')
+if 'KEY_HW_ACCEL = "pref_ui_hw_accel"' not in screens_src or 'getBoolean(KEY_HW_ACCEL, false)' not in screens_src:
+    problems.append('MrScreens: the key of the setting is not pref_ui_hw_accel or the default is not false')
+install_body = screens_src[screens_src.index('public static void install('):screens_src.index('public static void onSetting(')]
+if 'SDK_INT' in install_body:
+    problems.append('MrScreens.install: must register on every Android (the acceleration setting works on all; the insets check is in onActivityStarted)')
+adv_smali = read_file('smali/com/mrkeyboard/app/PrefScreenAdvanced.smali')
+changed = adv_smali[adv_smali.find('.method public onSharedPreferenceChanged('):]
+if 'MrScreens;->onSetting(Landroid/app/Activity;Ljava/lang/String;)V' not in changed:
+    problems.append('PrefScreenAdvanced.onSharedPreferenceChanged must call MrScreens.onSetting (the screen is created again with the new acceleration)')
+shown = ime_smali[ime_smali.find('.method public onWindowShown()V'):]
+shown = shown[:shown.find('.end method')]
+if 'MrAccel;->onShown(Landroid/inputmethodservice/InputMethodService;)V' not in shown:
+    problems.append('LatinIME.onWindowShown must call MrAccel.onShown (the log line of the keyboard window)')
+
+# --- edge-to-edge (Android 15+): the app is drawn under the bars on purpose and MrScreens puts the padding. Nobody opts out of
+# the enforcement (the attribute is ignored from Android 16 anyway and would hide the work), the theme of the screens keeps the
+# colour of the bars for the Androids before 15 and for the 3-button bar, and every screen uses a theme of the app
+for p in glob.glob('res/**/*.xml', recursive=True) + ['AndroidManifest.xml']:
+    if 'windowOptOutEdgeToEdgeEnforcement' in read_file(p):
+        problems.append('%s: windowOptOutEdgeToEdgeEnforcement must not be used (MrScreens handles the insets)' % p)
+theme_file = read_file('res/values/mr_theme.xml')
+def style_of(name):
+    m = re.search(r'<style name="%s"(?: parent="([^"]*)")?[^>]*>(.*?)</style>' % re.escape(name), theme_file, re.S)
+    return (m.group(1), m.group(2)) if m else (None, None)
+settings_parent, settings_body = style_of('Theme.MrKeyboard.Settings')
+main_parent, main_body = style_of('Theme.MrKeyboard.Main')
+if settings_body is None or main_body is None:
+    problems.append('mr_theme.xml: Theme.MrKeyboard.Settings or Theme.MrKeyboard.Main is missing')
+else:
+    for item in ('statusBarColor', 'navigationBarColor'):
+        want = '<item name="android:%s">@color/mr_ui_bg</item>' % item
+        if want not in settings_body:
+            problems.append('Theme.MrKeyboard.Settings: %s must be @color/mr_ui_bg (the bars of the Androids before 15)' % item)
+        if main_parent != '@style/Theme.MrKeyboard.Settings' and want not in main_body:
+            problems.append('Theme.MrKeyboard.Main: neither inherits from Settings nor sets %s' % item)
+    for item in ('statusBarColor', 'navigationBarColor'):
+        for body, who in ((settings_body, 'Settings'), (main_body, 'Main')):
+            if re.search(r'<item name="android:%s">(?!@color/mr_ui_bg)' % item, body):
+                problems.append('Theme.MrKeyboard.%s: %s with a colour other than the screen background' % (who, item))
+HELPER_SCREENS = ('ActivityHelper', 'ShotPerm', 'ShotPick')
+for tag in manifest_tags:
+    name = re.search(r'android:name="[\w.]*\.(\w+)"', tag).group(1)
+    theme = re.search(r'android:theme="([^"]*)"', tag)
+    if name in HELPER_SCREENS:
+        if not theme or 'Translucent' not in theme.group(1):
+            problems.append('manifest: the helper window %s must stay translucent' % name)
+    elif not theme or not theme.group(1).startswith('@style/Theme.MrKeyboard.'):
+        problems.append('manifest: screen %s without a Theme.MrKeyboard theme (its bars and colours would be the system ones)' % name)
+if 'MrScreens;->install(Landroid/app/Application;)V' not in read_file('smali/com/mrkeyboard/app/MrApplication.smali'):
+    problems.append('MrApplication.onCreate must call MrScreens.install (insets and acceleration of the screens)')
+
+# --- every test of the PC is in the runner (a test that nobody runs proves nothing); only a folder with a README, which says how
+# it is run by hand (it needs a network, an APK or fixtures), is left out
+runner = read_file('docs/tools/run_java_tests.sh')
+for folder in sorted(glob.glob('docs/tools/*_test')):
+    if os.path.exists(folder + '/README.md'): continue
+    for test in sorted(glob.glob(folder + '/*Test.java')):
+        if '/' + os.path.basename(folder) + '/' + os.path.basename(test) not in runner.replace('$D', ''):
+            problems.append('%s: not in docs/tools/run_java_tests.sh (run it there, or explain in a README.md how it is run by hand)' % test)
+
 print('resources: %d defined, %d entries in public.xml, %d strings in Spanish' % (len(defs), len(pub), len(es)))
 for p in problems:
     print('PROBLEM:', p)
