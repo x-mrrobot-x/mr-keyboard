@@ -121,16 +121,11 @@
     move-result-object v4
 
     .line 41
-    new-instance v6, Landroid/content/Intent;
-
     const-class v7, Lcom/mrkeyboard/app/LatinIMESettings;
 
-    invoke-direct {v6, p0, v7}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
+    invoke-static {p0, v7}, Lcom/mrkeyboard/app/MrNav;->intent(Landroid/content/Context;Ljava/lang/Class;)Landroid/content/Intent;
 
-    .line 42
-    const/high16 v7, 0x10000000
-
-    invoke-virtual {v6, v7}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
+    move-result-object v6
 
     .line 43
     const/4 v7, 0x2

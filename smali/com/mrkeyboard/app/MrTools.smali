@@ -1746,17 +1746,14 @@
     return-void
 
     :cond_sheets_go
-    new-instance v1, Landroid/content/Intent;
-
     const-class v2, Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    invoke-direct {v1, v0, v2}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
+    invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrNav;->intent(Landroid/content/Context;Ljava/lang/Class;)Landroid/content/Intent;
 
-    const/high16 v2, 0x10000000
-
-    invoke-virtual {v1, v2}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
+    move-result-object v1
 
     invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/LatinIME;->startActivity(Landroid/content/Intent;)V
+
     :try_end_sheets
     .catch Ljava/lang/Throwable; {:try_start_sheets .. :try_end_sheets} :catch_sheets
 

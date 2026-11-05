@@ -13,6 +13,8 @@
 #     reads an update.json made by make_update.py and signed by SignCatalog.java (keytool key).
 #   - ScreensTest: the insets of the screens on Android 15+ (MrScreens): which Android registers it, the padding of the
 #     content area (bars and cutout) and what is left for the views below, which cannot reserve the bars a second time.
+#   - NavTest: opening screens without stacking copies (MrNav): flags from the keyboard window and from a screen, and
+#     what the AI style editor does when it is asked for again while it is already open.
 #   - ScreenImeTest: the keyboard on the editor screens (MrScreenIme): which field has it saved when the screen is
 #     recreated, how it is asked for again once the new window has the focus, and the room made for it on Android 15+.
 #   - AiReturnTest: coming back to the AI Editor dialog after its Settings screen (MrAiDialog): the keyboard is asked to
@@ -52,6 +54,10 @@ java -cp "$T/test_update:$T/stubs:$T/main" com.mrkeyboard.app.UpdateTest "$T/upd
 echo "== ScreensTest (insets of the screens)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_screens" $D/screens_test/ScreensTest.java
 java -cp "$T/test_screens:$T/stubs:$T/main" com.mrkeyboard.app.ScreensTest
+
+echo "== NavTest (screens without copies)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_nav" $D/nav_test/NavTest.java
+java -cp "$T/test_nav:$T/stubs:$T/main" com.mrkeyboard.app.NavTest
 
 echo "== ScreenImeTest (keyboard on the editor screens)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_screenime" $D/screenime_test/ScreenImeTest.java

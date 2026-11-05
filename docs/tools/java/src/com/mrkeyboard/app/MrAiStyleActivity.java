@@ -2,6 +2,7 @@ package com.mrkeyboard.app;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -42,6 +43,8 @@ public class MrAiStyleActivity extends Activity {
     private static final String S_INSTR = "mr_style_instr";
     private static final String S_EMOJI = "mr_style_emoji";
     private static final String S_ARMED = "mr_style_delete_armed";
+    /** Which style the recreated screen shows; the draft above only counts when it belongs to that style. */
+    private static final String S_INDEX = "mr_style_index";
 
     /** Click bridge with code (as in the other panels): calls onAction of the live screen. */
     private final class Act implements View.OnClickListener {
@@ -63,6 +66,8 @@ public class MrAiStyleActivity extends Activity {
     private EditText mInstr;
     private TextView mDelete;
     private boolean mDeleteArmed;
+    /** A request for another style is being applied by recreating the screen: the old draft must not travel along. */
+    private boolean mReloading;
     private final ArrayList<TextView> mEmojiViews = new ArrayList<TextView>();
 
     @Override
@@ -82,10 +87,53 @@ public class MrAiStyleActivity extends Activity {
         super.onPause();
     }
 
+    /**
+     * The screen is already open and was asked for again (the gear or a style row tapped twice, or the AI Editor opened
+     * on another style while this one is on screen). Same style, or edits not saved yet: it just stays in front. Another
+     * style and nothing to lose: it is recreated on that style.
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent == null || mName == null || mInstr == null) return;
+        int wanted = normalIndex(intent.getIntExtra(MrAi.EXTRA_STYLE, -1), MrAi.loadCustom(this).size());
+        if (!shouldReload(wanted, mIndex, hasUnsavedChanges())) return;
+        setIntent(intent);
+        mIndex = wanted;
+        mReloading = true;
+        recreate();
+    }
+
+    /** An index outside the list means a new style. */
+    static int normalIndex(int index, int size) {
+        return index >= 0 && index < size ? index : -1;
+    }
+
+    /** Another style than the one on screen, and no unsaved edits to lose. */
+    static boolean shouldReload(int wanted, int current, boolean unsaved) {
+        return wanted != current && !unsaved;
+    }
+
+    /** Whether what is typed or chosen differs from the saved style (or, for a new one, from an empty form). */
+    static boolean isDirty(String name, String instr, String emoji, String[] saved) {
+        String n = name == null ? "" : name.trim();
+        String t = instr == null ? "" : instr.trim();
+        if (saved == null) return n.length() > 0 || t.length() > 0 || !EMOJIS[0].equals(emoji);
+        return !saved[0].equals(emoji) || !saved[1].equals(n) || !saved[2].equals(t);
+    }
+
+    private boolean hasUnsavedChanges() {
+        ArrayList<String[]> list = MrAi.loadCustom(this);
+        String[] saved = mIndex >= 0 && mIndex < list.size() ? list.get(mIndex) : null;
+        return isDirty(mName.getText() == null ? "" : mName.getText().toString(),
+                mInstr.getText() == null ? "" : mInstr.getText().toString(), mEmoji, saved);
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
-        if (mName == null || mInstr == null) return;
+        out.putInt(S_INDEX, mIndex);
+        if (mReloading || mName == null || mInstr == null) return;
         out.putString(S_NAME, mName.getText() == null ? "" : mName.getText().toString());
         out.putString(S_INSTR, mInstr.getText() == null ? "" : mInstr.getText().toString());
         out.putString(S_EMOJI, mEmoji);
@@ -133,10 +181,15 @@ public class MrAiStyleActivity extends Activity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        if (getIntent() != null) mIndex = getIntent().getIntExtra(MrAi.EXTRA_STYLE, -1);
+        // The style comes from the saved state when there is one (a recreation, which may be for another style than the
+        // one the screen was first opened with); otherwise from the Intent.
+        if (state != null && state.containsKey(S_INDEX)) mIndex = state.getInt(S_INDEX, -1);
+        else if (getIntent() != null) mIndex = getIntent().getIntExtra(MrAi.EXTRA_STYLE, -1);
         ArrayList<String[]> list = MrAi.loadCustom(this);
-        final boolean editing = mIndex >= 0 && mIndex < list.size();
-        if (!editing) mIndex = -1;
+        mIndex = normalIndex(mIndex, list.size());
+        final boolean editing = mIndex >= 0;
+        // The draft only counts if it was saved for this same style.
+        final Bundle draft = state != null && state.getInt(S_INDEX, -2) == mIndex ? state : null;
 
         int bg = color("mr_ui_bg");
         int card = color("mr_ui_card");
@@ -264,10 +317,10 @@ public class MrAiStyleActivity extends Activity {
             mName.setText(st[1]);
             mInstr.setText(st[2]);
         }
-        restoreDraft(state);
+        restoreDraft(draft);
         refreshEmoji();
         setContentView(scroll);
-        MrScreenIme.restore(state, mName, mInstr);
+        MrScreenIme.restore(draft, mName, mInstr);
     }
 
     private EditText field(int card, int stroke, int text, int text2, String hint, int inputType) {

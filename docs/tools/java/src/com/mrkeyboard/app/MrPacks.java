@@ -923,9 +923,7 @@ public final class MrPacks {
     public static boolean onPick(Context c, CharSequence picked) {
         if (picked == null || picked != sOffer) return false;
         try {
-            Intent i = new Intent(c, MrPacksActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            c.startActivity(i);
+            c.startActivity(MrNav.intent(c, MrPacksActivity.class));
         } catch (RuntimeException e) {
             // without the screen, it just does not type the item text
         }

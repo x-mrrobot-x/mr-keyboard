@@ -2,6 +2,8 @@ package android.app;
 
 public class Activity extends android.view.ContextThemeWrapper {
     protected void onCreate(android.os.Bundle savedInstanceState) { }
+    protected void onNewIntent(android.content.Intent intent) { }
+    public void setIntent(android.content.Intent newIntent) { }
     protected void onSaveInstanceState(android.os.Bundle outState) { }
     protected void onResume() { }
     protected void onPause() { }

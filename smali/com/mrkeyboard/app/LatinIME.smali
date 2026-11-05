@@ -4519,15 +4519,12 @@
 .method private onOptionKeyPressed()V
     .locals 2
 
-    new-instance v0, Landroid/content/Intent;
-
+    # One place builds the intent of the screens opened from the keyboard (task, reuse of the open one).
     const-class v1, Lcom/mrkeyboard/app/LatinIMESettings;
 
-    invoke-direct {v0, p0, v1}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
+    invoke-static {p0, v1}, Lcom/mrkeyboard/app/MrNav;->intent(Landroid/content/Context;Ljava/lang/Class;)Landroid/content/Intent;
 
-    const/high16 v1, 0x10000000
-
-    invoke-virtual {v0, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
+    move-result-object v0
 
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinIME;->startActivity(Landroid/content/Intent;)V
 
@@ -8193,17 +8190,9 @@
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->handleClose()V
 
     .line 3373
-    new-instance v0, Landroid/content/Intent;
+    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrNav;->intent(Landroid/content/Context;Ljava/lang/Class;)Landroid/content/Intent;
 
-    invoke-direct {v0}, Landroid/content/Intent;-><init>()V
-
-    .line 3374
-    invoke-virtual {v0, p0, p1}, Landroid/content/Intent;->setClass(Landroid/content/Context;Ljava/lang/Class;)Landroid/content/Intent;
-
-    const/high16 p1, 0x10000000
-
-    .line 3375
-    invoke-virtual {v0, p1}, Landroid/content/Intent;->setFlags(I)Landroid/content/Intent;
+    move-result-object v0
 
     .line 3376
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinIME;->startActivity(Landroid/content/Intent;)V

@@ -144,16 +144,37 @@ ao rolar) entra como item principal.
   - A Etapa 3 (`MrNav`) mantém essas telas com `NEW_TASK` quando vêm do teclado.
 - Os diálogos de preferência com campo de texto são recriados junto com a tela; não precisam de nada.
 
-### Etapa 3 — Sem duplicação
-- `MrNav` (Java): único lugar que monta o Intent de abertura de tela, com `NEW_TASK | REORDER_TO_FRONT` quando
-  vem do teclado e sem NEW_TASK dentro do app. Os nove pontos de chamada passam a usar `MrNav`.
-- Manifesto: `launchMode="singleTop"` em todas as telas que não são o launcher (duplo toque dentro do app não
-  empilha). As três `singleInstance` (`ActivityHelper`, `ShotPerm`, `ShotPick`) ficam como estão.
-- Telas com parâmetro (`MrAiStyleActivity` recebe `mr_ai_style_index`): implementar `onNewIntent` sem perder
-  edição em andamento (se o índice for o mesmo, só traz para frente; se for outro e houver alteração não salva,
-  mantém a atual).
-- Testes no PC: flags montadas por `MrNav` e um guarda no `res_check.py` (toda tela exportada ou não, exceto
-  launcher e as `singleInstance`, tem `singleTop`).
+### Etapa 3 — Sem duplicação — FEITA
+- **`MrNav`** (Java, novo): `MrNav.intent(contexto, tela)` é o único lugar que monta o Intent de abertura de tela.
+  Vindo do teclado (contexto que não é Activity): `NEW_TASK | REORDER_TO_FRONT`. Vindo de uma tela: só
+  `REORDER_TO_FRONT` (a nova fica na pilha de quem a abriu, e uma cópia que já esteja nessa pilha, como um editor de
+  estilo deixado embaixo da lista, vem para a frente em vez de ganhar uma segunda). Sem `CLEAR_TOP` de propósito: ele anularia o `REORDER_TO_FRONT` e fecharia o que o
+  usuário tem aberto por cima (um estilo em edição, por exemplo). Sem `MULTIPLE_TASK` nem `CLEAR_TASK`.
+- **Pontos trocados** (a análise tinha contado nove; a guarda do `res_check.py` achou um décimo):
+  `LatinIME.onOptionKeyPressed` e `LatinIME.launchSettings(Class)` (Configurações), `MrTools` (Folhas),
+  `MrPacks.onPick` (Pacotes), `MrAi.openPrefs` e `MrAi.openStyleEditor`, e `NotificationHelper` (ação "Configurações"
+  da notificação do teclado). Ficaram como estavam: `ShotPerm`/`ShotPick` (`singleInstance`, fora dos recentes), a
+  notificação de atualização (`NEW_TASK | CLEAR_TASK`, é de propósito), as telas do sistema de notificações e de
+  instalação, e os links externos.
+- **Manifesto:** `launchMode="singleTop"` nas 10 telas que não são o launcher nem `singleInstance`
+  (`LatinIMESettings`, `MrPacksActivity`, `MrAiPrefs`, `MrAiStyleActivity`, `PrefScreenActions`, `PrefScreenAdvanced`,
+  `PrefScreenSheets`, `SheetEditorActivity`, `PrefScreenView`, `PrefScreenFeedback`). O duplo toque numa linha de
+  Configurações chega à tela já aberta por `onNewIntent`, em vez de empilhar outra.
+- **Editor de estilo de IA já aberto** (`MrAiStyleActivity.onNewIntent`): mesmo estilo, ou outro estilo mas com
+  edição não salva, só fica na frente (nada se perde); outro estilo e nada a perder, a tela é recriada no estilo
+  pedido. O índice agora vem do estado salvo quando há um (`recreate()` reabre com o Intent original, não com o
+  novo) e o rascunho só vale se foi guardado para o mesmo estilo.
+- **Guardas no `res_check.py`:** toda tela do manifesto (menos a `Main` e as `singleInstance`) tem `singleTop`; nenhum
+  método monta à mão um Intent com `NEW_TASK` para as cinco telas do teclado.
+- Testes no PC: `nav_test/NavTest.java` (35 checks: flags do teclado e de tela, decisão do editor de estilo). Mutações:
+  todas pegas (inclusive tirar o `REORDER_TO_FRONT` das telas).
+- **A confirmar no aparelho:** `REORDER_TO_FRONT` com `NEW_TASK` e `onNewIntent` seguem a documentação e o uso comum,
+  mas o comportamento exato depende do Android (checklist da Etapa 7, item "Duplicação").
+- Limite conhecido: uma tela aberta de dentro do app (tarefa do app) e a mesma aberta pelo teclado (tarefa própria)
+  são tarefas diferentes; pode haver uma cópia em cada. Não há como unir sem mexer na navegação do app.
+- Arquivos: `MrNav.java` (+ `.smali` gerados), `MrAi.java`, `MrPacks.java`, `MrAiStyleActivity.java`, `LatinIME.smali`,
+  `MrTools.smali`, `NotificationHelper.smali`, `AndroidManifest.xml`, `res_check.py`, stubs (`Intent`, `Activity`,
+  `LatinIMESettings`, `PrefScreenSheets`), `run_java_tests.sh`, `build_java.sh`.
 
 ### Etapa 4 — Verificar `MrAiDialog` e `MrUpdateDialog` nas janelas edge-to-edge
 - Só corrigir se o teste mostrar problema: o cartão do `MrAiDialog` ganharia recuo superior pelo inset de
@@ -207,7 +228,9 @@ ao rolar) entra como item principal.
   principal. Repetir com Configurações, Pacotes e Folhas pelo teclado, e com o app do teclado fechado. Tocar na
   notificação de atualização e voltar.
 - **Duplicação:** engrenagem do teclado 3 vezes seguidas, depois Voltar uma vez deve sair da tela; duplo toque
-  rápido numa linha de Configurações abre uma subtela só.
+  rápido numa linha de Configurações abre uma subtela só. Abrir o Editor de IA e um estilo para editar, voltar ao
+  app, digitar, abrir o Editor de IA e tocar na engrenagem de novo: abre as configurações uma só vez e Voltar leva
+  ao app. Com um estilo em edição (texto digitado), abrir outro estilo pelo diálogo: o atual continua como está.
 - **Aceleração:** com a opção desligada nada muda; ligar e conferir que a rolagem de Configurações segue
   correta (e desligar de novo volta ao normal).
 - **Teclado acelerado ou não:** resultado da checagem da Etapa 5 (log da build de teste).
@@ -235,6 +258,7 @@ ao rolar) entra como item principal.
 - Mudanças do Android 17 para targetSdk 37: https://developer.android.com/about/versions/17/behavior-changes-17
 - Teclado depois da rotação (o app precisa pedir de novo): https://gitlab.e.foundation/e/os/android_frameworks_base/-/commit/c929daed2d016360665dd6af710313f28961fac3
 - `InputMethodService.requestShowSelf` (API 28): https://gitlab.e.foundation/e/os/android_frameworks_base/-/commit/fbc2f7acd581eca7180a3d916936fb4e758279e1
+- `Intent.FLAG_ACTIVITY_REORDER_TO_FRONT` (traz à frente se já estiver na pilha; ignorado com `CLEAR_TOP`): https://developer.android.com/reference/android/content/Intent#FLAG_ACTIVITY_REORDER_TO_FRONT
 - Edge-to-edge em Views: https://developer.android.com/develop/ui/views/layout/edge-to-edge
 - Recortes de tela: https://developer.android.com/guide/topics/display-cutout
 - Dicas de insets no Android 15: https://medium.com/androiddevelopers/insets-handling-tips-for-android-15s-edge-to-edge-enforcement-872774e8839b

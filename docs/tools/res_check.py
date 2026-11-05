@@ -320,6 +320,21 @@ for screen in KEYBOARD_SCREENS:
 if len(affinities) > 1:
     problems.append('manifest: the screens opened by the keyboard must share one taskAffinity, found %s' % sorted(affinities))
 
+# --- one screen on top of itself is not allowed: every screen except the launcher and the singleInstance helpers is
+# singleTop (a double tap on a Settings row reaches the screen already open through onNewIntent), and no method opens a
+# screen of the keyboard by hand with NEW_TASK: the intent comes from MrNav.intent
+for tag in manifest_tags:
+    name = re.search(r'android:name="com\.mrkeyboard\.app\.(\w+)"', tag)
+    if not name or name.group(1) == 'Main' or 'singleInstance' in tag: continue
+    if 'android:launchMode="singleTop"' not in tag:
+        problems.append('manifest: %s must be launchMode="singleTop"' % name.group(1))
+screen_class = re.compile(r'const-class [vp]\d+, Lcom/mrkeyboard/app/(?:%s);' % '|'.join(KEYBOARD_SCREENS))
+for sm in glob.glob('smali/com/mrkeyboard/app/*.smali'):
+    for body in re.split(r'(?m)^\.method ', read_file(sm))[1:]:
+        if screen_class.search(body) and '0x10000000' in body.split('.end method')[0]:
+            problems.append('%s: opens a keyboard screen with its own NEW_TASK (use MrNav.intent): %s' % (
+                os.path.basename(sm), body.splitlines()[0]))
+
 print('resources: %d defined, %d entries in public.xml, %d strings in Spanish' % (len(defs), len(pub), len(es)))
 for p in problems:
     print('PROBLEM:', p)

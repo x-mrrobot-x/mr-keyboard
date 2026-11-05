@@ -4,6 +4,9 @@ package android.content;
 public class Intent implements android.os.Parcelable {
     public static final int FLAG_ACTIVITY_NEW_TASK = 0x10000000;
     public static final int FLAG_ACTIVITY_CLEAR_TASK = 0x00008000;
+    public static final int FLAG_ACTIVITY_REORDER_TO_FRONT = 0x00020000;
+    public static final int FLAG_ACTIVITY_CLEAR_TOP = 0x04000000;
+    public static final int FLAG_ACTIVITY_MULTIPLE_TASK = 0x08000000;
     public static final String ACTION_VIEW = "android.intent.action.VIEW";
     public static final String ACTION_MY_PACKAGE_REPLACED = "android.intent.action.MY_PACKAGE_REPLACED";
     public static final String EXTRA_INTENT = "android.intent.extra.INTENT";

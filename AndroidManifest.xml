@@ -91,6 +91,7 @@
         <activity
             android:label="@string/english_ime_settings"
             android:name="com.mrkeyboard.app.LatinIMESettings"
+            android:launchMode="singleTop"
             android:taskAffinity="com.mrkeyboard.app.screens"
             android:exported="true"
             android:theme="@style/Theme.MrKeyboard.Settings">
@@ -106,6 +107,7 @@
         <activity
             android:label="@string/mr_dicts_title"
             android:name="com.mrkeyboard.app.MrPacksActivity"
+            android:launchMode="singleTop"
             android:taskAffinity="com.mrkeyboard.app.screens"
             android:exported="false"
             android:theme="@style/Theme.MrKeyboard.Settings">
@@ -121,6 +123,7 @@
         <activity
             android:label="@string/mr_ai_title"
             android:name="com.mrkeyboard.app.MrAiPrefs"
+            android:launchMode="singleTop"
             android:taskAffinity="com.mrkeyboard.app.screens"
             android:exported="false"
             android:theme="@style/Theme.MrKeyboard.Settings">
@@ -133,6 +136,7 @@
         <activity
             android:label="@string/mr_ai_new_style"
             android:name="com.mrkeyboard.app.MrAiStyleActivity"
+            android:launchMode="singleTop"
             android:taskAffinity="com.mrkeyboard.app.screens"
             android:exported="false"
             android:hardwareAccelerated="true"
@@ -141,6 +145,7 @@
         <activity
             android:label="@string/pref_screen_actions_title"
             android:name="com.mrkeyboard.app.PrefScreenActions"
+            android:launchMode="singleTop"
             android:exported="false"
             android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>
@@ -155,6 +160,7 @@
         <activity
             android:label="@string/pref_screen_advanced_title"
             android:name="com.mrkeyboard.app.PrefScreenAdvanced"
+            android:launchMode="singleTop"
             android:exported="false"
             android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>
@@ -169,6 +175,7 @@
         <activity
             android:label="@string/pref_screen_sheets_title"
             android:name="com.mrkeyboard.app.PrefScreenSheets"
+            android:launchMode="singleTop"
             android:taskAffinity="com.mrkeyboard.app.screens"
             android:exported="false"
             android:hardwareAccelerated="true"
@@ -185,6 +192,7 @@
         <activity
             android:label="@string/pref_screen_sheets_title"
             android:name="com.mrkeyboard.app.SheetEditorActivity"
+            android:launchMode="singleTop"
             android:exported="false"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize"
@@ -192,6 +200,7 @@
         <activity
             android:label="@string/pref_screen_view_title"
             android:name="com.mrkeyboard.app.PrefScreenView"
+            android:launchMode="singleTop"
             android:exported="false"
             android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>
@@ -206,6 +215,7 @@
         <activity
             android:label="@string/pref_screen_feedback_title"
             android:name="com.mrkeyboard.app.PrefScreenFeedback"
+            android:launchMode="singleTop"
             android:exported="false"
             android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>

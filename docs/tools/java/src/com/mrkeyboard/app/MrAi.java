@@ -814,9 +814,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         MrAiDialog.requestReopenOnReturn();
         MrAiDialog.dismiss();
         try {
-            Intent i = new Intent(from, MrAiPrefs.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            from.startActivity(i);
+            from.startActivity(MrNav.intent(from, MrAiPrefs.class));
         } catch (RuntimeException e) {
             MrAiDialog.cancelReopenOnReturn();
             // without the screen: the user stays in the app
@@ -830,8 +828,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         if (reopenAi) MrAiDialog.requestReopenOnReturn();
         MrAiDialog.dismiss();
         try {
-            Intent i = new Intent(from, MrAiStyleActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            Intent i = MrNav.intent(from, MrAiStyleActivity.class);
             i.putExtra(EXTRA_STYLE, index);
             from.startActivity(i);
         } catch (RuntimeException e) {
