@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.lang.reflect.Field;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,11 +17,15 @@ import java.util.List;
  * Typing is simulated word by word with the sentence as the context. Only words with 4 or more letters are counted, so
  * every row has the same words and a hit really saves keystrokes (a 1-letter word is "completed" by typing it):
  *   after space : the word is among the 3 predictions shown after the space (no letter typed)
- *   1/2/3 letters : the word is one of the 2 suggestions next to the typed word in the strip (entries 1 and 2; entry 0 is what was typed)
+ *   1 to 7 letters : the word is one of the 2 suggestions next to the typed word in the strip (entries 1 and 2; entry 0 is what was typed)
  * Numbers are by sentence occurrence (weighted by count) and by distinct sentence (unique).
  * -Dall=1 counts every word length instead (the old, less strict way).
  *
- * Usage: java -Djava.library.path=<libs> -cp app.jar:stubs:. com.mrkeyboard.app.SubtitleEval <pt-BR|en-US|es> <dicts dir> <top_sentences.csv>
+ * The same measurement also runs on a plain text file, one sentence per line (every sentence counts once): StrategyTest uses it
+ * with docs/tools/e2e/data/everyday_<lang>.txt (about 120 original sentences per language, so it needs no download) and fails when a
+ * rate falls under its floor (S28). A file whose name ends in .txt is read that way, anything else is "sentence,count" with a header line.
+ *
+ * Usage: java -Djava.library.path=<libs> -cp app.jar:stubs:. com.mrkeyboard.app.SubtitleEval <pt-BR|en-US|es> <dicts dir> <top_sentences.csv | sentences.txt>
  *        -Dmin=3 minimum words in a sentence (default 3)   -Dmax=10000 sentences read
  */
 public class SubtitleEval {
@@ -37,37 +40,61 @@ public class SubtitleEval {
         return Normalizer.normalize(t.toLowerCase(), Normalizer.Form.NFD).replaceAll("\\p{M}", "");
     }
 
-    /**
-     * Prototype of "context while typing" (not in the app yet): after forWords(...), the best candidate of the previous
-     * words' context (bigrams, trigrams, user, recent) that starts with what was typed. Reads the private arrays of MrPredict.
-     */
-    static String ctxBest(String prefix, int skip) throws Exception {
-        Class<?> c = MrPredict.class;
-        Field fw = c.getDeclaredField("sWord"), fm = c.getDeclaredField("sMain"), fu = c.getDeclaredField("sUser"), fc = c.getDeclaredField("sCount");
-        fw.setAccessible(true); fm.setAccessible(true); fu.setAccessible(true); fc.setAccessible(true);
-        String[] w = (String[]) fw.get(null);
-        int[] m = (int[]) fm.get(null), u = (int[]) fu.get(null);
-        int n = fc.getInt(null);
-        String pre = fold(prefix);
-        int best = -1, bestScore = -1;
-        for (int i = 0; i < n; i++) {
-            if (w[i] == null || w[i].length() <= prefix.length() || !fold(w[i]).startsWith(pre)) continue;
-            int sc = m[i] + u[i];
-            if (sc > bestScore) { bestScore = sc; best = i; }
-        }
-        return best < 0 ? null : w[best];
+    /** Counts of one run: c[kind] = {hits weighted, total weighted, hits unique, total unique}; cover = the same for "known words". */
+    static final class Result {
+        final long[][] c = new long[8][4];
+        final long[] cover = new long[4];
+        int sentences;
+
+        double rate(int kind) { return 100.0 * c[kind][0] / Math.max(1, c[kind][1]); }
+        double known() { return 100.0 * cover[0] / Math.max(1, cover[1]); }
     }
 
-    /** Strip with the context candidate merged in (mode "A": slot 1, "B": slot 2); the others keep their order. */
-    static List<String> merge(List<String> l, String ctx, String mode) {
-        if (ctx == null || mode == null) return l;
-        List<String> out = new ArrayList<String>();
-        out.add(l.size() > 0 ? l.get(0) : "");
-        List<String> rest = new ArrayList<String>();
-        for (int i = 1; i < l.size(); i++) if (!l.get(i).equalsIgnoreCase(ctx)) rest.add(l.get(i));
-        if (mode.equals("A")) { out.add(ctx); out.addAll(rest); }
-        else { if (rest.size() > 0) out.add(rest.get(0)); out.add(ctx); if (rest.size() > 1) out.addAll(rest.subList(1, rest.size())); }
-        return out;
+    /** Types the sentences with E2ETest.suggest (already loaded). csv: "sentence,count" with a header line; otherwise one sentence per line. */
+    static Result run(List<String> lines, boolean csv, int minWords, int maxSent, int minLen) {
+        Result res = new Result();
+        long[][] c = res.c;
+        long[] cover = res.cover;
+        for (int li = csv ? 1 : 0; li < lines.size() && res.sentences < maxSent; li++) {
+            String line = lines.get(li);
+            String text = line.trim();
+            long count = 1;
+            if (csv) {
+                int comma = line.lastIndexOf(',');
+                if (comma < 0) continue;
+                try { count = Long.parseLong(line.substring(comma + 1).trim()); } catch (NumberFormatException e) { continue; }
+                text = line.substring(0, comma).trim();
+                if (text.startsWith("\"") && text.endsWith("\"") && text.length() > 1) text = text.substring(1, text.length() - 1);
+            }
+            List<String> w = new ArrayList<String>();
+            for (String t : text.split("[^\\p{L}'’-]+")) {
+                if (t.length() > 0 && t.matches(".*\\p{L}.*")) w.add(t.replace('’', '\''));
+            }
+            if (w.size() < minWords) continue;
+            res.sentences++;
+            for (String t : w) {
+                boolean known = E2ETest.suggest.isValidWord(t) || E2ETest.suggest.isValidWord(t.toLowerCase());
+                if (known) { cover[0] += count; cover[2]++; }
+                cover[1] += count;
+                cover[3]++;
+            }
+            for (int i = 1; i < w.size(); i++) {
+                String want = w.get(i), p1 = w.get(i - 1), p2 = i >= 2 ? w.get(i - 2) : null;
+                if (want.length() < minLen) continue;
+                // after the space (two words when there are two)
+                List<String> pred = E2ETest.strs(p2 == null ? MrPredict.forWord(E2ETest.suggest, p1) : MrPredict.forWords(E2ETest.suggest, p2, p1));
+                add(c, 0, hit(pred, want, 0, 2), count);
+                // the keystrokes in order: the 1st letter is typed before the 2nd, as the keyboard sees them (the context of the previous
+                // words is read at the 1st letter)
+                if (p2 == null) MrPredict.forWord(E2ETest.suggest, p1); else MrPredict.forWords(E2ETest.suggest, p2, p1);
+                for (int k = 1; k <= 7; k++) {
+                    if (want.length() <= k) break;
+                    List<String> l = E2ETest.strs(E2ETest.sugg(want.substring(0, k), p1));
+                    add(c, k, hit(l, want, 1, 2), count);
+                }
+            }
+        }
+        return res;
     }
 
     public static void main(String[] a) throws Exception {
@@ -85,57 +112,18 @@ public class SubtitleEval {
         MrTrigram.load(new FileInputStream(new File(dir, "trigrams.bin")));
         E2ETest.suggest = new Suggest(null, buf);
         E2ETest.suggest.setCorrectionMode(1);
-        String ctxMode = System.getProperty("ctx");   // prototype: "A" or "B", see merge()
         int minWords = Integer.getInteger("min", 3);
         int maxSent = Integer.getInteger("max", 10000);
-
-        // [kind][0 = hits weighted, 1 = total weighted, 2 = hits unique, 3 = total unique]
-        long[][] c = new long[4][4];
-        long[] cover = new long[4];   // known words weighted / total weighted / known unique / total unique (every word, any length)
-        int sentences = 0;
         int minLen = System.getProperty("all") != null ? 1 : 4;
-        List<String> lines = Files.readAllLines(Paths.get(a[2]));
-        for (int li = 1; li < lines.size() && sentences < maxSent; li++) {
-            String line = lines.get(li);
-            int comma = line.lastIndexOf(',');
-            if (comma < 0) continue;
-            long count;
-            try { count = Long.parseLong(line.substring(comma + 1).trim()); } catch (NumberFormatException e) { continue; }
-            String text = line.substring(0, comma).trim();
-            if (text.startsWith("\"") && text.endsWith("\"") && text.length() > 1) text = text.substring(1, text.length() - 1);
-            List<String> w = new ArrayList<String>();
-            for (String t : text.split("[^\\p{L}'’-]+")) {
-                if (t.length() > 0 && t.matches(".*\\p{L}.*")) w.add(t.replace('’', '\''));
-            }
-            if (w.size() < minWords) continue;
-            sentences++;
-            for (String t : w) {
-                boolean known = E2ETest.suggest.isValidWord(t) || E2ETest.suggest.isValidWord(t.toLowerCase());
-                if (known) { cover[0] += count; cover[2]++; }
-                cover[1] += count;
-                cover[3]++;
-            }
-            for (int i = 1; i < w.size(); i++) {
-                String want = w.get(i), p1 = w.get(i - 1), p2 = i >= 2 ? w.get(i - 2) : null;
-                if (want.length() < minLen) continue;
-                // after the space (two words when there are two)
-                List<String> pred = E2ETest.strs(p2 == null ? MrPredict.forWord(E2ETest.suggest, p1) : MrPredict.forWords(E2ETest.suggest, p2, p1));
-                add(c, 0, hit(pred, want, 0, 2), count);
-                for (int k = 1; k <= 3; k++) {
-                    if (want.length() <= k) continue;
-                    // same context the keyboard has before the first letter: the prediction of the previous words
-                    if (p2 == null) MrPredict.forWord(E2ETest.suggest, p1); else MrPredict.forWords(E2ETest.suggest, p2, p1);
-                    List<String> l = E2ETest.strs(E2ETest.sugg(want.substring(0, k), p1));
-                    if (ctxMode != null && k >= 2) l = merge(l, ctxBest(want.substring(0, k), 0), ctxMode);
-                    add(c, k, hit(l, want, 1, 2), count);
-                }
-            }
-        }
-        System.out.printf("%s: %d sentences with %d or more words%n", lang, sentences, minWords);
+        List<String> lines = Files.readAllLines(Paths.get(a[2]), java.nio.charset.StandardCharsets.UTF_8);
+        Result res = run(lines, !a[2].endsWith(".txt"), minWords, maxSent, minLen);
+        long[][] c = res.c;
+        long[] cover = res.cover;
+        System.out.printf("%s: %d sentences with %d or more words%n", lang, res.sentences, minWords);
         System.out.printf("  %-16s weighted %5.1f%%               unique %5.1f%%   (words of the sentences that the dictionary knows)%n", "known words",
                 100.0 * cover[0] / Math.max(1, cover[1]), 100.0 * cover[2] / Math.max(1, cover[3]));
-        String[] names = {"after the space", "1 letter", "2 letters", "3 letters"};
-        for (int k = 0; k < 4; k++) {
+        String[] names = {"after the space", "1 letter", "2 letters", "3 letters", "4 letters", "5 letters", "6 letters", "7 letters"};
+        for (int k = 0; k < 8; k++) {
             System.out.printf("  %-16s weighted %5.1f%% (n=%d)   unique %5.1f%% (n=%d)%n", names[k],
                     100.0 * c[k][0] / Math.max(1, c[k][1]), c[k][1], 100.0 * c[k][2] / Math.max(1, c[k][3]), c[k][3]);
         }

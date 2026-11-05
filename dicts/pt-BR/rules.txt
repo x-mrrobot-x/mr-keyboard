@@ -77,6 +77,18 @@ tmj	tamo junto
 mds	meu Deus
 sqn	só que não
 pdc	pode crer
+# gírias de chat e apps (só entram os que o dicionário já conhece com maiúscula)
+flw	falou
+fmz	firmeza
+wpp	WhatsApp
+whatsapp	WhatsApp
+uber	Uber
+ifood	iFood
+tiktok	TikTok
+instagram	Instagram
+netflix	Netflix
+youtube	YouTube
+spotify	Spotify
 # juntou palavras
 concerteza	com certeza
 comcerteza	com certeza

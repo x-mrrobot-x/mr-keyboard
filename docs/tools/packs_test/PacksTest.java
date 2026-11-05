@@ -14,7 +14,19 @@ import java.util.*;
 /** PC test of the pack flow (MrPacks) with the classes of the 1.63 APK and the PC native lib. */
 public class PacksTest {
     static int fails = 0, oks = 0;
-    static final String FX = "/tmp/pt/fx/";
+    // Folders of the test (run_packs_tests.sh sets them; the defaults are the ones of the old manual run, see README.md)
+    static final String FX = System.getProperty("mr.fx", "/tmp/pt/fx") + "/";        // fixtures made by make_fixtures.py (signed)
+    static final String FA = System.getProperty("mr.fa", "/tmp/fa");                 // test key: cert.pem (and the EC pair)
+    static final String DICTS = System.getProperty("mr.dicts", "dicts");             // the repository's dictionaries
+
+    /** Corrections of dicts/<id>/rules.txt: what the keyboard must have loaded once that pack is the active one. */
+    static int rulesOf(String id) throws IOException {
+        InputStream in = new FileInputStream(DICTS + "/" + id + "/rules.txt");
+        try { return MrRules.parse(in).corrections.size(); } finally { in.close(); }
+    }
+
+    // versionCode of the app that the fake PackageManager reports: the packs need minApp <= this (run_packs_tests.sh passes the real one)
+    static long dictSize(String id) { return new File(DICTS + "/" + id + "/main.dict").length(); }
 
     static void check(String label, boolean ok, Object detail) {
         if (ok) oks++; else fails++;
@@ -67,7 +79,7 @@ public class PacksTest {
         public String getPackageName() { return "com.mrkeyboard.app"; }
         public PackageManager getPackageManager() {
             return new PackageManager() {
-                public PackageInfo getPackageInfo(String p, int f) { PackageInfo i = new PackageInfo(); i.versionCode = 1063000; return i; }
+                public PackageInfo getPackageInfo(String p, int f) { PackageInfo i = new PackageInfo(); i.versionCode = Integer.getInteger("mr.appcode", 1063000); return i; }
             };
         }
         public SharedPreferences getSharedPreferences(String n, int mode) {
@@ -143,7 +155,7 @@ public class PacksTest {
         File tmp = Files.createTempDirectory("mrpacks").toFile();
         final Ctx ctx = new Ctx(tmp);
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        X509Certificate cert = (X509Certificate) cf.generateCertificate(new FileInputStream("/tmp/fa/cert.pem"));
+        X509Certificate cert = (X509Certificate) cf.generateCertificate(new FileInputStream(FA + "/cert.pem"));
         MrPacks.sTestCerts = new X509Certificate[] {cert};
         net();
 
@@ -288,9 +300,9 @@ public class PacksTest {
 
         // ---- use by the keyboard: the same path as the device (Suggest(Context,int[]) -> MrPacks.mainDictionary)
         Suggest s = new Suggest(ctx, new int[] {0});
-        check("Suggest takes the pack's dictionary", s.hasMainDictionary() && s.mrMainDict().getSize() == 3708011, s.mrMainDict().getSize());
+        check("Suggest takes the pack's dictionary", s.hasMainDictionary() && s.mrMainDict().getSize() == dictSize("pt-BR"), s.mrMainDict().getSize());
         check("dictionary mapped from the file (MappedByteBuffer)", s.mrMainDict().mrBuffer() instanceof MappedByteBuffer, s.mrMainDict().mrBuffer().getClass().getSimpleName());
-        check("pack rules active (217 corrections, 3 starters)", MrRules.get().corrections.size() == 217 && MrRules.get().starters.length == 3, MrRules.get().corrections.size());
+        check("pack rules active (the corrections of rules.txt, 3 starters)", MrRules.get().corrections.size() == rulesOf("pt-BR") && MrRules.get().starters.length == 3, MrRules.get().corrections.size());
         for (int i = 0; i < 100 && !MrTrigram.ready(); i++) Thread.sleep(50);
         check("the pack's two words loaded", MrTrigram.ready(), null);
         E2ETest.suggest = s;
@@ -358,7 +370,7 @@ public class PacksTest {
         check("updates to v7 and deletes v2", r.equals("ok") && MrPacks.installedVersion(ctx, "pt-BR") == 7
                 && list(d2.getParentFile()).equals(Arrays.asList("7")), list(d2.getParentFile()));
         Suggest s7 = new Suggest(ctx, new int[] {0});
-        check("keyboard uses v7", s7.hasMainDictionary() && MrRules.get().corrections.size() == 217, null);
+        check("keyboard uses v7", s7.hasMainDictionary() && MrRules.get().corrections.size() == rulesOf("pt-BR"), null);
         check("updates: with v7 installed there is nothing left to update", MrPacks.updatesAvailable(ctx, c7) == 0, MrPacks.updatesAvailable(ctx, c7));
 
         // ---- remove

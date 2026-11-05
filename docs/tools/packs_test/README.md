@@ -1,5 +1,15 @@
 # Package flow test on the PC (1.63)
 
+**Run it with one command** (it is what *Mr Keyboard - checks* runs, job `assemble`):
+
+    bash docs/tools/packs_test/run_packs_tests.sh <app_jar.jar>
+
+The script builds the PC libs, a test key (`keytool`, plus an EC key made with `openssl` for the "other key" case), the fixtures
+(`make_fixtures.py` from only the pt-BR pack, `sign_fixtures.py` to sign them and make the two bad catalogs) and the signed catalog of the three real
+packs of `dicts/`, then runs `PacksTest` and `ThreeLangTest`. Nothing is fixed in the test any more: the number of corrections, the size of the
+dictionary and the app code come from `dicts/` and `apktool.yml`, so a new pack or a change of `rules.txt` does not break it. The manual recipe below
+is what the script does, kept to explain each piece.
+
 Runs the APK's classes (dex → jar with dex2jar) and the native lib compiled for the PC, with a fake
 Android (preferences in memory, network read from files). It covers: signed catalog, a series that
 does not go back, a tampered catalog or one from another key, HTTP error, cancel, install, tampered

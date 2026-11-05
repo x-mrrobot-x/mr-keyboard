@@ -19,11 +19,19 @@ same `dictionary.cpp`. Only `LatinIME` (which needs Android) is left out. It exi
 ### Strategy tests and everyday-language benchmark (after 1.83)
 - `bash docs/tools/e2e/run_strategy_tests.sh [app_jar.jar]`: `StrategyTest`, one table-driven check per strategy of `docs/suggestion-features.md` (S1...), the data
   integrity checks (D1-D4) and the limits (L1-L5), in 3 languages through the native engine and the Java fallback. Cases marked `GAP` are known
-  gaps (they print `FIXED` when they start to pass). It runs in *Mr Keyboard - checks*.
-- `bash docs/tools/e2e/run_subtitle_eval.sh <folder with the *_top_sentences.csv> [app_jar.jar] [-Dctx=A]`: `SubtitleEval`, the hit rate of the next word
+  gaps (they print `FIXED` when they start to pass). It runs in *Mr Keyboard - checks* and exits with 1 on a failure (`set -o pipefail`).
+  Check **S28** types the original sentences of `data/everyday_<lang>.txt` (133 per language, written for this repository) and fails when a hit rate
+  falls under its floor (`StrategyTest.FLOORS`); raise the floors when a release improves the rates, never lower one to pass.
+- `bash docs/tools/e2e/run_subtitle_eval.sh <folder with the *_top_sentences.csv> [app_jar.jar]`: `SubtitleEval`, the hit rate of the next word
   after the space and after 1, 2 and 3 letters on the 10,000 most common OpenSubtitles sentences (not the training data of any pack). It needs the
-  sentences, which are not in the repository (the script header says where to get them), so it does not run in CI. `-Dctx=A` is the prototype of keeping the
-  previous words' context while typing (`plan-suggestions.md`, item 1.1).
+  sentences, which are not in the repository (the script header says where to get them), so it does not run in CI. The same class reads a plain text file
+  (one sentence per line, name ending in `.txt`): `java ... SubtitleEval pt-BR dicts docs/tools/e2e/data/everyday_pt-BR.txt`.
+- `SpeedEval` (by hand, run it alone on the machine): the time of every keystroke of typed sentences, by kind (after a space, 1 letter, 2-4, 5 or more,
+  a word that is not in the dictionary, a valid word): `java ... SpeedEval <lang> dicts <top_sentences.csv>` with `-Dsentences=1500 -Drounds=3`; add
+  `-Dmr.native=off` for the Java fallback. To compare two versions put the classes of one in front of the classpath (`-cp old_classes:...`) and run both
+  in the same session; differences under 10% are noise. Numbers of 1.83 → 1.84 are in "Speed" of `docs/suggestion-features.md`.
+- `AltEval` (by hand): false positives and hits of the suggestion for a valid but probably wrong word (`MrFuzzy.alternative`, strategy S27), over the
+  valid words of the subtitle sentences; it was used to choose `ALT_GAP`, `ALT_TYPED_MAX` and the other `ALT_*` constants.
 
 ### Native engine (1.77)
 `bash docs/tools/e2e/run_native_parity.sh [app_jar.jar]` compiles the PC libs (`engine/` and `native/`), generates the queries from

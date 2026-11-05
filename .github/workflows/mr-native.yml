@@ -1,4 +1,4 @@
-# Mr Keyboard: builds the two native libs with the NDK (3 architectures) and tests them on the PC.
+# Mr Keyboard: builds the two native libs with the NDK (4 architectures) and tests them on the PC.
 #
 #   native/  -> libjni_pckeyboard.so  dictionary reader (Hacker's Keyboard / LatinIME)
 #   engine/  -> libmrengine.so        native engine (1.77): correction search and trigrams in C++
@@ -49,10 +49,10 @@ jobs:
           test -f "$NDK/build/cmake/android.toolchain.cmake"
           echo "dir=$NDK" >> "$GITHUB_OUTPUT"
 
-      - name: Build for arm64-v8a, armeabi-v7a and x86 (both libs)
+      - name: Build for arm64-v8a, armeabi-v7a, x86 and x86_64 (both libs)
         run: |
           NDK="${{ steps.ndk.outputs.dir }}"
-          for abi in arm64-v8a armeabi-v7a x86; do
+          for abi in arm64-v8a armeabi-v7a x86 x86_64; do
             for proj in native engine; do
               cmake -S "$proj" -B "build/$abi/$proj" \
                 -DCMAKE_TOOLCHAIN_FILE="$NDK/build/cmake/android.toolchain.cmake" \

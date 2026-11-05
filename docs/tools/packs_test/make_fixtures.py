@@ -5,7 +5,7 @@ os.makedirs(O, exist_ok=True)
 # the test expects the real pack to be version 2 (the other fixtures count up from it), so build
 # from a copy with that version no matter what dicts/pt-BR/pack.json says today
 import tempfile, shutil
-D=tempfile.mkdtemp(); shutil.copytree(B+'/dicts', D+'/dicts')
+D=tempfile.mkdtemp(); os.makedirs(D+'/dicts'); shutil.copytree(B+'/dicts/pt-BR', D+'/dicts/pt-BR')   # only pt-BR: the test expects it to be the 1st package
 pj=D+'/dicts/pt-BR/pack.json'; meta=json.loads(open(pj,encoding='utf-8').read()); meta['version']=2
 open(pj,'w',encoding='utf-8').write(json.dumps(meta,ensure_ascii=False,indent=2))
 subprocess.run(['python3','-I',B+'/docs/tools/make_catalog.py','--dicts',D+'/dicts','--out',O+'/ok','--tag','v1.73.0','--now','2026-10-30T18:00:00+00:00'],check=True)

@@ -5,8 +5,8 @@
 #   git clone --depth 1 --filter=blob:none --sparse https://github.com/orgtre/top-open-subtitles-sentences /tmp/tos
 #   cd /tmp/tos && git sparse-checkout set bld/top_sentences
 # From the project root, after run_strategy_tests.sh has built the PC libs and the test classes in $OUT (default /tmp/mr_strategy):
-#   bash docs/tools/e2e/run_subtitle_eval.sh /tmp/tos/bld/top_sentences [app_jar.jar] [-Dctx=A]
-# The last argument is passed to Java (-Dctx=A is the prototype of context while typing, see SubtitleEval.java).
+#   bash docs/tools/e2e/run_subtitle_eval.sh /tmp/tos/bld/top_sentences [app_jar.jar] [-Dall=1]
+# The last argument is passed to Java (-Dall=1 counts words of every length, see SubtitleEval.java).
 set -e
 OUT=${OUT:-/tmp/mr_strategy}
 S=${1:?folder with pt_br_top_sentences.csv, en_top_sentences.csv, es_top_sentences.csv}

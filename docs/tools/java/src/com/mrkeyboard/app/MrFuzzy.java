@@ -115,6 +115,20 @@ public final class MrFuzzy {
     /** Cheap correction of the last query, to reserve a slot in the band (finish). */
     static final int RESERVE_MAX_COST = 45;
 
+    /**
+     * v1.84: a valid word that is probably another word ("cassa" -> casa). Only a suggestion (it takes the 3rd place of the strip through
+     * the same reserve as a cheap correction); the typed word is never replaced on its own. It is offered when the typed word is
+     * rare (frequency from above ALT_OFFENSIVE_FREQ to ALT_TYPED_MAX, scale 0-255 of the dictionary) and a word within ALT_MAX_COST (one common error) is both frequent
+     * (at least ALT_MIN_FREQ) and at least ALT_GAP above it. 0 = off.
+     */
+    static final int ALT_GAP = 60;
+    static final int ALT_MAX_COST = 40;
+    static final int ALT_TYPED_MAX = 80;
+    static final int ALT_MIN_FREQ = 110;
+    static final int ALT_MAX_TYPED = 12;
+    /** The pack keeps its possibly offensive words at this frequency (docs/dictionary-build.md): they are not questioned. */
+    static final int ALT_OFFENSIVE_FREQ = 5;
+
     /** v1.66: neighbours of each touch of the last word, in order of distance (for finish). */
     private static String sTouchTyped;
     private static final char[][] sTouchNear = new char[MAX_TYPED][12];
@@ -160,6 +174,8 @@ public final class MrFuzzy {
             if (n < 2 || n > MAX_TYPED) return;
             // v1.75: words typed recently in this conversation that start with what was typed
             MrRecent.complete(suggest, composer);
+            // v1.84: candidates of the previous words' context that start with what was typed
+            MrPredict.complete(suggest, composer);
             CharSequence typed = composer.getTypedWord();
             if (typed == null) return;
             rememberTouches(composer, typed, n);
@@ -170,7 +186,10 @@ public final class MrFuzzy {
                 return;
             }
             if (n < MIN_TYPED) return;
-            if (suggest.isValidWord(typed)) return;
+            if (suggest.isValidWord(typed)) {
+                validAlternative(suggest, composer, typed, n);
+                return;
+            }
             BinaryDictionary main = suggest.mrMainDict();
             if (main == null) return;
             MrFuzzy f = forDict(main.mrBuffer(), main.mrLength());
@@ -185,6 +204,60 @@ public final class MrFuzzy {
         } catch (RuntimeException e) {
             // never break typing because of the fallback layer
         }
+    }
+
+    /** The typed word is valid: if it is rare and a much more frequent word is one common error away, keep that one for the 3rd place (finish). */
+    private static void validAlternative(Suggest suggest, WordComposer composer, CharSequence typed, int n) {
+        if (ALT_GAP <= 0 || n < MIN_TYPED || n > ALT_MAX_TYPED) return;
+        BinaryDictionary main = suggest.mrMainDict();
+        if (main == null) return;
+        MrFuzzy f = forDict(main.mrBuffer(), main.mrLength());
+        if (f == null) return;
+        synchronized (f) {
+            int own = f.ownFrequency(typed);
+            if (own <= ALT_OFFENSIVE_FREQ || own > ALT_TYPED_MAX) return;   // frequent words (the usual case) cost nothing more than this lookup
+            f.search(composer, typed);
+            String alt = f.alternative(typed.toString(), own, ALT_MAX_COST, ALT_MIN_FREQ, ALT_GAP);
+            if (alt != null) {
+                sReserveTyped = typed.toString();
+                sReserveWord = alt;
+            }
+        }
+    }
+
+    /** Frequency (0-255) of the typed word in the dictionary, accent and case of the letters ignored; 0 = not found or only as a capitalized word. */
+    int ownFrequency(CharSequence typed) {
+        int n = Math.min(typed.length(), MAX_TYPED);
+        mN = n;
+        for (int j = 0; j < n; j++) mTb[j] = MrText.base(typed.charAt(j));
+        mGuard = 0;
+        return lookup(0, n);
+    }
+
+    /**
+     * After search() for a valid typed word with frequency {@code own}: the most frequent result that is not the same word (accent or case),
+     * has no space, is within maxCost, has frequency of at least minFreq and is at least gap above own; null if there is none.
+     * The frequency of a result is recovered from its score (freq x 2^(n+1) x 2^(-cost/25)).
+     */
+    String alternative(String typed, int own, int maxCost, int minFreq, int gap) {
+        String tb = baseString(typed);
+        boolean typedCap = Character.isUpperCase(typed.charAt(0));
+        double unit = (double) (1L << (Math.min(mN, 24) + 1));
+        String best = null;
+        int bestFreq = 0;
+        for (int i = 0; i < mResCount; i++) {
+            int cost = mResCost[i];
+            if (cost <= 0 || cost > maxCost) continue;
+            String w = resultWord(i);
+            if (w.indexOf(' ') >= 0 || baseString(w).equals(tb)) continue;
+            if (!typedCap && Character.isUpperCase(w.charAt(0))) continue;
+            int freq = (int) Math.round(mResScore[i] / unit * Math.pow(2.0, cost / 25.0));
+            if (freq >= minFreq && freq - own >= gap && freq > bestFreq) {
+                best = w;
+                bestFreq = freq;
+            }
+        }
+        return best;
     }
 
     /** Keeps the neighbours of each touch (codes[1..], already in order of distance from the touch). */

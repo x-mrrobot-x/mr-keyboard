@@ -69,6 +69,40 @@ public class StrategyTest {
         record(tag, (p2 == null ? "" : p2 + " ") + p1 + " _ -> " + want, s.contains(want), gap, String.valueOf(s));
     }
 
+    /**
+     * S26, context while typing: after "p2 p1", the letters of {@code typed} are typed one by one (the 1st letter is where the keyboard
+     * reads the context); with the last letter the word must be one of the 2 suggestions next to the typed word.
+     */
+    static void ctxType(String tag, String p2, String p1, String typed, String want, boolean gap) {
+        if (p2 == null) MrPredict.forWord(suggest, p1); else MrPredict.forWords(suggest, p2, p1);
+        List<String> l = null;
+        for (int k = 1; k <= typed.length(); k++) l = strip(typed.substring(0, k), p1);
+        int at = l.indexOf(want);
+        record(tag, (p2 == null ? "" : p2 + " ") + p1 + " | " + typed + " -> " + want, at >= 1 && at <= 2, gap,
+                l.subList(0, Math.min(5, l.size())).toString());
+    }
+
+    /**
+     * S27 on its own (MrFuzzy.alternative): the word the strip keeps for the 3rd place when the typed word is a valid one, or null
+     * (expect = null) when nothing should be offered: a common word, or a rare one whose neighbour is not much more frequent. The strip itself
+     * is not used here because the lib already offers neighbouring-key words ("fone" -> fome) in every case.
+     */
+    static void alt(String tag, String typed, String expect) {
+        BinaryDictionary main = suggest.mrMainDict();
+        MrFuzzy f = MrFuzzy.forDict(main.mrBuffer(), main.mrLength());
+        String got = null;
+        int own;
+        synchronized (f) {
+            own = f.ownFrequency(typed);
+            if (own > MrFuzzy.ALT_OFFENSIVE_FREQ && own <= MrFuzzy.ALT_TYPED_MAX) {
+                f.search(E2ETest.compose(typed), typed);
+                got = f.alternative(typed, own, MrFuzzy.ALT_MAX_COST, MrFuzzy.ALT_MIN_FREQ, MrFuzzy.ALT_GAP);
+            }
+        }
+        record(tag, "alternative of '" + typed + "' = " + expect, expect == null ? got == null : expect.equalsIgnoreCase(got), false,
+                "own=" + own + " got=" + got);
+    }
+
     static void autocorrect(String tag, String typed, boolean expect, boolean gap) {
         suggest.setCorrectionMode(3);
         List<String> l = strip(typed, null);
@@ -108,6 +142,7 @@ public class StrategyTest {
         else if (lang.equals("es")) esCases();
         helpers();
         limits(lang);
+        everyday(lang);
 
         System.out.println("-- by strategy (ok / FAIL / GAP / fixed)");
         for (Map.Entry<String, int[]> e : byStrategy.entrySet()) {
@@ -134,8 +169,8 @@ public class StrategyTest {
         record("D2", "one-letter words not empty", m.oneLetter['a'] || m.oneLetter['e'] || m.oneLetter['o'] || m.oneLetter['i'] || m.oneLetter['y'], false, "");
         // D3 every correction points to words the dictionary knows (otherwise autocorrect would invent a word)
         List<String> bad = new ArrayList<String>();
-        // known data defects, listed in docs/suggestion-features.md ("Known gaps"); take the entry off when rules.txt is fixed
-        List<String> knownBad = Arrays.asList("visavis");
+        // known data defects, listed in docs/suggestion-features.md ("Known gaps"); none left since 1.84 (visavis now points to vis-à-vis)
+        List<String> knownBad = Arrays.asList();
         for (Map.Entry<String, String> e : m.corrections.entrySet()) {
             if (knownBad.contains(e.getKey())) continue;
             for (String w : e.getValue().split(" ")) {
@@ -213,6 +248,13 @@ public class StrategyTest {
         predict("S14", null, "tudo", "bem", true);            // GAP (data): news bigrams put que/o/isso first
         predict("S14", null, "muito", "obrigado", true);      // GAP (data): tempo/bem/mais win
         predict("S14", null, "eu", "vou", true);              // GAP (data): tenho/não/acho win
+        // S26 context while typing: the previous word keeps counting from the 2nd letter on
+        ctxType("S26", null, "muito", "ob", "obrigado", false);
+        ctxType("S26", null, "por", "fa", "favor", false);
+        ctxType("S26", null, "bom", "di", "dia", false);
+        ctxType("S26", null, "boa", "no", "noite", false);
+        ctxType("S26", null, "feliz", "an", "aniversário", false);
+        ctxType("S26", null, "de", "ac", "acordo", false);
         predict("S15", "de", "acordo", "com", false);
         predict("S15", "por", "favor", "me", false);
         predict("S15", "muito", "obrigado", "pela", false);
@@ -231,10 +273,21 @@ public class StrategyTest {
         // S21 cheap correction keeps its slot when the completions are many
         typed("S21", "prota", "porta", 2, false);
         // Known gaps: valid word that is another word / chat words with low frequency / 3-letter errors
-        typed("GAP", "cassa", "casa", 2, true);               // GAP: 'cassa' is a valid word, so nothing is searched
+        // S27 a valid word that is probably another word: only a suggestion in the 3rd place, never a replacement
+        typed("S27", "cassa", "casa", 2, false);
+        typed("S27", "cousa", "coisa", 2, false);
+        typed("S27", "aida", "ainda", 2, false);
+        autocorrect("S27", "cassa", false, false);
+        alt("S27", "cassa", "casa");
+        alt("S27", "fone", null);                                // a real word: nothing to offer
+        alt("S27", "casa", null);                                // a frequent word: not even searched
         typed("GAP", "ola", "olá", 2, false);
         typed("GAP", "entao", "então", 2, false);
-        typed("GAP", "flw", "falou", 2, true);                // GAP: abbreviation missing from [corrections]
+        typed("GAP", "flw", "falou", 2, false);
+        typed("GAP", "wpp", "WhatsApp", 2, false);
+        typed("GAP", "ifood", "iFood", 2, false);
+        typed("GAP", "tiktok", "TikTok", 2, false);
+        autocorrect("S19", "flw", true, false);
         typed("GAP", "whats", "WhatsApp", 2, false);
         // C1 everyday words: after 2 letters the word must be among the first 3 completions
         typed("C1", "ta", "tá", 3, false);
@@ -246,6 +299,18 @@ public class StrategyTest {
 
     static void enCases() {
         typed("S1", "tomorr", "tomorrow", 2, false);
+        // S27 a valid word that is probably another word
+        typed("S27", "whee", "where", 2, false);
+        typed("S27", "eeks", "weeks", 2, false);
+        autocorrect("S27", "whee", false, false);
+        alt("S27", "whee", "where");
+        alt("S27", "they", null);
+        // S26 context while typing
+        ctxType("S26", null, "thank", "yo", "you", false);
+        ctxType("S26", null, "good", "mo", "morning", false);
+        ctxType("S26", null, "happy", "bi", "birthday", false);
+        ctxType("S26", null, "of", "co", "course", false);
+        ctxType("S26", null, "what", "ti", "time", false);
         typed("S1", "beaut", "beautiful", 2, false);
         typed("S2", "thamk", "thank", 2, false);
         typed("S2", "wprld", "world", 2, false);
@@ -293,7 +358,8 @@ public class StrategyTest {
         valid("S20", "yeah", false);
         typed("S21", "frend", "friend", 2, false);
         typed("GAP", "whatsapp", "WhatsApp", 2, false);
-        typed("GAP", "tiktok", "TikTok", 2, true);            // GAP: apps of the last years are missing
+        typed("GAP", "tiktok", "TikTok", 2, true);            // GAP (data): the dictionary does not know TikTok (rules cannot point to an unknown word)
+        typed("GAP", "wasap", "WhatsApp", 2, false);
         typed("GAP", "ive", "I've", 2, false);
         typed("GAP", "youre", "you're", 2, false);
         typed("C1", "gon", "gonna", 3, false);
@@ -303,6 +369,19 @@ public class StrategyTest {
 
     static void esCases() {
         typed("S1", "grac", "gracias", 2, false);
+        // S27 a valid word that is probably another word
+        typed("S27", "entones", "entonces", 2, false);
+        typed("S27", "vece", "veces", 2, false);
+        autocorrect("S27", "vece", false, false);
+        alt("S27", "vece", "veces");
+        alt("S27", "hola", null);                                // a valid greeting with a low frequency: bola is not that much more frequent
+        // S26 context while typing
+        ctxType("S26", null, "muchas", "gr", "gracias", false);
+        ctxType("S26", null, "por", "fa", "favor", false);
+        ctxType("S26", null, "buenos", "di", "días", false);
+        ctxType("S26", null, "buenas", "no", "noches", false);
+        ctxType("S26", null, "feliz", "cu", "cumpleaños", false);
+        ctxType("S26", null, "hasta", "ma", "mañana", false);
         typed("S1", "tambi", "también", 2, false);
         typed("S2", "graciaz", "gracias", 2, false);
         typed("S2", "gola", "hola", 2, true);                 // GAP (data): hola has a low frequency (78); bola/golazo win
@@ -345,12 +424,46 @@ public class StrategyTest {
         valid("S20", "vale", false);
         typed("S21", "protagonist", "protagonista", 2, false);
         typed("GAP", "pa", "para", 2, false);
-        typed("GAP", "wasap", "WhatsApp", 2, true);           // GAP: chat spelling of WhatsApp is missing
+        typed("GAP", "wasap", "WhatsApp", 2, false);
         typed("GAP", "tio", "tío", 2, false);
         typed("C1", "ho", "hola", 3, true);
         typed("C1", "vam", "vamos", 3, true);
         typed("C1", "gr", "gracias", 3, true);
         typed("C1", "es", "estoy", 3, true);
+    }
+
+    // ------------------------------------------------------------------ everyday sentences
+
+    /**
+     * Floors of S28 (percent, weighted by sentence; every sentence counts once here), per language: known words, hit after the space,
+     * after 1, 2 and 3 letters. They sit about 2 points under what the code measures today (pt-BR 99.9 / 19.9 / 39.8 / 52.7 / 62.4,
+     * en-US 100 / 17.7 / 38.3 / 53.7 / 70.3, es 99.9 / 16.1 / 35.7 / 45.4 / 61.3; before v1.84.0 the 2-letter rate was 30.5 / 39.1 / 27.3),
+     * so ordinary noise passes and a real loss
+     * (an engine change that costs context, a dictionary that forgets everyday words) does not. Raise them when a release improves the
+     * rates; never lower one to make a run pass.
+     */
+    static final Map<String, double[]> FLOORS = new LinkedHashMap<String, double[]>();
+    static {
+        FLOORS.put("pt-BR", new double[] {98, 17.5, 37.5, 50.5, 60});
+        FLOORS.put("en-US", new double[] {98, 15.5, 36, 51.5, 68});
+        FLOORS.put("es", new double[] {98, 14, 33.5, 43, 59});
+    }
+
+    /**
+     * S28: the original everyday sentences of data/everyday_<lang>.txt (about 130 per language, written for this repository, so the test
+     * needs no download) are typed word by word as SubtitleEval does; the rates must stay over their floors.
+     */
+    static void everyday(String lang) throws Exception {
+        File f = new File(System.getProperty("everyday", "docs/tools/e2e/data"), "everyday_" + lang + ".txt");
+        if (!f.exists()) { record("S28", "sentences file " + f.getPath(), false, false, "missing"); return; }
+        List<String> lines = Files.readAllLines(f.toPath(), java.nio.charset.StandardCharsets.UTF_8);
+        SubtitleEval.Result r = SubtitleEval.run(lines, false, 3, 10000, 4);
+        double[] got = {r.known(), r.rate(0), r.rate(1), r.rate(2), r.rate(3)};
+        String[] names = {"known words", "after the space", "1 letter", "2 letters", "3 letters"};
+        double[] floor = FLOORS.get(lang);
+        for (int i = 0; i < names.length; i++) {
+            record("S28", names[i] + " >= " + floor[i] + "%", got[i] >= floor[i], false, String.format("%.1f%% (%d sentences)", got[i], r.sentences));
+        }
     }
 
     // ------------------------------------------------------------------ helpers (no dictionary)

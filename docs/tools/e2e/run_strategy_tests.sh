@@ -8,6 +8,7 @@
 # Without the jar (classes.dex of the APK -> dex2jar), it builds the APK just for this: needs APKTOOL_JAR and DEX2JAR (dex-tools-2.1 folder).
 # Variables: OUT (default /tmp/mr_strategy). Exits with code 1 if any check fails (a case marked GAP may fail: it is a known gap).
 set -e
+set -o pipefail   # the Java tests exit 1 on a failure; without this the pipe to grep would hide it
 OUT=${OUT:-/tmp/mr_strategy}
 E=docs/tools/e2e
 unset JAVA_TOOL_OPTIONS
@@ -31,7 +32,7 @@ fi
 # ---- test classes
 rm -rf "$OUT/stubs" "$OUT/cls"; mkdir -p "$OUT/stubs" "$OUT/cls"
 javac -nowarn -encoding UTF-8 -cp "$JAR" -d "$OUT/stubs" $(find $E/android_stubs -name '*.java')
-javac -nowarn -encoding UTF-8 -cp "$JAR:$OUT/stubs" -d "$OUT/cls" $E/E2ETest.java $E/E2EEn.java $E/E2EEs.java $E/StrategyTest.java
+javac -nowarn -encoding UTF-8 -cp "$JAR:$OUT/stubs" -d "$OUT/cls" $E/E2ETest.java $E/E2EEn.java $E/E2EEs.java $E/SubtitleEval.java $E/StrategyTest.java
 CP="$OUT/cls:$OUT/stubs:$JAR"
 run() { java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote -Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 \
              -Djava.library.path="$OUT/engine:$OUT/native" "$@"; }

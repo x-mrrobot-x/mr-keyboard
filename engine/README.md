@@ -39,7 +39,7 @@ bash docs/tools/e2e/run_native_parity.sh      # Java x C++ live, 3 languages (bu
 
 ## Build and put it in the app
 Changed `engine/` (or `native/`)? The **Mr Keyboard - native lib** workflow runs on push (or by hand: Actions → Run workflow). It
-tests on the PC and builds both libs for arm64-v8a, armeabi-v7a and x86 with NDK 27. Download the **`native-libs`** artifact, extract it at the
+tests on the PC and builds both libs for arm64-v8a, armeabi-v7a, x86 and x86_64 with NDK 27. Download the **`native-libs`** artifact, extract it at the
 project root (merging with `lib/`) and commit `lib/`, `native-src.sha256`, `mrengine-src.sha256` and `mrengine-info.txt`. The APK
 workflow compares the hashes with the current code and does not publish if `lib/` is stale.
 

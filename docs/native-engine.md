@@ -18,7 +18,7 @@ The ready-made binaries live in `lib/<abi>/`. Engine details: `engine/README.md`
 - "Configurações → Sugestões e dicionários" (Settings → Suggestions and dictionaries) shows **"Motor de sugestões: Nativo (C++)"** (Suggestion engine: Native (C++)) or **"Java (biblioteca nativa não encontrada)"** (Java (native library not found)).
 
 ## Changed `native/` or `engine/`: build the libs
-1. Push. The **Mr Keyboard - native lib** workflow runs by itself (or by hand: Actions → Run workflow). It tests on the PC (`dict_test`, `mr_test`, `JniSmoke`, ASan/UBSan) and builds both libs for arm64-v8a, armeabi-v7a and x86.
+1. Push. The **Mr Keyboard - native lib** workflow runs by itself (or by hand: Actions → Run workflow). It tests on the PC (`dict_test`, `mr_test`, `JniSmoke`, ASan/UBSan) and builds both libs for arm64-v8a, armeabi-v7a, x86 and x86_64.
 2. Download the `native-libs` artifact and extract it at the project root, **merging** with what already exists. It writes `lib/<abi>/libjni_pckeyboard.so` and `libmrengine.so`, `native-src.sha256` and `mrengine-src.sha256` (which code each lib came from) and `mrengine-info.txt` (contract, commit and SHA-256 of each `.so`).
 3. Commit.
 

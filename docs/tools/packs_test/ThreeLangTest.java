@@ -11,9 +11,10 @@ public class ThreeLangTest {
         File tmp = Files.createTempDirectory("mr2").toFile();
         final PacksTest.Ctx ctx = new PacksTest.Ctx(tmp);
         MrPacks.sTestCerts = new X509Certificate[] {(X509Certificate) CertificateFactory.getInstance("X.509")
-                .generateCertificate(new FileInputStream("/tmp/fa/cert.pem"))};
-        PacksTest.catalogFile = "/tmp/v165out/catalog.json";
-        PacksTest.zipDir = "/tmp/v165out/";
+                .generateCertificate(new FileInputStream(PacksTest.FA + "/cert.pem"))};
+        String three = System.getProperty("mr.three", "/tmp/v165out");   // the signed catalog of the 3 packs (make_catalog.py + SignCatalog)
+        PacksTest.catalogFile = three + "/catalog.json";
+        PacksTest.zipDir = three + "/";
         PacksTest.net();
         MrPacks.Catalog cat = MrPacks.fetchCatalog(ctx);
         PacksTest.check("catalog with 3 packs", cat.packs.size() == 3, cat.packs.get(0).id + ", " + cat.packs.get(1).id + ", " + cat.packs.get(2).id);
@@ -33,7 +34,7 @@ public class ThreeLangTest {
             String start = String.valueOf(MrPredict.list(ctx, s, new android.view.inputmethod.InputConnection() {
                 public CharSequence getTextBeforeCursor(int n, int f) { return ""; }
             }));
-            boolean ok = s.hasMainDictionary() && start.contains(want) && corr == (c[1].equals("en-US") ? 346 : c[1].equals("es") ? 137 : 217);
+            boolean ok = s.hasMainDictionary() && start.contains(want) && corr == PacksTest.rulesOf(c[1]);
             PacksTest.check("language " + c[0] + " uses " + c[1], ok, corr + " corrections, start " + start);
             E2ETest.suggest = s;
             s.setCorrectionMode(1);

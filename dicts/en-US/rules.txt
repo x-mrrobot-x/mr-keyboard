@@ -148,6 +148,11 @@ tmr	tomorrow
 tmw	tomorrow
 2day	today
 yday	yesterday
+# WhatsApp (the dictionary knows it capitalized; the lowercase spellings are not words)
+whatsapp	WhatsApp
+wasap	WhatsApp
+whatsap	WhatsApp
+wpp	WhatsApp
 # palavras juntas
 alot	a lot
 aswell	as well
@@ -163,7 +168,7 @@ everytime	every time
 andteh	and the
 inteh	in the
 unitedstates	United States
-visavis	vis-a-vis
+visavis	vis-à-vis
 # erros comuns
 teh	the
 adn	and

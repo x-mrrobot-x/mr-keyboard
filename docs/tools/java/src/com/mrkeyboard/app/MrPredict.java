@@ -45,6 +45,23 @@ public final class MrPredict {
     private static String sCtx1;
     private static String sCtx2;
 
+    /**
+     * v1.84: context while typing. Until now the previous words only counted for the 1st letter; from the 2nd on the list was the plain
+     * frequency one, so the hit rate fell from 1 to 2 letters (pt-BR 58.9% to 48.5% on everyday sentences). The candidates that the last
+     * prediction already collected (bigrams, trigrams, the user's pairs, recent pairs) and that start with what was typed now enter the list
+     * for 2 to CTX_MAX_LETTERS letters. 0 letters = off.
+     */
+    static final int CTX_MAX_LETTERS = 12;
+    /** How many context candidates enter per query (the best ones). */
+    static final int CTX_MAX = 2;
+    /** Dictionary frequency (0 to 255) of the best context candidate; each next one gets CTX_STEP less. Then x 2^letters, the lib scale. */
+    static final int CTX_FREQ = 255;
+    static final int CTX_STEP = 40;
+
+    /** The word being typed saw the context of the last prediction on its 1st letter (and this was its first letter). */
+    private static boolean sTypedCtx;
+    private static int sTypedInitial;
+
     /** Collects the user's bigrams (ExpandableDictionary.getBigrams calls addWord). */
     private static final class UserCollector implements Dictionary.WordCallback {
         UserCollector() { }
@@ -160,6 +177,14 @@ public final class MrPredict {
             if (suggest == null || composer == null) return;
             // v1.75: recent words that start with the typed letter
             MrRecent.complete(suggest, composer);
+            // v1.84: remember that this word is being typed after the context of the last prediction (used from the 2nd letter on)
+            if (composer.size() == 1) {
+                CharSequence t = composer.getTypedWord();
+                synchronized (MrPredict.class) {
+                    sTypedCtx = t != null && t.length() > 0 && prev != null && c2 != null && c2.equalsIgnoreCase(prev.toString());
+                    sTypedInitial = sTypedCtx ? MrText.base(t.charAt(0)) : 0;
+                }
+            }
             if (prev == null || c1 == null || c2 == null) return;
             if (composer.size() != 1 || !c2.equalsIgnoreCase(prev.toString())) return;
             int typed = composer.getTypedWord().charAt(0);
@@ -177,6 +202,56 @@ public final class MrPredict {
         } catch (RuntimeException e) {
             // the 1st letter goes on with the bigrams
         }
+    }
+
+    /**
+     * Suggest, 2nd letter on (called by MrFuzzy.afterWords): the best candidates of the previous words' context that start with the
+     * typed letters (accent and case ignored) enter the list as dictionary words, so that "muito ob" shows obrigado before the
+     * words that are only frequent. Only if the 1st letter of this word was typed after that same context (see firstLetter).
+     */
+    public static void complete(Suggest suggest, WordComposer composer) {
+        if (CTX_MAX <= 0 || CTX_MAX_LETTERS < 2 || suggest == null || composer == null) return;
+        try {
+            int n = composer.size();
+            if (n < 2 || n > CTX_MAX_LETTERS) return;
+            CharSequence typed = composer.getTypedWord();
+            if (typed == null || typed.length() != n) return;
+            String[] pick = new String[CTX_MAX];
+            int[] best = new int[CTX_MAX];
+            int found = 0;
+            synchronized (MrPredict.class) {
+                if (!sTypedCtx || sCount == 0 || MrText.base(typed.charAt(0)) != sTypedInitial) return;
+                for (int i = 0; i < sCount; i++) {
+                    String w = sWord[i];
+                    if (w.length() <= n || !startsWith(w, typed, n)) continue;
+                    int sc = score(i);
+                    int at = found;
+                    while (at > 0 && best[at - 1] < sc) at--;
+                    if (at >= CTX_MAX) continue;
+                    for (int m = Math.min(found, CTX_MAX - 1); m > at; m--) {
+                        pick[m] = pick[m - 1];
+                        best[m] = best[m - 1];
+                    }
+                    pick[at] = w;
+                    best[at] = sc;
+                    if (found < CTX_MAX) found++;
+                }
+            }
+            for (int f = 0; f < found; f++) {
+                char[] c = pick[f].toCharArray();
+                suggest.addWord(c, 0, c.length, (CTX_FREQ - CTX_STEP * f) << Math.min(n, 16), 1, Dictionary.DataType.UNIGRAM);
+            }
+        } catch (RuntimeException e) {
+            // the suggestions go on without the context
+        }
+    }
+
+    /** The word starts with the n typed letters, ignoring accent and case. */
+    private static boolean startsWith(String word, CharSequence typed, int n) {
+        for (int i = 0; i < n; i++) {
+            if (MrText.base(word.charAt(i)) != MrText.base(typed.charAt(i))) return false;
+        }
+        return true;
     }
 
     private static int score(int i) {

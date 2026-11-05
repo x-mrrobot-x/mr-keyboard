@@ -67,6 +67,12 @@ ntonces	entonces
 bss	besos
 bs	besos
 bsos	besos
+# WhatsApp y más abreviaciones (el diccionario conoce WhatsApp con mayúscula)
+whatsapp	WhatsApp
+wasap	WhatsApp
+wasapp	WhatsApp
+guasap	WhatsApp
+wpp	WhatsApp
 # palabras juntas
 enserio	en serio
 osea	o sea

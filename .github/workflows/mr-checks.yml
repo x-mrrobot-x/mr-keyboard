@@ -30,7 +30,10 @@
 #   run_native_parity.sh native engine (engine/): correction search, suggestion list and trigrams through Java and through the
 #                        PC libmrengine.so must give the same result in the 3 languages, with the dictionaries in dicts/
 #   run_strategy_tests.sh one check per suggestion strategy (docs/suggestion-features.md, ids S1...), 3 languages, native engine and
-#                        Java fallback, with the dictionaries in dicts/ (a change in dicts/ alone also starts the checks)
+#                        Java fallback, with the dictionaries in dicts/ (a change in dicts/ alone also starts the checks); S28 types
+#                        original everyday sentences (docs/tools/e2e/data/) and fails when a hit rate falls under its floor
+#   packs_test/run_packs_tests.sh  the dictionary download flow (signed catalog, tampered or truncated zips, install, update, remove, the
+#                        keyboard languages) and the 3 installed languages, with a test key made on the spot and the packs of dicts/
 name: Mr Keyboard - checks
 
 on:
@@ -169,3 +172,6 @@ jobs:
 
       - name: Suggestion strategies - one check per strategy (3 languages, native and Java)
         run: bash docs/tools/e2e/run_strategy_tests.sh "$RUNNER_TEMP/dex/classes.jar"
+
+      - name: Dictionary packs - download flow and the 3 installed languages (PC, test key)
+        run: bash docs/tools/packs_test/run_packs_tests.sh "$RUNNER_TEMP/dex/classes.jar"
