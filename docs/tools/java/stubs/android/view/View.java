@@ -24,7 +24,20 @@ public class View {
     public void setBackground(android.graphics.drawable.Drawable background) { }
     public void setBackgroundDrawable(android.graphics.drawable.Drawable background) { }
     public void setBackgroundColor(int color) { }
-    public void setPadding(int left, int top, int right, int bottom) { }
+    private int padL, padT, padR, padB;
+    private OnApplyWindowInsetsListener insetsListener;
+    private int insetsRequests;
+    public interface OnApplyWindowInsetsListener { WindowInsets onApplyWindowInsets(View v, WindowInsets insets); }
+    /** Padding, listener and requests are kept so that the PC tests can read them. */
+    public void setPadding(int left, int top, int right, int bottom) { padL = left; padT = top; padR = right; padB = bottom; }
+    public int getPaddingLeft() { return padL; }
+    public int getPaddingTop() { return padT; }
+    public int getPaddingRight() { return padR; }
+    public int getPaddingBottom() { return padB; }
+    public void setOnApplyWindowInsetsListener(OnApplyWindowInsetsListener listener) { insetsListener = listener; }
+    public OnApplyWindowInsetsListener stubInsetsListener() { return insetsListener; }
+    public void requestApplyInsets() { insetsRequests++; }
+    public int stubInsetsRequests() { return insetsRequests; }
     public void addOnLayoutChangeListener(OnLayoutChangeListener listener) { }
     public void removeOnLayoutChangeListener(OnLayoutChangeListener listener) { }
     public void setOnClickListener(OnClickListener l) { }

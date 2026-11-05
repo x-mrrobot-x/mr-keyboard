@@ -11,6 +11,8 @@
 #     morning check (MrUpdateSchedule/Notify/Job): time of the next morning in several zones and with daylight saving time,
 #     the job in a fake JobScheduler, one notification per version, no request when the notifications are blocked; it also
 #     reads an update.json made by make_update.py and signed by SignCatalog.java (keytool key).
+#   - ScreensTest: the insets of the screens on Android 15+ (MrScreens): which Android registers it, the padding of the
+#     content area (bars and cutout) and what is left for the views below, which cannot reserve the bars a second time.
 # With the path of the APK jar (classes.dex -> d2j-dex2jar), it also runs:
 #   - EsTest: SheetStrings/MrEs with Spanish, Portuguese, English and French contexts.
 # Usage: sh docs/tools/run_java_tests.sh [app.jar]
@@ -42,6 +44,10 @@ echo "== UpdateTest (update notice: the logic, and the files made by the real to
 sh $D/update_test/make_fixtures.sh "$T/update_fx"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_update" $D/update_test/UpdateTest.java
 java -cp "$T/test_update:$T/stubs:$T/main" com.mrkeyboard.app.UpdateTest "$T/update_fx"
+
+echo "== ScreensTest (insets of the screens)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_screens" $D/screens_test/ScreensTest.java
+java -cp "$T/test_screens:$T/stubs:$T/main" com.mrkeyboard.app.ScreensTest
 
 if [ -n "$APPJAR" ]; then
   echo "== EsTest"

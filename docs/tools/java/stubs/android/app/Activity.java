@@ -11,6 +11,7 @@ public class Activity extends android.view.ContextThemeWrapper {
     public void setContentView(android.view.View view) { }
     public android.content.Intent getIntent() { return null; }
     public void finish() { }
+    public android.view.View findViewById(int id) { return null; }
     public void runOnUiThread(Runnable action) { }
     public void requestPermissions(String[] permissions, int requestCode) { }
 }

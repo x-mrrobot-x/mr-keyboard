@@ -5,7 +5,7 @@
 
 # Header of the settings screens (PreferenceActivity), drawn in the layout itself as in
 # PrefScreenSheets and SheetEditorActivity, instead of the framework ActionBar. On these screens
-# InsetsHandler already reserves the system bars in android.R.id.content; with the framework
+# MrScreens already reserves the system bars in android.R.id.content; with the framework
 # ActionBar the bar space was reserved again (gap between title and content on Android 15+).
 # Same look as the previous ActionBar: 56dp, mr_ui_bg background, 19sp medium title (mr_ui_text)
 # and a 1dp bottom line (mr_ui_stroke).

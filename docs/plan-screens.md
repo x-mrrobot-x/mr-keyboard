@@ -1,0 +1,189 @@
+<!-- target-version: v1.83.0 -->
+# Plano: telas corretas em todos os SDKs, sem duplicação e sem peso
+
+Objetivo: Main, Configurações (e subtelas), folhas do teclado, editores e diálogos aparecem sem faixas, sem
+espaços extras e sem sobrepor as barras do sistema do Android 8 (SDK 26) ao 17 (SDK 37), sem abrir a mesma tela
+duas vezes e sem pesar a abertura ou o uso do teclado.
+
+Este plano nasceu de uma análise estática do código (nada foi medido em aparelho) mais a leitura da documentação
+oficial. O defeito relatado no Android 17 (espaço grande e fixo abaixo do título de Configurações, que não some
+ao rolar) entra como item principal.
+
+## Decisões do usuário
+
+- Teclado abrindo uma tela que já está no histórico: **reaproveitar a aberta** (traz para frente; não cria outra
+  e não fecha nada).
+- Android 8–14 (SDK 26–34): **manter o modo clássico** (barras com a cor do tema). Só se corrige o Android 15+.
+- Aceleração por hardware: **opção nas configurações** para ligar/desligar, **desligada por padrão** (o
+  comportamento de hoje não muda para quem não mexer).
+- Espaço do Android 17: **corrigir por construção** (ninguém consegue aplicar a margem da barra duas vezes). Se
+  sobrar espaço depois do teste no aparelho, aí se coleta um dump da hierarquia (ver Etapa 1).
+
+## O que a análise encontrou
+
+**Barras e insets**
+- O app tem targetSdk 36 e minSdk 26. No Android 15+ a janela é edge-to-edge à força (no 16 o opt-out sumiu).
+  Um único `InsetsHandler` (callback global de Activity, registrado só com SDK ≥ 35 em `MrApplication`) aplica
+  `systemBars | displayCutout` como padding de `android.R.id.content`. Por estar só no 35+, as chamadas API 30+
+  dele são seguras.
+- O `InsetsHandler` devolve os insets **sem consumir**. Qualquer View abaixo (inclusive o layout da
+  PreferenceActivity, que é do sistema e muda entre versões do Android) pode aplicar a mesma margem de novo. É a
+  causa mais provável do espaço fixo no Android 17, mas **não está confirmada** (sem o aparelho não dá para ver a
+  hierarquia).
+- Abaixo do 35 a janela usa o modo clássico, com `statusBarColor`/`navigationBarColor` do tema. Está correto e
+  é o que o sistema espera nessas versões. Em paisagem com notch (SDK 28–34) o sistema pinta a faixa do recorte
+  de preto; é o comportamento padrão, aceito.
+- O tema escuro (`Theme.Material`) já dá ícones claros nas barras; não há `windowLightStatusBar` a acertar.
+- Android 17: nas páginas oficiais de mudanças não há alteração de barras, insets ou edge-to-edge. A única mudança
+  de interface para todos os apps é: se a configuração muda (rotação) e a Activity não trata, o teclado que estava
+  aberto **não volta mais** sozinho. Afeta o editor de folhas e o editor de estilos de IA (têm campo de texto).
+- Voltar: `enableOnBackInvokedCallback=true` já está ligado e nenhuma tela sobrescreve `onBackPressed`; o
+  Android 16 deixar de chamá-lo não afeta as telas. O `Back` dentro do teclado (`LatinIME.onKeyDown` →
+  `handleBack`) precisa de teste no aparelho (Etapa 7).
+
+**Duplicação**
+- Nove pontos do app abrem telas com só `FLAG_ACTIVITY_NEW_TASK` e launch mode padrão: `LatinIME` (engrenagem e
+  atalho genérico), `MrAi` (preferências e editor de estilo), `MrPacks`, `MrTools` (folhas), `MrShots`
+  (`ShotPerm` e `ShotPick`, que já são `singleInstance`) e `MrUpdateUi$Notif`. Com NEW_TASK, o sistema acha a
+  tarefa do app e **empilha uma nova instância** por cima. Tocar na engrenagem três vezes dá três Configurações;
+  Voltar precisa de três toques.
+- Dentro do app, as linhas de Configurações abrem subtelas com `<intent action=...>` e launch mode padrão: duplo
+  toque rápido abre a subtela duas vezes.
+- A notificação de atualização usa `NEW_TASK | CLEAR_TASK`: não duplica, mas apaga o histórico do app. Fica como
+  está (é a forma segura de abrir o diálogo da atualização).
+- `recreate()`: `Main.onResume` (idioma mudou) e `LatinIMESettings` (troca de idioma). Cada um recria uma vez e
+  não entra em laço. Sem problema.
+
+**Peso no teclado**
+- Telas e teclado rodam no mesmo processo, mas nenhuma tela é criada antes de ser aberta. `MrApplication.onCreate`
+  só registra um callback; o `onCreate`/`onStartInputView` do teclado não toca em classes de tela.
+- Os custos indiretos reais são dois: (1) instâncias duplicadas acumulando memória no processo do teclado
+  (principalmente o editor de folhas, 4 mil linhas de smali e árvore de Views grande); (2) `hardwareAccelerated`
+  está **desligado no app inteiro**, então Main e Configurações desenham por software e podem rolar pior. Só o
+  editor de folhas, `PrefScreenSheets` e o editor de estilos de IA ligam por conta própria. A opção da Etapa 5
+  deixa o usuário ligar nas demais telas, sem mudar o padrão.
+- A janela do teclado não depende desse atributo: o javadoc de `InputMethodService.enableHardwareAcceleration`
+  diz que, da API 21 em diante, a aceleração do IME é ligada pelo sistema nos aparelhos capazes.
+
+**Diálogos**
+- AlertDialog e diálogos de preferência (`Theme.MrKeyboard.Dialog`) e `MrUpdateDialog` são janelas flutuantes: a
+  imposição de edge-to-edge não as afeta.
+- `MrAiDialog` fica preso à janela do teclado, com gravidade TOP e altura até o topo do teclado
+  (`TYPE_APPLICATION_ATTACHED_DIALOG`, flags `0x308`). Precisa de teste no Android 15+ para confirmar que o
+  cartão não fica sob a barra de status nem sob o recorte (Etapas 4 e 7).
+
+## Etapas
+
+### Etapa 1 — Insets consumidos e um só lugar para as telas (corrige o espaço do Android 17) — FEITA
+- `MrScreens` (Java, `docs/tools/java/src/com/mrkeyboard/app/`) no lugar de `InsetsHandler.smali`: callback de
+  ciclo de vida que, no Android 15+, aplica as barras do sistema e o recorte como padding de
+  `android.R.id.content` e **devolve `insets.inset(l, t, r, b)`**. A margem fica consumida: nenhum descendente
+  (nem o layout do sistema, que muda entre versões) consegue aplicá-la de novo. As chamadas da API 30 ficam
+  isoladas em `MrScreens$Api30`, como já é feito em `ImeInsets`.
+- O teclado (IME) continua passando para as telas: `inset` só desconta o que já virou padding. A conta do
+  editor de folhas (`ime.bottom − systemBars.bottom`, em `Api30ImeHelper`) dá o mesmo valor de antes (852 no
+  exemplo do teste, com teclado de 900 e barra de 48).
+- `MrApplication.smali` chama `MrScreens.install(this)`; a checagem de SDK (35) agora fica dentro do Java. Abaixo
+  do 35 nada é registrado, como antes. A Etapa 5 estende o `install` para ligar a aceleração.
+- O tema continua com `statusBarColor`/`navigationBarColor` (valem no SDK 26–34 e na barra de 3 botões).
+- Teste no PC: `docs/tools/screens_test/ScreensTest.java` (25 checks: SDK que registra, padding, insets que
+  sobram, paisagem com recorte, teclado). Sete mutações do `MrScreens` foram todas pegas pelo teste.
+- Se depois do teste no aparelho o espaço continuar no Android 17: coletar com `adb shell dumpsys activity top`
+  a hierarquia e as posições das Views de Configurações e achar quem aplica a margem.
+- Arquivos: `MrScreens.java`, `MrScreens.smali` e `MrScreens$Api30.smali` (gerados), `MrApplication.smali`,
+  `InsetsHandler.smali` (removido), comentário do `SettingsHeader.smali`, stubs (`Application`, `Insets`,
+  `WindowInsets`, `View`, `Activity`), `run_java_tests.sh`, `build_java.sh`.
+
+### Etapa 2 — Rotação no Android 17: teclado volta onde estava
+- `SheetEditorActivity` e `MrAiStyleActivity`: guardar em `onSaveInstanceState` se o teclado estava visível
+  (`getRootWindowInsets().isVisible(Type.ime())`, API 30+; abaixo disso não guarda) e, ao recriar, mostrar o
+  teclado de novo no campo que tinha o foco. É inofensivo nas outras versões.
+- Os diálogos de preferência com campo de texto são recriados junto com a tela; não precisam de nada.
+- **Achado na Etapa 1 (a confirmar no aparelho):** com edge-to-edge o `adjustResize` não encolhe mais o
+  conteúdo; só avisa o tamanho do teclado pelos insets. O editor de folhas compensa isso sozinho
+  (`Api30ImeHelper`), mas o `MrAiStyleActivity` (nome e instruções do estilo de IA) não trata o teclado: no
+  Android 15+ o campo de instruções pode ficar atrás do teclado. Corrigir junto: empurrar o conteúdo acima do
+  teclado nesse editor, do mesmo jeito do editor de folhas.
+
+### Etapa 3 — Sem duplicação
+- `MrNav` (Java): único lugar que monta o Intent de abertura de tela, com `NEW_TASK | REORDER_TO_FRONT` quando
+  vem do teclado e sem NEW_TASK dentro do app. Os nove pontos de chamada passam a usar `MrNav`.
+- Manifesto: `launchMode="singleTop"` em todas as telas que não são o launcher (duplo toque dentro do app não
+  empilha). As três `singleInstance` (`ActivityHelper`, `ShotPerm`, `ShotPick`) ficam como estão.
+- Telas com parâmetro (`MrAiStyleActivity` recebe `mr_ai_style_index`): implementar `onNewIntent` sem perder
+  edição em andamento (se o índice for o mesmo, só traz para frente; se for outro e houver alteração não salva,
+  mantém a atual).
+- Testes no PC: flags montadas por `MrNav` e um guarda no `res_check.py` (toda tela exportada ou não, exceto
+  launcher e as `singleInstance`, tem `singleTop`).
+
+### Etapa 4 — Verificar `MrAiDialog` e `MrUpdateDialog` nas janelas edge-to-edge
+- Só corrigir se o teste mostrar problema: o cartão do `MrAiDialog` ganharia recuo superior pelo inset de
+  `statusBars | displayCutout` da própria janela do diálogo.
+
+### Etapa 5 — Aceleração por hardware com opção
+- Preferência nova `pref_ui_hw_accel` (caixa de seleção em **Avançado**, padrão **desligada**, textos em
+  inglês, espanhol e português do Brasil) que liga a aceleração nas telas do app. Desligada, as telas seguem
+  desenhando por software, exatamente como hoje.
+- O Android permite **ligar** a aceleração por janela, mas não desligar (documentação oficial). Por isso o
+  manifesto continua `hardwareAccelerated="false"` nas telas controladas pela opção (Main, Configurações e
+  subtelas, preferências de IA, pacotes) e o `MrScreens` liga o flag da janela em `onActivityCreated` quando a
+  preferência está ligada (a janela só é entregue ao sistema depois do `onResume`, então o flag chega a tempo;
+  o teste no aparelho confirma). Vale só para as telas do próprio app, sem as janelas auxiliares (`ShotPerm`,
+  `ShotPick`, `ActivityHelper`).
+- As três telas que **já aceleram hoje** (`PrefScreenSheets`, `SheetEditorActivity`, `MrAiStyleActivity`)
+  continuam com `hardwareAccelerated="true"` no manifesto e fora da opção: são desenhadas por código próprio,
+  já foram testadas assim, e passá-las para software pioraria o editor por padrão.
+- Ao alternar, a tela de Configurações chama `recreate()` para o efeito ser imediato.
+- Não mexe no teclado nem nos diálogos dele (o atributo do `<application>` continua `false`).
+- Entra na lista de chaves de "restaurar padrões" e o `check_reset_keys.py` é atualizado junto.
+- **Checagem do teclado (sem opção por enquanto):** pela documentação, a aceleração do IME é ligada pelo
+  sistema na API 21+, independente do atributo do app, mas isso não foi confirmado no aparelho. Numa build de
+  teste, registrar em log `isHardwareAccelerated()` da janela do teclado depois de anexada e comparar o
+  `dumpsys gfxinfo com.mrkeyboard.app` com o teclado aberto. Se estiver acelerado: nada a fazer. Se estiver em
+  software: só então avaliar uma opção própria para o teclado, com teste visual completo (o desenho do teclado
+  é por código próprio e pode sair errado com a aceleração).
+
+### Etapa 6 — Guardas e testes
+- Java no PC: `MrScreensTest` (aritmética de insets, flags de `MrNav`, padrão da preferência).
+- `res_check.py`: sem `windowOptOutEdgeToEdgeEnforcement`, cores das barras no tema, manifesto das telas
+  (launch mode e aceleração), strings da preferência nos três idiomas. Com mutação para provar que o guarda
+  pega.
+- `check_java_smali.sh`, `verify_dex.sh`, `smali_regcheck.py` e as suítes existentes sem regressão.
+
+### Etapa 7 — Teste no aparelho (checklist do usuário)
+- **Android 17 (o seu):** título de Configurações sem espaço extra, parado e rolando; subtelas idem; girar a tela
+  nos editores com o teclado aberto; navegação por gestos e por 3 botões.
+- **Android 15 e 16** (se tiver): mesmas telas; Voltar por gesto com painel do teclado aberto.
+- **Android 10–14 e 8–9** (se tiver): telas com barras na cor do tema; faixa preta do notch em paisagem é
+  esperada.
+- **Duplicação:** engrenagem do teclado 3 vezes seguidas, depois Voltar uma vez deve sair da tela; duplo toque
+  rápido numa linha de Configurações abre uma subtela só.
+- **Aceleração:** com a opção desligada nada muda; ligar e conferir que a rolagem de Configurações segue
+  correta (e desligar de novo volta ao normal).
+- **Teclado acelerado ou não:** resultado da checagem da Etapa 5 (log da build de teste).
+- Opcional, para medir peso: `adb shell dumpsys gfxinfo com.mrkeyboard.app framestats` com a opção ligada e
+  desligada.
+
+### Etapa 8 — Versão e notas
+- v1.83.0 (`versionCode` 1083000), notas em `docs/release-notes/v1.83.0.md` (blocos Português e English, estilo
+  Novo/Melhorado/Corrigido), README se a nova opção merecer menção. Apagar este plano no commit da release.
+
+## Fora do escopo
+
+- Subir o `targetSdk` para 37 (Google Play exige até agosto de 2027). Mudanças a tratar nesse plano futuro:
+  orientação e redimensionamento deixam de poder ser travados em telas grandes (o app não trava nada hoje),
+  campos `static final` ficam imutáveis, e a proteção de carga dinâmica de código passa a valer para bibliotecas
+  nativas (conferir que nenhuma `.so` é carregada de fora do APK).
+- Fazer a lista rolar por trás das barras do sistema (recomendação de design do Google, opcional). A lista
+  continua começando abaixo do título, como hoje.
+
+## Fontes
+
+- Mudanças do Android 15 (edge-to-edge, cutout): https://developer.android.com/about/versions/15/behavior-changes-15
+- Mudanças do Android 16 (opt-out removido, voltar preditivo): https://developer.android.com/about/versions/16/behavior-changes-16
+- Mudanças do Android 17 para todos os apps (teclado após rotação): https://developer.android.com/about/versions/17/behavior-changes-all
+- Mudanças do Android 17 para targetSdk 37: https://developer.android.com/about/versions/17/behavior-changes-17
+- Edge-to-edge em Views: https://developer.android.com/develop/ui/views/layout/edge-to-edge
+- Recortes de tela: https://developer.android.com/guide/topics/display-cutout
+- Dicas de insets no Android 15: https://medium.com/androiddevelopers/insets-handling-tips-for-android-15s-edge-to-edge-enforcement-872774e8839b
+- Aceleração por hardware: https://developer.android.com/develop/ui/views/graphics/hardware-accel
