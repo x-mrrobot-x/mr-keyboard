@@ -85,6 +85,7 @@ public class PacksTest {
     static String zipDir = FX + "ok/";
     static int corruptAt = -1, truncateAt = -1, httpCode = 200, cancelAfter = -1;
     static int requests = 0;
+    static String lastZipUrl = null;
 
     static void net() {
         MrPacks.sNet = new MrPacks.Net() {
@@ -94,9 +95,11 @@ public class PacksTest {
                 byte[] b;
                 if (url.equals(MrPacks.sCatalogUrl)) b = Files.readAllBytes(Paths.get(catalogFile));
                 else {
-                    String base = "https://github.com/x-mrrobot-x/mr-keyboard/releases/download/v1.73.0/";
-                    if (!url.startsWith(base)) throw new IOException("unexpected url " + url);
-                    b = Files.readAllBytes(Paths.get(zipDir + url.substring(base.length())));
+                    // .../releases/download/<tag>/<zip>: any release is served; the test looks at which one was asked
+                    String base = MrPacks.RELEASES_URL;
+                    if (!url.startsWith(base) || url.indexOf('/', base.length()) < 0) throw new IOException("unexpected url " + url);
+                    lastZipUrl = url;
+                    b = Files.readAllBytes(Paths.get(zipDir + url.substring(url.indexOf('/', base.length()) + 1)));
                     if (corruptAt >= 0) b[corruptAt] ^= 0x55;
                     if (truncateAt >= 0) b = Arrays.copyOf(b, truncateAt);
                 }
@@ -155,7 +158,14 @@ public class PacksTest {
         check("the catalog is read from the latest release (the same as the APK)",
                 MrPacks.CATALOG_URL.equals("https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalog.json"),
                 MrPacks.CATALOG_URL);
-        check("safeName rejects ../x, a/b, .x, empty", MrPacks.safeName("pt-BR-2.zip") && !MrPacks.safeName("../x")
+        check("zips are read from the releases of the repository (release + name)",
+                MrPacks.RELEASES_URL.equals("https://github.com/x-mrrobot-x/mr-keyboard/releases/download/"), MrPacks.RELEASES_URL);
+        check("validTag accepts v1.82.0 and v10.0.12; rejects the rest",
+                MrPacks.validTag("v1.82.0") && MrPacks.validTag("v10.0.12") && !MrPacks.validTag("1.82.0") && !MrPacks.validTag("v1.82")
+                && !MrPacks.validTag("v1.82.0.1") && !MrPacks.validTag("v1..2") && !MrPacks.validTag("v1.2.") && !MrPacks.validTag("v.1.2")
+                && !MrPacks.validTag("main") && !MrPacks.validTag("v1.82.0/../x") && !MrPacks.validTag("v1.82.0-rc1") && !MrPacks.validTag("")
+                && !MrPacks.validTag(null) && !MrPacks.validTag("V1.82.0"), null);
+        check("safeName rejects ../x, a/b, .x, empty", MrPacks.safeName("mr-keyboard-dict-pt-BR-2.zip") && !MrPacks.safeName("../x")
                 && !MrPacks.safeName("a/b") && !MrPacks.safeName(".x") && !MrPacks.safeName(""), null);
         boolean bad = false;
         for (String j : new String[] {"{", "[1,]", "{\"a\":}", "\"\\x\"", "nul", "{}x"}) {
@@ -240,7 +250,24 @@ public class PacksTest {
         long t0 = System.nanoTime();
         r = errOf(() -> MrPacks.install(ctx, c1, p1));
         File d2 = MrPacks.packDir(ctx, "pt-BR", 2);
+        final String firstUrl = lastZipUrl;
+        // a pack whose zip stayed in an earlier release: same catalog, "release" changed
+        MrPacks.Catalog cOld = MrPacks.readData(c1.data.replace("\"v1.73.0\"", "\"v1.71.0\""));
+        r = errOf(() -> MrPacks.install(ctx, cOld, cOld.packs.get(0)));
+        check("pack in an earlier release (v1.71.0): the download goes to that release and works",
+                r.equals("ok") && "https://github.com/x-mrrobot-x/mr-keyboard/releases/download/v1.71.0/mr-keyboard-dict-pt-BR-2.zip".equals(lastZipUrl), r + " " + lastZipUrl);
+        for (String badRel : new String[] {"main", "v1.73", "../x", "v1.73.0/../../x", "", "v1.73.0-rc"}) {
+            String rr = errOf(() -> MrPacks.readData(c1.data.replace("\"v1.73.0\"", "\"" + badRel + "\"")));
+            check("catalog with release \"" + badRel + "\" is rejected", rr.startsWith("mr_dicts_err_corrupt"), rr);
+        }
+        String noRel = errOf(() -> MrPacks.readData(c1.data.replace("\"release\"", "\"x_release\"")));
+        check("catalog without \"release\" is rejected (no global address anymore)", noRel.startsWith("mr_dicts_err_corrupt"), noRel);
+        String oldFmt = errOf(() -> MrPacks.readData(c1.data.replace("\"packs\": [", "\"baseUrl\": \"https://x/\", \"packs\": [")));
+        check("a leftover baseUrl in the catalog does no harm (it is ignored)", oldFmt.equals("ok"), oldFmt);
         check("installs", r.equals("ok"), r + String.format(" (%.0f ms)", (System.nanoTime() - t0) / 1e6));
+        check("the zip was asked from the release in the catalog, with the dictionary name",
+                "https://github.com/x-mrrobot-x/mr-keyboard/releases/download/v1.73.0/mr-keyboard-dict-pt-BR-2.zip".equals(firstUrl)
+                && "v1.73.0".equals(p1.release) && "mr-keyboard-dict-pt-BR-2.zip".equals(p1.url), firstUrl);
         check("files in files/dicts/pt-BR/2", list(d2).equals(Arrays.asList("NOTICE.txt", "main.dict", "pack.json", "rules.txt", "trigrams.bin")), list(d2));
         check("nothing is left in cache/ or .tmp", list(ctx.getCacheDir()).isEmpty() && list(d2.getParentFile()).equals(Arrays.asList("2")), list(ctx.getCacheDir()));
         MrPacks.syncLanguages(ctx, MrPacks.cardIds(null, MrPacks.installedIds(ctx), "pt"));

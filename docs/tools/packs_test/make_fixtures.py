@@ -8,9 +8,9 @@ import tempfile, shutil
 D=tempfile.mkdtemp(); shutil.copytree(B+'/dicts', D+'/dicts')
 pj=D+'/dicts/pt-BR/pack.json'; meta=json.loads(open(pj,encoding='utf-8').read()); meta['version']=2
 open(pj,'w',encoding='utf-8').write(json.dumps(meta,ensure_ascii=False,indent=2))
-subprocess.run(['python3','-I',B+'/docs/tools/make_catalog.py','--dicts',D+'/dicts','--out',O+'/ok','--repo','x-mrrobot-x/mr-keyboard','--tag','v1.73.0','--now','2026-10-30T18:00:00+00:00'],check=True)
+subprocess.run(['python3','-I',B+'/docs/tools/make_catalog.py','--dicts',D+'/dicts','--out',O+'/ok','--tag','v1.73.0','--now','2026-10-30T18:00:00+00:00'],check=True)
 base=json.loads(open(O+'/ok/data.json',encoding='utf-8').read())
-zbytes=open(O+'/ok/pt-BR-%d.zip'%base['packs'][0]['version'],'rb').read()
+zbytes=open(O+'/ok/mr-keyboard-dict-pt-BR-%d.zip'%base['packs'][0]['version'],'rb').read()
 files={n:z for n,z in [(i.filename,None) for i in zipfile.ZipFile(io.BytesIO(zbytes)).infolist()]}
 zf=zipfile.ZipFile(io.BytesIO(zbytes)); contents={i.filename:zf.read(i.filename) for i in zf.infolist()}
 def mkzip(entries):
@@ -27,7 +27,7 @@ def write(name, data, zips):
 def variant(name, serial, version, zipb=None, mut=None):
     d=copy.deepcopy(base); d['serial']=serial; p=d['packs'][0]; p['version']=version
     zb=zipb if zipb is not None else zbytes
-    p['url']='pt-BR-%d.zip'%version; p['size']=len(zb); p['sha256']=hashlib.sha256(zb).hexdigest()
+    p['url']='mr-keyboard-dict-pt-BR-%d.zip'%version; p['size']=len(zb); p['sha256']=hashlib.sha256(zb).hexdigest()
     if mut: mut(p)
     write(name,d,{p['url']:zb})
 variant('old',0,2)

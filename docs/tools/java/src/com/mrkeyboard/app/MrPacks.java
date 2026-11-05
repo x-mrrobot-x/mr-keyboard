@@ -55,6 +55,8 @@ public final class MrPacks {
 
     static final String CATALOG_URL =
             "https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalog.json"; // v1.73: in the APK release
+    /** Zip address = RELEASES_URL + the pack's "release" (tag) + "/" + its zip name; the catalog has no address of its own. */
+    static final String RELEASES_URL = "https://github.com/x-mrrobot-x/mr-keyboard/releases/download/";
     static final String SIG_PREFIX = "mr-keyboard/catalog/v1\n";
     static final int CATALOG_FORMAT = 1;
     static final int PACK_FORMAT = 1;
@@ -90,7 +92,7 @@ public final class MrPacks {
     // ------------------------------------------------------------------ catalog
 
     static final class Pack {
-        String id, lang, region, url, sha256, licenses, credits, manifestSha;
+        String id, lang, region, release, url, sha256, licenses, credits, manifestSha;
         Map<String, Object> name, description;
         int version, format;
         long minApp, size, installedSize;
@@ -109,7 +111,7 @@ public final class MrPacks {
 
     static final class Catalog {
         long serial;
-        String generated, baseUrl, data;
+        String generated, data;
         final ArrayList<Pack> packs = new ArrayList<Pack>();
 
         Pack find(String id) {
@@ -199,10 +201,6 @@ public final class MrPacks {
             cat.data = data;
             cat.serial = MrJson.num(d, "serial");
             cat.generated = MrJson.optStr(d, "generated", "");
-            cat.baseUrl = MrJson.str(d, "baseUrl");
-            if (!cat.baseUrl.startsWith("https://") || !cat.baseUrl.endsWith("/")) {
-                throw new IllegalArgumentException("baseUrl");
-            }
             HashSet<String> ids = new HashSet<String>();
             for (Object o : MrJson.list(d.get("packs"))) {
                 Pack p = readPack(MrJson.obj(o));
@@ -230,6 +228,8 @@ public final class MrPacks {
         p.version = (int) MrJson.num(m, "version");
         p.format = (int) MrJson.num(m, "format");
         p.minApp = MrJson.num(m, "minApp");
+        p.release = MrJson.str(m, "release");
+        if (!validTag(p.release)) throw new IllegalArgumentException("release");
         p.url = MrJson.str(m, "url");
         if (!safeName(p.url) || !p.url.endsWith(".zip")) throw new IllegalArgumentException("url");
         p.size = MrJson.num(m, "size");
@@ -305,6 +305,29 @@ public final class MrPacks {
             if (c < 'a' || c > 'z') return false;
         }
         return true;
+    }
+
+    /** Release tag like v1.82.0 (v and three numbers separated by dots): it goes into the download address. */
+    static boolean validTag(String s) {
+        if (s == null || s.length() < 6 || s.length() > 16 || s.charAt(0) != 'v') return false;
+        int dots = 0, digits = 0;
+        for (int i = 1; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c >= '0' && c <= '9') {
+                digits++;
+            } else if (c == '.' && digits > 0) {
+                dots++;
+                digits = 0;
+            } else {
+                return false;
+            }
+        }
+        return dots == 2 && digits > 0;
+    }
+
+    /** Where the pack's zip is: the release that made it (the catalog says which one), not necessarily the latest. */
+    static String zipUrl(Pack p) {
+        return RELEASES_URL + p.release + "/" + p.url;
     }
 
     /** File name without a folder: letters, digits, . _ - (does not start with a dot). */
@@ -548,7 +571,7 @@ public final class MrPacks {
             long need = p.size + p.installedSize + (2L << 20);
             if (!base.exists()) base.mkdirs();
             if (base.getUsableSpace() < need) throw new PackException("mr_dicts_err_space", sizeText(need));
-            download(cat.baseUrl + p.url, part, p);
+            download(zipUrl(p), part, p);
             sJobInstalling = true;
             deleteTree(tmp);
             extract(part, tmp, p);

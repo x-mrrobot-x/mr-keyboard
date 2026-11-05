@@ -15,8 +15,6 @@
 
 
 # instance fields
-.field baseUrl:Ljava/lang/String;
-
 .field data:Ljava/lang/String;
 
 .field generated:Ljava/lang/String;
@@ -40,10 +38,10 @@
     .locals 1
 
     .prologue
-    .line 110
+    .line 112
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 113
+    .line 115
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -59,7 +57,7 @@
     .locals 3
 
     .prologue
-    .line 116
+    .line 118
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacks$Catalog;->packs:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
@@ -87,7 +85,7 @@
 
     if-eqz v2, :cond_0
 
-    .line 117
+    .line 119
     :goto_0
     return-object v0
 

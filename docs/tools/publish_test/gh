@@ -1,13 +1,20 @@
 #!/bin/bash
 # Fake gh to test publish_release.sh. State in $FAKE_STATE/rel/<tag>/{assets/,draft,notes.md} and $FAKE_STATE/latest.
 # FAKE_DROP=<file>: the "upload" of release create leaves that file out (simulates an asset that did not upload).
+# gh api .../releases/tags/<tag> -q '...select(.name=="X")...': prints the size of the asset X of a published release (nothing if missing).
 S=$FAKE_STATE
 echo "gh $*" >> "$S/log"
 cmd="$1 $2"
-case "$cmd" in
-  "api repos/"*) ;;
-esac
 if [ "$1" = "api" ]; then
+  case "$2" in
+    */releases/tags/*)
+      # asset size of a published release: gh api repos/o/r/releases/tags/<tag> -q '.assets[] | select(.name=="X") | .size'
+      t=${2##*/releases/tags/}
+      [ -d "$S/rel/$t" ] && [ "$(cat "$S/rel/$t/draft")" = "false" ] || exit 1
+      n=$(printf '%s' "$*" | sed -n 's/.*select(.name==\"\([^"]*\)\").*/\1/p')
+      [ -f "$S/rel/$t/assets/$n" ] && stat -c %s "$S/rel/$t/assets/$n"
+      exit 0 ;;
+  esac
   [ -f "$S/latest" ] && cat "$S/latest" && exit 0
   exit 1
 fi

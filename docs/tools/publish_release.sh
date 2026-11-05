@@ -1,16 +1,18 @@
 #!/bin/bash
 # Publishes the single release of a launch (used by the "Mr Keyboard - APK" workflow): the signed APK, the
-# dictionary catalog (signed with the same key) and ONE zip per language, all in one release.
+# dictionary catalog (signed with the same key) and the zips of the languages that changed in this version.
 # The tag is the versionName from apktool.yml (v1.72.0) and the notes come from docs/release-notes/<tag>.md
 # (e.g. docs/release-notes/v1.72.0.md): a short file, Portuguese and English, that is the release text itself,
 # followed by the list of included dictionaries and the checksums.
 # The APK is named mr-keyboard-<tag>.apk (e.g. mr-keyboard-v1.72.0.apk), so the version shows in the asset
 # list; the app reads the catalog from .../releases/latest/download/catalog.json.
 #
-# Dictionaries: starts from the catalog of the latest release (if there is one), reuses the zips of the
-# packs that did not change and only builds the ones whose version went up in dicts/ (make_catalog.py --tag).
-# The release is created as a draft, the assets are checked and only then it is published: a half-made
-# release never becomes "latest".
+# Dictionaries: starts from the catalog of the latest release (if there is one). A pack that did not change
+# keeps its zip in the release that made it (the catalog says which one in "release"), so nothing is copied;
+# only the packs whose version went up in dicts/ get a zip, attached to this release (make_catalog.py --tag).
+# Before creating anything, the script checks that every zip that stays in another release still exists there
+# with the size from the catalog. The release is created as a draft, the assets are checked and only then it
+# is published: a half-made release never becomes "latest".
 #
 # Variables:
 #   MODE   manual (run by hand with "publish") or automatic (push to main)
@@ -64,24 +66,33 @@ if [ -z "$CERT" ]; then
   stop "Could not read the APK certificate."
 fi
 
-# ---- dictionaries: start from the catalog of the latest release (if it has one)
+# ---- dictionaries: start from the catalog of the latest release (if it has one); only the catalog is downloaded
 mkdir -p prev out
 PREV_TAG=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" -q .tag_name 2> /dev/null || true)
 PREV_ARGS=""
 if [ -n "$PREV_TAG" ] && gh release view "$PREV_TAG" --json assets -q '.assets[].name' 2> /dev/null | grep -qx catalog.json; then
-  mkdir -p prev/zips
   gh release download "$PREV_TAG" -p catalog.json -D prev
-  gh release download "$PREV_TAG" -p '*.zip' -D prev/zips
   PREV_SERIAL=$(python3 -c "import json,sys; print(json.loads(json.load(open(sys.argv[1]))['data'])['serial'])" prev/catalog.json)
-  PREV_ARGS="--prev prev/catalog.json --reuse prev/zips"
+  PREV_ARGS="--prev prev/catalog.json"
   echo "dictionaries: starting from the catalog of $PREV_TAG (serial $PREV_SERIAL)"
 else
   echo "::warning::No dictionary catalog published before: the serial starts at 1. Apps that already stored a higher serial will refuse this catalog; only go on if this really is the first one."
 fi
-python3 -I docs/tools/make_catalog.py --dicts dicts --out out --repo "$GITHUB_REPOSITORY" --tag "$TAG" $PREV_ARGS
+python3 -I docs/tools/make_catalog.py --dicts dicts --out out --tag "$TAG" $PREV_ARGS
 sh docs/tools/sign_catalog.sh out/data.json out/catalog.json
-EXPECTED=$(python3 docs/tools/release_assets.py out/data.json "$APK")
-DICTIONARIES=$(python3 -c "import json,sys; print(', '.join('%s v%d' % (p['id'], p['version']) for p in json.load(open(sys.argv[1]))['packs']))" out/data.json)
+EXPECTED=$(python3 docs/tools/release_assets.py assets out/data.json "$TAG" "$APK")
+DICTIONARIES=$(python3 docs/tools/release_assets.py text out/data.json "$TAG")
+
+# ---- zips that stay in other releases must still be there, with the size from the catalog (before any draft)
+python3 docs/tools/release_assets.py external out/data.json "$TAG" > out/external.txt
+while read -r REL ZIP SIZE; do
+  FOUND=$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$REL" -q ".assets[] | select(.name==\"$ZIP\") | .size" 2> /dev/null || true)
+  if [ "$FOUND" != "$SIZE" ]; then
+    echo "::error::The catalog points to $ZIP in release $REL, but it is not there with $SIZE bytes (found: ${FOUND:-nothing}). A release that holds a dictionary in use must not be deleted or changed. Nothing was published."
+    exit 1
+  fi
+  echo "dictionaries: $ZIP stays in $REL ($SIZE bytes, checked)"
+done < out/external.txt
 
 # ---- release text: the whole notes file (short, for people downloading)
 SUMMARY=""

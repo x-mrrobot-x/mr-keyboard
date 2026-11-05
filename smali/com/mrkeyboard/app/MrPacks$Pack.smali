@@ -63,6 +63,8 @@
 
 .field region:Ljava/lang/String;
 
+.field release:Ljava/lang/String;
+
 .field sha256:Ljava/lang/String;
 
 .field size:J
@@ -77,7 +79,7 @@
     .locals 0
 
     .prologue
-    .line 92
+    .line 94
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -89,7 +91,7 @@
     .locals 2
 
     .prologue
-    .line 106
+    .line 108
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacks$Pack;->description:Ljava/util/Map;
 
     const-string v1, ""
@@ -105,7 +107,7 @@
     .locals 2
 
     .prologue
-    .line 102
+    .line 104
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacks$Pack;->name:Ljava/util/Map;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;

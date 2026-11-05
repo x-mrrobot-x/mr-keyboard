@@ -15,7 +15,7 @@
 #                        plain invoke (the assembler refuses with "Invalid register count") and a call to a method that does not exist
 #   run_java_tests.sh    PC tests of the Java layer (author card, main-screen link, re-correction: word under the cursor and
 #                        neighbour keys, recent words)
-#   test_make_catalog.py builds the dictionary catalog (one zip per language, serial, old versions)
+#   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial)
 #   publish_test/run.sh  publish_release.sh end to end with a fake gh and the real signature
 # assemble (a few minutes):
 #   check_java_smali.sh  the Mr*.smali files are what build_java.sh generates today from the Java sources

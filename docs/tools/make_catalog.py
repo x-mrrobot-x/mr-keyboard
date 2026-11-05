@@ -2,24 +2,24 @@
 """Builds the dictionary packs (dicts/<id>/) and the catalog data, for the single release of a launch.
 
 Called by publish_release.sh:
-    python3 make_catalog.py --dicts dicts --out out --repo owner/repo --tag v1.73.0 \
-        [--prev catalog.json --reuse folder_with_the_previous_zips]
-The catalog and the zips live in the release itself: baseUrl points to it and the --out folder ends up with
-exactly ONE zip per language (the current version), ready to attach; data.json is always written (the address
-changed). The serial only goes up if some pack changed; otherwise it stays the one of the previous catalog (the
-app accepts an equal serial, it only refuses a lower one). A pack equal to the previous catalog reuses the zip
-from --reuse (same bytes, checked by the SHA-256 in the catalog).
+    python3 make_catalog.py --dicts dicts --out out --tag v1.82.0 [--prev catalog.json]
+Each pack in the catalog says which release holds its zip ("release", a tag like v1.82.0); the app builds the
+address from a constant + that tag + the zip name. A zip only goes in the release where its language changed:
+a pack equal to the previous catalog keeps its old entry (and the old "release") and no zip is built or
+copied; a new or changed pack gets a new zip in --out and "release" = --tag. The serial only goes up if some
+pack changed; otherwise it stays the one of the previous catalog (the app accepts an equal serial, it only
+refuses a lower one).
 
 For each folder dicts/<id>/ with a pack.json:
   - checks the manifest and the files (dictionary header, two-word file, UTF-8 of the rules);
   - if the previous catalog (--prev) already has this id at the same version with the same files, reuses the entry;
-  - if the version is new, builds <id>-<version>.zip, always identical for the same content;
+  - if the version is new, builds mr-keyboard-dict-<id>-<version>.zip, always identical for the same content;
   - if the content changed and the version did not, stops with an error (raise "version" in pack.json).
 
 Output in --out:
   data.json    what gets signed (exact bytes)
-  upload.txt   zips to attach to the release, one per line (all of them)
-  <id>-<v>.zip the zips
+  upload.txt   zips to attach to this release, one per line (only the new ones; may be empty)
+  mr-keyboard-dict-<id>-<v>.zip   the new zips
 """
 import argparse
 import datetime
@@ -34,6 +34,8 @@ import zipfile
 FORMAT = 1                 # catalog format
 PACK_FORMATS = {1}         # pack formats this script knows how to build
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
+TAG_RE = re.compile(r"^v[0-9]+\.[0-9]+\.[0-9]+$")      # the same rule the app applies to "release"
+ZIP_PREFIX = "mr-keyboard-dict-"                        # makes clear in the asset list that it is a dictionary
 ID_RE = re.compile(r"^[a-z]{2,3}(-[A-Z]{2})?$")
 ZIP_TIME = (1980, 1, 1, 0, 0, 0)
 MAX_FILE = 16 * 1024 * 1024
@@ -129,31 +131,16 @@ def load_prev(path):
     return data
 
 
-def reuse_zip(a, entry):
-    """Copies the previous release's zip to --out, checking size and SHA-256."""
-    if not a.reuse:
-        fail("%s v%d: same as the previous catalog, but --reuse with the zips of the previous release is missing"
-             % (entry["id"], entry["version"]))
-    src = os.path.join(a.reuse, entry["url"])
-    if not os.path.isfile(src):
-        fail("%s: %s is missing from %s (the previous catalog points to it)" % (entry["id"], entry["url"], a.reuse))
-    with open(src, "rb") as f:
-        data = f.read()
-    if len(data) != entry["size"] or sha256(data) != entry["sha256"]:
-        fail("%s: %s does not match the previous catalog (size or SHA-256)" % (entry["id"], entry["url"]))
-    shutil.copyfile(src, os.path.join(a.out, entry["url"]))
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dicts", required=True)
     ap.add_argument("--out", required=True)
-    ap.add_argument("--repo", required=True, help="owner/repository on GitHub")
     ap.add_argument("--prev", help="catalog.json published before (if any)")
     ap.add_argument("--now", help="fixed date (for tests), ISO 8601")
-    ap.add_argument("--tag", required=True, help="tag of the release that will hold the catalog and the zips (e.g. v1.73.0)")
-    ap.add_argument("--reuse", help="folder with the zips of the previous release, for unchanged packs")
+    ap.add_argument("--tag", required=True, help="tag of the release being made; the new zips go in it (e.g. v1.82.0)")
     a = ap.parse_args()
+    if not TAG_RE.match(a.tag):
+        fail("--tag must look like v1.82.0 (it is %r)" % a.tag)
 
     prev = load_prev(a.prev)
     prev_packs = {p["id"]: p for p in prev["packs"]} if prev else {}
@@ -164,7 +151,7 @@ def main():
     if not ids:
         fail("no pack in %s" % a.dicts)
 
-    packs, new_zips, all_zips = [], [], []
+    packs, new_zips = [], []
     for pid in ids:
         m, raw, files = read_pack(a.dicts, pid)
         file_entries = [{"name": n, "size": len(d), "sha256": sha256(d)} for n, d in files]
@@ -176,12 +163,14 @@ def main():
             if not same:
                 fail("%s: the content changed but the version is still %d; raise \"version\" in dicts/%s/pack.json"
                      % (pid, m["version"], pid))
+            if not TAG_RE.match(str(old.get("release", ""))):
+                fail("%s: the previous catalog has no valid \"release\" for this pack (old catalog format?)" % pid)
             packs.append(old)
-            reuse_zip(a, old)
-            all_zips.append(old["url"])
-            print("%s v%d: same as published" % (pid, m["version"]))
+            print("%s v%d: same as published (zip in %s)" % (pid, m["version"], old["release"]))
             continue
-        zname = "%s-%d.zip" % (pid, m["version"])
+        zname = "%s%s-%d.zip" % (ZIP_PREFIX, pid, m["version"])
+        if not NAME_RE.match(zname):
+            fail("%s: invalid zip name: %r" % (pid, zname))
         zpath = os.path.join(a.out, zname)
         make_zip(zpath, raw, files)
         with open(zpath, "rb") as f:
@@ -195,6 +184,7 @@ def main():
             "version": m["version"],
             "format": m["format"],
             "minApp": m["minApp"],
+            "release": a.tag,
             "url": zname,
             "size": len(zdata),
             "sha256": sha256(zdata),
@@ -206,18 +196,15 @@ def main():
         }
         packs.append(entry)
         new_zips.append(zname)
-        all_zips.append(zname)
         print("%s v%d: new, %s (%d bytes, %d installed)" % (pid, m["version"], zname, len(zdata),
                                                               entry["installedSize"]))
 
-    # one zip per language: no old version in the folder that goes to the release
+    # only the zips made now stay in the folder that goes to the release (nothing left over from an earlier run)
     for f in os.listdir(a.out):
-        if f.endswith(".zip") and f not in all_zips:
+        if f.endswith(".zip") and f not in new_zips:
             os.remove(os.path.join(a.out, f))
-    if len(set(all_zips)) != len(ids):
-        fail("there should be one zip per pack (%d) and there are %d" % (len(ids), len(set(all_zips))))
     with open(os.path.join(a.out, "upload.txt"), "w") as f:
-        f.write("".join(z + "\n" for z in all_zips))
+        f.write("".join(z + "\n" for z in new_zips))
     changed = bool(new_zips) or not prev or [p["id"] for p in prev["packs"]] != ids
 
     now = a.now or datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
@@ -229,7 +216,6 @@ def main():
         "format": FORMAT,
         "serial": serial,
         "generated": now,
-        "baseUrl": "https://github.com/%s/releases/download/%s/" % (a.repo, a.tag),
         "packs": packs,
     }
     with open(os.path.join(a.out, "data.json"), "wb") as f:
