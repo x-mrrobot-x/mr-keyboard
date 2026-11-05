@@ -8,30 +8,30 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Regras do idioma que vêm no pacote de dicionário (rules.txt, v1.63). Antes da 1.63 essas regras
- * eram do português e ficavam no código (MrFix, MrPredict, MrFuzzy); agora cada pacote traz as dele.
+ * Language rules that come in the dictionary pack (rules.txt, v1.63). Before 1.63 these rules
+ * were Portuguese ones and lived in the code (MrFix, MrPredict, MrFuzzy); now each pack brings its own.
  *
- * Formato 1 (veja dicts/pt-BR/rules.txt): seções [nome], comentários com #, linhas vazias ignoradas.
- *   [sentence_start]   uma palavra por linha (até 3)
- *   [corrections]      digitado TAB sugestão
- *   [phonetic]         "a b": letras que soam parecido (custo C_PHON)
- *   [vowels]           "a b": vogais que se confundem (custo C_VOWEL)
- *   [groups]           "digitado = dicionário": 2 letras por 1 ou 1 por 2 (custo C_MULTI)
- *   [silent]           "antes letra [custo]": letra do dicionário que pode faltar; ^ = começo,
- *                      * = depois de qualquer letra (v1.64)
- *   [extra]            letra que pode sobrar no digitado
- *   [one_letter_words] palavras de uma letra (separar palavras juntas)
- * Seções desconhecidas e linhas que não seguem o formato são ignoradas (pacotes futuros).
+ * Format 1 (see dicts/pt-BR/rules.txt): sections [name], comments with #, empty lines ignored.
+ *   [sentence_start]   one word per line (up to 3)
+ *   [corrections]      typed TAB suggestion
+ *   [phonetic]         "a b": letters that sound alike (cost C_PHON)
+ *   [vowels]           "a b": vowels that get confused (cost C_VOWEL)
+ *   [groups]           "typed = dictionary": 2 letters for 1 or 1 for 2 (cost C_MULTI)
+ *   [silent]           "before letter [cost]": dictionary letter that may be missing; ^ = start,
+ *                      * = after any letter (v1.64)
+ *   [extra]            letter that may be extra in the typed word
+ *   [one_letter_words] one-letter words (to split run-together words)
+ * Unknown sections and lines that do not follow the format are ignored (future packs).
  */
 public final class MrRules {
-    static final int DEFAULT_SILENT_START = 30;  // h no começo ("omem")
-    static final int DEFAULT_SILENT = 45;        // letra muda depois de outra ("trabalo")
+    static final int DEFAULT_SILENT_START = 30;  // h at the start ("omem")
+    static final int DEFAULT_SILENT = 45;        // silent letter after another one ("trabalo")
     static final int MAX_STARTERS = 3;
 
     static final MrRules EMPTY = new MrRules();
     private static volatile MrRules sCurrent = EMPTY;
 
-    /** Regras do pacote em uso (nunca null; sem pacote, vazias). */
+    /** Rules of the pack in use (never null; without a pack, empty). */
     public static MrRules get() {
         return sCurrent;
     }
@@ -42,17 +42,17 @@ public final class MrRules {
 
     String[] starters = new String[0];
     final HashMap<String, String> corrections = new HashMap<String, String>();
-    /** [(a << 8) | b] = 1 fonética, 2 vogal (os dois sentidos), para letras < 256. */
+    /** [(a << 8) | b] = 1 phonetic, 2 vowel (both directions), for letters < 256. */
     final byte[] pairs = new byte[65536];
-    // grupos: digitado (2 letras, sem acento) -> dicionário (1 letra, minúscula)
+    // groups: typed (2 letters, no accent) -> dictionary (1 letter, lowercase)
     char[] t2a = new char[0], t2b = new char[0], t2d = new char[0];
-    // grupos: dicionário (2 letras, minúsculas) -> digitado (1 letra, sem acento)
+    // groups: dictionary (2 letters, lowercase) -> typed (1 letter, no accent)
     char[] d2p = new char[0], d2c = new char[0], d2t = new char[0];
-    /** custo da letra muda no começo da palavra (0 = não é muda). */
+    /** cost of the silent letter at the start of the word (0 = not silent). */
     final short[] silentStart = new short[256];
-    /** custo da letra que pode faltar depois de qualquer outra ("*", v1.64; 0 = não pode). */
+    /** cost of the letter that may be missing after any other ("*", v1.64; 0 = it may not). */
     final short[] silentAny = new short[256];
-    // letra muda depois de outra: anterior, letra, custo
+    // silent letter after another one: previous, letter, cost
     char[] silPrev = new char[0], silChar = new char[0];
     short[] silCost = new short[0];
     final boolean[] extra = new boolean[256];
@@ -161,7 +161,7 @@ public final class MrRules {
         return m;
     }
 
-    /** Custo da troca de a por b (letras sem acento): 0 = nenhuma regra, 1 fonética, 2 vogal. */
+    /** Cost of swapping a for b (letters without accent): 0 = no rule, 1 phonetic, 2 vowel. */
     int pair(char a, char b) {
         if (a >= 256 || b >= 256) return 0;
         return pairs[(a << 8) | b];

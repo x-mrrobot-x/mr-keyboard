@@ -272,8 +272,8 @@
 
     move-result-object p2
 
-    # Mr Keyboard v1.63: dicionario do pacote baixado (MrPacks), que ativa as regras e as duas
-    # palavras do mesmo pacote; sem pacote, cai nos apps de dicionario (PluginManager), como antes.
+    # Mr Keyboard v1.63: downloaded pack dictionary (MrPacks), which turns on the rules and the two
+    # words of the same pack; without a pack, falls back to the dictionary apps (PluginManager), as before.
     invoke-static {p1, p2}, Lcom/mrkeyboard/app/MrPacks;->mainDictionary(Landroid/content/Context;Ljava/lang/String;)Lcom/mrkeyboard/app/BinaryDictionary;
 
     move-result-object p1
@@ -1140,8 +1140,8 @@
 
     move-result v0
 
-    # Mr Keyboard v1.60: com 1 letra maiuscula e so a inicial (antes as sugestoes da 1a letra
-    # vinham todas em maiusculas: DIA); Caps Lock continua em maiusculas no pickSuggestion
+    # Mr Keyboard v1.60: with 1 uppercase letter, only the initial is capitalized (before, the suggestions for the 1st letter
+    # all came in uppercase: DIA); Caps Lock still gives uppercase in pickSuggestion
     invoke-virtual {p2}, Lcom/mrkeyboard/app/WordComposer;->size()I
 
     move-result v1
@@ -1223,8 +1223,8 @@
 
     if-ne v0, v3, :cond_a
 
-    # Mr Keyboard v1.60: na 1a letra, as palavras que costumam vir depois da anterior (bigramas)
-    # em qualquer modo de correcao; antes so nos modos 1 e 3 (o 3 nunca era usado).
+    # Mr Keyboard v1.60: on the 1st letter, the words that usually follow the previous one (bigrams)
+    # in any correction mode; before, only in modes 1 and 3 (3 was never used).
     .line 253
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/Suggest;->mBigramPriorities:[I
@@ -1304,7 +1304,7 @@
 
     invoke-virtual {v0, p2, p4, p0, v4}, Lcom/mrkeyboard/app/BinaryDictionary;->getBigrams(Lcom/mrkeyboard/app/WordComposer;Ljava/lang/CharSequence;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
 
-    # Mr Keyboard v1.62: continuacoes das duas palavras anteriores (MrTrigram) com a letra digitada
+    # Mr Keyboard v1.62: continuations of the two previous words (MrTrigram) with the typed letter
     invoke-static {p0, p2, p4}, Lcom/mrkeyboard/app/MrPredict;->firstLetter(Lcom/mrkeyboard/app/Suggest;Lcom/mrkeyboard/app/WordComposer;Ljava/lang/CharSequence;)V
 
     .line 273
@@ -1345,7 +1345,7 @@
 
     check-cast v7, Ljava/lang/CharSequence;
 
-    # Mr Keyboard v1.60: mesma inicial ignorando caixa e acento (e -> é, está, então)
+    # Mr Keyboard v1.60: same initial ignoring case and accent (e -> é, está, então)
     invoke-static {v7, p4}, Lcom/mrkeyboard/app/MrText;->sameInitial(Ljava/lang/CharSequence;I)Z
 
     move-result v7
@@ -1504,8 +1504,8 @@
 
     invoke-virtual {p4, p2, p0, v0}, Lcom/mrkeyboard/app/BinaryDictionary;->getWords(Lcom/mrkeyboard/app/WordComposer;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
 
-    # Mr Keyboard v1.60: correcoes do mapa (MrFix) e busca aproximada (MrFuzzy) para o que a lib
-    # nao acha: letra sobrando ou faltando, troca de lugar, erros foneticos, espaco faltando.
+    # Mr Keyboard v1.60: map corrections (MrFix) and approximate search (MrFuzzy) for what the lib
+    # does not find: extra or missing letter, swapped places, phonetic errors, missing space.
     invoke-static {p0, p2}, Lcom/mrkeyboard/app/MrFuzzy;->afterWords(Lcom/mrkeyboard/app/Suggest;Lcom/mrkeyboard/app/WordComposer;)V
 
     .line 309
@@ -1741,8 +1741,8 @@
     .line 352
     iget-object p1, p0, Lcom/mrkeyboard/app/Suggest;->mSuggestions:Ljava/util/ArrayList;
 
-    # Mr Keyboard v1.62: correcao barata volta para as 3 posicoes visiveis; autocorrecao so com
-    # sugestao proxima da digitada (MrFuzzy.finish)
+    # Mr Keyboard v1.62: cheap correction goes back to the 3 visible slots; autocorrection only with
+    # a suggestion close to the typed word (MrFuzzy.finish)
     iget-boolean v0, p0, Lcom/mrkeyboard/app/Suggest;->mHaveCorrection:Z
 
     invoke-static {p1, v0}, Lcom/mrkeyboard/app/MrFuzzy;->finish(Ljava/util/List;Z)Z
@@ -1754,7 +1754,7 @@
     return-object p1
 .end method
 
-# Mr Keyboard v1.60: acesso da camada Java (MrFuzzy, MrPredict).
+# Mr Keyboard v1.60: access for the Java layer (MrFuzzy, MrPredict).
 .method public mrMainDict()Lcom/mrkeyboard/app/BinaryDictionary;
     .locals 1
 

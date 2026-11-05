@@ -12,7 +12,7 @@
     return-void
 .end method
 
-# Remove os divisores entre os cartões de uma tela de preferências.
+# Removes the dividers between the cards of a preferences screen.
 .method public static apply(Landroid/preference/PreferenceActivity;)V
     .locals 2
 
@@ -29,7 +29,7 @@
     invoke-virtual {v0, v1}, Landroid/widget/ListView;->setDividerHeight(I)V
 
     :cond_0
-    # Telas de configuracoes sem ActionBar do framework: instala o cabecalho no proprio layout.
+    # Settings screens without the framework ActionBar: installs the header in the layout itself.
     invoke-static {p0}, Lcom/mrkeyboard/app/SettingsHeader;->install(Landroid/app/Activity;)V
 
     return-void

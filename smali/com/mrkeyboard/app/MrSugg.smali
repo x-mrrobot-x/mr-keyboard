@@ -3,32 +3,32 @@
 .source "MrSugg.java"
 
 
-# Sugestoes de palavras na linha da barra de ferramentas (bar_main).
+# Word suggestions in the toolbar row (bar_main).
 #
-# A faixa de sugestoes (container de candidates.xml com o CandidateView) mora em "sg_host",
-# dentro de bar_main, e nao na area de candidatos do InputMethodService. bar_main tem dois
-# grupos que se alternam na mesma linha de 48dp: bar_tools (ferramentas) e bar_sugg.
+# The suggestions strip (candidates.xml container with the CandidateView) lives in "sg_host",
+# inside bar_main, and not in the InputMethodService candidates area. bar_main has two
+# groups that alternate in the same 48dp row: bar_tools (tools) and bar_sugg.
 #
-# A linha continua obedecendo a tecla da barra (MrTools.sBarOn): oculta, nao mostra nada.
-# Visivel (sem painel aberto):
-#   ha sugestoes e o usuario nao pediu as ferramentas nesta palavra -> sugestoes
-#   caso contrario                                                 -> ferramentas
-# Tecla da barra (MrTools.toggleBar -> onBarKey):
-#   linha visivel e ha sugestoes -> alterna sugestoes <-> ferramentas (vale ate a palavra acabar)
-#   senao                        -> mostra/oculta a linha, como antes
-# Cores da faixa seguem o tema (CandidateView.mrTheme com MrTools.sTextColor).
+# The row keeps obeying the bar key (MrTools.sBarOn): hidden, it shows nothing.
+# Visible (no panel open):
+#   there are suggestions and the user did not ask for the tools on this word -> suggestions
+#   otherwise                                                              -> tools
+# Bar key (MrTools.toggleBar -> onBarKey):
+#   row visible and there are suggestions -> toggles suggestions <-> tools (holds until the word ends)
+#   otherwise                             -> shows/hides the row, as before
+# Strip colors follow the theme (CandidateView.mrTheme with MrTools.sTextColor).
 #
-# Atraso (debounce): quando as sugestoes acabam (fim da palavra, espaco), a faixa continua
-# visivel por DELAY (1 s) antes de dar lugar as ferramentas. Se chegarem novas sugestoes nesse
-# intervalo (usuario digitando a proxima palavra), a espera e cancelada e a linha nao alterna.
-# Cada nova lista sem sugestoes durante a espera reinicia o relogio. A tecla da barra encerra a
-# espera e mostra as ferramentas na hora. Trocar de ferramentas para sugestoes e imediato.
+# Delay (debounce): when the suggestions end (end of word, space), the strip stays
+# visible for DELAY (1 s) before giving way to the tools. If new suggestions arrive in that
+# interval (user typing the next word), the wait is cancelled and the row does not toggle.
+# Each new list without suggestions during the wait restarts the clock. The bar key ends the
+# wait and shows the tools at once. Switching from tools to suggestions is immediate.
 
 
 # static fields
 .field static sContainer:Landroid/view/View;
 
-# Espera pendente: sem sugestoes, mas a faixa ainda e mostrada.
+# Pending wait: no suggestions, but the strip is still shown.
 .field static sHold:Z
 
 .field static sHandler:Landroid/os/Handler;
@@ -55,7 +55,7 @@
     return-void
 .end method
 
-# Chamado por MrTools.wrap a cada nova raiz da barra.
+# Called by MrTools.wrap at every new bar root.
 .method static setup(Landroid/view/View;)V
     .locals 2
 
@@ -97,7 +97,7 @@
     return-void
 .end method
 
-# Aplica a cor do texto das teclas do tema atual ao CandidateView da faixa.
+# Applies the text color of the current theme keys to the CandidateView of the strip.
 .method private static theme()V
     .locals 2
 
@@ -125,8 +125,8 @@
     return-void
 .end method
 
-# Move a faixa de sugestoes para o host atual (a raiz da barra e recriada a cada setInputView)
-# e aplica as cores do tema.
+# Moves the suggestions strip to the current host (the bar root is recreated at every setInputView)
+# and applies the theme colors.
 .method private static attach()V
     .locals 4
 
@@ -155,7 +155,7 @@
     invoke-virtual {v2, v0}, Landroid/view/ViewGroup;->removeView(Landroid/view/View;)V
 
     :cond_add
-    # fundo transparente: a faixa usa o fundo da propria barra
+    # transparent background: the strip uses the bar's own background
     const/4 v2, 0x0
 
     invoke-virtual {v0, v2}, Landroid/view/View;->setBackground(Landroid/graphics/drawable/Drawable;)V
@@ -172,7 +172,7 @@
     return-void
 .end method
 
-# LatinIME.onCreateCandidatesView: a faixa foi criada (sugestoes ligadas para o campo).
+# LatinIME.onCreateCandidatesView: the strip was created (suggestions on for the field).
 .method public static host(Landroid/view/View;)V
     .locals 0
 
@@ -185,7 +185,7 @@
     return-void
 .end method
 
-# LatinIME.removeCandidateViewContainer: sugestoes desligadas para o campo.
+# LatinIME.removeCandidateViewContainer: suggestions off for the field.
 .method public static unhost()V
     .locals 1
 
@@ -204,10 +204,10 @@
     return-void
 .end method
 
-# LatinIME.setSuggestions / dica "toque para salvar": ha (ou nao) sugestoes para mostrar.
-# Com sugestoes: cancela a espera e mostra a faixa na hora.
-# Sem sugestoes: a escolha manual de ferramentas e desfeita (vale so para a palavra atual). Se a
-# faixa estava sendo mostrada, ela e mantida por DELAY antes de dar lugar as ferramentas.
+# LatinIME.setSuggestions / "tap to save" hint: there are (or not) suggestions to show.
+# With suggestions: cancels the wait and shows the strip at once.
+# Without suggestions: the manual tools choice is undone (holds only for the current word). If the
+# strip was being shown, it is kept for DELAY before giving way to the tools.
 .method public static onList(Z)V
     .locals 2
 
@@ -232,7 +232,7 @@
 
     if-eqz v0, :cond_nohold
 
-    # ja esperando: reinicia o relogio
+    # already waiting: restarts the clock
     invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->schedule()V
 
     goto :cond_end
@@ -242,7 +242,7 @@
 
     if-eqz v0, :cond_end
 
-    # modo atual (antes de mudar o estado): 2 = faixa de sugestoes visivel
+    # current mode (before changing the state): 2 = suggestions strip visible
     sget-boolean v0, Lcom/mrkeyboard/app/MrTools;->sBarOn:Z
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrSugg;->mode(Z)I
@@ -259,7 +259,7 @@
 
     if-ne v0, v1, :cond_apply
 
-    # a faixa continua visivel durante a espera
+    # the strip stays visible during the wait
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHold:Z
@@ -275,7 +275,7 @@
     return-void
 .end method
 
-# Agenda (ou reagenda) o fim da espera para DELAY (1000 ms) a partir de agora.
+# Schedules (or reschedules) the end of the wait for DELAY (1000 ms) from now.
 .method private static schedule()V
     .locals 4
 
@@ -311,7 +311,7 @@
     return-void
 .end method
 
-# Encerra a espera sem mudar a linha.
+# Ends the wait without changing the row.
 .method private static cancel()V
     .locals 2
 
@@ -331,7 +331,7 @@
     return-void
 .end method
 
-# Fim da espera (MrSugg$Expire.run, na thread principal): mostra as ferramentas.
+# End of the wait (MrSugg$Expire.run, on the main thread): shows the tools.
 .method public static expire()V
     .locals 1
 
@@ -349,7 +349,7 @@
     return-void
 .end method
 
-# Sugestoes para mostrar: reais (sHas) ou ainda mantidas pela espera (sHold).
+# Suggestions to show: real ones (sHas) or still held by the wait (sHold).
 .method private static available()Z
     .locals 1
 
@@ -380,7 +380,7 @@
     return v0
 .end method
 
-# 0 = linha oculta, 1 = ferramentas, 2 = sugestoes (MrTools.applyMain, sem painel aberto).
+# 0 = row hidden, 1 = tools, 2 = suggestions (MrTools.applyMain, no panel open).
 .method static mode(Z)I
     .locals 1
 
@@ -411,7 +411,7 @@
     return v0
 .end method
 
-# Aplica o modo aos grupos internos de bar_main (a visibilidade de bar_main e do MrTools).
+# Applies the mode to the internal groups of bar_main (the visibility of bar_main belongs to MrTools).
 .method static applyInner(IZ)V
     .locals 4
 
@@ -452,9 +452,9 @@
     return-void
 .end method
 
-# Tecla da barra (MrTools.toggleBar). Com a linha visivel e sugestoes disponiveis, alterna
-# sugestoes <-> ferramentas e devolve true. Caso contrario devolve false e o toggleBar
-# mostra/oculta a linha como antes.
+# Bar key (MrTools.toggleBar). With the row visible and suggestions available, toggles
+# suggestions <-> tools and returns true. Otherwise returns false and toggleBar
+# shows/hides the row as before.
 .method static onBarKey()Z
     .locals 2
 
@@ -472,7 +472,7 @@
 
     if-nez v0, :cond_no
 
-    # tecla durante a espera: mostra as ferramentas agora
+    # key during the wait: shows the tools now
     sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHold:Z
 
     if-eqz v0, :cond_chk
@@ -510,7 +510,7 @@
     return v0
 .end method
 
-# MrTools.release (teclado destruido).
+# MrTools.release (keyboard destroyed).
 .method static release()V
     .locals 1
 

@@ -40,9 +40,9 @@
 
     if-eqz v1, :cond_flat
 
-    # Todas as celulas reservam SEMPRE 2 linhas: no modo 2 colunas a celula
-    # menor (1 linha) ficava menor que a da mesma linha e a proxima linha
-    # "colapsava" por cima. reservando 2 linhas, todas tem a mesma altura.
+    # All cells ALWAYS reserve 2 lines: in 2-column mode the smaller
+    # cell (1 line) ended up smaller than the one in the same row and the next row
+    # "collapsed" on top. By reserving 2 lines, all have the same height.
     const/4 v2, 0x2
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setLines(I)V
@@ -51,7 +51,7 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setMinLines(I)V
 
-    # Card = mesmo fundo/borda das teclas do tema (ex.: tecla a)
+    # Card = same background/border as the theme's keys (e.g. key a)
     sget-object v1, Lcom/mrkeyboard/app/MrTools;->sKeyBg:Landroid/graphics/drawable/Drawable;
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrTools;->dupe(Landroid/graphics/drawable/Drawable;)Landroid/graphics/drawable/Drawable;
@@ -62,14 +62,14 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    # Card com o visual da tecla: o raio acompanha o das teclas
+    # Card with the key look: the radius follows the keys'
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v2
 
     invoke-static {v1, v2}, Lcom/mrkeyboard/app/KeyStyle;->applyKeyLook(Landroid/graphics/drawable/Drawable;Landroid/content/Context;)V
 
-    # setBackgroundDrawable pode sobrescrever o padding: reaplica os 10dp do item
+    # setBackgroundDrawable may overwrite the padding: reapplies the item's 10dp
     sget v1, Lcom/mrkeyboard/app/MrTools;->sPad:I
 
     invoke-virtual {v0, v1, v1, v1, v1}, Landroid/widget/TextView;->setPadding(IIII)V

@@ -1723,8 +1723,8 @@
     return v1
 .end method
 
-# Flags do tema deste teclado (MrTheme), lidas da tag do layout 1 vez e guardadas em mThemeFlags.
-# p1 = mascara de MrTheme (FLAT_BAR, ACCENT_KEYS, TRANSLUCENT, PLAIN_ACCENT_TEXT, ...).
+# Theme flags of this keyboard (MrTheme), read once from the layout tag and stored in mThemeFlags.
+# p1 = MrTheme mask (FLAT_BAR, ACCENT_KEYS, TRANSLUCENT, PLAIN_ACCENT_TEXT, ...).
 .method private hasTheme(I)Z
     .locals 2
 
@@ -1761,8 +1761,8 @@
     return v0
 .end method
 
-# Cor do texto e do icone nas teclas de destaque dos temas sem a flag PLAIN_ACCENT_TEXT (hoje Neon e Soft): papel
-# accent_text, lido por nome (mr_<tema>_accent_text, depois mr_accent_text).
+# Text and icon color on the accent keys of themes without the PLAIN_ACCENT_TEXT flag (today Neon and Soft): role
+# accent_text, read by name (mr_<theme>_accent_text, then mr_accent_text).
 .method private getAccentContentColor()I
     .locals 1
 
@@ -1775,9 +1775,9 @@
     return v0
 .end method
 
-# Tecla de destaque: desenha btn_keyboard_key_<tema>_accent no lugar do fundo normal (o drawable ja traz sombra,
-# halo e borda do tema). Devolve false, e a tecla sai com o fundo normal, quando a tecla nao e de destaque ou o
-# tema nao tem o drawable.
+# Accent key: draws btn_keyboard_key_<theme>_accent in place of the normal background (the drawable already carries the theme's
+# shadow, halo and border). Returns false, and the key gets the normal background, when the key is not an accent key or the
+# theme has no such drawable.
 .method private drawAccentFill(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/Keyboard$Key;)Z
     .locals 4
 
@@ -1937,8 +1937,8 @@
     return v0
 .end method
 
-# Fundo das teclas de destaque do tema: drawable btn_keyboard_key_<tema>_accent, lido por nome a partir da tag do
-# layout (mr_glass -> btn_keyboard_key_glass_accent). Sem o drawable devolve null (tecla com o fundo normal).
+# Background of the theme's accent keys: drawable btn_keyboard_key_<theme>_accent, read by name from the layout
+# tag (mr_glass -> btn_keyboard_key_glass_accent). Without the drawable it returns null (key with the normal background).
 .method private getMrAccentBackground()Landroid/graphics/drawable/Drawable;
     .locals 6
 
@@ -2026,7 +2026,7 @@
 .method private getAccentIconFilter(Lcom/mrkeyboard/app/Keyboard$Key;Landroid/graphics/ColorFilter;)Landroid/graphics/ColorFilter;
     .locals 3
 
-    # Slate, Midnight e Glass: icones das teclas de destaque seguem o filtro padrao do tema.
+    # Slate, Midnight and Glass: accent key icons follow the theme's default filter.
     const/16 v0, 0x40
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->hasTheme(I)Z
@@ -2060,7 +2060,7 @@
 .method private getAccentKeyTextColor(Lcom/mrkeyboard/app/Keyboard$Key;I)I
     .locals 1
 
-    # Slate, Midnight e Glass: teclas de destaque coloridas, mas com a cor de texto padrao do tema.
+    # Slate, Midnight and Glass: colored accent keys, but with the theme's default text color.
     const/16 v0, 0x40
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->hasTheme(I)Z
@@ -2085,8 +2085,8 @@
     return p2
 .end method
 
-# Tecla de destaque (todos os temas com tag): lista fixa de codigos (sparse-switch _0) e, com a flag ACCENT_WIDE,
-# tambem toda tecla marcada isModifier, as teclas do Tasker (texto "tskcmd:") e 123/TSK, 123 do telefone, Espaco e
+# Accent key (all themes with a tag): fixed list of codes (sparse-switch _0) and, with the ACCENT_WIDE flag,
+# also every key marked isModifier, the Tasker keys (text "tskcmd:") and 123/TSK, phone 123, Space and
 # Enter (sparse-switch _1).
 .method private isAccentKey(Lcom/mrkeyboard/app/Keyboard$Key;)Z
     .locals 2
@@ -3810,7 +3810,7 @@
 .method private onUpEvent(Lcom/mrkeyboard/app/PointerTracker;IIJ)V
     .locals 3
 
-    # MR FIX: deslize horizontal longo nao deve digitar a tecla onde o dedo parou
+    # MR FIX: a long horizontal swipe must not type the key where the finger stopped
     invoke-direct {p0, p1, p2, p3}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mrIsSwipeRelease(Lcom/mrkeyboard/app/PointerTracker;II)Z
 
     move-result v0
@@ -4376,7 +4376,7 @@
 
     invoke-virtual {v7, v6}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    # Balao de preview segue o raio das teclas (raio + 2 dp)
+    # Preview balloon follows the key radius (radius + 2 dp)
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getContext()Landroid/content/Context;
 
     move-result-object v7
@@ -5053,7 +5053,7 @@
 
     invoke-virtual {v2, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->setKeyboard(Lcom/mrkeyboard/app/Keyboard;)V
 
-    # Fundo do popup segue o raio das teclas (raio + 8 dp)
+    # Popup background follows the key radius (radius + 8 dp)
     iget-object v9, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardContainer:Landroid/view/View;
 
     invoke-virtual {v9}, Landroid/view/View;->getBackground()Landroid/graphics/drawable/Drawable;
@@ -5684,8 +5684,8 @@
     .line 1627
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->dismissKeyPreview()V
 
-    # MR FIX: o UP foi engolido pelo detector de swipe; cancela o ponteiro
-    # para ele nao ficar "preso" na fila e digitar a tecla depois.
+    # MR FIX: the UP was swallowed by the swipe detector; cancels the pointer
+    # so it does not stay "stuck" in the queue and type the key afterwards.
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mrCancelSwipedPointer(Landroid/view/MotionEvent;)V
 
     .line 1628
@@ -6595,9 +6595,9 @@
 
 
 # MR FIX ------------------------------------------------------------------
-# Cancela o PointerTracker do ponteiro que acabou de fazer um swipe
-# reconhecido (UP consumido pelo GestureDetector). Sem isso o tracker
-# continua "pressionado" e na fila (mPointerQueue).
+# Cancels the PointerTracker of the pointer that just made a recognized
+# swipe (UP consumed by the GestureDetector). Without this the tracker
+# stays "pressed" and in the queue (mPointerQueue).
 .method private mrCancelSwipedPointer(Landroid/view/MotionEvent;)V
     .locals 7
 
@@ -6637,8 +6637,8 @@
 .end method
 
 # MR FIX ------------------------------------------------------------------
-# true quando o toque terminou num deslize horizontal longo (mesma distancia
-# minima usada pelo detector de swipe: min(largura/3, altura/3)).
+# true when the touch ended in a long horizontal swipe (same minimum
+# distance used by the swipe detector: min(width/3, height/3)).
 .method private mrIsSwipeRelease(Lcom/mrkeyboard/app/PointerTracker;II)Z
     .locals 5
 
@@ -6721,7 +6721,7 @@
 .end method
 
 # MR FIX ------------------------------------------------------------------
-# Subclasses (teclado de extensao) desligam a protecao de swipe.
+# Subclasses (extension keyboard) turn off the swipe protection.
 .method protected swipeGuardEnabled()Z
     .locals 1
 

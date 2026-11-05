@@ -146,8 +146,8 @@
 .method private isHl()Z
     .locals 2
 
-    # Folha Tasker, 1a linha: teclas com keyOutputText "tskcmd:<comando>"
-    # recebem o mesmo destaque (HL) das teclas Ctrl/barra/setas.
+    # Tasker sheet, 1st row: keys with keyOutputText "tskcmd:<command>"
+    # get the same highlight (HL) as the Ctrl/slash/arrow keys.
     iget-object v0, p0, Lcom/mrkeyboard/app/Keyboard$Key;->text:Ljava/lang/CharSequence;
 
     if-eqz v0, :cond_hl_codes

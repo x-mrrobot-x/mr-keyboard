@@ -18,12 +18,12 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 /**
- * Tela "Novo Estilo" do Editor de IA (v1.80), no molde da tela do Telegram que serviu de
- * referência: ícone redondo com o emoji escolhido, nome, instruções e o botão grande Criar.
- * É uma tela separada do diálogo do Editor de IA porque aqui é preciso digitar o nome e as
- * instruções com o teclado normal. O diálogo é fechado antes desta Activity abrir. Com o extra EXTRA_STYLE >= 0
- * edita o estilo daquela posição (e mostra Excluir, com confirmação no segundo toque).
- * Os estilos vivem no MrAi (SharedPreferences "mr_ai"); cores da paleta mr_ui_* das telas.
+ * "Novo Estilo" (New Style) screen of the AI Editor (v1.80), modelled on the Telegram screen that served as
+ * a reference: round icon with the chosen emoji, name, instructions and the big Create button.
+ * It is a separate screen from the AI Editor dialog because here the name and the
+ * instructions must be typed with the normal keyboard. The dialog is closed before this Activity opens. With the extra EXTRA_STYLE >= 0
+ * it edits the style at that position (and shows Delete, with confirmation on the second tap).
+ * The styles live in MrAi (SharedPreferences "mr_ai"); colors from the mr_ui_* palette of the screens.
  */
 public class MrAiStyleActivity extends Activity {
     private static final String[] EMOJIS = {
@@ -37,7 +37,7 @@ public class MrAiStyleActivity extends Activity {
     private static final int C_DELETE = 3;
     private static final int C_EMOJI = 100;
 
-    /** Ponte de clique com código (como nos outros painéis): chama onAction da tela viva. */
+    /** Click bridge with code (as in the other panels): calls onAction of the live screen. */
     private final class Act implements View.OnClickListener {
         private final int code;
 
@@ -123,7 +123,7 @@ public class MrAiStyleActivity extends Activity {
         scroll.addView(col, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        // cabeçalho: título + fechar (✕), como na referência
+        // header: title + close (✕), as in the reference
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.HORIZONTAL);
         head.setGravity(Gravity.CENTER_VERTICAL);
@@ -145,7 +145,7 @@ public class MrAiStyleActivity extends Activity {
         col.addView(head, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        // círculo do ícone
+        // icon circle
         LinearLayout circleRow = new LinearLayout(this);
         circleRow.setOrientation(LinearLayout.HORIZONTAL);
         circleRow.setGravity(Gravity.CENTER);

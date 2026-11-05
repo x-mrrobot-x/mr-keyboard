@@ -32,29 +32,29 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 /**
- * Editor de IA (v1.80): diálogo da barra de ferramentas que reescreve, com um serviço de IA
- * configurado pelo usuário, o texto selecionado no app (ou o que está antes do cursor).
+ * AI Editor (v1.80): toolbar dialog that rewrites, with an AI service
+ * configured by the user, the text selected in the app (or what is before the cursor).
  *
- * O diálogo fica preso à janela do IME (MrAiDialog), acima do teclado e no mesmo tema fixo
- * das configurações. Não é inserido no layout do teclado e não acompanha os temas
- * visuais do teclado.
- * Uma única fileira de estilos prontos (Formal, Curto, Corrigir, Expandir, Amigável,
- * Profissional e Pontuação), além de Criar/estilos do usuário, emojificar e resultado;
- * Copiar e Aplicar (substitui o texto no app, conferindo antes que ele não mudou).
+ * The dialog is attached to the IME window (MrAiDialog), above the keyboard and in the same fixed theme
+ * as the settings. It is not inserted in the keyboard layout and does not follow the keyboard
+ * visual themes.
+ * A single row of ready-made styles (Formal, Short, Fix, Expand, Friendly,
+ * Professional and Punctuation), plus Create/user styles, emojify and result;
+ * Copy and Apply (replaces the text in the app, first checking that it has not changed).
  *
- * Rede: só quando o usuário toca num estilo (ou em refazer), só para o
- * endereço configurado em Configurações → Editor de IA (MrAiPrefs, chaves pref_ai_* nas
- * preferências padrão), no formato chat completions compatível com a OpenAI. A chave só vai
- * no cabeçalho Authorization desse pedido; não é registrada em log. Só endereços https:// e
- * sempre com chave. Em campo de senha o diálogo não captura texto
- * nem dispara pedido nenhum. O diálogo só abre pela barra de ferramentas.
+ * Network: only when the user taps a style (or redo), only to the
+ * address configured in Settings → AI Editor (MrAiPrefs, pref_ai_* keys in the
+ * default preferences), in the OpenAI-compatible chat completions format. The key only goes
+ * in the Authorization header of that request; it is not logged. Only https:// addresses and
+ * always with a key. In a password field the dialog does not capture text
+ * nor fire any request. The dialog only opens from the toolbar.
  *
- * Os estilos do usuário ficam em SharedPreferences "mr_ai" (chave "styles", JSON), junto da
- * opção "emojify" e da chave de API ("api_key"). Esse arquivo fica fora das regras de backup
- * (res/xml/backup_rules.xml e data_extraction_rules.xml só incluem as preferências padrão e
- * sheets.json), então a chave nunca sai do aparelho por backup. O resto da configuração do
- * serviço fica nas preferências padrão (pref_ai_*), para a tela de configurações e o
- * "Restaurar padrões" (MrReset) cuidarem dela como das outras; o Restaurar também apaga a chave.
+ * The user styles live in SharedPreferences "mr_ai" (key "styles", JSON), together with the
+ * "emojify" option and the API key ("api_key"). That file is left out of the backup rules
+ * (res/xml/backup_rules.xml and data_extraction_rules.xml only include the default preferences and
+ * sheets.json), so the key never leaves the device through backup. The rest of the service
+ * configuration stays in the default preferences (pref_ai_*), so the settings screen and
+ * "Restore defaults" (MrReset) handle it like the others; Restore also erases the key.
  */
 public final class MrAi implements View.OnClickListener, View.OnLongClickListener, Runnable {
     static final String PREFS = "mr_ai";
@@ -64,7 +64,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
     static final String KEY_PROVIDER = "pref_ai_provider";
     static final String KEY_ENDPOINT = "pref_ai_endpoint";
     static final String KEY_MODEL = "pref_ai_model";
-    static final String KEY_API_KEY = "pref_ai_key"; // só a chave da linha na tela; o valor vai em PREFS/KEY_SECRET
+    static final String KEY_API_KEY = "pref_ai_key"; // only the key of the row on the screen; the value goes in PREFS/KEY_SECRET
     static final String KEY_SECRET = "api_key";
     static final String EXTRA_STYLE = "mr_ai_style_index";
     static final String ENDPOINT_DEF = "https://api.openai.com/v1/chat/completions";
@@ -72,7 +72,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
     static final int MAX_CHARS = 4000;
     static final int MAX_STYLES = 50;
 
-    // códigos de clique internos (C_CHIP + posição na fileira para os estilos)
+    // internal click codes (C_CHIP + position in the row for the styles)
     private static final int C_BACK = 1;
     private static final int C_GEAR = 2;
     private static final int C_EMOJI = 5;
@@ -105,12 +105,12 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
             " Sprinkle a few relevant emojis through the text where they fit naturally; do not overdo it.";
     private static final String EMOJI_NO = " Do not add emojis that are not in the original text.";
 
-    /** Erro já com a mensagem pronta para mostrar (localizada aqui, no ponto da falha). */
+    /** Error already with the message ready to show (localized here, at the point of failure). */
     static final class AiFail extends Exception {
         AiFail(String msg) { super(msg); }
     }
 
-    // ------------------------------------------------------------------ estado do diálogo
+    // ------------------------------------------------------------------ dialog state
     private static View sRoot;
     private static ViewGroup sStrip;
     private static TextView sStatus;
@@ -127,7 +127,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
     private static String sSource;
     private static boolean sIsSel;
     private static String sResultText;
-    private static int sSel = -1; // 0..6 pronto, 100+i do usuário, -1 nenhum
+    private static int sSel = -1; // 0..6 ready-made, 100+i user, -1 none
     private static boolean sFired;
     private static int sSeq;
     private static ArrayList<String[]> sCustom = new ArrayList<String[]>();
@@ -172,9 +172,9 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         return sRoot.getContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
-    // ------------------------------------------------------------------ montagem do diálogo
+    // ------------------------------------------------------------------ dialog assembly
 
-    /** Liga as Views do diálogo; chamado por MrAiDialog a cada abertura. */
+    /** Binds the Views of the dialog; called by MrAiDialog on every opening. */
     static void setup(View root) {
         if (root == null) return;
         sRoot = root;
@@ -272,7 +272,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
                 uiColor("mr_ui_stroke_strong"), 16f);
     }
 
-    /** Invalidida trabalhos antigos e solta todas as Views quando o diálogo fecha. */
+    /** Invalidates old jobs and releases all the Views when the dialog closes. */
     static void dialogClosed() {
         sSeq++;
         sOpen = false;
@@ -290,7 +290,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         sResultText = null;
     }
 
-    /** Chamado por MrTools.release quando o teclado é reconstruído ou destruído. */
+    /** Called by MrTools.release when the keyboard is rebuilt or destroyed. */
     public static void release() {
         MrAiDialog.dismiss();
     }
@@ -333,7 +333,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         }
     }
 
-    /** Texto a reescrever: a seleção do app, ou o que está antes do cursor (até MAX_CHARS). */
+    /** Text to rewrite: the app selection, or what is before the cursor (up to MAX_CHARS). */
     private static void captureSource() {
         sSource = null;
         sIsSel = false;
@@ -342,7 +342,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         try {
             LatinIME ime = MrTools.sIme;
             if (ime == null) return;
-            ime.mrCommit(); // termina a composição antes de ler (como o enterTranslate)
+            ime.mrCommit(); // ends the composition before reading (like enterTranslate)
             InputConnection ic = ime.getAppInputConnection();
             if (ic == null) return;
             CharSequence sel = ic.getSelectedText(0);
@@ -358,9 +358,9 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         }
     }
 
-    // ------------------------------------------------------------------ estilos do usuário
+    // ------------------------------------------------------------------ user styles
 
-    /** Lista de estilos do usuário: cada item é {emoji, nome, instruções}. */
+    /** List of user styles: each item is {emoji, name, instructions}. */
     static ArrayList<String[]> loadCustom(Context c) {
         ArrayList<String[]> out = new ArrayList<String[]>();
         try {
@@ -377,9 +377,9 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
                 out.add(new String[]{e.length() > 0 ? e : "✨", n, ins});
             }
         } catch (RuntimeException e) {
-            // lista ilegível: fica vazia (os estilos prontos seguem funcionando)
+            // unreadable list: stays empty (the ready-made styles keep working)
         } catch (JSONException e) {
-            // idem
+            // same
         }
         return out;
     }
@@ -397,7 +397,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
             c.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
                     .edit().putString(KEY_STYLES, arr.toString()).apply();
         } catch (JSONException e) {
-            // sem salvar desta vez; a tela avisa pelo resultado da lista
+            // not saved this time; the screen reports it through the result of the list
         }
     }
 
@@ -474,7 +474,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         sStrip.addView(chip);
     }
 
-    /** Posição na fileira → id do estilo (0..6 pronto, 100+i do usuário); -2 = botão Criar. */
+    /** Position in the row → style id (0..6 ready-made, 100+i user); -2 = Create button. */
     private static int styleAt(int pos) {
         if (pos == 0) return -2;
         if (pos <= BUILTIN_NAME.length) return pos - 1;
@@ -523,9 +523,9 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         return one;
     }
 
-    // ------------------------------------------------------------------ configuração do serviço
+    // ------------------------------------------------------------------ service configuration
 
-    /** Chave de API, lida de "mr_ai" (fora do backup), nunca das preferências padrão. */
+    /** API key, read from "mr_ai" (outside the backup), never from the default preferences. */
     static String apiKey(Context c) {
         String v = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_SECRET, "");
         return v == null ? "" : v.trim();
@@ -548,7 +548,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         return apiKey(c).length() > 0;
     }
 
-    // ------------------------------------------------------------------ disparo e resposta
+    // ------------------------------------------------------------------ trigger and response
 
     private static String instructionFor(int styleId) {
         if (styleId >= 0 && styleId < BUILTIN_INSTR.length) return BUILTIN_INSTR[styleId];
@@ -590,7 +590,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         updateApply();
         setStatus(t("mr_ai_working"));
         MrAi job = new MrAi(R_BG, instruction, sSeq, temp);
-        job.mSource = sSource; // cópia do momento do toque: o diálogo pode fechar no meio
+        job.mSource = sSource; // copy from the moment of the tap: the dialog may close in the middle
         job.mEmojify = sEmojify;
         job.mContext = ctx.getApplicationContext();
         new Thread(job).start();
@@ -619,7 +619,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
             if (sHandler != null) sHandler.post(ui);
             return;
         }
-        // R_UI: de volta na thread principal
+        // R_UI: back on the main thread
         if (!sOpen || mSeq != sSeq || sResult == null) return;
         sBusy = false;
         if (mError != null) {
@@ -633,8 +633,8 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
     }
 
     /**
-     * Um pedido de reescrita (bloqueante; chame fora da thread principal). Devolve só o texto
-     * reescrito ou lança AiFail com a mensagem pronta. Usado também pelo teste da MrAiPrefs.
+     * One rewrite request (blocking; call off the main thread). Returns only the rewritten
+     * text or throws AiFail with the ready message. Also used by the MrAiPrefs test.
      */
     static String rewrite(Context c, String instruction, String text, boolean emojify, double temp)
             throws AiFail {
@@ -719,7 +719,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         return b.toString();
     }
 
-    /** choices[0].message.content (texto ou partes), com choices[0].text de reserva. */
+    /** choices[0].message.content (text or parts), with choices[0].text as a fallback. */
     private static String extract(String resp) throws JSONException {
         JSONObject root = new JSONObject(resp);
         JSONArray choices = root.optJSONArray("choices");
@@ -745,7 +745,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         return legacy.length() > 0 ? legacy : null;
     }
 
-    /** Tira espaços das pontas e um par de aspas que o modelo às vezes põe em volta de tudo. */
+    /** Trims the spaces at the ends and a pair of quotes that the model sometimes puts around everything. */
     private static String clean(String out, String original) {
         String s = out.trim();
         if (s.length() > 2 && s.startsWith("\"") && s.endsWith("\"")
@@ -755,7 +755,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         return s;
     }
 
-    // ------------------------------------------------------------------ aplicar / copiar
+    // ------------------------------------------------------------------ apply / copy
 
     private static void applyResult() {
         if (sResultText == null || sResultText.length() == 0 || sSource == null) return;
@@ -804,11 +804,11 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
                 MrTools.toast(t("mr_ai_copied"));
             }
         } catch (RuntimeException e) {
-            // sem área de transferência: só não copia
+            // without a clipboard: it just does not copy
         }
     }
 
-    // ------------------------------------------------------------------ telas (configurações / estilo)
+    // ------------------------------------------------------------------ screens (settings / style)
 
     static void openPrefs(Context from) {
         MrAiDialog.requestReopenOnReturn();
@@ -819,13 +819,13 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
             from.startActivity(i);
         } catch (RuntimeException e) {
             MrAiDialog.cancelReopenOnReturn();
-            // sem a tela: o usuário continua no app
+            // without the screen: the user stays in the app
         }
     }
 
     static void openStyleEditor(Context from, int index) {
-        // Quando o editor de estilos parte da tela de Preferências, ela fica por baixo;
-        // reabrir o Editor de IA só é necessário se a origem era o próprio diálogo.
+        // When the style editor starts from the Preferences screen, it stays underneath;
+        // reopening the AI Editor is only needed if the origin was the dialog itself.
         boolean reopenAi = !(from instanceof MrAiPrefs);
         if (reopenAi) MrAiDialog.requestReopenOnReturn();
         MrAiDialog.dismiss();
@@ -836,11 +836,11 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
             from.startActivity(i);
         } catch (RuntimeException e) {
             if (reopenAi) MrAiDialog.cancelReopenOnReturn();
-            // idem
+            // same
         }
     }
 
-    // ------------------------------------------------------------------ cliques
+    // ------------------------------------------------------------------ clicks
 
     public void onClick(View v) {
         switch (mCode) {
@@ -883,7 +883,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
     public boolean onLongClick(View v) {
         if (mCode < C_CHIP) return false;
         int styleId = styleAt(mCode - C_CHIP);
-        if (styleId < 100) return false; // prontos (e o Criar) não se editam segurando
+        if (styleId < 100) return false; // ready-made ones (and Create) are not edited by holding
         int index = styleId - 100;
         if (index >= sCustom.size()) return false;
         if (MrTools.sIme != null) openStyleEditor(MrTools.sIme, index);

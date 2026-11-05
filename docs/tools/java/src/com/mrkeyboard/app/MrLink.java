@@ -12,30 +12,30 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * Abrir link sem derrubar o app, como a documentação do Android recomenda (guia "Fulfill common use cases while
- * having limited package visibility", seção "Open URLs"): intent ACTION_VIEW com startActivity() e tratamento do
- * ActivityNotFoundException, sem precisar de <queries> no manifest. Em aparelho sem navegador o Android lança
- * essa exceção (e, conforme a versão, o URLSpan padrão só registra no log, sem avisar ninguém). Aqui vira um aviso.
- *  - open(): usado pelo cartão do autor (MrAuthor);
- *  - protect(): troca os links (URLSpan) do texto da tela principal por um span que usa open().
+ * Open a link without bringing the app down, as the Android documentation recommends (guide "Fulfill common use cases while
+ * having limited package visibility", section "Open URLs"): ACTION_VIEW intent with startActivity() and handling of
+ * ActivityNotFoundException, with no need for <queries> in the manifest. On a device without a browser Android throws
+ * that exception (and, depending on the version, the default URLSpan only logs it, without telling anyone). Here it becomes a notice.
+ *  - open(): used by the author card (MrAuthor);
+ *  - protect(): replaces the links (URLSpan) in the main screen text with a span that uses open().
  */
 public final class MrLink {
     private MrLink() { }
 
-    /** Abre o link; sem app para abrir, mostra o aviso e devolve false. */
+    /** Opens the link; with no app to open it, shows the notice and returns false. */
     static boolean open(Context c, String url) {
         try {
             c.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
             return true;
         } catch (ActivityNotFoundException e) {
-            // nenhum app instalado abre o link (o caso que a documentação do Android manda tratar)
+            // no installed app opens the link (the case the Android documentation says to handle)
             String t = MrPacks.text(c, "mr_ui_link_no_browser");
             Toast.makeText(c.getApplicationContext(), t != null ? t : url, Toast.LENGTH_LONG).show();
             return false;
         }
     }
 
-    /** Troca cada URLSpan do texto da vista por um span que abre o link com open(). */
+    /** Replaces each URLSpan in the view text with a span that opens the link with open(). */
     public static void protect(TextView tv) {
         CharSequence cs = tv.getText();
         if (!(cs instanceof Spannable)) return;

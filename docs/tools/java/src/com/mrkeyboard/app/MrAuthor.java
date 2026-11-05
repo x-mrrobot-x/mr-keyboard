@@ -4,8 +4,8 @@ import android.content.Context;
 import android.preference.Preference;
 
 /**
- * Cartão "by x-mrrobot-x" de Sobre: abre o perfil no GitHub. Antes era um intent no XML, que fecha o app
- * (ActivityNotFoundException) em aparelho sem navegador; aqui o erro vira um aviso (ver MrLink).
+ * "by x-mrrobot-x" card in About: opens the profile on GitHub. It used to be an intent in the XML, which closes the app
+ * (ActivityNotFoundException) on a device without a browser; here the error becomes a notice (see MrLink).
  */
 public final class MrAuthor implements Preference.OnPreferenceClickListener {
     static final String URL = "https://github.com/x-mrrobot-x";
@@ -21,7 +21,7 @@ public final class MrAuthor implements Preference.OnPreferenceClickListener {
         return true;
     }
 
-    /** Abre o link; sem app para abrir, mostra o aviso e devolve false. */
+    /** Opens the link; with no app to open it, shows the notice and returns false. */
     static boolean open(Context c) {
         return MrLink.open(c, URL);
     }

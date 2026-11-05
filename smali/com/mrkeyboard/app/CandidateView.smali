@@ -38,19 +38,19 @@
 
 .field private mDivider:Landroid/graphics/drawable/Drawable;
 
-# Espaco minimo entre o texto de cada sugestao e o divisor, em pixels, de cada lado (10dp, calculado
-# no construtor). Substitui o X_GAP fixo de 10px. Textos maiores que a posicao encolhem/cortam.
+# Minimum space between each suggestion's text and the divider, in pixels, on each side (10dp, computed
+# in the constructor). Replaces the fixed 10px X_GAP. Texts wider than the slot shrink/get cut.
 .field private mGap:I
 
-# Layout fixo de 3 posicoes (mrLayout): indice da lista em cada posicao (esquerda, centro, direita;
-# -1 = vazia), indice da mais provavel (cor cheia) e se a dica "salvar" ocupa as posicoes 1 e 2.
+# Fixed 3-slot layout (mrLayout): list index in each slot (left, center, right;
+# -1 = empty), index of the most probable one (full color) and whether the "save" hint takes slots 1 and 2.
 .field private mSlot:[I
 
 .field private mCenter:I
 
 .field private mMerged:Z
 
-# Altura da faixa e linha de base do texto, calculadas a cada onDraw.
+# Strip height and text baseline, computed on every onDraw.
 .field private mH:I
 
 .field private mY:I
@@ -342,7 +342,7 @@
 
     iput p1, p0, Lcom/mrkeyboard/app/CandidateView;->mMinTouchableWidth:I
 
-    # mGap = 10dp em pixels (v0 ainda e o Resources aqui)
+    # mGap = 10dp in pixels (v0 is still the Resources here)
     invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
 
     move-result-object p1
@@ -1232,10 +1232,10 @@
     return-void
 .end method
 
-# Mr Keyboard: cores das sugestoes a partir da cor do texto das teclas do tema atual
-# (MrSugg). A mais provavel (centro, ver mrLayout) na cor do texto, com negrito quando e a
-# autocorrecao; as laterais com 65% de opacidade (mColorNormal); divisor e realce de toque
-# tingidos com a mesma cor (a transparencia vem do proprio drawable).
+# Mr Keyboard: suggestion colors derived from the key text color of the current theme
+# (MrSugg). The most probable one (center, see mrLayout) in the text color, bold when it is the
+# autocorrection; the side ones at 65% opacity (mColorNormal); divider and touch highlight
+# tinted with the same color (the transparency comes from the drawable itself).
 .method public mrTheme(I)V
     .locals 2
 
@@ -1295,7 +1295,7 @@
 
 
 
-# Toque longo: x (ja somado ao scroll) esta sobre a celula da palavra digitada (indice 0)?
+# Long press: is x (already added to the scroll) over the typed word's cell (index 0)?
 .method public mrOnFirst(F)Z
     .locals 3
 
@@ -1336,9 +1336,9 @@
 .end method
 
 
-# Desenho da faixa de sugestoes: 3 posicoes fixas, de largura igual e ocupando toda a faixa
-# (esquerda, centro, direita), com o texto centralizado em cada uma e um divisor entre elas, como
-# no teclado do Google. Ver mrLayout para o que vai em cada posicao.
+# Drawing of the suggestion strip: 3 fixed slots, of equal width and filling the whole strip
+# (left, center, right), with the text centered in each one and a divider between them, like
+# on the Google keyboard. See mrLayout for what goes in each slot.
 .method protected onDraw(Landroid/graphics/Canvas;)V
     .locals 6
 
@@ -1389,8 +1389,8 @@
     invoke-virtual {v2, v0, v0, v3, v4}, Landroid/graphics/drawable/Drawable;->setBounds(IIII)V
 
     :cond_bg
-    # tamanho do texto: base x escala (pref_candidate_scale), limitado a 75% da altura da faixa.
-    # A faixa segue a escala da barra (match_parent); o texto so encolhia na largura.
+    # text size: base x scale (pref_candidate_scale), capped at 75% of the strip height.
+    # The strip follows the bar scale (match_parent); the text used to shrink only in width.
     if-lez v1, :cond_nocap
 
     iget-object v2, p0, Lcom/mrkeyboard/app/CandidateView;->mPreviewText:Landroid/widget/TextView;
@@ -1420,7 +1420,7 @@
     invoke-virtual {v3, v2}, Landroid/graphics/Paint;->setTextSize(F)V
 
     :cond_nocap
-    # linha de base do texto: (altura + tamanho do texto - descent) / 2, com o descent do tamanho atual
+    # text baseline: (height + text size - descent) / 2, with the descent of the current size
     int-to-float v2, v1
 
     iget-object v3, p0, Lcom/mrkeyboard/app/CandidateView;->mPaint:Landroid/graphics/Paint;
@@ -1463,16 +1463,16 @@
     return-void
 .end method
 
-# Posicoes das sugestoes: 3 fixas (esquerda, centro, direita), cada uma com 1/3 da largura da faixa.
-# As 3 primeiras entradas da lista do motor (0 = palavra digitada, 1 = melhor sugestao, 2 = a
-# seguinte) ocupam as posicoes na ordem da lista, com a mais provavel no centro:
-#   centro  = indice 1; indice 0 se a digitada e valida e ha sugestao minima (autocorrecao);
-#             com uma unica entrada, ela fica no centro.
-#   se o centro e o indice 0, o indice 1 vai para a posicao da esquerda.
-#   posicao sem entrada fica vazia (as posicoes nao mudam de lugar).
-#   dica "toque para salvar": palavra a esquerda e dica nas posicoes 1 e 2 juntas (mMerged).
-# Preenche mSlot, mCenter, mMerged, mTotalWidth (largura da faixa, sem rolagem) e, por indice da
-# lista, mWordX/mWordWidth (largura 0 = nao mostrada).
+# Suggestion slots: 3 fixed (left, center, right), each one 1/3 of the strip width.
+# The first 3 entries of the engine list (0 = typed word, 1 = best suggestion, 2 = the
+# next) take the slots in list order, with the most probable one in the center:
+#   center  = index 1; index 0 if the typed word is valid and there is a minimal suggestion (autocorrection);
+#             with a single entry, it stays in the center.
+#   if the center is index 0, index 1 goes to the left slot.
+#   a slot without an entry stays empty (slots do not change places).
+#   "tap to save" hint: word on the left and hint on slots 1 and 2 together (mMerged).
+# Fills mSlot, mCenter, mMerged, mTotalWidth (strip width, without scrolling) and, per list
+# index, mWordX/mWordWidth (width 0 = not shown).
 .method private mrLayout()V
     .locals 9
 
@@ -1515,7 +1515,7 @@
 
     aput v2, v0, v3
 
-    # v4 = largura da faixa (se ainda nao medida, a largura da tela)
+    # v4 = strip width (if not measured yet, the screen width)
     invoke-virtual {p0}, Lcom/mrkeyboard/app/CandidateView;->getWidth()I
 
     move-result v4
@@ -1539,7 +1539,7 @@
     :cond_w
     iput v4, p0, Lcom/mrkeyboard/app/CandidateView;->mTotalWidth:I
 
-    # v5 = n = min(tamanho da lista, 3)
+    # v5 = n = min(list size, 3)
     iget-object v5, p0, Lcom/mrkeyboard/app/CandidateView;->mSuggestions:Ljava/util/ArrayList;
 
     invoke-virtual {v5}, Ljava/util/ArrayList;->size()I
@@ -1562,7 +1562,7 @@
 
     if-lt v5, v6, :cond_norm
 
-    # dica de salvar: palavra na posicao 0, dica nas posicoes 1 e 2 juntas
+    # save hint: word in slot 0, hint in slots 1 and 2 together
     const/4 v6, 0x1
 
     iput-boolean v6, p0, Lcom/mrkeyboard/app/CandidateView;->mMerged:Z
@@ -1578,7 +1578,7 @@
     goto :cond_geo
 
     :cond_norm
-    # v6 = centro
+    # v6 = center
     const/4 v6, 0x0
 
     const/4 v7, 0x2
@@ -1674,9 +1674,9 @@
     return-void
 .end method
 
-# Desenha as 3 posicoes e os divisores. Devolve true se alguma entrada e a autocorrecao
-# recomendada (para LatinIME.onAutoCompletionStateChanged). canvas pode ser null (passada de
-# setSuggestions): nada e desenhado, mas a selecao por toque e a recomendada sao calculadas.
+# Draws the 3 slots and the dividers. Returns true if some entry is the recommended
+# autocorrection (for LatinIME.onAutoCompletionStateChanged). canvas may be null (setSuggestions
+# pass): nothing is drawn, but the touch selection and the recommended one are computed.
 .method private mrDrawAll(Landroid/graphics/Canvas;)Z
     .locals 8
 
@@ -1727,7 +1727,7 @@
     const/4 v0, 0x1
 
     :cond_div
-    # divisor no fim das posicoes 0 e 1 (nao depois da dica que ocupa as posicoes 1 e 2)
+    # divider at the end of slots 0 and 1 (not after the hint that takes slots 1 and 2)
     if-eqz p1, :cond_next
 
     const/4 v7, 0x1
@@ -1750,7 +1750,7 @@
     return v0
 .end method
 
-# Divisor vertical com a borda esquerda em x, centralizado na altura da faixa.
+# Vertical divider with its left edge at x, centered on the strip height.
 .method private mrDivider(Landroid/graphics/Canvas;I)V
     .locals 5
 
@@ -1783,8 +1783,8 @@
     return-void
 .end method
 
-# Uma posicao [l, r): cor (centro em cor cheia, laterais mais opacas, recomendada em negrito),
-# destaque e selecao de toque e o texto. Devolve true se a entrada e a recomendada.
+# One slot [l, r): color (center in full color, sides more opaque, recommended in bold),
+# highlight and touch selection, and the text. Returns true if the entry is the recommended one.
 .method private mrSlot(Landroid/graphics/Canvas;III)Z
     .locals 11
 
@@ -1803,7 +1803,7 @@
     return v0
 
     :cond_t
-    # v1 = recomendada: sugestao minima e (indice 1 com a digitada invalida ou indice 0 valida)
+    # v1 = recommended: minimal suggestion and (index 1 with the typed word invalid, or index 0 valid)
     const/4 v1, 0x0
 
     iget-boolean v2, p0, Lcom/mrkeyboard/app/CandidateView;->mHaveMinimalSuggestion:Z
@@ -1830,7 +1830,7 @@
     const/4 v1, 0x1
 
     :cond_rd
-    # v2 = cor
+    # v2 = color
     if-eqz v1, :cond_nr
 
     iget v2, p0, Lcom/mrkeyboard/app/CandidateView;->mColorRecommended:I
@@ -1850,7 +1850,7 @@
     iget v2, p0, Lcom/mrkeyboard/app/CandidateView;->mColorNormal:I
 
     :cond_col
-    # toque dentro da posicao: destaque (so com canvas e sem a dica de salvar) e selecao
+    # touch inside the slot: highlight (only with a canvas and without the save hint) and selection
     iget v3, p0, Lcom/mrkeyboard/app/CandidateView;->mTouchX:I
 
     const/4 v4, -0x1
@@ -1938,8 +1938,8 @@
     return v1
 .end method
 
-# Texto centralizado na posicao [x, x + w), com a cor e a fonte ja definidas no mPaint. Se nao cabe
-# (w menos mGap de cada lado), encolhe o tamanho ate 75% e, se ainda nao couber, corta com "...".
+# Text centered in the slot [x, x + w), with the color and font already set in mPaint. If it does not fit
+# (w minus mGap on each side), shrinks the size down to 75% and, if it still does not fit, cuts with "...".
 .method private mrText(Landroid/graphics/Canvas;Ljava/lang/CharSequence;II)V
     .locals 11
 
@@ -1953,7 +1953,7 @@
 
     move-result v3
 
-    # v7 = espaco disponivel (w - 2 * mGap)
+    # v7 = available space (w - 2 * mGap)
     iget v4, p0, Lcom/mrkeyboard/app/CandidateView;->mGap:I
 
     mul-int/lit8 v4, v4, 0x2
@@ -1962,7 +1962,7 @@
 
     int-to-float v7, v4
 
-    # v4 = x do centro; v5 = linha de base; v6 = paint
+    # v4 = center x; v5 = baseline; v6 = paint
     div-int/lit8 v4, p4, 0x2
 
     add-int/2addr v4, p3
@@ -1983,7 +1983,7 @@
 
     if-lez v9, :cond_draw
 
-    # encolhe: tamanho * max(0,75, disponivel / medido)
+    # shrinks: size * max(0.75, available / measured)
     invoke-virtual {v6}, Landroid/graphics/Paint;->getTextSize()F
 
     move-result v9

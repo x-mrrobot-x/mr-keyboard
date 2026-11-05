@@ -1,6 +1,6 @@
 package com.mrkeyboard.app;
 
-/** Stub de compilação. Os métodos mr* são acrescentados à classe real no smali. */
+/** Compile stub. The mr* methods are added to the real class in the smali. */
 public class BinaryDictionary extends Dictionary {
     public BinaryDictionary(android.content.Context context, java.nio.ByteBuffer byteBuffer, int dicTypeId) { }
     public java.nio.ByteBuffer mrBuffer() { return null; }

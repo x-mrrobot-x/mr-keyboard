@@ -1,6 +1,6 @@
 package com.mrkeyboard.app;
 import java.util.ArrayList;
-/** Versão de teste: palavra digitada + códigos de proximidade por posição. */
+/** Test version: typed word + proximity codes per position. */
 public class WordComposer {
     final StringBuilder typed = new StringBuilder();
     final ArrayList<int[]> codes = new ArrayList<int[]>();

@@ -3,7 +3,7 @@ package com.mrkeyboard.app;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Stub de compilação e de teste de PC (a classe de verdade é o smali Keyboard). */
+/** Compile and PC test stub (the real class is the Keyboard smali). */
 public class Keyboard {
     public static class Key {
         public int[] codes;
@@ -14,19 +14,19 @@ public class Keyboard {
             this.x = x; this.y = y; this.width = width; this.height = height;
         }
 
-        /** Como a de verdade: quadrado da distância do centro da tecla ao ponto. */
+        /** Like the real one: square of the distance from the key center to the point. */
         public int squaredDistanceFrom(int px, int py) {
             int dx = x + width / 2 - px, dy = y + height / 2 - py;
             return dx * dx + dy * dy;
         }
     }
 
-    /** Só para os testes. */
+    /** Tests only. */
     public final List<Key> keys = new ArrayList<Key>();
 
     public List<Key> getKeys() { return keys; }
 
-    /** Teste: todas as teclas (a de verdade devolve as perto do ponto, numa grade). */
+    /** Test: all the keys (the real one returns those near the point, in a grid). */
     public int[] getNearestKeys(int x, int y) {
         int[] all = new int[keys.size()];
         for (int i = 0; i < all.length; i++) all[i] = i;

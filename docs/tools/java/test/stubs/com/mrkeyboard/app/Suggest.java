@@ -1,6 +1,6 @@
 package com.mrkeyboard.app;
 import java.util.ArrayList;
-/** Versão de teste: guarda o que a camada nova acrescenta. */
+/** Test version: keeps what the new layer adds. */
 public class Suggest implements Dictionary.WordCallback {
     final BinaryDictionary main; Dictionary userBigrams;
     public final ArrayList<String> words = new ArrayList<String>();

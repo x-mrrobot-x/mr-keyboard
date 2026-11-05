@@ -1,6 +1,6 @@
 package com.mrkeyboard.app;
 
-/** Stub de compilação (classe do APK, smali à mão): dependências usadas pelo Editor de IA. */
+/** Compile stub (APK class, hand-written smali): dependencies used by the AI Editor. */
 public class MrTools {
     public static LatinIME sIme;
     public static android.content.Context sApp;

@@ -30,7 +30,7 @@ public class Bench {
                     t[i] = (System.nanoTime() - t0) / 1e6;
                 }
                 double[] c = t.clone(); Arrays.sort(c); double sum = 0; for (double x : c) sum += x;
-                if (round == 2) System.out.printf("%s n=%d média %.3f p50 %.3f p95 %.3f p99 %.3f máx %.3f ms%n", set == typos ? "erros   " : "prefixos", c.length, sum / c.length, c[c.length / 2], c[(int) (c.length * .95)], c[(int) (c.length * .99)], c[c.length - 1]);
+                if (round == 2) System.out.printf("%s n=%d average %.3f p50 %.3f p95 %.3f p99 %.3f max %.3f ms%n", set == typos ? "typos   " : "prefixes", c.length, sum / c.length, c[c.length / 2], c[(int) (c.length * .95)], c[(int) (c.length * .99)], c[c.length - 1]);
             }
         }
     }

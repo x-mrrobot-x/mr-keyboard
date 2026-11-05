@@ -1,16 +1,16 @@
 package com.mrkeyboard.app;
 
 /**
- * Mapa de erros comuns e abreviações do idioma (v1.60). Desde a 1.63 a lista vem do pacote de
- * dicionário (seção [corrections] do rules.txt, lida por MrRules); sem pacote, não há correções.
- * A chave é a forma digitada em minúscula e sem acento (MrText.base); o valor é a sugestão. A
- * sugestão entra como a melhor da lista; com a autocorreção ligada ela só substitui a palavra se
- * a digitada não for válida.
+ * Map of common errors and abbreviations of the language (v1.60). Since 1.63 the list comes from the dictionary
+ * pack ([corrections] section of rules.txt, read by MrRules); without a pack, there are no corrections.
+ * The key is the typed form in lowercase and without accent (MrText.base); the value is the suggestion. The
+ * suggestion enters as the best of the list; with autocorrect on it only replaces the word if
+ * the typed one is not valid.
  */
 public final class MrFix {
     private MrFix() { }
 
-    /** Chave de busca: minúscula e sem acento. */
+    /** Lookup key: lowercase and without accent. */
     static String key(CharSequence typed) {
         if (typed == null) return null;
         int n = typed.length();
@@ -20,7 +20,7 @@ public final class MrFix {
         return new String(k);
     }
 
-    /** Sugestão para a palavra digitada, ou null. */
+    /** Suggestion for the typed word, or null. */
     public static String lookup(CharSequence typed) {
         MrRules r = MrRules.get();
         if (r.corrections.isEmpty()) return null;
@@ -29,7 +29,7 @@ public final class MrFix {
         return r.corrections.get(k);
     }
 
-    /** Quantidade de entradas (para testes). */
+    /** Number of entries (for tests). */
     static int size() {
         return MrRules.get().corrections.size();
     }

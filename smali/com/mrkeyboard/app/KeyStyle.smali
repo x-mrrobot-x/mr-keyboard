@@ -394,11 +394,11 @@
     return-void
 .end method
 
-# Folga (px) da camada p1 do LayerDrawable p0 em relacao a camada de dentro, que e a ultima e a que o
-# raio das teclas descreve: recuo esquerdo da ultima camada menos o da camada p1, nunca negativo. Cada
-# camada de fora soma essa folga ao raio, o que mantem os cantos concentricos sem tabela por tema: o halo do
-# Neon e o do Soft ficam 2 dp para fora da borda e ganham +2 dp; Slate e Midnight (sombra so no eixo
-# vertical) e Glass (uma camada) nao tem folga lateral e ficam com o raio das teclas.
+# Slack (px) of layer p1 of the LayerDrawable p0 relative to the innermost layer, which is the last one and the one the
+# key radius describes: left inset of the last layer minus that of layer p1, never negative. Each
+# outer layer adds this slack to the radius, which keeps the corners concentric without a per-theme table: the
+# Neon and Soft halos sit 2 dp outside the edge and gain +2 dp; Slate and Midnight (shadow on the vertical
+# axis only) and Glass (one layer) have no side slack and keep the key radius.
 .method private static layerGap(Landroid/graphics/drawable/LayerDrawable;I)F
     .locals 2
 
@@ -558,9 +558,9 @@
     return-void
 .end method
 
-# Raio de cantos (px) de um elemento que segue as teclas: raio das teclas + folga p1 (dp). A folga
-# cresce de 0 ate o valor cheio quando o raio das teclas vai de 0 a 8 dp e depois fica fixa: com
-# raio 0 o elemento fica reto; no raio padrao (8 dp) vale raio + folga; acima disso so soma.
+# Corner radius (px) of an element that follows the keys: key radius + p1 slack (dp). The slack
+# grows from 0 to the full value as the key radius goes from 0 to 8 dp and then stays fixed: with
+# radius 0 the element stays square; at the default radius (8 dp) it is radius + slack; above that it only adds.
 .method public static radiusPx(Landroid/content/Context;F)F
     .locals 4
 
@@ -603,9 +603,9 @@
     return v0
 .end method
 
-# Aplica o raio (radiusPx com folga p2) nas camadas de forma do drawable p0 (LayerDrawable ou forma
-# unica). Camada recuada 1,5 dp ou mais da borda usa o raio menos o recuo (cantos concentricos);
-# as demais usam o raio cheio.
+# Applies the radius (radiusPx with p2 slack) to the shape layers of drawable p0 (LayerDrawable or single
+# shape). A layer inset 1.5 dp or more from the edge uses the radius minus the inset (concentric corners);
+# the others use the full radius.
 .method public static applyShape(Landroid/graphics/drawable/Drawable;Landroid/content/Context;F)V
     .locals 8
 
@@ -698,7 +698,7 @@
     return-void
 .end method
 
-# true uma unica vez depois que o raio das teclas mudou (LatinIME refaz a view ao abrir o teclado).
+# true only once after the key radius changed (LatinIME rebuilds the view when the keyboard opens).
 .method public static takeRadiusDirty()Z
     .locals 2
 
@@ -711,9 +711,9 @@
     return v0
 .end method
 
-# Fundo de botao que reaproveita o visual da tecla (barra de ferramentas e listas dos paineis): aplica
-# o mesmo raio das teclas em todas as camadas de todos os estados do drawable p0. O drawable copiado
-# da tecla tem formas proprias, que ficavam com o raio do XML mesmo com o controle de raio alterado.
+# Button background that reuses the key look (toolbar and panel lists): applies
+# the same key radius to all layers of all states of drawable p0. The drawable copied
+# from the key has shapes of its own, which kept the XML radius even with the radius control changed.
 .method public static applyKeyLook(Landroid/graphics/drawable/Drawable;Landroid/content/Context;)V
     .locals 10
 

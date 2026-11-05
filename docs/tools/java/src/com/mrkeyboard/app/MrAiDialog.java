@@ -13,9 +13,9 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 
 /**
- * Dialog modal do Editor de IA, preso à janela do IME como o diálogo de Preferências
- * do MrTune. Fica acima do teclado, mantém o teclado visível e usa exclusivamente
- * Theme.MrKeyboard.Dialog (a paleta das configurações), em retrato e em paisagem.
+ * Modal dialog of the AI Editor, attached to the IME window like the Preferences dialog
+ * of MrTune. It sits above the keyboard, keeps the keyboard visible and uses exclusively
+ * Theme.MrKeyboard.Dialog (the settings palette), in portrait and landscape.
  */
 final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListener,
         DialogInterface.OnDismissListener {
@@ -29,7 +29,7 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
 
     private MrAiDialog() { }
 
-    /** Abre ou fecha pelo botão Editor de IA da barra de ferramentas. */
+    /** Opens or closes from the AI Editor button of the toolbar. */
     static void toggle() {
         try {
             if (sDialog != null && sDialog.isShowing()) {
@@ -42,12 +42,12 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
         }
     }
 
-    /** Fecha o diálogo e invalida qualquer resposta de rede ainda em andamento. */
+    /** Closes the dialog and invalidates any network response still in progress. */
     static void dismiss() {
         close(sDialog, true);
     }
 
-    /** Guarda o editor atual antes de abrir Configurações ou o editor de estilos. */
+    /** Stores the current editor before opening Settings or the style editor. */
     static void requestReopenOnReturn() {
         sReopenAfterAuxiliaryUi = true;
         sAuxiliaryUiVisible = false;
@@ -58,7 +58,7 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
             EditorInfo info = ime != null ? ime.getCurrentInputEditorInfo() : null;
             if (info != null) sReturnPackage = info.packageName;
         } catch (RuntimeException e) {
-            // A solicitação permanece válida mesmo se o editor não puder ser consultado agora.
+            // The request remains valid even if the editor cannot be queried right now.
         }
     }
 
@@ -69,13 +69,13 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
         sReturnPackage = null;
     }
 
-    /** Marca quando uma Activity auxiliar (Preferências ou Estilos) está em primeiro plano. */
+    /** Marks when an auxiliary Activity (Preferences or Styles) is in the foreground. */
     static void setAuxiliaryUiVisible(boolean visible) {
         sAuxiliaryUiVisible = visible;
         if (visible) sSawAuxiliaryUi = true;
     }
 
-    /** Chamado quando a janela do IME reaparece, inclusive ao voltar ao campo anterior. */
+    /** Called when the IME window reappears, including when returning to the previous field. */
     static void onImeWindowShown() {
         if (!sReopenAfterAuxiliaryUi || !sSawAuxiliaryUi || sAuxiliaryUiVisible) return;
         LatinIME ime = MrTools.sIme;
@@ -86,7 +86,7 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
         reopenPendingDialog();
     }
 
-    /** Descarta a reabertura se, em vez do editor original, outro app ganhou o campo. */
+    /** Discards the reopening if, instead of the original editor, another app got the field. */
     static void onInputViewStarted(String packageName) {
         if (!sReopenAfterAuxiliaryUi || !sSawAuxiliaryUi || sAuxiliaryUiVisible
                 || sReturnPackage == null || packageName == null) return;
@@ -116,7 +116,7 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
             try {
                 decor.removeOnLayoutChangeListener(listener);
             } catch (RuntimeException e) {
-                // A janela do IME pode já estar desmontada.
+                // The IME window may already be torn down.
             }
         }
         MrAi.dialogClosed();
@@ -124,7 +124,7 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
             try {
                 dialog.dismiss();
             } catch (RuntimeException e) {
-                // O token pode ter sido revogado durante a troca de janela.
+                // The token may have been revoked during the window switch.
             }
         }
     }
@@ -173,8 +173,8 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
                 return;
             }
             window.setBackgroundDrawable(new ColorDrawable(0x00000000));
-            window.clearFlags(2); // A camada escura fica no layout, como no diálogo de Preferências.
-            window.clearFlags(0x20000); // Não deixar a janela competir pelo foco do IME.
+            window.clearFlags(2); // The dark layer is in the layout, as in the Preferences dialog.
+            window.clearFlags(0x20000); // Do not let the window compete for IME focus.
             window.addFlags(0x308); // NOT_FOCUSABLE | LAYOUT_IN_SCREEN | LAYOUT_NO_LIMITS.
             WindowManager.LayoutParams attrs = window.getAttributes();
             attrs.token = token;
@@ -232,7 +232,7 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
                 window.setAttributes(attrs);
             }
         } catch (RuntimeException e) {
-            // A janela pode ser fechada entre o callback e a atualização.
+            // The window may be closed between the callback and the update.
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.mrkeyboard.app;
 import java.nio.ByteBuffer;
 import java.util.Set;
-/** Versão de teste: buffer do .dict e isValidWord por conjunto. */
+/** Test version: the .dict buffer and isValidWord by set. */
 public class BinaryDictionary extends Dictionary {
     final ByteBuffer buf; final int len; final Set<String> words;
     public BinaryDictionary(ByteBuffer b, int l, Set<String> w) { buf = b; len = l; words = w; }

@@ -5095,7 +5095,7 @@
     :cond_5
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "tamanho"
+    const-string v1, "size"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -5228,7 +5228,7 @@
     :cond_9
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "nome"
+    const-string v1, "name"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -5275,7 +5275,7 @@
     :cond_b
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "tamanho"
+    const-string v1, "size"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -5316,7 +5316,7 @@
 
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "sem main.dict"
+    const-string v1, "no main.dict"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 

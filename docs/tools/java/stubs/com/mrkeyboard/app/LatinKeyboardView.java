@@ -1,5 +1,5 @@
 package com.mrkeyboard.app;
 
-/** Stub de compilação e de teste de PC. */
+/** Compile and PC test stub. */
 public class LatinKeyboardView extends LatinKeyboardBaseView {
 }

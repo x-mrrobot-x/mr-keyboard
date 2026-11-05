@@ -15,14 +15,14 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 /**
- * Configurações → Editor de IA (v1.80): o serviço compatível com a API da OpenAI que o
- * diálogo MrAi usa (provedor pronto ou endereço/modelo próprios), a chave de API do usuário,
- * um teste de conexão e a lista dos estilos do usuário (tocar edita ou apaga, na tela
- * MrAiStyleActivity). As chaves pref_ai_* vivem nas preferências padrão (res/xml/prefs_ai.xml)
- * e entram no "Restaurar padrões" (MrReset.KEYS), exceto o valor da chave de API: a linha
- * pref_ai_key é não persistente e o valor fica em "mr_ai" (MrAi.apiKey), arquivo que não entra
- * no backup; o Restaurar apaga também esse valor. Os resumos mostram endereço e modelo, mas
- * nunca a chave (só "salva"/"não salva").
+ * Settings → AI Editor (v1.80): the OpenAI-API-compatible service that the
+ * MrAi dialog uses (ready-made provider or own address/model), the user's API key,
+ * a connection test and the list of the user's styles (tapping edits or deletes, on the
+ * MrAiStyleActivity screen). The pref_ai_* keys live in the default preferences (res/xml/prefs_ai.xml)
+ * and are part of "Restore defaults" (MrReset.KEYS), except the value of the API key: the
+ * pref_ai_key row is non-persistent and the value stays in "mr_ai" (MrAi.apiKey), a file that is not part of
+ * the backup; Restore erases that value too. The summaries show address and model, but
+ * never the key (only "saved"/"not saved").
  */
 public class MrAiPrefs extends PreferenceActivity {
     private final Handler mHandler = new Handler(Looper.getMainLooper());
@@ -83,12 +83,12 @@ public class MrAiPrefs extends PreferenceActivity {
         if (mKey != null) {
             mKey.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    MrAi.setApiKey(MrAiPrefs.this, String.valueOf(newValue)); // fora do backup (ver MrAi)
+                    MrAi.setApiKey(MrAiPrefs.this, String.valueOf(newValue)); // outside the backup (see MrAi)
                     preference.setSummary(keySummary(String.valueOf(newValue)));
                     return true;
                 }
             });
-            ((EditTextPreference) mKey).setText(MrAi.apiKey(this)); // linha não persistente: preenche à mão
+            ((EditTextPreference) mKey).setText(MrAi.apiKey(this)); // non-persistent row: fill in by hand
         }
         mTest = findPreference("pref_ai_test");
         if (mTest != null) {
@@ -109,7 +109,7 @@ public class MrAiPrefs extends PreferenceActivity {
         super.onResume();
         MrAiDialog.setAuxiliaryUiVisible(true);
         refreshSummaries();
-        rebuildStyles(); // volta da tela do estilo já com a lista nova
+        rebuildStyles(); // back from the style screen already with the new list
     }
 
     @Override
@@ -124,7 +124,7 @@ public class MrAiPrefs extends PreferenceActivity {
         return s != null ? s : name;
     }
 
-    /** Migra somente os modelos que eram presets antigos; modelos escolhidos pelo usuário ficam intactos. */
+    /** Migrates only the models that were old presets; models chosen by the user stay untouched. */
     private void migratePreviousPresets() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String provider = prefs.getString(MrAi.KEY_PROVIDER, "openai");
@@ -137,7 +137,7 @@ public class MrAiPrefs extends PreferenceActivity {
         if (replacement != null) prefs.edit().putString(MrAi.KEY_MODEL, replacement).apply();
     }
 
-    /** Endereço e modelo prontos do provedor escolhido ("custom" não mexe em nada). */
+    /** Ready-made address and model of the chosen provider ("custom" changes nothing). */
     private void applyPreset(String provider) {
         String endpoint;
         String model;
@@ -159,7 +159,7 @@ public class MrAiPrefs extends PreferenceActivity {
         PreferenceManager.getDefaultSharedPreferences(this).edit()
                 .putString(MrAi.KEY_ENDPOINT, endpoint)
                 .putString(MrAi.KEY_MODEL, model).apply();
-        mHandler.post(mRecreate); // os campos na tela releem das preferências
+        mHandler.post(mRecreate); // the fields on screen reread the preferences
     }
 
     private String summaryOr(String v) {

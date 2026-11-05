@@ -54,8 +54,8 @@
     return-void
 .end method
 
-# Android 15+ (targetSdk 35+) desenha as Activities edge-to-edge: aplica as
-# insets das barras do sistema como padding no conteudo para nada ficar atras delas.
+# Android 15+ (targetSdk 35+) draws Activities edge-to-edge: applies the
+# system bar insets as padding on the content so nothing ends up behind them.
 .method public onActivityStarted(Landroid/app/Activity;)V
     .locals 1
 

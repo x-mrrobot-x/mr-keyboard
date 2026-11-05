@@ -102,7 +102,7 @@
 .method static getDictionary(Landroid/content/Context;Ljava/lang/String;)Lcom/mrkeyboard/app/BinaryDictionary;
     .locals 3
 
-    # Mr Keyboard v1.63: pacote de dicionario baixado (MrPacks) antes dos apps de dicionario
+    # Mr Keyboard v1.63: downloaded dictionary pack (MrPacks) before the dictionary apps
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrPacks;->openDictionary(Landroid/content/Context;Ljava/lang/String;)Lcom/mrkeyboard/app/BinaryDictionary;
 
     move-result-object v0

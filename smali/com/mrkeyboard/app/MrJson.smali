@@ -114,7 +114,7 @@
     .line 115
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "esperava \',\' ou \']\'"
+    const-string v1, "expected \',\' or \']\'"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -143,7 +143,7 @@
 
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "esperava lista"
+    const-string v1, "expected a list"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -188,7 +188,7 @@
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v2, "campo "
+    const-string v2, "field "
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -198,7 +198,7 @@
 
     move-result-object v1
 
-    const-string v2, " ausente ou n\u00e3o \u00e9 inteiro"
+    const-string v2, " missing or not an integer"
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -368,7 +368,7 @@
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v3, "n\u00famero inv\u00e1lido: "
+    const-string v3, "invalid number: "
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -410,7 +410,7 @@
 
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "esperava objeto"
+    const-string v1, "expected an object"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -526,7 +526,7 @@
 
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "esperava nome de campo"
+    const-string v1, "expected a field name"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -552,7 +552,7 @@
 
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "esperava \':\'"
+    const-string v1, "expected \':\'"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -565,7 +565,7 @@
     .line 98
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "esperava \',\' ou \'}\'"
+    const-string v1, "expected \',\' or \'}\'"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -620,7 +620,7 @@
 
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "vazio"
+    const-string v1, "empty"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -656,7 +656,7 @@
 
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "sobra depois do JSON"
+    const-string v1, "extra data after the JSON"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -684,7 +684,7 @@
 
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "fim inesperado"
+    const-string v1, "unexpected end"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -736,7 +736,7 @@
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v2, "campo "
+    const-string v2, "field "
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -746,7 +746,7 @@
 
     move-result-object v1
 
-    const-string v2, " ausente ou n\u00e3o \u00e9 texto"
+    const-string v2, " missing or not text"
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
@@ -801,7 +801,7 @@
 
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "texto sem fim"
+    const-string v1, "unterminated string"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -847,7 +847,7 @@
 
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "escape sem fim"
+    const-string v1, "unterminated escape"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -873,7 +873,7 @@
     .line 148
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "escape inv\u00e1lido"
+    const-string v1, "invalid escape"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -955,7 +955,7 @@
 
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "\\u incompleto"
+    const-string v1, "incomplete \\u"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -1004,7 +1004,7 @@
     .line 143
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "\\u inv\u00e1lido"
+    const-string v1, "invalid \\u"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -1018,7 +1018,7 @@
 
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "controle dentro de texto"
+    const-string v1, "control character inside string"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -1058,7 +1058,7 @@
 
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "JSON fundo demais"
+    const-string v1, "JSON nested too deep"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -1078,7 +1078,7 @@
 
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
-    const-string v1, "fim inesperado"
+    const-string v1, "unexpected end"
 
     invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
 
@@ -1244,7 +1244,7 @@
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v2, "caractere inesperado na posi\u00e7\u00e3o "
+    const-string v2, "unexpected character at position "
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 

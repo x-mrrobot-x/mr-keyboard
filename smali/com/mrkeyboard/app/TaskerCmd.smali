@@ -2,12 +2,12 @@
 .super Ljava/lang/Object;
 .source "TaskerCmd.java"
 
-# Teclas da 1a fileira da folha TSK (kbd_tasker.xml) usam keyOutputText = "tskcmd:<comando>".
-# Em vez de digitar o texto, o LatinIME.onText chama handle(), que envia um broadcast:
+# Keys of the 1st row of the TSK sheet (kbd_tasker.xml) use keyOutputText = "tskcmd:<command>".
+# Instead of typing the text, LatinIME.onText calls handle(), which sends a broadcast:
 #   action : com.mrkeyboard.app.TASKER_CMD
-#   extra  : cmd = <comando>   (no Tasker vira a variavel local %cmd)
-# O broadcast e implicito (sem setPackage): o evento "Intent Received" do Tasker
-# nao recebe intents enderecados a um pacote/componente especifico.
+#   extra  : cmd = <command>   (in Tasker it becomes the local variable %cmd)
+# The broadcast is implicit (no setPackage): Tasker's "Intent Received" event
+# does not receive intents addressed to a specific package/component.
 
 .field public static final ACTION:Ljava/lang/String; = "com.mrkeyboard.app.TASKER_CMD"
 
@@ -25,8 +25,8 @@
     return-void
 .end method
 
-# Retorna true se o texto era um comando (e o broadcast foi disparado);
-# false se for texto comum, que deve ser digitado normalmente.
+# Returns true if the text was a command (and the broadcast was fired);
+# false for ordinary text, which must be typed normally.
 .method public static handle(Landroid/content/Context;Ljava/lang/CharSequence;)Z
     .locals 4
 

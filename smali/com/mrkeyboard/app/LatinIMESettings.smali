@@ -708,7 +708,7 @@
 .method private updateSummaries()V
     .locals 0
 
-    # v1.69: sem resumo da tecla de configuracoes (virou interruptor) nem detalhes da conexao (saiu)
+    # v1.69: no summary for the settings key (it became a switch) nor connection details (removed)
     return-void
 .end method
 
@@ -880,7 +880,7 @@
 
     iput-boolean p1, p0, Lcom/mrkeyboard/app/LatinIMESettings;->mVoiceOn:Z
 
-    # v1.69: "Restaurar padrões" (Geral)
+    # v1.69: "Restore defaults" (General)
     const-string v0, "mr_reset"
 
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinIMESettings;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
@@ -893,7 +893,7 @@
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setOnPreferenceClickListener(Landroid/preference/Preference$OnPreferenceClickListener;)V
 
-    # cartão do autor: abre o GitHub sem fechar o app se não houver navegador
+    # author card: opens GitHub without closing the app if there is no browser
     const-string v0, "mr_author"
 
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinIMESettings;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
@@ -984,9 +984,9 @@
     .line 92
     invoke-super {p0}, Landroid/preference/PreferenceActivity;->onResume()V
 
-    # v1.67: "Correções rápidas" foi para a tela Sugestões e dicionários (MrPacksActivity),
-    # que esconde a opção sozinha quando o Android não tem autotexto para o idioma.
-    # v1 = 1 vinha do trecho removido e é usado como índice mais abaixo.
+    # v1.67: "Quick corrections" moved to the Suggestions and dictionaries screen (MrPacksActivity),
+    # which hides the option on its own when Android has no autotext for the language.
+    # v1 = 1 came from the removed block and is used as an index further below.
     const/4 v1, 0x1
 
     const-string v0, "LatinIMESettings"

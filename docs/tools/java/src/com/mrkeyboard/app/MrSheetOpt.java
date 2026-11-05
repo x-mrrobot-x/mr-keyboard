@@ -14,9 +14,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 /**
- * Cartão com o interruptor "Voltar à folha principal ao digitar" (v1.69), no alto da página
- * Folhas do teclado. Mesmo visual do cartão do teclado principal ABC. A chave é
- * "pref_sheet_return" (padrão ligado), lida pelo LatinIME.returnToMainSheet.
+ * Card with the "Voltar à folha principal ao digitar" (return to the main sheet when typing) switch (v1.69), at the top of the
+ * keyboard Sheets page. Same look as the main ABC keyboard card. The key is
+ * "pref_sheet_return" (default on), read by LatinIME.returnToMainSheet.
  */
 public final class MrSheetOpt {
     private MrSheetOpt() { }

@@ -4,34 +4,34 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
- * Camada Java de reserva (v1.60): busca aproximada sobre o trie do .dict já carregado pela lib
- * nativa (mesmo ByteBuffer, sem cópia). Cobre o que a lib não faz: letra sobrando, letra faltando,
- * transposição, trocas fonéticas do pt-BR (inclusive 2 letras por 1, como ch/x e ss/ç) e espaço
- * faltando (porisso -> por isso).
+ * Java fallback layer (v1.60): approximate search over the .dict trie already loaded by the native
+ * lib (same ByteBuffer, no copy). Covers what the lib does not: extra letter, missing letter,
+ * transposition, pt-BR phonetic swaps (including 2 letters for 1, like ch/x and ss/ç) and missing
+ * space (porisso -> por isso).
  *
- * Formato lido (o mesmo de dictionary.cpp): grupo = [count] + entradas; entrada = char (1 byte ou
- * 0xFF + 2 bytes), flags/endereço (0x80 terminal, 0x40 com filhos + 22 bits), freq se terminal e,
- * no formato "latest" (byte 0 >= 200 e byte 1 em {0,1}), a lista de bigramas depois da freq.
+ * Format read (the same as dictionary.cpp): group = [count] + entries; entry = char (1 byte or
+ * 0xFF + 2 bytes), flags/address (0x80 terminal, 0x40 with children + 22 bits), freq if terminal and,
+ * in the "latest" format (byte 0 >= 200 and byte 1 in {0,1}), the bigram list after the freq.
  *
- * Busca: distância de edição com pesos (programação dinâmica linha a linha enquanto desce o trie),
- * podando quando o menor custo da linha passa do limite. A 1ª letra do dicionário precisa ser a
- * digitada, uma vizinha, um par fonético, a vogal trocada (e/i, o/u), um h mudo ou a 2ª letra
- * digitada: erros fora disso na 1ª letra são raros e abrir todas as iniciais custa 10 vezes mais.
- * Há um teto de nós visitados por consulta (NODE_BUDGET) para o pior caso.
+ * Search: weighted edit distance (dynamic programming row by row while going down the trie),
+ * pruning when the lowest cost of the row goes over the limit. The 1st letter of the dictionary word must be
+ * the typed one, a neighbour, a phonetic pair, the swapped vowel (e/i, o/u), a silent h or the 2nd typed
+ * letter: errors outside that on the 1st letter are rare and opening all the initials costs 10 times more.
+ * There is a ceiling of nodes visited per query (NODE_BUDGET) for the worst case.
  *
- * Pontuação na mesma escala da lib: freq * 2^(n+1) para acerto exato, e cada 0,25 de custo
- * divide por 2 (é o que a lib faz por tecla vizinha).
+ * Score on the same scale as the lib: freq * 2^(n+1) for an exact hit, and every 0.25 of cost
+ * divides by 2 (which is what the lib does per neighbouring key).
  */
 public final class MrFuzzy {
-    // custos (x100)
+    // costs (x100)
     static final int C_PROX = 25;
-    // v1.66: tecla vizinha pela distância do toque (os vizinhos vêm em ordem de distância do
-    // ProximityKeyDetector): a mais perto custa o mesmo de antes; as mais longe, mais
+    // v1.66: neighbouring key by touch distance (the neighbours come in order of distance from the
+    // ProximityKeyDetector): the closest costs the same as before; the farther ones, more
     static final int C_PROX_1 = 25;
     static final int C_PROX_2 = 30;
     static final int C_PROX_FAR = 35;
-    // v1.66: a 1ª letra da palavra não foi digitada ("lso" -> also, "ersonas" -> personas)
-    // v1.75: 35 -> 30 (o piso do custo de mudar o tamanho; a faixa da busca depende dele, veja setMaxCost)
+    // v1.66: the 1st letter of the word was not typed ("lso" -> also, "ersonas" -> personas)
+    // v1.75: 35 -> 30 (the floor of the cost of changing the length; the search band depends on it, see setMaxCost)
     static final int C_DEL_FIRST = 30;
     static final int C_PHON = 25;
     static final int C_VOWEL = 45;
@@ -40,13 +40,13 @@ public final class MrFuzzy {
     static final int C_INS_DOUBLE = 30;
     static final int C_INS_H = 40;
     static final int C_INS_NEAR = 45;
-    // v1.75: letra do dicionário que não foi digitada ("coo" -> como): 60 -> 40. Com 60 a troca por tecla
-    // vizinha (25) sempre ganhava da letra que falta, mesmo com a palavra certa muito mais comum. Medido no PC
-    // (14 mil erros por idioma): letra do meio que falta, nas 2 posições, pt 67% -> 87%, en 69% -> 78%,
-    // es 58% -> 80%; digitar certo (palavra entre as 3 primeiras depois de 2 a 5 letras) igual ou melhor.
+    // v1.75: dictionary letter that was not typed ("coo" -> como): 60 -> 40. With 60 the swap for a neighbouring
+    // key (25) always beat the missing letter, even with the right word being much more common. Measured on the PC
+    // (14 thousand errors per language): missing middle letter, at the 2 positions, pt 67% -> 87%, en 69% -> 78%,
+    // es 58% -> 80%; typing correctly (word among the first 3 after 2 to 5 letters) equal or better.
     static final int C_DEL = 40;
     static final int C_DEL_DOUBLE = 30;
-    // letras mudas: custo vem do rules.txt ([silent]; padrão MrRules.DEFAULT_SILENT_START e DEFAULT_SILENT)
+    // silent letters: the cost comes from rules.txt ([silent]; default MrRules.DEFAULT_SILENT_START and DEFAULT_SILENT)
     static final int C_TRANS = 40;
     static final int C_MULTI = 35;
     static final int C_SPLIT = 35;
@@ -69,7 +69,7 @@ public final class MrFuzzy {
     }
 
     private static MrFuzzy sCache;
-    /** Nós visitados na última consulta (testes). */
+    /** Nodes visited in the last query (tests). */
     static int sLastVisits;
 
     private final ByteBuffer mDict;
@@ -77,7 +77,7 @@ public final class MrFuzzy {
     private final int mRoot;
     private final boolean mLatest;
 
-    // estado da consulta
+    // query state
     private int mN;
     private final char[] mTb = new char[MAX_TYPED];
     private final char[][] mNear = new char[MAX_TYPED][16];
@@ -85,10 +85,10 @@ public final class MrFuzzy {
     private final short[][] mSub = new short[MAX_TYPED][256];
     private final int[] mIns = new int[MAX_TYPED];
     private final boolean[] mFirst = new boolean[256];
-    /** Grupos do rules.txt: em j, as 2 letras digitadas (j-2, j-1) podem valer esta do dicionário. */
+    /** Groups from rules.txt: at j, the 2 typed letters (j-2, j-1) may stand for this dictionary one. */
     private final char[] mTwoD1 = new char[MAX_TYPED + 1];
     private final char[] mTwoD2 = new char[MAX_TYPED + 1];
-    /** Regras do idioma desta consulta (do pacote; vazias sem pacote). */
+    /** Language rules of this query (from the pack; empty without a pack). */
     private MrRules mR = MrRules.EMPTY;
     private final int[][] mRows = new int[MAX_TYPED + MAX_EXTRA_DEPTH + 2][MAX_TYPED + 1];
     private final char[] mPath = new char[MAX_WORD + 2];
@@ -96,26 +96,26 @@ public final class MrFuzzy {
     private int mBand;
     private int mVisits;
     static final int INF = 1 << 20;
-    /** Na raiz: 1 = só a inicial digitada, 2 = só as outras iniciais aceitas, 0 = todas. */
+    /** At the root: 1 = only the typed initial, 2 = only the other accepted initials, 0 = all. */
     private int mOnlyTyped;
 
-    // melhores resultados
+    // best results
     private final char[][] mResWord = new char[MAX_RESULTS][MAX_WORD * 2 + 2];
     private final int[] mResLen = new int[MAX_RESULTS];
     private final long[] mResScore = new long[MAX_RESULTS];
     private final int[] mResCost = new int[MAX_RESULTS];
     private int mResCount;
 
-    // v1.77: buffers do caminho nativo (MrNative); a lib escreve aqui e o resultado é copiado para mRes*
+    // v1.77: buffers of the native path (MrNative); the lib writes here and the result is copied to mRes*
     private final char[] mNearFlat = new char[MAX_TYPED * 16];
     private final char[] mOutWords = new char[MAX_RESULTS * MrNative.RESULT_CHARS];
     private final int[] mOutInfo = new int[MrNative.INFO_SIZE];
     private final long[] mOutScores = new long[MAX_RESULTS];
 
-    /** Correção barata da última consulta, para reservar um espaço na faixa (finish). */
+    /** Cheap correction of the last query, to reserve a slot in the band (finish). */
     static final int RESERVE_MAX_COST = 45;
 
-    /** v1.66: vizinhos de cada toque da última palavra, em ordem de distância (para finish). */
+    /** v1.66: neighbours of each touch of the last word, in order of distance (for finish). */
     private static String sTouchTyped;
     private static final char[][] sTouchNear = new char[MAX_TYPED][12];
     private static final int[] sTouchCount = new int[MAX_TYPED];
@@ -145,11 +145,11 @@ public final class MrFuzzy {
         return f;
     }
 
-    // ------------------------------------------------------------------ ponto de entrada (Suggest)
+    // ------------------------------------------------------------------ entry point (Suggest)
 
     /**
-     * Chamado por Suggest.getSuggestions depois do dicionário principal. Acrescenta a correção do
-     * mapa (MrFix) e, se a palavra digitada não for válida, os candidatos da busca aproximada.
+     * Called by Suggest.getSuggestions after the main dictionary. Adds the correction from the
+     * map (MrFix) and, if the typed word is not valid, the candidates from the approximate search.
      */
     public static void afterWords(Suggest suggest, WordComposer composer) {
         try {
@@ -158,7 +158,7 @@ public final class MrFuzzy {
             if (suggest == null || composer == null) return;
             int n = composer.size();
             if (n < 2 || n > MAX_TYPED) return;
-            // v1.75: palavras digitadas há pouco nesta conversa que começam pelo que foi digitado
+            // v1.75: words typed recently in this conversation that start with what was typed
             MrRecent.complete(suggest, composer);
             CharSequence typed = composer.getTypedWord();
             if (typed == null) return;
@@ -183,11 +183,11 @@ public final class MrFuzzy {
                         ? f.resultWord(0) : null;
             }
         } catch (RuntimeException e) {
-            // nunca derrubar a digitação por causa da camada de reserva
+            // never break typing because of the fallback layer
         }
     }
 
-    /** Guarda os vizinhos de cada toque (codes[1..], já em ordem de distância do toque). */
+    /** Keeps the neighbours of each touch (codes[1..], already in order of distance from the touch). */
     private static void rememberTouches(WordComposer composer, CharSequence typed, int n) {
         sTouchTyped = null;
         for (int j = 0; j < n; j++) {
@@ -206,17 +206,17 @@ public final class MrFuzzy {
         sTouchTyped = typed.toString();
     }
 
-    // ------------------------------------------------------------------ fim da lista (Suggest)
+    // ------------------------------------------------------------------ end of the list (Suggest)
 
     /**
-     * Chamado no fim de Suggest.getSuggestions com a lista final (0 = digitada) e mHaveCorrection.
-     * 1) Se a busca achou uma correção barata (troca de lugar, letra dobrada, fonética, vizinha) que
-     *    os complementos da lib empurraram para fora das 3 posições visíveis, ela volta para a 3ª
-     *    ("prota" mostra porta mesmo com protagonista na frente).
-     * 2) Autocorreção mais cuidadosa: só troca sozinha pela 2ª entrada se ela for do mapa MrFix
-     *    ou estiver a até 1 erro (palavras de até 5 letras) ou 2 erros (maiores) da digitada,
-     *    sem contar acento e caixa, e nunca por sugestão com espaço fora do mapa. Devolve o novo
-     *    valor de mHaveCorrection.
+     * Called at the end of Suggest.getSuggestions with the final list (0 = typed) and mHaveCorrection.
+     * 1) If the search found a cheap correction (swap, doubled letter, phonetic, neighbour) that
+     *    the lib's completions pushed out of the 3 visible positions, it comes back to the 3rd
+     *    ("prota" shows porta even with protagonista in front).
+     * 2) More careful autocorrection: it only replaces by the 2nd entry on its own if it is from the MrFix map
+     *    or is within 1 error (words of up to 5 letters) or 2 errors (longer ones) of the typed one,
+     *    not counting accent and case, and never for a suggestion with a space outside the map. Returns the new
+     *    value of mHaveCorrection.
      */
     public static boolean finish(java.util.List<CharSequence> list, boolean haveCorrection) {
         String savedTyped = sReserveTyped;
@@ -242,8 +242,8 @@ public final class MrFuzzy {
                     list.add(Math.min(2, list.size()), shown);
                 }
             }
-            // uma letra só (v1.64): Suggest não procura palavras para 1 letra, mas o mapa de
-            // correções pode ter entradas de uma letra ("i" -> I, "u" -> you no inglês)
+            // a single letter (v1.64): Suggest does not look for words for 1 letter, but the map of
+            // corrections may have single-letter entries ("i" -> I, "u" -> you in English)
             if (typed.length() == 1) {
                 String fix = MrFix.lookup(typed);
                 if (fix != null && !fix.equals(typed)) {
@@ -256,22 +256,22 @@ public final class MrFuzzy {
                     return true;
                 }
             }
-            // v1.66: a mesma palavra só com maiúscula ("ds" -> DS, "cade" -> Cade) não fica em 1º
-            // quando a 2ª opção é uma tecla vizinha do toque ("ds" -> de)
+            // v1.66: the same word with only a capital ("ds" -> DS, "cade" -> Cade) does not stay 1st
+            // when the 2nd option is a neighbouring key of the touch ("ds" -> de)
             demoteCaseVariant(list, typed);
-            // v1.66: duas palavras que trocam a mesma letra digitada: na frente a da tecla mais
-            // perto do toque ("feve": deve antes de teve se o dedo caiu mais perto do d)
+            // v1.66: two words that swap the same typed letter: in front goes the one with the key closest
+            // to the touch ("feve": deve before teve if the finger landed closer to the d)
             touchOrder(list, typed);
             if (haveCorrection && list.size() >= 2) {
                 haveCorrection = confident(typed, list.get(1).toString());
             }
         } catch (RuntimeException e) {
-            // lista fica como veio
+            // the list stays as it came
         }
         return haveCorrection;
     }
 
-    /** c é a digitada (sem acento) só com maiúsculas a mais: "DS" para "ds", "Cade" para "cade". */
+    /** c is the typed one (without accent) with only extra capitals: "DS" for "ds", "Cade" for "cade". */
     static boolean isCaseVariant(String c, String typed) {
         if (c.length() != typed.length() || c.equals(typed)) return false;
         if (!typed.equals(typed.toLowerCase())) return false;
@@ -287,7 +287,7 @@ public final class MrFuzzy {
         if (i >= 0 && touchRank(i, b.charAt(i)) >= 0) list.add(1, list.remove(2));
     }
 
-    /** Posição da única letra (sem acento/caixa) em que w difere da digitada, ou -1. */
+    /** Position of the only letter (without accent/case) where w differs from the typed one, or -1. */
     private static int oneSubAt(String typed, String w) {
         if (w.length() != typed.length()) return -1;
         int at = -1;
@@ -323,9 +323,9 @@ public final class MrFuzzy {
         String a = baseString(typed), b = baseString(best);
         int allowed = a.length() <= 5 ? 1 : 2;
         if (distance(a, b, allowed) <= allowed) return true;
-        // v1.66: mesmo tamanho e cada letra trocada é uma das 2 teclas mais perto do toque: vale
-        // meio erro ("logaf" -> ligar, "tragafp" -> tratado). Não vale para nome próprio ou sigla
-        // quando a digitada está em minúsculas.
+        // v1.66: same length and each swapped letter is one of the 2 keys closest to the touch: it counts
+        // as half an error ("logaf" -> ligar, "tragafp" -> tratado). Does not apply to a proper name or acronym
+        // when the typed one is lowercase.
         if (a.length() == b.length() && typed.equals(sTouchTyped)
                 && !(typed.equals(typed.toLowerCase()) && !best.equals(best.toLowerCase()))) {
             int half = 0;
@@ -346,7 +346,7 @@ public final class MrFuzzy {
         return new String(c);
     }
 
-    /** Distância de edição com troca de lugar (Damerau restrita), parando acima de max. */
+    /** Edit distance with swap (restricted Damerau), stopping above max. */
     static int distance(String a, String b, int max) {
         int n = a.length(), m = b.length();
         if (Math.abs(n - m) > max) return max + 1;
@@ -370,7 +370,7 @@ public final class MrFuzzy {
         return p1[m];
     }
 
-    // ------------------------------------------------------------------ busca
+    // ------------------------------------------------------------------ search
 
     int resultCount() { return mResCount; }
     String resultWord(int i) { return new String(mResWord[i], 0, mResLen[i]); }
@@ -396,8 +396,8 @@ public final class MrFuzzy {
             Arrays.fill(mSub[j], (short) -1);
         }
         mR = MrRules.get();
-        // v1.77: com a lib nativa a busca inteira (passadas e espaço faltando) roda em C++ com o mesmo resultado;
-        // sem ela (ou se ela recusar a consulta) segue o código Java abaixo
+        // v1.77: with the native lib the whole search (passes and missing space) runs in C++ with the same result;
+        // without it (or if it refuses the query) the Java code below runs
         if (searchNative()) return;
         for (int j = 0; j < n; j++) mIns[j] = insCost(j);
         for (int j = 2; j <= n; j++) {
@@ -419,25 +419,25 @@ public final class MrFuzzy {
         int[] row0 = mRows[0];
         row0[0] = 0;
         for (int j = 1; j <= n; j++) row0[j] = Math.min(INF, row0[j - 1] + mIns[j - 1]);
-        // 1ª passada: um erro (custo de 1 letra a mais/a menos ou troca); quase todo erro de
-        // digitação é assim e a busca é umas 5 vezes menor. Se a digitada ainda é começo de uma
-        // palavra do dicionário, a pessoa provavelmente está no meio dela e os complementos da lib
-        // já servem: com 4 letras só os erros baratos (letra dobrada, h, troca de lugar, fonética:
-        // asim -> assim, omem -> homem), a partir de 5 a 1ª passada inteira (prota -> porta).
+        // 1st pass: one error (cost of 1 letter more/less or swap); almost every
+        // typing error is like this and the search is about 5 times smaller. If the typed word is still the start of a
+        // dictionary word, the person is probably in the middle of it and the lib's completions
+        // already serve: with 4 letters only the cheap errors (doubled letter, h, swap, phonetic:
+        // asim -> assim, omem -> homem), from 5 the whole 1st pass (prota -> porta).
         boolean prefix = isPrefix();
         if (!prefix || n >= 4) {
             setMaxCost(prefix && n == 4 ? 40 : n <= 3 ? 45 : n == 4 ? 60 : 75);
             walkRoot();
             if (!prefix && mVisits <= NODE_BUDGET) {
-                // v1.66: a 1ª letra ficou de fora; só a letra que faltou e, em palavra longa,
-                // mais um erro barato
+                // v1.66: the 1st letter was left out; only the missing letter and, in a long word,
+                // one more cheap error
                 setMaxCost(C_DEL_FIRST + (n >= 6 ? 30 : 0));
                 mOnlyTyped = 3;
                 walk(mRoot, 0, 0, (char) 0);
                 mOnlyTyped = 0;
             }
             if (mResCount == 0 && !prefix && n >= 6) {
-                // 2ª passada: até dois erros, para palavras mais longas
+                // 2nd pass: up to two errors, for longer words
                 setMaxCost(n <= 7 ? 100 : 120);
                 walkRoot();
             }
@@ -446,7 +446,7 @@ public final class MrFuzzy {
         if (n >= 4) split();
     }
 
-    /** Busca em C++ (MrNative). false = não rodou (sem lib, buffer não direto, erro): use o Java. */
+    /** Search in C++ (MrNative). false = it did not run (no lib, non-direct buffer, error): use Java. */
     private boolean searchNative() {
         int n = mN;
         for (int j = 0; j < n; j++) System.arraycopy(mNear[j], 0, mNearFlat, j * 16, 16);
@@ -469,16 +469,16 @@ public final class MrFuzzy {
     }
 
     /**
-     * Limite de custo e largura da faixa da programação dinâmica: com custo mínimo de 30 para
-     * mudar o tamanho (letra dobrada, h, 2 por 1), a coluna j só pode ficar dentro do limite se
-     * |profundidade - j| <= limite / 30. Fora da faixa a célula vale INF.
+     * Cost limit and width of the dynamic-programming band: with a minimum cost of 30 for
+     * changing the length (doubled letter, h, 2 for 1), column j can only stay within the limit if
+     * |depth - j| <= limit / 30. Outside the band the cell is INF.
      */
     private void setMaxCost(int max) {
         mMaxCost = max;
         mBand = max / 30;
     }
 
-    /** Raiz em duas voltas: primeiro a inicial digitada, depois as outras aceitas. */
+    /** Root in two rounds: first the typed initial, then the other accepted ones. */
     private void walkRoot() {
         mOnlyTyped = 1;
         walk(mRoot, 0, 0, (char) 0);
@@ -488,16 +488,16 @@ public final class MrFuzzy {
         mOnlyTyped = 0;
     }
 
-    /** A digitada (sem acento/caixa) é o começo de alguma palavra do dicionário? */
+    /** Is the typed one (without accent/case) the start of some dictionary word? */
     private boolean isPrefix() {
         mGuard = 0;
         return prefixRec(mRoot, 0);
     }
 
     /**
-     * v1.77.2: teto de nós de isPrefix e do lookup do split (as buscas recursivas que não passam pelo walk). Num dicionário
-     * de verdade elas visitam no máximo algumas centenas de nós (medido: 41 e 379 em 43 mil consultas); num arquivo estragado,
-     * com ponteiros em ciclo e letras repetidas, cresciam exponencialmente e travavam o teclado.
+     * v1.77.2: node ceiling of isPrefix and of the split lookup (the recursive searches that do not go through walk). In a real dictionary
+     * they visit a few hundred nodes at most (measured: 41 and 379 in 43 thousand queries); in a corrupt file,
+     * with cyclic pointers and repeated letters, they used to grow exponentially and freeze the keyboard.
      */
     private int mGuard;
 
@@ -540,7 +540,7 @@ public final class MrFuzzy {
         return false;
     }
 
-    /** Iniciais aceitas para a palavra do dicionário. */
+    /** Initials accepted for the dictionary word. */
     private void firstLetters() {
         Arrays.fill(mFirst, false);
         char t = mTb[0];
@@ -551,10 +551,10 @@ public final class MrFuzzy {
         }
         MrRules r = mR;
         for (char c = 0; c < 256; c++) {
-            // letras parecidas e vogais trocadas; letras mudas no começo ("omem" -> homem)
+            // similar letters and swapped vowels; silent letters at the start ("omem" -> homem)
             if (r.pair(c, t) != 0 || r.silentStart[c] > 0) mFirst[c] = true;
         }
-        // grupos: "ch" digitado pode ser "x" no dicionário; "x" digitado pode ser "ch"
+        // groups: typed "ch" may be "x" in the dictionary; typed "x" may be "ch"
         if (mN > 1) {
             for (int k = 0; k < r.t2a.length; k++) {
                 if (r.t2a[k] == t && r.t2b[k] == mTb[1]) {
@@ -628,7 +628,7 @@ public final class MrFuzzy {
             char raw = (char) c;
             char rl = c < 256 ? LOWER[c] : Character.toLowerCase(raw);
             int del = delCost(cb, pcb, depth);
-            // o dicionário tem 2 letras (pai + esta) para 1 digitada? (grupos: x = ch, c = sc...)
+            // does the dictionary have 2 letters (parent + this one) for 1 typed? (groups: x = ch, c = sc...)
             int d1 = -1, d2 = -1;
             if (prev2 != null && mR.d2p.length > 0) {
                 char p = parentRaw < 256 ? LOWER[parentRaw] : Character.toLowerCase(parentRaw);
@@ -660,7 +660,7 @@ public final class MrFuzzy {
             boolean onlyDel = depth == 0 && mOnlyTyped == 3;
             for (int j = lo; j <= hi; j++) {
                 int tj1 = mTb[j - 1];
-                // na passada da 1ª letra que faltou, a raiz só pode ser letra que falta
+                // in the pass for the 1st missing letter, the root can only be a missing letter
                 int best = onlyDel ? INF : prev[j - 1] + sub(j - 1, cb);
                 int v = cur[j - 1] + mIns[j - 1];
                 if (v < best) best = v;
@@ -692,7 +692,7 @@ public final class MrFuzzy {
                     && depth + 2 < mRows.length && depth + 1 < MAX_WORD) {
                 walk(child, depth + 1, cb, raw);
                 if (mVisits > NODE_BUDGET) return;
-                // a recursão sobrescreveu mRows[depth + 2..]; mRows[depth + 1] é desta entrada
+                // the recursion overwrote mRows[depth + 2..]; mRows[depth + 1] is for this entry
                 prev = mRows[depth];
                 prev2 = depth > 0 ? mRows[depth - 1] : null;
             }
@@ -721,7 +721,7 @@ public final class MrFuzzy {
         return false;
     }
 
-    /** Posição de cb entre os vizinhos do toque j (0 = o mais perto), ou -1. */
+    /** Position of cb among the neighbours of touch j (0 = the closest), or -1. */
     private int nearRank(int j, char cb) {
         char[] near = mNear[j];
         int cnt = mNearCount[j];
@@ -742,7 +742,7 @@ public final class MrFuzzy {
         return C_SUB;
     }
 
-    /** Letra digitada a mais na posição j. */
+    /** Typed letter in excess at position j. */
     private int insCost(int j) {
         char t = mTb[j];
         if (j > 0 && mTb[j - 1] == t) return C_INS_DOUBLE;
@@ -752,7 +752,7 @@ public final class MrFuzzy {
         return C_INS;
     }
 
-    /** Letra do dicionário que não foi digitada. */
+    /** Dictionary letter that was not typed. */
     private int delCost(int cb, int pcb, int depth) {
         MrRules r = mR;
         if (depth == 0 && mOnlyTyped == 3) {
@@ -784,7 +784,7 @@ public final class MrFuzzy {
     }
 
     private void insert(char[] word, int off, int len, long score, int cost) {
-        // repetida? fica a de maior pontuação
+        // repeated? keep the one with the highest score
         for (int i = 0; i < mResCount; i++) {
             if (mResLen[i] == len && same(mResWord[i], word, off, len)) {
                 if (score <= mResScore[i]) return;
@@ -836,7 +836,7 @@ public final class MrFuzzy {
         }
     }
 
-    // ------------------------------------------------------------------ espaço faltando
+    // ------------------------------------------------------------------ missing space
 
     private final char[] mSplitBuf = new char[MAX_WORD * 2 + 2];
     private final char[] mLeftBuf = new char[MAX_WORD + 1];
@@ -874,7 +874,7 @@ public final class MrFuzzy {
         return b < 256 && mR.oneLetter[b];
     }
 
-    /** Procura mTb[from..to) no trie sem considerar acento; guarda em mLookBuf a grafia mais frequente. */
+    /** Looks up mTb[from..to) in the trie ignoring accents; keeps the most frequent spelling in mLookBuf. */
     private int lookup(int from, int to) {
         mLookFreq = 0;
         mLookLen = 0;

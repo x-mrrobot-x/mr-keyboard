@@ -441,7 +441,7 @@
     return-object v0
 .end method
 
-# Atualiza so o visual das abas (fundo apenas na ativa) e mantem a aba ativa visivel.
+# Updates only the look of the tabs (background only on the active one) and keeps the active tab visible.
 .method static highlight(I)V
     .locals 8
 
@@ -542,7 +542,7 @@
     return-void
 .end method
 
-# Clique na aba: destaca e rola com animacao curta ate a categoria.
+# Tab click: highlights and scrolls with a short animation to the category.
 .method static select(I)V
     .locals 4
 
@@ -570,9 +570,9 @@
     return-void
 .end method
 
-# Chamado ao tocar em um emoji: reconstroi a lista (recentes atualizados) mas
-# MANTEM a posicao do scroll. Antes era usado refresh(), que voltava para o topo
-# (categoria Recentes) e atrapalhava quem queria tocar em outro emoji proximo.
+# Called when an emoji is tapped: rebuilds the list (recents updated) but
+# KEEPS the scroll position. Before, refresh() was used, which went back to the top
+# (Recents category) and bothered whoever wanted to tap another nearby emoji.
 .method static refreshKeepScroll()V
     .locals 5
 
@@ -591,7 +591,7 @@
 
     if-eqz v1, :cond_rks_build
 
-    # guarda a linha visivel no topo e o deslocamento dela (scroll fino)
+    # keeps the line visible at the top and its offset (fine scroll)
     invoke-virtual {v1}, Landroid/widget/AbsListView;->getFirstVisiblePosition()I
 
     move-result v3
@@ -629,7 +629,7 @@
     return-void
 .end method
 
-# Chamado ao reabrir o painel: reconstroi a lista com os recentes atualizados.
+# Called when the panel reopens: rebuilds the list with the recents updated.
 .method static refresh()V
     .locals 2
 
@@ -752,7 +752,7 @@
 
     if-eqz v7, :cond_tab_bg_def
 
-    # Midnight Steel: fundo da categoria selecionada (highlight) na cor de destaque do tema
+    # Midnight Steel: background of the selected category (highlight) in the theme's accent color
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->selBg()Landroid/graphics/drawable/Drawable;
 
     move-result-object v7
@@ -820,7 +820,7 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrEmotes;->addRecent(Ljava/lang/String;)V
 
-    # atualiza os recentes SEM rolar a lista para o topo
+    # updates the recents WITHOUT scrolling the list to the top
     invoke-static {}, Lcom/mrkeyboard/app/MrEmotes;->refreshKeepScroll()V
 
     :cond_end
@@ -906,7 +906,7 @@
     return v0
 .end method
 
-# A aba ativa acompanha a rolagem do usuario (ignorado durante a animacao do clique).
+# The active tab follows the user's scrolling (ignored during the click animation).
 .method public onScroll(Landroid/widget/AbsListView;III)V
     .locals 3
 

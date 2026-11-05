@@ -1,8 +1,8 @@
 package com.mrkeyboard.app;
 
-/** Stub de compilação e de teste de PC. */
+/** Compile and PC test stub. */
 public class KeyboardSwitcher {
-    /** Só para os testes. */
+    /** Tests only. */
     public LatinKeyboardView view;
 
     public LatinKeyboardView getInputView() { return view; }

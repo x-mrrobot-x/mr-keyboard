@@ -35,26 +35,26 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * Pacotes de dicionário baixáveis (v1.63).
+ * Downloadable dictionary packs (v1.63).
  *
- * Privacidade: só se conecta quando o usuário pede (procurar atualizações, baixar, atualizar), só
- * por HTTPS e só para baixar arquivos; não manda nada do que foi digitado, nem o modelo do aparelho
+ * Privacy: it only connects when the user asks (check for updates, download, update), only
+ * over HTTPS and only to download files; it does not send anything that was typed, nor the device model
  * (User-Agent fixo).
  *
- * Segurança: o catálogo vem assinado com a chave do APK e só é aceito se a assinatura conferir com
- * o certificado com que este app foi instalado; a série do catálogo não pode voltar. O zip do pacote
- * e cada arquivo dentro dele precisam ter o tamanho e o SHA-256 do catálogo; só os nomes listados
- * são extraídos. O pacote novo só entra no lugar do anterior depois de conferido.
+ * Security: the catalog comes signed with the APK key and is only accepted if the signature matches
+ * the certificate this app was installed with; the catalog series cannot go back. The pack zip
+ * and each file inside it must have the size and SHA-256 from the catalog; only the listed names
+ * are extracted. The new pack only replaces the previous one after being checked.
  *
- * Arquivos: files/dicts/&lt;id&gt;/&lt;versão&gt;/ (main.dict, trigrams.bin, rules.txt, NOTICE.txt, pack.json).
- * Estado em SharedPreferences "mr_packs". O teclado recarrega quando "mr_dicts_updated_at" muda nas
- * preferências padrão (LatinIME.onSharedPreferenceChanged).
+ * Files: files/dicts/&lt;id&gt;/&lt;version&gt;/ (main.dict, trigrams.bin, rules.txt, NOTICE.txt, pack.json).
+ * State in SharedPreferences "mr_packs". The keyboard reloads when "mr_dicts_updated_at" changes in the
+ * default preferences (LatinIME.onSharedPreferenceChanged).
  */
 public final class MrPacks {
     private MrPacks() { }
 
     static final String CATALOG_URL =
-            "https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalog.json"; // v1.73: na release do APK
+            "https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalog.json"; // v1.73: in the APK release
     static final String SIG_PREFIX = "mr-keyboard/catalog/v1\n";
     static final int CATALOG_FORMAT = 1;
     static final int PACK_FORMAT = 1;
@@ -73,9 +73,9 @@ public final class MrPacks {
     static final long MAX_PACK = 64L << 20;
     static final int DICT_TYPE = 1;
 
-    // ------------------------------------------------------------------ erros
+    // ------------------------------------------------------------------ errors
 
-    /** Erro para mostrar ao usuário: nome do texto em res/values (mr_dicts_err_*) e argumentos. */
+    /** Error to show to the user: name of the text in res/values (mr_dicts_err_*) and arguments. */
     static final class PackException extends Exception {
         final String key;
         final Object[] args;
@@ -87,7 +87,7 @@ public final class MrPacks {
         }
     }
 
-    // ------------------------------------------------------------------ catálogo
+    // ------------------------------------------------------------------ catalog
 
     static final class Pack {
         String id, lang, region, url, sha256, licenses, credits, manifestSha;
@@ -130,8 +130,8 @@ public final class MrPacks {
     }
 
     /**
-     * Confere e lê o catálogo (envelope JSON com a assinatura). certs: os certificados deste app.
-     * minSerial: a maior série já vista (o catálogo não pode ser mais velho).
+     * Checks and reads the catalog (JSON envelope with the signature). certs: this app's certificates.
+     * minSerial: the highest series already seen (the catalog cannot be older).
      */
     static Catalog parseCatalog(byte[] envelope, X509Certificate[] certs, long minSerial) throws PackException {
         Map<String, Object> env;
@@ -174,7 +174,7 @@ public final class MrPacks {
                         break;
                     }
                 } catch (Exception ignored) {
-                    // chave de outro tipo: tenta o próximo certificado
+                    // key of another type: try the next certificate
                 }
             }
         }
@@ -190,7 +190,7 @@ public final class MrPacks {
         return cat;
     }
 
-    /** Lê os dados do catálogo (já conferidos). */
+    /** Reads the catalog data (already checked). */
     static Catalog readData(String data) throws PackException {
         try {
             Map<String, Object> d = MrJson.obj(MrJson.parse(data));
@@ -235,7 +235,7 @@ public final class MrPacks {
         p.size = MrJson.num(m, "size");
         p.installedSize = MrJson.num(m, "installedSize");
         if (p.version < 1 || p.size <= 0 || p.size > MAX_PACK || p.installedSize <= 0 || p.installedSize > MAX_PACK) {
-            throw new IllegalArgumentException("tamanho");
+            throw new IllegalArgumentException("size");
         }
         p.sha256 = hexField(m, "sha256");
         p.manifestSha = hexField(m, "manifestSha256");
@@ -250,14 +250,14 @@ public final class MrPacks {
         for (int i = 0; i < n; i++) {
             Map<String, Object> f = MrJson.obj(files.get(i));
             String fn = MrJson.str(f, "name");
-            if (!safeName(fn) || fn.equals(MANIFEST) || !seen.add(fn)) throw new IllegalArgumentException("nome");
+            if (!safeName(fn) || fn.equals(MANIFEST) || !seen.add(fn)) throw new IllegalArgumentException("name");
             p.fileNames[i] = fn;
             p.fileSizes[i] = MrJson.num(f, "size");
-            if (p.fileSizes[i] <= 0 || p.fileSizes[i] > MAX_PACK) throw new IllegalArgumentException("tamanho");
+            if (p.fileSizes[i] <= 0 || p.fileSizes[i] > MAX_PACK) throw new IllegalArgumentException("size");
             p.fileSha[i] = hexField(f, "sha256");
             if (fn.equals(MAIN)) main = true;
         }
-        if (!main) throw new IllegalArgumentException("sem main.dict");
+        if (!main) throw new IllegalArgumentException("no main.dict");
         Object lic = m.get("licenses");
         StringBuilder b = new StringBuilder();
         if (lic instanceof List) {
@@ -307,7 +307,7 @@ public final class MrPacks {
         return true;
     }
 
-    /** Nome de arquivo sem pasta: letras, números, . _ - (não começa com ponto). */
+    /** File name without a folder: letters, digits, . _ - (does not start with a dot). */
     static boolean safeName(String s) {
         if (s == null || s.length() == 0 || s.length() > 64) return false;
         char c0 = s.charAt(0);
@@ -321,9 +321,9 @@ public final class MrPacks {
         return !s.contains("..");
     }
 
-    // ------------------------------------------------------------------ rede
+    // ------------------------------------------------------------------ network
 
-    /** Abre uma URL para leitura; trocável nos testes. */
+    /** Opens a URL for reading; replaceable in tests. */
     interface Net {
         InputStream open(String url, long[] length) throws IOException;
     }
@@ -337,7 +337,7 @@ public final class MrPacks {
             c.setReadTimeout(30000);
             c.setInstanceFollowRedirects(true);
             c.setUseCaches(false);
-            // fixo, para não mandar o modelo do aparelho (o padrão do Android leva)
+            // fixed, so as not to send the device model (the Android default does)
             c.setRequestProperty("User-Agent", "MrKeyboard");
             c.setRequestProperty("Accept-Encoding", "identity");
             int code = c.getResponseCode();
@@ -364,7 +364,7 @@ public final class MrPacks {
     }
 
     static String sCatalogUrl = CATALOG_URL;
-    /** Certificados para conferir o catálogo nos testes (no aparelho: os do próprio app). */
+    /** Certificates to check the catalog in tests (on the device: the app's own). */
     static X509Certificate[] sTestCerts;
 
     static byte[] fetchBytes(String url, int max) throws PackException {
@@ -389,7 +389,7 @@ public final class MrPacks {
         }
     }
 
-    // ------------------------------------------------------------------ estado guardado
+    // ------------------------------------------------------------------ saved state
 
     static SharedPreferences prefs(Context c) {
         return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
@@ -398,7 +398,7 @@ public final class MrPacks {
     private static String sCachedData;
     private static Catalog sCached;
 
-    /** Último catálogo conferido (sem rede), ou null. */
+    /** Last catalog checked (no network), or null. */
     static synchronized Catalog cachedCatalog(Context c) {
         String data = prefs(c).getString(KEY_CATALOG, null);
         if (data == null) return null;
@@ -416,7 +416,7 @@ public final class MrPacks {
         return prefs(c).getLong(KEY_CHECKED, 0);
     }
 
-    /** Baixa e confere o catálogo; guarda a série e os dados. Rodar fora da thread principal. */
+    /** Downloads and checks the catalog; stores the series and the data. Run off the main thread. */
     static Catalog fetchCatalog(Context c) throws PackException {
         byte[] env = fetchBytes(sCatalogUrl, MAX_CATALOG);
         SharedPreferences p = prefs(c);
@@ -430,7 +430,7 @@ public final class MrPacks {
         return prefs(c).getInt(KEY_INSTALLED + id, 0);
     }
 
-    /** Ids dos pacotes instalados. */
+    /** Ids of the installed packs. */
     static ArrayList<String> installedIds(Context c) {
         ArrayList<String> out = new ArrayList<String>();
         for (String k : prefs(c).getAll().keySet()) {
@@ -443,7 +443,7 @@ public final class MrPacks {
         return out;
     }
 
-    /** Quantos pacotes instalados têm versão mais nova no catálogo e podem ser atualizados por este app. */
+    /** How many installed packs have a newer version in the catalog and can be updated by this app. */
     static int updatesAvailable(Context c, Catalog cat) {
         if (cat == null) return 0;
         int n = 0;
@@ -454,18 +454,18 @@ public final class MrPacks {
         return n;
     }
 
-    // ------------------------------------------------------------------ idiomas do teclado
+    // ------------------------------------------------------------------ keyboard languages
 
-    /** Chave das preferências padrão com os idiomas do teclado, lida pelo LanguageSwitcher. */
+    /** Key in the default preferences with the keyboard languages, read by LanguageSwitcher. */
     static final String LANGS_KEY = "selected_languages";
 
-    /** Idiomas que sempre aparecem como cartões na tela, mesmo sem catálogo (e offline). */
+    /** Languages that always appear as cards on the screen, even without a catalog (and offline). */
     static final String[] DEFAULT_IDS = {"pt-BR", "en-US", "es"};
 
     /**
-     * Ordem dos cartões: o idioma do app primeiro, depois os padrão, os do catálogo e, por último,
-     * os instalados que o catálogo não lista (sem repetir). Só os de mesmo idioma sobem; a ordem
-     * entre os demais não muda.
+     * Order of the cards: the app language first, then the default ones, those from the catalog and, last,
+     * the installed ones that the catalog does not list (no repeats). Only those of the same language move up; the order
+     * among the others does not change.
      */
     static ArrayList<String> cardIds(List<String> catalogIds, List<String> installed, String uiLanguage) {
         ArrayList<String> all = new ArrayList<String>();
@@ -480,8 +480,8 @@ public final class MrPacks {
     }
 
     /**
-     * Valor de "selected_languages" para os pacotes instalados, na ordem dos cartões
-     * ("pt_BR,en_US,"), ou null se não há nenhum (o teclado volta a usar o idioma do aparelho).
+     * Value of "selected_languages" for the installed packs, in the order of the cards
+     * ("pt_BR,en_US,"), or null if there are none (the keyboard goes back to using the device language).
      */
     static String languageKeys(List<String> order, List<String> installed) {
         StringBuilder sb = new StringBuilder();
@@ -490,8 +490,8 @@ public final class MrPacks {
     }
 
     /**
-     * Deixa os idiomas do teclado iguais aos pacotes instalados: baixou o dicionário, o idioma entra
-     * no teclado (a barra de espaço alterna entre eles); removeu, sai. Só grava se mudou.
+     * Makes the keyboard languages equal to the installed packs: downloaded the dictionary, the language enters
+     * the keyboard (the space bar switches between them); removed, it leaves. Only writes if it changed.
      */
     static void syncLanguages(Context c, List<String> order) {
         String keys = languageKeys(order, installedIds(c));
@@ -511,9 +511,9 @@ public final class MrPacks {
         return new File(new File(root(c), id), String.valueOf(version));
     }
 
-    // ------------------------------------------------------------------ download e instalação
+    // ------------------------------------------------------------------ download and install
 
-    /** Download em andamento (um por vez), lido pela tela. */
+    /** Download in progress (one at a time), read by the screen. */
     static volatile String sJobId;
     static volatile int sJobPercent;
     static volatile boolean sJobInstalling;
@@ -532,8 +532,8 @@ public final class MrPacks {
     }
 
     /**
-     * Baixa, confere e instala o pacote (substitui a versão anterior só no fim). Rodar fora da
-     * thread principal.
+     * Downloads, checks and installs the pack (replaces the previous version only at the end). Run off the
+     * main thread.
      */
     static void install(Context c, Catalog cat, Pack p) throws PackException {
         sCancel = false;
@@ -611,7 +611,7 @@ public final class MrPacks {
         }
     }
 
-    /** Extrai só os arquivos do catálogo, conferindo tamanho e SHA-256 de cada um. */
+    /** Extracts only the files in the catalog, checking the size and SHA-256 of each. */
     private static void extract(File zip, File dir, Pack p) throws PackException {
         if (!dir.mkdirs() && !dir.isDirectory()) throw new PackException("mr_dicts_err_io", "mkdir");
         HashSet<String> seen = new HashSet<String>();
@@ -664,7 +664,7 @@ public final class MrPacks {
         }
     }
 
-    /** Confere o conteúdo antes de usar: cabeçalho do dicionário, das duas palavras e as regras. */
+    /** Checks the content before using it: dictionary header, the two words and the rules. */
     static void checkFiles(File dir) throws PackException {
         File main = new File(dir, MAIN);
         if (!dictHeaderOk(main)) throw new PackException("mr_dicts_err_corrupt", MAIN);
@@ -715,22 +715,22 @@ public final class MrPacks {
         }
     }
 
-    /** Remove o pacote. As palavras aprendidas pelo teclado não mudam. */
+    /** Removes the pack. The words learned by the keyboard do not change. */
     static void remove(Context c, String id) {
         prefs(c).edit().remove(KEY_INSTALLED + id).commit();
         deleteTree(new File(root(c), id));
         signal(c);
     }
 
-    /** Avisa o teclado (LatinIME.onSharedPreferenceChanged) para recarregar o dicionário. */
+    /** Tells the keyboard (LatinIME.onSharedPreferenceChanged) to reload the dictionary. */
     static void signal(Context c) {
         PreferenceManager.getDefaultSharedPreferences(c).edit()
                 .putLong(SIGNAL_KEY, System.currentTimeMillis()).apply();
     }
 
-    // ------------------------------------------------------------------ uso pelo teclado
+    // ------------------------------------------------------------------ use by the keyboard
 
-    /** Idioma (minúsculas) e região (maiúsculas) de "pt_BR", "pt-br", "pt". */
+    /** Language (lowercase) and region (uppercase) of "pt_BR", "pt-br", "pt". */
     static String[] splitLocale(String locale) {
         if (locale == null) return new String[] {"", ""};
         String s = locale.trim();
@@ -744,7 +744,7 @@ public final class MrPacks {
         return new String[] {lang, region};
     }
 
-    /** Pasta do pacote instalado para o idioma (a mesma região primeiro), ou null. */
+    /** Folder of the pack installed for the language (the same region first), or null. */
     static File installedFor(Context c, String locale) {
         String[] lr = splitLocale(locale);
         if (lr[0].length() == 0) return null;
@@ -759,7 +759,7 @@ public final class MrPacks {
         return new File(dir, MAIN).isFile() ? dir : null;
     }
 
-    /** Dicionário do pacote, mapeado do arquivo (o sistema só carrega o que for lido), ou null. */
+    /** Dictionary of the pack, mapped from the file (the system only loads what is read), or null. */
     static BinaryDictionary openDictionary(Context c, String locale) {
         try {
             if (c == null) return null;
@@ -791,9 +791,9 @@ public final class MrPacks {
     private static volatile String sLastLang;
 
     /**
-     * Dicionário principal do idioma, chamado por Suggest quando não há dicionário embutido.
-     * Ativa as regras e as duas palavras do mesmo pacote. Sem pacote, cai nos dicionários de apps
-     * externos (PluginManager), como antes.
+     * Main dictionary of the language, called by Suggest when there is no built-in dictionary.
+     * Enables the rules and the two words of the same pack. Without a pack, it falls back to the dictionaries of
+     * external apps (PluginManager), as before.
      */
     public static BinaryDictionary mainDictionary(Context c, String locale) {
         sLastLang = splitLocale(locale)[0];
@@ -839,15 +839,15 @@ public final class MrPacks {
         MrTrigram.use(tri.isFile() ? tri : null);
     }
 
-    // ------------------------------------------------------------------ item "Baixar dicionário"
+    // ------------------------------------------------------------------ "Download dictionary" item
 
     private static String sOffer;
     private static String sOfferLabel;
     private static long sOfferAt;
 
     /**
-     * Item único da faixa quando falta o dicionário do idioma (MrPredict.list), ou null se o
-     * catálogo já visto não tem pacote para esse idioma.
+     * Single item of the strip when the language dictionary is missing (MrPredict.list), or null if the
+     * catalog already seen has no pack for that language.
      */
     static List<CharSequence> offerList(Context c) {
         try {
@@ -878,7 +878,7 @@ public final class MrPacks {
         }
     }
 
-    /** Chamado no início de LatinIME.pickSuggestionManually: true se era o item (abre a tela). */
+    /** Called at the start of LatinIME.pickSuggestionManually: true if it was the item (opens the screen). */
     public static boolean onPick(Context c, CharSequence picked) {
         if (picked == null || picked != sOffer) return false;
         try {
@@ -886,7 +886,7 @@ public final class MrPacks {
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             c.startActivity(i);
         } catch (RuntimeException e) {
-            // sem a tela, só não digita o texto do item
+            // without the screen, it just does not type the item text
         }
         return true;
     }
@@ -902,7 +902,7 @@ public final class MrPacks {
         }
     }
 
-    // ------------------------------------------------------------------ certificados do app
+    // ------------------------------------------------------------------ app certificates
 
     static X509Certificate[] certs(Context c) throws PackException {
         if (sTestCerts != null) return sTestCerts;
@@ -928,7 +928,7 @@ public final class MrPacks {
         }
     }
 
-    /** Separado para o Android 8 nunca carregar SigningInfo (API 28). */
+    /** Separate so that Android 8 never loads SigningInfo (API 28). */
     static final class Api28 {
         private Api28() { }
 
@@ -947,7 +947,7 @@ public final class MrPacks {
         }
     }
 
-    // ------------------------------------------------------------------ utilidades
+    // ------------------------------------------------------------------ utilities
 
     static String sizeText(long bytes) {
         double mb = bytes / 1000000.0;
@@ -982,7 +982,7 @@ public final class MrPacks {
         try {
             c.close();
         } catch (IOException ignored) {
-            // nada a fazer
+            // nothing to do
         }
     }
 }

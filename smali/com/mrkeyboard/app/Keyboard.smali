@@ -1655,8 +1655,8 @@
     .line 1224
     invoke-direct {v7, v8, v0}, Lcom/mrkeyboard/app/Keyboard;->parseKeyboardAttributes(Landroid/content/res/Resources;Landroid/content/res/XmlResourceParser;)V
 
-    # Tira o pad fixo das teclas (vertical e horizontal) para o slider
-    # "Espacamento das teclas" controlar sozinho o vao nos eixos X e Y.
+    # Removes the fixed key pad (vertical and horizontal) so the
+    # "Key spacing" slider alone controls the gap on the X and Y axes.
     invoke-direct/range {p0 .. p0}, Lcom/mrkeyboard/app/Keyboard;->zeroPad()V
 
     goto/16 :goto_2

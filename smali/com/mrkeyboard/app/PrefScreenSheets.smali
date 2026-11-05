@@ -4382,7 +4382,7 @@
 
     invoke-virtual {v7, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    # v1.69: "Voltar a folha principal ao digitar" (MrSheetOpt)
+    # v1.69: "Return to main sheet when typing" (MrSheetOpt)
     invoke-static {v0}, Lcom/mrkeyboard/app/MrSheetOpt;->row(Landroid/content/Context;)Landroid/view/View;
 
     move-result-object v4

@@ -7,15 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Previsão da próxima palavra (v1.60, v1.62). Junta:
- *  - as continuações das DUAS palavras anteriores (MrTrigram, quando o contexto existe);
- *  - as continuações da última palavra no dicionário principal (bigramas do .dict);
- *  - as do usuário (UserBigramDictionary, já na escala de MrText.userBigramScore).
- * No começo do texto ou depois de . ! ? mostra as palavras que mais abrem frase (do pacote,
- * [sentence_start] do rules.txt). Sem dicionário do idioma, mostra o item "Baixar dicionário"
- * (MrPacks.offerList), que abre a tela de dicionários.
- * Até 3 previsões; a melhor vai para o centro da faixa. Sem previsão (depois de vírgula, número),
- * LatinIME.setNextSuggestions mostra a pontuação, como antes.
+ * Next-word prediction (v1.60, v1.62). Combines:
+ *  - the continuations of the TWO previous words (MrTrigram, when the context exists);
+ *  - the continuations of the last word in the main dictionary (bigrams of the .dict);
+ *  - the user's (UserBigramDictionary, already on the MrText.userBigramScore scale).
+ * At the start of the text or after . ! ? it shows the words that most often open a sentence (from the pack,
+ * [sentence_start] in rules.txt). Without a dictionary for the language, it shows the "Baixar dicionário" (download dictionary) item
+ * (MrPacks.offerList), which opens the dictionaries screen.
+ * Up to 3 predictions; the best goes to the center of the strip. With no prediction (after a comma, a number),
+ * LatinIME.setNextSuggestions shows the punctuation, as before.
  */
 public final class MrPredict {
     private MrPredict() { }
@@ -24,7 +24,7 @@ public final class MrPredict {
     static final int MAX_BIGRAMS = 60; // BinaryDictionary.MAX_BIGRAMS
     static final int SHOW = 3;
     static final int LOOKBACK = 96;
-    /** Continuação de duas palavras vale mais que a de uma (é o contexto mais específico). */
+    /** A two-word continuation is worth more than a one-word one (it is the more specific context). */
     static final int TRIGRAM_BONUS = 128;
     private static final int MAX_CAND = MAX_BIGRAMS * 4 + 8;
 
@@ -41,11 +41,11 @@ public final class MrPredict {
     private static int sCount;
     private static String sPrev;
 
-    /** Contexto da última previsão, para a 1ª letra da palavra seguinte. */
+    /** Context of the last prediction, for the 1st letter of the next word. */
     private static String sCtx1;
     private static String sCtx2;
 
-    /** Coleta os bigramas do usuário (ExpandableDictionary.getBigrams chama addWord). */
+    /** Collects the user's bigrams (ExpandableDictionary.getBigrams calls addWord). */
     private static final class UserCollector implements Dictionary.WordCallback {
         UserCollector() { }
 
@@ -61,8 +61,8 @@ public final class MrPredict {
     private static final UserCollector sUserCollector = new UserCollector();
 
     /**
-     * Lista para a faixa (ordem: 2ª, 1ª, 3ª; com 2: 2ª, 1ª; com 1: só ela), ou null se não houver
-     * previsão. Nunca lança exceção.
+     * List for the strip (order: 2nd, 1st, 3rd; with 2: 2nd, 1st; with 1: only it), or null if there is no
+     * prediction. Never throws an exception.
      */
     public static List<CharSequence> list(Context context, Suggest suggest, InputConnection ic) {
         try {
@@ -72,10 +72,10 @@ public final class MrPredict {
             if (MrText.atSentenceStart(before)) {
                 sCtx1 = null;
                 sCtx2 = null;
-                MrRecent.breakPair();   // v1.75: a frase nova não forma par com a anterior
+                MrRecent.breakPair();   // v1.75: the new sentence does not form a pair with the previous one
                 String[] starters = MrRules.get().starters;
                 if (starters.length == 0) return null;
-                // rules.txt lista da mais provável para a menos; na faixa: 2ª, 1ª (centro), 3ª
+                // rules.txt lists from the most to the least likely; on the strip: 2nd, 1st (center), 3rd
                 ArrayList<CharSequence> out = new ArrayList<CharSequence>(SHOW);
                 if (starters.length >= 2) out.add(starters[1]);
                 out.add(starters[0]);
@@ -94,12 +94,12 @@ public final class MrPredict {
         }
     }
 
-    /** As previsões para a palavra anterior (sem contexto de duas palavras). */
+    /** The predictions for the previous word (without a two-word context). */
     static List<CharSequence> forWord(Suggest suggest, String prev) {
         return forWords(suggest, null, prev);
     }
 
-    /** As previsões para (penúltima, última), já na ordem da faixa. */
+    /** The predictions for (second to last, last), already in the strip order. */
     static synchronized List<CharSequence> forWords(Suggest suggest, String prev2, String prev) {
         sCount = 0;
         sPrev = prev;
@@ -122,8 +122,8 @@ public final class MrPredict {
             user.getBigrams(null, prev, sUserCollector, null);
             if (hasLower) user.getBigrams(null, lower, sUserCollector, null);
         }
-        // v1.75: o que foi escrito há pouco nesta conversa: pares recentes entram como candidatos e quem já é
-        // candidato e foi digitado há pouco sobe
+        // v1.75: what was written a moment ago in this conversation: recent pairs enter as candidates and whoever is already
+        // a candidate and was typed a moment ago goes up
         String[] after = MrRecent.nextAfter(prev, 2);
         for (int i = 0; i < after.length; i++) add(after[i], 0, MrRecent.PAIR_SCORE - 5 * i);
         for (int i = 0; i < sCount; i++) {
@@ -150,15 +150,15 @@ public final class MrPredict {
     }
 
     /**
-     * Suggest, 1ª letra: acrescenta as continuações de duas palavras que começam pela letra
-     * digitada (como bigramas de prioridade alta). Só vale se a palavra anterior é a mesma da última
-     * previsão (o contexto foi lido do texto naquele momento).
+     * Suggest, 1st letter: adds the two-word continuations that start with the typed
+     * letter (as high-priority bigrams). Only counts if the previous word is the same as in the last
+     * prediction (the context was read from the text at that moment).
      */
     public static void firstLetter(Suggest suggest, WordComposer composer, CharSequence prev) {
         try {
             String c1 = sCtx1, c2 = sCtx2;
             if (suggest == null || composer == null) return;
-            // v1.75: palavras recentes que começam pela letra digitada
+            // v1.75: recent words that start with the typed letter
             MrRecent.complete(suggest, composer);
             if (prev == null || c1 == null || c2 == null) return;
             if (composer.size() != 1 || !c2.equalsIgnoreCase(prev.toString())) return;
@@ -175,7 +175,7 @@ public final class MrPredict {
                 suggest.addWord(c, 0, c.length, 127, 1, Dictionary.DataType.BIGRAM);
             }
         } catch (RuntimeException e) {
-            // a 1ª letra continua com os bigramas
+            // the 1st letter goes on with the bigrams
         }
     }
 

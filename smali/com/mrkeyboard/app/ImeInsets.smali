@@ -82,11 +82,11 @@
     .line 29
     invoke-virtual {p0, v0}, Landroid/view/View;->setOnApplyWindowInsetsListener(Landroid/view/View$OnApplyWindowInsetsListener;)V
 
-    # requestApplyInsets() e ignorado enquanto a view nao tem pai. O LatinIME chama apply()
-    # antes de InputMethodService.setInputView anexar a view ao inputFrame, e o teclado e
-    # recriado por Handler.post (KeyboardSwitcher$1, LatinIME$2) com a janela ja visivel:
-    # sem um novo pedido depois de anexar, a view nova nunca recebe as insets e a ultima
-    # fileira fica atras da barra de navegacao do IME. Pede de novo ao ser anexada.
+    # requestApplyInsets() is ignored while the view has no parent. LatinIME calls apply()
+    # before InputMethodService.setInputView attaches the view to the inputFrame, and the keyboard is
+    # recreated by Handler.post (KeyboardSwitcher$1, LatinIME$2) with the window already visible:
+    # without a new request after attaching, the new view never receives the insets and the last
+    # row ends up behind the IME navigation bar. Requests again when attached.
     invoke-virtual {p0, v0}, Landroid/view/View;->addOnAttachStateChangeListener(Landroid/view/View$OnAttachStateChangeListener;)V
 
     .line 30
@@ -127,8 +127,8 @@
     return-object p2
 .end method
 
-# Anexada (pai ja atribuido): o pedido sobe ate o ViewRootImpl e as insets sao despachadas
-# na proxima travessia, antes de medir e desenhar a view nova.
+# Attached (parent already assigned): the request goes up to the ViewRootImpl and the insets are dispatched
+# on the next traversal, before the new view is measured and drawn.
 .method public onViewAttachedToWindow(Landroid/view/View;)V
     .registers 2
 

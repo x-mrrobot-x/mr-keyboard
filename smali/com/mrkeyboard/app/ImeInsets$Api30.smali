@@ -38,8 +38,8 @@
 
     or-int/2addr v0, v1
 
-    # A barra de navegacao do IME (chevron + seletor de teclado) e entregue
-    # ao teclado como captionBar(), nao como navigationBars().
+    # The IME navigation bar (chevron + keyboard switcher) is delivered
+    # to the keyboard as captionBar(), not as navigationBars().
     invoke-static {}, Landroid/view/WindowInsets$Type;->captionBar()I
 
     move-result v1

@@ -1687,8 +1687,8 @@
     .line 448
     iget v6, v0, Lcom/mrkeyboard/app/ExpandableDictionary$NextWord;->frequency:I
 
-    # Mr Keyboard v1.62: bigrama do usuario aparece depois de 2 usos (frequencia 4; antes 12 = 6
-    # usos) e entra na escala do dicionario (MrText.userBigramScore: 2 usos = 80, 5+ = 127)
+    # Mr Keyboard v1.62: user bigram shows up after 2 uses (frequency 4; before 12 = 6
+    # uses) and enters the dictionary scale (MrText.userBigramScore: 2 uses = 80, 5+ = 127)
     const/4 v0, 0x4
 
     if-lt v6, v0, :cond_0

@@ -4,22 +4,22 @@
 
 .source "MrTheme.java"
 
-# Deteccao unica do tema do teclado. Cada layout de tema traz uma tag no LatinKeyboardView
-# (mr_neon, mr_soft, mr_slate, mr_midnight, mr_glass) e esta classe a converte em flags de
-# capacidade, lidas de mr_theme_tags e mr_theme_flags (res/values/mr_themes.xml). Nenhum outro ponto do codigo deve comparar cor de texto ou tag para saber o tema.
+# Single detection of the keyboard theme. Each theme layout carries a tag on the LatinKeyboardView
+# (mr_neon, mr_soft, mr_slate, mr_midnight, mr_glass) and this class converts it into capability
+# flags, read from mr_theme_tags and mr_theme_flags (res/values/mr_themes.xml). No other place in the code should compare text color or tag to find out the theme.
 #
 # Flags (bits):
-#   INIT              0x01  flags ja calculadas (valor 0 = ainda nao calculado)
-#   FLAT_BAR          0x02  barra de ferramentas e paineis planos (Midnight, Glass)
-#   ACCENT_KEYS       0x04  teclas de destaque pintadas pelo drawable btn_keyboard_key_<tema>_accent (todo tema
-#                           com tag; a view sem tag, como o popup de variantes, nao tem destaque)
-#   ACCENT_WIDE       0x08  grupo de destaque ampliado: alem das teclas da lista fixa, entram toda tecla isModifier,
-#                           as teclas do Tasker (texto "tskcmd:"), 123/TSK, Espaco e Enter (todos os temas ligam;
-#                           desligar tira so esse grupo)
-#   TRANSLUCENT       0x10  tema translucido, com blur de fundo (Glass)
-#   TECH_PALETTE      0x20  paleta escura "tech" com texto #e7eef7 (Slate, Midnight, Glass)
-#   PLAIN_ACCENT_TEXT 0x40  teclas de destaque usam o texto padrao do tema (Slate, Midnight, Glass); sem a flag
-#                           o texto e o icone vem da cor mr_<tema>_accent_text (Neon, Soft)
+#   INIT              0x01  flags already computed (value 0 = not computed yet)
+#   FLAT_BAR          0x02  flat toolbar and panels (Midnight, Glass)
+#   ACCENT_KEYS       0x04  accent keys painted by the drawable btn_keyboard_key_<theme>_accent (every theme
+#                           with a tag; a view without a tag, like the variants popup, has no accent)
+#   ACCENT_WIDE       0x08  extended accent group: besides the keys of the fixed list, every isModifier key,
+#                           the Tasker keys (text "tskcmd:"), 123/TSK, Space and Enter come in (all themes turn it on;
+#                           turning it off removes only this group)
+#   TRANSLUCENT       0x10  translucent theme, with background blur (Glass)
+#   TECH_PALETTE      0x20  dark "tech" palette with text #e7eef7 (Slate, Midnight, Glass)
+#   PLAIN_ACCENT_TEXT 0x40  accent keys use the theme's default text (Slate, Midnight, Glass); without the flag
+#                           the text and icon come from the color mr_<theme>_accent_text (Neon, Soft)
 .field static final INIT:I = 0x1
 
 .field static final FLAT_BAR:I = 0x2
@@ -34,15 +34,15 @@
 
 .field static final PLAIN_ACCENT_TEXT:I = 0x40
 
-# Flags do teclado atual (o mesmo que MrTools.sKbd), para a barra e os paineis.
+# Flags of the current keyboard (same as MrTools.sKbd), for the bar and the panels.
 .field private static sFlags:I
 
-# Tag do layout do teclado atual (mr_glass, mr_midnight...); null quando nao ha teclado.
+# Tag of the current keyboard layout (mr_glass, mr_midnight...); null when there is no keyboard.
 .field private static sTag:Ljava/lang/String;
 
 
-# p0 = contexto, p1 = tag do layout (String ou null). Procura a tag em mr_theme_tags e devolve a flag da mesma posicao
-# em mr_theme_flags. Sempre devolve com o bit INIT ligado; tag desconhecida ou recurso ausente devolve so o INIT.
+# p0 = context, p1 = layout tag (String or null). Looks the tag up in mr_theme_tags and returns the flag at the same position
+# in mr_theme_flags. Always returns with the INIT bit on; an unknown tag or missing resource returns only INIT.
 .method static flags(Landroid/content/Context;Ljava/lang/Object;)I
     .locals 8
 
@@ -122,7 +122,7 @@
     return v0
 .end method
 
-# Guarda flags e tag do teclado que acabou de ser criado (MrTools.wrap). null limpa.
+# Stores the flags and tag of the keyboard that was just created (MrTools.wrap). null clears.
 .method static attach(Landroid/view/View;)V
     .locals 2
 
@@ -179,9 +179,9 @@
     return-void
 .end method
 
-# Cor de um papel (ex.: "panel_btn") lida de colors.xml por nome: primeiro <tag do tema>_<papel>
-# (mr_glass_panel_btn), depois mr_<papel> (mr_panel_btn). Sem a cor, devolve magenta opaco para o erro
-# aparecer na tela em vez de derrubar o teclado.
+# Color of a role (e.g. "panel_btn") read from colors.xml by name: first <theme tag>_<role>
+# (mr_glass_panel_btn), then mr_<role> (mr_panel_btn). Without the color, returns opaque magenta so the error
+# shows up on screen instead of crashing the keyboard.
 .method static color(Ljava/lang/String;)I
     .locals 6
 
@@ -269,7 +269,7 @@
     return v4
 .end method
 
-# Barra de ferramentas e paineis planos (antes MrTools.isMidnight, que ja valia para o Glass).
+# Flat toolbar and panels (formerly MrTools.isMidnight, which already applied to Glass).
 .method static flatBar()Z
     .locals 1
 
@@ -289,7 +289,7 @@
     return v0
 .end method
 
-# Tema translucido com blur de fundo (antes MrTools.isGlass).
+# Translucent theme with background blur (formerly MrTools.isGlass).
 .method static translucent()Z
     .locals 1
 
@@ -309,7 +309,7 @@
     return v0
 .end method
 
-# Paleta escura "tech" (texto #e7eef7): Slate, Midnight e Glass. Antes era comparar sTextColor.
+# Dark "tech" palette (text #e7eef7): Slate, Midnight and Glass. It used to be a sTextColor comparison.
 .method static techPalette()Z
     .locals 1
 

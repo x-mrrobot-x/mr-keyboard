@@ -36,10 +36,10 @@
     return v0
 
     :cond_on
-    # O blur de fundo da janela so e desenhado com aceleracao de hardware. O app declara
-    # hardwareAccelerated=false, e numa janela desenhada por software o BackgroundBlurDrawable derruba o
-    # teclado (drawRenderNode). Janela ja anexada: vale decor.isHardwareAccelerated(); ainda nao
-    # anexada: vale a flag FLAG_HARDWARE_ACCELERATED (0x1000000) dos atributos da janela.
+    # The window background blur is only drawn with hardware acceleration. The app declares
+    # hardwareAccelerated=false, and in a software-drawn window the BackgroundBlurDrawable crashes the
+    # keyboard (drawRenderNode). Window already attached: decor.isHardwareAccelerated() applies; not yet
+    # attached: the FLAG_HARDWARE_ACCELERATED flag (0x1000000) of the window attributes applies.
     invoke-virtual {v1}, Landroid/view/Window;->getDecorView()Landroid/view/View;
 
     move-result-object v2
@@ -96,7 +96,7 @@
     return v0
 
     :cond_blur
-    # Raio do blur: 14dp convertido para px pela densidade da tela.
+    # Blur radius: 14dp converted to px by the screen density.
     invoke-virtual {p0}, Landroid/inputmethodservice/InputMethodService;->getResources()Landroid/content/res/Resources;
 
     move-result-object v2

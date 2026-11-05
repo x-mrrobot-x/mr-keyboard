@@ -2,7 +2,7 @@
 .super Ljava/lang/Object;
 .source "MrSugg.java"
 
-# Fim da espera de MrSugg: depois de DELAY sem sugestoes, a linha mostra as ferramentas.
+# End of MrSugg's wait: after DELAY without suggestions, the row shows the tools.
 
 # interfaces
 .implements Ljava/lang/Runnable;

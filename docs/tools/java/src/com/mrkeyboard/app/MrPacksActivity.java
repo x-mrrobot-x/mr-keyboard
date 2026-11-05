@@ -26,16 +26,16 @@ import java.util.HashMap;
 import java.util.Locale;
 
 /**
- * Tela "Sugestões e dicionários" (v1.63, refeita na 1.67). Uma tela só para os idiomas e as
- * sugestões:
- *  - cartões de idioma (pt-BR, en-US e es sempre, mais o que o catálogo trouxer), cada um com o
- *    estado do dicionário; tocar abre os detalhes (baixar, atualizar, remover). Idioma com
- *    dicionário instalado é idioma do teclado (MrPacks.syncLanguages);
- *  - as opções de sugestões (res/xml/prefs_suggestions.xml, nas preferências padrão);
- *  - a nota de privacidade.
- * Só se conecta quando o usuário toca em "Procurar atualizações", em "Baixar"/"Atualizar" ou em
- * um idioma não instalado quando ainda não há catálogo guardado (para mostrar o tamanho antes de
- * baixar). Usa o mesmo visual das outras telas (tema, cabeçalho de SettingsHeader e UiLocale).
+ * "Sugestões e dicionários" (Suggestions and dictionaries) screen (v1.63, redone in 1.67). A single screen for the languages and the
+ * suggestions:
+ *  - language cards (pt-BR, en-US and es always, plus whatever the catalog brings), each with the
+ *    dictionary state; tapping opens the details (download, update, remove). A language with an
+ *    installed dictionary is a keyboard language (MrPacks.syncLanguages);
+ *  - the suggestion options (res/xml/prefs_suggestions.xml, in the default preferences);
+ *  - the privacy note.
+ * It only connects when the user taps "Procurar atualizações" (check for updates), "Baixar"/"Atualizar" (download/update) or
+ * a language that is not installed when there is no stored catalog yet (to show the size before
+ * downloading). Uses the same look as the other screens (theme, SettingsHeader header and UiLocale).
  */
 public class MrPacksActivity extends PreferenceActivity {
     private final Handler mHandler = new Handler(Looper.getMainLooper());
@@ -47,7 +47,7 @@ public class MrPacksActivity extends PreferenceActivity {
     private String mCheckError;
     private String mError;
     private String mErrorId;
-    /** Idioma tocado enquanto o catálogo era buscado: abre os detalhes quando chegar. */
+    /** Language tapped while the catalog was being fetched: opens the details when it arrives. */
     private String mOpenId;
 
     private final Runnable mPoll = new Runnable() {
@@ -76,8 +76,8 @@ public class MrPacksActivity extends PreferenceActivity {
     }
 
     /**
-     * "Correções rápidas" usa a tabela de autotexto do Android, que só existe para alguns idiomas:
-     * sem ela a opção não faz nada e sai da tela (como era na tela de configurações).
+     * "Correções rápidas" (quick fixes) uses Android's autotext table, which only exists for some languages:
+     * without it the option does nothing and leaves the screen (as it did on the settings screen).
      */
     private void hideQuickFixesIfUnsupported() {
         if (AutoText.getSize(getListView()) >= 1) return;
@@ -102,15 +102,15 @@ public class MrPacksActivity extends PreferenceActivity {
         super.onPause();
     }
 
-    // ------------------------------------------------------------------ lista
+    // ------------------------------------------------------------------ list
 
-    /** Nome do idioma quando o catálogo ainda não foi visto (cartões padrão). */
+    /** Name of the language when the catalog has not been seen yet (default cards). */
     private String langName(String id) {
         String key = "mr_lang_" + id.replace('-', '_');
         return getResources().getIdentifier(key, "string", getPackageName()) != 0 ? t(key) : id;
     }
 
-    /** Monta de novo a lista de idiomas (padrão, catálogo e instalados) e põe o teclado em dia. */
+    /** Rebuilds the list of languages (default, catalog and installed) and brings the keyboard up to date. */
     private void rebuild() {
         if (mLangs == null) return;
         mLangs.removeAll();
@@ -148,7 +148,7 @@ public class MrPacksActivity extends PreferenceActivity {
         hint.setSelectable(false);
         hint.setSummary(t("mr_dicts_langs_hint"));
         mLangs.addPreference(hint);
-        // v1.77: diz qual motor está em uso (a reserva em Java é silenciosa; assim dá para conferir se a lib foi copiada)
+        // v1.77: says which engine is in use (the Java fallback is silent; this way you can check whether the lib was copied)
         Preference engine = new Preference(this);
         engine.setPersistent(false);
         engine.setSelectable(false);
@@ -159,7 +159,7 @@ public class MrPacksActivity extends PreferenceActivity {
         update();
     }
 
-    /** Atualiza só os textos (durante o download). */
+    /** Updates only the texts (during the download). */
     private void update() {
         for (String id : mPackPrefs.keySet()) {
             MrPacks.Pack p = mCat != null ? mCat.find(id) : null;
@@ -168,13 +168,13 @@ public class MrPacksActivity extends PreferenceActivity {
         if (mCheck != null) mCheck.setSummary(checkState());
     }
 
-    /** Cor da paleta do app (mr_colors.xml) pelo nome, ou 0 se não existir. */
+    /** Color from the app palette (mr_colors.xml) by name, or 0 if it does not exist. */
     private int color(String name) {
         int id = getResources().getIdentifier(name, "color", getPackageName());
         return id != 0 ? getResources().getColor(id) : 0;
     }
 
-    /** Fim da parte do texto que leva a cor: até " · " ou ":" (o resto, como tamanho e versão, fica cinza). */
+    /** End of the part of the text that gets the color: up to " · " or ":" (the rest, such as size and version, stays gray). */
     private static int headEnd(String s) {
         int a = s.indexOf(" · "), b = s.indexOf(':');
         if (a < 0) a = s.length();
@@ -182,7 +182,7 @@ public class MrPacksActivity extends PreferenceActivity {
         return Math.min(a, b);
     }
 
-    /** O começo do texto (o estado) na cor da paleta; o resto no cinza de sempre. */
+    /** The start of the text (the state) in the palette color; the rest in the usual gray. */
     private CharSequence paint(String text, String colorName, boolean whole) {
         int c = colorName == null ? 0 : color(colorName);
         if (c == 0 || text.length() == 0) return text;
@@ -192,8 +192,8 @@ public class MrPacksActivity extends PreferenceActivity {
     }
 
     /**
-     * Estado do cartão, com cor no estado: instalado verde, baixando ou instalando âmbar,
-     * atualização azul, falha vermelho; não baixado fica no cinza do resumo.
+     * Card state, with color on the state: installed green, downloading or installing amber,
+     * update blue, failure red; not downloaded stays in the summary gray.
      */
     private CharSequence state(String id, MrPacks.Pack p) {
         int inst = MrPacks.installedVersion(this, id);
@@ -241,9 +241,9 @@ public class MrPacksActivity extends PreferenceActivity {
         return n;
     }
 
-    // ------------------------------------------------------------------ ações
+    // ------------------------------------------------------------------ actions
 
-    /** Toque em um idioma: sem catálogo guardado e sem pacote instalado, busca o catálogo antes. */
+    /** Tap on a language: with no stored catalog and no installed pack, fetches the catalog first. */
     private void open(String id) {
         if (mCat == null && MrPacks.installedVersion(this, id) == 0) {
             mOpenId = id;
@@ -396,7 +396,7 @@ public class MrPacksActivity extends PreferenceActivity {
         b.show();
     }
 
-    // ------------------------------------------------------------------ textos
+    // ------------------------------------------------------------------ texts
 
     private boolean gone() {
         return isFinishing() || isDestroyed();

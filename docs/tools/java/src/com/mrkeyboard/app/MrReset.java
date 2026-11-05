@@ -10,15 +10,15 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 /**
- * "Restaurar padrões" (Sobre, v1.69): apaga as configurações do teclado, as mesmas das telas de
- * configurações, e deixa o teclado nos valores padrão. Não mexe no que não é configuração: os
- * dicionários baixados (arquivos e estado dos pacotes), as folhas do usuário (files/sheets.json),
- * as palavras aprendidas e os avisos já vistos. Os idiomas do teclado voltam a ser os dos
- * dicionários instalados.
+ * "Restaurar padrões" (Restore defaults) (About, v1.69): erases the keyboard settings, the same as on the
+ * settings screens, and leaves the keyboard on the default values. It does not touch what is not a setting: the
+ * downloaded dictionaries (files and pack state), the user's sheets (files/sheets.json),
+ * the learned words and the notices already seen. The keyboard languages go back to those of the
+ * installed dictionaries.
  *
- * KEYS tem de ter toda chave que as telas de configurações (res/xml/prefs*.xml) oferecem, a
- * "pref_sheet_return" (que fica na página Folhas do teclado) e as chaves antigas, que o teclado já
- * não lê e só estão aqui para limpar valores guardados; o script docs/tools/check_reset_keys.py confere.
+ * KEYS must have every key that the settings screens (res/xml/prefs*.xml) offer, the
+ * "pref_sheet_return" (which is on the keyboard Sheets page) and the old keys, which the keyboard no longer
+ * reads and are only here to clear stored values; the script docs/tools/check_reset_keys.py checks this.
  */
 public final class MrReset implements Preference.OnPreferenceClickListener {
     static final String[] KEYS = {
@@ -101,12 +101,12 @@ public final class MrReset implements Preference.OnPreferenceClickListener {
         return true;
     }
 
-    /** Tira cada chave de configuração (o teclado e a tela voltam ao padrão) e acerta os idiomas. */
+    /** Removes each setting key (the keyboard and the screen go back to the default) and fixes the languages. */
     static void apply(Context c) {
         SharedPreferences.Editor e = PreferenceManager.getDefaultSharedPreferences(c).edit();
         for (String k : KEYS) e.remove(k);
         e.apply();
-        MrAi.setApiKey(c, ""); // a chave de API fica em "mr_ai", fora de KEYS e do backup
+        MrAi.setApiKey(c, ""); // the API key stays in "mr_ai", outside KEYS and the backup
         java.util.Locale ui = c.getResources().getConfiguration().locale;
         MrPacks.syncLanguages(c, MrPacks.cardIds(null, MrPacks.installedIds(c), ui.getLanguage()));
     }

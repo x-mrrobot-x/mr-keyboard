@@ -2,13 +2,13 @@
 .super Ljava/lang/Object;
 .source "MrTune.java"
 
-# Ferramenta "Personalizar teclado": 5 deslizadores (altura vertical ou horizontal conforme a orientacao,
-# altura da barra, escala dos rotulos, espacamento, arredondamento). Em paisagem aparece como painel preto
-# translucido dentro do teclado (p_tune, no mr_toolbar); em retrato abre como dialog (mr_tune_dialog).
-# Cada deslizador grava a mesma preferencia das configuracoes, entao o teclado
-# atualiza em tempo real pelo mesmo caminho (LatinIME.onSharedPreferenceChanged).
-# Excecao: a escala dos rotulos recriaria a view do teclado (e o proprio deslizador)
-# a cada passo; por isso ela e aplicada direto na view e so gravada ao soltar.
+# "Customize keyboard" tool: 5 sliders (vertical or horizontal height depending on the orientation,
+# bar height, label scale, spacing, rounding). In landscape it appears as a translucent black panel
+# inside the keyboard (p_tune, in mr_toolbar); in portrait it opens as a dialog (mr_tune_dialog).
+# Each slider writes the same preference as the settings, so the keyboard
+# updates in real time through the same path (LatinIME.onSharedPreferenceChanged).
+# Exception: the label scale would recreate the keyboard view (and the slider itself)
+# at every step; so it is applied straight to the view and only saved on release.
 
 .implements Landroid/view/View$OnClickListener;
 .implements Landroid/widget/SeekBar$OnSeekBarChangeListener;
@@ -34,7 +34,7 @@
 
 .field static sDList:Ljava/util/ArrayList;
 
-# lista de deslizadores do painel (sList pode ser trocada pela do dialog)
+# list of the panel's sliders (sList can be replaced by the dialog's)
 .field static sPList:Ljava/util/ArrayList;
 
 
@@ -57,7 +57,7 @@
     return-void
 .end method
 
-# Encaixa o teclado no FrameLayout "kbd_host" (o painel fica por cima dele).
+# Fits the keyboard into the "kbd_host" FrameLayout (the panel sits on top of it).
 .method static attach(Landroid/view/ViewGroup;Landroid/view/View;)V
     .locals 4
 
@@ -326,7 +326,7 @@
     return-object v0
 .end method
 
-# Orientacao atual (true = horizontal/paisagem).
+# Current orientation (true = horizontal/landscape).
 .method private static isLand()Z
     .locals 2
 
@@ -363,7 +363,7 @@
     return v0
 .end method
 
-# Altura padrao da orientacao atual (mesmos recursos usados pelo teclado).
+# Default height for the current orientation (same resources the keyboard uses).
 .method private static heightDef()Ljava/lang/String;
     .locals 2
 
@@ -394,7 +394,7 @@
     return-object v0
 .end method
 
-# Titulo do primeiro deslizador conforme a orientacao.
+# Title of the first slider according to the orientation.
 .method private static updateTitle()V
     .locals 3
 
@@ -451,7 +451,7 @@
     return-void
 .end method
 
-# Escala dos rotulos: aplica direto na view (sem recriar o teclado).
+# Label scale: applies straight to the view (without recreating the keyboard).
 .method private static liveLabel(F)V
     .locals 2
 
@@ -459,7 +459,7 @@
 
     iput p0, v0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->labelScalePref:F
 
-    # a escala dos rotulos tambem dimensiona os icones dos botoes da barra
+    # the label scale also sizes the icons of the toolbar buttons
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyIconScale()V
 
     invoke-static {}, Lcom/mrkeyboard/app/KeyboardSwitcher;->getInstance()Lcom/mrkeyboard/app/KeyboardSwitcher;
@@ -684,7 +684,7 @@
     return-void
 .end method
 
-# Chamado por LatinIME.onSharedPreferenceChanged: ignora a gravacao silenciosa da escala.
+# Called by LatinIME.onSharedPreferenceChanged: ignores the silent write of the scale.
 .method static skip(Ljava/lang/String;)Z
     .locals 2
 
@@ -717,7 +717,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrTune;->sPanel:Landroid/view/View;
 
-    # em paisagem o painel substitui o dialog: se ele ficou aberto (ex.: girou a tela), fecha
+    # in landscape the panel replaces the dialog: if it was left open (e.g. the screen was rotated), close it
     if-eqz v0, :cond_nodlg
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTune;->isLand()Z
@@ -821,7 +821,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrTune;->sBar:Landroid/view/View;
 
-    # girou para vertical com o painel aberto: fecha (o painel so existe em paisagem)
+    # rotated to portrait with the panel open: close it (the panel only exists in landscape)
     sget-boolean v2, Lcom/mrkeyboard/app/MrTune;->sOn:Z
 
     if-eqz v2, :cond_state
@@ -1019,8 +1019,8 @@
     return v0
 .end method
 
-# Botao "Personalizar": em paisagem abre o painel dentro do teclado (ha pouco espaco acima dele
-# para o dialog); em retrato abre/fecha o dialog.
+# "Customize" button: in landscape it opens the panel inside the keyboard (there is little room above it
+# for the dialog); in portrait it opens/closes the dialog.
 .method static toggle()V
     .locals 2
 
@@ -1067,8 +1067,8 @@
     return-void
 .end method
 
-# Abre ou fecha o painel dentro do teclado. Devolve false se o layout nao tem o painel
-# (ai o toggle cai no dialog).
+# Opens or closes the panel inside the keyboard. Returns false if the layout has no panel
+# (then the toggle falls back to the dialog).
 .method private static togglePanel()Z
     .locals 3
 
@@ -1080,7 +1080,7 @@
 
     if-eqz v1, :cond_none
 
-    # o dialog nao convive com o painel
+    # the dialog does not coexist with the panel
     invoke-static {}, Lcom/mrkeyboard/app/MrTune;->dismissDialog()V
 
     sget-boolean v2, Lcom/mrkeyboard/app/MrTune;->sOn:Z
@@ -1098,7 +1098,7 @@
 
     sput-boolean v2, Lcom/mrkeyboard/app/MrTune;->sOn:Z
 
-    # o dialog pode ter trocado sList: volta para a lista dos deslizadores do painel
+    # the dialog may have swapped sList: go back to the panel's slider list
     sget-object v2, Lcom/mrkeyboard/app/MrTune;->sPList:Ljava/util/ArrayList;
 
     if-eqz v2, :cond_nolist
@@ -1126,7 +1126,7 @@
     return v0
 .end method
 
-# Fecha o dialog de Preferencias, se estiver aberto.
+# Closes the Preferences dialog, if it is open.
 .method private static dismissDialog()V
     .locals 3
 
@@ -1171,7 +1171,7 @@
     return-void
 .end method
 
-# View raiz (decorView) da janela do teclado, ou null se ainda nao existir.
+# Root view (decorView) of the keyboard window, or null if it does not exist yet.
 .method private static imeDecor()Landroid/view/View;
     .locals 2
 
@@ -1209,7 +1209,7 @@
     return-object v0
 .end method
 
-# Topo do teclado em coordenadas da tela (-1 = desconhecido: o dialog usa a tela toda).
+# Top of the keyboard in screen coordinates (-1 = unknown: the dialog uses the whole screen).
 .method private static imeTop()I
     .locals 3
 
@@ -1242,12 +1242,12 @@
     return v1
 .end method
 
-# Dialog "Preferencias": mesmo visual do dialog de altura das configuracoes (Theme.MrKeyboard.Dialog).
-# A janela cobre so a area entre o topo da tela e o teclado (camada escura + cartao centralizado) e
-# acompanha a altura do teclado ao vivo (onLayoutChange). Fica presa a janela do teclado (token do IME +
-# TYPE_APPLICATION_ATTACHED_DIALOG): nao precisa de SYSTEM_ALERT_WINDOW e funciona do API 26 ao 36.
-# FLAG_NOT_FOCUSABLE mantem o foco no editor sem bloquear os toques nos controles do dialog.
-# Os deslizadores gravam direto ao arrastar.
+# "Preferences" dialog: same look as the height dialog in the settings (Theme.MrKeyboard.Dialog).
+# The window covers only the area between the top of the screen and the keyboard (dark layer + centered card) and
+# follows the keyboard height live (onLayoutChange). It is attached to the keyboard window (IME token +
+# TYPE_APPLICATION_ATTACHED_DIALOG): it does not need SYSTEM_ALERT_WINDOW and works from API 26 to 36.
+# FLAG_NOT_FOCUSABLE keeps focus on the editor without blocking touches on the dialog's controls.
+# The sliders write straight away while dragging.
 .method private static showDialog()V
     .locals 8
 
@@ -1258,7 +1258,7 @@
     return-void
 
     :cond_ime
-    # limpa um dialog anterior (ex.: fechado pelo botao voltar) e o listener dele
+    # clears a previous dialog (e.g. closed by the back button) and its listener
     invoke-static {}, Lcom/mrkeyboard/app/MrTune;->dismissDialog()V
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTune;->imeDecor()Landroid/view/View;
@@ -1293,8 +1293,8 @@
 
     move-result-object v3
 
-    # idioma escolhido no app (pref_ui_language): sem isso o layout sai no idioma do sistema,
-    # enquanto o titulo da altura (MrTools.str) sai no do app. Mesmo caminho da barra de ferramentas.
+    # language chosen in the app (pref_ui_language): without it the layout comes out in the system language,
+    # while the height title (MrTools.str) comes out in the app's. Same path as the toolbar.
     invoke-static {v3}, Lcom/mrkeyboard/app/MrLocaleCtx;->of(Landroid/content/Context;)Landroid/content/Context;
 
     move-result-object v3
@@ -1359,14 +1359,14 @@
 
     invoke-static {v3, v4, v5, v6}, Lcom/mrkeyboard/app/MrTune;->bind(Landroid/view/View;ILjava/lang/String;Ljava/lang/String;)V
 
-    # lista propria do dialog: o setup do teclado recria sList quando a view do teclado e refeita
+    # the dialog's own list: the keyboard setup recreates sList when the keyboard view is rebuilt
     sget-object v4, Lcom/mrkeyboard/app/MrTune;->sList:Ljava/util/ArrayList;
 
     sput-object v4, Lcom/mrkeyboard/app/MrTune;->sDList:Ljava/util/ArrayList;
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTune;->refresh()V
 
-    # um unico listener: fecha (toque no fundo escuro ou OK) e acompanha o layout do teclado
+    # a single listener: closes (touch on the dark background or OK) and follows the keyboard layout
     new-instance v4, Lcom/mrkeyboard/app/MrTune;
 
     const/4 v5, -0x1
@@ -1411,7 +1411,7 @@
 
     move-result-object v5
 
-    # sem fundo/dim proprios da janela: a camada escura vem do layout
+    # no window background/dim of its own: the dark layer comes from the layout
     new-instance v6, Landroid/graphics/drawable/ColorDrawable;
 
     const/4 v3, 0x0
@@ -1424,7 +1424,7 @@
 
     invoke-virtual {v5, v6}, Landroid/view/Window;->clearFlags(I)V
 
-    # Evita tomar o foco do editor: NOT_FOCUSABLE + layout na tela inteira.
+    # Avoids taking the editor's focus: NOT_FOCUSABLE + full-screen layout.
     const v6, 0x20000
 
     invoke-virtual {v5, v6}, Landroid/view/Window;->clearFlags(I)V
@@ -1443,7 +1443,7 @@
 
     iput v1, v6, Landroid/view/WindowManager$LayoutParams;->type:I
 
-    # TOP | FILL_HORIZONTAL, largura total, altura = topo do teclado
+    # TOP | FILL_HORIZONTAL, full width, height = top of the keyboard
     const/16 v1, 0x37
 
     iput v1, v6, Landroid/view/WindowManager$LayoutParams;->gravity:I
@@ -1471,8 +1471,8 @@
 
 
 # virtual methods
-# Restaura o padrao so dos ajustes deste dialog (nao mexe no resto das preferencias).
-# A escala dos rotulos e aplicada direto na view (gravacao silenciosa), como ao arrastar o deslizador.
+# Restores the default only for this dialog's settings (does not touch the rest of the preferences).
+# The label scale is applied straight to the view (silent write), as when dragging the slider.
 .method private static resetDefaults()V
     .locals 4
 
@@ -1541,7 +1541,7 @@
     return-void
 .end method
 
-# Teclado mudou de tamanho (deslizador de altura): reajusta a altura da janela do dialog.
+# Keyboard changed size (height slider): readjusts the height of the dialog window.
 .method public onLayoutChange(Landroid/view/View;IIIIIIII)V
     .locals 5
 

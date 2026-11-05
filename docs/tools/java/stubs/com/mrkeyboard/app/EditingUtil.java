@@ -2,7 +2,7 @@ package com.mrkeyboard.app;
 
 import android.view.inputmethod.InputConnection;
 
-/** Stub de compilação e de teste de PC: a classe de verdade é o smali EditingUtil (palavra sob o cursor). */
+/** Compile and PC test stub: the real class is the EditingUtil smali (word under the cursor). */
 public final class EditingUtil {
     private EditingUtil() { }
 
@@ -12,7 +12,7 @@ public final class EditingUtil {
         public int end;
     }
 
-    /** Só para os testes: quantas vezes o caminho de sempre foi usado e o que ele devolve. */
+    /** Tests only: how many times the usual path was used and what it returns. */
     public static int calls;
     public static SelectedWord result;
 

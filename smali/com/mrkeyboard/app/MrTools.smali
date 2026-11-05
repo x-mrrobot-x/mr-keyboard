@@ -32,8 +32,8 @@
 
 .field static sBarOn:Z
 
-# Raiz da barra de ferramentas inflada (mr_toolbar); usada para aplicar a
-# escala dos rotulos aos icones dos botoes.
+# Root of the inflated toolbar (mr_toolbar); used to apply the
+# label scale to the button icons.
 .field static sBarRoot:Landroid/view/View;
 
 .field static sBarS:Landroid/view/View;
@@ -82,8 +82,8 @@
 
 .field static sKbd:Landroid/view/View;
 
-# Cor de destaque do tema Midnight Steel (realce ao tocar) e cor de fundo das teclas de
-# destaque (fundo dos botoes da aba Anexos). Calculadas em deriveColors() a cada wrap().
+# Accent color of the Midnight Steel theme (highlight on touch) and background color of the accent keys
+# (background of the buttons of the Attachments tab). Computed in deriveColors() at every wrap().
 .field static sAccent:I
 
 .field static sAccentBg:I
@@ -346,8 +346,8 @@
     return-void
 .end method
 
-# Linha principal (bar_main): escondida com painel aberto; senao MrSugg.mode decide entre
-# ferramentas (1), sugestoes (2) ou nada (0). Ver MrSugg.
+# Main row (bar_main): hidden when a panel is open; otherwise MrSugg.mode decides between
+# tools (1), suggestions (2) or nothing (0). See MrSugg.
 .method static applyMain()V
     .locals 4
 
@@ -434,8 +434,8 @@
 .method public static toggleBar()V
     .locals 2
 
-    # Com a linha visivel e sugestoes disponiveis, a tecla alterna sugestoes <-> ferramentas
-    # (MrSugg). Senao, mostra/oculta a linha como antes.
+        # With the row visible and suggestions available, the key toggles suggestions <-> tools
+        # (MrSugg). Otherwise, it shows/hides the row as before.
     invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->onBarKey()Z
 
     move-result v0
@@ -476,8 +476,8 @@
     return-void
 .end method
 
-# Aplica a escala dos rotulos das teclas aos icones dos botoes da barra de
-# ferramentas (mesmo fator dos rotulos: labelScale/0.69, pois 0.69 e o padrao).
+# Applies the key label scale to the icons of the toolbar
+# buttons (same factor as the labels: labelScale/0.69, since 0.69 is the default).
 .method static applyIconScale()V
     .locals 1
 
@@ -497,9 +497,9 @@
     return-void
 .end method
 
-# Percorre a arvore da barra redimensionando os icones (compound drawables) de
-# cada botao. Painéis (tags "p_*") e o hospedeiro do teclado ("kbd_host") sao
-# ignorados: seus icones nao sao de botoes da barra.
+# Walks the tree resizing the icons (compound drawables) of
+# each button. Panels (tags "p_*") and the keyboard host ("kbd_host") are
+# ignored: their icons are not toolbar buttons.
 .method private static scaleIcons(Landroid/view/View;)V
     .locals 8
 
@@ -544,7 +544,7 @@
 
     if-eqz v0, :cond_group
 
-    # fator f = labelScalePref / 0.69 (0.69 = escala padrao dos rotulos)
+        # factor f = labelScalePref / 0.69 (0.69 = default label scale)
     sget-object v0, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
 
     iget v0, v0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->labelScalePref:F
@@ -693,10 +693,10 @@
 
     if-eqz v1, :cond_keybg
 
-    # Midnight Steel: campo de texto (EditText) com fundo proprio (fieldBg); botoes da linha
-    # principal (tags "b_*") e abas de categoria de emote ("cat_*") planos, com destaque
-    # translucido so ao tocar (flatBg); demais botoes dos paineis (voltar, idioma, anexos...)
-    # com fundo discreto, perto da cor da barra (panelBg).
+        # Midnight Steel: text field (EditText) with its own background (fieldBg); buttons of the main
+        # row (tags "b_*") and emote category tabs ("cat_*") flat, with a
+        # translucent highlight only on touch (flatBg); other panel buttons (back, language, attachments...)
+        # with a discreet background, close to the bar color (panelBg).
     instance-of v1, v0, Landroid/widget/EditText;
 
     if-eqz v1, :cond_notfield
@@ -751,7 +751,7 @@
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    # Botao com o visual da tecla: o raio acompanha o das teclas
+        # Button with the key look: the radius follows that of the keys
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v2
@@ -793,7 +793,7 @@
 
     if-eqz v1, :cond_tint_def
 
-    # Midnight Steel: icones em branco levemente azulado (#dfe7f1)
+        # Midnight Steel: icons in slightly bluish white (#dfe7f1)
     const-string v1, "panel_icon"
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
@@ -812,7 +812,7 @@
 .end method
 
 # ---------------------------------------------------------------------------------------
-# Estilos do tema Midnight Steel para a barra de ferramentas
+# Midnight Steel theme styles for the toolbar
 # ---------------------------------------------------------------------------------------
 
 .method static applyTranslucentBlur()V
@@ -873,8 +873,8 @@
     return-void
 .end method
 
-# Cor do miolo da tecla de destaque do tema (tecla "checkable": Shift, ?123, Enter...), lida
-# desenhando o fundo de tecla do tema nesse estado num bitmap pequeno. 0 se nao for possivel.
+# Color of the core of the theme accent key ("checkable" key: Shift, ?123, Enter...), read by
+# drawing the theme key background in that state onto a small bitmap. 0 if not possible.
 .method private static keyFace()I
     .locals 5
 
@@ -928,7 +928,7 @@
     :try_end_kf
     .catch Ljava/lang/Exception; {:try_start_kf .. :try_end_kf} :catch_kf
 
-    # pixel totalmente transparente = sem cor util
+        # fully transparent pixel = no useful color
     ushr-int/lit8 v1, v0, 0x18
 
     if-nez v1, :cond_kf_ret
@@ -947,9 +947,9 @@
     return v0
 .end method
 
-# sAccent: a cor da tecla de destaque ajustada para ler bem sobre o fundo (tema escuro: brilho
-# minimo 0,86 e saturacao maxima 0,60; tema claro: brilho maximo 0,40; o matiz e do tema). sAccentBg: o
-# proprio miolo da tecla de destaque, opaco. Sem tecla de destaque, usa a cor do texto.
+# sAccent: the accent key color adjusted to read well over the background (dark theme: minimum
+# brightness 0.86 and maximum saturation 0.60; light theme: maximum brightness 0.40; the hue is the theme's). sAccentBg: the
+# accent key core itself, opaque. Without an accent key, it uses the text color.
 .method static deriveColors()V
     .locals 5
 
@@ -963,7 +963,7 @@
 
     new-array v2, v2, [F
 
-    # tema escuro = texto claro (brilho HSV do texto > 0,5); o resultado fica em v3
+        # dark theme = light text (HSV brightness of the text > 0.5); the result stays in v3
     invoke-static {v1, v2}, Landroid/graphics/Color;->colorToHSV(I[F)V
 
     const/4 v3, 0x2
@@ -996,7 +996,7 @@
     move v1, v4
 
     :cond_dc_sat
-    # saturacao no maximo 0,60: azuis puros e saturados ficam escuros demais para icones
+        # saturation at most 0.60: pure, saturated blues get too dark for icons
     const/4 v3, 0x1
 
     aget v3, v2, v3
@@ -1039,7 +1039,7 @@
 
     sput v0, Lcom/mrkeyboard/app/MrTools;->sAccentBg:I
 
-    # fundo do idioma selecionado nas listas de idioma: a cor de destaque a 28%
+        # background of the selected language in the language lists: the accent color at 28%
     sget v1, Lcom/mrkeyboard/app/MrTools;->sAccent:I
 
     const v2, 0xffffff
@@ -1059,8 +1059,8 @@
     return-void
 .end method
 
-# Retangulo arredondado: p0 = preenchimento, p1 = cor da borda, p2 = largura da borda (px),
-# p3 = raio dos cantos (px).
+# Rounded rectangle: p0 = fill, p1 = border color, p2 = border width (px),
+# p3 = corner radius (px).
 .method private static rrect(IIIF)Landroid/graphics/drawable/GradientDrawable;
     .locals 1
 
@@ -1077,8 +1077,8 @@
     return-object v0
 .end method
 
-# Raio de cantos (px) que segue o raio das teclas: raio + folga p0 (dp). Ver KeyStyle.radiusPx.
-# Sem o servico ativo usa o raio padrao de 8 dp.
+# Corner radius (px) that follows the key radius: radius + margin p0 (dp). See KeyStyle.radiusPx.
+# Without the service active it uses the default radius of 8 dp.
 .method static radius(F)F
     .locals 2
 
@@ -1110,8 +1110,8 @@
     return v0
 .end method
 
-# Fundo dos botoes da barra: transparente; ao tocar, a cor de destaque do tema a 30% num
-# retangulo de cantos que seguem o raio das teclas (raio + 2 dp).
+# Background of the bar buttons: transparent; on touch, the theme accent color at 30% in a
+# rectangle with corners that follow the key radius (radius + 2 dp).
 .method static flatBg()Landroid/graphics/drawable/Drawable;
     .locals 5
 
@@ -1166,8 +1166,8 @@
     return-object v0
 .end method
 
-# Fundo da categoria de emotes selecionada: igual ao dos botoes dos paineis (voltar), fundo
-# #263344, borda de 1 dp #3a4d65 e cantos de 10 dp.
+# Background of the selected emote category: equal to that of the panel buttons (back), background
+# #263344, 1 dp border #3a4d65 and 10 dp corners.
 .method static selBg()Landroid/graphics/drawable/Drawable;
     .locals 4
 
@@ -1333,8 +1333,8 @@
     return-object v0
 .end method
 
-# Fundo de botao: p0 = cor do fundo, p1 = cor da borda (1 dp), p2 = cor do texto ou icone, p3 = raio (px).
-# Ao tocar, o fundo se mistura 18% com a cor do texto. As cores vem dos papeis do tema (MrTheme.color).
+# Button background: p0 = background color, p1 = border color (1 dp), p2 = text or icon color, p3 = radius (px).
+# On touch, the background blends 18% with the text color. The colors come from the theme roles (MrTheme.color).
 .method static roleBg(IIIF)Landroid/graphics/drawable/Drawable;
     .locals 7
 
@@ -1427,8 +1427,8 @@
     return-object v0
 .end method
 
-# Fundo do campo "Digite aqui para traduzir": mais escuro que a barra (#0e141b), com borda fina
-# em azul-aco (#2a3645) e os mesmos cantos de 10 dp dos botoes.
+# Background of the "Digite aqui para traduzir" (type here to translate) field: darker than the bar (#0e141b), with a thin border
+# in steel blue (#2a3645) and the same 10 dp corners as the buttons.
 .method static fieldBg()Landroid/graphics/drawable/Drawable;
     .locals 4
 
@@ -1461,9 +1461,9 @@
     return-object v0
 .end method
 
-# Fundo dos botoes dentro das ferramentas (voltar, idioma, anexos, limpar...): azul-aco um pouco
-# mais claro que a barra (#263344, borda #3a4d65), cantos de 10 dp; ao tocar, a cor de
-# destaque do tema a 35%.
+# Background of the buttons inside the tools (back, language, attachments, clear...): steel blue a little
+# lighter than the bar (#263344, border #3a4d65), 10 dp corners; on touch, the
+# theme accent color at 35%.
 .method static panelBg()Landroid/graphics/drawable/Drawable;
     .locals 6
 
@@ -1534,9 +1534,9 @@
     return-object v1
 .end method
 
-# Fundo da linha da barra (por tag) no tema Midnight Steel: cor propria #171e27, um tom mais
-# clara que o fundo do teclado. O preenchimento da linha e preservado, pois alguns fundos de
-# tema (9-patch) trazem preenchimento proprio.
+# Background of the bar row (per tag) in the Midnight Steel theme: own color #171e27, one shade
+# lighter than the keyboard background. The row padding is preserved, because some
+# theme backgrounds (9-patch) bring their own padding.
 .method private static liftBar(Landroid/view/View;Ljava/lang/String;)V
     .locals 6
 
@@ -1589,7 +1589,7 @@
     return-void
 .end method
 
-# Linhas da barra de ferramentas: principal, traducao, clipboard, anexos, emotes e personalizar.
+# Toolbar rows: main, translation, clipboard, attachments, emotes and customize.
 .method private static liftBars(Landroid/view/View;)V
     .locals 1
 
@@ -1672,12 +1672,12 @@
 .method private static enterTranslate()V
     .locals 3
 
-    # Mr Keyboard v1.64: na primeira vez, avisa que o texto deste campo vai para o Google Tradutor
+        # Mr Keyboard v1.64: the first time, warns that the text of this field goes to Google Translate
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrNotice;->translate(Landroid/content/Context;)V
 
-    # Se o painel "Personalizar teclado" estiver aberto, fecha para voltar a mostrar o teclado.
+        # If the "Personalizar teclado" (customize keyboard) panel is open, closes it to show the keyboard again.
     invoke-static {}, Lcom/mrkeyboard/app/MrTune;->close()V
 
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
@@ -1734,7 +1734,7 @@
 
     return-void
 .end method
-# Abre direto a pagina de configuracao "Folhas do teclado" (PrefScreenSheets).
+# Opens the "Folhas do teclado" (keyboard sheets) settings page directly (PrefScreenSheets).
 .method private static openSheetsPrefs()V
     .locals 3
 
@@ -1768,7 +1768,7 @@
     return-void
 .end method
 
-# Atualiza o rotulo "N clips" ao lado do botao voltar do painel de clipboard.
+# Updates the "N clips" label next to the back button of the clipboard panel.
 .method static refreshClipCount()V
     .locals 4
 
@@ -1824,9 +1824,9 @@
     return-void
 .end method
 
-# Trava a altura dos cards do clipboard: SEMPRE duas linhas de texto + paddings.
-# Sem isso, card de 1 linha e card de 2 linhas mediam alturas diferentes
-# (fonte/paddings proprios) e a linha do GridView ficava irregular.
+# Locks the height of the clipboard cards: ALWAYS two lines of text + paddings.
+# Without it, a 1-line card and a 2-line card measured different heights
+# (own font/paddings) and the GridView row ended up uneven.
 .method static lockCard(Landroid/widget/TextView;)V
     .locals 4
 
@@ -1835,7 +1835,7 @@
     return-void
 
     :cond_card_ok
-    # no maximo 2 linhas, com "..." no fim da ultima quando o texto e grande
+        # at most 2 lines, with "..." at the end of the last one when the text is long
     const/4 v0, 0x2
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setMaxLines(I)V
@@ -1844,9 +1844,9 @@
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setEllipsize(Landroid/text/TextUtils$TruncateAt;)V
 
-    # altura minima = 2 linhas + folga de fonte + paddings
-    # (NAO usar setMaxHeight: ele muda o mMaxMode do TextView e o maxLines
-    #  passa a ser ignorado, deixando o texto vazar e ser cortado)
+        # minimum height = 2 lines + font margin + paddings
+        # (do NOT use setMaxHeight: it changes the mMaxMode of the TextView and maxLines
+        #  is ignored, letting the text spill and be cut off)
     invoke-virtual {p0}, Landroid/widget/TextView;->getPaint()Landroid/text/TextPaint;
 
     move-result-object v0
@@ -2138,9 +2138,9 @@
 
     if-nez v1, :cond_has
 
-    # Campo de entrada vazio (usuario apagou tudo): remove do campo do app a
-    # traducao que foi inserida anteriormente. Antes so zerava as variaveis e a
-    # traducao ficava no campo.
+        # Empty input field (user erased everything): removes from the app field the
+        # translation that was inserted earlier. Before, it only zeroed the variables and the
+        # translation stayed in the field.
     sget-object v1, Lcom/mrkeyboard/app/MrTools;->sInsText:Ljava/lang/String;
 
     if-eqz v1, :cond_cleared
@@ -3400,9 +3400,9 @@
     return-void
 .end method
 
-# Paineis (Clipboard, idiomas, anexos e emotes) sem moldura em todos os temas: zera as margens e as passa para o
-# preenchimento, entao o conteudo fica na mesma posicao em qualquer tema. Temas planos (Midnight, Glass) pintam o
-# fundo na cor da barra; os demais ficam sem fundo, com o da propria barra.
+# Panels (Clipboard, languages, attachments and emotes) without a frame in all themes: zeroes the margins and passes them to the
+# padding, so the content stays in the same position in any theme. Flat themes (Midnight, Glass) paint the
+# background in the bar color; the others stay without a background, with the bar's own.
 .method private static flatSheet(Landroid/view/View;Ljava/lang/String;)V
     .locals 7
 
@@ -3624,8 +3624,8 @@
 
     if-eqz v1, :cond_nomid_lb
 
-    # Midnight Steel: linhas da barra de ferramentas um tom mais claras que o fundo do teclado
-    # (a raiz fica como estava: o mesmo fundo aparece sob a barra de gestos)
+        # Midnight Steel: toolbar rows one shade lighter than the keyboard background
+        # (the root stays as it was: the same background shows under the gesture bar)
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->liftBars(Landroid/view/View;)V
 
     :cond_nomid_lb
@@ -3657,7 +3657,7 @@
 
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrTools;->btn(Landroid/view/View;Ljava/lang/String;I)Landroid/widget/TextView;
 
-    # rotulo com a quantidade de clips salvos (nao e botao: sem fundo/codigo)
+        # label with the number of saved clips (not a button: no background/code)
     const-string v1, "clip_count"
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->tag(Landroid/view/View;Ljava/lang/String;)Landroid/view/View;
@@ -3714,7 +3714,7 @@
 
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrTools;->btn(Landroid/view/View;Ljava/lang/String;I)Landroid/widget/TextView;
 
-    # botao "Folhas do teclado" (abre PrefScreenSheets), antes das preferencias
+        # "Folhas do teclado" (keyboard sheets) button (opens PrefScreenSheets), before the preferences
     const-string v1, "b_sheets"
 
     const/16 v2, 0x15
@@ -4071,15 +4071,15 @@
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->refreshLang()V
 
-    # sugestoes de palavras na linha da barra (MrSugg)
+        # word suggestions in the bar row (MrSugg)
     invoke-static {v0}, Lcom/mrkeyboard/app/MrSugg;->setup(Landroid/view/View;)V
 
-    # v1.69: altura da barra de ferramentas e sugestoes (MrBar)
+        # v1.69: height of the toolbar and suggestions (MrBar)
     sget-object v1, Lcom/mrkeyboard/app/MrTools;->sBarMain:Landroid/view/View;
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrBar;->attach(Landroid/view/View;)V
 
-    # cabecalhos dos paineis acompanham a mesma escala da barra (sem salto de altura ao abrir)
+        # panel headers follow the same bar scale (no height jump when opening)
     sget-object v1, Lcom/mrkeyboard/app/MrTools;->sBarT:Landroid/view/View;
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrBar;->attachExtra(Landroid/view/View;)V
@@ -4121,7 +4121,7 @@
     :cond_noparent
     invoke-static {v0, p1}, Lcom/mrkeyboard/app/MrTune;->attach(Landroid/view/ViewGroup;Landroid/view/View;)V
 
-    # dimensiona os icones dos botoes conforme a escala dos rotulos
+        # sizes the button icons according to the label scale
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyIconScale()V
 
     return-object v0

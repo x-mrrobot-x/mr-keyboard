@@ -1428,7 +1428,7 @@
     .line 756
     sget-object v0, Lcom/mrkeyboard/app/Keyboard$Key;->KEY_STATE_NORMAL:[I
 
-    # Tecla da barra de ferramentas (-306): destacada enquanto a barra esta visivel.
+    # Toolbar key (-306): highlighted while the toolbar is visible.
     iget-object v1, p0, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
 
     if-eqz v1, :cond_mr_skip

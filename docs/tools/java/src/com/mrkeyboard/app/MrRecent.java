@@ -3,52 +3,52 @@ package com.mrkeyboard.app;
 import java.util.Arrays;
 
 /**
- * Palavras recentes (v1.75): o que você acabou de digitar na conversa (nomes, o assunto) ganha peso nas
- * sugestões. Só na memória (nada vai para o disco), só neste campo de texto e apagado quando o campo ou o
- * aplicativo muda ({@link #onField}); não anota em campo de senha nem no modo anônimo (quem chama é o mesmo
- * gancho que já respeita isso, LatinIME.checkAddToDictionary).
+ * Recent words (v1.75): what you have just typed in the conversation (names, the subject) gains weight in the
+ * suggestions. Memory only (nothing goes to disk), only in this text field and erased when the field or the
+ * app changes ({@link #onField}); it does not record in a password field or in incognito mode (the caller is the same
+ * hook that already respects this, LatinIME.checkAddToDictionary).
  *
- * Três usos, todos com a lista curta dos últimos {@link #CAP} termos, do mais novo ao mais velho:
- *  1) completar enquanto digita: a palavra recente que começa pelo que foi digitado entra na lista
- *     ({@link #complete}); é o que faz "Mar" sugerir "Maria" na 2ª vez, sem esperar o aprendizado;
- *  2) previsão depois do espaço: quem já é candidato e foi digitado há pouco sobe ({@link #bonus});
- *  3) pares recentes: se você escreveu "reunião de amanhã", depois de "reunião de" vem "amanhã" ({@link #nextAfter}).
+ * Three uses, all with the short list of the last {@link #CAP} terms, from newest to oldest:
+ *  1) completing while typing: the recent word that starts with what was typed enters the list
+ *     ({@link #complete}); it is what makes "Mar" suggest "Maria" the 2nd time, without waiting for learning;
+ *  2) prediction after the space: whoever is already a candidate and was typed a moment ago goes up ({@link #bonus});
+ *  3) recent pairs: if you wrote "reunião de amanhã", after "reunião de" comes "amanhã" ({@link #nextAfter}).
  */
 public final class MrRecent {
     private MrRecent() { }
 
-    /** Quantos termos guardar. */
+    /** How many terms to keep. */
     static final int CAP = 96;
     static final int MIN_LEN = 3;
     static final int MAX_LEN = 30;
 
-    /** Previsão: bônus (na escala do MrPredict) de uma palavra candidata digitada agora há pouco; cai com a idade. */
+    /** Prediction: bonus (on the MrPredict scale) of a candidate word typed a moment ago; falls with age. */
     static final int PRED_BOOST = 40;
-    /** Previsão: pontos de um par recente (palavra anterior -> esta) que entra como candidato. 0 = desligado. */
+    /** Prediction: points of a recent pair (previous word -> this one) that enters as a candidate. 0 = off. */
     static final int PAIR_SCORE = 70;
     /**
-     * Palavra que o dicionário não conhece e foi escrita só em minúsculas: 1 = anota; 0 = ignora. Ela quase
-     * sempre é erro de digitação ("obrogado"), e anotá-lo faria o teclado oferecer o erro de volta; nome,
-     * marca e sigla vêm com maiúscula ("Maria", "iPhone", "NASA") e entram sempre.
+     * Word that the dictionary does not know and was written only in lowercase: 1 = record; 0 = ignore. It is almost
+     * always a typo ("obrogado"), and recording it would make the keyboard offer the mistake back; names,
+     * brands and acronyms come capitalized ("Maria", "iPhone", "NASA") and always enter.
      */
     static final int OOV_LOWER = 0;
-    /** Completar: "frequência de dicionário" de uma palavra recente (0 a 255; cai com a idade). 0 = desligado. */
+    /** Completing: "dictionary frequency" of a recent word (0 to 255; falls with age). 0 = off. */
     static final int COMP_V = 200;
-    /** Completar: quantas palavras recentes no máximo entram por consulta. */
+    /** Completing: how many recent words at most enter per query. */
     static final int COMP_MAX = 2;
-    /** Com 1 letra digitada (a lista é a de bigramas): quantas e com que prioridade (0 a 127). 0 = desligado. */
+    /** With 1 letter typed (the list is the bigram one): how many and with what priority (0 to 127). 0 = off. */
     static final int COMP1_MAX = 1;
     static final int COMP1_V = 60;
-    /** Com 1 letra: 1 = qualquer palavra recente; 0 = só as que o dicionário não conhece (nomes, gírias). */
+    /** With 1 letter: 1 = any recent word; 0 = only those the dictionary does not know (names, slang). */
     static final int COMP1_ALL = 0;
 
-    // mais novo primeiro: sShow[0] é a última palavra anotada
+    // newest first: sShow[0] is the last recorded word
     private static final String[] sShow = new String[CAP];
     private static final String[] sKey = new String[CAP];
-    /** true quando a palavra não é do dicionário (nome, gíria, termo raro). */
+    /** true when the word is not from the dictionary (name, slang, rare term). */
     private static final boolean[] sOov = new boolean[CAP];
     private static int sCount;
-    // pares (anterior -> próxima), mais novo primeiro
+    // pairs (previous -> next), newest first
     private static final String[] sPairPrev = new String[CAP];
     private static final String[] sPairNext = new String[CAP];
     private static int sPairCount;
@@ -56,9 +56,9 @@ public final class MrRecent {
     private static String sPkg;
     private static int sField = -1;
 
-    // ------------------------------------------------------------------ ciclo de vida
+    // ------------------------------------------------------------------ life cycle
 
-    /** Campo de texto novo (outro aplicativo ou outro campo): começa do zero. */
+    /** New text field (another app or another field): starts from zero. */
     public static synchronized void onField(String pkg, int fieldId) {
         boolean same = pkg != null && pkg.equals(sPkg) && fieldId == sField;
         sPkg = pkg;
@@ -76,16 +76,16 @@ public final class MrRecent {
         sLastKey = null;
     }
 
-    /** Fim de frase ou texto apagado: o próximo termo não forma par com o anterior. */
+    /** End of sentence or text erased: the next term does not form a pair with the previous one. */
     public static synchronized void breakPair() {
         sLastKey = null;
     }
 
-    // ------------------------------------------------------------------ anotar
+    // ------------------------------------------------------------------ record
 
     /**
-     * Anota uma palavra que acabou de ser escrita. Palavra comum do dicionário vai em minúsculas (a caixa
-     * se acerta na hora de mostrar); nome, gíria e termo raro ficam como foram digitados ("Maria", "iPhone").
+     * Records a word that has just been written. A common dictionary word goes in lowercase (the case
+     * is fixed when displaying); names, slang and rare terms stay as typed ("Maria", "iPhone").
      */
     public static synchronized void record(Suggest suggest, CharSequence word) {
         if (word == null) return;
@@ -142,21 +142,21 @@ public final class MrRecent {
         if (at == sPairCount && sPairCount < CAP) sPairCount++;
     }
 
-    /** Minúscula e sem acento: a comparação que o resto do motor usa. */
+    /** Lowercase and without accent: the comparison the rest of the engine uses. */
     static String key(CharSequence s) {
         char[] c = new char[s.length()];
         for (int i = 0; i < c.length; i++) c[i] = MrText.base(s.charAt(i));
         return new String(c);
     }
 
-    // ------------------------------------------------------------------ usar
+    // ------------------------------------------------------------------ use
 
-    /** Idade 0 (a mais nova) a CAP-1 vira um fator de 1 a 1/4. */
+    /** Age 0 (the newest) to CAP-1 becomes a factor from 1 to 1/4. */
     private static int scaled(int max, int rank) {
         return max - (max * 3 / 4) * rank / (CAP - 1);
     }
 
-    /** Previsão: bônus da palavra se ela foi digitada há pouco; 0 se não. */
+    /** Prediction: bonus of the word if it was typed a moment ago; 0 if not. */
     static synchronized int bonus(String word) {
         if (PRED_BOOST <= 0 || sCount == 0) return 0;
         String k = key(word);
@@ -166,7 +166,7 @@ public final class MrRecent {
         return 0;
     }
 
-    /** Previsão: palavras que vieram logo depois de prev nesta conversa, a mais nova primeiro (até max). */
+    /** Prediction: words that came right after prev in this conversation, newest first (up to max). */
     static synchronized String[] nextAfter(String prev, int max) {
         if (PAIR_SCORE <= 0 || sPairCount == 0 || prev == null) return EMPTY;
         String k = key(prev);
@@ -181,9 +181,9 @@ public final class MrRecent {
     static final String[] EMPTY = new String[0];
 
     /**
-     * Completar: entrega ao Suggest as palavras recentes que começam pelo que foi digitado (sem acento nem
-     * caixa), no máximo COMP_MAX. Com 1 letra a lista vai como bigrama (é o que o Suggest mostra nessa hora);
-     * com 2 ou mais, como palavra do dicionário com a pontuação na escala da lib (frequência x 2^letras).
+     * Completing: hands Suggest the recent words that start with what was typed (without accent or
+     * case), at most COMP_MAX. With 1 letter the list goes as a bigram (it is what Suggest shows at that moment);
+     * with 2 or more, as a dictionary word with the score on the lib scale (frequency x 2^letters).
      */
     public static void complete(Suggest suggest, WordComposer composer) {
         if (COMP_V <= 0 || suggest == null || composer == null) return;
@@ -216,7 +216,7 @@ public final class MrRecent {
                 }
             }
         } catch (RuntimeException e) {
-            // as sugestões seguem sem as palavras recentes
+            // the suggestions go on without the recent words
         }
     }
 }

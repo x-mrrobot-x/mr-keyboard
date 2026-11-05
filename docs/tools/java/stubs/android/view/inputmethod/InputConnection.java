@@ -1,6 +1,6 @@
 package android.view.inputmethod;
 
-/** Stub de compilação: só o que a camada nova usa. */
+/** Compile stub: only what the new layer uses. */
 public interface InputConnection {
     CharSequence getTextBeforeCursor(int n, int flags);
     CharSequence getSelectedText(int flags);
@@ -10,6 +10,6 @@ public interface InputConnection {
     boolean beginBatchEdit();
     boolean endBatchEdit();
 
-    /** API 31. default: quem já implementa o stub (testes) não precisa mudar. */
+    /** API 31. default: whoever already implements the stub (tests) does not need to change. */
     default SurroundingText getSurroundingText(int beforeLength, int afterLength, int flags) { return null; }
 }

@@ -20,8 +20,8 @@
 .method public static isPt(Landroid/content/Context;)Z
     .registers 4
 
-    # true para português e para espanhol: o código escolhe o texto em português e, em espanhol,
-    # SheetStrings.p() troca esse texto pelo espanhol (MrEs). sEs diz qual dos dois é.
+    # true for Portuguese and for Spanish: the code picks the Portuguese text and, in Spanish,
+    # SheetStrings.p() swaps that text for the Spanish one (MrEs). sEs tells which of the two it is.
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/SheetStrings;->sEs:Z
@@ -110,7 +110,7 @@
 .end method
 
 
-# Troca o texto em português pelo espanhol quando o idioma do app é espanhol (isPt() já foi chamado).
+# Swaps the Portuguese text for the Spanish one when the app language is Spanish (isPt() was already called).
 .method public static p(Ljava/lang/String;)Ljava/lang/String;
     .registers 2
 
@@ -126,7 +126,7 @@
     return-object p0
 .end method
 
-# Texto que o código tinha só em português, no idioma do app (anexos e limpeza de cache).
+# Text that the code had only in Portuguese, in the app's language (attachments and cache cleanup).
 .method public static a(Ljava/lang/String;)Ljava/lang/String;
     .registers 2
 

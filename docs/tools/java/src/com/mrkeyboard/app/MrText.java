@@ -1,16 +1,16 @@
 package com.mrkeyboard.app;
 
 /**
- * Utilidades de texto para sugestões em pt-BR (v1.60).
- * - base(): minúscula sem acento (á -> a, ç -> c), a mesma ideia do BASE_CHARS da lib nativa.
- * - fillInitials()/allInitials(): alternativas de 1ª letra para a consulta de bigramas, porque a lib
- *   compara a inicial da palavra seguinte de forma exata (é != e).
- * - lastWord(): última palavra antes do cursor, para a previsão depois do espaço.
+ * Text utilities for pt-BR suggestions (v1.60).
+ * - base(): lowercase without accent (á -> a, ç -> c), the same idea as BASE_CHARS in the native lib.
+ * - fillInitials()/allInitials(): 1st-letter alternatives for the bigram query, because the lib
+ *   compares the initial of the next word exactly (é != e).
+ * - lastWord(): last word before the cursor, for the prediction after the space.
  */
 public final class MrText {
     private MrText() { }
 
-    /** Minúscula sem acento para letras latinas; outros caracteres só em minúscula. */
+    /** Lowercase without accent for Latin letters; other characters only lowercased. */
     public static char base(int code) {
         char c = (char) code;
         switch (c) {
@@ -40,7 +40,7 @@ public final class MrText {
         }
     }
 
-    /** true se a 1ª letra de word e typed são a mesma letra, ignorando caixa e acento. */
+    /** true if the 1st letter of word and typed are the same letter, ignoring case and accent. */
     public static boolean sameInitial(CharSequence word, int typed) {
         if (word == null || word.length() == 0) return false;
         return base(word.charAt(0)) == base(typed);
@@ -75,9 +75,9 @@ public final class MrText {
     }
 
     /**
-     * Copia os códigos da 1ª posição (tecla tocada e vizinhas) para dst e acrescenta as variantes
-     * acentuadas e maiúsculas de cada um. Devolve quantos códigos foram escritos; o resto de dst
-     * (até max) recebe -1.
+     * Copies the codes of the 1st position (touched key and neighbours) to dst and adds the accented
+     * and uppercase variants of each. Returns how many codes were written; the rest of dst
+     * (up to max) gets -1.
      */
     public static int fillInitials(int[] src, int[] dst, int max) {
         if (max > dst.length) max = dst.length;
@@ -109,7 +109,7 @@ public final class MrText {
 
     private static final String ALL_LOWER = "abcdefghijklmnopqrstuvwxyzàáâãéêíóôõúüç";
 
-    /** Todas as iniciais (a-z, acentuadas, minúsculas e maiúsculas), para prever sem letra digitada. */
+    /** All the initials (a-z, accented, lowercase and uppercase), to predict without a typed letter. */
     public static int allInitials(int[] dst) {
         int count = 0;
         int max = dst.length;
@@ -123,9 +123,9 @@ public final class MrText {
     }
 
     /**
-     * Conserta as palavras que a lib nativa devolve dos bigramas. No x86 o char da lib tem sinal e
-     * as letras de 0x80 a 0xFF chegam como 0xFF80..0xFFFF (é vira U+FFE9); no ARM não acontece.
-     * O dicionário só tem caracteres abaixo de U+00FF, então nada legítimo cai nessa faixa.
+     * Fixes the words that the native lib returns from the bigrams. On x86 the lib's char is signed and
+     * the letters from 0x80 to 0xFF arrive as 0xFF80..0xFFFF (é becomes U+FFE9); on ARM it does not happen.
+     * The dictionary only has characters below U+00FF, so nothing legitimate falls in that range.
      */
     public static void fixNative(char[] buf) {
         if (buf == null) return;
@@ -136,9 +136,9 @@ public final class MrText {
     }
 
     /**
-     * Pode entrar no aprendizado (AutoDictionary e bigramas do usuário)? Não para sugestões com
-     * espaço (correções do MrFix como "com certeza" e "por isso", ou espaço faltando): elas viram
-     * duas palavras no texto e cada uma já é aprendida como bigrama quando for escolhida.
+     * Can it enter learning (AutoDictionary and user bigrams)? Not for suggestions with a
+     * space (MrFix corrections like "com certeza" and "por isso", or missing space): they become
+     * two words in the text and each one is already learned as a bigram when it is chosen.
      */
     public static boolean learnable(CharSequence word) {
         if (word == null) return false;
@@ -151,30 +151,30 @@ public final class MrText {
     }
 
     /**
-     * Frequência que um bigrama do usuário (UserBigramDictionary, +2 por uso) passa a valer na
-     * previsão e na 1ª letra, na escala de 7 bits do dicionário: 2 usos = 80, 3 = 100, 5+ = 127.
-     * Antes só aparecia com 12 (6 usos) e valia o número cru, abaixo das sugestões do dicionário.
+     * Frequency that a user bigram (UserBigramDictionary, +2 per use) is now worth in the
+     * prediction and in the 1st letter, on the dictionary's 7-bit scale: 2 uses = 80, 3 = 100, 5+ = 127.
+     * Before, it only showed up at 12 (6 uses) and was worth the raw number, below the dictionary suggestions.
      */
     public static int userBigramScore(int freq) {
         int s = 40 + 10 * freq;
         return s > 127 ? 127 : s;
     }
 
-    /** Texto vazio ou terminando em . ! ? (fora espaços): começo de frase. */
+    /** Empty text or ending in . ! ? (ignoring spaces): start of a sentence. */
     public static boolean atSentenceStart(CharSequence before) {
         if (before == null) return true;
         int end = before.length();
         while (end > 0 && Character.isWhitespace(before.charAt(end - 1))) end--;
         if (end == 0) return true;
         char c = before.charAt(end - 1);
-        // ¿ e ¡ abrem frase no espanhol (v1.65): "¿" -> mostra os começos de frase
+        // ¿ and ¡ open a sentence in Spanish (v1.65): "¿" -> shows the sentence starts
         return c == '.' || c == '!' || c == '?' || c == '…' || c == '¿' || c == '¡';
     }
 
     /**
-     * As duas últimas palavras antes do cursor: {penúltima ou null, última}. A penúltima só conta se
-     * entre as duas houver apenas espaço (vírgula ou ponto quebram o contexto). null se não houver
-     * última palavra.
+     * The last two words before the cursor: {second to last or null, last}. The second to last only counts if
+     * between the two there is only a space (a comma or period breaks the context). null if there is no
+     * last word.
      */
     public static String[] lastTwoWords(CharSequence before) {
         String w2 = lastWord(before);
@@ -198,8 +198,8 @@ public final class MrText {
     }
 
     /**
-     * Última palavra antes do cursor (ignorando espaços no fim). Devolve null se o texto terminar em
-     * pontuação ou número, ou se não houver palavra: nesses casos a faixa mostra a pontuação.
+     * Last word before the cursor (ignoring trailing spaces). Returns null if the text ends in
+     * punctuation or a number, or if there is no word: in those cases the strip shows the punctuation.
      */
     public static String lastWord(CharSequence before) {
         if (before == null) return null;

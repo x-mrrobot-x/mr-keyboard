@@ -229,8 +229,8 @@
     return-object p0
 .end method
 
-# Layouts dos temas, lidos 1 vez do array mr_theme_layouts (res/values/mr_themes.xml); o indice e o
-# valor da preferencia pref_keyboard_layout. Tema novo = layout + 1 linha no array, sem mexer aqui.
+# Theme layouts, read once from the mr_theme_layouts array (res/values/mr_themes.xml); the index is the
+# value of the pref_keyboard_layout preference. New theme = layout + 1 line in the array, without touching this.
 .method private ensureThemes()V
     .locals 6
 
@@ -1276,7 +1276,7 @@
 .method private updateSettingsKeyState(Landroid/content/SharedPreferences;)V
     .locals 2
 
-    # v1.69: interruptor "Mostrar tecla de configuracoes" (antes uma lista com 3 valores)
+    # v1.69: "Show settings key" switch (before, a list with 3 values)
     const-string v0, "show_settings_key"
 
     const/4 v1, 0x1
@@ -1782,7 +1782,7 @@
 
     invoke-direct {p0, p1, p2}, Lcom/mrkeyboard/app/KeyboardSwitcher;->changeLatinKeyboardView(IZ)V
 
-    # tema mudou: descarta os teclados em cache para reaplicar o pad (Dark Tech = 0)
+    # theme changed: discards the cached keyboards to reapply the pad (Dark Tech = 0)
     invoke-virtual {p0, p2}, Lcom/mrkeyboard/app/KeyboardSwitcher;->makeKeyboards(Z)V
 
     goto :goto_0

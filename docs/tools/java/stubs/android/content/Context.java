@@ -1,6 +1,6 @@
 package android.content;
 
-/** Stub de compilação: só o que a camada Java do Mr Keyboard usa (assinaturas do Android). */
+/** Compile stub: only what the Mr Keyboard Java layer uses (Android signatures). */
 public abstract class Context {
     public static final int MODE_PRIVATE = 0;
     public abstract android.content.res.AssetManager getAssets();

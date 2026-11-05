@@ -3,12 +3,12 @@
 .source "SettingsHeader.java"
 
 
-# Cabecalho das telas de configuracoes (PreferenceActivity), desenhado no proprio layout como em
-# PrefScreenSheets e SheetEditorActivity, em vez da ActionBar do framework. Nessas telas o
-# InsetsHandler ja reserva as barras do sistema no android.R.id.content; com a ActionBar do
-# framework o espaco da barra era reservado de novo (vao entre titulo e conteudo no Android 15+).
-# Visual igual ao da ActionBar anterior: 56dp, fundo mr_ui_bg, titulo 19sp medium (mr_ui_text)
-# e linha inferior de 1dp (mr_ui_stroke).
+# Header of the settings screens (PreferenceActivity), drawn in the layout itself as in
+# PrefScreenSheets and SheetEditorActivity, instead of the framework ActionBar. On these screens
+# InsetsHandler already reserves the system bars in android.R.id.content; with the framework
+# ActionBar the bar space was reserved again (gap between title and content on Android 15+).
+# Same look as the previous ActionBar: 56dp, mr_ui_bg background, 19sp medium title (mr_ui_text)
+# and a 1dp bottom line (mr_ui_stroke).
 
 # direct methods
 .method private constructor <init>()V
@@ -41,9 +41,9 @@
     return v0
 .end method
 
-# Envolve o conteudo ja criado pela Activity (raiz do PreferenceActivity) num LinearLayout
-# vertical: cabecalho + linha de 1dp + conteudo original (peso 1). Chamado uma vez em onCreate,
-# depois de addPreferencesFromResource (via ListDividerFix.apply).
+# Wraps the content already created by the Activity (root of the PreferenceActivity) in a vertical
+# LinearLayout: header + 1dp line + original content (weight 1). Called once in onCreate,
+# after addPreferencesFromResource (via ListDividerFix.apply).
 .method public static install(Landroid/app/Activity;)V
     .locals 9
 
@@ -81,7 +81,7 @@
 
     invoke-virtual {v4, v2}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    # titulo
+    # title
     new-instance v5, Landroid/widget/TextView;
 
     invoke-direct {v5, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
@@ -146,7 +146,7 @@
 
     invoke-virtual {v4, v5, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    # linha inferior de 1dp
+    # 1dp bottom line
     new-instance v5, Landroid/view/View;
 
     invoke-direct {v5, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
@@ -171,7 +171,7 @@
 
     invoke-virtual {v4, v5, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    # conteudo original ocupa o restante
+    # original content takes the rest
     new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v6, 0x3f800000    # 1.0f

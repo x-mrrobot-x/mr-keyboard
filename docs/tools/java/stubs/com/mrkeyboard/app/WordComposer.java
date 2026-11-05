@@ -3,7 +3,7 @@ package com.mrkeyboard.app;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Stub de compilação e de teste de PC: mesma assinatura da classe do APK (não vai para o dex). */
+/** Compile and PC test stub: same signature as the APK class (does not go into the dex). */
 public class WordComposer {
     private final List<int[]> mCodes = new ArrayList<int[]>();
     private final StringBuilder mTyped = new StringBuilder();

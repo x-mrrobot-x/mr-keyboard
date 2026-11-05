@@ -273,7 +273,7 @@
 
 .field private mPasswordText:Z
 
-# Mr Keyboard v1.60: campo pediu para nao aprender (IME_FLAG_NO_PERSONALIZED_LEARNING, modo anonimo)
+# Mr Keyboard v1.60: field asked not to learn (IME_FLAG_NO_PERSONALIZED_LEARNING, incognito mode)
 .field private mMrNoLearn:Z
 
 .field private mPluginManager:Lcom/mrkeyboard/app/PluginManager;
@@ -926,13 +926,13 @@
 
     const/4 v3, 0x0
 
-    # Mr Keyboard v1.74: antes só entrava palavra do dicionário; agora qualquer palavra tocada
-    # (a errada é a que mais precisa de sugestão). Sem a marca dos toques, só os caracteres.
+    # Mr Keyboard v1.74: before, only a dictionary word entered; now any touched word
+    # (the wrong one is the one that most needs a suggestion). Without the touch mark, only the characters.
     if-nez v2, :cond_5
 
     :cond_3
-    # Mr Keyboard v1.75: a palavra reaberta leva as teclas vizinhas do teclado atual, como na
-    # digitacao (antes so as letras: "fato" para gato nao era corrigido por tecla vizinha)
+    # Mr Keyboard v1.75: the reopened word carries the neighbouring keys of the current keyboard, as in
+    # typing (before, only the letters: "fato" for gato was not corrected by neighbouring key)
     iget-object v4, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
 
     iget-object v5, p1, Lcom/mrkeyboard/app/EditingUtil$SelectedWord;->word:Ljava/lang/CharSequence;
@@ -1005,10 +1005,10 @@
 
     .line 2815
     :cond_0
-    # Mr Keyboard v1.60: aprende sempre que as sugestoes estao ligadas (antes so com a
-    # autocorrecao, modos 2/3, e entao os bigramas aprendidos nunca eram lidos). Nao aprende em
-    # campo de senha (isPredictionOn e falso nele), no modo anonimo (mMrNoLearn) nem sugestao com
-    # espaco (MrText.learnable: "com certeza" vira duas palavras no texto).
+    # Mr Keyboard v1.60: always learns when suggestions are on (before, only with
+    # autocorrect, modes 2/3, and then the learned bigrams were never read). Does not learn in
+    # a password field (isPredictionOn is false there), in incognito mode (mMrNoLearn) nor a suggestion with a
+    # space (MrText.learnable: "com certeza" becomes two words in the text).
     iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrNoLearn:Z
 
     if-eqz v0, :cond_mr_learn
@@ -1034,8 +1034,8 @@
     return-void
 
     :cond_1
-    # Mr Keyboard v1.75: palavras recentes (so na memoria, so neste campo): o que foi escrito ha pouco
-    # ajuda a completar e a prever. Chega aqui depois das guardas de privacidade acima
+    # Mr Keyboard v1.75: recent words (memory only, this field only): what was written a moment ago
+    # helps to complete and predict. Gets here after the privacy guards above
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggest:Lcom/mrkeyboard/app/Suggest;
 
     invoke-static {v0, p1}, Lcom/mrkeyboard/app/MrRecent;->record(Lcom/mrkeyboard/app/Suggest;Ljava/lang/CharSequence;)V
@@ -3404,7 +3404,7 @@
 
     move-result-object p1
 
-    # dicionario embutido do idioma de entrada (raw/main_<idioma>, ex.: main_pt)
+    # built-in dictionary of the input language (raw/main_<language>, e.g. main_pt)
     iget-object v3, p0, Lcom/mrkeyboard/app/LatinIME;->mInputLocale:Ljava/lang/String;
 
     invoke-static {p0, v3, p1}, Lcom/mrkeyboard/app/MrDict;->ids(Landroid/content/Context;Ljava/lang/String;[I)[I
@@ -6540,8 +6540,8 @@
 .method private setNextSuggestions()V
     .locals 2
 
-    # Mr Keyboard v1.60: previsao da proxima palavra (MrPredict) quando as sugestoes estao ligadas;
-    # sem previsao (inicio do texto, depois de pontuacao, palavra sem bigramas) fica a pontuacao.
+    # Mr Keyboard v1.60: next-word prediction (MrPredict) when suggestions are on;
+    # without a prediction (start of text, after punctuation, word without bigrams) the punctuation stays.
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isPredictionOn()Z
 
     move-result v0
@@ -6627,8 +6627,8 @@
 .method private setOldSuggestions()V
     .locals 5
 
-    # Mr Keyboard v1.74: corpo restaurado (a recorreção tinha ficado só com o ramo "sem palavra"):
-    # acha a palavra tocada, mostra as sugestões dela e a marca como composição para o toque trocar
+    # Mr Keyboard v1.74: body restored (re-correction had been left with only the "no word" branch):
+    # finds the touched word, shows its suggestions and marks it as composing so that tapping replaces it
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
 
     if-eqz v0, :cond_0
@@ -6665,7 +6665,7 @@
 
     iget-object v4, p0, Lcom/mrkeyboard/app/LatinIME;->mWordSeparators:Ljava/lang/String;
 
-    # API 31+: leitura num retrato só (getSurroundingText); antes disso, o EditingUtil de sempre
+    # API 31+: read in a single snapshot (getSurroundingText); before that, the usual EditingUtil
     invoke-static {v0, v1, v3, v4}, Lcom/mrkeyboard/app/MrRecorrect;->wordAt(Landroid/view/inputmethod/InputConnection;IILjava/lang/String;)Lcom/mrkeyboard/app/EditingUtil$SelectedWord;
 
     move-result-object v1
@@ -6688,8 +6688,8 @@
 
     if-eqz v3, :cond_fail
 
-    # setComposingRegion pode falhar (conexão inválida, editor sem suporte): sem a palavra marcada
-    # o toque numa sugestão não a trocaria, então desiste
+    # setComposingRegion may fail (invalid connection, editor without support): without the word marked
+    # tapping a suggestion would not replace it, so give up
     iget v3, v1, Lcom/mrkeyboard/app/EditingUtil$SelectedWord;->start:I
 
     iget v4, v1, Lcom/mrkeyboard/app/EditingUtil$SelectedWord;->end:I
@@ -6763,7 +6763,7 @@
     invoke-virtual {v0, p1, p2, p3, p4}, Lcom/mrkeyboard/app/CandidateView;->setSuggestions(Ljava/util/List;ZZZ)V
 
     :cond_1
-    # MrSugg: ha sugestoes quando a lista nao e nula, nem vazia, nem a lista de pontuacao
+    # MrSugg: there are suggestions when the list is not null, nor empty, nor the punctuation list
     const/4 v0, 0x0
 
     if-eqz p1, :cond_mrsugg
@@ -6825,8 +6825,8 @@
 
     move-result-object p1
 
-    # Mr Keyboard v1.76: palavra reaberta que e do dicionario fica no centro da faixa (como na digitacao);
-    # so a que nao e do dicionario deixa a melhor correcao no centro
+    # Mr Keyboard v1.76: a reopened word that is in the dictionary stays in the center of the strip (as in typing);
+    # only one that is not in the dictionary leaves the best correction in the center
     iget-object v1, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggest:Lcom/mrkeyboard/app/Suggest;
 
     invoke-static {v1, p1}, Lcom/mrkeyboard/app/MrRecorrect;->isValid(Lcom/mrkeyboard/app/Suggest;Ljava/lang/CharSequence;)Z
@@ -7437,8 +7437,8 @@
     iput v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCorrectionMode:I
 
     .line 3347
-    # Mr Keyboard v1.60: com a autocorrecao ligada usa o modo com bigramas (CORRECTION_FULL_BIGRAM),
-    # que o original deixava desligado (mBigramSuggestionEnabled = false)
+    # Mr Keyboard v1.60: with autocorrect on it uses the bigram mode (CORRECTION_FULL_BIGRAM),
+    # which the original left off (mBigramSuggestionEnabled = false)
     iget v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCorrectionMode:I
 
     const/4 v2, 0x2
@@ -8927,9 +8927,9 @@
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateViewContainer:Landroid/widget/LinearLayout;
 
-    # A faixa de sugestoes mora na linha da barra de ferramentas (MrSugg), nao na area de
-    # candidatos do InputMethodService. Devolve null para o framework nao chamar
-    # setCandidatesView com uma view que ja tem pai.
+    # The suggestions strip lives in the toolbar row (MrSugg), not in the InputMethodService
+    # candidates area. Returns null so the framework does not call
+    # setCandidatesView with a view that already has a parent.
     invoke-static {v0}, Lcom/mrkeyboard/app/MrSugg;->host(Landroid/view/View;)V
 
     const/4 v0, 0x0
@@ -9345,12 +9345,12 @@
     return-void
 .end method
 
-# Item 3: ao perder o foco do campo/teclado, volta para a folha principal ABC
-# e reseta a barra de ferramentas. Idempotente: se ja estiver na ABC nao
-# redesenha nada. Registrado em varios eventos porque nem todo app dispara
-# onFinishInput/onFinishInputView quando o foco sai do campo.
+# Item 3: when losing focus of the field/keyboard, goes back to the main ABC sheet
+# and resets the toolbar. Idempotent: if already on ABC it does not
+# redraw anything. Registered on several events because not every app fires
+# onFinishInput/onFinishInputView when focus leaves the field.
 #
-# Somente a folha: se nao estiver na ABC, volta para a ABC (indice 0).
+# Sheet only: if not on ABC, goes back to ABC (index 0).
 .method private resetSheetOnly()V
     .locals 2
 
@@ -9368,7 +9368,7 @@
 
     if-eqz v1, :cond_sheet_done
 
-    # changeSheet(1) = folha principal ABC (indice 0)
+    # changeSheet(1) = main ABC sheet (index 0)
     const/4 v1, 0x1
 
     invoke-virtual {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->changeSheet(I)V
@@ -9385,10 +9385,10 @@
     return-void
 .end method
 
-# Folha ABC + barra de ferramentas resetada (fecha paineis de clipes/emotes/
-# tune/idioma e volta para a barra principal). Usado nos eventos de perda de
-# foco. NAO e usado em onStartInputView, para nao atrapalhar os fluxos de
-# redirect (traducao/clipes) quando o app reinicia o input.
+# ABC sheet + toolbar reset (closes the clips/emotes/
+# tune/language panels and goes back to the main bar). Used on the focus-loss
+# events. NOT used in onStartInputView, so as not to disturb the
+# redirect flows (translation/clips) when the app restarts the input.
 .method private resetSheetToAbc()V
     .locals 0
 
@@ -9399,8 +9399,8 @@
     return-void
 .end method
 
-# Evento novo 1: disparado sempre que a janela do teclado aparece (inclusive
-# quando o usuario clica de volta no campo e o app nao reinicia o input).
+# New event 1: fired whenever the keyboard window appears (including
+# when the user taps back into the field and the app does not restart the input).
 .method public onWindowShown()V
     .locals 0
 
@@ -9415,14 +9415,14 @@
     return-void
 .end method
 
-# Evento novo 2: disparado sempre que a janela do teclado some (toque fora do
-# teclado, back, perda de foco, troca de app).
+# New event 2: fired whenever the keyboard window disappears (touch outside the
+# keyboard, back, focus loss, app switch).
 .method public onWindowHidden()V
     .locals 0
 
     invoke-super {p0}, Landroid/inputmethodservice/InputMethodService;->onWindowHidden()V
 
-    # Ao esconder o IME, fecha também as janelas anexadas ao teclado.
+    # When hiding the IME, also closes the windows attached to the keyboard.
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->dismiss()V
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTune;->close()V
@@ -10676,7 +10676,7 @@
     return-void
 
     :cond_not_sheets_pref
-    # Mr Keyboard v1.63: MrPacks instalou ou removeu um pacote de dicionario
+    # Mr Keyboard v1.63: MrPacks installed or removed a dictionary pack
     const-string v0, "mr_dicts_updated_at"
 
     invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -10859,8 +10859,8 @@
     .line 2966
     iget-boolean p1, p0, Lcom/mrkeyboard/app/LatinIME;->mReCorrectionEnabled:Z
 
-    # Mr Keyboard v1.74: sem o aviso "recorreção não funciona em aparelho anterior ao Gingerbread"
-    # (o app exige Android 8; o aviso não se aplica e aparecia cortado)
+    # Mr Keyboard v1.74: without the notice "re-correction does not work on a device older than Gingerbread"
+    # (the app requires Android 8; the notice does not apply and appeared cut off)
     goto/16 :goto_1
 
     :cond_6
@@ -11372,7 +11372,7 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAiDialog;->onInputViewStarted(Ljava/lang/String;)V
 
-    # Raio das teclas mudou desde a ultima vez: refaz a view para a barra e os paineis pegarem o raio novo.
+    # Key radius changed since last time: rebuilds the view so the bar and the panels pick up the new radius.
     invoke-static {}, Lcom/mrkeyboard/app/KeyStyle;->takeRadiusDirty()Z
 
     move-result v0
@@ -11388,10 +11388,10 @@
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->refreshHeightNow()V
 
     :cond_mr_radius_ok
-    # Evento novo 3 ("clique no campo"): toda vez que o teclado e aberto para um
-    # campo, garante a folha principal ABC antes de montar o layout do campo.
-    # (a barra de ferramentas fica com onWindowShown/onWindowHidden, para nao
-    # interferir nos fluxos de redirect quando o app reinicia o input)
+    # New event 3 ("tap on the field"): every time the keyboard is opened for a
+    # field, ensures the main ABC sheet before building the field layout.
+    # (the toolbar stays with onWindowShown/onWindowHidden, so as not to
+    # interfere with the redirect flows when the app restarts the input)
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->resetSheetOnly()V
 
     if-nez p2, :cond_mr_skip
@@ -11420,7 +11420,7 @@
 
     iput v0, p2, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->editorFieldId:I
 
-    # Mr Keyboard v1.75: campo ou app novo = palavras recentes do zero (mesmo campo, teclado reaberto: mantem)
+    # Mr Keyboard v1.75: new field or app = recent words from scratch (same field, keyboard reopened: kept)
     iget-object v1, p1, Landroid/view/inputmethod/EditorInfo;->packageName:Ljava/lang/String;
 
     invoke-static {v1, v0}, Lcom/mrkeyboard/app/MrRecent;->onField(Ljava/lang/String;I)V
@@ -11471,8 +11471,8 @@
     .line 788
     iput-boolean v2, p0, Lcom/mrkeyboard/app/LatinIME;->mPasswordText:Z
 
-    # Mr Keyboard v1.60: modo anonimo do app (EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING =
-    # 0x1000000): nada digitado neste campo entra no aprendizado (palavras e bigramas)
+    # Mr Keyboard v1.60: app incognito mode (EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING =
+    # 0x1000000): nothing typed in this field enters learning (words and bigrams)
     iget v0, p1, Landroid/view/inputmethod/EditorInfo;->imeOptions:I
 
     const/high16 v3, 0x1000000
@@ -12289,7 +12289,7 @@
 .method public pickSuggestionManually(ILjava/lang/CharSequence;)V
     .locals 5
 
-    # Mr Keyboard v1.63: item "Baixar dicionario" (MrPacks.offerList) abre a tela de dicionarios
+    # Mr Keyboard v1.63: "Baixar dicionario" (download dictionary) item (MrPacks.offerList) opens the dictionaries screen
     invoke-static {p0, p2}, Lcom/mrkeyboard/app/MrPacks;->onPick(Landroid/content/Context;Ljava/lang/CharSequence;)Z
 
     move-result v0
@@ -13401,8 +13401,8 @@
 .method public onText(Ljava/lang/CharSequence;)V
     .locals 1
 
-    # Teclas "tskcmd:<comando>" da folha TSK: envia o intent ao Tasker e
-    # NAO digita nada nem volta para a folha principal (permanece na TSK).
+    # "tskcmd:<command>" keys of the TSK sheet: sends the intent to Tasker and
+    # does NOT type anything nor go back to the main sheet (stays on TSK).
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/TaskerCmd;->handle(Landroid/content/Context;Ljava/lang/CharSequence;)Z
 
     move-result v0

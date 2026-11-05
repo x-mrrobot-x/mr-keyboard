@@ -3,10 +3,10 @@
 .source "MrDict.java"
 
 
-# Escolha do dicionario principal embutido pelo idioma de entrada.
-# O app monta a localidade com new Locale("pt_BR"), cujo idioma vira "pt_br"; por isso
-# qualificadores de recurso (raw-pt) nao servem. Aqui o idioma e o prefixo antes de "_"/"-",
-# e o recurso procurado e raw/main_<idioma> (ex.: main_pt). Sem recurso, mantem o original.
+# Choice of the built-in main dictionary by input language.
+# The app builds the locale with new Locale("pt_BR"), whose language becomes "pt_br"; so
+# resource qualifiers (raw-pt) do not work. Here the language is the prefix before "_"/"-",
+# and the resource looked up is raw/main_<language> (e.g. main_pt). Without a resource, keeps the original.
 
 
 # direct methods

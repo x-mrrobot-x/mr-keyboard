@@ -1,6 +1,6 @@
 package android.view.inputmethod;
 
-/** Stub de compilação e de teste de PC (API 31). */
+/** Compile and PC test stub (API 31). */
 public final class SurroundingText {
     private final CharSequence mText;
     private final int mStart, mEnd, mOffset;

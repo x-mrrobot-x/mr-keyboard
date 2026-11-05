@@ -11,13 +11,13 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
- * Altura da barra de ferramentas e sugestões (v1.69): a linha "bar_main" do mr_toolbar, onde as
- * ferramentas e as sugestões de palavras se alternam (MrSugg). O layout fixa a altura em
- * mr_bar_height; aqui ela vira essa altura vezes "pref_bar_scale" (de mr_bar_scale_min a
- * mr_bar_scale_max, padrão 100%) e acompanha a configuração na hora.
+ * Height of the toolbar and suggestions bar (v1.69): the "bar_main" row of mr_toolbar, where the
+ * tools and the word suggestions alternate (MrSugg). The layout fixes the height at
+ * mr_bar_height; here it becomes that height times "pref_bar_scale" (from mr_bar_scale_min to
+ * mr_bar_scale_max, default 100%) and follows the setting immediately.
  *
- * Os cabeçalhos dos painéis (bar_t, bar_c, bar_s, bar_e, bar_tune) entram na mesma lista por
- * attachExtra, para que abrir um painel não mude a altura da barra (etapa 5.1 do plano).
+ * The panel headers (bar_t, bar_c, bar_s, bar_e, bar_tune) enter the same list through
+ * attachExtra, so that opening a panel does not change the bar height (step 5.1 of the plan).
  */
 public final class MrBar {
     private MrBar() { }
@@ -37,14 +37,14 @@ public final class MrBar {
                 }
             };
 
-    /** Chamado quando a barra é montada: começa uma lista nova, aplica a altura e segue a configuração. */
+    /** Called when the bar is assembled: starts a new list, applies the height and follows the setting. */
     public static void attach(View bar) {
         if (bar == null) return;
         sBars.clear();
         attachExtra(bar);
     }
 
-    /** Cabeçalho de painel que segue a mesma escala da barra (chamado depois do attach da barra). */
+    /** Panel header that follows the same scale as the bar (called after the bar attach). */
     public static void attachExtra(View bar) {
         if (bar == null) return;
         sBars.add(new WeakReference<View>(bar));
@@ -57,7 +57,7 @@ public final class MrBar {
         apply(bar);
     }
 
-    /** Escala guardada, dentro de min a max; valor ausente ou inválido vale 100%. */
+    /** Stored scale, within min to max; a missing or invalid value counts as 100%. */
     static float scale(String stored, float min, float max) {
         float v = 1f;
         if (stored != null) {
@@ -71,7 +71,7 @@ public final class MrBar {
         return Math.max(min, Math.min(max, v));
     }
 
-    /** Altura em pixels para a altura base em pixels e a escala dadas. */
+    /** Height in pixels for the given base height in pixels and scale. */
     static int heightPx(float basePx, float scale) {
         return Math.round(basePx * scale);
     }

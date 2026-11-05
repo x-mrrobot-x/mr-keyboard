@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.Locale;
 
 /**
- * Textos fixos no código (editor de folhas, seletor de teclas especiais, anexos) que existem só em
- * português no smali: aqui ficam as versões em espanhol (e, para o que era só português, em inglês).
- * Nas telas, o smali usa o texto em português e passa por SheetStrings.p(), que troca para espanhol
- * quando o idioma do app é espanhol. As chaves têm de ser iguais ao texto em português do smali;
- * docs/tools/mres_check.py confere isso e lista textos em português que ficaram sem tradução.
+ * Fixed texts in the code (sheet editor, special-key picker, attachments) that exist only in
+ * Portuguese in the smali: here are the Spanish versions (and, for what was Portuguese only, English).
+ * On the screens, the smali uses the Portuguese text and passes it through SheetStrings.p(), which switches to Spanish
+ * when the app language is Spanish. The keys must be equal to the Portuguese text in the smali;
+ * docs/tools/mres_check.py checks this and lists Portuguese texts that were left untranslated.
  */
 public final class MrEs {
     private MrEs() { }
@@ -226,25 +226,25 @@ public final class MrEs {
         ES.put(pt, es);
     }
 
-    /** Texto em espanhol para o texto em português; sem tradução, o próprio texto. */
+    /** Spanish text for the Portuguese text; without a translation, the text itself. */
     public static String es(String pt) {
         String s = ES.get(pt);
         return s != null ? s : pt;
     }
 
-    /** Idioma de duas letras do app (o escolhido em Configurações ou o do sistema); sem resposta, "pt". */
+    /** Two-letter language of the app (the one chosen in Settings or the system one); no answer, "pt". */
     static String lang(Context c) {
         try {
             Locale l = UiLocale.wrap(c).getResources().getConfiguration().locale;
             String s = l == null ? null : l.getLanguage();
             if (s != null && s.length() >= 2) return s.substring(0, 2).toLowerCase(Locale.ROOT);
         } catch (RuntimeException ex) {
-            // cai no padrão
+            // falls back to the default
         }
         return "pt";
     }
 
-    /** Texto que o código tinha só em português, no idioma do app (pt, es ou inglês). */
+    /** Text that the code had only in Portuguese, in the app language (pt, es or English). */
     public static String app(Context c, String pt) {
         String l = lang(c);
         if ("pt".equals(l)) return pt;

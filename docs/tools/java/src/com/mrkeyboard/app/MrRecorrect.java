@@ -8,37 +8,37 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Recorreção (v1.74, "Tocar para corrigir palavras"): acha a palavra sob o cursor e decide se ela
- * merece sugestões. LatinIME.setOldSuggestions chama {@link #wordAt} e {@link #eligible}.
+ * Re-correction (v1.74, "Tocar para corrigir palavras" / tap to correct words): finds the word under the cursor and decides whether it
+ * deserves suggestions. LatinIME.setOldSuggestions calls {@link #wordAt} and {@link #eligible}.
  *
- * Antes o método só mostrava sugestões de palavras que o dicionário já conhecia ou que tinham sido
- * digitadas na sessão; uma palavra errada fora disso (a que mais precisa de correção) ficava sem nada.
- * Agora toda palavra com letras serve; só ficam de fora o que não é palavra para corrigir.
+ * Before, the method only showed suggestions for words that the dictionary already knew or that had been
+ * typed in the session; a wrong word outside that (the one that most needs correction) was left with nothing.
+ * Now every word with letters qualifies; only what is not a word to correct is left out.
  *
- * Teclas vizinhas (v1.75): a palavra reaberta é remontada com as teclas ao redor de cada letra, tiradas do
- * teclado que está na tela, como na digitação ({@link #composer}). Antes ela levava só as letras e a correção
- * por tecla vizinha ("fato" para gato) não funcionava na palavra reaberta.
+ * Neighbouring keys (v1.75): the reopened word is rebuilt with the keys around each letter, taken from the
+ * keyboard on screen, as in typing ({@link #composer}). Before, it carried only the letters and the correction
+ * by neighbouring key ("fato" for gato) did not work on the reopened word.
  *
- * Leitura do texto (por versão do Android, conforme a documentação):
- *  - API 31+: InputConnection.getSurroundingText devolve o texto em volta, a seleção e o
- *    deslocamento dele no editor numa chamada só. A posição vem do mesmo retrato do texto, sem depender
- *    da última seleção guardada (que pode estar velha) e sem o getExtractedText (texto inteiro do campo).
- *  - API 26 a 30, ou editor que não devolve o retrato: EditingUtil.getWordAtCursorOrSelection, como sempre.
+ * Reading the text (by Android version, according to the documentation):
+ *  - API 31+: InputConnection.getSurroundingText returns the surrounding text, the selection and its
+ *    offset in the editor in a single call. The position comes from the same snapshot of the text, without depending
+ *    on the last stored selection (which may be stale) and without getExtractedText (the whole field text).
+ *  - API 26 to 30, or an editor that does not return the snapshot: EditingUtil.getWordAtCursorOrSelection, as always.
  */
 public final class MrRecorrect {
     private MrRecorrect() { }
 
-    /** Mesmo limite do dicionário (BinaryDictionary.MAX_WORD_LENGTH): acima disso a busca não roda. */
+    /** Same limit as the dictionary (BinaryDictionary.MAX_WORD_LENGTH): above that the search does not run. */
     static final int MAX_WORD = 48;
-    /** Caracteres lidos de cada lado do cursor (o mesmo do EditingUtil). */
+    /** Characters read on each side of the cursor (the same as EditingUtil). */
     static final int REACH = 1000;
 
-    /** Resposta interna: o retrato do texto não serve, use o caminho de sempre (nunca sai desta classe). */
+    /** Internal answer: the text snapshot is no use, take the usual path (never leaves this class). */
     static final EditingUtil.SelectedWord NO_SNAPSHOT = new EditingUtil.SelectedWord();
 
     /**
-     * Palavra de 2 a 48 caracteres, com pelo menos uma letra e nenhum dígito (códigos, senhas,
-     * "4g", "abc123" não ganham sugestões).
+     * Word of 2 to 48 characters, with at least one letter and no digit (codes, passwords,
+     * "4g", "abc123" do not get suggestions).
      */
     static boolean eligible(CharSequence word) {
         if (word == null) return false;
@@ -54,8 +54,8 @@ public final class MrRecorrect {
     }
 
     /**
-     * A palavra sob o cursor, ou a seleção quando ela é uma palavra inteira; null se não há palavra.
-     * start e end são posições no texto do editor (o que o setComposingRegion espera).
+     * The word under the cursor, or the selection when it is a whole word; null if there is no word.
+     * start and end are positions in the editor text (what setComposingRegion expects).
      */
     static EditingUtil.SelectedWord wordAt(InputConnection ic, int selStart, int selEnd, String separators) {
         if (ic == null || separators == null) return null;
@@ -66,7 +66,7 @@ public final class MrRecorrect {
         return EditingUtil.getWordAtCursorOrSelection(ic, selStart, selEnd, separators);
     }
 
-    /** Separado para o Android 8 a 11 nunca carregar SurroundingText (API 31). */
+    /** Separate so that Android 8 to 11 never load SurroundingText (API 31). */
     static final class Api31 {
         private Api31() { }
 
@@ -84,9 +84,9 @@ public final class MrRecorrect {
     }
 
     /**
-     * Acha a palavra dentro do retrato do texto. text = o texto lido; s/e = a seleção dentro dele (pode
-     * vir invertida); offset = onde o texto começa no editor (-1 se o editor não sabe; aí a posição
-     * sai da última seleção guardada, cachedStart/cachedEnd).
+     * Finds the word inside the text snapshot. text = the text read; s/e = the selection inside it (may
+     * come inverted); offset = where the text starts in the editor (-1 if the editor does not know; then the position
+     * comes from the last stored selection, cachedStart/cachedEnd).
      */
     static EditingUtil.SelectedWord fromSnapshot(CharSequence text, int s, int e, int offset,
             int cachedStart, int cachedEnd, String separators) {
@@ -104,8 +104,8 @@ public final class MrRecorrect {
             while (b < n && !isSeparator(text.charAt(b), separators)) b++;
             if (a == b) return null;
         } else {
-            // seleção: só vale se for uma palavra inteira (separador ou borda do texto de cada lado,
-            // nenhum separador dentro)
+            // selection: only counts if it is a whole word (separator or text edge on each side,
+            // no separator inside)
             if (s == 0 ? offset > 0 : !isSeparator(text.charAt(s - 1), separators)) return null;
             if (e < n && !isSeparator(text.charAt(e), separators)) return null;
             for (int i = s; i < e; i++) {
@@ -125,12 +125,12 @@ public final class MrRecorrect {
         return separators.indexOf(c) >= 0;
     }
 
-    // ------------------------------------------------------------------ faixa da palavra reaberta
+    // ------------------------------------------------------------------ strip of the reopened word
 
     /**
-     * A palavra reaberta é uma palavra do dicionário (como está ou em minúsculas)? Se for, a faixa a mostra no
-     * centro, como na digitação ("gato" no meio e "fato", "gatos" nos lados); se não for, no centro fica a
-     * melhor correção. Sem isso, as teclas vizinhas faziam "fato" tomar o centro de uma palavra certa (1.75).
+     * Is the reopened word a dictionary word (as is or in lowercase)? If so, the strip shows it in the
+     * center, as in typing ("gato" in the middle and "fato", "gatos" at the sides); if not, the center holds the
+     * best correction. Without this, the neighbouring keys made "fato" take the center from a correct word (1.75).
      */
     static boolean isValid(Suggest suggest, CharSequence word) {
         if (suggest == null || word == null || word.length() == 0) return false;
@@ -142,15 +142,15 @@ public final class MrRecorrect {
         }
     }
 
-    // ------------------------------------------------------------------ palavra reaberta com teclas vizinhas
+    // ------------------------------------------------------------------ reopened word with neighbouring keys
 
-    /** Tamanho do vetor de códigos da digitação (ProximityKeyDetector.getMaxNearbyKeys). */
+    /** Size of the typing codes vector (ProximityKeyDetector.getMaxNearbyKeys). */
     static final int NEARBY = 12;
 
     /**
-     * A palavra como se tivesse sido digitada agora: cada letra leva, depois dela, as teclas vizinhas do
-     * teclado atual, da mais perto para a mais longe (o mesmo que o ProximityKeyDetector faz no toque,
-     * com o centro da tecla no lugar do dedo). Sem teclado de letras na tela, só as letras.
+     * The word as if it had just been typed: each letter carries, after it, the neighbouring keys of the
+     * current keyboard, from the closest to the farthest (what the ProximityKeyDetector does on touch,
+     * with the center of the key in place of the finger). Without a letter keyboard on screen, only the letters.
      */
     static WordComposer composer(KeyboardSwitcher switcher, CharSequence word) {
         WordComposer wc = new WordComposer();
@@ -172,7 +172,7 @@ public final class MrRecorrect {
         return wc;
     }
 
-    /** [c, vizinhas da mais perto à mais longe, -1 ...], com NEARBY posições. */
+    /** [c, neighbours from the closest to the farthest, -1 ...], with NEARBY positions. */
     static int[] codesFor(Keyboard kb, List<Keyboard.Key> keys, char c) {
         int[] codes = new int[NEARBY];
         Arrays.fill(codes, -1);
@@ -215,12 +215,12 @@ public final class MrRecorrect {
                 if (n < NEARBY) n++;
             }
         } catch (RuntimeException e) {
-            // fica o que já foi montado
+            // what has already been built stays
         }
         return codes;
     }
 
-    /** A tecla da letra c (sem acento nem caixa) no teclado, ou null (teclado de símbolos, p. ex.). */
+    /** The key of letter c (without accent or case) on the keyboard, or null (symbols keyboard, for example). */
     private static Keyboard.Key keyFor(List<Keyboard.Key> keys, char c) {
         char base = MrText.base(c);
         for (int i = 0, n = keys.size(); i < n; i++) {

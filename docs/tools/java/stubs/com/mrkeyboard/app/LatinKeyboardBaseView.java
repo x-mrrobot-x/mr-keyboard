@@ -1,8 +1,8 @@
 package com.mrkeyboard.app;
 
-/** Stub de compilação e de teste de PC (a classe de verdade é o smali LatinKeyboardBaseView, uma View). */
+/** Compile and PC test stub (the real class is the LatinKeyboardBaseView smali, a View). */
 public class LatinKeyboardBaseView {
-    /** Só para os testes. */
+    /** Tests only. */
     public Keyboard keyboard;
 
     public Keyboard getKeyboard() { return keyboard; }

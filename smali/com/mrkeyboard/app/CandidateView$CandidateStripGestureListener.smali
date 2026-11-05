@@ -83,7 +83,7 @@
 
     add-float/2addr p1, v0
 
-    # toque longo so vale sobre a celula da palavra digitada (mrLayout a posiciona no meio)
+    # long press only counts over the typed word's cell (mrLayout puts it in the middle)
     iget-object v0, p0, Lcom/mrkeyboard/app/CandidateView$CandidateStripGestureListener;->this$0:Lcom/mrkeyboard/app/CandidateView;
 
     invoke-virtual {v0, p1}, Lcom/mrkeyboard/app/CandidateView;->mrOnFirst(F)Z

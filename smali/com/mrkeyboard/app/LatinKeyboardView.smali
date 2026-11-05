@@ -1941,8 +1941,8 @@
 .end method
 
 # MR FIX ------------------------------------------------------------------
-# O teclado de extensao (aberto deslizando para cima) continua digitando a
-# tecla onde o dedo e solto, mesmo depois de deslizar na horizontal.
+# The extension keyboard (opened by swiping up) keeps typing the
+# key where the finger is released, even after swiping horizontally.
 .method protected swipeGuardEnabled()Z
     .locals 1
 

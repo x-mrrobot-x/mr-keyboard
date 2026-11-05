@@ -4,11 +4,11 @@ import android.content.Context;
 import android.view.ContextThemeWrapper;
 
 /**
- * Contexto do teclado com os recursos no idioma escolhido em "Idioma do app". A barra de ferramentas
- * (mr_toolbar.xml) é inflada com ele para que os textos do layout sigam o idioma do app e não só o do
- * sistema (o texto de um atributo de layout sai dos recursos do tema do contexto, por isso não basta
- * trocar getResources()). Mantém o tema do teclado. Sem idioma escolhido ("Padrão do sistema"), devolve
- * o próprio contexto e nada muda.
+ * Keyboard context with the resources in the language chosen in "Idioma do app" (App language). The toolbar
+ * (mr_toolbar.xml) is inflated with it so that the layout texts follow the app language and not just the
+ * system one (the text of a layout attribute comes from the resources of the context theme, so it is not enough to
+ * swap getResources()). Keeps the keyboard theme. With no language chosen ("Padrão do sistema", system default), it returns
+ * the context itself and nothing changes.
  */
 public final class MrLocaleCtx {
     private MrLocaleCtx() { }

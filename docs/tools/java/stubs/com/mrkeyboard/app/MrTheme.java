@@ -1,6 +1,6 @@
 package com.mrkeyboard.app;
 
-/** Stub de compilação (classe do APK). */
+/** Compile stub (APK class). */
 public final class MrTheme {
     public static boolean flatBar() { return false; }
 }

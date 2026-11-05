@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Leitor de JSON pequeno para o catálogo de dicionários (v1.63). Devolve Map (objeto), List
- * (lista), String, Long ou Double (número), Boolean e null. Limita profundidade e tamanho, e lança
- * IllegalArgumentException em JSON inválido.
+ * Small JSON reader for the dictionary catalog (v1.63). Returns Map (object), List
+ * (list), String, Long or Double (number), Boolean and null. Limits depth and size, and throws
+ * IllegalArgumentException on invalid JSON.
  */
 final class MrJson {
     private static final int MAX_DEPTH = 32;
@@ -20,32 +20,32 @@ final class MrJson {
     }
 
     static Object parse(String text) {
-        if (text == null) throw new IllegalArgumentException("vazio");
+        if (text == null) throw new IllegalArgumentException("empty");
         MrJson j = new MrJson(text);
         j.ws();
         Object v = j.value(0);
         j.ws();
-        if (j.p != text.length()) throw new IllegalArgumentException("sobra depois do JSON");
+        if (j.p != text.length()) throw new IllegalArgumentException("extra data after the JSON");
         return v;
     }
 
-    // ---------------------------------------------------------------- acesso com tipo
+    // ---------------------------------------------------------------- typed access
 
     @SuppressWarnings("unchecked")
     static Map<String, Object> obj(Object o) {
-        if (!(o instanceof Map)) throw new IllegalArgumentException("esperava objeto");
+        if (!(o instanceof Map)) throw new IllegalArgumentException("expected an object");
         return (Map<String, Object>) o;
     }
 
     @SuppressWarnings("unchecked")
     static List<Object> list(Object o) {
-        if (!(o instanceof List)) throw new IllegalArgumentException("esperava lista");
+        if (!(o instanceof List)) throw new IllegalArgumentException("expected a list");
         return (List<Object>) o;
     }
 
     static String str(Map<String, Object> m, String k) {
         Object o = m.get(k);
-        if (!(o instanceof String)) throw new IllegalArgumentException("campo " + k + " ausente ou não é texto");
+        if (!(o instanceof String)) throw new IllegalArgumentException("field " + k + " missing or not text");
         return (String) o;
     }
 
@@ -56,15 +56,15 @@ final class MrJson {
 
     static long num(Map<String, Object> m, String k) {
         Object o = m.get(k);
-        if (!(o instanceof Long)) throw new IllegalArgumentException("campo " + k + " ausente ou não é inteiro");
+        if (!(o instanceof Long)) throw new IllegalArgumentException("field " + k + " missing or not an integer");
         return (Long) o;
     }
 
-    // ---------------------------------------------------------------- leitura
+    // ---------------------------------------------------------------- reading
 
     private Object value(int depth) {
-        if (depth > MAX_DEPTH) throw new IllegalArgumentException("JSON fundo demais");
-        if (p >= s.length()) throw new IllegalArgumentException("fim inesperado");
+        if (depth > MAX_DEPTH) throw new IllegalArgumentException("JSON nested too deep");
+        if (p >= s.length()) throw new IllegalArgumentException("unexpected end");
         char c = s.charAt(p);
         if (c == '{') return object(depth);
         if (c == '[') return array(depth);
@@ -73,7 +73,7 @@ final class MrJson {
         if (c == 'f' && s.startsWith("false", p)) { p += 5; return Boolean.FALSE; }
         if (c == 'n' && s.startsWith("null", p)) { p += 4; return null; }
         if (c == '-' || (c >= '0' && c <= '9')) return number();
-        throw new IllegalArgumentException("caractere inesperado na posição " + p);
+        throw new IllegalArgumentException("unexpected character at position " + p);
     }
 
     private Map<String, Object> object(int depth) {
@@ -83,10 +83,10 @@ final class MrJson {
         if (peek() == '}') { p++; return m; }
         while (true) {
             ws();
-            if (peek() != '"') throw new IllegalArgumentException("esperava nome de campo");
+            if (peek() != '"') throw new IllegalArgumentException("expected a field name");
             String k = string();
             ws();
-            if (peek() != ':') throw new IllegalArgumentException("esperava ':'");
+            if (peek() != ':') throw new IllegalArgumentException("expected ':'");
             p++;
             ws();
             m.put(k, value(depth + 1));
@@ -95,7 +95,7 @@ final class MrJson {
             p++;
             if (c == ',') continue;
             if (c == '}') return m;
-            throw new IllegalArgumentException("esperava ',' ou '}'");
+            throw new IllegalArgumentException("expected ',' or '}'");
         }
     }
 
@@ -112,7 +112,7 @@ final class MrJson {
             p++;
             if (c == ',') continue;
             if (c == ']') return l;
-            throw new IllegalArgumentException("esperava ',' ou ']'");
+            throw new IllegalArgumentException("expected ',' or ']'");
         }
     }
 
@@ -120,11 +120,11 @@ final class MrJson {
         p++;
         StringBuilder b = new StringBuilder();
         while (true) {
-            if (p >= s.length()) throw new IllegalArgumentException("texto sem fim");
+            if (p >= s.length()) throw new IllegalArgumentException("unterminated string");
             char c = s.charAt(p++);
             if (c == '"') return b.toString();
             if (c == '\\') {
-                if (p >= s.length()) throw new IllegalArgumentException("escape sem fim");
+                if (p >= s.length()) throw new IllegalArgumentException("unterminated escape");
                 char e = s.charAt(p++);
                 switch (e) {
                     case '"': b.append('"'); break;
@@ -136,19 +136,19 @@ final class MrJson {
                     case 'r': b.append('\r'); break;
                     case 't': b.append('\t'); break;
                     case 'u':
-                        if (p + 4 > s.length()) throw new IllegalArgumentException("\\u incompleto");
+                        if (p + 4 > s.length()) throw new IllegalArgumentException("incomplete \\u");
                         try {
                             b.append((char) Integer.parseInt(s.substring(p, p + 4), 16));
                         } catch (NumberFormatException ex) {
-                            throw new IllegalArgumentException("\\u inválido");
+                            throw new IllegalArgumentException("invalid \\u");
                         }
                         p += 4;
                         break;
                     default:
-                        throw new IllegalArgumentException("escape inválido");
+                        throw new IllegalArgumentException("invalid escape");
                 }
             } else {
-                if (c < 0x20) throw new IllegalArgumentException("controle dentro de texto");
+                if (c < 0x20) throw new IllegalArgumentException("control character inside string");
                 b.append(c);
             }
         }
@@ -169,12 +169,12 @@ final class MrJson {
             if (!real) return Long.parseLong(t);
             return Double.parseDouble(t);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("número inválido: " + t);
+            throw new IllegalArgumentException("invalid number: " + t);
         }
     }
 
     private char peek() {
-        if (p >= s.length()) throw new IllegalArgumentException("fim inesperado");
+        if (p >= s.length()) throw new IllegalArgumentException("unexpected end");
         return s.charAt(p);
     }
 

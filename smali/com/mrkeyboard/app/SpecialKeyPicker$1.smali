@@ -188,7 +188,7 @@
 
     if-nez v10, :cond_58
 
-    # também acha pelo nome já traduzido (espanhol)
+    # also finds it by the already translated name (Spanish)
     sget-object v10, Ljava/util/Locale;->US:Ljava/util/Locale;
 
     invoke-virtual {v8, v10}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;

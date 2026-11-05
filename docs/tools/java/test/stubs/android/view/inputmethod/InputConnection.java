@@ -1,6 +1,6 @@
 package android.view.inputmethod;
 
-/** Stub de compilação: só o que a camada nova usa. */
+/** Compile stub: only what the new layer uses. */
 public interface InputConnection {
     CharSequence getTextBeforeCursor(int n, int flags);
 }

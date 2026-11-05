@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Stub de compilação e de teste de PC. mrMainDict/mrUserBigrams são acrescentados à classe real no smali.
- * Para os testes: valid = palavras "do dicionário"; added = o que foi entregue por addWord.
+ * Compile and PC test stub. mrMainDict/mrUserBigrams are added to the real class in the smali.
+ * For the tests: valid = "dictionary" words; added = what was handed over by addWord.
  */
 public class Suggest implements Dictionary.WordCallback {
     public final Set<String> valid = new HashSet<String>();

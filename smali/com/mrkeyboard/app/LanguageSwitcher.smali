@@ -249,7 +249,7 @@
 .method public allowAutoCap()Z
     .locals 1
 
-    # sem exceções por idioma desde a 1.67 (a lista da tela Idiomas de entrada saiu): pt, en e es usam maiúscula automática
+    # no per-language exceptions since 1.67 (the list on the Input languages screen was removed): pt, en and es use auto-capitalization
     const/4 v0, 0x1
 
     return v0
@@ -258,7 +258,7 @@
 .method public allowAutoSpace()Z
     .locals 1
 
-    # sem exceções por idioma desde a 1.67: pt, en e es usam espaço automático
+    # no per-language exceptions since 1.67: pt, en and es use auto-space
     const/4 v0, 0x1
 
     return v0
@@ -267,7 +267,7 @@
 .method public allowDeadKeys()Z
     .locals 1
 
-    # sem exceções por idioma desde a 1.67: pt, en e es usam teclas mortas
+    # no per-language exceptions since 1.67: pt, en and es use dead keys
     const/4 v0, 0x1
 
     return v0

@@ -9,18 +9,18 @@
 .implements Ljava/lang/Runnable;
 
 
-# modos de instancia (mMode):
-# 0 = carregar lista (thread)   1 = carregar miniatura (thread)
-# 2 = aplicar lista (UI)        3 = adapter da grade / clique do estado vazio
-# 4 = aplicar miniatura (UI)
-# 5 = copiar midia para o cache (thread)   6 = entregar copia ao app (UI)
-# 7 = preparar URI original sem copia (thread)   8 = tentar entrega direta (UI)
-# 9 = preparar URI do seletor (thread)   10 = aguardar destino (UI)   11 = soltar permissao da URI (UI)
-# 12 = preparar lote (thread)   13 = enviar lote por commit/share (UI)   14 = copiar recusados do lote (thread)   15 = entregar copias do lote (UI)
-# sVid: false = Fotos (funil: screenshots > camera > recentes)  true = Videos (MediaStore.Video)
+# instance modes (mMode):
+# 0 = load list (thread)   1 = load thumbnail (thread)
+# 2 = apply list (UI)        3 = grid adapter / empty-state click
+# 4 = apply thumbnail (UI)
+# 5 = copy media to the cache (thread)   6 = deliver copy to the app (UI)
+# 7 = prepare original URI without copy (thread)   8 = try direct delivery (UI)
+# 9 = prepare picker URI (thread)   10 = wait for target (UI)   11 = release URI permission (UI)
+# 12 = prepare batch (thread)   13 = send batch by commit/share (UI)   14 = copy refused items of the batch (thread)   15 = deliver batch copies (UI)
+# sVid: false = Photos (funnel: screenshots > camera > recents)  true = Videos (MediaStore.Video)
 
-# sFiles: true = Arquivos (MediaStore.Files, mNames/mMimes em paralelo a mIds)
-# ids em mIds: positivo = imagem, negativo = video (-_id)
+# sFiles: true = Files (MediaStore.Files, mNames/mMimes parallel to mIds)
+# ids in mIds: positive = image, negative = video (-_id)
 .field static sLists:[Lcom/mrkeyboard/app/MrShots;
 .field static sQueryExec:Ljava/util/concurrent/ExecutorService;
 .field static sQueryPending:Z
@@ -3002,7 +3002,7 @@
     return-object v0
 .end method
 
-# Tamanho em px de p0 decimos de dp (15 = 1,5 dp).
+# Size in px of p0 tenths of dp (15 = 1.5 dp).
 .method private static dpx(I)I
     .locals 1
 
@@ -3015,7 +3015,7 @@
     return v0
 .end method
 
-# Vibra ao iniciar a selecao, se "Vibrar ao tocar" estiver ligado nas configuracoes.
+# Vibrates when the selection starts, if "Vibrate on tap" is on in the settings.
 .method private static buzz()V
     .locals 4
 
@@ -3045,11 +3045,11 @@
     return-void
 .end method
 
-# Camada de cima do item (foreground). Desmarcado: so o selo de video, centralizado (aba Videos), ou nada.
-# Marcado: camada de destaque sobre a miniatura (sel_media; em arquivo, transparente porque o fundo ja muda),
-# selo de video centralizado e o check no canto superior direito (circulo sel_send com anel sel_send_stroke
-# e traco sel_send_text). Cada vinculo reconstroi a camada, entao a view reaproveitada nunca herda a gravidade
-# nem o desenho do item anterior.
+# Top layer of the item (foreground). Unchecked: only the video badge, centered (Videos tab), or nothing.
+# Checked: highlight layer over the thumbnail (sel_media; on a file, transparent because the background already changes),
+# centered video badge and the check in the top right corner (sel_send circle with sel_send_stroke ring
+# and sel_send_text stroke). Each binding rebuilds the layer, so a reused view never inherits the gravity
+# or the drawing of the previous item.
 .method private static fore(Landroid/view/View;Z)V
     .locals 8
 

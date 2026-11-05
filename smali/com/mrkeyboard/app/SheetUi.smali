@@ -576,8 +576,8 @@
     move-result v11
 
     .line 210
-    # Dialog SEM borda: stroke = 0. Fundo um pouco mais claro (0xFF1A2433) para
-    # destacar da pagina de fundo (C_BG = 0xFF080C11).
+    # Dialog WITHOUT border: stroke = 0. Slightly lighter background (0xFF1A2433) to
+    # stand out from the background page (C_BG = 0xFF080C11).
     const v15, -0xe5dbcd    # 0xFF1A2433 (C_DIALOG_BG)
 
     const/4 v13, 0x0
@@ -598,8 +598,8 @@
     invoke-virtual {v8, v11}, Landroid/widget/LinearLayout;->setElevation(F)V
 
     .line 212
-    # clipToOutline ligado + nenhuma borda: nao ha stroke para ser recortado e os
-    # cantos do dialog ficam sempre redondos (o header tambem desenha os seus).
+    # clipToOutline on + no border: there is no stroke to be clipped and the
+    # dialog corners are always rounded (the header also draws its own).
     const/4 v9, 0x1
 
     invoke-virtual {v8, v9}, Landroid/widget/LinearLayout;->setClipToOutline(Z)V
@@ -617,8 +617,8 @@
 
     const/4 v9, 0x0
 
-    # Header do menu REMOVIDO: o dialog mostra apenas as opcoes (com divisorias
-    # sutis entre os grupos, marcadas por MenuEntry.dividerBefore).
+    # Menu header REMOVED: the dialog shows only the options (with subtle dividers
+    # between the groups, marked by MenuEntry.dividerBefore).
     .line 214
     :cond_176
     const v13, 0x2429c5f6
@@ -733,8 +733,8 @@
     invoke-direct {v13, v0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
     .line 271
-    # divisoria sutil: 0xFF33445E (um degrau acima do fundo 0xFF1A2433)
-    # ATENCAO: sem o alpha 0xFF o valor vira 0x0033445E = totalmente transparente
+    # subtle divider: 0xFF33445E (one step above the 0xFF1A2433 background)
+    # WARNING: without the 0xFF alpha the value becomes 0x0033445E = fully transparent
     const v14, -0xccbba2
 
     invoke-virtual {v13, v14}, Landroid/view/View;->setBackgroundColor(I)V
@@ -1520,6 +1520,6 @@
     return-void
 .end method
 
-# Retangulo com fundo, borda e cantos SUPERIORES arredondados (cantos de baixo
-# retos). Usado no header do menu de Folhas para a borda do topo aparecer.
+# Rectangle with background, border and rounded TOP corners (bottom corners
+# square). Used in the Sheets menu header so the top border shows up.
 

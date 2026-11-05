@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
-/** Teste da camada Java de reserva (MrFuzzy + MrFix) sobre o .dict, no PC. */
+/** Test of the Java fallback layer (MrFuzzy + MrFix) over the .dict, on the PC. */
 public class FuzzyTest {
     static final String[] ROWS = {"qwertyuiop", "asdfghjklç", "zxcvbnm"};
 
@@ -66,13 +66,13 @@ public class FuzzyTest {
         List<String> freqLines = lines(a[1]);
         for (String s : freqLines) words.add(s.split("\t")[0]);
         BinaryDictionary dict = new BinaryDictionary(buf, bytes.length, words);
-        // aquecimento
+        // warm-up
         String[] warm = {"obrogado", "excessao", "trabakho", "nescessario", "prota", "concerteza", "adevogado", "sombrancelha"};
         for (int i = 0; i < 3000; i++) {
             Suggest s = new Suggest(dict);
             MrFuzzy.afterWords(s, compose(warm[i % warm.length]));
         }
-        // casos
+        // cases
         int ok3 = 0, total = 0;
         double sum = 0, worst = 0;
         long vsum = 0;
@@ -91,11 +91,11 @@ public class FuzzyTest {
             if (hit) ok3++;
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < Math.min(5, s.words.size()); i++) sb.append(s.words.get(i)).append(' ');
-            System.out.printf("%s %-13s -> %-13s %6.3f ms %5d nós | %s%n", hit ? "OK   " : (at >= 0 ? "POS" + (at + 1) + " " : "FALHA"), p[0], p[1], ms, visits(), sb);
+            System.out.printf("%s %-13s -> %-13s %6.3f ms %5d nodes | %s%n", hit ? "OK   " : (at >= 0 ? "POS" + (at + 1) + " " : "FAIL "), p[0], p[1], ms, visits(), sb);
         }
-        System.out.printf("casos: %d/%d com a esperada entre as 3 primeiras; média %.3f ms, pior %.3f ms; nós visitados em média %d%n", ok3, total, sum / total, worst, vsum / total);
+        System.out.printf("cases: %d/%d with the expected one among the first 3; average %.3f ms, worst %.3f ms; nodes visited on average %d%n", ok3, total, sum / total, worst, vsum / total);
 
-        // erros sintéticos sobre palavras frequentes
+        // synthetic errors over frequent words
         if (a.length > 3) {
             Random rnd = new Random(42);
             List<String> pool = new ArrayList<String>();
@@ -104,7 +104,7 @@ public class FuzzyTest {
                 String w = p[0];
                 if (Integer.parseInt(p[1]) >= 110 && w.length() >= 4 && w.length() <= 12 && w.equals(w.toLowerCase()) && w.matches("[a-zà-ÿ]+")) pool.add(w);
             }
-            String[] kinds = {"vizinha", "falta", "sobra", "dobrada", "troca", "fonetica"};
+            String[] kinds = {"neighbour", "missing", "extra", "doubled", "swap", "phonetic"};
             int[] hit = new int[kinds.length], cnt = new int[kinds.length], valid = new int[kinds.length];
             double tsum = 0, tworst = 0;
             long tv = 0; int vmax = 0;
@@ -129,11 +129,11 @@ public class FuzzyTest {
             }
             int all = 0, allHit = 0;
             for (int k = 0; k < kinds.length; k++) {
-                System.out.printf("  %-9s %4d/%4d (%.0f%%)  [viraram palavra válida: %d]%n", kinds[k], hit[k], cnt[k], 100.0 * hit[k] / Math.max(1, cnt[k]), valid[k]);
+                System.out.printf("  %-9s %4d/%4d (%.0f%%)  [became a valid word: %d]%n", kinds[k], hit[k], cnt[k], 100.0 * hit[k] / Math.max(1, cnt[k]), valid[k]);
                 all += cnt[k];
                 allHit += hit[k];
             }
-            System.out.printf("sintéticos: %d/%d (%.0f%%) com a original entre as 3 primeiras; média %.3f ms, pior %.3f ms; nós: média %d, máx %d%n", allHit, all, 100.0 * allHit / all, tsum / all, tworst, tv / all, vmax);
+            System.out.printf("synthetic: %d/%d (%.0f%%) with the original among the first 3; average %.3f ms, worst %.3f ms; nodes: average %d, max %d%n", allHit, all, 100.0 * allHit / all, tsum / all, tworst, tv / all, vmax);
         }
     }
 
@@ -141,7 +141,7 @@ public class FuzzyTest {
         int n = w.length();
         int i = 1 + r.nextInt(n - 1);
         switch (kind) {
-            case 0: { // tecla vizinha
+            case 0: { // neighbouring key
                 int[] c = codesFor(w.charAt(i));
                 int m = 0; while (m < 16 && c[m] > 0) m++;
                 if (m < 2) return null;

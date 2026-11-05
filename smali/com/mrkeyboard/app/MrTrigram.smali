@@ -486,7 +486,7 @@
     :cond_0
     new-instance v0, Ljava/io/IOException;
 
-    const-string v1, "formato desconhecido"
+    const-string v1, "unknown format"
 
     invoke-direct {v0, v1}, Ljava/io/IOException;-><init>(Ljava/lang/String;)V
 

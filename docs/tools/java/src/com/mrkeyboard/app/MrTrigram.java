@@ -9,27 +9,27 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 /**
- * Palavras mais prováveis depois de DUAS palavras (v1.62), do trigrams.bin do pacote de dicionário
- * (desde a 1.63; antes ficava em assets). Formato em docs/tools/make_trigrams.py. Só tem os
- * contextos em que o par sozinho erraria; no resto a previsão continua com os bigramas do .dict.
+ * Most likely words after TWO words (v1.62), from the trigrams.bin of the dictionary pack
+ * (since 1.63; before, it was in assets). Format in docs/tools/make_trigrams.py. It only has the
+ * contexts where the pair alone would be wrong; for the rest the prediction goes on with the bigrams of the .dict.
  *
- * MrPacks chama use() ao ativar o pacote do idioma: carrega numa thread à parte (uns poucos MB na
- * memória); enquanto não termina, find() devolve 0 e a previsão usa só os bigramas.
+ * MrPacks calls use() when activating the language pack: it loads in a separate thread (a few MB in
+ * memory); until it finishes, find() returns 0 and the prediction uses only the bigrams.
  */
 public final class MrTrigram {
     private MrTrigram() { }
 
-    private static String[] sWords;               // em ordem de código (String.compareTo)
-    private static long[] sKeys;                  // (id1 << 32) | id2, em ordem
-    private static int[] sStart;                  // início das continuações de cada contexto
-    private static int[] sNext;                   // ids das continuações
-    private static byte[] sScore;                 // f7 de cada continuação
-    private static String sPath;                  // arquivo carregado (ou carregando)
-    private static int sGen;                      // muda a cada use(); carga velha é descartada
-    private static boolean sNative;               // v1.77: o arquivo está aberto na lib nativa (MrNative), não em sWords
-    private static final Object NATIVE_LOAD = new Object();   // uma abertura nativa por vez (a lib guarda um arquivo só)
+    private static String[] sWords;               // in code order (String.compareTo)
+    private static long[] sKeys;                  // (id1 << 32) | id2, in order
+    private static int[] sStart;                  // start of the continuations of each context
+    private static int[] sNext;                   // ids of the continuations
+    private static byte[] sScore;                 // f7 of each continuation
+    private static String sPath;                  // file loaded (or loading)
+    private static int sGen;                      // changes at every use(); an old load is discarded
+    private static boolean sNative;               // v1.77: the file is open in the native lib (MrNative), not in sWords
+    private static final Object NATIVE_LOAD = new Object();   // one native open at a time (the lib keeps a single file)
 
-    /** Passa a usar este arquivo (null = nenhum). Não faz nada se já é o arquivo em uso. */
+    /** Starts using this file (null = none). Does nothing if it is already the file in use. */
     static void use(final File file) {
         final String path = file != null ? file.getPath() : null;
         final int gen;
@@ -50,15 +50,15 @@ public final class MrTrigram {
         }
         Thread t = new Thread(new Runnable() {
             public void run() {
-                // v1.77: a lib lê e confere o arquivo e guarda só índices (uns 4 bytes por palavra e por
-                // contexto); se não abrir (sem lib, arquivo que ela recusa) cai no carregamento Java abaixo
+                // v1.77: the lib reads and checks the file and keeps only indexes (about 4 bytes per word and per
+                // context); if it does not open (no lib, a file it refuses) it falls back to the Java loading below
                 if (openNative(path, gen)) return;
                 InputStream in = null;
                 try {
                     in = new FileInputStream(file);
                     load(in, gen);
                 } catch (Throwable e) {
-                    // sem o arquivo a previsão segue só com os bigramas
+                    // without the file the prediction goes on with the bigrams only
                 } finally {
                     if (in != null) {
                         try { in.close(); } catch (IOException ignored) { }
@@ -70,14 +70,14 @@ public final class MrTrigram {
         t.start();
     }
 
-    /** Abre o arquivo na lib nativa se esta carga ainda é a atual. true = pronto pelo caminho nativo. */
+    /** Opens the file in the native lib if this load is still the current one. true = ready through the native path. */
     private static boolean openNative(String path, int gen) {
         synchronized (NATIVE_LOAD) {
             synchronized (MrTrigram.class) {
-                if (gen != sGen) return true;   // outra carga já tomou o lugar: não há nada a fazer aqui
+                if (gen != sGen) return true;   // another load has taken its place: nothing to do here
             }
             if (!MrNative.triOpen(path)) {
-                MrNative.triClose();   // não deixa o arquivo anterior aberto na lib
+                MrNative.triClose();   // does not leave the previous file open in the lib
                 return false;
             }
             synchronized (MrTrigram.class) {
@@ -97,13 +97,13 @@ public final class MrTrigram {
         load(raw, gen);
     }
 
-    /** Lê o arquivo (também usado nos testes). */
+    /** Reads the file (also used in tests). */
     private static void load(InputStream raw, int gen) throws IOException {
         DataInputStream in = new DataInputStream(new BufferedInputStream(raw, 65536));
         byte[] magic = new byte[4];
         in.readFully(magic);
         if (magic[0] != 'M' || magic[1] != 'R' || magic[2] != 'T' || magic[3] != '1') {
-            throw new IOException("formato desconhecido");
+            throw new IOException("unknown format");
         }
         int n = in.readInt();
         String[] words = new String[n];
@@ -161,8 +161,8 @@ public final class MrTrigram {
     }
 
     /**
-     * Continuações de (w1, w2) com a f7 de cada uma, ou null. Tenta as palavras como vieram e em
-     * minúscula (início de frase).
+     * Continuations of (w1, w2) with the f7 of each, or null. Tries the words as they came and in
+     * lowercase (start of sentence).
      */
     static synchronized int find(String w1, String w2, String[] outWords, int[] outScores) {
         if ((sWords == null && !sNative) || w1 == null || w2 == null) return 0;

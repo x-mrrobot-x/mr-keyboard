@@ -735,9 +735,9 @@
 
     invoke-static {v0, v1}, Ljava/util/Arrays;->fill([II)V
 
-    # Mr Keyboard v1.60: a lib compara a inicial da palavra seguinte de forma exata com os
-    # codigos passados. Antes iam so os 16 da 1a tecla (tocada + vizinhas); agora vao tambem as
-    # variantes com acento e maiuscula de cada um (e -> e, E, é, ê, É, Ê), ate 96 codigos.
+    # Mr Keyboard v1.60: the lib compares the initial of the next word exactly against the
+    # codes passed in. Before, only the 16 of the 1st key went (touched + neighbors); now the accented
+    # and uppercase variants of each one go too (e -> e, E, é, ê, É, Ê), up to 96 codes.
     .line 187
     invoke-virtual {p1, v13}, Lcom/mrkeyboard/app/WordComposer;->getCodesAt(I)[I
 
@@ -772,7 +772,7 @@
 
     move-result v0
 
-    # Mr Keyboard v1.60: no x86 a lib devolve letras acentuadas com sinal (é -> U+FFE9)
+    # Mr Keyboard v1.60: on x86 the lib returns accented letters with sign (é -> U+FFE9)
     iget-object v1, v12, Lcom/mrkeyboard/app/BinaryDictionary;->mOutputChars_bigrams:[C
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrText;->fixNative([C)V
@@ -840,7 +840,7 @@
     return-void
 .end method
 
-# Mr Keyboard v1.60: acesso da camada Java (MrFuzzy, MrPredict) ao .dict ja carregado.
+# Mr Keyboard v1.60: access for the Java layer (MrFuzzy, MrPredict) to the already loaded .dict.
 .method public mrBuffer()Ljava/nio/ByteBuffer;
     .locals 1
 
@@ -857,9 +857,9 @@
     return v0
 .end method
 
-# Bigramas de p1 (palavra anterior) cuja palavra seguinte comeca por um dos p3 primeiros codigos
-# de p2. p4: 60 x 48 chars (palavras terminadas em 0); p5: 60 frequencias (0 = fim da lista).
-# Usado por MrPredict (previsao depois do espaco, todas as iniciais).
+# Bigrams of p1 (previous word) whose next word starts with one of the first p3 codes
+# of p2. p4: 60 x 48 chars (words ended in 0); p5: 60 frequencies (0 = end of list).
+# Used by MrPredict (prediction after the space, all initials).
 .method public mrBigrams([C[II[C[I)I
     .locals 12
 
