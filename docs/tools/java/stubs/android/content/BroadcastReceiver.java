@@ -1,0 +1,7 @@
+package android.content;
+
+/** Compile stub. */
+public abstract class BroadcastReceiver {
+    public BroadcastReceiver() { }
+    public abstract void onReceive(Context context, Intent intent);
+}

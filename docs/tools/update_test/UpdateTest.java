@@ -1,5 +1,11 @@
 package com.mrkeyboard.app;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.job.JobInfo;
+import android.app.job.JobParameters;
+import android.app.job.JobScheduler;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -22,12 +28,21 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
+import java.util.TimeZone;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * PC test of MrUpdate (the notice of a new version, update.json) with a fake Android: preferences in memory, the
@@ -95,7 +110,10 @@ public class UpdateTest {
 
         public android.content.res.AssetManager getAssets() { return null; }
         public Context getApplicationContext() { return this; }
-        public android.content.res.Resources getResources() { return null; }
+        android.content.res.Resources res;
+        final Map<String, Object> systems = new HashMap<String, Object>();
+        public android.content.res.Resources getResources() { return res; }
+        public Object getSystemService(String name) { return systems.get(name); }
         public String getPackageName() { return "com.mrkeyboard.app"; }
         public File getFilesDir() { return null; }
         public File getCacheDir() { return null; }
@@ -282,6 +300,8 @@ public class UpdateTest {
         windows();
         screens();
         glue();
+        install();
+        morning();
         notesText();
         if (args.length > 0) realFiles(new File(args[0]));
 
@@ -631,8 +651,13 @@ public class UpdateTest {
         final Map<String, Preference> prefs = new HashMap<String, Preference>();
         android.content.Intent intent;
         boolean finishing;
+        final List<String[]> requested = new ArrayList<String[]>();
+        final List<android.content.Intent> started = new ArrayList<android.content.Intent>();
 
         FakeActivity(Ctx c) { ctx = c; }
+        @Override public Object getSystemService(String n) { return ctx.getSystemService(n); }
+        @Override public void requestPermissions(String[] p, int code) { requested.add(p); }
+        @Override public void startActivity(android.content.Intent i) { started.add(i); }
         @Override public Context getApplicationContext() { return ctx; }
         @Override public SharedPreferences getSharedPreferences(String n, int m) { return ctx.getSharedPreferences(n, m); }
         @Override public String getPackageName() { return ctx.getPackageName(); }
@@ -780,6 +805,962 @@ public class UpdateTest {
         MrUpdate.setAuto(f, false);
         MrUpdateUi.bind(fa);
         check("Settings with a known version: the line already says it is available", "mr_update_sum_available".equals(String.valueOf(fr.summary)));
+        at(T0);
+    }
+
+    // ------------------------------------------------------------------ download and install (MrUpdateInstall)
+
+    static final class FakeTarget implements MrUpdateInstall.Target {
+        final java.io.ByteArrayOutputStream data = new java.io.ByteArrayOutputStream();
+        boolean synced, committed, abandoned, closed;
+        String failWrite;      // message of the IOException that the write throws once 'failAfter' bytes are in
+        int failAfter = Integer.MAX_VALUE;
+        boolean failOpen, failCommit;
+        Runnable onSync;
+
+        public java.io.OutputStream openWrite() throws IOException {
+            if (failOpen) throw new IOException("open");
+            return new java.io.OutputStream() {
+                public void write(int b) throws IOException {
+                    write(new byte[] {(byte) b}, 0, 1);
+                }
+
+                public void write(byte[] b, int off, int len) throws IOException {
+                    if (failWrite != null && data.size() + len > failAfter) throw new IOException(failWrite);
+                    data.write(b, off, len);
+                }
+            };
+        }
+
+        public void sync(java.io.OutputStream out) {
+            synced = true;
+            if (onSync != null) onSync.run();
+        }
+
+        public void commit() {
+            if (failCommit) throw new SecurityException("commit");
+            committed = true;
+        }
+
+        public void abandon() { abandoned = true; closed = true; }
+        public void close() { closed = true; }
+    }
+
+    static final class Events implements MrUpdateInstall.Listener {
+        final java.util.List<String> log = Collections.synchronizedList(new ArrayList<String>());
+        volatile MrUpdateInstall.Failure failure;
+        volatile boolean aborted;
+
+        public void state(int state, int percent) { log.add(state + ":" + percent); }
+        public void failed(MrUpdateInstall.Failure f) { failure = f; log.add("failed"); }
+        public void aborted() { aborted = true; log.add("aborted"); }
+        String key() { return failure == null ? null : failure.key; }
+    }
+
+    static final class TSink implements MrUpdateInstall.Sink {
+        volatile boolean cancel;
+        boolean began;
+        final java.util.List<Integer> percents = new ArrayList<Integer>();
+
+        public void percent(int p) { percents.add(p); }
+        public boolean cancelled() { return cancel; }
+        public boolean beginCommit() { if (cancel) return false; began = true; return true; }
+    }
+
+    static byte[] fakeApk(int n) {
+        byte[] b = new byte[n];
+        for (int i = 0; i < n; i++) b[i] = (byte) (i * 31 + (i >> 8));
+        return b;
+    }
+
+    /** The notice of a signed update.json for exactly this APK. */
+    static MrUpdate.Notice noticeFor(byte[] apk) throws Exception {
+        N n = new N();
+        n.size = String.valueOf(apk.length);
+        n.sha = q(hex(MessageDigest.getInstance("SHA-256").digest(apk)));
+        MrUpdate.Result r = run(new Ctx(1081000), n);
+        if (r.notice == null) throw new IllegalStateException("notice: " + r.status + "/" + r.error);
+        return r.notice;
+    }
+
+    static void netWith(final byte[] bytes, final long declared) {
+        MrPacks.sNet = new MrPacks.Net() {
+            public InputStream open(String url, long[] length) {
+                requests++;
+                lastUrl = url;
+                length[0] = declared;
+                return new ByteArrayInputStream(bytes);
+            }
+        };
+    }
+
+    static void install() throws Exception {
+        final byte[] apk = fakeApk(200000); // 4 blocks of 64 KB
+        final MrUpdate.Notice n = noticeFor(apk);
+        installNet();
+
+        // the usual way: everything written, checked, committed
+        body = apk;
+        FakeTarget t = new FakeTarget();
+        Events ev = new Events();
+        TSink sink = new TSink();
+        MrUpdateInstall.flow(n, t, ev, sink);
+        check("install: the APK reaches the session whole, byte by byte", Arrays.equals(t.data.toByteArray(), apk));
+        check("install: synced, committed once, session closed and not abandoned", t.synced && t.committed && t.closed && !t.abandoned);
+        check("install: states go Downloading 0%, Verifying, Installing", ev.log.get(0).equals("1:0") && ev.log.contains("2:100")
+                && ev.log.get(ev.log.size() - 1).equals("3:100") && ev.failure == null);
+        check("install: progress grows to 100% and never goes back", sink.percents.get(sink.percents.size() - 1) == 100
+                && increasing(sink.percents));
+        check("install: it is the APK of the exact tag of the notice that is read (not 'latest')",
+                lastUrl.equals("https://github.com/x-mrrobot-x/mr-keyboard/releases/download/v1.82.0/mr-keyboard-v1.82.0.apk"));
+
+        // an APK that is not the signed one is never committed
+        byte[] flipped = apk.clone();
+        flipped[100000] ^= 1;
+        body = flipped;
+        t = new FakeTarget();
+        ev = new Events();
+        MrUpdateInstall.flow(n, t, ev, new TSink());
+        check("install: same size, one bit changed: 'the file doesn't match', abandoned, not committed",
+                "mr_update_err_mismatch".equals(ev.key()) && t.abandoned && !t.committed);
+
+        byte[] shorter = Arrays.copyOf(apk, apk.length - 1);
+        body = shorter;
+        t = new FakeTarget();
+        ev = new Events();
+        MrUpdateInstall.flow(n, t, ev, new TSink());
+        check("install: shorter than the signed size is refused", "mr_update_err_mismatch".equals(ev.key()) && t.abandoned && !t.committed);
+
+        byte[] longer = Arrays.copyOf(apk, apk.length + 70000);
+        body = longer;
+        t = new FakeTarget();
+        ev = new Events();
+        MrUpdateInstall.flow(n, t, ev, new TSink());
+        check("install: server says a different size than the signed one: refused before writing anything",
+                "mr_update_err_mismatch".equals(ev.key()) && t.data.size() == 0 && t.abandoned && !t.committed);
+
+        netWith(longer, -1); // size unknown (chunked answer): the count stops it
+        t = new FakeTarget();
+        ev = new Events();
+        MrUpdateInstall.flow(n, t, ev, new TSink());
+        check("install: size unknown and the file keeps coming: stops past the signed size, abandoned",
+                "mr_update_err_mismatch".equals(ev.key()) && t.data.size() <= apk.length && t.abandoned && !t.committed);
+        installNet();
+
+        // network
+        body = apk;
+        httpCode = 404;
+        t = new FakeTarget();
+        ev = new Events();
+        MrUpdateInstall.flow(n, t, ev, new TSink());
+        check("install: HTTP 404 (asset missing): 'couldn't download: GitHub answered 404'",
+                ev.failure != null && "mr_update_err_download".equals(ev.key()) && "mr_update_err_http".equals(ev.failure.reasonKey)
+                        && ev.failure.arg == 404 && t.abandoned && !t.committed);
+        httpCode = 0;
+        netDown = true;
+        t = new FakeTarget();
+        ev = new Events();
+        MrUpdateInstall.flow(n, t, ev, new TSink());
+        check("install: no connection: 'couldn't download: no connection'",
+                ev.failure != null && "mr_update_err_network".equals(ev.failure.reasonKey) && t.abandoned && !t.committed);
+        netDown = false;
+
+        // the device
+        t = new FakeTarget();
+        t.failWrite = "write failed: ENOSPC (No space left on device)";
+        t.failAfter = 70000;
+        ev = new Events();
+        MrUpdateInstall.flow(n, t, ev, new TSink());
+        check("install: no space on the device while writing", "mr_update_err_storage".equals(ev.key()) && t.abandoned && !t.committed);
+        t = new FakeTarget();
+        t.failWrite = "broken pipe";
+        t.failAfter = 70000;
+        ev = new Events();
+        MrUpdateInstall.flow(n, t, ev, new TSink());
+        check("install: another write error is 'Android refused'", "mr_update_err_install".equals(ev.key()) && t.abandoned);
+        t = new FakeTarget();
+        t.failOpen = true;
+        ev = new Events();
+        MrUpdateInstall.flow(n, t, ev, new TSink());
+        check("install: the session cannot be opened for writing", "mr_update_err_install".equals(ev.key()) && t.abandoned && !t.committed);
+        t = new FakeTarget();
+        t.failCommit = true;
+        ev = new Events();
+        MrUpdateInstall.flow(n, t, ev, new TSink());
+        check("install: the system refuses the commit (SecurityException): shown as 'Android refused', session abandoned",
+                "mr_update_err_install".equals(ev.key()) && t.abandoned && !t.committed);
+
+        // cancelling
+        t = new FakeTarget();
+        ev = new Events();
+        final TSink cancelling = new TSink();
+        MrPacks.sNet = new MrPacks.Net() {
+            public InputStream open(String url, long[] length) {
+                length[0] = apk.length;
+                return new InputStream() {
+                    int pos;
+
+                    public int read() { return pos < apk.length ? apk[pos++] & 0xff : -1; }
+
+                    public int read(byte[] b, int off, int len) {
+                        if (pos >= apk.length) return -1;
+                        if (pos > 70000) cancelling.cancel = true; // the user taps Cancel after the second block
+                        int r = Math.min(Math.min(len, 65536), apk.length - pos);
+                        System.arraycopy(apk, pos, b, off, r);
+                        pos += r;
+                        return r;
+                    }
+                };
+            }
+        };
+        MrUpdateInstall.flow(n, t, ev, cancelling);
+        check("install: Cancel while downloading: stops, abandons, says nothing", t.abandoned && !t.committed && ev.failure == null && !ev.aborted
+                && t.data.size() < apk.length);
+        installNet();
+        body = apk;
+        t = new FakeTarget();
+        ev = new Events();
+        final TSink late = new TSink();
+        t.onSync = new Runnable() { public void run() { late.cancel = true; } };
+        MrUpdateInstall.flow(n, t, ev, late);
+        check("install: Cancel at the last moment (before the commit): nothing is installed", t.abandoned && !t.committed && ev.failure == null);
+
+        // statuses of the system
+        check("status: installed, waiting for the user and 'No' are not failures", MrUpdateInstall.statusKey(0) == null
+                && MrUpdateInstall.statusKey(-1) == null && MrUpdateInstall.statusKey(3) == null);
+        check("status: no storage has its own text", "mr_update_err_storage".equals(MrUpdateInstall.statusKey(6)));
+        check("status: blocked, invalid, conflict, incompatible (another signature) and unknown are 'Android refused'",
+                "mr_update_err_install".equals(MrUpdateInstall.statusKey(1)) && "mr_update_err_install".equals(MrUpdateInstall.statusKey(2))
+                        && "mr_update_err_install".equals(MrUpdateInstall.statusKey(4)) && "mr_update_err_install".equals(MrUpdateInstall.statusKey(5))
+                        && "mr_update_err_install".equals(MrUpdateInstall.statusKey(7)) && "mr_update_err_install".equals(MrUpdateInstall.statusKey(99)));
+        check("percent: edges", MrUpdateInstall.percent(0, 10) == 0 && MrUpdateInstall.percent(5, 10) == 50
+                && MrUpdateInstall.percent(10, 10) == 100 && MrUpdateInstall.percent(11, 10) == 100 && MrUpdateInstall.percent(5, 0) == 0);
+
+        // the job and the answer of the system (a thread, a fake session)
+        final FakeTarget t1 = new FakeTarget();
+        final Events e1 = new Events();
+        check("job: starts", MrUpdateInstall.startWith(n, t1, e1));
+        check("job: committed and waiting for the system", waitFor(() -> e1.log.contains("3:100")) && t1.committed && !MrUpdateInstall.busy());
+        MrUpdateInstall.cancel();
+        MrUpdateInstall.onResult(3);
+        check("job: Cancel after the commit does nothing; the 'No' of the confirm screen comes back as 'aborted', not as an error",
+                e1.aborted && e1.failure == null);
+        MrUpdateInstall.onResult(6);
+        check("job: an answer when nothing is in progress is ignored", e1.failure == null);
+        final FakeTarget t2 = new FakeTarget();
+        final Events e2 = new Events();
+        MrUpdateInstall.startWith(n, t2, e2);
+        waitFor(() -> e2.log.contains("3:100"));
+        MrUpdateInstall.onResult(6);
+        check("job: 'no space' from the system is shown as such", e2.failure != null && "mr_update_err_storage".equals(e2.key()));
+        final FakeTarget t3 = new FakeTarget();
+        final Events e3 = new Events();
+        MrUpdateInstall.startWith(n, t3, e3);
+        waitFor(() -> e3.log.contains("3:100"));
+        MrUpdateInstall.onResult(0);
+        check("job: success is left to the new app (nothing is shown)", e3.failure == null && !e3.aborted);
+
+        // cancel with a download that is stuck
+        final java.util.concurrent.CountDownLatch gate = new java.util.concurrent.CountDownLatch(1);
+        MrPacks.sNet = new MrPacks.Net() {
+            public InputStream open(String url, long[] length) {
+                length[0] = apk.length;
+                return new InputStream() {
+                    boolean first = true;
+
+                    public int read() { return -1; }
+
+                    public int read(byte[] b, int off, int len) throws IOException {
+                        if (first) {
+                            first = false;
+                            try {
+                                gate.await();
+                            } catch (InterruptedException e) {
+                                throw new IOException("interrupted");
+                            }
+                        }
+                        return -1;
+                    }
+                };
+            }
+        };
+        final FakeTarget t4 = new FakeTarget();
+        final Events e4 = new Events();
+        MrUpdateInstall.startWith(n, t4, e4);
+        waitFor(() -> MrUpdateInstall.busy());
+        check("job: busy while downloading, and a second start is refused", MrUpdateInstall.busy()
+                && !MrUpdateInstall.startWith(n, new FakeTarget(), new Events()));
+        MrUpdateInstall.onResult(1);
+        check("job: a stale answer of the system does not touch a download in progress", MrUpdateInstall.busy() && e4.failure == null);
+        MrUpdateInstall.cancel();
+        check("job: Cancel frees the screen at once, even with the network stuck", !MrUpdateInstall.busy());
+        gate.countDown();
+        check("job: when the stuck read returns, the session is abandoned and nothing is shown",
+                waitFor(() -> t4.abandoned) && e4.failure == null && !e4.aborted && !t4.committed);
+        installNet();
+
+        // the session is not left behind by the screen
+        check("settings screen of the permission is the one of this app", MrUpdateInstall.ACTION_UNKNOWN_SOURCES
+                .equals("android.settings.MANAGE_UNKNOWN_APP_SOURCES"));
+        at(T0);
+    }
+
+    static boolean increasing(java.util.List<Integer> l) {
+        for (int i = 1; i < l.size(); i++) if (l.get(i) < l.get(i - 1)) return false;
+        return true;
+    }
+
+    // ------------------------------------------------------------------ the morning check (MrUpdateSchedule, MrUpdateNotify, MrUpdateJob)
+
+    static final class FakeJobs extends JobScheduler {
+        final Map<Integer, JobInfo> pending = new HashMap<Integer, JobInfo>();
+        int scheduled, cancelled;
+        RuntimeException refuse;
+
+        public int schedule(JobInfo job) {
+            if (refuse != null) throw refuse;
+            scheduled++;
+            pending.put(job.getId(), job);
+            return RESULT_SUCCESS;
+        }
+
+        public void cancel(int id) {
+            cancelled++;
+            pending.remove(id);
+        }
+
+        public JobInfo getPendingJob(int id) { return pending.get(id); }
+    }
+
+    static final class FakeNm extends NotificationManager {
+        boolean enabled = true;
+        NotificationChannel channel;
+        final Map<Integer, Notification> shown = new HashMap<Integer, Notification>();
+        int posted, removed;
+        RuntimeException refuse;
+
+        @Override public void createNotificationChannel(NotificationChannel c) { if (channel == null) channel = c; }
+        @Override public NotificationChannel getNotificationChannel(String id) { return channel; }
+        @Override public void notify(int id, Notification n) {
+            if (refuse != null) throw refuse;
+            posted++;
+            shown.put(id, n);
+        }
+        @Override public void cancel(int id) {
+            removed++;
+            shown.remove(id);
+        }
+        @Override public boolean areNotificationsEnabled() { return enabled; }
+    }
+
+    /** Resources that answer the name of the string (and its arguments), so that a test can read what was asked. */
+    static final class FakeRes extends android.content.res.Resources {
+        final List<String> names = new ArrayList<String>();
+
+        @Override public int getIdentifier(String name, String type, String pkg) {
+            if (type.equals("drawable")) return 77;
+            if (!names.contains(name)) names.add(name);
+            return 1000 + names.indexOf(name);
+        }
+        @Override public String getString(int id) { return names.get(id - 1000); }
+        @Override public String getString(int id, Object... a) { return names.get(id - 1000) + Arrays.toString(a); }
+    }
+
+    static final class FakeGroup extends android.preference.PreferenceGroup {
+        final List<Preference> items = new ArrayList<Preference>();
+        int added, removed;
+
+        FakeGroup(Context c) { super(c); }
+        @Override public boolean addPreference(Preference p) { added++; items.add(p); return true; }
+        @Override public boolean removePreference(Preference p) { removed++; return items.remove(p); }
+    }
+
+    static FakeJobs jobsOf(Ctx c) {
+        FakeJobs j = new FakeJobs();
+        c.systems.put(Context.JOB_SCHEDULER_SERVICE, j);
+        return j;
+    }
+
+    static FakeNm nmOf(Ctx c) {
+        FakeNm n = new FakeNm();
+        c.systems.put(Context.NOTIFICATION_SERVICE, n);
+        c.res = new FakeRes();
+        return n;
+    }
+
+    static final TimeZone UTC = TimeZone.getTimeZone("UTC");
+    static final TimeZone SP = TimeZone.getTimeZone("America/Sao_Paulo");
+    static final TimeZone NY = TimeZone.getTimeZone("America/New_York");
+
+    /** The instant of that wall-clock time (month 1 to 12) in that zone. */
+    static long wall(TimeZone tz, int y, int mo, int d, int h, int mi) {
+        Calendar c = Calendar.getInstance(tz);
+        c.clear();
+        c.set(y, mo - 1, d, h, mi, 0);
+        return c.getTimeInMillis();
+    }
+
+    static void morning() throws Exception {
+        TimeZone saved = TimeZone.getDefault();
+        TimeZone.setDefault(SP);
+        MrPacks.sTestCerts = new X509Certificate[] {new FakeCert(rsa.getPublic())};
+        try {
+            schedule();
+            jobState();
+            notifications();
+            rounds();
+            service();
+            settings();
+        } finally {
+            TimeZone.setDefault(saved);
+            android.os.Build.VERSION.SDK_INT = 0;
+            MrUpdateSchedule.sTestMinutes = -1;
+            installNet();
+            netDown = false;
+            httpCode = 0;
+            at(T0);
+        }
+    }
+
+    static void schedule() {
+        TimeZone sp = SP, ny = NY;
+        check("morning: before the time, it is today", MrUpdateSchedule.next(wall(sp, 2026, 11, 5, 7, 0), sp, 20) == wall(sp, 2026, 11, 5, 8, 20));
+        check("morning: one millisecond before the time, still today", MrUpdateSchedule.next(wall(sp, 2026, 11, 5, 8, 20) - 1, sp, 20) == wall(sp, 2026, 11, 5, 8, 20));
+        check("morning: exactly at the time, it is tomorrow", MrUpdateSchedule.next(wall(sp, 2026, 11, 5, 8, 20), sp, 20) == wall(sp, 2026, 11, 6, 8, 20));
+        check("morning: after the time, it is tomorrow", MrUpdateSchedule.next(wall(sp, 2026, 11, 5, 23, 59), sp, 20) == wall(sp, 2026, 11, 6, 8, 20));
+        check("morning: end of the month", MrUpdateSchedule.next(wall(sp, 2026, 11, 30, 9, 0), sp, 0) == wall(sp, 2026, 12, 1, 8, 0));
+        check("morning: end of the year", MrUpdateSchedule.next(wall(sp, 2026, 12, 31, 23, 59), sp, 7) == wall(sp, 2027, 1, 1, 8, 7));
+        check("morning: 28 Feb of a common year goes to 1 March", MrUpdateSchedule.next(wall(sp, 2027, 2, 28, 9, 0), sp, 0) == wall(sp, 2027, 3, 1, 8, 0));
+        check("morning: 28 Feb of a leap year goes to 29 Feb", MrUpdateSchedule.next(wall(sp, 2028, 2, 28, 9, 0), sp, 0) == wall(sp, 2028, 2, 29, 8, 0));
+        check("morning: minutes below 0 and above 59 are held to 0 and 59",
+                MrUpdateSchedule.next(wall(sp, 2026, 11, 5, 7, 0), sp, -5) == wall(sp, 2026, 11, 5, 8, 0)
+                        && MrUpdateSchedule.next(wall(sp, 2026, 11, 5, 7, 0), sp, 99) == wall(sp, 2026, 11, 5, 8, 59));
+
+        long now = wall(UTC, 2026, 11, 5, 10, 0);
+        check("morning: the same instant is another local day in each zone",
+                MrUpdateSchedule.next(now, sp, 0) == wall(UTC, 2026, 11, 5, 11, 0)
+                        && MrUpdateSchedule.next(now, TimeZone.getTimeZone("Asia/Tokyo"), 0) == wall(UTC, 2026, 11, 5, 23, 0)
+                        && MrUpdateSchedule.next(now, TimeZone.getTimeZone("America/Los_Angeles"), 0) == wall(UTC, 2026, 11, 5, 16, 0));
+        check("morning: a zone with half an hour (India) at 8:00 exactly goes to tomorrow",
+                MrUpdateSchedule.next(wall(UTC, 2026, 11, 5, 2, 30), TimeZone.getTimeZone("Asia/Kolkata"), 0) == wall(UTC, 2026, 11, 6, 2, 30));
+
+        // daylight saving time: the wall clock stays at 8:xx, the wait grows or shrinks by one hour
+        long fall = MrUpdateSchedule.delay(wall(ny, 2026, 10, 31, 20, 0), ny, 0);
+        check("morning: New York, the clocks go back: from 20:00 to 8:00 takes 13 hours, not 12", fall == 13 * H);
+        check("morning: New York, the clocks go back: it is 8:00 of the new time", MrUpdateSchedule.next(wall(ny, 2026, 10, 31, 20, 0), ny, 0) == wall(UTC, 2026, 11, 1, 13, 0));
+        check("morning: New York, the clocks go forward: from 20:00 to 8:00 takes 11 hours", MrUpdateSchedule.delay(wall(ny, 2026, 3, 7, 20, 0), ny, 0) == 11 * H
+                && MrUpdateSchedule.next(wall(ny, 2026, 3, 7, 20, 0), ny, 0) == wall(UTC, 2026, 3, 8, 12, 0));
+        TimeZone sy = TimeZone.getTimeZone("Australia/Sydney");
+        check("morning: Sydney (southern summer time starts in October): 11 hours", MrUpdateSchedule.delay(wall(sy, 2026, 10, 3, 20, 0), sy, 0) == 11 * H);
+        check("morning: the delay is never zero or negative", MrUpdateSchedule.delay(wall(sp, 2026, 11, 5, 8, 20), sp, 20) == 24 * H);
+
+        // any moment, any zone: after now, within a day (25 h on the day the clocks go back), at 8:mm, and the first such moment
+        String[] zones = {"America/Sao_Paulo", "America/New_York", "Europe/London", "Europe/Lisbon", "Asia/Kolkata", "Asia/Tokyo",
+                "Australia/Sydney", "Pacific/Auckland", "UTC", "America/St_Johns", "Africa/Cairo", "Pacific/Chatham"};
+        Random rnd = new Random(1820);
+        int bad = 0;
+        for (int i = 0; i < 6000; i++) {
+            TimeZone tz = TimeZone.getTimeZone(zones[i % zones.length]);
+            long t = wall(UTC, 2026, 1, 1, 0, 0) + (long) (rnd.nextDouble() * 3 * 365 * 24 * H);
+            int m = rnd.nextInt(60);
+            long n = MrUpdateSchedule.next(t, tz, m);
+            Calendar c = Calendar.getInstance(tz);
+            c.setTimeInMillis(n);
+            Calendar before = (Calendar) c.clone();
+            before.add(Calendar.DAY_OF_MONTH, -1);
+            before.set(Calendar.HOUR_OF_DAY, 8);
+            before.set(Calendar.MINUTE, m);
+            if (n <= t || n - t > 25 * H || c.get(Calendar.HOUR_OF_DAY) != 8 || c.get(Calendar.MINUTE) != m
+                    || c.get(Calendar.SECOND) != 0 || before.getTimeInMillis() > t) bad++;
+        }
+        check("morning: 6000 moments in 12 zones over 3 years, all right", bad == 0, bad + " wrong");
+    }
+
+    static void jobState() {
+        Ctx c = new Ctx(1081000);
+        check("job state: the morning check is on by default", MrUpdateSchedule.morning(c));
+        MrUpdateSchedule.setMorning(c, false);
+        check("job state: the switch is stored", !MrUpdateSchedule.morning(c));
+        MrUpdateSchedule.setMorning(c, true);
+        check("job state: nothing notified and the permission not asked at the start", MrUpdateSchedule.notified(c) == 0 && !MrUpdateSchedule.asked(c));
+        MrUpdateSchedule.setNotified(c, 1082000);
+        MrUpdateSchedule.setAsked(c);
+        check("job state: the notified version and the question are stored", MrUpdateSchedule.notified(c) == 1082000 && MrUpdateSchedule.asked(c));
+
+        MrUpdateSchedule.sTestMinutes = -1;
+        Set<Integer> seen = new java.util.HashSet<Integer>();
+        boolean inRange = true, kept = true;
+        for (int i = 0; i < 60; i++) {
+            Ctx x = new Ctx(1081000);
+            int m = MrUpdateSchedule.minutes(x);
+            inRange &= m >= 0 && m <= 59;
+            kept &= MrUpdateSchedule.minutes(x) == m && MrUpdateSchedule.minutes(x) == m;
+            seen.add(m);
+        }
+        check("job state: the minutes are drawn between 0 and 59, once, and kept", inRange && kept);
+        check("job state: the draw is not always the same", seen.size() > 5, "values " + seen.size());
+        Ctx bad = new Ctx(1081000);
+        bad.state().m.put(MrUpdateSchedule.KEY_MINUTES, 700);
+        check("job state: a stored value out of range is drawn again", MrUpdateSchedule.minutes(bad) <= 59);
+
+        // the job in the system
+        at(T0);                       // 05:00 in Sao Paulo
+        MrUpdateSchedule.sTestMinutes = 20;
+        Ctx d = new Ctx(1081000);
+        FakeJobs js = jobsOf(d);
+        MrUpdateSchedule.arm(d);
+        JobInfo job = js.pending.get(MrUpdateSchedule.JOB_ID);
+        check("job: armed with the id of the job, the service of the update, any network and persisted",
+                job != null && job.getService().getClassName().equals("com.mrkeyboard.app.MrUpdateJob")
+                        && job.getService().getPackageName().equals("com.mrkeyboard.app")
+                        && job.getNetworkType() == JobInfo.NETWORK_TYPE_ANY && job.isPersisted());
+        check("job: it waits until 8:20 of the phone (3 h 20 min after 5:00)", job != null && job.getMinLatencyMillis() == 3 * H + 20 * 60000L);
+        at(T0 + 10 * H);              // 15:00
+        MrUpdateSchedule.arm(d);
+        check("job: armed again replaces the job and now waits for tomorrow (17 h 20 min)",
+                js.pending.size() == 1 && js.pending.get(MrUpdateSchedule.JOB_ID).getMinLatencyMillis() == 17 * H + 20 * 60000L);
+        int sch = js.scheduled;
+        MrUpdateSchedule.ensure(d);
+        check("job: ensure leaves a waiting job alone", js.scheduled == sch && MrUpdateSchedule.armed(d));
+        js.pending.clear();
+        check("job: with no job waiting, armed says no and ensure schedules one", !MrUpdateSchedule.armed(d)
+                && fire(() -> MrUpdateSchedule.ensure(d)) && MrUpdateSchedule.armed(d));
+        MrUpdateSchedule.setMorning(d, false);
+        MrUpdateSchedule.ensure(d);
+        check("job: with the switch off, ensure cancels what was left", !MrUpdateSchedule.armed(d) && js.cancelled > 0);
+        js.pending.put(MrUpdateSchedule.JOB_ID, job);
+        MrUpdateSchedule.arm(d);
+        check("job: with the switch off, arm cancels and schedules nothing", js.pending.isEmpty());
+        MrUpdateSchedule.setMorning(d, true);
+
+        js.refuse = new IllegalArgumentException("persisted jobs need RECEIVE_BOOT_COMPLETED");
+        boolean threw = false;
+        try {
+            MrUpdateSchedule.arm(d);
+            MrUpdateSchedule.ensure(d);
+        } catch (RuntimeException e) {
+            threw = true;
+        }
+        check("job: if the system refuses the job, nothing is thrown", !threw);
+        Ctx none = new Ctx(1081000);
+        try {
+            MrUpdateSchedule.arm(none);
+            MrUpdateSchedule.ensure(none);
+            MrUpdateSchedule.sync(none);
+        } catch (RuntimeException e) {
+            threw = true;
+        }
+        check("job: with no job service on the phone, nothing is thrown and armed is false", !threw && !MrUpdateSchedule.armed(none));
+        at(T0);
+    }
+
+    interface Action { void run(); }
+
+    static boolean fire(Action a) {
+        a.run();
+        return true;
+    }
+
+    static MrUpdate.Notice notice(N n) throws Exception {
+        return MrUpdate.readData(n.json());
+    }
+
+    static void notifications() throws Exception {
+        Ctx c = new Ctx(1081000);
+        FakeNm nm = nmOf(c);
+        check("notification: allowed when the app's notifications are on and the channel does not exist yet", MrUpdateNotify.enabled(c));
+        nm.enabled = false;
+        check("notification: blocked when the app's notifications are off", !MrUpdateNotify.enabled(c));
+        nm.enabled = true;
+        MrUpdateNotify.ensureChannel(c);
+        check("notification: the channel 'mr_update' has low importance and its own name",
+                nm.channel != null && nm.channel.getId().equals("mr_update") && nm.channel.getImportance() == NotificationManager.IMPORTANCE_LOW
+                        && "mr_update_notif_channel".equals(String.valueOf(nm.channel.getName())));
+        nm.channel.setImportance(NotificationManager.IMPORTANCE_NONE);
+        check("notification: blocked when the user turned the channel off", !MrUpdateNotify.enabled(c));
+        nm.channel.setImportance(NotificationManager.IMPORTANCE_LOW);
+        check("notification: allowed again with the channel on", MrUpdateNotify.enabled(c));
+        check("notification: with no notification service the answer is 'blocked'", !MrUpdateNotify.enabled(new Ctx(1081000)));
+
+        MrUpdate.Notice n = notice(new N());
+        check("notification: show posts it", MrUpdateNotify.show(c, n) && nm.posted == 1 && nm.shown.containsKey(MrUpdateNotify.ID));
+        Notification p = nm.shown.get(MrUpdateNotify.ID);
+        check("notification: channel, icon, title with the version, text and removal on tap",
+                p != null && p.channelId.equals("mr_update") && p.smallIcon == 77
+                        && "mr_update_notif_title[v1.82.0]".equals(String.valueOf(p.contentTitle))
+                        && "mr_update_notif_text".equals(String.valueOf(p.contentText)) && p.autoCancel);
+        android.app.PendingIntent tap = p == null ? null : p.contentIntent;
+        check("notification: the tap is an activity PendingIntent that cannot be changed by others",
+                tap != null && tap.activity && tap.flags == (android.app.PendingIntent.FLAG_IMMUTABLE | android.app.PendingIntent.FLAG_UPDATE_CURRENT));
+        android.content.Intent i = tap == null ? null : tap.intent;
+        check("notification: it opens the Settings of the app in a clean task, asking for the dialog",
+                i != null && "com.mrkeyboard.app".equals(i.packageName) && "com.mrkeyboard.app.LatinIMESettings".equals(i.className)
+                        && Boolean.TRUE.equals(i.extras.get(MrUpdateUi.EXTRA_SHOW))
+                        && i.flags == (android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        android.content.Intent s = MrUpdateNotify.settingsIntent(c);
+        check("notification: the line 'Allow notifications' opens the notification settings of this app",
+                "android.settings.APP_NOTIFICATION_SETTINGS".equals(s.action) && "com.mrkeyboard.app".equals(s.extras.get("android.provider.extra.APP_PACKAGE")));
+
+        nm.refuse = new IllegalStateException("no channel");
+        check("notification: if the system refuses it, show says false and throws nothing", !MrUpdateNotify.show(c, n));
+        nm.refuse = null;
+        check("notification: with no notification service, show says false", !MrUpdateNotify.show(new Ctx(1081000), n));
+
+        // it goes away when the installed app already is that version
+        Ctx d = new Ctx(1081000);
+        FakeNm nm2 = nmOf(d);
+        run(d, new N());
+        MrUpdateNotify.show(d, MrUpdate.pending(d));
+        MrUpdateNotify.dropIfInstalled(d);
+        check("notification: stays while the new version is not installed", nm2.removed == 0 && nm2.shown.size() == 1);
+        d.versionCode = 1082000;
+        MrUpdateNotify.dropIfInstalled(d);
+        check("notification: removed when the installed app is that version", nm2.removed == 1 && nm2.shown.isEmpty());
+        d.versionCode = 1090000;
+        MrUpdateNotify.show(d, notice(new N()));
+        MrUpdateNotify.dropIfInstalled(d);
+        check("notification: removed when the installed app is newer too", nm2.shown.isEmpty());
+    }
+
+    static void rounds() throws Exception {
+        MrUpdateSchedule.sTestMinutes = 20;
+        Ctx c = new Ctx(1081000);
+        FakeNm nm = nmOf(c);
+        jobsOf(c);
+        netDown = false;
+        httpCode = 0;
+        body = good(new N());
+        requests = 0;
+        at(T0);
+
+        MrUpdateSchedule.setMorning(c, false);
+        check("round: switch off - nothing happens and no request", MrUpdateJob.run(c) == MrUpdateJob.OFF && requests == 0 && nm.posted == 0);
+        MrUpdateSchedule.setMorning(c, true);
+        nm.enabled = false;
+        check("round: notifications blocked - no request at all", MrUpdateJob.run(c) == MrUpdateJob.BLOCKED && requests == 0 && nm.posted == 0);
+        nm.channel = new NotificationChannel("mr_update", "x", NotificationManager.IMPORTANCE_NONE);
+        nm.enabled = true;
+        check("round: channel turned off - no request either", MrUpdateJob.run(c) == MrUpdateJob.BLOCKED && requests == 0);
+        nm.channel = null;
+
+        check("round: a new version - one request and one notification", MrUpdateJob.run(c) == MrUpdateJob.NOTIFIED && requests == 1 && nm.posted == 1);
+        check("round: the version is marked as notified", MrUpdateSchedule.notified(c) == 1082000);
+        at(T0 + 1 * H);
+        check("round: again an hour later - the result of the check is reused, nothing posted again",
+                MrUpdateJob.run(c) == MrUpdateJob.REPEATED && requests == 1 && nm.posted == 1);
+        at(T0 + 24 * H);
+        check("round: next morning, same version - asks again (more than 6 h) but does not repeat the notification",
+                MrUpdateJob.run(c) == MrUpdateJob.REPEATED && requests == 2 && nm.posted == 1);
+        nm.shown.clear();
+        at(T0 + 48 * H);
+        check("round: a notification that the user dismissed does not come back for the same version",
+                MrUpdateJob.run(c) == MrUpdateJob.REPEATED && nm.posted == 1 && nm.shown.isEmpty());
+
+        body = good(new N().code(1083000, "v1.83.0"));
+        at(T0 + 72 * H);
+        check("round: an even newer version gets its own notification", MrUpdateJob.run(c) == MrUpdateJob.NOTIFIED && nm.posted == 2
+                && MrUpdateSchedule.notified(c) == 1083000
+                && "mr_update_notif_title[v1.83.0]".equals(String.valueOf(nm.shown.get(MrUpdateNotify.ID).contentTitle)));
+        int req = requests;
+        at(T0 + 72 * H + 5 * H);
+        MrUpdateJob.run(c);
+        check("round: 5 hours later the stored result is used (window of 6 h)", requests == req);
+        at(T0 + 72 * H + 7 * H);
+        MrUpdateJob.run(c);
+        check("round: 7 hours later it asks again", requests == req + 1);
+
+        // opening the app a few minutes before the job: one request for both
+        Ctx e = new Ctx(1081000);
+        FakeNm nme = nmOf(e);
+        body = good(new N());
+        requests = 0;
+        at(T0);
+        MrUpdate.checkIfOlder(e, MrUpdate.WINDOW);          // what opening the app does
+        at(T0 + 10 * 60000L);
+        check("round: the job right after opening the app makes no second request and still notifies",
+                MrUpdateJob.run(e) == MrUpdateJob.NOTIFIED && requests == 1 && nme.posted == 1);
+
+        // "Check when the app opens" is another switch: it does not stop the morning check
+        Ctx f = new Ctx(1081000);
+        FakeNm nmf = nmOf(f);
+        MrUpdate.setAuto(f, false);
+        requests = 0;
+        at(T0);
+        check("round: with 'check when the app opens' off the morning check still works", MrUpdateJob.run(f) == MrUpdateJob.NOTIFIED && requests == 1);
+
+        // offline
+        Ctx g = new Ctx(1081000);
+        FakeNm nmg = nmOf(g);
+        netDown = true;
+        requests = 0;
+        check("round: offline and nothing known - fails quietly, nothing marked as notified",
+                MrUpdateJob.run(g) == MrUpdateJob.FAILED && requests == 1 && nmg.posted == 0 && MrUpdateSchedule.notified(g) == 0);
+        MrUpdateJob.run(g);
+        check("round: after a failed try the next round within the hour does not insist", requests == 1);
+        netDown = false;
+        at(T0 + 2 * H);
+        check("round: online again, it works", MrUpdateJob.run(g) == MrUpdateJob.NOTIFIED && nmg.posted == 1);
+
+        Ctx h = new Ctx(1081000);
+        FakeNm nmh = nmOf(h);
+        at(T0);
+        run(h, new N());                                    // known from an earlier check, not notified
+        at(T0 + 30 * H);
+        netDown = true;
+        check("round: offline with a version already known and not notified - it is notified from what is stored",
+                MrUpdateJob.run(h) == MrUpdateJob.NOTIFIED && nmh.posted == 1);
+        netDown = false;
+
+        // already up to date
+        Ctx k = new Ctx(1082000);
+        FakeNm nmk = nmOf(k);
+        at(T0);
+        check("round: the installed app is the latest - nothing, and an old notification is taken away",
+                MrUpdateJob.run(k) == MrUpdateJob.NONE && nmk.posted == 0 && nmk.removed == 1);
+
+        // errors
+        Ctx m = new Ctx(1081000);
+        FakeNm nmm = nmOf(m);
+        body = "not json".getBytes(StandardCharsets.UTF_8);
+        check("round: an invalid update.json - nothing posted", MrUpdateJob.run(m) == MrUpdateJob.FAILED && nmm.posted == 0);
+        body = good(new N());
+        nmm.refuse = new IllegalStateException();
+        at(T0 + 5 * H);
+        check("round: a notification the system refuses is not marked as notified",
+                MrUpdateJob.run(m) == MrUpdateJob.FAILED && MrUpdateSchedule.notified(m) == 0);
+        nmm.refuse = null;
+        check("round: the next round posts it", MrUpdateJob.run(m) == MrUpdateJob.NOTIFIED && nmm.posted == 1);
+        check("round: with no services at all it throws nothing", MrUpdateJob.run(new Ctx(1081000)) == MrUpdateJob.BLOCKED);
+        at(T0);
+    }
+
+    static void service() throws Exception {
+        MrUpdateSchedule.sTestMinutes = 20;
+        body = good(new N());
+        netDown = false;
+        httpCode = 0;
+        requests = 0;
+        at(T0);
+        Ctx c = new Ctx(1081000);
+        FakeNm nm = nmOf(c);
+        FakeJobs js = jobsOf(c);
+        MrUpdateJob job = new MrUpdateJob();
+        job.stubAttach(c);
+        JobParameters p = new JobParameters(MrUpdateSchedule.JOB_ID);
+        check("service: onStartJob says that work goes on in the background", job.onStartJob(p));
+        check("service: the job ends", waitFor(() -> job.finishedCount == 1));
+        check("service: the round was made (one notification)", nm.posted == 1 && requests == 1);
+        JobInfo next = js.pending.get(MrUpdateSchedule.JOB_ID);
+        check("service: the next morning is scheduled (8:20 of the phone, 3 h 20 min after 5:00)",
+                next != null && next.getMinLatencyMillis() == 3 * H + 20 * 60000L && next.isPersisted());
+        check("service: it does not ask the system to run it again", !job.lastWantsReschedule);
+        check("service: stopped after the work ended (the new job replaced it) - nothing is rescheduled", !job.onStopJob(p));
+
+        // stopped by the system while the work is going on
+        final CountDownLatch entered = new CountDownLatch(1), gate = new CountDownLatch(1);
+        MrPacks.sNet = new MrPacks.Net() {
+            public InputStream open(String url, long[] length) throws IOException {
+                entered.countDown();
+                try {
+                    gate.await(10, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    throw new IOException("interrupted");
+                }
+                length[0] = body.length;
+                return new ByteArrayInputStream(body);
+            }
+        };
+        Ctx d = new Ctx(1081000);
+        nmOf(d);
+        FakeJobs js2 = jobsOf(d);
+        MrUpdateJob job2 = new MrUpdateJob();
+        job2.stubAttach(d);
+        job2.onStartJob(p);
+        check("service: the work is waiting for the network", entered.await(5, TimeUnit.SECONDS));
+        check("service: stopped by the system in the middle - asks to be tried again", job2.onStopJob(p) && job2.finishedCount == 0);
+        gate.countDown();
+        check("service: when the work ends it still schedules the next morning", waitFor(() -> job2.finishedCount == 1) && js2.pending.containsKey(MrUpdateSchedule.JOB_ID));
+        installNet();
+
+        // switch turned off after the job was scheduled: the round does nothing and the job is not scheduled again
+        Ctx e = new Ctx(1081000);
+        FakeNm nme = nmOf(e);
+        FakeJobs js3 = jobsOf(e);
+        MrUpdateSchedule.setMorning(e, false);
+        requests = 0;
+        MrUpdateJob job3 = new MrUpdateJob();
+        job3.stubAttach(e);
+        job3.onStartJob(p);
+        check("service: with the switch off the job ends without a request and without a new job",
+                waitFor(() -> job3.finishedCount == 1) && requests == 0 && nme.posted == 0 && js3.pending.isEmpty());
+
+        // a receiver that survives an update of the app
+        Ctx f = new Ctx(1081000);
+        FakeNm nmf = nmOf(f);
+        FakeJobs js4 = jobsOf(f);
+        run(f, new N());
+        MrUpdateNotify.show(f, MrUpdate.pending(f));
+        f.versionCode = 1082000;                              // the update was installed
+        MrUpdateRearm r = new MrUpdateRearm();
+        r.onReceive(f, new android.content.Intent(android.content.Intent.ACTION_MY_PACKAGE_REPLACED));
+        check("rearm: after the update of the app the morning job exists again", js4.pending.containsKey(MrUpdateSchedule.JOB_ID));
+        check("rearm: and the notification of the installed version is gone", nmf.shown.isEmpty());
+        js4.pending.clear();
+        r.onReceive(f, new android.content.Intent("android.intent.action.BOOT_COMPLETED"));
+        r.onReceive(f, null);
+        check("rearm: other broadcasts and null do nothing", js4.pending.isEmpty());
+        MrUpdateSchedule.setMorning(f, false);
+        r.onReceive(f, new android.content.Intent(android.content.Intent.ACTION_MY_PACKAGE_REPLACED));
+        check("rearm: with the switch off nothing is scheduled", js4.pending.isEmpty());
+        at(T0);
+    }
+
+    static void settings() throws Exception {
+        MrPacks.sTestCerts = new X509Certificate[] {new FakeCert(rsa.getPublic())};
+        netDown = false;
+        httpCode = 0;
+        body = good(new N());
+        MrUpdateSchedule.sTestMinutes = 20;
+        at(T0);
+        String perm = "android.permission.POST_NOTIFICATIONS";
+
+        // Android 13+, blocked: the system dialog on the first opening, the line stays in the screen
+        android.os.Build.VERSION.SDK_INT = 33;
+        Ctx c = new Ctx(1081000);
+        FakeNm nm = nmOf(c);
+        FakeJobs js = jobsOf(c);
+        nm.enabled = false;
+        MrUpdate.setAuto(c, false);
+        FakeActivity a = new FakeActivity(c);
+        FakeGroup grp = new FakeGroup(c);
+        FakeSwitch morning = new FakeSwitch(c);
+        FakeRow allow = new FakeRow(c);
+        a.prefs.put("debugging", grp);
+        a.prefs.put("mr_update_morning", morning);
+        a.prefs.put("mr_update_notif", allow);
+        MrUpdateUi.bind(a);
+        check("settings: the morning switch shows 'on' (the default) and is connected", morning.checked && morning.change != null && allow.click != null);
+        check("settings 13+: first opening with notifications blocked asks the permission once",
+                a.requested.size() == 1 && a.requested.get(0).length == 1 && a.requested.get(0)[0].equals(perm) && MrUpdateSchedule.asked(c));
+        check("settings: blocked - the line 'Allow notifications' stays in the screen", grp.removed == 0 && grp.added == 0);
+        check("settings: opening makes sure the job exists (background)", waitFor(() -> js.pending.containsKey(MrUpdateSchedule.JOB_ID)) && nm.channel != null);
+        MrUpdateUi.onOpen(a);
+        settle();
+        check("settings 13+: the next opening does not ask again", a.requested.size() == 1);
+
+        nm.enabled = true;
+        MrUpdateUi.resume(a);
+        check("settings: after the user allows them, coming back takes the line away", grp.removed == 1 && grp.items.isEmpty());
+        MrUpdateUi.resume(a);
+        check("settings: coming back again changes nothing", grp.removed == 1 && grp.added == 0);
+        nm.enabled = false;
+        MrUpdateUi.resume(a);
+        check("settings: if the permission is taken away the line comes back", grp.added == 1 && grp.items.size() == 1 && grp.items.get(0) == allow);
+        allow.click.onPreferenceClick(allow);
+        check("settings: tapping the line opens the notification settings of the app", a.started.size() == 1
+                && "android.settings.APP_NOTIFICATION_SETTINGS".equals(a.started.get(0).action)
+                && "com.mrkeyboard.app".equals(a.started.get(0).extras.get("android.provider.extra.APP_PACKAGE")));
+
+        morning.change.onPreferenceChange(morning, Boolean.FALSE);
+        check("settings: turning the switch off is stored, cancels the job and takes the line away",
+                !MrUpdateSchedule.morning(c) && js.pending.isEmpty() && grp.removed == 2 && a.requested.size() == 1);
+        morning.change.onPreferenceChange(morning, Boolean.TRUE);
+        check("settings: turning it on schedules the job, asks for the permission again and shows the line",
+                MrUpdateSchedule.morning(c) && js.pending.containsKey(MrUpdateSchedule.JOB_ID) && a.requested.size() == 2 && grp.added == 2);
+        nm.enabled = true;
+        morning.change.onPreferenceChange(morning, Boolean.TRUE);
+        check("settings: with the notifications allowed turning it on does not ask", a.requested.size() == 2);
+
+        // another screen closing does not take the line away from Settings
+        FakeActivity main = new FakeActivity(c);
+        MrUpdateUi.release(main);
+        nm.enabled = false;
+        MrUpdateUi.resume(a);
+        check("settings: another screen going away leaves the line working", grp.added == 3);
+        int removedBefore = grp.removed, addedBefore = grp.added;
+        MrUpdateUi.release(a);
+        nm.enabled = true;
+        MrUpdateUi.resume(a);
+        nm.enabled = false;
+        MrUpdateUi.resume(a);
+        check("settings: after Settings goes away nothing more is touched", grp.removed == removedBefore && grp.added == addedBefore);
+
+        // Android 12 and older: no permission to ask, but a blocked app still shows the line
+        android.os.Build.VERSION.SDK_INT = 32;
+        Ctx d = new Ctx(1081000);
+        FakeNm nmd = nmOf(d);
+        nmd.enabled = false;
+        MrUpdate.setAuto(d, false);
+        FakeActivity b = new FakeActivity(d);
+        FakeGroup grpb = new FakeGroup(d);
+        b.prefs.put("debugging", grpb);
+        b.prefs.put("mr_update_morning", new FakeSwitch(d));
+        b.prefs.put("mr_update_notif", new FakeRow(d));
+        MrUpdateUi.bind(b);
+        settle();
+        check("settings 12-: no permission is asked and the line stays while the notifications are blocked", b.requested.isEmpty() && grpb.removed == 0);
+        MrUpdateUi.release(b);
+
+        // everything allowed from the start: the line is taken out, no question
+        android.os.Build.VERSION.SDK_INT = 33;
+        Ctx e = new Ctx(1081000);
+        nmOf(e);
+        MrUpdate.setAuto(e, false);
+        FakeActivity g = new FakeActivity(e);
+        FakeGroup grpg = new FakeGroup(e);
+        g.prefs.put("debugging", grpg);
+        g.prefs.put("mr_update_morning", new FakeSwitch(e));
+        g.prefs.put("mr_update_notif", new FakeRow(e));
+        MrUpdateUi.bind(g);
+        settle();
+        check("settings: notifications allowed - the line is taken out and nothing is asked", grpg.removed == 1 && g.requested.isEmpty());
+        MrUpdateUi.release(g);
+
+        // switch off from the start: no question and no line
+        Ctx h = new Ctx(1081000);
+        FakeNm nmh = nmOf(h);
+        nmh.enabled = false;
+        MrUpdate.setAuto(h, false);
+        MrUpdateSchedule.setMorning(h, false);
+        FakeActivity k = new FakeActivity(h);
+        FakeGroup grph = new FakeGroup(h);
+        FakeSwitch swh = new FakeSwitch(h);
+        k.prefs.put("debugging", grph);
+        k.prefs.put("mr_update_morning", swh);
+        k.prefs.put("mr_update_notif", new FakeRow(h));
+        MrUpdateUi.bind(k);
+        settle();
+        check("settings: switch off - the switch shows 'off', no question and no line", !swh.checked && k.requested.isEmpty() && grph.removed == 1);
+        MrUpdateUi.release(k);
+
+        // the system dialog and ours do not come together
+        Ctx m = new Ctx(1081000);
+        FakeNm nmm = nmOf(m);
+        jobsOf(m);
+        nmm.enabled = false;
+        run(m, new N());                                   // a version is known
+        FakeActivity q = new FakeActivity(m);
+        int shown = MrUpdateDialog.sAskedCount;
+        MrUpdateUi.onOpen(q);
+        settle();
+        check("opening: while the permission dialog is asked, the update dialog waits", q.requested.size() == 1 && MrUpdateDialog.sAskedCount == shown);
+        MrUpdateUi.onOpen(q);
+        check("opening: next time the update dialog comes", waitFor(() -> MrUpdateDialog.sAskedCount == shown + 1) && q.requested.size() == 1);
+
+        // started by the notification: the dialog, and the job is still made sure of
+        Ctx n = new Ctx(1081000);
+        nmOf(n);
+        FakeJobs jsn = jobsOf(n);
+        run(n, new N());
+        FakeActivity r = new FakeActivity(n);
+        r.intent = new android.content.Intent().putExtra(MrUpdateUi.EXTRA_SHOW, true);
+        int shown2 = MrUpdateDialog.sAskedCount;
+        MrUpdateUi.onOpen(r);
+        check("opening from the notification: the dialog opens at once, the extra is used up and no permission is asked",
+                MrUpdateDialog.sAskedCount == shown2 + 1 && !r.intent.getBooleanExtra(MrUpdateUi.EXTRA_SHOW, false) && r.requested.isEmpty());
+        check("opening from the notification: the morning job is made sure of", waitFor(() -> jsn.pending.containsKey(MrUpdateSchedule.JOB_ID)));
+
+        android.os.Build.VERSION.SDK_INT = 0;
         at(T0);
     }
 

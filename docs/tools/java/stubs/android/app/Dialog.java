@@ -10,6 +10,7 @@ public class Dialog implements android.content.DialogInterface {
     public void setCanceledOnTouchOutside(boolean cancel) { }
     public void setOnCancelListener(android.content.DialogInterface.OnCancelListener listener) { }
     public void setOnDismissListener(android.content.DialogInterface.OnDismissListener listener) { }
+    public void onWindowFocusChanged(boolean hasFocus) { }
     public boolean isShowing() { return false; }
     public void dismiss() { }
     public void show() { }

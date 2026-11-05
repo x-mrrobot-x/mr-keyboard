@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 77
+    .line 148
     iput-object p1, p0, Lcom/mrkeyboard/app/MrUpdateUi$1;->val$app:Landroid/content/Context;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrUpdateUi$1;->val$a:Landroid/app/Activity;
@@ -55,7 +55,7 @@
     .prologue
     const/4 v1, 0x3
 
-    .line 81
+    .line 152
     :try_start_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateUi$1;->val$app:Landroid/content/Context;
 
@@ -65,7 +65,7 @@
 
     move-result-object v0
 
-    .line 88
+    .line 159
     :goto_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrUpdateUi$1;->val$a:Landroid/app/Activity;
 
@@ -75,22 +75,22 @@
 
     invoke-virtual {v1, v2}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 95
+    .line 166
     return-void
 
-    .line 82
+    .line 153
     :catch_0
     move-exception v0
 
-    .line 83
+    .line 154
     new-instance v0, Lcom/mrkeyboard/app/MrUpdate$Result;
 
     invoke-direct {v0}, Lcom/mrkeyboard/app/MrUpdate$Result;-><init>()V
 
-    .line 84
+    .line 155
     iput v1, v0, Lcom/mrkeyboard/app/MrUpdate$Result;->status:I
 
-    .line 85
+    .line 156
     iput v1, v0, Lcom/mrkeyboard/app/MrUpdate$Result;->error:I
 
     goto :goto_0

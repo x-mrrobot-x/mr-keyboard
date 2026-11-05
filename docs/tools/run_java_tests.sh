@@ -6,7 +6,10 @@
 #   - RecentTest: recent words in the prediction and when completing (MrRecent).
 #   - NativeFallbackTest: without libmrengine.so (native engine, 1.77) correction and trigrams go on through Java.
 #   - UpdateTest: the notice of a new version (MrUpdate): signature, every field, versions, replay, checking windows,
-#     notes by language, the switch and "Not now", and the glue of the screens (MrUpdateUi) with a fake screen; it also
+#     notes by language, the switch and "Not now", the glue of the screens (MrUpdateUi) with a fake screen, and the
+#     download and install (MrUpdateInstall) with a fake session: nothing is committed unless size and hash match, and the
+#     morning check (MrUpdateSchedule/Notify/Job): time of the next morning in several zones and with daylight saving time,
+#     the job in a fake JobScheduler, one notification per version, no request when the notifications are blocked; it also
 #     reads an update.json made by make_update.py and signed by SignCatalog.java (keytool key).
 # With the path of the APK jar (classes.dex -> d2j-dex2jar), it also runs:
 #   - EsTest: SheetStrings/MrEs with Spanish, Portuguese, English and French contexts.

@@ -210,11 +210,30 @@
     <string name="mr_update_err_signature">the notice\'s signature does not match</string>
     <string name="mr_update_err_old">the notice is older than one already seen</string>
     <string name="mr_update_auto_title">Check when the app opens</string>
-    <string name="mr_update_auto_sum">Looks for a new version at most once a day, with a plain request to GitHub</string>
+    <string name="mr_update_auto_sum">Looks for a new version when the app opens, at most once a day</string>
     <string name="mr_update_title">New version available</string>
     <string name="mr_update_sub">%1$s · %2$s · you\'re on %3$s</string>
     <string name="mr_update_notes_none">No release notes for this version.</string>
     <string name="mr_update_install">Download and install</string>
     <string name="mr_update_github">View on GitHub</string>
     <string name="mr_update_later">Not now</string>
+    <!-- v1.82: download and install of the update (permission, progress, errors) -->
+    <string name="mr_update_perm_title">Allow installation</string>
+    <string name="mr_update_perm_text">To install the update, Android needs you to allow Mr Keyboard to install apps. Tap Open settings, turn the option on and come back.</string>
+    <string name="mr_update_open_settings">Open settings</string>
+    <string name="mr_update_cancel">Cancel</string>
+    <string name="mr_update_downloading">Downloading… %d%%</string>
+    <string name="mr_update_verifying">Verifying…</string>
+    <string name="mr_update_installing">Installing…</string>
+    <string name="mr_update_err_download">Couldn\'t download: %s</string>
+    <string name="mr_update_err_mismatch">The file doesn\'t match the one announced</string>
+    <string name="mr_update_err_storage">Not enough storage on the device</string>
+    <string name="mr_update_err_install">Android blocked the installation</string>
+    <string name="mr_update_morning_title">Check every morning</string>
+    <string name="mr_update_morning_sum">Notifies you when a new version is out, even when the app is closed.</string>
+    <string name="mr_update_allow_title">Allow notifications to get the alert</string>
+    <string name="mr_update_allow_sum">Open settings</string>
+    <string name="mr_update_notif_channel">App updates</string>
+    <string name="mr_update_notif_title">Mr Keyboard %s is available</string>
+    <string name="mr_update_notif_text">Tap to see what\'s new.</string>
 </resources>

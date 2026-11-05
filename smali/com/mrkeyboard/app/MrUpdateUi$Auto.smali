@@ -26,13 +26,13 @@
     .locals 0
 
     .prologue
-    .line 134
+    .line 245
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 135
+    .line 246
     iput-object p1, p0, Lcom/mrkeyboard/app/MrUpdateUi$Auto;->mContext:Landroid/content/Context;
 
-    .line 136
+    .line 247
     return-void
 .end method
 
@@ -42,7 +42,7 @@
     .locals 2
 
     .prologue
-    .line 139
+    .line 250
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateUi$Auto;->mContext:Landroid/content/Context;
 
     sget-object v1, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
@@ -53,7 +53,7 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrUpdate;->setAuto(Landroid/content/Context;Z)V
 
-    .line 140
+    .line 251
     const/4 v0, 0x1
 
     return v0

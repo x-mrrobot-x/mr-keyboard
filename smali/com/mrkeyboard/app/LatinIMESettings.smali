@@ -990,6 +990,9 @@
     .line 92
     invoke-super {p0}, Landroid/preference/PreferenceActivity;->onResume()V
 
+    # v1.82.0: the line "Allow notifications" of the morning check follows the system settings (Java layer, MrUpdateUi)
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdateUi;->resume(Landroid/preference/PreferenceActivity;)V
+
     # v1.67: "Quick corrections" moved to the Suggestions and dictionaries screen (MrPacksActivity),
     # which hides the option on its own when Android has no autotext for the language.
     # v1 = 1 came from the removed block and is used as an index further below.

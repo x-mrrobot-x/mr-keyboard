@@ -22,9 +22,13 @@
 
 .field final synthetic val$app:Landroid/content/Context;
 
+.field final synthetic val$asking:Z
+
+.field final synthetic val$look:Z
+
 
 # direct methods
-.method constructor <init>(Landroid/content/Context;Landroid/app/Activity;)V
+.method constructor <init>(Landroid/content/Context;ZLandroid/app/Activity;Z)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +37,14 @@
     .end annotation
 
     .prologue
-    .line 159
+    .line 273
     iput-object p1, p0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$app:Landroid/content/Context;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$a:Landroid/app/Activity;
+    iput-boolean p2, p0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$look:Z
+
+    iput-object p3, p0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$a:Landroid/app/Activity;
+
+    iput-boolean p4, p0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$asking:Z
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,10 +57,30 @@
     .locals 4
 
     .prologue
-    .line 161
+    .line 275
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$app:Landroid/content/Context;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrUpdateInstall;->cleanup(Landroid/content/Context;)V
+
+    .line 276
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$app:Landroid/content/Context;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrUpdateSchedule;->sync(Landroid/content/Context;)V
+
+    .line 277
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$look:Z
+
+    if-nez v0, :cond_0
+
+    .line 294
+    :goto_0
+    return-void
+
+    .line 278
+    :cond_0
     const/4 v0, 0x0
 
-    .line 163
+    .line 280
     :try_start_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$app:Landroid/content/Context;
 
@@ -60,7 +88,7 @@
 
     invoke-static {v1, v2, v3}, Lcom/mrkeyboard/app/MrUpdate;->checkIfOlder(Landroid/content/Context;J)Lcom/mrkeyboard/app/MrUpdate$Result;
 
-    .line 164
+    .line 281
     iget-object v1, p0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$app:Landroid/content/Context;
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrUpdate;->toShow(Landroid/content/Context;)Lcom/mrkeyboard/app/MrUpdate$Notice;
@@ -69,8 +97,8 @@
 
     move-result-object v0
 
-    .line 169
-    :goto_0
+    .line 286
+    :goto_1
     iget-object v1, p0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$a:Landroid/app/Activity;
 
     new-instance v2, Lcom/mrkeyboard/app/MrUpdateUi$2$1;
@@ -79,12 +107,11 @@
 
     invoke-virtual {v1, v2}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 176
-    return-void
+    goto :goto_0
 
-    .line 165
+    .line 282
     :catch_0
     move-exception v1
 
-    goto :goto_0
+    goto :goto_1
 .end method

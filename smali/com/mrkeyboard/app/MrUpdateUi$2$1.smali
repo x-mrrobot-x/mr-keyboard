@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 169
+    .line 286
     iput-object p1, p0, Lcom/mrkeyboard/app/MrUpdateUi$2$1;->this$0:Lcom/mrkeyboard/app/MrUpdateUi$2;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrUpdateUi$2$1;->val$notice:Lcom/mrkeyboard/app/MrUpdate$Notice;
@@ -49,7 +49,7 @@
     .locals 2
 
     .prologue
-    .line 171
+    .line 288
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateUi$2$1;->this$0:Lcom/mrkeyboard/app/MrUpdateUi$2;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$a:Landroid/app/Activity;
@@ -70,23 +70,36 @@
 
     if-eqz v0, :cond_1
 
-    .line 174
+    .line 292
     :cond_0
     :goto_0
     return-void
 
-    .line 172
+    .line 289
     :cond_1
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateUi$2$1;->this$0:Lcom/mrkeyboard/app/MrUpdateUi$2;
+
+    iget-object v0, v0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$a:Landroid/app/Activity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrUpdateUi;->access$400(Landroid/app/Activity;)V
+
+    .line 290
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateUi$2$1;->this$0:Lcom/mrkeyboard/app/MrUpdateUi$2;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$a:Landroid/app/Activity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrUpdateUi;->access$300(Landroid/app/Activity;)V
 
-    .line 173
+    .line 291
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateUi$2$1;->val$notice:Lcom/mrkeyboard/app/MrUpdate$Notice;
 
     if-eqz v0, :cond_0
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateUi$2$1;->this$0:Lcom/mrkeyboard/app/MrUpdateUi$2;
+
+    iget-boolean v0, v0, Lcom/mrkeyboard/app/MrUpdateUi$2;->val$asking:Z
+
+    if-nez v0, :cond_0
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateUi$2$1;->this$0:Lcom/mrkeyboard/app/MrUpdateUi$2;
 

@@ -283,6 +283,25 @@ for k in la_p:
 for k in la_e:
     if k in la_o and la_e[k] != la_o[k]: problems.append('values-es: list %s with %d items (original: %d)' % (k, la_e[k], la_o[k]))
 
+# --- the update dialog looks like the AI Editor dialog: settings theme (Theme.MrKeyboard.Dialog) and settings palette
+SETTINGS_COLORS = re.compile(r'^(mr_ui_\w+|mr_ai_\w+|mr_accent(_\d+)?|mr_ripple|mr_text_on_accent)$')
+upd = read_file('res/layout/mr_update_dialog.xml')
+if re.search(r'#[0-9a-fA-F]{3,8}\b', re.sub(r'<!--.*?-->', '', upd, flags=re.S)):
+    problems.append('mr_update_dialog.xml: hex color (use the colors of the settings palette)')
+for kind, name in re.findall(r'@(color|drawable)/([\w.]+)', upd):
+    if kind == 'color' and not SETTINGS_COLORS.match(name):
+        problems.append('mr_update_dialog.xml: @color/%s is not of the settings palette' % name)
+    if kind == 'drawable' and not name.startswith('mr_ui_'):
+        problems.append('mr_update_dialog.xml: @drawable/%s is not of the settings screens (mr_ui_*)' % name)
+theme_id = dict(((n), i) for t, n, i in pub if t == 'style').get('Theme.MrKeyboard.Dialog')
+for src in ('MrUpdateDialog', 'MrAiDialog'):
+    j = read_file('docs/tools/java/src/com/mrkeyboard/app/%s.java' % src)
+    if '"Theme.MrKeyboard.Dialog"' not in j:
+        problems.append('%s.java: does not use Theme.MrKeyboard.Dialog' % src)
+    m = re.search(r'theme(?:Id)? = (0x7f[0-9a-f]+)', j)
+    if not m or m.group(1) != theme_id:
+        problems.append('%s.java: fallback id of the dialog theme (%s) is not the one of public.xml (%s)' % (src, m and m.group(1), theme_id))
+
 print('resources: %d defined, %d entries in public.xml, %d strings in Spanish' % (len(defs), len(pub), len(es)))
 for p in problems:
     print('PROBLEM:', p)

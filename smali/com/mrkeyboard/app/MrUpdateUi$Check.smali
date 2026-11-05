@@ -26,13 +26,13 @@
     .locals 0
 
     .prologue
-    .line 121
+    .line 192
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 122
+    .line 193
     iput-object p1, p0, Lcom/mrkeyboard/app/MrUpdateUi$Check;->mActivity:Landroid/preference/PreferenceActivity;
 
-    .line 123
+    .line 194
     return-void
 .end method
 
@@ -42,12 +42,12 @@
     .locals 1
 
     .prologue
-    .line 126
+    .line 197
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateUi$Check;->mActivity:Landroid/preference/PreferenceActivity;
 
     invoke-static {v0, p1}, Lcom/mrkeyboard/app/MrUpdateUi;->access$200(Landroid/app/Activity;Landroid/preference/Preference;)V
 
-    .line 127
+    .line 198
     const/4 v0, 0x1
 
     return v0

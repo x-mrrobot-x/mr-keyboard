@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 81
+    .line 103
     iput-object p1, p0, Lcom/mrkeyboard/app/MrUpdateDialog$1;->val$app:Landroid/content/Context;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrUpdateDialog$1;->val$notice:Lcom/mrkeyboard/app/MrUpdate$Notice;
@@ -49,13 +49,16 @@
     .locals 2
 
     .prologue
-    .line 83
+    .line 106
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateDialog$1;->val$app:Landroid/content/Context;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrUpdateDialog$1;->val$notice:Lcom/mrkeyboard/app/MrUpdate$Notice;
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrUpdate;->snooze(Landroid/content/Context;Lcom/mrkeyboard/app/MrUpdate$Notice;)V
 
-    .line 84
+    .line 107
+    invoke-static {}, Lcom/mrkeyboard/app/MrUpdateInstall;->cancel()V
+
+    .line 108
     return-void
 .end method

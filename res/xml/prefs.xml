@@ -50,6 +50,8 @@
     <Preference android:title="@string/title_version" android:key="label_version" android:summary="@string/auto_version"/>
     <Preference android:title="@string/mr_update_check_title" android:key="mr_update" android:persistent="false"/>
     <CheckBoxPreference android:title="@string/mr_update_auto_title" android:key="mr_update_auto" android:summary="@string/mr_update_auto_sum" android:persistent="false" android:defaultValue="true"/>
+    <CheckBoxPreference android:title="@string/mr_update_morning_title" android:key="mr_update_morning" android:summary="@string/mr_update_morning_sum" android:persistent="false" android:defaultValue="true"/>
+    <Preference android:title="@string/mr_update_allow_title" android:key="mr_update_notif" android:summary="@string/mr_update_allow_sum" android:persistent="false"/>
     <Preference android:title="@string/mr_ui_author_title" android:key="mr_author" android:summary="@string/mr_ui_author_summary" android:persistent="false"/>
   </PreferenceCategory>
 </PreferenceScreen>

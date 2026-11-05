@@ -21,6 +21,12 @@
         android:name="android.permission.READ_USER_DICTIONARY" />
     <uses-permission
         android:name="android.permission.WRITE_USER_DICTIONARY" />
+    <!-- Lets the app install its own update (Settings > Install unknown apps): the user still confirms on Android's screen. -->
+    <uses-permission
+        android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- Lets the system bring back the morning check of updates after a restart (jobs scheduled as persisted). -->
+    <uses-permission
+        android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-feature
         android:name="android.hardware.microphone"
         android:required="false" />
@@ -236,5 +242,22 @@
         <service
             android:name="com.google.android.voiceime.ServiceHelper"
             android:exported="false" />
+        <!-- Answer of the install session of the update: only the system reaches it (PendingIntent of MrUpdateInstall). -->
+        <receiver
+            android:name="com.mrkeyboard.app.MrUpdateReceiver"
+            android:exported="false" />
+        <!-- The morning check of updates: only the system starts it (BIND_JOB_SERVICE). -->
+        <service
+            android:name="com.mrkeyboard.app.MrUpdateJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <!-- After the app is updated: schedules the morning check again and removes the notice of the version just installed. -->
+        <receiver
+            android:name="com.mrkeyboard.app.MrUpdateRearm"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

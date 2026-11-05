@@ -210,11 +210,30 @@
     <string name="mr_update_err_signature">la firma del aviso no coincide</string>
     <string name="mr_update_err_old">el aviso es más antiguo que uno ya visto</string>
     <string name="mr_update_auto_title">Buscar al abrir la app</string>
-    <string name="mr_update_auto_sum">Busca una versión nueva como máximo una vez al día, con una petición simple a GitHub</string>
+    <string name="mr_update_auto_sum">Busca una versión nueva al abrir la app, como máximo una vez al día</string>
     <string name="mr_update_title">Nueva versión disponible</string>
     <string name="mr_update_sub">%1$s · %2$s · estás en la %3$s</string>
     <string name="mr_update_notes_none">Esta versión no tiene notas.</string>
     <string name="mr_update_install">Descargar e instalar</string>
     <string name="mr_update_github">Ver en GitHub</string>
     <string name="mr_update_later">Ahora no</string>
+    <!-- v1.82: download and install of the update (permission, progress, errors) -->
+    <string name="mr_update_perm_title">Permitir instalación</string>
+    <string name="mr_update_perm_text">Para instalar la actualización, Android necesita que permitas a Mr Keyboard instalar apps. Toca Abrir ajustes, activa la opción y vuelve.</string>
+    <string name="mr_update_open_settings">Abrir ajustes</string>
+    <string name="mr_update_cancel">Cancelar</string>
+    <string name="mr_update_downloading">Descargando… %d%%</string>
+    <string name="mr_update_verifying">Verificando…</string>
+    <string name="mr_update_installing">Instalando…</string>
+    <string name="mr_update_err_download">No se pudo descargar: %s</string>
+    <string name="mr_update_err_mismatch">El archivo no coincide con el anunciado</string>
+    <string name="mr_update_err_storage">Sin espacio en el dispositivo</string>
+    <string name="mr_update_err_install">Android bloqueó la instalación</string>
+    <string name="mr_update_morning_title">Buscar cada mañana</string>
+    <string name="mr_update_morning_sum">Avisa con una notificación cuando haya una versión nueva, aunque la app esté cerrada.</string>
+    <string name="mr_update_allow_title">Permite las notificaciones para recibir el aviso</string>
+    <string name="mr_update_allow_sum">Abrir ajustes</string>
+    <string name="mr_update_notif_channel">Actualizaciones de la app</string>
+    <string name="mr_update_notif_title">Mr Keyboard %s disponible</string>
+    <string name="mr_update_notif_text">Toca para ver las novedades.</string>
 </resources>
