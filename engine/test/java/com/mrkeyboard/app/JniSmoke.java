@@ -6,19 +6,19 @@ import java.nio.file.Files;
 import java.util.Arrays;
 
 /**
- * Teste da ponte JNI sem o app: carrega a libmrengine.so, entrega tabelas e regras montadas aqui (com o Character do
- * Java, como o MrNative do app faz), busca no dicionário de verdade e confere argumentos ruins (buffer não direto, arrays
- * curtos, arquivo inexistente): falha limpa em vez de cair. O resultado exato igual ao do Java NÃO é conferido aqui: é do
- * docs/tools/e2e/NativeParity.java (que usa as classes reais do app).
+ * JNI bridge test without the app: loads libmrengine.so, hands over tables and rules built here (with the Character of
+ * Java, as the app's MrNative does), searches the real dictionary and checks bad arguments (non-direct buffer, short arrays,
+ * missing file): a clean failure instead of a crash. A result exactly equal to Java's is NOT checked here: that is the job of
+ * docs/tools/e2e/NativeParity.java (which uses the app's real classes).
  *
- * Uso: java -cp pasta_das_classes com.mrkeyboard.app.JniSmoke caminho/libmrengine.so pasta_dicts
+ * Usage: java -cp classes_dir com.mrkeyboard.app.JniSmoke path/libmrengine.so dicts_dir
  */
 public class JniSmoke {
     static int fails = 0, checks = 0;
 
     static void check(boolean ok, String what) {
         checks++;
-        if (!ok) { fails++; System.out.println("FALHA: " + what); }
+        if (!ok) { fails++; System.out.println("FAIL: " + what); }
     }
 
     static char[] chars(String s, int n) {
@@ -44,14 +44,14 @@ public class JniSmoke {
         double[] pow2 = new double[256];
         for (int i = 0; i < 256; i++) pow2[i] = Math.pow(2.0, -i / 25.0);
         check(MrNative.nInit(costs, lower, upper, base, pow2), "nInit");
-        check(!MrNative.nInit(new int[3], lower, upper, base, pow2), "nInit recusa custos curtos");
-        check(!MrNative.nInit(costs, lower, upper, base, new double[10]), "nInit recusa tabela de potências curta");
+        check(!MrNative.nInit(new int[3], lower, upper, base, pow2), "nInit rejects short costs");
+        check(!MrNative.nInit(costs, lower, upper, base, new double[10]), "nInit rejects short power table");
         int[] bad = costs.clone();
-        bad[16] = 0;   // teto de nós zero
-        check(!MrNative.nInit(bad, lower, upper, base, pow2), "nInit recusa teto de nós zero");
-        check(MrNative.nInit(costs, lower, upper, base, pow2), "nInit de novo");
+        bad[16] = 0;   // zero node limit
+        check(!MrNative.nInit(bad, lower, upper, base, pow2), "nInit rejects zero node limit");
+        check(MrNative.nInit(costs, lower, upper, base, pow2), "nInit again");
 
-        // regras: uma de cada tipo
+        // rules: one of each kind
         byte[] pairs = new byte[65536];
         pairs[('s' << 8) | 'z'] = 1;
         pairs[('z' << 8) | 's'] = 1;
@@ -78,9 +78,9 @@ public class JniSmoke {
             int c = MrNative.nSearch(dict, dictBytes.length, w.length(), tb, new char[320], new int[20], outWords, info, scores);
             boolean found = false;
             for (int i = 0; i < c; i++) if (new String(outWords, i * 98, info[1 + 2 * i]).equals(want[li])) found = true;
-            check(c > 0 && c <= 5 && found, langs[li] + ": " + w + " -> " + want[li] + " pela JNI (veio " + c + " resultados)");
-            check(info[0] > 0, langs[li] + ": nós visitados informados");
-            for (int i = 1; i < c; i++) check(scores[i - 1] >= scores[i], langs[li] + ": pontuações em ordem");
+            check(c > 0 && c <= 5 && found, langs[li] + ": " + w + " -> " + want[li] + " through the JNI (got " + c + " results)");
+            check(info[0] > 0, langs[li] + ": visited nodes reported");
+            for (int i = 1; i < c; i++) check(scores[i - 1] >= scores[i], langs[li] + ": scores in order");
 
             String tri = new File(dicts, langs[li] + "/trigrams.bin").getAbsolutePath();
             check(MrNative.nTriOpen(tri), "nTriOpen " + langs[li]);
@@ -91,36 +91,36 @@ public class JniSmoke {
             for (String[] p : pairsList) {
                 Arrays.fill(ow, null);
                 int n = MrNative.nTriFind(p[0], p[0], p[1], p[1], ow, os);
-                check(n >= 0 && n <= 8, "contagem de trigramas dentro do limite");
-                for (int i = 0; i < n; i++) check(ow[i] != null && !ow[i].isEmpty() && os[i] >= 0 && os[i] <= 255, "continuação válida");
+                check(n >= 0 && n <= 8, "trigram count within the limit");
+                for (int i = 0; i < n; i++) check(ow[i] != null && !ow[i].isEmpty() && os[i] >= 0 && os[i] <= 255, "valid continuation");
                 if (n > 0) hits++;
             }
-            check(hits > 0, langs[li] + ": algum par comum tem continuação pela JNI");
+            check(hits > 0, langs[li] + ": some common pair has a continuation through the JNI");
         }
 
-        // argumentos ruins: falha limpa, sem queda
+        // bad arguments: clean failure, no crash
         char[] ow = new char[490];
         int[] info = new int[11];
         long[] sc = new long[5];
         char[] tb = new char[20], near = new char[320];
         int[] cnt = new int[20];
-        ByteBuffer heap = ByteBuffer.allocate(1000);   // não direto
-        check(MrNative.nSearch(heap, 1000, 3, tb, near, cnt, ow, info, sc) == -1, "buffer não direto");
-        check(MrNative.nSearch(null, 1000, 3, tb, near, cnt, ow, info, sc) == -1, "buffer nulo");
+        ByteBuffer heap = ByteBuffer.allocate(1000);   // non-direct
+        check(MrNative.nSearch(heap, 1000, 3, tb, near, cnt, ow, info, sc) == -1, "non-direct buffer");
+        check(MrNative.nSearch(null, 1000, 3, tb, near, cnt, ow, info, sc) == -1, "null buffer");
         ByteBuffer small = ByteBuffer.allocateDirect(100);
-        check(MrNative.nSearch(small, 1000, 3, tb, near, cnt, ow, info, sc) == -1, "tamanho maior que o buffer");
+        check(MrNative.nSearch(small, 1000, 3, tb, near, cnt, ow, info, sc) == -1, "size larger than the buffer");
         check(MrNative.nSearch(small, 100, 0, tb, near, cnt, ow, info, sc) == -1, "n = 0");
         check(MrNative.nSearch(small, 100, 21, tb, near, cnt, ow, info, sc) == -1, "n = 21");
-        check(MrNative.nSearch(small, 100, 3, new char[1], near, cnt, ow, info, sc) == -1, "tb curto");
-        check(MrNative.nSearch(small, 100, 3, tb, near, cnt, new char[10], info, sc) == -1, "saída curta");
-        check(!MrNative.nTriOpen("/nao/existe/trigrams.bin"), "arquivo inexistente");
-        check(!MrNative.nTriOpen(null), "caminho nulo");
+        check(MrNative.nSearch(small, 100, 3, new char[1], near, cnt, ow, info, sc) == -1, "short tb");
+        check(MrNative.nSearch(small, 100, 3, tb, near, cnt, new char[10], info, sc) == -1, "short output");
+        check(!MrNative.nTriOpen("/does/not/exist/trigrams.bin"), "missing file");
+        check(!MrNative.nTriOpen(null), "null path");
         MrNative.nTriClose();
-        check(MrNative.nTriFind("a", "a", "b", "b", new String[3], new int[3]) == 0, "trigramas fechados dão 0");
+        check(MrNative.nTriFind("a", "a", "b", "b", new String[3], new int[3]) == 0, "closed trigrams give 0");
         check(!MrNative.nSetRules(new byte[10], new char[0], new char[0], new char[0], new short[0], new short[256],
-                new short[256], new boolean[256], new boolean[256]), "regras com tabela curta");
+                new short[256], new boolean[256], new boolean[256]), "rules with short table");
 
-        System.out.println(fails == 0 ? "OK: " + checks + " verificações da ponte JNI" : "FALHOU: " + fails + " de " + checks);
+        System.out.println(fails == 0 ? "ALL OK (" + checks + " checks)" : fails + " FAILURE(S) out of " + checks + " checks");
         System.exit(fails == 0 ? 0 : 1);
     }
 }

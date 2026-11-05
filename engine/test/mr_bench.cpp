@@ -1,5 +1,5 @@
-// Velocidade da busca em C++ com as consultas de teste e os dicionários de verdade (dicts/). Uso: mr_bench pasta_dicts [rodadas]
-// A comparação com o Java (mesmas consultas, pela JNI) está em docs/tools/e2e/NativeParity.java.
+// Speed of the C++ search with the test queries and the real dictionaries (dicts/). Usage: mr_bench dicts_dir [rounds]
+// The comparison with Java (same queries, through the JNI) is in docs/tools/e2e/NativeParity.java.
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
     };
     for (const L& l : langs) {
         auto dict = readFile(dicts + "/" + l.id + "/main.dict");
-        if (dict.empty()) { std::printf("%s: sem dicionário\n", l.id); continue; }
+        if (dict.empty()) { std::printf("%s: no dictionary\n", l.id); continue; }
         auto rows = keyRows(l.id);
         std::vector<Query> qs;
         for (const auto& w : l.words) {
@@ -55,14 +55,14 @@ int main(int argc, char** argv) {
             best = std::min(best, us);
             visits = v;
         }
-        std::printf("%-6s %zu consultas, melhor rodada %.1f us por consulta, %.0f nós visitados por consulta\n", l.id, qs.size(),
+        std::printf("%-6s %zu queries, best round %.1f us per query, %.0f nodes visited per query\n", l.id, qs.size(),
                     best / qs.size(), static_cast<double>(visits) / qs.size());
         std::string tpath = dicts + "/" + l.id + "/trigrams.bin";
         TriStore st;
         auto t0 = std::chrono::steady_clock::now();
         bool ok = st.open(tpath.c_str());
         double ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count();
-        std::printf("%-6s trigrams.bin: %s em %.1f ms; arquivo %zu bytes + índice %zu bytes\n", l.id, ok ? "aberto" : "RECUSADO", ms,
+        std::printf("%-6s trigrams.bin: %s in %.1f ms; file %zu bytes + index %zu bytes\n", l.id, ok ? "open" : "REJECTED", ms,
                     readFile(tpath).size(), st.indexBytes());
     }
     return 0;

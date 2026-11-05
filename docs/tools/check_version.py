@@ -1,37 +1,57 @@
 #!/usr/bin/env python3
-"""Confere a versão: apktool.yml e apktool.json iguais, versionCode coerente com versionName e notas da versão.
+"""Checks the version: apktool.yml and apktool.json agree, versionCode matches versionName, and the version notes exist.
+It also warns (without failing) when a plan for this release is still in docs/.
 
-Rode na raiz do projeto. versionCode = maior*1000000 + menor*1000 + correção (v1.72.0 -> 1072000).
-As notas da versão ficam onde o workflow de publicação procura: docs/release-notes/v<versão>.md (v1.72.0 ->
-docs/release-notes/v1.72.0.md). O arquivo inteiro vira o texto da Release e precisa ter os dois blocos, **Português** e **English**.
+Run at the project root. versionCode = major*1000000 + minor*1000 + patch (v1.72.0 -> 1072000).
+The version notes live where the publishing workflow looks for them: docs/release-notes/v<version>.md (v1.72.0 ->
+docs/release-notes/v1.72.0.md). The whole file becomes the Release text and must have both blocks, **Português** and **English**.
+
+Plans: a file docs/plan-*.md that is only needed until its release is out says so with a line `<!-- target-version: v1.82.0 -->`
+near the top. Once the project version reaches that target, the plan has done its job and should be deleted in the release
+commit: the check prints a GitHub Actions warning. Nothing is deleted or committed automatically.
 """
 import json, os, re, sys
 
-problemas = []
+problems = []
 yml = open('apktool.yml', encoding='utf-8').read()
-nome = re.search(r"versionName:\s*['\"]?v?([0-9.]+)", yml).group(1)
-codigo = int(re.search(r"versionCode:\s*['\"]?(\d+)", yml).group(1))
+name = re.search(r"versionName:\s*['\"]?v?([0-9.]+)", yml).group(1)
+code = int(re.search(r"versionCode:\s*['\"]?(\d+)", yml).group(1))
 info = json.load(open('apktool.json', encoding='utf-8'))['VersionInfo']
-if info['versionName'].lstrip('v') != nome or int(info['versionCode']) != codigo:
-    problemas.append('apktool.yml (v%s, %d) e apktool.json (%s, %s) não batem' % (nome, codigo, info['versionName'], info['versionCode']))
-partes = nome.split('.')
-if len(partes) != 3:
-    problemas.append('versionName v%s não tem o formato maior.menor.correção' % nome)
+if info['versionName'].lstrip('v') != name or int(info['versionCode']) != code:
+    problems.append('apktool.yml (v%s, %d) and apktool.json (%s, %s) do not match' % (name, code, info['versionName'], info['versionCode']))
+parts = name.split('.')
+if len(parts) != 3:
+    problems.append('versionName v%s does not have the major.minor.patch format' % name)
 else:
-    maior, menor, pat = (int(x) for x in partes)
-    esperado = maior * 1000000 + menor * 1000 + pat
-    if codigo != esperado:
-        problemas.append('versionCode %d não combina com v%s (esperado %d)' % (codigo, nome, esperado))
-    notas = ['docs/release-notes/v%s.md' % nome]
-    achadas = [n for n in notas if os.path.exists(n)]
-    if not achadas:
-        problemas.append('sem notas da versão: crie um destes arquivos: ' + ' ou '.join(notas))
+    major, minor, patch = (int(x) for x in parts)
+    expected = major * 1000000 + minor * 1000 + patch
+    if code != expected:
+        problems.append('versionCode %d does not match v%s (expected %d)' % (code, name, expected))
+    notes = ['docs/release-notes/v%s.md' % name]
+    found = [n for n in notes if os.path.exists(n)]
+    if not found:
+        problems.append('no version notes: create one of these files: ' + ' or '.join(notes))
     else:
-        texto = open(achadas[0], encoding='utf-8').read()
-        for bloco in ('**Português**', '**English**'):
-            if not re.search(r'^' + re.escape(bloco) + r'\s*$', texto, re.M):
-                problemas.append('%s sem o bloco %s (o texto que vai na Release do GitHub)' % (achadas[0], bloco))
-print('versão v%s (código %d)' % (nome, codigo))
-for p in problemas:
-    print('PROBLEMA:', p)
-sys.exit(1 if problemas else 0)
+        text = open(found[0], encoding='utf-8').read()
+        for block in ('**Português**', '**English**'):
+            if not re.search(r'^' + re.escape(block) + r'\s*$', text, re.M):
+                problems.append('%s has no %s block (the text that goes in the GitHub Release)' % (found[0], block))
+
+def as_tuple(v):
+    return tuple(int(x) for x in v.split('.'))
+
+
+plans_left = []
+if len(parts) == 3 and os.path.isdir('docs'):
+    for fn in sorted(os.listdir('docs')):
+        if not (fn.startswith('plan-') and fn.endswith('.md')):
+            continue
+        m = re.search(r'<!--\s*target-version:\s*v?([0-9]+\.[0-9]+\.[0-9]+)\s*-->', open(os.path.join('docs', fn), encoding='utf-8').read(2000))
+        if m and as_tuple(name) >= as_tuple(m.group(1)):
+            plans_left.append((os.path.join('docs', fn), m.group(1)))
+print('version v%s (code %d)' % (name, code))
+for path, target in plans_left:
+    print('::warning file=%s::plan target v%s reached (project is at v%s): delete this file in the release commit' % (path, target, name))
+for p in problems:
+    print('PROBLEM:', p)
+sys.exit(1 if problems else 0)

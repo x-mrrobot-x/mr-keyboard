@@ -9,7 +9,7 @@ apk = sys.argv[2]
 ids = [p['id'] for p in d['packs']]
 zips = [p['url'] for p in d['packs']]
 if len(set(ids)) != len(ids) or len(set(zips)) != len(zips):
-    print('catálogo com idioma ou zip repetido: %s' % ids, file=sys.stderr)
+    print('catalog with a repeated language or zip: %s' % ids, file=sys.stderr)
     sys.exit(1)
-for nome in sorted([apk, 'catalog.json'] + zips):
-    print(nome)
+for name in sorted([apk, 'catalog.json'] + zips):
+    print(name)

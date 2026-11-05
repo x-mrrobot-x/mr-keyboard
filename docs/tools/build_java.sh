@@ -1,19 +1,19 @@
 #!/bin/sh
-# Gera o smali da camada Java do Mr Keyboard (MrText, MrFix, MrFuzzy, MrPredict, MrTrigram, MrRules, MrJson, MrPacks, MrPacksActivity, MrAi, MrAiDialog, MrAiPrefs, MrAiStyleActivity) a partir de
-# docs/tools/java/src e copia para smali/com/mrkeyboard/app/.
+# Generates the smali of the Mr Keyboard Java layer (MrText, MrFix, MrFuzzy, MrPredict, MrTrigram, MrRules, MrJson, MrPacks, MrPacksActivity, MrAi, MrAiDialog, MrAiPrefs, MrAiStyleActivity) from
+# docs/tools/java/src and copies it to smali/com/mrkeyboard/app/.
 #
-# Uso (na raiz do projeto apktool):
-#   DX_JAR=/caminho/dx-27.0.3.jar APKTOOL_JAR=/caminho/apktool_2.11.1.jar sh docs/tools/build_java.sh
+# Usage (at the root of the apktool project):
+#   DX_JAR=/path/dx-27.0.3.jar APKTOOL_JAR=/path/apktool_2.11.1.jar sh docs/tools/build_java.sh
 #
-# Precisa de um JDK (javac com --release 8), do dx (vem no dex2jar 2.1, lib/dx-27.0.3.jar) e do
-# apktool. Os stubs em java/stubs só servem para compilar (assinaturas das classes do APK); não
-# entram no dex. Sem lambdas nem APIs novas: o código precisa rodar no Android 8 (minSdk 26).
+# Needs a JDK (javac with --release 8), dx (it comes with dex2jar 2.1, lib/dx-27.0.3.jar) and
+# apktool. The stubs in java/stubs are only for compiling (signatures of the APK classes); they
+# do not go into the dex. No lambdas or new APIs: the code must run on Android 8 (minSdk 26).
 set -e
 ROOT=$(pwd)
 SRC="$ROOT/docs/tools/java"
 OUT=$(mktemp -d)
-: "${DX_JAR:?defina DX_JAR}"
-: "${APKTOOL_JAR:?defina APKTOOL_JAR}"
+: "${DX_JAR:?set DX_JAR}"
+: "${APKTOOL_JAR:?set APKTOOL_JAR}"
 
 mkdir -p "$OUT/stubs" "$OUT/classes"
 javac -encoding UTF-8 -nowarn --release 8 -d "$OUT/stubs" $(find "$SRC/stubs" -name '*.java')

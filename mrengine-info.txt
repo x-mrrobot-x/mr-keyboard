@@ -1,6 +1,6 @@
-contrato do motor (kEngineVersion): 1
-lib do dicionario (sha256 de native/CMakeLists.txt + native/src): 57f975b6230d13641c1b1d894956165b0fc90b6d2cd0a18b35f4a0ade9df9b53
-motor (sha256 de engine/CMakeLists.txt + engine/src): 60b8b53af6dbbe12c2d2aa887999e8a1a5af34bf9c24430a5347e4999f57829f
+engine contract (kEngineVersion): 1
+dictionary lib (sha256 of native/CMakeLists.txt + native/src): ee47683cc0559e9ce10038b5c32c583ded399fa09f78c632bac09d2481fd5cb9
+engine (sha256 of engine/CMakeLists.txt + engine/src): 133e9ad18d70559485080cef7a394e5e733189cfd73d3e58f4976e1341920abf
 commit: 970c2158f1eaf79b7c98cde40c1ba367c9b90277
 d439792da1d7878365a7aa381c2cf5a3dfabaf2ac4bee68279fe8de125c42b16  lib/arm64-v8a/libjni_pckeyboard.so
 1781e838119e0d1ce9a1683c551a270d6509b717c67688bfb28e9dc909c14508  lib/arm64-v8a/libmrengine.so

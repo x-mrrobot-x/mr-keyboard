@@ -1,4 +1,4 @@
-// Porta de MrTrigram.java (consulta) e conversões UTF-8. Formato do arquivo em docs/tools/make_trigrams.py (app).
+// Port of MrTrigram.java (lookup) and UTF-8 conversions. File format in docs/tools/make_trigrams.py (app).
 #include "mr_engine.h"
 
 #include <algorithm>
@@ -7,7 +7,7 @@
 
 namespace mr {
 
-// ------------------------------------------------------------------------------------------- arquivo
+// ---------------------------------------------------------------------------------------------- file
 
 bool TriStore::open(const char* path) {
     data_.clear();
@@ -19,7 +19,7 @@ bool TriStore::open(const char* path) {
     bool ok = false;
     if (std::fseek(f, 0, SEEK_END) == 0) {
         long size = std::ftell(f);
-        // teto de 256 MB: os índices usam posições de 32 bits e um trigrams.bin de verdade tem poucos MB
+        // 256 MB cap: the indexes use 32-bit positions and a real trigrams.bin is only a few MB
         if (size >= 12 && size <= (256L << 20) && std::fseek(f, 0, SEEK_SET) == 0) {
             data_.resize(static_cast<size_t>(size));
             ok = std::fread(data_.data(), 1, data_.size(), f) == data_.size();
@@ -50,8 +50,8 @@ bool TriStore::openBytes(const uint8_t* data, size_t size) {
     return true;
 }
 
-// Confere o arquivo inteiro uma vez e monta os índices. Depois disso find() não precisa conferir nada:
-// toda posição, tamanho e id já foi validado aqui.
+// Checks the whole file once and builds the indexes. After that find() does not need to check anything:
+// every position, length and id has already been validated here.
 bool TriStore::parse() {
     const size_t size = data_.size();
     if (size < 12 || std::memcmp(data_.data(), "MRT1", 4) != 0) return false;
@@ -61,7 +61,7 @@ bool TriStore::parse() {
     size_t pos = 4;
     uint32_t n = be32(pos);
     pos += 4;
-    if (n > size) return false;                 // cada palavra ocupa pelo menos 1 byte
+    if (n > size) return false;                 // each word takes at least 1 byte
     word_.reserve(n);
     const uint8_t* prevWord = nullptr;
     int prevLen = 0;
@@ -71,7 +71,7 @@ bool TriStore::parse() {
         if (pos + 1 + static_cast<size_t>(len) > size) return false;
         const uint8_t* w = data_.data() + pos + 1;
         if (prevWord != nullptr) {
-            // a busca binária exige ordem estritamente crescente (bytes, que é a ordem de código)
+            // binary search needs strictly increasing order (bytes, which is the code order)
             int cmp = std::memcmp(prevWord, w, static_cast<size_t>(std::min(prevLen, len)));
             if (cmp > 0 || (cmp == 0 && prevLen >= len)) return false;
         }
@@ -83,7 +83,7 @@ bool TriStore::parse() {
     if (pos + 4 > size) return false;
     uint32_t m = be32(pos);
     pos += 4;
-    if (m > size / 7) return false;             // cada contexto ocupa pelo menos 7 bytes
+    if (m > size / 7) return false;             // each context takes at least 7 bytes
     ctx_.reserve(m);
     uint64_t prevKey = 0;
     for (uint32_t i = 0; i < m; i++) {
@@ -104,7 +104,7 @@ bool TriStore::parse() {
     return pos <= size;
 }
 
-// ------------------------------------------------------------------------------------------ consulta
+// --------------------------------------------------------------------------------------------- query
 
 bool TriStore::wordBytes(uint32_t id, const uint8_t** p, int* len) const {
     if (id >= word_.size()) return false;
@@ -221,7 +221,7 @@ int fromUtf8(const uint8_t* s, int len, char16_t* out, int maxOut) {
             continue;
         }
         if (extra > 0) {
-            bool ok = (i + extra) <= (len - 1);   // false = sequência cortada no fim
+            bool ok = (i + extra) <= (len - 1);   // false = sequence cut off at the end
             if (ok) {
                 for (int k = 1; k <= extra; k++) {
                     uint8_t cc = s[i + k];

@@ -1,37 +1,37 @@
 #!/bin/sh
-# Confere que o smali da camada Java (Mr*.smali gerados) é o que docs/tools/build_java.sh produz hoje dos
-# fontes em docs/tools/java/src: pega Java mudado sem regenerar o smali (ou smali de classe que saiu do Java).
-# Smali escrito à mão (MrTools, MrShots, ...) não entra: só as classes que têm fonte Java.
-# Uso (na raiz): DX_JAR=.../dx-27.0.3.jar APKTOOL_JAR=.../apktool.jar sh docs/tools/check_java_smali.sh
+# Checks that the smali of the Java layer (generated Mr*.smali) is what docs/tools/build_java.sh produces today from the
+# sources in docs/tools/java/src: it catches Java changed without regenerating the smali (or smali of a class that left Java).
+# Hand-written smali (MrTools, MrShots, ...) is not covered: only the classes that have a Java source.
+# Usage (at the root): DX_JAR=.../dx-27.0.3.jar APKTOOL_JAR=.../apktool.jar sh docs/tools/check_java_smali.sh
 set -e
-: "${DX_JAR:?defina DX_JAR}"
-: "${APKTOOL_JAR:?defina APKTOOL_JAR}"
+: "${DX_JAR:?set DX_JAR}"
+: "${APKTOOL_JAR:?set APKTOOL_JAR}"
 ROOT=$(pwd)
 T=$(mktemp -d)
 mkdir -p "$T/smali/com/mrkeyboard/app" "$T/docs/tools"
 cp -r docs/tools/java docs/tools/build_java.sh "$T/docs/tools/"
 (cd "$T" && sh docs/tools/build_java.sh > /dev/null)
-NOVO="$T/smali/com/mrkeyboard/app"
+GENERATED="$T/smali/com/mrkeyboard/app"
 APP="$ROOT/smali/com/mrkeyboard/app"
-FALHOU=0
-for f in "$NOVO"/Mr*.smali; do
+FAILED=0
+for f in "$GENERATED"/Mr*.smali; do
   n=$(basename "$f")
-  if [ ! -f "$APP/$n" ]; then echo "FALTA no repo: $n"; FALHOU=1
-  elif ! cmp -s "$f" "$APP/$n"; then echo "DIFERENTE: $n"; FALHOU=1; fi
+  if [ ! -f "$APP/$n" ]; then echo "MISSING in repo: $n"; FAILED=1
+  elif ! cmp -s "$f" "$APP/$n"; then echo "DIFFERENT: $n"; FAILED=1; fi
 done
-# classes do repo que têm fonte Java mas não saem mais do build (sobra de classe interna, por exemplo)
+# repo classes that have a Java source but no longer come out of the build (leftover inner class, for example)
 for java in docs/tools/java/src/com/mrkeyboard/app/*.java; do
   base=$(basename "$java" .java)
   for f in "$APP/$base.smali" "$APP/$base"'$'*.smali; do
     [ -f "$f" ] || continue
     n=$(basename "$f")
-    [ -f "$NOVO/$n" ] || { echo "SOBRA no repo (não sai mais do Java): $n"; FALHOU=1; }
+    [ -f "$GENERATED/$n" ] || { echo "LEFTOVER in repo (no longer comes out of Java): $n"; FAILED=1; }
   done
 done
 rm -rf "$T"
-if [ $FALHOU -ne 0 ]; then
-  echo "Regenere com: DX_JAR=... APKTOOL_JAR=... sh docs/tools/build_java.sh   (e faça o commit do smali)"
+if [ $FAILED -ne 0 ]; then
+  echo "Regenerate with: DX_JAR=... APKTOOL_JAR=... sh docs/tools/build_java.sh   (and commit the smali)"
 else
-  echo "smali da camada Java em dia"
+  echo "Java-layer smali up to date"
 fi
-exit $FALHOU
+exit $FAILED

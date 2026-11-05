@@ -1,6 +1,6 @@
-// Camada JNI: com.mrkeyboard.app.MrNative (RegisterNatives, sem nomes Java_... exportados).
-// Qualquer coisa fora do esperado (tamanho de array, buffer não direto, exceção C++) devolve falha e o
-// Java segue com o próprio código. Nada aqui pode derrubar o teclado.
+// JNI layer: com.mrkeyboard.app.MrNative (RegisterNatives, no exported Java_... names).
+// Anything unexpected (array size, non-direct buffer, C++ exception) returns failure and
+// Java carries on with its own code. Nothing here may bring the keyboard down.
 #include <jni.h>
 
 #include <algorithm>
@@ -17,7 +17,7 @@ namespace {
 
 using namespace mr;
 
-std::mutex gMutex;                       // protege gTables, gRules e gFuzzy (uma busca por vez)
+std::mutex gMutex;                       // protects gTables, gRules and gFuzzy (one search at a time)
 std::shared_ptr<const Tables> gTables;
 std::shared_ptr<const Rules> gRules;
 Fuzzy gFuzzy;
@@ -121,8 +121,8 @@ jboolean nSetRules(JNIEnv* env, jclass, jbyteArray pairs, jcharArray t2, jcharAr
     }
 }
 
-// Devolve quantos resultados (0..5) ou -1 se não pôde buscar (o Java então usa o próprio código).
-// outWords: resultado i começa em i * kResultChars; outInfo: [0] = nós visitados, depois (tamanho, custo) de cada um.
+// Returns how many results (0..5) or -1 if it could not search (Java then uses its own code).
+// outWords: result i starts at i * kResultChars; outInfo: [0] = visited nodes, then (length, cost) of each.
 jint nSearch(JNIEnv* env, jclass, jobject dict, jint size, jint n, jcharArray tb, jcharArray near, jintArray nearCount,
              jcharArray outWords, jintArray outInfo, jlongArray outScores) {
     try {
@@ -244,7 +244,7 @@ jint nTriFind(JNIEnv* env, jclass, jstring a1, jstring a2, jstring b1, jstring b
     }
 }
 
-// jni.h do JDK declara char* e o do NDK const char*: a conversão cobre os dois.
+// the JDK jni.h declares char* and the NDK one const char*: the cast covers both.
 #define MR_METHOD(name, sig, fn) \
     { const_cast<char*>(name), const_cast<char*>(sig), reinterpret_cast<void*>(fn) }
 

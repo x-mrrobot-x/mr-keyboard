@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Consultas para o teste de paridade Java x C++ (docs/tools/e2e/NativeParity.java), tiradas do PRÓPRIO dicionário do projeto:
-não precisa de corpus de texto. Para cada idioma gera
-  erros_<id>.tsv   errada TAB certa TAB tipo   (um erro sintético por palavra amostrada, semente fixa)
-  pares_<id>.txt   pares de palavras "w1 w2" dos contextos do trigrams.bin (e variantes com inicial maiúscula)
+"""Queries for the Java vs C++ parity test (docs/tools/e2e/NativeParity.java), taken from the project's OWN dictionary:
+no text corpus needed. For each language it generates
+  typos_<id>.tsv   wrong TAB right TAB kind   (one synthetic typo per sampled word, fixed seed)
+  pairs_<id>.txt   word pairs "w1 w2" from the contexts of trigrams.bin (and variants with a capital first letter)
 
-  python3 -I engine/tools/gen_parity_queries.py --lang pt-BR --out /tmp/paridade [--words 2500] [--root .]
+  python3 -I engine/tools/gen_parity_queries.py --lang pt-BR --out /tmp/parity [--words 2500] [--root .]
 
-Os erros são os mesmos tipos do docs/tools/e2e/gen_typos_all.py (troca de lugar, letra a menos no começo/meio/fim, letra
-repetida, tecla vizinha, letra a mais). A paridade não depende de os erros serem realistas: precisa de variedade e de a
-mesma entrada ir para o Java e para o C++.
+The typos are the same kinds as in docs/tools/e2e/gen_typos_all.py (swapped letters, missing letter at the start/middle/end,
+repeated letter, neighbouring key, extra letter). Parity does not depend on the typos being realistic: it needs variety and
+the same input going to Java and to C++.
 """
 import argparse
 import os
@@ -100,7 +100,7 @@ def main():
     step = max(1, len(words) // a.words)
     os.makedirs(a.out, exist_ok=True)
     n = 0
-    with open(os.path.join(a.out, f"erros_{a.lang}.tsv"), "w", encoding="utf-8") as fh:
+    with open(os.path.join(a.out, f"typos_{a.lang}.tsv"), "w", encoding="utf-8") as fh:
         for w in words[::step][: a.words]:
             t, kind = typo(w, rows, rnd)
             if t and t != w:
@@ -109,14 +109,14 @@ def main():
     ctx = read_tri(os.path.join(a.root, "dicts", a.lang, "trigrams.bin"))
     step = max(1, len(ctx) // a.pairs)
     m = 0
-    with open(os.path.join(a.out, f"pares_{a.lang}.txt"), "w", encoding="utf-8") as fh:
+    with open(os.path.join(a.out, f"pairs_{a.lang}.txt"), "w", encoding="utf-8") as fh:
         for i, (w1, w2) in enumerate(ctx[::step][: a.pairs]):
             fh.write(f"{w1} {w2}\n")
             m += 1
             if i % 5 == 0 and w1:
-                fh.write(f"{w1[0].upper() + w1[1:]} {w2}\n")   # início de frase: a lib tenta também em minúscula
+                fh.write(f"{w1[0].upper() + w1[1:]} {w2}\n")   # start of sentence: the lib also tries lowercase
                 m += 1
-    print(f"{a.lang}: {n} erros, {m} pares")
+    print(f"{a.lang}: {n} typos, {m} pairs")
 
 
 if __name__ == "__main__":

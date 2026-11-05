@@ -1,17 +1,17 @@
-// Testa um dicionário gerado com o leitor original do Hacker's Keyboard (dictionary.cpp).
+// Tests a generated dictionary with the original Hacker's Keyboard reader (dictionary.cpp).
 //
-// Compilar no PC (o -funsigned-char reproduz o char sem sinal do ARM; sem ele dá para ver o
-// defeito do x86 com acentos nos bigramas):
-//   g++ -O2 -funsigned-char -I<cpp do Hacker's Keyboard> dict_test.cpp \
+// Compile on the PC (-funsigned-char reproduces the unsigned char of ARM; without it you can see the
+// x86 defect with accents in the bigrams):
+//   g++ -O2 -funsigned-char -I<Hacker's Keyboard cpp> dict_test.cpp \
 //       <cpp>/dictionary.cpp <cpp>/char_utils.cpp -o dict_test
 //
-// Uso: dict_test arquivo.dict palavras.tsv [bigramas.tsv] [consultas.tsv] [repeticoes]
-//   palavras.tsv : palavra<TAB>f        -> todas precisam passar em isValidWord
-//   bigramas.tsv : anterior<TAB>seguinte<TAB>f, agrupado por "anterior" na ordem gravada no
-//                  dicionário -> getBigrams com todas as iniciais (como MrText.allInitials)
-//                  precisa devolver exatamente essas palavras com essas frequências
-//   consultas.tsv: digitado<TAB>esperado -> esperado deve aparecer em getSuggestions
-//   repeticoes   : repete as consultas para medir tempo (padrão 20)
+// Usage: dict_test file.dict words.tsv [bigrams.tsv] [queries.tsv] [repetitions]
+//   words.tsv   : word<TAB>f        -> all must pass isValidWord
+//   bigrams.tsv : previous<TAB>next<TAB>f, grouped by "previous" in the order stored in the
+//                 dictionary -> getBigrams with all the initials (like MrText.allInitials)
+//                 must return exactly these words with these frequencies
+//   queries.tsv : typed<TAB>expected -> expected must appear in getSuggestions
+//   repetitions : repeats the queries to measure time (default 20)
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -66,11 +66,11 @@ static double now_ms() {
             std::chrono::steady_clock::now().time_since_epoch()).count();
 }
 
-// Mesmas iniciais de MrText.allInitials()
+// Same initials as MrText.allInitials()
 static const char *INITIALS = "abcdefghijklmnopqrstuvwxyzàáâãéêíóôõúüçABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÂÃÉÊÍÓÔÕÚÜÇ";
 
 int main(int argc, char **argv) {
-    if (argc < 3) { fprintf(stderr, "uso: %s dict palavras.tsv [bigramas.tsv] [consultas.tsv] [rep]\n", argv[0]); return 2; }
+    if (argc < 3) { fprintf(stderr, "usage: %s dict words.tsv [bigrams.tsv] [queries.tsv] [rep]\n", argv[0]); return 2; }
     FILE *f = fopen(argv[1], "rb");
     if (!f) { perror(argv[1]); return 2; }
     fseek(f, 0, SEEK_END);
@@ -79,11 +79,11 @@ int main(int argc, char **argv) {
     unsigned char *buf = (unsigned char *) malloc(size);
     if (fread(buf, 1, size, f) != (size_t) size) { perror("fread"); return 2; }
     fclose(f);
-    // Mesmos parâmetros do BinaryDictionary.loadDictionary: openNative(buf, 2, 2, tamanho)
+    // Same parameters as BinaryDictionary.loadDictionary: openNative(buf, 2, 2, size)
     Dictionary dict(buf, 2, 2, (int) size);
     int fails = 0;
 
-    // 1) todas as palavras são válidas
+    // 1) all the words are valid
     {
         std::ifstream in(argv[2]);
         std::string line;
@@ -95,22 +95,22 @@ int main(int argc, char **argv) {
             std::vector<unsigned short> u = utf16(w);
             total++;
             if (!dict.isValidWord(u.data(), (int) u.size())) {
-                if (bad < 10) printf("INVALIDA: %s\n", w.c_str());
+                if (bad < 10) printf("INVALID: %s\n", w.c_str());
                 bad++;
             }
         }
-        printf("isValidWord: %ld/%ld válidas (%.1f ms)\n", total - bad, total, now_ms() - t0);
+        printf("isValidWord: %ld/%ld valid (%.1f ms)\n", total - bad, total, now_ms() - t0);
         const char *nonwords[] = {"xqzwv", "nao", "voce", "abcdefghij", "obrigadoo", "náo"};
         for (const char *nw : nonwords) {
             std::vector<unsigned short> u = utf16(nw);
             bool v = dict.isValidWord(u.data(), (int) u.size());
-            printf("  não-palavra %-10s válida=%d\n", nw, v);
+            printf("  non-word %-10s valid=%d\n", nw, v);
             if (v) fails++;
         }
         if (bad) fails++;
     }
 
-    // 2) bigramas: getBigrams devolve exatamente o que foi gravado
+    // 2) bigrams: getBigrams returns exactly what was stored
     if (argc > 3 && strcmp(argv[3], "-") != 0) {
         std::vector<unsigned short> init = utf16(INITIALS);
         std::set<unsigned short> initSet(init.begin(), init.end());
@@ -160,12 +160,12 @@ int main(int argc, char **argv) {
                 badw++;
             }
         }
-        printf("getBigrams: %ld/%ld palavras com a lista exata (%ld pares); média %.4f ms, pior %.4f ms\n",
+        printf("getBigrams: %ld/%ld words with the exact list (%ld pairs); average %.4f ms, worst %.4f ms\n",
                words - badw, words, pairs, words ? sum / words : 0.0, worst);
         if (badw) fails++;
     }
 
-    // 3) sugestões
+    // 3) suggestions
     if (argc > 4) {
         const int MAX_WORD_LENGTH = 48, MAX_WORDS = 18, MAX_ALTERNATIVES = 16, NEXT = 1280;
         int rep = argc > 5 ? atoi(argv[5]) : 20;
@@ -205,9 +205,9 @@ int main(int argc, char **argv) {
             }
             if (found) ok++;
             if (!q.second.empty())
-                printf("%s %-12s -> %-12s | %s\n", found ? "OK   " : "FALHA", q.first.c_str(), q.second.c_str(), list.c_str());
+                printf("%s %-12s -> %-12s | %s\n", found ? "OK   " : "FAIL ", q.first.c_str(), q.second.c_str(), list.c_str());
         }
-        printf("getSuggestions: %d/%zu com a esperada; média %.3f ms, pior %.3f ms por consulta\n",
+        printf("getSuggestions: %d/%zu with the expected one; average %.3f ms, worst %.3f ms per query\n",
                ok, qs.size(), qs.empty() ? 0.0 : total / qs.size(), worst);
     }
     free(buf);

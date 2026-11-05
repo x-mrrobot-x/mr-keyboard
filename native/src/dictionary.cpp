@@ -442,7 +442,7 @@ Dictionary::searchForTerminalNode(int addressLookingFor, int frequency)
     int pos;
     int followDownBranchAddress = DICTIONARY_HEADER_SIZE;
     bool found = false;
-    unsigned short followingChar = ' ';  // Mr Keyboard: era char (com sinal no x86: é virava U+FFE9)
+    unsigned short followingChar = ' ';  // Mr Keyboard: was char (signed on x86: é became U+FFE9)
     int depth = -1;
 
     while(!found) {

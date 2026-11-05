@@ -1,13 +1,13 @@
 #!/bin/sh
-# Testes de PC da camada Java que não precisam do APK (roda na raiz do projeto):
+# PC tests of the Java layer that do not need the APK (run at the project root):
 #   - compila os stubs (docs/tools/java/stubs) e os fontes (docs/tools/java/src), como o build_java.sh;
-#   - AuthorTest: cartão do autor e link da tela principal (MrAuthor, MrLink).
-#   - RecorrectTest: palavra sob o cursor, quais palavras ganham sugestões e teclas vizinhas (MrRecorrect).
-#   - RecentTest: palavras recentes na previsão e na hora de completar (MrRecent).
-#   - NativeFallbackTest: sem a libmrengine.so (motor nativo, 1.77) a correção e os trigramas seguem pelo Java.
-# Com o caminho do jar do APK (classes.dex -> d2j-dex2jar), roda também:
-#   - EsTest: SheetStrings/MrEs com contextos em espanhol, português, inglês e francês.
-# Uso: sh docs/tools/run_java_tests.sh [app.jar]
+#   - AuthorTest: author card and main-screen link (MrAuthor, MrLink).
+#   - RecorrectTest: word under the cursor, which words get suggestions and neighbour keys (MrRecorrect).
+#   - RecentTest: recent words in the prediction and when completing (MrRecent).
+#   - NativeFallbackTest: without libmrengine.so (native engine, 1.77) correction and trigrams go on through Java.
+# With the path of the APK jar (classes.dex -> d2j-dex2jar), it also runs:
+#   - EsTest: SheetStrings/MrEs with Spanish, Portuguese, English and French contexts.
+# Usage: sh docs/tools/run_java_tests.sh [app.jar]
 set -e
 APPJAR=$1
 T=$(mktemp -d)
@@ -28,7 +28,7 @@ echo "== RecentTest"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_recent" $D/recent_test/RecentTest.java
 java -cp "$T/test_recent:$T/stubs:$T/main" com.mrkeyboard.app.RecentTest
 
-echo "== NativeFallbackTest (sem a libmrengine.so: o app tem de funcionar como na 1.76)"
+echo "== NativeFallbackTest (without libmrengine.so: the app must work as in 1.76)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_native" $D/native_test/NativeFallbackTest.java
 java -cp "$T/test_native:$T/stubs:$T/main" com.mrkeyboard.app.NativeFallbackTest
 
@@ -36,7 +36,7 @@ if [ -n "$APPJAR" ]; then
   echo "== EsTest"
   javac -nowarn -cp "$T/stubs" -d "$T/ov_es" $(find $D/settings_test/stubs -name '*.java')
   javac -encoding UTF-8 -nowarn -cp "$T/ov_es:$T/stubs:$APPJAR" -d "$T/test_es" $D/es_test/EsTest.java
-  # o jar vem do dex2jar, sem mapas de pilha: o verificador da JVM fica desligado só para ele
+  # the jar comes from dex2jar, without stack maps: the JVM verifier is switched off just for it
   java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote \
     -cp "$T/test_es:$T/ov_es:$T/stubs:$APPJAR" com.mrkeyboard.app.EsTest
 fi

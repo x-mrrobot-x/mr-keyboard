@@ -1,20 +1,20 @@
 // Mr Keyboard - motor nativo, etapa 1.
 //
-// Porta para C++ de duas partes do app que hoje rodam em Java e são as mais pesadas:
-//   - Fuzzy:    a busca de correção (MrFuzzy.java: distância de edição com pesos sobre o trie do .dict,
-//               passadas, divisão de palavras coladas);
-//   - TriStore: a consulta de trigramas (MrTrigram.java: arquivo trigrams.bin, formato MRT1).
-// Os arquivos são os mesmos de hoje (main.dict, trigrams.bin); nenhum formato novo.
+// C++ port of the two heaviest parts of the app, which used to run only in Java:
+//   - Fuzzy:    the correction search (MrFuzzy.java: weighted edit distance over the .dict trie,
+//               passes, splitting of run-together words);
+//   - TriStore: the trigram lookup (MrTrigram.java: trigrams.bin file, MRT1 format).
+// The files are the same as before (main.dict, trigrams.bin); no new format.
 //
-// Regras deste código (leia antes de mexer):
-//   1. A fonte da verdade dos custos, das regras e das tabelas de letras é o Java do app. O Java entrega
-//      tudo na inicialização (nInit/nSetRules); aqui não há constante de ajuste escondida.
-//   2. Nunca confiar nos arquivos. Toda leitura é conferida contra o tamanho; arquivo estragado dá menos
-//      resultados ou erro, nunca queda do teclado.
-//   3. Nenhuma exceção atravessa o JNI.
-//   4. Só tipos de tamanho fixo. O resultado não pode depender de char ter ou não sinal (x86 x ARM).
-//   5. O resultado tem de ser idêntico ao do Java, bit a bit (palavras, pontuação, custo, ordem). A prova
-//      é o teste de paridade (test/ e docs/tools/e2e/NativeParity.java no app).
+// Rules for this code (read before changing anything):
+//   1. The source of truth for costs, rules and letter tables is the app's Java. Java hands over
+//      everything at start-up (nInit/nSetRules); there is no hidden tuning constant here.
+//   2. Never trust the files. Every read is checked against the size; a corrupt file gives fewer
+//      results or an error, never a keyboard crash.
+//   3. No exception crosses the JNI boundary.
+//   4. Fixed-size types only. The result must not depend on char being signed or not (x86 vs ARM).
+//   5. The result must be identical to the Java one, bit by bit (words, score, cost, order). The proof
+//      is the parity test (test/ and docs/tools/e2e/NativeParity.java in the app).
 #pragma once
 
 #include <cstddef>
@@ -25,8 +25,8 @@
 
 namespace mr {
 
-// Versão do contrato Java <-> nativo. Sobe quando muda a assinatura de qualquer função nativa, a ordem
-// dos custos ou o significado de qualquer tabela. O app confere no carregamento e, se não bater, usa o Java.
+// Java <-> native contract version. Goes up when the signature of any native function, the order of
+// the costs or the meaning of any table changes. The app checks it at load time and, if it differs, uses Java.
 constexpr int kEngineVersion = 1;
 
 constexpr int kMaxTyped = 20;         // MrFuzzy.MAX_TYPED
@@ -34,11 +34,11 @@ constexpr int kMaxExtraDepth = 3;     // MrFuzzy.MAX_EXTRA_DEPTH
 constexpr int kMaxResults = 5;        // MrFuzzy.MAX_RESULTS
 constexpr int kMaxWord = 48;          // MrFuzzy.MAX_WORD
 constexpr int kInf = 1 << 20;         // MrFuzzy.INF
-constexpr int kNear = 16;             // vizinhos guardados por toque
-constexpr int kResultChars = kMaxWord * 2 + 2;  // tamanho do buffer de cada resultado (palavra + espaço + palavra)
-constexpr int kPowTable = 256;        // custos 0..255 têm 2^(-c/25) vindo do Java
+constexpr int kNear = 16;             // neighbours kept per touch
+constexpr int kResultChars = kMaxWord * 2 + 2;  // size of each result buffer (word + space + word)
+constexpr int kPowTable = 256;        // costs 0..255 have 2^(-c/25) coming from Java
 
-// Custos (x100) e limites. A ordem é a de MrNative.COSTS no Java; mude as duas juntas.
+// Costs (x100) and limits. The order is that of MrNative.COSTS in Java; change both together.
 struct Costs {
     int prox1, prox2, proxFar, delFirst, phon, vowel, sub;
     int ins, insDouble, insH, insNear, del, delDouble;
@@ -46,25 +46,25 @@ struct Costs {
     static constexpr int kCount = 17;
 };
 
-// Tabelas que não dependem do idioma. Vêm do Java (Character/MrText) para valer o mesmo que lá em
-// qualquer versão do Android.
+// Tables that do not depend on the language. They come from Java (Character/MrText) so they match it on
+// any Android version.
 struct Tables {
     Costs costs{};
     std::vector<char16_t> lower;    // 65536: Character.toLowerCase
     std::vector<uint8_t> upper;     // 65536: Character.isUpperCase (0/1)
-    char16_t base256[256] = {0};    // MrText.base para 0..255
-    double pow2[kPowTable] = {0};   // Math.pow(2.0, -c / 25.0), calculado pelo Java
+    char16_t base256[256] = {0};    // MrText.base for 0..255
+    double pow2[kPowTable] = {0};   // Math.pow(2.0, -c / 25.0), computed by Java
 
     char16_t baseOf(int c) const { return c < 256 ? base256[c] : lower[c & 0xFFFF]; }
     char16_t lowerOf(int c) const { return lower[c & 0xFFFF]; }
     bool isUpper(int c) const { return upper[c & 0xFFFF] != 0; }
 };
 
-// Regras do idioma (as tabelas de MrRules.java).
+// Language rules (the tables of MrRules.java).
 struct Rules {
-    std::vector<uint8_t> pairs = std::vector<uint8_t>(65536, 0);  // [(a << 8) | b]: 1 fonética, 2 vogal
-    std::vector<char16_t> t2a, t2b, t2d;   // grupos: digitado (2 letras) -> dicionário (1)
-    std::vector<char16_t> d2p, d2c, d2t;   // grupos: dicionário (2 letras) -> digitado (1)
+    std::vector<uint8_t> pairs = std::vector<uint8_t>(65536, 0);  // [(a << 8) | b]: 1 phonetic, 2 vowel
+    std::vector<char16_t> t2a, t2b, t2d;   // groups: typed (2 letters) -> dictionary (1)
+    std::vector<char16_t> d2p, d2c, d2t;   // groups: dictionary (2 letters) -> typed (1)
     std::vector<char16_t> silPrev, silChar;
     std::vector<int16_t> silCost;
     int16_t silentStart[256] = {0};
@@ -78,15 +78,15 @@ struct Rules {
     }
 };
 
-// Busca aproximada no trie do .dict (mesmo formato de dictionary.cpp). Uma instância por vez: o Java já
-// serializa as consultas (synchronized) e a JNI trava um mutex.
+// Approximate search on the .dict trie (same format as dictionary.cpp). One instance at a time: Java already
+// serializes the queries (synchronized) and the JNI takes a mutex.
 class Fuzzy {
 public:
-    // dict: bytes do .dict (somente leitura, vivo durante a chamada). size: tamanho em bytes.
+    // dict: bytes of the .dict (read-only, alive during the call). size: size in bytes.
     void attach(const uint8_t* dict, int size);
 
-    // tb: letras digitadas sem acento/caixa (n entre 1 e kMaxTyped); near: n x kNear letras vizinhas de cada
-    // toque; nearCount: quantas há em cada. Não lança.
+    // tb: typed letters without accent/case (n between 1 and kMaxTyped); near: n x kNear neighbour letters of each
+    // touch; nearCount: how many there are for each. Does not throw.
     void search(const Tables& t, const Rules& r, const char16_t* tb, int n, const char16_t* near, const int* nearCount);
 
     int count() const { return resCount_; }
@@ -142,7 +142,7 @@ private:
     int maxCost_ = 0;
     int band_ = 0;
     int visits_ = 0;
-    int onlyTyped_ = 0;   // na raiz: 1 = só a inicial digitada, 2 = só as outras aceitas, 3 = só a que faltou, 0 = todas
+    int onlyTyped_ = 0;   // at the root: 1 = only the typed initial, 2 = only the other accepted ones, 3 = only the missing one, 0 = all
 
     int resCount_ = 0;
     char16_t resWord_[kMaxResults][kResultChars] = {{0}};
@@ -156,20 +156,20 @@ private:
     char16_t lookPath_[kMaxWord + 1] = {0};
     int lookFreq_ = 0;
     int lookLen_ = 0;
-    // Teto de nós das buscas recursivas que não passam pelo walk (isPrefix e o lookup do split). Num dicionário de verdade
-    // elas visitam no máximo algumas centenas de nós (medido: 41 e 379 em 43 mil consultas); num arquivo estragado, com
-    // ponteiros em ciclo e letras repetidas, cresceriam exponencialmente e travariam o teclado.
+    // Node limit for the recursive searches that do not go through walk (isPrefix and the split lookup). In a real dictionary
+    // they visit a few hundred nodes at most (measured: 41 and 379 over 43 thousand queries); in a corrupt file, with
+    // cyclic pointers and repeated letters, they would grow exponentially and freeze the keyboard.
     mutable int guard_ = 0;
 };
 
-// trigrams.bin (formato MRT1, big-endian; docs/tools/make_trigrams.py no app). O arquivo é lido inteiro para a
-// memória (3 MB) e só os índices (4 bytes por palavra e por contexto) ficam à parte. Não usa mmap de propósito:
-// se um pacote novo trocasse o arquivo no lugar, a leitura de uma página mapeada derrubaria o app (SIGBUS).
+// trigrams.bin (MRT1 format, big-endian; docs/tools/make_trigrams.py in the app). The whole file is read into
+// memory (3 MB) and only the indexes (4 bytes per word and per context) are kept apart. It deliberately does not use mmap:
+// if a new pack replaced the file in place, reading a mapped page would bring the app down (SIGBUS).
 class TriStore {
 public:
-    // false se o arquivo não existe, não é MRT1, está truncado, fora de ordem ou com ids inválidos.
+    // false if the file does not exist, is not MRT1, is truncated, out of order or has invalid ids.
     bool open(const char* path);
-    // O mesmo de open() para bytes já em memória (testes). Copia.
+    // Same as open() for bytes already in memory (tests). Copies.
     bool openBytes(const uint8_t* data, size_t size);
     bool isOpen() const { return !data_.empty(); }
 
@@ -177,12 +177,12 @@ public:
         uint32_t id;
         int score;
     };
-    // Continuações de (w1, w2). a1/a2 são as grafias de w1 (como veio e em minúscula), b1/b2 as de w2, em UTF-8
-    // (nulas ou repetidas são aceitas). Tenta (a1,b1) (a1,b2) (a2,b1) (a2,b2) e devolve o 1º contexto achado
-    // (como MrTrigram.find). Devolve quantas (até max).
+    // Continuations of (w1, w2). a1/a2 are the spellings of w1 (as typed and in lowercase), b1/b2 those of w2, in UTF-8
+    // (null or repeated ones are accepted). Tries (a1,b1) (a1,b2) (a2,b1) (a2,b2) and returns the first context found
+    // (like MrTrigram.find). Returns how many (up to max).
     int find(const std::string* a1, const std::string* a2, const std::string* b1, const std::string* b2,
              int max, Hit* out) const;
-    // Bytes UTF-8 da palavra id (sem terminador). false se id inválido.
+    // UTF-8 bytes of word id (without terminator). false if id is invalid.
     bool wordBytes(uint32_t id, const uint8_t** p, int* len) const;
 
     size_t contexts() const { return ctx_.size(); }
@@ -195,11 +195,11 @@ private:
     uint32_t be24(size_t p) const { return (uint32_t(data_[p]) << 16) | (uint32_t(data_[p + 1]) << 8) | data_[p + 2]; }
 
     std::vector<uint8_t> data_;
-    std::vector<uint32_t> word_;   // posição do byte de tamanho de cada palavra
-    std::vector<uint32_t> ctx_;    // posição de cada contexto
+    std::vector<uint32_t> word_;   // position of the length byte of each word
+    std::vector<uint32_t> ctx_;    // position of each context
 };
 
-// Conversões UTF-16 <-> UTF-8 (a JNI usa UTF-8 modificado, que não serve para emoji).
+// UTF-16 <-> UTF-8 conversions (the JNI uses modified UTF-8, which does not work for emoji).
 std::string toUtf8(const char16_t* s, int len);
 int fromUtf8(const uint8_t* s, int len, char16_t* out, int maxOut);
 

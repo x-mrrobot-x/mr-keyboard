@@ -1,6 +1,6 @@
-// Porta de MrFuzzy.java (busca). Cada função diz de qual método vem. Mantenha a MESMA ordem de operações:
-// a paridade com o Java é bit a bit, inclusive nos arquivos estragados (onde o Java "retorna" no meio da
-// leitura e a busca segue com o que já achou).
+// Port of MrFuzzy.java (search). Each function says which method it comes from. Keep the SAME order of operations:
+// parity with Java is bit for bit, including on corrupt files (where Java "returns" in the middle of the
+// read and the search goes on with what it has already found).
 #include "mr_engine.h"
 
 #include <algorithm>
@@ -10,7 +10,7 @@
 namespace mr {
 
 namespace {
-// MrFuzzy.java: setMaxCost usa "max / 30" (custo mínimo de mudar o tamanho). Não é um custo ajustável.
+// MrFuzzy.java: setMaxCost uses "max / 30" (minimum cost of changing the length). It is not a tunable cost.
 constexpr int kBandDivisor = 30;
 }  // namespace
 
@@ -27,7 +27,7 @@ void Fuzzy::attach(const uint8_t* dict, int size) {
     root_ = latest ? 2 : 0;
 }
 
-// ---------------------------------------------------------------------------------------------- busca
+// --------------------------------------------------------------------------------------------- search
 
 void Fuzzy::search(const Tables& t, const Rules& r, const char16_t* tb, int n, const char16_t* near,
                    const int* nearCount) {
@@ -66,20 +66,20 @@ void Fuzzy::search(const Tables& t, const Rules& r, const char16_t* tb, int n, c
     for (int j = 1; j <= n; j++) row0[j] = std::min(kInf, row0[j - 1] + ins_[j - 1]);
 
     const Costs& c = t.costs;
-    // 1ª passada: um erro (custo de 1 letra a mais/a menos ou troca). Ver os comentários em MrFuzzy.search.
+    // 1st pass: one error (cost of 1 letter more/less, or a swap). See the comments in MrFuzzy.search.
     bool prefix = isPrefix();
     if (!prefix || n >= 4) {
         setMaxCost(prefix && n == 4 ? 40 : n <= 3 ? 45 : n == 4 ? 60 : 75);
         walkRoot();
         if (!prefix && visits_ <= c.nodeBudget) {
-            // a 1ª letra ficou de fora; só a letra que faltou e, em palavra longa, mais um erro barato
+            // the 1st letter was left out; only the missing letter and, in a long word, one more cheap error
             setMaxCost(c.delFirst + (n >= 6 ? 30 : 0));
             onlyTyped_ = 3;
             walk(root_, 0, 0, 0);
             onlyTyped_ = 0;
         }
         if (resCount_ == 0 && !prefix && n >= 6) {
-            // 2ª passada: até dois erros, para palavras mais longas
+            // 2nd pass: up to two errors, for longer words
             setMaxCost(n <= 7 ? 100 : 120);
             walkRoot();
         }
@@ -108,7 +108,7 @@ bool Fuzzy::isPrefix() const {
 
 bool Fuzzy::prefixRec(int pos, int j) const {
     if (pos < 0 || pos >= size_) return false;
-    if (++guard_ > t_->costs.nodeBudget) return false;   // só estoura em arquivo estragado (veja guard_)
+    if (++guard_ > t_->costs.nodeBudget) return false;   // only overflows on a corrupt file (see guard_)
     int count = dat(pos);
     pos++;
     int want = tb_[j];
@@ -120,9 +120,9 @@ bool Fuzzy::prefixRec(int pos, int j) const {
             c = (dat(pos) << 8) | dat(pos + 1);
             pos += 2;
         }
-        // O Java lança IndexOutOfBounds aqui quando o arquivo termina logo depois da letra (o MrFuzzy.afterWords
-        // engole a exceção e some com os resultados); em C++ ler fora do arquivo é comportamento indefinido, então
-        // este grupo simplesmente termina. Só acontece em dicionário estragado.
+        // Java throws IndexOutOfBounds here when the file ends right after the letter (MrFuzzy.afterWords
+        // swallows the exception and drops the results); in C++ reading outside the file is undefined behaviour, so
+        // this group simply ends. Only happens on a corrupt dictionary.
         if (pos >= size_) return false;
         int flags = dat(pos);
         int child = 0;
@@ -174,10 +174,10 @@ void Fuzzy::firstLetters() {
     }
     const Rules& r = *r_;
     for (int c = 0; c < 256; c++) {
-        // letras parecidas e vogais trocadas; letras mudas no começo ("omem" -> homem)
+        // similar letters and swapped vowels; silent letters at the start ("omem" -> homem)
         if (r.pair(c, t) != 0 || r.silentStart[c] > 0) first_[c] = true;
     }
-    // grupos: "ch" digitado pode ser "x" no dicionário; "x" digitado pode ser "ch"
+    // groups: typed "ch" may be "x" in the dictionary; typed "x" may be "ch"
     if (n_ > 1) {
         for (size_t k = 0; k < r.t2a.size(); k++) {
             if (r.t2a[k] == t && r.t2b[k] == tb_[1]) {
@@ -223,9 +223,9 @@ void Fuzzy::walk(int pos, int depth, int pcb, int parentRaw) {
             c = (dat(pos) << 8) | dat(pos + 1);
             pos += 2;
         }
-        // O Java lança IndexOutOfBounds aqui quando o arquivo termina logo depois da letra (o MrFuzzy.afterWords
-        // engole a exceção e some com os resultados); em C++ ler fora do arquivo é comportamento indefinido, então
-        // este grupo simplesmente termina. Só acontece em dicionário estragado.
+        // Java throws IndexOutOfBounds here when the file ends right after the letter (MrFuzzy.afterWords
+        // swallows the exception and drops the results); in C++ reading outside the file is undefined behaviour, so
+        // this group simply ends. Only happens on a corrupt dictionary.
         if (pos >= size_) return;
         int flags = dat(pos);
         bool terminal = (flags & 0x80) != 0;
@@ -258,7 +258,7 @@ void Fuzzy::walk(int pos, int depth, int pcb, int parentRaw) {
         const int raw = c;
         const int rl = t_->lowerOf(c);
         int del = delCost(cb, pcb, depth);
-        // o dicionário tem 2 letras (pai + esta) para 1 digitada? (grupos: x = ch, c = sc...)
+        // does the dictionary have 2 letters (parent + this one) for 1 typed? (groups: x = ch, c = sc...)
         int d1 = -1, d2 = -1;
         if (prev2 != nullptr && !R.d2p.empty()) {
             int p = t_->lowerOf(parentRaw);
@@ -289,7 +289,7 @@ void Fuzzy::walk(int pos, int depth, int pcb, int parentRaw) {
         const bool onlyDel = depth == 0 && onlyTyped_ == 3;
         for (int j = lo; j <= hi; j++) {
             int tj1 = tb_[j - 1];
-            // na passada da 1ª letra que faltou, a raiz só pode ser letra que falta
+            // in the pass for the 1st missing letter, the root can only be a missing letter
             int best = onlyDel ? kInf : prev[j - 1] + sub(j - 1, cb);
             int v = cur[j - 1] + ins_[j - 1];
             if (v < best) best = v;
@@ -321,7 +321,7 @@ void Fuzzy::walk(int pos, int depth, int pcb, int parentRaw) {
             depth + 1 < kMaxWord) {
             walk(child, depth + 1, cb, raw);
             if (visits_ > cs.nodeBudget) return;
-            // a recursão sobrescreveu rows_[depth + 2..]; rows_[depth + 1] é desta entrada
+        // the recursion overwrote rows_[depth + 2..]; rows_[depth + 1] belongs to this entry
             prev = rows_[depth];
             prev2 = depth > 0 ? rows_[depth - 1] : nullptr;
         }
@@ -335,7 +335,7 @@ bool Fuzzy::isNear(int j, int cb) const {
     return false;
 }
 
-// Posição de cb entre os vizinhos do toque j (0 = o mais perto), ou -1.
+// Position of cb among the neighbours of touch j (0 = the closest), or -1.
 int Fuzzy::nearRank(int j, int cb) const {
     int cnt = nearCount_[j];
     for (int k = 0; k < cnt; k++) {
@@ -356,7 +356,7 @@ int Fuzzy::subCost(int cb, int j) const {
     return c.sub;
 }
 
-// Letra digitada a mais na posição j.
+// Extra typed letter at position j.
 int Fuzzy::insCost(int j) const {
     const Costs& c = t_->costs;
     int t = tb_[j];
@@ -367,7 +367,7 @@ int Fuzzy::insCost(int j) const {
     return c.ins;
 }
 
-// Letra do dicionário que não foi digitada.
+// Dictionary letter that was not typed.
 int Fuzzy::delCost(int cb, int pcb, int depth) const {
     const Costs& c = t_->costs;
     const Rules& r = *r_;
@@ -387,7 +387,7 @@ int Fuzzy::delCost(int cb, int pcb, int depth) const {
 int64_t Fuzzy::scoreFor(int freq, int cost) const {
     int n = std::min(n_, 24);
     double base = static_cast<double>(freq) * static_cast<double>(int64_t(1) << (n + 1));
-    // O Java usa Math.pow(2.0, -cost / 25.0); a tabela vem calculada por ele, então o arredondamento é o mesmo.
+    // Java uses Math.pow(2.0, -cost / 25.0); the table comes precomputed by it, so the rounding is the same.
     double p = (cost >= 0 && cost < kPowTable) ? t_->pow2[cost] : std::pow(2.0, -cost / 25.0);
     double s = base * p;
     if (s > 2147483647 / 8) s = 2147483647 / 8;
@@ -402,7 +402,7 @@ void Fuzzy::offer(const char16_t* word, int len, int freq, int cost) {
 
 void Fuzzy::insert(const char16_t* word, int len, int64_t score, int cost) {
     if (len < 0 || len > kResultChars) return;
-    // repetida? fica a de maior pontuação
+    // repeated? keep the one with the highest score
     for (int i = 0; i < resCount_; i++) {
         if (resLen_[i] == len && std::memcmp(resWord_[i], word, sizeof(char16_t) * len) == 0) {
             if (score <= resScore_[i]) return;
@@ -437,7 +437,7 @@ void Fuzzy::removeAt(int i) {
     resCount_--;
 }
 
-// ------------------------------------------------------------------------------------ espaço faltando
+// -------------------------------------------------------------------------------------- missing space
 
 // MrFuzzy.split
 void Fuzzy::split() {
@@ -468,19 +468,19 @@ void Fuzzy::split() {
     if (bestLen > 0) insert(splitBuf_, bestLen, bestScore, t_->costs.split);
 }
 
-// Procura tb_[from..to) no trie sem considerar acento; guarda em lookBuf_ a grafia mais frequente.
+// Looks up tb_[from..to) in the trie ignoring accents; keeps the most frequent spelling in lookBuf_.
 int Fuzzy::lookup(int from, int to) {
     lookFreq_ = 0;
     lookLen_ = 0;
     if (to - from > kMaxWord) return 0;
-    // lookRec usa j como índice de tb_ e depth como índice do caminho
+    // lookRec uses j as the index into tb_ and depth as the index into the path
     lookupRec(root_, from, to, 0);
     return lookFreq_;
 }
 
 void Fuzzy::lookupRec(int pos, int j, int to, int depth) {
     if (pos < 0 || pos >= size_) return;
-    if (++guard_ > t_->costs.nodeBudget) return;   // só estoura em arquivo estragado (veja guard_)
+    if (++guard_ > t_->costs.nodeBudget) return;   // only overflows on a corrupt file (see guard_)
     int count = dat(pos);
     pos++;
     int want = tb_[j];
@@ -492,9 +492,9 @@ void Fuzzy::lookupRec(int pos, int j, int to, int depth) {
             c = (dat(pos) << 8) | dat(pos + 1);
             pos += 2;
         }
-        // O Java lança IndexOutOfBounds aqui quando o arquivo termina logo depois da letra (o MrFuzzy.afterWords
-        // engole a exceção e some com os resultados); em C++ ler fora do arquivo é comportamento indefinido, então
-        // este grupo simplesmente termina. Só acontece em dicionário estragado.
+        // Java throws IndexOutOfBounds here when the file ends right after the letter (MrFuzzy.afterWords
+        // swallows the exception and drops the results); in C++ reading outside the file is undefined behaviour, so
+        // this group simply ends. Only happens on a corrupt dictionary.
         if (pos >= size_) return;
         int flags = dat(pos);
         bool terminal = (flags & 0x80) != 0;

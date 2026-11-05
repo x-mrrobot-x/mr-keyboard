@@ -1,6 +1,7 @@
 # Plano 1.82 — Nomes em inglês, release profissional (CI) e aviso de nova versão no app
+<!-- target-version: v1.82.0 -->
 
-**Andamento:** a Etapa 1a (nomes e documentos) está pronta; as outras etapas não começaram. Este arquivo e os anexos novos já usam nomes em inglês (`plan-release-update.md`, `update.json`, `catalog.json`). O app ainda não foi divulgado: o dono vai apagar todas as releases e recomeçar a distribuição do zero, então o plano **não tem migração nem compatibilidade com versões antigas**. A numeração segue de onde está (**1.82.0**).
+**Andamento:** a Etapa 1a (nomes e documentos) está pronta e a 1b está em andamento (lotes A e B prontos); as outras etapas não começaram. Este arquivo e os anexos novos já usam nomes em inglês (`plan-release-update.md`, `update.json`, `catalog.json`). O app ainda não foi divulgado: o dono vai apagar todas as releases e recomeçar a distribuição do zero, então o plano **não tem migração nem compatibilidade com versões antigas**. A numeração segue de onde está (**1.82.0**).
 
 ## Pedido
 1. Avaliar se o fluxo atual de gerar release é profissional e se a release única (APK + dicionários) é a melhor estratégia.
@@ -232,9 +233,14 @@ Consequências aceitas: o app passa a ter a permissão `REQUEST_INSTALL_PACKAGES
 - [x] Entrega: projeto em zip + `renames.txt` + `removals.txt`
 
 **1b — Comentários, mensagens e testes** (nenhuma mudança de comportamento)
-- [ ] Scripts, testes e workflows (`docs/tools`, `.github/workflows`): comentários, mensagens de log/erro e rótulos de teste (sobraram, por exemplo, nomes como `como_catalogo` nos testes)
-- [ ] Java (`docs/tools/java/src`), smali com comentário, `native/` e `engine/`: só comentários; smali regenerado sem diferença, dex e `libmrengine.so` sem mudança
-- [ ] Atenção ao traduzir comentários de `native/` e `engine/`: os hashes `native-src.sha256` e `mrengine-src.sha256` cobrem esses arquivos, então mudam junto; recalcular os dois com a conta do `mr-native.yml` e deixar a "native lib" rodar para confirmar que os testes passam. Sem isso o `mr-apk.yml` acusa `lib/` desatualizada e, ao publicar, para
+- [x] **Lote A (pronto):** workflows `mr-apk.yml`, `mr-checks.yml`, `mr-smali.yml` e os scripts/testes da publicação (`publish_release.sh`, `publish_test`, `verify_dex.sh`, `check_*.py`, `res_check.py`, `mres_check.py`, `smali_regcheck.py`, `release_assets.py`, `make_catalog.py`, `sign_catalog.sh`, `SignCatalog.java`, `packs_test/make_fixtures.py`). Nomes trocados: jobs `rapidas`/`montagem` → `quick`/`assemble` (**se alguma regra de proteção do branch exige esses checks pelo nome, ajustar**), entrada `publicar` → `publish`, `MODO` → `MODE` (`manual`/`automatic`)
+- [x] **Lote B (pronto):** `mr-native.yml`, `native/`, `engine/` (C++, CMake, testes, `JniSmoke`, `gen_parity_queries.py`), `dict_test.cpp`, `run_native_parity.sh`. Marcadores de teste padronizados: `OK`, `FAIL`, `ALL OK (N checks)`, `N FAILURE(S) out of M checks` (o `grep -v` do `mr-native.yml` mudou junto com o `dict_test`). Arquivos de consulta da paridade: `typos_<id>.tsv` e `pairs_<id>.txt`; `/tmp/mr_parity`. Hashes recalculados; o código objeto não muda (só comentário e texto de teste), então as libs de `lib/` continuam valendo
+- [ ] **Lote C:** fontes Java do app (só comentários), stubs e smali com comentário
+- [ ] **Lote D:** testes Java e e2e (rótulos e marcadores; os que sobraram com `FALHA`/`TUDO OK`/`verificações`)
+- [ ] **Lote E:** ferramentas Python de dados, scripts do e2e, `cases.tsv` e `report_list`
+- [ ] **Lote F:** `NOTICE.txt` dos dicionários, `AndroidManifest.xml` e a varredura final
+- [ ] Java (`docs/tools/java/src`) e smali com comentário: só comentários; smali regenerado sem diferença, dex sem mudança (`native/` e `engine/` já feitos no Lote B)
+- [x] (feito no Lote B) Atenção ao traduzir comentários de `native/` e `engine/`: os hashes `native-src.sha256` e `mrengine-src.sha256` cobrem esses arquivos, então mudam junto; recalcular os dois com a conta do `mr-native.yml` e deixar a "native lib" rodar para confirmar que os testes passam. Sem isso o `mr-apk.yml` acusa `lib/` desatualizada e, ao publicar, para
 - [ ] `dicts/*/NOTICE.txt` (hoje em português, ASCII): traduzir muda o conteúdo dos pacotes e exige subir a versão de cada um; como a primeira release depois do recomeço leva os três zips de qualquer jeito (Etapa 2), o custo é zero se for feito antes dela
 - [ ] Varredura de acentos nos arquivos de código e CI para achar o que sobrou (exceto o que a lista "continua em português" permite)
 
@@ -293,7 +299,8 @@ Consequências aceitas: o app passa a ter a permissão `REQUEST_INSTALL_PACKAGES
 ### Etapa 9 — Revisão, versão 1.82.0 e entrega
 - [ ] Versão e `docs/release-notes/v1.82.0.md` (curto, blocos **Português** e **English**; a primeira linha diz que a verificação da manhã vem ligada), verificadores, `apktool b` e `verify_dex.sh`
 - [ ] README (en e pt-BR): privacidade (as duas verificações, o que é enviado, que a da manhã vem ligada por padrão e como desligar; o app deixa de prometer que só usa a internet a pedido), as permissões novas na tabela (`REQUEST_INSTALL_PACKAGES`, `RECEIVE_BOOT_COMPLETED`, e `POST_NOTIFICATIONS` com o novo uso), o zip de fontes, os limites do aviso em segundo plano
-- [ ] Apagar este plano ao publicar a 1.82.0 (planos prontos não ficam no repositório)
+- [x] Aviso `::warning::` no `check_version.py` (roda no `mr-checks.yml`): planos `docs/plan-*.md` com `<!-- target-version: vX.Y.Z -->` no topo avisam quando a versão do projeto chega ao alvo. Só avisa, não apaga nem faz commit (decisão: apagar sozinho pediria `contents: write` no workflow e brigaria com o zip completo da entrega)
+- [ ] Apagar este plano no commit da 1.82.0, quando o aviso aparecer (planos prontos não ficam no repositório)
 - [ ] Entrega: projeto em zip + `renames.txt` + `removals.txt` (se houver)
 
 ### Etapa 10 — Conferir no aparelho (depois da 1.82.0, com a 1.83.0 de teste)

@@ -1,9 +1,9 @@
-// Funções comuns aos programas de teste e de medição (mr_test, mr_bench).
+// Functions shared by the test and measurement programs (mr_test, mr_bench).
 //
-// Estes testes de C++ NÃO provam que o resultado é igual ao do Java: para isso as tabelas e as regras teriam que vir do
-// Java do app. Quem prova é docs/tools/e2e/NativeParity.java (Java x C++ ao vivo, pela JNI, com os dicionários de dicts/),
-// que roda no CI do app. Aqui as tabelas de letras e as regras são APROXIMADAS (ASCII + Latin-1) e servem para exercitar a
-// busca, os arquivos estragados, a leitura dos trigramas e as bordas, com ASan/UBSan.
+// These C++ tests do NOT prove that the result equals the Java one: for that the tables and rules would have to come from the
+// app's Java. What proves it is docs/tools/e2e/NativeParity.java (Java vs C++ live, through the JNI, with the dicts/ dictionaries),
+// which runs in the app CI. Here the letter tables and rules are APPROXIMATE (ASCII + Latin-1) and serve to exercise the
+// search, corrupt files, trigram reading and edge cases, with ASan/UBSan.
 #pragma once
 
 #include <algorithm>
@@ -33,14 +33,14 @@ inline std::u16string utf16(const std::string& s) {
     return std::u16string(buf.data(), static_cast<size_t>(n));
 }
 
-// Custos de MrFuzzy.java (1.77). Os do app chegam pela JNI; aqui são só para o teste.
+// Costs from MrFuzzy.java (1.77). The app's own arrive through the JNI; here they are only for the test.
 inline void approxCosts(Costs& k) {
     k.prox1 = 25; k.prox2 = 30; k.proxFar = 35; k.delFirst = 30; k.phon = 25; k.vowel = 45; k.sub = 75;
     k.ins = 60; k.insDouble = 30; k.insH = 40; k.insNear = 45; k.del = 40; k.delDouble = 30;
     k.trans = 40; k.multi = 35; k.split = 35; k.nodeBudget = 12000;
 }
 
-// Tabelas de letras aproximadas: maiúsculas ASCII e Latin-1 (o dicionário não tem letras acima de U+00FF).
+// Approximate letter tables: ASCII and Latin-1 uppercase (the dictionary has no letters above U+00FF).
 inline void approxTables(Tables& t) {
     approxCosts(t.costs);
     t.lower.assign(65536, 0);
@@ -67,15 +67,15 @@ inline void approxTables(Tables& t) {
     for (int i = 0; i < kPowTable; i++) t.pow2[i] = std::pow(2.0, -i / 25.0);
 }
 
-// Regras de idioma de mentira, mas com todos os tipos (par fonético, vogal, grupos nos dois sentidos, letra muda no
-// começo, depois de outra e depois de qualquer uma, letra que sobra, palavra de uma letra), para a busca passar por todos
-// os ramos.
+// Fake language rules, but covering every kind (phonetic pair, vowel, groups both ways, silent letter at the
+// start, after another one and after any one, extra letter, one-letter word), so the search goes through every
+// branches.
 inline void approxRules(Rules& r) {
     auto pair = [&](char a, char b, uint8_t kind) { r.pairs[(a << 8) | b] = kind; r.pairs[(b << 8) | a] = kind; };
     pair('s', 'z', 1); pair('c', 's', 1); pair('x', 'z', 1); pair('g', 'j', 1); pair('k', 'c', 1); pair('q', 'k', 1);
     pair('e', 'i', 2); pair('o', 'u', 2); pair('a', 'e', 2);
-    r.t2a = {u'c', u's'};  r.t2b = {u'h', u's'};  r.t2d = {u'x', u'c'};   // "ch" digitado = x no dicionário; "ss" = c
-    r.d2p = {u's', u'x'};  r.d2c = {u's', u'c'};  r.d2t = {u'c', u'x'};   // "ss" no dicionário = c digitado; "xc" = x
+    r.t2a = {u'c', u's'};  r.t2b = {u'h', u's'};  r.t2d = {u'x', u'c'};   // typed "ch" = x in the dictionary; "ss" = c
+    r.d2p = {u's', u'x'};  r.d2c = {u's', u'c'};  r.d2t = {u'c', u'x'};   // "ss" in the dictionary = typed c; "xc" = x
     r.silPrev = {u'n', u'r'};  r.silChar = {u'h', u'h'};  r.silCost = {35, 35};
     r.silentStart[static_cast<int>('h')] = 30;
     r.silentAny[static_cast<int>('u')] = 45;
@@ -85,7 +85,7 @@ inline void approxRules(Rules& r) {
     r.oneLetter[static_cast<int>('o')] = true;
 }
 
-// Entrada da busca como MrFuzzy.search a prepara: tb = letras sem acento; near = teclas vizinhas de cada toque.
+// Search input as MrFuzzy.search prepares it: tb = letters without accent; near = neighbour keys of each touch.
 struct Query {
     int n = 0;
     char16_t tb[kMaxTyped] = {0};
@@ -93,7 +93,7 @@ struct Query {
     int cnt[kMaxTyped] = {0};
 };
 
-// Vizinhas num teclado QWERTY (esquerda, direita, cima, cima-direita, baixo-esquerda, baixo), como E2ETest.codesFor.
+// Neighbours on a QWERTY keyboard (left, right, up, up-right, down-left, down), as E2ETest.codesFor.
 inline std::u16string qwertyNear(char16_t c, const std::vector<std::string>& rows) {
     std::u16string out;
     for (size_t r = 0; r < rows.size(); r++) {

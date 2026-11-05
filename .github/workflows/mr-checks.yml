@@ -1,29 +1,30 @@
-# Mr Keyboard: verificações automáticas. Não publica nada e não guarda APK.
+# Mr Keyboard: automatic checks. Publishes nothing and keeps no APK.
 #
-# Roda a cada push na main e em pull request que mexa no app (ou à mão, em Run workflow).
-# Cada passo é um script de docs/tools/ que também roda no seu computador (veja o comentário do script).
+# Runs on every push to main and on pull requests that touch the app (or by hand, via Run workflow).
+# Each step is a script in docs/tools/ that also runs on your computer (see the comment in the script).
 #
-# rapidas  (segundos, só Python e Java):
-#   check_version.py     versão do apktool.yml/json coerente e notas da versão em docs/
-#   check_catalog_url.py o app lê o catálogo de dicionários da release mais recente (junto do APK)
-#   check_reset_keys.py  "Restaurar padrões" cobre toda chave das telas de configurações
-#   mres_check.py        texto em português do editor de folhas/anexos passa pela tabela do espanhol
-#   res_check.py         recursos: XML válido, public.xml, referências, recursos sem uso, espanhol x português
-#   smali_regcheck.py    smali editado à mão: registrador lido sem valor (o erro que fechou as Configurações na 1.67),
-#                        registrador acima do limite da instrução (ex.: p0 = v17 num invoke comum), mais de 5 registradores num
-#                        invoke comum (o montador recusa com "Invalid register count") e chamada a método que não existe
-#   run_java_tests.sh    testes de PC da camada Java (cartão do autor, link da tela principal, recorreção: palavra sob o cursor e
-#                        teclas vizinhas, palavras recentes)
-#   test_make_catalog.py monta o catálogo de dicionários (um zip por idioma, série, versões antigas)
-#   publish_test/run.sh  publish_release.sh de ponta a ponta com um gh de mentira e a assinatura de verdade
-# montagem (alguns minutos):
-#   check_java_smali.sh  o smali Mr*.smali é o que o build_java.sh gera hoje dos fontes Java
-#   apktool b            o smali todo monta (o aapt2 acusa recurso que falta)
-#   verify_dex.sh        o verificador do dex2jar não acha erro no dex montado
-#   smali_regcheck.py    de novo, no smali decodificado do APK montado
-#   run_java_tests.sh    com o jar do APK: testes do espanhol (SheetStrings/MrEs)
-#   run_native_parity.sh motor nativo (engine/): a busca de correção, a lista de sugestões e os trigramas pelo Java e pela
-#                        libmrengine.so de PC têm de dar o mesmo resultado nos 3 idiomas, com os dicionários de dicts/
+# quick    (seconds, Python and Java only):
+#   check_version.py     apktool.yml/json version is coherent and the version notes exist in docs/release-notes/
+#                        (also warns when a docs/plan-*.md whose target version was reached is still there)
+#   check_catalog_url.py the app reads the dictionary catalog from the latest release (next to the APK)
+#   check_reset_keys.py  "Restaurar padrões" (Restore defaults) covers every key of the settings screens
+#   mres_check.py        Portuguese text of the sheets/attachments editor goes through the Spanish table
+#   res_check.py         resources: valid XML, public.xml, references, unused resources, Spanish vs Portuguese
+#   smali_regcheck.py    hand-edited smali: register read without a value (the error that closed Settings in 1.67),
+#                        register above the instruction limit (e.g. p0 = v17 in a plain invoke), more than 5 registers in a
+#                        plain invoke (the assembler refuses with "Invalid register count") and a call to a method that does not exist
+#   run_java_tests.sh    PC tests of the Java layer (author card, main-screen link, re-correction: word under the cursor and
+#                        neighbour keys, recent words)
+#   test_make_catalog.py builds the dictionary catalog (one zip per language, serial, old versions)
+#   publish_test/run.sh  publish_release.sh end to end with a fake gh and the real signature
+# assemble (a few minutes):
+#   check_java_smali.sh  the Mr*.smali files are what build_java.sh generates today from the Java sources
+#   apktool b            all the smali assembles (aapt2 reports a missing resource)
+#   verify_dex.sh        the dex2jar verifier finds no error in the assembled dex
+#   smali_regcheck.py    again, on the smali decoded from the assembled APK
+#   run_java_tests.sh    with the APK jar: Spanish tests (SheetStrings/MrEs)
+#   run_native_parity.sh native engine (engine/): correction search, suggestion list and trigrams through Java and through the
+#                        PC libmrengine.so must give the same result in the 3 languages, with the dictionaries in dicts/
 name: Mr Keyboard - checks
 
 on:
@@ -63,7 +64,7 @@ env:
   DEX2JAR_SHA256: 7a9bdf843d43de4d1e94ec2e7b6f55825017b0c4a7ee39ff82660e2493a46f08
 
 jobs:
-  rapidas:
+  quick:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -73,34 +74,34 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Versão e notas da versão
+      - name: Version and version notes
         run: python3 docs/tools/check_version.py
 
-      - name: Catálogo de dicionários lido da release do APK
+      - name: Dictionary catalog read from the APK's release
         run: python3 docs/tools/check_catalog_url.py
 
-      - name: Restaurar padrões cobre todas as chaves
+      - name: Restore defaults covers every key
         run: python3 docs/tools/check_reset_keys.py
 
-      - name: Textos do editor de folhas em espanhol
+      - name: Sheet editor texts in Spanish
         run: python3 docs/tools/mres_check.py
 
-      - name: Recursos
+      - name: Resources
         run: python3 docs/tools/res_check.py
 
-      - name: Smali - registradores e métodos
+      - name: Smali - registers and methods
         run: python3 docs/tools/smali_regcheck.py smali
 
-      - name: Testes de PC da camada Java
+      - name: PC tests of the Java layer
         run: sh docs/tools/run_java_tests.sh
 
-      - name: Catálogo de dicionários
+      - name: Dictionary catalog
         run: python3 -I docs/tools/test_make_catalog.py
 
-      - name: Publicação da Release (com gh de mentira)
+      - name: Release publishing (with a fake gh)
         run: bash docs/tools/publish_test/run.sh
 
-  montagem:
+  assemble:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -110,7 +111,7 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Baixar apktool e dex2jar
+      - name: Download apktool and dex2jar
         run: |
           curl -sSL -o apktool.jar \
             "https://github.com/iBotPeaches/Apktool/releases/download/v$APKTOOL_VERSION/apktool_$APKTOOL_VERSION.jar"
@@ -118,27 +119,27 @@ jobs:
           echo "$DEX2JAR_SHA256  dex2jar.zip" | sha256sum -c -
           unzip -q dex2jar.zip -d tools
 
-      - name: Smali da camada Java em dia
+      - name: Java-layer smali up to date
         env:
           DX_JAR: ${{ github.workspace }}/tools/dex-tools-2.1/lib/dx-27.0.3.jar
           APKTOOL_JAR: ${{ github.workspace }}/apktool.jar
         run: sh docs/tools/check_java_smali.sh
 
-      - name: Montar o APK (só para verificar)
-        run: java -jar apktool.jar b . -o verificar.apk
+      - name: Assemble the APK (only to verify)
+        run: java -jar apktool.jar b . -o verify.apk
 
-      - name: Verificar o dex
-        run: sh docs/tools/verify_dex.sh verificar.apk tools/dex-tools-2.1 "$RUNNER_TEMP/dex"
+      - name: Verify the dex
+        run: sh docs/tools/verify_dex.sh verify.apk tools/dex-tools-2.1 "$RUNNER_TEMP/dex"
 
-      - name: Smali montado - registradores e métodos
+      - name: Assembled smali - registers and methods
         run: |
-          java -jar apktool.jar d -f -o "$RUNNER_TEMP/dec" verificar.apk > /dev/null
+          java -jar apktool.jar d -f -o "$RUNNER_TEMP/dec" verify.apk > /dev/null
           python3 docs/tools/smali_regcheck.py "$RUNNER_TEMP"/dec/smali*
 
-      - name: Testes do espanhol com o jar do APK
+      - name: Spanish tests with the APK jar
         run: sh docs/tools/run_java_tests.sh "$RUNNER_TEMP/dex/classes.jar"
 
-      - name: Motor nativo - paridade Java x C++ ao vivo (3 idiomas, dicionários de dicts/)
+      - name: Native engine - live Java x C++ parity (3 languages, dictionaries from dicts/)
         env:
           WORDS: '1200'
           SUGG: '1000'

@@ -6,8 +6,8 @@ não volta, catálogo alterado ou de outra chave, HTTP com erro, cancelar, insta
 alterado ou cortado, arquivo a mais no zip (inclusive `../`), arquivo com SHA-256 errado, pacote
 para app mais novo, atualizar, remover, o item "Baixar dicionário" e a regra dos idiomas do teclado (cartões e selected_languages).
 
-1. Chave de teste: `keytool -genkeypair -keyalg RSA -alias mrkeyboard -keystore /tmp/fa/test.p12 -storetype PKCS12 -storepass senha123 -keypass senha123 -dname CN=Teste`
-   e `keytool -exportcert -rfc -alias mrkeyboard -keystore /tmp/fa/test.p12 -storepass senha123 -file /tmp/fa/cert.pem`;
+1. Chave de teste: `keytool -genkeypair -keyalg RSA -alias mrkeyboard -keystore /tmp/fa/test.p12 -storetype PKCS12 -storepass pass123 -keypass pass123 -dname CN=Teste`
+   e `keytool -exportcert -rfc -alias mrkeyboard -keystore /tmp/fa/test.p12 -storepass pass123 -file /tmp/fa/cert.pem`;
    para o caso "outra chave", um par EC em `/tmp/fa/ec.pk8` e `/tmp/fa/eccert.pem` (openssl).
 2. `python3 -I docs/tools/packs_test/make_fixtures.py <raiz> /tmp/pt/fx`, em que `<raiz>` tem `docs/tools` e um `dicts/` **só com o pt-BR** (o gerador supõe que o 1º pacote é o pt-BR; com os três ele monta fixtures trocadas). O `ThreeLangTest` lê o catálogo de 3 pacotes de `/tmp/v165out` (`make_catalog.py --dicts dicts --out /tmp/v165out --repo x-mrrobot-x/mr-keyboard --tag v1.73.0`, assinado). e assinar cada `data.json` com
    `docs/tools/SignCatalog.java` (`catalog.json`; em `ok/` também `catalog_ec.json` com a chave EC

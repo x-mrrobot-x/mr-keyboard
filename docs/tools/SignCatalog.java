@@ -15,19 +15,19 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
 /**
- * Assina o catálogo de dicionários com a mesma chave que assina o APK.
+ * Signs the dictionary catalog with the same key that signs the APK.
  *
- * O app confere a assinatura com o certificado com que ele mesmo foi instalado, então só aceita
- * catálogos feitos por quem tem a chave do APK. Rodar com o Java 11 ou mais novo:
+ * The app checks the signature with the certificate it was itself installed with, so it only accepts
+ * catalogs made by whoever has the APK key. Run with Java 11 or newer:
  *
  *   java SignCatalog.java --data out/data.json --out out/catalog.json --keystore key.jks
- *       (senhas e alias nas variáveis KEYSTORE_PASS, KEY_ALIAS e KEY_PASS)
+ *       (passwords and alias in the variables KEYSTORE_PASS, KEY_ALIAS and KEY_PASS)
  *   java SignCatalog.java --data out/data.json --out out/catalog.json --pk8 key.pk8 --cert cert.pem
  *
- * A mensagem assinada é PREFIX + bytes de data.json; o prefixo impede que a assinatura sirva
- * para qualquer outra coisa. Saída (JSON):
- *   {"format":1,"algorithm":"SHA256withRSA","signer":"<SHA-256 do certificado>",
- *    "signature":"<base64>","data":"<data.json como texto>"}
+ * The signed message is PREFIX + the bytes of data.json; the prefix keeps the signature from being used
+ * for anything else. Output (JSON):
+ *   {"format":1,"algorithm":"SHA256withRSA","signer":"<SHA-256 of the certificate>",
+ *    "signature":"<base64>","data":"<data.json as text>"}
  */
 public class SignCatalog {
     static final String PREFIX = "mr-keyboard/catalog/v1\n";
@@ -41,7 +41,7 @@ public class SignCatalog {
                 case "--keystore": ks = args[i + 1]; break;
                 case "--pk8": pk8 = args[i + 1]; break;
                 case "--cert": cert = args[i + 1]; break;
-                default: die("opção desconhecida: " + args[i]);
+                default: die("unknown option: " + args[i]);
             }
         }
         if (data == null || out == null || (ks == null && (pk8 == null || cert == null))) {
@@ -59,16 +59,16 @@ public class SignCatalog {
             try {
                 store = KeyStore.getInstance(new File(ks), storePass);
             } catch (Exception e) {
-                die("não abriu o keystore: senha (KEYSTORE_PASS) errada ou arquivo incompleto (" + e.getMessage() + ")");
+                die("could not open the keystore: wrong password (KEYSTORE_PASS) or incomplete file (" + e.getMessage() + ")");
             }
             try {
                 key = (PrivateKey) store.getKey(alias, keyPass);
             } catch (java.security.UnrecoverableKeyException e) {
-                die("a senha da chave (KEY_PASS) está errada");
+                die("the key password (KEY_PASS) is wrong");
                 return;
             }
             crt = (X509Certificate) store.getCertificate(alias);
-            if (key == null || crt == null) die("o alias " + alias + " não tem chave privada no keystore");
+            if (key == null || crt == null) die("the alias " + alias + " has no private key in the keystore");
         } else {
             byte[] der = Files.readAllBytes(new File(pk8).toPath());
             key = readPk8(der);
@@ -82,13 +82,13 @@ public class SignCatalog {
             case "RSA": alg = "SHA256withRSA"; break;
             case "EC": alg = "SHA256withECDSA"; break;
             case "DSA": alg = "SHA256withDSA"; break;
-            default: die("tipo de chave não suportado: " + key.getAlgorithm()); return;
+            default: die("unsupported key type: " + key.getAlgorithm()); return;
         }
 
         byte[] dataBytes = Files.readAllBytes(new File(data).toPath());
         String dataText = new String(dataBytes, StandardCharsets.UTF_8);
         if (!java.util.Arrays.equals(dataText.getBytes(StandardCharsets.UTF_8), dataBytes)) {
-            die("data.json não é UTF-8 válido");
+            die("data.json is not valid UTF-8");
         }
         byte[] msg = message(dataBytes);
 
@@ -100,7 +100,7 @@ public class SignCatalog {
         Signature v = Signature.getInstance(alg);
         v.initVerify(crt.getPublicKey());
         v.update(msg);
-        if (!v.verify(sig)) die("a assinatura não confere com o certificado (chave e certificado não combinam)");
+        if (!v.verify(sig)) die("the signature does not match the certificate (key and certificate do not belong together)");
 
         String signer = hex(MessageDigest.getInstance("SHA-256").digest(crt.getEncoded()));
         StringBuilder j = new StringBuilder();
@@ -109,9 +109,9 @@ public class SignCatalog {
          .append(",\n \"signature\": ").append(quote(Base64.getEncoder().encodeToString(sig)))
          .append(",\n \"data\": ").append(quote(dataText)).append("\n}\n");
         Files.write(new File(out).toPath(), j.toString().getBytes(StandardCharsets.UTF_8));
-        System.out.println("catálogo assinado (" + alg + ")");
-        System.out.println("certificado SHA-256: " + signer);
-        System.out.println("(tem que ser igual ao \"certificate SHA-256 digest\" do APK)");
+        System.out.println("catalog signed (" + alg + ")");
+        System.out.println("certificate SHA-256: " + signer);
+        System.out.println("(must equal the \"certificate SHA-256 digest\" of the APK)");
     }
 
     static byte[] message(byte[] data) {
@@ -128,10 +128,10 @@ public class SignCatalog {
             try {
                 return KeyFactory.getInstance(a).generatePrivate(spec);
             } catch (Exception ignored) {
-                // tenta o próximo tipo
+                // try the next type
             }
         }
-        die("não consegui ler a chave .pk8 (precisa ser PKCS#8 DER sem senha)");
+        die("could not read the .pk8 key (it must be PKCS#8 DER without a password)");
         return null;
     }
 
@@ -161,7 +161,7 @@ public class SignCatalog {
 
     static String env(String name) {
         String v = System.getenv(name);
-        if (v == null || v.isEmpty()) die("falta a variável " + name);
+        if (v == null || v.isEmpty()) die("missing variable " + name);
         return v;
     }
 

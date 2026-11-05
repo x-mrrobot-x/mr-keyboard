@@ -3,9 +3,9 @@ package com.mrkeyboard.app;
 import java.nio.ByteBuffer;
 
 /**
- * Cópia SÓ das declarações nativas de MrNative.java do app (docs/tools/java/src/com/mrkeyboard/app/MrNative.java).
- * Serve para o JniSmoke provar que as assinaturas registradas em mr_jni.cpp (RegisterNatives) batem com o Java.
- * Se mudar uma assinatura, mude aqui, em mr_jni.cpp e no app, e suba kEngineVersion / ENGINE_VERSION.
+ * COPY of ONLY the native declarations of the app's MrNative.java (docs/tools/java/src/com/mrkeyboard/app/MrNative.java).
+ * It lets JniSmoke prove that the signatures registered in mr_jni.cpp (RegisterNatives) match the Java ones.
+ * If a signature changes, change it here, in mr_jni.cpp and in the app, and raise kEngineVersion / ENGINE_VERSION.
  */
 final class MrNative {
     static native int nVersion();

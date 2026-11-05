@@ -31,13 +31,13 @@ import shutil
 import sys
 import zipfile
 
-FORMAT = 1                 # formato do catálogo
-PACK_FORMATS = {1}         # formatos de pacote que este script sabe montar
+FORMAT = 1                 # catalog format
+PACK_FORMATS = {1}         # pack formats this script knows how to build
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 ID_RE = re.compile(r"^[a-z]{2,3}(-[A-Z]{2})?$")
 ZIP_TIME = (1980, 1, 1, 0, 0, 0)
 MAX_FILE = 16 * 1024 * 1024
-DICT_MAX = 4194304         # endereço de 22 bits do formato do dicionário
+DICT_MAX = 4194304         # 22-bit address of the dictionary format
 
 
 def fail(msg):
@@ -51,20 +51,20 @@ def sha256(data):
 
 def check_file(pid, name, data):
     if len(data) == 0 or len(data) > MAX_FILE:
-        fail("%s/%s: tamanho inválido (%d bytes)" % (pid, name, len(data)))
+        fail("%s/%s: invalid size (%d bytes)" % (pid, name, len(data)))
     if name.endswith(".dict"):
         if len(data) > DICT_MAX:
-            fail("%s/%s: passa do limite do formato (%d > %d bytes)" % (pid, name, len(data), DICT_MAX))
+            fail("%s/%s: over the format limit (%d > %d bytes)" % (pid, name, len(data), DICT_MAX))
         if data[0] != 200 or data[1] != 1:
-            fail("%s/%s: cabeçalho do dicionário diferente de [200,1]" % (pid, name))
+            fail("%s/%s: dictionary header different from [200,1]" % (pid, name))
     elif name == "trigrams.bin":
         if data[:4] != b"MRT1":
-            fail("%s/%s: não começa com MRT1" % (pid, name))
+            fail("%s/%s: does not start with MRT1" % (pid, name))
     elif name.endswith(".txt"):
         try:
             data.decode("utf-8")
         except UnicodeDecodeError:
-            fail("%s/%s: não é UTF-8" % (pid, name))
+            fail("%s/%s: not UTF-8" % (pid, name))
 
 
 def read_pack(dicts, pid):
@@ -74,37 +74,37 @@ def read_pack(dicts, pid):
     try:
         m = json.loads(raw.decode("utf-8"))
     except ValueError as e:
-        fail("%s/pack.json inválido: %s" % (pid, e))
+        fail("%s/pack.json invalid: %s" % (pid, e))
     for key in ("id", "lang", "name", "version", "format", "minApp", "files", "licenses"):
         if key not in m:
-            fail("%s/pack.json sem o campo %s" % (pid, key))
+            fail("%s/pack.json is missing the field %s" % (pid, key))
     if m["id"] != pid or not ID_RE.match(pid):
-        fail("%s: id do pack.json (%s) tem que ser igual ao nome da pasta, ex.: pt-BR" % (pid, m["id"]))
+        fail("%s: id in pack.json (%s) must equal the folder name, e.g. pt-BR" % (pid, m["id"]))
     if not isinstance(m["version"], int) or m["version"] < 1:
-        fail("%s: version tem que ser inteiro >= 1" % pid)
+        fail("%s: version must be an integer >= 1" % pid)
     if m["format"] not in PACK_FORMATS:
-        fail("%s: format %r desconhecido" % (pid, m["format"]))
+        fail("%s: unknown format %r" % (pid, m["format"]))
     if not isinstance(m["name"], dict) or "en" not in m["name"]:
-        fail("%s: name precisa ter ao menos o texto em inglês (en)" % pid)
+        fail("%s: name needs at least the English text (en)" % pid)
     files = m["files"]
     if not files or len(set(files)) != len(files):
-        fail("%s: lista files vazia ou repetida" % pid)
+        fail("%s: files list empty or with repeats" % pid)
     if "main.dict" not in files:
-        fail("%s: o pacote precisa do main.dict (o app procura esse nome)" % pid)
+        fail("%s: the pack needs main.dict (the app looks for that name)" % pid)
     out = []
     for name in files:
         if not NAME_RE.match(name) or name == "pack.json":
-            fail("%s: nome de arquivo inválido: %r" % (pid, name))
+            fail("%s: invalid file name: %r" % (pid, name))
         path = os.path.join(folder, name)
         if not os.path.isfile(path):
-            fail("%s: falta o arquivo %s" % (pid, name))
+            fail("%s: file %s is missing" % (pid, name))
         with open(path, "rb") as f:
             data = f.read()
         check_file(pid, name, data)
         out.append((name, data))
     extra = sorted(set(os.listdir(folder)) - set(files) - {"pack.json"})
     if extra:
-        print("aviso: %s: arquivos fora da lista files (não vão no pacote): %s" % (pid, ", ".join(extra)))
+        print("warning: %s: files outside the files list (they do not go in the pack): %s" % (pid, ", ".join(extra)))
     return m, raw, out
 
 
@@ -125,22 +125,22 @@ def load_prev(path):
         env = json.loads(f.read().decode("utf-8"))
     data = json.loads(env["data"])
     if data.get("format") != FORMAT:
-        fail("catálogo publicado tem formato %r; este script gera %d" % (data.get("format"), FORMAT))
+        fail("published catalog has format %r; this script generates %d" % (data.get("format"), FORMAT))
     return data
 
 
 def reuse_zip(a, entry):
-    """Copies to --out o zip da release anterior, conferindo tamanho e SHA-256."""
+    """Copies the previous release's zip to --out, checking size and SHA-256."""
     if not a.reuse:
-        fail("%s v%d: igual ao catálogo anterior, mas falta --reuse com os zips da release anterior"
+        fail("%s v%d: same as the previous catalog, but --reuse with the zips of the previous release is missing"
              % (entry["id"], entry["version"]))
     src = os.path.join(a.reuse, entry["url"])
     if not os.path.isfile(src):
-        fail("%s: falta %s em %s (o catálogo anterior aponta para ele)" % (entry["id"], entry["url"], a.reuse))
+        fail("%s: %s is missing from %s (the previous catalog points to it)" % (entry["id"], entry["url"], a.reuse))
     with open(src, "rb") as f:
         data = f.read()
     if len(data) != entry["size"] or sha256(data) != entry["sha256"]:
-        fail("%s: %s não confere com o catálogo anterior (tamanho ou SHA-256)" % (entry["id"], entry["url"]))
+        fail("%s: %s does not match the previous catalog (size or SHA-256)" % (entry["id"], entry["url"]))
     shutil.copyfile(src, os.path.join(a.out, entry["url"]))
 
 
@@ -148,10 +148,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dicts", required=True)
     ap.add_argument("--out", required=True)
-    ap.add_argument("--repo", required=True, help="dono/repositório no GitHub")
+    ap.add_argument("--repo", required=True, help="owner/repository on GitHub")
     ap.add_argument("--prev", help="catalog.json published before (if any)")
-    ap.add_argument("--now", help="data fixa (para testes), ISO 8601")
-    ap.add_argument("--tag", required=True, help="tag of the release that will hold the catalog and the zips (ex.: v1.73.0)")
+    ap.add_argument("--now", help="fixed date (for tests), ISO 8601")
+    ap.add_argument("--tag", required=True, help="tag of the release that will hold the catalog and the zips (e.g. v1.73.0)")
     ap.add_argument("--reuse", help="folder with the zips of the previous release, for unchanged packs")
     a = ap.parse_args()
 
@@ -162,7 +162,7 @@ def main():
     ids = sorted(d for d in os.listdir(a.dicts)
                  if os.path.isfile(os.path.join(a.dicts, d, "pack.json")))
     if not ids:
-        fail("nenhum pacote em %s" % a.dicts)
+        fail("no pack in %s" % a.dicts)
 
     packs, new_zips, all_zips = [], [], []
     for pid in ids:
@@ -170,16 +170,16 @@ def main():
         file_entries = [{"name": n, "size": len(d), "sha256": sha256(d)} for n, d in files]
         old = prev_packs.get(pid)
         if old and old["version"] > m["version"]:
-            fail("%s: version %d é menor que a publicada (%d)" % (pid, m["version"], old["version"]))
+            fail("%s: version %d is lower than the published one (%d)" % (pid, m["version"], old["version"]))
         if old and old["version"] == m["version"]:
             same = old["files"] == file_entries and old.get("manifestSha256") == sha256(raw)
             if not same:
-                fail("%s: o conteúdo mudou mas a version continua %d; aumente \"version\" em dicts/%s/pack.json"
+                fail("%s: the content changed but the version is still %d; raise \"version\" in dicts/%s/pack.json"
                      % (pid, m["version"], pid))
             packs.append(old)
             reuse_zip(a, old)
             all_zips.append(old["url"])
-            print("%s v%d: igual ao publicado" % (pid, m["version"]))
+            print("%s v%d: same as published" % (pid, m["version"]))
             continue
         zname = "%s-%d.zip" % (pid, m["version"])
         zpath = os.path.join(a.out, zname)
@@ -207,7 +207,7 @@ def main():
         packs.append(entry)
         new_zips.append(zname)
         all_zips.append(zname)
-        print("%s v%d: novo, %s (%d bytes, %d instalado)" % (pid, m["version"], zname, len(zdata),
+        print("%s v%d: new, %s (%d bytes, %d installed)" % (pid, m["version"], zname, len(zdata),
                                                               entry["installedSize"]))
 
     # one zip per language: no old version in the folder that goes to the release
@@ -215,14 +215,14 @@ def main():
         if f.endswith(".zip") and f not in all_zips:
             os.remove(os.path.join(a.out, f))
     if len(set(all_zips)) != len(ids):
-        fail("deveria haver um zip por pacote (%d) e há %d" % (len(ids), len(set(all_zips))))
+        fail("there should be one zip per pack (%d) and there are %d" % (len(ids), len(set(all_zips))))
     with open(os.path.join(a.out, "upload.txt"), "w") as f:
         f.write("".join(z + "\n" for z in all_zips))
-    mudou = bool(new_zips) or not prev or [p["id"] for p in prev["packs"]] != ids
+    changed = bool(new_zips) or not prev or [p["id"] for p in prev["packs"]] != ids
 
     now = a.now or datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
     if prev:
-        serial = prev["serial"] + 1 if mudou else prev["serial"]
+        serial = prev["serial"] + 1 if changed else prev["serial"]
     else:
         serial = 1
     data = {
@@ -234,7 +234,7 @@ def main():
     }
     with open(os.path.join(a.out, "data.json"), "wb") as f:
         f.write(json.dumps(data, ensure_ascii=False, indent=1).encode("utf-8"))
-    print("catálogo: série %d, %d pacote(s)%s" % (data["serial"], len(packs), "" if mudou else " (nada mudou: série mantida)"))
+    print("catalog: serial %d, %d pack(s)%s" % (data["serial"], len(packs), "" if changed else " (nothing changed: serial kept)"))
 
 
 if __name__ == "__main__":

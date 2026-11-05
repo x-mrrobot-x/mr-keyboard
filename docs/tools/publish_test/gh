@@ -1,6 +1,6 @@
 #!/bin/bash
-# gh de mentira para testar publish_release.sh. Estado em $FAKE_STATE/rel/<tag>/{assets/,draft,notes.md} e $FAKE_STATE/latest.
-# FAKE_DROP=<arquivo>: o "upload" do release create deixa esse arquivo de fora (simula anexo que não subiu).
+# Fake gh to test publish_release.sh. State in $FAKE_STATE/rel/<tag>/{assets/,draft,notes.md} and $FAKE_STATE/latest.
+# FAKE_DROP=<file>: the "upload" of release create leaves that file out (simulates an asset that did not upload).
 S=$FAKE_STATE
 echo "gh $*" >> "$S/log"
 cmd="$1 $2"
@@ -27,12 +27,12 @@ case "$cmd" in
     while [ $# -gt 0 ]; do
       case "$1" in -p) pat=$2; shift 2 ;; -D) dir=$2; shift 2 ;; *) shift ;; esac
     done
-    mkdir -p "$dir"; achou=0
+    mkdir -p "$dir"; found=0
     for f in "$S/rel/$tag/assets"/*; do
       [ -f "$f" ] || continue
-      case "$(basename "$f")" in $pat) cp "$f" "$dir/"; achou=1 ;; esac
+      case "$(basename "$f")" in $pat) cp "$f" "$dir/"; found=1 ;; esac
     done
-    [ $achou = 1 ] || { echo "no assets match the file pattern" >&2; exit 1; }
+    [ $found = 1 ] || { echo "no assets match the file pattern" >&2; exit 1; }
     exit 0 ;;
   "release create")
     shift 3

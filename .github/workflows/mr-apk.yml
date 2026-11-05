@@ -1,38 +1,38 @@
-# Mr Keyboard: monta o APK com o apktool, assina e (opcional) publica em Releases.
+# Mr Keyboard: builds the APK with apktool, signs it and (optionally) publishes it to Releases.
 #
-# Não compila nada nativo: usa as libs que já estão em lib/ (libjni_pckeyboard.so de native/ e libmrengine.so de engine/).
-# Para atualizá-las, veja mr-native.yml.
+# Compiles nothing native: it uses the libs already in lib/ (libjni_pckeyboard.so from native/ and libmrengine.so from engine/).
+# To update them, see mr-native.yml.
 #
-# Resultado em Actions > (execução) > Artifacts:
+# Result in Actions > (run) > Artifacts:
 #   apk -> mr-keyboard-unsigned.apk (e mr-keyboard-signed.apk se houver chave nos secrets)
 #
-# Publicar uma versão: acontece sozinho no push na main quando o versionName do apktool.yml é novo (ainda
-# não tem Release com essa tag) e há chave de assinatura nos secrets. Também dá para rodar à mão (Run
-# workflow, "publicar" marcado), o que trata qualquer impedimento como erro.
-# Each launch is ONE Release, tagged with the versionName (ex.: v1.72.0), with the notes from docs/review-<version>.md:
+# Publishing a version: it happens on its own on a push to main when the versionName in apktool.yml is new (there is
+# no Release with that tag yet) and the secrets hold a signing key. It can also be run by hand (Run
+# workflow, with "publish" ticked), which treats any obstacle as an error.
+# Each launch is ONE Release, tagged with the versionName (e.g. v1.72.0), with the notes from docs/release-notes/<tag>.md:
 #   mr-keyboard-<tag>.apk  the signed APK, with the version in the name (ex.: mr-keyboard-v1.72.0.apk)
 #   catalog.json           the dictionary catalog, signed with the same key as the APK (the app reads
 #                          .../releases/latest/download/catalog.json)
 #   <id>-<version>.zip     one zip per language in dicts/ (only the current version of each language)
-# A lógica está em docs/tools/publish_release.sh (testada por docs/tools/publish_test/run.sh). Uma tag que
-# já existe não é sobrescrita: aumente versionCode/versionName antes. Mudou só um dicionário? Suba a
-# version dele em dicts/<id>/pack.json e a versão do app: sai uma Release nova, completa.
-# No push automático, sem chave, com a versão já publicada ou com a lib/ desatualizada, nada é publicado
-# (só um aviso) e o APK fica nos artefatos.
+# The logic is in docs/tools/publish_release.sh (tested by docs/tools/publish_test/run.sh). A tag that
+# already exists is never overwritten: raise versionCode/versionName first. Changed just one dictionary? Raise its
+# version in dicts/<id>/pack.json and the app version: a new, complete Release goes out.
+# On an automatic push, without a key, with the version already published or with a stale lib/, nothing is published
+# (only a warning) and the APK stays in the artifacts.
 #
-# Assinatura (opcional): Settings > Secrets and variables > Actions, um dos dois jeitos:
-#   keystore: KEYSTORE_B64 (arquivo em base64), KEYSTORE_PASS, KEY_ALIAS, KEY_PASS
-#   pk8+pem:  KEY_PK8_B64 e CERT_PEM_B64 (os dois arquivos em base64)
-# Use a MESMA chave que assina o app hoje; com outra chave o Android não instala por cima.
-# A mesma chave assina o catálogo de dicionários (docs/tools/sign_catalog.sh); o app só aceita o catálogo
-# assinado pela chave do próprio APK.
+# Signing (optional): Settings > Secrets and variables > Actions, either way:
+#   keystore: KEYSTORE_B64 (file in base64), KEYSTORE_PASS, KEY_ALIAS, KEY_PASS
+#   pk8+pem:  KEY_PK8_B64 and CERT_PEM_B64 (both files in base64)
+# Use the SAME key that signs the app today; with another key Android will not install over it.
+# The same key signs the dictionary catalog (docs/tools/sign_catalog.sh); the app only accepts a catalog
+# signed by the key of its own APK.
 name: Mr Keyboard - APK
 
 on:
   workflow_dispatch:
     inputs:
-      publicar:
-        description: 'Publicar o APK assinado em Releases'
+      publish:
+        description: 'Publish the signed APK to Releases'
         type: boolean
         default: false
   push:
@@ -62,36 +62,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Conferir se lib/ foi compilada do native/ e do engine/ atuais
+      - name: Check that lib/ was built from the current native/ and engine/
         id: lib
         env:
-          PUBLICAR: ${{ inputs.publicar }}
+          PUBLISH: ${{ inputs.publish }}
         run: |
-          ATUAL=$(find native/CMakeLists.txt native/src -type f -print0 | LC_ALL=C sort -z \
+          CURRENT=$(find native/CMakeLists.txt native/src -type f -print0 | LC_ALL=C sort -z \
             | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
-          GRAVADO=$(cat native-src.sha256 2>/dev/null | tr -d ' \r\n' || true)
-          # o motor: a conta é feita de dentro de engine/ (a mesma do mr-native.yml)
-          ATUAL_MOTOR=$(cd engine && find CMakeLists.txt src -type f -print0 | LC_ALL=C sort -z \
+          RECORDED=$(cat native-src.sha256 2>/dev/null | tr -d ' \r\n' || true)
+          # the engine: the hash is computed from inside engine/ (same as mr-native.yml)
+          CURRENT_ENGINE=$(cd engine && find CMakeLists.txt src -type f -print0 | LC_ALL=C sort -z \
             | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
-          GRAVADO_MOTOR=$(cat mrengine-src.sha256 2>/dev/null | tr -d ' \r\n' || true)
-          FALTA=""
+          RECORDED_ENGINE=$(cat mrengine-src.sha256 2>/dev/null | tr -d ' \r\n' || true)
+          MISSING=""
           for abi in arm64-v8a armeabi-v7a x86; do
             for l in libjni_pckeyboard.so libmrengine.so; do
-              [ -s "lib/$abi/$l" ] || FALTA="$FALTA lib/$abi/$l"
+              [ -s "lib/$abi/$l" ] || MISSING="$MISSING lib/$abi/$l"
             done
           done
-          if [ "$ATUAL" = "$GRAVADO" ] && [ "$ATUAL_MOTOR" = "$GRAVADO_MOTOR" ] && [ -z "$FALTA" ]; then
-            echo "lib/ confere com o native/ e o engine/ atuais"
+          if [ "$CURRENT" = "$RECORDED" ] && [ "$CURRENT_ENGINE" = "$RECORDED_ENGINE" ] && [ -z "$MISSING" ]; then
+            echo "lib/ matches the current native/ and engine/"
             echo "lib_ok=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           echo "lib_ok=false" >> "$GITHUB_OUTPUT"
-          [ "$ATUAL" = "$GRAVADO" ] || echo "native/ mudou: native-src.sha256 é $GRAVADO e o código atual dá $ATUAL"
-          [ "$ATUAL_MOTOR" = "$GRAVADO_MOTOR" ] || echo "engine/ mudou: mrengine-src.sha256 é $GRAVADO_MOTOR e o código atual dá $ATUAL_MOTOR"
-          [ -z "$FALTA" ] || echo "faltam em lib/:$FALTA"
-          MSG="lib/ não foi compilada a partir do native/ e do engine/ atuais. Rode 'Mr Keyboard - native lib', extraia o artifact native-libs na raiz do projeto e faça o commit."
-          if [ "$PUBLICAR" = "true" ]; then
-            echo "::error::$MSG Nada foi publicado."; exit 1
+          [ "$CURRENT" = "$RECORDED" ] || echo "native/ changed: native-src.sha256 is $RECORDED and the current code gives $CURRENT"
+          [ "$CURRENT_ENGINE" = "$RECORDED_ENGINE" ] || echo "engine/ changed: mrengine-src.sha256 is $RECORDED_ENGINE and the current code gives $CURRENT_ENGINE"
+          [ -z "$MISSING" ] || echo "missing from lib/:$MISSING"
+          MSG="lib/ was not built from the current native/ and engine/. Run 'Mr Keyboard - native lib', extract the native-libs artifact at the project root and commit it."
+          if [ "$PUBLISH" = "true" ]; then
+            echo "::error::$MSG Nothing was published."; exit 1
           fi
           echo "::warning::$MSG"
 
@@ -100,14 +100,14 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Montar o APK com o apktool
+      - name: Build the APK with apktool
         run: |
           curl -sSL -o apktool.jar \
             "https://github.com/iBotPeaches/Apktool/releases/download/v$APKTOOL_VERSION/apktool_$APKTOOL_VERSION.jar"
           java -jar apktool.jar b . -o mr-keyboard-unsigned.apk
           unzip -lv mr-keyboard-unsigned.apk | grep -E "lib/"
 
-      - name: Assinar (só se os secrets existirem)
+      - name: Sign (only if the secrets exist)
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
           KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
@@ -118,27 +118,27 @@ jobs:
         run: |
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
           if [ -n "$KEYSTORE_B64" ]; then
-            # keystore (.jks, .keystore ou .p12) + alias e senhas
-            # tira espaços e quebras de linha que entram ao copiar e colar o texto
+            # keystore (.jks, .keystore or .p12) + alias and passwords
+            # strip the spaces and line breaks that come in when the text is copied and pasted
             printf '%s' "$KEYSTORE_B64" | tr -d ' \r\n\t' | base64 -d > key.jks || {
-              echo "::error::KEYSTORE_B64 não é base64 válido (texto cortado ou com caracteres a mais)"; exit 1; }
+              echo "::error::KEYSTORE_B64 is not valid base64 (text cut short or with extra characters)"; exit 1; }
             echo "keystore: $(wc -c < key.jks) bytes"
             keytool -list -keystore key.jks -storepass "$KEYSTORE_PASS" > /dev/null 2>&1 || {
-              echo "::error::não abriu o keystore: senha (KEYSTORE_PASS) errada ou arquivo incompleto"; exit 1; }
+              echo "::error::could not open the keystore: wrong password (KEYSTORE_PASS) or incomplete file"; exit 1; }
             keytool -list -keystore key.jks -storepass "$KEYSTORE_PASS" -alias "$KEY_ALIAS" > /dev/null 2>&1 || {
-              echo "::error::o alias KEY_ALIAS não existe no keystore"; exit 1; }
+              echo "::error::the alias KEY_ALIAS does not exist in the keystore"; exit 1; }
             SIGN="--ks key.jks --ks-pass env:KEYSTORE_PASS --ks-key-alias $KEY_ALIAS --key-pass env:KEY_PASS"
           elif [ -n "$KEY_PK8_B64" ] && [ -n "$CERT_PEM_B64" ]; then
-            # par de arquivos .pk8 + .x509.pem (ex.: a chave de teste que alguns apps de apktool usam)
+            # pair of .pk8 + .x509.pem files (e.g. the test key some apktool apps use)
             printf '%s' "$KEY_PK8_B64" | tr -d ' \r\n\t' | base64 -d > key.pk8
             printf '%s' "$CERT_PEM_B64" | tr -d ' \r\n\t' | base64 -d > cert.pem
             SIGN="--key key.pk8 --cert cert.pem"
           else
-            echo "sem chave: só o APK sem assinatura"; exit 0
+            echo "no key: only the unsigned APK"; exit 0
           fi
           "$BT/zipalign" -p -f 4 mr-keyboard-unsigned.apk aligned.apk
           "$BT/apksigner" sign $SIGN --out mr-keyboard-signed.apk aligned.apk
-          # o SHA-256 do certificado tem que ser igual ao do app instalado hoje
+          # the certificate SHA-256 must match the one of the app installed today
           "$BT/apksigner" verify --print-certs mr-keyboard-signed.apk
           rm -f key.jks key.pk8 cert.pem aligned.apk
 
@@ -147,13 +147,13 @@ jobs:
           name: apk
           path: mr-keyboard-*.apk
 
-      - name: Publicar em Releases
-        if: ${{ inputs.publicar || github.event_name == 'push' }}
+      - name: Publish to Releases
+        if: ${{ inputs.publish || github.event_name == 'push' }}
         env:
           GH_TOKEN: ${{ github.token }}
-          MODO: ${{ inputs.publicar && 'manual' || 'automatico' }}
+          MODE: ${{ inputs.publish && 'manual' || 'automatic' }}
           LIB_OK: ${{ steps.lib.outputs.lib_ok }}
-          # a chave que assinou o APK também assina o catálogo de dicionários da Release
+          # the key that signed the APK also signs the Release's dictionary catalog
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
           KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}

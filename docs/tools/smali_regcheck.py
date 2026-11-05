@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
-"""Confere o smali editado à mão contra três erros que fecham o app ou derrubam a montagem.
+"""Checks hand-edited smali against four errors that close the app or break the assembly.
 
-1. Registrador lido sem valor. Editar smali à mão pode tirar a única instrução que dava valor a um registrador
-   (`const/4 v1, 0x1`, por exemplo) e o resto do método continuar usando. O verificador do ART recusa a classe
-   inteira ao carregar ("register vN has type Undefined"), o app fecha, e nem o apktool nem o d2j-asm-verify
-   avisam. Só olha atribuição definitiva (não confere tipos).
-2. Chamada a método que não existe. Procura o método na classe, nas superclasses e nas interfaces que estão no
-   projeto; se a cadeia sai para o framework Android, não acusa (evita falso positivo).
-3. Registrador acima do limite do formato da instrução. `invoke-*` comum, `if-eq`, `iget`/`iput`, `instance-of`,
-   `new-array`, `const/4`, `move` e as formas `/2addr` e `/lit16` só aceitam v0 a v15; as de 8 bits (`const-string`,
-   `sget`, `aget`, `if-eqz`, `move-result`...) aceitam até v255. `pN` conta como v(locals+N), então um método com
-   muitos locais pode jogar o `p0` para fora do limite (ex.: `invoke-direct/range` trocado por `invoke-direct`
-   com `p0` = v17). A forma `/range` aceita até v65535.
-4. Registradores demais num `invoke-*` ou `filled-new-array` comuns. Essas formas aceitam no máximo 5 registradores
-   (o `this` conta, e cada argumento `J` ou `D` conta 2), e o montador do smali recusa com "Invalid register count: 6.
-   Must be between 0 and 5" (ex.: `ContentResolver.query` com Uri, projeção, seleção, argumentos e ordem = 6). Use a forma
-   `/range` com registradores consecutivos. O `apktool b` acusa isso, mas só no job de montagem e sem apontar a linha.
+1. Register read without a value. Editing smali by hand can remove the only instruction that gave a register a value
+   (`const/4 v1, 0x1`, for example) while the rest of the method keeps using it. The ART verifier refuses the whole class
+   on load ("register vN has type Undefined"), the app closes, and neither apktool nor d2j-asm-verify
+   warn about it. It only looks at definite assignment (it does not check types).
+2. Call to a method that does not exist. It looks for the method in the class, the superclasses and the interfaces that are in the
+   project; if the chain leaves for the Android framework, it does not report (avoids a false positive).
+3. Register above the limit of the instruction format. Plain `invoke-*`, `if-eq`, `iget`/`iput`, `instance-of`,
+   `new-array`, `const/4`, `move` and the `/2addr` and `/lit16` forms only accept v0 to v15; the 8-bit ones (`const-string`,
+   `sget`, `aget`, `if-eqz`, `move-result`...) accept up to v255. `pN` counts as v(locals+N), so a method with
+   many locals can push `p0` past the limit (e.g. `invoke-direct/range` changed to `invoke-direct`
+   with `p0` = v17). The `/range` form accepts up to v65535.
+4. Too many registers in a plain `invoke-*` or `filled-new-array`. Those forms accept at most 5 registers
+   (`this` counts, and each `J` or `D` argument counts 2), and the smali assembler refuses with "Invalid register count: 6.
+   Must be between 0 and 5" (e.g. `ContentResolver.query` with Uri, projection, selection, arguments and order = 6). Use the
+   `/range` form with consecutive registers. `apktool b` reports this, but only in the assembly job and without pointing at the line.
 
-Uso:
+Usage:
 
-    python3 docs/tools/smali_regcheck.py smali/                      # tudo
-    python3 docs/tools/smali_regcheck.py smali/ --base outra/smali/  # só o que é novo em relação a outra árvore
+    python3 docs/tools/smali_regcheck.py smali/                      # everything
+    python3 docs/tools/smali_regcheck.py smali/ --base other/smali/  # only what is new compared with another tree
 
-Sai com 1 se achar algo (novo, no modo --base).
+Exits with 1 if it finds anything (new, in --base mode).
 """
 import os, re, sys
 
@@ -33,7 +33,7 @@ THROWING = ('invoke', 'new-instance', 'new-array', 'iget', 'iput', 'sget', 'sput
 
 
 def regs_of(text, locals_n):
-    """Números dos registradores citados em `text`, em ordem (pN vira locals+N)."""
+    """Register numbers cited in `text`, in order (pN becomes locals+N)."""
     out = []
     for m in re.finditer(r'\{\s*([vp]\d+)\s*\.\.\s*([vp]\d+)\s*\}|([vp])(\d+)', text):
         if m.group(1):
@@ -123,7 +123,7 @@ def rw(op, regs):
 
 
 def max_regs(op, n):
-    """Maior registrador que cada um dos `n` operandos de `op` aceita no formato dex (None se não for instrução de registrador)."""
+    """Highest register each of the `n` operands of `op` accepts in the dex format (None if it is not a register instruction)."""
     if op.endswith('/range'):
         return [0xFFFF] * n
     if op.startswith(('invoke', 'filled-new-array')) or op.endswith(('/2addr', '/lit16')):
@@ -140,20 +140,20 @@ def max_regs(op, n):
 
 
 def limit_findings(insns, locals_n):
-    """Registradores acima do que o formato da instrução aceita (vale para todas as instruções, alcançadas ou não)."""
+    """Registers above what the instruction format accepts (applies to all instructions, reached or not)."""
     out = []
     for ln, op, regs, labs in insns:
         for x, lim in zip(regs, max_regs(op, len(regs))):
             if x <= lim:
                 continue
-            nome = 'v%d' % x + (' (p%d)' % (x - locals_n) if x >= locals_n else '')
-            dica = ''
+            label = 'v%d' % x + (' (p%d)' % (x - locals_n) if x >= locals_n else '')
+            hint = ''
             if lim == 15 and op.startswith(('invoke', 'filled-new-array')):
-                dica = ' - use %s/range' % op
-            out.append((ln, '%s fora do limite em "%s" (essa forma só aceita v0 a v%d)%s' % (nome, op, lim, dica)))
+                hint = ' - use %s/range' % op
+            out.append((ln, '%s over the limit in "%s" (this form only accepts v0 to v%d)%s' % (label, op, lim, hint)))
     for ln, op, regs, labs in insns:
         if op.startswith(('invoke', 'filled-new-array')) and not op.endswith('/range') and len(regs) > 5:
-            out.append((ln, '%d registradores em "%s" (a forma comum aceita no máximo 5: o montador recusa com "Invalid register count") - use %s/range' % (len(regs), op, op)))
+            out.append((ln, '%d registers in "%s" (the plain form accepts at most 5: the assembler refuses with "Invalid register count") - use %s/range' % (len(regs), op, op)))
     return out
 
 
@@ -198,9 +198,9 @@ def analyze(m):
     nparams = param_count(name_sig, static)
     locals_n = None
     insns = []        # (ln, op, regs, labels)
-    label_at = {}     # rótulo -> índice da próxima instrução
+    label_at = {}     # label -> index of the next instruction
     catches = []      # (try_start, try_end, handler)
-    payload = {}      # rótulo do payload -> rótulos alvo
+    payload = {}      # payload label -> target labels
     skip = None
     pending_payload = None
     for ln, s in m['lines']:
@@ -238,7 +238,7 @@ def analyze(m):
             op = s.split()[0]
             rest = s[len(op):]
             labs = re.findall(r':[\w$]+', rest)
-            # tira tipos (Lpacote/v1/Classe;) e referências (->campo) para não confundir "v1" com registrador
+            # strip types (Lpackage/v1/Class;) and references (->field) so "v1" is not confused with a register
             ops = re.sub(r'->\S+', 'F', re.sub(r'\[*L[\w/$]+;', 'T', rest))
             insns.append((ln, op, regs_of(ops, locals_n if locals_n is not None else 0), labs))
     if locals_n is None or not insns:
@@ -396,7 +396,7 @@ def refs(root):
                 mm = pat.search(s)
                 if mm and has(mm.group(1), mm.group(2)) is False:
                     res.setdefault((rel, m['head'].split()[-1]), []).append(
-                        (ln, 'método inexistente: %s->%s' % (mm.group(1), mm.group(2))))
+                        (ln, 'method does not exist: %s->%s' % (mm.group(1), mm.group(2))))
     return res
 
 
@@ -413,5 +413,5 @@ if __name__ == '__main__':
     for (rel, meth), fl in sorted(new.items()):
         for ln, msg in fl:
             print('%s:%d  %s  %s' % (rel, ln, meth, msg))
-    print('métodos com problema: %d (%s)' % (len(new), 'novos em relação a --base' if base else 'total'))
+    print('methods with a problem: %d (%s)' % (len(new), 'new compared with --base' if base else 'total'))
     sys.exit(1 if new else 0)

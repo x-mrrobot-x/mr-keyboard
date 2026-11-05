@@ -1,59 +1,59 @@
 #!/usr/bin/env python3
-"""Confere os recursos do projeto apktool. Rode na raiz do projeto; sai com 1 se achar problema.
+"""Checks the resources of the apktool project. Run at the project root; exits with 1 if it finds a problem.
 
-  - XMLs bem formados;
-  - public.xml: toda entrada tem recurso, sem nome nem ID repetido;
-  - toda constante de ID de recurso do smali (0x7f......) está no public.xml;
-  - toda referência @tipo/nome dos XMLs e do manifest existe;
-  - nenhum recurso sem uso (alcançável pelo manifest, pelas constantes de ID do smali e pelos nomes lidos
-    por texto no smali e nos fontes Java);
-  - temas: mr_theme_layouts cobrindo todo valor de
-    keyboard_layout_modes_values; mr_theme_tags e mr_theme_flags com o mesmo tamanho e só bits válidos;
-    cada layout de tema com tag em mr_theme_tags; cada cor
-    mr_<tema>_<papel> com padrão mr_<papel>, e todo papel pedido ao MrTheme.color com cor padrão;
-    os input_mr_*, input_popup_* e key_preview_* de todos os temas iguais entre si, só muda o nome do tema;
-  - conjunto de cada tema: seletor e 5 drawables de tecla, seletor da tecla de destaque (os drawables que ele usa são
-    conferidos pelas referências; Slate e Midnight reaproveitam hl/pressed/on/lock), popup do toque longo, balão de preview,
-    popupLayout e keyPreviewLayout explícitos, sem cor em hex nos layouts e nos drawables do tema (as cores das
-    teclas ficam em res/values/mr_key_colors.xml) e nome do tema nos 3 idiomas;
-  - espanhol (values-es) com as mesmas chaves e listas do português (values-pt-rBR) e os mesmos marcadores
-    (%s, %1$d) do original.
+  - well-formed XMLs;
+  - public.xml: every entry has a resource, with no repeated name or ID;
+  - every resource ID constant in the smali (0x7f......) is in public.xml;
+  - every @type/name reference in the XMLs and the manifest exists;
+  - no unused resource (reachable from the manifest, from the smali ID constants and from the names read
+    as text in the smali and the Java sources);
+  - themes: mr_theme_layouts covering every value of
+    keyboard_layout_modes_values; mr_theme_tags and mr_theme_flags with the same size and only valid bits;
+    each theme layout with a tag in mr_theme_tags; each color
+    mr_<theme>_<role> with a default mr_<role>, and every role asked of MrTheme.color with a default color;
+    the input_mr_*, input_popup_* and key_preview_* of all themes equal to each other, only the theme name changes;
+  - set of each theme: selector and 5 key drawables, accent-key selector (the drawables it uses are
+    checked through the references; Slate and Midnight reuse hl/pressed/on/lock), long-press popup, preview balloon,
+    explicit popupLayout and keyPreviewLayout, no hex color in the theme layouts and drawables (the key
+    colors live in res/values/mr_key_colors.xml) and the theme name in the 3 languages;
+  - Spanish (values-es) with the same keys and lists as Portuguese (values-pt-rBR) and the same placeholders
+    (%s, %1$d) as the original.
 """
 import collections, difflib, glob, os, re, sys
 import xml.dom.minidom
 
 FILE_TYPES = {'drawable', 'mipmap', 'layout', 'anim', 'xml', 'raw', 'menu', 'color', 'animator', 'interpolator'}
 VAL_TAGS = 'style|string|color|dimen|bool|integer|string-array|integer-array|array|attr|declare-styleable|plurals|item'
-NAO_RECURSO = {'0x7f000001', '0x7f7fffff', '0x7fffffff'}      # constantes do smali que não são recursos
-SEM_USO_OK = {('string', 'status_bar_notification_info_overflow')}   # da biblioteca de suporte
-problemas = []
+NOT_RESOURCES = {'0x7f000001', '0x7f7fffff', '0x7fffffff'}      # smali constants that are not resources
+UNUSED_OK = {('string', 'status_bar_notification_info_overflow')}   # from the support library
+problems = []
 
 
 def norm(t):
     return {'string-array': 'array', 'integer-array': 'array', 'mipmap': 'drawable'}.get(t, t)
 
 
-def ler(p):
+def read_file(p):
     return open(p, encoding='utf-8', errors='ignore').read()
 
 
-# --- XMLs bem formados
+# --- well-formed XMLs
 for p in glob.glob('res/**/*.xml', recursive=True) + ['AndroidManifest.xml']:
     try:
         xml.dom.minidom.parse(p)
     except Exception as e:
-        problemas.append('XML inválido %s: %s' % (p, e))
+        problems.append('invalid XML %s: %s' % (p, e))
 
-# --- definições
-defs = collections.defaultdict(list)       # (tipo,nome) -> [(arquivo, texto)]
+# --- definitions
+defs = collections.defaultdict(list)       # (type,name) -> [(file, text)]
 for p in glob.glob('res/*/*'):
     t = os.path.basename(os.path.dirname(p)).split('-')[0]
     if t in FILE_TYPES:
-        defs[(norm(t), os.path.basename(p).split('.')[0])].append((p, ler(p) if p.endswith('.xml') else ''))
+        defs[(norm(t), os.path.basename(p).split('.')[0])].append((p, read_file(p) if p.endswith('.xml') else ''))
 for p in glob.glob('res/values*/*.xml'):
     if p.endswith('public.xml'):
         continue
-    s = ler(p)
+    s = read_file(p)
     for m in re.finditer(r'<(%s)\s+name="([^"]+)"[^>]*?(?:/>|>(.*?)</\1>)' % VAL_TAGS, s, re.S):
         t = norm(m.group(1))
         if t == 'item':
@@ -66,31 +66,31 @@ for p in glob.glob('res/values*/*.xml'):
             for a in re.finditer(r'<attr\s+name="([^"]+)"', m.group(0)):
                 defs[('attr', a.group(1))].append((p, ''))
 for p in glob.glob('res/**/*.xml', recursive=True):
-    for m in re.finditer(r'(?:@\+id/|name=")(\w+)', ler(p)):
+    for m in re.finditer(r'(?:@\+id/|name=")(\w+)', read_file(p)):
         pass
 
 # --- public.xml
-pub = re.findall(r'<public type="(\w+)" name="([^"]+)" id="(0x[0-9a-f]+)"', ler('res/values/public.xml'))
-ids_usados = set()
+pub = re.findall(r'<public type="(\w+)" name="([^"]+)" id="(0x[0-9a-f]+)"', read_file('res/values/public.xml'))
+used_ids = set()
 for p in glob.glob('res/**/*.xml', recursive=True):
-    ids_usados |= set(re.findall(r'@\+id/(\w+)', ler(p)))
+    used_ids |= set(re.findall(r'@\+id/(\w+)', read_file(p)))
 for t, n, i in pub:
     if t != 'id' and (norm(t), n) not in defs:
-        problemas.append('public.xml: %s/%s (%s) sem recurso' % (t, n, i))
-for nome, cont in collections.Counter(i for _, _, i in pub).items():
-    if cont > 1: problemas.append('public.xml: ID repetido ' + nome)
-for nome, cont in collections.Counter((t, n) for t, n, _ in pub).items():
-    if cont > 1: problemas.append('public.xml: entrada repetida %s/%s' % nome)
+        problems.append('public.xml: %s/%s (%s) has no resource' % (t, n, i))
+for name, count in collections.Counter(i for _, _, i in pub).items():
+    if count > 1: problems.append('public.xml: repeated ID ' + name)
+for name, count in collections.Counter((t, n) for t, n, _ in pub).items():
+    if count > 1: problems.append('public.xml: repeated entry %s/%s' % name)
 pubmap = {i: (norm(t), n) for t, n, i in pub}
 
-# --- smali e Java
-smali = ''.join(ler(p) for p in glob.glob('smali*/**/*.smali', recursive=True))
-for i in sorted(set(re.findall(r'0x7f[0-9a-f]{6}', smali)) - NAO_RECURSO):
+# --- smali and Java
+smali = ''.join(read_file(p) for p in glob.glob('smali*/**/*.smali', recursive=True))
+for i in sorted(set(re.findall(r'0x7f[0-9a-f]{6}', smali)) - NOT_RESOURCES):
     if i not in pubmap:
-        problemas.append('smali usa o ID %s que não está no public.xml' % i)
+        problems.append('smali uses the ID %s that is not in public.xml' % i)
 lits = set(re.findall(r'const-string(?:/jumbo)? [vp]\d+, "([^"]+)"', smali))
 for p in glob.glob('docs/tools/java/src/**/*.java', recursive=True):
-    lits |= set(re.findall(r'"([^"\\]+)"', ler(p)))
+    lits |= set(re.findall(r'"([^"\\]+)"', read_file(p)))
 
 
 def refs(s):
@@ -104,186 +104,186 @@ def refs(s):
     return out
 
 
-# --- referências que não existem
+# --- references that do not exist
 for p in glob.glob('res/**/*.xml', recursive=True) + ['AndroidManifest.xml']:
     if p.endswith('public.xml'):
         continue
-    for m in re.finditer(r'@(layout|drawable|mipmap|color|dimen|style|anim|string|array|bool|integer|xml|raw|menu)/([\w.]+)', ler(p)):
+    for m in re.finditer(r'@(layout|drawable|mipmap|color|dimen|style|anim|string|array|bool|integer|xml|raw|menu)/([\w.]+)', read_file(p)):
         if (norm(m.group(1)), m.group(2)) not in defs:
-            problemas.append('%s: @%s/%s não existe' % (p, m.group(1), m.group(2)))
+            problems.append('%s: @%s/%s does not exist' % (p, m.group(1), m.group(2)))
 
-# --- recursos sem uso
-raizes = refs(ler('AndroidManifest.xml'))
+# --- unused resources
+roots = refs(read_file('AndroidManifest.xml'))
 for i in set(re.findall(r'0x7f[0-9a-f]{6}', smali)):
-    if i in pubmap: raizes.add(pubmap[i])
-por_nome = collections.defaultdict(list)
-for k in defs: por_nome[k[1]].append(k)
+    if i in pubmap: roots.add(pubmap[i])
+by_name = collections.defaultdict(list)
+for k in defs: by_name[k[1]].append(k)
 for l in lits:
-    for k in por_nome.get(l, []):
-        if k[0] != 'attr': raizes.add(k)
-prefixos = [l for l in lits if l.endswith('_') and len(l) > 3]
+    for k in by_name.get(l, []):
+        if k[0] != 'attr': roots.add(k)
+prefixes = [l for l in lits if l.endswith('_') and len(l) > 3]
 for k in list(defs):
-    if any(k[1].startswith(pf) for pf in prefixos): raizes.add(k)
-# cores por papel (MrTheme.color): o smali passa o papel e o nome final e montado na execucao
-papeis = set(re.findall(r'const-string [vp]\d+, "(\w+)"\s+invoke-static \{[vp]\d+\}, Lcom/mrkeyboard/app/MrTheme;->color\(', smali))
-# arrays de registro dos temas (mr_themes.xml)
-def itens(nome):
+    if any(k[1].startswith(pf) for pf in prefixes): roots.add(k)
+# colors by role (MrTheme.color): the smali passes the role and the final name is built at run time
+roles = set(re.findall(r'const-string [vp]\d+, "(\w+)"\s+invoke-static \{[vp]\d+\}, Lcom/mrkeyboard/app/MrTheme;->color\(', smali))
+# theme registry arrays (mr_themes.xml)
+def array_items(name):
     for p in glob.glob('res/values/*.xml'):
-        m = re.search(r'<(?:string-|integer-)?array name="%s"[^>]*>(.*?)</(?:string-|integer-)?array>' % nome, ler(p), re.S)
+        m = re.search(r'<(?:string-|integer-)?array name="%s"[^>]*>(.*?)</(?:string-|integer-)?array>' % name, read_file(p), re.S)
         if m: return re.findall(r'<item>\s*([^<]*?)\s*</item>', m.group(1))
     return None
 
 
-tags_tema = set(itens('mr_theme_tags') or [])
+theme_tags = set(array_items('mr_theme_tags') or [])
 for k in list(defs):
     if k[0] != 'color': continue
-    for r in papeis:
-        if k[1] == 'mr_' + r or any(k[1] == t + '_' + r for t in tags_tema):
-            raizes.add(k)
-vistos, pilha = set(), list(raizes)
-while pilha:
-    k = pilha.pop()
-    if k in vistos: continue
-    vistos.add(k)
-    for _, txt in defs.get(k, []):
-        pilha.extend(r for r in refs(txt) if r not in vistos)
-for k in list(vistos):
-    for _, txt in defs.get(k, []):
-        vistos |= {('attr', a) for a in re.findall(r'\b(?!android:|xmlns:)\w+:(\w+)=', txt)}
-        vistos |= {('attr', a) for a in re.findall(r'<item name="([\w.]+)"', txt)}
+    for r in roles:
+        if k[1] == 'mr_' + r or any(k[1] == t + '_' + r for t in theme_tags):
+            roots.add(k)
+seen, stack = set(), list(roots)
+while stack:
+    k = stack.pop()
+    if k in seen: continue
+    seen.add(k)
+    for _, text in defs.get(k, []):
+        stack.extend(r for r in refs(text) if r not in seen)
+for k in list(seen):
+    for _, text in defs.get(k, []):
+        seen |= {('attr', a) for a in re.findall(r'\b(?!android:|xmlns:)\w+:(\w+)=', text)}
+        seen |= {('attr', a) for a in re.findall(r'<item name="([\w.]+)"', text)}
 for k in sorted(defs):
-    if k not in vistos and k[0] != 'attr' and k not in SEM_USO_OK:
-        problemas.append('recurso sem uso: %s/%s (%s)' % (k[0], k[1], ', '.join(sorted({p for p, _ in defs[k]}))))
+    if k not in seen and k[0] != 'attr' and k not in UNUSED_OK:
+        problems.append('unused resource: %s/%s (%s)' % (k[0], k[1], ', '.join(sorted({p for p, _ in defs[k]}))))
 
 
-lay, vals, nomes = (itens(n) for n in ('mr_theme_layouts', 'keyboard_layout_modes_values', 'keyboard_layout_modes'))
-if None in (lay, vals, nomes):
-    problemas.append('temas: falta mr_theme_layouts, keyboard_layout_modes_values ou keyboard_layout_modes')
+lay, vals, names = (array_items(n) for n in ('mr_theme_layouts', 'keyboard_layout_modes_values', 'keyboard_layout_modes'))
+if None in (lay, vals, names):
+    problems.append('themes: mr_theme_layouts, keyboard_layout_modes_values or keyboard_layout_modes is missing')
 else:
-    if len(vals) != len(nomes):
-        problemas.append('temas: keyboard_layout_modes_values tem %d itens e keyboard_layout_modes %d' % (len(vals), len(nomes)))
+    if len(vals) != len(names):
+        problems.append('themes: keyboard_layout_modes_values has %d items and keyboard_layout_modes %d' % (len(vals), len(names)))
     for v in vals:
         if not v.isdigit() or int(v) >= len(lay):
-            problemas.append('temas: valor %s de keyboard_layout_modes_values fora de mr_theme_layouts (%d itens)' % (v, len(lay)))
-    tags_lista, flags_lista = itens('mr_theme_tags'), itens('mr_theme_flags')
-    if tags_lista is None or flags_lista is None:
-        problemas.append('temas: falta mr_theme_tags ou mr_theme_flags')
+            problems.append('themes: value %s of keyboard_layout_modes_values is outside mr_theme_layouts (%d items)' % (v, len(lay)))
+    tag_list, flag_list = array_items('mr_theme_tags'), array_items('mr_theme_flags')
+    if tag_list is None or flag_list is None:
+        problems.append('themes: mr_theme_tags or mr_theme_flags is missing')
     else:
-        if len(tags_lista) != len(flags_lista):
-            problemas.append('temas: mr_theme_tags tem %d itens e mr_theme_flags %d' % (len(tags_lista), len(flags_lista)))
-        if len(set(tags_lista)) != len(tags_lista):
-            problemas.append('temas: mr_theme_tags com tag repetida')
-        for t, f in zip(tags_lista, flags_lista):
+        if len(tag_list) != len(flag_list):
+            problems.append('themes: mr_theme_tags has %d items and mr_theme_flags %d' % (len(tag_list), len(flag_list)))
+        if len(set(tag_list)) != len(tag_list):
+            problems.append('themes: mr_theme_tags with a repeated tag')
+        for t, f in zip(tag_list, flag_list):
             try:
                 v = int(f, 0)
             except ValueError:
-                problemas.append('temas: mr_theme_flags de %s = %s não é número' % (t, f))
+                problems.append('themes: mr_theme_flags of %s = %s is not a number' % (t, f))
                 continue
             if v & ~0x7e:
-                problemas.append('temas: mr_theme_flags de %s = %s usa bit fora de 0x7e (o bit 0x01 é do MrTheme)' % (t, f))
+                problems.append('themes: mr_theme_flags of %s = %s uses a bit outside 0x7e (bit 0x01 belongs to MrTheme)' % (t, f))
     for l in sorted(set(lay)):
-        nome = l.replace('@layout/', '')
-        arq = 'res/layout/%s.xml' % nome
-        if not os.path.exists(arq):
+        name = l.replace('@layout/', '')
+        file = 'res/layout/%s.xml' % name
+        if not os.path.exists(file):
             continue
-        tag = re.search(r'android:tag="([^"]+)"', ler(arq))
+        tag = re.search(r'android:tag="([^"]+)"', read_file(file))
         if not tag:
-            problemas.append('temas: %s sem android:tag' % arq)
-        elif tag.group(1) not in tags_tema:
-            problemas.append('temas: tag %s de %s ausente de mr_theme_tags' % (tag.group(1), arq))
+            problems.append('themes: %s has no android:tag' % file)
+        elif tag.group(1) not in theme_tags:
+            problems.append('themes: tag %s of %s is missing from mr_theme_tags' % (tag.group(1), file))
         else:
             t = tag.group(1)[3:]
-            txt = ler(arq)
+            text = read_file(file)
             pop = 'input_popup_' + t
-            exigidos = ['btn_keyboard_key_' + t] + ['key_%s_%s' % (t, e) for e in ('normal', 'pressed', 'on', 'lock', 'hl')]
-            exigidos += ['btn_keyboard_key_%s_accent' % t]
-            exigidos += ['preview_%s_bg' % t, 'preview_%s_more_bg' % t, 'key_preview_' + t]
-            exigidos += ['input_popup_' + t, 'popup_%s_bg' % t, 'btn_keyboard_key_popup_' + t, 'key_popup_%s_pressed' % t]
-            for e in exigidos:
+            required = ['btn_keyboard_key_' + t] + ['key_%s_%s' % (t, e) for e in ('normal', 'pressed', 'on', 'lock', 'hl')]
+            required += ['btn_keyboard_key_%s_accent' % t]
+            required += ['preview_%s_bg' % t, 'preview_%s_more_bg' % t, 'key_preview_' + t]
+            required += ['input_popup_' + t, 'popup_%s_bg' % t, 'btn_keyboard_key_popup_' + t, 'key_popup_%s_pressed' % t]
+            for e in required:
                 if not any(k[1] == e for k in defs):
-                    problemas.append('temas: tema %s sem o recurso %s' % (t, e))
-            for atr, esperado in (('popupLayout', pop), ('keyPreviewLayout', 'key_preview_' + t)):
-                m = re.search(r'latin:%s="@layout/(\w+)"' % atr, txt)
-                if not m or m.group(1) != esperado:
-                    problemas.append('temas: %s deve ter latin:%s="@layout/%s"' % (arq, atr, esperado))
-            for extra in ('res/layout/%s.xml' % pop, 'res/layout/key_preview_%s.xml' % t, arq):
-                if os.path.exists(extra) and re.search(r'="#[0-9a-fA-F]{6,8}"', ler(extra)):
-                    problemas.append('temas: %s com cor em hex; use @color/mr_%s_*' % (extra, t))
-            # drawables do tema: cor só por @color (os valores ficam em res/values/mr_key_colors.xml)
+                    problems.append('themes: theme %s lacks the resource %s' % (t, e))
+            for attr_name, expected in (('popupLayout', pop), ('keyPreviewLayout', 'key_preview_' + t)):
+                m = re.search(r'latin:%s="@layout/(\w+)"' % attr_name, text)
+                if not m or m.group(1) != expected:
+                    problems.append('themes: %s must have latin:%s="@layout/%s"' % (file, attr_name, expected))
+            for extra in ('res/layout/%s.xml' % pop, 'res/layout/key_preview_%s.xml' % t, file):
+                if os.path.exists(extra) and re.search(r'="#[0-9a-fA-F]{6,8}"', read_file(extra)):
+                    problems.append('themes: %s has a hex color; use @color/mr_%s_*' % (extra, t))
+            # theme drawables: color only through @color (the values live in res/values/mr_key_colors.xml)
             drs = {'btn_keyboard_key_' + t, 'btn_keyboard_key_%s_accent' % t, 'btn_keyboard_key_popup_' + t,
                    'key_popup_%s_pressed' % t, 'popup_%s_bg' % t, 'preview_%s_bg' % t, 'preview_%s_more_bg' % t}
             drs |= {os.path.basename(x)[:-4] for x in glob.glob('res/drawable/key_%s_*.xml' % t)}
             for d in sorted(drs):
-                arq_d = 'res/drawable/%s.xml' % d
-                if os.path.exists(arq_d) and re.search(r'="#[0-9a-fA-F]{3,8}"', ler(arq_d)):
-                    problemas.append('temas: %s com cor em hex; declare em res/values/mr_key_colors.xml '
-                                     '(mr_%s_key_<estado>_<parte>) e use @color' % (arq_d, t))
-    # layouts por tema: os input_mr_*, input_popup_* e key_preview_* so podem diferir no nome do tema
-    temas_ok = []
+                file_d = 'res/drawable/%s.xml' % d
+                if os.path.exists(file_d) and re.search(r'="#[0-9a-fA-F]{3,8}"', read_file(file_d)):
+                    problems.append('themes: %s has a hex color; declare it in res/values/mr_key_colors.xml '
+                                     '(mr_%s_key_<state>_<part>) and use @color' % (file_d, t))
+    # layouts per theme: the input_mr_*, input_popup_* and key_preview_* may only differ in the theme name
+    themes_ok = []
     for l in sorted(set(lay)):
-        arq = 'res/layout/%s.xml' % l.replace('@layout/', '')
-        mt = re.search(r'android:tag="mr_(\w+)"', ler(arq)) if os.path.exists(arq) else None
-        if mt and 'mr_' + mt.group(1) in tags_tema and mt.group(1) not in temas_ok:
-            temas_ok.append(mt.group(1))
-    for grupo in ('input_mr_%s', 'input_popup_%s', 'key_preview_%s'):
-        ref_nome, ref_linhas = None, None
-        for t in temas_ok:
-            arq = 'res/layout/%s.xml' % (grupo % t)
-            if not os.path.exists(arq):
+        file = 'res/layout/%s.xml' % l.replace('@layout/', '')
+        mt = re.search(r'android:tag="mr_(\w+)"', read_file(file)) if os.path.exists(file) else None
+        if mt and 'mr_' + mt.group(1) in theme_tags and mt.group(1) not in themes_ok:
+            themes_ok.append(mt.group(1))
+    for group in ('input_mr_%s', 'input_popup_%s', 'key_preview_%s'):
+        ref_name, ref_lines = None, None
+        for t in themes_ok:
+            file = 'res/layout/%s.xml' % (group % t)
+            if not os.path.exists(file):
                 continue
-            linhas = ler(arq).replace(t, '<tema>').splitlines()
-            if ref_linhas is None:
-                ref_nome, ref_linhas = arq, linhas
+            lines = read_file(file).replace(t, '<theme>').splitlines()
+            if ref_lines is None:
+                ref_name, ref_lines = file, lines
                 continue
-            dif = [d for d in difflib.unified_diff(ref_linhas, linhas, lineterm='', n=0)
+            diff_lines = [d for d in difflib.unified_diff(ref_lines, lines, lineterm='', n=0)
                    if d[:1] in '+-' and d[:3] not in ('+++', '---')]
-            if dif:
-                problemas.append('temas: %s difere de %s alem do nome do tema (%s)' % (arq, ref_nome, '; '.join(x.strip() for x in dif[:3])))
-cores = {k[1] for k in defs if k[0] == 'color'}
-for r in sorted(papeis):
-    if 'mr_' + r not in cores:
-        problemas.append('temas: papel %s pedido ao MrTheme.color sem a cor padrão mr_%s' % (r, r))
-for c in sorted(cores):
-    for t in tags_tema:
-        if c.startswith(t + '_') and 'mr_' + c[len(t) + 1:] not in cores and c[len(t) + 1:] in papeis:
-            problemas.append('temas: %s sem a cor padrão mr_%s' % (c, c[len(t) + 1:]))
+            if diff_lines:
+                problems.append('themes: %s differs from %s beyond the theme name (%s)' % (file, ref_name, '; '.join(x.strip() for x in diff_lines[:3])))
+colors = {k[1] for k in defs if k[0] == 'color'}
+for r in sorted(roles):
+    if 'mr_' + r not in colors:
+        problems.append('themes: role %s asked of MrTheme.color has no default color mr_%s' % (r, r))
+for c in sorted(colors):
+    for t in theme_tags:
+        if c.startswith(t + '_') and 'mr_' + c[len(t) + 1:] not in colors and c[len(t) + 1:] in roles:
+            problems.append('themes: %s has no default color mr_%s' % (c, c[len(t) + 1:]))
 
-# --- espanhol x português x original
-def textos(pasta):
+# --- Spanish x Portuguese x original
+def strings_of(folder):
     r = {}
-    for p in glob.glob(pasta + '/*.xml'):
-        for m in re.finditer(r'<string name="([^"]+)"(?:\s[^>]*)?>(.*?)</string>', ler(p), re.S):
+    for p in glob.glob(folder + '/*.xml'):
+        for m in re.finditer(r'<string name="([^"]+)"(?:\s[^>]*)?>(.*?)</string>', read_file(p), re.S):
             r[m.group(1)] = m.group(2)
     return r
 
 
-def listas(pasta):
+def arrays_of(folder):
     r = {}
-    for p in glob.glob(pasta + '/*.xml'):
-        for m in re.finditer(r'<string-array name="([^"]+)"[^>]*>(.*?)</string-array>', ler(p), re.S):
+    for p in glob.glob(folder + '/*.xml'):
+        for m in re.finditer(r'<string-array name="([^"]+)"[^>]*>(.*?)</string-array>', read_file(p), re.S):
             r[m.group(1)] = len(re.findall(r'<item>', m.group(2)))
     return r
 
 
-orig, pt, es = textos('res/values'), textos('res/values-pt-rBR'), textos('res/values-es')
-for n in re.findall(r'@string/(\w+)', ' '.join(nomes or [])):
-    for pasta, tab in (('values', orig), ('values-pt-rBR', pt), ('values-es', es)):
+orig, pt, es = strings_of('res/values'), strings_of('res/values-pt-rBR'), strings_of('res/values-es')
+for n in re.findall(r'@string/(\w+)', ' '.join(names or [])):
+    for folder, tab in (('values', orig), ('values-pt-rBR', pt), ('values-es', es)):
         if n not in tab:
-            problemas.append('temas: nome %s do tema ausente em %s' % (n, pasta))
-for faltam in sorted(set(pt) - set(es)): problemas.append('values-es sem a chave ' + faltam)
-for sobra in sorted(set(es) - set(pt)): problemas.append('values-es com chave que o português não tem: ' + sobra)
-marc = lambda s: sorted(re.findall(r'%(?:\d+\$)?[sdf]', s.replace('%%', '')))
-for nome, tabela in (('values-es', es), ('values-pt-rBR', pt)):
-    for k, v in tabela.items():
-        if k in orig and marc(v) != marc(orig[k]):
-            problemas.append('%s/%s: marcadores %s diferentes do original %s' % (nome, k, marc(v), marc(orig[k])))
-la_o, la_p, la_e = listas('res/values'), listas('res/values-pt-rBR'), listas('res/values-es')
+            problems.append('themes: theme name %s is missing from %s' % (n, folder))
+for missing in sorted(set(pt) - set(es)): problems.append('values-es lacks the key ' + missing)
+for leftover in sorted(set(es) - set(pt)): problems.append('values-es has a key that Portuguese lacks: ' + leftover)
+marks = lambda s: sorted(re.findall(r'%(?:\d+\$)?[sdf]', s.replace('%%', '')))
+for name, table in (('values-es', es), ('values-pt-rBR', pt)):
+    for k, v in table.items():
+        if k in orig and marks(v) != marks(orig[k]):
+            problems.append('%s/%s: placeholders %s differ from the original %s' % (name, k, marks(v), marks(orig[k])))
+la_o, la_p, la_e = arrays_of('res/values'), arrays_of('res/values-pt-rBR'), arrays_of('res/values-es')
 for k in la_p:
-    if la_e.get(k) != la_p[k]: problemas.append('values-es: lista %s com %s itens (português: %d)' % (k, la_e.get(k), la_p[k]))
+    if la_e.get(k) != la_p[k]: problems.append('values-es: list %s with %s items (Portuguese: %d)' % (k, la_e.get(k), la_p[k]))
 for k in la_e:
-    if k in la_o and la_e[k] != la_o[k]: problemas.append('values-es: lista %s com %d itens (original: %d)' % (k, la_e[k], la_o[k]))
+    if k in la_o and la_e[k] != la_o[k]: problems.append('values-es: list %s with %d items (original: %d)' % (k, la_e[k], la_o[k]))
 
-print('recursos: %d definidos, %d entradas no public.xml, %d textos em espanhol' % (len(defs), len(pub), len(es)))
-for p in problemas:
-    print('PROBLEMA:', p)
-sys.exit(1 if problemas else 0)
+print('resources: %d defined, %d entries in public.xml, %d strings in Spanish' % (len(defs), len(pub), len(es)))
+for p in problems:
+    print('PROBLEM:', p)
+sys.exit(1 if problems else 0)

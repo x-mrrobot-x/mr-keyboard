@@ -1,16 +1,16 @@
-# Mr Keyboard: gera o smali da camada Java (MrBar, MrText, MrFix, ...) a partir de docs/tools/java/src.
+# Mr Keyboard: generates the smali of the Java layer (MrBar, MrText, MrFix, ...) from docs/tools/java/src.
 #
-# Só roda à mão (Actions > "Mr Keyboard - smali" > Run workflow). Não publica nada e não altera o repositório.
-# É o mesmo comando que o mr-checks.yml confere (docs/tools/build_java.sh, com o dx do dex2jar 2.1 e o
-# apktool das versões fixadas abaixo), então o resultado é o que o check_java_smali.sh espera, byte a byte.
+# Runs only by hand (Actions > "Mr Keyboard - smali" > Run workflow). Publishes nothing and does not change the repository.
+# It is the same command that mr-checks.yml verifies (docs/tools/build_java.sh, with the dx from dex2jar 2.1 and the
+# apktool versions pinned below), so the result is what check_java_smali.sh expects, byte for byte.
 #
-# Quando usar: depois de mudar um .java em docs/tools/java/src (ou quando o passo "Smali da camada Java em dia"
-# do mr-checks.yml acusar DIFERENTE).
+# When to use: after changing a .java in docs/tools/java/src (or when the "Java-layer smali up to date" step
+# of mr-checks.yml reports DIFFERENT).
 #
-# Resultado em Actions > (execução) > Artifacts:
-#   generated-smali -> só os .smali que têm fonte Java, com o caminho smali/com/mrkeyboard/app/.
-#                   Extraia na raiz do projeto (sobrescrevendo) e faça o commit.
-# O resumo da execução mostra quais arquivos do repositório estão diferentes do gerado.
+# Result in Actions > (run) > Artifacts:
+#   generated-smali -> only the .smali files that have a Java source, with the path smali/com/mrkeyboard/app/.
+#                   Extract it at the project root (overwriting) and commit.
+# The run summary shows which repository files differ from the generated ones.
 name: Mr Keyboard - smali
 
 on:
@@ -35,7 +35,7 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Baixar apktool e dex2jar
+      - name: Download apktool and dex2jar
         run: |
           curl -sSL -o apktool.jar \
             "https://github.com/iBotPeaches/Apktool/releases/download/v$APKTOOL_VERSION/apktool_$APKTOOL_VERSION.jar"
@@ -43,15 +43,15 @@ jobs:
           echo "$DEX2JAR_SHA256  dex2jar.zip" | sha256sum -c -
           unzip -q dex2jar.zip -d tools
 
-      - name: Gerar o smali (build_java.sh)
+      - name: Generate the smali (build_java.sh)
         env:
           DX_JAR: ${{ github.workspace }}/tools/dex-tools-2.1/lib/dx-27.0.3.jar
           APKTOOL_JAR: ${{ github.workspace }}/apktool.jar
         run: sh docs/tools/build_java.sh
 
-      - name: Separar só o smali que tem fonte Java
+      - name: Pick only the smali that has a Java source
         run: |
-          # a mesma regra do check_java_smali.sh: Base.smali e Base$*.smali de cada docs/tools/java/src/.../Base.java
+          # the same rule as check_java_smali.sh: Base.smali and Base$*.smali for each docs/tools/java/src/.../Base.java
           APP=smali/com/mrkeyboard/app
           DEST=generated-smali/$APP
           mkdir -p "$DEST"
@@ -61,17 +61,17 @@ jobs:
               if [ -f "$f" ]; then cp "$f" "$DEST/"; fi
             done
           done
-          echo "gerados: $(ls "$DEST" | wc -l) arquivos"
+          echo "generated: $(ls "$DEST" | wc -l) files"
 
-      - name: Resumo - o que difere do repositório
+      - name: Summary - what differs from the repository
         run: |
           {
-            echo "### smali da camada Java"
+            echo "### Java-layer smali"
             echo
             if [ -z "$(git status --porcelain -- smali)" ]; then
-              echo "O smali do repositório já é igual ao gerado. Nada a fazer."
+              echo "The repository smali already equals the generated one. Nothing to do."
             else
-              echo "Diferem do repositório (troque pelos do artifact \`generated-smali\`):"
+              echo "Differs from the repository (replace with the ones from the \`generated-smali\` artifact):"
               echo
               echo '```'
               git status --short -- smali
