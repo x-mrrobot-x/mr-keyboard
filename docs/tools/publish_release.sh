@@ -1,11 +1,13 @@
 #!/bin/bash
-# Publishes the single release of a launch (used by the "Mr Keyboard - APK" workflow): the signed APK, the
-# dictionary catalog (signed with the same key) and the zips of the languages that changed in this version.
+# Publishes the single release of a launch (used by the "Mr Keyboard - APK" workflow): the signed APK, the zip of
+# the source code, the dictionary catalog (signed with the same key) and the zips of the languages that changed in
+# this version.
 # The tag is the versionName from apktool.yml (v1.72.0) and the notes come from docs/release-notes/<tag>.md
 # (e.g. docs/release-notes/v1.72.0.md): a short file, Portuguese and English, that is the release text itself,
 # followed by the list of included dictionaries and the checksums.
 # The APK is named mr-keyboard-<tag>.apk (e.g. mr-keyboard-v1.72.0.apk), so the version shows in the asset
-# list; the app reads the catalog from .../releases/latest/download/catalog.json.
+# list; the app reads the catalog from .../releases/latest/download/catalog.json. The source code goes as
+# mr-keyboard-<tag>-source.zip, made by make_source_zip.sh from the commit being published (git archive).
 #
 # Dictionaries: starts from the catalog of the latest release (if there is one). A pack that did not change
 # keeps its zip in the release that made it (the catalog says which one in "release"), so nothing is copied;
@@ -17,7 +19,8 @@
 # Variables:
 #   MODE   manual (run by hand with "publish") or automatic (push to main)
 #   LIB_OK false when lib/ does not match the current native/
-#   GH_TOKEN, GITHUB_SHA, GITHUB_REPOSITORY, ANDROID_HOME (from Actions)
+#   GH_TOKEN, GITHUB_SHA, GITHUB_REPOSITORY, ANDROID_HOME (from Actions); GITHUB_OUTPUT (optional): after publishing,
+#   it receives published=true, tag, apk and source (the workflow attests those two files)
 #   KEYSTORE_B64 + KEYSTORE_PASS + KEY_ALIAS + KEY_PASS, or KEY_PK8_B64 + CERT_PEM_B64 (they sign the catalog)
 # In manual mode any problem is an error (you asked to publish). In automatic mode, whatever prevents
 # publishing (no key, version already published, stale lib) only warns and leaves the APK in the artifacts.
@@ -59,8 +62,13 @@ fi
 # notes: docs/release-notes/<tag>.md (e.g. docs/release-notes/v1.72.0.md)
 NOTES="docs/release-notes/$TAG.md"
 APK="mr-keyboard-$TAG.apk"
+SRC="mr-keyboard-$TAG-source.zip"
 # a single APK, with the version in the name (the asset list shows which version it is)
 cp mr-keyboard-signed.apk "$APK"
+# the source code of exactly the commit being published (the tag will point to it); a failure here is a bug in any mode
+if ! sh docs/tools/make_source_zip.sh "$TAG" "$GITHUB_SHA" "$SRC"; then
+  echo "::error::Could not make $SRC from the commit $GITHUB_SHA. Nothing was published."; exit 1
+fi
 CERT=$("$BT/apksigner" verify --print-certs "$APK" | sed -n 's/.*certificate SHA-256 digest: //p' | head -1)
 if [ -z "$CERT" ]; then
   stop "Could not read the APK certificate."
@@ -80,7 +88,7 @@ else
 fi
 python3 -I docs/tools/make_catalog.py --dicts dicts --out out --tag "$TAG" $PREV_ARGS
 sh docs/tools/sign_catalog.sh out/data.json out/catalog.json
-EXPECTED=$(python3 docs/tools/release_assets.py assets out/data.json "$TAG" "$APK")
+EXPECTED=$(python3 docs/tools/release_assets.py assets out/data.json "$TAG" "$APK" "$SRC")
 DICTIONARIES=$(python3 docs/tools/release_assets.py text out/data.json "$TAG")
 
 # ---- zips that stay in other releases must still be there, with the size from the catalog (before any draft)
@@ -105,6 +113,7 @@ if [ -z "$SUMMARY" ]; then
 fi
 {
   echo "Download: **$APK** · [installation / instalação](https://github.com/$GITHUB_REPOSITORY#installation)"
+  echo "Código-fonte / Source code: \`$SRC\` ([como verificar / how to verify](https://github.com/$GITHUB_REPOSITORY#verifying-a-release))"
   echo
   echo "$SUMMARY"
   echo
@@ -112,11 +121,12 @@ fi
   echo "Você só precisa do \`$APK\`: o app baixa os dicionários sozinho. / You only need \`$APK\`: the app downloads the dictionaries by itself."
   echo
   echo "- APK SHA-256: \`$(sha256sum "$APK" | cut -d' ' -f1)\`"
+  echo "- Source zip SHA-256: \`$(sha256sum "$SRC" | cut -d' ' -f1)\`"
   echo "- Certificate SHA-256: \`$CERT\`"
 } > notes.md
 
 # ---- draft with everything attached, check the assets and only then publish
-FILES="$APK out/catalog.json"
+FILES="$APK $SRC out/catalog.json"
 for z in $(cat out/upload.txt); do FILES="$FILES out/$z"; done
 gh release create "$TAG" $FILES --draft --title "Mr Keyboard $TAG" --notes-file notes.md --target "$GITHUB_SHA"
 ACTUAL=$(gh release view "$TAG" --json assets -q '.assets[].name' | sort)
@@ -128,3 +138,6 @@ if [ "$ACTUAL" != "$EXPECTED" ]; then
 fi
 gh release edit "$TAG" --draft=false --latest
 echo "Published: $TAG ($NOTES); assets: $(echo $ACTUAL | tr '\n' ' ')"
+if [ -n "${GITHUB_OUTPUT:-}" ]; then
+  { echo "published=true"; echo "tag=$TAG"; echo "apk=$APK"; echo "source=$SRC"; } >> "$GITHUB_OUTPUT"
+fi
