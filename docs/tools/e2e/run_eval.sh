@@ -58,7 +58,7 @@ for L in "pt-BR|pt|qwertyuiop,asdfghjklç,zxcvbnm|$PT_NEWS $PT_CHAT" "en-US|en|q
   D=$(echo "$L" | cut -d'|' -f1); K=$(echo "$L" | cut -d'|' -f2); ROWS=$(echo "$L" | cut -d'|' -f3); F=$(echo "$L" | cut -d'|' -f4)
   echo "================ $D"
   echo "--- correção de erros sintéticos (CorrEval)"
-  run -Drows=$ROWS com.mrkeyboard.app.CorrEval dicts/$D/main.dict "$OUT/typos_$K.tsv" | grep -v "^erros"
+  run -Drows=$ROWS com.mrkeyboard.app.CorrEval dicts/$D/main.dict "$OUT/typos_$K.tsv" | grep -v "^misses"
   echo "--- digitação normal (PrefixEval): a palavra certa entre as 3 primeiras depois de k letras"
   run -Drows=$ROWS com.mrkeyboard.app.PrefixEval dicts/$D/main.dict $F
   echo "--- palavra certa fora do dicionário (OovEval): autocorreção trocaria"
@@ -66,7 +66,7 @@ for L in "pt-BR|pt|qwertyuiop,asdfghjklç,zxcvbnm|$PT_NEWS $PT_CHAT" "en-US|en|q
   for KIND in topic random; do
     for R in 0 1; do
       echo "--- palavras recentes (RecentEval), sessões $KIND, recentes=$R"
-      run -Drows=$ROWS -Drecent=$R com.mrkeyboard.app.RecentEval dicts/$D/main.dict dicts/$D/trigrams.bin "$OUT/sess_${K}_$KIND.txt" | grep -v "palavras fora\|palavras do dic"
+      run -Drows=$ROWS -Drecent=$R com.mrkeyboard.app.RecentEval dicts/$D/main.dict dicts/$D/trigrams.bin "$OUT/sess_${K}_$KIND.txt" | grep -v "words outside\|dictionary words"
     done
   done
 done

@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.*;
 import java.util.*;
 
-/** Saída das sugestões para uma lista de palavras, para comparar duas versões do app. */
+/** Suggestion output for a list of words, to compare two versions of the app. */
 public class Parity {
     public static void main(String[] a) throws Exception {
         byte[] bytes = Files.readAllBytes(Paths.get(a[0]));
@@ -37,6 +37,6 @@ public class Parity {
             out.println(w + "\t" + l.subList(0, Math.min(6, l.size())) + "\t" + auto);
             n++;
         }
-        System.out.printf("%d palavras, %.3f ms cada%n", n, (System.nanoTime() - t0) / 1e6 / n / 2);
+        System.out.printf("%d words, %.3f ms each%n", n, (System.nanoTime() - t0) / 1e6 / n / 2);
     }
 }

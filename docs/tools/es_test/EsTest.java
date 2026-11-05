@@ -10,11 +10,11 @@ import android.content.Intent;
 import java.io.File;
 import java.util.Locale;
 
-/** Testa SheetStrings.isPt/p/a e MrEs com contextos de idiomas diferentes. */
+/** Tests SheetStrings.isPt/p/a and MrEs with contexts of different languages. */
 public class EsTest {
     static int ok = 0, fail = 0;
     static void check(String what, boolean cond) {
-        if (cond) { ok++; System.out.println("OK    " + what); } else { fail++; System.out.println("FALHA " + what); }
+        if (cond) { ok++; System.out.println("OK    " + what); } else { fail++; System.out.println("FAIL  " + what); }
     }
     static Context ctx(final Locale l) {
         final Configuration conf = new Configuration();
@@ -34,47 +34,47 @@ public class EsTest {
     }
     public static void main(String[] a) throws Exception {
         Context es = ctx(new Locale("es")), pt = ctx(new Locale("pt", "BR")), en = ctx(Locale.US), fr = ctx(Locale.FRANCE);
-        check("espanhol: isPt (usa o texto em português)", SheetStrings.isPt(es));
-        check("espanhol: sEs ligado", SheetStrings.sEs);
-        check("espanhol: p troca 'Excluir' por 'Eliminar'", "Eliminar".equals(SheetStrings.p("Excluir")));
-        check("espanhol: p troca a frase com acento", "¿Eliminar la hoja?".equals(SheetStrings.p("Excluir folha?")));
-        check("espanhol: p troca o texto de várias linhas", SheetStrings.p("Nenhuma folha ativa (apenas o teclado principal ABC).\nToque em \"+ Nova folha\" ou em ⋮ → \"Restaurar todas para o padrão\".").startsWith("Ninguna hoja activa"));
-        check("espanhol: texto sem tradução fica igual", "Qualquer coisa".equals(SheetStrings.p("Qualquer coisa")));
-        check("espanhol: tr escolhe o português (que p traduz)", "Excluir".equals(SheetStrings.tr(es, "Excluir", "Delete")));
-        check("português: isPt", SheetStrings.isPt(pt));
-        check("português: sEs desligado", !SheetStrings.sEs);
-        check("português: p não muda nada", "Excluir".equals(SheetStrings.p("Excluir")));
-        check("inglês: isPt falso", !SheetStrings.isPt(en));
-        check("inglês: sEs desligado", !SheetStrings.sEs);
-        check("inglês: p não muda nada", "Excluir".equals(SheetStrings.p("Excluir")));
-        check("francês: isPt falso (cai no inglês)", !SheetStrings.isPt(fr));
-        check("sem contexto: isPt verdadeiro e sEs desligado", SheetStrings.isPt(null) && !SheetStrings.sEs);
-        // depois do espanhol, voltar ao português desliga o troca
+        check("Spanish: isPt (uses the Portuguese text)", SheetStrings.isPt(es));
+        check("Spanish: sEs on", SheetStrings.sEs);
+        check("Spanish: p swaps 'Excluir' for 'Eliminar'", "Eliminar".equals(SheetStrings.p("Excluir")));
+        check("Spanish: p swaps the sentence with accents", "¿Eliminar la hoja?".equals(SheetStrings.p("Excluir folha?")));
+        check("Spanish: p swaps the multi-line text", SheetStrings.p("Nenhuma folha ativa (apenas o teclado principal ABC).\nToque em \"+ Nova folha\" ou em ⋮ → \"Restaurar todas para o padrão\".").startsWith("Ninguna hoja activa"));
+        check("Spanish: text without translation stays the same", "Qualquer coisa".equals(SheetStrings.p("Qualquer coisa")));
+        check("Spanish: tr picks the Portuguese (which p translates)", "Excluir".equals(SheetStrings.tr(es, "Excluir", "Delete")));
+        check("Portuguese: isPt", SheetStrings.isPt(pt));
+        check("Portuguese: sEs off", !SheetStrings.sEs);
+        check("Portuguese: p changes nothing", "Excluir".equals(SheetStrings.p("Excluir")));
+        check("English: isPt false", !SheetStrings.isPt(en));
+        check("English: sEs off", !SheetStrings.sEs);
+        check("English: p changes nothing", "Excluir".equals(SheetStrings.p("Excluir")));
+        check("French: isPt false (falls back to English)", !SheetStrings.isPt(fr));
+        check("no context: isPt true and sEs off", SheetStrings.isPt(null) && !SheetStrings.sEs);
+        // after Spanish, going back to Portuguese turns the swap off
         SheetStrings.isPt(es); SheetStrings.isPt(pt);
-        check("bandeira volta a desligar no português", "Excluir".equals(SheetStrings.p("Excluir")));
-        // texto só em português do anexo/cache
+        check("flag turns off again in Portuguese", "Excluir".equals(SheetStrings.p("Excluir")));
+        // Portuguese-only text of the attachment/cache
         String c = "Limpando caches…";
-        check("MrEs.app português", c.equals(MrEs.app(pt, c)));
-        check("MrEs.app espanhol", "Borrando cachés…".equals(MrEs.app(es, c)));
-        check("MrEs.app inglês", "Clearing caches…".equals(MrEs.app(en, c)));
-        check("MrEs.app francês cai no inglês", "Clearing caches…".equals(MrEs.app(fr, c)));
-        check("MrEs.app texto desconhecido fica igual", "Zzz".equals(MrEs.app(en, "Zzz")));
-        // tabela (campo privado ES do MrEs, lido por reflexão): nenhuma tradução vazia ou igual à chave sem motivo
+        check("MrEs.app Portuguese", c.equals(MrEs.app(pt, c)));
+        check("MrEs.app Spanish", "Borrando cachés…".equals(MrEs.app(es, c)));
+        check("MrEs.app English", "Clearing caches…".equals(MrEs.app(en, c)));
+        check("MrEs.app French falls back to English", "Clearing caches…".equals(MrEs.app(fr, c)));
+        check("MrEs.app unknown text stays the same", "Zzz".equals(MrEs.app(en, "Zzz")));
+        // table (private ES field of MrEs, read by reflection): no translation empty or equal to the key without a reason
         java.lang.reflect.Field fe = MrEs.class.getDeclaredField("ES");
         fe.setAccessible(true);
         java.util.Map<?, ?> es_map = (java.util.Map<?, ?>) fe.get(null);
-        int vazios = 0, saoIguais = 0;
+        int empties = 0, sameAsKey = 0;
         for (java.util.Map.Entry<?, ?> e : es_map.entrySet()) {
             String k = (String) e.getKey(), v = (String) e.getValue();
-            if (v == null || v.length() == 0) vazios++;
-            // iguais de verdade em espanhol: não contam
-            boolean legitimo = k.equals("Código personalizado (") || k.equals("Enter / Retorno") || k.equals("Lista de teclas (")
+            if (v == null || v.length() == 0) empties++;
+            // really the same in Spanish: they do not count
+            boolean legitimate = k.equals("Código personalizado (") || k.equals("Enter / Retorno") || k.equals("Lista de teclas (")
                     || k.equals("Teclado numérico (Numpad)") || k.equals("ABC \u2014 Teclado principal");
-            if (v != null && v.equals(k) && k.length() > 14 && !legitimo) saoIguais++;
+            if (v != null && v.equals(k) && k.length() > 14 && !legitimate) sameAsKey++;
         }
-        check("tabela: " + es_map.size() + " chaves, nenhuma traduzida como vazio", vazios == 0);
-        check("tabela: nenhuma frase longa ficou igual ao português", saoIguais == 0);
-        System.out.println(fail == 0 ? "TUDO OK (" + ok + " verificações)" : fail + " FALHAS");
+        check("table: " + es_map.size() + " keys, none translated as empty", empties == 0);
+        check("table: no long sentence stayed equal to the Portuguese", sameAsKey == 0);
+        System.out.println(fail == 0 ? "ALL OK (" + ok + " checks)" : fail + " FAILURE(S)");
         System.exit(fail == 0 ? 0 : 1);
     }
 }

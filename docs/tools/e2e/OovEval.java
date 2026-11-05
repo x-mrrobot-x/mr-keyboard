@@ -8,11 +8,11 @@ import java.util.*;
 import java.util.regex.*;
 
 /**
- * Palavras certas que o dicionário não conhece (nomes, gírias, siglas, termos raros), v1.75: com a
- * autocorreção ligada, quantas o teclado trocaria sozinho por outra? É o risco de uma correção mais
- * agressiva: só vale se não subir. Conta também quantas tiveram alguma sugestão na posição 1.
+* Correct words the dictionary does not know (names, slang, acronyms, rare terms), v1.75: with
+* autocorrection on, how many would the keyboard swap on its own for another? It is the risk of a more
+* aggressive correction: it is only worth it if this does not go up. It also counts how many had some suggestion in position 1.
  *
- * Uso: java ... com.mrkeyboard.app.OovEval dicionario.dict texto1.txt [texto2.txt]   (-Dn=3000)
+* Usage: java ... com.mrkeyboard.app.OovEval dictionary.dict text1.txt [text2.txt]   (-Dn=3000)
  */
 public class OovEval {
     public static void main(String[] a) throws Exception {
@@ -47,6 +47,6 @@ public class OovEval {
             List<String> l = E2ETest.strs(new ArrayList<CharSequence>(s.getSuggestions(null, E2ETest.compose(w), false, null)));
             if (s.hasMinimalCorrection() && l.size() > 1) fire++;
         }
-        System.out.printf("palavras fora do dicionário %d  autocorreção trocaria %d = %.2f%%%n", words.size(), fire, 100.0 * fire / words.size());
+        System.out.printf("words outside the dictionary %d  autocorrection would swap %d = %.2f%%%n", words.size(), fire, 100.0 * fire / words.size());
     }
 }

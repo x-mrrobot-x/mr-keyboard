@@ -13,9 +13,9 @@ import java.util.*;
 import java.util.regex.*;
 
 /**
- * Compara os campos de GlobalKeyboardSettings depois de initPrefs com preferências vazias (padrões)
- * ou com valores antigos guardados. Uso: SettingsDefaultsTest <pasta do projeto> [chave=valor ...]
- * Valores "true"/"false" viram booleanos; o resto vira texto.
+* Compares the fields of GlobalKeyboardSettings after initPrefs with empty preferences (defaults)
+* or with old stored values. Usage: SettingsDefaultsTest <project folder> [key=value ...]
+* Values "true"/"false" become booleans; the rest becomes text.
  */
 public class SettingsDefaultsTest {
     static String read(File f) throws Exception { return new String(Files.readAllBytes(f.toPath()), "UTF-8"); }
@@ -31,7 +31,7 @@ public class SettingsDefaultsTest {
             while (v.find()) vals.put(v.group(1) + "/" + v.group(2), v.group(3));
         }
         Resources res = new Resources() {
-            String val(int id) { String n = names.get(id); String v = n == null ? null : vals.get(n); if (v == null) throw new IllegalStateException("recurso sem valor: 0x" + Integer.toHexString(id) + " " + n); return v; }
+            String val(int id) { String n = names.get(id); String v = n == null ? null : vals.get(n); if (v == null) throw new IllegalStateException("resource without a value: 0x" + Integer.toHexString(id) + " " + n); return v; }
             public String getString(int id) { return val(id); }
             public boolean getBoolean(int id) { return Boolean.parseBoolean(val(id)); }
             public int getInteger(int id) { return Integer.parseInt(val(id)); }

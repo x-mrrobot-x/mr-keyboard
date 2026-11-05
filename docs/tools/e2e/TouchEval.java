@@ -8,17 +8,17 @@ import java.util.*;
 import java.util.regex.*;
 
 /**
- * Digitação simulada com toques imprecisos (v1.66): cada letra vira um toque com dispersão normal
- * em volta do centro da tecla; a tecla tocada e os vizinhos saem como no ProximityKeyDetector do
- * app (vizinhos em ordem de distância do toque até o centro, dentro de 1,4 largura de tecla).
- * Mede, para palavras tiradas das frases de teste:
- *   - faixa: a palavra certa está entre as 3 posições (0 = digitada);
- *   - autocorreção: o que fica depois do espaço com a autocorreção ligada (como no LatinIME);
- *   - separando palavras que saíram com erro de toque e palavras digitadas certas.
- * Uso: TouchEval dict test.txt idioma(pt|en|es) [n] [sigma]
+* Simulated typing with imprecise touches (v1.66): each letter becomes a touch with normal dispersion
+* around the key center; the touched key and the neighbours come out as in the app's
+* ProximityKeyDetector (neighbours in order of distance from the touch to the center, within 1.4 key widths).
+* Measures, for words taken from the test sentences:
+*   - strip: the right word is among the 3 positions (0 = typed);
+*   - autocorrection: what is left after the space with autocorrection on (as in LatinIME);
+*   - splitting words that came out with a touch error from words typed correctly.
+* Usage: TouchEval dict test.txt lang(pt|en|es) [n] [sigma]
  */
 public class TouchEval {
-    static final double KW = 1.0, KH = 1.4;  // tecla: largura 1, altura 1,4
+    static final double KW = 1.0, KH = 1.4;  // key: width 1, height 1.4
     static String[] rows;
     static double[] cx = new double[65536], cy = new double[65536];
     static boolean[] has = new boolean[65536];
@@ -41,11 +41,11 @@ public class TouchEval {
 
     static Random rnd = new Random(166);
 
-    /** Toca a letra c: devolve {tecla tocada, vizinhos em ordem de distância}. */
+    /** Touches letter c: returns {touched key, neighbours in distance order}. */
     static int[] touch(char c, double sigma) {
         double x = cx[c] + rnd.nextGaussian() * sigma * KW;
         double y = cy[c] + rnd.nextGaussian() * sigma * KH;
-        // tecla tocada: a que contém o ponto (ou a mais próxima)
+        // touched key: the one that contains the point (or the nearest)
         char hit = 0;
         double best = 1e9;
         List<double[]> near = new ArrayList<double[]>();
@@ -59,7 +59,7 @@ public class TouchEval {
             if (d2 < th * th || inside) near.add(new double[] {d2, k});
         }
         if (hit == 0 || !insideAny(x, y)) {
-            // fora de todas: a mais próxima
+            // outside all of them: the nearest
             double b = 1e9;
             for (char k : keys) {
                 double dx = cx[k] - x, dy = cy[k] - y, d2 = dx * dx + dy * dy;
@@ -140,7 +140,7 @@ public class TouchEval {
                 typed.append((char) codes[0]);
             }
             String t = typed.toString();
-            int e = t.equals(keysTyped) ? 0 : 1;   // 1 = saiu errado no toque
+            int e = t.equals(keysTyped) ? 0 : 1;   // 1 = came out wrong on the touch
             s.setCorrectionMode(3);
             long t0 = System.nanoTime();
             List<String> l = E2ETest.strs(s.getSuggestions(null, wc, false, null));
@@ -151,22 +151,22 @@ public class TouchEval {
             String after = (!valid && s.hasMinimalCorrection() && l.size() > 1) ? l.get(1) : t;
             tot[e]++;
             if (inStrip) errStrip[e]++;
-            // certo: a palavra pretendida, ou a forma sem acento que a pessoa digitaria (esta/está)
+            // right: the intended word, or the unaccented form the person would type (esta/está)
             boolean good = after.equals(w) || after.equals(keysTyped);
             if (good) errAuto[e]++;
             else if (e == 1 && !after.equals(t)) wrongFix++;
-            // sem erro de toque: "estragada" se a autocorreção trocou por outra palavra
+            // no touch error: "spoiled" if autocorrection swapped it for another word
             if (e == 0 && !good) spoiled++;
-            if (e == 1 && inStrip && !good && wrongSamples.size() < 30) wrongSamples.add(t + "->" + after + " (" + w + ") " + strip + (valid ? " válida" : "") + (s.hasMinimalCorrection() ? "" : " semcorr"));
+            if (e == 1 && inStrip && !good && wrongSamples.size() < 30) wrongSamples.add(t + "->" + after + " (" + w + ") " + strip + (valid ? " valid" : "") + (s.hasMinimalCorrection() ? "" : " nocorr"));
             if (e == 0 && !good && spoiledSamples.size() < 12) spoiledSamples.add(t + "->" + after + " (" + w + ")");
             if (e == 1 && !inStrip && samples.size() < 20) samples.add(t + "->" + w + " " + l.subList(0, Math.min(3, l.size())));
         }
-        System.out.printf("%s σ=%.2f: %d palavras, %d com erro de toque (%.1f%%)%n", lang, sigma, tot[0] + tot[1], tot[1], 100.0 * tot[1] / (tot[0] + tot[1]));
-        System.out.printf("  com erro: certa na faixa %.1f%%, certa depois da autocorreção %.1f%%, trocada por outra palavra %.1f%%%n", 100.0 * errStrip[1] / tot[1], 100.0 * errAuto[1] / tot[1], 100.0 * wrongFix / tot[1]);
-        System.out.printf("  sem erro: na faixa %.1f%%, estragadas pela autocorreção %d (%.2f%%)%n", 100.0 * errStrip[0] / tot[0], spoiled, 100.0 * spoiled / tot[0]);
-        System.out.printf("  tempo médio por consulta %.2f ms%n", ms / (tot[0] + tot[1]));
-        System.out.println("  exemplos perdidos: " + samples);
-        System.out.println("  exemplos estragados: " + spoiledSamples);
-        System.out.println("  na faixa mas a autocorreção não pegou: " + wrongSamples);
+        System.out.printf("%s σ=%.2f: %d words, %d with a touch error (%.1f%%)%n", lang, sigma, tot[0] + tot[1], tot[1], 100.0 * tot[1] / (tot[0] + tot[1]));
+        System.out.printf("  with error: right in the strip %.1f%%, right after autocorrection %.1f%%, swapped for another word %.1f%%%n", 100.0 * errStrip[1] / tot[1], 100.0 * errAuto[1] / tot[1], 100.0 * wrongFix / tot[1]);
+        System.out.printf("  no error: in the strip %.1f%%, spoiled by autocorrection %d (%.2f%%)%n", 100.0 * errStrip[0] / tot[0], spoiled, 100.0 * spoiled / tot[0]);
+        System.out.printf("  mean time per query %.2f ms%n", ms / (tot[0] + tot[1]));
+        System.out.println("  missed examples: " + samples);
+        System.out.println("  spoiled examples: " + spoiledSamples);
+        System.out.println("  in the strip but autocorrection did not catch it: " + wrongSamples);
     }
 }

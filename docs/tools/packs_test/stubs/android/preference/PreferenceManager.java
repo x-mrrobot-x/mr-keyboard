@@ -1,6 +1,6 @@
 package android.preference;
 
-/** Stub de teste: preferências padrão = arquivo "default" do próprio Context. */
+/** Test stub: default preferences = the "default" file of the Context itself. */
 public class PreferenceManager {
     public static android.content.SharedPreferences getDefaultSharedPreferences(android.content.Context context) {
         return context.getSharedPreferences("default", 0);

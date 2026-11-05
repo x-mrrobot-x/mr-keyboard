@@ -8,11 +8,11 @@ import java.util.*;
 import java.util.regex.*;
 
 /**
- * Palavras recentes (v1.75): em sessões simuladas (gen_sessions.py), a próxima palavra está entre as 3
- * mostradas (a) logo depois do espaço, (b) depois de 1, 2 e 3 letras? Com e sem MrRecent (-Drecent=0 desliga:
- * nada é anotado). Separa as palavras que o dicionário conhece das que não conhece (nomes, gírias).
+* Recent words (v1.75): in simulated sessions (gen_sessions.py), is the next word among the 3
+* shown (a) right after the space, (b) after 1, 2 and 3 letters? With and without MrRecent (-Drecent=0 turns it off:
+* nothing is recorded). Splits the words the dictionary knows from those it does not (names, slang).
  *
- * Uso: java ... com.mrkeyboard.app.RecentEval dicionario.dict trigramas.bin sessoes.txt [-Drecent=0] [-Dmax=N]
+* Usage: java ... com.mrkeyboard.app.RecentEval dictionary.dict trigrams.bin sessions.txt [-Drecent=0] [-Dmax=N]
  */
 public class RecentEval {
     static final Pattern TOK = Pattern.compile("\\p{L}+(?:['’-]\\p{L}+)*");
@@ -38,7 +38,7 @@ public class RecentEval {
         }
         if (!cur.isEmpty()) sessions.add(cur);
         if (sessions.size() > maxSess) sessions = sessions.subList(0, maxSess);
-        // [0] conhecidas, [1] fora do dicionário; k = 0 (depois do espaço), 1, 2, 3 letras
+        // [0] known, [1] outside the dictionary; k = 0 (after the space), 1, 2, 3 letters
         int[][] hit = new int[2][4], tot = new int[2][4];
         long calls = 0;
         double ms = 0;
@@ -74,17 +74,17 @@ public class RecentEval {
                 MrRecent.breakPair();
             }
         }
-        String[] name = {"palavras do dicionário", "palavras fora do dicionário"};
-        System.out.printf("sessões %d  recentes=%s  tempo médio por consulta %.3f ms%n", sessions.size(), recent, ms / calls);
+        String[] name = {"dictionary words", "words outside the dictionary"};
+        System.out.printf("sessions %d  recent=%s  mean time per query %.3f ms%n", sessions.size(), recent, ms / calls);
         for (int g = 0; g < 2; g++) {
             System.out.printf("  %-28s", name[g]);
-            for (int k = 0; k <= 3; k++) System.out.printf("  %s: %5.2f%% (n=%d)", k == 0 ? "espaço" : k + " letra" + (k > 1 ? "s" : ""), 100.0 * hit[g][k] / Math.max(1, tot[g][k]), tot[g][k]);
+            for (int k = 0; k <= 3; k++) System.out.printf("  %s: %5.2f%% (n=%d)", k == 0 ? "space" : k + " letter" + (k > 1 ? "s" : ""), 100.0 * hit[g][k] / Math.max(1, tot[g][k]), tot[g][k]);
             System.out.println();
         }
         int[] th = new int[4], tt = new int[4];
         for (int k = 0; k < 4; k++) { th[k] = hit[0][k] + hit[1][k]; tt[k] = tot[0][k] + tot[1][k]; }
-        System.out.printf("  %-28s", "todas");
-        for (int k = 0; k <= 3; k++) System.out.printf("  %s: %5.2f%%", k == 0 ? "espaço" : k + " letra" + (k > 1 ? "s" : ""), 100.0 * th[k] / Math.max(1, tt[k]));
+        System.out.printf("  %-28s", "all");
+        for (int k = 0; k <= 3; k++) System.out.printf("  %s: %5.2f%%", k == 0 ? "space" : k + " letter" + (k > 1 ? "s" : ""), 100.0 * th[k] / Math.max(1, tt[k]));
         System.out.println();
     }
 

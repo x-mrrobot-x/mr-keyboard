@@ -6,14 +6,14 @@ import java.nio.file.*;
 import java.util.*;
 
 /**
- * Correção sobre erros sintéticos (gen_typos_all.py), v1.75: a palavra certa aparece nas posições
- * 1 e 2 da faixa (a 0 é a digitada)? Separa por tipo de erro e por a palavra errada ser (ou não)
- * uma palavra válida do dicionário. Mostra também a 1ª posição sozinha (o que a autocorreção usaria).
+* Correction over synthetic typos (gen_typos_all.py), v1.75: does the right word show up in positions
+* 1 and 2 of the strip (0 is the typed word)? Splits by typo type and by whether the wrong word is (or not)
+* a valid dictionary word. It also shows the 1st position alone (what autocorrection would use).
  *
- * Uso: java ... com.mrkeyboard.app.CorrEval dicionario.dict erros.tsv [regras.txt] [--noprox]
- *   --noprox  monta a palavra só com as letras (sem teclas vizinhas), como a recorreção fazia até a 1.74
- * -Drows=qwertyuiop,asdfghjklç,zxcvbnm  layout usado nas teclas vizinhas
- * -Dkind=del_mid  só um tipo de erro;  -Dmisses=1 -Dnmiss=60  lista os erros que não acertou
+* Usage: java ... com.mrkeyboard.app.CorrEval dictionary.dict typos.tsv [rules.txt] [--noprox]
+*   --noprox  builds the word with the letters only (no neighbouring keys), as the re-correction did up to 1.74
+* -Drows=qwertyuiop,asdfghjklç,zxcvbnm  layout used for the neighbouring keys
+* -Dkind=del_mid  only one typo type;  -Dmisses=1 -Dnmiss=60  lists the typos it got wrong
  */
 public class CorrEval {
     public static void main(String[] a) throws Exception {
@@ -34,14 +34,14 @@ public class CorrEval {
             String[] r = rowsProp.split(",");
             for (int i = 0; i < 3; i++) E2ETest.ROWS[i] = r[i];
         }
-        String only = System.getProperty("kind");     // -Dkind=del_mid: só esse tipo de erro
-        Map<String, int[]> by = new TreeMap<String, int[]>();   // tipo/válida -> {top1, top2, n}
+        String only = System.getProperty("kind");     // -Dkind=del_mid: only this typo type
+        Map<String, int[]> by = new TreeMap<String, int[]>();   // type/valid -> {top1, top2, n}
         int[] tot = new int[3];
         double ms = 0, worst = 0;
         List<String> misses = new ArrayList<String>();
         for (String line : Files.readAllLines(Paths.get(a[1]))) {
             String[] p = line.split("\t");
-            if (!s.isValidWord(p[1])) continue;          // a certa tem que existir no dicionário
+            if (!s.isValidWord(p[1])) continue;          // the right word has to exist in the dictionary
             if (only != null && !p[2].equals(only)) continue;
             boolean valid = s.isValidWord(p[0]);
             s.setCorrectionMode(1);
@@ -58,19 +58,19 @@ public class CorrEval {
             ms += d; worst = Math.max(worst, d);
             int at = l.indexOf(p[1]);
             boolean top1 = at == 1, top2 = at >= 1 && at <= 2;
-            String key = p[2] + (valid ? " (errada é palavra válida)" : "");
+            String key = p[2] + (valid ? " (wrong is a valid word)" : "");
             int[] k = by.computeIfAbsent(key, x -> new int[3]);
             k[2]++; tot[2]++;
             if (top1) { k[0]++; tot[0]++; }
             if (top2) { k[1]++; tot[1]++; }
             else if (!valid && misses.size() < Integer.getInteger("nmiss", 40)) misses.add(p[0] + "->" + p[1] + " " + l.subList(0, Math.min(4, l.size())));
         }
-        System.out.printf("TOTAL  n=%d  1ª posição %.1f%%  nas 2 posições %.1f%%  tempo médio %.2f ms, pior %.1f ms%n",
+        System.out.printf("TOTAL  n=%d  1st position %.1f%%  in the 2 positions %.1f%%  mean time %.2f ms, worst %.1f ms%n",
                 tot[2], 100.0 * tot[0] / tot[2], 100.0 * tot[1] / tot[2], ms / tot[2], worst);
         for (Map.Entry<String, int[]> e : by.entrySet()) {
             int[] k = e.getValue();
-            System.out.printf("  %-40s n=%-5d 1ª %.1f%%  2 posições %.1f%%%n", e.getKey(), k[2], 100.0 * k[0] / k[2], 100.0 * k[1] / k[2]);
+            System.out.printf("  %-40s n=%-5d 1st %.1f%%  2 positions %.1f%%%n", e.getKey(), k[2], 100.0 * k[0] / k[2], 100.0 * k[1] / k[2]);
         }
-        if (System.getProperty("misses") != null) System.out.println("erros: " + misses);
+        if (System.getProperty("misses") != null) System.out.println("misses: " + misses);
     }
 }

@@ -11,17 +11,17 @@ import java.nio.file.*;
 import java.security.cert.*;
 import java.util.*;
 
-/** Teste no PC do fluxo de pacotes (MrPacks) com as classes do APK 1.63 e a lib nativa do PC. */
+/** PC test of the pack flow (MrPacks) with the classes of the 1.63 APK and the PC native lib. */
 public class PacksTest {
     static int fails = 0, oks = 0;
     static final String FX = "/tmp/pt/fx/";
 
     static void check(String label, boolean ok, Object detail) {
         if (ok) oks++; else fails++;
-        System.out.printf("%s %-58s %s%n", ok ? "OK   " : "FALHA", label, detail == null ? "" : detail);
+        System.out.printf("%s %-58s %s%n", ok ? "OK   " : "FAIL ", label, detail == null ? "" : detail);
     }
 
-    // ---------------------------------------------------------------- Android de mentira
+    // ---------------------------------------------------------------- fake Android
     static class Prefs implements SharedPreferences {
         final HashMap<String, Object> m = new HashMap<String, Object>();
         public Map<String, ?> getAll() { return new HashMap<String, Object>(m); }
@@ -51,7 +51,7 @@ public class PacksTest {
         Res() { conf.locale = new Locale("pt_BR"); }
         public Configuration getConfiguration() { return conf; }
         public int getIdentifier(String name, String type, String pkg) { return name.equals("mr_dicts_offer") ? 1 : name.equals("mr_tr_notice") ? 2 : 0; }
-        public String getString(int id) { return id == 1 ? "Baixar dicionário" : id == 2 ? "aviso" : null; }
+        public String getString(int id) { return id == 1 ? "Baixar dicionário" : id == 2 ? "warning" : null; }
         public String getString(int id, Object... a) { return getString(id); }
     }
 
@@ -80,7 +80,7 @@ public class PacksTest {
         public void startActivity(Intent i) { started = i; }
     }
 
-    // ---------------------------------------------------------------- rede de mentira
+    // ---------------------------------------------------------------- fake network
     static String catalogFile = FX + "ok/catalog.json";
     static String zipDir = FX + "ok/";
     static int corruptAt = -1, truncateAt = -1, httpCode = 200, cancelAfter = -1;
@@ -95,7 +95,7 @@ public class PacksTest {
                 if (url.equals(MrPacks.sCatalogUrl)) b = Files.readAllBytes(Paths.get(catalogFile));
                 else {
                     String base = "https://github.com/x-mrrobot-x/mr-keyboard/releases/download/v1.73.0/";
-                    if (!url.startsWith(base)) throw new IOException("url inesperada " + url);
+                    if (!url.startsWith(base)) throw new IOException("unexpected url " + url);
                     b = Files.readAllBytes(Paths.get(zipDir + url.substring(base.length())));
                     if (corruptAt >= 0) b[corruptAt] ^= 0x55;
                     if (truncateAt >= 0) b = Arrays.copyOf(b, truncateAt);
@@ -126,7 +126,7 @@ public class PacksTest {
     interface Job { void run() throws Exception; }
     static String errOf(Job j) {
         try { j.run(); return "ok"; } catch (MrPacks.PackException e) { return e.key + (e.args.length > 0 ? " " + Arrays.toString(e.args) : ""); }
-        catch (Exception e) { return "exceção " + e; }
+        catch (Exception e) { return "exception " + e; }
     }
 
     static List<String> list(File dir) {
@@ -144,18 +144,18 @@ public class PacksTest {
         MrPacks.sTestCerts = new X509Certificate[] {cert};
         net();
 
-        // ---- textos e nomes
+        // ---- texts and names
         check("splitLocale pt_BR", Arrays.equals(MrPacks.splitLocale("pt_BR"), new String[] {"pt", "BR"}), null);
         check("splitLocale pt-br / pt / en_US_POSIX", Arrays.equals(MrPacks.splitLocale("pt-br"), new String[] {"pt", "BR"})
                 && Arrays.equals(MrPacks.splitLocale("pt"), new String[] {"pt", ""})
                 && Arrays.equals(MrPacks.splitLocale("en_US_POSIX"), new String[] {"en", "US"}), null);
-        check("validId aceita pt-BR, en, fil; recusa PT-br, pt_BR, ../x",
+        check("validId accepts pt-BR, en, fil; rejects PT-br, pt_BR, ../x",
                 MrPacks.validId("pt-BR") && MrPacks.validId("en") && MrPacks.validId("fil") && !MrPacks.validId("PT-br")
                 && !MrPacks.validId("pt_BR") && !MrPacks.validId("../x") && !MrPacks.validId("pt-BRA"), null);
-        check("o catálogo é lido da release mais recente (a mesma do APK)",
+        check("the catalog is read from the latest release (the same as the APK)",
                 MrPacks.CATALOG_URL.equals("https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalog.json"),
                 MrPacks.CATALOG_URL);
-        check("safeName recusa ../x, a/b, .x, vazio", MrPacks.safeName("pt-BR-2.zip") && !MrPacks.safeName("../x")
+        check("safeName rejects ../x, a/b, .x, empty", MrPacks.safeName("pt-BR-2.zip") && !MrPacks.safeName("../x")
                 && !MrPacks.safeName("a/b") && !MrPacks.safeName(".x") && !MrPacks.safeName(""), null);
         boolean bad = false;
         for (String j : new String[] {"{", "[1,]", "{\"a\":}", "\"\\x\"", "nul", "{}x"}) {
@@ -164,138 +164,138 @@ public class PacksTest {
         StringBuilder deep = new StringBuilder();
         for (int i = 0; i < 100; i++) deep.append('[');
         try { MrJson.parse(deep.toString()); bad = true; } catch (IllegalArgumentException e) { /* certo */ }
-        check("MrJson recusa JSON inválido e fundo demais", !bad, null);
+        check("MrJson rejects invalid JSON and nesting that is too deep", !bad, null);
 
-        // ---- sem pacote
+        // ---- no pack
         Suggest s0 = new Suggest(ctx, new int[] {0});
-        check("sem pacote: Suggest sem dicionário principal", !s0.hasMainDictionary(), null);
-        check("sem pacote: regras vazias", MrRules.get().corrections.isEmpty() && MrRules.get().starters.length == 0, null);
+        check("no pack: Suggest without a main dictionary", !s0.hasMainDictionary(), null);
+        check("no pack: empty rules", MrRules.get().corrections.isEmpty() && MrRules.get().starters.length == 0, null);
         InputConnection ic = new InputConnection() {
             public CharSequence getTextBeforeCursor(int n, int f) { return ""; }
         };
         List<CharSequence> offer = MrPredict.list(ctx, s0, ic);
-        check("sem pacote e sem catálogo: faixa mostra Baixar dicionário", offer != null && offer.size() == 1
+        check("no pack and no catalog: strip shows Baixar dicionário", offer != null && offer.size() == 1
                 && offer.get(0).toString().equals("Baixar dicionário"), offer);
-        check("tocar no item abre a tela e não digita", offer != null && MrPacks.onPick(ctx, offer.get(0)) && ctx.started != null, null);
-        check("tocar em palavra igual (outro objeto) digita normal", !MrPacks.onPick(ctx, new String("Baixar dicionário")), null);
+        check("tapping the item opens the screen and does not type", offer != null && MrPacks.onPick(ctx, offer.get(0)) && ctx.started != null, null);
+        check("tapping an equal word (another object) types normally", !MrPacks.onPick(ctx, new String("Baixar dicionário")), null);
 
-        // ---- catálogo
+        // ---- catalog
         String r = errOf(() -> MrPacks.fetchCatalog(ctx));
-        check("catálogo assinado com a chave do app", r.equals("ok"), r);
+        check("catalog signed with the app's key", r.equals("ok"), r);
         MrPacks.Catalog cat = MrPacks.cachedCatalog(ctx);
-        check("catálogo guardado: série 1, pt-BR v2", cat != null && cat.serial == 1 && cat.packs.size() == 1
+        check("stored catalog: serial 1, pt-BR v2", cat != null && cat.serial == 1 && cat.packs.size() == 1
                 && cat.packs.get(0).version == 2, cat == null ? null : cat.packs.get(0).id + " v" + cat.packs.get(0).version);
         catalogFile = FX + "old/catalog.json";
         r = errOf(() -> MrPacks.fetchCatalog(ctx));
-        check("catálogo com série menor é recusado", r.equals("mr_dicts_err_old_catalog"), r);
+        check("catalog with a lower serial is rejected", r.equals("mr_dicts_err_old_catalog"), r);
         catalogFile = FX + "ok/catalog_tamper.json";
         r = errOf(() -> MrPacks.fetchCatalog(ctx));
-        check("catálogo alterado depois de assinado é recusado", r.equals("mr_dicts_err_signature"), r);
+        check("catalog altered after signing is rejected", r.equals("mr_dicts_err_signature"), r);
         catalogFile = FX + "ok/catalog_ec.json";
         r = errOf(() -> MrPacks.fetchCatalog(ctx));
-        check("catálogo assinado com outra chave é recusado", r.equals("mr_dicts_err_other_key"), r);
+        check("catalog signed with another key is rejected", r.equals("mr_dicts_err_other_key"), r);
         httpCode = 404;
         r = errOf(() -> MrPacks.fetchCatalog(ctx));
-        check("HTTP 404 vira mensagem com o código", r.equals("mr_dicts_err_http [404]"), r);
+        check("HTTP 404 becomes a message with the code", r.equals("mr_dicts_err_http [404]"), r);
         httpCode = 200;
-        check("série guardada continua 1", MrPacks.prefs(ctx).getLong(MrPacks.KEY_SERIAL, -1) == 1, null);
+        check("stored serial stays 1", MrPacks.prefs(ctx).getLong(MrPacks.KEY_SERIAL, -1) == 1, null);
         catalogFile = FX + "ok/catalog.json";
 
-        // ---- idiomas do teclado (cartões e selected_languages)
-        check("cartões sem catálogo: os 3 padrão (idioma do app primeiro)",
+        // ---- keyboard languages (cards and selected_languages)
+        check("cards without a catalog: the 3 defaults (app language first)",
                 MrPacks.cardIds(null, new ArrayList<String>(), "pt").toString().equals("[pt-BR, en-US, es]")
                 && MrPacks.cardIds(null, new ArrayList<String>(), "en").toString().equals("[en-US, pt-BR, es]")
                 && MrPacks.cardIds(null, new ArrayList<String>(), "es").toString().equals("[es, pt-BR, en-US]")
                 && MrPacks.cardIds(null, new ArrayList<String>(), "de").toString().equals("[pt-BR, en-US, es]"),
                 MrPacks.cardIds(null, new ArrayList<String>(), "en"));
-        check("cartões: catálogo e instalados entram sem repetir",
+        check("cards: catalog and installed ones come in without repeating",
                 MrPacks.cardIds(Arrays.asList("fr-FR", "pt-BR", "es"), Arrays.asList("de-DE", "es"), "fr").toString()
                         .equals("[fr-FR, pt-BR, en-US, es, de-DE]"),
                 MrPacks.cardIds(Arrays.asList("fr-FR", "pt-BR", "es"), Arrays.asList("de-DE", "es"), "fr"));
         List<String> order3 = MrPacks.cardIds(null, new ArrayList<String>(), "pt");
-        check("selected_languages: só os instalados, na ordem dos cartões",
+        check("selected_languages: only the installed ones, in card order",
                 "pt_BR,es,".equals(MrPacks.languageKeys(order3, Arrays.asList("es", "pt-BR")))
                 && "en_US,".equals(MrPacks.languageKeys(order3, Arrays.asList("en-US")))
                 && MrPacks.languageKeys(order3, new ArrayList<String>()) == null,
                 MrPacks.languageKeys(order3, Arrays.asList("es", "pt-BR")));
-        check("sem pacote: não existe selected_languages (teclado usa o idioma do aparelho)",
+        check("no pack: selected_languages does not exist (keyboard uses the device language)",
                 ctx.getSharedPreferences("default", 0).getString("selected_languages", "-").equals("-"), null);
 
-        // ---- altura da barra de ferramentas e sugestões
-        check("barra: escala vazia, inválida ou fora da faixa fica entre 60% e 150% (padrão 100%)",
+        // ---- toolbar and suggestions height
+        check("bar: empty, invalid or out-of-range scale ends up between 60% and 150% (default 100%)",
                 MrBar.scale(null, 0.6f, 1.5f) == 1f && MrBar.scale("abc", 0.6f, 1.5f) == 1f && MrBar.scale("1.0", 0.6f, 1.5f) == 1f && MrBar.scale("0.3", 0.6f, 1.5f) == 0.6f
                 && MrBar.scale("2", 0.6f, 1.5f) == 1.5f && MrBar.scale("0.8", 0.6f, 1.5f) == 0.8f && MrBar.scale("NaN", 0.6f, 1.5f) == 1f,
                 MrBar.scale("0.3", 0.6f, 1.5f) + " " + MrBar.scale("2", 0.6f, 1.5f));
-        check("barra: altura = 48 dp x densidade x escala (arredondada)",
+        check("bar: height = 48 dp x density x scale (rounded)",
                 MrBar.heightPx(96f, 1f) == 96 && MrBar.heightPx(120f, 0.6f) == 72 && MrBar.heightPx(144f, 1.5f) == 216,
                 MrBar.heightPx(96f, 1f) + " " + MrBar.heightPx(120f, 0.6f));
 
-        // ---- instalação
+        // ---- installation
         final MrPacks.Catalog c1 = MrPacks.cachedCatalog(ctx);
         final MrPacks.Pack p1 = c1.packs.get(0);
         cancelAfter = 3;
         r = errOf(() -> MrPacks.install(ctx, c1, p1));
-        check("cancelar no meio do download", r.equals("mr_dicts_err_cancel") && MrPacks.installedVersion(ctx, "pt-BR") == 0, r);
+        check("cancel in the middle of the download", r.equals("mr_dicts_err_cancel") && MrPacks.installedVersion(ctx, "pt-BR") == 0, r);
         cancelAfter = -1;
         long t0 = System.nanoTime();
         r = errOf(() -> MrPacks.install(ctx, c1, p1));
         File d2 = MrPacks.packDir(ctx, "pt-BR", 2);
-        check("instala", r.equals("ok"), r + String.format(" (%.0f ms)", (System.nanoTime() - t0) / 1e6));
-        check("arquivos em files/dicts/pt-BR/2", list(d2).equals(Arrays.asList("NOTICE.txt", "main.dict", "pack.json", "rules.txt", "trigrams.bin")), list(d2));
-        check("nada sobra em cache/ nem .tmp", list(ctx.getCacheDir()).isEmpty() && list(d2.getParentFile()).equals(Arrays.asList("2")), list(ctx.getCacheDir()));
+        check("installs", r.equals("ok"), r + String.format(" (%.0f ms)", (System.nanoTime() - t0) / 1e6));
+        check("files in files/dicts/pt-BR/2", list(d2).equals(Arrays.asList("NOTICE.txt", "main.dict", "pack.json", "rules.txt", "trigrams.bin")), list(d2));
+        check("nothing is left in cache/ or .tmp", list(ctx.getCacheDir()).isEmpty() && list(d2.getParentFile()).equals(Arrays.asList("2")), list(ctx.getCacheDir()));
         MrPacks.syncLanguages(ctx, MrPacks.cardIds(null, MrPacks.installedIds(ctx), "pt"));
-        check("pacote instalado vira idioma do teclado (pt_BR,)",
+        check("installed pack becomes a keyboard language (pt_BR,)",
                 "pt_BR,".equals(ctx.getSharedPreferences("default", 0).getString("selected_languages", "-")),
                 ctx.getSharedPreferences("default", 0).getString("selected_languages", "-"));
         SharedPreferences dp = ctx.getSharedPreferences("default", 0);
         dp.edit().putString("pref_keyboard_layout", "9").putBoolean("show_suggestions", true).putString("pref_key_spacing", "10")
                 .putString("pref_render_mode", "2").putString("emote_recent", "a,b").putString("selected_languages", "xx,").commit();
         MrReset.apply(ctx);
-        check("restaurar padrões: as chaves de configuração somem (tema, sugestões, espaçamento, chaves antigas)",
+        check("restore defaults: the settings keys go away (theme, suggestions, spacing, old keys)",
                 dp.getString("pref_keyboard_layout", "-").equals("-") && !dp.getBoolean("show_suggestions", false)
                 && dp.getString("pref_key_spacing", "-").equals("-") && dp.getString("pref_render_mode", "-").equals("-"), null);
-        check("restaurar padrões: não apaga o que não é configuração e acerta os idiomas (emotes, pt_BR,, pacote)",
+        check("restore defaults: does not delete what is not a setting and fixes the languages (emotes, pt_BR,, pack)",
                 "a,b".equals(dp.getString("emote_recent", "-")) && "pt_BR,".equals(dp.getString("selected_languages", "-"))
                 && MrPacks.installedVersion(ctx, "pt-BR") == 2, dp.getString("selected_languages", "-"));
-        check("aviso ao teclado (mr_dicts_updated_at)", ctx.getSharedPreferences("default", 0).getLong("mr_dicts_updated_at", 0) > 0, null);
+        check("notice to the keyboard (mr_dicts_updated_at)", ctx.getSharedPreferences("default", 0).getLong("mr_dicts_updated_at", 0) > 0, null);
 
-        // ---- uso pelo teclado: o mesmo caminho do aparelho (Suggest(Context,int[]) -> MrPacks.mainDictionary)
+        // ---- use by the keyboard: the same path as the device (Suggest(Context,int[]) -> MrPacks.mainDictionary)
         Suggest s = new Suggest(ctx, new int[] {0});
-        check("Suggest pega o dicionário do pacote", s.hasMainDictionary() && s.mrMainDict().getSize() == 3708011, s.mrMainDict().getSize());
-        check("dicionário mapeado do arquivo (MappedByteBuffer)", s.mrMainDict().mrBuffer() instanceof MappedByteBuffer, s.mrMainDict().mrBuffer().getClass().getSimpleName());
-        check("regras do pacote ativas (217 correções, 3 começos)", MrRules.get().corrections.size() == 217 && MrRules.get().starters.length == 3, MrRules.get().corrections.size());
+        check("Suggest takes the pack's dictionary", s.hasMainDictionary() && s.mrMainDict().getSize() == 3708011, s.mrMainDict().getSize());
+        check("dictionary mapped from the file (MappedByteBuffer)", s.mrMainDict().mrBuffer() instanceof MappedByteBuffer, s.mrMainDict().mrBuffer().getClass().getSimpleName());
+        check("pack rules active (217 corrections, 3 starters)", MrRules.get().corrections.size() == 217 && MrRules.get().starters.length == 3, MrRules.get().corrections.size());
         for (int i = 0; i < 100 && !MrTrigram.ready(); i++) Thread.sleep(50);
-        check("duas palavras do pacote carregadas", MrTrigram.ready(), null);
+        check("the pack's two words loaded", MrTrigram.ready(), null);
         E2ETest.suggest = s;
         s.setCorrectionMode(1);
         String[][] cases = {{"vc", "você"}, {"omem", "homem"}, {"obrogado", "obrigado"}, {"enchergar", "enxergar"}, {"concerteza", "com certeza"}};
         for (String[] c : cases) {
             List<String> l = E2ETest.strs(E2ETest.sugg(c[0], null));
             int at = l.indexOf(c[1]);
-            check("sugestão " + c[0] + " -> " + c[1], at >= 0 && at <= 2, l.subList(0, Math.min(4, l.size())));
+            check("suggestion " + c[0] + " -> " + c[1], at >= 0 && at <= 2, l.subList(0, Math.min(4, l.size())));
         }
         List<CharSequence> start = MrPredict.list(ctx, s, ic);
-        check("começo de frase: Você, Eu, Não (Eu no centro)", start != null && start.toString().equals("[Você, Eu, Não]"), start);
+        check("sentence start: Você, Eu, Não (Eu in the center)", start != null && start.toString().equals("[Você, Eu, Não]"), start);
         List<CharSequence> tri = MrPredict.forWords(s, "muito", "obrigado");
-        check("previsão com duas palavras", tri != null && !tri.isEmpty(), tri);
-        check("com pacote: faixa não oferece download", !"Baixar dicionário".equals(String.valueOf(MrPredict.list(ctx, s, ic))), null);
-        check("PluginManager.getDictionary acha o pacote (tela de idiomas)", PluginManager.getDictionary(ctx, "pt") != null, null);
-        check("idioma sem pacote (en) não acha", PluginManager.getDictionary(ctx, "en") == null, null);
+        check("prediction with two words", tri != null && !tri.isEmpty(), tri);
+        check("with a pack: strip does not offer download", !"Baixar dicionário".equals(String.valueOf(MrPredict.list(ctx, s, ic))), null);
+        check("PluginManager.getDictionary finds the pack (languages screen)", PluginManager.getDictionary(ctx, "pt") != null, null);
+        check("language without a pack (en) does not find it", PluginManager.getDictionary(ctx, "en") == null, null);
 
-        // ---- atualizações com problema: a versão 2 continua
+        // ---- updates with a problem: version 2 stays
         catalogFile = FX + "v3/catalog.json"; zipDir = FX + "v3/";
         r = errOf(() -> MrPacks.fetchCatalog(ctx));
         final MrPacks.Catalog c3 = MrPacks.cachedCatalog(ctx);
-        check("atualizações: catálogo v3 com a v2 instalada = 1 (sem catálogo = 0)",
+        check("updates: catalog v3 with v2 installed = 1 (no catalog = 0)",
                 MrPacks.updatesAvailable(ctx, c3) == 1 && MrPacks.updatesAvailable(ctx, null) == 0, MrPacks.updatesAvailable(ctx, c3));
         corruptAt = 2000000;
         r = errOf(() -> MrPacks.install(ctx, c3, c3.packs.get(0)));
-        check("zip com um byte trocado é recusado (sha256)", r.equals("mr_dicts_err_corrupt [sha256]"), r);
+        check("zip with one byte changed is rejected (sha256)", r.equals("mr_dicts_err_corrupt [sha256]"), r);
         corruptAt = -1; truncateAt = 1000000;
         r = errOf(() -> MrPacks.install(ctx, c3, c3.packs.get(0)));
-        check("zip cortado é recusado", r.equals("mr_dicts_err_corrupt [size]"), r);
+        check("truncated zip is rejected", r.equals("mr_dicts_err_corrupt [size]"), r);
         truncateAt = -1;
-        check("depois das falhas: v2 instalada e intacta", MrPacks.installedVersion(ctx, "pt-BR") == 2
+        check("after the failures: v2 installed and intact", MrPacks.installedVersion(ctx, "pt-BR") == 2
                 && list(d2).size() == 5 && list(d2.getParentFile()).equals(Arrays.asList("2")) && list(ctx.getCacheDir()).isEmpty(),
                 list(d2.getParentFile()));
         for (String fx : new String[] {"extra", "slip"}) {
@@ -304,48 +304,48 @@ public class PacksTest {
             r = errOf(() -> MrPacks.fetchCatalog(ctx));
             final MrPacks.Catalog cx = MrPacks.cachedCatalog(ctx);
             r = errOf(() -> MrPacks.install(ctx, cx, cx.packs.get(0)));
-            check("zip assinado com arquivo a mais (" + fx + ") é recusado", r.startsWith("mr_dicts_err_corrupt"), r);
+            check("signed zip with an extra file (" + fx + ") is rejected", r.startsWith("mr_dicts_err_corrupt"), r);
         }
-        check("nenhum arquivo fora da pasta do pacote", !new File(ctx.getFilesDir(), "evil.txt").exists()
+        check("no file outside the pack folder", !new File(ctx.getFilesDir(), "evil.txt").exists()
                 && !new File(new File(ctx.getFilesDir(), "dicts"), "evil.txt").exists()
                 && !new File(new File(new File(ctx.getFilesDir(), "dicts"), "pt-BR"), "evil.txt").exists(), null);
         catalogFile = FX + "badfile/catalog.json"; zipDir = FX + "badfile/";
         errOf(() -> MrPacks.fetchCatalog(ctx));
         final MrPacks.Catalog cb = MrPacks.cachedCatalog(ctx);
         r = errOf(() -> MrPacks.install(ctx, cb, cb.packs.get(0)));
-        check("arquivo dentro do zip com sha256 errado é recusado", r.equals("mr_dicts_err_corrupt [rules.txt]"), r);
+        check("file inside the zip with a wrong sha256 is rejected", r.equals("mr_dicts_err_corrupt [rules.txt]"), r);
         catalogFile = FX + "minapp/catalog.json"; zipDir = FX + "minapp/";
         errOf(() -> MrPacks.fetchCatalog(ctx));
         final MrPacks.Catalog cm = MrPacks.cachedCatalog(ctx);
         r = errOf(() -> MrPacks.install(ctx, cm, cm.packs.get(0)));
-        check("pacote para app mais novo não instala", r.equals("mr_dicts_err_app_old") && MrPacks.appTooOld(ctx, cm.packs.get(0)), r);
-        check("atualizações: pacote que pede app mais novo não conta", MrPacks.updatesAvailable(ctx, cm) == 0, MrPacks.updatesAvailable(ctx, cm));
-        check("depois de tudo: v2 instalada e intacta", MrPacks.installedVersion(ctx, "pt-BR") == 2
+        check("pack for a newer app does not install", r.equals("mr_dicts_err_app_old") && MrPacks.appTooOld(ctx, cm.packs.get(0)), r);
+        check("updates: pack that requires a newer app does not count", MrPacks.updatesAvailable(ctx, cm) == 0, MrPacks.updatesAvailable(ctx, cm));
+        check("after everything: v2 installed and intact", MrPacks.installedVersion(ctx, "pt-BR") == 2
                 && list(d2).size() == 5 && list(d2.getParentFile()).equals(Arrays.asList("2")), list(d2.getParentFile()));
 
-        // ---- atualização boa troca a pasta
+        // ---- a good update swaps the folder
         catalogFile = FX + "v7/catalog.json"; zipDir = FX + "v7/";
         errOf(() -> MrPacks.fetchCatalog(ctx));
         final MrPacks.Catalog c7 = MrPacks.cachedCatalog(ctx);
         r = errOf(() -> MrPacks.install(ctx, c7, c7.packs.get(0)));
-        check("atualiza para a v7 e apaga a v2", r.equals("ok") && MrPacks.installedVersion(ctx, "pt-BR") == 7
+        check("updates to v7 and deletes v2", r.equals("ok") && MrPacks.installedVersion(ctx, "pt-BR") == 7
                 && list(d2.getParentFile()).equals(Arrays.asList("7")), list(d2.getParentFile()));
         Suggest s7 = new Suggest(ctx, new int[] {0});
-        check("teclado usa a v7", s7.hasMainDictionary() && MrRules.get().corrections.size() == 217, null);
-        check("atualizações: com a v7 instalada não há mais nada a atualizar", MrPacks.updatesAvailable(ctx, c7) == 0, MrPacks.updatesAvailable(ctx, c7));
+        check("keyboard uses v7", s7.hasMainDictionary() && MrRules.get().corrections.size() == 217, null);
+        check("updates: with v7 installed there is nothing left to update", MrPacks.updatesAvailable(ctx, c7) == 0, MrPacks.updatesAvailable(ctx, c7));
 
-        // ---- remover
+        // ---- remove
         MrPacks.remove(ctx, "pt-BR");
         Suggest s8 = new Suggest(ctx, new int[] {0});
-        check("remover: sem dicionário, sem regras, sem pasta", !s8.hasMainDictionary() && MrRules.get().corrections.isEmpty()
+        check("remove: no dictionary, no rules, no folder", !s8.hasMainDictionary() && MrRules.get().corrections.isEmpty()
                 && !new File(new File(ctx.getFilesDir(), "dicts"), "pt-BR").exists() && MrPacks.installedIds(ctx).isEmpty(), null);
         MrPacks.syncLanguages(ctx, MrPacks.cardIds(null, MrPacks.installedIds(ctx), "pt"));
-        check("remover: o idioma sai do teclado (selected_languages some)",
+        check("remove: the language leaves the keyboard (selected_languages goes away)",
                 ctx.getSharedPreferences("default", 0).getString("selected_languages", "-").equals("-"), null);
         List<CharSequence> again = MrPredict.list(ctx, s8, ic);
-        check("removido: faixa volta a oferecer o download", again != null && again.size() == 1, again);
+        check("removed: strip offers the download again", again != null && again.size() == 1, again);
 
-        System.out.println(fails == 0 ? "TUDO OK (" + oks + " verificações)" : fails + " FALHA(S) de " + (oks + fails));
+        System.out.println(fails == 0 ? "ALL OK (" + oks + " checks)" : fails + " FAILURE(S) out of " + (oks + fails) + " checks");
         MrPacks.deleteTree(tmp);
         System.exit(fails == 0 ? 0 : 1);
     }

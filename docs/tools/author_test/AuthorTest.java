@@ -8,7 +8,7 @@ import android.content.pm.PackageManager;
 import java.io.File;
 public class AuthorTest {
     static int ok, fail;
-    static void check(String w, boolean c) { if (c) { ok++; System.out.println("OK    " + w); } else { fail++; System.out.println("FALHA " + w); } }
+    static void check(String w, boolean c) { if (c) { ok++; System.out.println("OK    " + w); } else { fail++; System.out.println("FAIL  " + w); } }
     static class Ctx extends Context {
         boolean throwIt, throwOther; int starts;
         final Resources res = new Resources();
@@ -20,30 +20,30 @@ public class AuthorTest {
         public SharedPreferences getSharedPreferences(String n, int m) { return null; }
         public File getFilesDir() { return null; }
         public File getCacheDir() { return null; }
-        public void startActivity(Intent i) { starts++; if (throwOther) throw new IllegalStateException("outro erro"); if (throwIt) throw new android.content.ActivityNotFoundException("No Activity found to handle Intent"); }
+        public void startActivity(Intent i) { starts++; if (throwOther) throw new IllegalStateException("other error"); if (throwIt) throw new android.content.ActivityNotFoundException("No Activity found to handle Intent"); }
     }
     public static void main(String[] a) {
         Ctx c = new Ctx();
-        check("com navegador: abre e devolve true, sem aviso", MrAuthor.open(c) && c.starts == 1 && android.widget.Toast.shown == 0);
+        check("with a browser: opens and returns true, no warning", MrAuthor.open(c) && c.starts == 1 && android.widget.Toast.shown == 0);
         c.throwIt = true;
-        check("sem navegador: não propaga o erro e devolve false", !MrAuthor.open(c));
+        check("without a browser: does not propagate the error and returns false", !MrAuthor.open(c));
         c.throwOther = true;
-        boolean passou = false;
-        try { MrAuthor.open(c); } catch (IllegalStateException e) { passou = true; }
-        check("outro erro (não é falta de app) não é engolido", passou);
+        boolean passed = false;
+        try { MrAuthor.open(c); } catch (IllegalStateException e) { passed = true; }
+        check("other error (not a missing app) is not swallowed", passed);
         c.throwOther = false;
-        check("sem navegador: mostra o aviso do idioma", "No hay ninguna app para abrir el enlace".equals(android.widget.Toast.last));
+        check("without a browser: shows the warning in the language", "No hay ninguna app para abrir el enlace".equals(android.widget.Toast.last));
         android.content.res.Resources.hasText = false;
         android.widget.Toast.last = null;
-        check("sem texto no idioma: mostra o link em vez de falhar", !MrAuthor.open(c) && MrAuthor.URL.equals(android.widget.Toast.last));
-        check("o clique do cartão devolve true (consome o toque)", new MrAuthor(c).onPreferenceClick(null));
-        check("o link é o perfil no GitHub", "https://github.com/x-mrrobot-x".equals(MrAuthor.URL));
+        check("without text in the language: shows the link instead of failing", !MrAuthor.open(c) && MrAuthor.URL.equals(android.widget.Toast.last));
+        check("the card click returns true (consumes the touch)", new MrAuthor(c).onPreferenceClick(null));
+        check("the link is the GitHub profile", "https://github.com/x-mrrobot-x".equals(MrAuthor.URL));
         linkTests();
-        System.out.println(fail == 0 ? "TUDO OK (" + ok + " verificações)" : fail + " FALHAS");
+        System.out.println(fail == 0 ? "ALL OK (" + ok + " checks)" : fail + " FAILURE(S)");
         System.exit(fail == 0 ? 0 : 1);
     }
 
-    // ---- links da tela principal (MrLink.protect)
+    // ---- links on the main screen (MrLink.protect)
     static class Fake implements android.text.Spannable {
         final String text;
         final java.util.ArrayList<Object[]> spans = new java.util.ArrayList<Object[]>();   // {obj, start, end, flags}
@@ -73,21 +73,21 @@ public class AuthorTest {
         text.setSpan(u, 7, 24, 33);
         android.widget.TextView tv = new android.widget.TextView(c) { public CharSequence getText() { return text; } };
         MrLink.protect(tv);
-        check("protect: o URLSpan padrão sai do texto", text.getSpans(0, 10, android.text.style.URLSpan.class).length == 0);
+        check("protect: the default URLSpan leaves the text", text.getSpans(0, 10, android.text.style.URLSpan.class).length == 0);
         android.text.style.ClickableSpan[] cs = text.getSpans(0, 10, android.text.style.ClickableSpan.class);
-        check("protect: entra um span seguro no mesmo trecho", cs.length == 1 && text.getSpanStart(cs[0]) == 7 && text.getSpanEnd(cs[0]) == 24 && text.getSpanFlags(cs[0]) == 33);
+        check("protect: a safe span takes its place in the same range", cs.length == 1 && text.getSpanStart(cs[0]) == 7 && text.getSpanEnd(cs[0]) == 24 && text.getSpanFlags(cs[0]) == 33);
         android.view.View w = new android.view.View() { public android.content.Context getContext() { return c; } };
         android.widget.Toast.shown = 0;
         c.throwIt = false; c.starts = 0;
         cs[0].onClick(w);
-        check("toque no link com navegador abre uma vez", c.starts == 1 && android.widget.Toast.shown == 0);
+        check("tap on the link with a browser opens once", c.starts == 1 && android.widget.Toast.shown == 0);
         c.throwIt = true;
-        boolean propagou = false;
-        try { cs[0].onClick(w); } catch (RuntimeException e) { propagou = true; }
-        check("toque no link sem navegador não derruba o app e avisa", !propagou && android.widget.Toast.shown == 1);
-        android.widget.TextView plain = new android.widget.TextView(c) { public CharSequence getText() { return "texto simples"; } };
+        boolean propagated = false;
+        try { cs[0].onClick(w); } catch (RuntimeException e) { propagated = true; }
+        check("tap on the link without a browser does not crash the app and warns", !propagated && android.widget.Toast.shown == 1);
+        android.widget.TextView plain = new android.widget.TextView(c) { public CharSequence getText() { return "plain text"; } };
         boolean ok2 = true;
         try { MrLink.protect(plain); } catch (RuntimeException e) { ok2 = false; }
-        check("protect: texto que não é Spannable passa sem erro", ok2);
+        check("protect: text that is not Spannable passes without error", ok2);
     }
 }

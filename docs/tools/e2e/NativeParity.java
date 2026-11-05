@@ -6,19 +6,19 @@ import java.nio.file.*;
 import java.util.*;
 
 /**
- * Paridade do motor nativo (v1.77): para cada palavra das listas, a busca de correção do MrFuzzy roda pelo
- * caminho Java e pelo caminho C++ (libmrengine.so, pela JNI) e as duas têm de dar o MESMO resultado: mesmas palavras,
- * mesma ordem, mesma pontuação, mesmo custo e o mesmo número de nós visitados. Depois compara a lista final
- * de Suggest.getSuggestions (o que a faixa mostra) e mede o tempo dos dois caminhos.
+* Parity of the native engine (v1.77): for each word of the lists, the MrFuzzy correction search runs through the
+* Java path and the C++ path (libmrengine.so, through JNI) and both must give the SAME result: same words,
+* same order, same score, same cost and the same number of visited nodes. Then it compares the final list
+* of Suggest.getSuggestions (what the strip shows) and measures the time of both paths.
  *
- * Também confere os trigramas: MrTrigram.find pelo Java e pela lib, para os pares de -Dpairs.
- * As consultas saem do próprio dicionário: engine/tools/gen_parity_queries.py (o docs/tools/e2e/run_native_parity.sh faz tudo).
+* It also checks the trigrams: MrTrigram.find through Java and through the lib, for the pairs of -Dpairs.
+* The queries come from the dictionary itself: engine/tools/gen_parity_queries.py (docs/tools/e2e/run_native_parity.sh does it all).
  *
- * Uso: java -Djava.library.path=<pastas das libs> -cp ... com.mrkeyboard.app.NativeParity dicionario.dict erros.tsv [trigramas.bin]
- *   -Dlimit=N  só as N primeiras linhas;  -Dpairs=arquivo.txt  linhas "w1 w2" para os pares de trigramas
- *   -Drows=...  layout das teclas vizinhas;  -Dshow=20  mostra até 20 diferenças;  -Drounds=1  uma rodada só (padrão 2: a 2ª mede o tempo)
- *   -Dsuggmax=N  quantas palavras passam pelo Suggest completo (padrão 4000)
- * Sai com código 1 se houver qualquer diferença (ou se a lib não carregar).
+* Usage: java -Djava.library.path=<lib folders> -cp ... com.mrkeyboard.app.NativeParity dictionary.dict typos.tsv [trigrams.bin]
+*   -Dlimit=N  only the first N lines;  -Dpairs=file.txt  "w1 w2" lines for the trigram pairs
+*   -Drows=...  layout of the neighbouring keys;  -Dshow=20  shows up to 20 differences;  -Drounds=1  a single round (default 2: the 2nd measures the time)
+*   -Dsuggmax=N  how many words go through the full Suggest (default 4000)
+* Exits with code 1 if there is any difference (or if the lib does not load).
  */
 public class NativeParity {
     static String render(MrFuzzy f) {
@@ -43,7 +43,7 @@ public class NativeParity {
         }
         MrNative.sForceJava = false;
         if (!MrNative.ready()) {
-            System.out.println("FALHA: a lib nativa não carregou (java.library.path, versão do contrato ou mr.native=off)");
+            System.out.println("FAIL: the native lib did not load (java.library.path, contract version or mr.native=off)");
             System.exit(1);
         }
         E2ETest.suggest = new Suggest(null, buf);
@@ -59,10 +59,10 @@ public class NativeParity {
             String[] p = line.split("\t");
             if (p[0].length() >= 2) words.add(p[0]);
             if (p.length > 1 && p[1].length() >= 2) words.add(p[1]);
-            // começos de palavra (digitar certo): 2 a 5 letras
+            // word starts (typing correctly): 2 to 5 letters
             for (int k = 2; k <= 5 && k < p[0].length(); k++) words.add(p[0].substring(0, k));
         }
-        // casos de borda: maiúsculas, acento, 1 letra, tamanho máximo, só consoantes, repetidas
+        // edge cases: uppercase, accent, 1 letter, maximum size, only consonants, repeated
         String[] edge = {"Casa", "CASA", "ÁGUA", "coração", "ação", "ç", "a", "aa", "aaaaaaaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaaaaaaaaaaa",
             "bcdfghjklm", "xyzxyzxyzxyz", "porisso", "tambem", "naoseiseeuvou", "qwertyuiopasdfghjklz", "hhhhh", "ççççç",
             "1234", "a-b", "d'água", "ÿ", "ñandú", "über", "ǅ", "İstanbul", "日本語", "😀😀😀"};
@@ -71,7 +71,7 @@ public class NativeParity {
         int diffs = 0, total = 0;
         List<String> shown = new ArrayList<String>();
         long tJava = 0, tNative = 0;
-        // 2 rodadas: a 2ª com os caches quentes, que é a que vale para o tempo
+        // 2 rounds: the 2nd with warm caches, which is the one that counts for the time
         int rounds = Integer.getInteger("rounds", 2);
         for (int round = 0; round < rounds; round++) {
             tJava = 0; tNative = 0; total = 0; diffs = 0; shown.clear();
@@ -91,17 +91,17 @@ public class NativeParity {
                 total++;
                 if (!j.equals(n)) {
                     diffs++;
-                    if (shown.size() < show) shown.add(w + "\n   java:   " + j + "\n   nativo: " + n);
+                    if (shown.size() < show) shown.add(w + "\n   java:   " + j + "\n   native: " + n);
                 }
             }
         }
-        System.out.printf("busca (MrFuzzy): %d consultas, %d diferenças%n", total, diffs);
-        for (String d : shown) System.out.println("  DIFERENÇA " + d);
-        System.out.printf("tempo médio por consulta: Java %.1f us, nativo %.1f us (%.1fx)%n",
+        System.out.printf("search (MrFuzzy): %d queries, %d differences%n", total, diffs);
+        for (String d : shown) System.out.println("  DIFFERENCE " + d);
+        System.out.printf("mean time per query: Java %.1f us, native %.1f us (%.1fx)%n",
                 tJava / 1e3 / total, tNative / 1e3 / total, (double) tJava / Math.max(1, tNative));
 
-        // dicionário feito à mão com caractere de 2 bytes (0xFF + 2: "aő"): os dicionários do projeto só têm letras
-        // abaixo de U+00FF, então esse caminho da leitura só se prova assim
+        // hand-made dictionary with a 2-byte character (0xFF + 2: "aő"): the project's dictionaries only have letters
+        // below U+00FF, so this read path can only be proven this way
         byte[] hand = {(byte) 200, 1, 1, 'a', 0x40, 0x00, 0x07, 2, 'b', (byte) 0x80, 100, 0x00,
                 (byte) 0xFF, 0x01, 0x51, (byte) 0x80, 90, 0x00};
         ByteBuffer hb = ByteBuffer.allocateDirect(hand.length);
@@ -116,12 +116,12 @@ public class NativeParity {
             MrNative.sForceJava = false;
             hf.search(wc, w);
             String n = render(hf);
-            if (!j.equals(n)) { hd++; System.out.println("  DIFERENÇA (dicionário à mão) " + w + "\n   java:   " + j + "\n   nativo: " + n); }
+            if (!j.equals(n)) { hd++; System.out.println("  DIFFERENCE (hand-made dictionary) " + w + "\n   java:   " + j + "\n   native: " + n); }
         }
-        System.out.println("dicionário à mão (caractere de 2 bytes): 8 consultas, " + hd + " diferenças");
+        System.out.println("hand-made dictionary (2-byte character): 8 queries, " + hd + " differences");
         diffs += hd;
 
-        // lista final de sugestões (o que a faixa mostra), com e sem a lib
+        // final suggestion list (what the strip shows), with and without the lib
         int sd = 0, st = 0;
         List<String> shown2 = new ArrayList<String>();
         int cap = Math.min(words.size(), Integer.getInteger("suggmax", 4000));
@@ -136,14 +136,14 @@ public class NativeParity {
             st++;
             if (!j.equals(n)) {
                 sd++;
-                if (shown2.size() < show) shown2.add(w + "\n   java:   " + j + "\n   nativo: " + n);
+                if (shown2.size() < show) shown2.add(w + "\n   java:   " + j + "\n   native: " + n);
             }
         }
-        System.out.printf("lista de sugestões (Suggest): %d palavras, %d diferenças%n", st, sd);
-        for (String d : shown2) System.out.println("  DIFERENÇA " + d);
+        System.out.printf("suggestion list (Suggest): %d words, %d differences%n", st, sd);
+        for (String d : shown2) System.out.println("  DIFFERENCE " + d);
         int bad = diffs + sd;
 
-        // trigramas
+        // trigrams
         if (a.length > 2) {
             File tri = new File(a[2]);
             // Java
@@ -151,7 +151,7 @@ public class NativeParity {
             InputStream in = new FileInputStream(tri);
             MrTrigram.load(in);
             in.close();
-            if (!MrTrigram.ready()) { System.out.println("FALHA: trigramas Java não carregaram"); System.exit(1); }
+            if (!MrTrigram.ready()) { System.out.println("FAIL: Java trigrams did not load"); System.exit(1); }
             List<String[]> pairs = new ArrayList<String[]>();
             String pairsFile = System.getProperty("pairs");
             if (pairsFile != null) {
@@ -174,9 +174,9 @@ public class NativeParity {
                 javaOut.add(sb.toString());
             }
             long tj = System.nanoTime() - t0;
-            // nativo: reabre o mesmo arquivo pela lib
+            // native: reopens the same file through the lib
             MrNative.sForceJava = false;
-            if (!MrNative.triOpen(tri.getPath())) { System.out.println("FALHA: a lib recusou o arquivo " + tri); System.exit(1); }
+            if (!MrNative.triOpen(tri.getPath())) { System.out.println("FAIL: the lib refused the file " + tri); System.exit(1); }
             java.lang.reflect.Field fn = MrTrigram.class.getDeclaredField("sNative");
             fn.setAccessible(true);
             fn.setBoolean(null, true);
@@ -191,18 +191,18 @@ public class NativeParity {
                 for (int q = 0; q < c; q++) sb.append('|').append(wn[q]).append(':').append(sn[q]);
                 if (!sb.toString().equals(javaOut.get(k))) {
                     td++;
-                    if (shown3.size() < show) shown3.add(p[0] + " " + p[1] + "\n   java:   " + javaOut.get(k) + "\n   nativo: " + sb);
+                    if (shown3.size() < show) shown3.add(p[0] + " " + p[1] + "\n   java:   " + javaOut.get(k) + "\n   native: " + sb);
                 }
             }
             long tn = System.nanoTime() - t0;
             int hits = 0;
             for (String o : javaOut) if (!o.startsWith("0")) hits++;
-            System.out.printf("trigramas: %d pares (%d com continuação), %d diferenças; Java %.2f us, nativo %.2f us por consulta%n",
+            System.out.printf("trigrams: %d pairs (%d with a continuation), %d differences; Java %.2f us, native %.2f us per query%n",
                     pairs.size(), hits, td, tj / 1e3 / Math.max(1, pairs.size()), tn / 1e3 / Math.max(1, pairs.size()));
-            for (String d : shown3) System.out.println("  DIFERENÇA " + d);
+            for (String d : shown3) System.out.println("  DIFFERENCE " + d);
             bad += td;
         }
-        System.out.println(bad == 0 ? "PARIDADE OK" : "PARIDADE FALHOU: " + bad + " diferenças");
+        System.out.println(bad == 0 ? "PARITY OK" : "PARITY FAILED: " + bad + " difference(s)");
         System.exit(bad == 0 ? 0 : 1);
     }
 }

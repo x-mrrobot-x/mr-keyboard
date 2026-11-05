@@ -91,7 +91,7 @@ public final class MrTrigram {
         int gen;
         synchronized (MrTrigram.class) {
             gen = ++sGen;
-            sPath = "(teste)";
+            sPath = "(test)";
             sNative = false;
         }
         load(raw, gen);

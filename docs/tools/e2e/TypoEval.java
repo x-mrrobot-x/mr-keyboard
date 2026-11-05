@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.*;
 import java.util.*;
 
-/** Erros de digitação sintéticos: a palavra certa aparece nas 2 posições de sugestão? (v1.64) */
+/** Synthetic typos: does the right word show up in the 2 suggestion positions? (v1.64) */
 public class TypoEval {
     public static void main(String[] a) throws Exception {
         byte[] bytes = Files.readAllBytes(Paths.get(a[0]));
@@ -37,9 +37,9 @@ public class TypoEval {
                 if (l.get(1).equals(p[1])) auto++; else autoWrong++;
             }
         }
-        System.out.printf("acerto nas 2 posições: %d/%d = %.1f%%  por tipo: ", hit, n, 100.0 * hit / n);
+        System.out.printf("hit in the 2 positions: %d/%d = %.1f%%  by type: ", hit, n, 100.0 * hit / n);
         for (Map.Entry<String, int[]> e : by.entrySet()) System.out.printf("%s %.0f%%  ", e.getKey(), 100.0 * e.getValue()[0] / e.getValue()[1]);
-        System.out.printf("%nautocorreção: certa %d, errada %d; tempo médio %.2f ms, pior %.1f ms%n", auto, autoWrong, ms / n, worst);
-        System.out.println("erros: " + misses);
+        System.out.printf("%nautocorrection: right %d, wrong %d; mean time %.2f ms, worst %.1f ms%n", auto, autoWrong, ms / n, worst);
+        System.out.println("misses: " + misses);
     }
 }

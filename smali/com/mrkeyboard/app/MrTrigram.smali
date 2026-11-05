@@ -389,7 +389,7 @@
     sput v0, Lcom/mrkeyboard/app/MrTrigram;->sGen:I
 
     .line 94
-    const-string v2, "(teste)"
+    const-string v2, "(test)"
 
     sput-object v2, Lcom/mrkeyboard/app/MrTrigram;->sPath:Ljava/lang/String;
 

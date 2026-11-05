@@ -8,11 +8,11 @@ import java.util.*;
 import java.util.regex.*;
 
 /**
- * Digitação normal (sem erro), v1.75: depois de digitar as k primeiras letras de uma palavra do texto
- * de teste, ela está entre as 3 primeiras entradas da faixa (a 0 é a digitada)? É a medida de que uma
- * mudança na correção NÃO atrapalha quem digita certo. Mostra também o que a 3ª posição guarda de correção.
+* Normal typing (no error), v1.75: after typing the first k letters of a word of the test text,
+* is it among the first 3 entries of the strip (0 is the typed word)? It is the measure that a
+* change in the correction does NOT get in the way of those who type correctly. It also shows what the 3rd position holds as a correction.
  *
- * Uso: java ... com.mrkeyboard.app.PrefixEval dicionario.dict texto1.txt [texto2.txt] [-Dn=4000]
+* Usage: java ... com.mrkeyboard.app.PrefixEval dictionary.dict text1.txt [text2.txt] [-Dn=4000]
  */
 public class PrefixEval {
     public static void main(String[] a) throws Exception {
@@ -57,9 +57,9 @@ public class PrefixEval {
                 if (at == 1) first[k]++;
             }
         }
-        System.out.printf("palavras %d  tempo médio %.2f ms%n", words.size(), ms / calls);
+        System.out.printf("words %d  mean time %.2f ms%n", words.size(), ms / calls);
         for (int k = 2; k <= 5; k++) {
-            System.out.printf("  %d letras: alvo nas 3 primeiras %.2f%%  (na 1ª sugestão %.2f%%)  n=%d%n", k, 100.0 * hit[k] / tot[k], 100.0 * first[k] / tot[k], tot[k]);
+            System.out.printf("  %d letters: target in the first 3 %.2f%%  (in the 1st suggestion %.2f%%)  n=%d%n", k, 100.0 * hit[k] / tot[k], 100.0 * first[k] / tot[k], tot[k]);
         }
     }
 }

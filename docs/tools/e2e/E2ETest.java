@@ -13,12 +13,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Teste de ponta a ponta no PC: classes reais do APK (classes.dex -> jar com dex2jar) e a lib
- * nativa compilada para o PC a partir do mesmo dictionary.cpp. Só LatinIME (que precisa do
- * Android) fica de fora.
+* End-to-end test on the PC: real classes of the APK (classes.dex -> jar with dex2jar) and the
+* native lib compiled for the PC from the same dictionary.cpp. Only LatinIME (which needs
+* Android) is left out.
  *
- * Uso: java -Djava.library.path=<lib> -cp app.jar:stubs:. com.mrkeyboard.app.E2ETest dict test.txt [modo] [trigramas]
- * (desde a 1.63 lê o rules.txt da pasta do dicionário, como o pacote baixado)
+ * Usage: java -Djava.library.path=<lib> -cp app.jar:stubs:. com.mrkeyboard.app.E2ETest dict test.txt [mode] [trigrams]
+* (since 1.63 it reads rules.txt from the dictionary folder, like the downloaded pack)
  */
 public class E2ETest {
     static final String[] ROWS = {"qwertyuiop", "asdfghjklç", "zxcvbnm"};
@@ -61,12 +61,12 @@ public class E2ETest {
         return o;
     }
 
-    /** O que a faixa mostra: as 3 primeiras entradas (0 = digitada). */
+    /** What the strip shows: the first 3 entries (0 = typed). */
     static void expect(String label, List<String> got, String want, int maxIndex) {
         int at = got.indexOf(want);
         boolean ok = at >= 0 && at <= maxIndex;
         if (!ok) fails++;
-        System.out.printf("%s %-34s -> %-14s %s%n", ok ? "OK   " : "FALHA", label, want,
+        System.out.printf("%s %-34s -> %-14s %s%n", ok ? "OK   " : "FAIL ", label, want,
                 got.subList(0, Math.min(6, got.size())));
     }
 
@@ -79,64 +79,64 @@ public class E2ETest {
         ByteBuffer buf = ByteBuffer.allocateDirect(bytes.length);
         buf.put(bytes);
         buf.rewind();
-        // 1.63: as regras do idioma vêm do pacote (rules.txt na mesma pasta do dicionário)
+        // 1.63: the language rules come from the pack (rules.txt in the same folder as the dictionary)
         java.io.File rules = new java.io.File(new java.io.File(a[0]).getAbsoluteFile().getParentFile(), "rules.txt");
         if (rules.isFile()) {
             MrRules.set(MrRules.parse(new FileInputStream(rules)));
-            System.out.println("regras: " + rules + " (" + MrRules.get().corrections.size() + " correções)");
+            System.out.println("rules: " + rules + " (" + MrRules.get().corrections.size() + " corrections)");
         }
         suggest = new Suggest(null, buf);
         int mode = a.length > 2 ? Integer.parseInt(a[2]) : 1;
         suggest.setCorrectionMode(mode);
-        System.out.println("modo de correção " + mode + ", dicionário " + bytes.length + " bytes");
+        System.out.println("correction mode " + mode + ", dictionary " + bytes.length + " bytes");
 
-        // 1ª letra: bigramas da palavra anterior (antes só nos modos 1 e 3, só a mesma letra exata)
-        expect("1ª letra 'o' depois de 'muito'", strs(sugg("o", "muito")), "obrigado", 3);
-        expect("1ª letra 'd' depois de 'bom'", strs(sugg("d", "bom")), "dia", 3);
-        expect("1ª letra 'e' depois de 'ele' (é)", strs(sugg("e", "ele")), "é", 3);
-        expect("1ª letra 'D' depois de 'Bom' (caixa)", strs(sugg("D", "Bom")), "Dia", 3);
-        // erros que a lib não pega
+        // 1st letter: bigrams of the previous word (before, only in modes 1 and 3, only the exact same letter)
+        expect("1st letter 'o' after 'muito'", strs(sugg("o", "muito")), "obrigado", 3);
+        expect("1st letter 'd' after 'bom'", strs(sugg("d", "bom")), "dia", 3);
+        expect("1st letter 'e' after 'ele' (é)", strs(sugg("e", "ele")), "é", 3);
+        expect("1st letter 'D' after 'Bom' (case)", strs(sugg("D", "Bom")), "Dia", 3);
+        // errors the lib does not catch
         expect("obrogado", strs(sugg("obrogado", null)), "obrigado", 2);
-        expect("trabakho (vizinha)", strs(sugg("trabakho", null)), "trabalho", 2);
-        expect("pesquiza (fonética)", strs(sugg("pesquiza", null)), "pesquisa", 2);
-        expect("asim (letra dobrada)", strs(sugg("asim", null)), "assim", 2);
-        expect("omem (h mudo)", strs(sugg("omem", null)), "homem", 2);
+        expect("trabakho (neighbour)", strs(sugg("trabakho", null)), "trabalho", 2);
+        expect("pesquiza (phonetic)", strs(sugg("pesquiza", null)), "pesquisa", 2);
+        expect("asim (doubled letter)", strs(sugg("asim", null)), "assim", 2);
+        expect("omem (silent h)", strs(sugg("omem", null)), "homem", 2);
         expect("enchergar (ch/x)", strs(sugg("enchergar", null)), "enxergar", 2);
-        expect("excessao (mapa MrFix)", strs(sugg("excessao", null)), "exceção", 2);
-        expect("concerteza (espaço)", strs(sugg("concerteza", null)), "com certeza", 2);
-        expect("eusei (espaço, busca)", strs(sugg("eusei", null)), "eu sei", 2);
-        expect("vc (abreviação)", strs(sugg("vc", null)), "você", 2);
-        expect("Vc (maiúscula)", strs(sugg("Vc", null)), "Você", 2);
+        expect("excessao (MrFix map)", strs(sugg("excessao", null)), "exceção", 2);
+        expect("concerteza (space)", strs(sugg("concerteza", null)), "com certeza", 2);
+        expect("eusei (space, search)", strs(sugg("eusei", null)), "eu sei", 2);
+        expect("vc (abbreviation)", strs(sugg("vc", null)), "você", 2);
+        expect("Vc (uppercase)", strs(sugg("Vc", null)), "Você", 2);
         expect("tbm", strs(sugg("tbm", null)), "também", 2);
-        expect("obrig (complemento da lib)", strs(sugg("obrig", null)), "obrigado", 2);
-        expect("informac (acento, lib)", strs(sugg("informac", null)), "informação", 2);
-        expect("nao (acento, lib)", strs(sugg("nao", null)), "não", 2);
+        expect("obrig (lib completion)", strs(sugg("obrig", null)), "obrigado", 2);
+        expect("informac (accent, lib)", strs(sugg("informac", null)), "informação", 2);
+        expect("nao (accent, lib)", strs(sugg("nao", null)), "não", 2);
 
-        // previsão depois do espaço (ordem da faixa: 2ª, 1ª, 3ª)
+        // prediction after the space (strip order: 2nd, 1st, 3rd)
         for (String p : new String[] {"muito", "Bom", "bom", "de", "não", "está", "obrigado", "segunda-feira", "xqzwv"}) {
             List<CharSequence> l = MrPredict.forWord(suggest, p);
-            System.out.printf("      previsão depois de %-14s %s%n", p, l);
+            System.out.printf("      prediction after %-14s %s%n", p, l);
         }
         List<CharSequence> lm = MrPredict.forWord(suggest, "muito");
-        if (lm == null || lm.size() != 3) { fails++; System.out.println("FALHA previsão 'muito' sem 3 itens"); }
-        if (MrPredict.forWord(suggest, "xqzwv") != null) { fails++; System.out.println("FALHA previsão de palavra desconhecida"); }
+        if (lm == null || lm.size() != 3) { fails++; System.out.println("FAIL  prediction 'muito' without 3 items"); }
+        if (MrPredict.forWord(suggest, "xqzwv") != null) { fails++; System.out.println("FAIL  prediction for an unknown word"); }
         List<String> lb = strs(MrPredict.forWord(suggest, "Bom"));
-        expect("previsão 'Bom' (usa 'bom')", lb, "dia", 2);
+        expect("prediction 'Bom' (uses 'bom')", lb, "dia", 2);
 
-        // bigramas do usuário passam à frente
+        // user bigrams go first
         TestUserBigrams user = new TestUserBigrams();
         user.addBigram("muito", "massa", 60);
         suggest.setUserBigramDictionary(user);
         List<String> lu = strs(MrPredict.forWord(suggest, "muito"));
-        boolean centro = lu.size() >= 2 && lu.get(1).equals("massa");
-        if (!centro) fails++;
-        System.out.printf("%s %-34s -> %-14s %s%n", centro ? "OK   " : "FALHA", "bigrama do usuário no centro", "massa", lu);
-        expect("1ª letra 'm' com bigrama do usuário", strs(sugg("m", "muito")), "massa", 3);
+        boolean center = lu.size() >= 2 && lu.get(1).equals("massa");
+        if (!center) fails++;
+        System.out.printf("%s %-34s -> %-14s %s%n", center ? "OK   " : "FAIL ", "user bigram in the center", "massa", lu);
+        expect("1st letter 'm' with a user bigram", strs(sugg("m", "muito")), "massa", 3);
         suggest.setUserBigramDictionary(null);
 
-        // 1.62: espaço reservado para correção barata
-        expect("prota (correção reservada)", strs(sugg("prota", null)), "porta", 2);
-        // 1.62: autocorreção cuidadosa (modo 3 = autocorreção ligada)
+        // 1.62: slot reserved for the cheap correction
+        expect("prota (reserved correction)", strs(sugg("prota", null)), "porta", 2);
+        // 1.62: careful autocorrection (mode 3 = autocorrection on)
         suggest.setCorrectionMode(3);
         String[][] ac = {{"obrogado", "1"}, {"pesquiza", "1"}, {"asim", "1"}, {"concerteza", "1"}, {"obrig", "0"}, {"eusei", "0"}};
         for (String[] c : ac) {
@@ -144,30 +144,30 @@ public class E2ETest {
             boolean auto = suggest.hasMinimalCorrection();
             boolean ok = auto == c[1].equals("1");
             if (!ok) fails++;
-            System.out.printf("%s autocorreção %-12s -> %-5s (%s)%n", ok ? "OK   " : "FALHA", c[0], auto, l.size() > 1 ? l.get(1) : "-");
+            System.out.printf("%s autocorrection %-12s -> %-5s (%s)%n", ok ? "OK   " : "FAIL ", c[0], auto, l.size() > 1 ? l.get(1) : "-");
         }
         suggest.setCorrectionMode(mode);
-        // 1.62: começo de frase e duas palavras
+        // 1.62: sentence start and two words
         String[] sent = {"", "Oi. ", "Tudo bem? ", "muito ", "ele disse, "};
-        for (String t : sent) System.out.printf("      começo de frase em %-14s %s%n", "'" + t + "'", MrText.atSentenceStart(t));
+        for (String t : sent) System.out.printf("      sentence start in %-14s %s%n", "'" + t + "'", MrText.atSentenceStart(t));
         if (a.length > 3) {
             MrTrigram.load(new java.io.FileInputStream(a[3]));
             String[][] ctx = {{"bom", "dia"}, {"muito", "obrigado"}, {"eu", "não"}, {"vou", "te"}, {"de", "acordo"}, {"o", "que"}, {"tudo", "bem"}};
             for (String[] c : ctx) {
-                System.out.printf("      previsão depois de %-16s %s   (só a última: %s)%n", c[0] + " " + c[1],
+                System.out.printf("      prediction after %-16s %s   (last one only: %s)%n", c[0] + " " + c[1],
                         MrPredict.forWords(suggest, c[0], c[1]), MrPredict.forWord(suggest, c[1]));
             }
             MrPredict.forWords(suggest, "bom", "dia");
-            System.out.println("      1ª letra 'p' depois de 'bom dia': " + strs(sugg("p", "dia")));
+            System.out.println("      1st letter 'p' after 'bom dia': " + strs(sugg("p", "dia")));
         }
-        // 1.62: bigrama do usuário aparece com 2 usos
+        // 1.62: user bigram shows up with 2 uses
         TestUserBigrams u2 = new TestUserBigrams();
         u2.addBigram("bom", "demais", 4);
         suggest.setUserBigramDictionary(u2);
-        expect("bigrama do usuário com 2 usos", strs(MrPredict.forWord(suggest, "bom")), "demais", 2);
+        expect("user bigram with 2 uses", strs(MrPredict.forWord(suggest, "bom")), "demais", 2);
         suggest.setUserBigramDictionary(null);
 
-        // tempo por tecla digitando frases do teste
+        // time per key typing the test sentences
         if (a.length > 1 && !a[1].equals("-")) {
             Pattern word = Pattern.compile("[\\p{L}]+(?:['-][\\p{L}]+)*");
             List<String> lines = new ArrayList<String>();
@@ -197,12 +197,12 @@ public class E2ETest {
                     }
                 }
                 if (round == 1) {
-                    report("por tecla (getSuggestions)", t);
-                    report("previsão depois do espaço", tp);
+                    report("per key (getSuggestions)", t);
+                    report("prediction after the space", tp);
                 }
             }
         }
-        System.out.println(fails == 0 ? "TUDO OK" : fails + " FALHA(S)");
+        System.out.println(fails == 0 ? "ALL OK" : fails + " FAILURE(S)");
         System.exit(fails == 0 ? 0 : 1);
     }
 
@@ -211,7 +211,7 @@ public class E2ETest {
         double sum = 0;
         for (int i = 0; i < c.length; i++) { c[i] = t.get(i); sum += c[i]; }
         Arrays.sort(c);
-        System.out.printf("tempo %-28s n=%d média %.3f p50 %.3f p95 %.3f p99 %.3f máx %.3f ms%n", label, c.length,
+        System.out.printf("time %-28s n=%d mean %.3f p50 %.3f p95 %.3f p99 %.3f max %.3f ms%n", label, c.length,
                 sum / c.length, c[c.length / 2], c[(int) (c.length * .95)], c[(int) (c.length * .99)], c[c.length - 1]);
     }
 }

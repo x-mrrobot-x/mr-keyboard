@@ -12,7 +12,7 @@ mesmo `dictionary.cpp`. Só o `LatinIME` (que precisa do Android) fica de fora. 
 | `PrefixEval` | digitação **sem erro**: depois de 2 a 5 letras de uma palavra do texto, ela está entre as 3 primeiras? É o freio de qualquer mudança na correção: não pode piorar. |
 | `OovEval` | palavras certas que o dicionário não conhece (nomes, gírias): com a autocorreção ligada, quantas seriam trocadas? É o risco de uma correção mais agressiva. |
 | `RecentEval` (`gen_sessions.py`) | palavras recentes: a próxima palavra está entre as 3 mostradas depois do espaço e depois de 1 a 3 letras, em sessões simuladas, com e sem `MrRecent` (`-Drecent=0`). |
-| `E2ETest`, `E2EEn`, `E2EEs` | verificações de ponta a ponta com expectativas fixas (TUDO OK ou FALHA). |
+| `E2ETest`, `E2EEn`, `E2EEs` | verificações de ponta a ponta com expectativas fixas (`ALL OK` ou `FAIL`). |
 | `Parity`, `TouchEval`, `TypoEval` | comparação de duas versões lista a lista, toques imprecisos e erros sintéticos (1.64 a 1.66). |
 | `NativeParity` | motor nativo (1.77): a busca do `MrFuzzy` e a lista final de `Suggest` pelo Java e pela `libmrengine.so`, palavra por palavra, pontuação, custo e nós visitados; trigramas pelos dois caminhos; tempo dos dois. Sai com 1 se houver qualquer diferença. Roda no CI via `run_native_parity.sh`. |
 
