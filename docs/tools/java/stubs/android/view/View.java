@@ -36,6 +36,7 @@ public class View {
     public int getPaddingRight() { return padR; }
     public int getPaddingBottom() { return padB; }
     public void setOnApplyWindowInsetsListener(OnApplyWindowInsetsListener listener) { insetsListener = listener; }
+    public WindowInsets onApplyWindowInsets(WindowInsets insets) { return insets; }
     public OnApplyWindowInsetsListener stubInsetsListener() { return insetsListener; }
     public void requestApplyInsets() { insetsRequests++; }
     public int stubInsetsRequests() { return insetsRequests; }

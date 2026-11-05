@@ -144,6 +144,51 @@ ao rolar) entra como item principal.
   - A Etapa 3 (`MrNav`) mantém essas telas com `NEW_TASK` quando vêm do teclado.
 - Os diálogos de preferência com campo de texto são recriados junto com a tela; não precisam de nada.
 
+### Etapa 2b — Ferramenta "Personalizar teclado", teclado ao girar a tela e botões da barra — FEITA
+- Pedido do usuário (teste no aparelho): com a ferramenta aberta em retrato (diálogo), girar para paisagem deve abrir o
+  painel dentro do teclado, e ao voltar para retrato o diálogo deve reaparecer, sem o teclado fechar. Antes, girar
+  fechava a ferramenta (a janela do teclado esconde e `onWindowHidden` fecha a ferramenta; ao reconstruir o teclado o
+  `MrTune.setup` também fecha o diálogo em paisagem e o painel em retrato).
+- **`MrKeep`** (Java, novo, `docs/tools/java/src/com/mrkeyboard/app/MrKeep.java`), ligado em três pontos do `LatinIME.smali`:
+  `onConfigurationChanged` (quando a orientação muda, antes de reconstruir o teclado: `onTurn`), `onWindowHidden`
+  (antes de fechar a ferramenta: `onHidden`) e `onStartInput` (`onInput`).
+  - Guarda, na virada, se a ferramenta estava aberta (painel ou diálogo), se o teclado estava visível e de qual app.
+  - Uma checagem leve num `Handler` (a cada 150 ms, só durante os 4 s depois da virada): quando o teclado está
+    visível e a ferramenta não está aberta, chama `MrTune.toggle()`, que abre o painel (paisagem) ou o diálogo (retrato).
+  - **Android 17:** um app recriado pela rotação não recebe mais o teclado de volta do sistema. Se o teclado estava
+    visível na virada e o mesmo app liga um campo de novo, pede `requestShowSelf` (até 3 vezes, 450 ms entre elas,
+    mesma rotina do retorno do Editor de IA). Se o teclado já está visível, não pede nada.
+  - Nada dura além de 4 s depois do último evento; esconder o teclado sem girar (Voltar, tocar fora) não reabre nada;
+    ferramenta fechada antes de girar continua fechada; outro app que ligue um campo não recebe o teclado à força.
+- Guardas no `res_check.py`: os três pontos do `LatinIME.smali` precisam chamar o `MrKeep`, e `onHidden` vem antes de
+  fechar a ferramenta.
+- **Botão da barra de ferramentas fecha o diálogo aberto** (`MrBarClose`, Java, novo; chamado no começo de
+  `MrTools.onClick`): com o diálogo do Editor de IA ou o de Personalizar teclado aberto, tocar em qualquer um dos sete
+  botões da barra (área de transferência, tradutor, anexos, emoji, folhas, Personalizar, Editor de IA) fecha os diálogos
+  abertos, e o botão faz em seguida o que sempre fez (abre o painel, o tradutor etc.). O diálogo que o próprio botão
+  controla fica por conta do toggle dele (fechar antes faria o toggle abri-lo de novo): o botão do Editor de IA fecha o
+  de Personalizar e abre/fecha o do Editor de IA; o de Personalizar faz o inverso. Botões dentro dos painéis (limpar
+  a área de transferência, fotos etc.) não passam por isso. `MrTune.dismissDialog` deixou de ser privado para isso.
+  O painel de Personalizar em paisagem (dentro do teclado) não é diálogo e não muda. Em paisagem o diálogo do Editor de IA
+  cobre a tela toda (Etapa 4), então a barra nem fica ao alcance.
+- Guardas no `res_check.py`: os três pontos do `LatinIME.smali` precisam chamar o `MrKeep` (e `onHidden` vem antes de
+  fechar a ferramenta); `MrTools.onClick` precisa chamar o `MrBarClose`, e a lista de códigos do `MrBarClose` tem de ser a que o
+  `MrTools` liga aos sete botões de `bar_tools`.
+- Testes no PC: `keep_test/KeepTest.java` (33 checks: diálogo para painel, painel para diálogo, ferramenta fechada,
+  ferramenta que continua aberta, Android 17 com 1 a 3 pedidos, outro app, expiração, esconder sem girar, duas viradas
+  seguidas, pedido recusado, Android 8, `null`). Treze mutações: todas pegas, menos uma equivalente.
+- Observação do usuário (teste no Acode): o teclado reabrir ao voltar para o app com o campo focado é comportamento do
+  Android, confirmado por ele com outro teclado; nada a fazer.
+- **A confirmar no aparelho:** a ordem em que o Android chama `onConfigurationChanged`, `onWindowHidden` e
+  `onStartInput` na rotação (o `MrKeep` não depende da ordem, mas a janela de 4 s é um palpite); o painel abrir logo
+  depois da virada, sem piscar.
+- Testes no PC do `MrBarClose`: `bar_test/BarTest.java` (30 checks: os cinco botões que abrem outra coisa, o do Editor de IA, o
+  de Personalizar, nada aberto, diálogo que já não aparece, códigos que não são da barra, sete botões). Sete mutações
+  pegas e duas nas guardas.
+- Arquivos: `MrKeep.java`, `MrBarClose.java` (+ smali gerados), `LatinIME.smali`, `MrTools.smali`, `MrTune.smali`,
+  `MrAiDialog.java` (`showKeyboard` e `isShowing` do pacote), stub `MrTune`, `KeepTest.java`, `BarTest.java`,
+  `res_check.py`, `run_java_tests.sh`, `build_java.sh`.
+
 ### Etapa 3 — Sem duplicação — FEITA
 - **`MrNav`** (Java, novo): `MrNav.intent(contexto, tela)` é o único lugar que monta o Intent de abertura de tela.
   Vindo do teclado (contexto que não é Activity): `NEW_TASK | REORDER_TO_FRONT`. Vindo de uma tela: só
@@ -178,27 +223,37 @@ ao rolar) entra como item principal.
 
 ### Etapa 4 — Verificar `MrAiDialog` e `MrUpdateDialog` nas janelas edge-to-edge — FEITA
 - **`MrUpdateDialog`:** diálogo flutuante comum (`Theme.MrKeyboard.Dialog`, pai `Material.Dialog.Alert`), aberto de uma
-  Activity, sem flags de layout próprias. O sistema o posiciona dentro da área útil, com ou sem edge-to-edge. Nada a
-  mudar.
+  Activity, sem flags de layout próprias. O sistema o posiciona dentro da área útil. Nada a mudar.
 - **`MrAiDialog`:** janela própria presa à janela do teclado (`TYPE_APPLICATION_ATTACHED_DIALOG`), gravidade no topo,
-  `LAYOUT_IN_SCREEN | LAYOUT_NO_LIMITS`, altura = do topo da tela até o teclado. O cartão é centralizado com margem de
-  12 dp. Em retrato a conta sobra de longe; em paisagem a janela fica baixa e o cartão (rolável) encosta nas margens:
-  o topo ficava a 12 dp da borda, sob a barra de status (24 dp ou mais), e a lateral podia ficar sob o recorte da
-  câmera. Como a janela não é uma Activity, o `MrScreens` nunca a via.
-- **Correção por construção** (a análise não depende de um teste no aparelho): `MrScreens.fitDialog(View)` põe no
-  root do diálogo, no Android 15+, as barras do sistema e o recorte que realmente tocam a janela como padding (mesma
-  regra e mesmo `Api30.fit` das telas). A camada escura é o fundo do root e continua cobrindo a janela inteira; sem
-  sobreposição o padding é zero, então o retrato fica igual. Abaixo do Android 15 nada muda (modo clássico).
-  `MrAiDialog.showDialog` chama `fitDialog(root)` logo depois do `setContentView`.
-- Testes no PC: `ScreensTest` ganhou 8 checks (33 no total): registro só no 15+, barra de status em retrato, recorte
-  lateral em paisagem, nada sobra para as Views de baixo, sem sobreposição = sem padding, janela sobre a tela toda
-  (barras no padding, teclado não), SDK 34 sem listener, `null`. Quatro mutações do `fitDialog` pegas.
-- Guarda no `res_check.py`: `MrAiDialog.java` precisa chamar `MrScreens.fitDialog(root)` e o smali gerado precisa
-  estar em dia.
-- **A confirmar no aparelho:** o card do Editor de IA em paisagem (não encosta na barra de status nem na câmera) e em
-  retrato (igual a antes). Se o sistema não entregar insets a essa janela, o padding fica zero e o comportamento é o de
-  antes, sem regressão.
-- Arquivos: `MrScreens.java` (+ `.smali` gerados), `MrAiDialog.java` (+ smali), `res_check.py`, `ScreensTest.java`.
+  `LAYOUT_IN_SCREEN | LAYOUT_NO_LIMITS`, do topo da tela até o teclado. Não é uma Activity, então o `MrScreens` nunca
+  a via. A captura do usuário no **Android 13**, em paisagem, mostrou dois problemas (e **não** é coisa só do 15+):
+  1. o cartão ficava sob a barra de status e sob o recorte da câmera (topo do cartão a 12 dp da borda, sem recuo);
+  2. com o teclado ocupando quase 80% da altura, a área acima dele tinha ~90 dp: só aparecia o cabeçalho e o começo
+     da linha de estilos.
+- **Correção 1, recuo** (`MrScreens.fitDialog(decor, root)`, do **Android 11** em diante): as barras do sistema e o
+  recorte que tocam a janela viram padding do root do diálogo (`WindowInsets.Type.systemBars | displayCutout`).
+  A camada escura é o fundo do root e continua cobrindo a janela inteira; sem sobreposição o padding é zero (retrato
+  igual a antes). O listener fica na **decor view**, não no root: o layout do sistema (`screen_simple`, com
+  `fitsSystemWindows`) consome os insets antes de chegarem ao conteúdo, e janelas com `LAYOUT_NO_LIMITS` não
+  recebem os insets legados (motivo provável de o sistema não afastar o cartão sozinho). O que chega à decor segue
+  para o tratamento normal dela (`decor.onApplyWindowInsets`). Antes do Android 11 nada muda (sem a API por tipo).
+- **Correção 2, altura** (`MrAiDialog.windowHeight`): se a área acima do teclado tem menos de 240 dp
+  (`SHORT_AREA_DP`), a janela do diálogo ocupa a **tela inteira** (o diálogo cobre o teclado enquanto está aberto),
+  já abaixo da barra de status e do recorte. Retrato e tablets: igual a antes (até o teclado). A conta usa a
+  densidade da tela e é refeita a cada mudança de layout do teclado (girar a tela troca de modo sozinho).
+- Testes no PC: `ScreensTest` com 41 checks (Android 13, 16 e 29, retrato, paisagem com recorte lateral, sem
+  sobreposição, tela toda com barra de navegação, decor tratando o resto, `null`; `windowHeight` com 228 px a 2,5 =
+  91 dp, 520 dp, o limite exato de 240 dp, em dp e não em px, posição do teclado desconhecida). Sete mutações:
+  seis pegas, a sétima é equivalente (`imeTop <= 0` e `imeTop < limite` dão o mesmo para valores não positivos).
+- Guarda no `res_check.py`: `MrAiDialog.java` chama `MrScreens.fitDialog(window.getDecorView(), root)` e tira as duas
+  alturas (abertura e mudança de layout) de `windowHeight`; o smali gerado precisa estar em dia.
+- **A confirmar no aparelho (Android 13 e 17, retrato e paisagem):** em paisagem o diálogo ocupa a tela, o cartão
+  fica abaixo do relógio e da câmera e rola se faltar altura; em retrato é igual a antes. Se o sistema não entregar os
+  insets à janela, o padding fica zero e a barra de status continua por cima (aí o plano é ler a altura da barra
+  pela decor do teclado).
+- Limite conhecido: Android 8 a 10 ficam como antes (sem a API de insets por tipo).
+- Arquivos: `MrScreens.java` (+ `MrScreens$DialogFit` e `.smali` gerados), `MrAiDialog.java` (+ smali), `res_check.py`,
+  `ScreensTest.java`, stub `View`.
 
 ### Etapa 5 — Aceleração por hardware com opção
 - Preferência nova `pref_ui_hw_accel` (caixa de seleção em **Avançado**, padrão **desligada**, textos em
@@ -251,9 +306,18 @@ ao rolar) entra como item principal.
   rápido numa linha de Configurações abre uma subtela só. Abrir o Editor de IA e um estilo para editar, voltar ao
   app, digitar, abrir o Editor de IA e tocar na engrenagem de novo: abre as configurações uma só vez e Voltar leva
   ao app. Com um estilo em edição (texto digitado), abrir outro estilo pelo diálogo: o atual continua como está.
-- **Diálogo do Editor de IA (Android 15+):** abrir o diálogo em retrato (igual a antes) e em paisagem, com o
-  teclado aberto: o cartão não pode ficar sob a barra de status nem sob a câmera; a camada escura segue cobrindo a
-  tela toda e tocar fora do cartão fecha. Também com o gesto e com a barra de 3 botões.
+- **Ferramenta "Personalizar teclado" ao girar (Android 13 e 17):** abrir a ferramenta em retrato (diálogo), girar para
+  paisagem: o painel abre dentro do teclado e o teclado não fecha; girar de volta: o diálogo reaparece. Com a ferramenta
+  fechada, girar não abre nada. Repetir em um app que recria a tela ao girar e em um que não recria (Acode). Esconder
+  o teclado (Voltar) com a ferramenta aberta, sem girar: não reabre.
+- **Botões da barra com diálogo aberto:** abrir o diálogo do Editor de IA (retrato) e tocar no botão da área de
+  transferência, do tradutor, de anexos, de emoji e de folhas: o diálogo fecha e o botão faz o que sempre fez. Com o
+  diálogo de Personalizar aberto, o mesmo. Com o do Editor de IA aberto, tocar em Personalizar fecha o do Editor de IA e
+  abre o de Personalizar; e o inverso. Tocar de novo no botão do próprio diálogo fecha ele (como antes).
+- **Diálogo do Editor de IA (Android 13 e 17):** em retrato fica como antes (acima do teclado, cartão centralizado).
+  Em paisagem o diálogo ocupa a tela inteira (cobre o teclado), o cartão fica abaixo do relógio e da câmera, rola
+  se faltar altura, tocar fora do cartão fecha e, ao fechar, o teclado volta. Girar a tela com o diálogo aberto troca
+  de modo sozinho. Também com o gesto e com a barra de 3 botões.
 - **Aceleração:** com a opção desligada nada muda; ligar e conferir que a rolagem de Configurações segue
   correta (e desligar de novo volta ao normal).
 - **Teclado acelerado ou não:** resultado da checagem da Etapa 5 (log da build de teste).

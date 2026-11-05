@@ -17,6 +17,9 @@
 #     what the AI style editor does when it is asked for again while it is already open.
 #   - ScreenImeTest: the keyboard on the editor screens (MrScreenIme): which field has it saved when the screen is
 #     recreated, how it is asked for again once the new window has the focus, and the room made for it on Android 15+.
+#   - BarTest: the buttons of the tool bar close the dialogs that are open (MrBarClose), except the one that the button itself toggles
+#   - KeepTest: the "Customize keyboard" tool and the keyboard when the screen turns (MrKeep): the tool opens again in the form of
+#     the new orientation, the keyboard that Android 17 leaves hidden is asked to show itself, all within a short window
 #   - AiReturnTest: coming back to the AI Editor dialog after its Settings screen (MrAiDialog): the keyboard is asked to
 #     appear for the original field, once, soon after leaving, and the dialog reopens when the keyboard window shows.
 # With the path of the APK jar (classes.dex -> d2j-dex2jar), it also runs:
@@ -66,6 +69,14 @@ java -cp "$T/test_screenime:$T/stubs:$T/main" com.mrkeyboard.app.ScreenImeTest
 echo "== AiReturnTest (return to the AI Editor dialog)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_aireturn" $D/ai_return_test/AiReturnTest.java
 java -cp "$T/test_aireturn:$T/stubs:$T/main" com.mrkeyboard.app.AiReturnTest
+
+echo "== BarTest (tool bar buttons with a dialog open)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_bar" $D/bar_test/BarTest.java
+java -cp "$T/test_bar:$T/stubs:$T/main" com.mrkeyboard.app.BarTest
+
+echo "== KeepTest (tool and keyboard when the screen turns)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_keep" $D/keep_test/KeepTest.java
+java -cp "$T/test_keep:$T/stubs:$T/main" com.mrkeyboard.app.KeepTest
 
 if [ -n "$APPJAR" ]; then
   echo "== EsTest"

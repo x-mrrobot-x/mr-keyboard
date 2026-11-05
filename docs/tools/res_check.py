@@ -335,13 +335,44 @@ for sm in glob.glob('smali/com/mrkeyboard/app/*.smali'):
             problems.append('%s: opens a keyboard screen with its own NEW_TASK (use MrNav.intent): %s' % (
                 os.path.basename(sm), body.splitlines()[0]))
 
-# --- the dialog of the AI Editor is a window of its own (not an Activity): on Android 15+ it takes the bars and the cutout
+# --- the dialog of the AI Editor is a window of its own (not an Activity): on Android 11+ it takes the bars and the cutout
 # as padding through MrScreens.fitDialog, or its card could sit under the status bar or the camera
 ai_dialog = read_file('docs/tools/java/src/com/mrkeyboard/app/MrAiDialog.java')
-if 'MrScreens.fitDialog(root)' not in ai_dialog:
-    problems.append('MrAiDialog: the root of the dialog must go through MrScreens.fitDialog (insets of Android 15+)')
+if 'MrScreens.fitDialog(window.getDecorView(), root)' not in ai_dialog:
+    problems.append('MrAiDialog: the window of the dialog must go through MrScreens.fitDialog (insets of Android 11+)')
+if 'attrs.height = windowHeight(' not in ai_dialog or 'nextHeight = windowHeight(' not in ai_dialog:
+    problems.append('MrAiDialog: the height of the window must come from windowHeight (whole display when the area above the keyboard is short)')
 if 'MrScreens;->fitDialog' not in read_file('smali/com/mrkeyboard/app/MrAiDialog.smali'):
     problems.append('MrAiDialog.smali: out of date, no call to MrScreens.fitDialog (run docs/tools/build_java.sh)')
+
+# --- the tool and the keyboard survive a turn of the screen (MrKeep): the three places of LatinIME that feed it
+ime_smali = read_file('smali/com/mrkeyboard/app/LatinIME.smali')
+for method, call in (('onConfigurationChanged(Landroid/content/res/Configuration;)V', 'MrKeep;->onTurn('),
+                     ('onWindowHidden()V', 'MrKeep;->onHidden()'),
+                     ('onStartInput(Landroid/view/inputmethod/EditorInfo;Z)V', 'MrKeep;->onInput(')):
+    start = ime_smali.find('.method public %s' % method)
+    body = ime_smali[start:ime_smali.find('.end method', start)] if start >= 0 else ''
+    if call not in body:
+        problems.append('LatinIME.%s must call %s (the Customize tool and the keyboard come back after a rotation)' % (method.split('(')[0], call))
+if ime_smali.find('MrKeep;->onHidden()') > ime_smali.find('MrAiDialog;->dismiss()V', ime_smali.find('.method public onWindowHidden()V')):
+    problems.append('LatinIME.onWindowHidden: MrKeep.onHidden has to come before the tool is closed')
+
+# --- the buttons of the tool bar close the open dialogs (MrBarClose): the list of codes has to be the one that MrTools binds to
+# the seven buttons of bar_tools, and MrTools.onClick has to call MrBarClose first
+tools_smali = read_file('smali/com/mrkeyboard/app/MrTools.smali')
+bound = {}
+for m in re.finditer(r'const-string v1, "(b_\w+)"\s+(?:\.line \d+\s+)?const/(?:4|16) v2, (-?0x[0-9a-f]+)\s+(?:\.line \d+\s+)?invoke-static \{v0, v1, v2\}, Lcom/mrkeyboard/app/MrTools;->btn', tools_smali):
+    bound[m.group(1)] = int(m.group(2), 16)
+bar_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrBarClose.java')
+listed = re.search(r'TOOLBAR = \{([^}]*)\}', bar_src)
+listed = sorted(int(x.strip(), 16) for x in listed.group(1).split(',')) if listed else []
+if sorted(bound) != ['b_aied', 'b_clip', 'b_emote', 'b_sheets', 'b_shots', 'b_trans', 'b_tune']:
+    problems.append('MrTools: the buttons of the bar are not the seven expected (found %s)' % sorted(bound))
+elif sorted(bound.values()) != listed:
+    problems.append('MrBarClose.TOOLBAR %s does not match the codes that MrTools binds to the bar %s' % (listed, sorted(bound.values())))
+start = tools_smali.find('.method public onClick(Landroid/view/View;)V')
+if 'MrBarClose;->onClick(I)V' not in tools_smali[start:tools_smali.find('.end method', start)]:
+    problems.append('MrTools.onClick must call MrBarClose.onClick (a button of the bar closes the open dialogs)')
 
 print('resources: %d defined, %d entries in public.xml, %d strings in Spanish' % (len(defs), len(pub), len(es)))
 for p in problems:

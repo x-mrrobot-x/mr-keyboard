@@ -1127,7 +1127,7 @@
 .end method
 
 # Closes the Preferences dialog, if it is open.
-.method private static dismissDialog()V
+.method static dismissDialog()V
     .locals 3
 
     sget-object v0, Lcom/mrkeyboard/app/MrTune;->sDlg:Landroid/app/Dialog;

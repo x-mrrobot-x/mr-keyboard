@@ -37,6 +37,8 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
     private static long sLeftAuxiliaryAt;
 
     /** Longer than this away from the Preferences/Styles screens, the AI Editor no longer comes back by itself. */
+    /** Area above the keyboard shorter than this (dp): the dialog takes the whole display (see windowHeight). */
+    static final int SHORT_AREA_DP = 240;
     static final long RETURN_WINDOW_MS = 120000L;
     /** The system may take a moment to bind the field again: one more request if the keyboard is still down. */
     static final long RETRY_MS = 400L;
@@ -56,6 +58,11 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
         } catch (Throwable e) {
             dismiss();
         }
+    }
+
+    /** The dialog is open. */
+    static boolean isShowing() {
+        return sDialog != null && sDialog.isShowing();
     }
 
     /** Closes the dialog and invalidates any network response still in progress. */
@@ -135,7 +142,8 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
         showKeyboard();
     }
 
-    private static void showKeyboard() {
+    /** Asks the keyboard window to show itself (also used by MrKeep after a rotation). */
+    static void showKeyboard() {
         LatinIME ime = MrTools.sIme;
         if (ime == null || Build.VERSION.SDK_INT < SHOW_SELF_SDK) return;
         try {
@@ -248,7 +256,6 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
             dialog.setCanceledOnTouchOutside(true);
             dialog.setOnDismissListener(listener);
             dialog.setContentView(root);
-            MrScreens.fitDialog(root);
             MrAi.setup(root);
 
             Window window = dialog.getWindow();
@@ -260,13 +267,13 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
             window.clearFlags(2); // The dark layer is in the layout, as in the Preferences dialog.
             window.clearFlags(0x20000); // Do not let the window compete for IME focus.
             window.addFlags(0x308); // NOT_FOCUSABLE | LAYOUT_IN_SCREEN | LAYOUT_NO_LIMITS.
+            MrScreens.fitDialog(window.getDecorView(), root);
             WindowManager.LayoutParams attrs = window.getAttributes();
             attrs.token = token;
             attrs.type = 0x3eb; // TYPE_APPLICATION_ATTACHED_DIALOG
             attrs.gravity = Gravity.TOP | Gravity.FILL_HORIZONTAL;
             attrs.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            int top = imeTop();
-            attrs.height = top > 0 ? top : ViewGroup.LayoutParams.MATCH_PARENT;
+            attrs.height = windowHeight(imeTop(), density());
             window.setAttributes(attrs);
 
             decor.addOnLayoutChangeListener(listener);
@@ -283,6 +290,27 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
         Dialog imeWindow = ime.getWindow();
         if (imeWindow == null || imeWindow.getWindow() == null) return null;
         return imeWindow.getWindow().getDecorView();
+    }
+
+    /**
+     * Height of the window of the dialog: from the top of the display to the keyboard, but the whole display when that area
+     * is too short for the card (a phone on its side: the keyboard takes most of the height and only the title would show).
+     * In that case the dialog covers the keyboard too, below the status bar and the cutout (MrScreens.fitDialog).
+     */
+    static int windowHeight(int imeTop, float density) {
+        if (imeTop <= 0 || imeTop < SHORT_AREA_DP * density) return ViewGroup.LayoutParams.MATCH_PARENT;
+        return imeTop;
+    }
+
+    private static float density() {
+        try {
+            LatinIME ime = MrTools.sIme;
+            if (ime == null || ime.getResources() == null || ime.getResources().getDisplayMetrics() == null) return 1f;
+            float d = ime.getResources().getDisplayMetrics().density;
+            return d > 0f ? d : 1f;
+        } catch (RuntimeException e) {
+            return 1f;
+        }
     }
 
     private static int imeTop() {
@@ -309,8 +337,7 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
             Window window = dialog.getWindow();
             if (window == null) return;
             WindowManager.LayoutParams attrs = window.getAttributes();
-            int nextHeight = imeTop();
-            if (nextHeight <= 0) nextHeight = ViewGroup.LayoutParams.MATCH_PARENT;
+            int nextHeight = windowHeight(imeTop(), density());
             if (attrs.height != nextHeight) {
                 attrs.height = nextHeight;
                 window.setAttributes(attrs);

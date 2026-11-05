@@ -37,16 +37,18 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
     }
 
     /**
-     * Same rule for the window of the AI Editor dialog, which is attached to the keyboard window and laid out from the top
-     * of the display down to the keyboard (not an Activity, so the callbacks above never see it). The root view of the
-     * dialog gets the bars and the cutout that overlap that window as padding, so that the card is never under the status
-     * bar or the camera; its dark layer (the background of the root) still fills the window. No overlap, no padding.
-     * Below Android 15 nothing changes.
+     * The window of the AI Editor dialog is not an Activity (it is attached to the keyboard window and laid out from the top
+     * of the display down, with FLAG_LAYOUT_NO_LIMITS), so the callbacks above never see it, and the system gives a window
+     * like that no legacy insets: the card sat under the status bar and the camera. From Android 11 (WindowInsets.Type)
+     * the bars and the cutout that overlap the window are still reported, and this puts them as padding on the root of the
+     * dialog, so that the card never goes under them; its dark layer (the background of the root) still fills the window.
+     * The listener is on the decor view, which receives the insets before the layout of the system that consumes them,
+     * and what it receives is passed on to the decor as always. No overlap, no padding. Before Android 11 nothing changes.
      */
-    public static void fitDialog(View root) {
-        if (root == null || Build.VERSION.SDK_INT < EDGE_TO_EDGE_SDK) return;
-        root.setOnApplyWindowInsetsListener(new MrScreens());
-        root.requestApplyInsets();
+    public static void fitDialog(View decor, View root) {
+        if (decor == null || root == null || Build.VERSION.SDK_INT < INSETS_API_SDK) return;
+        decor.setOnApplyWindowInsetsListener(new DialogFit(root));
+        decor.requestApplyInsets();
     }
 
     public void onActivityStarted(Activity activity) {
@@ -73,8 +75,25 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
 
     public void onActivityDestroyed(Activity activity) { }
 
+    /** Padding of the dialog root from the insets that reach the decor view of its window. */
+    static final class DialogFit implements View.OnApplyWindowInsetsListener {
+        private final View mRoot;
+
+        DialogFit(View root) { mRoot = root; }
+
+        public WindowInsets onApplyWindowInsets(View decor, WindowInsets insets) {
+            if (Build.VERSION.SDK_INT >= INSETS_API_SDK) Api30.pad(mRoot, insets);
+            return decor.onApplyWindowInsets(insets);
+        }
+    }
+
     /** The calls of Android 11 and up, apart so that this class loads on any Android. */
     static final class Api30 {
+        static void pad(View root, WindowInsets insets) {
+            Insets bars = insets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+            root.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+        }
+
         static WindowInsets fit(View view, WindowInsets insets) {
             Insets bars = insets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
             view.setPadding(bars.left, bars.top, bars.right, bars.bottom);

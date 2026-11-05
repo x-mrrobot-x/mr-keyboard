@@ -4157,6 +4157,9 @@
 
     iget v0, p0, Lcom/mrkeyboard/app/MrTools;->mCode:I
 
+    # A button of the bar closes the dialogs that are open (MrBarClose), then does its job.
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrBarClose;->onClick(I)V
+
     const/16 v1, 0x12
 
     if-ne v0, v1, :cond_notview

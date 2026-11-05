@@ -17,6 +17,12 @@ public class ScreensTest {
 
     static final int BARS = WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout();
 
+    /** The decor view of a window: its own handling of the insets answers with a known object. */
+    static class Decor extends View {
+        static final WindowInsets MARK = insets(1, 2, 3, 4);
+        public WindowInsets onApplyWindowInsets(WindowInsets in) { return MARK; }
+    }
+
     /** A screen whose content area is the given view. */
     static class Screen extends Activity {
         final View content;
@@ -118,35 +124,56 @@ public class ScreensTest {
         check("below Android 11 the insets pass untouched and there is no padding",
                 back == sent && other.getPaddingTop() == 0 && other.getPaddingBottom() == 0);
 
-        // ---- dialog of the AI Editor (window from the top of the display to the keyboard): fitDialog
-        Build.VERSION.SDK_INT = 36;
+        // ---- dialog of the AI Editor (window from the top of the display to the keyboard): fitDialog on the decor view
+        Build.VERSION.SDK_INT = 33; // Android 13: the case of the screenshot (no edge-to-edge, but the window is under the bar)
+        View dDecor = new Decor();
         View dRoot = new View();
-        MrScreens.fitDialog(dRoot);
-        check("dialog on Android 15+: listener on the root and a request of the insets",
-                dRoot.stubInsetsListener() != null && dRoot.stubInsetsRequests() == 1);
-        dRoot.stubInsetsListener().onApplyWindowInsets(dRoot, insets(80, 0, 0, 0));
+        MrScreens.fitDialog(dDecor, dRoot);
+        check("dialog on Android 11+: listener on the decor view (not on the root, which the system layout may have consumed)",
+                dDecor.stubInsetsListener() != null && dRoot.stubInsetsListener() == null);
+        check("dialog: the insets are requested again", dDecor.stubInsetsRequests() == 1);
+        WindowInsets portrait = insets(80, 0, 0, 0);
+        WindowInsets back1 = dDecor.stubInsetsListener().onApplyWindowInsets(dDecor, portrait);
         check("dialog, portrait: the status bar is padding on top (the card stays below it), nothing else",
                 dRoot.getPaddingTop() == 80 && dRoot.getPaddingBottom() == 0 && dRoot.getPaddingLeft() == 0 && dRoot.getPaddingRight() == 0);
-        WindowInsets dLand = dRoot.stubInsetsListener().onApplyWindowInsets(dRoot, insets(60, 0, 110, 0));
+        check("dialog: what reaches the decor view goes on as always (the decor's own handling decides)", back1 == Decor.MARK);
+        dDecor.stubInsetsListener().onApplyWindowInsets(dDecor, insets(60, 0, 110, 0));
         check("dialog, landscape with the camera on the side: padding on the side and on top",
                 dRoot.getPaddingLeft() == 110 && dRoot.getPaddingTop() == 60);
-        check("dialog: what is left for the views below is zero (the card does not reserve the bars again)",
-                dLand.getInsets(BARS).top == 0 && dLand.getInsets(BARS).left == 0);
-        dRoot.stubInsetsListener().onApplyWindowInsets(dRoot, insets(0, 0, 0, 0));
+        dDecor.stubInsetsListener().onApplyWindowInsets(dDecor, insets(0, 0, 0, 0));
         check("dialog that does not touch the bars: no padding at all",
                 dRoot.getPaddingTop() == 0 && dRoot.getPaddingLeft() == 0 && dRoot.getPaddingBottom() == 0);
-        dRoot.stubInsetsListener().onApplyWindowInsets(dRoot, insets(80, 48, 0, 900));
-        check("dialog over the whole display (no keyboard height known): bars in the padding, keyboard is not",
+        dDecor.stubInsetsListener().onApplyWindowInsets(dDecor, insets(80, 48, 0, 900));
+        check("dialog over the whole display: bars in the padding (status bar and navigation bar), keyboard is not",
                 dRoot.getPaddingTop() == 80 && dRoot.getPaddingBottom() == 48);
-        Build.VERSION.SDK_INT = 34;
-        View dOld = new View();
-        MrScreens.fitDialog(dOld);
-        check("dialog on Android 14 or below: no listener, no request (as before)",
+        Build.VERSION.SDK_INT = 36;
+        View dDecor36 = new Decor();
+        View dRoot36 = new View();
+        MrScreens.fitDialog(dDecor36, dRoot36);
+        dDecor36.stubInsetsListener().onApplyWindowInsets(dDecor36, insets(80, 0, 0, 0));
+        check("dialog on Android 16: same padding", dRoot36.getPaddingTop() == 80);
+        Build.VERSION.SDK_INT = 29;
+        View dOld = new Decor();
+        MrScreens.fitDialog(dOld, new View());
+        check("dialog before Android 11: no listener, no request (as before)",
                 dOld.stubInsetsListener() == null && dOld.stubInsetsRequests() == 0);
         Build.VERSION.SDK_INT = 36;
         boolean dNull = true;
-        try { MrScreens.fitDialog(null); } catch (RuntimeException e) { dNull = false; }
-        check("fitDialog(null) does not fail", dNull);
+        try { MrScreens.fitDialog(null, new View()); MrScreens.fitDialog(new View(), null); MrScreens.fitDialog(null, null); }
+        catch (RuntimeException e) { dNull = false; }
+        check("fitDialog with null views does not fail", dNull);
+
+        // ---- height of the window of the dialog: up to the keyboard, or the whole display when that area is short
+        final int match = android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+        check("phone on its side (228 px above the keyboard, density 2.5 = 91 dp): the whole display",
+                MrAiDialog.windowHeight(228, 2.5f) == match);
+        check("phone in portrait (1300 px, density 2.5 = 520 dp): up to the keyboard", MrAiDialog.windowHeight(1300, 2.5f) == 1300);
+        check("exactly 240 dp: still up to the keyboard", MrAiDialog.windowHeight(600, 2.5f) == 600);
+        check("just under 240 dp: the whole display", MrAiDialog.windowHeight(599, 2.5f) == match);
+        check("the limit is in dp: the same 599 px on a screen of density 1 is 599 dp, up to the keyboard",
+                MrAiDialog.windowHeight(599, 1f) == 599);
+        check("position of the keyboard unknown (0 or negative): the whole display, as before",
+                MrAiDialog.windowHeight(0, 2.5f) == match && MrAiDialog.windowHeight(-1, 2.5f) == match);
 
         System.out.println(fail == 0 ? "ALL OK (" + ok + " checks)" : fail + " FAILURE(S)");
         System.exit(fail == 0 ? 0 : 1);

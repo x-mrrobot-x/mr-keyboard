@@ -8335,6 +8335,9 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/LatinIME;->mOrientation:I
 
+    # The screen turned: the tool and the keyboard are followed so that they come back (MrKeep).
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrKeep;->onTurn(Lcom/mrkeyboard/app/LatinIME;)V
+
     .line 689
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->reloadKeyboards()V
 
@@ -9410,6 +9413,9 @@
     .locals 0
 
     invoke-super {p0}, Landroid/inputmethodservice/InputMethodService;->onWindowHidden()V
+
+    # If the tool is open, MrKeep remembers it before it is closed with the window (a turn of the screen hides it).
+    invoke-static {}, Lcom/mrkeyboard/app/MrKeep;->onHidden()V
 
     # When hiding the IME, also closes the windows attached to the keyboard.
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->dismiss()V
@@ -11363,6 +11369,8 @@
     invoke-super {p0, p1, p2}, Landroid/inputmethodservice/InputMethodService;->onStartInput(Landroid/view/inputmethod/EditorInfo;Z)V
 
     invoke-static {p1}, Lcom/mrkeyboard/app/MrAiDialog;->onInputStarted(Landroid/view/inputmethod/EditorInfo;)V
+
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrKeep;->onInput(Landroid/view/inputmethod/EditorInfo;)V
 
     return-void
 .end method
