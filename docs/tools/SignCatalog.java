@@ -20,17 +20,17 @@ import java.util.Base64;
  * O app confere a assinatura com o certificado com que ele mesmo foi instalado, então só aceita
  * catálogos feitos por quem tem a chave do APK. Rodar com o Java 11 ou mais novo:
  *
- *   java SignCatalog.java --data out/dados.json --out out/catalogo.json --keystore key.jks
+ *   java SignCatalog.java --data out/data.json --out out/catalog.json --keystore key.jks
  *       (senhas e alias nas variáveis KEYSTORE_PASS, KEY_ALIAS e KEY_PASS)
- *   java SignCatalog.java --data out/dados.json --out out/catalogo.json --pk8 key.pk8 --cert cert.pem
+ *   java SignCatalog.java --data out/data.json --out out/catalog.json --pk8 key.pk8 --cert cert.pem
  *
- * A mensagem assinada é PREFIX + bytes de dados.json; o prefixo impede que a assinatura sirva
+ * A mensagem assinada é PREFIX + bytes de data.json; o prefixo impede que a assinatura sirva
  * para qualquer outra coisa. Saída (JSON):
  *   {"format":1,"algorithm":"SHA256withRSA","signer":"<SHA-256 do certificado>",
- *    "signature":"<base64>","data":"<dados.json como texto>"}
+ *    "signature":"<base64>","data":"<data.json como texto>"}
  */
 public class SignCatalog {
-    static final String PREFIX = "mr-keyboard/catalogo/v1\n";
+    static final String PREFIX = "mr-keyboard/catalog/v1\n";
 
     public static void main(String[] args) throws Exception {
         String data = null, out = null, ks = null, pk8 = null, cert = null;
@@ -45,7 +45,7 @@ public class SignCatalog {
             }
         }
         if (data == null || out == null || (ks == null && (pk8 == null || cert == null))) {
-            die("uso: --data dados.json --out catalogo.json (--keystore arq | --pk8 arq --cert arq)");
+            die("uso: --data data.json --out catalog.json (--keystore arq | --pk8 arq --cert arq)");
         }
 
         PrivateKey key;
@@ -88,7 +88,7 @@ public class SignCatalog {
         byte[] dataBytes = Files.readAllBytes(new File(data).toPath());
         String dataText = new String(dataBytes, StandardCharsets.UTF_8);
         if (!java.util.Arrays.equals(dataText.getBytes(StandardCharsets.UTF_8), dataBytes)) {
-            die("dados.json não é UTF-8 válido");
+            die("data.json não é UTF-8 válido");
         }
         byte[] msg = message(dataBytes);
 

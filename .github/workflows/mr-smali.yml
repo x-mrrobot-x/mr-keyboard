@@ -8,7 +8,7 @@
 # do mr-checks.yml acusar DIFERENTE).
 #
 # Resultado em Actions > (execução) > Artifacts:
-#   smali-gerado -> só os .smali que têm fonte Java, com o caminho smali/com/mrkeyboard/app/.
+#   generated-smali -> só os .smali que têm fonte Java, com o caminho smali/com/mrkeyboard/app/.
 #                   Extraia na raiz do projeto (sobrescrevendo) e faça o commit.
 # O resumo da execução mostra quais arquivos do repositório estão diferentes do gerado.
 name: Mr Keyboard - smali
@@ -53,7 +53,7 @@ jobs:
         run: |
           # a mesma regra do check_java_smali.sh: Base.smali e Base$*.smali de cada docs/tools/java/src/.../Base.java
           APP=smali/com/mrkeyboard/app
-          DEST=smali-gerado/$APP
+          DEST=generated-smali/$APP
           mkdir -p "$DEST"
           for java in docs/tools/java/src/com/mrkeyboard/app/*.java; do
             base=$(basename "$java" .java)
@@ -71,7 +71,7 @@ jobs:
             if [ -z "$(git status --porcelain -- smali)" ]; then
               echo "O smali do repositório já é igual ao gerado. Nada a fazer."
             else
-              echo "Diferem do repositório (troque pelos do artifact \`smali-gerado\`):"
+              echo "Diferem do repositório (troque pelos do artifact \`generated-smali\`):"
               echo
               echo '```'
               git status --short -- smali
@@ -81,7 +81,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: smali-gerado
-          path: smali-gerado/
+          name: generated-smali
+          path: generated-smali/
           retention-days: 14
           if-no-files-found: error

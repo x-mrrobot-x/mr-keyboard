@@ -1,10 +1,10 @@
 #!/bin/sh
-# Assina o catálogo de dicionários (dados.json -> catalogo.json) com a chave do APK.
+# Assina o catálogo de dicionários (data.json -> catalog.json) com a chave do APK.
 # O app só aceita catálogo assinado pela chave com que ele foi instalado.
 # A chave vem do ambiente, como no mr-apk.yml:
 #   KEYSTORE_B64 + KEYSTORE_PASS + KEY_ALIAS + KEY_PASS      (keystore em base64)
 #   KEY_PK8_B64 + CERT_PEM_B64                               (par .pk8 + .pem em base64)
-# Uso: sh docs/tools/sign_catalog.sh out/dados.json out/catalogo.json
+# Uso: sh docs/tools/sign_catalog.sh out/data.json out/catalog.json
 set -e
 DADOS=$1; SAIDA=$2
 AQUI=$(cd "$(dirname "$0")" && pwd)

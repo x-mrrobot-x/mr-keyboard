@@ -19,7 +19,7 @@
 # static fields
 .field static final CATALOG_FORMAT:I = 0x1
 
-.field static final CATALOG_URL:Ljava/lang/String; = "https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalogo.json"
+.field static final CATALOG_URL:Ljava/lang/String; = "https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalog.json"
 
 .field static final DEFAULT_IDS:[Ljava/lang/String;
 
@@ -53,7 +53,7 @@
 
 .field static final SIGNAL_KEY:Ljava/lang/String; = "mr_dicts_updated_at"
 
-.field static final SIG_PREFIX:Ljava/lang/String; = "mr-keyboard/catalogo/v1\n"
+.field static final SIG_PREFIX:Ljava/lang/String; = "mr-keyboard/catalog/v1\n"
 
 .field static final TRIGRAMS:Ljava/lang/String; = "trigrams.bin"
 
@@ -99,7 +99,7 @@
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sNet:Lcom/mrkeyboard/app/MrPacks$Net;
 
     .line 366
-    const-string v0, "https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalogo.json"
+    const-string v0, "https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalog.json"
 
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sCatalogUrl:Ljava/lang/String;
 
@@ -2393,7 +2393,7 @@
 
     const/4 v4, 0x0
 
-    const-string v5, "catalogo.json"
+    const-string v5, "catalog.json"
 
     aput-object v5, v3, v4
 
@@ -4400,7 +4400,7 @@
 
     new-array v0, v0, [Ljava/lang/Object;
 
-    const-string v4, "catalogo.json"
+    const-string v4, "catalog.json"
 
     aput-object v4, v0, v1
 
@@ -4411,7 +4411,7 @@
     .line 157
     :cond_1
     :try_start_2
-    const-string v2, "mr-keyboard/catalogo/v1\n"
+    const-string v2, "mr-keyboard/catalog/v1\n"
 
     const-string v7, "UTF-8"
 
@@ -4766,7 +4766,7 @@
 
     new-array v2, v2, [Ljava/lang/Object;
 
-    const-string v3, "catalogo.json"
+    const-string v3, "catalog.json"
 
     aput-object v3, v2, v6
 

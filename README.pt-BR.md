@@ -42,7 +42,7 @@ O comando vai num broadcast que outros apps também podem receber, então não c
 - O app só usa a internet quando você pede:
   - **Traduzir** envia ao Google Tradutor (`translate.googleapis.com`) o texto que você digita no campo de tradução. Só esse texto, e só quando você usa. O próprio campo avisa ("Digite para traduzir com o Google"), e o app mostra um aviso na primeira vez que o painel abre.
   - **Editor de IA** envia somente o texto que você escolhe reescrever, e apenas ao serviço de IA que configurar. O app avisa na primeira abertura; nada é enviado até você tocar num estilo.
-  - **Dicionários** (*Configurações → Sugestões e dicionários*): o app só se conecta quando você toca em *Procurar atualizações*, *Baixar*, *Atualizar* ou em um idioma que ainda não foi baixado, e só baixa arquivos da [release mais recente](../../releases/latest) deste repositório (o catálogo, `catalogo.json`, e um zip por idioma). Cada arquivo é conferido com uma lista assinada com a chave do próprio app antes de ser usado.
+  - **Dicionários** (*Configurações → Sugestões e dicionários*): o app só se conecta quando você toca em *Procurar atualizações*, *Baixar*, *Atualizar* ou em um idioma que ainda não foi baixado, e só baixa arquivos da [release mais recente](../../releases/latest) deste repositório (o catálogo, `catalog.json`, e um zip por idioma). Cada arquivo é conferido com uma lista assinada com a chave do próprio app antes de ser usado.
 
 | Permissão | Para quê |
 |---|---|
@@ -53,7 +53,7 @@ O comando vai num broadcast que outros apps também podem receber, então não c
 | Vibração | Vibrar ao tocar nas teclas |
 
 ## Instalação
-1. Baixe o APK na [última versão](../../releases/latest) (link direto: [MrKeyboard.apk](../../releases/latest/download/MrKeyboard.apk)) e instale.
+1. Baixe o APK (`mr-keyboard-v<versão>.apk`) na [última versão](../../releases/latest) e instale.
 2. Abra o **Mr Keyboard** e toque em **Ativar teclado**. Ligue o Mr Keyboard na lista e aceite o aviso do sistema. O Android mostra esse aviso para qualquer teclado que não veio com o celular.
 3. Toque em **Definir método de entrada** e escolha o Mr Keyboard.
 4. Para ter sugestões de palavras (opcional): nas configurações, abra **Sugestões e dicionários**, toque no seu idioma para baixar o dicionário e ligue **Mostrar sugestões**. Baixando mais de um idioma, deslize a barra de espaço para os lados para alternar entre eles.
@@ -61,23 +61,23 @@ O comando vai num broadcast que outros apps também podem receber, então não c
 ## Como compilar
 Este repositório guarda o app como projeto do [apktool](https://apktool.org/) (código smali e recursos). Também tem:
 - `native/`: o leitor de dicionário em C++, `libjni_pckeyboard.so` (CMake);
-- `engine/`: o motor nativo de sugestões, `libmrengine.so` (busca de correção e previsão por duas palavras em C++, com o código Java de reserva; veja `docs/motor-nativo.md`);
+- `engine/`: o motor nativo de sugestões, `libmrengine.so` (busca de correção e previsão por duas palavras em C++, com o código Java de reserva; veja `docs/native-engine.md`);
 - `docs/`: anotações de cada versão e as ferramentas usadas para gerar o dicionário e as classes Java.
 
 **Pelo GitHub Actions** são três workflows:
 - *Mr Keyboard - APK* roda a cada push que muda o app (`smali/`, `res/`, `lib/`, `apktool.yml`). Gera o APK com o apktool 2.11.1 usando as bibliotecas que já estão em `lib/` e assina, se existirem os secrets `KEYSTORE_B64`, `KEYSTORE_PASS`, `KEY_ALIAS` e `KEY_PASS`. Sem os secrets (num fork, por exemplo), sai um APK sem assinatura no artefato `apk`.
-- *Mr Keyboard - lib nativa* roda só quando `native/` ou `engine/` muda (ou à mão). Compila as duas bibliotecas para arm64-v8a, armeabi-v7a e x86 com o NDK 27 e roda os testes no PC. Extraia o artefato `libs-nativas` na raiz do projeto (mesclando com `lib/`) e faça o commit de `lib/`, `native-src.sha256`, `mrengine-src.sha256` e `mrengine-info.txt`. O workflow do APK compara esses hashes com o `native/` e o `engine/` atuais e não deixa publicar se a `lib/` estiver desatualizada.
-- *Mr Keyboard - verificações* roda nos pushes na `main` e nos pull requests que mudam o app. Confere a versão e as notas, os recursos (inclusive os textos em espanhol), a lista de chaves do "Restaurar padrões", os registradores do smali e se o smali gerado da camada Java está em dia, monta o app para verificar o dex, roda os testes de PC e confere que o motor nativo dá exatamente o mesmo resultado que o código Java (Java x C++, três idiomas). Os mesmos scripts estão em `docs/tools/` e rodam também no seu computador.
+- *Mr Keyboard - native lib* roda só quando `native/` ou `engine/` muda (ou à mão). Compila as duas bibliotecas para arm64-v8a, armeabi-v7a e x86 com o NDK 27 e roda os testes no PC. Extraia o artefato `native-libs` na raiz do projeto (mesclando com `lib/`) e faça o commit de `lib/`, `native-src.sha256`, `mrengine-src.sha256` e `mrengine-info.txt`. O workflow do APK compara esses hashes com o `native/` e o `engine/` atuais e não deixa publicar se a `lib/` estiver desatualizada.
+- *Mr Keyboard - checks* roda nos pushes na `main` e nos pull requests que mudam o app. Confere a versão e as notas, os recursos (inclusive os textos em espanhol), a lista de chaves do "Restaurar padrões", os registradores do smali e se o smali gerado da camada Java está em dia, monta o app para verificar o dex, roda os testes de PC e confere que o motor nativo dá exatamente o mesmo resultado que o código Java (Java x C++, três idiomas). Os mesmos scripts estão em `docs/tools/` e rodam também no seu computador.
 
 **Publicar (para quem mantém o projeto):**
-- **Uma release por lançamento:** aumente `versionCode` e `versionName` no `apktool.yml` (e crie `docs/revisao-<versão>.md`, as notas da versão) e faça o push na `main`. O *Mr Keyboard - APK* publica uma única [release](../../releases), com a tag do `versionName` (ex.: `v1.72.0`), com o `MrKeyboard.apk` (o APK assinado, nome fixo usado pelo link direto acima), um `catalogo.json` assinado e um zip por idioma de dicionário. O texto é a seção **## Notas da release** (em português e inglês) de `docs/revisao-<versão>.md`, a lista dos dicionários incluídos e o link para as notas completas. Precisa dos secrets de assinatura; sem eles, com uma versão que já foi publicada ou com a `lib/` desatualizada, só avisa e o APK fica no artefato `apk`. Rodar à mão com *publicar* marcado faz o mesmo, mas trata qualquer um desses casos como erro. A release é criada como rascunho, os arquivos são conferidos e só então ela é publicada.
-- **Dicionários:** os pacotes ficam em `dicts/<idioma>/` (o `pack.json` lista os arquivos). Cada release leva só a **versão atual de cada idioma** (zips antigos não ficam). Depois de mudar algo, aumente `version` nesse `pack.json` **e** a versão do app e faça o push: a release nova traz o zip novo e um `catalogo.json` com `serial` maior. Os idiomas que não mudaram são reaproveitados byte a byte da release anterior. O catálogo é assinado com a própria chave do app (a mesma que assina o APK), e o app só aceita catálogo assinado com a chave com que foi instalado.
+- **Uma release por lançamento:** aumente `versionCode` e `versionName` no `apktool.yml`, escreva as notas curtas em `docs/release-notes/<tag>.md` (ex.: `docs/release-notes/v1.72.0.md`, com um bloco **Português** e um **English**) e faça o push na `main`. O *Mr Keyboard - APK* publica uma única [release](../../releases), com a tag do `versionName` (ex.: `v1.72.0`), com o APK assinado (`mr-keyboard-v1.72.0.apk`, a versão está no nome do arquivo), um `catalog.json` assinado e um zip por idioma de dicionário. O texto é o arquivo de notas, a lista dos dicionários incluídos e os hashes. Precisa dos secrets de assinatura; sem eles, com uma versão que já foi publicada ou com a `lib/` desatualizada, só avisa e o APK fica no artefato `apk`. Rodar à mão com *publicar* marcado faz o mesmo, mas trata qualquer um desses casos como erro. A release é criada como rascunho, os arquivos são conferidos e só então ela é publicada.
+- **Dicionários:** os pacotes ficam em `dicts/<idioma>/` (o `pack.json` lista os arquivos). Cada release leva só a **versão atual de cada idioma** (zips antigos não ficam). Depois de mudar algo, aumente `version` nesse `pack.json` **e** a versão do app e faça o push: a release nova traz o zip novo e um `catalog.json` com `serial` maior. Os idiomas que não mudaram são reaproveitados byte a byte da release anterior. O catálogo é assinado com a própria chave do app (a mesma que assina o APK), e o app só aceita catálogo assinado com a chave com que foi instalado.
 
 **No computador:**
 ```sh
-apktool b . -o MrKeyboard-unsigned.apk
-zipalign -p -f 4 MrKeyboard-unsigned.apk aligned.apk
-apksigner sign --ks sua-chave.jks --out MrKeyboard.apk aligned.apk
+apktool b . -o mr-keyboard-unsigned.apk
+zipalign -p -f 4 mr-keyboard-unsigned.apk aligned.apk
+apksigner sign --ks sua-chave.jks --out mr-keyboard.apk aligned.apk
 ```
 
 ## Créditos e licenças

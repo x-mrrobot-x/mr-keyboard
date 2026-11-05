@@ -3,7 +3,7 @@
 A busca de correção (`MrFuzzy.java`) e a consulta de trigramas (`MrTrigram.java`) do app em C++, entregues como
 **`libmrengine.so`**. Lê os arquivos de hoje (`dicts/<idioma>/main.dict`, `trigrams.bin`), **sem formato novo**. Se a lib não
 estiver no APK, não carregar ou tiver outra versão de contrato, o app segue pelo Java, sem perder função. O resultado do C++ é
-**idêntico** ao do Java (palavras, ordem, pontuação, custo e nós visitados). Visão geral e fluxo: `docs/motor-nativo.md`.
+**idêntico** ao do Java (palavras, ordem, pontuação, custo e nós visitados). Visão geral e fluxo: `docs/native-engine.md`.
 
 O leitor do dicionário (`libjni_pckeyboard.so`) fica em `native/` e é outro projeto de CMake; as duas libs saem do mesmo workflow
 (`.github/workflows/mr-native.yml`).
@@ -38,8 +38,8 @@ bash docs/tools/e2e/run_native_parity.sh      # Java x C++ ao vivo, 3 idiomas (m
 
 
 ## Compilar e colocar no app
-Mexeu em `engine/` (ou em `native/`)? O workflow **Mr Keyboard - lib nativa** roda no push (ou à mão: Actions → Run workflow). Ele
-testa no PC e compila as duas libs para arm64-v8a, armeabi-v7a e x86 com o NDK 27. Baixe o artifact **`libs-nativas`**, extraia na raiz do
+Mexeu em `engine/` (ou em `native/`)? O workflow **Mr Keyboard - native lib** roda no push (ou à mão: Actions → Run workflow). Ele
+testa no PC e compila as duas libs para arm64-v8a, armeabi-v7a e x86 com o NDK 27. Baixe o artifact **`native-libs`**, extraia na raiz do
 projeto (mesclando com `lib/`) e faça o commit de `lib/`, `native-src.sha256`, `mrengine-src.sha256` e `mrengine-info.txt`. O workflow do
 APK compara os hashes com o código atual e não publica se a `lib/` estiver velha.
 

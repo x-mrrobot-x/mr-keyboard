@@ -35,7 +35,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * Pacotes de dicionário baixáveis (v1.63). Veja docs/plano-dicionarios.md.
+ * Pacotes de dicionário baixáveis (v1.63).
  *
  * Privacidade: só se conecta quando o usuário pede (procurar atualizações, baixar, atualizar), só
  * por HTTPS e só para baixar arquivos; não manda nada do que foi digitado, nem o modelo do aparelho
@@ -54,8 +54,8 @@ public final class MrPacks {
     private MrPacks() { }
 
     static final String CATALOG_URL =
-            "https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalogo.json"; // v1.73: na release do APK
-    static final String SIG_PREFIX = "mr-keyboard/catalogo/v1\n";
+            "https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalog.json"; // v1.73: na release do APK
+    static final String SIG_PREFIX = "mr-keyboard/catalog/v1\n";
     static final int CATALOG_FORMAT = 1;
     static final int PACK_FORMAT = 1;
     static final String PREFS = "mr_packs";
@@ -147,7 +147,7 @@ public final class MrPacks {
         } catch (PackException e) {
             throw e;
         } catch (Exception e) {
-            throw new PackException("mr_dicts_err_corrupt", "catalogo.json");
+            throw new PackException("mr_dicts_err_corrupt", "catalog.json");
         }
         if (!alg.equals("SHA256withRSA") && !alg.equals("SHA256withECDSA") && !alg.equals("SHA256withDSA")) {
             throw new PackException("mr_dicts_err_signature");
@@ -212,7 +212,7 @@ public final class MrPacks {
         } catch (PackException e) {
             throw e;
         } catch (RuntimeException e) {
-            throw new PackException("mr_dicts_err_corrupt", "catalogo.json");
+            throw new PackException("mr_dicts_err_corrupt", "catalog.json");
         }
     }
 
@@ -377,7 +377,7 @@ public final class MrPacks {
             int r;
             while ((r = in.read(buf)) > 0) {
                 out.write(buf, 0, r);
-                if (out.size() > max) throw new PackException("mr_dicts_err_corrupt", "catalogo.json");
+                if (out.size() > max) throw new PackException("mr_dicts_err_corrupt", "catalog.json");
             }
             return out.toByteArray();
         } catch (HttpError e) {

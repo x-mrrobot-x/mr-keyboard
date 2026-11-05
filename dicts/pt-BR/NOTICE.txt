@@ -42,7 +42,7 @@ Listas escritas para o Mr Keyboard.
 Modificacoes em relacao a lista base: formato binario "latest" do LatinIME
 (cabecalho de 2 bytes, bigramas por palavra) lido por libjni_pckeyboard; grafias
 anteriores ao Acordo Ortografico trocadas pelas atuais (veem, leem, deem, creem);
-removidas variantes lusitanas e erros de grafia (lista em docs/revisao-1.6.0.md);
+removidas variantes lusitanas e erros de grafia (lista em docs/dictionary-build.md);
 palavras marcadas como potencialmente ofensivas com frequencia minima e fora da
 previsao; acrescentadas palavras do corpus aceitas pelo corretor VERO (usado so como
 filtro, nada dele e copiado), estrangeirismos, nomes proprios, girias e abreviacoes.

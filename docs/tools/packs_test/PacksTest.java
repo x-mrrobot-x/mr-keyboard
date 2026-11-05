@@ -81,7 +81,7 @@ public class PacksTest {
     }
 
     // ---------------------------------------------------------------- rede de mentira
-    static String catalogFile = FX + "ok/catalogo.json";
+    static String catalogFile = FX + "ok/catalog.json";
     static String zipDir = FX + "ok/";
     static int corruptAt = -1, truncateAt = -1, httpCode = 200, cancelAfter = -1;
     static int requests = 0;
@@ -153,7 +153,7 @@ public class PacksTest {
                 MrPacks.validId("pt-BR") && MrPacks.validId("en") && MrPacks.validId("fil") && !MrPacks.validId("PT-br")
                 && !MrPacks.validId("pt_BR") && !MrPacks.validId("../x") && !MrPacks.validId("pt-BRA"), null);
         check("o catálogo é lido da release mais recente (a mesma do APK)",
-                MrPacks.CATALOG_URL.equals("https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalogo.json"),
+                MrPacks.CATALOG_URL.equals("https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalog.json"),
                 MrPacks.CATALOG_URL);
         check("safeName recusa ../x, a/b, .x, vazio", MrPacks.safeName("pt-BR-2.zip") && !MrPacks.safeName("../x")
                 && !MrPacks.safeName("a/b") && !MrPacks.safeName(".x") && !MrPacks.safeName(""), null);
@@ -185,13 +185,13 @@ public class PacksTest {
         MrPacks.Catalog cat = MrPacks.cachedCatalog(ctx);
         check("catálogo guardado: série 1, pt-BR v2", cat != null && cat.serial == 1 && cat.packs.size() == 1
                 && cat.packs.get(0).version == 2, cat == null ? null : cat.packs.get(0).id + " v" + cat.packs.get(0).version);
-        catalogFile = FX + "old/catalogo.json";
+        catalogFile = FX + "old/catalog.json";
         r = errOf(() -> MrPacks.fetchCatalog(ctx));
         check("catálogo com série menor é recusado", r.equals("mr_dicts_err_old_catalog"), r);
-        catalogFile = FX + "ok/catalogo_tamper.json";
+        catalogFile = FX + "ok/catalog_tamper.json";
         r = errOf(() -> MrPacks.fetchCatalog(ctx));
         check("catálogo alterado depois de assinado é recusado", r.equals("mr_dicts_err_signature"), r);
-        catalogFile = FX + "ok/catalogo_ec.json";
+        catalogFile = FX + "ok/catalog_ec.json";
         r = errOf(() -> MrPacks.fetchCatalog(ctx));
         check("catálogo assinado com outra chave é recusado", r.equals("mr_dicts_err_other_key"), r);
         httpCode = 404;
@@ -199,7 +199,7 @@ public class PacksTest {
         check("HTTP 404 vira mensagem com o código", r.equals("mr_dicts_err_http [404]"), r);
         httpCode = 200;
         check("série guardada continua 1", MrPacks.prefs(ctx).getLong(MrPacks.KEY_SERIAL, -1) == 1, null);
-        catalogFile = FX + "ok/catalogo.json";
+        catalogFile = FX + "ok/catalog.json";
 
         // ---- idiomas do teclado (cartões e selected_languages)
         check("cartões sem catálogo: os 3 padrão (idioma do app primeiro)",
@@ -283,7 +283,7 @@ public class PacksTest {
         check("idioma sem pacote (en) não acha", PluginManager.getDictionary(ctx, "en") == null, null);
 
         // ---- atualizações com problema: a versão 2 continua
-        catalogFile = FX + "v3/catalogo.json"; zipDir = FX + "v3/";
+        catalogFile = FX + "v3/catalog.json"; zipDir = FX + "v3/";
         r = errOf(() -> MrPacks.fetchCatalog(ctx));
         final MrPacks.Catalog c3 = MrPacks.cachedCatalog(ctx);
         check("atualizações: catálogo v3 com a v2 instalada = 1 (sem catálogo = 0)",
@@ -299,7 +299,7 @@ public class PacksTest {
                 && list(d2).size() == 5 && list(d2.getParentFile()).equals(Arrays.asList("2")) && list(ctx.getCacheDir()).isEmpty(),
                 list(d2.getParentFile()));
         for (String fx : new String[] {"extra", "slip"}) {
-            catalogFile = FX + fx + "/catalogo.json"; zipDir = FX + fx + "/";
+            catalogFile = FX + fx + "/catalog.json"; zipDir = FX + fx + "/";
             MrPacks.prefs(ctx).edit().putLong(MrPacks.KEY_SERIAL, 2).commit();
             r = errOf(() -> MrPacks.fetchCatalog(ctx));
             final MrPacks.Catalog cx = MrPacks.cachedCatalog(ctx);
@@ -309,12 +309,12 @@ public class PacksTest {
         check("nenhum arquivo fora da pasta do pacote", !new File(ctx.getFilesDir(), "evil.txt").exists()
                 && !new File(new File(ctx.getFilesDir(), "dicts"), "evil.txt").exists()
                 && !new File(new File(new File(ctx.getFilesDir(), "dicts"), "pt-BR"), "evil.txt").exists(), null);
-        catalogFile = FX + "badfile/catalogo.json"; zipDir = FX + "badfile/";
+        catalogFile = FX + "badfile/catalog.json"; zipDir = FX + "badfile/";
         errOf(() -> MrPacks.fetchCatalog(ctx));
         final MrPacks.Catalog cb = MrPacks.cachedCatalog(ctx);
         r = errOf(() -> MrPacks.install(ctx, cb, cb.packs.get(0)));
         check("arquivo dentro do zip com sha256 errado é recusado", r.equals("mr_dicts_err_corrupt [rules.txt]"), r);
-        catalogFile = FX + "minapp/catalogo.json"; zipDir = FX + "minapp/";
+        catalogFile = FX + "minapp/catalog.json"; zipDir = FX + "minapp/";
         errOf(() -> MrPacks.fetchCatalog(ctx));
         final MrPacks.Catalog cm = MrPacks.cachedCatalog(ctx);
         r = errOf(() -> MrPacks.install(ctx, cm, cm.packs.get(0)));
@@ -324,7 +324,7 @@ public class PacksTest {
                 && list(d2).size() == 5 && list(d2.getParentFile()).equals(Arrays.asList("2")), list(d2.getParentFile()));
 
         // ---- atualização boa troca a pasta
-        catalogFile = FX + "v7/catalogo.json"; zipDir = FX + "v7/";
+        catalogFile = FX + "v7/catalog.json"; zipDir = FX + "v7/";
         errOf(() -> MrPacks.fetchCatalog(ctx));
         final MrPacks.Catalog c7 = MrPacks.cachedCatalog(ctx);
         r = errOf(() -> MrPacks.install(ctx, c7, c7.packs.get(0)));

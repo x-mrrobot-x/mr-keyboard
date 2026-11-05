@@ -1,33 +1,25 @@
 #!/usr/bin/env python3
-"""Monta os pacotes de dicionário (dicts/<id>/) e os dados do catálogo.
+"""Builds the dictionary packs (dicts/<id>/) and the catalog data, for the single release of a launch.
 
-Dois modos:
+Called by publish_release.sh:
+    python3 make_catalog.py --dicts dicts --out out --repo owner/repo --tag v1.73.0 \
+        [--prev catalog.json --reuse folder_with_the_previous_zips]
+The catalog and the zips live in the release itself: baseUrl points to it and the --out folder ends up with
+exactly ONE zip per language (the current version), ready to attach; data.json is always written (the address
+changed). The serial only goes up if some pack changed; otherwise it stays the one of the previous catalog (the
+app accepts an equal serial, it only refuses a lower one). A pack equal to the previous catalog reuses the zip
+from --reuse (same bytes, checked by the SHA-256 in the catalog).
 
-1) Modo antigo, sem --tag (a release "dicionarios" e o mr-dicts.yml já foram aposentados; hoje só os testes
-   usam este modo, para reproduzir o catálogo que os apps antigos conhecem):
-     python3 make_catalog.py --dicts dicts --out out --repo dono/repo [--prev catalogo.json]
-   Só gera o que é novo e, se nada mudou, não escreve dados.json.
+For each folder dicts/<id>/ with a pack.json:
+  - checks the manifest and the files (dictionary header, two-word file, UTF-8 of the rules);
+  - if the previous catalog (--prev) already has this id at the same version with the same files, reuses the entry;
+  - if the version is new, builds <id>-<version>.zip, always identical for the same content;
+  - if the content changed and the version did not, stops with an error (raise "version" in pack.json).
 
-2) Release única, com o APK (publish_release.sh, o modo de verdade): acrescente --tag da release (ex.: v1.73.0):
-     python3 make_catalog.py --dicts dicts --out out --repo dono/repo --tag v1.73.0 \
-         [--prev catalogo.json --reuse pasta_com_os_zips_anteriores]
-   O catálogo e os zips ficam na própria release: o baseUrl aponta para ela e a pasta --out sai com
-   exatamente UM zip por idioma (o da versão atual), prontos para anexar; dados.json sai sempre
-   (o endereço mudou). A série só sobe se algum pacote mudou; senão fica a do catálogo anterior
-   (o app aceita série igual, só não aceita menor). Pacote igual ao do catálogo anterior reaproveita
-   o zip de --reuse (mesmos bytes, conferidos pelo SHA-256 do catálogo).
-
-Para cada pasta dicts/<id>/ com pack.json:
-  - confere o manifesto e os arquivos (cabeçalho do dicionário, das duas palavras, UTF-8 das regras);
-  - se o catálogo anterior (--prev) já tem esse id na mesma versão com os mesmos arquivos,
-    reaproveita a entrada (o zip não muda);
-  - se a versão é nova, gera <id>-<versão>.zip sempre igual para o mesmo conteúdo;
-  - se o conteúdo mudou e a versão não, para com erro (aumente "version" no pack.json).
-
-Saída em --out:
-  dados.json   o que vai ser assinado (bytes exatos)
-  enviar.txt   zips para enviar ao Release, um por linha (modo 1: só os novos; modo 2: todos)
-  <id>-<v>.zip os zips
+Output in --out:
+  data.json    what gets signed (exact bytes)
+  upload.txt   zips to attach to the release, one per line (all of them)
+  <id>-<v>.zip the zips
 """
 import argparse
 import datetime
@@ -41,7 +33,6 @@ import zipfile
 
 FORMAT = 1                 # formato do catálogo
 PACK_FORMATS = {1}         # formatos de pacote que este script sabe montar
-RELEASE_TAG = "dicionarios"
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 ID_RE = re.compile(r"^[a-z]{2,3}(-[A-Z]{2})?$")
 ZIP_TIME = (1980, 1, 1, 0, 0, 0)
@@ -139,7 +130,7 @@ def load_prev(path):
 
 
 def reuse_zip(a, entry):
-    """Modo release única: copia para --out o zip da release anterior, conferindo tamanho e SHA-256."""
+    """Copies to --out o zip da release anterior, conferindo tamanho e SHA-256."""
     if not a.reuse:
         fail("%s v%d: igual ao catálogo anterior, mas falta --reuse com os zips da release anterior"
              % (entry["id"], entry["version"]))
@@ -158,13 +149,11 @@ def main():
     ap.add_argument("--dicts", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--repo", required=True, help="dono/repositório no GitHub")
-    ap.add_argument("--prev", help="catalogo.json publicado (se existir)")
+    ap.add_argument("--prev", help="catalog.json published before (if any)")
     ap.add_argument("--now", help="data fixa (para testes), ISO 8601")
-    ap.add_argument("--tag", help="release única: tag da release que terá o catálogo e os zips (ex.: v1.73.0)")
-    ap.add_argument("--reuse", help="com --tag: pasta com os zips da release anterior, para os pacotes iguais")
+    ap.add_argument("--tag", required=True, help="tag of the release that will hold the catalog and the zips (ex.: v1.73.0)")
+    ap.add_argument("--reuse", help="folder with the zips of the previous release, for unchanged packs")
     a = ap.parse_args()
-    if a.reuse and not a.tag:
-        fail("--reuse só vale com --tag")
 
     prev = load_prev(a.prev)
     prev_packs = {p["id"]: p for p in prev["packs"]} if prev else {}
@@ -188,9 +177,8 @@ def main():
                 fail("%s: o conteúdo mudou mas a version continua %d; aumente \"version\" em dicts/%s/pack.json"
                      % (pid, m["version"], pid))
             packs.append(old)
-            if a.tag:
-                reuse_zip(a, old)
-                all_zips.append(old["url"])
+            reuse_zip(a, old)
+            all_zips.append(old["url"])
             print("%s v%d: igual ao publicado" % (pid, m["version"]))
             continue
         zname = "%s-%d.zip" % (pid, m["version"])
@@ -222,37 +210,31 @@ def main():
         print("%s v%d: novo, %s (%d bytes, %d instalado)" % (pid, m["version"], zname, len(zdata),
                                                               entry["installedSize"]))
 
-    if a.tag:
-        # um zip por idioma: nada de versão antiga na pasta que vai para a release
-        for f in os.listdir(a.out):
-            if f.endswith(".zip") and f not in all_zips:
-                os.remove(os.path.join(a.out, f))
-        if len(set(all_zips)) != len(ids):
-            fail("deveria haver um zip por pacote (%d) e há %d" % (len(ids), len(set(all_zips))))
-    with open(os.path.join(a.out, "enviar.txt"), "w") as f:
-        f.write("".join(z + "\n" for z in (all_zips if a.tag else new_zips)))
+    # one zip per language: no old version in the folder that goes to the release
+    for f in os.listdir(a.out):
+        if f.endswith(".zip") and f not in all_zips:
+            os.remove(os.path.join(a.out, f))
+    if len(set(all_zips)) != len(ids):
+        fail("deveria haver um zip por pacote (%d) e há %d" % (len(ids), len(set(all_zips))))
+    with open(os.path.join(a.out, "upload.txt"), "w") as f:
+        f.write("".join(z + "\n" for z in all_zips))
     mudou = bool(new_zips) or not prev or [p["id"] for p in prev["packs"]] != ids
-    if not a.tag and prev and not mudou:
-        print("nada mudou: o catálogo publicado continua valendo")
-        return
 
     now = a.now or datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
     if prev:
         serial = prev["serial"] + 1 if mudou else prev["serial"]
     else:
         serial = 1
-    if not a.tag:
-        serial = (prev["serial"] + 1) if prev else 1     # modo da release "dicionarios": como sempre
     data = {
         "format": FORMAT,
         "serial": serial,
         "generated": now,
-        "baseUrl": "https://github.com/%s/releases/download/%s/" % (a.repo, a.tag or RELEASE_TAG),
+        "baseUrl": "https://github.com/%s/releases/download/%s/" % (a.repo, a.tag),
         "packs": packs,
     }
-    with open(os.path.join(a.out, "dados.json"), "wb") as f:
+    with open(os.path.join(a.out, "data.json"), "wb") as f:
         f.write(json.dumps(data, ensure_ascii=False, indent=1).encode("utf-8"))
-    print("catálogo: série %d, %d pacote(s)%s" % (data["serial"], len(packs), "" if mudou or not a.tag else " (nada mudou: série mantida)"))
+    print("catálogo: série %d, %d pacote(s)%s" % (data["serial"], len(packs), "" if mudou else " (nada mudou: série mantida)"))
 
 
 if __name__ == "__main__":

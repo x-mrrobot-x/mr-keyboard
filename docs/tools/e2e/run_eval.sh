@@ -1,7 +1,7 @@
 #!/bin/bash
 # Medições do motor de sugestões no PC (v1.75): correção de erros (CorrEval), digitação normal (PrefixEval),
 # risco de autocorreção em palavra certa fora do dicionário (OovEval) e palavras recentes (RecentEval),
-# nos três idiomas. Roda na raiz do projeto. Ver LEIA-ME.md desta pasta.
+# nos três idiomas. Roda na raiz do projeto. Ver README.md desta pasta.
 #
 #   DATA=/pasta/dos/textos APKTOOL_JAR=/caminho/apktool.jar DEX2JAR=/pasta/dex-tools-2.1 \
 #       bash docs/tools/e2e/run_eval.sh [jar_do_app.jar]

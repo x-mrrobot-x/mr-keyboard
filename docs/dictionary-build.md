@@ -29,7 +29,7 @@ Pacote "Equilibrado" da pesquisa de sugestões, 100% offline:
 - Conversa: Tatoeba (CC BY 2.0 FR), 445.521 frases em português; saíram 50 autores com marcas de português europeu (autocarro, estás a), as frases com essas marcas e as repetidas, e os nomes Tom e Mary (aparecem em ~15% das frases do site). 378.366 frases para contar, 19.914 para teste (`split_tatoeba.py`). Nos pares de palavras elas contam 3 vezes; nas palavras novas contam 1 vez, para não inflar palavras raras.
 - Seleção dos pares: até 3 por palavra garantidos e o resto por contagem, até 400.000.
 - Palavras novas do corpus: 5.816 aceitas pelo VERO, 1.236 nomes próprios, estrangeirismos, neologismos, gírias e abreviações.
-- Limpeza da base (números em `docs/tools/relatorio_lista_1.6.0.txt`): 880 grafias antigas trocadas, 538 minúsculas curtas estrangeiras, 1.535 palavras inglesas sem uso em português no corpus, 203 variantes lusitanas, 53 palavras gramaticais de outras línguas, erros de grafia (enquando, encontar, asim...), formas sem acento duplicadas (familia, agua).
+- Limpeza da base (números em `docs/tools/report_list_1.6.0.txt`): 880 grafias antigas trocadas, 538 minúsculas curtas estrangeiras, 1.535 palavras inglesas sem uso em português no corpus, 203 variantes lusitanas, 53 palavras gramaticais de outras línguas, erros de grafia (enquando, encontar, asim...), formas sem acento duplicadas (familia, agua).
 - Palavras possivelmente ofensivas (lista do AOSP): nunca aparecem como previsão; 30 palavrões ficam com frequência 5 (só aparecem digitados por inteiro). As demais (crianças, negro, peito) mantêm a frequência.
 - Bigramas: contagem ≥ 2 dentro de trechos sem pontuação, até 60 por palavra (limite da lib), frequência de 7 bits a partir de P(seguinte | anterior).
 - `build_dict.py` grava em profundidade (a busca de bigramas da lib não funciona em largura) e relê o arquivo com uma cópia em Python das rotinas da lib, conferindo cada palavra, frequência e bigrama.
@@ -83,4 +83,4 @@ Pacote "Equilibrado" da pesquisa de sugestões, 100% offline:
 - "prota" → "porta" e outros erros que formam o começo de outra palavra só aparecem depois dos complementos.
 
 ## Próximos passos
-Ver `docs/plano-nativo.md` (NDK pelo GitHub Actions: `.github/workflows/mr-native.yml` e `native/`).
+As bibliotecas nativas são compiladas com o NDK pelo GitHub Actions (`.github/workflows/mr-native.yml` e `native/`).

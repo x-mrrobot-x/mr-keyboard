@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Confere que o app lê o catálogo de dicionários da release mais recente (a mesma do APK).
+"""Checks that the app reads the dictionary catalog from the latest release (the same one as the APK).
 
 Rode na raiz do projeto. O app (MrPacks.CATALOG_URL) abre
-  https://github.com/<dono>/<repo>/releases/latest/download/catalogo.json
-e o publish_release.sh anexa o catálogo com esse nome (catalogo.json) na release de cada lançamento.
-Também confere o smali gerado (as duas ocorrências da URL) e o dono/repositório do README.
+  https://github.com/<dono>/<repo>/releases/latest/download/catalog.json
+and publish_release.sh attaches the catalog with that name (catalog.json) to the release of each launch.
+It also checks the generated smali (the two occurrences of the URL) and the owner/repository in the README.
 """
 import re, sys
 
@@ -16,10 +16,10 @@ if not m:
     url = ''
 else:
     url = m.group(1)
-    padrao = r'^https://github\.com/([^/]+/[^/]+)/releases/latest/download/catalogo\.json$'
+    padrao = r'^https://github\.com/([^/]+/[^/]+)/releases/latest/download/catalog\.json$'
     mm = re.match(padrao, url)
     if not mm:
-        problemas.append('CATALOG_URL deve ser https://github.com/<dono>/<repo>/releases/latest/download/catalogo.json (está %s)' % url)
+        problemas.append('CATALOG_URL deve ser https://github.com/<dono>/<repo>/releases/latest/download/catalog.json (está %s)' % url)
     else:
         repo = mm.group(1)
         readme = open('README.md', encoding='utf-8').read()
@@ -29,12 +29,10 @@ else:
 smali = open('smali/com/mrkeyboard/app/MrPacks.smali', encoding='utf-8').read()
 if url and smali.count(url) != 2:
     problemas.append('o smali de MrPacks tem a URL %d vez(es) (esperado 2: campo e const-string); rode o build_java.sh' % smali.count(url))
-if 'releases/download/dicionarios' in smali or 'releases/download/dicionarios' in java:
-    problemas.append('MrPacks ainda aponta para a release antiga "dicionarios"')
 
 publicar = open('docs/tools/publish_release.sh', encoding='utf-8').read()
-if 'out/catalogo.json' not in publicar:
-    problemas.append('publish_release.sh não anexa out/catalogo.json (o app procura o anexo catalogo.json)')
+if 'out/catalog.json' not in publicar:
+    problemas.append('publish_release.sh não anexa out/catalog.json (o app procura o anexo catalog.json)')
 
 print('catálogo lido de: ' + (url or '(não achei)'))
 for p in problemas:

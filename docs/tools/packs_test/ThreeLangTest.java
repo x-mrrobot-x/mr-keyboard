@@ -12,7 +12,7 @@ public class ThreeLangTest {
         final PacksTest.Ctx ctx = new PacksTest.Ctx(tmp);
         MrPacks.sTestCerts = new X509Certificate[] {(X509Certificate) CertificateFactory.getInstance("X.509")
                 .generateCertificate(new FileInputStream("/tmp/fa/cert.pem"))};
-        PacksTest.catalogFile = "/tmp/v165out/catalogo.json";
+        PacksTest.catalogFile = "/tmp/v165out/catalog.json";
         PacksTest.zipDir = "/tmp/v165out/";
         PacksTest.net();
         MrPacks.Catalog cat = MrPacks.fetchCatalog(ctx);

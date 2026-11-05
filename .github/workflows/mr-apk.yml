@@ -4,17 +4,16 @@
 # Para atualizá-las, veja mr-native.yml.
 #
 # Resultado em Actions > (execução) > Artifacts:
-#   apk -> MrKeyboard-unsigned.apk (e MrKeyboard-signed.apk se houver chave nos secrets)
+#   apk -> mr-keyboard-unsigned.apk (e mr-keyboard-signed.apk se houver chave nos secrets)
 #
 # Publicar uma versão: acontece sozinho no push na main quando o versionName do apktool.yml é novo (ainda
 # não tem Release com essa tag) e há chave de assinatura nos secrets. Também dá para rodar à mão (Run
 # workflow, "publicar" marcado), o que trata qualquer impedimento como erro.
-# Cada lançamento é UMA Release, com a tag do versionName (ex.: v1.72.0) e as notas de docs/revisao-<versão>.md:
-#   MrKeyboard.apk     o APK assinado (nome fixo, para o link da documentação:
-#                      .../releases/latest/download/MrKeyboard.apk)
-#   catalogo.json      o catálogo de dicionários, assinado com a mesma chave do APK (o app lê
-#                      .../releases/latest/download/catalogo.json)
-#   <id>-<versão>.zip  um zip por idioma de dicts/ (só a versão atual de cada idioma)
+# Each launch is ONE Release, tagged with the versionName (ex.: v1.72.0), with the notes from docs/review-<version>.md:
+#   mr-keyboard-<tag>.apk  the signed APK, with the version in the name (ex.: mr-keyboard-v1.72.0.apk)
+#   catalog.json           the dictionary catalog, signed with the same key as the APK (the app reads
+#                          .../releases/latest/download/catalog.json)
+#   <id>-<version>.zip     one zip per language in dicts/ (only the current version of each language)
 # A lógica está em docs/tools/publish_release.sh (testada por docs/tools/publish_test/run.sh). Uma tag que
 # já existe não é sobrescrita: aumente versionCode/versionName antes. Mudou só um dicionário? Suba a
 # version dele em dicts/<id>/pack.json e a versão do app: sai uma Release nova, completa.
@@ -90,7 +89,7 @@ jobs:
           [ "$ATUAL" = "$GRAVADO" ] || echo "native/ mudou: native-src.sha256 é $GRAVADO e o código atual dá $ATUAL"
           [ "$ATUAL_MOTOR" = "$GRAVADO_MOTOR" ] || echo "engine/ mudou: mrengine-src.sha256 é $GRAVADO_MOTOR e o código atual dá $ATUAL_MOTOR"
           [ -z "$FALTA" ] || echo "faltam em lib/:$FALTA"
-          MSG="lib/ não foi compilada a partir do native/ e do engine/ atuais. Rode 'Mr Keyboard - lib nativa', extraia o artifact libs-nativas na raiz do projeto e faça o commit."
+          MSG="lib/ não foi compilada a partir do native/ e do engine/ atuais. Rode 'Mr Keyboard - native lib', extraia o artifact native-libs na raiz do projeto e faça o commit."
           if [ "$PUBLICAR" = "true" ]; then
             echo "::error::$MSG Nada foi publicado."; exit 1
           fi
@@ -105,8 +104,8 @@ jobs:
         run: |
           curl -sSL -o apktool.jar \
             "https://github.com/iBotPeaches/Apktool/releases/download/v$APKTOOL_VERSION/apktool_$APKTOOL_VERSION.jar"
-          java -jar apktool.jar b . -o MrKeyboard-unsigned.apk
-          unzip -lv MrKeyboard-unsigned.apk | grep -E "lib/"
+          java -jar apktool.jar b . -o mr-keyboard-unsigned.apk
+          unzip -lv mr-keyboard-unsigned.apk | grep -E "lib/"
 
       - name: Assinar (só se os secrets existirem)
         env:
@@ -137,16 +136,16 @@ jobs:
           else
             echo "sem chave: só o APK sem assinatura"; exit 0
           fi
-          "$BT/zipalign" -p -f 4 MrKeyboard-unsigned.apk aligned.apk
-          "$BT/apksigner" sign $SIGN --out MrKeyboard-signed.apk aligned.apk
+          "$BT/zipalign" -p -f 4 mr-keyboard-unsigned.apk aligned.apk
+          "$BT/apksigner" sign $SIGN --out mr-keyboard-signed.apk aligned.apk
           # o SHA-256 do certificado tem que ser igual ao do app instalado hoje
-          "$BT/apksigner" verify --print-certs MrKeyboard-signed.apk
+          "$BT/apksigner" verify --print-certs mr-keyboard-signed.apk
           rm -f key.jks key.pk8 cert.pem aligned.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: apk
-          path: MrKeyboard-*.apk
+          path: mr-keyboard-*.apk
 
       - name: Publicar em Releases
         if: ${{ inputs.publicar || github.event_name == 'push' }}

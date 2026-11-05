@@ -14,7 +14,7 @@ Entradas
   VERO (pt_BR) e en_US do Hunspell servem só de filtro (decidem se uma palavra entra, sai ou
   qual grafia fica); nenhum conteúdo deles é copiado para a lista.
 
-Regras (detalhes e números em docs/revisao-1.6.0.md)
+Regras (detalhes e números em docs/dictionary-build.md)
   base     - fora as entradas que só existem como atalho (not_a_word / shortcut);
            - grafia anterior ao Acordo de 1990 trocada pela atual quando o VERO rejeita a antiga e
              aceita a nova (freqüência -> frequência, idéia -> ideia, jóia -> joia, vôo -> voo,

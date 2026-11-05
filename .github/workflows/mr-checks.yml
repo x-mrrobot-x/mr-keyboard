@@ -24,7 +24,7 @@
 #   run_java_tests.sh    com o jar do APK: testes do espanhol (SheetStrings/MrEs)
 #   run_native_parity.sh motor nativo (engine/): a busca de correção, a lista de sugestões e os trigramas pelo Java e pela
 #                        libmrengine.so de PC têm de dar o mesmo resultado nos 3 idiomas, com os dicionários de dicts/
-name: Mr Keyboard - verificações
+name: Mr Keyboard - checks
 
 on:
   workflow_dispatch:
@@ -36,7 +36,7 @@ on:
       - 'apktool.yml'
       - 'apktool.json'
       - 'docs/tools/**'
-      - 'docs/revisao-*.md'
+      - 'docs/release-notes/*.md'
       - 'engine/**'
       - 'native/**'
       - '.github/workflows/mr-checks.yml'
@@ -49,7 +49,7 @@ on:
       - 'apktool.yml'
       - 'apktool.json'
       - 'docs/tools/**'
-      - 'docs/revisao-*.md'
+      - 'docs/release-notes/*.md'
       - 'engine/**'
       - 'native/**'
       - '.github/workflows/mr-checks.yml'

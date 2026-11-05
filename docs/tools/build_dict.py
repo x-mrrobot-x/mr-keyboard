@@ -4,7 +4,7 @@ LatinIME Gingerbread) no formato "latest": cabeçalho de 2 bytes e lista de bigr
 
 Uso: python3 -I build_dict.py entrada.combined.gz saida.dict
 
-Formato (conferido no dictionary.cpp; ver docs/revisao-1.6.0.md)
+Formato (conferido no dictionary.cpp; ver docs/dictionary-build.md)
   cabeçalho     = [versão 200][bigrama 1]  (checkIfDictVersionIsLatest: versão >= 200, flag 0/1)
   grupo         = [count:1] + count * entrada; o grupo raiz fica no offset 2
   entrada       = char:1 + flags/endereço + [freq:1 + bigramas, se terminal]

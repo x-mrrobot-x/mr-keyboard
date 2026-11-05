@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Testa o make_catalog.py com dicionários de mentira (sem rede, sem chave). Rode na raiz do projeto.
+"""Tests make_catalog.py with fake dictionaries (no network, no key). Run it from the project root.
 
-Cobre os dois modos: o da release "dicionarios" (legado, sem --tag) e o da release única (--tag, --reuse):
-um zip por idioma, série que só sobe quando algo muda, endereço-base da release, zip reaproveitado com os
-mesmos bytes e os erros (conteúdo mudou sem subir a version, zip anterior faltando ou adulterado).
+Covers the single release (--tag, --reuse): one zip per language, a serial that only goes up when something
+changes, the release base address, a zip reused with the same bytes, and the errors (content changed without
+raising the version, previous zip missing or tampered).
 """
 import hashlib, json, os, shutil, subprocess, sys, tempfile
 
@@ -26,22 +26,21 @@ def pack(root, pid, version, conteudo):
     open(os.path.join(d, 'main.dict'), 'wb').write(bytes([200, 1]) + conteudo)
 
 
-def run(dicts, out, prev=None, tag=None, reuse=None):
-    cmd = [sys.executable, '-I', MC, '--dicts', dicts, '--out', out, '--repo', 'dono/repo', '--now', '2026-10-31T00:00:00+00:00']
+def run(dicts, out, tag, prev=None, reuse=None):
+    cmd = [sys.executable, '-I', MC, '--dicts', dicts, '--out', out, '--repo', 'dono/repo', '--now', '2026-10-31T00:00:00+00:00', '--tag', tag]
     if prev: cmd += ['--prev', prev]
-    if tag: cmd += ['--tag', tag]
     if reuse: cmd += ['--reuse', reuse]
     r = subprocess.run(cmd, capture_output=True, text=True)
     return r.returncode, r.stdout + r.stderr
 
 
 def dados(out):
-    return json.load(open(os.path.join(out, 'dados.json'), encoding='utf-8'))
+    return json.load(open(os.path.join(out, 'data.json'), encoding='utf-8'))
 
 
 def como_catalogo(out, destino):
-    """dados.json no formato do catalogo.json publicado (o make_catalog só lê o campo "data")."""
-    json.dump({'data': open(os.path.join(out, 'dados.json'), encoding='utf-8').read()}, open(destino, 'w'))
+    """data.json no formato do catalog.json publicado (o make_catalog só lê o campo "data")."""
+    json.dump({'data': open(os.path.join(out, 'data.json'), encoding='utf-8').read()}, open(destino, 'w'))
 
 
 def zips(pasta):
@@ -63,7 +62,7 @@ try:
     d1 = dados(o1)
     check('única 1ª vez: dá certo, série 1, endereço-base da release', rc == 0 and d1['serial'] == 1 and d1['baseUrl'] == 'https://github.com/dono/repo/releases/download/v1.73.0/', str(d1.get('baseUrl')))
     check('única 1ª vez: um zip por idioma', zips(o1) == ['en-US-2.zip', 'es-1.zip', 'pt-BR-2.zip'])
-    check('única 1ª vez: enviar.txt lista todos os zips', sorted(open(os.path.join(o1, 'enviar.txt')).read().split()) == zips(o1))
+    check('única 1ª vez: upload.txt lista todos os zips', sorted(open(os.path.join(o1, 'upload.txt')).read().split()) == zips(o1))
     cat1 = os.path.join(T, 'cat1.json'); como_catalogo(o1, cat1)
 
     o2 = os.path.join(T, 'o2')
@@ -71,7 +70,7 @@ try:
     d2 = dados(o2)
     check('nada mudou: série mantida e endereço-base novo', rc == 0 and d2['serial'] == 1 and d2['baseUrl'].endswith('/v1.74.0/'), str(d2['serial']))
     check('nada mudou: os zips vão para a release nova com os mesmos bytes', zips(o2) == zips(o1) and all(sha(os.path.join(o1, z)) == sha(os.path.join(o2, z)) for z in zips(o1)))
-    check('nada mudou: enviar.txt ainda lista os 3 zips', sorted(open(os.path.join(o2, 'enviar.txt')).read().split()) == zips(o2))
+    check('nada mudou: upload.txt ainda lista os 3 zips', sorted(open(os.path.join(o2, 'upload.txt')).read().split()) == zips(o2))
     cat2 = os.path.join(T, 'cat2.json'); como_catalogo(o2, cat2)
 
     pack(dicts, 'pt-BR', 3, b'aaaaX')
@@ -109,21 +108,6 @@ try:
 
     rc, saida = run(dicts, os.path.join(T, 'o8'), prev=cat3, tag='v1.77.0')
     check('pacote igual sem --reuse: erro', rc != 0 and '--reuse' in saida, saida[-200:])
-
-    # ---------------- release "dicionarios" (legado, sem --tag)
-    L1 = os.path.join(T, 'L1')
-    rc, _ = run(dicts, L1)
-    dl = dados(L1)
-    check('legado 1ª vez: série 1, endereço da release "dicionarios"', rc == 0 and dl['serial'] == 1 and dl['baseUrl'].endswith('/releases/download/dicionarios/'))
-    check('legado 1ª vez: enviar.txt lista os 3 zips novos', sorted(open(os.path.join(L1, 'enviar.txt')).read().split()) == zips(L1) and len(zips(L1)) == 3)
-    catL = os.path.join(T, 'catL.json'); como_catalogo(L1, catL)
-    L2 = os.path.join(T, 'L2')
-    rc, saida = run(dicts, L2, prev=catL)
-    check('legado, nada mudou: não escreve dados.json e não envia nada', rc == 0 and not os.path.exists(os.path.join(L2, 'dados.json')) and open(os.path.join(L2, 'enviar.txt')).read() == '')
-    pack(dicts, 'pt-BR', 4, b'aaaaY')
-    L3 = os.path.join(T, 'L3')
-    rc, _ = run(dicts, L3, prev=catL)
-    check('legado, pt-BR v4: série 2 e só o zip novo', rc == 0 and dados(L3)['serial'] == 2 and zips(L3) == ['pt-BR-4.zip'] and open(os.path.join(L3, 'enviar.txt')).read().split() == ['pt-BR-4.zip'])
 finally:
     shutil.rmtree(T, ignore_errors=True)
 

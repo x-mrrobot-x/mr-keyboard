@@ -18,7 +18,7 @@ mesmo `dictionary.cpp`. Só o `LatinIME` (que precisa do Android) fica de fora. 
 
 ### Motor nativo (1.77)
 `bash docs/tools/e2e/run_native_parity.sh [jar_do_app.jar]` compila as libs de PC (`engine/` e `native/`), gera as consultas do próprio
-`dicts/` (`engine/tools/gen_parity_queries.py`) e roda o `NativeParity` nos 3 idiomas; é o mesmo que o *Mr Keyboard - verificações* roda.
+`dicts/` (`engine/tools/gen_parity_queries.py`) e roda o `NativeParity` nos 3 idiomas; é o mesmo que o *Mr Keyboard - checks* roda.
 Qualquer outra classe desta pasta (`CorrEval`, `PrefixEval`…) também usa a lib quando ela está no `java.library.path` (o `run_eval.sh`
 já põe as duas); `JAVA_OPTS=-Dmr.native=off` força o Java. Nas medições comparativas rode as duas vezes.
 

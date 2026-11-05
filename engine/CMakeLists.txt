@@ -9,7 +9,7 @@
 #   ./build/engine/mr_test dicts 100
 # Com sanitizers: -DMR_SANITIZE=ON (ASan + UBSan)
 # ATENÇÃO: o texto deste arquivo entra no hash mrengine-src.sha256 (a conta é feita de dentro de engine/). Mudou aqui, mesmo
-# que só um comentário? As libs de lib/ precisam ser geradas de novo (veja docs/motor-nativo.md).
+# que só um comentário? As libs de lib/ precisam ser geradas de novo (veja docs/native-engine.md).
 cmake_minimum_required(VERSION 3.18)
 project(mr_engine CXX)
 

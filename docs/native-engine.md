@@ -18,14 +18,14 @@ Os binários prontos ficam em `lib/<abi>/`. Detalhes do motor: `engine/README.md
 - Configurações → Sugestões e dicionários mostra **Motor de sugestões: Nativo (C++)** ou **Java (biblioteca nativa não encontrada)**.
 
 ## Mudou `native/` ou `engine/`: gerar as libs
-1. Faça o push. O workflow **Mr Keyboard - lib nativa** roda sozinho (ou à mão: Actions → Run workflow). Ele testa no PC (`dict_test`, `mr_test`, `JniSmoke`, ASan/UBSan) e compila as duas libs para arm64-v8a, armeabi-v7a e x86.
-2. Baixe o artifact `libs-nativas` e extraia na raiz do projeto, **mesclando** com o que já existe. Ele grava `lib/<abi>/libjni_pckeyboard.so` e `libmrengine.so`, `native-src.sha256` e `mrengine-src.sha256` (de qual código cada lib saiu) e `mrengine-info.txt` (contrato, commit e SHA-256 de cada `.so`).
+1. Faça o push. O workflow **Mr Keyboard - native lib** roda sozinho (ou à mão: Actions → Run workflow). Ele testa no PC (`dict_test`, `mr_test`, `JniSmoke`, ASan/UBSan) e compila as duas libs para arm64-v8a, armeabi-v7a e x86.
+2. Baixe o artifact `native-libs` e extraia na raiz do projeto, **mesclando** com o que já existe. Ele grava `lib/<abi>/libjni_pckeyboard.so` e `libmrengine.so`, `native-src.sha256` e `mrengine-src.sha256` (de qual código cada lib saiu) e `mrengine-info.txt` (contrato, commit e SHA-256 de cada `.so`).
 3. Faça o commit.
 
 O passo **Conferir se lib/ foi compilada do native/ e do engine/ atuais** do *Mr Keyboard - APK* recalcula os dois hashes e confere que as 6 libs existem; se algo não bater, avisa e **não publica** (com *publicar* marcado, dá erro). A conta do `native/` é sobre `native/CMakeLists.txt` + `native/src`; a do motor é feita de dentro de `engine/` (`CMakeLists.txt` + `src`). Testes e dados não entram.
 
 ## Paridade Java × C++
-O *Mr Keyboard - verificações* roda `docs/tools/e2e/run_native_parity.sh`: monta o APK, compila as duas libs de PC e roda o `NativeParity` nos 3 idiomas, com as consultas tiradas do próprio `dicts/`. A busca, a lista final de sugestões e os trigramas têm de ser **idênticos** pelo Java e pela lib (pela JNI). Isso também vale para mudanças em `dicts/` (rules, dicionários, trigramas): a paridade é refeita sobre os arquivos novos, sem nada a regenerar.
+O *Mr Keyboard - checks* roda `docs/tools/e2e/run_native_parity.sh`: monta o APK, compila as duas libs de PC e roda o `NativeParity` nos 3 idiomas, com as consultas tiradas do próprio `dicts/`. A busca, a lista final de sugestões e os trigramas têm de ser **idênticos** pelo Java e pela lib (pela JNI). Isso também vale para mudanças em `dicts/` (rules, dicionários, trigramas): a paridade é refeita sobre os arquivos novos, sem nada a regenerar.
 
 ## Quando mexer no motor
 - Mudar um **custo** ou uma regra de idioma em `MrFuzzy.java`/`rules.txt`: só o Java; a lib recebe os valores novos sozinha.
