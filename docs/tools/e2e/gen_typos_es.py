@@ -1,6 +1,6 @@
 import random, re, sys, collections
-# Gera erros de digitação sintéticos em espanhol (com ñ no teclado) para TypoEval.java.
-# Uso: python3 -I gen_typos_es.py news_test.txt chat_test.txt saida.tsv
+# Generates synthetic typos in Spanish (with ñ on the keyboard) for TypoEval.java.
+# Usage: python3 -I gen_typos_es.py news_test.txt chat_test.txt out.tsv
 random.seed(165)
 rows=["qwertyuiop","asdfghjklñ","zxcvbnm"]
 pos={c:(r,k) for r,row in enumerate(rows) for k,c in enumerate(row)}

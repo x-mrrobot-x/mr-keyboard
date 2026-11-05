@@ -1,54 +1,56 @@
 #!/usr/bin/env python3
-"""Monta a lista pt-BR do Mr Keyboard (palavras + bigramas) no formato "combined" do AOSP.
+"""Builds the pt-BR list of Mr Keyboard (words + bigrams) in the AOSP "combined" format.
 
-Uso:
+Usage:
   python3 -I make_wordlist.py --base pt_BR_wordlist.combined.gz --corpus train.txt \
       --vero-aff pt_BR.aff --vero-dic pt_BR.dic --en-aff en_US.aff --en-dic en_US.dic \
-      --out main_pt.combined.gz [--words-tsv palavras.tsv] [--report relatorio.txt]
+      --out main_pt.combined.gz [--words-tsv words.tsv] [--report report.txt]
 
-Entradas
-  --base     dictionaries/pt_BR_wordlist.combined.gz do AOSP LatinIME (Apache-2.0, com o aviso da
-             Lexiteria), versão 54.
-  --corpus   frases pt-BR, uma por linha (Leipzig por_news_2024_300K, CC BY 4.0, só fontes
-             brasileiras; ver split_br.py).
-  VERO (pt_BR) e en_US do Hunspell servem só de filtro (decidem se uma palavra entra, sai ou
-  qual grafia fica); nenhum conteúdo deles é copiado para a lista.
+Inputs
+  --base     dictionaries/pt_BR_wordlist.combined.gz of the AOSP LatinIME (Apache-2.0, with the
+             Lexiteria notice), version 54.
+  --corpus   pt-BR sentences, one per line (Leipzig por_news_2024_300K, CC BY 4.0, Brazilian
+             sources only; see split_br.py).
+  VERO (pt_BR) and en_US from Hunspell only serve as a filter (they decide whether a word comes
+  in, goes out, or which spelling stays); no content from them is copied into the list.
 
-Regras (detalhes e números em docs/dictionary-build.md)
-  base     - fora as entradas que só existem como atalho (not_a_word / shortcut);
-           - grafia anterior ao Acordo de 1990 trocada pela atual quando o VERO rejeita a antiga e
-             aceita a nova (freqüência -> frequência, idéia -> ideia, jóia -> joia, vôo -> voo,
-             vêem -> veem) e os acentos diferenciais (pára, pêlo, pólo);
-           - minúsculas que o VERO rejeita e que aparecem menos de 5 vezes no corpus saem quando são
-             variante lusitana (projecto, contactos), erro conhecido (enquando), diferem da forma
-             correta só no acento (simultâneamente) ou existem também com inicial maiúscula;
-           - minúsculas de até 3 letras que o VERO rejeita (et, di, du, les, on), as que aparecem
-             10+ vezes no corpus com vizinhos estrangeiros em mais de 60% das vezes e as palavras
-             inglesas (en_US) que não aparecem pelo menos 3 vezes no corpus no meio de português
-             (first, upon, still) saem, assim como palavras gramaticais de outras línguas que
-             vieram de nomes e títulos (FOREIGN_WORDS: della, vous, mein); os estrangeirismos de
-             verdade voltam pela regra do corpus;
-           - siglas (2+ maiúsculas, até 5 letras) que não aparecem no corpus saem, menos as técnicas
-             (TECH_ACRONYMS);
-           - palavras marcadas como possivelmente ofensivas (lista do AOSP) nunca são alvo de
-             bigrama (não aparecem como previsão); as vulgaridades (VULGAR) ficam com f = 5, só
-             aparecem quando digitadas por inteiro, como no AOSP com "bloquear palavras ofensivas".
-  corpus   - minúsculas aceitas pelo VERO com contagem >= --min-count (inclui compostos com hífen
-             e ênclises, como segunda-feira e trata-se);
-           - estrangeirismos/neologismos que o VERO não conhece, com contagem >= 10 e vizinhos
-             portugueses em >= 60% das ocorrências (streaming, podcast, criptomoedas);
-           - nomes próprios com contagem >= --min-name-count fora do início de frase, sem palavras
-             comuns do inglês (City, Club), sem algarismos romanos e sem os que também são palavra
-             comum (Rio/rio: ocupariam dois dos três espaços da faixa);
-           - f das palavras novas vem do ajuste f ~ a*log10(contagem) + b feito nas palavras da base
-             que aparecem no corpus, menos 10 (perto do 1º quartil, para não passar à frente das
-             palavras da base só por serem frequentes em notícias).
-  bigramas - contados dentro de trechos sem pontuação; o 2º corpus (--corpus2, conversa) conta
-             --weight2 vezes; contagem >= --min-bigram (2); até --per-word por palavra (a lib lê no
-             máximo 60); seleção: as --top-each primeiras de cada palavra e o resto por contagem, até
-             --max-bigrams; f de 7 bits = 127*(1 + log10(P(w2|w1))/3).
-  gírias   - lista curta escrita para o teclado (abreviações de chat, risadas, gírias comuns), com
-             f moderado; só entram as que ainda não existem.
+Rules (details and numbers in docs/dictionary-build.md)
+  base     - minus the entries that only exist as a shortcut (not_a_word / shortcut);
+           - spelling from before the 1990 Orthographic Agreement replaced by the current one when
+             VERO rejects the old one and accepts the new one (freqüência -> frequência, idéia ->
+             ideia, jóia -> joia, vôo -> voo, vêem -> veem) and the differential accents (pára,
+             pêlo, pólo);
+           - lowercase words that VERO rejects and that appear fewer than 5 times in the corpus are
+             dropped when they are a Lusitanian variant (projecto, contactos), a known error
+             (enquando), differ from the correct form only in the accent (simultâneamente) or also
+             exist with an initial capital;
+           - lowercase words of up to 3 letters that VERO rejects (et, di, du, les, on), the ones
+             that appear 10+ times in the corpus with foreign neighbors more than 60% of the time
+             and the English (en_US) words that do not appear at least 3 times in the corpus in
+             the middle of Portuguese (first, upon, still) are dropped, as are grammatical words
+             of other languages that came from names and titles (FOREIGN_WORDS: della, vous,
+             mein); the real loanwords come back through the corpus rule;
+           - acronyms (2+ capitals, up to 5 letters) that do not appear in the corpus are dropped,
+             except the technical ones (TECH_ACRONYMS);
+           - words marked as possibly offensive (AOSP list) are never a bigram target (they do not
+             show up as a prediction); the vulgar ones (VULGAR) stay with f = 5, only show up when
+             typed in full, as in the AOSP with "block offensive words".
+  corpus   - lowercase words accepted by VERO with count >= --min-count (includes hyphenated
+             compounds and enclitics, like segunda-feira and trata-se);
+           - loanwords/neologisms that VERO does not know, with count >= 10 and Portuguese
+             neighbors in >= 60% of the occurrences (streaming, podcast, criptomoedas);
+           - proper names with count >= --min-name-count outside the start of a sentence, without
+             common English words (City, Club), without Roman numerals and without the ones that
+             are also a common word (Rio/rio: they would take two of the three slots of the strip);
+           - f of the new words comes from the fit f ~ a*log10(count) + b made on the base words
+             that appear in the corpus, minus 10 (near the 1st quartile, so they do not get ahead
+             of the base words just for being frequent in news).
+  bigrams  - counted inside stretches without punctuation; the 2nd corpus (--corpus2, chat) counts
+             --weight2 times; count >= --min-bigram (2); up to --per-word per word (the lib reads
+             at most 60); selection: the first --top-each of each word and the rest by count, up to
+             --max-bigrams; 7-bit f = 127*(1 + log10(P(w2|w1))/3).
+  slang    - short list written for the keyboard (chat abbreviations, laughter, common slang), with
+             moderate f; only the ones that do not exist yet come in.
 """
 import argparse
 import collections
@@ -70,7 +72,7 @@ MAX_WORD = 40
 
 PT_PT_SWAPS = (("ct", "t"), ("cç", "ç"), ("pç", "ç"), ("pt", "t"), ("ó", "ô"), ("é", "ê"))
 
-# Erros e variantes da base revisados à mão (todos rejeitados pelo VERO e raros no corpus).
+# Errors and variants in the base reviewed by hand (all rejected by VERO and rare in the corpus).
 KNOWN_BAD = set("""
 enquando entretando encontar entitulado homosexuais homosexualismo entretia sombrancelhas
 motoserra motoserras eregido eregir eregidos manisfesta manisfestar manisfestado manisfestou
@@ -82,32 +84,32 @@ espectativas previnir supresa eregida cincos oitos quatros catalizador catalizad
 catalizadas cataliza catalizar kryptonita imãs camião camiões
 """.split())
 
-# Vulgaridades que a base não marca como ofensivas.
+# Vulgar words that the base does not mark as offensive.
 EXTRA_OFFENSIVE = {"caralho", "corno", "cornos", "bosta", "bostas"}
 
-# Palavrões e ofensas: f = 5 (só aparecem digitados por inteiro). As outras palavras marcadas pelo
-# AOSP (crianças, negro, peito, sexo...) mantêm a frequência e só saem da previsão.
+# Swear words and insults: f = 5 (they only show up when typed in full). The other words marked by the
+# AOSP (crianças, negro, peito, sexo...) keep their frequency and only leave the prediction.
 VULGAR = set("""
 pica cu merda porra foda foder puta puteiro punheta boquete suruba viado bicha vagabunda vadia
 cagão gozada chupada esguichando rabão tetas ninfeta novinhas pedo caralho corno cornos bosta
 bostas pederasta sodomita
 """.split())
 
-# Restos de endereço, siglas de unidade e palavras inglesas soltas que passam no filtro de contexto.
+# Address leftovers, unit acronyms and stray English words that pass the context filter.
 LOAN_EXCLUDE = set("""
 ibahia noticiadamanha kgfm bpd nits houthis dia-a-dia point points position guidance payroll
 banking hard front dark stand card
 """.split())
 
-# Siglas técnicas que ficam mesmo sem aparecer no corpus de notícias.
+# Technical acronyms that stay even without appearing in the news corpus.
 TECH_ACRONYMS = set("""
 MP3 MP4 USB PDF DNS URL XML HTML CSS SQL CPU GPU RAM ROM LED LCD HD HDMI GPS SMS MMS PIN WiFi
 IP VPN API APK DVD CD PC TV FM AM AIDS HIV DNA RNA PH QI RG CPF CNPJ CEP ONG
 """.split())
 
-# Palavras inglesas que o VERO aceita com inicial maiúscula.
+# English words that VERO accepts with an initial capital.
 NAME_EXCLUDE = {"Big", "Wall", "Man", "Max"}
-# Marcas que o filtro de inglês tiraria (google, amazon e apple são palavras do en_US).
+# Brands that the English filter would drop (google, amazon and apple are en_US words).
 NAME_ALWAYS = {"Google", "Amazon", "Apple", "Microsoft", "Samsung", "Xiaomi", "Motorola", "Shopee"}
 
 EN_STOP = set("""
@@ -115,8 +117,8 @@ the and of to in for on with by at from is are was be it this that you we my you
 one two more not no yes or but if so up out off do go get got me us he she his her they them
 """.split())
 
-# Abreviações de chat, risadas e gírias comuns que a base não tem. A expansão de abreviações
-# (vc -> você) fica no MrFix; aqui elas só deixam de ser tratadas como erro.
+# Chat abbreviations, laughter and common slang that the base lacks. The expansion of abbreviations
+# (vc -> você) lives in MrFix; here they just stop being treated as errors.
 INFORMAL = [
     ("vc", 60), ("vcs", 45), ("tbm", 55), ("tb", 50), ("pq", 55), ("hj", 50), ("td", 45),
     ("tds", 35), ("mto", 45), ("mt", 45), ("msm", 45), ("oq", 40), ("obg", 40), ("vlw", 40),
@@ -151,7 +153,7 @@ def strip_accents(w):
     return "".join(c for c in unicodedata.normalize("NFD", w) if not unicodedata.combining(c))
 
 
-# Acentos diferenciais que o Acordo de 1990 tirou (o VERO ainda aceita alguns, como pára).
+# Differential accents that the 1990 Agreement removed (VERO still accepts some, like pára).
 REFORM_FIXED = {
     "pára": "para", "péla": "pela", "pélas": "pelas", "pélo": "pelo", "pélos": "pelos",
     "pêlo": "pelo", "pêlos": "pelos", "pêra": "pera", "pêras": "peras", "pólo": "polo",
@@ -165,8 +167,8 @@ HYPHEN_PREFIXES = ("anti", "arqui", "auto", "contra", "extra", "infra", "intra",
                    "mini", "multi", "neo", "proto", "pseudo", "semi", "sobre", "supra", "tri",
                    "ultra", "super", "hiper", "inter", "sub", "para") + HYPHEN_COMPOUND
 
-# Palavras gramaticais e comuns de outras línguas que entraram na lista do AOSP por nomes e
-# títulos (della, vous, mein). Só saem se o VERO também rejeitar.
+# Grammatical and common words of other languages that got into the AOSP list through names and
+# titles (della, vous, mein). They only go out if VERO also rejects them.
 FOREIGN_WORDS = set("""
 della delle dello degli dei alla alle allo nel nella nelle nello sul sulla col coi gli una uno
 che chi per con senza molto tutto tutti questa questo quella quello sono essere bella bello
@@ -185,11 +187,11 @@ quae quod nobis vobis apud honoris causa mundi orbis sui generis inter alia ibid
 
 
 def reform(w, ok):
-    """Grafia atual (Acordo de 1990) de uma palavra que o VERO rejeita, ou None. Só as mudanças do
-    Acordo: trema (freqüência), ditongos abertos éi/ói em paroxítona (idéia, jóia, heróico,
-    asteróide), ôo/êe (vôo, vêem). Só aceita a forma nova se o VERO aceitar. Tirar um acento
-    qualquer não serve: o VERO não conhece algumas palavras certas (coreógrafo, déficit) e a forma
-    sem acento às vezes é outra palavra (coreografo, verbo)."""
+    """Current spelling (1990 Agreement) of a word that VERO rejects, or None. Only the changes of the
+    Agreement: diaeresis (freqüência), open diphthongs éi/ói in paroxytones (idéia, jóia, heróico,
+    asteróide), ôo/êe (vôo, vêem). It only accepts the new form if VERO accepts it. Dropping any
+    accent will not do: VERO does not know some correct words (coreógrafo, déficit) and the form
+    without accent is sometimes another word (coreografo, verbo)."""
     v = w.replace("ü", "u")
     cands = [v] if v != w else []
     for a, b in (("éi", "ei"), ("ói", "oi"), ("ôo", "oo"), ("êe", "ee")):
@@ -200,10 +202,10 @@ def reform(w, ok):
     for c in cands:
         if c != w and ok(c):
             return c
-    # hífen do Acordo: prefixo terminado na vogal com que a palavra começa ou antes de h
+    # hyphen of the Agreement: prefix ending in the vowel the word starts with, or before h
     # (microorganismo -> micro-organismo, antiinflamatório -> anti-inflamatório, sobrehumana ->
-    # sobre-humana), super/hiper/inter antes de r e h, sub antes de r, b e h (subregião ->
-    # sub-região), e adjetivos pátrios compostos (matogrossense -> mato-grossense)
+    # sobre-humana), super/hiper/inter before r and h, sub before r, b and h (subregião ->
+    # sub-região), and compound gentilic adjectives (matogrossense -> mato-grossense)
     if "-" not in v:
         for pre in HYPHEN_PREFIXES:
             if not v.startswith(pre) or len(v) < len(pre) + 3:
@@ -237,9 +239,9 @@ class Speller:
 
 
 def corpus_lines(a, weighted):
-    """Linhas do corpus principal e do 2º corpus. Com weighted=True devolve (linha, peso): o peso
-    do 2º corpus (--weight2) só entra na contagem de bigramas; as palavras novas e as frequências
-    usam a contagem real, para a repetição não inflar palavras raras."""
+    """Lines of the main corpus and of the 2nd corpus. With weighted=True it returns (line, weight): the weight
+    of the 2nd corpus (--weight2) only enters the bigram count; the new words and the frequencies
+    use the real count, so repetition does not inflate rare words."""
     for line in open(a.corpus, encoding="utf-8"):
         yield (line, 1) if weighted else line
     if a.corpus2:
@@ -259,15 +261,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", required=True)
     ap.add_argument("--corpus", required=True)
-    ap.add_argument("--corpus2", default=None, help="2º corpus (conversa, ex.: Tatoeba)")
-    ap.add_argument("--weight2", type=int, default=1, help="peso do 2º corpus nos bigramas")
-    ap.add_argument("--top-each", type=int, default=3, help="continuações garantidas por palavra")
+    ap.add_argument("--corpus2", default=None, help="2nd corpus (chat, e.g. Tatoeba)")
+    ap.add_argument("--weight2", type=int, default=1, help="weight of the 2nd corpus in the bigrams")
+    ap.add_argument("--top-each", type=int, default=3, help="guaranteed continuations per word")
     ap.add_argument("--vero-aff", required=True)
     ap.add_argument("--vero-dic", required=True)
     ap.add_argument("--en-aff", required=True)
     ap.add_argument("--en-dic", required=True)
     ap.add_argument("--out", required=True)
-    ap.add_argument("--words-tsv", default=None, help="também grava palavra<TAB>f")
+    ap.add_argument("--words-tsv", default=None, help="also writes word<TAB>f")
     ap.add_argument("--min-count", type=int, default=3)
     ap.add_argument("--min-name-count", type=int, default=20)
     ap.add_argument("--min-bigram", type=int, default=2)
@@ -297,24 +299,24 @@ def main():
                 if d.get("possibly_offensive") == "true":
                     offensive.add(cur)
             elif line.startswith("  shortcut=") and cur is not None and cur in base:
-                # palavra que só existe para virar atalho (atras -> atrás): não é palavra
+                # word that only exists to become a shortcut (atras -> atrás): not a word
                 shortcut_only.append(cur)
                 del base[cur]
                 offensive.discard(cur)
                 cur = None
     offensive |= EXTRA_OFFENSIVE & set(base)
     base_lower = {w.lower() for w in base}
-    rep.append(f"base: {len(base)} palavras, {len(offensive)} marcadas como possivelmente ofensivas "
-               f"({len(VULGAR & set(base))} vulgares com f = 5); fora {len(shortcut_only)} só de atalho "
+    rep.append(f"base: {len(base)} words, {len(offensive)} marked as possibly offensive "
+               f"({len(VULGAR & set(base))} vulgar with f = 5); minus {len(shortcut_only)} shortcut-only "
                f"({' '.join(shortcut_only)})")
 
-    # ------------------------------------------------------------------ corpus, 1ª passada
-    lower_seen = collections.Counter()   # forma exata com inicial minúscula
-    cap_mid = collections.Counter()      # inicial maiúscula fora do início de frase
-    exact_seen = collections.Counter()   # forma exata, em qualquer posição
-    ctx_total = collections.Counter()    # ocorrências de cada forma
-    ctx_pt = collections.Counter()       #   ... com os dois vizinhos na base (ou pontuação)
-    dot_after = collections.Counter()    #   ... seguidas de ponto (abreviação?)
+    # ------------------------------------------------------------------ corpus, 1st pass
+    lower_seen = collections.Counter()   # exact form with lowercase initial
+    cap_mid = collections.Counter()      # capital initial outside the start of a sentence
+    exact_seen = collections.Counter()   # exact form, in any position
+    ctx_total = collections.Counter()    # occurrences of each form
+    ctx_pt = collections.Counter()       #   ... with both neighbors in the base (or punctuation)
+    dot_after = collections.Counter()    #   ... followed by a period (abbreviation?)
     n_tokens = 0
     for line in corpus_lines(a, weighted=False):
         toks = tokens(line.strip())
@@ -342,9 +344,9 @@ def main():
             if n == ".":
                 dot_after[t] += 1
             first = False
-    rep.append(f"corpus: {n_tokens} palavras")
+    rep.append(f"corpus: {n_tokens} words")
 
-    # ajuste f ~ a*log10(c) + b nas palavras minúsculas da base com c >= 5
+    # fit f ~ a*log10(c) + b on the lowercase words of the base with c >= 5
     xs, ys = [], []
     for w, f in base.items():
         c = lower_seen[w]
@@ -358,54 +360,54 @@ def main():
     def f_new(c):
         return max(30, min(200, int(round(slope * math.log10(c) + icpt))))
 
-    rep.append(f"ajuste das palavras novas: f = {slope:.2f}*log10(c) + {icpt + 10:.2f} - 10 "
+    rep.append(f"fit of the new words: f = {slope:.2f}*log10(c) + {icpt + 10:.2f} - 10 "
                f"(n={len(xs)})")
 
-    # ------------------------------------------------------------------ limpeza da base
+    # ------------------------------------------------------------------ base cleanup
     final = {}
     removed = collections.defaultdict(list)
     for w, f in sorted(base.items(), key=lambda kv: -kv[1]):
         if w in REFORM_FIXED:
             nw = REFORM_FIXED[w]
             final[nw] = max(final.get(nw, 0), base.get(nw, 0), f)
-            removed["grafia anterior ao Acordo (trocada)"].append(f"{w}->{nw}")
+            removed["spelling before the Agreement (replaced)"].append(f"{w}->{nw}")
             continue
         if w[:1].islower() and not vero(w):
             nw = reform(w, vero)
             if nw is not None:
                 final[nw] = max(final.get(nw, 0), base.get(nw, 0), f)
-                removed["grafia anterior ao Acordo (trocada)"].append(f"{w}->{nw}")
+                removed["spelling before the Agreement (replaced)"].append(f"{w}->{nw}")
                 continue
             c = lower_seen[w]
             why = None
             if len(w) <= 3:
-                why = "minúscula curta que o VERO rejeita (estrangeira)"
+                why = "short lowercase that VERO rejects (foreign)"
             elif c >= 10 and ctx_pt[w] < 0.4 * ctx_total[w]:
-                why = "estrangeira (no corpus, cercada de palavras estrangeiras)"
+                why = "foreign (in the corpus, surrounded by foreign words)"
             elif english(w) and not (c >= 3 and ctx_pt[w] >= 0.6 * ctx_total[w]):
-                why = "inglesa sem uso em português no corpus"
+                why = "English with no use in Portuguese in the corpus"
             elif w in FOREIGN_WORDS and not (c >= 10 and ctx_pt[w] >= 0.6 * ctx_total[w]):
-                why = "palavra comum de outra língua"
+                why = "common word of another language"
             elif c < 5:
                 if w in KNOWN_BAD:
-                    why = "erro ou variante revisada à mão"
+                    why = "error or variant reviewed by hand"
                 elif w.capitalize() in base or w.upper() in base or \
                         cap_mid[w.capitalize()] >= a.min_name_count:
-                    why = "existe com maiúscula"
+                    why = "exists with a capital"
                 else:
                     for x, y in PT_PT_SWAPS:
                         if x in w and w.replace(x, y) in base and vero(w.replace(x, y)):
-                            why = "variante lusitana"
+                            why = "Lusitanian variant"
                             break
                     if why is None:
                         st = strip_accents(w)
                         if st != w and st in base and base[st] >= f:
-                            why = "acento a mais"
+                            why = "extra accent"
             if why:
                 removed[why].append(w)
                 continue
         final[w] = max(final.get(w, 0), f)
-    # acento trocado de lugar (heróina x heroína): mesma forma sem acento, a outra é aceita
+    # accent in the wrong place (heróina x heroína): same form without accent, the other is accepted
     by_strip = collections.defaultdict(list)
     for w in final:
         by_strip[strip_accents(w)].append(w)
@@ -418,25 +420,25 @@ def main():
         for w in ws:
             if w not in good and w[:1].islower() and lower_seen[w] < 5 and \
                     max(final[g] for g in good) >= final[w]:
-                removed["acento no lugar errado"].append(w)
+                removed["accent in the wrong place"].append(w)
                 del final[w]
-    # siglas que não aparecem no corpus (FHM, RBN, TgN, SBbc): só atrapalham as palavras curtas
+    # acronyms that do not appear in the corpus (FHM, RBN, TgN, SBbc): they only get in the way of short words
     acr = [w for w in final if 2 <= len(w) <= 5 and sum(1 for ch in w if ch.isupper()) >= 2
            and exact_seen[w] == 0 and w not in TECH_ACRONYMS]
     for w in acr:
         del final[w]
-    removed["sigla que não aparece no corpus"] = acr
-    rep.append(f"base, removidas (sigla que não aparece no corpus): {len(acr)}")
+    removed["acronym that does not appear in the corpus"] = acr
+    rep.append(f"base, removed (acronym that does not appear in the corpus): {len(acr)}")
     for w in VULGAR:
         if w in final:
             final[w] = min(final[w], 5)
     offensive |= VULGAR
     for why, ws in removed.items():
-        rep.append(f"base, removidas ({why}): {len(ws)}")
-        samples[f"removidas: {why}"] = ws
+        rep.append(f"base, removed ({why}): {len(ws)}")
+        samples[f"removed: {why}"] = ws
     final_lower = {w.lower() for w in final}
 
-    # ------------------------------------------------------------------ palavras do corpus
+    # ------------------------------------------------------------------ corpus words
     def abbreviation_like(w):
         return len(w) <= 4 and dot_after[w] * 2 > ctx_total[w]
 
@@ -449,8 +451,8 @@ def main():
         final[w] = f_new(c)
         final_lower.add(w.lower())
         added.append(w)
-    rep.append(f"corpus, minúsculas aceitas pelo VERO (c >= {a.min_count}): {len(added)}")
-    samples["novas do corpus"] = sorted(added, key=lambda w: -lower_seen[w])
+    rep.append(f"corpus, lowercase words accepted by VERO (c >= {a.min_count}): {len(added)}")
+    samples["new from the corpus"] = sorted(added, key=lambda w: -lower_seen[w])
 
     loans = []
     for w, c in lower_seen.items():
@@ -468,8 +470,8 @@ def main():
         final[w] = f_new(c)
         final_lower.add(w.lower())
         loans.append(w)
-    rep.append(f"corpus, estrangeirismos e neologismos fora do VERO (c >= 10): {len(loans)}")
-    samples["estrangeirismos e neologismos"] = sorted(loans, key=lambda w: -lower_seen[w])
+    rep.append(f"corpus, loanwords and neologisms outside VERO (c >= 10): {len(loans)}")
+    samples["loanwords and neologisms"] = sorted(loans, key=lambda w: -lower_seen[w])
 
     names = []
     for w, c in cap_mid.items():
@@ -478,8 +480,8 @@ def main():
         if ROMAN_RE.match(w) or abbreviation_like(w):
             continue
         lw = w.lower()
-        # nome que também é palavra comum (Rio/rio, Lula/lula) fica de fora: com 3 espaços na
-        # barra, "rio" e "Rio" ocupariam dois
+        # a name that is also a common word (Rio/rio, Lula/lula) stays out: with 3 slots in the
+        # strip, "rio" and "Rio" would take two
         if lw in final_lower:
             continue
         if english(lw) and not vero(w) and w not in NAME_ALWAYS:
@@ -487,7 +489,7 @@ def main():
         if w.isupper() and len(w) > 5 or w in NAME_EXCLUDE:
             continue
         names.append(w)
-    # mesma palavra com caixa diferente (WhatsApp/Whatsapp, Samu/SAMU): fica a mais frequente
+    # same word with different case (WhatsApp/Whatsapp, Samu/SAMU): the most frequent one stays
     best = {}
     for w in names:
         k = w.lower()
@@ -497,9 +499,9 @@ def main():
     for w in names:
         final[w] = f_new(cap_mid[w])
     final_lower |= {w.lower() for w in names}
-    rep.append(f"corpus, nomes próprios (c >= {a.min_name_count} fora do início de frase): "
+    rep.append(f"corpus, proper names (c >= {a.min_name_count} outside the start of a sentence): "
                f"{len(names)}")
-    samples["nomes"] = sorted(names, key=lambda w: -cap_mid[w])
+    samples["names"] = sorted(names, key=lambda w: -cap_mid[w])
 
     informal = []
     for w, f in INFORMAL:
@@ -507,10 +509,10 @@ def main():
             continue
         final[w] = f
         informal.append(w)
-    rep.append(f"gírias e abreviações acrescentadas: {len(informal)}")
-    samples["gírias e abreviações"] = informal
+    rep.append(f"slang and abbreviations added: {len(informal)}")
+    samples["slang and abbreviations"] = informal
 
-    # ------------------------------------------------------------------ bigramas, 2ª passada
+    # ------------------------------------------------------------------ bigrams, 2nd pass
     lower_map = {}
     for w in final:
         lw = w.lower()
@@ -555,8 +557,8 @@ def main():
     for (w1, w2), c in pair.items():
         if c >= a.min_bigram and w2 not in offensive and final.get(w2, 0) > 5:
             by_w1[w1].append((c, w2))
-    # seleção: as --top-each primeiras continuações de cada palavra (previsão depois do espaço) e,
-    # no espaço que sobrar, as de maior contagem (as palavras frequentes são as mais digitadas)
+    # selection: the first --top-each continuations of each word (prediction after the space) and,
+    # in the space left over, the ones with the highest count (frequent words are the most typed)
     ranked = []
     for w1, lst in by_w1.items():
         lst.sort(key=lambda x: (-x[0], x[1]))
@@ -569,11 +571,11 @@ def main():
         f7 = max(1, min(127, int(round(127 * (1 + math.log10(p) / 3)))))
         chosen[w1].append((w2, f7, c))
     nsel = sum(len(v) for v in chosen.values())
-    rep.append(f"bigramas: {len(pair)} pares; {sum(len(v) for v in by_w1.values())} com c >= "
-               f"{a.min_bigram}; escolhidos {nsel} para {len(chosen)} palavras "
-               f"(até {a.top_each} garantidas por palavra, o resto por contagem)")
+    rep.append(f"bigrams: {len(pair)} pairs; {sum(len(v) for v in by_w1.values())} with c >= "
+               f"{a.min_bigram}; chose {nsel} for {len(chosen)} words "
+               f"(up to {a.top_each} guaranteed per word, the rest by count)")
 
-    # ------------------------------------------------------------------ saída
+    # ------------------------------------------------------------------ output
     order = sorted(final, key=lambda x: (-final[x], x))
     with gzip.open(a.out, "wt", encoding="utf-8") as o:
         o.write("dictionary=main:pt_br,locale=pt_BR,description=Português (Brasil),"
@@ -586,7 +588,7 @@ def main():
         with open(a.words_tsv, "w", encoding="utf-8") as o:
             for w in order:
                 o.write(f"{w}\t{final[w]}\n")
-    rep.append(f"lista final: {len(final)} palavras")
+    rep.append(f"final list: {len(final)} words")
     print("\n".join(rep))
     if a.report:
         with open(a.report, "w", encoding="utf-8") as r:

@@ -1,5 +1,5 @@
-"""Separa as frases do Leipzig por_news_2024_300K por origem (pt-BR x outras variantes).
-Uso: python3 -I split_br.py <dir_corpus> <saida_dir>"""
+"""Splits the Leipzig por_news_2024_300K sentences by origin (pt-BR x other variants).
+Usage: python3 -I split_br.py <corpus_dir> <out_dir>"""
 import sys, re, collections, os
 src_dir, out_dir = sys.argv[1], sys.argv[2]
 P = os.path.join(src_dir, os.path.basename(os.path.normpath(src_dir)) + '-')
@@ -37,12 +37,12 @@ for d, (n, pt, br) in stats.items():
         bad_domains.add(d)
     elif d.startswith('pt.euronews'):
         bad_domains.add(d)
-# sites sediados em Portugal que passam no filtro de marcadores (revisados à mão)
+# sites based in Portugal that pass the marker filter (reviewed by hand)
 bad_domains |= {'barcelosnanet.com', 'azoresnews.net'}
 kept = [snt for snt in sents if dom.get(sent_src.get(snt), '?') not in bad_domains]
 dropped = len(sents) - len(kept)
-print('frases', len(sents), 'mantidas', len(kept), 'descartadas', dropped)
-print('dominios .com/.net descartados por marcadores pt-PT:', sorted(d for d in bad_domains if tld(d) not in NON_BR_TLD)[:40])
+print('sentences', len(sents), 'kept', len(kept), 'dropped', dropped)
+print('.com/.net domains dropped by pt-PT markers:', sorted(d for d in bad_domains if tld(d) not in NON_BR_TLD)[:40])
 kept.sort(key=lambda x: int(x))
 os.makedirs(out_dir, exist_ok=True)
 with open(os.path.join(out_dir, 'train.txt'), 'w', encoding='utf-8') as tr, open(os.path.join(out_dir, 'test.txt'), 'w', encoding='utf-8') as te:

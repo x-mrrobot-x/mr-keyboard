@@ -1,6 +1,6 @@
 import random, re, sys, collections
-# Gera a lista de palavras digitadas (com erros de propósito) do teste de paridade (Parity.java).
-# Uso: python3 -I gen_typos.py noticias_teste.txt conversa_teste.txt dicts/pt-BR/rules.txt saida.txt
+# Generates the list of typed words (with deliberate errors) for the parity test (Parity.java).
+# Usage: python3 -I gen_typos.py news_test.txt chat_test.txt dicts/pt-BR/rules.txt out.txt
 random.seed(163)
 rows=["qwertyuiop","asdfghjklç","zxcvbnm"]
 pos={c:(r,k) for r,row in enumerate(rows) for k,c in enumerate(row)}

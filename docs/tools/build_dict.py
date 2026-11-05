@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
-"""Gera o dicionário binário lido por libjni_pckeyboard (dictionary.cpp do Hacker's Keyboard /
-LatinIME Gingerbread) no formato "latest": cabeçalho de 2 bytes e lista de bigramas por palavra.
+"""Generates the binary dictionary read by libjni_pckeyboard (dictionary.cpp of Hacker's Keyboard /
+LatinIME Gingerbread) in the "latest" format: a 2-byte header and a bigram list per word.
 
-Uso: python3 -I build_dict.py entrada.combined.gz saida.dict
+Usage: python3 -I build_dict.py input.combined.gz output.dict
 
-Formato (conferido no dictionary.cpp; ver docs/dictionary-build.md)
-  cabeçalho     = [versão 200][bigrama 1]  (checkIfDictVersionIsLatest: versão >= 200, flag 0/1)
-  grupo         = [count:1] + count * entrada; o grupo raiz fica no offset 2
-  entrada       = char:1 + flags/endereço + [freq:1 + bigramas, se terminal]
-  char          = só 1 byte (< 0xFF): searchForTerminalNode anda 1 byte por char, então palavras
-                  com caracteres >= 0xFF ficam de fora
-  flags/endereço: 0x80 terminal, 0x40 tem filhos; com filhos são 3 bytes com o endereço absoluto
-                  (22 bits) do grupo filho, sem filhos é 1 byte
-  bigramas      = 1 byte 0x00 se não há; senão N entradas de 4 bytes:
-                  [0x80 | end>>16 (6 bits)][end>>8][end][0x80 se há outra | freq (7 bits)]
-                  onde "end" é o endereço do byte de char da entrada da palavra seguinte
-  Layout em profundidade (pré-ordem): searchForTerminalNode desce escolhendo o último filho com
-  endereço <= alvo, o que só funciona se cada subárvore ocupar um trecho contíguo depois do
-  grupo do pai. Em largura (BFS) a busca se perde e a lib lê fora do lugar.
+Format (checked against dictionary.cpp; see docs/dictionary-build.md)
+  header        = [version 200][bigram 1]  (checkIfDictVersionIsLatest: version >= 200, flag 0/1)
+  group         = [count:1] + count * entry; the root group sits at offset 2
+  entry         = char:1 + flags/address + [freq:1 + bigrams, if terminal]
+  char          = only 1 byte (< 0xFF): searchForTerminalNode walks 1 byte per char, so words
+                  with characters >= 0xFF are left out
+  flags/address: 0x80 terminal, 0x40 has children; with children it is 3 bytes with the absolute address
+                  (22 bits) of the child group, without children it is 1 byte
+  bigrams       = 1 byte 0x00 if there are none; otherwise N entries of 4 bytes:
+                  [0x80 | end>>16 (6 bits)][end>>8][end][0x80 if there is another | freq (7 bits)]
+                  where "end" is the address of the char byte of the entry of the next word
+  Depth-first layout (pre-order): searchForTerminalNode goes down choosing the last child with
+  address <= target, which only works if each subtree takes a contiguous stretch after the
+  parent's group. In breadth-first order (BFS) the search gets lost and the lib reads out of place.
 
-O script relê o arquivo gerado com uma cópia em Python das rotinas de leitura da lib e para com
-erro se qualquer palavra, frequência ou bigrama não sair igual à entrada.
+The script re-reads the generated file with a Python copy of the lib's reading routines and stops with
+an error if any word, frequency or bigram does not come out equal to the input.
 """
 import gzip
 import sys
@@ -28,8 +28,8 @@ import sys
 HEADER = bytes((200, 1))
 HEADER_SIZE = 2
 ADDRESS_LIMIT = 0x400000  # 22 bits
-MAX_WORD_LENGTH = 47      # BinaryDictionary usa buffers de 48 chars com terminador
-MAX_BIGRAMS = 60          # a lib lê no máximo 60 por palavra (MAX_BIGRAMS do BinaryDictionary)
+MAX_WORD_LENGTH = 47      # BinaryDictionary uses 48-char buffers with a terminator
+MAX_BIGRAMS = 60          # the lib reads at most 60 per word (MAX_BIGRAMS of BinaryDictionary)
 FLAG_TERMINAL = 0x80
 FLAG_CHILDREN = 0x40
 
@@ -106,7 +106,7 @@ def entry_size(n):
 def serialize(root):
     order = []
     stack = [root]
-    while stack:                      # pré-ordem, filhos em ordem de código
+    while stack:                      # pre-order, children in code order
         n = stack.pop()
         order.append(n)
         stack.extend(k for _, k in reversed(kids_of(n)) if k.kids)
@@ -115,12 +115,12 @@ def serialize(root):
     for n in order:
         ks = kids_of(n)
         if len(ks) > 255:
-            raise ValueError("grupo com mais de 255 filhos")
+            raise ValueError("group with more than 255 children")
         group_at[id(n)] = pos
         pos += 1 + sum(entry_size(k) for _, k in ks)
     total = pos
     if total >= ADDRESS_LIMIT:
-        raise ValueError(f"dicionário com {total} bytes passa do limite de endereço (22 bits)")
+        raise ValueError(f"dictionary with {total} bytes goes past the address limit (22 bits)")
     entry_at = {}
     for n in order:
         p = group_at[id(n)] + 1
@@ -154,10 +154,10 @@ def serialize(root):
     return bytes(out)
 
 
-# ---------------------------------------------------------------- releitura (cópia da lib)
+# ---------------------------------------------------------------- re-reading (copy of the lib)
 
 def walk(d):
-    """Percorre o trie como getWordsRec/getFreq; devolve {palavra: (freq, [(end_alvo, f)])}."""
+    """Walks the trie like getWordsRec/getFreq; returns {word: (freq, [(target_end, f)])}."""
     found = {}
     stack = [(HEADER_SIZE, "")]
     while stack:
@@ -195,7 +195,7 @@ def walk(d):
 
 
 def search_terminal(d, target):
-    """Cópia de Dictionary::searchForTerminalNode: acha a palavra cujo char está em 'target'."""
+    """Copy of Dictionary::searchForTerminalNode: finds the word whose char is at 'target'."""
     word = []
     follow = HEADER_SIZE
     following = None
@@ -265,22 +265,22 @@ def search_terminal(d, target):
 def verify(data, words, nodes, root):
     errors = []
     if data[:2] != HEADER:
-        errors.append("cabeçalho")
+        errors.append("header")
     got = walk(data)
     expected = {w: n for w, n in nodes.items()}
     if set(got) != set(expected):
         miss = sorted(set(expected) - set(got))[:5]
         extra = sorted(set(got) - set(expected))[:5]
-        errors.append(f"palavras diferentes: faltam {miss} sobram {extra}")
+        errors.append(f"different words: missing {miss} extra {extra}")
     nb = 0
     for w, n in expected.items():
         g = got.get(w)
         if g is None:
             continue
         if g[0] != n.freq:
-            errors.append(f"freq de {w}: {g[0]} != {n.freq}")
+            errors.append(f"freq of {w}: {g[0]} != {n.freq}")
         if len(g[1]) != len(n.bigrams):
-            errors.append(f"bigramas de {w}: {len(g[1])} != {len(n.bigrams)}")
+            errors.append(f"bigrams of {w}: {len(g[1])} != {len(n.bigrams)}")
             continue
         for (a, f), (t, ft) in zip(g[1], n.bigrams):
             nb += 1
@@ -288,7 +288,7 @@ def verify(data, words, nodes, root):
                 errors.append(f"freq do bigrama {w}: {f} != {ft}")
             r = search_terminal(data, a)
             if r is None or nodes.get(r) is not t:
-                errors.append(f"bigrama de {w} aponta para {r!r}")
+                errors.append(f"bigram of {w} points to {r!r}")
         if len(errors) > 20:
             break
     return errors, nb
@@ -302,14 +302,14 @@ def main():
     errors, nb = verify(data, words, nodes, root)
     if errors:
         for e in errors[:20]:
-            print("ERRO:", e)
+            print("ERROR:", e)
         sys.exit(1)
     with open(dst, "wb") as fh:
         fh.write(data)
-    print(f"palavras: {len(nodes)} (fora: {len(skipped)} com caractere >= U+00FF ou longas demais"
+    print(f"words: {len(nodes)} (left out: {len(skipped)} with a character >= U+00FF or too long"
           f"{': ' + ' '.join(skipped[:10]) if skipped else ''})")
-    print(f"bigramas: {nb} (descartados: {dropped})")
-    print(f"bytes: {len(data)} (limite {ADDRESS_LIMIT}); releitura e bigramas conferidos")
+    print(f"bigrams: {nb} (dropped: {dropped})")
+    print(f"bytes: {len(data)} (limit {ADDRESS_LIMIT}); re-read and bigrams checked")
 
 
 if __name__ == "__main__":

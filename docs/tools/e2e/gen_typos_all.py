@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Erros de digitação sintéticos de todos os tipos para CorrEval.java (v1.75), em qualquer idioma.
+"""Synthetic typos of every type for CorrEval.java (v1.75), in any language.
 
-Uso: python3 -I gen_typos_all.py pt|en|es texto1.txt texto2.txt saida.tsv [quantas_palavras]
-Pega as palavras mais comuns (minúsculas, 4+ letras) dos textos de teste e gera, para cada uma, um erro
-de cada tipo (saída: errada<TAB>certa<TAB>tipo):
-  near       tecla vizinha trocada
-  swap       duas letras vizinhas trocadas de lugar
-  del_first  falta a 1ª letra
-  del_mid    falta uma letra do meio
-  del_last   falta a última letra
-  dup        letra repetida a mais
-Determinístico (semente fixa), para comparar versões do app.
+Usage: python3 -I gen_typos_all.py pt|en|es text1.txt text2.txt out.tsv [how_many_words]
+Takes the most common words (lowercase, 4+ letters) of the test texts and generates, for each one, one typo
+of each type (output: wrong<TAB>right<TAB>type):
+  near       neighbouring key swapped in
+  swap       two adjacent letters swapped
+  del_first  the 1st letter is missing
+  del_mid    a letter from the middle is missing
+  del_last   the last letter is missing
+  dup        an extra repeated letter
+Deterministic (fixed seed), to compare app versions.
 """
 import collections
 import random
@@ -62,4 +62,4 @@ for w in words:
     rows.append((w[:i] + w[i] + w[i:], w, "dup"))
 rows = [r for r in rows if r[0] != r[1] and r[0]]
 open(out, "w", encoding="utf-8").write("".join("%s\t%s\t%s\n" % r for r in rows))
-print(len(rows), "erros de", len(words), "palavras")
+print(len(rows), "typos from", len(words), "words")

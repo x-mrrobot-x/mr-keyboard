@@ -31,7 +31,7 @@ def bits2f(x):
 
 
 def fv(x):
-    """Operando de float: inteiro = padrao de bits de uma constante."""
+    """Float operand: integer = bit pattern of a constant."""
     if isinstance(x, bool):
         raise TypeError('boolean em operacao de float')
     return bits2f(x) if isinstance(x, int) else x
@@ -39,11 +39,11 @@ def fv(x):
 
 def iv(x):
     if isinstance(x, float):
-        raise TypeError(f'float {x} usado em operacao de inteiro')
+        raise TypeError(f'float {x} used in an integer operation')
     if x is None:
         return 0
     if not isinstance(x, int):
-        raise TypeError(f'objeto {x!r} usado em operacao de inteiro')
+        raise TypeError(f'object {x!r} used in an integer operation')
     return x
 
 
@@ -55,7 +55,7 @@ def parse_int(tok):
 
 
 class FArr(list):
-    """float[]: aput converte constantes (padrao de bits) em float, como o ART."""
+    """float[]: aput converts constants (bit pattern) to float, as ART does."""
 
 
 class JavaExc(Exception):
@@ -65,7 +65,7 @@ class JavaExc(Exception):
 
 
 class Obj:
-    """Objeto de mentira: cls = nome Java; f = campos."""
+    """Fake object: cls = Java name; f = fields."""
     def __init__(self, cls='Ljava/lang/Object;', **kw):
         self.cls = cls
         self.f = dict(kw)
@@ -118,14 +118,14 @@ def parse_methods(path):
     return methods
 
 
-# ------------------------------------------------------------------------------ maquina
+# ------------------------------------------------------------------------------ machine
 class VM:
     """cls: nome da classe cujos metodos estao em `methods`. host: objeto com
     `invoke(vm, op, target, args)`, usado para tudo que nao e da classe."""
 
     def __init__(self, cls, methods, host):
         self.cls, self.m, self.host = cls, methods, host
-        self.statics = {}          # 'nome' -> valor, da propria classe
+        self.statics = {}          # 'name' -> value, of the class itself
         self.max_steps = 400000
 
     # --- execucao
@@ -133,7 +133,7 @@ class VM:
         m = self.m[key]
         loc = m['locals']
         n = nparams(m['sig']) + (0 if m['static'] else 1)
-        assert len(args) == n, f'{key}: {len(args)} argumentos, esperava {n}'
+        assert len(args) == n, f'{key}: {len(args)} arguments, expected {n}'
         R = [None] * (loc + n)
         for k, a in enumerate(args):
             R[loc + k] = a
@@ -147,7 +147,7 @@ class VM:
 
         while True:
             steps += 1
-            assert steps < self.max_steps, f'{key}: laco infinito?'
+            assert steps < self.max_steps, f'{key}: infinite loop?'
             ins = code[pc]
             at = pc
             pc += 1
@@ -196,7 +196,7 @@ class VM:
             a, b = ops(rest)
             cls, _, nm = b.partition('->')
             nm = nm.split(':')[0]
-            assert cls == self.cls, f'sput fora da classe: {b}'
+            assert cls == self.cls, f'sput outside the class: {b}'
             self.statics[nm] = R[r(a)]
         elif op in ('aget', 'aget-object'):
             a, b, c = ops(rest); setr(a, R[r(b)][iv(R[r(c)])])
@@ -249,7 +249,7 @@ class VM:
             a = R[r(t[0])]; b = 0 if zero else R[r(t[1])]
             a = 0 if a is None else a
             b = 0 if b is None else b
-            if not isinstance(a, (int, float)): a = 1            # referencia nao nula
+            if not isinstance(a, (int, float)): a = 1            # non-null reference
             if not isinstance(b, (int, float)): b = 1
             import operator as O
             if {'eq': O.eq, 'ne': O.ne, 'lt': O.lt, 'ge': O.ge, 'gt': O.gt, 'le': O.le}[kind](a, b):

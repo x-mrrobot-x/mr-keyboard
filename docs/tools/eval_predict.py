@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Mede a previsão de próxima palavra de uma lista "combined" em frases separadas para teste.
+"""Measures next-word prediction from a "combined" list on separate test sentences.
 
-Uso: python3 -I eval_predict.py lista.combined.gz test.txt [mr_trigrams.bin]
+Usage: python3 -I eval_predict.py list.combined.gz test.txt [mr_trigrams.bin]
 
-Para cada par de palavras seguidas (dentro de um trecho sem pontuação) cuja primeira palavra
-está na lista, simula o que o teclado mostra:
-  - depois do espaço: as 3 primeiras continuações da palavra anterior (MrPredict);
-  - depois da 1ª letra: as continuações que começam com a mesma letra-base, até 3 (Suggest com
-    uma letra digitada).
-Conta acerto quando a palavra real está entre as mostradas (sem diferenciar maiúscula/acento só
-na inicial). Saída: cobertura e acertos top-1/top-3.
+For each pair of consecutive words (inside a stretch without punctuation) whose first word
+is in the list, simulates what the keyboard shows:
+  - after the space: the first 3 continuations of the previous word (MrPredict);
+  - after the 1st letter: the continuations that start with the same base letter, up to 3 (Suggest with
+    one typed letter).
+Counts a hit when the real word is among the ones shown (without distinguishing case/accent only
+on the initial). Output: coverage and top-1/top-3 hits.
 """
 import collections
 import gzip
@@ -48,7 +48,7 @@ def load(path):
 
 
 def load_trigrams(path):
-    """Lê mr_trigrams.bin (make_trigrams.py) -> {(w1, w2): [w3, ...]}."""
+    """Reads mr_trigrams.bin (make_trigrams.py) -> {(w1, w2): [w3, ...]}."""
     import struct
     d = open(path, "rb").read()
     assert d[:4] == b"MRT1"
@@ -129,9 +129,9 @@ def main():
             prev = known
             first = False
     pct = lambda x, y: f"{100.0 * x / y:5.1f}%" if y else "  -  "
-    print(f"pares avaliados: {n}")
-    print(f"após o espaço : cobertura {pct(cov, n)}  top-1 {pct(h1, n)}  top-3 {pct(h3, n)}")
-    print(f"após 1ª letra : cobertura {pct(fcov, fn)}  top-1 {pct(f1, fn)}  top-3 {pct(f3, fn)}")
+    print(f"pairs evaluated: {n}")
+    print(f"after the space : coverage {pct(cov, n)}  top-1 {pct(h1, n)}  top-3 {pct(h3, n)}")
+    print(f"after 1st letter: coverage {pct(fcov, fn)}  top-1 {pct(f1, fn)}  top-3 {pct(f3, fn)}")
 
 
 if __name__ == "__main__":

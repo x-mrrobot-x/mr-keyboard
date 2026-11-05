@@ -1,11 +1,11 @@
-"""Separa os corpora em inglês em treino e teste (v1.64).
+"""Splits the English corpora into train and test (v1.64).
 
-Uso: python3 -I split_en.py <pasta_leipzig> <eng_sentences.tsv> <saida>
-  Leipzig (<pasta>/<nome>-sentences.txt, id TAB frase): 1 de cada 50 frases vai para o teste.
-  Tatoeba (id TAB eng TAB frase): os nomes e lugares que se repetem nas frases de exemplo (Tom,
-  Mary, Layla, Rima, Skura, Boston, Algeria...) viram "|", para não ensinarem pares como "Tom is"
-  ou "to Boston"; frases repetidas saem; 1 de cada 20 vai para o teste.
-Saída: <saida>/news_train.txt, news_test.txt, chat_train.txt, chat_test.txt
+Usage: python3 -I split_en.py <leipzig_folder> <eng_sentences.tsv> <out>
+  Leipzig (<folder>/<name>-sentences.txt, id TAB sentence): 1 in every 50 sentences goes to the test set.
+  Tatoeba (id TAB eng TAB sentence): the names and places that repeat in the example sentences (Tom,
+  Mary, Layla, Rima, Skura, Boston, Algeria...) become "|", so they do not teach pairs like "Tom is"
+  or "to Boston"; repeated sentences are dropped; 1 in every 20 goes to the test set.
+Output: <out>/news_train.txt, news_test.txt, chat_train.txt, chat_test.txt
 """
 import os
 import re
@@ -24,7 +24,7 @@ with open(sent, encoding="utf-8") as f, open(os.path.join(out, "news_train.txt")
             continue
         (te if i % 50 == 0 else tr).write(p[1] + "\n")
         n[i % 50 == 0] += 1
-print("notícias: treino", n[0], "teste", n[1])
+print("news: train", n[0], "test", n[1])
 
 NAMES = re.compile(r"\b(?:Tom|Mary|Layla|Rima|Skura|Ziri|Sami|Yanni|Baya|Walid|Mennad|Taninna|Fadil|Dania|"
                    r"Salima|Nuja|Nuhad|Rami|Boston|Australia|Algeria|Algiers|Algerians?|Kabylie|"
@@ -43,4 +43,4 @@ with open(os.path.join(out, "chat_train.txt"), "w", encoding="utf-8") as tr, \
         open(os.path.join(out, "chat_test.txt"), "w", encoding="utf-8") as te:
     for i, t in enumerate(uniq):
         (te if i % 20 == 0 else tr).write(t + "\n")
-print("conversa: frases sem repetição", len(uniq), "teste", (len(uniq) + 19) // 20)
+print("chat: sentences without repetition", len(uniq), "test", (len(uniq) + 19) // 20)

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Sessões de digitação simuladas para RecentEval.java (v1.75), sem texto de conversa de verdade.
+"""Simulated typing sessions for RecentEval.java (v1.75), without real conversation text.
 
-Uso: python3 -I gen_sessions.py texto1.txt texto2.txt saida_topico.txt saida_aleatorio.txt [quantas]
-Os corpora de teste vêm embaralhados (frase solta, sem documento). Duas aproximações:
-  topico     frases que repetem uma palavra rara (df 3 a 30), na ordem do arquivo: como uma conversa sobre um
-             assunto (otimista: o assunto repete mais do que numa conversa de verdade);
-  aleatorio  frases sem relação nenhuma (pessimista: as palavras recentes só atrapalham).
-Cada sessão são até 8 frases; sessões separadas por linha em branco.
+Usage: python3 -I gen_sessions.py text1.txt text2.txt out_topic.txt out_random.txt [how_many]
+The test corpora come shuffled (loose sentences, no document). Two approximations:
+  topic      sentences that repeat a rare word (df 3 to 30), in file order: like a conversation about a
+             subject (optimistic: the subject repeats more than in a real conversation);
+  random     sentences with no relation at all (pessimistic: the recent words can only get in the way).
+Each session is up to 8 sentences; sessions are separated by a blank line.
 """
 import collections
 import random
@@ -28,7 +28,7 @@ df = collections.Counter()
 for s in sents:
     for w in sorted(set(t.lower() for t in re.findall(r"[^\W\d_]+", s) if len(t) >= 5)):
         df[w] += 1
-seeds = sorted(w for w, c in df.items() if 3 <= c <= 30)   # ordem fixa: o resultado não depende do hash do Python
+seeds = sorted(w for w, c in df.items() if 3 <= c <= 30)   # fixed order: the result does not depend on Python's hash
 random.shuffle(seeds)
 bysent = collections.defaultdict(list)
 for i, s in enumerate(sents):
@@ -45,4 +45,4 @@ for w in seeds:
 rand = [random.sample(sents, 8) for _ in range(n_sess)]
 open(out_t, "w", encoding="utf-8").write("\n\n".join("\n".join(b) for b in topic) + "\n")
 open(out_r, "w", encoding="utf-8").write("\n\n".join("\n".join(b) for b in rand) + "\n")
-print(len(topic), "sessões por assunto,", len(rand), "aleatórias,", len(sents), "frases")
+print(len(topic), "sessions by topic,", len(rand), "random,", len(sents), "sentences")

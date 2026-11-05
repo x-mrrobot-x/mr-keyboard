@@ -1,5 +1,5 @@
-"""Separa as frases pt-BR do Tatoeba (por_sentences_detailed.tsv) por autor e por frase.
-Uso: python3 -I split_tatoeba.py por_sentences_detailed.tsv saida_dir"""
+"""Splits the Tatoeba pt-BR sentences (por_sentences_detailed.tsv) by author and by sentence.
+Usage: python3 -I split_tatoeba.py por_sentences_detailed.tsv out_dir"""
 import sys, re, os, collections
 src, out = sys.argv[1], sys.argv[2]
 PT = re.compile(r"\b(equipa|equipas|facto|factos|autocarro|telemóvel|telemóveis|ecrã|registo|utilizador|contacto|contactos|casa de banho|comboio|pequeno-almoço|frigorífico|guarda-redes|camião|rapariga|raparigas|miúdo|miúdos|desporto|desportivo|sumo|propina|bicha|estás|és|tens|vens|queres|podes|sabes|fazes|vais|dizes|tu|contigo|teu|tua|teus|tuas|vós|vosso|vossa|connosco|óptimo|acção|direcção|objectivo|actual|actualmente|exacto|projecto|baptismo|adoptar|percebes|estou a|está a|estás a|estamos a|estão a|estava a|estive a)\b", re.I)
@@ -24,6 +24,6 @@ os.makedirs(out, exist_ok=True)
 with open(os.path.join(out, "train.txt"), "w", encoding="utf-8") as tr, open(os.path.join(out, "test.txt"), "w", encoding="utf-8") as te:
     for i, t in enumerate(uniq):
         (te if i % 20 == 0 else tr).write(t + "\n")
-print("frases", len(rows), "autores", len(users), "autores pt-PT", len(bad_users),
-      "frases com marca pt-PT", sum(1 for r in rows if r[2] > 0), "mantidas (sem repetição)", len(uniq))
-print("autores pt-PT (maiores):", sorted(bad_users, key=lambda u: -users[u][0])[:15])
+print("sentences", len(rows), "authors", len(users), "pt-PT authors", len(bad_users),
+      "sentences with pt-PT marker", sum(1 for r in rows if r[2] > 0), "kept (no repetition)", len(uniq))
+print("pt-PT authors (largest):", sorted(bad_users, key=lambda u: -users[u][0])[:15])

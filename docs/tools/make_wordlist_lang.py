@@ -1,35 +1,35 @@
 #!/usr/bin/env python3
-"""Monta a lista de um idioma do Mr Keyboard (palavras + bigramas) no formato "combined" do AOSP.
-Usado no inglês (v1.64; make_wordlist_en.py chama este com --lang en) e no espanhol (v1.65). O
-português tem regras próprias em make_wordlist.py.
+"""Builds the list of one Mr Keyboard language (words + bigrams) in the AOSP "combined" format.
+Used for English (v1.64; make_wordlist_en.py calls this one with --lang en) and for Spanish (v1.65). The
+Portuguese has its own rules in make_wordlist.py.
 
-Uso:
-  python3 -I make_wordlist_lang.py --lang es --base es_wordlist.combined.gz --corpus noticias.txt \
-      --corpus2 conversa.txt --weight2 1 --spell es_ES.aff:es_ES.dic --spell es_MX.aff:es_MX.dic \
-      --out main_es.combined.gz [--words-tsv palavras.tsv] [--report relatorio.txt]
-  (no inglês: --aff en_US.aff --dic en_US.dic, como antes)
+Usage:
+  python3 -I make_wordlist_lang.py --lang es --base es_wordlist.combined.gz --corpus news.txt \
+      --corpus2 chat.txt --weight2 1 --spell es_ES.aff:es_ES.dic --spell es_MX.aff:es_MX.dic \
+      --out main_es.combined.gz [--words-tsv words.tsv] [--report report.txt]
+  (for English: --aff en_US.aff --dic en_US.dic, as before)
 
-Entradas
-  --base     dictionaries/<idioma>_wordlist.combined.gz do AOSP LatinIME (Apache-2.0), versão 54,
-             do espelho do LineageOS (mesmo commit da lista pt-BR).
-  --corpus   frases de notícias (Leipzig, CC BY 4.0), uma por linha.
-  --corpus2  frases de conversa (Tatoeba, CC BY 2.0 FR), com os nomes repetidos trocados por "|".
-  Os corretores do Hunspell (--spell, um ou mais; vale se qualquer um aceitar) servem só de
-  filtro (decidem se uma palavra nova entra); nada deles é copiado.
+Inputs
+  --base     dictionaries/<language>_wordlist.combined.gz of the AOSP LatinIME (Apache-2.0), version 54,
+             from the LineageOS mirror (same commit as the pt-BR list).
+  --corpus   news sentences (Leipzig, CC BY 4.0), one per line.
+  --corpus2  chat sentences (Tatoeba, CC BY 2.0 FR), with the repeated names replaced by "|".
+  The Hunspell spellers (--spell, one or more; it counts if any of them accepts) only serve as a
+  filter (they decide whether a new word comes in); nothing from them is copied.
 
-Regras
-  base     - fora as entradas not_a_word (são só atalhos; as boas viraram correções no rules.txt);
-           - palavras com caracteres >= 0xFF ou mais de 40 letras saem (limite do formato);
-           - possivelmente ofensivas (lista do AOSP) nunca são previsão; as vulgares (VULGAR) ficam
-             com f = 5 e só aparecem quando digitadas por inteiro.
-  corpus   - minúsculas que o Hunspell aceita (no inglês, grafia americana: "colour" não entra), com
-             contagem >= --min-count; nomes próprios aceitos pelo Hunspell com contagem >=
-             --min-name-count fora do início de frase e sem a forma minúscula na lista;
-           - f das palavras novas: ajuste f ~ a*log10(contagem) + b nas palavras da base, menos 10.
-  informal - poucas palavras de conversa que faltam na base (lol, omg, okay...).
-  bigramas - iguais aos da lista pt-BR (make_wordlist.py): trechos sem pontuação, 2º corpus com
-             peso --weight2, as --top-each primeiras de cada palavra garantidas e o resto por
-             contagem até --max-bigrams; f de 7 bits = 127*(1 + log10(P(w2|w1))/3).
+Rules
+  base     - minus the not_a_word entries (they are only shortcuts; the good ones became corrections in rules.txt);
+           - words with characters >= 0xFF or more than 40 letters are dropped (format limit);
+           - possibly offensive ones (AOSP list) are never prediction; the vulgar ones (VULGAR) stay
+             with f = 5 and only show up when typed in full.
+  corpus   - lowercase words that Hunspell accepts (in English, American spelling: "colour" does not come in), with
+             count >= --min-count; proper names accepted by Hunspell with count >=
+             --min-name-count outside the start of a sentence and without the lowercase form in the list;
+           - f of the new words: fit f ~ a*log10(count) + b on the base words, minus 10.
+  informal - a few chat words missing from the base (lol, omg, okay...).
+  bigrams  - same as the pt-BR list (make_wordlist.py): stretches without punctuation, 2nd corpus with
+             weight --weight2, the first --top-each of each word guaranteed and the rest by
+             count up to --max-bigrams; 7-bit f = 127*(1 + log10(P(w2|w1))/3).
 """
 import argparse
 import collections
@@ -69,9 +69,9 @@ LANGS["es"] = {
         "jaja": 120, "jajaja": 110, "jajajaja": 90, "jeje": 100, "ok": 140, "porfa": 100,
         "finde": 90, "okey": 100, "holi": 80,
     },
-    # expressões fixas de conversa que os textos subestimam (o Tatoeba tem cada frase uma vez só):
-    # a continuação passa a ser a 1ª da palavra
-    # (só palavras que não são das mais frequentes: "de nada" na frente de "de la" atrapalharia)
+    # fixed chat expressions that the texts underestimate (Tatoeba has each sentence only once):
+    # the continuation becomes the word's 1st one
+    # (only words that are not among the most frequent: "de nada" in front of "de la" would get in the way)
     "boost": [
         ("muchas", "gracias"), ("buenos", "días"), ("buenas", "noches"), ("buenas", "tardes"),
         ("te", "quiero"), ("hasta", "luego"), ("mucho", "gusto"), ("feliz", "cumpleaños"),
@@ -88,7 +88,7 @@ def main():
     ap.add_argument("--weight2", type=int, default=1)
     ap.add_argument("--aff", default=None)
     ap.add_argument("--dic", default=None)
-    ap.add_argument("--spell", action="append", default=[], help="aff:dic do Hunspell (pode repetir)")
+    ap.add_argument("--spell", action="append", default=[], help="Hunspell aff:dic (can be repeated)")
     ap.add_argument("--out", required=True)
     ap.add_argument("--words-tsv", default=None)
     ap.add_argument("--report", default=None)
@@ -105,7 +105,7 @@ def main():
     if a.aff and a.dic:
         pairs.insert(0, [a.aff, a.dic])
     if not pairs:
-        ap.error("informe --aff/--dic ou --spell")
+        ap.error("give --aff/--dic or --spell")
     spellers = [Speller(x[0], x[1]) for x in pairs]
 
     class AnySpeller:
@@ -131,14 +131,14 @@ def main():
             base[w] = int(d["f"])
             if d.get("possibly_offensive") == "true":
                 offensive.add(w)
-    rep.append(f"base: {len(base)} palavras ({skipped} fora pelo formato), "
-               f"{len(offensive)} possivelmente ofensivas")
+    rep.append(f"base: {len(base)} words ({skipped} left out by the format), "
+               f"{len(offensive)} possibly offensive")
     final = dict(base)
 
-    # ------------------------------------------------------------------ contagens (1ª passada)
-    seen = collections.Counter()       # forma exata
-    lower_seen = collections.Counter()  # minúscula
-    cap_mid = collections.Counter()    # com maiúscula fora do começo de frase, só nas notícias
+    # ------------------------------------------------------------------ counts (1st pass)
+    seen = collections.Counter()       # exact form
+    lower_seen = collections.Counter()  # lowercase
+    cap_mid = collections.Counter()    # capitalized outside the start of a sentence, news only
     sources = [(a.corpus, True)] + ([(a.corpus2, False)] if a.corpus2 else [])
     for path, news in sources:
         for line in open(path, encoding="utf-8"):
@@ -170,9 +170,9 @@ def main():
     def f_new(c):
         return max(30, min(180, int(round(slope * math.log10(c) + icpt))))
 
-    rep.append(f"ajuste das palavras novas: f = {slope:.2f}*log10(c) + {icpt + 10:.2f} - 10 (n={len(xs)})")
+    rep.append(f"fit of the new words: f = {slope:.2f}*log10(c) + {icpt + 10:.2f} - 10 (n={len(xs)})")
 
-    # ------------------------------------------------------------------ palavras novas
+    # ------------------------------------------------------------------ new words
     base_lower = {w.lower() for w in final}
     new_lower, new_names = [], []
     for w, c in seen.items():
@@ -187,7 +187,7 @@ def main():
         if w in final or c < a.min_name_count or len(w) < 2:
             continue
         if w.isupper() and len(w) > 1:
-            continue  # siglas novas ficam de fora
+            continue  # new acronyms are left out
         if w.lower() in base_lower or not sp.ok(w):
             continue
         final[w] = f_new(c)
@@ -195,15 +195,15 @@ def main():
     informal = [w for w in cfg["informal"] if w not in final]
     for w in informal:
         final[w] = cfg["informal"][w]
-    # vulgares (da base ou do corpus): f mínima e nunca previsão
+    # vulgar ones (from the base or the corpus): minimum f and never prediction
     vulgar = cfg["vulgar"]
     for w in vulgar & set(final):
         final[w] = 5
     offensive |= vulgar & set(final)
-    rep.append(f"novas do corpus: {len(new_lower)} minúsculas, {len(new_names)} nomes; "
-               f"conversa: {len(informal)} ({' '.join(sorted(informal))})")
+    rep.append(f"new from the corpus: {len(new_lower)} lowercase, {len(new_names)} names; "
+               f"chat: {len(informal)} ({' '.join(sorted(informal))})")
 
-    # ------------------------------------------------------------------ bigramas (2ª passada)
+    # ------------------------------------------------------------------ bigrams (2nd pass)
     def canon(t, first):
         if first and t[0].isupper():
             lw = t.lower()
@@ -261,12 +261,12 @@ def main():
         chosen[w1] = lst
         boosted.append(f"{w1} {w2}")
     nsel = sum(len(v) for v in chosen.values())
-    rep.append(f"bigramas: {len(pair)} pares; {sum(len(v) for v in by_w1.values())} com c >= "
-               f"{a.min_bigram}; escolhidos {nsel} para {len(chosen)} palavras")
+    rep.append(f"bigrams: {len(pair)} pairs; {sum(len(v) for v in by_w1.values())} with c >= "
+               f"{a.min_bigram}; chose {nsel} for {len(chosen)} words")
     if boosted:
-        rep.append("expressões de conversa em 1º: " + ", ".join(boosted))
+        rep.append("chat expressions in 1st place: " + ", ".join(boosted))
 
-    # ------------------------------------------------------------------ saída
+    # ------------------------------------------------------------------ output
     order = sorted(final, key=lambda x: (-final[x], x))
     with gzip.open(a.out, "wt", encoding="utf-8") as o:
         o.write(cfg["header"] + "\n")
@@ -278,13 +278,13 @@ def main():
         with open(a.words_tsv, "w", encoding="utf-8") as o:
             for w in order:
                 o.write(f"{w}\t{final[w]}\n")
-    rep.append(f"lista final: {len(final)} palavras")
+    rep.append(f"final list: {len(final)} words")
     print("\n".join(rep))
     if a.report:
         with open(a.report, "w", encoding="utf-8") as r:
             r.write("\n".join(rep) + "\n\n")
-            r.write(f"[novas minúsculas] ({len(new_lower)})\n" + " ".join(sorted(new_lower, key=lambda w: -seen[w])[:800]) + "\n\n")
-            r.write(f"[novos nomes] ({len(new_names)})\n" + " ".join(sorted(new_names, key=lambda w: -cap_mid[w])[:800]) + "\n")
+            r.write(f"[new lowercase] ({len(new_lower)})\n" + " ".join(sorted(new_lower, key=lambda w: -seen[w])[:800]) + "\n\n")
+            r.write(f"[new names] ({len(new_names)})\n" + " ".join(sorted(new_names, key=lambda w: -cap_mid[w])[:800]) + "\n")
 
 
 if __name__ == "__main__":

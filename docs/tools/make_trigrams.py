@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-"""Gera o trigrams.bin do pacote de dicionário (dicts/<id>/; antes da 1.63, assets/mr_trigrams.bin): as palavras mais prováveis depois de DUAS palavras (trigramas),
-lidas em Java por MrTrigram (a lib nativa só guarda pares).
+"""Generates the trigrams.bin of the dictionary pack (dicts/<id>/; before 1.63, assets/mr_trigrams.bin): the most likely words after TWO words (trigrams),
+read in Java by MrTrigram (the native lib only stores pairs).
 
-Uso:
+Usage:
   python3 -I make_trigrams.py --list main_pt.combined.gz --base pt_BR_wordlist.combined.gz \
-      --corpus noticias.txt [--corpus2 conversa.txt --weight2 3] --out mr_trigrams.bin
+      --corpus news.txt [--corpus2 chat.txt --weight2 3] --out mr_trigrams.bin
 
-Só entram contextos (palavra1, palavra2) vistos pelo menos --min-ctx vezes, com continuações
-vistas pelo menos --min-count vezes (contagens já com peso), e só quando as 3 primeiras
-continuações diferem das 3 que o par (palavra2 -> ?) já daria: no resto, o dicionário já acerta.
+Only contexts (word1, word2) seen at least --min-ctx times come in, with continuations
+seen at least --min-count times (counts already weighted), and only when the first 3
+continuations differ from the 3 that the pair (word2 -> ?) would already give: in the rest, the dictionary is already right.
 
-Formato (big-endian):
-  "MRT1" | u32 nPalavras | nPalavras x (u8 bytes UTF-8, texto) em ordem de código
-  | u32 nContextos | nContextos x (u24 id1, u24 id2, u8 k, k x (u24 id3, u8 f7))
-  ordenado por (id1, id2); f7 = 127*(1 + log10(P(w3|w1 w2))/3), de 1 a 127.
+Format (big-endian):
+  "MRT1" | u32 nWords | nWords x (u8 UTF-8 bytes, text) in code order
+  | u32 nContexts | nContexts x (u24 id1, u24 id2, u8 k, k x (u24 id3, u8 f7))
+  sorted by (id1, id2); f7 = 127*(1 + log10(P(w3|w1 w2))/3), from 1 to 127.
 """
 import argparse
 import collections
@@ -135,7 +135,7 @@ def main():
     vocab = sorted({w for k in kept for w in k} | {w for v in kept.values() for w, _ in v})
     vid = {w: i for i, w in enumerate(vocab)}
     if len(vocab) >= 1 << 24:
-        raise ValueError("vocabulário grande demais para ids de 24 bits")
+        raise ValueError("vocabulary too large for 24-bit ids")
     out = bytearray(b"MRT1")
     out += struct.pack(">I", len(vocab))
     for w in vocab:
@@ -152,8 +152,8 @@ def main():
             out.append(f)
     with open(a.out, "wb") as fh:
         fh.write(out)
-    print(f"contextos com {a.min_ctx}+ ocorrências: {len(ctxs)}; gravados (diferentes do par): "
-          f"{len(keys)}; palavras: {len(vocab)}; bytes: {len(out)}")
+    print(f"contexts with {a.min_ctx}+ occurrences: {len(ctxs)}; written (different from the pair): "
+          f"{len(keys)}; words: {len(vocab)}; bytes: {len(out)}")
 
 
 if __name__ == "__main__":

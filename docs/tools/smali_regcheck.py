@@ -54,7 +54,7 @@ def is_wide_binop(op):
 
 
 def rw(op, regs):
-    """(lidos, escritos) do instruction. `regs` = registradores do operando, em ordem (sem labels)."""
+    """(read, written) of the instruction. `regs` = operand registers, in order (without labels)."""
     r = regs
     w2 = lambda x: [x, x + 1]
     base = op.split('/')[0]
@@ -293,7 +293,7 @@ def analyze(m):
         try:
             rd, wr = rw(op, regs)
         except NotImplementedError:
-            findings.append((ln, 'opcode sem regra: ' + op))
+            findings.append((ln, 'opcode without a rule: ' + op))
             continue
         out = st
         for x in wr:
@@ -311,7 +311,7 @@ def analyze(m):
             continue
         for x in rd:
             if x < total and not (state[i] >> x) & 1:
-                findings.append((ln, 'v%d lido sem valor em "%s"' % (x, op)))
+                findings.append((ln, 'v%d read without a value in "%s"' % (x, op)))
     return findings
 
 
@@ -327,7 +327,7 @@ def scan(root):
                 try:
                     fl = analyze(m)
                 except Exception as e:  # noqa
-                    fl = [(m['start'], 'erro ao analisar: %r' % e)]
+                    fl = [(m['start'], 'parse error: %r' % e)]
                 for ln, msg in fl:
                     res.setdefault((rel, m['head'].split()[-1]), []).append((ln, msg))
     for k, v in refs(root).items():

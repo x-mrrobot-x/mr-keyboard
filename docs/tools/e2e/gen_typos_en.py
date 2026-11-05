@@ -1,6 +1,6 @@
 import random, re, sys, collections
-# Gera erros de digitação sintéticos em inglês (tecla vizinha, troca, letra que falta ou dobra) para TypoEval.java.
-# Uso: python3 -I gen_typos_en.py news_test.txt chat_test.txt saida.tsv
+# Generates synthetic typos in English (neighbouring key, swap, missing or doubled letter) for TypoEval.java.
+# Usage: python3 -I gen_typos_en.py news_test.txt chat_test.txt out.tsv
 random.seed(164)
 rows=["qwertyuiop","asdfghjkl","zxcvbnm"]
 pos={c:(r,k) for r,row in enumerate(rows) for k,c in enumerate(row)}

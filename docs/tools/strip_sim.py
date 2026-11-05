@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Executa o smali de CandidateView (onDraw, mrLayout, mrDrawAll, mrSlot, mrText, mrDivider,
-mrOnFirst) num mini interpretador Dalvik (so o subconjunto de instrucoes usado), com Canvas e
-Paint de mentira que gravam o que foi desenhado, e confere o resultado contra uma especificacao
-independente escrita em Python (3 posicoes fixas, centro mais provavel, texto centralizado e
-ajustado, divisores, destaque e selecao de toque, dica de salvar).
+"""Runs the CandidateView smali (onDraw, mrLayout, mrDrawAll, mrSlot, mrText, mrDivider,
+mrOnFirst) in a mini Dalvik interpreter (only the subset of instructions used), with a fake Canvas and
+Paint that record what was drawn, and checks the result against an independent
+specification written in Python (3 fixed slots, most likely one in the center, centered and
+fitted text, dividers, highlight and touch selection, save hint).
 
-Uso: python3 -I strip_sim.py caminho/CandidateView.smali
+Usage: python3 -I strip_sim.py path/CandidateView.smali
 """
 import math, operator as O, random, re, struct, sys
 
@@ -56,7 +56,7 @@ def parse_int(tok):
     return -int(tok[1:], 16) if tok.startswith('-') else int(tok, 16)
 
 
-# ----------------------------------------------------------------------------- objetos de mentira
+# ----------------------------------------------------------------------------- fake objects
 class Obj:
     def __init__(self, **kw): self.f = dict(kw)
 
@@ -94,7 +94,7 @@ class VM:
 
         while True:
             steps += 1
-            assert steps < 200000, 'laco infinito?'
+            assert steps < 200000, 'infinite loop?'
             ins = code[pc]; pc += 1
             op, _, rest = ins.partition(' ')
             def ops(): return [t.strip() for t in re.split(r',\s*(?![^{]*\})', rest)]
@@ -112,7 +112,8 @@ class VM:
             elif op in ('iput', 'iput-boolean', 'iput-object'):
                 a, b, c = ops(); R[r(b)].f[c.split('->')[1].split(':')[0]] = R[r(a)]
             elif op == 'sget-object':
-                a, b = ops(); R[r(a)] = b.split('->')[1].split(':')[0]
+                a, b = ops(); name = b.split('->')[1].split(':')[0]
+                R[r(a)] = Obj(candidateScalePref=SCALE) if name == 'sKeyboardSettings' else name
             elif op == 'aget':
                 a, b, c = ops(); R[r(a)] = R[r(b)][R[r(c)]]
             elif op == 'aput':
@@ -164,7 +165,7 @@ class VM:
             else:
                 raise NotImplementedError(ins)
 
-    # ------------------------------------------------------------------ chamadas externas
+    # ------------------------------------------------------------------ external calls
     def invoke(self, op, target, a):
         cls, _, mem = target.partition('->')
         if cls == CV and mem in self.m: return self.run(mem, a)
@@ -175,6 +176,7 @@ class VM:
         tbl = {
             'Ljava/util/Arrays;->fill([II)V': lambda: [a[0].__setitem__(i, a[1]) for i in range(len(a[0]))] and None,
             'Ljava/lang/Math;->min(II)I': lambda: min(a[0], a[1]),
+            'Ljava/lang/Math;->min(FF)F': lambda: f32(min(a[0], a[1])),
             'Ljava/util/ArrayList;->size()I': lambda: len(a[0]),
             'Ljava/util/ArrayList;->get(I)Ljava/lang/Object;': lambda: a[0][a[1]],
             'Ljava/lang/CharSequence;->length()I': lambda: len(a[0]),
@@ -185,6 +187,7 @@ class VM:
         if name == 'setColor': o.f['color'] = a[1]; return None
         if name == 'setTypeface': o.f['tf'] = a[1]; return a[1]
         if name == 'getTextSize': return f32(o.f['size'])
+        if name == 'descent': return f32(DESCENT)
         if name == 'setTextSize': o.f['size'] = a[1]; return None
         if name == 'measureText':
             return f32(text_width(a[1][a[2]:a[3]], o.f['size'], o.f['tf'] == 'DEFAULT_BOLD'))
@@ -217,15 +220,18 @@ class VM:
         raise NotImplementedError(target)
 
 
-# ----------------------------------------------------------------------------- cenario
+# ----------------------------------------------------------------------------- scenario
 H, DIV_H, GAP, TOP = 116, 98, 26, 3
-C_FULL, C_DIM, C_REC = 0xffe7eef7, 0xa6e7eef7, 0xfffff000    # cheia, 65%, recomendada (so p/ distinguir)
+DESCENT = 9   # fake Paint.descent() (same value as the old mDescent field)
+SCALE = 1.0   # candidateScalePref (candidate text scale preference)
+C_FULL, C_DIM, C_REC = 0xffe7eef7, 0xa6e7eef7, 0xfffff000    # full, 65%, recommended (only to tell them apart)
 
 
 def mk_view(words, W, size, mhm, valid, hint, touch=-1):
     paint = Paint(); paint.f['size'] = size
     svc = Obj(calls=[])
-    return Obj(mSuggestions=list(words), mPaint=paint, mGap=GAP, mDescent=9, mService=svc,
+    preview_text = Obj(size=size)   # onDraw reads the base text size from the preview TextView
+    return Obj(mSuggestions=list(words), mPaint=paint, mPreviewText=preview_text, mGap=GAP, mDescent=9, mService=svc,
                mHaveMinimalSuggestion=mhm, mTypedWordValid=valid, mShowingAddToDictionary=hint,
                mColorNormal=C_DIM, mColorOther=C_FULL, mColorRecommended=C_REC,
                mSelectionHighlight=Obj(kind='highlight', bounds=None, iw=0, ih=0),
@@ -235,7 +241,7 @@ def mk_view(words, W, size, mhm, valid, hint, touch=-1):
                mSlot=None, _w=W, _h=H)
 
 
-# ----------------------------------------------------------------------------- especificacao
+# ----------------------------------------------------------------------------- specification
 def spec_slots(words, mhm, valid, hint):
     n = min(len(words), 3)
     if n == 0: return [-1, -1, -1], 0, False
@@ -247,7 +253,7 @@ def spec_slots(words, mhm, valid, hint):
 
 
 def spec_fit(text, size, avail, bold):
-    """(texto, tamanho) desenhados: encolhe ate 75% e depois corta com reticencias."""
+    """(text, size) drawn: shrinks down to 75% and then cuts with an ellipsis."""
     w = text_width(text, size, bold)
     if w <= avail: return text, size
     ratio = max(f32(avail / w), 0.75)
@@ -261,6 +267,8 @@ def spec_fit(text, size, avail, bold):
 def check(vm, words, W, size, mhm, valid, hint, touch):
     v = mk_view(words, W, size, mhm, valid, hint, touch)
     cv = Canvas()
+    # onDraw sets the paint size to min(preview text size x scale, 75% of the strip height)
+    eff = f32(min(f32(size * SCALE), f32(f32(H) * 0.75)))
     vm.run('onDraw(Landroid/graphics/Canvas;)V', [v, cv])
     Weff = W if W > 0 else 1080
     slots, c, merged = spec_slots(words, mhm, valid, hint)
@@ -270,15 +278,15 @@ def check(vm, words, W, size, mhm, valid, hint, touch):
     texts, divs, hls = [], [], []
     for op in cv.f['ops']:
         (texts if op[0] == 'text' else divs if op[0] == 'divider' else hls).append(op)
-    # divisores
+    # dividers
     exp_div = [] if not words else [(1, Weff // 3), (2, 2 * Weff // 3)]
     exp_div = [x for i, x in exp_div if not (merged and i == 2)]
     exp_div = [Weff * (i + 1) // 3 for i in range(2) if not (merged and i == 1)]
-    # (os divisores sao desenhados mesmo sem sugestoes, enquanto a faixa e desenhada)
+    # (the dividers are drawn even without suggestions, while the strip is drawn)
     got = sorted(d[2] for d in divs)
-    assert got == sorted(float(x) for x in exp_div), ('divisores', got, exp_div)
+    assert got == sorted(float(x) for x in exp_div), ('dividers', got, exp_div)
     assert all(d[3] == (H - DIV_H) // 2 for d in divs)
-    # textos (comparacao como multiconjunto: a mesma palavra pode aparecer em mais de uma posicao)
+    # texts (compared as a multiset: the same word may appear in more than one slot)
     exists = False
     expected = []
     for s in range(3):
@@ -289,16 +297,16 @@ def check(vm, words, W, size, mhm, valid, hint, touch):
         rec = mhm and ((idx == 1 and not valid) or (idx == 0 and valid))
         exists |= rec
         color = C_REC if rec else (C_FULL if idx == c else C_DIM)
-        y = int(float(H) + size - 9) // 2
-        want_text, want_size = spec_fit(words[idx], size, float(Rr - L - 2 * GAP), rec)
+        y = int(float(H) + eff - 9) // 2
+        want_text, want_size = spec_fit(words[idx], eff, float(Rr - L - 2 * GAP), rec)
         cx = round(L + (Rr - L) // 2, 3)
         expected.append((want_text, float(cx), float(y), color, 'DEFAULT_BOLD' if rec else 'DEFAULT', round(want_size, 3)))
     got_t = sorted((t[1], t[2], t[3], t[4], t[5], round(t[6], 3)) for t in texts)
-    assert got_t == sorted(expected), ('textos', got_t, sorted(expected))
-    assert v.f['mPaint'].f['size'] == size and v.f['mPaint'].f['tf'] == 'DEFAULT'      # estado restaurado
-    # autocorrecao recomendada informada ao servico
+    assert got_t == sorted(expected), ('texts', got_t, sorted(expected))
+    assert v.f['mPaint'].f['size'] == eff and v.f['mPaint'].f['tf'] == 'DEFAULT'      # state restored
+    # recommended autocorrection reported to the service
     assert v.f['mService'].f['calls'] == [exists], (v.f['mService'].f['calls'], exists)
-    # toque: seleciona a posicao tocada e desenha o destaque (exceto na dica de salvar)
+    # touch: selects the touched slot and draws the highlight (except on the save hint)
     sel_idx = -1
     if touch >= 0:
         for s in range(3):
@@ -306,18 +314,18 @@ def check(vm, words, W, size, mhm, valid, hint, touch):
             L = Weff * s // 3; Rr = Weff * (s + 1) // 3
             if merged and s == 1: Rr = Weff
             if idx >= 0 and L <= touch < Rr: sel_idx = idx
-    assert v.f['mSelectedIndex'] == sel_idx, ('selecao', v.f['mSelectedIndex'], sel_idx)
+    assert v.f['mSelectedIndex'] == sel_idx, ('selection', v.f['mSelectedIndex'], sel_idx)
     if sel_idx >= 0:
         assert v.f['mSelectedString'] == words[sel_idx]
         assert len(hls) == (0 if hint else 1)
     else:
         assert len(hls) == 0
-    # passada sem canvas: nada desenhado, mesma selecao e mesma recomendada
+    # pass without a canvas: nothing drawn, same selection and same recommended one
     v2 = mk_view(words, W, size, mhm, valid, hint, touch)
     vm.run('onDraw(Landroid/graphics/Canvas;)V', [v2, None])
     assert v2.f['mSlot'] == slots and v2.f['mSelectedIndex'] == sel_idx
     assert v2.f['mService'].f['calls'] == [exists]
-    # toque longo sobre a palavra digitada (indice 0)
+    # long press on the typed word (index 0)
     pts = {-1.0, 0.0, Weff - 1.0, float(Weff)}
     for k in range(4):
         b = Weff * k // 3
@@ -331,6 +339,7 @@ def check(vm, words, W, size, mhm, valid, hint, touch):
 
 
 def main(path):
+    global SCALE
     vm = VM(parse_methods(path))
     rnd = random.Random(11)
     pool = ['a', 'to', 'testa', 'testá', 'festa', 'testamento', 'responsabilidade', 'internacionalização',
@@ -340,13 +349,14 @@ def main(path):
         n = rnd.randint(0, 6)
         words = [rnd.choice(pool) for _ in range(n)]
         W = rnd.choice([0, 720, 1058, 1080, 1440])
-        size = rnd.choice([34.0, 46.0, 52.0])
+        size = rnd.choice([34.0, 46.0, 52.0, 80.0])
+        SCALE = rnd.choice([1.0, 0.8, 1.25, 1.6])   # 80 x 1.25 and 80 x 1.6 hit the 75% cap
         mhm, valid = rnd.random() < .4, rnd.random() < .5
         hint = rnd.random() < .15
         touch = rnd.choice([-1, -1, 10, 400, 700, 1000])
         check(vm, words, W, size, mhm, valid, hint, touch)
         n_cases += 1
-    print(f'smali == especificacao em {n_cases} casos (onDraw, mrLayout, mrDrawAll, mrSlot, mrText, mrDivider, mrOnFirst)')
+    print(f'smali == specification in {n_cases} cases (onDraw, mrLayout, mrDrawAll, mrSlot, mrText, mrDivider, mrOnFirst)')
 
 
 if __name__ == '__main__':
