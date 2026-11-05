@@ -150,7 +150,7 @@ int main(int argc, char **argv) {
             pairs += (long) want.size();
             if (got != want) {
                 if (badw < 5) {
-                    printf("BIGRAMA DIFERENTE: %s (esperado %zu, veio %zu):", g.first.c_str(), want.size(), got.size());
+                    printf("BIGRAM MISMATCH: %s (expected %zu, got %zu):", g.first.c_str(), want.size(), got.size());
                     int k = 0;
                     for (auto &x : got) { if (!want.count(x) && k++ < 6) printf(" +%s(%d)", x.first.c_str(), x.second); }
                     k = 0;

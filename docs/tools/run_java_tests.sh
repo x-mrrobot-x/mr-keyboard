@@ -1,6 +1,6 @@
 #!/bin/sh
 # PC tests of the Java layer that do not need the APK (run at the project root):
-#   - compila os stubs (docs/tools/java/stubs) e os fontes (docs/tools/java/src), como o build_java.sh;
+#   - compiles the stubs (docs/tools/java/stubs) and the sources (docs/tools/java/src), like build_java.sh;
 #   - AuthorTest: author card and main-screen link (MrAuthor, MrLink).
 #   - RecorrectTest: word under the cursor, which words get suggestions and neighbour keys (MrRecorrect).
 #   - RecentTest: recent words in the prediction and when completing (MrRecent).

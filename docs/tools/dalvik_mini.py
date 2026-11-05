@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Mini interpretador Dalvik (so o subconjunto de instrucoes que o codigo do Mr Keyboard usa).
+"""Mini Dalvik interpreter (only the subset of instructions that the Mr Keyboard code uses).
 
-Serve para EXECUTAR metodos smali de verdade em testes, sem aparelho: o chamador fornece um
-"host" com as classes do framework de mentira (Color, Bitmap, Drawable, View...). Nao e o
-verificador do ART e nao cobre todas as instrucoes; instrucao desconhecida levanta
-NotImplementedError em vez de ser ignorada.
+It EXECUTES smali methods for real in tests, without a device: the caller provides a
+"host" with fake framework classes (Color, Bitmap, Drawable, View...). It is not the
+ART verifier and does not cover every instruction; an unknown instruction raises
+NotImplementedError instead of being ignored.
 
-Valores: inteiros guardados com sinal de 32 bits; floats como float32 (struct); constantes
-(`const`, `const/high16`) guardam o padrao de bits e as operacoes de float o interpretam.
+Values: integers stored as signed 32 bits; floats as float32 (struct); constants
+(`const`, `const/high16`) keep the bit pattern and the float operations interpret it.
 """
 import math, re, struct
 
@@ -33,7 +33,7 @@ def bits2f(x):
 def fv(x):
     """Float operand: integer = bit pattern of a constant."""
     if isinstance(x, bool):
-        raise TypeError('boolean em operacao de float')
+        raise TypeError('boolean in a float operation')
     return bits2f(x) if isinstance(x, int) else x
 
 
@@ -120,15 +120,15 @@ def parse_methods(path):
 
 # ------------------------------------------------------------------------------ machine
 class VM:
-    """cls: nome da classe cujos metodos estao em `methods`. host: objeto com
-    `invoke(vm, op, target, args)`, usado para tudo que nao e da classe."""
+    """cls: name of the class whose methods are in `methods`. host: object with
+    `invoke(vm, op, target, args)`, used for everything that is not in the class."""
 
     def __init__(self, cls, methods, host):
         self.cls, self.m, self.host = cls, methods, host
         self.statics = {}          # 'name' -> value, of the class itself
         self.max_steps = 400000
 
-    # --- execucao
+    # --- execution
     def run(self, key, args):
         m = self.m[key]
         loc = m['locals']

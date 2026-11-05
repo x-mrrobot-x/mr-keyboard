@@ -13,7 +13,7 @@
         android:paddingBottom="1dp"
         android:layout_width="fill_parent"
         android:layout_height="@dimen/mr_bar_height">
-        <!-- Ferramentas (padrao). A tecla da barra alterna com as sugestoes (MrSugg). -->
+        <!-- Tools (default). The bar key toggles with the suggestions (MrSugg). -->
         <LinearLayout
             android:orientation="horizontal"
             android:gravity="center_vertical"
@@ -128,7 +128,7 @@
                 android:contentDescription="@string/mr_tb_customize"
                 android:drawableLeft="@drawable/ic_mr_tune" />
         </LinearLayout>
-        <!-- Sugestoes de palavras (MrSugg): faixa CandidateView, com margem lateral. -->
+        <!-- Word suggestions (MrSugg): CandidateView strip, with a side margin. -->
         <LinearLayout
             android:orientation="horizontal"
             android:gravity="center_vertical"
@@ -822,7 +822,7 @@
         android:tag="kbd_host"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
-        <!-- Preferencias dentro do teclado (so no modo horizontal; no vertical abre o dialog). -->
+        <!-- Preferences inside the keyboard (landscape mode only; in portrait it opens the dialog). -->
         <LinearLayout
             android:orientation="vertical"
             android:tag="p_tune"

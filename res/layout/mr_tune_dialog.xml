@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Dialog "Preferencias" da barra de ferramentas: mesmo visual do dialog de altura das configuracoes.
-     A raiz e a camada escura (so a area acima do teclado); o cartao fica centralizado nela.
-     As tags sk_*/vl_*/tl_* sao as mesmas usadas por MrTune. -->
+<!-- "Preferences" dialog of the toolbar: same look as the height dialog of the settings.
+     The root is the dark layer (only the area above the keyboard); the card is centered in it.
+     The tags sk_*/vl_*/tl_* are the same ones used by MrTune. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="#b8000000"
     android:layout_width="match_parent"

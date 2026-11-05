@@ -1,4 +1,4 @@
-// Mr Keyboard - motor nativo, etapa 1.
+// Mr Keyboard - native engine, stage 1.
 //
 // C++ port of the two heaviest parts of the app, which used to run only in Java:
 //   - Fuzzy:    the correction search (MrFuzzy.java: weighted edit distance over the .dict trie,

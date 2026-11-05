@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Mr Keyboard · cores dos drawables de tema (teclas, popup do toque longo e balão de preview).
-     Os drawables só referenciam @color; raios e margens continuam neles (o KeyStyle troca o raio em tempo de execução).
+<!-- Mr Keyboard · colors of the theme drawables (keys, long-press popup and preview balloon).
+     The drawables only reference @color; radii and margins stay in them (KeyStyle changes the radius at run time).
 
-     Nome: mr_<tema>_key_<estado>_<parte>
-       estado  normal, pressed, hl, on, lock; acc_<estado> é a tecla de destaque (Neon, Soft e Glass).
-       parte   halo (brilho externo), base (preenchimento sob as demais camadas), fill (preenchimento),
-               top / mid / bottom (gradiente, de cima para baixo), stroke (borda), shadow (sombra).
+     Name: mr_<theme>_key_<state>_<part>
+       state  normal, pressed, hl, on, lock; acc_<state> is the highlight key (Neon, Soft and Glass).
+       part   halo (outer glow), base (fill under the other layers), fill (fill),
+              top / mid / bottom (gradient, from top to bottom), stroke (border), shadow (shadow).
 
-     Sombras neutras que se repetem entre temas têm nome global (mr_key_shadow, mr_popup_shadow e mr_preview_shadow).
-     As cores de popup e preview que não são sombra ficam em mr_colors.xml (mr_<tema>_popup_*, mr_<tema>_preview_*). -->
+     Neutral shadows that repeat across themes have a global name (mr_key_shadow, mr_popup_shadow and mr_preview_shadow).
+     The popup and preview colors that are not shadows stay in mr_colors.xml (mr_<theme>_popup_*, mr_<theme>_preview_*). -->
 <resources>
-    <!-- Sombras (valem para todos os temas) -->
+    <!-- Shadows (apply to all themes) -->
     <color name="mr_key_shadow">#73000000</color>
     <color name="mr_popup_shadow">#80000000</color>
     <color name="mr_preview_shadow">#66000000</color>
 
     <!-- ===== Neon =====
-         Como no Slate, a tecla de destaque (acc_*) segue o hl em repouso e usa as cores de pressed, on e lock nos outros estados; só a cor base é dela. -->
+         As in Slate, the highlight key (acc_*) follows hl at rest and uses the pressed, on and lock colors in the other states; only the base color is its own. -->
     <!-- normal -->
     <color name="mr_neon_key_normal_halo">#263ddc84</color>
     <color name="mr_neon_key_normal_stroke">#d93ddc84</color>
@@ -45,7 +45,7 @@
     <color name="mr_neon_key_acc_lock_base">#ff9cf0bc</color>
 
     <!-- ===== Soft =====
-         O popup do Soft tem sombra própria (#99000000); os outros 4 usam mr_popup_shadow. -->
+         The Soft popup has its own shadow (#99000000); the other 4 use mr_popup_shadow. -->
     <!-- normal -->
     <color name="mr_soft_key_normal_halo">#262f7bff</color>
     <color name="mr_soft_key_normal_top">#ff072a88</color>
@@ -104,7 +104,7 @@
     <color name="mr_soft_popup_shadow">#99000000</color>
 
     <!-- ===== Slate =====
-         A tecla de destaque reaproveita hl, pressed, on e lock (não tem acc_*). -->
+         The highlight key reuses hl, pressed, on and lock (it has no acc_*). -->
     <!-- normal -->
     <color name="mr_slate_key_normal_top">#ff232b36</color>
     <color name="mr_slate_key_normal_bottom">#ff181e27</color>
@@ -130,7 +130,7 @@
     <color name="mr_slate_key_lock_stroke">#ff3fb8ea</color>
 
     <!-- ===== Midnight Steel =====
-         A tecla de destaque reaproveita hl, pressed, on e lock (não tem acc_*). Normal e hl têm sombra própria, mais leve. -->
+         The highlight key reuses hl, pressed, on and lock (it has no acc_*). Normal and hl have their own, lighter shadow. -->
     <!-- normal -->
     <color name="mr_midnight_key_normal_shadow">#4d000000</color>
     <color name="mr_midnight_key_normal_fill">#ff202832</color>
@@ -156,7 +156,7 @@
     <color name="mr_midnight_key_lock_stroke">#ff3fb8ea</color>
 
     <!-- ===== Cobalt Glass =====
-         Translúcido: as cores têm alfa para o blur de fundo aparecer. -->
+         Translucent: the colors have alpha so the background blur shows through. -->
     <!-- normal -->
     <color name="mr_glass_key_normal_top">#521e2936</color>
     <color name="mr_glass_key_normal_bottom">#4d131c28</color>

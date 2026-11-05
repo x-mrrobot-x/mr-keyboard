@@ -39,7 +39,7 @@ import java.util.zip.ZipInputStream;
  *
  * Privacy: it only connects when the user asks (check for updates, download, update), only
  * over HTTPS and only to download files; it does not send anything that was typed, nor the device model
- * (User-Agent fixo).
+ * (fixed User-Agent).
  *
  * Security: the catalog comes signed with the APK key and is only accepted if the signature matches
  * the certificate this app was installed with; the catalog series cannot go back. The pack zip

@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Mr Keyboard · paleta "dark tech" usada apenas nas telas de configuração -->
+<!-- Mr Keyboard · "dark tech" palette used only on the settings screens -->
 <resources>
-    <!-- Superfícies -->
+    <!-- Surfaces -->
     <color name="mr_slate_kbd_bg">#ff0a0e14</color>
     <color name="mr_soft_kbd_bg">#ff00020e</color>
     <color name="mr_neon_kbd_bg">#ff09110c</color>
-    <!-- Fundo do teclado do tema Midnight Steel; a barra de ferramentas usa #171e27 (MrTools.liftBar) -->
+    <!-- Keyboard background of the Midnight Steel theme; the toolbar uses #171e27 (MrTools.liftBar) -->
     <color name="mr_midnight_kbd_bg">#ff0c1219</color>
     <color name="mr_glass_kbd_bg">#80090f17</color>
     <color name="mr_glass_kbd_bg_blur">#17090f17</color>
 
-    <!-- Texto e icone das teclas de destaque (MrTheme.color, papel accent_text). So vale para tema sem a flag
-         PLAIN_ACCENT_TEXT (Neon e Soft); com a flag o tema usa o texto padrao das teclas. Padrao: branco; o Neon
-         usa texto escuro sobre o verde. -->
+    <!-- Text and icon of the highlight keys (MrTheme.color, role accent_text). Only applies to themes without the
+         PLAIN_ACCENT_TEXT flag (Neon and Soft); with the flag the theme uses the default key text. Default: white; Neon
+         uses dark text on the green. -->
     <color name="mr_accent_text">#ffffffff</color>
     <color name="mr_neon_accent_text">#ff07130c</color>
 
-    <!-- ===== Cores da barra e dos paineis (MrTheme.color) =====
-         Leitura por nome: primeiro mr_<tema>_<papel> (ex.: mr_glass_panel_btn), depois mr_<papel>.
-         Os valores mr_panel_* sao os de sempre (Slate, Midnight, Neon, Soft); tema que precisa de
-         outra cor so declara a sua versao mr_<tema>_panel_*. -->
+    <!-- ===== Toolbar and panel colors (MrTheme.color) =====
+         Looked up by name: first mr_<theme>_<role> (e.g. mr_glass_panel_btn), then mr_<role>.
+         The mr_panel_* values are the usual ones (Slate, Midnight, Neon, Soft); a theme that needs
+         another color only declares its own mr_<theme>_panel_* version. -->
     <color name="mr_panel_bar">#ff171e27</color>
     <color name="mr_panel_btn">#ff263344</color>
     <color name="mr_panel_btn_stroke">#ff3a4d65</color>
@@ -36,10 +36,10 @@
     <color name="mr_alpha_sel">#47000000</color>
     <color name="mr_alpha_sel_text">#33000000</color>
     <color name="mr_alpha_card">#22000000</color>
-    <!-- Anexos: botao do seletor (attach_fab), Cancelar/Enviar da selecao (sel_cancel, sel_send) e marcacao dos itens.
-         Papeis *_stroke: borda de 1 dp; *_text e attach_fab_icon: texto e icone. sel_send tambem pinta o check do item marcado
-         (fundo sel_send, anel sel_send_stroke, traco sel_send_text). sel_media: camada sobre a miniatura marcada;
-         sel_card: fundo do arquivo marcado. Valores abaixo: Midnight; os demais temas declaram a sua versao. -->
+    <!-- Attachments: picker button (attach_fab), selection Cancel/Send (sel_cancel, sel_send) and item marking.
+         Roles *_stroke: 1 dp border; *_text and attach_fab_icon: text and icon. sel_send also paints the check of the marked item
+         (background sel_send, ring sel_send_stroke, stroke sel_send_text). sel_media: layer over the marked thumbnail;
+         sel_card: background of the marked file. Values below: Midnight; the other themes declare their own version. -->
     <color name="mr_sel_cancel">#ff263344</color>
     <color name="mr_sel_cancel_stroke">#ff324357</color>
     <color name="mr_sel_cancel_text">#ffcfdbea</color>
@@ -52,7 +52,7 @@
     <color name="mr_sel_media">#593fb8ea</color>
     <color name="mr_sel_card">#ff25445f</color>
 
-    <!-- Cobalt Glass: as mesmas cores, translucidas, para o blur de fundo aparecer -->
+    <!-- Cobalt Glass: the same colors, translucent, so the background blur shows through -->
     <color name="mr_glass_panel_bar">#4f19222f</color>
     <color name="mr_glass_panel_btn">#5c3c5f8e</color>
     <color name="mr_glass_panel_btn_stroke">#248fb8e8</color>
@@ -180,17 +180,17 @@
     <color name="mr_glass_preview_stroke">#668fb8e8</color>
     <color name="mr_glass_preview_dots">#ccdbeaff</color>
 
-    <!-- Acento (ciano do ícone do app) -->
+    <!-- Accent (cyan of the app icon) -->
     <color name="mr_accent">#ff29c5f6</color>
     <color name="mr_accent_30">#4d29c5f6</color>
     <color name="mr_ripple">#3329c5f6</color>
     <color name="mr_ripple_dark">#33000000</color>
 
-    <!-- Texto -->
+    <!-- Text -->
     <color name="mr_text_on_accent">#ff04141c</color>
     <color name="mr_accent_disabled">#ff1f6e8a</color>
 
-    <!-- ===== Redesign das telas (prefixo mr_ui_) ===== -->
+    <!-- ===== Screen redesign (prefix mr_ui_) ===== -->
     <color name="mr_ui_bg">#ff080c12</color>
     <color name="mr_ui_card">#ff0f1621</color>
     <color name="mr_ui_sunken">#ff0a1018</color>
@@ -225,9 +225,9 @@
     <color name="mr_ui_slate_line">#4d94a3b8</color>
     <color name="mr_ui_icon_bg">#ff041028</color>
 
-    <!-- ===== Padrao inicial do teclado e da barra (etapa 2 da padronizacao) =====
-         mr_default_*: reserva do estilo LatinKeyboardBaseView (o tema sobrescreve pelo layout).
-         mr_tb_*, mr_tune_*: valores iniciais de mr_toolbar.xml e dos drawables sem tema; o MrTools repinta o texto conforme o tema em tempo de execucao. -->
+    <!-- ===== Initial keyboard and toolbar defaults (stage 2 of the standardization) =====
+         mr_default_*: fallback of the LatinKeyboardBaseView style (the theme overrides it through the layout).
+         mr_tb_*, mr_tune_*: initial values of mr_toolbar.xml and of the drawables without a theme; MrTools repaints the text according to the theme at run time. -->
     <color name="mr_default_key_cursor">#ffbbbbbb</color>
     <color name="mr_default_key_hint">#ff222222</color>
     <color name="mr_default_key_text">#ffffffff</color>

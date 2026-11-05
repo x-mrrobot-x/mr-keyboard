@@ -5,7 +5,7 @@
     platformBuildVersionCode="36"
     platformBuildVersionName="16"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Permite que o app controle a vibração. -->
+    <!-- Lets the app control the vibration. -->
     <uses-permission
         android:name="android.permission.VIBRATE" />
     <uses-permission

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Divisor entre sugestoes: linha curta e discreta. A cor vem do tema do teclado
-     (CandidateView.mrTheme aplica setTint com a cor do texto das teclas); a
-     transparencia (~19%) vem deste preenchimento. -->
+<!-- Divider between suggestions: short, discreet line. The color comes from the keyboard theme
+     (CandidateView.mrTheme applies setTint with the key text color); the
+     transparency (~19%) comes from this fill. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="1dp"
     android:height="37dp"

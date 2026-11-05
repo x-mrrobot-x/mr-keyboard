@@ -35,7 +35,7 @@
     <string name="mr_ui_advanced_summary">Teclas Ctrl/Alt e comportamento do editor</string>
     <string name="pref_screen_sheets_title">Folhas do teclado</string>
     <string name="mr_ui_sheets_summary">Edite teclas, crie, renomeie e reordene folhas</string>
-    <!-- v1.63: dicionários baixáveis (MrPacks, MrPacksActivity) -->
+    <!-- v1.63: downloadable dictionaries (MrPacks, MrPacksActivity) -->
     <string name="mr_dicts_title">Sugestões e dicionários</string>
     <string name="mr_dicts_summary">Baixe dicionários e ajuste as sugestões de palavras</string>
     <string name="mr_dicts_cat_langs">Dicionários</string>
@@ -88,7 +88,7 @@
     <string name="mr_dicts_err_space">Falta espaço: são precisos %1$s livres.</string>
     <string name="mr_dicts_err_cancel">Download cancelado.</string>
     <string name="mr_dicts_err_io">Não foi possível gravar o dicionário (%1$s).</string>
-    <!-- v1.64: aviso do Traduzir (MrNotice) -->
+    <!-- v1.64: Translate notice (MrNotice) -->
     <string name="mr_tr_hint">Digite para traduzir com o Google</string>
     <string name="mr_tr_notice">O texto deste campo vai para o Google Tradutor. O resto fica no aparelho.</string>
     <string name="mr_ui_cat_codes">Ctrl e Alt</string>
@@ -105,7 +105,7 @@
     <string name="title_bar_scale">Altura da barra de ferramentas e sugestões</string>
     <string name="title_show_settings_key">Mostrar tecla de configurações</string>
     <string name="summary_show_settings_key">Engrenagem na linha de baixo do modo Padrão</string>
-    <!-- textos da barra (antes fixos no mr_toolbar.xml) -->
+    <!-- toolbar texts (previously hard-coded in mr_toolbar.xml) -->
     <string name="mr_tb_clipboard">Área de transferência</string>
     <string name="mr_tb_translate">Traduzir</string>
     <string name="mr_tb_attachments">Anexos</string>

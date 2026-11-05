@@ -1,10 +1,10 @@
-Mr Keyboard - pacote de dicionario pt-BR: dicionario (main.dict), previsao de duas
-palavras (trigrams.bin) e regras do idioma (rules.txt). Os dois primeiros vem das
-mesmas fontes abaixo; o rules.txt foi escrito para o Mr Keyboard.
+Mr Keyboard - pt-BR dictionary pack: dictionary (main.dict), two-word prediction
+(trigrams.bin) and language rules (rules.txt). The first two come from the same
+sources below; rules.txt was written for Mr Keyboard.
 
-1) Lista de palavras base
-dictionaries/pt_BR_wordlist.combined.gz (versao 54) do Android Open Source Project
-(packages/inputmethods/LatinIME), obtido do espelho
+1) Base word list
+dictionaries/pt_BR_wordlist.combined.gz (version 54) from the Android Open Source Project
+(packages/inputmethods/LatinIME), obtained from the mirror
 https://github.com/LineageOS/android_packages_inputmethods_LatinIME
 (commit c9e8aa87038e1194d2717ac48f207df4068cebd9).
 
@@ -18,32 +18,32 @@ KIND, either express or implied.
 
 Includes Dictionaries (c) Lexiteria LLC. Used by permission.
 
-2) Palavras novas, frequencias das palavras novas e pares de palavras (bigramas)
-Contados no corpus "por_news_2024_1M" do Leipzig Corpora Collection (Wortschatz,
-Universitaet Leipzig), so com as frases de fontes brasileiras.
+2) New words, frequencies of the new words and word pairs (bigrams)
+Counted in the "por_news_2024_1M" corpus of the Leipzig Corpora Collection (Wortschatz,
+Universitaet Leipzig), using only the sentences from Brazilian sources.
 D. Goldhahn, T. Eckart & U. Quasthoff: Building Large Monolingual Dictionaries at the
 Leipzig Corpora Collection: From 100 to 200 Languages. In: Proceedings of the 8th
 International Language Resources and Evaluation (LREC'12), 2012.
 https://wortschatz.uni-leipzig.de/en/download
-Licenca do corpus: Creative Commons Attribution 4.0 International (CC BY 4.0),
+Corpus license: Creative Commons Attribution 4.0 International (CC BY 4.0),
 https://creativecommons.org/licenses/by/4.0/
-Do corpus foram usados so contagens (nenhuma frase e distribuida).
+Only counts were taken from the corpus (no sentence is distributed).
 
-3) Pares de palavras de conversa
-Frases em portugues do Tatoeba (https://tatoeba.org), exportacao semanal
-por_sentences_detailed, sem as frases de autores ou com marcas de portugues
-europeu. Licenca: Creative Commons Attribution 2.0 France (CC BY 2.0 FR),
+3) Chat word pairs
+Portuguese sentences from Tatoeba (https://tatoeba.org), weekly export
+por_sentences_detailed, without the sentences from authors or with markers of European
+Portuguese. License: Creative Commons Attribution 2.0 France (CC BY 2.0 FR),
 https://creativecommons.org/licenses/by/2.0/fr/
-Do Tatoeba foram usadas so contagens (nenhuma frase e distribuida).
+Only counts were taken from Tatoeba (no sentence is distributed).
 
-4) Girias, abreviacoes de chat e a lista de correcoes (rules.txt)
-Listas escritas para o Mr Keyboard.
+4) Slang, chat abbreviations and the list of corrections (rules.txt)
+Lists written for Mr Keyboard.
 
-Modificacoes em relacao a lista base: formato binario "latest" do LatinIME
-(cabecalho de 2 bytes, bigramas por palavra) lido por libjni_pckeyboard; grafias
-anteriores ao Acordo Ortografico trocadas pelas atuais (veem, leem, deem, creem);
-removidas variantes lusitanas e erros de grafia (lista em docs/dictionary-build.md);
-palavras marcadas como potencialmente ofensivas com frequencia minima e fora da
-previsao; acrescentadas palavras do corpus aceitas pelo corretor VERO (usado so como
-filtro, nada dele e copiado), estrangeirismos, nomes proprios, girias e abreviacoes.
-Ferramentas: docs/tools/make_wordlist.py e docs/tools/build_dict.py.
+Changes in relation to the base list: LatinIME "latest" binary format
+(2-byte header, bigrams per word) read by libjni_pckeyboard; spellings from before the
+Orthographic Agreement replaced by the current ones (veem, leem, deem, creem);
+Lusitanian variants and spelling errors removed (list in docs/dictionary-build.md);
+words marked as potentially offensive given the minimum frequency and kept out of the
+prediction; added corpus words accepted by the VERO spellchecker (used only as a
+filter, nothing from it is copied), loanwords, proper names, slang and abbreviations.
+Tools: docs/tools/make_wordlist.py and docs/tools/build_dict.py.

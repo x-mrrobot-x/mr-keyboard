@@ -1,11 +1,11 @@
-Mr Keyboard - pacote de dicionario en-US: dicionario (main.dict), previsao de duas
-palavras (trigrams.bin) e regras do idioma (rules.txt). Os dois primeiros vem das
-mesmas fontes abaixo; o rules.txt usa os atalhos da lista do AOSP e listas escritas
-para o Mr Keyboard.
+Mr Keyboard - en-US dictionary pack: dictionary (main.dict), two-word prediction
+(trigrams.bin) and language rules (rules.txt). The first two come from the same
+sources below; rules.txt uses the shortcuts of the AOSP list and lists written
+for Mr Keyboard.
 
-1) Lista de palavras base
-dictionaries/en_US_wordlist.combined.gz (versao 54) do Android Open Source Project
-(packages/inputmethods/LatinIME), obtido do espelho
+1) Base word list
+dictionaries/en_US_wordlist.combined.gz (version 54) from the Android Open Source Project
+(packages/inputmethods/LatinIME), obtained from the mirror
 https://github.com/LineageOS/android_packages_inputmethods_LatinIME
 (commit c9e8aa87038e1194d2717ac48f207df4068cebd9).
 
@@ -17,29 +17,29 @@ Unless required by applicable law or agreed to in writing, software distributed 
 the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.
 
-2) Palavras novas, frequencias das palavras novas e pares de palavras (bigramas)
-Contados no corpus "eng_news_2025_1M" do Leipzig Corpora Collection (Wortschatz,
+2) New words, frequencies of the new words and word pairs (bigrams)
+Counted in the "eng_news_2025_1M" corpus of the Leipzig Corpora Collection (Wortschatz,
 Universitaet Leipzig).
 D. Goldhahn, T. Eckart & U. Quasthoff: Building Large Monolingual Dictionaries at the
 Leipzig Corpora Collection: From 100 to 200 Languages. In: Proceedings of the 8th
 International Language Resources and Evaluation (LREC'12), 2012.
 https://wortschatz.uni-leipzig.de/en/download
-Licenca do corpus: Creative Commons Attribution 4.0 International (CC BY 4.0),
+Corpus license: Creative Commons Attribution 4.0 International (CC BY 4.0),
 https://creativecommons.org/licenses/by/4.0/
-Do corpus foram usadas so contagens (nenhuma frase e distribuida).
+Only counts were taken from the corpus (no sentence is distributed).
 
-3) Pares de palavras de conversa
-Frases em ingles do Tatoeba (https://tatoeba.org), exportacao semanal
-eng_sentences_detailed, com os nomes e lugares repetidos das frases de exemplo
-(Tom, Mary, Boston...) trocados por separadores. Licenca: Creative Commons
+3) Chat word pairs
+English sentences from Tatoeba (https://tatoeba.org), weekly export
+eng_sentences_detailed, with the repeated names and places of the example sentences
+(Tom, Mary, Boston...) replaced by separators. License: Creative Commons
 Attribution 2.0 France (CC BY 2.0 FR), https://creativecommons.org/licenses/by/2.0/fr/
-Do Tatoeba foram usadas so contagens (nenhuma frase e distribuida).
+Only counts were taken from Tatoeba (no sentence is distributed).
 
-4) Abreviacoes de chat, contracoes e a lista de correcoes (rules.txt)
-Os atalhos (shortcut / not_a_word) da lista en_US do AOSP (Apache 2.0, acima) e listas
-escritas para o Mr Keyboard.
+4) Chat abbreviations, contractions and the list of corrections (rules.txt)
+The shortcuts (shortcut / not_a_word) of the AOSP en_US list (Apache 2.0, above) and
+lists written for Mr Keyboard.
 
-O corretor en_US do Hunspell foi usado so como filtro das palavras novas (grafia
-americana); nada dele e copiado. Palavras marcadas pelo AOSP como possivelmente
-ofensivas nao aparecem como previsao; as vulgares so aparecem digitadas por inteiro.
-Ferramentas: docs/tools/split_en.py, make_wordlist_en.py, make_trigrams.py e build_dict.py.
+The Hunspell en_US spellchecker was used only as a filter for the new words (American
+spelling); nothing from it is copied. Words marked by the AOSP as possibly offensive
+do not show up as predictions; the vulgar ones only show up when typed in full.
+Tools: docs/tools/split_en.py, make_wordlist_en.py, make_trigrams.py and build_dict.py.

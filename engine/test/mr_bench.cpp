@@ -13,7 +13,7 @@ using namespace mrtest;
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        std::printf("uso: mr_bench pasta_dicts [rodadas]\n");
+        std::printf("usage: mr_bench dicts_dir [rounds]\n");
         return 2;
     }
     std::string dicts = argv[1];

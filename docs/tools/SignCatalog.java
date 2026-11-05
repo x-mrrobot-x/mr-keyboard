@@ -45,7 +45,7 @@ public class SignCatalog {
             }
         }
         if (data == null || out == null || (ks == null && (pk8 == null || cert == null))) {
-            die("uso: --data data.json --out catalog.json (--keystore arq | --pk8 arq --cert arq)");
+            die("usage: --data data.json --out catalog.json (--keystore file | --pk8 file --cert file)");
         }
 
         PrivateKey key;

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Mr Keyboard · tema das telas de configuração (redesign).
-    Usado apenas pelas Activities de configuração e tela inicial. Os estilos MrPrefTitle/MrPrefSummary/
-    MrPrefSummaryValue/MrCategoryTitle/MrButton* foram mantidos porque os layouts antigos mr_pref_* ainda os citam.
+    Mr Keyboard · theme of the settings screens (redesign).
+    Used only by the settings Activities and the home screen. The styles MrPrefTitle/MrPrefSummary/
+    MrPrefSummaryValue/MrCategoryTitle/MrButton* were kept because the old mr_pref_* layouts still cite them.
 -->
 <resources>
-    <!-- ================= Linhas de preferência ================= -->
+    <!-- ================= Preference rows ================= -->
     <style name="MrPref">
         <item name="android:layout">@layout/mr_ui_pref_row</item>
     </style>
@@ -28,7 +28,7 @@
         <item name="android:shouldDisableView">false</item>
         <item name="android:selectable">false</item>
     </style>
-    <!-- ================= Textos (novos) ================= -->
+    <!-- ================= Texts (new) ================= -->
     <style name="MrUiTitle" parent="@android:style/TextAppearance">
         <item name="android:textColor">@color/mr_ui_text_state</item>
         <item name="android:textSize">16.0sp</item>
@@ -66,7 +66,7 @@
         <item name="android:stateListAnimator">@null</item>
         <item name="android:focusable">true</item>
     </style>
-    <!-- ================= Lista de preferências ================= -->
+    <!-- ================= Preference list ================= -->
     <style name="MrListView" parent="@android:style/Widget.Material.ListView">
         <item name="android:divider">@android:color/transparent</item>
         <item name="android:dividerHeight">0.0dip</item>
@@ -76,9 +76,9 @@
         <item name="android:paddingBottom">64.0dip</item>
         <item name="android:scrollbarStyle">outsideOverlay</item>
     </style>
-    <!-- ================= Tema ================= -->
+    <!-- ================= Theme ================= -->
     <style name="Theme.MrKeyboard.Settings" parent="@android:style/Theme.Material">
-        <!-- Sem ActionBar do framework: o cabecalho e desenhado por SettingsHeader (como em Main). -->
+        <!-- No framework ActionBar: the header is drawn by SettingsHeader (as in Main). -->
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:listDivider">@drawable/mr_list_divider_none</item>
@@ -108,12 +108,12 @@
         <item name="android:checkBoxPreferenceStyle">@style/MrPrefCheckBox</item>
         <item name="android:dialogPreferenceStyle">@style/MrPrefDialog</item>
     </style>
-    <!-- Tela inicial (Main): sem ActionBar, o cabeçalho é desenhado no próprio layout -->
+    <!-- Home screen (Main): no ActionBar, the header is drawn in the layout itself -->
     <style name="Theme.MrKeyboard.Main" parent="@style/Theme.MrKeyboard.Settings">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
     </style>
-    <!-- Barra de título: plana, com linha fina inferior -->
+    <!-- Title bar: flat, with a thin bottom line -->
     <style name="MrActionBarTitle" parent="@android:style/TextAppearance.Material.Widget.ActionBar.Title">
         <item name="android:textColor">@color/mr_ui_text</item>
         <item name="android:textSize">19.0sp</item>
@@ -124,7 +124,7 @@
         <item name="android:elevation">0.0dip</item>
         <item name="android:titleTextStyle">@style/MrActionBarTitle</item>
     </style>
-    <!-- Botões exclusivos do diálogo Editor de IA (paleta fixa das configurações). -->
+    <!-- Buttons exclusive to the AI Editor dialog (fixed settings palette). -->
     <style name="MrAiDialogIconSurface">
         <item name="android:background">@drawable/mr_ui_card_ripple</item>
         <item name="android:layout_width">36dp</item>
@@ -146,7 +146,7 @@
         <item name="android:layout_marginRight">3dp</item>
     </style>
 
-    <!-- Diálogos (listas, barras de valor, campos de texto) -->
+    <!-- Dialogs (lists, value bars, text fields) -->
     <style name="Theme.MrKeyboard.Dialog" parent="@android:style/Theme.Material.Dialog.Alert">
         <item name="android:windowBackground">@drawable/mr_ui_dialog_bg</item>
         <item name="android:backgroundDimAmount">0.72</item>

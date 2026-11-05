@@ -4,7 +4,7 @@
 # To update them, see mr-native.yml.
 #
 # Result in Actions > (run) > Artifacts:
-#   apk -> mr-keyboard-unsigned.apk (e mr-keyboard-signed.apk se houver chave nos secrets)
+#   apk -> mr-keyboard-unsigned.apk (and mr-keyboard-signed.apk if there is a key in the secrets)
 #
 # Publishing a version: it happens on its own on a push to main when the versionName in apktool.yml is new (there is
 # no Release with that tag yet) and the secrets hold a signing key. It can also be run by hand (Run

@@ -7,7 +7,7 @@
     "pt": "Dicionário em inglês americano, pares e trios de palavras para prever a próxima e a lista de correções do inglês (contrações sem apóstrofo, abreviações de chat, erros comuns).",
     "en": "American English dictionary, word pairs and triples to predict the next word, and English correction rules (contractions without the apostrophe, chat abbreviations, common misspellings)."
   },
-  "version": 2,
+  "version": 3,
   "format": 1,
   "minApp": 1063000,
   "files": ["main.dict", "trigrams.bin", "rules.txt", "NOTICE.txt"],

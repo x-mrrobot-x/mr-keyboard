@@ -8,7 +8,7 @@
     "en": "Spanish dictionary (Spain and Latin America), word pairs and triples to predict the next word, and Spanish correction rules (chat abbreviations, common misspellings, silent h, b/v, ll/y).",
     "es": "Diccionario de español (España y América Latina), pares y tríos de palabras para predecir la siguiente y la lista de correcciones del español (abreviaciones de chat, errores comunes, h muda, b/v, ll/y)."
   },
-  "version": 1,
+  "version": 2,
   "format": 1,
   "minApp": 1063000,
   "files": ["main.dict", "trigrams.bin", "rules.txt", "NOTICE.txt"],

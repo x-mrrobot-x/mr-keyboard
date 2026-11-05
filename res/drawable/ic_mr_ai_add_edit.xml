@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Vetor de adicionar/editar estilo personalizado do Editor de IA. -->
+<!-- Vector to add/edit a custom style of the AI Editor. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="20dp"
     android:height="20dp"

@@ -86,7 +86,7 @@ void realDictionary(const std::string& dicts, const Lang& lang, const Tables& ta
     int found = 0;
     for (const auto& c : lang.cases) {
         Query q;
-        CHECK(makeQuery(tables, c.first, rows, &q), "consulta");
+        CHECK(makeQuery(tables, c.first, rows, &q), "query");
         f.search(tables, rules, q.tb, q.n, q.near, q.cnt);
         bool ok = contains(f, c.second);
         found += ok ? 1 : 0;
@@ -138,14 +138,14 @@ void realDictionary(const std::string& dicts, const Lang& lang, const Tables& ta
 void realTrigrams(const std::string& dicts, const Lang& lang) {
     TriStore st;
     std::string path = dicts + "/" + lang.id + "/trigrams.bin";
-    CHECK(st.open(path.c_str()), "abrir %s", path.c_str());
+    CHECK(st.open(path.c_str()), "open %s", path.c_str());
     CHECK(st.contexts() > 1000 && st.vocabulary() > 1000, "%s: too few contexts (%zu) or words (%zu)", lang.id, st.contexts(), st.vocabulary());
     int withNext = 0;
     for (const auto& p : lang.pairs) {
         std::string a = p.first, b = p.second;
         TriStore::Hit hits[8];
         int n = st.find(&a, &a, &b, &b, 8, hits);
-        CHECK(n >= 0 && n <= 8, "contagem fora do limite");
+        CHECK(n >= 0 && n <= 8, "count out of range");
         for (int i = 0; i < n; i++) {
             const uint8_t* w;
             int len;
@@ -159,7 +159,7 @@ void realTrigrams(const std::string& dicts, const Lang& lang) {
                 st.vocabulary(), st.contexts(), st.indexBytes(), withNext, lang.pairs.size());
 }
 
-// ------------------------------------------------------------------------------------ dados estragados
+// ------------------------------------------------------------------------------------ corrupted data
 
 struct Lcg {
     uint64_t s;
@@ -188,12 +188,12 @@ void corruptDict(const std::string& dicts, const Lang& lang, const Tables& table
         int mode = static_cast<int>(rnd.next() % 4);
         if (mode == 0) {                       // cut at any point
             d.resize(rnd.next() % (d.size() + 1));
-        } else if (mode == 1) {                // alguns bytes trocados
+        } else if (mode == 1) {                // some bytes swapped
             int k = 1 + static_cast<int>(rnd.next() % 20);
             for (int i = 0; i < k; i++) d[rnd.next() % d.size()] = static_cast<uint8_t>(rnd.next());
         } else if (mode == 2) {                // many bytes swapped at the start (root and first groups)
             for (int i = 0; i < 200; i++) d[rnd.next() % std::min<size_t>(d.size(), 4096)] = static_cast<uint8_t>(rnd.next());
-        } else {                               // lixo puro
+        } else {                               // pure garbage
             for (auto& b : d) b = static_cast<uint8_t>(rnd.next());
         }
         if (d.size() <= 2) d.resize(3, 0);
@@ -201,7 +201,7 @@ void corruptDict(const std::string& dicts, const Lang& lang, const Tables& table
         for (const Query& q : qs) {
             f.search(tables, rules, q.tb, q.n, q.near, q.cnt);
             searches++;
-            CHECK(f.count() >= 0 && f.count() <= kMaxResults, "contagem fora do limite: %d", f.count());
+            CHECK(f.count() >= 0 && f.count() <= kMaxResults, "count out of range: %d", f.count());
             // the limit is checked at every node, but each pass that restarts counts one more before noticing (same as Java)
             CHECK(f.visits() <= tables.costs.nodeBudget + 8, "visited nodes above the limit: %d", f.visits());
             for (int i = 0; i < f.count(); i++) {
@@ -258,10 +258,10 @@ void edgeCases(const Tables& tables) {
     f.attach(d, static_cast<int>(sizeof(d)));
     auto rows = keyRows("en-US");
     Query q;
-    CHECK(makeQuery(tables, "ab", rows, &q), "consulta");
+    CHECK(makeQuery(tables, "ab", rows, &q), "query");
     f.search(tables, rules, q.tb, q.n, q.near, q.cnt);
-    CHECK(f.count() == 1 && toUtf8(f.word(0), f.wordLen(0)) == "ab", "ab: esperava ab, veio %s", render(f).c_str());
-    CHECK(makeQuery(tables, "a\xC5\x91", rows, &q), "consulta");
+    CHECK(f.count() == 1 && toUtf8(f.word(0), f.wordLen(0)) == "ab", "ab: expected ab, got %s", render(f).c_str());
+    CHECK(makeQuery(tables, "a\xC5\x91", rows, &q), "query");
     f.search(tables, rules, q.tb, q.n, q.near, q.cnt);
     CHECK(f.count() == 1 && toUtf8(f.word(0), f.wordLen(0)) == "a\xC5\x91", "aő: expected aő (2-byte character), got %s", render(f).c_str());
 
@@ -281,7 +281,7 @@ void edgeCases(const Tables& tables) {
     char16_t back[16];
     int n = fromUtf8(reinterpret_cast<const uint8_t*>(u8.data()), static_cast<int>(u8.size()), back, 16);
     CHECK(n == 5 && std::memcmp(back, emoji, sizeof(emoji)) == 0, "fromUtf8 round trip");
-    const uint8_t bad1[] = {0xE2, 0x82};            // cortado
+    const uint8_t bad1[] = {0xE2, 0x82};            // cut off
     CHECK(fromUtf8(bad1, 2, back, 16) >= 1, "truncated UTF-8 gives something, without reading out of bounds");
     const uint8_t bad2[] = {0xC0, 0x80, 0xFF, 0xED, 0xA0, 0x80};   // overlong, invalid, surrogate
     n = fromUtf8(bad2, 6, back, 16);
@@ -293,8 +293,8 @@ void edgeCases(const Tables& tables) {
 
     // trigrams: files that are not MRT1
     TriStore st;
-    CHECK(!st.open("/nao/existe.bin"), "arquivo inexistente");
-    CHECK(!st.openBytes(reinterpret_cast<const uint8_t*>("MRT2aaaaaaaa"), 12), "magic errado");
+    CHECK(!st.open("/nao/existe.bin"), "nonexistent file");
+    CHECK(!st.openBytes(reinterpret_cast<const uint8_t*>("MRT2aaaaaaaa"), 12), "wrong magic");
     const uint8_t zero[12] = {'M', 'R', 'T', '1', 0, 0, 0, 0, 0, 0, 0, 0};
     CHECK(st.openBytes(zero, 12) && st.contexts() == 0 && st.vocabulary() == 0, "valid empty file");
     const uint8_t outOfOrder[] = {'M', 'R', 'T', '1', 0, 0, 0, 2, 1, 'b', 1, 'a', 0, 0, 0, 0};

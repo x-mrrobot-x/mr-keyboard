@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Registro dos temas do teclado. O indice de mr_theme_layouts e o valor guardado na preferencia
-     pref_keyboard_layout (as mesmas posicoes de keyboard_layout_modes_values, mais os valores antigos 1 a 6,
-     que abrem o Slate). Tema novo: criar res/layout/input_mr_<tema>.xml com a tag mr_<tema>, uma linha em
-     mr_theme_layouts, uma linha em mr_theme_tags e outra em mr_theme_flags (mesma posicao), o nome em
-     keyboard_layout_modes e o valor em keyboard_layout_modes_values. O raio de cada camada da tecla nao
-     precisa de registro: o KeyStyle soma ao raio das teclas a folga que o proprio drawable desenha. -->
+<!-- Registry of the keyboard themes. The index of mr_theme_layouts is the value stored in the preference
+     pref_keyboard_layout (the same positions as keyboard_layout_modes_values, plus the old values 1 to 6,
+     which open Slate). New theme: create res/layout/input_mr_<theme>.xml with the tag mr_<theme>, one line in
+     mr_theme_layouts, one line in mr_theme_tags and another in mr_theme_flags (same position), the name in
+     keyboard_layout_modes and the value in keyboard_layout_modes_values. The radius of each key layer needs
+     no registry: KeyStyle adds to the key radius the slack that the drawable itself draws. -->
 <resources>
-    <!-- Layout de cada tema (KeyboardSwitcher) -->
+    <!-- Layout of each theme (KeyboardSwitcher) -->
     <array name="mr_theme_layouts">
         <item>@layout/input_mr_neon</item>
         <item>@layout/input_mr_slate</item>
@@ -20,7 +20,7 @@
         <item>@layout/input_mr_midnight</item>
         <item>@layout/input_mr_glass</item>
     </array>
-    <!-- Tag de cada layout de tema (android:tag do LatinKeyboardView) -->
+    <!-- Tag of each theme layout (android:tag of LatinKeyboardView) -->
     <string-array name="mr_theme_tags">
         <item>mr_neon</item>
         <item>mr_soft</item>
@@ -28,9 +28,9 @@
         <item>mr_midnight</item>
         <item>mr_glass</item>
     </string-array>
-    <!-- Flags de cada tag, na mesma ordem de mr_theme_tags (os bits estao no topo de MrTheme.smali):
-         0x02 barra plana, 0x04 teclas de destaque, 0x08 grupo de destaque ampliado, 0x10 translucido,
-         0x20 paleta tech, 0x40 texto padrao nas teclas de destaque -->
+    <!-- Flags of each tag, in the same order as mr_theme_tags (the bits are at the top of MrTheme.smali):
+         0x02 flat bar, 0x04 highlight keys, 0x08 enlarged highlight group, 0x10 translucent,
+         0x20 tech palette, 0x40 default text on the highlight keys -->
     <integer-array name="mr_theme_flags">
         <item>0x0c</item>
         <item>0x0c</item>
