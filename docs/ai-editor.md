@@ -28,6 +28,8 @@ The request uses the Chat Completions-compatible endpoint configured in *Configu
 
 The manifest does not enable HTTP traffic without TLS. Use an `https://` endpoint; the text of the address dialog (`mr_ai_endpoint_dlg`, in English, Portuguese and Spanish) states this requirement.
 
+On Android 17 and newer (the app targets SDK 37 since v1.83.0) the system blocks connections to the local network (private IP addresses and `.local` names) unless the app holds the `ACCESS_LOCAL_NETWORK` permission. Mr Keyboard does not request it, so an endpoint on a machine of your own network times out on those versions. Endpoints on the internet (OpenAI, Groq, OpenRouter, Gemini and similar) are not affected.
+
 Only `https://` addresses are accepted, and the key is always required. The key is not kept in the default preferences: the value goes to the `mr_ai` file (`MrAi.apiKey`/`setApiKey`), which is not listed in `backup_rules.xml` or `data_extraction_rules.xml`, so it does not leave through cloud backup or device transfer. The `pref_ai_key` row is non-persistent and *Restaurar padrões* (Restore defaults) clears the value.
 
 ## Generation and checks
