@@ -335,6 +335,14 @@ for sm in glob.glob('smali/com/mrkeyboard/app/*.smali'):
             problems.append('%s: opens a keyboard screen with its own NEW_TASK (use MrNav.intent): %s' % (
                 os.path.basename(sm), body.splitlines()[0]))
 
+# --- the dialog of the AI Editor is a window of its own (not an Activity): on Android 15+ it takes the bars and the cutout
+# as padding through MrScreens.fitDialog, or its card could sit under the status bar or the camera
+ai_dialog = read_file('docs/tools/java/src/com/mrkeyboard/app/MrAiDialog.java')
+if 'MrScreens.fitDialog(root)' not in ai_dialog:
+    problems.append('MrAiDialog: the root of the dialog must go through MrScreens.fitDialog (insets of Android 15+)')
+if 'MrScreens;->fitDialog' not in read_file('smali/com/mrkeyboard/app/MrAiDialog.smali'):
+    problems.append('MrAiDialog.smali: out of date, no call to MrScreens.fitDialog (run docs/tools/build_java.sh)')
+
 print('resources: %d defined, %d entries in public.xml, %d strings in Spanish' % (len(defs), len(pub), len(es)))
 for p in problems:
     print('PROBLEM:', p)

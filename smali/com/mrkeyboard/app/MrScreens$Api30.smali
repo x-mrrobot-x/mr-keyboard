@@ -19,7 +19,7 @@
     .locals 0
 
     .prologue
-    .line 64
+    .line 77
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -29,7 +29,7 @@
     .locals 5
 
     .prologue
-    .line 66
+    .line 79
     invoke-static {}, Landroid/view/WindowInsets$Type;->systemBars()I
 
     move-result v0
@@ -44,7 +44,7 @@
 
     move-result-object v0
 
-    .line 67
+    .line 80
     iget v1, v0, Landroid/graphics/Insets;->left:I
 
     iget v2, v0, Landroid/graphics/Insets;->top:I
@@ -55,7 +55,7 @@
 
     invoke-virtual {p0, v1, v2, v3, v4}, Landroid/view/View;->setPadding(IIII)V
 
-    .line 68
+    .line 81
     iget v1, v0, Landroid/graphics/Insets;->left:I
 
     iget v2, v0, Landroid/graphics/Insets;->top:I

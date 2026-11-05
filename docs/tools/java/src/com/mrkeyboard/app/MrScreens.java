@@ -36,6 +36,19 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
         app.registerActivityLifecycleCallbacks(new MrScreens());
     }
 
+    /**
+     * Same rule for the window of the AI Editor dialog, which is attached to the keyboard window and laid out from the top
+     * of the display down to the keyboard (not an Activity, so the callbacks above never see it). The root view of the
+     * dialog gets the bars and the cutout that overlap that window as padding, so that the card is never under the status
+     * bar or the camera; its dark layer (the background of the root) still fills the window. No overlap, no padding.
+     * Below Android 15 nothing changes.
+     */
+    public static void fitDialog(View root) {
+        if (root == null || Build.VERSION.SDK_INT < EDGE_TO_EDGE_SDK) return;
+        root.setOnApplyWindowInsetsListener(new MrScreens());
+        root.requestApplyInsets();
+    }
+
     public void onActivityStarted(Activity activity) {
         View content = activity.findViewById(CONTENT);
         if (content == null) return;

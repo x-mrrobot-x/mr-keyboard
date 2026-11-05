@@ -176,9 +176,29 @@ ao rolar) entra como item principal.
   `MrTools.smali`, `NotificationHelper.smali`, `AndroidManifest.xml`, `res_check.py`, stubs (`Intent`, `Activity`,
   `LatinIMESettings`, `PrefScreenSheets`), `run_java_tests.sh`, `build_java.sh`.
 
-### Etapa 4 — Verificar `MrAiDialog` e `MrUpdateDialog` nas janelas edge-to-edge
-- Só corrigir se o teste mostrar problema: o cartão do `MrAiDialog` ganharia recuo superior pelo inset de
-  `statusBars | displayCutout` da própria janela do diálogo.
+### Etapa 4 — Verificar `MrAiDialog` e `MrUpdateDialog` nas janelas edge-to-edge — FEITA
+- **`MrUpdateDialog`:** diálogo flutuante comum (`Theme.MrKeyboard.Dialog`, pai `Material.Dialog.Alert`), aberto de uma
+  Activity, sem flags de layout próprias. O sistema o posiciona dentro da área útil, com ou sem edge-to-edge. Nada a
+  mudar.
+- **`MrAiDialog`:** janela própria presa à janela do teclado (`TYPE_APPLICATION_ATTACHED_DIALOG`), gravidade no topo,
+  `LAYOUT_IN_SCREEN | LAYOUT_NO_LIMITS`, altura = do topo da tela até o teclado. O cartão é centralizado com margem de
+  12 dp. Em retrato a conta sobra de longe; em paisagem a janela fica baixa e o cartão (rolável) encosta nas margens:
+  o topo ficava a 12 dp da borda, sob a barra de status (24 dp ou mais), e a lateral podia ficar sob o recorte da
+  câmera. Como a janela não é uma Activity, o `MrScreens` nunca a via.
+- **Correção por construção** (a análise não depende de um teste no aparelho): `MrScreens.fitDialog(View)` põe no
+  root do diálogo, no Android 15+, as barras do sistema e o recorte que realmente tocam a janela como padding (mesma
+  regra e mesmo `Api30.fit` das telas). A camada escura é o fundo do root e continua cobrindo a janela inteira; sem
+  sobreposição o padding é zero, então o retrato fica igual. Abaixo do Android 15 nada muda (modo clássico).
+  `MrAiDialog.showDialog` chama `fitDialog(root)` logo depois do `setContentView`.
+- Testes no PC: `ScreensTest` ganhou 8 checks (33 no total): registro só no 15+, barra de status em retrato, recorte
+  lateral em paisagem, nada sobra para as Views de baixo, sem sobreposição = sem padding, janela sobre a tela toda
+  (barras no padding, teclado não), SDK 34 sem listener, `null`. Quatro mutações do `fitDialog` pegas.
+- Guarda no `res_check.py`: `MrAiDialog.java` precisa chamar `MrScreens.fitDialog(root)` e o smali gerado precisa
+  estar em dia.
+- **A confirmar no aparelho:** o card do Editor de IA em paisagem (não encosta na barra de status nem na câmera) e em
+  retrato (igual a antes). Se o sistema não entregar insets a essa janela, o padding fica zero e o comportamento é o de
+  antes, sem regressão.
+- Arquivos: `MrScreens.java` (+ `.smali` gerados), `MrAiDialog.java` (+ smali), `res_check.py`, `ScreensTest.java`.
 
 ### Etapa 5 — Aceleração por hardware com opção
 - Preferência nova `pref_ui_hw_accel` (caixa de seleção em **Avançado**, padrão **desligada**, textos em
@@ -231,6 +251,9 @@ ao rolar) entra como item principal.
   rápido numa linha de Configurações abre uma subtela só. Abrir o Editor de IA e um estilo para editar, voltar ao
   app, digitar, abrir o Editor de IA e tocar na engrenagem de novo: abre as configurações uma só vez e Voltar leva
   ao app. Com um estilo em edição (texto digitado), abrir outro estilo pelo diálogo: o atual continua como está.
+- **Diálogo do Editor de IA (Android 15+):** abrir o diálogo em retrato (igual a antes) e em paisagem, com o
+  teclado aberto: o cartão não pode ficar sob a barra de status nem sob a câmera; a camada escura segue cobrindo a
+  tela toda e tocar fora do cartão fecha. Também com o gesto e com a barra de 3 botões.
 - **Aceleração:** com a opção desligada nada muda; ligar e conferir que a rolagem de Configurações segue
   correta (e desligar de novo volta ao normal).
 - **Teclado acelerado ou não:** resultado da checagem da Etapa 5 (log da build de teste).

@@ -34,6 +34,38 @@
     return-void
 .end method
 
+.method public static fitDialog(Landroid/view/View;)V
+    .locals 2
+
+    .prologue
+    .line 47
+    if-eqz p0, :cond_0
+
+    sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
+
+    const/16 v1, 0x23
+
+    if-ge v0, v1, :cond_1
+
+    .line 50
+    :cond_0
+    :goto_0
+    return-void
+
+    .line 48
+    :cond_1
+    new-instance v0, Lcom/mrkeyboard/app/MrScreens;
+
+    invoke-direct {v0}, Lcom/mrkeyboard/app/MrScreens;-><init>()V
+
+    invoke-virtual {p0, v0}, Landroid/view/View;->setOnApplyWindowInsetsListener(Landroid/view/View$OnApplyWindowInsetsListener;)V
+
+    .line 49
+    invoke-virtual {p0}, Landroid/view/View;->requestApplyInsets()V
+
+    goto :goto_0
+.end method
+
 .method public static install(Landroid/app/Application;)V
     .locals 2
 
@@ -69,7 +101,7 @@
     .locals 0
 
     .prologue
-    .line 51
+    .line 64
     return-void
 .end method
 
@@ -77,7 +109,7 @@
     .locals 0
 
     .prologue
-    .line 61
+    .line 74
     return-void
 .end method
 
@@ -85,7 +117,7 @@
     .locals 0
 
     .prologue
-    .line 55
+    .line 68
     return-void
 .end method
 
@@ -93,7 +125,7 @@
     .locals 0
 
     .prologue
-    .line 53
+    .line 66
     return-void
 .end method
 
@@ -101,7 +133,7 @@
     .locals 0
 
     .prologue
-    .line 59
+    .line 72
     return-void
 .end method
 
@@ -109,25 +141,25 @@
     .locals 1
 
     .prologue
-    .line 40
+    .line 53
     const v0, 0x1020002
 
     invoke-virtual {p1, v0}, Landroid/app/Activity;->findViewById(I)Landroid/view/View;
 
     move-result-object v0
 
-    .line 41
+    .line 54
     if-nez v0, :cond_0
 
-    .line 44
+    .line 57
     :goto_0
     return-void
 
-    .line 42
+    .line 55
     :cond_0
     invoke-virtual {v0, p0}, Landroid/view/View;->setOnApplyWindowInsetsListener(Landroid/view/View$OnApplyWindowInsetsListener;)V
 
-    .line 43
+    .line 56
     invoke-virtual {v0}, Landroid/view/View;->requestApplyInsets()V
 
     goto :goto_0
@@ -137,7 +169,7 @@
     .locals 0
 
     .prologue
-    .line 57
+    .line 70
     return-void
 .end method
 
@@ -145,14 +177,14 @@
     .locals 2
 
     .prologue
-    .line 47
+    .line 60
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v1, 0x1e
 
     if-ge v0, v1, :cond_0
 
-    .line 48
+    .line 61
     :goto_0
     return-object p2
 

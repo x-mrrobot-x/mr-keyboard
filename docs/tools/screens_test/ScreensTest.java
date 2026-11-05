@@ -118,6 +118,36 @@ public class ScreensTest {
         check("below Android 11 the insets pass untouched and there is no padding",
                 back == sent && other.getPaddingTop() == 0 && other.getPaddingBottom() == 0);
 
+        // ---- dialog of the AI Editor (window from the top of the display to the keyboard): fitDialog
+        Build.VERSION.SDK_INT = 36;
+        View dRoot = new View();
+        MrScreens.fitDialog(dRoot);
+        check("dialog on Android 15+: listener on the root and a request of the insets",
+                dRoot.stubInsetsListener() != null && dRoot.stubInsetsRequests() == 1);
+        dRoot.stubInsetsListener().onApplyWindowInsets(dRoot, insets(80, 0, 0, 0));
+        check("dialog, portrait: the status bar is padding on top (the card stays below it), nothing else",
+                dRoot.getPaddingTop() == 80 && dRoot.getPaddingBottom() == 0 && dRoot.getPaddingLeft() == 0 && dRoot.getPaddingRight() == 0);
+        WindowInsets dLand = dRoot.stubInsetsListener().onApplyWindowInsets(dRoot, insets(60, 0, 110, 0));
+        check("dialog, landscape with the camera on the side: padding on the side and on top",
+                dRoot.getPaddingLeft() == 110 && dRoot.getPaddingTop() == 60);
+        check("dialog: what is left for the views below is zero (the card does not reserve the bars again)",
+                dLand.getInsets(BARS).top == 0 && dLand.getInsets(BARS).left == 0);
+        dRoot.stubInsetsListener().onApplyWindowInsets(dRoot, insets(0, 0, 0, 0));
+        check("dialog that does not touch the bars: no padding at all",
+                dRoot.getPaddingTop() == 0 && dRoot.getPaddingLeft() == 0 && dRoot.getPaddingBottom() == 0);
+        dRoot.stubInsetsListener().onApplyWindowInsets(dRoot, insets(80, 48, 0, 900));
+        check("dialog over the whole display (no keyboard height known): bars in the padding, keyboard is not",
+                dRoot.getPaddingTop() == 80 && dRoot.getPaddingBottom() == 48);
+        Build.VERSION.SDK_INT = 34;
+        View dOld = new View();
+        MrScreens.fitDialog(dOld);
+        check("dialog on Android 14 or below: no listener, no request (as before)",
+                dOld.stubInsetsListener() == null && dOld.stubInsetsRequests() == 0);
+        Build.VERSION.SDK_INT = 36;
+        boolean dNull = true;
+        try { MrScreens.fitDialog(null); } catch (RuntimeException e) { dNull = false; }
+        check("fitDialog(null) does not fail", dNull);
+
         System.out.println(fail == 0 ? "ALL OK (" + ok + " checks)" : fail + " FAILURE(S)");
         System.exit(fail == 0 ? 0 : 1);
     }

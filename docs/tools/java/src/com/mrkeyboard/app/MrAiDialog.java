@@ -248,6 +248,7 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
             dialog.setCanceledOnTouchOutside(true);
             dialog.setOnDismissListener(listener);
             dialog.setContentView(root);
+            MrScreens.fitDialog(root);
             MrAi.setup(root);
 
             Window window = dialog.getWindow();
