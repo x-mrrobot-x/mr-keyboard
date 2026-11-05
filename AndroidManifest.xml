@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-    android:compileSdkVersion="36"
+    android:compileSdkVersion="37"
     package="com.mrkeyboard.app"
-    platformBuildVersionCode="36"
-    platformBuildVersionName="16"
+    platformBuildVersionCode="37"
+    platformBuildVersionName="17"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Lets the app control the vibration. -->
     <uses-permission

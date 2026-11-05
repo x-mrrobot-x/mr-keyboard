@@ -16,13 +16,18 @@ ao rolar) entra como item principal.
 - Android 8–14 (SDK 26–34): **manter o modo clássico** (barras com a cor do tema). Só se corrige o Android 15+.
 - Aceleração por hardware: **opção nas configurações** para ligar/desligar, **desligada por padrão** (o
   comportamento de hoje não muda para quem não mexer).
+- targetSdk: **subir para 37** (Android 17) neste mesmo ciclo (Etapa 5c). Endpoint de IA na rede local: **ignorar**
+  a permissão `ACCESS_LOCAL_NETWORK` (deixa de conectar no Android 17; entra nas notas).
+- Resultado da aceleração do teclado: **linha no app** (Avançado > Telas), além do log (Etapa 5b).
+- Linhas de diagnóstico "Desenho do teclado" e "Desenho desta tela": **ficam até a leitura no Android 17** (a única
+  forma de ver sem adb). Depois dela, na Etapa 8, decidir se saem (junto com o log `MrAccel` e o `mr_diag`) ou ficam.
 - Espaço do Android 17: **corrigir por construção** (ninguém consegue aplicar a margem da barra duas vezes). Se
   sobrar espaço depois do teste no aparelho, aí se coleta um dump da hierarquia (ver Etapa 1).
 
 ## O que a análise encontrou
 
 **Barras e insets**
-- O app tem targetSdk 36 e minSdk 26. No Android 15+ a janela é edge-to-edge à força (no 16 o opt-out sumiu).
+- O app tinha targetSdk 36 (hoje 37, Etapa 5c) e minSdk 26. No Android 15+ a janela é edge-to-edge à força (no 16 o opt-out sumiu).
   Um único `InsetsHandler` (callback global de Activity, registrado só com SDK ≥ 35 em `MrApplication`) aplica
   `systemBars | displayCutout` como padding de `android.R.id.content`. Por estar só no 35+, as chamadas API 30+
   dele são seguras.
@@ -299,6 +304,95 @@ ao rolar) entra como item principal.
   (`Window.setFlags`, `Activity.getWindow` e contador de `recreate`, `FLAG_HARDWARE_ACCELERATED`,
   `PreferenceManager.stubDefault`, `util/Log`, `View.isAttachedToWindow`/`isHardwareAccelerated`).
 
+### Etapa 5b — Resultado da aceleração do teclado dentro do app — FEITA
+- Pedido do usuário: ver a resposta da checagem da Etapa 5 sem `adb`. `MrAccel.log` agora, além da linha de log,
+  guarda a resposta (`kbd_accel`) com o Android em que foi medida (`kbd_sdk`) num arquivo de preferências próprio,
+  `mr_diag`. Ele fica **fora do backup** (as regras de backup só incluem as preferências padrão e `sheets.json`) e
+  fora do "Restaurar padrões".
+- Linha só de leitura "Desenho do teclado" em **Avançado > Telas** (`mr_kbd_accel`, não persistente, não
+  selecionável). Três textos: GPU, processador e "ainda não medido neste Android; abra o teclado uma vez e volte
+  aqui". A linha é preenchida em `PrefScreenAdvanced.onResume` (`MrAccel.fill`), porque a resposta pode aparecer
+  enquanto a tela está em segundo plano. Resposta guardada em outro Android (atualização do sistema, restauração)
+  vale como "não medido".
+- Textos nos três idiomas (`mr_ui_kbd_accel`, `_on`, `_off`, `_unknown`).
+- Testes: `AccelTest` foi de 14 para 38 checks (arquivo e modo da preferência, resposta com o Android, outro Android
+  = desconhecido, software, primeira resposta vale para o processo, view não anexada não guarda, preferência com
+  falha não atinge o teclado, os três textos, preenchimento da linha, tela sem a linha, sem texto mantém o do XML).
+  Das 14 mutações novas, 12 foram pegas; as 2 que sobraram (`row == null` e `context == null`) são equivalentes: o
+  `NullPointerException` cai no `catch (RuntimeException)` e o resultado é o mesmo.
+- Guardas em `res_check.py`: a linha (chave, não persistente, não selecionável, título e resumo), as quatro strings
+  nos três idiomas, `ROW`/`PREFS` no `MrAccel`, `mr_diag` fora das regras de backup, os três nomes de texto no
+  código e `MrAccel.fill` no `onResume`. Sete mutações, todas pegas.
+- Arquivos: `MrAccel.java` (e o smali gerado), `PrefScreenAdvanced.smali` (`onResume`), `prefs_advanced.xml`,
+  `mr_strings.xml` (3 idiomas), `res_check.py`, `AccelTest.java`.
+
+### Etapa 5b (continuação) — Linha "Desenho desta tela": pedido x entregue — FEITA
+- Motivo: no Xiaomi (Android 13) as medições por `adb` não fecharam. O `gfxinfo` mostra os mesmos nós de
+  renderização com a opção ligada e desligada (Avançado 56 views / 103,11 kB nas duas), e o `dumpsys window` da
+  tela Configurações não tem `HARDWARE_ACCELERATED` em `fl=`. Também há ruído: o processo do teclado não foi
+  reiniciado entre as medições (mesma `ViewRootImpl` do `InputMethod`). **Correção ao que se dizia antes:** a
+  lista "Profile data" do `gfxinfo` mostra **todas** as janelas, não só as aceleradas; o indicador útil é o tamanho
+  dos nós de renderização por janela e a memória de GPU total, e mesmo isso ficou ambíguo neste aparelho. Por isso
+  a resposta passa a vir de dentro do app.
+- Segunda linha só de leitura em **Avançado > Telas**, "Desenho desta tela" (`mr_scr_accel`, não persistente, não
+  selecionável), preenchida por `MrAccel.fillScreen` em `PrefScreenAdvanced.onResume`. O que ela compara:
+  - **pedido** = o flag `FLAG_HARDWARE_ACCELERATED` (0x01000000) nos atributos da janela
+    (`getWindow().getAttributes().flags`, o que foi enviado ao WMS e que o `dumpsys window` mostra em `fl=`);
+  - **entregue** = `decor.isHardwareAccelerated()` (o que a `ViewRootImpl` realmente faz; uma ROM pode divergir
+    do pedido).
+  A leitura é adiada com `decor.post` porque só é verdadeira com a view anexada; view não anexada deixa a linha
+  como estava.
+- Quatro textos (nos três idiomas, `mr_ui_scr_accel_*`): **desligado** (nada pedido, nada entregue: processador),
+  **asked** (pedido e entregue: GPU a pedido do app), **system** (não pedido e entregue: o sistema ou a ROM liga
+  por conta própria) e **refused** (pedido e não entregue: o sistema não deu). Mais "Medindo…" antes da resposta.
+  Uma linha no log: `adb logcat -s MrAccel` → `<Tela> window asked=<b> given=<b> (SDK n)`.
+- **Resultado medido (Xiaomi, Android 13, opção desligada):** "Desenhada pela GPU mesmo sem o app pedir: o sistema
+  (ou a ROM) liga por conta própria", isto é, `asked=false given=true`. A ROM já desenha as telas pela GPU e a opção
+  não muda nada nesse aparelho; bate com o `gfxinfo` (mesmos nós de renderização ligada e desligada). Não é defeito
+  do app. Falta ler o Android 17 (opção desligada e ligada).
+- Como ler no aparelho: opção desligada deve dar "desligado"; ligada, "asked". Se com a opção **desligada** vier
+  "system", a ROM força a GPU e a opção não muda nada naquele aparelho (não é defeito do app).
+- Testes: `AccelTest` de 38 para **57** checks (as quatro combinações, a resposta só depois do `post`, view não
+  anexada, janela sem atributos conta como não pedido, tela sem a linha não posta nada, sem janela, sem texto
+  mantém o do XML, `fill` preenche as duas linhas, linha de log). Mutação: 14 mutantes novos, 13 pegos; o que sobrou
+  (tirar o teste de `window == null`) é equivalente, pois o `NullPointerException` cai no `catch`.
+- Guardas em `res_check.py`: a linha `mr_scr_accel` (chave, não persistente, não selecionável, título, resumo), as
+  seis strings novas nos três idiomas, `ROW_SCREEN`/`FLAG_HW` e os quatro nomes de texto no `MrAccel`.
+- Arquivos: `MrAccel.java` (+ smali gerado, `MrAccel$2`), `prefs_advanced.xml`, `mr_strings.xml` (3 idiomas),
+  stubs (`WindowManager.LayoutParams.flags`), `res_check.py`, `AccelTest.java`.
+- **Se a linha e o log não servirem depois da investigação, os dois (e o `mr_diag`) podem ser removidos** (pergunta
+  em aberto ao usuário).
+
+### Etapa 5c — targetSdk 37 (Android 17) — FEITA
+- Pedido do usuário (saiu do "fora do escopo"): `targetSdkVersion` 36 → **37** em `apktool.yml` e `apktool.json`;
+  `compileSdkVersion`/`platformBuildVersionCode` 36 → 37 e `platformBuildVersionName` 16 → 17 no manifesto
+  (compile não fica abaixo do target). Conferido no APK montado e decodificado: `targetSdkVersion: 37`.
+- Mudanças só para target 37 (https://developer.android.com/about/versions/17/behavior-changes-17) e o que o app
+  tem de cada uma, conferido no smali e no manifesto:
+  - **Rede local bloqueada sem `ACCESS_LOCAL_NETWORK`** (TCP para IP privado, `.local`): a única que afeta o app,
+    e só quem aponta o endpoint de IA (sempre `https://`) para uma máquina da casa. **Decisão do usuário:
+    ignorar** (não declarar a permissão): nesse caso a conexão dá tempo esgotado no Android 17. Internet comum
+    (OpenAI, Groq, OpenRouter, Gemini, GitHub) não muda. Entra nas notas da versão.
+  - `static final` imutável, `MessageQueue` sem trava, `System.load` só de arquivo somente leitura: o app não usa
+    reflexão (`Field.set*`, `setAccessible`), não toca `MessageQueue` e só chama `System.loadLibrary` (da APK).
+  - Orientação e redimensionamento não podem mais ser ignorados em telas de 600 dp ou mais: o manifesto não trava
+    nada (`screenOrientation`, `resizeableActivity`, proporções).
+  - Lançamento de atividade em segundo plano mais rígido para `IntentSender`: o instalador de atualização usa
+    `PendingIntent.getBroadcast(...).getIntentSender()` no `commit` e o `MrUpdateReceiver` abre a tela de
+    confirmação do Android com `startActivity`. **Não mexe no que o app faz hoje; a confirmar no aparelho** (item
+    novo da Etapa 7).
+  - Certificate Transparency ligado por padrão: afeta apenas certificados de CA pública; os serviços de IA e o
+    GitHub usam. Sem ação.
+  - Sem uso no app: widgets (`RemoteViews`), conteúdo de contatos, SMS, Bluetooth, mídia em segundo plano (o
+    `playSoundEffect` do teclado roda com o teclado visível), Content Capture, chaves do Keystore.
+  - Para todos os apps (já valia no 36): o teclado não é restaurado depois da rotação (tratado na Etapa 2).
+- Guardas em `res_check.py`: os três arquivos concordam no target, compile não está abaixo dele e o target é pelo
+  menos 37; e o smali não pode conter `System.load(`, `Runtime.load(`, escritas por `Field.set*`, `setAccessible`
+  nem `setPendingIntentBackgroundActivityStartMode`; o manifesto não pode ter `screenOrientation`,
+  `resizeableActivity="false"` nem proporções. Doze mutações (os arquivos de versão, o manifesto e cada padrão
+  proibido em um smali de teste), todas pegas.
+- Arquivos: `apktool.yml`, `apktool.json`, `AndroidManifest.xml`, `res_check.py`.
+
 ### Etapa 6 — Guardas e testes — FEITA
 - Os testes Java no PC foram escritos junto com cada etapa, em vez de num `MrScreensTest` só: `ScreensTest` (90:
   aritmética de insets, diálogo, altura da janela, aceleração), `NavTest` (35: flags de `MrNav`), `ScreenImeTest`
@@ -357,25 +451,38 @@ ao rolar) entra como item principal.
   que nada fica sem desenhar (barra de título, ícones das categorias, listas). Desligar de novo volta ao normal.
   As telas abertas antes de alternar só mudam quando abrem de novo (esperado). Em "Restaurar padrões" a caixa
   volta a desmarcada. Os editores (folhas, estilos de IA) não mudam com a opção.
-- **Flag chegou a tempo:** com a opção ligada, `adb shell dumpsys gfxinfo com.mrkeyboard.app` com Configurações
-  aberta deve mostrar estatísticas de quadros da janela da tela (o `gfxinfo` só conta janelas desenhadas pelo
-  renderizador por GPU, a confirmar); desligada, sem elas. Se ligada e a janela seguir em software, o flag chegou
-  tarde e a Etapa 5 precisa mudar para o tema/manifesto por tela.
-- **Teclado acelerado ou não:** com o teclado aberto pela primeira vez, `adb logcat -s MrAccel` mostra uma linha
-  `keyboard window hardwareAccelerated=true|false (SDK n)`. Anotar o resultado nos Androids 13 e 17.
+- **A tela é desenhada pela GPU?** (sem adb) Abrir Avançado > Telas e ler "Desenho desta tela", com a opção
+  desligada e depois ligada (depois de mudar a opção a tela recria sozinha). Esperado: desligada → "desenhada pelo
+  processador"; ligada → "pela GPU, a pedido do app". "O sistema liga por conta própria" com a opção desligada =
+  a ROM força a GPU (Xiaomi?) e a opção não muda nada ali; "pedido e não entregue" = o sistema recusou. Anotar o
+  resultado no Android 13 (Xiaomi) e no 17. Com adb, a mesma resposta: `adb logcat -s MrAccel`. O `gfxinfo` mostra
+  todas as janelas na lista "Profile data" (não só as aceleradas), então não serve sozinho como prova.
+- **Teclado acelerado ou não (sem adb):** abrir o teclado uma vez num app qualquer, depois abrir o app e ir em
+  Avançado > Telas > "Desenho do teclado": deve dizer GPU ou processador (antes de abrir o teclado: "ainda não
+  medido"). Anotar o resultado nos Androids 13 e 17. Com adb, a mesma resposta está em `adb logcat -s MrAccel`
+  (`keyboard window hardwareAccelerated=true|false (SDK n)`). Se a linha mudar ao atualizar o Android, volta para
+  "ainda não medido" até abrir o teclado de novo.
+- **targetSdk 37 (Android 17):** instalar a versão por cima da anterior; abrir o teclado, o Editor de IA e as
+  Configurações e conferir que tudo segue como antes. **Atualização dentro do app:** com uma release de teste
+  mais nova, tocar em baixar/instalar e conferir que a tela de confirmação do Android abre e que a instalação
+  conclui (o `IntentSender` do instalador é o ponto que o 37 endureceu). Endpoint de IA da internet (OpenAI, Groq,
+  etc.) segue funcionando. Opcional: endpoint numa máquina da rede local dá tempo esgotado (esperado, decidido).
 - Opcional, para medir peso: `adb shell dumpsys gfxinfo com.mrkeyboard.app framestats` com a opção ligada e
   desligada.
 
 ### Etapa 8 — Versão e notas
 - v1.83.0 (`versionCode` 1083000), notas em `docs/release-notes/v1.83.0.md` (blocos Português e English, estilo
   Novo/Melhorado/Corrigido), README se a nova opção merecer menção. Apagar este plano no commit da release.
+- Nas notas: o app agora tem **targetSdk 37**; no Android 17 um endpoint de IA numa máquina da rede local (IP
+  privado ou `.local`) deixa de conectar, porque o sistema exige a permissão `ACCESS_LOCAL_NETWORK` e o app não a
+  pede (serviços na internet não são afetados). Também a opção "Aceleração por hardware" (em ROMs que já usam a GPU, como a
+  do Xiaomi testado no Android 13, ela não muda nada) e as linhas "Desenho do teclado" e "Desenho desta tela" em
+  Avançado (se não forem removidas antes).
 
 ## Fora do escopo
 
-- Subir o `targetSdk` para 37 (Google Play exige até agosto de 2027). Mudanças a tratar nesse plano futuro:
-  orientação e redimensionamento deixam de poder ser travados em telas grandes (o app não trava nada hoje),
-  campos `static final` ficam imutáveis, e a proteção de carga dinâmica de código passa a valer para bibliotecas
-  nativas (conferir que nenhuma `.so` é carregada de fora do APK).
+- Declarar `ACCESS_LOCAL_NETWORK` e pedir a permissão quando o endpoint de IA for da rede local (decidido: ignorar
+  por enquanto; ver a Etapa 5c).
 - Fazer a lista rolar por trás das barras do sistema (recomendação de design do Google, opcional). A lista
   continua começando abaixo do título, como hoje.
 

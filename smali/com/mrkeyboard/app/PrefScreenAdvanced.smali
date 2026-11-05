@@ -82,6 +82,17 @@
     return-void
 .end method
 
+# The row "Keyboard drawing" says what MrAccel measured on the keyboard window (it can change while this screen is away).
+.method protected onResume()V
+    .locals 0
+
+    invoke-super {p0}, Landroid/preference/PreferenceActivity;->onResume()V
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrAccel;->fill(Landroid/preference/PreferenceActivity;)V
+
+    return-void
+.end method
+
 .method public onSharedPreferenceChanged(Landroid/content/SharedPreferences;Ljava/lang/String;)V
     .locals 0
 

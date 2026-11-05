@@ -32,6 +32,16 @@
     <string name="mr_ui_hw_accel">Hardware acceleration</string>
     <string name="mr_ui_hw_accel_on">The app screens are drawn by the GPU; uses more memory. The keyboard is not affected.</string>
     <string name="mr_ui_hw_accel_off">The app screens are drawn by the processor (default). The keyboard is not affected.</string>
+    <string name="mr_ui_kbd_accel">Keyboard drawing</string>
+    <string name="mr_ui_kbd_accel_on">The keyboard window is drawn by the GPU (hardware acceleration).</string>
+    <string name="mr_ui_kbd_accel_off">The keyboard window is drawn by the processor (no hardware acceleration).</string>
+    <string name="mr_ui_kbd_accel_unknown">Not measured yet on this Android. Open the keyboard once and come back here.</string>
+    <string name="mr_ui_scr_accel">Drawing of this screen</string>
+    <string name="mr_ui_scr_accel_unknown">Measuring…</string>
+    <string name="mr_ui_scr_accel_off">Drawn by the processor. The app does not ask for acceleration.</string>
+    <string name="mr_ui_scr_accel_asked">Drawn by the GPU, as the app asked.</string>
+    <string name="mr_ui_scr_accel_system">Drawn by the GPU although the app does not ask for it: the system (or the ROM) turns it on by itself.</string>
+    <string name="mr_ui_scr_accel_refused">Drawn by the processor although the app asks for acceleration: the system did not allow it.</string>
     <string name="mr_ui_cat_haptic">Vibration</string>
     <string name="mr_ui_cat_sound">Sound</string>
     <string name="mr_ui_cat_visual">Visual</string>

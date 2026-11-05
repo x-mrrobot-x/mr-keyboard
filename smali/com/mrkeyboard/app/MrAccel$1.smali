@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 35
+    .line 58
     iput-object p1, p0, Lcom/mrkeyboard/app/MrAccel$1;->val$decor:Landroid/view/View;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,7 +45,7 @@
     .locals 1
 
     .prologue
-    .line 36
+    .line 59
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAccel$1;->val$decor:Landroid/view/View;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAccel;->log(Landroid/view/View;)V

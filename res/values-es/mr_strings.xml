@@ -32,6 +32,16 @@
     <string name="mr_ui_hw_accel">Aceleración por hardware</string>
     <string name="mr_ui_hw_accel_on">Las pantallas de la app se dibujan con la GPU; usa más memoria. No afecta al teclado.</string>
     <string name="mr_ui_hw_accel_off">Las pantallas de la app se dibujan con el procesador (predeterminado). No afecta al teclado.</string>
+    <string name="mr_ui_kbd_accel">Dibujo del teclado</string>
+    <string name="mr_ui_kbd_accel_on">La ventana del teclado se dibuja con la GPU (aceleración por hardware).</string>
+    <string name="mr_ui_kbd_accel_off">La ventana del teclado se dibuja con el procesador (sin aceleración por hardware).</string>
+    <string name="mr_ui_kbd_accel_unknown">Aún no medido en este Android. Abre el teclado una vez y vuelve aquí.</string>
+    <string name="mr_ui_scr_accel">Dibujo de esta pantalla</string>
+    <string name="mr_ui_scr_accel_unknown">Midiendo…</string>
+    <string name="mr_ui_scr_accel_off">Se dibuja con el procesador. La app no pide aceleración.</string>
+    <string name="mr_ui_scr_accel_asked">Se dibuja con la GPU, como pide la app.</string>
+    <string name="mr_ui_scr_accel_system">Se dibuja con la GPU aunque la app no lo pide: el sistema (o la ROM) la activa por su cuenta.</string>
+    <string name="mr_ui_scr_accel_refused">Se dibuja con el procesador aunque la app pide aceleración: el sistema no lo permitió.</string>
     <string name="mr_ui_cat_haptic">Vibración</string>
     <string name="mr_ui_cat_sound">Sonido</string>
     <string name="mr_ui_cat_visual">Visual</string>

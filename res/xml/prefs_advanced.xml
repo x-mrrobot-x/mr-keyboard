@@ -11,5 +11,7 @@
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_draw" android:key="screen_drawing" android:summary="@string/mr_ui_cat_draw_sum" android:icon="@drawable/mr_ui_ic_eye_cyan">
     <CheckBoxPreference android:persistent="true" android:title="@string/mr_ui_hw_accel" android:key="pref_ui_hw_accel" android:defaultValue="false" android:summaryOn="@string/mr_ui_hw_accel_on" android:summaryOff="@string/mr_ui_hw_accel_off"/>
+    <Preference android:persistent="false" android:selectable="false" android:title="@string/mr_ui_kbd_accel" android:key="mr_kbd_accel" android:summary="@string/mr_ui_kbd_accel_unknown"/>
+    <Preference android:persistent="false" android:selectable="false" android:title="@string/mr_ui_scr_accel" android:key="mr_scr_accel" android:summary="@string/mr_ui_scr_accel_unknown"/>
   </PreferenceCategory>
 </PreferenceScreen>

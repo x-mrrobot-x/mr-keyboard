@@ -8,6 +8,7 @@ public interface WindowManager {
         public android.os.IBinder token;
         public int type;
         public int gravity;
+        public int flags;
         public LayoutParams() { super(0, 0); }
     }
 }

@@ -396,7 +396,10 @@ else:
             problems.append('prefs_advanced.xml: pref_ui_hw_accel needs %s (off by default)' % attr)
 for lang in ('values', 'values-es', 'values-pt-rBR'):
     texts = read_file('res/%s/mr_strings.xml' % lang)
-    for name in ('mr_ui_cat_draw', 'mr_ui_cat_draw_sum', 'mr_ui_hw_accel', 'mr_ui_hw_accel_on', 'mr_ui_hw_accel_off'):
+    for name in ('mr_ui_cat_draw', 'mr_ui_cat_draw_sum', 'mr_ui_hw_accel', 'mr_ui_hw_accel_on', 'mr_ui_hw_accel_off',
+                 'mr_ui_kbd_accel', 'mr_ui_kbd_accel_on', 'mr_ui_kbd_accel_off', 'mr_ui_kbd_accel_unknown',
+                 'mr_ui_scr_accel', 'mr_ui_scr_accel_unknown', 'mr_ui_scr_accel_off', 'mr_ui_scr_accel_asked',
+                 'mr_ui_scr_accel_system', 'mr_ui_scr_accel_refused'):
         if '<string name="%s">' % name not in texts:
             problems.append('%s/mr_strings.xml: string %s of the acceleration setting is missing' % (lang, name))
 screens_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrScreens.java')
@@ -409,6 +412,41 @@ adv_smali = read_file('smali/com/mrkeyboard/app/PrefScreenAdvanced.smali')
 changed = adv_smali[adv_smali.find('.method public onSharedPreferenceChanged('):]
 if 'MrScreens;->onSetting(Landroid/app/Activity;Ljava/lang/String;)V' not in changed:
     problems.append('PrefScreenAdvanced.onSharedPreferenceChanged must call MrScreens.onSetting (the screen is created again with the new acceleration)')
+# the read-only row "Keyboard drawing" (what MrAccel measured on the keyboard window): not a stored setting, filled when the screen
+# comes back, and the answer lives in a file of its own that the backup does not take
+kbd_row = [t for t in re.findall(r'<Preference\b[^>]*>', adv_xml) if 'android:key="mr_kbd_accel"' in t]
+if len(kbd_row) != 1:
+    problems.append('prefs_advanced.xml: the row mr_kbd_accel is missing or repeated')
+else:
+    for attr in ('android:persistent="false"', 'android:selectable="false"', 'android:title="@string/mr_ui_kbd_accel"',
+                 'android:summary="@string/mr_ui_kbd_accel_unknown"'):
+        if attr not in kbd_row[0]:
+            problems.append('prefs_advanced.xml: mr_kbd_accel needs %s' % attr)
+accel_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrAccel.java')
+if 'ROW = "mr_kbd_accel"' not in accel_src or 'PREFS = "mr_diag"' not in accel_src:
+    problems.append('MrAccel: the row key is not mr_kbd_accel or the file of the answer is not mr_diag')
+for rules in ('res/xml/backup_rules.xml', 'res/xml/data_extraction_rules.xml'):
+    if 'mr_diag' in read_file(rules):
+        problems.append('%s: the diagnostic file mr_diag must stay out of the backup (it describes this device)' % rules)
+for name in ('mr_ui_kbd_accel_on', 'mr_ui_kbd_accel_off', 'mr_ui_kbd_accel_unknown', 'mr_ui_scr_accel_off', 'mr_ui_scr_accel_asked',
+             'mr_ui_scr_accel_system', 'mr_ui_scr_accel_refused'):
+    if '"%s"' % name not in accel_src:
+        problems.append('MrAccel: no longer names the string %s' % name)
+# the second read-only row, "Drawing of this screen": what the app asked (flag of the window) against what the system gave
+scr_row = [t for t in re.findall(r'<Preference\b[^>]*>', adv_xml) if 'android:key="mr_scr_accel"' in t]
+if len(scr_row) != 1:
+    problems.append('prefs_advanced.xml: the row mr_scr_accel is missing or repeated')
+else:
+    for attr in ('android:persistent="false"', 'android:selectable="false"', 'android:title="@string/mr_ui_scr_accel"',
+                 'android:summary="@string/mr_ui_scr_accel_unknown"'):
+        if attr not in scr_row[0]:
+            problems.append('prefs_advanced.xml: mr_scr_accel needs %s' % attr)
+if 'ROW_SCREEN = "mr_scr_accel"' not in accel_src or 'FLAG_HW = WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED' not in accel_src:
+    problems.append('MrAccel: the row of the screen is not mr_scr_accel or the flag is not WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED')
+adv_resume = adv_smali[adv_smali.find('.method protected onResume()V'):]
+adv_resume = adv_resume[:adv_resume.find('.end method')]
+if 'MrAccel;->fill(Landroid/preference/PreferenceActivity;)V' not in adv_resume:
+    problems.append('PrefScreenAdvanced.onResume must call MrAccel.fill (the row of the keyboard drawing)')
 shown = ime_smali[ime_smali.find('.method public onWindowShown()V'):]
 shown = shown[:shown.find('.end method')]
 if 'MrAccel;->onShown(Landroid/inputmethodservice/InputMethodService;)V' not in shown:
@@ -459,6 +497,40 @@ for folder in sorted(glob.glob('docs/tools/*_test')):
     for test in sorted(glob.glob(folder + '/*Test.java')):
         if '/' + os.path.basename(folder) + '/' + os.path.basename(test) not in runner.replace('$D', ''):
             problems.append('%s: not in docs/tools/run_java_tests.sh (run it there, or explain in a README.md how it is run by hand)' % test)
+
+# --- targetSdk 37 (Android 17): the three files that say it agree, the compile SDK is not below it, and nothing in the app does what
+# a target-37 app can no longer do (https://developer.android.com/about/versions/17/behavior-changes-17)
+target_yml = re.search(r"targetSdkVersion: '(\d+)'", read_file('apktool.yml'))
+target_json = re.search(r'"targetSdkVersion": "(\d+)"', read_file('apktool.json'))
+manifest_head = re.search(r'<manifest\b[^>]*>', manifest_text).group(0)
+compile_sdk = re.search(r'android:compileSdkVersion="(\d+)"', manifest_head)
+platform_sdk = re.search(r'platformBuildVersionCode="(\d+)"', manifest_head)
+if not (target_yml and target_json and compile_sdk and platform_sdk):
+    problems.append('target SDK: apktool.yml, apktool.json or the head of the manifest has no SDK number')
+else:
+    if target_yml.group(1) != target_json.group(1):
+        problems.append('target SDK: apktool.yml says %s and apktool.json %s' % (target_yml.group(1), target_json.group(1)))
+    if compile_sdk.group(1) != platform_sdk.group(1) or int(compile_sdk.group(1)) < int(target_yml.group(1)):
+        problems.append('target SDK: compileSdkVersion %s / platformBuildVersionCode %s must match and not be below the target %s' % (
+            compile_sdk.group(1), platform_sdk.group(1), target_yml.group(1)))
+    if int(target_yml.group(1)) < 37:
+        problems.append('target SDK: %s, the plan raised it to 37 (Android 17)' % target_yml.group(1))
+TARGET37 = (
+    (r'Ljava/lang/System;->load\(', 'System.load of a file (a target-37 app can only load read-only native libraries; the app uses System.loadLibrary from the APK)'),
+    (r'Ljava/lang/Runtime;->load\(', 'Runtime.load of a file (same limit as System.load)'),
+    (r'Ljava/lang/reflect/Field;->set', 'a reflective write to a field (static final fields cannot be written at target 37)'),
+    (r'->setAccessible\(', 'setAccessible (reflection on a private member breaks with the lock-free MessageQueue and static final fields of Android 17)'),
+    (r'ActivityOptions;->setPendingIntentBackgroundActivityStartMode', 'a background activity start mode (hardened for IntentSender at target 37)'),
+)
+for pattern, what in TARGET37:
+    if re.search(pattern, smali):
+        owners = sorted({os.path.basename(f) for f in glob.glob('smali*/**/*.smali', recursive=True) if re.search(pattern, read_file(f))})
+        problems.append('target 37: %s found in %s' % (what, ', '.join(owners[:5])))
+for tag in manifest_tags:
+    for attr in ('android:screenOrientation=', 'android:resizeableActivity="false"', 'android:minAspectRatio=', 'android:maxAspectRatio='):
+        if attr in tag:
+            problems.append('manifest: %s in %s: target 37 ignores orientation and resizability limits on screens of 600 dp or more' % (
+                attr, re.search(r'android:name="([^"]+)"', tag).group(1)))
 
 print('resources: %d defined, %d entries in public.xml, %d strings in Spanish' % (len(defs), len(pub), len(es)))
 for p in problems:
