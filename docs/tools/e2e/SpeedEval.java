@@ -23,7 +23,7 @@ import java.util.List;
  * One warm-up round (JIT, caches) is not counted; the next ROUNDS rounds are. Times are in microseconds: mean, median, 95th and 99th
  * percentile, and the worst. The phone is several times slower than the PC (estimate 5 to 15 times): use the ratio between two builds, not the absolute value.
  *
- * Usage: java -Djava.library.path=<libs> [-Dmr.native=off] -cp <build>:app.jar:stubs:tests com.mrkeyboard.app.SpeedEval <pt-BR|en-US|es> <dicts dir> <sentences file>
+ * Usage: java -Djava.library.path=<libs> -cp <build>:app.jar:stubs:tests com.mrkeyboard.app.SpeedEval <pt-BR|en-US|es> <dicts dir> <sentences file>
  *        -Dsentences=1500 (how many sentences, default 1500)  -Drounds=3 (default 3)
  */
 public class SpeedEval {
@@ -57,7 +57,7 @@ public class SpeedEval {
         buf.put(bytes);
         buf.rewind();
         MrRules.set(MrRules.parse(new FileInputStream(new File(dir, "rules.txt"))));
-        MrTrigram.load(new FileInputStream(new File(dir, "trigrams.bin")));
+        E2ETest.openTrigrams(new File(dir, "trigrams.bin"));
         Suggest suggest = new Suggest(null, buf);
         E2ETest.suggest = suggest;
         suggest.setCorrectionMode(1);
@@ -111,7 +111,7 @@ public class SpeedEval {
             }
         }
         System.out.printf("%s: %d sentences, %d rounds counted, engine %s%n", lang, sentences.size(), rounds,
-                System.getProperty("mr.native", "on").equals("off") ? "Java" : "native when the lib loads");
+                "native");
         System.out.printf("  %-12s %8s %8s %8s %8s %9s %8s%n", "keystroke", "n", "mean us", "p50", "p95", "p99", "max");
         for (int k = 0; k < KINDS.length; k++) {
             long[] v = Arrays.copyOf(us[k], cnt[k]);

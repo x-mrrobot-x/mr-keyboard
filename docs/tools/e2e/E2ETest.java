@@ -70,6 +70,13 @@ public class E2ETest {
                 got.subList(0, Math.min(6, got.size())));
     }
 
+    /** Opens trigrams.bin in the native engine (the only reader since 1.87.0) and stops if it cannot: a run without trigrams would give wrong numbers. */
+    static void openTrigrams(java.io.File f) {
+        if (!MrTrigram.useNow(f)) {
+            throw new IllegalStateException("the native engine did not open " + f + " (is libmrengine.so on java.library.path, and the file a valid trigrams.bin?)");
+        }
+    }
+
     static class TestUserBigrams extends ExpandableDictionary {
         TestUserBigrams() { super(null, 2); }
     }
@@ -151,7 +158,7 @@ public class E2ETest {
         String[] sent = {"", "Oi. ", "Tudo bem? ", "muito ", "ele disse, "};
         for (String t : sent) System.out.printf("      sentence start in %-14s %s%n", "'" + t + "'", MrText.atSentenceStart(t));
         if (a.length > 3) {
-            MrTrigram.load(new java.io.FileInputStream(a[3]));
+            openTrigrams(new java.io.File(a[3]));
             String[][] ctx = {{"bom", "dia"}, {"muito", "obrigado"}, {"eu", "não"}, {"vou", "te"}, {"de", "acordo"}, {"o", "que"}, {"tudo", "bem"}};
             for (String[] c : ctx) {
                 System.out.printf("      prediction after %-16s %s   (last one only: %s)%n", c[0] + " " + c[1],

@@ -105,7 +105,7 @@ A v2 pack needs `"format": 2` and `"minApp": 1086000` in `pack.json`; `make_cata
 ## Packs built from conversation text (1.86.1: Spanish 4, Portuguese 6 and English 5)
 Spanish 4, Portuguese 6 and English 5 are not built by `split_lang.py` / `make_wordlist_lang.py` / `make_trigrams.py` any more: the counts, the mix of sources, the
 vocabulary, the frequencies, the pairs and the trigrams come from `docs/tools/corpus/` (`prepare_corpus.py` + `make_pack_data.py`, steps and the exact
-command in `docs/tools/corpus/README.md`; choices and results in `plan-suggestions.md`, Phase 4), and the dictionary is written with
+command in `docs/tools/corpus/README.md`; choices and results in `dictionary-tuning.md`), and the dictionary is written with
 `build_dict.py ... --format 2`. The credits of the sources are in `dicts/es/NOTICE.txt`; the OpenSubtitles text has no clear licence, so only counts
 leave the machine. The same holds for `dicts/pt-BR/NOTICE.txt`; for Portuguese the list of the old recipe (this document, above) is run on the same splits and is the base of
 `make_pack_data.py`, because it already has the 1990 spelling agreement and the European forms out (details in `docs/tools/corpus/README.md`). English has its own rules in the `en` entry of `make_pack_data.py` (apostrophe-free forms, stutters, capitalised twins, foreign lists only for short words): `docs/tools/corpus/README.md`. The older scripts above (`split_*.py`, `make_wordlist*.py`, `make_trigrams.py`) are still the way to rebuild the old recipe on the same splits, which is how the new packs are compared with it.

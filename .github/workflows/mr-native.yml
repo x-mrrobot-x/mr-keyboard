@@ -13,7 +13,7 @@
 #   3. commit lib/ and those files together with the change.
 # native-src.sha256 and mrengine-src.sha256 say which code each lib was built from. mr-apk.yml compares them with the current
 # code: if they differ, it warns (and does not publish) so you never ship an APK with a stale lib.
-# The engine parity with Java (Java vs C++ live) runs in mr-checks.yml, which has the APK assembled.
+# The checks that need the assembled APK (the suggestion strategies through the real app classes and this engine) run in mr-checks.yml.
 name: Mr Keyboard - native lib
 
 on:

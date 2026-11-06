@@ -4,7 +4,7 @@
 #   - AuthorTest: author card and main-screen link (MrAuthor, MrLink).
 #   - RecorrectTest: word under the cursor, which words get suggestions and neighbour keys (MrRecorrect).
 #   - RecentTest: recent words in the prediction and when completing (MrRecent).
-#   - NativeFallbackTest: without libmrengine.so (native engine, 1.77) correction and trigrams go on through Java.
+#   - NoLibTest: without libmrengine.so (native engine, 1.77) the search answers no results and the trigrams nothing, with no exception (since 1.87.0 there is no Java search).
 #   - UpdateTest: the notice of a new version (MrUpdate): signature, every field, versions, replay, checking windows,
 #     notes by language, the switch and "Not now", the glue of the screens (MrUpdateUi) with a fake screen, and the
 #     download and install (MrUpdateInstall) with a fake session: nothing is committed unless size and hash match, and the
@@ -49,9 +49,9 @@ echo "== RecentTest"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_recent" $D/recent_test/RecentTest.java
 java -cp "$T/test_recent:$T/stubs:$T/main" com.mrkeyboard.app.RecentTest
 
-echo "== NativeFallbackTest (without libmrengine.so: the app must work as in 1.76)"
-javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_native" $D/native_test/NativeFallbackTest.java
-java -cp "$T/test_native:$T/stubs:$T/main" com.mrkeyboard.app.NativeFallbackTest
+echo "== NoLibTest (without libmrengine.so: no exception, no results)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_native" $D/native_test/NoLibTest.java
+java -cp "$T/test_native:$T/stubs:$T/main" com.mrkeyboard.app.NoLibTest
 
 echo "== UpdateTest (update notice: the logic, and the files made by the real tools)"
 sh $D/update_test/make_fixtures.sh "$T/update_fx"

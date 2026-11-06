@@ -56,7 +56,7 @@ public class AltEval {
         buf.put(bytes);
         buf.rewind();
         MrRules.set(MrRules.parse(new FileInputStream(new File(dir, "rules.txt"))));
-        MrTrigram.load(new FileInputStream(new File(dir, "trigrams.bin")));
+        E2ETest.openTrigrams(new File(dir, "trigrams.bin"));
         Suggest suggest = new Suggest(null, buf);
         E2ETest.suggest = suggest;
         BinaryDictionary main = suggest.mrMainDict();

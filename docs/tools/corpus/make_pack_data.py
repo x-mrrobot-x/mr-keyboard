@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the data of one language pack from the mixed corpora (plan-suggestions.md, phase 4):
+"""Builds the data of one language pack from the mixed corpora (docs/dictionary-tuning.md):
 the word list with bigrams (AOSP "combined" format, input of build_dict.py) and trigrams.bin (MRT1).
 
 Usage:

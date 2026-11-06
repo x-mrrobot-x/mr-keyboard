@@ -40,7 +40,7 @@ ID_RE = re.compile(r"^[a-z]{2,3}(-[A-Z]{2})?$")
 ZIP_TIME = (1980, 1, 1, 0, 0, 0)
 MAX_FILE = 16 * 1024 * 1024
 DICT_MAX = {1: 4194304,    # 22-bit address of the dictionary format v1
-            2: 16777216}   # format v2 (one more byte per address; the limit is a policy, see docs/plan-suggestions.md)
+            2: 16777216}   # format v2 (one more byte per address; the limit is a policy, see docs/suggestion-features.md, "Dictionary format v2")
 V2_MIN_APP = 1086000       # the first app that reads the dictionary format v2
 
 

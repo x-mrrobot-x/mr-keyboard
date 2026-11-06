@@ -3,8 +3,8 @@
 
 Usage: python3 -I docs/tools/make_v2_dicts.py <output folder> [dicts folder]
 
-The tests that read the dictionaries from a folder (run_native_parity.sh, run_strategy_tests.sh, mr_test, dict_test) take this
-folder in place of dicts/ to prove that the readers (C++ lib, C++ engine, Java fallback) give the same results with v2. The
+The tests that read the dictionaries from a folder (run_strategy_tests.sh, mr_test, dict_test) take this
+folder in place of dicts/ to prove that the readers (C++ lib, C++ engine) read it well with v2. The
 copy is for tests only: pack.json says format 2 / minApp 1086000, but nothing here is published. A dictionary that is already v2 in
 dicts/ (es 4, 1.86.1) is copied as it is.
 """

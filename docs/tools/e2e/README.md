@@ -14,15 +14,14 @@ same `dictionary.cpp`. Only `LatinIME` (which needs Android) is left out. It exi
 | `RecentEval` (`gen_sessions.py`) | recent words: is the next word among the 3 shown after the space and after 1 to 3 letters, in simulated sessions, with and without `MrRecent` (`-Drecent=0`). |
 | `E2ETest`, `E2EEn`, `E2EEs` | end-to-end checks with fixed expectations (`ALL OK` or `FAIL`). |
 | `Parity`, `TouchEval`, `TypoEval` | list-by-list comparison of two versions, imprecise touches and synthetic errors (1.64 to 1.66). |
-| `NativeParity` | native engine (1.77): the `MrFuzzy` search and the final `Suggest` list through Java and through `libmrengine.so`, word by word, score, cost and nodes visited; trigrams through both paths; the time of both. It exits with 1 if there is any difference. It runs in CI via `run_native_parity.sh`. |
 
 ### Strategy tests and everyday-language benchmark (after 1.83)
 - `bash docs/tools/e2e/run_strategy_tests.sh [app_jar.jar]`: `StrategyTest`, one table-driven check per strategy of `docs/suggestion-features.md` (S1...), the data
-  integrity checks (D1-D4) and the limits (L1-L5), in 3 languages through the native engine and the Java fallback. Cases marked `GAP` are known
+  integrity checks (D1-D4) and the limits (L1-L5), in 3 languages through the native engine. Cases marked `GAP` are known
   gaps (they print `FIXED` when they start to pass). It runs in *Mr Keyboard - checks* and exits with 1 on a failure (`set -o pipefail`).
-  Since 1.86 `run_strategy_tests.sh` and `run_native_parity.sh` read the dictionaries from the folder in the `DICTS` variable (default `dicts`), so the same
+  Since 1.86 `run_strategy_tests.sh` reads the dictionaries from the folder in the `DICTS` variable (default `dicts`), so the same
   checks run on a copy where every `main.dict` is in format v2: `python3 -I docs/tools/make_v2_dicts.py /tmp/dicts_v2` and then
-  `DICTS=/tmp/dicts_v2 bash docs/tools/e2e/run_strategy_tests.sh` (and the same for `run_native_parity.sh`). *Mr Keyboard - checks* runs both folders.
+  `DICTS=/tmp/dicts_v2 bash docs/tools/e2e/run_strategy_tests.sh`. *Mr Keyboard - checks* runs both folders.
   `D1` accepts a header `200/1` (up to 4,194,304 bytes) or `200/2` (up to 16,777,216).
   Check **S28** types the original sentences of `data/everyday_<lang>.txt` (133 per language, written for this repository) and fails when a hit rate
   falls under its floor (`StrategyTest.FLOORS`); raise the floors when a release improves the rates, never lower one to pass.
@@ -31,8 +30,7 @@ same `dictionary.cpp`. Only `LatinIME` (which needs Android) is left out. It exi
   sentences, which are not in the repository (the script header says where to get them), so it does not run in CI. The same class reads a plain text file
   (one sentence per line, name ending in `.txt`): `java ... SubtitleEval pt-BR dicts docs/tools/e2e/data/everyday_pt-BR.txt`.
 - `SpeedEval` (by hand, run it alone on the machine): the time of every keystroke of typed sentences, by kind (after a space, 1 letter, 2-4, 5 or more,
-  a word that is not in the dictionary, a valid word): `java ... SpeedEval <lang> dicts <top_sentences.csv>` with `-Dsentences=1500 -Drounds=3`; add
-  `-Dmr.native=off` for the Java fallback. To compare two versions put the classes of one in front of the classpath (`-cp old_classes:...`) and run both
+  a word that is not in the dictionary, a valid word): `java ... SpeedEval <lang> dicts <top_sentences.csv>` with `-Dsentences=1500 -Drounds=3`. To compare two versions put the classes of one in front of the classpath (`-cp old_classes:...`) and run both
   in the same session; differences under 10% are noise. To compare dictionary formats pass the folder of the v2 copies instead of `dicts` (same classes and libs). Numbers of 1.83 → 1.84, 1.84 → 1.85 and v1 → v2 are in "Speed" of `docs/suggestion-features.md`.
 - `AltEval` (by hand): false positives and hits of the suggestion for a valid but probably wrong word (`MrFuzzy.alternative`, strategy S27), over the
   valid words of the subtitle sentences; it was used to choose `ALT_GAP`, `ALT_TYPED_MAX` and the other `ALT_*` constants.
@@ -46,11 +44,11 @@ same `dictionary.cpp`. Only `LatinIME` (which needs Android) is left out. It exi
   `ImportEval <lang> dicts sweep` for the same names with a stored frequency from 6 to 250; `-Dspeed=1` times a full list, `-Dexplore=1` prints the cases and
   `-Dprobe=<word>` follows one word. It chose `MrLearned.WORD_FREQ_AT_50` (130) and the pair frequencies.
 
-### Native engine (1.77)
-`bash docs/tools/e2e/run_native_parity.sh [app_jar.jar]` compiles the PC libs (`engine/` and `native/`), generates the queries from
-`dicts/` itself (`engine/tools/gen_parity_queries.py`) and runs `NativeParity` in the 3 languages; it is the same thing that *Mr Keyboard - checks* runs.
-Any other class in this folder (`CorrEval`, `PrefixEval`…) also uses the lib when it is on the `java.library.path` (`run_eval.sh`
-already puts both there); `JAVA_OPTS=-Dmr.native=off` forces Java. In comparative measurements, run both ways.
+### Native engine (1.77; the only search since 1.87.0)
+Every class in this folder runs the suggestion engine through `libmrengine.so`, so the lib must be on the `java.library.path` (`run_strategy_tests.sh` and `run_eval.sh`
+already build the PC libs and put them there). `E2ETest.openTrigrams` stops the run when the lib does not open `trigrams.bin`: a run without
+trigrams would give wrong numbers. Until 1.86.1 there was a Java copy of the search and `run_native_parity.sh` compared the two; it was removed in 1.87.0
+(how to repeat that comparison after a change of file format: "Tests" in `docs/native-engine.md`).
 
 ## Measurement limits
 - The test texts (Leipzig, Tatoeba) come **shuffled**, with no real conversation. `gen_sessions.py` builds two

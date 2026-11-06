@@ -1,13 +1,13 @@
 package com.mrkeyboard.app;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 /**
- * Java fallback layer (v1.60): approximate search over the .dict trie already loaded by the native
- * lib (same ByteBuffer, no copy). Covers what the lib does not: extra letter, missing letter,
+ * Correction layer (v1.60; the search itself is C++ since 1.87.0): approximate search over the .dict trie already loaded by the native
+ * lib (same ByteBuffer, no copy). Covers what the dictionary lib does not: extra letter, missing letter,
  * transposition, pt-BR phonetic swaps (including 2 letters for 1, like ch/x and ss/ç) and missing
- * space (porisso -> por isso).
+ * space (porisso -> por isso). This class decides what to do with the results (the rules, the costs, the reserved slot, the
+ * careful autocorrection) and hands the costs and rules to the engine; the walk over the trie is engine/src/mr_fuzzy.cpp.
  *
  * Format read (the same as dictionary.cpp): group = [count] + entries; entry = char (1 byte or
  * 0xFF + 2 bytes), flags/address (0x80 terminal, 0x40 with children + 22 bits; 30 bits in the format v2 of 1.86,
@@ -85,22 +85,8 @@ public final class MrFuzzy {
     private final char[] mTb = new char[MAX_TYPED];
     private final char[][] mNear = new char[MAX_TYPED][16];
     private final int[] mNearCount = new int[MAX_TYPED];
-    private final short[][] mSub = new short[MAX_TYPED][256];
-    private final int[] mIns = new int[MAX_TYPED];
-    private final boolean[] mFirst = new boolean[256];
-    /** Groups from rules.txt: at j, the 2 typed letters (j-2, j-1) may stand for this dictionary one. */
-    private final char[] mTwoD1 = new char[MAX_TYPED + 1];
-    private final char[] mTwoD2 = new char[MAX_TYPED + 1];
     /** Language rules of this query (from the pack; empty without a pack). */
     private MrRules mR = MrRules.EMPTY;
-    private final int[][] mRows = new int[MAX_TYPED + MAX_EXTRA_DEPTH + 2][MAX_TYPED + 1];
-    private final char[] mPath = new char[MAX_WORD + 2];
-    private int mMaxCost;
-    private int mBand;
-    private int mVisits;
-    static final int INF = 1 << 20;
-    /** At the root: 1 = only the typed initial, 2 = only the other accepted initials, 0 = all. */
-    private int mOnlyTyped;
 
     // best results
     private final char[][] mResWord = new char[MAX_RESULTS][MAX_WORD * 2 + 2];
@@ -477,6 +463,11 @@ public final class MrFuzzy {
     long resultScore(int i) { return mResScore[i]; }
     int resultCost(int i) { return mResCost[i]; }
 
+    /**
+     * The correction search (the passes with one and two errors, the missing 1st letter and the missing space) runs in the native
+     * engine (libmrengine.so, engine/src/mr_fuzzy.cpp); this method only prepares the typed letters and their neighbour keys. Without the lib
+     * (it never happens on a device that loads libjni_pckeyboard.so) the query has no results.
+     */
     void search(WordComposer composer, CharSequence typed) {
         int n = Math.min(typed.length(), MAX_TYPED);
         mN = n;
@@ -493,60 +484,14 @@ public final class MrFuzzy {
                 }
             }
             mNearCount[j] = cnt;
-            Arrays.fill(mSub[j], (short) -1);
         }
         mR = MrRules.get();
-        // v1.77: with the native lib the whole search (passes and missing space) runs in C++ with the same result;
-        // without it (or if it refuses the query) the Java code below runs
-        if (searchNative()) return;
-        for (int j = 0; j < n; j++) mIns[j] = insCost(j);
-        for (int j = 2; j <= n; j++) {
-            char a = mTb[j - 2], b = mTb[j - 1];
-            char d1 = 0, d2 = 0;
-            char[] ta = mR.t2a, tb = mR.t2b, td = mR.t2d;
-            for (int k = 0; k < ta.length; k++) {
-                if (ta[k] == a && tb[k] == b) {
-                    if (d1 == 0) d1 = td[k];
-                    else if (d2 == 0) d2 = td[k];
-                }
-            }
-            mTwoD1[j] = d1;
-            mTwoD2[j] = d2;
-        }
-        firstLetters();
         mResCount = 0;
-        mVisits = 0;
-        int[] row0 = mRows[0];
-        row0[0] = 0;
-        for (int j = 1; j <= n; j++) row0[j] = Math.min(INF, row0[j - 1] + mIns[j - 1]);
-        // 1st pass: one error (cost of 1 letter more/less or swap); almost every
-        // typing error is like this and the search is about 5 times smaller. If the typed word is still the start of a
-        // dictionary word, the person is probably in the middle of it and the lib's completions
-        // already serve: with 4 letters only the cheap errors (doubled letter, h, swap, phonetic:
-        // asim -> assim, omem -> homem), from 5 the whole 1st pass (prota -> porta).
-        boolean prefix = isPrefix();
-        if (!prefix || n >= 4) {
-            setMaxCost(prefix && n == 4 ? 40 : n <= 3 ? 45 : n == 4 ? 60 : 75);
-            walkRoot();
-            if (!prefix && mVisits <= NODE_BUDGET) {
-                // v1.66: the 1st letter was left out; only the missing letter and, in a long word,
-                // one more cheap error
-                setMaxCost(C_DEL_FIRST + (n >= 6 ? 30 : 0));
-                mOnlyTyped = 3;
-                walk(mRoot, 0, 0, (char) 0);
-                mOnlyTyped = 0;
-            }
-            if (mResCount == 0 && !prefix && n >= 6) {
-                // 2nd pass: up to two errors, for longer words
-                setMaxCost(n <= 7 ? 100 : 120);
-                walkRoot();
-            }
-        }
-        sLastVisits = mVisits;
-        if (n >= 4) split();
+        sLastVisits = 0;
+        searchNative();
     }
 
-    /** Search in C++ (MrNative). false = it did not run (no lib, non-direct buffer, error): use Java. */
+    /** Search in C++ (MrNative). false = it did not run (no lib, non-direct buffer, error): no results. */
     private boolean searchNative() {
         int n = mN;
         for (int j = 0; j < n; j++) System.arraycopy(mNear[j], 0, mNearFlat, j * 16, 16);
@@ -569,235 +514,11 @@ public final class MrFuzzy {
     }
 
     /**
-     * Cost limit and width of the dynamic-programming band: with a minimum cost of 30 for
-     * changing the length (doubled letter, h, 2 for 1), column j can only stay within the limit if
-     * |depth - j| <= limit / 30. Outside the band the cell is INF.
-     */
-    private void setMaxCost(int max) {
-        mMaxCost = max;
-        mBand = max / 30;
-    }
-
-    /** Root in two rounds: first the typed initial, then the other accepted ones. */
-    private void walkRoot() {
-        mOnlyTyped = 1;
-        walk(mRoot, 0, 0, (char) 0);
-        if (mVisits > NODE_BUDGET) return;
-        mOnlyTyped = 2;
-        walk(mRoot, 0, 0, (char) 0);
-        mOnlyTyped = 0;
-    }
-
-    /** Is the typed one (without accent/case) the start of some dictionary word? */
-    private boolean isPrefix() {
-        mGuard = 0;
-        return prefixRec(mRoot, 0);
-    }
-
-    /**
-     * v1.77.2: node ceiling of isPrefix and of the split lookup (the recursive searches that do not go through walk). In a real dictionary
+     * v1.77.2: node ceiling of the dictionary lookup (the recursive search of ownFrequency). In a real dictionary
      * they visit a few hundred nodes at most (measured: 41 and 379 in 43 thousand queries); in a corrupt file,
      * with cyclic pointers and repeated letters, they used to grow exponentially and freeze the keyboard.
      */
     private int mGuard;
-
-    private boolean prefixRec(int pos, int j) {
-        if (pos < 0 || pos >= mSize) return false;
-        if (++mGuard > NODE_BUDGET) return false;
-        int count = mDict.get(pos) & 0xFF;
-        pos++;
-        char want = mTb[j];
-        for (int i = 0; i < count; i++) {
-            if (pos >= mSize) return false;
-            int c = mDict.get(pos++) & 0xFF;
-            if (c == 0xFF) {
-                if (pos + 1 >= mSize) return false;
-                c = ((mDict.get(pos) & 0xFF) << 8) | (mDict.get(pos + 1) & 0xFF);
-                pos += 2;
-            }
-            int flags = mDict.get(pos) & 0xFF;
-            int child = 0;
-            if ((flags & 0x40) != 0) {
-                if (pos + mAb - 1 >= mSize) return false;
-                child = addrAt(pos);
-                pos += mAb;
-            } else {
-                pos += 1;
-            }
-            if ((flags & 0x80) != 0) {
-                if (pos >= mSize) return false;
-                pos++;
-                if (mLatest) pos = skipBigrams(pos);
-            }
-            int cb = c < 256 ? BASE[c] : MrText.base(c);
-            if (cb != want) continue;
-            if (j + 1 == mN) {
-                if (child != 0) return true;
-            } else if (child != 0 && prefixRec(child, j + 1)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /** Initials accepted for the dictionary word. */
-    private void firstLetters() {
-        Arrays.fill(mFirst, false);
-        char t = mTb[0];
-        mFirst[t & 0xFF] = t < 256;
-        for (int k = 0; k < mNearCount[0]; k++) {
-            char c = mNear[0][k];
-            if (c < 256) mFirst[c] = true;
-        }
-        MrRules r = mR;
-        for (char c = 0; c < 256; c++) {
-            // similar letters and swapped vowels; silent letters at the start ("omem" -> homem)
-            if (r.pair(c, t) != 0 || r.silentStart[c] > 0) mFirst[c] = true;
-        }
-        // groups: typed "ch" may be "x" in the dictionary; typed "x" may be "ch"
-        if (mN > 1) {
-            for (int k = 0; k < r.t2a.length; k++) {
-                if (r.t2a[k] == t && r.t2b[k] == mTb[1]) {
-                    char d = MrText.base(r.t2d[k]);
-                    if (d < 256) mFirst[d] = true;
-                }
-            }
-        }
-        for (int k = 0; k < r.d2t.length; k++) {
-            if (r.d2t[k] == t) {
-                char d = MrText.base(r.d2p[k]);
-                if (d < 256) mFirst[d] = true;
-            }
-        }
-        if (mN > 1 && mTb[1] < 256) mFirst[mTb[1]] = true;
-    }
-
-    private int sub(int j, int cb) {
-        if (cb >= 256) return cb == mTb[j] ? 0 : C_SUB;
-        short s = mSub[j][cb];
-        if (s < 0) {
-            s = (short) subCost((char) cb, j);
-            mSub[j][cb] = s;
-        }
-        return s;
-    }
-
-    private void walk(int pos, int depth, int pcb, char parentRaw) {
-        if (pos < 0 || pos >= mSize) return;
-        int count = mDict.get(pos) & 0xFF;
-        pos++;
-        int[] prev = mRows[depth];
-        int[] prev2 = depth > 0 ? mRows[depth - 1] : null;
-        int n = mN;
-        for (int i = 0; i < count; i++) {
-            if (pos >= mSize) return;
-            int c = mDict.get(pos++) & 0xFF;
-            if (c == 0xFF) {
-                if (pos + 1 >= mSize) return;
-                c = ((mDict.get(pos) & 0xFF) << 8) | (mDict.get(pos + 1) & 0xFF);
-                pos += 2;
-            }
-            int flags = mDict.get(pos) & 0xFF;
-            boolean terminal = (flags & 0x80) != 0;
-            int child = 0;
-            if ((flags & 0x40) != 0) {
-                if (pos + mAb - 1 >= mSize) return;
-                child = addrAt(pos);
-                pos += mAb;
-            } else {
-                pos += 1;
-            }
-            int freq = 0;
-            if (terminal) {
-                if (pos >= mSize) return;
-                freq = mDict.get(pos++) & 0xFF;
-                if (mLatest) pos = skipBigrams(pos);
-            }
-            if (++mVisits > NODE_BUDGET) return;
-            int cb = c < 256 ? BASE[c] : MrText.base(c);
-            if (depth == 0) {
-                if (cb >= 256) continue;
-                if (mOnlyTyped == 3) {
-                    if (mFirst[cb]) continue;
-                } else {
-                    if (!mFirst[cb]) continue;
-                    if (mOnlyTyped == 1 && cb != mTb[0]) continue;
-                    if (mOnlyTyped == 2 && cb == mTb[0]) continue;
-                }
-            }
-            char raw = (char) c;
-            char rl = c < 256 ? LOWER[c] : Character.toLowerCase(raw);
-            int del = delCost(cb, pcb, depth);
-            // does the dictionary have 2 letters (parent + this one) for 1 typed? (groups: x = ch, c = sc...)
-            int d1 = -1, d2 = -1;
-            if (prev2 != null && mR.d2p.length > 0) {
-                char p = parentRaw < 256 ? LOWER[parentRaw] : Character.toLowerCase(parentRaw);
-                char[] gp = mR.d2p, gc = mR.d2c, gt = mR.d2t;
-                for (int k = 0; k < gp.length; k++) {
-                    if (gp[k] == p && gc[k] == rl) {
-                        if (d1 < 0) d1 = gt[k];
-                        else if (d2 < 0) d2 = gt[k];
-                    }
-                }
-            }
-            int[] cur = mRows[depth + 1];
-            int r = depth + 1;
-            int lo = r - mBand;
-            int hi = r + mBand;
-            if (hi > n) hi = n;
-            int rowMin = INF;
-            if (lo <= 0) {
-                int best0 = prev[0] + del;
-                if (best0 > INF) best0 = INF;
-                cur[0] = best0;
-                rowMin = best0;
-                lo = 1;
-            } else {
-                cur[lo - 1] = INF;
-            }
-            if (hi + 1 <= n) cur[hi + 1] = INF;
-            if (hi + 2 <= n) cur[hi + 2] = INF;
-            boolean onlyDel = depth == 0 && mOnlyTyped == 3;
-            for (int j = lo; j <= hi; j++) {
-                int tj1 = mTb[j - 1];
-                // in the pass for the 1st missing letter, the root can only be a missing letter
-                int best = onlyDel ? INF : prev[j - 1] + sub(j - 1, cb);
-                int v = cur[j - 1] + mIns[j - 1];
-                if (v < best) best = v;
-                v = prev[j] + del;
-                if (v < best) best = v;
-                if (j >= 2) {
-                    if (prev2 != null && cb == mTb[j - 2] && pcb == tj1 && cb != pcb) {
-                        v = prev2[j - 2] + C_TRANS;
-                        if (v < best) best = v;
-                    }
-                    if ((mTwoD1[j] != 0 && rl == mTwoD1[j]) || (mTwoD2[j] != 0 && rl == mTwoD2[j])) {
-                        v = prev[j - 2] + C_MULTI;
-                        if (v < best) best = v;
-                    }
-                }
-                if (d1 >= 0 && (tj1 == d1 || tj1 == d2)) {
-                    v = prev2[j - 1] + C_MULTI;
-                    if (v < best) best = v;
-                }
-                if (best > INF) best = INF;
-                cur[j] = best;
-                if (best < rowMin) rowMin = best;
-            }
-            if (depth < MAX_WORD) mPath[depth] = raw;
-            if (terminal && hi == n && cur[n] <= mMaxCost && depth + 1 <= MAX_WORD && freq > 0) {
-                offer(mPath, depth + 1, freq, cur[n]);
-            }
-            if (child != 0 && rowMin <= mMaxCost && depth + 1 < n + mBand
-                    && depth + 2 < mRows.length && depth + 1 < MAX_WORD) {
-                walk(child, depth + 1, cb, raw);
-                if (mVisits > NODE_BUDGET) return;
-                // the recursion overwrote mRows[depth + 2..]; mRows[depth + 1] is for this entry
-                prev = mRows[depth];
-                prev2 = depth > 0 ? mRows[depth - 1] : null;
-            }
-        }
-    }
 
     /** The address that starts at the flags byte (6 bits) followed by 2 bytes (format v1) or 3 bytes (v2). */
     private int addrAt(int pos) {
@@ -820,121 +541,6 @@ public final class MrFuzzy {
         return pos + 1;
     }
 
-    private boolean isNear(int j, char cb) {
-        char[] near = mNear[j];
-        for (int k = mNearCount[j] - 1; k >= 0; k--) {
-            if (near[k] == cb) return true;
-        }
-        return false;
-    }
-
-    /** Position of cb among the neighbours of touch j (0 = the closest), or -1. */
-    private int nearRank(int j, char cb) {
-        char[] near = mNear[j];
-        int cnt = mNearCount[j];
-        for (int k = 0; k < cnt; k++) {
-            if (near[k] == cb) return k;
-        }
-        return -1;
-    }
-
-    private int subCost(char cb, int j) {
-        char t = mTb[j];
-        if (cb == t) return 0;
-        int near = nearRank(j, cb);
-        if (near >= 0) return near == 0 ? C_PROX_1 : near == 1 ? C_PROX_2 : C_PROX_FAR;
-        int kind = mR.pair(cb, t);
-        if (kind == 1) return C_PHON;
-        if (kind == 2) return C_VOWEL;
-        return C_SUB;
-    }
-
-    /** Typed letter in excess at position j. */
-    private int insCost(int j) {
-        char t = mTb[j];
-        if (j > 0 && mTb[j - 1] == t) return C_INS_DOUBLE;
-        if (t < 256 && mR.extra[t]) return C_INS_H;
-        if (j > 0 && isNear(j - 1, t)) return C_INS_NEAR;
-        if (j + 1 < mN && isNear(j + 1, t)) return C_INS_NEAR;
-        return C_INS;
-    }
-
-    /** Dictionary letter that was not typed. */
-    private int delCost(int cb, int pcb, int depth) {
-        MrRules r = mR;
-        if (depth == 0 && mOnlyTyped == 3) {
-            int s0 = cb < 256 ? r.silentStart[cb] : 0;
-            return s0 > 0 && s0 < C_DEL_FIRST ? s0 : C_DEL_FIRST;
-        }
-        if (depth == 0 && cb < 256 && r.silentStart[cb] > 0) return r.silentStart[cb];
-        if (depth > 0 && cb == pcb) return C_DEL_DOUBLE;
-        char[] sp = r.silPrev, sc = r.silChar;
-        for (int k = 0; k < sp.length; k++) {
-            if (sc[k] == cb && sp[k] == pcb) return r.silCost[k];
-        }
-        if (depth > 0 && cb < 256 && r.silentAny[cb] > 0) return r.silentAny[cb];
-        return C_DEL;
-    }
-
-    private long scoreFor(int freq, int cost) {
-        int n = Math.min(mN, 24);
-        double base = (double) freq * (double) (1L << (n + 1));
-        double s = base * Math.pow(2.0, -cost / 25.0);
-        if (s > Integer.MAX_VALUE / 8) s = Integer.MAX_VALUE / 8;
-        return (long) s;
-    }
-
-    private void offer(char[] word, int len, int freq, int cost) {
-        long score = scoreFor(freq, cost);
-        if (score <= 0) return;
-        insert(word, 0, len, score, cost);
-    }
-
-    private void insert(char[] word, int off, int len, long score, int cost) {
-        // repeated? keep the one with the highest score
-        for (int i = 0; i < mResCount; i++) {
-            if (mResLen[i] == len && same(mResWord[i], word, off, len)) {
-                if (score <= mResScore[i]) return;
-                remove(i);
-                break;
-            }
-        }
-        int at = mResCount;
-        while (at > 0 && mResScore[at - 1] < score) at--;
-        if (at >= MAX_RESULTS) return;
-        int last = Math.min(mResCount, MAX_RESULTS - 1);
-        for (int i = last; i > at; i--) {
-            char[] tmp = mResWord[i];
-            mResWord[i] = mResWord[i - 1];
-            mResWord[i - 1] = tmp;
-            mResLen[i] = mResLen[i - 1];
-            mResScore[i] = mResScore[i - 1];
-            mResCost[i] = mResCost[i - 1];
-        }
-        System.arraycopy(word, off, mResWord[at], 0, len);
-        mResLen[at] = len;
-        mResScore[at] = score;
-        mResCost[at] = cost;
-        if (mResCount < MAX_RESULTS) mResCount++;
-    }
-
-    private void remove(int i) {
-        char[] tmp = mResWord[i];
-        for (int k = i; k < mResCount - 1; k++) {
-            mResWord[k] = mResWord[k + 1];
-            mResLen[k] = mResLen[k + 1];
-            mResScore[k] = mResScore[k + 1];
-            mResCost[k] = mResCost[k + 1];
-        }
-        mResWord[mResCount - 1] = tmp;
-        mResCount--;
-    }
-
-    private static boolean same(char[] a, char[] b, int off, int len) {
-        for (int i = 0; i < len; i++) if (a[i] != b[off + i]) return false;
-        return true;
-    }
-
     void emit(Dictionary.WordCallback cb) {
         for (int i = 0; i < mResCount; i++) {
             long s = mResScore[i];
@@ -945,41 +551,10 @@ public final class MrFuzzy {
 
     // ------------------------------------------------------------------ missing space
 
-    private final char[] mSplitBuf = new char[MAX_WORD * 2 + 2];
-    private final char[] mLeftBuf = new char[MAX_WORD + 1];
     private final char[] mLookBuf = new char[MAX_WORD + 1];
     private final char[] mLookPath = new char[MAX_WORD + 1];
     private int mLookFreq;
     private int mLookLen;
-
-    private void split() {
-        int n = mN;
-        mGuard = 0;
-        long bestScore = 0;
-        int bestLen = 0;
-        for (int k = 1; k <= n - 2; k++) {
-            if (k == 1 && !oneLetterWord(mTb[0])) continue;
-            int fl = lookup(0, k);
-            if (fl <= 0) continue;
-            int leftLen = mLookLen;
-            System.arraycopy(mLookBuf, 0, mLeftBuf, 0, leftLen);
-            int fr = lookup(k, n);
-            if (fr <= 0) continue;
-            long score = scoreFor(Math.min(fl, fr), C_SPLIT);
-            if (score > bestScore) {
-                bestScore = score;
-                System.arraycopy(mLeftBuf, 0, mSplitBuf, 0, leftLen);
-                mSplitBuf[leftLen] = ' ';
-                System.arraycopy(mLookBuf, 0, mSplitBuf, leftLen + 1, mLookLen);
-                bestLen = leftLen + 1 + mLookLen;
-            }
-        }
-        if (bestLen > 0) insert(mSplitBuf, 0, bestLen, bestScore, C_SPLIT);
-    }
-
-    private boolean oneLetterWord(char b) {
-        return b < 256 && mR.oneLetter[b];
-    }
 
     /** Looks up mTb[from..to) in the trie ignoring accents; keeps the most frequent spelling in mLookBuf. */
     private int lookup(int from, int to) {

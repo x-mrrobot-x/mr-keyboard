@@ -168,7 +168,7 @@ public class ImportEval {
         buf.put(bytes);
         buf.rewind();
         MrRules.set(MrRules.parse(new FileInputStream(new File(dir, "rules.txt"))));
-        MrTrigram.load(new FileInputStream(new File(dir, "trigrams.bin")));
+        E2ETest.openTrigrams(new File(dir, "trigrams.bin"));
         suggest = new Suggest(null, buf);
         E2ETest.suggest = suggest;
         suggest.setCorrectionMode(1);

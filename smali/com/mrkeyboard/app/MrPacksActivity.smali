@@ -1317,7 +1317,7 @@
 
     .line 156
     :cond_5
-    const-string v0, "mr_engine_java"
+    const-string v0, "mr_engine_missing"
 
     goto :goto_5
 .end method

@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * PC test of the rules behind the screens "What the keyboard learned" and "Add words and texts" (MrLearned on a MrMemStore, v1.85): saving an import
  * with its caps, undo, block, forget, edit, the export that is also the backup, and what the keyboard loads. The SQLite store (MrSqlStore) needs
- * Android and is checked on the device (checklist in docs/plan-suggestions.md). Runs through docs/tools/run_java_tests.sh.
+ * Android and is checked on the device (checklist in docs/suggestion-features.md). Runs through docs/tools/run_java_tests.sh.
  */
 public class LearnedStoreTest {
     static int ok = 0, fail = 0;

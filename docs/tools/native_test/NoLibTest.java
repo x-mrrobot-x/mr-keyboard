@@ -6,16 +6,15 @@ import java.nio.file.*;
 import java.util.*;
 
 /**
-* Native engine (1.77): the app without libmrengine.so must work the same as 1.76. This test runs in CI, where the lib
-* does not exist, and proves the Java fallback with the real dictionary and trigrams (dicts/pt-BR):
-*   - the lib does not load and MrNative says it is not ready, without throwing anything;
-*   - MrFuzzy.search gives the usual corrections;
-*   - MrTrigram.use() loads through the Java path and find() answers;
-*   - a search with the lib turned off (-Dmr.native=off) and with sForceJava give the same.
-* With the lib present (PC) the parity test is docs/tools/e2e/NativeParity.java.
+* Native engine (1.77; the only search since 1.87.0): the app on a device whose libmrengine.so does not load must not crash. This test runs in
+* CI, where the lib does not exist (java.library.path without it), with the real dictionary (dicts/pt-BR):
+*   - MrNative says it is not ready and never throws (ready, preload, search, triOpen);
+*   - MrFuzzy.search answers "no results" (the keyboard keeps typing and completing words, it only loses the correction by search);
+*   - MrTrigram opens nothing and find() answers 0 (the prediction goes on with the bigrams of the dictionary).
+* With the lib present (PC) the same code is checked by StrategyTest, E2E* and the evaluators.
 * Runs at the project root (needs dicts/pt-BR/main.dict, rules.txt and trigrams.bin).
  */
-public class NativeFallbackTest {
+public class NoLibTest {
     static int fails = 0, checks = 0;
 
     static void check(boolean ok, String what) {
@@ -68,48 +67,34 @@ public class NativeFallbackTest {
         boolean threw = false;
         boolean ready = true;
         try {
-            ready = MrNative.ready();
+            MrNative.preload();
+            ready = MrNative.ready();   // waits for the background load
         } catch (Throwable e) {
             threw = true;
         }
-        check(!threw, "MrNative.ready() without the lib does not throw");
+        check(!threw, "MrNative.preload()/ready() without the lib do not throw");
         check(!ready, "without the lib the native engine is not ready (the test runs without libmrengine.so on java.library.path)");
         check(MrNative.search(buf, bytes.length, 3, new char[20], new char[320], new int[20], MrRules.get(),
                 new char[490], new int[11], new long[5]) == -1, "search without the lib returns -1");
         check(!MrNative.triOpen(new File(dir, "trigrams.bin").getPath()), "triOpen without the lib returns false");
 
-        // 2) correction through Java
+        // 2) the correction search has no results, and nothing breaks
         MrFuzzy f = new MrFuzzy(buf, bytes.length);
-        String[][] cases = {{"vda", "vida"}, {"sepre", "sempre"}, {"durate", "durante"}, {"prte", "parte"}, {"agoa", "agora"},
-            {"obrigdo", "obrigado"}, {"porisso", "por isso"}};
-        for (String[] c : cases) {
-            String got = top(f, c[0]);
-            // words separated by a space; "por isso" is a single suggestion, so it is matched with the spaces at the ends
-            check((" " + got + " ").contains(" " + c[1] + " "), "Java corrects " + c[0] + " -> " + c[1] + "   [" + got + "]");
+        String[] typos = {"vda", "sepre", "durate", "prte", "agoa", "obrigdo", "porisso"};
+        for (String t : typos) {
+            String got = top(f, t);
+            check(got.isEmpty(), "no results for " + t + " without the lib   [" + got + "]");
         }
+        check(f.ownFrequency("casa") > 0, "the dictionary lookup (valid word) does not depend on the lib");
 
-        // 3) turning it off on purpose gives the same result
-        String base = top(f, "obrigdo");
-        MrNative.sForceJava = true;
-        check(top(f, "obrigdo").equals(base), "sForceJava does not change the result");
-        MrNative.sForceJava = false;
-
-        // 4) trigrams through Java, through the production path (use + thread)
+        // 3) trigrams: nothing opens, find answers 0
         File tri = new File(dir, "trigrams.bin");
-        MrTrigram.use(tri);
-        long end = System.currentTimeMillis() + 20000;
-        while (!MrTrigram.ready() && System.currentTimeMillis() < end) Thread.sleep(50);
-        check(MrTrigram.ready(), "trigrams load through Java when the lib does not open the file");
-        // a context that exists in the file: first entry of any pair with a continuation
+        check(!MrTrigram.useNow(tri), "trigrams do not open without the lib");
+        check(!MrTrigram.ready(), "MrTrigram is not ready without the lib");
         String[] w = new String[3];
         int[] s = new int[3];
-        int found = 0;
-        String[][] pairs = {{"de", "acordo"}, {"por", "causa"}, {"no", "entanto"}, {"em", "relação"}, {"de", "forma"}, {"a", "partir"},
-            {"não", "é"}, {"o", "que"}, {"é", "um"}, {"que", "o"}};
-        for (String[] p : pairs) if (MrTrigram.find(p[0], p[1], w, s) > 0) found++;
-        check(found > 0, "MrTrigram.find answers through Java (" + found + " of " + pairs.length + " pairs with a continuation)");
+        check(MrTrigram.find("de", "acordo", w, s) == 0, "MrTrigram.find answers 0 without the lib");
         MrTrigram.use(null);
-        check(!MrTrigram.ready(), "use(null) unloads");
 
         System.out.println(fails == 0 ? "ALL OK (" + checks + " checks)" : fails + " FAILURE(S) out of " + checks + " checks");
         System.exit(fails == 0 ? 0 : 1);

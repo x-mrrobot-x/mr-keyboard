@@ -23,7 +23,7 @@ public class RecentEval {
         buf.put(bytes); buf.rewind();
         File dir = new File(a[0]).getAbsoluteFile().getParentFile();
         MrRules.set(MrRules.parse(new FileInputStream(new File(dir, "rules.txt"))));
-        MrTrigram.load(new FileInputStream(a[1]));
+        E2ETest.openTrigrams(new File(a[1]));
         E2ETest.suggest = new Suggest(null, buf);
         Suggest s = E2ETest.suggest;
         String rowsProp = System.getProperty("rows");

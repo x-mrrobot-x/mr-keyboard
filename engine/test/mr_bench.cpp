@@ -1,5 +1,5 @@
 // Speed of the C++ search with the test queries and the real dictionaries (dicts/). Usage: mr_bench dicts_dir [rounds]
-// The comparison with Java (same queries, through the JNI) is in docs/tools/e2e/NativeParity.java.
+// The speed through the JNI, with the app's real tables and rules, is measured by docs/tools/e2e/SpeedEval.java.
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>

@@ -148,12 +148,12 @@ public class MrPacksActivity extends PreferenceActivity {
         hint.setSelectable(false);
         hint.setSummary(t("mr_dicts_langs_hint"));
         mLangs.addPreference(hint);
-        // v1.77: says which engine is in use (the Java fallback is silent; this way you can check whether the lib was copied)
+        // v1.77: says whether the native engine is in use (since 1.87.0 there is no Java fallback; this way you can check whether the lib was copied)
         Preference engine = new Preference(this);
         engine.setPersistent(false);
         engine.setSelectable(false);
         engine.setTitle(t("mr_engine_title"));
-        engine.setSummary(t(MrNative.ready() ? "mr_engine_native" : "mr_engine_java"));
+        engine.setSummary(t(MrNative.ready() ? "mr_engine_native" : "mr_engine_missing"));
         mLangs.addPreference(engine);
         MrPacks.syncLanguages(this, ids);
         update();

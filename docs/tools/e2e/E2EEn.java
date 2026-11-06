@@ -19,7 +19,7 @@ public class E2EEn {
         java.io.File dir = new java.io.File(a[0]).getAbsoluteFile().getParentFile();
         MrRules.set(MrRules.parse(new FileInputStream(new java.io.File(dir, "rules.txt"))));
         java.io.File tri = new java.io.File(dir, "trigrams.bin");
-        if (tri.isFile()) MrTrigram.load(new FileInputStream(tri));
+        if (tri.isFile()) E2ETest.openTrigrams(tri);
         E2ETest.suggest = new Suggest(null, buf);
         Suggest s = E2ETest.suggest;
         s.setCorrectionMode(1);

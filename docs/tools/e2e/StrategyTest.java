@@ -142,7 +142,7 @@ public class StrategyTest {
         buf.put(bytes);
         buf.rewind();
         MrRules.set(MrRules.parse(new FileInputStream(new File(dir, "rules.txt"))));
-        MrTrigram.load(new FileInputStream(new File(dir, "trigrams.bin")));
+        E2ETest.openTrigrams(new File(dir, "trigrams.bin"));
         suggest = new Suggest(null, buf);
         E2ETest.suggest = suggest;   // the helpers of E2ETest (sugg, compose) use this one
         suggest.setCorrectionMode(1);

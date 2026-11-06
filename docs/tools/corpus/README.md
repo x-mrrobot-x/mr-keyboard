@@ -1,4 +1,4 @@
-# Rebuilding a dictionary pack from the corpora (phase 4 of `plan-suggestions.md`)
+# Rebuilding a dictionary pack from the corpora (the rebuild of 1.86.1, results in `docs/dictionary-tuning.md`)
 
 The text of the corpora is never in the repository and never in a pack: only counts leave it. What is here are the scripts; the corpora are
 downloaded by a GitHub runner (below) and the work files stay in a scratch folder.
@@ -56,7 +56,7 @@ form of a word of the list is never a new word (`dont` would stop the correction
 swear words (`fuckin`, `shitty`) get f = 5; the other languages' lists only judge short words without a hyphen (they hold `barista`, `quinoa` and `e-mails` too); and a capitalised word that has a lowercase
 twin (`Nice`, `Good`, `Hi`, `Will`) counts only the occurrences inside a sentence, because the capital at the start of a sentence is the twin (without it `Nice` took a slot of the strip next to `nice`). It needs
 about 3 GB of RAM and 8 minutes.
-The tuning that led to these values (what each option did on the three hold-outs) is in `plan-suggestions.md`, Phase 4. Writes `main.combined.gz`, `trigrams.bin`, `words.tsv` and `report.txt` (what it did and the lists of new words, to be read by a person). It needs about 3 GB of RAM
+The tuning that led to these values (what each option did on the three hold-outs) is in `docs/dictionary-tuning.md`. Writes `main.combined.gz`, `trigrams.bin`, `words.tsv` and `report.txt` (what it did and the lists of new words, to be read by a person). It needs about 3 GB of RAM
 and 8 minutes for the Spanish sample; do not run two at once on a small machine.
 
 The sources are weighted so that after the weighting each one has its share of the mass (`--mix`); the real counts still decide what is allowed in. The
@@ -70,4 +70,4 @@ another language that the subtitles quote (`FOREIGN`) and the accent-free form o
 `SubtitleEval` reads a plain text file, one sentence per line (docs/tools/e2e/README.md). Use the three hold-outs (subtitles, Tatoeba, news) so a gain in one
 register does not hide a loss in another; an old pack must be compared with a pack rebuilt by the **old scripts on the same splits**
 (`make_wordlist_lang.py` + `make_trigrams.py`, news weight 1, Tatoeba weight 3), because the shipped pack has seen the sentences of its own export.
-Then `run_strategy_tests.sh` (S1-S29, the data checks and the floors of S28) and `run_native_parity.sh` with `DICTS=<folder with the new pack>`.
+Then `run_strategy_tests.sh` (S1-S29, the data checks and the floors of S28) with `DICTS=<folder with the new pack>`.

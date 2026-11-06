@@ -1,6 +1,6 @@
 # Suggestion engine and dictionaries: remaining improvements
 
-Updated after 1.84.0. The current plan that absorbs the items below (context while typing, new everyday data, format v2, the two "My words" screens) is `plan-suggestions.md`. The numbers come from the PC measurements (`docs/tools/e2e/`, see the `README.md` there) and from the notes of each version (`docs/release-notes/` and the Git history).
+Updated after 1.87.0. The plan of 1.84.0 to 1.87.0 (context while typing, new everyday data, format v2, the two "My words" screens, the closing) is finished and was deleted; what it delivered is in `suggestion-features.md` and `dictionary-tuning.md`. The numbers come from the PC measurements (`docs/tools/e2e/`, see the `README.md` there) and from the notes of each version (`docs/release-notes/` and the Git history).
 
 ## Already done
 | Item | What it was | Version |
@@ -11,18 +11,15 @@ Updated after 1.84.0. The current plan that absorbs the items below (context whi
 | 4 (part) | Chat words and apps in `rules.txt` (`flw`, `fmz`, `wpp`, `whatsapp`, `uber`, `ifood`, `tiktok`..., WhatsApp spellings in en/es, `visavis` target); the rest needs data | 1.84 (packs pt-BR 5, en-US 4, es 3) |
 | 8 | Accuracy test in CI: 133 original everyday sentences per language with a floor per rate (S28), `PacksTest` (75 checks) and `ThreeLangTest` (23) in `mr-checks.yml`; the strategy runner no longer hides failures | 1.84 |
 | - | Context kept while typing (`MrPredict.complete`) and the suggestion for a valid word that is probably another (`MrFuzzy.alternative`) | 1.84 |
-| 9a | Native engine, stage 1: the correction search and the trigrams in C++ (`libmrengine.so`, repository `mr-engine`), same files, result identical to Java's, with Java as the fallback | 1.77 (code) and 1.77.1 (lib in the APK); gains measured on the PC, operation validated on the device (speed and memory on the device were not measured) |
+| 2 | Smoothing of the prediction: trigram, pair and unigram evaluated on the hold-out sentences; the fixed `TRIGRAM_BONUS` is already the best of the variants (a mix of probabilities loses 0.8 to 2.4 points after the space) | phase 5 of the plan, no code change (numbers in `suggestion-features.md`, "Known gaps") |
+| 9a | Native engine, stage 1: the correction search and the trigrams in C++ (`libmrengine.so`, repository `mr-engine`), same files, result identical to Java's, with Java as the fallback (the Java copy was removed in 1.87.0, see 9c) | 1.77 (code) and 1.77.1 (lib in the APK); gains measured on the PC, operation validated on the device (speed and memory on the device were not measured) |
+| 9c | The Java copy of the correction search and of the trigram reader was removed from the app and from the tests (decided with the owner): the lib is the only engine, loaded when the keyboard opens a dictionary; a device whose lib does not load keeps typing and completing words but has no correction by search and no two-word prediction | 1.87.0 (`native-engine.md`) |
 
 ## What remains, from the cheapest to the most expensive
 
 ### Small, measurable on the PC
-**2. Smoothing of the prediction.**
-- Today the right word shows up among the 3 suggestions after the space in about 18 to 27% of the cases.
-- The two-word file uses a fixed bonus (`TRIGRAM_BONUS`); there is room for a better calculation between two words, one word and frequency.
-- A prediction evaluator without sessions is missing (`RecentEval` only measures the effect of recent words).
-
 **4. Slang and abbreviations in `rules.txt`.**
-- Done in 1.84 for what the dictionaries already know (see "Already done"). What is left needs data: words the dictionary lacks (en `tiktok`, pt `pix`) and the frequency of chat words (`tá`, `né`, `oi`), which the dictionary rebuild of `plan-suggestions.md` (phase 4) addresses.
+- Done in 1.84 for what the dictionaries already know (see "Already done"). The frequency of the chat words (`tá`, `tô`, `né`, `oi`) was fixed by the new pt-BR 6 pack (1.86.1). What is left needs data: words the dictionary lacks (en `tiktok`, pt `pix`).
 
 ### Medium
 **6. Finger position.**
@@ -39,13 +36,6 @@ Updated after 1.84.0. The current plan that absorbs the items below (context whi
 - What was missing is what only a new format solves: removing the 4 MB limit (22 address bits) of the `.dict` and storing more data per word. **Done in 1.86.0** (format v2, up to 16 MB, see `dictionary-build.md`); storing more data per word is still open.
 - It only pays off for new data (for example, Leipzig News 2023): more pairs alone yield little (480 thousand instead of 400 thousand gave only +0.2 to +0.4 point, in 1.6.4). It would require regenerating the three packs and changing the app and the engine together.
 
-**9c. Remove the Java fallback of the search? (open; to be decided with the user at the end of `plan-suggestions.md`)**
-- Today `MrFuzzy.search`/`walk`/`split`/`isPrefix` (about half of the 1038 lines of `MrFuzzy.java`) and `MrTrigram.find` run only when `MrNative` answers "not ready": the first keystrokes after the process starts (`readyNow()` never waits; the lib loads in a background thread), a query the lib refuses, or a lib that does not load. The costs, the rules, `alternative` and `afterWords` stay in Java in any case (they are the source of truth that is handed to the lib).
-- The Java search is also the reference of `run_native_parity.sh`: it is what proved "0 differences" for the C++ readers of the format v2 in 1.86.0. Dropping it from the app does not have to drop it from the tests.
-- What it would save: a few tens of KB of dex (`MrFuzzy.smali` 116 KB with the parts that stay, `MrTrigram.smali` 22 KB); no speed (the native path is already the one used) and no maintenance, while the algorithm is still written twice for the parity test.
-- Option that keeps the tests: move the Java search and `MrTrigram.find` to the test tree (`docs/tools/e2e/`), ship only the native engine, load the lib synchronously on the first key and change the line "Motor de sugestões" of the settings. Rolling back to Java (`native-engine.md`) would no longer be possible.
-- Reason to keep it as it is: the fallback is stable code, the lib and `libjni_pckeyboard.so` come from the same ABI list (a device that cannot load one will probably not load the other), and removing it only trades a safety net for a smaller APK.
-
 **10. Data closer to phone conversation.**
 - The dictionaries come from news and Tatoeba.
 - The limit is finding a freely licensed chat corpus.
@@ -57,6 +47,5 @@ Updated after 1.84.0. The current plan that absorbs the items below (context whi
 - **Mixed language** (Portuguese and English in the same sentence, with both dictionaries downloaded): I have not yet checked in the code how the keyboard behaves.
 
 ## Suggested order
-1. **Smoothing of the prediction (2)**, measured on the PC before it goes into the app (phase 5 of `plan-suggestions.md`).
-2. **Finger position (6)** and **forgetting over time (7)**, if the test on the device shows a need (7 is in phase 2 of the plan: "What the keyboard learned").
-3. **New dictionary format (9b)** and **chat data (10)**: phases 3 and 4 of the plan.
+1. **Finger position (6)** and **forgetting over time (7)**, if the test on the device shows a need (7 is in phase 2 of the plan: "What the keyboard learned").
+2. **New dictionary format (9b)** and **chat data (10)**: phases 3 and 4 of the plan.

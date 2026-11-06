@@ -109,7 +109,7 @@ public class SubtitleEval {
         buf.put(bytes);
         buf.rewind();
         MrRules.set(MrRules.parse(new FileInputStream(new File(dir, "rules.txt"))));
-        MrTrigram.load(new FileInputStream(new File(dir, "trigrams.bin")));
+        E2ETest.openTrigrams(new File(dir, "trigrams.bin"));
         E2ETest.suggest = new Suggest(null, buf);
         E2ETest.suggest.setCorrectionMode(1);
         int minWords = Integer.getInteger("min", 3);

@@ -27,10 +27,8 @@
 #   verify_dex.sh        the dex2jar verifier finds no error in the assembled dex
 #   smali_regcheck.py    again, on the smali decoded from the assembled APK
 #   run_java_tests.sh    with the APK jar: Spanish tests (SheetStrings/MrEs)
-#   run_native_parity.sh native engine (engine/): correction search, suggestion list and trigrams through Java and through the
-#                        PC libmrengine.so must give the same result in the 3 languages, with the dictionaries in dicts/
-#   run_strategy_tests.sh one check per suggestion strategy (docs/suggestion-features.md, ids S1...), 3 languages, native engine and
-#                        Java fallback, with the dictionaries in dicts/ (a change in dicts/ alone also starts the checks); S28 types
+#   run_strategy_tests.sh one check per suggestion strategy (docs/suggestion-features.md, ids S1...), 3 languages, native engine (the only
+#                        search since 1.87.0), with the dictionaries in dicts/ (a change in dicts/ alone also starts the checks); S28 types
 #                        original everyday sentences (docs/tools/e2e/data/) and fails when a hit rate falls under its floor
 #   packs_test/run_packs_tests.sh  the dictionary download flow (signed catalog, tampered or truncated zips, install, update, remove, the
 #                        keyboard languages) and the 3 installed languages, with a test key made on the spot and the packs of dicts/
@@ -164,13 +162,7 @@ jobs:
       - name: Spanish tests with the APK jar
         run: sh docs/tools/run_java_tests.sh "$RUNNER_TEMP/dex/classes.jar"
 
-      - name: Native engine - live Java x C++ parity (3 languages, dictionaries from dicts/)
-        env:
-          WORDS: '1200'
-          SUGG: '1000'
-        run: bash docs/tools/e2e/run_native_parity.sh "$RUNNER_TEMP/dex/classes.jar"
-
-      - name: Suggestion strategies - one check per strategy (3 languages, native and Java)
+      - name: Suggestion strategies - one check per strategy (3 languages, native engine)
         run: bash docs/tools/e2e/run_strategy_tests.sh "$RUNNER_TEMP/dex/classes.jar"
 
       - name: Dictionary format v2 - builder (a 14 MB synthetic dictionary, round trips) and the C++ reader (every word and pair)
@@ -183,12 +175,10 @@ jobs:
           bash docs/tools/dict_readback.sh "$RUNNER_TEMP/host-native/dict_test" "$RUNNER_TEMP/dicts_v2"
           bash docs/tools/dict_readback.sh "$RUNNER_TEMP/host-native/dict_test" "$RUNNER_TEMP/big"
 
-      - name: Dictionary format v2 - Java x C++ parity and suggestion strategies on a copy of dicts/ in v2 (3 languages)
+      - name: Dictionary format v2 - suggestion strategies on a copy of dicts/ in v2 (3 languages)
         env:
           DICTS: ${{ runner.temp }}/dicts_v2
-        run: |
-          WORDS=1200 SUGG=1000 OUT="$RUNNER_TEMP/parity_v2" bash docs/tools/e2e/run_native_parity.sh "$RUNNER_TEMP/dex/classes.jar"
-          OUT="$RUNNER_TEMP/strategy_v2" bash docs/tools/e2e/run_strategy_tests.sh "$RUNNER_TEMP/dex/classes.jar"
+        run: OUT="$RUNNER_TEMP/strategy_v2" bash docs/tools/e2e/run_strategy_tests.sh "$RUNNER_TEMP/dex/classes.jar"
 
       - name: Dictionary packs - download flow and the 3 installed languages (PC, test key)
         run: bash docs/tools/packs_test/run_packs_tests.sh "$RUNNER_TEMP/dex/classes.jar"

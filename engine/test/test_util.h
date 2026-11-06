@@ -1,9 +1,9 @@
 // Functions shared by the test and measurement programs (mr_test, mr_bench).
 //
-// These C++ tests do NOT prove that the result equals the Java one: for that the tables and rules would have to come from the
-// app's Java. What proves it is docs/tools/e2e/NativeParity.java (Java vs C++ live, through the JNI, with the dicts/ dictionaries),
-// which runs in the app CI. Here the letter tables and rules are APPROXIMATE (ASCII + Latin-1) and serve to exercise the
-// search, corrupt files, trigram reading and edge cases, with ASan/UBSan.
+// These C++ tests use APPROXIMATE letter tables and rules (ASCII + Latin-1): they do not reproduce the app's real ones, which come
+// from the Java at start-up. The real tables and rules are exercised by docs/tools/e2e/StrategyTest.java through the JNI, with the
+// dicts/ dictionaries, in the app CI. Here they serve to exercise the search, corrupt files, trigram reading and edge cases,
+// with ASan/UBSan.
 #pragma once
 
 #include <algorithm>

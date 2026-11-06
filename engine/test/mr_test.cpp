@@ -6,7 +6,7 @@
 //   2. a query does not depend on what came before (old dynamic-programming state does not leak);
 //   3. corrupt dictionary and trigrams.bin (truncated, swapped bytes, garbage): nothing may crash, read out of the file or hang;
 //   4. 2-byte character (0xFF + 2) in the dictionary, UTF-8, limits, invalid trigram files.
-// What it does NOT prove: a result identical to Java. That is up to docs/tools/e2e/NativeParity.java (live, with the Java tables).
+// What it does NOT prove: the result with the app's real tables and rules. That is up to docs/tools/e2e/StrategyTest.java (live, through the JNI).
 // With -DMR_SANITIZE=ON, out-of-bounds accesses and undefined behaviour become errors.
 #include <algorithm>
 #include <chrono>
@@ -349,7 +349,7 @@ int main(int argc, char** argv) {
     approxTables(tables);
     Rules rules;
     approxRules(rules);
-    std::printf("engine contract: version %d, %d costs, node limit %d (approximate tables and rules: parity with Java is NativeParity's job)\n",
+    std::printf("engine contract: version %d, %d costs, node limit %d (approximate tables and rules: the real ones are StrategyTest's job)\n",
                 kEngineVersion, Costs::kCount, tables.costs.nodeBudget);
     edgeCases(tables);
     std::vector<Lang> langs = languages();

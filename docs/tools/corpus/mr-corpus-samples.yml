@@ -1,4 +1,4 @@
-# Mr Keyboard: downloads the text corpora of the dictionary rebuild (plan-suggestions.md, phase 4) on a GitHub runner and keeps only
+# Mr Keyboard: downloads the text corpora of the dictionary rebuild (docs/dictionary-tuning.md) on a GitHub runner and keeps only
 # what the counts need, so nothing of 2 GB has to go through a phone.
 #
 # NOT part of the project's own workflows (that is why it lives in docs/tools/corpus/ and not in .github/workflows/): copy this file to

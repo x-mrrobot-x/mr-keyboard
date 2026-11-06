@@ -8,8 +8,8 @@ import java.util.Arrays;
 /**
  * JNI bridge test without the app: loads libmrengine.so, hands over tables and rules built here (with the Character of
  * Java, as the app's MrNative does), searches the real dictionary and checks bad arguments (non-direct buffer, short arrays,
- * missing file): a clean failure instead of a crash. A result exactly equal to Java's is NOT checked here: that is the job of
- * docs/tools/e2e/NativeParity.java (which uses the app's real classes).
+ * missing file): a clean failure instead of a crash. The behaviour of the app through the lib is NOT checked here: that is the job of
+ * docs/tools/e2e/StrategyTest.java (which uses the app's real classes).
  *
  * Usage: java -cp classes_dir com.mrkeyboard.app.JniSmoke path/libmrengine.so dicts_dir
  */

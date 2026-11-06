@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  * Pure Java, no Android: the PC test (ImportTest) runs it. Nothing is saved here; MrLearned.apply saves what the user keeps in the preview.
  *
  * Two kinds of material:
- *  - the standard list ("Mr Keyboard word list", docs/plan-suggestions.md, Phase 2): a header "# mr-words 1", sections [words], [phrases], [blocked]
+ *  - the standard list ("Mr Keyboard word list", docs/suggestion-features.md, "The two screens"): a header "# mr-words 1", sections [words], [phrases], [blocked]
  *    ([shortcuts] is read but left out: it comes in a later version). Every line is checked and counted.
  *  - free text (anything else): split in sentences; links, e-mails, phone numbers, numbers, WhatsApp/Telegram line prefixes, laughs and repeated
  *    letters are dropped. A word is kept only if the main dictionary does not know it and it appears at least twice (once when written with a capital

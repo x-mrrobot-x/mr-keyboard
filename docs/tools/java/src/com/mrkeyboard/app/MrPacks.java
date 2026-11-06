@@ -862,6 +862,7 @@ public final class MrPacks {
     }
 
     static synchronized void activate(File dir) {
+        MrNative.preload();   // v1.87.0: the native engine is the only search; load it now, in the background, not on the first key
         String path = dir != null ? dir.getPath() : null;
         if (path == null) {
             MrRules.set(null);

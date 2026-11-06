@@ -1,7 +1,7 @@
 #!/bin/bash
 # One check per suggestion strategy, in the three languages, with the dictionaries from dicts/ (no corpus needed).
 # Runs StrategyTest (docs/suggestion-features.md lists the strategies) and the older end-to-end checks (E2ETest, E2EEn, E2EEs),
-# through the native engine and through the Java fallback. Runs in CI (mr-checks.yml) and on the PC.
+# through the native engine (the only search since 1.87.0; there is no Java engine to compare with). Runs in CI (mr-checks.yml) and on the PC.
 #
 # From the project root:
 #   bash docs/tools/e2e/run_strategy_tests.sh [app_jar.jar]
@@ -40,13 +40,10 @@ run() { java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote -Dfi
 
 DICTS=${DICTS:-dicts}   # a copy in the dictionary format v2: docs/tools/make_v2_dicts.py
 FAILED=0
-for MODE in native java; do
-  OPT=""; [ "$MODE" = java ] && OPT="-Dmr.native=off"
-  for L in pt-BR en-US es; do
-    echo "================ $L ($MODE)"
-    case $L in pt-BR) OLD=E2ETest;; en-US) OLD=E2EEn;; es) OLD=E2EEs;; esac
-    run $OPT -cp "$CP" com.mrkeyboard.app.$OLD $DICTS/$L/main.dict - 1 $DICTS/$L/trigrams.bin | grep -E "FAIL|ALL OK|FAILURE" || FAILED=1
-    run $OPT -cp "$CP" com.mrkeyboard.app.StrategyTest $L "$DICTS" | grep -v "^Picked" || FAILED=1
-  done
+for L in pt-BR en-US es; do
+  echo "================ $L"
+  case $L in pt-BR) OLD=E2ETest;; en-US) OLD=E2EEn;; es) OLD=E2EEs;; esac
+  run -cp "$CP" com.mrkeyboard.app.$OLD $DICTS/$L/main.dict - 1 $DICTS/$L/trigrams.bin | grep -E "FAIL|ALL OK|FAILURE" || FAILED=1
+  run -cp "$CP" com.mrkeyboard.app.StrategyTest $L "$DICTS" | grep -v "^Picked" || FAILED=1
 done
 exit $FAILED

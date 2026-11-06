@@ -22,7 +22,7 @@ unset JAVA_TOOL_OPTIONS
 mkdir -p "$OUT"
 
 # ---- native PC libs: libjni_pckeyboard.so (native/, the same dictionary.cpp) and libmrengine.so (engine/, native engine).
-# With both on java.library.path the measurements use the native engine (result identical to Java's); JAVA_OPTS=-Dmr.native=off forces Java.
+# With both on java.library.path the measurements use the native engine (the only search since 1.87.0).
 if [ ! -f "$OUT/host/libjni_pckeyboard.so" ]; then
   cmake -S native -B "$OUT/host" -DCMAKE_BUILD_TYPE=Release > "$OUT/cmake.log" 2>&1
   cmake --build "$OUT/host" >> "$OUT/cmake.log" 2>&1

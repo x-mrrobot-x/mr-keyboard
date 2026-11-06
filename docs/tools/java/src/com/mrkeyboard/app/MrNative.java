@@ -3,16 +3,18 @@ package com.mrkeyboard.app;
 import java.nio.ByteBuffer;
 
 /**
- * Native engine (v1.77, step 1): the correction search of MrFuzzy and the trigram lookup of MrTrigram
- * done in C++ (libmrengine.so, built from engine/). This class only loads the lib, hands over the costs and the
+ * Native engine (v1.77; the only implementation since v1.87.0): the correction search of MrFuzzy and the trigram lookup of
+ * MrTrigram done in C++ (libmrengine.so, built from engine/). This class loads the lib, hands over the costs and the
  * rules and acts as the bridge; Java decides:
- *   - without the lib (not copied to lib/<abi>/, ABI without it, different contract version, any error while
- *     loading) everything goes through the Java code as before, with no warning and no loss of function;
+ *   - the lib is loaded once per process, in the background, as soon as the keyboard opens a dictionary (MrPacks.activate calls
+ *     preload()); a query that arrives before it has finished waits for it (ready());
+ *   - without the lib (not copied to lib/<abi>/, ABI without it, different contract version, any error while loading) the
+ *     searches answer "no result": the keyboard keeps typing and completing words (libjni_pckeyboard.so) but has no
+ *     correction by search and no two-word prediction. The settings screen says so;
  *   - the source of truth for costs, rules and letter tables stays in Java: here they are
- *     handed to the lib once (init) or when the language pack changes (rules);
- *   - the result of the native path is identical to Java's (parity test: docs/tools/e2e/NativeParity.java).
+ *     handed to the lib once (init) or when the language pack changes (rules).
  *
- * Turning it off on purpose (tests): -Dmr.native=off, or MrNative.sForceJava = true.
+ * Simulating a lib that does not load (tests): -Dmr.native=off.
  */
 public final class MrNative {
     private MrNative() { }
@@ -33,30 +35,18 @@ public final class MrNative {
     private static boolean sPreloading;
     private static MrRules sPushed;
 
-    /** Tests and diagnostics: true makes everything go through Java even with the lib loaded. */
-    static volatile boolean sForceJava;
-
-    /** Is the lib loaded, in the right version and with the tables handed over? */
+    /**
+     * Is the lib loaded, in the right version and with the tables handed over? If the load is in progress (preload) or has not started, it
+     * waits for it (load() is synchronized): the first query after a cold start can wait a few milliseconds, never more than once.
+     */
     static boolean ready() {
-        if (sForceJava) return false;
         int s = sState;
         if (s == UNKNOWN) return load();
         return s == READY;
     }
 
-    /**
-     * For typing: never waits for the load. If it has not tried to load the lib yet, it starts the load in the background and
-     * answers false (this query goes through Java, which gives the same result); the next ones already use the lib.
-     */
-    private static boolean readyNow() {
-        if (sForceJava) return false;
-        int s = sState;
-        if (s == READY) return true;
-        if (s == UNKNOWN) preload();
-        return false;
-    }
-
-    private static synchronized void preload() {
+    /** Starts the load in the background (once). Called when the keyboard opens a dictionary, so that the first key does not wait. */
+    static synchronized void preload() {
         if (sPreloading || sState != UNKNOWN) return;
         sPreloading = true;
         Thread t = new Thread(new Runnable() {
@@ -160,11 +150,11 @@ public final class MrNative {
     /**
      * Correction search in C++. Returns how many results (0 to 5) were written to outWords (result i starting at
      * i * RESULT_CHARS), outInfo (0 = visited nodes; then length and cost of each) and outScores, or -1 if
-     * it was not possible (the caller then uses Java).
+     * it was not possible (no lib, a query it refuses): the caller then has no results.
      */
     static int search(ByteBuffer dict, int size, int n, char[] tb, char[] near, int[] nearCount, MrRules rules,
                       char[] outWords, int[] outInfo, long[] outScores) {
-        if (!readyNow() || dict == null || rules == null) return -1;
+        if (!ready() || dict == null || rules == null) return -1;
         try {
             synchronized (MrNative.class) {
                 if (sPushed != rules) {
@@ -179,7 +169,7 @@ public final class MrNative {
         }
     }
 
-    /** Opens trigrams.bin in the lib. false = it did not open (bad file or no lib): MrTrigram uses Java. */
+    /** Opens trigrams.bin in the lib. false = it did not open (bad file or no lib): there is no two-word prediction. */
     static boolean triOpen(String path) {
         if (!ready()) return false;
         try {

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cleans and splits the text corpora of one language for the dictionary rebuild (plan-suggestions.md, phase 4).
+"""Cleans and splits the text corpora of one language for the dictionary rebuild (docs/dictionary-tuning.md).
 
 Usage:
   python3 -I prepare_corpus.py --lang es --subs es.opensubtitles.sample.txt.gz --tatoeba es.tatoeba.tsv.bz2 \
