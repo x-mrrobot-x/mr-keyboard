@@ -17,6 +17,8 @@
 
 
 # static fields
+.field private static final BLANKS:Ljava/util/regex/Pattern;
+
 .field private static final CHAT_PREFIX:Ljava/util/regex/Pattern;
 
 .field private static final DIGIT:Ljava/util/regex/Pattern;
@@ -26,6 +28,8 @@
 .field private static final EMAIL:Ljava/util/regex/Pattern;
 
 .field private static final LAUGH:Ljava/util/regex/Pattern;
+
+.field private static final LONG_DIGITS:Ljava/util/regex/Pattern;
 
 .field static final MAX_IGNORED_KEPT:I = 0xc8
 
@@ -154,6 +158,24 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrImport;->RUN:Ljava/util/regex/Pattern;
 
+    .line 357
+    const-string v0, "\\d{4,}"
+
+    invoke-static {v0}, Ljava/util/regex/Pattern;->compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
+
+    move-result-object v0
+
+    sput-object v0, Lcom/mrkeyboard/app/MrImport;->LONG_DIGITS:Ljava/util/regex/Pattern;
+
+    .line 358
+    const-string v0, "[ \\t]+"
+
+    invoke-static {v0}, Ljava/util/regex/Pattern;->compile(Ljava/lang/String;)Ljava/util/regex/Pattern;
+
+    move-result-object v0
+
+    sput-object v0, Lcom/mrkeyboard/app/MrImport;->BLANKS:Ljava/util/regex/Pattern;
+
     return-void
 .end method
 
@@ -279,7 +301,7 @@
     .locals 2
 
     .prologue
-    .line 358
+    .line 387
     sget-object v0, Lcom/mrkeyboard/app/MrImport;->URL:Ljava/util/regex/Pattern;
 
     invoke-virtual {v0, p0}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
@@ -292,7 +314,7 @@
 
     move-result-object v0
 
-    .line 359
+    .line 388
     sget-object v1, Lcom/mrkeyboard/app/MrImport;->EMAIL:Ljava/util/regex/Pattern;
 
     invoke-virtual {v1, v0}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
@@ -305,7 +327,7 @@
 
     move-result-object v0
 
-    .line 360
+    .line 389
     sget-object v1, Lcom/mrkeyboard/app/MrImport;->PHONE:Ljava/util/regex/Pattern;
 
     invoke-virtual {v1, v0}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
@@ -318,7 +340,7 @@
 
     move-result-object v0
 
-    .line 361
+    .line 390
     return-object v0
 .end method
 
@@ -579,7 +601,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 527
+    .line 556
     move v0, v1
 
     :goto_0
@@ -589,12 +611,12 @@
 
     if-ge v0, v2, :cond_1
 
-    .line 528
+    .line 557
     invoke-virtual {p0, v0}, Ljava/lang/String;->charAt(I)C
 
     move-result v2
 
-    .line 529
+    .line 558
     const/16 v3, 0x2e
 
     if-eq v2, v3, :cond_0
@@ -622,11 +644,11 @@
     :cond_0
     const/4 v1, 0x1
 
-    .line 531
+    .line 560
     :cond_1
     return v1
 
-    .line 527
+    .line 556
     :cond_2
     add-int/lit8 v0, v0, 0x1
 
@@ -650,7 +672,7 @@
     .end annotation
 
     .prologue
-    .line 523
+    .line 552
     invoke-virtual {p1}, Ljava/util/ArrayList;->size()I
 
     move-result v0
@@ -671,7 +693,7 @@
 
     invoke-virtual {p0, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 524
+    .line 553
     :cond_0
     return-void
 .end method
@@ -682,7 +704,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 371
+    .line 400
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
     move-result v1
@@ -726,7 +748,7 @@
     .locals 1
 
     .prologue
-    .line 375
+    .line 404
     sget-object v0, Lcom/mrkeyboard/app/MrImport;->LAUGH:Ljava/util/regex/Pattern;
 
     invoke-virtual {v0, p0}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
@@ -927,17 +949,17 @@
 
     const/4 v1, 0x0
 
-    .line 379
+    .line 408
     if-nez p0, :cond_1
 
     move v0, v1
 
-    .line 382
+    .line 411
     :cond_0
     :goto_0
     return v0
 
-    .line 380
+    .line 409
     :cond_1
     invoke-interface {p0, p1}, Lcom/mrkeyboard/app/MrImport$Known;->knows(Ljava/lang/String;)Z
 
@@ -945,14 +967,14 @@
 
     if-nez v2, :cond_0
 
-    .line 381
+    .line 410
     sget-object v2, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
 
     invoke-virtual {p1, v2}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 382
+    .line 411
     invoke-virtual {v2, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v3
@@ -1053,7 +1075,7 @@
     .locals 22
 
     .prologue
-    .line 403
+    .line 432
     const-string v2, "\n"
 
     const/4 v3, -0x1
@@ -1064,17 +1086,17 @@
 
     move-result-object v14
 
-    .line 404
+    .line 433
     new-instance v15, Ljava/util/ArrayList;
 
     invoke-direct {v15}, Ljava/util/ArrayList;-><init>()V
 
-    .line 405
+    .line 434
     new-instance v16, Ljava/util/LinkedHashMap;
 
     invoke-direct/range {v16 .. v16}, Ljava/util/LinkedHashMap;-><init>()V
 
-    .line 406
+    .line 435
     const/4 v2, 0x0
 
     move v3, v2
@@ -1084,10 +1106,10 @@
 
     if-ge v3, v2, :cond_13
 
-    .line 407
+    .line 436
     aget-object v17, v14, v3
 
-    .line 408
+    .line 437
     invoke-virtual/range {v17 .. v17}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v2
@@ -1098,7 +1120,7 @@
 
     if-nez v2, :cond_1
 
-    .line 406
+    .line 435
     :cond_0
     :goto_1
     add-int/lit8 v2, v3, 0x1
@@ -1107,7 +1129,7 @@
 
     goto :goto_0
 
-    .line 409
+    .line 438
     :cond_1
     move-object/from16 v0, p2
 
@@ -1119,7 +1141,7 @@
 
     iput v2, v0, Lcom/mrkeyboard/app/MrImport$Plan;->lines:I
 
-    .line 410
+    .line 439
     sget-object v2, Lcom/mrkeyboard/app/MrImport;->CHAT_PREFIX:Ljava/util/regex/Pattern;
 
     move-object/from16 v0, v17
@@ -1134,7 +1156,7 @@
 
     move-result-object v5
 
-    .line 411
+    .line 440
     sget-object v2, Lcom/mrkeyboard/app/MrImport;->URL:Ljava/util/regex/Pattern;
 
     invoke-virtual {v2, v5}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
@@ -1176,7 +1198,7 @@
 
     move v4, v2
 
-    .line 412
+    .line 441
     :goto_2
     sget-object v2, Lcom/mrkeyboard/app/MrImport;->DIGIT:Ljava/util/regex/Pattern;
 
@@ -1188,17 +1210,17 @@
 
     move-result v9
 
-    .line 413
+    .line 442
     invoke-static {v5}, Lcom/mrkeyboard/app/MrImport;->clean(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v18
 
-    .line 414
+    .line 443
     new-instance v8, Ljava/util/ArrayList;
 
     invoke-direct {v8}, Ljava/util/ArrayList;-><init>()V
 
-    .line 415
+    .line 444
     sget-object v2, Lcom/mrkeyboard/app/MrImport;->WORD:Ljava/util/regex/Pattern;
 
     move-object/from16 v0, v18
@@ -1207,16 +1229,16 @@
 
     move-result-object v19
 
-    .line 416
+    .line 445
     const/4 v7, -0x1
 
-    .line 417
+    .line 446
     const/4 v6, 0x1
 
-    .line 418
+    .line 447
     const/4 v5, 0x0
 
-    .line 419
+    .line 448
     const/4 v2, 0x0
 
     move/from16 v21, v2
@@ -1227,7 +1249,7 @@
 
     move/from16 v5, v21
 
-    .line 420
+    .line 449
     :goto_3
     invoke-virtual/range {v19 .. v19}, Ljava/util/regex/Matcher;->find()Z
 
@@ -1235,25 +1257,25 @@
 
     if-eqz v10, :cond_10
 
-    .line 421
+    .line 450
     if-gez v7, :cond_8
 
     const-string v7, ""
 
     move-object v10, v7
 
-    .line 422
+    .line 451
     :goto_4
     invoke-virtual/range {v19 .. v19}, Ljava/util/regex/Matcher;->end()I
 
     move-result v7
 
-    .line 423
+    .line 452
     invoke-virtual {v10}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v11
 
-    .line 424
+    .line 453
     invoke-virtual {v11}, Ljava/lang/String;->length()I
 
     move-result v10
@@ -1268,7 +1290,7 @@
 
     const/4 v10, 0x1
 
-    .line 425
+    .line 454
     :goto_5
     invoke-virtual {v11}, Ljava/lang/String;->length()I
 
@@ -1276,14 +1298,14 @@
 
     if-lez v12, :cond_4
 
-    .line 426
+    .line 455
     invoke-virtual {v8}, Ljava/util/ArrayList;->isEmpty()Z
 
     move-result v2
 
     if-nez v2, :cond_3
 
-    .line 427
+    .line 456
     invoke-virtual {v8}, Ljava/util/ArrayList;->size()I
 
     move-result v2
@@ -1298,18 +1320,18 @@
 
     invoke-virtual {v15, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 428
+    .line 457
     new-instance v8, Ljava/util/ArrayList;
 
     invoke-direct {v8}, Ljava/util/ArrayList;-><init>()V
 
-    .line 430
+    .line 459
     :cond_3
     invoke-static {v11}, Lcom/mrkeyboard/app/MrImport;->endsSentence(Ljava/lang/String;)Z
 
     move-result v2
 
-    .line 432
+    .line 461
     :cond_4
     invoke-virtual/range {v19 .. v19}, Ljava/util/regex/Matcher;->group()Ljava/lang/String;
 
@@ -1327,7 +1349,7 @@
 
     move-result-object v12
 
-    .line 434
+    .line 463
     invoke-virtual/range {v19 .. v19}, Ljava/util/regex/Matcher;->end()I
 
     move-result v11
@@ -1354,7 +1376,7 @@
 
     if-nez v11, :cond_6
 
-    .line 435
+    .line 464
     :cond_5
     invoke-virtual/range {v19 .. v19}, Ljava/util/regex/Matcher;->start()I
 
@@ -1380,25 +1402,25 @@
 
     if-eqz v11, :cond_a
 
-    .line 436
+    .line 465
     :cond_6
     const/4 v9, 0x1
 
-    .line 437
+    .line 466
     invoke-static {v15, v8}, Lcom/mrkeyboard/app/MrImport;->flush(Ljava/util/ArrayList;Ljava/util/ArrayList;)V
 
-    .line 438
+    .line 467
     new-instance v8, Ljava/util/ArrayList;
 
     invoke-direct {v8}, Ljava/util/ArrayList;-><init>()V
 
-    .line 439
+    .line 468
     const/4 v2, 0x0
 
-    .line 440
+    .line 469
     goto/16 :goto_3
 
-    .line 411
+    .line 440
     :cond_7
     const/4 v2, 0x0
 
@@ -1406,7 +1428,7 @@
 
     goto/16 :goto_2
 
-    .line 421
+    .line 450
     :cond_8
     invoke-virtual/range {v19 .. v19}, Ljava/util/regex/Matcher;->start()I
 
@@ -1422,13 +1444,13 @@
 
     goto/16 :goto_4
 
-    .line 424
+    .line 453
     :cond_9
     const/4 v10, 0x0
 
     goto/16 :goto_5
 
-    .line 442
+    .line 471
     :cond_a
     invoke-virtual {v12}, Ljava/lang/String;->length()I
 
@@ -1438,10 +1460,10 @@
 
     if-le v11, v13, :cond_b
 
-    .line 443
+    .line 472
     const/4 v2, 0x1
 
-    .line 444
+    .line 473
     add-int/lit8 v5, v3, 0x1
 
     const/4 v10, 0x4
@@ -1450,15 +1472,15 @@
 
     invoke-virtual {v0, v5, v12, v10}, Lcom/mrkeyboard/app/MrImport$Plan;->ignore(ILjava/lang/String;I)V
 
-    .line 445
+    .line 474
     invoke-static {v15, v8}, Lcom/mrkeyboard/app/MrImport;->flush(Ljava/util/ArrayList;Ljava/util/ArrayList;)V
 
-    .line 446
+    .line 475
     new-instance v8, Ljava/util/ArrayList;
 
     invoke-direct {v8}, Ljava/util/ArrayList;-><init>()V
 
-    .line 447
+    .line 476
     const/4 v5, 0x0
 
     move/from16 v21, v2
@@ -1467,10 +1489,10 @@
 
     move/from16 v5, v21
 
-    .line 448
+    .line 477
     goto/16 :goto_3
 
-    .line 450
+    .line 479
     :cond_b
     invoke-static {v12}, Lcom/mrkeyboard/app/MrImport;->isNoise(Ljava/lang/String;)Z
 
@@ -1478,21 +1500,21 @@
 
     if-eqz v11, :cond_c
 
-    .line 451
+    .line 480
     invoke-static {v15, v8}, Lcom/mrkeyboard/app/MrImport;->flush(Ljava/util/ArrayList;Ljava/util/ArrayList;)V
 
-    .line 452
+    .line 481
     new-instance v8, Ljava/util/ArrayList;
 
     invoke-direct {v8}, Ljava/util/ArrayList;-><init>()V
 
-    .line 453
+    .line 482
     const/4 v2, 0x0
 
-    .line 454
+    .line 483
     goto/16 :goto_3
 
-    .line 456
+    .line 485
     :cond_c
     const/4 v11, 0x0
 
@@ -1504,7 +1526,7 @@
 
     move-result v20
 
-    .line 458
+    .line 487
     if-eqz v20, :cond_f
 
     if-nez v2, :cond_f
@@ -1519,7 +1541,7 @@
 
     move v13, v11
 
-    .line 459
+    .line 488
     :goto_6
     if-eqz v20, :cond_25
 
@@ -1531,14 +1553,14 @@
 
     if-nez v11, :cond_25
 
-    .line 460
+    .line 489
     sget-object v11, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
 
     invoke-virtual {v12, v11}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
 
     move-result-object v11
 
-    .line 461
+    .line 490
     if-eqz p1, :cond_25
 
     move-object/from16 v0, p1
@@ -1549,7 +1571,7 @@
 
     if-eqz v20, :cond_25
 
-    .line 463
+    .line 492
     :goto_7
     new-instance v20, Lcom/mrkeyboard/app/MrImport$Tok;
 
@@ -1561,7 +1583,7 @@
 
     invoke-virtual {v8, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 464
+    .line 493
     invoke-virtual {v12}, Ljava/lang/String;->length()I
 
     move-result v2
@@ -1570,7 +1592,7 @@
 
     if-lt v2, v10, :cond_e
 
-    .line 465
+    .line 494
     move-object/from16 v0, v16
 
     invoke-virtual {v0, v11}, Ljava/util/LinkedHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -1579,20 +1601,20 @@
 
     check-cast v2, [I
 
-    .line 466
+    .line 495
     if-nez v2, :cond_d
 
-    .line 467
+    .line 496
     const/4 v2, 0x2
 
     new-array v2, v2, [I
 
-    .line 468
+    .line 497
     move-object/from16 v0, v16
 
     invoke-virtual {v0, v11, v2}, Ljava/util/LinkedHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 470
+    .line 499
     :cond_d
     const/4 v10, 0x0
 
@@ -1602,7 +1624,7 @@
 
     aput v11, v2, v10
 
-    .line 471
+    .line 500
     if-eqz v13, :cond_e
 
     const/4 v10, 0x1
@@ -1611,11 +1633,11 @@
 
     aput v11, v2, v10
 
-    .line 473
+    .line 502
     :cond_e
     add-int/lit8 v2, v6, 0x1
 
-    .line 474
+    .line 503
     const/4 v6, 0x0
 
     move/from16 v21, v2
@@ -1624,10 +1646,10 @@
 
     move/from16 v6, v21
 
-    .line 475
+    .line 504
     goto/16 :goto_3
 
-    .line 458
+    .line 487
     :cond_f
     const/4 v11, 0x0
 
@@ -1635,16 +1657,16 @@
 
     goto :goto_6
 
-    .line 476
+    .line 505
     :cond_10
     invoke-static {v15, v8}, Lcom/mrkeyboard/app/MrImport;->flush(Ljava/util/ArrayList;Ljava/util/ArrayList;)V
 
-    .line 477
+    .line 506
     if-nez v6, :cond_0
 
     if-nez v5, :cond_0
 
-    .line 478
+    .line 507
     add-int/lit8 v5, v3, 0x1
 
     if-eqz v4, :cond_11
@@ -1672,13 +1694,13 @@
 
     goto :goto_8
 
-    .line 482
+    .line 511
     :cond_13
     new-instance v5, Ljava/util/HashMap;
 
     invoke-direct {v5}, Ljava/util/HashMap;-><init>()V
 
-    .line 483
+    .line 512
     invoke-virtual/range {v16 .. v16}, Ljava/util/LinkedHashMap;->entrySet()Ljava/util/Set;
 
     move-result-object v2
@@ -1701,21 +1723,21 @@
 
     check-cast v2, Ljava/util/Map$Entry;
 
-    .line 484
+    .line 513
     invoke-interface {v2}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
     move-result-object v3
 
     check-cast v3, Ljava/lang/String;
 
-    .line 485
+    .line 514
     invoke-interface {v2}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
     move-result-object v2
 
     check-cast v2, [I
 
-    .line 486
+    .line 515
     move-object/from16 v0, p1
 
     invoke-static {v0, v3}, Lcom/mrkeyboard/app/MrImport;->knows(Lcom/mrkeyboard/app/MrImport$Known;Ljava/lang/String;)Z
@@ -1724,7 +1746,7 @@
 
     if-nez v4, :cond_14
 
-    .line 487
+    .line 516
     const/4 v4, 0x0
 
     aget v4, v2, v4
@@ -1741,7 +1763,7 @@
 
     if-ne v4, v7, :cond_14
 
-    .line 488
+    .line 517
     :cond_15
     const/4 v4, 0x0
 
@@ -1753,7 +1775,7 @@
 
     const/16 v4, 0x46
 
-    .line 489
+    .line 518
     :goto_a
     move-object/from16 v0, p2
 
@@ -1769,7 +1791,7 @@
 
     invoke-virtual {v7, v8}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 490
+    .line 519
     const/4 v4, 0x0
 
     aget v2, v2, v4
@@ -1782,7 +1804,7 @@
 
     goto :goto_9
 
-    .line 488
+    .line 517
     :cond_16
     const/4 v4, 0x0
 
@@ -1801,13 +1823,13 @@
 
     goto :goto_a
 
-    .line 494
+    .line 523
     :cond_18
     new-instance v6, Ljava/util/LinkedHashMap;
 
     invoke-direct {v6}, Ljava/util/LinkedHashMap;-><init>()V
 
-    .line 495
+    .line 524
     invoke-virtual {v15}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
     move-result-object v7
@@ -1825,7 +1847,7 @@
 
     check-cast v2, [Lcom/mrkeyboard/app/MrImport$Tok;
 
-    .line 496
+    .line 525
     const/4 v3, 0x1
 
     move v4, v3
@@ -1835,14 +1857,14 @@
 
     if-ge v4, v3, :cond_19
 
-    .line 497
+    .line 526
     aget-object v3, v2, v4
 
     iget-boolean v3, v3, Lcom/mrkeyboard/app/MrImport$Tok;->joined:Z
 
     if-nez v3, :cond_1b
 
-    .line 496
+    .line 525
     :cond_1a
     :goto_c
     add-int/lit8 v3, v4, 0x1
@@ -1851,7 +1873,7 @@
 
     goto :goto_b
 
-    .line 498
+    .line 527
     :cond_1b
     add-int/lit8 v3, v4, -0x1
 
@@ -1863,7 +1885,7 @@
 
     iget-object v8, v8, Lcom/mrkeyboard/app/MrImport$Tok;->text:Ljava/lang/String;
 
-    .line 499
+    .line 528
     invoke-virtual {v5, v3}, Ljava/util/HashMap;->containsKey(Ljava/lang/Object;)Z
 
     move-result v9
@@ -1893,7 +1915,7 @@
 
     if-eqz v9, :cond_1a
 
-    .line 500
+    .line 529
     :cond_1d
     new-instance v9, Ljava/lang/StringBuilder;
 
@@ -1917,17 +1939,17 @@
 
     move-result-object v8
 
-    .line 501
+    .line 530
     invoke-virtual {v6, v8}, Ljava/util/LinkedHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v3
 
     check-cast v3, [I
 
-    .line 502
+    .line 531
     if-nez v3, :cond_1f
 
-    .line 503
+    .line 532
     invoke-virtual {v6}, Ljava/util/LinkedHashMap;->size()I
 
     move-result v3
@@ -1936,7 +1958,7 @@
 
     if-lt v3, v9, :cond_1e
 
-    .line 504
+    .line 533
     const/4 v3, 0x1
 
     move-object/from16 v0, p2
@@ -1945,16 +1967,16 @@
 
     goto :goto_c
 
-    .line 507
+    .line 536
     :cond_1e
     const/4 v3, 0x1
 
     new-array v3, v3, [I
 
-    .line 508
+    .line 537
     invoke-virtual {v6, v8, v3}, Ljava/util/LinkedHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 510
+    .line 539
     :cond_1f
     const/4 v8, 0x0
 
@@ -1966,7 +1988,7 @@
 
     goto :goto_c
 
-    .line 513
+    .line 542
     :cond_20
     invoke-virtual {v6}, Ljava/util/LinkedHashMap;->entrySet()Ljava/util/Set;
 
@@ -1990,7 +2012,7 @@
 
     check-cast v2, Ljava/util/Map$Entry;
 
-    .line 514
+    .line 543
     invoke-interface {v2}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
     move-result-object v3
@@ -2001,26 +2023,26 @@
 
     aget v3, v3, v5
 
-    .line 515
+    .line 544
     const/4 v5, 0x2
 
     if-lt v3, v5, :cond_21
 
-    .line 516
+    .line 545
     invoke-interface {v2}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
     move-result-object v2
 
     check-cast v2, Ljava/lang/String;
 
-    .line 517
+    .line 546
     const/4 v5, 0x0
 
     invoke-virtual {v2, v5}, Ljava/lang/String;->indexOf(I)I
 
     move-result v5
 
-    .line 518
+    .line 547
     move-object/from16 v0, p2
 
     iget-object v6, v0, Lcom/mrkeyboard/app/MrImport$Plan;->pairs:Ljava/util/ArrayList;
@@ -2066,7 +2088,7 @@
 
     goto :goto_e
 
-    .line 520
+    .line 549
     :cond_24
     return-void
 
@@ -2429,12 +2451,12 @@
     .end annotation
 
     .prologue
-    .line 548
+    .line 577
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 549
+    .line 578
     const/4 v0, 0x1
 
     :goto_0
@@ -2466,9 +2488,199 @@
 
     goto :goto_0
 
-    .line 550
+    .line 579
     :cond_0
     return-object v1
+.end method
+
+.method static scrub(Ljava/lang/String;)Ljava/lang/String;
+    .locals 7
+
+    .prologue
+    const/16 v6, 0xa
+
+    .line 366
+    if-nez p0, :cond_0
+
+    const-string v0, ""
+
+    .line 381
+    :goto_0
+    return-object v0
+
+    .line 367
+    :cond_0
+    const-string v0, "\r\n"
+
+    const-string v1, "\n"
+
+    invoke-virtual {p0, v0, v1}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+
+    move-result-object v0
+
+    const/16 v1, 0xd
+
+    invoke-virtual {v0, v1, v6}, Ljava/lang/String;->replace(CC)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 368
+    const-string v1, "\ufeff"
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_1
+
+    const/4 v1, 0x1
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->substring(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 369
+    :cond_1
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    .line 370
+    const-string v2, "\n"
+
+    const/4 v3, -0x1
+
+    invoke-virtual {v0, v2, v3}, Ljava/lang/String;->split(Ljava/lang/String;I)[Ljava/lang/String;
+
+    move-result-object v2
+
+    array-length v3, v2
+
+    const/4 v0, 0x0
+
+    :goto_1
+    if-ge v0, v3, :cond_4
+
+    aget-object v4, v2, v0
+
+    .line 371
+    sget-object v5, Lcom/mrkeyboard/app/MrImport;->CHAT_PREFIX:Ljava/util/regex/Pattern;
+
+    invoke-virtual {v5, v4}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
+
+    move-result-object v4
+
+    const-string v5, ""
+
+    invoke-virtual {v4, v5}, Ljava/util/regex/Matcher;->replaceFirst(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
+    .line 372
+    sget-object v5, Lcom/mrkeyboard/app/MrImport;->URL:Ljava/util/regex/Pattern;
+
+    invoke-virtual {v5, v4}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
+
+    move-result-object v4
+
+    const-string v5, " "
+
+    invoke-virtual {v4, v5}, Ljava/util/regex/Matcher;->replaceAll(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
+    .line 373
+    sget-object v5, Lcom/mrkeyboard/app/MrImport;->EMAIL:Ljava/util/regex/Pattern;
+
+    invoke-virtual {v5, v4}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
+
+    move-result-object v4
+
+    const-string v5, " "
+
+    invoke-virtual {v4, v5}, Ljava/util/regex/Matcher;->replaceAll(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
+    .line 374
+    sget-object v5, Lcom/mrkeyboard/app/MrImport;->PHONE:Ljava/util/regex/Pattern;
+
+    invoke-virtual {v5, v4}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
+
+    move-result-object v4
+
+    const-string v5, " "
+
+    invoke-virtual {v4, v5}, Ljava/util/regex/Matcher;->replaceAll(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
+    .line 375
+    sget-object v5, Lcom/mrkeyboard/app/MrImport;->LONG_DIGITS:Ljava/util/regex/Pattern;
+
+    invoke-virtual {v5, v4}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
+
+    move-result-object v4
+
+    const-string v5, " "
+
+    invoke-virtual {v4, v5}, Ljava/util/regex/Matcher;->replaceAll(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
+    .line 376
+    sget-object v5, Lcom/mrkeyboard/app/MrImport;->BLANKS:Ljava/util/regex/Pattern;
+
+    invoke-virtual {v5, v4}, Ljava/util/regex/Pattern;->matcher(Ljava/lang/CharSequence;)Ljava/util/regex/Matcher;
+
+    move-result-object v4
+
+    const-string v5, " "
+
+    invoke-virtual {v4, v5}, Ljava/util/regex/Matcher;->replaceAll(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v4}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v4
+
+    .line 377
+    invoke-virtual {v4}, Ljava/lang/String;->length()I
+
+    move-result v5
+
+    if-nez v5, :cond_2
+
+    .line 370
+    :goto_2
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_1
+
+    .line 378
+    :cond_2
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->length()I
+
+    move-result v5
+
+    if-lez v5, :cond_3
+
+    invoke-virtual {v1, v6}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    .line 379
+    :cond_3
+    invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    goto :goto_2
+
+    .line 381
+    :cond_4
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    goto/16 :goto_0
 .end method
 
 .method static splitWords(Ljava/lang/String;I)[Ljava/lang/String;
@@ -2477,16 +2689,16 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 538
+    .line 567
     if-nez p0, :cond_0
 
     move-object v0, v1
 
-    .line 544
+    .line 573
     :goto_0
     return-object v0
 
-    .line 539
+    .line 568
     :cond_0
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -2498,7 +2710,7 @@
 
     move-result-object v2
 
-    .line 540
+    .line 569
     array-length v0, v2
 
     if-eq v0, p1, :cond_1
@@ -2507,7 +2719,7 @@
 
     goto :goto_0
 
-    .line 541
+    .line 570
     :cond_1
     const/4 v0, 0x0
 
@@ -2516,7 +2728,7 @@
 
     if-ge v0, v3, :cond_3
 
-    .line 542
+    .line 571
     aget-object v3, v2, v0
 
     invoke-static {v3}, Lcom/mrkeyboard/app/MrImport;->checkWord(Ljava/lang/String;)I
@@ -2529,7 +2741,7 @@
 
     goto :goto_0
 
-    .line 541
+    .line 570
     :cond_2
     add-int/lit8 v0, v0, 0x1
 
@@ -2538,7 +2750,7 @@
     :cond_3
     move-object v0, v2
 
-    .line 544
+    .line 573
     goto :goto_0
 .end method
 
@@ -3043,12 +3255,12 @@
     .locals 3
 
     .prologue
-    .line 365
+    .line 394
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
     move-result v0
 
-    .line 366
+    .line 395
     :goto_0
     if-lez v0, :cond_1
 
@@ -3087,7 +3299,7 @@
 
     goto :goto_0
 
-    .line 367
+    .line 396
     :cond_1
     const/4 v1, 0x0
 

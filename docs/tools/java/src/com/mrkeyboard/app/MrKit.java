@@ -1,6 +1,8 @@
 package com.mrkeyboard.app;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
@@ -149,6 +151,60 @@ final class MrKit {
             if (i % perRow != 0) p.setMargins(dp(8), 0, 0, 0);
             r.addView(chips.get(i), p);
         }
+    }
+
+    /**
+     * A select card, like the choices of the Settings: the title small on top, the chosen value below and an arrow on the right.
+     * A tap on it is the caller's {@code l} (usually the list of choices).
+     */
+    LinearLayout select(String title, String value, View.OnClickListener l) {
+        LinearLayout c = row();
+        c.setPadding(dp(16), dp(12), dp(14), dp(12));
+        c.setBackground(round(card, stroke, 16, false));
+        c.setClickable(true);
+        c.setOnClickListener(l);
+        LinearLayout words = column();
+        words.addView(label(title, 12f, text2, false), wide(0));
+        words.addView(label(value, 17f, text, true), wide(2));
+        c.addView(words, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView arrow = label("▾", 18f, text2, false);
+        arrow.setPadding(dp(10), 0, 0, 0);
+        c.addView(arrow, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        return c;
+    }
+
+    /** What happens when a language is chosen on a language card. */
+    interface LangPick {
+        void onPick(String locale);
+    }
+
+    /**
+     * The language card of the word screens: shows the language that is on and, on a tap, a list with a radio mark to choose another
+     * (the same dialog as the Settings). {@code onPick} is called only when the choice changes.
+     */
+    void languageCard(LinearLayout box, final List<String> langs, final String current, final LangPick onPick) {
+        box.removeAllViews();
+        box.addView(select(t("mr_lang_card_title"), langName(current), new View.OnClickListener() {
+            public void onClick(View v) {
+                CharSequence[] names = new CharSequence[langs.size()];
+                int on = -1;
+                for (int i = 0; i < names.length; i++) {
+                    names[i] = langName(langs.get(i));
+                    if (langs.get(i).equals(current)) on = i;
+                }
+                new AlertDialog.Builder(act)
+                        .setTitle(t("mr_lang_card_title"))
+                        .setSingleChoiceItems(names, on, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                String pick = langs.get(which);
+                                if (!pick.equals(current)) onPick.onPick(pick);
+                            }
+                        })
+                        .setNegativeButton(t("mr_words_cancel"), null)
+                        .show();
+            }
+        }), wide(0));
     }
 
     EditText field(String hint, int inputType) {

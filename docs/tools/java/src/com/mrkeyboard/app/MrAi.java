@@ -541,11 +541,22 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         return v == null ? def : v.trim();
     }
 
-    private static boolean configured(Context c) {
+    /** True when the AI Editor settings have an address, a model and a key (v1.88: also asked by the import screen). */
+    static boolean configured(Context c) {
         String ep = cfg(c, KEY_ENDPOINT, ENDPOINT_DEF);
         String model = cfg(c, KEY_MODEL, MODEL_DEF);
         if (ep.length() == 0 || model.length() == 0) return false;
         return apiKey(c).length() > 0;
+    }
+
+    /** The host that the texts go to (for example "api.openai.com"), to tell the person before anything is sent; "" if the address is not valid. */
+    static String serviceHost(Context c) {
+        try {
+            String h = new URL(cfg(c, KEY_ENDPOINT, ENDPOINT_DEF)).getHost();
+            return h == null ? "" : h;
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     // ------------------------------------------------------------------ trigger and response
@@ -638,6 +649,16 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
      */
     static String rewrite(Context c, String instruction, String text, boolean emojify, double temp)
             throws AiFail {
+        String out = complete(c, SYSTEM + (emojify ? EMOJI_YES : EMOJI_NO), instruction + "\n\n---\n" + text, temp);
+        return clean(out, text);
+    }
+
+    /**
+     * One request to the chat service chosen in the AI Editor settings (blocking; call off the main thread): {@code system} and
+     * {@code user} are the two messages. Returns the text of the answer as it came, or throws AiFail with the ready message.
+     * Shared by the rewriting of the AI Editor and by the formatting of the texts that are imported (MrImportAi).
+     */
+    static String complete(Context c, String system, String user, double temp) throws AiFail {
         String endpoint = cfg(c, KEY_ENDPOINT, ENDPOINT_DEF);
         String model = cfg(c, KEY_MODEL, MODEL_DEF);
         String key = apiKey(c);
@@ -651,10 +672,10 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         try {
             JSONObject sys = new JSONObject();
             sys.put("role", "system");
-            sys.put("content", SYSTEM + (emojify ? EMOJI_YES : EMOJI_NO));
+            sys.put("content", system);
             JSONObject usr = new JSONObject();
             usr.put("role", "user");
-            usr.put("content", instruction + "\n\n---\n" + text);
+            usr.put("content", user);
             JSONArray msgs = new JSONArray();
             msgs.put(sys);
             msgs.put(usr);
@@ -693,7 +714,7 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
             }
             String out = extract(resp);
             if (out == null || out.trim().length() == 0) throw new AiFail(MrPacks.text(c, "mr_ai_empty"));
-            return clean(out, text);
+            return out;
         } catch (AiFail f) {
             throw f;
         } catch (JSONException e) {

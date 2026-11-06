@@ -24,6 +24,11 @@
 #     cleaning of a free text (links, WhatsApp prefixes, laughs, numbers), the two-occurrence rule, the standard list (every kind of line left out), saving an
 #     import with its caps and undo, block, forget, edit, the export that is also the backup (export -> import -> export gives the same text), and what
 #     the keyboard loads into its dictionaries. The SQLite store needs Android and is checked on the device.
+#   - AiImportTest: the formatting of a text by AI (MrImportAi, MrImport.scrub) with a fake service: what is taken out before sending,
+#     the parts, the reading of the answers (introductions, code fences, bullets, weights, [blocked] dropped), the merge, a failure in the
+#     middle (what came back is kept), unreadable answers, cancelling, and that the result is a list the importer reads with no line left out.
+#   - LangTest: the language card of the two word screens (MrLang): the languages offered, which one a screen starts on (its own choice,
+#     the last one chosen on either screen, the UI language) and the memory of the last choice.
 #   - AiReturnTest: coming back to the AI Editor dialog after its Settings screen (MrAiDialog): the keyboard is asked to
 #     appear for the original field, once, soon after leaving, and the dialog reopens when the keyboard window shows.
 # With the path of the APK jar (classes.dex -> d2j-dex2jar), it also runs:
@@ -77,6 +82,14 @@ java -Dfile.encoding=UTF-8 -cp "$T/test_import:$T/stubs:$T/main" com.mrkeyboard.
 echo "== LearnedStoreTest (what the keyboard learned: block, forget, edit, undo, export)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_learned" $D/learned_test/LearnedStoreTest.java
 java -Dfile.encoding=UTF-8 -cp "$T/test_learned:$T/stubs:$T/main" com.mrkeyboard.app.LearnedStoreTest
+
+echo "== AiImportTest (formatting of a text by AI: scrub, parts, answers, merge, fake service)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_aiimport" $D/learned_test/AiImportTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_aiimport:$T/stubs:$T/main" com.mrkeyboard.app.AiImportTest
+
+echo "== LangTest (language choice shared by the word screens)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_lang" $D/learned_test/LangTest.java
+java -cp "$T/test_lang:$T/stubs:$T/main" com.mrkeyboard.app.LangTest
 
 echo "== AiReturnTest (return to the AI Editor dialog)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_aireturn" $D/ai_return_test/AiReturnTest.java

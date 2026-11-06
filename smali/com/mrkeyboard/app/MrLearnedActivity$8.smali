@@ -3,7 +3,7 @@
 .source "MrLearnedActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Lcom/mrkeyboard/app/MrKit$LangPick;
 
 
 # annotations
@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-.field final synthetic val$l:Ljava/lang/String;
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;Ljava/lang/String;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 255
+    .line 242
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$8;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$8;->val$l:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,29 +36,40 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .locals 2
+.method public onPick(Ljava/lang/String;)V
+    .locals 3
 
     .prologue
-    .line 257
+    .line 244
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$8;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$8;->val$l:Ljava/lang/String;
+    invoke-static {v0, p1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$402(Lcom/mrkeyboard/app/MrLearnedActivity;Ljava/lang/String;)Ljava/lang/String;
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$402(Lcom/mrkeyboard/app/MrLearnedActivity;Ljava/lang/String;)Ljava/lang/String;
+    .line 245
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$8;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    .line 258
+    const-string v1, "mr_words"
+
+    const/4 v2, 0x0
+
+    invoke-virtual {v0, v1, v2}, Lcom/mrkeyboard/app/MrLearnedActivity;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    invoke-static {v0, p1}, Lcom/mrkeyboard/app/MrLang;->remember(Landroid/content/SharedPreferences;Ljava/lang/String;)V
+
+    .line 246
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$8;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     const/16 v1, 0x32
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$102(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
 
-    .line 259
+    .line 247
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$8;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$700(Lcom/mrkeyboard/app/MrLearnedActivity;)V
 
-    .line 260
+    .line 248
     return-void
 .end method

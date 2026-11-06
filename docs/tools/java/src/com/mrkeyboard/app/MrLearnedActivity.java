@@ -104,6 +104,7 @@ public class MrLearnedActivity extends Activity {
         }
         if (mLocale == null && getIntent() != null) mLocale = getIntent().getStringExtra(EXTRA_LOCALE);
         loadLanguages();
+        MrLang.remember(getSharedPreferences(MrLang.PREFS, MODE_PRIVATE), mLocale);
 
         ScrollView scroll = new ScrollView(this);
         scroll.setBackground(k.round(k.bg, 0, 0, false));
@@ -203,7 +204,9 @@ public class MrLearnedActivity extends Activity {
     protected void onResume() {
         super.onResume();
         if (mStore == null) return;
-        // The import screen may have added words while this one was behind it.
+        // The import screen may have added words while this one was behind it, perhaps for another language: follow the last choice.
+        String last = MrLang.last(getSharedPreferences(MrLang.PREFS, MODE_PRIVATE));
+        if (last != null) mLocale = last;
         loadLanguages();
         refreshAll();
     }
@@ -214,7 +217,7 @@ public class MrLearnedActivity extends Activity {
 
     // ------------------------------------------------------------------ languages
 
-    /** The languages to offer: the installed packs first, then any other that has data; the three of the app when there is nothing at all. */
+    /** The languages to offer (MrLang.offered) and the one on: this screen's own choice, else the last one chosen on a word screen, else the UI language. */
     private void loadLanguages() {
         List<String> have;
         try {
@@ -222,23 +225,9 @@ public class MrLearnedActivity extends Activity {
         } catch (RuntimeException e) {
             have = new ArrayList<String>();
         }
-        mLangs = MrLearned.languages(MrPacks.installedIds(this), have);
-        if (mLangs.isEmpty()) {
-            mLangs.add("pt_BR");
-            mLangs.add("en_US");
-            mLangs.add("es");
-        }
-        if (mLocale == null || !mLangs.contains(mLocale)) {
-            String ui = getResources().getConfiguration().locale.getLanguage();
-            String pick = mLangs.get(0);
-            for (String l : mLangs) {
-                if (MrPacks.splitLocale(l)[0].equals(ui)) {
-                    pick = l;
-                    break;
-                }
-            }
-            mLocale = pick;
-        }
+        mLangs = MrLang.offered(MrPacks.installedIds(this), have);
+        mLocale = MrLang.pick(mLangs, mLocale, MrLang.last(getSharedPreferences(MrLang.PREFS, MODE_PRIVATE)),
+                getResources().getConfiguration().locale.getLanguage());
     }
 
     // ------------------------------------------------------------------ drawing
@@ -250,17 +239,14 @@ public class MrLearnedActivity extends Activity {
         } catch (RuntimeException e) {
             n = new int[5];
         }
-        ArrayList<TextView> langs = new ArrayList<TextView>();
-        for (final String l : mLangs) {
-            langs.add(k.chip(k.langName(l), l.equals(mLocale), new View.OnClickListener() {
-                public void onClick(View v) {
-                    mLocale = l;
-                    mLimit = PAGE;
-                    refreshAll();
-                }
-            }));
-        }
-        k.fill(mLangBox, langs, 2);
+        k.languageCard(mLangBox, mLangs, mLocale, new MrKit.LangPick() {
+            public void onPick(String locale) {
+                mLocale = locale;
+                MrLang.remember(getSharedPreferences(MrLang.PREFS, MODE_PRIVATE), locale);
+                mLimit = PAGE;
+                refreshAll();
+            }
+        });
 
         ArrayList<TextView> tabs = new ArrayList<TextView>();
         tabs.add(tabChip(TAB_LEARNED, k.t("mr_learned_tab_learned", n[MrWordStore.KIND_LEARNED_WORD] + n[MrWordStore.KIND_LEARNED_PAIR])));

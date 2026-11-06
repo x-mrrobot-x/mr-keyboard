@@ -64,6 +64,7 @@
     <string name="mr_lang_pt_BR">Português (Brasil)</string>
     <string name="mr_lang_en_US">Inglês (EUA)</string>
     <string name="mr_lang_es">Espanhol</string>
+    <string name="mr_lang_card_title">Idioma</string>
     <string name="mr_dicts_updates_one">1 atualização disponível</string>
     <string name="mr_dicts_updates_many">%1$d atualizações disponíveis</string>
     <string name="mr_dicts_cat_privacy">Privacidade</string>
@@ -198,7 +199,7 @@
     <string name="mr_ai_cat_styles">Seus estilos</string>
     <string name="mr_ai_styles_hint">Os estilos que você criar aparecem no diálogo Editor de IA, depois dos que já vêm prontos. Segure um estilo personalizado para editar.</string>
     <string name="mr_ai_add_style">Novo estilo…</string>
-    <string name="mr_ai_privacy">Só o texto que você manda reescrever (o texto selecionado, ou o que está antes do cursor) é enviado, só ao serviço acima, pela conexão dele. Nada mais do que você digita sai do aparelho por este recurso, e ele nunca funciona em campos de senha.</string>
+    <string name="mr_ai_privacy">Só o texto que você manda reescrever (o texto selecionado, ou o que está antes do cursor) é enviado, só ao serviço acima, pela conexão dele. O mesmo vale para um texto em Adicionar palavras e texto, e só depois que você escolher Enviar ali (links, e-mails, telefones e números longos são tirados antes). Nada mais do que você digita sai do aparelho por este recurso, e ele nunca funciona em campos de senha.</string>
     <string name="mr_ai_new_style">Novo Estilo</string>
     <string name="mr_ai_edit_style">Editar estilo</string>
     <string name="mr_ai_style_name_hint">Nome do estilo (por exemplo: &quot;Pirata&quot;)</string>
@@ -351,11 +352,36 @@
     <string name="mr_import_why_9">Atalhos ainda não são suportados</string>
     <string name="mr_import_why_10">Uma palavra precisa de pelo menos 2 letras</string>
     <string name="mr_import_why_11">Mais de 30 palavras em uma frase</string>
-    <string name="mr_import_ai_title">Use uma IA para preparar um texto longo</string>
-    <string name="mr_import_ai_text">Tem um texto longo, anotações ou uma lista? Copie as instruções abaixo, cole em um chat de IA (ChatGPT, Claude, Gemini…) junto com o seu texto e cole a resposta aqui.</string>
+    <string name="mr_import_ai_title">Prefere outro chat de IA?</string>
+    <string name="mr_import_ai_text">Copie as instruções abaixo, cole em um chat de IA (ChatGPT, Claude, Gemini…) junto com o seu texto e cole a resposta aqui.</string>
     <string name="mr_import_ai_copy">Copiar as instruções para a IA</string>
     <string name="mr_import_ai_copied">Copiado. Cole no chat da IA e depois acrescente o seu texto.</string>
     <string name="mr_import_ai_warn">Não envie senhas, dados bancários nem conversas privadas para uma IA.</string>
+    <string name="mr_import_ai_button">Formatar com IA</string>
+    <string name="mr_import_ai_ask_title">Formatar com IA?</string>
+    <string name="mr_import_ai_ask_text">Este texto não está no formato de lista. Para transformá-lo em uma lista de palavras e frases ele pode ser enviado a %1$s, o serviço das configurações do Editor de IA (%2$d caracteres, %3$d pedido(s)).\n\nLinks, e-mails, telefones, números longos e os nomes dos autores de conversas são retirados antes do envio. Nada é enviado se você não escolher Enviar.</string>
+    <string name="mr_import_ai_ask_cut">O texto é longo: só os primeiros %1$d caracteres (%2$d pedidos) seriam enviados. Para usar tudo, escolha Não enviar e toque no botão abaixo para ver o que será adicionado.</string>
+    <string name="mr_import_ai_ask_many">São %1$d pedidos à sua conta de IA e eles podem ter custo lá.</string>
+    <string name="mr_import_ai_your_service">seu serviço de IA</string>
+    <string name="mr_import_ai_send">Enviar</string>
+    <string name="mr_import_ai_dont">Não enviar</string>
+    <string name="mr_import_ai_nokey_title">IA não configurada</string>
+    <string name="mr_import_ai_nokey_text">Para formatar um texto com IA, preencha o endereço, o modelo e a chave do serviço nas configurações do Editor de IA. Nada é enviado antes de você confirmar.</string>
+    <string name="mr_import_ai_nokey_open">Abrir configurações da IA</string>
+    <string name="mr_import_ai_already">Este texto já está no formato de lista.</string>
+    <string name="mr_import_ai_nothing">Depois de tirar links e números não sobrou nada para enviar.</string>
+    <string name="mr_import_ai_preparing">Preparando o texto…</string>
+    <string name="mr_import_ai_progress">Formatando com IA… parte %1$d de %2$d</string>
+    <string name="mr_import_ai_cancelled">Formatação cancelada. O seu texto não foi alterado.</string>
+    <string name="mr_import_ai_back_nothing">A IA não devolveu uma lista que dê para usar. O seu texto não foi alterado.</string>
+    <string name="mr_import_ai_done">Formatado com IA: %1$d palavras e %2$d frases. Confira o texto e toque no botão abaixo para ver o que será adicionado.</string>
+    <string name="mr_import_ai_partial_title">Só uma parte do texto foi formatada</string>
+    <string name="mr_import_ai_partial">%1$d de %2$d partes estão na lista agora. %3$s\n\nO resto não foi convertido: use Desfazer formatação e tente de novo, ou adicione o resto com o botão abaixo.</string>
+    <string name="mr_import_ai_why_cancel">Você cancelou.</string>
+    <string name="mr_import_ai_why_unreadable">Algumas respostas não eram uma lista.</string>
+    <string name="mr_import_ai_fail_title">A IA não conseguiu formatar o texto</string>
+    <string name="mr_import_ai_undo">Desfazer formatação</string>
+    <string name="mr_import_ai_undone">Texto restaurado.</string>
     <string name="mr_import_prompt">Transforme o meu texto em uma lista de palavras para um teclado de celular.\nRegras:\n- Responda só com a lista, em um único bloco de código, sem explicações.\n- As duas primeiras linhas devem ser exatamente: “# mr-words 1” e “# language: TAG” (TAG é o idioma do texto: pt-BR, en-US ou es).\n- [words]: uma palavra por linha, só palavras que um dicionário comum não teria (nomes, lugares, marcas, gírias, termos técnicos, minhas abreviações de costume). Depois de um TAB você pode dar um peso de 1 a 100 (50 é normal, 80 para palavras que eu uso o tempo todo).\n- [phrases]: pares ou frases curtas que eu escrevo muito, uma por linha, de 2 a 5 palavras.\n- [blocked]: palavras que o teclado nunca deve sugerir (só se eu pedir).\n- Sem números, links, e-mails, telefones nem dados privados. Sem linhas repetidas. Mantenha o idioma do meu texto.\n\nExemplo da resposta:\n# mr-words 1\n# language: pt-BR\n[words]\nLuana\nRodrigo\t70\n[phrases]\nbom dia pessoal\nte vejo mais tarde\n\nO meu texto vem a seguir:\n</string>
     <!-- /v1.85 words -->
 </resources>

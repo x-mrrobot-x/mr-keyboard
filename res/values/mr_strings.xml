@@ -64,6 +64,7 @@
     <string name="mr_lang_pt_BR">Portuguese (Brazil)</string>
     <string name="mr_lang_en_US">English (US)</string>
     <string name="mr_lang_es">Spanish</string>
+    <string name="mr_lang_card_title">Language</string>
     <string name="mr_dicts_updates_one">1 update available</string>
     <string name="mr_dicts_updates_many">%1$d updates available</string>
     <string name="mr_dicts_cat_privacy">Privacy</string>
@@ -198,7 +199,7 @@
     <string name="mr_ai_cat_styles">Your styles</string>
     <string name="mr_ai_styles_hint">Styles you create appear in the AI Editor dialog, after the built-in ones. Hold a custom style to edit it.</string>
     <string name="mr_ai_add_style">New style…</string>
-    <string name="mr_ai_privacy">Only the text you explicitly rewrite (selected text, or what is before the cursor) is sent, only to the service above, over its own connection. Nothing else you type leaves the device for this feature, and it never runs in password fields.</string>
+    <string name="mr_ai_privacy">Only the text you explicitly rewrite (selected text, or what is before the cursor) is sent, only to the service above, over its own connection. The same goes for a text in Add words and texts, and only after you choose Send there (links, e-mails, phone numbers and long numbers are removed first). Nothing else you type leaves the device for this feature, and it never runs in password fields.</string>
     <string name="mr_ai_new_style">New Style</string>
     <string name="mr_ai_edit_style">Edit style</string>
     <string name="mr_ai_style_name_hint">Style name (e.g. &quot;Pirate&quot;)</string>
@@ -351,11 +352,36 @@
     <string name="mr_import_why_9">Shortcuts are not supported yet</string>
     <string name="mr_import_why_10">A word needs at least 2 letters</string>
     <string name="mr_import_why_11">More than 30 words in one phrase</string>
-    <string name="mr_import_ai_title">Use an AI to prepare a long text</string>
-    <string name="mr_import_ai_text">Have a long text, notes or a list? Copy the instructions below, paste them in an AI chat (ChatGPT, Claude, Gemini…) together with your text, and paste its answer here.</string>
+    <string name="mr_import_ai_title">Prefer another AI chat?</string>
+    <string name="mr_import_ai_text">Copy the instructions below, paste them in an AI chat (ChatGPT, Claude, Gemini…) together with your text, and paste its answer here.</string>
     <string name="mr_import_ai_copy">Copy the instructions for the AI</string>
     <string name="mr_import_ai_copied">Copied. Paste it in the AI chat, then add your text.</string>
     <string name="mr_import_ai_warn">Do not send passwords, bank data or private conversations to an AI.</string>
+    <string name="mr_import_ai_button">Format with AI</string>
+    <string name="mr_import_ai_ask_title">Format with AI?</string>
+    <string name="mr_import_ai_ask_text">This text is not in the list format. To turn it into a list of words and phrases it can be sent to %1$s, the service of your AI Editor settings (%2$d characters, %3$d request(s)).\n\nLinks, e-mails, phone numbers, long numbers and the names of chat authors are removed before sending. Nothing is sent unless you choose Send.</string>
+    <string name="mr_import_ai_ask_cut">The text is long: only the first %1$d characters (%2$d requests) would be sent. To use all of it, choose Don\'t send and tap the button below to see what will be added.</string>
+    <string name="mr_import_ai_ask_many">These are %1$d requests to your AI account and they may have a cost there.</string>
+    <string name="mr_import_ai_your_service">your AI service</string>
+    <string name="mr_import_ai_send">Send</string>
+    <string name="mr_import_ai_dont">Don\'t send</string>
+    <string name="mr_import_ai_nokey_title">AI not set up</string>
+    <string name="mr_import_ai_nokey_text">To format a text with AI, fill in the address, the model and the key of the service in the AI Editor settings. Nothing is sent before you confirm.</string>
+    <string name="mr_import_ai_nokey_open">Open AI settings</string>
+    <string name="mr_import_ai_already">This text is already in the list format.</string>
+    <string name="mr_import_ai_nothing">After taking out links and numbers there is nothing left to send.</string>
+    <string name="mr_import_ai_preparing">Getting the text ready…</string>
+    <string name="mr_import_ai_progress">Formatting with AI… part %1$d of %2$d</string>
+    <string name="mr_import_ai_cancelled">Formatting cancelled. Your text was not changed.</string>
+    <string name="mr_import_ai_back_nothing">The AI did not return a usable list. Your text was not changed.</string>
+    <string name="mr_import_ai_done">Formatted with AI: %1$d words and %2$d phrases. Check the text and tap the button below to see what will be added.</string>
+    <string name="mr_import_ai_partial_title">Only part of the text was formatted</string>
+    <string name="mr_import_ai_partial">%1$d of %2$d parts are in the list now. %3$s\n\nThe rest was not converted: use Undo formatting and try again, or add the rest with the button below.</string>
+    <string name="mr_import_ai_why_cancel">You cancelled.</string>
+    <string name="mr_import_ai_why_unreadable">Some answers were not a list.</string>
+    <string name="mr_import_ai_fail_title">The AI could not format the text</string>
+    <string name="mr_import_ai_undo">Undo formatting</string>
+    <string name="mr_import_ai_undone">Text restored.</string>
     <string name="mr_import_prompt">Turn my text into a word list for a phone keyboard.\nRules:\n- Answer with the list only, in a single code block, with no explanations.\n- The first two lines must be exactly: “# mr-words 1” and “# language: TAG” (TAG is the language of the text: pt-BR, en-US or es).\n- [words]: one word per line, only words a normal dictionary would not have (names, places, brands, slang, technical terms, my usual abbreviations). After a TAB you can give a weight from 1 to 100 (50 is normal, 80 for words I use all the time).\n- [phrases]: pairs or short phrases I write often, one per line, from 2 to 5 words.\n- [blocked]: words the keyboard must never suggest (only if I ask for it).\n- No numbers, links, e-mails, phone numbers or private data. No repeated lines. Keep the language of my text.\n\nExample of the answer:\n# mr-words 1\n# language: en-US\n[words]\nLuana\nHendrix\t70\n[phrases]\nsee you later\ngood morning everyone\n\nMy text follows:\n</string>
     <!-- /v1.85 words -->
 </resources>

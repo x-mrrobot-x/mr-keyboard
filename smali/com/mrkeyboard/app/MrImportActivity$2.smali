@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 129
+    .line 141
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$2;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,7 +40,7 @@
     .locals 1
 
     .prologue
-    .line 138
+    .line 150
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$2;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$000(Lcom/mrkeyboard/app/MrImportActivity;)Ljava/lang/String;
@@ -61,8 +61,22 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$100(Lcom/mrkeyboard/app/MrImportActivity;)V
 
-    .line 139
+    .line 152
     :cond_0
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$2;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$200(Lcom/mrkeyboard/app/MrImportActivity;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_1
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$2;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$300(Lcom/mrkeyboard/app/MrImportActivity;)V
+
+    .line 153
+    :cond_1
     return-void
 .end method
 
@@ -70,7 +84,7 @@
     .locals 0
 
     .prologue
-    .line 131
+    .line 143
     return-void
 .end method
 
@@ -78,6 +92,6 @@
     .locals 0
 
     .prologue
-    .line 134
+    .line 146
     return-void
 .end method

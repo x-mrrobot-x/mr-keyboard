@@ -10,6 +10,7 @@ public class AlertDialog implements android.content.DialogInterface {
         public Builder setNegativeButton(CharSequence text, android.content.DialogInterface.OnClickListener l) { return this; }
         public Builder setNeutralButton(CharSequence text, android.content.DialogInterface.OnClickListener l) { return this; }
         public Builder setItems(CharSequence[] items, android.content.DialogInterface.OnClickListener l) { return this; }
+        public Builder setSingleChoiceItems(CharSequence[] items, int checkedItem, android.content.DialogInterface.OnClickListener l) { return this; }
         public Builder setView(android.view.View view) { return this; }
         public Builder setCancelable(boolean cancelable) { return this; }
         public AlertDialog show() { return null; }

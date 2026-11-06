@@ -66,6 +66,7 @@ public class View {
     public void removeOnLayoutChangeListener(OnLayoutChangeListener listener) { }
     public void setOnClickListener(OnClickListener l) { }
     public void setClickable(boolean clickable) { }
+    public void setEnabled(boolean enabled) { }
     public android.os.IBinder getWindowToken() { return null; }
     public void setOnLongClickListener(OnLongClickListener l) { }
     public void setVisibility(int visibility) { }

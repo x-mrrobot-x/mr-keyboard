@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 374
+    .line 360
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->val$codes:Ljava/util/ArrayList;
@@ -53,7 +53,7 @@
     .locals 3
 
     .prologue
-    .line 376
+    .line 362
     if-ltz p2, :cond_0
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->val$codes:Ljava/util/ArrayList;
@@ -82,7 +82,7 @@
 
     invoke-static {v1, v0, v2}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1100(Lcom/mrkeyboard/app/MrLearnedActivity;ILcom/mrkeyboard/app/MrWordStore$Row;)V
 
-    .line 377
+    .line 363
     :cond_0
     return-void
 .end method

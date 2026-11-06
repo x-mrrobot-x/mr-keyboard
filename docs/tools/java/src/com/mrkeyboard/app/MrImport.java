@@ -352,6 +352,35 @@ final class MrImport {
         }
     }
 
+    // ------------------------------------------------------------------ before a text leaves the phone
+
+    private static final Pattern LONG_DIGITS = Pattern.compile("\\d{4,}");
+    private static final Pattern BLANKS = Pattern.compile("[ \\t]+");
+
+    /**
+     * v1.88: the text with what should never go to a service taken out, for the formatting by AI (MrImportAi): the date and author at the start
+     * of the lines of a chat export (the author is a person's name), links, e-mails, phone numbers and any sequence of four or more digits
+     * (documents, cards, codes). Lines left empty are dropped and the spaces are squeezed. The words around the removed parts stay.
+     */
+    static String scrub(String text) {
+        if (text == null) return "";
+        text = text.replace("\r\n", "\n").replace('\r', '\n');
+        if (text.startsWith("\ufeff")) text = text.substring(1);
+        StringBuilder out = new StringBuilder();
+        for (String line : text.split("\n", -1)) {
+            String body = CHAT_PREFIX.matcher(line).replaceFirst("");
+            body = URL.matcher(body).replaceAll(" ");
+            body = EMAIL.matcher(body).replaceAll(" ");
+            body = PHONE.matcher(body).replaceAll(" ");
+            body = LONG_DIGITS.matcher(body).replaceAll(" ");
+            body = BLANKS.matcher(body).replaceAll(" ").trim();
+            if (body.length() == 0) continue;
+            if (out.length() > 0) out.append('\n');
+            out.append(body);
+        }
+        return out.toString();
+    }
+
     // ------------------------------------------------------------------ free text
 
     private static String clean(String line) {

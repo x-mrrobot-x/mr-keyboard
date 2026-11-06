@@ -75,6 +75,17 @@ public class MrImportActivity extends Activity {
     private TextView mMoreWords;
     private TextView mUndo;
     private TextView mStatus;
+    private TextView mAiButton;
+    private TextView mAiCancel;
+    private TextView mAiUndo;
+    private TextView mAiNote;
+    /** The cancel button was tapped while the AI was working (read by the thread that sends). */
+    private volatile boolean mAiCancelled;
+    /** What the box and the opened file had before the AI formatting, for "Undo formatting". */
+    private String mAiBeforeBox;
+    private String mAiBeforeFile;
+    /** The text of the box is being set by the screen itself (not typed by the person). */
+    private boolean mSetting;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -103,6 +114,7 @@ public class MrImportActivity extends Activity {
         if (state != null) mLocale = state.getString(S_LOCALE);
         if (mLocale == null && getIntent() != null) mLocale = getIntent().getStringExtra(EXTRA_LOCALE);
         loadLanguages();
+        MrLang.remember(prefs(), mLocale);
 
         ScrollView scroll = new ScrollView(this);
         scroll.setBackground(k.round(k.bg, 0, 0, false));
@@ -136,6 +148,8 @@ public class MrImportActivity extends Activity {
             public void afterTextChanged(Editable s) {
                 // Typing over an opened file means the user wants the typed text now.
                 if (mFileText != null && s != null && s.length() > 0) dropFile();
+                // Another text than the one the AI made: the way back would throw the changes away.
+                if (!mSetting) hideAiResult();
             }
         });
         col.addView(mText, k.wide(14));
@@ -162,6 +176,24 @@ public class MrImportActivity extends Activity {
         tools.addView(open, second);
         col.addView(tools, k.wide(10));
 
+        mAiButton = k.button(k.t("mr_import_ai_button"), false, new View.OnClickListener() {
+            public void onClick(View v) {
+                formatTapped();
+            }
+        });
+        col.addView(mAiButton, k.wide(8));
+        mAiNote = k.label("", 13f, k.text2, false);
+        mAiNote.setPadding(k.dp(4), k.dp(6), k.dp(4), 0);
+        mAiNote.setVisibility(View.GONE);
+        col.addView(mAiNote, k.wide(0));
+        mAiUndo = k.button(k.t("mr_import_ai_undo"), false, new View.OnClickListener() {
+            public void onClick(View v) {
+                undoAi();
+            }
+        });
+        mAiUndo.setVisibility(View.GONE);
+        col.addView(mAiUndo, k.wide(8));
+
         mAnalyze = k.button(k.t("mr_import_analyze"), true, new View.OnClickListener() {
             public void onClick(View v) {
                 analyze();
@@ -172,6 +204,14 @@ public class MrImportActivity extends Activity {
         mStatus.setPadding(k.dp(4), k.dp(8), k.dp(4), 0);
         mStatus.setVisibility(View.GONE);
         col.addView(mStatus, k.wide(0));
+        mAiCancel = k.button(k.t("mr_words_cancel"), false, new View.OnClickListener() {
+            public void onClick(View v) {
+                mAiCancelled = true;
+                mAiCancel.setVisibility(View.GONE);
+            }
+        });
+        mAiCancel.setVisibility(View.GONE);
+        col.addView(mAiCancel, k.wide(8));
 
         mPreview = k.column();
         mPreview.setVisibility(View.GONE);
@@ -215,39 +255,21 @@ public class MrImportActivity extends Activity {
         } catch (RuntimeException e) {
             have = new ArrayList<String>();
         }
-        mLangs = MrLearned.languages(MrPacks.installedIds(this), have);
-        if (mLangs.isEmpty()) {
-            mLangs.add("pt_BR");
-            mLangs.add("en_US");
-            mLangs.add("es");
-        }
-        if (mLocale == null || !mLangs.contains(mLocale)) {
-            String ui = getResources().getConfiguration().locale.getLanguage();
-            String pick = mLangs.get(0);
-            for (String l : mLangs) {
-                if (MrPacks.splitLocale(l)[0].equals(ui)) {
-                    pick = l;
-                    break;
-                }
-            }
-            mLocale = pick;
-        }
+        mLangs = MrLang.offered(MrPacks.installedIds(this), have);
+        mLocale = MrLang.pick(mLangs, mLocale, MrLang.last(prefs()), getResources().getConfiguration().locale.getLanguage());
     }
 
     private void refreshLanguages() {
-        ArrayList<TextView> chips = new ArrayList<TextView>();
-        for (final String l : mLangs) {
-            chips.add(k.chip(k.langName(l), l.equals(mLocale), new View.OnClickListener() {
-                public void onClick(View v) {
-                    if (mBusy) return;
-                    mLocale = l;
-                    // A preview was made for another language: the words may be known there.
-                    clearPreview();
-                    refreshLanguages();
-                }
-            }));
-        }
-        k.fill(mLangBox, chips, 2);
+        k.languageCard(mLangBox, mLangs, mLocale, new MrKit.LangPick() {
+            public void onPick(String locale) {
+                if (mBusy) return;
+                mLocale = locale;
+                MrLang.remember(prefs(), locale);
+                // A preview was made for another language: the words may be known there.
+                clearPreview();
+                refreshLanguages();
+            }
+        });
     }
 
     // ------------------------------------------------------------------ input
@@ -336,21 +358,36 @@ public class MrImportActivity extends Activity {
                             return;
                         }
                         mText.setText("");
-                        mFileText = loaded;
-                        mFileKb = Math.max(1, loaded.length() / 1024);
-                        mFileLabel.setText(k.t("mr_import_file_loaded", mFileKb));
-                        mFileLabel.setVisibility(View.VISIBLE);
+                        showFile(loaded);
                         clearPreview();
                         if (wasCut) k.toast(k.t("mr_import_file_cut", MAX_FILE_BYTES / (1024 * 1024)));
+                        // A file that is not a list: ask whether to send it to the AI (only when the AI is set up; the answer is not remembered).
+                        if (!MrImport.isStandard(loaded) && MrAi.configured(MrImportActivity.this)) prepareAi(loaded);
                     }
                 });
             }
         }).start();
     }
 
+    private void showFile(String loaded) {
+        mFileText = loaded;
+        mFileKb = Math.max(1, loaded.length() / 1024);
+        mFileLabel.setText(k.t("mr_import_file_loaded", mFileKb));
+        mFileLabel.setVisibility(View.VISIBLE);
+    }
+
     private void dropFile() {
         mFileText = null;
         mFileLabel.setVisibility(View.GONE);
+    }
+
+    private void setBox(String text) {
+        mSetting = true;
+        try {
+            mText.setText(text);
+        } finally {
+            mSetting = false;
+        }
     }
 
     private String source() {
@@ -364,6 +401,8 @@ public class MrImportActivity extends Activity {
     private void setBusy(boolean busy, String message) {
         mBusy = busy;
         mAnalyze.setClickable(!busy);
+        mAiButton.setClickable(!busy);
+        mText.setEnabled(!busy);
         mStatus.setText(message == null ? "" : message);
         mStatus.setVisibility(busy ? View.VISIBLE : View.GONE);
     }
@@ -633,6 +672,206 @@ public class MrImportActivity extends Activity {
                 .setMessage(sb.toString())
                 .setPositiveButton(k.t("mr_words_ok"), null)
                 .show();
+    }
+
+    // ------------------------------------------------------------------ formatting with the AI
+
+    /** The "Format with AI" button. */
+    private void formatTapped() {
+        if (mBusy) return;
+        String text = source();
+        if (text.trim().length() == 0) {
+            k.toast(k.t("mr_import_nothing"));
+            return;
+        }
+        if (MrImport.isStandard(text)) {
+            k.toast(k.t("mr_import_ai_already"));
+            return;
+        }
+        if (!MrAi.configured(this)) {
+            new AlertDialog.Builder(this)
+                    .setTitle(k.t("mr_import_ai_nokey_title"))
+                    .setMessage(k.t("mr_import_ai_nokey_text"))
+                    .setNegativeButton(k.t("mr_words_cancel"), null)
+                    .setPositiveButton(k.t("mr_import_ai_nokey_open"), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                startActivity(MrNav.intent(MrImportActivity.this, MrAiPrefs.class));
+                            } catch (RuntimeException e) {
+                                k.toast(k.t("mr_words_no_files"));
+                            }
+                        }
+                    })
+                    .show();
+            return;
+        }
+        prepareAi(text);
+    }
+
+    /** Takes out what must not leave the phone and cuts the text in parts (off the main thread: a file can be large), then asks. */
+    private void prepareAi(final String text) {
+        if (mBusy) return;
+        setBusy(true, k.t("mr_import_ai_preparing"));
+        new Thread(new Runnable() {
+            public void run() {
+                MrImportAi.Plan plan = null;
+                try {
+                    plan = MrImportAi.plan(text);
+                } catch (RuntimeException e) {
+                    plan = null;
+                } catch (OutOfMemoryError e) {
+                    plan = null;
+                }
+                final MrImportAi.Plan done = plan;
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        setBusy(false, null);
+                        if (isFinishing()) return;
+                        if (done == null) k.toast(k.t("mr_import_failed"));
+                        else if (done.requests() == 0) k.toast(k.t("mr_import_ai_nothing"));
+                        else askToSend(done);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    /** The question before anything leaves the phone: where it goes, how much, and the choice of not sending (not remembered). */
+    private void askToSend(final MrImportAi.Plan plan) {
+        String host = MrAi.serviceHost(this);
+        if (host.length() == 0) host = k.t("mr_import_ai_your_service");
+        StringBuilder sb = new StringBuilder(k.t("mr_import_ai_ask_text", host, plan.chars, plan.requests()));
+        if (plan.truncated) sb.append("\n\n").append(k.t("mr_import_ai_ask_cut", plan.chars, plan.requests()));
+        if (plan.requests() > MrImportAi.MANY_REQUESTS) sb.append("\n\n").append(k.t("mr_import_ai_ask_many", plan.requests()));
+        new AlertDialog.Builder(this)
+                .setTitle(k.t("mr_import_ai_ask_title"))
+                .setMessage(sb.toString())
+                .setNegativeButton(k.t("mr_import_ai_dont"), null)
+                .setPositiveButton(k.t("mr_import_ai_send"), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        runAi(plan);
+                    }
+                })
+                .show();
+    }
+
+    private void runAi(final MrImportAi.Plan plan) {
+        if (mBusy) return;
+        final String tag = MrLearned.tag(mLocale);
+        final String beforeBox = mText.getText() == null ? "" : mText.getText().toString();
+        final String beforeFile = mFileText;
+        mAiCancelled = false;
+        setBusy(true, k.t("mr_import_ai_progress", 1, plan.requests()));
+        mAiCancel.setVisibility(View.VISIBLE);
+        final MrImportAi.Sender sender = new MrImportAi.Sender() {
+            public String send(String system, String user) throws MrImportAi.Fail {
+                try {
+                    return MrAi.complete(MrImportActivity.this, system, user, MrImportAi.TEMPERATURE);
+                } catch (MrAi.AiFail f) {
+                    throw new MrImportAi.Fail(f.getMessage());
+                }
+            }
+        };
+        final MrImportAi.Control control = new MrImportAi.Control() {
+            public boolean cancelled() {
+                // leaving the screen stops the requests too: nothing more is spent on a result nobody will see
+                return mAiCancelled || isFinishing();
+            }
+
+            public void progress(final int done, final int total) {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        if (mBusy) mStatus.setText(k.t("mr_import_ai_progress", done + 1, total));
+                    }
+                });
+            }
+        };
+        new Thread(new Runnable() {
+            public void run() {
+                MrImportAi.Result res;
+                try {
+                    res = MrImportAi.run(plan, tag, sender, control);
+                } catch (RuntimeException e) {
+                    res = new MrImportAi.Result();
+                    res.parts = plan.requests();
+                    res.failure = "";
+                } catch (OutOfMemoryError e) {
+                    res = new MrImportAi.Result();
+                    res.parts = plan.requests();
+                    res.failure = "";
+                }
+                final MrImportAi.Result result = res;
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        finishAi(result, beforeBox, beforeFile);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private String failureText(String failure) {
+        return failure == null || failure.length() == 0 ? k.t("mr_ai_net_fail") : failure;
+    }
+
+    private void finishAi(MrImportAi.Result r, String beforeBox, String beforeFile) {
+        setBusy(false, null);
+        mAiCancel.setVisibility(View.GONE);
+        if (isFinishing()) return;
+        if (r.empty()) {
+            // nothing usable came back: the text stays as it was
+            if (r.failure != null) {
+                new AlertDialog.Builder(this)
+                        .setTitle(k.t("mr_import_ai_fail_title"))
+                        .setMessage(failureText(r.failure))
+                        .setPositiveButton(k.t("mr_words_ok"), null)
+                        .show();
+            } else {
+                k.toast(k.t(r.cancelled ? "mr_import_ai_cancelled" : "mr_import_ai_back_nothing"));
+            }
+            return;
+        }
+        dropFile();
+        setBox(r.text);
+        clearPreview();
+        // the way back: what the screen had before the AI replaced it
+        mAiBeforeBox = beforeBox;
+        mAiBeforeFile = beforeFile;
+        mAiUndo.setVisibility(View.VISIBLE);
+        mAiNote.setText(k.t("mr_import_ai_done", r.words, r.phrases));
+        mAiNote.setVisibility(View.VISIBLE);
+        if (!r.complete()) {
+            String why = r.failure != null ? failureText(r.failure) : k.t(r.cancelled ? "mr_import_ai_why_cancel" : "mr_import_ai_why_unreadable");
+            new AlertDialog.Builder(this)
+                    .setTitle(k.t("mr_import_ai_partial_title"))
+                    .setMessage(k.t("mr_import_ai_partial", r.done, r.parts, why))
+                    .setPositiveButton(k.t("mr_words_ok"), null)
+                    .show();
+        }
+    }
+
+    private void hideAiResult() {
+        if (mAiUndo == null) return;
+        mAiUndo.setVisibility(View.GONE);
+        mAiNote.setVisibility(View.GONE);
+        mAiBeforeBox = null;
+        mAiBeforeFile = null;
+    }
+
+    private void undoAi() {
+        if (mBusy || mAiBeforeBox == null) return;
+        String box = mAiBeforeBox;
+        String file = mAiBeforeFile;
+        dropFile();
+        if (file != null) {
+            setBox("");
+            showFile(file);
+        } else {
+            setBox(box);
+        }
+        clearPreview();
+        hideAiResult();
+        k.toast(k.t("mr_import_ai_undone"));
     }
 
     // ------------------------------------------------------------------ undo the last import
