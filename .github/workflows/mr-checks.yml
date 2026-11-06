@@ -20,6 +20,8 @@
 #                        neighbour keys, recent words, the update notice: signature, versions, replay, checking windows)
 #   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial)
 #   test_make_update.py  builds the update notice (version, APK size and SHA-256, notes in both languages, every error that must stop a release)
+#   corpus/test_real.py  the real-message evaluation tools (sampler with fake Arctic Shift / Hugging Face servers: retries, 429, timeouts, a failing source;
+#                        cleaner and language filter; the manual workflow mr-corpus-real.yml; the acceptance rule for a candidate pack)
 #   publish_test/run.sh  publish_release.sh end to end with a fake gh and the real signature
 # assemble (a few minutes):
 #   check_java_smali.sh  the Mr*.smali files are what build_java.sh generates today from the Java sources
@@ -118,6 +120,9 @@ jobs:
 
       - name: Update notice
         run: python3 -I docs/tools/test_make_update.py
+
+      - name: Real-message tools (sampler, cleaner, acceptance rule)
+        run: python3 -I docs/tools/corpus/test_real.py
 
       - name: Release publishing (with a fake gh)
         run: bash docs/tools/publish_test/run.sh

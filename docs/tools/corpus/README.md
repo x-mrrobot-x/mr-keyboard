@@ -71,3 +71,50 @@ another language that the subtitles quote (`FOREIGN`) and the accent-free form o
 register does not hide a loss in another; an old pack must be compared with a pack rebuilt by the **old scripts on the same splits**
 (`make_wordlist_lang.py` + `make_trigrams.py`, news weight 1, Tatoeba weight 3), because the shipped pack has seen the sentences of its own export.
 Then `run_strategy_tests.sh` (S1-S29, the data checks and the floors of S28) with `DICTS=<folder with the new pack>`.
+
+## 5. Real messages: sample, clean, split and measure (stage 2 of `docs/plan-next.md`)
+Why: the "chat" source of the mix is Tatoeba (translated example sentences) and none of the three hold-outs is text typed by people. This section adds a **fourth test
+(real messages)** and the data for a fourth source. Nothing here changes the app; the tools only produce numbers and files for the next pack.
+
+| File | What it is |
+|---|---|
+| `real_sources.json` | **The registry.** Per language (`pt-BR`, `es`, `en-US`): the dictionary used by the language filter, the minimum size of the test, a profanity list for the report, and the `sources`. Each source has an `id`, a `type` (`reddit` or `hf`), a `role` (`train` or `test`), a `weight` (its share of `--messages`) and its own settings (the subreddits and the period, or the Hugging Face dataset). Services, pauses, retries and the language-filter thresholds are at the top. |
+| `sample_real.py` | Downloads the sample of one language. `reddit`: Arctic Shift API, comments of the listed subreddits taken from random windows of time inside `[after, before)`, so one viral thread cannot fill the sample; a pause of 2 s between calls, a wait on 429, a smaller page after a timeout, the format of the date parameter probed on the first call (the finest that works: epoch, ISO, then a plain date), each page read from the start or from the end of its window at random. `hf`: Hugging Face datasets-server (`/rows`), random pages of 100 rows; the text column is found from the features. A source that fails is reported and the others go on. User names are hashed with a random salt on the spot and never written. Standard library only. |
+| `prepare_real.py` | Cleans, filters the language, drops repeated messages, caps one user at 1% of a source, splits into `chat_real_train.txt`, `chat_real_dev.txt`, `chat_real_test.txt` (+ one test file per test source) and writes `real_report.md/json` (numbers only, plus the 50 most frequent words that are not in the dictionary and were used by 5+ different users). Rules in the header of the script. |
+| `mr-corpus-real.yml` | The manual workflow (like `mr-corpus-samples.yml`): checks out this repository, runs the two scripts, puts the report in the *Summary* of the run and uploads the artifact `real-<language>` (report always; the cleaned text only with `deliver = data`). |
+| `accept_pack.py` | The acceptance rule for a candidate pack (below). |
+| `../e2e/run_real_eval.sh` | `SubtitleEval` on the four tests for one dictionary folder. |
+| `test_real.py` | Tests of all of the above with fake servers (no network); runs in `mr-checks.yml`. |
+
+### 5.1 Run it (a few minutes of your time; the run itself takes hours, because the free services are slow on purpose)
+1. Copy `docs/tools/corpus/mr-corpus-real.yml` to `.github/workflows/` of the **private** repository where you already run `mr-corpus-samples.yml`. (It checks out `x-mrrobot-x/mr-keyboard` itself, at the branch or tag you give in `ref`, so the scripts must be pushed there first.)
+2. Actions → **Mr Keyboard - real messages** → Run workflow. First run: leave `messages` = 50000, all languages, `deliver` = **report**, `ref` = main.
+3. When the three jobs end, open each one and read **Summary** (the report and the sampler log). Send me the three reports (or download the artifacts `real-pt-BR`, `real-es`, `real-en-US`: they have `real_report.md`, `real_report.json`, `sample_log.json`, only numbers and the 50 words).
+4. Second run, only after the sources are approved: `deliver` = **data**. The artifact then also has `chat_real_*.txt.gz`, already cleaned. The text is not in the repository; delete the run after downloading.
+
+### 5.2 How to read the report
+* **Sampler** (`ok`, `EMPTY`, `FAILED`): a source that did not answer. The sampler log says what happened per community (requests, failures, `stopped`). Arctic Shift is a free archive with no guarantee; if a community returns nothing, replace it in `real_sources.json` rather than insisting.
+* **raw / links / units kept**: raw comments or tweets; the share that had a link (removed); the sentences left after the cleaning (a comment becomes one or more lines).
+* **purity**: of the sentences that could be judged, the share the dictionary of the language accepted. Under 80% means a lot of another language, or slang the dictionary does not know. The "other languages" line says which.
+* **repeated, profanity**: share of identical messages (dropped) and of sentences with a word of the profanity list.
+* **out of the dictionary**: share of words (3+ letters) not in the dictionary, a lower bound (the language filter favours known words). **accent-free forms** are `voce`, `nao`: counted apart, not new words.
+* **flags** per source: `ok` or what is wrong. **TEST TOO SMALL** says how many messages to ask for in the next run.
+* **50 words**: the most frequent words not in the dictionary used by 5+ users (`*` = looks like a name). It is the list to read for slang that is missing and for junk that must not enter.
+
+### 5.3 Add a language, a community or a source
+Edit `real_sources.json`: a community is one more name in `subreddits`; a language is a new entry under `languages` (its `dictionary` must exist, because the language filter needs it, and the `case` list of the `plan` step in the workflow must name it); another source of the same two types is one more object in `sources`. A new type of source is one more function in `sample_real.py` and a branch in `main()`. Keep out communities of personal confession, distress, health or finances and any with minors; the list in the file already leaves them out.
+
+### 5.4 Measure a candidate pack (the fourth test and the acceptance rule)
+```
+python3 -I docs/tools/corpus/prepare_real.py --config docs/tools/corpus/real_sources.json --lang pt-BR --raw work/pt-BR/raw --out work/pt-BR/real   # only if you have the raw files
+bash docs/tools/e2e/run_real_eval.sh pt-BR <old dicts> work/pt-BR work/pt-BR/results/old     # the baseline built the old way on the same splits (section 4)
+bash docs/tools/e2e/run_real_eval.sh pt-BR <new dicts> work/pt-BR work/pt-BR/results/new
+python3 -I docs/tools/corpus/accept_pack.py --lang pt-BR --old work/pt-BR/results/old --new work/pt-BR/results/new --pack-dir <new dicts>/pt-BR
+```
+`work/pt-BR` has `subs_test.txt`, `news_test.txt`, `chat_test.txt` (from `prepare_corpus.py`) and `real/` (from `prepare_real.py`). A dicts folder is `<dicts>/<lang>/main.dict + trigrams.bin + rules.txt` (copy `rules.txt` of the shipped pack next to a candidate). `accept_pack.py --rule` prints the rule; its reasons are in `docs/dictionary-tuning.md`. Exit code 0 accepted, 1 rejected, 2 a result is missing.
+
+### 5.5 What this does not tell you
+* The language filter uses the dictionary, so very new slang and typos are filtered a little; the report's out-of-dictionary rate is therefore a lower bound.
+* Reddit is written text, longer than a phone message and with a different mix of topics; the Spanish tweets are from 2019 (the style of that year). Both are better than translated sentences, neither is WhatsApp.
+* The accent-free typing of Brazilians (`nao`, `voce`) is real and the dictionary does not predict those forms; it lowers the real-message rates for the old and the new pack equally.
+* Arctic Shift and the Hugging Face viewer can change or fail; the probe and the report exist so that a change is seen, not hidden.

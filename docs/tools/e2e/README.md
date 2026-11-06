@@ -29,6 +29,10 @@ same `dictionary.cpp`. Only `LatinIME` (which needs Android) is left out. It exi
   after the space and after 1, 2 and 3 letters on the 10,000 most common OpenSubtitles sentences (not the training data of any pack). It needs the
   sentences, which are not in the repository (the script header says where to get them), so it does not run in CI. The same class reads a plain text file
   (one sentence per line, name ending in `.txt`): `java ... SubtitleEval pt-BR dicts docs/tools/e2e/data/everyday_pt-BR.txt`.
+- `bash docs/tools/e2e/run_real_eval.sh <lang> <dicts dir> <tests dir> <results dir> [app_jar.jar]`: `SubtitleEval` on the four tests of the real-message evaluation
+  (subtitles, news and Tatoeba hold-outs of `prepare_corpus.py`, and the real messages of `prepare_real.py`: all test sources together, each one alone, and the dev file), one result file
+  per test. Run it for the old pack and for the candidate, then `python3 -I docs/tools/corpus/accept_pack.py --old ... --new ...` applies the acceptance rule
+  (`docs/dictionary-tuning.md`, "Acceptance rule"). It needs the work files of the corpus pipeline, so it does not run in CI; the rule itself is tested in `docs/tools/corpus/test_real.py`.
 - `SpeedEval` (by hand, run it alone on the machine): the time of every keystroke of typed sentences, by kind (after a space, 1 letter, 2-4, 5 or more,
   a word that is not in the dictionary, a valid word): `java ... SpeedEval <lang> dicts <top_sentences.csv>` with `-Dsentences=1500 -Drounds=3`. To compare two versions put the classes of one in front of the classpath (`-cp old_classes:...`) and run both
   in the same session; differences under 10% are noise. To compare dictionary formats pass the folder of the v2 copies instead of `dicts` (same classes and libs). Numbers of 1.83 → 1.84, 1.84 → 1.85 and v1 → v2 are in "Speed" of `docs/suggestion-features.md`.

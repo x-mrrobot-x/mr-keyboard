@@ -1,0 +1,151 @@
+# Mr Keyboard: samples REAL informal messages (Reddit comments, tweets) on a GitHub runner, cleans them, and returns a REPORT (counts) and,
+# only if you ask for it, the cleaned train / dev / test files. Stage 2 of docs/plan-next.md; how to read the report: docs/tools/corpus/README.md, section 5.
+#
+# NOT part of the project's own workflows (that is why it lives in docs/tools/corpus/ and not in .github/workflows/): copy this file to
+# .github/workflows/ of the PRIVATE repository where you run workflows by hand (the same one as mr-corpus-samples.yml), then
+# Actions -> "Mr Keyboard - real messages" -> Run workflow.
+#
+# The scripts and the dictionaries come from the public repository (the first step checks it out), so only this file has to be copied.
+# 'ref' is the branch or tag of it: use main once the stage is committed.
+#
+# First run (deliver = report): 50000 messages per language, about 1 to 3 hours (the free services are slow on purpose: one request every 2 seconds).
+# The report is on the page of the run (Summary) and in the artifact real-<language> (real_report.md, real_report.json, sample_log.json).
+# Second run (deliver = data): the same plus chat_real_train/dev/test(.<source>).txt.gz, already cleaned (no user name, link, e-mail or phone).
+# Download the artifact and send it; the text of the messages is never put in the repository.
+#
+# SOURCES, LICENCES AND PRIVACY
+#   Reddit comments: Arctic Shift (https://github.com/ArthurHeitmann/arctic_shift), a free archive run by one person with no guarantee: it can be slow or fail,
+#     and the report says so for each community. User names are hashed on the runner with a random salt before anything is written, and are never stored.
+#   Tweets: Hugging Face datasets (pysentimiento/spanish-tweets, fpaulino/portuguese-tweets) through the public datasets-server. They stay on the runner like the rest.
+#   The text of the messages has the licence of its authors: the project keeps only counts (a pack never contains a message). Run this in a PRIVATE repository,
+#   keep the 2-day retention and delete the run after downloading.
+name: Mr Keyboard - real messages
+
+on:
+  workflow_dispatch:
+    inputs:
+      messages:
+        description: 'Messages to download per language, split between its sources (50000 for a first look)'
+        default: '50000'
+      languages:
+        description: 'Languages, separated by commas: pt-BR,es,en-US'
+        default: 'pt-BR,es,en-US'
+      deliver:
+        description: 'report = counts and report only; data = also the cleaned train, dev and test files'
+        type: choice
+        options:
+          - report
+          - data
+        default: report
+      ref:
+        description: 'Branch or tag of x-mrrobot-x/mr-keyboard that has these scripts (main once committed)'
+        default: main
+      seed:
+        description: 'Seed of the random choice of the time windows (change it to get another sample)'
+        default: '1'
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      langs: ${{ steps.p.outputs.langs }}
+    steps:
+      - name: Check the inputs and list the languages
+        id: p
+        env:
+          LANGS: ${{ inputs.languages }}
+          MESSAGES: ${{ inputs.messages }}
+          SEED: ${{ inputs.seed }}
+        run: |
+          set -euo pipefail
+          case "$MESSAGES" in ''|*[!0-9]*) echo "messages must be a number, got '$MESSAGES'"; exit 1;; esac
+          { [ "$MESSAGES" -ge 1000 ] && [ "$MESSAGES" -le 1000000 ]; } || { echo "messages must be between 1000 and 1000000"; exit 1; }
+          case "$SEED" in ''|*[!0-9]*) echo "seed must be a number, got '$SEED'"; exit 1;; esac
+          out=""
+          for l in $(echo "$LANGS" | tr ',' ' '); do
+            case "$l" in
+              pt-BR|es|en-US) out="$out\"$l\",";;
+              *) echo "unknown language '$l' (pt-BR, es or en-US; another one needs an entry in real_sources.json)"; exit 1;;
+            esac
+          done
+          [ -n "$out" ] || { echo "no language"; exit 1; }
+          echo "langs=[${out%,}]" >> "$GITHUB_OUTPUT"
+
+  real:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        lang: ${{ fromJSON(needs.plan.outputs.langs) }}
+    env:
+      LANG_ID: ${{ matrix.lang }}
+      MESSAGES: ${{ inputs.messages }}
+      SEED: ${{ inputs.seed }}
+      DELIVER: ${{ inputs.deliver }}
+    steps:
+      - name: Scripts and dictionaries of the public repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: x-mrrobot-x/mr-keyboard
+          ref: ${{ inputs.ref }}
+          path: mr
+          persist-credentials: false
+          sparse-checkout: |
+            docs/tools
+            dicts
+
+      - name: Download the sample (a source that fails is reported, it does not stop the others)
+        id: sample
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          mkdir -p work
+          python3 -I mr/docs/tools/corpus/sample_real.py --config mr/docs/tools/corpus/real_sources.json \
+            --lang "$LANG_ID" --messages "$MESSAGES" --seed "$SEED" --out "work/$LANG_ID/raw" 2>&1 | tee "work/sample.log"
+
+      - name: Clean, filter, split and write the report
+        run: |
+          set -euo pipefail
+          [ -d "work/$LANG_ID/raw" ] || { echo "the sampler wrote nothing (see the step above)"; exit 1; }
+          python3 -I mr/docs/tools/corpus/prepare_real.py --config mr/docs/tools/corpus/real_sources.json \
+            --lang "$LANG_ID" --raw "work/$LANG_ID/raw" --out "work/$LANG_ID/real" --root mr
+          {
+            cat "work/$LANG_ID/real/real_report.md"
+            echo
+            echo "### Sampler log"
+            echo '```'
+            cat work/sample.log || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Pack the result (the report always; the cleaned text only if asked)
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          cp "work/$LANG_ID/real/real_report.md" "work/$LANG_ID/real/real_report.json" out/
+          [ -f "work/$LANG_ID/raw/sample_log.json" ] && cp "work/$LANG_ID/raw/sample_log.json" out/ || true
+          if [ "$DELIVER" = "data" ]; then
+            for f in work/"$LANG_ID"/real/chat_real_*.txt; do
+              gzip -6 -c "$f" > "out/$(basename "$f").gz"
+            done
+          fi
+          ls -l out
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: real-${{ matrix.lang }}
+          path: out/
+          retention-days: 2
+          if-no-files-found: error
+
+      - name: Fail the job when the sampler failed (after the report is saved)
+        if: steps.sample.outcome == 'failure'
+        run: |
+          echo "No source gave messages for $LANG_ID: see 'Download the sample'. The report and the artifact above say what happened."
+          exit 1

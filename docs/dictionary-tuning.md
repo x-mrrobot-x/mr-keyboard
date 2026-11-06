@@ -114,3 +114,25 @@ Why it was run: the "chat" source of the mix is Tatoeba, which is translated exa
 | 2 / 68 / 30 (almost no subtitles) | 12.1 / 28.0 / 40.0 / 56.6 | 13.9 / 26.3 / 35.8 / 51.2 | 19.7 / 37.9 / 49.4 / 64.7 | 5,242,651 |
 
 Reading: taking the subtitles out costs 1.7 to 2.2 points on the subtitles and 0.3 to 0.5 on the news and gives back only 0.7 to 1.4 on Tatoeba. Taking Tatoeba out gives 0.3 to 0.6 points on the subtitles, is neutral on the news and costs 2.8 to 3.7 points on Tatoeba itself. The hold-out of Tatoeba is the artificial register, so that loss says little about typing; **none of the four hold-outs is real messages**, which is why the decision is confirmed (or reversed) in the plan's stage 3 with a hold-out of informal text. Only pt-BR was run (about 12 minutes per row); en-US and es are repeated with the same script before their packs change.
+
+## Acceptance rule for a new pack (stage 2 of `plan-next.md`; applied from stage 3)
+
+Why a rule: until now a pack was accepted by reading three hold-outs (subtitles, Tatoeba, news) and none of them is text typed by people. From stage 2 there is a fourth test, **real messages**
+(`chat_real_test.txt`: Reddit comments and tweets of communities, a period or a medium that the training data never had; `docs/tools/corpus/README.md`, section 5), and a fixed rule that is
+written **before** the packs are built, so that the thresholds are not chosen after seeing the result. The code is `docs/tools/corpus/accept_pack.py` (`--rule` prints it); `docs/tools/e2e/run_real_eval.sh`
+produces the numbers; `docs/tools/corpus/test_real.py` tests the rule.
+
+How it is measured: `SubtitleEval` on each test, the candidate against the **old pack rebuilt by the old scripts on the same splits** (a shipped pack has seen part of the sentences), same sentences, words of
+4+ letters, each sentence once. Score of a test = the mean of the four hit rates (after the space, 1, 2 and 3 letters), in points. The noise of a difference is estimated from the number of words of each rate
+as if the two packs were independent (pessimistic: they use the same words).
+
+| # | Rule | Why this number |
+|---|---|---|
+| 1 | **Real messages** (all test sources together): gain of at least **0.5** point and at least **2 standard errors** of the difference; the rate right after the space may not fall by more than 0.1 | a candidate that cannot beat the old pack by half a point on real messages is not worth the size and the risk of a new pack (the 1.86.1 rebuild gained +0.1 to +0.6 after the space and +2.6 to +3.5 with 3 letters on its chat hold-out); 2 standard errors keeps a lucky small test from passing (about 0.4 to 0.9 points for 30,000 to 5,000 words) |
+| 2 | **Each independent real test source** (for example tweets and a group of subreddits): the gain may not be below minus 1 standard error | a gain that shows in only one medium is a gain on that medium |
+| 3 | Other hold-outs may lose at most (score / right after the space): **subtitles 0.5 / 0.5**, **news 1.5 / 1.0**, **Tatoeba 1.5 / 1.5** | subtitles are the base of the packs and must not pay for the new source; news already lost 1.2 to 2.1 points in es and 0.2 to 1.1 in pt-BR on purpose in 1.86.1; Tatoeba is the artificial register, and the pt-BR ablation above measured -1.3 (score) / -1.2 (after the space) for the cut from 25% to 10% that was decided, so that loss must not be a veto |
+| 4 | Size: **at most 12,000,000 bytes** in the language folder (`main.dict`, `trigrams.bin`, `rules.txt`...) and **7,000,000 bytes** for the zip | the budget decided for stage 3 (today about 11.1 MB on disk and 6.4 MB zipped per language) |
+| info | The **dev** file (real messages of the training communities) is shown, not judged | a large gap between its gain and the test gain means the pack learned the communities and not the language |
+
+Other gates of stage 3 that this script does not compute: `SpeedEval` p95 not worse than +10%, opening time not slower, `run_strategy_tests.sh` with 0 failures and the S28 floors held (raise the floors when a release improves the rates, never lower one).
+Exit code of `accept_pack.py`: 0 accepted, 1 rejected, 2 a result is missing (without the real-message result there is no decision). If a rule turns out to be wrong, change it in the script **and** in this table in a separate commit before using it again.

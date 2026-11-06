@@ -1,0 +1,239 @@
+{
+  "version": 1,
+  "about": "Sources of REAL informal messages, per language, for the test set and (stage 3) the training of the packs. Only configuration lives here: another language or another community is added by editing this file, never the scripts. The scripts: sample_real.py (download), prepare_real.py (clean, split, report). How to run: docs/tools/corpus/README.md, section 5. Communities of personal confession or distress (desabafos, relationship_advice), of personal finances and of teenagers (r/teenagers: minors) are NOT used on purpose.",
+  "arctic_shift": {
+    "base": "https://arctic-shift.photon-reddit.com",
+    "min_interval_s": 2.0,
+    "limit": 100,
+    "timeout_s": 90,
+    "retries": 5,
+    "window_start_hours": 24,
+    "window_max_hours": 1440
+  },
+  "hf": {
+    "base": "https://datasets-server.huggingface.co",
+    "min_interval_s": 0.5,
+    "length": 100,
+    "timeout_s": 90,
+    "retries": 5
+  },
+  "bot_authors": [
+    "AutoModerator",
+    "BotDefense",
+    "RemindMeBot",
+    "sneakpeekbot",
+    "WikiTextBot",
+    "GoodBot_BadBot",
+    "converter-bot",
+    "ModeratorBot"
+  ],
+  "bot_phrases": [
+    "i am a bot",
+    "i'm a bot",
+    "beep boop",
+    "this action was performed automatically",
+    "this comment was removed",
+    "sou um bot",
+    "este é um bot",
+    "soy un bot",
+    "esta es una acción automática"
+  ],
+  "lang_filter": {
+    "min_cover": 0.5,
+    "margin": 0.1,
+    "min_tokens": 2
+  },
+  "languages": {
+    "pt-BR": {
+      "dictionary": "dicts/pt-BR/main.dict",
+      "min_test_lines": 10000,
+      "drop_european_pt": true,
+      "profanity": [
+        "porra",
+        "caralho",
+        "merda",
+        "puta",
+        "foda",
+        "fodido",
+        "foder",
+        "buceta",
+        "cacete",
+        "bosta",
+        "babaca",
+        "idiota",
+        "otário",
+        "arrombado",
+        "desgraça"
+      ],
+      "sources": [
+        {
+          "id": "reddit-pt-train",
+          "type": "reddit",
+          "role": "train",
+          "weight": 0.5,
+          "after": "2025-01-01",
+          "before": "2025-07-01",
+          "subreddits": [
+            "brasil",
+            "brasilivre",
+            "conversas",
+            "investimentos",
+            "brdev",
+            "futebol",
+            "saopaulo"
+          ]
+        },
+        {
+          "id": "reddit-pt-test",
+          "type": "reddit",
+          "role": "test",
+          "weight": 0.25,
+          "after": "2025-07-01",
+          "before": "2026-01-01",
+          "subreddits": [
+            "rio",
+            "curitiba",
+            "minasgerais",
+            "brasilia",
+            "Bahia",
+            "pernambuco"
+          ]
+        },
+        {
+          "id": "tweets-pt-test",
+          "type": "hf",
+          "role": "test",
+          "weight": 0.25,
+          "dataset": "fpaulino/portuguese-tweets",
+          "config": "default",
+          "split": "train",
+          "note": "about 115 thousand tweets: enough for a test set, too few to train a pack. The text column is found from the features list when 'field' is not given."
+        }
+      ]
+    },
+    "es": {
+      "dictionary": "dicts/es/main.dict",
+      "min_test_lines": 10000,
+      "profanity": [
+        "mierda",
+        "joder",
+        "coño",
+        "puta",
+        "puto",
+        "cabrón",
+        "cabron",
+        "pendejo",
+        "verga",
+        "carajo",
+        "chingar",
+        "chingado",
+        "culo",
+        "gilipollas",
+        "boludo",
+        "hijueputa"
+      ],
+      "sources": [
+        {
+          "id": "reddit-es-train",
+          "type": "reddit",
+          "role": "train",
+          "weight": 0.5,
+          "after": "2025-01-01",
+          "before": "2025-07-01",
+          "subreddits": [
+            "mexico",
+            "argentina",
+            "spain",
+            "chile",
+            "Colombia"
+          ]
+        },
+        {
+          "id": "reddit-es-test",
+          "type": "reddit",
+          "role": "test",
+          "weight": 0.2,
+          "after": "2025-07-01",
+          "before": "2026-01-01",
+          "subreddits": [
+            "PERU",
+            "vzla",
+            "uruguay",
+            "Ecuador",
+            "preguntaleareddit",
+            "futbol"
+          ]
+        },
+        {
+          "id": "tweets-es-test",
+          "type": "hf",
+          "role": "test",
+          "weight": 0.3,
+          "dataset": "pysentimiento/spanish-tweets",
+          "config": "default",
+          "split": "train",
+          "field": "text",
+          "user_field": "user_id",
+          "note": "622 million tweets (about 7 or 8 percent are not Spanish; the language filter of prepare_real.py takes them out). Other medium, other users, other years than the Reddit training source."
+        }
+      ]
+    },
+    "en-US": {
+      "dictionary": "dicts/en-US/main.dict",
+      "min_test_lines": 10000,
+      "profanity": [
+        "fuck",
+        "fucking",
+        "fucked",
+        "shit",
+        "shitty",
+        "bitch",
+        "asshole",
+        "damn",
+        "dick",
+        "bastard",
+        "crap",
+        "piss",
+        "pissed",
+        "wtf",
+        "bullshit"
+      ],
+      "sources": [
+        {
+          "id": "reddit-en-train",
+          "type": "reddit",
+          "role": "train",
+          "weight": 0.6,
+          "after": "2025-01-01",
+          "before": "2025-07-01",
+          "subreddits": [
+            "AskReddit",
+            "CasualConversation",
+            "NoStupidQuestions",
+            "gaming",
+            "movies",
+            "Music",
+            "sports"
+          ]
+        },
+        {
+          "id": "reddit-en-test",
+          "type": "reddit",
+          "role": "test",
+          "weight": 0.4,
+          "after": "2025-07-01",
+          "before": "2026-01-01",
+          "subreddits": [
+            "explainlikeimfive",
+            "pcmasterrace",
+            "nba",
+            "Showerthoughts",
+            "technology",
+            "books",
+            "travel"
+          ]
+        }
+      ]
+    }
+  }
+}
