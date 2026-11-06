@@ -7,7 +7,9 @@
 #   bash docs/tools/e2e/run_native_parity.sh [app_jar.jar]
 # Without the jar (classes.dex of the APK -> dex2jar), it builds the APK just for this: needs APKTOOL_JAR and DEX2JAR (dex-tools-2.1 folder).
 # Variables: OUT (default /tmp/mr_parity), WORDS (words per language, default 2500), ROUNDS (default 1),
-#            SUGG (how many go through the full Suggest, default 2000).
+#            SUGG (how many go through the full Suggest, default 2000),
+#            DICTS (folder with the dictionaries, default dicts; docs/tools/make_v2_dicts.py makes a copy in the format v2 to prove
+#            that the readers agree on it too).
 # Exits with code 1 if there is any difference.
 set -e
 ROOT=$(pwd)
@@ -15,6 +17,7 @@ OUT=${OUT:-/tmp/mr_parity}
 WORDS=${WORDS:-2500}
 ROUNDS=${ROUNDS:-1}
 SUGG=${SUGG:-2000}
+DICTS=${DICTS:-dicts}
 E=docs/tools/e2e
 unset JAVA_TOOL_OPTIONS
 mkdir -p "$OUT"
@@ -44,9 +47,9 @@ FAILED=0
 for L in "pt-BR|qwertyuiop,asdfghjklç,zxcvbnm" "en-US|qwertyuiop,asdfghjkl,zxcvbnm" "es|qwertyuiop,asdfghjklñ,zxcvbnm"; do
   D=${L%%|*}; ROWS=${L#*|}
   echo "================ $D"
-  python3 -I engine/tools/gen_parity_queries.py --lang "$D" --out "$OUT" --words "$WORDS" --root .
+  python3 -I engine/tools/gen_parity_queries.py --lang "$D" --out "$OUT" --words "$WORDS" --root . --dicts "$DICTS"
   java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote -Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 \
        -Djava.library.path="$OUT/engine:$OUT/native" -Drows="$ROWS" -Drounds="$ROUNDS" -Dsuggmax="$SUGG" -Dpairs="$OUT/pairs_$D.txt" \
-       -cp "$CP" com.mrkeyboard.app.NativeParity "dicts/$D/main.dict" "$OUT/typos_$D.tsv" "dicts/$D/trigrams.bin" || FAILED=1
+       -cp "$CP" com.mrkeyboard.app.NativeParity "$DICTS/$D/main.dict" "$OUT/typos_$D.tsv" "$DICTS/$D/trigrams.bin" || FAILED=1
 done
 exit $FAILED

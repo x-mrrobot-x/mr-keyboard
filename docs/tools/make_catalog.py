@@ -32,14 +32,16 @@ import sys
 import zipfile
 
 FORMAT = 1                 # catalog format
-PACK_FORMATS = {1}         # pack formats this script knows how to build
+PACK_FORMATS = {1, 2}      # pack formats this script knows how to build: 1 = main.dict v1, 2 = main.dict v2 (1.86, minApp 1086000)
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 TAG_RE = re.compile(r"^v[0-9]+\.[0-9]+\.[0-9]+$")      # the same rule the app applies to "release"
 ZIP_PREFIX = "mr-keyboard-dict-"                        # makes clear in the asset list that it is a dictionary
 ID_RE = re.compile(r"^[a-z]{2,3}(-[A-Z]{2})?$")
 ZIP_TIME = (1980, 1, 1, 0, 0, 0)
 MAX_FILE = 16 * 1024 * 1024
-DICT_MAX = 4194304         # 22-bit address of the dictionary format
+DICT_MAX = {1: 4194304,    # 22-bit address of the dictionary format v1
+            2: 16777216}   # format v2 (one more byte per address; the limit is a policy, see docs/plan-suggestions.md)
+V2_MIN_APP = 1086000       # the first app that reads the dictionary format v2
 
 
 def fail(msg):
@@ -51,14 +53,17 @@ def sha256(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def check_file(pid, name, data):
+def check_file(pid, name, data, fmt=1):
     if len(data) == 0 or len(data) > MAX_FILE:
         fail("%s/%s: invalid size (%d bytes)" % (pid, name, len(data)))
     if name.endswith(".dict"):
-        if len(data) > DICT_MAX:
-            fail("%s/%s: over the format limit (%d > %d bytes)" % (pid, name, len(data), DICT_MAX))
-        if data[0] != 200 or data[1] != 1:
-            fail("%s/%s: dictionary header different from [200,1]" % (pid, name))
+        if len(data) > DICT_MAX[fmt]:
+            fail("%s/%s: over the format limit (%d > %d bytes)" % (pid, name, len(data), DICT_MAX[fmt]))
+        # the header says which dictionary format the file is in; pack.json "format" must say the same, because an app
+        # that does not know v2 decides by that field alone (it refuses the pack) and would otherwise read v2 as garbage
+        if data[0] != 200 or data[1] != fmt:
+            fail("%s/%s: dictionary header %s, but pack.json has format %d (it must be [200,%d])"
+                 % (pid, name, list(data[:2]), fmt, fmt))
     elif name == "trigrams.bin":
         if data[:4] != b"MRT1":
             fail("%s/%s: does not start with MRT1" % (pid, name))
@@ -86,6 +91,8 @@ def read_pack(dicts, pid):
         fail("%s: version must be an integer >= 1" % pid)
     if m["format"] not in PACK_FORMATS:
         fail("%s: unknown format %r" % (pid, m["format"]))
+    if m["format"] == 2 and (not isinstance(m["minApp"], int) or m["minApp"] < V2_MIN_APP):
+        fail("%s: a pack in format 2 needs minApp >= %d (the first app that reads it)" % (pid, V2_MIN_APP))
     if not isinstance(m["name"], dict) or "en" not in m["name"]:
         fail("%s: name needs at least the English text (en)" % pid)
     files = m["files"]
@@ -102,7 +109,7 @@ def read_pack(dicts, pid):
             fail("%s: file %s is missing" % (pid, name))
         with open(path, "rb") as f:
             data = f.read()
-        check_file(pid, name, data)
+        check_file(pid, name, data, m["format"])
         out.append((name, data))
     extra = sorted(set(os.listdir(folder)) - set(files) - {"pack.json"})
     if extra:

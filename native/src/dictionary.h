@@ -19,8 +19,11 @@
 
 namespace latinime {
 
-// 22-bit address = ~4MB dictionary size limit, which on average would be about 200k-300k words
+// Format v1: 22-bit address (6 bits of the flags byte + 2 bytes) = ~4MB dictionary size limit, which on average would be about
+// 200k-300k words. Format v2 (Mr Keyboard 1.86, header byte 1 = 2): one more byte in every address (6 bits + 3 bytes), so a
+// dictionary can pass 16 MB; the packs stay under that on purpose (build_dict.py, ADDRESS_LIMIT_V2).
 #define ADDRESS_MASK 0x3FFFFF
+#define ADDRESS_HIGH_MASK 0x3F
 
 // The bit that decides if an address follows in the next 22 bits
 #define FLAG_ADDRESS_MASK 0x40
@@ -53,6 +56,7 @@ private:
     bool checkIfDictVersionIsLatest();
     int getAddress(int *pos);
     int getBigramAddress(int *pos, bool advance);
+    int readAddress(int pos);
     int getFreq(int *pos);
     int getBigramFreq(int *pos);
     void searchForTerminalNode(int address, int frequency);
@@ -98,6 +102,7 @@ private:
     int mNextLettersSize;
     int mVersion;
     int mBigram;
+    int mAddrBytes;     // 3 in the dictionary format v1, 4 in v2
 };
 
 // ----------------------------------------------------------------------------

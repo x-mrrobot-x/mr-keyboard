@@ -36,8 +36,15 @@ Updated after 1.84.0. The current plan that absorbs the items below (context whi
 ### Large
 **9b. Native engine, stage 2: new dictionary format.**
 - Stage 1 (1.77) already took the trigrams out of the Java heap (7 to 9 MB → ~0 on the heap; 3 to 4.4 MB outside it) and moved the correction search to C++, **without changing the files**.
-- What is missing is what only a new format solves: removing the 4 MB limit (22 address bits) of the `.dict` and storing more data per word.
+- What was missing is what only a new format solves: removing the 4 MB limit (22 address bits) of the `.dict` and storing more data per word. **Done in 1.86.0** (format v2, up to 16 MB, see `dictionary-build.md`); storing more data per word is still open.
 - It only pays off for new data (for example, Leipzig News 2023): more pairs alone yield little (480 thousand instead of 400 thousand gave only +0.2 to +0.4 point, in 1.6.4). It would require regenerating the three packs and changing the app and the engine together.
+
+**9c. Remove the Java fallback of the search? (open; to be decided with the user at the end of `plan-suggestions.md`)**
+- Today `MrFuzzy.search`/`walk`/`split`/`isPrefix` (about half of the 1038 lines of `MrFuzzy.java`) and `MrTrigram.find` run only when `MrNative` answers "not ready": the first keystrokes after the process starts (`readyNow()` never waits; the lib loads in a background thread), a query the lib refuses, or a lib that does not load. The costs, the rules, `alternative` and `afterWords` stay in Java in any case (they are the source of truth that is handed to the lib).
+- The Java search is also the reference of `run_native_parity.sh`: it is what proved "0 differences" for the C++ readers of the format v2 in 1.86.0. Dropping it from the app does not have to drop it from the tests.
+- What it would save: a few tens of KB of dex (`MrFuzzy.smali` 116 KB with the parts that stay, `MrTrigram.smali` 22 KB); no speed (the native path is already the one used) and no maintenance, while the algorithm is still written twice for the parity test.
+- Option that keeps the tests: move the Java search and `MrTrigram.find` to the test tree (`docs/tools/e2e/`), ship only the native engine, load the lib synchronously on the first key and change the line "Motor de sugestões" of the settings. Rolling back to Java (`native-engine.md`) would no longer be possible.
+- Reason to keep it as it is: the fallback is stable code, the lib and `libjni_pckeyboard.so` come from the same ABI list (a device that cannot load one will probably not load the other), and removing it only trades a safety net for a smaller APK.
 
 **10. Data closer to phone conversation.**
 - The dictionaries come from news and Tatoeba.

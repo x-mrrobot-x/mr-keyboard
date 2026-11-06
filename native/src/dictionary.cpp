@@ -100,6 +100,7 @@ Dictionary::getVersionNumber()
 {
     mVersion = (mDict[0] & 0xFF);
     mBigram = (mDict[1] & 0xFF);
+    mAddrBytes = (mBigram == 2) ? 4 : 3;
     LOGI("IN NATIVE SUGGEST Version: %d Bigram : %d \n", mVersion, mBigram);
 }
 
@@ -107,7 +108,7 @@ Dictionary::getVersionNumber()
 bool
 Dictionary::checkIfDictVersionIsLatest()
 {
-    return (mVersion >= DICTIONARY_VERSION_MIN) && (mBigram == 1 || mBigram == 0);
+    return (mVersion >= DICTIONARY_VERSION_MIN) && (mBigram == 0 || mBigram == 1 || mBigram == 2);
 }
 
 unsigned short
@@ -123,6 +124,17 @@ Dictionary::getChar(int *pos)
     return ch;
 }
 
+// The address that starts at pos: 6 bits of the first byte, then 2 bytes (v1) or 3 bytes (v2).
+int
+Dictionary::readAddress(int pos)
+{
+    if (pos < 0 || pos + mAddrBytes > mDictSize) return 0;
+    int address = ((mDict[pos] & ADDRESS_HIGH_MASK) << 8) | (mDict[pos + 1] & 0xFF);
+    address = (address << 8) | (mDict[pos + 2] & 0xFF);
+    if (mAddrBytes == 4) address = (address << 8) | (mDict[pos + 3] & 0xFF);
+    return address;
+}
+
 int
 Dictionary::getAddress(int *pos)
 {
@@ -131,10 +143,8 @@ Dictionary::getAddress(int *pos)
     if ((mDict[*pos] & FLAG_ADDRESS_MASK) == 0) {
         *pos += 1;
     } else {
-        address += (mDict[*pos] & (ADDRESS_MASK >> 16)) << 16;
-        address += (mDict[*pos + 1] & 0xFF) << 8;
-        address += (mDict[*pos + 2] & 0xFF);
-        *pos += 3;
+        address = readAddress(*pos);
+        *pos += mAddrBytes;
     }
     if (address < 0 || address >= mDictSize) return 0;
     return address;
@@ -152,7 +162,7 @@ Dictionary::getFreq(int *pos)
         if (bigramExist > 0) {
             int nextBigramExist = 1;
             while (nextBigramExist > 0) {
-                (*pos) += 3;
+                (*pos) += mAddrBytes;
                 nextBigramExist = (mDict[(*pos)++] & FLAG_BIGRAM_CONTINUED);
             }
         } else {
@@ -370,14 +380,10 @@ int
 Dictionary::getBigramAddress(int *pos, bool advance)
 {
     if (*pos < 0 || *pos >= mDictSize) return 0;
-    int address = 0;
-
-    address += (mDict[*pos] & 0x3F) << 16;
-    address += (mDict[*pos + 1] & 0xFF) << 8;
-    address += (mDict[*pos + 2] & 0xFF);
+    int address = readAddress(*pos);
 
     if (advance) {
-        *pos += 3;
+        *pos += mAddrBytes;
     }
 
     if (address < 0 || address >= mDictSize) return 0;
@@ -407,7 +413,7 @@ Dictionary::getBigrams(unsigned short *prevWord, int prevWordLength, int *codes,
     mMaxBigrams = maxBigrams;
     mMaxAlternatives = maxAlternatives;
 
-    if (mBigram == 1 && checkIfDictVersionIsLatest()) {
+    if ((mBigram == 1 || mBigram == 2) && checkIfDictVersionIsLatest()) {
         int pos = isValidWordRec(DICTIONARY_HEADER_SIZE, prevWord, 0, prevWordLength);
         LOGI("Pos -> %d\n", pos);
         if (pos < 0) {
@@ -481,7 +487,7 @@ Dictionary::searchForTerminalNode(int addressLookingFor, int frequency)
                         }
                     }
                 }
-                pos += 3;
+                pos += mAddrBytes;
             } else if (getFirstBitOfByte(&pos)) { // terminal
                 if (addressLookingFor == (pos-1)) { // found !!
                     depth++;
@@ -489,7 +495,7 @@ Dictionary::searchForTerminalNode(int addressLookingFor, int frequency)
                     found = true;
                     break;
                 }
-                if (getSecondBitOfByte(&pos)) { // address + freq (4 byte)
+                if (getSecondBitOfByte(&pos)) { // address + freq (4 bytes in the format v1, 5 in v2)
                     if (!followDownAddressSearchStop) {
                         int addr = getBigramAddress(&pos, false);
                         if (addr > addressLookingFor) {
@@ -509,7 +515,7 @@ Dictionary::searchForTerminalNode(int addressLookingFor, int frequency)
                             }
                         }
                     }
-                    pos += 4;
+                    pos += mAddrBytes + 1;
                 } else { // freq only (2 byte)
                     pos += 2;
                 }
@@ -519,7 +525,7 @@ Dictionary::searchForTerminalNode(int addressLookingFor, int frequency)
                 if (bigramExist > 0) {
                     int nextBigramExist = 1;
                     while (nextBigramExist > 0) {
-                        pos += 3;
+                        pos += mAddrBytes;
                         nextBigramExist = (mDict[pos++] & FLAG_BIGRAM_CONTINUED);
                     }
                 } else {

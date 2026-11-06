@@ -18,9 +18,21 @@ KIND, either express or implied.
 
 Includes Dictionaries (c) Lexiteria LLC. Used by permission.
 
-2) New words, frequencies of the new words and word pairs (bigrams)
-Counted in the "por_news_2024_1M" corpus of the Leipzig Corpora Collection (Wortschatz,
-Universitaet Leipzig), using only the sentences from Brazilian sources.
+2) New words, frequencies, word pairs (bigrams) and word triples (trigrams)
+Counted in a mix of three text collections (the mix and the weights were chosen on
+sentences that were kept out of every count):
+
+a) OpenSubtitles2018, Brazilian Portuguese (a sample of one line in 64), subtitles of films and series.
+P. Lison and J. Tiedemann: OpenSubtitles2016: Extracting Large Parallel Corpora from Movie
+and TV Subtitles. In: Proceedings of the 10th International Conference on Language
+Resources and Evaluation (LREC 2016), 2016. J. Tiedemann: Parallel Data, Tools and
+Interfaces in OPUS. In: Proceedings of LREC 2012. https://opus.nlpl.eu/OpenSubtitles/
+The subtitles come from https://www.opensubtitles.org and the licence of their text is not
+clear. For that reason ONLY COUNTS (how many times a word, a pair or a triple appears) were
+taken from them: no subtitle line, sentence or sequence of text is stored or distributed
+in this pack.
+
+b) "por_news_2024_1M" of the Leipzig Corpora Collection (Wortschatz, Universitaet Leipzig).
 D. Goldhahn, T. Eckart & U. Quasthoff: Building Large Monolingual Dictionaries at the
 Leipzig Corpora Collection: From 100 to 200 Languages. In: Proceedings of the 8th
 International Language Resources and Evaluation (LREC'12), 2012.
@@ -29,21 +41,29 @@ Corpus license: Creative Commons Attribution 4.0 International (CC BY 4.0),
 https://creativecommons.org/licenses/by/4.0/
 Only counts were taken from the corpus (no sentence is distributed).
 
-3) Chat word pairs
-Portuguese sentences from Tatoeba (https://tatoeba.org), weekly export
-por_sentences_detailed, without the sentences from authors or with markers of European
-Portuguese. License: Creative Commons Attribution 2.0 France (CC BY 2.0 FR),
-https://creativecommons.org/licenses/by/2.0/fr/
+c) Portuguese sentences from Tatoeba (https://tatoeba.org), with the repeated names of the
+example sentences (Tom, Mary) replaced by separators. License: Creative Commons
+Attribution 2.0 France (CC BY 2.0 FR), https://creativecommons.org/licenses/by/2.0/fr/
 Only counts were taken from Tatoeba (no sentence is distributed).
 
-4) Slang, chat abbreviations and the list of corrections (rules.txt)
+Sentences with markers of European Portuguese (equipa, facto, "estou a fazer"...) were left
+out of the three collections.
+
+The frequency of each word is recalculated from these counts and blended with the
+frequency of the base list; a word of the list that does not show up in the texts keeps its
+frequency.
+
+3) Slang, chat abbreviations and the list of corrections (rules.txt)
 Lists written for Mr Keyboard.
 
 Changes in relation to the base list: LatinIME "latest" binary format
-(2-byte header, bigrams per word) read by libjni_pckeyboard; spellings from before the
+(header 200/2, bigrams per word) read by libjni_pckeyboard; spellings from before the
 Orthographic Agreement replaced by the current ones (veem, leem, deem, creem);
 Lusitanian variants and spelling errors removed (list in docs/dictionary-build.md);
-words marked as potentially offensive given the minimum frequency and kept out of the
-prediction; added corpus words accepted by the VERO spellchecker (used only as a
-filter, nothing from it is copied), loanwords, proper names, slang and abbreviations.
-Tools: docs/tools/make_wordlist.py and docs/tools/build_dict.py.
+words marked as potentially offensive kept out of the prediction, and the swear words
+(and their inflections) given the minimum frequency, so they only show up when typed in
+full; added corpus words accepted by the VERO spellchecker (used only as a filter, nothing
+from it is copied), loanwords, proper names, slang and abbreviations. The AOSP English and
+German word lists were used only to leave out foreign words quoted in the subtitles.
+Tools: docs/tools/make_wordlist.py (cleaning of the base list), docs/tools/corpus/
+(prepare_corpus.py, make_pack_data.py) and docs/tools/build_dict.py.

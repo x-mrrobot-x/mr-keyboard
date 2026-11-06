@@ -10,8 +10,9 @@ import java.util.Arrays;
  * space (porisso -> por isso).
  *
  * Format read (the same as dictionary.cpp): group = [count] + entries; entry = char (1 byte or
- * 0xFF + 2 bytes), flags/address (0x80 terminal, 0x40 with children + 22 bits), freq if terminal and,
- * in the "latest" format (byte 0 >= 200 and byte 1 in {0,1}), the bigram list after the freq.
+ * 0xFF + 2 bytes), flags/address (0x80 terminal, 0x40 with children + 22 bits; 30 bits in the format v2 of 1.86,
+ * one more byte), freq if terminal and, in the "latest" format (byte 0 >= 200 and byte 1 in {0,1,2}; 2 = v2), the
+ * bigram list after the freq.
  *
  * Search: weighted edit distance (dynamic programming row by row while going down the trie),
  * pruning when the lowest cost of the row goes over the limit. The 1st letter of the dictionary word must be
@@ -76,6 +77,8 @@ public final class MrFuzzy {
     private final int mSize;
     private final int mRoot;
     private final boolean mLatest;
+    /** Bytes of an address: 3 in the dictionary format v1, 4 in v2 (header byte 1 = 2). */
+    private final int mAb;
 
     // query state
     private int mN;
@@ -147,11 +150,14 @@ public final class MrFuzzy {
         mDict = dict;
         mSize = size;
         boolean latest = false;
+        int ab = 3;
         if (size > 2) {
             int v = dict.get(0) & 0xFF;
             int b = dict.get(1) & 0xFF;
-            latest = v >= 200 && (b == 0 || b == 1);
+            latest = v >= 200 && (b == 0 || b == 1 || b == 2);
+            if (latest && b == 2) ab = 4;
         }
+        mAb = ab;
         mLatest = latest;
         mRoot = latest ? 2 : 0;
     }
@@ -612,9 +618,9 @@ public final class MrFuzzy {
             int flags = mDict.get(pos) & 0xFF;
             int child = 0;
             if ((flags & 0x40) != 0) {
-                if (pos + 2 >= mSize) return false;
-                child = ((flags & 0x3F) << 16) | ((mDict.get(pos + 1) & 0xFF) << 8) | (mDict.get(pos + 2) & 0xFF);
-                pos += 3;
+                if (pos + mAb - 1 >= mSize) return false;
+                child = addrAt(pos);
+                pos += mAb;
             } else {
                 pos += 1;
             }
@@ -695,9 +701,9 @@ public final class MrFuzzy {
             boolean terminal = (flags & 0x80) != 0;
             int child = 0;
             if ((flags & 0x40) != 0) {
-                if (pos + 2 >= mSize) return;
-                child = ((flags & 0x3F) << 16) | ((mDict.get(pos + 1) & 0xFF) << 8) | (mDict.get(pos + 2) & 0xFF);
-                pos += 3;
+                if (pos + mAb - 1 >= mSize) return;
+                child = addrAt(pos);
+                pos += mAb;
             } else {
                 pos += 1;
             }
@@ -793,12 +799,19 @@ public final class MrFuzzy {
         }
     }
 
+    /** The address that starts at the flags byte (6 bits) followed by 2 bytes (format v1) or 3 bytes (v2). */
+    private int addrAt(int pos) {
+        int a = ((mDict.get(pos) & 0x3F) << 8) | (mDict.get(pos + 1) & 0xFF);
+        a = (a << 8) | (mDict.get(pos + 2) & 0xFF);
+        return mAb == 3 ? a : ((a << 8) | (mDict.get(pos + 3) & 0xFF));
+    }
+
     private int skipBigrams(int pos) {
         if (pos >= mSize) return pos;
         if ((mDict.get(pos) & 0x80) != 0) {
             int guard = 0;
-            while (pos + 3 < mSize && guard++ < 10000) {
-                pos += 3;
+            while (pos + mAb < mSize && guard++ < 10000) {
+                pos += mAb;
                 int more = mDict.get(pos++) & 0x80;
                 if (more == 0) break;
             }
@@ -995,9 +1008,9 @@ public final class MrFuzzy {
             boolean terminal = (flags & 0x80) != 0;
             int child = 0;
             if ((flags & 0x40) != 0) {
-                if (pos + 2 >= mSize) return;
-                child = ((flags & 0x3F) << 16) | ((mDict.get(pos + 1) & 0xFF) << 8) | (mDict.get(pos + 2) & 0xFF);
-                pos += 3;
+                if (pos + mAb - 1 >= mSize) return;
+                child = addrAt(pos);
+                pos += mAb;
             } else {
                 pos += 1;
             }

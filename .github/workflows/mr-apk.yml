@@ -165,6 +165,8 @@ jobs:
         with:
           name: apk
           path: mr-keyboard-*.apk
+          # every run signs an APK, published or not; this repository is public, so the artifact must not linger (1 day is the minimum)
+          retention-days: 1
 
   # the same checks as on every push (mr-checks.yml); nothing is published if one fails
   checks:

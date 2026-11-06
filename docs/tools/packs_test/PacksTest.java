@@ -373,6 +373,54 @@ public class PacksTest {
         check("keyboard uses v7", s7.hasMainDictionary() && MrRules.get().corrections.size() == rulesOf("pt-BR"), null);
         check("updates: with v7 installed there is nothing left to update", MrPacks.updatesAvailable(ctx, c7) == 0, MrPacks.updatesAvailable(ctx, c7));
 
+        // ---- a pack in the dictionary format v2 (pack format 2, main.dict over 4 MB): installs on this app and replaces v7
+        catalogFile = FX + "v8/catalog.json"; zipDir = FX + "v8/";
+        errOf(() -> MrPacks.fetchCatalog(ctx));
+        final MrPacks.Catalog c8 = MrPacks.cachedCatalog(ctx);
+        MrPacks.Pack p8 = c8.packs.get(0);
+        check("v8: the catalog says pack format 2 and minApp 1086000, and this app can use it",
+                p8.format == 2 && p8.minApp == 1086000 && !MrPacks.appTooOld(ctx, p8), p8.format + " " + p8.minApp);
+        r = errOf(() -> MrPacks.install(ctx, c8, p8));
+        File main8 = new File(MrPacks.packDir(ctx, "pt-BR", 8), "main.dict");
+        byte[] head8 = new byte[2];
+        try { InputStream in8 = new FileInputStream(main8); try { in8.read(head8); } finally { in8.close(); } } catch (IOException e) { head8[0] = 0; }
+        check("v8 (dictionary v2, " + main8.length() + " bytes) installs and replaces v7",
+                r.equals("ok") && MrPacks.installedVersion(ctx, "pt-BR") == 8 && main8.length() > 4194304
+                && (head8[0] & 0xFF) == 200 && head8[1] == 2 && list(main8.getParentFile().getParentFile()).equals(Arrays.asList("8")), r);
+        Suggest s9 = new Suggest(ctx, new int[] {0});
+        check("keyboard uses v8: the dictionary is read (valid words, a non-word)", s9.hasMainDictionary() && s9.isValidWord("obrigado")
+                && s9.isValidWord("casa") && !s9.isValidWord("xqzwvk"), null);
+        // the 4 MB of v1 and the 16 MB of v2, by header
+        File hf = new File(tmp, "head.dict");
+        for (Object[] c : new Object[][] {
+                {200, 1, 3000000, true}, {200, 1, 4194304, true}, {200, 1, 4194305, false}, {200, 1, 5000000, false},
+                {200, 2, 5000000, true}, {200, 2, 16777216, true}, {200, 2, 16777217, false}, {200, 2, 500, false},
+                {200, 0, 3000000, false}, {200, 3, 3000000, false}, {199, 1, 3000000, false}}) {
+            long size = ((Integer) c[2]).longValue();
+            try {
+                RandomAccessFile raf = new RandomAccessFile(hf, "rw");
+                raf.setLength(size);
+                raf.seek(0);
+                raf.write(new byte[] {(byte) (int) (Integer) c[0], (byte) (int) (Integer) c[1]});
+                raf.close();
+            } catch (IOException e) {
+                check("header test file", false, e);
+            }
+            check("dictHeaderOk: header " + c[0] + "/" + c[1] + ", " + size + " bytes -> " + c[3], MrPacks.dictHeaderOk(hf) == (Boolean) c[3], null);
+        }
+        hf.delete();
+        // a pack of a format this app does not know, or for a newer app, is "too old app" (the installed pack stays)
+        MrPacks.Pack q = new MrPacks.Pack();
+        long code = MrPacks.appVersion(ctx);
+        boolean[] want = {false, true, true, false, true};
+        int[] fmts = {1, 0, 3, 2, 2};
+        long[] mins = {1, 1, 1, code, code + 1};
+        for (int i = 0; i < fmts.length; i++) {
+            q.format = fmts[i]; q.minApp = mins[i];
+            check("appTooOld: pack format " + fmts[i] + ", minApp " + (mins[i] == code ? "= app" : mins[i] > code ? "> app" : "1") + " -> " + want[i],
+                    MrPacks.appTooOld(ctx, q) == want[i], null);
+        }
+
         // ---- remove
         MrPacks.remove(ctx, "pt-BR");
         Suggest s8 = new Suggest(ctx, new int[] {0});

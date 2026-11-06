@@ -25,15 +25,15 @@
     .locals 0
 
     .prologue
-    .line 87
+    .line 95
     invoke-direct {p0, p1}, Ljava/lang/Exception;-><init>(Ljava/lang/String;)V
 
-    .line 88
+    .line 96
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacks$PackException;->key:Ljava/lang/String;
 
-    .line 89
+    .line 97
     iput-object p2, p0, Lcom/mrkeyboard/app/MrPacks$PackException;->args:[Ljava/lang/Object;
 
-    .line 90
+    .line 98
     return-void
 .end method

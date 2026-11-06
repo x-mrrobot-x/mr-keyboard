@@ -89,13 +89,14 @@ def main():
     ap.add_argument("--words", type=int, default=2500)
     ap.add_argument("--pairs", type=int, default=20000)
     ap.add_argument("--root", default=".")
+    ap.add_argument("--dicts", default=None, help="folder with the <lang>/main.dict and trigrams.bin (default: <root>/dicts)")
     a = ap.parse_args()
     sys.path.insert(0, os.path.join(a.root, "docs", "tools"))
     import build_dict as bd  # noqa: E402
 
     rnd = random.Random(20261031)
     rows = ROWS[a.lang]
-    got = bd.walk(open(os.path.join(a.root, "dicts", a.lang, "main.dict"), "rb").read())
+    got = bd.walk(open(os.path.join(a.dicts or os.path.join(a.root, "dicts"), a.lang, "main.dict"), "rb").read())
     words = sorted(w for w in got if len(w) >= 4 and w.isalpha() and w == w.lower())
     step = max(1, len(words) // a.words)
     os.makedirs(a.out, exist_ok=True)
@@ -106,7 +107,7 @@ def main():
             if t and t != w:
                 fh.write(f"{t}\t{w}\t{kind}\n")
                 n += 1
-    ctx = read_tri(os.path.join(a.root, "dicts", a.lang, "trigrams.bin"))
+    ctx = read_tri(os.path.join(a.dicts or os.path.join(a.root, "dicts"), a.lang, "trigrams.bin"))
     step = max(1, len(ctx) // a.pairs)
     m = 0
     with open(os.path.join(a.out, f"pairs_{a.lang}.txt"), "w", encoding="utf-8") as fh:

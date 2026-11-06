@@ -119,10 +119,17 @@ private:
     void lookupRec(int pos, int j, int to, int depth);
 
     int dat(int pos) const { return dict_[pos]; }
+    /** Address that starts at the flags byte (6 bits) followed by 2 bytes (format v1) or 3 bytes (v2). */
+    int addrAt(int pos) const {
+        int a = ((dat(pos) & 0x3F) << 8) | dat(pos + 1);
+        a = (a << 8) | dat(pos + 2);
+        return ab_ == 3 ? a : ((a << 8) | dat(pos + 3));
+    }
 
     const uint8_t* dict_ = nullptr;
     int size_ = 0;
     bool latest_ = false;
+    int ab_ = 3;          // bytes of an address: 3 in the dictionary format v1, 4 in v2 (header byte 1 = 2)
     int root_ = 0;
     const Tables* t_ = nullptr;
     const Rules* r_ = nullptr;

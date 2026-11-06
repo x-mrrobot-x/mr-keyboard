@@ -27,6 +27,8 @@ for a newer app, update, remove, the "Baixar dicionário" (Download dictionary) 
    -cp classes:stubs:e2e_classes:app_v163.jar:android_stubs com.mrkeyboard.app.PacksTest`
    (the `UiLocale.java` from here goes before the jar: the real class uses APIs that the PC does not have).
 
+Since 1.86 the fixtures include a **v2 pack** (`make_fixtures.py`: `meta2['version'] = 8`, `format: 2`, `minApp: 1086000`, serial 7, made by converting the pt-BR `main.dict` with `build_dict.py --convert --format 2`). `PacksTest` (94 checks) installs it over v7, checks that it is larger than 4 MB, that the header is `200/2` and that `Suggest` accepts its words, runs 11 cases of `MrPacks.dictHeaderOk` (header `200/1` up to 4,194,304 bytes and `200/2` up to 16,777,216; one byte over each limit, a v2 file under 1 KB, and the headers `200/0`, `200/3` and `199/1` are refused) and 5 of `MrPacks.appTooOld` (pack format 1; formats 0 and 3, which no app knows; format 2 with `minApp` equal to the app; format 2 with `minApp` above the app). `ThreeLangTest` has 23 checks.
+
 `PacksTest` also checks the `release` field: the zip is asked from `RELEASES_URL` + the pack's release + its name (including a pack whose zip stayed in an earlier release), and catalogs with an invalid or missing `release` are rejected.
 
 `LiveTest` downloads the real catalog and package from GitHub with the same code as the app (without checking

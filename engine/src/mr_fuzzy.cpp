@@ -18,10 +18,13 @@ void Fuzzy::attach(const uint8_t* dict, int size) {
     dict_ = dict;
     size_ = size;
     bool latest = false;
+    ab_ = 3;
     if (dict != nullptr && size > 2) {
         int v = dict[0];
         int b = dict[1];
-        latest = v >= 200 && (b == 0 || b == 1);
+        latest = v >= 200 && (b == 0 || b == 1 || b == 2);
+        // format v2 (1.86): every address (child group, bigram target) has one more byte, 6 + 24 bits instead of 6 + 16
+        if (latest && b == 2) ab_ = 4;
     }
     latest_ = latest;
     root_ = latest ? 2 : 0;
@@ -127,9 +130,9 @@ bool Fuzzy::prefixRec(int pos, int j) const {
         int flags = dat(pos);
         int child = 0;
         if ((flags & 0x40) != 0) {
-            if (pos + 2 >= size_) return false;
-            child = ((flags & 0x3F) << 16) | (dat(pos + 1) << 8) | dat(pos + 2);
-            pos += 3;
+            if (pos + ab_ - 1 >= size_) return false;
+            child = addrAt(pos);
+            pos += ab_;
         } else {
             pos += 1;
         }
@@ -153,8 +156,8 @@ int Fuzzy::skipBigrams(int pos) const {
     if (pos >= size_) return pos;
     if ((dat(pos) & 0x80) != 0) {
         int guard = 0;
-        while (pos + 3 < size_ && guard++ < 10000) {
-            pos += 3;
+        while (pos + ab_ < size_ && guard++ < 10000) {
+            pos += ab_;
             int more = dat(pos++) & 0x80;
             if (more == 0) break;
         }
@@ -231,9 +234,9 @@ void Fuzzy::walk(int pos, int depth, int pcb, int parentRaw) {
         bool terminal = (flags & 0x80) != 0;
         int child = 0;
         if ((flags & 0x40) != 0) {
-            if (pos + 2 >= size_) return;
-            child = ((flags & 0x3F) << 16) | (dat(pos + 1) << 8) | dat(pos + 2);
-            pos += 3;
+            if (pos + ab_ - 1 >= size_) return;
+            child = addrAt(pos);
+            pos += ab_;
         } else {
             pos += 1;
         }
@@ -500,9 +503,9 @@ void Fuzzy::lookupRec(int pos, int j, int to, int depth) {
         bool terminal = (flags & 0x80) != 0;
         int child = 0;
         if ((flags & 0x40) != 0) {
-            if (pos + 2 >= size_) return;
-            child = ((flags & 0x3F) << 16) | (dat(pos + 1) << 8) | dat(pos + 2);
-            pos += 3;
+            if (pos + ab_ - 1 >= size_) return;
+            child = addrAt(pos);
+            pos += ab_;
         } else {
             pos += 1;
         }

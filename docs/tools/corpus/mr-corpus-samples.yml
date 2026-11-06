@@ -1,0 +1,113 @@
+# Mr Keyboard: downloads the text corpora of the dictionary rebuild (plan-suggestions.md, phase 4) on a GitHub runner and keeps only
+# what the counts need, so nothing of 2 GB has to go through a phone.
+#
+# NOT part of the project's own workflows (that is why it lives in docs/tools/corpus/ and not in .github/workflows/): copy this file to
+# .github/workflows/ of the repository where you run workflows by hand (the one that builds the native libs is fine), then
+# Actions -> "Mr Keyboard - corpus samples" -> Run workflow. One job per language, in parallel (about 5 to 15 minutes).
+# When it ends, open the run, download the artifact of the language you were asked for (corpus-es, corpus-pt-BR, corpus-en-US) and send it.
+#
+# What each artifact has (nothing else, and never the 2 GB):
+#   <id>.opensubtitles.sample.txt.gz  one line in every EVERY of the OpenSubtitles 2018 "mono" file (OPUS), one sentence per line
+#   <id>.tatoeba.tsv.bz2              Tatoeba sentences of the language (weekly export, as it comes)
+#   <id>.leipzig-sentences.txt.gz     the sentences file of the Leipzig news corpus (1M sentences)
+#   SUMMARY.txt                       sizes, line counts, sha256 and the URLs (no text from the corpora)
+#
+# LICENCE / PRIVACY: the OpenSubtitles text has no clear licence, which is why the project publishes only counts, never text.
+# In a PUBLIC repository the artifacts of a run can be downloaded by anyone who is logged in to GitHub while they last. Run this in a
+# PRIVATE repository, or keep the retention short (it is 2 days here) and delete the run after you download it.
+name: Mr Keyboard - corpus samples
+
+on:
+  workflow_dispatch:
+    inputs:
+      every:
+        description: 'Spanish and Portuguese: keep one line in every N of the OpenSubtitles file (64 = about 2 million sentences)'
+        default: '64'
+      every_en:
+        description: 'English: same, for the English file (it is twice as large, so 128 gives about the same amount)'
+        default: '128'
+
+permissions:
+  contents: read
+
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { id: es,    opus: es,    tatoeba: spa, leipzig: spa_news_2024_1M, every: '${{ inputs.every }}' }
+          - { id: pt-BR, opus: pt_br, tatoeba: por, leipzig: por_news_2024_1M, every: '${{ inputs.every }}' }
+          - { id: en-US, opus: en,    tatoeba: eng, leipzig: eng_news_2025_1M, every: '${{ inputs.every_en }}' }
+    env:
+      ID: ${{ matrix.id }}
+      EVERY: ${{ matrix.every }}
+      OPUS_URL: https://object.pouta.csc.fi/OPUS-OpenSubtitles/v2018/mono/${{ matrix.opus }}.txt.gz
+      TATOEBA_URL: https://downloads.tatoeba.org/exports/per_language/${{ matrix.tatoeba }}/${{ matrix.tatoeba }}_sentences.tsv.bz2
+      LEIPZIG_URL: https://downloads.wortschatz-leipzig.de/corpora/${{ matrix.leipzig }}.tar.gz
+      LEIPZIG_NAME: ${{ matrix.leipzig }}
+    steps:
+      - name: OpenSubtitles sample (the file is downloaded whole to the runner, only the sample is kept)
+        run: |
+          set -euo pipefail
+          export LC_ALL=C
+          case "$EVERY" in ''|*[!0-9]*) echo "EVERY must be a number, got '$EVERY'"; exit 1;; esac
+          [ "$EVERY" -ge 1 ] || { echo "EVERY must be 1 or more"; exit 1; }
+          mkdir -p out work
+          curl -fL --retry 5 --retry-delay 15 --retry-all-errors -C - -o work/opensubtitles.txt.gz "$OPUS_URL"
+          ls -l work/opensubtitles.txt.gz
+          gzip -t work/opensubtitles.txt.gz
+          gunzip -c work/opensubtitles.txt.gz | awk -v n="$EVERY" 'NR%n==0' | gzip -6 > "out/$ID.opensubtitles.sample.txt.gz"
+          rm -f work/opensubtitles.txt.gz
+          gzip -t "out/$ID.opensubtitles.sample.txt.gz"
+
+      - name: Tatoeba sentences
+        run: |
+          set -euo pipefail
+          curl -fL --retry 5 --retry-delay 15 --retry-all-errors -o "out/$ID.tatoeba.tsv.bz2" "$TATOEBA_URL"
+          bzip2 -t "out/$ID.tatoeba.tsv.bz2"
+
+      - name: Leipzig news sentences (a failure here does not stop the rest)
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          curl -fL --retry 5 --retry-delay 15 --retry-all-errors -o work/leipzig.tar.gz "$LEIPZIG_URL"
+          mkdir -p work/leipzig
+          tar -xzf work/leipzig.tar.gz -C work/leipzig --wildcards '*-sentences.txt'
+          F=$(find work/leipzig -name '*-sentences.txt' | head -n 1)
+          [ -n "$F" ] || { echo "no *-sentences.txt in the Leipzig archive"; exit 1; }
+          gzip -6 -c "$F" > "out/$ID.leipzig-sentences.txt.gz"
+          gzip -t "out/$ID.leipzig-sentences.txt.gz"
+
+      - name: Summary (sizes and counts only, no text)
+        run: |
+          set -euo pipefail
+          cd out
+          {
+            echo "language: $ID"
+            echo "date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "opensubtitles: every $EVERY-th line of $OPUS_URL"
+            echo "tatoeba: $TATOEBA_URL"
+            echo "leipzig: $LEIPZIG_URL"
+            echo
+            for f in *; do
+              [ "$f" = SUMMARY.txt ] && continue
+              echo "$f: $(stat -c %s "$f") bytes, sha256 $(sha256sum "$f" | cut -d' ' -f1)"
+            done
+            echo
+            echo "opensubtitles sample lines: $(gunzip -c "$ID.opensubtitles.sample.txt.gz" | wc -l)"
+            echo "tatoeba lines: $(bunzip2 -c "$ID.tatoeba.tsv.bz2" | wc -l)"
+            [ -f "$ID.leipzig-sentences.txt.gz" ] && echo "leipzig lines: $(gunzip -c "$ID.leipzig-sentences.txt.gz" | wc -l)" || echo "leipzig: NOT downloaded (see the step log)"
+          } > SUMMARY.txt
+          cat SUMMARY.txt
+          du -sh .
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: corpus-${{ matrix.id }}
+          path: out/
+          retention-days: 2
+          compression-level: 0
+          if-no-files-found: error

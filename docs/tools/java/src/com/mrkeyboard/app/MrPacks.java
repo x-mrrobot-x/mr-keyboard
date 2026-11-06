@@ -60,7 +60,15 @@ public final class MrPacks {
     static final String RELEASES_URL = "https://github.com/x-mrrobot-x/mr-keyboard/releases/download/";
     static final String SIG_PREFIX = "mr-keyboard/catalog/v1\n";
     static final int CATALOG_FORMAT = 1;
-    static final int PACK_FORMAT = 1;
+    /**
+     * Pack formats this app installs: 1 = main.dict in the dictionary format v1 (22-bit addresses, under 4 MB), 2 = main.dict in
+     * the format v2 (1.86: one more byte per address, under 16 MB). The catalog entry of a v2 pack says format 2 and minApp 1086000,
+     * so an older app (which only knows 1) keeps the pack it has and shows "needs a newer version of the app".
+     */
+    static final int PACK_FORMAT = 2;
+    /** Largest main.dict of each format, in bytes. */
+    static final long DICT_MAX_V1 = 4194304L;
+    static final long DICT_MAX_V2 = 16777216L;
     static final String PREFS = "mr_packs";
     static final String SIGNAL_KEY = "mr_dicts_updated_at";
     static final String KEY_SERIAL = "serial";
@@ -569,7 +577,7 @@ public final class MrPacks {
     }
 
     static boolean appTooOld(Context c, Pack p) {
-        return p.format != PACK_FORMAT || p.minApp > appVersion(c);
+        return p.format < 1 || p.format > PACK_FORMAT || p.minApp > appVersion(c);
     }
 
     /**
@@ -732,9 +740,11 @@ public final class MrPacks {
 
     static boolean dictHeaderOk(File f) {
         long n = f.length();
-        if (n < 1024 || n > 4194304) return false;
+        if (n < 1024 || n > DICT_MAX_V2) return false;
         byte[] h = head(f, 2);
-        return h != null && (h[0] & 0xFF) == 200 && h[1] == 1;
+        if (h == null || (h[0] & 0xFF) != 200) return false;
+        if (h[1] == 1) return n <= DICT_MAX_V1;
+        return h[1] == 2;
     }
 
     private static byte[] head(File f, int n) {

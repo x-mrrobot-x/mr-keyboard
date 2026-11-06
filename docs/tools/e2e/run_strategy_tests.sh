@@ -6,7 +6,8 @@
 # From the project root:
 #   bash docs/tools/e2e/run_strategy_tests.sh [app_jar.jar]
 # Without the jar (classes.dex of the APK -> dex2jar), it builds the APK just for this: needs APKTOOL_JAR and DEX2JAR (dex-tools-2.1 folder).
-# Variables: OUT (default /tmp/mr_strategy). Exits with code 1 if any check fails (a case marked GAP may fail: it is a known gap).
+# Variables: OUT (default /tmp/mr_strategy); DICTS (folder with the dictionaries, default dicts; docs/tools/make_v2_dicts.py makes a copy in
+#            the dictionary format v2 to run the same checks on it). Exits with code 1 if any check fails (a case marked GAP may fail: it is a known gap).
 set -e
 set -o pipefail   # the Java tests exit 1 on a failure; without this the pipe to grep would hide it
 OUT=${OUT:-/tmp/mr_strategy}
@@ -37,14 +38,15 @@ CP="$OUT/cls:$OUT/stubs:$JAR"
 run() { java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote -Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 \
              -Djava.library.path="$OUT/engine:$OUT/native" "$@"; }
 
+DICTS=${DICTS:-dicts}   # a copy in the dictionary format v2: docs/tools/make_v2_dicts.py
 FAILED=0
 for MODE in native java; do
   OPT=""; [ "$MODE" = java ] && OPT="-Dmr.native=off"
   for L in pt-BR en-US es; do
     echo "================ $L ($MODE)"
     case $L in pt-BR) OLD=E2ETest;; en-US) OLD=E2EEn;; es) OLD=E2EEs;; esac
-    run $OPT -cp "$CP" com.mrkeyboard.app.$OLD dicts/$L/main.dict - 1 dicts/$L/trigrams.bin | grep -E "FAIL|ALL OK|FAILURE" || FAILED=1
-    run $OPT -cp "$CP" com.mrkeyboard.app.StrategyTest $L dicts | grep -v "^Picked" || FAILED=1
+    run $OPT -cp "$CP" com.mrkeyboard.app.$OLD $DICTS/$L/main.dict - 1 $DICTS/$L/trigrams.bin | grep -E "FAIL|ALL OK|FAILURE" || FAILED=1
+    run $OPT -cp "$CP" com.mrkeyboard.app.StrategyTest $L "$DICTS" | grep -v "^Picked" || FAILED=1
   done
 done
 exit $FAILED

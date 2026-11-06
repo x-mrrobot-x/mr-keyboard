@@ -265,6 +265,40 @@ void edgeCases(const Tables& tables) {
     f.search(tables, rules, q.tb, q.n, q.near, q.cnt);
     CHECK(f.count() == 1 && toUtf8(f.word(0), f.wordLen(0)) == "a\xC5\x91", "aő: expected aő (2-byte character), got %s", render(f).c_str());
 
+    // The same dictionary in the format v2 (1.86): header 200,2 and one more byte in the address of the child group.
+    //   2: [1] 'a' (children at 8)          root group
+    //   8: [2] 'b' term f=100 no bigrams | 0xFF 0x01 0x51 (ő) term f=90 no bigrams
+    const uint8_t d2[] = {200, 2,
+                          1, 'a', 0x40, 0x00, 0x00, 0x08,
+                          2, 'b', 0x80, 100, 0x00, 0xFF, 0x01, 0x51, 0x80, 90, 0x00};
+    Fuzzy f2;
+    f2.attach(d2, static_cast<int>(sizeof(d2)));
+    CHECK(makeQuery(tables, "ab", rows, &q), "query");
+    f2.search(tables, rules, q.tb, q.n, q.near, q.cnt);
+    CHECK(f2.count() == 1 && toUtf8(f2.word(0), f2.wordLen(0)) == "ab", "v2 ab: expected ab, got %s", render(f2).c_str());
+    CHECK(makeQuery(tables, "a\xC5\x91", rows, &q), "query");
+    f2.search(tables, rules, q.tb, q.n, q.near, q.cnt);
+    CHECK(f2.count() == 1 && toUtf8(f2.word(0), f2.wordLen(0)) == "a\xC5\x91", "v2 aő: got %s", render(f2).c_str());
+
+    // The address of v2 has 6 + 24 bits: a child group placed at 0x500000 (5 MB, past the 22 bits of v1) and another at 0xC00000 (bit 23).
+    for (uint32_t at : {0x500000u, 0xC00000u, 0xFFFFF0u}) {
+        std::vector<uint8_t> big(at + 8, 0);
+        big[0] = 200; big[1] = 2;
+        big[2] = 1; big[3] = 'a'; big[4] = 0x40 | static_cast<uint8_t>(at >> 24); big[5] = (at >> 16) & 0xFF; big[6] = (at >> 8) & 0xFF; big[7] = at & 0xFF;
+        big[at] = 1; big[at + 1] = 'b'; big[at + 2] = 0x80; big[at + 3] = 100; big[at + 4] = 0x00;
+        Fuzzy fb;
+        fb.attach(big.data(), static_cast<int>(big.size()));
+        CHECK(makeQuery(tables, "ab", rows, &q), "query");
+        fb.search(tables, rules, q.tb, q.n, q.near, q.cnt);
+        CHECK(fb.count() == 1 && toUtf8(fb.word(0), fb.wordLen(0)) == "ab", "v2 child group at 0x%X: got %s", at, render(fb).c_str());
+        // the same bytes with the header of v1 would read the address in 22 bits and not find it: the header decides
+        big[1] = 1;
+        Fuzzy fo;
+        fo.attach(big.data(), static_cast<int>(big.size()));
+        fo.search(tables, rules, q.tb, q.n, q.near, q.cnt);
+        CHECK(fo.count() == 0 || toUtf8(fo.word(0), fo.wordLen(0)) != "ab", "v1 header must not read a v2 address as v2 (at 0x%X)", at);
+    }
+
     // minimum and null sizes must not crash
     Fuzzy g;
     g.search(tables, rules, q.tb, q.n, q.near, q.cnt);   // without attach

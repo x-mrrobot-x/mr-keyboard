@@ -173,5 +173,22 @@ jobs:
       - name: Suggestion strategies - one check per strategy (3 languages, native and Java)
         run: bash docs/tools/e2e/run_strategy_tests.sh "$RUNNER_TEMP/dex/classes.jar"
 
+      - name: Dictionary format v2 - builder (a 14 MB synthetic dictionary, round trips) and the C++ reader (every word and pair)
+        run: |
+          python3 -I docs/tools/dict_v2_test.py --keep "$RUNNER_TEMP/big"
+          python3 -I docs/tools/make_v2_dicts.py "$RUNNER_TEMP/dicts_v2"
+          cmake -S native -B "$RUNNER_TEMP/host-native" -DCMAKE_BUILD_TYPE=Release -DMR_HOST_TEST=ON
+          cmake --build "$RUNNER_TEMP/host-native" -j4
+          bash docs/tools/dict_readback.sh "$RUNNER_TEMP/host-native/dict_test" dicts
+          bash docs/tools/dict_readback.sh "$RUNNER_TEMP/host-native/dict_test" "$RUNNER_TEMP/dicts_v2"
+          bash docs/tools/dict_readback.sh "$RUNNER_TEMP/host-native/dict_test" "$RUNNER_TEMP/big"
+
+      - name: Dictionary format v2 - Java x C++ parity and suggestion strategies on a copy of dicts/ in v2 (3 languages)
+        env:
+          DICTS: ${{ runner.temp }}/dicts_v2
+        run: |
+          WORDS=1200 SUGG=1000 OUT="$RUNNER_TEMP/parity_v2" bash docs/tools/e2e/run_native_parity.sh "$RUNNER_TEMP/dex/classes.jar"
+          OUT="$RUNNER_TEMP/strategy_v2" bash docs/tools/e2e/run_strategy_tests.sh "$RUNNER_TEMP/dex/classes.jar"
+
       - name: Dictionary packs - download flow and the 3 installed languages (PC, test key)
         run: bash docs/tools/packs_test/run_packs_tests.sh "$RUNNER_TEMP/dex/classes.jar"

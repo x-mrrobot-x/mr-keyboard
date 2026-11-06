@@ -84,3 +84,28 @@ The credits live in `dicts/pt-BR/NOTICE.txt` (in 1.6.0: `res/raw/notice_main_pt.
 
 ## Next steps
 The native libraries are compiled with the NDK by GitHub Actions (`.github/workflows/mr-native.yml` and `native/`).
+
+## Format v2 (1.86.0): dictionaries up to 16 MB
+The 2nd byte of the header tells the formats apart (`build_dict.py` and the three readers agree on it):
+
+| Header | Format | Address (group of children, bigram target) | Bigram entry | Size limit applied |
+|---|---|---|---|---|
+| `200, 1` (the readers also accept `200, 0`, the same layout; a pack must use 1) | v1 (the AOSP "latest" format) | 6 bits of the flags byte + 2 bytes = 22 bits | address (3 bytes) + frequency/continue byte = 4 bytes | 4,194,304 bytes |
+| `200, 2` | v2 (since 1.86.0) | 6 bits of the flags byte + 3 bytes = 30 bits | address (4 bytes) + frequency/continue byte = 5 bytes | 16,777,216 bytes (a policy limit; the field holds more) |
+
+Everything else is the same: a group is `[count]` + entries, an entry is a letter (1 byte, or `0xFF` + 2 bytes) + the flags byte (`0x80` terminal, `0x40` has children, low 6 bits the high part of the address) + the rest of the address + (terminal) the frequency + the bigram list. The file is still written depth-first, because a bigram points to the letter byte of the next word's terminal entry and the readers find the word back from that address. The same content takes about 0.7 MB more in v2 (a node with children has one more byte).
+
+Commands (all `python3 -I docs/tools/build_dict.py ...`):
+- `in.combined.gz out.dict [--format 1|2]` builds from the word list (default `--format 1`, which is what the three shipped packs use). It re-reads its own output with a Python copy of the lib routines and checks every word, every frequency, every bigram through an address table and a walk like the lib's.
+- `--convert in.dict out.dict [--format 1|2]` reads a dictionary of any format and writes it again in the format asked (default 1, so a v2 file needs `--format 2`). v1 → v1 gives the same bytes as the shipped files, which is how the converter is tested; it stops with an error if a word or a pair does not survive.
+- `--dump in.dict words.tsv bigrams.tsv` writes every word and every pair, the input of `native/test/dict_test.cpp` (`docs/tools/dict_readback.sh` runs it for a folder of dictionaries).
+
+A v2 pack needs `"format": 2` and `"minApp": 1086000` in `pack.json`; `make_catalog.py` refuses a v2 file without them, a header that does not match `format`, and a size over the limit of that format. An app older than 1.86.0 keeps the v1 pack it has. The tests (what they check and how to run them) are in `suggestion-features.md`, "Dictionary format v2".
+
+## Packs built from conversation text (1.86.1: Spanish 4, Portuguese 6 and English 5)
+Spanish 4, Portuguese 6 and English 5 are not built by `split_lang.py` / `make_wordlist_lang.py` / `make_trigrams.py` any more: the counts, the mix of sources, the
+vocabulary, the frequencies, the pairs and the trigrams come from `docs/tools/corpus/` (`prepare_corpus.py` + `make_pack_data.py`, steps and the exact
+command in `docs/tools/corpus/README.md`; choices and results in `plan-suggestions.md`, Phase 4), and the dictionary is written with
+`build_dict.py ... --format 2`. The credits of the sources are in `dicts/es/NOTICE.txt`; the OpenSubtitles text has no clear licence, so only counts
+leave the machine. The same holds for `dicts/pt-BR/NOTICE.txt`; for Portuguese the list of the old recipe (this document, above) is run on the same splits and is the base of
+`make_pack_data.py`, because it already has the 1990 spelling agreement and the European forms out (details in `docs/tools/corpus/README.md`). English has its own rules in the `en` entry of `make_pack_data.py` (apostrophe-free forms, stutters, capitalised twins, foreign lists only for short words): `docs/tools/corpus/README.md`. The older scripts above (`split_*.py`, `make_wordlist*.py`, `make_trigrams.py`) are still the way to rebuild the old recipe on the same splits, which is how the new packs are compared with it.

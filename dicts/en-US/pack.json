@@ -4,13 +4,13 @@
   "region": "US",
   "name": {"pt": "Inglês (EUA)", "en": "English (US)"},
   "description": {
-    "pt": "Dicionário em inglês americano, pares e trios de palavras para prever a próxima e a lista de correções do inglês (contrações sem apóstrofo, abreviações de chat, erros comuns).",
-    "en": "American English dictionary, word pairs and triples to predict the next word, and English correction rules (contractions without the apostrophe, chat abbreviations, common misspellings)."
+    "pt": "Dicionário de inglês americano com 175 mil palavras feito para a escrita do dia a dia (conversa, séries e filmes, notícias), pares e trios de palavras para prever a próxima e a lista de correções do inglês (contrações sem apóstrofo, abreviações de chat, erros comuns).",
+    "en": "175k-word American English dictionary built for everyday writing (chat, series and films, news), word pairs and triples to predict the next word, and English correction rules (contractions without the apostrophe, chat abbreviations, common misspellings)."
   },
-  "version": 4,
-  "format": 1,
-  "minApp": 1063000,
+  "version": 5,
+  "format": 2,
+  "minApp": 1086000,
   "files": ["main.dict", "trigrams.bin", "rules.txt", "NOTICE.txt"],
-  "licenses": ["Apache-2.0", "CC-BY-4.0", "CC-BY-2.0-FR"],
-  "credits": "AOSP en_US word list (Apache 2.0); Leipzig Corpora Collection, English news (CC BY 4.0); Tatoeba (CC BY 2.0 FR)"
+  "licenses": ["Apache-2.0", "CC-BY-4.0", "CC-BY-2.0-FR", "OpenSubtitles (counts only)"],
+  "credits": "AOSP en_US word list (Apache 2.0); OpenSubtitles2018, English (word counts only); Leipzig Corpora Collection, English news (CC BY 4.0); Tatoeba (CC BY 2.0 FR)"
 }

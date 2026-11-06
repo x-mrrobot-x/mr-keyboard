@@ -19,7 +19,7 @@
     .locals 0
 
     .prologue
-    .line 972
+    .line 982
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .end annotation
 
     .prologue
-    .line 975
+    .line 985
     invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
 
     move-result-object v0
@@ -49,7 +49,7 @@
 
     move-result-object v0
 
-    .line 977
+    .line 987
     iget-object v1, v0, Landroid/content/pm/PackageInfo;->signingInfo:Landroid/content/pm/SigningInfo;
 
     if-eqz v1, :cond_0

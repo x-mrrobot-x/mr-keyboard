@@ -4,13 +4,13 @@
   "region": "BR",
   "name": {"pt": "Português (Brasil)", "en": "Portuguese (Brazil)"},
   "description": {
-    "pt": "Dicionário com 173 mil palavras, pares e trios de palavras para prever a próxima e a lista de correções do português.",
-    "en": "173k-word dictionary, word pairs and triples to predict the next word, and Portuguese correction rules."
+    "pt": "Dicionário com 183 mil palavras feito para a escrita do dia a dia (conversa, séries e filmes, notícias), pares e trios de palavras para prever a próxima e a lista de correções do português.",
+    "en": "183k-word dictionary built for everyday writing (chat, series and films, news), word pairs and triples to predict the next word, and Portuguese correction rules."
   },
-  "version": 5,
-  "format": 1,
-  "minApp": 1063000,
+  "version": 6,
+  "format": 2,
+  "minApp": 1086000,
   "files": ["main.dict", "trigrams.bin", "rules.txt", "NOTICE.txt"],
-  "licenses": ["Apache-2.0", "CC-BY-4.0", "CC-BY-2.0-FR"],
-  "credits": "AOSP pt_BR word list (Apache 2.0); Leipzig Corpora Collection, por_news_2024_1M (CC BY 4.0); Tatoeba (CC BY 2.0 FR)"
+  "licenses": ["Apache-2.0", "CC-BY-4.0", "CC-BY-2.0-FR", "OpenSubtitles (counts only)"],
+  "credits": "AOSP pt_BR word list (Apache 2.0); OpenSubtitles2018, Brazilian Portuguese (word counts only); Leipzig Corpora Collection, por_news_2024_1M (CC BY 4.0); Tatoeba (CC BY 2.0 FR)"
 }

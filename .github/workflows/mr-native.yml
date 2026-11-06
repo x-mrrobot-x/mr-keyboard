@@ -88,12 +88,22 @@ jobs:
           ./build/host-native/dict_test dicts/pt-BR/main.dict native/test/sample_words.tsv \
               native/test/sample_bigrams.tsv native/test/cases.tsv 5 | grep -v "^OK\|^FAIL"
 
-      - name: PC test of the engine (engine/ with the dictionaries in dicts/ - search, trigrams, corrupt files, edge cases)
+      - name: Dictionary lib - every word and pair of dicts/ (format v1) and of a copy in the format v2
+        run: |
+          python3 -I docs/tools/make_v2_dicts.py build/dicts-v2
+          bash docs/tools/dict_readback.sh build/host-native/dict_test dicts
+          bash docs/tools/dict_readback.sh build/host-native/dict_test build/dicts-v2
+          python3 -I docs/tools/dict_v2_test.py --keep build/big
+          bash docs/tools/dict_readback.sh build/host-native/dict_test build/big
+
+      - name: PC test of the engine (engine/ with the dictionaries in dicts/ and the copy in v2 - search, trigrams, corrupt files, edge cases)
         run: |
           cmake -S engine -B build/host-engine -DCMAKE_BUILD_TYPE=Release -DMR_HOST_TEST=ON
           cmake --build build/host-engine -j4
           ./build/host-engine/mr_test dicts 100
+          ./build/host-engine/mr_test build/dicts-v2 100
           ./build/host-engine/mr_bench dicts 5
+          ./build/host-engine/mr_bench build/dicts-v2 5
 
       - name: Engine JNI bridge (RegisterNatives and bad arguments, with the runner Java)
         run: |
@@ -106,6 +116,7 @@ jobs:
           cmake -S engine -B build/san-engine -DCMAKE_BUILD_TYPE=RelWithDebInfo -DMR_HOST_TEST=ON -DMR_SANITIZE=ON
           cmake --build build/san-engine -j4
           ./build/san-engine/mr_test dicts 150
+          ./build/san-engine/mr_test build/dicts-v2 150
 
       - name: Record which code the libs were built from
         run: |

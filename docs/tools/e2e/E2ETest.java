@@ -135,7 +135,7 @@ public class E2ETest {
         suggest.setUserBigramDictionary(null);
 
         // 1.62: slot reserved for the cheap correction
-        expect("prota (reserved correction)", strs(sugg("prota", null)), "porta", 2);
+        expect("deposi (reserved correction)", strs(sugg("deposi", null)), "depois", 2);
         // 1.62: careful autocorrection (mode 3 = autocorrection on)
         suggest.setCorrectionMode(3);
         String[][] ac = {{"obrogado", "1"}, {"pesquiza", "1"}, {"asim", "1"}, {"concerteza", "1"}, {"obrig", "0"}, {"eusei", "0"}};

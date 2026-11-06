@@ -108,4 +108,5 @@ O Mr Keyboard está sob a [Apache License 2.0](LICENSE).
 - Dados dos dicionários (créditos completos em `dicts/<idioma>/NOTICE.txt`):
   - listas pt_BR, en_US e es do AOSP (Apache 2.0);
   - [Leipzig Corpora Collection](https://wortschatz-leipzig.de/) (CC BY 4.0);
-  - [Tatoeba](https://tatoeba.org/) (CC BY 2.0 FR).
+  - [Tatoeba](https://tatoeba.org/) (CC BY 2.0 FR);
+  - [OpenSubtitles](https://opus.nlpl.eu/OpenSubtitles/) via OPUS (só contagens de palavras e pares; nenhum texto de legenda é guardado nem distribuído).

@@ -16,9 +16,21 @@ Unless required by applicable law or agreed to in writing, software distributed 
 the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, either express or implied.
 
-2) New words, frequencies of the new words and word pairs (bigrams)
-Counted in the "spa_news_2024_1M" corpus of the Leipzig Corpora Collection (Wortschatz,
-Universitaet Leipzig).
+2) New words, frequencies, word pairs (bigrams) and word triples (trigrams)
+Counted in a mix of three text collections (the mix and the weights were chosen on
+sentences that were kept out of every count):
+
+a) OpenSubtitles2018, Spanish (a sample of one line in 64), subtitles of films and series.
+P. Lison and J. Tiedemann: OpenSubtitles2016: Extracting Large Parallel Corpora from Movie
+and TV Subtitles. In: Proceedings of the 10th International Conference on Language
+Resources and Evaluation (LREC 2016), 2016. J. Tiedemann: Parallel Data, Tools and
+Interfaces in OPUS. In: Proceedings of LREC 2012. https://opus.nlpl.eu/OpenSubtitles/
+The subtitles come from https://www.opensubtitles.org and the licence of their text is not
+clear. For that reason ONLY COUNTS (how many times a word, a pair or a triple appears) were
+taken from them: no subtitle line, sentence or sequence of text is stored or distributed
+in this pack.
+
+b) "spa_news_2024_1M" of the Leipzig Corpora Collection (Wortschatz, Universitaet Leipzig).
 D. Goldhahn, T. Eckart & U. Quasthoff: Building Large Monolingual Dictionaries at the
 Leipzig Corpora Collection: From 100 to 200 Languages. In: Proceedings of the 8th
 International Language Resources and Evaluation (LREC'12), 2012.
@@ -27,18 +39,21 @@ Corpus license: Creative Commons Attribution 4.0 International (CC BY 4.0),
 https://creativecommons.org/licenses/by/4.0/
 Only counts were taken from the corpus (no sentence is distributed).
 
-3) Chat word pairs
-Spanish sentences from Tatoeba (https://tatoeba.org), weekly export
-spa_sentences_detailed, with the repeated names and places of the example sentences
-(Tom, Mary, Tomas, Boston...) replaced by separators. License: Creative Commons
+c) Spanish sentences from Tatoeba (https://tatoeba.org), with the repeated names of the
+example sentences (Tom, Mary, Tomas...) replaced by separators. License: Creative Commons
 Attribution 2.0 France (CC BY 2.0 FR), https://creativecommons.org/licenses/by/2.0/fr/
 Only counts were taken from Tatoeba (no sentence is distributed).
 
-4) Chat abbreviations, chat expressions and the list of corrections (rules.txt)
+The frequency of each word is recalculated from these counts and blended with the
+frequency of the AOSP list; a word of the AOSP list that does not show up in the texts keeps
+its frequency.
+
+3) Chat abbreviations, chat expressions and the list of corrections (rules.txt)
 Lists written for Mr Keyboard.
 
 The LibreOffice es_ES, es_MX and es_AR spellcheckers (Hunspell, RLA-ES) were used only
-as a filter for the new words; nothing from them is copied. Words marked by the AOSP as
-possibly offensive do not show up as predictions; the vulgar ones only show up when
-typed in full.
-Tools: docs/tools/split_lang.py, make_wordlist_lang.py, make_trigrams.py and build_dict.py.
+as a filter for the new words; nothing from them is copied. The AOSP English and German word
+lists were used only to leave out foreign words quoted in the subtitles. Words marked by
+the AOSP as possibly offensive do not show up as predictions; the vulgar ones only show up
+when typed in full.
+Tools: docs/tools/corpus/ (prepare_corpus.py, make_pack_data.py) and docs/tools/build_dict.py.

@@ -21,11 +21,11 @@ def check(name, cond, extra=''):
         fails += 1; print('FAIL  ' + name + (' | ' + extra if extra else ''))
 
 
-def pack(root, pid, version, content):
+def pack(root, pid, version, content, fmt=1, min_app=1, header=None):
     d = os.path.join(root, pid); os.makedirs(d, exist_ok=True)
-    json.dump({'id': pid, 'lang': pid.split('-')[0], 'name': {'en': pid}, 'version': version, 'format': 1,
-               'minApp': 1, 'files': ['main.dict'], 'licenses': []}, open(os.path.join(d, 'pack.json'), 'w'))
-    open(os.path.join(d, 'main.dict'), 'wb').write(bytes([200, 1]) + content)
+    json.dump({'id': pid, 'lang': pid.split('-')[0], 'name': {'en': pid}, 'version': version, 'format': fmt,
+               'minApp': min_app, 'files': ['main.dict'], 'licenses': []}, open(os.path.join(d, 'pack.json'), 'w'))
+    open(os.path.join(d, 'main.dict'), 'wb').write(bytes(header or [200, fmt]) + content)
 
 
 def run(dicts, out, tag, prev=None):
@@ -149,6 +149,32 @@ try:
     old['data'] = json.dumps(dd); oldcat = os.path.join(T, 'oldcat.json'); json.dump(old, open(oldcat, 'w'))
     rc, output = run(dicts, os.path.join(T, 'o7'), prev=oldcat, tag='v1.77.0')
     check('previous catalog without "release" for an unchanged pack: clear error', rc != 0 and '"release"' in output, output[-200:])
+
+    # ---------------- dictionary format v2 (pack format 2, 1.86): header, size limit and minApp are checked per format
+    d2 = os.path.join(T, 'dicts2')
+    pack(d2, 'pt-BR', 6, b'v' * 5000000, fmt=2, min_app=1086000)          # 5 MB: over the v1 limit, fine for v2
+    rc, output = run(d2, os.path.join(T, 'p1'), tag='v1.86.0')
+    dp = load_data(os.path.join(T, 'p1')) if rc == 0 else {}
+    check('format 2: a 5 MB dictionary with header [200,2] and minApp 1086000 is accepted',
+          rc == 0 and [(p['format'], p['minApp']) for p in dp['packs']] == [(2, 1086000)], output[-200:])
+    pack(d2, 'pt-BR', 6, b'v' * 5000000, fmt=1)
+    rc, output = run(d2, os.path.join(T, 'p2'), tag='v1.86.0')
+    check('format 1: a dictionary over 4,194,304 bytes is refused', rc != 0 and 'format limit' in output, output[-200:])
+    pack(d2, 'pt-BR', 6, b'v' * 100, fmt=2, min_app=1086000, header=[200, 1])
+    rc, output = run(d2, os.path.join(T, 'p3'), tag='v1.86.0')
+    check('format 2 with a v1 header: refused (an old app would not tell them apart)', rc != 0 and '[200,2]' in output, output[-200:])
+    pack(d2, 'pt-BR', 6, b'v' * 100, fmt=1, header=[200, 2])
+    rc, output = run(d2, os.path.join(T, 'p4'), tag='v1.86.0')
+    check('format 1 with a v2 header: refused', rc != 0 and '[200,1]' in output, output[-200:])
+    pack(d2, 'pt-BR', 6, b'v' * 100, fmt=2, min_app=1085000)
+    rc, output = run(d2, os.path.join(T, 'p5'), tag='v1.86.0')
+    check('format 2 with minApp below 1086000: refused', rc != 0 and '1086000' in output, output[-200:])
+    pack(d2, 'pt-BR', 6, b'v' * 16777300, fmt=2, min_app=1086000)
+    rc, output = run(d2, os.path.join(T, 'p6'), tag='v1.86.0')
+    check('format 2: a dictionary over 16 MB is refused', rc != 0, output[-200:])
+    pack(d2, 'pt-BR', 6, b'v' * 100, fmt=3, min_app=1086000)
+    rc, output = run(d2, os.path.join(T, 'p7'), tag='v1.86.0')
+    check('unknown pack format 3: refused', rc != 0 and 'unknown format' in output, output[-200:])
 finally:
     shutil.rmtree(T, ignore_errors=True)
 

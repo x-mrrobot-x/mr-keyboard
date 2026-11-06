@@ -84,7 +84,7 @@ public class StrategyTest {
 
     /**
      * S27 (v1.85): like ctxType, but the word must be at exactly {@code index} of the strip at the end: 1 = the center (the previous words confirm
-     * the likely word for a valid but rare typed one: "eu aida" -> ainda), 2 = the 3rd place (nothing confirms it: "vou cassa" -> casa).
+     * the likely word for a valid but rare typed one: "quase semper" -> sempre), 2 = the 3rd place (nothing confirms it: "vou cassa" -> casa).
      */
     static void ctxAt(String tag, String p2, String p1, String typed, String want, int index, boolean gap) {
         if (p2 == null) MrPredict.forWord(suggest, p1); else MrPredict.forWords(suggest, p2, p1);
@@ -170,8 +170,9 @@ public class StrategyTest {
 
     static void dataIntegrity(String lang, byte[] bytes) {
         // D1 format and headroom
-        record("D1", "dictionary header 200/1", (bytes[0] & 0xFF) >= 200 && (bytes[1] == 0 || bytes[1] == 1), false, "");
-        record("D1", "dictionary under the 22-bit address limit", bytes.length < 0x400000, false, bytes.length + " bytes");
+        // format v1 (header byte 1 = 1, 22-bit addresses, under 4 MB) or v2 (byte 1 = 2, one more byte per address, under 16 MB)
+        record("D1", "dictionary header 200/1 or 200/2", (bytes[0] & 0xFF) >= 200 && (bytes[1] == 0 || bytes[1] == 1 || bytes[1] == 2), false, "format " + bytes[1]);
+        record("D1", "dictionary under the address limit of its format", bytes.length < (bytes[1] == 2 ? 0x1000000 : 0x400000), false, bytes.length + " bytes");
         // D2 rules: every section the engine reads is present
         MrRules m = MrRules.get();
         record("D2", "sentence starters (3)", m.starters.length == 3, false, Arrays.toString(m.starters));
@@ -258,7 +259,7 @@ public class StrategyTest {
         // S14 prediction after the space (bigrams) / S15 two words (trigrams)
         predict("S14", null, "bom", "dia", false);
         predict("S14", null, "por", "favor", false);
-        predict("S14", null, "tudo", "bem", true);            // GAP (data): news bigrams put que/o/isso first
+        predict("S14", null, "tudo", "bem", false);           // was a GAP with pt-BR 5 (que/o/isso, from the news, won); fixed by pt-BR 6
         predict("S14", null, "muito", "obrigado", true);      // GAP (data): tempo/bem/mais win
         predict("S14", null, "eu", "vou", true);              // GAP (data): tenho/não/acho win
         // S26 context while typing: the previous word keeps counting from the 2nd letter on
@@ -284,23 +285,23 @@ public class StrategyTest {
         valid("S20", "né", false);
         valid("S20", "kkkk", false);
         // S21 cheap correction keeps its slot when the completions are many
-        typed("S21", "prota", "porta", 2, false);
+        typed("S21", "deposi", "depois", 2, false);
         // Known gaps: valid word that is another word / chat words with low frequency / 3-letter errors
         // S27 a valid word that is probably another word: only a suggestion in the 3rd place, never a replacement
         typed("S27", "cassa", "casa", 2, false);
         typed("S27", "cousa", "coisa", 2, false);
-        typed("S27", "aida", "ainda", 2, false);
+        typed("S27", "semper", "sempre", 2, false);
         autocorrect("S27", "cassa", false, false);
         alt("S27", "cassa", "casa");
         alt("S27", "fone", null);                                // a real word: nothing to offer
         alt("S27", "casa", null);                                // a frequent word: not even searched
         // S27 (v1.85) the previous words confirm the likely word: it takes the center instead of the 3rd place (never replaces the typed word)
-        ctxAt("S27", null, "eu", "aida", "ainda", 1, false);
-        ctxAt("S27", null, "ele", "aida", "ainda", 1, false);
+        ctxAt("S27", null, "quase", "semper", "sempre", 1, false);
+        ctxAt("S27", null, "nem", "semper", "sempre", 1, false);
         ctxAt("S27", null, "na", "cassa", "casa", 1, false);
         ctxAt("S27", null, "uma", "cousa", "coisa", 1, false);
         ctxAt("S27", null, "vou", "cassa", "casa", 2, false);    // "vou casa" is not what people write: the context does not confirm it
-        autocorrect("S27", "aida", false, false);
+        autocorrect("S27", "semper", false, false);
         typed("GAP", "ola", "olá", 2, false);
         typed("GAP", "entao", "então", 2, false);
         typed("GAP", "flw", "falou", 2, false);
@@ -311,9 +312,9 @@ public class StrategyTest {
         typed("GAP", "whats", "WhatsApp", 2, false);
         // C1 everyday words: after 2 letters the word must be among the first 3 completions
         typed("C1", "ta", "tá", 3, false);
-        typed("C1", "to", "tô", 3, true);
+        typed("C1", "to", "tô", 3, false);                 // was a GAP with pt-BR 5; fixed by pt-BR 6
         typed("C1", "ne", "né", 3, false);
-        typed("C1", "pr", "pra", 3, true);
+        typed("C1", "pr", "pra", 3, false);                 // was a GAP with pt-BR 5; fixed by pt-BR 6
         typed("C1", "vo", "vou", 3, true);
     }
 
@@ -364,12 +365,12 @@ public class StrategyTest {
         first("S13", "m", "very", "much", 3, false);
         first("S13", "a", "how", "are", 3, false);
         predict("S14", null, "thank", "you", false);
-        predict("S14", null, "how", "are", true);             // GAP (data): much/to/many win
+        predict("S14", null, "how", "are", true);             // GAP (data): much/to/do win (P(are | how) is about 4%)
         predict("S14", null, "see", "you", false);
-        predict("S14", null, "good", "morning", true);        // GAP: news bigrams (good -> at/idea/for)
+        predict("S14", null, "good", "morning", true);        // GAP (data): to/at/night win
         predict("S14", null, "hey", "guys", false);
-        predict("S15", "thank", "you", "so", true);           // GAP (data)
-        predict("S15", "see", "you", "later", true);          // GAP (data)
+        predict("S15", "thank", "you", "so", false);          // was a GAP with en-US 4 (to/for/very won); fixed by en-US 5
+        predict("S15", "see", "you", "later", false);         // was a GAP with en-US 4 (in/again/at won); fixed by en-US 5
         predict("S15", "how", "are", "you", false);
         predict("S15", "I", "don't", "know", false);
         autocorrect("S19", "teh", true, false);
@@ -387,7 +388,7 @@ public class StrategyTest {
         typed("GAP", "ive", "I've", 2, false);
         typed("GAP", "youre", "you're", 2, false);
         typed("C1", "gon", "gonna", 3, false);
-        typed("C1", "ye", "yeah", 3, true);
+        typed("C1", "ye", "yeah", 3, false);                  // was a GAP with en-US 4; fixed by en-US 5
         typed("C1", "do", "don't", 3, false);
     }
 
@@ -411,7 +412,7 @@ public class StrategyTest {
         ctxType("S26", null, "hasta", "ma", "mañana", false);
         typed("S1", "tambi", "también", 2, false);
         typed("S2", "graciaz", "gracias", 2, false);
-        typed("S2", "gola", "hola", 2, true);                 // GAP (data): hola has a low frequency (78); bola/golazo win
+        typed("S2", "gola", "hola", 2, false);                // was a GAP with es 3 (hola 78, bola/golazo won); fixed by es 4
         typed("S3", "xq", "porque", 2, false);
         typed("S3", "pq", "porque", 2, false);
         typed("S3", "tmb", "también", 2, false);
@@ -422,11 +423,11 @@ public class StrategyTest {
         typed("S5", "bueos", "buenos", 2, false);
         typed("S6", "muhco", "mucho", 2, false);
         typed("S6", "graicas", "gracias", 2, false);
-        typed("S8", "bamos", "vamos", 2, true);               // GAP (data): vamos (everyday) loses to bajos/baños (news)
+        typed("S8", "bamos", "vamos", 2, false);              // was a GAP with es 3 (bajos/baños, from the news, won); fixed by es 4
         typed("S8", "vien", "bien", 2, false);
         typed("S9", "ermano", "hermano", 2, false);
         typed("S9", "ablar", "hablar", 2, false);
-        typed("S9", "ombre", "hombre", 2, true);              // GAP: 'ombre' is a valid word
+        typed("S9", "ombre", "hombre", 2, false);             // was a GAP with es 3 ('ombre' is a valid word); fixed by es 4
         typed("S10", "kiero", "quiero", 2, false);
         typed("S10", "kien", "quién", 2, false);
         typed("S10", "caye", "calle", 2, false);
@@ -438,7 +439,7 @@ public class StrategyTest {
         first("S13", "t", "buenas", "tardes", 3, false);
         predict("S14", null, "muchas", "gracias", false);
         predict("S14", null, "buenos", "días", false);
-        predict("S14", null, "por", "favor", true);           // GAP (data): el/la/qué win
+        predict("S14", null, "por", "favor", false);          // was a GAP with es 3 (el/la/qué won); fixed by es 4
         predict("S14", null, "hola", "cómo", true);           // GAP (data): y/a/mundo win
         predict("S15", "muchas", "gracias", "por", false);
         predict("S15", "por", "favor", "me", true);           // GAP (data)
@@ -454,8 +455,8 @@ public class StrategyTest {
         typed("GAP", "wasap", "WhatsApp", 2, false);
         typed("GAP", "tio", "tío", 2, false);
         typed("C1", "ho", "hola", 3, true);
-        typed("C1", "vam", "vamos", 3, true);
-        typed("C1", "gr", "gracias", 3, true);
+        typed("C1", "vam", "vamos", 3, false);
+        typed("C1", "gr", "gracias", 3, false);
         typed("C1", "es", "estoy", 3, true);
     }
 

@@ -1,5 +1,5 @@
 !!brut.androlib.meta.MetaInfo
-apkFileName: Mr Keyboard_v1.85.0.apk
+apkFileName: Mr Keyboard_v1.86.1.apk
 compressionType: false
 doNotCompress:
 - resources.arsc
@@ -24,5 +24,5 @@ usesFramework:
   tag: null
 version: 2.11.1
 versionInfo:
-  versionCode: '1085000'
-  versionName: v1.85.0
+  versionCode: '1086001'
+  versionName: v1.86.1

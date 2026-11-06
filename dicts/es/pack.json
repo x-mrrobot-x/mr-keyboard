@@ -4,14 +4,14 @@
   "region": "",
   "name": {"pt": "Espanhol", "en": "Spanish", "es": "Español"},
   "description": {
-    "pt": "Dicionário em espanhol (Espanha e América Latina), pares e trios de palavras para prever a próxima e a lista de correções do espanhol (abreviações de chat, erros comuns, h muda, b/v, ll/y).",
-    "en": "Spanish dictionary (Spain and Latin America), word pairs and triples to predict the next word, and Spanish correction rules (chat abbreviations, common misspellings, silent h, b/v, ll/y).",
-    "es": "Diccionario de español (España y América Latina), pares y tríos de palabras para predecir la siguiente y la lista de correcciones del español (abreviaciones de chat, errores comunes, h muda, b/v, ll/y)."
+    "pt": "Dicionário em espanhol (Espanha e América Latina) feito para a escrita do dia a dia (conversa, séries e filmes, notícias), pares e trios de palavras para prever a próxima e a lista de correções do espanhol (abreviações de chat, erros comuns, h muda, b/v, ll/y).",
+    "en": "Spanish dictionary (Spain and Latin America) built for everyday writing (chat, series and films, news), word pairs and triples to predict the next word, and Spanish correction rules (chat abbreviations, common misspellings, silent h, b/v, ll/y).",
+    "es": "Diccionario de español (España y América Latina) hecho para la escritura de todos los días (chat, series y películas, noticias), pares y tríos de palabras para predecir la siguiente y la lista de correcciones del español (abreviaciones de chat, errores comunes, h muda, b/v, ll/y)."
   },
-  "version": 3,
-  "format": 1,
-  "minApp": 1063000,
+  "version": 4,
+  "format": 2,
+  "minApp": 1086000,
   "files": ["main.dict", "trigrams.bin", "rules.txt", "NOTICE.txt"],
-  "licenses": ["Apache-2.0", "CC-BY-4.0", "CC-BY-2.0-FR"],
-  "credits": "AOSP es word list (Apache 2.0); Leipzig Corpora Collection, Spanish news (CC BY 4.0); Tatoeba (CC BY 2.0 FR)"
+  "licenses": ["Apache-2.0", "CC-BY-4.0", "CC-BY-2.0-FR", "OpenSubtitles (counts only)"],
+  "credits": "AOSP es word list (Apache 2.0); OpenSubtitles2018, Spanish (word counts only); Leipzig Corpora Collection, Spanish news (CC BY 4.0); Tatoeba (CC BY 2.0 FR)"
 }

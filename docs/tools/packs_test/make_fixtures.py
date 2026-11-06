@@ -41,4 +41,20 @@ def badsha(p):
 variant('badfile',4,5,None,badsha)
 variant('minapp',5,6,None,lambda p: p.__setitem__('minApp',9999999))
 variant('v7',6,7)
+# a pack in the dictionary format v2 (1.86): main.dict re-encoded (about 4.4 MB, over the 4 MB of v1), pack.json format 2 and minApp 1086000
+D2=tempfile.mkdtemp(); os.makedirs(D2+'/dicts'); shutil.copytree(B+'/dicts/pt-BR', D2+'/dicts/pt-BR')
+sys.path.insert(0, B+'/docs/tools')
+import build_dict
+words,bigrams=build_dict.from_dict(open(D2+'/dicts/pt-BR/main.dict','rb').read())
+data2,errors2,_,_,_,_=build_dict.write(words,bigrams,2,50)
+assert not errors2, errors2
+open(D2+'/dicts/pt-BR/main.dict','wb').write(data2)
+meta2=json.loads(open(D2+'/dicts/pt-BR/pack.json',encoding='utf-8').read()); meta2['version']=8; meta2['format']=2; meta2['minApp']=1086000
+open(D2+'/dicts/pt-BR/pack.json','w',encoding='utf-8').write(json.dumps(meta2,ensure_ascii=False,indent=2))
+subprocess.run(['python3','-I',B+'/docs/tools/make_catalog.py','--dicts',D2+'/dicts','--out',O+'/v2src','--tag','v1.86.0','--now','2026-10-30T18:00:00+00:00'],check=True)
+base2=json.loads(open(O+'/v2src/data.json',encoding='utf-8').read())
+zb2=open(O+'/v2src/mr-keyboard-dict-pt-BR-8.zip','rb').read()
+d=copy.deepcopy(base2); d['serial']=7
+write('v8',d,{d['packs'][0]['url']:zb2})
+shutil.rmtree(O+'/v2src')
 print('ok', sorted(os.listdir(O)))

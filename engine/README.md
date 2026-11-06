@@ -1,7 +1,7 @@
 # engine/ — native engine of Mr Keyboard (stage 1)
 
 The correction search (`MrFuzzy.java`) and the trigram lookup (`MrTrigram.java`) of the app in C++, delivered as
-**`libmrengine.so`**. It reads today's files (`dicts/<language>/main.dict`, `trigrams.bin`), with **no new format**. If the lib is
+**`libmrengine.so`**. It reads the files of the packs (`main.dict`, `trigrams.bin`), with **no format of its own**: `main.dict` in format v1 (header `200/1`) or v2 (header `200/2`, since 1.86, up to 16 MB; `docs/dictionary-build.md`), told apart by the header. If the lib is
 not in the APK, fails to load or has another contract version, the app carries on through Java, without losing any feature. The C++
 result is **identical** to the Java one (words, order, score, cost and visited nodes). Overview and flow: `docs/native-engine.md`.
 
