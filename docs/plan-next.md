@@ -1,6 +1,6 @@
 # Plan after 1.87.0
 
-Status: version 4, 2026-11-06. 1.87.0 was validated on the device by the owner. **Stage 1 (1.88.0) is built** (see the stage). **Stage 2 (tools) is built; the first real run on the owner's runner is still to be done** (see the stage); stages 3 to 7 are not.
+Status: version 5, 2026-11-06. 1.87.0 was validated on the device by the owner. **Stage 1 (1.88.0) is built** (see the stage). **Stage 2 (tools) is built and the small run was done on the owner's runner** (it worked; the big run with the train volume is still to be done, see the stage); stages 3 to 7 are not.
 Delete this file when the plan is closed, as `plan-suggestions.md` was; the Git history keeps it.
 
 ## Decided by the owner
@@ -79,11 +79,11 @@ Runs in parallel with stage 1 because it needs the owner's GitHub runner.
 
 The workspace shell cannot reach these sites; a runner in the owner's private repository downloads them and only counts come back (as with OpenSubtitles). If a source fails the small run, say so before building on it.
 
-**Built (tools only, no app version).** All in `docs/tools/corpus/` (README section 5): `real_sources.json` (the registry per language, source types `reddit` and `hf`), `sample_real.py`, `prepare_real.py`, `mr-corpus-real.yml` (the manual workflow: report only, or report + cleaned files), `accept_pack.py` (the rule, also in `dictionary-tuning.md`), `docs/tools/e2e/run_real_eval.sh` (SubtitleEval on subtitles, news, Tatoeba and real messages), `test_real.py` (88 checks with fake servers; runs in `mr-checks.yml`).
+**Built (tools only, no app version).** All in `docs/tools/corpus/` (README section 5): `real_sources.json` (the registry per language, source types `reddit` and `hf`), `sample_real.py`, `prepare_real.py`, `mr-corpus-real.yml` (the manual workflow: report only, or report + cleaned files), `accept_pack.py` (the rule, also in `dictionary-tuning.md`), `docs/tools/e2e/run_real_eval.sh` (SubtitleEval on subtitles, news, Tatoeba and real messages), `test_real.py` (102 checks with fake servers; runs in `mr-checks.yml`).
 - Sources chosen for the first run: **Reddit** via Arctic Shift for the three languages (train and test in different communities and different half-years) and **tweets** from Hugging Face as an independent test for es (`pysentimiento/spanish-tweets`) and pt-BR (`fpaulino/portuguese-tweets`). Communities of confession, distress, relationships, personal finances and r/teenagers (minors) are left out on purpose; the lists are in `real_sources.json` and need the owner's approval.
-- **Not yet proven against the real services** (the workspace cannot reach them): the date format of Arctic Shift, its paging and speed, the field names of the two Hugging Face datasets and whether the viewer serves them. The sampler probes and reports each of these; the first run decides which source stays. A source that fails is replaced in `real_sources.json`, not worked around.
+- **Small run (50,000 messages per language, 10 to 17 minutes each) done on the owner's runner.** What it proved: Arctic Shift answers with the date as epoch seconds; the two Hugging Face datasets are served and their text column is found; the three test sets reach 10,000 messages. What it showed and was fixed afterwards: about 15% of the Arctic Shift requests fail with HTTP 422 (the answer is now kept in the log to find the cause); `r/rio` gave nothing (now `riodejaneiro`); the language filter threw out 22 to 29% of correct Spanish (rewritten: now 96 to 100% of known-good text passes); the train sources gave only 0.3 to 0.7 million words, far too little for a pack. Details: `docs/tools/corpus/README.md`, section 5.6.
 - Acceptance rule (fixed before stage 3): gain of at least 0.5 point and 2 standard errors on real messages, each independent test source not worse, losses allowed on the other hold-outs (subtitles 0.5, news 1.5, Tatoeba 1.5), size within 12 MB / 7 MB.
-- Left for the owner: copy `mr-corpus-real.yml` to the private repository after committing, run it with the defaults, and bring back the three reports (Summary of each job).
+- Left for the owner: the **big run** (workflow inputs `train_messages` = 300000, `test_messages` = 40000, `deliver` = data; about 2 to 3 hours per language), then send the three artifacts. The reports of that run show how much the new filter keeps and the 422 causes; if they are acceptable, stage 3 starts with that data.
 
 ## Stage 3: 1.89.0, packs with real-message data, inside the budget
 - Rebuild pt-BR, en-US and es with a fourth source (informal messages), the Tatoeba decision above (repeating the ablation for en-US and es first), pruning by gain per byte and the size budget (12 MB disk, 7 MB download; `SpeedEval` p95 not worse than +10%; opening not slower). New data replaces weak entries, it does not pile on top. Today: `main.dict` about 5.9 MB, `trigrams.bin` about 5.2 MB, about 6.4 MB zipped per language.
@@ -106,7 +106,7 @@ Touching `engine/` means raising `ENGINE_VERSION` and `kEngineVersion` together,
 
 ## Order
 1. **Stage 1, 1.88.0** (card + AI). Built; waiting for the device test.
-2. **Stage 2** (tools only). Built; waiting for the first run on the owner's runner (the reports decide which sources stay).
+2. **Stage 2** (tools only). Built; small run done (sources viable); waiting for the big run with `deliver = data` (volume for a pack).
 3. **Stage 3, 1.89.0** (packs), after stage 2.
 4. **Stage 4, 1.90.0** (engine memory and size).
 5. **Stages 5, 6, 7** in this order, each with its approval before code.

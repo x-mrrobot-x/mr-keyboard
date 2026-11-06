@@ -66,6 +66,8 @@ class State:
         self.every_429 = 0           # every Nth request is a 429
         self.slow_over = 0           # a page bigger than this takes 1.6 s (a timeout for a client with timeout_s=1)
         self.refuse_subs = ()        # answered at once with an error
+        self.err422_subs = ()        # HTTP 422 with a JSON body that explains it
+        self.sparse = {}             # community -> N: a comment only in 1 hour of N (a small community)
         self.hf_total = 1000
         self.hf_fail = False         # every /rows answers 500
         self.hf_config = "default"
@@ -84,6 +86,9 @@ def make_comments(st, sub, start, end, limit, sort="asc"):
     rows = []
     h = (start // 3600) * 3600
     while h < end and (len(rows) < limit or sort == "desc"):
+        if st.sparse.get(sub) and (h // 3600) % st.sparse[sub] != 0:
+            h += 3600
+            continue
         for i in range(st.per_hour):
             ts = h + i * 17
             if ts < start or ts >= end:
@@ -135,6 +140,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if st.every_429 and st.n % st.every_429 == 0:
                 return self.reply(429, {"data": None, "error": "rate limit"}, {"X-RateLimit-Reset": "0"})
             sub = q.get("subreddit", "")
+            if sub in st.err422_subs:
+                return self.reply(422, {"detail": [{"msg": "invalid parameter", "loc": ["query", "limit"]}]})
             if sub in st.refuse_subs:
                 return self.reply(200, {"data": None, "error": "Query too expensive"})
             limit = int(q.get("limit", "25"))
@@ -273,7 +280,7 @@ def sampler_tests():
     r = run_sampler(base_config(), srv, out, only="rd-train")
     log = json.load(open(os.path.join(out, "sample_log.json")))
     cs = log["sources"]["rd-train"]["communities"]
-    check("sampler: a refused community is reported and stops after 3 tries", "refused at once" in cs["farialimabets"].get("stopped", "") and cs["farialimabets"]["requests"] == 3, cs["farialimabets"])
+    check("sampler: a refused community is reported and stops after 6 tries in a row", "refused at once" in cs["farialimabets"].get("stopped", "") and cs["farialimabets"]["requests"] == 6, cs["farialimabets"])
     check("sampler: the other community is still sampled", cs["brasil"]["kept"] > 90, cs["brasil"])
     srv.stop()
 
@@ -319,6 +326,38 @@ def sampler_tests():
     sorts = {q["sort"] for p, q in srv.st.requests if p == "/api/comments/search" and int(q["limit"]) > 5}
     log = json.load(open(os.path.join(out, "sample_log.json")))
     check("sampler: both ends of a window are read (asc and desc) and epoch is chosen when it works", sorts == {"asc", "desc"} and log["sources"]["rd-train"]["date_format"] == "epoch", (sorts, log["sources"]["rd-train"].get("date_format")))
+    srv.stop()
+
+    # 12. HTTP 422 with a body: the body goes to the log, with the parameters of the failing request; the window is not shrunk for a refusal that came at once
+    srv = Server(fmt="epoch", err422_subs=("farialimabets",))
+    out = os.path.join(T, "s12")
+    run_sampler(base_config(), srv, out, only="rd-train")
+    log = json.load(open(os.path.join(out, "sample_log.json")))
+    rs = log["sources"]["rd-train"]
+    es_ = rs["error_samples"]
+    check("sampler: the body of an HTTP 422 and the request parameters are in the log", es_ and "invalid parameter" in es_[0]["error"] and es_[0]["community"] == "farialimabets" and es_[0]["sort"] in ("asc", "desc") and "window_hours" in es_[0], es_[:1])
+    wins = [round((to_epoch(q["before"]) - to_epoch(q["after"])) / 3600.0) for p, q in srv.st.requests if p == "/api/comments/search" and q["subreddit"] == "farialimabets"]
+    check("sampler: an immediate refusal does not make the window smaller", len(set(wins[2:])) == 1, wins)
+    srv.stop()
+
+    # 13. a small community cannot give its quota: the others are asked for more (round 2)
+    srv = Server(fmt="epoch", sparse={"brasil": 400})
+    out = os.path.join(T, "s13")
+    run_sampler(base_config(), srv, out, only="rd-train")
+    log = json.load(open(os.path.join(out, "sample_log.json")))
+    rs = log["sources"]["rd-train"]
+    check("sampler: the quota a small community could not give is taken from the others", rs["kept"] >= 0.95 * rs["wanted"] and rs["communities"]["farialimabets"]["kept"] > rs["wanted"] // 2 and any("round 2" in x for x in rs["notes"]), (rs["kept"], rs["wanted"], rs["communities"], rs["notes"]))
+    srv.stop()
+
+    # 14. totals per role
+    srv = Server(fmt="epoch")
+    out = os.path.join(T, "s14")
+    run_sampler(base_config(), srv, out, extra=["--role-messages", "train=300,test=100"])
+    log = json.load(open(os.path.join(out, "sample_log.json")))
+    w = {k: v["wanted"] for k, v in log["sources"].items()}
+    check("sampler: --role-messages gives each role its total, split by weight inside the role", w == {"rd-train": 300, "rd-test": 50, "hf-test": 50}, w)
+    r = subprocess.run([sys.executable, "-I", SAMPLER, "--config", out + "_cfg.json", "--lang", "pt-BR", "--out", out + "x", "--role-messages", "train=abc", "--arctic-base", srv.url, "--hf-base", srv.url], capture_output=True, text=True)
+    check("sampler: a wrong --role-messages is refused", r.returncode != 0 and "role-messages" in (r.stderr + r.stdout))
     srv.stop()
 
     # 11. a service that takes only YYYY-MM-DD (the documented form): windows are whole days and never asked twice ------------------
@@ -395,7 +434,7 @@ def prepare_tests():
     cfg["languages"]["pt-BR"]["profanity"] = ["merda"]
     for code in ("es", "en-US"):
         cfg["languages"][code] = {"dictionary": "x", "sources": []}
-    cfg["lang_filter"] = {"min_cover": 0.5, "margin": 0.10, "min_tokens": 2}
+    cfg["lang_filter"] = {"min_cover": 0.5, "min_tokens": 2}
     import itertools
     pt = FAKE_WORDS["pt-BR"].split()
     combos = ["%s %s %s %s" % c for c in itertools.islice(itertools.product(pt[:12], pt[12:24], pt[24:36], pt[36:44]), 100)]
@@ -421,6 +460,7 @@ def prepare_tests():
         "RT @alguem: eu acho que isso vai dar certo",                         # retweet
         "voce nao sabe isso ainda porque esta horrivel",                      # no accents
         "Amanhã cedo eu vou ver o time jogo aqui",
+        "O amigo sabe porque casa",                                           # every word is valid in pt and es: a tie stays
     ] + [("Eu acho que o bagulho está horrível hoje %s" % w, "%010x" % (900 + i)) for i, w in enumerate(["cedo", "demais", "bom", "casa", "amigo", "tudo"])] \
       + [("O raridade está bom hoje cedo", "%010x" % 800), ("O raridade está bom ontem cedo", "%010x" % 801)] + heavy
     test = ["Eu acho que isso vai dar certo amanhã", "Vamos ver o filme hoje cedo demais", "Ninguém sabe ainda porque o trânsito está horrível",
@@ -444,6 +484,11 @@ def prepare_tests():
     check("prepare: a stretched word that is not in the dictionary drops the sentence", "drop_elongation" in st and not any("nosa" in l or "noooossa" in l for l in tr), st)
     check("prepare: phone and e-mail sentences are dropped", st.get("drop_personal", 0) == 2, st.get("drop_personal"))
     check("prepare: all caps and one-word messages are dropped", st.get("drop_allcaps", 0) == 1 and st.get("drop_too_short", 0) >= 1)
+    check("prepare: a sentence whose words all exist in two languages stays (the community decides) and is counted", "O amigo sabe porque casa" in tr and st.get("lang_shared", 0) >= 1, st.get("lang_shared"))
+    sys.path.insert(0, HERE)
+    import prepare_real as PR
+    m = PR.LangModel(["que", "não", "você", "casa"])
+    check("prepare: accent rule: nao covers não, a token WITH an accent must be exact (qué is not que)", m.covers("nao") and m.covers("não") and m.covers("que") and not m.covers("qué") and not m.covers("casá") and not m.covers("nosa"))
     check("prepare: other languages are dropped and counted by language", st.get("drop_lang_other", 0) == 2 and st.get("other_en-US") == 1 and st.get("other_es") == 1, st)
     check("prepare: European Portuguese dropped (pt-BR)", st.get("drop_european_pt", 0) == 1 and not any("equipa" in l for l in tr))
     check("prepare: markdown symbols are removed", "eu acho que ninguém sabe ainda porque está horrível" in tr, [l for l in tr if "acho" in l])
@@ -534,9 +579,9 @@ def workflow_tests():
     # the plan step, as bash does it
     plan = [st for st in d["jobs"]["plan"]["steps"] if st.get("id") == "p"][0]["run"]
 
-    def run_plan(langs="pt-BR,es", messages="50000", seed="1"):
+    def run_plan(langs="pt-BR,es", messages="50000", seed="1", train="", test=""):
         go = os.path.join(T, "gh_output_%d" % len(os.listdir(T)))
-        env = dict(os.environ, LANGS=langs, MESSAGES=messages, SEED=seed, GITHUB_OUTPUT=go)
+        env = dict(os.environ, LANGS=langs, MESSAGES=messages, SEED=seed, TRAIN_MESSAGES=train, TEST_MESSAGES=test, GITHUB_OUTPUT=go)
         r = subprocess.run(["bash", "-c", plan], env=env, capture_output=True, text=True)
         return r, (open(go).read() if os.path.exists(go) else "")
     r, o = run_plan()
@@ -545,6 +590,24 @@ def workflow_tests():
     check("workflow: plan refuses a message count that is not a number or is out of range",
           all(run_plan(messages=m)[0].returncode != 0 for m in ("abc", "999", "1000001", "5; rm -rf /", "")))
     check("workflow: plan refuses a seed that is not a number", run_plan(seed="x y")[0].returncode != 0)
+    check("workflow: plan accepts train_messages and test_messages together", run_plan(train="300000", test="40000")[0].returncode == 0)
+    check("workflow: plan refuses only one of train_messages / test_messages", run_plan(train="300000")[0].returncode != 0 and run_plan(test="40000")[0].returncode != 0)
+    check("workflow: plan refuses train_messages / test_messages that are not numbers or are out of range",
+          all(run_plan(train=a, test=b)[0].returncode != 0 for a, b in (("abc", "40000"), ("300000", "4; rm -rf /"), ("999", "40000"), ("300000", "1000001"))))
+    # the sampler step: it passes --role-messages only when asked (a fake sampler writes its arguments)
+    samp = [st for st in d["jobs"]["real"]["steps"] if st.get("id") == "sample"][0]["run"]
+    for train, test in (("", ""), ("300000", "40000")):
+        w = os.path.join(T, "wf_samp_%s" % (train or "none"))
+        os.makedirs(os.path.join(w, "mr", "docs", "tools", "corpus"))
+        open(os.path.join(w, "mr", "docs", "tools", "corpus", "sample_real.py"), "w").write("import sys, json\nopen('args.json', 'w').write(json.dumps(sys.argv[1:]))\n")
+        r = subprocess.run(["bash", "-c", samp], cwd=w, env=dict(os.environ, LANG_ID="es", MESSAGES="50000", TRAIN_MESSAGES=train, TEST_MESSAGES=test, SEED="3"), capture_output=True, text=True)
+        args = json.load(open(os.path.join(w, "args.json"))) if os.path.exists(os.path.join(w, "args.json")) else []
+        ok = r.returncode == 0 and args[args.index("--messages") + 1] == "50000" and args[args.index("--seed") + 1] == "3" and args[args.index("--lang") + 1] == "es"
+        if train:
+            ok = ok and args[args.index("--role-messages") + 1] == "train=300000,test=40000"
+        else:
+            ok = ok and "--role-messages" not in args
+        check("workflow: the sampler step %s" % ("passes --role-messages" if train else "does not pass --role-messages when the volumes are empty"), ok, (r.stderr, args))
     # the pack step, on a fake tree
     pack = [st for st in d["jobs"]["real"]["steps"] if st.get("name", "").startswith("Pack the result")][0]["run"]
     for deliver in ("report", "data"):

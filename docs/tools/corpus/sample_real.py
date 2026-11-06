@@ -17,6 +17,7 @@ written and are never stored; the text of the messages stays in <out> and is NOT
 Exit code: 0 when at least one source gave messages, 3 when none did.
 """
 import argparse
+import collections
 import datetime
 import hashlib
 import json
@@ -35,7 +36,14 @@ MAX_TEXT = 2000
 
 
 class FetchError(Exception):
-    """A request that could not be completed (the reason is a short text for the log)."""
+    """A request that could not be completed (the reason is a short text for the log).
+
+    immediate: the service answered at once with a refusal (a validation error), not slowly (a timeout or an overload): asking for less time does not help.
+    """
+
+    def __init__(self, msg, immediate=False):
+        Exception.__init__(self, msg)
+        self.immediate = immediate
 
 
 class Pacer:
@@ -82,7 +90,11 @@ def get_json(url, timeout, retries, pacer, scale, log, shrink=None):
                 last = "HTTP %d" % e.code
                 time.sleep(min(2 ** attempt, 30) * scale)
                 continue
-            raise FetchError("HTTP %d%s" % (e.code, "" if elapsed > 1 else " (at once)"))
+            try:
+                detail = e.read().decode("utf-8", errors="replace").replace("\n", " ")[:160]
+            except Exception:
+                detail = ""
+            raise FetchError("HTTP %d%s%s" % (e.code, "" if elapsed > 1 else " (at once)", (": " + detail) if detail else ""), immediate=elapsed <= 1)
         except (urllib.error.URLError, TimeoutError, OSError, ValueError) as e:
             last = "%s: %s" % (type(e).__name__, str(e)[:80])
             time.sleep(min(2 ** attempt, 30) * scale)
@@ -94,7 +106,7 @@ def get_json(url, timeout, retries, pacer, scale, log, shrink=None):
             elapsed = time.monotonic() - t0
             err = str(obj.get("error"))[:120]
             if elapsed < 1.0 and "imeout" not in err and "timed out" not in err:
-                raise FetchError("refused at once: " + err)    # the cost guard: asking again does not help
+                raise FetchError("refused at once: " + err, immediate=True)    # the cost guard: asking again does not help
             last = "service error after %.1fs: %s" % (elapsed, err)
             log["service_errors"] = log.get("service_errors", 0) + 1
             time.sleep(min(2 ** attempt, 30) * scale)
@@ -188,7 +200,8 @@ def is_bot(author, text, cfg):
 
 
 def sample_reddit(arctic, src, n, rng, cfg, out_path, salt):
-    stats = {"type": "reddit", "wanted": n, "kept": 0, "requests": 0, "failures": 0, "dropped_bot": 0, "dropped_deleted": 0, "communities": {}, "notes": []}
+    stats = {"type": "reddit", "wanted": n, "kept": 0, "requests": 0, "failures": 0, "dropped_bot": 0, "dropped_deleted": 0, "communities": {}, "notes": [],
+             "error_samples": []}
     after, before = parse_day(src["after"]), parse_day(src["before"])
     subs = list(src["subreddits"])
     limit = arctic.cfg.get("limit", 100)
@@ -199,81 +212,108 @@ def sample_reddit(arctic, src, n, rng, cfg, out_path, salt):
     stats["date_format"] = arctic.fmt
     span = before - after
     step = 86400 if arctic.fmt == "date" else 3600       # a date without a time cannot tell the hours apart
-    quota = int(math.ceil(float(n) / len(subs)))
+    max_fail = arctic.cfg.get("max_consecutive_failures", 6)
     seen = set()
-    with open(out_path, "w", encoding="utf-8") as out:
-        for sub in subs:
-            cs = {"requests": 0, "rows": 0, "kept": 0, "failures": 0, "stopped": ""}
-            stats["communities"][sub] = cs
-            win = max(step, min(arctic.cfg.get("window_start_hours", 24) * 3600, span) // step * step)
-            max_win = max(step, min(arctic.cfg.get("window_max_hours", 1440) * 3600, span) // step * step)
-            budget = max(20, int(math.ceil(float(quota) / limit)) * 4)
-            tried = set()
-            consecutive_fail = 0
-            while cs["kept"] < quota and cs["requests"] < budget:
-                if win >= span:
-                    start = after
-                else:
-                    slots = int((span - win) // step) + 1
-                    start = None
-                    for _ in range(12):
-                        cand = after + rng.randrange(slots) * step
-                        if cand not in tried:
-                            start = cand
-                            break
-                    if start is None:
-                        cs["stopped"] = "no unused window left"
+    state = {}
+    for sub in subs:
+        stats["communities"][sub] = {"requests": 0, "rows": 0, "kept": 0, "failures": 0, "stopped": ""}
+        state[sub] = {"win": max(step, min(arctic.cfg.get("window_start_hours", 24) * 3600, span) // step * step), "tried": set()}
+    max_win = max(step, min(arctic.cfg.get("window_max_hours", 1440) * 3600, span) // step * step)
+
+    def fill(sub, quota, out):
+        """Takes comments of one community until it has `quota` kept ones, or stops for a reason that is written in cs["stopped"]."""
+        cs, stt = stats["communities"][sub], state[sub]
+        cs["stopped"] = ""
+        budget = cs["requests"] + max(20, int(math.ceil(float(quota - cs["kept"]) / limit)) * 4)
+        consecutive_fail = 0
+        while cs["kept"] < quota and cs["requests"] < budget:
+            win = stt["win"]
+            if win >= span:
+                start = after
+            else:
+                slots = int((span - win) // step) + 1
+                start = None
+                for _ in range(12):
+                    cand = after + rng.randrange(slots) * step
+                    if cand not in stt["tried"]:
+                        start = cand
                         break
-                tried.add(start)
-                end = min(start + win, before)
-                try:
-                    # a page is the first (asc) or the last (desc) comments of the window: both, at random, so a busy window is not read only from its start
-                    rows = arctic.comments(sub, start, end, limit, rng.choice(("asc", "desc")))
-                except FetchError as e:
-                    cs["requests"] += 1
-                    stats["requests"] += 1
-                    cs["failures"] += 1
-                    stats["failures"] += 1
-                    consecutive_fail += 1
-                    cs["last_error"] = str(e)
-                    if consecutive_fail >= 3:
-                        cs["stopped"] = "3 failures in a row: " + str(e)
-                        break
-                    win = max(win // 2 // step * step, step)       # a heavy window is the usual reason: ask for less time
-                    continue
-                consecutive_fail = 0
+                if start is None:
+                    cs["stopped"] = "no unused window left"
+                    return
+            stt["tried"].add(start)
+            end = min(start + win, before)
+            # a page is the first (asc) or the last (desc) comments of the window: both, at random, so a busy window is not read only from its start
+            sort = rng.choice(("asc", "desc"))
+            try:
+                rows = arctic.comments(sub, start, end, limit, sort)
+            except FetchError as e:
                 cs["requests"] += 1
                 stats["requests"] += 1
-                cs["rows"] += len(rows)
-                for r in rows:
-                    rid = r.get("id")
-                    text = r.get("body") or ""
-                    if rid is None or rid in seen:
-                        continue
-                    seen.add(rid)
-                    if text in ("[deleted]", "[removed]") or not text.strip():
-                        stats["dropped_deleted"] += 1
-                        continue
-                    if is_bot(r.get("author"), text, cfg):
-                        stats["dropped_bot"] += 1
-                        continue
-                    out.write(json.dumps({"t": text[:MAX_TEXT], "c": sub, "u": user_hash(salt, r.get("author")), "ts": int(float(r.get("created_utc", 0)))},
-                                         ensure_ascii=False) + "\n")
-                    cs["kept"] += 1
-                    stats["kept"] += 1
-                    if cs["kept"] >= quota:
-                        break
-                # a window with few comments is made larger; a full page means the window is rich: make it smaller
-                eff = min(limit, arctic.cap)
-                if len(rows) < eff * 0.3:
-                    if win >= max_win and len(rows) == 0 and win >= span:
-                        cs["stopped"] = "empty over the whole period"
-                        break
-                    win = min(win * 2, max_win)
-                elif len(rows) >= eff:
-                    win = max(win // 2 // step * step, step)
-            if not cs["stopped"]:
-                cs["stopped"] = "quota reached" if cs["kept"] >= quota else "request budget used"
+                cs["failures"] += 1
+                stats["failures"] += 1
+                consecutive_fail += 1
+                cs["last_error"] = str(e)
+                if len(stats["error_samples"]) < 12:
+                    stats["error_samples"].append({"community": sub, "window_hours": round((end - start) / 3600.0, 1), "limit": min(limit, arctic.cap), "sort": sort,
+                                                   "immediate": e.immediate, "error": str(e)})
+                if consecutive_fail >= max_fail:
+                    cs["stopped"] = "%d failures in a row: %s" % (max_fail, e)
+                    return
+                if not e.immediate:
+                    stt["win"] = max(win // 2 // step * step, step)       # a slow failure: ask for less time next
+                continue
+            consecutive_fail = 0
+            cs["requests"] += 1
+            stats["requests"] += 1
+            cs["rows"] += len(rows)
+            for r in rows:
+                rid = r.get("id")
+                text = r.get("body") or ""
+                if rid is None or rid in seen:
+                    continue
+                seen.add(rid)
+                if text in ("[deleted]", "[removed]") or not text.strip():
+                    stats["dropped_deleted"] += 1
+                    continue
+                if is_bot(r.get("author"), text, cfg):
+                    stats["dropped_bot"] += 1
+                    continue
+                out.write(json.dumps({"t": text[:MAX_TEXT], "c": sub, "u": user_hash(salt, r.get("author")), "ts": int(float(r.get("created_utc", 0)))},
+                                     ensure_ascii=False) + "\n")
+                cs["kept"] += 1
+                stats["kept"] += 1
+                if cs["kept"] >= quota:
+                    break
+            # a window with few comments is made larger; a full page means the window is rich: make it smaller
+            eff = min(limit, arctic.cap)
+            if len(rows) < eff * 0.3:
+                if stt["win"] >= max_win and len(rows) == 0 and stt["win"] >= span:
+                    cs["stopped"] = "empty over the whole period"
+                    return
+                stt["win"] = min(stt["win"] * 2, max_win)
+            elif len(rows) >= eff:
+                stt["win"] = max(stt["win"] // 2 // step * step, step)
+        cs["stopped"] = "quota reached" if cs["kept"] >= quota else "request budget used"
+
+    quota = int(math.ceil(float(n) / len(subs)))
+    with open(out_path, "w", encoding="utf-8") as out:
+        for sub in subs:
+            fill(sub, quota, out)
+        # what a small or failing community could not give goes to the ones that reached their quota (up to 3 more rounds)
+        for rnd in range(3):
+            remaining = n - stats["kept"]
+            active = [sub for sub in subs if stats["communities"][sub]["stopped"] == "quota reached"]
+            if remaining <= max(1, int(0.02 * n)) or not active:
+                break
+            extra = int(math.ceil(float(remaining) / len(active)))
+            before_kept = stats["kept"]
+            for sub in active:
+                fill(sub, stats["communities"][sub]["kept"] + extra, out)
+            stats["notes"].append("round %d: %d comments were still missing; %d communities were asked for %d more each and gave %d" % (
+                rnd + 2, remaining, len(active), extra, stats["kept"] - before_kept))
+            if stats["kept"] == before_kept:
+                break
     return stats
 
 
@@ -380,6 +420,7 @@ def main(argv=None):
     ap.add_argument("--config", required=True)
     ap.add_argument("--lang", required=True)
     ap.add_argument("--messages", type=int, default=50000, help="messages requested for the language, split between its sources by weight")
+    ap.add_argument("--role-messages", default="", help='totals per role instead of --messages, e.g. "train=300000,test=40000" (split by weight inside the role)')
     ap.add_argument("--out", required=True)
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--only", default="", help="comma-separated source ids (default: all)")
@@ -394,14 +435,26 @@ def main(argv=None):
     only = [x for x in a.only.split(",") if x]
     sources = [s for s in lang["sources"] if not only or s["id"] in only]
     total_w = sum(s.get("weight", 1.0) for s in sources) or 1.0
+    role_total = {}
+    for part in [x for x in a.role_messages.split(",") if x]:
+        k, _, v = part.partition("=")
+        if k.strip() not in ("train", "test") or not v.strip().isdigit():
+            raise SystemExit('--role-messages must look like "train=300000,test=40000", got %r' % a.role_messages)
+        role_total[k.strip()] = int(v)
+    role_w = collections.Counter()
+    for s_ in sources:
+        role_w[s_.get("role")] += s_.get("weight", 1.0)
     rng = random.Random(a.seed)
     salt = os.urandom(8).hex()
-    log = {"language": a.lang, "messages_requested": a.messages, "started": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "sources": {}}
+    log = {"language": a.lang, "messages_requested": a.messages, "role_messages": role_total, "started": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "sources": {}}
     arctic = Arctic(cfg["arctic_shift"], a.arctic_base, a.pace)
     hf = Hf(cfg["hf"], a.hf_base, a.pace)
     got_any = False
     for s in sources:
-        n = int(round(a.messages * s.get("weight", 1.0) / total_w))
+        if s.get("role") in role_total:
+            n = int(round(role_total[s["role"]] * s.get("weight", 1.0) / (role_w[s["role"]] or 1.0)))
+        else:
+            n = int(round(a.messages * s.get("weight", 1.0) / total_w))
         path = os.path.join(a.out, s["id"] + ".jsonl")
         t0 = time.monotonic()
         try:

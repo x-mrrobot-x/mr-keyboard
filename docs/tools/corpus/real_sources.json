@@ -40,7 +40,6 @@
   ],
   "lang_filter": {
     "min_cover": 0.5,
-    "margin": 0.1,
     "min_tokens": 2
   },
   "languages": {
@@ -91,7 +90,7 @@
           "after": "2025-07-01",
           "before": "2026-01-01",
           "subreddits": [
-            "rio",
+            "riodejaneiro",
             "curitiba",
             "minasgerais",
             "brasilia",

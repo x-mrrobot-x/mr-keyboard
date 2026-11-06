@@ -8,10 +8,11 @@
 # The scripts and the dictionaries come from the public repository (the first step checks it out), so only this file has to be copied.
 # 'ref' is the branch or tag of it: use main once the stage is committed.
 #
-# First run (deliver = report): 50000 messages per language, about 1 to 3 hours (the free services are slow on purpose: one request every 2 seconds).
+# First run (deliver = report): 50000 messages per language, about 15 minutes (the free services are slow on purpose: one request every 2 seconds).
 # The report is on the page of the run (Summary) and in the artifact real-<language> (real_report.md, real_report.json, sample_log.json).
-# Second run (deliver = data): the same plus chat_real_train/dev/test(.<source>).txt.gz, already cleaned (no user name, link, e-mail or phone).
-# Download the artifact and send it; the text of the messages is never put in the repository.
+# Big run (deliver = data): fill train_messages and test_messages (for example 300000 and 40000, about 2 to 3 hours per language). The artifact then also has
+# chat_real_train/dev/test(.<source>).txt.gz, already cleaned (no user name, link, e-mail or phone). Download it and send it; the text of the
+# messages is never put in the repository. The train part is what a pack can use (millions of words); the test part only measures.
 #
 # SOURCES, LICENCES AND PRIVACY
 #   Reddit comments: Arctic Shift (https://github.com/ArthurHeitmann/arctic_shift), a free archive run by one person with no guarantee: it can be slow or fail,
@@ -25,8 +26,14 @@ on:
   workflow_dispatch:
     inputs:
       messages:
-        description: 'Messages to download per language, split between its sources (50000 for a first look)'
+        description: 'Messages to download per language, split between its sources (50000 for a first look). Ignored when train_messages and test_messages are filled'
         default: '50000'
+      train_messages:
+        description: 'Big run: messages of the train sources per language (empty = use messages). Fill together with test_messages'
+        default: ''
+      test_messages:
+        description: 'Big run: messages of the test sources per language (empty = use messages). Fill together with train_messages'
+        default: ''
       languages:
         description: 'Languages, separated by commas: pt-BR,es,en-US'
         default: 'pt-BR,es,en-US'
@@ -59,11 +66,20 @@ jobs:
         env:
           LANGS: ${{ inputs.languages }}
           MESSAGES: ${{ inputs.messages }}
+          TRAIN_MESSAGES: ${{ inputs.train_messages }}
+          TEST_MESSAGES: ${{ inputs.test_messages }}
           SEED: ${{ inputs.seed }}
         run: |
           set -euo pipefail
           case "$MESSAGES" in ''|*[!0-9]*) echo "messages must be a number, got '$MESSAGES'"; exit 1;; esac
           { [ "$MESSAGES" -ge 1000 ] && [ "$MESSAGES" -le 1000000 ]; } || { echo "messages must be between 1000 and 1000000"; exit 1; }
+          if [ -n "$TRAIN_MESSAGES$TEST_MESSAGES" ]; then
+            [ -n "$TRAIN_MESSAGES" ] && [ -n "$TEST_MESSAGES" ] || { echo "fill train_messages and test_messages together (or leave both empty)"; exit 1; }
+            for v in "$TRAIN_MESSAGES" "$TEST_MESSAGES"; do
+              case "$v" in ''|*[!0-9]*) echo "train_messages and test_messages must be numbers, got '$v'"; exit 1;; esac
+              { [ "$v" -ge 1000 ] && [ "$v" -le 1000000 ]; } || { echo "train_messages and test_messages must be between 1000 and 1000000, got '$v'"; exit 1; }
+            done
+          fi
           case "$SEED" in ''|*[!0-9]*) echo "seed must be a number, got '$SEED'"; exit 1;; esac
           out=""
           for l in $(echo "$LANGS" | tr ',' ' '); do
@@ -86,6 +102,8 @@ jobs:
     env:
       LANG_ID: ${{ matrix.lang }}
       MESSAGES: ${{ inputs.messages }}
+      TRAIN_MESSAGES: ${{ inputs.train_messages }}
+      TEST_MESSAGES: ${{ inputs.test_messages }}
       SEED: ${{ inputs.seed }}
       DELIVER: ${{ inputs.deliver }}
     steps:
@@ -106,8 +124,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p work
+          roles=()
+          if [ -n "$TRAIN_MESSAGES" ]; then roles=(--role-messages "train=$TRAIN_MESSAGES,test=$TEST_MESSAGES"); fi
           python3 -I mr/docs/tools/corpus/sample_real.py --config mr/docs/tools/corpus/real_sources.json \
-            --lang "$LANG_ID" --messages "$MESSAGES" --seed "$SEED" --out "work/$LANG_ID/raw" 2>&1 | tee "work/sample.log"
+            --lang "$LANG_ID" --messages "$MESSAGES" "${roles[@]}" --seed "$SEED" --out "work/$LANG_ID/raw" 2>&1 | tee "work/sample.log"
 
       - name: Clean, filter, split and write the report
         run: |

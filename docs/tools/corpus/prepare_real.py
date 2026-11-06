@@ -21,10 +21,13 @@ What is removed (each reason is counted in the report):
   ("noooossa") go back to the word of the dictionary when the single or double letter is one (otherwise the sentence is dropped); numbers and symbols
   (letters under 60% of the characters), all-capitals shouting, sentences over 300 characters or under 2 words; European Portuguese (pt-BR, PT_PT_RE);
   another language (see below); the same message twice (after lowercasing and removing punctuation); messages of one user above 1% of the source (min 20).
-Language: the words of 3+ letters are looked up in the dictionary of each language of the config (dicts/<lang>/main.dict dumped by build_dict.py, with and without
-accents). A sentence is kept when the target dictionary covers at least min_cover of them AND leads the best other language by margin (real_sources.json,
-"lang_filter"). Sentences with fewer than 2 such words cannot be judged and are dropped. This favours words the dictionary already has, so the out-of-dictionary
-rate of the report is a LOWER bound; the real typing has more.
+Language: the words of 3+ letters are looked up in the dictionary of each language of the config (dicts/<lang>/main.dict dumped by build_dict.py). A word
+typed without accent counts for the accented word of the list (nao -> não); a word WITH an accent must be in the list as it is. For each other language the
+sentence has a = words that only the target has and b = words that only the other has: the sentence is dropped as "that other language" when b > a for any of
+them (a tie stays: if every word is valid in both, the community decides), and as "low coverage" when the target has fewer than min_cover of the words
+(real_sources.json, "lang_filter"). Sentences with fewer than 2 such words cannot be judged and are dropped. The rule was chosen on known text (docs/tools/corpus/README.md,
+5.5): on subtitles, Tatoeba and news of the three languages it keeps 98.5 to 99.9% of the own language and 0 to 7% of another one (the 7% are sentences whose
+words all exist in both languages). This favours words the dictionary already has, so the out-of-dictionary rate of the report is a LOWER bound; the real typing has more.
 The test never repeats a message of the training: a message that is in a test source is taken out of train and dev.
 """
 import argparse
@@ -74,7 +77,9 @@ class LangModel:
         self.folded = {fold(w) for w in self.exact}
 
     def covers(self, w):
-        return w in self.exact or fold(w) in self.folded
+        """Exact word, or an accent-free spelling of an accented word (nao -> não). A token WITH an accent that is not in the list is not
+        covered: "qué" must not pass for the Portuguese "que"."""
+        return w in self.exact or (w in self.folded and w == fold(w))
 
 
 def load_words(path):
@@ -212,21 +217,33 @@ def clean_sentence(s, models, lang, cfg_lang, flt, st, tokens_out=None):
         st.add("drop_unjudged")
         return None
     st.add("judged")
-    cov = {code: sum(1 for t in toks if m.covers(t)) / float(len(toks)) for code, m in models.items()}
+    # Evidence by words that only one language has: a = words of the sentence that the target dictionary has and the other one lacks, b = the reverse.
+    # The sentence goes when another language has MORE exclusive words than the target (it is that language), or when the target covers too little of it.
+    # A tie (for example every word is valid in Spanish and Portuguese) stays: the community is already of the target language, and dropping the
+    # short generic messages would bias the sample against exactly what people type most.
+    cov = {code: [m.covers(t) for t in toks] for code, m in models.items()}
     mine = cov[lang]
-    others = [(v, k) for k, v in cov.items() if k != lang]
-    best_other, best_code = max(others) if others else (0.0, "")
-    if mine >= flt["min_cover"] and mine >= best_other + flt["margin"]:
-        st.add("lang_ok")
-        return s
-    if best_other > mine:
+    worst, worst_gap, shared = "", 0, False
+    for code, v in cov.items():
+        if code == lang:
+            continue
+        a = sum(1 for x, y in zip(mine, v) if x and not y)
+        b = sum(1 for x, y in zip(mine, v) if y and not x)
+        if a == 0 and sum(v) / float(len(toks)) >= flt["min_cover"]:
+            shared = True            # nothing in the sentence is only the target's: another language could have written it as well
+        if b - a > worst_gap:
+            worst, worst_gap = code, b - a
+    if worst:
         st.add("drop_lang_other")
-        st.add("other_" + best_code)
-    elif mine < flt["min_cover"]:
+        st.add("other_" + worst)
+        return None
+    if sum(mine) / float(len(toks)) < flt["min_cover"]:
         st.add("drop_lang_low")
-    else:
-        st.add("drop_lang_ambiguous")
-    return None
+        return None
+    st.add("lang_ok")
+    if shared:
+        st.add("lang_shared")
+    return s
 
 
 def msg_key(s):
@@ -303,7 +320,7 @@ def describe(units, model, profanity):
             tokens += 1
             if lw in model.exact:
                 continue
-            if fold(lw) in model.folded:
+            if lw == fold(lw) and lw in model.folded:
                 accent_free += 1
                 continue
             oov += 1
@@ -334,7 +351,7 @@ def verdict(sid, st, flt):
     if purity < 80:
         flags.append("language purity %.0f%% (< 80%%): a lot of other language or slang outside the dictionary" % purity)
     if pct(st.get("msg_with_link", 0), st.get("raw", 1)) > 40:
-        flags.append("more than 40%% of the messages have a link")
+        flags.append("more than 40% of the messages have a link")
     if st.get("requested") and st.get("units_kept", 0) < 0.5 * st["requested"]:
         flags.append("kept %d units for %d messages requested (< 50%%)" % (st.get("units_kept", 0), st["requested"]))
     return flags or ["ok"]
@@ -353,7 +370,7 @@ def main(argv=None):
     cfg = json.load(open(a.config, encoding="utf-8"))
     lang = a.lang
     lc = cfg["languages"][lang]
-    flt = {"min_cover": 0.5, "margin": 0.10, "min_tokens": 2}
+    flt = {"min_cover": 0.5, "min_tokens": 2}
     flt.update(cfg.get("lang_filter", {}))
     os.makedirs(a.out, exist_ok=True)
     models, notes = load_models(cfg, a.root, a.words_dir, a.out)
@@ -425,11 +442,13 @@ def main(argv=None):
     min_test = lc.get("min_test_lines", 10000)
     flags = {sid: verdict(sid, per_source[sid], flt) for sid in per_source}
     requested = slog.get("messages_requested") or 0
+    test_requested = sum((slog["sources"].get(x["id"]) or {}).get("wanted", 0) for x in lc["sources"] if x.get("role") == "test")
     todo = []
     if len(test_units) < min_test:
-        need = int(math.ceil(1.1 * requested * min_test / max(len(test_units), 1))) if requested else 0
+        need = int(math.ceil(1.1 * test_requested * min_test / max(len(test_units), 1))) if test_requested else 0
         todo.append("TEST TOO SMALL: %d messages (need %d). %s" % (len(test_units), min_test,
-                    ("Run again with --messages about %d." % need) if len(test_units) and need else "No test source gave messages: see the sampler log."))
+                    ("Run again asking for about %d test messages (test_messages in the workflow, --role-messages test=%d in the sampler)." % (need, need))
+                    if len(test_units) and need else "No test source gave messages: see the sampler log."))
     if not train_units:
         todo.append("NO TRAINING MESSAGES: the train sources gave nothing usable.")
     rep = {"language": lang, "filter": flt, "notes": notes, "sampler_messages_requested": requested,
@@ -474,6 +493,8 @@ def render_md(r):
         others = ["%s %d" % (k[6:], st[k]) for k in sorted(st) if k.startswith("other_")]
         if others:
             line += "; other languages: " + ", ".join(others)
+        if st.get("lang_shared"):
+            line += "; kept because every word is valid in two languages: %d" % st["lang_shared"]
         w(line)
     w("")
     w("### Sets")
