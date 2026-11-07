@@ -9,7 +9,10 @@ catalog without "release").
 """
 import hashlib, json, os, shutil, subprocess, sys, tempfile
 
-MC = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'make_catalog.py')
+HERE = os.path.dirname(os.path.abspath(__file__))
+MC = os.path.join(HERE, 'make_catalog.py')
+sys.path.insert(0, HERE)
+import mrt_format
 ok = fails = 0
 
 
@@ -21,11 +24,14 @@ def check(name, cond, extra=''):
         fails += 1; print('FAIL  ' + name + (' | ' + extra if extra else ''))
 
 
-def pack(root, pid, version, content, fmt=1, min_app=1, header=None):
+def pack(root, pid, version, content, fmt=1, min_app=1, header=None, tri=None):
     d = os.path.join(root, pid); os.makedirs(d, exist_ok=True)
     json.dump({'id': pid, 'lang': pid.split('-')[0], 'name': {'en': pid}, 'version': version, 'format': fmt,
-               'minApp': min_app, 'files': ['main.dict'], 'licenses': []}, open(os.path.join(d, 'pack.json'), 'w'))
+               'minApp': min_app, 'files': ['main.dict'] + (['trigrams.bin'] if tri is not None else []), 'licenses': []},
+              open(os.path.join(d, 'pack.json'), 'w'))
     open(os.path.join(d, 'main.dict'), 'wb').write(bytes(header or [200, fmt]) + content)
+    if tri is not None:
+        open(os.path.join(d, 'trigrams.bin'), 'wb').write(tri)
 
 
 def run(dicts, out, tag, prev=None):
@@ -175,6 +181,27 @@ try:
     pack(d2, 'pt-BR', 6, b'v' * 100, fmt=3, min_app=1086000)
     rc, output = run(d2, os.path.join(T, 'p7'), tag='v1.86.0')
     check('unknown pack format 3: refused', rc != 0 and 'unknown format' in output, output[-200:])
+
+    # ---------------- trigrams.bin: MRT1 for any app, MRT2 (1.90) only with minApp >= 1090000 and only if it is valid
+    d3 = os.path.join(T, 'dicts3')
+    words = [b'a', b'b', b'c']
+    ctx = [(0, 1, [(2, 100), (0, 50)]), (1, 2, [(0, 9)])]
+    t1, t2 = mrt_format.write1(words, ctx), mrt_format.write2(words, ctx)
+    pack(d3, 'pt-BR', 8, b'v' * 100, fmt=2, min_app=1086000, tri=t1)
+    rc, output = run(d3, os.path.join(T, 't1'), tag='v1.90.0')
+    check('trigrams.bin MRT1 with minApp 1086000: accepted', rc == 0, output[-200:])
+    pack(d3, 'pt-BR', 8, b'v' * 100, fmt=2, min_app=1090000, tri=t2)
+    rc, output = run(d3, os.path.join(T, 't2'), tag='v1.90.0')
+    check('trigrams.bin MRT2 with minApp 1090000: accepted', rc == 0, output[-200:])
+    pack(d3, 'pt-BR', 8, b'v' * 100, fmt=2, min_app=1086000, tri=t2)
+    rc, output = run(d3, os.path.join(T, 't3'), tag='v1.90.0')
+    check('trigrams.bin MRT2 with minApp below 1090000: refused (an older app cannot read it)', rc != 0 and '1090000' in output, output[-200:])
+    pack(d3, 'pt-BR', 8, b'v' * 100, fmt=2, min_app=1090000, tri=t2[:-1])
+    rc, output = run(d3, os.path.join(T, 't4'), tag='v1.90.0')
+    check('trigrams.bin MRT2 damaged: refused', rc != 0 and 'invalid MRT2' in output, output[-200:])
+    pack(d3, 'pt-BR', 8, b'v' * 100, fmt=2, min_app=1090000, tri=b'MRT3' + b'\0' * 20)
+    rc, output = run(d3, os.path.join(T, 't5'), tag='v1.90.0')
+    check('trigrams.bin with another magic number: refused', rc != 0 and 'MRT1 or MRT2' in output, output[-200:])
 finally:
     shutil.rmtree(T, ignore_errors=True)
 

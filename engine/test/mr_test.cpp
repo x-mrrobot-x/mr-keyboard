@@ -5,7 +5,10 @@
 //   1. the search over the real dictionary finds obvious corrections (checks "contains", not the exact result);
 //   2. a query does not depend on what came before (old dynamic-programming state does not leak);
 //   3. corrupt dictionary and trigrams.bin (truncated, swapped bytes, garbage): nothing may crash, read out of the file or hang;
-//   4. 2-byte character (0xFF + 2) in the dictionary, UTF-8, limits, invalid trigram files.
+//   4. 2-byte character (0xFF + 2) in the dictionary, UTF-8, limits, invalid trigram files;
+//   5. trigrams.bin in both formats (MRT1 and MRT2): the same data written in each (by the simple writer of test_util.h, which shares no
+//      code with TriStore) answers the same on every context, on misses and on every spelling combination, and as an independent oracle says;
+//      a pack replaced while the old file is open (as MrPacks.install does) leaves the open file readable.
 // What it does NOT prove: the result with the app's real tables and rules. That is up to docs/tools/e2e/StrategyTest.java (live, through the JNI).
 // With -DMR_SANITIZE=ON, out-of-bounds accesses and undefined behaviour become errors.
 #include <algorithm>
@@ -13,8 +16,13 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
+
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "mr_engine.h"
 #include "test_util.h"
@@ -214,34 +222,302 @@ void corruptDict(const std::string& dicts, const Lang& lang, const Tables& table
                 ms / static_cast<double>(std::max<long>(1, searches)));
 }
 
-void corruptTri(const std::string& dicts, const Lang& lang, int rounds) {
-    auto tri = readFile(dicts + "/" + lang.id + "/trigrams.bin");
-    if (tri.empty()) return;
-    Lcg rnd(0xBEEF + std::strlen(lang.id));
-    int opened = 0;
-    std::string a = "de", b = "casa", c = "Casa";
+// Mutates a trigram file (any format) and queries the result: nothing may crash or read outside the file (ASan/UBSan), and every hit
+// must have a valid id. For MRT2 the records are not checked at open, so a mutated file is expected to open often and then to be
+// answered safely (fewer hits); that is what this loop proves.
+void corruptTriFile(const char* lang, const char* label, const std::vector<uint8_t>& tri, const TriData& t, int rounds) {
+    if (tri.empty() || t.ctx.empty()) return;
+    Lcg rnd(0xBEEF + std::strlen(lang) + std::strlen(label));
+    int opened = 0, verified = 0;
+    long queries = 0;
     for (int r = 0; r < rounds; r++) {
         std::vector<uint8_t> d = tri;
-        int mode = static_cast<int>(rnd.next() % 4);
+        int mode = static_cast<int>(rnd.next() % 5);
         if (mode == 0) d.resize(rnd.next() % (d.size() + 1));
         else if (mode == 1) { int k = 1 + static_cast<int>(rnd.next() % 8); for (int i = 0; i < k; i++) d[rnd.next() % d.size()] = static_cast<uint8_t>(rnd.next()); }
         else if (mode == 2) { for (int i = 0; i < 12; i++) d[rnd.next() % std::min<size_t>(d.size(), 64)] = static_cast<uint8_t>(rnd.next()); }
-        else { for (auto& x : d) x = static_cast<uint8_t>(rnd.next()); }
+        else if (mode == 3) { for (auto& x : d) x = static_cast<uint8_t>(rnd.next()); }
+        else {
+            // a block of garbage in the middle (records or tables)
+            size_t at = rnd.next() % d.size();
+            size_t len = std::min<size_t>(d.size() - at, 1 + rnd.next() % 4096);
+            for (size_t i = 0; i < len; i++) d[at + i] = static_cast<uint8_t>(rnd.next());
+        }
         TriStore st;
-        if (st.openBytes(d.data(), d.size())) {
-            opened++;
-            // open = everything checked: any query must work
+        if (!st.openBytes(d.data(), d.size())) continue;
+        opened++;
+        if (st.verifyAll()) verified++;
+        for (int q = 0; q < 40; q++) {
+            const auto& c = t.ctx[rnd.next() % t.ctx.size()];
+            std::string a = t.words[c.a], b = t.words[c.b], miss = "zzzz";
             TriStore::Hit hits[8];
-            int n = st.find(&a, &b, &b, &c, 8, hits);
+            int n = st.find(&a, q % 3 == 0 ? &miss : &a, &b, q % 5 == 0 ? &miss : &b, 8, hits);
+            queries++;
             CHECK(n >= 0 && n <= 8, "trigram count outside the limit");
             for (int i = 0; i < n; i++) {
                 const uint8_t* p;
                 int len;
-                CHECK(st.wordBytes(hits[i].id, &p, &len), "invalid continuation id after open");
+                CHECK(st.wordBytes(hits[i].id, &p, &len), "invalid continuation id (%s)", label);
+                CHECK(hits[i].score >= 0 && hits[i].score <= 255, "score outside 0..255");
             }
         }
+        // ids of any value must be refused without reading outside
+        const uint8_t* p;
+        int len;
+        st.wordBytes(rnd.next(), &p, &len);
+        st.wordBytes(0xFFFFFFFFu, &p, &len);
     }
-    std::printf("%-6s corrupt trigrams.bin: %d files (%d still valid), no crash\n", lang.id, rounds, opened);
+    std::printf("%-6s corrupt trigrams.bin (%s): %d files (%d opened, %d of them with all the records valid), %ld queries, no crash\n", lang, label,
+                rounds, opened, verified, queries);
+}
+
+void corruptTri(const std::string& dicts, const Lang& lang, int rounds) {
+    auto tri = readFile(dicts + "/" + lang.id + "/trigrams.bin");
+    TriData t;
+    if (!parseTri(tri, &t)) return;
+    corruptTriFile(lang.id, "as it comes", tri, t, rounds);
+    // the other format too, so that both are fuzzed whatever the pack has
+    bool fits2 = t.words.size() <= TriStore::kMaxWords2;
+    for (const auto& c : t.ctx) if (c.c.size() > 3) fits2 = false;
+    if (tri.size() >= 4 && std::memcmp(tri.data(), "MRT2", 4) == 0) corruptTriFile(lang.id, "MRT1", writeTri1(t), t, rounds);
+    else if (fits2) corruptTriFile(lang.id, "MRT2", writeTri2(t), t, rounds);
+}
+
+// ------------------------------------------------------------------------------- the two formats, side by side
+
+// What find() must return, written from scratch from the data (no TriStore).
+struct Oracle {
+    const TriData& t;
+    std::unordered_map<std::string, int> id;
+    std::map<std::pair<uint32_t, uint32_t>, const TriData::Ctx*> byKey;
+    explicit Oracle(const TriData& d) : t(d) {
+        for (size_t i = 0; i < d.words.size(); i++) id[d.words[i]] = static_cast<int>(i);
+        for (const auto& c : d.ctx) byKey[{c.a, c.b}] = &c;
+    }
+    std::vector<std::pair<uint32_t, int>> find(const std::string* a1, const std::string* a2, const std::string* b1, const std::string* b2, int max) const {
+        const std::string* as[2] = {a1, a2};
+        const std::string* bs[2] = {b1, b2};
+        for (const std::string* a : as) {
+            if (!a || !id.count(*a)) continue;
+            for (const std::string* b : bs) {
+                if (!b || !id.count(*b)) continue;
+                auto it = byKey.find({static_cast<uint32_t>(id.at(*a)), static_cast<uint32_t>(id.at(*b))});
+                if (it == byKey.end()) continue;
+                std::vector<std::pair<uint32_t, int>> out = it->second->c;
+                if (static_cast<int>(out.size()) > max) out.resize(static_cast<size_t>(max));
+                return out;
+            }
+        }
+        return {};
+    }
+};
+
+bool sameAsOracle(const TriStore& st, const Oracle& o, const std::string* a1, const std::string* a2, const std::string* b1, const std::string* b2, int max) {
+    TriStore::Hit h[8];
+    int n = st.find(a1, a2, b1, b2, max, h);
+    auto want = o.find(a1, a2, b1, b2, max);
+    if (n != static_cast<int>(want.size())) return false;
+    for (int i = 0; i < n; i++) {
+        if (h[i].id != want[static_cast<size_t>(i)].first || h[i].score != want[static_cast<size_t>(i)].second) return false;
+    }
+    return true;
+}
+
+std::string gTmp;   // temporary folder of this run
+
+void triFormats(const std::string& dicts, const Lang& lang) {
+    auto orig = readFile(dicts + "/" + lang.id + "/trigrams.bin");
+    TriData t;
+    CHECK(parseTri(orig, &t), "%s: the simple reader does not understand the file", lang.id);
+    if (t.ctx.empty()) return;
+    bool fits2 = t.words.size() <= TriStore::kMaxWords2;
+    for (const auto& c : t.ctx) if (c.c.size() > 3) fits2 = false;
+    CHECK(fits2, "%s: the data does not fit MRT2", lang.id);
+    std::vector<uint8_t> f1 = writeTri1(t), f2 = writeTri2(t);
+    // the writer of this test must reproduce the real file byte by byte (it is the one made by the Python tools)
+    const bool origIs2 = orig.size() >= 4 && std::memcmp(orig.data(), "MRT2", 4) == 0;
+    CHECK(origIs2 ? f2 == orig : f1 == orig, "%s: the simple writer does not reproduce the pack's file byte by byte", lang.id);
+    std::string p1 = gTmp + "/" + lang.id + ".1.bin", p2 = gTmp + "/" + lang.id + ".2.bin";
+    CHECK(writeFile(p1, f1) && writeFile(p2, f2), "write temporary files");
+
+    TriStore s1, s2, h2;
+    auto t0 = std::chrono::steady_clock::now();
+    CHECK(s1.open(p1.c_str()), "%s: open MRT1", lang.id);
+    double ms1 = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count();
+    t0 = std::chrono::steady_clock::now();
+    CHECK(s2.open(p2.c_str()), "%s: open MRT2", lang.id);
+    double ms2 = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count();
+    CHECK(h2.openBytes(f2.data(), f2.size()), "%s: openBytes MRT2", lang.id);
+    CHECK(s1.format() == 1 && s2.format() == 2 && h2.format() == 2, "formats");
+    CHECK(s1.mapped() && s2.mapped() && !h2.mapped(), "files opened by path are mapped, bytes are not");
+    CHECK(s1.contexts() == t.ctx.size() && s2.contexts() == t.ctx.size(), "contexts()");
+    CHECK(s1.vocabulary() == t.words.size() && s2.vocabulary() == t.words.size(), "vocabulary()");
+    CHECK(s2.verifyAll() && h2.verifyAll() && s1.verifyAll(), "verifyAll on a valid file");
+    CHECK(s2.indexBytes() == 0, "MRT2 must not build indexes");
+
+    Oracle o(t);
+    Lcg rnd(0x1234 + std::strlen(lang.id));
+    long checks = 0, bad = 0;
+    const std::string miss = "\xE2\x80\x8Bnotaword";
+    auto both = [&](const std::string* a1, const std::string* a2, const std::string* b1, const std::string* b2, int max) {
+        checks++;
+        if (!sameAsOracle(s1, o, a1, a2, b1, b2, max) || !sameAsOracle(s2, o, a1, a2, b1, b2, max) || !sameAsOracle(h2, o, a1, a2, b1, b2, max)) {
+            if (bad++ < 5) std::printf("DIFFERENT: %s | %s | %s | %s max %d\n", a1 ? a1->c_str() : "-", a2 ? a2->c_str() : "-", b1 ? b1->c_str() : "-", b2 ? b2->c_str() : "-", max);
+        }
+    };
+    for (const auto& c : t.ctx) {
+        const std::string& a = t.words[c.a];
+        const std::string& b = t.words[c.b];
+        both(&a, &a, &b, &b, 8);                          // as the app asks
+        const int mode = static_cast<int>(rnd.next() % 6);
+        if (mode == 0) both(&miss, &a, &b, &b, 3);        // second spelling of w1 is the good one
+        else if (mode == 1) both(&a, &a, &miss, &b, 2);   // second spelling of w2 is the good one
+        else if (mode == 2) both(&a, nullptr, &b, nullptr, 1);
+        else if (mode == 3) both(&miss, &miss, &b, &b, 8);  // w1 unknown: nothing
+        else if (mode == 4) both(nullptr, &a, nullptr, &b, 3);
+    }
+    // pairs that probably are not contexts
+    const size_t V = t.words.size();
+    for (int i = 0; i < 40000; i++) {
+        const std::string& a = t.words[rnd.next() % V];
+        const std::string& b = t.words[rnd.next() % V];
+        const std::string& a2 = t.words[rnd.next() % V];
+        both(&a, &a2, &b, &b, 3);
+    }
+    // all the words, as w1 with a w2 that has a context: the whole vocabulary is searched
+    for (size_t i = 0; i < V; i += 7) both(&t.words[i], &t.words[i], &t.words[t.ctx[i % t.ctx.size()].b], &t.words[t.ctx[i % t.ctx.size()].b], 3);
+    CHECK(bad == 0, "%s: %ld of %ld queries differ between the formats or from the oracle", lang.id, bad, checks);
+    // wordBytes: the same words in both
+    for (size_t i = 0; i < V; i += 13) {
+        const uint8_t *x, *y;
+        int lx, ly;
+        CHECK(s1.wordBytes(static_cast<uint32_t>(i), &x, &lx) && s2.wordBytes(static_cast<uint32_t>(i), &y, &ly) && lx == ly && std::memcmp(x, y, static_cast<size_t>(lx)) == 0 &&
+                  std::string(reinterpret_cast<const char*>(x), static_cast<size_t>(lx)) == t.words[i], "wordBytes %zu", i);
+    }
+    const uint8_t* x;
+    int lx;
+    CHECK(!s2.wordBytes(static_cast<uint32_t>(V), &x, &lx) && !s1.wordBytes(static_cast<uint32_t>(V), &x, &lx), "id outside the vocabulary");
+
+    // closed store: nothing works, nothing crashes
+    s2.close();
+    TriStore::Hit hh[3];
+    CHECK(!s2.isOpen() && s2.find(&t.words[0], &t.words[0], &t.words[0], &t.words[0], 3, hh) == 0 && s2.heapBytes() == 0, "closed store");
+
+    // speed of the lookup (informative)
+    TriStore m1, m2;
+    m1.open(p1.c_str());
+    m2.open(p2.c_str());
+    auto timeFind = [&](const TriStore& st) {
+        Lcg r2(7);
+        long hit = 0;
+        const int N = 100000;
+        auto q0 = std::chrono::steady_clock::now();
+        for (int i = 0; i < N; i++) {
+            const auto& c = t.ctx[r2.next() % t.ctx.size()];
+            TriStore::Hit h[3];
+            hit += st.find(&t.words[c.a], &t.words[c.a], &t.words[c.b], &t.words[c.b], 3, h);
+        }
+        return std::chrono::duration<double, std::micro>(std::chrono::steady_clock::now() - q0).count() / N;
+    };
+    std::printf("%-6s MRT1 %zu bytes, open %.2f ms, heap %zu bytes, find %.2f us | MRT2 %zu bytes (%+.1f%%), open %.2f ms, heap %zu bytes, find %.2f us | %ld queries identical\n",
+                lang.id, f1.size(), ms1, s1.heapBytes(), timeFind(m1), f2.size(), 100.0 * (static_cast<double>(f2.size()) - static_cast<double>(f1.size())) / static_cast<double>(f1.size()),
+                ms2, s2.heapBytes(), timeFind(m2), checks);
+    ::remove(p1.c_str());
+    ::remove(p2.c_str());
+}
+
+// A pack is replaced while the old file is open, the way MrPacks.install does it: the new one is written in another folder, the old
+// folder is deleted (unlink) and the new one takes its place (rename). The open file must go on answering as before.
+void triSwap(const std::string& dicts, const Lang& lang) {
+    auto orig = readFile(dicts + "/" + lang.id + "/trigrams.bin");
+    TriData t;
+    if (!parseTri(orig, &t) || t.ctx.size() < 10) return;
+    TriData t2 = t;                       // the "new version": other data, same words
+    t2.ctx.erase(t2.ctx.begin(), t2.ctx.begin() + static_cast<long>(t2.ctx.size() / 2));
+    for (auto& c : t2.ctx) if (!c.c.empty()) c.c.pop_back();
+    bool fits = t.words.size() <= TriStore::kMaxWords2;
+    for (int fmt = 1; fmt <= 2; fmt++) {
+        if (fmt == 2 && !fits) continue;
+        auto bytes = [&](const TriData& d) { return fmt == 1 ? writeTri1(d) : writeTri2(d); };
+        std::string root = gTmp + "/swap" + std::to_string(fmt) + lang.id;
+        ::mkdir(root.c_str(), 0700);
+        std::string cur = root + "/7", nw = root + "/8.tmp";
+        ::mkdir(cur.c_str(), 0700);
+        ::mkdir(nw.c_str(), 0700);
+        CHECK(writeFile(cur + "/trigrams.bin", bytes(t)) && writeFile(nw + "/trigrams.bin", bytes(t2)), "write swap files");
+        TriStore st;
+        CHECK(st.open((cur + "/trigrams.bin").c_str()) && st.mapped(), "%s: open before the swap", lang.id);
+        Oracle o(t), o2(t2);
+        // touches a few pages before the swap, none of the others
+        const auto& c0 = t.ctx[0];
+        CHECK(sameAsOracle(st, o, &t.words[c0.a], &t.words[c0.a], &t.words[c0.b], &t.words[c0.b], 3), "before the swap");
+        // the swap
+        CHECK(::remove((cur + "/trigrams.bin").c_str()) == 0 && ::rmdir(cur.c_str()) == 0, "delete the old folder");
+        CHECK(::rename(nw.c_str(), cur.c_str()) == 0, "rename the new folder");
+        // the open store still reads the OLD data, all of it (every page is touched now, after the file is gone)
+        long bad = 0;
+        for (const auto& c : t.ctx) if (!sameAsOracle(st, o, &t.words[c.a], &t.words[c.a], &t.words[c.b], &t.words[c.b], 3)) bad++;
+        CHECK(bad == 0, "%s MRT%d: %ld contexts changed under the open file after the swap", lang.id, fmt, bad);
+        // reopening gives the NEW data
+        TriStore st2;
+        CHECK(st2.open((cur + "/trigrams.bin").c_str()), "open after the swap");
+        for (const auto& c : t.ctx) if (!sameAsOracle(st2, o2, &t.words[c.a], &t.words[c.a], &t.words[c.b], &t.words[c.b], 3)) bad++;
+        CHECK(bad == 0, "%s MRT%d: the reopened file does not have the new data", lang.id, fmt);
+        // a file replaced by rename over the same path (atomic replace) does not touch the open one either
+        CHECK(writeFile(cur + "/new.part", bytes(t)) && ::rename((cur + "/new.part").c_str(), (cur + "/trigrams.bin").c_str()) == 0, "replace by rename");
+        for (const auto& c : t2.ctx) if (!sameAsOracle(st2, o2, &t.words[c.a], &t.words[c.a], &t.words[c.b], &t.words[c.b], 3)) bad++;
+        CHECK(bad == 0, "%s MRT%d: replace by rename changed the open file", lang.id, fmt);
+        // the store that was open is closed: the old inode is released with it (nothing to check besides not crashing)
+        st.close();
+        st2.close();
+        ::remove((cur + "/trigrams.bin").c_str());
+        ::remove((cur + "/new.part").c_str());
+        ::rmdir(cur.c_str());
+        ::rmdir(root.c_str());
+    }
+    std::printf("%-6s pack swap with the file open: old data kept by the open store, new data on reopen (MRT1 and MRT2)\n", lang.id);
+}
+
+// Small hand-made MRT2 files, valid and not.
+void tinyMrt2() {
+    TriStore st;
+    TriData t;
+    t.words = {"a", "b", "c"};
+    t.ctx = {{0, 1, {{2, 100}, {0, 50}}}, {0, 2, {{1, 7}}}, {2, 0, {}}};
+    auto ok = writeTri2(t);
+    CHECK(st.openBytes(ok.data(), ok.size()) && st.format() == 2 && st.contexts() == 3 && st.vocabulary() == 3 && st.verifyAll(), "tiny MRT2");
+    std::string a = "a", b = "b", c = "c";
+    TriStore::Hit h[3];
+    CHECK(st.find(&a, &a, &b, &b, 3, h) == 2 && h[0].id == 2 && h[0].score == 100 && h[1].id == 0 && h[1].score == 50, "tiny MRT2 hits");
+    CHECK(st.find(&a, &a, &b, &b, 1, h) == 1 && h[0].id == 2, "max honoured");
+    CHECK(st.find(&c, &c, &a, &a, 3, h) == 0, "a context without continuations gives 0 (and stops the search, like MRT1)");
+    CHECK(st.find(&b, &b, &a, &a, 3, h) == 0, "no context");
+    // the empty file: n = 0, m = 0
+    std::vector<uint8_t> empty = {'M', 'R', 'T', '2', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    CHECK(st.openBytes(empty.data(), empty.size()) && st.contexts() == 0 && st.vocabulary() == 0 && st.verifyAll(), "empty MRT2");
+    CHECK(st.find(&a, &a, &b, &b, 3, h) == 0, "empty MRT2 has no hits");
+    // refused at open (each one changes one thing of a valid file)
+    auto bad = [&](const char* what, std::vector<uint8_t> d) { CHECK(!st.openBytes(d.data(), d.size()), "MRT2 must be refused: %s", what); };
+    { auto d = ok; d.pop_back(); bad("one byte short (the last word is cut)", d); }
+    { auto d = ok; d.push_back(0); bad("one byte too many (the word section does not end at the end)", d); }
+    { auto d = ok; d.resize(15); bad("cut inside the tables", d); }
+    { auto d = ok; d[7] = 4; bad("n says 4 words", d); }
+    { auto d = ok; d[11] = 9; bad("m says 9 records", d); }
+    { auto d = ok; d[4] = 0xFF; bad("n huge", d); }
+    { auto d = ok; d[12 + 3] = 1; bad("first word offset is not 0", d); }
+    { auto d = ok; d[12 + 4 + 3] = 7; bad("word offsets do not add up", d); }
+    { auto d = ok; size_t blob = 12 + 8 * 4 + 3 * 11; d[blob + 3] = 'a'; bad("words out of order or repeated", d); }
+    { auto d = ok; size_t csr = 12 + 4 * 4; d[csr + 3] = 1; bad("row table does not start at 0", d); }
+    { auto d = ok; size_t csr = 12 + 4 * 4; d[csr + 4 + 3] = 3; d[csr + 8 + 3] = 1; bad("row table goes back", d); }
+    { auto d = ok; size_t csr = 12 + 4 * 4; d[csr + 4 * 3 + 3] = 2; bad("row table does not end at m", d); }
+    // accepted at open, answered safely: corrupt records
+    { auto d = ok; size_t rec = 12 + 8 * 4; d[rec + 2] = 0x12; d[rec + 3] = 0x34;   // id 0x1234 >= n in the first slot
+      CHECK(st.openBytes(d.data(), d.size()) && !st.verifyAll() && st.find(&a, &a, &b, &b, 3, h) == 0, "record with an id outside the vocabulary: no hit, not valid"); }
+    { auto d = ok; size_t rec = 12 + 8 * 4; d[rec + 2] = 0xFF; d[rec + 3] = 0xFF;   // empty first slot, filled second
+      CHECK(st.openBytes(d.data(), d.size()) && !st.verifyAll() && st.find(&a, &a, &b, &b, 3, h) == 0, "empty slot before a filled one: nothing is returned"); }
+    CHECK(!st.openBytes(reinterpret_cast<const uint8_t*>("MRT2"), 4), "4 bytes");
+    CHECK(!st.openBytes(nullptr, 0), "null");
+    std::printf("tiny MRT2 files ok\n");
 }
 
 // --------------------------------------------------------------------------------------------- edge cases
@@ -325,7 +601,7 @@ void edgeCases(const Tables& tables) {
     char16_t tiny16[2];
     CHECK(fromUtf8(reinterpret_cast<const uint8_t*>(u8.data()), static_cast<int>(u8.size()), tiny16, 2) <= 2, "small output does not overflow");
 
-    // trigrams: files that are not MRT1
+    // trigrams: files that are not MRT1 or MRT2 (a MRT2 header with absurd sizes is refused too)
     TriStore st;
     CHECK(!st.open("/nao/existe.bin"), "nonexistent file");
     CHECK(!st.openBytes(reinterpret_cast<const uint8_t*>("MRT2aaaaaaaa"), 12), "wrong magic");
@@ -351,12 +627,19 @@ int main(int argc, char** argv) {
     approxRules(rules);
     std::printf("engine contract: version %d, %d costs, node limit %d (approximate tables and rules: the real ones are StrategyTest's job)\n",
                 kEngineVersion, Costs::kCount, tables.costs.nodeBudget);
+    char tmpl[] = "/tmp/mr_test_XXXXXX";
+    const char* tmp = ::mkdtemp(tmpl);
+    gTmp = tmp != nullptr ? tmp : "/tmp";
     edgeCases(tables);
+    tinyMrt2();
     std::vector<Lang> langs = languages();
     for (const Lang& l : langs) realDictionary(dicts, l, tables, rules);
     for (const Lang& l : langs) realTrigrams(dicts, l);
+    for (const Lang& l : langs) triFormats(dicts, l);
+    for (const Lang& l : langs) triSwap(dicts, l);
     for (const Lang& l : langs) corruptDict(dicts, l, tables, rules, rounds);
     for (const Lang& l : langs) corruptTri(dicts, l, rounds * 4);
+    if (tmp != nullptr) ::rmdir(tmp);
     if (gFails == 0) std::printf("ALL OK (%d checks)\n", gChecks); else std::printf("%d FAILURE(S) out of %d checks\n", gFails, gChecks);
     return gFails == 0 ? 0 : 1;
 }

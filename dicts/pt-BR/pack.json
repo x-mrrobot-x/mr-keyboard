@@ -7,9 +7,9 @@
     "pt": "Dicionário com 182 mil palavras feito para a escrita do dia a dia (comentários de fóruns, séries e filmes, notícias, frases de exemplo), pares e trios de palavras para prever a próxima e a lista de correções do português.",
     "en": "182k-word dictionary built for everyday writing (forum comments, series and films, news, example sentences), word pairs and triples to predict the next word, and Portuguese correction rules."
   },
-  "version": 7,
+  "version": 8,
   "format": 2,
-  "minApp": 1086000,
+  "minApp": 1090000,
   "files": ["main.dict", "trigrams.bin", "rules.txt", "NOTICE.txt"],
   "licenses": ["Apache-2.0", "CC-BY-4.0", "CC-BY-2.0-FR", "OpenSubtitles (counts only)", "Reddit comments (counts only)"],
   "credits": "AOSP pt_BR word list (Apache 2.0); OpenSubtitles2018, Brazilian Portuguese (word counts only); Leipzig Corpora Collection, por_news_2024_1M (CC BY 4.0); Tatoeba (CC BY 2.0 FR); Reddit comments of public communities, Jan-Jun 2025, via Arctic Shift (counts only)"

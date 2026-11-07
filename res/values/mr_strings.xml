@@ -61,6 +61,14 @@
     <string name="mr_engine_title">Suggestion engine</string>
     <string name="mr_engine_native">Native (C++)</string>
     <string name="mr_engine_missing">Unavailable (native library not found)</string>
+    <string name="mr_mem_title">Dictionary memory</string>
+    <string name="mr_mem_wait">Reading…</string>
+    <string name="mr_mem_none">No dictionary loaded yet. Type something and come back.</string>
+    <string name="mr_mem_dict">%1$s v%2$d · words %3$s, %4$s in memory, opened in %5$s ms</string>
+    <string name="mr_mem_tri">Word triples (MRT%1$d) %2$s, %3$s in memory, opened in %4$s ms</string>
+    <string name="mr_mem_tri_none">Word triples: none in this pack</string>
+    <string name="mr_mem_engine">Engine started in %1$s ms, rules in %2$s ms</string>
+    <string name="mr_mem_nomem">Memory use is not available on this device.</string>
     <string name="mr_lang_pt_BR">Portuguese (Brazil)</string>
     <string name="mr_lang_en_US">English (US)</string>
     <string name="mr_lang_es">Spanish</string>

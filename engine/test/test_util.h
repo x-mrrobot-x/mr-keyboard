@@ -11,8 +11,10 @@
 #include <cstdint>
 #include <cstring>
 #include <fstream>
+#include <stdexcept>
 #include <iterator>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "mr_engine.h"
@@ -144,6 +146,131 @@ inline std::vector<std::string> keyRows(const std::string& lang) {
     if (lang == "pt-BR") return {"qwertyuiop", "asdfghjklç", "zxcvbnm"};
     if (lang == "es") return {"qwertyuiop", "asdfghjklñ", "zxcvbnm"};
     return {"qwertyuiop", "asdfghjkl", "zxcvbnm"};
+}
+
+// ------------------------------------------------------------------------------------------ trigrams.bin, independent of TriStore
+// A second, simple reader and writer of the two formats (MRT1 and MRT2), so that the tests can build the same data in both formats and compare
+// what TriStore answers. It shares no code with TriStore or with docs/tools/mrt_format.py (a third implementation, in Python).
+
+struct TriData {
+    std::vector<std::string> words;
+    struct Ctx {
+        uint32_t a, b;
+        std::vector<std::pair<uint32_t, int>> c;   // (id, score)
+    };
+    std::vector<Ctx> ctx;
+};
+
+inline uint32_t rdBe(const std::vector<uint8_t>& d, size_t p, int bytes) {
+    uint32_t v = 0;
+    for (int i = 0; i < bytes; i++) v = (v << 8) | d.at(p + static_cast<size_t>(i));   // at(): a wrong file throws, it does not read outside
+    return v;
+}
+
+inline void putBe(std::vector<uint8_t>& o, uint32_t v, int bytes) {
+    for (int i = bytes - 1; i >= 0; i--) o.push_back(static_cast<uint8_t>(v >> (8 * i)));
+}
+
+// false = not a valid MRT1/MRT2 (or too big for this simple reader)
+inline bool parseTri(const std::vector<uint8_t>& d, TriData* t) {
+    try {
+        t->words.clear();
+        t->ctx.clear();
+        if (d.size() < 12) return false;
+        std::string magic(d.begin(), d.begin() + 4);
+        if (magic == "MRT1") {
+            uint32_t n = rdBe(d, 4, 4);
+            size_t p = 8;
+            for (uint32_t i = 0; i < n; i++) {
+                size_t len = d.at(p);
+                t->words.emplace_back(d.begin() + static_cast<long>(p) + 1, d.begin() + static_cast<long>(p) + 1 + static_cast<long>(len));
+                p += 1 + len;
+            }
+            uint32_t m = rdBe(d, p, 4);
+            p += 4;
+            for (uint32_t i = 0; i < m; i++) {
+                TriData::Ctx c;
+                c.a = rdBe(d, p, 3);
+                c.b = rdBe(d, p + 3, 3);
+                int k = d.at(p + 6);
+                p += 7;
+                for (int j = 0; j < k; j++) { c.c.push_back({rdBe(d, p, 3), d.at(p + 3)}); p += 4; }
+                t->ctx.push_back(c);
+            }
+            return p == d.size();
+        }
+        if (magic == "MRT2") {
+            uint32_t n = rdBe(d, 4, 4), m = rdBe(d, 8, 4);
+            size_t off = 12, csr = off + 4 * (static_cast<size_t>(n) + 1), rec = csr + 4 * (static_cast<size_t>(n) + 1);
+            size_t blob = rec + static_cast<size_t>(m) * 11;
+            for (uint32_t i = 0; i < n; i++) {
+                size_t p = blob + rdBe(d, off + 4 * i, 4);
+                size_t len = d.at(p);
+                t->words.emplace_back(d.begin() + static_cast<long>(p) + 1, d.begin() + static_cast<long>(p) + 1 + static_cast<long>(len));
+            }
+            for (uint32_t a = 0; a < n; a++) {
+                for (uint32_t r = rdBe(d, csr + 4 * a, 4); r < rdBe(d, csr + 4 * (a + 1), 4); r++) {
+                    size_t p = rec + static_cast<size_t>(r) * 11;
+                    TriData::Ctx c;
+                    c.a = a;
+                    c.b = rdBe(d, p, 2);
+                    for (int j = 0; j < 3; j++) {
+                        uint32_t id = rdBe(d, p + 2 + 3 * static_cast<size_t>(j), 2);
+                        if (id != 0xFFFF) c.c.push_back({id, d.at(p + 4 + 3 * static_cast<size_t>(j))});
+                    }
+                    t->ctx.push_back(c);
+                }
+            }
+            return true;
+        }
+    } catch (const std::exception&) {
+    }
+    return false;
+}
+
+inline std::vector<uint8_t> writeTri1(const TriData& t) {
+    std::vector<uint8_t> o = {'M', 'R', 'T', '1'};
+    putBe(o, static_cast<uint32_t>(t.words.size()), 4);
+    for (const auto& w : t.words) { o.push_back(static_cast<uint8_t>(w.size())); o.insert(o.end(), w.begin(), w.end()); }
+    putBe(o, static_cast<uint32_t>(t.ctx.size()), 4);
+    for (const auto& c : t.ctx) {
+        putBe(o, c.a, 3);
+        putBe(o, c.b, 3);
+        o.push_back(static_cast<uint8_t>(c.c.size()));
+        for (const auto& x : c.c) { putBe(o, x.first, 3); o.push_back(static_cast<uint8_t>(x.second)); }
+    }
+    return o;
+}
+
+// Needs: at most 65535 words and 3 continuations per context (the caller makes sure).
+inline std::vector<uint8_t> writeTri2(const TriData& t) {
+    std::vector<uint8_t> o = {'M', 'R', 'T', '2'};
+    const uint32_t n = static_cast<uint32_t>(t.words.size());
+    putBe(o, n, 4);
+    putBe(o, static_cast<uint32_t>(t.ctx.size()), 4);
+    uint32_t pos = 0;
+    for (const auto& w : t.words) { putBe(o, pos, 4); pos += 1 + static_cast<uint32_t>(w.size()); }
+    putBe(o, pos, 4);
+    std::vector<uint32_t> first(n + 1, 0);
+    for (const auto& c : t.ctx) first[c.a + 1]++;
+    for (uint32_t i = 0; i < n; i++) first[i + 1] += first[i];
+    for (uint32_t i = 0; i <= n; i++) putBe(o, first[i], 4);
+    for (const auto& c : t.ctx) {
+        putBe(o, c.b, 2);
+        for (size_t j = 0; j < 3; j++) {
+            if (j < c.c.size()) { putBe(o, c.c[j].first, 2); o.push_back(static_cast<uint8_t>(c.c[j].second)); }
+            else { putBe(o, 0xFFFF, 2); o.push_back(0); }
+        }
+    }
+    for (const auto& w : t.words) { o.push_back(static_cast<uint8_t>(w.size())); o.insert(o.end(), w.begin(), w.end()); }
+    return o;
+}
+
+inline bool writeFile(const std::string& path, const std::vector<uint8_t>& d) {
+    std::ofstream f(path, std::ios::binary | std::ios::trunc);
+    if (!f) return false;
+    f.write(reinterpret_cast<const char*>(d.data()), static_cast<std::streamsize>(d.size()));
+    return static_cast<bool>(f);
 }
 
 }  // namespace mrtest

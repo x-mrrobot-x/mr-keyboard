@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Builds the data of one language pack from the mixed corpora (docs/dictionary-tuning.md):
-the word list with bigrams (AOSP "combined" format, input of build_dict.py) and trigrams.bin (MRT1).
+the word list with bigrams (AOSP "combined" format, input of build_dict.py) and trigrams.bin (MRT1, or MRT2 with --tri-format 2).
 
 Usage:
   python3 -I make_pack_data.py --lang es --work work/es --base es_wordlist.combined.gz \
@@ -30,6 +30,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 from make_wordlist import SENTENCE_END, Speller, is_word, tokens  # noqa: E402
 from make_wordlist_lang import LANGS, MAX_WORD  # noqa: E402
 import make_wordlist as _pt  # noqa: E402  (the lists written for the Portuguese pack)
+import mrt_format  # noqa: E402  (trigrams.bin: MRT1 and MRT2)
 
 LANGS = dict(LANGS)
 LANGS["pt-BR"] = {
@@ -246,6 +247,9 @@ def main():
     ap.add_argument("--max-trigram-bytes", type=int, default=0,
                     help="size budget of trigrams.bin (0 = none): the contexts that add the least per byte are dropped first (the gain of a context is "
                          "the weighted mass of its continuations that the pairs of its last word would not offer, its cost 7 + 4 bytes per continuation)")
+    ap.add_argument("--tri-format", type=int, choices=(1, 2), default=1,
+                    help="layout of trigrams.bin: 1 = MRT1 (every app), 2 = MRT2 (about 25%% smaller, read with mmap; the pack then needs minApp 1090000). "
+                         "The contexts and the size budget are chosen the same way in both: the budget counts MRT1 bytes")
     ap.add_argument("--no-trigrams", action="store_true")
     a = ap.parse_args()
     global STRIP_APOS, SOURCES
@@ -671,9 +675,11 @@ def main():
             rep.append(f"trigram budget {a.max_trigram_bytes} bytes: {len(keys)} contexts ({full_size} bytes) cut to {lo} by gain per byte")
             keys = ranked_ctx[:lo]
         out, n_tvocab = serialize(keys)
+        if a.tri_format == 2:
+            out = bytearray(mrt_format.convert(bytes(out), 2))   # same ids, same contexts; fails if it does not fit (65535 words, 3 continuations)
         with open(os.path.join(a.out, "trigrams.bin"), "wb") as fh:
             fh.write(out)
-        rep.append(f"trigrams: {len(keys)} contexts written (different from the pair), {n_tvocab} words, {len(out)} bytes")
+        rep.append(f"trigrams: {len(keys)} contexts written (different from the pair), {n_tvocab} words, {len(out)} bytes (MRT{a.tri_format})")
 
     with open(os.path.join(a.out, "report.txt"), "w", encoding="utf-8") as r:
         r.write("\n".join(rep) + "\n\n")

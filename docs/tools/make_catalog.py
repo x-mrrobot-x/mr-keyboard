@@ -31,6 +31,9 @@ import shutil
 import sys
 import zipfile
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import mrt_format  # noqa: E402
+
 FORMAT = 1                 # catalog format
 PACK_FORMATS = {1, 2}      # pack formats this script knows how to build: 1 = main.dict v1, 2 = main.dict v2 (1.86, minApp 1086000)
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
@@ -42,6 +45,7 @@ MAX_FILE = 16 * 1024 * 1024
 DICT_MAX = {1: 4194304,    # 22-bit address of the dictionary format v1
             2: 16777216}   # format v2 (one more byte per address; the limit is a policy, see docs/suggestion-features.md, "Dictionary format v2")
 V2_MIN_APP = 1086000       # the first app that reads the dictionary format v2
+MRT2_MIN_APP = 1090000     # the first app that reads trigrams.bin in the MRT2 layout (1.90.0)
 
 
 def fail(msg):
@@ -53,7 +57,7 @@ def sha256(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def check_file(pid, name, data, fmt=1):
+def check_file(pid, name, data, fmt=1, min_app=0):
     if len(data) == 0 or len(data) > MAX_FILE:
         fail("%s/%s: invalid size (%d bytes)" % (pid, name, len(data)))
     if name.endswith(".dict"):
@@ -65,8 +69,16 @@ def check_file(pid, name, data, fmt=1):
             fail("%s/%s: dictionary header %s, but pack.json has format %d (it must be [200,%d])"
                  % (pid, name, list(data[:2]), fmt, fmt))
     elif name == "trigrams.bin":
-        if data[:4] != b"MRT1":
-            fail("%s/%s: does not start with MRT1" % (pid, name))
+        if data[:4] not in (b"MRT1", b"MRT2"):
+            fail("%s/%s: does not start with MRT1 or MRT2" % (pid, name))
+        if data[:4] == b"MRT2":
+            # an app older than 1.90 would read MRT2 as garbage (it would refuse the file: no two-word prediction), so the pack must say so
+            if not isinstance(min_app, int) or min_app < MRT2_MIN_APP:
+                fail("%s/%s: a pack with MRT2 trigrams needs minApp >= %d (the first app that reads it)" % (pid, name, MRT2_MIN_APP))
+            try:
+                mrt_format.read2(data)   # strict reader, written apart from the one in the app
+            except ValueError as e:
+                fail("%s/%s: invalid MRT2 (%s)" % (pid, name, e))
     elif name.endswith(".txt"):
         try:
             data.decode("utf-8")
@@ -109,7 +121,7 @@ def read_pack(dicts, pid):
             fail("%s: file %s is missing" % (pid, name))
         with open(path, "rb") as f:
             data = f.read()
-        check_file(pid, name, data, m["format"])
+        check_file(pid, name, data, m["format"], m["minApp"])
         out.append((name, data))
     extra = sorted(set(os.listdir(folder)) - set(files) - {"pack.json"})
     if extra:

@@ -720,7 +720,8 @@ public final class MrPacks {
         File tri = new File(dir, TRIGRAMS);
         if (tri.exists()) {
             byte[] h = head(tri, 4);
-            if (h == null || h[0] != 'M' || h[1] != 'R' || h[2] != 'T' || h[3] != '1') {
+            // MRT1 (packs until 1.89) or MRT2 (1.90; the catalog gives it minApp 1090000, so older apps never get here with one)
+            if (h == null || h[0] != 'M' || h[1] != 'R' || h[2] != 'T' || (h[3] != '1' && h[3] != '2')) {
                 throw new PackException("mr_dicts_err_corrupt", TRIGRAMS);
             }
         }
@@ -823,6 +824,7 @@ public final class MrPacks {
 
     static BinaryDictionary open(Context c, File main) throws IOException {
         if (!dictHeaderOk(main)) return null;
+        final long t0 = System.nanoTime();
         RandomAccessFile raf = new RandomAccessFile(main, "r");
         try {
             FileChannel ch = raf.getChannel();
@@ -832,6 +834,8 @@ public final class MrPacks {
                 d.close();
                 return null;
             }
+            MrDiag.sDictPath = main.getPath();   // 1.90.0: how long it took, for the "Dictionary memory" line
+            MrDiag.sDictNs = System.nanoTime() - t0;
             return d;
         } finally {
             raf.close();
@@ -839,6 +843,11 @@ public final class MrPacks {
     }
 
     private static String sActiveDir;
+
+    /** Folder of the pack in use (files/dicts/&lt;id&gt;/&lt;version&gt;), or null if none is active. */
+    static synchronized File activeDir() {
+        return sActiveDir != null ? new File(sActiveDir) : null;
+    }
     private static volatile String sLastLang;
 
     /**

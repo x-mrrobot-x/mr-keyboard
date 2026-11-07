@@ -14,6 +14,7 @@ Format (big-endian):
   "MRT1" | u32 nWords | nWords x (u8 UTF-8 bytes, text) in code order
   | u32 nContexts | nContexts x (u24 id1, u24 id2, u8 k, k x (u24 id3, u8 f7))
   sorted by (id1, id2); f7 = 127*(1 + log10(P(w3|w1 w2))/3), from 1 to 127.
+--format 2 writes the same data as MRT2 (about 25% smaller, read with mmap by the app 1.90+); the layout of both is in mrt_format.py.
 """
 import argparse
 import collections
@@ -25,6 +26,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from make_wordlist import tokens, is_word, SENTENCE_END  # noqa: E402
+import mrt_format  # noqa: E402
 
 
 def read_list(path):
@@ -62,6 +64,7 @@ def main():
     ap.add_argument("--weight2", type=int, default=1)
     ap.add_argument("--min-ctx", type=int, default=8)
     ap.add_argument("--min-count", type=int, default=3)
+    ap.add_argument("--format", type=int, choices=(1, 2), default=1, help="1 = MRT1, 2 = MRT2 (app 1.90+)")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
 
@@ -150,6 +153,8 @@ def main():
         for w, f in kept[k]:
             out += vid[w].to_bytes(3, "big")
             out.append(f)
+    if a.format == 2:
+        out = bytearray(mrt_format.convert(bytes(out), 2))
     with open(a.out, "wb") as fh:
         fh.write(out)
     print(f"contexts with {a.min_ctx}+ occurrences: {len(ctxs)}; written (different from the pair): "

@@ -7,8 +7,9 @@ import java.io.File;
  * (since 1.63; before, it was in assets). Format in docs/tools/make_trigrams.py. It only has the
  * contexts where the pair alone would be wrong; for the rest the prediction goes on with the bigrams of the .dict.
  *
- * Since v1.87.0 the file is read and searched only by the native engine (engine/src/mr_tri.cpp, through MrNative): the lib keeps indexes
- * (about 4 bytes per word and per context) over the file, so the trigrams take nothing from the Java heap. This class
+ * Since v1.87.0 the file is read and searched only by the native engine (engine/src/mr_tri.cpp, through MrNative), so the trigrams take
+ * nothing from the Java heap. Since v1.90.0 the lib maps the file instead of copying it, and the MRT2 layout needs no index at all
+ * (MRT1, the layout of the packs until 1.89, still gets about 4 bytes per word and per context on the lib's heap). This class
  * only chooses which file is open and asks the lib. Without the lib there is no two-word prediction (find() returns 0) and the
  * prediction uses only the bigrams of the .dict.
  *
@@ -65,10 +66,13 @@ public final class MrTrigram {
             synchronized (MrTrigram.class) {
                 if (gen != sGen) return false;   // another call has taken its place: nothing to do here
             }
+            final long t0 = System.nanoTime();
             if (!MrNative.triOpen(path)) {
                 MrNative.triClose();   // does not leave the previous file open in the lib
                 return false;
             }
+            MrDiag.sTriPath = path;   // 1.90.0: how long it took, for the "Dictionary memory" line
+            MrDiag.sTriNs = System.nanoTime() - t0;
             synchronized (MrTrigram.class) {
                 if (gen == sGen) sNative = true;
                 return sNative;

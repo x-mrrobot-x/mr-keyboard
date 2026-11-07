@@ -49,6 +49,11 @@ words,bigrams=build_dict.from_dict(open(D2+'/dicts/pt-BR/main.dict','rb').read()
 data2,errors2,_,_,_,_=build_dict.write(words,bigrams,2,50)
 assert not errors2, errors2
 open(D2+'/dicts/pt-BR/main.dict','wb').write(data2)
+# a pack for the app 1.86 (minApp 1086000) cannot hold trigrams in the MRT2 layout (1.90): give it the MRT1 layout of that time
+import mrt_format
+tp=D2+'/dicts/pt-BR/trigrams.bin'
+tri1=mrt_format.convert(open(tp,'rb').read(),1)
+open(tp,'wb').write(tri1)
 meta2=json.loads(open(D2+'/dicts/pt-BR/pack.json',encoding='utf-8').read()); meta2['version']=8; meta2['format']=2; meta2['minApp']=1086000
 open(D2+'/dicts/pt-BR/pack.json','w',encoding='utf-8').write(json.dumps(meta2,ensure_ascii=False,indent=2))
 subprocess.run(['python3','-I',B+'/docs/tools/make_catalog.py','--dicts',D2+'/dicts','--out',O+'/v2src','--tag','v1.86.0','--now','2026-10-30T18:00:00+00:00'],check=True)

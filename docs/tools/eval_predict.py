@@ -48,32 +48,14 @@ def load(path):
 
 
 def load_trigrams(path):
-    """Reads mr_trigrams.bin (make_trigrams.py) -> {(w1, w2): [w3, ...]}."""
-    import struct
-    d = open(path, "rb").read()
-    assert d[:4] == b"MRT1"
-    pos = 4
-    n = struct.unpack(">I", d[pos:pos + 4])[0]
-    pos += 4
-    vocab = []
-    for _ in range(n):
-        ln = d[pos]
-        vocab.append(d[pos + 1:pos + 1 + ln].decode("utf-8"))
-        pos += 1 + ln
-    m = struct.unpack(">I", d[pos:pos + 4])[0]
-    pos += 4
-    tri = {}
-    for _ in range(m):
-        a = int.from_bytes(d[pos:pos + 3], "big")
-        b = int.from_bytes(d[pos + 3:pos + 6], "big")
-        k = d[pos + 6]
-        pos += 7
-        lst = []
-        for _ in range(k):
-            lst.append(vocab[int.from_bytes(d[pos:pos + 3], "big")])
-            pos += 4
-        tri[(vocab[a], vocab[b])] = lst
-    return tri
+    """Reads a trigrams.bin (MRT1 or MRT2, see mrt_format.py) -> {(w1, w2): [w3, ...]}."""
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import mrt_format
+    with open(path, "rb") as fh:
+        words, ctx = mrt_format.read_any(fh.read())
+    vocab = [w.decode("utf-8") for w in words]
+    return {(vocab[a], vocab[b]): [vocab[i] for i, _s in c] for a, b, c in ctx}
 
 
 def main():

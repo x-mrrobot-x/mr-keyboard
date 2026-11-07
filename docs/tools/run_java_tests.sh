@@ -31,6 +31,8 @@
 #     the last one chosen on either screen, the UI language) and the memory of the last choice.
 #   - AiReturnTest: coming back to the AI Editor dialog after its Settings screen (MrAiDialog): the keyboard is asked to
 #     appear for the original field, once, soon after leaving, and the dialog reopens when the keyboard window shows.
+#   - DiagTest: the "Dictionary memory" line (MrDiag, 1.90.0): the reading of /proc/self/smaps on made-up text (headers, Pss/Rss, deleted
+#     files, a file mapped twice), the matching of the path, the texts, the report of a pack folder, and on Linux a real mapping seen as resident.
 # With the path of the APK jar (classes.dex -> d2j-dex2jar), it also runs:
 #   - EsTest: SheetStrings/MrEs with Spanish, Portuguese, English and French contexts.
 # Usage: sh docs/tools/run_java_tests.sh [app.jar]
@@ -53,6 +55,10 @@ java -cp "$T/test_rec:$T/stubs:$T/main" com.mrkeyboard.app.RecorrectTest
 echo "== RecentTest"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_recent" $D/recent_test/RecentTest.java
 java -cp "$T/test_recent:$T/stubs:$T/main" com.mrkeyboard.app.RecentTest
+
+echo "== DiagTest (memory and load time line)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_diag" $D/diag_test/DiagTest.java
+java -cp "$T/test_diag:$T/stubs:$T/main" com.mrkeyboard.app.DiagTest
 
 echo "== NoLibTest (without libmrengine.so: no exception, no results)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_native" $D/native_test/NoLibTest.java

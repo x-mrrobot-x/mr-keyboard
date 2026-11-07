@@ -7,9 +7,9 @@
     "pt": "Dicionário de inglês americano com 167 mil palavras feito para a escrita do dia a dia (comentários de fóruns, séries e filmes, notícias, frases de exemplo), pares e trios de palavras para prever a próxima e a lista de correções do inglês (contrações sem apóstrofo, abreviações de chat, erros comuns).",
     "en": "167k-word American English dictionary built for everyday writing (forum comments, series and films, news, example sentences), word pairs and triples to predict the next word, and English correction rules (contractions without the apostrophe, chat abbreviations, common misspellings)."
   },
-  "version": 6,
+  "version": 7,
   "format": 2,
-  "minApp": 1086000,
+  "minApp": 1090000,
   "files": ["main.dict", "trigrams.bin", "rules.txt", "NOTICE.txt"],
   "licenses": ["Apache-2.0", "CC-BY-4.0", "CC-BY-2.0-FR", "OpenSubtitles (counts only)", "Reddit comments (counts only)"],
   "credits": "AOSP en_US word list (Apache 2.0); OpenSubtitles2018, English (word counts only); Leipzig Corpora Collection, English news (CC BY 4.0); Tatoeba (CC BY 2.0 FR); Reddit comments of public communities, Jan-Jun 2025, via Arctic Shift (counts only)"

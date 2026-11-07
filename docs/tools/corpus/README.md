@@ -56,6 +56,7 @@ form of a word of the list is never a new word (`dont` would stop the correction
 swear words (`fuckin`, `shitty`) get f = 5; the other languages' lists only judge short words without a hyphen (they hold `barista`, `quinoa` and `e-mails` too); and a capitalised word that has a lowercase
 twin (`Nice`, `Good`, `Hi`, `Will`) counts only the occurrences inside a sentence, because the capital at the start of a sentence is the twin (without it `Nice` took a slot of the strip next to `nice`). It needs
 about 3 GB of RAM and 8 minutes.
+`--tri-format 2` (since 1.90.0; default 1) writes `trigrams.bin` in the MRT2 layout (about 25% smaller, mapped by the app; the pack then needs `minApp` 1090000, which `make_catalog.py` checks). The contexts and the `--max-trigram-bytes` budget are chosen the same way in both layouts (the budget counts MRT1 bytes); `docs/tools/convert_trigrams.py to2` converts a finished file.
 The tuning that led to these values (what each option did on the three hold-outs) is in `docs/dictionary-tuning.md`. Writes `main.combined.gz`, `trigrams.bin`, `words.tsv` and `report.txt` (what it did and the lists of new words, to be read by a person). It needs about 3 GB of RAM
 and 8 minutes for the Spanish sample; do not run two at once on a small machine.
 

@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 39
+    .line 40
     iput-object p1, p0, Lcom/mrkeyboard/app/MrTrigram$1;->val$path:Ljava/lang/String;
 
     iput p2, p0, Lcom/mrkeyboard/app/MrTrigram$1;->val$gen:I
@@ -49,13 +49,13 @@
     .locals 2
 
     .prologue
-    .line 41
+    .line 42
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTrigram$1;->val$path:Ljava/lang/String;
 
     iget v1, p0, Lcom/mrkeyboard/app/MrTrigram$1;->val$gen:I
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTrigram;->access$000(Ljava/lang/String;I)Z
 
-    .line 42
+    .line 43
     return-void
 .end method

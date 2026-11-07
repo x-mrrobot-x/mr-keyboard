@@ -4,24 +4,43 @@ Living list of every suggestion, correction and prediction feature, per language
 Update it in the same commit that adds, changes or removes a feature. The ids (S1, S2...) are the tags used by
 `docs/tools/e2e/StrategyTest.java`; run `bash docs/tools/e2e/run_strategy_tests.sh` to check them all (3 languages, native engine).
 
-Pack counts and sizes in the table below are those of 1.89.0 (pt-BR 7, en-US 6, es 5); the other numbers were measured on 1.86.1. Everyday-language numbers (prediction and completion hit rates on subtitle sentences) are in `dictionary-tuning.md` and come from `docs/tools/e2e/run_subtitle_eval.sh`; a small set of original sentences (`docs/tools/e2e/data/everyday_<lang>.txt`) runs in CI as check S28. "Since" is the version that introduced the feature (from the version notes and the code comments).
+Pack counts and sizes in the table below are those of 1.90.0 (pt-BR 8, en-US 7, es 6; the same words, pairs and triples as 1.89.0, the trigram file in the MRT2 layout); the other numbers were measured on 1.86.1. Everyday-language numbers (prediction and completion hit rates on subtitle sentences) are in `dictionary-tuning.md` and come from `docs/tools/e2e/run_subtitle_eval.sh`; a small set of original sentences (`docs/tools/e2e/data/everyday_<lang>.txt`) runs in CI as check S28. "Since" is the version that introduced the feature (from the version notes and the code comments).
 
 ## Data per language
 | | pt-BR | en-US | es |
 |---|---|---|---|
-| Pack version (`dicts/<id>/pack.json`) | 7 | 6 | 5 |
+| Pack version (`dicts/<id>/pack.json`) | 8 | 7 | 6 |
 | `main.dict` size (limit 4,194,304 in format v1, 16,777,216 in v2; all three packs are v2 since 1.86.1) | 6,257,418 (v2, 37.3% of 16 MB) | 5,836,626 (v2, 34.8% of 16 MB) | 6,378,001 (v2, 38.0% of 16 MB) |
 | Words | 181,948 | 167,446 | 243,286 |
 | Word pairs (bigrams, up to 60 per word) | 750,069 | 698,010 | 714,452 |
-| `trigrams.bin` (MRT1): words / contexts | 36,020 / 267,004 (4,699,986 bytes) | 27,576 / 276,228 (4,719,992 bytes) | 38,349 / 282,781 (4,929,982 bytes) |
+| `trigrams.bin` (MRT2 since 1.90.0; was MRT1): words / contexts | 36,020 / 267,004 (3,556,058 bytes; MRT1 4,699,986) | 27,576 / 276,228 (3,488,504 bytes; MRT1 4,719,992) | 38,349 / 282,781 (3,779,526 bytes; MRT1 4,929,982) |
 | `rules.txt`: corrections (keys are compared without accent: es has 142 distinct) | 230 | 350 | 143 |
 | `rules.txt`: phonetic / vowels / groups / silent / extra / one-letter words | 12 / 2 / 11 / 6 / 1 / 3 | 6 / 4 / 4 / 17 / 0 / 2 | 9 / 2 / 6 / 4 / 1 / 5 |
 | Sentence starters (`[sentence_start]`) | Eu, Você, Não | I, The, You | No, El, Me |
 | Sources | AOSP list, OpenSubtitles2018 pt_br (a 1/64 sample, counts only), Tatoeba, Leipzig `por_news_2024_1M`, Reddit comments (counts only; mix subtitles / Tatoeba / news / Reddit 40 / 15 / 15 / 25%; `docs/tools/corpus/`) | AOSP list, OpenSubtitles2018 en (a 1/128 sample, counts only), Tatoeba, Leipzig `eng_news_2025_1M`, Reddit comments (counts only; mix 40 / 15 / 15 / 25%; `docs/tools/corpus/`) | AOSP list, OpenSubtitles2018 (a 1/64 sample, counts only), Tatoeba, Leipzig `spa_news_2024_1M`, Reddit comments (counts only; mix 40 / 15 / 15 / 25%; `docs/tools/corpus/`) |
 | Keyboard layout in tests | `qwertyuiop,asdfghjklç,zxcvbnm` | `qwertyuiop,asdfghjkl,zxcvbnm` | `qwertyuiop,asdfghjklñ,zxcvbnm` |
 
-Files of a pack: `main.dict` (AOSP LatinIME "latest" format, header 200/1 = format v1, or 200/2 = format v2 since 1.86, see "Dictionary format v2" below), `trigrams.bin` (MRT1, continuations after two words),
+Files of a pack: `main.dict` (AOSP LatinIME "latest" format, header 200/1 = format v1, or 200/2 = format v2 since 1.86, see "Dictionary format v2" below), `trigrams.bin` (MRT1 until 1.89, MRT2 since 1.90.0, continuations after two words; "trigrams.bin layouts" below),
 `rules.txt` (format 1), `NOTICE.txt`. The pack is downloaded in *Settings → Suggestions and dictionaries*; one language is active at a time.
+
+## trigrams.bin layouts (1.90.0)
+Both are big-endian and told apart by the first four bytes; the app 1.90 reads both, the packs of 1.90.0 are MRT2. The word ids are the same in the two, so the same data gives the same hits in the same order.
+
+| | MRT1 (until 1.89) | MRT2 (1.90) |
+|---|---|---|
+| Header | `MRT1`, u32 words | `MRT2`, u32 words, u32 records |
+| Words | words x (u8 length, UTF-8), in byte order | (words + 1) x u32 start of each word, then (further down) the same (u8 length, UTF-8) block |
+| Contexts | `u32 m`, then m x (u24 a, u24 b, u8 k, k x (u24 id, u8 score)) sorted by (a, b) | (words + 1) x u32 "first record of each first word a" (the last is m), then m x 11-byte records (u16 b, 3 x (u16 id, u8 score)); id `0xFFFF` = empty slot, always at the end |
+| What the lib builds at open | two index vectors, 4 bytes per word and per context (about 1.2 MB) | nothing: it searches the file itself (binary search of the word, then of `b` inside the row of `a`) |
+| Limits | 2^24 words, 255 continuations | **65,535 words, 3 continuations** (the packs never have more; pt-BR: 22.6% of the contexts have 1, 20.8% have 2, 56.7% have 3) |
+| Size (pt-BR) | 4,699,986 bytes | 3,556,058 bytes (-24.3%); en-US -26.1%, es -23.3% |
+
+- **Why fixed slots and not something denser.** The plan listed ids in fewer bytes, delta-coded context ids and 2 continuations when the first dominates. Measured on the real files: ids in 16 bits and the row table remove most of the bytes. Records sized by their number of continuations (5, 8 or 11 bytes) would take 18 to 19% fewer record bytes (pt-BR 528 KB), but then a binary search needs either an offset per record (4 bytes each: 1.07 MB in pt-BR, more than the saving) or a block index plus a length byte per record, which leaves 5.5 to 6.6% of the file (194 to 250 KB) for a lookup that is no longer a plain binary search; a delta code of the context ids cannot be binary-searched at all without such a table. Fixed 11-byte records keep the lookup a plain binary search with no index, so they were kept; the block layout stays an option if the size is ever the limit again. Dropping the third continuation when the first dominates would change the suggestions, so it was not done.
+- **Checking.** At open the lib checks everything that is O(words): the size (the word section must end exactly at the end of the file), the offsets, the strict byte order of the words and the row table. The records (the big part) are checked when they are read: an id outside the vocabulary or an empty slot before a filled one ends the list there, a `b` is only compared. `TriStore::verifyAll()` checks every record (tests and tools). MRT1 is still checked whole at open.
+- **mmap.** `TriStore` maps the file read-only (`MADV_RANDOM` on the records) instead of copying it to the heap; if `mmap` fails it reads the file into the heap and nothing else changes. **The rule that makes this safe: a pack file is never rewritten or truncated in place.** `MrPacks.install` writes `<id>/<version>.tmp`, renames it to `<id>/<version>` and deletes the old version folder with `unlink`, which keeps the mapped inode alive until the lib closes it. Anything new that writes a pack file must do the same. `engine/test/mr_test.cpp` swaps a pack with the file open (delete + rename, and replace by rename) and reads every context after that.
+- **Tools.** `docs/tools/mrt_format.py` (readers and writers, strict), `docs/tools/convert_trigrams.py to2|to1|same|info`, `make_pack_data.py --tri-format 2`, `make_trigrams.py --format 2`; tests: `docs/tools/test_mrt_format.py` and the `triFormats`/`triSwap`/`tinyMrt2` parts of `mr_test`. Three readers written apart (C++ engine, the C++ test, Python) agree on every context. `make_catalog.py` refuses MRT2 in a pack with `minApp` below 1090000 and validates it with the strict reader.
+- **Measured on the PC** (`mr_test`, warm cache, 100,000 lookups of real contexts): open 2.9-3.2 ms -> 0.4-0.5 ms; heap taken by the indexes 1.2 MB -> 0; lookup 0.92-1.03 us -> 0.70-0.77 us; about 550,000 queries per language (every context with the spellings the app tries, plus 40,000 random pairs) identical in both layouts and to a from-scratch oracle. The phone is not measured: that is what the "Dictionary memory" line is for.
+- **The line "Dictionary memory"** (*Settings → Suggestions and dictionaries*, under "Suggestion engine"; `MrDiag`): for the language in use it shows the size of `main.dict` and of `trigrams.bin` (and the MRT format), how much of each is in memory now, the time the last opening took and the time the engine took to start (library + tables) and to receive the rules. "In memory" is the Pss of the mappings of that file in `/proc/self/smaps`: pages of a clean file that the system keeps and can drop, not heap of the app; a file that was read to the heap (no `mmap`) would show 0 there. If `smaps` cannot be read the line says so. The times are measured by `MrNative.load`, `MrPacks.open` and `MrTrigram.open` (last opening wins; the first opening after a reboot is the cold one).
 
 ## Strategies
 All of them are in the three languages unless the last column says otherwise. "Where" is the class or file that does it.

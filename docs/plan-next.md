@@ -1,6 +1,6 @@
 # Plan after 1.87.0
 
-Status: version 7, 2026-11-07. 1.87.0 was validated on the device by the owner. **Stage 1 (1.88.0) is built** (see the stage). **Stage 2 (tools) is built and both runs were done on the owner's runner** (the small and the big one, for the three languages: the data for stage 3 is in hand); **Stage 3 (1.89.0) is built: the three packs passed the acceptance rule** (numbers below); stages 4 to 7 are not.
+Status: version 7, 2026-11-07. 1.87.0 was validated on the device by the owner. **Stage 1 (1.88.0) is built** (see the stage). **Stage 2 (tools) is built and both runs were done on the owner's runner** (the small and the big one, for the three languages: the data for stage 3 is in hand); **Stage 3 (1.89.0) is built: the three packs passed the acceptance rule** (numbers below); **Stage 4 (1.90.0) is built, with the new libs integrated; only the phone numbers are missing**; stages 5 to 7 are not.
 Delete this file when the plan is closed, as `plan-suggestions.md` was; the Git history keeps it.
 
 ## Decided by the owner
@@ -93,14 +93,12 @@ The workspace shell cannot reach these sites; a runner in the owner's private re
 - Not done on purpose: no politician names were added; the tweets stay as a test only; the evaluation on a device is the owner's.
 - Left for later: more real data of other kinds (the Reddit sample leans to politics, sports and technology, and the gain on SMS-style typing is not measured). If a new real source is found, repeat the sweep before changing the mix.
 
-## Stage 4: 1.90.0, memory, opening and size of the engine (changes C++)
-Each item measured on the PC first.
-1. A line in the settings with the load time and the memory held by the dictionaries (the phone numbers we do not have).
-2. `trigrams.bin` mapped in memory with a safe pack swap (write a new file and rename it; never overwrite), instead of reading about 5 MB per active language. `mr_engine.h` avoids mmap today because of SIGBUS if a pack is replaced in place. Needs a test that swaps a pack while it is open.
-3. Layout of `trigrams.bin` (MRT1): ids in fewer bytes, delta-coded context ids, 2 continuations when the first dominates. Read the real layout before promising anything.
-4. Indexes stored in the file instead of built when opening (8 to 14 ms on the PC; the phone is unmeasured).
-5. Trigrams only for the languages in use, released when the language changes (check what the code does).
-Touching `engine/` means raising `ENGINE_VERSION` and `kEngineVersion` together, `mr_test`, ASan/UBSan, `JniSmoke`, a new `native-libs.zip` from `mr-native.yml`, and `minApp` in the packs if the file format changes.
+## Stage 4: 1.90.0, memory, opening and size of the engine (built; changes C++)
+- Done: (1) the line **Dictionary memory** in *Settings → Suggestions and dictionaries* (`MrDiag`): sizes, memory in use (Pss from `/proc/self/smaps`), opening times and engine start, for the language in use; (2) `trigrams.bin` is **mapped** (`mmap`) with a safe pack swap (the installer already wrote a new folder and renamed it; the rule is now written down and `mr_test` swaps a pack with the file open); (3 and 4) a new layout, **MRT2**: 16-bit ids, a row table and the offset tables stored in the file, nothing built at open; (5) already true (one open `TriStore`, closed when the language changes), now covered by the mapping tests.
+- Result on the PC (details in `dictionary-tuning.md`, "Stage 4"): `trigrams.bin` -24 to -26%, zip -4.6 to -5.3%, installed -10 to -12%; indexes on the heap 1.2 MB → 0; open about 3 ms → 0.5 ms; lookup about 25% faster; about 550,000 queries per language identical in both layouts. Packs pt-BR 8, en-US 7, es 6 (same content), `minApp` 1090000. The JNI contract did not change (`kEngineVersion` stays 1), but the lib did: **new `native-libs.zip` from `mr-native.yml` is needed**.
+- Corrections to the plan found by measuring: the "8 to 14 ms" of item 4 is the tables and rules handover, not the trigram indexes (about 3 ms); "2 continuations when the first dominates" would change the suggestions, and "delta-coded context ids" cannot be binary-searched, so neither was done (reasons and numbers in `suggestion-features.md`).
+- Left for the owner: read the new line on a phone (cold start, then after typing) and send the numbers; they decide whether the 8-14 ms of tables and rules deserve a stage of their own.
+- Left for later: a block layout of MRT2 (5.5 to 6.6% of the file at best), and using the room that was freed (about 0.3 MB per pack) for more trigram contexts, which needs the sweep and the acceptance rule again.
 
 ## Stages 5 to 7: items carried over from `engine-improvements.md`
 - **Mixed language** (pt and en in one sentence, both packs installed): read the code first (`Suggest`, `MrPacks`, `MrPredict`), test with mixed sentences, show the options with their cost; implement only what is approved.
@@ -111,7 +109,7 @@ Touching `engine/` means raising `ENGINE_VERSION` and `kEngineVersion` together,
 1. **Stage 1, 1.88.0** (card + AI). Built; waiting for the device test.
 2. **Stage 2** (tools only). Done: tools built, small and big runs done for the three languages (the data is in hand).
 3. **Stage 3, 1.89.0** (packs). Built; waiting for the device test.
-4. **Stage 4, 1.90.0** (engine memory and size).
+4. **Stage 4, 1.90.0** (engine memory and size). Built; waiting for the new libs and the phone numbers.
 5. **Stages 5, 6, 7** in this order, each with its approval before code.
 
 Sources: [Spanish tweets (Hugging Face)](https://huggingface.co/datasets/pysentimiento/spanish-tweets), [Portuguese tweets (Hugging Face)](https://huggingface.co/datasets/fpaulino/portuguese-tweets), [Pushshift Telegram dataset](https://zenodo.org/records/3607497), [Arctic Shift](https://github.com/ArthurHeitmann/arctic_shift), [OpenAssistant oasst1](https://huggingface.co/datasets/OpenAssistant/oasst1), [FineWeb-2](https://huggingface.co/datasets/HuggingFaceFW/fineweb-2).

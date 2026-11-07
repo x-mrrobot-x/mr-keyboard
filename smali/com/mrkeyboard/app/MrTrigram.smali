@@ -18,7 +18,7 @@
     .locals 1
 
     .prologue
-    .line 23
+    .line 24
     new-instance v0, Ljava/lang/Object;
 
     invoke-direct {v0}, Ljava/lang/Object;-><init>()V
@@ -32,7 +32,7 @@
     .locals 0
 
     .prologue
-    .line 18
+    .line 19
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -42,7 +42,7 @@
     .locals 1
 
     .prologue
-    .line 17
+    .line 18
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrTrigram;->open(Ljava/lang/String;I)Z
 
     move-result v0
@@ -54,7 +54,7 @@
     .locals 7
 
     .prologue
-    .line 88
+    .line 92
     const-class v6, Lcom/mrkeyboard/app/MrTrigram;
 
     monitor-enter v6
@@ -73,7 +73,7 @@
     :cond_0
     const/4 v0, 0x0
 
-    .line 89
+    .line 93
     :goto_0
     monitor-exit v6
 
@@ -105,7 +105,7 @@
 
     goto :goto_0
 
-    .line 88
+    .line 92
     :catchall_0
     move-exception v0
 
@@ -115,17 +115,17 @@
 .end method
 
 .method private static open(Ljava/lang/String;I)Z
-    .locals 4
+    .locals 6
 
     .prologue
     const/4 v0, 0x0
 
-    .line 64
+    .line 65
     sget-object v1, Lcom/mrkeyboard/app/MrTrigram;->NATIVE_LOAD:Ljava/lang/Object;
 
     monitor-enter v1
 
-    .line 65
+    .line 66
     :try_start_0
     const-class v2, Lcom/mrkeyboard/app/MrTrigram;
 
@@ -133,7 +133,7 @@
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 66
+    .line 67
     :try_start_1
     sget v3, Lcom/mrkeyboard/app/MrTrigram;->sGen:I
 
@@ -148,34 +148,39 @@
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_0
 
-    .line 74
+    .line 78
     :goto_0
     return v0
 
-    .line 67
+    .line 68
     :cond_0
     :try_start_3
     monitor-exit v2
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 68
-    :try_start_4
-    invoke-static {p0}, Lcom/mrkeyboard/app/MrNative;->triOpen(Ljava/lang/String;)Z
-
-    move-result v2
-
-    if-nez v2, :cond_1
-
     .line 69
-    invoke-static {}, Lcom/mrkeyboard/app/MrNative;->triClose()V
+    :try_start_4
+    invoke-static {}, Ljava/lang/System;->nanoTime()J
+
+    move-result-wide v2
 
     .line 70
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrNative;->triOpen(Ljava/lang/String;)Z
+
+    move-result v4
+
+    if-nez v4, :cond_1
+
+    .line 71
+    invoke-static {}, Lcom/mrkeyboard/app/MrNative;->triClose()V
+
+    .line 72
     monitor-exit v1
 
     goto :goto_0
 
-    .line 76
+    .line 80
     :catchall_0
     move-exception v0
 
@@ -185,7 +190,7 @@
 
     throw v0
 
-    .line 67
+    .line 68
     :catchall_1
     move-exception v0
 
@@ -197,15 +202,27 @@
     :try_start_6
     throw v0
 
-    .line 72
+    .line 74
     :cond_1
+    sput-object p0, Lcom/mrkeyboard/app/MrDiag;->sTriPath:Ljava/lang/String;
+
+    .line 75
+    invoke-static {}, Ljava/lang/System;->nanoTime()J
+
+    move-result-wide v4
+
+    sub-long v2, v4, v2
+
+    sput-wide v2, Lcom/mrkeyboard/app/MrDiag;->sTriNs:J
+
+    .line 76
     const-class v2, Lcom/mrkeyboard/app/MrTrigram;
 
     monitor-enter v2
     :try_end_6
     .catchall {:try_start_6 .. :try_end_6} :catchall_0
 
-    .line 73
+    .line 77
     :try_start_7
     sget v0, Lcom/mrkeyboard/app/MrTrigram;->sGen:I
 
@@ -215,7 +232,7 @@
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrTrigram;->sNative:Z
 
-    .line 74
+    .line 78
     :cond_2
     sget-boolean v0, Lcom/mrkeyboard/app/MrTrigram;->sNative:Z
 
@@ -230,7 +247,7 @@
 
     goto :goto_0
 
-    .line 75
+    .line 79
     :catchall_2
     move-exception v0
 
@@ -249,7 +266,7 @@
     .locals 2
 
     .prologue
-    .line 80
+    .line 84
     const-class v0, Lcom/mrkeyboard/app/MrTrigram;
 
     monitor-enter v0
@@ -275,20 +292,20 @@
     .locals 4
 
     .prologue
-    .line 27
+    .line 28
     if-eqz p0, :cond_1
 
     invoke-virtual {p0}, Ljava/io/File;->getPath()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 29
+    .line 30
     :goto_0
     const-class v1, Lcom/mrkeyboard/app/MrTrigram;
 
     monitor-enter v1
 
-    .line 30
+    .line 31
     if-nez v0, :cond_2
 
     :try_start_0
@@ -299,17 +316,17 @@
     :cond_0
     monitor-exit v1
 
-    .line 46
+    .line 47
     :goto_1
     return-void
 
-    .line 27
+    .line 28
     :cond_1
     const/4 v0, 0x0
 
     goto :goto_0
 
-    .line 30
+    .line 31
     :cond_2
     sget-object v2, Lcom/mrkeyboard/app/MrTrigram;->sPath:Ljava/lang/String;
 
@@ -319,36 +336,36 @@
 
     if-nez v2, :cond_0
 
-    .line 31
+    .line 32
     :cond_3
     sput-object v0, Lcom/mrkeyboard/app/MrTrigram;->sPath:Ljava/lang/String;
 
-    .line 32
+    .line 33
     sget v2, Lcom/mrkeyboard/app/MrTrigram;->sGen:I
 
     add-int/lit8 v2, v2, 0x1
 
     sput v2, Lcom/mrkeyboard/app/MrTrigram;->sGen:I
 
-    .line 33
+    .line 34
     const/4 v3, 0x0
 
     sput-boolean v3, Lcom/mrkeyboard/app/MrTrigram;->sNative:Z
 
-    .line 34
+    .line 35
     monitor-exit v1
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 35
+    .line 36
     if-nez v0, :cond_4
 
-    .line 36
+    .line 37
     invoke-static {}, Lcom/mrkeyboard/app/MrNative;->triClose()V
 
     goto :goto_1
 
-    .line 34
+    .line 35
     :catchall_0
     move-exception v0
 
@@ -359,7 +376,7 @@
 
     throw v0
 
-    .line 39
+    .line 40
     :cond_4
     new-instance v1, Ljava/lang/Thread;
 
@@ -371,12 +388,12 @@
 
     invoke-direct {v1, v3, v0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
 
-    .line 44
+    .line 45
     const/4 v0, 0x1
 
     invoke-virtual {v1, v0}, Ljava/lang/Thread;->setPriority(I)V
 
-    .line 45
+    .line 46
     invoke-virtual {v1}, Ljava/lang/Thread;->start()V
 
     goto :goto_1
@@ -390,59 +407,59 @@
 
     const/4 v0, 0x0
 
-    .line 50
+    .line 51
     invoke-static {v1}, Lcom/mrkeyboard/app/MrTrigram;->use(Ljava/io/File;)V
 
-    .line 51
+    .line 52
     if-eqz p0, :cond_0
 
     invoke-virtual {p0}, Ljava/io/File;->getPath()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 52
+    .line 53
     :cond_0
     if-nez v1, :cond_1
 
-    .line 59
+    .line 60
     :goto_0
     return v0
 
-    .line 54
+    .line 55
     :cond_1
     const-class v2, Lcom/mrkeyboard/app/MrTrigram;
 
     monitor-enter v2
 
-    .line 55
+    .line 56
     :try_start_0
     sput-object v1, Lcom/mrkeyboard/app/MrTrigram;->sPath:Ljava/lang/String;
 
-    .line 56
+    .line 57
     sget v0, Lcom/mrkeyboard/app/MrTrigram;->sGen:I
 
     add-int/lit8 v0, v0, 0x1
 
     sput v0, Lcom/mrkeyboard/app/MrTrigram;->sGen:I
 
-    .line 57
+    .line 58
     const/4 v3, 0x0
 
     sput-boolean v3, Lcom/mrkeyboard/app/MrTrigram;->sNative:Z
 
-    .line 58
+    .line 59
     monitor-exit v2
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 59
+    .line 60
     invoke-static {v1, v0}, Lcom/mrkeyboard/app/MrTrigram;->open(Ljava/lang/String;I)Z
 
     move-result v0
 
     goto :goto_0
 
-    .line 58
+    .line 59
     :catchall_0
     move-exception v0
 

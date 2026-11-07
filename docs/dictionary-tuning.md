@@ -311,3 +311,24 @@ written-style guards, Tatoeba and subtitles, are: -0.8 and +0.0 to -0.1), pt-BR 
 
 What these numbers do not say: the real messages are Reddit comments (and tweets only as a test), so the gain on SMS-style typing, on voice-to-text and on subjects outside politics, sports and technology is not measured; the evaluation uses words of 4+ letters, so
 the rate right after the space is the one a person feels most and it improved by only +0.9 to +1.4; and nothing here was measured on a phone. The next lever is more real data of other kinds (the training sample is 6.7 to 7.8 million words per language, against 19 million of the subtitles).
+
+## Stage 4 (1.90.0): the trigram file in the MRT2 layout (size, memory, opening)
+Only the layout of `trigrams.bin` changed (pt-BR 8, en-US 7, es 6): the contexts, continuations, scores and word ids are exactly those of 1.89.0, so the suggestions are the same and the acceptance rule was not run again (it measures content; a test that reads every context in both layouts proves the content did not move). Layouts and the reasons for the design: `suggestion-features.md`, "trigrams.bin layouts".
+
+| | pt-BR | en-US | es |
+|---|---|---|---|
+| `trigrams.bin` MRT1 → MRT2 (bytes) | 4,699,986 → 3,556,058 (-24.3%) | 4,719,992 → 3,488,504 (-26.1%) | 4,929,982 → 3,779,526 (-23.3%) |
+| Zip (`make_catalog.py`, level 9) | 6,716,081 → 6,387,078 (-4.9%) | 6,591,626 → 6,240,020 (-5.3%) | 6,730,119 → 6,422,811 (-4.6%) |
+| Room under the 7,000,000-byte zip limit | 283,919 → 612,922 | 408,374 → 759,980 | 269,881 → 577,189 |
+| Installed (sum of the files in the zip) | 10,968,025 → 9,824,097 (-10.4%) | 10,569,061 → 9,337,573 (-11.7%) | 11,316,368 → 10,165,912 (-10.2%) |
+| Open on the PC (`mr_test`, warm cache) | 2.9-3.2 → 0.5 ms | 2.9-3.0 → 0.4 ms | 2.9-3.0 → 0.5 ms |
+| Indexes built at open (heap) | 1,212,096 → 0 bytes | 1,215,216 → 0 | 1,284,520 → 0 |
+| One lookup (100,000 real contexts) | 0.94-0.96 → 0.71-0.74 µs | 0.92-0.94 → 0.70-0.72 µs | 1.00-1.03 → 0.76-0.77 µs |
+| Queries identical in both layouts | 534,508 | 550,229 | 564,215 |
+
+- **Memory.** MRT1 held the whole file (4.7 MB in pt-BR) plus 1.2 MB of indexes on the native heap for the language in use: about 6 MB. Both layouts are mapped now; MRT2 builds no index. What stays resident depends on which pages the lookups touch (at open only the word tables and the word section are read, about 0.6 MB in pt-BR); the rest is clean file pages that the system can drop. How much that is on a phone is what the new "Dictionary memory" line shows; we have no phone number yet.
+- **What the plan got wrong, measured.** Item 4 said the indexes cost "8 to 14 ms to build when opening". That time belongs to the tables and rules handover (`nInit`/`nSetRules`), which this stage does not touch. The trigram indexes cost about 3 ms on the PC as MRT1 and nothing now. The saving in opening time is therefore small (about 2.5 ms on the PC); the gains are the memory and the size.
+- **Item 5 (trigrams only for the languages in use)** needed no code: the lib holds one `TriStore` (`gTri`), `MrTrigram.use` closes it when the language pack changes and `MrPacks.remove` closes it, so only the active language has trigrams open. The new tests keep that true for the mapping (close unmaps).
+- **Pack swap with the file open** (`mr_test`, for MRT1 and MRT2): open, delete the old folder, rename the new folder in, read every context from the open store (it still answers with the old data), reopen (new data), and replace by rename over the path of an open file (the open store is not touched). `PacksTest` does the same through the app: v2 → v7 (MRT2 → MRT2, the old folder deleted while mapped) and v7 → v8 (MRT2 → MRT1).
+- **Found by the tests.** The app's installer (`MrPacks.checkFiles`) accepted only `MRT1` and would have refused every new pack as corrupt; `PacksTest` caught it. The strict Python reader let a row table that went outside 0..m through until the random-damage test found it (the C++ reader already refused it).
+- **Not done on purpose.** A denser MRT2 (records sized by their continuations; about 5.5 to 6.6% of the file at best, more code in the lookup), more trigram contexts in the room that was freed (it changes the content and needs the sweep and the acceptance rule again), and anything about the 8-14 ms of tables and rules.

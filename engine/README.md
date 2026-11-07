@@ -1,7 +1,7 @@
 # engine/ — native engine of Mr Keyboard (stage 1)
 
 The correction search (`MrFuzzy`) and the trigram lookup (`MrTrigram`) of the app in C++, delivered as
-**`libmrengine.so`**. It reads the files of the packs (`main.dict`, `trigrams.bin`), with **no format of its own**: `main.dict` in format v1 (header `200/1`) or v2 (header `200/2`, since 1.86, up to 16 MB; `docs/dictionary-build.md`), told apart by the header. Since 1.87.0 it is the **only**
+**`libmrengine.so`**. It reads the files of the packs (`main.dict`, `trigrams.bin`), with **no format of its own** (`trigrams.bin` has two layouts, MRT1 and MRT2, see `docs/suggestion-features.md`): `main.dict` in format v1 (header `200/1`) or v2 (header `200/2`, since 1.86, up to 16 MB; `docs/dictionary-build.md`), told apart by the header. Since 1.87.0 it is the **only**
 implementation (the Java copy was removed; before, the result was identical word by word, score, cost and visited nodes, which the release v1.86.1 still
 lets you check). If the lib is not in the APK, fails to load or has another contract version, the keyboard keeps typing and completing words but has no correction by search and no two-word prediction. Overview and flow: `docs/native-engine.md`.
 
@@ -13,7 +13,7 @@ workflow (`.github/workflows/mr-native.yml`).
 |---|---|
 | `src/mr_engine.h` | contract: constants, tables, `Fuzzy`, `TriStore`, `kEngineVersion` |
 | `src/mr_fuzzy.cpp` | the correction search (passes, banded dynamic programming, splitting of run-together words); ported from `MrFuzzy.java` in 1.77 |
-| `src/mr_tri.cpp` | the trigram file (MRT1) and UTF-8 conversions; ported from `MrTrigram.java` in 1.77 |
+| `src/mr_tri.cpp` | the trigram file (MRT1 and, since 1.90, MRT2; both mapped) and UTF-8 conversions; ported from `MrTrigram.java` in 1.77 |
 | `src/mr_jni.cpp` | `JNI_OnLoad` + `RegisterNatives` of `com.mrkeyboard.app.MrNative` |
 | `test/mr_test.cpp` | search on the real dictionary, order independence, corrupt files, edge cases (without Java) |
 | `test/mr_bench.cpp` | measurement |
@@ -24,7 +24,8 @@ workflow (`.github/workflows/mr-native.yml`).
 ```bash
 cmake -S engine -B build/engine -DCMAKE_BUILD_TYPE=Release -DMR_HOST_TEST=ON
 cmake --build build/engine -j4
-./build/engine/mr_test dicts 100       # search, trigrams, corrupt files, edge cases (dictionaries in dicts/)
+./build/engine/mr_test dicts 100       # search, trigrams in both layouts, pack swap, corrupt files, edge cases (dictionaries in dicts/)
+python3 -I docs/tools/test_mrt_format.py   # the same layouts from Python: round trips, limits, damaged files, converter
 ./build/engine/mr_bench dicts 20       # speed
 
 cmake -S engine -B build/san -DCMAKE_BUILD_TYPE=RelWithDebInfo -DMR_HOST_TEST=ON -DMR_SANITIZE=ON
@@ -53,8 +54,8 @@ workflow compares the hashes with the current code and does not publish if `lib/
   the order of the costs or the meaning of a table changes. Different version = the app does not use the lib.
 - The Java score uses `Math.pow(2.0, -cost/25.0)`; Java hands over that table computed by itself, so the rounding is the same on
   any device.
-- The trigrams are read **whole into memory** (about 3 MB) and only the indexes are kept apart. It deliberately does not use `mmap`: if
-  a new pack replaced the file in place, reading a mapped page would bring the app down (SIGBUS).
+- The trigrams are **mapped** (`mmap`, read-only), since 1.90.0; before, they were read whole into memory (about 5 MB) with 1.2 MB of indexes. MRT2 needs no index. This is
+  safe only because a pack file is never rewritten in place: the installer writes another folder and renames it (see `docs/native-engine.md`). `mr_test` swaps a pack with the file open.
 - **Never trust the files**: every read is checked against the size; the recursive searches have a node ceiling (`MrFuzzy.NODE_BUDGET`,
   handed over by the app), because on a corrupt file they would grow exponentially.
 

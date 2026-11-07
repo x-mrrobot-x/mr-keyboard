@@ -317,6 +317,15 @@ public class PacksTest {
         check("sentence start: Você, Eu, Não (Eu in the center)", start != null && start.toString().equals("[Você, Eu, Não]"), start);
         List<CharSequence> tri = MrPredict.forWords(s, "muito", "obrigado");
         check("prediction with two words", tri != null && !tri.isEmpty(), tri);
+        // 1.90.0: the pack's trigrams.bin is MRT2 (mapped by the lib, no index on the heap) and the "Dictionary memory" line has its numbers
+        File triFile2 = new File(MrPacks.packDir(ctx, "pt-BR", 2), "trigrams.bin");
+        check("the real pack has trigrams.bin in the MRT2 layout", MrDiag.formatOf(triFile2) == 2, MrDiag.formatOf(triFile2));
+        MrDiag.Report dr = MrDiag.collect(MrPacks.activeDir());
+        check("Dictionary memory: pack, sizes and times of the pack in use", dr.id.equals("pt-BR") && dr.version == 2 && dr.dictBytes == dictSize("pt-BR")
+                && dr.hasTri && dr.triFormat == 2 && dr.triBytes == triFile2.length() && dr.dictNs > 0 && dr.triNs > 0 && dr.engineNs > 0,
+                dr.id + " " + dr.version + " " + dr.dictBytes + " " + dr.triBytes + " " + dr.dictNs + " " + dr.triNs + " " + dr.engineNs);
+        check("Dictionary memory: the dictionary is mapped (resident pages > 0) and so is trigrams.bin",
+                new File("/proc/self/smaps").canRead() ? dr.dictMem > 0 && dr.triMem > 0 && dr.triMem <= dr.triBytes : dr.dictMem == -1, dr.dictMem + " " + dr.triMem);
         check("with a pack: strip does not offer download", !"Baixar dicionário".equals(String.valueOf(MrPredict.list(ctx, s, ic))), null);
         check("PluginManager.getDictionary finds the pack (languages screen)", PluginManager.getDictionary(ctx, "pt") != null, null);
         check("language without a pack (en) does not find it", PluginManager.getDictionary(ctx, "en") == null, null);
@@ -371,6 +380,10 @@ public class PacksTest {
                 && list(d2.getParentFile()).equals(Arrays.asList("7")), list(d2.getParentFile()));
         Suggest s7 = new Suggest(ctx, new int[] {0});
         check("keyboard uses v7", s7.hasMainDictionary() && MrRules.get().corrections.size() == rulesOf("pt-BR"), null);
+        // v2 was deleted while its trigrams.bin was mapped by the lib: the new file takes over and the two-word prediction goes on
+        for (int i = 0; i < 100 && !MrTrigram.ready(); i++) Thread.sleep(50);
+        List<CharSequence> tri7 = MrPredict.forWords(s7, "muito", "obrigado");
+        check("v7: after the swap the lib reads the new trigrams.bin (prediction with two words)", MrTrigram.ready() && tri7 != null && !tri7.isEmpty(), tri7);
         check("updates: with v7 installed there is nothing left to update", MrPacks.updatesAvailable(ctx, c7) == 0, MrPacks.updatesAvailable(ctx, c7));
 
         // ---- a pack in the dictionary format v2 (pack format 2, main.dict over 4 MB): installs on this app and replaces v7
@@ -390,6 +403,11 @@ public class PacksTest {
         Suggest s9 = new Suggest(ctx, new int[] {0});
         check("keyboard uses v8: the dictionary is read (valid words, a non-word)", s9.hasMainDictionary() && s9.isValidWord("obrigado")
                 && s9.isValidWord("casa") && !s9.isValidWord("xqzwvk"), null);
+        // v8 is a pack of the time of the app 1.86: trigrams.bin in the MRT1 layout, which this app still reads (mapped, with the indexes on the heap)
+        File tri8 = new File(MrPacks.packDir(ctx, "pt-BR", 8), "trigrams.bin");
+        for (int i = 0; i < 100 && !MrTrigram.ready(); i++) Thread.sleep(50);
+        List<CharSequence> tri8l = MrPredict.forWords(s9, "muito", "obrigado");
+        check("v8: trigrams.bin is MRT1 and still works (MRT2 -> MRT1 swap of the open file)", MrDiag.formatOf(tri8) == 1 && MrTrigram.ready() && tri8l != null && !tri8l.isEmpty(), MrDiag.formatOf(tri8));
         // the 4 MB of v1 and the 16 MB of v2, by header
         File hf = new File(tmp, "head.dict");
         for (Object[] c : new Object[][] {

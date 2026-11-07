@@ -61,6 +61,14 @@
     <string name="mr_engine_title">Motor de sugestões</string>
     <string name="mr_engine_native">Nativo (C++)</string>
     <string name="mr_engine_missing">Indisponível (biblioteca nativa não encontrada)</string>
+    <string name="mr_mem_title">Memória dos dicionários</string>
+    <string name="mr_mem_wait">Lendo…</string>
+    <string name="mr_mem_none">Nenhum dicionário carregado ainda. Digite algo e volte aqui.</string>
+    <string name="mr_mem_dict">%1$s v%2$d · palavras %3$s, %4$s na memória, aberto em %5$s ms</string>
+    <string name="mr_mem_tri">Trios de palavras (MRT%1$d) %2$s, %3$s na memória, aberto em %4$s ms</string>
+    <string name="mr_mem_tri_none">Trios de palavras: este pacote não tem</string>
+    <string name="mr_mem_engine">Motor iniciado em %1$s ms, regras em %2$s ms</string>
+    <string name="mr_mem_nomem">O uso de memória não está disponível neste aparelho.</string>
     <string name="mr_lang_pt_BR">Português (Brasil)</string>
     <string name="mr_lang_en_US">Inglês (EUA)</string>
     <string name="mr_lang_es">Espanhol</string>

@@ -61,6 +61,7 @@ public final class MrNative {
     private static synchronized boolean load() {
         if (sState != UNKNOWN) return sState == READY;
         boolean ok = false;
+        final long t0 = System.nanoTime();
         try {
             if (!"off".equals(System.getProperty("mr.native"))) {
                 System.loadLibrary("mrengine");
@@ -70,6 +71,7 @@ public final class MrNative {
             ok = false;   // UnsatisfiedLinkError (lib missing or JNI_OnLoad failed) and anything else
         }
         sState = ok ? READY : OFF;
+        if (ok) MrDiag.sEngineNs = System.nanoTime() - t0;   // 1.90.0: for the "Dictionary memory" line
         return ok;
     }
 
@@ -159,7 +161,9 @@ public final class MrNative {
             synchronized (MrNative.class) {
                 if (sPushed != rules) {
                     sPushed = null;
+                    final long t0 = System.nanoTime();
                     if (!pushRules(rules)) return -1;
+                    MrDiag.sRulesNs = System.nanoTime() - t0;
                     sPushed = rules;
                 }
             }

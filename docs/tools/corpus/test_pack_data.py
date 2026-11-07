@@ -204,13 +204,9 @@ def bigrams_of(text, w):
 
 
 def trigram_vocab(blob):
-    n = int.from_bytes(blob[4:8], "big")
-    pos, out = 8, set()
-    for _ in range(n):
-        ln = blob[pos]
-        out.add(blob[pos + 1:pos + 1 + ln].decode("utf-8"))
-        pos += 1 + ln
-    return out
+    sys.path.insert(0, os.path.join(HERE, ".."))
+    import mrt_format
+    return {w.decode("utf-8") for w in mrt_format.read_any(blob)[0]}
 
 
 check("a word that only the real messages bring (ahora) comes in with real and not without it", "ahora" in wd3 and "ahora" not in wd1)
@@ -218,6 +214,17 @@ check("a pair that only the real messages have (vamos ahora) is a bigram with re
 check("a trigram that only the real messages have (wifi casa ahora) is in trigrams.bin with real and not without it",
       "ahora" in trigram_vocab(f3["trigrams.bin"]) and "ahora" not in trigram_vocab(f1["trigrams.bin"]))
 check("trigrams.bin is written with the magic number", f3["trigrams.bin"][:4] == b"MRT1")
+
+# --tri-format 2: the same data in the MRT2 layout, everything else untouched
+sys.path.insert(0, os.path.join(HERE, ".."))
+import mrt_format  # noqa: E402
+c2, f2t = quiet(run, W1, os.path.join(T, "o2"), MIX4, ["--tri-format", "2"])
+check("--tri-format 2 writes MRT2 and only trigrams.bin changes", c2 == 0 and f2t["trigrams.bin"][:4] == b"MRT2"
+      and all(f2t[k] == f3[k] for k in f3 if k not in ("trigrams.bin", "report.txt")))
+check("--tri-format 2 holds exactly the same words, contexts and continuations as MRT1",
+      mrt_format.read_any(f2t["trigrams.bin"]) == mrt_format.read_any(f3["trigrams.bin"]) and len(mrt_format.read_any(f3["trigrams.bin"])[1]) > 0)
+check("--tri-format 2: the report says which layout was written", b"(MRT2)" in f2t["report.txt"] and b"(MRT1)" in f3["report.txt"])
+
 
 # the same build twice is the same bytes
 c4, f4 = quiet(run, W1, os.path.join(T, "o4"), MIX4)

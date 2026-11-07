@@ -42,6 +42,8 @@ public class MrPacksActivity extends PreferenceActivity {
     private final HashMap<String, Preference> mPackPrefs = new HashMap<String, Preference>();
     private PreferenceCategory mLangs;
     private Preference mCheck;
+    /** v1.90.0: load times and memory of the dictionary in use (MrDiag). */
+    private Preference mMem;
     private MrPacks.Catalog mCat;
     private boolean mChecking;
     private String mCheckError;
@@ -155,8 +157,56 @@ public class MrPacksActivity extends PreferenceActivity {
         engine.setTitle(t("mr_engine_title"));
         engine.setSummary(t(MrNative.ready() ? "mr_engine_native" : "mr_engine_missing"));
         mLangs.addPreference(engine);
+        mMem = new Preference(this);
+        mMem.setPersistent(false);
+        mMem.setSelectable(false);
+        mMem.setTitle(t("mr_mem_title"));
+        mMem.setSummary(t("mr_mem_wait"));
+        mLangs.addPreference(mMem);
+        refreshMem();
         MrPacks.syncLanguages(this, ids);
         update();
+    }
+
+    /**
+     * Fills the "Dictionary memory" line. Reading the memory map of the process takes a few milliseconds, so it is done in a thread and the
+     * text is put on the screen when it is ready (never while the screen is gone).
+     */
+    private void refreshMem() {
+        final Preference target = mMem;
+        final File dir = MrPacks.activeDir();
+        if (target == null) return;
+        if (dir == null) {
+            target.setSummary(t("mr_mem_none"));
+            return;
+        }
+        Thread th = new Thread(new Runnable() {
+            public void run() {
+                final String text = memText(MrDiag.collect(dir));
+                mHandler.post(new Runnable() {
+                    public void run() {
+                        if (!gone() && target == mMem) target.setSummary(text);
+                    }
+                });
+            }
+        }, "MrDiag");
+        th.setPriority(Thread.MIN_PRIORITY);
+        th.start();
+    }
+
+    /** The lines of the report: dictionary, trigram file and engine, each with size, memory and time. */
+    private String memText(MrDiag.Report r) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(t("mr_mem_dict", r.id, r.version, MrDiag.bytesText(r.dictBytes), MrDiag.bytesText(r.dictMem), MrDiag.msText(r.dictNs)));
+        sb.append('\n');
+        if (r.hasTri) {
+            sb.append(t("mr_mem_tri", r.triFormat, MrDiag.bytesText(r.triBytes), MrDiag.bytesText(r.triMem), MrDiag.msText(r.triNs)));
+        } else {
+            sb.append(t("mr_mem_tri_none"));
+        }
+        sb.append('\n').append(t("mr_mem_engine", MrDiag.msText(r.engineNs), MrDiag.msText(r.rulesNs)));
+        if (r.dictMem < 0 && r.triMem < 0) sb.append('\n').append(t("mr_mem_nomem"));
+        return sb.toString();
     }
 
     /** Updates only the texts (during the download). */
