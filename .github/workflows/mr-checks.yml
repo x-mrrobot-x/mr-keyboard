@@ -22,6 +22,8 @@
 #   test_make_update.py  builds the update notice (version, APK size and SHA-256, notes in both languages, every error that must stop a release)
 #   corpus/test_real.py  the real-message evaluation tools (sampler with fake Arctic Shift / Hugging Face servers: retries, 429, timeouts, a failing source;
 #                        cleaner and language filter; the manual workflow mr-corpus-real.yml; the acceptance rule for a candidate pack)
+#   corpus/test_pack_data.py  make_pack_data.py with made-up corpora: the optional fourth source (real messages), the admission of new words,
+#                        pairs and trigrams, a pack built without `real` does not change, the errors of a wrong --mix
 #   publish_test/run.sh  publish_release.sh end to end with a fake gh and the real signature
 # assemble (a few minutes):
 #   check_java_smali.sh  the Mr*.smali files are what build_java.sh generates today from the Java sources
@@ -123,6 +125,9 @@ jobs:
 
       - name: Real-message tools (sampler, cleaner, acceptance rule)
         run: python3 -I docs/tools/corpus/test_real.py
+
+      - name: Pack data (sources, admission of words, pairs and trigrams)
+        run: python3 -I docs/tools/corpus/test_pack_data.py
 
       - name: Release publishing (with a fake gh)
         run: bash docs/tools/publish_test/run.sh

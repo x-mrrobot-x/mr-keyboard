@@ -1,6 +1,6 @@
 # Plan after 1.87.0
 
-Status: version 6, 2026-11-06. 1.87.0 was validated on the device by the owner. **Stage 1 (1.88.0) is built** (see the stage). **Stage 2 (tools) is built and both runs were done on the owner's runner** (the small and the big one, for the three languages: the data for stage 3 is in hand); stages 3 to 7 are not.
+Status: version 7, 2026-11-07. 1.87.0 was validated on the device by the owner. **Stage 1 (1.88.0) is built** (see the stage). **Stage 2 (tools) is built and both runs were done on the owner's runner** (the small and the big one, for the three languages: the data for stage 3 is in hand); **Stage 3 (1.89.0) is built: the three packs passed the acceptance rule** (numbers below); stages 4 to 7 are not.
 Delete this file when the plan is closed, as `plan-suggestions.md` was; the Git history keeps it.
 
 ## Decided by the owner
@@ -10,7 +10,7 @@ Delete this file when the plan is closed, as `plan-suggestions.md` was; the Git 
 4. Spanish stays one pack for Spain and Latin America.
 5. Size budget: at most 12 MB per language on disk and 7 MB downloaded.
 6. AI formatting: when a text or file is **not** in the standard format, the app **always asks** whether to send it to the AI to be formatted, with the option **not to send**; the answer is not remembered. A file already in the standard format (`# mr-words 1`) is not asked about.
-7. Tatoeba × subtitles: **Tatoeba stays at 10%** (decided by the owner; applied in stage 3 after the ablation is repeated for en-US and es). The subtitles were the base; after seeing the real messages the owner asked for them to weigh more if they prove better (stage 2, "Direction from the owner"): the mix is chosen in stage 3 by the acceptance rule.
+7. Tatoeba × subtitles: **Tatoeba stays at 10%** (in the end the rule chose 15% in the final mix, because with `real` at 25% a 10% share broke the Tatoeba guard by 0.05; see stage 3) (decided by the owner; applied in stage 3 after the ablation is repeated for en-US and es). The subtitles were the base; after seeing the real messages the owner asked for them to weigh more if they prove better (stage 2, "Direction from the owner"): the mix is chosen in stage 3 by the acceptance rule.
 8. Each stage ends with the prompt of the next one (the prompts are kept outside the repository).
 9. **No other languages are planned** beyond pt-BR, en-US and es.
 
@@ -87,10 +87,11 @@ The workspace shell cannot reach these sites; a runner in the owner's private re
 - **Direction from the owner after seeing the data (2026-11-06): if the real messages prove better, give them more weight than the subtitles, news and Tatoeba.** Stage 3 tests mixes in which the real messages are the largest part and lets the acceptance rule choose the point (gain on real messages and the limits on the other hold-outs); the subtitles stay as the base only if the numbers say so. Limits to keep in view: 6.7 to 7.8 million words fill the frequent words and pairs but not the rare ones (the subtitles, 19 million, and the news cover that tail), and the Reddit sample leans to politics, sports and technology.
 - Nothing is left for the owner in stage 2.
 
-## Stage 3: 1.89.0, packs with real-message data, inside the budget
-- Rebuild pt-BR, en-US and es with a fourth source (informal messages), the Tatoeba decision above (repeating the ablation for en-US and es first), pruning by gain per byte and the size budget (12 MB disk, 7 MB download; `SpeedEval` p95 not worse than +10%; opening not slower). New data replaces weak entries, it does not pile on top. Today: `main.dict` about 5.9 MB, `trigrams.bin` about 5.2 MB, about 6.4 MB zipped per language.
-- Guards for informal text: typos becoming words (keep the Hunspell gate and the 150+ occurrences rule for what the speller refuses); accent-free forms (`voce`, `nao`, `esta`) are not new words (rule exists); profanity and slurs keep f = 5; user names, mentions, links, e-mails and phones removed before counting; repeated letters and laughs normalised; duplicates dropped by hash.
-- Slang that needs data (`pix`, `tiktok`) comes in here; pack descriptions say "conversa" only where it is true.
+## Stage 3: 1.89.0, packs with real-message data, inside the budget (built)
+- Done: pt-BR 7, en-US 6 and es 5 rebuilt with a fourth source (Reddit comments, counts only) in the mix **subtitles 40 / Tatoeba 15 / news 15 / real 25** (the rule chose it; the sweep of 12 mixes in pt-BR and 5 in es and en-US is in `dictionary-tuning.md`), the Tatoeba ablation repeated for en-US and es, trigrams pruned by gain per byte, rare hyphenated words refused, more swear-word inflections at f = 5, a few slang words with a fixed frequency, `ctz` and `aq` in the pt-BR rules.
+- Result (`accept_pack.py`, all three ACCEPT): real messages pt-BR +2.05, es +1.47, en-US +1.40 points (after the space +1.4 / +0.9 / +1.1); subtitles -0.25 / -0.10 / +0.03; news -1.32 / -0.88 / -0.85; Tatoeba -0.90 / -0.80 / -0.78. Zips (as `make_catalog.py` makes them) 6,716,082 / 6,730,119 / 6,591,626 bytes (limit 7,000,000), folders 10.97 / 11.32 / 10.57 MB (limit 12); the whole trigram file would have zipped to 7.0 to 7.4 MB, so about 11 to 21% of the triples were cut by gain per byte. `SpeedEval` p95 -3.4% to +0.1%, opening within the noise of the PC; the phone is not measured.
+- Not done on purpose: no politician names were added; the tweets stay as a test only; the evaluation on a device is the owner's.
+- Left for later: more real data of other kinds (the Reddit sample leans to politics, sports and technology, and the gain on SMS-style typing is not measured). If a new real source is found, repeat the sweep before changing the mix.
 
 ## Stage 4: 1.90.0, memory, opening and size of the engine (changes C++)
 Each item measured on the PC first.
@@ -109,7 +110,7 @@ Touching `engine/` means raising `ENGINE_VERSION` and `kEngineVersion` together,
 ## Order
 1. **Stage 1, 1.88.0** (card + AI). Built; waiting for the device test.
 2. **Stage 2** (tools only). Done: tools built, small and big runs done for the three languages (the data is in hand).
-3. **Stage 3, 1.89.0** (packs), after stage 2.
+3. **Stage 3, 1.89.0** (packs). Built; waiting for the device test.
 4. **Stage 4, 1.90.0** (engine memory and size).
 5. **Stages 5, 6, 7** in this order, each with its approval before code.
 

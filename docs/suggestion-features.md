@@ -4,20 +4,20 @@ Living list of every suggestion, correction and prediction feature, per language
 Update it in the same commit that adds, changes or removes a feature. The ids (S1, S2...) are the tags used by
 `docs/tools/e2e/StrategyTest.java`; run `bash docs/tools/e2e/run_strategy_tests.sh` to check them all (3 languages, native engine).
 
-Measured on 1.86.1. Everyday-language numbers (prediction and completion hit rates on subtitle sentences) are in `dictionary-tuning.md` and come from `docs/tools/e2e/run_subtitle_eval.sh`; a small set of original sentences (`docs/tools/e2e/data/everyday_<lang>.txt`) runs in CI as check S28. "Since" is the version that introduced the feature (from the version notes and the code comments).
+Pack counts and sizes in the table below are those of 1.89.0 (pt-BR 7, en-US 6, es 5); the other numbers were measured on 1.86.1. Everyday-language numbers (prediction and completion hit rates on subtitle sentences) are in `dictionary-tuning.md` and come from `docs/tools/e2e/run_subtitle_eval.sh`; a small set of original sentences (`docs/tools/e2e/data/everyday_<lang>.txt`) runs in CI as check S28. "Since" is the version that introduced the feature (from the version notes and the code comments).
 
 ## Data per language
 | | pt-BR | en-US | es |
 |---|---|---|---|
-| Pack version (`dicts/<id>/pack.json`) | 6 | 5 | 4 |
-| `main.dict` size (limit 4,194,304 in format v1, 16,777,216 in v2; all three packs are v2 since 1.86.1) | 5,905,022 (v2, 35.2% of 16 MB) | 5,786,205 (v2, 34.5% of 16 MB) | 6,043,386 (v2, 36.0% of 16 MB) |
-| Words | 183,088 | 174,718 | 242,364 |
-| Word pairs (bigrams, up to 60 per word) | 674,241 | 645,166 | 647,009 |
-| `trigrams.bin` (MRT1): words / contexts | 38,877 / 307,566 (5,176,682 bytes) | 30,039 / 316,351 (5,190,934 bytes) | 38,947 / 285,946 (4,882,809 bytes) |
-| `rules.txt`: corrections (keys are compared without accent: es has 142 distinct) | 228 | 350 | 143 |
+| Pack version (`dicts/<id>/pack.json`) | 7 | 6 | 5 |
+| `main.dict` size (limit 4,194,304 in format v1, 16,777,216 in v2; all three packs are v2 since 1.86.1) | 6,257,418 (v2, 37.3% of 16 MB) | 5,836,626 (v2, 34.8% of 16 MB) | 6,378,001 (v2, 38.0% of 16 MB) |
+| Words | 181,948 | 167,446 | 243,286 |
+| Word pairs (bigrams, up to 60 per word) | 750,069 | 698,010 | 714,452 |
+| `trigrams.bin` (MRT1): words / contexts | 36,020 / 267,004 (4,699,986 bytes) | 27,576 / 276,228 (4,719,992 bytes) | 38,349 / 282,781 (4,929,982 bytes) |
+| `rules.txt`: corrections (keys are compared without accent: es has 142 distinct) | 230 | 350 | 143 |
 | `rules.txt`: phonetic / vowels / groups / silent / extra / one-letter words | 12 / 2 / 11 / 6 / 1 / 3 | 6 / 4 / 4 / 17 / 0 / 2 | 9 / 2 / 6 / 4 / 1 / 5 |
 | Sentence starters (`[sentence_start]`) | Eu, Você, Não | I, The, You | No, El, Me |
-| Sources | AOSP list, OpenSubtitles2018 pt_br (a 1/64 sample, counts only), Tatoeba, Leipzig `por_news_2024_1M` (mix 45 / 25 / 30%; `docs/tools/corpus/`) | AOSP list, OpenSubtitles2018 en (a 1/128 sample, counts only), Tatoeba, Leipzig `eng_news_2025_1M` (mix 45 / 25 / 30%; `docs/tools/corpus/`) | AOSP list, OpenSubtitles2018 (a 1/64 sample, counts only), Tatoeba, Leipzig `spa_news_2024_1M` (mix 45 / 25 / 30%; `docs/tools/corpus/`) |
+| Sources | AOSP list, OpenSubtitles2018 pt_br (a 1/64 sample, counts only), Tatoeba, Leipzig `por_news_2024_1M`, Reddit comments (counts only; mix subtitles / Tatoeba / news / Reddit 40 / 15 / 15 / 25%; `docs/tools/corpus/`) | AOSP list, OpenSubtitles2018 en (a 1/128 sample, counts only), Tatoeba, Leipzig `eng_news_2025_1M`, Reddit comments (counts only; mix 40 / 15 / 15 / 25%; `docs/tools/corpus/`) | AOSP list, OpenSubtitles2018 (a 1/64 sample, counts only), Tatoeba, Leipzig `spa_news_2024_1M`, Reddit comments (counts only; mix 40 / 15 / 15 / 25%; `docs/tools/corpus/`) |
 | Keyboard layout in tests | `qwertyuiop,asdfghjklç,zxcvbnm` | `qwertyuiop,asdfghjkl,zxcvbnm` | `qwertyuiop,asdfghjklñ,zxcvbnm` |
 
 Files of a pack: `main.dict` (AOSP LatinIME "latest" format, header 200/1 = format v1, or 200/2 = format v2 since 1.86, see "Dictionary format v2" below), `trigrams.bin` (MRT1, continuations after two words),

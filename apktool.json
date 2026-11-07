@@ -1,5 +1,5 @@
 {
-  "apkFileName": "Mr Keyboard_v1.88.0.apk",
+  "apkFileName": "Mr Keyboard_v1.89.0.apk",
   "PackageInfo": {
     "forcedPackageId": "127",
     "renameManifestPackage": null
@@ -15,8 +15,8 @@
   "version": "2.4.0-261014",
   "sharedLibrary": false,
   "VersionInfo": {
-    "versionName": "v1.88.0",
-    "versionCode": "1088000"
+    "versionName": "v1.89.0",
+    "versionCode": "1089000"
   },
   "UsesFramework": {
     "ids": [1],

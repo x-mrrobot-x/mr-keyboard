@@ -109,4 +109,5 @@ Mr Keyboard is under the [Apache License 2.0](LICENSE).
   - AOSP pt_BR, en_US and es word lists (Apache 2.0);
   - [Leipzig Corpora Collection](https://wortschatz-leipzig.de/) (CC BY 4.0);
   - [Tatoeba](https://tatoeba.org/) (CC BY 2.0 FR);
-  - [OpenSubtitles](https://opus.nlpl.eu/OpenSubtitles/) via OPUS (only counts of words and pairs; no subtitle text is stored or distributed).
+  - [OpenSubtitles](https://opus.nlpl.eu/OpenSubtitles/) via OPUS (only counts of words and pairs; no subtitle text is stored or distributed);
+  - Comments of public [Reddit](https://www.reddit.com/) communities (January to June 2025), obtained from the [Arctic Shift](https://arctic-shift.photon-reddit.com) archive (only counts of words, pairs and triples; no comment, user name or text is stored or distributed; the licence of the text is not clear, so only counts are used).

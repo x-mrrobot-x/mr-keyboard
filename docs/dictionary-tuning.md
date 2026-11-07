@@ -131,8 +131,183 @@ as if the two packs were independent (pessimistic: they use the same words).
 | 1 | **Real messages** (all test sources together): gain of at least **0.5** point and at least **2 standard errors** of the difference; the rate right after the space may not fall by more than 0.1 | a candidate that cannot beat the old pack by half a point on real messages is not worth the size and the risk of a new pack (the 1.86.1 rebuild gained +0.1 to +0.6 after the space and +2.6 to +3.5 with 3 letters on its chat hold-out); 2 standard errors keeps a lucky small test from passing (about 0.4 to 0.9 points for 30,000 to 5,000 words) |
 | 2 | **Each independent real test source** (for example tweets and a group of subreddits): the gain may not be below minus 1 standard error | a gain that shows in only one medium is a gain on that medium |
 | 3 | Other hold-outs may lose at most (score / right after the space): **subtitles 0.5 / 0.5**, **news 1.5 / 1.0**, **Tatoeba 1.5 / 1.5** | subtitles are the base of the packs and must not pay for the new source; news already lost 1.2 to 2.1 points in es and 0.2 to 1.1 in pt-BR on purpose in 1.86.1; Tatoeba is the artificial register, and the pt-BR ablation above measured -1.3 (score) / -1.2 (after the space) for the cut from 25% to 10% that was decided, so that loss must not be a veto |
-| 4 | Size: **at most 12,000,000 bytes** in the language folder (`main.dict`, `trigrams.bin`, `rules.txt`...) and **7,000,000 bytes** for the zip | the budget decided for stage 3 (today about 11.1 MB on disk and 6.4 MB zipped per language) |
+| 4 | Size: **at most 12,000,000 bytes** in the language folder (`main.dict`, `trigrams.bin`, `rules.txt`...) and **7,000,000 bytes** for the zip | the budget decided for stage 3 (the packs of 1.88.0 are 10.6 to 11.1 MB on disk and 6.48 to 6.82 MB zipped as `make_catalog.py` zips them, a little above the "6.4 MB" first written here; the limits themselves did not change) |
 | info | The **dev** file (real messages of the training communities) is shown, not judged | a large gap between its gain and the test gain means the pack learned the communities and not the language |
 
 Other gates of stage 3 that this script does not compute: `SpeedEval` p95 not worse than +10%, opening time not slower, `run_strategy_tests.sh` with 0 failures and the S28 floors held (raise the floors when a release improves the rates, never lower one).
 Exit code of `accept_pack.py`: 0 accepted, 1 rejected, 2 a result is missing (without the real-message result there is no decision). If a rule turns out to be wrong, change it in the script **and** in this table in a separate commit before using it again.
+
+
+## Stage 3 (1.89.0): the fourth source (real messages), the mix and the size
+
+What changed in the three packs (pt-BR 7, en-US 6, es 5): a fourth source `real` in `make_pack_data.py` (Reddit comments of public communities, January to June 2025, counts only; the tweets are test-only),
+the mix **subtitles 40 / Tatoeba 15 / news 15 / real 25** in all three languages, trigrams pruned by gain per byte to fit the 7,000,000-byte zip, rare hyphenated words refused (`--min-hyphen 20`),
+more inflections of swear words at f = 5, a few slang words with a fixed frequency (`EXTRA_INFORMAL`) and two more correction rules in pt-BR (`ctz`, `aq`). Without `real` in `--mix` the script still gives the shipped packs
+byte for byte (pt-BR and es compared; `test_pack_data.py`, 46 checks, keeps it). Commands: `docs/tools/corpus/README.md`, section 3.
+
+**How the mix was chosen.** The owner's direction was: if real messages prove better, use more of them and let the acceptance rule choose. Twelve pt-BR mixes (five for es and en-US, to confirm) were built with the same word list
+and the same pairs and triples rules, and each was measured on five sets with `SubtitleEval` (5.5 minutes per candidate): **real, test sample** (6,000 real messages of communities the training never saw: Reddit of other communities and tweets, interleaved),
+**real, dev** (10,000 messages of the training communities, information only), and the three guards (the first 8,000 sentences of the subtitle hold-out, 6,000 of the news, 6,000 of Tatoeba). Every cell is the change against the pack of 1.88.0 rebuilt by the old scripts,
+in points of the mean of the four rates / change right after the space; **over** = beyond the loss limit of the rule (subtitles 0.5 / 0.5, news 1.5 / 1.0, Tatoeba 1.5 / 1.5).
+
+pt-BR (the same candidates ran with the whole trigram file, 12.2 to 12.3 MB on disk):
+
+| Mix: subtitles / Tatoeba / news / real (%) | real, test sample | real, dev | subtitles | news | Tatoeba |
+|---|---|---|---|---|---|
+| B: 60 / 10 / 30 / 0 | +0.05 / -0.1 | +0.15 / +0.0 | +0.33 / +0.2 | +0.18 / +0.2 | -1.40 / -1.3 |
+| C: 40 / 10 / 20 / 30 | +2.37 / +1.4 | +3.57 / +2.3 | -0.38 / -0.3 | -0.65 / -0.3 | -1.90 / -1.7 **over** |
+| D: 30 / 10 / 15 / 45 | +2.75 / +1.5 | +4.18 / +2.6 | -1.05 / -0.9 **over** | -1.30 / -0.7 | -2.23 / -1.9 **over** |
+| E: 30 / 5 / 10 / 50 | +2.80 / +1.5 | +4.43 / +2.7 | -1.15 / -1.0 **over** | -2.00 / -1.1 **over** | -3.12 / -2.6 **over** |
+| F: 20 / 5 / 15 / 60 | +3.00 / +1.7 | +4.65 / +2.8 | -2.00 / -1.5 **over** | -1.37 / -0.8 | -3.63 / -3.0 **over** |
+| G: 45 / 5 / 20 / 25 | +2.25 / +1.4 | +3.40 / +2.2 | -0.20 / -0.1 | -0.52 / -0.2 | -2.67 / -2.3 **over** |
+| H: 45 / 10 / 15 / 25 | +2.20 / +1.4 | +3.33 / +2.2 | -0.05 / +0.0 | -1.20 / -0.6 | -1.55 / -1.3 **over** |
+| I: 45 / 5 / 15 / 30 | +2.35 / +1.4 | +3.60 / +2.3 | -0.17 / -0.1 | -1.17 / -0.6 | -2.60 / -2.2 **over** |
+| J: 45 / 15 / 15 / 20 | +1.87 / +1.2 | +2.98 / +1.9 | +0.17 / +0.2 | -1.30 / -0.6 | -0.83 / -0.7 |
+| K: 45 / 15 / 10 / 25 | +1.97 / +1.2 | +3.20 / +2.1 | +0.15 / +0.2 | -2.15 / -1.1 **over** | -0.93 / -0.8 |
+| L: 40 / 15 / 15 / 25 | +2.07 / +1.3 | +3.28 / +2.1 | -0.07 / +0.0 | -1.23 / -0.6 | -0.95 / -0.8 |
+| M: 35 / 15 / 15 / 30 | +2.38 / +1.4 | +3.65 / +2.3 | -0.40 / -0.3 | -1.17 / -0.6 | -1.13 / -1.0 |
+
+es:
+
+| Mix: subtitles / Tatoeba / news / real (%) | real, test sample | real, dev | subtitles | news | Tatoeba |
+|---|---|---|---|---|---|
+| B: 60 / 10 / 30 / 0 | -0.00 / +0.1 | -0.00 / +0.0 | +0.20 / +0.0 | +0.05 / +0.0 | -1.57 / -1.1 **over** |
+| J: 45 / 15 / 15 / 20 | +1.22 / +0.8 | +2.05 / +1.2 | +0.07 / +0.1 | -1.07 / -0.5 | -0.75 / -0.5 |
+| K: 45 / 15 / 10 / 25 | +1.30 / +0.8 | +2.22 / +1.4 | +0.02 / +0.0 | -1.72 / -0.9 **over** | -0.82 / -0.4 |
+| L: 40 / 15 / 15 / 25 | +1.45 / +0.9 | +2.30 / +1.3 | -0.10 / -0.1 | -1.02 / -0.6 | -0.90 / -0.5 |
+| M: 35 / 15 / 15 / 30 | +1.58 / +1.0 | +2.52 / +1.4 | -0.33 / -0.4 | -1.03 / -0.6 | -1.02 / -0.8 |
+
+en-US:
+
+| Mix: subtitles / Tatoeba / news / real (%) | real, test sample | real, dev | subtitles | news | Tatoeba |
+|---|---|---|---|---|---|
+| B: 60 / 10 / 30 / 0 | -0.05 / +0.0 | -0.07 / -0.1 | +0.20 / +0.2 | -0.02 / -0.1 | -1.50 / -1.4 |
+| J: 45 / 15 / 15 / 20 | +1.20 / +1.0 | +2.02 / +1.5 | +0.22 / +0.2 | -0.92 / -0.6 | -0.90 / -0.6 |
+| K: 45 / 15 / 10 / 25 | +1.30 / +1.1 | +2.17 / +1.5 | +0.20 / +0.1 | -1.50 / -1.0 | -1.00 / -0.7 |
+| L: 40 / 15 / 15 / 25 | +1.45 / +1.2 | +2.27 / +1.6 | +0.07 / +0.0 | -0.90 / -0.6 | -1.02 / -0.6 |
+| M: 35 / 15 / 15 / 30 | +1.57 / +1.2 | +2.57 / +1.8 | -0.07 / -0.1 | -0.88 / -0.6 | -1.05 / -0.7 |
+
+Reading. (1) The gain on real messages grows with the share of `real` but with diminishing returns: 20% gives +1.9, 25% about +2.1, 30% +2.4, 45% +2.75, 60% +3.0 (pt-BR). (2) Above about 30% the subtitle and Tatoeba limits break first (D, E, F), the news limit
+next (K, E); with 5% Tatoeba the Tatoeba guard breaks (G, I) and with 10% and `real` at 25% it breaks by 0.05 (H, -1.55 against 1.5), so **Tatoeba is 15%, not the 10% of the plan**: the new source takes over the informal register that Tatoeba was keeping alive.
+(3) L (40 / 15 / 15 / 25) and M (35 / 15 / 15 / 30) both pass in all three languages; M adds only +0.1 to +0.3 points on real messages and leaves a margin of 0.1 on the subtitles in pt-BR, so L was taken: the larger the real share, the more the pack depends on a sample
+that leans to politics, sports and technology. The rule did not have a tie to break and the owner was not asked. (4) The numbers on the dev set (+2.3 to +3.3) are larger than the test ones (+1.5 to +2.1), as expected: part of the gain is the vocabulary of the training communities.
+This is why the rule judges the test.
+
+**Tatoeba and subtitles ablation, repeated for es and en-US** (the same three mixes as the pt-BR ablation above, now on the five sets; no `real`):
+
+es:
+
+| Mix (subtitles / Tatoeba / news) | real, test sample | subtitles | news | Tatoeba |
+|---|---|---|---|---|
+| 45 / 25 / 30 (1.88.0) | 0 | 0 | 0 | 0 |
+| 60 / 10 / 30 | -0.00 / +0.1 | +0.20 / +0.0 | +0.05 / +0.0 | -1.57 / -1.1 |
+| 70 / 0 / 30 | -0.15 / +0.0 | +0.25 / +0.1 | +0.07 / +0.1 | -3.65 / -2.7 |
+| 2 / 68 / 30 | -0.77 / -0.4 | -1.72 / -1.2 | -0.48 / -0.3 | +1.45 / +1.0 |
+
+en-US:
+
+| Mix (subtitles / Tatoeba / news) | real, test sample | subtitles | news | Tatoeba |
+|---|---|---|---|---|
+| 45 / 25 / 30 (1.88.0) | 0 | 0 | 0 | 0 |
+| 60 / 10 / 30 | -0.05 / +0.0 | +0.20 / +0.2 | -0.02 / -0.1 | -1.50 / -1.4 |
+| 70 / 0 / 30 | -0.15 / +0.1 | +0.20 / +0.2 | -0.08 / -0.1 | -3.05 / -2.7 |
+| 2 / 68 / 30 | +0.07 / -0.1 | -1.50 / -1.0 | -0.25 / -0.3 | +2.03 / +1.4 |
+
+The three languages agree with pt-BR: cutting Tatoeba to 10% changes real messages by 0.0 (-0.05 to +0.05) and the subtitles by +0.2 to +0.3, and costs 1.4 to 1.6 on Tatoeba itself; removing it costs 3.0 to 3.7 there; removing the subtitles costs 1.5 to 1.7 on them and does not help real messages (-0.77 in es, +0.07 in en-US).
+So Tatoeba has little to say about real typing, but the subtitles are not the thing to cut either; the room for `real` came from the news (30 to 15%), Tatoeba (25 to 15%) and the subtitles (45 to 40%).
+
+**The size budget.** The zips of the 1.88.0 packs, made by `make_catalog.py` (deflate level 9), are 6,750,313 (pt-BR), 6,483,347 (es) and 6,819,336 bytes (en-US), a little above the 6.4 MB first written in the plan. Mix L with the whole trigram file is 12.2 to 12.3 MB on disk
+and zips to 7,405,326 (pt-BR), 7,042,202 (es) and 7,400,757 bytes (en-US): over the 7,000,000-byte zip limit, while the 12,000,000 disk limit is only just broken, so the **zip limit is the one that binds**. (`main.dict` zips to 0.65 to 0.68 of its size and `trigrams.bin` to 0.56 to 0.58.)
+The pruning experiments used the default deflate level of Python, about 2.5% larger than level 9, so they were conservative. Pruning on pt-BR (mix L, all rows measured on the five sets):
+
+| Row | What was cut | Disk (`main.dict` + `trigrams.bin`) | Result against the whole file |
+|---|---|---|---|
+| Lp | nothing | 12.23 MB | reference: real +2.07, subtitles -0.07, news -1.23, Tatoeba -0.95 |
+| P1 | triples to 5,576,000 bytes by gain per byte | 11.83 MB | identical rates on the five sets |
+| P2 | pairs to 675,000 (`--max-bigrams`) | 11.86 MB | news -1.45 (was -1.23): pairs cost |
+| P3 | both | 11.16 MB | news -1.55, **over** the limit |
+| P4 | triples to 4,900,000 bytes | 11.16 MB | rates equal to Lp on all five sets; zip 7,027,389 with Python's default level (it was believed to be over the limit, so the budget was lowered); 6,829,420 with `make_catalog.py`, which fits |
+
+So pairs are kept and the triples are cut by **gain per byte** (the weighted mass of the continuations that the pair of the last word does not already give, divided by the bytes the context takes). Final budgets:
+pt-BR 4,700,000 bytes (5,976,794 → 4,699,986: 21% of the triples cut), es 4,930,000 (5,537,223 → 4,929,982: 11%), en-US 4,720,000 (5,887,605 → 4,719,992: 20%). The budgets are a little below what the real zipper needs (P4 shows 4.9 MB would fit in pt-BR),
+which costs nothing that was measured: the rates of Lp, P1 and P4 are the same. Final packs, zipped by `make_catalog.py` / on disk: pt-BR 6,716,082 / 10,968,025 bytes, es 6,730,119 / 11,316,368, en-US 6,591,626 / 10,569,061
+(the headroom to 7,000,000 is 270 to 410 KB).
+
+**Words.** The new data adds about 6,000 words (pt-BR), 6,200 (es) and 2,100 (en-US) that a speller accepts, plus names and a few slang words, and the review of the report found these cases, handled in `make_pack_data.py`: Reddit and tech jargon that the rule accepted on the evidence
+(`subreddit`, `thread`, `layoff`, `lead`): kept, the measured rule decides; inflections of swear words (`fud*`, `escrot*`, `cacet*`, `ching*`, `cag*`, `pelotud*`, `joder*`, `shittier`) got f = 5 and are never suggested; hyphenated compounds (`ex-namorado`, `half-assed`) refused below 20 occurrences
+(`--min-hyphen`; it takes the en-US list from 175,322 to 167,446 words and pt-BR from 184,859 to 181,948 ; `SubtitleEval` keeps a hyphenated word as one token, so the effect of this cut is already inside the acceptance numbers below, which were measured on the final packs and not on the sweep candidates); `alot`, `Micheal` and `Que` refused in English; `Pix`, `ué`, `mimimi`, `freela`, `nomás`, `wtf`, `tbf` added with a fixed frequency (the capital letters of Reddit or the missing speller keep them out of the automatic rule);
+no word that `rules.txt` corrects was added (a word of the dictionary switches its correction off). Names of politicians were deliberately not added.
+
+**Acceptance rule, output of `accept_pack.py` for each pack** (candidate against the 1.88.0 pack rebuilt by the old scripts on the same splits; `real` = 20,000 messages of all test sources interleaved; the noise is one standard error of the difference):
+
+pt-BR:
+
+```
+Acceptance of the candidate pack pt-BR (points of the score = mean of the 4 hit rates; after-space = rate right after the space)
+test                        old      new     gain    noise  after space     words
+dev                       29.32    32.52    +3.20     0.08        +2.20    149962
+news                      32.40    31.07    -1.32     0.07        -0.90    224901
+real                      29.25    31.30    +2.05     0.09        +1.40    122773
+real_reddit-pt-test       29.57    32.23    +2.65     0.08        +1.80    137143
+real_tweets-pt-test       28.82    29.77    +0.95     0.09        +0.60    109152
+subs                      36.52    36.27    -0.25     0.12        -0.20     67987
+tatoeba                   41.70    40.80    -0.90     0.12        -0.70     76152
+size: disk_bytes 10969141, zip_bytes 6716082
+VERDICT: ACCEPT
+```
+
+es:
+
+```
+Acceptance of the candidate pack es (points of the score = mean of the 4 hit rates; after-space = rate right after the space)
+test                        old      new     gain    noise  after space     words
+dev                       25.62    27.97    +2.35     0.08        +1.30    149054
+news                      28.12    27.25    -0.88     0.06        -0.50    235615
+real                      26.20    27.67    +1.47     0.08        +0.90    129205
+real_reddit-es-test       26.00    28.07    +2.07     0.07        +1.20    155953
+real_tweets-es-test       25.53    26.32    +0.80     0.09        +0.50    109475
+subs                      31.62    31.52    -0.10     0.12        +0.00     64963
+tatoeba                   36.55    35.75    -0.80     0.12        -0.40     72227
+size: disk_bytes 11317949, zip_bytes 6730119
+VERDICT: ACCEPT
+```
+
+en-US:
+
+```
+Acceptance of the candidate pack en-US (points of the score = mean of the 4 hit rates; after-space = rate right after the space)
+test                        old      new     gain    noise  after space     words
+dev                       35.55    37.83    +2.28     0.08        +1.70    145476
+news                      31.08    30.23    -0.85     0.06        -0.50    233268
+real                      33.30    34.70    +1.40     0.08        +1.10    151210
+real_reddit-en-test       32.18    33.35    +1.17     0.07        +0.80    170654
+subs                      41.05    41.08    +0.03     0.12        -0.10     70174
+tatoeba                   44.43    43.65    -0.78     0.12        -0.60     73786
+size: disk_bytes 10570325, zip_bytes 6591626
+VERDICT: ACCEPT
+```
+
+**Speed and opening (PC, `SpeedEval` 800 subtitle sentences x 3 rounds, run alone, each pack twice, old = 1.88.0 packs, new = 1.89.0).** Per keystroke, the three languages added together (n is the same in both):
+
+| Keystroke | n | mean µs old → new | p95 µs old → new |
+|---|---|---|---|
+| after a space | 39,624 | 77.5 → 78.0 (+0.7%) | 116.3 → 113.7 (-2.2%) |
+| 1 letter | 39,624 | 50.8 → 51.1 (+0.6%) | 79.4 → 77.9 (-1.9%) |
+| 2 to 4 letters | 90,231 | 204.3 → 205.0 (+0.4%) | 557.6 → 554.3 (-0.6%) |
+| 5 or more letters | 42,069 | 207.2 → 208.4 (+0.6%) | 452.5 → 453.0 (+0.1%) |
+| typo (correction search) | 22,056 | 326.3 → 328.3 (+0.6%) | 551.6 → 548.7 (-0.5%) |
+| valid word | 29,436 | 86.7 → 86.8 (+0.1%) | 244.3 → 236.0 (-3.4%) |
+
+The p95 is within -3.4% to +0.1% (the gate was not worse than +10%), the largest per-language change is +2% (en-US, 5 or more letters; the same cell in pt-BR and es is -0% and -2%). Opening a pack on the PC (read `main.dict`, parse `rules.txt`,
+open `trigrams.bin`, build the engine, first query; median of 9 openings, run twice per pack): pt-BR 13.4 / 13.0 → 14.1 / 11.0 ms, es 11.1 / 12.3 → 13.1 / 12.8 ms, en-US 11.5 / 14.0 → 10.6 / 12.4 ms. The reading noise of this PC is about
+15%, so the change is not distinguishable from zero: `main.dict` is 3 to 6% larger (more pairs) and `trigrams.bin` 9 to 11% smaller. On a phone it is not measured (stage 4 adds that line to the settings).
+
+
+**The project checks with the new packs.** `run_strategy_tests.sh` (3 languages, dictionaries from `dicts/`): 0 failures. One case moved: `hey _ -> guys` (S14, en-US) was third with en-US 5 and is fourth now (there / you / man), because the real sample has
+`hey man` 41 times against `hey guys` 13 (weighted counts 188 against 135; subtitles alone have `there` 108, `you` 96, `guys` 44). It is marked as a **GAP (data)** like `how are` and `good morning`, and a case `hey _ -> there` (third in both packs) keeps the mechanism covered.
+The S28 floors (133 everyday sentences written for the repository, about 600 words per language) were **not** raised: the pack of 1.88.0 / the new one measure, after the space / 1 / 2 / 3 letters, pt-BR 20.5 / 41.8 / 55.2 / 69.1 → 22.4 / 40.6 / 54.6 / 68.9,
+en-US 18.3 / 38.8 / 54.5 / 76.1 → 17.2 / 37.0 / 53.7 / 74.5, es 19.6 / 39.2 / 51.1 / 67.2 → 18.1 / 36.3 / 48.7 / 65.8. The noise of a test this small is about 1.7 to 2 points per rate, so it is not a loss we can prove, but en-US and es are lower in every rate (as the
+written-style guards, Tatoeba and subtitles, are: -0.8 and +0.0 to -0.1), pt-BR is up after the space, and all values are above the floors. A floor is never lowered and there was no improvement to raise one.
+
+What these numbers do not say: the real messages are Reddit comments (and tweets only as a test), so the gain on SMS-style typing, on voice-to-text and on subjects outside politics, sports and technology is not measured; the evaluation uses words of 4+ letters, so
+the rate right after the space is the one a person feels most and it improved by only +0.9 to +1.4; and nothing here was measured on a phone. The next lever is more real data of other kinds (the training sample is 6.7 to 7.8 million words per language, against 19 million of the subtitles).

@@ -17,7 +17,7 @@ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
 KIND, either express or implied.
 
 2) New words, frequencies, word pairs (bigrams) and word triples (trigrams)
-Counted in a mix of three text collections (the mix and the weights were chosen on
+Counted in a mix of four text collections (the mix and the weights were chosen on
 sentences that were kept out of every count):
 
 a) OpenSubtitles2018, Spanish (a sample of one line in 64), subtitles of films and series.
@@ -43,6 +43,16 @@ c) Spanish sentences from Tatoeba (https://tatoeba.org), with the repeated names
 example sentences (Tom, Mary, Tomas...) replaced by separators. License: Creative Commons
 Attribution 2.0 France (CC BY 2.0 FR), https://creativecommons.org/licenses/by/2.0/fr/
 Only counts were taken from Tatoeba (no sentence is distributed).
+
+d) Comments written by people in public Reddit communities (r/mexico, r/argentina, r/spain,
+r/chile and r/Colombia), January to June 2025, obtained from the Arctic Shift archive
+(https://arctic-shift.photon-reddit.com). Bot posts, deleted comments, links, e-mail addresses,
+user and community names and quotations were removed before counting and the language of each
+comment was checked. The text of Reddit comments belongs to their authors and its licence for
+this use is not clear. For that reason ONLY COUNTS (how many times a word, a pair or a triple
+appears) were taken: no comment, sentence, user name or sequence of text is stored or
+distributed in this pack. Other messages of the same kind (Reddit communities and a set of
+tweets that the counts never saw) were used only to measure the pack and are not part of it.
 
 The frequency of each word is recalculated from these counts and blended with the
 frequency of the AOSP list; a word of the AOSP list that does not show up in the texts keeps

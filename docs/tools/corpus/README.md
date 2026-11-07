@@ -59,6 +59,23 @@ about 3 GB of RAM and 8 minutes.
 The tuning that led to these values (what each option did on the three hold-outs) is in `docs/dictionary-tuning.md`. Writes `main.combined.gz`, `trigrams.bin`, `words.tsv` and `report.txt` (what it did and the lists of new words, to be read by a person). It needs about 3 GB of RAM
 and 8 minutes for the Spanish sample; do not run two at once on a small machine.
 
+**Stage 3 (1.89.0, pt-BR 7, en-US 6, es 5): the fourth source, real messages.** The same commands with `real` in the mix and two more options:
+```
+python3 -I docs/tools/corpus/make_pack_data.py --lang es --work work/es ... --out work/es/out \
+    --mix subs=0.40,chat=0.15,news=0.15,real=0.25 --min-ctx 6 --min-tri 2 --min-hyphen 20 --max-trigram-bytes 4930000
+```
+`real` reads `<work>/chat_real_train.txt` (what `prepare_real.py` writes into `real/`; copy or link it next to the other `*_train.txt`). Without `real` in `--mix` the script gives
+the same files as before (checked byte for byte on the shipped pt-BR and es packs, and `test_pack_data.py` keeps it that way). The train file is **Reddit only**; the tweets stay as a test source
+and are never counted. A name found in real messages counts like one found in the subtitles (`NO_CAPMID` only skips `chat`, the Tatoeba sentences with their `Tom`/`Mary`). The other changes of the script:
+* `--min-hyphen N`: a new lowercase word or name with a hyphen needs N real occurrences (the final builds use 20), because Reddit has many `ex-namorado`, `pre-jogo`, `cross-posts`.
+* `--max-trigram-bytes N`: when the triples would be larger than N bytes, the contexts are ranked by **gain per byte** (the weighted mass of the continuations that the pair of the last word does not
+  already predict, divided by the bytes the context takes) and the lowest are cut until the file fits. On the three packs this cut 11 to 21% of the triples and changed no hit rate that was measured
+  (`docs/dictionary-tuning.md`); cutting pairs (`--max-bigrams`) did cost on the news, so pairs are not cut.
+* the vulgar patterns cover more inflections (`fud*`, `escrot*`, `cacet*`, `ching*`, `cag*`, `pelotud*`, `pendej*`, `joder*`...); the English builds refuse `alot` and the names `Que`, `Micheal`; the report
+  line "excluded name" lists what the language settings refuse.
+* `EXTRA_INFORMAL` (in the script): a few slang words that the capital letters of Reddit keep out of the unspelled test (`Pix`) or that no speller knows (`ué`, `nah`, `wtf`), with a fixed frequency. It never has a
+  word that `rules.txt` corrects (`sla`, `dnv`, `tmb`, `yall`...), because a word of the dictionary switches that correction off; `test_pack_data.py` checks that.
+`test_pack_data.py` (46 checks, no network, fake speller) runs in `mr-checks.yml`.
 The sources are weighted so that after the weighting each one has its share of the mass (`--mix`); the real counts still decide what is allowed in. The
 frequency of EVERY word is recomputed from the weighted counts (`f = a*log10(count) + b`, the line fitted on the AOSP words) and blended with the AOSP
 frequency (a word with 30+ real occurrences takes 95% of the corpus value, one seen less is pulled towards the AOSP value). A new word enters when it

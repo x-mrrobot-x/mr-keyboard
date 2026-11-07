@@ -41,6 +41,8 @@ vlw	valeu
 blz	beleza
 cmg	comigo
 ctg	contigo
+ctz	certeza
+aq	aqui
 nd	nada
 ngm	ninguém
 agr	agora

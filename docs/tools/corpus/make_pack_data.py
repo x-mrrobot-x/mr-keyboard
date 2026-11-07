@@ -6,11 +6,12 @@ Usage:
   python3 -I make_pack_data.py --lang es --work work/es --base es_wordlist.combined.gz \
       --spell es_ES.aff:es_ES.dic --spell es_MX.aff:es_MX.dic --out work/es/out [--mix subs=0.60,chat=0.20,news=0.15]
 
-Input (--work, from prepare_corpus.py): subs_train.txt, chat_train.txt, news_train.txt.
+Input (--work, from prepare_corpus.py): subs_train.txt, chat_train.txt, news_train.txt, and chat_real_train.txt (prepare_real.py) when
+`real` is in --mix: the fourth source, real informal messages. Without `real` in --mix the output is the one of the earlier versions.
 Output (--out): main.combined.gz, trigrams.bin, words.tsv, report.txt. Only counts leave the corpora; no sentence is written.
 
 How the sources are mixed. Each source s has a weight  W_s = share_s * T / tokens_s  (T = tokens of the subtitles / share of the subtitles),
-so that after weighting the subtitles are `subs` of the mass, the Tatoeba sentences `chat` and the news `news`; the remaining 5% is the AOSP
+so that after weighting the subtitles are `subs` of the mass, the Tatoeba sentences `chat`, the news `news` and the real messages `real`; the remaining 5% is the AOSP
 list itself (its own frequency stays in the blend, see BASE_SHARE). The weighted count is used for the frequency of a word, the pair
 probabilities and the order of the pairs; the REAL counts decide what is allowed in (a word or a pair seen once is not a fact).
 """
@@ -45,14 +46,20 @@ LANGS["pt-BR"]["vulgar_re"] = re.compile(
     r"^(?:fod(?:a|as|e|em|er|eu|eram|i|ido|ida|idos|idas|endo|ia|iam|ão|ões)|foda-se|fode-se|fodam-se|cagu?(?:ei|ou|ar|ado|ada|adas|ados|aram|ando)|"
     r"cag[ao]s?|merdas?|merdinha|merdão|mij(?:ar|ou|ei|ada|ado|ando)|xoxotas?|trepad[ao]s?|trepou|trepamos|trepando|boquetes?|peid(?:ar|ou|o|os|ei|ando)|"
     r"punhetas?|punheteiro|putaria|putarias|putinhas?|putões|putas|puteiros?|cuzão|cuzões|cuzinho|bucetas?|caralhos?|porras?|porrada|viadinho|viadão|"
-    r"viados|bichas|vagabundas?|vadias?|pirocas?|picas|chupadas?)$")
+    r"viados|bichas|vagabundas?|vadias?|pirocas?|picas|chupadas?|"
+    # the real messages brought these (stage 3): fudido, fudendo, escrota, cacetada, mamador, punhetinha, tesudo; and the political insults
+    r"fud(?:er|eu|em|eram|ido|ida|idos|idas|endo|i|ia|ão)|fudid[ao]s?|escrot[ao]s?|escrotice|escrotidão|cacet(?:ada|adas|inho|inhos|ão)|"
+    r"mamador(?:es)?|punhetinhas?|tesud[ao]s?|tesão|esquerdopatas?|petralhas?|bolsomini(?:on|ons)|"
+    r"filho-da-puta|filhos-da-puta|puta-que-pariu)$")
 LANGS["es"] = dict(LANGS["es"])
 LANGS["es"]["vulgar_re"] = re.compile(
     r"^(?:jod(?:er|ido|ida|idos|idas|ete|erme|erte|erlo|erla|erse|erles|ió|ieron|iste|iendo|a|as|an|e|es|o)|follar(?:te|me|se|lo|la|nos)?|"
     r"follad[oa]s?|follam(?:os|e|te)|folló|follaste|follaron|coñazo|coños|cabronas?|cabronazo|cagar(?:se|la|me|te|lo|los)?|"
     r"cag(?:ó|aron|aste|ué|ado|ada|ados|adas|ando|a|an)|mierdas|mierdero|comemierda|pendej[oa]s?|pendejadas?|verg[ao]s?|chingar|chingad[ao]s?|"
     r"chinga[nsr]?|culer[oa]s?|culos|culito|putas?|putos|putada|putadas|putillas?|putitas?|boludo|boluda|boludos|boludas|boludeces|pelotud[oa]s?|"
-    r"pelotudez|pijas?|pollas|malnacid[oa]s?|lameculos|maricones|maricas|carajos|hijueputas?|gilipollez|gilipolleces|zorras?)$")
+    r"pelotudez|pijas?|pollas|malnacid[oa]s?|lameculos|maricones|maricas|carajos|hijueputas?|gilipollez|gilipolleces|zorras?|"
+    # the real messages brought more inflections (stage 3): chinguen, chingones, cagaban, pelotudear, mamador, verguear
+    r"ching\w*|cag[aóu]\w*|pelotud\w*|pendej\w*|joder\w*|mamador\w*|verguear|vergueado|vergueada|vergueando)$")
 
 LANGS["en"] = dict(LANGS["en"])
 LANGS["en"]["header"] = "dictionary=main:en_us,locale=en_US,description=English (US),date=1793318400,version=65"
@@ -78,6 +85,10 @@ def _en_reject(w):
 
 
 LANGS["en"]["reject"] = _en_reject
+# misspellings that Hunspell accepts and the real messages make frequent: "alot" would stop the correction to "a lot"; names the speller knows
+# that are foreign words or misspellings of a name
+LANGS["en"]["reject_words"] = {"alot"}
+LANGS["en"]["name_exclude"] = {"Que", "Micheal"}
 LANGS["en"]["cap_mid_only"] = True
 # The other languages' lists hold English loanwords and hyphenated compounds (barista, quinoa, e-mails, bye-bye), so in English the lists only judge
 # SHORT words without a hyphen: what the English speller lets through of a foreign language is abbreviations and fragments (est, fir, cis, dis, res).
@@ -85,14 +96,28 @@ LANGS["en"]["foreign_short_only"] = 5
 # Inflections and compounds of swear words that VULGAR (make_wordlist_lang.py) does not list: f = 5, never a prediction (see pt-BR above).
 LANGS["en"]["vulgar_re"] = re.compile(
     r"^(?:fuck(?:in|ing|en|ups?|head|heads|face|wit|tard|tards|boy|boys|ed|hole)|motherfuck(?:ing|in|ed|er|ers|a|as|s)?|mothafuck(?:a|as|er|ers|in|ing)?|"
-    r"mofos?|bullshit(?:ting|ter|ters|ted|s)?|shit(?:ting|ted|head|heads|hole|holes|load|storm|face|faced|bag|less|ty|ter|ters)|"
+    r"mofos?|bullshit(?:ting|ter|ters|ted|s)?|shit(?:ting|ted|head|heads|hole|holes|load|storm|face|faced|bag|less|ty|tier|tiest|ter|ters)|"
     r"bitch(?:ing|y|ed|in|ass|es)|cocksuck(?:er|ers|ing)|dickheads?|asshats?|asswipes?|wank(?:ing|ed|ers?|s)|twats?|twatty|whor(?:ing|ehouses?)|"
     r"slutty|pussies|nigg(?:as|az|ers|a)|faggy)$")
+
+# Slang and chat words that the real messages of the training communities use 150+ times and that no list had (stage 3). They are given a fixed
+# frequency like the other chat words. NEVER a word that rules.txt corrects (sla, dnv, xq, tmb, ppl...): in the dictionary it would stop the correction
+# (test_pack_data.py checks this against dicts/<lang>/rules.txt). Brands and tech terms are not added unless they are words of everyday use.
+EXTRA_INFORMAL = {
+    "pt-BR": {"pix": 55, "Pix": 65, "ué": 55, "mimimi": 40, "freela": 45, "mlk": 40, "ae": 40, "bixo": 40},
+    "es": {"pa": 50, "nah": 40, "papi": 45, "nomás": 55},
+    "en": {"wtf": 70, "tbf": 40, "iirc": 35},
+}
+for _lang, _extra in EXTRA_INFORMAL.items():
+    LANGS[_lang]["informal"] = dict(LANGS[_lang]["informal"], **_extra)
 
 BREAK, END, UNK = "\x01", "\x02", "\x03"   # in the token cache: punctuation, sentence end, a word the format cannot hold
 BASE_SHARE = 0.05                           # weight of the AOSP frequency when the corpora have plenty of evidence
 FULL_EVIDENCE = 30                          # real occurrences from which the corpora decide the frequency alone (minus BASE_SHARE)
-SOURCES = ("subs", "chat", "news")
+BASE_SOURCES = ("subs", "chat", "news")
+SOURCES = BASE_SOURCES                      # main() adds "real" when it is in --mix
+TRAIN_FILE = {"subs": "subs_train.txt", "chat": "chat_train.txt", "news": "news_train.txt", "real": "chat_real_train.txt"}
+NO_CAPMID = ("chat",)                       # sources whose capital letters say nothing about names (Tatoeba)
 # function words of another language that the subtitles quote (songs, titles, signs): they must not become words of the pack
 FOREIGN = {
     "es": set("the and you that for your with this are not but have was what all out one can will who from they his her she him had been were "
@@ -143,7 +168,7 @@ def tokenize_file(src, dst):
 def build_cache(work):
     jobs = []
     for s in SOURCES:
-        src, dst = os.path.join(work, s + "_train.txt"), os.path.join(work, "tok_" + s + ".txt")
+        src, dst = os.path.join(work, TRAIN_FILE[s]), os.path.join(work, "tok_" + s + ".txt")
         if not os.path.exists(dst) or os.path.getmtime(dst) < os.path.getmtime(src):
             jobs.append((src, dst))
     if jobs:
@@ -196,8 +221,12 @@ def main():
                     help="AOSP list that carries the possibly-offensive marks, when --base is a cleaned list that lost them (pt-BR)")
     ap.add_argument("--spell", action="append", default=[], help="Hunspell aff:dic (repeatable; a word passes if any accepts it)")
     ap.add_argument("--out", required=True)
-    ap.add_argument("--mix", default="subs=0.60,chat=0.20,news=0.15")
+    ap.add_argument("--mix", default="subs=0.60,chat=0.20,news=0.15",
+                    help="share of each source (subs, chat, news are required; add real=0.40 for the real messages); the rest of 1.0 is the AOSP list")
     ap.add_argument("--min-count", type=int, default=3, help="real occurrences for a new lowercase word accepted by the speller")
+    ap.add_argument("--min-hyphen", type=int, default=0,
+                    help="real occurrences for a new word with a hyphen (0 = --min-count): the speller accepts any compound whose parts are words "
+                         "(s-early, mid-late), and the real messages have thousands of them")
     ap.add_argument("--min-name-count", type=int, default=20)
     ap.add_argument("--min-unspelled", type=int, default=150, help="real occurrences for a word the speller refuses (slang, loanwords)")
     ap.add_argument("--min-sources", type=int, default=2, help="sources in which such a word must appear (3+ times each)")
@@ -214,14 +243,32 @@ def main():
     ap.add_argument("--top-each", type=int, default=3)
     ap.add_argument("--min-ctx", type=int, default=8, help="real occurrences of a two-word context for the trigrams")
     ap.add_argument("--min-tri", type=int, default=3, help="real occurrences of a trigram")
+    ap.add_argument("--max-trigram-bytes", type=int, default=0,
+                    help="size budget of trigrams.bin (0 = none): the contexts that add the least per byte are dropped first (the gain of a context is "
+                         "the weighted mass of its continuations that the pairs of its last word would not offer, its cost 7 + 4 bytes per continuation)")
     ap.add_argument("--no-trigrams", action="store_true")
     a = ap.parse_args()
-    global STRIP_APOS
+    global STRIP_APOS, SOURCES
     STRIP_APOS = a.lang == "en"
     os.makedirs(a.out, exist_ok=True)
     rep = []
     cfg = LANGS[a.lang]
-    share = {k: float(v) for k, v in (x.split("=") for x in a.mix.split(","))}
+    try:
+        share = {k: float(v) for k, v in (x.split("=") for x in a.mix.split(","))}
+    except ValueError:
+        ap.error("--mix must look like subs=0.60,chat=0.20,news=0.15")
+    for k in share:
+        if k not in TRAIN_FILE:
+            ap.error(f"--mix: unknown source {k!r} (known: {', '.join(TRAIN_FILE)})")
+    for k in BASE_SOURCES:
+        if k not in share:
+            ap.error(f"--mix needs {k}=<share>")
+    SOURCES = BASE_SOURCES + (("real",) if "real" in share else ())
+    if share["subs"] <= 0:
+        ap.error("--mix: subs must be above 0 (it sets the scale of the weights)")
+    for k in SOURCES:
+        if not os.path.exists(os.path.join(a.work, TRAIN_FILE[k])):
+            ap.error(f"{TRAIN_FILE[k]} is missing in {a.work}")
     if not a.spell:
         ap.error("give --spell")
     spellers = [Speller(*x.split(":", 1)) for x in a.spell]
@@ -259,7 +306,7 @@ def main():
                 tot += 1
                 if not first:
                     mc[t] += 1
-                    if t[0].isupper() and s != "chat":
+                    if t[0].isupper() and s not in NO_CAPMID:
                         capmid[t] += 1
                 first = False
         seen[s], lower[s], total[s], midc[s] = sn, lw, tot, mc
@@ -312,7 +359,10 @@ def main():
         if len(w) > MAX_WORD or w in final or not w.islower() or len(w) < 3 or w in base_lower:
             continue
         rc = raw_exact(w)
-        if rc < a.min_count:
+        if rc < a.min_count or ("-" in w and rc < a.min_hyphen):
+            continue
+        if w in cfg.get("reject_words", ()):
+            rejected["known misspelling"] += 1
             continue
         if w in foreign:
             rejected["foreign function word"] += 1
@@ -340,8 +390,10 @@ def main():
             continue
         if w.lower() in base_lower or not spell_ok(w):
             continue
+        if "-" in w and c < a.min_hyphen:
+            continue
         if w in cfg.get("name_exclude", ()):
-            rejected["name that is an English word"] += 1
+            rejected["excluded name (English word, foreign word, misspelling)"] += 1
             continue
         why = cfg["reject"](w) if "reject" in cfg else None
         if why:
@@ -560,7 +612,7 @@ def main():
                 d = per_ctx[k]
                 raw, eff = d.get(w3, (0, 0.0))
                 d[w3] = (raw + c, eff + W[s] * c)
-        kept = {}
+        kept, top_eff = {}, {}
         for k, cnt in per_ctx.items():
             total_eff = sum(e for _r, e in cnt.values())
             cands = [(e, w3) for w3, (r, e) in cnt.items() if r >= a.min_tri and vocab[w3] not in offensive]
@@ -573,27 +625,55 @@ def main():
             if [w for _, w in top] == bigram_top[:len(top)]:
                 continue
             kept[k] = [(w, max(1, min(127, int(round(127 * (1 + math.log10(e / total_eff) / 3)))))) for e, w in top]
-        tvocab = sorted({vocab[x] for k in kept for x in divmod(k, V)} | {vocab[w] for v in kept.values() for w, _ in v})
-        tid = {w: i for i, w in enumerate(tvocab)}
-        if len(tvocab) >= 1 << 24:
-            raise ValueError("vocabulary too large for 24-bit ids")
-        out = bytearray(b"MRT1")
-        out += struct.pack(">I", len(tvocab))
-        for w in tvocab:
-            b = w.encode("utf-8")
-            out.append(len(b))
-            out += b
-        ordered = sorted(kept, key=lambda k: (tid[vocab[k // V]], tid[vocab[k % V]]))
-        out += struct.pack(">I", len(ordered))
-        for k in ordered:
-            out += tid[vocab[k // V]].to_bytes(3, "big") + tid[vocab[k % V]].to_bytes(3, "big")
-            out.append(len(kept[k]))
-            for w, f in kept[k]:
-                out += tid[vocab[w]].to_bytes(3, "big")
-                out.append(f)
+            top_eff[k] = [e for e, _w in top]
+
+        def serialize(keys):
+            tvocab = sorted({vocab[x] for k in keys for x in divmod(k, V)} | {vocab[w] for k in keys for w, _ in kept[k]})
+            tid = {w: i for i, w in enumerate(tvocab)}
+            if len(tvocab) >= 1 << 24:
+                raise ValueError("vocabulary too large for 24-bit ids")
+            out = bytearray(b"MRT1")
+            out += struct.pack(">I", len(tvocab))
+            for w in tvocab:
+                b = w.encode("utf-8")
+                out.append(len(b))
+                out += b
+            ordered = sorted(keys, key=lambda k: (tid[vocab[k // V]], tid[vocab[k % V]]))
+            out += struct.pack(">I", len(ordered))
+            for k in ordered:
+                out += tid[vocab[k // V]].to_bytes(3, "big") + tid[vocab[k % V]].to_bytes(3, "big")
+                out.append(len(kept[k]))
+                for w, f in kept[k]:
+                    out += tid[vocab[w]].to_bytes(3, "big")
+                    out.append(f)
+            return out, len(tvocab)
+
+        keys = list(kept)
+        full_size = len(serialize(keys)[0]) if a.max_trigram_bytes else 0
+        if a.max_trigram_bytes and full_size > a.max_trigram_bytes:
+            # gain per byte: mass of the continuations that the bigram top 3 of the last word does not already give, over the bytes of the entry
+            bt_cache = {}
+
+            def gain(k):
+                w2 = k % V
+                if w2 not in bt_cache:
+                    bt_cache[w2] = {x[0] for x in sorted(chosen.get(w2, []), key=lambda x: (-x[1], -x[2], vocab[x[0]]))[:3]}
+                return sum(top_eff[k][i] for i, (w, _f) in enumerate(kept[k]) if w not in bt_cache[w2])
+
+            ranked_ctx = sorted(keys, key=lambda k: (-gain(k) / (7 + 4 * len(kept[k])), k))
+            lo, hi = 0, len(ranked_ctx)             # the biggest prefix of the ranking that fits the budget (the size grows with the prefix)
+            while lo < hi:
+                mid = (lo + hi + 1) // 2
+                if len(serialize(ranked_ctx[:mid])[0]) <= a.max_trigram_bytes:
+                    lo = mid
+                else:
+                    hi = mid - 1
+            rep.append(f"trigram budget {a.max_trigram_bytes} bytes: {len(keys)} contexts ({full_size} bytes) cut to {lo} by gain per byte")
+            keys = ranked_ctx[:lo]
+        out, n_tvocab = serialize(keys)
         with open(os.path.join(a.out, "trigrams.bin"), "wb") as fh:
             fh.write(out)
-        rep.append(f"trigrams: {len(ordered)} contexts written (different from the pair), {len(tvocab)} words, {len(out)} bytes")
+        rep.append(f"trigrams: {len(keys)} contexts written (different from the pair), {n_tvocab} words, {len(out)} bytes")
 
     with open(os.path.join(a.out, "report.txt"), "w", encoding="utf-8") as r:
         r.write("\n".join(rep) + "\n\n")

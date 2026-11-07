@@ -368,7 +368,8 @@ public class StrategyTest {
         predict("S14", null, "how", "are", true);             // GAP (data): much/to/do win (P(are | how) is about 4%)
         predict("S14", null, "see", "you", false);
         predict("S14", null, "good", "morning", true);        // GAP (data): to/at/night win
-        predict("S14", null, "hey", "guys", false);
+        predict("S14", null, "hey", "there", false);
+        predict("S14", null, "hey", "guys", true);            // GAP (data) since en-US 6: there/you/man win; the Reddit sample has "hey man" 41 times against "hey guys" 13 (it was 3rd with en-US 5)
         predict("S15", "thank", "you", "so", false);          // was a GAP with en-US 4 (to/for/very won); fixed by en-US 5
         predict("S15", "see", "you", "later", false);         // was a GAP with en-US 4 (in/again/at won); fixed by en-US 5
         predict("S15", "how", "are", "you", false);
