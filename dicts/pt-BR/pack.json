@@ -7,7 +7,7 @@
     "pt": "Dicionário com 182 mil palavras feito para a escrita do dia a dia (comentários de fóruns, séries e filmes, notícias, frases de exemplo), pares e trios de palavras para prever a próxima e a lista de correções do português.",
     "en": "182k-word dictionary built for everyday writing (forum comments, series and films, news, example sentences), word pairs and triples to predict the next word, and Portuguese correction rules."
   },
-  "version": 8,
+  "version": 9,
   "format": 2,
   "minApp": 1090000,
   "files": ["main.dict", "trigrams.bin", "rules.txt", "NOTICE.txt"],

@@ -1,6 +1,6 @@
 # Mixed-language typing (stage 5): code map, options and how they are measured
 
-Status: investigation. Nothing in the app changes until the options below are measured and one is approved.
+Status: measured (first run below). Option (d), foreign words added to the packs, is done; (a), (b) and (c) are not implemented. The app code is unchanged.
 
 The problem: a person with `pt-BR` active types `deploy`, `feedback` or `pull request` in the middle of a Portuguese sentence. Every
 search runs on the pack of the active language, so the English word has no completion, is "corrected" to a Portuguese word and the
@@ -80,6 +80,38 @@ Actions -> "Mr Keyboard - evaluation (by hand)" -> Run workflow (no inputs). It 
 nothing and has no secrets or write permission. The artifact `mr-eval-reports` has: `run_info.txt`, `single_<lang>.txt` (CorrEval, PrefixEval and SpeedEval of each language on
 `everyday_<lang>.txt`, the one-language baseline of this commit) and `mixed_<pair>.txt` (MixEval). The same text is printed at the end of the job log.
 
-## Results
+## Results of the first run (packs pt-BR 8 and es 6, before option d)
 
-Not run yet.
+Words in E are the foreign words the active pack did not know: 32 in the pt-BR run, 84 in the es run. The pt-BR pack already knew 85 of the 118 English words
+of the sentences (72%), the es pack 30 (25%). Hit rates in percent, pt-BR / es:
+
+| E, foreign words | 3 letters | 5 letters | typo, top 2 | worst drop in the active-language words | p95 ratio, plain text |
+|---|---|---|---|---|---|
+| A only (today) | 0 / 0 | 0 / 0 | 0 / 0 | - | 1.00 |
+| B only (ceiling) | 47 / 37 | 77 / 80 | 91 / 94 | total | - |
+| (a) ask B when A has no answer | 0 / 0 | 18 / 28 | 38 / 45 | none | 1.00 to 1.02 |
+| (b) one slot kept for B | 19 / 23 | 50 / 61 | 82 / 82 | 13 / 15 points (5 letters) | 2.2 to 4.2 |
+| (c) language of the words before | 3 / 0 | 0 / 0 | 2 / 0 | 2.7 / 1.8 points | 1.00 to 1.08 |
+
+Switching language with the current engine costs 52 / 41 microseconds for the rules and 740 / 771 for the trigram file, so what weighs is reopening the trigrams,
+not the rules; (a) has no use for the second language's trigrams. The prediction after the space of a foreign word is 0 in every strategy: the context is
+always of the active language.
+
+## Option (d): the packs learn the foreign words
+
+The packs already hold most of the English words people mix in (the ones that were frequent in the real messages), so the cheapest way to cover the rest is data:
+`docs/tools/loanwords/english_words.txt` lists common English words (software and work, social networks, games, fitness, beauty, food) and
+`python3 -I docs/tools/add_loanwords.py --lang pt-BR --lang es --write` adds to `main.dict` the ones the pack lacks. Rules, all in the script:
+- a word is added only if it is a plain lowercase word of 5 or more letters, is not in the pack (any capitalisation), and is in the English pack of Mr Keyboard;
+- a word one typo away (substitution, missing or extra letter, swap) from a word of the pack with frequency 100 or more is not added (`branch` and `branco`, `sequel` and `sequer`);
+- the frequency is the one in the English pack minus 30, kept between 55 and 80. The words that the real messages made frequent have 84 to 114 in the pack, so an added word ranks first only when no
+  word of the language has the same beginning, and it can still be the correction of a typo that has no native word near it;
+- nothing else changes: the words and pairs that were there are the same bytes of data (the script re-reads the new file and checks every word, frequency and pair), `trigrams.bin` is not touched, and
+  the pack version goes up by one (pt-BR 9, es 7).
+
+Added: 151 words to pt-BR and 152 to es (`docs/tools/loanwords/added_<id>.tsv`). A second run adds nothing, and `test_add_loanwords.py` checks that the shipped packs match the list.
+
+How to measure it: run the manual workflow again. `MixEval` now has two more groups: **N**, the foreign words that the list added (before they were in E with 0% in every column), and **F**, the foreign
+words the pack already knew (not measured in the first run). E shrinks to what is still unknown. The words of the active language (M) and the plain text (P) must stay where they were in the first run:
+that is the check that the added words do not get in the way. The list was written without looking at the test sentences, but the sentences were written by the same hand, so the gain on N is optimistic;
+the check that matters is M and P, and the phone.

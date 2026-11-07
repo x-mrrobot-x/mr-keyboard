@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class MixEval {
     static final int PRED = 0, NEAR = 6, DEL = 7, SWAP = 8, KINDS = 9, COLS = 8;
-    static final int MIN_LEN = 4, MAX_K = 5, PROBES = 40;
+    static final int MIN_LEN = 4, MAX_K = 5, PROBES = 40, GROUPS = 5;
     static final String[] COL_NAMES = {"space", "1 let", "2 let", "3 let", "4 let", "5 let", "typo 1st", "typo top2"};
     static final String PROBE = "qzxwvk";
 
@@ -86,8 +86,8 @@ public class MixEval {
         final String title;
         final Lang act, oth;
         final List<Ev> evs = new ArrayList<Ev>();
-        final int[] words = new int[3];
-        final int[] cover = new int[5];
+        final int[] words = new int[GROUPS];
+        final int[] cover = new int[6];
 
         Run(String title, Lang act, Lang oth) {
             this.title = title;
@@ -97,6 +97,7 @@ public class MixEval {
     }
 
     static Lang cur;
+    static final java.util.Set<String> ADDED = new java.util.HashSet<String>();
     static final List<Long> triNs = new ArrayList<Long>();
     static double[] weights;
     static String[] names;
@@ -253,12 +254,21 @@ public class MixEval {
                     grp = 2;
                 } else if (tk.emb) {
                     run.cover[0]++;
-                    if (vA) run.cover[1]++;
-                    else if (!vB) run.cover[2]++;
-                    else if (want.length() < MIN_LEN) run.cover[3]++;
-                    else run.cover[4]++;
-                    if (vA || !vB || want.length() < MIN_LEN) continue;
-                    grp = 0;
+                    if (want.length() < MIN_LEN) {
+                        run.cover[1]++;
+                        continue;
+                    }
+                    if (vA) {
+                        boolean added = ADDED.contains(want.toLowerCase(Locale.ROOT));
+                        run.cover[added ? 3 : 2]++;
+                        grp = added ? 4 : 3;
+                    } else if (!vB) {
+                        run.cover[4]++;
+                        continue;
+                    } else {
+                        run.cover[5]++;
+                        grp = 0;
+                    }
                 } else {
                     if (want.length() < MIN_LEN) continue;
                     grp = 1;
@@ -392,12 +402,12 @@ public class MixEval {
         return 100.0 * c[0] / Math.max(1, c[1]);
     }
 
-    static void table(String title, long[][][] st, int words) {
+    static void table(String title, long[][][] st, int words, int rows) {
         System.out.printf("%n  %s  (%d words)%n", title, words);
         System.out.printf("  %-34s", "strategy");
         for (String c : COL_NAMES) System.out.printf(" %9s", c);
         System.out.println();
-        for (int s = 0; s < names.length; s++) {
+        for (int s = 0; s < rows; s++) {
             System.out.printf("  %-34s", names[s]);
             for (int c = 0; c < COLS; c++) System.out.printf(" %9.1f", pct(st[s][c]));
             System.out.println();
@@ -469,13 +479,15 @@ public class MixEval {
                 + " for the rules and %.0f us for the trigram file)%n", sw / 1000.0, tri / 1000.0);
         System.out.printf("  %-34s %10s %10s %12s %10s %10s %12s%n", "strategy", "p50 sw", "p95 sw", "p95 ratio sw", "p50 no", "p95 no",
                 "p95 ratio no");
+        List<Ev> used = new ArrayList<Ev>();
+        for (Ev e : run.evs) if (e.grp <= 2) used.add(e);
         double[] base = new double[2];
         for (int s = 0; s < names.length; s++) {
             double[][] p = new double[2][];
             for (int v = 0; v < 2; v++) {
                 Model m = new Model(run.act, run.oth, s == 1 ? run.oth : run.act, v == 0 ? sw : 0, v == 0 ? tri : 0);
-                double[] t = new double[run.evs.size()];
-                for (int i = 0; i < t.length; i++) t[i] = m.cost(s, run.evs.get(i));
+                double[] t = new double[used.size()];
+                for (int i = 0; i < t.length; i++) t[i] = m.cost(s, used.get(i));
                 Arrays.sort(t);
                 p[v] = new double[] {t[t.length / 2] / 1000.0, t[(int) (t.length * 0.95)] / 1000.0};
                 if (s == 0) base[v] = p[v][1];
@@ -487,17 +499,20 @@ public class MixEval {
 
     static void report(Run run, boolean mixed, double sw, double tri) {
         System.out.printf("%n==== %s%n", run.title);
-        long[][][][] st = new long[3][names.length][COLS][2];
+        long[][][][] st = new long[GROUPS][names.length][COLS][2];
         for (Ev e : run.evs) for (int s = 0; s < names.length; s++) tally(st[e.grp], s, e);
         if (mixed) {
             int[] c = run.cover;
-            System.out.printf("  embedded words %d: also valid in %s %d (left out), unknown in %s %d (left out), shorter than %d letters %d,"
-                    + " counted %d%n", c[0], run.act.id, c[1], run.oth.id, c[2], MIN_LEN, c[3], c[4]);
-            table("E: foreign words (unknown in " + run.act.id + ", known in " + run.oth.id + ")", st[0], run.words[0]);
-            table("M: the words of " + run.act.id + " in the same sentences", st[1], run.words[1]);
+            System.out.printf("  embedded words %d: shorter than %d letters %d (left out), unknown in both %d (left out), already in %s %d"
+                    + " (F), added to %s by the loanword list %d (N), still unknown in %s %d (E)%n", c[0], MIN_LEN, c[1], c[4], run.act.id, c[2],
+                    run.act.id, c[3], run.act.id, c[5]);
+            table("E: foreign words still unknown in " + run.act.id + " (known in " + run.oth.id + ")", st[0], run.words[0], names.length);
+            table("N: foreign words added to " + run.act.id + " by the loanword list (0% before: they were unknown)", st[4], run.words[4], 1);
+            table("F: foreign words " + run.act.id + " already knew", st[3], run.words[3], 1);
+            table("M: the words of " + run.act.id + " in the same sentences", st[1], run.words[1], names.length);
             drops(st[1]);
         } else {
-            table("words of " + run.act.id + " typed with " + run.oth.id + " installed", st[2], run.words[2]);
+            table("words of " + run.act.id + " typed with " + run.oth.id + " installed", st[2], run.words[2], names.length);
             drops(st[2]);
         }
         latency(run, sw, tri);
@@ -518,11 +533,18 @@ public class MixEval {
         }
         names[names.length - 1] = "c: language of the words before";
         int warm = Integer.getInteger("warm", 1);
+        String added = System.getProperty("added");
+        if (added != null) {
+            for (String line : Files.readAllLines(new File(added).toPath(), StandardCharsets.UTF_8)) {
+                if (line.trim().length() > 0) ADDED.add(line.split("\t")[0].toLowerCase(Locale.ROOT));
+            }
+        }
         List<List<Tok>> mixed = sentences(a[3]);
         List<List<Tok>> pureA = sentences(a[4]);
         List<List<Tok>> pureB = sentences(a[5]);
-        System.out.printf("MixEval: A = %s (active), B = %s, %d mixed sentences, %d and %d plain ones, weights %s, warm-up rounds %d%n",
-                act.id, oth.id, mixed.size(), pureA.size(), pureB.size(), Arrays.toString(weights), warm);
+        System.out.printf("MixEval: A = %s (active), B = %s, %d mixed sentences, %d and %d plain ones, weights %s, warm-up rounds %d,"
+                + " %d words from the loanword list%n", act.id, oth.id, mixed.size(), pureA.size(), pureB.size(), Arrays.toString(weights), warm,
+                ADDED.size());
 
         for (int i = 0; i < 3; i++) E2ETest.ROWS[i] = act.rows[i];
         double[] sw = measureSwitch(act, oth);

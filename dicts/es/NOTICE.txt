@@ -67,3 +67,12 @@ lists were used only to leave out foreign words quoted in the subtitles. Words m
 the AOSP as possibly offensive do not show up as predictions; the vulgar ones only show up
 when typed in full.
 Tools: docs/tools/corpus/ (prepare_corpus.py, make_pack_data.py) and docs/tools/build_dict.py.
+
+4) Common English words
+A short list of common English words that people type inside sentences of this language (software
+and work vocabulary, social networks, games, fitness, beauty, food). The list was written for
+Mr Keyboard and holds no text from any source: docs/tools/loanwords/english_words.txt. The words that
+this pack lacked were added by docs/tools/add_loanwords.py, with a frequency taken from the English pack
+of Mr Keyboard, lowered and kept in a low band so that they only rank first when no word of the
+language has the same beginning; a word one typo away from a common word of the language was not added.
+The words added are in docs/tools/loanwords/added_es.tsv.

@@ -20,6 +20,8 @@
 #                        neighbour keys, recent words, the update notice: signature, versions, replay, checking windows)
 #   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial; trigrams.bin MRT2 needs minApp 1090000)
 #   test_mrt_format.py   the two layouts of trigrams.bin (MRT1, MRT2): round trips, limits, every kind of damaged file, the converter
+#   test_add_loanwords.py  add_loanwords.py (common English words added to the dictionary of a pack): what is added and what is not, the frequency band,
+#                        nothing else in the dictionary changes, a second run changes nothing, the shipped packs match the list
 #   test_make_update.py  builds the update notice (version, APK size and SHA-256, notes in both languages, every error that must stop a release)
 #   corpus/test_real.py  the real-message evaluation tools (sampler with fake Arctic Shift / Hugging Face servers: retries, 429, timeouts, a failing source;
 #                        cleaner and language filter; the manual workflow mr-corpus-real.yml; the acceptance rule for a candidate pack)
@@ -123,6 +125,9 @@ jobs:
 
       - name: trigrams.bin formats (MRT1 and MRT2 readers and writers, conversion, damaged files)
         run: python3 -I docs/tools/test_mrt_format.py
+
+      - name: Foreign words added to a pack
+        run: python3 -I docs/tools/test_add_loanwords.py
 
       - name: Update notice
         run: python3 -I docs/tools/test_make_update.py

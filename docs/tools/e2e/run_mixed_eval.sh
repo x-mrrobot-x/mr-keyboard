@@ -52,8 +52,8 @@ for L in "pt-BR|pt|qwertyuiop,asdfghjklç,zxcvbnm" "en-US|en|qwertyuiop,asdfghjk
   } > "$OUT/reports/single_$D.txt"
 done
 
-run com.mrkeyboard.app.MixEval pt-BR en-US "$DICTS" $E/data/mixed_pt-BR_en-US.txt $E/data/everyday_pt-BR.txt $E/data/everyday_en-US.txt > "$OUT/reports/mixed_pt-BR_en-US.txt"
-run com.mrkeyboard.app.MixEval es en-US "$DICTS" $E/data/mixed_es_en-US.txt $E/data/everyday_es.txt $E/data/everyday_en-US.txt > "$OUT/reports/mixed_es_en-US.txt"
+run -Dadded=docs/tools/loanwords/added_pt-BR.tsv com.mrkeyboard.app.MixEval pt-BR en-US "$DICTS" $E/data/mixed_pt-BR_en-US.txt $E/data/everyday_pt-BR.txt $E/data/everyday_en-US.txt > "$OUT/reports/mixed_pt-BR_en-US.txt"
+run -Dadded=docs/tools/loanwords/added_es.tsv com.mrkeyboard.app.MixEval es en-US "$DICTS" $E/data/mixed_es_en-US.txt $E/data/everyday_es.txt $E/data/everyday_en-US.txt > "$OUT/reports/mixed_es_en-US.txt"
 
 for f in "$OUT"/reports/*.txt; do
   echo "##### $(basename "$f")"

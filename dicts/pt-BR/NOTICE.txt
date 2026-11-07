@@ -78,3 +78,12 @@ from it is copied), loanwords, proper names, slang and abbreviations. The AOSP E
 German word lists were used only to leave out foreign words quoted in the subtitles.
 Tools: docs/tools/make_wordlist.py (cleaning of the base list), docs/tools/corpus/
 (prepare_corpus.py, make_pack_data.py) and docs/tools/build_dict.py.
+
+4) Common English words
+A short list of common English words that people type inside sentences of this language (software
+and work vocabulary, social networks, games, fitness, beauty, food). The list was written for
+Mr Keyboard and holds no text from any source: docs/tools/loanwords/english_words.txt. The words that
+this pack lacked were added by docs/tools/add_loanwords.py, with a frequency taken from the English pack
+of Mr Keyboard, lowered and kept in a low band so that they only rank first when no word of the
+language has the same beginning; a word one typo away from a common word of the language was not added.
+The words added are in docs/tools/loanwords/added_pt-BR.tsv.

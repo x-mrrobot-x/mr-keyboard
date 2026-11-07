@@ -9,9 +9,9 @@ Pack counts and sizes in the table below are those of 1.90.0 (pt-BR 8, en-US 7, 
 ## Data per language
 | | pt-BR | en-US | es |
 |---|---|---|---|
-| Pack version (`dicts/<id>/pack.json`) | 8 | 7 | 6 |
-| `main.dict` size (limit 4,194,304 in format v1, 16,777,216 in v2; all three packs are v2 since 1.86.1) | 6,257,418 (v2, 37.3% of 16 MB) | 5,836,626 (v2, 34.8% of 16 MB) | 6,378,001 (v2, 38.0% of 16 MB) |
-| Words | 181,948 | 167,446 | 243,286 |
+| Pack version (`dicts/<id>/pack.json`) | 9 | 7 | 7 |
+| `main.dict` size (limit 4,194,304 in format v1, 16,777,216 in v2; all three packs are v2 since 1.86.1) | 6,259,668 (v2, 37.3% of 16 MB) | 5,836,626 (v2, 34.8% of 16 MB) | 6,380,745 (v2, 38.0% of 16 MB) |
+| Words (pt-BR and es include the 151 and 152 common English words of `docs/tools/loanwords/`, pack versions 9 and 7) | 182,099 | 167,446 | 243,438 |
 | Word pairs (bigrams, up to 60 per word) | 750,069 | 698,010 | 714,452 |
 | `trigrams.bin` (MRT2 since 1.90.0; was MRT1): words / contexts | 36,020 / 267,004 (3,556,058 bytes; MRT1 4,699,986) | 27,576 / 276,228 (3,488,504 bytes; MRT1 4,719,992) | 38,349 / 282,781 (3,779,526 bytes; MRT1 4,929,982) |
 | `rules.txt`: corrections (keys are compared without accent: es has 142 distinct) | 230 | 350 | 143 |

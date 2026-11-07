@@ -1,6 +1,6 @@
 # Plan after 1.87.0
 
-Status: version 7, 2026-11-07. 1.87.0 was validated on the device by the owner. **Stage 1 (1.88.0) is built** (see the stage). **Stage 2 (tools) is built and both runs were done on the owner's runner** (the small and the big one, for the three languages: the data for stage 3 is in hand); **Stage 3 (1.89.0) is built: the three packs passed the acceptance rule** (numbers below); **Stage 4 (1.90.0) is built, with the new libs integrated; only the phone numbers are missing**; stages 5 to 7 are not.
+Status: version 7, 2026-11-07. 1.87.0 was validated on the device by the owner. **Stage 1 (1.88.0) is built** (see the stage). **Stage 2 (tools) is built and both runs were done on the owner's runner** (the small and the big one, for the three languages: the data for stage 3 is in hand); **Stage 3 (1.89.0) is built: the three packs passed the acceptance rule** (numbers below); **Stage 4 (1.90.0) is built, with the new libs integrated; only the phone numbers are missing**; **Stage 5 (mixed language) was measured on the owner's runner and option (d) is built: 151 and 152 common English words added to the packs pt-BR 9 and es 7 (data only, no app change); waiting for the second run and the phone**; stages 6 and 7 are not.
 Delete this file when the plan is closed, as `plan-suggestions.md` was; the Git history keeps it.
 
 ## Decided by the owner
@@ -101,7 +101,7 @@ The workspace shell cannot reach these sites; a runner in the owner's private re
 - Left for later: a block layout of MRT2 (5.5 to 6.6% of the file at best), and using the room that was freed (about 0.3 MB per pack) for more trigram contexts, which needs the sweep and the acceptance rule again.
 
 ## Stages 5 to 7: items carried over from `engine-improvements.md`
-- **Mixed language** (pt and en in one sentence, both packs installed): read the code first (`Suggest`, `MrPacks`, `MrPredict`), test with mixed sentences, show the options with their cost; implement only what is approved.
+- **Mixed language** (pt and en in one sentence, both packs installed): read the code first (`Suggest`, `MrPacks`, `MrPredict`), test with mixed sentences, show the options with their cost; implement only what is approved. Measured and option (d) approved and built: `docs/mixed-language.md`.
 - **Finger position**: simulate with `TouchEval` on the PC to see the gain before touching `LatinIME`/`PointerTracker` in smali; implement only if approved.
 - **Forgetting over time**: the database keeps 10 thousand pairs and drops 1,000 at once; with the two "My words" screens in place the missing part is a decay over time. Design first (what decays, how fast, what never decays, how the user sees and undoes it).
 
