@@ -1,6 +1,6 @@
 # Plan after 1.87.0
 
-Status: version 5, 2026-11-06. 1.87.0 was validated on the device by the owner. **Stage 1 (1.88.0) is built** (see the stage). **Stage 2 (tools) is built and the small run was done on the owner's runner** (it worked; the big run with the train volume is still to be done, see the stage); stages 3 to 7 are not.
+Status: version 6, 2026-11-06. 1.87.0 was validated on the device by the owner. **Stage 1 (1.88.0) is built** (see the stage). **Stage 2 (tools) is built and both runs were done on the owner's runner** (the small and the big one, for the three languages: the data for stage 3 is in hand); stages 3 to 7 are not.
 Delete this file when the plan is closed, as `plan-suggestions.md` was; the Git history keeps it.
 
 ## Decided by the owner
@@ -10,7 +10,7 @@ Delete this file when the plan is closed, as `plan-suggestions.md` was; the Git 
 4. Spanish stays one pack for Spain and Latin America.
 5. Size budget: at most 12 MB per language on disk and 7 MB downloaded.
 6. AI formatting: when a text or file is **not** in the standard format, the app **always asks** whether to send it to the AI to be formatted, with the option **not to send**; the answer is not remembered. A file already in the standard format (`# mr-words 1`) is not asked about.
-7. Tatoeba × subtitles: **subtitles are the base and Tatoeba stays at 10%** (decided by the owner; applied in stage 3 after the ablation is repeated for en-US and es).
+7. Tatoeba × subtitles: **Tatoeba stays at 10%** (decided by the owner; applied in stage 3 after the ablation is repeated for en-US and es). The subtitles were the base; after seeing the real messages the owner asked for them to weigh more if they prove better (stage 2, "Direction from the owner"): the mix is chosen in stage 3 by the acceptance rule.
 8. Each stage ends with the prompt of the next one (the prompts are kept outside the repository).
 9. **No other languages are planned** beyond pt-BR, en-US and es.
 
@@ -79,11 +79,13 @@ Runs in parallel with stage 1 because it needs the owner's GitHub runner.
 
 The workspace shell cannot reach these sites; a runner in the owner's private repository downloads them and only counts come back (as with OpenSubtitles). If a source fails the small run, say so before building on it.
 
-**Built (tools only, no app version).** All in `docs/tools/corpus/` (README section 5): `real_sources.json` (the registry per language, source types `reddit` and `hf`), `sample_real.py`, `prepare_real.py`, `mr-corpus-real.yml` (the manual workflow: report only, or report + cleaned files), `accept_pack.py` (the rule, also in `dictionary-tuning.md`), `docs/tools/e2e/run_real_eval.sh` (SubtitleEval on subtitles, news, Tatoeba and real messages), `test_real.py` (102 checks with fake servers; runs in `mr-checks.yml`).
+**Built (tools only, no app version).** All in `docs/tools/corpus/` (README section 5): `real_sources.json` (the registry per language, source types `reddit` and `hf`), `sample_real.py`, `prepare_real.py`, `mr-corpus-real.yml` (the manual workflow: report only, or report + cleaned files), `accept_pack.py` (the rule, also in `dictionary-tuning.md`), `docs/tools/e2e/run_real_eval.sh` (SubtitleEval on subtitles, news, Tatoeba and real messages), `test_real.py` (112 checks with fake servers; runs in `mr-checks.yml`).
 - Sources chosen for the first run: **Reddit** via Arctic Shift for the three languages (train and test in different communities and different half-years) and **tweets** from Hugging Face as an independent test for es (`pysentimiento/spanish-tweets`) and pt-BR (`fpaulino/portuguese-tweets`). Communities of confession, distress, relationships, personal finances and r/teenagers (minors) are left out on purpose; the lists are in `real_sources.json` and need the owner's approval.
 - **Small run (50,000 messages per language, 10 to 17 minutes each) done on the owner's runner.** What it proved: Arctic Shift answers with the date as epoch seconds; the two Hugging Face datasets are served and their text column is found; the three test sets reach 10,000 messages. What it showed and was fixed afterwards: about 15% of the Arctic Shift requests fail with HTTP 422 (the answer is now kept in the log to find the cause); `r/rio` gave nothing (now `riodejaneiro`); the language filter threw out 22 to 29% of correct Spanish (rewritten: now 96 to 100% of known-good text passes); the train sources gave only 0.3 to 0.7 million words, far too little for a pack. Details: `docs/tools/corpus/README.md`, section 5.6.
 - Acceptance rule (fixed before stage 3): gain of at least 0.5 point and 2 standard errors on real messages, each independent test source not worse, losses allowed on the other hold-outs (subtitles 0.5, news 1.5, Tatoeba 1.5), size within 12 MB / 7 MB.
-- Left for the owner: the **big run** (workflow inputs `train_messages` = 300000, `test_messages` = 40000, `deliver` = data; about 2 to 3 hours per language), then send the three artifacts. The reports of that run show how much the new filter keeps and the 422 causes; if they are acceptable, stage 3 starts with that data.
+- **Big run, the three languages** (300,000 train comments and 40,000 test per language, 4.7 to 4.8 hours of sampling each): train 7.8 million words (pt-BR), 7.5 (en-US), 6.7 (es); test 61,481 / 95,532 / 50,826 messages; language purity 98 to 100% (pt-BR, en-US) and 85 to 92% (es); no personal data left. The shipped packs score on real messages: after a space / at 3 letters, pt-BR 9.1 / 52.5 (Reddit) and 9.4 / 51.3 (tweets), en-US 9.4 / 58.6, es 7.1 / 47.9 and 7.2 / 47.1, against 14.1 / 58.9, 14.6 / 68.1 and 11.1 / 53.2 on the subtitles: real messages are the hardest test in all three. What it showed and was fixed afterwards: the 422 is the service's own "Timeout. Maybe slow down a bit" (17 to 23% of the train requests; now a 2-minute pause and the community goes on); a third of the Spanish requests and most of the small Brazilian communities' were lost re-reading the same comments (the sampler now keeps the spans already read); and the three jobs left only 12 to 17 minutes of the 300-minute limit for the cleaning, and a job that hits the limit loses the artifact (now `max_minutes` stops the sampling in time). Details: `docs/tools/corpus/README.md`, section 5.7.
+- **Direction from the owner after seeing the data (2026-11-06): if the real messages prove better, give them more weight than the subtitles, news and Tatoeba.** Stage 3 tests mixes in which the real messages are the largest part and lets the acceptance rule choose the point (gain on real messages and the limits on the other hold-outs); the subtitles stay as the base only if the numbers say so. Limits to keep in view: 6.7 to 7.8 million words fill the frequent words and pairs but not the rare ones (the subtitles, 19 million, and the news cover that tail), and the Reddit sample leans to politics, sports and technology.
+- Nothing is left for the owner in stage 2.
 
 ## Stage 3: 1.89.0, packs with real-message data, inside the budget
 - Rebuild pt-BR, en-US and es with a fourth source (informal messages), the Tatoeba decision above (repeating the ablation for en-US and es first), pruning by gain per byte and the size budget (12 MB disk, 7 MB download; `SpeedEval` p95 not worse than +10%; opening not slower). New data replaces weak entries, it does not pile on top. Today: `main.dict` about 5.9 MB, `trigrams.bin` about 5.2 MB, about 6.4 MB zipped per language.
@@ -106,7 +108,7 @@ Touching `engine/` means raising `ENGINE_VERSION` and `kEngineVersion` together,
 
 ## Order
 1. **Stage 1, 1.88.0** (card + AI). Built; waiting for the device test.
-2. **Stage 2** (tools only). Built; small run done (sources viable); waiting for the big run with `deliver = data` (volume for a pack).
+2. **Stage 2** (tools only). Done: tools built, small and big runs done for the three languages (the data is in hand).
 3. **Stage 3, 1.89.0** (packs), after stage 2.
 4. **Stage 4, 1.90.0** (engine memory and size).
 5. **Stages 5, 6, 7** in this order, each with its approval before code.

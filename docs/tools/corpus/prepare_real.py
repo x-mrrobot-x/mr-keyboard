@@ -352,6 +352,10 @@ def verdict(sid, st, flt):
         flags.append("language purity %.0f%% (< 80%%): a lot of other language or slang outside the dictionary" % purity)
     if pct(st.get("msg_with_link", 0), st.get("raw", 1)) > 40:
         flags.append("more than 40% of the messages have a link")
+    if st.get("time_budget"):
+        flags.append("the sampler stopped at the time budget with %d of the %d messages asked" % (st.get("sampler_kept", 0), st.get("sampler_wanted", 0)))
+    elif st.get("sampler_wanted") and st.get("sampler_kept", 0) < 0.9 * st["sampler_wanted"]:
+        flags.append("the sampler gave %d of the %d messages asked (a community failed or ran out: see the sampler log)" % (st.get("sampler_kept", 0), st["sampler_wanted"]))
     if st.get("requested") and st.get("units_kept", 0) < 0.5 * st["requested"]:
         flags.append("kept %d units for %d messages requested (< 50%%)" % (st.get("units_kept", 0), st["requested"]))
     return flags or ["ok"]
@@ -391,7 +395,13 @@ def main(argv=None):
             continue
         wanted = (slog["sources"].get(src["id"]) or {}).get("wanted", 0)
         units, st = process_source(p, src, models, lang, lc, flt, profanity, wanted)
-        st["sampler"] = (slog["sources"].get(src["id"]) or {}).get("status", "?")
+        sl = slog["sources"].get(src["id"]) or {}
+        st["sampler"] = sl.get("status", "?")
+        if sl.get("wanted"):
+            st["sampler_wanted"], st["sampler_kept"] = sl.get("wanted", 0), sl.get("kept", 0)
+        if sl.get("time_budget_hit"):
+            st["time_budget"] = True
+            st["sampler"] = "%s, time budget" % st["sampler"]
         per_source[src["id"]] = st
         kept[src["id"]] = units
 

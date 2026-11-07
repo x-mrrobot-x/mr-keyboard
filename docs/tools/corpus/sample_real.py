@@ -17,6 +17,7 @@ written and are never stored; the text of the messages stays in <out> and is NOT
 Exit code: 0 when at least one source gave messages, 3 when none did.
 """
 import argparse
+import bisect
 import collections
 import datetime
 import hashlib
@@ -199,7 +200,49 @@ def is_bot(author, text, cfg):
     return any(p in low for p in cfg.get("bot_phrases", []))
 
 
-def sample_reddit(arctic, src, n, rng, cfg, out_path, salt):
+class Coverage:
+    """The time spans (epoch seconds, end excluded) of one community that a page already read, as sorted and merged intervals.
+
+    A page of 100 comments reads only the part of its window next to the edge it was sorted from; asking again for a window whose edge is
+    inside a span already read would return the same comments (the first full run lost a third of its requests that way in r/spain).
+    """
+
+    def __init__(self):
+        self.a = []
+        self.b = []
+
+    def has(self, t):
+        i = bisect.bisect_right(self.a, t) - 1
+        return i >= 0 and t < self.b[i]
+
+    def next_start(self, t):
+        """Start of the first span that begins after t (None if there is none)."""
+        i = bisect.bisect_right(self.a, t)
+        return self.a[i] if i < len(self.a) else None
+
+    def prev_end(self, t):
+        """End of the last span that ends at or before t (None if there is none)."""
+        i = bisect.bisect_right(self.b, t) - 1
+        return self.b[i] if i >= 0 else None
+
+    def add(self, lo, hi):
+        if hi <= lo:
+            return
+        i = bisect.bisect_left(self.b, lo)
+        j = bisect.bisect_right(self.a, hi)
+        if i < j:
+            lo, hi = min(lo, self.a[i]), max(hi, self.b[j - 1])
+        self.a[i:j] = [lo]
+        self.b[i:j] = [hi]
+
+
+def is_overload(e):
+    """A failure that says 'the service is busy' (a timeout, a 5xx, 'slow down'): worth waiting for. A refusal at once of a request (a bad parameter) is not."""
+    m = str(e)
+    return (not e.immediate) or "imeout" in m or "slow down" in m.lower()
+
+
+def sample_reddit(arctic, src, n, rng, cfg, out_path, salt, deadline=None):
     stats = {"type": "reddit", "wanted": n, "kept": 0, "requests": 0, "failures": 0, "dropped_bot": 0, "dropped_deleted": 0, "communities": {}, "notes": [],
              "error_samples": []}
     after, before = parse_day(src["after"]), parse_day(src["before"])
@@ -217,7 +260,7 @@ def sample_reddit(arctic, src, n, rng, cfg, out_path, salt):
     state = {}
     for sub in subs:
         stats["communities"][sub] = {"requests": 0, "rows": 0, "kept": 0, "failures": 0, "stopped": ""}
-        state[sub] = {"win": max(step, min(arctic.cfg.get("window_start_hours", 24) * 3600, span) // step * step), "tried": set()}
+        state[sub] = {"win": max(step, min(arctic.cfg.get("window_start_hours", 24) * 3600, span) // step * step), "cov": Coverage(), "pauses": 0}
     max_win = max(step, min(arctic.cfg.get("window_max_hours", 1440) * 3600, span) // step * step)
 
     def fill(sub, quota, out):
@@ -227,24 +270,46 @@ def sample_reddit(arctic, src, n, rng, cfg, out_path, salt):
         budget = cs["requests"] + max(20, int(math.ceil(float(quota - cs["kept"]) / limit)) * 4)
         consecutive_fail = 0
         while cs["kept"] < quota and cs["requests"] < budget:
+            if deadline is not None and time.monotonic() >= deadline:
+                cs["stopped"] = "time budget"
+                stats["time_budget_hit"] = True
+                return
             win = stt["win"]
+            # a page is the first (asc) or the last (desc) comments of the window: both, at random, so a busy window is not read only from its start
+            sort = rng.choice(("asc", "desc"))
+
+            def edge(st_):      # the moment of the window where the page starts reading
+                return st_ if sort == "asc" else min(st_ + win, before) - 1
             if win >= span:
                 start = after
+                if stt["cov"].has(edge(start)):
+                    cs["stopped"] = "the whole period was read"
+                    return
             else:
                 slots = int((span - win) // step) + 1
                 start = None
                 for _ in range(12):
                     cand = after + rng.randrange(slots) * step
-                    if cand not in stt["tried"]:
+                    if not stt["cov"].has(edge(cand)):
                         start = cand
                         break
                 if start is None:
-                    cs["stopped"] = "no unused window left"
-                    return
-            stt["tried"].add(start)
+                    free = [after + i * step for i in range(slots) if not stt["cov"].has(edge(after + i * step))]
+                    if not free:
+                        cs["stopped"] = "the whole period was read"
+                        return
+                    start = rng.choice(free)
             end = min(start + win, before)
-            # a page is the first (asc) or the last (desc) comments of the window: both, at random, so a busy window is not read only from its start
-            sort = rng.choice(("asc", "desc"))
+            # the window is cut where it would run into a span already read: nothing is asked twice
+            trimmed = False
+            if sort == "asc":
+                nxt = stt["cov"].next_start(start)
+                if nxt is not None and nxt < end:
+                    end, trimmed = nxt, True
+            else:
+                prv = stt["cov"].prev_end(end - 1)
+                if prv is not None and prv > start:
+                    start, trimmed = prv, True
             try:
                 rows = arctic.comments(sub, start, end, limit, sort)
             except FetchError as e:
@@ -257,16 +322,33 @@ def sample_reddit(arctic, src, n, rng, cfg, out_path, salt):
                 if len(stats["error_samples"]) < 12:
                     stats["error_samples"].append({"community": sub, "window_hours": round((end - start) / 3600.0, 1), "limit": min(limit, arctic.cap), "sort": sort,
                                                    "immediate": e.immediate, "error": str(e)})
-                if consecutive_fail >= max_fail:
-                    cs["stopped"] = "%d failures in a row: %s" % (max_fail, e)
-                    return
                 if not e.immediate:
                     stt["win"] = max(win // 2 // step * step, step)       # a slow failure: ask for less time next
+                if consecutive_fail >= max_fail:
+                    if not is_overload(e) or stt["pauses"] >= arctic.cfg.get("max_pauses", 3):
+                        cs["stopped"] = "%d failures in a row%s: %s" % (consecutive_fail, " after %d long pauses" % stt["pauses"] if stt["pauses"] else "", e)
+                        return
+                    # the service is busy ("Timeout. Maybe slow down a bit"): wait a long time and go on, it comes in bursts
+                    stt["pauses"] += 1
+                    stats["long_pauses"] = stats.get("long_pauses", 0) + 1
+                    consecutive_fail = 0
+                    time.sleep(arctic.cfg.get("long_pause_s", 120) * arctic.scale)
+                elif consecutive_fail >= 2 and is_overload(e):
+                    time.sleep(min(arctic.cfg.get("busy_pause_s", 5) * (consecutive_fail - 1), 30) * arctic.scale)
                 continue
+            stt["pauses"] = 0
             consecutive_fail = 0
             cs["requests"] += 1
             stats["requests"] += 1
             cs["rows"] += len(rows)
+            eff = min(limit, arctic.cap)
+            stamps = [int(float(r["created_utc"])) for r in rows if r.get("created_utc") is not None]
+            if len(rows) < eff or not stamps:
+                stt["cov"].add(start, end)                 # the page took everything the window has
+            elif sort == "asc":
+                stt["cov"].add(start, max(stamps) + 1)     # a full page read from the start of the window up to its last comment
+            else:
+                stt["cov"].add(min(stamps), end)
             for r in rows:
                 rid = r.get("id")
                 text = r.get("body") or ""
@@ -286,7 +368,8 @@ def sample_reddit(arctic, src, n, rng, cfg, out_path, salt):
                 if cs["kept"] >= quota:
                     break
             # a window with few comments is made larger; a full page means the window is rich: make it smaller
-            eff = min(limit, arctic.cap)
+            if trimmed:
+                continue                                     # a window cut short says nothing about how rich the community is
             if len(rows) < eff * 0.3:
                 if stt["win"] >= max_win and len(rows) == 0 and stt["win"] >= span:
                     cs["stopped"] = "empty over the whole period"
@@ -302,6 +385,8 @@ def sample_reddit(arctic, src, n, rng, cfg, out_path, salt):
             fill(sub, quota, out)
         # what a small or failing community could not give goes to the ones that reached their quota (up to 3 more rounds)
         for rnd in range(3):
+            if deadline is not None and time.monotonic() >= deadline:
+                break
             remaining = n - stats["kept"]
             active = [sub for sub in subs if stats["communities"][sub]["stopped"] == "quota reached"]
             if remaining <= max(1, int(0.02 * n)) or not active:
@@ -354,7 +439,7 @@ class Hf:
         return sp[0].get("config"), sp[0].get("split")
 
 
-def sample_hf(hf, src, n, rng, out_path, salt):
+def sample_hf(hf, src, n, rng, out_path, salt, deadline=None):
     stats = {"type": "hf", "wanted": n, "kept": 0, "requests": 0, "failures": 0, "communities": {}, "notes": []}
     ds = src["dataset"]
     config, split = src.get("config", "default"), src.get("split", "train")
@@ -382,6 +467,10 @@ def sample_hf(hf, src, n, rng, out_path, salt):
     cons_fail = 0
     with open(out_path, "w", encoding="utf-8") as out:
         for i, off in enumerate(starts[:pages]):
+            if deadline is not None and time.monotonic() >= deadline:
+                stats["notes"].append("stopped by the time budget")
+                stats["time_budget_hit"] = True
+                break
             try:
                 obj = first if off == 0 else hf.rows(ds, config, split, off, length)
             except FetchError as e:
@@ -427,6 +516,7 @@ def main(argv=None):
     ap.add_argument("--arctic-base", default=None)
     ap.add_argument("--hf-base", default=None)
     ap.add_argument("--pace", type=float, default=1.0, help="multiplier of every wait (tests use 0)")
+    ap.add_argument("--max-minutes", type=float, default=0, help="time budget of the whole run (0 = none): the test sources go first, then the train ones with what is left; the sample stops there and what was read is kept")
     a = ap.parse_args(argv)
     with open(a.config, encoding="utf-8") as f:
         cfg = json.load(f)
@@ -434,6 +524,7 @@ def main(argv=None):
     os.makedirs(a.out, exist_ok=True)
     only = [x for x in a.only.split(",") if x]
     sources = [s for s in lang["sources"] if not only or s["id"] in only]
+    sources.sort(key=lambda s: 0 if s.get("role") == "test" else 1)     # the test sources are small: they go first, so a time budget cuts the train ones
     total_w = sum(s.get("weight", 1.0) for s in sources) or 1.0
     role_total = {}
     for part in [x for x in a.role_messages.split(",") if x]:
@@ -446,7 +537,9 @@ def main(argv=None):
         role_w[s_.get("role")] += s_.get("weight", 1.0)
     rng = random.Random(a.seed)
     salt = os.urandom(8).hex()
-    log = {"language": a.lang, "messages_requested": a.messages, "role_messages": role_total, "started": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "sources": {}}
+    t_start = time.monotonic()
+    deadline = t_start + a.max_minutes * 60.0 if a.max_minutes and a.max_minutes > 0 else None
+    log = {"language": a.lang, "messages_requested": a.messages, "role_messages": role_total, "max_minutes": a.max_minutes or None, "started": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "sources": {}}
     arctic = Arctic(cfg["arctic_shift"], a.arctic_base, a.pace)
     hf = Hf(cfg["hf"], a.hf_base, a.pace)
     got_any = False
@@ -459,9 +552,9 @@ def main(argv=None):
         t0 = time.monotonic()
         try:
             if s["type"] == "reddit":
-                st = sample_reddit(arctic, s, n, rng, cfg, path, salt)
+                st = sample_reddit(arctic, s, n, rng, cfg, path, salt, deadline)
             elif s["type"] == "hf":
-                st = sample_hf(hf, s, n, rng, path, salt)
+                st = sample_hf(hf, s, n, rng, path, salt, deadline)
             else:
                 raise FetchError("unknown source type " + str(s["type"]))
             st["status"] = "ok" if st["kept"] > 0 else "EMPTY"
@@ -471,7 +564,10 @@ def main(argv=None):
         st["seconds"] = round(time.monotonic() - t0, 1)
         log["sources"][s["id"]] = st
         got_any = got_any or st["kept"] > 0
-        print("%-18s %-7s wanted %6d  kept %6d  requests %s  %s" % (s["id"], st["status"], n, st["kept"], st.get("requests", "-"), st.get("error", "")), flush=True)
+        if st.get("time_budget_hit"):
+            st.setdefault("notes", []).append("the time budget of %g minutes ended the sampling of this source: kept %d of the %d asked" % (a.max_minutes, st["kept"], n))
+        print("%-18s %-7s wanted %6d  kept %6d  requests %s  %s%s" % (s["id"], st["status"], n, st["kept"], st.get("requests", "-"), st.get("error", ""),
+                                                                 "  STOPPED BY THE TIME BUDGET" if st.get("time_budget_hit") else ""), flush=True)
     log["service_notes"] = {"arctic_shift": arctic.log, "hf": hf.log}
     with open(os.path.join(a.out, "sample_log.json"), "w", encoding="utf-8") as f:
         json.dump(log, f, indent=1, ensure_ascii=False)

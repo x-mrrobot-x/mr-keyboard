@@ -10,7 +10,8 @@
 #
 # First run (deliver = report): 50000 messages per language, about 15 minutes (the free services are slow on purpose: one request every 2 seconds).
 # The report is on the page of the run (Summary) and in the artifact real-<language> (real_report.md, real_report.json, sample_log.json).
-# Big run (deliver = data): fill train_messages and test_messages (for example 300000 and 40000, about 2 to 3 hours per language). The artifact then also has
+# Big run (deliver = data): fill train_messages and test_messages (for example 200000 and 30000, about 2 to 4 hours per language: the sampler stops at
+# max_minutes and keeps what it read, so the job always ends with its files). The artifact then also has
 # chat_real_train/dev/test(.<source>).txt.gz, already cleaned (no user name, link, e-mail or phone). Download it and send it; the text of the
 # messages is never put in the repository. The train part is what a pack can use (millions of words); the test part only measures.
 #
@@ -50,6 +51,9 @@ on:
       seed:
         description: 'Seed of the random choice of the time windows (change it to get another sample)'
         default: '1'
+      max_minutes:
+        description: 'Time budget of the sampling in minutes (the job limit is 300): at the end the sampler stops and what it read is cleaned and delivered'
+        default: '240'
 
 permissions:
   contents: read
@@ -69,8 +73,11 @@ jobs:
           TRAIN_MESSAGES: ${{ inputs.train_messages }}
           TEST_MESSAGES: ${{ inputs.test_messages }}
           SEED: ${{ inputs.seed }}
+          MAX_MINUTES: ${{ inputs.max_minutes }}
         run: |
           set -euo pipefail
+          case "$MAX_MINUTES" in ''|*[!0-9]*) echo "max_minutes must be a number, got '$MAX_MINUTES'"; exit 1;; esac
+          { [ "$MAX_MINUTES" -ge 10 ] && [ "$MAX_MINUTES" -le 255 ]; } || { echo "max_minutes must be between 10 and 255 (the job limit is 300 minutes; the cleaning of 300000 comments took under 16 and a request in progress can run over the budget by up to 12)"; exit 1; }
           case "$MESSAGES" in ''|*[!0-9]*) echo "messages must be a number, got '$MESSAGES'"; exit 1;; esac
           { [ "$MESSAGES" -ge 1000 ] && [ "$MESSAGES" -le 1000000 ]; } || { echo "messages must be between 1000 and 1000000"; exit 1; }
           if [ -n "$TRAIN_MESSAGES$TEST_MESSAGES" ]; then
@@ -105,6 +112,7 @@ jobs:
       TRAIN_MESSAGES: ${{ inputs.train_messages }}
       TEST_MESSAGES: ${{ inputs.test_messages }}
       SEED: ${{ inputs.seed }}
+      MAX_MINUTES: ${{ inputs.max_minutes }}
       DELIVER: ${{ inputs.deliver }}
     steps:
       - name: Scripts and dictionaries of the public repository
@@ -127,7 +135,7 @@ jobs:
           roles=()
           if [ -n "$TRAIN_MESSAGES" ]; then roles=(--role-messages "train=$TRAIN_MESSAGES,test=$TEST_MESSAGES"); fi
           python3 -I mr/docs/tools/corpus/sample_real.py --config mr/docs/tools/corpus/real_sources.json \
-            --lang "$LANG_ID" --messages "$MESSAGES" "${roles[@]}" --seed "$SEED" --out "work/$LANG_ID/raw" 2>&1 | tee "work/sample.log"
+            --lang "$LANG_ID" --messages "$MESSAGES" "${roles[@]}" --seed "$SEED" --max-minutes "$MAX_MINUTES" --out "work/$LANG_ID/raw" 2>&1 | tee "work/sample.log"
 
       - name: Clean, filter, split and write the report
         run: |

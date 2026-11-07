@@ -68,6 +68,9 @@ class State:
         self.refuse_subs = ()        # answered at once with an error
         self.err422_subs = ()        # HTTP 422 with a JSON body that explains it
         self.sparse = {}             # community -> N: a comment only in 1 hour of N (a small community)
+        self.delay = 0.0             # seconds every comment page takes (for the time budget)
+        self.overload_first = {}     # community -> N: the first N requests get "Timeout. Maybe slow down a bit" (HTTP 422, at once)
+        self.overload_subs = ()      # the same, always
         self.hf_total = 1000
         self.hf_fail = False         # every /rows answers 500
         self.hf_config = "default"
@@ -140,6 +143,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if st.every_429 and st.n % st.every_429 == 0:
                 return self.reply(429, {"data": None, "error": "rate limit"}, {"X-RateLimit-Reset": "0"})
             sub = q.get("subreddit", "")
+            if st.delay:
+                time.sleep(st.delay)
+            if sub in st.overload_subs or st.overload_first.get(sub, 0) > 0:
+                if st.overload_first.get(sub, 0) > 0:
+                    st.overload_first[sub] -= 1
+                return self.reply(422, {"data": None, "error": "Timeout. Maybe slow down a bit"})
             if sub in st.err422_subs:
                 return self.reply(422, {"detail": [{"msg": "invalid parameter", "loc": ["query", "limit"]}]})
             if sub in st.refuse_subs:
@@ -360,6 +369,68 @@ def sampler_tests():
     check("sampler: a wrong --role-messages is refused", r.returncode != 0 and "role-messages" in (r.stderr + r.stdout))
     srv.stop()
 
+    # 15. nothing is asked twice: reading a whole period costs about one request per page of new comments
+    srv = Server(fmt="epoch", per_hour=2)
+    out = os.path.join(T, "s15")
+    run_sampler(base_config(), srv, out, only="rd-train", messages=4000000)
+    log = json.load(open(os.path.join(out, "sample_log.json")))
+    rs = log["sources"]["rd-train"]
+    import calendar
+    lo, hi = calendar.timegm((2025, 1, 1, 0, 0, 0)), calendar.timegm((2025, 4, 1, 0, 0, 0))
+    ok_all = True
+    for sub in ("brasil", "farialimabets"):
+        every = make_comments(State(per_hour=2), sub, lo, hi, 10 ** 9)
+        good = [r for r in every if r["body"] != "[deleted]" and r["author"] != "AutoModerator" and "i am a bot" not in r["body"].lower()]
+        cs = rs["communities"][sub]
+        ok_all = ok_all and cs["kept"] == len(good) and cs["stopped"] == "the whole period was read" and cs["rows"] <= 1.05 * len(every) and cs["requests"] <= len(every) // 15 + 40
+    check("sampler: a whole period is read once: every comment, none twice, one request per page", ok_all, rs["communities"])
+    srv.stop()
+
+    # 16. a burst of "Timeout. Maybe slow down a bit": a long pause and the community goes on; a service that is always busy is given up after 3 long pauses
+    srv = Server(fmt="epoch", overload_first={"farialimabets": 8})
+    out = os.path.join(T, "s16")
+    run_sampler(base_config(), srv, out, only="rd-train")
+    log = json.load(open(os.path.join(out, "sample_log.json")))
+    rs = log["sources"]["rd-train"]
+    check("sampler: a burst of 'slow down' answers makes a long pause, the community goes on to its quota", rs["communities"]["farialimabets"]["stopped"] == "quota reached" and rs.get("long_pauses") == 1 and rs["communities"]["farialimabets"]["kept"] >= 99, (rs["communities"]["farialimabets"], rs.get("long_pauses")))
+    srv.stop()
+    srv = Server(fmt="epoch", overload_subs=("farialimabets",))
+    out = os.path.join(T, "s16b")
+    run_sampler(base_config(), srv, out, only="rd-train", messages=4000)
+    log = json.load(open(os.path.join(out, "sample_log.json")))
+    cb = log["sources"]["rd-train"]["communities"]["farialimabets"]
+    check("sampler: a service that is always busy is given up after 3 long pauses (24 failures)", cb["requests"] == 24 and "after 3 long pauses" in cb["stopped"] and log["sources"]["rd-train"]["communities"]["brasil"]["kept"] > 500, (cb, log["sources"]["rd-train"]["communities"]["brasil"]))
+    srv.stop()
+
+    # 17. time budget: the test sources go first, the train source is cut and what it read is kept
+    srv = Server(fmt="epoch", delay=0.05, per_hour=3)
+    out = os.path.join(T, "s17")
+    r = run_sampler(base_config(), srv, out, extra=["--role-messages", "train=20000,test=300", "--max-minutes", "0.1"])
+    log = json.load(open(os.path.join(out, "sample_log.json")))
+    ls = log["sources"]
+    check("sampler: with a time budget the test sources are sampled first", list(ls)[:2] == ["rd-test", "hf-test"] and list(ls)[2] == "rd-train", list(ls))
+    check("sampler: the time budget cuts the train source, keeps what it read and says so", r.returncode == 0 and ls["rd-train"].get("time_budget_hit") and 0 < ls["rd-train"]["kept"] < ls["rd-train"]["wanted"]
+          and any("time budget" in x for x in ls["rd-train"]["notes"]) and not ls["rd-test"].get("time_budget_hit") and not ls["hf-test"].get("time_budget_hit") and log["max_minutes"] == 0.1, (r.stdout[-400:], {k: (v.get("kept"), v.get("wanted"), v.get("time_budget_hit")) for k, v in ls.items()}))
+    srv.stop()
+    srv = Server(fmt="epoch")
+    out = os.path.join(T, "s17b")
+    r = run_sampler(base_config(), srv, out, extra=["--max-minutes", "0.0000001"])
+    log = json.load(open(os.path.join(out, "sample_log.json")))
+    check("sampler: a budget that is over at once gives exit 3 and says so for every source", r.returncode == 3 and all(v.get("time_budget_hit") or v["status"] != "ok" for v in log["sources"].values()), (r.returncode, r.stdout[-300:]))
+    srv.stop()
+
+    # 18. the list of read spans
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("sample_real_mod", SAMPLER)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    cv = mod.Coverage()
+    for a_, b_ in ((100, 200), (300, 400), (150, 320), (500, 600), (600, 650), (10, 20)):
+        cv.add(a_, b_)
+    check("sampler: Coverage merges overlapping and touching spans", cv.a == [10, 100, 500] and cv.b == [20, 400, 650], (cv.a, cv.b))
+    check("sampler: Coverage.has (end excluded) / next_start / prev_end", cv.has(10) and cv.has(19) and not cv.has(20) and cv.has(399) and not cv.has(400) and not cv.has(5)
+          and cv.next_start(20) == 100 and cv.next_start(500) is None and cv.prev_end(100) == 20 and cv.prev_end(5) is None and cv.prev_end(650) == 650)
+
     # 11. a service that takes only YYYY-MM-DD (the documented form): windows are whole days and never asked twice ------------------
     srv = Server(fmt="date")
     out = os.path.join(T, "s11")
@@ -476,6 +547,15 @@ def prepare_tests():
     allt = "\n".join(tr)
     rep = json.load(open(os.path.join(out, "real_report.json")))
     st = rep["sources"]["rd-train"]
+    # the sampler's log says a source was cut by the time budget, or gave less than asked: the report flags it
+    json.dump({"language": "pt-BR", "messages_requested": 400, "sources": {"rd-train": {"status": "ok", "wanted": 200000, "kept": 4000, "time_budget_hit": True, "role": "train"},
+                                                                         "rd-test": {"status": "ok", "wanted": 3000, "kept": 500, "role": "test"},
+                                                                         "hf-test": {"status": "ok", "wanted": 2, "kept": 2, "role": "test"}}}, open(os.path.join(raw, "sample_log.json"), "w"))
+    out_f = os.path.join(T, "p1_out_flags")
+    run_prepare(cfg, raw, out_f, wd)
+    fl = json.load(open(os.path.join(out_f, "real_report.json")))["flags"]
+    check("prepare: the report flags a source cut by the time budget and one that gave less than asked", any("time budget with 4000 of the 200000" in x for x in fl["rd-train"]) and any("gave 500 of the 3000" in x for x in fl["rd-test"]) and not any("sampler" in x for x in fl["hf-test"]), fl)
+    os.remove(os.path.join(raw, "sample_log.json"))
     check("prepare: link, @, phone, e-mail, laughs, emoji and the quote are gone from the text", not any(x in allt for x in ("http", "@", "exemplo", "98765", "joao", "kkkk", "\U0001F602", "\U0001F389", "citação", "fulano", "RT ", "**", "_")), [l for l in tr if re.search(r"http|@|kkkk|_|\*", l)])
     check("prepare: the URL is taken out and the rest stays", "Veja eu acho que ninguém sabe ainda" in tr, tr[:8])
     check("prepare: a comment becomes sentences, the mention goes", "você viu o filme ontem?" in tr and "gostei demais" in tr, tr[:8])
@@ -579,9 +659,9 @@ def workflow_tests():
     # the plan step, as bash does it
     plan = [st for st in d["jobs"]["plan"]["steps"] if st.get("id") == "p"][0]["run"]
 
-    def run_plan(langs="pt-BR,es", messages="50000", seed="1", train="", test=""):
+    def run_plan(langs="pt-BR,es", messages="50000", seed="1", train="", test="", minutes="240"):
         go = os.path.join(T, "gh_output_%d" % len(os.listdir(T)))
-        env = dict(os.environ, LANGS=langs, MESSAGES=messages, SEED=seed, TRAIN_MESSAGES=train, TEST_MESSAGES=test, GITHUB_OUTPUT=go)
+        env = dict(os.environ, LANGS=langs, MESSAGES=messages, SEED=seed, TRAIN_MESSAGES=train, TEST_MESSAGES=test, MAX_MINUTES=minutes, GITHUB_OUTPUT=go)
         r = subprocess.run(["bash", "-c", plan], env=env, capture_output=True, text=True)
         return r, (open(go).read() if os.path.exists(go) else "")
     r, o = run_plan()
@@ -594,15 +674,16 @@ def workflow_tests():
     check("workflow: plan refuses only one of train_messages / test_messages", run_plan(train="300000")[0].returncode != 0 and run_plan(test="40000")[0].returncode != 0)
     check("workflow: plan refuses train_messages / test_messages that are not numbers or are out of range",
           all(run_plan(train=a, test=b)[0].returncode != 0 for a, b in (("abc", "40000"), ("300000", "4; rm -rf /"), ("999", "40000"), ("300000", "1000001"))))
+    check("workflow: plan refuses a time budget that is not a number or is out of range", all(run_plan(minutes=m)[0].returncode != 0 for m in ("", "abc", "9", "256", "5; ls")) and run_plan(minutes="255")[0].returncode == 0)
     # the sampler step: it passes --role-messages only when asked (a fake sampler writes its arguments)
     samp = [st for st in d["jobs"]["real"]["steps"] if st.get("id") == "sample"][0]["run"]
     for train, test in (("", ""), ("300000", "40000")):
         w = os.path.join(T, "wf_samp_%s" % (train or "none"))
         os.makedirs(os.path.join(w, "mr", "docs", "tools", "corpus"))
         open(os.path.join(w, "mr", "docs", "tools", "corpus", "sample_real.py"), "w").write("import sys, json\nopen('args.json', 'w').write(json.dumps(sys.argv[1:]))\n")
-        r = subprocess.run(["bash", "-c", samp], cwd=w, env=dict(os.environ, LANG_ID="es", MESSAGES="50000", TRAIN_MESSAGES=train, TEST_MESSAGES=test, SEED="3"), capture_output=True, text=True)
+        r = subprocess.run(["bash", "-c", samp], cwd=w, env=dict(os.environ, LANG_ID="es", MESSAGES="50000", TRAIN_MESSAGES=train, TEST_MESSAGES=test, SEED="3", MAX_MINUTES="200"), capture_output=True, text=True)
         args = json.load(open(os.path.join(w, "args.json"))) if os.path.exists(os.path.join(w, "args.json")) else []
-        ok = r.returncode == 0 and args[args.index("--messages") + 1] == "50000" and args[args.index("--seed") + 1] == "3" and args[args.index("--lang") + 1] == "es"
+        ok = r.returncode == 0 and args[args.index("--messages") + 1] == "50000" and args[args.index("--seed") + 1] == "3" and args[args.index("--lang") + 1] == "es" and args[args.index("--max-minutes") + 1] == "200"
         if train:
             ok = ok and args[args.index("--role-messages") + 1] == "train=300000,test=40000"
         else:
