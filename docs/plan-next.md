@@ -109,7 +109,7 @@ The workspace shell cannot reach these sites; a runner in the owner's private re
 1. **Stage 1, 1.88.0** (card + AI). Built; waiting for the device test.
 2. **Stage 2** (tools only). Done: tools built, small and big runs done for the three languages (the data is in hand).
 3. **Stage 3, 1.89.0** (packs). Built; waiting for the device test.
-4. **Stage 4, 1.90.0** (engine memory and size). Built; waiting for the new libs and the phone numbers.
+4. **Stage 4, 1.90.0** (engine memory and size). Built, with the new libs integrated; waiting for the phone numbers.
 5. **Stages 5, 6, 7** in this order, each with its approval before code.
 
 Sources: [Spanish tweets (Hugging Face)](https://huggingface.co/datasets/pysentimiento/spanish-tweets), [Portuguese tweets (Hugging Face)](https://huggingface.co/datasets/fpaulino/portuguese-tweets), [Pushshift Telegram dataset](https://zenodo.org/records/3607497), [Arctic Shift](https://github.com/ArthurHeitmann/arctic_shift), [OpenAssistant oasst1](https://huggingface.co/datasets/OpenAssistant/oasst1), [FineWeb-2](https://huggingface.co/datasets/HuggingFaceFW/fineweb-2).

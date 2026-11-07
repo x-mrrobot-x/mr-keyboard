@@ -36,6 +36,12 @@ same `dictionary.cpp`. Only `LatinIME` (which needs Android) is left out. It exi
 - `SpeedEval` (by hand, run it alone on the machine): the time of every keystroke of typed sentences, by kind (after a space, 1 letter, 2-4, 5 or more,
   a word that is not in the dictionary, a valid word): `java ... SpeedEval <lang> dicts <top_sentences.csv>` with `-Dsentences=1500 -Drounds=3`. To compare two versions put the classes of one in front of the classpath (`-cp old_classes:...`) and run both
   in the same session; differences under 10% are noise. To compare dictionary formats pass the folder of the v2 copies instead of `dicts` (same classes and libs). Numbers of 1.83 → 1.84, 1.84 → 1.85 and v1 → v2 are in "Speed" of `docs/suggestion-features.md`.
+- `MixEval` (stage 5, `docs/mixed-language.md`): typing in a second language in the middle of a sentence of the first. It types the sentences of
+  `data/mixed_pt-BR_en-US.txt` and `data/mixed_es_en-US.txt` (the other language's words between braces) and the plain `everyday_<lang>.txt` ones,
+  and compares today's behaviour with three ways of using the second pack, on the foreign words, on the active-language words and on plain text of each language
+  (the guard that a strategy must not lower). It also prints the time per keystroke modeled from measured query times, with and without the cost of switching language.
+  `bash docs/tools/e2e/run_mixed_eval.sh [app_jar.jar]` runs it together with `CorrEval`, `PrefixEval` and `SpeedEval` on `everyday_<lang>.txt` (the one-language baseline), and
+  writes the reports to `$OUT/reports` (default `/tmp/mr_mixed`). The workflow `mr-eval.yml` (by hand, no secrets, nothing published) builds the jar like the `assemble` job, runs the script and uploads the reports.
 - `AltEval` (by hand): false positives and hits of the suggestion for a valid but probably wrong word (`MrFuzzy.alternative`, strategy S27), over the
   valid words of the subtitle sentences; it was used to choose `ALT_GAP`, `ALT_TYPED_MAX` and the other `ALT_*` constants.
 
