@@ -1,5 +1,5 @@
 # Mr Keyboard: samples REAL informal messages (Reddit comments, tweets) on a GitHub runner, cleans them, and returns a REPORT (counts) and,
-# only if you ask for it, the cleaned train / dev / test files. Stage 2 of docs/plan-next.md; how to read the report: docs/tools/corpus/README.md, section 5.
+# only if you ask for it, the cleaned train / dev / test files. Stage 2 of the plan after 1.87.0, now deleted (the Git history keeps it); how to read the report: docs/tools/corpus/README.md, section 5.
 #
 # NOT part of the project's own workflows (that is why it lives in docs/tools/corpus/ and not in .github/workflows/): copy this file to
 # .github/workflows/ of the PRIVATE repository where you run workflows by hand (the same one as mr-corpus-samples.yml), then

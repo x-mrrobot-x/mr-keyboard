@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Checks the version: apktool.yml and apktool.json agree, versionCode matches versionName, and the version notes exist.
+"""Checks the version: apktool.yml and apktool.json agree, versionCode matches versionName, the APK name (apkFileName) in both
+files carries the same version, and the version notes exist.
 It also warns (without failing) when a plan for this release is still in docs/.
 
 Run at the project root. versionCode = major*1000000 + minor*1000 + patch (v1.72.0 -> 1072000).
@@ -19,6 +20,17 @@ code = int(re.search(r"versionCode:\s*['\"]?(\d+)", yml).group(1))
 info = json.load(open('apktool.json', encoding='utf-8'))['VersionInfo']
 if info['versionName'].lstrip('v') != name or int(info['versionCode']) != code:
     problems.append('apktool.yml (v%s, %d) and apktool.json (%s, %s) do not match' % (name, code, info['versionName'], info['versionCode']))
+# apkFileName ("Mr Keyboard_v1.91.0.apk") is the name apktool gives the APK it builds: it must not stay on an older release.
+# Only compared when the name has a version in it (a name with no version has nothing to compare).
+yml_apk = re.search(r"apkFileName:\s*(.+)", yml)
+apk_names = [
+    ('apktool.yml', yml_apk.group(1).strip().strip('\'"') if yml_apk else ''),
+    ('apktool.json', json.load(open('apktool.json', encoding='utf-8')).get('apkFileName', '')),
+]
+for fn, apk in apk_names:
+    found = re.search(r'v?(\d+\.\d+\.\d+)', apk)
+    if found and found.group(1) != name:
+        problems.append('apkFileName in %s is "%s" but versionName is v%s' % (fn, apk, name))
 parts = name.split('.')
 if len(parts) != 3:
     problems.append('versionName v%s does not have the major.minor.patch format' % name)

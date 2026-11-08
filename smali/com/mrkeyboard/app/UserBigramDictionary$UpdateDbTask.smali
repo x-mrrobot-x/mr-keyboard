@@ -91,7 +91,7 @@
 
     const/4 v7, 0x0
 
-    const/4 v8, 0x0
+    const-string v8, "freq ASC, _id ASC"
 
     move-object v1, p1
 

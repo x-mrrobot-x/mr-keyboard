@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cleans, filters and splits the REAL messages sampled by sample_real.py (stage 2 of docs/plan-next.md) and writes the report.
+"""Cleans, filters and splits the REAL messages sampled by sample_real.py (stage 2 of the plan after 1.87.0, now deleted; the Git history keeps it) and writes the report.
 
 Usage:
   python3 -I prepare_real.py --config real_sources.json --lang pt-BR --raw work/pt-BR/raw --out work/pt-BR/real [--root <project root>]

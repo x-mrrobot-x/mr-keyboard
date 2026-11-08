@@ -1,6 +1,6 @@
 # Suggestion engine and dictionaries: remaining improvements
 
-Updated after 1.87.0. The plan of 1.84.0 to 1.87.0 (context while typing, new everyday data, format v2, the two "My words" screens, the closing) is finished and was deleted; what it delivered is in `suggestion-features.md` and `dictionary-tuning.md`. The numbers come from the PC measurements (`docs/tools/e2e/`, see the `README.md` there) and from the notes of each version (`docs/release-notes/` and the Git history).
+Updated after 1.91.0. The plan of 1.84.0 to 1.87.0 (context while typing, new everyday data, format v2, the two "My words" screens, the closing) and the plan after 1.87.0 (language card and AI formatting, real messages, packs with real data, engine memory, mixed language, finger position, forgetting) are finished and were deleted; what they delivered is in `suggestion-features.md`, `dictionary-tuning.md`, `mixed-language.md`, `finger-position.md` and `native-engine.md`, and the Git history keeps the plans. The numbers come from the PC measurements (`docs/tools/e2e/`, see the `README.md` there) and from the notes of each version (`docs/release-notes/` and the Git history). The device tests of 1.88.0 to 1.91.0 were done by the owner on 2026-11-08.
 
 ## Already done
 | Item | What it was | Version |
@@ -14,38 +14,37 @@ Updated after 1.87.0. The plan of 1.84.0 to 1.87.0 (context while typing, new ev
 | 2 | Smoothing of the prediction: trigram, pair and unigram evaluated on the hold-out sentences; the fixed `TRIGRAM_BONUS` is already the best of the variants (a mix of probabilities loses 0.8 to 2.4 points after the space) | phase 5 of the plan, no code change (numbers in `suggestion-features.md`, "Known gaps") |
 | 9a | Native engine, stage 1: the correction search and the trigrams in C++ (`libmrengine.so`, repository `mr-engine`), same files, result identical to Java's, with Java as the fallback (the Java copy was removed in 1.87.0, see 9c) | 1.77 (code) and 1.77.1 (lib in the APK); gains measured on the PC, operation validated on the device (speed and memory on the device were not measured) |
 | 9c | The Java copy of the correction search and of the trigram reader was removed from the app and from the tests (decided with the owner): the lib is the only engine, loaded when the keyboard opens a dictionary; a device whose lib does not load keeps typing and completing words but has no correction by search and no two-word prediction | 1.87.0 (`native-engine.md`) |
+| 6 | Finger position: simulated with `TouchEval`; the distance gains at most 0.1 to 0.7 points, so the app was left as it is (`finger-position.md`) | closed after 1.87.0, no code change |
+| 7 (part) | Cleanup of the learned pairs: when the 10,000 are full it deletes the 1,000 least used (ties: the oldest) instead of the 1,000 oldest | 1.91.0 |
+| 10 | Data closer to phone conversation: a fourth source (Reddit comments, counts only) in the mix 40 / 15 / 15 / 25, chosen by the acceptance rule (`dictionary-tuning.md`); the language card and AI formatting in "Add words and texts" came in 1.88.0 | 1.89.0 (packs pt-BR 7, en-US 6, es 5) |
+| 9b | Dictionary format: v2 in 1.86.0; `trigrams.bin` as MRT2 (mapped, 16-bit ids, offset tables in the file) and the "Dictionary memory" line in 1.90.0 | 1.86.0 and 1.90.0 |
+| - | Mixed language: option (d), 151 and 152 common English words added to the pt-BR and es packs (`mixed-language.md`) | 1.91.0 (packs pt-BR 9, es 7) |
 
-## What remains, from the cheapest to the most expensive
+## What is not built (on purpose or for later)
+**Forgetting over time (7).**
+- Not approved by the owner, so not built. The database keeps 10 thousand learned pairs and, since 1.91.0, drops the 1,000 least used when it fills up. The screens to see and delete learned words exist since 1.85 ("What the keyboard learned").
+- What the decay would need: a last-use date, which neither learned database keeps; the way would be a new table in `mr_words.db` (no `ALTER TABLE`), counting days of use of the keyboard, not calendar days. Learned words (`auto_dict.db`) are never removed by the keyboard. Design first (what decays, how fast, what never decays, how the user sees and undoes it).
 
-### Small, measurable on the PC
-**4. Slang and abbreviations in `rules.txt`.**
-- Done in 1.84 for what the dictionaries already know (see "Already done"). The frequency of the chat words (`tá`, `tô`, `né`, `oi`) was fixed by the new pt-BR 6 pack (1.86.1). What is left needs data: words the dictionary lacks (en `tiktok`, pt `pix`).
+**Mixed language.** Options (a), (b) and (c) of `mixed-language.md` are not implemented; the app code is unchanged. The list of common English words stays at 151 and 152, since the keyboard is for many people.
 
-### Medium
-**6. Finger position.**
-- The app only receives the order of the neighbouring keys, not the distance (limit noted in 1.66).
-- It can be simulated on the PC first (`TouchEval`), but it requires changing `LatinIME` and `PointerTracker`, in smali.
+**Slang and abbreviations in `rules.txt` (4).** Done in 1.84 for what the dictionaries knew. What was left needed data (en `tiktok`, pt `pix`); not rechecked after the real-message data of 1.89.0.
 
-**7. Forgetting over time and managing what was learned.**
-- Today the database keeps 10 thousand pairs and deletes 1,000 at once when it fills up.
-- It would require changing the database and, perhaps, a screen to see and delete learned words.
+**Engine and packs.**
+- A block layout of MRT2 (5.5 to 6.6% of the file at best).
+- Using the room freed by MRT2 (about 0.3 MB per pack) for more trigram contexts: needs the sweep and the acceptance rule again.
+- More real data of other kinds (the Reddit sample leans to politics, sports and technology, and the gain on SMS-style typing is not measured). If a new real source is found, repeat the sweep before changing the mix.
+- The 8 to 14 ms of tables and rules handed to the engine at start (not the trigram indexes, which are about 0.5 ms): the owner decides, from the phone numbers, whether they deserve work of their own.
+- Storing more data per word in the dictionary (format v2 allows it; only worth it with new data).
 
-### Large
-**9b. Native engine, stage 2: new dictionary format.**
-- Stage 1 (1.77) already took the trigrams out of the Java heap (7 to 9 MB → ~0 on the heap; 3 to 4.4 MB outside it) and moved the correction search to C++, **without changing the files**.
-- What was missing is what only a new format solves: removing the 4 MB limit (22 address bits) of the `.dict` and storing more data per word. **Done in 1.86.0** (format v2, up to 16 MB, see `dictionary-build.md`); storing more data per word is still open.
-- It only pays off for new data (for example, Leipzig News 2023): more pairs alone yield little (480 thousand instead of 400 thousand gave only +0.2 to +0.4 point, in 1.6.4). It would require regenerating the three packs and changing the app and the engine together.
-
-**10. Data closer to phone conversation.**
-- The dictionaries come from news and Tatoeba.
-- The limit is finding a freely licensed chat corpus.
+## Decisions kept from the plan after 1.87.0
+- **No personal data.** The app is for other people and other languages: the test set of real messages comes from public sources and the recipe is generic per language; the owner's own chats are not used.
+- Spanish stays one pack for Spain and Latin America. No other languages are planned beyond pt-BR, en-US and es.
+- Size budget per pack: at most 12 MB on disk and 7 MB downloaded.
+- AI formatting in "Add words and texts": when a text or file is not in the standard format (`# mr-words 1`) the app always asks whether to send it to the AI, with the option not to send; the answer is not remembered. A file already in the standard format is not asked about.
+- The mix of the packs is chosen by the acceptance rule (`dictionary-tuning.md`), not by hand; real messages weigh more than the other sources only as far as the rule allows. Tatoeba was cut from 25% to 15% in the final mix.
 
 ## Gaps that the measurements showed
 - **A wrong word that is another valid word** is not corrected (since 1.84 the frequent neighbour is offered in the 3rd slot when the typed word is rare, never replaced: `cassa` → casa). Missing middle letter: 3%; missing 1st letter: 8 to 22% (depending on the language).
 - **A 3-letter error that still starts another word** ("coo", "dis") is left uncorrected. Running the search in that case corrected more, but worsened normal typing by 2.8 to 4.8 points; it was discarded in 1.75.
 - **Some missing letters** end up in the 3rd or 4th position ("tods" → todas).
-- **Mixed language** (Portuguese and English in the same sentence, with both dictionaries downloaded): I have not yet checked in the code how the keyboard behaves.
-
-## Suggested order
-1. **Finger position (6)** and **forgetting over time (7)**, if the test on the device shows a need (7 is in phase 2 of the plan: "What the keyboard learned").
-2. **New dictionary format (9b)** and **chat data (10)**: phases 3 and 4 of the plan.
+- **Mixed language** (Portuguese and English in the same sentence, with both dictionaries downloaded): the keyboard uses only the pack of the active language; read from the code and measured in `mixed-language.md`. Option (d) covers the common English words; the rest is not built.

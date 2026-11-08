@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The acceptance rule for a candidate dictionary pack (stage 2 of docs/plan-next.md; the reasons are in docs/dictionary-tuning.md, "Acceptance rule").
+"""The acceptance rule for a candidate dictionary pack (stage 2 of the plan after 1.87.0, now deleted; the Git history keeps it; the reasons are in docs/dictionary-tuning.md, "Acceptance rule").
 
 Usage:
   python3 -I accept_pack.py --lang pt-BR --old results/old --new results/new [--pack-dir work/pt-BR/new_dicts/pt-BR] [--zip pack.zip] [--json out.json]

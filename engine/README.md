@@ -67,4 +67,4 @@ workflow compares the hashes with the current code and does not publish if `lib/
 | Corrupt dictionary/trigrams | cut off, swapped bytes, garbage, with ASan + UBSan: no crash, no read outside the file, no freeze | `mr_test`, in CI |
 | Bad arguments in the JNI | non-direct buffer, short arrays, nonexistent file | `JniSmoke`, in CI |
 
-Validated on a device (1.77): lib loading, correction and prediction. Speed and memory on the device were not measured.
+Validated on a device (1.77): lib loading, correction and prediction. Since 1.90.0 the "Dictionary memory" line shows memory and opening time on the device; the owner read it on 2026-11-08 (the numbers were not recorded in the repository).

@@ -5,7 +5,7 @@
 # Each step is a script in docs/tools/ that also runs on your computer (see the comment in the script).
 #
 # quick    (seconds, Python and Java only):
-#   check_version.py     apktool.yml/json version is coherent and the version notes exist in docs/release-notes/
+#   check_version.py     apktool.yml/json version (and the APK name in them) is coherent and the version notes exist in docs/release-notes/
 #                        (also warns when a docs/plan-*.md whose target version was reached is still there)
 #   check_workflows.py   workflows: actions pinned by commit, minimal permissions, mr-apk.yml publishes only after these checks
 #   check_catalog_url.py the app reads the dictionary catalog from the latest release (next to the APK)
@@ -22,6 +22,8 @@
 #   test_mrt_format.py   the two layouts of trigrams.bin (MRT1, MRT2): round trips, limits, every kind of damaged file, the converter
 #   test_add_loanwords.py  add_loanwords.py (common English words added to the dictionary of a pack): what is added and what is not, the frequency band,
 #                        nothing else in the dictionary changes, a second run changes nothing, the shipped packs match the list
+#   test_prune_order.py  the cleanup of the learned pairs (UserBigramDictionary): reads the two tables, the caps and the ORDER BY out of the smali and runs the cleanup in SQLite:
+#                        the most used pairs survive, the least used go first, the old query is told apart
 #   test_make_update.py  builds the update notice (version, APK size and SHA-256, notes in both languages, every error that must stop a release)
 #   corpus/test_real.py  the real-message evaluation tools (sampler with fake Arctic Shift / Hugging Face servers: retries, 429, timeouts, a failing source;
 #                        cleaner and language filter; the manual workflow mr-corpus-real.yml; the acceptance rule for a candidate pack)
@@ -128,6 +130,9 @@ jobs:
 
       - name: Foreign words added to a pack
         run: python3 -I docs/tools/test_add_loanwords.py
+
+      - name: Cleanup of the learned pairs
+        run: python3 -I docs/tools/test_prune_order.py
 
       - name: Update notice
         run: python3 -I docs/tools/test_make_update.py

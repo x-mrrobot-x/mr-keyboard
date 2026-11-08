@@ -104,7 +104,7 @@ The typing checks agree. `CorrEval` (synthetic typos, first place / among the fi
 
 ## Which source to cut: Tatoeba or the subtitles (pt-BR ablation, after 1.87.0)
 
-Why it was run: the "chat" source of the mix is Tatoeba, which is translated example sentences, not messages typed on a phone (the plan in `plan-next.md` explains). Same pipeline as pt-BR 6 (`exp_pt.sh`, `--min-ctx 6 --min-tri 2`, same splits, the same dictionary of 5,905,022 bytes in every row), only `--mix` changes. Numbers are the hit among the 3 suggestions after the space / with 1 / 2 / 3 letters, in % (weighted, as above).
+Why it was run: the "chat" source of the mix is Tatoeba, which is translated example sentences, not messages typed on a phone (translated example sentences, as the section "Which source to cut" says). Same pipeline as pt-BR 6 (`exp_pt.sh`, `--min-ctx 6 --min-tri 2`, same splits, the same dictionary of 5,905,022 bytes in every row), only `--mix` changes. Numbers are the hit among the 3 suggestions after the space / with 1 / 2 / 3 letters, in % (weighted, as above).
 
 | Mix (subtitles / Tatoeba / news) | subtitles hold-out | news hold-out | Tatoeba hold-out | `trigrams.bin` |
 |---|---|---|---|---|
@@ -115,7 +115,7 @@ Why it was run: the "chat" source of the mix is Tatoeba, which is translated exa
 
 Reading: taking the subtitles out costs 1.7 to 2.2 points on the subtitles and 0.3 to 0.5 on the news and gives back only 0.7 to 1.4 on Tatoeba. Taking Tatoeba out gives 0.3 to 0.6 points on the subtitles, is neutral on the news and costs 2.8 to 3.7 points on Tatoeba itself. The hold-out of Tatoeba is the artificial register, so that loss says little about typing; **none of the four hold-outs is real messages**, which is why the decision is confirmed (or reversed) in the plan's stage 3 with a hold-out of informal text. Only pt-BR was run (about 12 minutes per row); en-US and es are repeated with the same script before their packs change.
 
-## Acceptance rule for a new pack (stage 2 of `plan-next.md`; applied from stage 3)
+## Acceptance rule for a new pack (set in stage 2 of the plan after 1.87.0, applied in 1.89.0; that plan was finished and deleted, the Git history keeps it)
 
 Why a rule: until now a pack was accepted by reading three hold-outs (subtitles, Tatoeba, news) and none of them is text typed by people. From stage 2 there is a fourth test, **real messages**
 (`chat_real_test.txt`: Reddit comments and tweets of communities, a period or a medium that the training data never had; `docs/tools/corpus/README.md`, section 5), and a fixed rule that is
@@ -300,7 +300,7 @@ VERDICT: ACCEPT
 
 The p95 is within -3.4% to +0.1% (the gate was not worse than +10%), the largest per-language change is +2% (en-US, 5 or more letters; the same cell in pt-BR and es is -0% and -2%). Opening a pack on the PC (read `main.dict`, parse `rules.txt`,
 open `trigrams.bin`, build the engine, first query; median of 9 openings, run twice per pack): pt-BR 13.4 / 13.0 → 14.1 / 11.0 ms, es 11.1 / 12.3 → 13.1 / 12.8 ms, en-US 11.5 / 14.0 → 10.6 / 12.4 ms. The reading noise of this PC is about
-15%, so the change is not distinguishable from zero: `main.dict` is 3 to 6% larger (more pairs) and `trigrams.bin` 9 to 11% smaller. On a phone it is not measured (stage 4 adds that line to the settings).
+15%, so the change is not distinguishable from zero: `main.dict` is 3 to 6% larger (more pairs) and `trigrams.bin` 9 to 11% smaller. On a phone, the owner validated the packs of 1.89.0 and read the "Dictionary memory" line of 1.90.0 on 2026-11-08 (the numbers were not recorded in the repository).
 
 
 **The project checks with the new packs.** `run_strategy_tests.sh` (3 languages, dictionaries from `dicts/`): 0 failures. One case moved: `hey _ -> guys` (S14, en-US) was third with en-US 5 and is fourth now (there / you / man), because the real sample has
@@ -310,7 +310,7 @@ en-US 18.3 / 38.8 / 54.5 / 76.1 → 17.2 / 37.0 / 53.7 / 74.5, es 19.6 / 39.2 / 
 written-style guards, Tatoeba and subtitles, are: -0.8 and +0.0 to -0.1), pt-BR is up after the space, and all values are above the floors. A floor is never lowered and there was no improvement to raise one.
 
 What these numbers do not say: the real messages are Reddit comments (and tweets only as a test), so the gain on SMS-style typing, on voice-to-text and on subjects outside politics, sports and technology is not measured; the evaluation uses words of 4+ letters, so
-the rate right after the space is the one a person feels most and it improved by only +0.9 to +1.4; and nothing here was measured on a phone. The next lever is more real data of other kinds (the training sample is 6.7 to 7.8 million words per language, against 19 million of the subtitles).
+the rate right after the space is the one a person feels most and it improved by only +0.9 to +1.4; and every number here comes from the PC (the owner validated the packs on a phone on 2026-11-08, without recording numbers). The next lever is more real data of other kinds (the training sample is 6.7 to 7.8 million words per language, against 19 million of the subtitles).
 
 ## Stage 4 (1.90.0): the trigram file in the MRT2 layout (size, memory, opening)
 Only the layout of `trigrams.bin` changed (pt-BR 8, en-US 7, es 6): the contexts, continuations, scores and word ids are exactly those of 1.89.0, so the suggestions are the same and the acceptance rule was not run again (it measures content; a test that reads every context in both layouts proves the content did not move). Layouts and the reasons for the design: `suggestion-features.md`, "trigrams.bin layouts".

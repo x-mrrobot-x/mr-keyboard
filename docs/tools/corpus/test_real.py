@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests sample_real.py and prepare_real.py of the real-message evaluation (stage 2 of docs/plan-next.md) without any network.
+"""Tests sample_real.py and prepare_real.py of the real-message evaluation (stage 2 of the plan after 1.87.0, now deleted; the Git history keeps it) without any network.
 
 Run it from the project root:  python3 -I docs/tools/corpus/test_real.py
 

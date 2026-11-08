@@ -1,5 +1,5 @@
 #!/bin/bash
-# The tests of the real-message evaluation (stage 2 of docs/plan-next.md) for ONE dictionary folder: SubtitleEval on
+# The tests of the real-message evaluation (stage 2 of the plan after 1.87.0, now deleted; the Git history keeps it) for ONE dictionary folder: SubtitleEval on
 #   subs     subtitles hold-out      <tests>/subs_test.txt         (prepare_corpus.py: md5 % 20, distinct sentences)
 #   news     news hold-out           <tests>/news_test.txt
 #   tatoeba  Tatoeba hold-out        <tests>/chat_test.txt

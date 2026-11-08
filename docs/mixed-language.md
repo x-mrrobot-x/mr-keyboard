@@ -1,6 +1,6 @@
 # Mixed-language typing (stage 5): code map, options and how they are measured
 
-Status: closed. Option (d), foreign words added to the packs, is done and measured twice; (a), (b) and (c) are not implemented and the app code is unchanged. The list stays at 151 and 152 words: the keyboard is for many people, so it is not grown with the vocabulary of one.
+Status: closed (the phone test was done by the owner on 2026-11-08). Option (d), foreign words added to the packs, is done and measured twice; (a), (b) and (c) are not implemented and the app code is unchanged. The list stays at 151 and 152 words: the keyboard is for many people, so it is not grown with the vocabulary of one.
 
 The problem: a person with `pt-BR` active types `deploy`, `feedback` or `pull request` in the middle of a Portuguese sentence. Every
 search runs on the pack of the active language, so the English word has no completion, is "corrected" to a Portuguese word and the

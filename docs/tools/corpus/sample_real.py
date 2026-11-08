@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Downloads a sample of REAL informal messages for one language (stage 2 of docs/plan-next.md).
+"""Downloads a sample of REAL informal messages for one language (stage 2 of the plan after 1.87.0, now deleted; the Git history keeps it).
 
 Usage:
   python3 -I sample_real.py --config real_sources.json --lang pt-BR --messages 50000 --out work/pt-BR/raw [--seed 1] [--only id,id]
