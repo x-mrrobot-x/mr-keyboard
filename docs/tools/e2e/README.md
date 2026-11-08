@@ -42,6 +42,9 @@ same `dictionary.cpp`. Only `LatinIME` (which needs Android) is left out. It exi
   (the guard that a strategy must not lower). It also prints the time per keystroke modeled from measured query times, with and without the cost of switching language.
   `bash docs/tools/e2e/run_mixed_eval.sh [app_jar.jar]` runs it together with `CorrEval`, `PrefixEval` and `SpeedEval` on `everyday_<lang>.txt` (the one-language baseline), and
   writes the reports to `$OUT/reports` (default `/tmp/mr_mixed`). With `-Dadded=docs/tools/loanwords/added_<id>.tsv` the foreign words that `add_loanwords.py` put in the pack get their own table (N), apart from the ones the pack already knew (F). The workflow `mr-eval.yml` (by hand, no secrets, nothing published) builds the jar like the `assemble` job, runs the script and uploads the reports.
+- `TouchRescore` (stage 6, `docs/finger-position.md`): the same simulated imprecise touches as `TouchEval`, repeated, with the candidates of the real engine re-ordered by how close each touch was to the keys of
+  each candidate (the distance the app does not carry today), for several dispersions and neighbour thresholds. `bash docs/tools/e2e/run_touch_eval.sh [app_jar.jar]` runs it together with `TouchEval` and writes `touch_<lang>.txt`
+  to `$OUT/reports`; `mr-eval.yml` runs it after the stage 5 script.
 - `AltEval` (by hand): false positives and hits of the suggestion for a valid but probably wrong word (`MrFuzzy.alternative`, strategy S27), over the
   valid words of the subtitle sentences; it was used to choose `ALT_GAP`, `ALT_TYPED_MAX` and the other `ALT_*` constants.
 

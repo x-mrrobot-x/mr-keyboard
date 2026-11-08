@@ -41,6 +41,9 @@ jobs:
       - name: Mixed-language and single-language evaluation
         run: OUT="$RUNNER_TEMP/eval" bash docs/tools/e2e/run_mixed_eval.sh "$RUNNER_TEMP/dex/classes.jar"
 
+      - name: Finger position evaluation
+        run: OUT="$RUNNER_TEMP/eval" bash docs/tools/e2e/run_touch_eval.sh "$RUNNER_TEMP/dex/classes.jar"
+
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
