@@ -1,6 +1,6 @@
 # Finger position (stage 6): code map, options and how they are measured
 
-Status: investigation. The app code is unchanged; nothing is implemented until the numbers are seen and an option is approved.
+Status: closed. Measured (below) and the owner decided to leave the app as it is; no code change.
 
 The question: the keyboard knows which key was touched and which keys were near, but not how near. A touch on the edge between `s` and `d` and a touch
 in the middle of `s` reach the engine the same way. Does using the distance make the strip and the autocorrection better?
@@ -61,6 +61,25 @@ Limits to keep in mind:
 
 Actions -> "Mr Keyboard - evaluation (by hand)" -> Run workflow. The artifact `mr-eval-reports` then also has `touch_<lang>.txt` (TouchEval and TouchRescore of each language), besides what stage 5 writes.
 
-## Results
+## Results (run on the owner's runner, packs pt-BR 9, en-US 7, es 7)
 
-Not run yet.
+Hit rates in percent, pt-BR / en-US / es, for the words that came out with a touch error. At sigma 0.2 about 8% of the words have one; at sigma 0.3, about half.
+
+| | sigma 0.2, in strip | sigma 0.2, right fix | sigma 0.2, swapped | sigma 0.3, right fix | sigma 0.3, swapped |
+|---|---|---|---|---|---|
+| engine order (today) | 98.7 / 99.0 / 99.4 | 94.0 / 91.5 / 93.0 | 1.7 / 2.4 / 2.5 | 85.0 / 82.4 / 85.8 | 5.8 / 5.9 / 4.6 |
+| touch model, lambda 4 (best) | 98.9 / 99.4 / 99.4 | 94.2 / 92.1 / 93.1 | 1.6 / 1.8 / 2.3 | 85.5 / 83.1 / 86.2 | 5.2 / 5.2 / 4.2 |
+| touch model, lambda 1 | 98.4 / 99.7 / 99.2 | 92.6 / 91.8 / 92.5 | 3.2 / 2.1 / 3.0 | 83.9 / 82.1 / 85.5 | 6.8 / 6.2 / 4.9 |
+| touch model, lambda 0.5 | 98.3 / 99.6 / 99.1 | 92.1 / 91.3 / 91.9 | 3.6 / 2.5 / 3.6 | 83.0 / 81.5 / 84.9 | 7.7 / 6.8 / 5.5 |
+
+- Re-ordering by the distance of the finger gains at most 0.1 to 0.6 points of right fix at sigma 0.2 and 0.4 to 0.7 at sigma 0.3, and only with the engine's order weighing the most (lambda 4). The more weight the
+  touches get, the worse it is (up to 1.9 points lost at lambda 0.5). With a model that is wrong about the dispersion the result is the same or worse (sigma x0.7 at lambda 1: 2.0, 0.2 and 1.3 points lost at sigma 0.2).
+- The words that were typed right (no touch error) are not affected in any row: the words spoiled by autocorrection are 0.22 to 0.24% in pt-BR and 0.00% in en-US and es in every row.
+- The neighbour threshold: 1.1 key widths is the same as 1.4 at sigma 0.15 and 0.2 in the three languages, and loses 4.7 / 3.5 / 3.7 points of right fix at sigma 0.3. 0.8 loses 11.4 / 11.4 / 11.0 points at sigma 0.2
+  (strip 88.8 / 86.5 / 87.9) and 29 to 31 points at sigma 0.3. Nothing below 1.4 is better; thresholds above 1.4 were not measured.
+- Headroom: at sigma 0.2 the right word is already in the strip in 98.7 to 99.4% of the words with a touch error, and the right fix is 91.5 to 94.0%. Even a perfect use of the finger position could not move more than
+  about 6 to 8.5 points of those 8% of words, which is 0.5 to 0.7% of all the words typed; the measurement above shows a tenth of that at best.
+
+Reading: the order of the neighbours and the dictionary already carry nearly all that the distance would say, and weighing the distance more than that overrides the dictionary. Options (b) and (c) are not worth the smali
+(b) or the C++, the new libs and the engine contract (c); (a) should stay as it is. What the simulation does not cover: a bias of the person's thumb (always a bit below or to the side of the key centre), which a model could
+learn per person; that would be a different feature (adaptive key centres), not in the plan.

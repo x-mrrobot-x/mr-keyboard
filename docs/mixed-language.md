@@ -1,6 +1,6 @@
 # Mixed-language typing (stage 5): code map, options and how they are measured
 
-Status: measured (first run below). Option (d), foreign words added to the packs, is done; (a), (b) and (c) are not implemented. The app code is unchanged.
+Status: closed. Option (d), foreign words added to the packs, is done and measured twice; (a), (b) and (c) are not implemented and the app code is unchanged. The list stays at 151 and 152 words: the keyboard is for many people, so it is not grown with the vocabulary of one.
 
 The problem: a person with `pt-BR` active types `deploy`, `feedback` or `pull request` in the middle of a Portuguese sentence. Every
 search runs on the pack of the active language, so the English word has no completion, is "corrected" to a Portuguese word and the
@@ -115,3 +115,23 @@ How to measure it: run the manual workflow again. `MixEval` now has two more gro
 words the pack already knew (not measured in the first run). E shrinks to what is still unknown. The words of the active language (M) and the plain text (P) must stay where they were in the first run:
 that is the check that the added words do not get in the way. The list was written without looking at the test sentences, but the sentences were written by the same hand, so the gain on N is optimistic;
 the check that matters is M and P, and the phone.
+
+## Results of the second run (packs pt-BR 9 and es 7)
+
+The foreign words of the sentences: 118 in each pair. What the list did: of the 32 (pt-BR) and 84 (es) words that were unknown, 15 are now known in each pack (N); 17 and 69 are still unknown (E). The list holds 151 and 152
+new words, so it was not written around these sentences: it covers 47% of the unknown words in pt-BR and 18% in es.
+
+Hit rates in percent, pt-BR / es, active language alone (before they were 0 in every column):
+
+| | 3 letters | 4 letters | 5 letters | typo, 1st | typo, top 2 |
+|---|---|---|---|---|---|
+| N, the words the list added (15 words) | 7 / 20 | 20 / 53 | 69 / 85 | 82 / 91 | 96 / 98 |
+| F, the foreign words the pack already knew (82 / 29 words) | 27 / 35 | 64 / 60 | 91 / 75 | 81 / 76 | 88 / 86 |
+
+- The words of the active language did not change: in the mixed sentences (M) and in plain text (P), every column of the row "A only" is the same as in the first run in pt-BR and in es, and so are the `CorrEval` and `PrefixEval` blocks of the three
+  languages (for example the total of `CorrEval`: 78.6 / 90.2 in pt-BR, 79.7 / 88.6 in en-US, 77.4 / 89.4 in es). Times in `SpeedEval` are lower than in the first run by about a fifth in the three languages; time on the runner is not
+  comparable between runs.
+- The added words rank below the ones that real messages made frequent (3 and 4 letters: 7 and 20 against 27 and 64 in pt-BR) because their frequency is kept in a band of 55 to 80, and rank like them from 5 letters on and in the typed-with-error case.
+  Since nothing got worse, there is room to raise the band, at the cost of risking the words of the language; the guard (M, P, `CorrEval`, `PrefixEval`) is in place to say if it does.
+- What is left: more words in the list (it covers less than half of what was unknown in pt-BR and a fifth in es), or the band. Both are data and the same run measures them.
+
