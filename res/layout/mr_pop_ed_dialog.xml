@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Popup editor of the sheet screen (mr_pop_ed_*): the title, the three modes (none, characters, action keys) and
+     the box of the current mode — the field of the characters, or the list of keys with the button that adds one.
+     The boxes are shown or hidden by PopupEditDialog according to the mode; the rows of the list come from
+     mr_pop_ed_item. Colors of the settings palette (mr_ui_*), texts of mr_strings.xml (mr_pop_ed_*), views found by
+     the code through android:tag (no id is needed). -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:orientation="vertical"
+        android:paddingLeft="18dp"
+        android:paddingTop="18dp"
+        android:paddingRight="18dp"
+        android:paddingBottom="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/mr_ui_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/mr_pop_ed_title" />
+        <TextView
+            android:textSize="12.5sp"
+            android:textColor="@color/mr_ui_text2"
+            android:paddingTop="4dp"
+            android:paddingBottom="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/mr_pop_ed_subtitle" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:tag="mode_none"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/mr_ui_text2"
+                android:gravity="center"
+                android:singleLine="true"
+                android:background="@drawable/mr_pop_ed_chip"
+                android:paddingLeft="8dp"
+                android:paddingTop="9dp"
+                android:paddingRight="8dp"
+                android:paddingBottom="9dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/mr_pop_ed_mode_none" />
+            <TextView
+                android:tag="mode_chars"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/mr_ui_text2"
+                android:gravity="center"
+                android:singleLine="true"
+                android:background="@drawable/mr_pop_ed_chip"
+                android:paddingLeft="8dp"
+                android:paddingTop="9dp"
+                android:paddingRight="8dp"
+                android:paddingBottom="9dp"
+                android:layout_marginLeft="6dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/mr_pop_ed_mode_chars" />
+            <TextView
+                android:tag="mode_keys"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/mr_ui_text2"
+                android:gravity="center"
+                android:singleLine="true"
+                android:background="@drawable/mr_pop_ed_chip"
+                android:paddingLeft="8dp"
+                android:paddingTop="9dp"
+                android:paddingRight="8dp"
+                android:paddingBottom="9dp"
+                android:layout_marginLeft="6dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.15"
+                android:text="@string/mr_pop_ed_mode_keys" />
+        </LinearLayout>
+        <LinearLayout
+            android:tag="box_chars"
+            android:orientation="vertical"
+            android:paddingTop="14dp"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:textSize="13sp"
+                android:textColor="@color/mr_ui_text2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/mr_pop_ed_chars_hint" />
+            <EditText
+                android:tag="field_chars"
+                android:textSize="15sp"
+                android:textColor="@color/mr_ui_text"
+                android:textColorHint="@color/mr_ui_text3"
+                android:inputType="text"
+                android:singleLine="true"
+                android:background="@drawable/mr_key_ed_field"
+                android:paddingLeft="14dp"
+                android:paddingTop="11dp"
+                android:paddingRight="14dp"
+                android:paddingBottom="11dp"
+                android:layout_marginTop="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/mr_pop_ed_chars_field_hint" />
+        </LinearLayout>
+        <LinearLayout
+            android:tag="box_keys"
+            android:orientation="vertical"
+            android:paddingTop="14dp"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:tag="keys_header"
+                android:textSize="13sp"
+                android:textColor="@color/mr_ui_text2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <LinearLayout
+                android:tag="keys_list"
+                android:orientation="vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:tag="add_item"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/mr_ui_text"
+                android:gravity="center"
+                android:singleLine="true"
+                android:background="@drawable/mr_pop_ed_add"
+                android:paddingLeft="12dp"
+                android:paddingTop="11dp"
+                android:paddingRight="12dp"
+                android:paddingBottom="11dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/mr_pop_ed_add_item" />
+        </LinearLayout>
+        <TextView
+            android:tag="box_none"
+            android:textSize="13sp"
+            android:textColor="@color/mr_ui_text3"
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/mr_pop_ed_none_info" />
+    </LinearLayout>
+</ScrollView>

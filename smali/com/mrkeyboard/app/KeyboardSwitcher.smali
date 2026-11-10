@@ -329,7 +329,7 @@
 
     if-gt p2, p1, :cond_2
 
-    const-string p1, "8"
+    const-string p1, "9"
 
     .line 619
     invoke-static {p1}, Ljava/lang/Integer;->valueOf(Ljava/lang/String;)Ljava/lang/Integer;
@@ -1002,7 +1002,7 @@
 
     const-string v1, "pref_keyboard_layout"
 
-    const-string v2, "8"
+    const-string v2, "9"
 
     invoke-interface {p0, v1, v2}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -1762,7 +1762,7 @@
 
     if-eqz v0, :cond_0
 
-    const-string v0, "8"
+    const-string v0, "9"
 
     .line 657
     invoke-interface {p1, p2, v0}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;

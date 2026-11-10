@@ -23,9 +23,15 @@
 
 # direct methods
 .method constructor <init>(Ljava/lang/Runnable;)V
-    .registers 2
+    .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 125
+    .prologue
+    .line 84
     iput-object p1, p0, Lcom/mrkeyboard/app/PopupEditDialog$1;->val$onEdit:Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,13 +42,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .locals 1
 
-    .line 128
-    iget-object p1, p0, Lcom/mrkeyboard/app/PopupEditDialog$1;->val$onEdit:Ljava/lang/Runnable;
+    .prologue
+    .line 86
+    iget-object v0, p0, Lcom/mrkeyboard/app/PopupEditDialog$1;->val$onEdit:Ljava/lang/Runnable;
 
-    invoke-interface {p1}, Ljava/lang/Runnable;->run()V
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 129
+    .line 87
     return-void
 .end method

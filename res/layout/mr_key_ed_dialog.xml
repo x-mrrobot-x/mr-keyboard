@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Key editor of the sheet screen (mr_key_ed_*): the type chips, the label shown on the key, the text committed on
+     tap, the Tasker command with its presets, the selected special key, the target sheet, the proportional width and
+     the long-press popup, plus the action chips (move, duplicate, delete) of an existing key. The sections are shown
+     or hidden by KeyEditDialog according to the type of the key; the chips and the width presets are painted there too
+     (selected/unselected, disabled). Colors of the settings palette (mr_ui_*), texts of mr_strings.xml (mr_key_ed_*),
+     views found by the code through android:tag (no id is needed). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:paddingLeft="20dp"
+    android:paddingTop="18dp"
+    android:paddingRight="20dp"
+    android:paddingBottom="6dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:tag="title"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/mr_ui_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <View
+        android:background="@color/mr_ui_stroke"
+        android:layout_marginTop="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp" />
+
+    <!-- Type of the key: one chip per type (Text, Tasker, Special, Sheet, Spacer); the spacer has no popup item mode -->
+    <TextView
+        android:textSize="12.5sp"
+        android:textStyle="bold"
+        android:textColor="@color/mr_ui_text2"
+        android:paddingTop="12dp"
+        android:paddingBottom="6dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/mr_key_ed_section_type" />
+    <HorizontalScrollView
+        android:scrollbars="none"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:tag="chip_text"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/mr_ui_text2"
+                android:gravity="center"
+                android:singleLine="true"
+                android:background="@drawable/mr_key_ed_chip"
+                android:paddingLeft="12dp"
+                android:paddingTop="8dp"
+                android:paddingRight="12dp"
+                android:paddingBottom="8dp"
+                android:layout_marginRight="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mr_key_ed_type_text" />
+            <TextView
+                android:tag="chip_tasker"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/mr_ui_text2"
+                android:gravity="center"
+                android:singleLine="true"
+                android:background="@drawable/mr_key_ed_chip"
+                android:paddingLeft="12dp"
+                android:paddingTop="8dp"
+                android:paddingRight="12dp"
+                android:paddingBottom="8dp"
+                android:layout_marginRight="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mr_key_ed_type_tasker" />
+            <TextView
+                android:tag="chip_special"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/mr_ui_text2"
+                android:gravity="center"
+                android:singleLine="true"
+                android:background="@drawable/mr_key_ed_chip"
+                android:paddingLeft="12dp"
+                android:paddingTop="8dp"
+                android:paddingRight="12dp"
+                android:paddingBottom="8dp"
+                android:layout_marginRight="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mr_key_ed_type_special" />
+            <TextView
+                android:tag="chip_sheet"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/mr_ui_text2"
+                android:gravity="center"
+                android:singleLine="true"
+                android:background="@drawable/mr_key_ed_chip"
+                android:paddingLeft="12dp"
+                android:paddingTop="8dp"
+                android:paddingRight="12dp"
+                android:paddingBottom="8dp"
+                android:layout_marginRight="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mr_key_ed_type_sheet" />
+            <TextView
+                android:tag="chip_spacer"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/mr_ui_text2"
+                android:gravity="center"
+                android:singleLine="true"
+                android:background="@drawable/mr_key_ed_chip"
+                android:paddingLeft="12dp"
+                android:paddingTop="8dp"
+                android:paddingRight="12dp"
+                android:paddingBottom="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mr_key_ed_type_spacer" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Label shown on the key -->
+    <LinearLayout
+        android:tag="group_label"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:textSize="12.5sp"
+            android:textStyle="bold"
+            android:textColor="@color/mr_ui_text2"
+            android:paddingTop="12dp"
+            android:paddingBottom="6dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mr_key_ed_section_label" />
+        <EditText
+            android:tag="field_label"
+            android:textSize="15sp"
+            android:textColor="@color/mr_ui_text"
+            android:textColorHint="@color/mr_ui_text3"
+            android:inputType="text"
+            android:singleLine="true"
+            android:background="@drawable/mr_key_ed_field"
+            android:paddingLeft="14dp"
+            android:paddingTop="11dp"
+            android:paddingRight="14dp"
+            android:paddingBottom="11dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/mr_key_ed_hint_label" />
+    </LinearLayout>
+
+    <!-- Text committed on tap -->
+    <LinearLayout
+        android:tag="group_value"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:textSize="12.5sp"
+            android:textStyle="bold"
+            android:textColor="@color/mr_ui_text2"
+            android:paddingTop="12dp"
+            android:paddingBottom="6dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mr_key_ed_section_value" />
+        <EditText
+            android:tag="field_value"
+            android:textSize="15sp"
+            android:textColor="@color/mr_ui_text"
+            android:textColorHint="@color/mr_ui_text3"
+            android:inputType="textMultiLine"
+            android:gravity="top"
+            android:minLines="2"
+            android:maxLines="4"
+            android:background="@drawable/mr_key_ed_field"
+            android:paddingLeft="14dp"
+            android:paddingTop="11dp"
+            android:paddingRight="14dp"
+            android:paddingBottom="11dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/mr_key_ed_hint_value" />
+    </LinearLayout>
+
+    <!-- Tasker command: the tskcmd: prefix is added on save; the presets are the usual commands -->
+    <LinearLayout
+        android:tag="group_tasker"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:textSize="12.5sp"
+            android:textStyle="bold"
+            android:textColor="@color/mr_ui_text2"
+            android:paddingTop="12dp"
+            android:paddingBottom="6dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mr_key_ed_section_tasker" />
+        <EditText
+            android:tag="field_tasker"
+            android:textSize="15sp"
+            android:textColor="@color/mr_ui_text"
+            android:textColorHint="@color/mr_ui_text3"
+            android:inputType="text"
+            android:singleLine="true"
+            android:background="@drawable/mr_key_ed_field"
+            android:paddingLeft="14dp"
+            android:paddingTop="11dp"
+            android:paddingRight="14dp"
+            android:paddingBottom="11dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/mr_key_ed_hint_tasker" />
+        <HorizontalScrollView
+            android:scrollbars="none"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:tag="tasker_presets"
+                android:orientation="horizontal"
+                android:paddingTop="7dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/mr_ui_cyan"
+                    android:background="@drawable/mr_key_ed_pill"
+                    android:paddingLeft="11dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="11dp"
+                    android:paddingBottom="5dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="wifi" />
+                <TextView
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/mr_ui_cyan"
+                    android:background="@drawable/mr_key_ed_pill"
+                    android:paddingLeft="11dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="11dp"
+                    android:paddingBottom="5dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="bt" />
+                <TextView
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/mr_ui_cyan"
+                    android:background="@drawable/mr_key_ed_pill"
+                    android:paddingLeft="11dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="11dp"
+                    android:paddingBottom="5dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="dados" />
+                <TextView
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/mr_ui_cyan"
+                    android:background="@drawable/mr_key_ed_pill"
+                    android:paddingLeft="11dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="11dp"
+                    android:paddingBottom="5dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="flash" />
+                <TextView
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/mr_ui_cyan"
+                    android:background="@drawable/mr_key_ed_pill"
+                    android:paddingLeft="11dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="11dp"
+                    android:paddingBottom="5dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="som" />
+                <TextView
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/mr_ui_cyan"
+                    android:background="@drawable/mr_key_ed_pill"
+                    android:paddingLeft="11dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="11dp"
+                    android:paddingBottom="5dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="brilho" />
+                <TextView
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/mr_ui_cyan"
+                    android:background="@drawable/mr_key_ed_pill"
+                    android:paddingLeft="11dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="11dp"
+                    android:paddingBottom="5dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="auto" />
+                <TextView
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/mr_ui_cyan"
+                    android:background="@drawable/mr_key_ed_pill"
+                    android:paddingLeft="11dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="11dp"
+                    android:paddingBottom="5dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="print" />
+                <TextView
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/mr_ui_cyan"
+                    android:background="@drawable/mr_key_ed_pill"
+                    android:paddingLeft="11dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="11dp"
+                    android:paddingBottom="5dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="clip" />
+                <TextView
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/mr_ui_cyan"
+                    android:background="@drawable/mr_key_ed_pill"
+                    android:paddingLeft="11dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="11dp"
+                    android:paddingBottom="5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="notif" />
+            </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <!-- Special key: the button opens the picker; the text is the code in the language of the app -->
+    <LinearLayout
+        android:tag="group_special"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:textSize="12.5sp"
+            android:textStyle="bold"
+            android:textColor="@color/mr_ui_text2"
+            android:paddingTop="12dp"
+            android:paddingBottom="6dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mr_key_ed_section_special" />
+        <TextView
+            android:tag="btn_special"
+            android:textSize="14sp"
+            android:textColor="@color/mr_ui_text"
+            android:background="@drawable/mr_key_ed_select"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:paddingLeft="14dp"
+            android:paddingTop="11dp"
+            android:paddingRight="14dp"
+            android:paddingBottom="11dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- Target sheet: the button opens the list of the sheets (next, previous, ABC and the sheets of the app) -->
+    <LinearLayout
+        android:tag="group_sheet"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:textSize="12.5sp"
+            android:textStyle="bold"
+            android:textColor="@color/mr_ui_text2"
+            android:paddingTop="12dp"
+            android:paddingBottom="6dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mr_key_ed_section_sheet" />
+        <TextView
+            android:tag="btn_sheet"
+            android:textSize="14sp"
+            android:textColor="@color/mr_ui_text"
+            android:background="@drawable/mr_key_ed_select"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:paddingLeft="14dp"
+            android:paddingTop="11dp"
+            android:paddingRight="14dp"
+            android:paddingBottom="11dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- Spacer: the hint only appears when the type is Spacer -->
+    <TextView
+        android:tag="spacer_hint"
+        android:textSize="13sp"
+        android:textColor="@color/mr_ui_text3"
+        android:paddingTop="12dp"
+        android:paddingBottom="2dp"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/mr_key_ed_spacer_hint" />
+
+    <!-- Proportional width: the title shows the current width; the bar goes from 0.5x to 4x in steps of 0.25x -->
+    <LinearLayout
+        android:tag="group_width"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:tag="width_title"
+            android:textSize="12.5sp"
+            android:textStyle="bold"
+            android:textColor="@color/mr_ui_text2"
+            android:paddingTop="14dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <SeekBar
+            android:tag="width_seek"
+            android:max="14"
+            android:progressTint="@color/mr_ui_cyan"
+            android:progressBackgroundTint="@color/mr_ui_stroke_strong"
+            android:thumbTint="@color/mr_ui_cyan"
+            android:layout_marginTop="2dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:tag="width_presets"
+            android:orientation="horizontal"
+            android:paddingTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/mr_ui_cyan"
+                android:background="@drawable/mr_key_ed_pill"
+                android:paddingLeft="11dp"
+                android:paddingTop="5dp"
+                android:paddingRight="11dp"
+                android:paddingBottom="5dp"
+                android:layout_marginRight="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.5x" />
+            <TextView
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/mr_ui_cyan"
+                android:background="@drawable/mr_key_ed_pill"
+                android:paddingLeft="11dp"
+                android:paddingTop="5dp"
+                android:paddingRight="11dp"
+                android:paddingBottom="5dp"
+                android:layout_marginRight="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1x" />
+            <TextView
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/mr_ui_cyan"
+                android:background="@drawable/mr_key_ed_pill"
+                android:paddingLeft="11dp"
+                android:paddingTop="5dp"
+                android:paddingRight="11dp"
+                android:paddingBottom="5dp"
+                android:layout_marginRight="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1.5x" />
+            <TextView
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/mr_ui_cyan"
+                android:background="@drawable/mr_key_ed_pill"
+                android:paddingLeft="11dp"
+                android:paddingTop="5dp"
+                android:paddingRight="11dp"
+                android:paddingBottom="5dp"
+                android:layout_marginRight="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2x" />
+            <TextView
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/mr_ui_cyan"
+                android:background="@drawable/mr_key_ed_pill"
+                android:paddingLeft="11dp"
+                android:paddingTop="5dp"
+                android:paddingRight="11dp"
+                android:paddingBottom="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3x" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Long-press popup: the button opens the popup editor and shows what the key has today -->
+    <LinearLayout
+        android:tag="group_popup"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:textSize="12.5sp"
+            android:textStyle="bold"
+            android:textColor="@color/mr_ui_text2"
+            android:paddingTop="12dp"
+            android:paddingBottom="6dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mr_key_ed_section_popup" />
+        <TextView
+            android:tag="btn_popup"
+            android:textSize="14sp"
+            android:textColor="@color/mr_ui_text"
+            android:background="@drawable/mr_key_ed_select"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:paddingLeft="14dp"
+            android:paddingTop="11dp"
+            android:paddingRight="14dp"
+            android:paddingBottom="11dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- Actions of an existing key: the chips close the dialog and do the action (disabled when it makes no sense) -->
+    <LinearLayout
+        android:tag="group_actions"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingTop="14dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:tag="act_left"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/mr_ui_text2_state"
+            android:gravity="center"
+            android:background="@drawable/mr_key_ed_chip"
+            android:paddingLeft="6dp"
+            android:paddingTop="9dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="9dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.7"
+            android:text="←" />
+        <TextView
+            android:tag="act_right"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/mr_ui_text2_state"
+            android:gravity="center"
+            android:background="@drawable/mr_key_ed_chip"
+            android:paddingLeft="6dp"
+            android:paddingTop="9dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="9dp"
+            android:layout_marginLeft="6dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.7"
+            android:text="→" />
+        <TextView
+            android:tag="act_duplicate"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/mr_ui_text2_state"
+            android:gravity="center"
+            android:background="@drawable/mr_key_ed_chip"
+            android:paddingLeft="6dp"
+            android:paddingTop="9dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="9dp"
+            android:layout_marginLeft="6dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.2"
+            android:text="@string/mr_key_ed_duplicate" />
+        <TextView
+            android:tag="act_delete"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/mr_key_ed_danger_text"
+            android:gravity="center"
+            android:background="@drawable/mr_key_ed_chip_danger"
+            android:paddingLeft="6dp"
+            android:paddingTop="9dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="9dp"
+            android:layout_marginLeft="6dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.1"
+            android:text="@string/mr_key_ed_delete" />
+    </LinearLayout>
+</LinearLayout>

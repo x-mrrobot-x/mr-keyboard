@@ -622,7 +622,7 @@
     :goto_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mName:Landroid/widget/EditText;
 
-    invoke-virtual {v1}, Landroid/widget/EditText;->getText()Ljava/lang/CharSequence;
+    invoke-virtual {v1}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v1
 
@@ -634,7 +634,7 @@
     :goto_1
     iget-object v2, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mInstr:Landroid/widget/EditText;
 
-    invoke-virtual {v2}, Landroid/widget/EditText;->getText()Ljava/lang/CharSequence;
+    invoke-virtual {v2}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v2
 
@@ -662,11 +662,11 @@
     :cond_1
     iget-object v1, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mName:Landroid/widget/EditText;
 
-    invoke-virtual {v1}, Landroid/widget/EditText;->getText()Ljava/lang/CharSequence;
+    invoke-virtual {v1}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v1
 
-    invoke-interface {v1}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
+    invoke-interface {v1}, Landroid/text/Editable;->toString()Ljava/lang/String;
 
     move-result-object v1
 
@@ -676,11 +676,11 @@
     :cond_2
     iget-object v2, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mInstr:Landroid/widget/EditText;
 
-    invoke-virtual {v2}, Landroid/widget/EditText;->getText()Ljava/lang/CharSequence;
+    invoke-virtual {v2}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v2
 
-    invoke-interface {v2}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
+    invoke-interface {v2}, Landroid/text/Editable;->toString()Ljava/lang/String;
 
     move-result-object v2
 
@@ -1138,7 +1138,7 @@
     .line 376
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mName:Landroid/widget/EditText;
 
-    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Ljava/lang/CharSequence;
+    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v0
 
@@ -1150,7 +1150,7 @@
     :goto_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mInstr:Landroid/widget/EditText;
 
-    invoke-virtual {v1}, Landroid/widget/EditText;->getText()Ljava/lang/CharSequence;
+    invoke-virtual {v1}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v1
 
@@ -1187,11 +1187,11 @@
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mName:Landroid/widget/EditText;
 
-    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Ljava/lang/CharSequence;
+    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v0
 
-    invoke-interface {v0}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
+    invoke-interface {v0}, Landroid/text/Editable;->toString()Ljava/lang/String;
 
     move-result-object v0
 
@@ -1205,11 +1205,11 @@
     :cond_1
     iget-object v1, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mInstr:Landroid/widget/EditText;
 
-    invoke-virtual {v1}, Landroid/widget/EditText;->getText()Ljava/lang/CharSequence;
+    invoke-virtual {v1}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v1
 
-    invoke-interface {v1}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
+    invoke-interface {v1}, Landroid/text/Editable;->toString()Ljava/lang/String;
 
     move-result-object v1
 
@@ -2828,7 +2828,7 @@
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mName:Landroid/widget/EditText;
 
-    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Ljava/lang/CharSequence;
+    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v0
 
@@ -2844,7 +2844,7 @@
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mInstr:Landroid/widget/EditText;
 
-    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Ljava/lang/CharSequence;
+    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v0
 
@@ -2882,11 +2882,11 @@
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mName:Landroid/widget/EditText;
 
-    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Ljava/lang/CharSequence;
+    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v0
 
-    invoke-interface {v0}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
+    invoke-interface {v0}, Landroid/text/Editable;->toString()Ljava/lang/String;
 
     move-result-object v0
 
@@ -2896,11 +2896,11 @@
     :cond_3
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mInstr:Landroid/widget/EditText;
 
-    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Ljava/lang/CharSequence;
+    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v0
 
-    invoke-interface {v0}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
+    invoke-interface {v0}, Landroid/text/Editable;->toString()Ljava/lang/String;
 
     move-result-object v0
 

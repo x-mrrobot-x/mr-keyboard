@@ -3,12 +3,12 @@
 .source "SheetEditorActivity.java"
 
 # interfaces
-.implements Landroid/text/TextWatcher;
+.implements Landroid/view/View$OnFocusChangeListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/SheetEditorActivity;->buildQuickTestCard(Z)Landroid/view/View;
+    value = Lcom/mrkeyboard/app/SheetEditorActivity;->bindTestCard(Landroid/view/View;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,17 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-.field final synthetic val$clearPill:Landroid/widget/LinearLayout;
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/SheetEditorActivity;Landroid/widget/LinearLayout;)V
-    .registers 3
+.method constructor <init>(Lcom/mrkeyboard/app/SheetEditorActivity;)V
+    .locals 0
 
-    .line 423
+    .prologue
+    .line 366
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$12;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
-
-    iput-object p2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$12;->val$clearPill:Landroid/widget/LinearLayout;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -39,44 +36,133 @@
 
 
 # virtual methods
-.method public afterTextChanged(Landroid/text/Editable;)V
-    .registers 3
+.method public onFocusChange(Landroid/view/View;Z)V
+    .locals 7
 
-    .line 428
-    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$12;->val$clearPill:Landroid/widget/LinearLayout;
+    .prologue
+    .line 368
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$12;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    if-eqz p1, :cond_c
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1600(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/ImageView;
 
-    invoke-interface {p1}, Landroid/text/Editable;->length()I
+    move-result-object v1
 
-    move-result p1
+    new-instance v2, Lcom/mrkeyboard/app/SheetUi$IconDrawable;
 
-    if-lez p1, :cond_c
+    iget-object v3, p0, Lcom/mrkeyboard/app/SheetEditorActivity$12;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    const/4 p1, 0x0
+    const/4 v4, 0x3
 
-    goto :goto_e
+    iget-object v5, p0, Lcom/mrkeyboard/app/SheetEditorActivity$12;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    :cond_c
-    const/16 p1, 0x8
+    .line 369
+    if-eqz p2, :cond_1
 
-    :goto_e
-    invoke-virtual {v0, p1}, Landroid/widget/LinearLayout;->setVisibility(I)V
+    const-string v0, "mr_ui_cyan"
 
-    .line 429
+    :goto_0
+    invoke-static {v5, v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1400(Lcom/mrkeyboard/app/SheetEditorActivity;Ljava/lang/String;)I
+
+    move-result v0
+
+    iget-object v5, p0, Lcom/mrkeyboard/app/SheetEditorActivity$12;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    const/high16 v6, 0x41b00000    # 22.0f
+
+    invoke-static {v5, v6}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1500(Lcom/mrkeyboard/app/SheetEditorActivity;F)I
+
+    move-result v5
+
+    invoke-direct {v2, v3, v4, v0, v5}, Lcom/mrkeyboard/app/SheetUi$IconDrawable;-><init>(Landroid/content/Context;III)V
+
+    .line 368
+    invoke-virtual {v1, v2}, Landroid/widget/ImageView;->setImageDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    .line 370
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$12;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1800(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/view/View;
+
+    move-result-object v1
+
+    iget-object v2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$12;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    if-eqz p2, :cond_2
+
+    const-string v0, "mr_sheet_ed_field_bg_on"
+
+    :goto_1
+    invoke-static {v2, v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1700(Lcom/mrkeyboard/app/SheetEditorActivity;Ljava/lang/String;)I
+
+    move-result v0
+
+    invoke-virtual {v1, v0}, Landroid/view/View;->setBackgroundResource(I)V
+
+    .line 371
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$12;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1900(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/view/View;
+
+    move-result-object v1
+
+    iget-object v2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$12;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    if-eqz p2, :cond_3
+
+    const-string v0, "mr_sheet_ed_card_bg_on"
+
+    :goto_2
+    invoke-static {v2, v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1700(Lcom/mrkeyboard/app/SheetEditorActivity;Ljava/lang/String;)I
+
+    move-result v0
+
+    invoke-virtual {v1, v0}, Landroid/view/View;->setBackgroundResource(I)V
+
+    .line 372
+    if-eqz p2, :cond_0
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$12;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2000(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/ScrollView;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_0
+
+    .line 373
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$12;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2000(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/ScrollView;
+
+    move-result-object v0
+
+    new-instance v1, Lcom/mrkeyboard/app/SheetEditorActivity$12$1;
+
+    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/SheetEditorActivity$12$1;-><init>(Lcom/mrkeyboard/app/SheetEditorActivity$12;)V
+
+    const-wide/16 v2, 0x78
+
+    invoke-virtual {v0, v1, v2, v3}, Landroid/widget/ScrollView;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    .line 379
+    :cond_0
     return-void
-.end method
 
-.method public beforeTextChanged(Ljava/lang/CharSequence;III)V
-    .registers 5
+    .line 369
+    :cond_1
+    const-string v0, "mr_ui_text3"
 
-    .line 424
-    return-void
-.end method
+    goto :goto_0
 
-.method public onTextChanged(Ljava/lang/CharSequence;III)V
-    .registers 5
+    .line 370
+    :cond_2
+    const-string v0, "mr_sheet_ed_field_bg"
 
-    .line 425
-    return-void
+    goto :goto_1
+
+    .line 371
+    :cond_3
+    const-string v0, "mr_sheet_ed_card_bg"
+
+    goto :goto_2
 .end method

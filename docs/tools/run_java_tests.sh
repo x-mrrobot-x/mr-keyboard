@@ -33,6 +33,9 @@
 #     appear for the original field, once, soon after leaving, and the dialog reopens when the keyboard window shows.
 #   - DiagTest: the "Dictionary memory" line (MrDiag, 1.90.0): the reading of /proc/self/smaps on made-up text (headers, Pss/Rss, deleted
 #     files, a file mapped twice), the matching of the path, the texts, the report of a pack folder, and on Linux a real mapping seen as resident.
+#   - GridTest: the drawn key grid of the sheet editor (SheetGridView, Java since 1.92.0): the geometry of the cells
+#     (margins, gaps, key height, the "+" of a row, the locked "⌫" and the locked bottom row), the limits (6 rows, 10 keys
+#     per row and 9 in the last one) and the touch rules (tap, cancel, long press, drag and drop, a full row refusing it).
 # With the path of the APK jar (classes.dex -> d2j-dex2jar), it also runs:
 #   - EsTest: SheetStrings/MrEs with Spanish, Portuguese, English and French contexts.
 # Usage: sh docs/tools/run_java_tests.sh [app.jar]
@@ -109,6 +112,10 @@ echo "== KeepTest (tool and keyboard when the screen turns)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_keep" $D/keep_test/KeepTest.java
 java -cp "$T/test_keep:$T/stubs:$T/main" com.mrkeyboard.app.KeepTest
 
+echo "== GridTest (drawn key grid of the sheet editor)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_grid" $D/grid_test/SheetGridViewTest.java
+java -cp "$T/test_grid:$T/stubs:$T/main" com.mrkeyboard.app.SheetGridViewTest
+
 echo "== AccelTest (log of the keyboard window)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_accel" $D/accel_test/AccelTest.java
 java -cp "$T/test_accel:$T/stubs:$T/main" com.mrkeyboard.app.AccelTest
@@ -117,8 +124,11 @@ if [ -n "$APPJAR" ]; then
   echo "== EsTest"
   javac -nowarn -cp "$T/stubs" -d "$T/ov_es" $(find $D/settings_test/stubs -name '*.java')
   javac -encoding UTF-8 -nowarn -cp "$T/ov_es:$T/stubs:$APPJAR" -d "$T/test_es" $D/es_test/EsTest.java
-  # the jar comes from dex2jar, without stack maps: the JVM verifier is switched off just for it
+  # the jar comes from dex2jar, without stack maps: the JVM verifier is switched off just for it.
+  # The jar comes BEFORE $T/stubs on purpose: the stubs of java/stubs carry the signatures of the APK classes (SheetStrings,
+  # MrTools, SheetModel...), and this test wants the real ones (SheetStrings.isPt/p) from the APK. Only the android.*
+  # signatures, which are not in the APK, still come from the stubs.
   java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote \
-    -cp "$T/test_es:$T/ov_es:$T/stubs:$APPJAR" com.mrkeyboard.app.EsTest
+    -cp "$T/test_es:$T/ov_es:$APPJAR:$T/stubs" com.mrkeyboard.app.EsTest
 fi
 rm -rf "$T"

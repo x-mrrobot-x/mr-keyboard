@@ -10,6 +10,7 @@ public abstract class ViewGroup extends View implements ViewParent {
         public int height;
         public LayoutParams(int width, int height) { }
     }
+    public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) { }
     public void addView(View child) { }
     public void addView(View child, ViewGroup.LayoutParams params) { }
     public void removeView(View child) { }

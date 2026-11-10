@@ -8,6 +8,7 @@
     <!-- ================= Preference rows ================= -->
     <style name="MrPref">
         <item name="android:layout">@layout/mr_ui_pref_row</item>
+        <item name="android:widgetLayout">@layout/mr_ui_widget_chevron</item>
     </style>
     <style name="MrPrefScreen">
         <item name="android:layout">@layout/mr_ui_pref_row</item>

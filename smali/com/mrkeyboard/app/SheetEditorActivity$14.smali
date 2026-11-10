@@ -3,12 +3,12 @@
 .source "SheetEditorActivity.java"
 
 # interfaces
-.implements Lcom/mrkeyboard/app/SheetUi$OnMenuSelect;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/SheetEditorActivity;->showOverflowMenu(Landroid/view/View;)V
+    value = Lcom/mrkeyboard/app/SheetEditorActivity;->bindTestCard(Landroid/view/View;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -23,9 +23,10 @@
 
 # direct methods
 .method constructor <init>(Lcom/mrkeyboard/app/SheetEditorActivity;)V
-    .registers 2
+    .locals 0
 
-    .line 504
+    .prologue
+    .line 390
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$14;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -35,75 +36,32 @@
 
 
 # virtual methods
-.method public onSelect(I)V
-    .registers 2
+.method public onClick(Landroid/view/View;)V
+    .locals 1
 
-    .line 507
-    packed-switch p1, :pswitch_data_24
+    .prologue
+    .line 392
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$14;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    goto :goto_22
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1300(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/EditText;
 
-    .line 521
-    :pswitch_4
-    iget-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$14;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+    move-result-object v0
 
-    # invokes: Lcom/mrkeyboard/app/SheetEditorActivity;->confirmDeleteCurrentSheet()V
-    invoke-static {p1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1400(Lcom/mrkeyboard/app/SheetEditorActivity;)V
+    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
-    goto :goto_22
+    move-result-object v0
 
-    .line 518
-    :pswitch_a
-    iget-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$14;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+    invoke-interface {v0}, Landroid/text/Editable;->clear()V
 
-    # invokes: Lcom/mrkeyboard/app/SheetEditorActivity;->confirmRestoreDefault()V
-    invoke-static {p1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1300(Lcom/mrkeyboard/app/SheetEditorActivity;)V
+    .line 393
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$14;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    .line 519
-    goto :goto_22
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1300(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/EditText;
 
-    .line 515
-    :pswitch_10
-    iget-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$14;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+    move-result-object v0
 
-    # invokes: Lcom/mrkeyboard/app/SheetEditorActivity;->duplicateCurrentSheet()V
-    invoke-static {p1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1200(Lcom/mrkeyboard/app/SheetEditorActivity;)V
+    invoke-virtual {v0}, Landroid/widget/EditText;->requestFocus()Z
 
-    .line 516
-    goto :goto_22
-
-    .line 512
-    :pswitch_16
-    iget-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$14;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
-
-    # invokes: Lcom/mrkeyboard/app/SheetEditorActivity;->showManageRowsDialog()V
-    invoke-static {p1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$800(Lcom/mrkeyboard/app/SheetEditorActivity;)V
-
-    .line 513
-    goto :goto_22
-
-    .line 509
-    :pswitch_1c
-    iget-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$14;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
-
-    # invokes: Lcom/mrkeyboard/app/SheetEditorActivity;->showRenameDialog()V
-    invoke-static {p1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$000(Lcom/mrkeyboard/app/SheetEditorActivity;)V
-
-    .line 510
-    nop
-
-    .line 524
-    :goto_22
+    .line 394
     return-void
-
-    nop
-
-    :pswitch_data_24
-    .packed-switch 0x1
-        :pswitch_1c
-        :pswitch_16
-        :pswitch_10
-        :pswitch_a
-        :pswitch_4
-    .end packed-switch
 .end method

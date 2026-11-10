@@ -1,5 +1,5 @@
 #!/bin/sh
-# Checks that the smali of the Java layer (generated Mr*.smali) is what docs/tools/build_java.sh produces today from the
+# Checks that the smali of the Java layer (generated *.smali: the Mr* classes, PrefScreenSheets, SheetEditorActivity, KeyEditDialog, PopupEditDialog, SpecialKeyPicker and SheetGridView) is what docs/tools/build_java.sh produces today from the
 # sources in docs/tools/java/src: it catches Java changed without regenerating the smali (or smali of a class that left Java).
 # Hand-written smali (MrTools, MrShots, ...) is not covered: only the classes that have a Java source.
 # Usage (at the root): DX_JAR=.../dx-27.0.3.jar APKTOOL_JAR=.../apktool.jar sh docs/tools/check_java_smali.sh
@@ -14,7 +14,7 @@ cp -r docs/tools/java docs/tools/build_java.sh "$T/docs/tools/"
 GENERATED="$T/smali/com/mrkeyboard/app"
 APP="$ROOT/smali/com/mrkeyboard/app"
 FAILED=0
-for f in "$GENERATED"/Mr*.smali; do
+for f in "$GENERATED"/*.smali; do
   n=$(basename "$f")
   if [ ! -f "$APP/$n" ]; then echo "MISSING in repo: $n"; FAILED=1
   elif ! cmp -s "$f" "$APP/$n"; then echo "DIFFERENT: $n"; FAILED=1; fi

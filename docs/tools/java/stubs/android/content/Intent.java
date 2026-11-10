@@ -14,6 +14,7 @@ public class Intent implements android.os.Parcelable {
     public static final String ACTION_OPEN_DOCUMENT = "android.intent.action.OPEN_DOCUMENT";
     public static final String CATEGORY_OPENABLE = "android.intent.category.OPENABLE";
     public static final String EXTRA_TITLE = "android.intent.extra.TITLE";
+    public static final String EXTRA_MIME_TYPES = "android.intent.extra.MIME_TYPES";
 
     public String action, packageName, className;
     public int flags;
@@ -38,6 +39,7 @@ public class Intent implements android.os.Parcelable {
     public Intent putExtra(String name, int value) { extras.put(name, value); return this; }
     public Intent putExtra(String name, boolean value) { extras.put(name, value); return this; }
     public Intent putExtra(String name, String value) { extras.put(name, value); return this; }
+    public Intent putExtra(String name, String[] value) { extras.put(name, value); return this; }
     public String getStringExtra(String name) {
         Object v = extras.get(name);
         return v instanceof String ? (String) v : null;

@@ -9,6 +9,8 @@ public class View {
     public static final int GONE = 8;
     public interface OnClickListener { void onClick(View v); }
     public interface OnLongClickListener { boolean onLongClick(View v); }
+    public interface OnFocusChangeListener { void onFocusChange(View v, boolean hasFocus); }
+    public static final int FOCUS_DOWN = 130;
     public interface OnLayoutChangeListener {
         void onLayoutChange(View view, int left, int top, int right, int bottom,
                 int oldLeft, int oldTop, int oldRight, int oldBottom);
@@ -17,12 +19,17 @@ public class View {
     public android.content.res.Resources getResources() { return null; }
     public ViewParent getParent() { return null; }
     public View getRootView() { return this; }
-    public int getWidth() { return 0; }
-    public int getHeight() { return 0; }
+    private int stubW, stubH;
+    /** Size of the view, set by the PC tests (a real view gets it from the layout). */
+    public void stubSize(int w, int h) { stubW = w; stubH = h; }
+    public int getWidth() { return stubW; }
+    public int getHeight() { return stubH; }
     public void getLocationOnScreen(int[] location) { }
     public ViewGroup.LayoutParams getLayoutParams() { return null; }
     public void setLayoutParams(ViewGroup.LayoutParams params) { }
     public void setBackground(android.graphics.drawable.Drawable background) { }
+    public void setBackgroundResource(int resid) { }
+    public boolean postDelayed(Runnable action, long delayMillis) { stubPosted.add(action); return true; }
     public void setBackgroundDrawable(android.graphics.drawable.Drawable background) { }
     public void setBackgroundColor(int color) { }
     private int padL, padT, padR, padB;
@@ -65,7 +72,9 @@ public class View {
     public void addOnLayoutChangeListener(OnLayoutChangeListener listener) { }
     public void removeOnLayoutChangeListener(OnLayoutChangeListener listener) { }
     public void setOnClickListener(OnClickListener l) { }
+    public void setOnFocusChangeListener(OnFocusChangeListener l) { }
     public void setClickable(boolean clickable) { }
+    public void setContentDescription(CharSequence contentDescription) { }
     public void setEnabled(boolean enabled) { }
     public android.os.IBinder getWindowToken() { return null; }
     public void setOnLongClickListener(OnLongClickListener l) { }
@@ -74,6 +83,25 @@ public class View {
     public View findViewWithTag(Object tag) { return null; }
     public void setAlpha(float alpha) { }
     public void setElevation(float elevation) { }
+
+    /** Measure modes and the helpers of onMeasure (Android nested class View.MeasureSpec). */
+    public static class MeasureSpec {
+        public static int getSize(int measureSpec) { return 0; }
+    }
+    /** Drawing and measuring hooks of a drawn view (the key grid of the sheet editor). */
+    protected void onDraw(android.graphics.Canvas canvas) { }
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) { setMeasuredDimension(0, 0); }
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) { }
+    public boolean onTouchEvent(MotionEvent event) { return false; }
+    public static int resolveSize(int size, int measureSpec) { return size; }
+    protected final void setMeasuredDimension(int measuredWidth, int measuredHeight) { stubMeasuredH = measuredHeight; }
+    private int stubMeasuredH;
+    public int stubMeasuredHeight() { return stubMeasuredH; }
+    /** Runs the measure step (a real view is measured by its parent). */
+    public final void measure(int widthMeasureSpec, int heightMeasureSpec) { onMeasure(widthMeasureSpec, heightMeasureSpec); }
+    public void requestLayout() { }
+    public void invalidate() { }
+    public boolean performHapticFeedback(int feedbackConstant) { return true; }
     private boolean stubAttached, stubAccelerated;
     /** Attached to a window and drawn with hardware acceleration: set by the PC tests, read by the code. */
     public void stubWindowState(boolean attached, boolean accelerated) { stubAttached = attached; stubAccelerated = accelerated; }

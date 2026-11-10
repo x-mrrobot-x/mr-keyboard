@@ -116,7 +116,7 @@ final class MrSqlStore implements MrWordStore {
             case KIND_LEARNED_PAIR: return "IFNULL(frequency.freq, 0)";
             case KIND_IMPORTED_WORD:
             case KIND_IMPORTED_PAIR: return "weight";
-            default: return "0";
+            default: return "_id";
         }
     }
 
@@ -170,7 +170,7 @@ final class MrSqlStore implements MrWordStore {
             int skipped = 0;
             while (c.moveToNext() && out.size() < limit) {
                 Row r = readRow(kind, c);
-                if (!MrMemStore.fold(r.a).contains(f) && !(r.b != null && MrMemStore.fold(r.b).contains(f))) continue;
+                if (!MrMemStore.fold(r.text()).contains(f)) continue;
                 if (skipped < offset) {
                     skipped++;
                     continue;

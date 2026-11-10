@@ -928,23 +928,9 @@
 
     if-lez v4, :cond_4
 
-    iget-object v4, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->a:Ljava/lang/String;
-
-    invoke-static {v4}, Lcom/mrkeyboard/app/MrMemStore;->fold(Ljava/lang/String;)Ljava/lang/String;
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrWordStore$Row;->text()Ljava/lang/String;
 
     move-result-object v4
-
-    invoke-virtual {v4, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-
-    move-result v4
-
-    if-nez v4, :cond_4
-
-    iget-object v4, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->b:Ljava/lang/String;
-
-    if-eqz v4, :cond_1
-
-    iget-object v4, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->b:Ljava/lang/String;
 
     invoke-static {v4}, Lcom/mrkeyboard/app/MrMemStore;->fold(Ljava/lang/String;)Ljava/lang/String;
 
@@ -1024,7 +1010,7 @@
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_0
 
-    goto/16 :goto_0
+    goto :goto_0
 .end method
 
 .method public declared-synchronized locales()Ljava/util/List;

@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 186
+    .line 195
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$4;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->val$text:Ljava/lang/String;
@@ -49,7 +49,7 @@
     .locals 2
 
     .prologue
-    .line 188
+    .line 197
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$4$1;->this$1:Lcom/mrkeyboard/app/MrPacksActivity$4;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrPacksActivity$4;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
@@ -82,7 +82,7 @@
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
 
-    .line 189
+    .line 198
     :cond_0
     return-void
 .end method

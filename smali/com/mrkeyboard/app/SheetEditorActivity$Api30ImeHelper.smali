@@ -16,21 +16,21 @@
 
 # direct methods
 .method private constructor <init>()V
-    .registers 1
+    .locals 0
 
-    .line 899
+    .prologue
+    .line 678
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
 .end method
 
-.method static attach(Landroid/view/View;Landroid/view/View;IIILjava/lang/Runnable;)V
-    .registers 13
+.method static attach(Landroid/view/View;Landroid/view/View;IIIILjava/lang/Runnable;)V
+    .locals 7
 
-    .line 908
-    new-instance v6, Lcom/mrkeyboard/app/SheetEditorActivity$Api30ImeHelper$1;
-
-    move-object v0, v6
+    .prologue
+    .line 682
+    new-instance v0, Lcom/mrkeyboard/app/SheetEditorActivity$Api30ImeHelper$1;
 
     move-object v1, p1
 
@@ -40,15 +40,17 @@
 
     move v4, p4
 
-    move-object v5, p5
+    move v5, p5
 
-    invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/SheetEditorActivity$Api30ImeHelper$1;-><init>(Landroid/view/View;IIILjava/lang/Runnable;)V
+    move-object v6, p6
 
-    invoke-virtual {p0, v6}, Landroid/view/View;->setOnApplyWindowInsetsListener(Landroid/view/View$OnApplyWindowInsetsListener;)V
+    invoke-direct/range {v0 .. v6}, Lcom/mrkeyboard/app/SheetEditorActivity$Api30ImeHelper$1;-><init>(Landroid/view/View;IIIILjava/lang/Runnable;)V
 
-    .line 927
+    invoke-virtual {p0, v0}, Landroid/view/View;->setOnApplyWindowInsetsListener(Landroid/view/View$OnApplyWindowInsetsListener;)V
+
+    .line 700
     invoke-virtual {p0}, Landroid/view/View;->requestApplyInsets()V
 
-    .line 928
+    .line 701
     return-void
 .end method

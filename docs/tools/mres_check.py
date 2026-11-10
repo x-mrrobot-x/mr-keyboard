@@ -5,12 +5,15 @@ Run at the project root after changing Portuguese text in those files. Exits wit
   - a text passed through SheetStrings.p() / SheetStrings.a() is not in the table (it would stay untranslated);
   - a table key does not appear in the smali (leftover of a text that changed or went away);
   - Portuguese text is left without going through p()/a() in the sheet editor and attachment files.
-The smali of the files listed in BASES uses the Portuguese text and lets p() switch it to Spanish; the
+The smali of the files listed in BASES uses the Portuguese text and lets p() switch it to Spanish: only the
 names and categories of the special-keys picker are switched at the 4 reading points (SpecialKeyPicker).
+SheetEditorActivity, KeyEditDialog, PopupEditDialog and SheetGridView are not here: they are Java + XML since
+1.92.0 (their texts are the mr_sheet_ed_*, mr_key_ed_*, mr_pop_ed_*, mr_pick_* and mr_grid_* of
+res/values*/mr_strings.xml).
 """
 import re, glob, sys
 
-BASES_P = ['KeyEditDialog', 'PopupEditDialog', 'PrefScreenSheets', 'SheetGridView', 'SheetEditorActivity', 'SpecialKeyPicker']
+BASES_P = ['SpecialKeyPicker']
 BASES_A = ['MrShots', 'MrCacheClear']
 SMALI = 'smali/com/mrkeyboard/app/'
 # texts of the special-keys picker: they live in <clinit> and are switched on reading, not on declaration

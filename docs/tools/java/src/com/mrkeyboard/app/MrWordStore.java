@@ -55,7 +55,7 @@ interface MrWordStore {
     int count(int kind, String locale);
 
     /**
-     * A page of rows. {@code filter}: part of a word, accents and case ignored (null or empty = all); for a pair either word. {@code limit} rows from
+     * A page of rows. {@code filter}: part of a word, accents and case ignored (null or empty = all); for a pair either word or both together. {@code limit} rows from
      * {@code offset}. The rows have no "newest" order of their own: SORT_NEW is the highest id first.
      */
     List<Row> list(int kind, String locale, String filter, int sort, int offset, int limit);

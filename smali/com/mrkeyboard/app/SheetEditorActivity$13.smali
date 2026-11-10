@@ -3,12 +3,12 @@
 .source "SheetEditorActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Landroid/text/TextWatcher;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/SheetEditorActivity;->buildQuickTestCard(Z)Landroid/view/View;
+    value = Lcom/mrkeyboard/app/SheetEditorActivity;->bindTestCard(Landroid/view/View;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -23,9 +23,10 @@
 
 # direct methods
 .method constructor <init>(Lcom/mrkeyboard/app/SheetEditorActivity;)V
-    .registers 2
+    .locals 0
 
-    .line 432
+    .prologue
+    .line 381
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$13;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -35,31 +36,53 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .registers 3
+.method public afterTextChanged(Landroid/text/Editable;)V
+    .locals 2
 
-    .line 435
-    iget-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$13;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+    .prologue
+    .line 387
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$13;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    # getter for: Lcom/mrkeyboard/app/SheetEditorActivity;->mTestInput:Landroid/widget/EditText;
-    invoke-static {p1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$300(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/EditText;
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2100(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/view/View;
 
-    move-result-object p1
+    move-result-object v1
 
-    const-string v0, ""
+    if-eqz p1, :cond_0
 
-    invoke-virtual {p1, v0}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
+    invoke-interface {p1}, Landroid/text/Editable;->length()I
 
-    .line 436
-    iget-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$13;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+    move-result v0
 
-    # getter for: Lcom/mrkeyboard/app/SheetEditorActivity;->mTestInput:Landroid/widget/EditText;
-    invoke-static {p1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$300(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/EditText;
+    if-nez v0, :cond_1
 
-    move-result-object p1
+    :cond_0
+    const/16 v0, 0x8
 
-    invoke-virtual {p1}, Landroid/widget/EditText;->requestFocus()Z
+    :goto_0
+    invoke-virtual {v1, v0}, Landroid/view/View;->setVisibility(I)V
 
-    .line 437
+    .line 388
+    return-void
+
+    .line 387
+    :cond_1
+    const/4 v0, 0x0
+
+    goto :goto_0
+.end method
+
+.method public beforeTextChanged(Ljava/lang/CharSequence;III)V
+    .locals 0
+
+    .prologue
+    .line 382
+    return-void
+.end method
+
+.method public onTextChanged(Ljava/lang/CharSequence;III)V
+    .locals 0
+
+    .prologue
+    .line 384
     return-void
 .end method

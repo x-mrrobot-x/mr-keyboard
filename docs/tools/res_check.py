@@ -17,7 +17,9 @@
     explicit popupLayout and keyPreviewLayout, no hex color in the theme layouts and drawables (the key
     colors live in res/values/mr_key_colors.xml) and the theme name in the 3 languages;
   - Spanish (values-es) with the same keys and lists as Portuguese (values-pt-rBR) and the same placeholders
-    (%s, %1$d) as the original.
+    (%s, %1$d) as the original;
+  - format specifiers of the project's own strings (mr_strings.xml, every language): no stray "%" and no several
+    unnumbered specifiers in one string (aapt2 refuses them and String.format throws); "%%" is the literal percent.
 """
 import collections, difflib, glob, os, re, sys
 import xml.dom.minidom
@@ -277,6 +279,23 @@ for name, table in (('values-es', es), ('values-pt-rBR', pt)):
     for k, v in table.items():
         if k in orig and marks(v) != marks(orig[k]):
             problems.append('%s/%s: placeholders %s differ from the original %s' % (name, k, marks(v), marks(orig[k])))
+# --- format specifiers of the project's own strings (mr_strings.xml, every language). The original LatinIME strings.xml
+# is left out on purpose: it has literal values such as "60%" that never go through String.format.
+SPEC = re.compile(r'%(?:\d+\$)?[-#+0,(]*\d*(?:\.\d+)?(?:[bBhHsScCdoxXeEfgGaAn]|[tT][a-zA-Z])')
+for p in sorted(glob.glob('res/values*/mr_strings.xml')):
+    for m in re.finditer(r'<string\s+name="([^"]+)"([^>]*)>(.*?)</string>', read_file(p), re.S):
+        k, attrs, v = m.groups()
+        if 'formatted="false"' in attrs:
+            continue
+        v = v.replace('%%', '')
+        specs = SPEC.findall(v)
+        plain = [x for x in specs if not re.match(r'%\d+\$', x)]
+        if '%' in SPEC.sub('', v):
+            problems.append('%s/%s: a "%%" that is not a format specifier (write %%%% for a literal percent)' % (p, k))
+        if len(plain) > 1:
+            problems.append('%s/%s: several specifiers without a position %s (number them: %%1$s, %%2$s)' % (p, k, plain))
+        elif plain and len(plain) != len(specs):
+            problems.append('%s/%s: mixes numbered and unnumbered specifiers %s' % (p, k, specs))
 la_o, la_p, la_e = arrays_of('res/values'), arrays_of('res/values-pt-rBR'), arrays_of('res/values-es')
 for k in la_p:
     if la_e.get(k) != la_p[k]: problems.append('values-es: list %s with %s items (Portuguese: %d)' % (k, la_e.get(k), la_p[k]))

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sheet editor: content of the "Rename sheet" dialog (name + badge). The fields are added by the code in the
+     slots, with the standard sheet edit field of SheetUi.makeEditText. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:paddingLeft="20dp"
+    android:paddingTop="12dp"
+    android:paddingRight="20dp"
+    android:paddingBottom="4dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:textSize="12.5sp"
+        android:textStyle="bold"
+        android:textColor="@color/mr_ui_text2"
+        android:paddingBottom="6dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/mr_sheet_ed_name_label" />
+    <LinearLayout
+        android:tag="name_slot"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:textSize="12.5sp"
+        android:textStyle="bold"
+        android:textColor="@color/mr_ui_text2"
+        android:paddingTop="12dp"
+        android:paddingBottom="6dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/mr_sheet_ed_badge_label" />
+    <LinearLayout
+        android:tag="badge_slot"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>

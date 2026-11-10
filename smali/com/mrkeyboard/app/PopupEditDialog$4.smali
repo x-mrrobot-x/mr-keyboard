@@ -18,15 +18,21 @@
 
 
 # instance fields
-.field final synthetic val$onDel:Ljava/lang/Runnable;
+.field final synthetic val$onDelete:Ljava/lang/Runnable;
 
 
 # direct methods
 .method constructor <init>(Ljava/lang/Runnable;)V
-    .registers 2
+    .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 151
-    iput-object p1, p0, Lcom/mrkeyboard/app/PopupEditDialog$4;->val$onDel:Ljava/lang/Runnable;
+    .prologue
+    .line 104
+    iput-object p1, p0, Lcom/mrkeyboard/app/PopupEditDialog$4;->val$onDelete:Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,13 +42,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .locals 1
 
-    .line 154
-    iget-object p1, p0, Lcom/mrkeyboard/app/PopupEditDialog$4;->val$onDel:Ljava/lang/Runnable;
+    .prologue
+    .line 106
+    iget-object v0, p0, Lcom/mrkeyboard/app/PopupEditDialog$4;->val$onDelete:Ljava/lang/Runnable;
 
-    invoke-interface {p1}, Ljava/lang/Runnable;->run()V
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 155
+    .line 107
     return-void
 .end method

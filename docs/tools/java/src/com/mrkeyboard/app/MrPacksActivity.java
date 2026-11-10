@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
@@ -112,6 +113,11 @@ public class MrPacksActivity extends PreferenceActivity {
         return getResources().getIdentifier(key, "string", getPackageName()) != 0 ? t(key) : id;
     }
 
+    private void plain(Preference p) {
+        int id = getResources().getIdentifier("mr_ui_pref_row_static", "layout", getPackageName());
+        if (id != 0) p.setLayoutResource(id);
+    }
+
     /** Rebuilds the list of languages (default, catalog and installed) and brings the keyboard up to date. */
     private void rebuild() {
         if (mLangs == null) return;
@@ -148,18 +154,21 @@ public class MrPacksActivity extends PreferenceActivity {
         Preference hint = new Preference(this);
         hint.setPersistent(false);
         hint.setSelectable(false);
+        plain(hint);
         hint.setSummary(t("mr_dicts_langs_hint"));
         mLangs.addPreference(hint);
         // v1.77: says whether the native engine is in use (since 1.87.0 there is no Java fallback; this way you can check whether the lib was copied)
         Preference engine = new Preference(this);
         engine.setPersistent(false);
         engine.setSelectable(false);
+        plain(engine);
         engine.setTitle(t("mr_engine_title"));
         engine.setSummary(t(MrNative.ready() ? "mr_engine_native" : "mr_engine_missing"));
         mLangs.addPreference(engine);
         mMem = new Preference(this);
         mMem.setPersistent(false);
         mMem.setSelectable(false);
+        plain(mMem);
         mMem.setTitle(t("mr_mem_title"));
         mMem.setSummary(t("mr_mem_wait"));
         mLangs.addPreference(mMem);
@@ -414,10 +423,14 @@ public class MrPacksActivity extends PreferenceActivity {
                             mError = fe;
                             mErrorId = p.id;
                             toast(fe);
-                        } else if (!PreferenceManager.getDefaultSharedPreferences(app)
-                                .getBoolean("show_suggestions", false)) {
-                            toast(t("mr_dicts_installed_turn_on"));
                         } else {
+                            Preference show = findPreference("show_suggestions");
+                            if (show instanceof CheckBoxPreference) {
+                                ((CheckBoxPreference) show).setChecked(true);
+                            } else {
+                                PreferenceManager.getDefaultSharedPreferences(app).edit()
+                                        .putBoolean("show_suggestions", true).apply();
+                            }
                             toast(t("mr_dicts_installed_ok"));
                         }
                         if (!gone()) rebuild();

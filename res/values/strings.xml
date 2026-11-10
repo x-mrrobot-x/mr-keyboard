@@ -36,7 +36,7 @@
     <string name="default_click_volume">0.8</string>
     <string name="default_ctrl_a_override">2</string>
     <string name="default_height_landscape">60%</string>
-    <string name="default_height_portrait">33%</string>
+    <string name="default_height_portrait">34%</string>
     <string name="default_hint_mode">1</string>
     <string name="default_keyboard_mode_landscape">0</string>
     <string name="default_keyboard_mode_portrait">0</string>

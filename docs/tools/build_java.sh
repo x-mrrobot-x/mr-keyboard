@@ -1,5 +1,5 @@
 #!/bin/sh
-# Generates the smali of the Mr Keyboard Java layer (MrText, MrFix, MrFuzzy, MrPredict, MrTrigram, MrRules, MrJson, MrPacks, MrPacksActivity, MrAi, MrAiDialog, MrAiPrefs, MrAiStyleActivity, MrUpdate, MrUpdateDialog, MrUpdateInstall, MrUpdateReceiver, MrUpdateSchedule, MrUpdateNotify, MrUpdateJob, MrUpdateRearm, MrUpdateUi, MrScreens, MrScreenIme, MrNav, MrKeep, MrBarClose, MrAccel, MrKit, MrLang, MrLearned, MrImport, MrImportAi, MrLearnedActivity, MrImportActivity, MrWordStore, MrMemStore, MrSqlStore) from
+# Generates the smali of the Mr Keyboard Java layer (MrText, MrFix, MrFuzzy, MrPredict, MrTrigram, MrRules, MrJson, MrPacks, MrPacksActivity, MrAi, MrAiDialog, MrAiPrefs, MrAiStyleActivity, MrUpdate, MrUpdateDialog, MrUpdateInstall, MrUpdateReceiver, MrUpdateSchedule, MrUpdateNotify, MrUpdateJob, MrUpdateRearm, MrUpdateUi, MrScreens, MrScreenIme, MrNav, MrKeep, MrBarClose, MrAccel, MrKit, MrLang, MrLearned, MrImport, MrImportAi, MrLearnedActivity, MrImportActivity, MrWordStore, MrMemStore, MrSqlStore, PrefScreenSheets, SheetEditorActivity, KeyEditDialog, PopupEditDialog, SpecialKeyPicker, SheetGridView) from
 # docs/tools/java/src and copies it to smali/com/mrkeyboard/app/.
 #
 # Usage (at the root of the apktool project):
@@ -23,6 +23,20 @@ java -cp "$DX_JAR" com.android.dx.command.Main --dex --min-sdk-version=26 \
     --output="$OUT/classes.dex" "$OUT/classes"
 (cd "$OUT" && zip -q mr.apk classes.dex)
 java -jar "$APKTOOL_JAR" d -r -f "$OUT/mr.apk" -o "$OUT/dec" >/dev/null
-cp "$OUT"/dec/smali/com/mrkeyboard/app/Mr*.smali "$ROOT/smali/com/mrkeyboard/app/"
+# Takes out the smali that this build replaces before copying: the anonymous and inner classes are numbered by their order in the
+# Java file (MrFoo$1, MrFoo$2$1...), so when a class is added or removed the numbers move and the old MrFoo$N that no longer comes out
+# of the Java would stay in smali/ as a leftover (check_java_smali.sh reports it as LEFTOVER). Only the classes that have a Java
+# source in $SRC are touched: the hand-written smali (MrTools, MrShots...) stays as it is.
+APP="$ROOT/smali/com/mrkeyboard/app"
+mkdir -p "$APP"
+for java in "$SRC"/src/com/mrkeyboard/app/*.java; do
+    base=$(basename "$java" .java)
+    rm -f "$APP/$base.smali" "$APP/$base"'$'*.smali
+done
+# Everything in the dex comes from the sources in $SRC (the stubs are not in it), so all of it is copied: the classes of the Java layer
+# are the Mr* ones, PrefScreenSheets (the Sheets page), SheetEditorActivity (the sheet editor since 1.92.0),
+# KeyEditDialog (the key editor of the sheet screen since 1.92.0), PopupEditDialog (the long-press popup),
+# SpecialKeyPicker (the special keys of the sheet editor) and SheetGridView (the drawn key grid of the editor).
+cp "$OUT"/dec/smali/com/mrkeyboard/app/*.smali "$ROOT/smali/com/mrkeyboard/app/"
 ls "$OUT"/dec/smali/com/mrkeyboard/app/
 rm -rf "$OUT"

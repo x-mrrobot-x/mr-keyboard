@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/SheetEditorActivity;->onCreate(Landroid/os/Bundle;)V
+    value = Lcom/mrkeyboard/app/SheetEditorActivity;->bindHeader(Landroid/view/View;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,17 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-.field final synthetic val$menuBtn:Landroid/widget/ImageView;
+.field final synthetic val$more:Landroid/widget/ImageView;
 
 
 # direct methods
 .method constructor <init>(Lcom/mrkeyboard/app/SheetEditorActivity;Landroid/widget/ImageView;)V
-    .registers 3
+    .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 156
+    .prologue
+    .line 177
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$4;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$4;->val$menuBtn:Landroid/widget/ImageView;
+    iput-object p2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$4;->val$more:Landroid/widget/ImageView;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -40,16 +46,16 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 3
+    .locals 2
 
-    .line 159
-    iget-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$4;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+    .prologue
+    .line 179
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$4;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$4;->val$menuBtn:Landroid/widget/ImageView;
+    iget-object v1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$4;->val$more:Landroid/widget/ImageView;
 
-    # invokes: Lcom/mrkeyboard/app/SheetEditorActivity;->showOverflowMenu(Landroid/view/View;)V
-    invoke-static {p1, v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$200(Lcom/mrkeyboard/app/SheetEditorActivity;Landroid/view/View;)V
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$200(Lcom/mrkeyboard/app/SheetEditorActivity;Landroid/view/View;)V
 
-    .line 160
+    .line 180
     return-void
 .end method

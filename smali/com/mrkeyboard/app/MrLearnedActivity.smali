@@ -320,14 +320,14 @@
     .prologue
     const/4 v7, 0x0
 
-    .line 370
+    .line 374
     packed-switch p1, :pswitch_data_0
 
-    .line 397
+    .line 401
     :goto_0
     return-void
 
-    .line 372
+    .line 376
     :pswitch_0
     :try_start_0
     invoke-direct {p0, p2}, Lcom/mrkeyboard/app/MrLearnedActivity;->askEdit(Lcom/mrkeyboard/app/MrWordStore$Row;)V
@@ -336,11 +336,11 @@
 
     goto :goto_0
 
-    .line 391
+    .line 395
     :catch_0
     move-exception v0
 
-    .line 392
+    .line 396
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -357,7 +357,7 @@
 
     goto :goto_0
 
-    .line 375
+    .line 379
     :pswitch_1
     :try_start_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
@@ -374,7 +374,7 @@
 
     move-result v0
 
-    .line 376
+    .line 380
     if-gez v0, :cond_0
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -395,16 +395,16 @@
     :try_end_1
     .catch Ljava/lang/RuntimeException; {:try_start_1 .. :try_end_1} :catch_0
 
-    .line 395
+    .line 399
     :goto_1
     invoke-static {p0}, Lcom/mrkeyboard/app/MrLearned;->changed(Landroid/content/Context;)V
 
-    .line 396
+    .line 400
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrLearnedActivity;->refreshAll()V
 
     goto :goto_0
 
-    .line 377
+    .line 381
     :cond_0
     :try_start_2
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -439,7 +439,7 @@
 
     goto :goto_1
 
-    .line 381
+    .line 385
     :pswitch_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
 
@@ -449,7 +449,7 @@
 
     invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/MrLearned;->forget(Lcom/mrkeyboard/app/MrWordStore;IJ)Z
 
-    .line 382
+    .line 386
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -468,7 +468,7 @@
 
     goto :goto_1
 
-    .line 385
+    .line 389
     :pswitch_3
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
 
@@ -476,7 +476,7 @@
 
     invoke-static {v0, v2, v3}, Lcom/mrkeyboard/app/MrLearned;->unblock(Lcom/mrkeyboard/app/MrWordStore;J)Z
 
-    .line 386
+    .line 390
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -497,7 +497,7 @@
 
     goto :goto_1
 
-    .line 370
+    .line 374
     :pswitch_data_0
     .packed-switch 0x1
         :pswitch_0
@@ -515,10 +515,10 @@
 
     const/4 v7, 0x0
 
-    .line 446
+    .line 450
     iget v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mTab:I
 
-    .line 447
+    .line 451
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
     invoke-direct {v0, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
@@ -529,7 +529,7 @@
 
     new-array v4, v7, [Ljava/lang/Object;
 
-    .line 448
+    .line 452
     invoke-virtual {v2, v3, v4}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v2
@@ -540,12 +540,12 @@
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    .line 449
+    .line 453
     if-nez v1, :cond_0
 
     const-string v0, "mr_learned_delete_ask_learned"
 
-    .line 450
+    .line 454
     :goto_0
     new-array v4, v5, [Ljava/lang/Object;
 
@@ -559,7 +559,7 @@
 
     aput-object v5, v4, v7
 
-    .line 449
+    .line 453
     invoke-virtual {v3, v0, v4}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v0
@@ -574,7 +574,7 @@
 
     new-array v4, v7, [Ljava/lang/Object;
 
-    .line 451
+    .line 455
     invoke-virtual {v2, v3, v4}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v2
@@ -591,7 +591,7 @@
 
     new-array v4, v7, [Ljava/lang/Object;
 
-    .line 452
+    .line 456
     invoke-virtual {v2, v3, v4}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v2
@@ -604,13 +604,13 @@
 
     move-result-object v0
 
-    .line 457
+    .line 461
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 458
+    .line 462
     return-void
 
-    .line 450
+    .line 454
     :cond_0
     if-ne v1, v5, :cond_1
 
@@ -632,7 +632,7 @@
 
     const/4 v6, 0x0
 
-    .line 400
+    .line 404
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v1, ""
@@ -643,33 +643,33 @@
 
     move-result-object v0
 
-    .line 401
+    .line 405
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setSingleLine(Z)V
 
-    .line 402
+    .line 406
     invoke-virtual {p1}, Lcom/mrkeyboard/app/MrWordStore$Row;->text()Ljava/lang/String;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 403
+    .line 407
     invoke-virtual {v0}, Landroid/widget/EditText;->length()I
 
     move-result v1
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setSelection(I)V
 
-    .line 404
+    .line 408
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-virtual {v1}, Lcom/mrkeyboard/app/MrKit;->column()Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 405
+    .line 409
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-virtual {v2, v5}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
@@ -692,7 +692,7 @@
 
     invoke-virtual {v1, v2, v3, v4, v6}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 406
+    .line 410
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-virtual {v2, v6}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
@@ -701,7 +701,7 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 407
+    .line 411
     new-instance v2, Landroid/app/AlertDialog$Builder;
 
     invoke-direct {v2, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
@@ -712,7 +712,7 @@
 
     new-array v5, v6, [Ljava/lang/Object;
 
-    .line 408
+    .line 412
     invoke-virtual {v3, v4, v5}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v3
@@ -721,7 +721,7 @@
 
     move-result-object v2
 
-    .line 409
+    .line 413
     invoke-virtual {v2, v1}, Landroid/app/AlertDialog$Builder;->setView(Landroid/view/View;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v1
@@ -732,7 +732,7 @@
 
     new-array v4, v6, [Ljava/lang/Object;
 
-    .line 410
+    .line 414
     invoke-virtual {v2, v3, v4}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v2
@@ -749,7 +749,7 @@
 
     new-array v4, v6, [Ljava/lang/Object;
 
-    .line 411
+    .line 415
     invoke-virtual {v2, v3, v4}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v2
@@ -762,10 +762,10 @@
 
     move-result-object v0
 
-    .line 416
+    .line 420
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 417
+    .line 421
     return-void
 .end method
 
@@ -773,7 +773,7 @@
     .locals 1
 
     .prologue
-    .line 215
+    .line 216
     invoke-static {p2, p0}, Ljava/lang/Math;->min(II)I
 
     move-result v0
@@ -793,7 +793,7 @@
 
     const/4 v5, 0x0
 
-    .line 463
+    .line 467
     if-nez p1, :cond_0
 
     :try_start_0
@@ -807,7 +807,7 @@
 
     move-result v0
 
-    .line 470
+    .line 474
     :goto_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -829,17 +829,17 @@
 
     invoke-virtual {v1, v0}, Lcom/mrkeyboard/app/MrKit;->toast(Ljava/lang/String;)V
 
-    .line 471
+    .line 475
     invoke-static {p0}, Lcom/mrkeyboard/app/MrLearned;->changed(Landroid/content/Context;)V
 
-    .line 472
+    .line 476
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrLearnedActivity;->refreshAll()V
 
-    .line 473
+    .line 477
     :goto_1
     return-void
 
-    .line 464
+    .line 468
     :cond_0
     if-ne p1, v4, :cond_1
 
@@ -854,7 +854,7 @@
 
     goto :goto_0
 
-    .line 465
+    .line 469
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
 
@@ -870,11 +870,11 @@
 
     goto :goto_0
 
-    .line 466
+    .line 470
     :catch_0
     move-exception v0
 
-    .line 467
+    .line 471
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -898,19 +898,19 @@
     .prologue
     const/4 v0, 0x2
 
-    .line 290
+    .line 291
     iget v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mTab:I
 
     if-ne v1, v0, :cond_1
 
     const/4 v0, 0x4
 
-    .line 292
+    .line 293
     :cond_0
     :goto_0
     return v0
 
-    .line 291
+    .line 292
     :cond_1
     iget v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mTab:I
 
@@ -929,7 +929,7 @@
 
     goto :goto_0
 
-    .line 292
+    .line 293
     :cond_3
     iget v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mType:I
 
@@ -944,7 +944,7 @@
     .locals 4
 
     .prologue
-    .line 224
+    .line 225
     :try_start_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
 
@@ -954,7 +954,7 @@
 
     move-result-object v0
 
-    .line 228
+    .line 229
     :goto_0
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->installedIds(Landroid/content/Context;)Ljava/util/ArrayList;
 
@@ -966,7 +966,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mLangs:Ljava/util/List;
 
-    .line 229
+    .line 230
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mLangs:Ljava/util/List;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mLocale:Ljava/lang/String;
@@ -983,7 +983,7 @@
 
     move-result-object v2
 
-    .line 230
+    .line 231
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrLearnedActivity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v3
@@ -998,21 +998,21 @@
 
     move-result-object v3
 
-    .line 229
+    .line 230
     invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/MrLang;->pick(Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mLocale:Ljava/lang/String;
 
-    .line 231
+    .line 232
     return-void
 
-    .line 225
+    .line 226
     :catch_0
     move-exception v0
 
-    .line 226
+    .line 227
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -1028,29 +1028,29 @@
 
     const/4 v5, 0x0
 
-    .line 343
+    .line 347
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 344
+    .line 348
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 345
+    .line 349
     iget v2, p1, Lcom/mrkeyboard/app/MrWordStore$Row;->kind:I
 
     if-ne v2, v3, :cond_0
 
-    .line 346
+    .line 350
     invoke-static {v3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
     move-result-object v2
 
     invoke-virtual {v1, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 347
+    .line 351
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, "mr_learned_act_allow"
@@ -1063,13 +1063,13 @@
 
     invoke-virtual {v0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 358
+    .line 362
     :goto_0
     new-instance v2, Landroid/app/AlertDialog$Builder;
 
     invoke-direct {v2, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 359
+    .line 363
     invoke-virtual {p1}, Lcom/mrkeyboard/app/MrWordStore$Row;->text()Ljava/lang/String;
 
     move-result-object v3
@@ -1080,7 +1080,7 @@
 
     new-array v3, v5, [Ljava/lang/CharSequence;
 
-    .line 360
+    .line 364
     invoke-virtual {v0, v3}, Ljava/util/ArrayList;->toArray([Ljava/lang/Object;)[Ljava/lang/Object;
 
     move-result-object v0
@@ -1095,13 +1095,13 @@
 
     move-result-object v0
 
-    .line 365
+    .line 369
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 366
+    .line 370
     return-void
 
-    .line 349
+    .line 353
     :cond_0
     const/4 v2, 0x1
 
@@ -1111,7 +1111,7 @@
 
     invoke-virtual {v1, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 350
+    .line 354
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, "mr_learned_act_edit"
@@ -1124,12 +1124,12 @@
 
     invoke-virtual {v0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 351
+    .line 355
     iget-object v2, p1, Lcom/mrkeyboard/app/MrWordStore$Row;->b:Ljava/lang/String;
 
     if-nez v2, :cond_1
 
-    .line 352
+    .line 356
     const/4 v2, 0x2
 
     invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
@@ -1138,7 +1138,7 @@
 
     invoke-virtual {v1, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 353
+    .line 357
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, "mr_learned_act_block"
@@ -1151,7 +1151,7 @@
 
     invoke-virtual {v0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 355
+    .line 359
     :cond_1
     const/4 v2, 0x3
 
@@ -1161,7 +1161,7 @@
 
     invoke-virtual {v1, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 356
+    .line 360
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, "mr_learned_act_forget"
@@ -1189,7 +1189,7 @@
 
     const/4 v2, 0x0
 
-    .line 238
+    .line 239
     :try_start_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
 
@@ -1201,7 +1201,7 @@
 
     move-result-object v0
 
-    .line 242
+    .line 243
     :goto_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -1217,12 +1217,12 @@
 
     invoke-virtual {v1, v3, v4, v5, v6}, Lcom/mrkeyboard/app/MrKit;->languageCard(Landroid/widget/LinearLayout;Ljava/util/List;Ljava/lang/String;Lcom/mrkeyboard/app/MrKit$LangPick;)V
 
-    .line 251
+    .line 252
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 252
+    .line 253
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v4, "mr_learned_tab_learned"
@@ -1251,7 +1251,7 @@
 
     invoke-virtual {v1, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 253
+    .line 254
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v4, "mr_learned_tab_added"
@@ -1280,7 +1280,7 @@
 
     invoke-virtual {v1, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 254
+    .line 255
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v4, "mr_learned_tab_blocked"
@@ -1307,31 +1307,31 @@
 
     invoke-virtual {v1, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 255
+    .line 256
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v4, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mTabBox:Landroid/widget/LinearLayout;
 
     invoke-virtual {v3, v4, v1, v10}, Lcom/mrkeyboard/app/MrKit;->fill(Landroid/widget/LinearLayout;Ljava/util/List;I)V
 
-    .line 257
+    .line 258
     new-instance v3, Ljava/util/ArrayList;
 
     invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
 
-    .line 258
+    .line 259
     iget v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mTab:I
 
     if-eq v1, v9, :cond_0
 
-    .line 259
+    .line 260
     iget v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mTab:I
 
     if-nez v1, :cond_1
 
     aget v1, v0, v2
 
-    .line 260
+    .line 261
     :goto_1
     iget v4, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mTab:I
 
@@ -1339,7 +1339,7 @@
 
     aget v0, v0, v8
 
-    .line 261
+    .line 262
     :goto_2
     iget-object v4, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -1363,7 +1363,7 @@
 
     invoke-virtual {v3, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 262
+    .line 263
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v4, "mr_learned_type_pairs"
@@ -1386,7 +1386,7 @@
 
     invoke-virtual {v3, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 264
+    .line 265
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -1394,7 +1394,7 @@
 
     invoke-virtual {v0, v1, v3, v9}, Lcom/mrkeyboard/app/MrKit;->fill(Landroid/widget/LinearLayout;Ljava/util/List;I)V
 
-    .line 265
+    .line 266
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mTypeBox:Landroid/widget/LinearLayout;
 
     invoke-virtual {v3}, Ljava/util/ArrayList;->isEmpty()Z
@@ -1408,30 +1408,30 @@
     :goto_3
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 266
+    .line 267
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrLearnedActivity;->refreshList()V
 
-    .line 267
+    .line 268
     return-void
 
-    .line 239
+    .line 240
     :catch_0
     move-exception v0
 
-    .line 240
+    .line 241
     const/4 v0, 0x5
 
     new-array v0, v0, [I
 
     goto/16 :goto_0
 
-    .line 259
+    .line 260
     :cond_1
     aget v1, v0, v9
 
     goto :goto_1
 
-    .line 260
+    .line 261
     :cond_2
     aget v0, v0, v10
 
@@ -1440,7 +1440,7 @@
     :cond_3
     move v0, v2
 
-    .line 265
+    .line 266
     goto :goto_3
 .end method
 
@@ -1458,12 +1458,12 @@
 
     const/4 v8, 0x0
 
-    .line 296
+    .line 297
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mListBox:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 297
+    .line 298
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mSortChip:Landroid/widget/TextView;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -1483,7 +1483,7 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 298
+    .line 299
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mSortChip:Landroid/widget/TextView;
 
     iget v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mTab:I
@@ -1495,7 +1495,7 @@
     :goto_1
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 301
+    .line 302
     :try_start_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
 
@@ -1523,7 +1523,7 @@
 
     move-object v1, v0
 
-    .line 306
+    .line 307
     :goto_2
     invoke-interface {v1}, Ljava/util/List;->size()I
 
@@ -1535,7 +1535,7 @@
 
     move v2, v9
 
-    .line 307
+    .line 308
     :goto_3
     invoke-interface {v1}, Ljava/util/List;->size()I
 
@@ -1547,30 +1547,35 @@
 
     move-result v5
 
+    .line 310
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrKit;->table()Landroid/widget/LinearLayout;
+
+    move-result-object v6
+
     move v4, v8
 
-    .line 308
+    .line 311
     :goto_4
-    if-ge v4, v5, :cond_7
+    if-ge v4, v5, :cond_6
 
-    .line 309
+    .line 312
     invoke-interface {v1, v4}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/mrkeyboard/app/MrWordStore$Row;
 
-    .line 310
+    .line 313
     iget v3, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->kind:I
 
     if-ne v3, v14, :cond_3
 
     const-string v3, ""
 
-    .line 313
+    .line 316
     :goto_5
-    iget-object v6, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mListBox:Landroid/widget/LinearLayout;
-
     iget-object v11, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrWordStore$Row;->text()Ljava/lang/String;
@@ -1581,33 +1586,16 @@
 
     invoke-direct {v13, p0, v0}, Lcom/mrkeyboard/app/MrLearnedActivity$11;-><init>(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore$Row;)V
 
-    invoke-virtual {v11, v12, v3, v13}, Lcom/mrkeyboard/app/MrKit;->item(Ljava/lang/String;Ljava/lang/String;Landroid/view/View$OnClickListener;)Landroid/widget/LinearLayout;
+    invoke-virtual {v11, v6, v12, v3, v13}, Lcom/mrkeyboard/app/MrKit;->tableRow(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;Landroid/view/View$OnClickListener;)V
 
-    move-result-object v3
-
-    iget-object v11, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    .line 317
-    if-nez v4, :cond_6
-
-    move v0, v8
-
-    :goto_6
-    invoke-virtual {v11, v0}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
-
-    move-result-object v0
-
-    .line 313
-    invoke-virtual {v6, v3, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 308
+    .line 311
     add-int/lit8 v0, v4, 0x1
 
     move v4, v0
 
     goto :goto_4
 
-    .line 297
+    .line 298
     :cond_0
     const-string v0, "mr_learned_sort_new"
 
@@ -1616,19 +1604,19 @@
     :cond_1
     move v0, v8
 
-    .line 298
+    .line 299
     goto :goto_1
 
-    .line 302
+    .line 303
     :catch_0
     move-exception v0
 
-    .line 303
+    .line 304
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 304
+    .line 305
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -1650,10 +1638,10 @@
     :cond_2
     move v2, v8
 
-    .line 306
+    .line 307
     goto :goto_3
 
-    .line 311
+    .line 314
     :cond_3
     iget v3, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->kind:I
 
@@ -1663,7 +1651,7 @@
 
     if-ne v3, v9, :cond_5
 
-    .line 312
+    .line 315
     :cond_4
     iget v3, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->freq:I
 
@@ -1671,34 +1659,42 @@
 
     move-result v3
 
-    .line 311
-    :goto_7
+    .line 314
+    :goto_6
     invoke-static {v3}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
 
     move-result-object v3
 
     goto :goto_5
 
-    .line 312
+    .line 315
     :cond_5
     iget v3, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->freq:I
 
-    goto :goto_7
-
-    .line 317
-    :cond_6
-    const/4 v0, 0x6
-
     goto :goto_6
 
-    .line 319
+    .line 322
+    :cond_6
+    if-lez v5, :cond_7
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mListBox:Landroid/widget/LinearLayout;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    invoke-virtual {v1, v8}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v6, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 323
     :cond_7
     const-string v0, ""
 
-    .line 320
+    .line 324
     if-nez v5, :cond_8
 
-    .line 321
+    .line 325
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mFilter:Ljava/lang/String;
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -1717,34 +1713,34 @@
 
     move-result-object v0
 
-    .line 325
+    .line 329
     :cond_8
-    :goto_8
+    :goto_7
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mEmpty:Landroid/widget/TextView;
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 326
+    .line 330
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mEmpty:Landroid/widget/TextView;
 
     if-nez v5, :cond_c
 
     move v0, v8
 
-    :goto_9
+    :goto_8
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 327
+    .line 331
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mMore:Landroid/widget/TextView;
 
     if-eqz v2, :cond_d
 
     move v0, v8
 
-    :goto_a
+    :goto_9
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 330
+    .line 334
     :try_start_1
     iget v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mTab:I
 
@@ -1762,8 +1758,8 @@
 
     move-result v0
 
-    .line 336
-    :goto_b
+    .line 340
+    :goto_a
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mDeleteAll:Landroid/widget/TextView;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -1778,18 +1774,18 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 337
+    .line 341
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mDeleteAll:Landroid/widget/TextView;
 
     if-lez v0, :cond_11
 
-    :goto_c
+    :goto_b
     invoke-virtual {v1, v8}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 338
+    .line 342
     return-void
 
-    .line 322
+    .line 326
     :cond_9
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -1799,18 +1795,18 @@
 
     const-string v0, "mr_learned_empty_learned"
 
-    .line 323
-    :goto_d
+    .line 327
+    :goto_c
     new-array v3, v8, [Ljava/lang/Object;
 
-    .line 322
+    .line 326
     invoke-virtual {v1, v0, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v0
 
-    goto :goto_8
+    goto :goto_7
 
-    .line 323
+    .line 327
     :cond_a
     iget v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mTab:I
 
@@ -1818,26 +1814,26 @@
 
     const-string v0, "mr_learned_empty_added"
 
-    goto :goto_d
+    goto :goto_c
 
     :cond_b
     const-string v0, "mr_learned_empty_blocked"
 
-    goto :goto_d
+    goto :goto_c
 
     :cond_c
     move v0, v7
 
-    .line 326
-    goto :goto_9
+    .line 330
+    goto :goto_8
 
     :cond_d
     move v0, v7
 
-    .line 327
-    goto :goto_a
-
     .line 331
+    goto :goto_9
+
+    .line 335
     :cond_e
     :try_start_2
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
@@ -1848,7 +1844,7 @@
 
     move v0, v8
 
-    :goto_e
+    :goto_d
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mLocale:Ljava/lang/String;
 
     invoke-interface {v1, v0, v2}, Lcom/mrkeyboard/app/MrWordStore;->count(ILjava/lang/String;)I
@@ -1857,12 +1853,12 @@
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
 
-    .line 332
+    .line 336
     iget v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mTab:I
 
     if-nez v2, :cond_10
 
-    :goto_f
+    :goto_e
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mLocale:Ljava/lang/String;
 
     invoke-interface {v1, v9, v2}, Lcom/mrkeyboard/app/MrWordStore;->count(ILjava/lang/String;)I
@@ -1873,34 +1869,34 @@
 
     add-int/2addr v0, v1
 
-    goto :goto_b
+    goto :goto_a
 
     :cond_f
     move v0, v10
 
-    .line 331
-    goto :goto_e
+    .line 335
+    goto :goto_d
 
-    .line 332
+    .line 336
     :cond_10
     const/4 v9, 0x3
 
-    goto :goto_f
+    goto :goto_e
 
-    .line 333
+    .line 337
     :catch_1
     move-exception v0
 
     move v0, v8
 
-    .line 334
-    goto :goto_b
+    .line 338
+    goto :goto_a
 
     :cond_11
     move v8, v7
 
-    .line 337
-    goto :goto_c
+    .line 341
+    goto :goto_b
 .end method
 
 .method private saveEdit(Lcom/mrkeyboard/app/MrWordStore$Row;Ljava/lang/String;)V
@@ -1909,14 +1905,14 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 420
+    .line 424
     iget-object v0, p1, Lcom/mrkeyboard/app/MrWordStore$Row;->b:Ljava/lang/String;
 
     if-eqz v0, :cond_0
 
     const/4 v0, 0x1
 
-    .line 421
+    .line 425
     :goto_0
     if-eqz v0, :cond_1
 
@@ -1936,7 +1932,7 @@
 
     if-nez v0, :cond_1
 
-    .line 422
+    .line 426
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -1951,17 +1947,17 @@
 
     invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrKit;->toast(Ljava/lang/String;)V
 
-    .line 441
+    .line 445
     :goto_1
     return-void
 
     :cond_0
     move v0, v1
 
-    .line 420
+    .line 424
     goto :goto_0
 
-    .line 427
+    .line 431
     :cond_1
     :try_start_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
@@ -1974,10 +1970,10 @@
 
     move-result v0
 
-    .line 432
+    .line 436
     if-nez v0, :cond_2
 
-    .line 433
+    .line 437
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -1992,19 +1988,19 @@
 
     invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrKit;->toast(Ljava/lang/String;)V
 
-    .line 434
+    .line 438
     invoke-static {p0}, Lcom/mrkeyboard/app/MrLearned;->changed(Landroid/content/Context;)V
 
-    .line 435
+    .line 439
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrLearnedActivity;->refreshAll()V
 
     goto :goto_1
 
-    .line 428
+    .line 432
     :catch_0
     move-exception v0
 
-    .line 429
+    .line 433
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -2021,11 +2017,11 @@
 
     goto :goto_1
 
-    .line 436
+    .line 440
     :cond_2
     if-lez v0, :cond_3
 
-    .line 437
+    .line 441
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -2058,7 +2054,7 @@
 
     goto :goto_1
 
-    .line 439
+    .line 443
     :cond_3
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -2081,29 +2077,29 @@
     .locals 4
 
     .prologue
-    .line 478
+    .line 482
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mLocale:Ljava/lang/String;
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mExportLocale:Ljava/lang/String;
 
-    .line 479
+    .line 483
     new-instance v0, Landroid/content/Intent;
 
     const-string v1, "android.intent.action.CREATE_DOCUMENT"
 
     invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 480
+    .line 484
     const-string v1, "android.intent.category.OPENABLE"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 481
+    .line 485
     const-string v1, "text/plain"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 482
+    .line 486
     const-string v1, "android.intent.extra.TITLE"
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -2138,7 +2134,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 484
+    .line 488
     const/16 v1, 0x1bbd
 
     :try_start_0
@@ -2146,15 +2142,15 @@
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 488
+    .line 492
     :goto_0
     return-void
 
-    .line 485
+    .line 489
     :catch_0
     move-exception v0
 
-    .line 486
+    .line 490
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -2178,7 +2174,7 @@
     .locals 3
 
     .prologue
-    .line 270
+    .line 271
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mTab:I
@@ -2192,7 +2188,7 @@
 
     invoke-direct {v2, p0, p1}, Lcom/mrkeyboard/app/MrLearnedActivity$9;-><init>(Lcom/mrkeyboard/app/MrLearnedActivity;I)V
 
-    invoke-virtual {v1, p2, v0, v2}, Lcom/mrkeyboard/app/MrKit;->chip(Ljava/lang/String;ZLandroid/view/View$OnClickListener;)Landroid/widget/TextView;
+    invoke-virtual {v1, p2, v0, v2}, Lcom/mrkeyboard/app/MrKit;->tabChip(Ljava/lang/String;ZLandroid/view/View$OnClickListener;)Landroid/widget/TextView;
 
     move-result-object v0
 
@@ -2208,7 +2204,7 @@
     .locals 3
 
     .prologue
-    .line 280
+    .line 281
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mType:I
@@ -2255,10 +2251,10 @@
     .locals 5
 
     .prologue
-    .line 492
+    .line 496
     invoke-super {p0, p1, p2, p3}, Landroid/app/Activity;->onActivityResult(IILandroid/content/Intent;)V
 
-    .line 493
+    .line 497
     const/16 v0, 0x1bbd
 
     if-ne p1, v0, :cond_0
@@ -2275,29 +2271,29 @@
 
     if-nez v0, :cond_1
 
-    .line 523
+    .line 527
     :cond_0
     :goto_0
     return-void
 
-    .line 494
+    .line 498
     :cond_1
     invoke-virtual {p3}, Landroid/content/Intent;->getData()Landroid/net/Uri;
 
     move-result-object v1
 
-    .line 495
+    .line 499
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mExportLocale:Ljava/lang/String;
 
     if-eqz v0, :cond_2
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mExportLocale:Ljava/lang/String;
 
-    .line 496
+    .line 500
     :goto_1
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
 
-    .line 497
+    .line 501
     new-instance v3, Ljava/lang/Thread;
 
     new-instance v4, Lcom/mrkeyboard/app/MrLearnedActivity$15;
@@ -2306,12 +2302,12 @@
 
     invoke-direct {v3, v4}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;)V
 
-    .line 522
+    .line 526
     invoke-virtual {v3}, Ljava/lang/Thread;->start()V
 
     goto :goto_0
 
-    .line 495
+    .line 499
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mLocale:Ljava/lang/String;
 
@@ -2322,11 +2318,11 @@
     .locals 12
 
     .prologue
-    const/4 v11, -0x2
-
-    const/high16 v9, 0x41a00000    # 20.0f
+    const/high16 v11, 0x41a00000    # 20.0f
 
     const/high16 v10, 0x41600000    # 14.0f
+
+    const/high16 v9, 0x41400000    # 12.0f
 
     const/4 v7, 0x1
 
@@ -2372,7 +2368,7 @@
     .line 94
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrLearnedActivity;->finish()V
 
-    .line 201
+    .line 202
     :goto_0
     return-void
 
@@ -2515,7 +2511,7 @@
     .line 112
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    invoke-virtual {v2, v9}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
+    invoke-virtual {v2, v11}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
 
     move-result v2
 
@@ -2529,7 +2525,7 @@
 
     iget-object v4, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    invoke-virtual {v4, v9}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
+    invoke-virtual {v4, v11}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
 
     move-result v4
 
@@ -2548,14 +2544,16 @@
 
     const/4 v3, -0x1
 
-    invoke-direct {v2, v3, v11}, Landroid/view/ViewGroup$LayoutParams;-><init>(II)V
+    const/4 v4, -0x2
+
+    invoke-direct {v2, v3, v4}, Landroid/view/ViewGroup$LayoutParams;-><init>(II)V
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/ScrollView;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 114
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    invoke-virtual {v2, v9}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
+    invoke-virtual {v2, v11}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
 
     move-result v2
 
@@ -2569,7 +2567,7 @@
 
     iget-object v4, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    invoke-virtual {v4, v9}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
+    invoke-virtual {v4, v11}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
 
     move-result v4
 
@@ -2582,8 +2580,6 @@
     move-result v5
 
     iget-object v6, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    const/high16 v9, 0x41400000    # 12.0f
 
     invoke-virtual {v6, v9}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
 
@@ -2608,7 +2604,7 @@
 
     invoke-direct {v4, p0}, Lcom/mrkeyboard/app/MrLearnedActivity$1;-><init>(Lcom/mrkeyboard/app/MrLearnedActivity;)V
 
-    invoke-virtual {v2, v3, v4}, Lcom/mrkeyboard/app/MrKit;->header(Ljava/lang/String;Landroid/view/View$OnClickListener;)Landroid/widget/LinearLayout;
+    invoke-virtual {v2, v3, v4}, Lcom/mrkeyboard/app/MrKit;->backHeader(Ljava/lang/String;Landroid/view/View$OnClickListener;)Landroid/widget/LinearLayout;
 
     move-result-object v2
 
@@ -2774,9 +2770,11 @@
 
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
-    const/high16 v5, 0x3f800000    # 1.0f
+    const/4 v5, -0x2
 
-    invoke-direct {v4, v8, v11, v5}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+    const/high16 v6, 0x3f800000    # 1.0f
+
+    invoke-direct {v4, v8, v5, v6}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
     invoke-virtual {v2, v3, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
@@ -2796,11 +2794,34 @@
     iput-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mSortChip:Landroid/widget/TextView;
 
     .line 158
-    new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mSortChip:Landroid/widget/TextView;
 
-    invoke-direct {v3, v11, v11}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    iget v5, v5, Lcom/mrkeyboard/app/MrKit;->card:I
+
+    iget-object v6, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    iget v6, v6, Lcom/mrkeyboard/app/MrKit;->stroke:I
+
+    invoke-virtual {v4, v5, v6, v9, v8}, Lcom/mrkeyboard/app/MrKit;->round(IIFZ)Landroid/graphics/drawable/GradientDrawable;
+
+    move-result-object v4
+
+    invoke-virtual {v3, v4}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
     .line 159
+    new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v4, -0x2
+
+    const/4 v5, -0x1
+
+    invoke-direct {v3, v4, v5}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    .line 160
     iget-object v4, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const/high16 v5, 0x41000000    # 8.0f
@@ -2811,12 +2832,12 @@
 
     invoke-virtual {v3, v4, v8, v8, v8}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
 
-    .line 160
+    .line 161
     iget-object v4, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mSortChip:Landroid/widget/TextView;
 
     invoke-virtual {v2, v4, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 161
+    .line 162
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const/16 v4, 0xc
@@ -2827,7 +2848,7 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 163
+    .line 164
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-virtual {v2}, Lcom/mrkeyboard/app/MrKit;->column()Landroid/widget/LinearLayout;
@@ -2836,7 +2857,7 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mListBox:Landroid/widget/LinearLayout;
 
-    .line 164
+    .line 165
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mListBox:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -2849,7 +2870,7 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 165
+    .line 166
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, ""
@@ -2864,7 +2885,7 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mEmpty:Landroid/widget/TextView;
 
-    .line 166
+    .line 167
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mEmpty:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -2877,9 +2898,7 @@
 
     iget-object v4, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    const/high16 v5, 0x41400000    # 12.0f
-
-    invoke-virtual {v4, v5}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
+    invoke-virtual {v4, v9}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
 
     move-result v4
 
@@ -2893,15 +2912,13 @@
 
     iget-object v6, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    const/high16 v9, 0x41400000    # 12.0f
-
     invoke-virtual {v6, v9}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
 
     move-result v6
 
     invoke-virtual {v2, v3, v4, v5, v6}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 167
+    .line 168
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mEmpty:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -2912,7 +2929,7 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 168
+    .line 169
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -2935,7 +2952,7 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mMore:Landroid/widget/TextView;
 
-    .line 174
+    .line 175
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mMore:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -2948,7 +2965,7 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 176
+    .line 177
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -2961,11 +2978,13 @@
 
     move-result-object v3
 
-    new-instance v4, Lcom/mrkeyboard/app/MrLearnedActivity$5;
+    const-string v4, "mr_ui_ic_plus"
 
-    invoke-direct {v4, p0}, Lcom/mrkeyboard/app/MrLearnedActivity$5;-><init>(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+    new-instance v5, Lcom/mrkeyboard/app/MrLearnedActivity$5;
 
-    invoke-virtual {v2, v3, v7, v4}, Lcom/mrkeyboard/app/MrKit;->button(Ljava/lang/String;ZLandroid/view/View$OnClickListener;)Landroid/widget/TextView;
+    invoke-direct {v5, p0}, Lcom/mrkeyboard/app/MrLearnedActivity$5;-><init>(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+
+    invoke-virtual {v2, v3, v4, v7, v5}, Lcom/mrkeyboard/app/MrKit;->iconButton(Ljava/lang/String;Ljava/lang/String;ZLandroid/view/View$OnClickListener;)Landroid/widget/TextView;
 
     move-result-object v2
 
@@ -2973,15 +2992,15 @@
 
     const/16 v4, 0x16
 
-    .line 182
+    .line 183
     invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v3
 
-    .line 176
+    .line 177
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 183
+    .line 184
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -2994,11 +3013,13 @@
 
     move-result-object v3
 
-    new-instance v4, Lcom/mrkeyboard/app/MrLearnedActivity$6;
+    const-string v4, "mr_ui_ic_export"
 
-    invoke-direct {v4, p0}, Lcom/mrkeyboard/app/MrLearnedActivity$6;-><init>(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+    new-instance v5, Lcom/mrkeyboard/app/MrLearnedActivity$6;
 
-    invoke-virtual {v2, v3, v8, v4}, Lcom/mrkeyboard/app/MrKit;->button(Ljava/lang/String;ZLandroid/view/View$OnClickListener;)Landroid/widget/TextView;
+    invoke-direct {v5, p0}, Lcom/mrkeyboard/app/MrLearnedActivity$6;-><init>(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+
+    invoke-virtual {v2, v3, v4, v8, v5}, Lcom/mrkeyboard/app/MrKit;->iconButton(Ljava/lang/String;Ljava/lang/String;ZLandroid/view/View$OnClickListener;)Landroid/widget/TextView;
 
     move-result-object v2
 
@@ -3006,15 +3027,15 @@
 
     const/16 v4, 0xa
 
-    .line 187
+    .line 188
     invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v3
 
-    .line 183
+    .line 184
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 188
+    .line 189
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, ""
@@ -3029,14 +3050,14 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mDeleteAll:Landroid/widget/TextView;
 
-    .line 189
+    .line 190
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mDeleteAll:Landroid/widget/TextView;
 
     const/16 v3, 0x11
 
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 190
+    .line 191
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mDeleteAll:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -3071,12 +3092,12 @@
 
     invoke-virtual {v2, v3, v4, v5, v6}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 191
+    .line 192
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mDeleteAll:Landroid/widget/TextView;
 
     invoke-virtual {v2, v7}, Landroid/widget/TextView;->setClickable(Z)V
 
-    .line 192
+    .line 193
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mDeleteAll:Landroid/widget/TextView;
 
     new-instance v3, Lcom/mrkeyboard/app/MrLearnedActivity$7;
@@ -3085,7 +3106,7 @@
 
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 197
+    .line 198
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mDeleteAll:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -3098,10 +3119,10 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 199
+    .line 200
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->setContentView(Landroid/view/View;)V
 
-    .line 200
+    .line 201
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mSearch:Landroid/widget/EditText;
 
     const/4 v1, 0x0
@@ -3121,19 +3142,19 @@
     .locals 2
 
     .prologue
-    .line 205
+    .line 206
     invoke-super {p0}, Landroid/app/Activity;->onResume()V
 
-    .line 206
+    .line 207
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
 
     if-nez v0, :cond_0
 
-    .line 212
+    .line 213
     :goto_0
     return-void
 
-    .line 208
+    .line 209
     :cond_0
     const-string v0, "mr_words"
 
@@ -3147,16 +3168,16 @@
 
     move-result-object v0
 
-    .line 209
+    .line 210
     if-eqz v0, :cond_1
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity;->mLocale:Ljava/lang/String;
 
-    .line 210
+    .line 211
     :cond_1
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrLearnedActivity;->loadLanguages()V
 
-    .line 211
+    .line 212
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrLearnedActivity;->refreshAll()V
 
     goto :goto_0

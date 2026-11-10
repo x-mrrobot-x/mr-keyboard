@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Special-key picker: one key of the catalog — the label used on the key, the name in the language of the app and the
+     integer code. The row of the current key gets the mr_pick_row_on background (set by SpecialKeyPicker). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:background="@drawable/mr_pick_row"
+    android:padding="10dp"
+    android:layout_marginBottom="6dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:tag="key_label"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textColor="@color/mr_ui_cyan"
+        android:gravity="center"
+        android:background="@drawable/mr_pick_label"
+        android:minWidth="48dp"
+        android:paddingLeft="8dp"
+        android:paddingTop="4dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:tag="key_name"
+        android:textSize="14sp"
+        android:textColor="@color/mr_ui_text"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:paddingLeft="12dp"
+        android:paddingRight="8dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+    <TextView
+        android:tag="key_code"
+        android:textSize="12sp"
+        android:textColor="@color/mr_ui_text3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</LinearLayout>

@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/PrefScreenSheets;->buildSheetCard(ILcom/mrkeyboard/app/SheetModel$Sheet;Z)Landroid/view/View;
+    value = Lcom/mrkeyboard/app/PrefScreenSheets;->buildSheetCard(ILcom/mrkeyboard/app/SheetModel$Sheet;)Landroid/view/View;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -22,19 +22,25 @@
 
 .field final synthetic val$idx:I
 
-.field final synthetic val$moreBtn:Landroid/widget/ImageView;
+.field final synthetic val$more:Landroid/widget/ImageView;
 
 .field final synthetic val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
 
 # direct methods
 .method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;Landroid/widget/ImageView;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
-    .registers 5
+    .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 337
+    .prologue
+    .line 217
     iput-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$10;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$10;->val$moreBtn:Landroid/widget/ImageView;
+    iput-object p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$10;->val$more:Landroid/widget/ImageView;
 
     iput p3, p0, Lcom/mrkeyboard/app/PrefScreenSheets$10;->val$idx:I
 
@@ -48,20 +54,20 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 5
+    .locals 4
 
-    .line 340
-    iget-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$10;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+    .prologue
+    .line 219
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$10;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$10;->val$moreBtn:Landroid/widget/ImageView;
+    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$10;->val$more:Landroid/widget/ImageView;
 
-    iget v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$10;->val$idx:I
+    iget v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$10;->val$idx:I
 
-    iget-object v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$10;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
+    iget-object v3, p0, Lcom/mrkeyboard/app/PrefScreenSheets$10;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
-    # invokes: Lcom/mrkeyboard/app/PrefScreenSheets;->showCardContextMenu(Landroid/view/View;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
-    invoke-static {p1, v0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$700(Lcom/mrkeyboard/app/PrefScreenSheets;Landroid/view/View;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
+    invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$700(Lcom/mrkeyboard/app/PrefScreenSheets;Landroid/view/View;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
 
-    .line 341
+    .line 220
     return-void
 .end method

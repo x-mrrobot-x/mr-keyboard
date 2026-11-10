@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Popup editor: text of the ↑ ↓ buttons of an item row: white when the move is possible, dimmed when it is not -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false" android:color="@color/mr_ui_text_dis" />
+    <item android:color="@color/mr_ui_text" />
+</selector>

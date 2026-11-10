@@ -113,7 +113,7 @@ public class MrLearnedActivity extends Activity {
         scroll.addView(col, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         MrScreenIme.lift(scroll, col, k.dp(20), k.dp(16), k.dp(20), k.dp(24), k.dp(12));
 
-        col.addView(k.header(k.t("mr_learned_title"), new View.OnClickListener() {
+        col.addView(k.backHeader(k.t("mr_learned_title"), new View.OnClickListener() {
             public void onClick(View v) {
                 finish();
             }
@@ -155,7 +155,8 @@ public class MrLearnedActivity extends Activity {
                 refreshList();
             }
         });
-        LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        mSortChip.setBackground(k.round(k.card, k.stroke, 12f, false));
+        LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
         sp.setMargins(k.dp(8), 0, 0, 0);
         find.addView(mSortChip, sp);
         col.addView(find, k.wide(12));
@@ -173,14 +174,14 @@ public class MrLearnedActivity extends Activity {
         });
         col.addView(mMore, k.wide(10));
 
-        col.addView(k.button(k.t("mr_learned_add"), true, new View.OnClickListener() {
+        col.addView(k.iconButton(k.t("mr_learned_add"), "mr_ui_ic_plus", true, new View.OnClickListener() {
             public void onClick(View v) {
                 Intent i = MrNav.intent(MrLearnedActivity.this, MrImportActivity.class);
                 i.putExtra(MrImportActivity.EXTRA_LOCALE, mLocale);
                 startActivity(i);
             }
         }), k.wide(22));
-        col.addView(k.button(k.t("mr_learned_export"), false, new View.OnClickListener() {
+        col.addView(k.iconButton(k.t("mr_learned_export"), "mr_ui_ic_export", false, new View.OnClickListener() {
             public void onClick(View v) {
                 startExport();
             }
@@ -267,7 +268,7 @@ public class MrLearnedActivity extends Activity {
     }
 
     private TextView tabChip(final int tab, String label) {
-        return k.chip(label, mTab == tab, new View.OnClickListener() {
+        return k.tabChip(label, mTab == tab, new View.OnClickListener() {
             public void onClick(View v) {
                 mTab = tab;
                 mLimit = PAGE;
@@ -305,17 +306,20 @@ public class MrLearnedActivity extends Activity {
         }
         boolean more = rows.size() > mLimit;
         int shown = Math.min(rows.size(), mLimit);
+        // The list is a table: the word, a thin line and the number (the blocked words have no number, so only the word).
+        LinearLayout table = k.table();
         for (int i = 0; i < shown; i++) {
             final MrWordStore.Row r = rows.get(i);
             String note = r.kind == MrWordStore.KIND_BLOCKED ? ""
                     : String.valueOf(r.kind == MrWordStore.KIND_LEARNED_WORD || r.kind == MrWordStore.KIND_LEARNED_PAIR
                             ? MrLearned.weightOfLearned(r.freq) : r.freq);
-            mListBox.addView(k.item(r.text(), note, new View.OnClickListener() {
+            k.tableRow(table, r.text(), note, new View.OnClickListener() {
                 public void onClick(View v) {
                     menu(r);
                 }
-            }), k.wide(i == 0 ? 0 : 6));
+            });
         }
+        if (shown > 0) mListBox.addView(table, k.wide(0));
         String empty = "";
         if (shown == 0) {
             if (mFilter.length() > 0) empty = k.t("mr_learned_empty_search");

@@ -16,6 +16,8 @@
 #   smali_regcheck.py    hand-edited smali: register read without a value (the error that closed Settings in 1.67),
 #                        register above the instruction limit (e.g. p0 = v17 in a plain invoke), more than 5 registers in a
 #                        plain invoke (the assembler refuses with "Invalid register count") and a call to a method that does not exist
+#   check_stub_api.py    what the Java layer calls exists, with the same signature, in the APK (the smali) and, with the Android SDK jar of the
+#                        runner, in android.* (the stubs of docs/tools/java/stubs are hand-written: a wrong return type compiles and only fails on the device)
 #   run_java_tests.sh    PC tests of the Java layer (author card, main-screen link, re-correction: word under the cursor and
 #                        neighbour keys, recent words, the update notice: signature, versions, replay, checking windows)
 #   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial; trigrams.bin MRT2 needs minApp 1090000)
@@ -118,6 +120,13 @@ jobs:
 
       - name: Smali - registers and methods
         run: python3 docs/tools/smali_regcheck.py smali
+
+      - name: Java layer calls exist in the APK and in the Android SDK
+        run: |
+          # the runner image has the Android SDK: its newest platform is the reference jar (without one, only the APK side is checked)
+          JAR=$(ls "${ANDROID_HOME:-/usr/local/lib/android/sdk}"/platforms/android-*/android.jar 2>/dev/null | sort -V | tail -1 || true)
+          echo "android.jar: ${JAR:-none}"
+          ANDROID_JAR="$JAR" python3 docs/tools/check_stub_api.py
 
       - name: PC tests of the Java layer
         run: sh docs/tools/run_java_tests.sh

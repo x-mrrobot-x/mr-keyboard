@@ -14,66 +14,6 @@
 
 
 # static fields
-.field public static final C_ACCENT:I = -0xd63a0a
-
-.field public static final C_ACCENT_PRESS:I = -0xe0592e
-
-.field public static final C_ACTIONBAR:I = -0xf4efe8
-
-.field public static final C_AMBER:I = -0x440dc
-
-.field public static final C_AMBER_LINE:I = 0x4dfbbf24
-
-.field public static final C_AMBER_SOFT:I = 0x24fbbf24
-
-.field public static final C_BG:I = -0xf7f3ee
-
-.field public static final C_CARD:I = -0xf0e9df
-
-.field public static final C_CARD_ELEVATED:I = -0xece3d5
-
-.field public static final C_CARD_PRESS:I = -0xeadfcd
-
-.field public static final C_CYAN_LINE:I = 0x4d29c5f6
-
-.field public static final C_CYAN_SOFT:I = 0x2429c5f6
-
-.field public static final C_DISABLED:I = -0xc5b6a2
-
-.field public static final C_ICON_BG:I = -0xfbefd8
-
-.field public static final C_MINT:I = -0xcb2c67
-
-.field public static final C_MINT_SOFT:I = 0x2434d399
-
-.field public static final C_ON_ACCENT:I = -0xfbebe4
-
-.field public static final C_RIPPLE:I = 0x3329c5f6
-
-.field public static final C_RIPPLE_DARK:I = 0x3304141c
-
-.field public static final C_ROSE:I = -0x48e7b
-
-.field public static final C_ROSE_LINE:I = 0x4dfb7185
-
-.field public static final C_ROSE_SOFT:I = 0x24fb7185
-
-.field public static final C_STROKE:I = -0xe5dacb
-
-.field public static final C_STROKE_STRONG:I = -0xd5c4ac
-
-.field public static final C_SUNKEN:I = -0xf5efe8
-
-.field public static final C_TEXT:I = -0x160f07
-
-.field public static final C_TEXT2:I = -0x6c5c46
-
-.field public static final C_TEXT3:I = -0x907f67
-
-.field public static final C_VIOLET:I = -0x587406
-
-.field public static final C_VIOLET_SOFT:I = 0x24a78bfa
-
 .field public static final ICON_ARROW_DOWN:I = 0x7
 
 .field public static final ICON_ARROW_UP:I = 0x6
@@ -247,16 +187,16 @@
     move-result p0
 
     .line 128
-    const v1, -0xd63a0a
+    const v1, -0xe46804
 
-    const v2, -0xf5efe8
+    const v2, -0xf7eee1
 
     invoke-static {v2, p1, p0, v1}, Lcom/mrkeyboard/app/SheetUi;->roundRect(IFII)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object p0
 
     .line 129
-    const v1, -0xd5c4ac
+    const v1, -0xe0cbac
 
     invoke-static {v2, p1, v0, v1}, Lcom/mrkeyboard/app/SheetUi;->roundRect(IFII)Landroid/graphics/drawable/GradientDrawable;
 
@@ -303,12 +243,12 @@
 
     .line 141
     :cond_a
-    const p1, -0x907f67
+    const p1, -0x755b34
 
     invoke-virtual {v0, p1}, Landroid/widget/EditText;->setHintTextColor(I)V
 
     .line 142
-    const p1, -0x160f07
+    const p1, -0x1
 
     invoke-virtual {v0, p1}, Landroid/widget/EditText;->setTextColor(I)V
 
@@ -390,7 +330,7 @@
 
     div-float/2addr p3, p1
 
-    const p1, 0x3329c5f6
+    const p1, 0x331b97fc
 
     invoke-static {p0, p1, p3}, Lcom/mrkeyboard/app/SheetUi;->borderlessCircleRipple(Landroid/content/Context;IF)Landroid/graphics/drawable/Drawable;
 
@@ -605,7 +545,7 @@
     invoke-virtual {v8, v9}, Landroid/widget/LinearLayout;->setClipToOutline(Z)V
 
     .line 214
-    const v14, -0xd63a0a
+    const v14, -0xe46804
 
     const/16 v10, 0x10
 
@@ -621,7 +561,7 @@
     # between the groups, marked by MenuEntry.dividerBefore).
     .line 214
     :cond_176
-    const v13, 0x2429c5f6
+    const v13, 0x241b97fc
 
     .line 252
     :goto_179
@@ -858,9 +798,9 @@
     .line 294
     const v11, -0x48e7b
 
-    const v13, 0x24fb7185
+    const v13, 0x1ffb7185
 
-    const v14, 0x24fb7185
+    const v14, 0x1ffb7185
 
     move v15, v14
 
@@ -908,9 +848,9 @@
 
     const/16 v13, 0xa
 
-    const v14, -0x160f07
+    const v14, -0x1
 
-    const v15, 0x3329c5f6
+    const v15, 0x331b97fc
 
     if-ne v11, v13, :cond_27b
 
@@ -963,9 +903,9 @@
     nop
 
     .line 314
-    const v11, -0xd63a0a
+    const v11, -0xe46804
 
-    const v13, 0x2429c5f6
+    const v13, 0x241b97fc
 
     goto :goto_2a3
 
@@ -975,9 +915,9 @@
     nop
 
     .line 311
-    const v13, 0x1f93a3ba
+    const v13, 0x1fc2dcf6
 
-    const v11, -0x6c5c46
+    const v11, -0x3d230a
 
     .line 318
     :goto_2a3
@@ -1134,9 +1074,9 @@
 
     const/high16 v11, 0x41100000    # 9.0f
 
-    const v13, 0x2429c5f6
+    const v13, 0x241b97fc
 
-    const v14, -0xd63a0a
+    const v14, -0xe46804
 
     move-object/from16 v4, p4
 

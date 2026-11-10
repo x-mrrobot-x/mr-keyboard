@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +32,13 @@ final class MrKit {
     final int onAccent;
     final int rose;
     final int soft;
+    /** Quiet controls (fields, select, quiet buttons): a step above the card, with a thin line. */
+    final int raised;
+    /** The very faint tint behind the quiet buttons with a vector (almost see-through). */
+    final int faint;
+    final int sunken;
+    final int line;
+    final int hint;
 
     MrKit(Activity a) {
         act = a;
@@ -42,6 +51,11 @@ final class MrKit {
         onAccent = color("mr_text_on_accent");
         rose = color("mr_ui_rose");
         soft = color("mr_ui_cyan_soft");
+        raised = color("mr_ui_raised");
+        faint = color("mr_ui_faint");
+        sunken = color("mr_ui_sunken");
+        line = color("mr_ui_stroke");
+        hint = color("mr_ui_text3");
     }
 
     private int color(String name) {
@@ -121,7 +135,7 @@ final class MrKit {
         TextView b = label(s, 15f, primary ? onAccent : text, primary);
         b.setGravity(Gravity.CENTER);
         b.setPadding(dp(14), dp(12), dp(14), dp(12));
-        b.setBackground(primary ? round(accent, 0, 26, false) : round(card, stroke, 26, false));
+        b.setBackground(primary ? round(accent, 0, 12, false) : round(raised, line, 12, false));
         b.setClickable(true);
         b.setOnClickListener(l);
         return b;
@@ -154,22 +168,21 @@ final class MrKit {
     }
 
     /**
-     * A select card, like the choices of the Settings: the title small on top, the chosen value below and an arrow on the right.
-     * A tap on it is the caller's {@code l} (usually the list of choices).
+     * A select pill, like the choices of the Settings: the chosen value and a chevron on the right; {@code title} (small, on top of the
+     * value) only if it is not empty. A tap on it is the caller's {@code l} (usually the list of choices).
      */
     LinearLayout select(String title, String value, View.OnClickListener l) {
         LinearLayout c = row();
-        c.setPadding(dp(16), dp(12), dp(14), dp(12));
-        c.setBackground(round(card, stroke, 16, false));
+        c.setPadding(dp(16), dp(13), dp(14), dp(13));
+        c.setBackground(round(faint, line, 12, false));
         c.setClickable(true);
         c.setOnClickListener(l);
         LinearLayout words = column();
-        words.addView(label(title, 12f, text2, false), wide(0));
-        words.addView(label(value, 17f, text, true), wide(2));
+        boolean titled = title.length() > 0;
+        if (titled) words.addView(label(title, 12f, text2, false), wide(0));
+        words.addView(label(value, 16f, text, false), wide(titled ? 2 : 0));
         c.addView(words, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        TextView arrow = label("▾", 18f, text2, false);
-        arrow.setPadding(dp(10), 0, 0, 0);
-        c.addView(arrow, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        c.addView(iconView("mr_ui_ic_chev_down", 18f));
         return c;
     }
 
@@ -182,9 +195,14 @@ final class MrKit {
      * The language card of the word screens: shows the language that is on and, on a tap, a list with a radio mark to choose another
      * (the same dialog as the Settings). {@code onPick} is called only when the choice changes.
      */
-    void languageCard(LinearLayout box, final List<String> langs, final String current, final LangPick onPick) {
+    void languageCard(LinearLayout box, List<String> langs, String current, LangPick onPick) {
+        languageCard(box, langs, current, onPick, true);
+    }
+
+    /** The same, with {@code titled} false the pill has no small title (the screen already has a heading for it). */
+    void languageCard(LinearLayout box, final List<String> langs, final String current, final LangPick onPick, boolean titled) {
         box.removeAllViews();
-        box.addView(select(t("mr_lang_card_title"), langName(current), new View.OnClickListener() {
+        box.addView(select(titled ? t("mr_lang_card_title") : "", langName(current), new View.OnClickListener() {
             public void onClick(View v) {
                 CharSequence[] names = new CharSequence[langs.size()];
                 int on = -1;
@@ -210,13 +228,96 @@ final class MrKit {
     EditText field(String hint, int inputType) {
         EditText e = new EditText(act);
         e.setHint(hint);
-        e.setHintTextColor(text2);
+        e.setHintTextColor(this.hint);
         e.setTextColor(text);
         e.setTextSize(16f);
         e.setInputType(inputType);
         e.setPadding(dp(14), dp(12), dp(14), dp(12));
-        e.setBackground(round(card, stroke, 16, false));
+        e.setBackground(round(raised, line, 12, false));
         return e;
+    }
+
+    /** A vector of the screens (res/drawable/mr_ui_ic_*), square, {@code sizeDp} wide, ready to be a compound drawable. */
+    Drawable icon(String name, float sizeDp) {
+        Drawable d = act.getResources().getDrawable(act.getResources().getIdentifier(name, "drawable", act.getPackageName()));
+        int px = dp(sizeDp);
+        d.setBounds(0, 0, px, px);
+        return d;
+    }
+
+    /** A box of {@code sizeDp} with the vector in it (for a row of a LinearLayout). */
+    ImageView iconView(String name, float sizeDp) {
+        ImageView v = new ImageView(act);
+        v.setImageDrawable(icon(name, sizeDp));
+        int px = dp(sizeDp);
+        v.setLayoutParams(new LinearLayout.LayoutParams(px, px));
+        return v;
+    }
+
+    /** The title line with a back arrow before the title; both centred on the same line. */
+    LinearLayout backHeader(String title, View.OnClickListener onBack) {
+        LinearLayout head = row();
+        ImageView back = iconView("mr_ui_ic_back", 40f);
+        back.setPadding(dp(9), dp(9), dp(9), dp(9));
+        back.setContentDescription(t("mr_back_desc"));
+        back.setOnClickListener(onBack);
+        head.addView(back);
+        TextView ti = label(title, 22f, text, true);
+        ti.setPadding(dp(6), 0, 0, 0);
+        head.addView(ti, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        return head;
+    }
+
+    /** A card of the screens: the content in a column, on the card colour with the strong line. */
+    LinearLayout panel() {
+        LinearLayout c = column();
+        c.setPadding(dp(16), dp(16), dp(16), dp(16));
+        c.setBackground(round(card, stroke, 20, false));
+        return c;
+    }
+
+    /** A vector and a text side by side (the text takes the rest of the width). */
+    LinearLayout iconRow(String iconName, float iconDp, String msg, float sp, int colour, boolean bold) {
+        LinearLayout r = row();
+        r.addView(iconView(iconName, iconDp));
+        TextView t = label(msg, sp, colour, bold);
+        t.setPadding(dp(10), 0, 0, 0);
+        r.addView(t, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        return r;
+    }
+
+    /** The note card at the top of a screen: the info mark and the text. */
+    LinearLayout infoCard(String msg) {
+        LinearLayout c = iconRow("mr_ui_ic_info", 22f, msg, 14f, text2, false);
+        c.setPadding(dp(16), dp(16), dp(16), dp(16));
+        c.setBackground(round(card, stroke, 20, false));
+        return c;
+    }
+
+    /** A text field with its counter inside the same rounded box (the field loses its own background). */
+    LinearLayout fieldBox(EditText e, TextView counter) {
+        LinearLayout box = column();
+        box.setBackground(round(raised, line, 12, false));
+        e.setBackground(null);
+        box.addView(e, wide(0));
+        box.addView(counter, wide(0));
+        return box;
+    }
+
+    /** Like {@link #button}, with a vector before the text; the vector and the text are centred together. */
+    TextView iconButton(String s, String iconName, boolean primary, View.OnClickListener l) {
+        MrIconButton b = new MrIconButton(act);
+        b.setText(s);
+        b.setTextColor(primary ? onAccent : text);
+        b.setTextSize(primary ? 15f : 14f);
+        if (primary) b.setTypeface(null, Typeface.BOLD);
+        b.setGravity(Gravity.CENTER);
+        b.setPadding(dp(14), dp(13), dp(14), dp(13));
+        b.setBackground(primary ? round(accent, 0, 12, false) : round(faint, line, 12, false));
+        b.setClickable(true);
+        b.setOnClickListener(l);
+        b.setIcon(icon(iconName, 16f), dp(8));
+        return b;
     }
 
     /** A card-like row for lists: the text on the left (as large as it needs) and a small note on the right. */
@@ -234,6 +335,62 @@ final class MrKit {
             r.addView(n, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         }
         return r;
+    }
+
+    /**
+     * A tab of the word screens: the name on the first line and the count under it, both centred (the strings carry the line break, so
+     * each language decides it and every tab has the same two lines). The tab that is on is filled with the accent; the others are a card
+     * with a thin line.
+     */
+    TextView tabChip(String s, boolean on, View.OnClickListener l) {
+        TextView c = label(s, 13f, on ? onAccent : text, on);
+        c.setGravity(Gravity.CENTER);
+        c.setMaxLines(2);
+        c.setPadding(dp(6), dp(9), dp(6), dp(9));
+        c.setBackground(on ? round(accent, 0, 14, false) : round(card, stroke, 14, false));
+        c.setClickable(true);
+        c.setOnClickListener(l);
+        return c;
+    }
+
+    /** The table of the word screens: one card with a thin line around it; its rows are added with {@link #tableRow}. */
+    LinearLayout table() {
+        LinearLayout t = column();
+        t.setBackground(round(card, stroke, 14, false));
+        return t;
+    }
+
+    /**
+     * A row of a table: the word on the left and, when there is a number, a thin vertical line and the number in a fixed column on the
+     * right (the number has no background and no round border). The rows are separated by a thin horizontal line, put above every row
+     * but the first.
+     */
+    void tableRow(LinearLayout table, String main, String note, View.OnClickListener l) {
+        if (table.getChildCount() > 0) {
+            View sep = new View(act);
+            sep.setBackgroundColor(line);
+            table.addView(sep, lp(ViewGroup.LayoutParams.MATCH_PARENT, hair(), 0));
+        }
+        LinearLayout r = row();
+        r.setClickable(true);
+        r.setOnClickListener(l);
+        TextView a = label(main, 16f, text, false);
+        a.setPadding(dp(14), dp(12), dp(12), dp(12));
+        r.addView(a, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        if (note != null && note.length() > 0) {
+            View div = new View(act);
+            div.setBackgroundColor(stroke);
+            r.addView(div, new LinearLayout.LayoutParams(hair(), ViewGroup.LayoutParams.MATCH_PARENT));
+            TextView n = label(note, 15f, accent, false);
+            n.setGravity(Gravity.CENTER);
+            r.addView(n, new LinearLayout.LayoutParams(dp(56), ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
+        table.addView(r, wide(0));
+    }
+
+    /** A thin line: half a dp, never less than one pixel. */
+    private int hair() {
+        return Math.max(1, dp(0.5f));
     }
 
     /** The language of a locale ("pt_BR") by name: the string mr_lang_pt_BR if there is one, otherwise the tag. */

@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/PrefScreenSheets;->confirmResetAll()V
+    value = Lcom/mrkeyboard/app/PrefScreenSheets;->promptNameForNewSheet(ILcom/mrkeyboard/app/SheetModel$Sheet;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,17 +20,39 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-.field final synthetic val$pt:Z
+.field final synthetic val$fallbackBadge:Ljava/lang/String;
+
+.field final synthetic val$fallbackName:Ljava/lang/String;
+
+.field final synthetic val$fields:[Landroid/widget/EditText;
+
+.field final synthetic val$source:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+.field final synthetic val$templateKind:I
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;Z)V
-    .registers 3
+.method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;[Landroid/widget/EditText;Ljava/lang/String;Ljava/lang/String;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
+    .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 553
+    .prologue
+    .line 392
     iput-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    iput-boolean p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$pt:Z
+    iput-object p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$fields:[Landroid/widget/EditText;
+
+    iput-object p3, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$fallbackName:Ljava/lang/String;
+
+    iput-object p4, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$fallbackBadge:Ljava/lang/String;
+
+    iput p5, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$templateKind:I
+
+    iput-object p6, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$source:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -40,51 +62,157 @@
 
 # virtual methods
 .method public onClick(Landroid/content/DialogInterface;I)V
-    .registers 4
+    .locals 6
 
-    .line 556
-    iget-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+    .prologue
+    const/4 v4, 0x1
 
-    invoke-static {p1}, Lcom/mrkeyboard/app/SheetStore;->resetAllToDefaults(Landroid/content/Context;)Z
+    const/4 v5, 0x0
 
-    move-result p1
+    .line 394
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    if-eqz p1, :cond_20
+    invoke-static {v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1400(Lcom/mrkeyboard/app/PrefScreenSheets;)Ljava/util/ArrayList;
 
-    .line 557
-    iget-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+    move-result-object v0
 
-    # invokes: Lcom/mrkeyboard/app/PrefScreenSheets;->reloadAndRender()V
-    invoke-static {p1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1300(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+    const-string v1, "custom"
 
-    .line 558
-    iget-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/SheetModel;->makeUniqueId(Ljava/util/List;Ljava/lang/String;)Ljava/lang/String;
 
-    iget-boolean p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$pt:Z
+    move-result-object v1
 
-    if-eqz p2, :cond_16
+    .line 395
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$fields:[Landroid/widget/EditText;
 
-    const-string p2, "Todas as folhas foram restauradas para o padr\u00e3o."
+    aget-object v0, v0, v5
 
-    invoke-static/range {p2 .. p2}, Lcom/mrkeyboard/app/SheetStrings;->p(Ljava/lang/String;)Ljava/lang/String;
+    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
-    move-result-object p2
+    move-result-object v0
 
-    goto :goto_18
+    invoke-interface {v0}, Landroid/text/Editable;->toString()Ljava/lang/String;
 
-    :cond_16
-    const-string p2, "All sheets restored to default."
+    move-result-object v0
 
-    :goto_18
-    const/4 v0, 0x0
+    iget-object v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$fallbackName:Ljava/lang/String;
 
-    invoke-static {p1, p2, v0}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
+    invoke-static {v0, v2}, Lcom/mrkeyboard/app/SheetModel;->sanitizeName(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object p1
+    move-result-object v2
 
-    invoke-virtual {p1}, Landroid/widget/Toast;->show()V
+    .line 396
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$fields:[Landroid/widget/EditText;
 
-    .line 560
-    :cond_20
+    aget-object v0, v0, v4
+
+    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/text/Editable;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    iget-object v3, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$fallbackBadge:Ljava/lang/String;
+
+    invoke-static {v0, v3}, Lcom/mrkeyboard/app/SheetModel;->sanitizeBadge(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    .line 398
+    iget v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$templateKind:I
+
+    if-ne v0, v4, :cond_0
+
+    .line 399
+    invoke-static {v1, v2, v3}, Lcom/mrkeyboard/app/SheetModel;->createNumpadTemplate(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    move-result-object v0
+
+    .line 411
+    :goto_0
+    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1400(Lcom/mrkeyboard/app/PrefScreenSheets;)Ljava/util/ArrayList;
+
+    move-result-object v1
+
+    invoke-virtual {v1, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    .line 412
+    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    iget-object v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    invoke-static {v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1400(Lcom/mrkeyboard/app/PrefScreenSheets;)Ljava/util/ArrayList;
+
+    move-result-object v2
+
+    invoke-static {v1, v2}, Lcom/mrkeyboard/app/SheetStore;->save(Landroid/content/Context;Ljava/util/List;)Z
+
+    .line 413
+    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1500(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+
+    .line 414
+    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    iget-object v0, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->id:Ljava/lang/String;
+
+    invoke-static {v1, v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$500(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;)V
+
+    .line 415
     return-void
+
+    .line 400
+    :cond_0
+    iget v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$templateKind:I
+
+    const/4 v4, 0x2
+
+    if-ne v0, v4, :cond_1
+
+    .line 401
+    invoke-static {v1, v2, v3}, Lcom/mrkeyboard/app/SheetModel;->createNavEditTemplate(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    move-result-object v0
+
+    goto :goto_0
+
+    .line 402
+    :cond_1
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$source:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    if-eqz v0, :cond_2
+
+    .line 403
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$15;->val$source:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/SheetModel$Sheet;->deepCopy()Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    move-result-object v0
+
+    .line 404
+    iput-object v1, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->id:Ljava/lang/String;
+
+    .line 405
+    iput-object v2, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->name:Ljava/lang/String;
+
+    .line 406
+    iput-object v3, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->badge:Ljava/lang/String;
+
+    .line 407
+    iput-boolean v5, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->builtin:Z
+
+    goto :goto_0
+
+    .line 409
+    :cond_2
+    invoke-static {v1, v2, v3}, Lcom/mrkeyboard/app/SheetModel;->createBlankTemplate(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    move-result-object v0
+
+    goto :goto_0
 .end method

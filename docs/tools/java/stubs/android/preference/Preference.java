@@ -15,6 +15,7 @@ public class Preference {
     public void setSelectable(boolean selectable) { }
     public void setDefaultValue(Object defaultValue) { }
     public void setIcon(int iconResId) { }
+    public void setLayoutResource(int layoutResId) { }
     public void setOnPreferenceClickListener(OnPreferenceClickListener l) { }
     public void setOnPreferenceChangeListener(OnPreferenceChangeListener l) { }
 }

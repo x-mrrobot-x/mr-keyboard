@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Popup editor: round "remove" button of the item row (✕): borderless circle with the red ripple -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="@color/mr_ui_rose_line">
+    <item android:id="@android:id/mask">
+        <shape android:shape="oval">
+            <solid android:color="#ff000000" />
+        </shape>
+    </item>
+</ripple>

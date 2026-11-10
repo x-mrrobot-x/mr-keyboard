@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrImportActivity;->onActivityResult(IILandroid/content/Intent;)V
+    value = Lcom/mrkeyboard/app/MrImportActivity;->analyze()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,15 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-.field final synthetic val$uri:Landroid/net/Uri;
+.field final synthetic val$locale:Ljava/lang/String;
+
+.field final synthetic val$standard:Z
+
+.field final synthetic val$text:Ljava/lang/String;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;Landroid/net/Uri;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;Ljava/lang/String;ZLjava/lang/String;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +37,14 @@
     .end annotation
 
     .prologue
-    .line 321
+    .line 415
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->val$uri:Landroid/net/Uri;
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->val$locale:Ljava/lang/String;
+
+    iput-boolean p3, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->val$standard:Z
+
+    iput-object p4, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->val$text:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,172 +54,119 @@
 
 # virtual methods
 .method public run()V
-    .locals 9
+    .locals 6
 
     .prologue
-    const/high16 v7, 0x800000
+    const/4 v1, 0x0
 
-    const/4 v2, 0x0
-
+    .line 417
+    .line 418
     const/4 v0, 0x0
 
-    .line 323
-    .line 326
-    :try_start_0
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    .line 419
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    invoke-virtual {v1}, Lcom/mrkeyboard/app/MrImportActivity;->getContentResolver()Landroid/content/ContentResolver;
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->val$locale:Ljava/lang/String;
 
-    move-result-object v1
-
-    iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->val$uri:Landroid/net/Uri;
-
-    invoke-virtual {v1, v3}, Landroid/content/ContentResolver;->openInputStream(Landroid/net/Uri;)Ljava/io/InputStream;
-    :try_end_0
-    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_3
-    .catch Ljava/lang/OutOfMemoryError; {:try_start_0 .. :try_end_0} :catch_1
+    invoke-static {v2, v3}, Lcom/mrkeyboard/app/MrPacks;->openDictionary(Landroid/content/Context;Ljava/lang/String;)Lcom/mrkeyboard/app/BinaryDictionary;
 
     move-result-object v3
 
-    .line 327
-    if-eqz v3, :cond_2
+    .line 421
+    if-nez v3, :cond_1
 
-    .line 329
-    :try_start_1
-    new-instance v1, Ljava/io/ByteArrayOutputStream;
+    :try_start_0
+    iget-boolean v2, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->val$standard:Z
+    :try_end_0
+    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+    .catch Ljava/lang/OutOfMemoryError; {:try_start_0 .. :try_end_0} :catch_1
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    invoke-direct {v1}, Ljava/io/ByteArrayOutputStream;-><init>()V
+    if-nez v2, :cond_1
 
-    .line 330
-    const/16 v4, 0x4000
-
-    new-array v4, v4, [B
-
-    .line 332
-    :goto_0
-    invoke-virtual {v3, v4}, Ljava/io/InputStream;->read([B)I
-
-    move-result v5
-
-    if-lez v5, :cond_0
-
-    .line 333
-    invoke-virtual {v1}, Ljava/io/ByteArrayOutputStream;->size()I
-
-    move-result v6
-
-    add-int/2addr v6, v5
-
-    if-le v6, v7, :cond_1
-
-    .line 334
-    const/4 v5, 0x0
-
-    invoke-virtual {v1}, Ljava/io/ByteArrayOutputStream;->size()I
-
-    move-result v6
-
-    sub-int v6, v7, v6
-
-    invoke-virtual {v1, v4, v5, v6}, Ljava/io/ByteArrayOutputStream;->write([BII)V
-
-    .line 335
+    .line 422
     const/4 v0, 0x1
 
-    .line 340
+    .line 441
+    :goto_0
+    if-eqz v3, :cond_0
+
+    invoke-virtual {v3}, Lcom/mrkeyboard/app/BinaryDictionary;->close()V
+
+    .line 445
     :cond_0
-    invoke-virtual {v1}, Ljava/io/ByteArrayOutputStream;->toByteArray()[B
-
-    move-result-object v1
-
-    invoke-static {v1, v0}, Lcom/mrkeyboard/app/MrImport;->decode([BZ)Ljava/lang/String;
-    :try_end_1
-    .catchall {:try_start_1 .. :try_end_1} :catchall_0
-
-    move-result-object v1
-
-    .line 342
-    :try_start_2
-    invoke-virtual {v3}, Ljava/io/InputStream;->close()V
-    :try_end_2
-    .catch Ljava/lang/Exception; {:try_start_2 .. :try_end_2} :catch_3
-    .catch Ljava/lang/OutOfMemoryError; {:try_start_2 .. :try_end_2} :catch_1
-
     :goto_1
-    move-object v2, v1
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    .line 352
-    :goto_2
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    new-instance v3, Lcom/mrkeyboard/app/MrImportActivity$12$3;
 
-    new-instance v3, Lcom/mrkeyboard/app/MrImportActivity$12$1;
+    invoke-direct {v3, p0, v0, v1}, Lcom/mrkeyboard/app/MrImportActivity$12$3;-><init>(Lcom/mrkeyboard/app/MrImportActivity$12;ZLcom/mrkeyboard/app/MrImport$Plan;)V
 
-    invoke-direct {v3, p0, v2, v0}, Lcom/mrkeyboard/app/MrImportActivity$12$1;-><init>(Lcom/mrkeyboard/app/MrImportActivity$12;Ljava/lang/String;Z)V
+    invoke-virtual {v2, v3}, Lcom/mrkeyboard/app/MrImportActivity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    invoke-virtual {v1, v3}, Lcom/mrkeyboard/app/MrImportActivity;->runOnUiThread(Ljava/lang/Runnable;)V
-
-    .line 368
+    .line 459
     return-void
 
-    .line 338
+    .line 424
     :cond_1
-    const/4 v6, 0x0
+    :try_start_1
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->val$text:Ljava/lang/String;
 
-    :try_start_3
-    invoke-virtual {v1, v4, v6, v5}, Ljava/io/ByteArrayOutputStream;->write([BII)V
-    :try_end_3
-    .catchall {:try_start_3 .. :try_end_3} :catchall_0
+    new-instance v4, Lcom/mrkeyboard/app/MrImportActivity$12$1;
+
+    invoke-direct {v4, p0, v3}, Lcom/mrkeyboard/app/MrImportActivity$12$1;-><init>(Lcom/mrkeyboard/app/MrImportActivity$12;Lcom/mrkeyboard/app/BinaryDictionary;)V
+
+    invoke-static {v2, v4}, Lcom/mrkeyboard/app/MrImport;->parse(Ljava/lang/String;Lcom/mrkeyboard/app/MrImport$Known;)Lcom/mrkeyboard/app/MrImport$Plan;
+
+    move-result-object v2
+
+    .line 430
+    iget-object v4, v2, Lcom/mrkeyboard/app/MrImport$Plan;->words:Ljava/util/ArrayList;
+
+    new-instance v5, Lcom/mrkeyboard/app/MrImportActivity$12$2;
+
+    invoke-direct {v5, p0}, Lcom/mrkeyboard/app/MrImportActivity$12$2;-><init>(Lcom/mrkeyboard/app/MrImportActivity$12;)V
+
+    invoke-static {v4, v5}, Ljava/util/Collections;->sort(Ljava/util/List;Ljava/util/Comparator;)V
+    :try_end_1
+    .catch Ljava/lang/RuntimeException; {:try_start_1 .. :try_end_1} :catch_0
+    .catch Ljava/lang/OutOfMemoryError; {:try_start_1 .. :try_end_1} :catch_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+
+    move-object v1, v2
 
     goto :goto_0
 
-    .line 342
-    :catchall_0
-    move-exception v1
-
-    move-object v8, v1
-
-    move v1, v0
-
-    move-object v0, v8
-
-    :try_start_4
-    invoke-virtual {v3}, Ljava/io/InputStream;->close()V
-
-    .line 343
-    throw v0
-    :try_end_4
-    .catch Ljava/lang/Exception; {:try_start_4 .. :try_end_4} :catch_0
-    .catch Ljava/lang/OutOfMemoryError; {:try_start_4 .. :try_end_4} :catch_2
-
-    .line 345
+    .line 436
     :catch_0
-    move-exception v0
+    move-exception v2
 
-    move v0, v1
+    .line 441
+    if-eqz v3, :cond_0
 
-    goto :goto_2
-
-    .line 347
-    :catch_1
-    move-exception v1
-
-    goto :goto_2
-
-    :catch_2
-    move-exception v0
-
-    move v0, v1
-
-    goto :goto_2
-
-    .line 345
-    :catch_3
-    move-exception v1
-
-    goto :goto_2
-
-    :cond_2
-    move-object v1, v2
+    invoke-virtual {v3}, Lcom/mrkeyboard/app/BinaryDictionary;->close()V
 
     goto :goto_1
+
+    .line 438
+    :catch_1
+    move-exception v2
+
+    .line 441
+    if-eqz v3, :cond_0
+
+    invoke-virtual {v3}, Lcom/mrkeyboard/app/BinaryDictionary;->close()V
+
+    goto :goto_1
+
+    :catchall_0
+    move-exception v0
+
+    if-eqz v3, :cond_2
+
+    invoke-virtual {v3}, Lcom/mrkeyboard/app/BinaryDictionary;->close()V
+
+    .line 442
+    :cond_2
+    throw v0
 .end method

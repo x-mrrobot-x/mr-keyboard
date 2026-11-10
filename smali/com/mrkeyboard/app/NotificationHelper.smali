@@ -174,14 +174,34 @@
     move-result-object p0
 
     .line 60
-    invoke-virtual {v0, v7}, Landroid/app/Notification$Builder;->setSmallIcon(I)Landroid/app/Notification$Builder;
+    const-string v6, "mr_notif_logo"
+
+    invoke-static {v9, v6}, Lcom/mrkeyboard/app/NotificationHelper;->iconId(Landroid/content/Context;Ljava/lang/String;)I
+
+    move-result v6
+
+    invoke-virtual {v0, v6}, Landroid/app/Notification$Builder;->setSmallIcon(I)Landroid/app/Notification$Builder;
 
     move-result-object v2
 
-    .line 61
-    const v5, -0xddffbc
+    # circle behind the small icon: the blue of the Settings theme (mr_accent #1b97fc)
+    const v5, 0xff1b97fc
 
     invoke-virtual {v2, v5}, Landroid/app/Notification$Builder;->setColor(I)Landroid/app/Notification$Builder;
+
+    move-result-object v2
+
+    const-string v7, "mr_notif_blank"
+
+    invoke-static {v9, v7}, Lcom/mrkeyboard/app/NotificationHelper;->iconId(Landroid/content/Context;Ljava/lang/String;)I
+
+    move-result v7
+
+    invoke-static {v9, v7}, Landroid/graphics/drawable/Icon;->createWithResource(Landroid/content/Context;I)Landroid/graphics/drawable/Icon;
+
+    move-result-object v7
+
+    invoke-virtual {v2, v7}, Landroid/app/Notification$Builder;->setLargeIcon(Landroid/graphics/drawable/Icon;)Landroid/app/Notification$Builder;
 
     move-result-object v2
 
@@ -265,3 +285,24 @@
     :goto_a7
     return-object v1
 .end method
+
+.method static iconId(Landroid/content/Context;Ljava/lang/String;)I
+    .registers 5
+
+    invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v0
+
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+
+    move-result-object v1
+
+    const-string v2, "drawable"
+
+    invoke-virtual {v0, p1, v2, v1}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+
+    move-result v0
+
+    return v0
+.end method
+

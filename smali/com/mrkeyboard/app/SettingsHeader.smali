@@ -92,7 +92,7 @@
 
     invoke-virtual {v5, v6}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    const v6, -0x160f07
+    const v6, -0x1
 
     invoke-virtual {v5, v6}, Landroid/widget/TextView;->setTextColor(I)V
 
@@ -120,7 +120,7 @@
 
     invoke-virtual {v5, v6}, Landroid/widget/TextView;->setGravity(I)V
 
-    const v6, -0xf7f3ee
+    const v6, -0xfaf5ed
 
     invoke-virtual {v5, v6}, Landroid/widget/TextView;->setBackgroundColor(I)V
 
@@ -151,7 +151,7 @@
 
     invoke-direct {v5, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    const v6, -0xe5dacb
+    const v6, -0xeddfc9
 
     invoke-virtual {v5, v6}, Landroid/view/View;->setBackgroundColor(I)V
 

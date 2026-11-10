@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/PrefScreenSheets;->showHeaderMenu(Landroid/view/View;)V
+    value = Lcom/mrkeyboard/app/PrefScreenSheets;->showCardContextMenu(Landroid/view/View;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,13 +20,27 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
+.field final synthetic val$idx:I
+
+.field final synthetic val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
-    .registers 2
+.method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;Lcom/mrkeyboard/app/SheetModel$Sheet;I)V
+    .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
-    .line 450
+    .prologue
+    .line 263
     iput-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    iput-object p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    iput p3, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->val$idx:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,49 +50,109 @@
 
 # virtual methods
 .method public onSelect(I)V
-    .registers 3
+    .locals 3
 
-    .line 453
-    const/4 v0, 0x1
+    .prologue
+    .line 265
+    packed-switch p1, :pswitch_data_0
 
-    if-ne p1, v0, :cond_9
-
-    .line 454
-    iget-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
-
-    # invokes: Lcom/mrkeyboard/app/PrefScreenSheets;->startExportJson()V
-    invoke-static {p1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$200(Lcom/mrkeyboard/app/PrefScreenSheets;)V
-
-    goto :goto_1a
-
-    .line 455
-    :cond_9
-    const/4 v0, 0x2
-
-    if-ne p1, v0, :cond_12
-
-    .line 456
-    iget-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
-
-    # invokes: Lcom/mrkeyboard/app/PrefScreenSheets;->startImportJson()V
-    invoke-static {p1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$300(Lcom/mrkeyboard/app/PrefScreenSheets;)V
-
-    goto :goto_1a
-
-    .line 457
-    :cond_12
-    const/4 v0, 0x3
-
-    if-ne p1, v0, :cond_1a
-
-    .line 458
-    iget-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
-
-    # invokes: Lcom/mrkeyboard/app/PrefScreenSheets;->confirmResetAll()V
-    invoke-static {p1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$400(Lcom/mrkeyboard/app/PrefScreenSheets;)V
-
-    .line 460
-    :cond_1a
-    :goto_1a
+    .line 275
+    :goto_0
     return-void
+
+    .line 266
+    :pswitch_0
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    iget-object v1, v1, Lcom/mrkeyboard/app/SheetModel$Sheet;->id:Ljava/lang/String;
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$500(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;)V
+
+    goto :goto_0
+
+    .line 267
+    :pswitch_1
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$800(Lcom/mrkeyboard/app/PrefScreenSheets;Lcom/mrkeyboard/app/SheetModel$Sheet;)V
+
+    goto :goto_0
+
+    .line 268
+    :pswitch_2
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    iget v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->val$idx:I
+
+    iget v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->val$idx:I
+
+    add-int/lit8 v2, v2, -0x1
+
+    invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$600(Lcom/mrkeyboard/app/PrefScreenSheets;II)V
+
+    goto :goto_0
+
+    .line 269
+    :pswitch_3
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    iget v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->val$idx:I
+
+    iget v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->val$idx:I
+
+    add-int/lit8 v2, v2, 0x1
+
+    invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$600(Lcom/mrkeyboard/app/PrefScreenSheets;II)V
+
+    goto :goto_0
+
+    .line 270
+    :pswitch_4
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    iget v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->val$idx:I
+
+    iget-object v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$900(Lcom/mrkeyboard/app/PrefScreenSheets;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
+
+    goto :goto_0
+
+    .line 271
+    :pswitch_5
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1000(Lcom/mrkeyboard/app/PrefScreenSheets;Lcom/mrkeyboard/app/SheetModel$Sheet;)V
+
+    goto :goto_0
+
+    .line 272
+    :pswitch_6
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    iget v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->val$idx:I
+
+    iget-object v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1100(Lcom/mrkeyboard/app/PrefScreenSheets;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
+
+    goto :goto_0
+
+    .line 265
+    :pswitch_data_0
+    .packed-switch 0x1
+        :pswitch_0
+        :pswitch_1
+        :pswitch_2
+        :pswitch_3
+        :pswitch_4
+        :pswitch_5
+        :pswitch_6
+    .end packed-switch
 .end method

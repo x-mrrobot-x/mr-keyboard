@@ -3029,7 +3029,7 @@
 
     const-string v2, "vibrate_on"
 
-    const/4 v3, 0x1
+    const/4 v3, 0x0
 
     invoke-interface {v1, v2, v3}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
 

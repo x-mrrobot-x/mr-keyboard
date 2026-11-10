@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 365
+    .line 374
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity$6;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,11 +40,11 @@
     .locals 1
 
     .prologue
-    .line 367
+    .line 376
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrPacks;->sCancel:Z
 
-    .line 368
+    .line 377
     return-void
 .end method

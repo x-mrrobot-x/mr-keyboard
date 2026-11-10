@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/SheetEditorActivity;->onCreate(Landroid/os/Bundle;)V
+    value = Lcom/mrkeyboard/app/SheetEditorActivity;->bindToolbar(Landroid/view/View;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -23,9 +23,10 @@
 
 # direct methods
 .method constructor <init>(Lcom/mrkeyboard/app/SheetEditorActivity;)V
-    .registers 2
+    .locals 0
 
-    .line 236
+    .prologue
+    .line 196
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$7;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,14 +37,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .locals 1
 
-    .line 239
-    iget-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$7;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+    .prologue
+    .line 198
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$7;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    # invokes: Lcom/mrkeyboard/app/SheetEditorActivity;->showManageRowsDialog()V
-    invoke-static {p1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$800(Lcom/mrkeyboard/app/SheetEditorActivity;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$000(Lcom/mrkeyboard/app/SheetEditorActivity;)V
 
-    .line 240
+    .line 199
     return-void
 .end method

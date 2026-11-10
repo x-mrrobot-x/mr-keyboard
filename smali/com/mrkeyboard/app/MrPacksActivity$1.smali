@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 55
+    .line 56
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity$1;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,7 +40,7 @@
     .locals 4
 
     .prologue
-    .line 57
+    .line 58
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$1;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$000(Lcom/mrkeyboard/app/MrPacksActivity;)Z
@@ -49,18 +49,18 @@
 
     if-eqz v0, :cond_1
 
-    .line 60
+    .line 61
     :cond_0
     :goto_0
     return-void
 
-    .line 58
+    .line 59
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$1;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$100(Lcom/mrkeyboard/app/MrPacksActivity;)V
 
-    .line 59
+    .line 60
     sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
     if-eqz v0, :cond_0

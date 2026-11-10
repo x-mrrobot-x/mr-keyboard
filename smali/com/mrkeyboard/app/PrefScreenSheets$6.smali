@@ -23,9 +23,10 @@
 
 # direct methods
 .method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
-    .registers 2
+    .locals 0
 
-    .line 174
+    .prologue
+    .line 137
     iput-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$6;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,14 +37,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 2
+    .locals 1
 
-    .line 177
-    iget-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$6;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+    .prologue
+    .line 139
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$6;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    # invokes: Lcom/mrkeyboard/app/PrefScreenSheets;->confirmResetAll()V
-    invoke-static {p1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$400(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$400(Lcom/mrkeyboard/app/PrefScreenSheets;)V
 
-    .line 178
+    .line 140
     return-void
 .end method

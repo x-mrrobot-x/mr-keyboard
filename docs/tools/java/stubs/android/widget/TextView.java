@@ -1,7 +1,7 @@
 package android.widget;
 
 public class TextView extends android.view.View {
-    private CharSequence stubText;
+    protected CharSequence stubText;
     private int selStart, selEnd;
     public TextView(android.content.Context context) { super(context); }
     public void setText(CharSequence text) { stubText = text; }
@@ -18,6 +18,7 @@ public class TextView extends android.view.View {
     public void setHintTextColor(int color) { }
     public void setInputType(int type) { }
     public void setSingleLine(boolean singleLine) { }
+    public void setFilters(android.text.InputFilter[] filters) { }
     public void setMinLines(int minLines) { }
     public void setMaxLines(int maxLines) { }
     public void setLineSpacing(float add, float mult) { }

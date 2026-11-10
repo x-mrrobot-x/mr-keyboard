@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Special-key picker: the line shown when the search does not match any key of the catalog. -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:textSize="13sp"
+    android:textColor="@color/mr_ui_text2"
+    android:gravity="center"
+    android:paddingTop="24dp"
+    android:paddingBottom="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="@string/mr_pick_empty" />

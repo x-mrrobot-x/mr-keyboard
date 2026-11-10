@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Special-key picker: the key that is selected in the key editor (soft accent surface, stronger accent border) -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/mr_ui_cyan_soft" />
+    <stroke android:width="1.5dp" android:color="@color/mr_ui_cyan" />
+    <corners android:radius="10dp" />
+</shape>

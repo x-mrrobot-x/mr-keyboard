@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Popup editor: "+ Add popup item" (primary action of the list mode): solid accent, dark ripple -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="@color/mr_ripple_dark">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/mr_ui_cyan" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <solid android:color="#ff000000" />
+            <corners android:radius="12dp" />
+        </shape>
+    </item>
+</ripple>

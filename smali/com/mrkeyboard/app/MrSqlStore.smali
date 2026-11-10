@@ -225,7 +225,7 @@
     packed-switch p0, :pswitch_data_0
 
     .line 119
-    const-string v0, "0"
+    const-string v0, "_id"
 
     :goto_0
     return-object v0
@@ -2154,13 +2154,13 @@
 
     move-result v3
 
-    if-eqz v3, :cond_b
+    if-eqz v3, :cond_a
 
     invoke-virtual {v1}, Ljava/util/ArrayList;->size()I
 
     move-result v3
 
-    if-ge v3, p6, :cond_b
+    if-ge v3, p6, :cond_a
 
     .line 172
     invoke-static {p1, v0}, Lcom/mrkeyboard/app/MrSqlStore;->readRow(ILandroid/database/Cursor;)Lcom/mrkeyboard/app/MrWordStore$Row;
@@ -2168,23 +2168,9 @@
     move-result-object v3
 
     .line 173
-    iget-object v6, v3, Lcom/mrkeyboard/app/MrWordStore$Row;->a:Ljava/lang/String;
-
-    invoke-static {v6}, Lcom/mrkeyboard/app/MrMemStore;->fold(Ljava/lang/String;)Ljava/lang/String;
+    invoke-virtual {v3}, Lcom/mrkeyboard/app/MrWordStore$Row;->text()Ljava/lang/String;
 
     move-result-object v6
-
-    invoke-virtual {v6, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-
-    move-result v6
-
-    if-nez v6, :cond_8
-
-    iget-object v6, v3, Lcom/mrkeyboard/app/MrWordStore$Row;->b:Ljava/lang/String;
-
-    if-eqz v6, :cond_7
-
-    iget-object v6, v3, Lcom/mrkeyboard/app/MrWordStore$Row;->b:Ljava/lang/String;
 
     invoke-static {v6}, Lcom/mrkeyboard/app/MrMemStore;->fold(Ljava/lang/String;)Ljava/lang/String;
 
@@ -2197,8 +2183,7 @@
     if-eqz v6, :cond_7
 
     .line 174
-    :cond_8
-    if-ge v2, p5, :cond_9
+    if-ge v2, p5, :cond_8
 
     .line 175
     add-int/lit8 v2, v2, 0x1
@@ -2207,7 +2192,7 @@
     goto :goto_5
 
     .line 178
-    :cond_9
+    :cond_8
     invoke-virtual {v1, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
     :try_end_3
     .catch Ljava/lang/RuntimeException; {:try_start_3 .. :try_end_3} :catch_0
@@ -2224,25 +2209,25 @@
     move-object v0, v1
 
     :goto_6
-    if-eqz v2, :cond_a
+    if-eqz v2, :cond_9
 
     invoke-interface {v2}, Landroid/database/Cursor;->close()V
 
     .line 185
-    :cond_a
+    :cond_9
     invoke-direct {p0, p1, v5}, Lcom/mrkeyboard/app/MrSqlStore;->done(ILandroid/database/sqlite/SQLiteDatabase;)V
 
     .line 186
     throw v0
 
     .line 184
-    :cond_b
-    if-eqz v0, :cond_c
+    :cond_a
+    if-eqz v0, :cond_b
 
     invoke-interface {v0}, Landroid/database/Cursor;->close()V
 
     .line 185
-    :cond_c
+    :cond_b
     invoke-direct {p0, p1, v5}, Lcom/mrkeyboard/app/MrSqlStore;->done(ILandroid/database/sqlite/SQLiteDatabase;)V
 
     move-object v0, v1
@@ -2262,7 +2247,7 @@
 
     move-object v0, v2
 
-    goto/16 :goto_4
+    goto :goto_4
 .end method
 
 .method public locales()Ljava/util/List;

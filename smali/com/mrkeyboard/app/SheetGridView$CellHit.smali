@@ -44,203 +44,206 @@
 
 # direct methods
 .method constructor <init>(IIILandroid/graphics/RectF;Lcom/mrkeyboard/app/SheetModel$KeySpec;Ljava/lang/String;)V
-    .registers 7
+    .locals 4
 
-    .line 514
+    .prologue
+    .line 678
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 515
+    .line 679
     iput p1, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->kind:I
 
-    .line 516
+    .line 680
     iput p2, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rowIdx:I
 
-    .line 517
+    .line 681
     iput p3, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->keyIdx:I
 
-    .line 518
+    .line 682
     iput-object p4, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
 
-    .line 519
+    .line 683
     iput-object p5, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->spec:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
-    .line 520
-    if-nez p6, :cond_11
+    .line 684
+    if-nez p6, :cond_0
 
     const-string p6, ""
 
-    :cond_11
+    :cond_0
     iput-object p6, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->displayLabel:Ljava/lang/String;
 
-    .line 522
-    iget-object p1, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->displayLabel:Ljava/lang/String;
+    .line 685
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->displayLabel:Ljava/lang/String;
 
-    const/16 p2, 0xa
+    const/16 v1, 0xa
 
-    invoke-virtual {p1, p2}, Ljava/lang/String;->indexOf(I)I
+    invoke-virtual {v0, v1}, Ljava/lang/String;->indexOf(I)I
 
-    move-result p1
+    move-result v0
 
-    if-ltz p1, :cond_28
+    if-ltz v0, :cond_3
 
-    .line 523
-    iget-object p1, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->displayLabel:Ljava/lang/String;
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->displayLabel:Ljava/lang/String;
 
-    const-string p2, "\n"
+    const-string v1, "\n"
 
-    const-string p3, "\u21b5"
+    const-string v2, "\u21b5"
 
-    invoke-virtual {p1, p2, p3}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
+    invoke-virtual {v0, v1, v2}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
 
-    move-result-object p1
+    move-result-object v0
 
-    goto :goto_2a
+    .line 686
+    :goto_0
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
 
-    .line 524
-    :cond_28
-    iget-object p1, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->displayLabel:Ljava/lang/String;
+    move-result v1
 
-    .line 525
-    :goto_2a
-    invoke-virtual {p1}, Ljava/lang/String;->length()I
+    const/4 v2, 0x7
 
-    move-result p2
+    if-le v1, v2, :cond_1
 
-    const/4 p3, 0x7
+    new-instance v1, Ljava/lang/StringBuilder;
 
-    if-le p2, p3, :cond_4a
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    new-instance p2, Ljava/lang/StringBuilder;
+    const/4 v2, 0x0
 
-    invoke-direct {p2}, Ljava/lang/StringBuilder;-><init>()V
+    const/4 v3, 0x6
 
-    const/4 p3, 0x0
+    invoke-virtual {v0, v2, v3}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
-    const/4 p4, 0x6
+    move-result-object v0
 
-    invoke-virtual {p1, p3, p4}, Ljava/lang/String;->substring(II)Ljava/lang/String;
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object p1
+    move-result-object v0
 
-    invoke-virtual {p2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    const-string v1, "\u2026"
 
-    move-result-object p1
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    const-string p2, "\u2026"
+    move-result-object v0
 
-    invoke-virtual {p1, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object p1
+    move-result-object v0
 
-    invoke-virtual {p1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    :cond_1
+    iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->shortLabel:Ljava/lang/String;
 
-    move-result-object p1
+    .line 687
+    if-eqz p5, :cond_2
 
-    :cond_4a
-    iput-object p1, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->shortLabel:Ljava/lang/String;
+    iget v0, p5, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
 
-    .line 527
-    if-eqz p5, :cond_a5
+    const/high16 v1, 0x3f800000    # 1.0f
 
-    iget p1, p5, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
+    sub-float/2addr v0, v1
 
-    const/high16 p2, 0x3f800000    # 1.0f
+    invoke-static {v0}, Ljava/lang/Math;->abs(F)F
 
-    sub-float/2addr p1, p2
+    move-result v0
 
-    invoke-static {p1}, Ljava/lang/Math;->abs(F)F
+    const v1, 0x3d4ccccd    # 0.05f
 
-    move-result p1
+    cmpg-float v0, v0, v1
 
-    const p2, 0x3d4ccccd    # 0.05f
+    if-gtz v0, :cond_4
 
-    cmpl-float p1, p1, p2
+    .line 688
+    :cond_2
+    const/4 v0, 0x0
 
-    if-lez p1, :cond_a5
+    iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->widthBadge:Ljava/lang/String;
 
-    .line 528
-    iget p1, p5, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
-
-    iget p2, p5, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
-
-    invoke-static {p2}, Ljava/lang/Math;->round(F)I
-
-    move-result p2
-
-    int-to-float p2, p2
-
-    sub-float/2addr p1, p2
-
-    invoke-static {p1}, Ljava/lang/Math;->abs(F)F
-
-    move-result p1
-
-    const p2, 0x3c23d70a    # 0.01f
-
-    cmpg-float p1, p1, p2
-
-    const-string p2, "x"
-
-    if-gez p1, :cond_8f
-
-    .line 529
-    new-instance p1, Ljava/lang/StringBuilder;
-
-    invoke-direct {p1}, Ljava/lang/StringBuilder;-><init>()V
-
-    iget p3, p5, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
-
-    invoke-static {p3}, Ljava/lang/Math;->round(F)I
-
-    move-result p3
-
-    invoke-virtual {p1, p3}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    move-result-object p1
-
-    invoke-virtual {p1, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object p1
-
-    invoke-virtual {p1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object p1
-
-    iput-object p1, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->widthBadge:Ljava/lang/String;
-
-    goto :goto_a8
-
-    .line 531
-    :cond_8f
-    new-instance p1, Ljava/lang/StringBuilder;
-
-    invoke-direct {p1}, Ljava/lang/StringBuilder;-><init>()V
-
-    iget p3, p5, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
-
-    invoke-virtual {p1, p3}, Ljava/lang/StringBuilder;->append(F)Ljava/lang/StringBuilder;
-
-    move-result-object p1
-
-    invoke-virtual {p1, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object p1
-
-    invoke-virtual {p1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object p1
-
-    iput-object p1, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->widthBadge:Ljava/lang/String;
-
-    goto :goto_a8
-
-    .line 534
-    :cond_a5
-    const/4 p1, 0x0
-
-    iput-object p1, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->widthBadge:Ljava/lang/String;
-
-    .line 536
-    :goto_a8
+    .line 694
+    :goto_1
     return-void
+
+    .line 685
+    :cond_3
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->displayLabel:Ljava/lang/String;
+
+    goto :goto_0
+
+    .line 689
+    :cond_4
+    iget v0, p5, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
+
+    iget v1, p5, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
+
+    invoke-static {v1}, Ljava/lang/Math;->round(F)I
+
+    move-result v1
+
+    int-to-float v1, v1
+
+    sub-float/2addr v0, v1
+
+    invoke-static {v0}, Ljava/lang/Math;->abs(F)F
+
+    move-result v0
+
+    const v1, 0x3c23d70a    # 0.01f
+
+    cmpg-float v0, v0, v1
+
+    if-gez v0, :cond_5
+
+    .line 690
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    iget v1, p5, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
+
+    invoke-static {v1}, Ljava/lang/Math;->round(F)I
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, "x"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->widthBadge:Ljava/lang/String;
+
+    goto :goto_1
+
+    .line 692
+    :cond_5
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    iget v1, p5, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(F)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, "x"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->widthBadge:Ljava/lang/String;
+
+    goto :goto_1
 .end method

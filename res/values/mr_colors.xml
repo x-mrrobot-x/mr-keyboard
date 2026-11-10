@@ -180,49 +180,54 @@
     <color name="mr_glass_preview_stroke">#668fb8e8</color>
     <color name="mr_glass_preview_dots">#ccdbeaff</color>
 
-    <!-- Accent (cyan of the app icon) -->
-    <color name="mr_accent">#ff29c5f6</color>
-    <color name="mr_accent_30">#4d29c5f6</color>
-    <color name="mr_ripple">#3329c5f6</color>
+    <!-- Accent (blue of the settings theme reference: #1b97fc) -->
+    <color name="mr_accent">#ff1b97fc</color>
+    <color name="mr_accent_30">#4d1b97fc</color>
+    <color name="mr_ripple">#331b97fc</color>
     <color name="mr_ripple_dark">#33000000</color>
 
     <!-- Text -->
-    <color name="mr_text_on_accent">#ff04141c</color>
-    <color name="mr_accent_disabled">#ff1f6e8a</color>
+    <color name="mr_text_on_accent">#ffffffff</color>
+    <color name="mr_accent_disabled">#ff1c5a8e</color>
 
     <!-- ===== Screen redesign (prefix mr_ui_) ===== -->
-    <color name="mr_ui_bg">#ff080c12</color>
-    <color name="mr_ui_card">#ff0f1621</color>
-    <color name="mr_ui_sunken">#ff0a1018</color>
-    <color name="mr_ui_stroke">#ff1a2535</color>
-    <color name="mr_ui_stroke_strong">#ff2a3b54</color>
-    <color name="mr_ui_text">#ffe9f0f9</color>
-    <color name="mr_ui_text2">#ff93a3ba</color>
-    <color name="mr_ui_text3">#ff6f8099</color>
-    <color name="mr_ui_text_dis">#ff4d5b72</color>
-    <color name="mr_ui_text2_dis">#ff3d495c</color>
-    <color name="mr_ui_on_accent_dim">#b304141c</color>
-    <color name="mr_ui_cyan">#ff29c5f6</color>
-    <color name="mr_ui_cyan_soft">#2429c5f6</color>
-    <color name="mr_ui_cyan_line">#4d29c5f6</color>
+    <color name="mr_ui_bg">#ff060c17</color>
+    <color name="mr_ui_card">#ff0d1626</color>
+    <color name="mr_ui_faint">#ff0f1c30</color>
+    <color name="mr_ui_raised">#ff111d31</color>
+    <color name="mr_ui_sunken">#ff09111e</color>
+    <color name="mr_ui_stroke">#ff132036</color>
+    <color name="mr_ui_stroke_strong">#ff1a2a45</color>
+    <color name="mr_ui_text">#ffffffff</color>
+    <color name="mr_ui_text2">#ffc2dcf6</color>
+    <color name="mr_ui_text3">#ff8aa4cc</color>
+    <color name="mr_ui_text_dis">#ff4a5c7a</color>
+    <color name="mr_ui_text2_dis">#ff3b4a63</color>
+    <color name="mr_ui_on_accent_dim">#b3ffffff</color>
+    <color name="mr_ui_cyan">#ff1b97fc</color>
+    <color name="mr_ui_cyan_soft">#241b97fc</color>
+    <color name="mr_ui_cyan_line">#331b97fc</color>
     <color name="mr_ui_violet">#ffa78bfa</color>
     <color name="mr_ui_violet_soft">#24a78bfa</color>
-    <color name="mr_ui_violet_line">#4da78bfa</color>
+    <color name="mr_ui_violet_line">#33a78bfa</color>
     <color name="mr_ui_mint">#ff34d399</color>
     <color name="mr_ui_mint_soft">#2434d399</color>
-    <color name="mr_ui_mint_line">#4d34d399</color>
+    <color name="mr_ui_mint_line">#3334d399</color>
     <color name="mr_ui_amber">#fffbbf24</color>
     <color name="mr_ui_amber_soft">#24fbbf24</color>
-    <color name="mr_ui_amber_line">#4dfbbf24</color>
+    <color name="mr_ui_amber_line">#33fbbf24</color>
     <color name="mr_ui_blue">#ff60a5fa</color>
     <color name="mr_ui_blue_soft">#2460a5fa</color>
-    <color name="mr_ui_blue_line">#4d60a5fa</color>
-    <color name="mr_ui_rose">#fffb7185</color>
-    <color name="mr_ui_rose_soft">#24fb7185</color>
-    <color name="mr_ui_rose_line">#4dfb7185</color>
+    <color name="mr_ui_blue_line">#3360a5fa</color>
+    <color name="mr_ui_rose">#ffff3041</color>
+    <color name="mr_ui_rose_soft">#24ff3041</color>
+    <color name="mr_ui_rose_line">#33ff3041</color>
+    <color name="mr_ui_danger">#fffb7185</color>
+    <color name="mr_ui_danger_soft">#1ffb7185</color>
+    <color name="mr_ui_danger_line">#33fb7185</color>
     <color name="mr_ui_slate">#ff94a3b8</color>
     <color name="mr_ui_slate_soft">#2494a3b8</color>
-    <color name="mr_ui_slate_line">#4d94a3b8</color>
+    <color name="mr_ui_slate_line">#3394a3b8</color>
     <color name="mr_ui_icon_bg">#ff041028</color>
 
     <!-- ===== Initial keyboard and toolbar defaults (stage 2 of the standardization) =====

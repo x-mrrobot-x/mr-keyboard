@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Small icon of the permanent notification: the app logo (rounded square, </> and keyboard) in one flat colour.
+     Android draws small icons by their shape only (it tints them), so the logo has to be a silhouette here;
+     the notification has no large icon, so the collapsed and the expanded notification show this same icon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <path android:pathData="M7.6,2.4h8.8a5.2,5.2 0 0 1 5.2,5.2v8.8a5.2,5.2 0 0 1 -5.2,5.2H7.6a5.2,5.2 0 0 1 -5.2,-5.2V7.6a5.2,5.2 0 0 1 5.2,-5.2z" android:fillColor="#00000000" android:strokeColor="#ffffffff" android:strokeWidth="1.3" android:strokeLineJoin="round" />
+    <path android:pathData="M9.4,5.9L6.6,8.3l2.8,2.4 M14.6,5.9l2.8,2.4l-2.8,2.4 M13,5.3L11,11.3" android:fillColor="#00000000" android:strokeColor="#ffffffff" android:strokeWidth="1.5" android:strokeLineCap="round" android:strokeLineJoin="round" />
+    <path android:pathData="M5.6,12.7h2v1.5h-2z M8.4,12.7h2v1.5h-2z M11.2,12.7h2v1.5h-2z M14,12.7h2v1.5h-2z M16.8,12.7h1.6v1.5h-1.6z M5.9,15h1.9v1.5h-1.9z M8.6,15h2v1.5h-2z M11.4,15h2v1.5h-2z M14.2,15h2v1.5h-2z M5.6,17.3h2.8v1.5h-2.8z M9.2,17.3h5.6v1.5h-5.6z M15.6,17.3h2.8v1.5h-2.8z" android:fillColor="#ffffffff" />
+</vector>

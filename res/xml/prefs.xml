@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" xmlns:hk="http://schemas.android.com/apk/res-auto" android:title="@string/english_ime_settings" android:key="english_ime_settings">
   <Preference android:key="mr_hero" android:title="@string/english_ime_name" android:summary="@string/mr_ui_hero_summary" android:layout="@layout/mr_ui_pref_hero" android:selectable="false" android:persistent="false"/>
   <PreferenceCategory android:title="@string/mr_ui_cat_appearance" android:key="graphics_settings" android:summary="@string/mr_ui_cat_appearance_sum" android:icon="@drawable/mr_ui_ic_keyboard_cyan">
-    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/keyboard_layout_modes" android:title="@string/keyboard_layout" android:key="pref_keyboard_layout" android:defaultValue="8" android:entryValues="@array/keyboard_layout_modes_values"/>
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/keyboard_layout_modes" android:title="@string/keyboard_layout" android:key="pref_keyboard_layout" android:defaultValue="9" android:entryValues="@array/keyboard_layout_modes_values"/>
     <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_keyboard_height_portrait" android:key="settings_height_portrait" android:defaultValue="@string/default_height_portrait" hk:displayFormat="%.0f%%" hk:maxValue="75.0" hk:minValue="15.0" hk:step="1.0"/>
     <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_keyboard_height_landscape" android:key="settings_height_landscape" android:defaultValue="@string/default_height_landscape" hk:displayFormat="%.0f%%" hk:maxValue="75.0" hk:minValue="15.0" hk:step="1.0"/>
     <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_bar_scale" android:key="pref_bar_scale" android:defaultValue="1.0" hk:asPercent="true" hk:maxValue="@string/mr_bar_scale_max" hk:minValue="@string/mr_bar_scale_min" hk:step="0.05"/>
@@ -47,7 +47,7 @@
     <Preference android:title="@string/mr_reset_title" android:key="mr_reset" android:layout="@layout/mr_ui_pref_row_danger" android:summary="@string/mr_reset_summary" android:persistent="false"/>
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_about" android:key="debugging" android:summary="@string/mr_ui_cat_about_sum" android:icon="@drawable/mr_ui_ic_info_slate">
-    <Preference android:title="@string/title_version" android:key="label_version" android:summary="@string/auto_version"/>
+    <Preference android:layout="@layout/mr_ui_pref_row_static" android:title="@string/title_version" android:key="label_version" android:summary="@string/auto_version"/>
     <Preference android:title="@string/mr_update_check_title" android:key="mr_update" android:persistent="false"/>
     <CheckBoxPreference android:title="@string/mr_update_auto_title" android:key="mr_update_auto" android:summary="@string/mr_update_auto_sum" android:persistent="false" android:defaultValue="true"/>
     <CheckBoxPreference android:title="@string/mr_update_morning_title" android:key="mr_update_morning" android:summary="@string/mr_update_morning_sum" android:persistent="false" android:defaultValue="true"/>

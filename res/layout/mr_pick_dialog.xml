@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Special-key picker of the sheet screen (mr_pick_*): the title, the search field and the list of the keys of the
+     catalog. The list (mr_pick_row) and the category lines (mr_pick_header) are built by SpecialKeyPicker, which also
+     shows the "no key found" line (mr_pick_empty) when the search does not match. Colors of the settings palette
+     (mr_ui_*), texts of mr_strings.xml (mr_pick_*), views found by the code through android:tag. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:paddingLeft="18dp"
+    android:paddingTop="18dp"
+    android:paddingRight="18dp"
+    android:paddingBottom="8dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/mr_ui_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/mr_pick_title" />
+    <EditText
+        android:tag="search"
+        android:textSize="15sp"
+        android:textColor="@color/mr_ui_text"
+        android:textColorHint="@color/mr_ui_text3"
+        android:inputType="text"
+        android:singleLine="true"
+        android:background="@drawable/mr_key_ed_field"
+        android:paddingLeft="14dp"
+        android:paddingTop="11dp"
+        android:paddingRight="14dp"
+        android:paddingBottom="11dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/mr_pick_search_hint" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="340dp">
+        <LinearLayout
+            android:tag="key_list"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </ScrollView>
+</LinearLayout>

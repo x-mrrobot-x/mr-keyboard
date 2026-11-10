@@ -20,7 +20,8 @@
         value = {
             "(",
             "Ljava/lang/String;",
-            "Ljava/util/ArrayList<",
+            "Ljava/util/ArrayList",
+            "<",
             "Lcom/mrkeyboard/app/SheetModel$KeySpec;",
             ">;)V"
         }

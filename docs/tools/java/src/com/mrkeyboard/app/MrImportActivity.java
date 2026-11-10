@@ -68,6 +68,7 @@ public class MrImportActivity extends Activity {
     private LinearLayout mLangBox;
     private EditText mText;
     private TextView mFileLabel;
+    private TextView mCount;
     private TextView mAnalyze;
     private LinearLayout mPreview;
     private LinearLayout mWordBox;
@@ -123,17 +124,22 @@ public class MrImportActivity extends Activity {
         scroll.addView(col, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         MrScreenIme.lift(scroll, col, k.dp(20), k.dp(16), k.dp(20), k.dp(24), k.dp(12));
 
-        col.addView(k.header(k.t("mr_import_title"), new View.OnClickListener() {
+        col.addView(k.backHeader(k.t("mr_import_title"), new View.OnClickListener() {
             public void onClick(View v) {
                 finish();
             }
         }), k.wide(0));
-        col.addView(k.label(k.t("mr_import_intro"), 14f, k.text2, false), k.wide(8));
+        col.addView(k.infoCard(k.t("mr_import_intro")), k.wide(16));
 
+        // The card with the language, the text and the two ways to bring it in (open a file, format with AI).
+        LinearLayout main = k.panel();
+        col.addView(main, k.wide(14));
+        main.addView(k.iconRow("mr_ui_ic_globe", 16f, k.t("mr_lang_card_title"), 15f, k.text, false), k.wide(0));
         mLangBox = k.column();
-        col.addView(mLangBox, k.wide(16));
+        main.addView(mLangBox, k.wide(10));
+        main.addView(k.iconRow("mr_ui_ic_keyboard", 16f, k.t("mr_import_hint"), 15f, k.text, false), k.wide(18));
 
-        mText = k.field(k.t("mr_import_hint"), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+        mText = k.field(k.t("mr_import_placeholder"), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
                 | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         mText.setMinLines(6);
         mText.setGravity(Gravity.TOP);
@@ -146,60 +152,58 @@ public class MrImportActivity extends Activity {
             }
 
             public void afterTextChanged(Editable s) {
+                updateCount();
                 // Typing over an opened file means the user wants the typed text now.
                 if (mFileText != null && s != null && s.length() > 0) dropFile();
                 // Another text than the one the AI made: the way back would throw the changes away.
                 if (!mSetting) hideAiResult();
             }
         });
-        col.addView(mText, k.wide(14));
+        mCount = k.label("", 12f, k.hint, false);
+        mCount.setGravity(Gravity.END);
+        mCount.setPadding(k.dp(14), 0, k.dp(14), k.dp(10));
+        main.addView(k.fieldBox(mText, mCount), k.wide(10));
+        updateCount();
 
         mFileLabel = k.label("", 13f, k.text2, false);
         mFileLabel.setPadding(k.dp(4), k.dp(6), k.dp(4), 0);
         mFileLabel.setVisibility(View.GONE);
-        col.addView(mFileLabel, k.wide(0));
+        main.addView(mFileLabel, k.wide(0));
 
         LinearLayout tools = k.row();
-        TextView paste = k.button(k.t("mr_import_paste"), false, new View.OnClickListener() {
-            public void onClick(View v) {
-                paste();
-            }
-        });
-        TextView open = k.button(k.t("mr_import_open"), false, new View.OnClickListener() {
+        TextView open = k.iconButton(k.t("mr_import_open"), "mr_ui_ic_folder", false, new View.OnClickListener() {
             public void onClick(View v) {
                 openFile();
             }
         });
-        tools.addView(paste, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        LinearLayout.LayoutParams second = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        second.setMargins(k.dp(8), 0, 0, 0);
-        tools.addView(open, second);
-        col.addView(tools, k.wide(10));
-
-        mAiButton = k.button(k.t("mr_import_ai_button"), false, new View.OnClickListener() {
+        mAiButton = k.iconButton(k.t("mr_import_ai_button"), "mr_ui_ic_wand", false, new View.OnClickListener() {
             public void onClick(View v) {
                 formatTapped();
             }
         });
-        col.addView(mAiButton, k.wide(8));
+        tools.addView(open, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        LinearLayout.LayoutParams second = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        second.setMargins(k.dp(8), 0, 0, 0);
+        tools.addView(mAiButton, second);
+        main.addView(tools, k.wide(12));
         mAiNote = k.label("", 13f, k.text2, false);
         mAiNote.setPadding(k.dp(4), k.dp(6), k.dp(4), 0);
         mAiNote.setVisibility(View.GONE);
-        col.addView(mAiNote, k.wide(0));
+        main.addView(mAiNote, k.wide(0));
         mAiUndo = k.button(k.t("mr_import_ai_undo"), false, new View.OnClickListener() {
             public void onClick(View v) {
                 undoAi();
             }
         });
         mAiUndo.setVisibility(View.GONE);
-        col.addView(mAiUndo, k.wide(8));
+        main.addView(mAiUndo, k.wide(8));
 
-        mAnalyze = k.button(k.t("mr_import_analyze"), true, new View.OnClickListener() {
+        mAnalyze = k.iconButton(k.t("mr_import_analyze"), "mr_ui_ic_eye", true, new View.OnClickListener() {
             public void onClick(View v) {
                 analyze();
             }
         });
-        col.addView(mAnalyze, k.wide(12));
+        col.addView(mAnalyze, k.wide(16));
         mStatus = k.label("", 14f, k.text2, false);
         mStatus.setPadding(k.dp(4), k.dp(8), k.dp(4), 0);
         mStatus.setVisibility(View.GONE);
@@ -218,21 +222,23 @@ public class MrImportActivity extends Activity {
         col.addView(mPreview, k.wide(10));
 
         // Turning a big text into the standard list with an AI.
-        col.addView(k.label(k.t("mr_import_ai_title"), 18f, k.text, true), k.wide(26));
-        col.addView(k.label(k.t("mr_import_ai_text"), 14f, k.text2, false), k.wide(6));
-        col.addView(k.button(k.t("mr_import_ai_copy"), false, new View.OnClickListener() {
+        LinearLayout ai = k.panel();
+        ai.addView(k.iconRow("mr_ui_ic_sparkle", 20f, k.t("mr_import_ai_title"), 17f, k.text, true), k.wide(0));
+        ai.addView(k.label(k.t("mr_import_ai_text"), 14f, k.text2, false), k.wide(8));
+        ai.addView(k.iconButton(k.t("mr_import_ai_copy"), "mr_ui_ic_copy", false, new View.OnClickListener() {
             public void onClick(View v) {
                 copyPrompt();
             }
-        }), k.wide(10));
-        col.addView(k.label(k.t("mr_import_ai_warn"), 13f, k.rose, false), k.wide(8));
+        }), k.wide(12));
+        col.addView(ai, k.wide(22));
+        col.addView(k.iconRow("mr_ui_ic_warn", 16f, k.t("mr_import_ai_warn"), 13f, k.rose, false), k.wide(12));
 
-        mUndo = k.button("", false, new View.OnClickListener() {
+        mUndo = k.iconButton("", "mr_ui_ic_undo", false, new View.OnClickListener() {
             public void onClick(View v) {
                 undoLast();
             }
         });
-        col.addView(mUndo, k.wide(24));
+        col.addView(mUndo, k.wide(18));
 
         setContentView(scroll);
         MrScreenIme.restore(state, mText, null);
@@ -269,26 +275,14 @@ public class MrImportActivity extends Activity {
                 clearPreview();
                 refreshLanguages();
             }
-        });
+        }, false);
     }
 
     // ------------------------------------------------------------------ input
 
-    private void paste() {
-        try {
-            ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData cd = cm == null ? null : cm.getPrimaryClip();
-            CharSequence cs = cd != null && cd.getItemCount() > 0 ? cd.getItemAt(0).coerceToText(this) : null;
-            if (cs == null || cs.length() == 0) {
-                k.toast(k.t("mr_import_clip_empty"));
-                return;
-            }
-            dropFile();
-            mText.setText(cs);
-            clearPreview();
-        } catch (RuntimeException e) {
-            k.toast(k.t("mr_import_clip_empty"));
-        }
+    /** The counter inside the text box: how many characters are in it. */
+    private void updateCount() {
+        mCount.setText(k.t("mr_import_count", mText.length()));
     }
 
     private void copyPrompt() {

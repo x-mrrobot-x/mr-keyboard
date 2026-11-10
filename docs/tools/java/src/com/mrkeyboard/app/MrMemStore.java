@@ -49,7 +49,7 @@ final class MrMemStore implements MrWordStore {
         for (int i = 0; i < mRows[kind].size(); i++) {
             if (!mLocale[kind].get(i).equals(locale)) continue;
             Row r = mRows[kind].get(i);
-            if (f.length() > 0 && !fold(r.a).contains(f) && !(r.b != null && fold(r.b).contains(f))) continue;
+            if (f.length() > 0 && !fold(r.text()).contains(f)) continue;
             out.add(r);
         }
         Collections.sort(out, new Comparator<Row>() {
