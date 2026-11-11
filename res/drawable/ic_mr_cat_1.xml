@@ -1,5 +1,8 @@
-<?xml version='1.0' encoding='utf-8'?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="26dp" android:height="26dp" android:viewportWidth="24" android:viewportHeight="24">
-    <group android:scaleX="0.993" android:scaleY="0.993" android:translateX="0.0838" android:translateY="0.7196"><path android:fillColor="#ffffffff" android:fillAlpha="0.15" android:pathData="M4.8,9.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM8,5.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM12,5.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM15.2,9.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM12,12.5c-2.8,0 -5,2.5 -5,4.8c0,1.6 1.5,2.2 2.6,1.8c1,-0.3 1.4,-0.6 2.4,-0.6s1.4,0.3 2.4,0.6c1.1,0.4 2.6,-0.2 2.6,-1.8c0,-2.3 -2.2,-4.8 -5,-4.8z" />
-    <path android:strokeColor="#ffffffff" android:strokeWidth="1.4" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M4.8,9.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM8,5.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM12,5.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM15.2,9.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM12,12.5c-2.8,0 -5,2.5 -5,4.8c0,1.6 1.5,2.2 2.6,1.8c1,-0.3 1.4,-0.6 2.4,-0.6s1.4,0.3 2.4,0.6c1.1,0.4 2.6,-0.2 2.6,-1.8c0,-2.3 -2.2,-4.8 -5,-4.8z" />
-</group></vector>
+<?xml version="1.0" encoding="utf-8"?>
+<vector android:height="22.0dip" android:width="22.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:scaleX="0.993" android:scaleY="0.993" android:translateX="0.0838" android:translateY="0.7196">
+        <path android:fillColor="#ffffffff" android:pathData="M4.8,9.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM8,5.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM12,5.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM15.2,9.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM12,12.5c-2.8,0 -5,2.5 -5,4.8c0,1.6 1.5,2.2 2.6,1.8c1,-0.3 1.4,-0.6 2.4,-0.6s1.4,0.3 2.4,0.6c1.1,0.4 2.6,-0.2 2.6,-1.8c0,-2.3 -2.2,-4.8 -5,-4.8z" android:fillAlpha="0.15" />
+        <path android:pathData="M4.8,9.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM8,5.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM12,5.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM15.2,9.5a2,2 0 1 1 4,0a2,2 0 1 1 -4,0zM12,12.5c-2.8,0 -5,2.5 -5,4.8c0,1.6 1.5,2.2 2.6,1.8c1,-0.3 1.4,-0.6 2.4,-0.6s1.4,0.3 2.4,0.6c1.1,0.4 2.6,-0.2 2.6,-1.8c0,-2.3 -2.2,-4.8 -5,-4.8z" android:strokeColor="#ffffffff" android:strokeWidth="1.4" android:strokeLineCap="round" android:strokeLineJoin="round" />
+    </group>
+</vector>

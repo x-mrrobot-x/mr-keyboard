@@ -5,14 +5,12 @@
 # interfaces
 .implements Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;
 
-
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
         Lcom/mrkeyboard/app/KeyboardSwitcher$KeyboardId;
     }
 .end annotation
-
 
 # static fields
 .field private static final ALPHABET_MODES:[I
@@ -95,7 +93,6 @@
 
 .field private static final sInstance:Lcom/mrkeyboard/app/KeyboardSwitcher;
 
-
 # instance fields
 .field private mAutoModeSwitchState:I
 
@@ -146,7 +143,6 @@
 .field private mSymbolsShiftedId:Lcom/mrkeyboard/app/KeyboardSwitcher$KeyboardId;
 
 .field private mVoiceOnPrimary:Z
-
 
 # direct methods
 .method static constructor <clinit>()V
@@ -915,8 +911,6 @@
 
     return-object p1
 
-    nop
-
     :pswitch_data_0
     .packed-switch 0x4
         :pswitch_0
@@ -1289,7 +1283,6 @@
 
     return-void
 .end method
-
 
 # virtual methods
 .method public getInputView()Lcom/mrkeyboard/app/LatinKeyboardView;

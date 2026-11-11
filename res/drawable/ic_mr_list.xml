@@ -1,7 +1,10 @@
-<?xml version='1.0' encoding='utf-8'?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="26dp" android:height="26dp" android:viewportWidth="24" android:viewportHeight="24">
-    <group android:scaleX="0.874" android:scaleY="0.874" android:translateX="1.5118" android:translateY="1.5118"><group android:pivotX="12" android:pivotY="12" android:scaleX="1.114" android:scaleY="1.114" android:translateX="0" android:translateY="0">
-        <path android:fillColor="#ffffffff" android:pathData="M5.5,4.5h13a1.5,1.5 0 0 1 1.5,1.5v3a1.5,1.5 0 0 1 -1.5,1.5h-13a1.5,1.5 0 0 1 -1.5,-1.5v-3a1.5,1.5 0 0 1 1.5,-1.5zM5.5,13.5h13a1.5,1.5 0 0 1 1.5,1.5v3a1.5,1.5 0 0 1 -1.5,1.5h-13a1.5,1.5 0 0 1 -1.5,-1.5v-3a1.5,1.5 0 0 1 1.5,-1.5z" />
-        <path android:strokeColor="#ffffffff" android:strokeWidth="1.46" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M5.5,4.5h13a1.5,1.5 0 0 1 1.5,1.5v3a1.5,1.5 0 0 1 -1.5,1.5h-13a1.5,1.5 0 0 1 -1.5,-1.5v-3a1.5,1.5 0 0 1 1.5,-1.5zM5.5,13.5h13a1.5,1.5 0 0 1 1.5,1.5v3a1.5,1.5 0 0 1 -1.5,1.5h-13a1.5,1.5 0 0 1 -1.5,-1.5v-3a1.5,1.5 0 0 1 1.5,-1.5z" />
+<?xml version="1.0" encoding="utf-8"?>
+<vector android:height="22.0dip" android:width="22.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:scaleX="0.874" android:scaleY="0.874" android:translateX="1.5118" android:translateY="1.5118">
+        <group android:pivotX="12.0" android:pivotY="12.0" android:scaleX="1.114" android:scaleY="1.114" android:translateX="0.0" android:translateY="0.0">
+            <path android:fillColor="#ffffffff" android:pathData="M5.5,4.5h13a1.5,1.5 0 0 1 1.5,1.5v3a1.5,1.5 0 0 1 -1.5,1.5h-13a1.5,1.5 0 0 1 -1.5,-1.5v-3a1.5,1.5 0 0 1 1.5,-1.5zM5.5,13.5h13a1.5,1.5 0 0 1 1.5,1.5v3a1.5,1.5 0 0 1 -1.5,1.5h-13a1.5,1.5 0 0 1 -1.5,-1.5v-3a1.5,1.5 0 0 1 1.5,-1.5z" />
+            <path android:pathData="M5.5,4.5h13a1.5,1.5 0 0 1 1.5,1.5v3a1.5,1.5 0 0 1 -1.5,1.5h-13a1.5,1.5 0 0 1 -1.5,-1.5v-3a1.5,1.5 0 0 1 1.5,-1.5zM5.5,13.5h13a1.5,1.5 0 0 1 1.5,1.5v3a1.5,1.5 0 0 1 -1.5,1.5h-13a1.5,1.5 0 0 1 -1.5,-1.5v-3a1.5,1.5 0 0 1 1.5,-1.5z" android:strokeColor="#ffffffff" android:strokeWidth="1.46" android:strokeLineCap="round" android:strokeLineJoin="round" />
+        </group>
     </group>
-</group></vector>
+</vector>

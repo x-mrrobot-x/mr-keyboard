@@ -2,7 +2,6 @@
 .super Landroid/app/Activity;
 .source "ShotPick.java"
 
-
 .method public constructor <init>()V
     .locals 0
 
@@ -89,20 +88,21 @@
 
     const-string v1, "*/*"
 
-    if-nez p0, :cond_vid
+    if-nez p0, :cond_0
 
     const-string v1, "image/*"
 
-    goto :cond_type
+    goto :goto_0
 
-    :cond_vid
+    :cond_0
     const/4 v2, 0x1
 
-    if-ne p0, v2, :cond_type
+    if-ne p0, v2, :cond_1
 
     const-string v1, "video/*"
 
-    :cond_type
+    :cond_1
+    :goto_0
     invoke-virtual {v0, v1}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
     const-string v1, "android.intent.extra.ALLOW_MULTIPLE"

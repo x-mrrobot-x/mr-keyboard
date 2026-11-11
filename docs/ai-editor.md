@@ -19,7 +19,7 @@ The dialog uses `Theme.MrKeyboard.Dialog` exclusively and the settings palette (
 - `docs/tools/java/src/com/mrkeyboard/app/MrAi.java`: captures and validates the text, builds the dialog interface, calls the provider, updates the result and applies/copies the text. The network is only used after the person chooses a style.
 - `docs/tools/java/src/com/mrkeyboard/app/MrAiDialog.java`: lifecycle of the dialog attached to the IME window and resizing above the keyboard.
 - `MrAiPrefs`: settings for provider, model, key and styles; `MrAiStyleActivity`: creation/editing of the styles.
-- `res/xml/prefs_ai.xml`: settings; `res/layout/mr_ai_dialog.xml`: modal interface; `MrNotice.aiEditor`: notice shown on the first opening.
+- `res/xml/prefs_ai.xml`: settings; `res/layout/mr_ai_dialog.xml`: modal interface.
 - `MrTools.smali` keeps the manual hooks of the bar (button `b_aied`), calls the dialog through code `0x18` and ends the tool when the keyboard is released.
 
 ## Network and privacy

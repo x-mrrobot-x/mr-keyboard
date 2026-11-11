@@ -2,14 +2,12 @@
 .super Lcom/mrkeyboard/app/LatinKeyboardBaseView;
 .source "LatinKeyboardView.java"
 
-
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
         Lcom/mrkeyboard/app/LatinKeyboardView$ExtensionKeyboardListener;
     }
 .end annotation
-
 
 # static fields
 .field static final DEBUG_AUTO_PLAY:Z = false
@@ -100,13 +98,8 @@
 
 .field static final TAG:Ljava/lang/String; = "HK/LatinKeyboardView"
 
-
 # instance fields
-.field private mAsciiKeys:[Lcom/mrkeyboard/app/Keyboard$Key;
-
 .field private mDisableDisambiguation:Z
-
-.field private mDownDelivered:Z
 
 .field private mDroppingEvents:Z
 
@@ -138,13 +131,6 @@
 
 .field private mPhoneKeyboard:Lcom/mrkeyboard/app/Keyboard;
 
-.field private mPlaying:Z
-
-.field private mStringIndex:I
-
-.field private mStringToPlay:Ljava/lang/String;
-
-
 # direct methods
 .method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;)V
     .locals 1
@@ -172,13 +158,6 @@
 
     .line 117
     iput v0, p0, Lcom/mrkeyboard/app/LatinKeyboardView;->mExtensionLayoutResId:I
-
-    const/16 v1, 0x100
-
-    .line 540
-    new-array v1, v1, [Lcom/mrkeyboard/app/Keyboard$Key;
-
-    iput-object v1, p0, Lcom/mrkeyboard/app/LatinKeyboardView;->mAsciiKeys:[Lcom/mrkeyboard/app/Keyboard$Key;
 
     .line 128
     sget-object v1, Lcom/mrkeyboard/app/R$styleable;->LatinKeyboardBaseView:[I
@@ -504,67 +483,6 @@
     .line 487
     iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinKeyboardView;->mExtensionVisible:Z
 
-    return-void
-.end method
-
-.method private findKeys()V
-    .locals 6
-
-    .line 607
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardView;->getKeyboard()Lcom/mrkeyboard/app/Keyboard;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/Keyboard;->getKeys()Ljava/util/List;
-
-    move-result-object v0
-
-    const/4 v1, 0x0
-
-    const/4 v2, 0x0
-
-    .line 609
-    :goto_0
-    invoke-interface {v0}, Ljava/util/List;->size()I
-
-    move-result v3
-
-    if-ge v2, v3, :cond_1
-
-    .line 610
-    invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v3
-
-    check-cast v3, Lcom/mrkeyboard/app/Keyboard$Key;
-
-    iget-object v3, v3, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
-
-    aget v3, v3, v1
-
-    if-ltz v3, :cond_0
-
-    const/16 v4, 0xff
-
-    if-gt v3, v4, :cond_0
-
-    .line 612
-    iget-object v4, p0, Lcom/mrkeyboard/app/LatinKeyboardView;->mAsciiKeys:[Lcom/mrkeyboard/app/Keyboard$Key;
-
-    invoke-interface {v0, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
-
-    move-result-object v5
-
-    check-cast v5, Lcom/mrkeyboard/app/Keyboard$Key;
-
-    aput-object v5, v4, v3
-
-    :cond_0
-    add-int/lit8 v2, v2, 0x1
-
-    goto :goto_0
-
-    :cond_1
     return-void
 .end method
 
@@ -1086,7 +1004,6 @@
 
     return-void
 .end method
-
 
 # virtual methods
 .method public closing()V

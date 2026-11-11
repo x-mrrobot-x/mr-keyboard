@@ -2,7 +2,6 @@
 .super Ljava/lang/Object;
 .source "PointerTracker.java"
 
-
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
@@ -10,7 +9,6 @@
         Lcom/mrkeyboard/app/PointerTracker$UIProxy;
     }
 .end annotation
-
 
 # static fields
 .field private static final DEBUG:Z = false
@@ -34,7 +32,6 @@
         }
     .end annotation
 .end field
-
 
 # instance fields
 .field private final mDelayBeforeKeyRepeatStart:I
@@ -80,7 +77,6 @@
 .field private final mProxy:Lcom/mrkeyboard/app/PointerTracker$UIProxy;
 
 .field private mTapCount:I
-
 
 # direct methods
 .method static constructor <clinit>()V
@@ -355,165 +351,6 @@
     sget-object v0, Lcom/mrkeyboard/app/PointerTracker;->sSlideKeys:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->clear()V
-
-    return-void
-.end method
-
-.method private debugLog(Ljava/lang/String;II)V
-    .locals 7
-
-    .line 633
-    iget-object v0, p0, Lcom/mrkeyboard/app/PointerTracker;->mKeyDetector:Lcom/mrkeyboard/app/KeyDetector;
-
-    const/4 v1, 0x0
-
-    invoke-virtual {v0, p2, p3, v1}, Lcom/mrkeyboard/app/KeyDetector;->getKeyIndexAndNearbyCodes(II[I)I
-
-    move-result v0
-
-    .line 634
-    invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/PointerTracker;->getKey(I)Lcom/mrkeyboard/app/Keyboard$Key;
-
-    move-result-object v1
-
-    const/4 v2, 0x1
-
-    const/4 v3, 0x0
-
-    if-eqz v1, :cond_2
-
-    .line 636
-    iget-object v4, v1, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
-
-    if-nez v4, :cond_0
-
-    goto :goto_1
-
-    .line 639
-    :cond_0
-    iget-object v1, v1, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
-
-    aget v1, v1, v3
-
-    if-gez v1, :cond_1
-
-    const-string v4, "%4d"
-
-    goto :goto_0
-
-    :cond_1
-    const-string v4, "0x%02x"
-
-    .line 640
-    :goto_0
-    new-array v5, v2, [Ljava/lang/Object;
-
-    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v1
-
-    aput-object v1, v5, v3
-
-    invoke-static {v4, v5}, Ljava/lang/String;->format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v1
-
-    goto :goto_2
-
-    :cond_2
-    :goto_1
-    const-string v1, "----"
-
-    :goto_2
-    const-string v4, "PointerTracker"
-
-    const-string v5, "%s%s[%d] %3d,%3d %3d(%s) %s"
-
-    const/16 v6, 0x8
-
-    .line 642
-    new-array v6, v6, [Ljava/lang/Object;
-
-    aput-object p1, v6, v3
-
-    iget-boolean p1, p0, Lcom/mrkeyboard/app/PointerTracker;->mKeyAlreadyProcessed:Z
-
-    if-eqz p1, :cond_3
-
-    const-string p1, "-"
-
-    goto :goto_3
-
-    :cond_3
-    const-string p1, " "
-
-    :goto_3
-    aput-object p1, v6, v2
-
-    const/4 p1, 0x2
-
-    iget v2, p0, Lcom/mrkeyboard/app/PointerTracker;->mPointerId:I
-
-    .line 643
-    invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v2
-
-    aput-object v2, v6, p1
-
-    const/4 p1, 0x3
-
-    invoke-static {p2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object p2
-
-    aput-object p2, v6, p1
-
-    const/4 p1, 0x4
-
-    invoke-static {p3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object p2
-
-    aput-object p2, v6, p1
-
-    const/4 p1, 0x5
-
-    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object p2
-
-    aput-object p2, v6, p1
-
-    const/4 p1, 0x6
-
-    aput-object v1, v6, p1
-
-    const/4 p1, 0x7
-
-    .line 644
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/PointerTracker;->isModifier()Z
-
-    move-result p2
-
-    if-eqz p2, :cond_4
-
-    const-string p2, "modifier"
-
-    goto :goto_4
-
-    :cond_4
-    const-string p2, ""
-
-    :goto_4
-    aput-object p2, v6, p1
-
-    .line 642
-    invoke-static {v5, v6}, Ljava/lang/String;->format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object p1
-
-    invoke-static {v4, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
     return-void
 .end method
@@ -1004,7 +841,6 @@
     :goto_0
     return-void
 .end method
-
 
 # virtual methods
 .method public getDownTime()J

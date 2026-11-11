@@ -2,7 +2,6 @@
 .super Ljava/lang/Object;
 .source "ComposeSequence.java"
 
-
 # static fields
 .field protected static final BREAK:C = '\uff87'
 
@@ -95,12 +94,10 @@
     .end annotation
 .end field
 
-
 # instance fields
 .field protected composeBuffer:Ljava/lang/StringBuilder;
 
 .field protected composeUser:Lcom/mrkeyboard/app/ComposeSequencing;
-
 
 # direct methods
 .method static constructor <clinit>()V
@@ -6761,63 +6758,6 @@
 
     return-void
 .end method
-
-.method private static showString(Ljava/lang/String;)Ljava/lang/String;
-    .locals 3
-
-    .line 121
-    new-instance v0, Ljava/lang/StringBuilder;
-
-    invoke-direct {v0, p0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
-
-    const-string v1, "{"
-
-    .line 122
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const/4 v1, 0x0
-
-    .line 123
-    :goto_0
-    invoke-virtual {p0}, Ljava/lang/String;->length()I
-
-    move-result v2
-
-    if-ge v1, v2, :cond_1
-
-    if-lez v1, :cond_0
-
-    const-string v2, ","
-
-    .line 124
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 125
-    :cond_0
-    invoke-virtual {p0, v1}, Ljava/lang/String;->charAt(I)C
-
-    move-result v2
-
-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    add-int/lit8 v1, v1, 0x1
-
-    goto :goto_0
-
-    :cond_1
-    const-string p0, "}"
-
-    .line 127
-    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 128
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object p0
-
-    return-object p0
-.end method
-
 
 # virtual methods
 .method public bufferKey(C)V

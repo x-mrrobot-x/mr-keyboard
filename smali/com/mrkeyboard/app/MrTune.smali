@@ -14,7 +14,6 @@
 .implements Landroid/widget/SeekBar$OnSeekBarChangeListener;
 .implements Landroid/view/View$OnLayoutChangeListener;
 
-
 # static fields
 .field static sList:Ljava/util/ArrayList;
 
@@ -37,14 +36,12 @@
 # list of the panel's sliders (sList can be replaced by the dialog's)
 .field static sPList:Ljava/util/ArrayList;
 
-
 # instance fields
 .field mIdx:I
 
 .field mSeek:Landroid/widget/SeekBar;
 
 .field mVal:Landroid/widget/TextView;
-
 
 # direct methods
 .method constructor <init>(I)V
@@ -147,25 +144,24 @@
 
     sget-object v1, Lcom/mrkeyboard/app/MrTune;->sPanel:Landroid/view/View;
 
-    if-eqz v1, :cond_bar
+    if-eqz v1, :cond_0
 
     const/16 v0, 0x8
 
     invoke-virtual {v1, v0}, Landroid/view/View;->setVisibility(I)V
 
-    :cond_bar
+    :cond_0
     sget-object v1, Lcom/mrkeyboard/app/MrTune;->sBar:Landroid/view/View;
 
-    if-eqz v1, :cond_main
+    if-eqz v1, :cond_1
 
     const/16 v0, 0x8
 
     invoke-virtual {v1, v0}, Landroid/view/View;->setVisibility(I)V
 
-    :cond_main
+    :cond_1
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
 
-    :cond_end
     return-void
 .end method
 
@@ -459,24 +455,21 @@
 
     iput p0, v0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->labelScalePref:F
 
-    # the label scale also sizes the icons of the toolbar buttons
-    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyIconScale()V
-
     invoke-static {}, Lcom/mrkeyboard/app/KeyboardSwitcher;->getInstance()Lcom/mrkeyboard/app/KeyboardSwitcher;
 
     move-result-object v0
 
-    if-eqz v0, :cond_end
+    if-eqz v0, :cond_0
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/KeyboardSwitcher;->getInputView()Lcom/mrkeyboard/app/LatinKeyboardView;
 
     move-result-object v0
 
-    if-eqz v0, :cond_end
+    if-eqz v0, :cond_0
 
     invoke-virtual {v0, p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->setMrLabelScale(F)V
 
-    :cond_end
+    :cond_0
     return-void
 .end method
 
@@ -870,7 +863,7 @@
 
     const/4 v0, 0x4
 
-    if-ne p0, v0, :cond_p4
+    if-ne p0, v0, :cond_0
 
     const v0, 0x3f19999a    # 0.6f
 
@@ -884,13 +877,12 @@
 
     move-result v0
 
-    goto :goto_clamp
+    goto :goto_0
 
-    :cond_p4
-
+    :cond_0
     const/4 v0, 0x1
 
-    if-ne p0, v0, :cond_lin
+    if-ne p0, v0, :cond_1
 
     const/high16 v0, 0x40000000    # 2.0f
 
@@ -920,32 +912,33 @@
 
     long-to-int v0, v0
 
-    goto :goto_clamp
+    goto :goto_0
 
-    :cond_lin
+    :cond_1
     invoke-static {p1}, Ljava/lang/Math;->round(F)I
 
     move-result v0
 
-    if-nez p0, :goto_clamp
+    if-nez p0, :cond_2
 
     add-int/lit8 v0, v0, -0xf
 
-    :goto_clamp
-    if-gez v0, :cond_pos
+    :cond_2
+    :goto_0
+    if-gez v0, :cond_3
 
     const/4 v0, 0x0
 
-    :cond_pos
+    :cond_3
     invoke-static {p0}, Lcom/mrkeyboard/app/MrTune;->maxOf(I)I
 
     move-result v1
 
-    if-le v0, v1, :cond_done
+    if-le v0, v1, :cond_4
 
     move v0, v1
 
-    :cond_done
+    :cond_4
     return v0
 .end method
 
@@ -1469,7 +1462,6 @@
     return-void
 .end method
 
-
 # virtual methods
 # Restores the default only for this dialog's settings (does not touch the rest of the preferences).
 # The label scale is applied straight to the view (silent write), as when dragging the slider.
@@ -1547,12 +1539,12 @@
 
     sget-object v0, Lcom/mrkeyboard/app/MrTune;->sDlg:Landroid/app/Dialog;
 
-    if-nez v0, :cond_go
+    if-nez v0, :cond_0
 
     return-void
 
-    :cond_go
-    :try_start_l
+    :cond_0
+    :try_start_0
     invoke-virtual {v0}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
 
     move-result-object v1
@@ -1567,19 +1559,18 @@
 
     iget v4, v2, Landroid/view/WindowManager$LayoutParams;->height:I
 
-    if-eq v3, v4, :cond_same
+    if-eq v3, v4, :cond_1
 
     iput v3, v2, Landroid/view/WindowManager$LayoutParams;->height:I
 
     invoke-virtual {v1, v2}, Landroid/view/Window;->setAttributes(Landroid/view/WindowManager$LayoutParams;)V
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    :cond_same
-    :try_end_l
-    .catch Ljava/lang/Throwable; {:try_start_l .. :try_end_l} :catch_l
-
+    :cond_1
     return-void
 
-    :catch_l
+    :catch_0
     move-exception v0
 
     return-void

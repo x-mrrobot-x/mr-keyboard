@@ -15,11 +15,15 @@
 #   res_check.py         resources: valid XML, public.xml, references, unused resources, Spanish vs Portuguese
 #   smali_regcheck.py    hand-edited smali: register read without a value (the error that closed Settings in 1.67),
 #                        register above the instruction limit (e.g. p0 = v17 in a plain invoke), more than 5 registers in a
-#                        plain invoke (the assembler refuses with "Invalid register count") and a call to a method that does not exist
+#                        plain invoke (the assembler refuses with "Invalid register count"), a call to a method that does not exist and a field that does not
+#                        exist (the NoSuchFieldError that closed Settings after the dead-code cleanup: a <clinit> still filling removed fields)
 #   check_stub_api.py    what the Java layer calls exists, with the same signature, in the APK (the smali) and, with the Android SDK jar of the
 #                        runner, in android.* (the stubs of docs/tools/java/stubs are hand-written: a wrong return type compiles and only fails on the device)
 #   run_java_tests.sh    PC tests of the Java layer (author card, main-screen link, re-correction: word under the cursor and
-#                        neighbour keys, recent words, the update notice: signature, versions, replay, checking windows)
+#                        neighbour keys, recent words, the update notice: signature, versions, replay, checking windows, the fonts tool:
+#                        the 27 Unicode styles, the fields that take no style, the delete of a styled letter)
+#   test_smali_regcheck.py  smali_regcheck.py itself: each of its five rules with a broken and a good case (registers, methods, limits, invoke size, fields), --base, the real smali
+#   test_ui_language_rebuild.py  changing the app language rebuilds the keyboard view once, on the change (LatinIME.onSharedPreferenceChanged), and the bar is inflated again in the new language
 #   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial; trigrams.bin MRT2 needs minApp 1090000)
 #   test_mrt_format.py   the two layouts of trigrams.bin (MRT1, MRT2): round trips, limits, every kind of damaged file, the converter
 #   test_add_loanwords.py  add_loanwords.py (common English words added to the dictionary of a pack): what is added and what is not, the frequency band,
@@ -118,8 +122,14 @@ jobs:
       - name: Resources
         run: python3 docs/tools/res_check.py
 
-      - name: Smali - registers and methods
+      - name: Smali - registers, methods and fields
         run: python3 docs/tools/smali_regcheck.py smali
+
+      - name: Smali check itself (its rules on broken and good examples)
+        run: python3 -I docs/tools/test_smali_regcheck.py
+
+      - name: App language rebuilds the keyboard (the toolbar and the tools show the new language at once)
+        run: python3 -I docs/tools/test_ui_language_rebuild.py
 
       - name: Java layer calls exist in the APK and in the Android SDK
         run: |
@@ -187,7 +197,7 @@ jobs:
       - name: Verify the dex
         run: sh docs/tools/verify_dex.sh verify.apk tools/dex-tools-2.1 "$RUNNER_TEMP/dex"
 
-      - name: Assembled smali - registers and methods
+      - name: Assembled smali - registers, methods and fields
         run: |
           java -jar apktool.jar d -f -o "$RUNNER_TEMP/dec" verify.apk > /dev/null
           python3 docs/tools/smali_regcheck.py "$RUNNER_TEMP"/dec/smali*

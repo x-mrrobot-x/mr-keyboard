@@ -40,7 +40,6 @@
 # Tag of the current keyboard layout (mr_glass, mr_midnight...); null when there is no keyboard.
 .field private static sTag:Ljava/lang/String;
 
-
 # p0 = context, p1 = layout tag (String or null). Looks the tag up in mr_theme_tags and returns the flag at the same position
 # in mr_theme_flags. Always returns with the INIT bit on; an unknown tag or missing resource returns only INIT.
 .method static flags(Landroid/content/Context;Ljava/lang/Object;)I
@@ -48,9 +47,9 @@
 
     const/4 v0, 0x1
 
-    if-eqz p0, :cond_done
+    if-eqz p0, :cond_1
 
-    if-eqz p1, :cond_done
+    if-eqz p1, :cond_1
 
     :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -87,8 +86,8 @@
 
     array-length v7, v3
 
-    :goto_loop
-    if-ge v6, v7, :cond_done
+    :goto_0
+    if-ge v6, v7, :cond_1
 
     aget-object v2, v3, v6
 
@@ -96,22 +95,23 @@
 
     move-result v2
 
-    if-eqz v2, :cond_next
+    if-eqz v2, :cond_0
 
     aget v2, v5, v6
 
     or-int/lit8 v0, v2, 0x1
 
-    goto :cond_done
+    goto :goto_1
 
-    :cond_next
+    :cond_0
     add-int/lit8 v6, v6, 0x1
 
-    goto :goto_loop
+    goto :goto_0
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
-    :cond_done
+    :cond_1
+    :goto_1
     return v0
 
     :catch_0

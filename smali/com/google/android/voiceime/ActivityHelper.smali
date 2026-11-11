@@ -2,16 +2,8 @@
 .super Landroid/app/Activity;
 .source "ActivityHelper.java"
 
-
-# static fields
-.field private static final RECOGNITION_REQUEST:I = 0x1
-
-.field private static final TAG:Ljava/lang/String; = "ActivityHelper"
-
-
 # instance fields
 .field private mServiceBridge:Lcom/google/android/voiceime/ServiceBridge;
-
 
 # direct methods
 .method public constructor <init>()V
@@ -21,65 +13,6 @@
     invoke-direct {p0}, Landroid/app/Activity;-><init>()V
 
     return-void
-.end method
-
-.method static synthetic access$0(Lcom/google/android/voiceime/ActivityHelper;Ljava/lang/String;)V
-    .locals 0
-
-    .line 113
-    invoke-direct {p0, p1}, Lcom/google/android/voiceime/ActivityHelper;->notifyResult(Ljava/lang/String;)V
-
-    return-void
-.end method
-
-.method private createResultDialog([Ljava/lang/String;)Landroid/app/Dialog;
-    .locals 2
-
-    .line 78
-    
-    new-instance v0, Landroid/app/AlertDialog$Builder;
-
-
-    const v1, 0x1030071
-
-    invoke-direct {v0, p0, v1}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;I)V
-
-    
-    .line 85
-    new-instance v1, Lcom/google/android/voiceime/ActivityHelper$1;
-
-
-    invoke-direct {v1, p0, p1}, Lcom/google/android/voiceime/ActivityHelper$1;-><init>(Lcom/google/android/voiceime/ActivityHelper;[Ljava/lang/String;)V
-
-    invoke-virtual {v0, p1, v1}, Landroid/app/AlertDialog$Builder;->setItems([Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
-
-    const/4 p1, 0x1
-
-    .line 93
-    invoke-virtual {v0, p1}, Landroid/app/AlertDialog$Builder;->setCancelable(Z)Landroid/app/AlertDialog$Builder;
-
-    .line 94
-    new-instance p1, Lcom/google/android/voiceime/ActivityHelper$2;
-
-    invoke-direct {p1, p0}, Lcom/google/android/voiceime/ActivityHelper$2;-><init>(Lcom/google/android/voiceime/ActivityHelper;)V
-
-    invoke-virtual {v0, p1}, Landroid/app/AlertDialog$Builder;->setOnCancelListener(Landroid/content/DialogInterface$OnCancelListener;)Landroid/app/AlertDialog$Builder;
-
-    const/high16 p1, 0x1040000
-
-    .line 102
-    new-instance v1, Lcom/google/android/voiceime/ActivityHelper$3;
-
-    invoke-direct {v1, p0}, Lcom/google/android/voiceime/ActivityHelper$3;-><init>(Lcom/google/android/voiceime/ActivityHelper;)V
-
-    invoke-virtual {v0, p1, v1}, Landroid/app/AlertDialog$Builder;->setNeutralButton(ILandroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
-
-    .line 110
-    invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->create()Landroid/app/AlertDialog;
-
-    move-result-object p1
-
-    return-object p1
 .end method
 
 .method private notifyResult(Ljava/lang/String;)V
@@ -95,7 +28,6 @@
 
     return-void
 .end method
-
 
 # virtual methods
 .method protected onActivityResult(IILandroid/content/Intent;)V

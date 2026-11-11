@@ -21,8 +21,15 @@ only reads them (`MrTheme`, `KeyStyle`, `MrTools`). A new theme does not require
    `@color`, with no hex: the colors live in `res/values/mr_key_colors.xml`, named
    `mr_<tema>_key_<estado>_<parte>` (state `normal`, `pressed`, `hl`, `on`, `lock` or `acc_<estado>`; part `halo`, `base`,
    `fill`, `top`, `mid`, `bottom`, `stroke` or `shadow`). The neutral shadows that repeat across themes are global:
-   `mr_key_shadow`, `mr_popup_shadow` and `mr_preview_shadow`. **Accent keys** (Shift,
-   Delete, arrows, Tab, 123, Space, Enter...): `btn_keyboard_key_<tema>_accent`. The accent **replaces** the key's
+   `mr_key_shadow`, `mr_popup_shadow` and `mr_preview_shadow`. **Accent keys** (Delete,
+   arrows, Tab, 123, Space, Enter...): `btn_keyboard_key_<tema>_accent`. Ctrl, Alt, Shift and ❖ are accent keys too, with one
+   difference: they always show the resting accent face (only a touch changes it) and a small lower dash tells their state
+   (`LatinKeyboardBaseView.drawModifierIndicator`), instead of the `on`/`lock` faces. Define `mr_<tema>_modifier_indicator_off`,
+   `_on` and `_lock` in `res/values/mr_colors.xml` (and the `mr_modifier_indicator_*` fallback); Shift uses all
+   three colors, while Ctrl, Alt and ❖ use off/on. Choose them against the accent face, not the normal one, always in the hue of the
+   theme: `off` a subdued tone of the face (contrast about 1.3), `on` the theme's interaction color (on a bright face, like
+   Neon's, a light tone of the same hue) and `lock` a red. Pressed fills follow the same theme hue, and their border uses
+   `mr_<tema>_press_accent` (item 8). The accent **replaces** the key's
    background, so the selector must bring everything (shadow, halo, border). There are two ways: dedicated drawables
    `key_<tema>_acc_{normal,pressed,on,lock}` (Neon, Soft and Glass) or reusing `key_<tema>_hl` (rest) and the theme's own
    `pressed/on/lock` (Slate and Midnight), so that sticky keys and accent keys are
@@ -35,8 +42,8 @@ only reads them (`MrTheme`, `KeyStyle`, `MrTools`). A new theme does not require
    Midnight) and a single shape (Glass) have no side gap and get the keys' radius. A new theme only needs to inset the
    outer layers in the XML; the radius written in them is a fallback. Keep the inner layer last.
    Which keys are accent keys (`isAccentKey` in `LatinKeyboardBaseView`, the same for all themes): a fixed list of
-   codes (Shift, Delete, Tab, Ctrl, Alt, ❖, arrows, Home/End, PgUp/PgDn and the bar key) and, with `ACCENT_WIDE`,
-   also every key marked `android:isModifier="true"` (F1, Fn, F keys, Ins, ".", settings...), the Tasker
+   codes (Shift, Delete, Tab, Ctrl, Alt, ❖, arrows, Home/End, PgUp/PgDn and the bar key) and, with
+   `ACCENT_WIDE`, also every other key marked `android:isModifier="true"` (F1, Fn, F keys, Ins, ".", settings...), the Tasker
    keys (text `tskcmd:`), 123/TSK (`-300`), the phone keyboard's 123 (`-2`), Space and Enter. A theme that does not
    want the wide group turns off only `ACCENT_WIDE`. Note: the theme's `hl` state is also applied by
    `LatinKey.isHl` (its own list plus `tskcmd:`), so the accent and `hl` must go together in each theme (in Slate and
@@ -49,17 +56,35 @@ only reads them (`MrTheme`, `KeyStyle`, `MrTools`). A new theme does not require
    uses `keyboard_key_feedback_background` and `keyboard_key_feedback_more_background`.
    **Radii (keys, popup and preview):** the radius written in the drawables is only a fallback. At runtime `KeyStyle` swaps it for the
    keys' radius (`pref_key_radius`) plus a gap: preview bubble +2 dp and popup background +8 dp
-   (`LatinKeyboardBaseView`), buttons, fields and bar panels through `MrTools` (`KeyStyle.radiusPx`). With radius 0 on the
-   keys everything is square; a new theme needs no code for this.
+   (`LatinKeyboardBaseView`). The buttons, fields and panels of the bar have their own fixed corners (`MrTools.radius`, 8 dp)
+   and do not follow the keys' radius. With radius 0 on the keys, the keys, popup and preview are square; a new theme needs
+   no code for this.
 8. **Theme colors** (`res/values/mr_colors.xml`): `mr_<tema>_kbd_bg`, `_text`, `_cursor`, `_hint`;
    `_popup_bg_{top,bottom,stroke}`, `_popup_key_{top,bottom,stroke}` (Soft also has `_mid`; Neon has `_popup_halo` and
    `_popup_key_halo`) and `_popup_hint`;
-   `_preview_{top,bottom,stroke,dots}`. If the theme does **not** turn on `PLAIN_ACCENT_TEXT`, the text and icon of the accent
+   `_preview_{top,bottom,stroke,dots}`, plus `mr_<tema>_press_accent` (the interaction hue). Point the pressed-key edge,
+   popup selected-key edge and preview stroke at that same token; make each fill a brighter, theme-tinted shade rather than
+   a shared gray or cyan. If the theme does **not** turn on `PLAIN_ACCENT_TEXT`, the text and icon of the accent
    keys use `mr_<tema>_accent_text` (without it, `mr_accent_text` applies, white); with the flag, they use the theme's default text.
-9. **Panel colors:** only if the theme needs different colors, declare `mr_<tema>_panel_<papel>` in
-   `res/values/mr_colors.xml`. Without the theme's version, `mr_panel_<papel>` applies. The roles are `bar`, `btn`,
-   `btn_stroke`, `tab_off`, `tab_off_stroke`, `tab_on_text`, `tab_off_text`, `field`, `field_stroke`, `card` and `icon`.
-   The panels (Clipboard, languages, Attachments and emotes) have no frame in any theme: in the flat themes the background is `panel_bar`.
+9. **Toolbar colors (Ctrl key):** the buttons of the bar get their colors from the theme's Ctrl key (highlight keys), never from fixed
+   grays. A theme only needs `mr_<tema>_ctrl_bg` in `res/values/mr_colors.xml`, pointing at the face color of its own highlight
+   key in `mr_key_colors.xml` (e.g. `@color/mr_<tema>_key_hl_top` or `@color/mr_<tema>_key_acc_normal_top`), so changing the key
+   changes the bar. From that single color:
+   - **Tool button pressed** (`b_*` and emote tabs, `MrTools.flatBg`): `ctrl_bg` as it is, at the opacity of `alpha_flat`
+     (`mr_<tema>_alpha_flat` when the face is bright and the default `mr_alpha_flat`, made for dark faces, is too strong);
+   - **Inner buttons** (back, language, attachments, clear..., `MrTools.softBg`): the accent, which `MrTools.deriveColors` obtains
+     by lightening `ctrl_bg` (same hue, brightness at least 0.86, saturation at most 0.60), at the opacity of `alpha_btn` (and
+     `alpha_press` on touch), with no border. The unselected Attachments tabs use `alpha_tab_off`, the border of the
+     translation field the same `alpha_btn` as the buttons next to it, and the selected row of the language lists `alpha_sel`.
+
+   The toolbar rows (`bar_main`, `bar_t`, `bar_c`, `bar_s`, `bar_e`, `bar_tune`) and the panels (`p_clip`, `p_lang`, `p_shots`,
+   `p_emote`) have no background of their own in any theme: the bar root copies the keyboard's (`mr_<tema>_kbd_bg`) in
+   `MrTools.wrap`, so bar, panels and keys share one color, defined only in `kbd_bg`. The keys must contrast with `kbd_bg`: when
+   changing it, re-check `normal` and `hl` in `mr_key_colors.xml`.
+
+   Other panel colors, only if the theme needs different ones, are declared as `mr_<tema>_panel_<papel>` (without the theme's
+   version, `mr_panel_<papel>` applies). The roles are `btn` (file card of Attachments in the flat themes), `card`, `field`,
+   `icon`, `tab_on_text` and `tab_off_text`.
    Attachments' own roles (without the `panel_` prefix, also with a `mr_<tema>_<papel>` version when the theme needs it):
    `attach_fab`, `attach_fab_stroke`, `attach_fab_icon` (picker button), `sel_cancel`, `sel_cancel_stroke`,
    `sel_cancel_text`, `sel_send`, `sel_send_stroke`, `sel_send_text` (Cancel/Send bar and the check on the selected item),

@@ -7,7 +7,6 @@
 .implements Lcom/mrkeyboard/app/LatinKeyboardBaseView$OnKeyboardActionListener;
 .implements Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;
 
-
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
@@ -17,15 +16,12 @@
     }
 .end annotation
 
-
 # static fields
 .field static final ASCII_ENTER:I = 0xa
 
 .field static final ASCII_PERIOD:I = 0x2e
 
 .field static final ASCII_SPACE:I = 0x20
-
-.field private static final CPS_BUFFER_SIZE:I = 0x10
 
 .field static CTRL_SEQUENCES:Ljava/util/Map; = null
     .annotation system Ldalvik/annotation/Signature;
@@ -143,7 +139,6 @@
 
 .field public static final sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
 
-
 # instance fields
 .field private final FX_VOLUME:F
 
@@ -190,10 +185,6 @@
 .field private mConnectbotTabHack:Z
 
 .field private mCorrectionMode:I
-
-.field private mCpsIndex:I
-
-.field private mCpsIntervals:[J
 
 .field private mCtrlKeyState:Lcom/mrkeyboard/app/ModifierKeyState;
 
@@ -245,8 +236,6 @@
 
 .field private mLanguageSwitcher:Lcom/mrkeyboard/app/LanguageSwitcher;
 
-.field private mLastCpsTime:J
-
 .field private mLastKeyTime:J
 
 .field private mLastSelectionEnd:I
@@ -263,18 +252,15 @@
 
 .field private mModMeta:Z
 
+.field private mMrNoLearn:Z
+
 .field private mNotificationReceiver:Lcom/mrkeyboard/app/NotificationReceiver;
 
 .field private mNumKeyboardModes:I
 
-
-
 .field private mOrientation:I
 
 .field private mPasswordText:Z
-
-# Mr Keyboard v1.60: field asked not to learn (IME_FLAG_NO_PERSONALIZED_LEARNING, incognito mode)
-.field private mMrNoLearn:Z
 
 .field private mPluginManager:Lcom/mrkeyboard/app/PluginManager;
 
@@ -381,7 +367,6 @@
         }
     .end annotation
 .end field
-
 
 # direct methods
 .method static constructor <clinit>()V
@@ -755,13 +740,6 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mReceiver:Landroid/content/BroadcastReceiver;
 
-    const/16 v0, 0x10
-
-    .line 3520
-    new-array v0, v0, [J
-
-    iput-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCpsIntervals:[J
-
     return-void
 .end method
 
@@ -817,15 +795,6 @@
 
     .line 86
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->setOldSuggestions()V
-
-    return-void
-.end method
-
-.method static synthetic access$300(Lcom/mrkeyboard/app/LatinIME;)V
-    .locals 0
-
-    .line 86
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->postUpdateSuggestions()V
 
     return-void
 .end method
@@ -926,13 +895,8 @@
 
     const/4 v3, 0x0
 
-    # Mr Keyboard v1.74: before, only a dictionary word entered; now any touched word
-    # (the wrong one is the one that most needs a suggestion). Without the touch mark, only the characters.
-    if-nez v2, :cond_5
+    if-nez v2, :cond_3
 
-    :cond_3
-    # Mr Keyboard v1.75: the reopened word carries the neighbouring keys of the current keyboard, as in
-    # typing (before, only the letters: "fato" for gato was not corrected by neighbouring key)
     iget-object v4, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
 
     iget-object v5, p1, Lcom/mrkeyboard/app/EditingUtil$SelectedWord;->word:Ljava/lang/CharSequence;
@@ -941,19 +905,19 @@
 
     move-result-object v2
 
-    :cond_5
-    if-nez v2, :cond_7
+    :cond_3
+    if-nez v2, :cond_5
 
-    if-eqz v1, :cond_6
+    if-eqz v1, :cond_4
 
-    goto :goto_2
+    goto :goto_1
 
-    :cond_6
+    :cond_4
     return v3
 
-    :cond_7
-    :goto_2
-    if-nez v1, :cond_8
+    :cond_5
+    :goto_1
+    if-nez v1, :cond_6
 
     .line 2753
     new-instance v1, Lcom/mrkeyboard/app/LatinIME$TypedWordAlternatives;
@@ -963,10 +927,10 @@
     invoke-direct {v1, p0, p1, v2}, Lcom/mrkeyboard/app/LatinIME$TypedWordAlternatives;-><init>(Lcom/mrkeyboard/app/LatinIME;Ljava/lang/CharSequence;Lcom/mrkeyboard/app/WordComposer;)V
 
     .line 2756
-    :cond_8
+    :cond_6
     invoke-direct {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->showCorrections(Lcom/mrkeyboard/app/LatinIME$WordAlternatives;)V
 
-    if-eqz v2, :cond_9
+    if-eqz v2, :cond_7
 
     .line 2758
     new-instance p1, Lcom/mrkeyboard/app/WordComposer;
@@ -975,15 +939,15 @@
 
     iput-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mWord:Lcom/mrkeyboard/app/WordComposer;
 
-    goto :goto_3
+    goto :goto_2
 
     .line 2760
-    :cond_9
+    :cond_7
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mWord:Lcom/mrkeyboard/app/WordComposer;
 
     invoke-virtual {p1}, Lcom/mrkeyboard/app/WordComposer;->reset()V
 
-    :goto_3
+    :goto_2
     return v0
 .end method
 
@@ -1337,8 +1301,6 @@
     :cond_3
     return-void
 .end method
-
-
 
 .method private delayChordingAltModifier()Z
     .locals 1
@@ -3046,6 +3008,11 @@
 
     if-eq p1, p2, :cond_a
 
+    # Caps Lock (state 4: the double tap when the caps lock setting is on, the default) stays too
+    const/4 p2, 0x4
+
+    if-eq p1, p2, :cond_a
+
     .line 1637
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->resetShift()V
 
@@ -4345,101 +4312,6 @@
 
     :cond_2
     :goto_0
-    return-void
-.end method
-
-.method private measureCps()V
-    .locals 8
-
-    .line 3525
-    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
-
-    move-result-wide v0
-
-    .line 3526
-    iget-wide v2, p0, Lcom/mrkeyboard/app/LatinIME;->mLastCpsTime:J
-
-    const-wide/16 v4, 0x0
-
-    cmp-long v6, v2, v4
-
-    if-nez v6, :cond_0
-
-    const-wide/16 v2, 0x64
-
-    sub-long v2, v0, v2
-
-    .line 3527
-    iput-wide v2, p0, Lcom/mrkeyboard/app/LatinIME;->mLastCpsTime:J
-
-    .line 3528
-    :cond_0
-    iget-object v2, p0, Lcom/mrkeyboard/app/LatinIME;->mCpsIntervals:[J
-
-    iget v3, p0, Lcom/mrkeyboard/app/LatinIME;->mCpsIndex:I
-
-    iget-wide v6, p0, Lcom/mrkeyboard/app/LatinIME;->mLastCpsTime:J
-
-    sub-long v6, v0, v6
-
-    aput-wide v6, v2, v3
-
-    .line 3529
-    iput-wide v0, p0, Lcom/mrkeyboard/app/LatinIME;->mLastCpsTime:J
-
-    .line 3530
-    iget v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCpsIndex:I
-
-    add-int/lit8 v0, v0, 0x1
-
-    const/16 v1, 0x10
-
-    rem-int/2addr v0, v1
-
-    iput v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCpsIndex:I
-
-    const/4 v0, 0x0
-
-    :goto_0
-    if-ge v0, v1, :cond_1
-
-    .line 3533
-    iget-object v2, p0, Lcom/mrkeyboard/app/LatinIME;->mCpsIntervals:[J
-
-    aget-wide v6, v2, v0
-
-    add-long/2addr v4, v6
-
-    add-int/lit8 v0, v0, 0x1
-
-    goto :goto_0
-
-    .line 3534
-    :cond_1
-    sget-object v0, Ljava/lang/System;->out:Ljava/io/PrintStream;
-
-    new-instance v1, Ljava/lang/StringBuilder;
-
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v2, "CPS = "
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const/high16 v2, 0x467a0000    # 16000.0f
-
-    long-to-float v3, v4
-
-    div-float/2addr v2, v3
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(F)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Ljava/io/PrintStream;->println(Ljava/lang/String;)V
-
     return-void
 .end method
 
@@ -7282,21 +7154,6 @@
     return-void
 .end method
 
-.method private switchToKeyboardView()V
-    .locals 2
-
-    .line 2465
-    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mHandler:Landroid/os/Handler;
-
-    new-instance v1, Lcom/mrkeyboard/app/LatinIME$2;
-
-    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/LatinIME$2;-><init>(Lcom/mrkeyboard/app/LatinIME;)V
-
-    invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
-
-    return-void
-.end method
-
 .method private updateAutoTextEnabled(Ljava/util/Locale;)V
     .locals 3
 
@@ -7685,7 +7542,6 @@
 
     return-void
 .end method
-
 
 # virtual methods
 .method public addWordToDictionary(Ljava/lang/String;)Z
@@ -9348,32 +9204,30 @@
 .method private resetSheetOnly()V
     .locals 2
 
-    :try_start_sheet
+    :try_start_0
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
 
-    if-nez v0, :cond_sheet_check
+    if-nez v0, :cond_0
 
     return-void
 
-    :cond_sheet_check
+    :cond_0
     invoke-virtual {v0}, Lcom/mrkeyboard/app/KeyboardSwitcher;->getSheet()I
 
     move-result v1
 
-    if-eqz v1, :cond_sheet_done
+    if-eqz v1, :cond_1
 
-    # changeSheet(1) = main ABC sheet (index 0)
     const/4 v1, 0x1
 
     invoke-virtual {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->changeSheet(I)V
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    :cond_sheet_done
-    :try_end_sheet
-    .catch Ljava/lang/Throwable; {:try_start_sheet .. :try_end_sheet} :catch_sheet
-
+    :cond_1
     return-void
 
-    :catch_sheet
+    :catch_0
     move-exception v0
 
     return-void
@@ -9462,14 +9316,14 @@
 
     const/16 v0, -0x18f
 
-    if-ne p1, v0, :cond_not_spacer_key
+    if-ne p1, v0, :cond_0
 
     return-void
 
-    :cond_not_spacer_key
+    :cond_0
     const/16 v0, -0x12b
 
-    if-ne p1, v0, :cond_not_prev_sheet
+    if-ne p1, v0, :cond_1
 
     const/4 v0, -0x1
 
@@ -9477,14 +9331,14 @@
 
     return-void
 
-    :cond_not_prev_sheet
+    :cond_1
     const/16 v0, -0x190
 
-    if-gt p1, v0, :cond_chk_legacy_sheet
+    if-gt p1, v0, :cond_2
 
     const/16 v0, -0x1f3
 
-    if-lt p1, v0, :cond_chk_legacy_sheet
+    if-lt p1, v0, :cond_2
 
     rsub-int v0, p1, -0x190
 
@@ -9494,30 +9348,30 @@
 
     return-void
 
-    :cond_chk_legacy_sheet
+    :cond_2
     rsub-int v0, p1, -0x12c
 
-    if-ltz v0, :cond_not_sheet
+    if-ltz v0, :cond_3
 
     const/4 v1, 0x6
 
-    if-ge v0, v1, :cond_not_sheet
+    if-ge v0, v1, :cond_3
 
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinIME;->changeSheet(I)V
 
     return-void
 
-    :cond_not_sheet
+    :cond_3
     const/16 v0, -0x132
 
-    if-ne p1, v0, :cond_not_mr_toolbar
+    if-ne p1, v0, :cond_4
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->toggleBar()V
 
     return-void
 
-    :cond_not_mr_toolbar
     .line 1938
+    :cond_4
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v0
@@ -9526,7 +9380,7 @@
 
     const/4 v3, -0x5
 
-    if-ne p1, v3, :cond_0
+    if-ne p1, v3, :cond_5
 
     .line 1939
     iget-wide v3, p0, Lcom/mrkeyboard/app/LatinIME;->mLastKeyTime:J
@@ -9537,14 +9391,14 @@
 
     cmp-long v5, v0, v3
 
-    if-lez v5, :cond_1
+    if-lez v5, :cond_6
 
     .line 1941
-    :cond_0
+    :cond_5
     iput v2, p0, Lcom/mrkeyboard/app/LatinIME;->mDeleteCount:I
 
     .line 1943
-    :cond_1
+    :cond_6
     iput-wide v0, p0, Lcom/mrkeyboard/app/LatinIME;->mLastKeyTime:J
 
     .line 1944
@@ -9579,15 +9433,14 @@
 
     sparse-switch p1, :sswitch_data_0
 
-    :mr_sw_default
     .line 2061
     iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposeMode:Z
 
-    if-nez v0, :cond_3
+    if-nez v0, :cond_8
 
     iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mDeadKeysActive:Z
 
-    if-eqz v0, :cond_3
+    if-eqz v0, :cond_8
 
     invoke-static {p1}, Ljava/lang/Character;->getType(I)I
 
@@ -9595,7 +9448,7 @@
 
     const/4 v3, 0x6
 
-    if-ne v0, v3, :cond_3
+    if-ne v0, v3, :cond_8
 
     .line 2063
     iget-object p2, p0, Lcom/mrkeyboard/app/LatinIME;->mDeadAccentBuffer:Lcom/mrkeyboard/app/ComposeSequence;
@@ -9604,12 +9457,12 @@
 
     move-result p2
 
-    if-nez p2, :cond_2
+    if-nez p2, :cond_7
 
     goto/16 :goto_1
 
     .line 2067
-    :cond_2
+    :cond_7
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputEditorInfo()Landroid/view/inputmethod/EditorInfo;
 
     move-result-object p2
@@ -9619,25 +9472,25 @@
     goto/16 :goto_1
 
     .line 2070
-    :cond_3
+    :cond_8
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->processMultiKey(I)Z
 
     move-result v0
 
-    if-eqz v0, :cond_4
+    if-eqz v0, :cond_9
 
     goto/16 :goto_1
 
-    :cond_4
+    :cond_9
     const/16 v0, 0xa
 
-    if-eq p1, v0, :cond_5
+    if-eq p1, v0, :cond_a
 
     .line 2074
     iput-boolean v2, p0, Lcom/mrkeyboard/app/LatinIME;->mJustAddedAutoSpace:Z
 
     .line 2076
-    :cond_5
+    :cond_a
     invoke-static {}, Lcom/mrkeyboard/app/LatinIMEUtil$RingCharBuffer;->getInstance()Lcom/mrkeyboard/app/LatinIMEUtil$RingCharBuffer;
 
     move-result-object v0
@@ -9651,7 +9504,7 @@
 
     move-result p3
 
-    if-eqz p3, :cond_6
+    if-eqz p3, :cond_b
 
     .line 2078
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->handleSeparator(I)V
@@ -9659,7 +9512,7 @@
     goto :goto_0
 
     .line 2080
-    :cond_6
+    :cond_b
     invoke-direct {p0, p1, p2}, Lcom/mrkeyboard/app/LatinIME;->handleCharacter(I[I)V
 
     .line 2083
@@ -9674,12 +9527,12 @@
 
     move-result p2
 
-    if-eqz p2, :cond_7
+    if-eqz p2, :cond_c
 
     goto/16 :goto_1
 
     .line 2019
-    :cond_7
+    :cond_c
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->sendTab()V
 
     goto/16 :goto_1
@@ -9690,12 +9543,12 @@
 
     move-result p2
 
-    if-eqz p2, :cond_8
+    if-eqz p2, :cond_d
 
     goto/16 :goto_1
 
     .line 1951
-    :cond_8
+    :cond_d
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->handleBackspace()V
 
     .line 1952
@@ -9708,7 +9561,7 @@
     goto/16 :goto_1
 
     :sswitch_2
-    if-nez v0, :cond_b
+    if-nez v0, :cond_f
 
     .line 1976
     iget-boolean p2, p0, Lcom/mrkeyboard/app/LatinIME;->mModAlt:Z
@@ -9735,7 +9588,7 @@
     goto/16 :goto_1
 
     :pswitch_0
-    if-nez v0, :cond_b
+    if-nez v0, :cond_f
 
     .line 1958
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->handleShift()V
@@ -9743,7 +9596,7 @@
     goto/16 :goto_1
 
     :pswitch_1
-    if-nez v0, :cond_b
+    if-nez v0, :cond_f
 
     .line 1964
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->changeKeyboardMode()V
@@ -9751,10 +9604,8 @@
     goto :goto_1
 
     .line 1989
-    :pswitch_2
-    
-
     .line 1990
+    :pswitch_2
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->handleClose()V
 
     goto :goto_1
@@ -9779,7 +9630,7 @@
 
     move-result p2
 
-    if-eqz p2, :cond_b
+    if-eqz p2, :cond_f
 
     .line 2011
     iget-object p2, p0, Lcom/mrkeyboard/app/LatinIME;->mVoiceRecognitionTrigger:Lcom/google/android/voiceime/VoiceRecognitionTrigger;
@@ -9800,8 +9651,8 @@
 
     goto :goto_1
 
-    :pswitch_9
-    if-nez v0, :cond_b
+    :pswitch_8
+    if-nez v0, :cond_f
 
     .line 1970
     iget-boolean p2, p0, Lcom/mrkeyboard/app/LatinIME;->mModCtrl:Z
@@ -9812,8 +9663,8 @@
 
     goto :goto_1
 
-    :pswitch_a
-    if-nez v0, :cond_b
+    :pswitch_9
+    if-nez v0, :cond_f
 
     .line 1982
     iget-boolean p2, p0, Lcom/mrkeyboard/app/LatinIME;->mModMeta:Z
@@ -9824,8 +9675,8 @@
 
     goto :goto_1
 
-    :pswitch_b
-    if-nez v0, :cond_b
+    :pswitch_a
+    if-nez v0, :cond_f
 
     .line 1986
     iget-boolean p2, p0, Lcom/mrkeyboard/app/LatinIME;->mModFn:Z
@@ -9837,23 +9688,23 @@
     goto :goto_1
 
     .line 2054
-    :pswitch_c
+    :pswitch_b
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->processMultiKey(I)Z
 
     move-result p2
 
-    if-eqz p2, :cond_a
+    if-eqz p2, :cond_e
 
     goto :goto_1
 
-    :cond_a
+    :cond_e
     neg-int p2, p1
 
     .line 2058
     invoke-direct {p0, p2}, Lcom/mrkeyboard/app/LatinIME;->sendSpecialKey(I)V
 
     .line 2085
-    :cond_b
+    :cond_f
     :goto_1
     iget-object p2, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
 
@@ -9868,42 +9719,42 @@
 
     :pswitch_data_0
     .packed-switch -0x8f
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
     .end packed-switch
 
     :pswitch_data_1
     .packed-switch -0x7c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
         :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_a
     .end packed-switch
 
     :pswitch_data_2
     .packed-switch -0x75
-        :pswitch_a
-        :pswitch_c
+        :pswitch_9
+        :pswitch_b
     .end packed-switch
 
     :pswitch_data_3
     .packed-switch -0x71
-        :pswitch_9
-        :pswitch_c
-        :pswitch_c
+        :pswitch_8
+        :pswitch_b
+        :pswitch_b
     .end packed-switch
 
     :pswitch_data_4
@@ -9921,17 +9772,17 @@
 
     :pswitch_data_6
     .packed-switch -0x5d
-        :pswitch_c
-        :pswitch_c
+        :pswitch_b
+        :pswitch_b
     .end packed-switch
 
     :pswitch_data_7
     .packed-switch -0x17
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
-        :pswitch_c
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
+        :pswitch_b
     .end packed-switch
 
     :pswitch_data_8
@@ -10651,50 +10502,77 @@
 
     move-result v0
 
-    if-eqz v0, :cond_mrtune_go
+    if-eqz v0, :cond_0
 
     return-void
 
-    :cond_mrtune_go
-
     .line 2934
+    :cond_0
     const-string v0, "pref_sheets_updated_at"
 
     invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_not_sheets_pref
+    if-eqz v0, :cond_2
 
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
 
-    if-eqz p1, :cond_sheets_pref_ret
+    if-eqz p1, :cond_1
 
     invoke-virtual {p1}, Lcom/mrkeyboard/app/KeyboardSwitcher;->onSheetsChanged()V
 
-    :cond_sheets_pref_ret
+    :cond_1
     return-void
 
-    :cond_not_sheets_pref
-    # Mr Keyboard v1.63: MrPacks installed or removed a dictionary pack
+    :cond_2
     const-string v0, "mr_dicts_updated_at"
 
     invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_not_dicts_pref
+    if-eqz v0, :cond_4
 
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mInputLocale:Ljava/lang/String;
 
-    if-eqz v0, :cond_dicts_pref_ret
+    if-eqz v0, :cond_3
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinIME;->initSuggest(Ljava/lang/String;)V
 
-    :cond_dicts_pref_ret
+    :cond_3
     return-void
 
-    :cond_not_dicts_pref
+    :cond_4
+    # App language (UiLocale.KEY): the toolbar and its panels take their texts from the language of the moment they are
+    # inflated, so when the language changes the keyboard view is rebuilt right then, once, and shows them in the new language.
+    # With no view yet nothing is made: the first one is already made in the new language.
+    const-string v0, "pref_ui_language"
+
+    invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_mr_nolang
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
+
+    if-eqz v0, :cond_mr_langdone
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/KeyboardSwitcher;->getInputView()Lcom/mrkeyboard/app/LatinKeyboardView;
+
+    move-result-object v1
+
+    if-eqz v1, :cond_mr_langdone
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/KeyboardSwitcher;->recreateInputView()V
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->refreshHeightNow()V
+
+    :cond_mr_langdone
+    return-void
+
+    :cond_mr_nolang
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -10722,13 +10600,13 @@
 
     move-result v3
 
-    if-eqz v3, :cond_0
+    if-eqz v3, :cond_5
 
     .line 2942
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->initSuggestPuncList()V
 
     .line 2944
-    :cond_0
+    :cond_5
     sget-object v3, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
 
     const/4 v4, 0x4
@@ -10737,7 +10615,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_1
+    if-eqz v3, :cond_6
 
     .line 2945
     iget-object v3, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
@@ -10747,7 +10625,7 @@
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->refreshHeightNow()V
 
     .line 2947
-    :cond_1
+    :cond_6
     sget-object v3, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
 
     const/16 v4, 0x10
@@ -10758,7 +10636,7 @@
 
     const/4 v4, 0x0
 
-    if-eqz v3, :cond_2
+    if-eqz v3, :cond_7
 
     .line 2948
     iput v4, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardModeOverrideLandscape:I
@@ -10767,7 +10645,7 @@
     iput v4, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardModeOverridePortrait:I
 
     .line 2951
-    :cond_2
+    :cond_7
     sget-object v3, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
 
     const/16 v5, 0x8
@@ -10776,20 +10654,20 @@
 
     move-result v3
 
-    if-eqz v3, :cond_3
+    if-eqz v3, :cond_8
 
     .line 2952
     invoke-virtual {p0, v2, v2}, Lcom/mrkeyboard/app/LatinIME;->toggleLanguage(ZZ)V
 
     .line 2954
-    :cond_3
+    :cond_8
     sget-object v3, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
 
     invoke-virtual {v3}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->unhandledFlags()I
 
     move-result v3
 
-    if-eqz v3, :cond_4
+    if-eqz v3, :cond_9
 
     const-string v5, "PCKeyboardIME"
 
@@ -10810,7 +10688,7 @@
 
     invoke-static {v5, v3}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;)I
 
-    :cond_4
+    :cond_9
     const-string v3, "selected_languages"
 
     .line 2959
@@ -10818,7 +10696,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_5
+    if-eqz v3, :cond_a
 
     .line 2960
     iget-object p2, p0, Lcom/mrkeyboard/app/LatinIME;->mLanguageSwitcher:Lcom/mrkeyboard/app/LanguageSwitcher;
@@ -10830,7 +10708,7 @@
 
     goto/16 :goto_1
 
-    :cond_5
+    :cond_a
     const-string v3, "recorrection_enabled"
 
     .line 2962
@@ -10838,7 +10716,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_6
+    if-eqz v3, :cond_b
 
     const-string p2, "recorrection_enabled"
 
@@ -10859,12 +10737,9 @@
     .line 2966
     iget-boolean p1, p0, Lcom/mrkeyboard/app/LatinIME;->mReCorrectionEnabled:Z
 
-    # Mr Keyboard v1.74: without the notice "re-correction does not work on a device older than Gingerbread"
-    # (the app requires Android 8; the notice does not apply and appeared cut off)
     goto/16 :goto_1
 
-    :cond_6
-    :cond_7
+    :cond_b
     const-string v3, "fullscreen_override"
 
     .line 2976
@@ -10872,7 +10747,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_8
+    if-eqz v3, :cond_c
 
     const-string p2, "fullscreen_override"
 
@@ -10895,7 +10770,7 @@
 
     goto/16 :goto_1
 
-    :cond_8
+    :cond_c
     const-string v3, "force_keyboard_on"
 
     .line 2981
@@ -10903,7 +10778,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_9
+    if-eqz v3, :cond_d
 
     const-string p2, "force_keyboard_on"
 
@@ -10923,7 +10798,7 @@
 
     goto :goto_0
 
-    :cond_9
+    :cond_d
     const-string v3, "keyboard_notification"
 
     .line 2986
@@ -10931,7 +10806,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_a
+    if-eqz v3, :cond_e
 
     const-string p2, "keyboard_notification"
 
@@ -10956,7 +10831,7 @@
 
     goto/16 :goto_1
 
-    :cond_a
+    :cond_e
     const-string v3, "suggestions_in_landscape"
 
     .line 2991
@@ -10964,7 +10839,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_b
+    if-eqz v3, :cond_f
 
     const-string p2, "suggestions_in_landscape"
 
@@ -10997,7 +10872,7 @@
 
     goto/16 :goto_1
 
-    :cond_b
+    :cond_f
     const-string v3, "show_suggestions"
 
     .line 3000
@@ -11005,7 +10880,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_c
+    if-eqz v3, :cond_10
 
     const-string p2, "show_suggestions"
 
@@ -11031,7 +10906,7 @@
 
     goto :goto_0
 
-    :cond_c
+    :cond_10
     const-string v3, "settings_height_portrait"
 
     .line 3006
@@ -11039,7 +10914,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_d
+    if-eqz v3, :cond_11
 
     const-string p2, "settings_height_portrait"
 
@@ -11061,7 +10936,7 @@
 
     goto/16 :goto_0
 
-    :cond_d
+    :cond_11
     const-string v3, "settings_height_landscape"
 
     .line 3010
@@ -11069,7 +10944,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_e
+    if-eqz v3, :cond_12
 
     const-string p2, "settings_height_landscape"
 
@@ -11091,7 +10966,7 @@
 
     goto/16 :goto_0
 
-    :cond_e
+    :cond_12
     const-string v3, "pref_hint_mode"
 
     .line 3014
@@ -11099,7 +10974,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_f
+    if-eqz v3, :cond_13
 
     .line 3015
     sget-object p2, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
@@ -11126,7 +11001,7 @@
 
     goto/16 :goto_0
 
-    :cond_f
+    :cond_13
     const-string v3, "pref_long_press_duration"
 
     .line 3018
@@ -11134,7 +11009,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_10
+    if-eqz v3, :cond_14
 
     .line 3019
     sget-object p2, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
@@ -11157,8 +11032,7 @@
 
     goto/16 :goto_1
 
-    :cond_10
-    :cond_11
+    :cond_14
     const-string v3, "pref_swipe_up"
 
     .line 3025
@@ -11166,7 +11040,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_12
+    if-eqz v3, :cond_15
 
     const-string p2, "pref_swipe_up"
 
@@ -11185,7 +11059,7 @@
 
     goto/16 :goto_1
 
-    :cond_12
+    :cond_15
     const-string v3, "pref_swipe_down"
 
     .line 3027
@@ -11193,7 +11067,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_13
+    if-eqz v3, :cond_16
 
     const-string p2, "pref_swipe_down"
 
@@ -11212,7 +11086,7 @@
 
     goto/16 :goto_1
 
-    :cond_13
+    :cond_16
     const-string v3, "pref_swipe_left"
 
     .line 3029
@@ -11220,7 +11094,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_14
+    if-eqz v3, :cond_17
 
     const-string p2, "pref_swipe_left"
 
@@ -11239,7 +11113,7 @@
 
     goto :goto_1
 
-    :cond_14
+    :cond_17
     const-string v3, "pref_swipe_right"
 
     .line 3031
@@ -11247,7 +11121,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_15
+    if-eqz v3, :cond_18
 
     const-string p2, "pref_swipe_right"
 
@@ -11266,7 +11140,7 @@
 
     goto :goto_1
 
-    :cond_15
+    :cond_18
     const-string v3, "pref_vol_up"
 
     .line 3033
@@ -11274,7 +11148,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_16
+    if-eqz v3, :cond_19
 
     const-string p2, "pref_vol_up"
 
@@ -11293,7 +11167,7 @@
 
     goto :goto_1
 
-    :cond_16
+    :cond_19
     const-string v3, "pref_vol_down"
 
     .line 3035
@@ -11301,7 +11175,7 @@
 
     move-result v3
 
-    if-eqz v3, :cond_17
+    if-eqz v3, :cond_1a
 
     const-string p2, "pref_vol_down"
 
@@ -11320,7 +11194,7 @@
 
     goto :goto_1
 
-    :cond_17
+    :cond_1a
     const-string v0, "vibrate_len"
 
     .line 3037
@@ -11328,7 +11202,7 @@
 
     move-result p2
 
-    if-eqz p2, :cond_18
+    if-eqz p2, :cond_1b
 
     const-string p2, "vibrate_len"
 
@@ -11350,18 +11224,18 @@
     iput p1, p0, Lcom/mrkeyboard/app/LatinIME;->mVibrateLen:I
 
     .line 3041
-    :cond_18
+    :cond_1b
     :goto_1
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->updateKeyboardOptions()V
 
-    if-eqz v1, :cond_19
+    if-eqz v1, :cond_1c
 
     .line 3043
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
 
     invoke-virtual {p1, v2}, Lcom/mrkeyboard/app/KeyboardSwitcher;->makeKeyboards(Z)V
 
-    :cond_19
+    :cond_1c
     return-void
 .end method
 
@@ -12056,7 +11930,7 @@
 
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sRedirect:Landroid/view/inputmethod/InputConnection;
 
-    if-eqz v0, :cond_mr_sel
+    if-eqz v0, :cond_0
 
     iput p3, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionStart:I
 
@@ -12064,9 +11938,8 @@
 
     return-void
 
-    :cond_mr_sel
-
     .line 986
+    :cond_0
     iget-object p2, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
 
     invoke-virtual {p2}, Ljava/lang/StringBuilder;->length()I
@@ -12075,20 +11948,20 @@
 
     const/4 v0, 0x0
 
-    if-lez p2, :cond_1
+    if-lez p2, :cond_2
 
     iget-boolean p2, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
 
-    if-eqz p2, :cond_1
+    if-eqz p2, :cond_2
 
-    if-ne p3, p6, :cond_0
+    if-ne p3, p6, :cond_1
 
-    if-eq p4, p6, :cond_1
+    if-eq p4, p6, :cond_2
 
-    :cond_0
+    :cond_1
     iget p2, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionStart:I
 
-    if-eq p2, p3, :cond_1
+    if-eq p2, p3, :cond_2
 
     .line 988
     iget-object p2, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
@@ -12109,7 +11982,7 @@
 
     move-result-object p2
 
-    if-eqz p2, :cond_2
+    if-eqz p2, :cond_3
 
     .line 994
     invoke-interface {p2}, Landroid/view/inputmethod/InputConnection;->finishComposingText()Z
@@ -12117,14 +11990,14 @@
     goto :goto_0
 
     .line 996
-    :cond_1
+    :cond_2
     iget-boolean p2, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
 
-    if-nez p2, :cond_2
+    if-nez p2, :cond_3
 
     iget-boolean p2, p0, Lcom/mrkeyboard/app/LatinIME;->mJustAccepted:Z
 
-    if-nez p2, :cond_2
+    if-nez p2, :cond_3
 
     .line 997
     sget-object p2, Lcom/mrkeyboard/app/LatinIME$5;->$SwitchMap$com$mrkeyboard$app$TextEntryState$State:[I
@@ -12152,7 +12025,7 @@
     iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mJustAddedAutoSpace:Z
 
     .line 1006
-    :cond_2
+    :cond_3
     :goto_0
     iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mJustAccepted:Z
 
@@ -12168,12 +12041,12 @@
     .line 1013
     iget-boolean p2, p0, Lcom/mrkeyboard/app/LatinIME;->mReCorrectionEnabled:Z
 
-    if-eqz p2, :cond_7
+    if-eqz p2, :cond_8
 
     .line 1015
     iget-object p2, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
 
-    if-eqz p2, :cond_7
+    if-eqz p2, :cond_8
 
     iget-object p2, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
 
@@ -12182,7 +12055,7 @@
 
     move-result-object p2
 
-    if-eqz p2, :cond_7
+    if-eqz p2, :cond_8
 
     iget-object p2, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
 
@@ -12195,63 +12068,63 @@
 
     move-result p2
 
-    if-eqz p2, :cond_7
+    if-eqz p2, :cond_8
 
     .line 1019
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isPredictionOn()Z
 
     move-result p2
 
-    if-eqz p2, :cond_7
+    if-eqz p2, :cond_8
 
     iget-object p2, p0, Lcom/mrkeyboard/app/LatinIME;->mJustRevertedSeparator:Ljava/lang/CharSequence;
 
-    if-nez p2, :cond_7
+    if-nez p2, :cond_8
 
-    if-eq p5, p6, :cond_3
+    if-eq p5, p6, :cond_4
 
-    if-ne p3, p1, :cond_3
+    if-ne p3, p1, :cond_4
 
     .line 1023
     invoke-static {}, Lcom/mrkeyboard/app/TextEntryState;->isCorrecting()Z
 
     move-result p1
 
-    if-eqz p1, :cond_7
+    if-eqz p1, :cond_8
 
-    :cond_3
+    :cond_4
     add-int/lit8 p4, p4, -0x1
 
-    if-lt p3, p4, :cond_4
+    if-lt p3, p4, :cond_5
 
     iget-boolean p1, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
 
-    if-nez p1, :cond_7
+    if-nez p1, :cond_8
 
     .line 1025
-    :cond_4
+    :cond_5
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isCursorTouchingWord()Z
 
     move-result p1
 
-    if-nez p1, :cond_6
+    if-nez p1, :cond_7
 
     iget p1, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionStart:I
 
     iget p2, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionEnd:I
 
-    if-ge p1, p2, :cond_5
+    if-ge p1, p2, :cond_6
 
     goto :goto_1
 
     .line 1029
-    :cond_5
+    :cond_6
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinIME;->abortCorrection(Z)V
 
     .line 1033
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
 
-    if-eqz p1, :cond_7
+    if-eqz p1, :cond_8
 
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggestPuncList:Ljava/util/List;
 
@@ -12267,7 +12140,7 @@
 
     move-result p1
 
-    if-nez p1, :cond_7
+    if-nez p1, :cond_8
 
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
 
@@ -12276,7 +12149,7 @@
 
     move-result p1
 
-    if-nez p1, :cond_7
+    if-nez p1, :cond_8
 
     .line 1038
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->setNextSuggestions()V
@@ -12284,15 +12157,13 @@
     goto :goto_2
 
     .line 1027
-    :cond_6
+    :cond_7
     :goto_1
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->postUpdateOldSuggestions()V
 
-    :cond_7
+    :cond_8
     :goto_2
     return-void
-
-    nop
 
     :pswitch_data_0
     .packed-switch 0x1
@@ -13404,11 +13275,74 @@
 # Wrapper: after any key is handled, leave the secondary sheets (123, TSK, HTML, FRS)
 # and go back to the main sheet (the one with the toolbar toggle, Ctrl, ...).
 .method public onKey(I[III)V
-    .locals 0
+    .locals 1
 
+    # With Ctrl or Meta held, the key is a shortcut (Ctrl+A, Ctrl+C...): it must not be turned into a styled letter.
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mModCtrl:Z
+
+    if-nez v0, :orig
+
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mModMeta:Z
+
+    if-nez v0, :orig
+
+    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrFonts;->typeStyled(Lcom/mrkeyboard/app/LatinIME;I)Z
+
+    move-result v0
+
+    if-eqz v0, :orig
+
+    # typeStyled sent the letter (or deleted a styled one) and skipped onKeyOrig, which is where a typed letter ends a
+    # one-shot Shift. A styled letter ends it here too; a styled delete does not change the Shift.
+    const/4 v0, -0x5
+
+    if-eq p1, v0, :done
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->afterStyledLetter()V
+
+    goto :done
+
+    :orig
     invoke-direct {p0, p1, p2, p3, p4}, Lcom/mrkeyboard/app/LatinIME;->onKeyOrig(I[III)V
 
+    :done
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->returnToMainSheet(I)V
+
+    return-void
+.end method
+# The end of handleCharacter for a typed letter: a one-shot Shift goes off after the letter, a locked one (state 2)
+# or Caps Lock (state 4) stays, and nothing is reset while the Shift is held in a chord. Then the keys are redrawn for the new state.
+.method private afterStyledLetter()V
+    .locals 2
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mShiftKeyState:Lcom/mrkeyboard/app/ModifierKeyState;
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/ModifierKeyState;->isChording()Z
+
+    move-result v0
+
+    if-nez v0, :cond_0
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->getShiftState()I
+
+    move-result v0
+
+    const/4 v1, 0x2
+
+    if-eq v0, v1, :cond_0
+
+    const/4 v1, 0x4
+
+    if-eq v0, v1, :cond_0
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->resetShift()V
+
+    :cond_0
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputEditorInfo()Landroid/view/inputmethod/EditorInfo;
+
+    move-result-object v0
+
+    invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinIME;->updateShiftKeyState(Landroid/view/inputmethod/EditorInfo;)V
 
     return-void
 .end method
@@ -13497,7 +13431,7 @@
 
     instance-of v0, p1, Lcom/mrkeyboard/app/LatinKeyboardView;
 
-    if-eqz v0, :cond_plain
+    if-eqz v0, :cond_0
 
     :try_start_0
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrTools;->wrap(Lcom/mrkeyboard/app/LatinIME;Landroid/view/View;)Landroid/view/View;
@@ -13505,25 +13439,25 @@
     move-result-object v1
 
     move-object p1, v1
-
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    goto :cond_plain
+    goto :goto_0
 
     :catch_0
     move-exception v1
 
-    :cond_plain
+    :cond_0
+    :goto_0
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v1, 0x23
 
-    if-lt v0, v1, :cond_no_insets
+    if-lt v0, v1, :cond_1
 
     invoke-static {p1}, Lcom/mrkeyboard/app/ImeInsets;->apply(Landroid/view/View;)V
 
-    :cond_no_insets
+    :cond_1
     invoke-super {p0, p1}, Landroid/inputmethodservice/InputMethodService;->setInputView(Landroid/view/View;)V
 
     return-void

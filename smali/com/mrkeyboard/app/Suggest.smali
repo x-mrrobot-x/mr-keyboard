@@ -5,7 +5,6 @@
 # interfaces
 .implements Lcom/mrkeyboard/app/Dictionary$WordCallback;
 
-
 # static fields
 .field public static final APPROX_MAX_WORD_LENGTH:I = 0x20
 
@@ -38,9 +37,6 @@
 .field public static final MAXIMUM_BIGRAM_FREQUENCY:I = 0x7f
 
 .field private static final PREF_MAX_BIGRAMS:I = 0x3c
-
-.field private static TAG:Ljava/lang/String; = "PCKeyboard"
-
 
 # instance fields
 .field private mAutoDictionary:Lcom/mrkeyboard/app/Dictionary;
@@ -104,7 +100,6 @@
 .field private mUserBigramDictionary:Lcom/mrkeyboard/app/Dictionary;
 
 .field private mUserDictionary:Lcom/mrkeyboard/app/Dictionary;
-
 
 # direct methods
 .method static constructor <clinit>()V
@@ -785,7 +780,6 @@
     return p1
 .end method
 
-
 # virtual methods
 .method public addWord([CIIIILcom/mrkeyboard/app/Dictionary$DataType;)Z
     .locals 9
@@ -1140,19 +1134,17 @@
 
     move-result v0
 
-    # Mr Keyboard v1.60: with 1 uppercase letter, only the initial is capitalized (before, the suggestions for the 1st letter
-    # all came in uppercase: DIA); Caps Lock still gives uppercase in pickSuggestion
     invoke-virtual {p2}, Lcom/mrkeyboard/app/WordComposer;->size()I
 
     move-result v1
 
     const/4 v2, 0x1
 
-    if-gt v1, v2, :cond_mr_caps
+    if-gt v1, v2, :cond_0
 
     const/4 v0, 0x0
 
-    :cond_mr_caps
+    :cond_0
     iput-boolean v0, p0, Lcom/mrkeyboard/app/Suggest;->mIsAllUpperCase:Z
 
     .line 236
@@ -1182,7 +1174,7 @@
     .line 242
     iget-object v0, p0, Lcom/mrkeyboard/app/Suggest;->mOriginalWord:Ljava/lang/CharSequence;
 
-    if-eqz v0, :cond_0
+    if-eqz v0, :cond_1
 
     .line 243
     iget-object v0, p0, Lcom/mrkeyboard/app/Suggest;->mOriginalWord:Ljava/lang/CharSequence;
@@ -1203,7 +1195,7 @@
 
     goto :goto_0
 
-    :cond_0
+    :cond_1
     const-string v0, ""
 
     .line 247
@@ -1221,12 +1213,9 @@
 
     const/4 v3, 0x1
 
-    if-ne v0, v3, :cond_a
+    if-ne v0, v3, :cond_9
 
-    # Mr Keyboard v1.60: on the 1st letter, the words that usually follow the previous one (bigrams)
-    # in any correction mode; before, only in modes 1 and 3 (3 was never used).
     .line 253
-    :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/Suggest;->mBigramPriorities:[I
 
     invoke-static {v0, p3}, Ljava/util/Arrays;->fill([II)V
@@ -1304,7 +1293,6 @@
 
     invoke-virtual {v0, p2, p4, p0, v4}, Lcom/mrkeyboard/app/BinaryDictionary;->getBigrams(Lcom/mrkeyboard/app/WordComposer;Ljava/lang/CharSequence;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
 
-    # Mr Keyboard v1.62: continuations of the two previous words (MrTrigram) with the typed letter
     invoke-static {p0, p2, p4}, Lcom/mrkeyboard/app/MrPredict;->firstLetter(Lcom/mrkeyboard/app/Suggest;Lcom/mrkeyboard/app/WordComposer;Ljava/lang/CharSequence;)V
 
     .line 273
@@ -1345,22 +1333,20 @@
 
     check-cast v7, Ljava/lang/CharSequence;
 
-    # Mr Keyboard v1.60: same initial ignoring case and accent (e -> é, está, então)
     invoke-static {v7, p4}, Lcom/mrkeyboard/app/MrText;->sameInitial(Ljava/lang/CharSequence;I)Z
 
     move-result v7
 
-    if-eqz v7, :cond_9
+    if-eqz v7, :cond_8
 
     .line 280
-    :cond_6
     iget-object v7, p0, Lcom/mrkeyboard/app/Suggest;->mStringPool:Ljava/util/ArrayList;
 
     invoke-virtual {v7}, Ljava/util/ArrayList;->size()I
 
     move-result v7
 
-    if-lez v7, :cond_7
+    if-lez v7, :cond_6
 
     .line 281
     iget-object v8, p0, Lcom/mrkeyboard/app/Suggest;->mStringPool:Ljava/util/ArrayList;
@@ -1376,7 +1362,7 @@
 
     goto :goto_2
 
-    :cond_7
+    :cond_6
     new-instance v7, Ljava/lang/StringBuilder;
 
     .line 283
@@ -1411,20 +1397,20 @@
     .line 287
     iget v6, p0, Lcom/mrkeyboard/app/Suggest;->mPrefMaxSuggestions:I
 
-    if-le v9, v6, :cond_8
+    if-le v9, v6, :cond_7
 
     goto :goto_3
 
-    :cond_8
+    :cond_7
     move v6, v9
 
-    :cond_9
+    :cond_8
     add-int/lit8 v5, v5, 0x1
 
     goto :goto_1
 
     .line 292
-    :cond_a
+    :cond_9
     invoke-virtual {p2}, Lcom/mrkeyboard/app/WordComposer;->size()I
 
     move-result p4
@@ -1434,17 +1420,17 @@
     .line 294
     iget-object p4, p0, Lcom/mrkeyboard/app/Suggest;->mUserDictionary:Lcom/mrkeyboard/app/Dictionary;
 
-    if-nez p4, :cond_b
+    if-nez p4, :cond_a
 
     iget-object p4, p0, Lcom/mrkeyboard/app/Suggest;->mContactsDictionary:Lcom/mrkeyboard/app/Dictionary;
 
-    if-eqz p4, :cond_f
+    if-eqz p4, :cond_e
 
     .line 295
-    :cond_b
+    :cond_a
     iget-object p4, p0, Lcom/mrkeyboard/app/Suggest;->mUserDictionary:Lcom/mrkeyboard/app/Dictionary;
 
-    if-eqz p4, :cond_c
+    if-eqz p4, :cond_b
 
     .line 296
     iget-object p4, p0, Lcom/mrkeyboard/app/Suggest;->mUserDictionary:Lcom/mrkeyboard/app/Dictionary;
@@ -1454,10 +1440,10 @@
     invoke-virtual {p4, p2, p0, v0}, Lcom/mrkeyboard/app/Dictionary;->getWords(Lcom/mrkeyboard/app/WordComposer;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
 
     .line 298
-    :cond_c
+    :cond_b
     iget-object p4, p0, Lcom/mrkeyboard/app/Suggest;->mContactsDictionary:Lcom/mrkeyboard/app/Dictionary;
 
-    if-eqz p4, :cond_d
+    if-eqz p4, :cond_c
 
     .line 299
     iget-object p4, p0, Lcom/mrkeyboard/app/Suggest;->mContactsDictionary:Lcom/mrkeyboard/app/Dictionary;
@@ -1467,14 +1453,14 @@
     invoke-virtual {p4, p2, p0, v0}, Lcom/mrkeyboard/app/Dictionary;->getWords(Lcom/mrkeyboard/app/WordComposer;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
 
     .line 302
-    :cond_d
+    :cond_c
     iget-object p4, p0, Lcom/mrkeyboard/app/Suggest;->mSuggestions:Ljava/util/ArrayList;
 
     invoke-virtual {p4}, Ljava/util/ArrayList;->size()I
 
     move-result p4
 
-    if-lez p4, :cond_f
+    if-lez p4, :cond_e
 
     iget-object p4, p0, Lcom/mrkeyboard/app/Suggest;->mOriginalWord:Ljava/lang/CharSequence;
 
@@ -1482,41 +1468,37 @@
 
     move-result p4
 
-    if-eqz p4, :cond_f
+    if-eqz p4, :cond_e
 
     iget p4, p0, Lcom/mrkeyboard/app/Suggest;->mCorrectionMode:I
 
-    if-eq p4, v1, :cond_e
+    if-eq p4, v1, :cond_d
 
     iget p4, p0, Lcom/mrkeyboard/app/Suggest;->mCorrectionMode:I
 
-    if-ne p4, v2, :cond_f
+    if-ne p4, v2, :cond_e
 
     .line 305
-    :cond_e
+    :cond_d
     iput-boolean v3, p0, Lcom/mrkeyboard/app/Suggest;->mHaveCorrection:Z
 
     .line 308
-    :cond_f
-    # Mr Keyboard v1.85: the words the keyboard learned and the ones the user added complete what is typed (AutoDictionary.getWords
-    # lets through only the accepted ones). After the user-dictionary check above, so that they never turn a valid typed word into a correction.
+    :cond_e
     iget-object p4, p0, Lcom/mrkeyboard/app/Suggest;->mAutoDictionary:Lcom/mrkeyboard/app/Dictionary;
 
-    if-eqz p4, :cond_mr_noauto
+    if-eqz p4, :cond_f
 
     iget-object v0, p0, Lcom/mrkeyboard/app/Suggest;->mNextLettersFrequencies:[I
 
     invoke-virtual {p4, p2, p0, v0}, Lcom/mrkeyboard/app/Dictionary;->getWords(Lcom/mrkeyboard/app/WordComposer;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
 
-    :cond_mr_noauto
+    :cond_f
     iget-object p4, p0, Lcom/mrkeyboard/app/Suggest;->mMainDict:Lcom/mrkeyboard/app/BinaryDictionary;
 
     iget-object v0, p0, Lcom/mrkeyboard/app/Suggest;->mNextLettersFrequencies:[I
 
     invoke-virtual {p4, p2, p0, v0}, Lcom/mrkeyboard/app/BinaryDictionary;->getWords(Lcom/mrkeyboard/app/WordComposer;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
 
-    # Mr Keyboard v1.60: map corrections (MrFix) and approximate search (MrFuzzy) for what the lib
-    # does not find: extra or missing letter, swapped places, phonetic errors, missing space.
     invoke-static {p0, p2}, Lcom/mrkeyboard/app/MrFuzzy;->afterWords(Lcom/mrkeyboard/app/Suggest;Lcom/mrkeyboard/app/WordComposer;)V
 
     .line 309
@@ -1752,8 +1734,6 @@
     .line 352
     iget-object p1, p0, Lcom/mrkeyboard/app/Suggest;->mSuggestions:Ljava/util/ArrayList;
 
-    # Mr Keyboard v1.62: cheap correction goes back to the 3 visible slots; autocorrection only with
-    # a suggestion close to the typed word (MrFuzzy.finish)
     iget-boolean v0, p0, Lcom/mrkeyboard/app/Suggest;->mHaveCorrection:Z
 
     invoke-static {p1, v0}, Lcom/mrkeyboard/app/MrFuzzy;->finish(Ljava/util/List;Z)Z

@@ -2,11 +2,9 @@
 .super Landroid/widget/ArrayAdapter;
 .source "MrToolsAdp.java"
 
-
 .field mCard:Z
 
 .field mSel:I
-
 
 .method public constructor <init>(Landroid/content/Context;ILjava/util/List;)V
     .locals 1
@@ -19,7 +17,6 @@
 
     return-void
 .end method
-
 
 .method public getView(ILandroid/view/View;Landroid/view/ViewGroup;)Landroid/view/View;
     .locals 4
@@ -38,11 +35,8 @@
 
     iget-boolean v1, p0, Lcom/mrkeyboard/app/MrToolsAdp;->mCard:Z
 
-    if-eqz v1, :cond_flat
+    if-eqz v1, :cond_1
 
-    # All cells ALWAYS reserve 2 lines: in 2-column mode the smaller
-    # cell (1 line) ended up smaller than the one in the same row and the next row
-    # "collapsed" on top. By reserving 2 lines, all have the same height.
     const/4 v2, 0x2
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setLines(I)V
@@ -51,25 +45,22 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setMinLines(I)V
 
-    # Card = same background/border as the theme's keys (e.g. key a)
     sget-object v1, Lcom/mrkeyboard/app/MrTools;->sKeyBg:Landroid/graphics/drawable/Drawable;
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrTools;->dupe(Landroid/graphics/drawable/Drawable;)Landroid/graphics/drawable/Drawable;
 
     move-result-object v1
 
-    if-eqz v1, :cond_card_fallback
+    if-eqz v1, :cond_0
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    # Card with the key look: the radius follows the keys'
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v2
 
-    invoke-static {v1, v2}, Lcom/mrkeyboard/app/KeyStyle;->applyKeyLook(Landroid/graphics/drawable/Drawable;Landroid/content/Context;)V
+    invoke-static {v1, v2}, Lcom/mrkeyboard/app/MrTools;->lookFixed(Landroid/graphics/drawable/Drawable;Landroid/content/Context;)V
 
-    # setBackgroundDrawable may overwrite the padding: reapplies the item's 10dp
     sget v1, Lcom/mrkeyboard/app/MrTools;->sPad:I
 
     invoke-virtual {v0, v1, v1, v1, v1}, Landroid/widget/TextView;->setPadding(IIII)V
@@ -78,7 +69,7 @@
 
     return-object v0
 
-    :cond_card_fallback
+    :cond_0
     new-instance v1, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v1}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
@@ -99,7 +90,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    const/high16 v2, 0xc0400000    # -3.0f
+    const/high16 v2, -0x3fc00000    # -3.0f
 
     invoke-static {v2}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
 
@@ -117,10 +108,10 @@
 
     return-object v0
 
-    :cond_flat
+    :cond_1
     iget v1, p0, Lcom/mrkeyboard/app/MrToolsAdp;->mSel:I
 
-    if-ne v1, p1, :cond_plain
+    if-ne v1, p1, :cond_2
 
     const/4 v2, 0x1
 
@@ -146,7 +137,7 @@
 
     return-object v0
 
-    :cond_plain
+    :cond_2
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setActivated(Z)V

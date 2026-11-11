@@ -15,15 +15,16 @@
     <color name="mr_popup_shadow">#80000000</color>
     <color name="mr_preview_shadow">#66000000</color>
 
+    <!-- Pressed backgrounds and borders use a brighter shade of each theme's own highlight hue (never a shared cyan). -->
     <!-- ===== Neon =====
          As in Slate, the highlight key (acc_*) follows hl at rest and uses the pressed, on and lock colors in the other states; only the base color is its own. -->
     <!-- normal -->
     <color name="mr_neon_key_normal_halo">#263ddc84</color>
     <color name="mr_neon_key_normal_stroke">#d93ddc84</color>
     <!-- pressed -->
-    <color name="mr_neon_key_pressed_halo">#403ddc84</color>
-    <color name="mr_neon_key_pressed_fill">#403ddc84</color>
-    <color name="mr_neon_key_pressed_stroke">#ff3ddc84</color>
+    <color name="mr_neon_key_pressed_halo">#4d37c875</color>
+    <color name="mr_neon_key_pressed_fill">#4437c875</color>
+    <color name="mr_neon_key_pressed_stroke">@color/mr_neon_press_accent</color>
     <!-- hl -->
     <color name="mr_neon_key_hl_halo">#263ddc84</color>
     <color name="mr_neon_key_hl_stroke">#d93ddc84</color>
@@ -32,13 +33,13 @@
     <color name="mr_neon_key_on_fill">#2e3ddc84</color>
     <color name="mr_neon_key_on_stroke">#ff3ddc84</color>
     <!-- lock -->
-    <color name="mr_neon_key_lock_halo">#4d3ddc84</color>
-    <color name="mr_neon_key_lock_fill">#593ddc84</color>
-    <color name="mr_neon_key_lock_stroke">#ff3ddc84</color>
+    <color name="mr_neon_key_lock_halo">#4dff5252</color>
+    <color name="mr_neon_key_lock_fill">#8cff5252</color>
+    <color name="mr_neon_key_lock_stroke">#ffff5252</color>
     <!-- acc_normal -->
     <color name="mr_neon_key_acc_normal_base">#ff35c46f</color>
     <!-- acc_pressed -->
-    <color name="mr_neon_key_acc_pressed_base">#ff23904f</color>
+    <color name="mr_neon_key_acc_pressed_base">#ff4bd782</color>
     <!-- acc_on -->
     <color name="mr_neon_key_acc_on_base">#ff9cf0bc</color>
     <!-- acc_lock -->
@@ -53,11 +54,11 @@
     <color name="mr_soft_key_normal_bottom">#ff00104d</color>
     <color name="mr_soft_key_normal_stroke">#ff3a7ff0</color>
     <!-- pressed -->
-    <color name="mr_soft_key_pressed_halo">#4d1f8cff</color>
-    <color name="mr_soft_key_pressed_top">#ff0f4fd8</color>
-    <color name="mr_soft_key_pressed_mid">#ff0a2fb0</color>
-    <color name="mr_soft_key_pressed_bottom">#ff0a46d0</color>
-    <color name="mr_soft_key_pressed_stroke">#ff2ae6fa</color>
+    <color name="mr_soft_key_pressed_halo">#664987f3</color>
+    <color name="mr_soft_key_pressed_top">#ff1558e8</color>
+    <color name="mr_soft_key_pressed_mid">#ff0a39c8</color>
+    <color name="mr_soft_key_pressed_bottom">#ff1452e0</color>
+    <color name="mr_soft_key_pressed_stroke">@color/mr_soft_press_accent</color>
     <!-- hl -->
     <color name="mr_soft_key_hl_halo">#262f7bff</color>
     <color name="mr_soft_key_hl_top">#ff072a88</color>
@@ -71,11 +72,11 @@
     <color name="mr_soft_key_on_bottom">#ff0a38b8</color>
     <color name="mr_soft_key_on_stroke">#ff2ac0f0</color>
     <!-- lock -->
-    <color name="mr_soft_key_lock_halo">#591f8cff</color>
-    <color name="mr_soft_key_lock_top">#ff0f56e0</color>
-    <color name="mr_soft_key_lock_mid">#ff0a35bc</color>
-    <color name="mr_soft_key_lock_bottom">#ff0f50d8</color>
-    <color name="mr_soft_key_lock_stroke">#ff6af0ff</color>
+    <color name="mr_soft_key_lock_halo">#59ff4d4d</color>
+    <color name="mr_soft_key_lock_top">#ffd93a3a</color>
+    <color name="mr_soft_key_lock_mid">#ffc02c2c</color>
+    <color name="mr_soft_key_lock_bottom">#ffb82a2a</color>
+    <color name="mr_soft_key_lock_stroke">#ffff6b6b</color>
     <!-- acc_normal -->
     <color name="mr_soft_key_acc_normal_halo">#401a8cff</color>
     <color name="mr_soft_key_acc_normal_top">#ff0a50e0</color>
@@ -87,7 +88,7 @@
     <color name="mr_soft_key_acc_pressed_top">#ff1a78ff</color>
     <color name="mr_soft_key_acc_pressed_mid">#ff0a48e8</color>
     <color name="mr_soft_key_acc_pressed_bottom">#ff1a68f0</color>
-    <color name="mr_soft_key_acc_pressed_stroke">#ff7db0fc</color>
+    <color name="mr_soft_key_acc_pressed_stroke">@color/mr_soft_press_accent</color>
     <!-- acc_on -->
     <color name="mr_soft_key_acc_on_halo">#591f8cff</color>
     <color name="mr_soft_key_acc_on_top">#ff0f64f0</color>
@@ -106,14 +107,14 @@
     <!-- ===== Slate =====
          The highlight key reuses hl, pressed, on and lock (it has no acc_*). -->
     <!-- normal -->
-    <color name="mr_slate_key_normal_top">#ff232b36</color>
-    <color name="mr_slate_key_normal_bottom">#ff181e27</color>
-    <color name="mr_slate_key_normal_stroke">#ff2f3846</color>
+    <color name="mr_slate_key_normal_top">#ff223249</color>
+    <color name="mr_slate_key_normal_bottom">#ff182434</color>
+    <color name="mr_slate_key_normal_stroke">#ff30445c</color>
     <!-- pressed -->
-    <color name="mr_slate_key_pressed_base">#ff141a22</color>
-    <color name="mr_slate_key_pressed_top">#803fb8ea</color>
-    <color name="mr_slate_key_pressed_bottom">#4d3fb8ea</color>
-    <color name="mr_slate_key_pressed_stroke">#ff3fb8ea</color>
+    <color name="mr_slate_key_pressed_base">#ff16263a</color>
+    <color name="mr_slate_key_pressed_top">#ff346db8</color>
+    <color name="mr_slate_key_pressed_bottom">#ff28549a</color>
+    <color name="mr_slate_key_pressed_stroke">@color/mr_slate_press_accent</color>
     <!-- hl -->
     <color name="mr_slate_key_hl_top">#ff2f4666</color>
     <color name="mr_slate_key_hl_bottom">#ff213249</color>
@@ -124,73 +125,65 @@
     <color name="mr_slate_key_on_bottom">#2e3fb8ea</color>
     <color name="mr_slate_key_on_stroke">#ff3fb8ea</color>
     <!-- lock -->
-    <color name="mr_slate_key_lock_base">#ff141a22</color>
-    <color name="mr_slate_key_lock_top">#8c3fb8ea</color>
-    <color name="mr_slate_key_lock_bottom">#593fb8ea</color>
-    <color name="mr_slate_key_lock_stroke">#ff3fb8ea</color>
+    <color name="mr_slate_key_lock_base">#ff2a1016</color>
+    <color name="mr_slate_key_lock_top">#f2e84a4a</color>
+    <color name="mr_slate_key_lock_bottom">#d9c83434</color>
+    <color name="mr_slate_key_lock_stroke">#fff05656</color>
 
     <!-- ===== Midnight Steel =====
          The highlight key reuses hl, pressed, on and lock (it has no acc_*). Normal and hl have their own, lighter shadow. -->
     <!-- normal -->
     <color name="mr_midnight_key_normal_shadow">#4d000000</color>
-    <color name="mr_midnight_key_normal_fill">#ff202832</color>
-    <color name="mr_midnight_key_normal_stroke">#ff252e39</color>
+    <color name="mr_midnight_key_normal_fill">#ff243040</color>
+    <color name="mr_midnight_key_normal_stroke">#ff293647</color>
     <!-- pressed -->
-    <color name="mr_midnight_key_pressed_base">#ff141a22</color>
-    <color name="mr_midnight_key_pressed_top">#803fb8ea</color>
-    <color name="mr_midnight_key_pressed_bottom">#4d3fb8ea</color>
-    <color name="mr_midnight_key_pressed_stroke">#ff3fb8ea</color>
+    <color name="mr_midnight_key_pressed_base">#ff18253b</color>
+    <color name="mr_midnight_key_pressed_top">#ff3766a6</color>
+    <color name="mr_midnight_key_pressed_bottom">#ff294f85</color>
+    <color name="mr_midnight_key_pressed_stroke">@color/mr_midnight_press_accent</color>
     <!-- hl -->
     <color name="mr_midnight_key_hl_shadow">#4d000000</color>
-    <color name="mr_midnight_key_hl_fill">#ff2c3e53</color>
-    <color name="mr_midnight_key_hl_stroke">#ff34485f</color>
+    <color name="mr_midnight_key_hl_fill">#ff33455b</color>
+    <color name="mr_midnight_key_hl_stroke">#ff3b4f67</color>
     <!-- on -->
     <color name="mr_midnight_key_on_base">#ff141a22</color>
     <color name="mr_midnight_key_on_top">#4d3fb8ea</color>
     <color name="mr_midnight_key_on_bottom">#2e3fb8ea</color>
     <color name="mr_midnight_key_on_stroke">#ff3fb8ea</color>
     <!-- lock -->
-    <color name="mr_midnight_key_lock_base">#ff141a22</color>
-    <color name="mr_midnight_key_lock_top">#8c3fb8ea</color>
-    <color name="mr_midnight_key_lock_bottom">#593fb8ea</color>
-    <color name="mr_midnight_key_lock_stroke">#ff3fb8ea</color>
+    <color name="mr_midnight_key_lock_base">#ff2a1016</color>
+    <color name="mr_midnight_key_lock_top">#f2e04444</color>
+    <color name="mr_midnight_key_lock_bottom">#d9c03030</color>
+    <color name="mr_midnight_key_lock_stroke">#ffe85454</color>
 
     <!-- ===== Cobalt Glass =====
-         Translucent: the colors have alpha so the background blur shows through. -->
+         Translucent: the colors have alpha so the background blur shows through. Solid fills (no gradient): each state has
+         a single _fill with alpha; only the strokes keep their own color. -->
     <!-- normal -->
-    <color name="mr_glass_key_normal_top">#521e2936</color>
-    <color name="mr_glass_key_normal_bottom">#4d131c28</color>
-    <color name="mr_glass_key_normal_stroke">#1ac8e0ff</color>
+    <color name="mr_glass_key_normal_fill">#7d264062</color>
+    <color name="mr_glass_key_normal_stroke">#0fdbe9ff</color>
     <!-- pressed -->
-    <color name="mr_glass_key_pressed_top">#805f8fd0</color>
-    <color name="mr_glass_key_pressed_bottom">#804673b3</color>
-    <color name="mr_glass_key_pressed_stroke">#42d8eaff</color>
+    <color name="mr_glass_key_pressed_fill">#8a4f7fbb</color>
+    <color name="mr_glass_key_pressed_stroke">@color/mr_glass_press_accent</color>
     <!-- hl -->
-    <color name="mr_glass_key_hl_top">#5c3c5f8e</color>
-    <color name="mr_glass_key_hl_bottom">#542e4e7a</color>
-    <color name="mr_glass_key_hl_stroke">#1fc8e0ff</color>
+    <color name="mr_glass_key_hl_fill">#8a2d4e79</color>
+    <color name="mr_glass_key_hl_stroke">#12dbe9ff</color>
     <!-- on -->
-    <color name="mr_glass_key_on_top">#8c3a7be6</color>
-    <color name="mr_glass_key_on_bottom">#8c2e68c8</color>
-    <color name="mr_glass_key_on_stroke">#4cd4e8ff</color>
+    <color name="mr_glass_key_on_fill">#8c3472d7</color>
+    <color name="mr_glass_key_on_stroke">#3ddbe9ff</color>
     <!-- lock -->
-    <color name="mr_glass_key_lock_top">#992f6fe8</color>
-    <color name="mr_glass_key_lock_bottom">#99245bc4</color>
-    <color name="mr_glass_key_lock_stroke">#5ce2f0ff</color>
+    <color name="mr_glass_key_lock_fill">#cce03a3a</color>
+    <color name="mr_glass_key_lock_stroke">#ccff6b6b</color>
     <!-- acc_normal -->
-    <color name="mr_glass_key_acc_normal_top">#66477bbf</color>
-    <color name="mr_glass_key_acc_normal_bottom">#61386aa8</color>
-    <color name="mr_glass_key_acc_normal_stroke">#24cce3ff</color>
+    <color name="mr_glass_key_acc_normal_fill">#923d70b1</color>
+    <color name="mr_glass_key_acc_normal_stroke">#17dbe9ff</color>
     <!-- acc_pressed -->
-    <color name="mr_glass_key_acc_pressed_top">#806fa3eb</color>
-    <color name="mr_glass_key_acc_pressed_bottom">#805a8fda</color>
-    <color name="mr_glass_key_acc_pressed_stroke">#47dcecff</color>
+    <color name="mr_glass_key_acc_pressed_fill">#8a5885c2</color>
+    <color name="mr_glass_key_acc_pressed_stroke">@color/mr_glass_press_accent</color>
     <!-- acc_on -->
-    <color name="mr_glass_key_acc_on_top">#852f7be6</color>
-    <color name="mr_glass_key_acc_on_bottom">#852468cf</color>
+    <color name="mr_glass_key_acc_on_fill">#852a72da</color>
     <color name="mr_glass_key_acc_on_stroke">#52d8eaff</color>
     <!-- acc_lock -->
-    <color name="mr_glass_key_acc_lock_top">#992a6fe0</color>
-    <color name="mr_glass_key_acc_lock_bottom">#991d5bc4</color>
+    <color name="mr_glass_key_acc_lock_fill">#992465d2</color>
     <color name="mr_glass_key_acc_lock_stroke">#61e6f2ff</color>
 </resources>

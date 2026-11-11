@@ -2,7 +2,6 @@
 .super Lcom/mrkeyboard/app/Keyboard$Key;
 .source "LatinKeyboard.java"
 
-
 # annotations
 .annotation system Ldalvik/annotation/EnclosingClass;
     value = Lcom/mrkeyboard/app/LatinKeyboard;
@@ -13,7 +12,6 @@
     name = "LatinKey"
 .end annotation
 
-
 # instance fields
 .field private final KEY_STATE_FUNCTIONAL_HL:[I
 
@@ -22,7 +20,6 @@
 .field private final KEY_STATE_FUNCTIONAL_PRESSED:[I
 
 .field final synthetic this$0:Lcom/mrkeyboard/app/LatinKeyboard;
-
 
 # direct methods
 .method public constructor <init>(Lcom/mrkeyboard/app/LatinKeyboard;Landroid/content/res/Resources;Lcom/mrkeyboard/app/Keyboard$Row;IILandroid/content/res/XmlResourceParser;)V
@@ -116,27 +113,25 @@
 
     new-array p2, p1, [I
 
-    fill-array-data p2, :array_custom_0
+    fill-array-data p2, :array_0
 
     iput-object p2, p0, Lcom/mrkeyboard/app/LatinKeyboard$LatinKey;->KEY_STATE_FUNCTIONAL_PRESSED:[I
 
     new-array p1, p1, [I
 
-    fill-array-data p1, :array_custom_1
+    fill-array-data p1, :array_1
 
     iput-object p1, p0, Lcom/mrkeyboard/app/LatinKeyboard$LatinKey;->KEY_STATE_FUNCTIONAL_HL:[I
 
     return-void
 
-    nop
-
-    :array_custom_0
+    :array_0
     .array-data 4
         0x10100a3
         0x10100a7
     .end array-data
 
-    :array_custom_1
+    :array_1
     .array-data 4
         0x10100a3
         0x10100a1
@@ -146,11 +141,9 @@
 .method private isHl()Z
     .locals 2
 
-    # Tasker sheet, 1st row: keys with keyOutputText "tskcmd:<command>"
-    # get the same highlight (HL) as the Ctrl/slash/arrow keys.
     iget-object v0, p0, Lcom/mrkeyboard/app/Keyboard$Key;->text:Ljava/lang/CharSequence;
 
-    if-eqz v0, :cond_hl_codes
+    if-eqz v0, :cond_0
 
     invoke-virtual {v0}, Ljava/lang/Object;->toString()Ljava/lang/String;
 
@@ -162,20 +155,20 @@
 
     move-result v0
 
-    if-eqz v0, :cond_hl_codes
+    if-eqz v0, :cond_0
 
     const/4 v0, 0x1
 
     return v0
 
-    :cond_hl_codes
+    :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
 
-    if-eqz v0, :cond_0
+    if-eqz v0, :cond_3
 
     array-length v1, v0
 
-    if-eqz v1, :cond_0
+    if-eqz v1, :cond_3
 
     const/4 v1, 0x0
 
@@ -183,29 +176,29 @@
 
     const/16 v1, -0x12b
 
-    if-ne v0, v1, :cond_chk_jump
+    if-ne v0, v1, :cond_1
 
     const/4 v0, 0x1
 
     return v0
 
-    :cond_chk_jump
+    :cond_1
     const/16 v1, -0x190
 
-    if-gt v0, v1, :cond_chk_sswitch
+    if-gt v0, v1, :cond_2
 
     const/16 v1, -0x1f3
 
-    if-lt v0, v1, :cond_chk_sswitch
+    if-lt v0, v1, :cond_2
 
     const/4 v0, 0x1
 
     return v0
 
-    :cond_chk_sswitch
+    :cond_2
     sparse-switch v0, :sswitch_data_0
 
-    :cond_0
+    :cond_3
     const/4 v0, 0x0
 
     return v0
@@ -214,6 +207,8 @@
     const/4 v0, 0x1
 
     return v0
+
+    nop
 
     :sswitch_data_0
     .sparse-switch
@@ -253,7 +248,6 @@
     :goto_0
     return v0
 .end method
-
 
 # virtual methods
 .method public getCurrentDrawableState()[I

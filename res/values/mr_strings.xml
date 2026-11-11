@@ -111,9 +111,8 @@
     <string name="mr_dicts_err_space">Not enough storage: %1$s free are needed.</string>
     <string name="mr_dicts_err_cancel">Download canceled.</string>
     <string name="mr_dicts_err_io">Could not save the dictionary (%1$s).</string>
-    <!-- v1.64: Translate notice (MrNotice) -->
+    <!-- Translate field -->
     <string name="mr_tr_hint">Type to translate with Google</string>
-    <string name="mr_tr_notice">Text in this field goes to Google Translate. The rest stays on your device.</string>
     <string name="mr_ui_cat_codes">Ctrl and Alt</string>
     <string name="mr_ui_cat_codes_sum">Ctrl-A and key codes</string>
     <string name="mr_ui_cat_shape">Key shape</string>
@@ -144,6 +143,8 @@
     <string name="mr_tb_clear">Clear</string>
     <string name="mr_tb_clip_hint">Tap to insert  ·  Hold to delete</string>
     <string name="mr_tb_clip_empty">Nothing copied yet\nWhat you copy appears here</string>
+    <string name="mr_tb_clip_count_one">%1$d clip</string>
+    <string name="mr_tb_clip_count_many">%1$d clips</string>
     <string name="mr_tb_lang_in">Input language</string>
     <string name="mr_tb_lang_out">Output language</string>
     <string name="mr_tb_radius">Key roundness</string>
@@ -160,7 +161,6 @@
     <string name="mr_tune_reset">Reset defaults</string>
     <string name="mr_ai_title">AI Editor</string>
     <string name="mr_ai_settings_summary">Rewrite text with AI styles: your own service, model and key</string>
-    <string name="mr_ai_notice">Text you rewrite here is sent to the AI service you set up. Nothing is sent until you tap a style.</string>
     <string name="mr_ai_result">Result</string>
     <string name="mr_ai_apply">Apply</string>
     <string name="mr_ai_copied">Result copied</string>
@@ -569,4 +569,35 @@
     <string name="mr_pick_custom_code">Custom code (%1$d)</string>
     <!-- ===== Key grid of the sheet editor (SheetGridView, prefix mr_grid_) ===== -->
     <string name="mr_grid_add_key">+ Add key</string>
+    <!-- ===== Fonts tool (MrFonts, prefixes mr_tb_fonts, mr_font_) ===== -->
+    <string name="mr_tb_fonts">Fonts</string>
+    <string name="mr_font_default">System font</string>
+    <!-- Style names: N = the style index = the place of its button in the row (see MrFonts) -->
+    <string name="mr_font_style_0">Bold</string>
+    <string name="mr_font_style_1">Italic</string>
+    <string name="mr_font_style_2">Bold italic</string>
+    <string name="mr_font_style_3">Sans</string>
+    <string name="mr_font_style_4">Sans bold</string>
+    <string name="mr_font_style_5">Sans italic</string>
+    <string name="mr_font_style_6">Sans bold italic</string>
+    <string name="mr_font_style_7">Monospace</string>
+    <string name="mr_font_style_8">Cursive</string>
+    <string name="mr_font_style_9">Bold cursive</string>
+    <string name="mr_font_style_10">Gothic</string>
+    <string name="mr_font_style_11">Bold gothic</string>
+    <string name="mr_font_style_12">Outline</string>
+    <string name="mr_font_style_13">Bubble</string>
+    <string name="mr_font_style_14">Filled bubble</string>
+    <string name="mr_font_style_15">Square</string>
+    <string name="mr_font_style_16">Filled square</string>
+    <string name="mr_font_style_17">Parenthesized</string>
+    <string name="mr_font_style_18">Small caps</string>
+    <string name="mr_font_style_19">Superscript</string>
+    <string name="mr_font_style_20">Subscript</string>
+    <string name="mr_font_style_21">Wide</string>
+    <string name="mr_font_style_22">Underline</string>
+    <string name="mr_font_style_23">Double underline</string>
+    <string name="mr_font_style_24">Strikethrough</string>
+    <string name="mr_font_style_25">Overline</string>
+    <string name="mr_font_style_26">Slashed</string>
 </resources>

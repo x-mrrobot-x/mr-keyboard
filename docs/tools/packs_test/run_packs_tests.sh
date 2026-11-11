@@ -43,7 +43,7 @@ KEYSTORE_PASS=pass123 KEY_ALIAS=mrkeyboard KEY_PASS=pass123 \
 
 # ---- test classes. Stubs of the fake Android, from the lowest to the highest priority: the ones of the e2e tests, the ones of the Java
 # layer (docs/tools/java/stubs/android, which are richer), and the ones of this folder (they replace the files with the same name).
-APPCODE=$(sed -n "s/^ *versionCode: '\([0-9]*\)'.*/\1/p" apktool.yml)
+APPCODE=$(sed -n "s/^ *versionCode: *['\"]\{0,1\}\([0-9][0-9]*\).*/\1/p" apktool.yml)   # with or without quotes: apktool 2.11 writes it bare
 [ -n "$APPCODE" ] || { echo "no versionCode in apktool.yml"; exit 1; }
 mkdir -p "$OUT/stubsrc"
 cp -r docs/tools/e2e/android_stubs/. "$OUT/stubsrc/"

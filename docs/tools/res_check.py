@@ -18,6 +18,7 @@
     colors live in res/values/mr_key_colors.xml) and the theme name in the 3 languages;
   - Spanish (values-es) with the same keys and lists as Portuguese (values-pt-rBR) and the same placeholders
     (%s, %1$d) as the original;
+  - fonts tool: mr_font_style_0..STYLES-1 (unique names), its other texts and the clipboard counter in the 3 languages;
   - format specifiers of the project's own strings (mr_strings.xml, every language): no stray "%" and no several
     unnumbered specifiers in one string (aapt2 refuses them and String.format throws); "%%" is the literal percent.
 """
@@ -377,7 +378,7 @@ if ime_smali.find('MrKeep;->onHidden()') > ime_smali.find('MrAiDialog;->dismiss(
     problems.append('LatinIME.onWindowHidden: MrKeep.onHidden has to come before the tool is closed')
 
 # --- the buttons of the tool bar close the open dialogs (MrBarClose): the list of codes has to be the one that MrTools binds to
-# the seven buttons of bar_tools, and MrTools.onClick has to call MrBarClose first
+# the eight buttons of bar_tools (b_fonts is the fonts tool), and MrTools.onClick has to call MrBarClose first
 tools_smali = read_file('smali/com/mrkeyboard/app/MrTools.smali')
 bound = {}
 for m in re.finditer(r'const-string v1, "(b_\w+)"\s+(?:\.line \d+\s+)?const/(?:4|16) v2, (-?0x[0-9a-f]+)\s+(?:\.line \d+\s+)?invoke-static \{v0, v1, v2\}, Lcom/mrkeyboard/app/MrTools;->btn', tools_smali):
@@ -385,8 +386,8 @@ for m in re.finditer(r'const-string v1, "(b_\w+)"\s+(?:\.line \d+\s+)?const/(?:4
 bar_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrBarClose.java')
 listed = re.search(r'TOOLBAR = \{([^}]*)\}', bar_src)
 listed = sorted(int(x.strip(), 16) for x in listed.group(1).split(',')) if listed else []
-if sorted(bound) != ['b_aied', 'b_clip', 'b_emote', 'b_sheets', 'b_shots', 'b_trans', 'b_tune']:
-    problems.append('MrTools: the buttons of the bar are not the seven expected (found %s)' % sorted(bound))
+if sorted(bound) != ['b_aied', 'b_clip', 'b_emote', 'b_fonts', 'b_sheets', 'b_shots', 'b_trans', 'b_tune']:
+    problems.append('MrTools: the buttons of the bar are not the eight expected (found %s)' % sorted(bound))
 elif sorted(bound.values()) != listed:
     problems.append('MrBarClose.TOOLBAR %s does not match the codes that MrTools binds to the bar %s' % (listed, sorted(bound.values())))
 start = tools_smali.find('.method public onClick(Landroid/view/View;)V')
@@ -550,6 +551,33 @@ for tag in manifest_tags:
         if attr in tag:
             problems.append('manifest: %s in %s: target 37 ignores orientation and resizability limits on screens of 600 dp or more' % (
                 attr, re.search(r'android:name="([^"]+)"', tag).group(1)))
+
+# --- fonts tool (MrFonts): the style N is named by mr_font_style_N, in the 3 languages (every name different from the others in its language); the
+# other texts of the tool and the counter of the clipboard panel (mr_tb_clip_count_one / _many, with %1$d) exist in the 3 languages too.
+fonts_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrFonts.java')
+styles_m = re.search(r'static final int STYLES = (\d+);', fonts_src)
+if not styles_m:
+    problems.append('fonts: MrFonts.STYLES not found')
+else:
+    n_styles = int(styles_m.group(1))
+    want_keys = sorted('mr_font_style_%d' % i for i in range(n_styles))
+    for folder, tab in (('values', orig), ('values-pt-rBR', pt), ('values-es', es)):
+        style_keys = sorted(k for k in tab if re.match(r'mr_font_style_\d+$', k))
+        if style_keys != want_keys:
+            problems.append('fonts: %s must have mr_font_style_0..mr_font_style_%d (MrFonts.STYLES = %d), it has %d' % (folder, n_styles - 1, n_styles, len(style_keys)))
+        names = [tab[k].strip() for k in style_keys]
+        if len(set(names)) != len(names) or '' in names:
+            problems.append('fonts: the style names of %s must be different from each other and not empty: %s' % (folder, sorted(n for n in names if names.count(n) > 1 or not n)))
+    for k in ('mr_tb_fonts', 'mr_font_default'):
+        for folder, tab in (('values', orig), ('values-pt-rBR', pt), ('values-es', es)):
+            if k not in tab:
+                problems.append('fonts: %s is missing from %s' % (k, folder))
+    for k in ('mr_tb_clip_count_one', 'mr_tb_clip_count_many'):
+        for folder, tab in (('values', orig), ('values-pt-rBR', pt), ('values-es', es)):
+            if k not in tab:
+                problems.append('clipboard counter: %s is missing from %s' % (k, folder))
+            elif tab[k].count('%1$d') != 1:
+                problems.append('clipboard counter: %s in %s needs exactly one %%1$d' % (k, folder))
 
 print('resources: %d defined, %d entries in public.xml, %d strings in Spanish' % (len(defs), len(pub), len(es)))
 for p in problems:

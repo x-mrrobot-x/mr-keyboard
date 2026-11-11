@@ -2,7 +2,6 @@
 .super Ljava/lang/Object;
 .source "MrSugg.java"
 
-
 # Word suggestions in the toolbar row (bar_main).
 #
 # The suggestions strip (candidates.xml container with the CandidateView) lives in "sg_host",
@@ -24,7 +23,6 @@
 # Each new list without suggestions during the wait restarts the clock. The bar key ends the
 # wait and shows the tools at once. Switching from tools to suggestions is immediate.
 
-
 # static fields
 .field static sContainer:Landroid/view/View;
 
@@ -44,7 +42,6 @@
 .field static sHas:Z
 
 .field static sPinned:Z
-
 
 # direct methods
 .method private constructor <init>()V
@@ -211,13 +208,13 @@
 .method public static onList(Z)V
     .locals 2
 
-    if-eqz p0, :cond_none
+    if-eqz p0, :cond_0
 
     invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->cancel()V
 
     sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHas:Z
 
-    if-nez v0, :cond_end
+    if-nez v0, :cond_3
 
     const/4 v0, 0x1
 
@@ -225,24 +222,22 @@
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
 
-    goto :cond_end
+    goto :goto_0
 
-    :cond_none
+    :cond_0
     sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHold:Z
 
-    if-eqz v0, :cond_nohold
+    if-eqz v0, :cond_1
 
-    # already waiting: restarts the clock
     invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->schedule()V
 
-    goto :cond_end
+    goto :goto_0
 
-    :cond_nohold
+    :cond_1
     sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHas:Z
 
-    if-eqz v0, :cond_end
+    if-eqz v0, :cond_3
 
-    # current mode (before changing the state): 2 = suggestions strip visible
     sget-boolean v0, Lcom/mrkeyboard/app/MrTools;->sBarOn:Z
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrSugg;->mode(Z)I
@@ -257,21 +252,21 @@
 
     const/4 v1, 0x2
 
-    if-ne v0, v1, :cond_apply
+    if-ne v0, v1, :cond_2
 
-    # the strip stays visible during the wait
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHold:Z
 
     invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->schedule()V
 
-    goto :cond_end
+    goto :goto_0
 
-    :cond_apply
+    :cond_2
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
 
-    :cond_end
+    :cond_3
+    :goto_0
     return-void
 .end method
 
@@ -423,32 +418,34 @@
 
     sget-object v3, Lcom/mrkeyboard/app/MrSugg;->sTools:Landroid/view/View;
 
-    if-eqz v3, :cond_sugg
+    if-eqz v3, :cond_1
 
-    if-ne p0, v2, :cond_tools_on
+    if-ne p0, v2, :cond_0
 
     invoke-virtual {v3, v0}, Landroid/view/View;->setVisibility(I)V
 
-    goto :cond_sugg
+    goto :goto_0
 
-    :cond_tools_on
+    :cond_0
     invoke-virtual {v3, v1}, Landroid/view/View;->setVisibility(I)V
 
-    :cond_sugg
+    :cond_1
+    :goto_0
     sget-object v3, Lcom/mrkeyboard/app/MrSugg;->sSugg:Landroid/view/View;
 
-    if-eqz v3, :cond_end
+    if-eqz v3, :cond_3
 
-    if-ne p0, v2, :cond_sugg_off
+    if-ne p0, v2, :cond_2
 
     invoke-virtual {v3, v1}, Landroid/view/View;->setVisibility(I)V
 
-    goto :cond_end
+    goto :goto_1
 
-    :cond_sugg_off
+    :cond_2
     invoke-virtual {v3, v0}, Landroid/view/View;->setVisibility(I)V
 
-    :cond_end
+    :cond_3
+    :goto_1
     return-void
 .end method
 

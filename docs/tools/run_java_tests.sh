@@ -36,6 +36,11 @@
 #   - GridTest: the drawn key grid of the sheet editor (SheetGridView, Java since 1.92.0): the geometry of the cells
 #     (margins, gaps, key height, the "+" of a row, the locked "⌫" and the locked bottom row), the limits (6 rows, 10 keys
 #     per row and 9 in the last one) and the touch rules (tap, cancel, long press, drag and drop, a full row refusing it).
+#   - FontsTest: the Unicode styles of the fonts tool (MrFonts): 27 styles with known code points (block styles and their
+#     letter-like exceptions, small caps, superscript, Subscript with only the letters Unicode has, the combining marks,
+#     Parenthesized), the letters left as they are, accents kept, no two styles equal, the fields that take no style
+#     (passwords, e-mail, web addresses, numbers) and the delete of a styled letter (with a selection it is left to the
+#     normal delete).
 # With the path of the APK jar (classes.dex -> d2j-dex2jar), it also runs:
 #   - EsTest: SheetStrings/MrEs with Spanish, Portuguese, English and French contexts.
 # Usage: sh docs/tools/run_java_tests.sh [app.jar]
@@ -119,6 +124,10 @@ java -cp "$T/test_grid:$T/stubs:$T/main" com.mrkeyboard.app.SheetGridViewTest
 echo "== AccelTest (log of the keyboard window)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_accel" $D/accel_test/AccelTest.java
 java -cp "$T/test_accel:$T/stubs:$T/main" com.mrkeyboard.app.AccelTest
+
+echo "== FontsTest (Unicode styles of the fonts tool: 27 styles, field guard, delete)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_fonts" $D/fonts_test/FontsTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_fonts:$T/stubs:$T/main" com.mrkeyboard.app.FontsTest
 
 if [ -n "$APPJAR" ]; then
   echo "== EsTest"

@@ -20,4 +20,5 @@ public abstract class Context {
     public Object getSystemService(String name) { return null; }
     public java.io.File getDatabasePath(String name) { return null; }
     public ContentResolver getContentResolver() { return null; }
+    public String getString(int resId) { return ""; }
 }

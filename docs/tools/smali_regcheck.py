@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Checks hand-edited smali against four errors that close the app or break the assembly.
+"""Checks hand-edited smali against five errors that close the app or break the assembly.
 
 1. Register read without a value. Editing smali by hand can remove the only instruction that gave a register a value
    (`const/4 v1, 0x1`, for example) while the rest of the method keeps using it. The ART verifier refuses the whole class
@@ -16,6 +16,12 @@
    (`this` counts, and each `J` or `D` argument counts 2), and the smali assembler refuses with "Invalid register count: 6.
    Must be between 0 and 5" (e.g. `ContentResolver.query` with Uri, projection, selection, arguments and order = 6). Use the
    `/range` form with consecutive registers. `apktool b` reports this, but only in the assembly job and without pointing at the line.
+5. Reference to a field that does not exist. An `sget`/`sput`/`iget`/`iput` on a field that the project class does not declare, nor
+   its superclasses and interfaces from the project, throws NoSuchFieldError when the instruction runs (a cleanup that removes a
+   dead field and leaves the `<clinit>` still filling it closes the screen that loads the class). Neither apktool nor the assembler
+   warn about it. Unlike the methods, it also reports when the chain leaves for the Android framework, because that is where the
+   class that fails is (`PreferenceActivity`); a field that a project class really inherits from the framework is referenced
+   with the framework class (`Landroid/view/ViewGroup$LayoutParams;->width:I`).
 
 Usage:
 
@@ -349,7 +355,8 @@ def parse_class(path):
     sup = re.search(r'^\.super\s+(\S+)', text, re.M)
     ifs = re.findall(r'^\.implements\s+(\S+)', text, re.M)
     sigs = set(x.group(1) for x in re.finditer(r'^\.method\b.*?(\S+\([^)]*\)\S+)\s*$', text, re.M))
-    return m.group(1), {'super': sup.group(1) if sup else None, 'ifs': ifs, 'sigs': sigs}
+    fields = set(x.group(1) for x in re.finditer(r'^\.field\b[^=\n]*?\s([^\s:=]+:[^\s=]+)', text, re.M))
+    return m.group(1), {'super': sup.group(1) if sup else None, 'ifs': ifs, 'sigs': sigs, 'fields': fields}
 
 
 def refs(root):
@@ -385,7 +392,16 @@ def refs(root):
                 unknown = True
         return None if unknown else False
 
+    def has_field(cls, sig, seen=()):
+        info = classes.get(cls)
+        if info is None or cls in seen:
+            return False
+        if sig in info['fields']:
+            return True
+        return any(has_field(parent, sig, seen + (cls,)) for parent in [info['super']] + info['ifs'] if parent)
+
     pat = re.compile(r'\binvoke-[\w/-]+\s+\{[^}]*\},\s*(L[^;\s]+;)->(\S+\([^)]*\)\S+)')
+    fpat = re.compile(r'^[is](?:get|put)\S*\s+.*?(L[^;\s]+;)->([^:\s]+:\S+)')
     res = {}
     for p, cls in paths:
         rel = os.path.relpath(p, root)
@@ -397,6 +413,10 @@ def refs(root):
                 if mm and has(mm.group(1), mm.group(2)) is False:
                     res.setdefault((rel, m['head'].split()[-1]), []).append(
                         (ln, 'method does not exist: %s->%s' % (mm.group(1), mm.group(2))))
+                fm = fpat.match(s)
+                if fm and fm.group(1) in classes and not has_field(fm.group(1), fm.group(2)):
+                    res.setdefault((rel, m['head'].split()[-1]), []).append(
+                        (ln, 'field does not exist: %s->%s' % (fm.group(1), fm.group(2))))
     return res
 
 

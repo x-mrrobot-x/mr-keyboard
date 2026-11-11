@@ -5,7 +5,6 @@
 # interfaces
 .implements Lcom/mrkeyboard/app/MrLearned$Sink;
 
-
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
@@ -14,7 +13,6 @@
         Lcom/mrkeyboard/app/UserBigramDictionary$Bigram;
     }
 .end annotation
-
 
 # static fields
 .field private static final DATABASE_NAME:Ljava/lang/String; = "userbigram_dict.db"
@@ -62,10 +60,9 @@
 
 .field private static sMaxUserBigrams:I = 0x2710
 
-.field private static sOpenHelper:Lcom/mrkeyboard/app/UserBigramDictionary$DatabaseHelper; = null
+.field private static sOpenHelper:Lcom/mrkeyboard/app/UserBigramDictionary$DatabaseHelper;
 
-.field private static volatile sUpdatingDB:Z = false
-
+.field private static volatile sUpdatingDB:Z
 
 # instance fields
 .field private final mIme:Lcom/mrkeyboard/app/LatinIME;
@@ -83,7 +80,6 @@
 .end field
 
 .field private final mPendingWritesLock:Ljava/lang/Object;
-
 
 # direct methods
 .method static constructor <clinit>()V
@@ -323,7 +319,6 @@
 
     return-object p1
 .end method
-
 
 # virtual methods
 .method public addBigrams(Ljava/lang/String;Ljava/lang/String;)I
@@ -692,7 +687,6 @@
 
     return-void
 .end method
-
 
 # Mr Keyboard v1.85: MrLearned.Sink (this dictionary takes the imported pairs, in memory only: they are stored by MrWordStore, not in userbigram_dict.db)
 .method public kind()I

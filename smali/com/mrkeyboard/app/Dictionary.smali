@@ -2,7 +2,6 @@
 .super Ljava/lang/Object;
 .source "Dictionary.java"
 
-
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
@@ -11,12 +10,10 @@
     }
 .end annotation
 
-
 # static fields
 .field protected static final FULL_WORD_FREQ_MULTIPLIER:I = 0x2
 
-.field protected static final INCLUDE_TYPED_WORD_IF_VALID:Z = false
-
+.field protected static final INCLUDE_TYPED_WORD_IF_VALID:Z
 
 # direct methods
 .method public constructor <init>()V
@@ -27,7 +24,6 @@
 
     return-void
 .end method
-
 
 # virtual methods
 .method public close()V

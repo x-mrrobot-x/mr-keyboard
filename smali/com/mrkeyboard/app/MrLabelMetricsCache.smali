@@ -21,50 +21,90 @@
  return-void
 .end method
 .method public offset(Landroid/graphics/Paint;Ljava/lang/String;)F
- .locals 8
- const/4 v0, 0x0
- iget-object v1, p0, Lcom/mrkeyboard/app/MrLabelMetricsCache;->texts:[Ljava/lang/String;
- iget-object v2, p0, Lcom/mrkeyboard/app/MrLabelMetricsCache;->paints:[Landroid/graphics/Paint;
- :scan
- const/16 v3, 0x80
- if-ge v0, v3, :miss
- aget-object v3, v1, v0
- invoke-virtual {p2, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
- move-result v3
- if-eqz v3, :next
- aget-object v3, v2, v0
- invoke-static {p1, v3}, Lcom/mrkeyboard/app/MrLabelMetricsCache;->samePaint(Landroid/graphics/Paint;Landroid/graphics/Paint;)Z
- move-result v3
- if-eqz v3, :next
- iget-object v1, p0, Lcom/mrkeyboard/app/MrLabelMetricsCache;->offsets:[F
- aget v0, v1, v0
- return v0
- :next
- add-int/lit8 v0, v0, 0x1
- goto :scan
- :miss
- iget-object v3, p0, Lcom/mrkeyboard/app/MrLabelMetricsCache;->rect:Landroid/graphics/Rect;
- const/4 v4, 0x0
- invoke-virtual {p2}, Ljava/lang/String;->length()I
- move-result v5
- invoke-virtual {p1, p2, v4, v5, v3}, Landroid/graphics/Paint;->getTextBounds(Ljava/lang/String;IILandroid/graphics/Rect;)V
- iget v4, v3, Landroid/graphics/Rect;->top:I
- iget v5, v3, Landroid/graphics/Rect;->bottom:I
- add-int/2addr v4, v5
- int-to-float v4, v4
- const/high16 v5, 0x40000000
- div-float/2addr v4, v5
- iget v0, p0, Lcom/mrkeyboard/app/MrLabelMetricsCache;->next:I
- aput-object p2, v1, v0
- new-instance v3, Landroid/graphics/Paint;
- invoke-direct {v3, p1}, Landroid/graphics/Paint;-><init>(Landroid/graphics/Paint;)V
- aput-object v3, v2, v0
- iget-object v1, p0, Lcom/mrkeyboard/app/MrLabelMetricsCache;->offsets:[F
- aput v4, v1, v0
- add-int/lit8 v0, v0, 0x1
- and-int/lit8 v0, v0, 0x7f
- iput v0, p0, Lcom/mrkeyboard/app/MrLabelMetricsCache;->next:I
- return v4
+    .locals 8
+
+    const/4 v0, 0x0
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrLabelMetricsCache;->texts:[Ljava/lang/String;
+
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrLabelMetricsCache;->paints:[Landroid/graphics/Paint;
+
+    :goto_0
+    const/16 v3, 0x80
+
+    if-ge v0, v3, :cond_1
+
+    aget-object v3, v1, v0
+
+    invoke-virtual {p2, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_0
+
+    aget-object v3, v2, v0
+
+    invoke-static {p1, v3}, Lcom/mrkeyboard/app/MrLabelMetricsCache;->samePaint(Landroid/graphics/Paint;Landroid/graphics/Paint;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_0
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrLabelMetricsCache;->offsets:[F
+
+    aget v0, v1, v0
+
+    return v0
+
+    :cond_0
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_0
+
+    :cond_1
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrLabelMetricsCache;->rect:Landroid/graphics/Rect;
+
+    const/4 v4, 0x0
+
+    invoke-virtual {p2}, Ljava/lang/String;->length()I
+
+    move-result v5
+
+    invoke-virtual {p1, p2, v4, v5, v3}, Landroid/graphics/Paint;->getTextBounds(Ljava/lang/String;IILandroid/graphics/Rect;)V
+
+    iget v4, v3, Landroid/graphics/Rect;->top:I
+
+    iget v5, v3, Landroid/graphics/Rect;->bottom:I
+
+    add-int/2addr v4, v5
+
+    int-to-float v4, v4
+
+    const/high16 v5, 0x40000000    # 2.0f
+
+    div-float/2addr v4, v5
+
+    iget v0, p0, Lcom/mrkeyboard/app/MrLabelMetricsCache;->next:I
+
+    aput-object p2, v1, v0
+
+    new-instance v3, Landroid/graphics/Paint;
+
+    invoke-direct {v3, p1}, Landroid/graphics/Paint;-><init>(Landroid/graphics/Paint;)V
+
+    aput-object v3, v2, v0
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrLabelMetricsCache;->offsets:[F
+
+    aput v4, v1, v0
+
+    add-int/lit8 v0, v0, 0x1
+
+    and-int/lit8 v0, v0, 0x7f
+
+    iput v0, p0, Lcom/mrkeyboard/app/MrLabelMetricsCache;->next:I
+
+    return v4
 .end method
 .method private static samePaint(Landroid/graphics/Paint;Landroid/graphics/Paint;)Z
  .locals 3

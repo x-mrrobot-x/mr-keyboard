@@ -2,7 +2,6 @@
 .super Lcom/mrkeyboard/app/Keyboard;
 .source "LatinKeyboard.java"
 
-
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
@@ -10,7 +9,6 @@
         Lcom/mrkeyboard/app/LatinKeyboard$LatinKey;
     }
 .end annotation
-
 
 # static fields
 .field private static final DEBUG_PREFERRED_LETTER:Z = true
@@ -37,7 +35,6 @@
 
 .field private static sSpacebarVerticalCorrection:I
 
-
 # instance fields
 .field private m123Key:Lcom/mrkeyboard/app/Keyboard$Key;
 
@@ -58,8 +55,6 @@
 .field private mEnterKey:Lcom/mrkeyboard/app/Keyboard$Key;
 
 .field private mExtensionKeyboard:Lcom/mrkeyboard/app/LatinKeyboard;
-
-.field private mExtensionResId:I
 
 .field private mF1Key:Lcom/mrkeyboard/app/Keyboard$Key;
 
@@ -126,7 +121,6 @@
 .field private final mVerticalGap:I
 
 .field private mVoiceEnabled:Z
-
 
 # direct methods
 .method public constructor <init>(Landroid/content/Context;I)V
@@ -1987,7 +1981,6 @@
     :goto_0
     return-void
 .end method
-
 
 # virtual methods
 .method protected createKeyFromXml(Landroid/content/res/Resources;Lcom/mrkeyboard/app/Keyboard$Row;IILandroid/content/res/XmlResourceParser;)Lcom/mrkeyboard/app/Keyboard$Key;

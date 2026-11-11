@@ -24,7 +24,7 @@ Requires Android 8.0 or later.
   - suggests the names and words you just wrote in the same conversation (kept only in memory and cleared when you change field or app);
   - everything runs on the device;
   - off by default: turn on *Show suggestions* on the same screen.
-- **Themes:** Mr Keyboard Neon, Dark Tech (soft and raised), Midnight Steel and Cobalt Glass (translucent with background blur on Android 12+; a semi-transparent dark background where blur is unavailable). Key spacing and corner roundness work in every theme, and the roundness also follows into the long-press popup, the key preview bubble, and the toolbar and panels. The AI editor dialog always uses the settings theme.
+- **Themes:** Mr Keyboard Neon, Dark Tech (soft and raised), Midnight Steel and Cobalt Glass (translucent with background blur on Android 12+; a semi-transparent dark background where blur is unavailable). Ctrl, Alt, Shift and ❖ wear the highlight style of the other special keys and show their state with a small colored dash along the lower edge; Shift distinguishes off, active and locked. Key spacing and corner roundness work in every theme, and the roundness also follows into the long-press popup and the key preview bubble. The toolbar and panels have their own fixed corners. The AI editor dialog always uses the settings theme.
 - **Gestures and keys:** swipe up/down/left/right and the volume keys can run keyboard actions.
 - **App in English, Portuguese or Spanish:** it follows the system language, or pick one in *Settings → General → App language*.
 
@@ -41,8 +41,8 @@ The command is sent as a broadcast that other apps can also receive, so don't pu
 ## Privacy
 - What you type stays on your device. Suggestions, corrections and learned words are processed and stored only on the phone. There are no ads, no analytics and no Google Play Services.
 - The app connects to the internet only for these features:
-  - **Translate** sends the text you type in the translate field to Google Translate (`translate.googleapis.com`). Only that text is sent, and only when you use it. The field says so ("Type to translate with Google"), and the app shows a notice the first time the panel opens.
-  - **AI editor** sends only the text you choose to rewrite, and only to the AI service you configure. The app shows a notice on the first opening; no request is sent until you tap a style.
+  - **Translate** sends the text you type in the translate field to Google Translate (`translate.googleapis.com`). Only that text is sent, and only when you use it. The field says so ("Type to translate with Google").
+  - **AI editor** sends only the text you choose to rewrite, and only to the AI service you configure. No request is sent until you tap a style.
   - **Dictionaries** (*Settings → Suggestions and dictionaries*): the app only connects when you tap *Check for updates*, *Download*, *Update* or a language that isn't downloaded yet, and it only downloads files from this repository's [latest release](../../releases/latest) (the catalog, `catalog.json`, and the zip of each language, which is attached to the release where that language last changed). Every file is checked against a list signed with the app's own key before it is used.
   - **App updates** (*Settings → About*): the app reads `update.json` from this repository's [latest release](../../releases/latest) when it opens (at most once a day) and every morning in the background, and shows a notice when there is a newer version. Both can be turned off. The request carries nothing about you or your phone. The file is checked against a signature made with the app's own key before it is used.
 

@@ -11,6 +11,7 @@ public class TextView extends android.view.View {
     public int getSelectionEnd() { return selEnd; }
     protected void stubSelect(int start, int end) { selStart = start; selEnd = end; }
     public void setTextColor(int color) { }
+    public int getCurrentTextColor() { return 0; }
     public void setTextSize(float size) { }
     public void setTypeface(android.graphics.Typeface tf, int style) { }
     public void setGravity(int gravity) { }

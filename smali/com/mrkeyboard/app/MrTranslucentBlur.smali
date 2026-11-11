@@ -5,7 +5,6 @@
 .source "MrTranslucentBlur.java"
 
 .method static apply(Landroid/inputmethodservice/InputMethodService;Z)Z
-
     .locals 4
 
     const/4 v0, 0x0
@@ -15,31 +14,27 @@
 
     move-result-object v1
 
-    if-nez v1, :cond_dlg
+    if-nez v1, :cond_0
 
     return v0
 
-    :cond_dlg
+    :cond_0
     invoke-virtual {v1}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
 
     move-result-object v1
 
-    if-nez v1, :cond_win
+    if-nez v1, :cond_1
 
     return v0
 
-    :cond_win
-    if-nez p1, :cond_on
+    :cond_1
+    if-nez p1, :cond_2
 
     invoke-virtual {v1, v0}, Landroid/view/Window;->setBackgroundBlurRadius(I)V
 
     return v0
 
-    :cond_on
-    # The window background blur is only drawn with hardware acceleration. The app declares
-    # hardwareAccelerated=false, and in a software-drawn window the BackgroundBlurDrawable crashes the
-    # keyboard (drawRenderNode). Window already attached: decor.isHardwareAccelerated() applies; not yet
-    # attached: the FLAG_HARDWARE_ACCELERATED flag (0x1000000) of the window attributes applies.
+    :cond_2
     invoke-virtual {v1}, Landroid/view/Window;->getDecorView()Landroid/view/View;
 
     move-result-object v2
@@ -48,17 +43,17 @@
 
     move-result v3
 
-    if-eqz v3, :cond_hwflag
+    if-eqz v3, :cond_3
 
     invoke-virtual {v2}, Landroid/view/View;->isHardwareAccelerated()Z
 
     move-result v2
 
-    if-eqz v2, :cond_nohw
+    if-eqz v2, :cond_4
 
-    goto :cond_hw
+    goto :goto_0
 
-    :cond_hwflag
+    :cond_3
     invoke-virtual {v1}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
 
     move-result-object v2
@@ -69,14 +64,15 @@
 
     and-int/2addr v2, v3
 
-    if-nez v2, :cond_hw
+    if-nez v2, :cond_5
 
-    :cond_nohw
+    :cond_4
     invoke-virtual {v1, v0}, Landroid/view/Window;->setBackgroundBlurRadius(I)V
 
     return v0
 
-    :cond_hw
+    :cond_5
+    :goto_0
     const-string v2, "window"
 
     invoke-virtual {p0, v2}, Landroid/inputmethodservice/InputMethodService;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
@@ -89,14 +85,13 @@
 
     move-result v2
 
-    if-nez v2, :cond_blur
+    if-nez v2, :cond_6
 
     invoke-virtual {v1, v0}, Landroid/view/Window;->setBackgroundBlurRadius(I)V
 
     return v0
 
-    :cond_blur
-    # Blur radius: 14dp converted to px by the screen density.
+    :cond_6
     invoke-virtual {p0}, Landroid/inputmethodservice/InputMethodService;->getResources()Landroid/content/res/Resources;
 
     move-result-object v2
@@ -119,17 +114,16 @@
 
     invoke-virtual {v1, v3}, Landroid/view/Window;->setBackgroundBlurRadius(I)V
     :try_end_0
-    .catchall {:try_start_0 .. :try_end_0} :catch_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
     const/4 v0, 0x1
 
     return v0
 
-    :catch_0
+    :catchall_0
     move-exception v1
 
     const/4 v0, 0x0
 
     return v0
-
 .end method

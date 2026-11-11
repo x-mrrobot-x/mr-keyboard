@@ -24,7 +24,6 @@
 
 .field mCode:I
 
-
 .method public constructor <init>(I)V
     .locals 0
 
@@ -106,7 +105,7 @@
 
     invoke-direct {v0, v1}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    const/high16 v1, 0x41300000
+    const/high16 v1, 0x41300000    # 11.0f
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextSize(F)V
 
@@ -116,7 +115,7 @@
 
     move-result v2
 
-    if-eqz v2, :cond_hd_color
+    if-eqz v2, :cond_0
 
     const-string v1, "panel_tab_off_text"
 
@@ -124,7 +123,7 @@
 
     move-result v1
 
-    :cond_hd_color
+    :cond_0
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
 
     sget v1, Lcom/mrkeyboard/app/MrTools;->sPad:I
@@ -157,8 +156,8 @@
 
     const/4 v2, 0x0
 
-    :goto_cell
-    if-ge v2, p0, :cond_done
+    :goto_0
+    if-ge v2, p0, :cond_0
 
     new-instance v6, Landroid/widget/TextView;
 
@@ -180,11 +179,11 @@
 
     const/4 v8, 0x0
 
-    const/high16 v9, 0x3f800000
+    const/high16 v9, 0x3f800000    # 1.0f
 
     invoke-direct {v7, v8, v4, v9}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    const/high16 v9, 0x41b00000
+    const/high16 v9, 0x41b00000    # 22.0f
 
     invoke-virtual {v6, v9}, Landroid/widget/TextView;->setTextSize(F)V
 
@@ -210,9 +209,9 @@
 
     add-int/lit8 v2, v2, 0x1
 
-    goto :goto_cell
+    goto :goto_0
 
-    :cond_done
+    :cond_0
     return-object v1
 .end method
 
@@ -709,18 +708,18 @@
 
     const/4 v3, 0x0
 
-    :goto_tab
+    :goto_0
     const/16 v6, 0x9
 
-    if-ge v3, v6, :cond_tabs_done
+    if-ge v3, v6, :cond_1
 
-    if-nez v3, :cond_tab_cat
+    if-nez v3, :cond_0
 
     const-string v6, "cat_r"
 
-    goto :cond_tab_btn
+    goto :goto_1
 
-    :cond_tab_cat
+    :cond_0
     new-instance v6, Ljava/lang/StringBuilder;
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
@@ -737,7 +736,7 @@
 
     move-result-object v6
 
-    :cond_tab_btn
+    :goto_1
     const/4 v7, -0x1
 
     invoke-static {p0, v6, v7}, Lcom/mrkeyboard/app/MrTools;->btn(Landroid/view/View;Ljava/lang/String;I)Landroid/widget/TextView;
@@ -746,25 +745,10 @@
 
     aput-object v6, v4, v3
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->flatBar()Z
-
-    move-result v7
-
-    if-eqz v7, :cond_tab_bg_def
-
-    # Midnight Steel: background of the selected category (highlight) in the theme's accent color
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->selBg()Landroid/graphics/drawable/Drawable;
 
     move-result-object v7
 
-    goto :cond_tab_bg_put
-
-    :cond_tab_bg_def
-    invoke-virtual {v6}, Landroid/view/View;->getBackground()Landroid/graphics/drawable/Drawable;
-
-    move-result-object v7
-
-    :cond_tab_bg_put
     aput-object v7, v5, v3
 
     new-instance v7, Lcom/mrkeyboard/app/MrEmotes;
@@ -775,9 +759,9 @@
 
     add-int/lit8 v3, v3, 0x1
 
-    goto :goto_tab
+    goto :goto_0
 
-    :cond_tabs_done
+    :cond_1
     const-string v3, "emote_back"
 
     const/4 v4, 0x7

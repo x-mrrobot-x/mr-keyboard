@@ -16,8 +16,8 @@
     .locals 1
 
     .prologue
-    .line 15
-    const/4 v0, 0x7
+    .line 16
+    const/16 v0, 0x8
 
     new-array v0, v0, [I
 
@@ -26,8 +26,6 @@
     sput-object v0, Lcom/mrkeyboard/app/MrBarClose;->TOOLBAR:[I
 
     return-void
-
-    nop
 
     :array_0
     .array-data 4
@@ -38,6 +36,7 @@
         0x14
         0x15
         0x18
+        0x19
     .end array-data
 .end method
 
@@ -45,7 +44,7 @@
     .locals 0
 
     .prologue
-    .line 19
+    .line 20
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -57,7 +56,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 22
+    .line 23
     move v0, v1
 
     :goto_0
@@ -67,7 +66,7 @@
 
     if-ge v0, v2, :cond_0
 
-    .line 23
+    .line 24
     sget-object v2, Lcom/mrkeyboard/app/MrBarClose;->TOOLBAR:[I
 
     aget v2, v2, v0
@@ -76,11 +75,11 @@
 
     const/4 v1, 0x1
 
-    .line 25
+    .line 26
     :cond_0
     return v1
 
-    .line 22
+    .line 23
     :cond_1
     add-int/lit8 v0, v0, 0x1
 
@@ -91,19 +90,19 @@
     .locals 1
 
     .prologue
-    .line 30
+    .line 31
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBarClose;->isToolbar(I)Z
 
     move-result v0
 
     if-nez v0, :cond_1
 
-    .line 37
+    .line 38
     :cond_0
     :goto_0
     return-void
 
-    .line 32
+    .line 33
     :cond_1
     const/16 v0, 0x18
 
@@ -118,7 +117,7 @@
 
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->dismiss()V
 
-    .line 33
+    .line 34
     :cond_2
     const/16 v0, 0x13
 
@@ -130,7 +129,7 @@
 
     goto :goto_0
 
-    .line 34
+    .line 35
     :catch_0
     move-exception v0
 

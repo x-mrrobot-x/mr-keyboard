@@ -8,7 +8,6 @@
 .implements Landroid/view/View$OnClickListener;
 .implements Ljava/lang/Runnable;
 
-
 # instance modes (mMode):
 # 0 = load list (thread)   1 = load thumbnail (thread)
 # 2 = apply list (UI)        3 = grid adapter / empty-state click
@@ -118,7 +117,6 @@
 
 .field mMimes:[Ljava/lang/String;
 
-
 .method public constructor <init>(I)V
     .locals 1
 
@@ -148,13 +146,20 @@
 
 .method private static copyToCache(JLjava/lang/String;I)Ljava/io/File;
     .locals 10
+
     invoke-static {p3}, Lcom/mrkeyboard/app/MrShots;->assertCopySession(I)V
+
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrCopyRetention;->category(J)I
+
     move-result v4
+
     invoke-static {v4, p0, p1}, Lcom/mrkeyboard/app/MrCopyRetention;->reuse(IJ)Ljava/io/File;
+
     move-result-object v5
+
     invoke-static {p3}, Lcom/mrkeyboard/app/MrShots;->assertCopySession(I)V
-    if-nez v5, :cond_ret
+
+    if-nez v5, :cond_3
 
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;
 
@@ -176,19 +181,18 @@
 
     cmp-long v3, p0, v3
 
-    if-gez v3, :cond_img
+    if-gez v3, :cond_0
 
     invoke-static {p2}, Lcom/mrkeyboard/app/MrShots;->vidExt(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
-    goto :cond_ext
+    goto :goto_0
 
-    :cond_img
-
+    :cond_0
     const-string v3, ".png"
 
-    if-eqz p2, :cond_ext
+    if-eqz p2, :cond_2
 
     const-string v4, "jpeg"
 
@@ -196,24 +200,25 @@
 
     move-result v4
 
-    if-eqz v4, :cond_nojpg
+    if-eqz v4, :cond_1
 
     const-string v3, ".jpg"
 
-    goto :cond_ext
+    goto :goto_0
 
-    :cond_nojpg
+    :cond_1
     const-string v4, "webp"
 
     invoke-virtual {p2, v4}, Ljava/lang/String;->endsWith(Ljava/lang/String;)Z
 
     move-result v4
 
-    if-eqz v4, :cond_ext
+    if-eqz v4, :cond_2
 
     const-string v3, ".webp"
 
-    :cond_ext
+    :cond_2
+    :goto_0
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -237,9 +242,9 @@
     move-result-object v4
 
     invoke-static {v2, v4}, Lcom/mrkeyboard/app/MrCopyRetention;->target(Ljava/io/File;Ljava/lang/String;)Ljava/io/File;
+
     move-result-object v5
 
-    :cond_copy
     invoke-virtual {v0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
 
     move-result-object v1
@@ -277,12 +282,16 @@
     invoke-static {v3, v6, p3}, Lcom/mrkeyboard/app/MrShots;->copyToPart(Ljava/io/InputStream;Ljava/io/File;I)V
 
     invoke-static {v6, v5, p3}, Lcom/mrkeyboard/app/MrShots;->commitCopy(Ljava/io/File;Ljava/io/File;I)V
+
     invoke-static {v5}, Lcom/mrkeyboard/app/MrCopyRetention;->touch(Ljava/io/File;)V
+
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrCopyRetention;->category(J)I
+
     move-result v4
+
     invoke-static {v4, p0, p1, v5}, Lcom/mrkeyboard/app/MrCopyRetention;->remember(IJLjava/io/File;)V
 
-    :cond_ret
+    :cond_3
     return-object v5
 .end method
 
@@ -389,34 +398,33 @@
 .end method
 
 .method static styleTabs()V
-
     .locals 5
 
     invoke-static {}, Lcom/mrkeyboard/app/MrShots;->stylePick()V
 
     sget-object v0, Lcom/mrkeyboard/app/MrShots;->sBF:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_end
+    if-eqz v0, :cond_5
 
     sget-object v1, Lcom/mrkeyboard/app/MrShots;->sBV:Landroid/widget/TextView;
 
-    if-eqz v1, :cond_end
+    if-eqz v1, :cond_5
 
     sget-object v2, Lcom/mrkeyboard/app/MrShots;->sBA:Landroid/widget/TextView;
 
-    if-eqz v2, :cond_end
+    if-eqz v2, :cond_5
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->flatBar()Z
 
     move-result v3
 
-    if-eqz v3, :cond_std
+    if-eqz v3, :cond_2
 
     const/4 v4, 0x0
 
     sget-boolean v3, Lcom/mrkeyboard/app/MrShots;->sFiles:Z
 
-    if-eqz v3, :cond_mid_nf
+    if-eqz v3, :cond_0
 
     invoke-static {v0, v4}, Lcom/mrkeyboard/app/MrTools;->shotTab(Landroid/widget/TextView;Z)V
 
@@ -428,12 +436,12 @@
 
     return-void
 
-    :cond_mid_nf
+    :cond_0
     invoke-static {v2, v4}, Lcom/mrkeyboard/app/MrTools;->shotTab(Landroid/widget/TextView;Z)V
 
     sget-boolean v3, Lcom/mrkeyboard/app/MrShots;->sVid:Z
 
-    if-eqz v3, :cond_mid_ph
+    if-eqz v3, :cond_1
 
     invoke-static {v0, v4}, Lcom/mrkeyboard/app/MrTools;->shotTab(Landroid/widget/TextView;Z)V
 
@@ -443,7 +451,7 @@
 
     return-void
 
-    :cond_mid_ph
+    :cond_1
     invoke-static {v1, v4}, Lcom/mrkeyboard/app/MrTools;->shotTab(Landroid/widget/TextView;Z)V
 
     const/4 v4, 0x1
@@ -452,10 +460,10 @@
 
     return-void
 
-    :cond_std
-    const/high16 v3, 0x3f000000
+    :cond_2
+    const/high16 v3, 0x3f000000    # 0.5f
 
-    const/high16 v4, 0x3f800000
+    const/high16 v4, 0x3f800000    # 1.0f
 
     invoke-virtual {v0, v3}, Landroid/view/View;->setAlpha(F)V
 
@@ -465,30 +473,26 @@
 
     sget-boolean v3, Lcom/mrkeyboard/app/MrShots;->sFiles:Z
 
-    if-eqz v3, :cond_nofiles
+    if-eqz v3, :cond_3
 
     invoke-virtual {v2, v4}, Landroid/view/View;->setAlpha(F)V
 
     return-void
 
-    :cond_nofiles
-
+    :cond_3
     sget-boolean v3, Lcom/mrkeyboard/app/MrShots;->sVid:Z
 
-    if-eqz v3, :cond_photos
+    if-eqz v3, :cond_4
 
     invoke-virtual {v1, v4}, Landroid/view/View;->setAlpha(F)V
 
     return-void
 
-    :cond_photos
-
+    :cond_4
     invoke-virtual {v0, v4}, Landroid/view/View;->setAlpha(F)V
 
-    :cond_end
-
+    :cond_5
     return-void
-
 .end method
 
 .method public static setVid(Z)V
@@ -506,13 +510,11 @@
     const/4 v0, 0x0
     invoke-static {v0}, Lcom/mrkeyboard/app/MrShots;->request(Z)V
 
-
     return-void
 
 .end method
 
 .method private doLoadVid()V
-
     .locals 14
 
     const/16 v0, 0x3c
@@ -524,7 +526,6 @@
     const/4 v5, 0x0
 
     :try_start_0
-
     sget-object v3, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;
 
     invoke-virtual {v3}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
@@ -553,17 +554,16 @@
 
     move-result-object v5
 
-    if-eqz v5, :cond_noc
+    if-eqz v5, :cond_1
 
-    :cond_loop
-
-    if-ge v2, v0, :cond_done
+    :goto_0
+    if-ge v2, v0, :cond_0
 
     invoke-interface {v5}, Landroid/database/Cursor;->moveToNext()Z
 
     move-result v12
 
-    if-eqz v12, :cond_done
+    if-eqz v12, :cond_0
 
     const/4 v12, 0x0
 
@@ -577,46 +577,39 @@
 
     add-int/lit8 v2, v2, 0x1
 
-    goto :cond_loop
+    goto :goto_0
 
-    :cond_done
-
+    :cond_0
     invoke-interface {v5}, Landroid/database/Cursor;->close()V
-
-    :cond_noc
-
     :try_end_0
-
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
-    goto :goto_post
+    :cond_1
+    goto :goto_1
 
     :catch_0
-
     move-exception v0
+
     const/4 v0, 0x1
+
     iput-boolean v0, p0, Lcom/mrkeyboard/app/MrShots;->mFailed:Z
 
     const/4 v2, 0x0
 
-    if-eqz v5, :goto_post
+    if-eqz v5, :cond_2
 
-    :try_start_c
-
+    :try_start_1
     invoke-interface {v5}, Landroid/database/Cursor;->close()V
+    :try_end_1
+    .catch Ljava/lang/Exception; {:try_start_1 .. :try_end_1} :catch_1
 
-    :try_end_c
+    goto :goto_1
 
-    .catch Ljava/lang/Exception; {:try_start_c .. :try_end_c} :catch_c
-
-    goto :goto_post
-
-    :catch_c
-
+    :catch_1
     move-exception v0
 
-    :goto_post
-
+    :cond_2
+    :goto_1
     iput-object v1, p0, Lcom/mrkeyboard/app/MrShots;->mIds:[J
 
     iput v2, p0, Lcom/mrkeyboard/app/MrShots;->mN:I
@@ -630,7 +623,6 @@
     invoke-virtual {v0, p0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
     return-void
-
 .end method
 
 .method private doCopy()V
@@ -736,31 +728,47 @@
 .end method
 
 .method public static open()V
- .locals 1
- const/4 v0, 0x3
- invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->showPanel(I)V
- sget-object v0, Lcom/mrkeyboard/app/MrShots;->sClearSummary:Ljava/lang/String;
- if-eqz v0, :check_busy
- invoke-static {v0}, Lcom/mrkeyboard/app/MrShots;->showClearSummary(Ljava/lang/String;)V
- return-void
- :check_busy
- invoke-static {}, Lcom/mrkeyboard/app/MrCacheClear;->isBusy()Z
- move-result v0
- if-eqz v0, :load
- const-string v0, "Limpando caches…"
+    .locals 1
 
- invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+    const/4 v0, 0x3
 
- move-result-object v0
- invoke-static {v0}, Lcom/mrkeyboard/app/MrShots;->showClearSummary(Ljava/lang/String;)V
- # Progress text is not a completed result.
- const/4 v0, 0x0
- sput-object v0, Lcom/mrkeyboard/app/MrShots;->sClearSummary:Ljava/lang/String;
- return-void
- :load
- const/4 v0, 0x0
- invoke-static {v0}, Lcom/mrkeyboard/app/MrShots;->request(Z)V
- return-void
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->showPanel(I)V
+
+    sget-object v0, Lcom/mrkeyboard/app/MrShots;->sClearSummary:Ljava/lang/String;
+
+    if-eqz v0, :cond_0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrShots;->showClearSummary(Ljava/lang/String;)V
+
+    return-void
+
+    :cond_0
+    invoke-static {}, Lcom/mrkeyboard/app/MrCacheClear;->isBusy()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1
+
+    const-string v0, "Limpando caches\u2026"
+
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrShots;->showClearSummary(Ljava/lang/String;)V
+
+    const/4 v0, 0x0
+
+    sput-object v0, Lcom/mrkeyboard/app/MrShots;->sClearSummary:Ljava/lang/String;
+
+    return-void
+
+    :cond_1
+    const/4 v0, 0x0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrShots;->request(Z)V
+
+    return-void
 .end method
 
 .method public static permName()Ljava/lang/String;
@@ -872,8 +880,6 @@
     move-result-object v2
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-
 
     return-void
 
@@ -1186,8 +1192,11 @@
     check-cast v1, Landroid/widget/GridView;
 
     sput-object v1, Lcom/mrkeyboard/app/MrShots;->sGrid:Landroid/widget/GridView;
+
     new-instance v2, Lcom/mrkeyboard/app/MrShotScroll;
+
     invoke-direct {v2}, Lcom/mrkeyboard/app/MrShotScroll;-><init>()V
+
     invoke-virtual {v1, v2}, Landroid/widget/AbsListView;->setOnScrollListener(Landroid/widget/AbsListView$OnScrollListener;)V
 
     invoke-virtual {v1, v0}, Landroid/widget/GridView;->setAdapter(Landroid/widget/ListAdapter;)V
@@ -1292,13 +1301,19 @@
 
     invoke-virtual {v2, v0}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
+    new-instance v3, Lcom/mrkeyboard/app/MrCenter;
+
+    invoke-direct {v3}, Lcom/mrkeyboard/app/MrCenter;-><init>()V
+
+    invoke-virtual {v2, v3}, Landroid/view/View;->addOnLayoutChangeListener(Landroid/view/View$OnLayoutChangeListener;)V
+
     invoke-static {}, Lcom/mrkeyboard/app/MrShots;->styleSel()V
 
     invoke-static {}, Lcom/mrkeyboard/app/MrShots;->stylePick()V
 
     sget-object v2, Lcom/mrkeyboard/app/MrShots;->sExec:Ljava/util/concurrent/ExecutorService;
 
-    if-nez v2, :cond_have
+    if-nez v2, :cond_0
 
     new-instance v2, Lcom/mrkeyboard/app/MrThumbnailCache;
 
@@ -1307,21 +1322,34 @@
     sput-object v2, Lcom/mrkeyboard/app/MrShots;->sCache:Landroid/util/LruCache;
 
     const/4 v2, 0x1
+
     const/16 v3, 0x8
+
     invoke-static {v2, v3}, Lcom/mrkeyboard/app/MrWorkPools;->create(II)Ljava/util/concurrent/ExecutorService;
+
     move-result-object v2
+
     sput-object v2, Lcom/mrkeyboard/app/MrShots;->sExec:Ljava/util/concurrent/ExecutorService;
+
     const/4 v2, 0x1
+
     invoke-static {v2, v2}, Lcom/mrkeyboard/app/MrWorkPools;->latest(II)Ljava/util/concurrent/ExecutorService;
+
     move-result-object v2
+
     sput-object v2, Lcom/mrkeyboard/app/MrShots;->sQueryExec:Ljava/util/concurrent/ExecutorService;
+
     const/4 v2, 0x2
+
     const/16 v3, 0x40
+
     invoke-static {v2, v3}, Lcom/mrkeyboard/app/MrWorkPools;->create(II)Ljava/util/concurrent/ExecutorService;
+
     move-result-object v2
+
     sput-object v2, Lcom/mrkeyboard/app/MrShots;->sThumbExec:Ljava/util/concurrent/ExecutorService;
 
-    :cond_have
+    :cond_0
     return-void
 .end method
 
@@ -1329,44 +1357,66 @@
     .locals 6
 
     invoke-static {}, Lcom/mrkeyboard/app/MrShots;->hasPerm()Z
+
     move-result v0
-    if-nez v0, :permission_current
+
+    if-nez v0, :cond_0
+
     const/4 v0, 0x1
+
     invoke-static {v0}, Lcom/mrkeyboard/app/MrShots;->request(Z)V
+
     return-void
-    :permission_current
+
+    :cond_0
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrShots;->mFailed:Z
-    if-nez v0, :skip_store
+
+    if-nez v0, :cond_1
+
     invoke-static {p0}, Lcom/mrkeyboard/app/MrShots;->storeSnapshot(Lcom/mrkeyboard/app/MrShots;)V
-    :skip_store
+
+    :cond_1
     iget v0, p0, Lcom/mrkeyboard/app/MrShots;->mGen:I
 
     sget v1, Lcom/mrkeyboard/app/MrShots;->sGen:I
 
-    if-eq v0, v1, :cond_cur
+    if-eq v0, v1, :cond_2
 
     return-void
 
-    :cond_cur
+    :cond_2
     invoke-static {}, Lcom/mrkeyboard/app/MrShots;->category()I
+
     move-result v0
+
     iget v1, p0, Lcom/mrkeyboard/app/MrShots;->mCategory:I
-    if-eq v0, v1, :category_current
+
+    if-eq v0, v1, :cond_3
+
     return-void
-    :category_current
+
+    :cond_3
     const/4 v0, 0x0
+
     sput-boolean v0, Lcom/mrkeyboard/app/MrShots;->sQueryPending:Z
+
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrShots;->mFailed:Z
-    if-eqz v0, :query_succeeded
+
+    if-eqz v0, :cond_4
+
     sget-object v0, Lcom/mrkeyboard/app/MrShots;->sEmpty:Landroid/widget/TextView;
-    const-string v1, "Não foi possível atualizar. Toque para tentar novamente."
+
+    const-string v1, "N\u00e3o foi poss\u00edvel atualizar. Toque para tentar novamente."
 
     invoke-static/range {v1 .. v1}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
+
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
     return-void
-    :query_succeeded
+
+    :cond_4
     invoke-static {}, Lcom/mrkeyboard/app/MrShots;->emptyIcon()V
 
     sget-object v0, Lcom/mrkeyboard/app/MrShots;->sAdp:Lcom/mrkeyboard/app/MrShots;
@@ -1388,17 +1438,14 @@
     iput v1, v0, Lcom/mrkeyboard/app/MrShots;->mN:I
 
     invoke-virtual {v0}, Landroid/widget/BaseAdapter;->notifyDataSetChanged()V
+
     invoke-static {}, Lcom/mrkeyboard/app/MrShots;->pruneSel()V
 
     sget-object v2, Lcom/mrkeyboard/app/MrShots;->sGrid:Landroid/widget/GridView;
 
     const/4 v3, 0x0
 
-
-
-
-
-    if-eqz v1, :cond_zero
+    if-eqz v1, :cond_5
 
     const/4 v2, 0x0
 
@@ -1406,11 +1453,10 @@
 
     return-void
 
-    :cond_zero
-
+    :cond_5
     sget-boolean v2, Lcom/mrkeyboard/app/MrShots;->sFiles:Z
 
-    if-eqz v2, :cond_nofl
+    if-eqz v2, :cond_6
 
     const/4 v2, 0x0
 
@@ -1428,35 +1474,32 @@
 
     return-void
 
-    :cond_nofl
+    :cond_6
     const/4 v5, 0x0
 
-    :cond_set
     sput-boolean v5, Lcom/mrkeyboard/app/MrShots;->sMore:Z
 
     sget-object v3, Lcom/mrkeyboard/app/MrShots;->sEmpty:Landroid/widget/TextView;
 
-    if-eqz v5, :cond_none
+    if-eqz v5, :cond_7
 
     const v2, 0x7f0c01cb
 
-    goto :cond_txt
+    goto :goto_0
 
-    :cond_none
-
+    :cond_7
     sget-boolean v2, Lcom/mrkeyboard/app/MrShots;->sVid:Z
 
-    if-eqz v2, :cond_nophoto
+    if-eqz v2, :cond_8
 
     const v2, 0x7f0c01ce
 
-    goto :cond_txt
+    goto :goto_0
 
-    :cond_nophoto
-
+    :cond_8
     const v2, 0x7f0c01bf
 
-    :cond_txt
+    :goto_0
     invoke-static {v2}, Lcom/mrkeyboard/app/MrTools;->str(I)Ljava/lang/String;
 
     move-result-object v2
@@ -1521,7 +1564,7 @@
 
     const/16 v7, 0x1d
 
-    if-lt v6, v7, :cond_hay
+    if-lt v6, v7, :cond_0
 
     const/4 v1, 0x5
 
@@ -1529,25 +1572,25 @@
 
     move-result-object v5
 
-    :cond_hay
+    :cond_0
     new-instance v6, Ljava/lang/StringBuilder;
 
     invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
 
-    if-eqz v2, :cond_b1
+    if-eqz v2, :cond_1
 
     invoke-virtual {v6, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    :cond_b1
+    :cond_1
     const-string v7, "|"
 
     invoke-virtual {v6, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    if-eqz v5, :cond_b2
+    if-eqz v5, :cond_2
 
     invoke-virtual {v6, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    :cond_b2
+    :cond_2
     invoke-virtual {v6}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v6
@@ -1564,7 +1607,7 @@
 
     move-result v8
 
-    if-nez v8, :cond_hit
+    if-nez v8, :cond_3
 
     const-string v8, "screen_shot"
 
@@ -1572,7 +1615,7 @@
 
     move-result v8
 
-    if-nez v8, :cond_hit
+    if-nez v8, :cond_3
 
     const-string v8, "screencap"
 
@@ -1580,7 +1623,7 @@
 
     move-result v8
 
-    if-nez v8, :cond_hit
+    if-nez v8, :cond_3
 
     const-string v8, "screen cap"
 
@@ -1588,7 +1631,7 @@
 
     move-result v8
 
-    if-nez v8, :cond_hit
+    if-nez v8, :cond_3
 
     const-string v8, "captura"
 
@@ -1596,7 +1639,7 @@
 
     move-result v8
 
-    if-nez v8, :cond_hit
+    if-nez v8, :cond_3
 
     const-string v8, "\u622a\u5c4f"
 
@@ -1604,7 +1647,7 @@
 
     move-result v8
 
-    if-nez v8, :cond_hit
+    if-nez v8, :cond_3
 
     const-string v8, "\u622a\u56fe"
 
@@ -1612,24 +1655,24 @@
 
     move-result v8
 
-    if-eqz v8, :cond_nohit
+    if-eqz v8, :cond_4
 
-    :cond_hit
+    :cond_3
     const/4 v7, 0x1
 
-    :cond_nohit
-    if-eqz v7, :cond_noname
+    :cond_4
+    if-eqz v7, :cond_5
 
     add-int/lit8 v0, v0, 0x3
 
-    :cond_noname
+    :cond_5
     const-string v8, "camera"
 
     invoke-virtual {v6, v8}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result v8
 
-    if-nez v8, :cond_cam
+    if-nez v8, :cond_6
 
     const-string v8, "dcim"
 
@@ -1637,51 +1680,51 @@
 
     move-result v8
 
-    if-eqz v8, :cond_nocam
+    if-eqz v8, :cond_7
 
-    :cond_cam
-
+    :cond_6
     add-int/lit8 v0, v0, 0x8
 
-    :cond_nocam
+    :cond_7
     sget v8, Lcom/mrkeyboard/app/MrShots;->sSw:I
 
     sget v9, Lcom/mrkeyboard/app/MrShots;->sSh:I
 
-    if-ne v3, v8, :cond_dim2
+    if-ne v3, v8, :cond_8
 
-    if-ne v4, v9, :cond_dim2
-
-    add-int/lit8 v0, v0, 0x3
-
-    goto :cond_dimdone
-
-    :cond_dim2
-    if-ne v3, v9, :cond_scroll
-
-    if-ne v4, v8, :cond_scroll
+    if-ne v4, v9, :cond_8
 
     add-int/lit8 v0, v0, 0x3
 
-    goto :cond_dimdone
+    goto :goto_0
 
-    :cond_scroll
-    if-ne v3, v8, :cond_scroll2
+    :cond_8
+    if-ne v3, v9, :cond_9
 
-    if-le v4, v9, :cond_scroll2
+    if-ne v4, v8, :cond_9
+
+    add-int/lit8 v0, v0, 0x3
+
+    goto :goto_0
+
+    :cond_9
+    if-ne v3, v8, :cond_a
+
+    if-le v4, v9, :cond_a
 
     add-int/lit8 v0, v0, 0x2
 
-    goto :cond_dimdone
+    goto :goto_0
 
-    :cond_scroll2
-    if-ne v3, v9, :cond_dimdone
+    :cond_a
+    if-ne v3, v9, :cond_b
 
-    if-le v4, v8, :cond_dimdone
+    if-le v4, v8, :cond_b
 
     add-int/lit8 v0, v0, 0x2
 
-    :cond_dimdone
+    :cond_b
+    :goto_0
     const/4 v8, 0x4
 
     invoke-interface {p0, v8}, Landroid/database/Cursor;->getLong(I)J
@@ -1692,38 +1735,35 @@
 
     cmp-long v5, v3, v8
 
-    if-ltz v5, :cond_done
+    if-ltz v5, :cond_c
 
     add-int/lit8 v0, v0, 0x1
 
-    :cond_done
+    :cond_c
     return v0
 .end method
 
 .method private doLoad()V
-
     .locals 14
 
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrShots;->mLoadFiles:Z
 
-    if-eqz v0, :cond_nofiles
+    if-eqz v0, :cond_0
 
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->doLoadFiles()V
 
     return-void
 
-    :cond_nofiles
-
+    :cond_0
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrShots;->mLoadVid:Z
 
-    if-eqz v0, :cond_photo
+    if-eqz v0, :cond_1
 
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->doLoadVid()V
 
     return-void
 
-    :cond_photo
-
+    :cond_1
     const/4 v5, 0x0
 
     const/16 v0, 0x3c
@@ -1793,7 +1833,7 @@
 
     const/16 v12, 0x1d
 
-    if-lt v8, v12, :cond_noq
+    if-lt v8, v12, :cond_2
 
     const/4 v8, 0x6
 
@@ -1805,9 +1845,9 @@
 
     aput-object v12, v8, v13
 
-    goto :cond_proj
+    goto :goto_0
 
-    :cond_noq
+    :cond_2
     const/4 v8, 0x6
 
     new-array v8, v8, [Ljava/lang/String;
@@ -1818,7 +1858,7 @@
 
     aput-object v12, v8, v13
 
-    :cond_proj
+    :goto_0
     const-string v12, "_id"
 
     const/4 v13, 0x0
@@ -1879,18 +1919,19 @@
 
     const/4 v6, 0x0
 
-    if-eqz v5, :cond_noc
+    if-eqz v5, :cond_5
 
     const/4 v0, 0x0
 
-    :cond_loop
-    if-ge v0, v7, :cond_done
+    :cond_3
+    :goto_1
+    if-ge v0, v7, :cond_4
 
     invoke-interface {v5}, Landroid/database/Cursor;->moveToNext()Z
 
     move-result v12
 
-    if-eqz v12, :cond_done
+    if-eqz v12, :cond_4
 
     add-int/lit8 v0, v0, 0x1
 
@@ -1898,7 +1939,7 @@
 
     move-result v12
 
-    if-ltz v12, :cond_loop
+    if-ltz v12, :cond_3
 
     const/4 v13, 0x0
 
@@ -1912,27 +1953,27 @@
 
     add-int/lit8 v6, v6, 0x1
 
-    goto :cond_loop
+    goto :goto_1
 
-    :cond_done
+    :cond_4
     invoke-interface {v5}, Landroid/database/Cursor;->close()V
 
-    :cond_noc
+    :cond_5
     const/16 v0, 0x2a
 
-    :goto_pass
-    if-ltz v0, :cond_topdone
+    :goto_2
+    if-ltz v0, :cond_8
 
     const/4 v12, 0x0
 
-    :goto_scan
-    if-ge v12, v6, :cond_scandone
+    :goto_3
+    if-ge v12, v6, :cond_7
 
-    if-ge v3, v8, :cond_scandone
+    if-ge v3, v8, :cond_7
 
     aget v13, v2, v12
 
-    if-ne v13, v0, :cond_next
+    if-ne v13, v0, :cond_6
 
     aget-wide v10, v9, v12
 
@@ -1940,42 +1981,44 @@
 
     add-int/lit8 v3, v3, 0x1
 
-    :cond_next
+    :cond_6
     add-int/lit8 v12, v12, 0x1
 
-    goto :goto_scan
+    goto :goto_3
 
-    :cond_scandone
+    :cond_7
     add-int/lit8 v0, v0, -0x1
 
-    goto :goto_pass
-
-    :cond_topdone
+    goto :goto_2
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
-    goto :goto_post
+    :cond_8
+    goto :goto_4
 
     :catch_0
     move-exception v0
+
     const/4 v0, 0x1
+
     iput-boolean v0, p0, Lcom/mrkeyboard/app/MrShots;->mFailed:Z
 
     const/4 v3, 0x0
 
-    if-eqz v5, :goto_post
+    if-eqz v5, :cond_9
 
-    :try_start_c
+    :try_start_1
     invoke-interface {v5}, Landroid/database/Cursor;->close()V
-    :try_end_c
-    .catch Ljava/lang/Exception; {:try_start_c .. :try_end_c} :catch_c
+    :try_end_1
+    .catch Ljava/lang/Exception; {:try_start_1 .. :try_end_1} :catch_1
 
-    goto :goto_post
+    goto :goto_4
 
-    :catch_c
+    :catch_1
     move-exception v0
 
-    :goto_post
+    :cond_9
+    :goto_4
     iput-object v1, p0, Lcom/mrkeyboard/app/MrShots;->mIds:[J
 
     iput v3, p0, Lcom/mrkeyboard/app/MrShots;->mN:I
@@ -1998,20 +2041,31 @@
 
     :try_start_0
     sget-object v1, Lcom/mrkeyboard/app/MrShots;->sCache:Landroid/util/LruCache;
-    if-eqz v1, :decode_thumbnail
+
+    if-eqz v1, :cond_0
+
     iget-wide v3, p0, Lcom/mrkeyboard/app/MrShots;->mId:J
+
     invoke-static {v3, v4}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+
     move-result-object v2
+
     invoke-virtual {v1, v2}, Landroid/util/LruCache;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
     move-result-object v2
+
     check-cast v2, Landroid/graphics/Bitmap;
-    if-eqz v2, :decode_thumbnail
+
+    if-eqz v2, :cond_0
+
     move-object v0, v2
-    goto :cond_nocache
-    :decode_thumbnail
+
+    goto :goto_1
+
+    :cond_0
     sget-object v1, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;
 
-    if-eqz v1, :cond_nocache
+    if-eqz v1, :cond_2
 
     invoke-virtual {v1}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
 
@@ -2023,13 +2077,13 @@
 
     cmp-long v5, v3, v5
 
-    if-gez v5, :cond_timg
+    if-gez v5, :cond_1
 
     sget v5, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v6, 0x1d
 
-    if-ge v5, v6, :cond_timg
+    if-ge v5, v6, :cond_1
 
     neg-long v3, v3
 
@@ -2041,10 +2095,9 @@
 
     move-result-object v0
 
-    goto :cond_thave
+    goto :goto_0
 
-    :cond_timg
-
+    :cond_1
     iget-wide v3, p0, Lcom/mrkeyboard/app/MrShots;->mId:J
 
     invoke-static {v3, v4}, Lcom/mrkeyboard/app/MrShots;->uriFor(J)Landroid/net/Uri;
@@ -2055,24 +2108,23 @@
 
     move-result-object v0
 
-    :cond_thave
-
-    if-eqz v0, :cond_nocache
+    :goto_0
+    if-eqz v0, :cond_2
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrShots;->cacheThumbnail(Lcom/mrkeyboard/app/MrShots;Landroid/graphics/Bitmap;)V
-
-    :cond_nocache
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
-    goto :goto_post
+    :cond_2
+    :goto_1
+    goto :goto_2
 
     :catch_0
     move-exception v1
 
     const/4 v0, 0x0
 
-    :goto_post
+    :goto_2
     iput-object v0, p0, Lcom/mrkeyboard/app/MrShots;->mBmp:Landroid/graphics/Bitmap;
 
     const/4 v1, 0x4
@@ -2401,11 +2453,16 @@
     .locals 2
 
     iget v0, p0, Lcom/mrkeyboard/app/MrShots;->mSession:I
+
     sget v1, Lcom/mrkeyboard/app/MrShots;->sSession:I
-    if-eq v0, v1, :session_current
+
+    if-eq v0, v1, :cond_0
+
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->dropSrc()V
+
     return-void
-    :session_current
+
+    :cond_0
     iget v0, p0, Lcom/mrkeyboard/app/MrShots;->mMode:I
 
     packed-switch v0, :pswitch_data_0
@@ -2414,20 +2471,28 @@
 
     :pswitch_0
     iget v0, p0, Lcom/mrkeyboard/app/MrShots;->mGen:I
+
     sget v1, Lcom/mrkeyboard/app/MrShots;->sGen:I
-    if-eq v0, v1, :query_current
+
+    if-eq v0, v1, :cond_1
+
     return-void
-    :query_current
+
+    :cond_1
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->doLoad()V
 
     return-void
 
     :pswitch_1
     iget v0, p0, Lcom/mrkeyboard/app/MrShots;->mThumbGen:I
+
     sget v1, Lcom/mrkeyboard/app/MrShots;->sThumbGen:I
-    if-eq v0, v1, :thumb_current
+
+    if-eq v0, v1, :cond_2
+
     return-void
-    :thumb_current
+
+    :cond_2
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->doThumb()V
 
     return-void
@@ -2446,89 +2511,80 @@
     return-void
 
     :pswitch_5
-
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->doCopy()V
 
     return-void
 
     :pswitch_6
-
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->finishSend()V
 
     return-void
 
     :pswitch_7
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->prepareDirect()V
+
     return-void
 
     :pswitch_8
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->finishDirect()V
+
     return-void
 
     :pswitch_9
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->prepareUri()V
+
     return-void
 
     :pswitch_a
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->awaitTarget()V
+
     return-void
 
     :pswitch_b
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->dropSrc()V
+
     return-void
 
     :pswitch_c
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->prepBatch()V
+
     return-void
 
     :pswitch_d
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->runBatch()V
+
     return-void
 
     :pswitch_e
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->copyBatch()V
+
     return-void
 
     :pswitch_f
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->finishBatch()V
+
     return-void
 
+    nop
+
     :pswitch_data_0
-
     .packed-switch 0x0
-
-    :pswitch_0
-
-    :pswitch_1
-
-    :pswitch_2
-
-    :pswitch_3
-
-    :pswitch_4
-
-    :pswitch_5
-
-    :pswitch_6
-
-    :pswitch_7
-
-    :pswitch_8
-
-    :pswitch_9
-
-    :pswitch_a
-
-    :pswitch_b
-
-    :pswitch_c
-
-    :pswitch_d
-
-    :pswitch_e
-
-    :pswitch_f
-
+        :pswitch_0
+        :pswitch_1
+        :pswitch_2
+        :pswitch_3
+        :pswitch_4
+        :pswitch_5
+        :pswitch_6
+        :pswitch_7
+        :pswitch_8
+        :pswitch_9
+        :pswitch_a
+        :pswitch_b
+        :pswitch_c
+        :pswitch_d
+        :pswitch_e
+        :pswitch_f
     .end packed-switch
 .end method
 
@@ -2572,8 +2628,6 @@
 
 .end method
 
-
-
 .method public static setFiles()V
 
     .locals 2
@@ -2591,12 +2645,9 @@
     const/4 v0, 0x0
     invoke-static {v0}, Lcom/mrkeyboard/app/MrShots;->request(Z)V
 
-
     return-void
 
 .end method
-
-
 
 .method private static copyFile(JLjava/lang/String;I)Ljava/io/File;
 
@@ -2679,8 +2730,6 @@
 
 .end method
 
-
-
 .method private static stripRoot(Ljava/lang/String;)Ljava/lang/String;
     .locals 4
 
@@ -2692,41 +2741,42 @@
 
     move-result v1
 
-    if-eqz v1, :cond_a
+    if-eqz v1, :cond_0
 
     const/4 v0, 0x4
 
-    goto :cond_go
+    goto :goto_0
 
-    :cond_a
+    :cond_0
     const-string v1, "/storage/"
 
     invoke-virtual {p0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 
     move-result v1
 
-    if-eqz v1, :cond_b
+    if-eqz v1, :cond_1
 
     const/4 v0, 0x3
 
-    goto :cond_go
+    goto :goto_0
 
-    :cond_b
+    :cond_1
     const-string v1, "/sdcard/"
 
     invoke-virtual {p0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 
     move-result v1
 
-    if-eqz v1, :cond_go
+    if-eqz v1, :cond_2
 
     const/4 v0, 0x2
 
-    :cond_go
+    :cond_2
+    :goto_0
     const/4 v1, 0x0
 
-    :goto_loop
-    if-lez v0, :cond_done
+    :goto_1
+    if-lez v0, :cond_3
 
     const/16 v2, 0x2f
 
@@ -2734,15 +2784,15 @@
 
     move-result v2
 
-    if-ltz v2, :cond_done
+    if-ltz v2, :cond_3
 
     add-int/lit8 v1, v2, 0x1
 
     add-int/lit8 v0, v0, -0x1
 
-    goto :goto_loop
+    goto :goto_1
 
-    :cond_done
+    :cond_3
     invoke-virtual {p0, v1}, Ljava/lang/String;->substring(I)Ljava/lang/String;
 
     move-result-object v2
@@ -2755,29 +2805,30 @@
 
     sget-object v0, Lcom/mrkeyboard/app/MrShots;->sEmpty:Landroid/widget/TextView;
 
-    if-nez v0, :cond_ok
+    if-nez v0, :cond_0
 
     return-void
 
-    :cond_ok
+    :cond_0
     const v1, 0x7f0700f1
 
     sget-boolean v2, Lcom/mrkeyboard/app/MrShots;->sFiles:Z
 
-    if-eqz v2, :cond_nf
+    if-eqz v2, :cond_1
 
     const v1, 0x7f0700f0
 
-    goto :cond_set
+    goto :goto_0
 
-    :cond_nf
+    :cond_1
     sget-boolean v2, Lcom/mrkeyboard/app/MrShots;->sVid:Z
 
-    if-eqz v2, :cond_set
+    if-eqz v2, :cond_2
 
     const v1, 0x7f0700ef
 
-    :cond_set
+    :cond_2
+    :goto_0
     const/4 v2, 0x0
 
     invoke-virtual {v0, v2, v1, v2, v2}, Landroid/widget/TextView;->setCompoundDrawablesWithIntrinsicBounds(IIII)V
@@ -3349,21 +3400,21 @@
 
     const/16 v11, 0x1d
 
-    if-lt v10, v11, :cond_legacy
+    if-lt v10, v11, :cond_0
 
     const-string v11, "relative_path"
 
-    goto :cond_putpath
+    goto :goto_0
 
-    :cond_legacy
+    :cond_0
     const-string v11, "_data"
 
-    :cond_putpath
+    :goto_0
     const/4 v10, 0x4
 
     aput-object v11, v9, v10
 
-    const-string v10, "media_type NOT IN (1,3) AND _size>0 AND mime_type IS NOT NULL AND _display_name LIKE '%.%' AND _display_name NOT LIKE '.%'"
+    const-string v10, "media_type NOT IN (1,3) AND _size>0 AND mime_type IS NOT NULL AND _display_name LIKE \'%.%\' AND _display_name NOT LIKE \'.%\'"
 
     const/4 v11, 0x0
 
@@ -3373,16 +3424,16 @@
 
     move-result-object v6
 
-    if-eqz v6, :cond_noc
+    if-eqz v6, :cond_2
 
-    :cond_loop
-    if-ge v5, v0, :cond_done
+    :goto_1
+    if-ge v5, v0, :cond_1
 
     invoke-interface {v6}, Landroid/database/Cursor;->moveToNext()Z
 
     move-result v7
 
-    if-eqz v7, :cond_done
+    if-eqz v7, :cond_1
 
     const/4 v7, 0x0
 
@@ -3416,37 +3467,39 @@
 
     add-int/lit8 v5, v5, 0x1
 
-    goto :cond_loop
+    goto :goto_1
 
-    :cond_done
+    :cond_1
     invoke-interface {v6}, Landroid/database/Cursor;->close()V
-
-    :cond_noc
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
-    goto :goto_post
+    :cond_2
+    goto :goto_2
 
     :catch_0
     move-exception v7
+
     const/4 v7, 0x1
+
     iput-boolean v7, p0, Lcom/mrkeyboard/app/MrShots;->mFailed:Z
 
     const/4 v5, 0x0
 
-    if-eqz v6, :goto_post
+    if-eqz v6, :cond_3
 
-    :try_start_c
+    :try_start_1
     invoke-interface {v6}, Landroid/database/Cursor;->close()V
-    :try_end_c
-    .catch Ljava/lang/Exception; {:try_start_c .. :try_end_c} :catch_c
+    :try_end_1
+    .catch Ljava/lang/Exception; {:try_start_1 .. :try_end_1} :catch_1
 
-    goto :goto_post
+    goto :goto_2
 
-    :catch_c
+    :catch_1
     move-exception v7
 
-    :goto_post
+    :cond_3
+    :goto_2
     const/16 v0, 0x3c
 
     new-array v7, v0, [J
@@ -3459,19 +3512,19 @@
 
     const/16 v11, 0x1e
 
-    :goto_pass
-    if-ltz v11, :cond_passdone
+    :goto_3
+    if-ltz v11, :cond_6
 
     const/4 v12, 0x0
 
-    :goto_scan
-    if-ge v12, v5, :cond_scandone
+    :goto_4
+    if-ge v12, v5, :cond_5
 
-    if-ge v10, v0, :cond_scandone
+    if-ge v10, v0, :cond_5
 
     aget v13, v4, v12
 
-    if-ne v13, v11, :cond_next
+    if-ne v13, v11, :cond_4
 
     aget-wide v13, v1, v12
 
@@ -3487,17 +3540,17 @@
 
     add-int/lit8 v10, v10, 0x1
 
-    :cond_next
+    :cond_4
     add-int/lit8 v12, v12, 0x1
 
-    goto :goto_scan
+    goto :goto_4
 
-    :cond_scandone
+    :cond_5
     add-int/lit8 v11, v11, -0x1
 
-    goto :goto_pass
+    goto :goto_3
 
-    :cond_passdone
+    :cond_6
     iput-object v7, p0, Lcom/mrkeyboard/app/MrShots;->mIds:[J
 
     iput-object v8, p0, Lcom/mrkeyboard/app/MrShots;->mNames:[Ljava/lang/String;
@@ -3517,24 +3570,20 @@
     return-void
 .end method
 
-
-
 .method private getFileView(ILandroid/view/View;Landroid/view/ViewGroup;)Landroid/view/View;
-
     .locals 6
 
     instance-of v0, p2, Landroid/widget/TextView;
 
-    if-eqz v0, :cond_new
+    if-eqz v0, :cond_0
 
     check-cast p2, Landroid/widget/TextView;
 
     move-object v0, p2
 
-    goto :goto_bind
+    goto :goto_0
 
-    :cond_new
-
+    :cond_0
     new-instance v0, Landroid/widget/TextView;
 
     invoke-virtual {p3}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -3549,7 +3598,7 @@
 
     const/4 v1, 0x2
 
-    const/high16 v2, 0x41300000
+    const/high16 v2, 0x41300000    # 11.0f
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/TextView;->setTextSize(IF)V
 
@@ -3597,25 +3646,24 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->tintColor(Landroid/widget/TextView;I)V
 
-    :goto_bind
+    :goto_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrShots;->mIds:[J
 
     aget-wide v2, v1, p1
 
     invoke-static {v0, v2, v3}, Lcom/mrkeyboard/app/MrShots;->paint(Landroid/view/View;J)V
 
-
     iget-object v1, p0, Lcom/mrkeyboard/app/MrShots;->mNames:[Ljava/lang/String;
 
-    if-eqz v1, :cond_ret
+    if-eqz v1, :cond_2
 
     array-length v2, v1
 
-    if-ge p1, v2, :cond_ret
+    if-ge p1, v2, :cond_2
 
     aget-object v1, v1, p1
 
-    if-eqz v1, :cond_ret
+    if-eqz v1, :cond_2
 
     const/16 v2, 0x2e
 
@@ -3623,14 +3671,13 @@
 
     move-result v2
 
-    if-gtz v2, :cond_ext
+    if-gtz v2, :cond_1
 
     move-object v3, v1
 
-    goto :goto_set
+    goto :goto_1
 
-    :cond_ext
-
+    :cond_1
     add-int/lit8 v3, v2, 0x1
 
     invoke-virtual {v1, v3}, Ljava/lang/String;->substring(I)Ljava/lang/String;
@@ -3663,14 +3710,11 @@
 
     move-result-object v3
 
-    :goto_set
-
+    :goto_1
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    :cond_ret
-
+    :cond_2
     return-object v0
-
 .end method
 
 .method private static submit(Lcom/mrkeyboard/app/MrShots;)V
@@ -3878,22 +3922,23 @@
 
     sget-boolean v0, Lcom/mrkeyboard/app/MrShots;->sSelOn:Z
 
-    if-eqz v0, :prune_end
+    if-eqz v0, :cond_4
 
     sget-object v0, Lcom/mrkeyboard/app/MrShots;->sSel:Ljava/util/HashSet;
 
-    if-eqz v0, :prune_clear
+    if-eqz v0, :cond_2
 
     invoke-virtual {v0}, Ljava/util/HashSet;->iterator()Ljava/util/Iterator;
 
     move-result-object v1
 
-    :prune_loop
+    :cond_0
+    :goto_0
     invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v2
 
-    if-eqz v2, :prune_after
+    if-eqz v2, :cond_1
 
     invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -3909,28 +3954,29 @@
 
     move-result v4
 
-    if-nez v4, :prune_loop
+    if-nez v4, :cond_0
 
     invoke-interface {v1}, Ljava/util/Iterator;->remove()V
 
-    goto :prune_loop
+    goto :goto_0
 
-    :prune_after
+    :cond_1
     invoke-virtual {v0}, Ljava/util/HashSet;->isEmpty()Z
 
     move-result v2
 
-    if-eqz v2, :prune_upd
+    if-eqz v2, :cond_3
 
-    :prune_clear
+    :cond_2
     invoke-static {}, Lcom/mrkeyboard/app/MrShots;->clearSel()V
 
-    goto :prune_end
+    goto :goto_1
 
-    :prune_upd
+    :cond_3
     invoke-static {}, Lcom/mrkeyboard/app/MrShots;->updateSel()V
 
-    :prune_end
+    :cond_4
+    :goto_1
     return-void
 .end method
 
@@ -4586,7 +4632,7 @@
 
     const/4 v3, 0x0
 
-    :try_start
+    :try_start_0
     invoke-static {}, Lcom/mrkeyboard/app/MrCopyRetention;->sweep()V
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrShots;->mSrc:Landroid/net/Uri;
@@ -4603,7 +4649,7 @@
 
     move-result-object v3
 
-    if-eqz v3, :unreadable
+    if-eqz v3, :cond_2
 
     invoke-virtual {v3}, Landroid/content/res/AssetFileDescriptor;->close()V
 
@@ -4613,40 +4659,39 @@
 
     move-result-object v2
 
-    if-nez v2, :mime_ready
+    if-nez v2, :cond_0
 
     const-string v2, "application/octet-stream"
 
-    :mime_ready
+    :cond_0
     iput-object v2, p0, Lcom/mrkeyboard/app/MrShots;->mMime:Ljava/lang/String;
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrShots;->mOriginal:Landroid/net/Uri;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrShots;->mName:Ljava/lang/String;
 
-    if-nez v2, :name_ready
+    if-nez v2, :cond_1
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrShots;->uriName(Landroid/net/Uri;)Ljava/lang/String;
 
     move-result-object v2
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrShots;->mName:Ljava/lang/String;
+    :try_end_0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    :name_ready
-    :try_end
-    .catch Ljava/lang/Exception; {:try_start .. :try_end} :failed
-    .catchall {:try_start .. :try_end} :fatal
+    :cond_1
+    goto :goto_0
 
-    goto :post
-
-    :unreadable
+    :cond_2
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrShots;->mOriginal:Landroid/net/Uri;
 
-    goto :post
+    goto :goto_0
 
-    :failed
+    :catch_0
     move-exception v0
 
     invoke-static {v3}, Lcom/mrkeyboard/app/MrShots;->closeQuietly(Ljava/io/Closeable;)V
@@ -4655,16 +4700,16 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrShots;->mOriginal:Landroid/net/Uri;
 
-    goto :post
+    goto :goto_0
 
-    :fatal
+    :catchall_0
     move-exception v0
 
     invoke-static {v3}, Lcom/mrkeyboard/app/MrShots;->closeQuietly(Ljava/io/Closeable;)V
 
     throw v0
 
-    :post
+    :goto_0
     const/16 v0, 0xa
 
     iput v0, p0, Lcom/mrkeyboard/app/MrShots;->mMode:I
@@ -4900,7 +4945,6 @@
  throw v2
 .end method
 
-
 .method public static reload()V
  .locals 1
  invoke-static {}, Lcom/mrkeyboard/app/MrShots;->clearSel()V
@@ -4943,146 +4987,263 @@
 .end method
 
 .method private static showCached()Z
- .locals 8
- invoke-static {}, Lcom/mrkeyboard/app/MrShots;->category()I
- move-result v0
- sget-object v1, Lcom/mrkeyboard/app/MrShots;->sAdp:Lcom/mrkeyboard/app/MrShots;
- sget-object v2, Lcom/mrkeyboard/app/MrShots;->sLists:[Lcom/mrkeyboard/app/MrShots;
- const/4 v3, 0x0
- if-eqz v2, :no_snapshot
- aget-object v3, v2, v0
- :no_snapshot
- iget v4, v1, Lcom/mrkeyboard/app/MrShots;->mCategory:I
- if-eq v4, v0, :check_fresh
- # Save old category scroll before binding the new category's data.
- if-eqz v2, :switch
- aget-object v5, v2, v4
- if-eqz v5, :switch
- sget-object v6, Lcom/mrkeyboard/app/MrShots;->sGrid:Landroid/widget/GridView;
- invoke-virtual {v6}, Landroid/widget/AdapterView;->getFirstVisiblePosition()I
- move-result v6
- iput v6, v5, Lcom/mrkeyboard/app/MrShots;->mScroll:I
- :switch
- iput v0, v1, Lcom/mrkeyboard/app/MrShots;->mCategory:I
- sget v4, Lcom/mrkeyboard/app/MrShots;->sThumbGen:I
- add-int/lit8 v4, v4, 0x1
- sput v4, Lcom/mrkeyboard/app/MrShots;->sThumbGen:I
- # Pending thumbnails from the previous tab must not delay this tab.
- sget-object v4, Lcom/mrkeyboard/app/MrShots;->sThumbExec:Ljava/util/concurrent/ExecutorService;
- check-cast v4, Ljava/util/concurrent/ThreadPoolExecutor;
- if-eqz v4, :bind
- invoke-virtual {v4}, Ljava/util/concurrent/ThreadPoolExecutor;->getQueue()Ljava/util/concurrent/BlockingQueue;
- move-result-object v4
- invoke-interface {v4}, Ljava/util/Collection;->clear()V
- :bind
- const/4 v4, 0x0
- iput v4, v1, Lcom/mrkeyboard/app/MrShots;->mN:I
- iput-object v4, v1, Lcom/mrkeyboard/app/MrShots;->mIds:[J
- iput-object v4, v1, Lcom/mrkeyboard/app/MrShots;->mNames:[Ljava/lang/String;
- iput-object v4, v1, Lcom/mrkeyboard/app/MrShots;->mMimes:[Ljava/lang/String;
- if-eqz v3, :notify
- iget v4, v3, Lcom/mrkeyboard/app/MrShots;->mN:I
- iput v4, v1, Lcom/mrkeyboard/app/MrShots;->mN:I
- iget-object v4, v3, Lcom/mrkeyboard/app/MrShots;->mIds:[J
- iput-object v4, v1, Lcom/mrkeyboard/app/MrShots;->mIds:[J
- iget-object v4, v3, Lcom/mrkeyboard/app/MrShots;->mNames:[Ljava/lang/String;
- iput-object v4, v1, Lcom/mrkeyboard/app/MrShots;->mNames:[Ljava/lang/String;
- iget-object v4, v3, Lcom/mrkeyboard/app/MrShots;->mMimes:[Ljava/lang/String;
- iput-object v4, v1, Lcom/mrkeyboard/app/MrShots;->mMimes:[Ljava/lang/String;
- :notify
- invoke-virtual {v1}, Landroid/widget/BaseAdapter;->notifyDataSetChanged()V
- sget-object v1, Lcom/mrkeyboard/app/MrShots;->sGrid:Landroid/widget/GridView;
- const/4 v4, 0x0
- if-eqz v3, :select
- iget v4, v3, Lcom/mrkeyboard/app/MrShots;->mScroll:I
- :select
- invoke-virtual {v1, v4}, Landroid/widget/GridView;->setSelection(I)V
- :check_fresh
- if-eqz v3, :stale
- iget v0, v3, Lcom/mrkeyboard/app/MrShots;->mN:I
- if-nez v0, :cache_age
- const/4 v0, 0x0
- sput-boolean v0, Lcom/mrkeyboard/app/MrShots;->sMore:Z
- const v0, 0x7f0c01cb
- sget-boolean v1, Lcom/mrkeyboard/app/MrShots;->sFiles:Z
- if-eqz v1, :cache_empty_video
- const v0, 0x7f0c01cf
- goto :cache_empty_text
- :cache_empty_video
- sget-boolean v1, Lcom/mrkeyboard/app/MrShots;->sVid:Z
- if-eqz v1, :cache_empty_text
- const v0, 0x7f0c01ce
- :cache_empty_text
- invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->str(I)Ljava/lang/String;
- move-result-object v0
- sget-object v1, Lcom/mrkeyboard/app/MrShots;->sEmpty:Landroid/widget/TextView;
- invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
- :cache_age
- invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
- move-result-wide v4
- iget-wide v6, v3, Lcom/mrkeyboard/app/MrShots;->mCachedAt:J
- sub-long/2addr v4, v6
- const-wide/16 v6, 0x3a98
- cmp-long v0, v4, v6
- if-gez v0, :stale
- const/4 v0, 0x1
- return v0
- :stale
- const/4 v0, 0x0
- return v0
+    .locals 8
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrShots;->category()I
+
+    move-result v0
+
+    sget-object v1, Lcom/mrkeyboard/app/MrShots;->sAdp:Lcom/mrkeyboard/app/MrShots;
+
+    sget-object v2, Lcom/mrkeyboard/app/MrShots;->sLists:[Lcom/mrkeyboard/app/MrShots;
+
+    const/4 v3, 0x0
+
+    if-eqz v2, :cond_0
+
+    aget-object v3, v2, v0
+
+    :cond_0
+    iget v4, v1, Lcom/mrkeyboard/app/MrShots;->mCategory:I
+
+    if-eq v4, v0, :cond_5
+
+    if-eqz v2, :cond_1
+
+    aget-object v5, v2, v4
+
+    if-eqz v5, :cond_1
+
+    sget-object v6, Lcom/mrkeyboard/app/MrShots;->sGrid:Landroid/widget/GridView;
+
+    invoke-virtual {v6}, Landroid/widget/AdapterView;->getFirstVisiblePosition()I
+
+    move-result v6
+
+    iput v6, v5, Lcom/mrkeyboard/app/MrShots;->mScroll:I
+
+    :cond_1
+    iput v0, v1, Lcom/mrkeyboard/app/MrShots;->mCategory:I
+
+    sget v4, Lcom/mrkeyboard/app/MrShots;->sThumbGen:I
+
+    add-int/lit8 v4, v4, 0x1
+
+    sput v4, Lcom/mrkeyboard/app/MrShots;->sThumbGen:I
+
+    sget-object v4, Lcom/mrkeyboard/app/MrShots;->sThumbExec:Ljava/util/concurrent/ExecutorService;
+
+    check-cast v4, Ljava/util/concurrent/ThreadPoolExecutor;
+
+    if-eqz v4, :cond_2
+
+    invoke-virtual {v4}, Ljava/util/concurrent/ThreadPoolExecutor;->getQueue()Ljava/util/concurrent/BlockingQueue;
+
+    move-result-object v4
+
+    invoke-interface {v4}, Ljava/util/Collection;->clear()V
+
+    :cond_2
+    const/4 v4, 0x0
+
+    iput v4, v1, Lcom/mrkeyboard/app/MrShots;->mN:I
+
+    iput-object v4, v1, Lcom/mrkeyboard/app/MrShots;->mIds:[J
+
+    iput-object v4, v1, Lcom/mrkeyboard/app/MrShots;->mNames:[Ljava/lang/String;
+
+    iput-object v4, v1, Lcom/mrkeyboard/app/MrShots;->mMimes:[Ljava/lang/String;
+
+    if-eqz v3, :cond_3
+
+    iget v4, v3, Lcom/mrkeyboard/app/MrShots;->mN:I
+
+    iput v4, v1, Lcom/mrkeyboard/app/MrShots;->mN:I
+
+    iget-object v4, v3, Lcom/mrkeyboard/app/MrShots;->mIds:[J
+
+    iput-object v4, v1, Lcom/mrkeyboard/app/MrShots;->mIds:[J
+
+    iget-object v4, v3, Lcom/mrkeyboard/app/MrShots;->mNames:[Ljava/lang/String;
+
+    iput-object v4, v1, Lcom/mrkeyboard/app/MrShots;->mNames:[Ljava/lang/String;
+
+    iget-object v4, v3, Lcom/mrkeyboard/app/MrShots;->mMimes:[Ljava/lang/String;
+
+    iput-object v4, v1, Lcom/mrkeyboard/app/MrShots;->mMimes:[Ljava/lang/String;
+
+    :cond_3
+    invoke-virtual {v1}, Landroid/widget/BaseAdapter;->notifyDataSetChanged()V
+
+    sget-object v1, Lcom/mrkeyboard/app/MrShots;->sGrid:Landroid/widget/GridView;
+
+    const/4 v4, 0x0
+
+    if-eqz v3, :cond_4
+
+    iget v4, v3, Lcom/mrkeyboard/app/MrShots;->mScroll:I
+
+    :cond_4
+    invoke-virtual {v1, v4}, Landroid/widget/GridView;->setSelection(I)V
+
+    :cond_5
+    if-eqz v3, :cond_9
+
+    iget v0, v3, Lcom/mrkeyboard/app/MrShots;->mN:I
+
+    if-nez v0, :cond_8
+
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lcom/mrkeyboard/app/MrShots;->sMore:Z
+
+    const v0, 0x7f0c01cb
+
+    sget-boolean v1, Lcom/mrkeyboard/app/MrShots;->sFiles:Z
+
+    if-eqz v1, :cond_6
+
+    const v0, 0x7f0c01cf
+
+    goto :goto_0
+
+    :cond_6
+    sget-boolean v1, Lcom/mrkeyboard/app/MrShots;->sVid:Z
+
+    if-eqz v1, :cond_7
+
+    const v0, 0x7f0c01ce
+
+    :cond_7
+    :goto_0
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->str(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    sget-object v1, Lcom/mrkeyboard/app/MrShots;->sEmpty:Landroid/widget/TextView;
+
+    invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    :cond_8
+    invoke-static {}, Landroid/os/SystemClock;->elapsedRealtime()J
+
+    move-result-wide v4
+
+    iget-wide v6, v3, Lcom/mrkeyboard/app/MrShots;->mCachedAt:J
+
+    sub-long/2addr v4, v6
+
+    const-wide/16 v6, 0x3a98
+
+    cmp-long v0, v4, v6
+
+    if-gez v0, :cond_9
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_9
+    const/4 v0, 0x0
+
+    return v0
 .end method
 
 # Called only on the UI thread; never read View state from a decoding worker.
 .method static pruneThumbs(Landroid/graphics/Rect;)V
- .locals 8
- sget-object v0, Lcom/mrkeyboard/app/MrShots;->sThumbExec:Ljava/util/concurrent/ExecutorService;
- if-eqz v0, :done
- check-cast v0, Ljava/util/concurrent/ThreadPoolExecutor;
- invoke-virtual {v0}, Ljava/util/concurrent/ThreadPoolExecutor;->getQueue()Ljava/util/concurrent/BlockingQueue;
- move-result-object v0
- invoke-interface {v0}, Ljava/util/Collection;->isEmpty()Z
- move-result v1
- if-nez v1, :done
- invoke-interface {v0}, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
- move-result-object v1
- :next
- invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
- move-result v2
- if-eqz v2, :done
- invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
- move-result-object v2
- check-cast v2, Lcom/mrkeyboard/app/MrShots;
- iget v3, v2, Lcom/mrkeyboard/app/MrShots;->mThumbGen:I
- sget v4, Lcom/mrkeyboard/app/MrShots;->sThumbGen:I
- if-ne v3, v4, :remove
- iget-object v3, v2, Lcom/mrkeyboard/app/MrShots;->mView:Ljava/lang/ref/WeakReference;
- if-eqz v3, :remove
- invoke-virtual {v3}, Ljava/lang/ref/Reference;->get()Ljava/lang/Object;
- move-result-object v3
- check-cast v3, Landroid/widget/ImageView;
- if-eqz v3, :remove
- invoke-virtual {v3}, Landroid/view/View;->getTag()Ljava/lang/Object;
- move-result-object v4
- instance-of v5, v4, Ljava/lang/Long;
- if-eqz v5, :remove
- check-cast v4, Ljava/lang/Long;
- invoke-virtual {v4}, Ljava/lang/Long;->longValue()J
- move-result-wide v4
- iget-wide v6, v2, Lcom/mrkeyboard/app/MrShots;->mId:J
- cmp-long v4, v4, v6
- if-nez v4, :remove
- # Initial layout may enqueue before attachment: do not prune those jobs.
- invoke-virtual {v3}, Landroid/view/View;->isAttachedToWindow()Z
- move-result v4
- if-eqz v4, :next
- invoke-virtual {v3, p0}, Landroid/view/View;->getLocalVisibleRect(Landroid/graphics/Rect;)Z
- move-result v4
- if-nez v4, :next
- :remove
- invoke-interface {v0, v2}, Ljava/util/Collection;->remove(Ljava/lang/Object;)Z
- goto :next
- :done
- return-void
+    .locals 8
+
+    sget-object v0, Lcom/mrkeyboard/app/MrShots;->sThumbExec:Ljava/util/concurrent/ExecutorService;
+
+    if-eqz v0, :cond_2
+
+    check-cast v0, Ljava/util/concurrent/ThreadPoolExecutor;
+
+    invoke-virtual {v0}, Ljava/util/concurrent/ThreadPoolExecutor;->getQueue()Ljava/util/concurrent/BlockingQueue;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Ljava/util/Collection;->isEmpty()Z
+
+    move-result v1
+
+    if-nez v1, :cond_2
+
+    invoke-interface {v0}, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
+
+    move-result-object v1
+
+    :cond_0
+    :goto_0
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_2
+
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v2
+
+    check-cast v2, Lcom/mrkeyboard/app/MrShots;
+
+    iget v3, v2, Lcom/mrkeyboard/app/MrShots;->mThumbGen:I
+
+    sget v4, Lcom/mrkeyboard/app/MrShots;->sThumbGen:I
+
+    if-ne v3, v4, :cond_1
+
+    iget-object v3, v2, Lcom/mrkeyboard/app/MrShots;->mView:Ljava/lang/ref/WeakReference;
+
+    if-eqz v3, :cond_1
+
+    invoke-virtual {v3}, Ljava/lang/ref/Reference;->get()Ljava/lang/Object;
+
+    move-result-object v3
+
+    check-cast v3, Landroid/widget/ImageView;
+
+    if-eqz v3, :cond_1
+
+    invoke-virtual {v3}, Landroid/view/View;->getTag()Ljava/lang/Object;
+
+    move-result-object v4
+
+    instance-of v5, v4, Ljava/lang/Long;
+
+    if-eqz v5, :cond_1
+
+    check-cast v4, Ljava/lang/Long;
+
+    invoke-virtual {v4}, Ljava/lang/Long;->longValue()J
+
+    move-result-wide v4
+
+    iget-wide v6, v2, Lcom/mrkeyboard/app/MrShots;->mId:J
+
+    cmp-long v4, v4, v6
+
+    if-nez v4, :cond_1
+
+    invoke-virtual {v3}, Landroid/view/View;->isAttachedToWindow()Z
+
+    move-result v4
+
+    if-eqz v4, :cond_0
+
+    invoke-virtual {v3, p0}, Landroid/view/View;->getLocalVisibleRect(Landroid/graphics/Rect;)Z
+
+    move-result v4
+
+    if-nez v4, :cond_0
+
+    :cond_1
+    invoke-interface {v0, v2}, Ljava/util/Collection;->remove(Ljava/lang/Object;)Z
+
+    goto :goto_0
+
+    :cond_2
+    return-void
 .end method
 
 .method private captureTarget()V
@@ -5308,128 +5469,210 @@
  throw v5
 .end method
 
-.method private static stopPool(Ljava/util/concurrent/ExecutorService;)V
- .locals 0
- if-eqz p0, :done
- invoke-interface {p0}, Ljava/util/concurrent/ExecutorService;->shutdownNow()Ljava/util/List;
- :done
- return-void
-.end method
-
 .method public static declared-synchronized clearCaches()V
- .locals 10
- const-class v8, Lcom/mrkeyboard/app/MrShots;
- monitor-enter v8
- :sync_try_start
- invoke-static {}, Lcom/mrkeyboard/app/MrCacheClear;->begin()Z
- move-result v0
- if-eqz v0, :done
- invoke-static {}, Lcom/mrkeyboard/app/MrShots;->clearSel()V
- new-instance v0, Lcom/mrkeyboard/app/MrCacheClear;
- invoke-direct {v0}, Lcom/mrkeyboard/app/MrCacheClear;-><init>()V
- sget-object v1, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;
- iput-object v1, v0, Lcom/mrkeyboard/app/MrCacheClear;->app:Landroid/content/Context;
- sget v1, Lcom/mrkeyboard/app/MrShots;->sSession:I
- add-int/lit8 v1, v1, 0x1
- sput v1, Lcom/mrkeyboard/app/MrShots;->sSession:I
- sget-object v2, Lcom/mrkeyboard/app/MrShots;->sAdp:Lcom/mrkeyboard/app/MrShots;
- if-eqz v2, :no_adapter
- iput v1, v2, Lcom/mrkeyboard/app/MrShots;->mSession:I
- :no_adapter
- sget v1, Lcom/mrkeyboard/app/MrShots;->sGen:I
- add-int/lit8 v1, v1, 0x1
- sput v1, Lcom/mrkeyboard/app/MrShots;->sGen:I
- sget v1, Lcom/mrkeyboard/app/MrShots;->sThumbGen:I
- add-int/lit8 v1, v1, 0x1
- sput v1, Lcom/mrkeyboard/app/MrShots;->sThumbGen:I
- # Capture pools for background quiescence; cancel without replacing them.
- const/4 v3, 0x3
- new-array v3, v3, [Ljava/util/concurrent/ExecutorService;
- sget-object v1, Lcom/mrkeyboard/app/MrShots;->sExec:Ljava/util/concurrent/ExecutorService;
- const/4 v4, 0x0
- aput-object v1, v3, v4
- invoke-static {v1}, Lcom/mrkeyboard/app/MrCacheJobs;->cancel(Ljava/util/concurrent/ExecutorService;)V
- sget-object v1, Lcom/mrkeyboard/app/MrShots;->sQueryExec:Ljava/util/concurrent/ExecutorService;
- const/4 v4, 0x1
- aput-object v1, v3, v4
- invoke-static {v1}, Lcom/mrkeyboard/app/MrCacheJobs;->cancel(Ljava/util/concurrent/ExecutorService;)V
- sget-object v1, Lcom/mrkeyboard/app/MrShots;->sThumbExec:Ljava/util/concurrent/ExecutorService;
- const/4 v4, 0x2
- aput-object v1, v3, v4
- invoke-static {v1}, Lcom/mrkeyboard/app/MrCacheJobs;->cancel(Ljava/util/concurrent/ExecutorService;)V
- iput-object v3, v0, Lcom/mrkeyboard/app/MrCacheClear;->oldPools:[Ljava/util/concurrent/ExecutorService;
- const/4 v1, 0x0
- sput-object v1, Lcom/mrkeyboard/app/MrShots;->sClearSummary:Ljava/lang/String;
- # Read counts before eviction; size() is bytes for MrThumbnailCache.
- sget-object v1, Lcom/mrkeyboard/app/MrShots;->sCache:Landroid/util/LruCache;
- if-eqz v1, :no_thumbs
- invoke-virtual {v1}, Landroid/util/LruCache;->size()I
- move-result v3
- int-to-long v3, v3
- iput-wide v3, v0, Lcom/mrkeyboard/app/MrCacheClear;->thumbBytes:J
- invoke-virtual {v1}, Landroid/util/LruCache;->snapshot()Ljava/util/Map;
- move-result-object v3
- invoke-interface {v3}, Ljava/util/Map;->size()I
- move-result v3
- iput v3, v0, Lcom/mrkeyboard/app/MrCacheClear;->thumbs:I
- invoke-virtual {v1}, Landroid/util/LruCache;->evictAll()V
- :no_thumbs
- sget-object v1, Lcom/mrkeyboard/app/MrShots;->sLists:[Lcom/mrkeyboard/app/MrShots;
- const/4 v3, 0x0
- const/4 v4, 0x0
- if-eqz v1, :counted_lists
- :list_loop
- array-length v5, v1
- if-ge v3, v5, :counted_lists
- aget-object v5, v1, v3
- if-eqz v5, :next_list
- add-int/lit8 v4, v4, 0x1
- :next_list
- add-int/lit8 v3, v3, 0x1
- goto :list_loop
- :counted_lists
- iput v4, v0, Lcom/mrkeyboard/app/MrCacheClear;->lists:I
- const/4 v1, 0x0
- sput-object v1, Lcom/mrkeyboard/app/MrShots;->sLists:[Lcom/mrkeyboard/app/MrShots;
- sput-boolean v1, Lcom/mrkeyboard/app/MrShots;->sQueryPending:Z
- sput-boolean v1, Lcom/mrkeyboard/app/MrShots;->sMore:Z
- const/4 v3, 0x1
- sput-boolean v3, Lcom/mrkeyboard/app/MrShots;->sBusy:Z
- if-eqz v2, :empty_adapter
- iput v1, v2, Lcom/mrkeyboard/app/MrShots;->mN:I
- iput-object v1, v2, Lcom/mrkeyboard/app/MrShots;->mIds:[J
- iput-object v1, v2, Lcom/mrkeyboard/app/MrShots;->mNames:[Ljava/lang/String;
- iput-object v1, v2, Lcom/mrkeyboard/app/MrShots;->mMimes:[Ljava/lang/String;
- invoke-virtual {v2}, Landroid/widget/BaseAdapter;->notifyDataSetChanged()V
- sget-object v3, Lcom/mrkeyboard/app/MrShots;->sGrid:Landroid/widget/GridView;
- if-eqz v3, :empty_adapter
- # Setting the adapter again discards the grid's recycled thumbnail Views too.
- invoke-virtual {v3, v2}, Landroid/widget/GridView;->setAdapter(Landroid/widget/ListAdapter;)V
- :empty_adapter
- const-string v2, ""
- invoke-static {v2}, Lcom/mrkeyboard/app/MrShots;->showText(Ljava/lang/String;)V
- new-instance v2, Lcom/mrkeyboard/app/MrClearWait;
- invoke-direct {v2}, Lcom/mrkeyboard/app/MrClearWait;-><init>()V
- sget-object v3, Lcom/mrkeyboard/app/MrTools;->sHandler:Landroid/os/Handler;
- const-wide/16 v4, 0x15e
- invoke-virtual {v3, v2, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
- :empty_label
- # Keep the emptied LRU and existing pools; cleanup has its own app-scoped executor.
- invoke-static {v0}, Lcom/mrkeyboard/app/MrCacheJobs;->execute(Ljava/lang/Runnable;)Z
- move-result v1
- if-nez v1, :done
- invoke-virtual {v0}, Lcom/mrkeyboard/app/MrCacheClear;->rejected()V
- :done
- goto :sync_return_0
- :sync_try_end
- .catchall {:sync_try_start .. :sync_try_end} :sync_catchall
- :sync_return_0
- monitor-exit v8
- return-void
- :sync_catchall
- move-exception v9
- monitor-exit v8
- throw v9
+    .locals 10
+
+    const-class v8, Lcom/mrkeyboard/app/MrShots;
+
+    monitor-enter v8
+
+    :try_start_0
+    invoke-static {}, Lcom/mrkeyboard/app/MrCacheClear;->begin()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_5
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrShots;->clearSel()V
+
+    new-instance v0, Lcom/mrkeyboard/app/MrCacheClear;
+
+    invoke-direct {v0}, Lcom/mrkeyboard/app/MrCacheClear;-><init>()V
+
+    sget-object v1, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;
+
+    iput-object v1, v0, Lcom/mrkeyboard/app/MrCacheClear;->app:Landroid/content/Context;
+
+    sget v1, Lcom/mrkeyboard/app/MrShots;->sSession:I
+
+    add-int/lit8 v1, v1, 0x1
+
+    sput v1, Lcom/mrkeyboard/app/MrShots;->sSession:I
+
+    sget-object v2, Lcom/mrkeyboard/app/MrShots;->sAdp:Lcom/mrkeyboard/app/MrShots;
+
+    if-eqz v2, :cond_0
+
+    iput v1, v2, Lcom/mrkeyboard/app/MrShots;->mSession:I
+
+    :cond_0
+    sget v1, Lcom/mrkeyboard/app/MrShots;->sGen:I
+
+    add-int/lit8 v1, v1, 0x1
+
+    sput v1, Lcom/mrkeyboard/app/MrShots;->sGen:I
+
+    sget v1, Lcom/mrkeyboard/app/MrShots;->sThumbGen:I
+
+    add-int/lit8 v1, v1, 0x1
+
+    sput v1, Lcom/mrkeyboard/app/MrShots;->sThumbGen:I
+
+    const/4 v3, 0x3
+
+    new-array v3, v3, [Ljava/util/concurrent/ExecutorService;
+
+    sget-object v1, Lcom/mrkeyboard/app/MrShots;->sExec:Ljava/util/concurrent/ExecutorService;
+
+    const/4 v4, 0x0
+
+    aput-object v1, v3, v4
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrCacheJobs;->cancel(Ljava/util/concurrent/ExecutorService;)V
+
+    sget-object v1, Lcom/mrkeyboard/app/MrShots;->sQueryExec:Ljava/util/concurrent/ExecutorService;
+
+    const/4 v4, 0x1
+
+    aput-object v1, v3, v4
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrCacheJobs;->cancel(Ljava/util/concurrent/ExecutorService;)V
+
+    sget-object v1, Lcom/mrkeyboard/app/MrShots;->sThumbExec:Ljava/util/concurrent/ExecutorService;
+
+    const/4 v4, 0x2
+
+    aput-object v1, v3, v4
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrCacheJobs;->cancel(Ljava/util/concurrent/ExecutorService;)V
+
+    iput-object v3, v0, Lcom/mrkeyboard/app/MrCacheClear;->oldPools:[Ljava/util/concurrent/ExecutorService;
+
+    const/4 v1, 0x0
+
+    sput-object v1, Lcom/mrkeyboard/app/MrShots;->sClearSummary:Ljava/lang/String;
+
+    sget-object v1, Lcom/mrkeyboard/app/MrShots;->sCache:Landroid/util/LruCache;
+
+    if-eqz v1, :cond_1
+
+    invoke-virtual {v1}, Landroid/util/LruCache;->size()I
+
+    move-result v3
+
+    int-to-long v3, v3
+
+    iput-wide v3, v0, Lcom/mrkeyboard/app/MrCacheClear;->thumbBytes:J
+
+    invoke-virtual {v1}, Landroid/util/LruCache;->snapshot()Ljava/util/Map;
+
+    move-result-object v3
+
+    invoke-interface {v3}, Ljava/util/Map;->size()I
+
+    move-result v3
+
+    iput v3, v0, Lcom/mrkeyboard/app/MrCacheClear;->thumbs:I
+
+    invoke-virtual {v1}, Landroid/util/LruCache;->evictAll()V
+
+    :cond_1
+    sget-object v1, Lcom/mrkeyboard/app/MrShots;->sLists:[Lcom/mrkeyboard/app/MrShots;
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x0
+
+    if-eqz v1, :cond_3
+
+    :goto_0
+    array-length v5, v1
+
+    if-ge v3, v5, :cond_3
+
+    aget-object v5, v1, v3
+
+    if-eqz v5, :cond_2
+
+    add-int/lit8 v4, v4, 0x1
+
+    :cond_2
+    add-int/lit8 v3, v3, 0x1
+
+    goto :goto_0
+
+    :cond_3
+    iput v4, v0, Lcom/mrkeyboard/app/MrCacheClear;->lists:I
+
+    const/4 v1, 0x0
+
+    sput-object v1, Lcom/mrkeyboard/app/MrShots;->sLists:[Lcom/mrkeyboard/app/MrShots;
+
+    sput-boolean v1, Lcom/mrkeyboard/app/MrShots;->sQueryPending:Z
+
+    sput-boolean v1, Lcom/mrkeyboard/app/MrShots;->sMore:Z
+
+    const/4 v3, 0x1
+
+    sput-boolean v3, Lcom/mrkeyboard/app/MrShots;->sBusy:Z
+
+    if-eqz v2, :cond_4
+
+    iput v1, v2, Lcom/mrkeyboard/app/MrShots;->mN:I
+
+    iput-object v1, v2, Lcom/mrkeyboard/app/MrShots;->mIds:[J
+
+    iput-object v1, v2, Lcom/mrkeyboard/app/MrShots;->mNames:[Ljava/lang/String;
+
+    iput-object v1, v2, Lcom/mrkeyboard/app/MrShots;->mMimes:[Ljava/lang/String;
+
+    invoke-virtual {v2}, Landroid/widget/BaseAdapter;->notifyDataSetChanged()V
+
+    sget-object v3, Lcom/mrkeyboard/app/MrShots;->sGrid:Landroid/widget/GridView;
+
+    if-eqz v3, :cond_4
+
+    invoke-virtual {v3, v2}, Landroid/widget/GridView;->setAdapter(Landroid/widget/ListAdapter;)V
+
+    :cond_4
+    const-string v2, ""
+
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrShots;->showText(Ljava/lang/String;)V
+
+    new-instance v2, Lcom/mrkeyboard/app/MrClearWait;
+
+    invoke-direct {v2}, Lcom/mrkeyboard/app/MrClearWait;-><init>()V
+
+    sget-object v3, Lcom/mrkeyboard/app/MrTools;->sHandler:Landroid/os/Handler;
+
+    const-wide/16 v4, 0x15e
+
+    invoke-virtual {v3, v2, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrCacheJobs;->execute(Ljava/lang/Runnable;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_5
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrCacheClear;->rejected()V
+
+    :cond_5
+    goto :goto_1
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    :goto_1
+    monitor-exit v8
+
+    return-void
+
+    :catchall_0
+    move-exception v9
+
+    monitor-exit v8
+
+    throw v9
 .end method
 
 .method static finishCacheClear(Z)V
@@ -5465,14 +5708,17 @@
 .end method
 
 .method static showWait()V
- .locals 1
- const-string v0, "Limpando caches…"
+    .locals 1
 
- invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+    const-string v0, "Limpando caches\u2026"
 
- move-result-object v0
- invoke-static {v0}, Lcom/mrkeyboard/app/MrShots;->showText(Ljava/lang/String;)V
- return-void
+    invoke-static/range {v0 .. v0}, Lcom/mrkeyboard/app/SheetStrings;->a(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrShots;->showText(Ljava/lang/String;)V
+
+    return-void
 .end method
 
 .method private static showText(Ljava/lang/String;)V
@@ -5929,54 +6175,94 @@
 .end method
 
 .method private finishBatch()V
- .locals 9
- sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
- iget-object v1, p0, Lcom/mrkeyboard/app/MrShots;->mBR:Ljava/util/ArrayList;
- iget-object v2, p0, Lcom/mrkeyboard/app/MrShots;->mBF:Ljava/util/ArrayList;
- invoke-virtual {v1}, Ljava/util/ArrayList;->size()I
- move-result v3
- const/4 v4, 0x0
- :loop
- if-ge v4, v3, :done
- invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->targetIsCurrent()Z
- move-result v5
- if-nez v5, :cur
- invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->abortBatch()V
- return-void
- :cur
- invoke-virtual {v2, v4}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
- move-result-object v5
- check-cast v5, Ljava/io/File;
- if-eqz v5, :next
- :try_s
- const-string v6, "com.mrkeyboard.app.shots"
- invoke-static {v0, v6, v5}, Landroid/support/v4/content/FileProvider;->getUriForFile(Landroid/content/Context;Ljava/lang/String;Ljava/io/File;)Landroid/net/Uri;
- move-result-object v6
- invoke-virtual {v1, v4}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
- move-result-object v7
- check-cast v7, Ljava/lang/Integer;
- invoke-virtual {v7}, Ljava/lang/Integer;->intValue()I
- move-result v7
- iget-object v8, p0, Lcom/mrkeyboard/app/MrShots;->mMimes:[Ljava/lang/String;
- aget-object v8, v8, v7
- invoke-static {v0, v6, v8}, Lcom/mrkeyboard/app/MrDirectSend;->commit(Lcom/mrkeyboard/app/LatinIME;Landroid/net/Uri;Ljava/lang/String;)Z
- move-result v6
- :try_e
- .catch Ljava/lang/Exception; {:try_s .. :try_e} :catch_item
- if-eqz v6, :next
- iget v6, p0, Lcom/mrkeyboard/app/MrShots;->mBok:I
- add-int/lit8 v6, v6, 0x1
- iput v6, p0, Lcom/mrkeyboard/app/MrShots;->mBok:I
- invoke-static {v5}, Lcom/mrkeyboard/app/MrCopyRetention;->touch(Ljava/io/File;)V
- :next
- add-int/lit8 v4, v4, 0x1
- goto :loop
- :catch_item
- move-exception v6
- goto :next
- :done
- invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->endBatch()V
- return-void
+    .locals 9
+
+    sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrShots;->mBR:Ljava/util/ArrayList;
+
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrShots;->mBF:Ljava/util/ArrayList;
+
+    invoke-virtual {v1}, Ljava/util/ArrayList;->size()I
+
+    move-result v3
+
+    const/4 v4, 0x0
+
+    :goto_0
+    if-ge v4, v3, :cond_2
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->targetIsCurrent()Z
+
+    move-result v5
+
+    if-nez v5, :cond_0
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->abortBatch()V
+
+    return-void
+
+    :cond_0
+    invoke-virtual {v2, v4}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    move-result-object v5
+
+    check-cast v5, Ljava/io/File;
+
+    if-eqz v5, :cond_1
+
+    :try_start_0
+    const-string v6, "com.mrkeyboard.app.shots"
+
+    invoke-static {v0, v6, v5}, Landroid/support/v4/content/FileProvider;->getUriForFile(Landroid/content/Context;Ljava/lang/String;Ljava/io/File;)Landroid/net/Uri;
+
+    move-result-object v6
+
+    invoke-virtual {v1, v4}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    move-result-object v7
+
+    check-cast v7, Ljava/lang/Integer;
+
+    invoke-virtual {v7}, Ljava/lang/Integer;->intValue()I
+
+    move-result v7
+
+    iget-object v8, p0, Lcom/mrkeyboard/app/MrShots;->mMimes:[Ljava/lang/String;
+
+    aget-object v8, v8, v7
+
+    invoke-static {v0, v6, v8}, Lcom/mrkeyboard/app/MrDirectSend;->commit(Lcom/mrkeyboard/app/LatinIME;Landroid/net/Uri;Ljava/lang/String;)Z
+
+    move-result v6
+    :try_end_0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+
+    if-eqz v6, :cond_1
+
+    iget v6, p0, Lcom/mrkeyboard/app/MrShots;->mBok:I
+
+    add-int/lit8 v6, v6, 0x1
+
+    iput v6, p0, Lcom/mrkeyboard/app/MrShots;->mBok:I
+
+    invoke-static {v5}, Lcom/mrkeyboard/app/MrCopyRetention;->touch(Ljava/io/File;)V
+
+    :cond_1
+    :goto_1
+    add-int/lit8 v4, v4, 0x1
+
+    goto :goto_0
+
+    :catch_0
+    move-exception v6
+
+    goto :goto_1
+
+    :cond_2
+    invoke-direct {p0}, Lcom/mrkeyboard/app/MrShots;->endBatch()V
+
+    return-void
 .end method
 
 .method private dropBatch()V

@@ -2,7 +2,6 @@
 .super Ljava/lang/Object;
 .source "SheetUi.java"
 
-
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
@@ -11,7 +10,6 @@
         Lcom/mrkeyboard/app/SheetUi$MenuEntry;
     }
 .end annotation
-
 
 # static fields
 .field public static final ICON_ARROW_DOWN:I = 0x7
@@ -51,7 +49,6 @@
 .field public static final TONE_NORMAL:I = 0x0
 
 .field public static final TONE_WARNING:I = 0x1
-
 
 # direct methods
 .method static constructor <clinit>()V
@@ -415,7 +412,7 @@
 .end method
 
 .method public static showPopupMenu(Landroid/content/Context;Landroid/view/View;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Lcom/mrkeyboard/app/SheetUi$OnMenuSelect;)V
-    .registers 25
+    .locals 19
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -438,25 +435,25 @@
 
     move-object/from16 v4, p4
 
-    if-eqz v0, :cond_461
+    if-eqz v0, :cond_12
 
-    if-eqz v1, :cond_461
+    if-eqz v1, :cond_12
 
-    if-eqz v4, :cond_461
+    if-eqz v4, :cond_12
 
     invoke-interface/range {p4 .. p4}, Ljava/util/List;->isEmpty()Z
 
     move-result v5
 
-    if-eqz v5, :cond_18
+    if-eqz v5, :cond_0
 
-    goto/16 :goto_461
+    goto/16 :goto_a
 
     .line 196
-    :cond_18
+    :cond_0
     instance-of v5, v0, Landroid/app/Activity;
 
-    if-eqz v5, :cond_26
+    if-eqz v5, :cond_1
 
     move-object v5, v0
 
@@ -466,24 +463,24 @@
 
     move-result v5
 
-    if-eqz v5, :cond_26
+    if-eqz v5, :cond_1
 
     .line 197
     return-void
 
     .line 199
-    :cond_26
+    :cond_1
     invoke-virtual/range {p1 .. p1}, Landroid/view/View;->getWindowToken()Landroid/os/IBinder;
 
     move-result-object v5
 
-    if-nez v5, :cond_2d
+    if-nez v5, :cond_2
 
     .line 200
     return-void
 
     .line 203
-    :cond_2d
+    :cond_2
     const/high16 v5, 0x41200000    # 10.0f
 
     invoke-static {v0, v5}, Lcom/mrkeyboard/app/SheetUi;->dp(Landroid/content/Context;F)I
@@ -516,9 +513,7 @@
     move-result v11
 
     .line 210
-    # Dialog WITHOUT border: stroke = 0. Slightly lighter background (0xFF1A2433) to
-    # stand out from the background page (C_BG = 0xFF080C11).
-    const v15, -0xe5dbcd    # 0xFF1A2433 (C_DIALOG_BG)
+    const v15, -0xe5dbcd
 
     const/4 v13, 0x0
 
@@ -538,8 +533,6 @@
     invoke-virtual {v8, v11}, Landroid/widget/LinearLayout;->setElevation(F)V
 
     .line 212
-    # clipToOutline on + no border: there is no stroke to be clipped and the
-    # dialog corners are always rounded (the header also draws its own).
     const/4 v9, 0x1
 
     invoke-virtual {v8, v9}, Landroid/widget/LinearLayout;->setClipToOutline(Z)V
@@ -557,14 +550,10 @@
 
     const/4 v9, 0x0
 
-    # Menu header REMOVED: the dialog shows only the options (with subtle dividers
-    # between the groups, marked by MenuEntry.dividerBefore).
     .line 214
-    :cond_176
     const v13, 0x241b97fc
 
     .line 252
-    :goto_179
     new-instance v2, Landroid/widget/ScrollView;
 
     invoke-direct {v2, v0}, Landroid/widget/ScrollView;-><init>(Landroid/content/Context;)V
@@ -644,14 +633,14 @@
     .line 267
     const/4 v5, 0x0
 
-    :goto_1c1
+    :goto_0
     invoke-interface/range {p4 .. p4}, Ljava/util/List;->size()I
 
     move-result v9
 
     const/high16 v12, 0x41000000    # 8.0f
 
-    if-ge v5, v9, :cond_342
+    if-ge v5, v9, :cond_a
 
     .line 268
     invoke-interface {v4, v5}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -663,9 +652,9 @@
     .line 269
     iget-boolean v13, v9, Lcom/mrkeyboard/app/SheetUi$MenuEntry;->dividerBefore:Z
 
-    if-eqz v13, :cond_210
+    if-eqz v13, :cond_3
 
-    if-lez v5, :cond_210
+    if-lez v5, :cond_3
 
     .line 270
     new-instance v13, Landroid/view/View;
@@ -673,8 +662,6 @@
     invoke-direct {v13, v0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
     .line 271
-    # subtle divider: 0xFF33445E (one step above the 0xFF1A2433 background)
-    # WARNING: without the 0xFF alpha the value becomes 0x0033445E = fully transparent
     const v14, -0xccbba2
 
     invoke-virtual {v13, v14}, Landroid/view/View;->setBackgroundColor(I)V
@@ -734,7 +721,7 @@
     invoke-virtual {v3, v13, v14}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 280
-    :cond_210
+    :cond_3
     new-instance v10, Landroid/widget/LinearLayout;
 
     invoke-direct {v10, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
@@ -784,7 +771,7 @@
 
     const/4 v13, 0x2
 
-    if-ne v11, v13, :cond_250
+    if-ne v11, v13, :cond_4
 
     .line 291
     nop
@@ -806,15 +793,15 @@
 
     move v14, v11
 
-    goto :goto_2a3
+    goto :goto_2
 
     .line 295
-    :cond_250
+    :cond_4
     iget v11, v9, Lcom/mrkeyboard/app/SheetUi$MenuEntry;->tone:I
 
     const/4 v13, 0x1
 
-    if-ne v11, v13, :cond_265
+    if-ne v11, v13, :cond_5
 
     .line 296
     nop
@@ -834,10 +821,10 @@
 
     const v15, 0x24fbbf24
 
-    goto :goto_2a3
+    goto :goto_2
 
     .line 301
-    :cond_265
+    :cond_5
     nop
 
     .line 302
@@ -852,7 +839,7 @@
 
     const v15, 0x331b97fc
 
-    if-ne v11, v13, :cond_27b
+    if-ne v11, v13, :cond_6
 
     .line 304
     nop
@@ -862,15 +849,15 @@
 
     const v13, 0x2434d399
 
-    goto :goto_2a3
+    goto :goto_2
 
     .line 306
-    :cond_27b
+    :cond_6
     iget v11, v9, Lcom/mrkeyboard/app/SheetUi$MenuEntry;->icon:I
 
     const/16 v13, 0x8
 
-    if-ne v11, v13, :cond_289
+    if-ne v11, v13, :cond_7
 
     .line 307
     nop
@@ -880,26 +867,26 @@
 
     const v13, 0x24a78bfa
 
-    goto :goto_2a3
+    goto :goto_2
 
     .line 309
-    :cond_289
+    :cond_7
     iget v11, v9, Lcom/mrkeyboard/app/SheetUi$MenuEntry;->icon:I
 
     const/4 v13, 0x6
 
-    if-eq v11, v13, :cond_29c
+    if-eq v11, v13, :cond_9
 
     iget v11, v9, Lcom/mrkeyboard/app/SheetUi$MenuEntry;->icon:I
 
     const/4 v13, 0x7
 
-    if-ne v11, v13, :cond_294
+    if-ne v11, v13, :cond_8
 
-    goto :goto_29c
+    goto :goto_1
 
     .line 313
-    :cond_294
+    :cond_8
     nop
 
     .line 314
@@ -907,11 +894,11 @@
 
     const v13, 0x241b97fc
 
-    goto :goto_2a3
+    goto :goto_2
 
     .line 310
-    :cond_29c
-    :goto_29c
+    :cond_9
+    :goto_1
     nop
 
     .line 311
@@ -920,7 +907,7 @@
     const v11, -0x3d230a
 
     .line 318
-    :goto_2a3
+    :goto_2
     const/high16 v12, 0x41300000    # 11.0f
 
     invoke-static {v0, v12}, Lcom/mrkeyboard/app/SheetUi;->dpf(Landroid/content/Context;F)F
@@ -1080,10 +1067,10 @@
 
     move-object/from16 v4, p4
 
-    goto/16 :goto_1c1
+    goto/16 :goto_0
 
     .line 352
-    :cond_342
+    :cond_a
     move/from16 v17, v6
 
     move-object/from16 v18, v7
@@ -1100,15 +1087,15 @@
 
     move-result v4
 
-    if-lez v4, :cond_359
+    if-lez v4, :cond_b
 
     invoke-virtual {v3}, Landroid/graphics/Rect;->width()I
 
     move-result v4
 
-    goto :goto_363
+    goto :goto_3
 
-    :cond_359
+    :cond_b
     invoke-virtual/range {p0 .. p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v4
@@ -1120,20 +1107,20 @@
     iget v4, v4, Landroid/util/DisplayMetrics;->widthPixels:I
 
     .line 355
-    :goto_363
+    :goto_3
     invoke-virtual {v3}, Landroid/graphics/Rect;->height()I
 
     move-result v5
 
-    if-lez v5, :cond_36e
+    if-lez v5, :cond_c
 
     invoke-virtual {v3}, Landroid/graphics/Rect;->height()I
 
     move-result v5
 
-    goto :goto_378
+    goto :goto_4
 
-    :cond_36e
+    :cond_c
     invoke-virtual/range {p0 .. p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v5
@@ -1145,7 +1132,7 @@
     iget v5, v5, Landroid/util/DisplayMetrics;->heightPixels:I
 
     .line 357
-    :goto_378
+    :goto_4
     const/high16 v6, 0x43600000    # 224.0f
 
     invoke-static {v0, v6}, Lcom/mrkeyboard/app/SheetUi;->dp(Landroid/content/Context;F)I
@@ -1331,21 +1318,21 @@
     add-int v12, v12, v17
 
     .line 385
-    if-ge v10, v4, :cond_413
+    if-ge v10, v4, :cond_d
 
     move v10, v4
 
     .line 386
-    :cond_413
-    if-le v10, v12, :cond_416
+    :cond_d
+    if-le v10, v12, :cond_e
 
-    goto :goto_417
+    goto :goto_5
 
-    :cond_416
+    :cond_e
     move v12, v10
 
     .line 388
-    :goto_417
+    :goto_5
     iget v4, v3, Landroid/graphics/Rect;->bottom:I
 
     sub-int/2addr v4, v7
@@ -1370,14 +1357,14 @@
     sub-int/2addr v9, v8
 
     .line 391
-    if-le v5, v4, :cond_440
+    if-le v5, v4, :cond_10
 
-    if-lt v4, v9, :cond_42f
+    if-lt v4, v9, :cond_f
 
-    goto :goto_440
+    goto :goto_6
 
     .line 397
-    :cond_42f
+    :cond_f
     sub-int/2addr v11, v5
 
     sub-int v11, v11, v17
@@ -1393,16 +1380,16 @@
     .line 398
     iget v0, v3, Landroid/graphics/Rect;->top:I
 
-    if-ge v11, v0, :cond_459
+    if-ge v11, v0, :cond_11
 
     .line 399
     iget v11, v3, Landroid/graphics/Rect;->top:I
 
-    goto :goto_459
+    goto :goto_7
 
     .line 392
-    :cond_440
-    :goto_440
+    :cond_10
+    :goto_6
     sub-int v7, v7, v17
 
     const/high16 v4, 0x40000000    # 2.0f
@@ -1418,7 +1405,7 @@
 
     iget v4, v3, Landroid/graphics/Rect;->bottom:I
 
-    if-le v0, v4, :cond_459
+    if-le v0, v4, :cond_11
 
     .line 394
     iget v0, v3, Landroid/graphics/Rect;->top:I
@@ -1432,34 +1419,33 @@
     move-result v11
 
     .line 404
-    :cond_459
-    :goto_459
+    :cond_11
+    :goto_7
     const/4 v0, 0x0
 
-    :try_start_45a
+    :try_start_0
     invoke-virtual {v2, v1, v0, v12, v11}, Landroid/widget/PopupWindow;->showAtLocation(Landroid/view/View;III)V
-    :try_end_45d
-    .catchall {:try_start_45a .. :try_end_45d} :catchall_45e
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
     .line 405
-    :goto_45d
-    goto :goto_460
+    :goto_8
+    goto :goto_9
 
-    :catchall_45e
+    :catchall_0
     move-exception v0
 
-    goto :goto_45d
+    goto :goto_8
 
     .line 406
-    :goto_460
+    :goto_9
     return-void
 
     .line 194
-    :cond_461
-    :goto_461
+    :cond_12
+    :goto_a
     return-void
 .end method
 
 # Rectangle with background, border and rounded TOP corners (bottom corners
 # square). Used in the Sheets menu header so the top border shows up.
-

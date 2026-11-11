@@ -72,7 +72,7 @@ public class BarTest {
         closeAi();
 
         // ---- what is not a button of the bar: no dialog closes
-        int[] notBar = {-1, 0x2, 0x3, 0x7, 0x9, 0xa, 0x12, 0x16, 0x17, 0x19, 0x100};
+        int[] notBar = {-1, 0x2, 0x3, 0x7, 0x9, 0xa, 0x12, 0x16, 0x17, 0x100};
         boolean untouched = true;
         for (int code : notBar) {
             Dlg d = openAi();
@@ -84,10 +84,16 @@ public class BarTest {
         check("buttons inside the panels (clipboard, photos...) leave the dialogs alone", untouched);
         closeAi();
 
-        // ---- the seven buttons are exactly the list
+        // ---- the fonts button (0x19, before the emoji button) is a bar button: it closes the open dialogs
+        Dlg fonts = openAi();
+        MrBarClose.onClick(0x19);
+        check("fonts button: the AI Editor dialog closes", fonts.dismissed == 1);
+        closeAi();
+
+        // ---- the eight buttons are exactly the list
         int n = 0;
         for (int code = -2; code < 0x40; code++) if (MrBarClose.isToolbar(code)) n++;
-        check("seven buttons in the bar", n == 7 && MrBarClose.TOOLBAR.length == 7);
+        check("eight buttons in the bar", n == 8 && MrBarClose.TOOLBAR.length == 8);
 
         // ---- a failure while closing does not reach the button
         MrBarClose.onClick(0x0);

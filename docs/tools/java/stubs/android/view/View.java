@@ -107,4 +107,5 @@ public class View {
     public void stubWindowState(boolean attached, boolean accelerated) { stubAttached = attached; stubAccelerated = accelerated; }
     public boolean isAttachedToWindow() { return stubAttached; }
     public boolean isHardwareAccelerated() { return stubAccelerated; }
+    public void setTag(Object tag) { }
 }

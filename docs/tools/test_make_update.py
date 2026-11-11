@@ -52,6 +52,12 @@ check('normal: version, code and date', data['versionName'] == 'v1.82.0' and dat
 check('normal: APK name, size and SHA-256 are the file\'s', data['apk'] == {'name': 'mr-keyboard-v1.82.0.apk', 'size': 8, 'sha256': hashlib.sha256(b'APKBYTES').hexdigest()}, str(data['apk']))
 check('normal: notes of the two blocks, as written, with accents', data['notes'] == {'pt-BR': '- Corrige o fechamento do app.\n- Novo: **ação** em `Ajustes`.', 'en': '- Fixes the app closing.'}, str(data['notes']))
 check('normal: UTF-8 written as is (no \\u escapes) and no link in the file', b'\\u' not in open(out, 'rb').read() and 'http' not in open(out, encoding='utf-8').read())
+# apktool 2.11 writes the code bare (versionCode: 1082000), older ones quoted: both are read
+d2, apk2 = setup()
+y = os.path.join(d2, 'apktool.yml')
+open(y, 'w').write("versionInfo:\n  versionCode: 1082000\n  versionName: v1.82.0\n")
+rc, msg, data2, out2 = run(d2, apk2)
+check('apktool.yml with the code without quotes (apktool 2.11): accepted', rc == 0 and data2 and data2['versionCode'] == 1082000, msg)
 a1 = open(out, 'rb').read()
 rc, msg, data, out = run(d, apk)
 check('same input, same bytes', open(out, 'rb').read() == a1)

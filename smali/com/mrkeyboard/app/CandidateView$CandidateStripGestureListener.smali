@@ -2,7 +2,6 @@
 .super Landroid/view/GestureDetector$SimpleOnGestureListener;
 .source "CandidateView.java"
 
-
 # annotations
 .annotation system Ldalvik/annotation/EnclosingClass;
     value = Lcom/mrkeyboard/app/CandidateView;
@@ -13,12 +12,10 @@
     name = "CandidateStripGestureListener"
 .end annotation
 
-
 # instance fields
 .field private final mTouchSlopSquare:I
 
 .field final synthetic this$0:Lcom/mrkeyboard/app/CandidateView;
-
 
 # direct methods
 .method public constructor <init>(Lcom/mrkeyboard/app/CandidateView;I)V
@@ -36,7 +33,6 @@
 
     return-void
 .end method
-
 
 # virtual methods
 .method public onDown(Landroid/view/MotionEvent;)Z
@@ -211,8 +207,6 @@
     .line 185
     :cond_3
     iget-object p1, p0, Lcom/mrkeyboard/app/CandidateView$CandidateStripGestureListener;->this$0:Lcom/mrkeyboard/app/CandidateView;
-
-    invoke-static {p1, p2}, Lcom/mrkeyboard/app/CandidateView;->access$502(Lcom/mrkeyboard/app/CandidateView;I)I
 
     .line 186
     iget-object p1, p0, Lcom/mrkeyboard/app/CandidateView$CandidateStripGestureListener;->this$0:Lcom/mrkeyboard/app/CandidateView;

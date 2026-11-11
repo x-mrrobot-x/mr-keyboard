@@ -2,14 +2,12 @@
 .super Landroid/view/View;
 .source "CandidateView.java"
 
-
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
         Lcom/mrkeyboard/app/CandidateView$CandidateStripGestureListener;
     }
 .end annotation
-
 
 # static fields
 .field private static final MAX_SUGGESTIONS:I = 0x20
@@ -22,11 +20,12 @@
 
 .field private static final X_GAP:I = 0xa
 
-
 # instance fields
 .field private mAddToDictionaryHint:Ljava/lang/CharSequence;
 
 .field private mBgPadding:Landroid/graphics/Rect;
+
+.field private mCenter:I
 
 .field private mColorNormal:I
 
@@ -38,26 +37,15 @@
 
 .field private mDivider:Landroid/graphics/drawable/Drawable;
 
-# Minimum space between each suggestion's text and the divider, in pixels, on each side (10dp, computed
-# in the constructor). Replaces the fixed 10px X_GAP. Texts wider than the slot shrink/get cut.
 .field private mGap:I
-
-# Fixed 3-slot layout (mrLayout): list index in each slot (left, center, right;
-# -1 = empty), index of the most probable one (full color) and whether the "save" hint takes slots 1 and 2.
-.field private mSlot:[I
-
-.field private mCenter:I
-
-.field private mMerged:Z
-
-# Strip height and text baseline, computed on every onDraw.
-.field private mH:I
-
-.field private mY:I
 
 .field private final mGestureDetector:Landroid/view/GestureDetector;
 
+.field private mH:I
+
 .field private mHaveMinimalSuggestion:Z
+
+.field private mMerged:Z
 
 .field private final mMinTouchableWidth:I
 
@@ -85,6 +73,8 @@
 
 .field private mShowingCompletions:Z
 
+.field private mSlot:[I
+
 .field private final mSuggestions:Ljava/util/ArrayList;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -94,8 +84,6 @@
         }
     .end annotation
 .end field
-
-.field private mTargetScrollX:I
 
 .field private mTotalWidth:I
 
@@ -107,6 +95,7 @@
 
 .field private final mWordX:[I
 
+.field private mY:I
 
 # direct methods
 .method public constructor <init>(Landroid/content/Context;Landroid/util/AttributeSet;)V
@@ -402,15 +391,6 @@
     return-object p0
 .end method
 
-.method static synthetic access$100(Lcom/mrkeyboard/app/CandidateView;)[I
-    .locals 0
-
-    .line 42
-    iget-object p0, p0, Lcom/mrkeyboard/app/CandidateView;->mWordWidth:[I
-
-    return-object p0
-.end method
-
 .method static synthetic access$200(Lcom/mrkeyboard/app/CandidateView;)V
     .locals 0
 
@@ -445,15 +425,6 @@
     iget p0, p0, Lcom/mrkeyboard/app/CandidateView;->mTotalWidth:I
 
     return p0
-.end method
-
-.method static synthetic access$502(Lcom/mrkeyboard/app/CandidateView;I)I
-    .locals 0
-
-    .line 42
-    iput p1, p0, Lcom/mrkeyboard/app/CandidateView;->mTargetScrollX:I
-
-    return p1
 .end method
 
 .method static synthetic access$600(Lcom/mrkeyboard/app/CandidateView;)V
@@ -547,89 +518,6 @@
     invoke-direct {p0, v1, v0}, Lcom/mrkeyboard/app/CandidateView;->showPreview(ILjava/lang/String;)V
 
     :cond_1
-    return-void
-.end method
-
-.method private scrollToTarget()V
-    .locals 2
-
-    .line 298
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/CandidateView;->getScrollX()I
-
-    move-result v0
-
-    .line 299
-    iget v1, p0, Lcom/mrkeyboard/app/CandidateView;->mTargetScrollX:I
-
-    if-le v1, v0, :cond_1
-
-    add-int/lit8 v0, v0, 0x14
-
-    .line 301
-    iget v1, p0, Lcom/mrkeyboard/app/CandidateView;->mTargetScrollX:I
-
-    if-lt v0, v1, :cond_0
-
-    .line 302
-    iget v0, p0, Lcom/mrkeyboard/app/CandidateView;->mTargetScrollX:I
-
-    .line 303
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/CandidateView;->getScrollY()I
-
-    move-result v1
-
-    invoke-virtual {p0, v0, v1}, Lcom/mrkeyboard/app/CandidateView;->scrollTo(II)V
-
-    .line 304
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/CandidateView;->requestLayout()V
-
-    goto :goto_0
-
-    .line 306
-    :cond_0
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/CandidateView;->getScrollY()I
-
-    move-result v1
-
-    invoke-virtual {p0, v0, v1}, Lcom/mrkeyboard/app/CandidateView;->scrollTo(II)V
-
-    goto :goto_0
-
-    :cond_1
-    add-int/lit8 v0, v0, -0x14
-
-    .line 310
-    iget v1, p0, Lcom/mrkeyboard/app/CandidateView;->mTargetScrollX:I
-
-    if-gt v0, v1, :cond_2
-
-    .line 311
-    iget v0, p0, Lcom/mrkeyboard/app/CandidateView;->mTargetScrollX:I
-
-    .line 312
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/CandidateView;->getScrollY()I
-
-    move-result v1
-
-    invoke-virtual {p0, v0, v1}, Lcom/mrkeyboard/app/CandidateView;->scrollTo(II)V
-
-    .line 313
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/CandidateView;->requestLayout()V
-
-    goto :goto_0
-
-    .line 315
-    :cond_2
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/CandidateView;->getScrollY()I
-
-    move-result v1
-
-    invoke-virtual {p0, v0, v1}, Lcom/mrkeyboard/app/CandidateView;->scrollTo(II)V
-
-    .line 318
-    :goto_0
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/CandidateView;->invalidate()V
-
     return-void
 .end method
 
@@ -844,7 +732,6 @@
     return-void
 .end method
 
-
 # virtual methods
 .method public clear()V
     .locals 2
@@ -955,7 +842,6 @@
 
     return-void
 .end method
-
 
 .method public onTouchEvent(Landroid/view/MotionEvent;)Z
     .locals 5
@@ -1183,9 +1069,6 @@
 
     invoke-virtual {p0, p2, p1}, Lcom/mrkeyboard/app/CandidateView;->scrollTo(II)V
 
-    .line 335
-    iput p2, p0, Lcom/mrkeyboard/app/CandidateView;->mTargetScrollX:I
-
     .line 336
     iput-boolean p4, p0, Lcom/mrkeyboard/app/CandidateView;->mHaveMinimalSuggestion:Z
 
@@ -1291,10 +1174,6 @@
     return-void
 .end method
 
-
-
-
-
 # Long press: is x (already added to the scroll) over the typed word's cell (index 0)?
 .method public mrOnFirst(F)Z
     .locals 3
@@ -1334,7 +1213,6 @@
 
     return v0
 .end method
-
 
 # Drawing of the suggestion strip: 3 fixed slots, of equal width and filling the whole strip
 # (left, center, right), with the text centered in each one and a divider between them, like
@@ -1492,7 +1370,7 @@
 
     iget-object v0, p0, Lcom/mrkeyboard/app/CandidateView;->mSlot:[I
 
-    if-nez v0, :cond_have
+    if-nez v0, :cond_0
 
     const/4 v2, 0x3
 
@@ -1500,7 +1378,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/CandidateView;->mSlot:[I
 
-    :cond_have
+    :cond_0
     const/4 v2, -0x1
 
     const/4 v3, 0x0
@@ -1515,12 +1393,11 @@
 
     aput v2, v0, v3
 
-    # v4 = strip width (if not measured yet, the screen width)
     invoke-virtual {p0}, Lcom/mrkeyboard/app/CandidateView;->getWidth()I
 
     move-result v4
 
-    if-gtz v4, :cond_w
+    if-gtz v4, :cond_1
 
     invoke-virtual {p0}, Lcom/mrkeyboard/app/CandidateView;->getContext()Landroid/content/Context;
 
@@ -1536,10 +1413,9 @@
 
     iget v4, v4, Landroid/util/DisplayMetrics;->widthPixels:I
 
-    :cond_w
+    :cond_1
     iput v4, p0, Lcom/mrkeyboard/app/CandidateView;->mTotalWidth:I
 
-    # v5 = n = min(list size, 3)
     iget-object v5, p0, Lcom/mrkeyboard/app/CandidateView;->mSuggestions:Ljava/util/ArrayList;
 
     invoke-virtual {v5}, Ljava/util/ArrayList;->size()I
@@ -1552,17 +1428,16 @@
 
     move-result v5
 
-    if-eqz v5, :cond_end
+    if-eqz v5, :cond_7
 
     iget-boolean v6, p0, Lcom/mrkeyboard/app/CandidateView;->mShowingAddToDictionary:Z
 
-    if-eqz v6, :cond_norm
+    if-eqz v6, :cond_2
 
     const/4 v6, 0x2
 
-    if-lt v5, v6, :cond_norm
+    if-lt v5, v6, :cond_2
 
-    # save hint: word in slot 0, hint in slots 1 and 2 together
     const/4 v6, 0x1
 
     iput-boolean v6, p0, Lcom/mrkeyboard/app/CandidateView;->mMerged:Z
@@ -1575,29 +1450,28 @@
 
     aput v6, v0, v6
 
-    goto :cond_geo
+    goto :goto_0
 
-    :cond_norm
-    # v6 = center
+    :cond_2
     const/4 v6, 0x0
 
     const/4 v7, 0x2
 
-    if-lt v5, v7, :cond_c
+    if-lt v5, v7, :cond_3
 
     const/4 v6, 0x1
 
     iget-boolean v7, p0, Lcom/mrkeyboard/app/CandidateView;->mHaveMinimalSuggestion:Z
 
-    if-eqz v7, :cond_c
+    if-eqz v7, :cond_3
 
     iget-boolean v7, p0, Lcom/mrkeyboard/app/CandidateView;->mTypedWordValid:Z
 
-    if-eqz v7, :cond_c
+    if-eqz v7, :cond_3
 
     const/4 v6, 0x0
 
-    :cond_c
+    :cond_3
     iput v6, p0, Lcom/mrkeyboard/app/CandidateView;->mCenter:I
 
     const/4 v7, 0x1
@@ -1606,7 +1480,7 @@
 
     const/4 v7, 0x2
 
-    if-lt v5, v7, :cond_geo
+    if-lt v5, v7, :cond_4
 
     rsub-int/lit8 v8, v6, 0x1
 
@@ -1616,27 +1490,28 @@
 
     const/4 v7, 0x3
 
-    if-lt v5, v7, :cond_geo
+    if-lt v5, v7, :cond_4
 
     const/4 v7, 0x2
 
     aput v7, v0, v7
 
-    :cond_geo
+    :cond_4
+    :goto_0
     iget-object v6, p0, Lcom/mrkeyboard/app/CandidateView;->mWordX:[I
 
     iget-object v7, p0, Lcom/mrkeyboard/app/CandidateView;->mWordWidth:[I
 
     const/4 v1, 0x0
 
-    :gloop
+    :goto_1
     const/4 v2, 0x3
 
-    if-ge v1, v2, :cond_end
+    if-ge v1, v2, :cond_7
 
     aget v2, v0, v1
 
-    if-ltz v2, :cond_gnext
+    if-ltz v2, :cond_6
 
     mul-int v3, v1, v4
 
@@ -1650,27 +1525,27 @@
 
     iget-boolean v5, p0, Lcom/mrkeyboard/app/CandidateView;->mMerged:Z
 
-    if-eqz v5, :cond_gset
+    if-eqz v5, :cond_5
 
     const/4 v5, 0x1
 
-    if-ne v1, v5, :cond_gset
+    if-ne v1, v5, :cond_5
 
     move v8, v4
 
-    :cond_gset
+    :cond_5
     aput v3, v6, v2
 
     sub-int/2addr v8, v3
 
     aput v8, v7, v2
 
-    :cond_gnext
+    :cond_6
     add-int/lit8 v1, v1, 0x1
 
-    goto :gloop
+    goto :goto_1
 
-    :cond_end
+    :cond_7
     return-void
 .end method
 
@@ -1796,70 +1671,68 @@
 
     check-cast v0, Ljava/lang/CharSequence;
 
-    if-nez v0, :cond_t
+    if-nez v0, :cond_0
 
     const/4 v0, 0x0
 
     return v0
 
-    :cond_t
-    # v1 = recommended: minimal suggestion and (index 1 with the typed word invalid, or index 0 valid)
+    :cond_0
     const/4 v1, 0x0
 
     iget-boolean v2, p0, Lcom/mrkeyboard/app/CandidateView;->mHaveMinimalSuggestion:Z
 
-    if-eqz v2, :cond_rd
+    if-eqz v2, :cond_2
 
     iget-boolean v2, p0, Lcom/mrkeyboard/app/CandidateView;->mTypedWordValid:Z
 
     const/4 v3, 0x1
 
-    if-ne p2, v3, :cond_n1
+    if-ne p2, v3, :cond_1
 
-    if-nez v2, :cond_rd
-
-    const/4 v1, 0x1
-
-    goto :cond_rd
-
-    :cond_n1
-    if-nez p2, :cond_rd
-
-    if-eqz v2, :cond_rd
+    if-nez v2, :cond_2
 
     const/4 v1, 0x1
 
-    :cond_rd
-    # v2 = color
-    if-eqz v1, :cond_nr
+    goto :goto_0
+
+    :cond_1
+    if-nez p2, :cond_2
+
+    if-eqz v2, :cond_2
+
+    const/4 v1, 0x1
+
+    :cond_2
+    :goto_0
+    if-eqz v1, :cond_3
 
     iget v2, p0, Lcom/mrkeyboard/app/CandidateView;->mColorRecommended:I
 
-    goto :cond_col
+    goto :goto_1
 
-    :cond_nr
+    :cond_3
     iget v3, p0, Lcom/mrkeyboard/app/CandidateView;->mCenter:I
 
-    if-ne p2, v3, :cond_sd
+    if-ne p2, v3, :cond_4
 
     iget v2, p0, Lcom/mrkeyboard/app/CandidateView;->mColorOther:I
 
-    goto :cond_col
+    goto :goto_1
 
-    :cond_sd
+    :cond_4
     iget v2, p0, Lcom/mrkeyboard/app/CandidateView;->mColorNormal:I
 
-    :cond_col
-    # touch inside the slot: highlight (only with a canvas and without the save hint) and selection
+    :goto_1
     iget v3, p0, Lcom/mrkeyboard/app/CandidateView;->mTouchX:I
 
     const/4 v4, -0x1
 
-    if-eq v3, v4, :cond_ns
+    if-eq v3, v4, :cond_6
 
     iget-boolean v4, p0, Lcom/mrkeyboard/app/CandidateView;->mScrolled:Z
 
-    if-nez v4, :cond_ns
+    if-nez v4, :cond_6
 
     invoke-virtual {p0}, Lcom/mrkeyboard/app/CandidateView;->getScrollX()I
 
@@ -1867,15 +1740,15 @@
 
     add-int/2addr v3, v4
 
-    if-lt v3, p3, :cond_ns
+    if-lt v3, p3, :cond_6
 
-    if-ge v3, p4, :cond_ns
+    if-ge v3, p4, :cond_6
 
-    if-eqz p1, :cond_ss
+    if-eqz p1, :cond_5
 
     iget-boolean v3, p0, Lcom/mrkeyboard/app/CandidateView;->mShowingAddToDictionary:Z
 
-    if-nez v3, :cond_ss
+    if-nez v3, :cond_5
 
     int-to-float v3, p3
 
@@ -1905,13 +1778,13 @@
 
     invoke-virtual {p1, v3, v4}, Landroid/graphics/Canvas;->translate(FF)V
 
-    :cond_ss
+    :cond_5
     iput-object v0, p0, Lcom/mrkeyboard/app/CandidateView;->mSelectedString:Ljava/lang/CharSequence;
 
     iput p2, p0, Lcom/mrkeyboard/app/CandidateView;->mSelectedIndex:I
 
-    :cond_ns
-    if-eqz p1, :cond_ret
+    :cond_6
+    if-eqz p1, :cond_8
 
     iget-object v4, p0, Lcom/mrkeyboard/app/CandidateView;->mPaint:Landroid/graphics/Paint;
 
@@ -1919,11 +1792,11 @@
 
     sget-object v5, Landroid/graphics/Typeface;->DEFAULT:Landroid/graphics/Typeface;
 
-    if-eqz v1, :cond_tf
+    if-eqz v1, :cond_7
 
     sget-object v5, Landroid/graphics/Typeface;->DEFAULT_BOLD:Landroid/graphics/Typeface;
 
-    :cond_tf
+    :cond_7
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
 
     sub-int v6, p4, p3
@@ -1934,7 +1807,7 @@
 
     invoke-virtual {v4, v5}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
 
-    :cond_ret
+    :cond_8
     return v1
 .end method
 

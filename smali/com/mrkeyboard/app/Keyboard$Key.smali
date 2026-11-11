@@ -2,7 +2,6 @@
 .super Ljava/lang/Object;
 .source "Keyboard.java"
 
-
 # annotations
 .annotation system Ldalvik/annotation/EnclosingClass;
     value = Lcom/mrkeyboard/app/Keyboard;
@@ -12,7 +11,6 @@
     accessFlags = 0x9
     name = "Key"
 .end annotation
-
 
 # static fields
 .field private static final KEY_STATE_NORMAL:[I
@@ -30,7 +28,6 @@
 .field private static final KEY_STATE_PRESSED_OFF:[I
 
 .field private static final KEY_STATE_PRESSED_ON:[I
-
 
 # instance fields
 .field public altHint:Ljava/lang/String;
@@ -96,7 +93,6 @@
 .field public x:I
 
 .field public y:I
-
 
 # direct methods
 .method static constructor <clinit>()V
@@ -1267,7 +1263,6 @@
     return v0
 .end method
 
-
 # virtual methods
 .method public getAltHintLabel(ZZ)Ljava/lang/String;
     .locals 3
@@ -1349,8 +1344,7 @@
 
     return-object p1
 .end method
-
-.method public getCaseLabel()Ljava/lang/String;
+.method public getCaseLabelRaw()Ljava/lang/String;
     .locals 2
 
     .line 544
@@ -1419,6 +1413,20 @@
     const/4 v0, 0x0
 
     :goto_0
+    return-object v0
+.end method
+
+.method public getCaseLabel()Ljava/lang/String;
+    .locals 1
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/Keyboard$Key;->getCaseLabelRaw()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrFonts;->styleLabel(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
     return-object v0
 .end method
 

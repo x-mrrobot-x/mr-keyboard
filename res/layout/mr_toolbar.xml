@@ -1,1126 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content">
-    <LinearLayout
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:tag="bar_main"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:paddingTop="1dp"
-        android:paddingBottom="1dp"
-        android:layout_width="fill_parent"
-        android:layout_height="@dimen/mr_bar_height">
-        <!-- Tools (default). The bar key toggles with the suggestions (MrSugg). -->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:tag="bar_tools"
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="1">
-            <TextView
-                style="@style/MrToolBtn"
-                android:tag="b_clip"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:contentDescription="@string/mr_tb_clipboard"
-                android:drawableLeft="@drawable/ic_mr_clip" />
-            <TextView
-                style="@style/MrToolBtn"
-                android:tag="b_trans"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:contentDescription="@string/mr_tb_translate"
-                android:drawableLeft="@drawable/ic_mr_trans" />
-            <TextView
-                style="@style/MrToolBtn"
-                android:tag="b_aied"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:drawableLeft="@drawable/ic_mr_aied" />
-            <TextView
-                style="@style/MrToolBtn"
-                android:tag="b_shots"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:contentDescription="@string/mr_tb_attachments"
-                android:drawableLeft="@drawable/ic_mr_attach" />
-            <TextView
-                android:textSize="12sp"
-                android:textColor="@color/mr_tb_text"
-                android:gravity="center"
-                android:tag="b_emote"
-                android:background="@drawable/mr_tb_btn"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:contentDescription="@string/mr_tb_emotes"
-                android:drawableLeft="@drawable/ic_mr_emote" />
-            <TextView
-                android:textSize="12sp"
-                android:textColor="@color/mr_tb_text"
-                android:gravity="center"
-                android:tag="b_sheets"
-                android:background="@drawable/mr_tb_btn"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:contentDescription="@string/pref_screen_sheets_title"
-                android:drawableLeft="@drawable/ic_mr_sheets" />
-            <TextView
-                android:textSize="12sp"
-                android:textColor="@color/mr_tb_text"
-                android:gravity="center"
-                android:tag="b_tune"
-                android:background="@drawable/mr_tb_btn"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:contentDescription="@string/mr_tb_customize"
-                android:drawableLeft="@drawable/ic_mr_tune" />
+<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:tag="bar_main" android:paddingLeft="4.0dip" android:paddingTop="1.0dip" android:paddingRight="4.0dip" android:paddingBottom="1.0dip" android:layout_width="fill_parent" android:layout_height="@dimen/mr_bar_height">
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:tag="bar_tools" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0">
+            <TextView android:ellipsize="end" android:tag="b_clip" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="5.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="5.0dip" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_clip" android:layout_weight="1.0" android:contentDescription="@string/mr_tb_clipboard" style="@style/MrToolBtn" />
+            <TextView android:ellipsize="end" android:tag="b_trans" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="5.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="5.0dip" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_trans" android:layout_weight="1.0" android:contentDescription="@string/mr_tb_translate" style="@style/MrToolBtn" />
+            <TextView android:ellipsize="end" android:tag="b_aied" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="5.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="5.0dip" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_aied" android:layout_weight="1.0" style="@style/MrToolBtn" />
+            <TextView android:ellipsize="end" android:tag="b_shots" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="5.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="5.0dip" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_attach" android:layout_weight="1.0" android:contentDescription="@string/mr_tb_attachments" style="@style/MrToolBtn" />
+            <TextView android:textSize="12.0sp" android:textColor="@color/mr_tb_text" android:gravity="center" android:tag="b_fonts" android:background="@drawable/mr_tb_btn" android:paddingLeft="10.0dip" android:paddingRight="10.0dip" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="5.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="5.0dip" android:drawableLeft="@drawable/ic_mr_fonts" android:layout_weight="1.0" android:contentDescription="@string/mr_tb_fonts" />
+            <TextView android:textSize="12.0sp" android:textColor="@color/mr_tb_text" android:gravity="center" android:tag="b_emote" android:background="@drawable/mr_tb_btn" android:paddingLeft="10.0dip" android:paddingRight="10.0dip" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="5.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="5.0dip" android:drawableLeft="@drawable/ic_mr_emote" android:layout_weight="1.0" android:contentDescription="@string/mr_tb_emotes" />
+            <TextView android:textSize="12.0sp" android:textColor="@color/mr_tb_text" android:gravity="center" android:tag="b_sheets" android:background="@drawable/mr_tb_btn" android:paddingLeft="10.0dip" android:paddingRight="10.0dip" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="5.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="5.0dip" android:drawableLeft="@drawable/ic_mr_sheets" android:layout_weight="1.0" android:contentDescription="@string/pref_screen_sheets_title" />
+            <TextView android:textSize="12.0sp" android:textColor="@color/mr_tb_text" android:gravity="center" android:tag="b_tune" android:background="@drawable/mr_tb_btn" android:paddingLeft="10.0dip" android:paddingRight="10.0dip" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="5.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="5.0dip" android:drawableLeft="@drawable/ic_mr_tune" android:layout_weight="1.0" android:contentDescription="@string/mr_tb_customize" />
         </LinearLayout>
-        <!-- Word suggestions (MrSugg): CandidateView strip, with a side margin. -->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:tag="bar_sugg"
-            android:visibility="gone"
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="1">
-            <FrameLayout
-                android:tag="sg_host"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1" />
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:tag="bar_sugg" android:visibility="gone" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0">
+            <FrameLayout android:tag="sg_host" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginLeft="4.0dip" android:layout_marginRight="4.0dip" android:layout_weight="1.0" />
         </LinearLayout>
     </LinearLayout>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:tag="bar_t"
-        android:visibility="gone"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:paddingTop="1dp"
-        android:paddingBottom="1dp"
-        android:layout_width="fill_parent"
-        android:layout_height="@dimen/mr_bar_height">
-        <TextView
-            style="@style/MrToolBtn"
-            android:tag="t_back"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:drawableLeft="@drawable/ic_mr_back" />
-        <EditText
-            android:textSize="14sp"
-            android:textColor="@color/mr_tb_text"
-            android:textColorHint="@color/mr_tb_text_dim"
-            android:gravity="center_vertical"
-            android:tag="t_field"
-            android:background="@drawable/mr_tb_btn"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:minHeight="0dp"
-            android:singleLine="true"
-            android:hint="@string/mr_tr_hint"
-            android:inputType="textCapSentences" />
-        <TextView
-            style="@style/MrToolBtn"
-            android:tag="t_lang"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:drawableLeft="@drawable/ic_mr_globe"
-            android:drawablePadding="6dp"
-            android:text="AUTO → EN" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:tag="bar_t" android:paddingLeft="4.0dip" android:paddingTop="1.0dip" android:paddingRight="4.0dip" android:paddingBottom="1.0dip" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="@dimen/mr_bar_height">
+        <TextView android:tag="t_back" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:drawableLeft="@drawable/ic_mr_back" style="@style/MrToolBtn" />
+        <EditText android:textSize="14.0sp" android:textColor="@color/mr_tb_text" android:textColorHint="@color/mr_tb_text_dim" android:gravity="center_vertical" android:tag="t_field" android:background="@drawable/mr_tb_btn" android:paddingLeft="10.0dip" android:paddingRight="10.0dip" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:minHeight="0.0dip" android:hint="@string/mr_tr_hint" android:singleLine="true" android:layout_weight="1.0" android:inputType="textCapSentences" />
+        <TextView android:ellipsize="end" android:tag="t_lang" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:text="AUTO → EN" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_globe" android:drawablePadding="6.0dip" style="@style/MrToolBtn" />
     </LinearLayout>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:tag="bar_c"
-        android:visibility="gone"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:paddingTop="1dp"
-        android:paddingBottom="1dp"
-        android:layout_width="fill_parent"
-        android:layout_height="@dimen/mr_bar_height">
-        <TextView
-            style="@style/MrToolBtn"
-            android:tag="clip_back"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:drawableLeft="@drawable/ic_mr_back" />
-        <TextView
-            android:textSize="13sp"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="@color/mr_tb_text"
-            android:gravity="center_vertical"
-            android:tag="clip_count"
-            android:paddingLeft="6dp"
-            android:paddingRight="6dp"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:text="" />
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-        <TextView
-            style="@style/MrToolBtn"
-            android:tag="clip_sw"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:drawableLeft="@drawable/ic_mr_rec"
-            android:drawablePadding="6dp"
-            android:text="@string/mr_rec_on" />
-        <TextView
-            style="@style/MrToolBtn"
-            android:tag="clip_view"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:drawableLeft="@drawable/ic_mr_view" />
-        <TextView
-            style="@style/MrToolBtn"
-            android:tag="clip_clear"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:drawableLeft="@drawable/ic_mr_trash"
-            android:drawablePadding="6dp"
-            android:text="@string/mr_tb_clear" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:tag="bar_c" android:paddingLeft="4.0dip" android:paddingTop="1.0dip" android:paddingRight="4.0dip" android:paddingBottom="1.0dip" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="@dimen/mr_bar_height">
+        <TextView android:tag="clip_back" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:drawableLeft="@drawable/ic_mr_back" style="@style/MrToolBtn" />
+        <TextView android:textSize="13.0sp" android:textColor="@color/mr_tb_text" android:ellipsize="end" android:gravity="center_vertical" android:tag="clip_count" android:paddingLeft="6.0dip" android:paddingRight="6.0dip" android:layout_width="wrap_content" android:layout_height="fill_parent" android:text="" android:singleLine="true" android:fontFamily="sans-serif-medium" />
+        <View android:layout_width="0.0dip" android:layout_height="1.0dip" android:layout_weight="1.0" />
+        <TextView android:ellipsize="end" android:tag="clip_sw" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:text="@string/mr_rec_on" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_rec" android:drawablePadding="6.0dip" style="@style/MrToolBtn" />
+        <TextView android:tag="clip_view" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:drawableLeft="@drawable/ic_mr_view" style="@style/MrToolBtn" />
+        <TextView android:ellipsize="end" android:tag="clip_clear" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:text="@string/mr_tb_clear" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_trash" android:drawablePadding="6.0dip" style="@style/MrToolBtn" />
     </LinearLayout>
-    <LinearLayout
-        android:orientation="vertical"
-        android:tag="p_clip"
-        android:visibility="gone"
-        android:layout_width="fill_parent"
-        android:layout_height="200dp"
-        android:layout_marginLeft="6dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginRight="6dp"
-        android:layout_marginBottom="6dp">
-        <TextView
-            android:textSize="11sp"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="@color/mr_tb_text_dim"
-            android:tag="clip_hint"
-            android:paddingLeft="14dp"
-            android:paddingRight="14dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="2dp"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:text="@string/mr_tb_clip_hint" />
-        <GridView
-            android:tag="l_clip"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:cacheColorHint="@android:color/transparent"
-            android:listSelector="@android:color/transparent"
-            android:overScrollMode="never"
-            android:numColumns="1"
-            android:stretchMode="columnWidth"
-            android:horizontalSpacing="6dp"
-            android:verticalSpacing="6dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="4dp"
-            android:paddingBottom="8dp"
-            android:clipToPadding="false"
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-        <TextView
-            android:textSize="13sp"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="@color/mr_tb_text_dim"
-            android:gravity="center"
-            android:tag="clip_empty"
-            android:visibility="gone"
-            android:padding="12dp"
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/ic_mr_clip_lg"
-            android:drawablePadding="8dp"
-            android:text="@string/mr_tb_clip_empty" />
+    <LinearLayout android:orientation="vertical" android:tag="p_clip" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="200.0dip" android:layout_marginLeft="6.0dip" android:layout_marginTop="2.0dip" android:layout_marginRight="6.0dip" android:layout_marginBottom="6.0dip">
+        <TextView android:textSize="11.0sp" android:textColor="@color/mr_tb_text_dim" android:ellipsize="end" android:tag="clip_hint" android:paddingLeft="14.0dip" android:paddingTop="8.0dip" android:paddingRight="14.0dip" android:paddingBottom="2.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/mr_tb_clip_hint" android:singleLine="true" android:fontFamily="sans-serif-medium" />
+        <GridView android:tag="l_clip" android:paddingLeft="8.0dip" android:paddingTop="4.0dip" android:paddingRight="8.0dip" android:paddingBottom="8.0dip" android:focusable="false" android:focusableInTouchMode="false" android:clipToPadding="false" android:layout_width="fill_parent" android:layout_height="0.0dip" android:listSelector="@android:color/transparent" android:cacheColorHint="@android:color/transparent" android:horizontalSpacing="6.0dip" android:verticalSpacing="6.0dip" android:stretchMode="columnWidth" android:numColumns="1" android:layout_weight="1.0" android:overScrollMode="never" />
+        <TextView android:textSize="13.0sp" android:textColor="@color/mr_tb_text_dim" android:gravity="center" android:tag="clip_empty" android:padding="12.0dip" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="0.0dip" android:text="@string/mr_tb_clip_empty" android:drawableTop="@drawable/ic_mr_clip_lg" android:drawablePadding="8.0dip" android:layout_weight="1.0" android:fontFamily="sans-serif-medium" />
     </LinearLayout>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:tag="bar_s"
-        android:visibility="gone"
-        android:divider="@drawable/mr_tb_gap"
-        android:showDividers="middle"
-        android:paddingLeft="7dp"
-        android:paddingRight="7dp"
-        android:paddingTop="1dp"
-        android:paddingBottom="1dp"
-        android:layout_width="fill_parent"
-        android:layout_height="@dimen/mr_bar_height">
-        <TextView
-            style="@style/MrToolBtn"
-            android:tag="shot_back"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:contentDescription="@string/mr_tb_back"
-            android:drawableLeft="@drawable/ic_mr_back" />
-        <com.mrkeyboard.app.MrCenteredIconButton
-            style="@style/MrToolBtn"
-            android:tag="shot_photos"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textSize="0sp"
-            android:includeFontPadding="false"
-            android:drawablePadding="0dp"
-            android:layout_height="fill_parent"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:contentDescription="@string/mr_tb_photos"
-            android:drawableTop="@drawable/ic_mr_shots_c" />
-        <com.mrkeyboard.app.MrCenteredIconButton
-            style="@style/MrToolBtn"
-            android:tag="shot_videos"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textSize="0sp"
-            android:includeFontPadding="false"
-            android:drawablePadding="0dp"
-            android:layout_height="fill_parent"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:contentDescription="@string/mr_tb_videos"
-            android:drawableTop="@drawable/ic_mr_video_c" />
-        <com.mrkeyboard.app.MrCenteredIconButton
-            style="@style/MrToolBtn"
-            android:tag="shot_files"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textSize="0sp"
-            android:includeFontPadding="false"
-            android:drawablePadding="0dp"
-            android:layout_height="fill_parent"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:contentDescription="@string/mr_tb_files"
-            android:drawableTop="@drawable/ic_mr_file_c" />
-        <TextView
-            style="@style/MrToolBtn"
-            android:tag="shot_refresh"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:contentDescription="@string/mr_tb_refresh"
-            android:drawableLeft="@drawable/ic_mr_refresh" />
-        <TextView
-            style="@style/MrToolBtn"
-            android:tag="shot_clear_cache"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:text="@string/mr_tb_cache"
-            android:contentDescription="@string/mr_tb_cache_clear"
-            android:tooltipText="Limpar"
-            android:drawablePadding="4dp"
-            android:drawableLeft="@drawable/ic_mr_cache" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:tag="bar_s" android:paddingLeft="7.0dip" android:paddingTop="1.0dip" android:paddingRight="7.0dip" android:paddingBottom="1.0dip" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="@dimen/mr_bar_height" android:divider="@drawable/mr_tb_gap" android:showDividers="middle">
+        <TextView android:tag="shot_back" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginTop="7.0dip" android:layout_marginBottom="7.0dip" android:drawableLeft="@drawable/ic_mr_back" android:contentDescription="@string/mr_tb_back" style="@style/MrToolBtn" />
+        <com.mrkeyboard.app.MrCenteredIconButton android:textSize="0.0sp" android:tag="shot_photos" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginTop="7.0dip" android:layout_marginBottom="7.0dip" android:includeFontPadding="false" android:drawableTop="@drawable/ic_mr_shots_sm" android:drawablePadding="0.0dip" android:layout_weight="1.0" android:contentDescription="@string/mr_tb_photos" style="@style/MrToolBtn" />
+        <com.mrkeyboard.app.MrCenteredIconButton android:textSize="0.0sp" android:tag="shot_videos" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginTop="7.0dip" android:layout_marginBottom="7.0dip" android:includeFontPadding="false" android:drawableTop="@drawable/ic_mr_video_sm" android:drawablePadding="0.0dip" android:layout_weight="1.0" android:contentDescription="@string/mr_tb_videos" style="@style/MrToolBtn" />
+        <com.mrkeyboard.app.MrCenteredIconButton android:textSize="0.0sp" android:tag="shot_files" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginTop="7.0dip" android:layout_marginBottom="7.0dip" android:includeFontPadding="false" android:drawableTop="@drawable/ic_mr_file_sm" android:drawablePadding="0.0dip" android:layout_weight="1.0" android:contentDescription="@string/mr_tb_files" style="@style/MrToolBtn" />
+        <TextView android:tag="shot_refresh" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginTop="7.0dip" android:layout_marginBottom="7.0dip" android:drawableLeft="@drawable/ic_mr_refresh" android:contentDescription="@string/mr_tb_refresh" style="@style/MrToolBtn" />
+        <TextView android:tag="shot_clear_cache" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginTop="7.0dip" android:layout_marginBottom="7.0dip" android:text="@string/mr_tb_cache" android:drawableLeft="@drawable/ic_mr_cache" android:drawablePadding="4.0dip" android:contentDescription="@string/mr_tb_cache_clear" android:tooltipText="Limpar" style="@style/MrToolBtn" />
     </LinearLayout>
-    <LinearLayout
-        android:orientation="vertical"
-        android:tag="p_shots"
-        android:visibility="gone"
-        android:layout_width="fill_parent"
-        android:layout_height="200dp"
-        android:layout_marginLeft="6dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginRight="6dp"
-        android:layout_marginBottom="6dp">
-        <FrameLayout
-            android:tag="shot_stage"
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-            <GridView
-                android:tag="g_shots"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:cacheColorHint="@android:color/transparent"
-                android:listSelector="@android:color/transparent"
-                android:overScrollMode="never"
-                android:numColumns="4"
-                android:stretchMode="columnWidth"
-                android:horizontalSpacing="6dp"
-                android:verticalSpacing="6dp"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="62dp"
-                android:clipToPadding="false"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent" />
-            <TextView
-                android:textSize="13sp"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/mr_tb_text_dim"
-                android:gravity="center"
-                android:tag="shot_empty"
-                android:visibility="gone"
-                android:padding="12dp"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:drawableTop="@drawable/ic_mr_shots_lg"
-                android:drawablePadding="8dp"
-                android:text="@string/mr_shot_loading" />
-            <com.mrkeyboard.app.MrCenteredIconButton
-                style="@style/MrToolBtn"
-                android:tag="shot_pick"
-                android:layout_gravity="bottom|right"
-                android:layout_margin="8dp"
-                android:layout_width="46dp"
-                android:layout_height="46dp"
-                android:paddingLeft="0dp"
-                android:paddingRight="0dp"
-                android:textSize="0sp"
-                android:includeFontPadding="false"
-                android:drawablePadding="0dp"
-                android:drawableTop="@drawable/ic_mr_shots_c" />
-            <LinearLayout
-                android:orientation="horizontal"
-                android:tag="shot_selbar"
-                android:visibility="gone"
-                android:layout_gravity="bottom"
-                android:layout_margin="8dp"
-                android:layout_width="fill_parent"
-                android:layout_height="40dp">
-                <TextView
-                    style="@style/MrToolBtn"
-                    android:tag="shot_sel_cancel"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="fill_parent"
-                    android:layout_marginRight="4dp"
-                    android:text="@string/mr_shot_cancel" />
-                <TextView
-                    style="@style/MrToolBtn"
-                    android:tag="shot_sel_send"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="fill_parent"
-                    android:layout_marginLeft="4dp"
-                    android:drawablePadding="6dp"
-                    android:drawableLeft="@drawable/ic_mr_send" />
+    <LinearLayout android:orientation="vertical" android:tag="p_shots" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="200.0dip" android:layout_marginLeft="6.0dip" android:layout_marginTop="2.0dip" android:layout_marginRight="6.0dip" android:layout_marginBottom="6.0dip">
+        <FrameLayout android:tag="shot_stage" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
+            <GridView android:tag="g_shots" android:paddingLeft="8.0dip" android:paddingTop="8.0dip" android:paddingRight="8.0dip" android:paddingBottom="62.0dip" android:focusable="false" android:focusableInTouchMode="false" android:clipToPadding="false" android:layout_width="fill_parent" android:layout_height="fill_parent" android:listSelector="@android:color/transparent" android:cacheColorHint="@android:color/transparent" android:horizontalSpacing="6.0dip" android:verticalSpacing="6.0dip" android:stretchMode="columnWidth" android:numColumns="4" android:overScrollMode="never" />
+            <TextView android:textSize="13.0sp" android:textColor="@color/mr_tb_text_dim" android:gravity="center" android:tag="shot_empty" android:padding="12.0dip" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="@string/mr_shot_loading" android:drawableTop="@drawable/ic_mr_shots_lg" android:drawablePadding="8.0dip" android:fontFamily="sans-serif-medium" />
+            <com.mrkeyboard.app.MrCenteredIconButton android:textSize="0.0sp" android:layout_gravity="bottom|center|right" android:tag="shot_pick" android:paddingLeft="0.0dip" android:paddingRight="0.0dip" android:layout_width="46.0dip" android:layout_height="46.0dip" android:layout_margin="8.0dip" android:includeFontPadding="false" android:drawableTop="@drawable/ic_mr_shots_c" android:drawablePadding="0.0dip" style="@style/MrToolBtn" />
+            <LinearLayout android:layout_gravity="bottom" android:orientation="horizontal" android:tag="shot_selbar" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="40.0dip" android:layout_margin="8.0dip">
+                <TextView android:tag="shot_sel_cancel" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginRight="4.0dip" android:text="@string/mr_shot_cancel" android:layout_weight="1.0" style="@style/MrToolBtn" />
+                <TextView android:tag="shot_sel_send" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_marginLeft="4.0dip" android:drawableLeft="@drawable/ic_mr_send" android:drawablePadding="6.0dip" android:layout_weight="1.0" style="@style/MrToolBtn" />
             </LinearLayout>
         </FrameLayout>
     </LinearLayout>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:tag="bar_e"
-        android:visibility="gone"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:paddingTop="1dp"
-        android:paddingBottom="1dp"
-        android:layout_width="fill_parent"
-        android:layout_height="@dimen/mr_bar_height">
-        <TextView
-            style="@style/MrToolBtn"
-            android:tag="emote_back"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:drawableLeft="@drawable/ic_mr_back" />
-        <HorizontalScrollView
-            android:scrollbars="none"
-            android:overScrollMode="never"
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="1">
-            <LinearLayout
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent">
-            <TextView
-                style="@style/MrToolIconBtn"
-                android:tag="cat_r"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:singleLine="true"
-                android:contentDescription="@string/mr_tb_emoji_recent"
-                android:drawableLeft="@drawable/ic_mr_cat_r" />
-            <TextView
-                style="@style/MrToolIconBtn"
-                android:tag="cat_0"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:singleLine="true"
-                android:contentDescription="@string/mr_tb_emoji_people"
-                android:drawableLeft="@drawable/ic_mr_cat_0" />
-            <TextView
-                style="@style/MrToolIconBtn"
-                android:tag="cat_1"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:singleLine="true"
-                android:contentDescription="@string/mr_tb_emoji_nature"
-                android:drawableLeft="@drawable/ic_mr_cat_1" />
-            <TextView
-                style="@style/MrToolIconBtn"
-                android:tag="cat_2"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:singleLine="true"
-                android:contentDescription="@string/mr_tb_emoji_food"
-                android:drawableLeft="@drawable/ic_mr_cat_2" />
-            <TextView
-                style="@style/MrToolIconBtn"
-                android:tag="cat_3"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:singleLine="true"
-                android:contentDescription="@string/mr_tb_emoji_activities"
-                android:drawableLeft="@drawable/ic_mr_cat_3" />
-            <TextView
-                style="@style/MrToolIconBtn"
-                android:tag="cat_4"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:singleLine="true"
-                android:contentDescription="@string/mr_tb_emoji_travel"
-                android:drawableLeft="@drawable/ic_mr_cat_4" />
-            <TextView
-                style="@style/MrToolIconBtn"
-                android:tag="cat_5"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:singleLine="true"
-                android:contentDescription="@string/mr_tb_emoji_objects"
-                android:drawableLeft="@drawable/ic_mr_cat_5" />
-            <TextView
-                style="@style/MrToolIconBtn"
-                android:tag="cat_6"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:singleLine="true"
-                android:contentDescription="@string/mr_tb_emoji_symbols"
-                android:drawableLeft="@drawable/ic_mr_cat_6" />
-            <TextView
-                style="@style/MrToolIconBtn"
-                android:tag="cat_7"
-                android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:singleLine="true"
-                android:contentDescription="@string/mr_tb_emoji_flags"
-                android:drawableLeft="@drawable/ic_mr_cat_7" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:tag="bar_e" android:paddingLeft="4.0dip" android:paddingTop="1.0dip" android:paddingRight="4.0dip" android:paddingBottom="1.0dip" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="@dimen/mr_bar_height">
+        <TextView android:tag="emote_back" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:drawableLeft="@drawable/ic_mr_back" style="@style/MrToolBtn" />
+        <HorizontalScrollView android:scrollbars="none" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0" android:overScrollMode="never">
+            <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="fill_parent">
+                <TextView android:tag="cat_r" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_cat_r" android:contentDescription="@string/mr_tb_emoji_recent" style="@style/MrToolIconBtn" />
+                <TextView android:tag="cat_0" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_cat_0" android:contentDescription="@string/mr_tb_emoji_people" style="@style/MrToolIconBtn" />
+                <TextView android:tag="cat_1" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_cat_1" android:contentDescription="@string/mr_tb_emoji_nature" style="@style/MrToolIconBtn" />
+                <TextView android:tag="cat_2" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_cat_2" android:contentDescription="@string/mr_tb_emoji_food" style="@style/MrToolIconBtn" />
+                <TextView android:tag="cat_3" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_cat_3" android:contentDescription="@string/mr_tb_emoji_activities" style="@style/MrToolIconBtn" />
+                <TextView android:tag="cat_4" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_cat_4" android:contentDescription="@string/mr_tb_emoji_travel" style="@style/MrToolIconBtn" />
+                <TextView android:tag="cat_5" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_cat_5" android:contentDescription="@string/mr_tb_emoji_objects" style="@style/MrToolIconBtn" />
+                <TextView android:tag="cat_6" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_cat_6" android:contentDescription="@string/mr_tb_emoji_symbols" style="@style/MrToolIconBtn" />
+                <TextView android:tag="cat_7" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:singleLine="true" android:drawableLeft="@drawable/ic_mr_cat_7" android:contentDescription="@string/mr_tb_emoji_flags" style="@style/MrToolIconBtn" />
             </LinearLayout>
         </HorizontalScrollView>
     </LinearLayout>
-    <LinearLayout
-        android:orientation="vertical"
-        android:tag="p_emote"
-        android:visibility="gone"
-        android:layout_width="fill_parent"
-        android:layout_height="200dp"
-        android:layout_marginLeft="6dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginRight="6dp"
-        android:layout_marginBottom="6dp">
-        <ListView
-            android:tag="g_emote"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:divider="@null"
-            android:dividerHeight="0dp"
-            android:cacheColorHint="@android:color/transparent"
-            android:listSelector="@android:color/transparent"
-            android:overScrollMode="never"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
-            android:paddingBottom="8dp"
-            android:clipToPadding="false"
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+    <LinearLayout android:orientation="vertical" android:tag="p_emote" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="200.0dip" android:layout_marginLeft="6.0dip" android:layout_marginTop="2.0dip" android:layout_marginRight="6.0dip" android:layout_marginBottom="6.0dip">
+        <ListView android:tag="g_emote" android:paddingLeft="4.0dip" android:paddingRight="4.0dip" android:paddingBottom="8.0dip" android:focusable="false" android:focusableInTouchMode="false" android:clipToPadding="false" android:layout_width="fill_parent" android:layout_height="0.0dip" android:listSelector="@android:color/transparent" android:cacheColorHint="@android:color/transparent" android:divider="@null" android:dividerHeight="0.0dip" android:layout_weight="1.0" android:overScrollMode="never" />
     </LinearLayout>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:tag="p_lang"
-        android:visibility="gone"
-        android:layout_width="fill_parent"
-        android:layout_height="200dp"
-        android:layout_marginLeft="6dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginRight="6dp"
-        android:layout_marginBottom="6dp">
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="1">
-            <TextView
-                android:textSize="10sp"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/mr_tb_text_dim"
-                android:textAllCaps="true"
-                android:letterSpacing="0.08"
-                android:tag="hdr_in"
-                android:paddingLeft="14dp"
-                android:paddingRight="10dp"
-                android:paddingTop="9dp"
-                android:paddingBottom="3dp"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:text="@string/mr_tb_lang_in" />
-            <ListView
-                android:tag="l_in"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:divider="@null"
-                android:cacheColorHint="@android:color/transparent"
-                android:listSelector="@drawable/mr_row_sel"
-                android:overScrollMode="never"
-                android:dividerHeight="2dp"
-                android:paddingLeft="6dp"
-                android:paddingRight="6dp"
-                android:paddingTop="2dp"
-                android:paddingBottom="8dp"
-                android:clipToPadding="false"
-                android:layout_width="fill_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+    <LinearLayout android:orientation="horizontal" android:tag="p_lang" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="200.0dip" android:layout_marginLeft="6.0dip" android:layout_marginTop="2.0dip" android:layout_marginRight="6.0dip" android:layout_marginBottom="6.0dip">
+        <LinearLayout android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0">
+            <TextView android:textSize="10.0sp" android:textColor="@color/mr_tb_text_dim" android:tag="hdr_in" android:paddingLeft="14.0dip" android:paddingTop="9.0dip" android:paddingRight="10.0dip" android:paddingBottom="3.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/mr_tb_lang_in" android:singleLine="true" android:textAllCaps="true" android:fontFamily="sans-serif-medium" android:letterSpacing="0.08" />
+            <ListView android:tag="l_in" android:paddingLeft="6.0dip" android:paddingTop="2.0dip" android:paddingRight="6.0dip" android:paddingBottom="8.0dip" android:focusable="false" android:focusableInTouchMode="false" android:clipToPadding="false" android:layout_width="fill_parent" android:layout_height="0.0dip" android:listSelector="@drawable/mr_row_sel" android:cacheColorHint="@android:color/transparent" android:divider="@null" android:dividerHeight="2.0dip" android:layout_weight="1.0" android:overScrollMode="never" />
         </LinearLayout>
-        <View
-            android:background="@color/mr_tb_divider"
-            android:layout_width="1dp"
-            android:layout_height="fill_parent"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp" />
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="1">
-            <TextView
-                android:textSize="10sp"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/mr_tb_text_dim"
-                android:textAllCaps="true"
-                android:letterSpacing="0.08"
-                android:tag="hdr_out"
-                android:paddingLeft="14dp"
-                android:paddingRight="10dp"
-                android:paddingTop="9dp"
-                android:paddingBottom="3dp"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:text="@string/mr_tb_lang_out" />
-            <ListView
-                android:tag="l_out"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:divider="@null"
-                android:cacheColorHint="@android:color/transparent"
-                android:listSelector="@drawable/mr_row_sel"
-                android:overScrollMode="never"
-                android:dividerHeight="2dp"
-                android:paddingLeft="6dp"
-                android:paddingRight="6dp"
-                android:paddingTop="2dp"
-                android:paddingBottom="8dp"
-                android:clipToPadding="false"
-                android:layout_width="fill_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+        <View android:background="@color/mr_tb_divider" android:layout_width="1.0dip" android:layout_height="fill_parent" android:layout_marginTop="10.0dip" android:layout_marginBottom="10.0dip" />
+        <LinearLayout android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0">
+            <TextView android:textSize="10.0sp" android:textColor="@color/mr_tb_text_dim" android:tag="hdr_out" android:paddingLeft="14.0dip" android:paddingTop="9.0dip" android:paddingRight="10.0dip" android:paddingBottom="3.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/mr_tb_lang_out" android:singleLine="true" android:textAllCaps="true" android:fontFamily="sans-serif-medium" android:letterSpacing="0.08" />
+            <ListView android:tag="l_out" android:paddingLeft="6.0dip" android:paddingTop="2.0dip" android:paddingRight="6.0dip" android:paddingBottom="8.0dip" android:focusable="false" android:focusableInTouchMode="false" android:clipToPadding="false" android:layout_width="fill_parent" android:layout_height="0.0dip" android:listSelector="@drawable/mr_row_sel" android:cacheColorHint="@android:color/transparent" android:divider="@null" android:dividerHeight="2.0dip" android:layout_weight="1.0" android:overScrollMode="never" />
         </LinearLayout>
     </LinearLayout>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:tag="bar_tune"
-        android:visibility="gone"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:paddingTop="1dp"
-        android:paddingBottom="1dp"
-        android:layout_width="fill_parent"
-        android:layout_height="@dimen/mr_bar_height">
-        <TextView
-            style="@style/MrToolBtn"
-            android:tag="tune_back"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:drawableLeft="@drawable/ic_mr_back" />
-        <TextView
-            android:textSize="13sp"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="@color/mr_tb_text"
-            android:gravity="center_vertical"
-            android:tag="tune_info"
-            android:paddingLeft="6dp"
-            android:paddingRight="6dp"
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:text="@string/mr_tb_customize" />
-        <TextView
-            style="@style/MrToolBtn"
-            android:tag="tune_reset"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:text="@string/mr_tune_reset" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:tag="bar_tune" android:paddingLeft="4.0dip" android:paddingTop="1.0dip" android:paddingRight="4.0dip" android:paddingBottom="1.0dip" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="@dimen/mr_bar_height">
+        <TextView android:tag="tune_back" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:drawableLeft="@drawable/ic_mr_back" style="@style/MrToolBtn" />
+        <TextView android:textSize="13.0sp" android:textColor="@color/mr_tb_text" android:ellipsize="end" android:gravity="center_vertical" android:tag="tune_info" android:paddingLeft="6.0dip" android:paddingRight="6.0dip" android:layout_width="0.0dip" android:layout_height="fill_parent" android:text="@string/mr_tb_customize" android:singleLine="true" android:layout_weight="1.0" android:fontFamily="sans-serif-medium" />
+        <TextView android:ellipsize="end" android:tag="tune_reset" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:text="@string/mr_tune_reset" android:singleLine="true" style="@style/MrToolBtn" />
     </LinearLayout>
-    <FrameLayout
-        android:tag="kbd_host"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-        <!-- Preferences inside the keyboard (landscape mode only; in portrait it opens the dialog). -->
-        <LinearLayout
-            android:orientation="vertical"
-            android:tag="p_tune"
-            android:visibility="gone"
-            android:clickable="true"
-            android:background="@color/mr_tb_scrim"
-            android:gravity="center_vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
-            <ScrollView
-                android:overScrollMode="never"
-                android:fillViewport="true"
-                android:layout_width="fill_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
-                    android:paddingTop="6dp"
-                    android:paddingBottom="0dp"
-                    android:layout_width="fill_parent"
-                    android:layout_height="match_parent">
-                    <LinearLayout
-                        android:orientation="vertical"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1">
-                        <LinearLayout
-                            android:orientation="vertical"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:paddingLeft="0dp"
-                            android:paddingRight="6dp"
-                            android:paddingTop="4dp"
-                            android:paddingBottom="4dp">
-                            <TextView
-                                android:textSize="13sp"
-                                android:fontFamily="sans-serif-medium"
-                                android:textColor="@color/mr_tb_text_strong"
-                                android:tag="tl_h"
-                                android:paddingLeft="10dp"
-                                android:layout_width="fill_parent"
-                                android:layout_height="wrap_content"
-                                android:singleLine="true"
-                                android:ellipsize="end"
-                                android:text="@string/mr_tune_v" />
-                            <LinearLayout
-                                android:theme="@style/Theme.MrKeyboard.Dialog"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                android:layout_width="fill_parent"
-                                android:layout_height="wrap_content">
-                                <SeekBar
-                                    android:tag="sk_h"
-                                    android:paddingStart="10dp"
-                                    android:paddingLeft="10dp"
-                                    android:paddingTop="6dp"
-                                    android:paddingBottom="6dp"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1" />
-                                <TextView
-                                    android:textSize="13sp"
-                                    android:textColor="@color/mr_accent"
-                                    android:gravity="center"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:background="@drawable/mr_ui_value_pill"
-                                    android:tag="vl_h"
-                                    android:paddingLeft="8dp"
-                                    android:paddingTop="2dp"
-                                    android:paddingRight="8dp"
-                                    android:paddingBottom="2dp"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginLeft="4dp"
-                                    android:minWidth="56dp"
-                                    android:singleLine="true"
-                                    android:text="33%" />
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:tag="bar_fonts" android:paddingLeft="4.0dip" android:paddingTop="1.0dip" android:paddingRight="4.0dip" android:paddingBottom="1.0dip" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="@dimen/mr_bar_height">
+        <TextView android:tag="f_back" android:contentDescription="@string/mr_tb_back" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="7.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="7.0dip" android:drawableLeft="@drawable/ic_mr_back" style="@style/MrToolBtn" />
+        <HorizontalScrollView android:tag="f_scroll" android:scrollbars="none" android:overScrollMode="never" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0">
+            <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:tag="f_row" android:layout_width="wrap_content" android:layout_height="fill_parent" />
+        </HorizontalScrollView>
+    </LinearLayout>
+    <FrameLayout android:tag="kbd_host" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <LinearLayout android:gravity="center_vertical" android:orientation="vertical" android:tag="p_tune" android:background="@color/mr_tb_scrim" android:visibility="gone" android:clickable="true" android:layout_width="fill_parent" android:layout_height="fill_parent">
+            <ScrollView android:layout_width="fill_parent" android:layout_height="0.0dip" android:fillViewport="true" android:layout_weight="1.0" android:overScrollMode="never">
+                <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:paddingLeft="8.0dip" android:paddingTop="6.0dip" android:paddingRight="8.0dip" android:paddingBottom="0.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent">
+                    <LinearLayout android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0">
+                        <LinearLayout android:orientation="vertical" android:paddingLeft="0.0dip" android:paddingTop="4.0dip" android:paddingRight="6.0dip" android:paddingBottom="4.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                            <TextView android:textSize="13.0sp" android:textColor="@color/mr_tb_text_strong" android:ellipsize="end" android:tag="tl_h" android:paddingLeft="10.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/mr_tune_v" android:singleLine="true" android:fontFamily="sans-serif-medium" />
+                            <LinearLayout android:theme="@style/Theme.MrKeyboard.Dialog" android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                                <SeekBar android:tag="sk_h" android:paddingLeft="10.0dip" android:paddingTop="6.0dip" android:paddingBottom="6.0dip" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:paddingStart="10.0dip" />
+                                <TextView android:textSize="13.0sp" android:textColor="@color/mr_accent" android:gravity="center" android:tag="vl_h" android:background="@drawable/mr_ui_value_pill" android:paddingLeft="8.0dip" android:paddingTop="2.0dip" android:paddingRight="8.0dip" android:paddingBottom="2.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="4.0dip" android:minWidth="56.0dip" android:text="33%" android:singleLine="true" android:fontFamily="sans-serif-medium" />
                             </LinearLayout>
                         </LinearLayout>
-                        <LinearLayout
-                            android:orientation="vertical"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:paddingLeft="0dp"
-                            android:paddingRight="6dp"
-                            android:paddingTop="4dp"
-                            android:paddingBottom="4dp">
-                            <TextView
-                                android:textSize="13sp"
-                                android:fontFamily="sans-serif-medium"
-                                android:textColor="@color/mr_tb_text_strong"
-                                android:tag="tl_b"
-                                android:paddingLeft="10dp"
-                                android:layout_width="fill_parent"
-                                android:layout_height="wrap_content"
-                                android:singleLine="true"
-                                android:ellipsize="end"
-                                android:text="@string/title_bar_scale" />
-                            <LinearLayout
-                                android:theme="@style/Theme.MrKeyboard.Dialog"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                android:layout_width="fill_parent"
-                                android:layout_height="wrap_content">
-                                <SeekBar
-                                    android:tag="sk_b"
-                                    android:paddingStart="10dp"
-                                    android:paddingLeft="10dp"
-                                    android:paddingTop="6dp"
-                                    android:paddingBottom="6dp"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1" />
-                                <TextView
-                                    android:textSize="13sp"
-                                    android:textColor="@color/mr_accent"
-                                    android:gravity="center"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:background="@drawable/mr_ui_value_pill"
-                                    android:tag="vl_b"
-                                    android:paddingLeft="8dp"
-                                    android:paddingTop="2dp"
-                                    android:paddingRight="8dp"
-                                    android:paddingBottom="2dp"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginLeft="4dp"
-                                    android:minWidth="56dp"
-                                    android:singleLine="true"
-                                    android:text="100%" />
+                        <LinearLayout android:orientation="vertical" android:paddingLeft="0.0dip" android:paddingTop="4.0dip" android:paddingRight="6.0dip" android:paddingBottom="4.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                            <TextView android:textSize="13.0sp" android:textColor="@color/mr_tb_text_strong" android:ellipsize="end" android:tag="tl_b" android:paddingLeft="10.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/title_bar_scale" android:singleLine="true" android:fontFamily="sans-serif-medium" />
+                            <LinearLayout android:theme="@style/Theme.MrKeyboard.Dialog" android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                                <SeekBar android:tag="sk_b" android:paddingLeft="10.0dip" android:paddingTop="6.0dip" android:paddingBottom="6.0dip" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:paddingStart="10.0dip" />
+                                <TextView android:textSize="13.0sp" android:textColor="@color/mr_accent" android:gravity="center" android:tag="vl_b" android:background="@drawable/mr_ui_value_pill" android:paddingLeft="8.0dip" android:paddingTop="2.0dip" android:paddingRight="8.0dip" android:paddingBottom="2.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="4.0dip" android:minWidth="56.0dip" android:text="100%" android:singleLine="true" android:fontFamily="sans-serif-medium" />
                             </LinearLayout>
                         </LinearLayout>
-                        <LinearLayout
-                            android:orientation="vertical"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:paddingLeft="0dp"
-                            android:paddingRight="6dp"
-                            android:paddingTop="4dp"
-                            android:paddingBottom="4dp">
-                            <TextView
-                                android:textSize="13sp"
-                                android:fontFamily="sans-serif-medium"
-                                android:textColor="@color/mr_tb_text_strong"
-                                android:tag="tl_l"
-                                android:paddingLeft="10dp"
-                                android:layout_width="fill_parent"
-                                android:layout_height="wrap_content"
-                                android:singleLine="true"
-                                android:ellipsize="end"
-                                android:text="@string/title_label_scale" />
-                            <LinearLayout
-                                android:theme="@style/Theme.MrKeyboard.Dialog"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                android:layout_width="fill_parent"
-                                android:layout_height="wrap_content">
-                                <SeekBar
-                                    android:tag="sk_l"
-                                    android:paddingStart="10dp"
-                                    android:paddingLeft="10dp"
-                                    android:paddingTop="6dp"
-                                    android:paddingBottom="6dp"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1" />
-                                <TextView
-                                    android:textSize="13sp"
-                                    android:textColor="@color/mr_accent"
-                                    android:gravity="center"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:background="@drawable/mr_ui_value_pill"
-                                    android:tag="vl_l"
-                                    android:paddingLeft="8dp"
-                                    android:paddingTop="2dp"
-                                    android:paddingRight="8dp"
-                                    android:paddingBottom="2dp"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginLeft="4dp"
-                                    android:minWidth="56dp"
-                                    android:singleLine="true"
-                                    android:text="100%" />
+                        <LinearLayout android:orientation="vertical" android:paddingLeft="0.0dip" android:paddingTop="4.0dip" android:paddingRight="6.0dip" android:paddingBottom="4.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                            <TextView android:textSize="13.0sp" android:textColor="@color/mr_tb_text_strong" android:ellipsize="end" android:tag="tl_l" android:paddingLeft="10.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/title_label_scale" android:singleLine="true" android:fontFamily="sans-serif-medium" />
+                            <LinearLayout android:theme="@style/Theme.MrKeyboard.Dialog" android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                                <SeekBar android:tag="sk_l" android:paddingLeft="10.0dip" android:paddingTop="6.0dip" android:paddingBottom="6.0dip" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:paddingStart="10.0dip" />
+                                <TextView android:textSize="13.0sp" android:textColor="@color/mr_accent" android:gravity="center" android:tag="vl_l" android:background="@drawable/mr_ui_value_pill" android:paddingLeft="8.0dip" android:paddingTop="2.0dip" android:paddingRight="8.0dip" android:paddingBottom="2.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="4.0dip" android:minWidth="56.0dip" android:text="100%" android:singleLine="true" android:fontFamily="sans-serif-medium" />
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
-                    <LinearLayout
-                        android:orientation="vertical"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1">
-                        <LinearLayout
-                            android:orientation="vertical"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:paddingLeft="0dp"
-                            android:paddingRight="6dp"
-                            android:paddingTop="4dp"
-                            android:paddingBottom="4dp">
-                            <TextView
-                                android:textSize="13sp"
-                                android:fontFamily="sans-serif-medium"
-                                android:textColor="@color/mr_tb_text_strong"
-                                android:tag="tl_s"
-                                android:paddingLeft="10dp"
-                                android:layout_width="fill_parent"
-                                android:layout_height="wrap_content"
-                                android:singleLine="true"
-                                android:ellipsize="end"
-                                android:text="@string/title_key_spacing" />
-                            <LinearLayout
-                                android:theme="@style/Theme.MrKeyboard.Dialog"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                android:layout_width="fill_parent"
-                                android:layout_height="wrap_content">
-                                <SeekBar
-                                    android:tag="sk_s"
-                                    android:paddingStart="10dp"
-                                    android:paddingLeft="10dp"
-                                    android:paddingTop="6dp"
-                                    android:paddingBottom="6dp"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1" />
-                                <TextView
-                                    android:textSize="13sp"
-                                    android:textColor="@color/mr_accent"
-                                    android:gravity="center"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:background="@drawable/mr_ui_value_pill"
-                                    android:tag="vl_s"
-                                    android:paddingLeft="8dp"
-                                    android:paddingTop="2dp"
-                                    android:paddingRight="8dp"
-                                    android:paddingBottom="2dp"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginLeft="4dp"
-                                    android:minWidth="56dp"
-                                    android:singleLine="true"
-                                    android:text="4 dp" />
+                    <LinearLayout android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0">
+                        <LinearLayout android:orientation="vertical" android:paddingLeft="0.0dip" android:paddingTop="4.0dip" android:paddingRight="6.0dip" android:paddingBottom="4.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                            <TextView android:textSize="13.0sp" android:textColor="@color/mr_tb_text_strong" android:ellipsize="end" android:tag="tl_s" android:paddingLeft="10.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/title_key_spacing" android:singleLine="true" android:fontFamily="sans-serif-medium" />
+                            <LinearLayout android:theme="@style/Theme.MrKeyboard.Dialog" android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                                <SeekBar android:tag="sk_s" android:paddingLeft="10.0dip" android:paddingTop="6.0dip" android:paddingBottom="6.0dip" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:paddingStart="10.0dip" />
+                                <TextView android:textSize="13.0sp" android:textColor="@color/mr_accent" android:gravity="center" android:tag="vl_s" android:background="@drawable/mr_ui_value_pill" android:paddingLeft="8.0dip" android:paddingTop="2.0dip" android:paddingRight="8.0dip" android:paddingBottom="2.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="4.0dip" android:minWidth="56.0dip" android:text="4 dp" android:singleLine="true" android:fontFamily="sans-serif-medium" />
                             </LinearLayout>
                         </LinearLayout>
-                        <LinearLayout
-                            android:orientation="vertical"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content"
-                            android:paddingLeft="0dp"
-                            android:paddingRight="6dp"
-                            android:paddingTop="4dp"
-                            android:paddingBottom="4dp">
-                            <TextView
-                                android:textSize="13sp"
-                                android:fontFamily="sans-serif-medium"
-                                android:textColor="@color/mr_tb_text_strong"
-                                android:tag="tl_r"
-                                android:paddingLeft="10dp"
-                                android:layout_width="fill_parent"
-                                android:layout_height="wrap_content"
-                                android:singleLine="true"
-                                android:ellipsize="end"
-                                android:text="@string/mr_tb_radius" />
-                            <LinearLayout
-                                android:theme="@style/Theme.MrKeyboard.Dialog"
-                                android:orientation="horizontal"
-                                android:gravity="center_vertical"
-                                android:layout_width="fill_parent"
-                                android:layout_height="wrap_content">
-                                <SeekBar
-                                    android:tag="sk_r"
-                                    android:paddingStart="10dp"
-                                    android:paddingLeft="10dp"
-                                    android:paddingTop="6dp"
-                                    android:paddingBottom="6dp"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1" />
-                                <TextView
-                                    android:textSize="13sp"
-                                    android:textColor="@color/mr_accent"
-                                    android:gravity="center"
-                                    android:fontFamily="sans-serif-medium"
-                                    android:background="@drawable/mr_ui_value_pill"
-                                    android:tag="vl_r"
-                                    android:paddingLeft="8dp"
-                                    android:paddingTop="2dp"
-                                    android:paddingRight="8dp"
-                                    android:paddingBottom="2dp"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginLeft="4dp"
-                                    android:minWidth="56dp"
-                                    android:singleLine="true"
-                                    android:text="8 dp" />
+                        <LinearLayout android:orientation="vertical" android:paddingLeft="0.0dip" android:paddingTop="4.0dip" android:paddingRight="6.0dip" android:paddingBottom="4.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                            <TextView android:textSize="13.0sp" android:textColor="@color/mr_tb_text_strong" android:ellipsize="end" android:tag="tl_r" android:paddingLeft="10.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/mr_tb_radius" android:singleLine="true" android:fontFamily="sans-serif-medium" />
+                            <LinearLayout android:theme="@style/Theme.MrKeyboard.Dialog" android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content">
+                                <SeekBar android:tag="sk_r" android:paddingLeft="10.0dip" android:paddingTop="6.0dip" android:paddingBottom="6.0dip" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0" android:paddingStart="10.0dip" />
+                                <TextView android:textSize="13.0sp" android:textColor="@color/mr_accent" android:gravity="center" android:tag="vl_r" android:background="@drawable/mr_ui_value_pill" android:paddingLeft="8.0dip" android:paddingTop="2.0dip" android:paddingRight="8.0dip" android:paddingBottom="2.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="4.0dip" android:minWidth="56.0dip" android:text="8 dp" android:singleLine="true" android:fontFamily="sans-serif-medium" />
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>

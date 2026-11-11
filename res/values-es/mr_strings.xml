@@ -111,9 +111,8 @@
     <string name="mr_dicts_err_space">Falta espacio: se necesitan %1$s libres.</string>
     <string name="mr_dicts_err_cancel">Descarga cancelada.</string>
     <string name="mr_dicts_err_io">No se pudo guardar el diccionario (%1$s).</string>
-    <!-- v1.64: Translate notice (MrNotice) -->
+    <!-- Translate field -->
     <string name="mr_tr_hint">Escribe para traducir con Google</string>
-    <string name="mr_tr_notice">El texto de este campo se envía a Google Traductor. Lo demás se queda en el dispositivo.</string>
     <string name="mr_ui_cat_codes">Ctrl y Alt</string>
     <string name="mr_ui_cat_codes_sum">Ctrl-A y códigos de las teclas</string>
     <string name="mr_ui_cat_shape">Forma de las teclas</string>
@@ -144,6 +143,8 @@
     <string name="mr_tb_clear">Borrar</string>
     <string name="mr_tb_clip_hint">Toca para insertar  ·  Mantén para borrar</string>
     <string name="mr_tb_clip_empty">Nada copiado todavía\nLo que copies aparece aquí</string>
+    <string name="mr_tb_clip_count_one">%1$d elemento</string>
+    <string name="mr_tb_clip_count_many">%1$d elementos</string>
     <string name="mr_tb_lang_in">Idioma de entrada</string>
     <string name="mr_tb_lang_out">Idioma de salida</string>
     <string name="mr_tb_radius">Redondeo de las teclas</string>
@@ -160,7 +161,6 @@
     <string name="mr_tune_reset">Restaurar valores</string>
     <string name="mr_ai_title">Editor con IA</string>
     <string name="mr_ai_settings_summary">Reescribe textos con estilos de IA: tu propio servicio, modelo y clave</string>
-    <string name="mr_ai_notice">El texto que reescribas aquí se envía al servicio de IA que hayas configurado. No se envía nada hasta que toques un estilo.</string>
     <string name="mr_ai_result">Resultado</string>
     <string name="mr_ai_apply">Aplicar</string>
     <string name="mr_ai_copied">Resultado copiado</string>
@@ -569,4 +569,35 @@
     <string name="mr_pick_custom_code">Código personalizado (%1$d)</string>
     <!-- ===== Key grid of the sheet editor (SheetGridView, prefix mr_grid_) ===== -->
     <string name="mr_grid_add_key">+ Agregar tecla</string>
+    <!-- ===== Fonts tool (MrFonts, prefixes mr_tb_fonts, mr_font_) ===== -->
+    <string name="mr_tb_fonts">Fuentes</string>
+    <string name="mr_font_default">Fuente del sistema</string>
+    <!-- Style names: N = the style index = the place of its button in the row (see MrFonts) -->
+    <string name="mr_font_style_0">Negrita</string>
+    <string name="mr_font_style_1">Cursiva</string>
+    <string name="mr_font_style_2">Negrita cursiva</string>
+    <string name="mr_font_style_3">Sans</string>
+    <string name="mr_font_style_4">Sans negrita</string>
+    <string name="mr_font_style_5">Sans cursiva</string>
+    <string name="mr_font_style_6">Sans negrita cursiva</string>
+    <string name="mr_font_style_7">Monoespaciada</string>
+    <string name="mr_font_style_8">Manuscrita</string>
+    <string name="mr_font_style_9">Manuscrita negrita</string>
+    <string name="mr_font_style_10">Gótica</string>
+    <string name="mr_font_style_11">Gótica negrita</string>
+    <string name="mr_font_style_12">Doble trazo</string>
+    <string name="mr_font_style_13">Burbuja</string>
+    <string name="mr_font_style_14">Burbuja rellena</string>
+    <string name="mr_font_style_15">Cuadrada</string>
+    <string name="mr_font_style_16">Cuadrada rellena</string>
+    <string name="mr_font_style_17">Paréntesis</string>
+    <string name="mr_font_style_18">Versalitas</string>
+    <string name="mr_font_style_19">Superíndice</string>
+    <string name="mr_font_style_20">Subíndice</string>
+    <string name="mr_font_style_21">Ancha</string>
+    <string name="mr_font_style_22">Subrayado</string>
+    <string name="mr_font_style_23">Subrayado doble</string>
+    <string name="mr_font_style_24">Tachado</string>
+    <string name="mr_font_style_25">Sobrelínea</string>
+    <string name="mr_font_style_26">Barrado</string>
 </resources>

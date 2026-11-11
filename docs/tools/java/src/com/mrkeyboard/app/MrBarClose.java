@@ -1,8 +1,8 @@
 package com.mrkeyboard.app;
 
 /**
- * The buttons of the tool bar of the keyboard (clipboard, translate, attachments, emoji, sheets, Customize keyboard, AI
- * Editor) and the dialogs of the tools. (The bar itself is MrBar.)
+ * The buttons of the tool bar of the keyboard (clipboard, translate, attachments, fonts, emoji, sheets, Customize
+ * keyboard, AI Editor) and the dialogs of the tools. (The bar itself is MrBar.)
  * <p>
  * The dialogs of the AI Editor and of Customize keyboard are windows attached to the keyboard window and cover the area
  * above the keyboard, so the bar stays within reach while one is open. Pressing any button of the bar closes the dialogs
@@ -10,9 +10,10 @@ package com.mrkeyboard.app;
  * button (its toggle closes it): closing it here first would make the toggle open it again.
  */
 final class MrBarClose {
-    /** Codes (MrTools.mCode) of the seven buttons of the bar, as MrTools binds them: clipboard, translate, attachments,
-     *  Customize keyboard, emoji, sheets, AI Editor. res_check.py compares this list with the smali. */
-    static final int[] TOOLBAR = {0x0, 0x1, 0x8, 0x13, 0x14, 0x15, 0x18};
+    /** Codes (MrTools.mCode) of the eight buttons of the bar, as MrTools binds them: clipboard, translate, attachments,
+     *  Customize keyboard, emoji, sheets, AI Editor and 0x19, the fonts tool. res_check.py compares this list with the smali. */
+    // (the list follows the codes, not the order of the buttons on the bar)
+    static final int[] TOOLBAR = {0x0, 0x1, 0x8, 0x13, 0x14, 0x15, 0x18, 0x19};
     static final int TUNE = 0x13;
     static final int AI = 0x18;
 

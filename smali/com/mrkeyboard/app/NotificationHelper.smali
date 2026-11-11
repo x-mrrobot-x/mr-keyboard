@@ -2,14 +2,12 @@
 .super Ljava/lang/Object;
 .source "NotificationHelper.java"
 
-
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
         Lcom/mrkeyboard/app/NotificationHelper$Api26;
     }
 .end annotation
-
 
 # static fields
 .field private static final CHANNEL_ID:Ljava/lang/String; = "PCKeyboard"
@@ -23,7 +21,6 @@
 .field private static final RES_STR_CHAN_NAME:I = 0x7f0c011e
 
 .field private static final RES_STR_SETTINGS:I = 0x7f0c011c
-
 
 # direct methods
 .method private constructor <init>()V
@@ -70,16 +67,16 @@
 .end method
 
 .method static registerAndPost(Lcom/mrkeyboard/app/LatinIME;Landroid/app/NotificationManager;)Lcom/mrkeyboard/app/NotificationReceiver;
-    .registers 12
+    .locals 10
 
     .line 26
-    if-eqz p1, :cond_b
+    if-eqz p1, :cond_0
 
     .line 27
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/NotificationHelper$Api26;->ensureChannel(Landroid/content/Context;Landroid/app/NotificationManager;)V
 
     .line 30
-    :cond_b
+    :cond_0
     new-instance v1, Lcom/mrkeyboard/app/NotificationReceiver;
 
     invoke-direct {v1, p0}, Lcom/mrkeyboard/app/NotificationReceiver;-><init>(Lcom/mrkeyboard/app/LatinIME;)V
@@ -145,7 +142,6 @@
     move-result-object v0
 
     .line 54
-    :goto_57
     invoke-static {p0}, Lcom/mrkeyboard/app/UiLocale;->wrap(Landroid/content/Context;)Landroid/content/Context;
 
     move-result-object v9
@@ -184,8 +180,7 @@
 
     move-result-object v2
 
-    # circle behind the small icon: the blue of the Settings theme (mr_accent #1b97fc)
-    const v5, 0xff1b97fc
+    const v5, -0xe46804
 
     invoke-virtual {v2, v5}, Landroid/app/Notification$Builder;->setColor(I)Landroid/app/Notification$Builder;
 
@@ -259,10 +254,10 @@
     invoke-virtual {v2, p0}, Landroid/app/Notification$Builder;->addAction(Landroid/app/Notification$Action;)Landroid/app/Notification$Builder;
 
     .line 70
-    if-eqz p1, :cond_a7
+    if-eqz p1, :cond_1
 
     .line 72
-    :try_start_9c
+    :try_start_0
     invoke-virtual {v0}, Landroid/app/Notification$Builder;->build()Landroid/app/Notification;
 
     move-result-object p0
@@ -270,19 +265,19 @@
     const/16 v0, 0x3e9
 
     invoke-virtual {p1, v0, p0}, Landroid/app/NotificationManager;->notify(ILandroid/app/Notification;)V
-    :try_end_a5
-    .catch Ljava/lang/SecurityException; {:try_start_9c .. :try_end_a5} :catch_a6
+    :try_end_0
+    .catch Ljava/lang/SecurityException; {:try_start_0 .. :try_end_0} :catch_0
 
     .line 74
-    goto :goto_a7
+    goto :goto_0
 
     .line 73
-    :catch_a6
+    :catch_0
     move-exception p0
 
     .line 76
-    :cond_a7
-    :goto_a7
+    :cond_1
+    :goto_0
     return-object v1
 .end method
 
@@ -305,4 +300,3 @@
 
     return v0
 .end method
-

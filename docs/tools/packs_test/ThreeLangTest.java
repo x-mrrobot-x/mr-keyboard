@@ -49,10 +49,6 @@ public class ThreeLangTest {
             public CharSequence getTextBeforeCursor(int n, int f) { return ""; }
         });
         PacksTest.check("German (no pack in the catalog): no dictionary and no download offer", !sd.hasMainDictionary() && offer == null, offer);
-        // Translate notice: only the first time
-        MrNotice.translate(ctx);
-        boolean first = ctx.getSharedPreferences(MrNotice.PREFS, 0).getBoolean(MrNotice.KEY_TRANSLATE, false);
-        PacksTest.check("Translate notice marked as seen", first, null);
         System.out.println(PacksTest.fails == 0 ? "ALL OK (" + PacksTest.oks + " checks)" : PacksTest.fails + " FAILURE(S)");
         MrPacks.deleteTree(tmp);
         System.exit(PacksTest.fails == 0 ? 0 : 1);

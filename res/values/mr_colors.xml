@@ -5,8 +5,8 @@
     <color name="mr_slate_kbd_bg">#ff0a0e14</color>
     <color name="mr_soft_kbd_bg">#ff00020e</color>
     <color name="mr_neon_kbd_bg">#ff09110c</color>
-    <!-- Keyboard background of the Midnight Steel theme; the toolbar uses #171e27 (MrTools.liftBar) -->
-    <color name="mr_midnight_kbd_bg">#ff0c1219</color>
+    <!-- Keyboard background of the Midnight Steel theme -->
+    <color name="mr_midnight_kbd_bg">#ff171e27</color>
     <color name="mr_glass_kbd_bg">#80090f17</color>
     <color name="mr_glass_kbd_bg_blur">#17090f17</color>
 
@@ -19,22 +19,79 @@
     <!-- ===== Toolbar and panel colors (MrTheme.color) =====
          Looked up by name: first mr_<theme>_<role> (e.g. mr_glass_panel_btn), then mr_<role>.
          The mr_panel_* values are the usual ones (Slate, Midnight, Neon, Soft); a theme that needs
-         another color only declares its own mr_<theme>_panel_* version. -->
-    <color name="mr_panel_bar">#ff171e27</color>
+         another color only declares its own mr_<theme>_panel_* version.
+         Background: the toolbar and the panels have no color of their own in any theme; they show the keyboard's (kbd_bg).
+         The buttons of the bar do NOT use panel_* colors: their colors come from the Ctrl key (highlight keys) of the theme,
+         through the roles ctrl_bg and alpha_* below. -->
+    <!-- Only the file card of the Attachments panel in the flat themes (MrTools.cardBg). -->
     <color name="mr_panel_btn">#ff263344</color>
-    <color name="mr_panel_btn_stroke">#ff3a4d65</color>
-    <color name="mr_panel_tab_off">#ff1e2937</color>
-    <color name="mr_panel_tab_off_stroke">#ff2c3b4f</color>
-    <color name="mr_panel_field">#ff0e141b</color>
-    <color name="mr_panel_field_stroke">#ff2a3645</color>
+    <!-- Translation text field: transparent background. The border is NOT a fixed color: MrTools.fieldBg paints it
+         with the theme color (accent) at the opacity of mr_alpha_btn, the same as the buttons next to it. -->
+    <color name="mr_panel_field">#00000000</color>
     <color name="mr_panel_card">#33888888</color>
     <color name="mr_panel_icon">#ffdfe7f1</color>
     <color name="mr_panel_tab_on_text">@color/mr_panel_icon</color>
     <color name="mr_panel_tab_off_text">#ff9db1c8</color>
+    <!-- Face of the Ctrl key (highlight keys) of each theme: the only source of the toolbar colors. Each theme points at the
+         color of its own highlight key in mr_key_colors.xml, so changing the key changes the bar. MrTools.ctrlBg() reads it as it
+         is (pressed tool button); MrTools.deriveColors() lightens it into the accent (inner buttons, field border). Default:
+         Midnight Steel. -->
+    <color name="mr_ctrl_bg">@color/mr_midnight_key_hl_fill</color>
+    <color name="mr_neon_ctrl_bg">@color/mr_neon_key_acc_normal_base</color>
+    <color name="mr_soft_ctrl_bg">@color/mr_soft_key_acc_normal_top</color>
+    <color name="mr_slate_ctrl_bg">@color/mr_slate_key_hl_top</color>
+    <color name="mr_midnight_ctrl_bg">@color/mr_midnight_key_hl_fill</color>
+    <color name="mr_glass_ctrl_bg">@color/mr_glass_key_acc_normal_fill</color>
+
+    <!-- Shared interaction hues: pressed-key edge, selected popup subkey edge and key-preview outline. -->
+    <color name="mr_press_accent">#ff72a6ef</color>
+    <color name="mr_neon_press_accent">#ff71e89d</color>
+    <color name="mr_soft_press_accent">#ff70a5ff</color>
+    <color name="mr_slate_press_accent">#ff75a7ef</color>
+    <color name="mr_midnight_press_accent">#ff72a2e8</color>
+    <color name="mr_glass_press_accent">#bb8fb8e8</color>
+    <!-- Lower dash of Ctrl, Alt, Shift and the Meta key (❖). These keys wear the theme's highlight face and the dash tells their
+         state, so the colors are chosen against that face and every one belongs to the theme's own hue: off is a subdued tone of
+         the face (Slate, Midnight and Glass about 1.3 of contrast, Neon and Soft a little more), on is the theme's interaction
+         color (Neon uses a light green, because its press green is too close to the green face) and locked is red. -->
+    <color name="mr_modifier_indicator_off">#ff263446</color>
+    <color name="mr_modifier_indicator_on">@color/mr_press_accent</color>
+    <color name="mr_modifier_indicator_lock">#ffff5252</color>
+
+    <color name="mr_neon_modifier_indicator_off">#ff2a9d59</color>
+    <color name="mr_neon_modifier_indicator_on">#ffb6f5cc</color>
+    <color name="mr_neon_modifier_indicator_lock">#ffc62828</color>
+
+    <color name="mr_soft_modifier_indicator_off">#ff062372</color>
+    <color name="mr_soft_modifier_indicator_on">@color/mr_soft_press_accent</color>
+    <color name="mr_soft_modifier_indicator_lock">#ffff5a5a</color>
+
+    <color name="mr_slate_modifier_indicator_off">#ff213249</color>
+    <color name="mr_slate_modifier_indicator_on">@color/mr_slate_press_accent</color>
+    <color name="mr_slate_modifier_indicator_lock">#ffff5a5a</color>
+
+    <color name="mr_midnight_modifier_indicator_off">#ff263446</color>
+    <color name="mr_midnight_modifier_indicator_on">@color/mr_midnight_press_accent</color>
+    <color name="mr_midnight_modifier_indicator_lock">#ffff5a5a</color>
+
+    <color name="mr_glass_modifier_indicator_off">#ff1c3455</color>
+    <color name="mr_glass_modifier_indicator_on">@color/mr_glass_press_accent</color>
+    <color name="mr_glass_modifier_indicator_lock">#ffff6b6b</color>
+
     <color name="mr_alpha_press">#59000000</color>
-    <color name="mr_alpha_flat">#4d000000</color>
+    <!-- Pressed tool button of the bar (b_*, cat_*): the Ctrl face (ctrl_bg) at this opacity. The default is for the dark faces
+         (Slate, Midnight); Neon, Soft and Glass, whose faces are brighter, declare a lower one to stay subtle. -->
+    <color name="mr_alpha_flat">#b3000000</color>
+    <color name="mr_neon_alpha_flat">#4d000000</color>
+    <color name="mr_soft_alpha_flat">#59000000</color>
+    <color name="mr_glass_alpha_flat">#59000000</color>
+    <!-- Fill of the buttons inside the tools (back, language, attachments, clear...), in EVERY theme: the Ctrl accent at this
+         opacity, no border (MrTools.softBg); on touch, alpha_press. #00000000 = fully transparent buttons. The same opacity
+         paints the border of the translation field (MrTools.fieldBg). -->
+    <color name="mr_alpha_btn">#29000000</color>
+    <!-- Tabs that are not selected (Attachments): the Ctrl accent at this opacity (MrTools.tabOffBg), below alpha_btn. -->
+    <color name="mr_alpha_tab_off">#14000000</color>
     <color name="mr_alpha_sel">#47000000</color>
-    <color name="mr_alpha_sel_text">#33000000</color>
     <color name="mr_alpha_card">#22000000</color>
     <!-- Attachments: picker button (attach_fab), selection Cancel/Send (sel_cancel, sel_send) and item marking.
          Roles *_stroke: 1 dp border; *_text and attach_fab_icon: text and icon. sel_send also paints the check of the marked item
@@ -53,13 +110,8 @@
     <color name="mr_sel_card">#ff25445f</color>
 
     <!-- Cobalt Glass: the same colors, translucent, so the background blur shows through -->
-    <color name="mr_glass_panel_bar">#4f19222f</color>
-    <color name="mr_glass_panel_btn">#5c3c5f8e</color>
-    <color name="mr_glass_panel_btn_stroke">#248fb8e8</color>
-    <color name="mr_glass_panel_tab_off">#263c5f8e</color>
-    <color name="mr_glass_panel_tab_off_stroke">#248fb8e8</color>
-    <color name="mr_glass_panel_field">#4d07142b</color>
-    <color name="mr_glass_panel_field_stroke">#248fb8e8</color>
+    <color name="mr_glass_panel_btn">#9433598a</color>
+    <color name="mr_glass_panel_field">#00000000</color>
     <color name="mr_glass_sel_cancel">#cc2c3f5c</color>
     <color name="mr_glass_sel_cancel_stroke">#33cfe3ff</color>
     <color name="mr_glass_sel_cancel_text">#ffeaf2ff</color>
@@ -91,15 +143,15 @@
     <color name="mr_neon_popup_bg_bottom">#f509110c</color>
     <color name="mr_neon_popup_bg_stroke">#d93ddc84</color>
     <color name="mr_neon_popup_halo">#263ddc84</color>
-    <color name="mr_neon_popup_key_top">#403ddc84</color>
-    <color name="mr_neon_popup_key_bottom">#403ddc84</color>
-    <color name="mr_neon_popup_key_stroke">#ff3ddc84</color>
-    <color name="mr_neon_popup_key_halo">#403ddc84</color>
+    <color name="mr_neon_popup_key_top">@color/mr_neon_key_pressed_fill</color>
+    <color name="mr_neon_popup_key_bottom">@color/mr_neon_key_pressed_fill</color>
+    <color name="mr_neon_popup_key_stroke">@color/mr_neon_press_accent</color>
+    <color name="mr_neon_popup_key_halo">@color/mr_neon_key_pressed_halo</color>
     <color name="mr_neon_popup_hint">#8c6ee79b</color>
     <color name="mr_neon_preview_top">#f5101c14</color>
     <color name="mr_neon_preview_bottom">#f509110c</color>
-    <color name="mr_neon_preview_stroke">#ff3ddc84</color>
-    <color name="mr_neon_preview_dots">#cc3ddc84</color>
+    <color name="mr_neon_preview_stroke">@color/mr_neon_press_accent</color>
+    <color name="mr_neon_preview_dots">#cc71e89d</color>
 
     <color name="mr_soft_sel_cancel">#ff001769</color>
     <color name="mr_soft_sel_cancel_stroke">#ff22499f</color>
@@ -119,15 +171,15 @@
     <color name="mr_soft_popup_bg_top">#ff05166e</color>
     <color name="mr_soft_popup_bg_bottom">#ff00083c</color>
     <color name="mr_soft_popup_bg_stroke">#ff3a8cff</color>
-    <color name="mr_soft_popup_key_top">#ff0a50e0</color>
-    <color name="mr_soft_popup_key_mid">#ff002cc0</color>
-    <color name="mr_soft_popup_key_bottom">#ff0a46d8</color>
-    <color name="mr_soft_popup_key_stroke">#ff2ae6fa</color>
+    <color name="mr_soft_popup_key_top">@color/mr_soft_key_pressed_top</color>
+    <color name="mr_soft_popup_key_mid">@color/mr_soft_key_pressed_mid</color>
+    <color name="mr_soft_popup_key_bottom">@color/mr_soft_key_pressed_bottom</color>
+    <color name="mr_soft_popup_key_stroke">@color/mr_soft_press_accent</color>
     <color name="mr_soft_popup_hint">#b35ea6ff</color>
     <color name="mr_soft_preview_top">#f505166e</color>
     <color name="mr_soft_preview_bottom">#f500083c</color>
-    <color name="mr_soft_preview_stroke">#ff3a8cff</color>
-    <color name="mr_soft_preview_dots">#cc5ea6ff</color>
+    <color name="mr_soft_preview_stroke">@color/mr_soft_press_accent</color>
+    <color name="mr_soft_preview_dots">#cc70a5ff</color>
 
     <color name="mr_slate_sel_cancel">#ff1c2430</color>
     <color name="mr_slate_sel_cancel_stroke">#ff2e3a4a</color>
@@ -141,14 +193,14 @@
     <color name="mr_slate_popup_bg_top">#ff1a222d</color>
     <color name="mr_slate_popup_bg_bottom">#ff121821</color>
     <color name="mr_slate_popup_bg_stroke">#ff2b3b52</color>
-    <color name="mr_slate_popup_key_top">#803FB8EA</color>
-    <color name="mr_slate_popup_key_bottom">#4d3FB8EA</color>
-    <color name="mr_slate_popup_key_stroke">#ff3FB8EA</color>
+    <color name="mr_slate_popup_key_top">@color/mr_slate_key_pressed_top</color>
+    <color name="mr_slate_popup_key_bottom">@color/mr_slate_key_pressed_bottom</color>
+    <color name="mr_slate_popup_key_stroke">@color/mr_slate_press_accent</color>
     <color name="mr_slate_popup_hint">#999fb2c7</color>
     <color name="mr_slate_preview_top">#f51a222d</color>
     <color name="mr_slate_preview_bottom">#f510151d</color>
-    <color name="mr_slate_preview_stroke">#ff2b3b52</color>
-    <color name="mr_slate_preview_dots">#cc29c5f6</color>
+    <color name="mr_slate_preview_stroke">@color/mr_slate_press_accent</color>
+    <color name="mr_slate_preview_dots">#cc75a7ef</color>
 
     <color name="mr_midnight_text">#ffe7eef7</color>
     <color name="mr_midnight_cursor">#ffe7eef7</color>
@@ -156,14 +208,14 @@
     <color name="mr_midnight_popup_bg_top">#ff1a222d</color>
     <color name="mr_midnight_popup_bg_bottom">#ff121821</color>
     <color name="mr_midnight_popup_bg_stroke">#ff2b3b52</color>
-    <color name="mr_midnight_popup_key_top">#803FB8EA</color>
-    <color name="mr_midnight_popup_key_bottom">#4d3FB8EA</color>
-    <color name="mr_midnight_popup_key_stroke">#ff3FB8EA</color>
+    <color name="mr_midnight_popup_key_top">@color/mr_midnight_key_pressed_top</color>
+    <color name="mr_midnight_popup_key_bottom">@color/mr_midnight_key_pressed_bottom</color>
+    <color name="mr_midnight_popup_key_stroke">@color/mr_midnight_press_accent</color>
     <color name="mr_midnight_popup_hint">@color/mr_midnight_hint</color>
     <color name="mr_midnight_preview_top">#f51a222d</color>
     <color name="mr_midnight_preview_bottom">#f510151d</color>
-    <color name="mr_midnight_preview_stroke">#ff2b3b52</color>
-    <color name="mr_midnight_preview_dots">#cc29c5f6</color>
+    <color name="mr_midnight_preview_stroke">@color/mr_midnight_press_accent</color>
+    <color name="mr_midnight_preview_dots">#cc72a2e8</color>
 
     <color name="mr_glass_text">#ffe7eef7</color>
     <color name="mr_glass_cursor">#ffe7eef7</color>
@@ -171,14 +223,13 @@
     <color name="mr_glass_popup_bg_top">#b31a2a40</color>
     <color name="mr_glass_popup_bg_bottom">#b3101b2c</color>
     <color name="mr_glass_popup_bg_stroke">#668fb8e8</color>
-    <color name="mr_glass_popup_key_top">#805f8fd0</color>
-    <color name="mr_glass_popup_key_bottom">#804673b3</color>
-    <color name="mr_glass_popup_key_stroke">#52dbeaff</color>
+    <color name="mr_glass_popup_key_fill">@color/mr_glass_key_pressed_fill</color>
+    <color name="mr_glass_popup_key_stroke">@color/mr_glass_press_accent</color>
     <color name="mr_glass_popup_hint">#b8c5d6e8</color>
     <color name="mr_glass_preview_top">#b31a2a40</color>
     <color name="mr_glass_preview_bottom">#b3101b2c</color>
-    <color name="mr_glass_preview_stroke">#668fb8e8</color>
-    <color name="mr_glass_preview_dots">#ccdbeaff</color>
+    <color name="mr_glass_preview_stroke">@color/mr_glass_press_accent</color>
+    <color name="mr_glass_preview_dots">#bb8fb8e8</color>
 
     <!-- Accent (blue of the settings theme reference: #1b97fc) -->
     <color name="mr_accent">#ff1b97fc</color>

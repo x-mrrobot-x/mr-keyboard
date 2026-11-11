@@ -2,15 +2,12 @@
 .super Ljava/lang/Object;
 .source "GlobalKeyboardSettings.java"
 
-
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
-        Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;,
-        Lcom/mrkeyboard/app/GlobalKeyboardSettings$BooleanPref;
+        Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;
     }
 .end annotation
-
 
 # static fields
 .field public static final FLAG_PREF_NEED_RELOAD:I = 0x1
@@ -26,7 +23,6 @@
 .field public static final FLAG_PREF_RESET_MODE_OVERRIDE:I = 0x10
 
 .field protected static final TAG:Ljava/lang/String; = "HK/Globals"
-
 
 # instance fields
 .field public candidateScalePref:F
@@ -71,17 +67,6 @@
 
 .field public longpressTimeout:I
 
-.field private mBoolPrefs:Ljava/util/Map;
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "Ljava/util/Map<",
-            "Ljava/lang/String;",
-            "Lcom/mrkeyboard/app/GlobalKeyboardSettings$BooleanPref;",
-            ">;"
-        }
-    .end annotation
-.end field
-
 .field private mCurrentFlags:I
 
 .field private mStringPrefs:Ljava/util/Map;
@@ -110,7 +95,6 @@
 .field public topRowScale:F
 
 .field public useExtension:Z
-
 
 # direct methods
 .method public constructor <init>()V
@@ -177,7 +161,7 @@
     iput-boolean v2, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->shiftLockModifiers:Z
 
     .line 58
-    const v4, 0x3f30a3d7
+    const v4, 0x3f30a3d7    # 0.69f
 
     iput v4, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->labelScalePref:F
 
@@ -217,12 +201,6 @@
     iput-object v0, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->inputLocale:Ljava/util/Locale;
 
     .line 99
-    new-instance v0, Ljava/util/HashMap;
-
-    invoke-direct {v0}, Ljava/util/HashMap;-><init>()V
-
-    iput-object v0, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->mBoolPrefs:Ljava/util/Map;
-
     .line 100
     new-instance v0, Ljava/util/HashMap;
 
@@ -232,17 +210,6 @@
 
     .line 107
     iput v2, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->mCurrentFlags:I
-
-    return-void
-.end method
-
-.method private addBooleanPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$BooleanPref;)V
-    .locals 1
-
-    .line 268
-    iget-object v0, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->mBoolPrefs:Ljava/util/Map;
-
-    invoke-interface {v0, p1, p2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
     return-void
 .end method
@@ -257,7 +224,6 @@
 
     return-void
 .end method
-
 
 # virtual methods
 .method public hasFlag(I)Z
@@ -382,8 +348,7 @@
 
     invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addStringPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;)V
 
-    .line 227
-    iget-object p2, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->mBoolPrefs:Ljava/util/Map;
+    iget-object p2, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->mStringPrefs:Ljava/util/Map;
 
     invoke-interface {p2}, Ljava/util/Map;->keySet()Ljava/util/Set;
 
@@ -399,53 +364,6 @@
     move-result v0
 
     if-eqz v0, :cond_0
-
-    invoke-interface {p2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Ljava/lang/String;
-
-    .line 228
-    iget-object v1, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->mBoolPrefs:Ljava/util/Map;
-
-    invoke-interface {v1, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v1
-
-    check-cast v1, Lcom/mrkeyboard/app/GlobalKeyboardSettings$BooleanPref;
-
-    .line 229
-    invoke-interface {v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$BooleanPref;->getDefault()Z
-
-    move-result v2
-
-    invoke-interface {p1, v0, v2}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
-
-    move-result v0
-
-    invoke-interface {v1, v0}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$BooleanPref;->set(Z)V
-
-    goto :goto_0
-
-    .line 231
-    :cond_0
-    iget-object p2, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->mStringPrefs:Ljava/util/Map;
-
-    invoke-interface {p2}, Ljava/util/Map;->keySet()Ljava/util/Set;
-
-    move-result-object p2
-
-    invoke-interface {p2}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
-
-    move-result-object p2
-
-    :goto_1
-    invoke-interface {p2}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_1
 
     invoke-interface {p2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -473,9 +391,9 @@
 
     invoke-interface {v1, v0}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;->set(Ljava/lang/String;)V
 
-    goto :goto_1
+    goto :goto_0
 
-    :cond_1
+    :cond_0
     return-void
 .end method
 
@@ -487,41 +405,6 @@
     .line 239
     iput v0, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->mCurrentFlags:I
 
-    .line 240
-    iget-object v0, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->mBoolPrefs:Ljava/util/Map;
-
-    invoke-interface {v0, p2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Lcom/mrkeyboard/app/GlobalKeyboardSettings$BooleanPref;
-
-    if-eqz v0, :cond_0
-
-    .line 243
-    invoke-interface {v0}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$BooleanPref;->getDefault()Z
-
-    move-result v1
-
-    invoke-interface {p1, p2, v1}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
-
-    move-result v1
-
-    invoke-interface {v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$BooleanPref;->set(Z)V
-
-    .line 244
-    iget v1, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->mCurrentFlags:I
-
-    invoke-interface {v0}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$BooleanPref;->getFlags()I
-
-    move-result v0
-
-    or-int/2addr v0, v1
-
-    iput v0, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->mCurrentFlags:I
-
-    .line 246
-    :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->mStringPrefs:Ljava/util/Map;
 
     invoke-interface {v0, p2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -530,7 +413,7 @@
 
     check-cast v0, Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;
 
-    if-eqz v0, :cond_1
+    if-eqz v0, :cond_0
 
     .line 249
     invoke-interface {v0}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;->getDefault()Ljava/lang/String;
@@ -554,7 +437,7 @@
 
     iput p1, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->mCurrentFlags:I
 
-    :cond_1
+    :cond_0
     return-void
 .end method
 

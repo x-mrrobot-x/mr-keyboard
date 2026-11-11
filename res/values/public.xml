@@ -607,5 +607,7 @@
     <public type="string" name="mr_shot_cancel" id="0x7f0c01d3" />
     <public type="string" name="mr_shot_send" id="0x7f0c01d4" />
     <public type="string" name="mr_shot_fail_n" id="0x7f0c01d5" />
+    <public type="string" name="mr_tb_clip_count_one" id="0x7f0c01d6" />
+    <public type="string" name="mr_tb_clip_count_many" id="0x7f0c01d7" />
     <public type="xml" name="prefs_advanced" id="0x7f0f0021" />
 </resources>

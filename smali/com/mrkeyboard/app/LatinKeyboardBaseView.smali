@@ -5,7 +5,6 @@
 # interfaces
 .implements Lcom/mrkeyboard/app/PointerTracker$UIProxy;
 
-
 # annotations
 .annotation system Ldalvik/annotation/MemberClasses;
     value = {
@@ -14,9 +13,6 @@
         Lcom/mrkeyboard/app/LatinKeyboardBaseView$OnKeyboardActionListener;
     }
 .end annotation
-
-
-.field private mLabelMetricsCache:Lcom/mrkeyboard/app/MrLabelMetricsCache;
 
 # static fields
 .field private static final DEBUG:Z = false
@@ -33,21 +29,12 @@
 
 .field private static sPrevRenderMode:I = -0x1
 
-
-
-
 # instance fields
 .field private final KEY_LABEL_HEIGHT_REFERENCE_CHAR:Ljava/lang/String;
 
 .field private final KEY_LABEL_VERTICAL_ADJUSTMENT_FACTOR:F
 
 .field private mBackgroundAlpha:I
-
-.field private mMrAccentBg:Landroid/graphics/drawable/Drawable;
-
-.field private mPreviewBg:I
-
-.field private mPreviewMoreBg:I
 
 .field private mBackgroundDimAmount:F
 
@@ -111,6 +98,8 @@
 
 .field private mKeys:[Lcom/mrkeyboard/app/Keyboard$Key;
 
+.field private mLabelMetricsCache:Lcom/mrkeyboard/app/MrLabelMetricsCache;
+
 .field private mLabelScale:F
 
 .field private mLabelTextSize:F
@@ -168,6 +157,10 @@
 
 .field protected mMiniKeyboardVisible:Z
 
+.field private mModifierIndicatorPaint:Landroid/graphics/Paint;
+
+.field private mMrAccentBg:Landroid/graphics/drawable/Drawable;
+
 .field protected mOffsetInWindow:[I
 
 .field private mOldPointerCount:I
@@ -200,7 +193,11 @@
 
 .field protected mPopupPreviewOffsetY:I
 
+.field private mPreviewBg:I
+
 .field protected mPreviewHeight:I
+
+.field private mPreviewMoreBg:I
 
 .field protected mPreviewOffset:I
 
@@ -224,8 +221,6 @@
 
 .field private final mSwipeTracker:Lcom/mrkeyboard/app/SwipeTracker;
 
-.field private mSymbolColorScheme:I
-
 .field private final mTextHeightCache:Ljava/util/HashMap;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -237,6 +232,8 @@
     .end annotation
 .end field
 
+.field private mThemeFlags:I
+
 .field private mVerticalCorrection:F
 
 .field private mViewWidth:I
@@ -244,9 +241,6 @@
 .field protected mWindowOffset:[I
 
 .field protected mWindowY:I
-
-.field private mThemeFlags:I
-
 
 # direct methods
 .method static constructor <clinit>()V
@@ -262,11 +256,7 @@
     sput-object v0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->INVERTING_MATRIX:[F
 
     .line 441
-    
-
     return-void
-
-    nop
 
     :array_0
     .array-data 4
@@ -323,8 +313,6 @@
     const/4 v0, 0x0
 
     .line 187
-    iput v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mSymbolColorScheme:I
-
     const/4 v1, -0x1
 
     .line 210
@@ -524,8 +512,6 @@
     invoke-virtual {p2, v4, v0}, Landroid/content/res/TypedArray;->getInt(II)I
 
     move-result v3
-
-    iput v3, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mSymbolColorScheme:I
 
     goto/16 :goto_1
 
@@ -1149,6 +1135,122 @@
 
     return-void
 .end method
+.method private drawModifierIndicator(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/Keyboard$Key;)V
+    .locals 10
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mModifierIndicatorPaint:Landroid/graphics/Paint;
+
+    if-nez v0, :cond_0
+
+    new-instance v0, Landroid/graphics/Paint;
+
+    const/4 v1, 0x1
+
+    invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
+
+    iput-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mModifierIndicatorPaint:Landroid/graphics/Paint;
+
+    :cond_0
+    invoke-direct {p0, p2}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getModifierIndicatorColor(Lcom/mrkeyboard/app/Keyboard$Key;)I
+
+    move-result v1
+
+    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
+
+    sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
+
+    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
+
+    iget v1, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mBackgroundAlpha:I
+
+    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setAlpha(I)V
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getContext()Landroid/content/Context;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+
+    move-result-object v1
+
+    iget v1, v1, Landroid/util/DisplayMetrics;->density:F
+
+    const/high16 v2, 0x41600000    # 14.0f
+
+    mul-float/2addr v2, v1
+
+    iget v3, p2, Lcom/mrkeyboard/app/Keyboard$Key;->width:I
+
+    int-to-float v3, v3
+
+    const v4, 0x3e99999a    # 0.3f
+
+    mul-float/2addr v3, v4
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->min(FF)F
+
+    move-result v2
+
+    const/high16 v3, 0x40400000    # 3.0f
+
+    mul-float/2addr v3, v1
+
+    const/high16 v4, 0x41000000    # 8.0f
+
+    mul-float/2addr v4, v1
+
+    iget v5, p2, Lcom/mrkeyboard/app/Keyboard$Key;->width:I
+
+    int-to-float v5, v5
+
+    const/high16 v6, 0x3f000000    # 0.5f
+
+    mul-float/2addr v5, v6
+
+    const/high16 v6, 0x40000000    # 2.0f
+
+    div-float v6, v2, v6
+
+    sub-float v7, v5, v6
+
+    add-float v8, v5, v6
+
+    iget v5, p2, Lcom/mrkeyboard/app/Keyboard$Key;->height:I
+
+    int-to-float v5, v5
+
+    sub-float/2addr v5, v4
+
+    move v9, v5
+
+    sub-float v4, v9, v3
+
+    const/high16 v6, 0x3f000000    # 0.5f
+
+    mul-float v5, v3, v6
+
+    move v1, v7
+
+    move v2, v4
+
+    move v3, v8
+
+    move v4, v9
+
+    move v6, v5
+
+    move-object v7, v0
+
+    move-object v0, p1
+
+    invoke-virtual/range {v0 .. v7}, Landroid/graphics/Canvas;->drawRoundRect(FFFFFFLandroid/graphics/Paint;)V
+
+    return-void
+.end method
 
 .method private generateMiniKeyboardMotionEvent(IIIJ)Landroid/view/MotionEvent;
     .locals 8
@@ -1310,6 +1412,109 @@
 
     :cond_2
     return-object v1
+.end method
+.method private getModifierIndicatorColor(Lcom/mrkeyboard/app/Keyboard$Key;)I
+    .locals 2
+
+    iget-object v0, p1, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
+
+    const/4 v1, 0x0
+
+    aget v0, v0, v1
+
+    const/4 v1, -0x1
+
+    if-ne v0, v1, :cond_1
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getShiftState()I
+
+    move-result v0
+
+    if-nez v0, :cond_0
+
+    iget-boolean v1, p1, Lcom/mrkeyboard/app/Keyboard$Key;->pressed:Z
+
+    if-eqz v1, :cond_4
+
+    goto :goto_0
+
+    :cond_0
+    const/4 v1, 0x2
+
+    if-eq v0, v1, :cond_3
+
+    const/4 v1, 0x4
+
+    if-eq v0, v1, :cond_3
+
+    const/4 v1, 0x1
+
+    if-ne v0, v1, :cond_4
+
+    goto :goto_0
+
+    :cond_1
+    iget-boolean v0, p1, Lcom/mrkeyboard/app/Keyboard$Key;->on:Z
+
+    if-nez v0, :cond_2
+
+    iget-boolean v0, p1, Lcom/mrkeyboard/app/Keyboard$Key;->locked:Z
+
+    if-nez v0, :cond_2
+
+    iget-boolean v0, p1, Lcom/mrkeyboard/app/Keyboard$Key;->pressed:Z
+
+    if-eqz v0, :cond_4
+
+    :cond_2
+    :goto_0
+    const-string v0, "modifier_indicator_on"
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v0
+
+    return v0
+
+    :cond_3
+    const-string v0, "modifier_indicator_lock"
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v0
+
+    return v0
+
+    :cond_4
+    const-string v0, "modifier_indicator_off"
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v0
+
+    return v0
+.end method
+.method private getModifierKeyFace(Lcom/mrkeyboard/app/Keyboard$Key;)Landroid/graphics/drawable/Drawable;
+    .locals 1
+
+    invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->isAccentKey(Lcom/mrkeyboard/app/Keyboard$Key;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getMrAccentBackground()Landroid/graphics/drawable/Drawable;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_0
+
+    return-object v0
+
+    :cond_0
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mKeyBackground:Landroid/graphics/drawable/Drawable;
+
+    return-object v0
 .end method
 
 .method private getPointerTracker(I)Lcom/mrkeyboard/app/PointerTracker;
@@ -1485,25 +1690,6 @@
     return p0
 .end method
 
-.method private isBlackSym()Z
-    .locals 2
-
-    .line 790
-    iget v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mSymbolColorScheme:I
-
-    const/4 v1, 0x1
-
-    if-ne v0, v1, :cond_0
-
-    goto :goto_0
-
-    :cond_0
-    const/4 v1, 0x0
-
-    :goto_0
-    return v1
-.end method
-
 .method private isLatinF1Key(Lcom/mrkeyboard/app/Keyboard$Key;)Z
     .locals 1
 
@@ -1533,6 +1719,43 @@
 
     :goto_0
     return p1
+.end method
+.method private isModifierIndicatorKey(Lcom/mrkeyboard/app/Keyboard$Key;)Z
+    .locals 2
+
+    iget-object v0, p1, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
+
+    if-eqz v0, :cond_0
+
+    array-length v1, v0
+
+    if-lez v1, :cond_0
+
+    const/4 v1, 0x0
+
+    aget v0, v0, v1
+
+    sparse-switch v0, :sswitch_data_0
+
+    :cond_0
+    const/4 v0, 0x0
+
+    return v0
+
+    :sswitch_0
+    const/4 v0, 0x1
+
+    return v0
+
+    nop
+
+    :sswitch_data_0
+    .sparse-switch
+        -0x75 -> :sswitch_0
+        -0x71 -> :sswitch_0
+        -0x39 -> :sswitch_0
+        -0x1 -> :sswitch_0
+    .end sparse-switch
 .end method
 
 .method private isNonMicLatinF1Key(Lcom/mrkeyboard/app/Keyboard$Key;)Z
@@ -1781,17 +2004,78 @@
 .method private drawAccentFill(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/Keyboard$Key;)Z
     .locals 4
 
+    invoke-direct {p0, p2}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->isModifierIndicatorKey(Lcom/mrkeyboard/app/Keyboard$Key;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1
+
+    invoke-direct {p0, p2}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getModifierKeyFace(Lcom/mrkeyboard/app/Keyboard$Key;)Landroid/graphics/drawable/Drawable;
+
+    move-result-object v0
+
+    iget-boolean v1, p2, Lcom/mrkeyboard/app/Keyboard$Key;->pressed:Z
+
+    if-eqz v1, :cond_0
+
+    const/4 v1, 0x1
+
+    new-array v1, v1, [I
+
+    const v2, 0x10100a7
+
+    const/4 v3, 0x0
+
+    aput v2, v1, v3
+
+    goto :goto_0
+
+    :cond_0
+    const/4 v1, 0x0
+
+    new-array v1, v1, [I
+
+    :goto_0
+    invoke-virtual {v0, v1}, Landroid/graphics/drawable/Drawable;->setState([I)Z
+
+    iget v1, p2, Lcom/mrkeyboard/app/Keyboard$Key;->width:I
+
+    iget v2, p2, Lcom/mrkeyboard/app/Keyboard$Key;->height:I
+
+    const/4 v3, 0x0
+
+    invoke-virtual {v0, v3, v3, v1, v2}, Landroid/graphics/drawable/Drawable;->setBounds(IIII)V
+
+    iget v3, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mBackgroundAlpha:I
+
+    invoke-virtual {v0, v3}, Landroid/graphics/drawable/Drawable;->setAlpha(I)V
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getContext()Landroid/content/Context;
+
+    move-result-object v3
+
+    invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/KeyStyle;->prepare(Landroid/graphics/drawable/Drawable;IILandroid/content/Context;)V
+
+    invoke-static {v0, p1, v1, v2}, Lcom/mrkeyboard/app/KeyStyle;->drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
+
+    invoke-direct {p0, p1, p2}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->drawModifierIndicator(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/Keyboard$Key;)V
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_1
     invoke-direct {p0, p2}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->isAccentKey(Lcom/mrkeyboard/app/Keyboard$Key;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_none
+    if-eqz v0, :cond_2
 
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getMrAccentBackground()Landroid/graphics/drawable/Drawable;
 
     move-result-object v0
 
-    if-eqz v0, :cond_none
+    if-eqz v0, :cond_2
 
     invoke-virtual {p2}, Lcom/mrkeyboard/app/Keyboard$Key;->getCurrentDrawableState()[I
 
@@ -1823,7 +2107,7 @@
 
     return v0
 
-    :cond_none
+    :cond_2
     const/4 v0, 0x0
 
     return v0
@@ -2097,15 +2381,15 @@
 
     move-result v0
 
-    if-eqz v0, :cond_false
+    if-eqz v0, :cond_3
 
     iget-object v0, p1, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
 
-    if-eqz v0, :cond_wide
+    if-eqz v0, :cond_1
 
     array-length v1, v0
 
-    if-eqz v1, :cond_wide
+    if-eqz v1, :cond_1
 
     const/4 v1, 0x0
 
@@ -2113,22 +2397,22 @@
 
     sparse-switch v0, :sswitch_data_0
 
-    :cond_wide
+    :cond_1
     const/16 v0, 0x8
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->hasTheme(I)Z
 
     move-result v0
 
-    if-eqz v0, :cond_false
+    if-eqz v0, :cond_3
 
     iget-boolean v0, p1, Lcom/mrkeyboard/app/Keyboard$Key;->modifier:Z
 
-    if-nez v0, :sswitch_true
+    if-nez v0, :cond_4
 
     iget-object v0, p1, Lcom/mrkeyboard/app/Keyboard$Key;->text:Ljava/lang/CharSequence;
 
-    if-eqz v0, :cond_codes
+    if-eqz v0, :cond_2
 
     invoke-virtual {v0}, Ljava/lang/Object;->toString()Ljava/lang/String;
 
@@ -2140,16 +2424,16 @@
 
     move-result v0
 
-    if-nez v0, :sswitch_true
+    if-nez v0, :cond_4
 
-    :cond_codes
+    :cond_2
     iget-object v0, p1, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
 
-    if-eqz v0, :cond_false
+    if-eqz v0, :cond_3
 
     array-length v1, v0
 
-    if-eqz v1, :cond_false
+    if-eqz v1, :cond_3
 
     const/4 v1, 0x0
 
@@ -2157,41 +2441,44 @@
 
     sparse-switch v0, :sswitch_data_1
 
-    :cond_false
+    :cond_3
     const/4 v0, 0x0
 
     return v0
 
-    :sswitch_true
+    :cond_4
+    :sswitch_0
     const/4 v0, 0x1
 
     return v0
 
+    nop
+
     :sswitch_data_0
     .sparse-switch
-        -0x132 -> :sswitch_true
-        -0x7b -> :sswitch_true
-        -0x7a -> :sswitch_true
-        -0x75 -> :sswitch_true
-        -0x71 -> :sswitch_true
-        -0x5d -> :sswitch_true
-        -0x5c -> :sswitch_true
-        -0x39 -> :sswitch_true
-        -0x16 -> :sswitch_true
-        -0x15 -> :sswitch_true
-        -0x14 -> :sswitch_true
-        -0x13 -> :sswitch_true
-        -0x5 -> :sswitch_true
-        -0x1 -> :sswitch_true
-        0x9 -> :sswitch_true
+        -0x132 -> :sswitch_0
+        -0x7b -> :sswitch_0
+        -0x7a -> :sswitch_0
+        -0x75 -> :sswitch_0
+        -0x71 -> :sswitch_0
+        -0x5d -> :sswitch_0
+        -0x5c -> :sswitch_0
+        -0x39 -> :sswitch_0
+        -0x16 -> :sswitch_0
+        -0x15 -> :sswitch_0
+        -0x14 -> :sswitch_0
+        -0x13 -> :sswitch_0
+        -0x5 -> :sswitch_0
+        -0x1 -> :sswitch_0
+        0x9 -> :sswitch_0
     .end sparse-switch
 
     :sswitch_data_1
     .sparse-switch
-        -0x12c -> :sswitch_true
-        -0x2 -> :sswitch_true
-        0xa -> :sswitch_true
-        0x20 -> :sswitch_true
+        -0x12c -> :sswitch_0
+        -0x2 -> :sswitch_0
+        0xa -> :sswitch_0
+        0x20 -> :sswitch_0
     .end sparse-switch
 .end method
 
@@ -4502,7 +4789,6 @@
     return-void
 .end method
 
-
 # virtual methods
 .method public closing()V
     .locals 3
@@ -5684,8 +5970,6 @@
     .line 1627
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->dismissKeyPreview()V
 
-    # MR FIX: the UP was swallowed by the swipe detector; cancels the pointer
-    # so it does not stay "stuck" in the queue and type the key afterwards.
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mrCancelSwipedPointer(Landroid/view/MotionEvent;)V
 
     .line 1628
@@ -6000,8 +6284,6 @@
 
     :cond_c
     return v6
-
-    nop
 
     :pswitch_data_0
     .packed-switch 0x0
@@ -6592,7 +6874,6 @@
 
     return v0
 .end method
-
 
 # MR FIX ------------------------------------------------------------------
 # Cancels the PointerTracker of the pointer that just made a recognized

@@ -303,7 +303,6 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
         sFired = false;
         if (sResult != null) sResult.setText("");
         Context ctx = sRoot.getContext();
-        MrNotice.aiEditor(ctx);
         loadCustomHere();
         rebuildStrip();
         refreshChips();

@@ -1,294 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    android:compileSdkVersion="37"
-    package="com.mrkeyboard.app"
-    platformBuildVersionCode="37"
-    platformBuildVersionName="17"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Lets the app control the vibration. -->
-    <uses-permission
-        android:name="android.permission.VIBRATE" />
-    <uses-permission
-        android:name="android.permission.INTERNET" />
-    <uses-permission
-        android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-    <uses-permission
-        android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
-    <uses-permission
-        android:name="android.permission.READ_USER_DICTIONARY" />
-    <uses-permission
-        android:name="android.permission.WRITE_USER_DICTIONARY" />
-    <!-- Lets the app install its own update (Settings > Install unknown apps): the user still confirms on Android's screen. -->
-    <uses-permission
-        android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <!-- Lets the system bring back the morning check of updates after a restart (jobs scheduled as persisted). -->
-    <uses-permission
-        android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-feature
-        android:name="android.hardware.microphone"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.faketouch"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.touchscreen"
-        android:required="false" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="37" package="com.mrkeyboard.app" platformBuildVersionCode="37" platformBuildVersionName="17">
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:maxSdkVersion="32" android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_USER_DICTIONARY"/>
+    <uses-permission android:name="android.permission.WRITE_USER_DICTIONARY"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-feature android:name="android.hardware.microphone" android:required="false"/>
+    <uses-feature android:name="android.hardware.faketouch" android:required="false"/>
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
     <queries>
         <intent>
-            <action
-                android:name="android.speech.action.RECOGNIZE_SPEECH" />
+            <action android:name="android.speech.action.RECOGNIZE_SPEECH"/>
         </intent>
         <intent>
-            <action
-                android:name="org.pocketworkstation.DICT" />
+            <action android:name="org.pocketworkstation.DICT"/>
         </intent>
         <intent>
-            <action
-                android:name="com.menny.android.anysoftkeyboard.DICTIONARY" />
+            <action android:name="com.menny.android.anysoftkeyboard.DICTIONARY"/>
         </intent>
     </queries>
-    <application
-        android:name="com.mrkeyboard.app.MrApplication"
-        android:enableOnBackInvokedCallback="true"
-        android:extractNativeLibs="true"
-        android:label="@string/english_ime_name"
-        android:icon="@drawable/icon"
-        android:backupAgent="com.mrkeyboard.app.LatinIMEBackupAgent"
-        android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
-        android:killAfterRestore="false"
-        android:restoreAnyVersion="true"
-        android:hardwareAccelerated="false">
-        <service
-            android:label="@string/english_ime_name"
-            android:name="com.mrkeyboard.app.LatinIME"
-            android:exported="true"
-            android:permission="android.permission.BIND_INPUT_METHOD">
+    <application android:allowBackup="true" android:backupAgent="com.mrkeyboard.app.LatinIMEBackupAgent" android:dataExtractionRules="@xml/data_extraction_rules" android:enableOnBackInvokedCallback="true" android:extractNativeLibs="true" android:fullBackupContent="@xml/backup_rules" android:hardwareAccelerated="false" android:icon="@drawable/icon" android:killAfterRestore="false" android:label="@string/english_ime_name" android:name="com.mrkeyboard.app.MrApplication" android:restoreAnyVersion="true">
+        <service android:exported="true" android:label="@string/english_ime_name" android:name="com.mrkeyboard.app.LatinIME" android:permission="android.permission.BIND_INPUT_METHOD">
             <intent-filter>
-                <action
-                    android:name="android.view.InputMethod" />
+                <action android:name="android.view.InputMethod"/>
             </intent-filter>
-            <meta-data
-                android:name="android.view.im"
-                android:resource="@xml/method" />
+            <meta-data android:name="android.view.im" android:resource="@xml/method"/>
         </service>
-        <activity
-            android:label="@string/english_ime_name"
-            android:name="com.mrkeyboard.app.Main"
-            android:exported="true"
-            android:theme="@style/Theme.MrKeyboard.Main">
+        <activity android:exported="true" android:label="@string/english_ime_name" android:name="com.mrkeyboard.app.Main" android:theme="@style/Theme.MrKeyboard.Main">
             <intent-filter>
-                <action
-                    android:name="android.intent.action.MAIN" />
-                <category
-                    android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity
-            android:label="@string/english_ime_settings"
-            android:name="com.mrkeyboard.app.LatinIMESettings"
-            android:launchMode="singleTop"
-            android:taskAffinity="com.mrkeyboard.app.screens"
-            android:exported="true"
-            android:theme="@style/Theme.MrKeyboard.Settings">
+        <activity android:exported="true" android:label="@string/english_ime_settings" android:launchMode="singleTop" android:name="com.mrkeyboard.app.LatinIMESettings" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>
-                <action
-                    android:name="android.intent.action.MAIN" />
-                <action
-                    android:name="com.mrkeyboard.app.SETTINGS" />
-                <category
-                    android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="com.mrkeyboard.app.SETTINGS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity
-            android:label="@string/mr_dicts_title"
-            android:name="com.mrkeyboard.app.MrPacksActivity"
-            android:launchMode="singleTop"
-            android:taskAffinity="com.mrkeyboard.app.screens"
-            android:exported="false"
-            android:theme="@style/Theme.MrKeyboard.Settings">
+        <activity android:exported="false" android:label="@string/mr_dicts_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrPacksActivity" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>
-                <action
-                    android:name="android.intent.action.MAIN" />
-                <action
-                    android:name="com.mrkeyboard.app.PREFS_DICTS" />
-                <category
-                    android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="com.mrkeyboard.app.PREFS_DICTS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity
-            android:label="@string/mr_ai_title"
-            android:name="com.mrkeyboard.app.MrAiPrefs"
-            android:launchMode="singleTop"
-            android:taskAffinity="com.mrkeyboard.app.screens"
-            android:exported="false"
-            android:theme="@style/Theme.MrKeyboard.Settings">
+        <activity android:exported="false" android:label="@string/mr_ai_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrAiPrefs" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <action android:name="com.mrkeyboard.app.PREFS_AI" />
-                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="com.mrkeyboard.app.PREFS_AI"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity
-            android:label="@string/mr_ai_new_style"
-            android:name="com.mrkeyboard.app.MrAiStyleActivity"
-            android:launchMode="singleTop"
-            android:taskAffinity="com.mrkeyboard.app.screens"
-            android:exported="false"
-            android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.MrKeyboard.Main" />
-        <activity
-            android:label="@string/mr_learned_title"
-            android:name="com.mrkeyboard.app.MrLearnedActivity"
-            android:launchMode="singleTop"
-            android:taskAffinity="com.mrkeyboard.app.screens"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.MrKeyboard.Main" />
-        <activity
-            android:label="@string/mr_import_title"
-            android:name="com.mrkeyboard.app.MrImportActivity"
-            android:launchMode="singleTop"
-            android:taskAffinity="com.mrkeyboard.app.screens"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
-            android:theme="@style/Theme.MrKeyboard.Main" />
-        <activity
-            android:label="@string/pref_screen_actions_title"
-            android:name="com.mrkeyboard.app.PrefScreenActions"
-            android:launchMode="singleTop"
-            android:exported="false"
-            android:theme="@style/Theme.MrKeyboard.Settings">
+        <activity android:exported="false" android:hardwareAccelerated="true" android:label="@string/mr_ai_new_style" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrAiStyleActivity" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Main" android:windowSoftInputMode="adjustResize"/>
+        <activity android:exported="false" android:label="@string/mr_learned_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrLearnedActivity" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Main" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize" android:exported="false" android:label="@string/mr_import_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrImportActivity" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Main" android:windowSoftInputMode="adjustResize"/>
+        <activity android:exported="false" android:label="@string/pref_screen_actions_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.PrefScreenActions" android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>
-                <action
-                    android:name="android.intent.action.MAIN" />
-                <action
-                    android:name="com.mrkeyboard.app.PREFS_ACTIONS" />
-                <category
-                    android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="com.mrkeyboard.app.PREFS_ACTIONS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity
-            android:label="@string/pref_screen_advanced_title"
-            android:name="com.mrkeyboard.app.PrefScreenAdvanced"
-            android:launchMode="singleTop"
-            android:exported="false"
-            android:theme="@style/Theme.MrKeyboard.Settings">
+        <activity android:exported="false" android:label="@string/pref_screen_advanced_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.PrefScreenAdvanced" android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>
-                <action
-                    android:name="android.intent.action.MAIN" />
-                <action
-                    android:name="com.mrkeyboard.app.PREFS_ADVANCED" />
-                <category
-                    android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="com.mrkeyboard.app.PREFS_ADVANCED"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity
-            android:label="@string/pref_screen_sheets_title"
-            android:name="com.mrkeyboard.app.PrefScreenSheets"
-            android:launchMode="singleTop"
-            android:taskAffinity="com.mrkeyboard.app.screens"
-            android:exported="false"
-            android:hardwareAccelerated="true"
-            android:theme="@style/Theme.MrKeyboard.Main">
+        <activity android:exported="false" android:hardwareAccelerated="true" android:label="@string/pref_screen_sheets_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.PrefScreenSheets" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Main">
             <intent-filter>
-                <action
-                    android:name="android.intent.action.MAIN" />
-                <action
-                    android:name="com.mrkeyboard.app.PREFS_SHEETS" />
-                <category
-                    android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="com.mrkeyboard.app.PREFS_SHEETS"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity
-            android:label="@string/pref_screen_sheets_title"
-            android:name="com.mrkeyboard.app.SheetEditorActivity"
-            android:launchMode="singleTop"
-            android:exported="false"
-            android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize"
-            android:theme="@style/Theme.MrKeyboard.Main" />
-        <activity
-            android:label="@string/pref_screen_view_title"
-            android:name="com.mrkeyboard.app.PrefScreenView"
-            android:launchMode="singleTop"
-            android:exported="false"
-            android:theme="@style/Theme.MrKeyboard.Settings">
+        <activity android:exported="false" android:hardwareAccelerated="true" android:label="@string/pref_screen_sheets_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.SheetEditorActivity" android:theme="@style/Theme.MrKeyboard.Main" android:windowSoftInputMode="adjustResize"/>
+        <activity android:exported="false" android:label="@string/pref_screen_view_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.PrefScreenView" android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>
-                <action
-                    android:name="android.intent.action.MAIN" />
-                <action
-                    android:name="com.mrkeyboard.app.PREFS_VIEW" />
-                <category
-                    android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="com.mrkeyboard.app.PREFS_VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity
-            android:label="@string/pref_screen_feedback_title"
-            android:name="com.mrkeyboard.app.PrefScreenFeedback"
-            android:launchMode="singleTop"
-            android:exported="false"
-            android:theme="@style/Theme.MrKeyboard.Settings">
+        <activity android:exported="false" android:label="@string/pref_screen_feedback_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.PrefScreenFeedback" android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>
-                <action
-                    android:name="android.intent.action.MAIN" />
-                <action
-                    android:name="com.mrkeyboard.app.PREFS_FEEDBACK" />
-                <category
-                    android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="com.mrkeyboard.app.PREFS_FEEDBACK"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.google.android.voiceime.ActivityHelper"
-            android:exported="false"
-            android:excludeFromRecents="true"
-            android:launchMode="singleInstance"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <activity
-            android:name="com.mrkeyboard.app.ShotPerm"
-            android:exported="false"
-            android:excludeFromRecents="true"
-            android:launchMode="singleInstance"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <activity
-            android:name="com.mrkeyboard.app.ShotPick"
-            android:exported="false"
-            android:excludeFromRecents="true"
-            android:launchMode="singleInstance"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <provider
-            android:name="android.support.v4.content.FileProvider"
-            android:exported="false"
-            android:authorities="com.mrkeyboard.app.shots"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/mr_shot_paths" />
+        <activity android:excludeFromRecents="true" android:exported="false" android:launchMode="singleInstance" android:name="com.google.android.voiceime.ActivityHelper" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <activity android:excludeFromRecents="true" android:exported="false" android:launchMode="singleInstance" android:name="com.mrkeyboard.app.ShotPerm" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <activity android:excludeFromRecents="true" android:exported="false" android:launchMode="singleInstance" android:name="com.mrkeyboard.app.ShotPick" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <provider android:authorities="com.mrkeyboard.app.shots" android:exported="false" android:grantUriPermissions="true" android:name="android.support.v4.content.FileProvider">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/mr_shot_paths"/>
         </provider>
-        <service
-            android:name="com.google.android.voiceime.ServiceHelper"
-            android:exported="false" />
-        <!-- Answer of the install session of the update: only the system reaches it (PendingIntent of MrUpdateInstall). -->
-        <receiver
-            android:name="com.mrkeyboard.app.MrUpdateReceiver"
-            android:exported="false" />
-        <!-- The morning check of updates: only the system starts it (BIND_JOB_SERVICE). -->
-        <service
-            android:name="com.mrkeyboard.app.MrUpdateJob"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-        <!-- After the app is updated: schedules the morning check again and removes the notice of the version just installed. -->
-        <receiver
-            android:name="com.mrkeyboard.app.MrUpdateRearm"
-            android:exported="false">
+        <service android:exported="false" android:name="com.google.android.voiceime.ServiceHelper"/>
+        <receiver android:exported="false" android:name="com.mrkeyboard.app.MrUpdateReceiver"/>
+        <service android:exported="false" android:name="com.mrkeyboard.app.MrUpdateJob" android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <receiver android:exported="false" android:name="com.mrkeyboard.app.MrUpdateRearm">
             <intent-filter>
-                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
             </intent-filter>
         </receiver>
     </application>
