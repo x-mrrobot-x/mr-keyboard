@@ -58,14 +58,6 @@ final class MrEmojiSearch {
     private static final int CELL_SP = 26;
     /** Corners of the card: MrTools.radius(p) is 8 dp plus p dp, so 8 gives 16 dp (the other cards of the panels have 10 dp). */
     private static final float CARD_RADIUS_PLUS = 8f;
-    /**
-     * Opacity of the floating bar over the emojis (alpha, 0-255). The colour of the floating button of the attachments is
-     * loud there, so the fill is made translucent: the brighter the colour, the more transparent (a neon colour about 30-40%,
-     * a dark one about 60%), between FAB_ALPHA_MIN and FAB_ALPHA_MAX. The border (1 dp) keeps the edge of the bar clear.
-     */
-    static final int FAB_ALPHA_MIN = 0x4d;
-    static final int FAB_ALPHA_MAX = 0x99;
-    static final int FAB_STROKE_ALPHA = 0x99;
     /** The header comes in growing upward from its bottom edge while it fades in. */
     static final int ENTER_MS = 240;
     static final float ENTER_FROM = 0.6f;
@@ -212,39 +204,18 @@ final class MrEmojiSearch {
         sField.setTextColor(MrTools.sTextColor);
         sField.setHintTextColor(MrTools.sHint);
         if (sEmpty != null) sEmpty.setTextColor(MrTools.sHint);
-        // the floating bar: the colours of the floating button of the attachments (role attach_fab), translucent
+        // the floating bar: a pill, opaque, in a neutral colour of the theme (the face of a letter key, with the border of the fields)
         View fab = root.findViewWithTag("emote_fab");
-        if (fab != null) fab.setBackgroundDrawable(fabBackground());
-        // the icons in the colour of the text of the tool bars: it reads on the keyboard under the translucent bar
-        // (the icon of the role attach_fab is made for the loud fill)
-        int ink = MrTools.sTextColor;
+        if (fab != null) fab.setBackgroundDrawable(MrTools.floatBg());
+        // what sits on it takes the colour of the labels of the keys, which is the one that reads on that face
+        int ink = MrTools.sKeyText;
         String[] tags = {"emote_search", "emote_del"};
         for (String tag : tags) {
             View b = root.findViewWithTag(tag);
             if (b == null) continue;
-            b.setBackgroundDrawable(MrTools.flatBg());   // no fill at rest; round (pill) fill while pressed
+            b.setBackgroundDrawable(MrTools.flatPill());   // no fill at rest; round (pill) fill while pressed
             if (b instanceof TextView) MrTools.tintColor((TextView) b, ink);
         }
-    }
-
-    /** The floating bar: pill shaped, the fill and the border of the role attach_fab with the opacity of the constants above. */
-    private static Drawable fabBackground() {
-        int fill = MrTheme.color("attach_fab");
-        int stroke = MrTheme.color("attach_fab_stroke");
-        return MrTools.roleBg(fade(fill, fabAlpha(fill)), fade(stroke, FAB_STROKE_ALPHA), MrTools.sTextColor, MrTools.pill());
-    }
-
-    /** Alpha (0-255) of the fill of the floating bar for that colour: 0xb0 less 0.55 times its brightness, within the limits. */
-    static int fabAlpha(int color) {
-        int lum = (((color >> 16) & 0xff) * 299 + ((color >> 8) & 0xff) * 587 + (color & 0xff) * 114) / 1000;
-        int a = 0xb0 - lum * 55 / 100;
-        return Math.max(FAB_ALPHA_MIN, Math.min(FAB_ALPHA_MAX, a));
-    }
-
-    /** The colour with at most that alpha (it keeps the alpha it already had when that is lower). */
-    static int fade(int color, int maxAlpha) {
-        int a = Math.min(color >>> 24, maxAlpha);
-        return (color & 0x00ffffff) | (a << 24);
     }
 
     // ------------------------------------------------------------------ panel modes

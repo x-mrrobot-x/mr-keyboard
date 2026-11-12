@@ -188,7 +188,7 @@
     .line 77
     iput v0, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->renderMode:I
 
-    const/16 v0, 0x64
+    const/16 v0, 0xc8
 
     .line 80
     iput v0, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->longpressTimeout:I

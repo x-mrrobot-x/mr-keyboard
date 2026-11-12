@@ -14,14 +14,14 @@ public class MrTools {
     static android.view.inputmethod.InputConnection sRedirect;
     /** Colors of the text and of the hint of the tool bars (set when a keyboard view is made). */
     static int sTextColor;
+    static int sKeyText;
     static int sHint;
 
     public static void toast(String msg) { }
 
     /** Tints the compound drawables of the view. */
     static void tintColor(android.widget.TextView t, int color) { }
-    /** Backgrounds of the theme: the floating button, the card of a panel. */
-    static android.graphics.drawable.Drawable fabBg() { return null; }
+    /** Backgrounds of the theme: the card of a panel. */
     static android.graphics.drawable.Drawable cardBg() { return null; }
 
     public static void showPanel(int mode) { }
@@ -34,11 +34,11 @@ public class MrTools {
 
     public static float radius(float f) { return 0f; }
 
-    /** Corner radius of the toolbar buttons: fully round (1000 px, clamped by the drawable to half the short side). */
-    static float pill() { return 1000f; }
+    /** Like flatBg(), with fully round corners (the buttons inside the floating bar). */
+    public static android.graphics.drawable.Drawable flatPill() { return null; }
 
-    /** Button background with colours: fill, border, text or icon colour (pressed state) and corner radius. */
-    static android.graphics.drawable.Drawable roleBg(int fill, int stroke, int ink, float radius) { return null; }
+    /** Background of the floating bar of the emoji panel: opaque, neutral colour of the theme, fully round. */
+    static android.graphics.drawable.Drawable floatBg() { return null; }
 
     /** The accent colour of the theme in use, without alpha (0 before a keyboard view was made). */
     static int accent() { return stubAccent; }

@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 419
+    .line 420
     iput-object p1, p0, Lcom/mrkeyboard/app/MrEmojiSearch$7$1;->this$0:Lcom/mrkeyboard/app/MrEmojiSearch$7;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrEmojiSearch$7$1;->val$built:Lcom/mrkeyboard/app/MrEmojiIndex;
@@ -49,11 +49,11 @@
     .locals 1
 
     .prologue
-    .line 421
+    .line 422
     iget-object v0, p0, Lcom/mrkeyboard/app/MrEmojiSearch$7$1;->val$built:Lcom/mrkeyboard/app/MrEmojiIndex;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrEmojiSearch;->loaded(Lcom/mrkeyboard/app/MrEmojiIndex;)V
 
-    .line 422
+    .line 423
     return-void
 .end method

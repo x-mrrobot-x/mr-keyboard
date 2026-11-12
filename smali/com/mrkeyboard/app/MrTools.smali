@@ -543,9 +543,9 @@
     :goto_0
     invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    # Horizontal padding. With text (and a tag that is not b_) the button is a pill, whose round ends take room, so
-    # it gets 11/10 of sPad (11 dp) on each side; before it had 0.64 (6.4 dp) and the text and the icon touched the
-    # curve. b_ with text keeps 0.8; without text, b_ keeps sPad and the others 0.8.
+    # Horizontal padding. With text (and a tag that is not b_) the button gets 11/10 of sPad (11 dp) on each side, so the
+    # text and the icon have room next to the corners; before it had 0.64 (6.4 dp). b_ with text keeps 0.8; without
+    # text, b_ keeps sPad and the others 0.8.
     sget v1, Lcom/mrkeyboard/app/MrTools;->sPad:I
 
     const-string v2, "b_"
@@ -886,7 +886,8 @@
     return-void
 .end method
 
-# Corner radius (px) of the toolbar and panel buttons and fields: 8 dp + margin p0 (dp), fixed. It does not
+# Corner radius (px) of the toolbar and panel buttons, fields and cards: 8 dp + margin p0 (dp), fixed. They all use
+# radius(2) = 10 dp (the search card of the emojis, radius(8) = 16 dp, is the exception). It does not
 # follow the key radius (pref_key_radius) nor the label scale: those change only the keys.
 .method static radius(F)F
     .locals 2
@@ -897,14 +898,6 @@
     const/high16 v1, 0x41000000    # 8.0f
     add-float/2addr v1, p0
     mul-float/2addr v0, v1
-    return v0
-.end method
-
-# Corner radius (px) of the toolbar buttons: fully round (pill). GradientDrawable clamps the radius to half the
-# short side, so this one value gives a pill for any size of button (a circle when it is square).
-.method static pill()F
-    .locals 1
-    const v0, 0x447a0000    # 1000.0f
     return v0
 .end method
 .method static lookFixed(Landroid/graphics/drawable/Drawable;Landroid/content/Context;)V
@@ -930,7 +923,7 @@
     add-int/lit8 v2, v2, 0x1
     goto :goto_0
     :cond_1
-    const/4 v2, 0x0
+    const/high16 v2, 0x40000000    # 2.0f
     invoke-static {v2}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
     move-result v2
     instance-of v6, p0, Landroid/graphics/drawable/LayerDrawable;
@@ -963,9 +956,9 @@
 .end method
 
 # Background of the bar buttons: transparent; on touch, the color of the highlight keys (ctrlBg) with the
-# theme's alpha_flat, with fully round corners (pill()), so the pressed fill is round even though the button has no
-# visible background.
-.method static flatBg()Landroid/graphics/drawable/Drawable;
+# theme's alpha_flat, with the radius p0 (px), so the pressed fill is rounded even though the button has no
+# visible background. flatBg() uses the 10 dp corners (radius(2)); flatPill(), fully round corners.
+.method static flatBgR(F)Landroid/graphics/drawable/Drawable;
     .locals 5
 
     new-instance v0, Landroid/graphics/drawable/StateListDrawable;
@@ -990,11 +983,7 @@
 
     const/4 v2, 0x0
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->pill()F
-
-    move-result v3
-
-    invoke-static {v1, v2, v2, v3}, Lcom/mrkeyboard/app/MrTools;->rrect(IIIF)Landroid/graphics/drawable/GradientDrawable;
+    invoke-static {v1, v2, v2, p0}, Lcom/mrkeyboard/app/MrTools;->rrect(IIIF)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v1
 
@@ -1015,6 +1004,37 @@
     invoke-direct {v1, v2}, Landroid/graphics/drawable/ColorDrawable;-><init>(I)V
 
     invoke-virtual {v0, v3, v1}, Landroid/graphics/drawable/StateListDrawable;->addState([ILandroid/graphics/drawable/Drawable;)V
+
+    return-object v0
+.end method
+
+# Background of the bar buttons with the 10 dp corners (radius(2)).
+.method static flatBg()Landroid/graphics/drawable/Drawable;
+    .locals 1
+
+    const/high16 v0, 0x40000000    # 2.0f
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
+
+    move-result v0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->flatBgR(F)Landroid/graphics/drawable/Drawable;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+# The same background with fully round corners (pill: GradientDrawable clamps the radius to half the short side): the
+# buttons inside the floating bar of the emojis, which is a pill too.
+.method static flatPill()Landroid/graphics/drawable/Drawable;
+    .locals 1
+
+    const v0, 0x447a0000    # 1000.0f
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->flatBgR(F)Landroid/graphics/drawable/Drawable;
+
+    move-result-object v0
 
     return-object v0
 .end method
@@ -1045,7 +1065,9 @@
 
     or-int/2addr v0, v1
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->pill()F
+    const/high16 v1, 0x40000000    # 2.0f
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
 
     move-result v1
 
@@ -1253,6 +1275,36 @@
     return-object v0
 .end method
 
+# Background of the floating bar of the emoji panel: opaque, in the face of a letter key (panel_btn, a neutral color of the
+# theme, not the accent of the floating button of the attachments), with the thin border of the fields (panel_field_stroke)
+# and fully round corners (pill: the radius is clamped to half the height). What sits on it takes sKeyText, the color of
+# the labels of the keys.
+.method static floatBg()Landroid/graphics/drawable/Drawable;
+    .locals 4
+
+    const-string v0, "panel_btn"
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v0
+
+    const-string v1, "panel_field_stroke"
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v1
+
+    sget v2, Lcom/mrkeyboard/app/MrTools;->sKeyText:I
+
+    const v3, 0x447a0000    # 1000.0f
+
+    invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/MrTools;->roleBg(IIIF)Landroid/graphics/drawable/Drawable;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
 # Background of the "Digite aqui para traduzir" (type here to translate) field: the theme's panel_field color
 # (transparent by default, so the keyboard background shows through), a 1.5 dp border in the accent color with
 # alpha_btn, or in the theme's panel_field_stroke when it declares one, and the same corners as the buttons
@@ -1274,7 +1326,7 @@
 
     float-to-int v1, v1
 
-    const/4 v2, 0x0    # 0.0f: radius(0) = 8 dp
+    const/high16 v2, 0x40000000    # 2.0f: radius(2) = 10 dp
 
     invoke-static {v2}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
 
@@ -2932,8 +2984,8 @@
 
     return-void
 .end method
-# Soft button background: the accent color (accent()) with the theme's alpha_btn, no border, fully round corners
-# (pill()); on touch, the same color with alpha_press.
+# Soft button background: the accent color (accent()) with the theme's alpha_btn, no border, 10 dp corners
+# (radius(2)); on touch, the same color with alpha_press.
 .method static softBg()Landroid/graphics/drawable/Drawable;
     .locals 6
 
@@ -2957,7 +3009,9 @@
 
     or-int/2addr v0, v2
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->pill()F
+    const/high16 v2, 0x40000000    # 2.0f
+
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
 
     move-result v2
 

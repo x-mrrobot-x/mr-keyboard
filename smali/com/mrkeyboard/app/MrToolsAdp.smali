@@ -97,7 +97,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    const/high16 v2, -0x3fc00000    # -3.0f
+    const/high16 v2, 0x40000000    # 2.0f
 
     invoke-static {v2}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
 

@@ -117,7 +117,7 @@ the feature: what exists, how it works, where the words come from and what is le
 
 Nothing of this has run on a device yet (only on the PC, with fake views).
 
-1. Open the emoji panel: the floating bar shows over the list with two buttons. Its fill is the colour of the role `attach_fab` made translucent (the livelier the colour, the more transparent: `MrEmojiSearch.fabAlpha`, between `FAB_ALPHA_MIN` and `FAB_ALPHA_MAX`), the icons take the text colour of the theme, and a tap lights a round (pill) fill. Try a light and a neon theme: the emojis must show softly under the bar and the icons must read on it.
+1. Open the emoji panel: the floating bar shows over the list with two buttons. It is opaque, in a neutral colour of the theme (`MrTools.floatBg`: the face of a letter key, role `panel_btn`, with the border of the fields, role `panel_field_stroke`, and fully round corners); the icons take the colour of the key labels (`MrTools.sKeyText`) and a tap lights a round fill (`MrTools.flatPill`). The two icons (`ic_mr_search`, `ic_mr_backspace`) fill the same box (about 15.8 x 15.8 dp of glyph in the 20 dp icon, viewport 2.5 to 21.5) with the same stroke (2.0): keep that when one of them is redrawn. Try a light, a dark and a neon theme: the bar must not be louder than the keys and the icons must read on it.
 2. Write some text in an app, open the emoji panel and press **delete**: it deletes like Backspace; holding it repeats; with a selection it deletes the selection.
 3. Press **search**: the header replaces the toolbar row, the keyboard types in its field, the card shows the recent emojis. The header comes in growing
    upward and fading in (no sudden flash), the card has rounder corners and the header is not stuck to the top edge or to the keys.

@@ -46,8 +46,8 @@ import java.util.List;
  *     a plain text field (not a password, an address or an e-mail field, not a field that refuses suggestions), with no Ctrl,
  *     Alt or Meta switched on, no font style chosen, the weights open and the dictionary of the language loaded.
  *   - While it only may be one, the events go on to the usual path too: a tap is typed exactly as before. The one difference:
- *     the long press of that key waits at least LONG_PRESS_MIN ms (the default of the app, 100 ms, would open the accents
- *     popup before the finger of one gesture in five has left its place).
+ *     the long press of that key waits at least LONG_PRESS_MIN ms (the default of the app, 200 ms, would still open the
+ *     accents popup before the finger of about one gesture in sixty has left its place).
  *   - It IS a gesture once the finger is START_KEYS key widths away from where it went down. At that moment the usual path
  *     gets a cancel event (the key is let go without being typed, its timers stop, the detector of the slide actions forgets
  *     the touch) and every event from there to the last finger up is taken here. So, with gesture typing on, a slide action

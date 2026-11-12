@@ -112,8 +112,8 @@ The rule, and the numbers behind it (tables in "What was measured"):
    dictionary of the language loaded. Anywhere else the touch is not looked at again.
 2. While it only may be one, **every event still goes to the usual path**: the key is pressed, its preview shows, a tap types
    it exactly as before. One thing changes: the long press of that key waits at least **300 ms**
-   (`LONG_PRESS_MIN`; the app's default is 100 ms, and 19% of real gestures are still within a quarter of a key of their
-   start after 100 ms, 0.5% after 300 ms). A longer value chosen by the user is kept.
+   (`LONG_PRESS_MIN`; the app's default is 200 ms, and 1.5% of real gestures are still within a quarter of a key of their
+   start after 200 ms, 0.5% after 300 ms). A longer value chosen by the user is kept.
 3. It **is** a gesture when the finger gets **0.7 key width** away from where it went down (`START_KEYS`; never less than
    22 dp, 3.5 mm). At that moment the usual path receives one cancel event (the key is let go without being typed, its
    timers stop, the detector of the slide actions forgets the touch) and from there to the last finger up every event is

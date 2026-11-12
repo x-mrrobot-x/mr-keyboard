@@ -376,11 +376,11 @@ final class MrFonts {
         }
     }
 
-    /** The face of the highlight key (ctrl_bg), at full opacity, with the round (pill) corners of the other tool buttons. */
+    /** The face of the highlight key (ctrl_bg), at full opacity, with the corners (10 dp) of the other tool buttons. */
     private static GradientDrawable activeBg() {
         GradientDrawable g = new GradientDrawable();
         g.setColor(MrTheme.color("ctrl_bg"));
-        g.setCornerRadius(MrTools.pill());
+        g.setCornerRadius(MrTools.radius(2.0f));
         return g;
     }
 

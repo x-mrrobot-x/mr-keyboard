@@ -41,7 +41,7 @@
     <string name="default_keyboard_mode_landscape">0</string>
     <string name="default_keyboard_mode_portrait">0</string>
     <string name="default_label_scale">0.69</string>
-    <string name="default_long_press_duration">100 ms</string>
+    <string name="default_long_press_duration">200 ms</string>
     <string name="default_popup_content">0</string>
     <string name="default_swipe_down">close</string>
     <string name="default_swipe_left">sheet_prev</string>
