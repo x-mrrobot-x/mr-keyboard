@@ -325,7 +325,7 @@
 
     if-gt p2, p1, :cond_2
 
-    const-string p1, "9"
+    const-string p1, "0"
 
     .line 619
     invoke-static {p1}, Ljava/lang/Integer;->valueOf(Ljava/lang/String;)Ljava/lang/Integer;
@@ -996,7 +996,7 @@
 
     const-string v1, "pref_keyboard_layout"
 
-    const-string v2, "9"
+    const-string v2, "0"
 
     invoke-interface {p0, v1, v2}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -1755,7 +1755,7 @@
 
     if-eqz v0, :cond_0
 
-    const-string v0, "9"
+    const-string v0, "0"
 
     .line 657
     invoke-interface {p1, p2, v0}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
@@ -1775,7 +1775,7 @@
 
     invoke-direct {p0, p1, p2}, Lcom/mrkeyboard/app/KeyboardSwitcher;->changeLatinKeyboardView(IZ)V
 
-    # theme changed: discards the cached keyboards to reapply the pad (Dark Tech = 0)
+    # theme changed: discards the cached keyboards to reapply the pad
     invoke-virtual {p0, p2}, Lcom/mrkeyboard/app/KeyboardSwitcher;->makeKeyboards(Z)V
 
     goto :goto_0

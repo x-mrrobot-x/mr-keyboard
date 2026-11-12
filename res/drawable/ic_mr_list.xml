@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector android:height="22.0dip" android:width="22.0dip" android:viewportWidth="24.0" android:viewportHeight="24.0"
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:scaleX="0.874" android:scaleY="0.874" android:translateX="1.5118" android:translateY="1.5118">
-        <group android:pivotX="12.0" android:pivotY="12.0" android:scaleX="1.114" android:scaleY="1.114" android:translateX="0.0" android:translateY="0.0">
-            <path android:fillColor="#ffffffff" android:pathData="M5.5,4.5h13a1.5,1.5 0 0 1 1.5,1.5v3a1.5,1.5 0 0 1 -1.5,1.5h-13a1.5,1.5 0 0 1 -1.5,-1.5v-3a1.5,1.5 0 0 1 1.5,-1.5zM5.5,13.5h13a1.5,1.5 0 0 1 1.5,1.5v3a1.5,1.5 0 0 1 -1.5,1.5h-13a1.5,1.5 0 0 1 -1.5,-1.5v-3a1.5,1.5 0 0 1 1.5,-1.5z" />
-            <path android:pathData="M5.5,4.5h13a1.5,1.5 0 0 1 1.5,1.5v3a1.5,1.5 0 0 1 -1.5,1.5h-13a1.5,1.5 0 0 1 -1.5,-1.5v-3a1.5,1.5 0 0 1 1.5,-1.5zM5.5,13.5h13a1.5,1.5 0 0 1 1.5,1.5v3a1.5,1.5 0 0 1 -1.5,1.5h-13a1.5,1.5 0 0 1 -1.5,-1.5v-3a1.5,1.5 0 0 1 1.5,-1.5z" android:strokeColor="#ffffffff" android:strokeWidth="1.46" android:strokeLineCap="round" android:strokeLineJoin="round" />
-        </group>
+    <group android:scaleX="0.9551" android:scaleY="0.9551" android:translateX="0.5393" android:translateY="0.5393">
+        <path android:pathData="M4.4,4.8h0.01M4.4,12h0.01M4.4,19.2h0.01M9.4,4.8H19.6M9.4,12H19.6M9.4,19.2H19.6" android:strokeColor="#ffffffff" android:strokeWidth="2.0" android:strokeLineCap="round" android:strokeLineJoin="round" />
     </group>
 </vector>

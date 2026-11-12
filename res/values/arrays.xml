@@ -41,18 +41,32 @@
         <item>2</item>
     </string-array>
     <string-array name="keyboard_layout_modes">
-        <item>@string/layout_mr_neon</item>
-        <item>@string/layout_mr_soft</item>
-        <item>@string/layout_mr_slate</item>
         <item>@string/layout_mr_midnight</item>
+        <item>@string/layout_mr_aurora</item>
+        <item>@string/layout_mr_cyan</item>
+        <item>@string/layout_mr_purple</item>
+        <item>@string/layout_mr_pink</item>
+        <item>@string/layout_mr_synthwave</item>
+        <item>@string/layout_mr_aqua</item>
+        <item>@string/layout_mr_snow</item>
+        <item>@string/layout_mr_chrome</item>
+        <item>@string/layout_mr_rose</item>
         <item>@string/layout_mr_glass</item>
+        <item>@string/layout_mr_denim</item>
     </string-array>
     <string-array name="keyboard_layout_modes_values">
         <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
         <item>7</item>
         <item>8</item>
         <item>9</item>
         <item>10</item>
+        <item>11</item>
     </string-array>
     <string-array name="keyboard_mode_entries">
         <item>Standard (shortcut rows + Ctrl/Alt)</item>

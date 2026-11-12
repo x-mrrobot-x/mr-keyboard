@@ -19,7 +19,14 @@ public class Paint {
 
     public Paint(int flags) { }
 
-    public void setColor(int color) { }
+    private int stubColor = 0xff000000;
+    private float stubTextSize;
+    /** Shadow layer as last set (radius 0 = none): read by the PC tests. */
+    public float stubShadowRadius;
+    public int stubShadowColor;
+
+    public void setColor(int color) { stubColor = color; }
+    public int getColor() { return stubColor; }
     public void setStyle(Style style) { }
     public void setStrokeWidth(float width) { }
     public float getStrokeWidth() { return 0f; }
@@ -27,7 +34,13 @@ public class Paint {
     public void setStrokeJoin(Join join) { }
     public PathEffect setPathEffect(PathEffect effect) { return null; }
     public void setTextAlign(Align align) { }
-    public void setTextSize(float textSize) { }
+    public void setTextSize(float textSize) { stubTextSize = textSize; }
+    public float getTextSize() { return stubTextSize; }
+    public void setShadowLayer(float radius, float dx, float dy, int shadowColor) {
+        stubShadowRadius = radius;
+        stubShadowColor = shadowColor;
+    }
+    public void clearShadowLayer() { stubShadowRadius = 0f; stubShadowColor = 0; }
     public Typeface setTypeface(Typeface typeface) { return typeface; }   // real API returns the previous typeface
     public float getFontMetrics(FontMetrics metrics) { return 0f; }       // real API returns the ascent
 }

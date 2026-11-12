@@ -1,25 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Mr Keyboard · "dark tech" palette used only on the settings screens -->
 <resources>
-    <!-- Surfaces -->
-    <color name="mr_slate_kbd_bg">#ff0a0e14</color>
-    <color name="mr_soft_kbd_bg">#ff00020e</color>
-    <color name="mr_neon_kbd_bg">#ff09110c</color>
-    <!-- Keyboard background of the Midnight Steel theme -->
-    <color name="mr_midnight_kbd_bg">#ff171e27</color>
-    <color name="mr_glass_kbd_bg">#80090f17</color>
-    <color name="mr_glass_kbd_bg_blur">#17090f17</color>
+    <!-- The generated themes (docs/tools/make_themes.py) keep ALL their colors in mr_solid_colors.xml (Midnight Steel, Snow,
+         Rose, Aqua), mr_gloss_colors.xml (Chrome) and mr_neon_colors.xml (the neon ones and Aurora): only the default of each
+         role (mr_<role>) is here, and the colors of the theme written by hand, Cobalt Glass (in a block of its own, below
+         the defaults; the colors of its keys are in mr_key_colors.xml). -->
 
-    <!-- Text and icon of the highlight keys (MrTheme.color, role accent_text). Only applies to themes without the
-         PLAIN_ACCENT_TEXT flag (Neon and Soft); with the flag the theme uses the default key text. Default: white; Neon
-         uses dark text on the green. -->
+    <!-- Text and icon of the highlight keys (MrTheme.color, role accent_text). The keyboard reads it only on a theme without
+         the PLAIN_ACCENT_TEXT flag (the neon ones, and the ones whose highlight keys have a text of their own: with the flag
+         the keys use the default key text); the fonts tool reads it on every theme (the chosen font, on the face of the
+         highlight keys). Default: white, which fits the dark faces of Midnight Steel and Cobalt Glass; each generated theme
+         declares its own. -->
     <color name="mr_accent_text">#ffffffff</color>
-    <color name="mr_neon_accent_text">#ff07130c</color>
+    <!-- Small letters and dots (the hint) of the highlight keys, when the hint of the layout, made for the letter keys, does not
+         read on their face (LatinKeyboardBaseView, role accent_hint). 0 = the hint of the layout. -->
+    <color name="mr_accent_hint">#00000000</color>
+    <!-- Shade around the light labels and icons of the keys (role label_shadow), in place of the one of the keyboard style
+         (mr_default_key_shadow): a theme whose shade is a tone of its own instead of black. 0 = the one of the style. -->
+    <color name="mr_label_shadow">#00000000</color>
+
+    <!-- Neon themes (flag GLOW of mr_theme_flags, MrGlow.java): color of the light around the labels and icons of the
+         normal keys (role glow) and of the highlight keys (accent_glow); its opacity is the strength of the light.
+         These defaults are never shown: a theme without the flag has no light. Each neon theme has its own. -->
+    <color name="mr_glow">#00000000</color>
+    <color name="mr_accent_glow">@color/mr_glow</color>
+    <!-- Spectrum themes (flag SPECTRUM): hue of the keys at the left edge, in the middle and at the right edge of the
+         keyboard (roles spectrum_start, spectrum_mid, spectrum_end). Defaults never shown, as above. -->
+    <color name="mr_spectrum_start">#ffff0000</color>
+    <color name="mr_spectrum_mid">#ff00ff00</color>
+    <color name="mr_spectrum_end">#ff0000ff</color>
 
     <!-- ===== Toolbar and panel colors (MrTheme.color) =====
          Looked up by name: first mr_<theme>_<role> (e.g. mr_glass_panel_btn), then mr_<role>.
-         The mr_panel_* values are the usual ones (Slate, Midnight, Neon, Soft); a theme that needs
-         another color only declares its own mr_<theme>_panel_* version.
+         The mr_panel_* values are the usual ones (the ones that Cobalt Glass does not declare itself); a theme that
+         needs another color declares its own mr_<theme>_panel_* version.
          Background: the toolbar and the panels have no color of their own in any theme; they show the keyboard's (kbd_bg).
          The buttons of the bar do NOT use panel_* colors: their colors come from the Ctrl key (highlight keys) of the theme,
          through the roles ctrl_bg and alpha_* below. -->
@@ -28,63 +42,52 @@
     <!-- Translation text field: transparent background. The border is NOT a fixed color: MrTools.fieldBg paints it
          with the theme color (accent) at the opacity of mr_alpha_btn, the same as the buttons next to it. -->
     <color name="mr_panel_field">#00000000</color>
+    <!-- A theme that wants another outline on the field than the color of the buttons declares it (mr_<theme>_panel_field_stroke).
+         0 = the accent at mr_alpha_btn, as above. -->
+    <color name="mr_panel_field_stroke">#00000000</color>
+    <!-- Line between the two lists of the language panel (MrTools.wrap, view lang_div). -->
+    <color name="mr_panel_divider">@color/mr_tb_divider</color>
     <color name="mr_panel_card">#33888888</color>
     <color name="mr_panel_icon">#ffdfe7f1</color>
     <color name="mr_panel_tab_on_text">@color/mr_panel_icon</color>
     <color name="mr_panel_tab_off_text">#ff9db1c8</color>
     <!-- Face of the Ctrl key (highlight keys) of each theme: the only source of the toolbar colors. Each theme points at the
-         color of its own highlight key in mr_key_colors.xml, so changing the key changes the bar. MrTools.ctrlBg() reads it as it
-         is (pressed tool button); MrTools.deriveColors() lightens it into the accent (inner buttons, field border). Default:
-         Midnight Steel. -->
-    <color name="mr_ctrl_bg">@color/mr_midnight_key_hl_fill</color>
-    <color name="mr_neon_ctrl_bg">@color/mr_neon_key_acc_normal_base</color>
-    <color name="mr_soft_ctrl_bg">@color/mr_soft_key_acc_normal_top</color>
-    <color name="mr_slate_ctrl_bg">@color/mr_slate_key_hl_top</color>
-    <color name="mr_midnight_ctrl_bg">@color/mr_midnight_key_hl_fill</color>
-    <color name="mr_glass_ctrl_bg">@color/mr_glass_key_acc_normal_fill</color>
+         color of its own highlight key (the generated ones in their own file, Cobalt Glass in mr_key_colors.xml), so changing the
+         key changes the bar. MrTools.ctrlBg() reads it as it is (pressed tool button); MrTools.deriveColors() lightens it into the
+         accent (inner buttons, field border). Default: Midnight Steel. -->
+    <color name="mr_ctrl_bg">@color/mr_midnight_key_acc_normal_fill</color>
 
     <!-- Shared interaction hues: pressed-key edge, selected popup subkey edge and key-preview outline. -->
     <color name="mr_press_accent">#ff72a6ef</color>
-    <color name="mr_neon_press_accent">#ff71e89d</color>
-    <color name="mr_soft_press_accent">#ff70a5ff</color>
-    <color name="mr_slate_press_accent">#ff75a7ef</color>
-    <color name="mr_midnight_press_accent">#ff72a2e8</color>
-    <color name="mr_glass_press_accent">#bb8fb8e8</color>
     <!-- Lower dash of Ctrl, Alt, Shift and the Meta key (❖). These keys wear the theme's highlight face and the dash tells their
          state, so the colors are chosen against that face and every one belongs to the theme's own hue: off is a subdued tone of
-         the face (Slate, Midnight and Glass about 1.3 of contrast, Neon and Soft a little more), on is the theme's interaction
-         color (Neon uses a light green, because its press green is too close to the green face) and locked is red. -->
+         the face (about 1.3 of contrast), on is the theme's interaction color (about 3.8 of contrast) and locked is red, turned
+         a little towards the hue of the highlight keys (about 3 of contrast). The generated themes get theirs from these
+         three rules (dash_colors() in docs/tools/make_themes.py), or declare one of them; Cobalt Glass, whose faces are
+         see-through, sets its own below. -->
     <color name="mr_modifier_indicator_off">#ff263446</color>
     <color name="mr_modifier_indicator_on">@color/mr_press_accent</color>
     <color name="mr_modifier_indicator_lock">#ffff5252</color>
 
-    <color name="mr_neon_modifier_indicator_off">#ff2a9d59</color>
-    <color name="mr_neon_modifier_indicator_on">#ffb6f5cc</color>
-    <color name="mr_neon_modifier_indicator_lock">#ffc62828</color>
-
-    <color name="mr_soft_modifier_indicator_off">#ff062372</color>
-    <color name="mr_soft_modifier_indicator_on">@color/mr_soft_press_accent</color>
-    <color name="mr_soft_modifier_indicator_lock">#ffff5a5a</color>
-
-    <color name="mr_slate_modifier_indicator_off">#ff213249</color>
-    <color name="mr_slate_modifier_indicator_on">@color/mr_slate_press_accent</color>
-    <color name="mr_slate_modifier_indicator_lock">#ffff5a5a</color>
-
-    <color name="mr_midnight_modifier_indicator_off">#ff263446</color>
-    <color name="mr_midnight_modifier_indicator_on">@color/mr_midnight_press_accent</color>
-    <color name="mr_midnight_modifier_indicator_lock">#ffff5a5a</color>
-
-    <color name="mr_glass_modifier_indicator_off">#ff1c3455</color>
-    <color name="mr_glass_modifier_indicator_on">@color/mr_glass_press_accent</color>
-    <color name="mr_glass_modifier_indicator_lock">#ffff6b6b</color>
-
     <color name="mr_alpha_press">#59000000</color>
+    <!-- Rim of the panes of the tools (MrTools.rim), for a theme of glass panes: every pane that has a fill and no border of
+         its own (buttons, tabs, cards, the selected row, a tool of the bar under the finger) is outlined with 1 dp of this
+         color. 0 = no rim, as in every theme but Cobalt Glass. -->
+    <color name="mr_pane_rim">#00000000</color>
+    <!-- Color of the inner buttons, the tabs, the border of the translation field and the selection of the tools (MrTools.softBg,
+         tabOffBg, fieldBg and sSelColor), at the opacities of mr_alpha_*. 0 = derived from ctrl_bg (MrTools.deriveColors), which is
+         right where that face is a vivid color on a dark theme; a light theme declares its own vivid one (mr_<theme>_tool_tint). -->
+    <color name="mr_tool_tint">#00000000</color>
+    <!-- Ink of what sits on the keyboard background, when it is not the one of the key labels (a theme with light keys on a dark
+         background, as Chrome): text and icons of the bar, the panels and the suggestions, and what tells MrLight and
+         MrTools.deriveColors that the theme is dark (mr_<theme>_tool_ink); and its secondary text (mr_<theme>_tool_hint).
+         0 = the text and the hint of the layout. -->
+    <color name="mr_tool_ink">#00000000</color>
+    <color name="mr_tool_hint">#00000000</color>
     <!-- Pressed tool button of the bar (b_*, cat_*): the Ctrl face (ctrl_bg) at this opacity. The default is for the dark faces
-         (Slate, Midnight); Neon, Soft and Glass, whose faces are brighter, declare a lower one to stay subtle. -->
+         (Midnight Steel); Glass, whose face is brighter, declares a lower one to stay subtle, and the neon themes, whose faces
+         are darker still, a higher one. -->
     <color name="mr_alpha_flat">#b3000000</color>
-    <color name="mr_neon_alpha_flat">#4d000000</color>
-    <color name="mr_soft_alpha_flat">#59000000</color>
-    <color name="mr_glass_alpha_flat">#59000000</color>
     <!-- Fill of the buttons inside the tools (back, language, attachments, clear...), in EVERY theme: the Ctrl accent at this
          opacity, no border (MrTools.softBg); on touch, alpha_press. #00000000 = fully transparent buttons. The same opacity
          paints the border of the translation field (MrTools.fieldBg). -->
@@ -109,127 +112,89 @@
     <color name="mr_sel_media">#593fb8ea</color>
     <color name="mr_sel_card">#ff25445f</color>
 
-    <!-- Cobalt Glass: the same colors, translucent, so the background blur shows through -->
-    <color name="mr_glass_panel_btn">#9433598a</color>
-    <color name="mr_glass_panel_field">#00000000</color>
-    <color name="mr_glass_sel_cancel">#cc2c3f5c</color>
-    <color name="mr_glass_sel_cancel_stroke">#33cfe3ff</color>
-    <color name="mr_glass_sel_cancel_text">#ffeaf2ff</color>
-    <color name="mr_glass_sel_send">#eb426fb5</color>
-    <color name="mr_glass_sel_send_stroke">#66b4d2ff</color>
-    <color name="mr_glass_sel_send_text">#ffffffff</color>
-    <color name="mr_glass_attach_fab">#e03f6eab</color>
-    <color name="mr_glass_attach_fab_stroke">#40cfe3ff</color>
-    <color name="mr_glass_attach_fab_icon">#fff2f7ff</color>
-    <color name="mr_glass_sel_media">#667fb2ff</color>
-    <color name="mr_glass_sel_card">#b34f7fc4</color>
+    <!-- ===== Cobalt Glass =====
+         The see-through theme, written by hand: one sheet of cobalt glass over the app, blurred where the phone can
+         (flag TRANSLUCENT, MrTools.applyTranslucentBlur), and on it panes of glass: the keys, the buttons of the tools, the
+         cards, the bubble and the popup. A pane is ONE flat see-through color (a step of the cobalt with its opacity, no
+         gradient) with a hairline rim of the light cobalt (the same hue as the fill, so it reads as the edge of the glass and
+         not as an outline); what is touched or on gets more light (a bluer fill, a lit rim), never an opaque color.
 
-    <color name="mr_neon_sel_cancel">#ff0e1f15</color>
-    <color name="mr_neon_sel_cancel_stroke">#ff23704a</color>
-    <color name="mr_neon_sel_cancel_text">#ff6ee79b</color>
-    <color name="mr_neon_sel_send">#ff52c188</color>
-    <color name="mr_neon_sel_send_stroke">#ff74d4a2</color>
-    <color name="mr_neon_sel_send_text">#ff07130c</color>
-    <color name="mr_neon_attach_fab">#f212301e</color>
-    <color name="mr_neon_attach_fab_stroke">#ff2b8a55</color>
-    <color name="mr_neon_attach_fab_icon">#ff6ee79b</color>
-    <color name="mr_neon_sel_media">#593ddc84</color>
-    <color name="mr_neon_sel_card">#ff144a2b</color>
+         Every color is a step of ONE scale with an opacity, so that any two of them belong together (OKLCH, the hue between
+         254 and 259 degrees; the names are the lightness times 1000):
+           170 #07101d  the sheet, the well of the field, the shade of the labels   700 #6ea0e7  the rims, a key under the finger
+           370 #254066  the bottom of the popup                                     775 #91b9ec  the light: lit rim, lit dash, dots
+           455 #32578b  a letter key, Cancel, the files, the top of the popup       870 #c5d6eb  secondary texts and small letters
+           540 #3e6fb3  a highlight key, the tint of the tools                      930 #dbe9ff  ice: the dash that is off
+           565 #2f72d9  lit cobalt: a key that is on, Send, +                        946 #e7eef7  the text
+           610 #5184cb  the marked file
+         The only color from outside is the red of what is locked (#ff7a7a).
 
-    <color name="mr_neon_text">#ff6ee79b</color>
-    <color name="mr_neon_cursor">#ff3df0c0</color>
-    <color name="mr_neon_hint">#8c6ee79b</color>
-    <color name="mr_neon_popup_bg_top">#f5101c14</color>
-    <color name="mr_neon_popup_bg_bottom">#f509110c</color>
-    <color name="mr_neon_popup_bg_stroke">#d93ddc84</color>
-    <color name="mr_neon_popup_halo">#263ddc84</color>
-    <color name="mr_neon_popup_key_top">@color/mr_neon_key_pressed_fill</color>
-    <color name="mr_neon_popup_key_bottom">@color/mr_neon_key_pressed_fill</color>
-    <color name="mr_neon_popup_key_stroke">@color/mr_neon_press_accent</color>
-    <color name="mr_neon_popup_key_halo">@color/mr_neon_key_pressed_halo</color>
-    <color name="mr_neon_popup_hint">#8c6ee79b</color>
-    <color name="mr_neon_preview_top">#f5101c14</color>
-    <color name="mr_neon_preview_bottom">#f509110c</color>
-    <color name="mr_neon_preview_stroke">@color/mr_neon_press_accent</color>
-    <color name="mr_neon_preview_dots">#cc71e89d</color>
-
-    <color name="mr_soft_sel_cancel">#ff001769</color>
-    <color name="mr_soft_sel_cancel_stroke">#ff22499f</color>
-    <color name="mr_soft_sel_cancel_text">#ff9ec9ff</color>
-    <color name="mr_soft_sel_send">#ff2f66c9</color>
-    <color name="mr_soft_sel_send_stroke">#ff5a86d6</color>
-    <color name="mr_soft_sel_send_text">#ffffffff</color>
-    <color name="mr_soft_attach_fab">#f2072a88</color>
-    <color name="mr_soft_attach_fab_stroke">#ff2b52ac</color>
-    <color name="mr_soft_attach_fab_icon">#ffcfe3ff</color>
-    <color name="mr_soft_sel_media">#662f7bff</color>
-    <color name="mr_soft_sel_card">#ff0b3fae</color>
-
-    <color name="mr_soft_text">#ff9ec9ff</color>
-    <color name="mr_soft_cursor">#ff3df4fe</color>
-    <color name="mr_soft_hint">#b35ea6ff</color>
-    <color name="mr_soft_popup_bg_top">#ff05166e</color>
-    <color name="mr_soft_popup_bg_bottom">#ff00083c</color>
-    <color name="mr_soft_popup_bg_stroke">#ff3a8cff</color>
-    <color name="mr_soft_popup_key_top">@color/mr_soft_key_pressed_top</color>
-    <color name="mr_soft_popup_key_mid">@color/mr_soft_key_pressed_mid</color>
-    <color name="mr_soft_popup_key_bottom">@color/mr_soft_key_pressed_bottom</color>
-    <color name="mr_soft_popup_key_stroke">@color/mr_soft_press_accent</color>
-    <color name="mr_soft_popup_hint">#b35ea6ff</color>
-    <color name="mr_soft_preview_top">#f505166e</color>
-    <color name="mr_soft_preview_bottom">#f500083c</color>
-    <color name="mr_soft_preview_stroke">@color/mr_soft_press_accent</color>
-    <color name="mr_soft_preview_dots">#cc70a5ff</color>
-
-    <color name="mr_slate_sel_cancel">#ff1c2430</color>
-    <color name="mr_slate_sel_cancel_stroke">#ff2e3a4a</color>
-    <color name="mr_slate_attach_fab">#f21f2a38</color>
-    <color name="mr_slate_attach_fab_stroke">#ff333f50</color>
-    <color name="mr_slate_sel_card">#ff1d3a56</color>
-
-    <color name="mr_slate_text">#ffe7eef7</color>
-    <color name="mr_slate_cursor">#ffe7eef7</color>
-    <color name="mr_slate_hint">#999fb2c7</color>
-    <color name="mr_slate_popup_bg_top">#ff1a222d</color>
-    <color name="mr_slate_popup_bg_bottom">#ff121821</color>
-    <color name="mr_slate_popup_bg_stroke">#ff2b3b52</color>
-    <color name="mr_slate_popup_key_top">@color/mr_slate_key_pressed_top</color>
-    <color name="mr_slate_popup_key_bottom">@color/mr_slate_key_pressed_bottom</color>
-    <color name="mr_slate_popup_key_stroke">@color/mr_slate_press_accent</color>
-    <color name="mr_slate_popup_hint">#999fb2c7</color>
-    <color name="mr_slate_preview_top">#f51a222d</color>
-    <color name="mr_slate_preview_bottom">#f510151d</color>
-    <color name="mr_slate_preview_stroke">@color/mr_slate_press_accent</color>
-    <color name="mr_slate_preview_dots">#cc75a7ef</color>
-
-    <color name="mr_midnight_text">#ffe7eef7</color>
-    <color name="mr_midnight_cursor">#ffe7eef7</color>
-    <color name="mr_midnight_hint">#ff8d95a0</color>
-    <color name="mr_midnight_popup_bg_top">#ff1a222d</color>
-    <color name="mr_midnight_popup_bg_bottom">#ff121821</color>
-    <color name="mr_midnight_popup_bg_stroke">#ff2b3b52</color>
-    <color name="mr_midnight_popup_key_top">@color/mr_midnight_key_pressed_top</color>
-    <color name="mr_midnight_popup_key_bottom">@color/mr_midnight_key_pressed_bottom</color>
-    <color name="mr_midnight_popup_key_stroke">@color/mr_midnight_press_accent</color>
-    <color name="mr_midnight_popup_hint">@color/mr_midnight_hint</color>
-    <color name="mr_midnight_preview_top">#f51a222d</color>
-    <color name="mr_midnight_preview_bottom">#f510151d</color>
-    <color name="mr_midnight_preview_stroke">@color/mr_midnight_press_accent</color>
-    <color name="mr_midnight_preview_dots">#cc72a2e8</color>
-
+         The keys are told apart from the sheet by their color and not by an outline: a letter key is 32% of the cobalt 455, a
+         highlight key 44% of 540. Since the sheet is almost clear (9% over the blur), a light label over a very light app is
+         the weak spot of the theme: the dark shade around the labels (label_shadow) is what keeps them legible, and a theme
+         that wants more reading over light apps raises the opacity of the keys (mr_key_colors.xml) or of the sheet. -->
+    <!-- The sheet. kbd_bg: where there is no blur (what is behind stays sharp, so the sheet is denser, 50%); kbd_bg_blur:
+         where the window blurs what is behind it (9%: the blur is what makes the sheet read as glass). The sheet is ONE, under the bar, the panels and the keys: applyTranslucentBlur puts
+         it on the root of the tools and leaves the keyboard view clear. -->
+    <color name="mr_glass_kbd_bg">#8007101d</color>
+    <color name="mr_glass_kbd_bg_blur">#1707101d</color>
+    <!-- Labels. The shade around them is the deepest cobalt in place of the black of the style (role label_shadow): it is what
+         keeps a label readable on a pane over a light screen. -->
     <color name="mr_glass_text">#ffe7eef7</color>
-    <color name="mr_glass_cursor">#ffe7eef7</color>
-    <color name="mr_glass_hint">#b8c5d6e8</color>
-    <color name="mr_glass_popup_bg_top">#b31a2a40</color>
-    <color name="mr_glass_popup_bg_bottom">#b3101b2c</color>
-    <color name="mr_glass_popup_bg_stroke">#668fb8e8</color>
+    <color name="mr_glass_cursor">@color/mr_glass_text</color>
+    <color name="mr_glass_hint">#e6c5d6eb</color>
+    <color name="mr_glass_popup_hint">@color/mr_glass_hint</color>
+    <color name="mr_glass_label_shadow">#cc07101d</color>
+    <!-- The light of the glass: the rim of what is under the finger, the edge of the preview bubble, the chosen variant. -->
+    <color name="mr_glass_press_accent">#a091b9ec</color>
+    <!-- The dash of Ctrl, Alt and Shift. The faces are see-through, so no opaque tone of the face exists: off is a line of the
+         ice, on is the light, locked is the red. -->
+    <color name="mr_glass_modifier_indicator_off">#4cdbe9ff</color>
+    <color name="mr_glass_modifier_indicator_on">#ff91b9ec</color>
+    <color name="mr_glass_modifier_indicator_lock">#ffff7a7a</color>
+    <!-- Tool bar and panels: panes like the keys. The tint is the cobalt of the highlight keys, at the opacities of alpha_*
+         (buttons, a button under the finger, tabs that are off, the selected row), and every pane gets the rim (pane_rim).
+         A lighter tint would brighten the panes over a light screen, where the text is weakest. -->
+    <color name="mr_glass_ctrl_bg">@color/mr_glass_key_acc_normal_fill</color>
+    <color name="mr_glass_alpha_flat">#66000000</color>
+    <color name="mr_glass_tool_tint">#ff3e6fb3</color>
+    <color name="mr_glass_pane_rim">#2e6ea0e7</color>
+    <color name="mr_glass_alpha_btn">#4d000000</color>
+    <color name="mr_glass_alpha_press">#85000000</color>
+    <color name="mr_glass_alpha_tab_off">#26000000</color>
+    <color name="mr_glass_alpha_sel">#6b000000</color>
+    <color name="mr_glass_alpha_card">#22000000</color>
+    <color name="mr_glass_panel_icon">@color/mr_glass_text</color>
+    <color name="mr_glass_panel_tab_on_text">@color/mr_glass_text</color>
+    <color name="mr_glass_panel_tab_off_text">#bfc5d6eb</color>
+    <!-- The field is a well: a darker hollow in the sheet, with a rim. The card of a file is a pane of the letter keys' cobalt. -->
+    <color name="mr_glass_panel_field">#5707101d</color>
+    <color name="mr_glass_panel_field_stroke">#386ea0e7</color>
+    <color name="mr_glass_panel_divider">#286ea0e7</color>
+    <color name="mr_glass_panel_btn">#6b32578b</color>
+    <!-- Attachments: Cancel is a pane, Send and the + button are lit cobalt; a marked file is a lit pane. -->
+    <color name="mr_glass_sel_cancel">#7532578b</color>
+    <color name="mr_glass_sel_cancel_stroke">#4d6ea0e7</color>
+    <color name="mr_glass_sel_cancel_text">@color/mr_glass_text</color>
+    <color name="mr_glass_sel_send">#bd2f72d9</color>
+    <color name="mr_glass_sel_send_stroke">#7391b9ec</color>
+    <color name="mr_glass_sel_send_text">@color/mr_glass_text</color>
+    <color name="mr_glass_attach_fab">#bd2f72d9</color>
+    <color name="mr_glass_attach_fab_stroke">#7391b9ec</color>
+    <color name="mr_glass_attach_fab_icon">@color/mr_glass_text</color>
+    <color name="mr_glass_sel_media">#6691b9ec</color>
+    <color name="mr_glass_sel_card">#8c5184cb</color>
+    <!-- Preview bubble and popup of variants: slabs of the same glass. They are windows of their own, with no blur and no
+         sheet behind them (the bubble of the top row is over the app itself), so they are denser than the keys. -->
+    <color name="mr_glass_popup_bg_top">#e632578b</color>
+    <color name="mr_glass_popup_bg_bottom">#f0254066</color>
+    <color name="mr_glass_popup_bg_stroke">#4d6ea0e7</color>
     <color name="mr_glass_popup_key_fill">@color/mr_glass_key_pressed_fill</color>
     <color name="mr_glass_popup_key_stroke">@color/mr_glass_press_accent</color>
-    <color name="mr_glass_popup_hint">#b8c5d6e8</color>
-    <color name="mr_glass_preview_top">#b31a2a40</color>
-    <color name="mr_glass_preview_bottom">#b3101b2c</color>
+    <color name="mr_glass_preview_top">@color/mr_glass_popup_bg_top</color>
+    <color name="mr_glass_preview_bottom">@color/mr_glass_popup_bg_bottom</color>
     <color name="mr_glass_preview_stroke">@color/mr_glass_press_accent</color>
-    <color name="mr_glass_preview_dots">#bb8fb8e8</color>
+    <color name="mr_glass_preview_dots">#d991b9ec</color>
 
     <!-- Accent (blue of the settings theme reference: #1b97fc) -->
     <color name="mr_accent">#ff1b97fc</color>

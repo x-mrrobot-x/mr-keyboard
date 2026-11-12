@@ -115,9 +115,14 @@
 
 .field static sSelColor:I
 
+# Rim of the panes of a theme of glass (role pane_rim, Cobalt Glass): 0 = no rim, as in every other theme.
+.field static sRim:I
+
 .field static sSeq:I
 
 .field static sSrc:I
+
+.field static sKeyText:I
 
 .field static sTextColor:I
 
@@ -658,6 +663,18 @@
     move-result v1
 
     :cond_ag_set
+    # one sheet of glass: the veil goes on the root of the tools, which holds the bar, the panels and the keyboard, and the
+    # keyboard view itself is left clear, so that the bar and the keys sit on the same veil (the keyboard's own background
+    # on top of the copy that wrap gives the root would make the part of the keys denser than the bar)
+    sget-object v2, Lcom/mrkeyboard/app/MrTools;->sBarRoot:Landroid/view/View;
+
+    if-eqz v2, :cond_ag_own
+
+    invoke-virtual {v2, v1}, Landroid/view/View;->setBackgroundColor(I)V
+
+    const/4 v1, 0x0
+
+    :cond_ag_own
     invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundColor(I)V
 
     :cond_ag_end
@@ -665,8 +682,8 @@
 .end method
 
 # sAccent: the accent key color adjusted to read well over the background (dark theme: minimum
-# brightness 0.86 and maximum saturation 0.60; light theme: maximum brightness 0.40; the hue is the theme's). sAccentBg: the
-# accent key core itself, opaque. Without an accent key, it uses the text color.
+# brightness 0.86 and maximum saturation 0.60; light theme: maximum brightness 0.40; the hue is the theme's), or the role
+# tool_tint when the theme declares one. sAccentBg: the accent key core itself, opaque. Without an accent key, it uses the text color.
 .method static deriveColors()V
     .locals 5
 
@@ -757,6 +774,23 @@
 
     sput v0, Lcom/mrkeyboard/app/MrTools;->sAccentBg:I
 
+    # a theme that declares the role tool_tint paints the inner buttons, the tabs, the border of the field and the selection with
+    # that color as it is (a light theme gets a vivid one; the derivation above turns a light face into a dark, dull tone)
+    const-string v1, "tool_tint"
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v1
+
+    if-eqz v1, :cond_mr_tint
+
+    const/high16 v2, -0x1000000
+
+    or-int/2addr v1, v2
+
+    sput v1, Lcom/mrkeyboard/app/MrTools;->sAccent:I
+
+    :cond_mr_tint
     sget v1, Lcom/mrkeyboard/app/MrTools;->sAccent:I
 
     const v2, 0xffffff
@@ -773,13 +807,22 @@
 
     sput v1, Lcom/mrkeyboard/app/MrTools;->sSelColor:I
 
+    # a theme of glass panes (Cobalt Glass) declares the rim that outlines every pane of the tools (rrect, rim)
+    const-string v1, "pane_rim"
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v1
+
+    sput v1, Lcom/mrkeyboard/app/MrTools;->sRim:I
+
     return-void
 .end method
 
 # Rounded rectangle: p0 = fill, p1 = border color, p2 = border width (px),
 # p3 = corner radius (px).
 .method private static rrect(IIIF)Landroid/graphics/drawable/GradientDrawable;
-    .locals 1
+    .locals 2
 
     new-instance v0, Landroid/graphics/drawable/GradientDrawable;
 
@@ -791,7 +834,42 @@
 
     invoke-virtual {v0, p3}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 
+    # a pane with a fill and no border of its own: in a theme of glass it gets the rim (see rim)
+    if-nez p2, :cond_mr_rim
+
+    ushr-int/lit8 v1, p0, 0x18
+
+    if-eqz v1, :cond_mr_rim
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->rim(Landroid/graphics/drawable/GradientDrawable;)V
+
+    :cond_mr_rim
     return-object v0
+.end method
+
+# Outlines the pane p0 with the rim of a theme of glass panes (role pane_rim, read in deriveColors): 1 dp, in every pane
+# of the tools that has a fill (buttons, tabs, cards, the selected row, a tool of the bar under the finger). Nothing in a
+# theme that does not declare the role.
+.method static rim(Landroid/graphics/drawable/GradientDrawable;)V
+    .locals 2
+
+    sget v0, Lcom/mrkeyboard/app/MrTools;->sRim:I
+
+    if-eqz v0, :cond_0
+
+    sget v1, Lcom/mrkeyboard/app/MrTools;->sPad:I
+
+    div-int/lit8 v1, v1, 0xa
+
+    if-gtz v1, :cond_1
+
+    const/4 v1, 0x1
+
+    :cond_1
+    invoke-virtual {p0, v1, v0}, Landroid/graphics/drawable/GradientDrawable;->setStroke(II)V
+
+    :cond_0
+    return-void
 .end method
 
 # Corner radius (px) of the toolbar and panel buttons and fields: 8 dp + margin p0 (dp), fixed. It does not
@@ -1157,8 +1235,9 @@
 .end method
 
 # Background of the "Digite aqui para traduzir" (type here to translate) field: the theme's panel_field color
-# (transparent, so the keyboard background shows through), a 1.5 dp border in the accent color with
-# alpha_btn and the same corners as the buttons (radius(0) = 8 dp).
+# (transparent by default, so the keyboard background shows through), a 1.5 dp border in the accent color with
+# alpha_btn, or in the theme's panel_field_stroke when it declares one, and the same corners as the buttons
+# (radius(0) = 8 dp).
 .method static fieldBg()Landroid/graphics/drawable/Drawable;
     .locals 5
 
@@ -1188,6 +1267,15 @@
 
     move-result v0
 
+    # the outline: the theme's own (role panel_field_stroke), or the accent at alpha_btn
+    const-string v3, "panel_field_stroke"
+
+    invoke-static {v3}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v3
+
+    if-nez v3, :cond_mr_stroke
+
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->accent()I
 
     move-result v3
@@ -1200,6 +1288,7 @@
 
     or-int/2addr v3, v4
 
+    :cond_mr_stroke
     invoke-static {v0, v3, v1, v2}, Lcom/mrkeyboard/app/MrTools;->rrect(IIIF)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v0
@@ -3141,12 +3230,50 @@
 
     sput v1, Lcom/mrkeyboard/app/MrTools;->sTextColor:I
 
+    # the color of the labels of the keys, kept apart: the clipboard cards are keys, so what is written on them is not the ink of the
+    # background (tool_ink, below), which is the opposite one in a theme of light keys on a dark background
+    sput v1, Lcom/mrkeyboard/app/MrTools;->sKeyText:I
+
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getMrKeyHintColor()I
 
     move-result v1
 
     sput v1, Lcom/mrkeyboard/app/MrTools;->sHint:I
 
+    # A theme whose keys and whose background are of opposite brightness (Chrome: light keys, dark background) declares the
+    # ink of what sits on the background, which is not the one of the key labels: the roles tool_ink (text and icons of
+    # the bar, the panels and the suggestions, and what decides the dark or light buttons under the keyboard) and tool_hint
+    # (their secondary text). 0 = the text and the hint of the layout, as in every other theme.
+    const-string v1, "tool_ink"
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v1
+
+    if-eqz v1, :cond_mr_ink
+
+    const/high16 v2, -0x1000000
+
+    or-int/2addr v1, v2
+
+    sput v1, Lcom/mrkeyboard/app/MrTools;->sTextColor:I
+
+    :cond_mr_ink
+    const-string v1, "tool_hint"
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v1
+
+    if-eqz v1, :cond_mr_inkh
+
+    const/high16 v2, -0x1000000
+
+    or-int/2addr v1, v2
+
+    sput v1, Lcom/mrkeyboard/app/MrTools;->sHint:I
+
+    :cond_mr_inkh
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getMrKeyBackground()Landroid/graphics/drawable/Drawable;
 
     move-result-object v1
@@ -3460,6 +3587,25 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->hint(Landroid/view/View;Ljava/lang/String;)V
 
+    # the line between the two language lists: role panel_divider
+    const-string v1, "lang_div"
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->tag(Landroid/view/View;Ljava/lang/String;)Landroid/view/View;
+
+    move-result-object v1
+
+    if-eqz v1, :cond_mr_div
+
+    const-string v2, "panel_divider"
+
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v2
+
+    invoke-virtual {v1, v2}, Landroid/view/View;->setBackgroundColor(I)V
+
+    :cond_mr_div
+
     const-string v1, "b_clip"
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->center(Landroid/view/View;Ljava/lang/String;)V
@@ -3722,6 +3868,10 @@
 
     :cond_1
     invoke-static {v0, p1}, Lcom/mrkeyboard/app/MrTune;->attach(Landroid/view/ViewGroup;Landroid/view/View;)V
+
+    # a see-through theme: the veil of this new view, without waiting for the window to be shown again (onWindowShown
+    # applies it too, when the blur may have changed)
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyTranslucentBlur()V
 
     return-object v0
 .end method

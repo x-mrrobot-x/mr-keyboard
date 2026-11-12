@@ -41,6 +41,11 @@
 #     Parenthesized), the letters left as they are, accents kept, no two styles equal, the fields that take no style
 #     (passwords, e-mail, web addresses, numbers) and the delete of a styled letter (with a selection it is left to the
 #     normal delete).
+#   - GlowTest: the neon look of the keyboard themes (MrGlow): a theme without the flag is drawn as before; a neon theme
+#     gets the light of the labels, icons, dash and preview letter; a spectrum theme gets the hue of each key from its
+#     position (the colour matrix of the face, label, icon, hint letters, dash), except in the popup of variants.
+#   - LightTest: what a light keyboard theme needs (MrLight): which text colours make a theme light, no dark outline under
+#     its labels and icons, and dark system buttons under the keyboard from Android 15 on (light again on a dark theme).
 # With the path of the APK jar (classes.dex -> d2j-dex2jar), it also runs:
 #   - EsTest: SheetStrings/MrEs with Spanish, Portuguese, English and French contexts.
 # Usage: sh docs/tools/run_java_tests.sh [app.jar]
@@ -128,6 +133,14 @@ java -cp "$T/test_accel:$T/stubs:$T/main" com.mrkeyboard.app.AccelTest
 echo "== FontsTest (Unicode styles of the fonts tool: 27 styles, field guard, delete)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_fonts" $D/fonts_test/FontsTest.java
 java -Dfile.encoding=UTF-8 -cp "$T/test_fonts:$T/stubs:$T/main" com.mrkeyboard.app.FontsTest
+
+echo "== GlowTest (neon themes: light of the labels and hue of each key)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_glow" $D/glow_test/GlowTest.java
+java -cp "$T/test_glow:$T/stubs:$T/main" com.mrkeyboard.app.GlowTest
+
+echo "== LightTest (light themes: no dark outline, dark system buttons under the keyboard)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_light" $D/light_test/LightTest.java
+java -cp "$T/test_light:$T/stubs:$T/main" com.mrkeyboard.app.LightTest
 
 if [ -n "$APPJAR" ]; then
   echo "== EsTest"

@@ -161,6 +161,12 @@
 
 .field private mMrAccentBg:Landroid/graphics/drawable/Drawable;
 
+# Hint color of the highlight keys (role accent_hint; 0 = the hint of the layout) and whether the roles of mrRoles()
+# were already read.
+.field private mMrAccentHint:I
+
+.field private mMrRolesRead:Z
+
 .field protected mOffsetInWindow:[I
 
 .field private mOldPointerCount:I
@@ -1165,6 +1171,9 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setAlpha(I)V
 
+    # Neon themes (MrGlow): a lit dash shines; the off one and the other themes stay as they are.
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrGlow;->dash(Landroid/graphics/Paint;)V
+
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getContext()Landroid/content/Context;
 
     move-result-object v1
@@ -1984,7 +1993,7 @@
     return v0
 .end method
 
-# Text and icon color on the accent keys of themes without the PLAIN_ACCENT_TEXT flag (today Neon and Soft): role
+# Text and icon color on the accent keys of themes without the PLAIN_ACCENT_TEXT flag (today the neon themes, Chrome and Aqua): role
 # accent_text, read by name (mr_<theme>_accent_text, then mr_accent_text).
 .method private getAccentContentColor()I
     .locals 1
@@ -2056,7 +2065,7 @@
 
     invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/KeyStyle;->prepare(Landroid/graphics/drawable/Drawable;IILandroid/content/Context;)V
 
-    invoke-static {v0, p1, v1, v2}, Lcom/mrkeyboard/app/KeyStyle;->drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
+    invoke-static {v0, p1, v1, v2}, Lcom/mrkeyboard/app/MrGlow;->drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
 
     invoke-direct {p0, p1, p2}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->drawModifierIndicator(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/Keyboard$Key;)V
 
@@ -2101,7 +2110,7 @@
 
     invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/KeyStyle;->prepare(Landroid/graphics/drawable/Drawable;IILandroid/content/Context;)V
 
-    invoke-static {v0, p1, v1, v2}, Lcom/mrkeyboard/app/KeyStyle;->drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
+    invoke-static {v0, p1, v1, v2}, Lcom/mrkeyboard/app/MrGlow;->drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
 
     const/4 v0, 0x1
 
@@ -2310,7 +2319,7 @@
 .method private getAccentIconFilter(Lcom/mrkeyboard/app/Keyboard$Key;Landroid/graphics/ColorFilter;)Landroid/graphics/ColorFilter;
     .locals 3
 
-    # Slate, Midnight and Glass: accent key icons follow the theme's default filter.
+    # Themes with PLAIN_ACCENT_TEXT (Midnight, Glass, Snow, Rose): accent key icons follow the theme's default filter.
     const/16 v0, 0x40
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->hasTheme(I)Z
@@ -2344,7 +2353,7 @@
 .method private getAccentKeyTextColor(Lcom/mrkeyboard/app/Keyboard$Key;I)I
     .locals 1
 
-    # Slate, Midnight and Glass: colored accent keys, but with the theme's default text color.
+    # Themes with PLAIN_ACCENT_TEXT (Midnight, Glass, Snow, Rose): colored accent keys, but with the theme's default text color.
     const/16 v0, 0x40
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->hasTheme(I)Z
@@ -2482,12 +2491,55 @@
     .end sparse-switch
 .end method
 
+# Colors of the theme that the layout cannot give, read by name once per view, at its first drawing (the theme of a view
+# never changes: another theme is another layout): the hint of the highlight keys (role accent_hint) and the shade around
+# the light labels (role label_shadow, in place of the one of the style). Nothing is read before the tools know the theme
+# (MrTools.sApp): MrTheme.color has no colors to give until then.
+.method private mrRoles()V
+    .locals 1
+
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMrRolesRead:Z
+
+    if-nez v0, :cond_done
+
+    sget-object v0, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;
+
+    if-eqz v0, :cond_done
+
+    const/4 v0, 0x1
+
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMrRolesRead:Z
+
+    const-string v0, "accent_hint"
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v0
+
+    iput v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMrAccentHint:I
+
+    const-string v0, "label_shadow"
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v0
+
+    if-eqz v0, :cond_done
+
+    iput v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mShadowColor:I
+
+    :cond_done
+    return-void
+.end method
+
 .method private onBufferDraw(Landroid/graphics/Canvas;)V
     .locals 37
 
     move-object/from16 v6, p0
 
     move-object/from16 v7, p1
+
+    invoke-direct {v6}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mrRoles()V
 
     .line 900
     iget-boolean v0, v6, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mKeyboardChanged:Z
@@ -3045,6 +3097,32 @@
 
     .line 1014
     :cond_d
+    # Neon themes (MrGlow): told once per key, before its face, whether it is an accent key. It sets the light of the
+    # label and of the icon and, on a spectrum theme, the hue of the key. Other themes: nothing changes.
+    invoke-direct {v6, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->isAccentKey(Lcom/mrkeyboard/app/Keyboard$Key;)Z
+
+    move-result v1
+
+    invoke-static {v6, v0, v1, v9}, Lcom/mrkeyboard/app/MrGlow;->key(Landroid/view/View;Lcom/mrkeyboard/app/Keyboard$Key;ZLandroid/graphics/Paint;)V
+
+    # The hint letters of a highlight key (v1) take the theme's accent_hint, when it has one: the hint of the layout is made
+    # for the face of the letter keys. The paint is the same for every key, so its color is set key by key.
+    # Spectrum themes (MrGlow): the hint letters of the key take its hue too (v10 = mPaintHint, v3 is free here).
+    iget v3, v6, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mKeyHintColor:I
+
+    if-eqz v1, :cond_mr_hint
+
+    iget v3, v6, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMrAccentHint:I
+
+    if-nez v3, :cond_mr_hint
+
+    iget v3, v6, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mKeyHintColor:I
+
+    :cond_mr_hint
+    invoke-virtual {v10, v3}, Landroid/graphics/Paint;->setColor(I)V
+
+    invoke-static {v10, v3}, Lcom/mrkeyboard/app/MrGlow;->hint(Landroid/graphics/Paint;I)V
+
     invoke-virtual {v6}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getContext()Landroid/content/Context;
 
     move-result-object v1
@@ -3061,7 +3139,7 @@
 
     if-nez v1, :cond_mr_accent_drawn
 
-    invoke-static {v11, v7, v3, v5}, Lcom/mrkeyboard/app/KeyStyle;->drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
+    invoke-static {v11, v7, v3, v5}, Lcom/mrkeyboard/app/MrGlow;->drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
 
     :cond_mr_accent_drawn
 
@@ -3146,6 +3224,16 @@
 
     .line 1035
     iget v1, v6, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mShadowRadius:F
+
+    # Dark labels (a light theme, or the highlight keys of a theme that gives them a light face) get no dark
+    # outline: it would only smudge them (MrLight). v9 already has the color of this label.
+    invoke-virtual {v9}, Landroid/graphics/Paint;->getColor()I
+
+    move-result v2
+
+    invoke-static {v2, v1}, Lcom/mrkeyboard/app/MrLight;->shadowRadius(IF)F
+
+    move-result v1
 
     iget v2, v6, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mShadowColor:I
 
@@ -3557,6 +3645,10 @@
 
     move-object v5, v9
 
+    # Neon themes (MrGlow): the label of a dead key is drawn in two pieces, so its light is left in the paint, as its
+    # shadow (v5 = the label paint; the shadow is cleared after the label, as for every key).
+    invoke-static {v5}, Lcom/mrkeyboard/app/MrGlow;->edge(Landroid/graphics/Paint;)V
+
     .line 1075
     invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->drawDeadKeyLabel(Landroid/graphics/Canvas;Ljava/lang/String;IFLandroid/graphics/Paint;)V
 
@@ -3572,6 +3664,9 @@
     int-to-float v0, v8
 
     move/from16 v1, v35
+
+    # Neon themes (MrGlow): the wide light under the label; the tight one stays in the paint for the drawText below.
+    invoke-static {v7, v12, v0, v1, v9}, Lcom/mrkeyboard/app/MrGlow;->bloom(Landroid/graphics/Canvas;Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
     .line 1077
     invoke-virtual {v7, v12, v0, v1, v9}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
@@ -3747,11 +3842,23 @@
     .line 1125
     iget v4, v6, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mShadowRadius:F
 
+    # The same for a dark icon: no dark outline (MrLight). The icon is drawn in the color of the labels of its key.
+    iget v5, v6, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mKeyTextColor:I
+
+    invoke-direct {v6, v15, v5}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getAccentKeyTextColor(Lcom/mrkeyboard/app/Keyboard$Key;I)I
+
+    move-result v5
+
+    invoke-static {v5, v4}, Lcom/mrkeyboard/app/MrLight;->shadowRadius(IF)F
+
+    move-result v4
+
     cmpl-float v5, v4, v11
 
     if-lez v5, :cond_1b
 
-    invoke-static {v7, v0, v15, v4, v2}, Lcom/mrkeyboard/app/ShadowDrawHelper;->draw(Landroid/graphics/Canvas;Landroid/graphics/drawable/Drawable;Lcom/mrkeyboard/app/Keyboard$Key;FLandroid/graphics/ColorFilter;)V
+    # MrGlow.icon is ShadowDrawHelper.draw (dark outline) on every theme but the neon ones, which get the light instead.
+    invoke-static {v7, v0, v15, v4, v2}, Lcom/mrkeyboard/app/MrGlow;->icon(Landroid/graphics/Canvas;Landroid/graphics/drawable/Drawable;Lcom/mrkeyboard/app/Keyboard$Key;FLandroid/graphics/ColorFilter;)V
 
     move-object/from16 v36, v2
 
@@ -3763,6 +3870,11 @@
     .line 1138
     :goto_e
     invoke-direct {v6, v15, v1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getAccentIconFilter(Lcom/mrkeyboard/app/Keyboard$Key;Landroid/graphics/ColorFilter;)Landroid/graphics/ColorFilter;
+
+    move-result-object v2
+
+    # Spectrum themes (MrGlow): the icon takes the hue of its key; every other theme gets the same filter back.
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrGlow;->iconFilter(Landroid/graphics/ColorFilter;)Landroid/graphics/ColorFilter;
 
     move-result-object v2
 
@@ -4494,6 +4606,9 @@
     .line 1233
     :goto_0
     iget-object p2, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mPreviewText:Landroid/widget/TextView;
+
+    # Neon themes (MrGlow): the letter of the bubble shines like the ones on the keys.
+    invoke-static {p2}, Lcom/mrkeyboard/app/MrGlow;->preview(Landroid/widget/TextView;)V
 
     invoke-static {v3, v3}, Landroid/view/View$MeasureSpec;->makeMeasureSpec(II)I
 

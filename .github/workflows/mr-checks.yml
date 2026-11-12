@@ -13,6 +13,8 @@
 #   check_reset_keys.py  "Restaurar padrões" (Restore defaults) covers every key of the settings screens
 #   mres_check.py        Portuguese text of the sheets/attachments editor goes through the Spanish table
 #   res_check.py         resources: valid XML, public.xml, references, unused resources, Spanish vs Portuguese
+#   make_themes.py --check  the generated themes, solid, gloss and neon (their drawables, layouts, colors and entries in the theme lists),
+#                        are what the generator writes today from its tables: a hand edit of a generated file, or a table changed without running it, fails
 #   smali_regcheck.py    hand-edited smali: register read without a value (the error that closed Settings in 1.67),
 #                        register above the instruction limit (e.g. p0 = v17 in a plain invoke), more than 5 registers in a
 #                        plain invoke (the assembler refuses with "Invalid register count"), a call to a method that does not exist and a field that does not
@@ -21,7 +23,8 @@
 #                        runner, in android.* (the stubs of docs/tools/java/stubs are hand-written: a wrong return type compiles and only fails on the device)
 #   run_java_tests.sh    PC tests of the Java layer (author card, main-screen link, re-correction: word under the cursor and
 #                        neighbour keys, recent words, the update notice: signature, versions, replay, checking windows, the fonts tool:
-#                        the 27 Unicode styles, the fields that take no style, the delete of a styled letter)
+#                        the 27 Unicode styles, the fields that take no style, the delete of a styled letter, the light of the neon
+#                        themes: glow of labels and icons, the hue of each key in the spectrum themes, the dark labels of the light themes)
 #   test_smali_regcheck.py  smali_regcheck.py itself: each of its five rules with a broken and a good case (registers, methods, limits, invoke size, fields), --base, the real smali
 #   test_ui_language_rebuild.py  changing the app language rebuilds the keyboard view once, on the change (LatinIME.onSharedPreferenceChanged), and the bar is inflated again in the new language
 #   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial; trigrams.bin MRT2 needs minApp 1090000)
@@ -121,6 +124,9 @@ jobs:
 
       - name: Resources
         run: python3 docs/tools/res_check.py
+
+      - name: Generated themes up to date with their generator
+        run: python3 docs/tools/make_themes.py --check
 
       - name: Smali - registers, methods and fields
         run: python3 docs/tools/smali_regcheck.py smali

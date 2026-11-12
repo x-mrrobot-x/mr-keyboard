@@ -23,4 +23,11 @@ public class TextView extends android.view.View {
     public void setMinLines(int minLines) { }
     public void setMaxLines(int maxLines) { }
     public void setLineSpacing(float add, float mult) { }
+    /** Shadow as last set (radius 0 = none): read by the PC tests. */
+    public float stubShadowRadius;
+    public int stubShadowColor;
+    public void setShadowLayer(float radius, float dx, float dy, int color) {
+        stubShadowRadius = radius;
+        stubShadowColor = color;
+    }
 }

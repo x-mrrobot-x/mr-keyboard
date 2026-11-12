@@ -1,41 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Registry of the keyboard themes. The index of mr_theme_layouts is the value stored in the preference
-     pref_keyboard_layout (the same positions as keyboard_layout_modes_values, plus the old values 1 to 6,
-     which open Slate). New theme: create res/layout/input_mr_<theme>.xml with the tag mr_<theme>, one line in
-     mr_theme_layouts, one line in mr_theme_tags and another in mr_theme_flags (same position), the name in
-     keyboard_layout_modes and the value in keyboard_layout_modes_values. The radius of each key layer needs
-     no registry: KeyStyle adds to the key radius the slack that the drawable itself draws. -->
+     pref_keyboard_layout (the same positions as keyboard_layout_modes_values): 0 Midnight Steel, 1 Aurora, 2 Neon Cyan,
+     3 Neon Purple, 4 Neon Pink, 5 Synthwave, 6 Aqua, 7 Snow, 8 Chrome, 9 Rose, 10 Cobalt Glass. Glass is written by hand;
+     the others (dark: Midnight; neon: Aurora, Cyan, Purple, Pink, Synthwave; light: Aqua, Snow, Chrome, Rose) are written
+     by docs/tools/make_themes.py, which also writes the three lists below and keyboard_layout_modes (the order is its
+     ORDER). New theme: create res/layout/input_mr_<theme>.xml with the tag mr_<theme>, one line in mr_theme_layouts, one
+     line in mr_theme_tags and another in mr_theme_flags (same position), the name in keyboard_layout_modes and the value
+     in keyboard_layout_modes_values. The radius of each key layer needs no registry: KeyStyle adds to the key radius the
+     slack that the drawable itself draws. -->
 <resources>
     <!-- Layout of each theme (KeyboardSwitcher) -->
     <array name="mr_theme_layouts">
-        <item>@layout/input_mr_neon</item>
-        <item>@layout/input_mr_slate</item>
-        <item>@layout/input_mr_slate</item>
-        <item>@layout/input_mr_slate</item>
-        <item>@layout/input_mr_slate</item>
-        <item>@layout/input_mr_slate</item>
-        <item>@layout/input_mr_slate</item>
-        <item>@layout/input_mr_soft</item>
-        <item>@layout/input_mr_slate</item>
         <item>@layout/input_mr_midnight</item>
+        <item>@layout/input_mr_aurora</item>
+        <item>@layout/input_mr_cyan</item>
+        <item>@layout/input_mr_purple</item>
+        <item>@layout/input_mr_pink</item>
+        <item>@layout/input_mr_synthwave</item>
+        <item>@layout/input_mr_aqua</item>
+        <item>@layout/input_mr_snow</item>
+        <item>@layout/input_mr_chrome</item>
+        <item>@layout/input_mr_rose</item>
         <item>@layout/input_mr_glass</item>
+        <item>@layout/input_mr_denim</item>
     </array>
     <!-- Tag of each theme layout (android:tag of LatinKeyboardView) -->
     <string-array name="mr_theme_tags">
-        <item>mr_neon</item>
-        <item>mr_soft</item>
-        <item>mr_slate</item>
         <item>mr_midnight</item>
+        <item>mr_aurora</item>
+        <item>mr_cyan</item>
+        <item>mr_purple</item>
+        <item>mr_pink</item>
+        <item>mr_synthwave</item>
+        <item>mr_aqua</item>
+        <item>mr_snow</item>
+        <item>mr_chrome</item>
+        <item>mr_rose</item>
         <item>mr_glass</item>
+        <item>mr_denim</item>
     </string-array>
     <!-- Flags of each tag, in the same order as mr_theme_tags (the bits are at the top of MrTheme.smali):
          0x02 flat bar, 0x04 highlight keys, 0x08 enlarged highlight group, 0x10 translucent,
-         0x20 tech palette, 0x40 default text on the highlight keys -->
+         0x20 tech palette, 0x40 default text on the highlight keys, 0x80 neon light, 0x100 hue per key -->
     <integer-array name="mr_theme_flags">
-        <item>0x0c</item>
-        <item>0x0c</item>
-        <item>0x6c</item>
         <item>0x6e</item>
+        <item>0x18e</item>
+        <item>0x8e</item>
+        <item>0x8e</item>
+        <item>0x8e</item>
+        <item>0x8c</item>
+        <item>0x0e</item>
+        <item>0x4e</item>
+        <item>0x0e</item>
+        <item>0x4e</item>
+        <item>0x7e</item>
         <item>0x7e</item>
     </integer-array>
 </resources>

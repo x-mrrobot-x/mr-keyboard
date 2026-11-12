@@ -17,6 +17,9 @@ public class View {
     }
     public android.content.Context getContext() { return stubContext; }
     public android.content.res.Resources getResources() { return null; }
+    private Object stubTag;
+    public Object getTag() { return stubTag; }
+    public void setTag(Object tag) { stubTag = tag; }
     public ViewParent getParent() { return null; }
     public View getRootView() { return this; }
     private int stubW, stubH;
@@ -107,5 +110,4 @@ public class View {
     public void stubWindowState(boolean attached, boolean accelerated) { stubAttached = attached; stubAccelerated = accelerated; }
     public boolean isAttachedToWindow() { return stubAttached; }
     public boolean isHardwareAccelerated() { return stubAccelerated; }
-    public void setTag(Object tag) { }
 }

@@ -13,9 +13,11 @@
     mr_<theme>_<role> with a default mr_<role>, and every role asked of MrTheme.color with a default color;
     the input_mr_*, input_popup_* and key_preview_* of all themes equal to each other, only the theme name changes;
   - set of each theme: selector and 5 key drawables, accent-key selector (the drawables it uses are
-    checked through the references; Slate and Midnight reuse hl/pressed/on/lock), long-press popup, preview balloon,
+    checked through the references; Midnight reuses hl/pressed/on/lock), long-press popup, preview balloon,
     explicit popupLayout and keyPreviewLayout, no hex color in the theme layouts and drawables (the key
-    colors live in res/values/mr_key_colors.xml) and the theme name in the 3 languages;
+    colors live in res/values/mr_key_colors.xml; those of the generated themes in res/values/mr_solid_colors.xml,
+    mr_gloss_colors.xml and mr_neon_colors.xml, which docs/tools/make_themes.py writes together with their drawables
+    and layouts) and the theme name in the 3 languages;
   - Spanish (values-es) with the same keys and lists as Portuguese (values-pt-rBR) and the same placeholders
     (%s, %1$d) as the original;
   - fonts tool: mr_font_style_0..STYLES-1 (unique names), its other texts and the clipboard counter in the 3 languages;
@@ -182,8 +184,11 @@ else:
             except ValueError:
                 problems.append('themes: mr_theme_flags of %s = %s is not a number' % (t, f))
                 continue
-            if v & ~0x7e:
-                problems.append('themes: mr_theme_flags of %s = %s uses a bit outside 0x7e (bit 0x01 belongs to MrTheme)' % (t, f))
+            if v & ~0x1fe:
+                problems.append('themes: mr_theme_flags of %s = %s uses a bit outside 0x1fe (bit 0x01 belongs to MrTheme)' % (t, f))
+            if v & 0x100 and not v & 0x80:
+                problems.append('themes: mr_theme_flags of %s = %s has SPECTRUM (0x100) without GLOW (0x80): MrGlow only looks at '
+                                'the hue of a key on a theme that glows' % (t, f))
     for l in sorted(set(lay)):
         name = l.replace('@layout/', '')
         file = 'res/layout/%s.xml' % name
@@ -212,7 +217,8 @@ else:
             for extra in ('res/layout/%s.xml' % pop, 'res/layout/key_preview_%s.xml' % t, file):
                 if os.path.exists(extra) and re.search(r'="#[0-9a-fA-F]{6,8}"', read_file(extra)):
                     problems.append('themes: %s has a hex color; use @color/mr_%s_*' % (extra, t))
-            # theme drawables: color only through @color (the values live in res/values/mr_key_colors.xml)
+            # theme drawables: color only through @color (the values live in res/values/mr_key_colors.xml; the
+            # generated themes have theirs in mr_neon_colors.xml, mr_solid_colors.xml and mr_gloss_colors.xml)
             drs = {'btn_keyboard_key_' + t, 'btn_keyboard_key_%s_accent' % t, 'btn_keyboard_key_popup_' + t,
                    'key_popup_%s_pressed' % t, 'popup_%s_bg' % t, 'preview_%s_bg' % t, 'preview_%s_more_bg' % t}
             drs |= {os.path.basename(x)[:-4] for x in glob.glob('res/drawable/key_%s_*.xml' % t)}
@@ -220,7 +226,8 @@ else:
                 file_d = 'res/drawable/%s.xml' % d
                 if os.path.exists(file_d) and re.search(r'="#[0-9a-fA-F]{3,8}"', read_file(file_d)):
                     problems.append('themes: %s has a hex color; declare it in res/values/mr_key_colors.xml '
-                                     '(mr_%s_key_<state>_<part>) and use @color' % (file_d, t))
+                                     '(mr_%s_key_<state>_<part>) and use @color (a neon, solid or gloss theme is written '
+                                     'by docs/tools/make_themes.py: change its table and run it)' % (file_d, t))
     # layouts per theme: the input_mr_*, input_popup_* and key_preview_* may only differ in the theme name
     themes_ok = []
     for l in sorted(set(lay)):
@@ -270,9 +277,11 @@ def arrays_of(folder):
 
 orig, pt, es = strings_of('res/values'), strings_of('res/values-pt-rBR'), strings_of('res/values-es')
 for n in re.findall(r'@string/(\w+)', ' '.join(names or [])):
-    for folder, tab in (('values', orig), ('values-pt-rBR', pt), ('values-es', es)):
-        if n not in tab:
-            problems.append('themes: theme name %s is missing from %s' % (n, folder))
+    if n not in orig:
+        problems.append('themes: theme name %s is missing from values (the names are in English in every language: only values/strings.xml has them)' % n)
+    for folder, tab in (('values-pt-rBR', pt), ('values-es', es)):
+        if n in tab:
+            problems.append('themes: theme name %s is translated in %s (the names of the themes are not translated: take it out)' % (n, folder))
 for missing in sorted(set(pt) - set(es)): problems.append('values-es lacks the key ' + missing)
 for leftover in sorted(set(es) - set(pt)): problems.append('values-es has a key that Portuguese lacks: ' + leftover)
 marks = lambda s: sorted(re.findall(r'%(?:\d+\$)?[sdf]', s.replace('%%', '')))

@@ -55,6 +55,13 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
+    # a card that is a key: its text and icon are the labels of the keys, not the ink of the background
+    sget v2, Lcom/mrkeyboard/app/MrTools;->sKeyText:I
+
+    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
+
+    invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrTools;->tintColor(Landroid/widget/TextView;I)V
+
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v2
@@ -124,6 +131,9 @@
     sget v2, Lcom/mrkeyboard/app/MrTools;->sSelColor:I
 
     invoke-virtual {v1, v2}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
+
+    # the selected row is a pane too: in a theme of glass it gets the rim
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTools;->rim(Landroid/graphics/drawable/GradientDrawable;)V
 
     const/high16 v2, 0x40000000    # 2.0f
 

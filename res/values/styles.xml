@@ -8,7 +8,7 @@
         <item name="android:background">@drawable/keyboard_background</item>
         <item name="backgroundAlpha">255</item>
         <item name="backgroundDimAmount">0.5</item>
-        <item name="keyBackground">@drawable/btn_keyboard_key_slate</item>
+        <item name="keyBackground">@drawable/btn_keyboard_key_midnight</item>
         <item name="keyCursorColor">@color/mr_default_key_cursor</item>
         <item name="keyHintColor">@color/mr_default_key_hint</item>
         <item name="keyHysteresisDistance">@dimen/key_hysteresis_distance</item>
@@ -18,7 +18,7 @@
         <item name="keyTextColor">@color/mr_default_key_text</item>
         <item name="keyTextSize">@dimen/key_text_size</item>
         <item name="labelTextSize">@dimen/key_label_text_size</item>
-        <item name="popupLayout">@layout/input_popup_slate</item>
+        <item name="popupLayout">@layout/input_popup_midnight</item>
         <item name="recolorSymbols">false</item>
         <item name="shadowColor">@color/mr_default_key_shadow</item>
         <item name="shadowRadius">2.75</item>

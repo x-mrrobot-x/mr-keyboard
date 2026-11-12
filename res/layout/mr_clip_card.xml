@@ -9,6 +9,4 @@
     android:layout_height="wrap_content"
     android:minHeight="40dp"
     android:maxLines="2"
-    android:lineSpacingMultiplier="1.1"
-    android:drawableLeft="@drawable/ic_mr_note"
-    android:drawablePadding="10dp" />
+    android:lineSpacingMultiplier="1.1" />

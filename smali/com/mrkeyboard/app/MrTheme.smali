@@ -5,21 +5,33 @@
 .source "MrTheme.java"
 
 # Single detection of the keyboard theme. Each theme layout carries a tag on the LatinKeyboardView
-# (mr_neon, mr_soft, mr_slate, mr_midnight, mr_glass) and this class converts it into capability
+# (mr_midnight, mr_glass, mr_snow, mr_cyan...) and this class converts it into capability
 # flags, read from mr_theme_tags and mr_theme_flags (res/values/mr_themes.xml). No other place in the code should compare text color or tag to find out the theme.
+# The one thing that is read from a color is whether the theme is dark or light: a theme with dark key text is a light
+# theme (MrTools.deriveColors for the tool bar, MrLight for the system buttons under the keyboard), so that a theme
+# cannot say one thing in its flags and another in its colors. A theme whose keys and background are of opposite
+# brightness (Chrome) declares the role tool_ink, the ink of what sits on the background, which MrTools.wrap uses in place of the key text
+# for that purpose.
 #
 # Flags (bits):
 #   INIT              0x01  flags already computed (value 0 = not computed yet)
-#   FLAT_BAR          0x02  flat toolbar and panels (Midnight, Glass)
+#   FLAT_BAR          0x02  flat look of the panel icons, Attachments tabs and file card (Midnight, Glass and the
+#                           solid and gloss themes); no theme paints a background on the bar or the panels
 #   ACCENT_KEYS       0x04  accent keys painted by the drawable btn_keyboard_key_<theme>_accent (every theme
 #                           with a tag; a view without a tag, like the variants popup, has no accent)
 #   ACCENT_WIDE       0x08  extended accent group: besides the keys of the fixed list, every isModifier key,
 #                           the Tasker keys (text "tskcmd:"), 123/TSK, Space and Enter come in (all themes turn it on;
 #                           turning it off removes only this group)
 #   TRANSLUCENT       0x10  translucent theme, with background blur (Glass)
-#   TECH_PALETTE      0x20  dark "tech" palette with text #e7eef7 (Slate, Midnight, Glass)
-#   PLAIN_ACCENT_TEXT 0x40  accent keys use the theme's default text (Slate, Midnight, Glass); without the flag
-#                           the text and icon come from the color mr_<theme>_accent_text (Neon, Soft)
+#   TECH_PALETTE      0x20  dark "tech" palette with text #e7eef7 (Midnight, Glass)
+#   PLAIN_ACCENT_TEXT 0x40  accent keys use the theme's default text (Midnight, Glass and the solid themes);
+#                           without the flag the text and icon come from the color mr_<theme>_accent_text (the neon
+#                           themes, the gloss themes and the solid themes whose accent keys have a text of
+#                           their own)
+#   GLOW              0x80  neon look: light around the labels, the icons, the lit modifier dash and the letter of the
+#                           preview bubble, in the colors of the roles glow and accent_glow (MrGlow; the neon themes)
+#   SPECTRUM          0x100 with GLOW: each key of the main keyboard takes its hue from its position, between the
+#                           roles spectrum_start, spectrum_mid and spectrum_end (MrGlow; Aurora)
 .field static final INIT:I = 0x1
 
 .field static final FLAT_BAR:I = 0x2
@@ -33,6 +45,10 @@
 .field static final TECH_PALETTE:I = 0x20
 
 .field static final PLAIN_ACCENT_TEXT:I = 0x40
+
+.field static final GLOW:I = 0x80
+
+.field static final SPECTRUM:I = 0x100
 
 # Flags of the current keyboard (same as MrTools.sKbd), for the bar and the panels.
 .field private static sFlags:I
@@ -269,6 +285,56 @@
     return v4
 .end method
 
+# Tag of the current keyboard layout (mr_cyan, mr_glass...); null when there is no keyboard. MrGlow uses it to notice
+# that the theme changed.
+.method static tag()Ljava/lang/String;
+    .locals 1
+
+    sget-object v0, Lcom/mrkeyboard/app/MrTheme;->sTag:Ljava/lang/String;
+
+    return-object v0
+.end method
+
+# Neon look (MrGlow): light around labels and icons. The mask does not fit and-int/lit8, hence lit16.
+.method static glow()Z
+    .locals 1
+
+    sget v0, Lcom/mrkeyboard/app/MrTheme;->sFlags:I
+
+    and-int/lit16 v0, v0, 0x80
+
+    if-eqz v0, :cond_no
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_no
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+# Spectrum (MrGlow): each key takes its hue from its position on the keyboard.
+.method static spectrum()Z
+    .locals 1
+
+    sget v0, Lcom/mrkeyboard/app/MrTheme;->sFlags:I
+
+    and-int/lit16 v0, v0, 0x100
+
+    if-eqz v0, :cond_no
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_no
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
 # Flat toolbar and panels (formerly MrTools.isMidnight, which already applied to Glass).
 .method static flatBar()Z
     .locals 1
@@ -309,7 +375,7 @@
     return v0
 .end method
 
-# Dark "tech" palette (text #e7eef7): Slate, Midnight and Glass. It used to be a sTextColor comparison.
+# Dark "tech" palette (text #e7eef7): Midnight and Glass. It used to be a sTextColor comparison.
 .method static techPalette()Z
     .locals 1
 

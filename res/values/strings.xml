@@ -204,11 +204,18 @@
     <string name="label_next_key">Next</string>
     <string name="label_phone_key">123</string>
     <string name="label_send_key">Send</string>
-    <string name="layout_mr_neon">Mr Keyboard Neon</string>
-    <string name="layout_mr_soft">Mr Keyboard Dark Tech (soft)</string>
-    <string name="layout_mr_slate">Mr Keyboard Dark Tech (raised)</string>
-    <string name="layout_mr_midnight">Mr Keyboard Midnight Steel</string>
-    <string name="layout_mr_glass">Mr Keyboard Cobalt Glass</string>
+    <string name="layout_mr_midnight">Midnight Steel</string>
+    <string name="layout_mr_glass">Cobalt Glass</string>
+    <string name="layout_mr_aurora">Aurora</string>
+    <string name="layout_mr_cyan">Neon Cyan</string>
+    <string name="layout_mr_purple">Neon Purple</string>
+    <string name="layout_mr_pink">Neon Pink</string>
+    <string name="layout_mr_synthwave">Synthwave</string>
+    <string name="layout_mr_aqua">Aqua</string>
+    <string name="layout_mr_snow">Snow</string>
+    <string name="layout_mr_chrome">Chrome</string>
+    <string name="layout_mr_rose">Rose</string>
+    <string name="layout_mr_denim">Denim</string>
     <string name="main_body">" 
         &lt;h2>Enabling Mr Keyboard&lt;/h2>
         

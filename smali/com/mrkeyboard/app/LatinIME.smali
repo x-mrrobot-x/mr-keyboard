@@ -13457,6 +13457,12 @@
 
     invoke-static {p1}, Lcom/mrkeyboard/app/ImeInsets;->apply(Landroid/view/View;)V
 
+    # Light theme (dark labels): the buttons the system draws under the keyboard, which sit on the keyboard's own
+    # background from Android 15 on, are asked for in a dark color; a dark theme asks for the light ones (MrLight).
+    sget v0, Lcom/mrkeyboard/app/MrTools;->sTextColor:I
+
+    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrLight;->bars(Landroid/inputmethodservice/InputMethodService;I)V
+
     :cond_1
     invoke-super {p0, p1}, Landroid/inputmethodservice/InputMethodService;->setInputView(Landroid/view/View;)V
 
