@@ -8,6 +8,8 @@
     <dimen name="keyboard_bottom_padding">0.00999999in</dimen>
     <dimen name="mini_keyboard_slide_allowance">0.459in</dimen>
     <dimen name="mini_keyboard_vertical_correction">-0.26999998in</dimen>
+    <dimen name="mr_es_height">134.0dip</dimen>
+    <dimen name="mr_es_title_height">34.0dip</dimen>
     <dimen name="popup_key_height">0.26999998in</dimen>
     <dimen name="spacebar_vertical_correction">2.0dip</dimen>
 </resources>

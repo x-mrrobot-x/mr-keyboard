@@ -57,6 +57,19 @@
 #     written from them (read back by a reader of the format: every word, every frequency, every byte), which words are read from the
 #     trees of the keyboard (learned from frequency 6, never a blocked one) and when the copy is made again (a word added, a tree thrown
 #     away or still loading, another language).
+#   - EmojiSearchTest: the search of the emoji panel (MrEmojiIndex, 1.97.0): the text made lower case and without accents, a word of
+#     the name or a keyword in any of the three languages at once, every word typed having to begin one of the words of the emoji,
+#     the ranking (whole word, first word of the name, the language of the app winning a tie, then the order of the panel), the
+#     limits (max, empty text, six words), a language file that is missing; and the extra height of a header (MrBar.expand/restore).
+#   - EmojiPanelTest: the search and delete buttons of the emoji panel (MrEmojiSearch, 1.97.0) with fake views: what showPanel asks of it
+#     (setup, onPanel, afterPanel), the redirect and the field of the keyboard while it is open and after, the height of the header taken
+#     and given back, the delete button (press feedback, Backspace, the repeat, release and cancel), a tap on a result written in the
+#     app and not in the search field, the words read in a background thread, dropped when the emoji panel is left, thrown away when
+#     they arrive late, and a keyboard view made again while the search is open.
+#   - EmojiNewTest: the emojis newer than the base list of the panel (MrEmojiNew, 1.97.0): the table (one group per anchor, no emoji
+#     twice), the merge into a base list (right after the anchor, at the end of the category when the anchor is not there, none added
+#     twice), what a phone whose font cannot draw some of them gets (Paint.hasGlyph: left out of the panel and of the search results,
+#     the answers kept so it is asked once), and that every emoji of the table has words in the three languages.
 # With the path of the APK jar (classes.dex -> d2j-dex2jar), it also runs:
 #   - EsTest: SheetStrings/MrEs with Spanish, Portuguese, English and French contexts.
 # Usage: sh docs/tools/run_java_tests.sh [app.jar]
@@ -159,6 +172,18 @@ java -Dfile.encoding=UTF-8 -Dmr.native=off -cp "$T/test_gi:$T/stubs:$T/main" com
 
 echo "== GestureWordsTest (gesture typing, the words of the person: the small dictionary written from the learned and added words)"
 java -Dfile.encoding=UTF-8 -Dmr.native=off -cp "$T/test_gi:$T/stubs:$T/main" com.mrkeyboard.app.GestureWordsTest
+
+echo "== EmojiSearchTest (emoji search: index in three languages, ranking, and the extra height of a header)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_es_emoji" $D/emoji_search_test/EmojiSearchTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_es_emoji:$T/stubs:$T/main" com.mrkeyboard.app.EmojiSearchTest
+
+echo "== EmojiPanelTest (emoji search and delete in the panel: redirect, height, buttons, results, words in the background)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_es_panel" $D/emoji_search_test/EmojiPanelTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_es_panel:$T/stubs:$T/main" com.mrkeyboard.app.EmojiPanelTest
+
+echo "== EmojiNewTest (the emojis newer than the panel: table, merge, phones that cannot draw them)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_es_new" $D/emoji_search_test/EmojiNewTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_es_new:$T/stubs:$T/main" com.mrkeyboard.app.EmojiNewTest
 
 if [ -n "$APPJAR" ]; then
   echo "== EsTest"

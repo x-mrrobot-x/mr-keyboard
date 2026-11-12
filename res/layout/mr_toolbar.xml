@@ -69,9 +69,13 @@
             </LinearLayout>
         </HorizontalScrollView>
     </LinearLayout>
-    <LinearLayout android:orientation="vertical" android:tag="p_emote" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="200.0dip" android:layout_marginLeft="6.0dip" android:layout_marginTop="2.0dip" android:layout_marginRight="6.0dip" android:layout_marginBottom="6.0dip">
-        <ListView android:tag="g_emote" android:paddingLeft="4.0dip" android:paddingRight="4.0dip" android:paddingBottom="8.0dip" android:focusable="false" android:focusableInTouchMode="false" android:clipToPadding="false" android:layout_width="fill_parent" android:layout_height="0.0dip" android:listSelector="@android:color/transparent" android:cacheColorHint="@android:color/transparent" android:divider="@null" android:dividerHeight="0.0dip" android:layout_weight="1.0" android:overScrollMode="never" />
-    </LinearLayout>
+    <FrameLayout android:tag="p_emote" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="200.0dip" android:layout_marginLeft="6.0dip" android:layout_marginTop="2.0dip" android:layout_marginRight="6.0dip" android:layout_marginBottom="6.0dip">
+        <ListView android:tag="g_emote" android:paddingLeft="4.0dip" android:paddingRight="4.0dip" android:paddingBottom="64.0dip" android:focusable="false" android:focusableInTouchMode="false" android:clipToPadding="false" android:layout_width="fill_parent" android:layout_height="fill_parent" android:listSelector="@android:color/transparent" android:cacheColorHint="@android:color/transparent" android:divider="@null" android:dividerHeight="0.0dip" android:overScrollMode="never" />
+        <LinearLayout android:gravity="center" android:orientation="horizontal" android:layout_gravity="bottom|center" android:tag="emote_fab" android:paddingLeft="4.0dip" android:paddingRight="4.0dip" android:layout_width="wrap_content" android:layout_height="46.0dip" android:layout_marginBottom="10.0dip">
+            <com.mrkeyboard.app.MrCenteredIconButton android:textSize="0.0sp" android:tag="emote_search" android:layout_width="58.0dip" android:layout_height="fill_parent" android:includeFontPadding="false" android:drawableTop="@drawable/ic_mr_search" android:drawablePadding="0.0dip" android:contentDescription="@string/mr_es_search" style="@style/MrToolBtn" />
+            <com.mrkeyboard.app.MrCenteredIconButton android:textSize="0.0sp" android:tag="emote_del" android:layout_width="58.0dip" android:layout_height="fill_parent" android:includeFontPadding="false" android:drawableTop="@drawable/ic_mr_backspace" android:drawablePadding="0.0dip" android:contentDescription="@string/mr_es_delete" style="@style/MrToolBtn" />
+        </LinearLayout>
+    </FrameLayout>
     <LinearLayout android:orientation="horizontal" android:tag="p_lang" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="200.0dip" android:layout_marginLeft="6.0dip" android:layout_marginTop="2.0dip" android:layout_marginRight="6.0dip" android:layout_marginBottom="6.0dip">
         <LinearLayout android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0">
             <TextView android:textSize="10.0sp" android:textColor="@color/mr_tb_text_dim" android:tag="hdr_in" android:paddingLeft="14.0dip" android:paddingTop="9.0dip" android:paddingRight="10.0dip" android:paddingBottom="3.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/mr_tb_lang_in" android:singleLine="true" android:textAllCaps="true" android:fontFamily="sans-serif-medium" android:letterSpacing="0.08" />
@@ -93,6 +97,25 @@
         <HorizontalScrollView android:tag="f_scroll" android:scrollbars="none" android:overScrollMode="never" android:layout_width="0.0dip" android:layout_height="fill_parent" android:layout_weight="1.0">
             <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:tag="f_row" android:layout_width="wrap_content" android:layout_height="fill_parent" />
         </HorizontalScrollView>
+    </LinearLayout>
+    <LinearLayout android:orientation="vertical" android:tag="bar_es" android:paddingLeft="4.0dip" android:paddingTop="1.0dip" android:paddingRight="4.0dip" android:paddingBottom="6.0dip" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="@dimen/mr_bar_height">
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="@dimen/mr_es_title_height">
+            <TextView android:tag="es_back" android:layout_width="wrap_content" android:layout_height="fill_parent" android:layout_marginLeft="3.0dip" android:layout_marginTop="4.0dip" android:layout_marginRight="3.0dip" android:layout_marginBottom="4.0dip" android:drawableLeft="@drawable/ic_mr_back" android:contentDescription="@string/mr_tb_back" style="@style/MrToolBtn" />
+            <TextView android:textSize="16.0sp" android:textColor="@color/mr_tb_text" android:ellipsize="end" android:gravity="center_vertical" android:tag="es_title" android:paddingLeft="8.0dip" android:layout_width="0.0dip" android:layout_height="fill_parent" android:text="@string/mr_es_title" android:singleLine="true" android:layout_weight="1.0" android:fontFamily="sans-serif-medium" />
+        </LinearLayout>
+        <LinearLayout android:orientation="vertical" android:tag="es_card" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_marginLeft="3.0dip" android:layout_marginTop="2.0dip" android:layout_marginRight="3.0dip" android:layout_weight="1.0">
+            <FrameLayout android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
+                <HorizontalScrollView android:scrollbars="none" android:tag="es_scroll" android:paddingLeft="4.0dip" android:paddingRight="4.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent" android:overScrollMode="never">
+                    <LinearLayout android:orientation="vertical" android:tag="es_grid" android:layout_width="wrap_content" android:layout_height="fill_parent" />
+                </HorizontalScrollView>
+                <TextView android:textSize="13.0sp" android:gravity="center" android:tag="es_empty" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent" android:text="@string/mr_es_empty" android:fontFamily="sans-serif-medium" />
+            </FrameLayout>
+            <View android:tag="es_div" android:layout_width="fill_parent" android:layout_height="1.0dip" />
+            <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:paddingLeft="14.0dip" android:paddingRight="12.0dip" android:layout_width="fill_parent" android:layout_height="44.0dip">
+                <TextView android:tag="es_icon" android:layout_width="wrap_content" android:layout_height="wrap_content" android:drawableLeft="@drawable/ic_mr_search" android:clickable="false" />
+                <EditText android:textSize="16.0sp" android:gravity="center_vertical" android:tag="es_field" android:background="@null" android:paddingLeft="12.0dip" android:paddingRight="0.0dip" android:layout_width="0.0dip" android:layout_height="fill_parent" android:minHeight="0.0dip" android:hint="@string/mr_es_hint" android:singleLine="true" android:layout_weight="1.0" android:inputType="text" android:imeOptions="actionSearch" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
     <FrameLayout android:tag="kbd_host" android:layout_width="fill_parent" android:layout_height="wrap_content">
         <LinearLayout android:gravity="center_vertical" android:orientation="vertical" android:tag="p_tune" android:background="@color/mr_tb_scrim" android:visibility="gone" android:clickable="true" android:layout_width="fill_parent" android:layout_height="fill_parent">

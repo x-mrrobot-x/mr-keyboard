@@ -176,6 +176,11 @@
     <string name="mr_tb_lang_in">Input language</string>
     <string name="mr_tb_lang_out">Output language</string>
     <string name="mr_tb_radius">Key roundness</string>
+    <string name="mr_es_title">Search emojis</string>
+    <string name="mr_es_hint">Search</string>
+    <string name="mr_es_empty">No emojis found</string>
+    <string name="mr_es_search">Search emojis</string>
+    <string name="mr_es_delete">Delete</string>
     <string name="mr_tb_emoji_recent">Recent</string>
     <string name="mr_tb_emoji_people">Smileys &amp; People</string>
     <string name="mr_tb_emoji_nature">Animals &amp; Nature</string>

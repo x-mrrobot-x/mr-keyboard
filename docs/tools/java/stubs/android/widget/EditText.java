@@ -7,6 +7,7 @@ public class EditText extends TextView {
         public char charAt(int index) { return stubText.charAt(index); }
         public CharSequence subSequence(int start, int end) { return stubText.subSequence(start, end); }
         public void clear() { stubText = ""; }
+        public String toString() { return stubText == null ? "" : stubText.toString(); }
     };
 
     public EditText(android.content.Context context) { super(context); }

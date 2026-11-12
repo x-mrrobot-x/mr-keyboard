@@ -13,6 +13,9 @@
 #   check_reset_keys.py  "Restaurar padrões" (Restore defaults) covers every key of the settings screens
 #   mres_check.py        Portuguese text of the sheets/attachments editor goes through the Spanish table
 #   res_check.py         resources: valid XML, public.xml, references, unused resources, Spanish vs Portuguese
+#   check_emoji_search.py  the emoji search (1.97.0): the tags the Java looks for are in the layout, the floating bar is inside the emoji panel, the texts
+#                        in 3 languages, the three hooks in MrTools.smali, and the CLDR words (res/raw/mr_emoji_*) list the emojis of the panel in its order
+#   test_make_emoji_search.py  make_emoji_search.py (the converter of the CLDR files) with made-up files: FE0F, derived annotations, a language missing, a zip
 #   make_themes.py --check  the generated themes, solid, gloss and neon (their drawables, layouts, colors and entries in the theme lists),
 #                        are what the generator writes today from its tables: a hand edit of a generated file, or a table changed without running it, fails
 #   smali_regcheck.py    hand-edited smali: register read without a value (the error that closed Settings in 1.67),
@@ -28,7 +31,8 @@
 #                        themes: glow of labels and icons, the hue of each key in the spectrum themes, the dark labels of the light themes;
 #                        gesture typing in the keyboard, GestureInputTest: which touches are followed, tap and long press unchanged,
 #                        what is written, the strip, backspace, the trail, the word shown while the finger slides, the blocked words,
-#                        all with a fake recognition; GestureWordsTest: the words of the person as the small dictionary the gestures search, 1.96.0)
+#                        all with a fake recognition; GestureWordsTest: the words of the person as the small dictionary the gestures search;
+#                        EmojiSearchTest: the emoji search in three languages (accents, ranking, tie by app language) and the extra height of a header)
 #   test_smali_regcheck.py  smali_regcheck.py itself: each of its five rules with a broken and a good case (registers, methods, limits, invoke size, fields), --base, the real smali
 #   test_ui_language_rebuild.py  changing the app language rebuilds the keyboard view once, on the change (LatinIME.onSharedPreferenceChanged), and the bar is inflated again in the new language
 #   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial; trigrams.bin MRT2 needs minApp 1090000;
@@ -141,6 +145,12 @@ jobs:
 
       - name: Resources
         run: python3 docs/tools/res_check.py
+
+      - name: Emoji search (layout, texts, hooks, the CLDR words of the three languages)
+        run: python3 docs/tools/check_emoji_search.py
+
+      - name: Emoji search words (the CLDR converter, with made-up files)
+        run: python3 -I docs/tools/emoji_search_test/test_make_emoji_search.py
 
       - name: Generated themes up to date with their generator
         run: python3 docs/tools/make_themes.py --check

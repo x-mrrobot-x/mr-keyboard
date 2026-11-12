@@ -13,4 +13,8 @@ public class LatinIME extends android.inputmethodservice.InputMethodService {
     public void mrStrip(java.util.List<CharSequence> words) { }
     public void pickSuggestionManually(int index, CharSequence suggestion) { }
     public void updateShiftKeyState(android.view.inputmethod.EditorInfo attr) { }
+    /** The key listener of the keyboard (the real methods are public): the delete button of the emoji panel calls them. */
+    public void onKey(int primaryCode, int[] keyCodes, int x, int y) { }
+    public void onPress(int primaryCode) { }
+    public void onRelease(int primaryCode) { }
 }

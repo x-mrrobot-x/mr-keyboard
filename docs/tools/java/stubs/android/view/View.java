@@ -9,6 +9,7 @@ public class View {
     public static final int GONE = 8;
     public interface OnClickListener { void onClick(View v); }
     public interface OnLongClickListener { boolean onLongClick(View v); }
+    public interface OnTouchListener { boolean onTouch(View v, MotionEvent event); }
     public interface OnFocusChangeListener { void onFocusChange(View v, boolean hasFocus); }
     public static final int FOCUS_DOWN = 130;
     public interface OnLayoutChangeListener {
@@ -81,8 +82,11 @@ public class View {
     public void setEnabled(boolean enabled) { }
     public android.os.IBinder getWindowToken() { return null; }
     public void setOnLongClickListener(OnLongClickListener l) { }
-    public void setVisibility(int visibility) { }
-    public int getVisibility() { return 0; }
+    public void setOnTouchListener(OnTouchListener l) { }
+    public void scrollTo(int x, int y) { }
+    private int stubVisibility;
+    public void setVisibility(int visibility) { stubVisibility = visibility; }
+    public int getVisibility() { return stubVisibility; }
     public View findViewWithTag(Object tag) { return null; }
     public void setAlpha(float alpha) { }
     public void setElevation(float elevation) { }

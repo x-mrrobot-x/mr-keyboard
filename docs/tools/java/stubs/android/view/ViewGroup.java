@@ -8,7 +8,7 @@ public abstract class ViewGroup extends View implements ViewParent {
         public static final int WRAP_CONTENT = -2;
         public int width;
         public int height;
-        public LayoutParams(int width, int height) { }
+        public LayoutParams(int width, int height) { this.width = width; this.height = height; }
     }
     public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) { }
     public void addView(View child) { }

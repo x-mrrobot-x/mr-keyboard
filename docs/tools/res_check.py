@@ -95,7 +95,8 @@ for i in sorted(set(re.findall(r'0x7f[0-9a-f]{6}', smali)) - NOT_RESOURCES):
         problems.append('smali uses the ID %s that is not in public.xml' % i)
 lits = set(re.findall(r'const-string(?:/jumbo)? [vp]\d+, "([^"]+)"', smali))
 for p in glob.glob('docs/tools/java/src/**/*.java', recursive=True):
-    lits |= set(re.findall(r'"([^"\\]+)"', read_file(p)))
+    # a string literal, the empty one and the ones with escapes included (an earlier pattern skipped "" and paired the next quotes wrongly)
+    lits |= set(re.findall(r'"([^"\\\n]*(?:\\.[^"\\\n]*)*)"', read_file(p)))
 
 
 def refs(s):

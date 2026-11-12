@@ -176,6 +176,11 @@
     <string name="mr_tb_lang_in">Idioma de entrada</string>
     <string name="mr_tb_lang_out">Idioma de salida</string>
     <string name="mr_tb_radius">Redondeo de las teclas</string>
+    <string name="mr_es_title">Buscar emojis</string>
+    <string name="mr_es_hint">Buscar</string>
+    <string name="mr_es_empty">No se encontraron emojis</string>
+    <string name="mr_es_search">Buscar emojis</string>
+    <string name="mr_es_delete">Borrar</string>
     <string name="mr_tb_emoji_recent">Recientes</string>
     <string name="mr_tb_emoji_people">Caras y personas</string>
     <string name="mr_tb_emoji_nature">Animales y naturaleza</string>

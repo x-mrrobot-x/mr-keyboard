@@ -9,7 +9,20 @@ public class MrTools {
     /** The main row of the tool bar: the tools or, in their place, the suggestion strip (MrSugg). Visible while the bar is in view. */
     static android.view.View sBarMain;
 
+    /** The field the keys that are events go to while the keyboard types in a field of the bar (translator, emoji search); the redirect itself. */
+    static android.widget.TextView sField;
+    static android.view.inputmethod.InputConnection sRedirect;
+    /** Colors of the text and of the hint of the tool bars (set when a keyboard view is made). */
+    static int sTextColor;
+    static int sHint;
+
     public static void toast(String msg) { }
+
+    /** Tints the compound drawables of the view. */
+    static void tintColor(android.widget.TextView t, int color) { }
+    /** Backgrounds of the theme: the floating button, the card of a panel. */
+    static android.graphics.drawable.Drawable fabBg() { return null; }
+    static android.graphics.drawable.Drawable cardBg() { return null; }
 
     public static void showPanel(int mode) { }
 

@@ -2790,6 +2790,8 @@
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrFonts;->onPanel(I)V
 
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrEmojiSearch;->onPanel(I)V
+
     invoke-static {p0}, Lcom/mrkeyboard/app/MrTools;->shotsMode(I)V
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrTools;->emoteMode(I)V
@@ -2892,6 +2894,8 @@
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrFonts;->afterPanel(I)V
 
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrEmojiSearch;->afterPanel(I)V
+
     return-void
 
     :cond_6
@@ -2904,6 +2908,8 @@
 
     :cond_8
     invoke-static {p0}, Lcom/mrkeyboard/app/MrFonts;->afterPanel(I)V
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrEmojiSearch;->afterPanel(I)V
 
     return-void
 .end method
@@ -3488,6 +3494,8 @@
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTune;->setup(Landroid/view/View;)V
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrFonts;->setup(Landroid/view/View;)V
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrEmojiSearch;->setup(Landroid/view/View;)V
 
     const-string v1, "shot_back"
 

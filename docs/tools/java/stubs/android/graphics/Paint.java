@@ -43,4 +43,10 @@ public class Paint {
     public void clearShadowLayer() { stubShadowRadius = 0f; stubShadowColor = 0; }
     public Typeface setTypeface(Typeface typeface) { return typeface; }   // real API returns the previous typeface
     public float getFontMetrics(FontMetrics metrics) { return 0f; }       // real API returns the ascent
+
+    /** Strings hasGlyph answers false for (the PC tests fill it: a phone whose font lacks some emojis). */
+    public static final java.util.HashSet<String> stubNoGlyph = new java.util.HashSet<String>();
+    /** How many times hasGlyph was asked (the PC tests check that the answers are kept). */
+    public static int stubGlyphCalls;
+    public boolean hasGlyph(String string) { stubGlyphCalls++; return !stubNoGlyph.contains(string); }   // API 23
 }

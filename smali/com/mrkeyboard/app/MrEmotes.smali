@@ -37,6 +37,20 @@
 .method static data(I)Ljava/lang/String;
     .locals 1
 
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrEmotes;->dataBase(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrEmojiNew;->merge(ILjava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method static dataBase(I)Ljava/lang/String;
+    .locals 1
+
     packed-switch p0, :pswitch_data_0
 
     const-string v0, ""
