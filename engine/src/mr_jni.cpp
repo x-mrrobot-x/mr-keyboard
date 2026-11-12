@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "mr_engine.h"
+#include "mr_gesture.h"
 
 namespace {
 
@@ -24,6 +25,24 @@ Fuzzy gFuzzy;
 
 std::mutex gTriMutex;
 std::shared_ptr<const TriStore> gTri;
+
+// Gesture typing: one gesture at a time. gGestureMutex protects everything in the struct; it is never held together with gMutex
+// (the tables are taken first, as a shared_ptr), so a gesture does not hold up a correction search on another thread.
+struct GestureState {
+    Gesture gesture;
+    GestureParams params;
+    bool configured = false;
+    std::vector<float> x, y;
+    std::vector<jint> t;
+};
+std::mutex gGestureMutex;
+GestureState* gGestureState = nullptr;   // created at the first use and kept until the process ends
+
+// Call with gGestureMutex held.
+GestureState& gestureState() {
+    if (gGestureState == nullptr) gGestureState = new GestureState();
+    return *gGestureState;
+}
 
 constexpr int kInfoSize = 1 + 2 * kMaxResults;
 
@@ -244,6 +263,225 @@ jint nTriFind(JNIEnv* env, jclass, jstring a1, jstring a2, jstring b1, jstring b
     }
 }
 
+jboolean nGestureOpen(JNIEnv* env, jclass, jstring path) {
+    try {
+        std::string p;
+        if (!utf8Arg(env, path, &p)) return JNI_FALSE;
+        std::lock_guard<std::mutex> g(gGestureMutex);
+        return gestureState().gesture.open(p.c_str()) ? JNI_TRUE : JNI_FALSE;
+    } catch (...) {
+        return JNI_FALSE;
+    }
+}
+
+void nGestureClose(JNIEnv*, jclass) {
+    try {
+        std::lock_guard<std::mutex> g(gGestureMutex);
+        if (gGestureState != nullptr) gGestureState->gesture.close();
+    } catch (...) {
+    }
+}
+
+// params: GestureParams::kFloats values; limits: GestureParams::kInts values (the order is in mr_gesture.h).
+jboolean nGestureConfig(JNIEnv* env, jclass, jfloatArray params, jintArray limits) {
+    try {
+        if (!lenAtLeast(env, params, GestureParams::kFloats) || !lenAtLeast(env, limits, GestureParams::kInts)) return JNI_FALSE;
+        jfloat f[GestureParams::kFloats];
+        jint i[GestureParams::kInts];
+        env->GetFloatArrayRegion(params, 0, GestureParams::kFloats, f);
+        env->GetIntArrayRegion(limits, 0, GestureParams::kInts, i);
+        if (env->ExceptionCheck()) return JNI_FALSE;
+        static_assert(sizeof(jint) == sizeof(int) && sizeof(jfloat) == sizeof(float), "jint, jfloat");
+        GestureParams p;
+        if (!p.set(f, i)) return JNI_FALSE;
+        std::lock_guard<std::mutex> g(gGestureMutex);
+        GestureState& st = gestureState();
+        st.params = p;
+        st.configured = true;
+        return JNI_TRUE;
+    } catch (...) {
+        return JNI_FALSE;
+    }
+}
+
+// keys: the letter of each key (2..kGestureKeys); xy: x and y of the centre of each, in the frame of GestureLayout;
+// freeChars: the characters that take no key (may be null or empty). A refused layout leaves none.
+jboolean nGestureLayout(JNIEnv* env, jclass, jcharArray keys, jfloatArray xy, jcharArray freeChars) {
+    try {
+        if (keys == nullptr || xy == nullptr) return JNI_FALSE;
+        const jsize n = env->GetArrayLength(keys);
+        const jsize nf = freeChars != nullptr ? env->GetArrayLength(freeChars) : 0;
+        if (n < 2 || n > kGestureKeys || nf > kGestureFree || env->GetArrayLength(xy) < 2 * n) return JNI_FALSE;
+        char16_t k[kGestureKeys];
+        char16_t fr[kGestureFree] = {0};
+        jfloat c[2 * kGestureKeys];
+        env->GetCharArrayRegion(keys, 0, n, reinterpret_cast<jchar*>(k));
+        env->GetFloatArrayRegion(xy, 0, 2 * n, c);
+        if (nf > 0) env->GetCharArrayRegion(freeChars, 0, nf, reinterpret_cast<jchar*>(fr));
+        if (env->ExceptionCheck()) return JNI_FALSE;
+        std::lock_guard<std::mutex> g(gGestureMutex);
+        return gestureState().gesture.setLayout(k, c, n, fr, nf) ? JNI_TRUE : JNI_FALSE;
+    } catch (...) {
+        return JNI_FALSE;
+    }
+}
+
+// The spellings of the previous word, as nGesture and nGestureMore take them: one after the other in prev, the length of each
+// in prevLen (the first kGestureSpellings count). Both null = no previous word.
+struct GesturePrev {
+    static constexpr int kChars = 512;
+    char16_t buf[kChars];
+    const char16_t* spell[kGestureSpellings] = {nullptr};
+    int len[kGestureSpellings] = {0};
+    int n = 0;
+};
+
+// false = the arrays do not hold what the lengths say (or a Java exception is pending).
+bool gesturePrev(JNIEnv* env, jcharArray prev, jintArray prevLen, GesturePrev* out) {
+    out->n = 0;
+    if (prev == nullptr || prevLen == nullptr) return true;
+    const jsize have = env->GetArrayLength(prev);
+    out->n = std::min<jsize>(env->GetArrayLength(prevLen), kGestureSpellings);
+    jint lens[kGestureSpellings] = {0};
+    if (out->n > 0) env->GetIntArrayRegion(prevLen, 0, out->n, lens);
+    if (env->ExceptionCheck()) return false;
+    int total = 0;
+    for (int i = 0; i < out->n; i++) {
+        if (lens[i] < 0 || lens[i] > GesturePrev::kChars || total + lens[i] > GesturePrev::kChars || total + lens[i] > have) {
+            return false;
+        }
+        out->spell[i] = out->buf + total;
+        out->len[i] = lens[i];
+        total += lens[i];
+    }
+    if (total > 0) env->GetCharArrayRegion(prev, 0, total, reinterpret_cast<jchar*>(out->buf));
+    return !env->ExceptionCheck();
+}
+
+bool gestureOutputs(JNIEnv* env, jcharArray outWords, jintArray outInfo, jfloatArray outScores) {
+    return lenAtLeast(env, outWords, kGestureResults * kGestureChars) && lenAtLeast(env, outInfo, kGestureInfo) &&
+           lenAtLeast(env, outScores, 2 * kGestureResults);
+}
+
+// The first `count` results of the gesture, in the arrays of nGesture; info1 goes to outInfo[1]. Call with gGestureMutex held.
+void gestureResults(JNIEnv* env, const Gesture& gesture, int count, int info1, jcharArray outWords, jintArray outInfo,
+                    jfloatArray outScores) {
+    jint info[kGestureInfo] = {0};
+    jfloat scores[2 * kGestureResults] = {0};
+    info[0] = gesture.nodes();
+    info[1] = info1;
+    for (int i = 0; i < count; i++) {
+        const GestureWord& w = gesture.result(i);
+        env->SetCharArrayRegion(outWords, i * kGestureChars, w.len, reinterpret_cast<const jchar*>(w.word));
+        info[2 + 4 * i] = w.len;
+        info[3 + 4 * i] = w.keys;
+        info[4 + 4 * i] = w.freq;
+        info[5 + 4 * i] = w.bigram;
+        scores[2 * i] = w.score;
+        scores[2 * i + 1] = w.logp;
+    }
+    env->SetIntArrayRegion(outInfo, 0, kGestureInfo, info);
+    env->SetFloatArrayRegion(outScores, 0, 2 * kGestureResults, scores);
+}
+
+// The words of a gesture. Returns how many (0..kGestureResults), or -1 if it cannot answer (weights not open, no layout, values
+// never handed over, bad arguments, a coordinate that is not a number).
+//   dict, size: main.dict, as in nSearch.
+//   x, y, t: n touch points (1..kGestureMaxTouches) in the frame of GestureLayout; t in milliseconds.
+//   prev, prevLen: spellings of the previous word, one after the other in prev, the length of each in prevLen (the first
+//                  kGestureSpellings are tried, in order, until one is in the dictionary). Both null = no previous word.
+//   outWords: result i starts at i * kGestureChars.
+//   outInfo:  [0] = dictionary entries read, [1] = bigrams of the previous word used (0 = no context), then, per result:
+//             length, keys the gesture went through, frequency in the dictionary, frequency of the pair with the previous word.
+//   outScores: per result: score (the results come ordered by it) and CTC log-probability.
+jint nGesture(JNIEnv* env, jclass, jobject dict, jint size, jint n, jfloatArray x, jfloatArray y, jintArray t, jcharArray prev,
+              jintArray prevLen, jcharArray outWords, jintArray outInfo, jfloatArray outScores) {
+    try {
+        if (dict == nullptr || size <= 2 || n < 1 || n > kGestureMaxTouches) return -1;
+        void* addr = env->GetDirectBufferAddress(dict);
+        jlong cap = env->GetDirectBufferCapacity(dict);
+        if (addr == nullptr || cap < size) return -1;
+        if (!lenAtLeast(env, x, n) || !lenAtLeast(env, y, n) || !lenAtLeast(env, t, n) ||
+            !gestureOutputs(env, outWords, outInfo, outScores)) {
+            return -1;
+        }
+        GesturePrev pv;
+        if (!gesturePrev(env, prev, prevLen, &pv)) return -1;
+        std::shared_ptr<const Tables> tables;
+        {
+            std::lock_guard<std::mutex> g(gMutex);
+            tables = gTables;
+        }
+        if (!tables) return -1;
+        int count = 0;
+        {
+            std::lock_guard<std::mutex> g(gGestureMutex);
+            GestureState& st = gestureState();
+            if (!st.configured) return -1;
+            st.x.resize(static_cast<size_t>(n));
+            st.y.resize(static_cast<size_t>(n));
+            st.t.resize(static_cast<size_t>(n));
+            env->GetFloatArrayRegion(x, 0, n, st.x.data());
+            env->GetFloatArrayRegion(y, 0, n, st.y.data());
+            env->GetIntArrayRegion(t, 0, n, st.t.data());
+            if (env->ExceptionCheck()) return -1;
+            static_assert(sizeof(jint) == sizeof(int32_t), "jint");
+            count = st.gesture.decode(*tables, static_cast<const uint8_t*>(addr), size, st.x.data(), st.y.data(),
+                                      reinterpret_cast<const int32_t*>(st.t.data()), n, pv.spell, pv.len, pv.n, st.params);
+            if (count < 0) return -1;
+            gestureResults(env, st.gesture, count, st.gesture.contextSize(), outWords, outInfo, outScores);
+        }
+        if (env->ExceptionCheck()) return -1;
+        return count;
+    } catch (...) {
+        return -1;
+    }
+}
+
+// The last gesture of nGesture searched in another dictionary (contract 3): the words main.dict does not have, in a second
+// dictionary of the same format (the words of the user, which Java writes). The network does not run again: the table of the
+// last nGesture is used, so Java must not let another nGesture come between the two calls (MrGesture holds a lock).
+// What is found is merged into the results of nGesture (Gesture::more says how) and the arrays get the merged list, in the
+// layout of nGesture, with two differences: outInfo[0] counts the entries read in both dictionaries and outInfo[1] is a mask,
+// bit i set when result i came from THIS dictionary. prev is looked up in this dictionary.
+// Returns how many results the merged list has, or -1 if it cannot answer (no nGesture answered since the weights or the
+// layout were set, bad arguments): the arrays are then untouched and the results of nGesture stand.
+jint nGestureMore(JNIEnv* env, jclass, jobject dict, jint size, jcharArray prev, jintArray prevLen, jcharArray outWords,
+                  jintArray outInfo, jfloatArray outScores) {
+    try {
+        if (dict == nullptr || size <= 2) return -1;
+        void* addr = env->GetDirectBufferAddress(dict);
+        jlong cap = env->GetDirectBufferCapacity(dict);
+        if (addr == nullptr || cap < size) return -1;
+        if (!gestureOutputs(env, outWords, outInfo, outScores)) return -1;
+        GesturePrev pv;
+        if (!gesturePrev(env, prev, prevLen, &pv)) return -1;
+        std::shared_ptr<const Tables> tables;
+        {
+            std::lock_guard<std::mutex> g(gMutex);
+            tables = gTables;
+        }
+        if (!tables) return -1;
+        int count = 0;
+        {
+            std::lock_guard<std::mutex> g(gGestureMutex);
+            GestureState& st = gestureState();
+            if (!st.configured) return -1;
+            count = st.gesture.more(*tables, static_cast<const uint8_t*>(addr), size, pv.spell, pv.len, pv.n, st.params);
+            if (count < 0) return -1;
+            int mask = 0;
+            for (int i = 0; i < count; i++) {
+                if (st.gesture.result(i).source != 0) mask |= 1 << i;
+            }
+            gestureResults(env, st.gesture, count, mask, outWords, outInfo, outScores);
+        }
+        if (env->ExceptionCheck()) return -1;
+        return count;
+    } catch (...) {
+        return -1;
+    }
+}
+
 // the JDK jni.h declares char* and the NDK one const char*: the cast covers both.
 #define MR_METHOD(name, sig, fn) \
     { const_cast<char*>(name), const_cast<char*>(sig), reinterpret_cast<void*>(fn) }
@@ -258,6 +496,12 @@ const JNINativeMethod kMethods[] = {
     MR_METHOD("nTriFind",
               "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;[I)I",
               nTriFind),
+    MR_METHOD("nGestureOpen", "(Ljava/lang/String;)Z", nGestureOpen),
+    MR_METHOD("nGestureClose", "()V", nGestureClose),
+    MR_METHOD("nGestureConfig", "([F[I)Z", nGestureConfig),
+    MR_METHOD("nGestureLayout", "([C[F[C)Z", nGestureLayout),
+    MR_METHOD("nGesture", "(Ljava/nio/ByteBuffer;II[F[F[I[C[I[C[I[F)I", nGesture),
+    MR_METHOD("nGestureMore", "(Ljava/nio/ByteBuffer;I[C[I[C[I[F)I", nGestureMore),
 };
 
 }  // namespace

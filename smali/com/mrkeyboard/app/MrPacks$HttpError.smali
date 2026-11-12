@@ -23,7 +23,7 @@
     .locals 2
 
     .prologue
-    .line 405
+    .line 462
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -44,9 +44,9 @@
 
     invoke-direct {p0, v0}, Ljava/io/IOException;-><init>(Ljava/lang/String;)V
 
-    .line 406
+    .line 463
     iput p1, p0, Lcom/mrkeyboard/app/MrPacks$HttpError;->code:I
 
-    .line 407
+    .line 464
     return-void
 .end method

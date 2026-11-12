@@ -14,6 +14,8 @@
 # Dictionaries: starts from the catalog of the latest release (if there is one). A pack that did not change
 # keeps its zip in the release that made it (the catalog says which one in "release"), so nothing is copied;
 # only the packs whose version went up in dicts/ get a zip, attached to this release (make_catalog.py --tag).
+# The weights of the gesture recognition (gesture/pack.json, 1.96.0) follow the same rules: they go in the "models" list of
+# the same catalog and their zip (mr-keyboard-model-gesture-<version>.zip) is attached only to the release where it changed.
 # Before creating anything, the script checks that every zip that stays in another release still exists there
 # with the size from the catalog. The release is created as a draft, the assets are checked and only then it
 # is published: a half-made release never becomes "latest".
@@ -88,7 +90,9 @@ if [ -n "$PREV_TAG" ] && gh release view "$PREV_TAG" --json assets -q '.assets[]
 else
   echo "::warning::No dictionary catalog published before: the serial starts at 1. Apps that already stored a higher serial will refuse this catalog; only go on if this really is the first one."
 fi
-python3 -I docs/tools/make_catalog.py --dicts dicts --out out --tag "$TAG" $PREV_ARGS
+MODEL_ARGS=""
+if [ -f gesture/pack.json ]; then MODEL_ARGS="--model gesture"; fi
+python3 -I docs/tools/make_catalog.py --dicts dicts --out out --tag "$TAG" $PREV_ARGS $MODEL_ARGS
 sh docs/tools/sign_catalog.sh out/data.json out/catalog.json catalog
 
 # ---- update notice: version, APK size and SHA-256, notes of the two languages (a failure here is a bug in any mode)
@@ -98,6 +102,7 @@ fi
 sh docs/tools/sign_catalog.sh out/update-data.json out/update.json update
 EXPECTED=$(python3 docs/tools/release_assets.py assets out/data.json "$TAG" "$APK" "$SRC")
 DICTIONARIES=$(python3 docs/tools/release_assets.py text out/data.json "$TAG")
+MODELS=$(python3 docs/tools/release_assets.py models out/data.json "$TAG")
 
 # ---- zips that stay in other releases must still be there, with the size from the catalog (before any draft)
 python3 docs/tools/release_assets.py external out/data.json "$TAG" > out/external.txt
@@ -119,6 +124,9 @@ SUMMARY=$(sed '/./,$!d' "$NOTES")
   echo "$SUMMARY"
   echo
   echo "Dicionários incluídos / Included dictionaries: $DICTIONARIES."
+  if [ -n "$MODELS" ]; then
+    echo "Reconhecimento de gestos / Gesture recognition: $MODELS. Feito com a tecnologia FUTO Swipe; os pesos estão sob a FUTO Model Weights License 1.0, que vai dentro do zip. / Powered by FUTO Swipe technology; the weights are under the FUTO Model Weights License 1.0, which is inside the zip."
+  fi
   echo "Você só precisa do \`$APK\`: o app baixa os dicionários sozinho. / You only need \`$APK\`: the app downloads the dictionaries by itself."
   echo
   echo "- APK SHA-256: \`$(sha256sum "$APK" | cut -d' ' -f1)\`"

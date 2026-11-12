@@ -1,6 +1,7 @@
 #!/bin/bash
-# Pack flow on the PC (PacksTest, 60+ checks) and the three installed languages (ThreeLangTest), with the APK's real classes, the
-# native lib compiled for the PC and a fake Android. Runs in CI (mr-checks.yml, job "assemble") and on your computer.
+# Pack flow on the PC (PacksTest, 60+ checks), the three installed languages (ThreeLangTest) and the gesture recognition pack
+# (ModelPackTest, 1.96.0), with the APK's real classes, the native lib compiled for the PC and a fake Android. Runs in CI
+# (mr-checks.yml, job "assemble") and on your computer.
 # README.md in this folder says what each case covers.
 #
 # From the project root:
@@ -36,6 +37,7 @@ openssl req -new -x509 -key "$OUT/fa/ec.key" -days 30 -subj /CN=EC -out "$OUT/fa
 
 # ---- fixtures: pt-BR packs in every state PacksTest needs, and the catalog of the three real packs
 python3 -I $P/make_fixtures.py "$ROOT" "$OUT/fx" > /dev/null
+python3 -I $P/make_model_fixtures.py "$ROOT" "$OUT/fx" > /dev/null    # the catalogs with the gesture recognition (m_*), for ModelPackTest
 python3 -I $P/sign_fixtures.py "$ROOT" "$OUT/fx" "$OUT/fa" > /dev/null
 python3 -I docs/tools/make_catalog.py --dicts dicts --out "$OUT/three" --tag v1.73.0 > /dev/null
 KEYSTORE_PASS=pass123 KEY_ALIAS=mrkeyboard KEY_PASS=pass123 \
@@ -43,7 +45,8 @@ KEYSTORE_PASS=pass123 KEY_ALIAS=mrkeyboard KEY_PASS=pass123 \
 
 # ---- test classes. Stubs of the fake Android, from the lowest to the highest priority: the ones of the e2e tests, the ones of the Java
 # layer (docs/tools/java/stubs/android, which are richer), and the ones of this folder (they replace the files with the same name).
-APPCODE=$(sed -n "s/^ *versionCode: *['\"]\{0,1\}\([0-9][0-9]*\).*/\1/p" apktool.yml)   # with or without quotes: apktool 2.11 writes it bare
+# apktool writes the number with or without quotes, depending on the version that decoded the APK: both are read
+APPCODE=$(sed -n "s/^ *versionCode: *['\"]\{0,1\}\([0-9][0-9]*\).*/\1/p" apktool.yml | head -n 1)
 [ -n "$APPCODE" ] || { echo "no versionCode in apktool.yml"; exit 1; }
 mkdir -p "$OUT/stubsrc"
 cp -r docs/tools/e2e/android_stubs/. "$OUT/stubsrc/"
@@ -51,7 +54,7 @@ cp -r docs/tools/java/stubs/android "$OUT/stubsrc/"
 cp docs/tools/e2e/android_stubs/android/view/inputmethod/InputConnection.java "$OUT/stubsrc/android/view/inputmethod/"   # the tests implement this small one
 cp -r $P/stubs/. "$OUT/stubsrc/"
 javac -nowarn -encoding UTF-8 -cp "$JAR" -d "$OUT/stubs" $(find "$OUT/stubsrc" -name '*.java') $P/UiLocale.java
-javac -nowarn -encoding UTF-8 -cp "$OUT/stubs:$JAR" -d "$OUT/cls" docs/tools/e2e/E2ETest.java $P/PacksTest.java $P/ThreeLangTest.java
+javac -nowarn -encoding UTF-8 -cp "$OUT/stubs:$JAR" -d "$OUT/cls" docs/tools/e2e/E2ETest.java $P/PacksTest.java $P/ThreeLangTest.java $P/ModelPackTest.java
 CP="$OUT/cls:$OUT/stubs:$JAR"
 run() { java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote -Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 \
              -Djava.library.path="$OUT/engine:$OUT/native" -Dmr.fx="$OUT/fx" -Dmr.fa="$OUT/fa" -Dmr.three="$OUT/three" \
@@ -62,4 +65,6 @@ echo "================ PacksTest"
 run com.mrkeyboard.app.PacksTest | grep -E "FAIL|ALL OK|FAILURE|Exception" || FAILED=1
 echo "================ ThreeLangTest"
 run com.mrkeyboard.app.ThreeLangTest | grep -E "FAIL|ALL OK|FAILURE|Exception" || FAILED=1
+echo "================ ModelPackTest"
+run com.mrkeyboard.app.ModelPackTest | grep -E "FAIL|ALL OK|FAILURE|Exception" || FAILED=1
 exit $FAILED

@@ -1,0 +1,15 @@
+{
+  "id": "gesture",
+  "name": {"pt": "Reconhecimento de gestos", "en": "Gesture recognition", "es": "Reconocimiento de gestos"},
+  "description": {
+    "pt": "Os pesos da rede que lê o traço do dedo na digitação por gestos. Feito com a tecnologia FUTO Swipe (modelo honorable_sturgeon, da FUTO Holdings, Inc.); os pesos não foram modificados. Serve para qualquer idioma: as palavras vêm do dicionário instalado.",
+    "en": "The weights of the network that reads the trace of the finger in gesture typing. Powered by FUTO Swipe technology (model honorable_sturgeon, by FUTO Holdings, Inc.); the weights were not modified. It works for any language: the words come from the installed dictionary.",
+    "es": "Los pesos de la red que lee el trazo del dedo en la escritura por gestos. Hecho con la tecnología FUTO Swipe (modelo honorable_sturgeon, de FUTO Holdings, Inc.); los pesos no fueron modificados. Sirve para cualquier idioma: las palabras vienen del diccionario instalado."
+  },
+  "version": 1,
+  "format": 1,
+  "minApp": 1096000,
+  "files": ["encoder.bin", "LICENSE-FUTO-Model-Weights.md", "NOTICE.txt"],
+  "licenses": ["FUTO Model Weights License 1.0"],
+  "credits": "FUTO Swipe encoder (model honorable_sturgeon), by FUTO Holdings, Inc., https://huggingface.co/futo-org/futo-swipe. Derived from FUTO Swipe and subject to the FUTO Model Weights License 1.0, whose text is in the pack."
+}

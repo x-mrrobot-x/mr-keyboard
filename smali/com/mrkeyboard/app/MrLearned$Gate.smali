@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 155
+    .line 156
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,7 +36,7 @@
     .locals 0
 
     .prologue
-    .line 155
+    .line 156
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrLearned$Gate;-><init>()V
 
     return-void
@@ -48,19 +48,19 @@
     .locals 7
 
     .prologue
-    .line 159
+    .line 160
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearned$Gate;->to:Lcom/mrkeyboard/app/Dictionary$WordCallback;
 
-    .line 160
+    .line 161
     if-nez v0, :cond_0
 
     const/4 v0, 0x0
 
-    .line 162
+    .line 163
     :goto_0
     return v0
 
-    .line 161
+    .line 162
     :cond_0
     const/4 v1, 0x6
 
@@ -83,7 +83,7 @@
 
     move-object v6, p6
 
-    .line 162
+    .line 163
     invoke-interface/range {v0 .. v6}, Lcom/mrkeyboard/app/Dictionary$WordCallback;->addWord([CIIIILcom/mrkeyboard/app/Dictionary$DataType;)Z
 
     move-result v0

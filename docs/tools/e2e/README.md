@@ -15,6 +15,33 @@ same `dictionary.cpp`. Only `LatinIME` (which needs Android) is left out. It exi
 | `E2ETest`, `E2EEn`, `E2EEs` | end-to-end checks with fixed expectations (`ALL OK` or `FAIL`). |
 | `Parity`, `TouchEval`, `TypoEval` | list-by-list comparison of two versions, imprecise touches and synthetic errors (1.64 to 1.66). |
 
+### Gesture typing (the recognition and the keyboard side)
+- `bash docs/tools/e2e/run_gesture_tests.sh [app_jar.jar]`: `GestureTest`, the recognition of gesture typing through the APK's own classes
+  (`MrGesture` over `MrNative` over the PC build of the lib, with the app's real letter tables), in 3 languages, with the gestures of
+  `gesture/test/` (real ones for English and Spanish, synthetic for Portuguese) and the weights of `gesture/`. It fails when the count
+  of right words falls under its floor (`GestureTest.main`, the same floors as `engine/test/mr_gesture_test.cpp`), when a gesture
+  depends on the ones before it, or when closing and opening the weights changes an answer. It runs in *Mr Keyboard - checks*, on
+  `dicts/` and on the copy in the format v2 (`DICTS`, as below). `-Dexplore=1` lists the gestures whose word did not come first.
+  It also checks **the words of the person**: every word of each file is added to the APK's own tree of learned words
+  (`ExpandableDictionary`, with its hand-edited `addWord`, `clearDictionary` and `mrRoots()`), `MrGestureWords` reads the tree and
+  writes the small dictionary, and the lib searches it after `main.dict`; the floors are on how many more words come first and among 3.
+  What the feature is and what was measured: `docs/gesture-typing.md`.
+- `bash docs/tools/e2e/run_gesture_input_tests.sh` (no jar needed): `GestureInputE2E`, gesture typing **in the keyboard** from the touch
+  events to the text. `MrGestureInput` is compiled from `docs/tools/java/src` against the stubs (like `run_java_tests.sh`) and runs over the
+  real `MrGesture`, `MrNative` and the PC build of the lib. Each gesture of `gesture/test/` is drawn again as touch events (finger down,
+  one move per recorded point, finger up) on a fake keyboard of 1080 pixels that has the keys where the gesture was made, and the fake text
+  field is compared with the word the person meant. It proves that the frame of keys and points the keyboard code hands to the lib is
+  the one the recognition expects: the first-word counts must be the ones of `GestureTest` less the gestures this keyboard does not take as
+  gestures (they are counted and printed: the ones that start outside every letter key, 10 of the 300 synthetic Portuguese ones). It fails
+  when a count falls under its floor (`GestureInputE2E.main`). What it cannot reach: the smali that calls `MrGestureInput`, `LatinIME`
+  (a stub here) and Android itself. `-Dexplore=1` prints every gesture whose word did not come first and why. It runs in
+  *Mr Keyboard - checks*. `DICTS` works as in the script above.
+  Each language is drawn twice more: with every word of the file as a word the keyboard learned (the stub tree of
+  `docs/tools/java/stubs`, read by the real `MrGestureWords`), and with the clock of the fake Android following the gesture, so that the
+  word shown on the strip while the finger slides is recognised as on a phone; the text written must be the same with and without it.
+  The same class alone, with a fake recognition, is `docs/tools/gesture_input_test/GestureInputTest.java` (244 checks, `run_java_tests.sh`);
+  `GestureWordsTest.java`, next to it, checks `MrGestureWords` alone (52 checks).
+
 ### Strategy tests and everyday-language benchmark (after 1.83)
 - `bash docs/tools/e2e/run_strategy_tests.sh [app_jar.jar]`: `StrategyTest`, one table-driven check per strategy of `docs/suggestion-features.md` (S1...), the data
   integrity checks (D1-D4) and the limits (L1-L5), in 3 languages through the native engine. Cases marked `GAP` are known

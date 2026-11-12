@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrPacksActivity;->showPack(Ljava/lang/String;)V
+    value = Lcom/mrkeyboard/app/MrPacksActivity;->details(Ljava/lang/String;Lcom/mrkeyboard/app/MrPacks$Pack;ILjava/lang/String;Z)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,13 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
-.field final synthetic val$id:Ljava/lang/String;
-
-.field final synthetic val$title:Ljava/lang/String;
+.field final synthetic val$p:Lcom/mrkeyboard/app/MrPacks$Pack;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;Ljava/lang/String;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrPacksActivity;Lcom/mrkeyboard/app/MrPacks$Pack;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -35,12 +33,10 @@
     .end annotation
 
     .prologue
-    .line 388
+    .line 417
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity$8;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrPacksActivity$8;->val$id:Ljava/lang/String;
-
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrPacksActivity$8;->val$title:Ljava/lang/String;
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrPacksActivity$8;->val$p:Lcom/mrkeyboard/app/MrPacks$Pack;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -50,18 +46,16 @@
 
 # virtual methods
 .method public onClick(Landroid/content/DialogInterface;I)V
-    .locals 3
+    .locals 2
 
     .prologue
-    .line 390
+    .line 419
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$8;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$8;->val$id:Ljava/lang/String;
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$8;->val$p:Lcom/mrkeyboard/app/MrPacks$Pack;
 
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrPacksActivity$8;->val$title:Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$1500(Lcom/mrkeyboard/app/MrPacksActivity;Lcom/mrkeyboard/app/MrPacks$Pack;)V
 
-    invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrPacksActivity;->access$1500(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 391
+    .line 420
     return-void
 .end method

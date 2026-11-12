@@ -7,7 +7,10 @@
 # PC (test with the same code, from the project root):
 #   cmake -S engine -B build/engine -DCMAKE_BUILD_TYPE=Release -DMR_HOST_TEST=ON && cmake --build build/engine
 #   ./build/engine/mr_test dicts 100
+#   ./build/engine/mr_gesture_test dicts gesture/encoder.bin gesture/test 100
 # With sanitizers: -DMR_SANITIZE=ON (ASan + UBSan)
+# The same tests built by the NDK for an Android ABI, as static executables that run under qemu-user or with adb shell
+# (README.md, "The tests on the Android builds"): -DMR_ANDROID_TEST=ON with -DANDROID_PLATFORM=android-30.
 # WARNING: the text of this file goes into the mrengine-src.sha256 hash (computed from inside engine/). Changed anything here, even
 # just a comment? The libs in lib/ must be built again (see docs/native-engine.md).
 cmake_minimum_required(VERSION 3.18)
@@ -18,11 +21,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 option(MR_HOST_TEST "Also build mr_test and mr_bench (PC only)" OFF)
 option(MR_SANITIZE "ASan + UBSan (PC only)" OFF)
+option(MR_ANDROID_TEST "Also build the tests as static executables for the Android ABI (NDK only)" OFF)
 
-set(MR_CORE src/mr_fuzzy.cpp src/mr_tri.cpp)
+set(MR_CORE src/mr_fuzzy.cpp src/mr_tri.cpp src/mr_gesture_nn.cpp src/mr_gesture_decode.cpp)
 
 # Common options. -funsigned-char only to match the rest of the app: the code does not depend on char being signed.
 set(MR_FLAGS -O2 -Wall -Wextra -Wno-unused-parameter -funsigned-char -fvisibility=hidden)
+
+# The gesture network is loops over rows of floats: GCC only turns them into SIMD at -O2 when asked (clang does it by default
+# and takes this option as a synonym). Nothing else changes: no -ffast-math, the results are the same with or without it.
+set_source_files_properties(src/mr_gesture_nn.cpp PROPERTIES COMPILE_OPTIONS "-ftree-vectorize")
 
 add_library(mrengine_core STATIC ${MR_CORE})
 target_include_directories(mrengine_core PUBLIC src)
@@ -50,14 +58,20 @@ if(MR_SANITIZE AND NOT ANDROID)
   endforeach()
 endif()
 
-if(MR_HOST_TEST AND NOT ANDROID)
+if((MR_HOST_TEST AND NOT ANDROID) OR (MR_ANDROID_TEST AND ANDROID))
   add_executable(mr_test test/mr_test.cpp)
   target_link_libraries(mr_test PRIVATE mrengine_core)
   add_executable(mr_bench test/mr_bench.cpp)
   target_link_libraries(mr_bench PRIVATE mrengine_core)
-  foreach(t mr_test mr_bench)
+  add_executable(mr_gesture_test test/mr_gesture_test.cpp)
+  target_link_libraries(mr_gesture_test PRIVATE mrengine_core)
+  foreach(t mr_test mr_bench mr_gesture_test)
     target_compile_options(${t} PRIVATE -O2 -Wall -Wextra -funsigned-char)
-    if(MR_SANITIZE)
+    if(ANDROID)
+      # static: no Android linker and no system libraries are needed to run it (qemu-user, adb shell)
+      target_link_options(${t} PRIVATE -static)
+    endif()
+    if(MR_SANITIZE AND NOT ANDROID)
       target_compile_options(${t} PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined)
       target_link_options(${t} PRIVATE -fsanitize=address,undefined)
     endif()

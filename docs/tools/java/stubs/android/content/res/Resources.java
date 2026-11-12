@@ -9,6 +9,7 @@ public class Resources {
     public android.graphics.drawable.Drawable getDrawable(int id) { return new android.graphics.drawable.Drawable() { }; }
     public float getDimension(int id) { return 0; }
     public android.util.DisplayMetrics getDisplayMetrics() { return null; }
+    public java.io.InputStream openRawResource(int id) { return null; }
     public static final class Theme {
         public void setTo(Theme other) { }
     }

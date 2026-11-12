@@ -1176,6 +1176,9 @@
     invoke-virtual/range {v7 .. v12}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
     :goto_2
+    # Gesture typing (MrGestureInput, 1.96.0): the trail of the finger, over the keys (nothing unless a gesture is being drawn).
+    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrGestureInput;->draw(Lcom/mrkeyboard/app/LatinKeyboardView;Landroid/graphics/Canvas;)V
+
     return-void
 .end method
 
@@ -1262,6 +1265,19 @@
 .method public onTouchEvent(Landroid/view/MotionEvent;)Z
     .locals 13
 
+    # Gesture typing (MrGestureInput, 1.96.0): an event that belongs to a gesture is taken there and goes no further.
+    # With the setting off this call returns false on its first line.
+    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrGestureInput;->onTouch(Lcom/mrkeyboard/app/LatinKeyboardView;Landroid/view/MotionEvent;)Z
+
+    move-result v0
+
+    if-eqz v0, :mr_gesture_pass
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :mr_gesture_pass
     .line 335
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardView;->getKeyboard()Lcom/mrkeyboard/app/Keyboard;
 

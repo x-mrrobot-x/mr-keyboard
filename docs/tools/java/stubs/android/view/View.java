@@ -104,6 +104,10 @@ public class View {
     public final void measure(int widthMeasureSpec, int heightMeasureSpec) { onMeasure(widthMeasureSpec, heightMeasureSpec); }
     public void requestLayout() { }
     public void invalidate() { }
+    /** Tests read how many times a part of the view was asked to be drawn again and the last rectangle. */
+    public int stubInvalidates;
+    public int[] stubDirty;
+    public void invalidate(int l, int t, int r, int b) { stubInvalidates++; stubDirty = new int[] {l, t, r, b}; }
     public boolean performHapticFeedback(int feedbackConstant) { return true; }
     private boolean stubAttached, stubAccelerated;
     /** Attached to a window and drawn with hardware acceleration: set by the PC tests, read by the code. */

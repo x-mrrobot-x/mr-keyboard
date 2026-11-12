@@ -6,6 +6,9 @@ language changed, an unchanged pack keeps its old entry and builds no zip, a ser
 something changes, the zip name (mr-keyboard-dict-<id>-<version>.zip), the zip being the same bytes for the same
 content, and the errors (content changed without raising the version, lower version, invalid tag, previous
 catalog without "release").
+
+Models (1.96.0, --model): the weights of the gesture recognition go in a second list of the catalog, "models", with the same
+rules; without --model the catalog is what it was before; every error of a model pack.
 """
 import hashlib, json, os, shutil, subprocess, sys, tempfile
 
@@ -34,9 +37,30 @@ def pack(root, pid, version, content, fmt=1, min_app=1, header=None, tri=None):
         open(os.path.join(d, 'trigrams.bin'), 'wb').write(tri)
 
 
-def run(dicts, out, tag, prev=None):
+def model(root, version, content=b'w' * 3000, fmt=1, min_app=1096000, magic=b'MRSWENC1', licence=b'L' * 2000, files=None,
+          pid='gesture', lang=None, licenses=('FUTO Model Weights License 1.0',), checksum=None):
+    """A model pack in root/<folder>: the weights (magic + content), the licence text, a notice and pack.json."""
+    d = os.path.join(root, 'gesture'); os.makedirs(d, exist_ok=True)
+    meta = {'id': pid, 'name': {'en': 'Gesture recognition'}, 'version': version, 'format': fmt, 'minApp': min_app,
+            'files': files or ['encoder.bin', 'LICENSE-FUTO-Model-Weights.md', 'NOTICE.txt'], 'licenses': list(licenses)}
+    if lang: meta['lang'] = lang
+    json.dump(meta, open(os.path.join(d, 'pack.json'), 'w'))
+    open(os.path.join(d, 'encoder.bin'), 'wb').write(magic + content)
+    open(os.path.join(d, 'LICENSE-FUTO-Model-Weights.md'), 'wb').write(licence)
+    open(os.path.join(d, 'NOTICE.txt'), 'wb').write(b'notice')
+    open(os.path.join(d, 'README.md'), 'wb').write(b'not in the pack')
+    sums = os.path.join(d, 'encoder.bin.sha256')
+    if checksum is None:
+        if os.path.exists(sums): os.remove(sums)
+    else:
+        open(sums, 'w').write((hashlib.sha256(magic + content).hexdigest() if checksum == 'right' else '0' * 64) + '  encoder.bin\n')
+    return d
+
+
+def run(dicts, out, tag, prev=None, models=()):
     cmd = [sys.executable, '-I', MC, '--dicts', dicts, '--out', out, '--now', '2026-10-31T00:00:00+00:00', '--tag', tag]
     if prev: cmd += ['--prev', prev]
+    for m in models: cmd += ['--model', m]
     r = subprocess.run(cmd, capture_output=True, text=True)
     return r.returncode, r.stdout + r.stderr
 
@@ -202,6 +226,96 @@ try:
     pack(d3, 'pt-BR', 8, b'v' * 100, fmt=2, min_app=1090000, tri=b'MRT3' + b'\0' * 20)
     rc, output = run(d3, os.path.join(T, 't5'), tag='v1.90.0')
     check('trigrams.bin with another magic number: refused', rc != 0 and 'MRT1 or MRT2' in output, output[-200:])
+
+    # ---------------- models (1.96.0): the weights of the gesture recognition, in their own list of the same catalog
+    M = 'mr-keyboard-model-'
+    dm = os.path.join(T, 'dictsm')
+    pack(dm, 'pt-BR', 2, b'aaaa'); pack(dm, 'en-US', 2, b'bbbb')
+    mroot = os.path.join(T, 'models')
+    g = model(mroot, 1, checksum='right')
+    m0 = os.path.join(T, 'm0')
+    rc, _ = run(dm, m0, tag='v1.94.0')
+    base = load_data(m0)
+    check('no --model: the catalog has no "models" at all (what it was before 1.96.0)', rc == 0 and 'models' not in base and sorted(base) == ['format', 'generated', 'packs', 'serial'])
+    cat0 = os.path.join(T, 'catm0.json'); as_catalog(m0, cat0)
+
+    m1 = os.path.join(T, 'm1')
+    rc, out = run(dm, m1, tag='v1.96.0', prev=cat0, models=[g])
+    d = load_data(m1) if rc == 0 else {}
+    mod = (d.get('models') or [{}])[0]
+    check('model added to a published catalog: serial goes up, only the model zip is built', rc == 0 and d['serial'] == 2 and zips(m1) == [M + 'gesture-1.zip']
+          and uploads(m1) == zips(m1), out[-300:])
+    check('model added: the languages keep their entries and their release', d.get('packs') == base['packs'])
+    check('model added: the entry has what the app reads and no language', mod.get('id') == 'gesture' and mod.get('release') == 'v1.96.0'
+          and mod.get('url') == M + 'gesture-1.zip' and mod.get('minApp') == 1096000 and mod.get('format') == 1 and 'lang' not in mod
+          and [f['name'] for f in mod.get('files', [])] == ['encoder.bin', 'LICENSE-FUTO-Model-Weights.md', 'NOTICE.txt']
+          and mod.get('licenses') == ['FUTO Model Weights License 1.0'], str(mod)[:300])
+    import zipfile
+    zf = zipfile.ZipFile(os.path.join(m1, M + 'gesture-1.zip'))
+    check('model zip: pack.json, the weights, the licence and the notice, nothing else of the folder', zf.namelist() == ['pack.json', 'encoder.bin', 'LICENSE-FUTO-Model-Weights.md', 'NOTICE.txt'], str(zf.namelist()))
+    check('model zip: size and SHA-256 of the catalog are the ones of the file, and the installed size is the sum of the files',
+          mod.get('size') == os.path.getsize(os.path.join(m1, M + 'gesture-1.zip')) and mod.get('sha256') == sha(os.path.join(m1, M + 'gesture-1.zip'))
+          and mod.get('installedSize') == sum(f['size'] for f in mod['files']) and mod['files'][0]['sha256'] == hashlib.sha256(zf.read('encoder.bin')).hexdigest())
+    m1b = os.path.join(T, 'm1b')
+    run(dm, m1b, tag='v1.96.0', prev=cat0, models=[g])
+    check('model zip: same content, same bytes (reproducible)', sha(os.path.join(m1, M + 'gesture-1.zip')) == sha(os.path.join(m1b, M + 'gesture-1.zip')))
+    cat1m = os.path.join(T, 'catm1.json'); as_catalog(m1, cat1m)
+
+    m2 = os.path.join(T, 'm2')
+    rc, out = run(dm, m2, tag='v1.97.0', prev=cat1m, models=[g])
+    d2m = load_data(m2) if rc == 0 else {}
+    check('model unchanged: serial kept, no zip, the entry stays in the release that made it', rc == 0 and d2m['serial'] == 2 and zips(m2) == []
+          and d2m['models'] == d['models'], out[-300:])
+    pack(dm, 'pt-BR', 3, b'aaaaX')
+    m2b = os.path.join(T, 'm2b')
+    rc, out = run(dm, m2b, tag='v1.97.0', prev=cat1m, models=[g])
+    d2b = load_data(m2b) if rc == 0 else {}
+    check('a language changes, the model does not: only the language zip, the model stays in v1.96.0', rc == 0 and zips(m2b) == [P + 'pt-BR-3.zip']
+          and d2b['models'] == d['models'] and d2b['serial'] == 3, out[-300:])
+    pack(dm, 'pt-BR', 2, b'aaaa')
+
+    model(mroot, 2, content=b'w' * 3001, checksum='right')
+    m3 = os.path.join(T, 'm3')
+    rc, out = run(dm, m3, tag='v1.97.0', prev=cat1m, models=[g])
+    d3m = load_data(m3) if rc == 0 else {}
+    check('model v2: serial goes up, new zip in the new release, the languages untouched', rc == 0 and d3m['serial'] == 3 and zips(m3) == [M + 'gesture-2.zip']
+          and d3m['models'][0]['release'] == 'v1.97.0' and d3m['models'][0]['version'] == 2 and d3m['packs'] == base['packs'], out[-300:])
+    model(mroot, 1, content=b'w' * 3002, checksum='right')
+    rc, out = run(dm, os.path.join(T, 'm4'), tag='v1.97.0', prev=cat1m, models=[g])
+    check('model content changed without raising the version: error', rc != 0 and 'raise' in out, out[-200:])
+    cat3m = os.path.join(T, 'catm3.json'); as_catalog(m3, cat3m)
+    model(mroot, 1, checksum='right')
+    rc, out = run(dm, os.path.join(T, 'm5'), tag='v1.97.0', prev=cat3m, models=[g])
+    check('model version lower than the published one: error', rc != 0 and 'lower' in out, out[-200:])
+    m6 = os.path.join(T, 'm6')
+    rc, out = run(dm, m6, tag='v1.97.0', prev=cat3m)
+    check('model no longer given: it leaves the catalog and the serial goes up', rc == 0 and 'models' not in load_data(m6) and load_data(m6)['serial'] == 4, out[-200:])
+
+    bad_models = [
+        ('unknown id', dict(pid='voice'), 'unknown model'),
+        ('a "lang" field', dict(lang='pt'), 'no "lang"'),
+        ('minApp below 1096000', dict(min_app=1094000), '1096000'),
+        ('unknown format', dict(fmt=2), 'unknown model format'),
+        ('weights that do not start with MRSWENC1', dict(magic=b'MRSWENC2'), 'MRSWENC1'),
+        ('a licence text too short to be one', dict(licence=b'see the web'), 'too short'),
+        ('no licence named', dict(licenses=()), 'name its licence'),
+        ('the licence file left out of the pack', dict(files=['encoder.bin', 'NOTICE.txt']), 'needs LICENSE-FUTO-Model-Weights.md'),
+        ('the weights left out of the pack', dict(files=['LICENSE-FUTO-Model-Weights.md', 'NOTICE.txt']), 'needs encoder.bin'),
+        ('a file of the list that is not there', dict(files=['encoder.bin', 'LICENSE-FUTO-Model-Weights.md', 'gone.txt']), 'missing'),
+        ('weights that are not the ones of encoder.bin.sha256', dict(checksum='wrong'), 'sha256 says'),
+    ]
+    for name, kw, expect in bad_models:
+        model(mroot, 1, **kw)
+        rc, out = run(dm, os.path.join(T, 'mbad'), tag='v1.96.0', models=[g])
+        check('model with %s: refused' % name, rc != 0 and expect in out, out[-200:])
+    model(mroot, 1, checksum='right')
+    rc, out = run(dm, os.path.join(T, 'mbad'), tag='v1.96.0', models=[os.path.join(T, 'nothere')])
+    check('--model with a folder that has no pack.json: error', rc != 0 and 'no pack.json' in out, out[-200:])
+    rc, out = run(dm, os.path.join(T, 'mbad'), tag='v1.96.0', models=[g, g])
+    check('the same model given twice: error', rc != 0 and 'twice' in out, out[-200:])
+    rc, out = run(dm, os.path.join(T, 'mfirst'), tag='v1.96.0', models=[g])
+    check('first catalog ever, with the model: serial 1, every zip attached', rc == 0 and load_data(os.path.join(T, 'mfirst'))['serial'] == 1
+          and zips(os.path.join(T, 'mfirst')) == [P + 'en-US-2.zip', P + 'pt-BR-2.zip', M + 'gesture-1.zip'], out[-200:])
 finally:
     shutil.rmtree(T, ignore_errors=True)
 

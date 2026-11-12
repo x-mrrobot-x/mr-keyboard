@@ -10,9 +10,10 @@ import java.util.*;
 * CI, where the lib does not exist (java.library.path without it), with the real dictionary (dicts/pt-BR):
 *   - MrNative says it is not ready and never throws (ready, preload, search, triOpen);
 *   - MrFuzzy.search answers "no results" (the keyboard keeps typing and completing words, it only loses the correction by search);
-*   - MrTrigram opens nothing and find() answers 0 (the prediction goes on with the bigrams of the dictionary).
+*   - MrTrigram opens nothing and find() answers 0 (the prediction goes on with the bigrams of the dictionary);
+*   - MrGesture (the recognition of gesture typing, contract 2 of the lib) opens nothing and decode() answers -1.
 * With the lib present (PC) the same code is checked by StrategyTest, E2E* and the evaluators.
-* Runs at the project root (needs dicts/pt-BR/main.dict, rules.txt and trigrams.bin).
+* Runs at the project root (needs dicts/pt-BR/main.dict, rules.txt and trigrams.bin, and gesture/encoder.bin).
  */
 public class NoLibTest {
     static int fails = 0, checks = 0;
@@ -95,6 +96,37 @@ public class NoLibTest {
         int[] s = new int[3];
         check(MrTrigram.find("de", "acordo", w, s) == 0, "MrTrigram.find answers 0 without the lib");
         MrTrigram.use(null);
+
+        // 4) gesture typing: the weights do not open, decode answers -1, nothing throws
+        File gw = new File("gesture/encoder.bin");
+        check(gw.isFile(), "gesture/encoder.bin is there (the test must fail for the missing lib, not for a missing file)");
+        MrGesture.Result gr = new MrGesture.Result();
+        float[] gx = {0.1f, 0.3f, 0.5f}, gy = {0.5f, 0.4f, 0.2f};
+        int[] gt = {0, 50, 100};
+        char[] gkeys = "qwertyuiopasdfghjklzxcvbnm".toCharArray();
+        float[] gxy = new float[52];
+        for (int i = 0; i < 26; i++) { gxy[2 * i] = (i % 10 + 0.5f) / 10f; gxy[2 * i + 1] = (i / 10 + 0.5f) / 3f; }
+        boolean gThrew = false, gOpened = true, gLaid = true;
+        int gCount = 0;
+        try {
+            gOpened = MrGesture.useNow(gw);
+            gLaid = MrGesture.setLayout(gkeys, gxy);
+            gCount = MrGesture.decode(buf, bytes.length, gx, gy, gt, 3, "de", gr);
+            MrGesture.use(gw);     // the background open fails quietly
+            Thread.sleep(200);
+            MrGesture.use(null);
+        } catch (Throwable e) {
+            gThrew = true;
+        }
+        check(!gThrew, "MrGesture without the lib does not throw (useNow, setLayout, decode, use)");
+        check(!gOpened && !MrGesture.ready(), "the gesture weights do not open without the lib");
+        check(!gLaid, "MrGesture.setLayout without the lib returns false");
+        check(gCount == -1 && gr.count() == 0, "MrGesture.decode without the lib returns -1 and no words");
+        check(!MrNative.gestureOpen(gw.getPath()) && !MrNative.gestureConfig(MrGesture.params(), MrGesture.limits())
+                && !MrNative.gestureLayout(gkeys, gxy, MrGesture.FREE), "the gesture calls of MrNative return false without the lib");
+        check(MrNative.gesture(buf, bytes.length, 3, gx, gy, gt, null, null, new char[MrGesture.MAX_RESULTS * MrGesture.RESULT_CHARS],
+                new int[MrGesture.INFO_SIZE], new float[2 * MrGesture.MAX_RESULTS]) == -1, "MrNative.gesture without the lib returns -1");
+        MrNative.gestureClose();
 
         System.out.println(fails == 0 ? "ALL OK (" + checks + " checks)" : fails + " FAILURE(S) out of " + checks + " checks");
         System.exit(fails == 0 ? 0 : 1);

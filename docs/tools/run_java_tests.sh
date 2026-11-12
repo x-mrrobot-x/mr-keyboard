@@ -46,6 +46,17 @@
 #     position (the colour matrix of the face, label, icon, hint letters, dash), except in the popup of variants.
 #   - LightTest: what a light keyboard theme needs (MrLight): which text colours make a theme light, no dark outline under
 #     its labels and icons, and dark system buttons under the keyboard from Android 15 on (light again on a dark theme).
+#   - GestureInputTest: gesture typing in the keyboard (MrGestureInput, 1.96.0) with a fake keyboard view, text field and recognition:
+#     off by default and nothing changes while it is off, when a touch is followed and when it is not (password, URL, popup, modifier,
+#     symbols, font style, two fingers), a tap and a long press unchanged, the gesture taking the touch over (one cancel to the usual
+#     path, no fling action), the trace handed to the recognition in its frame, what is written (space, capitals), the other candidates
+#     on the strip, backspace taking the whole word, the trail, the time kept, and no exception leaving it; the word so far
+#     on the strip while the finger slides (when, how often, a slow phone, its switch, the strip given back) and the blocked words.
+#     The real recognition, from touch to text, is docs/tools/e2e/run_gesture_input_tests.sh.
+#   - GestureWordsTest: the words of the person in gesture typing (MrGestureWords, 1.96.0): the frequency they get, the small dictionary
+#     written from them (read back by a reader of the format: every word, every frequency, every byte), which words are read from the
+#     trees of the keyboard (learned from frequency 6, never a blocked one) and when the copy is made again (a word added, a tree thrown
+#     away or still loading, another language).
 # With the path of the APK jar (classes.dex -> d2j-dex2jar), it also runs:
 #   - EsTest: SheetStrings/MrEs with Spanish, Portuguese, English and French contexts.
 # Usage: sh docs/tools/run_java_tests.sh [app.jar]
@@ -141,6 +152,13 @@ java -cp "$T/test_glow:$T/stubs:$T/main" com.mrkeyboard.app.GlowTest
 echo "== LightTest (light themes: no dark outline, dark system buttons under the keyboard)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_light" $D/light_test/LightTest.java
 java -cp "$T/test_light:$T/stubs:$T/main" com.mrkeyboard.app.LightTest
+
+echo "== GestureInputTest (gesture typing in the keyboard: touch, trail, writing, strip, backspace, the word while sliding, blocked words)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_gi" $D/gesture_input_test/GestureInputTest.java $D/gesture_input_test/GestureWordsTest.java
+java -Dfile.encoding=UTF-8 -Dmr.native=off -cp "$T/test_gi:$T/stubs:$T/main" com.mrkeyboard.app.GestureInputTest
+
+echo "== GestureWordsTest (gesture typing, the words of the person: the small dictionary written from the learned and added words)"
+java -Dfile.encoding=UTF-8 -Dmr.native=off -cp "$T/test_gi:$T/stubs:$T/main" com.mrkeyboard.app.GestureWordsTest
 
 if [ -n "$APPJAR" ]; then
   echo "== EsTest"

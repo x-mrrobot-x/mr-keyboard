@@ -2012,6 +2012,10 @@
 .method public addWord(Ljava/lang/String;I)V
     .locals 6
 
+    # Gesture typing (MrGestureWords, 1.96.0): a word of the person was added or its frequency changed, so the copy of these
+    # words that the gestures search is made again before the next gesture. The call only counts; it never throws.
+    invoke-static {}, Lcom/mrkeyboard/app/MrGestureWords;->changed()V
+
     .line 142
     iget-object v1, p0, Lcom/mrkeyboard/app/ExpandableDictionary;->mRoots:Lcom/mrkeyboard/app/ExpandableDictionary$NodeArray;
 
@@ -2032,6 +2036,10 @@
 
 .method protected clearDictionary()V
     .locals 1
+
+    # Gesture typing (MrGestureWords, 1.96.0): the words are thrown away (a reload begins), so the copy the gestures search
+    # is made again. The call only counts; it never throws.
+    invoke-static {}, Lcom/mrkeyboard/app/MrGestureWords;->changed()V
 
     .line 492
     new-instance v0, Lcom/mrkeyboard/app/ExpandableDictionary$NodeArray;
@@ -3084,3 +3092,12 @@
     return-void
 .end method
 
+# Gesture typing (MrGestureWords, 1.96.0): the first level of the tree of words, to read every word and its frequency.
+# reloadDictionaryIfRequired() says whether the tree is being filled by the loading thread (then it must not be read).
+.method public mrRoots()Lcom/mrkeyboard/app/ExpandableDictionary$NodeArray;
+    .locals 1
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/ExpandableDictionary;->mRoots:Lcom/mrkeyboard/app/ExpandableDictionary$NodeArray;
+
+    return-object v0
+.end method

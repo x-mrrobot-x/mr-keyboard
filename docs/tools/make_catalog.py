@@ -2,7 +2,7 @@
 """Builds the dictionary packs (dicts/<id>/) and the catalog data, for the single release of a launch.
 
 Called by publish_release.sh:
-    python3 make_catalog.py --dicts dicts --out out --tag v1.82.0 [--prev catalog.json]
+    python3 make_catalog.py --dicts dicts --out out --tag v1.82.0 [--prev catalog.json] [--model gesture]
 Each pack in the catalog says which release holds its zip ("release", a tag like v1.82.0); the app builds the
 address from a constant + that tag + the zip name. A zip only goes in the release where its language changed:
 a pack equal to the previous catalog keeps its old entry (and the old "release") and no zip is built or
@@ -16,10 +16,18 @@ For each folder dicts/<id>/ with a pack.json:
   - if the version is new, builds mr-keyboard-dict-<id>-<version>.zip, always identical for the same content;
   - if the content changed and the version did not, stops with an error (raise "version" in pack.json).
 
+Models (1.96.0): --model <folder> (it may be given more than once) adds a pack that is not a language. Today there is one,
+gesture/ (the weights of the gesture recognition, with the licence of the weights and a notice): its pack.json has no "lang"
+and its zip is mr-keyboard-model-<id>-<version>.zip. The entry goes in a second list of the catalog, "models", next to
+"packs", with the same rules (a zip only in the release where it changed, the version must go up when the content changes).
+The apps before 1.96.0 read only "packs": for them the catalog is the same as before. Without --model the catalog has no
+"models" at all.
+
 Output in --out:
   data.json    what gets signed (exact bytes)
   upload.txt   zips to attach to this release, one per line (only the new ones; may be empty)
   mr-keyboard-dict-<id>-<v>.zip   the new zips
+  mr-keyboard-model-<id>-<v>.zip  the new zip of a model
 """
 import argparse
 import datetime
@@ -46,6 +54,11 @@ DICT_MAX = {1: 4194304,    # 22-bit address of the dictionary format v1
             2: 16777216}   # format v2 (one more byte per address; the limit is a policy, see docs/suggestion-features.md, "Dictionary format v2")
 V2_MIN_APP = 1086000       # the first app that reads the dictionary format v2
 MRT2_MIN_APP = 1090000     # the first app that reads trigrams.bin in the MRT2 layout (1.90.0)
+MODEL_ZIP_PREFIX = "mr-keyboard-model-"
+MODEL_FORMATS = {1}        # 1 = encoder.bin as the engine contract 2 reads it (MRSWENC1)
+MODEL_MIN_APP = 1096000    # the first app that reads the "models" list of the catalog (1.96.0)
+# the models the app knows: the file each must have, how that file starts, and the licence text that must go with it
+MODELS = {"gesture": ("encoder.bin", b"MRSWENC1", "LICENSE-FUTO-Model-Weights.md")}
 
 
 def fail(msg):
@@ -129,6 +142,71 @@ def read_pack(dicts, pid):
     return m, raw, out
 
 
+def read_model(folder):
+    """A model pack (gesture/): the same manifest as a dictionary without "lang", and its own checks."""
+    pid = os.path.basename(os.path.normpath(folder))
+    with open(os.path.join(folder, "pack.json"), "rb") as f:
+        raw = f.read()
+    try:
+        m = json.loads(raw.decode("utf-8"))
+    except ValueError as e:
+        fail("%s/pack.json invalid: %s" % (pid, e))
+    for key in ("id", "name", "version", "format", "minApp", "files", "licenses"):
+        if key not in m:
+            fail("%s/pack.json is missing the field %s" % (pid, key))
+    if m["id"] not in MODELS:
+        fail("%s: unknown model %r (the app knows: %s)" % (pid, m["id"], ", ".join(sorted(MODELS))))
+    if "lang" in m:
+        fail("%s: a model has no \"lang\" (a pack with a language goes in --dicts)" % pid)
+    if not isinstance(m["version"], int) or m["version"] < 1:
+        fail("%s: version must be an integer >= 1" % pid)
+    if m["format"] not in MODEL_FORMATS:
+        fail("%s: unknown model format %r" % (pid, m["format"]))
+    if not isinstance(m["minApp"], int) or m["minApp"] < MODEL_MIN_APP:
+        fail("%s: a model needs minApp >= %d (the first app that reads models)" % (pid, MODEL_MIN_APP))
+    if not isinstance(m["name"], dict) or "en" not in m["name"]:
+        fail("%s: name needs at least the English text (en)" % pid)
+    if not m["licenses"]:
+        fail("%s: a model must name its licence" % pid)
+    files = m["files"]
+    main, magic, licence = MODELS[m["id"]]
+    if not files or len(set(files)) != len(files):
+        fail("%s: files list empty or with repeats" % pid)
+    for need in (main, licence):
+        if need not in files:
+            fail("%s: the pack needs %s" % (pid, need))
+    out = []
+    for name in files:
+        if not NAME_RE.match(name) or name == "pack.json":
+            fail("%s: invalid file name: %r" % (pid, name))
+        path = os.path.join(folder, name)
+        if not os.path.isfile(path):
+            fail("%s: file %s is missing" % (pid, name))
+        with open(path, "rb") as f:
+            data = f.read()
+        if len(data) == 0 or len(data) > MAX_FILE:
+            fail("%s/%s: invalid size (%d bytes)" % (pid, name, len(data)))
+        if name == main and not data.startswith(magic):
+            fail("%s/%s: does not start with %s" % (pid, name, magic.decode("ascii")))
+        if name == licence and len(data) < 1024:
+            fail("%s/%s: too short to be the licence text" % (pid, name))
+        if name.endswith((".txt", ".md")):
+            try:
+                data.decode("utf-8")
+            except UnicodeDecodeError:
+                fail("%s/%s: not UTF-8" % (pid, name))
+        out.append((name, data))
+    # the checksum kept next to the weights (the tests of the engine use the same file): it must be the one of the file that ships
+    sums = os.path.join(folder, main + ".sha256")
+    if os.path.isfile(sums):
+        with open(sums, encoding="utf-8") as f:
+            recorded = f.read().split()[0]
+        actual = sha256(dict(out)[main])
+        if recorded != actual:
+            fail("%s/%s: SHA-256 %s, but %s.sha256 says %s" % (pid, main, actual, main, recorded))
+    return m, raw, out
+
+
 def make_zip(path, manifest_raw, files):
     with zipfile.ZipFile(path, "w") as z:
         for name, data in [("pack.json", manifest_raw)] + files:
@@ -157,12 +235,14 @@ def main():
     ap.add_argument("--prev", help="catalog.json published before (if any)")
     ap.add_argument("--now", help="fixed date (for tests), ISO 8601")
     ap.add_argument("--tag", required=True, help="tag of the release being made; the new zips go in it (e.g. v1.82.0)")
+    ap.add_argument("--model", action="append", default=[], help="folder of a model pack (gesture); may be given more than once")
     a = ap.parse_args()
     if not TAG_RE.match(a.tag):
         fail("--tag must look like v1.82.0 (it is %r)" % a.tag)
 
     prev = load_prev(a.prev)
     prev_packs = {p["id"]: p for p in prev["packs"]} if prev else {}
+    prev_models = {p["id"]: p for p in prev.get("models", [])} if prev else {}
     os.makedirs(a.out, exist_ok=True)
 
     ids = sorted(d for d in os.listdir(a.dicts)
@@ -218,13 +298,66 @@ def main():
         print("%s v%d: new, %s (%d bytes, %d installed)" % (pid, m["version"], zname, len(zdata),
                                                               entry["installedSize"]))
 
+    # ---- models: the same rules, their own list
+    models = []
+    seen = set()
+    for folder in a.model:
+        if not os.path.isfile(os.path.join(folder, "pack.json")):
+            fail("--model %s: no pack.json there" % folder)
+        m, raw, files = read_model(folder)
+        pid = m["id"]
+        if pid in seen:
+            fail("model %s given twice" % pid)
+        seen.add(pid)
+        file_entries = [{"name": n, "size": len(d), "sha256": sha256(d)} for n, d in files]
+        old = prev_models.get(pid)
+        if old and old["version"] > m["version"]:
+            fail("%s: version %d is lower than the published one (%d)" % (pid, m["version"], old["version"]))
+        if old and old["version"] == m["version"]:
+            same = old["files"] == file_entries and old.get("manifestSha256") == sha256(raw)
+            if not same:
+                fail("%s: the content changed but the version is still %d; raise \"version\" in %s/pack.json"
+                     % (pid, m["version"], folder))
+            if not TAG_RE.match(str(old.get("release", ""))):
+                fail("%s: the previous catalog has no valid \"release\" for this model" % pid)
+            models.append(old)
+            print("model %s v%d: same as published (zip in %s)" % (pid, m["version"], old["release"]))
+            continue
+        zname = "%s%s-%d.zip" % (MODEL_ZIP_PREFIX, pid, m["version"])
+        if not NAME_RE.match(zname):
+            fail("%s: invalid zip name: %r" % (pid, zname))
+        zpath = os.path.join(a.out, zname)
+        make_zip(zpath, raw, files)
+        with open(zpath, "rb") as f:
+            zdata = f.read()
+        models.append({
+            "id": pid,
+            "name": m["name"],
+            "description": m.get("description", {}),
+            "version": m["version"],
+            "format": m["format"],
+            "minApp": m["minApp"],
+            "release": a.tag,
+            "url": zname,
+            "size": len(zdata),
+            "sha256": sha256(zdata),
+            "installedSize": sum(e["size"] for e in file_entries),
+            "manifestSha256": sha256(raw),
+            "files": file_entries,
+            "licenses": m["licenses"],
+            "credits": m.get("credits", ""),
+        })
+        new_zips.append(zname)
+        print("model %s v%d: new, %s (%d bytes, %d installed)" % (pid, m["version"], zname, len(zdata), models[-1]["installedSize"]))
+
     # only the zips made now stay in the folder that goes to the release (nothing left over from an earlier run)
     for f in os.listdir(a.out):
         if f.endswith(".zip") and f not in new_zips:
             os.remove(os.path.join(a.out, f))
     with open(os.path.join(a.out, "upload.txt"), "w") as f:
         f.write("".join(z + "\n" for z in new_zips))
-    changed = bool(new_zips) or not prev or [p["id"] for p in prev["packs"]] != ids
+    changed = (bool(new_zips) or not prev or [p["id"] for p in prev["packs"]] != ids
+               or sorted(prev_models) != sorted(p["id"] for p in models))
 
     now = a.now or datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat()
     if prev:
@@ -237,9 +370,12 @@ def main():
         "generated": now,
         "packs": packs,
     }
+    if models:
+        data["models"] = models     # a new key: the apps before 1.96.0 do not look at it
     with open(os.path.join(a.out, "data.json"), "wb") as f:
         f.write(json.dumps(data, ensure_ascii=False, indent=1).encode("utf-8"))
-    print("catalog: serial %d, %d pack(s)%s" % (data["serial"], len(packs), "" if changed else " (nothing changed: serial kept)"))
+    print("catalog: serial %d, %d pack(s)%s%s" % (data["serial"], len(packs), ", %d model(s)" % len(models) if models else "",
+                                                 "" if changed else " (nothing changed: serial kept)"))
 
 
 if __name__ == "__main__":

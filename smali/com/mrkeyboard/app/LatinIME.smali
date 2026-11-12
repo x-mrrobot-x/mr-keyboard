@@ -2417,6 +2417,10 @@
 .method private handleBackspace()V
     .locals 6
 
+    # Gesture typing (MrGestureInput, 1.96.0): right after a gesture the backspace takes the whole word back. The call removes
+    # all of it but the last character; the code below removes that one as always.
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrGestureInput;->onBackspace(Lcom/mrkeyboard/app/LatinIME;)V
+
     .line 2128
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
 
@@ -12187,6 +12191,16 @@
     :cond_mr_pick_go
 
     .line 2601
+    # Gesture typing (MrGestureInput, 1.96.0): a tap on another candidate of the last gesture swaps the word in the text.
+    invoke-static {p0, p1, p2}, Lcom/mrkeyboard/app/MrGestureInput;->onPick(Lcom/mrkeyboard/app/LatinIME;ILjava/lang/CharSequence;)Z
+
+    move-result v0
+
+    if-eqz v0, :mr_gesture_pass
+
+    return-void
+
+    :mr_gesture_pass
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/CandidateView;->getSuggestions()Ljava/util/List;
@@ -13277,6 +13291,9 @@
 .method public onKey(I[III)V
     .locals 1
 
+    # Gesture typing (MrGestureInput, 1.96.0): any key ends what the last gesture left pending (its candidates on the strip).
+    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrGestureInput;->onKey(Lcom/mrkeyboard/app/LatinIME;I)V
+
     # With Ctrl or Meta held, the key is a shortcut (Ctrl+A, Ctrl+C...): it must not be turned into a styled letter.
     iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mModCtrl:Z
 
@@ -13509,6 +13526,58 @@
     move-result-object v0
 
     return-object v0
+.end method
+
+# Gesture typing (MrGestureInput, 1.96.0): the suggestion engine of the language in use, for its main dictionary.
+.method public mrSuggest()Lcom/mrkeyboard/app/Suggest;
+    .locals 1
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggest:Lcom/mrkeyboard/app/Suggest;
+
+    return-object v0
+.end method
+
+# Gesture typing (MrGestureInput, 1.96.0): puts these words on the strip or, with null, what the strip would be showing
+# without the gesture: between two words the predictions of the next word, or nothing; and the suggestions of
+# the word being typed by taps when there is one (a gesture that wrote nothing took the strip for its preview and gives it
+# back). The strip is made first when there is none ("show suggestions" off).
+.method public mrStrip(Ljava/util/List;)V
+    .locals 1
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
+
+    if-nez v0, :cond_0
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->onCreateCandidatesView()Landroid/view/View;
+
+    :cond_0
+    if-nez p1, :cond_1
+
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
+
+    if-eqz v0, :cond_2
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isPredictionOn()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_2
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->updateSuggestions()V
+
+    return-void
+
+    :cond_2
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->setNextSuggestions()V
+
+    return-void
+
+    :cond_1
+    const/4 v0, 0x0
+
+    invoke-direct {p0, p1, v0, v0, v0}, Lcom/mrkeyboard/app/LatinIME;->setSuggestions(Ljava/util/List;ZZZ)V
+
+    return-void
 .end method
 
 .method public mrCommit()V

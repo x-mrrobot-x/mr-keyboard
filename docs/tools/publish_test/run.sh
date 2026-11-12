@@ -245,5 +245,38 @@ mkdir -p "$S/rel/v1.72.0/assets"; echo false > "$S/rel/v1.72.0/draft"; echo apk 
 publish automatic true X=1
 check "latest without a catalog: v1.73.0 goes out with serial 1, everything attached and becomes the latest" "$([ $CODE = 0 ] && [ "$(serial "$S/rel/v1.73.0/assets/catalog.json")" = 1 ] && [ "$(assets v1.73.0)" = "catalog.json mr-keyboard-dict-en-US-2.zip mr-keyboard-dict-es-1.zip mr-keyboard-dict-pt-BR-2.zip mr-keyboard-v1.73.0-source.zip mr-keyboard-v1.73.0.apk update.json " ] && [ "$(cat "$S/latest")" = v1.73.0 ] && echo 1 || echo 0)" "$OUT"
 
+# ---- 11) the weights of the gesture recognition (gesture/pack.json, 1.96.0): a zip of its own, in the "models" list of the same catalog
+gmodel() {  # workspace version content: gesture/ with pack.json, the weights, the licence text and a notice
+  mkdir -p "$1/gesture"
+  printf '{"id":"gesture","name":{"en":"Gesture recognition"},"version":%s,"format":1,"minApp":1096000,"files":["encoder.bin","LICENSE-FUTO-Model-Weights.md","NOTICE.txt"],"licenses":["FUTO Model Weights License 1.0"]}' "$2" > "$1/gesture/pack.json"
+  { printf 'MRSWENC1'; head -c 3000 /dev/zero | tr '\0' "$3"; } > "$1/gesture/encoder.bin"
+  head -c 2000 /dev/zero | tr '\0' 'L' > "$1/gesture/LICENSE-FUTO-Model-Weights.md"
+  echo notice > "$1/gesture/NOTICE.txt"
+}
+modelrel() { python3 -c "import json,sys; print(json.loads(json.load(open(sys.argv[1]))['data'])['models'][0]['release'])" "$1"; }
+fresh; earlier v1.71.0 5; gmodel "$W" 1 w
+publish automatic true X=1
+check "model, first time: publishes, serial 6, the model zip is attached next to the usual assets and no dictionary zip is" "$([ $CODE = 0 ] && [ "$(serial "$S/rel/v1.72.0/assets/catalog.json")" = 6 ] && [ "$(assets v1.72.0)" = "catalog.json mr-keyboard-model-gesture-1.zip mr-keyboard-v1.72.0-source.zip mr-keyboard-v1.72.0.apk update.json " ] && echo 1 || echo 0)" "$(assets v1.72.0) $OUT"
+check "model, first time: the catalog says the model is in this release and the languages stay in v1.71.0" "$([ "$(modelrel "$S/rel/v1.72.0/assets/catalog.json")" = v1.72.0 ] && [ "$(relof "$S/rel/v1.72.0/assets/catalog.json" pt-BR)" = v1.71.0 ] && echo 1 || echo 0)"
+check "model, first time: the signed catalog still checks" "$(sigok "$S/rel/v1.72.0/assets/catalog.json" catalog)"
+check "model, first time: the release text names it, new in this version, with the licence of the weights" "$(grep -q 'Gesture recognition: gesture v1 (novo nesta versão / new in this version)' "$S/rel/v1.72.0/notes.md" && grep -q 'FUTO Model Weights License 1.0' "$S/rel/v1.72.0/notes.md" && echo 1 || echo 0)" "$(cat "$S/rel/v1.72.0/notes.md")"
+check "model, first time: the zip holds pack.json, the weights, the licence and the notice" "$([ "$(unzip -Z1 "$S/rel/v1.72.0/assets/mr-keyboard-model-gesture-1.zip" | tr '\n' ' ')" = "pack.json encoder.bin LICENSE-FUTO-Model-Weights.md NOTICE.txt " ] && echo 1 || echo 0)"
+setver "$W" v1.73.0; notes "$W/docs/release-notes/v1.73.0.md"
+publish automatic true X=1
+check "model unchanged in the next release: serial kept, no zip attached, the catalog keeps it in v1.72.0" "$([ $CODE = 0 ] && [ "$(serial "$S/rel/v1.73.0/assets/catalog.json")" = 6 ] && [ "$(assets v1.73.0)" = "catalog.json mr-keyboard-v1.73.0-source.zip mr-keyboard-v1.73.0.apk update.json " ] && [ "$(modelrel "$S/rel/v1.73.0/assets/catalog.json")" = v1.72.0 ] && echo 1 || echo 0)" "$OUT"
+check "model unchanged: its zip was checked in v1.72.0 before publishing, and the text does not call it new" "$(grep -q 'mr-keyboard-model-gesture-1.zip stays in v1.72.0' "$T/out" && grep -q 'Gesture recognition: gesture v1\.' "$S/rel/v1.73.0/notes.md" && echo 1 || echo 0)" "$OUT"
+setver "$W" v1.74.0; notes "$W/docs/release-notes/v1.74.0.md"; gmodel "$W" 2 x
+publish automatic true X=1
+check "model v2: serial 7 and only its new zip, in the new release" "$([ $CODE = 0 ] && [ "$(serial "$S/rel/v1.74.0/assets/catalog.json")" = 7 ] && [ "$(assets v1.74.0)" = "catalog.json mr-keyboard-model-gesture-2.zip mr-keyboard-v1.74.0-source.zip mr-keyboard-v1.74.0.apk update.json " ] && [ "$(modelrel "$S/rel/v1.74.0/assets/catalog.json")" = v1.74.0 ] && echo 1 || echo 0)" "$OUT"
+setver "$W" v1.75.0; notes "$W/docs/release-notes/v1.75.0.md"; rm "$S/rel/v1.74.0/assets/mr-keyboard-model-gesture-2.zip"
+publish automatic true X=1
+check "model zip missing from the release that holds it: error naming it, nothing created" "$([ $CODE != 0 ] && [ ! -d "$S/rel/v1.75.0" ] && echo "$OUT" | grep -q 'mr-keyboard-model-gesture-2.zip in release v1.74.0' && echo 1 || echo 0)" "$OUT"
+fresh; earlier v1.71.0 5; gmodel "$W" 1 w
+publish automatic true FAKE_DROP=mr-keyboard-model-gesture-1.zip
+check "model zip that did not upload: error, draft deleted, nothing published" "$([ $CODE != 0 ] && [ ! -d "$S/rel/v1.72.0" ] && [ "$(cat "$S/latest")" = v1.71.0 ] && echo 1 || echo 0)" "$CODE $OUT"
+fresh; earlier v1.71.0 5; gmodel "$W" 1 w; printf 'NOTWEIGHTS' > "$W/gesture/encoder.bin"
+publish automatic true X=1
+check "model with weights that are not weights: error and nothing created" "$([ $CODE != 0 ] && [ ! -d "$S/rel/v1.72.0" ] && echo 1 || echo 0)" "$OUT"
+
 rm -rf "$T"
 if [ $fails = 0 ]; then echo "ALL OK ($ok checks)"; else echo "$fails FAILURE(S) out of $((ok+fails)) checks"; exit 1; fi

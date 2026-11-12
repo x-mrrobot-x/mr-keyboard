@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 56
+    .line 73
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity$1;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -37,43 +37,23 @@
 
 # virtual methods
 .method public run()V
-    .locals 4
+    .locals 1
 
     .prologue
-    .line 58
+    .line 75
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$1;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$000(Lcom/mrkeyboard/app/MrPacksActivity;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_1
+    if-nez v0, :cond_0
 
-    .line 61
-    :cond_0
-    :goto_0
-    return-void
-
-    .line 59
-    :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$1;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$100(Lcom/mrkeyboard/app/MrPacksActivity;)V
 
-    .line 60
-    sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
-
-    if-eqz v0, :cond_0
-
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$1;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$200(Lcom/mrkeyboard/app/MrPacksActivity;)Landroid/os/Handler;
-
-    move-result-object v0
-
-    const-wide/16 v2, 0x190
-
-    invoke-virtual {v0, p0, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-
-    goto :goto_0
+    .line 76
+    :cond_0
+    return-void
 .end method

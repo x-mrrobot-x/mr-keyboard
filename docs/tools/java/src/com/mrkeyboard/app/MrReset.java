@@ -12,9 +12,10 @@ import android.widget.Toast;
 /**
  * "Restaurar padrões" (Restore defaults) (About, v1.69): erases the keyboard settings, the same as on the
  * settings screens, and leaves the keyboard on the default values. It does not touch what is not a setting: the
- * downloaded dictionaries (files and pack state), the user's sheets (files/sheets.json),
+ * downloaded dictionaries and gesture recognition (files and pack state), the user's sheets (files/sheets.json),
  * the learned words and the notices already seen. The keyboard languages go back to those of the
- * installed dictionaries.
+ * installed dictionaries. Gesture typing goes back to off (1.96.0), with its trail and its word while sliding on; its
+ * downloaded file stays.
  *
  * KEYS must have every key that the settings screens (res/xml/prefs*.xml) offer, the
  * "pref_sheet_return" (which is on the keyboard Sheets page) and the old keys, which the keyboard no longer
@@ -67,6 +68,9 @@ public final class MrReset implements Preference.OnPreferenceClickListener {
             "pref_ai_model",
             "pref_ai_key",
             "pref_candidate_scale",
+            "pref_gesture_typing",
+            "pref_gesture_trail",
+            "pref_gesture_preview",
             "pref_sheet_return",
             "pref_render_mode",
             "pref_slide_keys_int",

@@ -19,15 +19,20 @@
 #                        register above the instruction limit (e.g. p0 = v17 in a plain invoke), more than 5 registers in a
 #                        plain invoke (the assembler refuses with "Invalid register count"), a call to a method that does not exist and a field that does not
 #                        exist (the NoSuchFieldError that closed Settings after the dead-code cleanup: a <clinit> still filling removed fields)
-#   check_stub_api.py    what the Java layer calls exists, with the same signature, in the APK (the smali) and, with the Android SDK jar of the
-#                        runner, in android.* (the stubs of docs/tools/java/stubs are hand-written: a wrong return type compiles and only fails on the device)
+#   check_stub_api.py    every method and field the Java layer uses exists, with the same signature, in the APK (the smali; there it must also not be
+#                        private in another class, and be static or not as the code uses it) and, with the Android SDK jar of the runner, in android.*
+#                        (the stubs of docs/tools/java/stubs are hand-written: a wrong return type compiles and only fails on the device)
 #   run_java_tests.sh    PC tests of the Java layer (author card, main-screen link, re-correction: word under the cursor and
 #                        neighbour keys, recent words, the update notice: signature, versions, replay, checking windows, the fonts tool:
 #                        the 27 Unicode styles, the fields that take no style, the delete of a styled letter, the light of the neon
-#                        themes: glow of labels and icons, the hue of each key in the spectrum themes, the dark labels of the light themes)
+#                        themes: glow of labels and icons, the hue of each key in the spectrum themes, the dark labels of the light themes;
+#                        gesture typing in the keyboard, GestureInputTest: which touches are followed, tap and long press unchanged,
+#                        what is written, the strip, backspace, the trail, the word shown while the finger slides, the blocked words,
+#                        all with a fake recognition; GestureWordsTest: the words of the person as the small dictionary the gestures search, 1.96.0)
 #   test_smali_regcheck.py  smali_regcheck.py itself: each of its five rules with a broken and a good case (registers, methods, limits, invoke size, fields), --base, the real smali
 #   test_ui_language_rebuild.py  changing the app language rebuilds the keyboard view once, on the change (LatinIME.onSharedPreferenceChanged), and the bar is inflated again in the new language
-#   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial; trigrams.bin MRT2 needs minApp 1090000)
+#   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial; trigrams.bin MRT2 needs minApp 1090000;
+#                        the "models" list with the weights of the gesture recognition, which older apps do not read)
 #   test_mrt_format.py   the two layouts of trigrams.bin (MRT1, MRT2): round trips, limits, every kind of damaged file, the converter
 #   test_add_loanwords.py  add_loanwords.py (common English words added to the dictionary of a pack): what is added and what is not, the frequency band,
 #                        nothing else in the dictionary changes, a second run changes nothing, the shipped packs match the list
@@ -48,8 +53,18 @@
 #   run_strategy_tests.sh one check per suggestion strategy (docs/suggestion-features.md, ids S1...), 3 languages, native engine (the only
 #                        search since 1.87.0), with the dictionaries in dicts/ (a change in dicts/ alone also starts the checks); S28 types
 #                        original everyday sentences (docs/tools/e2e/data/) and fails when a hit rate falls under its floor
+#   run_gesture_tests.sh  gesture typing, the recognition only (MrGesture over the native engine): the real
+#                        gestures of gesture/test through the app classes, 3 languages, on dicts/ and on the copy in the format v2; fails
+#                        when the count of right words falls under its floor. Also with the words of the person: the APK's
+#                        own tree of learned words (its hand-edited addWord), read and written by MrGestureWords, searched by the lib
+#   run_gesture_input_tests.sh  gesture typing in the keyboard (MrGestureInput, 1.96.0), from the touch events to the text with the real
+#                        recognition: the same gestures drawn as touches on a fake keyboard, 3 languages; fails when the words written
+#                        fall under their floors (a wrong frame of keys or points would show here and nowhere else before the phone).
+#                        Each language is drawn again with the words of the person and with the word shown while sliding
 #   packs_test/run_packs_tests.sh  the dictionary download flow (signed catalog, tampered or truncated zips, install, update, remove, the
-#                        keyboard languages) and the 3 installed languages, with a test key made on the spot and the packs of dicts/
+#                        keyboard languages), the 3 installed languages and the gesture recognition pack (ModelPackTest: the "models" list,
+#                        download, checks, update, remove, the weights picked from a file), with a test key made on the spot, the packs
+#                        of dicts/ and the weights of gesture/
 name: Mr Keyboard - checks
 
 on:
@@ -66,6 +81,7 @@ on:
       - 'docs/release-notes/*.md'
       - 'engine/**'
       - 'native/**'
+      - 'gesture/**'
       - 'dicts/**'
       - '.github/workflows/*.yml'
   push:
@@ -80,6 +96,7 @@ on:
       - 'docs/release-notes/*.md'
       - 'engine/**'
       - 'native/**'
+      - 'gesture/**'
       - 'dicts/**'
       - '.github/workflows/*.yml'
 
@@ -139,7 +156,8 @@ jobs:
 
       - name: Java layer calls exist in the APK and in the Android SDK
         run: |
-          # the runner image has the Android SDK: its newest platform is the reference jar (without one, only the APK side is checked)
+          # the runner image has the Android SDK: its newest platform is the reference jar (without one, only the APK side is checked,
+          # and what an APK class inherits from the framework is taken on trust)
           JAR=$(ls "${ANDROID_HOME:-/usr/local/lib/android/sdk}"/platforms/android-*/android.jar 2>/dev/null | sort -V | tail -1 || true)
           echo "android.jar: ${JAR:-none}"
           ANDROID_JAR="$JAR" python3 docs/tools/check_stub_api.py
@@ -229,5 +247,16 @@ jobs:
           DICTS: ${{ runner.temp }}/dicts_v2
         run: OUT="$RUNNER_TEMP/strategy_v2" bash docs/tools/e2e/run_strategy_tests.sh "$RUNNER_TEMP/dex/classes.jar"
 
-      - name: Dictionary packs - download flow and the 3 installed languages (PC, test key)
+      - name: Gesture typing - the recognition through the app classes (3 languages, native engine)
+        run: OUT="$RUNNER_TEMP/gesture" bash docs/tools/e2e/run_gesture_tests.sh "$RUNNER_TEMP/dex/classes.jar"
+
+      - name: Gesture typing - the same on the copy of dicts/ in the format v2
+        env:
+          DICTS: ${{ runner.temp }}/dicts_v2
+        run: OUT="$RUNNER_TEMP/gesture_v2" bash docs/tools/e2e/run_gesture_tests.sh "$RUNNER_TEMP/dex/classes.jar"
+
+      - name: Gesture typing - from the touch on the keys to the text (MrGestureInput, 3 languages, native engine)
+        run: OUT="$RUNNER_TEMP/gesture_input" bash docs/tools/e2e/run_gesture_input_tests.sh
+
+      - name: Dictionary packs and the gesture recognition pack - download flow and the 3 installed languages (PC, test key)
         run: bash docs/tools/packs_test/run_packs_tests.sh "$RUNNER_TEMP/dex/classes.jar"

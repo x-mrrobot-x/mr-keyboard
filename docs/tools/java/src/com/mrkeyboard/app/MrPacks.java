@@ -50,6 +50,15 @@ import java.util.zip.ZipInputStream;
  * Files: files/dicts/&lt;id&gt;/&lt;version&gt;/ (main.dict, trigrams.bin, rules.txt, NOTICE.txt, pack.json).
  * State in SharedPreferences "mr_packs". The keyboard reloads when "mr_dicts_updated_at" changes in the
  * default preferences (LatinIME.onSharedPreferenceChanged).
+ *
+ * Models (1.96.0): the same catalog may carry a second list, "models", next to "packs". Today it has one entry, "gesture":
+ * the weights of the gesture recognition (docs/gesture-typing.md), a zip with encoder.bin, the licence of the weights and a
+ * notice. It is downloaded, checked and installed by the same code as a dictionary, into files/models/&lt;id&gt;/&lt;version&gt;/, and
+ * its state is "model.&lt;id&gt;" in "mr_packs". The apps before 1.96.0 read only "packs" and ignore the rest of the catalog, so
+ * nothing changes for them; an entry of "models" that this version cannot read is skipped, not an error.
+ * The weights can also be installed from a file the user picks (installModelFile): for a version that is being tried before its
+ * release exists, or a device that cannot reach GitHub. Only the files whose SHA-256 this version knows (MODEL_FILES) are taken,
+ * so what ends up installed is byte for byte what the signed catalog brings.
  */
 public final class MrPacks {
     private MrPacks() { }
@@ -79,6 +88,26 @@ public final class MrPacks {
     static final String TRIGRAMS = "trigrams.bin";
     static final String RULES = "rules.txt";
     static final String NOTICE = "NOTICE.txt";
+    /** The one model there is: the weights of the gesture recognition. */
+    static final String MODEL_GESTURE = "gesture";
+    /** Its weights, in the container the native engine reads (it starts with MODEL_MAGIC), and the licence that goes with them. */
+    static final String ENCODER = "encoder.bin";
+    static final String MODEL_LICENSE = "LICENSE-FUTO-Model-Weights.md";
+    static final String MODEL_MAGIC = "MRSWENC1";
+    /** Model formats this app installs: 1 = encoder.bin as the engine contract 2 reads it (1.96.0). */
+    static final int MODEL_FORMAT = 1;
+    static final String KEY_MODEL = "model.";
+    /**
+     * The weights this version takes from a file picked by the user: SHA-256 of encoder.bin and the version it has in the catalog
+     * (gesture/encoder.bin.sha256 and gesture/pack.json; ModelPackTest checks that they agree).
+     */
+    static final String[][] MODEL_FILES = {
+            {"c05090fefa7200f3ff381c8fee6a5e16415d50ec14e59df9abd29dd85802da6c", "1"},
+    };
+    /** No weights file comes near this size (the one of version 1 has 2.5 MB); a picked file is read up to here. */
+    static final int MODEL_FILE_MAX = 16 << 20;
+    /** The text of the licence of the weights inside the APK (res/raw): shown in the settings, and written next to weights that came from a file. */
+    static final String MODEL_LICENSE_RAW = "mr_futo_license";
     static final String MANIFEST = "pack.json";
     static final int MAX_CATALOG = 1 << 20;
     static final long MAX_PACK = 64L << 20;
@@ -108,6 +137,8 @@ public final class MrPacks {
         String[] fileNames;
         long[] fileSizes;
         String[] fileSha;
+        /** An entry of "models" (the weights of the gesture recognition), not a language. */
+        boolean model;
 
         String name(Locale l) {
             return localized(name, l, id);
@@ -122,9 +153,16 @@ public final class MrPacks {
         long serial;
         String generated, data;
         final ArrayList<Pack> packs = new ArrayList<Pack>();
+        /** The entries of "models" this version can read (none in a catalog made before 1.96.0). */
+        final ArrayList<Pack> models = new ArrayList<Pack>();
 
         Pack find(String id) {
             for (Pack p : packs) if (p.id.equals(id)) return p;
+            return null;
+        }
+
+        Pack model(String id) {
+            for (Pack p : models) if (p.id.equals(id)) return p;
             return null;
         }
     }
@@ -214,6 +252,7 @@ public final class MrPacks {
     }
 
     /** Reads the catalog data (already checked). */
+    @SuppressWarnings("unchecked")
     static Catalog readData(String data) throws PackException {
         try {
             Map<String, Object> d = MrJson.obj(MrJson.parse(data));
@@ -224,8 +263,19 @@ public final class MrPacks {
             cat.generated = MrJson.optStr(d, "generated", "");
             HashSet<String> ids = new HashSet<String>();
             for (Object o : MrJson.list(d.get("packs"))) {
-                Pack p = readPack(MrJson.obj(o));
+                Pack p = readPack(MrJson.obj(o), false);
                 if (ids.add(p.id)) cat.packs.add(p);
+            }
+            Object models = d.get("models");
+            if (models instanceof List) {
+                for (Object o : (List<Object>) models) {
+                    try {
+                        Pack p = readPack(MrJson.obj(o), true);
+                        if (cat.model(p.id) == null) cat.models.add(p);
+                    } catch (RuntimeException e) {
+                        // an entry this version cannot read (a model of a newer app): left out, the rest of the catalog stands
+                    }
+                }
             }
             return cat;
         } catch (PackException e) {
@@ -235,13 +285,15 @@ public final class MrPacks {
         }
     }
 
+    /** One entry of the catalog. model: it comes from "models" (no language, and the file it must have is the weights). */
     @SuppressWarnings("unchecked")
-    private static Pack readPack(Map<String, Object> m) {
+    private static Pack readPack(Map<String, Object> m, boolean model) {
         Pack p = new Pack();
+        p.model = model;
         p.id = MrJson.str(m, "id");
-        if (!validId(p.id)) throw new IllegalArgumentException("id");
-        p.lang = MrJson.str(m, "lang").toLowerCase(Locale.ROOT);
-        p.region = MrJson.optStr(m, "region", "").toUpperCase(Locale.ROOT);
+        if (model ? !validModelId(p.id) : !validId(p.id)) throw new IllegalArgumentException("id");
+        p.lang = model ? "" : MrJson.str(m, "lang").toLowerCase(Locale.ROOT);
+        p.region = model ? "" : MrJson.optStr(m, "region", "").toUpperCase(Locale.ROOT);
         Object nm = m.get("name");
         p.name = nm instanceof Map ? (Map<String, Object>) nm : null;
         Object ds = m.get("description");
@@ -276,9 +328,9 @@ public final class MrPacks {
             p.fileSizes[i] = MrJson.num(f, "size");
             if (p.fileSizes[i] <= 0 || p.fileSizes[i] > MAX_PACK) throw new IllegalArgumentException("size");
             p.fileSha[i] = hexField(f, "sha256");
-            if (fn.equals(MAIN)) main = true;
+            if (fn.equals(model ? ENCODER : MAIN)) main = true;
         }
-        if (!main) throw new IllegalArgumentException("no main.dict");
+        if (!main) throw new IllegalArgumentException(model ? "no encoder.bin" : "no main.dict");
         Object lic = m.get("licenses");
         StringBuilder b = new StringBuilder();
         if (lic instanceof List) {
@@ -317,6 +369,11 @@ public final class MrPacks {
                     && id.charAt(dash + 1) <= 'Z' && id.charAt(dash + 2) <= 'Z';
         }
         return false;
+    }
+
+    /** The models this version knows how to install and use. */
+    static boolean validModelId(String id) {
+        return MODEL_GESTURE.equals(id);
     }
 
     private static boolean lowerLetters(String s, int from, int to) {
@@ -500,7 +557,138 @@ public final class MrPacks {
             int inst = installedVersion(c, p.id);
             if (inst > 0 && p.version > inst && !appTooOld(c, p)) n++;
         }
+        for (Pack p : cat.models) {
+            int inst = modelVersion(c, p.id);
+            if (inst > 0 && p.version > inst && !appTooOld(c, p)) n++;
+        }
         return n;
+    }
+
+    // ------------------------------------------------------------------ models
+
+    static File modelsRoot(Context c) {
+        return new File(c.getFilesDir(), "models");
+    }
+
+    static File modelDir(Context c, String id, int version) {
+        return new File(new File(modelsRoot(c), id), String.valueOf(version));
+    }
+
+    /** Installed version of the model, 0 = not installed. */
+    static int modelVersion(Context c, String id) {
+        return prefs(c).getInt(KEY_MODEL + id, 0);
+    }
+
+    /** A file of the installed model, or null when the model (or that file) is not there. */
+    static File modelFile(Context c, String id, String name) {
+        int v = modelVersion(c, id);
+        if (v <= 0) return null;
+        File f = new File(modelDir(c, id, v), name);
+        return f.isFile() ? f : null;
+    }
+
+    /** Removes the model: gesture typing stops until it is downloaded again. */
+    static void removeModel(Context c, String id) {
+        prefs(c).edit().remove(KEY_MODEL + id).commit();
+        deleteTree(new File(modelsRoot(c), id));
+        MrGestureInput.reload(c);
+    }
+
+    /** Version of the weights with this SHA-256 that a picked file may install, 0 = not weights this version knows. */
+    static int knownModelFile(String sha256) {
+        for (String[] m : MODEL_FILES) {
+            if (m[0].equals(sha256)) return Integer.parseInt(m[1]);
+        }
+        return 0;
+    }
+
+    /** The text of the licence of the weights kept in the APK, or null if it cannot be read. */
+    static byte[] modelLicense(Context c) {
+        InputStream in = null;
+        try {
+            int id = c.getResources().getIdentifier(MODEL_LICENSE_RAW, "raw", c.getPackageName());
+            if (id == 0) return null;
+            in = c.getResources().openRawResource(id);
+            if (in == null) return null;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            int r;
+            while ((r = in.read(buf)) > 0) {
+                if (out.size() + r > (1 << 20)) return null;
+                out.write(buf, 0, r);
+            }
+            return out.toByteArray();
+        } catch (Exception e) {
+            return null;
+        } finally {
+            closeQuietly(in);
+        }
+    }
+
+    /**
+     * Installs the weights from a file the user picked (gesture/encoder.bin of the repository, or the one inside a pack). The
+     * file is copied into the app while its SHA-256 is computed; anything that is not one of MODEL_FILES is refused and deleted.
+     * The text of the licence is written next to the weights from the copy in the APK, so the folder ends up as a pack would
+     * leave it (without pack.json and the notice, which only describe the download). Run off the main thread; it closes nothing.
+     */
+    static void installModelFile(Context c, InputStream in) throws PackException {
+        File home = new File(modelsRoot(c), MODEL_GESTURE);
+        File tmp = new File(home, "file.tmp");
+        OutputStream out = null;
+        try {
+            deleteTree(tmp);
+            if (!tmp.mkdirs() && !tmp.isDirectory()) throw new PackException("mr_gesture_err_io", "mkdir");
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            out = new FileOutputStream(new File(tmp, ENCODER));
+            byte[] buf = new byte[65536];
+            long total = 0;
+            int r;
+            while ((r = in.read(buf)) > 0) {
+                total += r;
+                if (total > MODEL_FILE_MAX) throw new PackException("mr_gesture_err_file");
+                md.update(buf, 0, r);
+                out.write(buf, 0, r);
+            }
+            out.close();
+            out = null;
+            int version = knownModelFile(hex(md.digest()));
+            if (version <= 0) throw new PackException("mr_gesture_err_file");
+            byte[] licence = modelLicense(c);
+            if (licence == null) throw new PackException("mr_gesture_err_io", MODEL_LICENSE);
+            out = new FileOutputStream(new File(tmp, MODEL_LICENSE));
+            out.write(licence);
+            out.close();
+            out = null;
+            checkModel(tmp);
+            File dir = modelDir(c, MODEL_GESTURE, version);
+            deleteTree(dir);
+            if (!tmp.renameTo(dir)) throw new PackException("mr_gesture_err_io", "rename");
+            prefs(c).edit().putInt(KEY_MODEL + MODEL_GESTURE, version).commit();
+            File[] old = home.listFiles();
+            if (old != null) {
+                for (File f : old) {
+                    if (!f.getName().equals(String.valueOf(version))) deleteTree(f);
+                }
+            }
+            MrGestureInput.reload(c);
+        } catch (PackException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new PackException("mr_gesture_err_io", e.getClass().getSimpleName());
+        } finally {
+            closeQuietly(out);
+            deleteTree(tmp);
+        }
+    }
+
+    /** Checks the content before using it: the weights start as the engine expects and the licence came with them. */
+    static void checkModel(File dir) throws PackException {
+        File enc = new File(dir, ENCODER);
+        byte[] h = head(enc, MODEL_MAGIC.length());
+        boolean ok = h != null && enc.length() >= 1024;
+        for (int i = 0; ok && i < h.length; i++) ok = h[i] == MODEL_MAGIC.charAt(i);
+        if (!ok) throw new PackException("mr_dicts_err_corrupt", ENCODER);
+        if (new File(dir, MODEL_LICENSE).length() < 1024) throw new PackException("mr_dicts_err_corrupt", MODEL_LICENSE);
     }
 
     // ------------------------------------------------------------------ keyboard languages
@@ -577,7 +765,7 @@ public final class MrPacks {
     }
 
     static boolean appTooOld(Context c, Pack p) {
-        return p.format < 1 || p.format > PACK_FORMAT || p.minApp > appVersion(c);
+        return p.format < 1 || p.format > (p.model ? MODEL_FORMAT : PACK_FORMAT) || p.minApp > appVersion(c);
     }
 
     /**
@@ -589,11 +777,11 @@ public final class MrPacks {
         sJobPercent = 0;
         sJobInstalling = false;
         sJobId = p.id;
-        File base = root(c);
+        File base = p.model ? modelsRoot(c) : root(c);
         File part = new File(c.getCacheDir(), p.id + "-" + p.version + ".zip.part");
         File tmp = new File(new File(base, p.id), p.version + ".tmp");
         try {
-            if (appTooOld(c, p)) throw new PackException("mr_dicts_err_app_old");
+            if (appTooOld(c, p)) throw new PackException(p.model ? "mr_gesture_err_app_old" : "mr_dicts_err_app_old");
             long need = p.size + p.installedSize + (2L << 20);
             if (!base.exists()) base.mkdirs();
             if (base.getUsableSpace() < need) throw new PackException("mr_dicts_err_space", sizeText(need));
@@ -601,24 +789,30 @@ public final class MrPacks {
             sJobInstalling = true;
             deleteTree(tmp);
             extract(part, tmp, p);
-            checkFiles(tmp);
-            File dir = packDir(c, p.id, p.version);
+            if (p.model) checkModel(tmp); else checkFiles(tmp);
+            File dir = p.model ? modelDir(c, p.id, p.version) : packDir(c, p.id, p.version);
             deleteTree(dir);
-            if (!tmp.renameTo(dir)) throw new PackException("mr_dicts_err_io", "rename");
-            prefs(c).edit().putInt(KEY_INSTALLED + p.id, p.version).commit();
+            if (!tmp.renameTo(dir)) throw new PackException(ioKey(p), "rename");
+            prefs(c).edit().putInt((p.model ? KEY_MODEL : KEY_INSTALLED) + p.id, p.version).commit();
             File[] old = new File(base, p.id).listFiles();
             if (old != null) {
                 for (File f : old) {
                     if (!f.getName().equals(String.valueOf(p.version))) deleteTree(f);
                 }
             }
-            signal(c);
+            // a dictionary makes the keyboard load its languages again; the weights only concern gesture typing
+            if (p.model) MrGestureInput.reload(c); else signal(c);
         } finally {
             part.delete();
             deleteTree(tmp);
             sJobId = null;
             sJobInstalling = false;
         }
+    }
+
+    /** Text of "could not write": a dictionary or the gesture recognition. */
+    private static String ioKey(Pack p) {
+        return p.model ? "mr_gesture_err_io" : "mr_dicts_err_io";
     }
 
     private static void download(String url, File part, Pack p) throws PackException {
@@ -653,7 +847,7 @@ public final class MrPacks {
             if (sCancel) throw new PackException("mr_dicts_err_cancel");
             throw new PackException("mr_dicts_err_network");
         } catch (Exception e) {
-            throw new PackException("mr_dicts_err_io", e.getClass().getSimpleName());
+            throw new PackException(ioKey(p), e.getClass().getSimpleName());
         } finally {
             closeQuietly(in);
             closeQuietly(out);
@@ -662,7 +856,7 @@ public final class MrPacks {
 
     /** Extracts only the files in the catalog, checking the size and SHA-256 of each. */
     private static void extract(File zip, File dir, Pack p) throws PackException {
-        if (!dir.mkdirs() && !dir.isDirectory()) throw new PackException("mr_dicts_err_io", "mkdir");
+        if (!dir.mkdirs() && !dir.isDirectory()) throw new PackException(ioKey(p), "mkdir");
         HashSet<String> seen = new HashSet<String>();
         ZipInputStream zin = null;
         try {
@@ -856,6 +1050,7 @@ public final class MrPacks {
      * external apps (PluginManager), as before.
      */
     public static BinaryDictionary mainDictionary(Context c, String locale) {
+        MrGestureInput.init(c);   // 1.96.0: gesture typing reads its setting and opens its weights (nothing when it is off)
         sLastLang = splitLocale(locale)[0];
         BinaryDictionary d = null;
         File dir = null;

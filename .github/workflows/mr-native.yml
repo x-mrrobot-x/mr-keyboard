@@ -1,9 +1,11 @@
 # Mr Keyboard: builds the two native libs with the NDK (4 architectures) and tests them on the PC.
 #
 #   native/  -> libjni_pckeyboard.so  dictionary reader (Hacker's Keyboard / LatinIME)
-#   engine/  -> libmrengine.so        native engine (1.77): correction search and trigrams in C++
+#   engine/  -> libmrengine.so        native engine (1.77): correction search and trigrams in C++; since the contract 2, also the
+#                                     recognition of gesture typing (its weights and test data are in gesture/); since the
+#                                     contract 3 (1.96.0), the same gesture searched in a second dictionary (the words of the person)
 #
-# Only runs when the native code changes (native/** or engine/**) or when you trigger it (Run workflow).
+# Only runs when the native code changes (native/**, engine/** or gesture/**) or when you trigger it (Run workflow).
 # The APK does NOT depend on this workflow: it uses the libs that are already in lib/ (see mr-apk.yml).
 #
 # When native/ or engine/ changes:
@@ -23,6 +25,7 @@ on:
     paths:
       - 'native/**'
       - 'engine/**'
+      - 'gesture/**'
       - '.github/workflows/mr-native.yml'
 
 permissions:
@@ -79,6 +82,8 @@ jobs:
           for so in out/lib/*/libmrengine.so; do
             strings "$so" | grep -q "com/mrkeyboard/app/MrNative"
             strings "$so" | grep -q "nSearch"
+            strings "$so" | grep -q "nGestureLayout"
+            strings "$so" | grep -q "nGestureMore"
           done
 
       - name: PC test of the dictionary lib (dict_test, with the project dictionary)
@@ -105,11 +110,17 @@ jobs:
           ./build/host-engine/mr_bench dicts 5
           ./build/host-engine/mr_bench build/dicts-v2 5
 
+      - name: PC test of the gesture recognition (weights file, the network against the official runtime, the search, real gestures, corrupt files)
+        run: |
+          (cd gesture && sha256sum -c encoder.bin.sha256)
+          ./build/host-engine/mr_gesture_test dicts gesture/encoder.bin gesture/test 100
+          ./build/host-engine/mr_gesture_test build/dicts-v2 gesture/encoder.bin gesture/test 20
+
       - name: Engine JNI bridge (RegisterNatives and bad arguments, with the runner Java)
         run: |
           mkdir -p build/jc
           javac -nowarn -encoding UTF-8 -d build/jc engine/test/java/com/mrkeyboard/app/*.java
-          java -Dfile.encoding=UTF-8 -cp build/jc com.mrkeyboard.app.JniSmoke build/host-engine/libmrengine.so dicts
+          java -Dfile.encoding=UTF-8 -cp build/jc com.mrkeyboard.app.JniSmoke build/host-engine/libmrengine.so dicts gesture/encoder.bin gesture/test
 
       - name: Engine with ASan + UBSan (corrupt files)
         run: |
@@ -117,6 +128,16 @@ jobs:
           cmake --build build/san-engine -j4
           ./build/san-engine/mr_test dicts 150
           ./build/san-engine/mr_test build/dicts-v2 150
+          ./build/san-engine/mr_gesture_test dicts gesture/encoder.bin gesture/test 150
+          ./build/san-engine/mr_gesture_test build/dicts-v2 gesture/encoder.bin gesture/test 30
+
+      # The same gesture test on the ARM code the phones run, built by the NDK as static executables and run under qemu-user
+      # (engine/test/run_android_tests.sh; a few minutes per ABI). It checks the answers, not the speed.
+      - name: Gesture recognition on the ARM builds (arm64-v8a and armeabi-v7a under qemu-user)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq qemu-user-static
+          OUT=build/android-tests bash engine/test/run_android_tests.sh "${{ steps.ndk.outputs.dir }}" arm64-v8a armeabi-v7a
 
       - name: Record which code the libs were built from
         run: |

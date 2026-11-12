@@ -1,0 +1,20 @@
+Mr Keyboard - gesture recognition pack
+
+encoder.bin holds the weights of the "FUTO Swipe" encoder (model honorable_sturgeon), by FUTO Holdings, Inc.
+
+THIS FILE IS DERIVED FROM FUTO SWIPE AND IS SUBJECT TO THE FUTO MODEL WEIGHTS LICENSE 1.0.
+The full text of that licence is in this pack: LICENSE-FUTO-Model-Weights.md. Keep the two files together wherever
+encoder.bin goes.
+
+Source: https://huggingface.co/futo-org/futo-swipe, revision 315d42583233b71d75665d076cfa2f2c7c6f43ad,
+file honorable_sturgeon/model_fp32.pte (SHA-256 725242bab5d14345e96ff214e8de2bfbc1f962c232d320df9c24cb82ffd1fbaf).
+
+The weights were not modified. They were taken out of the ExecuTorch container (.pte) and written, tensor by tensor and
+byte for byte, into a plain container that the Mr Keyboard engine reads (it starts with MRSWENC1). The tool that does it,
+and that checks a file against the published one, is docs/tools/gesture/extract_weights.py in the Mr Keyboard repository.
+
+The licence covers the weights only. The code that runs the network (engine/src/mr_gesture_nn.cpp in the Mr Keyboard
+repository) was written for Mr Keyboard and is under the Apache License 2.0; it uses none of FUTO's inference code.
+
+Mr Keyboard shows, in Settings > Suggestions and dictionaries > Gesture typing, the notice the licence asks for: gesture
+typing in the app is powered by "FUTO Swipe" technology.

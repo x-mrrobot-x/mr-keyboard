@@ -23,4 +23,18 @@ final class MrNative {
     static native void nTriClose();
 
     static native int nTriFind(String a1, String a2, String b1, String b2, String[] outWords, int[] outScores);
+
+    static native boolean nGestureOpen(String path);
+
+    static native void nGestureClose();
+
+    static native boolean nGestureConfig(float[] params, int[] limits);
+
+    static native boolean nGestureLayout(char[] keys, float[] xy, char[] free);
+
+    static native int nGesture(ByteBuffer dict, int size, int n, float[] x, float[] y, int[] t, char[] prev,
+                               int[] prevLen, char[] outWords, int[] outInfo, float[] outScores);
+
+    static native int nGestureMore(ByteBuffer dict, int size, char[] prev, int[] prevLen, char[] outWords, int[] outInfo,
+                                   float[] outScores);
 }

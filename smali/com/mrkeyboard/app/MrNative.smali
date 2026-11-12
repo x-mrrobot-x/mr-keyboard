@@ -4,7 +4,7 @@
 
 
 # static fields
-.field static final ENGINE_VERSION:I = 0x1
+.field static final ENGINE_VERSION:I = 0x3
 
 .field static final INFO_SIZE:I = 0xb
 
@@ -28,7 +28,7 @@
     .locals 1
 
     .prologue
-    .line 34
+    .line 37
     const/4 v0, 0x0
 
     sput v0, Lcom/mrkeyboard/app/MrNative;->sState:I
@@ -40,7 +40,7 @@
     .locals 0
 
     .prologue
-    .line 20
+    .line 23
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -50,7 +50,7 @@
     .locals 1
 
     .prologue
-    .line 19
+    .line 22
     invoke-static {}, Lcom/mrkeyboard/app/MrNative;->load()Z
 
     move-result v0
@@ -64,10 +64,10 @@
     .prologue
     const/16 v3, 0x100
 
-    .line 104
+    .line 107
     new-array v1, v3, [C
 
-    .line 105
+    .line 108
     const/4 v0, 0x0
 
     :goto_0
@@ -83,7 +83,7 @@
 
     goto :goto_0
 
-    .line 106
+    .line 109
     :cond_0
     return-object v1
 .end method
@@ -92,7 +92,7 @@
     .locals 1
 
     .prologue
-    .line 80
+    .line 83
     const/16 v0, 0x11
 
     new-array v0, v0, [I
@@ -123,11 +123,236 @@
     .end array-data
 .end method
 
+.method static gesture(Ljava/nio/ByteBuffer;II[F[F[I[C[I[C[I[F)I
+    .locals 3
+
+    .prologue
+    const/4 v0, -0x1
+
+    .line 253
+    if-eqz p0, :cond_0
+
+    sget v1, Lcom/mrkeyboard/app/MrNative;->sState:I
+
+    const/4 v2, 0x1
+
+    if-eq v1, v2, :cond_1
+
+    .line 257
+    :cond_0
+    :goto_0
+    return v0
+
+    .line 255
+    :cond_1
+    :try_start_0
+    invoke-static/range {p0 .. p10}, Lcom/mrkeyboard/app/MrNative;->nGesture(Ljava/nio/ByteBuffer;II[F[F[I[C[I[C[I[F)I
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+
+    move-result v0
+
+    goto :goto_0
+
+    .line 256
+    :catch_0
+    move-exception v1
+
+    goto :goto_0
+.end method
+
+.method static gestureClose()V
+    .locals 2
+
+    .prologue
+    .line 219
+    sget v0, Lcom/mrkeyboard/app/MrNative;->sState:I
+
+    const/4 v1, 0x1
+
+    if-eq v0, v1, :cond_0
+
+    .line 225
+    :goto_0
+    return-void
+
+    .line 221
+    :cond_0
+    :try_start_0
+    invoke-static {}, Lcom/mrkeyboard/app/MrNative;->nGestureClose()V
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+
+    goto :goto_0
+
+    .line 222
+    :catch_0
+    move-exception v0
+
+    goto :goto_0
+.end method
+
+.method static gestureConfig([F[I)Z
+    .locals 2
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 229
+    if-eqz p0, :cond_0
+
+    if-eqz p1, :cond_0
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrNative;->ready()Z
+
+    move-result v1
+
+    if-nez v1, :cond_1
+
+    .line 233
+    :cond_0
+    :goto_0
+    return v0
+
+    .line 231
+    :cond_1
+    :try_start_0
+    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrNative;->nGestureConfig([F[I)Z
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+
+    move-result v0
+
+    goto :goto_0
+
+    .line 232
+    :catch_0
+    move-exception v1
+
+    goto :goto_0
+.end method
+
+.method static gestureLayout([C[F[C)Z
+    .locals 2
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 239
+    if-eqz p0, :cond_0
+
+    if-eqz p1, :cond_0
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrNative;->ready()Z
+
+    move-result v1
+
+    if-nez v1, :cond_1
+
+    .line 243
+    :cond_0
+    :goto_0
+    return v0
+
+    .line 241
+    :cond_1
+    :try_start_0
+    invoke-static {p0, p1, p2}, Lcom/mrkeyboard/app/MrNative;->nGestureLayout([C[F[C)Z
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+
+    move-result v0
+
+    goto :goto_0
+
+    .line 242
+    :catch_0
+    move-exception v1
+
+    goto :goto_0
+.end method
+
+.method static gestureMore(Ljava/nio/ByteBuffer;I[C[I[C[I[F)I
+    .locals 3
+
+    .prologue
+    const/4 v0, -0x1
+
+    .line 270
+    if-eqz p0, :cond_0
+
+    sget v1, Lcom/mrkeyboard/app/MrNative;->sState:I
+
+    const/4 v2, 0x1
+
+    if-eq v1, v2, :cond_1
+
+    .line 274
+    :cond_0
+    :goto_0
+    return v0
+
+    .line 272
+    :cond_1
+    :try_start_0
+    invoke-static/range {p0 .. p6}, Lcom/mrkeyboard/app/MrNative;->nGestureMore(Ljava/nio/ByteBuffer;I[C[I[C[I[F)I
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+
+    move-result v0
+
+    goto :goto_0
+
+    .line 273
+    :catch_0
+    move-exception v1
+
+    goto :goto_0
+.end method
+
+.method static gestureOpen(Ljava/lang/String;)Z
+    .locals 2
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 209
+    if-eqz p0, :cond_0
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrNative;->ready()Z
+
+    move-result v1
+
+    if-nez v1, :cond_1
+
+    .line 213
+    :cond_0
+    :goto_0
+    return v0
+
+    .line 211
+    :cond_1
+    :try_start_0
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrNative;->nGestureOpen(Ljava/lang/String;)Z
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+
+    move-result v0
+
+    goto :goto_0
+
+    .line 212
+    :catch_0
+    move-exception v1
+
+    goto :goto_0
+.end method
+
 .method private static init()Z
     .locals 5
 
     .prologue
-    .line 117
+    .line 120
     invoke-static {}, Lcom/mrkeyboard/app/MrNative;->costs()[I
 
     move-result-object v0
@@ -159,11 +384,11 @@
     .locals 8
 
     .prologue
-    const/4 v1, 0x0
-
     const/4 v0, 0x1
 
-    .line 62
+    const/4 v1, 0x0
+
+    .line 65
     const-class v2, Lcom/mrkeyboard/app/MrNative;
 
     monitor-enter v2
@@ -179,7 +404,7 @@
 
     if-ne v3, v0, :cond_0
 
-    .line 75
+    .line 78
     :goto_0
     monitor-exit v2
 
@@ -188,10 +413,10 @@
     :cond_0
     move v0, v1
 
-    .line 62
+    .line 65
     goto :goto_0
 
-    .line 64
+    .line 67
     :cond_1
     :try_start_1
     invoke-static {}, Ljava/lang/System;->nanoTime()J
@@ -200,7 +425,7 @@
 
     move-result-wide v4
 
-    .line 66
+    .line 69
     :try_start_2
     const-string v3, "off"
 
@@ -216,17 +441,19 @@
 
     if-nez v3, :cond_2
 
-    .line 67
+    .line 70
     const-string v3, "mrengine"
 
     invoke-static {v3}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
 
-    .line 68
+    .line 71
     invoke-static {}, Lcom/mrkeyboard/app/MrNative;->nVersion()I
 
     move-result v3
 
-    if-ne v3, v0, :cond_2
+    const/4 v6, 0x3
+
+    if-ne v3, v6, :cond_2
 
     invoke-static {}, Lcom/mrkeyboard/app/MrNative;->init()Z
     :try_end_2
@@ -239,7 +466,7 @@
 
     move v1, v0
 
-    .line 73
+    .line 76
     :cond_2
     :goto_1
     if-eqz v1, :cond_4
@@ -248,7 +475,7 @@
     :try_start_3
     sput v0, Lcom/mrkeyboard/app/MrNative;->sState:I
 
-    .line 74
+    .line 77
     if-eqz v1, :cond_3
 
     invoke-static {}, Ljava/lang/System;->nanoTime()J
@@ -264,16 +491,16 @@
     :cond_3
     move v0, v1
 
-    .line 75
+    .line 78
     goto :goto_0
 
-    .line 73
+    .line 76
     :cond_4
     const/4 v0, -0x1
 
     goto :goto_2
 
-    .line 62
+    .line 65
     :catchall_0
     move-exception v0
 
@@ -281,7 +508,7 @@
 
     throw v0
 
-    .line 70
+    .line 73
     :catch_0
     move-exception v3
 
@@ -294,10 +521,10 @@
     .prologue
     const/high16 v3, 0x10000
 
-    .line 90
+    .line 93
     new-array v1, v3, [C
 
-    .line 91
+    .line 94
     const/4 v0, 0x0
 
     :goto_0
@@ -315,9 +542,27 @@
 
     goto :goto_0
 
-    .line 92
+    .line 95
     :cond_0
     return-object v1
+.end method
+
+.method private static native nGesture(Ljava/nio/ByteBuffer;II[F[F[I[C[I[C[I[F)I
+.end method
+
+.method private static native nGestureClose()V
+.end method
+
+.method private static native nGestureConfig([F[I)Z
+.end method
+
+.method private static native nGestureLayout([C[F[C)Z
+.end method
+
+.method private static native nGestureMore(Ljava/nio/ByteBuffer;I[C[I[C[I[F)I
+.end method
+
+.method private static native nGestureOpen(Ljava/lang/String;)Z
 .end method
 
 .method private static native nInit([I[C[B[C[D)Z
@@ -345,7 +590,7 @@
     .locals 4
 
     .prologue
-    .line 131
+    .line 134
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRules;->d2p:[C
 
     array-length v0, v0
@@ -354,7 +599,7 @@
 
     new-array v1, v0, [C
 
-    .line 132
+    .line 135
     const/4 v0, 0x0
 
     :goto_0
@@ -364,7 +609,7 @@
 
     if-ge v0, v2, :cond_0
 
-    .line 133
+    .line 136
     mul-int/lit8 v2, v0, 0x3
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrRules;->d2p:[C
@@ -393,12 +638,12 @@
 
     aput-char v3, v1, v2
 
-    .line 132
+    .line 135
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 135
+    .line 138
     :cond_0
     return-object v1
 .end method
@@ -407,7 +652,7 @@
     .locals 4
 
     .prologue
-    .line 140
+    .line 143
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRules;->silPrev:[C
 
     array-length v0, v0
@@ -416,7 +661,7 @@
 
     new-array v1, v0, [C
 
-    .line 141
+    .line 144
     const/4 v0, 0x0
 
     :goto_0
@@ -426,7 +671,7 @@
 
     if-ge v0, v2, :cond_0
 
-    .line 142
+    .line 145
     mul-int/lit8 v2, v0, 0x2
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrRules;->silPrev:[C
@@ -445,12 +690,12 @@
 
     aput-char v3, v1, v2
 
-    .line 141
+    .line 144
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 144
+    .line 147
     :cond_0
     return-object v1
 .end method
@@ -459,7 +704,7 @@
     .locals 4
 
     .prologue
-    .line 122
+    .line 125
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRules;->t2a:[C
 
     array-length v0, v0
@@ -468,7 +713,7 @@
 
     new-array v1, v0, [C
 
-    .line 123
+    .line 126
     const/4 v0, 0x0
 
     :goto_0
@@ -478,7 +723,7 @@
 
     if-ge v0, v2, :cond_0
 
-    .line 124
+    .line 127
     mul-int/lit8 v2, v0, 0x3
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrRules;->t2a:[C
@@ -507,12 +752,12 @@
 
     aput-char v3, v1, v2
 
-    .line 123
+    .line 126
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 126
+    .line 129
     :cond_0
     return-object v1
 .end method
@@ -523,10 +768,10 @@
     .prologue
     const/16 v8, 0x100
 
-    .line 111
+    .line 114
     new-array v1, v8, [D
 
-    .line 112
+    .line 115
     const/4 v0, 0x0
 
     :goto_0
@@ -552,7 +797,7 @@
 
     goto :goto_0
 
-    .line 113
+    .line 116
     :cond_0
     return-object v1
 .end method
@@ -561,7 +806,7 @@
     .locals 4
 
     .prologue
-    .line 50
+    .line 53
     const-class v1, Lcom/mrkeyboard/app/MrNative;
 
     monitor-enter v1
@@ -577,21 +822,21 @@
 
     if-eqz v0, :cond_1
 
-    .line 59
+    .line 62
     :cond_0
     :goto_0
     monitor-exit v1
 
     return-void
 
-    .line 51
+    .line 54
     :cond_1
     const/4 v0, 0x1
 
     :try_start_1
     sput-boolean v0, Lcom/mrkeyboard/app/MrNative;->sPreloading:Z
 
-    .line 52
+    .line 55
     new-instance v0, Ljava/lang/Thread;
 
     new-instance v2, Lcom/mrkeyboard/app/MrNative$1;
@@ -602,19 +847,19 @@
 
     invoke-direct {v0, v2, v3}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
 
-    .line 57
+    .line 60
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Ljava/lang/Thread;->setPriority(I)V
 
-    .line 58
+    .line 61
     invoke-virtual {v0}, Ljava/lang/Thread;->start()V
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
     goto :goto_0
 
-    .line 50
+    .line 53
     :catchall_0
     move-exception v0
 
@@ -627,7 +872,7 @@
     .locals 9
 
     .prologue
-    .line 148
+    .line 151
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRules;->pairs:[B
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrNative;->packT2(Lcom/mrkeyboard/app/MrRules;)[C
@@ -665,17 +910,17 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 43
+    .line 46
     sget v1, Lcom/mrkeyboard/app/MrNative;->sState:I
 
-    .line 44
+    .line 47
     if-nez v1, :cond_1
 
     invoke-static {}, Lcom/mrkeyboard/app/MrNative;->load()Z
 
     move-result v0
 
-    .line 45
+    .line 48
     :cond_0
     :goto_0
     return v0
@@ -692,7 +937,7 @@
     .locals 9
 
     .prologue
-    .line 159
+    .line 162
     invoke-static {}, Lcom/mrkeyboard/app/MrNative;->ready()Z
 
     move-result v0
@@ -706,11 +951,11 @@
     :cond_0
     const/4 v0, -0x1
 
-    .line 172
+    .line 175
     :goto_0
     return v0
 
-    .line 161
+    .line 164
     :cond_1
     :try_start_0
     const-class v1, Lcom/mrkeyboard/app/MrNative;
@@ -719,23 +964,23 @@
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 162
+    .line 165
     :try_start_1
     sget-object v0, Lcom/mrkeyboard/app/MrNative;->sPushed:Lcom/mrkeyboard/app/MrRules;
 
     if-eq v0, p6, :cond_3
 
-    .line 163
+    .line 166
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrNative;->sPushed:Lcom/mrkeyboard/app/MrRules;
 
-    .line 164
+    .line 167
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
     move-result-wide v2
 
-    .line 165
+    .line 168
     invoke-static {p6}, Lcom/mrkeyboard/app/MrNative;->pushRules(Lcom/mrkeyboard/app/MrRules;)Z
 
     move-result v0
@@ -748,7 +993,7 @@
 
     goto :goto_0
 
-    .line 169
+    .line 172
     :catchall_0
     move-exception v0
 
@@ -761,16 +1006,16 @@
     :try_end_2
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_2} :catch_0
 
-    .line 171
+    .line 174
     :catch_0
     move-exception v0
 
-    .line 172
+    .line 175
     const/4 v0, -0x1
 
     goto :goto_0
 
-    .line 166
+    .line 169
     :cond_2
     :try_start_3
     invoke-static {}, Ljava/lang/System;->nanoTime()J
@@ -781,10 +1026,10 @@
 
     sput-wide v2, Lcom/mrkeyboard/app/MrDiag;->sRulesNs:J
 
-    .line 167
+    .line 170
     sput-object p6, Lcom/mrkeyboard/app/MrNative;->sPushed:Lcom/mrkeyboard/app/MrRules;
 
-    .line 169
+    .line 172
     :cond_3
     monitor-exit v1
     :try_end_3
@@ -808,7 +1053,7 @@
 
     move-object/from16 v8, p9
 
-    .line 170
+    .line 173
     :try_start_4
     invoke-static/range {v0 .. v8}, Lcom/mrkeyboard/app/MrNative;->nSearch(Ljava/nio/ByteBuffer;II[C[C[I[C[I[J)I
     :try_end_4
@@ -823,18 +1068,18 @@
     .locals 2
 
     .prologue
-    .line 187
+    .line 190
     sget v0, Lcom/mrkeyboard/app/MrNative;->sState:I
 
     const/4 v1, 0x1
 
     if-eq v0, v1, :cond_0
 
-    .line 193
+    .line 196
     :goto_0
     return-void
 
-    .line 189
+    .line 192
     :cond_0
     :try_start_0
     invoke-static {}, Lcom/mrkeyboard/app/MrNative;->nTriClose()V
@@ -843,7 +1088,7 @@
 
     goto :goto_0
 
-    .line 190
+    .line 193
     :catch_0
     move-exception v0
 
@@ -854,7 +1099,7 @@
     .locals 1
 
     .prologue
-    .line 198
+    .line 201
     :try_start_0
     invoke-static/range {p0 .. p5}, Lcom/mrkeyboard/app/MrNative;->nTriFind(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;[I)I
     :try_end_0
@@ -862,15 +1107,15 @@
 
     move-result v0
 
-    .line 200
+    .line 203
     :goto_0
     return v0
 
-    .line 199
+    .line 202
     :catch_0
     move-exception v0
 
-    .line 200
+    .line 203
     const/4 v0, 0x0
 
     goto :goto_0
@@ -882,18 +1127,18 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 178
+    .line 181
     invoke-static {}, Lcom/mrkeyboard/app/MrNative;->ready()Z
 
     move-result v1
 
     if-nez v1, :cond_0
 
-    .line 182
+    .line 185
     :goto_0
     return v0
 
-    .line 180
+    .line 183
     :cond_0
     :try_start_0
     invoke-static {p0}, Lcom/mrkeyboard/app/MrNative;->nTriOpen(Ljava/lang/String;)Z
@@ -904,7 +1149,7 @@
 
     goto :goto_0
 
-    .line 181
+    .line 184
     :catch_0
     move-exception v1
 
@@ -919,12 +1164,12 @@
 
     const/4 v1, 0x0
 
-    .line 97
+    .line 100
     new-array v3, v4, [B
 
     move v2, v1
 
-    .line 98
+    .line 101
     :goto_0
     if-ge v2, v4, :cond_1
 
@@ -954,7 +1199,7 @@
 
     goto :goto_1
 
-    .line 99
+    .line 102
     :cond_1
     return-object v3
 .end method

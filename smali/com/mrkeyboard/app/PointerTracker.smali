@@ -834,6 +834,12 @@
 
     iget v1, v1, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->longpressTimeout:I
 
+    # Gesture typing (MrGestureInput, 1.96.0): while a touch may still become a gesture, the long press of its key waits at
+    # least 300 ms. In every other case the value comes back as it went in.
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrGestureInput;->longPress(I)I
+
+    move-result v1
+
     int-to-long v1, v1
 
     invoke-virtual {v0, v1, v2, p1, p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView$UIHandler;->startLongPressTimer(JILcom/mrkeyboard/app/PointerTracker;)V

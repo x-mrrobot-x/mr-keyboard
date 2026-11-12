@@ -5,4 +5,5 @@ public final class SystemClock {
     public static long now;
 
     public static long elapsedRealtime() { return now; }
+    public static long uptimeMillis() { return now; }
 }

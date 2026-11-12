@@ -2004,3 +2004,22 @@
 
     return-void
 .end method
+
+# Gesture typing (MrGestureWords, 1.96.0): the dictionary of the words the keyboard learned and the person added
+# (AutoDictionary), or null.
+.method public mrAutoDict()Lcom/mrkeyboard/app/Dictionary;
+    .locals 1
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/Suggest;->mAutoDictionary:Lcom/mrkeyboard/app/Dictionary;
+
+    return-object v0
+.end method
+
+# Gesture typing (MrGestureWords, 1.96.0): the user dictionary of Android (UserDictionary), or null.
+.method public mrUserDict()Lcom/mrkeyboard/app/Dictionary;
+    .locals 1
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/Suggest;->mUserDictionary:Lcom/mrkeyboard/app/Dictionary;
+
+    return-object v0
+.end method

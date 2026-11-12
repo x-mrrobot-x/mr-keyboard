@@ -30,7 +30,7 @@ and `MrFuzzy` (`afterWords`/`finish`) reorders the candidates that have as many 
 Touches: `LatinIME.smali`, `WordComposer.smali`, a Java class for the model (the Java layer is generated into `smali/`, `docs/tools/java/src`). No C++, so no new `native-libs.zip`.
 
 **(c) The distance inside the engine.** `nSearch` receives a cost per neighbour instead of a rank, so the search itself finds the word the touches point to. It is the most precise and the most work:
-a different signature of a native function, `kEngineVersion` 2, a new `native-libs.zip`, plus everything in (b) to carry the offsets. `TouchRescore` does not measure it; (b) is its proxy.
+a different signature of a native function, a new `kEngineVersion` (it is 3: gesture typing took it from 1 to 3 in 1.96.0), a new `native-libs.zip`, plus everything in (b) to carry the offsets. `TouchRescore` does not measure it; (b) is its proxy.
 
 ## How it is measured (`TouchRescore`)
 

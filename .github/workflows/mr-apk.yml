@@ -18,6 +18,9 @@
 #                                  Portuguese and English), signed the same way and read from .../latest/download/update.json
 #   mr-keyboard-dict-<id>-<version>.zip   only the languages in dicts/ that changed in this version; the others keep
 #                          their zip in the release that made it (the catalog says which one, in "release")
+#   mr-keyboard-model-gesture-<version>.zip   the weights of the gesture recognition (gesture/, since 1.96.0), under the
+#                          same rule: attached only to the release where gesture/pack.json changed its version. The catalog
+#                          lists it in "models", next to "packs"; the apps before 1.96.0 do not read that list
 # The logic is in docs/tools/publish_release.sh (tested by docs/tools/publish_test/run.sh). A tag that
 # already exists is never overwritten: raise versionCode/versionName first. Changed just one dictionary? Raise its
 # version in dicts/<id>/pack.json and the app version: the new Release brings only that zip. Never delete a Release

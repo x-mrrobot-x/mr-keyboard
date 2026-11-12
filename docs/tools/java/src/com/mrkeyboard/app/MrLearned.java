@@ -118,6 +118,7 @@ public final class MrLearned {
         HashSet<String> set = new HashSet<String>();
         for (MrWordStore.Row r : st.all(MrWordStore.KIND_BLOCKED, locale)) set.add(key(r.a));
         sBlocked = set;
+        MrGestureWords.changed();      // the copy of the words of the person that the gestures search leaves the blocked ones out
     }
 
     /** Weight 1-100 -> frequency of a word in the dictionary of learned words. */

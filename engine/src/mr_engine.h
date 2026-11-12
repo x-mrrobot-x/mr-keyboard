@@ -27,7 +27,12 @@ namespace mr {
 
 // Java <-> native contract version. Goes up when the signature of any native function, the order of
 // the costs or the meaning of any table changes. The app checks it at load time and, if it differs, uses Java.
-constexpr int kEngineVersion = 1;
+//   1: correction search and trigram lookup (1.77).
+//   2: gesture typing added (mr_gesture.h: nGestureOpen, nGestureClose, nGestureConfig, nGestureLayout, nGesture). Nothing
+//      changed in the functions of version 1.
+//   3: nGestureMore added (the last gesture searched in a second dictionary: the words of the user). Nothing changed in the
+//      functions of versions 1 and 2.
+constexpr int kEngineVersion = 3;
 
 constexpr int kMaxTyped = 20;         // MrFuzzy.MAX_TYPED
 constexpr int kMaxExtraDepth = 3;     // MrFuzzy.MAX_EXTRA_DEPTH

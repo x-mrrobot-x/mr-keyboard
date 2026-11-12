@@ -49,6 +49,8 @@
 
 .field minApp:J
 
+.field model:Z
+
 .field name:Ljava/util/Map;
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -79,7 +81,7 @@
     .locals 0
 
     .prologue
-    .line 103
+    .line 132
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -91,7 +93,7 @@
     .locals 2
 
     .prologue
-    .line 117
+    .line 148
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacks$Pack;->description:Ljava/util/Map;
 
     const-string v1, ""
@@ -107,7 +109,7 @@
     .locals 2
 
     .prologue
-    .line 113
+    .line 144
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacks$Pack;->name:Ljava/util/Map;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;

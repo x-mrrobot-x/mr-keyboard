@@ -24,7 +24,7 @@ What in the engine is single-language:
   alternating two languages on every keystroke would hand the rules over on every keystroke.
 - `gTri`: one open `TriStore`. `MrTrigram.use` closes and reopens it when the file changes.
 - `Fuzzy::search` already takes the dictionary per call (`nSearch(dict, size, ...)`), so a second dictionary needs no change there.
-- Contract: a different signature of any native function or a new table means `kEngineVersion` 2 and a new `native-libs.zip`.
+- Contract: a different signature of any native function or a new table means a new `kEngineVersion` (it is 3: gesture typing took it from 1 to 3 in 1.96.0) and a new `native-libs.zip`.
 
 ## The options
 
@@ -35,7 +35,7 @@ word is not valid in the first and the first list has no candidate close to it, 
 first language's (the reserved-slot mechanism `MrFuzzy.finish` already uses for a cheap correction). Cost: nothing when the first language answers (the usual case).
 Touches: `Suggest.smali` (second dictionary, a call after `MrFuzzy.afterWords`), `LatinIME.initSuggest`/`MrPacks` (open the second pack), `MrFuzzy`/`MrPredict`
 (per-language rules and trigram store when the second is asked). Needs the engine to keep one `Rules` and one `TriStore` per language
-(`kEngineVersion` 2) unless the cost of handing the rules over on each switch is acceptable (the test measures it).
+(a new `kEngineVersion`) unless the cost of handing the rules over on each switch is acceptable (the test measures it).
 
 **(b) Merge both candidate lists with a weight.** Both languages are always asked and the lists are merged by score, the second one multiplied by a weight.
 Best for foreign words, but every keystroke pays two searches and the weight decides how much the second language gets in the way of the first.

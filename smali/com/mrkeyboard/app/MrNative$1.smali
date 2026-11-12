@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 52
+    .line 55
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .locals 0
 
     .prologue
-    .line 54
+    .line 57
     invoke-static {}, Lcom/mrkeyboard/app/MrNative;->access$000()Z
 
-    .line 55
+    .line 58
     return-void
 .end method

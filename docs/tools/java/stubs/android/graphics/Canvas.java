@@ -18,4 +18,9 @@ public class Canvas {
     public void drawCircle(float cx, float cy, float radius, Paint paint) { }
 
     public void drawArc(RectF oval, float startAngle, float sweepAngle, boolean useCenter, Paint paint) { }
+
+    /** Tests read the paths drawn (the trail of gesture typing). */
+    public int stubPaths;
+
+    public void drawPath(Path path, Paint paint) { stubPaths++; }
 }

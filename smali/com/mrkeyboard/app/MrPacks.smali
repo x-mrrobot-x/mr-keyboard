@@ -29,11 +29,15 @@
 
 .field static final DICT_TYPE:I = 0x1
 
+.field static final ENCODER:Ljava/lang/String; = "encoder.bin"
+
 .field static final KEY_CATALOG:Ljava/lang/String; = "catalog"
 
 .field static final KEY_CHECKED:Ljava/lang/String; = "checked_at"
 
 .field static final KEY_INSTALLED:Ljava/lang/String; = "installed."
+
+.field static final KEY_MODEL:Ljava/lang/String; = "model."
 
 .field static final KEY_SERIAL:Ljava/lang/String; = "serial"
 
@@ -46,6 +50,20 @@
 .field static final MAX_CATALOG:I = 0x100000
 
 .field static final MAX_PACK:J = 0x4000000L
+
+.field static final MODEL_FILES:[[Ljava/lang/String;
+
+.field static final MODEL_FILE_MAX:I = 0x1000000
+
+.field static final MODEL_FORMAT:I = 0x1
+
+.field static final MODEL_GESTURE:Ljava/lang/String; = "gesture"
+
+.field static final MODEL_LICENSE:Ljava/lang/String; = "LICENSE-FUTO-Model-Weights.md"
+
+.field static final MODEL_LICENSE_RAW:Ljava/lang/String; = "mr_futo_license"
+
+.field static final MODEL_MAGIC:Ljava/lang/String; = "MRSWENC1"
 
 .field static final NOTICE:Ljava/lang/String; = "NOTICE.txt"
 
@@ -94,43 +112,60 @@
 
 # direct methods
 .method static constructor <clinit>()V
-    .locals 3
+    .locals 6
 
     .prologue
-    .line 375
+    const/4 v5, 0x2
+
+    const/4 v4, 0x1
+
+    const/4 v3, 0x0
+
+    .line 104
+    new-array v0, v4, [[Ljava/lang/String;
+
+    new-array v1, v5, [Ljava/lang/String;
+
+    const-string v2, "c05090fefa7200f3ff381c8fee6a5e16415d50ec14e59df9abd29dd85802da6c"
+
+    aput-object v2, v1, v3
+
+    const-string v2, "1"
+
+    aput-object v2, v1, v4
+
+    aput-object v1, v0, v3
+
+    sput-object v0, Lcom/mrkeyboard/app/MrPacks;->MODEL_FILES:[[Ljava/lang/String;
+
+    .line 432
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$1;
 
     invoke-direct {v0}, Lcom/mrkeyboard/app/MrPacks$1;-><init>()V
 
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sNet:Lcom/mrkeyboard/app/MrPacks$Net;
 
-    .line 410
+    .line 467
     const-string v0, "https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/catalog.json"
 
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sCatalogUrl:Ljava/lang/String;
 
-    .line 512
+    .line 700
     const/4 v0, 0x3
 
     new-array v0, v0, [Ljava/lang/String;
 
-    const/4 v1, 0x0
+    const-string v1, "pt-BR"
 
-    const-string v2, "pt-BR"
+    aput-object v1, v0, v3
 
-    aput-object v2, v0, v1
+    const-string v1, "en-US"
 
-    const/4 v1, 0x1
+    aput-object v1, v0, v4
 
-    const-string v2, "en-US"
+    const-string v1, "es"
 
-    aput-object v2, v0, v1
-
-    const/4 v1, 0x2
-
-    const-string v2, "es"
-
-    aput-object v2, v0, v1
+    aput-object v1, v0, v5
 
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->DEFAULT_IDS:[Ljava/lang/String;
 
@@ -141,7 +176,7 @@
     .locals 0
 
     .prologue
-    .line 55
+    .line 64
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -153,7 +188,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 874
+    .line 1069
     const-class v4, Lcom/mrkeyboard/app/MrPacks;
 
     monitor-enter v4
@@ -161,7 +196,7 @@
     :try_start_0
     invoke-static {}, Lcom/mrkeyboard/app/MrNative;->preload()V
 
-    .line 875
+    .line 1070
     if-eqz p0, :cond_0
 
     invoke-virtual {p0}, Ljava/io/File;->getPath()Ljava/lang/String;
@@ -170,28 +205,28 @@
 
     move-object v3, v0
 
-    .line 876
+    .line 1071
     :goto_0
     if-nez v3, :cond_1
 
-    .line 877
+    .line 1072
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrRules;->set(Lcom/mrkeyboard/app/MrRules;)V
 
-    .line 878
+    .line 1073
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTrigram;->use(Ljava/io/File;)V
 
-    .line 879
+    .line 1074
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sActiveDir:Ljava/lang/String;
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 901
+    .line 1096
     :goto_1
     monitor-exit v4
 
@@ -200,10 +235,10 @@
     :cond_0
     move-object v3, v1
 
-    .line 875
+    .line 1070
     goto :goto_0
 
-    .line 882
+    .line 1077
     :cond_1
     :try_start_1
     sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sActiveDir:Ljava/lang/String;
@@ -216,7 +251,7 @@
 
     if-nez v0, :cond_2
 
-    .line 886
+    .line 1081
     :try_start_2
     new-instance v2, Ljava/io/File;
 
@@ -224,14 +259,14 @@
 
     invoke-direct {v2, p0, v0}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 887
+    .line 1082
     invoke-virtual {v2}, Ljava/io/File;->isFile()Z
 
     move-result v0
 
     if-eqz v0, :cond_4
 
-    .line 888
+    .line 1083
     new-instance v0, Ljava/io/FileInputStream;
 
     invoke-direct {v0, v2}, Ljava/io/FileInputStream;-><init>(Ljava/io/File;)V
@@ -239,7 +274,7 @@
     .catch Ljava/io/IOException; {:try_start_2 .. :try_end_2} :catch_0
     .catchall {:try_start_2 .. :try_end_2} :catchall_1
 
-    .line 889
+    .line 1084
     :try_start_3
     invoke-static {v0}, Lcom/mrkeyboard/app/MrRules;->parse(Ljava/io/InputStream;)Lcom/mrkeyboard/app/MrRules;
     :try_end_3
@@ -254,19 +289,19 @@
 
     move-object v2, v5
 
-    .line 894
+    .line 1089
     :goto_2
     :try_start_4
     invoke-static {v2}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
-    .line 896
+    .line 1091
     :goto_3
     invoke-static {v0}, Lcom/mrkeyboard/app/MrRules;->set(Lcom/mrkeyboard/app/MrRules;)V
 
-    .line 897
+    .line 1092
     sput-object v3, Lcom/mrkeyboard/app/MrPacks;->sActiveDir:Ljava/lang/String;
 
-    .line 899
+    .line 1094
     :cond_2
     new-instance v0, Ljava/io/File;
 
@@ -274,7 +309,7 @@
 
     invoke-direct {v0, p0, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 900
+    .line 1095
     invoke-virtual {v0}, Ljava/io/File;->isFile()Z
 
     move-result v2
@@ -290,7 +325,7 @@
 
     goto :goto_1
 
-    .line 874
+    .line 1069
     :catchall_0
     move-exception v0
 
@@ -298,35 +333,35 @@
 
     throw v0
 
-    .line 891
+    .line 1086
     :catch_0
     move-exception v0
 
     move-object v0, v1
 
-    .line 894
+    .line 1089
     :goto_4
     :try_start_5
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
     move-object v0, v1
 
-    .line 895
+    .line 1090
     goto :goto_3
 
-    .line 894
+    .line 1089
     :catchall_1
     move-exception v0
 
     :goto_5
     invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
-    .line 895
+    .line 1090
     throw v0
     :try_end_5
     .catchall {:try_start_5 .. :try_end_5} :catchall_0
 
-    .line 894
+    .line 1089
     :catchall_2
     move-exception v1
 
@@ -338,7 +373,7 @@
 
     goto :goto_5
 
-    .line 891
+    .line 1086
     :catch_1
     move-exception v2
 
@@ -356,7 +391,7 @@
     .locals 3
 
     .prologue
-    .line 849
+    .line 1043
     const-class v1, Lcom/mrkeyboard/app/MrPacks;
 
     monitor-enter v1
@@ -398,16 +433,21 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 580
+    .line 768
     iget v1, p1, Lcom/mrkeyboard/app/MrPacks$Pack;->format:I
 
     if-lt v1, v0, :cond_0
 
-    iget v1, p1, Lcom/mrkeyboard/app/MrPacks$Pack;->format:I
+    iget v2, p1, Lcom/mrkeyboard/app/MrPacks$Pack;->format:I
 
-    const/4 v2, 0x2
+    iget-boolean v1, p1, Lcom/mrkeyboard/app/MrPacks$Pack;->model:Z
 
-    if-gt v1, v2, :cond_0
+    if-eqz v1, :cond_1
+
+    move v1, v0
+
+    :goto_0
+    if-gt v2, v1, :cond_0
 
     iget-wide v2, p1, Lcom/mrkeyboard/app/MrPacks$Pack;->minApp:J
 
@@ -417,23 +457,28 @@
 
     cmp-long v1, v2, v4
 
-    if-lez v1, :cond_1
+    if-lez v1, :cond_2
 
     :cond_0
-    :goto_0
+    :goto_1
     return v0
 
     :cond_1
-    const/4 v0, 0x0
+    const/4 v1, 0x2
 
     goto :goto_0
+
+    :cond_2
+    const/4 v0, 0x0
+
+    goto :goto_1
 .end method
 
 .method static appVersion(Landroid/content/Context;)J
     .locals 3
 
     .prologue
-    .line 573
+    .line 761
     :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
 
@@ -455,15 +500,15 @@
 
     int-to-long v0, v0
 
-    .line 575
+    .line 763
     :goto_0
     return-wide v0
 
-    .line 574
+    .line 762
     :catch_0
     move-exception v0
 
-    .line 575
+    .line 763
     const-wide/16 v0, 0x0
 
     goto :goto_0
@@ -475,7 +520,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 452
+    .line 509
     const-class v1, Lcom/mrkeyboard/app/MrPacks;
 
     monitor-enter v1
@@ -495,16 +540,16 @@
 
     move-result-object v2
 
-    .line 453
+    .line 510
     if-nez v2, :cond_0
 
-    .line 461
+    .line 518
     :goto_0
     monitor-exit v1
 
     return-object v0
 
-    .line 454
+    .line 511
     :cond_0
     :try_start_1
     sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sCachedData:Ljava/lang/String;
@@ -521,7 +566,7 @@
 
     goto :goto_0
 
-    .line 456
+    .line 513
     :cond_1
     :try_start_2
     invoke-static {v2}, Lcom/mrkeyboard/app/MrPacks;->readData(Ljava/lang/String;)Lcom/mrkeyboard/app/MrPacks$Catalog;
@@ -533,21 +578,21 @@
     .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_2 .. :try_end_2} :catch_0
     .catchall {:try_start_2 .. :try_end_2} :catchall_0
 
-    .line 460
+    .line 517
     :goto_1
     :try_start_3
     sput-object v2, Lcom/mrkeyboard/app/MrPacks;->sCachedData:Ljava/lang/String;
 
-    .line 461
+    .line 518
     sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sCached:Lcom/mrkeyboard/app/MrPacks$Catalog;
 
     goto :goto_0
 
-    .line 457
+    .line 514
     :catch_0
     move-exception v0
 
-    .line 458
+    .line 515
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sCached:Lcom/mrkeyboard/app/MrPacks$Catalog;
@@ -556,7 +601,7 @@
 
     goto :goto_1
 
-    .line 452
+    .line 509
     :catchall_0
     move-exception v0
 
@@ -590,12 +635,12 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 520
+    .line 708
     new-instance v3, Ljava/util/ArrayList;
 
     invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
 
-    .line 521
+    .line 709
     sget-object v1, Lcom/mrkeyboard/app/MrPacks;->DEFAULT_IDS:[Ljava/lang/String;
 
     array-length v4, v1
@@ -613,7 +658,7 @@
 
     goto :goto_0
 
-    .line 522
+    .line 710
     :cond_0
     if-eqz p0, :cond_2
 
@@ -651,7 +696,7 @@
 
     goto :goto_1
 
-    .line 523
+    .line 711
     :cond_2
     if-eqz p1, :cond_4
 
@@ -683,20 +728,20 @@
 
     goto :goto_2
 
-    .line 524
+    .line 712
     :cond_4
     new-instance v4, Ljava/util/ArrayList;
 
     invoke-direct {v4}, Ljava/util/ArrayList;-><init>()V
 
-    .line 525
+    .line 713
     if-nez p2, :cond_6
 
     const-string v0, ""
 
     move-object v1, v0
 
-    .line 526
+    .line 714
     :goto_3
     invoke-virtual {v3}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
@@ -732,7 +777,7 @@
 
     goto :goto_4
 
-    .line 525
+    .line 713
     :cond_6
     sget-object v0, Ljava/util/Locale;->ROOT:Ljava/util/Locale;
 
@@ -744,7 +789,7 @@
 
     goto :goto_3
 
-    .line 527
+    .line 715
     :cond_7
     invoke-virtual {v3}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
@@ -774,7 +819,7 @@
 
     goto :goto_5
 
-    .line 528
+    .line 716
     :cond_9
     return-object v4
 .end method
@@ -783,7 +828,7 @@
     .locals 2
 
     .prologue
-    .line 1003
+    .line 1198
     :try_start_0
     const-string v0, "SHA-256"
 
@@ -805,15 +850,15 @@
 
     move-result-object v0
 
-    .line 1005
+    .line 1200
     :goto_0
     return-object v0
 
-    .line 1004
+    .line 1199
     :catch_0
     move-exception v0
 
-    .line 1005
+    .line 1200
     const-string v0, ""
 
     goto :goto_0
@@ -830,18 +875,18 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 967
+    .line 1162
     sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sTestCerts:[Ljava/security/cert/X509Certificate;
 
     if-eqz v0, :cond_0
 
     sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sTestCerts:[Ljava/security/cert/X509Certificate;
 
-    .line 982
+    .line 1177
     :goto_0
     return-object v0
 
-    .line 970
+    .line 1165
     :cond_0
     :try_start_0
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
@@ -850,14 +895,14 @@
 
     if-lt v0, v1, :cond_2
 
-    .line 971
+    .line 1166
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks$Api28;->signers(Landroid/content/Context;)[Landroid/content/pm/Signature;
 
     move-result-object v0
 
     move-object v4, v0
 
-    .line 976
+    .line 1171
     :goto_1
     if-eqz v4, :cond_1
 
@@ -881,14 +926,14 @@
     .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_0 .. :try_end_0} :catch_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_1
 
-    .line 983
+    .line 1178
     :catch_0
     move-exception v0
 
-    .line 984
+    .line 1179
     throw v0
 
-    .line 973
+    .line 1168
     :cond_2
     :try_start_1
     invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
@@ -905,14 +950,14 @@
 
     move-result-object v0
 
-    .line 974
+    .line 1169
     iget-object v0, v0, Landroid/content/pm/PackageInfo;->signatures:[Landroid/content/pm/Signature;
 
     move-object v4, v0
 
     goto :goto_1
 
-    .line 977
+    .line 1172
     :cond_3
     const-string v0, "X.509"
 
@@ -920,20 +965,20 @@
 
     move-result-object v5
 
-    .line 978
+    .line 1173
     array-length v0, v4
 
     new-array v1, v0, [Ljava/security/cert/X509Certificate;
 
     move v2, v3
 
-    .line 979
+    .line 1174
     :goto_2
     array-length v0, v4
 
     if-ge v2, v0, :cond_4
 
-    .line 980
+    .line 1175
     new-instance v0, Ljava/io/ByteArrayInputStream;
 
     aget-object v6, v4, v2
@@ -955,7 +1000,7 @@
     .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_1 .. :try_end_1} :catch_0
     .catch Ljava/lang/Exception; {:try_start_1 .. :try_end_1} :catch_1
 
-    .line 979
+    .line 1174
     add-int/lit8 v0, v2, 0x1
 
     move v2, v0
@@ -965,14 +1010,14 @@
     :cond_4
     move-object v0, v1
 
-    .line 982
+    .line 1177
     goto :goto_0
 
-    .line 985
+    .line 1180
     :catch_1
     move-exception v0
 
-    .line 986
+    .line 1181
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
 
     const-string v1, "mr_dicts_err_signature"
@@ -999,14 +1044,14 @@
 
     const/4 v4, 0x0
 
-    .line 718
+    .line 912
     new-instance v0, Ljava/io/File;
 
     const-string v1, "main.dict"
 
     invoke-direct {v0, p0, v1}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 719
+    .line 913
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->dictHeaderOk(Ljava/io/File;)Z
 
     move-result v0
@@ -1027,7 +1072,7 @@
 
     throw v0
 
-    .line 720
+    .line 914
     :cond_0
     new-instance v0, Ljava/io/File;
 
@@ -1035,21 +1080,21 @@
 
     invoke-direct {v0, p0, v1}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 721
+    .line 915
     invoke-virtual {v0}, Ljava/io/File;->exists()Z
 
     move-result v1
 
     if-eqz v1, :cond_2
 
-    .line 722
+    .line 916
     const/4 v1, 0x4
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPacks;->head(Ljava/io/File;I)[B
 
     move-result-object v0
 
-    .line 724
+    .line 918
     if-eqz v0, :cond_1
 
     aget-byte v1, v0, v4
@@ -1084,7 +1129,7 @@
 
     if-eq v0, v1, :cond_2
 
-    .line 725
+    .line 919
     :cond_1
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
 
@@ -1100,7 +1145,7 @@
 
     throw v0
 
-    .line 728
+    .line 922
     :cond_2
     new-instance v2, Ljava/io/File;
 
@@ -1108,17 +1153,17 @@
 
     invoke-direct {v2, p0, v0}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 729
+    .line 923
     invoke-virtual {v2}, Ljava/io/File;->exists()Z
 
     move-result v0
 
     if-eqz v0, :cond_3
 
-    .line 730
+    .line 924
     const/4 v1, 0x0
 
-    .line 732
+    .line 926
     :try_start_0
     new-instance v0, Ljava/io/FileInputStream;
 
@@ -1127,27 +1172,27 @@
     .catch Ljava/io/IOException; {:try_start_0 .. :try_end_0} :catch_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_1
 
-    .line 733
+    .line 927
     :try_start_1
     invoke-static {v0}, Lcom/mrkeyboard/app/MrRules;->parse(Ljava/io/InputStream;)Lcom/mrkeyboard/app/MrRules;
     :try_end_1
     .catch Ljava/io/IOException; {:try_start_1 .. :try_end_1} :catch_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 737
+    .line 931
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
-    .line 740
+    .line 934
     :cond_3
     return-void
 
-    .line 734
+    .line 928
     :catch_0
     move-exception v0
 
     move-object v0, v1
 
-    .line 735
+    .line 929
     :goto_0
     :try_start_2
     new-instance v1, Lcom/mrkeyboard/app/MrPacks$PackException;
@@ -1170,7 +1215,7 @@
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_0
 
-    .line 737
+    .line 931
     :catchall_0
     move-exception v1
 
@@ -1183,27 +1228,166 @@
     :goto_1
     invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
-    .line 738
+    .line 932
     throw v0
 
-    .line 737
+    .line 931
     :catchall_1
     move-exception v0
 
     goto :goto_1
 
-    .line 734
+    .line 928
     :catch_1
     move-exception v1
 
     goto :goto_0
 .end method
 
+.method static checkModel(Ljava/io/File;)V
+    .locals 10
+    .annotation system Ldalvik/annotation/Throws;
+        value = {
+            Lcom/mrkeyboard/app/MrPacks$PackException;
+        }
+    .end annotation
+
+    .prologue
+    const-wide/16 v8, 0x400
+
+    const/4 v1, 0x1
+
+    const/4 v2, 0x0
+
+    .line 686
+    new-instance v0, Ljava/io/File;
+
+    const-string v3, "encoder.bin"
+
+    invoke-direct {v0, p0, v3}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    .line 687
+    const-string v3, "MRSWENC1"
+
+    invoke-virtual {v3}, Ljava/lang/String;->length()I
+
+    move-result v3
+
+    invoke-static {v0, v3}, Lcom/mrkeyboard/app/MrPacks;->head(Ljava/io/File;I)[B
+
+    move-result-object v4
+
+    .line 688
+    if-eqz v4, :cond_0
+
+    invoke-virtual {v0}, Ljava/io/File;->length()J
+
+    move-result-wide v6
+
+    cmp-long v0, v6, v8
+
+    if-ltz v0, :cond_0
+
+    move v0, v1
+
+    :goto_0
+    move v3, v2
+
+    .line 689
+    :goto_1
+    if-eqz v0, :cond_2
+
+    array-length v5, v4
+
+    if-ge v3, v5, :cond_2
+
+    aget-byte v0, v4, v3
+
+    const-string v5, "MRSWENC1"
+
+    invoke-virtual {v5, v3}, Ljava/lang/String;->charAt(I)C
+
+    move-result v5
+
+    if-ne v0, v5, :cond_1
+
+    move v0, v1
+
+    :goto_2
+    add-int/lit8 v3, v3, 0x1
+
+    goto :goto_1
+
+    :cond_0
+    move v0, v2
+
+    .line 688
+    goto :goto_0
+
+    :cond_1
+    move v0, v2
+
+    .line 689
+    goto :goto_2
+
+    .line 690
+    :cond_2
+    if-nez v0, :cond_3
+
+    new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
+
+    const-string v3, "mr_dicts_err_corrupt"
+
+    new-array v1, v1, [Ljava/lang/Object;
+
+    const-string v4, "encoder.bin"
+
+    aput-object v4, v1, v2
+
+    invoke-direct {v0, v3, v1}, Lcom/mrkeyboard/app/MrPacks$PackException;-><init>(Ljava/lang/String;[Ljava/lang/Object;)V
+
+    throw v0
+
+    .line 691
+    :cond_3
+    new-instance v0, Ljava/io/File;
+
+    const-string v3, "LICENSE-FUTO-Model-Weights.md"
+
+    invoke-direct {v0, p0, v3}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    invoke-virtual {v0}, Ljava/io/File;->length()J
+
+    move-result-wide v4
+
+    cmp-long v0, v4, v8
+
+    if-gez v0, :cond_4
+
+    new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
+
+    const-string v3, "mr_dicts_err_corrupt"
+
+    new-array v1, v1, [Ljava/lang/Object;
+
+    const-string v4, "LICENSE-FUTO-Model-Weights.md"
+
+    aput-object v4, v1, v2
+
+    invoke-direct {v0, v3, v1}, Lcom/mrkeyboard/app/MrPacks$PackException;-><init>(Ljava/lang/String;[Ljava/lang/Object;)V
+
+    throw v0
+
+    .line 692
+    :cond_4
+    return-void
+.end method
+
 .method static checkedAt(Landroid/content/Context;)J
     .locals 4
 
     .prologue
-    .line 465
+    .line 522
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -1223,14 +1407,14 @@
     .locals 1
 
     .prologue
-    .line 1040
+    .line 1235
     if-nez p0, :cond_0
 
-    .line 1046
+    .line 1241
     :goto_0
     return-void
 
-    .line 1042
+    .line 1237
     :cond_0
     :try_start_0
     invoke-interface {p0}, Ljava/io/Closeable;->close()V
@@ -1239,7 +1423,7 @@
 
     goto :goto_0
 
-    .line 1043
+    .line 1238
     :catch_0
     move-exception v0
 
@@ -1250,7 +1434,7 @@
     .locals 4
 
     .prologue
-    .line 1033
+    .line 1228
     if-eqz p0, :cond_0
 
     invoke-virtual {p0}, Ljava/io/File;->exists()Z
@@ -1259,18 +1443,18 @@
 
     if-nez v0, :cond_1
 
-    .line 1037
+    .line 1232
     :cond_0
     :goto_0
     return-void
 
-    .line 1034
+    .line 1229
     :cond_1
     invoke-virtual {p0}, Ljava/io/File;->listFiles()[Ljava/io/File;
 
     move-result-object v1
 
-    .line 1035
+    .line 1230
     if-eqz v1, :cond_2
 
     array-length v2, v1
@@ -1288,7 +1472,7 @@
 
     goto :goto_1
 
-    .line 1036
+    .line 1231
     :cond_2
     invoke-virtual {p0}, Ljava/io/File;->delete()Z
 
@@ -1305,12 +1489,12 @@
 
     const/4 v1, 0x0
 
-    .line 743
+    .line 937
     invoke-virtual {p0}, Ljava/io/File;->length()J
 
     move-result-wide v2
 
-    .line 744
+    .line 938
     const-wide/16 v4, 0x400
 
     cmp-long v4, v2, v4
@@ -1326,18 +1510,18 @@
     :cond_0
     move v0, v1
 
-    .line 748
+    .line 942
     :cond_1
     :goto_0
     return v0
 
-    .line 745
+    .line 939
     :cond_2
     invoke-static {p0, v7}, Lcom/mrkeyboard/app/MrPacks;->head(Ljava/io/File;I)[B
 
     move-result-object v4
 
-    .line 746
+    .line 940
     if-eqz v4, :cond_3
 
     aget-byte v5, v4, v1
@@ -1353,7 +1537,7 @@
 
     goto :goto_0
 
-    .line 747
+    .line 941
     :cond_4
     aget-byte v5, v4, v0
 
@@ -1369,7 +1553,7 @@
 
     goto :goto_0
 
-    .line 748
+    .line 942
     :cond_5
     aget-byte v2, v4, v0
 
@@ -1393,8 +1577,8 @@
 
     const/4 v1, 0x0
 
-    .line 625
-    .line 628
+    .line 819
+    .line 822
     :try_start_0
     const-string v0, "SHA-256"
 
@@ -1402,12 +1586,12 @@
 
     move-result-object v0
 
-    .line 629
+    .line 823
     const/4 v2, 0x1
 
     new-array v2, v2, [J
 
-    .line 630
+    .line 824
     sget-object v3, Lcom/mrkeyboard/app/MrPacks;->sNet:Lcom/mrkeyboard/app/MrPacks$Net;
 
     invoke-interface {v3, p0, v2}, Lcom/mrkeyboard/app/MrPacks$Net;->open(Ljava/lang/String;[J)Ljava/io/InputStream;
@@ -1420,7 +1604,7 @@
 
     move-result-object v3
 
-    .line 631
+    .line 825
     const/4 v6, 0x0
 
     :try_start_1
@@ -1464,20 +1648,20 @@
     .catch Ljava/lang/Exception; {:try_start_1 .. :try_end_1} :catch_7
     .catchall {:try_start_1 .. :try_end_1} :catchall_1
 
-    .line 648
+    .line 842
     :catch_0
     move-exception v0
 
     move-object v2, v3
 
-    .line 649
+    .line 843
     :goto_0
     :try_start_2
     throw v0
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_0
 
-    .line 658
+    .line 852
     :catchall_0
     move-exception v0
 
@@ -1486,13 +1670,13 @@
     :goto_1
     invoke-static {v3}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
-    .line 659
+    .line 853
     invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
-    .line 660
+    .line 854
     throw v0
 
-    .line 632
+    .line 826
     :cond_0
     :try_start_3
     new-instance v2, Ljava/io/FileOutputStream;
@@ -1505,13 +1689,13 @@
     .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_3} :catch_7
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 633
+    .line 827
     const/high16 v6, 0x10000
 
     :try_start_4
     new-array v6, v6, [B
 
-    .line 636
+    .line 830
     :goto_2
     invoke-virtual {v3, v6}, Ljava/io/InputStream;->read([B)I
 
@@ -1519,7 +1703,7 @@
 
     if-lez v7, :cond_3
 
-    .line 637
+    .line 831
     sget-boolean v8, Lcom/mrkeyboard/app/MrPacks;->sCancel:Z
 
     if-eqz v8, :cond_1
@@ -1536,7 +1720,7 @@
 
     throw v0
 
-    .line 648
+    .line 842
     :catch_1
     move-exception v0
 
@@ -1546,13 +1730,13 @@
 
     goto :goto_0
 
-    .line 638
+    .line 832
     :cond_1
     int-to-long v8, v7
 
     add-long/2addr v4, v8
 
-    .line 639
+    .line 833
     iget-wide v8, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->size:J
 
     cmp-long v8, v4, v8
@@ -1583,13 +1767,13 @@
     .catch Ljava/lang/Exception; {:try_start_4 .. :try_end_4} :catch_8
     .catchall {:try_start_4 .. :try_end_4} :catchall_3
 
-    .line 650
+    .line 844
     :catch_2
     move-exception v0
 
     move-object v1, v2
 
-    .line 651
+    .line 845
     :goto_3
     :try_start_5
     new-instance v2, Lcom/mrkeyboard/app/MrPacks$PackException;
@@ -1616,25 +1800,25 @@
     :try_end_5
     .catchall {:try_start_5 .. :try_end_5} :catchall_1
 
-    .line 658
+    .line 852
     :catchall_1
     move-exception v0
 
     goto :goto_1
 
-    .line 640
+    .line 834
     :cond_2
     const/4 v8, 0x0
 
     :try_start_6
     invoke-virtual {v0, v6, v8, v7}, Ljava/security/MessageDigest;->update([BII)V
 
-    .line 641
+    .line 835
     const/4 v8, 0x0
 
     invoke-virtual {v2, v6, v8, v7}, Ljava/io/OutputStream;->write([BII)V
 
-    .line 642
+    .line 836
     const-wide/16 v8, 0x64
 
     mul-long/2addr v8, v4
@@ -1655,13 +1839,13 @@
 
     goto :goto_2
 
-    .line 652
+    .line 846
     :catch_3
     move-exception v0
 
     move-object v1, v2
 
-    .line 653
+    .line 847
     :goto_4
     :try_start_7
     sget-boolean v0, Lcom/mrkeyboard/app/MrPacks;->sCancel:Z
@@ -1682,7 +1866,7 @@
     :try_end_7
     .catchall {:try_start_7 .. :try_end_7} :catchall_1
 
-    .line 644
+    .line 838
     :cond_3
     :try_start_8
     invoke-virtual {v2}, Ljava/io/OutputStream;->close()V
@@ -1693,7 +1877,7 @@
     .catch Ljava/lang/Exception; {:try_start_8 .. :try_end_8} :catch_8
     .catchall {:try_start_8 .. :try_end_8} :catchall_3
 
-    .line 646
+    .line 840
     :try_start_9
     iget-wide v6, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->size:J
 
@@ -1719,13 +1903,13 @@
 
     throw v0
 
-    .line 650
+    .line 844
     :catch_4
     move-exception v0
 
     goto :goto_3
 
-    .line 647
+    .line 841
     :cond_4
     invoke-virtual {v0}, Ljava/security/MessageDigest;->digest()[B
 
@@ -1767,23 +1951,23 @@
     .catch Ljava/lang/Exception; {:try_start_9 .. :try_end_9} :catch_7
     .catchall {:try_start_9 .. :try_end_9} :catchall_1
 
-    .line 652
+    .line 846
     :catch_5
     move-exception v0
 
     goto :goto_4
 
-    .line 658
+    .line 852
     :cond_5
     invoke-static {v3}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
-    .line 659
+    .line 853
     invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
-    .line 661
+    .line 855
     return-void
 
-    .line 654
+    .line 848
     :cond_6
     :try_start_a
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
@@ -1798,17 +1982,19 @@
 
     throw v0
 
-    .line 655
+    .line 849
     :catch_6
     move-exception v0
 
     move-object v3, v1
 
-    .line 656
+    .line 850
     :goto_5
     new-instance v2, Lcom/mrkeyboard/app/MrPacks$PackException;
 
-    const-string v4, "mr_dicts_err_io"
+    invoke-static {p2}, Lcom/mrkeyboard/app/MrPacks;->ioKey(Lcom/mrkeyboard/app/MrPacks$Pack;)Ljava/lang/String;
+
+    move-result-object v4
 
     const/4 v5, 0x1
 
@@ -1832,7 +2018,7 @@
     :try_end_a
     .catchall {:try_start_a .. :try_end_a} :catchall_1
 
-    .line 658
+    .line 852
     :catchall_2
     move-exception v0
 
@@ -1847,7 +2033,7 @@
 
     goto/16 :goto_1
 
-    .line 655
+    .line 849
     :catch_7
     move-exception v0
 
@@ -1860,7 +2046,7 @@
 
     goto :goto_5
 
-    .line 652
+    .line 846
     :catch_9
     move-exception v0
 
@@ -1868,7 +2054,7 @@
 
     goto/16 :goto_4
 
-    .line 650
+    .line 844
     :catch_a
     move-exception v0
 
@@ -1876,7 +2062,7 @@
 
     goto/16 :goto_3
 
-    .line 648
+    .line 842
     :catch_b
     move-exception v0
 
@@ -1894,7 +2080,7 @@
     .end annotation
 
     .prologue
-    .line 665
+    .line 859
     invoke-virtual/range {p1 .. p1}, Ljava/io/File;->mkdirs()Z
 
     move-result v2
@@ -1909,7 +2095,9 @@
 
     new-instance v2, Lcom/mrkeyboard/app/MrPacks$PackException;
 
-    const-string v3, "mr_dicts_err_io"
+    invoke-static/range {p2 .. p2}, Lcom/mrkeyboard/app/MrPacks;->ioKey(Lcom/mrkeyboard/app/MrPacks$Pack;)Ljava/lang/String;
+
+    move-result-object v3
 
     const/4 v4, 0x1
 
@@ -1925,16 +2113,16 @@
 
     throw v2
 
-    .line 666
+    .line 860
     :cond_0
     new-instance v8, Ljava/util/HashSet;
 
     invoke-direct {v8}, Ljava/util/HashSet;-><init>()V
 
-    .line 667
+    .line 861
     const/4 v4, 0x0
 
-    .line 669
+    .line 863
     :try_start_0
     new-instance v3, Ljava/util/zip/ZipInputStream;
 
@@ -1950,13 +2138,13 @@
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_2
     .catchall {:try_start_0 .. :try_end_0} :catchall_2
 
-    .line 670
+    .line 864
     const/high16 v2, 0x10000
 
     :try_start_1
     new-array v9, v2, [B
 
-    .line 672
+    .line 866
     :cond_1
     invoke-virtual {v3}, Ljava/util/zip/ZipInputStream;->getNextEntry()Ljava/util/zip/ZipEntry;
 
@@ -1964,12 +2152,12 @@
 
     if-eqz v10, :cond_a
 
-    .line 673
+    .line 867
     invoke-virtual {v10}, Ljava/util/zip/ZipEntry;->getName()Ljava/lang/String;
 
     move-result-object v11
 
-    .line 676
+    .line 870
     const-string v2, "pack.json"
 
     invoke-virtual {v11, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1978,17 +2166,17 @@
 
     if-eqz v2, :cond_3
 
-    .line 677
+    .line 871
     const-wide/32 v4, 0x10000
 
-    .line 678
+    .line 872
     move-object/from16 v0, p2
 
     iget-object v2, v0, Lcom/mrkeyboard/app/MrPacks$Pack;->manifestSha:Ljava/lang/String;
 
     move-wide v6, v4
 
-    .line 685
+    .line 879
     :goto_0
     invoke-virtual {v10}, Ljava/util/zip/ZipEntry;->isDirectory()Z
 
@@ -2023,28 +2211,28 @@
     .catch Ljava/lang/Exception; {:try_start_1 .. :try_end_1} :catch_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 704
+    .line 898
     :catch_0
     move-exception v2
 
-    .line 705
+    .line 899
     :goto_1
     :try_start_2
     throw v2
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_0
 
-    .line 709
+    .line 903
     :catchall_0
     move-exception v2
 
     :goto_2
     invoke-static {v3}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
-    .line 710
+    .line 904
     throw v2
 
-    .line 680
+    .line 874
     :cond_3
     :try_start_3
     move-object/from16 v0, p2
@@ -2055,7 +2243,7 @@
 
     move-result v2
 
-    .line 681
+    .line 875
     if-gez v2, :cond_4
 
     new-instance v2, Lcom/mrkeyboard/app/MrPacks$PackException;
@@ -2078,11 +2266,11 @@
     .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_3} :catch_1
     .catchall {:try_start_3 .. :try_end_3} :catchall_0
 
-    .line 706
+    .line 900
     :catch_1
     move-exception v2
 
-    .line 707
+    .line 901
     :goto_3
     :try_start_4
     new-instance v2, Lcom/mrkeyboard/app/MrPacks$PackException;
@@ -2105,7 +2293,7 @@
     :try_end_4
     .catchall {:try_start_4 .. :try_end_4} :catchall_0
 
-    .line 682
+    .line 876
     :cond_4
     :try_start_5
     move-object/from16 v0, p2
@@ -2114,7 +2302,7 @@
 
     aget-wide v4, v4, v2
 
-    .line 683
+    .line 877
     move-object/from16 v0, p2
 
     iget-object v6, v0, Lcom/mrkeyboard/app/MrPacks$Pack;->fileSha:[Ljava/lang/String;
@@ -2125,7 +2313,7 @@
 
     goto :goto_0
 
-    .line 686
+    .line 880
     :cond_5
     const-string v4, "SHA-256"
 
@@ -2133,7 +2321,7 @@
 
     move-result-object v10
 
-    .line 687
+    .line 881
     new-instance v12, Ljava/io/FileOutputStream;
 
     new-instance v4, Ljava/io/File;
@@ -2148,10 +2336,10 @@
     .catch Ljava/lang/Exception; {:try_start_5 .. :try_end_5} :catch_1
     .catchall {:try_start_5 .. :try_end_5} :catchall_0
 
-    .line 688
+    .line 882
     const-wide/16 v4, 0x0
 
-    .line 691
+    .line 885
     :goto_4
     :try_start_6
     invoke-virtual {v3, v9}, Ljava/util/zip/ZipInputStream;->read([B)I
@@ -2160,7 +2348,7 @@
 
     if-lez v13, :cond_8
 
-    .line 692
+    .line 886
     sget-boolean v14, Lcom/mrkeyboard/app/MrPacks;->sCancel:Z
 
     if-eqz v14, :cond_6
@@ -2179,27 +2367,27 @@
     :try_end_6
     .catchall {:try_start_6 .. :try_end_6} :catchall_1
 
-    .line 699
+    .line 893
     :catchall_1
     move-exception v2
 
     :try_start_7
     invoke-virtual {v12}, Ljava/io/OutputStream;->close()V
 
-    .line 700
+    .line 894
     throw v2
     :try_end_7
     .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_7 .. :try_end_7} :catch_0
     .catch Ljava/lang/Exception; {:try_start_7 .. :try_end_7} :catch_1
     .catchall {:try_start_7 .. :try_end_7} :catchall_0
 
-    .line 693
+    .line 887
     :cond_6
     int-to-long v14, v13
 
     add-long/2addr v4, v14
 
-    .line 694
+    .line 888
     cmp-long v14, v4, v6
 
     if-lez v14, :cond_7
@@ -2221,13 +2409,13 @@
 
     throw v2
 
-    .line 695
+    .line 889
     :cond_7
     const/4 v14, 0x0
 
     invoke-virtual {v10, v9, v14, v13}, Ljava/security/MessageDigest;->update([BII)V
 
-    .line 696
+    .line 890
     const/4 v14, 0x0
 
     invoke-virtual {v12, v9, v14, v13}, Ljava/io/OutputStream;->write([BII)V
@@ -2236,12 +2424,12 @@
 
     goto :goto_4
 
-    .line 699
+    .line 893
     :cond_8
     :try_start_9
     invoke-virtual {v12}, Ljava/io/OutputStream;->close()V
 
-    .line 701
+    .line 895
     const-string v12, "pack.json"
 
     invoke-virtual {v11, v12}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -2270,7 +2458,7 @@
 
     throw v2
 
-    .line 702
+    .line 896
     :cond_9
     invoke-virtual {v10}, Ljava/security/MessageDigest;->digest()[B
 
@@ -2306,11 +2494,11 @@
     .catch Ljava/lang/Exception; {:try_start_9 .. :try_end_9} :catch_1
     .catchall {:try_start_9 .. :try_end_9} :catchall_0
 
-    .line 709
+    .line 903
     :cond_a
     invoke-static {v3}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
-    .line 711
+    .line 905
     move-object/from16 v0, p2
 
     iget-object v3, v0, Lcom/mrkeyboard/app/MrPacks$Pack;->fileNames:[Ljava/lang/String;
@@ -2324,7 +2512,7 @@
 
     aget-object v5, v3, v2
 
-    .line 712
+    .line 906
     invoke-virtual {v8, v5}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
 
     move-result v6
@@ -2347,17 +2535,17 @@
 
     throw v2
 
-    .line 711
+    .line 905
     :cond_b
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_5
 
-    .line 714
+    .line 908
     :cond_c
     return-void
 
-    .line 709
+    .line 903
     :catchall_2
     move-exception v2
 
@@ -2365,7 +2553,7 @@
 
     goto/16 :goto_2
 
-    .line 706
+    .line 900
     :catch_2
     move-exception v2
 
@@ -2373,7 +2561,7 @@
 
     goto/16 :goto_3
 
-    .line 704
+    .line 898
     :catch_3
     move-exception v2
 
@@ -2391,7 +2579,7 @@
     .end annotation
 
     .prologue
-    .line 415
+    .line 472
     const-string v0, "catalog.json"
 
     invoke-static {p0, p1, v0}, Lcom/mrkeyboard/app/MrPacks;->fetchBytes(Ljava/lang/String;ILjava/lang/String;)[B
@@ -2412,23 +2600,23 @@
     .prologue
     const/16 v0, 0x2000
 
-    .line 420
+    .line 477
     const/4 v1, 0x0
 
-    .line 422
+    .line 479
     const/4 v2, 0x1
 
     :try_start_0
     new-array v2, v2, [J
 
-    .line 423
+    .line 480
     sget-object v3, Lcom/mrkeyboard/app/MrPacks;->sNet:Lcom/mrkeyboard/app/MrPacks$Net;
 
     invoke-interface {v3, p0, v2}, Lcom/mrkeyboard/app/MrPacks$Net;->open(Ljava/lang/String;[J)Ljava/io/InputStream;
 
     move-result-object v1
 
-    .line 424
+    .line 481
     new-instance v3, Ljava/io/ByteArrayOutputStream;
 
     const/4 v4, 0x0
@@ -2460,12 +2648,12 @@
     :cond_0
     invoke-direct {v3, v0}, Ljava/io/ByteArrayOutputStream;-><init>(I)V
 
-    .line 425
+    .line 482
     const/16 v0, 0x2000
 
     new-array v0, v0, [B
 
-    .line 427
+    .line 484
     :cond_1
     invoke-virtual {v1, v0}, Ljava/io/InputStream;->read([B)I
 
@@ -2473,12 +2661,12 @@
 
     if-lez v2, :cond_2
 
-    .line 428
+    .line 485
     const/4 v4, 0x0
 
     invoke-virtual {v3, v0, v4, v2}, Ljava/io/ByteArrayOutputStream;->write([BII)V
 
-    .line 429
+    .line 486
     invoke-virtual {v3}, Ljava/io/ByteArrayOutputStream;->size()I
 
     move-result v2
@@ -2505,11 +2693,11 @@
     .catch Ljava/io/IOException; {:try_start_0 .. :try_end_0} :catch_1
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 432
+    .line 489
     :catch_0
     move-exception v0
 
-    .line 433
+    .line 490
     :try_start_1
     new-instance v2, Lcom/mrkeyboard/app/MrPacks$PackException;
 
@@ -2535,16 +2723,16 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 437
+    .line 494
     :catchall_0
     move-exception v0
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
-    .line 438
+    .line 495
     throw v0
 
-    .line 431
+    .line 488
     :cond_2
     :try_start_2
     invoke-virtual {v3}, Ljava/io/ByteArrayOutputStream;->toByteArray()[B
@@ -2555,17 +2743,17 @@
 
     move-result-object v0
 
-    .line 437
+    .line 494
     invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
-    .line 431
+    .line 488
     return-object v0
 
-    .line 434
+    .line 491
     :catch_1
     move-exception v0
 
-    .line 435
+    .line 492
     :try_start_3
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
 
@@ -2591,7 +2779,7 @@
     .end annotation
 
     .prologue
-    .line 470
+    .line 527
     sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sCatalogUrl:Ljava/lang/String;
 
     const/high16 v1, 0x100000
@@ -2600,12 +2788,12 @@
 
     move-result-object v0
 
-    .line 471
+    .line 528
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v1
 
-    .line 472
+    .line 529
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->certs(Landroid/content/Context;)[Ljava/security/cert/X509Certificate;
 
     move-result-object v2
@@ -2622,7 +2810,7 @@
 
     move-result-object v0
 
-    .line 473
+    .line 530
     invoke-interface {v1}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
     move-result-object v1
@@ -2645,7 +2833,7 @@
 
     const-string v2, "checked_at"
 
-    .line 474
+    .line 531
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
@@ -2656,7 +2844,7 @@
 
     invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;->commit()Z
 
-    .line 475
+    .line 532
     return-object v0
 .end method
 
@@ -2666,8 +2854,8 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 752
-    .line 754
+    .line 946
+    .line 948
     :try_start_0
     new-instance v2, Ljava/io/FileInputStream;
 
@@ -2676,18 +2864,18 @@
     .catch Ljava/io/IOException; {:try_start_0 .. :try_end_0} :catch_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 755
+    .line 949
     :try_start_1
     new-array v1, p1, [B
 
-    .line 756
+    .line 950
     const/4 v3, 0x0
 
-    .line 757
+    .line 951
     :goto_0
     if-ge v3, p1, :cond_1
 
-    .line 758
+    .line 952
     sub-int v4, p1, v3
 
     invoke-virtual {v2, v1, v3, v4}, Ljava/io/InputStream;->read([BII)I
@@ -2697,39 +2885,39 @@
 
     move-result v4
 
-    .line 759
+    .line 953
     if-gtz v4, :cond_0
 
-    .line 766
+    .line 960
     invoke-static {v2}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
-    .line 764
+    .line 958
     :goto_1
     return-object v0
 
-    .line 760
+    .line 954
     :cond_0
     add-int/2addr v3, v4
 
-    .line 761
+    .line 955
     goto :goto_0
 
-    .line 766
+    .line 960
     :cond_1
     invoke-static {v2}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
     move-object v0, v1
 
-    .line 762
+    .line 956
     goto :goto_1
 
-    .line 763
+    .line 957
     :catch_0
     move-exception v1
 
     move-object v1, v0
 
-    .line 766
+    .line 960
     :goto_2
     invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
@@ -2745,16 +2933,16 @@
     :goto_3
     invoke-static {v2}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
 
-    .line 767
+    .line 961
     throw v0
 
-    .line 766
+    .line 960
     :catchall_1
     move-exception v0
 
     goto :goto_3
 
-    .line 763
+    .line 957
     :catch_1
     move-exception v1
 
@@ -2767,21 +2955,21 @@
     .locals 5
 
     .prologue
-    .line 1018
+    .line 1213
     array-length v0, p0
 
     mul-int/lit8 v0, v0, 0x2
 
     new-array v1, v0, [C
 
-    .line 1019
+    .line 1214
     const-string v0, "0123456789abcdef"
 
     invoke-virtual {v0}, Ljava/lang/String;->toCharArray()[C
 
     move-result-object v2
 
-    .line 1020
+    .line 1215
     const/4 v0, 0x0
 
     :goto_0
@@ -2789,7 +2977,7 @@
 
     if-ge v0, v3, :cond_0
 
-    .line 1021
+    .line 1216
     mul-int/lit8 v3, v0, 0x2
 
     aget-byte v4, p0, v0
@@ -2802,7 +2990,7 @@
 
     aput-char v4, v1, v3
 
-    .line 1022
+    .line 1217
     mul-int/lit8 v3, v0, 0x2
 
     add-int/lit8 v3, v3, 0x1
@@ -2815,12 +3003,12 @@
 
     aput-char v4, v1, v3
 
-    .line 1020
+    .line 1215
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 1024
+    .line 1219
     :cond_0
     new-instance v0, Ljava/lang/String;
 
@@ -2848,7 +3036,7 @@
     .prologue
     const/16 v4, 0x40
 
-    .line 298
+    .line 350
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrJson;->str(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
@@ -2859,7 +3047,7 @@
 
     move-result-object v1
 
-    .line 299
+    .line 351
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v0
@@ -2872,19 +3060,19 @@
 
     throw v0
 
-    .line 300
+    .line 352
     :cond_0
     const/4 v0, 0x0
 
     :goto_0
     if-ge v0, v4, :cond_4
 
-    .line 301
+    .line 353
     invoke-virtual {v1, v0}, Ljava/lang/String;->charAt(I)C
 
     move-result v2
 
-    .line 302
+    .line 354
     const/16 v3, 0x30
 
     if-lt v2, v3, :cond_1
@@ -2909,13 +3097,13 @@
 
     throw v0
 
-    .line 300
+    .line 352
     :cond_3
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 304
+    .line 356
     :cond_4
     return-object v1
 .end method
@@ -2924,7 +3112,7 @@
     .locals 2
 
     .prologue
-    .line 1028
+    .line 1223
     const/4 v0, 0x0
 
     :goto_0
@@ -2940,17 +3128,17 @@
 
     if-eqz v1, :cond_0
 
-    .line 1029
+    .line 1224
     :goto_1
     return v0
 
-    .line 1028
+    .line 1223
     :cond_0
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 1029
+    .line 1224
     :cond_1
     const/4 v0, -0x1
 
@@ -2958,7 +3146,7 @@
 .end method
 
 .method static install(Landroid/content/Context;Lcom/mrkeyboard/app/MrPacks$Catalog;Lcom/mrkeyboard/app/MrPacks$Pack;)V
-    .locals 10
+    .locals 11
     .annotation system Ldalvik/annotation/Throws;
         value = {
             Lcom/mrkeyboard/app/MrPacks$PackException;
@@ -2966,35 +3154,40 @@
     .end annotation
 
     .prologue
-    const/4 v9, 0x0
+    const/4 v10, 0x0
 
     const/4 v1, 0x0
 
-    .line 588
+    .line 776
     sput-boolean v1, Lcom/mrkeyboard/app/MrPacks;->sCancel:Z
 
-    .line 589
+    .line 777
     sput v1, Lcom/mrkeyboard/app/MrPacks;->sJobPercent:I
 
-    .line 590
+    .line 778
     sput-boolean v1, Lcom/mrkeyboard/app/MrPacks;->sJobInstalling:Z
 
-    .line 591
+    .line 779
     iget-object v0, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
 
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
-    .line 592
-    invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->root(Landroid/content/Context;)Ljava/io/File;
+    .line 780
+    iget-boolean v0, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->model:Z
+
+    if-eqz v0, :cond_0
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->modelsRoot(Landroid/content/Context;)Ljava/io/File;
 
     move-result-object v0
 
-    .line 593
-    new-instance v2, Ljava/io/File;
+    .line 781
+    :goto_0
+    new-instance v3, Ljava/io/File;
 
     invoke-virtual {p0}, Landroid/content/Context;->getCacheDir()Ljava/io/File;
 
-    move-result-object v3
+    move-result-object v2
 
     new-instance v4, Ljava/lang/StringBuilder;
 
@@ -3028,16 +3221,16 @@
 
     move-result-object v4
 
-    invoke-direct {v2, v3, v4}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+    invoke-direct {v3, v2, v4}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 594
-    new-instance v3, Ljava/io/File;
-
+    .line 782
     new-instance v4, Ljava/io/File;
+
+    new-instance v2, Ljava/io/File;
 
     iget-object v5, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
 
-    invoke-direct {v4, v0, v5}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+    invoke-direct {v2, v0, v5}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
     new-instance v5, Ljava/lang/StringBuilder;
 
@@ -3059,144 +3252,175 @@
 
     move-result-object v5
 
-    invoke-direct {v3, v4, v5}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+    invoke-direct {v4, v2, v5}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 596
+    .line 784
     :try_start_0
     invoke-static {p0, p2}, Lcom/mrkeyboard/app/MrPacks;->appTooOld(Landroid/content/Context;Lcom/mrkeyboard/app/MrPacks$Pack;)Z
 
-    move-result v4
+    move-result v2
 
-    if-eqz v4, :cond_0
+    if-eqz v2, :cond_2
 
-    new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
+    new-instance v2, Lcom/mrkeyboard/app/MrPacks$PackException;
 
-    const-string v4, "mr_dicts_err_app_old"
+    iget-boolean v0, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->model:Z
 
+    if-eqz v0, :cond_1
+
+    const-string v0, "mr_gesture_err_app_old"
+
+    :goto_1
     const/4 v5, 0x0
 
     new-array v5, v5, [Ljava/lang/Object;
 
-    invoke-direct {v0, v4, v5}, Lcom/mrkeyboard/app/MrPacks$PackException;-><init>(Ljava/lang/String;[Ljava/lang/Object;)V
+    invoke-direct {v2, v0, v5}, Lcom/mrkeyboard/app/MrPacks$PackException;-><init>(Ljava/lang/String;[Ljava/lang/Object;)V
 
-    throw v0
+    throw v2
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 617
+    .line 806
     :catchall_0
     move-exception v0
 
-    invoke-virtual {v2}, Ljava/io/File;->delete()Z
+    invoke-virtual {v3}, Ljava/io/File;->delete()Z
 
-    .line 618
-    invoke-static {v3}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
+    .line 807
+    invoke-static {v4}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
 
-    .line 619
-    sput-object v9, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
+    .line 808
+    sput-object v10, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
-    .line 620
+    .line 809
     sput-boolean v1, Lcom/mrkeyboard/app/MrPacks;->sJobInstalling:Z
 
-    .line 621
+    .line 810
     throw v0
 
-    .line 597
+    .line 780
     :cond_0
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->root(Landroid/content/Context;)Ljava/io/File;
+
+    move-result-object v0
+
+    goto :goto_0
+
+    .line 784
+    :cond_1
     :try_start_1
-    iget-wide v4, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->size:J
+    const-string v0, "mr_dicts_err_app_old"
 
-    iget-wide v6, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->installedSize:J
+    goto :goto_1
 
-    add-long/2addr v4, v6
+    .line 785
+    :cond_2
+    iget-wide v6, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->size:J
 
-    const-wide/32 v6, 0x200000
+    iget-wide v8, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->installedSize:J
 
-    add-long/2addr v4, v6
+    add-long/2addr v6, v8
 
-    .line 598
+    const-wide/32 v8, 0x200000
+
+    add-long/2addr v6, v8
+
+    .line 786
     invoke-virtual {v0}, Ljava/io/File;->exists()Z
 
-    move-result v6
+    move-result v2
 
-    if-nez v6, :cond_1
+    if-nez v2, :cond_3
 
     invoke-virtual {v0}, Ljava/io/File;->mkdirs()Z
 
-    .line 599
-    :cond_1
+    .line 787
+    :cond_3
     invoke-virtual {v0}, Ljava/io/File;->getUsableSpace()J
 
-    move-result-wide v6
+    move-result-wide v8
 
-    cmp-long v6, v6, v4
+    cmp-long v2, v8, v6
 
-    if-gez v6, :cond_2
+    if-gez v2, :cond_4
 
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
 
-    const-string v6, "mr_dicts_err_space"
+    const-string v2, "mr_dicts_err_space"
 
-    const/4 v7, 0x1
+    const/4 v5, 0x1
 
-    new-array v7, v7, [Ljava/lang/Object;
+    new-array v5, v5, [Ljava/lang/Object;
 
     const/4 v8, 0x0
 
-    invoke-static {v4, v5}, Lcom/mrkeyboard/app/MrPacks;->sizeText(J)Ljava/lang/String;
+    invoke-static {v6, v7}, Lcom/mrkeyboard/app/MrPacks;->sizeText(J)Ljava/lang/String;
 
-    move-result-object v4
+    move-result-object v6
 
-    aput-object v4, v7, v8
+    aput-object v6, v5, v8
 
-    invoke-direct {v0, v6, v7}, Lcom/mrkeyboard/app/MrPacks$PackException;-><init>(Ljava/lang/String;[Ljava/lang/Object;)V
+    invoke-direct {v0, v2, v5}, Lcom/mrkeyboard/app/MrPacks$PackException;-><init>(Ljava/lang/String;[Ljava/lang/Object;)V
 
     throw v0
 
-    .line 600
-    :cond_2
+    .line 788
+    :cond_4
     invoke-static {p2}, Lcom/mrkeyboard/app/MrPacks;->zipUrl(Lcom/mrkeyboard/app/MrPacks$Pack;)Ljava/lang/String;
 
-    move-result-object v4
+    move-result-object v2
 
-    invoke-static {v4, v2, p2}, Lcom/mrkeyboard/app/MrPacks;->download(Ljava/lang/String;Ljava/io/File;Lcom/mrkeyboard/app/MrPacks$Pack;)V
+    invoke-static {v2, v3, p2}, Lcom/mrkeyboard/app/MrPacks;->download(Ljava/lang/String;Ljava/io/File;Lcom/mrkeyboard/app/MrPacks$Pack;)V
 
-    .line 601
-    const/4 v4, 0x1
+    .line 789
+    const/4 v2, 0x1
 
-    sput-boolean v4, Lcom/mrkeyboard/app/MrPacks;->sJobInstalling:Z
+    sput-boolean v2, Lcom/mrkeyboard/app/MrPacks;->sJobInstalling:Z
 
-    .line 602
-    invoke-static {v3}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
+    .line 790
+    invoke-static {v4}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
 
-    .line 603
-    invoke-static {v2, v3, p2}, Lcom/mrkeyboard/app/MrPacks;->extract(Ljava/io/File;Ljava/io/File;Lcom/mrkeyboard/app/MrPacks$Pack;)V
+    .line 791
+    invoke-static {v3, v4, p2}, Lcom/mrkeyboard/app/MrPacks;->extract(Ljava/io/File;Ljava/io/File;Lcom/mrkeyboard/app/MrPacks$Pack;)V
 
-    .line 604
-    invoke-static {v3}, Lcom/mrkeyboard/app/MrPacks;->checkFiles(Ljava/io/File;)V
+    .line 792
+    iget-boolean v2, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->model:Z
 
-    .line 605
-    iget-object v4, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
+    if-eqz v2, :cond_5
+
+    invoke-static {v4}, Lcom/mrkeyboard/app/MrPacks;->checkModel(Ljava/io/File;)V
+
+    .line 793
+    :goto_2
+    iget-boolean v2, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->model:Z
+
+    if-eqz v2, :cond_6
+
+    iget-object v2, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
 
     iget v5, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->version:I
 
-    invoke-static {p0, v4, v5}, Lcom/mrkeyboard/app/MrPacks;->packDir(Landroid/content/Context;Ljava/lang/String;I)Ljava/io/File;
+    invoke-static {p0, v2, v5}, Lcom/mrkeyboard/app/MrPacks;->modelDir(Landroid/content/Context;Ljava/lang/String;I)Ljava/io/File;
 
-    move-result-object v4
+    move-result-object v2
 
-    .line 606
-    invoke-static {v4}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
+    .line 794
+    :goto_3
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
 
-    .line 607
-    invoke-virtual {v3, v4}, Ljava/io/File;->renameTo(Ljava/io/File;)Z
+    .line 795
+    invoke-virtual {v4, v2}, Ljava/io/File;->renameTo(Ljava/io/File;)Z
 
-    move-result v4
+    move-result v2
 
-    if-nez v4, :cond_3
+    if-nez v2, :cond_7
 
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
 
-    const-string v4, "mr_dicts_err_io"
+    invoke-static {p2}, Lcom/mrkeyboard/app/MrPacks;->ioKey(Lcom/mrkeyboard/app/MrPacks$Pack;)Ljava/lang/String;
+
+    move-result-object v2
 
     const/4 v5, 0x1
 
@@ -3208,73 +3432,96 @@
 
     aput-object v7, v5, v6
 
-    invoke-direct {v0, v4, v5}, Lcom/mrkeyboard/app/MrPacks$PackException;-><init>(Ljava/lang/String;[Ljava/lang/Object;)V
+    invoke-direct {v0, v2, v5}, Lcom/mrkeyboard/app/MrPacks$PackException;-><init>(Ljava/lang/String;[Ljava/lang/Object;)V
 
     throw v0
 
-    .line 608
-    :cond_3
+    .line 792
+    :cond_5
+    invoke-static {v4}, Lcom/mrkeyboard/app/MrPacks;->checkFiles(Ljava/io/File;)V
+
+    goto :goto_2
+
+    .line 793
+    :cond_6
+    iget-object v2, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
+
+    iget v5, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->version:I
+
+    invoke-static {p0, v2, v5}, Lcom/mrkeyboard/app/MrPacks;->packDir(Landroid/content/Context;Ljava/lang/String;I)Ljava/io/File;
+
+    move-result-object v2
+
+    goto :goto_3
+
+    .line 796
+    :cond_7
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
-    move-result-object v4
+    move-result-object v2
 
-    invoke-interface {v4}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
-
-    move-result-object v4
-
-    new-instance v5, Ljava/lang/StringBuilder;
-
-    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v6, "installed."
-
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-interface {v2}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
     move-result-object v5
+
+    new-instance v6, Ljava/lang/StringBuilder;
+
+    invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
+
+    iget-boolean v2, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->model:Z
+
+    if-eqz v2, :cond_9
+
+    const-string v2, "model."
+
+    :goto_4
+    invoke-virtual {v6, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
 
     iget-object v6, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
 
-    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v2, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    move-result-object v5
+    move-result-object v2
 
-    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v5
+    move-result-object v2
 
     iget v6, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->version:I
 
-    invoke-interface {v4, v5, v6}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+    invoke-interface {v5, v2, v6}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    move-result-object v4
+    move-result-object v2
 
-    invoke-interface {v4}, Landroid/content/SharedPreferences$Editor;->commit()Z
+    invoke-interface {v2}, Landroid/content/SharedPreferences$Editor;->commit()Z
 
-    .line 609
-    new-instance v4, Ljava/io/File;
+    .line 797
+    new-instance v2, Ljava/io/File;
 
     iget-object v5, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
 
-    invoke-direct {v4, v0, v5}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+    invoke-direct {v2, v0, v5}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    invoke-virtual {v4}, Ljava/io/File;->listFiles()[Ljava/io/File;
+    invoke-virtual {v2}, Ljava/io/File;->listFiles()[Ljava/io/File;
 
-    move-result-object v4
+    move-result-object v2
 
-    .line 610
-    if-eqz v4, :cond_5
+    .line 798
+    if-eqz v2, :cond_a
 
-    .line 611
-    array-length v5, v4
+    .line 799
+    array-length v5, v2
 
     move v0, v1
 
-    :goto_0
-    if-ge v0, v5, :cond_5
+    :goto_5
+    if-ge v0, v5, :cond_a
 
-    aget-object v6, v4, v0
+    aget-object v6, v2, v0
 
-    .line 612
+    .line 800
     invoke-virtual {v6}, Ljava/io/File;->getName()Ljava/lang/String;
 
     move-result-object v7
@@ -3289,36 +3536,518 @@
 
     move-result v7
 
-    if-nez v7, :cond_4
+    if-nez v7, :cond_8
 
     invoke-static {v6}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
 
-    .line 611
-    :cond_4
+    .line 799
+    :cond_8
     add-int/lit8 v0, v0, 0x1
 
-    goto :goto_0
+    goto :goto_5
 
-    .line 615
-    :cond_5
-    invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->signal(Landroid/content/Context;)V
+    .line 796
+    :cond_9
+    const-string v2, "installed."
+
+    goto :goto_4
+
+    .line 804
+    :cond_a
+    iget-boolean v0, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->model:Z
+
+    if-eqz v0, :cond_b
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrGestureInput;->reload(Landroid/content/Context;)V
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 617
-    invoke-virtual {v2}, Ljava/io/File;->delete()Z
+    .line 806
+    :goto_6
+    invoke-virtual {v3}, Ljava/io/File;->delete()Z
 
-    .line 618
-    invoke-static {v3}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
+    .line 807
+    invoke-static {v4}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
 
-    .line 619
-    sput-object v9, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
+    .line 808
+    sput-object v10, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
-    .line 620
+    .line 809
     sput-boolean v1, Lcom/mrkeyboard/app/MrPacks;->sJobInstalling:Z
 
-    .line 622
+    .line 811
     return-void
+
+    .line 804
+    :cond_b
+    :try_start_2
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->signal(Landroid/content/Context;)V
+    :try_end_2
+    .catchall {:try_start_2 .. :try_end_2} :catchall_0
+
+    goto :goto_6
+.end method
+
+.method static installModelFile(Landroid/content/Context;Ljava/io/InputStream;)V
+    .locals 12
+    .annotation system Ldalvik/annotation/Throws;
+        value = {
+            Lcom/mrkeyboard/app/MrPacks$PackException;
+        }
+    .end annotation
+
+    .prologue
+    const/4 v1, 0x0
+
+    const/4 v0, 0x0
+
+    .line 635
+    new-instance v3, Ljava/io/File;
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->modelsRoot(Landroid/content/Context;)Ljava/io/File;
+
+    move-result-object v2
+
+    const-string v4, "gesture"
+
+    invoke-direct {v3, v2, v4}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    .line 636
+    new-instance v6, Ljava/io/File;
+
+    const-string v2, "file.tmp"
+
+    invoke-direct {v6, v3, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    .line 639
+    :try_start_0
+    invoke-static {v6}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
+
+    .line 640
+    invoke-virtual {v6}, Ljava/io/File;->mkdirs()Z
+
+    move-result v2
+
+    if-nez v2, :cond_0
+
+    invoke-virtual {v6}, Ljava/io/File;->isDirectory()Z
+
+    move-result v2
+
+    if-nez v2, :cond_0
+
+    new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
+
+    const-string v2, "mr_gesture_err_io"
+
+    const/4 v3, 0x1
+
+    new-array v3, v3, [Ljava/lang/Object;
+
+    const/4 v4, 0x0
+
+    const-string v5, "mkdir"
+
+    aput-object v5, v3, v4
+
+    invoke-direct {v0, v2, v3}, Lcom/mrkeyboard/app/MrPacks$PackException;-><init>(Ljava/lang/String;[Ljava/lang/Object;)V
+
+    throw v0
+    :try_end_0
+    .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_0 .. :try_end_0} :catch_0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_3
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    .line 674
+    :catch_0
+    move-exception v0
+
+    .line 675
+    :goto_0
+    :try_start_1
+    throw v0
+    :try_end_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+
+    .line 679
+    :catchall_0
+    move-exception v0
+
+    :goto_1
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
+
+    .line 680
+    invoke-static {v6}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
+
+    .line 681
+    throw v0
+
+    .line 641
+    :cond_0
+    :try_start_2
+    const-string v2, "SHA-256"
+
+    invoke-static {v2}, Ljava/security/MessageDigest;->getInstance(Ljava/lang/String;)Ljava/security/MessageDigest;
+
+    move-result-object v7
+
+    .line 642
+    new-instance v2, Ljava/io/FileOutputStream;
+
+    new-instance v4, Ljava/io/File;
+
+    const-string v5, "encoder.bin"
+
+    invoke-direct {v4, v6, v5}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    invoke-direct {v2, v4}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;)V
+    :try_end_2
+    .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_2 .. :try_end_2} :catch_0
+    .catch Ljava/lang/Exception; {:try_start_2 .. :try_end_2} :catch_3
+    .catchall {:try_start_2 .. :try_end_2} :catchall_0
+
+    .line 643
+    const/high16 v4, 0x10000
+
+    :try_start_3
+    new-array v8, v4, [B
+
+    .line 644
+    const-wide/16 v4, 0x0
+
+    .line 646
+    :goto_2
+    invoke-virtual {p1, v8}, Ljava/io/InputStream;->read([B)I
+
+    move-result v9
+
+    if-lez v9, :cond_2
+
+    .line 647
+    int-to-long v10, v9
+
+    add-long/2addr v4, v10
+
+    .line 648
+    const-wide/32 v10, 0x1000000
+
+    cmp-long v10, v4, v10
+
+    if-lez v10, :cond_1
+
+    new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
+
+    const-string v1, "mr_gesture_err_file"
+
+    const/4 v3, 0x0
+
+    new-array v3, v3, [Ljava/lang/Object;
+
+    invoke-direct {v0, v1, v3}, Lcom/mrkeyboard/app/MrPacks$PackException;-><init>(Ljava/lang/String;[Ljava/lang/Object;)V
+
+    throw v0
+
+    .line 674
+    :catch_1
+    move-exception v0
+
+    move-object v1, v2
+
+    goto :goto_0
+
+    .line 649
+    :cond_1
+    const/4 v10, 0x0
+
+    invoke-virtual {v7, v8, v10, v9}, Ljava/security/MessageDigest;->update([BII)V
+
+    .line 650
+    const/4 v10, 0x0
+
+    invoke-virtual {v2, v8, v10, v9}, Ljava/io/OutputStream;->write([BII)V
+    :try_end_3
+    .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_3 .. :try_end_3} :catch_1
+    .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_3} :catch_2
+    .catchall {:try_start_3 .. :try_end_3} :catchall_1
+
+    goto :goto_2
+
+    .line 676
+    :catch_2
+    move-exception v0
+
+    move-object v1, v2
+
+    .line 677
+    :goto_3
+    :try_start_4
+    new-instance v2, Lcom/mrkeyboard/app/MrPacks$PackException;
+
+    const-string v3, "mr_gesture_err_io"
+
+    const/4 v4, 0x1
+
+    new-array v4, v4, [Ljava/lang/Object;
+
+    const/4 v5, 0x0
+
+    invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/Class;->getSimpleName()Ljava/lang/String;
+
+    move-result-object v0
+
+    aput-object v0, v4, v5
+
+    invoke-direct {v2, v3, v4}, Lcom/mrkeyboard/app/MrPacks$PackException;-><init>(Ljava/lang/String;[Ljava/lang/Object;)V
+
+    throw v2
+    :try_end_4
+    .catchall {:try_start_4 .. :try_end_4} :catchall_0
+
+    .line 652
+    :cond_2
+    :try_start_5
+    invoke-virtual {v2}, Ljava/io/OutputStream;->close()V
+    :try_end_5
+    .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_5 .. :try_end_5} :catch_1
+    .catch Ljava/lang/Exception; {:try_start_5 .. :try_end_5} :catch_2
+    .catchall {:try_start_5 .. :try_end_5} :catchall_1
+
+    .line 654
+    :try_start_6
+    invoke-virtual {v7}, Ljava/security/MessageDigest;->digest()[B
+
+    move-result-object v2
+
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrPacks;->hex([B)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrPacks;->knownModelFile(Ljava/lang/String;)I
+
+    move-result v4
+
+    .line 655
+    if-gtz v4, :cond_3
+
+    new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
+
+    const-string v2, "mr_gesture_err_file"
+
+    const/4 v3, 0x0
+
+    new-array v3, v3, [Ljava/lang/Object;
+
+    invoke-direct {v0, v2, v3}, Lcom/mrkeyboard/app/MrPacks$PackException;-><init>(Ljava/lang/String;[Ljava/lang/Object;)V
+
+    throw v0
+
+    .line 676
+    :catch_3
+    move-exception v0
+
+    goto :goto_3
+
+    .line 656
+    :cond_3
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->modelLicense(Landroid/content/Context;)[B
+
+    move-result-object v5
+
+    .line 657
+    if-nez v5, :cond_4
+
+    new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
+
+    const-string v2, "mr_gesture_err_io"
+
+    const/4 v3, 0x1
+
+    new-array v3, v3, [Ljava/lang/Object;
+
+    const/4 v4, 0x0
+
+    const-string v5, "LICENSE-FUTO-Model-Weights.md"
+
+    aput-object v5, v3, v4
+
+    invoke-direct {v0, v2, v3}, Lcom/mrkeyboard/app/MrPacks$PackException;-><init>(Ljava/lang/String;[Ljava/lang/Object;)V
+
+    throw v0
+
+    .line 658
+    :cond_4
+    new-instance v2, Ljava/io/FileOutputStream;
+
+    new-instance v7, Ljava/io/File;
+
+    const-string v8, "LICENSE-FUTO-Model-Weights.md"
+
+    invoke-direct {v7, v6, v8}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    invoke-direct {v2, v7}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;)V
+    :try_end_6
+    .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_6 .. :try_end_6} :catch_0
+    .catch Ljava/lang/Exception; {:try_start_6 .. :try_end_6} :catch_3
+    .catchall {:try_start_6 .. :try_end_6} :catchall_0
+
+    .line 659
+    :try_start_7
+    invoke-virtual {v2, v5}, Ljava/io/OutputStream;->write([B)V
+
+    .line 660
+    invoke-virtual {v2}, Ljava/io/OutputStream;->close()V
+    :try_end_7
+    .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_7 .. :try_end_7} :catch_5
+    .catch Ljava/lang/Exception; {:try_start_7 .. :try_end_7} :catch_4
+    .catchall {:try_start_7 .. :try_end_7} :catchall_2
+
+    .line 662
+    :try_start_8
+    invoke-static {v6}, Lcom/mrkeyboard/app/MrPacks;->checkModel(Ljava/io/File;)V
+
+    .line 663
+    const-string v2, "gesture"
+
+    invoke-static {p0, v2, v4}, Lcom/mrkeyboard/app/MrPacks;->modelDir(Landroid/content/Context;Ljava/lang/String;I)Ljava/io/File;
+
+    move-result-object v2
+
+    .line 664
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
+
+    .line 665
+    invoke-virtual {v6, v2}, Ljava/io/File;->renameTo(Ljava/io/File;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_5
+
+    new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
+
+    const-string v2, "mr_gesture_err_io"
+
+    const/4 v3, 0x1
+
+    new-array v3, v3, [Ljava/lang/Object;
+
+    const/4 v4, 0x0
+
+    const-string v5, "rename"
+
+    aput-object v5, v3, v4
+
+    invoke-direct {v0, v2, v3}, Lcom/mrkeyboard/app/MrPacks$PackException;-><init>(Ljava/lang/String;[Ljava/lang/Object;)V
+
+    throw v0
+
+    .line 666
+    :cond_5
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object v2
+
+    invoke-interface {v2}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v2
+
+    const-string v5, "model.gesture"
+
+    invoke-interface {v2, v5, v4}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v2
+
+    invoke-interface {v2}, Landroid/content/SharedPreferences$Editor;->commit()Z
+
+    .line 667
+    invoke-virtual {v3}, Ljava/io/File;->listFiles()[Ljava/io/File;
+
+    move-result-object v2
+
+    .line 668
+    if-eqz v2, :cond_7
+
+    .line 669
+    array-length v3, v2
+
+    :goto_4
+    if-ge v0, v3, :cond_7
+
+    aget-object v5, v2, v0
+
+    .line 670
+    invoke-virtual {v5}, Ljava/io/File;->getName()Ljava/lang/String;
+
+    move-result-object v7
+
+    invoke-static {v4}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v8
+
+    invoke-virtual {v7, v8}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v7
+
+    if-nez v7, :cond_6
+
+    invoke-static {v5}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
+
+    .line 669
+    :cond_6
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_4
+
+    .line 673
+    :cond_7
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrGestureInput;->reload(Landroid/content/Context;)V
+    :try_end_8
+    .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_8 .. :try_end_8} :catch_0
+    .catch Ljava/lang/Exception; {:try_start_8 .. :try_end_8} :catch_3
+    .catchall {:try_start_8 .. :try_end_8} :catchall_0
+
+    .line 679
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
+
+    .line 680
+    invoke-static {v6}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
+
+    .line 682
+    return-void
+
+    .line 679
+    :catchall_1
+    move-exception v0
+
+    move-object v1, v2
+
+    goto/16 :goto_1
+
+    :catchall_2
+    move-exception v0
+
+    move-object v1, v2
+
+    goto/16 :goto_1
+
+    .line 676
+    :catch_4
+    move-exception v0
+
+    move-object v1, v2
+
+    goto/16 :goto_3
+
+    .line 674
+    :catch_5
+    move-exception v0
+
+    move-object v1, v2
+
+    goto/16 :goto_0
 .end method
 
 .method static installedFor(Landroid/content/Context;Ljava/lang/String;)Ljava/io/File;
@@ -3331,12 +4060,12 @@
 
     const/4 v8, 0x1
 
-    .line 801
+    .line 995
     invoke-static {p1}, Lcom/mrkeyboard/app/MrPacks;->splitLocale(Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v3
 
-    .line 802
+    .line 996
     aget-object v0, v3, v9
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -3345,12 +4074,12 @@
 
     if-nez v0, :cond_1
 
-    .line 811
+    .line 1005
     :cond_0
     :goto_0
     return-object v2
 
-    .line 804
+    .line 998
     :cond_1
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->installedIds(Landroid/content/Context;)Ljava/util/ArrayList;
 
@@ -3376,12 +4105,12 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 805
+    .line 999
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->splitLocale(Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v5
 
-    .line 806
+    .line 1000
     aget-object v6, v5, v9
 
     aget-object v7, v3, v9
@@ -3392,7 +4121,7 @@
 
     if-eqz v6, :cond_2
 
-    .line 807
+    .line 1001
     if-eqz v1, :cond_3
 
     aget-object v5, v5, v8
@@ -3423,14 +4152,14 @@
     :goto_2
     move-object v1, v0
 
-    .line 808
+    .line 1002
     goto :goto_1
 
-    .line 809
+    .line 1003
     :cond_4
     if-eqz v1, :cond_0
 
-    .line 810
+    .line 1004
     invoke-static {p0, v1}, Lcom/mrkeyboard/app/MrPacks;->installedVersion(Landroid/content/Context;Ljava/lang/String;)I
 
     move-result v0
@@ -3439,7 +4168,7 @@
 
     move-result-object v0
 
-    .line 811
+    .line 1005
     new-instance v1, Ljava/io/File;
 
     const-string v3, "main.dict"
@@ -3477,12 +4206,12 @@
     .end annotation
 
     .prologue
-    .line 484
+    .line 541
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 485
+    .line 542
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -3513,7 +4242,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 486
+    .line 543
     const-string v3, "installed."
 
     invoke-virtual {v0, v3}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
@@ -3522,7 +4251,7 @@
 
     if-eqz v3, :cond_0
 
-    .line 487
+    .line 544
     const-string v3, "installed."
 
     invoke-virtual {v3}, Ljava/lang/String;->length()I
@@ -3533,7 +4262,7 @@
 
     move-result-object v0
 
-    .line 488
+    .line 545
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->validId(Ljava/lang/String;)Z
 
     move-result v3
@@ -3544,11 +4273,11 @@
 
     goto :goto_0
 
-    .line 491
+    .line 548
     :cond_1
     invoke-static {v1}, Ljava/util/Collections;->sort(Ljava/util/List;)V
 
-    .line 492
+    .line 549
     return-object v1
 .end method
 
@@ -3556,7 +4285,7 @@
     .locals 3
 
     .prologue
-    .line 479
+    .line 536
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -3588,6 +4317,72 @@
     return v0
 .end method
 
+.method private static ioKey(Lcom/mrkeyboard/app/MrPacks$Pack;)Ljava/lang/String;
+    .locals 1
+
+    .prologue
+    .line 815
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/MrPacks$Pack;->model:Z
+
+    if-eqz v0, :cond_0
+
+    const-string v0, "mr_gesture_err_io"
+
+    :goto_0
+    return-object v0
+
+    :cond_0
+    const-string v0, "mr_dicts_err_io"
+
+    goto :goto_0
+.end method
+
+.method static knownModelFile(Ljava/lang/String;)I
+    .locals 6
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 599
+    sget-object v2, Lcom/mrkeyboard/app/MrPacks;->MODEL_FILES:[[Ljava/lang/String;
+
+    array-length v3, v2
+
+    move v1, v0
+
+    :goto_0
+    if-ge v1, v3, :cond_0
+
+    aget-object v4, v2, v1
+
+    .line 600
+    aget-object v5, v4, v0
+
+    invoke-virtual {v5, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_1
+
+    const/4 v0, 0x1
+
+    aget-object v0, v4, v0
+
+    invoke-static {v0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+
+    move-result v0
+
+    .line 602
+    :cond_0
+    return v0
+
+    .line 599
+    :cond_1
+    add-int/lit8 v1, v1, 0x1
+
+    goto :goto_0
+.end method
+
 .method static languageKeys(Ljava/util/List;Ljava/util/List;)Ljava/lang/String;
     .locals 5
     .annotation system Ldalvik/annotation/Signature;
@@ -3606,12 +4401,12 @@
     .end annotation
 
     .prologue
-    .line 536
+    .line 724
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 537
+    .line 725
     invoke-interface {p0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v2
@@ -3654,7 +4449,7 @@
 
     goto :goto_0
 
-    .line 538
+    .line 726
     :cond_1
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->length()I
 
@@ -3693,15 +4488,15 @@
     .end annotation
 
     .prologue
-    .line 133
+    .line 171
     if-nez p0, :cond_1
 
-    .line 140
+    .line 178
     :cond_0
     :goto_0
     return-object p2
 
-    .line 134
+    .line 172
     :cond_1
     if-eqz p1, :cond_4
 
@@ -3713,7 +4508,7 @@
 
     move-result-object v0
 
-    .line 135
+    .line 173
     :goto_1
     instance-of v1, v0, Ljava/lang/String;
 
@@ -3725,13 +4520,13 @@
 
     move-result-object v0
 
-    .line 136
+    .line 174
     :cond_2
     instance-of v1, v0, Ljava/lang/String;
 
     if-nez v1, :cond_5
 
-    .line 137
+    .line 175
     invoke-interface {p0}, Ljava/util/Map;->values()Ljava/util/Collection;
 
     move-result-object v0
@@ -3761,13 +4556,13 @@
 
     goto :goto_0
 
-    .line 134
+    .line 172
     :cond_4
     const/4 v0, 0x0
 
     goto :goto_1
 
-    .line 140
+    .line 178
     :cond_5
     check-cast v0, Ljava/lang/String;
 
@@ -3782,31 +4577,31 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 323
+    .line 380
     sub-int v1, p2, p1
 
     const/4 v2, 0x2
 
     if-ge v1, v2, :cond_2
 
-    .line 328
+    .line 385
     :cond_0
     :goto_0
     return v0
 
-    .line 324
+    .line 381
     :cond_1
     add-int/lit8 p1, p1, 0x1
 
     :cond_2
     if-ge p1, p2, :cond_3
 
-    .line 325
+    .line 382
     invoke-virtual {p0, p1}, Ljava/lang/String;->charAt(I)C
 
     move-result v1
 
-    .line 326
+    .line 383
     const/16 v2, 0x61
 
     if-lt v1, v2, :cond_0
@@ -3817,7 +4612,7 @@
 
     goto :goto_0
 
-    .line 328
+    .line 385
     :cond_3
     const/4 v0, 0x1
 
@@ -3830,7 +4625,10 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 859
+    .line 1053
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrGestureInput;->init(Landroid/content/Context;)V
+
+    .line 1054
     invoke-static {p1}, Lcom/mrkeyboard/app/MrPacks;->splitLocale(Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v0
@@ -3841,7 +4639,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sLastLang:Ljava/lang/String;
 
-    .line 863
+    .line 1058
     :try_start_0
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrPacks;->installedFor(Landroid/content/Context;Ljava/lang/String;)Ljava/io/File;
     :try_end_0
@@ -3849,7 +4647,7 @@
 
     move-result-object v2
 
-    .line 864
+    .line 1059
     if-eqz v2, :cond_2
 
     :try_start_1
@@ -3872,7 +4670,7 @@
 
     move-object v0, v4
 
-    .line 868
+    .line 1063
     :goto_1
     if-eqz v2, :cond_0
 
@@ -3881,16 +4679,16 @@
     :cond_0
     invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->activate(Ljava/io/File;)V
 
-    .line 869
+    .line 1064
     if-eqz v2, :cond_1
 
     move-object v0, v2
 
-    .line 870
+    .line 1065
     :goto_2
     return-object v0
 
-    .line 865
+    .line 1060
     :catch_0
     move-exception v0
 
@@ -3899,10 +4697,10 @@
     :goto_3
     move-object v2, v1
 
-    .line 866
+    .line 1061
     goto :goto_1
 
-    .line 870
+    .line 1065
     :cond_1
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/PluginManager;->getDictionary(Landroid/content/Context;Ljava/lang/String;)Lcom/mrkeyboard/app/BinaryDictionary;
 
@@ -3910,7 +4708,7 @@
 
     goto :goto_2
 
-    .line 865
+    .line 1060
     :catch_1
     move-exception v0
 
@@ -3922,6 +4720,296 @@
     move-object v0, v1
 
     goto :goto_0
+.end method
+
+.method static modelDir(Landroid/content/Context;Ljava/lang/String;I)Ljava/io/File;
+    .locals 3
+
+    .prologue
+    .line 574
+    new-instance v0, Ljava/io/File;
+
+    new-instance v1, Ljava/io/File;
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->modelsRoot(Landroid/content/Context;)Ljava/io/File;
+
+    move-result-object v2
+
+    invoke-direct {v1, v2, p1}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    invoke-static {p2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-direct {v0, v1, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    return-object v0
+.end method
+
+.method static modelFile(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Ljava/io/File;
+    .locals 3
+
+    .prologue
+    const/4 v1, 0x0
+
+    .line 584
+    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrPacks;->modelVersion(Landroid/content/Context;Ljava/lang/String;)I
+
+    move-result v2
+
+    .line 585
+    if-gtz v2, :cond_0
+
+    .line 587
+    :goto_0
+    return-object v1
+
+    .line 586
+    :cond_0
+    new-instance v0, Ljava/io/File;
+
+    invoke-static {p0, p1, v2}, Lcom/mrkeyboard/app/MrPacks;->modelDir(Landroid/content/Context;Ljava/lang/String;I)Ljava/io/File;
+
+    move-result-object v2
+
+    invoke-direct {v0, v2, p2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    .line 587
+    invoke-virtual {v0}, Ljava/io/File;->isFile()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_1
+
+    :goto_1
+    move-object v1, v0
+
+    goto :goto_0
+
+    :cond_1
+    move-object v0, v1
+
+    goto :goto_1
+.end method
+
+.method static modelLicense(Landroid/content/Context;)[B
+    .locals 8
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 607
+    .line 609
+    :try_start_0
+    invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v1
+
+    const-string v2, "mr_futo_license"
+
+    const-string v3, "raw"
+
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v1, v2, v3, v4}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+    :try_end_0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_1
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    move-result v1
+
+    .line 610
+    if-nez v1, :cond_0
+
+    .line 624
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
+
+    .line 622
+    :goto_0
+    return-object v0
+
+    .line 611
+    :cond_0
+    :try_start_1
+    invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v1}, Landroid/content/res/Resources;->openRawResource(I)Ljava/io/InputStream;
+    :try_end_1
+    .catch Ljava/lang/Exception; {:try_start_1 .. :try_end_1} :catch_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+
+    move-result-object v1
+
+    .line 612
+    if-nez v1, :cond_1
+
+    .line 624
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
+
+    goto :goto_0
+
+    .line 613
+    :cond_1
+    :try_start_2
+    new-instance v2, Ljava/io/ByteArrayOutputStream;
+
+    invoke-direct {v2}, Ljava/io/ByteArrayOutputStream;-><init>()V
+
+    .line 614
+    const/16 v3, 0x2000
+
+    new-array v3, v3, [B
+
+    .line 616
+    :goto_1
+    invoke-virtual {v1, v3}, Ljava/io/InputStream;->read([B)I
+
+    move-result v4
+
+    if-lez v4, :cond_3
+
+    .line 617
+    invoke-virtual {v2}, Ljava/io/ByteArrayOutputStream;->size()I
+    :try_end_2
+    .catch Ljava/lang/Exception; {:try_start_2 .. :try_end_2} :catch_0
+    .catchall {:try_start_2 .. :try_end_2} :catchall_1
+
+    move-result v5
+
+    add-int/2addr v5, v4
+
+    const/high16 v6, 0x100000
+
+    if-le v5, v6, :cond_2
+
+    .line 624
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
+
+    goto :goto_0
+
+    .line 618
+    :cond_2
+    const/4 v5, 0x0
+
+    :try_start_3
+    invoke-virtual {v2, v3, v5, v4}, Ljava/io/ByteArrayOutputStream;->write([BII)V
+    :try_end_3
+    .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_3} :catch_0
+    .catchall {:try_start_3 .. :try_end_3} :catchall_1
+
+    goto :goto_1
+
+    .line 621
+    :catch_0
+    move-exception v2
+
+    .line 624
+    :goto_2
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
+
+    goto :goto_0
+
+    .line 620
+    :cond_3
+    :try_start_4
+    invoke-virtual {v2}, Ljava/io/ByteArrayOutputStream;->toByteArray()[B
+    :try_end_4
+    .catch Ljava/lang/Exception; {:try_start_4 .. :try_end_4} :catch_0
+    .catchall {:try_start_4 .. :try_end_4} :catchall_1
+
+    move-result-object v0
+
+    .line 624
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
+
+    goto :goto_0
+
+    :catchall_0
+    move-exception v1
+
+    move-object v7, v1
+
+    move-object v1, v0
+
+    move-object v0, v7
+
+    :goto_3
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPacks;->closeQuietly(Ljava/io/Closeable;)V
+
+    .line 625
+    throw v0
+
+    .line 624
+    :catchall_1
+    move-exception v0
+
+    goto :goto_3
+
+    .line 621
+    :catch_1
+    move-exception v1
+
+    move-object v1, v0
+
+    goto :goto_2
+.end method
+
+.method static modelVersion(Landroid/content/Context;Ljava/lang/String;)I
+    .locals 3
+
+    .prologue
+    .line 579
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "model."
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    const/4 v2, 0x0
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
+
+    move-result v0
+
+    return v0
+.end method
+
+.method static modelsRoot(Landroid/content/Context;)Ljava/io/File;
+    .locals 3
+
+    .prologue
+    .line 570
+    new-instance v0, Ljava/io/File;
+
+    invoke-virtual {p0}, Landroid/content/Context;->getFilesDir()Ljava/io/File;
+
+    move-result-object v1
+
+    const-string v2, "models"
+
+    invoke-direct {v0, v1, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    return-object v0
 .end method
 
 .method static offerList(Landroid/content/Context;)Ljava/util/List;
@@ -3945,11 +5033,11 @@
 
     const/4 v3, 0x0
 
-    .line 915
+    .line 1110
     :try_start_0
     sget-object v4, Lcom/mrkeyboard/app/MrPacks;->sLastLang:Ljava/lang/String;
 
-    .line 916
+    .line 1111
     if-eqz p0, :cond_0
 
     if-eqz v4, :cond_0
@@ -3963,20 +5051,20 @@
     :cond_0
     move-object v0, v3
 
-    .line 938
+    .line 1133
     :goto_0
     return-object v0
 
-    .line 917
+    .line 1112
     :cond_1
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->cachedCatalog(Landroid/content/Context;)Lcom/mrkeyboard/app/MrPacks$Catalog;
 
     move-result-object v0
 
-    .line 918
+    .line 1113
     if-eqz v0, :cond_3
 
-    .line 920
+    .line 1115
     iget-object v0, v0, Lcom/mrkeyboard/app/MrPacks$Catalog;->packs:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
@@ -4011,7 +5099,7 @@
 
     goto :goto_1
 
-    .line 921
+    .line 1116
     :cond_2
     if-nez v2, :cond_3
 
@@ -4019,16 +5107,16 @@
 
     goto :goto_0
 
-    .line 923
+    .line 1118
     :cond_3
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v4
 
-    .line 924
+    .line 1119
     sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sOfferLabel:Ljava/lang/String;
 
-    .line 925
+    .line 1120
     if-eqz v0, :cond_4
 
     sget-wide v6, Lcom/mrkeyboard/app/MrPacks;->sOfferAt:J
@@ -4041,7 +5129,7 @@
 
     if-lez v1, :cond_5
 
-    .line 926
+    .line 1121
     :cond_4
     const-string v0, "mr_dicts_offer"
 
@@ -4053,10 +5141,10 @@
 
     move-result-object v0
 
-    .line 927
+    .line 1122
     sput-wide v4, Lcom/mrkeyboard/app/MrPacks;->sOfferAt:J
 
-    .line 929
+    .line 1124
     :cond_5
     if-nez v0, :cond_6
 
@@ -4064,7 +5152,7 @@
 
     goto :goto_0
 
-    .line 930
+    .line 1125
     :cond_6
     sget-object v1, Lcom/mrkeyboard/app/MrPacks;->sOffer:Ljava/lang/String;
 
@@ -4078,11 +5166,11 @@
 
     if-nez v1, :cond_8
 
-    .line 931
+    .line 1126
     :cond_7
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sOfferLabel:Ljava/lang/String;
 
-    .line 932
+    .line 1127
     new-instance v1, Ljava/lang/String;
 
     invoke-virtual {v0}, Ljava/lang/String;->toCharArray()[C
@@ -4093,7 +5181,7 @@
 
     sput-object v1, Lcom/mrkeyboard/app/MrPacks;->sOffer:Ljava/lang/String;
 
-    .line 934
+    .line 1129
     :cond_8
     new-instance v0, Ljava/util/ArrayList;
 
@@ -4101,7 +5189,7 @@
 
     invoke-direct {v0, v1}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 935
+    .line 1130
     sget-object v1, Lcom/mrkeyboard/app/MrPacks;->sOffer:Ljava/lang/String;
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
@@ -4110,13 +5198,13 @@
 
     goto :goto_0
 
-    .line 937
+    .line 1132
     :catch_0
     move-exception v0
 
     move-object v0, v3
 
-    .line 938
+    .line 1133
     goto :goto_0
 
     :cond_9
@@ -4129,7 +5217,7 @@
     .locals 1
 
     .prologue
-    .line 944
+    .line 1139
     if-eqz p1, :cond_0
 
     sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sOffer:Ljava/lang/String;
@@ -4139,11 +5227,11 @@
     :cond_0
     const/4 v0, 0x0
 
-    .line 950
+    .line 1145
     :goto_0
     return v0
 
-    .line 946
+    .line 1141
     :cond_1
     :try_start_0
     const-class v0, Lcom/mrkeyboard/app/MrPacksActivity;
@@ -4156,13 +5244,13 @@
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 950
+    .line 1145
     :goto_1
     const/4 v0, 0x1
 
     goto :goto_0
 
-    .line 947
+    .line 1142
     :catch_0
     move-exception v0
 
@@ -4180,7 +5268,7 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 826
+    .line 1020
     invoke-static {p1}, Lcom/mrkeyboard/app/MrPacks;->dictHeaderOk(Ljava/io/File;)Z
 
     move-result v0
@@ -4189,30 +5277,30 @@
 
     move-object v0, v6
 
-    .line 839
+    .line 1033
     :goto_0
     return-object v0
 
-    .line 827
+    .line 1021
     :cond_0
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
     move-result-wide v8
 
-    .line 828
+    .line 1022
     new-instance v7, Ljava/io/RandomAccessFile;
 
     const-string v0, "r"
 
     invoke-direct {v7, p1, v0}, Ljava/io/RandomAccessFile;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 830
+    .line 1024
     :try_start_0
     invoke-virtual {v7}, Ljava/io/RandomAccessFile;->getChannel()Ljava/nio/channels/FileChannel;
 
     move-result-object v0
 
-    .line 831
+    .line 1025
     sget-object v1, Ljava/nio/channels/FileChannel$MapMode;->READ_ONLY:Ljava/nio/channels/FileChannel$MapMode;
 
     const-wide/16 v2, 0x0
@@ -4225,14 +5313,14 @@
 
     move-result-object v1
 
-    .line 832
+    .line 1026
     new-instance v0, Lcom/mrkeyboard/app/BinaryDictionary;
 
     const/4 v2, 0x1
 
     invoke-direct {v0, p0, v1, v2}, Lcom/mrkeyboard/app/BinaryDictionary;-><init>(Landroid/content/Context;Ljava/nio/ByteBuffer;I)V
 
-    .line 833
+    .line 1027
     invoke-virtual {v0}, Lcom/mrkeyboard/app/BinaryDictionary;->getSize()I
 
     move-result v1
@@ -4241,20 +5329,20 @@
 
     if-gt v1, v2, :cond_1
 
-    .line 834
+    .line 1028
     invoke-virtual {v0}, Lcom/mrkeyboard/app/BinaryDictionary;->close()V
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 841
+    .line 1035
     invoke-virtual {v7}, Ljava/io/RandomAccessFile;->close()V
 
     move-object v0, v6
 
-    .line 835
+    .line 1029
     goto :goto_0
 
-    .line 837
+    .line 1031
     :cond_1
     :try_start_1
     invoke-virtual {p1}, Ljava/io/File;->getPath()Ljava/lang/String;
@@ -4263,7 +5351,7 @@
 
     sput-object v1, Lcom/mrkeyboard/app/MrDiag;->sDictPath:Ljava/lang/String;
 
-    .line 838
+    .line 1032
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
     move-result-wide v2
@@ -4274,7 +5362,7 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 841
+    .line 1035
     invoke-virtual {v7}, Ljava/io/RandomAccessFile;->close()V
 
     goto :goto_0
@@ -4284,7 +5372,7 @@
 
     invoke-virtual {v7}, Ljava/io/RandomAccessFile;->close()V
 
-    .line 842
+    .line 1036
     throw v0
 .end method
 
@@ -4294,22 +5382,22 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 817
+    .line 1011
     if-nez p0, :cond_1
 
-    .line 821
+    .line 1015
     :cond_0
     :goto_0
     return-object v0
 
-    .line 818
+    .line 1012
     :cond_1
     :try_start_0
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrPacks;->installedFor(Landroid/content/Context;Ljava/lang/String;)Ljava/io/File;
 
     move-result-object v1
 
-    .line 819
+    .line 1013
     if-eqz v1, :cond_0
 
     new-instance v2, Ljava/io/File;
@@ -4326,7 +5414,7 @@
 
     goto :goto_0
 
-    .line 820
+    .line 1014
     :catch_0
     move-exception v1
 
@@ -4337,7 +5425,7 @@
     .locals 3
 
     .prologue
-    .line 560
+    .line 748
     new-instance v0, Ljava/io/File;
 
     new-instance v1, Ljava/io/File;
@@ -4366,7 +5454,7 @@
     .end annotation
 
     .prologue
-    .line 148
+    .line 186
     const/4 v0, 0x1
 
     const-string v1, "mr-keyboard/catalog/v1\n"
@@ -4377,12 +5465,12 @@
 
     move-result-object v0
 
-    .line 149
+    .line 187
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->readData(Ljava/lang/String;)Lcom/mrkeyboard/app/MrPacks$Catalog;
 
     move-result-object v0
 
-    .line 150
+    .line 188
     iget-wide v2, v0, Lcom/mrkeyboard/app/MrPacks$Catalog;->serial:J
 
     cmp-long v1, v2, p2
@@ -4401,7 +5489,7 @@
 
     throw v0
 
-    .line 151
+    .line 189
     :cond_0
     return-object v0
 .end method
@@ -4410,7 +5498,7 @@
     .locals 2
 
     .prologue
-    .line 444
+    .line 501
     const-string v0, "mr_packs"
 
     const/4 v1, 0x0
@@ -4423,7 +5511,7 @@
 .end method
 
 .method static readData(Ljava/lang/String;)Lcom/mrkeyboard/app/MrPacks$Catalog;
-    .locals 7
+    .locals 8
     .annotation system Ldalvik/annotation/Throws;
         value = {
             Lcom/mrkeyboard/app/MrPacks$PackException;
@@ -4431,9 +5519,11 @@
     .end annotation
 
     .prologue
+    const/4 v7, 0x1
+
     const/4 v6, 0x0
 
-    .line 219
+    .line 258
     :try_start_0
     invoke-static {p0}, Lcom/mrkeyboard/app/MrJson;->parse(Ljava/lang/String;)Ljava/lang/Object;
 
@@ -4443,7 +5533,7 @@
 
     move-result-object v0
 
-    .line 220
+    .line 259
     const-string v1, "format"
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrJson;->num(Ljava/util/Map;Ljava/lang/String;)J
@@ -4471,24 +5561,24 @@
     .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_0 .. :try_end_0} :catch_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_1
 
-    .line 231
+    .line 281
     :catch_0
     move-exception v0
 
-    .line 232
+    .line 282
     throw v0
 
-    .line 221
+    .line 260
     :cond_0
     :try_start_1
     new-instance v1, Lcom/mrkeyboard/app/MrPacks$Catalog;
 
     invoke-direct {v1}, Lcom/mrkeyboard/app/MrPacks$Catalog;-><init>()V
 
-    .line 222
+    .line 261
     iput-object p0, v1, Lcom/mrkeyboard/app/MrPacks$Catalog;->data:Ljava/lang/String;
 
-    .line 223
+    .line 262
     const-string v2, "serial"
 
     invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrJson;->num(Ljava/util/Map;Ljava/lang/String;)J
@@ -4497,7 +5587,7 @@
 
     iput-wide v2, v1, Lcom/mrkeyboard/app/MrPacks$Catalog;->serial:J
 
-    .line 224
+    .line 263
     const-string v2, "generated"
 
     const-string v3, ""
@@ -4508,77 +5598,77 @@
 
     iput-object v2, v1, Lcom/mrkeyboard/app/MrPacks$Catalog;->generated:Ljava/lang/String;
 
-    .line 225
+    .line 264
     new-instance v2, Ljava/util/HashSet;
 
     invoke-direct {v2}, Ljava/util/HashSet;-><init>()V
 
-    .line 226
+    .line 265
     const-string v3, "packs"
 
     invoke-interface {v0, v3}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
-    move-result-object v0
+    move-result-object v3
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrJson;->list(Ljava/lang/Object;)Ljava/util/List;
+    invoke-static {v3}, Lcom/mrkeyboard/app/MrJson;->list(Ljava/lang/Object;)Ljava/util/List;
 
-    move-result-object v0
+    move-result-object v3
 
-    invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+    invoke-interface {v3}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
-    move-result-object v0
+    move-result-object v3
 
     :cond_1
     :goto_0
-    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
-
-    move-result v3
-
-    if-eqz v3, :cond_2
-
-    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
-
-    move-result-object v3
-
-    .line 227
-    invoke-static {v3}, Lcom/mrkeyboard/app/MrJson;->obj(Ljava/lang/Object;)Ljava/util/Map;
-
-    move-result-object v3
-
-    invoke-static {v3}, Lcom/mrkeyboard/app/MrPacks;->readPack(Ljava/util/Map;)Lcom/mrkeyboard/app/MrPacks$Pack;
-
-    move-result-object v3
-
-    .line 228
-    iget-object v4, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
-
-    invoke-virtual {v2, v4}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v4
 
-    if-eqz v4, :cond_1
+    if-eqz v4, :cond_2
 
-    iget-object v4, v1, Lcom/mrkeyboard/app/MrPacks$Catalog;->packs:Ljava/util/ArrayList;
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
-    invoke-virtual {v4, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+    move-result-object v4
+
+    .line 266
+    invoke-static {v4}, Lcom/mrkeyboard/app/MrJson;->obj(Ljava/lang/Object;)Ljava/util/Map;
+
+    move-result-object v4
+
+    const/4 v5, 0x0
+
+    invoke-static {v4, v5}, Lcom/mrkeyboard/app/MrPacks;->readPack(Ljava/util/Map;Z)Lcom/mrkeyboard/app/MrPacks$Pack;
+
+    move-result-object v4
+
+    .line 267
+    iget-object v5, v4, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
+
+    invoke-virtual {v2, v5}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_1
+
+    iget-object v5, v1, Lcom/mrkeyboard/app/MrPacks$Catalog;->packs:Ljava/util/ArrayList;
+
+    invoke-virtual {v5, v4}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
     :try_end_1
     .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_1 .. :try_end_1} :catch_0
     .catch Ljava/lang/RuntimeException; {:try_start_1 .. :try_end_1} :catch_1
 
     goto :goto_0
 
-    .line 233
+    .line 283
     :catch_1
     move-exception v0
 
-    .line 234
+    .line 284
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
 
     const-string v1, "mr_dicts_err_corrupt"
 
-    const/4 v2, 0x1
-
-    new-array v2, v2, [Ljava/lang/Object;
+    new-array v2, v7, [Ljava/lang/Object;
 
     const-string v3, "catalog.json"
 
@@ -4588,13 +5678,85 @@
 
     throw v0
 
-    .line 230
+    .line 269
     :cond_2
+    :try_start_2
+    const-string v2, "models"
+
+    invoke-interface {v0, v2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    .line 270
+    instance-of v2, v0, Ljava/util/List;
+
+    if-eqz v2, :cond_4
+
+    .line 271
+    check-cast v0, Ljava/util/List;
+
+    invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
+    move-result-object v0
+
+    :cond_3
+    :goto_1
+    invoke-interface {v0}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_4
+
+    invoke-interface {v0}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    :try_end_2
+    .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_2 .. :try_end_2} :catch_0
+    .catch Ljava/lang/RuntimeException; {:try_start_2 .. :try_end_2} :catch_1
+
+    move-result-object v2
+
+    .line 273
+    :try_start_3
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrJson;->obj(Ljava/lang/Object;)Ljava/util/Map;
+
+    move-result-object v2
+
+    const/4 v3, 0x1
+
+    invoke-static {v2, v3}, Lcom/mrkeyboard/app/MrPacks;->readPack(Ljava/util/Map;Z)Lcom/mrkeyboard/app/MrPacks$Pack;
+
+    move-result-object v2
+
+    .line 274
+    iget-object v3, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
+
+    invoke-virtual {v1, v3}, Lcom/mrkeyboard/app/MrPacks$Catalog;->model(Ljava/lang/String;)Lcom/mrkeyboard/app/MrPacks$Pack;
+
+    move-result-object v3
+
+    if-nez v3, :cond_3
+
+    iget-object v3, v1, Lcom/mrkeyboard/app/MrPacks$Catalog;->models:Ljava/util/ArrayList;
+
+    invoke-virtual {v3, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+    :try_end_3
+    .catch Ljava/lang/RuntimeException; {:try_start_3 .. :try_end_3} :catch_2
+    .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_3 .. :try_end_3} :catch_0
+
+    goto :goto_1
+
+    .line 275
+    :catch_2
+    move-exception v2
+
+    goto :goto_1
+
+    .line 280
+    :cond_4
     return-object v1
 .end method
 
-.method private static readPack(Ljava/util/Map;)Lcom/mrkeyboard/app/MrPacks$Pack;
-    .locals 13
+.method private static readPack(Ljava/util/Map;Z)Lcom/mrkeyboard/app/MrPacks$Pack;
+    .locals 12
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -4602,35 +5764,41 @@
             "<",
             "Ljava/lang/String;",
             "Ljava/lang/Object;",
-            ">;)",
+            ">;Z)",
             "Lcom/mrkeyboard/app/MrPacks$Pack;"
         }
     .end annotation
 
     .prologue
-    .line 240
-    new-instance v2, Lcom/mrkeyboard/app/MrPacks$Pack;
+    .line 291
+    new-instance v3, Lcom/mrkeyboard/app/MrPacks$Pack;
 
-    invoke-direct {v2}, Lcom/mrkeyboard/app/MrPacks$Pack;-><init>()V
+    invoke-direct {v3}, Lcom/mrkeyboard/app/MrPacks$Pack;-><init>()V
 
-    .line 241
+    .line 292
+    iput-boolean p1, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->model:Z
+
+    .line 293
     const-string v0, "id"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrJson;->str(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    iput-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
+    iput-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
 
-    .line 242
-    iget-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
+    .line 294
+    if-eqz p1, :cond_1
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->validId(Ljava/lang/String;)Z
+    iget-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->validModelId(Ljava/lang/String;)Z
 
     move-result v0
 
-    if-nez v0, :cond_0
+    if-nez v0, :cond_2
 
+    :cond_0
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
     const-string v1, "id"
@@ -4639,8 +5807,125 @@
 
     throw v0
 
-    .line 243
-    :cond_0
+    :cond_1
+    iget-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->validId(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    .line 295
+    :cond_2
+    if-eqz p1, :cond_3
+
+    const-string v0, ""
+
+    :goto_0
+    iput-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->lang:Ljava/lang/String;
+
+    .line 296
+    if-eqz p1, :cond_4
+
+    const-string v0, ""
+
+    :goto_1
+    iput-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->region:Ljava/lang/String;
+
+    .line 297
+    const-string v0, "name"
+
+    invoke-interface {p0, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    .line 298
+    instance-of v1, v0, Ljava/util/Map;
+
+    if-eqz v1, :cond_5
+
+    check-cast v0, Ljava/util/Map;
+
+    :goto_2
+    iput-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->name:Ljava/util/Map;
+
+    .line 299
+    const-string v0, "description"
+
+    invoke-interface {p0, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    .line 300
+    instance-of v1, v0, Ljava/util/Map;
+
+    if-eqz v1, :cond_6
+
+    check-cast v0, Ljava/util/Map;
+
+    :goto_3
+    iput-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->description:Ljava/util/Map;
+
+    .line 301
+    const-string v0, "version"
+
+    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrJson;->num(Ljava/util/Map;Ljava/lang/String;)J
+
+    move-result-wide v0
+
+    long-to-int v0, v0
+
+    iput v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->version:I
+
+    .line 302
+    const-string v0, "format"
+
+    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrJson;->num(Ljava/util/Map;Ljava/lang/String;)J
+
+    move-result-wide v0
+
+    long-to-int v0, v0
+
+    iput v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->format:I
+
+    .line 303
+    const-string v0, "minApp"
+
+    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrJson;->num(Ljava/util/Map;Ljava/lang/String;)J
+
+    move-result-wide v0
+
+    iput-wide v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->minApp:J
+
+    .line 304
+    const-string v0, "release"
+
+    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrJson;->str(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    iput-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->release:Ljava/lang/String;
+
+    .line 305
+    iget-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->release:Ljava/lang/String;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->validTag(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_7
+
+    new-instance v0, Ljava/lang/IllegalArgumentException;
+
+    const-string v1, "release"
+
+    invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
+
+    throw v0
+
+    .line 295
+    :cond_3
     const-string v0, "lang"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrJson;->str(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
@@ -4653,9 +5938,10 @@
 
     move-result-object v0
 
-    iput-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->lang:Ljava/lang/String;
+    goto :goto_0
 
-    .line 244
+    .line 296
+    :cond_4
     const-string v0, "region"
 
     const-string v1, ""
@@ -4670,131 +5956,40 @@
 
     move-result-object v0
 
-    iput-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->region:Ljava/lang/String;
-
-    .line 245
-    const-string v0, "name"
-
-    invoke-interface {p0, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v0
-
-    .line 246
-    instance-of v1, v0, Ljava/util/Map;
-
-    if-eqz v1, :cond_1
-
-    check-cast v0, Ljava/util/Map;
-
-    :goto_0
-    iput-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->name:Ljava/util/Map;
-
-    .line 247
-    const-string v0, "description"
-
-    invoke-interface {p0, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v0
-
-    .line 248
-    instance-of v1, v0, Ljava/util/Map;
-
-    if-eqz v1, :cond_2
-
-    check-cast v0, Ljava/util/Map;
-
-    :goto_1
-    iput-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->description:Ljava/util/Map;
-
-    .line 249
-    const-string v0, "version"
-
-    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrJson;->num(Ljava/util/Map;Ljava/lang/String;)J
-
-    move-result-wide v0
-
-    long-to-int v0, v0
-
-    iput v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->version:I
-
-    .line 250
-    const-string v0, "format"
-
-    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrJson;->num(Ljava/util/Map;Ljava/lang/String;)J
-
-    move-result-wide v0
-
-    long-to-int v0, v0
-
-    iput v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->format:I
-
-    .line 251
-    const-string v0, "minApp"
-
-    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrJson;->num(Ljava/util/Map;Ljava/lang/String;)J
-
-    move-result-wide v0
-
-    iput-wide v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->minApp:J
-
-    .line 252
-    const-string v0, "release"
-
-    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrJson;->str(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    iput-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->release:Ljava/lang/String;
-
-    .line 253
-    iget-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->release:Ljava/lang/String;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->validTag(Ljava/lang/String;)Z
-
-    move-result v0
-
-    if-nez v0, :cond_3
-
-    new-instance v0, Ljava/lang/IllegalArgumentException;
-
-    const-string v1, "release"
-
-    invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
-
-    throw v0
-
-    .line 246
-    :cond_1
-    const/4 v0, 0x0
-
-    goto :goto_0
-
-    .line 248
-    :cond_2
-    const/4 v0, 0x0
-
     goto :goto_1
 
-    .line 254
-    :cond_3
+    .line 298
+    :cond_5
+    const/4 v0, 0x0
+
+    goto :goto_2
+
+    .line 300
+    :cond_6
+    const/4 v0, 0x0
+
+    goto :goto_3
+
+    .line 306
+    :cond_7
     const-string v0, "url"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrJson;->str(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    iput-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->url:Ljava/lang/String;
+    iput-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->url:Ljava/lang/String;
 
-    .line 255
-    iget-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->url:Ljava/lang/String;
+    .line 307
+    iget-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->url:Ljava/lang/String;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->safeName(Ljava/lang/String;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_4
+    if-eqz v0, :cond_8
 
-    iget-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->url:Ljava/lang/String;
+    iget-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->url:Ljava/lang/String;
 
     const-string v1, ".zip"
 
@@ -4802,9 +5997,9 @@
 
     move-result v0
 
-    if-nez v0, :cond_5
+    if-nez v0, :cond_9
 
-    :cond_4
+    :cond_8
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
     const-string v1, "url"
@@ -4813,66 +6008,66 @@
 
     throw v0
 
-    .line 256
-    :cond_5
+    .line 308
+    :cond_9
     const-string v0, "size"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrJson;->num(Ljava/util/Map;Ljava/lang/String;)J
 
     move-result-wide v0
 
-    iput-wide v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->size:J
+    iput-wide v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->size:J
 
-    .line 257
+    .line 309
     const-string v0, "installedSize"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrJson;->num(Ljava/util/Map;Ljava/lang/String;)J
 
     move-result-wide v0
 
-    iput-wide v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->installedSize:J
+    iput-wide v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->installedSize:J
 
-    .line 258
-    iget v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->version:I
+    .line 310
+    iget v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->version:I
 
     const/4 v1, 0x1
 
-    if-lt v0, v1, :cond_6
+    if-lt v0, v1, :cond_a
 
-    iget-wide v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->size:J
-
-    const-wide/16 v4, 0x0
-
-    cmp-long v0, v0, v4
-
-    if-lez v0, :cond_6
-
-    iget-wide v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->size:J
-
-    const-wide/32 v4, 0x4000000
-
-    cmp-long v0, v0, v4
-
-    if-gtz v0, :cond_6
-
-    iget-wide v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->installedSize:J
+    iget-wide v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->size:J
 
     const-wide/16 v4, 0x0
 
     cmp-long v0, v0, v4
 
-    if-lez v0, :cond_6
+    if-lez v0, :cond_a
 
-    iget-wide v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->installedSize:J
+    iget-wide v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->size:J
 
     const-wide/32 v4, 0x4000000
 
     cmp-long v0, v0, v4
 
-    if-lez v0, :cond_7
+    if-gtz v0, :cond_a
 
-    .line 259
-    :cond_6
+    iget-wide v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->installedSize:J
+
+    const-wide/16 v4, 0x0
+
+    cmp-long v0, v0, v4
+
+    if-lez v0, :cond_a
+
+    iget-wide v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->installedSize:J
+
+    const-wide/32 v4, 0x4000000
+
+    cmp-long v0, v0, v4
+
+    if-lez v0, :cond_b
+
+    .line 311
+    :cond_a
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
     const-string v1, "size"
@@ -4881,26 +6076,26 @@
 
     throw v0
 
-    .line 261
-    :cond_7
+    .line 313
+    :cond_b
     const-string v0, "sha256"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrPacks;->hexField(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    iput-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->sha256:Ljava/lang/String;
+    iput-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->sha256:Ljava/lang/String;
 
-    .line 262
+    .line 314
     const-string v0, "manifestSha256"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrPacks;->hexField(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    iput-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->manifestSha:Ljava/lang/String;
+    iput-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->manifestSha:Ljava/lang/String;
 
-    .line 263
+    .line 315
     const-string v0, "files"
 
     invoke-interface {p0, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -4909,21 +6104,21 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrJson;->list(Ljava/lang/Object;)Ljava/util/List;
 
-    move-result-object v3
+    move-result-object v4
 
-    .line 264
-    invoke-interface {v3}, Ljava/util/List;->size()I
+    .line 316
+    invoke-interface {v4}, Ljava/util/List;->size()I
 
-    move-result v4
+    move-result v5
 
-    .line 265
-    if-eqz v4, :cond_8
+    .line 317
+    if-eqz v5, :cond_c
 
     const/16 v0, 0x20
 
-    if-le v4, v0, :cond_9
+    if-le v5, v0, :cond_d
 
-    :cond_8
+    :cond_c
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
     const-string v1, "files"
@@ -4932,64 +6127,60 @@
 
     throw v0
 
-    .line 266
-    :cond_9
-    new-array v0, v4, [Ljava/lang/String;
+    .line 318
+    :cond_d
+    new-array v0, v5, [Ljava/lang/String;
 
-    iput-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->fileNames:[Ljava/lang/String;
+    iput-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->fileNames:[Ljava/lang/String;
 
-    .line 267
-    new-array v0, v4, [J
+    .line 319
+    new-array v0, v5, [J
 
-    iput-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->fileSizes:[J
+    iput-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->fileSizes:[J
 
-    .line 268
-    new-array v0, v4, [Ljava/lang/String;
+    .line 320
+    new-array v0, v5, [Ljava/lang/String;
 
-    iput-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->fileSha:[Ljava/lang/String;
+    iput-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->fileSha:[Ljava/lang/String;
 
-    .line 269
+    .line 321
     const/4 v1, 0x0
 
-    .line 270
-    new-instance v5, Ljava/util/HashSet;
+    .line 322
+    new-instance v6, Ljava/util/HashSet;
 
-    invoke-direct {v5}, Ljava/util/HashSet;-><init>()V
+    invoke-direct {v6}, Ljava/util/HashSet;-><init>()V
 
-    .line 271
+    .line 323
     const/4 v0, 0x0
 
-    move v12, v0
+    move v2, v0
 
-    move v0, v1
+    :goto_4
+    if-ge v2, v5, :cond_13
 
-    move v1, v12
+    .line 324
+    invoke-interface {v4, v2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
-    :goto_2
-    if-ge v1, v4, :cond_f
+    move-result-object v0
 
-    .line 272
-    invoke-interface {v3, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrJson;->obj(Ljava/lang/Object;)Ljava/util/Map;
 
-    move-result-object v6
+    move-result-object v0
 
-    invoke-static {v6}, Lcom/mrkeyboard/app/MrJson;->obj(Ljava/lang/Object;)Ljava/util/Map;
-
-    move-result-object v6
-
-    .line 273
+    .line 325
     const-string v7, "name"
 
-    invoke-static {v6, v7}, Lcom/mrkeyboard/app/MrJson;->str(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v7}, Lcom/mrkeyboard/app/MrJson;->str(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v7
 
-    .line 274
+    .line 326
     invoke-static {v7}, Lcom/mrkeyboard/app/MrPacks;->safeName(Ljava/lang/String;)Z
 
     move-result v8
 
-    if-eqz v8, :cond_a
+    if-eqz v8, :cond_e
 
     const-string v8, "pack.json"
 
@@ -4997,15 +6188,15 @@
 
     move-result v8
 
-    if-nez v8, :cond_a
+    if-nez v8, :cond_e
 
-    invoke-virtual {v5, v7}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+    invoke-virtual {v6, v7}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
 
     move-result v8
 
-    if-nez v8, :cond_b
+    if-nez v8, :cond_f
 
-    :cond_a
+    :cond_e
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
     const-string v1, "name"
@@ -5014,45 +6205,45 @@
 
     throw v0
 
-    .line 275
-    :cond_b
-    iget-object v8, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->fileNames:[Ljava/lang/String;
+    .line 327
+    :cond_f
+    iget-object v8, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->fileNames:[Ljava/lang/String;
 
-    aput-object v7, v8, v1
+    aput-object v7, v8, v2
 
-    .line 276
-    iget-object v8, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->fileSizes:[J
+    .line 328
+    iget-object v8, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->fileSizes:[J
 
     const-string v9, "size"
 
-    invoke-static {v6, v9}, Lcom/mrkeyboard/app/MrJson;->num(Ljava/util/Map;Ljava/lang/String;)J
+    invoke-static {v0, v9}, Lcom/mrkeyboard/app/MrJson;->num(Ljava/util/Map;Ljava/lang/String;)J
 
     move-result-wide v10
 
-    aput-wide v10, v8, v1
+    aput-wide v10, v8, v2
 
-    .line 277
-    iget-object v8, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->fileSizes:[J
+    .line 329
+    iget-object v8, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->fileSizes:[J
 
-    aget-wide v8, v8, v1
+    aget-wide v8, v8, v2
 
     const-wide/16 v10, 0x0
 
     cmp-long v8, v8, v10
 
-    if-lez v8, :cond_c
+    if-lez v8, :cond_10
 
-    iget-object v8, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->fileSizes:[J
+    iget-object v8, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->fileSizes:[J
 
-    aget-wide v8, v8, v1
+    aget-wide v8, v8, v2
 
     const-wide/32 v10, 0x4000000
 
     cmp-long v8, v8, v10
 
-    if-lez v8, :cond_d
+    if-lez v8, :cond_11
 
-    :cond_c
+    :cond_10
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
     const-string v1, "size"
@@ -5061,117 +6252,138 @@
 
     throw v0
 
-    .line 278
-    :cond_d
-    iget-object v8, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->fileSha:[Ljava/lang/String;
+    .line 330
+    :cond_11
+    iget-object v8, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->fileSha:[Ljava/lang/String;
 
     const-string v9, "sha256"
 
-    invoke-static {v6, v9}, Lcom/mrkeyboard/app/MrPacks;->hexField(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, v9}, Lcom/mrkeyboard/app/MrPacks;->hexField(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
 
-    move-result-object v6
+    move-result-object v0
 
-    aput-object v6, v8, v1
+    aput-object v0, v8, v2
 
-    .line 279
-    const-string v6, "main.dict"
+    .line 331
+    if-eqz p1, :cond_12
 
-    invoke-virtual {v7, v6}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    const-string v0, "encoder.bin"
 
-    move-result v6
+    :goto_5
+    invoke-virtual {v7, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    if-eqz v6, :cond_e
+    move-result v0
+
+    if-eqz v0, :cond_19
 
     const/4 v0, 0x1
 
-    .line 271
-    :cond_e
-    add-int/lit8 v1, v1, 0x1
+    .line 323
+    :goto_6
+    add-int/lit8 v1, v2, 0x1
 
-    goto :goto_2
+    move v2, v1
 
-    .line 281
-    :cond_f
-    if-nez v0, :cond_10
+    move v1, v0
 
-    new-instance v0, Ljava/lang/IllegalArgumentException;
+    goto :goto_4
 
-    const-string v1, "no main.dict"
+    .line 331
+    :cond_12
+    const-string v0, "main.dict"
 
-    invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
+    goto :goto_5
 
-    throw v0
+    .line 333
+    :cond_13
+    if-nez v1, :cond_15
 
-    .line 282
-    :cond_10
+    new-instance v1, Ljava/lang/IllegalArgumentException;
+
+    if-eqz p1, :cond_14
+
+    const-string v0, "no encoder.bin"
+
+    :goto_7
+    invoke-direct {v1, v0}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
+
+    throw v1
+
+    :cond_14
+    const-string v0, "no main.dict"
+
+    goto :goto_7
+
+    .line 334
+    :cond_15
     const-string v0, "licenses"
 
     invoke-interface {p0, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
-    .line 283
+    .line 335
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 284
-    instance-of v3, v0, Ljava/util/List;
+    .line 336
+    instance-of v2, v0, Ljava/util/List;
 
-    if-eqz v3, :cond_13
+    if-eqz v2, :cond_18
 
-    .line 285
+    .line 337
     check-cast v0, Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
-    move-result-object v3
+    move-result-object v2
 
-    :cond_11
-    :goto_3
-    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
+    :cond_16
+    :goto_8
+    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_13
+    if-eqz v0, :cond_18
 
-    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v0
 
-    .line 286
+    .line 338
     instance-of v4, v0, Ljava/lang/String;
 
-    if-eqz v4, :cond_11
+    if-eqz v4, :cond_16
 
-    .line 287
+    .line 339
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->length()I
 
     move-result v4
 
-    if-lez v4, :cond_12
+    if-lez v4, :cond_17
 
     const-string v4, ", "
 
     invoke-virtual {v1, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 288
-    :cond_12
+    .line 340
+    :cond_17
     check-cast v0, Ljava/lang/String;
 
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    goto :goto_3
+    goto :goto_8
 
-    .line 292
-    :cond_13
+    .line 344
+    :cond_18
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
-    iput-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->licenses:Ljava/lang/String;
+    iput-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->licenses:Ljava/lang/String;
 
-    .line 293
+    .line 345
     const-string v0, "credits"
 
     const-string v1, ""
@@ -5180,17 +6392,22 @@
 
     move-result-object v0
 
-    iput-object v0, v2, Lcom/mrkeyboard/app/MrPacks$Pack;->credits:Ljava/lang/String;
+    iput-object v0, v3, Lcom/mrkeyboard/app/MrPacks$Pack;->credits:Ljava/lang/String;
 
-    .line 294
-    return-object v2
+    .line 346
+    return-object v3
+
+    :cond_19
+    move v0, v1
+
+    goto :goto_6
 .end method
 
 .method static remove(Landroid/content/Context;Ljava/lang/String;)V
     .locals 3
 
     .prologue
-    .line 772
+    .line 966
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -5223,7 +6440,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->commit()Z
 
-    .line 773
+    .line 967
     new-instance v0, Ljava/io/File;
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->root(Landroid/content/Context;)Ljava/io/File;
@@ -5234,10 +6451,65 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
 
-    .line 774
+    .line 968
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->signal(Landroid/content/Context;)V
 
-    .line 775
+    .line 969
+    return-void
+.end method
+
+.method static removeModel(Landroid/content/Context;Ljava/lang/String;)V
+    .locals 3
+
+    .prologue
+    .line 592
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "model."
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-interface {v0, v1}, Landroid/content/SharedPreferences$Editor;->remove(Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->commit()Z
+
+    .line 593
+    new-instance v0, Ljava/io/File;
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->modelsRoot(Landroid/content/Context;)Ljava/io/File;
+
+    move-result-object v1
+
+    invoke-direct {v0, v1, p1}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacks;->deleteTree(Ljava/io/File;)V
+
+    .line 594
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrGestureInput;->reload(Landroid/content/Context;)V
+
+    .line 595
     return-void
 .end method
 
@@ -5245,7 +6517,7 @@
     .locals 3
 
     .prologue
-    .line 556
+    .line 744
     new-instance v0, Ljava/io/File;
 
     invoke-virtual {p0}, Landroid/content/Context;->getFilesDir()Ljava/io/File;
@@ -5273,7 +6545,7 @@
 
     const/4 v1, 0x0
 
-    .line 356
+    .line 413
     if-eqz p0, :cond_0
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -5290,18 +6562,18 @@
 
     if-le v0, v3, :cond_1
 
-    .line 365
+    .line 422
     :cond_0
     :goto_0
     return v1
 
-    .line 357
+    .line 414
     :cond_1
     invoke-virtual {p0, v1}, Ljava/lang/String;->charAt(I)C
 
     move-result v0
 
-    .line 358
+    .line 415
     const/16 v3, 0x61
 
     if-lt v0, v3, :cond_2
@@ -5325,7 +6597,7 @@
     :cond_4
     move v0, v1
 
-    .line 359
+    .line 416
     :goto_1
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -5333,12 +6605,12 @@
 
     if-ge v0, v3, :cond_a
 
-    .line 360
+    .line 417
     invoke-virtual {p0, v0}, Ljava/lang/String;->charAt(I)C
 
     move-result v3
 
-    .line 361
+    .line 418
     const/16 v4, 0x61
 
     if-lt v3, v4, :cond_5
@@ -5375,11 +6647,11 @@
     :cond_8
     move v3, v2
 
-    .line 363
+    .line 420
     :goto_2
     if-eqz v3, :cond_0
 
-    .line 359
+    .line 416
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
@@ -5387,10 +6659,10 @@
     :cond_9
     move v3, v1
 
-    .line 361
+    .line 418
     goto :goto_2
 
-    .line 365
+    .line 422
     :cond_a
     const-string v0, ".."
 
@@ -5409,7 +6681,7 @@
     .locals 4
 
     .prologue
-    .line 779
+    .line 973
     invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -5420,7 +6692,7 @@
 
     const-string v1, "mr_dicts_updated_at"
 
-    .line 780
+    .line 974
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v2
@@ -5431,7 +6703,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 781
+    .line 975
     return-void
 .end method
 
@@ -5441,19 +6713,19 @@
     .prologue
     const-wide v0, 0x3fb999999999999aL    # 0.1
 
-    .line 1012
+    .line 1207
     long-to-double v2, p0
 
     const-wide v4, 0x412e848000000000L    # 1000000.0
 
     div-double/2addr v2, v4
 
-    .line 1013
+    .line 1208
     cmpg-double v4, v2, v0
 
     if-gez v4, :cond_0
 
-    .line 1014
+    .line 1209
     :goto_0
     invoke-static {}, Ljava/util/Locale;->getDefault()Ljava/util/Locale;
 
@@ -5499,7 +6771,7 @@
 
     const/4 v4, 0x0
 
-    .line 787
+    .line 981
     if-nez p0, :cond_0
 
     new-array v0, v6, [Ljava/lang/String;
@@ -5512,22 +6784,22 @@
 
     aput-object v1, v0, v5
 
-    .line 796
+    .line 990
     :goto_0
     return-object v0
 
-    .line 788
+    .line 982
     :cond_0
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 789
+    .line 983
     invoke-virtual {v1, v8}, Ljava/lang/String;->indexOf(I)I
 
     move-result v0
 
-    .line 790
+    .line 984
     if-gez v0, :cond_5
 
     invoke-virtual {v1, v7}, Ljava/lang/String;->indexOf(I)I
@@ -5536,7 +6808,7 @@
 
     move v2, v0
 
-    .line 791
+    .line 985
     :goto_1
     if-gez v2, :cond_3
 
@@ -5549,25 +6821,25 @@
 
     move-result-object v3
 
-    .line 792
+    .line 986
     if-gez v2, :cond_4
 
     const-string v0, ""
 
-    .line 793
+    .line 987
     :goto_3
     invoke-virtual {v0, v8}, Ljava/lang/String;->indexOf(I)I
 
     move-result v1
 
-    .line 794
+    .line 988
     if-gez v1, :cond_1
 
     invoke-virtual {v0, v7}, Ljava/lang/String;->indexOf(I)I
 
     move-result v1
 
-    .line 795
+    .line 989
     :cond_1
     if-ltz v1, :cond_2
 
@@ -5575,7 +6847,7 @@
 
     move-result-object v0
 
-    .line 796
+    .line 990
     :cond_2
     new-array v1, v6, [Ljava/lang/String;
 
@@ -5587,7 +6859,7 @@
 
     goto :goto_0
 
-    .line 791
+    .line 985
     :cond_3
     invoke-virtual {v1, v4, v2}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
@@ -5595,7 +6867,7 @@
 
     goto :goto_2
 
-    .line 792
+    .line 986
     :cond_4
     add-int/lit8 v0, v2, 0x1
 
@@ -5631,7 +6903,7 @@
     .end annotation
 
     .prologue
-    .line 546
+    .line 734
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->installedIds(Landroid/content/Context;)Ljava/util/ArrayList;
 
     move-result-object v0
@@ -5640,12 +6912,12 @@
 
     move-result-object v0
 
-    .line 547
+    .line 735
     invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v1
 
-    .line 548
+    .line 736
     const-string v2, "selected_languages"
 
     const/4 v3, 0x0
@@ -5654,17 +6926,17 @@
 
     move-result-object v2
 
-    .line 549
+    .line 737
     if-nez v0, :cond_1
 
     if-nez v2, :cond_2
 
-    .line 553
+    .line 741
     :cond_0
     :goto_0
     return-void
 
-    .line 549
+    .line 737
     :cond_1
     invoke-virtual {v0, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
@@ -5672,26 +6944,26 @@
 
     if-nez v2, :cond_0
 
-    .line 550
+    .line 738
     :cond_2
     invoke-interface {v1}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
     move-result-object v1
 
-    .line 551
+    .line 739
     if-nez v0, :cond_3
 
     const-string v0, "selected_languages"
 
     invoke-interface {v1, v0}, Landroid/content/SharedPreferences$Editor;->remove(Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
-    .line 552
+    .line 740
     :goto_1
     invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;->apply()V
 
     goto :goto_0
 
-    .line 551
+    .line 739
     :cond_3
     const-string v2, "selected_languages"
 
@@ -5706,13 +6978,13 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 955
+    .line 1150
     :try_start_0
     invoke-static {p0}, Lcom/mrkeyboard/app/UiLocale;->wrap(Landroid/content/Context;)Landroid/content/Context;
 
     move-result-object v1
 
-    .line 956
+    .line 1151
     invoke-virtual {v1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v2
@@ -5727,14 +6999,14 @@
 
     move-result v2
 
-    .line 957
+    .line 1152
     if-nez v2, :cond_0
 
-    .line 960
+    .line 1155
     :goto_0
     return-object v0
 
-    .line 958
+    .line 1153
     :cond_0
     array-length v3, p2
 
@@ -5763,7 +7035,7 @@
 
     goto :goto_0
 
-    .line 959
+    .line 1154
     :catch_0
     move-exception v1
 
@@ -5776,14 +7048,14 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 497
+    .line 554
     if-nez p1, :cond_0
 
-    .line 503
+    .line 564
     :goto_0
     return v0
 
-    .line 499
+    .line 556
     :cond_0
     iget-object v1, p1, Lcom/mrkeyboard/app/MrPacks$Catalog;->packs:Ljava/util/ArrayList;
 
@@ -5806,14 +7078,66 @@
 
     check-cast v0, Lcom/mrkeyboard/app/MrPacks$Pack;
 
-    .line 500
+    .line 557
     iget-object v3, v0, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
 
     invoke-static {p0, v3}, Lcom/mrkeyboard/app/MrPacks;->installedVersion(Landroid/content/Context;Ljava/lang/String;)I
 
     move-result v3
 
-    .line 501
+    .line 558
+    if-lez v3, :cond_4
+
+    iget v4, v0, Lcom/mrkeyboard/app/MrPacks$Pack;->version:I
+
+    if-le v4, v3, :cond_4
+
+    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrPacks;->appTooOld(Landroid/content/Context;Lcom/mrkeyboard/app/MrPacks$Pack;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_4
+
+    add-int/lit8 v1, v1, 0x1
+
+    move v0, v1
+
+    :goto_2
+    move v1, v0
+
+    .line 559
+    goto :goto_1
+
+    .line 560
+    :cond_1
+    iget-object v0, p1, Lcom/mrkeyboard/app/MrPacks$Catalog;->models:Ljava/util/ArrayList;
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
+
+    move-result-object v2
+
+    :cond_2
+    :goto_3
+    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_3
+
+    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/mrkeyboard/app/MrPacks$Pack;
+
+    .line 561
+    iget-object v3, v0, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
+
+    invoke-static {p0, v3}, Lcom/mrkeyboard/app/MrPacks;->modelVersion(Landroid/content/Context;Ljava/lang/String;)I
+
+    move-result v3
+
+    .line 562
     if-lez v3, :cond_2
 
     iget v4, v0, Lcom/mrkeyboard/app/MrPacks$Pack;->version:I
@@ -5828,21 +7152,15 @@
 
     add-int/lit8 v1, v1, 0x1
 
+    goto :goto_3
+
+    :cond_3
     move v0, v1
 
-    :goto_2
-    move v1, v0
-
-    .line 502
-    goto :goto_1
-
-    :cond_1
-    move v0, v1
-
-    .line 503
+    .line 564
     goto :goto_0
 
-    :cond_2
+    :cond_4
     move v0, v1
 
     goto :goto_2
@@ -5856,21 +7174,21 @@
 
     const/4 v0, 0x0
 
-    .line 309
+    .line 361
     if-nez p0, :cond_1
 
-    .line 319
+    .line 371
     :cond_0
     :goto_0
     return v0
 
-    .line 310
+    .line 362
     :cond_1
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
     move-result v1
 
-    .line 311
+    .line 363
     const/4 v2, 0x2
 
     if-eq v1, v2, :cond_2
@@ -5886,7 +7204,7 @@
 
     goto :goto_0
 
-    .line 312
+    .line 364
     :cond_3
     const/4 v2, 0x5
 
@@ -5896,11 +7214,11 @@
 
     if-ne v1, v2, :cond_0
 
-    .line 313
+    .line 365
     :cond_4
     add-int/lit8 v1, v1, -0x3
 
-    .line 314
+    .line 366
     invoke-virtual {p0, v1}, Ljava/lang/String;->charAt(I)C
 
     move-result v2
@@ -5909,7 +7227,7 @@
 
     if-ne v2, v3, :cond_0
 
-    .line 315
+    .line 367
     invoke-static {p0, v0, v1}, Lcom/mrkeyboard/app/MrPacks;->lowerLetters(Ljava/lang/String;II)Z
 
     move-result v2
@@ -5930,7 +7248,7 @@
 
     add-int/lit8 v2, v1, 0x2
 
-    .line 316
+    .line 368
     invoke-virtual {p0, v2}, Ljava/lang/String;->charAt(I)C
 
     move-result v2
@@ -5943,7 +7261,7 @@
 
     add-int/lit8 v2, v1, 0x1
 
-    .line 317
+    .line 369
     invoke-virtual {p0, v2}, Ljava/lang/String;->charAt(I)C
 
     move-result v2
@@ -5963,6 +7281,20 @@
     goto :goto_0
 .end method
 
+.method static validModelId(Ljava/lang/String;)Z
+    .locals 1
+
+    .prologue
+    .line 376
+    const-string v0, "gesture"
+
+    invoke-virtual {v0, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    return v0
+.end method
+
 .method static validTag(Ljava/lang/String;)Z
     .locals 7
 
@@ -5971,7 +7303,7 @@
 
     const/4 v3, 0x0
 
-    .line 333
+    .line 390
     if-eqz p0, :cond_0
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -5998,7 +7330,7 @@
 
     if-eq v0, v2, :cond_1
 
-    .line 346
+    .line 403
     :cond_0
     :goto_0
     return v3
@@ -6010,7 +7342,7 @@
 
     move v4, v3
 
-    .line 335
+    .line 392
     :goto_1
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -6018,12 +7350,12 @@
 
     if-ge v0, v5, :cond_3
 
-    .line 336
+    .line 393
     invoke-virtual {p0, v0}, Ljava/lang/String;->charAt(I)C
 
     move-result v5
 
-    .line 337
+    .line 394
     const/16 v6, 0x30
 
     if-lt v5, v6, :cond_2
@@ -6032,16 +7364,16 @@
 
     if-gt v5, v6, :cond_2
 
-    .line 338
+    .line 395
     add-int/lit8 v2, v2, 0x1
 
-    .line 335
+    .line 392
     :goto_2
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
-    .line 339
+    .line 396
     :cond_2
     const/16 v6, 0x2e
 
@@ -6049,15 +7381,15 @@
 
     if-lez v2, :cond_0
 
-    .line 340
+    .line 397
     add-int/lit8 v4, v4, 0x1
 
     move v2, v3
 
-    .line 341
+    .line 398
     goto :goto_2
 
-    .line 346
+    .line 403
     :cond_3
     const/4 v0, 0x2
 
@@ -6085,7 +7417,7 @@
     .end annotation
 
     .prologue
-    .line 167
+    .line 205
     :try_start_0
     new-instance v0, Ljava/lang/String;
 
@@ -6101,7 +7433,7 @@
 
     move-result-object v2
 
-    .line 168
+    .line 206
     const-string v0, "format"
 
     invoke-static {v2, v0}, Lcom/mrkeyboard/app/MrJson;->num(Ljava/util/Map;Ljava/lang/String;)J
@@ -6129,14 +7461,14 @@
     .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_0 .. :try_end_0} :catch_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_1
 
-    .line 172
+    .line 210
     :catch_0
     move-exception v0
 
-    .line 173
+    .line 211
     throw v0
 
-    .line 169
+    .line 207
     :cond_0
     :try_start_1
     const-string v0, "algorithm"
@@ -6145,14 +7477,14 @@
 
     move-result-object v3
 
-    .line 170
+    .line 208
     const-string v0, "data"
 
     invoke-static {v2, v0}, Lcom/mrkeyboard/app/MrJson;->str(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
 
-    .line 171
+    .line 209
     invoke-static {}, Ljava/util/Base64;->getDecoder()Ljava/util/Base64$Decoder;
 
     move-result-object v0
@@ -6170,7 +7502,7 @@
 
     move-result-object v5
 
-    .line 177
+    .line 215
     const-string v0, "SHA256withRSA"
 
     invoke-virtual {v3, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -6195,7 +7527,7 @@
 
     if-nez v0, :cond_1
 
-    .line 178
+    .line 216
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
 
     const-string v1, "mr_dicts_err_signature"
@@ -6208,11 +7540,11 @@
 
     throw v0
 
-    .line 174
+    .line 212
     :catch_1
     move-exception v0
 
-    .line 175
+    .line 213
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
 
     const-string v1, "mr_dicts_err_corrupt"
@@ -6229,7 +7561,7 @@
 
     throw v0
 
-    .line 182
+    .line 220
     :cond_1
     :try_start_2
     const-string v0, "UTF-8"
@@ -6238,14 +7570,14 @@
 
     move-result-object v0
 
-    .line 183
+    .line 221
     const-string v1, "UTF-8"
 
     invoke-virtual {v4, v1}, Ljava/lang/String;->getBytes(Ljava/lang/String;)[B
 
     move-result-object v1
 
-    .line 184
+    .line 222
     array-length v6, v0
 
     array-length v7, v1
@@ -6254,7 +7586,7 @@
 
     new-array v6, v6, [B
 
-    .line 185
+    .line 223
     const/4 v7, 0x0
 
     const/4 v8, 0x0
@@ -6263,7 +7595,7 @@
 
     invoke-static {v0, v7, v6, v8, v9}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 186
+    .line 224
     const/4 v7, 0x0
 
     array-length v0, v0
@@ -6274,13 +7606,13 @@
     :try_end_2
     .catch Ljava/io/IOException; {:try_start_2 .. :try_end_2} :catch_2
 
-    .line 190
+    .line 228
     const/4 v0, 0x0
 
-    .line 191
+    .line 229
     if-eqz p4, :cond_2
 
-    .line 192
+    .line 230
     array-length v7, p4
 
     const/4 v1, 0x0
@@ -6290,23 +7622,23 @@
 
     aget-object v8, p4, v1
 
-    .line 194
+    .line 232
     :try_start_3
     invoke-static {v3}, Ljava/security/Signature;->getInstance(Ljava/lang/String;)Ljava/security/Signature;
 
     move-result-object v9
 
-    .line 195
+    .line 233
     invoke-virtual {v8}, Ljava/security/cert/X509Certificate;->getPublicKey()Ljava/security/PublicKey;
 
     move-result-object v8
 
     invoke-virtual {v9, v8}, Ljava/security/Signature;->initVerify(Ljava/security/PublicKey;)V
 
-    .line 196
+    .line 234
     invoke-virtual {v9, v6}, Ljava/security/Signature;->update([B)V
 
-    .line 197
+    .line 235
     invoke-virtual {v9, v5}, Ljava/security/Signature;->verify([B)Z
     :try_end_3
     .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_3} :catch_3
@@ -6315,14 +7647,14 @@
 
     if-eqz v8, :cond_3
 
-    .line 198
+    .line 236
     const/4 v0, 0x1
 
-    .line 206
+    .line 244
     :cond_2
     if-nez v0, :cond_5
 
-    .line 207
+    .line 245
     const-string v0, "signer"
 
     const/4 v1, 0x0
@@ -6331,7 +7663,7 @@
 
     move-result-object v0
 
-    .line 208
+    .line 246
     if-eqz v0, :cond_4
 
     if-eqz p4, :cond_4
@@ -6354,7 +7686,7 @@
 
     if-nez v0, :cond_4
 
-    .line 209
+    .line 247
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
 
     const-string v1, "mr_dicts_err_other_key"
@@ -6367,11 +7699,11 @@
 
     throw v0
 
-    .line 187
+    .line 225
     :catch_2
     move-exception v0
 
-    .line 188
+    .line 226
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
 
     const-string v1, "mr_dicts_err_signature"
@@ -6384,17 +7716,17 @@
 
     throw v0
 
-    .line 201
+    .line 239
     :catch_3
     move-exception v8
 
-    .line 192
+    .line 230
     :cond_3
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_0
 
-    .line 211
+    .line 249
     :cond_4
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
 
@@ -6408,7 +7740,7 @@
 
     throw v0
 
-    .line 213
+    .line 251
     :cond_5
     return-object v4
 .end method
@@ -6417,7 +7749,7 @@
     .locals 2
 
     .prologue
-    .line 351
+    .line 408
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V

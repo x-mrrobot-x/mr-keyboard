@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
+.field final synthetic val$id:Ljava/lang/String;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)V
     .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 147
+    .line 161
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity$3;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
+
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrPacksActivity$3;->val$id:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -37,15 +46,17 @@
 
 # virtual methods
 .method public onPreferenceClick(Landroid/preference/Preference;)Z
-    .locals 1
+    .locals 2
 
     .prologue
-    .line 149
+    .line 163
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$3;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$400(Lcom/mrkeyboard/app/MrPacksActivity;)V
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$3;->val$id:Ljava/lang/String;
 
-    .line 150
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$300(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)V
+
+    .line 164
     const/4 v0, 0x1
 
     return v0

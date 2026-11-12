@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrPacksActivity;->showPack(Ljava/lang/String;)V
+    value = Lcom/mrkeyboard/app/MrPacksActivity;->details(Ljava/lang/String;Lcom/mrkeyboard/app/MrPacks$Pack;ILjava/lang/String;Z)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
-.field final synthetic val$p:Lcom/mrkeyboard/app/MrPacks$Pack;
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrPacksActivity;Lcom/mrkeyboard/app/MrPacks$Pack;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 381
+    .line 410
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity$7;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
-
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrPacksActivity$7;->val$p:Lcom/mrkeyboard/app/MrPacks$Pack;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,16 +37,14 @@
 
 # virtual methods
 .method public onClick(Landroid/content/DialogInterface;I)V
-    .locals 2
+    .locals 1
 
     .prologue
-    .line 383
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$7;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
+    .line 412
+    const/4 v0, 0x1
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$7;->val$p:Lcom/mrkeyboard/app/MrPacks$Pack;
+    sput-boolean v0, Lcom/mrkeyboard/app/MrPacks;->sCancel:Z
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$1400(Lcom/mrkeyboard/app/MrPacksActivity;Lcom/mrkeyboard/app/MrPacks$Pack;)V
-
-    .line 384
+    .line 413
     return-void
 .end method
