@@ -10,6 +10,7 @@ import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
@@ -51,7 +52,7 @@ public class EmojiPanelTest {
             conf.locale = new Locale(lang);
         }
         public int getIdentifier(String name, String type, String pkg) { Integer i = ids.get(name); return i == null ? 0 : i.intValue(); }
-        public float getDimension(int id) { return id == 10 ? 368f : 0f; }
+        public float getDimension(int id) { return id == 10 ? 390f : 0f; }
         public int getInteger(int id) { return id == 11 ? 2 : 0; }
         public Configuration getConfiguration() { return conf; }
         public DisplayMetrics getDisplayMetrics() { DisplayMetrics d = new DisplayMetrics(); d.density = 2f; return d; }
@@ -86,19 +87,38 @@ public class EmojiPanelTest {
         public View findViewWithTag(Object tag) { return byTag.get(tag); }
     }
 
+    /** What the entrance of the header asked of the animator of the view. */
+    static class Anim extends ViewPropertyAnimator {
+        float alpha = -1f, scaleY = -1f;
+        long duration;
+        int starts, cancels;
+        public ViewPropertyAnimator alpha(float v) { alpha = v; return this; }
+        public ViewPropertyAnimator scaleY(float v) { scaleY = v; return this; }
+        public ViewPropertyAnimator setDuration(long d) { duration = d; return this; }
+        public void start() { starts++; }
+        public void cancel() { cancels++; }
+    }
+
     static class Bar extends View {
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(-1, 96);
+        float alpha = 1f, scaleY = 1f, pivotY = -1f;
+        final Anim anim = new Anim();
         public ViewGroup.LayoutParams getLayoutParams() { return lp; }
         public void setLayoutParams(ViewGroup.LayoutParams p) { lp = p; }
+        public void setAlpha(float v) { alpha = v; }
+        public void setScaleY(float v) { scaleY = v; }
+        public void setPivotY(float v) { pivotY = v; }
+        public ViewPropertyAnimator animate() { return anim; }
     }
 
     static class Field2 extends EditText {
         TextWatcher watcher;
+        boolean boom;           // the test makes setText fail, as a bug in the search would
         int connections;
         final FakeIc ic = new FakeIc("field");
         Field2(Context c) { super(c); }
         public void addTextChangedListener(TextWatcher w) { watcher = w; }
-        public void setText(CharSequence t) { super.setText(t); if (watcher != null) watcher.afterTextChanged(getText()); }
+        public void setText(CharSequence t) { if (boom) throw new IllegalStateException("boom"); super.setText(t); if (watcher != null) watcher.afterTextChanged(getText()); }
         public InputConnection onCreateInputConnection(EditorInfo e) { connections++; return ic; }
         void type(String s) { setText(s); }
     }
@@ -243,7 +263,12 @@ public class EmojiPanelTest {
         w.search.click.onClick(w.search);   // showPanel is a stub here: the click asks for the mode, the test plays showPanel
         panel(MrEmojiSearch.MODE);
         check("open: the header shows", w.bar.getVisibility() == View.VISIBLE);
-        check("open: the header is taller (the height of mr_es_height: 368 px)", w.bar.lp.height == 184 * 2 && MrBar.expanded(w.bar));
+        check("open: the header is taller (the height of mr_es_height: 390 px)", w.bar.lp.height == 195 * 2 && MrBar.expanded(w.bar));
+        check("open: the header starts transparent and short, and grows from its bottom edge (pivot = its height)",
+                w.bar.alpha == 0f && w.bar.scaleY == MrEmojiSearch.ENTER_FROM && w.bar.pivotY == 390f);
+        check("open: the entrance runs to full opacity and size in ENTER_MS, started once",
+                w.bar.anim.alpha == 1f && w.bar.anim.scaleY == 1f && w.bar.anim.duration == MrEmojiSearch.ENTER_MS && w.bar.anim.starts == 1);
+        check("open: a running entrance was cancelled before the new one", w.bar.anim.cancels == 1);
         check("open: the keyboard types in the field of the header (redirect)", MrTools.sRedirect == w.field.ic && w.field.connections == 1);
         check("open: the keys that are events go to the field too", MrTools.sField == w.field);
         check("open: the word being typed in the app was committed before the change", w.ime.count("mrCommit") == 1);
@@ -302,6 +327,8 @@ public class EmojiPanelTest {
         panel(4);
         check("back: the header goes", w.bar.getVisibility() == View.GONE);
         check("back: the height goes back to what it was", w.bar.lp.height == 96 && !MrBar.expanded(w.bar));
+        check("back: the entrance is ended and the header is left as the layout made it (opaque, full size)",
+                w.bar.anim.cancels == 2 && w.bar.alpha == 1f && w.bar.scaleY == 1f);
         check("back: the keyboard types in the app again", MrTools.sRedirect == null && MrTools.sField == w.translatorField);
         check("back: the field is empty for the next time", w.field.getText().length() == 0);
         check("back: the word typed in the field of the search was committed (as leaving the translator does)", w.ime.count("mrCommit") == commitsBefore + 1);
@@ -360,6 +387,51 @@ public class EmojiPanelTest {
         panel(4);
         panel(0);
         check("no header in the layout: the hooks do nothing and do not break", MrTools.sRedirect == null);
+
+        // ---- an error inside the search never reaches the keyboard (setup runs while the keyboard is made, onPanel when a field is bound)
+        Root broken = new Root(build("en").ctx) {
+            public View findViewWithTag(Object tag) { throw new IllegalStateException("boom"); }
+        };
+        boolean escaped = false;
+        try {
+            MrEmojiSearch.setup(broken);
+        } catch (Throwable t) {
+            escaped = true;
+        }
+        check("setup that fails: nothing escapes, the keyboard starts without the search", !escaped && get("sBar") == null && get("sCtx") == null);
+        World bad = build("en");
+        panel(4);
+        bad.field.boom = true;
+        escaped = false;
+        try {
+            panel(MrEmojiSearch.MODE);
+        } catch (Throwable t) {
+            escaped = true;
+        }
+        check("opening that fails: nothing escapes", !escaped);
+        check("opening that fails: the keyboard types in the app again and the header is closed",
+                MrTools.sRedirect == null && MrTools.sField == bad.translatorField && bad.bar.getVisibility() == View.GONE && !MrBar.expanded(bad.bar));
+        check("opening that fails: the search is forgotten (it does not act on later hooks)", get("sBar") == null && get("sOpen").equals(Boolean.FALSE));
+        panel(4);
+        panel(0);
+
+        // ---- the service is destroyed with the search open and the delete button held (MrTools.release calls setup with no root)
+        World gone = build("en");
+        panel(4);
+        panel(MrEmojiSearch.MODE);
+        settle();
+        gone.del.touch.onTouch(gone.del, ev(MotionEvent.ACTION_DOWN));
+        Handler hg = handler();
+        check("destroy: the repeat of the delete button is armed before", hg.stubPending() == 1 && get("sBar") != null && get("sCtx") != null);
+        MrEmojiSearch.setup(null);
+        check("destroy: the repeat is stopped (it would run for ever on a handler of a dead service)", hg.stubPending() == 0);
+        check("destroy: the views, the context and the words are let go, the search is closed",
+                get("sBar") == null && get("sField") == null && get("sCtx") == null && get("sHandler") == null && get("sIndex") == null
+                && get("sOpen").equals(Boolean.FALSE));
+        MrTools.sRedirect = null;   // MrTools.release clears the redirect itself, before it calls setup
+        panel(MrEmojiSearch.MODE);
+        panel(4);
+        check("destroy: the hooks that still come do nothing (the search does not open on a view that is gone)", MrTools.sRedirect == null);
 
         System.out.println("\n" + ok + " OK, " + fail + " FAIL");
         if (fail > 0) System.exit(1);

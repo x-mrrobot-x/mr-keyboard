@@ -4581,6 +4581,9 @@
  sput-boolean v0, Lcom/mrkeyboard/app/MrTune;->sOn:Z
  sput-boolean v0, Lcom/mrkeyboard/app/MrTune;->sSilent:Z
  invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->release()V
+ # Emoji search (1.97.0): the service is gone, so the search lets go of its views, its context and the repeat of the delete
+ # button (setup with no root does exactly that; v0 is still the zero constant of the sputs above).
+ invoke-static {v0}, Lcom/mrkeyboard/app/MrEmojiSearch;->setup(Landroid/view/View;)V
  :done
  return-void
 .end method

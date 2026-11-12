@@ -89,6 +89,9 @@ public class View {
     public int getVisibility() { return stubVisibility; }
     public View findViewWithTag(Object tag) { return null; }
     public void setAlpha(float alpha) { }
+    public void setScaleY(float scaleY) { }
+    public void setPivotY(float pivotY) { }
+    public ViewPropertyAnimator animate() { return new ViewPropertyAnimator(); }
     public void setElevation(float elevation) { }
 
     /** Measure modes and the helpers of onMeasure (Android nested class View.MeasureSpec). */

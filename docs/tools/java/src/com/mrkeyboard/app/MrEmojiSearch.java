@@ -2,6 +2,8 @@ package com.mrkeyboard.app;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
@@ -54,6 +56,11 @@ final class MrEmojiSearch {
     static final int REPEAT_EVERY = 50;
     private static final int CELL_DP = 44;
     private static final int CELL_SP = 26;
+    /** Corners of the card: MrTools.radius(p) is 8 dp plus p dp, so 8 gives 16 dp (the other cards of the panels have 10 dp). */
+    private static final float CARD_RADIUS_PLUS = 8f;
+    /** The header comes in growing upward from its bottom edge while it fades in. */
+    static final int ENTER_MS = 240;
+    static final float ENTER_FROM = 0.6f;
 
     private static View sBar;                 // bar_es: the header of the search
     private static View sMainBar;             // bar_main: hidden while the search is open
@@ -95,8 +102,25 @@ final class MrEmojiSearch {
 
     // ------------------------------------------------------------------ setup
 
-    /** Called by MrTools.wrap with the root of the toolbar, each time a keyboard view is made. */
+    /**
+     * Called by MrTools.wrap with the root of the toolbar, each time a keyboard view is made, and by MrTools.release with no
+     * root when the service is destroyed (everything is let go: views, context, the repeat of the delete button).
+     *
+     * This runs while the keyboard is being made, so nothing that goes wrong in here may leave it: the search is a convenience and
+     * the keyboard has to start without it (the same rule as MrKeep and MrGestureInput.init).
+     */
     static void setup(View root) {
+        forget();
+        if (root == null) return;
+        try {
+            build(root);
+        } catch (Throwable t) {
+            forget();
+        }
+    }
+
+    /** Lets go of everything of the search (the state of a keyboard view that is gone). */
+    private static void forget() {
         stopRepeat();
         sBar = null;
         sMainBar = null;
@@ -112,7 +136,9 @@ final class MrEmojiSearch {
         sWanted = false;
         sOpen = false;
         sPrevField = null;
-        if (root == null) return;
+    }
+
+    private static void build(View root) {
         View bar = root.findViewWithTag("bar_es");
         View field = root.findViewWithTag("es_field");
         View grid = root.findViewWithTag("es_grid");
@@ -157,11 +183,18 @@ final class MrEmojiSearch {
         }
     }
 
+    /** The card of the other panels (same colors, flat themes included) with rounder corners. */
+    private static Drawable cardBackground() {
+        Drawable d = MrTools.cardBg();
+        if (d instanceof GradientDrawable) ((GradientDrawable) d).setCornerRadius(MrTools.radius(CARD_RADIUS_PLUS));
+        return d;
+    }
+
     /** The colors of the theme: the same roles the other panels use (MrTools). */
     private static void paint(View root) {
         MrTools.btn(root, "es_back", -1);   // like the back button of the other tool bars
         View card = root.findViewWithTag("es_card");
-        if (card != null) card.setBackgroundDrawable(MrTools.cardBg());
+        if (card != null) card.setBackgroundDrawable(cardBackground());
         View div = root.findViewWithTag("es_div");
         if (div != null) div.setBackgroundColor(MrTheme.color("panel_divider"));
         View title = root.findViewWithTag("es_title");
@@ -189,13 +222,34 @@ final class MrEmojiSearch {
     /** Called by MrTools.showPanel before the panels change: opens the search for MODE and closes it for any other mode. */
     static void onPanel(int mode) {
         if (sBar == null) return;
-        stopRepeat();
-        if (mode == MODE) {
-            if (!sOpen) open();
-            return;
+        try {
+            stopRepeat();
+            if (mode == MODE) {
+                if (!sOpen) open();
+                return;
+            }
+            if (sOpen) close();
+            if (mode != EMOJI_MODE) release();   // out of the emoji panel: the words of the search are dropped
+        } catch (Throwable t) {
+            abandon();   // showPanel also runs when a field is bound (MrTools.reset): the keyboard must not fail because of the search
         }
-        if (sOpen) close();
-        if (mode != EMOJI_MODE) release();   // out of the emoji panel: the words of the search are dropped
+    }
+
+    /** After an error: the keyboard goes back to typing in the app, the header is closed and the search is forgotten. */
+    private static void abandon() {
+        try {
+            if (sOpen) {
+                MrTools.sRedirect = null;
+                MrTools.sField = sPrevField;
+            }
+            if (sBar != null) {
+                sBar.setVisibility(View.GONE);
+                MrBar.restore(sBar);
+            }
+        } catch (Throwable t) {
+            // nothing else to do: the state is dropped below
+        }
+        forget();
     }
 
     /**
@@ -204,9 +258,13 @@ final class MrEmojiSearch {
      */
     static void afterPanel(int mode) {
         if (mode != MODE || sBar == null) return;
-        if (sMainBar != null) sMainBar.setVisibility(View.GONE);
-        View kbd = MrTools.sKbd;
-        if (kbd != null) kbd.setVisibility(View.VISIBLE);
+        try {
+            if (sMainBar != null) sMainBar.setVisibility(View.GONE);
+            View kbd = MrTools.sKbd;
+            if (kbd != null) kbd.setVisibility(View.VISIBLE);
+        } catch (Throwable t) {
+            abandon();
+        }
     }
 
     private static void open() {
@@ -217,8 +275,10 @@ final class MrEmojiSearch {
         sPrevField = MrTools.sField;
         MrTools.sField = sField;                    // sendKey (the keys that are events) goes to this field
         sField.setText("");
+        int height = heightPx();
         sBar.setVisibility(View.VISIBLE);
-        MrBar.expand(sBar, heightPx());
+        MrBar.expand(sBar, height);
+        enter(height);
         MrTools.sRedirect = sField.onCreateInputConnection(new EditorInfo());
         sField.requestFocus();
         ensureLoaded();
@@ -233,8 +293,29 @@ final class MrEmojiSearch {
         MrTools.sField = sPrevField;
         sPrevField = null;
         sField.setText("");
+        settle();
         sBar.setVisibility(View.GONE);
         MrBar.restore(sBar);
+    }
+
+    /**
+     * The header grows upward from its bottom edge (the window is already as tall as it will be, so only the drawing moves,
+     * the keyboard is not resized on each frame) and fades in, so it does not pop in. With the animations of the system off
+     * the animator ends at once.
+     */
+    private static void enter(int height) {
+        sBar.animate().cancel();
+        sBar.setPivotY(height);
+        sBar.setScaleY(ENTER_FROM);
+        sBar.setAlpha(0f);
+        sBar.animate().alpha(1f).scaleY(1f).setDuration(ENTER_MS).start();
+    }
+
+    /** Ends an entrance that is still running and leaves the header as the layout made it (for the next time it opens). */
+    private static void settle() {
+        sBar.animate().cancel();
+        sBar.setScaleY(1f);
+        sBar.setAlpha(1f);
     }
 
     private static void release() {

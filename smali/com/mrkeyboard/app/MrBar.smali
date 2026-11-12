@@ -19,6 +19,18 @@
     .end annotation
 .end field
 
+.field private static final sExpanded:Ljava/util/WeakHashMap;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "Ljava/util/WeakHashMap",
+            "<",
+            "Landroid/view/View;",
+            "Ljava/lang/Integer;",
+            ">;"
+        }
+    .end annotation
+.end field
+
 .field private static final sListener:Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;
 
 .field private static sRegistered:Landroid/content/SharedPreferences;
@@ -29,14 +41,21 @@
     .locals 1
 
     .prologue
-    .line 27
+    .line 32
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     sput-object v0, Lcom/mrkeyboard/app/MrBar;->sBars:Ljava/util/ArrayList;
 
-    .line 29
+    .line 34
+    new-instance v0, Ljava/util/WeakHashMap;
+
+    invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
+
+    sput-object v0, Lcom/mrkeyboard/app/MrBar;->sExpanded:Ljava/util/WeakHashMap;
+
+    .line 36
     new-instance v0, Lcom/mrkeyboard/app/MrBar$1;
 
     invoke-direct {v0}, Lcom/mrkeyboard/app/MrBar$1;-><init>()V
@@ -50,7 +69,7 @@
     .locals 0
 
     .prologue
-    .line 23
+    .line 28
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -60,7 +79,7 @@
     .locals 1
 
     .prologue
-    .line 22
+    .line 27
     sget-object v0, Lcom/mrkeyboard/app/MrBar;->sBars:Ljava/util/ArrayList;
 
     return-object v0
@@ -70,36 +89,45 @@
     .locals 6
 
     .prologue
-    .line 84
-    invoke-virtual {p0}, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
+    .line 134
+    sget-object v0, Lcom/mrkeyboard/app/MrBar;->sExpanded:Ljava/util/WeakHashMap;
 
-    move-result-object v0
+    invoke-virtual {v0, p0}, Ljava/util/WeakHashMap;->containsKey(Ljava/lang/Object;)Z
 
-    .line 85
-    if-nez v0, :cond_1
+    move-result v0
 
-    .line 96
+    if-eqz v0, :cond_1
+
+    .line 147
     :cond_0
     :goto_0
     return-void
 
-    .line 86
+    .line 135
     :cond_1
+    invoke-virtual {p0}, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
+
+    move-result-object v0
+
+    .line 136
+    if-eqz v0, :cond_0
+
+    .line 137
     invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v1
 
-    .line 87
+    .line 138
     invoke-virtual {v1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v2
 
-    .line 88
+    .line 139
     invoke-virtual {v1}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
 
     move-result-object v3
 
-    .line 89
+    .line 140
     invoke-static {v1}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v1
@@ -112,7 +140,7 @@
 
     move-result-object v1
 
-    .line 90
+    .line 141
     const-string v4, "mr_bar_scale_min"
 
     invoke-static {v2, v3, v4}, Lcom/mrkeyboard/app/MrBar;->number(Landroid/content/res/Resources;Ljava/lang/String;Ljava/lang/String;)F
@@ -129,7 +157,7 @@
 
     move-result v1
 
-    .line 91
+    .line 142
     const-string v4, "mr_bar_height"
 
     const-string v5, "dimen"
@@ -146,15 +174,15 @@
 
     move-result v1
 
-    .line 92
+    .line 143
     iget v2, v0, Landroid/view/ViewGroup$LayoutParams;->height:I
 
     if-eq v2, v1, :cond_0
 
-    .line 93
+    .line 144
     iput v1, v0, Landroid/view/ViewGroup$LayoutParams;->height:I
 
-    .line 94
+    .line 145
     invoke-virtual {p0, v0}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
     goto :goto_0
@@ -164,20 +192,20 @@
     .locals 1
 
     .prologue
-    .line 42
+    .line 49
     if-nez p0, :cond_0
 
-    .line 45
+    .line 52
     :goto_0
     return-void
 
-    .line 43
+    .line 50
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrBar;->sBars:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
 
-    .line 44
+    .line 51
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBar;->attachExtra(Landroid/view/View;)V
 
     goto :goto_0
@@ -187,14 +215,14 @@
     .locals 3
 
     .prologue
-    .line 49
+    .line 56
     if-nez p0, :cond_0
 
-    .line 58
+    .line 65
     :goto_0
     return-void
 
-    .line 50
+    .line 57
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrBar;->sBars:Ljava/util/ArrayList;
 
@@ -204,7 +232,7 @@
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 51
+    .line 58
     invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
@@ -213,12 +241,12 @@
 
     move-result-object v0
 
-    .line 52
+    .line 59
     sget-object v1, Lcom/mrkeyboard/app/MrBar;->sRegistered:Landroid/content/SharedPreferences;
 
     if-eq v1, v0, :cond_2
 
-    .line 53
+    .line 60
     sget-object v1, Lcom/mrkeyboard/app/MrBar;->sRegistered:Landroid/content/SharedPreferences;
 
     if-eqz v1, :cond_1
@@ -229,18 +257,101 @@
 
     invoke-interface {v1, v2}, Landroid/content/SharedPreferences;->unregisterOnSharedPreferenceChangeListener(Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;)V
 
-    .line 54
+    .line 61
     :cond_1
     sget-object v1, Lcom/mrkeyboard/app/MrBar;->sListener:Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;
 
     invoke-interface {v0, v1}, Landroid/content/SharedPreferences;->registerOnSharedPreferenceChangeListener(Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;)V
 
-    .line 55
+    .line 62
     sput-object v0, Lcom/mrkeyboard/app/MrBar;->sRegistered:Landroid/content/SharedPreferences;
 
-    .line 57
+    .line 64
     :cond_2
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBar;->apply(Landroid/view/View;)V
+
+    goto :goto_0
+.end method
+
+.method public static expand(Landroid/view/View;I)V
+    .locals 3
+
+    .prologue
+    .line 95
+    if-eqz p0, :cond_0
+
+    if-gtz p1, :cond_1
+
+    .line 103
+    :cond_0
+    :goto_0
+    return-void
+
+    .line 96
+    :cond_1
+    invoke-virtual {p0}, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
+
+    move-result-object v0
+
+    .line 97
+    if-eqz v0, :cond_0
+
+    .line 98
+    sget-object v1, Lcom/mrkeyboard/app/MrBar;->sExpanded:Ljava/util/WeakHashMap;
+
+    invoke-virtual {v1, p0}, Ljava/util/WeakHashMap;->containsKey(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_2
+
+    sget-object v1, Lcom/mrkeyboard/app/MrBar;->sExpanded:Ljava/util/WeakHashMap;
+
+    iget v2, v0, Landroid/view/ViewGroup$LayoutParams;->height:I
+
+    invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v2
+
+    invoke-virtual {v1, p0, v2}, Ljava/util/WeakHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 99
+    :cond_2
+    iget v1, v0, Landroid/view/ViewGroup$LayoutParams;->height:I
+
+    if-eq v1, p1, :cond_0
+
+    .line 100
+    iput p1, v0, Landroid/view/ViewGroup$LayoutParams;->height:I
+
+    .line 101
+    invoke-virtual {p0, v0}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
+
+    goto :goto_0
+.end method
+
+.method public static expanded(Landroid/view/View;)Z
+    .locals 1
+
+    .prologue
+    .line 123
+    if-eqz p0, :cond_0
+
+    sget-object v0, Lcom/mrkeyboard/app/MrBar;->sExpanded:Ljava/util/WeakHashMap;
+
+    invoke-virtual {v0, p0}, Ljava/util/WeakHashMap;->containsKey(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    const/4 v0, 0x1
+
+    :goto_0
+    return v0
+
+    :cond_0
+    const/4 v0, 0x0
 
     goto :goto_0
 .end method
@@ -249,7 +360,7 @@
     .locals 1
 
     .prologue
-    .line 76
+    .line 83
     mul-float v0, p0, p1
 
     invoke-static {v0}, Ljava/lang/Math;->round(F)I
@@ -259,11 +370,54 @@
     return v0
 .end method
 
+.method private static isListed(Landroid/view/View;)Z
+    .locals 2
+
+    .prologue
+    .line 127
+    sget-object v0, Lcom/mrkeyboard/app/MrBar;->sBars:Ljava/util/ArrayList;
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
+
+    move-result-object v1
+
+    :cond_0
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1
+
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/lang/ref/WeakReference;
+
+    .line 128
+    invoke-virtual {v0}, Ljava/lang/ref/WeakReference;->get()Ljava/lang/Object;
+
+    move-result-object v0
+
+    if-ne v0, p0, :cond_0
+
+    const/4 v0, 0x1
+
+    .line 130
+    :goto_0
+    return v0
+
+    :cond_1
+    const/4 v0, 0x0
+
+    goto :goto_0
+.end method
+
 .method private static number(Landroid/content/res/Resources;Ljava/lang/String;Ljava/lang/String;)F
     .locals 1
 
     .prologue
-    .line 80
+    .line 87
     const-string v0, "string"
 
     invoke-virtual {p0, p2, v0, p1}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
@@ -285,17 +439,84 @@
     return v0
 .end method
 
+.method public static restore(Landroid/view/View;)V
+    .locals 4
+
+    .prologue
+    .line 107
+    if-nez p0, :cond_1
+
+    .line 119
+    :cond_0
+    :goto_0
+    return-void
+
+    .line 108
+    :cond_1
+    sget-object v0, Lcom/mrkeyboard/app/MrBar;->sExpanded:Ljava/util/WeakHashMap;
+
+    invoke-virtual {v0, p0}, Ljava/util/WeakHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/lang/Integer;
+
+    .line 109
+    if-eqz v0, :cond_0
+
+    .line 110
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrBar;->isListed(Landroid/view/View;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_2
+
+    .line 111
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrBar;->apply(Landroid/view/View;)V
+
+    goto :goto_0
+
+    .line 114
+    :cond_2
+    invoke-virtual {p0}, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
+
+    move-result-object v1
+
+    .line 115
+    if-eqz v1, :cond_0
+
+    iget v2, v1, Landroid/view/ViewGroup$LayoutParams;->height:I
+
+    invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
+
+    move-result v3
+
+    if-eq v2, v3, :cond_0
+
+    .line 116
+    invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
+
+    move-result v0
+
+    iput v0, v1, Landroid/view/ViewGroup$LayoutParams;->height:I
+
+    .line 117
+    invoke-virtual {p0, v1}, Landroid/view/View;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
+
+    goto :goto_0
+.end method
+
 .method static scale(Ljava/lang/String;FF)F
     .locals 3
 
     .prologue
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 62
-    .line 63
+    .line 69
+    .line 70
     if-eqz p0, :cond_1
 
-    .line 65
+    .line 72
     :try_start_0
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -307,13 +528,13 @@
 
     move-result v1
 
-    .line 70
+    .line 77
     :goto_0
     cmpl-float v2, v1, v1
 
     if-eqz v2, :cond_0
 
-    .line 71
+    .line 78
     :goto_1
     invoke-static {p2, v0}, Ljava/lang/Math;->min(FF)F
 
@@ -325,13 +546,13 @@
 
     return v0
 
-    .line 66
+    .line 73
     :catch_0
     move-exception v1
 
     move v1, v0
 
-    .line 67
+    .line 74
     goto :goto_0
 
     :cond_0

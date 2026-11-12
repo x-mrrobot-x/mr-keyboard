@@ -17,8 +17,9 @@ the feature: what exists, how it works, where the words come from and what is le
 ## How it is built
 
 - The search is a panel mode of its own, **7** (`MrEmojiSearch.MODE`), next to the others of `MrTools.showPanel` (0 keyboard, 1 clipboard,
-  2 translator, 3 attachments, 4 emojis, 6 fonts), built like the Fonts tool. Three calls in `MrTools.smali` are all it needs:
-  `MrEmojiSearch.setup(root)` when the keyboard view is made, `onPanel(mode)` at the start of `showPanel` and `afterPanel(mode)` at its end.
+  2 translator, 3 attachments, 4 emojis, 6 fonts), built like the Fonts tool. Four calls in `MrTools.smali` are all it needs:
+  `MrEmojiSearch.setup(root)` when the keyboard view is made, `onPanel(mode)` at the start of `showPanel` and `afterPanel(mode)` at its end, and
+  `setup(null)` in `MrTools.release` (the service is destroyed: the search lets go of its views, its context and the repeat of the delete button, as the other tools do).
   Everything else is in `docs/tools/java/src/com/mrkeyboard/app/MrEmojiSearch.java`, `MrEmojiIndex.java` and `MrEmojiNew.java` (the smali of the three comes from
   `docs/tools/build_java.sh`, as for the rest of the Java layer).
 - Typing goes to the field of the header through the redirect the translator already used (`MrTools.sRedirect`, and `MrTools.sField` for the keys
@@ -27,8 +28,19 @@ the feature: what exists, how it works, where the words come from and what is le
   (`LatinIME.getAppInputConnection`).
 - **Height.** The toolbar row has a fixed height (`mr_bar_height` times the bar-size setting, `MrBar`). The header needs more room, so `MrBar` got
   two calls any panel can use: `MrBar.expand(bar, px)` makes a bar taller (it remembers the height it had) and `MrBar.restore(bar)` gives it
-  back; while a bar is expanded the bar-size setting does not touch it. The search header asks for `mr_es_height` (184 dp, 134 dp in landscape)
+  back; while a bar is expanded the bar-size setting does not touch it. The search header asks for `mr_es_height` (195 dp, 138 dp in landscape)
   on opening and restores on leaving, so the next panel or tool that needs more room only has to do the same two calls.
+- **Look.** The card with the results and the field has 16 dp corners (`MrTools.radius(8)`; the cards of the other panels have 10 dp): `MrEmojiSearch`
+  takes `MrTools.cardBg()` (same colour, flat themes included) and only changes its radius. The header has room around it: `mr_es_pad_top`
+  (8 dp, 4 dp in landscape) above the title, `mr_es_pad_bottom` (8 dp, 5 dp) below the card, 6 dp at the sides and 4 dp between the title and the card;
+  `mr_es_height` grew by what these added, so the card keeps its size.
+- **Entrance.** When the search opens the header comes in growing upward from its bottom edge (`scaleY` from 0.6 to 1, pivot at the bottom) while it
+  fades in (`alpha` 0 to 1), `ENTER_MS` = 240 ms, with `ViewPropertyAnimator`. The window is already as tall as it will be (`MrBar.expand` is
+  one step), so only the drawing moves: the keyboard is not resized on every frame, which would make the app below it lay out again 15 times. On
+  leaving, the animation is cancelled and the header put back opaque and full size for the next time. With the animations of the system off, it ends at once.
+- **An error here never takes the keyboard down.** `setup` runs while the keyboard is made and `onPanel` runs every time a field is bound
+  (`MrTools.reset` goes through `showPanel(0)`); both catch what the search throws, give the keyboard back as it was (redirect and field of the
+  translator, header closed, height restored) and forget the search, so the keyboard works without it.
 - `p_emote` (the emoji panel) became a `FrameLayout`: the list fills it (with a bottom padding so the last row is not under the bar) and
   the bar `emote_fab` floats over it.
 
@@ -91,13 +103,13 @@ the feature: what exists, how it works, where the words come from and what is le
 - `docs/tools/emoji_search_test/EmojiSearchTest.java` (in `run_java_tests.sh`): normalisation, matching in three languages, ranking and ties, limits,
   a missing language file, the keycap #, `MrBar.expand/restore`, and the real files in `res/raw` (known words, only emojis, speed).
 - `docs/tools/emoji_search_test/EmojiPanelTest.java` (in `run_java_tests.sh`): the state of the panel with fake views: open, back, the other panels,
-  redirect and field, height given and taken back, the delete button (press, repeat, release, cancel), a tap writing in the app only, words loaded
+  redirect and field, height given and taken back, the entrance (alpha, scale, pivot, duration, cancelled on leaving), an error in setup or in opening (nothing escapes, the keyboard is given back), the service destroyed with the delete button held, the delete button (press, repeat, release, cancel), a tap writing in the app only, words loaded
   late or dropped, a keyboard view made again with the search open.
 - `docs/tools/emoji_search_test/EmojiNewTest.java` (in `run_java_tests.sh`): the table (one group per anchor, no emoji twice), the merge (after the anchor,
   at the end when the anchor is missing, never twice), a phone whose font lacks some of them (left out of the list and of the results, the
   answers kept), and words in the three languages for every emoji of the table.
 - `docs/tools/emoji_search_test/test_make_emoji_search.py`: the converter with made-up CLDR files and a made-up table of newer emojis.
-- `docs/tools/check_emoji_search.py` (in `mr-checks.yml`): layout tags, the texts in the three languages, the three hooks, the table of newer
+- `docs/tools/check_emoji_search.py` (in `mr-checks.yml`): layout tags, the texts in the three languages, the hooks (four calls), the table of newer
   emojis (anchors, duplicates, the U+FE0F rule, the call in `MrEmotes.smali`), and that the three files list the emojis of the panel (base list
   and newer ones) in its order.
 
@@ -107,7 +119,8 @@ Nothing of this has run on a device yet (only on the PC, with fake views).
 
 1. Open the emoji panel: the floating bar shows over the list with two buttons, in the colours of the theme (try a light and a neon theme).
 2. Write some text in an app, open the emoji panel and press **delete**: it deletes like Backspace; holding it repeats; with a selection it deletes the selection.
-3. Press **search**: the header replaces the toolbar row, the keyboard types in its field, the card shows the recent emojis.
+3. Press **search**: the header replaces the toolbar row, the keyboard types in its field, the card shows the recent emojis. The header comes in growing
+   upward and fading in (no sudden flash), the card has rounder corners and the header is not stuck to the top edge or to the keys.
 4. Type "coração", "heart", "corazón", "gato", "cat", "bandeira brasil": results appear as you type; accents do not matter.
 5. Tap a result: it is written in the app, the search stays open; tap another one.
 6. Press **Back**: the emoji panel is there, the toolbar row is the size it was (also with the bar size changed in the settings).

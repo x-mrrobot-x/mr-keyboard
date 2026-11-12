@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 30
+    .line 37
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .locals 2
 
     .prologue
-    .line 32
+    .line 39
     const-string v0, "pref_bar_scale"
 
     invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -43,11 +43,11 @@
 
     if-nez v0, :cond_1
 
-    .line 37
+    .line 44
     :cond_0
     return-void
 
-    .line 33
+    .line 40
     :cond_1
     invoke-static {}, Lcom/mrkeyboard/app/MrBar;->access$000()Ljava/util/ArrayList;
 
@@ -71,14 +71,14 @@
 
     check-cast v0, Ljava/lang/ref/WeakReference;
 
-    .line 34
+    .line 41
     invoke-virtual {v0}, Ljava/lang/ref/WeakReference;->get()Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Landroid/view/View;
 
-    .line 35
+    .line 42
     if-eqz v0, :cond_2
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrBar;->apply(Landroid/view/View;)V

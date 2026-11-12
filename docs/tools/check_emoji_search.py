@@ -4,7 +4,7 @@
   - every view tag that MrEmojiSearch.java looks for is in res/layout/mr_toolbar.xml, and the layout has the floating bar
     (emote_fab) inside p_emote and the header (bar_es);
   - the texts mr_es_* exist in the 3 languages (values, values-pt-rBR, values-es) and the dimens/integer in values and values-land;
-  - MrTools.smali calls the three hooks (setup, onPanel, afterPanel) of MrEmojiSearch;
+  - MrTools.smali calls the hooks (setup twice: a keyboard view made and the service destroyed; onPanel, afterPanel) of MrEmojiSearch;
   - the panel mode of the search (MrEmojiSearch.MODE) is not one the other panels use;
   - the newer emojis (MrEmojiNew.java, merged into the base list of the panel by MrEmotes.data): the smali wrapper calls MrEmojiNew.merge,
     the table has 8 categories, every anchor is an emoji of its category in the base list, no new emoji is in the base list or in the table
@@ -92,7 +92,7 @@ for k in ('mr_es_title', 'mr_es_hint', 'mr_es_empty', 'mr_es_search', 'mr_es_del
 
 # --- hooks and mode
 tools = read('smali/com/mrkeyboard/app/MrTools.smali')
-for sig, n in (('MrEmojiSearch;->setup(Landroid/view/View;)V', 1), ('MrEmojiSearch;->onPanel(I)V', 1), ('MrEmojiSearch;->afterPanel(I)V', 2)):
+for sig, n in (('MrEmojiSearch;->setup(Landroid/view/View;)V', 2), ('MrEmojiSearch;->onPanel(I)V', 1), ('MrEmojiSearch;->afterPanel(I)V', 2)):
     if tools.count(sig) != n:
         problems.append('MrTools.smali: %d call(s) of %s, expected %d' % (tools.count(sig), sig, n))
 mode = re.search(r'static final int MODE = (\d+);', java)
