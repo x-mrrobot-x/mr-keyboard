@@ -117,7 +117,7 @@ the feature: what exists, how it works, where the words come from and what is le
 
 Nothing of this has run on a device yet (only on the PC, with fake views).
 
-1. Open the emoji panel: the floating bar shows over the list with two buttons, in the colours of the theme (try a light and a neon theme).
+1. Open the emoji panel: the floating bar shows over the list with two buttons. Its fill is the colour of the role `attach_fab` made translucent (the livelier the colour, the more transparent: `MrEmojiSearch.fabAlpha`, between `FAB_ALPHA_MIN` and `FAB_ALPHA_MAX`), the icons take the text colour of the theme, and a tap lights a round (pill) fill. Try a light and a neon theme: the emojis must show softly under the bar and the icons must read on it.
 2. Write some text in an app, open the emoji panel and press **delete**: it deletes like Backspace; holding it repeats; with a selection it deletes the selection.
 3. Press **search**: the header replaces the toolbar row, the keyboard types in its field, the card shows the recent emojis. The header comes in growing
    upward and fading in (no sudden flash), the card has rounder corners and the header is not stuck to the top edge or to the keys.

@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 75
+    .line 82
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .locals 1
 
     .prologue
-    .line 77
+    .line 84
     instance-of v0, p1, Landroid/widget/TextView;
 
     if-eqz v0, :cond_0
@@ -51,7 +51,7 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrEmojiSearch;->insert(Ljava/lang/String;)V
 
-    .line 78
+    .line 85
     :cond_0
     return-void
 .end method

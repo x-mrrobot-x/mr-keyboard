@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrEmojiSearch;->setup(Landroid/view/View;)V
+    value = Lcom/mrkeyboard/app/MrEmojiSearch;->build(Landroid/view/View;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 144
+    .line 170
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,11 +34,11 @@
     .locals 1
 
     .prologue
-    .line 146
+    .line 172
     const/4 v0, 0x7
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->showPanel(I)V
 
-    .line 147
+    .line 173
     return-void
 .end method

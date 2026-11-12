@@ -67,8 +67,8 @@ only Cobalt Glass is written by hand. To add or change one of the generated ones
    uses `keyboard_key_feedback_background` and `keyboard_key_feedback_more_background`.
    **Radii (keys, popup and preview):** the radius written in the drawables is only a fallback. At runtime `KeyStyle` swaps it for the
    keys' radius (`pref_key_radius`) plus a gap: preview bubble +2 dp and popup background +8 dp
-   (`LatinKeyboardBaseView`). The buttons, fields and panels of the bar have their own fixed corners (`MrTools.radius`, 8 dp)
-   and do not follow the keys' radius. With radius 0 on the keys, the keys, popup and preview are square; a new theme needs
+   (`LatinKeyboardBaseView`). The buttons of the bar are fully round (`MrTools.pill`), and its fields and panels have their own fixed corners
+   (`MrTools.radius`, 8 dp); none of them follows the keys' radius. With radius 0 on the keys, the keys, popup and preview are square; a new theme needs
    no code for this.
 8. **Theme colors** (`res/values/mr_colors.xml`): `mr_<tema>_kbd_bg`, `_text`, `_cursor`, `_hint`;
    `_popup_bg_{top,bottom,stroke}`, `_popup_key_{top,bottom,stroke}` and `_popup_hint`;

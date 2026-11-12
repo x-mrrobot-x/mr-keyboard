@@ -34,6 +34,12 @@ public class MrTools {
 
     public static float radius(float f) { return 0f; }
 
+    /** Corner radius of the toolbar buttons: fully round (1000 px, clamped by the drawable to half the short side). */
+    static float pill() { return 1000f; }
+
+    /** Button background with colours: fill, border, text or icon colour (pressed state) and corner radius. */
+    static android.graphics.drawable.Drawable roleBg(int fill, int stroke, int ink, float radius) { return null; }
+
     /** The accent colour of the theme in use, without alpha (0 before a keyboard view was made). */
     static int accent() { return stubAccent; }
     /** Tests only. */

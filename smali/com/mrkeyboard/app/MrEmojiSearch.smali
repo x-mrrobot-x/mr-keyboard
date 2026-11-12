@@ -12,6 +12,8 @@
 
 
 # static fields
+.field private static final CARD_RADIUS_PLUS:F = 8.0f
+
 .field private static final CELL_DP:I = 0x2c
 
 .field private static final CELL_SP:I = 0x1a
@@ -19,6 +21,10 @@
 .field private static final DELETE:I = -0x5
 
 .field private static final EMOJI_MODE:I = 0x4
+
+.field static final ENTER_FROM:F = 0.6f
+
+.field static final ENTER_MS:I = 0xf0
 
 .field static final MAX_RESULTS:I = 0x3c
 
@@ -79,33 +85,33 @@
     .locals 1
 
     .prologue
-    .line 66
+    .line 73
     const/4 v0, 0x2
 
     sput v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sRows:I
 
-    .line 68
+    .line 75
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     sput-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sCells:Ljava/util/ArrayList;
 
-    .line 75
+    .line 82
     new-instance v0, Lcom/mrkeyboard/app/MrEmojiSearch$1;
 
     invoke-direct {v0}, Lcom/mrkeyboard/app/MrEmojiSearch$1;-><init>()V
 
     sput-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sPick:Landroid/view/View$OnClickListener;
 
-    .line 80
+    .line 87
     new-instance v0, Lcom/mrkeyboard/app/MrEmojiSearch$2;
 
     invoke-direct {v0}, Lcom/mrkeyboard/app/MrEmojiSearch$2;-><init>()V
 
     sput-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sRepeat:Ljava/lang/Runnable;
 
-    .line 86
+    .line 93
     new-instance v0, Lcom/mrkeyboard/app/MrEmojiSearch$3;
 
     invoke-direct {v0}, Lcom/mrkeyboard/app/MrEmojiSearch$3;-><init>()V
@@ -119,17 +125,72 @@
     .locals 0
 
     .prologue
-    .line 94
+    .line 101
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
+.end method
+
+.method private static abandon()V
+    .locals 2
+
+    .prologue
+    .line 241
+    :try_start_0
+    sget-boolean v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sOpen:Z
+
+    if-eqz v0, :cond_0
+
+    .line 242
+    const/4 v0, 0x0
+
+    sput-object v0, Lcom/mrkeyboard/app/MrTools;->sRedirect:Landroid/view/inputmethod/InputConnection;
+
+    .line 243
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sPrevField:Landroid/widget/TextView;
+
+    sput-object v0, Lcom/mrkeyboard/app/MrTools;->sField:Landroid/widget/TextView;
+
+    .line 245
+    :cond_0
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    if-eqz v0, :cond_1
+
+    .line 246
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    const/16 v1, 0x8
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+
+    .line 247
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrBar;->restore(Landroid/view/View;)V
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+
+    .line 252
+    :cond_1
+    :goto_0
+    invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->forget()V
+
+    .line 253
+    return-void
+
+    .line 249
+    :catch_0
+    move-exception v0
+
+    goto :goto_0
 .end method
 
 .method static synthetic access$000()V
     .locals 0
 
     .prologue
-    .line 44
+    .line 46
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->deleteKey()V
 
     return-void
@@ -139,7 +200,7 @@
     .locals 1
 
     .prologue
-    .line 44
+    .line 46
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sHandler:Landroid/os/Handler;
 
     return-object v0
@@ -149,7 +210,7 @@
     .locals 0
 
     .prologue
-    .line 44
+    .line 46
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->update()V
 
     return-void
@@ -159,7 +220,7 @@
     .locals 1
 
     .prologue
-    .line 44
+    .line 46
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sRepeat:Ljava/lang/Runnable;
 
     return-object v0
@@ -169,7 +230,7 @@
     .locals 0
 
     .prologue
-    .line 44
+    .line 46
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->stopRepeat()V
 
     return-void
@@ -179,7 +240,7 @@
     .locals 2
 
     .prologue
-    .line 206
+    .line 260
     const/4 v0, 0x7
 
     if-ne p0, v0, :cond_0
@@ -188,13 +249,14 @@
 
     if-nez v0, :cond_1
 
-    .line 210
+    .line 268
     :cond_0
     :goto_0
     return-void
 
-    .line 207
+    .line 262
     :cond_1
+    :try_start_0
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sMainBar:Landroid/view/View;
 
     if-eqz v0, :cond_2
@@ -205,18 +267,317 @@
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
 
-    .line 208
+    .line 263
     :cond_2
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sKbd:Landroid/view/View;
 
-    .line 209
+    .line 264
     if-eqz v0, :cond_0
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
     goto :goto_0
+
+    .line 265
+    :catch_0
+    move-exception v0
+
+    .line 266
+    invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->abandon()V
+
+    goto :goto_0
+.end method
+
+.method private static build(Landroid/view/View;)V
+    .locals 8
+
+    .prologue
+    const/4 v2, 0x0
+
+    const/4 v3, 0x0
+
+    .line 142
+    const-string v0, "bar_es"
+
+    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v4
+
+    .line 143
+    const-string v0, "es_field"
+
+    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v0
+
+    .line 144
+    const-string v1, "es_grid"
+
+    invoke-virtual {p0, v1}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v1
+
+    .line 145
+    if-eqz v4, :cond_0
+
+    instance-of v5, v0, Landroid/widget/EditText;
+
+    if-eqz v5, :cond_0
+
+    instance-of v5, v1, Landroid/widget/LinearLayout;
+
+    if-nez v5, :cond_1
+
+    .line 184
+    :cond_0
+    :goto_0
+    return-void
+
+    .line 146
+    :cond_1
+    invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
+
+    move-result-object v5
+
+    sput-object v5, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
+
+    .line 147
+    new-instance v5, Landroid/os/Handler;
+
+    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
+
+    move-result-object v6
+
+    invoke-direct {v5, v6}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
+
+    sput-object v5, Lcom/mrkeyboard/app/MrEmojiSearch;->sHandler:Landroid/os/Handler;
+
+    .line 148
+    sput-object v4, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    .line 149
+    const-string v4, "bar_main"
+
+    invoke-virtual {p0, v4}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v4
+
+    sput-object v4, Lcom/mrkeyboard/app/MrEmojiSearch;->sMainBar:Landroid/view/View;
+
+    .line 150
+    check-cast v0, Landroid/widget/EditText;
+
+    sput-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sField:Landroid/widget/EditText;
+
+    move-object v0, v1
+
+    .line 151
+    check-cast v0, Landroid/widget/LinearLayout;
+
+    sput-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sGrid:Landroid/widget/LinearLayout;
+
+    .line 152
+    const-string v0, "es_scroll"
+
+    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v0
+
+    sput-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sScroll:Landroid/view/View;
+
+    .line 153
+    const-string v0, "es_empty"
+
+    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v0
+
+    instance-of v0, v0, Landroid/widget/TextView;
+
+    if-eqz v0, :cond_2
+
+    const-string v0, "es_empty"
+
+    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v0
+
+    check-cast v0, Landroid/widget/TextView;
+
+    :goto_1
+    sput-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sEmpty:Landroid/widget/TextView;
+
+    .line 154
+    const/4 v0, 0x1
+
+    const-string v1, "mr_es_rows"
+
+    const/4 v4, 0x2
+
+    invoke-static {v1, v4}, Lcom/mrkeyboard/app/MrEmojiSearch;->intRes(Ljava/lang/String;I)I
+
+    move-result v1
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->max(II)I
+
+    move-result v0
+
+    sput v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sRows:I
+
+    move v0, v3
+
+    .line 155
+    :goto_2
+    sget v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sRows:I
+
+    if-ge v0, v1, :cond_3
+
+    .line 156
+    new-instance v1, Landroid/widget/LinearLayout;
+
+    sget-object v4, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
+
+    invoke-direct {v1, v4}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
+
+    .line 157
+    invoke-virtual {v1, v3}, Landroid/widget/LinearLayout;->setOrientation(I)V
+
+    .line 158
+    sget-object v4, Lcom/mrkeyboard/app/MrEmojiSearch;->sGrid:Landroid/widget/LinearLayout;
+
+    new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v6, -0x2
+
+    const/high16 v7, 0x3f800000    # 1.0f
+
+    invoke-direct {v5, v6, v3, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    invoke-virtual {v4, v1, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 155
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_2
+
+    :cond_2
+    move-object v0, v2
+
+    .line 153
+    goto :goto_1
+
+    .line 160
+    :cond_3
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrEmojiSearch;->paint(Landroid/view/View;)V
+
+    .line 161
+    const-string v0, "es_back"
+
+    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v0
+
+    .line 162
+    if-eqz v0, :cond_4
+
+    new-instance v1, Lcom/mrkeyboard/app/MrEmojiSearch$4;
+
+    invoke-direct {v1}, Lcom/mrkeyboard/app/MrEmojiSearch$4;-><init>()V
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    .line 167
+    :cond_4
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sField:Landroid/widget/EditText;
+
+    sget-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sWatcher:Landroid/text/TextWatcher;
+
+    invoke-virtual {v0, v1}, Landroid/widget/EditText;->addTextChangedListener(Landroid/text/TextWatcher;)V
+
+    .line 168
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    const/16 v1, 0x8
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+
+    .line 169
+    const-string v0, "emote_search"
+
+    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v0
+
+    .line 170
+    if-eqz v0, :cond_5
+
+    new-instance v1, Lcom/mrkeyboard/app/MrEmojiSearch$5;
+
+    invoke-direct {v1}, Lcom/mrkeyboard/app/MrEmojiSearch$5;-><init>()V
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    .line 175
+    :cond_5
+    const-string v0, "emote_del"
+
+    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v0
+
+    .line 176
+    if-eqz v0, :cond_0
+
+    .line 177
+    new-instance v1, Lcom/mrkeyboard/app/MrEmojiSearch$DeleteTouch;
+
+    invoke-direct {v1, v2}, Lcom/mrkeyboard/app/MrEmojiSearch$DeleteTouch;-><init>(Lcom/mrkeyboard/app/MrEmojiSearch$1;)V
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setOnTouchListener(Landroid/view/View$OnTouchListener;)V
+
+    .line 178
+    new-instance v1, Lcom/mrkeyboard/app/MrEmojiSearch$6;
+
+    invoke-direct {v1}, Lcom/mrkeyboard/app/MrEmojiSearch$6;-><init>()V
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    goto/16 :goto_0
+.end method
+
+.method private static cardBackground()Landroid/graphics/drawable/Drawable;
+    .locals 3
+
+    .prologue
+    .line 188
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->cardBg()Landroid/graphics/drawable/Drawable;
+
+    move-result-object v1
+
+    .line 189
+    instance-of v0, v1, Landroid/graphics/drawable/GradientDrawable;
+
+    if-eqz v0, :cond_0
+
+    move-object v0, v1
+
+    check-cast v0, Landroid/graphics/drawable/GradientDrawable;
+
+    const/high16 v2, 0x41000000    # 8.0f
+
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
+
+    move-result v2
+
+    invoke-virtual {v0, v2}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
+
+    .line 190
+    :cond_0
+    return-object v1
 .end method
 
 .method private static close()V
@@ -225,15 +586,15 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 229
+    .line 289
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sOpen:Z
 
-    .line 230
+    .line 290
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 231
+    .line 291
     sget-object v1, Lcom/mrkeyboard/app/MrTools;->sRedirect:Landroid/view/inputmethod/InputConnection;
 
     if-eqz v1, :cond_0
@@ -242,38 +603,41 @@
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinIME;->mrCommit()V
 
-    .line 232
+    .line 292
     :cond_0
     sput-object v2, Lcom/mrkeyboard/app/MrTools;->sRedirect:Landroid/view/inputmethod/InputConnection;
 
-    .line 233
+    .line 293
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sPrevField:Landroid/widget/TextView;
 
     sput-object v0, Lcom/mrkeyboard/app/MrTools;->sField:Landroid/widget/TextView;
 
-    .line 234
+    .line 294
     sput-object v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sPrevField:Landroid/widget/TextView;
 
-    .line 235
+    .line 295
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sField:Landroid/widget/EditText;
 
     const-string v1, ""
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 236
+    .line 296
+    invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->settle()V
+
+    .line 297
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
 
     const/16 v1, 0x8
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
 
-    .line 237
+    .line 298
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrBar;->restore(Landroid/view/View;)V
 
-    .line 238
+    .line 299
     return-void
 .end method
 
@@ -285,10 +649,10 @@
 
     const/4 v3, -0x5
 
-    .line 369
+    .line 450
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 370
+    .line 451
     if-eqz v0, :cond_0
 
     const/4 v1, 0x1
@@ -301,7 +665,7 @@
 
     invoke-virtual {v0, v3, v1, v4, v4}, Lcom/mrkeyboard/app/LatinIME;->onKey(I[III)V
 
-    .line 371
+    .line 452
     :cond_0
     return-void
 .end method
@@ -310,7 +674,7 @@
     .locals 2
 
     .prologue
-    .line 417
+    .line 498
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -323,7 +687,7 @@
 
     iget v0, v0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 418
+    .line 499
     int-to-float v1, p0
 
     mul-float/2addr v0, v1
@@ -343,7 +707,7 @@
     .prologue
     const/4 v4, 0x1
 
-    .line 318
+    .line 399
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sIndex:Lcom/mrkeyboard/app/MrEmojiIndex;
 
     if-nez v0, :cond_0
@@ -356,30 +720,30 @@
 
     if-nez v0, :cond_1
 
-    .line 347
+    .line 428
     :cond_0
     :goto_0
     return-void
 
-    .line 319
+    .line 400
     :cond_1
     sput-boolean v4, Lcom/mrkeyboard/app/MrEmojiSearch;->sLoading:Z
 
-    .line 320
+    .line 401
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
 
-    .line 321
+    .line 402
     sget-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
 
     invoke-virtual {v1}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 322
+    .line 403
     new-instance v2, Ljava/lang/Thread;
 
     new-instance v3, Lcom/mrkeyboard/app/MrEmojiSearch$7;
@@ -388,27 +752,149 @@
 
     invoke-direct {v2, v3}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;)V
 
-    .line 345
+    .line 426
     invoke-virtual {v2, v4}, Ljava/lang/Thread;->setPriority(I)V
 
-    .line 346
+    .line 427
     invoke-virtual {v2}, Ljava/lang/Thread;->start()V
 
     goto :goto_0
+.end method
+
+.method private static enter(I)V
+    .locals 4
+
+    .prologue
+    const/high16 v2, 0x3f800000    # 1.0f
+
+    .line 307
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    invoke-virtual {v0}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->cancel()V
+
+    .line 308
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    int-to-float v1, p0
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setPivotY(F)V
+
+    .line 309
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    const v1, 0x3f19999a    # 0.6f
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setScaleY(F)V
+
+    .line 310
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setAlpha(F)V
+
+    .line 311
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    invoke-virtual {v0}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
+
+    move-result-object v0
+
+    invoke-virtual {v0, v2}, Landroid/view/ViewPropertyAnimator;->alpha(F)Landroid/view/ViewPropertyAnimator;
+
+    move-result-object v0
+
+    invoke-virtual {v0, v2}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
+
+    move-result-object v0
+
+    const-wide/16 v2, 0xf0
+
+    invoke-virtual {v0, v2, v3}, Landroid/view/ViewPropertyAnimator;->setDuration(J)Landroid/view/ViewPropertyAnimator;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
+
+    .line 312
+    return-void
+.end method
+
+.method private static forget()V
+    .locals 3
+
+    .prologue
+    const/4 v2, 0x0
+
+    const/4 v1, 0x0
+
+    .line 124
+    invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->stopRepeat()V
+
+    .line 125
+    sput-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    .line 126
+    sput-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sMainBar:Landroid/view/View;
+
+    .line 127
+    sput-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sField:Landroid/widget/EditText;
+
+    .line 128
+    sput-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sGrid:Landroid/widget/LinearLayout;
+
+    .line 129
+    sput-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sScroll:Landroid/view/View;
+
+    .line 130
+    sput-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sEmpty:Landroid/widget/TextView;
+
+    .line 131
+    sput-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
+
+    .line 132
+    sput-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sHandler:Landroid/os/Handler;
+
+    .line 133
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sCells:Ljava/util/ArrayList;
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
+
+    .line 134
+    sput-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sIndex:Lcom/mrkeyboard/app/MrEmojiIndex;
+
+    .line 135
+    sput-boolean v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sLoading:Z
+
+    .line 136
+    sput-boolean v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sWanted:Z
+
+    .line 137
+    sput-boolean v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sOpen:Z
+
+    .line 138
+    sput-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sPrevField:Landroid/widget/TextView;
+
+    .line 139
+    return-void
 .end method
 
 .method private static heightPx()I
     .locals 4
 
     .prologue
-    .line 405
+    .line 486
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
 
-    .line 406
+    .line 487
     const-string v1, "mr_es_height"
 
     const-string v2, "dimen"
@@ -423,7 +909,7 @@
 
     move-result v1
 
-    .line 407
+    .line 488
     if-nez v1, :cond_0
 
     const/16 v0, 0xb8
@@ -453,7 +939,7 @@
     .locals 2
 
     .prologue
-    .line 306
+    .line 387
     if-eqz p0, :cond_0
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -462,38 +948,38 @@
 
     if-nez v0, :cond_1
 
-    .line 313
+    .line 394
     :cond_0
     :goto_0
     return-void
 
-    .line 307
+    .line 388
     :cond_1
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 308
+    .line 389
     if-nez v0, :cond_2
 
     const/4 v0, 0x0
 
-    .line 309
+    .line 390
     :goto_1
     if-eqz v0, :cond_0
 
-    .line 310
+    .line 391
     invoke-interface {v0}, Landroid/view/inputmethod/InputConnection;->finishComposingText()Z
 
-    .line 311
+    .line 392
     const/4 v1, 0x1
 
     invoke-interface {v0, p0, v1}, Landroid/view/inputmethod/InputConnection;->commitText(Ljava/lang/CharSequence;I)Z
 
-    .line 312
+    .line 393
     invoke-static {p0}, Lcom/mrkeyboard/app/MrEmotes;->addRecent(Ljava/lang/String;)V
 
     goto :goto_0
 
-    .line 308
+    .line 389
     :cond_2
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinIME;->getAppInputConnection()Landroid/view/inputmethod/InputConnection;
 
@@ -506,14 +992,14 @@
     .locals 3
 
     .prologue
-    .line 411
+    .line 492
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
 
-    .line 412
+    .line 493
     const-string v1, "integer"
 
     sget-object v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
@@ -526,7 +1012,7 @@
 
     move-result v1
 
-    .line 413
+    .line 494
     if-nez v1, :cond_0
 
     :goto_0
@@ -544,18 +1030,18 @@
     .locals 1
 
     .prologue
-    .line 359
+    .line 440
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
 
     if-nez v0, :cond_0
 
     const-string v0, ""
 
-    .line 362
+    .line 443
     :goto_0
     return-object v0
 
-    .line 360
+    .line 441
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
 
@@ -567,12 +1053,12 @@
 
     move-result-object v0
 
-    .line 361
+    .line 442
     if-nez v0, :cond_1
 
     const/4 v0, 0x0
 
-    .line 362
+    .line 443
     :goto_1
     if-nez v0, :cond_2
 
@@ -580,13 +1066,13 @@
 
     goto :goto_0
 
-    .line 361
+    .line 442
     :cond_1
     iget-object v0, v0, Landroid/content/res/Configuration;->locale:Ljava/util/Locale;
 
     goto :goto_1
 
-    .line 362
+    .line 443
     :cond_2
     invoke-virtual {v0}, Ljava/util/Locale;->getLanguage()Ljava/lang/String;
 
@@ -599,26 +1085,26 @@
     .locals 1
 
     .prologue
-    .line 351
+    .line 432
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sLoading:Z
 
-    .line 352
+    .line 433
     sget-boolean v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sWanted:Z
 
     if-nez v0, :cond_1
 
-    .line 355
+    .line 436
     :cond_0
     :goto_0
     return-void
 
-    .line 353
+    .line 434
     :cond_1
     sput-object p0, Lcom/mrkeyboard/app/MrEmojiSearch;->sIndex:Lcom/mrkeyboard/app/MrEmojiIndex;
 
-    .line 354
+    .line 435
     sget-boolean v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sOpen:Z
 
     if-eqz v0, :cond_0
@@ -632,34 +1118,34 @@
     .locals 5
 
     .prologue
-    .line 278
+    .line 359
     new-instance v1, Landroid/widget/TextView;
 
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
 
     invoke-direct {v1, v0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 279
+    .line 360
     const/high16 v0, 0x41d00000    # 26.0f
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 280
+    .line 361
     const/16 v0, 0x11
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 281
+    .line 362
     const/4 v0, 0x1
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setSingleLine(Z)V
 
-    .line 282
+    .line 363
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sPick:Landroid/view/View$OnClickListener;
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 283
+    .line 364
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sGrid:Landroid/widget/LinearLayout;
 
     sget v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sRows:I
@@ -686,7 +1172,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 284
+    .line 365
     return-object v1
 .end method
 
@@ -694,108 +1180,127 @@
     .locals 1
 
     .prologue
-    .line 191
+    .line 224
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
 
     if-nez v0, :cond_1
 
-    .line 199
+    .line 236
     :cond_0
     :goto_0
     return-void
 
-    .line 192
+    .line 226
     :cond_1
+    :try_start_0
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->stopRepeat()V
 
-    .line 193
+    .line 227
     const/4 v0, 0x7
 
     if-ne p0, v0, :cond_2
 
-    .line 194
+    .line 228
     sget-boolean v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sOpen:Z
 
     if-nez v0, :cond_0
 
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->open()V
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
     goto :goto_0
 
-    .line 197
+    .line 233
+    :catch_0
+    move-exception v0
+
+    .line 234
+    invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->abandon()V
+
+    goto :goto_0
+
+    .line 231
     :cond_2
+    :try_start_1
     sget-boolean v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sOpen:Z
 
     if-eqz v0, :cond_3
 
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->close()V
 
-    .line 198
+    .line 232
     :cond_3
     const/4 v0, 0x4
 
     if-eq p0, v0, :cond_0
 
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->release()V
+    :try_end_1
+    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1} :catch_0
 
     goto :goto_0
 .end method
 
 .method private static open()V
-    .locals 2
+    .locals 3
 
     .prologue
     const/4 v0, 0x1
 
-    .line 213
+    .line 271
     sput-boolean v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sOpen:Z
 
-    .line 214
+    .line 272
     sput-boolean v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sWanted:Z
 
-    .line 215
+    .line 273
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 216
+    .line 274
     if-eqz v0, :cond_0
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinIME;->mrCommit()V
 
-    .line 217
+    .line 275
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sField:Landroid/widget/TextView;
 
     sput-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sPrevField:Landroid/widget/TextView;
 
-    .line 218
+    .line 276
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sField:Landroid/widget/EditText;
 
     sput-object v0, Lcom/mrkeyboard/app/MrTools;->sField:Landroid/widget/TextView;
 
-    .line 219
+    .line 277
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sField:Landroid/widget/EditText;
 
     const-string v1, ""
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 220
-    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
-
-    const/4 v1, 0x0
-
-    invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
-
-    .line 221
-    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
-
+    .line 278
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->heightPx()I
 
-    move-result v1
+    move-result v0
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrBar;->expand(Landroid/view/View;I)V
+    .line 279
+    sget-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
 
-    .line 222
+    const/4 v2, 0x0
+
+    invoke-virtual {v1, v2}, Landroid/view/View;->setVisibility(I)V
+
+    .line 280
+    sget-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    invoke-static {v1, v0}, Lcom/mrkeyboard/app/MrBar;->expand(Landroid/view/View;I)V
+
+    .line 281
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrEmojiSearch;->enter(I)V
+
+    .line 282
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sField:Landroid/widget/EditText;
 
     new-instance v1, Landroid/view/inputmethod/EditorInfo;
@@ -808,18 +1313,18 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrTools;->sRedirect:Landroid/view/inputmethod/InputConnection;
 
-    .line 223
+    .line 283
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sField:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->requestFocus()Z
 
-    .line 224
+    .line 284
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->ensureLoaded()V
 
-    .line 225
+    .line 285
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->update()V
 
-    .line 226
+    .line 286
     return-void
 .end method
 
@@ -829,30 +1334,30 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 162
+    .line 195
     const-string v0, "es_back"
 
     const/4 v1, -0x1
 
     invoke-static {p0, v0, v1}, Lcom/mrkeyboard/app/MrTools;->btn(Landroid/view/View;Ljava/lang/String;I)Landroid/widget/TextView;
 
-    .line 163
+    .line 196
     const-string v0, "es_card"
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v0
 
-    .line 164
+    .line 197
     if-eqz v0, :cond_0
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->cardBg()Landroid/graphics/drawable/Drawable;
+    invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->cardBackground()Landroid/graphics/drawable/Drawable;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 165
+    .line 198
     :cond_0
     const-string v0, "es_div"
 
@@ -860,7 +1365,7 @@
 
     move-result-object v0
 
-    .line 166
+    .line 199
     if-eqz v0, :cond_1
 
     const-string v1, "panel_divider"
@@ -871,7 +1376,7 @@
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundColor(I)V
 
-    .line 167
+    .line 200
     :cond_1
     const-string v0, "es_title"
 
@@ -879,7 +1384,7 @@
 
     move-result-object v0
 
-    .line 168
+    .line 201
     instance-of v1, v0, Landroid/widget/TextView;
 
     if-eqz v1, :cond_2
@@ -890,7 +1395,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 169
+    .line 202
     :cond_2
     const-string v0, "es_icon"
 
@@ -898,7 +1403,7 @@
 
     move-result-object v0
 
-    .line 170
+    .line 203
     instance-of v1, v0, Landroid/widget/TextView;
 
     if-eqz v1, :cond_3
@@ -909,7 +1414,7 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTools;->tintColor(Landroid/widget/TextView;I)V
 
-    .line 171
+    .line 204
     :cond_3
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sField:Landroid/widget/EditText;
 
@@ -917,14 +1422,14 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setTextColor(I)V
 
-    .line 172
+    .line 205
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sField:Landroid/widget/EditText;
 
     sget v1, Lcom/mrkeyboard/app/MrTools;->sHint:I
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setHintTextColor(I)V
 
-    .line 173
+    .line 206
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sEmpty:Landroid/widget/TextView;
 
     if-eqz v0, :cond_4
@@ -935,7 +1440,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 175
+    .line 208
     :cond_4
     const-string v0, "emote_fab"
 
@@ -943,7 +1448,7 @@
 
     move-result-object v0
 
-    .line 176
+    .line 209
     if-eqz v0, :cond_5
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->fabBg()Landroid/graphics/drawable/Drawable;
@@ -952,7 +1457,7 @@
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 177
+    .line 210
     :cond_5
     const-string v0, "attach_fab_icon"
 
@@ -960,7 +1465,7 @@
 
     move-result v3
 
-    .line 178
+    .line 211
     const/4 v0, 0x2
 
     new-array v4, v0, [Ljava/lang/String;
@@ -975,7 +1480,7 @@
 
     aput-object v1, v4, v0
 
-    .line 179
+    .line 212
     array-length v5, v4
 
     move v1, v2
@@ -985,15 +1490,15 @@
 
     aget-object v0, v4, v1
 
-    .line 180
+    .line 213
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v0
 
-    .line 181
+    .line 214
     if-nez v0, :cond_7
 
-    .line 179
+    .line 212
     :cond_6
     :goto_1
     add-int/lit8 v0, v1, 0x1
@@ -1002,11 +1507,11 @@
 
     goto :goto_0
 
-    .line 182
+    .line 215
     :cond_7
     invoke-virtual {v0, v2}, Landroid/view/View;->setBackgroundColor(I)V
 
-    .line 183
+    .line 216
     instance-of v6, v0, Landroid/widget/TextView;
 
     if-eqz v6, :cond_6
@@ -1017,7 +1522,7 @@
 
     goto :goto_1
 
-    .line 185
+    .line 218
     :cond_8
     return-void
 .end method
@@ -1028,20 +1533,20 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 289
+    .line 370
     sget-object v3, Lcom/mrkeyboard/app/MrEmotes;->sRecent:Ljava/util/ArrayList;
 
-    .line 290
+    .line 371
     new-instance v4, Ljava/util/ArrayList;
 
     invoke-direct {v4}, Ljava/util/ArrayList;-><init>()V
 
-    .line 291
+    .line 372
     if-eqz v3, :cond_0
 
     move v1, v2
 
-    .line 292
+    .line 373
     :goto_0
     invoke-virtual {v3}, Ljava/util/ArrayList;->size()I
 
@@ -1071,7 +1576,7 @@
 
     goto :goto_0
 
-    .line 294
+    .line 375
     :cond_0
     invoke-virtual {v4}, Ljava/util/ArrayList;->isEmpty()Z
 
@@ -1079,12 +1584,12 @@
 
     if-eqz v0, :cond_1
 
-    .line 295
+    .line 376
     invoke-static {v2}, Lcom/mrkeyboard/app/MrEmotes;->data(I)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 296
+    .line 377
     if-eqz v0, :cond_1
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -1093,14 +1598,14 @@
 
     if-lez v1, :cond_1
 
-    .line 297
+    .line 378
     const-string v1, "[|]"
 
     invoke-virtual {v0, v1}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v0
 
-    .line 298
+    .line 379
     :goto_1
     array-length v1, v0
 
@@ -1118,7 +1623,7 @@
 
     goto :goto_1
 
-    .line 301
+    .line 382
     :cond_1
     invoke-virtual {v4}, Ljava/util/ArrayList;->size()I
 
@@ -1139,325 +1644,80 @@
     .locals 1
 
     .prologue
-    .line 241
+    .line 322
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sWanted:Z
 
-    .line 242
+    .line 323
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sIndex:Lcom/mrkeyboard/app/MrEmojiIndex;
 
-    .line 243
+    .line 324
+    return-void
+.end method
+
+.method private static settle()V
+    .locals 2
+
+    .prologue
+    const/high16 v1, 0x3f800000    # 1.0f
+
+    .line 316
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    invoke-virtual {v0}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->cancel()V
+
+    .line 317
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setScaleY(F)V
+
+    .line 318
+    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setAlpha(F)V
+
+    .line 319
     return-void
 .end method
 
 .method static setup(Landroid/view/View;)V
-    .locals 8
+    .locals 1
 
     .prologue
-    const/4 v3, 0x0
-
-    const/4 v2, 0x0
-
-    .line 100
-    invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->stopRepeat()V
-
-    .line 101
-    sput-object v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
-
-    .line 102
-    sput-object v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sMainBar:Landroid/view/View;
-
-    .line 103
-    sput-object v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sField:Landroid/widget/EditText;
-
-    .line 104
-    sput-object v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sGrid:Landroid/widget/LinearLayout;
-
-    .line 105
-    sput-object v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sScroll:Landroid/view/View;
-
-    .line 106
-    sput-object v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sEmpty:Landroid/widget/TextView;
-
-    .line 107
-    sput-object v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
-
-    .line 108
-    sput-object v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sHandler:Landroid/os/Handler;
-
-    .line 109
-    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sCells:Ljava/util/ArrayList;
-
-    invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
-
-    .line 110
-    sput-object v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sIndex:Lcom/mrkeyboard/app/MrEmojiIndex;
-
-    .line 111
-    sput-boolean v3, Lcom/mrkeyboard/app/MrEmojiSearch;->sLoading:Z
-
-    .line 112
-    sput-boolean v3, Lcom/mrkeyboard/app/MrEmojiSearch;->sWanted:Z
-
     .line 113
-    sput-boolean v3, Lcom/mrkeyboard/app/MrEmojiSearch;->sOpen:Z
+    invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->forget()V
 
     .line 114
-    sput-object v2, Lcom/mrkeyboard/app/MrEmojiSearch;->sPrevField:Landroid/widget/TextView;
+    if-nez p0, :cond_0
 
-    .line 115
-    if-nez p0, :cond_1
-
-    .line 158
-    :cond_0
+    .line 120
     :goto_0
     return-void
 
     .line 116
-    :cond_1
-    const-string v0, "bar_es"
+    :cond_0
+    :try_start_0
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrEmojiSearch;->build(Landroid/view/View;)V
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
-
-    move-result-object v4
+    goto :goto_0
 
     .line 117
-    const-string v0, "es_field"
-
-    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
-
-    move-result-object v0
+    :catch_0
+    move-exception v0
 
     .line 118
-    const-string v1, "es_grid"
+    invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->forget()V
 
-    invoke-virtual {p0, v1}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
-
-    move-result-object v1
-
-    .line 119
-    if-eqz v4, :cond_0
-
-    instance-of v5, v0, Landroid/widget/EditText;
-
-    if-eqz v5, :cond_0
-
-    instance-of v5, v1, Landroid/widget/LinearLayout;
-
-    if-eqz v5, :cond_0
-
-    .line 120
-    invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
-
-    move-result-object v5
-
-    sput-object v5, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
-
-    .line 121
-    new-instance v5, Landroid/os/Handler;
-
-    invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
-
-    move-result-object v6
-
-    invoke-direct {v5, v6}, Landroid/os/Handler;-><init>(Landroid/os/Looper;)V
-
-    sput-object v5, Lcom/mrkeyboard/app/MrEmojiSearch;->sHandler:Landroid/os/Handler;
-
-    .line 122
-    sput-object v4, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
-
-    .line 123
-    const-string v4, "bar_main"
-
-    invoke-virtual {p0, v4}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
-
-    move-result-object v4
-
-    sput-object v4, Lcom/mrkeyboard/app/MrEmojiSearch;->sMainBar:Landroid/view/View;
-
-    .line 124
-    check-cast v0, Landroid/widget/EditText;
-
-    sput-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sField:Landroid/widget/EditText;
-
-    move-object v0, v1
-
-    .line 125
-    check-cast v0, Landroid/widget/LinearLayout;
-
-    sput-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sGrid:Landroid/widget/LinearLayout;
-
-    .line 126
-    const-string v0, "es_scroll"
-
-    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
-
-    move-result-object v0
-
-    sput-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sScroll:Landroid/view/View;
-
-    .line 127
-    const-string v0, "es_empty"
-
-    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
-
-    move-result-object v0
-
-    instance-of v0, v0, Landroid/widget/TextView;
-
-    if-eqz v0, :cond_2
-
-    const-string v0, "es_empty"
-
-    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
-
-    move-result-object v0
-
-    check-cast v0, Landroid/widget/TextView;
-
-    :goto_1
-    sput-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sEmpty:Landroid/widget/TextView;
-
-    .line 128
-    const/4 v0, 0x1
-
-    const-string v1, "mr_es_rows"
-
-    const/4 v4, 0x2
-
-    invoke-static {v1, v4}, Lcom/mrkeyboard/app/MrEmojiSearch;->intRes(Ljava/lang/String;I)I
-
-    move-result v1
-
-    invoke-static {v0, v1}, Ljava/lang/Math;->max(II)I
-
-    move-result v0
-
-    sput v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sRows:I
-
-    move v0, v3
-
-    .line 129
-    :goto_2
-    sget v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sRows:I
-
-    if-ge v0, v1, :cond_3
-
-    .line 130
-    new-instance v1, Landroid/widget/LinearLayout;
-
-    sget-object v4, Lcom/mrkeyboard/app/MrEmojiSearch;->sCtx:Landroid/content/Context;
-
-    invoke-direct {v1, v4}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
-
-    .line 131
-    invoke-virtual {v1, v3}, Landroid/widget/LinearLayout;->setOrientation(I)V
-
-    .line 132
-    sget-object v4, Lcom/mrkeyboard/app/MrEmojiSearch;->sGrid:Landroid/widget/LinearLayout;
-
-    new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
-
-    const/4 v6, -0x2
-
-    const/high16 v7, 0x3f800000    # 1.0f
-
-    invoke-direct {v5, v6, v3, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
-
-    invoke-virtual {v4, v1, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 129
-    add-int/lit8 v0, v0, 0x1
-
-    goto :goto_2
-
-    :cond_2
-    move-object v0, v2
-
-    .line 127
-    goto :goto_1
-
-    .line 134
-    :cond_3
-    invoke-static {p0}, Lcom/mrkeyboard/app/MrEmojiSearch;->paint(Landroid/view/View;)V
-
-    .line 135
-    const-string v0, "es_back"
-
-    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
-
-    move-result-object v0
-
-    .line 136
-    if-eqz v0, :cond_4
-
-    new-instance v1, Lcom/mrkeyboard/app/MrEmojiSearch$4;
-
-    invoke-direct {v1}, Lcom/mrkeyboard/app/MrEmojiSearch$4;-><init>()V
-
-    invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
-
-    .line 141
-    :cond_4
-    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sField:Landroid/widget/EditText;
-
-    sget-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sWatcher:Landroid/text/TextWatcher;
-
-    invoke-virtual {v0, v1}, Landroid/widget/EditText;->addTextChangedListener(Landroid/text/TextWatcher;)V
-
-    .line 142
-    sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sBar:Landroid/view/View;
-
-    const/16 v1, 0x8
-
-    invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
-
-    .line 143
-    const-string v0, "emote_search"
-
-    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
-
-    move-result-object v0
-
-    .line 144
-    if-eqz v0, :cond_5
-
-    new-instance v1, Lcom/mrkeyboard/app/MrEmojiSearch$5;
-
-    invoke-direct {v1}, Lcom/mrkeyboard/app/MrEmojiSearch$5;-><init>()V
-
-    invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
-
-    .line 149
-    :cond_5
-    const-string v0, "emote_del"
-
-    invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
-
-    move-result-object v0
-
-    .line 150
-    if-eqz v0, :cond_0
-
-    .line 151
-    new-instance v1, Lcom/mrkeyboard/app/MrEmojiSearch$DeleteTouch;
-
-    invoke-direct {v1, v2}, Lcom/mrkeyboard/app/MrEmojiSearch$DeleteTouch;-><init>(Lcom/mrkeyboard/app/MrEmojiSearch$1;)V
-
-    invoke-virtual {v0, v1}, Landroid/view/View;->setOnTouchListener(Landroid/view/View$OnTouchListener;)V
-
-    .line 152
-    new-instance v1, Lcom/mrkeyboard/app/MrEmojiSearch$6;
-
-    invoke-direct {v1}, Lcom/mrkeyboard/app/MrEmojiSearch$6;-><init>()V
-
-    invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
-
-    goto/16 :goto_0
+    goto :goto_0
 .end method
 
 .method private static show([Ljava/lang/String;Z)V
@@ -1468,7 +1728,7 @@
 
     const/4 v2, 0x0
 
-    .line 263
+    .line 344
     :goto_0
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sCells:Ljava/util/ArrayList;
 
@@ -1499,7 +1759,7 @@
     :cond_0
     move v1, v2
 
-    .line 264
+    .line 345
     :goto_1
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sCells:Ljava/util/ArrayList;
 
@@ -1509,7 +1769,7 @@
 
     if-ge v1, v0, :cond_2
 
-    .line 265
+    .line 346
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sCells:Ljava/util/ArrayList;
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -1518,20 +1778,20 @@
 
     check-cast v0, Landroid/widget/TextView;
 
-    .line 266
+    .line 347
     array-length v4, p0
 
     if-ge v1, v4, :cond_1
 
-    .line 267
+    .line 348
     aget-object v4, p0, v1
 
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 268
+    .line 349
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 264
+    .line 345
     :goto_2
     add-int/lit8 v0, v1, 0x1
 
@@ -1539,13 +1799,13 @@
 
     goto :goto_1
 
-    .line 270
+    .line 351
     :cond_1
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setVisibility(I)V
 
     goto :goto_2
 
-    .line 273
+    .line 354
     :cond_2
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sScroll:Landroid/view/View;
 
@@ -1555,7 +1815,7 @@
 
     invoke-virtual {v0, v2, v2}, Landroid/view/View;->scrollTo(II)V
 
-    .line 274
+    .line 355
     :cond_3
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sEmpty:Landroid/widget/TextView;
 
@@ -1572,14 +1832,14 @@
     :goto_3
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 275
+    .line 356
     :cond_4
     return-void
 
     :cond_5
     move v2, v3
 
-    .line 274
+    .line 355
     goto :goto_3
 .end method
 
@@ -1587,7 +1847,7 @@
     .locals 2
 
     .prologue
-    .line 374
+    .line 455
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sHandler:Landroid/os/Handler;
 
     if-eqz v0, :cond_0
@@ -1598,7 +1858,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 375
+    .line 456
     :cond_0
     return-void
 .end method
@@ -1609,7 +1869,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 249
+    .line 330
     sget-boolean v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sOpen:Z
 
     if-eqz v0, :cond_0
@@ -1618,12 +1878,12 @@
 
     if-nez v0, :cond_1
 
-    .line 260
+    .line 341
     :cond_0
     :goto_0
     return-void
 
-    .line 250
+    .line 331
     :cond_1
     sget-object v0, Lcom/mrkeyboard/app/MrEmojiSearch;->sField:Landroid/widget/EditText;
 
@@ -1635,7 +1895,7 @@
 
     move-result-object v0
 
-    .line 251
+    .line 332
     invoke-static {v0}, Lcom/mrkeyboard/app/MrEmojiIndex;->normalize(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -1646,7 +1906,7 @@
 
     if-nez v1, :cond_2
 
-    .line 252
+    .line 333
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->recents()[Ljava/lang/String;
 
     move-result-object v0
@@ -1655,20 +1915,20 @@
 
     goto :goto_0
 
-    .line 255
+    .line 336
     :cond_2
     sget-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sIndex:Lcom/mrkeyboard/app/MrEmojiIndex;
 
     if-nez v1, :cond_3
 
-    .line 256
+    .line 337
     new-array v0, v2, [Ljava/lang/String;
 
     invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrEmojiSearch;->show([Ljava/lang/String;Z)V
 
     goto :goto_0
 
-    .line 259
+    .line 340
     :cond_3
     sget-object v1, Lcom/mrkeyboard/app/MrEmojiSearch;->sIndex:Lcom/mrkeyboard/app/MrEmojiIndex;
 

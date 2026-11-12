@@ -543,25 +543,39 @@
     :goto_0
     invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
+    # Horizontal padding. With text (and a tag that is not b_) the button is a pill, whose round ends take room, so
+    # it gets 11/10 of sPad (11 dp) on each side; before it had 0.64 (6.4 dp) and the text and the icon touched the
+    # curve. b_ with text keeps 0.8; without text, b_ keeps sPad and the others 0.8.
     sget v1, Lcom/mrkeyboard/app/MrTools;->sPad:I
 
-    invoke-virtual {v0}, Landroid/widget/TextView;->length()I
-
-    move-result v2
-
-    if-eqz v2, :cond_2
-
-    mul-int/lit8 v1, v1, 0x4
-
-    div-int/lit8 v1, v1, 0x5
-
-    :cond_2
     const-string v2, "b_"
 
     invoke-virtual {p1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 
     move-result v2
 
+    invoke-virtual {v0}, Landroid/widget/TextView;->length()I
+
+    move-result v3
+
+    if-eqz v3, :cond_2
+
+    if-eqz v2, :cond_roomy
+
+    mul-int/lit8 v1, v1, 0x4
+
+    div-int/lit8 v1, v1, 0x5
+
+    goto :cond_3
+
+    :cond_roomy
+    mul-int/lit8 v1, v1, 0xb
+
+    div-int/lit8 v1, v1, 0xa
+
+    goto :cond_3
+
+    :cond_2
     if-nez v2, :cond_3
 
     mul-int/lit8 v1, v1, 0x4
@@ -885,6 +899,14 @@
     mul-float/2addr v0, v1
     return v0
 .end method
+
+# Corner radius (px) of the toolbar buttons: fully round (pill). GradientDrawable clamps the radius to half the
+# short side, so this one value gives a pill for any size of button (a circle when it is square).
+.method static pill()F
+    .locals 1
+    const v0, 0x447a0000    # 1000.0f
+    return v0
+.end method
 .method static lookFixed(Landroid/graphics/drawable/Drawable;Landroid/content/Context;)V
     .locals 10
     if-nez p0, :cond_0
@@ -941,7 +963,8 @@
 .end method
 
 # Background of the bar buttons: transparent; on touch, the color of the highlight keys (ctrlBg) with the
-# theme's alpha_flat, in a rectangle with the same corners as the panel buttons (radius(0) = 8 dp).
+# theme's alpha_flat, with fully round corners (pill()), so the pressed fill is round even though the button has no
+# visible background.
 .method static flatBg()Landroid/graphics/drawable/Drawable;
     .locals 5
 
@@ -967,9 +990,7 @@
 
     const/4 v2, 0x0
 
-    const/4 v3, 0x0    # 0.0f
-
-    invoke-static {v3}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->pill()F
 
     move-result v3
 
@@ -1024,9 +1045,7 @@
 
     or-int/2addr v0, v1
 
-    const/4 v1, 0x0    # 0.0f
-
-    invoke-static {v1}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->pill()F
 
     move-result v1
 
@@ -2913,8 +2932,8 @@
 
     return-void
 .end method
-# Soft button background: the accent color (accent()) with the theme's alpha_btn, no border, 8 dp corners
-# (radius(0)); on touch, the same color with alpha_press.
+# Soft button background: the accent color (accent()) with the theme's alpha_btn, no border, fully round corners
+# (pill()); on touch, the same color with alpha_press.
 .method static softBg()Landroid/graphics/drawable/Drawable;
     .locals 6
 
@@ -2938,9 +2957,7 @@
 
     or-int/2addr v0, v2
 
-    const/4 v2, 0x0    # 0.0f
-
-    invoke-static {v2}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->pill()F
 
     move-result v2
 

@@ -433,6 +433,19 @@ public class EmojiPanelTest {
         panel(4);
         check("destroy: the hooks that still come do nothing (the search does not open on a view that is gone)", MrTools.sRedirect == null);
 
+        // ---- the floating bar over the emojis: the fill is translucent, the louder the colour the more transparent
+        int cyan = MrEmojiSearch.fabAlpha(0xff01b9cf), dark = MrEmojiSearch.fabAlpha(0xf22a3b52), midnight = MrEmojiSearch.fabAlpha(0xff72a2e8);
+        check("floating bar: a neon fill (cyan) is quite translucent (at most 45%)", cyan <= 0x73 && cyan >= MrEmojiSearch.FAB_ALPHA_MIN);
+        check("floating bar: a light solid fill (midnight) is translucent too", midnight <= 0x73);
+        check("floating bar: a dark fill stays firmer than a neon one", dark > cyan && dark <= MrEmojiSearch.FAB_ALPHA_MAX);
+        check("floating bar: limits (white at the minimum, black at the maximum)",
+                MrEmojiSearch.fabAlpha(0xffffffff) == MrEmojiSearch.FAB_ALPHA_MIN && MrEmojiSearch.fabAlpha(0xff000000) == MrEmojiSearch.FAB_ALPHA_MAX);
+        check("floating bar: fade lowers the alpha and keeps the colour", MrEmojiSearch.fade(0xff01b9cf, 0x66) == 0x6601b9cf);
+        check("floating bar: fade keeps an alpha that is already lower (glass themes)", MrEmojiSearch.fade(0x40ffffff, 0x99) == 0x40ffffff);
+        check("floating bar: the translucent fill of the theme colours is never opaque",
+                MrEmojiSearch.fade(0xff01b9cf, MrEmojiSearch.fabAlpha(0xff01b9cf)) >>> 24 < 0xff
+                && MrEmojiSearch.fade(0xf22a3b52, dark) >>> 24 < 0xf2);
+
         System.out.println("\n" + ok + " OK, " + fail + " FAIL");
         if (fail > 0) System.exit(1);
     }

@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 378
+    .line 459
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
     .locals 0
 
     .prologue
-    .line 378
+    .line 459
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrEmojiSearch$DeleteTouch;-><init>()V
 
     return-void
@@ -48,39 +48,39 @@
 
     const/4 v4, 0x1
 
-    .line 380
+    .line 461
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v0
 
-    .line 381
+    .line 462
     sget-object v1, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 382
+    .line 463
     if-nez v0, :cond_2
 
-    .line 383
+    .line 464
     const v0, 0x3f19999a    # 0.6f
 
     invoke-virtual {p1, v0}, Landroid/view/View;->setAlpha(F)V
 
-    .line 384
+    .line 465
     if-eqz v1, :cond_0
 
     invoke-virtual {v1, v3}, Lcom/mrkeyboard/app/LatinIME;->onPress(I)V
 
-    .line 385
+    .line 466
     :cond_0
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->access$000()V
 
-    .line 386
+    .line 467
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->access$100()Landroid/os/Handler;
 
     move-result-object v0
 
     if-eqz v0, :cond_1
 
-    .line 387
+    .line 468
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->access$100()Landroid/os/Handler;
 
     move-result-object v0
@@ -91,7 +91,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 388
+    .line 469
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->access$100()Landroid/os/Handler;
 
     move-result-object v0
@@ -104,12 +104,12 @@
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 398
+    .line 479
     :cond_1
     :goto_0
     return v4
 
-    .line 392
+    .line 473
     :cond_2
     if-eq v0, v4, :cond_3
 
@@ -117,16 +117,16 @@
 
     if-ne v0, v2, :cond_1
 
-    .line 393
+    .line 474
     :cond_3
     const/high16 v0, 0x3f800000    # 1.0f
 
     invoke-virtual {p1, v0}, Landroid/view/View;->setAlpha(F)V
 
-    .line 394
+    .line 475
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->access$500()V
 
-    .line 395
+    .line 476
     if-eqz v1, :cond_1
 
     invoke-virtual {v1, v3}, Lcom/mrkeyboard/app/LatinIME;->onRelease(I)V

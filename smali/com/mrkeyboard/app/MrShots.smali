@@ -4128,9 +4128,7 @@
 .method static styleSel()V
     .locals 6
 
-    const/high16 v5, 0x40000000    # 2.0f
-
-    invoke-static {v5}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->pill()F
 
     move-result v5
 

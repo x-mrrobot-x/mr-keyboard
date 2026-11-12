@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 322
+    .line 403
     iput-object p1, p0, Lcom/mrkeyboard/app/MrEmojiSearch$7;->val$res:Landroid/content/res/Resources;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrEmojiSearch$7;->val$pkg:Ljava/lang/String;
@@ -51,8 +51,8 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 324
-    .line 326
+    .line 405
+    .line 407
     :try_start_0
     sget-object v1, Lcom/mrkeyboard/app/MrEmojiIndex;->LANGS:[Ljava/lang/String;
 
@@ -60,7 +60,7 @@
 
     new-array v3, v1, [Ljava/io/InputStream;
 
-    .line 327
+    .line 408
     const/4 v1, 0x0
 
     move v2, v1
@@ -70,7 +70,7 @@
 
     if-ge v2, v1, :cond_1
 
-    .line 328
+    .line 409
     iget-object v1, p0, Lcom/mrkeyboard/app/MrEmojiSearch$7;->val$res:Landroid/content/res/Resources;
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -103,7 +103,7 @@
 
     move-result v1
 
-    .line 329
+    .line 410
     if-nez v1, :cond_0
 
     move-object v1, v0
@@ -111,14 +111,14 @@
     :goto_1
     aput-object v1, v3, v2
 
-    .line 327
+    .line 408
     add-int/lit8 v1, v2, 0x1
 
     move v2, v1
 
     goto :goto_0
 
-    .line 329
+    .line 410
     :cond_0
     iget-object v4, p0, Lcom/mrkeyboard/app/MrEmojiSearch$7;->val$res:Landroid/content/res/Resources;
 
@@ -128,7 +128,7 @@
 
     goto :goto_1
 
-    .line 331
+    .line 412
     :cond_1
     invoke-static {v3}, Lcom/mrkeyboard/app/MrEmojiIndex;->parse([Ljava/io/InputStream;)Lcom/mrkeyboard/app/MrEmojiIndex;
     :try_end_0
@@ -137,7 +137,7 @@
 
     move-result-object v0
 
-    .line 338
+    .line 419
     :goto_2
     invoke-static {}, Lcom/mrkeyboard/app/MrEmojiSearch;->access$100()Landroid/os/Handler;
 
@@ -155,17 +155,17 @@
 
     invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 343
+    .line 424
     :cond_2
     return-void
 
-    .line 334
+    .line 415
     :catch_0
     move-exception v1
 
     goto :goto_2
 
-    .line 332
+    .line 413
     :catch_1
     move-exception v1
 
