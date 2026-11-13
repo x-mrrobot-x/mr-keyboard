@@ -48,6 +48,20 @@ else:
         for block in ('**Português**', '**English**'):
             if not re.search(r'^' + re.escape(block) + r'\s*$', text, re.M):
                 problems.append('%s has no %s block (the text that goes in the GitHub Release)' % (found[0], block))
+        # The label of an item ("Novo:", "Fixed:", "Como receber:") is followed by a space, and the text after it starts with a capital letter:
+        # the update dialog colors the label (MrNotesText) and the text reads as a sentence. Only the notes of this version are checked.
+        for n, line in enumerate(text.replace('\r\n', '\n').split('\n'), 1):
+            item = re.match(r'^[-*] (.*)$', line)
+            if not item:
+                continue
+            body = item.group(1).replace('**', '').replace('`', '')
+            glued = re.match(r'(Novo|Melhorado|Corrigido|Como receber|New|Improved|Fixed|How to get it)\b[^:]{0,24}:\S', body)
+            if glued:
+                problems.append('%s line %d: no space after the colon of "%s"' % (found[0], n, body[:glued.end()]))
+                continue
+            label = re.match(r'([^:]{1,32}): (\S)', body)
+            if label and label.group(2).islower():
+                problems.append('%s line %d: the text after "%s:" must start with a capital letter' % (found[0], n, label.group(1)))
 
 def as_tuple(v):
     return tuple(int(x) for x in v.split('.'))
