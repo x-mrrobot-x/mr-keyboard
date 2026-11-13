@@ -50,6 +50,7 @@
 #   test_open_selection.py the selection when the keyboard opens in a field (LatinIME.checkReCorrectionOnStart in the mini interpreter): taken from EditorInfo.initialSelStart/End with no question for the text of the field; the old question only when the field does not report it; cursor at the very start, selection, no EditorInfo, re-correction or prediction off
 #   test_popup_cache.py  the popups of variants (long press) kept between field opens (LatinKeyboardBaseView.closing/setKeyboard/onDetachedFromWindow in the mini interpreter): kept while the keyboard is the same one and no setting changed; cleared for a different keyboard, after any preference change (LatinIME.onSharedPreferenceChanged) and when the view leaves the window
 #   test_echo_questions.py the questions to the app after a separator the keyboard typed (LatinIME.onUpdateSelection, handleSeparator, isCursorTouchingWord in the mini interpreter): counted, not timed; one instead of two after the echo of our own separator, the full check in every other case
+#   test_letter_questions.py the questions to the app for each letter typed (LatinIME.handleCharacter, getCursorCapsMode in the mini interpreter): none for the touching-a-word check while a word is predicted, none for the caps mode in the middle of a word unless the field asks for all capitals; counted, with an app that answers like TextUtils.getCapsMode
 #   test_shadow_cache.py the blurred icon shadows (ShadowDrawHelper.smali): blurred once and kept (24 places, oldest replaced, never recycled), found by drawable, key size, bounds, alpha, level and radius, colour applied when drawn; render mode 0 (no software layer)
 #   test_notes_text.py   the notes of the update dialog (MrNotesText.smali, MrUpdate$Notice.raw, MrUpdateDialog.fill): bullet, hanging indent, label bold and colored by kind (new, improved, fixed, how to get it, other), thin line between items, **bold** kept, marks gone; every notes block of docs/release-notes against a reference
 #   test_field_keys.py   keys with a modifier (Ctrl+A, Shift+arrows...) in the fields of the toolbar (translator, emoji search): LatinIME.sendKeyDown/sendKeyUp and MrTools.sendEvent on the real smali: the
@@ -227,6 +228,9 @@ jobs:
 
       - name: Questions to the app after a separator typed by the keyboard (counted)
         run: python3 -I docs/tools/test_echo_questions.py
+
+      - name: Questions to the app for each letter typed (counted)
+        run: python3 -I docs/tools/test_letter_questions.py
 
       - name: Keys with a modifier in the fields of the toolbar (Ctrl+A, Shift+arrows)
         run: python3 -I docs/tools/test_field_keys.py

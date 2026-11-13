@@ -44,6 +44,9 @@ import java.util.Arrays;
  *     long presses found the variants ready;</li>
  * <li>SEL: the keyboard told by the app about a new selection (LatinIME.onUpdateSelection), the whole reaction. MSG: a delayed
  *     message of the keyboard handled (suggestions, shift state, old-word suggestions; LatinIME$1.handleMessage);</li>
+ * <li>ECHO_CUT, ECHO_FULL: inside SEL, the check "is the cursor touching a word" after a new selection (re-correction). ECHO_CUT: the
+ *     report was the echo of a separator the keyboard typed itself, and only the character after the cursor was asked;
+ *     ECHO_FULL: any other report, the full check. Their counts say how many echoes took the short way;</li>
  * <li>APP_KEY, APP_SUGG, APP_OPEN, APP_SEL, APP_MSG, APP_OTHER: the same questions as APP, counted again by where they are asked:
  *     inside a key (not in its suggestions), inside the suggestions, inside an open, inside the reaction to a new selection,
  *     inside a delayed message, and anywhere else. The innermost piece of work under way decides; every wait is counted once in
@@ -63,7 +66,7 @@ public final class MrPerf {
     static final int CREATE = 0, VIEW = 1, OPEN = 2, SHOWN = 3, FRAME = 4, KEY = 5, TOUCH = 6, APP = 7, SUGG = 8,
             KEY_LETTER = 9, KEY_SEP = 10, KEY_DEL = 11, KEY_OTHER = 12, SUGG_ENGINE = 13, SUGG_SHOW = 14,
             OPEN_KB = 15, OPEN_SET = 16, POPUP = 17, APP_KEY = 18, APP_SUGG = 19, APP_OPEN = 20, APP_OTHER = 21,
-            POPUP_BUILD = 22, POPUP_SHOW = 23, SEL = 24, MSG = 25, APP_SEL = 26, APP_MSG = 27, KINDS = 28;
+            POPUP_BUILD = 22, POPUP_SHOW = 23, SEL = 24, MSG = 25, APP_SEL = 26, APP_MSG = 27, ECHO_CUT = 28, ECHO_FULL = 29, KINDS = 30;
     /** A piece of work that began longer ago than this (milliseconds) and never ended is not taken as the place of a wait. */
     static final int PLACE_MAX_MS = 10000;
     /** Samples kept per kind (a power of two) for the average and the p95. */
@@ -78,11 +81,12 @@ public final class MrPerf {
             "mr_ui_perf_sugg_engine", "mr_ui_perf_sugg_show", "mr_ui_perf_open_kb", "mr_ui_perf_open_set", "mr_ui_perf_popup",
             "mr_ui_perf_app_key", "mr_ui_perf_app_sugg", "mr_ui_perf_app_open", "mr_ui_perf_app_other",
             "mr_ui_perf_popup_build", "mr_ui_perf_popup_show", "mr_ui_perf_sel", "mr_ui_perf_msg",
-            "mr_ui_perf_app_sel", "mr_ui_perf_app_msg" };
+            "mr_ui_perf_app_sel", "mr_ui_perf_app_msg", "mr_ui_perf_echo_cut", "mr_ui_perf_echo_full" };
     /** Names of the kinds in the log line. */
     static final String[] LOG = { "create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
             "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
-            "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg" };
+            "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg",
+            "echo-cut", "echo-full" };
 
     private static final int[] sRing = new int[KINDS * SIZE];
     private static final int[] sCount = new int[KINDS];
@@ -208,6 +212,11 @@ public final class MrPerf {
     /** LatinIME$1.handleMessage: one delayed message of the keyboard handled. */
     public static void msgBegin() { begin(MSG); }
     public static void msgEnd() { end(MSG); }
+    /** LatinIME.mrEchoTouchingWord: the short check after the echo of our own separator, and the full check. */
+    public static void echoCutBegin() { begin(ECHO_CUT); }
+    public static void echoCutEnd() { end(ECHO_CUT); }
+    public static void echoFullBegin() { begin(ECHO_FULL); }
+    public static void echoFullEnd() { end(ECHO_FULL); }
 
     /** LatinKeyboardView.onTouchEvent, first line: how late a finger down (first or another) reached the keyboard. */
     public static void touch(MotionEvent e) {

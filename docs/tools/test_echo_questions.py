@@ -64,6 +64,8 @@ class Host:
         self.questions = []         # "before" / "after", in order
         self.pairs = [0, 0]         # appBegin, appEnd
         self.sel = [0, 0]           # selBegin, selEnd
+        self.cut = [0, 0]           # echoCutBegin, echoCutEnd (the short check)
+        self.full = [0, 0]          # echoFullBegin, echoFullEnd (the full check)
         self.calls = []
         self.ic = dm.Obj(IC)
         self.state_obj = dm.Obj("Lcom/mrkeyboard/app/TextEntryState$State;")
@@ -106,7 +108,8 @@ class Host:
             self.calls.append(name)
             return 1
         if cls == "Lcom/mrkeyboard/app/MrPerf;":
-            idx = {"appBegin": (self.pairs, 0), "appEnd": (self.pairs, 1), "selBegin": (self.sel, 0), "selEnd": (self.sel, 1)}
+            idx = {"appBegin": (self.pairs, 0), "appEnd": (self.pairs, 1), "selBegin": (self.sel, 0), "selEnd": (self.sel, 1),
+                   "echoCutBegin": (self.cut, 0), "echoCutEnd": (self.cut, 1), "echoFullBegin": (self.full, 0), "echoFullEnd": (self.full, 1)}
             if name in idx:
                 idx[name][0][idx[name][1]] += 1
             return None
@@ -153,7 +156,7 @@ class Host:
 
     def reset_count(self):
         self.questions, self.calls = [], []
-        self.pairs, self.sel = [0, 0], [0, 0]
+        self.pairs, self.sel, self.cut, self.full = [0, 0], [0, 0], [0, 0], [0, 0]
 
     def after_echo(self):
         """What the echo did to the suggestions."""
@@ -173,6 +176,7 @@ check("the echo of that space: ONE question to the app (the character after the 
 check("... the answer is the same as before (nothing after the cursor: no word touched, next suggestions)", h.after_echo() == "next", h.calls)
 check("... every question is timed (begin/end pairs) and the reaction to the selection is timed once", h.pairs == [1, 1] and h.sel == [1, 1], (h.pairs, h.sel))
 check("... the note is consumed", h.ime.f["mMrSepAt"] == 0 and h.ime.f["mMrSepHit"] == 0)
+check("... the meter counts it as a short check (one), not as a full one", h.cut == [1, 1] and h.full == [0, 0], (h.cut, h.full))
 
 # 2. the same echo without the note (the keyboard did not type the separator): the full check, two questions as before
 h = Host("hello ")
@@ -181,6 +185,7 @@ h.reset_count()
 h.echo()
 check("the same echo with no note (another way of getting there): the full check, two questions, same answer",
       h.questions == ["before", "after"] and h.after_echo() == "next", (h.questions, h.after_echo()))
+check("... the meter counts it as a full check (one), not as a short one", h.full == [1, 1] and h.cut == [0, 0], (h.cut, h.full))
 
 # 3. a word after the cursor: the right check still sees it
 h = Host("helloworld", cursor=5)

@@ -42,7 +42,7 @@ public class PerfTest {
             {"mr_ui_perf_app_open", "App in an open"}, {"mr_ui_perf_app_other", "App elsewhere"},
             {"mr_ui_perf_popup_build", "Popup build"}, {"mr_ui_perf_popup_show", "Popup show"},
             {"mr_ui_perf_sel", "Selection change"}, {"mr_ui_perf_msg", "Message"}, {"mr_ui_perf_app_sel", "App in a selection change"},
-            {"mr_ui_perf_app_msg", "App in a message"}, {"mr_ui_perf_frame_gpu", "Frame (GPU)"}, {"mr_ui_perf_frame_cpu", "Frame (CPU)"},
+            {"mr_ui_perf_app_msg", "App in a message"}, {"mr_ui_perf_echo_cut", "Echo short check"}, {"mr_ui_perf_echo_full", "Echo full check"}, {"mr_ui_perf_frame_gpu", "Frame (GPU)"}, {"mr_ui_perf_frame_cpu", "Frame (CPU)"},
             {"mr_ui_perf_stat", "%1$s: average %2$s ms · p95 %3$s · max %4$s (%5$d×)"}, {"mr_ui_perf_one", "%1$s: %2$s ms (once)"},
             {"mr_ui_perf_none", "Nothing measured yet."}, {"mr_ui_perf_mem", "Memory: Java %1$s · native %2$s"},
             {"mr_ui_perf_reset", "Tap to start again from zero."}};
@@ -179,6 +179,10 @@ public class PerfTest {
                 st(MrPerf.SEL)[4] + "," + st(MrPerf.MSG)[4]);
         MrPerf.selEnd(); MrPerf.msgEnd();
         check("an end with no begin is ignored (selection, message)", "1,1", st(MrPerf.SEL)[0] + "," + st(MrPerf.MSG)[0]);
+        MrPerf.echoCutBegin(); tick(1800); MrPerf.echoCutEnd();
+        MrPerf.echoFullBegin(); tick(5200); MrPerf.echoFullEnd();
+        check("the short and the full check of the selection echo go to their kinds", "1800,5200",
+                st(MrPerf.ECHO_CUT)[4] + "," + st(MrPerf.ECHO_FULL)[4]);
 
         // ---------------------------------------------------------------- the wait for the app by where it is asked
         MrPerf.reset();
@@ -206,6 +210,10 @@ public class PerfTest {
         MrPerf.selBegin(); tick(10);
         MrPerf.appBegin(); tick(350); MrPerf.appEnd();
         check("inside the reaction to a selection change: APP_SEL", "1,350", st(MrPerf.APP_SEL)[0] + "," + st(MrPerf.APP_SEL)[4]);
+        MrPerf.echoCutBegin(); tick(10);
+        MrPerf.appBegin(); tick(355); MrPerf.appEnd();
+        check("inside the short check of the echo (inside a selection change): still APP_SEL, the echo kinds are not places", 2, st(MrPerf.APP_SEL)[0]);
+        MrPerf.echoCutEnd();
         MrPerf.selEnd();
         MrPerf.msgBegin(); tick(10);
         MrPerf.appBegin(); tick(450); MrPerf.appEnd();
@@ -214,7 +222,7 @@ public class PerfTest {
         MrPerf.appBegin(); tick(460); MrPerf.appEnd();
         check("the suggestions inside a message (began later): APP_SUGG, not APP_MSG", "1,2", st(MrPerf.APP_MSG)[0] + "," + st(MrPerf.APP_SUGG)[0]);
         MrPerf.suggEnd(); MrPerf.msgEnd();
-        check("each wait still once in APP and once in one place", "8,8",
+        check("each wait still once in APP and once in one place", "9,9",
                 st(MrPerf.APP)[0] + "," + (st(MrPerf.APP_KEY)[0] + st(MrPerf.APP_SUGG)[0] + st(MrPerf.APP_OPEN)[0] + st(MrPerf.APP_OTHER)[0]
                         + st(MrPerf.APP_SEL)[0] + st(MrPerf.APP_MSG)[0]));
         MrPerf.reset();
@@ -323,7 +331,7 @@ public class PerfTest {
                 "Handle a key", "Touch wait", "Questions to the app", "Suggestions", "Key letter", "Key separator", "Key delete",
                 "Key other", "Suggestions engine", "Suggestions strip", "Open keyboard", "Open settings", "Popup",
                 "App in a key", "App in suggestions", "App in an open", "App elsewhere", "Popup build", "Popup show",
-                "Selection change", "Message", "App in a selection change", "App in a message"};
+                "Selection change", "Message", "App in a selection change", "App in a message", "Echo short check", "Echo full check"};
         boolean inOrder = true;
         for (int k = 0; k < order.length; k++) inOrder &= lines[k].startsWith(order[k] + ": average " + (k + 1) + ".0 ms");
         check("in the order of the kinds", inOrder);

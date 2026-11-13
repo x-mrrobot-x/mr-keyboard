@@ -249,6 +249,11 @@
 # True only while the selection report being handled is the echo of the keyboard's own separator.
 .field private mMrSepHit:Z
 
+# Caps question cut (docs/plan-performance.md stage 6): true only inside handleCharacter, from the letter typed until the shift
+# state is updated: the character before the cursor is that letter. TextUtils.getCapsMode gives 0 in the middle of a word, so
+# asking the app is pointless then. It never outlives the key.
+.field private mMrLetter:Z
+
 .field private mMetaKeyState:Lcom/mrkeyboard/app/ModifierKeyState;
 
 .field private mModAlt:Z
@@ -1959,6 +1964,21 @@
     .line 1353
     iget p2, p2, Landroid/view/inputmethod/EditorInfo;->inputType:I
 
+    # Caps question cut: a letter typed by the keyboard is right before the cursor and the field does not ask for all capitals
+    # (0x1000): what the app answers in the middle of a word is 0 (TextUtils.getCapsMode), so it is not asked.
+    iget-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrLetter:Z
+
+    if-eqz v1, :cond_mr_ask
+
+    and-int/lit16 v1, p2, 0x1000
+
+    if-nez v1, :cond_mr_ask
+
+    const/4 p1, 0x0
+
+    goto :goto_0
+
+    :cond_mr_ask
     # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
@@ -2717,6 +2737,12 @@
 
     if-nez v0, :cond_1
 
+    # Question cut: while a word is already being predicted the answer of isCursorTouchingWord changes nothing (the block below
+    # needs mPredicting to be false too), so the app is not asked.
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
+
+    if-nez v0, :cond_1
+
     .line 2297
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isCursorTouchingWord()Z
 
@@ -2874,11 +2900,17 @@
 
     .line 2333
     :goto_0
+    # Caps question cut: notes that the character before the cursor is the letter just typed (for updateShiftKeyState below).
+    invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->mrLetterTyped(I)V
+
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputEditorInfo()Landroid/view/inputmethod/EditorInfo;
 
     move-result-object p2
 
     invoke-virtual {p0, p2}, Lcom/mrkeyboard/app/LatinIME;->updateShiftKeyState(Landroid/view/inputmethod/EditorInfo;)V
+
+    # Caps question cut: the note is only for the update just made.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrLetterDone()V
 
     int-to-char p2, p1
 
@@ -3851,6 +3883,49 @@
     return-void
 .end method
 
+.method private mrLetterTyped(I)V
+    .locals 2
+
+    # Caps question cut (docs/plan-performance.md stage 6): after a letter typed by the keyboard (no Ctrl, Alt or Meta, so it is
+    # text) the character before the cursor is that letter. A digit or a symbol does not count (they can go as key events).
+    const/4 v0, 0x0
+
+    invoke-static {p1}, Ljava/lang/Character;->isLetter(I)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_set
+
+    iget-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mModCtrl:Z
+
+    if-nez v1, :cond_set
+
+    iget-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mModAlt:Z
+
+    if-nez v1, :cond_set
+
+    iget-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mModMeta:Z
+
+    if-nez v1, :cond_set
+
+    const/4 v0, 0x1
+
+    :cond_set
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrLetter:Z
+
+    return-void
+.end method
+
+.method private mrLetterDone()V
+    .locals 1
+
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrLetter:Z
+
+    return-void
+.end method
+
 .method private mrSepEcho(II)V
     .locals 2
 
@@ -3887,9 +3962,15 @@
 
     if-nez v0, :cond_hit
 
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->echoFullBegin()V
+
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isCursorTouchingWord()Z
 
     move-result v0
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->echoFullEnd()V
 
     return v0
 
@@ -3907,9 +3988,15 @@
     return v0
 
     :cond_ic
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->echoCutBegin()V
+
     invoke-direct {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->mrTouchingRight(Landroid/view/inputmethod/InputConnection;)Z
 
     move-result v0
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->echoCutEnd()V
 
     return v0
 .end method

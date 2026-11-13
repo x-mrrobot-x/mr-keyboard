@@ -78,6 +78,8 @@
     <string name="mr_ui_perf_msg">Handle a keyboard message</string>
     <string name="mr_ui_perf_app_sel">Wait for the app: on a selection change</string>
     <string name="mr_ui_perf_app_msg">Wait for the app: in a message</string>
+    <string name="mr_ui_perf_echo_cut">Selection echo: one question (own separator)</string>
+    <string name="mr_ui_perf_echo_full">Selection echo: full check</string>
     <string name="mr_ui_perf_frame_gpu">Draw a frame (GPU: recording only)</string>
     <string name="mr_ui_perf_frame_cpu">Draw a frame (CPU: whole drawing)</string>
     <string name="mr_ui_cat_haptic">Vibration</string>

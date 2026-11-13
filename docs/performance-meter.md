@@ -30,6 +30,7 @@ measured is not shown.
 | Popup: put the variants together | inside "Open the long-press popup": the variants of the key built (`Key.getPopupKeyboard`). Only when the popup of that key was not kept from before, so its count against the count of the popup line is how many long presses found the variants ready | `LatinKeyboardBaseView.getLongPressKeyboard` |
 | Popup: show the window | inside "Open the long-press popup": the popup window shown (`PopupWindow.showAtLocation`, a call to the system) | `LatinKeyboardBaseView.onLongPress` |
 | Selection change | the keyboard's reaction when the app reports a new cursor or selection (after every key typed, and when the user moves the cursor). Includes the questions it asks the app back | `LatinIME.onUpdateSelection` |
+| Selection echo: one question / full check | inside "Selection change": the check "is the cursor touching a word" after a new selection. **One question**: the report was the echo of a separator the keyboard typed itself, so only the character after the cursor was asked. **Full check**: any other report (another cursor position, a selection, a key typed in between, no separator of ours). The count of each line says how many echoes took each way | `LatinIME.mrEchoTouchingWord` |
 | Message | the work of the keyboard's own delayed messages (the shift state, the suggestions after a key) | `LatinIME$1.handleMessage` |
 | Wait for the app: inside a key / in the suggestions / when opening / in a selection change / in a message / at other times | the same waits as "Wait for the app", counted again by where they are asked: inside a key (not in its suggestions), inside the suggestions, inside an open, inside the reaction to a selection change, inside a message, and anywhere else. The innermost piece of work under way decides, so a wait is in "Wait for the app" and in exactly one of the six. A piece of work that began more than 10 s ago and never ended is not taken as the place | `MrPerf.appEnd` |
 
@@ -63,6 +64,19 @@ keyboard used to ask two questions (the character before the cursor and the one 
 keyboard's own separator should have put it, it asks only for the character after. In any other case (another position, a selection,
 another key typed in between, no separator typed by us) the full check runs as before. `docs/tools/test_echo_questions.py` counts the
 questions on the PC with the real smali.
+
+For each letter typed the keyboard asked two things; both are cut now, with the same counting test (`docs/tools/test_letter_questions.py`):
+
+- "Is the cursor touching a word" (before and after the cursor) was asked for every letter, even in the middle of a word, where the
+  answer changes nothing (the code it guards also needs "no word being predicted"). It is now asked only when no word is being
+  predicted, that is, for the first letter of a word. This does not depend on the app.
+- The capital letter question (`getCursorCapsMode`, after each letter) is skipped while the keyboard knows the character before
+  the cursor is the letter it has just typed (a letter, no Ctrl/Alt/Meta; the note lasts only while that key is handled) and the
+  field does not ask for all capitals. In the middle of a word the answer of a normal editor is 0 (`TextUtils.getCapsMode`);
+  fields that ask for all capitals, digits, symbols, gestures and every other case ask as before. One edge: a field that refuses the
+  letter (full to its maximum length) would show the shift state of a typed letter on the next key.
+- Typing "hello" in an empty field with the capital at the start of a sentence, on a simulated app: 4+2+2+2+2 = 12 questions in the
+  previous build, 3+0+0+0+0 = 3 now (the first letter still asks, as it decides whether the word starts a sentence).
 
 Tests: `docs/tools/perf_test/PerfTest.java` (the Java, in `run_java_tests.sh`), `docs/tools/test_perf_meter.py` (the smali in the
 mini Dalvik interpreter and every call in the keyboard, in `mr-checks.yml`), `docs/tools/test_open_selection.py` (the selection when

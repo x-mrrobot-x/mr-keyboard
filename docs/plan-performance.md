@@ -188,3 +188,17 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   (waits for the frame line to show the mode on other phones).
   Next: the owner resets the meter and types words with spaces and punctuation in a chat and a long field; the waits counted in "Wait for the
   app: in a selection change" per separator should be one fewer than before (the previous word for the suggestions is still asked).
+- Stage 6, fourth part: the meter says how many selection echoes took the short check ("Selection echo: one question") and how many the
+  full one. Reading of the first run of the five-app test (one sentence typed in each): letters 1.9 ms, space/punctuation/Enter 17.6 ms
+  (95 % at 45 ms), 986 waits for the app inside 725 keys, 366 waits inside 737 reactions to a selection change (131 separators), a
+  single wait of 242.6 ms on opening one app. Cut in this stage, counted by `docs/tools/test_letter_questions.py`: for every letter the
+  keyboard asked "is the cursor touching a word" (also in the middle of a word, where the answer changes nothing) and the caps mode.
+  Now the first is asked only when no word is being predicted (no assumption about the app) and the second is skipped while the
+  character before the cursor is the letter just typed and the field does not ask for all capitals. On a simulated app, a five-letter
+  word went from 12 questions to 3. What is left per separator inside the key (guess: about three): the caps mode after the
+  separator, `doubleSpace` (the three characters before the cursor, at every space) and `swapPunctuationAndSpace` after a word
+  accepted from the strip. Candidates for the next stage: `doubleSpace` and the swap only when the previous key was a separator the
+  keyboard typed itself, the popup window (18 ms, a system call), `getSurroundingText` on Android 12+.
+  Next: the owner resets the meter and types the same sentence in the same five apps; the count of "Wait for the app: inside a key"
+  per key and of "in a selection change" per separator should be lower than in the last run, and the two echo lines say how many
+  echoes took the short way.

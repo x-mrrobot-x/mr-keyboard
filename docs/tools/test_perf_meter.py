@@ -55,7 +55,7 @@ TEXTS = {
     "mr_ui_perf_open_kb": "OpenKb", "mr_ui_perf_open_set": "OpenSet", "mr_ui_perf_popup": "Popup",
     "mr_ui_perf_app_key": "AppKey", "mr_ui_perf_app_sugg": "AppSugg", "mr_ui_perf_app_open": "AppOpen", "mr_ui_perf_app_other": "AppOther",
     "mr_ui_perf_popup_build": "PopupBuild", "mr_ui_perf_popup_show": "PopupShow", "mr_ui_perf_sel": "Sel", "mr_ui_perf_msg": "Msg",
-    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
+    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
     "mr_ui_perf_stat": "%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)",
     "mr_ui_perf_one": "%1$s: %2$s ms", "mr_ui_perf_none": "Nothing yet.", "mr_ui_perf_mem": "Memory: Java %1$s · native %2$s",
     "mr_ui_perf_reset": "Tap to reset."}
@@ -219,10 +219,11 @@ def j(a):
 
 KINDS = ["create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
          "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
-         "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg"]
+         "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg",
+         "echo-cut", "echo-full"]
 N = len(KINDS)
 CREATE, VIEW, OPEN, SHOWN, FRAME, KEY, TOUCH, APP_, SUGG, KEY_LETTER, KEY_SEP, KEY_DEL, KEY_OTHER, SUGG_ENGINE, SUGG_SHOW, \
-    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW, SEL, MSG, APP_SEL, APP_MSG = range(N)
+    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW, SEL, MSG, APP_SEL, APP_MSG, ECHO_CUT, ECHO_FULL = range(N)
 
 # ======================================================================== part 1: the smali of MrPerf
 fw = Fw()
@@ -273,7 +274,8 @@ for begin, end, kind, us in (("createBegin", "createEnd", CREATE, 180000), ("vie
                              ("openKbBegin", "openKbEnd", OPEN_KB, 6000), ("openSetBegin", "openSetEnd", OPEN_SET, 1500),
                              ("popupBegin", "popupEnd", POPUP, 9000), ("popupBuildBegin", "popupBuildEnd", POPUP_BUILD, 4500),
                              ("popupShowBegin", "popupShowEnd", POPUP_SHOW, 7000), ("selBegin", "selEnd", SEL, 2500),
-                             ("msgBegin", "msgEnd", MSG, 3500)):
+                             ("msgBegin", "msgEnd", MSG, 3500), ("echoCutBegin", "echoCutEnd", ECHO_CUT, 1800),
+                             ("echoFullBegin", "echoFullEnd", ECHO_FULL, 5200)):
     fw.run(begin + "()V"); fw.tick(us); fw.run(end + "()V")
     check("%s/%s go to their kind" % (begin, end), fw.stats(kind)[4] == us, fw.stats(kind))
 
@@ -357,6 +359,14 @@ fw.run("selEnd()V"); fw.run("msgEnd()V")
 check("an end with no begin is ignored (selection, message)", fw.stats(SEL)[0] == 0 and fw.stats(MSG)[0] == 0)
 fw.run("reset()V")
 
+# the two ways of the echo check are inside the reaction to a selection change: the waits in them are APP_SEL (they are not places)
+fw.run("reset()V")
+fw.run("selBegin()V"); fw.tick(10); fw.run("echoCutBegin()V"); fw.tick(10); wait(330)
+check("a wait inside the short check of the echo: APP_SEL, the echo kinds are not places", only(APP_SEL, 330), [fw.stats(k) for k in (APP_,) + PLACES])
+fw.run("echoCutEnd()V"); fw.run("echoFullBegin()V"); fw.tick(10); wait(340); fw.run("echoFullEnd()V"); fw.run("selEnd()V")
+check("... and in the full check", fw.stats(APP_SEL)[0] == 2 and fw.stats(APP_SEL)[4] == 340, [fw.stats(k)[0] for k in PLACES])
+fw.run("reset()V")
+
 # a piece of work that lost its end must not take every later wait
 fw.run("reset()V"); fw.set_nanos(100000000000)
 fw.run("keyBegin(I)V", 97); fw.tick(10000000)          # 10 s later
@@ -436,7 +446,7 @@ fw.fill(scr)
 lines = row.f["summary"].split("\n")
 names = ["Start", "View", "Open", "Shown", "Frame", "Key", "Touch", "App", "Sugg", "KeyLetter", "KeySep", "KeyDel", "KeyOther",
          "SuggEngine", "SuggShow", "OpenKb", "OpenSet", "Popup", "AppKey", "AppSugg", "AppOpen", "AppOther", "PopupBuild", "PopupShow",
-         "Sel", "Msg", "AppSel", "AppMsg"]
+         "Sel", "Msg", "AppSel", "AppMsg", "EchoCut", "EchoFull"]
 check("every kind in order, then memory and reset", len(lines) == N + 2
       and all(lines[k].startswith("%s: average %d.0 ms" % (names[k], k + 1)) for k in range(N)), lines)
 # the frame line says what a frame measures, by how this device draws the window (MrAccel.state: 0 unknown, 1 GPU, 2 CPU)
@@ -542,6 +552,14 @@ for name, head, begin, end in (("LatinIME.smali", "public onCreateInputView()", 
     good, info = wrapped(name, head, begin, end)
     check("%s %s: %s first, %s before every return" % (name[:-6], head.split("(")[0].split()[-1], begin, end), good, info)
 
+c = code(body("LatinIME.smali", "private mrEchoTouchingWord()Z"))
+i_full = next(k for k, l in enumerate(c) if l == "invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isCursorTouchingWord()Z")
+i_cut = next(k for k, l in enumerate(c) if "->mrTouchingRight(" in l)
+check("mrEchoTouchingWord: the full check is timed (echoFull) and so is the short one (echoCut), each around its call only",
+      c[i_full - 1] == CALL + "echoFullBegin()V" and c[i_full + 1].startswith("move-result") and c[i_full + 2] == CALL + "echoFullEnd()V"
+      and c[i_cut - 1] == CALL + "echoCutBegin()V" and c[i_cut + 1].startswith("move-result") and c[i_cut + 2] == CALL + "echoCutEnd()V"
+      and c.count(CALL + "echoFullBegin()V") == 1 and c.count(CALL + "echoCutBegin()V") == 1, (c[i_full - 1:i_full + 3], c[i_cut - 1:i_cut + 3]))
+
 c = code(body("LatinIME.smali", "public onKey(I[III)V"))
 rets = [i for i, l in enumerate(c) if l.startswith("return")]
 check("onKey: keyBegin gets the primary code (p1) as the first call, keyEnd before every return",
@@ -644,7 +662,7 @@ for f in os.listdir(APP):
     if f.endswith(".smali") and not f.startswith("MrPerf"):
         called |= set(re.findall(re.escape(PERF) + r"->(\w+\([^)]*\)\S+)", open(os.path.join(APP, f), encoding="utf-8").read()))
 missing = [m for m in sorted(called) if not re.search(r"\.method public static " + re.escape(m) + r"\n", perf_src)]
-check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 35,
+check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 39,
       (missing, len(called)))
 
 xml = open(os.path.join(ROOT, "res", "xml", "prefs_advanced.xml"), encoding="utf-8").read()
