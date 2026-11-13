@@ -5,7 +5,7 @@ Run it from the project root:  python3 -I docs/tools/test_sugg_idle.py
 
 It runs the REAL smali of MrSugg (onList, arm, idleMs, stripShown, expire, mode, schedule, cancel) in the mini Dalvik interpreter (dalvik_mini.py) with a
 fake Handler on a virtual clock, fake preferences and a fake MrTools (what applyMain does is recorded as "the screen": the state in view changes only when
-applyMain is called, as in the app, so a missing call shows up), and the real smali of MrTools.toggleBar.
+applyMain is called, as in the app, so a missing call shows up).
 
 The rules (see the header of MrSugg.smali and docs/suggestion-features.md, "Strip or tools in the row"):
   - typing (a list of the word being typed, corrected or swiped) brings the strip back at once, if the row is visible and no tool owns it;
@@ -13,7 +13,9 @@ The rules (see the header of MrSugg.smali and docs/suggestion-features.md, "Stri
     (3 by default, 0 = off); each new end of word restarts it; typing cancels it; at the end the tools take the row and stay until the next typing;
   - the debounce never runs for a strip that is not on screen (a tool owns the row, the row is hidden by the bar key);
   - an empty list with the strip on screen keeps it for 1 s before the tools come back;
-  - the bar key only shows/hides the row.
+  - a strip that comes into view without a new list (created after the list, the row shown again by the bar key) starts the debounce (rearm), unless
+    its list belongs to a word being typed;
+  - the grid key is tested in test_grid_key.py.
 """
 import os
 import sys
@@ -127,6 +129,7 @@ def setup(pref=None):
     vm.statics["sHost"] = dm.Obj("Landroid/view/ViewGroup;")
     vm.statics["sHas"] = 0
     vm.statics["sIdle"] = 0
+    vm.statics["sTyping"] = 0
     vm.statics["sWait"] = 0
     host.draw()
     return vm, host
@@ -231,6 +234,69 @@ host.bar_on = 1
 host.draw()
 check("the bar key shows the row again: suggestions are there, so the strip", host.screen == "strip")
 
+# ---- the row shown again by the bar key: the debounce starts for the strip that comes back (MrTools.toggleBar calls rearm)
+vm, host = setup()
+host.bar_on = 0
+host.draw()
+type_word(vm, host)
+end_word(vm, host)
+host.bar_on = 1
+host.draw()
+vm.run("rearm()V", [])
+check("row hidden, a list of the next words arrived, the bar key shows the row: the debounce starts now", host.screen == "strip" and host.pending is not None and host.pending[0] == host.now + 3000, host.pending)
+host.advance(3000)
+check("... and 3 s later the tools take the row", host.screen == "tools" and vm.statics["sIdle"] == 1)
+vm, host = setup()
+host.bar_on = 0
+host.draw()
+type_word(vm, host)
+host.bar_on = 1
+host.draw()
+vm.run("rearm()V", [])
+check("row hidden, the word being typed, the row shown again: the strip stays, no debounce", host.screen == "strip" and host.pending is None, host.pending)
+vm, host = setup()
+vm.run("rearm()V", [])
+check("rearm with no suggestions: nothing starts", host.pending is None)
+vm, host = setup()
+type_word(vm, host)
+end_word(vm, host)
+host.advance(3000)
+vm.run("rearm()V", [])
+check("rearm with the tools in view (the debounce already ended): nothing starts", host.screen == "tools" and host.pending is None)
+vm, host = setup()
+type_word(vm, host)
+end_word(vm, host)
+host.advance(1000)
+vm.run("rearm()V", [])
+check("rearm restarts the 3 s from now", host.pending[0] == host.now + 3000, host.pending)
+vm, host = setup()
+host.row_owned = 1
+host.draw()
+end_word(vm, host)
+vm.run("rearm()V", [])
+check("rearm while a tool owns the row: nothing starts", host.pending is None and host.screen == "owned", (host.pending, host.screen))
+vm, host = setup(pref="0")
+host.bar_on = 0
+host.draw()
+end_word(vm, host)
+host.bar_on = 1
+host.draw()
+vm.run("rearm()V", [])
+check("rearm with the setting off: no debounce", host.pending is None)
+
+# ---- a strip created AFTER the list (a new field: LatinIME.onCreateCandidatesView -> MrSugg.host) gets the debounce too
+vm, host = setup()
+vm.statics["sContainer"] = None
+host.draw()
+end_word(vm, host)          # the initial suggestions (Você, Eu, Não) arrive; there is no strip yet
+check("list before the strip exists: the tools, no debounce", host.screen == "tools" and host.pending is None)
+vm.statics["sContainer"] = dm.Obj("Landroid/view/View;")      # the strip is created ...
+host.draw()
+vm.run("rearm()V", [])                                       # ... and host() calls rearm after attach/applyMain
+check("the strip is created: the initial suggestions show and the debounce starts", host.screen == "strip" and host.pending is not None and host.pending[0] == host.now + 3000, (host.screen, host.pending))
+host.advance(3000)
+check("... and 3 s later the tools take the row", host.screen == "tools")
+
 # ---- the setting
 for value, expect in (("0", None), ("1", 1000), ("2", 2000), ("5", 5000), ("8", 8000), ("10", 10000), ("abc", 3000), ("", 3000), ("-4", None)):
     vm, host = setup(pref=value)
@@ -296,75 +362,9 @@ type_word(vm, host)
 end_word(vm, host)
 check("no strip hosted: the tools, and no debounce", host.screen == "tools" and host.pending is None)
 
-# ---- the bar key: MrTools.toggleBar only shows/hides the row (real smali)
-methods = dm.parse_methods(os.path.join(ROOT, "smali", "com", "mrkeyboard", "app", "MrTools.smali"))
+# ---- the bar key does not call the old switch between tools and suggestions (the grid key is tested in test_grid_key.py)
 src = open(os.path.join(ROOT, "smali", "com", "mrkeyboard", "app", "MrTools.smali"), encoding="utf-8").read()
 check("MrTools.toggleBar no longer calls MrSugg.onBarKey", "onBarKey" not in src)
-
-
-class ToolsHost:
-    def __init__(self):
-        self.sugg_calls = []
-        self.mode = 2
-
-    def sget(self, cls, name):
-        raise AssertionError("static of another class: %s.%s" % (cls, name))
-
-    def new_instance(self, cls):
-        raise AssertionError(cls)
-
-    def instance_of(self, obj, cls):
-        if cls == "Ljava/lang/String;":
-            return isinstance(obj, str)
-        return isinstance(obj, dm.Obj) and obj.cls == cls
-
-    def invoke(self, vm, op, target, args):
-        cls, _, mem = target.partition("->")
-        if cls == SUGG:
-            self.sugg_calls.append(mem)
-            if mem == "mode(Z)I":
-                return self.mode if args[0] else 0
-            if mem == "applyInner(IZ)V":
-                return None
-            raise AssertionError("toggleBar called MrSugg: " + mem)
-        if mem == "getParent()Landroid/view/ViewParent;":
-            return args[0].f["parent"]
-        if mem == "getChildCount()I":
-            return len(args[0].f["kids"])
-        if mem == "getChildAt(I)Landroid/view/View;":
-            return args[0].f["kids"][args[1]]
-        if mem == "getVisibility()I":
-            return args[0].f["vis"]
-        if mem == "setVisibility(I)V":
-            args[0].f["vis"] = args[1]
-            return None
-        if mem == "getTag()Ljava/lang/Object;":
-            return args[0].f["tag"]
-        if mem == "startsWith(Ljava/lang/String;)Z":
-            return 1 if args[0].startswith(args[1]) else 0
-        raise AssertionError("not faked: " + target)
-
-
-th = ToolsHost()
-tvm = dm.VM(TOOLS_CLS, methods, th)
-root = dm.Obj("Landroid/view/ViewGroup;", vis=0, tag="root", parent=None, kids=[])
-main = dm.Obj("Landroid/view/View;", vis=0, tag="bar_main", parent=root, kids=[])
-head = dm.Obj("Landroid/view/View;", vis=8, tag="bar_fonts", parent=root, kids=[])
-root.f["kids"] = [main, head]
-tvm.statics["sBarMain"] = main
-tvm.statics["sBarOn"] = 1
-tvm.statics["sPrefs"] = None
-tvm.run("toggleBar()V", [])
-check("bar key, row visible with suggestions available: the whole row is hidden (not a switch to the tools)",
-      tvm.statics["sBarOn"] == 0 and main.f["vis"] == 8, (tvm.statics["sBarOn"], main.f["vis"]))
-tvm.run("toggleBar()V", [])
-check("bar key again: the row is back, in the group MrSugg chooses", tvm.statics["sBarOn"] == 1 and main.f["vis"] == 0)
-head.f["vis"] = 0
-tvm.run("toggleBar()V", [])
-tvm.run("toggleBar()V", [])
-check("bar key with a tool using the row: the row stays hidden (the tool owns it)", tvm.statics["sBarOn"] == 1 and main.f["vis"] == 8,
-      (tvm.statics["sBarOn"], main.f["vis"]))
-check("toggleBar asked MrSugg only for the mode of the row", set(th.sugg_calls) <= {"mode(Z)I", "applyInner(IZ)V"}, sorted(set(th.sugg_calls)))
 
 print("%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

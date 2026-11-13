@@ -467,11 +467,138 @@
     return-void
 .end method
 
+# True when a tool is open: a header beside bar_main (rowOwned: clipboard, translator, attachments, emojis, fonts, emoji search,
+# Customize...), the AI Editor dialog or the Customize dialog (windows over the keyboard, with the bar still in view).
+.method static toolOpen()Z
+    .locals 2
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->rowOwned()Z
+
+    move-result v0
+
+    if-nez v0, :cond_yes
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->isShowing()Z
+
+    move-result v0
+
+    if-nez v0, :cond_yes
+
+    sget-object v0, Lcom/mrkeyboard/app/MrTune;->sDlg:Landroid/app/Dialog;
+
+    if-eqz v0, :cond_nodlg
+
+    invoke-virtual {v0}, Landroid/app/Dialog;->isShowing()Z
+
+    move-result v0
+
+    if-nez v0, :cond_yes
+
+    :cond_nodlg
+    sget-boolean v0, Lcom/mrkeyboard/app/MrTune;->sOn:Z
+
+    if-nez v0, :cond_yes
+
+    const/4 v0, 0x0
+
+    return v0
+
+    :cond_yes
+    const/4 v0, 0x1
+
+    return v0
+.end method
+
+# Ends whatever tool is open, as its own back button does, so that nothing is left running or in memory (the emoji search drops its words,
+# the attachments clear the selection, the translator hands back the field, the dialogs are dismissed). Each tool is closed through the same
+# path as its back button: MrTune.close, MrAiDialog.dismiss, leave(true) for the translator and showPanel(0) for the panels (the hooks of
+# showPanel end Fonts, the emoji search, the attachments and the emojis).
+.method static closeTools()V
+    .locals 2
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->isShowing()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_ct_ai
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->dismiss()V
+
+    :cond_ct_ai
+    sget-object v0, Lcom/mrkeyboard/app/MrTune;->sDlg:Landroid/app/Dialog;
+
+    if-nez v0, :cond_ct_tune
+
+    sget-boolean v0, Lcom/mrkeyboard/app/MrTune;->sOn:Z
+
+    if-eqz v0, :cond_ct_bart
+
+    :cond_ct_tune
+    invoke-static {}, Lcom/mrkeyboard/app/MrTune;->close()V
+
+    :cond_ct_bart
+    sget-object v0, Lcom/mrkeyboard/app/MrTools;->sBarT:Landroid/view/View;
+
+    if-eqz v0, :cond_ct_panel
+
+    invoke-virtual {v0}, Landroid/view/View;->getVisibility()I
+
+    move-result v0
+
+    if-nez v0, :cond_ct_panel
+
+    const/4 v0, 0x1
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->leave(Z)V
+
+    :cond_ct_panel
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->rowOwned()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_ct_end
+
+    const/4 v0, 0x0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->showPanel(I)V
+
+    :cond_ct_end
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
+
+    return-void
+.end method
+
+# The grid key of the keyboard (LatinIME, key code -306). What it does depends on what is in view:
+#   a tool open (toolOpen)          -> closes it (closeTools, like its back button) and the tools take the row;
+#   the suggestions strip in view   -> the tools take the row (MrSugg.toTools, they stay until the next typing);
+#   the tools in view (or no row)   -> shows/hides the whole row (sBarOn).
 .method public static toggleBar()V
     .locals 2
 
-        # The key only shows/hides the whole row (the one that holds the tools and the suggestions). What goes in the
-        # row, tools or suggestions, is decided by MrSugg from what the user is doing (typing, end of word).
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->toolOpen()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_tb_nottool
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->toTools()V
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->closeTools()V
+
+    return-void
+
+    :cond_tb_nottool
+    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->stripShown()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_tb_row
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->toTools()V
+
+    return-void
+
+    :cond_tb_row
     sget-boolean v0, Lcom/mrkeyboard/app/MrTools;->sBarOn:Z
 
     xor-int/lit8 v0, v0, 0x1
@@ -488,6 +615,9 @@
 
     :cond_tb_nosave
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
+
+    # the row shown again may bring the strip back: the debounce starts for it
+    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->rearm()V
 
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sKbd:Landroid/view/View;
 

@@ -273,8 +273,8 @@ check("...and the dictionary learns it as a picked word", "addToBigramDictionary
 PUNC = ["."]
 
 
-def set_sugg(lst, predicting=0, strip=0, correcting=0):
-    vm, host, this = make({}, mIsShowingHint=0, mCandidateView=None, mSuggestPuncList=PUNC, mPredicting=predicting, mMrStrip=strip)
+def set_sugg(lst, predicting=0, strip=0, correcting=0, nxt=0):
+    vm, host, this = make({}, mIsShowingHint=0, mCandidateView=None, mSuggestPuncList=PUNC, mPredicting=predicting, mMrStrip=strip, mMrNext=nxt)
     host.correcting = correcting
     vm.run("setSuggestions(Ljava/util/List;ZZZ)V", [this, lst, 0, 0, 0])
     return host.onlist
@@ -288,6 +288,13 @@ check("the punctuation list after a space (no prediction): no suggestions", set_
 check("an empty list: no suggestions", set_sugg([]) == [(0, 0)])
 check("no list: no suggestions", set_sugg(None) == [(0, 0)])
 check("an empty list while typing: no suggestions, typing", set_sugg([], predicting=1) == [(0, 1)])
+# the TextEntryState of a re-correction outlives it (only typing resets it): a next-word list is never typing, or the initial suggestions
+# (Você, Eu, Não) shown after a paste or a cursor move would keep the strip for ever, the debounce never starting
+check("the next words (setNextSuggestions) while the state still says correcting: suggestions, NOT typing",
+      set_sugg(["Você", "Eu", "Não"], correcting=1, nxt=1) == [(1, 0)], set_sugg(["Você"], correcting=1, nxt=1))
+check("the next words, state not correcting: suggestions, not typing", set_sugg(["Você", "Eu"], nxt=1) == [(1, 0)])
+check("the punctuation list as next words while the state says correcting: no suggestions, not typing", set_sugg(PUNC, correcting=1, nxt=1) == [(0, 0)])
+check("a re-correction's own list (not next words) is still typing", set_sugg(["ola", "olá"], correcting=1, nxt=0) == [(1, 1)])
 
 # ---- mrStrip: the list of a gesture preview is typing, and only while it is set
 vm, host, this = make({}, mCandidateView=dm.Obj("cv"), mPredicting=0, mMrStrip=0)
@@ -305,6 +312,40 @@ def spy(key, args):
 vm.run = spy
 real("mrStrip(Ljava/util/List;)V", [this, ["casa"]])
 check("mrStrip with a list: setSuggestions runs with the preview flag set, and it is cleared after", seen == [1] and this.f["mMrStrip"] == 0, (seen, this.f["mMrStrip"]))
+
+# ---- setNextSuggestions marks its lists as the next words, only while setSuggestions runs
+def next_flags(predict_list, punc_list):
+    # predict_list: what MrPredict.list returns (None: no prediction, the punctuation list is shown)
+    vm, host, this = make({"clearSuggestions": None, "isPredictionOn": 1}, mCompletionOn=0, mSuggest=dm.Obj("s"), mSuggestPuncList=punc_list, mMrNext=0)
+    seen = []
+    real_run = vm.run
+
+    def spy(key, args):
+        if key.startswith("setSuggestions("):
+            seen.append((args[1], args[0].f["mMrNext"]))
+            return None
+        return real_run(key, args)
+
+    vm.run = spy
+    host.predict = predict_list
+    real_run("setNextSuggestions()V", [this])
+    return seen, this.f["mMrNext"]
+
+
+_orig_invoke = Host.invoke
+
+
+def _invoke(self, vm, op, target, args):
+    if target.startswith("Lcom/mrkeyboard/app/MrPredict;->list("):
+        return getattr(self, "predict", None)
+    return _orig_invoke(self, vm, op, target, args)
+
+
+Host.invoke = _invoke
+seen, after = next_flags(["Você", "Eu", "Não"], ["."])
+check("setNextSuggestions with a prediction: setSuggestions runs with the next-words flag set, cleared after", seen == [(["Você", "Eu", "Não"], 1)] and after == 0, (seen, after))
+seen, after = next_flags(None, ["."])
+check("setNextSuggestions with no prediction (punctuation list): flag set during setSuggestions, cleared after", seen == [(["."], 1)] and after == 0, (seen, after))
 
 print("%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

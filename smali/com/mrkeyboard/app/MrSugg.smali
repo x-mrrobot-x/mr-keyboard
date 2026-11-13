@@ -12,8 +12,9 @@
 # emojis, Customize, Fonts, emoji search...), bar_main is hidden whatever the suggestions do, and LatinIME stops the suggestions flow
 # (LatinIME.suggestionsSuspended). The strip never sits above a tool's header.
 #
-# The bar key (MrTools.toggleBar) only shows/hides the whole row (MrTools.sBarOn). It does not choose between tools and
-# suggestions: that is decided here, by what the user is doing.
+# The grid key (MrTools.toggleBar): with a tool open it closes it, as the tool's back button does, and the tools take the row;
+# with the strip in view the tools take the row (toTools); only with the tools in view it shows/hides the whole row
+# (MrTools.sBarOn). What goes in the row, tools or suggestions, is decided here, by what the user is doing.
 #
 # Row visible (no tool header open):
 #   there are suggestions and the tools were not handed back (sIdle false) -> suggestions
@@ -26,7 +27,9 @@
 # Debounce (setting "pref_sugg_idle", seconds, 0 = off, 3 by default): when the word ends (space, a suggestion picked: the list
 # of the next word arrives) and the strip is on screen, the countdown starts. Each new end of word restarts it. When it runs
 # out the tools take the row again (sIdle) and stay until the user types. The countdown never runs under a tool or with the row
-# hidden, and typing before it ends cancels it.
+# hidden, and typing before it ends cancels it. A strip that comes into view with no new list (created after the list, the row
+# shown again by the grid key) starts it through rearm(), unless its list is of a word being typed (sTyping). The next-word lists
+# (LatinIME.setNextSuggestions) are never typing, whatever TextEntryState still says of an old correction (LatinIME.mMrNext).
 #
 # Delay (hold): when the suggestions end with nothing to show (the list is empty) the strip stays visible for
 # HOLD_MS (1 s) before giving way to the tools. If new suggestions arrive in that interval, the wait is cancelled and the
@@ -51,6 +54,9 @@
 
 # The tools took the row back after the debounce and stay until the user types.
 .field static sIdle:Z
+
+# The last list with suggestions belonged to a word being typed, corrected or swiped (no debounce runs for it).
+.field static sTyping:Z
 
 # Pending timer: 0 = none, 1 = hold (no suggestions, strip still shown), 2 = debounce (waiting to give the row to the tools).
 .field static sWait:I
@@ -195,6 +201,9 @@
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
 
+    # a list that arrived before the strip existed had no strip in view to start the debounce for
+    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->rearm()V
+
     return-void
 .end method
 
@@ -211,6 +220,8 @@
     sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHas:Z
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sIdle:Z
+
+    sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sTyping:Z
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
 
@@ -236,6 +247,8 @@
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHas:Z
+
+    sput-boolean p1, Lcom/mrkeyboard/app/MrSugg;->sTyping:Z
 
     if-eqz p1, :cond_between
 
@@ -310,6 +323,42 @@
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
 
     :cond_end
+    return-void
+.end method
+
+# The strip has just come into view without a list arriving (the strip was created after the list, the row was shown again by the grid
+# key): the debounce starts now if the list in view is between words and the tools did not take the row. A list of a word being typed
+# or corrected keeps the strip, as before. Safe to call at any time: nothing happens when the strip is not on screen.
+.method public static rearm()V
+    .locals 1
+
+    sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHas:Z
+
+    if-eqz v0, :cond_end
+
+    sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sTyping:Z
+
+    if-nez v0, :cond_end
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->arm()V
+
+    :cond_end
+    return-void
+.end method
+
+# The grid key with the strip in view, or a tool just closed by it: the tools take the row and stay until the next typing (as when the
+# debounce ends). Cancels any wait.
+.method static toTools()V
+    .locals 1
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->cancel()V
+
+    const/4 v0, 0x1
+
+    sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sIdle:Z
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
+
     return-void
 .end method
 

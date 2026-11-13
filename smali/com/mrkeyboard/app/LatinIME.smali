@@ -271,6 +271,11 @@
 # The list being shown comes from a gesture's preview (mrStrip): it is typing, for MrSugg.
 .field private mMrStrip:Z
 
+# The list being shown is the next-word list (setNextSuggestions): never typing for MrSugg, even when TextEntryState still says
+# CORRECTING / PICKED_CORRECTION (the state is only reset by typing, so it outlives the correction and, without this flag, a
+# paste or a cursor move after a re-correction would keep the initial suggestions on the strip, the debounce never starting).
+.field private mMrNext:Z
+
 .field private mPredictionOnForMode:Z
 
 .field private mPredictionOnPref:Z
@@ -6473,9 +6478,15 @@
 
     if-eqz v0, :cond_mr_punc
 
+    const/4 v1, 0x1
+
+    iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrNext:Z
+
     const/4 v1, 0x0
 
     invoke-direct {p0, v0, v1, v1, v1}, Lcom/mrkeyboard/app/LatinIME;->setSuggestions(Ljava/util/List;ZZZ)V
+
+    iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrNext:Z
 
     return-void
 
@@ -6483,9 +6494,15 @@
     .line 2789
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggestPuncList:Ljava/util/List;
 
+    const/4 v1, 0x1
+
+    iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrNext:Z
+
     const/4 v1, 0x0
 
     invoke-direct {p0, v0, v1, v1, v1}, Lcom/mrkeyboard/app/LatinIME;->setSuggestions(Ljava/util/List;ZZZ)V
+
+    iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrNext:Z
 
     return-void
 .end method
@@ -6720,6 +6737,14 @@
     const/4 v1, 0x1
 
     :cond_mrlist
+    # ... except the next-word list (setNextSuggestions), whatever TextEntryState still remembers of a correction
+    iget-boolean v2, p0, Lcom/mrkeyboard/app/LatinIME;->mMrNext:Z
+
+    if-eqz v2, :cond_mrcall
+
+    const/4 v1, 0x0
+
+    :cond_mrcall
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrSugg;->onList(ZZ)V
 
     return-void

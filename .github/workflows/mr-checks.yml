@@ -40,6 +40,8 @@
 #                        toolbar row or a font style on, as before otherwise; mrEndWord; the space after a suggestion picked for a reopened word at the end of the text
 #   test_sugg_idle.py    the real smali of MrSugg (strip or tools in the toolbar row) with a fake clock: typing brings the strip back, the debounce of the end of the word (pref_sugg_idle, 3 s by default,
 #                        off, restart, cancel by typing), nothing counts under a tool or with the row hidden, the 1 s hold of an empty list; MrTools.toggleBar only shows/hides the row
+#   test_grid_key.py     the grid key (MrTools.toggleBar) on the real smali of MrTools and MrSugg together: a tool open (header, AI Editor or Customize dialog) is closed as its back button does and the tools
+#                        take the row; the strip in view gives way to the tools; only with the tools in view it shows/hides the row
 #   test_ui_language_rebuild.py  changing the app language rebuilds the keyboard view once, on the change (LatinIME.onSharedPreferenceChanged), and the bar is inflated again in the new language
 #   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial; trigrams.bin MRT2 needs minApp 1090000;
 #                        the "models" list with the weights of the gesture recognition, which older apps do not read)
@@ -178,6 +180,9 @@ jobs:
 
       - name: Strip or tools in the row (typing, debounce after the word, bar key)
         run: python3 -I docs/tools/test_sugg_idle.py
+
+      - name: Grid key (closes the tool open, strip to tools, else shows/hides the row)
+        run: python3 -I docs/tools/test_grid_key.py
 
       - name: Java layer calls exist in the APK and in the Android SDK
         run: |

@@ -85,15 +85,25 @@ test catalog, and the three installed languages), `run_java_tests.sh` (the Java 
 `docs/tools/e2e/SpeedEval.java` (see "Speed" below), the false positives of S27 with `AltEval.java`, how often the center promotion is right or wrong with `PromoEval.java` and the weight → frequency calibration of S29 with `ImportEval.java`.
 
 ## Strip or tools in the row
-The toolbar row (`bar_main`) holds the tools and the strip, one at a time. `MrSugg` decides which, from what the person is doing; the grid key of the bar
-(`MrTools.toggleBar`) no longer takes part: it only shows or hides the whole row (`MrTools.sBarOn`).
+The toolbar row (`bar_main`) holds the tools and the strip, one at a time. `MrSugg` decides which, from what the person is doing.
+- **The grid key** (`MrTools.toggleBar`) depends on what is in view: with a **tool open** (a header beside the row, or the AI Editor or Customize dialog) it **closes
+  the tool** as its back button does (`MrTools.closeTools`: `leave(true)` for the translator, `MrTune.close`, `MrAiDialog.dismiss`, `showPanel(0)` for the panels, whose hooks
+  end Fonts, the emoji search, the attachments and the emojis, so nothing stays in memory) and the tools take the row; with the **strip in view** the tools take the
+  row (`MrSugg.toTools`, they stay until the next typing); only **with the tools in view** (or the row hidden) it shows or hides the whole row (`MrTools.sBarOn`).
+  `test_grid_key.py` runs the real smali of `MrTools` and `MrSugg` together.
 - **Typing shows the strip.** A list of the word being typed, corrected or swiped (`LatinIME.setSuggestions` with `mPredicting`, a re-correction or the preview of a
   gesture: `MrSugg.onList(has, true)`) clears the "tools came back" state and shows the strip at once. Only with the row visible and no tool using it
   (`MrTools.applyMain`): it never takes the place of a tool in use, such as the translator.
 - **The tools come back after the word ends.** When the list of the next word arrives (space, a suggestion picked, the "tap to save" hint) and the strip is
   on screen, a debounce starts: `pref_sugg_idle` seconds (Settings > Suggestions > "Show tools after typing": off, 1, 2, 3 by default, 5, 8, 10). Another
   end of word restarts it; typing cancels it; when it runs out the tools take the row (`MrSugg.sIdle`) and stay until the next typing. It never counts under a
-  tool or with the row hidden (`MrSugg.stripShown`).
+  tool or with the row hidden (`MrSugg.stripShown`). The initial suggestions (Você, Eu, Não: start of the field, after a punctuation mark, after a paste or a
+  cursor move) are lists of the next word like any other and follow the same rule. Two things used to keep them on the strip for ever, both fixed:
+  `TextEntryState` still said "correcting" after a re-correction (it is only reset by typing), which made `setSuggestions` call such a list "typing";
+  now `setNextSuggestions` marks its lists (`LatinIME.mMrNext`) and they are never typing. And a strip that came into view without a new list (created after
+  the list, or the row shown again by the grid key) had no debounce started: `MrSugg.rearm` starts it (called by `MrSugg.host` and `MrTools.toggleBar`) when the
+  list in view is not of a word being typed. Left alone on purpose: the list of the word being typed (the person is in the middle of it) and the alternatives of
+  a word chosen for re-correction (the person is choosing; the word stays marked until they pick or leave).
 - **No suggestions at all** (an empty list while the strip was shown): the strip stays 1 s (`HOLD`) before the tools come back, so a list that empties for an
   instant does not blink the row.
 Checks: `test_sugg_idle.py` (the real smali of `MrSugg` in the mini Dalvik interpreter with a fake handler and clock).
