@@ -90,6 +90,7 @@ The toolbar row (`bar_main`) holds the tools and the strip, one at a time. `MrSu
   the tool** as its back button does (`MrTools.closeTools`: `leave(true)` for the translator, `MrTune.close`, `MrAiDialog.dismiss`, `showPanel(0)` for the panels, whose hooks
   end Fonts, the emoji search, the attachments and the emojis, so nothing stays in memory) and the tools take the row; with the **strip in view** the tools take the
   row (`MrSugg.toTools`, they stay until the next typing); only **with the tools in view** (or the row hidden) it shows or hides the whole row (`MrTools.sBarOn`).
+  The row shown again has the **tools** in it, not the strip (`MrSugg.toTools`): whatever list was left is stale, and the strip comes back with the next typing.
   `test_grid_key.py` runs the real smali of `MrTools` and `MrSugg` together.
 - **Typing shows the strip.** A list of the word being typed, corrected or swiped (`LatinIME.setSuggestions` with `mPredicting`, a re-correction or the preview of a
   gesture: `MrSugg.onList(has, true)`) clears the "tools came back" state and shows the strip at once. Only with the row visible and no tool using it
@@ -101,8 +102,8 @@ The toolbar row (`bar_main`) holds the tools and the strip, one at a time. `MrSu
   cursor move) are lists of the next word like any other and follow the same rule. Two things used to keep them on the strip for ever, both fixed:
   `TextEntryState` still said "correcting" after a re-correction (it is only reset by typing), which made `setSuggestions` call such a list "typing";
   now `setNextSuggestions` marks its lists (`LatinIME.mMrNext`) and they are never typing. And a strip that came into view without a new list (created after
-  the list, or the row shown again by the grid key) had no debounce started: `MrSugg.rearm` starts it (called by `MrSugg.host` and `MrTools.toggleBar`) when the
-  list in view is not of a word being typed. Left alone on purpose: the list of the word being typed (the person is in the middle of it) and the alternatives of
+  the list) had no debounce started: `MrSugg.rearm` starts it (called by `MrSugg.host`) when the
+  list in view is not of a word being typed (the row shown again by the grid key no longer goes through it: it shows the tools). Left alone on purpose: the list of the word being typed (the person is in the middle of it) and the alternatives of
   a word chosen for re-correction (the person is choosing; the word stays marked until they pick or leave).
 - **No suggestions at all** (an empty list while the strip was shown): the strip stays 1 s (`HOLD`) before the tools come back, so a list that empties for an
   instant does not blink the row. This is also what follows a word with no next-word prediction (a typo, a name, a number): `LatinIME.setNextSuggestions`
@@ -114,6 +115,9 @@ Checks: `test_sugg_idle.py` (the real smali of `MrSugg` in the mini Dalvik inter
 ## When the suggestions stop
 The strip, the dictionary search, the next-word search and the re-correction of the word under the cursor (`LatinIME.updateSuggestions`,
 `setNextSuggestions`, `setOldSuggestions`, `postUpdateOldSuggestions`) do not run, and the strip is emptied, while `LatinIME.suggestionsSuspended` is true:
+- **The toolbar row is hidden** (the grid key: `MrTools.sBarOn` off, once the tools exist: `MrTools.sInited`). There is nowhere to show a suggestion, so none is
+  searched while the person types, and nothing is waiting when the row comes back: the grid key then shows the tools. The auto-correction goes with them (it works
+  from the search); the words typed are still learned. The next key typed after the row is shown starts the flow again.
 - **A tool is using the toolbar row** (`MrTools.rowOwned`: a header beside `bar_main` is visible: clipboard, translator, attachments, emojis, Customize,
   Fonts, emoji search). The rule of the row: while a tool uses it nothing else shares it, so the strip never sits above a tool's header
   (`MrTools.applyMain` keeps `bar_main` hidden) and no work is done for a strip nobody sees.

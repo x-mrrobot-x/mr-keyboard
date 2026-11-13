@@ -14,7 +14,8 @@
 #
 # The grid key (MrTools.toggleBar): with a tool open it closes it, as the tool's back button does, and the tools take the row;
 # with the strip in view the tools take the row (toTools); only with the tools in view it shows/hides the whole row
-# (MrTools.sBarOn). What goes in the row, tools or suggestions, is decided here, by what the user is doing.
+# (MrTools.sBarOn); shown again it has the tools in it (toTools), not the strip. While the row is hidden LatinIME searches no
+# suggestions (suggestionsSuspended). What goes in the row, tools or suggestions, is decided here, by what the user is doing.
 #
 # Row visible (no tool header open):
 #   there are suggestions and the tools were not handed back (sIdle false) -> suggestions
@@ -27,8 +28,8 @@
 # Debounce (setting "pref_sugg_idle", seconds, 0 = off, 2 by default): when the word ends (space, a suggestion picked: the list
 # of the next word arrives) and the strip is on screen, the countdown starts. Each new end of word restarts it. When it runs
 # out the tools take the row again (sIdle) and stay until the user types. The countdown never runs under a tool or with the row
-# hidden, and typing before it ends cancels it. A strip that comes into view with no new list (created after the list, the row
-# shown again by the grid key) starts it through rearm(), unless its list is of a word being typed (sTyping). The next-word lists
+# hidden, and typing before it ends cancels it. A strip that comes into view with no new list (created after the list)
+# starts it through rearm(), unless its list is of a word being typed (sTyping). The next-word lists
 # (LatinIME.setNextSuggestions) are never typing, whatever TextEntryState still says of an old correction (LatinIME.mMrNext).
 #
 # Delay (hold): when the suggestions end with nothing to show (the list is empty) the strip stays visible for
@@ -326,8 +327,8 @@
     return-void
 .end method
 
-# The strip has just come into view without a list arriving (the strip was created after the list, the row was shown again by the grid
-# key): the debounce starts now if the list in view is between words and the tools did not take the row. A list of a word being typed
+# The strip has just come into view without a list arriving (the strip was created after the list; the grid key does not come here: the
+# row shown again has the tools in it): the debounce starts now if the list in view is between words and the tools did not take the row. A list of a word being typed
 # or corrected keeps the strip, as before. Safe to call at any time: nothing happens when the strip is not on screen.
 .method public static rearm()V
     .locals 1

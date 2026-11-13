@@ -13,7 +13,7 @@ The rules (see the header of MrSugg.smali and docs/suggestion-features.md, "Stri
     (2 by default, 0 = off); each new end of word restarts it; typing cancels it; at the end the tools take the row and stay until the next typing;
   - the debounce never runs for a strip that is not on screen (a tool owns the row, the row is hidden by the bar key);
   - an empty list with the strip on screen keeps it for 1 s before the tools come back;
-  - a strip that comes into view without a new list (created after the list, the row shown again by the bar key) starts the debounce (rearm), unless
+  - a strip that comes into view without a new list (created after the list, MrSugg.host) starts the debounce (rearm), unless
     its list belongs to a word being typed;
   - the grid key is tested in test_grid_key.py.
 """
@@ -234,7 +234,7 @@ host.bar_on = 1
 host.draw()
 check("the bar key shows the row again: suggestions are there, so the strip", host.screen == "strip")
 
-# ---- the row shown again by the bar key: the debounce starts for the strip that comes back (MrTools.toggleBar calls rearm)
+# ---- rearm: the debounce starts for a strip that comes into view without a new list (MrSugg.host calls it; the bar key shows the tools instead)
 vm, host = setup()
 host.bar_on = 0
 host.draw()

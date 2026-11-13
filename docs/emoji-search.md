@@ -23,7 +23,8 @@ the feature: what exists, how it works, where the words come from and what is le
   Everything else is in `docs/tools/java/src/com/mrkeyboard/app/MrEmojiSearch.java`, `MrEmojiIndex.java` and `MrEmojiNew.java` (the smali of the three comes from
   `docs/tools/build_java.sh`, as for the rest of the Java layer).
 - Typing goes to the field of the header through the redirect the translator already used (`MrTools.sRedirect`, and `MrTools.sField` for the keys
-  that are events). While the search is open `MrTools.sRedirect` is that field; when it closes the word typed there is committed
+  that are events: `MrTools.sendKey` for the plain ones, `MrTools.sendEvent` for the ones with a modifier, Ctrl+A, Shift+arrows... which also try the shortcut of
+  the field; `LatinIME.sendKeyDown/sendKeyUp` call it before the connection; `test_field_keys.py`). While the search is open `MrTools.sRedirect` is that field; when it closes the word typed there is committed
   (`LatinIME.mrCommit`) and the redirect and the field go back as they were. A tap on a result bypasses the redirect
   (`LatinIME.getAppInputConnection`).
 - **The row is the search's.** The header is a tool header like the others (`bar_es`): while it is open, `bar_main` (the tools and the suggestions

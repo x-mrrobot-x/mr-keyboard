@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests that the suggestions flow stops while a tool uses the toolbar row or a font style is on, and the space after a suggestion
+"""Tests that the suggestions flow stops while the toolbar row is hidden (the grid key), a tool uses it or a font style is on, and the space after a suggestion
 (LatinIME.suggestionsSuspended, updateSuggestions, setNextSuggestions, setOldSuggestions, postUpdateOldSuggestions, mrEndWord, mrAfterWord,
 pickSuggestionManually).
 
@@ -7,8 +7,9 @@ Run it from the project root:  python3 -I docs/tools/test_suggestions_suspended.
 
 It runs the REAL smali of those methods of LatinIME in the mini Dalvik interpreter (dalvik_mini.py). The rest of LatinIME and the Android classes are
 fakes that record what was called, so what is checked is which calls each method makes in each state:
-  - with a tool on the toolbar row (MrTools.rowOwned) or a font style on (MrFonts.styleOn): no dictionary search, no next-word search, no re-correction
-    of the word under the cursor (not even the 300 ms wait), and the strip is emptied; without either, everything runs as before;
+  - with the toolbar row hidden (MrTools.sBarOn off once the tools are initialised), a tool on the toolbar row (MrTools.rowOwned) or a font style on
+    (MrFonts.styleOn): no dictionary search, no next-word search, no re-correction of the word under the cursor (not even the 300 ms wait), and the
+    strip is emptied; without any of them, everything runs as before; before the keyboard view exists (MrTools.sInited off) nothing is suspended;
   - mrEndWord (called before a styled letter is written) commits the word typed so far, lets go of a reopened word and empties the strip;
   - setSuggestions tells MrSugg whether there are suggestions and whether the list is of a word being typed, corrected or swiped (mrStrip) or of the
     next word (the strip comes back on typing; the debounce of the end of the word starts on the next-word list);
@@ -74,6 +75,9 @@ class Host:
         self.log = []
         self.row = 0            # MrTools.rowOwned
         self.style = 0          # MrFonts.styleOn
+        self.row_calls = 0      # how many times MrTools.rowOwned was asked
+        self.inited = 1         # MrTools.sInited
+        self.bar_on = 1         # MrTools.sBarOn (the row of the toolbar is shown)
         self.correcting = 0     # TextEntryState.isCorrecting
         self.after = ""         # the text after the cursor once the pick is written (None: the editor does not say)
         self.before_pick = None  # the text after the cursor before the pick, when it is another one (tap in the middle of the word)
@@ -82,6 +86,10 @@ class Host:
         self.ic = dm.Obj("Landroid/view/inputmethod/InputConnection;")
 
     def sget(self, cls, name):
+        if cls == "Lcom/mrkeyboard/app/MrTools;" and name == "sInited":
+            return self.inited
+        if cls == "Lcom/mrkeyboard/app/MrTools;" and name == "sBarOn":
+            return self.bar_on
         raise AssertionError("static of another class: %s.%s" % (cls, name))
 
     def new_instance(self, cls):
@@ -94,6 +102,7 @@ class Host:
         cls, _, mem = target.partition("->")
         short = cls.split("/")[-1].rstrip(";") + "." + mem.split("(")[0]
         if short == "MrTools.rowOwned":
+            self.row_calls += 1
             return self.row
         if short == "MrFonts.styleOn":
             return self.style
@@ -154,6 +163,15 @@ for row, style, want in ((0, 0, 0), (1, 0, 1), (0, 1, 1), (1, 1, 1)):
     host.row, host.style = row, style
     got = vm.run("suggestionsSuspended()Z", [this])
     check("suspended: tool on the row=%d, font style=%d -> %d" % (row, style, want), got == want, got)
+for inited, bar_on, row, style, want in ((1, 0, 0, 0, 1), (1, 0, 1, 1, 1), (0, 0, 0, 0, 0), (1, 1, 0, 0, 0), (0, 1, 0, 0, 0)):
+    vm, host, this = make({})
+    host.inited, host.bar_on, host.row, host.style = inited, bar_on, row, style
+    got = vm.run("suggestionsSuspended()Z", [this])
+    check("suspended: tools initialised=%d, row shown=%d, tool on the row=%d, font style=%d -> %d" % (inited, bar_on, row, style, want), got == want, got)
+vm, host, this = make({})
+host.inited, host.bar_on = 1, 0
+vm.run("suggestionsSuspended()Z", [this])
+check("row hidden: answered at once, without looking at the headers of the row (rowOwned walks its views) nor the font", host.log == [] and host.row_calls == 0, (host.log, host.row_calls))
 
 # ---------------------------------------------------------------- updateSuggestions
 KEYS = dict(mKeyboardSwitcher=dm.Obj("ks"), mSuggest=dm.Obj("suggest"), mPredicting=1, mWord=dm.Obj("word"))
@@ -169,6 +187,13 @@ for predicting, want in ((1, "showSuggestions"), (0, "setNextSuggestions")):
     check("nothing suspended, predicting=%d: updateSuggestions runs %s as before" % (predicting, want),
           want in host.log and "clearSuggestions" not in host.log, host.log)
 
+# the row hidden by the grid key: no search at all
+vm, host, this = make({"clearSuggestions": None, "isPredictionOn": 1, "showSuggestions": None, "setNextSuggestions": None}, **KEYS)
+host.bar_on = 0
+vm.run("updateSuggestions()V", [this])
+check("row hidden: updateSuggestions empties the strip and searches nothing",
+      "clearSuggestions" in host.log and "showSuggestions" not in host.log and "setNextSuggestions" not in host.log, host.log)
+
 # ---------------------------------------------------------------- setNextSuggestions
 for row, style, name in ((1, 0, "a tool on the row"), (0, 1, "a font style on")):
     vm, host, this = make({"clearSuggestions": None, "isPredictionOn": 1, "setSuggestions": None}, mCompletionOn=0, mSuggest=dm.Obj("s"))
@@ -180,12 +205,22 @@ vm, host, this = make({"clearSuggestions": None, "isPredictionOn": 0, "setSugges
 vm.run("setNextSuggestions()V", [this])
 check("nothing suspended, prediction off: the strip is emptied (there is no punctuation list any more)", "clearSuggestions" in host.log and "setSuggestions" not in host.log, host.log)
 
+vm, host, this = make({"clearSuggestions": None, "isPredictionOn": 1, "setSuggestions": None}, mCompletionOn=0, mSuggest=dm.Obj("s"))
+host.bar_on = 0
+vm.run("setNextSuggestions()V", [this])
+check("row hidden: setNextSuggestions looks for no next word and shows nothing", host.log == ["clearSuggestions"], host.log)
+
 # ---------------------------------------------------------------- setOldSuggestions (re-correction)
 for row, style, name in ((1, 0, "a tool on the row"), (0, 1, "a font style on")):
     vm, host, this = make({"abortCorrection": None}, mCandidateView=None)
     host.row, host.style = row, style
     vm.run("setOldSuggestions()V", [this])
     check("%s: no word under the cursor is reopened (nothing is marked as composing)" % name, host.log == [], host.log)
+
+vm, host, this = make({"abortCorrection": None}, mCandidateView=None)
+host.bar_on = 0
+vm.run("setOldSuggestions()V", [this])
+check("row hidden: no word under the cursor is reopened", host.log == [], host.log)
 
 # ---------------------------------------------------------------- postUpdateOldSuggestions
 for row, style, name in ((1, 0, "a tool on the row"), (0, 1, "a font style on")):
@@ -194,6 +229,10 @@ for row, style, name in ((1, 0, "a tool on the row"), (0, 1, "a font style on"))
     vm.run("postUpdateOldSuggestions()V", [this])
     check("%s: the 300 ms wait of the re-correction is not started, a pending one is cancelled" % name,
           "Handler.sendMessageDelayed" not in host.log and "Handler.removeMessages" in host.log, host.log)
+vm, host, this = make({}, mHandler=dm.Obj("handler"))
+host.bar_on = 0
+vm.run("postUpdateOldSuggestions()V", [this])
+check("row hidden: the 300 ms wait of the re-correction is not started", "Handler.sendMessageDelayed" not in host.log and "Handler.removeMessages" in host.log, host.log)
 vm, host, this = make({}, mHandler=dm.Obj("handler"))
 vm.run("postUpdateOldSuggestions()V", [this])
 check("nothing suspended: the re-correction wait is started as before", "Handler.sendMessageDelayed" in host.log, host.log)

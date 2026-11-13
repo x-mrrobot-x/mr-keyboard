@@ -10,7 +10,8 @@ The rule, by what is in view when the key is pressed:
     showPanel(0) for the panels, whose hooks end Fonts, the emoji search, the attachments and the emojis) and the tools take the row, even
     when there are suggestions; the row is not hidden;
   - the suggestions strip is in view: the tools take the row (they stay until the next typing, MrSugg.sIdle), any debounce is cancelled;
-  - the tools are in view (or the row is hidden): the key shows/hides the whole row (MrTools.sBarOn).
+  - the tools are in view (or the row is hidden): the key shows/hides the whole row (MrTools.sBarOn); the row shown again has the tools in it, not the
+    strip (the strip comes back with the next typing).
 """
 import os
 import sys
@@ -297,21 +298,35 @@ w.open("bar_t")
 w.key()
 check("translator and AI Editor open: one key press ends both", w.log[0] == "ai.dismiss" and "leave(1)" in w.log and w.in_view() == "tools", w.log)
 
-# ---- the key shows the hidden row and the strip comes back with it: the debounce starts for it (MrSugg.rearm)
+# ---- the key shows the hidden row with the TOOLS in it, whatever list was left (the strip comes back with the next typing)
 w = World()
 w.tools.statics["sBarOn"] = 0
 w.apply()
 w.lst(True, False)                       # the initial suggestions (Você, Eu, Não) arrive while the row is hidden: no strip, no debounce
 check("row hidden, the initial suggestions arrive: nothing in view, no debounce", w.in_view() == "hidden" and w.pending is None, (w.in_view(), w.pending))
 w.key()
-check("grid key shows the row: the strip with the initial suggestions", w.in_view() == "strip" and w.row_on() == 1, (w.in_view(), w.row_on()))
-check("... and the 2 s debounce starts for it", w.pending is not None and w.pending[0] == w.now + 2000, w.pending)
+check("grid key shows the row: the tools, not the strip with the initial suggestions", w.in_view() == "tools" and w.row_on() == 1, (w.in_view(), w.row_on()))
+check("... and no debounce is running", w.pending is None, w.pending)
+w.lst(True, True)                        # the next typing brings the strip back
+check("... typing then brings the strip back", w.in_view() == "strip", w.in_view())
 w = World()
 w.tools.statics["sBarOn"] = 0
 w.apply()
 w.lst(True, True)                        # the word being typed
 w.key()
-check("grid key shows the row while a word is being typed: the strip, and no debounce", w.in_view() == "strip" and w.pending is None, (w.in_view(), w.pending))
+check("grid key shows the row while a word is being typed: the tools, and no debounce", w.in_view() == "tools" and w.pending is None, (w.in_view(), w.pending))
+w.lst(True, True)
+check("... the next letter brings the strip back", w.in_view() == "strip", w.in_view())
+w = World()
+w.key()                                  # the tools in view: hides the row
+w.key()                                  # shows it again, nothing was typed
+check("row hidden and shown again with nothing typed: the tools", w.in_view() == "tools" and w.row_on() == 1, (w.in_view(), w.row_on()))
+w = World()
+w.lst(True, True)                        # strip in view
+w.key()                                  # the strip gives way to the tools
+w.key()                                  # hides the row
+w.key()                                  # shows it: the tools (the list that was there is not offered)
+check("strip -> tools -> hidden -> shown: the tools, no debounce", w.in_view() == "tools" and w.pending is None, (w.in_view(), w.pending))
 
 # ---- no tool left open means the next press is the row toggle
 w = World()

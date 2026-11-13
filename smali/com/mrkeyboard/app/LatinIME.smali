@@ -5240,6 +5240,14 @@
 
     invoke-direct/range {v0 .. v8}, Landroid/view/KeyEvent;-><init>(JJIIII)V
 
+    # Mr Keyboard: with a field of the toolbar (translator, emoji search) as the target the event goes to the field itself, with its
+    # meta state, and the shortcuts are tried on it (Ctrl+A, Shift+arrows...): see MrTools.sendEvent.
+    invoke-static {p1, v9}, Lcom/mrkeyboard/app/MrTools;->sendEvent(Landroid/view/inputmethod/InputConnection;Landroid/view/KeyEvent;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_0
+
     invoke-interface {p1, v9}, Landroid/view/inputmethod/InputConnection;->sendKeyEvent(Landroid/view/KeyEvent;)Z
 
     :cond_0
@@ -5272,6 +5280,14 @@
     move v8, p3
 
     invoke-direct/range {v0 .. v8}, Landroid/view/KeyEvent;-><init>(JJIIII)V
+
+    # Mr Keyboard: with a field of the toolbar (translator, emoji search) as the target the event goes to the field itself, with its
+    # meta state, and the shortcuts are tried on it (Ctrl+A, Shift+arrows...): see MrTools.sendEvent.
+    invoke-static {p1, v9}, Lcom/mrkeyboard/app/MrTools;->sendEvent(Landroid/view/inputmethod/InputConnection;Landroid/view/KeyEvent;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_0
 
     invoke-interface {p1, v9}, Landroid/view/inputmethod/InputConnection;->sendKeyEvent(Landroid/view/KeyEvent;)Z
 
@@ -13609,12 +13625,27 @@
     return-void
 .end method
 
-# True when the suggestions flow must not run: a tool is using the toolbar row (MrTools.rowOwned) or what is typed comes
-# out in a font style (MrFonts.styleOn), so it is not a word of the dictionary. Used by updateSuggestions,
-# setNextSuggestions, setOldSuggestions and postUpdateOldSuggestions (no search, no re-correction).
+# True when the suggestions flow must not run: the toolbar row is hidden (the grid key; MrTools.sBarOn) so there is nowhere to
+# show them, a tool is using the row (MrTools.rowOwned) or what is typed comes out in a font style (MrFonts.styleOn), so it is not
+# a word of the dictionary. Used by updateSuggestions, setNextSuggestions, setOldSuggestions and postUpdateOldSuggestions (no
+# search, no prediction, no re-correction, and so no auto-correction either: it works from the search). The flow starts again by
+# itself with the next key typed once the row is shown. Before the keyboard view exists (MrTools.sInited) nothing is suspended.
 .method private suggestionsSuspended()Z
     .locals 2
 
+    sget-boolean v0, Lcom/mrkeyboard/app/MrTools;->sInited:Z
+
+    if-eqz v0, :cond_ss_row
+
+    sget-boolean v0, Lcom/mrkeyboard/app/MrTools;->sBarOn:Z
+
+    if-nez v0, :cond_ss_row
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_ss_row
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->rowOwned()Z
 
     move-result v0

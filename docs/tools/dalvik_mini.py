@@ -220,6 +220,8 @@ class VM:
             a, b = rest.split(',', 1); setr(a, b.strip()[1:-1])
         elif op in ('move', 'move/from16', 'move-object', 'move-object/from16'):
             a, b = ops(rest); setr(a, R[r(b)])
+        elif op in ('move-wide', 'move-wide/from16'):       # a long or double takes two registers: both are copied (the value is kept in both)
+            a, b = ops(rest); R[r(a)] = R[r(b)]; R[r(a) + 1] = R[r(b) + 1] if r(b) + 1 < len(R) else R[r(b)]
         elif op in ('move-result', 'move-result-object', 'move-result-wide'): setr(rest, res)
         elif op == 'move-exception': setr(rest, exc)
         elif op in ('return', 'return-object', 'return-wide'): return pc, res, exc, True, R[r(rest)]

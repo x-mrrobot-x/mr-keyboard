@@ -42,6 +42,8 @@
 #                        off, restart, cancel by typing), nothing counts under a tool or with the row hidden, the 1 s hold of an empty list; MrTools.toggleBar only shows/hides the row
 #   test_grid_key.py     the grid key (MrTools.toggleBar) on the real smali of MrTools and MrSugg together: a tool open (header, AI Editor or Customize dialog) is closed as its back button does and the tools
 #                        take the row; the strip in view gives way to the tools; only with the tools in view it shows/hides the row
+#   test_field_keys.py   keys with a modifier (Ctrl+A, Shift+arrows...) in the fields of the toolbar (translator, emoji search): LatinIME.sendKeyDown/sendKeyUp and MrTools.sendEvent on the real smali: the
+#                        field gets the event with its meta state and its shortcut is tried; the connection of the app is used as before
 #   test_gesture_comma.py  the real smali of LatinIME (pickSuggestionManually, handleSeparator, swapPunctuationAndSpace, onUpdateSelection) and TextEntryState over a fake text field: after a word
 #                        written by gesture, a comma or another sentence sign goes glued to the word and the space after it
 #   test_sheet_longpress.py  the real smali of PointerTracker.startLongPressTimer: the sheet key (code -300: 123, ABC, TSK) opens its popup after a fixed 150 ms, the other keys keep the setting
@@ -186,6 +188,9 @@ jobs:
 
       - name: Grid key (closes the tool open, strip to tools, else shows/hides the row)
         run: python3 -I docs/tools/test_grid_key.py
+
+      - name: Keys with a modifier in the fields of the toolbar (Ctrl+A, Shift+arrows)
+        run: python3 -I docs/tools/test_field_keys.py
 
       - name: Punctuation after a word written by gesture (glued, the space after it)
         run: python3 -I docs/tools/test_gesture_comma.py

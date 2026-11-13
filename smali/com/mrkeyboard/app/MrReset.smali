@@ -387,13 +387,13 @@
     .locals 0
 
     .prologue
-    .line 90
+    .line 89
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 91
+    .line 90
     iput-object p1, p0, Lcom/mrkeyboard/app/MrReset;->mContext:Landroid/content/Context;
 
-    .line 92
+    .line 91
     return-void
 .end method
 
@@ -411,7 +411,7 @@
     .locals 5
 
     .prologue
-    .line 112
+    .line 111
     invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -420,7 +420,7 @@
 
     move-result-object v1
 
-    .line 113
+    .line 112
     sget-object v2, Lcom/mrkeyboard/app/MrReset;->KEYS:[Ljava/lang/String;
 
     array-length v3, v2
@@ -438,16 +438,16 @@
 
     goto :goto_0
 
-    .line 114
+    .line 113
     :cond_0
     invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 115
+    .line 114
     const-string v0, ""
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrAi;->setApiKey(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 116
+    .line 115
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -458,7 +458,7 @@
 
     iget-object v0, v0, Landroid/content/res/Configuration;->locale:Ljava/util/Locale;
 
-    .line 117
+    .line 116
     const/4 v1, 0x0
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->installedIds(Landroid/content/Context;)Ljava/util/ArrayList;
@@ -475,7 +475,7 @@
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrPacks;->syncLanguages(Landroid/content/Context;Ljava/util/List;)V
 
-    .line 118
+    .line 117
     return-void
 .end method
 
@@ -487,14 +487,14 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 95
+    .line 94
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrReset;->mContext:Landroid/content/Context;
 
     invoke-direct {v0, v1}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 96
+    .line 95
     iget-object v1, p0, Lcom/mrkeyboard/app/MrReset;->mContext:Landroid/content/Context;
 
     const-string v2, "mr_reset_title"
@@ -507,7 +507,7 @@
 
     invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    .line 97
+    .line 96
     iget-object v1, p0, Lcom/mrkeyboard/app/MrReset;->mContext:Landroid/content/Context;
 
     const-string v2, "mr_reset_confirm"
@@ -520,7 +520,7 @@
 
     invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    .line 98
+    .line 97
     iget-object v1, p0, Lcom/mrkeyboard/app/MrReset;->mContext:Landroid/content/Context;
 
     const-string v2, "mr_reset_do"
@@ -537,7 +537,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
-    .line 105
+    .line 104
     iget-object v1, p0, Lcom/mrkeyboard/app/MrReset;->mContext:Landroid/content/Context;
 
     const-string v2, "mr_reset_cancel"
@@ -552,10 +552,10 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/app/AlertDialog$Builder;->setNegativeButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
-    .line 106
+    .line 105
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 107
+    .line 106
     const/4 v0, 0x1
 
     return v0

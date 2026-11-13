@@ -571,7 +571,8 @@
 # The grid key of the keyboard (LatinIME, key code -306). What it does depends on what is in view:
 #   a tool open (toolOpen)          -> closes it (closeTools, like its back button) and the tools take the row;
 #   the suggestions strip in view   -> the tools take the row (MrSugg.toTools, they stay until the next typing);
-#   the tools in view (or no row)   -> shows/hides the whole row (sBarOn).
+#   the tools in view (or no row)   -> shows/hides the whole row (sBarOn); shown again it has the tools in it (not the strip), and while it is hidden
+#                                      no suggestions are searched (LatinIME.suggestionsSuspended).
 .method public static toggleBar()V
     .locals 2
 
@@ -614,10 +615,18 @@
     invoke-static {v1, v0}, Lcom/mrkeyboard/app/MrTools;->savePrefBool(Ljava/lang/String;Z)V
 
     :cond_tb_nosave
+    # The row shown again gets the tools, not the strip (what the suggestions had in it is stale, and none were searched while it
+    # was hidden: LatinIME.suggestionsSuspended); the strip comes back with the next typing. Hiding the row only applies it.
+    if-eqz v0, :cond_tb_hide
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->toTools()V
+
+    goto :cond_tb_applied
+
+    :cond_tb_hide
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
 
-    # the row shown again may bring the strip back: the debounce starts for it
-    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->rearm()V
+    :cond_tb_applied
 
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sKbd:Landroid/view/View;
 
@@ -2860,6 +2869,71 @@
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
     return-void
+.end method
+
+# A key event with its meta state (the keys that LatinIME sends through sendKeyDown/sendKeyUp: Ctrl+A, Shift+arrows, Ctrl+Backspace...) when
+# the target is the field of a tool of the toolbar (ic is the redirect, MrTools.sRedirect): it goes to the field itself, as sendKey does for
+# the plain keys, because the redirect's own InputConnection hands it to the window of the keyboard, which does not take key events. A
+# field of the app is a different case: its events go through its InputConnection as before (this returns false).
+# What a window does for a hardware keyboard is done here too: when the field does not use a key that has a modifier (and it is not a
+# modifier itself), the shortcut of the field is tried, which is where the TextView keeps Ctrl+A/C/X/V/Z. Returns true when the event was
+# delivered to the field.
+.method public static sendEvent(Landroid/view/inputmethod/InputConnection;Landroid/view/KeyEvent;)Z
+    .locals 3
+
+    sget-object v0, Lcom/mrkeyboard/app/MrTools;->sRedirect:Landroid/view/inputmethod/InputConnection;
+
+    if-eqz v0, :cond_se_no
+
+    if-ne v0, p0, :cond_se_no
+
+    sget-object v0, Lcom/mrkeyboard/app/MrTools;->sField:Landroid/widget/TextView;
+
+    if-eqz v0, :cond_se_no
+
+    invoke-virtual {v0, p1}, Landroid/view/View;->dispatchKeyEvent(Landroid/view/KeyEvent;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_se_yes
+
+    invoke-virtual {p1}, Landroid/view/KeyEvent;->getAction()I
+
+    move-result v1
+
+    if-nez v1, :cond_se_yes
+
+    invoke-virtual {p1}, Landroid/view/KeyEvent;->getKeyCode()I
+
+    move-result v1
+
+    invoke-static {v1}, Landroid/view/KeyEvent;->isModifierKey(I)Z
+
+    move-result v1
+
+    if-nez v1, :cond_se_yes
+
+    invoke-virtual {p1}, Landroid/view/KeyEvent;->getMetaState()I
+
+    move-result v1
+
+    invoke-static {v1}, Landroid/view/KeyEvent;->metaStateHasNoModifiers(I)Z
+
+    move-result v1
+
+    if-nez v1, :cond_se_yes
+
+    invoke-virtual {v0, p1}, Landroid/view/View;->dispatchKeyShortcutEvent(Landroid/view/KeyEvent;)Z
+
+    :cond_se_yes
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_se_no
+    const/4 v0, 0x0
+
+    return v0
 .end method
 
 .method public static sendKey(I)Z
