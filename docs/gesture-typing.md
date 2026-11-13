@@ -145,9 +145,13 @@ handling of the punctuation that follows.
   the word that left takes its place on the strip. With "show suggestions" off the strip appears only for this (decided by
   the owner of the project). The strip lives in the toolbar: with the toolbar hidden nothing shows, as with any suggestion.
 - A **comma or another sentence sign right after** the word (`. , ! ? ; : )`) goes in glued to it and the space moves after it
-  (`bom dia ` + `,` gives `bom dia, `): the usual swap of `LatinIME.swapPunctuationAndSpace` after a suggestion picked, which the
-  word of a gesture takes part in as any other (`test_gesture_comma.py`). Nothing of the gesture code does it. To remove the
-  space by hand there is Backspace, which takes the whole word (next line).
+  (`bom dia ` + `,` gives `bom dia, `). `onKey` does it: when the word and its automatic space are right before the cursor
+  (`written()`), `LatinIME.mrGlue(code)` deletes the space and writes the sign and a space, and the key is not handled again. It
+  does not depend on the state of `TextEntryState` or on what the editor answers about the text it has just received, which is
+  what the usual swap (`swapPunctuationAndSpace`, after a suggestion tapped) depends on and what failed on the device. With no
+  automatic space in the field, with the text changed since the word, or with Ctrl, Alt, Meta or Shift held, the sign goes the
+  usual way (`test_gesture_comma.py`, `GestureInputTest`). To remove the space by hand there is Backspace, which takes the
+  whole word (next line).
 - **Backspace** right after a gesture removes the whole word and the space put before it. Any other key ends both (the
   strip goes back to what it shows between two words).
 - The **trail** follows the finger in the accent colour of the theme, drawn over the keys in `LatinKeyboardView.draw`;
@@ -222,11 +226,12 @@ gesture goes on as a plain one, one that was already cancelled on the usual path
 | `PointerTracker.startLongPressTimer` | `longPress(ms)` | the 300 ms of rule 2 |
 | `LatinIME.pickSuggestionManually`, first line | `onPick(ime, index, word)`; true = it was a candidate of the gesture | the swap |
 | `LatinIME.handleBackspace`, first line | `onBackspace(ime)` | the whole word |
-| `LatinIME.onKey`, first line | `onKey(ime, code)` | ending what is pending |
+| `LatinIME.onKey`, first line | `onKey(ime, code)`; true = a sentence sign glued to the word, the key is dealt with | ending what is pending; the sign after a word |
 | `MrPacks.mainDictionary` (Java) | `init(context)` | reading the setting when the keyboard loads a dictionary |
 
-Two small methods were added to `LatinIME` for it: `mrSuggest()` (the engine of the language in use, for its main
-dictionary) and `mrStrip(list)` (puts words on the strip, creating it if "show suggestions" never did).
+Three small methods were added to `LatinIME` for it: `mrSuggest()` (the engine of the language in use, for its main
+dictionary), `mrStrip(list)` (puts words on the strip, creating it if "show suggestions" never did) and `mrGlue(code)` (the
+sentence sign in place of the automatic space, followed by a space).
 
 More hand-edited smali, for the words of the person and for giving the strip back:
 
@@ -524,7 +529,7 @@ phone where the earlier build of the keyboard side was in use, its owner reporte
 | `nGestureMore` through the JNI | bad arguments (non-direct or null buffer, sizes, short or null arrays, a previous word longer than its array): -1 and the arrays as they were; the mask; 20 buffers of garbage; the 300 English gestures with every word of the file in the second dictionary: 276 first and 293 among 3 (256 and 272 without) | `JniSmoke` (178 checks), in CI |
 | The words of the person, Java | `MrGestureWords` alone, 52 checks: the dictionary it writes is read back by a reader of the format written for the test (20,000 words, accents, `'`, a 2-byte letter, one word in two spellings); which words go in (frequency 6 and up from the learned ones, all of the user dictionary, no blocked word, the higher frequency when both trees have it); the frequency 100 to 130; made again only after a change (a word added, the tree cleared, a word blocked or unblocked, other dictionary objects); a tree still loading is not read; the ceiling of words | `GestureWordsTest` (`run_java_tests.sh`), in CI |
 | The same through the APK's classes | the real `ExpandableDictionary` of the APK (hand-edited smali): every `addWord` and `clearDictionary` tells `MrGestureWords`, `mrRoots()` gives the words back with their frequency; then the lib searches the dictionary `MrGestureWords` writes: 276 and 293 in English (256 and 272 without), 268 and 284 in Spanish (260 and 276), Portuguese unchanged; the floors are on those gains | `GestureTest` (`run_gesture_tests.sh`, 104 checks), in CI |
-| The punctuation after a gesture word | the real smali of `LatinIME.pickSuggestionManually`, `handleSeparator`, `swapPunctuationAndSpace`, `onUpdateSelection` and `TextEntryState` over a fake text field (the rest of `LatinIME` is a stub): a word of a gesture and its automatic space, then `. , ! ? ; : )` gives the sign glued and the space after it, also with the editor reporting the cursor once or twice, for the first word of the text, for two gesture words in a row, and with no word picked before nothing is swapped | `test_gesture_comma.py` (15 checks), in CI |
+| The punctuation after a gesture word | the real smali of `LatinIME.pickSuggestionManually`, `handleSeparator`, `swapPunctuationAndSpace`, `onUpdateSelection`, `mrGlue` and `TextEntryState` over a fake text field (the rest of `LatinIME` is a stub): a word of a gesture and its automatic space, then `. , ! ? ; : )` gives the sign glued and the space after it, also with the editor reporting the cursor once or twice, for the first word of the text, for two gesture words in a row, and with no word picked before nothing is swapped; `mrGlue` does it also with the state of `TextEntryState` reset and writes nothing with a modifier on | `test_gesture_comma.py` (30 checks), in CI |
 | The keyboard code, the words of the person and the word while sliding | The other 68 checks of `GestureInputTest`. Blocked words: passed over as the word written and among the candidates, in any capitals, the floor asked of the first one left, all blocked writes nothing. The word while sliding: none before 120 ms nor sooner than 120 ms after the last, none sooner than 6 times the cost of the last, the finger stopped, the same word leaves the strip alone, the capitals, a blocked word, a word under the floor, the text read once per gesture, a gesture that writes nothing gives the strip back (to the candidates of the gesture before, or to `LatinIME`), a tap on that word does nothing, the setting and its listener, the strip out of view (four ways) means no recognition while sliding, its recognitions counted apart, a fault in it never stops the gesture | `run_java_tests.sh`, in CI |
 | From touch to text, with the words of the person and the word while sliding | The other 33 of the 54 checks of `GestureInputE2E`: each language drawn again with the words of the person and with the word while sliding (the text written must be the same with and without it), with floors | `run_gesture_input_tests.sh`, in CI |
 | The libs in `lib/` | the four `libmrengine.so` export `nGestureMore`, say contract 3 and are the ones `mrengine-info.txt` lists; the hash of `engine/` is the one in `mrengine-src.sha256` | `mr-native.yml`, `mr-apk.yml` |

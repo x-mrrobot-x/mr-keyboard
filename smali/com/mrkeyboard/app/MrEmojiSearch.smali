@@ -32,7 +32,7 @@
 
 .field static final REPEAT_EVERY:I = 0x32
 
-.field static final REPEAT_START:I = 0xfa
+.field static final REPEAT_START:I = 0x190
 
 .field private static sBar:Landroid/view/View;
 

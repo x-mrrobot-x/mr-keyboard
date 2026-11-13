@@ -3073,6 +3073,16 @@
 
     if-eqz v2, :cond_4
 
+    # Mr Keyboard: with the suggestions flow suspended (a tool owns the toolbar row: translator, emoji search) mBestWord is not
+    # updated, so there is no default suggestion to accept: it is empty or the one of an earlier word. Picking it left the typed
+    # word as composing text and the separator then replaced it (the field was emptied), or wrote the old word. The typed word is
+    # committed as it is.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->suggestionsSuspended()Z
+
+    move-result v2
+
+    if-nez v2, :cond_4
+
     const/16 v2, 0x27
 
     if-eq p1, v2, :cond_4
@@ -13289,7 +13299,13 @@
     .locals 1
 
     # Gesture typing (MrGestureInput, 1.96.0): any key ends what the last gesture left pending (its candidates on the strip).
-    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrGestureInput;->onKey(Lcom/mrkeyboard/app/LatinIME;I)V
+    # A sentence sign right after a gesture word and its automatic space is written there, glued to the word with the space
+    # after it (LatinIME.mrGlue): the key is dealt with.
+    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrGestureInput;->onKey(Lcom/mrkeyboard/app/LatinIME;I)Z
+
+    move-result v0
+
+    if-nez v0, :done
 
     # With Ctrl or Meta held, the key is a shortcut (Ctrl+A, Ctrl+C...): it must not be turned into a styled letter.
     iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mModCtrl:Z
@@ -13581,6 +13597,87 @@
     iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrStrip:Z
 
     return-void
+.end method
+
+# Gesture typing (MrGestureInput.onKey): the sentence sign (code) typed right after a gesture word and its automatic space goes glued
+# to the word and is followed by the space: "word " + "," gives "word, ". It is what handleSeparator and swapPunctuationAndSpace
+# do after a tapped suggestion, written here without relying on the state of TextEntryState or on what the editor answers about
+# the text it has just received. The caller has checked that the word and its space are right before the cursor. false = a modifier
+# is on or there is no connection: the sign goes the usual way. Bookkeeping as the swap leaves it: the space is the automatic one
+# (Enter takes it away), the state is "punctuation after a word", and the Shift state follows the new text (capital after ". ").
+.method public mrGlue(I)Z
+    .locals 4
+
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mModCtrl:Z
+
+    if-nez v0, :cond_glue_no
+
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mModAlt:Z
+
+    if-nez v0, :cond_glue_no
+
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mModMeta:Z
+
+    if-nez v0, :cond_glue_no
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isShiftMod()Z
+
+    move-result v0
+
+    if-nez v0, :cond_glue_no
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_glue_no
+
+    const/4 v1, 0x1
+
+    const/4 v2, 0x0
+
+    invoke-interface {v0}, Landroid/view/inputmethod/InputConnection;->beginBatchEdit()Z
+
+    invoke-interface {v0, v1, v2}, Landroid/view/inputmethod/InputConnection;->deleteSurroundingText(II)Z
+
+    int-to-char v3, p1
+
+    invoke-static {v3}, Ljava/lang/String;->valueOf(C)Ljava/lang/String;
+
+    move-result-object v3
+
+    const-string v2, " "
+
+    invoke-virtual {v3, v2}, Ljava/lang/String;->concat(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-interface {v0, v3, v1}, Landroid/view/inputmethod/InputConnection;->commitText(Ljava/lang/CharSequence;I)Z
+
+    invoke-interface {v0}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
+
+    iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mJustAddedAutoSpace:Z
+
+    const/4 v2, 0x0
+
+    iput-object v2, p0, Lcom/mrkeyboard/app/LatinIME;->mJustRevertedSeparator:Ljava/lang/CharSequence;
+
+    int-to-char v3, p1
+
+    invoke-static {v3, v1}, Lcom/mrkeyboard/app/TextEntryState;->typedCharacter(CZ)V
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputEditorInfo()Landroid/view/inputmethod/EditorInfo;
+
+    move-result-object v2
+
+    invoke-virtual {p0, v2}, Lcom/mrkeyboard/app/LatinIME;->updateShiftKeyState(Landroid/view/inputmethod/EditorInfo;)V
+
+    return v1
+
+    :cond_glue_no
+    const/4 v0, 0x0
+
+    return v0
 .end method
 
 .method public mrCommit()V

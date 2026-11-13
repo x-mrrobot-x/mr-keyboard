@@ -20,6 +20,8 @@
 
 .field private static final GESTURE:I = 0x2
 
+.field private static final GLUE:Ljava/lang/String; = ".,!?);:"
+
 .field private static final IDLE:I = 0x0
 
 .field private static final KEYCODE_DELETE:I = -0x5
@@ -2701,10 +2703,12 @@
     goto :goto_1
 .end method
 
-.method public static onKey(Lcom/mrkeyboard/app/LatinIME;I)V
-    .locals 1
+.method public static onKey(Lcom/mrkeyboard/app/LatinIME;I)Z
+    .locals 3
 
     .prologue
+    const/4 v1, 0x0
+
     .line 995
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sLastWord:Ljava/lang/String;
 
@@ -2714,10 +2718,10 @@
 
     if-nez v0, :cond_1
 
-    .line 1004
+    .line 1010
     :cond_0
     :goto_0
-    return-void
+    return v1
 
     .line 996
     :cond_1
@@ -2729,20 +2733,42 @@
 
     if-nez v0, :cond_0
 
-    .line 998
+    .line 1004
     :try_start_0
-    sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sAlts:[Ljava/lang/String;
+    sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sLastWord:Ljava/lang/String;
 
     if-eqz v0, :cond_2
 
-    const/4 v0, 0x1
+    if-lez p1, :cond_2
 
-    .line 999
-    :goto_1
+    const-string v0, ".,!?);:"
+
+    invoke-virtual {v0, p1}, Ljava/lang/String;->indexOf(I)I
+
+    move-result v0
+
+    if-ltz v0, :cond_2
+
+    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrGestureInput;->glue(Lcom/mrkeyboard/app/LatinIME;I)Z
+
+    move-result v1
+
+    .line 1005
+    :cond_2
+    sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sAlts:[Ljava/lang/String;
+
+    const/4 v2, 0x0
+
+    if-eqz v0, :cond_3
+
+    const/4 v2, 0x1
+
+    .line 1006
+    :cond_3
     invoke-static {}, Lcom/mrkeyboard/app/MrGestureInput;->forget()V
 
-    .line 1000
-    if-eqz v0, :cond_0
+    .line 1007
+    if-eqz v2, :cond_0
 
     const/4 v0, 0x0
 
@@ -2752,20 +2778,54 @@
 
     goto :goto_0
 
-    .line 1001
+    .line 1008
     :catch_0
     move-exception v0
 
-    .line 1002
+    .line 1009
     invoke-static {}, Lcom/mrkeyboard/app/MrGestureInput;->forget()V
 
     goto :goto_0
+.end method
 
-    .line 998
-    :cond_2
-    const/4 v0, 0x0
+.method private static glue(Lcom/mrkeyboard/app/LatinIME;I)Z
+    .locals 3
 
-    goto :goto_1
+    .prologue
+    const/4 v1, 0x0
+
+    .line 1017
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
+
+    move-result-object v0
+
+    .line 1018
+    sget-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sLastWord:Ljava/lang/String;
+
+    .line 1019
+    if-eqz v0, :cond_0
+
+    if-eqz v2, :cond_0
+
+    .line 1020
+    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrGestureInput;->written(Lcom/mrkeyboard/app/LatinIME;Landroid/view/inputmethod/InputConnection;)I
+
+    move-result v0
+
+    invoke-virtual {v2}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    add-int/lit8 v2, v2, 0x1
+
+    if-ne v0, v2, :cond_0
+
+    invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->mrGlue(I)Z
+
+    move-result v1
+
+    :cond_0
+    return v1
 .end method
 
 .method public static onPick(Lcom/mrkeyboard/app/LatinIME;ILjava/lang/CharSequence;)Z

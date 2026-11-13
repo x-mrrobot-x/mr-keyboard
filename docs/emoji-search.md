@@ -6,7 +6,7 @@ the feature: what exists, how it works, where the words come from and what is le
 ## What the person sees
 
 - **Delete** does what the Backspace key of the keyboard does, in the field of the app: the same feedback (vibration and sound of the key),
-  one delete on the press and the repeat while the finger stays down (250 ms to start, then every 50 ms, as the key does).
+  one delete on the press and the repeat while the finger stays down (400 ms to start, then every 50 ms, as the key does).
 - **Search** replaces the toolbar row by a header like the one of the Gboard emoji search: a back arrow and the title, a card with the
   results in two rows (one row in landscape) that scrolls sideways, and the search field with a magnifier. The keyboard stays under it and
   types in that field. The colours are the ones of the theme (the same roles the other panels use) and the texts follow the app language.

@@ -37,9 +37,10 @@ import java.util.List;
  *   PointerTracker.startLongPressTimer  longPress(): the long-press time of the key under a possible gesture
  *   LatinIME.pickSuggestionManually  first line: onPick(); true = it was one of the gesture's other candidates
  *   LatinIME.handleBackspace         first line: onBackspace()
- *   LatinIME.onKey                   first line: onKey()
+ *   LatinIME.onKey                   first line: onKey(); true = a sentence sign glued to the word, the key is dealt with
  *   MrPacks.mainDictionary (Java)    init(): reads the setting and opens the weights when the keyboard loads a dictionary
- * and it uses two small methods added to LatinIME for it: mrSuggest() (the engine of the language in use) and mrStrip(list).
+ * and it uses three small methods added to LatinIME for it: mrSuggest() (the engine of the language in use), mrStrip(list) and
+ * mrGlue(code) (the sentence sign in place of the automatic space, then a space).
  *
  * How a touch is read (the numbers come from real gestures, docs/gesture-typing.md has the tables):
  *   - A touch may be a gesture when ONE finger goes down on a letter key of the main keyboard (letters layout, main sheet), in
@@ -99,6 +100,7 @@ public final class MrGestureInput {
     static final int PREVIEW_LOAD = 6;
 
     private static final int KEYCODE_DELETE = -5;
+    private static final String GLUE = ".,!?);:";       // the signs that go glued to the word before them (the sentence separators of LatinIME)
     private static final int TRAIL_ALPHA = 0xCC000000;
     private static final int TRAIL_RGB = 0x40C4FF;      // when the theme has not said its accent colour yet
 
@@ -990,17 +992,32 @@ public final class MrGestureInput {
         }
     }
 
-    /** First line of LatinIME.onKey: any key but the backspace ends what the last gesture left pending. */
-    public static void onKey(LatinIME ime, int code) {
-        if (sLastWord == null && sAlts == null) return;       // nothing pending: the common case
-        if (code == KEYCODE_DELETE || sWriting) return;       // onBackspace() decides; and the word being written is not a key
+    /**
+     * First line of LatinIME.onKey: any key but the backspace ends what the last gesture left pending. A sentence sign typed
+     * right after the word and its automatic space is written here, glued to the word with the space after it ("casa " and ","
+     * give "casa, "): true = the key is dealt with and LatinIME does not handle it again.
+     */
+    public static boolean onKey(LatinIME ime, int code) {
+        if (sLastWord == null && sAlts == null) return false;     // nothing pending: the common case
+        if (code == KEYCODE_DELETE || sWriting) return false;     // onBackspace() decides; and the word being written is not a key
+        boolean glued = false;
         try {
+            if (sLastWord != null && code > 0 && GLUE.indexOf(code) >= 0) glued = glue(ime, code);
             final boolean strip = sAlts != null;
             forget();
             if (strip) ime.mrStrip(null);                     // the strip goes back to what it shows between two words
         } catch (Throwable t) {
             forget();
         }
+        return glued;
+    }
+
+    /** The word of the last gesture and its automatic space are right before the cursor: the sign takes the place of the space (LatinIME.mrGlue). */
+    private static boolean glue(LatinIME ime, int code) {
+        final InputConnection ic = ime.getCurrentInputConnection();
+        final String word = sLastWord;
+        if (ic == null || word == null) return false;
+        return written(ime, ic) == word.length() + 1 && ime.mrGlue(code);
     }
 
     // ------------------------------------------------------------------ how long the recognition takes on this device

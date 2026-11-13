@@ -124,6 +124,11 @@ The strip, the dictionary search, the next-word search and the re-correction of 
 - **A font style is on** (`MrFonts.styleOn`: a style chosen, even with the tool closed, in a field that takes it). The typed text is made of look-alike
   Unicode letters, which are no word of the dictionary: the search would only give nothing. Fields that take no style (password, e-mail, web address,
   number) keep the suggestions.
+With the flow suspended there is no default suggestion to accept: `mBestWord` is not updated, so it is empty or the one of an earlier word. The separator that
+ends a word (space, a sign, Enter: `LatinIME.handleSeparator`) therefore does not pick it; it commits the word as typed (`commitTyped`). Picking it left the typed
+word as composing text of the field, and the separator replaced it: in the translator and emoji search fields a word followed by a space emptied the field, and
+with the row hidden the word typed was replaced by an old suggestion. Check: `test_separator_suspended.py` (the real smali of `handleSeparator`, `commitTyped`
+and `suggestionsSuspended` over a field that keeps the composing text as an InputConnection does).
 Before a styled letter is written, `LatinIME.mrEndWord` lets go of the word the keyboard still holds (the typed one and a word reopened by the
 re-correction): `commitText` replaces the composing text, and the styled letter used to erase the word before it (the superscript, small caps, subscript,
 full width and the five styles made of marks, whose words the re-correction accepts, as the other styles are made of letters it ignores).

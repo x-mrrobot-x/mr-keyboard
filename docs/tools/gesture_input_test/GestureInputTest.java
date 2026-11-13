@@ -130,8 +130,8 @@ public class GestureInputTest {
     static class Ime extends LatinIME {
         final Ic ic = new Ic();
         final EditorInfo ei = new EditorInfo();
-        boolean autoSpace = true, hasIc = true, failPick;
-        int commits;
+        boolean autoSpace = true, hasIc = true, failPick, modifierOn;
+        int commits, glues;
         final List<String> picks = new ArrayList<String>();
         final List<List<CharSequence>> strips = new ArrayList<List<CharSequence>>();   // every mrStrip call; null = "between words"
         Ime() { ei.inputType = 0x1; }
@@ -139,6 +139,14 @@ public class GestureInputTest {
         @Override public EditorInfo getCurrentInputEditorInfo() { return ei; }
         @Override public void mrCommit() { commits++; }
         @Override public void mrStrip(List<CharSequence> words) { strips.add(words); }
+        /** LatinIME.mrGlue: the sign takes the place of the automatic space, with a space after it; not while a modifier is on. */
+        @Override public boolean mrGlue(int code) {
+            if (modifierOn) return false;
+            glues++;
+            ic.deleteSurroundingText(1, 0);
+            ic.commitText(String.valueOf((char) code) + " ", 1);
+            return true;
+        }
         @Override public void pickSuggestionManually(int index, CharSequence word) {
             if (MrGestureInput.onPick(this, index, word)) return;       // the hook at the top of the real method
             if (failPick) throw new IllegalStateException("pick");
@@ -148,7 +156,7 @@ public class GestureInputTest {
         }
         List<CharSequence> strip() { return strips.isEmpty() ? null : strips.get(strips.size() - 1); }
         /** A key that is not the backspace, as LatinIME.onKey does. */
-        void key(char c) { MrGestureInput.onKey(this, c); ic.commitText(String.valueOf(c), 1); }
+        void key(char c) { if (!MrGestureInput.onKey(this, c)) ic.commitText(String.valueOf(c), 1); }
         /** The backspace key: onKey, then handleBackspace (the hook, then one character). */
         void backspace() { MrGestureInput.onKey(this, -5); MrGestureInput.onBackspace(this); ic.deleteSurroundingText(1, 0); }
     }
@@ -387,6 +395,52 @@ public class GestureInputTest {
         check(ime.strip() == null, "any key: the candidates leave the strip");
         ime.backspace();
         check(ime.ic.text.toString().equals("casa "), "any key: after it the backspace removes one character: [" + ime.ic.text + "]");
+        // a sentence sign right after the word and its automatic space goes glued to the word, with the space after it
+        for (char sign : ".,!?);:".toCharArray()) {
+            scene();
+            swipe("casa");
+            ime.key(sign);
+            check(ime.ic.text.toString().equals("casa" + sign + " ") && ime.glues == 1 && ime.strip() == null,
+                    "sign " + sign + ": glued to the word, the space after it, the strip back to between words: [" + ime.ic.text + "]");
+        }
+        scene();
+        swipe("casa");
+        ime.key(',');
+        ime.backspace();
+        check(ime.ic.text.toString().equals("casa,"), "sign: the backspace after it removes one character: [" + ime.ic.text + "]");
+        scene();
+        swipe("casa");
+        ime.key(' ');
+        check(ime.ic.text.toString().equals("casa  ") && ime.glues == 0, "a space is not glued: [" + ime.ic.text + "]");
+        scene();
+        swipe("casa");
+        ime.key('a');
+        check(ime.ic.text.toString().equals("casa a") && ime.glues == 0, "a letter is not glued: [" + ime.ic.text + "]");
+        scene();
+        swipe("casa");
+        ime.key('x');
+        ime.key(',');
+        check(ime.ic.text.toString().equals("casa x,") && ime.glues == 0, "a sign after another key: nothing pending, typed as it is: [" + ime.ic.text + "]");
+        scene();
+        ime.autoSpace = false;
+        swipe("casa");
+        ime.key(',');
+        check(ime.ic.text.toString().equals("casa,") && ime.glues == 0, "sign: no automatic space in this field, nothing to glue: [" + ime.ic.text + "]");
+        scene();
+        swipe("casa");
+        ime.ic.text.append("mais ");                      // the text changed without a key
+        ime.key(',');
+        check(ime.ic.text.toString().equals("casa mais ,") && ime.glues == 0, "sign: when the text is no longer what was written, it goes the usual way: [" + ime.ic.text + "]");
+        scene();
+        swipe("casa");
+        ime.modifierOn = true;
+        ime.key(',');
+        check(ime.ic.text.toString().equals("casa ,") && ime.glues == 0 && ime.strip() == null, "sign: with a modifier on LatinIME does not glue it: it goes the usual way: [" + ime.ic.text + "]");
+        scene();
+        swipe("casa");
+        ime.key(',');
+        ime.key(',');
+        check(ime.ic.text.toString().equals("casa, ,") && ime.glues == 1, "sign: only the first one after the word is glued: [" + ime.ic.text + "]");
         scene();
         swipe("casa");
         List<CharSequence> old = ime.strip();

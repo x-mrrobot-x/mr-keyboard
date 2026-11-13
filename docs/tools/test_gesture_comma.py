@@ -8,6 +8,9 @@ and of TextEntryState in the mini Dalvik interpreter (dalvik_mini.py), over a fa
 way MrGestureInput.write does it: a space when the text needs one, then LatinIME.pickSuggestionManually(-1, word) (the same call as a tap
 on a suggestion). The rest of LatinIME (dictionaries, shift state, strip) is a stub that records what it was asked.
 
+Since the usual swap did not happen on the device (it depends on the state of TextEntryState and on what the editor says about the text it has just
+received), MrGestureInput.onKey calls LatinIME.mrGlue for it; the last tests run that real method.
+
 The rule: after a word written by gesture (and its automatic space), a comma or another sentence separator is written glued to the word and
 followed by the space: "olá ," becomes "olá, " (swapPunctuationAndSpace), as after a suggestion tapped on the strip.
 """
@@ -76,7 +79,7 @@ class World:
             "addToBigramDictionary": None, "addToDictionaries": None, "setNextSuggestions": None, "clearSuggestions": None,
             "postUpdateOldSuggestions": None, "postUpdateShiftKeyState": None, "isSuggestedPunctuation": 0,
             "isWordSeparator": lambda a: 1 if chr(a[1]) in " .,!?);:-'\"(/@_\n" else 0, "mrAfterWord": 0,
-            "processMultiKey": 0, "changeSheet": None,
+            "processMultiKey": 0, "changeSheet": None, "isShiftMod": 0,
         }
         self.ime_methods = dm.parse_methods(os.path.join(APP, "LatinIME.smali"))
         self.vm = ImeVM(self.ime_methods, self)
@@ -156,6 +159,8 @@ class World:
             return ord(args[0][args[1]])
         if short == "String.valueOf":
             return chr(args[0])
+        if short == "String.concat":
+            return str(args[0]) + str(args[1])
         if short == "String.contains":
             return 1 if str(args[1]) in args[0] else 0
         if short == "StringBuilder.<init>":
@@ -308,6 +313,53 @@ w.text = "oi tudo "
 w.tes.run("reset()V", [])
 w.key(ord(","))
 check("no gesture word before: the comma is just typed after the space", w.text == "oi tudo ,", repr(w.text))
+
+# ---------------------------------------------------------------- LatinIME.mrGlue: what MrGestureInput.onKey calls (it does not depend on the state)
+def glue(w, ch):
+    return w.vm.run("mrGlue(I)Z", [w.this, ord(ch)])
+
+
+w = World()
+w.text = "bom"
+w.gesture_word("dia", space=True)
+r = glue(w, ",")
+check("mrGlue: the sign takes the place of the automatic space, then the space", r == 1 and w.text == "bom dia, ", (r, w.text))
+check("mrGlue: the state is the one of a sign after a word", w.state() == "PUNCTUATION_AFTER_ACCEPTED", w.state())
+check("mrGlue: the space is the automatic one (Enter takes it away)", w.this.f["mJustAddedAutoSpace"] == 1)
+
+for ch in ".!?;:)":
+    w = World()
+    w.text = "bom"
+    w.gesture_word("dia", space=True)
+    check("mrGlue %r: glued, then the space" % ch, glue(w, ch) == 1 and w.text == "bom dia%s " % ch, w.text)
+
+# the state of TextEntryState (and the reports of the editor) do not matter: this is what the swap of handleSeparator depends on
+w = World()
+w.text = "bom"
+w.gesture_word("dia", space=True)
+w.tes.run("reset()V", [])
+check("mrGlue: with the state reset it still glues", glue(w, ",") == 1 and w.text == "bom dia, ", (w.text, w.state()))
+
+w = World()
+w.text = "bom"
+w.gesture_word("dia", space=True)
+w.selection_changed()
+w.selection_changed()
+check("mrGlue: after two reports of the cursor it still glues", glue(w, ",") == 1 and w.text == "bom dia, ", (w.text, w.state()))
+
+# a modifier on: nothing is written, the sign goes the usual way
+for mod in ("mModCtrl", "mModAlt", "mModMeta"):
+    w = World()
+    w.text = "bom"
+    w.gesture_word("dia", space=True)
+    w.this.f[mod] = 1
+    check("mrGlue with %s on: nothing is written" % mod, glue(w, ",") == 0 and w.text == "bom dia ", (w.text,))
+
+w = World()
+w.text = "bom"
+w.gesture_word("dia", space=True)
+w.stubs["isShiftMod"] = 1
+check("mrGlue with Shift held or locked: nothing is written", glue(w, ",") == 0 and w.text == "bom dia ", (w.text,))
 
 print("%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)
