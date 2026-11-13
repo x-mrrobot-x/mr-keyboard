@@ -200,8 +200,8 @@ that moment.
 - A **tap on that word** (another finger) does nothing: it is not a suggestion to pick, the finger lifting writes it.
 - The strip lives in the tool bar, in the place of the tools, so showing a word there does not move the keys. When it
   cannot be seen **nothing is recognised** until the finger lifts (`stripInView()`): the bar hidden or another bar in its
-  place (`MrTools.sBarMain` not visible), or the tools brought back over the suggestions with the key of the tool bar
-  (`MrSugg.sPinned`).
+  place (`MrTools.sBarMain` not visible). With the tools in the row (the debounce of `pref_sugg_idle` gave it back to
+  them) the preview goes on, and its first list brings the strip back (`LatinIME.mrStrip` counts as typing for `MrSugg.onList`).
 - How often the word shown is the final one is in "What was measured": early in the gesture it rarely is; it settles in
   the last quarter.
 
@@ -544,8 +544,8 @@ screen itself.
 - **The copy of the words of the person is made on the thread of the keyboard**, when a gesture begins, after each change.
   On the phone of the owner it took 0.2 ms for 10 words; a list of thousands of words was not measured there ("Recognition time" shows it).
 - **The word while sliding is what lifting the finger now would write**, not a guess of the word being drawn: for most of
-  the gesture it is another word. It needs the strip in view: nothing shows with the tool bar hidden, with another bar in
-  its place or with the tools brought back over the suggestions (the key of the tool bar).
+  the gesture it is another word. It needs the strip in view: nothing shows with the tool bar hidden or with another bar in
+  its place (with the tools in the row after the debounce, the first word brings the strip back).
 - **While the finger slides the strip shows only that word**: the suggestions that were there come back if the gesture
   writes nothing, and are replaced by the other candidates if it writes a word.
 - **Only the letters keyboard, main sheet.** Not the symbol sheets, not the popup of a long press, not the extension row.
@@ -608,8 +608,8 @@ this file. Item 13 was done with the weights installed from a file; the download
     when it appears; the trail does not fall behind the finger; stop the finger half-way: the word catches up; lift the
     finger above the letters (nothing written): the strip goes back to what it showed. "Recognition time" shows the line
     "Word while sliding": the average and the longest are the other numbers to read.
-18. The same with the tool bar hidden, with the tools brought back over the suggestions (the key of the tool bar, while
-    the strip shows words) and with the setting off: no word while sliding, and the gesture writes as before.
+18. The same with the tool bar hidden (the key of the tool bar) and with the setting off: no word while sliding, and the gesture
+    writes as before. With the tools in the row after the debounce, the first word of the preview brings the strip back.
 19. A tap, with another finger, on the word shown while sliding: nothing happens.
 20. Another language (the space bar): a learned word of that language by gesture; the words of the other language do not
     come.

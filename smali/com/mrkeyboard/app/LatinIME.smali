@@ -268,6 +268,9 @@
 
 .field private mPredicting:Z
 
+# The list being shown comes from a gesture's preview (mrStrip): it is typing, for MrSugg.
+.field private mMrStrip:Z
+
 .field private mPredictionOnForMode:Z
 
 .field private mPredictionOnPref:Z
@@ -6641,7 +6644,7 @@
 .end method
 
 .method private setSuggestions(Ljava/util/List;ZZZ)V
-    .locals 2
+    .locals 3
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -6696,7 +6699,28 @@
     const/4 v0, 0x1
 
     :cond_mrsugg
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrSugg;->onList(Z)V
+    # ... and the list belongs to a word being typed, corrected or swiped (not to the next word or a hint)
+    const/4 v1, 0x0
+
+    iget-boolean v2, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
+
+    if-nez v2, :cond_mrtyping
+
+    iget-boolean v2, p0, Lcom/mrkeyboard/app/LatinIME;->mMrStrip:Z
+
+    if-nez v2, :cond_mrtyping
+
+    invoke-static {}, Lcom/mrkeyboard/app/TextEntryState;->isCorrecting()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_mrlist
+
+    :cond_mrtyping
+    const/4 v1, 0x1
+
+    :cond_mrlist
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrSugg;->onList(ZZ)V
 
     return-void
 .end method
@@ -12337,22 +12361,6 @@
 
     .line 2626
     :cond_4
-    # Mr Keyboard: a word reopened by the re-correction while the person is typing at the end of the text (nothing after the
-    # cursor) is still a word being typed: the pick adds the space and goes on to the next word, as for the word typed so
-    # far. A word corrected in the middle of the text (text after the cursor) stays as it was: no space.
-    if-eqz v0, :cond_mr_pk
-
-    if-eqz v1, :cond_mr_pk
-
-    invoke-direct {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->mrAtTextEnd(Landroid/view/inputmethod/InputConnection;)Z
-
-    move-result v2
-
-    if-eqz v2, :cond_mr_pk
-
-    const/4 v0, 0x0
-
-    :cond_mr_pk
     invoke-interface {p2}, Ljava/lang/CharSequence;->length()I
 
     move-result v2
@@ -12415,6 +12423,25 @@
 
     .line 2639
     invoke-direct {p0, p2, v0}, Lcom/mrkeyboard/app/LatinIME;->pickSuggestion(Ljava/lang/CharSequence;Z)V
+
+    # Mr Keyboard: the word that was reopened by the re-correction (v0 = correcting) is judged by what follows it once it is
+    # written (mrAfterWord), wherever in the word it was tapped. At the end of the text, or at the end of the line before a
+    # lone space, the person goes on writing after it: the pick adds the space and shows the next words, as for a word typed
+    # in the usual way (a space that is already there is taken over, so the cursor ends after it). With more text after the
+    # word (corrected in the middle of the text) it stays as it was: no space, the word is offered again.
+    if-eqz v0, :cond_mr_pk
+
+    if-eqz v1, :cond_mr_pk
+
+    invoke-direct {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->mrAfterWord(Landroid/view/inputmethod/InputConnection;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_mr_pk
+
+    const/4 v0, 0x0
+
+    :cond_mr_pk
 
     if-nez p1, :cond_8
 
@@ -12521,7 +12548,9 @@
 
     const/4 p1, 0x1
 
-    invoke-static {p1}, Lcom/mrkeyboard/app/MrSugg;->onList(Z)V
+    const/4 p2, 0x0
+
+    invoke-static {p1, p2}, Lcom/mrkeyboard/app/MrSugg;->onList(ZZ)V
 
     :cond_d
     if-eqz v1, :cond_e
@@ -13611,7 +13640,7 @@
 # the word being typed by taps when there is one (a gesture that wrote nothing took the strip for its preview and gives it
 # back). The strip is made first when there is none ("show suggestions" off).
 .method public mrStrip(Ljava/util/List;)V
-    .locals 1
+    .locals 2
 
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
 
@@ -13644,7 +13673,13 @@
     :cond_1
     const/4 v0, 0x0
 
+    const/4 v1, 0x1
+
+    iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrStrip:Z
+
     invoke-direct {p0, p1, v0, v0, v0}, Lcom/mrkeyboard/app/LatinIME;->setSuggestions(Ljava/util/List;ZZZ)V
+
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrStrip:Z
 
     return-void
 .end method
@@ -13717,12 +13752,14 @@
     return v0
 .end method
 
-# True when there is no text after the cursor (end of the field): what pickSuggestionManually uses to tell a word being
-# typed at the end of the text from a word corrected in the middle of it.
-.method private mrAtTextEnd(Landroid/view/inputmethod/InputConnection;)Z
-    .locals 3
+# What follows the word that pickSuggestionManually has just written, for a word the re-correction reopened. True when the
+# person goes on writing after it: nothing follows (end of the text), or a lone space follows and then the end of the line
+# or of the text (that space is deleted here, the pick adds its own, so the cursor ends after it; only with the automatic
+# space on, otherwise it stays). False with more text after the word, or when the editor does not say.
+.method private mrAfterWord(Landroid/view/inputmethod/InputConnection;)Z
+    .locals 5
 
-    const/4 v0, 0x1
+    const/4 v0, 0x2
 
     const/4 v1, 0x0
 
@@ -13730,19 +13767,53 @@
 
     move-result-object v2
 
-    if-nez v2, :cond_ae_have
+    if-nez v2, :cond_aw_have
 
     return v1
 
-    :cond_ae_have
+    :cond_aw_have
     invoke-interface {v2}, Ljava/lang/CharSequence;->length()I
 
-    move-result v2
+    move-result v3
 
-    if-nez v2, :cond_ae_no
+    if-nez v3, :cond_aw_text
+
+    const/4 v0, 0x1
 
     return v0
 
-    :cond_ae_no
+    :cond_aw_text
+    invoke-interface {v2, v1}, Ljava/lang/CharSequence;->charAt(I)C
+
+    move-result v4
+
+    const/16 v0, 0x20
+
+    if-ne v4, v0, :cond_aw_no
+
+    const/4 v0, 0x1
+
+    if-eq v3, v0, :cond_aw_lone
+
+    invoke-interface {v2, v0}, Ljava/lang/CharSequence;->charAt(I)C
+
+    move-result v4
+
+    const/16 v0, 0xa
+
+    if-ne v4, v0, :cond_aw_no
+
+    :cond_aw_lone
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mAutoSpace:Z
+
+    if-eqz v0, :cond_aw_no
+
+    const/4 v0, 0x1
+
+    invoke-interface {p1, v1, v0}, Landroid/view/inputmethod/InputConnection;->deleteSurroundingText(II)Z
+
+    return v0
+
+    :cond_aw_no
     return v1
 .end method

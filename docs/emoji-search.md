@@ -6,7 +6,7 @@ the feature: what exists, how it works, where the words come from and what is le
 ## What the person sees
 
 - **Delete** does what the Backspace key of the keyboard does, in the field of the app: the same feedback (vibration and sound of the key),
-  one delete on the press and the repeat while the finger stays down (400 ms to start, then every 50 ms, as the key does).
+  one delete on the press and the repeat while the finger stays down (250 ms to start, then every 50 ms, as the key does).
 - **Search** replaces the toolbar row by a header like the one of the Gboard emoji search: a back arrow and the title, a card with the
   results in two rows (one row in landscape) that scrolls sideways, and the search field with a magnifier. The keyboard stays under it and
   types in that field. The colours are the ones of the theme (the same roles the other panels use) and the texts follow the app language.
@@ -119,7 +119,7 @@ the feature: what exists, how it works, where the words come from and what is le
 
 Nothing of this has run on a device yet (only on the PC, with fake views).
 
-1. Open the emoji panel: the floating bar shows over the list with two buttons. It is opaque, in a neutral colour of the theme (`MrTools.floatBg`: the face of a letter key, role `panel_btn`, with the border of the fields, role `panel_field_stroke`, and fully round corners); the icons take the colour of the key labels (`MrTools.sKeyText`) and a tap lights a round fill (`MrTools.flatPill`). The two icons (`ic_mr_search`, `ic_mr_backspace`) fill the same box (about 15.8 x 15.8 dp of glyph in the 20 dp icon, viewport 2.5 to 21.5) with the same stroke (2.0): keep that when one of them is redrawn. Try a light, a dark and a neon theme: the bar must not be louder than the keys and the icons must read on it.
+1. Open the emoji panel: the floating bar shows over the list with two buttons. It is opaque, in a neutral colour of the theme (`MrTools.floatBg`: the face of a letter key, role `panel_btn`, with the border of the fields, role `panel_field_stroke`, and fully round corners); the icons take the colour of the key labels (`MrTools.sKeyText`) and a tap lights a round fill (`MrTools.flatPill`). The two icons (`ic_mr_search`, `ic_mr_backspace`) are vectors of the same height (20 dp, glyph 3.5 to 20.5 of a 24 unit viewport) and the same stroke (2.0); the backspace is wider (28 x 20 dp, viewport 33.6 x 24, so the scale is the same 20/24 in both axes), because a key shape is wider than tall and a square one looked squeezed. The compound drawable is drawn at its intrinsic size (`MrCenteredIconButton`): keep width/height and viewport in the same ratio, or the glyph is stretched. Keep the height and the stroke when one of them is redrawn. Try a light, a dark and a neon theme: the bar must not be louder than the keys and the icons must read on it.
 2. Write some text in an app, open the emoji panel and press **delete**: it deletes like Backspace; holding it repeats; with a selection it deletes the selection.
 3. Press **search**: the header replaces the toolbar row, the keyboard types in its field, the card shows the recent emojis. The header comes in growing
    upward and fading in (no sudden flash), the card has rounder corners and the header is not stuck to the top edge or to the keys.

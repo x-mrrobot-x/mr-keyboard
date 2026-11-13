@@ -214,7 +214,6 @@ public class GestureInputTest {
         MrTools.sBarMain = new android.view.View() {
             @Override public int getVisibility() { return barVisibility; }
         };
-        MrSugg.sPinned = false;
         blocked();
         setFontChoice(0);
         kb = keyboard();
@@ -918,13 +917,12 @@ public class GestureInputTest {
         check(!MrGestureInput.onPick(ime, 0, "outra"), "preview off: a tap on the strip is an ordinary pick");
 
         // the strip out of view (it lives in the tool bar): nothing is recognised for a word nobody would see
-        String[] hidden = {"the tool bar hidden", "another bar in its place (invisible)", "no tool bar yet", "the tools pinned over the strip"};
+        String[] hidden = {"the tool bar hidden", "another bar in its place (invisible)", "no tool bar yet"};
         for (int i = 0; i < hidden.length; i++) {
             scene();
             if (i == 0) barVisibility = android.view.View.GONE;
             if (i == 1) barVisibility = android.view.View.INVISIBLE;
             if (i == 2) MrTools.sBarMain = null;
-            if (i == 3) MrSugg.sPinned = true;
             down(cx('c'), cy('c'));
             move(16, cx('a'), cy('a'));
             SystemClock.now += 300;
@@ -934,7 +932,7 @@ public class GestureInputTest {
             up(48, cx('a'), cy('a'));
             check(eng.decodes == 1 && ime.ic.text.toString().equals("casa "), "strip out of view (" + hidden[i] + "): the word is written as usual");
         }
-        MrSugg.sPinned = false;
+        // (the tools in the row after the debounce of MrSugg count as in view: the bar is visible and the first list of the preview brings the strip back)
 
         // faults: the gesture goes on without its preview
         scene();

@@ -633,4 +633,12 @@
     <string name="mr_font_style_24">Strikethrough</string>
     <string name="mr_font_style_25">Overline</string>
     <string name="mr_font_style_26">Slashed</string>
+    <string name="mr_sugg_idle_title">Show tools after typing</string>
+    <string name="mr_sugg_idle_off">Off</string>
+    <string name="mr_sugg_idle_1">1 second</string>
+    <string name="mr_sugg_idle_2">2 seconds</string>
+    <string name="mr_sugg_idle_3">3 seconds</string>
+    <string name="mr_sugg_idle_5">5 seconds</string>
+    <string name="mr_sugg_idle_8">8 seconds</string>
+    <string name="mr_sugg_idle_10">10 seconds</string>
 </resources>

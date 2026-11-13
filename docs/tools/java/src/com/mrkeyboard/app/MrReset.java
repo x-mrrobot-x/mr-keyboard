@@ -71,6 +71,7 @@ public final class MrReset implements Preference.OnPreferenceClickListener {
             "pref_gesture_typing",
             "pref_gesture_trail",
             "pref_gesture_preview",
+            "pref_sugg_idle",
             "pref_sheet_return",
             "pref_render_mode",
             "pref_slide_keys_int",

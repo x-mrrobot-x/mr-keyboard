@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Tests that the suggestions flow stops while a tool uses the toolbar row or a font style is on, and the space after a suggestion
-(LatinIME.suggestionsSuspended, updateSuggestions, setNextSuggestions, setOldSuggestions, postUpdateOldSuggestions, mrEndWord, mrAtTextEnd,
+(LatinIME.suggestionsSuspended, updateSuggestions, setNextSuggestions, setOldSuggestions, postUpdateOldSuggestions, mrEndWord, mrAfterWord,
 pickSuggestionManually).
 
 Run it from the project root:  python3 -I docs/tools/test_suggestions_suspended.py
@@ -10,8 +10,11 @@ fakes that record what was called, so what is checked is which calls each method
   - with a tool on the toolbar row (MrTools.rowOwned) or a font style on (MrFonts.styleOn): no dictionary search, no next-word search, no re-correction
     of the word under the cursor (not even the 300 ms wait), and the strip is emptied; without either, everything runs as before;
   - mrEndWord (called before a styled letter is written) commits the word typed so far, lets go of a reopened word and empties the strip;
-  - a suggestion picked for a word the re-correction reopened adds the space when there is no text after the cursor (the person is typing at the
-    end), and does not when there is text after it (a word corrected in the middle), as before.
+  - setSuggestions tells MrSugg whether there are suggestions and whether the list is of a word being typed, corrected or swiped (mrStrip) or of the
+    next word (the strip comes back on typing; the debounce of the end of the word starts on the next-word list);
+  - a suggestion picked for a word the re-correction reopened is judged by what follows the word once it is written (wherever it was tapped): at the
+    end of the text, or at the end of the line before a lone space, the pick adds the space and shows the next words (the space that is there is taken over,
+    the cursor ends after it); with more text after the word (a word corrected in the middle) there is no space, as before.
 """
 import os
 import sys
@@ -60,6 +63,8 @@ class VM(dm.VM):
             return self.host.ic
         if name in self.stubs:
             self.log.append(name)
+            if name == "pickSuggestion":
+                self.host.picked = True
             return self.stubs[name]
         return super().run(key, args)
 
@@ -70,7 +75,10 @@ class Host:
         self.row = 0            # MrTools.rowOwned
         self.style = 0          # MrFonts.styleOn
         self.correcting = 0     # TextEntryState.isCorrecting
-        self.after = ""         # the text after the cursor (None: the editor does not say)
+        self.after = ""         # the text after the cursor once the pick is written (None: the editor does not say)
+        self.before_pick = None  # the text after the cursor before the pick, when it is another one (tap in the middle of the word)
+        self.picked = False
+        self.onlist = []        # MrSugg.onList(has, typing) calls
         self.ic = dm.Obj("Landroid/view/inputmethod/InputConnection;")
 
     def sget(self, cls, name):
@@ -91,7 +99,14 @@ class Host:
             return self.style
         if short == "TextEntryState.isCorrecting":
             return self.correcting
+        if short == "MrSugg.onList":
+            self.onlist.append(tuple(args))
+            return None
+        if short == "List.isEmpty":
+            return 1 if len(args[0]) == 0 else 0
         if short == "InputConnection.getTextAfterCursor":
+            if not self.picked and self.before_pick is not None:
+                return self.before_pick
             return self.after
         if short == "CharSequence.length":
             return len(args[0])
@@ -193,13 +208,6 @@ host.ic = None
 vm.run("mrEndWord()V", [this])
 check("mrEndWord with no input connection does nothing", host.log == [], host.log)
 
-# ---------------------------------------------------------------- mrAtTextEnd
-for after, want in (("", 1), ("x", 0), (" ", 0), (None, 0)):
-    vm, host, this = make({})
-    host.after = after
-    got = vm.run("mrAtTextEnd(Landroid/view/inputmethod/InputConnection;)Z", [this, host.ic])
-    check("text after the cursor %r: at the end of the text = %d" % (after, want), got == want, got)
-
 # ---------------------------------------------------------------- pickSuggestionManually: the space
 PICK = dict(mCandidateView=dm.Obj("cv"), mCompletionOn=0, mCompletions=None, mAutoSpace=1, mCorrectionMode=0, mComposing="ola",
             mJustAccepted=0, mSuggest=dm.Obj("s"))
@@ -208,10 +216,10 @@ STUBS = {"isWordSeparator": 0, "isSuggestedPunctuation": 0, "pickSuggestion": No
          "postUpdateOldSuggestions": None, "onKey": None}
 
 
-def pick(correcting, after, index=1):
-    vm, host, this = make(dict(STUBS), **PICK)
-    host.correcting, host.after = correcting, after
-    # mComposing is a StringBuilder in the app: the fake answers toString for it
+def pick(correcting, after, before=None, auto=1, index=1):
+    """after: the text after the cursor once the word is written; before: the text after the cursor before the pick (a tap in the middle of the word)."""
+    vm, host, this = make(dict(STUBS), **dict(PICK, mAutoSpace=auto))
+    host.correcting, host.after, host.before_pick = correcting, after, before
     old = host.invoke
 
     def invoke(vm_, op, target, args, old=old):
@@ -220,6 +228,8 @@ def pick(correcting, after, index=1):
         if target.startswith("Lcom/mrkeyboard/app/TextEntryState;->acceptedSuggestion") or target.startswith("Lcom/mrkeyboard/app/TextEntryState;->typedCharacter"):
             host.log.append("TextEntryState." + target.split("->")[1].split("(")[0])
             return None
+        if target.startswith("Ljava/lang/CharSequence;->charAt"):
+            return ord(args[0][args[1]])
         return old(vm_, op, target, args)
 
     host.invoke = invoke
@@ -227,18 +237,74 @@ def pick(correcting, after, index=1):
     return host.log
 
 
+def spaced(log):
+    """The space is added (after the word) and the next words are shown, and the word is not offered again."""
+    return "sendSpace" in log and "setNextSuggestions" in log and "postUpdateOldSuggestions" not in log
+
+
 log = pick(0, "x")
 check("a word typed in the usual way: the pick adds the space and shows the next words", "sendSpace" in log and "setNextSuggestions" in log, log)
 log = pick(1, "")
-check("a reopened word, nothing after the cursor (typing at the end): the pick adds the space and shows the next words",
-      "sendSpace" in log and "setNextSuggestions" in log and "postUpdateOldSuggestions" not in log, log)
+check("a reopened word at the end of the text: the pick adds the space and shows the next words", spaced(log), log)
+log = pick(1, "", before="do")
+check("a reopened word at the end of the text, tapped in the middle of the word: the same", spaced(log), log)
+log = pick(1, " ")
+check("a reopened word at the end of the line with a space after it (tapped at its end): the space that is there is taken over: one char after the "
+      "cursor goes, the space is added, the cursor ends after it",
+      spaced(log) and log.index("InputConnection.deleteSurroundingText") < log.index("sendSpace"), log)
+log = pick(1, " ", before="do ")
+check("...the same when the word was tapped in the middle", spaced(log) and "InputConnection.deleteSurroundingText" in log, log)
+log = pick(1, " \nnext line")
+check("...the same when the line goes on below", spaced(log) and "InputConnection.deleteSurroundingText" in log, log)
+log = pick(1, " ", auto=0)
+check("...but with the automatic space off nothing is touched: the space there stays and none is added",
+      "sendSpace" not in log and "InputConnection.deleteSurroundingText" not in log and "postUpdateOldSuggestions" in log, log)
+log = pick(1, " mundo")
+check("a reopened word in the middle of a line (more words after it): no space, no change, the word is offered again as before",
+      "sendSpace" not in log and "InputConnection.deleteSurroundingText" not in log and "postUpdateOldSuggestions" in log and "setNextSuggestions" not in log, log)
 log = pick(1, "x")
-check("a reopened word, text after the cursor (corrected in the middle): no space, the word is offered again as before",
-      "sendSpace" not in log and "postUpdateOldSuggestions" in log and "setNextSuggestions" not in log, log)
+check("a reopened word followed by a letter or a sign: as before", "sendSpace" not in log and "postUpdateOldSuggestions" in log, log)
 log = pick(1, None)
 check("a reopened word, the editor does not say what follows: as before, no space", "sendSpace" not in log and "postUpdateOldSuggestions" in log, log)
 log = pick(1, "")
 check("...and the dictionary learns it as a picked word", "addToBigramDictionary" in log or "addToDictionaries" in log, log)
+
+# ---- setSuggestions tells MrSugg whether there are suggestions and whether the list belongs to a word being typed
+PUNC = ["."]
+
+
+def set_sugg(lst, predicting=0, strip=0, correcting=0):
+    vm, host, this = make({}, mIsShowingHint=0, mCandidateView=None, mSuggestPuncList=PUNC, mPredicting=predicting, mMrStrip=strip)
+    host.correcting = correcting
+    vm.run("setSuggestions(Ljava/util/List;ZZZ)V", [this, lst, 0, 0, 0])
+    return host.onlist
+
+
+check("a list of the word being typed (mPredicting): suggestions, typing", set_sugg(["ola", "olá"], predicting=1) == [(1, 1)], set_sugg(["ola"], predicting=1))
+check("a re-correction (the word under the cursor reopened): suggestions, typing", set_sugg(["ola"], correcting=1) == [(1, 1)])
+check("the preview of a gesture (mrStrip): suggestions, typing", set_sugg(["ola"], strip=1) == [(1, 1)])
+check("the next words after a space: suggestions, not typing", set_sugg(["de", "que"]) == [(1, 0)])
+check("the punctuation list after a space (no prediction): no suggestions", set_sugg(PUNC) == [(0, 0)])
+check("an empty list: no suggestions", set_sugg([]) == [(0, 0)])
+check("no list: no suggestions", set_sugg(None) == [(0, 0)])
+check("an empty list while typing: no suggestions, typing", set_sugg([], predicting=1) == [(0, 1)])
+
+# ---- mrStrip: the list of a gesture preview is typing, and only while it is set
+vm, host, this = make({}, mCandidateView=dm.Obj("cv"), mPredicting=0, mMrStrip=0)
+seen = []
+real = vm.run
+
+
+def spy(key, args):
+    if key.startswith("setSuggestions("):
+        seen.append(args[0].f["mMrStrip"])
+        return None
+    return real(key, args)
+
+
+vm.run = spy
+real("mrStrip(Ljava/util/List;)V", [this, ["casa"]])
+check("mrStrip with a list: setSuggestions runs with the preview flag set, and it is cleared after", seen == [1] and this.f["mMrStrip"] == 0, (seen, this.f["mMrStrip"]))
 
 print("%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

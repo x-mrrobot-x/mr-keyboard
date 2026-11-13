@@ -163,4 +163,22 @@
         <item>gemini</item>
         <item>custom</item>
     </string-array>
+    <string-array name="mr_sugg_idle_entries">
+        <item>@string/mr_sugg_idle_off</item>
+        <item>@string/mr_sugg_idle_1</item>
+        <item>@string/mr_sugg_idle_2</item>
+        <item>@string/mr_sugg_idle_3</item>
+        <item>@string/mr_sugg_idle_5</item>
+        <item>@string/mr_sugg_idle_8</item>
+        <item>@string/mr_sugg_idle_10</item>
+    </string-array>
+    <string-array name="mr_sugg_idle_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>5</item>
+        <item>8</item>
+        <item>10</item>
+    </string-array>
 </resources>

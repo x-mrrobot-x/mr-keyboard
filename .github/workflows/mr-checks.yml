@@ -38,6 +38,8 @@
 #                        Customize, Fonts, emoji search, a new bar_*) the bar_main row (tools and suggestions strip) stays hidden; the headers start hidden in the layout
 #   test_suggestions_suspended.py  the real smali of the LatinIME methods that run the suggestions: nothing is searched or reopened (and the strip is emptied) with a tool on the
 #                        toolbar row or a font style on, as before otherwise; mrEndWord; the space after a suggestion picked for a reopened word at the end of the text
+#   test_sugg_idle.py    the real smali of MrSugg (strip or tools in the toolbar row) with a fake clock: typing brings the strip back, the debounce of the end of the word (pref_sugg_idle, 3 s by default,
+#                        off, restart, cancel by typing), nothing counts under a tool or with the row hidden, the 1 s hold of an empty list; MrTools.toggleBar only shows/hides the row
 #   test_ui_language_rebuild.py  changing the app language rebuilds the keyboard view once, on the change (LatinIME.onSharedPreferenceChanged), and the bar is inflated again in the new language
 #   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial; trigrams.bin MRT2 needs minApp 1090000;
 #                        the "models" list with the weights of the gesture recognition, which older apps do not read)
@@ -173,6 +175,9 @@ jobs:
 
       - name: Suggestions stop with a tool on the row or a font style on, and the space after a suggestion
         run: python3 -I docs/tools/test_suggestions_suspended.py
+
+      - name: Strip or tools in the row (typing, debounce after the word, bar key)
+        run: python3 -I docs/tools/test_sugg_idle.py
 
       - name: Java layer calls exist in the APK and in the Android SDK
         run: |

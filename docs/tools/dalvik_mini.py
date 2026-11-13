@@ -75,6 +75,19 @@ class Obj:
 
 
 # ------------------------------------------------------------------------------ parser
+def param_types(sig):
+    """The types of the parameters of a method signature, one string each ('I', 'J', 'Lx/Y;', '[I'...)."""
+    out, i = [], 0
+    while i < len(sig):
+        j = i
+        while sig[j] == '[':
+            j += 1
+        j = sig.index(';', j) + 1 if sig[j] == 'L' else j + 1
+        out.append(sig[i:j])
+        i = j
+    return out
+
+
 def nparams(sig):
     n, i = 0, 0
     while i < len(sig):
@@ -93,9 +106,15 @@ def nparams(sig):
 
 
 def parse_methods(path):
-    methods, cur = {}, None
+    methods, cur, in_annotation = {}, None, False
     for raw in open(path, encoding='utf-8'):
         line = raw.strip()
+        if line.startswith('.annotation'):      # the body (value = { "..." }) is no code
+            in_annotation = True
+            continue
+        if in_annotation:
+            in_annotation = not line.startswith('.end annotation')
+            continue
         if line.startswith('.method '):
             m = re.match(r'\.method\s+(?:[\w-]+\s+)*([\w$<>]+)\((.*?)\)(\S+)$', line)
             cur = {'sig': m.group(2), 'static': ' static ' in ' ' + line + ' ', 'locals': 0, 'code': [],
@@ -134,9 +153,17 @@ class VM:
         loc = m['locals']
         n = nparams(m['sig']) + (0 if m['static'] else 1)
         assert len(args) == n, f'{key}: {len(args)} arguments, expected {n}'
-        R = [None] * (loc + n)
-        for k, a in enumerate(args):
+        # a long or a double (J, D) takes two registers (p1, p2...): the value is kept in both, the call passes one
+        kinds = ([] if m['static'] else ['L']) + param_types(m['sig'])
+        slots = sum(2 if t in ('J', 'D') else 1 for t in kinds)
+        R = [None] * (loc + slots)
+        k = 0
+        for a, t in zip(args, kinds):
             R[loc + k] = a
+            if t in ('J', 'D'):
+                R[loc + k + 1] = a
+                k += 1
+            k += 1
         labels, code = m['labels'], m['code']
         catches = [(c[0], labels[c[1]], labels[c[2]], labels[c[3]]) for c in m['catches']]
         pc, res, exc, steps = 0, None, None, 0
@@ -179,9 +206,9 @@ class VM:
             a, b = rest.split(',', 1); setr(a, b.strip()[1:-1])
         elif op in ('move', 'move/from16', 'move-object', 'move-object/from16'):
             a, b = ops(rest); setr(a, R[r(b)])
-        elif op in ('move-result', 'move-result-object'): setr(rest, res)
+        elif op in ('move-result', 'move-result-object', 'move-result-wide'): setr(rest, res)
         elif op == 'move-exception': setr(rest, exc)
-        elif op in ('return', 'return-object'): return pc, res, exc, True, R[r(rest)]
+        elif op in ('return', 'return-object', 'return-wide'): return pc, res, exc, True, R[r(rest)]
         elif op == 'return-void': return pc, res, exc, True, None
         elif op in ('iget', 'iget-boolean', 'iget-object'):
             a, b, c = ops(rest); setr(a, R[r(b)].f[c.split('->')[1].split(':')[0]])
@@ -219,14 +246,17 @@ class VM:
         elif op in ('add-int/2addr', 'sub-int/2addr', 'mul-int/2addr', 'and-int/2addr', 'or-int/2addr', 'xor-int/2addr'):
             a, b = ops(rest); x, y = iv(R[r(a)]), iv(R[r(b)])
             setr(a, i32({'add': x + y, 'sub': x - y, 'mul': x * y, 'and': x & y, 'or-': x | y, 'xor': x ^ y}[op[:3]]))
-        elif op in ('add-int/lit8', 'mul-int/lit8', 'div-int/lit8', 'and-int/lit8', 'rsub-int/lit8',
+        elif op in ('add-int/lit8', 'mul-int/lit8', 'div-int/lit8', 'and-int/lit8', 'rsub-int/lit8', 'xor-int/lit8',
                     'ushr-int/lit8', 'shl-int/lit8', 'shr-int/lit8', 'add-int/lit16', 'mul-int/lit16'):
             a, b, c = ops(rest); lit = parse_int(c); x = iv(R[r(b)])
             k = op.split('-int')[0]
             setr(a, i32({'add': lambda: x + lit, 'mul': lambda: x * lit, 'div': lambda: math.trunc(x / lit),
-                         'and': lambda: x & lit, 'rsub': lambda: lit - x,
+                         'and': lambda: x & lit, 'xor': lambda: x ^ lit, 'rsub': lambda: lit - x,
                          'ushr': lambda: (x & 0xffffffff) >> (lit & 31), 'shl': lambda: x << (lit & 31),
                          'shr': lambda: x >> (lit & 31)}[k]()))
+        elif op == 'int-to-long': a, b = ops(rest); setr(a, iv(R[r(b)]))
+        elif op == 'mul-long/2addr': a, b = ops(rest); setr(a, R[r(a)] * R[r(b)])
+        elif op == 'cmp-long': a, b, c = ops(rest); setr(a, (R[r(b)] > R[r(c)]) - (R[r(b)] < R[r(c)]))
         elif op == 'neg-int': a, b = ops(rest); setr(a, i32(-iv(R[r(b)])))
         elif op in ('add-float', 'sub-float', 'mul-float'):
             a, b, c = ops(rest); setr(a, f32(FOPS[op[:3]](fv(R[r(b)]), fv(R[r(c)]))))
@@ -269,6 +299,14 @@ class VM:
             target = rest[rest.index('}') + 2:].strip()
             cls, _, mem = target.partition('->')
             args = [R[i] for i in regs]
+            if '(' in mem and re.search(r'[JD]', mem[mem.index('(') + 1:mem.index(')')]):
+                # long/double arguments take two registers: one value is passed
+                types = ([] if 'static' in op else ['L']) + param_types(mem[mem.index('(') + 1:mem.index(')')])
+                packed, i = [], 0
+                for t in types:
+                    packed.append(args[i])
+                    i += 2 if t in ('J', 'D') else 1
+                args = packed
             if cls == self.cls and mem in self.m and not mem.startswith('<init>'):
                 res = self.run(mem, args)
             else:

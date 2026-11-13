@@ -768,12 +768,12 @@ public final class MrGestureInput {
     }
 
     /**
-     * Can the strip be seen? It lives in the tool bar, in the place of the tools (MrSugg): not while the bar is hidden or
-     * another bar is in its place, nor while the tools are pinned over it. Then nothing is recognised for a word nobody sees.
+     * Can the strip be seen? It lives in the tool bar, in the place of the tools (MrSugg): not while the bar is hidden or another
+     * bar is in its place (then nothing is recognised for a word nobody sees). The tools in the row count: the preview brings the strip back.
      */
     private static boolean stripInView() {
         final android.view.View bar = MrTools.sBarMain;
-        return bar != null && bar.getVisibility() == android.view.View.VISIBLE && !MrSugg.sPinned;
+        return bar != null && bar.getVisibility() == android.view.View.VISIBLE;
     }
 
     /** The finger moved: recognises the trace so far if it is time, or leaves it for when it is. Never throws. */

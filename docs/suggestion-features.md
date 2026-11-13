@@ -84,6 +84,20 @@ Other tests in CI: `packs_test/run_packs_tests.sh` (the dictionary download flow
 test catalog, and the three installed languages), `run_java_tests.sh` (the Java layer). The speed of the strip is measured by hand with
 `docs/tools/e2e/SpeedEval.java` (see "Speed" below), the false positives of S27 with `AltEval.java`, how often the center promotion is right or wrong with `PromoEval.java` and the weight → frequency calibration of S29 with `ImportEval.java`.
 
+## Strip or tools in the row
+The toolbar row (`bar_main`) holds the tools and the strip, one at a time. `MrSugg` decides which, from what the person is doing; the grid key of the bar
+(`MrTools.toggleBar`) no longer takes part: it only shows or hides the whole row (`MrTools.sBarOn`).
+- **Typing shows the strip.** A list of the word being typed, corrected or swiped (`LatinIME.setSuggestions` with `mPredicting`, a re-correction or the preview of a
+  gesture: `MrSugg.onList(has, true)`) clears the "tools came back" state and shows the strip at once. Only with the row visible and no tool using it
+  (`MrTools.applyMain`): it never takes the place of a tool in use, such as the translator.
+- **The tools come back after the word ends.** When the list of the next word arrives (space, a suggestion picked, the "tap to save" hint) and the strip is
+  on screen, a debounce starts: `pref_sugg_idle` seconds (Settings > Suggestions > "Show tools after typing": off, 1, 2, 3 by default, 5, 8, 10). Another
+  end of word restarts it; typing cancels it; when it runs out the tools take the row (`MrSugg.sIdle`) and stay until the next typing. It never counts under a
+  tool or with the row hidden (`MrSugg.stripShown`).
+- **No suggestions at all** (an empty list while the strip was shown): the strip stays 1 s (`HOLD`) before the tools come back, so a list that empties for an
+  instant does not blink the row.
+Checks: `test_sugg_idle.py` (the real smali of `MrSugg` in the mini Dalvik interpreter with a fake handler and clock).
+
 ## When the suggestions stop
 The strip, the dictionary search, the next-word search and the re-correction of the word under the cursor (`LatinIME.updateSuggestions`,
 `setNextSuggestions`, `setOldSuggestions`, `postUpdateOldSuggestions`) do not run, and the strip is emptied, while `LatinIME.suggestionsSuspended` is true:
@@ -96,9 +110,10 @@ The strip, the dictionary search, the next-word search and the re-correction of 
 Before a styled letter is written, `LatinIME.mrEndWord` lets go of the word the keyboard still holds (the typed one and a word reopened by the
 re-correction): `commitText` replaces the composing text, and the styled letter used to erase the word before it (the superscript, small caps, subscript,
 full width and the five styles made of marks, whose words the re-correction accepts, as the other styles are made of letters it ignores).
-A suggestion picked for a word the re-correction reopened adds the space when there is no text after the cursor (the person is typing at the end: the
-word was reopened after a non-separator, such as a digit, an emoji or a styled letter, or by a pause); with text after the cursor (a word corrected in the
-middle of the text) there is no space, as before. Checks: `test_suggestions_suspended.py` (the real smali of those methods, in the mini Dalvik
+A suggestion picked for a word the re-correction reopened (`LatinIME.pickSuggestionManually`, `mrAfterWord`) is judged by what follows the word once it is
+written, wherever it was tapped: nothing after it (end of the text), or a lone space and then the end of the line, and the person goes on writing, so the pick
+adds the space and shows the next words, as in typing (a space that is already there is taken over and the cursor ends after it; with the automatic space off
+nothing is touched). With more text after the word (a word corrected in the middle of a line) there is no space and the word is offered again, as before. Checks: `test_suggestions_suspended.py` (the real smali of those methods, in the mini Dalvik
 interpreter), `test_toolbar_row.py` (the rule of the row), `FontsTest` (the word is let go before every one of the 27 styles).
 
 ## The two screens (1.85)

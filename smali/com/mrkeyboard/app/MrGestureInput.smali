@@ -4150,10 +4150,6 @@
 
     if-nez v0, :cond_0
 
-    sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sPinned:Z
-
-    if-nez v0, :cond_0
-
     const/4 v0, 0x1
 
     :goto_0

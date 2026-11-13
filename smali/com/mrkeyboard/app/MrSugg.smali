@@ -11,26 +11,30 @@
 # RULE of the row: while a tool uses it (a header beside bar_main is visible, MrTools.rowOwned: clipboard, translator, attachments,
 # emojis, Customize, Fonts, emoji search...), bar_main is hidden whatever the suggestions do, and LatinIME stops the suggestions flow
 # (LatinIME.suggestionsSuspended). The strip never sits above a tool's header.
-# The row keeps obeying the bar key (MrTools.sBarOn): hidden, it shows nothing.
-# Visible (no panel open):
-#   there are suggestions and the user did not ask for the tools on this word -> suggestions
-#   otherwise                                                              -> tools
-# Bar key (MrTools.toggleBar -> onBarKey):
-#   row visible and there are suggestions -> toggles suggestions <-> tools (holds until the word ends)
-#   otherwise                             -> shows/hides the row, as before
-# Strip colors follow the theme (CandidateView.mrTheme with MrTools.sTextColor).
 #
-# Delay (debounce): when the suggestions end (end of word, space), the strip stays
-# visible for DELAY (1 s) before giving way to the tools. If new suggestions arrive in that
-# interval (user typing the next word), the wait is cancelled and the row does not toggle.
-# Each new list without suggestions during the wait restarts the clock. The bar key ends the
-# wait and shows the tools at once. Switching from tools to suggestions is immediate.
+# The bar key (MrTools.toggleBar) only shows/hides the whole row (MrTools.sBarOn). It does not choose between tools and
+# suggestions: that is decided here, by what the user is doing.
+#
+# Row visible (no tool header open):
+#   there are suggestions and the tools were not handed back (sIdle false) -> suggestions
+#   otherwise                                                              -> tools
+#
+# Typing brings the strip back: a list of the word being typed (LatinIME.setSuggestions: mPredicting, a re-correction or
+# the preview of a gesture) clears sIdle and shows the strip at once, but only when the row is visible and no tool owns it
+# (MrTools.applyMain), so it never takes the place of a tool in use (translator, clipboard...).
+#
+# Debounce (setting "pref_sugg_idle", seconds, 0 = off, 3 by default): when the word ends (space, a suggestion picked: the list
+# of the next word arrives) and the strip is on screen, the countdown starts. Each new end of word restarts it. When it runs
+# out the tools take the row again (sIdle) and stay until the user types. The countdown never runs under a tool or with the row
+# hidden, and typing before it ends cancels it.
+#
+# Delay (hold): when the suggestions end with nothing to show (the list is empty) the strip stays visible for
+# HOLD_MS (1 s) before giving way to the tools. If new suggestions arrive in that interval, the wait is cancelled and the
+# row does not toggle. Each new empty list during the wait restarts the clock.
+# Strip colors follow the theme (CandidateView.mrTheme with MrTools.sTextColor).
 
 # static fields
 .field static sContainer:Landroid/view/View;
-
-# Pending wait: no suggestions, but the strip is still shown.
-.field static sHold:Z
 
 .field static sHandler:Landroid/os/Handler;
 
@@ -42,9 +46,14 @@
 
 .field static sSugg:Landroid/view/View;
 
+# There are suggestions to show (a real list, not the punctuation or an empty one).
 .field static sHas:Z
 
-.field static sPinned:Z
+# The tools took the row back after the debounce and stay until the user types.
+.field static sIdle:Z
+
+# Pending timer: 0 = none, 1 = hold (no suggestions, strip still shown), 2 = debounce (waiting to give the row to the tools).
+.field static sWait:I
 
 # direct methods
 .method private constructor <init>()V
@@ -174,9 +183,13 @@
 
 # LatinIME.onCreateCandidatesView: the strip was created (suggestions on for the field).
 .method public static host(Landroid/view/View;)V
-    .locals 0
+    .locals 1
 
     sput-object p0, Lcom/mrkeyboard/app/MrSugg;->sContainer:Landroid/view/View;
+
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sIdle:Z
 
     invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->attach()V
 
@@ -197,49 +210,77 @@
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHas:Z
 
-    sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sPinned:Z
+    sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sIdle:Z
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
 
     return-void
 .end method
 
-# LatinIME.setSuggestions / "tap to save" hint: there are (or not) suggestions to show.
-# With suggestions: cancels the wait and shows the strip at once.
-# Without suggestions: the manual tools choice is undone (holds only for the current word). If the
-# strip was being shown, it is kept for DELAY before giving way to the tools.
-.method public static onList(Z)V
-    .locals 2
+# LatinIME.setSuggestions / "tap to save" hint: there are (or not) suggestions to show. typing: the list belongs to a word being
+# typed, corrected or swiped (not to the next word or a hint).
+#   with suggestions, typing:  cancels any wait, hands the row back to the strip at once;
+#   with suggestions, between words: shows the strip (unless the tools took the row back) and (re)starts the debounce;
+#   without suggestions: if the strip was being shown, it is kept for HOLD_MS before giving way to the tools.
+.method public static onList(ZZ)V
+    .locals 4
 
-    if-eqz p0, :cond_0
+    if-eqz p0, :cond_none
 
     invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->cancel()V
 
-    sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHas:Z
+    sget-boolean v2, Lcom/mrkeyboard/app/MrSugg;->sHas:Z
 
-    if-nez v0, :cond_3
+    sget-boolean v3, Lcom/mrkeyboard/app/MrSugg;->sIdle:Z
 
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHas:Z
 
+    if-eqz p1, :cond_between
+
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sIdle:Z
+
+    if-eqz v2, :cond_apply
+
+    if-eqz v3, :cond_end
+
+    :cond_apply
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
 
-    goto :goto_0
+    goto :cond_end
 
-    :cond_0
-    sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHold:Z
+    :cond_between
+    if-nez v3, :cond_end
 
-    if-eqz v0, :cond_1
+    if-nez v2, :cond_arm
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->schedule()V
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
 
-    goto :goto_0
+    :cond_arm
+    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->arm()V
 
-    :cond_1
+    goto :cond_end
+
+    :cond_none
+    sget v0, Lcom/mrkeyboard/app/MrSugg;->sWait:I
+
+    const/4 v1, 0x1
+
+    if-ne v0, v1, :cond_nohold
+
+    const-wide/16 v2, 0x3e8
+
+    invoke-static {v1, v2, v3}, Lcom/mrkeyboard/app/MrSugg;->schedule(IJ)V
+
+    goto :cond_end
+
+    :cond_nohold
     sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHas:Z
 
-    if-eqz v0, :cond_3
+    if-eqz v0, :cond_end
 
     sget-boolean v0, Lcom/mrkeyboard/app/MrTools;->sBarOn:Z
 
@@ -251,30 +292,138 @@
 
     sput-boolean v1, Lcom/mrkeyboard/app/MrSugg;->sHas:Z
 
-    sput-boolean v1, Lcom/mrkeyboard/app/MrSugg;->sPinned:Z
+    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->cancel()V
 
     const/4 v1, 0x2
 
-    if-ne v0, v1, :cond_2
+    if-ne v0, v1, :cond_tools
 
     const/4 v0, 0x1
 
-    sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHold:Z
+    const-wide/16 v2, 0x3e8
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->schedule()V
+    invoke-static {v0, v2, v3}, Lcom/mrkeyboard/app/MrSugg;->schedule(IJ)V
 
-    goto :goto_0
+    goto :cond_end
 
-    :cond_2
+    :cond_tools
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
 
-    :cond_3
-    :goto_0
+    :cond_end
     return-void
 .end method
 
-# Schedules (or reschedules) the end of the wait for DELAY (1000 ms) from now.
-.method private static schedule()V
+# Starts (or restarts) the debounce of the end of the word, if the strip is on screen and the setting is not "off".
+.method private static arm()V
+    .locals 4
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->stripShown()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_end
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->idleMs()J
+
+    move-result-wide v0
+
+    const-wide/16 v2, 0x0
+
+    cmp-long v2, v0, v2
+
+    if-lez v2, :cond_end
+
+    const/4 v2, 0x2
+
+    invoke-static {v2, v0, v1}, Lcom/mrkeyboard/app/MrSugg;->schedule(IJ)V
+
+    :cond_end
+    return-void
+.end method
+
+# The debounce, in ms, from the setting "pref_sugg_idle" (seconds; a list of numbers; 0 = off). 3 s when it cannot be read.
+.method private static idleMs()J
+    .locals 4
+
+    const/4 v1, 0x3
+
+    sget-object v0, Lcom/mrkeyboard/app/MrTools;->sBarMain:Landroid/view/View;
+
+    if-eqz v0, :cond_calc
+
+    invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    invoke-static {v0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    const-string v2, "pref_sugg_idle"
+
+    const-string v3, "3"
+
+    invoke-interface {v0, v2, v3}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    :try_start_0
+    invoke-static {v0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+
+    move-result v1
+    :try_end_0
+    .catch Ljava/lang/NumberFormatException; {:try_start_0 .. :try_end_0} :catch_0
+
+    :catch_0
+    :cond_calc
+    if-gez v1, :cond_pos
+
+    const/4 v1, 0x0
+
+    :cond_pos
+    int-to-long v0, v1
+
+    const-wide/16 v2, 0x3e8
+
+    mul-long/2addr v0, v2
+
+    return-wide v0
+.end method
+
+# Is the strip on screen? Row visible (bar key), no tool owning it and the suggestions (not the tools) in it.
+.method static stripShown()Z
+    .locals 2
+
+    sget-boolean v0, Lcom/mrkeyboard/app/MrTools;->sBarOn:Z
+
+    if-eqz v0, :cond_no
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->rowOwned()Z
+
+    move-result v1
+
+    if-nez v1, :cond_no
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrSugg;->mode(Z)I
+
+    move-result v0
+
+    const/4 v1, 0x2
+
+    if-ne v0, v1, :cond_no
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_no
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+# Schedules (or reschedules) the end of the pending wait: kind 1 = hold, 2 = debounce; delay in ms from now.
+.method private static schedule(IJ)V
     .locals 4
 
     sget-object v0, Lcom/mrkeyboard/app/MrSugg;->sHandler:Landroid/os/Handler;
@@ -302,20 +451,20 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    const-wide/16 v2, 0x3e8
+    sput p0, Lcom/mrkeyboard/app/MrSugg;->sWait:I
 
-    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    invoke-virtual {v0, v1, p1, p2}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
     return-void
 .end method
 
-# Ends the wait without changing the row.
+# Ends the pending wait without changing the row.
 .method private static cancel()V
     .locals 2
 
     const/4 v0, 0x0
 
-    sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHold:Z
+    sput v0, Lcom/mrkeyboard/app/MrSugg;->sWait:I
 
     sget-object v0, Lcom/mrkeyboard/app/MrSugg;->sHandler:Landroid/os/Handler;
 
@@ -329,17 +478,41 @@
     return-void
 .end method
 
-# End of the wait (MrSugg$Expire.run, on the main thread): shows the tools.
+# End of the wait (MrSugg$Expire.run, on the main thread).
+#   hold:     the strip had nothing to show: the tools come back;
+#   debounce: the user stopped typing: the tools take the row, if the strip is still on screen (under a tool or with the row hidden
+#             nothing changes).
 .method public static expire()V
-    .locals 1
+    .locals 2
 
-    sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHold:Z
+    sget v0, Lcom/mrkeyboard/app/MrSugg;->sWait:I
+
+    const/4 v1, 0x0
+
+    sput v1, Lcom/mrkeyboard/app/MrSugg;->sWait:I
+
+    const/4 v1, 0x1
+
+    if-ne v0, v1, :cond_idle
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
+
+    return-void
+
+    :cond_idle
+    const/4 v1, 0x2
+
+    if-ne v0, v1, :cond_end
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->stripShown()Z
+
+    move-result v0
 
     if-eqz v0, :cond_end
 
-    const/4 v0, 0x0
+    const/4 v0, 0x1
 
-    sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHold:Z
+    sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sIdle:Z
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
 
@@ -347,9 +520,9 @@
     return-void
 .end method
 
-# Suggestions to show: real ones (sHas) or still held by the wait (sHold).
+# Suggestions to show: real ones (sHas) or still held by the wait (hold).
 .method private static available()Z
-    .locals 1
+    .locals 2
 
     sget-object v0, Lcom/mrkeyboard/app/MrSugg;->sContainer:Landroid/view/View;
 
@@ -363,9 +536,11 @@
 
     if-nez v0, :cond_yes
 
-    sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHold:Z
+    sget v0, Lcom/mrkeyboard/app/MrSugg;->sWait:I
 
-    return v0
+    const/4 v1, 0x1
+
+    if-ne v0, v1, :cond_no
 
     :cond_yes
     const/4 v0, 0x1
@@ -395,7 +570,7 @@
 
     if-eqz v0, :cond_tools
 
-    sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sPinned:Z
+    sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sIdle:Z
 
     if-nez v0, :cond_tools
 
@@ -452,64 +627,6 @@
     return-void
 .end method
 
-# Bar key (MrTools.toggleBar). With the row visible and suggestions available, toggles
-# suggestions <-> tools and returns true. Otherwise returns false and toggleBar
-# shows/hides the row as before.
-.method static onBarKey()Z
-    .locals 2
-
-    sget-boolean v0, Lcom/mrkeyboard/app/MrTools;->sBarOn:Z
-
-    if-eqz v0, :cond_no
-
-    sget-object v0, Lcom/mrkeyboard/app/MrTools;->sBarMain:Landroid/view/View;
-
-    if-eqz v0, :cond_no
-
-    invoke-virtual {v0}, Landroid/view/View;->getVisibility()I
-
-    move-result v0
-
-    if-nez v0, :cond_no
-
-    # key during the wait: shows the tools now
-    sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHold:Z
-
-    if-eqz v0, :cond_chk
-
-    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->cancel()V
-
-    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
-
-    const/4 v0, 0x1
-
-    return v0
-
-    :cond_chk
-    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->available()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_no
-
-    sget-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sPinned:Z
-
-    xor-int/lit8 v0, v0, 0x1
-
-    sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sPinned:Z
-
-    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyMain()V
-
-    const/4 v0, 0x1
-
-    return v0
-
-    :cond_no
-    const/4 v0, 0x0
-
-    return v0
-.end method
-
 # MrTools.release (keyboard destroyed).
 .method static release()V
     .locals 1
@@ -528,7 +645,7 @@
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHas:Z
 
-    sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sPinned:Z
+    sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sIdle:Z
 
     return-void
 .end method

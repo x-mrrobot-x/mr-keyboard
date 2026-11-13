@@ -470,17 +470,8 @@
 .method public static toggleBar()V
     .locals 2
 
-        # With the row visible and suggestions available, the key toggles suggestions <-> tools
-        # (MrSugg). Otherwise, it shows/hides the row as before.
-    invoke-static {}, Lcom/mrkeyboard/app/MrSugg;->onBarKey()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_tb_toggle
-
-    return-void
-
-    :cond_tb_toggle
+        # The key only shows/hides the whole row (the one that holds the tools and the suggestions). What goes in the
+        # row, tools or suggestions, is decided by MrSugg from what the user is doing (typing, end of word).
     sget-boolean v0, Lcom/mrkeyboard/app/MrTools;->sBarOn:Z
 
     xor-int/lit8 v0, v0, 0x1

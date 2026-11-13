@@ -633,4 +633,12 @@
     <string name="mr_font_style_24">Tachado</string>
     <string name="mr_font_style_25">Sobrelinhado</string>
     <string name="mr_font_style_26">Barrado</string>
+    <string name="mr_sugg_idle_title">Mostrar ferramentas após digitar</string>
+    <string name="mr_sugg_idle_off">Desativado</string>
+    <string name="mr_sugg_idle_1">1 segundo</string>
+    <string name="mr_sugg_idle_2">2 segundos</string>
+    <string name="mr_sugg_idle_3">3 segundos</string>
+    <string name="mr_sugg_idle_5">5 segundos</string>
+    <string name="mr_sugg_idle_8">8 segundos</string>
+    <string name="mr_sugg_idle_10">10 segundos</string>
 </resources>
