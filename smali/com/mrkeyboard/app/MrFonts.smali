@@ -681,12 +681,12 @@
     .locals 2
 
     .prologue
-    .line 381
+    .line 393
     new-instance v0, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v0}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 382
+    .line 394
     const-string v1, "ctrl_bg"
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
@@ -695,7 +695,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 383
+    .line 395
     const/high16 v1, 0x40000000    # 2.0f
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
@@ -704,7 +704,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 
-    .line 384
+    .line 396
     return-object v0
 .end method
 
@@ -752,7 +752,7 @@
     .locals 3
 
     .prologue
-    .line 318
+    .line 330
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sRow:Landroid/widget/LinearLayout;
 
     if-eqz v0, :cond_0
@@ -761,24 +761,24 @@
 
     if-nez v0, :cond_1
 
-    .line 322
+    .line 334
     :cond_0
     return-void
 
-    .line 319
+    .line 331
     :cond_1
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sRow:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 320
+    .line 332
     const/16 v0, 0x1c
 
     new-array v0, v0, [Landroid/widget/TextView;
 
     sput-object v0, Lcom/mrkeyboard/app/MrFonts;->sButtons:[Landroid/widget/TextView;
 
-    .line 321
+    .line 333
     const/4 v0, 0x0
 
     :goto_0
@@ -807,7 +807,7 @@
 
     const/4 v1, 0x0
 
-    .line 330
+    .line 342
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sCtx:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -828,10 +828,10 @@
 
     move-result v0
 
-    .line 331
+    .line 343
     if-eqz v0, :cond_0
 
-    .line 332
+    .line 344
     sget-object v2, Lcom/mrkeyboard/app/MrFonts;->sCtx:Landroid/content/Context;
 
     invoke-static {v2}, Landroid/view/LayoutInflater;->from(Landroid/content/Context;)Landroid/view/LayoutInflater;
@@ -848,7 +848,7 @@
 
     move-object v2, v0
 
-    .line 339
+    .line 351
     :goto_0
     if-nez p0, :cond_1
 
@@ -856,7 +856,7 @@
 
     move-result-object v0
 
-    .line 340
+    .line 352
     :goto_1
     new-instance v3, Ljava/lang/StringBuilder;
 
@@ -876,39 +876,39 @@
 
     move-result-object v3
 
-    .line 341
+    .line 353
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setTag(Ljava/lang/Object;)V
 
-    .line 342
+    .line 354
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setContentDescription(Ljava/lang/CharSequence;)V
 
-    .line 343
+    .line 355
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sRow:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 345
+    .line 357
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sRow:Landroid/widget/LinearLayout;
 
     const/4 v4, -0x1
 
     invoke-static {v0, v3, v4}, Lcom/mrkeyboard/app/MrTools;->btn(Landroid/view/View;Ljava/lang/String;I)Landroid/widget/TextView;
 
-    .line 346
+    .line 358
     invoke-virtual {v2}, Landroid/widget/TextView;->getCurrentTextColor()I
 
     move-result v0
 
     sput v0, Lcom/mrkeyboard/app/MrFonts;->sTextOff:I
 
-    .line 347
+    .line 359
     new-instance v0, Lcom/mrkeyboard/app/MrFonts$Pick;
 
     invoke-direct {v0, p0}, Lcom/mrkeyboard/app/MrFonts$Pick;-><init>(I)V
 
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 348
+    .line 360
     sget v0, Lcom/mrkeyboard/app/MrFonts;->sChoice:I
 
     if-ne p0, v0, :cond_2
@@ -918,10 +918,10 @@
     :goto_2
     invoke-static {v2, p0, v0}, Lcom/mrkeyboard/app/MrFonts;->select(Landroid/widget/TextView;IZ)V
 
-    .line 349
+    .line 361
     return-object v2
 
-    .line 334
+    .line 346
     :cond_0
     new-instance v0, Landroid/widget/TextView;
 
@@ -929,17 +929,17 @@
 
     invoke-direct {v0, v2}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 335
+    .line 347
     const/high16 v2, 0x41400000    # 12.0f
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 336
+    .line 348
     const/16 v2, 0x11
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 337
+    .line 349
     invoke-static {v5}, Lcom/mrkeyboard/app/MrFonts;->dp(I)I
 
     move-result v2
@@ -954,7 +954,7 @@
 
     goto :goto_0
 
-    .line 339
+    .line 351
     :cond_1
     add-int/lit8 v0, p0, -0x1
 
@@ -967,7 +967,7 @@
     :cond_2
     move v0, v1
 
-    .line 348
+    .line 360
     goto :goto_2
 .end method
 
@@ -977,15 +977,15 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 394
+    .line 406
     sput p0, Lcom/mrkeyboard/app/MrFonts;->sChoice:I
 
-    .line 395
+    .line 407
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sCtx:Landroid/content/Context;
 
     if-eqz v0, :cond_0
 
-    .line 396
+    .line 408
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sCtx:Landroid/content/Context;
 
     invoke-static {v0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
@@ -1004,7 +1004,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 398
+    .line 410
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sButtons:[Landroid/widget/TextView;
 
@@ -1012,7 +1012,7 @@
 
     move v0, v1
 
-    .line 399
+    .line 411
     :goto_0
     sget-object v2, Lcom/mrkeyboard/app/MrFonts;->sButtons:[Landroid/widget/TextView;
 
@@ -1020,7 +1020,7 @@
 
     if-ge v0, v2, :cond_3
 
-    .line 400
+    .line 412
     sget-object v2, Lcom/mrkeyboard/app/MrFonts;->sButtons:[Landroid/widget/TextView;
 
     aget-object v2, v2, v0
@@ -1038,7 +1038,7 @@
     :goto_1
     invoke-static {v3, v0, v2}, Lcom/mrkeyboard/app/MrFonts;->select(Landroid/widget/TextView;IZ)V
 
-    .line 399
+    .line 411
     :cond_1
     add-int/lit8 v0, v0, 0x1
 
@@ -1047,14 +1047,14 @@
     :cond_2
     move v2, v1
 
-    .line 400
+    .line 412
     goto :goto_1
 
-    .line 403
+    .line 415
     :cond_3
     invoke-static {}, Lcom/mrkeyboard/app/MrFonts;->refreshKeys()V
 
-    .line 404
+    .line 416
     return-void
 .end method
 
@@ -1064,12 +1064,12 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 254
+    .line 266
     invoke-interface {p0, v0}, Landroid/view/inputmethod/InputConnection;->getSelectedText(I)Ljava/lang/CharSequence;
 
     move-result-object v1
 
-    .line 255
+    .line 267
     if-eqz v1, :cond_1
 
     invoke-interface {v1}, Ljava/lang/CharSequence;->length()I
@@ -1078,12 +1078,12 @@
 
     if-lez v1, :cond_1
 
-    .line 266
+    .line 278
     :cond_0
     :goto_0
     return v0
 
-    .line 256
+    .line 268
     :cond_1
     const/16 v1, 0x10
 
@@ -1091,7 +1091,7 @@
 
     move-result-object v1
 
-    .line 257
+    .line 269
     if-eqz v1, :cond_0
 
     invoke-interface {v1}, Ljava/lang/CharSequence;->length()I
@@ -1100,20 +1100,20 @@
 
     if-eqz v2, :cond_0
 
-    .line 258
+    .line 270
     invoke-interface {v1}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 259
+    .line 271
     invoke-static {}, Ljava/text/BreakIterator;->getCharacterInstance()Ljava/text/BreakIterator;
 
     move-result-object v2
 
-    .line 260
+    .line 272
     invoke-virtual {v2, v1}, Ljava/text/BreakIterator;->setText(Ljava/lang/String;)V
 
-    .line 261
+    .line 273
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v3
@@ -1122,19 +1122,19 @@
 
     move-result v2
 
-    .line 262
+    .line 274
     const/4 v3, -0x1
 
     if-eq v2, v3, :cond_0
 
-    .line 263
+    .line 275
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v3
 
     sub-int/2addr v3, v2
 
-    .line 264
+    .line 276
     const/4 v4, 0x2
 
     if-lt v3, v4, :cond_0
@@ -1151,10 +1151,10 @@
 
     if-nez v1, :cond_0
 
-    .line 265
+    .line 277
     invoke-interface {p0, v3, v0}, Landroid/view/inputmethod/InputConnection;->deleteSurroundingText(II)Z
 
-    .line 266
+    .line 278
     const/4 v0, 0x1
 
     goto :goto_0
@@ -1164,7 +1164,7 @@
     .locals 2
 
     .prologue
-    .line 388
+    .line 400
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sCtx:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -1177,7 +1177,7 @@
 
     iget v0, v0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 389
+    .line 401
     int-to-float v1, p0
 
     mul-float/2addr v0, v1
@@ -1259,7 +1259,7 @@
     .locals 3
 
     .prologue
-    .line 354
+    .line 366
     if-nez p0, :cond_0
 
     invoke-static {}, Lcom/mrkeyboard/app/MrFonts;->normalName()Ljava/lang/String;
@@ -1272,7 +1272,7 @@
 
     move-result-object v0
 
-    .line 355
+    .line 367
     :goto_0
     return-object v0
 
@@ -1306,14 +1306,14 @@
 
     const/4 v1, 0x0
 
-    .line 282
+    .line 294
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->EXC:[Ljava/lang/String;
 
     aget-object v3, v0, p0
 
     move v0, v1
 
-    .line 283
+    .line 295
     :goto_0
     add-int/lit8 v4, v0, 0x1
 
@@ -1323,7 +1323,7 @@
 
     if-ge v4, v5, :cond_1
 
-    .line 284
+    .line 296
     invoke-virtual {v3, v0}, Ljava/lang/String;->charAt(I)C
 
     move-result v4
@@ -1346,17 +1346,17 @@
 
     move-object v0, v1
 
-    .line 297
+    .line 309
     :goto_1
     return-object v0
 
-    .line 283
+    .line 295
     :cond_0
     add-int/lit8 v0, v0, 0x2
 
     goto :goto_0
 
-    .line 286
+    .line 298
     :cond_1
     const/16 v0, 0x41
 
@@ -1368,7 +1368,7 @@
 
     move v0, v2
 
-    .line 287
+    .line 299
     :goto_2
     const/16 v3, 0x61
 
@@ -1380,7 +1380,7 @@
 
     move v1, v2
 
-    .line 288
+    .line 300
     :cond_2
     if-nez v0, :cond_4
 
@@ -1393,10 +1393,10 @@
     :cond_3
     move v0, v1
 
-    .line 286
+    .line 298
     goto :goto_2
 
-    .line 289
+    .line 301
     :cond_4
     sget-object v1, Lcom/mrkeyboard/app/MrFonts;->COMB:[I
 
@@ -1404,7 +1404,7 @@
 
     if-eqz v1, :cond_5
 
-    .line 290
+    .line 302
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1439,7 +1439,7 @@
 
     goto :goto_1
 
-    .line 292
+    .line 304
     :cond_5
     sget-object v1, Lcom/mrkeyboard/app/MrFonts;->TAB:[[I
 
@@ -1447,7 +1447,7 @@
 
     if-eqz v1, :cond_8
 
-    .line 293
+    .line 305
     sget-object v1, Lcom/mrkeyboard/app/MrFonts;->TAB:[[I
 
     aget-object v1, v1, p0
@@ -1459,7 +1459,7 @@
     :goto_3
     aget v0, v1, v0
 
-    .line 294
+    .line 306
     new-instance v1, Ljava/lang/String;
 
     if-nez v0, :cond_7
@@ -1475,7 +1475,7 @@
 
     goto :goto_1
 
-    .line 293
+    .line 305
     :cond_6
     add-int/lit8 v0, p1, -0x61
 
@@ -1486,10 +1486,10 @@
     :cond_7
     move p1, v0
 
-    .line 294
+    .line 306
     goto :goto_4
 
-    .line 296
+    .line 308
     :cond_8
     if-eqz v0, :cond_9
 
@@ -1501,7 +1501,7 @@
 
     add-int/2addr v0, v1
 
-    .line 297
+    .line 309
     :goto_5
     new-instance v1, Ljava/lang/String;
 
@@ -1515,7 +1515,7 @@
 
     goto :goto_1
 
-    .line 296
+    .line 308
     :cond_9
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->LOW:[I
 
@@ -1532,7 +1532,7 @@
     .locals 4
 
     .prologue
-    .line 360
+    .line 372
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sCtx:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -1553,7 +1553,7 @@
 
     move-result v0
 
-    .line 361
+    .line 373
     if-nez v0, :cond_0
 
     const-string v0, "Normal"
@@ -1624,20 +1624,20 @@
     .locals 2
 
     .prologue
-    .line 408
+    .line 420
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sKbd:Landroid/view/View;
 
-    .line 409
+    .line 421
     instance-of v1, v0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;
 
     if-eqz v1, :cond_0
 
-    .line 410
+    .line 422
     check-cast v0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->invalidateAllKeys()V
 
-    .line 412
+    .line 424
     :cond_0
     return-void
 .end method
@@ -1646,24 +1646,24 @@
     .locals 1
 
     .prologue
-    .line 369
+    .line 381
     invoke-static {p1}, Lcom/mrkeyboard/app/MrFonts;->label(I)Ljava/lang/String;
 
     move-result-object v0
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 370
+    .line 382
     if-eqz p2, :cond_0
 
-    .line 371
+    .line 383
     invoke-static {}, Lcom/mrkeyboard/app/MrFonts;->activeBg()Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v0
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 372
+    .line 384
     const-string v0, "accent_text"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
@@ -1672,11 +1672,11 @@
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 377
+    .line 389
     :goto_0
     return-void
 
-    .line 374
+    .line 386
     :cond_0
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->flatBg()Landroid/graphics/drawable/Drawable;
 
@@ -1684,7 +1684,7 @@
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 375
+    .line 387
     sget v0, Lcom/mrkeyboard/app/MrFonts;->sTextOff:I
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setTextColor(I)V
@@ -1888,7 +1888,7 @@
     .locals 4
 
     .prologue
-    .line 312
+    .line 324
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sCtx:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -1925,7 +1925,7 @@
 
     move-result v0
 
-    .line 313
+    .line 325
     if-nez v0, :cond_0
 
     const-string v0, ""
@@ -1943,25 +1943,51 @@
     goto :goto_0
 .end method
 
+.method static styleOn(Landroid/view/inputmethod/EditorInfo;)Z
+    .locals 1
+
+    .prologue
+    .line 258
+    sget v0, Lcom/mrkeyboard/app/MrFonts;->sChoice:I
+
+    if-lez v0, :cond_0
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrFonts;->fieldTakesStyle(Landroid/view/inputmethod/EditorInfo;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    const/4 v0, 0x1
+
+    :goto_0
+    return v0
+
+    :cond_0
+    const/4 v0, 0x0
+
+    goto :goto_0
+.end method
+
 .method static styled(IC)Ljava/lang/String;
     .locals 3
 
     .prologue
     const/4 v0, 0x0
 
-    .line 271
+    .line 283
     if-ltz p0, :cond_0
 
     const/16 v1, 0x1b
 
     if-lt p0, v1, :cond_1
 
-    .line 277
+    .line 289
     :cond_0
     :goto_0
     return-object v0
 
-    .line 272
+    .line 284
     :cond_1
     const/16 v1, 0x80
 
@@ -1973,7 +1999,7 @@
 
     goto :goto_0
 
-    .line 274
+    .line 286
     :cond_2
     invoke-static {p1}, Ljava/lang/String;->valueOf(C)Ljava/lang/String;
 
@@ -1985,7 +2011,7 @@
 
     move-result-object v1
 
-    .line 275
+    .line 287
     const/4 v2, 0x0
 
     invoke-virtual {v1, v2}, Ljava/lang/String;->charAt(I)C
@@ -1996,10 +2022,10 @@
 
     move-result-object v2
 
-    .line 276
+    .line 288
     if-eqz v2, :cond_0
 
-    .line 277
+    .line 289
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -2029,12 +2055,12 @@
     .locals 3
 
     .prologue
-    .line 302
+    .line 314
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 303
+    .line 315
     const/4 v0, 0x0
 
     :goto_0
@@ -2044,7 +2070,7 @@
 
     if-ge v0, v1, :cond_1
 
-    .line 304
+    .line 316
     invoke-virtual {p1, v0}, Ljava/lang/String;->charAt(I)C
 
     move-result v1
@@ -2053,7 +2079,7 @@
 
     move-result-object v1
 
-    .line 305
+    .line 317
     if-nez v1, :cond_0
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->charAt(I)C
@@ -2067,12 +2093,12 @@
     :cond_0
     invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 303
+    .line 315
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 307
+    .line 319
     :cond_1
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -2096,7 +2122,7 @@
 
     if-gtz v2, :cond_1
 
-    .line 246
+    .line 249
     :cond_0
     :goto_0
     return v0
@@ -2154,11 +2180,14 @@
     .line 244
     if-eqz v3, :cond_0
 
-    .line 245
+    .line 247
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEndWord()V
+
+    .line 248
     invoke-interface {v2, v3, v1}, Landroid/view/inputmethod/InputConnection;->commitText(Ljava/lang/CharSequence;I)Z
 
     move v0, v1
 
-    .line 246
+    .line 249
     goto :goto_0
 .end method

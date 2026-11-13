@@ -26,6 +26,8 @@ the feature: what exists, how it works, where the words come from and what is le
   that are events). While the search is open `MrTools.sRedirect` is that field; when it closes the word typed there is committed
   (`LatinIME.mrCommit`) and the redirect and the field go back as they were. A tap on a result bypasses the redirect
   (`LatinIME.getAppInputConnection`).
+- **The row is the search's.** The header is a tool header like the others (`bar_es`): while it is open, `bar_main` (the tools and the suggestions
+  strip) stays hidden and the suggestions do not run (`MrTools.rowOwned`, `LatinIME.suggestionsSuspended`).
 - **Height.** The toolbar row has a fixed height (`mr_bar_height` times the bar-size setting, `MrBar`). The header needs more room, so `MrBar` got
   two calls any panel can use: `MrBar.expand(bar, px)` makes a bar taller (it remembers the height it had) and `MrBar.restore(bar)` gives it
   back; while a bar is expanded the bar-size setting does not touch it. The search header asks for `mr_es_height` (195 dp, 138 dp in landscape)

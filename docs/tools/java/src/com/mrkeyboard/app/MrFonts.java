@@ -242,8 +242,20 @@ final class MrFonts {
         if (code < 0 || code > 0xFFFF) return false;
         String s = styled(sChoice - 1, (char) code);
         if (s == null) return false;
+        // commitText replaces the text that is marked as composing: a word the keyboard still holds (the one being typed, or
+        // one reopened by the re-correction) must be let go first, or the styled letter would erase it.
+        ime.mrEndWord();
         ic.commitText(s, 1);
         return true;
+    }
+
+    /**
+     * True when what is typed comes out in a style: a style is chosen (even with the tool closed) and the field takes it.
+     * The dictionary has nothing for such text, so LatinIME stops the suggestions (search, next word, re-correction) while it
+     * is true: they would only cost work and give nothing.
+     */
+    static boolean styleOn(EditorInfo ei) {
+        return sChoice > 0 && fieldTakesStyle(ei);
     }
 
     /**

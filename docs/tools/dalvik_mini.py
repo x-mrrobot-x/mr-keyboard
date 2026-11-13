@@ -173,7 +173,7 @@ class VM:
 
         def setr(t, v): R[r(t)] = v
 
-        if op in ('const/4', 'const/16', 'const', 'const/high16'):
+        if op in ('const/4', 'const/16', 'const', 'const/high16', 'const-wide/16', 'const-wide/32'):
             a, b = ops(rest); setr(a, parse_int(b))
         elif op == 'const-string':
             a, b = rest.split(',', 1); setr(a, b.strip()[1:-1])
@@ -247,6 +247,12 @@ class VM:
         elif op.startswith('if-'):
             t = ops(rest); zero = op.endswith('z'); kind = op[3:5]
             a = R[r(t[0])]; b = 0 if zero else R[r(t[1])]
+            if kind in ('eq', 'ne') and not zero and a is not None and b is not None \
+                    and not isinstance(a, (int, float)) and not isinstance(b, (int, float)):
+                # two references: the same object or not (not "both are non-null")
+                if (a is b) == (kind == 'eq'):
+                    pc = labels[t[-1][1:]]
+                return pc, res, exc, False, None
             a = 0 if a is None else a
             b = 0 if b is None else b
             if not isinstance(a, (int, float)): a = 1            # non-null reference

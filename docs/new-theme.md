@@ -129,7 +129,7 @@ only Cobalt Glass is written by hand. To add or change one of the generated ones
      key hint color (`_hint`), so a light theme gives it life instead of a mix of the ink with a pale face: the vivid color
      leaning to the ink, as far as the contrast with the background and the keys asks (`lively()` in the script).
 
-   The toolbar rows (`bar_main`, `bar_t`, `bar_c`, `bar_s`, `bar_e`, `bar_tune`) and the panels (`p_clip`, `p_lang`, `p_shots`,
+   The toolbar rows (`bar_main`, `bar_t`, `bar_c`, `bar_s`, `bar_e`, `bar_tune`, `bar_fonts`, `bar_es`) and the panels (`p_clip`, `p_lang`, `p_shots`,
    `p_emote`) have no background of their own in any theme: the bar root copies the keyboard's (`mr_<tema>_kbd_bg`) in
    `MrTools.wrap`, so bar, panels and keys share one color, defined only in `kbd_bg` (in a see-through theme the root carries the
    one sheet and the keyboard view is clear: `MrTools.applyTranslucentBlur`). The keys must contrast with `kbd_bg`: when

@@ -7,6 +7,8 @@ public class LatinIME extends android.inputmethodservice.InputMethodService {
 
     public android.view.inputmethod.InputConnection getAppInputConnection() { return null; }
     public void mrCommit() { }
+    /** Lets go of every word the keyboard still holds as composing (the typed one, one reopened by re-correction). Added to the real class in the smali (fonts tool). */
+    public void mrEndWord() { }
     /** The suggestion engine of the language in use. Added to the real class in the smali (gesture typing). */
     public Suggest mrSuggest() { return null; }
     /** Puts these words on the strip; null = what the strip shows between two words. Added to the real class in the smali (gesture typing). */

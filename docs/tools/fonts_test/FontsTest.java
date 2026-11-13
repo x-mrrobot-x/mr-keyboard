@@ -55,10 +55,15 @@ public class FontsTest {
         android.view.inputmethod.EditorInfo info;
         android.view.inputmethod.InputConnection ic;
 
+        @Override public void mrEndWord() { LOG.append("END,"); }
+
         @Override public android.view.inputmethod.InputConnection getCurrentInputConnection() { return ic; }
 
         @Override public android.view.inputmethod.EditorInfo getCurrentInputEditorInfo() { return info; }
     }
+
+    /** What happened, in order: "END," when the keyboard let go of the word it holds, "COMMIT," when a text went into the field. */
+    static final StringBuilder LOG = new StringBuilder();
 
     /** The text field of the test: the text before the cursor, a selection, and what was committed or deleted. */
     static class FakeConn implements android.view.inputmethod.InputConnection {
@@ -73,7 +78,7 @@ public class FontsTest {
 
         @Override public CharSequence getTextBeforeCursor(int n, int flags) { return before; }
         @Override public CharSequence getSelectedText(int flags) { return selected.isEmpty() ? null : selected; }
-        @Override public boolean commitText(CharSequence text, int pos) { committed += text; return true; }
+        @Override public boolean commitText(CharSequence text, int pos) { committed += text; LOG.append("COMMIT,"); return true; }
         @Override public boolean deleteSurroundingText(int b, int a) { deleted += b; return true; }
         @Override public boolean finishComposingText() { return true; }
         @Override public boolean beginBatchEdit() { return true; }
@@ -288,6 +293,42 @@ public class FontsTest {
         ime.ic = null;
         check(!MrFonts.typeStyled(ime, 'a') && !MrFonts.typeStyled(ime, MrFonts.CODE_DELETE), "no input connection: the normal way");
         check(!MrFonts.typeStyled(null, 'a'), "no keyboard service: the normal way");
+
+        // a styled letter is written after the word the keyboard holds, never over it (commitText replaces the composing text):
+        // the keyboard lets go of the word first, in every style. A key that goes the normal way, and a delete, do not touch it.
+        for (int st = 1; st <= MrFonts.STYLES; st++) {
+            setChoice(st);
+            ime.info = info(0x1);
+            ime.ic = new FakeConn("", "");
+            LOG.setLength(0);
+            boolean handled = MrFonts.typeStyled(ime, 'y');
+            check(!handled || LOG.toString().equals("END,COMMIT,"), "style " + st + ": the word is let go, then the letter is written (" + LOG + ")");
+        }
+        setChoice(1);
+        ime.info = info(0x1);
+        ime.ic = new FakeConn("", "");
+        LOG.setLength(0);
+        MrFonts.typeStyled(ime, '1');
+        MrFonts.typeStyled(ime, ' ');
+        MrFonts.typeStyled(ime, MrFonts.CODE_DELETE);
+        check(LOG.length() == 0, "a digit, a space and a delete do not touch the word the keyboard holds");
+        ime.info = info(0x1 | 0x80);
+        ime.ic = new FakeConn("", "");
+        LOG.setLength(0);
+        MrFonts.typeStyled(ime, 'a');
+        check(LOG.length() == 0, "a password field: the word the keyboard holds is left alone");
+        ime.info = info(0x1);
+
+        // the suggestions stop while the typed text comes out in a style (LatinIME asks styleOn)
+        setChoice(0);
+        check(!MrFonts.styleOn(info(0x1)), "no style chosen: the suggestions run");
+        setChoice(1);
+        check(MrFonts.styleOn(info(0x1)), "a style chosen in a text field: the suggestions stop");
+        check(MrFonts.styleOn(null), "a style chosen, no editor info: the suggestions stop");
+        check(!MrFonts.styleOn(info(0x1 | 0x80)), "a style chosen in a password field: the keys are plain, the suggestions are not touched here");
+        check(!MrFonts.styleOn(info(0x2)), "a style chosen in a number field: the keys are plain");
+        check(MrFonts.styleOn(info(0x1 | 0x2000)), "a style chosen in a field that asks for no suggestions: still a styled text");
+        setChoice(1);
 
         // delete: one whole letter, whatever it is made of
         String[][] dels = {

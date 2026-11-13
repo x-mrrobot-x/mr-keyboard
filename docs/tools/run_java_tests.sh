@@ -39,8 +39,9 @@
 #   - FontsTest: the Unicode styles of the fonts tool (MrFonts): 27 styles with known code points (block styles and their
 #     letter-like exceptions, small caps, superscript, Subscript with only the letters Unicode has, the combining marks,
 #     Parenthesized), the letters left as they are, accents kept, no two styles equal, the fields that take no style
-#     (passwords, e-mail, web addresses, numbers) and the delete of a styled letter (with a selection it is left to the
-#     normal delete).
+#     (passwords, e-mail, web addresses, numbers), the delete of a styled letter (with a selection it is left to the
+#     normal delete), that the keyboard lets go of the word it holds before every style writes a letter (a styled letter
+#     must not replace it) and when the suggestions stop (styleOn).
 #   - GlowTest: the neon look of the keyboard themes (MrGlow): a theme without the flag is drawn as before; a neon theme
 #     gets the light of the labels, icons, dash and preview letter; a spectrum theme gets the hue of each key from its
 #     position (the colour matrix of the face, label, icon, hint letters, dash), except in the popup of variants.

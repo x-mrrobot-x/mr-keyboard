@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 427
+    .line 439
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -32,7 +32,7 @@
     .locals 0
 
     .prologue
-    .line 427
+    .line 439
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrFonts$Back;-><init>()V
 
     return-void
@@ -44,11 +44,11 @@
     .locals 1
 
     .prologue
-    .line 430
+    .line 442
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->showPanel(I)V
 
-    .line 431
+    .line 443
     return-void
 .end method

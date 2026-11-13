@@ -359,7 +359,79 @@
     return-void
 .end method
 
-# Main row (bar_main): hidden when a panel is open; otherwise MrSugg.mode decides between
+# True when a tool uses the row of the toolbar: one of the headers that sit beside bar_main (bar_t, bar_c, bar_s, bar_e,
+# bar_tune, bar_fonts, bar_es...) is visible. RULE: while a tool uses the row, nothing else shares it, so bar_main (the
+# tools and the suggestions) stays hidden and the suggestions flow stops (LatinIME.suggestionsSuspended).
+# It goes by the tag "bar_*" of the views beside bar_main, so a new tool header is covered with no change here.
+.method static rowOwned()Z
+    .locals 6
+
+    sget-object v0, Lcom/mrkeyboard/app/MrTools;->sBarMain:Landroid/view/View;
+
+    if-eqz v0, :cond_ro_no
+
+    invoke-virtual {v0}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
+
+    move-result-object v1
+
+    instance-of v2, v1, Landroid/view/ViewGroup;
+
+    if-eqz v2, :cond_ro_no
+
+    check-cast v1, Landroid/view/ViewGroup;
+
+    invoke-virtual {v1}, Landroid/view/ViewGroup;->getChildCount()I
+
+    move-result v2
+
+    const/4 v3, 0x0
+
+    :goto_ro_next
+    if-ge v3, v2, :cond_ro_no
+
+    invoke-virtual {v1, v3}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
+
+    move-result-object v4
+
+    add-int/lit8 v3, v3, 0x1
+
+    if-eq v4, v0, :goto_ro_next
+
+    invoke-virtual {v4}, Landroid/view/View;->getVisibility()I
+
+    move-result v5
+
+    if-nez v5, :goto_ro_next
+
+    invoke-virtual {v4}, Landroid/view/View;->getTag()Ljava/lang/Object;
+
+    move-result-object v4
+
+    instance-of v5, v4, Ljava/lang/String;
+
+    if-eqz v5, :goto_ro_next
+
+    check-cast v4, Ljava/lang/String;
+
+    const-string v5, "bar_"
+
+    invoke-virtual {v4, v5}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v4
+
+    if-eqz v4, :goto_ro_next
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_ro_no
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+# Main row (bar_main): hidden while a tool uses the row (rowOwned); otherwise MrSugg.mode decides between
 # tools (1), suggestions (2) or nothing (0). See MrSugg.
 .method static applyMain()V
     .locals 4
@@ -370,61 +442,12 @@
 
     const/16 v1, 0x8
 
-    sget-object v2, Lcom/mrkeyboard/app/MrTools;->sBarT:Landroid/view/View;
-
-    if-eqz v2, :cond_am_chkc
-
-    invoke-virtual {v2}, Landroid/view/View;->getVisibility()I
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->rowOwned()Z
 
     move-result v2
 
-    if-eqz v2, :cond_am_set
+    if-nez v2, :cond_am_set
 
-    :cond_am_chkc
-    sget-object v2, Lcom/mrkeyboard/app/MrTools;->sBarC:Landroid/view/View;
-
-    if-eqz v2, :cond_am_chks
-
-    invoke-virtual {v2}, Landroid/view/View;->getVisibility()I
-
-    move-result v2
-
-    if-eqz v2, :cond_am_set
-
-    :cond_am_chks
-    sget-object v2, Lcom/mrkeyboard/app/MrTools;->sBarS:Landroid/view/View;
-
-    if-eqz v2, :cond_am_che
-
-    invoke-virtual {v2}, Landroid/view/View;->getVisibility()I
-
-    move-result v2
-
-    if-eqz v2, :cond_am_set
-
-    :cond_am_che
-    sget-object v2, Lcom/mrkeyboard/app/MrTools;->sBarE:Landroid/view/View;
-
-    if-eqz v2, :cond_am_chtune
-
-    invoke-virtual {v2}, Landroid/view/View;->getVisibility()I
-
-    move-result v2
-
-    if-eqz v2, :cond_am_set
-
-    :cond_am_chtune
-    sget-object v2, Lcom/mrkeyboard/app/MrTune;->sBar:Landroid/view/View;
-
-    if-eqz v2, :cond_am_mode
-
-    invoke-virtual {v2}, Landroid/view/View;->getVisibility()I
-
-    move-result v2
-
-    if-eqz v2, :cond_am_set
-
-    :cond_am_mode
     sget-boolean v3, Lcom/mrkeyboard/app/MrTools;->sBarOn:Z
 
     invoke-static {v3}, Lcom/mrkeyboard/app/MrSugg;->mode(Z)I

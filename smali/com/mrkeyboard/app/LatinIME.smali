@@ -4645,6 +4645,23 @@
 .method private postUpdateOldSuggestions()V
     .locals 4
 
+    # Mr Keyboard: no re-correction of the word under the cursor while a tool uses the toolbar row or a font style is on
+    # (suggestionsSuspended): the 300 ms wait is not even started.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->suggestionsSuspended()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_mr_po_go
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mHandler:Landroid/os/Handler;
+
+    const/4 v1, 0x4
+
+    invoke-virtual {v0, v1}, Landroid/os/Handler;->removeMessages(I)V
+
+    return-void
+
+    :cond_mr_po_go
     .line 2447
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mHandler:Landroid/os/Handler;
 
@@ -6415,6 +6432,18 @@
 .method private setNextSuggestions()V
     .locals 2
 
+    # Mr Keyboard: with a tool on the toolbar row or a font style on there is nothing to predict (see suggestionsSuspended).
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->suggestionsSuspended()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_mr_ns_go
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->clearSuggestions()V
+
+    return-void
+
+    :cond_mr_ns_go
     # Mr Keyboard v1.60: next-word prediction (MrPredict) when suggestions are on;
     # without a prediction (start of text, after punctuation, word without bigrams) the punctuation stays.
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isPredictionOn()Z
@@ -6502,6 +6531,17 @@
 .method private setOldSuggestions()V
     .locals 5
 
+    # Mr Keyboard: see postUpdateOldSuggestions (a word reopened here would be marked as composing and the next styled letter
+    # would replace it).
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->suggestionsSuspended()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_mr_so_go
+
+    return-void
+
+    :cond_mr_so_go
     # Mr Keyboard v1.74: body restored (re-correction had been left with only the "no word" branch):
     # finds the touched word, shows its suggestions and marks it as composing so that tapping replaces it
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
@@ -7491,6 +7531,19 @@
 
     invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/LatinKeyboard;->setPreferredLetters([I)V
 
+    # Mr Keyboard: no dictionary search while a tool uses the toolbar row or a font style is on (suggestionsSuspended); the
+    # strip is emptied so that nothing stale stays on it.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->suggestionsSuspended()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_mr_us_go
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->clearSuggestions()V
+
+    return-void
+
+    :cond_mr_us_go
     .line 2506
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggest:Lcom/mrkeyboard/app/Suggest;
 
@@ -12284,6 +12337,22 @@
 
     .line 2626
     :cond_4
+    # Mr Keyboard: a word reopened by the re-correction while the person is typing at the end of the text (nothing after the
+    # cursor) is still a word being typed: the pick adds the space and goes on to the next word, as for the word typed so
+    # far. A word corrected in the middle of the text (text after the cursor) stays as it was: no space.
+    if-eqz v0, :cond_mr_pk
+
+    if-eqz v1, :cond_mr_pk
+
+    invoke-direct {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->mrAtTextEnd(Landroid/view/inputmethod/InputConnection;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_mr_pk
+
+    const/4 v0, 0x0
+
+    :cond_mr_pk
     invoke-interface {p2}, Ljava/lang/CharSequence;->length()I
 
     move-result v2
@@ -13592,4 +13661,88 @@
     invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/LatinIME;->commitTyped(Landroid/view/inputmethod/InputConnection;Z)V
 
     return-void
+.end method
+
+# Before a styled letter (MrFonts.typeStyled) is written: lets go of every word that is still marked as composing, so that
+# the letter is added after it and does not replace it. The word typed so far goes in as text, a word reopened by the
+# re-correction (marked with setComposingRegion) is let go, and what is on the strip goes away.
+.method public mrEndWord()V
+    .locals 2
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
+
+    move-result-object v0
+
+    if-nez v0, :cond_ew_go
+
+    return-void
+
+    :cond_ew_go
+    const/4 v1, 0x0
+
+    invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/LatinIME;->commitTyped(Landroid/view/inputmethod/InputConnection;Z)V
+
+    invoke-direct {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->abortCorrection(Z)V
+
+    invoke-interface {v0}, Landroid/view/inputmethod/InputConnection;->finishComposingText()Z
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->clearSuggestions()V
+
+    return-void
+.end method
+
+# True when the suggestions flow must not run: a tool is using the toolbar row (MrTools.rowOwned) or what is typed comes
+# out in a font style (MrFonts.styleOn), so it is not a word of the dictionary. Used by updateSuggestions,
+# setNextSuggestions, setOldSuggestions and postUpdateOldSuggestions (no search, no re-correction).
+.method private suggestionsSuspended()Z
+    .locals 2
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrTools;->rowOwned()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_ss_font
+
+    return v0
+
+    :cond_ss_font
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputEditorInfo()Landroid/view/inputmethod/EditorInfo;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrFonts;->styleOn(Landroid/view/inputmethod/EditorInfo;)Z
+
+    move-result v0
+
+    return v0
+.end method
+
+# True when there is no text after the cursor (end of the field): what pickSuggestionManually uses to tell a word being
+# typed at the end of the text from a word corrected in the middle of it.
+.method private mrAtTextEnd(Landroid/view/inputmethod/InputConnection;)Z
+    .locals 3
+
+    const/4 v0, 0x1
+
+    const/4 v1, 0x0
+
+    invoke-interface {p1, v0, v1}, Landroid/view/inputmethod/InputConnection;->getTextAfterCursor(II)Ljava/lang/CharSequence;
+
+    move-result-object v2
+
+    if-nez v2, :cond_ae_have
+
+    return v1
+
+    :cond_ae_have
+    invoke-interface {v2}, Ljava/lang/CharSequence;->length()I
+
+    move-result v2
+
+    if-nez v2, :cond_ae_no
+
+    return v0
+
+    :cond_ae_no
+    return v1
 .end method

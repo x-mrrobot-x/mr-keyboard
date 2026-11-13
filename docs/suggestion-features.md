@@ -84,6 +84,23 @@ Other tests in CI: `packs_test/run_packs_tests.sh` (the dictionary download flow
 test catalog, and the three installed languages), `run_java_tests.sh` (the Java layer). The speed of the strip is measured by hand with
 `docs/tools/e2e/SpeedEval.java` (see "Speed" below), the false positives of S27 with `AltEval.java`, how often the center promotion is right or wrong with `PromoEval.java` and the weight → frequency calibration of S29 with `ImportEval.java`.
 
+## When the suggestions stop
+The strip, the dictionary search, the next-word search and the re-correction of the word under the cursor (`LatinIME.updateSuggestions`,
+`setNextSuggestions`, `setOldSuggestions`, `postUpdateOldSuggestions`) do not run, and the strip is emptied, while `LatinIME.suggestionsSuspended` is true:
+- **A tool is using the toolbar row** (`MrTools.rowOwned`: a header beside `bar_main` is visible: clipboard, translator, attachments, emojis, Customize,
+  Fonts, emoji search). The rule of the row: while a tool uses it nothing else shares it, so the strip never sits above a tool's header
+  (`MrTools.applyMain` keeps `bar_main` hidden) and no work is done for a strip nobody sees.
+- **A font style is on** (`MrFonts.styleOn`: a style chosen, even with the tool closed, in a field that takes it). The typed text is made of look-alike
+  Unicode letters, which are no word of the dictionary: the search would only give nothing. Fields that take no style (password, e-mail, web address,
+  number) keep the suggestions.
+Before a styled letter is written, `LatinIME.mrEndWord` lets go of the word the keyboard still holds (the typed one and a word reopened by the
+re-correction): `commitText` replaces the composing text, and the styled letter used to erase the word before it (the superscript, small caps, subscript,
+full width and the five styles made of marks, whose words the re-correction accepts, as the other styles are made of letters it ignores).
+A suggestion picked for a word the re-correction reopened adds the space when there is no text after the cursor (the person is typing at the end: the
+word was reopened after a non-separator, such as a digit, an emoji or a styled letter, or by a pause); with text after the cursor (a word corrected in the
+middle of the text) there is no space, as before. Checks: `test_suggestions_suspended.py` (the real smali of those methods, in the mini Dalvik
+interpreter), `test_toolbar_row.py` (the rule of the row), `FontsTest` (the word is let go before every one of the 27 styles).
+
 ## The two screens (1.85)
 Both are in *Settings → Suggestions and dictionaries → My words*, built in Java like `MrPacksActivity` (plain framework views, the `mr_ui_*` palette, strings in the three languages), with no network code.
 - **What the keyboard learned** (`MrLearnedActivity`): per language (chosen on a select card since 1.88, see below), tabs **Learned** / **Added** / **Blocked**, a switch between words and pairs, search, sort by most used or newest, pages of 50 with "Show more". A row opens **Fix** (delete + add), **Block this word**, **Forget** (and **Allow again** on the blocked tab). Menu: delete the whole list (with a confirmation), **export a copy** (`ACTION_CREATE_DOCUMENT`, a `.txt` in the standard format below: it is also the backup, because `auto_dict.db`/`userbigram_dict.db` are not in the backup rules), and a button to add words.

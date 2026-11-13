@@ -8,6 +8,9 @@
 # inside bar_main, and not in the InputMethodService candidates area. bar_main has two
 # groups that alternate in the same 48dp row: bar_tools (tools) and bar_sugg.
 #
+# RULE of the row: while a tool uses it (a header beside bar_main is visible, MrTools.rowOwned: clipboard, translator, attachments,
+# emojis, Customize, Fonts, emoji search...), bar_main is hidden whatever the suggestions do, and LatinIME stops the suggestions flow
+# (LatinIME.suggestionsSuspended). The strip never sits above a tool's header.
 # The row keeps obeying the bar key (MrTools.sBarOn): hidden, it shows nothing.
 # Visible (no panel open):
 #   there are suggestions and the user did not ask for the tools on this word -> suggestions
