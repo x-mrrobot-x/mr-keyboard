@@ -1,11 +1,13 @@
 # Mr Keyboard: generates the smali of the Java layer (MrBar, MrText, MrFix, ...) from docs/tools/java/src.
 #
-# Runs only by hand (Actions > "Mr Keyboard - smali" > Run workflow). Publishes nothing and does not change the repository.
+# Runs by itself on every push to main that changes what the smali is generated from (the Java sources and stubs in docs/tools/java,
+# build_java.sh, this file), and by hand (Actions > "Mr Keyboard - smali" > Run workflow). Publishes nothing and does not change the
+# repository.
 # It is the same command that mr-checks.yml verifies (docs/tools/build_java.sh, with the dx from dex2jar 2.1 and the
 # apktool versions pinned below), so the result is what check_java_smali.sh expects, byte for byte.
 #
-# When to use: after changing a .java in docs/tools/java/src (or when the "Java-layer smali up to date" step
-# of mr-checks.yml reports DIFFERENT).
+# When to use: it runs on the push of a change in docs/tools/java/src (or the stubs), so the artifact is waiting after the push; by hand
+# when the "Java-layer smali up to date" step of mr-checks.yml reports DIFFERENT.
 #
 # Result in Actions > (run) > Artifacts:
 #   generated-smali -> only the .smali files that have a Java source, with the path smali/com/mrkeyboard/app/.
@@ -15,6 +17,12 @@ name: Mr Keyboard - smali
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/tools/java/**'
+      - 'docs/tools/build_java.sh'
+      - '.github/workflows/mr-smali.yml'
 
 permissions:
   contents: read
