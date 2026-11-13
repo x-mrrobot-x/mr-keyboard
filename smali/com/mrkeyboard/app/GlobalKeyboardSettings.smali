@@ -177,7 +177,11 @@
     iput v2, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->hintMode:I
 
     .line 77
-    iput v0, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->renderMode:I
+    # Render mode 0 (View.LAYER_TYPE_NONE; v2 is 0 here). It was 1 (software layer), applied only to the first keyboard view
+    # of the process (LatinKeyboardBaseView.setRenderModeIfPossible keeps the last mode in a static): in a window drawn by the
+    # processor that layer is a drawing cache, so every key press redrew all the keys. With no layer only the key is redrawn,
+    # and every view of the process is drawn the same way (docs/plan-performance.md).
+    iput v2, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->renderMode:I
 
     const/16 v0, 0xc8
 

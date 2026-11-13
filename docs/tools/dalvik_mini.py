@@ -234,6 +234,9 @@ class VM:
             a, b = ops(rest); R[r(a)] = R[r(b)]; R[r(a) + 1] = R[r(b) + 1] if r(b) + 1 < len(R) else R[r(b)]
         elif op in ('move-result', 'move-result-object', 'move-result-wide'): setr(rest, res)
         elif op == 'move-exception': setr(rest, exc)
+        elif op == 'throw':                 # the exception caught by move-exception goes up again (a finally block)
+            e = R[r(rest)]
+            raise e if isinstance(e, JavaExc) else JavaExc('Ljava/lang/NullPointerException;', 'throw null')
         elif op in ('return', 'return-object', 'return-wide'): return pc, res, exc, True, R[r(rest)]
         elif op == 'return-void': return pc, res, exc, True, None
         elif op in ('iget', 'iget-boolean', 'iget-object', 'iget-wide'):
