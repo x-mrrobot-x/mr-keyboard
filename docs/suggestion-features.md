@@ -95,7 +95,7 @@ The toolbar row (`bar_main`) holds the tools and the strip, one at a time. `MrSu
   gesture: `MrSugg.onList(has, true)`) clears the "tools came back" state and shows the strip at once. Only with the row visible and no tool using it
   (`MrTools.applyMain`): it never takes the place of a tool in use, such as the translator.
 - **The tools come back after the word ends.** When the list of the next word arrives (space, a suggestion picked, the "tap to save" hint) and the strip is
-  on screen, a debounce starts: `pref_sugg_idle` seconds (Settings > Suggestions > "Show tools after typing": off, 1, 2, 3 by default, 5, 8, 10). Another
+  on screen, a debounce starts: `pref_sugg_idle` seconds (Settings > Suggestions > "Show tools after typing": off, 1, 2 by default, 3, 5, 8, 10). Another
   end of word restarts it; typing cancels it; when it runs out the tools take the row (`MrSugg.sIdle`) and stay until the next typing. It never counts under a
   tool or with the row hidden (`MrSugg.stripShown`). The initial suggestions (Você, Eu, Não: start of the field, after a punctuation mark, after a paste or a
   cursor move) are lists of the next word like any other and follow the same rule. Two things used to keep them on the strip for ever, both fixed:
@@ -105,7 +105,10 @@ The toolbar row (`bar_main`) holds the tools and the strip, one at a time. `MrSu
   list in view is not of a word being typed. Left alone on purpose: the list of the word being typed (the person is in the middle of it) and the alternatives of
   a word chosen for re-correction (the person is choosing; the word stays marked until they pick or leave).
 - **No suggestions at all** (an empty list while the strip was shown): the strip stays 1 s (`HOLD`) before the tools come back, so a list that empties for an
-  instant does not blink the row.
+  instant does not blink the row. This is also what follows a word with no next-word prediction (a typo, a name, a number): `LatinIME.setNextSuggestions`
+  empties the strip. There is **no punctuation list** (`!?,` on the strip) and no "Suggested punctuation" setting: the list was only on screen for that
+  second, and the strip draws 3 slots, so only 3 of its characters could show. The fixed set `!?,"':;()-/@_` stays inside `LatinIME.isSuggestedPunctuation`,
+  where it tells `isCursorTouchingWord` and `pickSuggestionManually` what is not a word.
 Checks: `test_sugg_idle.py` (the real smali of `MrSugg` in the mini Dalvik interpreter with a fake handler and clock).
 
 ## When the suggestions stop

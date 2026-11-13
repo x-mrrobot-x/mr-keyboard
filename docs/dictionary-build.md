@@ -4,7 +4,7 @@
 "Balanced" package from the suggestions research, 100% offline:
 - larger and cleaner pt-BR dictionary, with word pairs (bigrams) from the Leipzig corpus (CC BY);
 - correction beyond the prefix: extra or missing letter, swapped letters, phonetic errors, missing space, error map and abbreviations;
-- next-word prediction after the space (up to 3, the best in the center; with no prediction, the punctuation from before);
+- next-word prediction after the space (up to 3, the best in the center; with no prediction, the strip is empty and the row goes back to the tools);
 - learning working whenever suggestions are on, never in a password or incognito field;
 - defaults kept: suggestions and autocorrection stay off.
 

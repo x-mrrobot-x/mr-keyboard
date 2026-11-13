@@ -24,7 +24,7 @@
 # the preview of a gesture) clears sIdle and shows the strip at once, but only when the row is visible and no tool owns it
 # (MrTools.applyMain), so it never takes the place of a tool in use (translator, clipboard...).
 #
-# Debounce (setting "pref_sugg_idle", seconds, 0 = off, 3 by default): when the word ends (space, a suggestion picked: the list
+# Debounce (setting "pref_sugg_idle", seconds, 0 = off, 2 by default): when the word ends (space, a suggestion picked: the list
 # of the next word arrives) and the strip is on screen, the countdown starts. Each new end of word restarts it. When it runs
 # out the tools take the row again (sIdle) and stay until the user types. The countdown never runs under a tool or with the row
 # hidden, and typing before it ends cancels it. A strip that comes into view with no new list (created after the list, the row
@@ -49,7 +49,7 @@
 
 .field static sSugg:Landroid/view/View;
 
-# There are suggestions to show (a real list, not the punctuation or an empty one).
+# There are suggestions to show (a real list, not an empty one).
 .field static sHas:Z
 
 # The tools took the row back after the debounce and stay until the user types.
@@ -390,11 +390,11 @@
     return-void
 .end method
 
-# The debounce, in ms, from the setting "pref_sugg_idle" (seconds; a list of numbers; 0 = off). 3 s when it cannot be read.
+# The debounce, in ms, from the setting "pref_sugg_idle" (seconds; a list of numbers; 0 = off). 2 s when it cannot be read.
 .method private static idleMs()J
     .locals 4
 
-    const/4 v1, 0x3
+    const/4 v1, 0x2
 
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sBarMain:Landroid/view/View;
 
@@ -410,7 +410,7 @@
 
     const-string v2, "pref_sugg_idle"
 
-    const-string v3, "3"
+    const-string v3, "2"
 
     invoke-interface {v0, v2, v3}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 

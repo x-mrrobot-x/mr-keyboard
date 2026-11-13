@@ -50,7 +50,6 @@
     <string name="title_label_scale">Escala dos rótulos das teclas</string>
     <string name="title_long_press_duration">Duração do toque longo</string>
     <string name="title_popup_content">Popup ao pressionar a tecla</string>
-    <string name="title_suggested_punctuation">Pontuação sugerida</string>
     <string name="title_suggestions_in_landscape">Sugestões no modo horizontal</string>
     <string name="title_swipe_down">Deslizar para baixo</string>
     <string name="title_swipe_gestures">Gestos de deslize (experimental)</string>

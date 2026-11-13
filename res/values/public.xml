@@ -494,8 +494,6 @@
     <public type="string" name="show_suggestions_summary" id="0x7f0c014a" />
     <public type="string" name="sound_on_keypress" id="0x7f0c014b" />
     <public type="string" name="status_bar_notification_info_overflow" id="0x7f0c014c" />
-    <public type="string" name="suggested_punctuations" id="0x7f0c014f" />
-    <public type="string" name="suggested_punctuations_default" id="0x7f0c0150" />
     <public type="string" name="summary_force_keyboard_on_false" id="0x7f0c0155" />
     <public type="string" name="summary_force_keyboard_on_true" id="0x7f0c0156" />
     <public type="string" name="summary_fullscreen_override_false" id="0x7f0c0157" />
@@ -520,7 +518,6 @@
     <public type="string" name="title_label_scale" id="0x7f0c0185" />
     <public type="string" name="title_long_press_duration" id="0x7f0c0187" />
     <public type="string" name="title_popup_content" id="0x7f0c0188" />
-    <public type="string" name="title_suggested_punctuation" id="0x7f0c018c" />
     <public type="string" name="title_suggestions_in_landscape" id="0x7f0c018d" />
     <public type="string" name="title_swipe_down" id="0x7f0c018e" />
     <public type="string" name="title_swipe_gestures" id="0x7f0c018f" />

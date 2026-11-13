@@ -268,8 +268,6 @@
     <string name="show_suggestions_summary">Display suggested words while typing</string>
     <string name="sound_on_keypress">Sound on keypress</string>
     <string name="status_bar_notification_info_overflow">999+</string>
-    <string name="suggested_punctuations">"!?,\"':;()-/@_"</string>
-    <string name="suggested_punctuations_default">"!?,\"':;()-/@_"</string>
     <string name="summary_force_keyboard_on_false">When no hardware keyboard is available</string>
     <string name="summary_force_keyboard_on_true">Always</string>
     <string name="summary_fullscreen_override_false">Enabled on small devices</string>
@@ -294,7 +292,6 @@
     <string name="title_label_scale">Key label scaling</string>
     <string name="title_long_press_duration">Long-press duration</string>
     <string name="title_popup_content">Popup on key press</string>
-    <string name="title_suggested_punctuation">Suggested punctuation</string>
     <string name="title_suggestions_in_landscape">Suggestions in landscape mode</string>
     <string name="title_swipe_down">Swipe down</string>
     <string name="title_swipe_gestures">Swipe gestures (experimental)</string>

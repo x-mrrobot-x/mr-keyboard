@@ -800,7 +800,7 @@
 .end method
 
 .method private startLongPressTimer(I)V
-    .locals 3
+    .locals 5
 
     .line 528
     iget-object v0, p0, Lcom/mrkeyboard/app/PointerTracker;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
@@ -840,6 +840,33 @@
 
     move-result v1
 
+    # Sheet key (code -300: the "123" / "ABC" / "TSK" key that opens the popup of sheets): its popup comes up after a fixed
+    # 150 ms, apart from the long-press time of the other keys (the setting, and the 300 ms of a possible gesture).
+    invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/PointerTracker;->getKey(I)Lcom/mrkeyboard/app/Keyboard$Key;
+
+    move-result-object v3
+
+    if-eqz v3, :cond_mr_nosheet
+
+    iget-object v3, v3, Lcom/mrkeyboard/app/Keyboard$Key;->codes:[I
+
+    if-eqz v3, :cond_mr_nosheet
+
+    array-length v4, v3
+
+    if-eqz v4, :cond_mr_nosheet
+
+    const/4 v4, 0x0
+
+    aget v3, v3, v4
+
+    const/16 v4, -0x12c
+
+    if-ne v3, v4, :cond_mr_nosheet
+
+    const/16 v1, 0x96
+
+    :cond_mr_nosheet
     int-to-long v1, v1
 
     invoke-virtual {v0, v1, v2, p1, p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView$UIHandler;->startLongPressTimer(JILcom/mrkeyboard/app/PointerTracker;)V

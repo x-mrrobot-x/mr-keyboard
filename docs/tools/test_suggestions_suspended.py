@@ -171,14 +171,14 @@ for predicting, want in ((1, "showSuggestions"), (0, "setNextSuggestions")):
 
 # ---------------------------------------------------------------- setNextSuggestions
 for row, style, name in ((1, 0, "a tool on the row"), (0, 1, "a font style on")):
-    vm, host, this = make({"clearSuggestions": None, "isPredictionOn": 1, "setSuggestions": None}, mCompletionOn=0, mSuggest=dm.Obj("s"), mSuggestPuncList=[])
+    vm, host, this = make({"clearSuggestions": None, "isPredictionOn": 1, "setSuggestions": None}, mCompletionOn=0, mSuggest=dm.Obj("s"))
     host.row, host.style = row, style
     vm.run("setNextSuggestions()V", [this])
-    check("%s: setNextSuggestions looks for no next word and shows no punctuation" % name,
+    check("%s: setNextSuggestions looks for no next word and shows nothing" % name,
           host.log == ["clearSuggestions"], host.log)
-vm, host, this = make({"clearSuggestions": None, "isPredictionOn": 0, "setSuggestions": None}, mCompletionOn=0, mSuggest=dm.Obj("s"), mSuggestPuncList=[])
+vm, host, this = make({"clearSuggestions": None, "isPredictionOn": 0, "setSuggestions": None}, mCompletionOn=0, mSuggest=dm.Obj("s"))
 vm.run("setNextSuggestions()V", [this])
-check("nothing suspended: setNextSuggestions still shows the punctuation list", "setSuggestions" in host.log and "clearSuggestions" not in host.log, host.log)
+check("nothing suspended, prediction off: the strip is emptied (there is no punctuation list any more)", "clearSuggestions" in host.log and "setSuggestions" not in host.log, host.log)
 
 # ---------------------------------------------------------------- setOldSuggestions (re-correction)
 for row, style, name in ((1, 0, "a tool on the row"), (0, 1, "a font style on")):
@@ -270,11 +270,8 @@ log = pick(1, "")
 check("...and the dictionary learns it as a picked word", "addToBigramDictionary" in log or "addToDictionaries" in log, log)
 
 # ---- setSuggestions tells MrSugg whether there are suggestions and whether the list belongs to a word being typed
-PUNC = ["."]
-
-
 def set_sugg(lst, predicting=0, strip=0, correcting=0, nxt=0):
-    vm, host, this = make({}, mIsShowingHint=0, mCandidateView=None, mSuggestPuncList=PUNC, mPredicting=predicting, mMrStrip=strip, mMrNext=nxt)
+    vm, host, this = make({}, mIsShowingHint=0, mCandidateView=None, mPredicting=predicting, mMrStrip=strip, mMrNext=nxt)
     host.correcting = correcting
     vm.run("setSuggestions(Ljava/util/List;ZZZ)V", [this, lst, 0, 0, 0])
     return host.onlist
@@ -284,7 +281,6 @@ check("a list of the word being typed (mPredicting): suggestions, typing", set_s
 check("a re-correction (the word under the cursor reopened): suggestions, typing", set_sugg(["ola"], correcting=1) == [(1, 1)])
 check("the preview of a gesture (mrStrip): suggestions, typing", set_sugg(["ola"], strip=1) == [(1, 1)])
 check("the next words after a space: suggestions, not typing", set_sugg(["de", "que"]) == [(1, 0)])
-check("the punctuation list after a space (no prediction): no suggestions", set_sugg(PUNC) == [(0, 0)])
 check("an empty list: no suggestions", set_sugg([]) == [(0, 0)])
 check("no list: no suggestions", set_sugg(None) == [(0, 0)])
 check("an empty list while typing: no suggestions, typing", set_sugg([], predicting=1) == [(0, 1)])
@@ -293,7 +289,7 @@ check("an empty list while typing: no suggestions, typing", set_sugg([], predict
 check("the next words (setNextSuggestions) while the state still says correcting: suggestions, NOT typing",
       set_sugg(["Você", "Eu", "Não"], correcting=1, nxt=1) == [(1, 0)], set_sugg(["Você"], correcting=1, nxt=1))
 check("the next words, state not correcting: suggestions, not typing", set_sugg(["Você", "Eu"], nxt=1) == [(1, 0)])
-check("the punctuation list as next words while the state says correcting: no suggestions, not typing", set_sugg(PUNC, correcting=1, nxt=1) == [(0, 0)])
+check("no next words while the state says correcting: no suggestions, not typing", set_sugg([], correcting=1, nxt=1) == [(0, 0)])
 check("a re-correction's own list (not next words) is still typing", set_sugg(["ola", "olá"], correcting=1, nxt=0) == [(1, 1)])
 
 # ---- mrStrip: the list of a gesture preview is typing, and only while it is set
@@ -314,15 +310,18 @@ real("mrStrip(Ljava/util/List;)V", [this, ["casa"]])
 check("mrStrip with a list: setSuggestions runs with the preview flag set, and it is cleared after", seen == [1] and this.f["mMrStrip"] == 0, (seen, this.f["mMrStrip"]))
 
 # ---- setNextSuggestions marks its lists as the next words, only while setSuggestions runs
-def next_flags(predict_list, punc_list):
-    # predict_list: what MrPredict.list returns (None: no prediction, the punctuation list is shown)
-    vm, host, this = make({"clearSuggestions": None, "isPredictionOn": 1}, mCompletionOn=0, mSuggest=dm.Obj("s"), mSuggestPuncList=punc_list, mMrNext=0)
+def next_flags(predict_list):
+    # predict_list: what MrPredict.list returns (None: no prediction, the strip is emptied)
+    vm, host, this = make({"clearSuggestions": None, "isPredictionOn": 1}, mCompletionOn=0, mSuggest=dm.Obj("s"), mMrNext=0)
     seen = []
     real_run = vm.run
 
     def spy(key, args):
         if key.startswith("setSuggestions("):
             seen.append((args[1], args[0].f["mMrNext"]))
+            return None
+        if key.startswith("clearSuggestions("):
+            seen.append("clear")
             return None
         return real_run(key, args)
 
@@ -342,10 +341,10 @@ def _invoke(self, vm, op, target, args):
 
 
 Host.invoke = _invoke
-seen, after = next_flags(["Você", "Eu", "Não"], ["."])
+seen, after = next_flags(["Você", "Eu", "Não"])
 check("setNextSuggestions with a prediction: setSuggestions runs with the next-words flag set, cleared after", seen == [(["Você", "Eu", "Não"], 1)] and after == 0, (seen, after))
-seen, after = next_flags(None, ["."])
-check("setNextSuggestions with no prediction (punctuation list): flag set during setSuggestions, cleared after", seen == [(["."], 1)] and after == 0, (seen, after))
+seen, after = next_flags(None)
+check("setNextSuggestions with no prediction: the strip is emptied (no punctuation list), and the flag stays clear", seen == ["clear"] and after == 0, (seen, after))
 
 print("%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

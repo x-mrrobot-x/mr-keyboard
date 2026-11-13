@@ -15,7 +15,7 @@ import java.util.List;
  * [sentence_start] in rules.txt). Without a dictionary for the language, it shows the "Baixar dicionário" (download dictionary) item
  * (MrPacks.offerList), which opens the dictionaries screen.
  * Up to 3 predictions; the best goes to the center of the strip. With no prediction (after a comma, a number),
- * LatinIME.setNextSuggestions shows the punctuation, as before.
+ * LatinIME.setNextSuggestions empties the strip (there is no punctuation list), so the row goes back to the tools.
  */
 public final class MrPredict {
     private MrPredict() { }

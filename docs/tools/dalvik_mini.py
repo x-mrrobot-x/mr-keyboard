@@ -106,9 +106,18 @@ def nparams(sig):
 
 
 def parse_methods(path):
-    methods, cur, in_annotation = {}, None, False
+    methods, cur, in_annotation, sw, last_label = {}, None, False, None, None
     for raw in open(path, encoding='utf-8'):
         line = raw.strip()
+        if sw is not None:                      # the body of a switch table: targets (':label') or 'key -> :label'
+            if line.startswith('.end '):
+                sw = None
+            elif line.startswith(':'):
+                sw[1].append(line[1:])
+            elif '->' in line:
+                k, _, t = line.partition('->')
+                sw[1].append((parse_int(k), t.strip()[1:]))
+            continue
         if line.startswith('.annotation'):      # the body (value = { "..." }) is no code
             in_annotation = True
             continue
@@ -128,10 +137,15 @@ def parse_methods(path):
             elif line.startswith('.catch'):
                 m = re.match(r'\.catch(all)?\s+(?:(\S+)\s+)?\{:(\S+)\s+\.\.\s+:(\S+)\}\s+:(\S+)', line)
                 cur['catches'].append((m.group(2) or 'Ljava/lang/Throwable;', m.group(3), m.group(4), m.group(5)))
+            elif line.startswith('.packed-switch') or line.startswith('.sparse-switch'):
+                first = parse_int(line.split()[1]) if line.startswith('.packed') else None
+                sw = (first, [])
+                cur['labels']['@' + last_label] = sw
             elif line.startswith('#') or line.startswith('.') or not line:
                 continue
             elif line.startswith(':'):
-                cur['labels'][line[1:]] = len(cur['code'])
+                last_label = line[1:]
+                cur['labels'][last_label] = len(cur['code'])
             else:
                 cur['code'].append(line.split('#')[0].strip())
     return methods
@@ -247,7 +261,7 @@ class VM:
             a, b = ops(rest); x, y = iv(R[r(a)]), iv(R[r(b)])
             setr(a, i32({'add': x + y, 'sub': x - y, 'mul': x * y, 'and': x & y, 'or-': x | y, 'xor': x ^ y}[op[:3]]))
         elif op in ('add-int/lit8', 'mul-int/lit8', 'div-int/lit8', 'and-int/lit8', 'rsub-int/lit8', 'xor-int/lit8',
-                    'ushr-int/lit8', 'shl-int/lit8', 'shr-int/lit8', 'add-int/lit16', 'mul-int/lit16'):
+                    'ushr-int/lit8', 'shl-int/lit8', 'shr-int/lit8', 'add-int/lit16', 'mul-int/lit16', 'rsub-int'):
             a, b, c = ops(rest); lit = parse_int(c); x = iv(R[r(b)])
             k = op.split('-int')[0]
             setr(a, i32({'add': lambda: x + lit, 'mul': lambda: x * lit, 'div': lambda: math.trunc(x / lit),
@@ -257,6 +271,7 @@ class VM:
         elif op == 'int-to-long': a, b = ops(rest); setr(a, iv(R[r(b)]))
         elif op == 'mul-long/2addr': a, b = ops(rest); setr(a, R[r(a)] * R[r(b)])
         elif op == 'cmp-long': a, b, c = ops(rest); setr(a, (R[r(b)] > R[r(c)]) - (R[r(b)] < R[r(c)]))
+        elif op == 'int-to-char': a, b = ops(rest); setr(a, iv(R[r(b)]) & 0xffff)
         elif op == 'neg-int': a, b = ops(rest); setr(a, i32(-iv(R[r(b)])))
         elif op in ('add-float', 'sub-float', 'mul-float'):
             a, b, c = ops(rest); setr(a, f32(FOPS[op[:3]](fv(R[r(b)]), fv(R[r(c)]))))
@@ -274,6 +289,18 @@ class VM:
             a, b, c = ops(rest); x, y = fv(R[r(b)]), fv(R[r(c)])
             setr(a, (1 if op == 'cmpg-float' else -1) if math.isnan(x) or math.isnan(y) else (x > y) - (x < y))
         elif op == 'goto': pc = labels[rest[1:]]
+        elif op in ('packed-switch', 'sparse-switch'):
+            reg, tab = ops(rest)
+            first, targets = labels['@' + tab[1:]]
+            v = iv(R[r(reg)])
+            if op == 'packed-switch':
+                if 0 <= v - first < len(targets):
+                    pc = labels[targets[v - first]]
+            else:
+                for k, t in targets:
+                    if k == v:
+                        pc = labels[t]
+                        break
         elif op.startswith('if-'):
             t = ops(rest); zero = op.endswith('z'); kind = op[3:5]
             a = R[r(t[0])]; b = 0 if zero else R[r(t[1])]

@@ -20,7 +20,7 @@
 
     .prologue
     .line 25
-    const/16 v0, 0x3c
+    const/16 v0, 0x3b
 
     new-array v0, v0, [Ljava/lang/String;
 
@@ -260,125 +260,119 @@
 
     const/16 v1, 0x27
 
-    const-string v2, "pref_suggested_punctuation"
+    const-string v2, "pref_ai_provider"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x28
 
-    const-string v2, "pref_ai_provider"
+    const-string v2, "pref_ai_endpoint"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x29
 
-    const-string v2, "pref_ai_endpoint"
+    const-string v2, "pref_ai_model"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x2a
 
-    const-string v2, "pref_ai_model"
+    const-string v2, "pref_ai_key"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x2b
 
-    const-string v2, "pref_ai_key"
+    const-string v2, "pref_candidate_scale"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x2c
 
-    const-string v2, "pref_candidate_scale"
+    const-string v2, "pref_gesture_typing"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x2d
 
-    const-string v2, "pref_gesture_typing"
+    const-string v2, "pref_gesture_trail"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x2e
 
-    const-string v2, "pref_gesture_trail"
+    const-string v2, "pref_gesture_preview"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x2f
 
-    const-string v2, "pref_gesture_preview"
+    const-string v2, "pref_sugg_idle"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x30
 
-    const-string v2, "pref_sugg_idle"
+    const-string v2, "pref_sheet_return"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x31
 
-    const-string v2, "pref_sheet_return"
+    const-string v2, "pref_render_mode"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x32
 
-    const-string v2, "pref_render_mode"
+    const-string v2, "pref_slide_keys_int"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x33
 
-    const-string v2, "pref_slide_keys_int"
+    const-string v2, "connectbot_tab_hack"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x34
 
-    const-string v2, "connectbot_tab_hack"
+    const-string v2, "pref_touch_pos"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x35
 
-    const-string v2, "pref_touch_pos"
+    const-string v2, "pref_click_method"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x36
 
-    const-string v2, "pref_click_method"
+    const-string v2, "pref_top_row_scale"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x37
 
-    const-string v2, "pref_top_row_scale"
+    const-string v2, "pref_caps_lock"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x38
 
-    const-string v2, "pref_caps_lock"
+    const-string v2, "pref_shift_lock_modifiers"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x39
 
-    const-string v2, "pref_shift_lock_modifiers"
-
-    aput-object v2, v0, v1
-
-    const/16 v1, 0x3a
-
     const-string v2, "pref_chording_meta_key"
 
     aput-object v2, v0, v1
 
-    const/16 v1, 0x3b
+    const/16 v1, 0x3a
 
     const-string v2, "settings_key"
 

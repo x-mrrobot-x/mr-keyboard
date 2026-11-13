@@ -12,8 +12,6 @@
 # static fields
 .field public static final FLAG_PREF_NEED_RELOAD:I = 0x1
 
-.field public static final FLAG_PREF_NEW_PUNC_LIST:I = 0x2
-
 .field public static final FLAG_PREF_NONE:I = 0x0
 
 .field public static final FLAG_PREF_RECREATE_INPUT_VIEW:I = 0x4
@@ -90,8 +88,6 @@
 
 .field public showTouchPos:Z
 
-.field public suggestedPunctuation:Ljava/lang/String;
-
 .field public topRowScale:F
 
 .field public useExtension:Z
@@ -117,11 +113,6 @@
 
     .line 41
     iput-boolean v2, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->showTouchPos:Z
-
-    const-string v3, "!?,."
-
-    .line 44
-    iput-object v3, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->suggestedPunctuation:Ljava/lang/String;
 
     .line 45
     iput v2, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->keyboardModePortrait:I
@@ -282,15 +273,6 @@
     new-instance v1, Lcom/mrkeyboard/app/GlobalKeyboardSettings$5;
 
     invoke-direct {v1, p0, p2}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$5;-><init>(Lcom/mrkeyboard/app/GlobalKeyboardSettings;Landroid/content/res/Resources;)V
-
-    invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addStringPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;)V
-
-    const-string v0, "pref_suggested_punctuation"
-
-    .line 154
-    new-instance v1, Lcom/mrkeyboard/app/GlobalKeyboardSettings$6;
-
-    invoke-direct {v1, p0, p2}, Lcom/mrkeyboard/app/GlobalKeyboardSettings$6;-><init>(Lcom/mrkeyboard/app/GlobalKeyboardSettings;Landroid/content/res/Resources;)V
 
     invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->addStringPref(Ljava/lang/String;Lcom/mrkeyboard/app/GlobalKeyboardSettings$StringPref;)V
 

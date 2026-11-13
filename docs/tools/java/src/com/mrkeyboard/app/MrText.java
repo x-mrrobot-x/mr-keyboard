@@ -199,7 +199,7 @@ public final class MrText {
 
     /**
      * Last word before the cursor (ignoring trailing spaces). Returns null if the text ends in
-     * punctuation or a number, or if there is no word: in those cases the strip shows the punctuation.
+     * punctuation or a number, or if there is no word: in those cases there is no prediction and the strip is empty.
      */
     public static String lastWord(CharSequence before) {
         if (before == null) return null;

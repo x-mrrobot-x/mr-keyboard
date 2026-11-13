@@ -62,7 +62,6 @@ public final class MrReset implements Preference.OnPreferenceClickListener {
             "quick_fixes",
             "recorrection_enabled",
             "suggestions_in_landscape",
-            "pref_suggested_punctuation",
             "pref_ai_provider",
             "pref_ai_endpoint",
             "pref_ai_model",

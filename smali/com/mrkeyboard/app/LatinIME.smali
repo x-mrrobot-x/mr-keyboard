@@ -304,16 +304,6 @@
 
 .field private mSuggest:Lcom/mrkeyboard/app/Suggest;
 
-.field private mSuggestPuncList:Ljava/util/List;
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "Ljava/util/List<",
-            "Ljava/lang/CharSequence;",
-            ">;"
-        }
-    .end annotation
-.end field
-
 .field private mSuggestionForceOff:Z
 
 .field private mSuggestionForceOn:Z
@@ -3512,7 +3502,7 @@
     iput-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mSentenceSeparators:Ljava/lang/String;
 
     .line 640
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->initSuggestPuncList()V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->setNextSuggestions()V
 
     .line 642
     iput-object v2, v1, Landroid/content/res/Configuration;->locale:Ljava/util/Locale;
@@ -3523,94 +3513,6 @@
     move-result-object p1
 
     invoke-virtual {v0, v1, p1}, Landroid/content/res/Resources;->updateConfiguration(Landroid/content/res/Configuration;Landroid/util/DisplayMetrics;)V
-
-    return-void
-.end method
-
-.method private initSuggestPuncList()V
-    .locals 4
-
-    .line 3422
-    new-instance v0, Ljava/util/ArrayList;
-
-    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
-
-    iput-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggestPuncList:Ljava/util/List;
-
-    .line 3423
-    sget-object v0, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
-
-    iget-object v0, v0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->suggestedPunctuation:Ljava/lang/String;
-
-    .line 3424
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getResources()Landroid/content/res/Resources;
-
-    move-result-object v1
-
-    const v2, 0x7f0c0150
-
-    invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
-
-    move-result-object v1
-
-    .line 3425
-    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v1
-
-    if-nez v1, :cond_0
-
-    const-string v1, ""
-
-    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_1
-
-    .line 3427
-    :cond_0
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getResources()Landroid/content/res/Resources;
-
-    move-result-object v0
-
-    const v1, 0x7f0c014f
-
-    invoke-virtual {v0, v1}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
-
-    move-result-object v0
-
-    :cond_1
-    if-eqz v0, :cond_2
-
-    const/4 v1, 0x0
-
-    .line 3430
-    :goto_0
-    invoke-virtual {v0}, Ljava/lang/String;->length()I
-
-    move-result v2
-
-    if-ge v1, v2, :cond_2
-
-    .line 3431
-    iget-object v2, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggestPuncList:Ljava/util/List;
-
-    add-int/lit8 v3, v1, 0x1
-
-    invoke-virtual {v0, v1, v3}, Ljava/lang/String;->subSequence(II)Ljava/lang/CharSequence;
-
-    move-result-object v1
-
-    invoke-interface {v2, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    move v1, v3
-
-    goto :goto_0
-
-    .line 3434
-    :cond_2
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->setNextSuggestions()V
 
     return-void
 .end method
@@ -3979,10 +3881,9 @@
 .method private isSuggestedPunctuation(I)Z
     .locals 1
 
-    .line 3438
-    sget-object v0, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
-
-    iget-object v0, v0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->suggestedPunctuation:Ljava/lang/String;
+    # Mr Keyboard: fixed list (the "Suggested punctuation" setting and the strip list of it were removed). It still decides what is
+    # not a word for the cursor (isCursorTouchingWord) and what a one-character pick is (pickSuggestionManually).
+    const-string v0, "!?,\"':;()-/@_"
 
     int-to-char p1, p1
 
@@ -6453,7 +6354,8 @@
 
     :cond_mr_ns_go
     # Mr Keyboard v1.60: next-word prediction (MrPredict) when suggestions are on;
-    # without a prediction (start of text, after punctuation, word without bigrams) the punctuation stays.
+    # without a prediction (a word without continuations, a number...) the strip is emptied: there is no punctuation list any more
+    # (it was only on screen for a second, and only 3 of its characters fitted) and the row goes back to the tools.
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isPredictionOn()Z
 
     move-result v0
@@ -6492,17 +6394,7 @@
 
     :cond_mr_punc
     .line 2789
-    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggestPuncList:Ljava/util/List;
-
-    const/4 v1, 0x1
-
-    iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrNext:Z
-
-    const/4 v1, 0x0
-
-    invoke-direct {p0, v0, v1, v1, v1}, Lcom/mrkeyboard/app/LatinIME;->setSuggestions(Ljava/util/List;ZZZ)V
-
-    iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrNext:Z
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->clearSuggestions()V
 
     return-void
 .end method
@@ -6698,14 +6590,10 @@
     invoke-virtual {v0, p1, p2, p3, p4}, Lcom/mrkeyboard/app/CandidateView;->setSuggestions(Ljava/util/List;ZZZ)V
 
     :cond_1
-    # MrSugg: there are suggestions when the list is not null, nor empty, nor the punctuation list
+    # MrSugg: there are suggestions when the list is not null nor empty
     const/4 v0, 0x0
 
     if-eqz p1, :cond_mrsugg
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggestPuncList:Ljava/util/List;
-
-    if-eq p1, v1, :cond_mrsugg
 
     invoke-interface {p1}, Ljava/util/List;->isEmpty()Z
 
@@ -10697,20 +10585,6 @@
 
     move-result v1
 
-    .line 2941
-    sget-object v3, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
-
-    const/4 v4, 0x2
-
-    invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->hasFlag(I)Z
-
-    move-result v3
-
-    if-eqz v3, :cond_5
-
-    .line 2942
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->initSuggestPuncList()V
-
     .line 2944
     :cond_5
     sget-object v3, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
@@ -12231,22 +12105,6 @@
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
 
     if-eqz p1, :cond_8
-
-    iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggestPuncList:Ljava/util/List;
-
-    iget-object p2, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
-
-    .line 1035
-    invoke-virtual {p2}, Lcom/mrkeyboard/app/CandidateView;->getSuggestions()Ljava/util/List;
-
-    move-result-object p2
-
-    .line 1034
-    invoke-interface {p1, p2}, Ljava/util/List;->equals(Ljava/lang/Object;)Z
-
-    move-result p1
-
-    if-nez p1, :cond_8
 
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
 

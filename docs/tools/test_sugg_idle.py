@@ -10,7 +10,7 @@ applyMain is called, as in the app, so a missing call shows up).
 The rules (see the header of MrSugg.smali and docs/suggestion-features.md, "Strip or tools in the row"):
   - typing (a list of the word being typed, corrected or swiped) brings the strip back at once, if the row is visible and no tool owns it;
   - when the word ends (the list of the next word, a picked suggestion) and the strip is on screen, a debounce of "pref_sugg_idle" seconds starts
-    (3 by default, 0 = off); each new end of word restarts it; typing cancels it; at the end the tools take the row and stay until the next typing;
+    (2 by default, 0 = off); each new end of word restarts it; typing cancels it; at the end the tools take the row and stay until the next typing;
   - the debounce never runs for a strip that is not on screen (a tool owns the row, the row is hidden by the bar key);
   - an empty list with the strip on screen keeps it for 1 s before the tools come back;
   - a strip that comes into view without a new list (created after the list, the row shown again by the bar key) starts the debounce (rearm), unless
@@ -147,7 +147,7 @@ def end_word(vm, host):
     lst(vm, True, False)
 
 
-# ---- the default: 3 seconds
+# ---- the default: 2 seconds
 vm, host = setup()
 check("start: nothing to show, the tools are in the row", host.screen == "tools")
 type_word(vm, host)
@@ -157,30 +157,30 @@ type_word(vm, host)
 check("typing more of the word: still the strip, still no debounce", host.screen == "strip" and host.pending is None)
 end_word(vm, host)
 check("space (list of the next word): the strip stays", host.screen == "strip")
-check("space: the debounce starts, 3 s ahead", host.pending is not None and host.pending[0] == 3000, host.pending)
-host.advance(2999)
-check("2.999 s after the space: still the strip", host.screen == "strip")
+check("space: the debounce starts, 2 s ahead", host.pending is not None and host.pending[0] == 2000, host.pending)
+host.advance(1999)
+check("1.999 s after the space: still the strip", host.screen == "strip")
 host.advance(1)
-check("3 s after the space: the tools take the row", host.screen == "tools" and vm.statics["sIdle"] == 1)
+check("2 s after the space: the tools take the row", host.screen == "tools" and vm.statics["sIdle"] == 1)
 check("... and nothing is pending", host.pending is None)
 
 # ---- typing brings the strip back from the tools
 type_word(vm, host)
 check("tools in view (after the debounce), the person types: the strip comes back at once", host.screen == "strip" and vm.statics["sIdle"] == 0)
 end_word(vm, host)
-check("end of the word again: the debounce restarts from the strip", host.pending is not None and host.pending[0] == host.now + 3000)
+check("end of the word again: the debounce restarts from the strip", host.pending is not None and host.pending[0] == host.now + 2000)
 
 # ---- debounce restarts with each end of word
 vm, host = setup()
 type_word(vm, host)
 end_word(vm, host)
-host.advance(2000)
-end_word(vm, host)             # another space (or a picked suggestion) 2 s later
-check("a second end of word restarts the clock", host.pending[0] == host.now + 3000)
-host.advance(2999)
-check("2.999 s after the SECOND end of word: still the strip", host.screen == "strip")
+host.advance(1500)
+end_word(vm, host)             # another space (or a picked suggestion) 1.5 s later
+check("a second end of word restarts the clock", host.pending[0] == host.now + 2000)
+host.advance(1999)
+check("1.999 s after the SECOND end of word: still the strip", host.screen == "strip")
 host.advance(1)
-check("3 s after the second end of word: the tools", host.screen == "tools")
+check("2 s after the second end of word: the tools", host.screen == "tools")
 
 # ---- typing before it ends cancels it
 vm, host = setup()
@@ -188,7 +188,7 @@ type_word(vm, host)
 end_word(vm, host)
 host.advance(1500)
 type_word(vm, host)
-check("typing before the 3 s: the debounce is cancelled", host.pending is None)
+check("typing before the 2 s: the debounce is cancelled", host.pending is None)
 host.advance(60000)
 check("... and the strip stays for as long as the person types", host.screen == "strip")
 
@@ -196,7 +196,7 @@ check("... and the strip stays for as long as the person types", host.screen == 
 vm, host = setup()
 type_word(vm, host)
 end_word(vm, host)
-host.advance(3000)
+host.advance(2000)
 n = host.applies
 end_word(vm, host)
 check("tools in view: a list of the next word keeps the tools", host.screen == "tools" and host.pending is None and host.applies == n,
@@ -209,7 +209,7 @@ vm, host = setup()
 type_word(vm, host)
 end_word(vm, host)
 host.row_owned = 1
-host.advance(3000)
+host.advance(2000)
 check("a tool took the row during the countdown: the debounce ends with no change", vm.statics["sIdle"] == 0)
 host.row_owned = 0
 host.draw()
@@ -243,9 +243,9 @@ end_word(vm, host)
 host.bar_on = 1
 host.draw()
 vm.run("rearm()V", [])
-check("row hidden, a list of the next words arrived, the bar key shows the row: the debounce starts now", host.screen == "strip" and host.pending is not None and host.pending[0] == host.now + 3000, host.pending)
-host.advance(3000)
-check("... and 3 s later the tools take the row", host.screen == "tools" and vm.statics["sIdle"] == 1)
+check("row hidden, a list of the next words arrived, the bar key shows the row: the debounce starts now", host.screen == "strip" and host.pending is not None and host.pending[0] == host.now + 2000, host.pending)
+host.advance(2000)
+check("... and 2 s later the tools take the row", host.screen == "tools" and vm.statics["sIdle"] == 1)
 vm, host = setup()
 host.bar_on = 0
 host.draw()
@@ -260,7 +260,7 @@ check("rearm with no suggestions: nothing starts", host.pending is None)
 vm, host = setup()
 type_word(vm, host)
 end_word(vm, host)
-host.advance(3000)
+host.advance(2000)
 vm.run("rearm()V", [])
 check("rearm with the tools in view (the debounce already ended): nothing starts", host.screen == "tools" and host.pending is None)
 vm, host = setup()
@@ -268,7 +268,7 @@ type_word(vm, host)
 end_word(vm, host)
 host.advance(1000)
 vm.run("rearm()V", [])
-check("rearm restarts the 3 s from now", host.pending[0] == host.now + 3000, host.pending)
+check("rearm restarts the 2 s from now", host.pending[0] == host.now + 2000, host.pending)
 vm, host = setup()
 host.row_owned = 1
 host.draw()
@@ -293,12 +293,12 @@ check("list before the strip exists: the tools, no debounce", host.screen == "to
 vm.statics["sContainer"] = dm.Obj("Landroid/view/View;")      # the strip is created ...
 host.draw()
 vm.run("rearm()V", [])                                       # ... and host() calls rearm after attach/applyMain
-check("the strip is created: the initial suggestions show and the debounce starts", host.screen == "strip" and host.pending is not None and host.pending[0] == host.now + 3000, (host.screen, host.pending))
-host.advance(3000)
-check("... and 3 s later the tools take the row", host.screen == "tools")
+check("the strip is created: the initial suggestions show and the debounce starts", host.screen == "strip" and host.pending is not None and host.pending[0] == host.now + 2000, (host.screen, host.pending))
+host.advance(2000)
+check("... and 2 s later the tools take the row", host.screen == "tools")
 
 # ---- the setting
-for value, expect in (("0", None), ("1", 1000), ("2", 2000), ("5", 5000), ("8", 8000), ("10", 10000), ("abc", 3000), ("", 3000), ("-4", None)):
+for value, expect in (("0", None), ("1", 1000), ("2", 2000), ("5", 5000), ("8", 8000), ("10", 10000), ("abc", 2000), ("", 2000), ("-4", None)):
     vm, host = setup(pref=value)
     type_word(vm, host)
     end_word(vm, host)
@@ -344,13 +344,13 @@ vm, host = setup()
 type_word(vm, host)
 lst(vm, False, False)
 end_word(vm, host)
-check("hold, then a list of the next word: the strip stays and the debounce replaces the hold", host.screen == "strip" and host.pending[0] == host.now + 3000)
+check("hold, then a list of the next word: the strip stays and the debounce replaces the hold", host.screen == "strip" and host.pending[0] == host.now + 2000)
 
 # ---- a gesture preview is typing (LatinIME.mrStrip sets it): it brings the strip back from the tools
 vm, host = setup()
 type_word(vm, host)
 end_word(vm, host)
-host.advance(3000)
+host.advance(2000)
 lst(vm, True, True)
 check("tools in view, a gesture preview list arrives: the strip", host.screen == "strip" and host.pending is None)
 

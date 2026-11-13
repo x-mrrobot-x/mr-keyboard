@@ -305,7 +305,7 @@ w.lst(True, False)                       # the initial suggestions (Você, Eu, N
 check("row hidden, the initial suggestions arrive: nothing in view, no debounce", w.in_view() == "hidden" and w.pending is None, (w.in_view(), w.pending))
 w.key()
 check("grid key shows the row: the strip with the initial suggestions", w.in_view() == "strip" and w.row_on() == 1, (w.in_view(), w.row_on()))
-check("... and the 3 s debounce starts for it", w.pending is not None and w.pending[0] == w.now + 3000, w.pending)
+check("... and the 2 s debounce starts for it", w.pending is not None and w.pending[0] == w.now + 2000, w.pending)
 w = World()
 w.tools.statics["sBarOn"] = 0
 w.apply()
