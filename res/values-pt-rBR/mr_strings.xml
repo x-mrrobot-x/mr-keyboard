@@ -74,6 +74,12 @@
     <string name="mr_ui_perf_app_other">Espera pelo app: em outros momentos</string>
     <string name="mr_ui_perf_popup_build">Popup: montar as variantes</string>
     <string name="mr_ui_perf_popup_show">Popup: mostrar a janela</string>
+    <string name="mr_ui_perf_sel">Reagir à mudança de seleção</string>
+    <string name="mr_ui_perf_msg">Tratar uma mensagem do teclado</string>
+    <string name="mr_ui_perf_app_sel">Espera pelo app: na mudança de seleção</string>
+    <string name="mr_ui_perf_app_msg">Espera pelo app: numa mensagem</string>
+    <string name="mr_ui_perf_frame_gpu">Desenhar um quadro (GPU: só o registro)</string>
+    <string name="mr_ui_perf_frame_cpu">Desenhar um quadro (CPU: o desenho todo)</string>
     <string name="mr_ui_cat_haptic">Vibração</string>
     <string name="mr_ui_cat_sound">Som</string>
     <string name="mr_ui_cat_visual">Visual</string>

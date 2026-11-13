@@ -74,6 +74,12 @@
     <string name="mr_ui_perf_app_other">Wait for the app: at other times</string>
     <string name="mr_ui_perf_popup_build">Popup: put the variants together</string>
     <string name="mr_ui_perf_popup_show">Popup: show the window</string>
+    <string name="mr_ui_perf_sel">React to a selection change</string>
+    <string name="mr_ui_perf_msg">Handle a keyboard message</string>
+    <string name="mr_ui_perf_app_sel">Wait for the app: on a selection change</string>
+    <string name="mr_ui_perf_app_msg">Wait for the app: in a message</string>
+    <string name="mr_ui_perf_frame_gpu">Draw a frame (GPU: recording only)</string>
+    <string name="mr_ui_perf_frame_cpu">Draw a frame (CPU: whole drawing)</string>
     <string name="mr_ui_cat_haptic">Vibration</string>
     <string name="mr_ui_cat_sound">Sound</string>
     <string name="mr_ui_cat_visual">Visual</string>

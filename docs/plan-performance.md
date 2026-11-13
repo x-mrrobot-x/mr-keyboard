@@ -10,6 +10,14 @@ Read on the owner's phone (2026-11-13, Advanced screen): the keyboard window is 
 although the app does not ask for it: the system (or the ROM) turns the acceleration on by itself. The first finding below was
 written before that reading and is kept corrected.
 
+**The app is for other people's phones, so no decision rests on the owner's numbers alone.** What the phone does (GPU or CPU
+drawing, how fast an app answers a question) varies from device to device. So: (1) a cut is made where it can be COUNTED (questions
+to the app per key, windows shown, work on the main thread), and the tests count it on the PC; (2) a cut is made only when the
+keyboard is certain of the answer, and anything doubtful falls back to asking as before; (3) no threshold is tuned to one phone;
+(4) the manifest flag `hardwareAccelerated="false"` is not flipped and acceleration is not forced; (5) what depends on the way the
+window is drawn is decided at run time, by the mode the phone reports (`MrAccel.state`), and the meter's frame line says which mode
+it measured.
+
 ## 1. Findings
 
 ### Drawing the keyboard
@@ -118,7 +126,7 @@ written before that reading and is kept corrected.
 |---|-------|--------------|------|
 | 1 | Drawing in the current mode | no software layer on the keyboard view (every view the same); icon shadows blurred once and kept | low |
 | 2 | Performance meter | Advanced screen ("Performance"), `MrPerf` log: start and build of the keyboard, open in a field, until it appears, time per frame, per key, touch wait, waits for the app, suggestions (average, 95 %, maximum, count); Java and native memory. A tap resets | low |
-| 3 | Draw only what changed | decided by the meter ("Draw a frame"): on a GPU window (Android 10+) each key recorded in its own `RenderNode`, so a press records one key and the GPU reuses the others; acceleration asked for the keyboard window where the system does not turn it on by itself, with a switch in Advanced to turn it off; check every theme, gestures, popups, the AI Editor dialog | medium |
+| 3 | Draw only what changed | **conditional on the mode of the window at run time** (GPU or CPU; the frame line of the meter says which) and decided by the meter ("Draw a frame"): on a GPU window (Android 10+) each key recorded in its own `RenderNode`, so a press records one key and the GPU reuses the others; acceleration asked for the keyboard window where the system does not turn it on by itself, with a switch in Advanced to turn it off; check every theme, gestures, popups, the AI Editor dialog | medium |
 | 4 | Cleanup by the keyboard itself | `onTrimMemory`/`onLowMemory`: by level, drop the keyboards not in use, the popups of variants, the kept shadows, the label metrics, the screenshot thumbnails, the emoji search index and the panels that are closed; release (recycle) the bitmaps of the space bar and of the shadows at the safe moments (window hidden, view replaced, theme change); `onDestroy` closes the engine and the databases and stops the threads; the meter shows the effect | medium |
 | 5 | Opening in each field | re-correction from `initialSelStart/End` (no full text); popups of variants and label metrics kept while the keyboard is the same; `setKeyboard` with the same keyboard does less | low-medium |
 | 6 | Typing | no `getCursorCapsMode` in the middle of a word (except all-caps fields); click volume kept and refreshed on change; the small per-frame garbage of `onBufferDraw`; the log lines | low |
@@ -166,3 +174,17 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   `getSurroundingText` on Android 12+ is a candidate.
   Next: the owner reads the new lines (reset, then open several apps, type words and punctuation in a chat and a long field, delete,
   long-press a few keys, open the same kind of field twice).
+- Stage 6, third part (this stage): the Java layer's questions to the app are metered too (`MrPredict`, `MrRecorrect`, `MrGestureInput`),
+  and so are the reaction to a selection change and the keyboard's own messages (new lines "Selection change", "Message" and their
+  waits). The frame line is named by the window mode of the phone ("Draw a frame (GPU)": only the recording; "(CPU)": the whole
+  drawing). Third round of numbers on the owner's phone: a separator costs about 17 ms against 1.1 ms for a letter, because of the
+  questions to the app; the popup of variants is almost all the window shown (18.4 ms; putting the variants together 1.5 ms).
+  After a separator the app reports the new cursor, and `onUpdateSelection` then asked two questions (`isCursorTouchingWord`: before and
+  after the cursor) plus the previous word for the suggestions. The cut: `isCursorTouchingWord` asks for the character after the cursor
+  only when the one before did not answer, and after the echo of a separator the keyboard typed itself (cursor exactly where expected,
+  no selection, no key typed in between) only the character after the cursor is asked; any other case runs the full check
+  (`docs/tools/test_echo_questions.py` counts the questions). Not done yet and why: the popup window (a call to the system; to be
+  looked into), `getSurroundingText` on Android 12+ (one call for before and after; depends on how apps implement it), stage 3
+  (waits for the frame line to show the mode on other phones).
+  Next: the owner resets the meter and types words with spaces and punctuation in a chat and a long field; the waits counted in "Wait for the
+  app: in a selection change" per separator should be one fewer than before (the previous word for the suggestions is still asked).

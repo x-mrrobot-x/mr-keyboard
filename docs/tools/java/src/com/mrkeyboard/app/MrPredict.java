@@ -85,7 +85,13 @@ public final class MrPredict {
         try {
             if (suggest == null || ic == null) return null;
             if (!suggest.hasMainDictionary()) return MrPacks.offerList(context);
-            CharSequence before = ic.getTextBeforeCursor(LOOKBACK, 0);
+            CharSequence before;
+            MrPerf.appBegin();   // the question waits for the app: the performance meter counts it
+            try {
+                before = ic.getTextBeforeCursor(LOOKBACK, 0);
+            } finally {
+                MrPerf.appEnd();
+            }
             if (MrText.atSentenceStart(before)) {
                 sCtx1 = null;
                 sCtx2 = null;

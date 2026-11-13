@@ -242,6 +242,13 @@
 
 .field private mLastSelectionStart:I
 
+# Echo question cut (docs/plan-performance.md stage 6): cursor position the keyboard expects the app to report after the
+# separator the keyboard itself typed (0 = none). The first report of the selection consumes it.
+.field private mMrSepAt:I
+
+# True only while the selection report being handled is the echo of the keyboard's own separator.
+.field private mMrSepHit:Z
+
 .field private mMetaKeyState:Lcom/mrkeyboard/app/ModifierKeyState;
 
 .field private mModAlt:Z
@@ -2480,6 +2487,9 @@
     # all of it but the last character; the code below removes that one as always.
     invoke-static {p0}, Lcom/mrkeyboard/app/MrGestureInput;->onBackspace(Lcom/mrkeyboard/app/LatinIME;)V
 
+    # Echo question cut: a deletion ends the expectation of the separator echo.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrSepClear()V
+
     .line 2128
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
 
@@ -2656,6 +2666,9 @@
 
 .method private handleCharacter(I[I)V
     .locals 4
+
+    # Echo question cut: a typed character ends the expectation of the separator echo.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrSepClear()V
 
     .line 2290
     iget v0, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionStart:I
@@ -3226,6 +3239,9 @@
     .line 2385
     invoke-virtual {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->sendModifiableKeyChar(C)V
 
+    # Echo question cut: remembers where the app should report the cursor after this separator.
+    invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->mrSepSent(I)V
+
     .line 2389
     invoke-static {}, Lcom/mrkeyboard/app/TextEntryState;->getState()Lcom/mrkeyboard/app/TextEntryState$State;
 
@@ -3718,17 +3734,6 @@
     # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
-    .line 2842
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
-    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
-
-    invoke-interface {v0, v2, v1}, Landroid/view/inputmethod/InputConnection;->getTextAfterCursor(II)Ljava/lang/CharSequence;
-
-    move-result-object v0
-
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
-    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
-
     .line 2843
     invoke-static {v3}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
@@ -3761,6 +3766,17 @@
 
     .line 2847
     :cond_1
+    # Echo question cut: the character after the cursor is asked only when the one before it did not settle the answer.
+        # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
+
+    invoke-interface {v0, v2, v1}, Landroid/view/inputmethod/InputConnection;->getTextAfterCursor(II)Ljava/lang/CharSequence;
+
+    move-result-object v0
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
+
     invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
 
     move-result v3
@@ -3792,6 +3808,156 @@
 
     :cond_2
     return v1
+.end method
+
+.method private mrSepSent(I)V
+    .locals 2
+
+    # Echo question cut (docs/plan-performance.md stage 6): after a separator typed by the keyboard, with the cursor known and
+    # no selection, the app is expected to report the cursor one place further. Otherwise nothing is expected.
+    const/4 v0, 0x0
+
+    iput v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrSepAt:I
+
+    invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->isWordSeparator(I)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_done
+
+    iget v1, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionStart:I
+
+    iget v0, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionEnd:I
+
+    if-ne v1, v0, :cond_done
+
+    if-ltz v1, :cond_done
+
+    add-int/lit8 v1, v1, 0x1
+
+    iput v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrSepAt:I
+
+    :cond_done
+    return-void
+.end method
+
+.method private mrSepClear()V
+    .locals 1
+
+    const/4 v0, 0x0
+
+    iput v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrSepAt:I
+
+    return-void
+.end method
+
+.method private mrSepEcho(II)V
+    .locals 2
+
+    # Every report of the selection consumes the expectation. It is the echo of our separator only when no selection is
+    # reported and the cursor is exactly where it was expected.
+    iget v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrSepAt:I
+
+    const/4 v1, 0x0
+
+    iput v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrSepAt:I
+
+    iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrSepHit:Z
+
+    if-eqz v0, :cond_done
+
+    if-ne p1, p2, :cond_done
+
+    if-ne p1, v0, :cond_done
+
+    const/4 v0, 0x1
+
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrSepHit:Z
+
+    :cond_done
+    return-void
+.end method
+
+.method private mrEchoTouchingWord()Z
+    .locals 2
+
+    # isCursorTouchingWord() for the report of the selection. After the echo of our own separator the character before the
+    # cursor is that separator, so only the one after the cursor is asked; in any other case the full check runs as before.
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrSepHit:Z
+
+    if-nez v0, :cond_hit
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isCursorTouchingWord()Z
+
+    move-result v0
+
+    return v0
+
+    :cond_hit
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrSepHit:Z
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
+
+    move-result-object v1
+
+    if-nez v1, :cond_ic
+
+    return v0
+
+    :cond_ic
+    invoke-direct {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->mrTouchingRight(Landroid/view/inputmethod/InputConnection;)Z
+
+    move-result v0
+
+    return v0
+.end method
+
+.method private mrTouchingRight(Landroid/view/inputmethod/InputConnection;)Z
+    .locals 3
+
+    # The second half of isCursorTouchingWord(): is the character after the cursor part of a word?
+    const/4 v0, 0x0
+
+    const/4 v1, 0x1
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
+
+    invoke-interface {p1, v1, v0}, Landroid/view/inputmethod/InputConnection;->getTextAfterCursor(II)Ljava/lang/CharSequence;
+
+    move-result-object v2
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
+
+    invoke-static {v2}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_no
+
+    invoke-interface {v2, v0}, Ljava/lang/CharSequence;->charAt(I)C
+
+    move-result v1
+
+    invoke-virtual {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->isWordSeparator(I)Z
+
+    move-result v2
+
+    if-nez v2, :cond_no
+
+    invoke-direct {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->isSuggestedPunctuation(I)Z
+
+    move-result v1
+
+    if-nez v1, :cond_no
+
+    const/4 v0, 0x1
+
+    :cond_no
+    return v0
 .end method
 
 .method private isPortrait()Z
@@ -12066,8 +12232,14 @@
 .method public onUpdateSelection(IIIIII)V
     .locals 2
 
+    # Performance meter (MrPerf, docs/plan-performance.md stage 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->selBegin()V
+
     .line 981
     invoke-super/range {p0 .. p6}, Landroid/inputmethodservice/InputMethodService;->onUpdateSelection(IIIIII)V
+
+    # Echo question cut: tells whether this report is the echo of the separator the keyboard typed.
+    invoke-direct {p0, p3, p4}, Lcom/mrkeyboard/app/LatinIME;->mrSepEcho(II)V
 
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sRedirect:Landroid/view/inputmethod/InputConnection;
 
@@ -12076,6 +12248,9 @@
     iput p3, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionStart:I
 
     iput p4, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionEnd:I
+
+    # Performance meter (MrPerf, docs/plan-performance.md stage 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->selEnd()V
 
     return-void
 
@@ -12244,7 +12419,7 @@
 
     .line 1025
     :cond_5
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isCursorTouchingWord()Z
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoTouchingWord()Z
 
     move-result p1
 
@@ -12288,6 +12463,9 @@
 
     :cond_8
     :goto_2
+    # Performance meter (MrPerf, docs/plan-performance.md stage 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->selEnd()V
+
     return-void
 
     :pswitch_data_0
@@ -13543,6 +13721,9 @@
     return-void
 
     :cond_not_tasker_cmd
+    # Echo question cut: inserted text ends the expectation of the separator echo.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrSepClear()V
+
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->onTextOrig(Ljava/lang/CharSequence;)V
 
     const/16 v0, 0x41

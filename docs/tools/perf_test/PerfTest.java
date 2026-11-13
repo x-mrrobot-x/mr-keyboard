@@ -41,6 +41,8 @@ public class PerfTest {
             {"mr_ui_perf_app_key", "App in a key"}, {"mr_ui_perf_app_sugg", "App in suggestions"},
             {"mr_ui_perf_app_open", "App in an open"}, {"mr_ui_perf_app_other", "App elsewhere"},
             {"mr_ui_perf_popup_build", "Popup build"}, {"mr_ui_perf_popup_show", "Popup show"},
+            {"mr_ui_perf_sel", "Selection change"}, {"mr_ui_perf_msg", "Message"}, {"mr_ui_perf_app_sel", "App in a selection change"},
+            {"mr_ui_perf_app_msg", "App in a message"}, {"mr_ui_perf_frame_gpu", "Frame (GPU)"}, {"mr_ui_perf_frame_cpu", "Frame (CPU)"},
             {"mr_ui_perf_stat", "%1$s: average %2$s ms · p95 %3$s · max %4$s (%5$d×)"}, {"mr_ui_perf_one", "%1$s: %2$s ms (once)"},
             {"mr_ui_perf_none", "Nothing measured yet."}, {"mr_ui_perf_mem", "Memory: Java %1$s · native %2$s"},
             {"mr_ui_perf_reset", "Tap to start again from zero."}};
@@ -171,6 +173,12 @@ public class PerfTest {
         check("the popup built and the popup window shown go to their kinds", "4500,7000",
                 st(MrPerf.POPUP_BUILD)[4] + "," + st(MrPerf.POPUP_SHOW)[4]);
         check("... and the whole popup was not touched by them", st(MrPerf.POPUP)[0] == 1);
+        MrPerf.selBegin(); tick(2500); MrPerf.selEnd();
+        MrPerf.msgBegin(); tick(3500); MrPerf.msgEnd();
+        check("the reaction to a selection change and the handling of a message go to their kinds", "2500,3500",
+                st(MrPerf.SEL)[4] + "," + st(MrPerf.MSG)[4]);
+        MrPerf.selEnd(); MrPerf.msgEnd();
+        check("an end with no begin is ignored (selection, message)", "1,1", st(MrPerf.SEL)[0] + "," + st(MrPerf.MSG)[0]);
 
         // ---------------------------------------------------------------- the wait for the app by where it is asked
         MrPerf.reset();
@@ -195,6 +203,20 @@ public class PerfTest {
         check("after the open: APP_OTHER again", 2, st(MrPerf.APP_OTHER)[0]);
         check("each wait once in APP and once in one place", "5,5",
                 st(MrPerf.APP)[0] + "," + (st(MrPerf.APP_KEY)[0] + st(MrPerf.APP_SUGG)[0] + st(MrPerf.APP_OPEN)[0] + st(MrPerf.APP_OTHER)[0]));
+        MrPerf.selBegin(); tick(10);
+        MrPerf.appBegin(); tick(350); MrPerf.appEnd();
+        check("inside the reaction to a selection change: APP_SEL", "1,350", st(MrPerf.APP_SEL)[0] + "," + st(MrPerf.APP_SEL)[4]);
+        MrPerf.selEnd();
+        MrPerf.msgBegin(); tick(10);
+        MrPerf.appBegin(); tick(450); MrPerf.appEnd();
+        check("inside the handling of a message: APP_MSG", "1,450", st(MrPerf.APP_MSG)[0] + "," + st(MrPerf.APP_MSG)[4]);
+        MrPerf.suggBegin(); tick(10);
+        MrPerf.appBegin(); tick(460); MrPerf.appEnd();
+        check("the suggestions inside a message (began later): APP_SUGG, not APP_MSG", "1,2", st(MrPerf.APP_MSG)[0] + "," + st(MrPerf.APP_SUGG)[0]);
+        MrPerf.suggEnd(); MrPerf.msgEnd();
+        check("each wait still once in APP and once in one place", "8,8",
+                st(MrPerf.APP)[0] + "," + (st(MrPerf.APP_KEY)[0] + st(MrPerf.APP_SUGG)[0] + st(MrPerf.APP_OPEN)[0] + st(MrPerf.APP_OTHER)[0]
+                        + st(MrPerf.APP_SEL)[0] + st(MrPerf.APP_MSG)[0]));
         MrPerf.reset();
         MrPerf.sFakeNanos = 100_000_000_000L;
         MrPerf.keyBegin(97); tick(10_001_000);
@@ -300,10 +322,23 @@ public class PerfTest {
         String[] order = {"Start the keyboard", "Build the view", "Open in a field", "Until the first frame", "Draw a frame",
                 "Handle a key", "Touch wait", "Questions to the app", "Suggestions", "Key letter", "Key separator", "Key delete",
                 "Key other", "Suggestions engine", "Suggestions strip", "Open keyboard", "Open settings", "Popup",
-                "App in a key", "App in suggestions", "App in an open", "App elsewhere", "Popup build", "Popup show"};
+                "App in a key", "App in suggestions", "App in an open", "App elsewhere", "Popup build", "Popup show",
+                "Selection change", "Message", "App in a selection change", "App in a message"};
         boolean inOrder = true;
         for (int k = 0; k < order.length; k++) inOrder &= lines[k].startsWith(order[k] + ": average " + (k + 1) + ".0 ms");
         check("in the order of the kinds", inOrder);
+
+        // the frame line says what a frame measures, by how the window is drawn (GPU or CPU)
+        int[] modes = {MrAccel.ACCELERATED, MrAccel.SOFTWARE, 0};
+        String[] frameNames = {"Frame (GPU)", "Frame (CPU)", "Draw a frame"};
+        for (int m = 0; m < modes.length; m++) {
+            MrPerf.sFakeMode = modes[m];
+            scr = new Advanced();
+            MrPerf.fill(scr);
+            check("the frame line with the window mode " + modes[m] + ": " + frameNames[m], true,
+                    String.valueOf(scr.row.summary).split("\n")[MrPerf.FRAME].startsWith(frameNames[m] + ": average " + (MrPerf.FRAME + 1) + ".0 ms"));
+        }
+        MrPerf.sFakeMode = -1;
 
         scr = new Advanced();
         scr.hasRow = false;

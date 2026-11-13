@@ -72,10 +72,13 @@ public final class MrRecorrect {
 
         static EditingUtil.SelectedWord wordAt(InputConnection ic, int selStart, int selEnd, String separators) {
             SurroundingText st;
+            MrPerf.appBegin();   // the question waits for the app: the performance meter counts it
             try {
                 st = ic.getSurroundingText(REACH, REACH, 0);
             } catch (RuntimeException e) {
                 return NO_SNAPSHOT;
+            } finally {
+                MrPerf.appEnd();
             }
             if (st == null) return NO_SNAPSHOT;
             return fromSnapshot(st.getText(), st.getSelectionStart(), st.getSelectionEnd(), st.getOffset(),

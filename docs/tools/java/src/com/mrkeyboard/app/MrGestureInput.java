@@ -170,6 +170,16 @@ public final class MrGestureInput {
      * Reads the setting and opens (or frees) the weights. Called when the keyboard loads a dictionary (MrPacks.mainDictionary),
      * which is before the first key of a session; from then on a listener follows the setting.
      */
+    /** ic.getTextBeforeCursor(n, 0), timed by the performance meter as a wait for the app. */
+    static CharSequence textBefore(InputConnection ic, int n) {
+        MrPerf.appBegin();
+        try {
+            return ic.getTextBeforeCursor(n, 0);
+        } finally {
+            MrPerf.appEnd();
+        }
+    }
+
     static synchronized void init(Context c) {
         try {
             if (c == null) return;
@@ -678,7 +688,7 @@ public final class MrGestureInput {
         final InputConnection ic = ime.getCurrentInputConnection();
         if (ic == null) return false;
         ic.finishComposingText();                           // and a word underlined for re-correction is not replaced by this one
-        final CharSequence before = ic.getTextBeforeCursor(LOOKBACK, 0);
+        final CharSequence before = textBefore(ic, LOOKBACK);
         final String prev = MrText.lastWord(before);
         frame(n);
         final long t0 = System.nanoTime();
@@ -805,7 +815,7 @@ public final class MrGestureInput {
             // written is decided with a fresh reading when the finger lifts
             sPrevRead = true;
             final InputConnection ic = ime.getCurrentInputConnection();
-            sPrevWord = ic != null ? MrText.lastWord(ic.getTextBeforeCursor(LOOKBACK, 0)) : null;
+            sPrevWord = ic != null ? MrText.lastWord(textBefore(ic, LOOKBACK)) : null;
         }
         frame(n);
         final long t0 = System.nanoTime();
@@ -922,7 +932,7 @@ public final class MrGestureInput {
         final String word = sLastWord;
         if (word == null || ic == null || ime.getCurrentInputEditorInfo() != sLastEditor) return -1;
         final int n = word.length();
-        final CharSequence b = ic.getTextBeforeCursor(n + 1, 0);
+        final CharSequence b = textBefore(ic, n + 1);
         if (b == null) return -1;
         final String s = b.toString();
         if (s.length() == n + 1 && s.charAt(n) == ' ' && s.startsWith(word)) return n + 1;
@@ -980,7 +990,7 @@ public final class MrGestureInput {
             int del = written(ime, ic);
             if (del > 0) {
                 if (sLastSpace) {
-                    final CharSequence b = ic.getTextBeforeCursor(del + 1, 0);
+                    final CharSequence b = textBefore(ic, del + 1);
                     if (b != null && b.length() == del + 1 && b.charAt(0) == ' ') del++;
                 }
                 if (del > 1) ic.deleteSurroundingText(del - 1, 0);

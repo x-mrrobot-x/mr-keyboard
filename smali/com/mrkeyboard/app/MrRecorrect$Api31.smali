@@ -29,7 +29,10 @@
     .locals 7
 
     .prologue
-    .line 76
+    .line 75
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
+
+    .line 77
     const/16 v0, 0x3e8
 
     const/16 v1, 0x3e8
@@ -40,28 +43,46 @@
     invoke-interface {p0, v0, v1, v2}, Landroid/view/inputmethod/InputConnection;->getSurroundingText(III)Landroid/view/inputmethod/SurroundingText;
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
     move-result-object v3
 
-    .line 80
+    .line 81
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
+
+    .line 83
     if-nez v3, :cond_0
 
     sget-object v0, Lcom/mrkeyboard/app/MrRecorrect;->NO_SNAPSHOT:Lcom/mrkeyboard/app/EditingUtil$SelectedWord;
 
-    .line 81
+    .line 84
     :goto_0
     return-object v0
 
-    .line 77
+    .line 78
     :catch_0
     move-exception v0
 
-    .line 78
+    .line 79
+    :try_start_1
     sget-object v0, Lcom/mrkeyboard/app/MrRecorrect;->NO_SNAPSHOT:Lcom/mrkeyboard/app/EditingUtil$SelectedWord;
+    :try_end_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+
+    .line 81
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     goto :goto_0
 
-    .line 81
+    :catchall_0
+    move-exception v0
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
+
+    .line 82
+    throw v0
+
+    .line 84
     :cond_0
     invoke-virtual {v3}, Landroid/view/inputmethod/SurroundingText;->getText()Ljava/lang/CharSequence;
 

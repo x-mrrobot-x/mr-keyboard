@@ -54,7 +54,9 @@ TEXTS = {
     "mr_ui_perf_key_other": "KeyOther", "mr_ui_perf_sugg_engine": "SuggEngine", "mr_ui_perf_sugg_show": "SuggShow",
     "mr_ui_perf_open_kb": "OpenKb", "mr_ui_perf_open_set": "OpenSet", "mr_ui_perf_popup": "Popup",
     "mr_ui_perf_app_key": "AppKey", "mr_ui_perf_app_sugg": "AppSugg", "mr_ui_perf_app_open": "AppOpen", "mr_ui_perf_app_other": "AppOther",
-    "mr_ui_perf_popup_build": "PopupBuild", "mr_ui_perf_popup_show": "PopupShow", "mr_ui_perf_stat": "%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)",
+    "mr_ui_perf_popup_build": "PopupBuild", "mr_ui_perf_popup_show": "PopupShow", "mr_ui_perf_sel": "Sel", "mr_ui_perf_msg": "Msg",
+    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
+    "mr_ui_perf_stat": "%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)",
     "mr_ui_perf_one": "%1$s: %2$s ms", "mr_ui_perf_none": "Nothing yet.", "mr_ui_perf_mem": "Memory: Java %1$s · native %2$s",
     "mr_ui_perf_reset": "Tap to reset."}
 
@@ -105,6 +107,8 @@ class Fw:
         self.perf.statics["sFakeNanos"] += us * 1000
 
     # --- host
+    accel = 0                    # MrAccel.state of this device: UNKNOWN
+
     def sget(self, cls, name):
         raise AssertionError("static not faked: %s.%s" % (cls, name))
 
@@ -123,6 +127,8 @@ class Fw:
             return self.reset_cls.run(mem, args)
         if cls == "Ljava/lang/Object;" and mem == "<init>()V":
             return None
+        if cls == "Lcom/mrkeyboard/app/MrAccel;" and mem == "state(Landroid/content/Context;)I":
+            return self.accel
         if cls == "Ljava/util/Arrays;":
             if mem in ("fill([JJ)V", "fill([II)V"):
                 for i in range(len(a0)):
@@ -213,10 +219,10 @@ def j(a):
 
 KINDS = ["create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
          "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
-         "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show"]
+         "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg"]
 N = len(KINDS)
 CREATE, VIEW, OPEN, SHOWN, FRAME, KEY, TOUCH, APP_, SUGG, KEY_LETTER, KEY_SEP, KEY_DEL, KEY_OTHER, SUGG_ENGINE, SUGG_SHOW, \
-    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW = range(N)
+    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW, SEL, MSG, APP_SEL, APP_MSG = range(N)
 
 # ======================================================================== part 1: the smali of MrPerf
 fw = Fw()
@@ -266,12 +272,13 @@ for begin, end, kind, us in (("createBegin", "createEnd", CREATE, 180000), ("vie
                              ("suggEngineBegin", "suggEngineEnd", SUGG_ENGINE, 1200), ("suggShowBegin", "suggShowEnd", SUGG_SHOW, 800),
                              ("openKbBegin", "openKbEnd", OPEN_KB, 6000), ("openSetBegin", "openSetEnd", OPEN_SET, 1500),
                              ("popupBegin", "popupEnd", POPUP, 9000), ("popupBuildBegin", "popupBuildEnd", POPUP_BUILD, 4500),
-                             ("popupShowBegin", "popupShowEnd", POPUP_SHOW, 7000)):
+                             ("popupShowBegin", "popupShowEnd", POPUP_SHOW, 7000), ("selBegin", "selEnd", SEL, 2500),
+                             ("msgBegin", "msgEnd", MSG, 3500)):
     fw.run(begin + "()V"); fw.tick(us); fw.run(end + "()V")
     check("%s/%s go to their kind" % (begin, end), fw.stats(kind)[4] == us, fw.stats(kind))
 
 # ---- the wait for the app, counted again by where it is asked (the innermost piece of work under way decides)
-PLACES = (APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER)
+PLACES = (APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, APP_SEL, APP_MSG)
 
 
 def wait(us):
@@ -319,9 +326,37 @@ for us in (100, 200, 300):
 fw.run("suggBegin()V"); fw.tick(10); wait(400); fw.run("suggEnd()V"); fw.run("keyEnd()V"); wait(500)
 check("several waits: each counted once in APP and once in one place (the counts add up)",
       fw.stats(APP_)[0] == 5 and sum(fw.stats(k)[0] for k in PLACES) == 5
-      and [fw.stats(k)[0] for k in PLACES] == [3, 1, 0, 1], [fw.stats(k)[0] for k in (APP_,) + PLACES])
+      and [fw.stats(k)[0] for k in PLACES] == [3, 1, 0, 1, 0, 0], [fw.stats(k)[0] for k in (APP_,) + PLACES])
 check("... and the same time: APP holds the sum of the places",
       fw.stats(APP_)[1] * 5 == 1500 and sum(fw.stats(k)[1] * fw.stats(k)[0] for k in PLACES) == 1500)
+# the reaction to a selection change and the handling of a message are places too
+fw.run("reset()V")
+fw.run("selBegin()V"); fw.tick(100); wait(350)
+check("a wait inside the reaction to a selection change: APP and APP_SEL", only(APP_SEL, 350), [fw.stats(k) for k in (APP_,) + PLACES])
+fw.run("selEnd()V"); fw.tick(10); wait(360)
+check("... after it ended, APP_OTHER again", fw.stats(APP_SEL)[0] == 1 and fw.stats(APP_OTHER)[0] == 1 and fw.stats(APP_OTHER)[4] == 360,
+      [fw.stats(k)[0] for k in PLACES])
+fw.run("reset()V")
+fw.run("msgBegin()V"); fw.tick(100); wait(450)
+check("a wait inside the handling of a message: APP and APP_MSG", only(APP_MSG, 450), [fw.stats(k) for k in (APP_,) + PLACES])
+fw.run("msgEnd()V"); fw.run("reset()V")
+fw.run("msgBegin()V"); fw.tick(100); fw.run("suggBegin()V"); fw.tick(100); wait(460)
+check("the suggestions inside a message (began later): APP_SUGG, not APP_MSG", only(APP_SUGG, 460), [fw.stats(k) for k in (APP_,) + PLACES])
+fw.run("suggEnd()V"); fw.tick(10); wait(470)
+check("... after the suggestions ended, the message is the place again", fw.stats(APP_MSG)[0] == 1 and fw.stats(APP_MSG)[4] == 470)
+fw.run("msgEnd()V"); fw.run("reset()V")
+fw.run("keyBegin(I)V", 32); fw.tick(100); fw.run("selBegin()V"); fw.tick(100); wait(480)
+check("a key that began before a selection change: the selection is the innermost", only(APP_SEL, 480), [fw.stats(k) for k in (APP_,) + PLACES])
+fw.run("selEnd()V"); fw.run("keyEnd()V"); fw.run("reset()V")
+fw.set_nanos(100000000000)
+fw.run("selBegin()V"); fw.tick(10001000)
+wait(250)
+check("a selection change that began more than 10 s ago (lost its end) is not the place", only(APP_OTHER, 250), [fw.stats(k)[0] for k in PLACES])
+fw.run("selEnd()V"); fw.run("reset()V")
+fw.run("selEnd()V"); fw.run("msgEnd()V")
+check("an end with no begin is ignored (selection, message)", fw.stats(SEL)[0] == 0 and fw.stats(MSG)[0] == 0)
+fw.run("reset()V")
+
 # a piece of work that lost its end must not take every later wait
 fw.run("reset()V"); fw.set_nanos(100000000000)
 fw.run("keyBegin(I)V", 97); fw.tick(10000000)          # 10 s later
@@ -400,9 +435,37 @@ scr, row = fw.screen()
 fw.fill(scr)
 lines = row.f["summary"].split("\n")
 names = ["Start", "View", "Open", "Shown", "Frame", "Key", "Touch", "App", "Sugg", "KeyLetter", "KeySep", "KeyDel", "KeyOther",
-         "SuggEngine", "SuggShow", "OpenKb", "OpenSet", "Popup", "AppKey", "AppSugg", "AppOpen", "AppOther", "PopupBuild", "PopupShow"]
+         "SuggEngine", "SuggShow", "OpenKb", "OpenSet", "Popup", "AppKey", "AppSugg", "AppOpen", "AppOther", "PopupBuild", "PopupShow",
+         "Sel", "Msg", "AppSel", "AppMsg"]
 check("every kind in order, then memory and reset", len(lines) == N + 2
       and all(lines[k].startswith("%s: average %d.0 ms" % (names[k], k + 1)) for k in range(N)), lines)
+# the frame line says what a frame measures, by how this device draws the window (MrAccel.state: 0 unknown, 1 GPU, 2 CPU)
+def summary_for(mode=None, accel=0):
+    fw.accel = accel
+    fw.perf.statics["sFakeMode"] = -1 if mode is None else mode
+    scr_, row_ = fw.screen()
+    fw.fill(scr_)
+    fw.perf.statics["sFakeMode"] = -1
+    fw.accel = 0
+    return row_.f["summary"]
+
+
+def frame_line(mode=None, accel=0):
+    return summary_for(mode, accel).split("\n")[FRAME]
+
+
+check("the frame line, drawing mode unknown: the plain name", frame_line().startswith("Frame: average 5.0 ms"), frame_line())
+check("... the device draws with the GPU (MrAccel says so): the GPU name", frame_line(accel=1).startswith("FrameGpu: average 5.0 ms"), frame_line(accel=1))
+check("... the device draws with the CPU: the CPU name", frame_line(accel=2).startswith("FrameCpu: average 5.0 ms"), frame_line(accel=2))
+check("... the test hook wins over MrAccel (GPU, CPU, unknown)", [frame_line(mode=1, accel=2).split(":")[0], frame_line(mode=2, accel=1).split(":")[0],
+      frame_line(mode=0, accel=1).split(":")[0]] == ["FrameGpu", "FrameCpu", "Frame"])
+fw.missing = {"mr_ui_perf_frame_gpu"}
+check("... a missing text of the mode: the plain name, the line stays", frame_line(mode=1).startswith("Frame: average 5.0 ms"), frame_line(mode=1))
+fw.missing = {"mr_ui_perf_frame_gpu", "mr_ui_perf_frame"}
+check("... no name of the frame at all: the line is left out, the others stay, and no 'None' is written",
+      "None" not in summary_for(mode=1) and len(summary_for(mode=1).split("\n")) == (N - 1) + 2, summary_for(mode=1))
+fw.missing = set()
+fw.missing = set()
 fw.missing = {"mr_ui_perf_reset", "mr_ui_perf_mem", "mr_ui_perf_stat"}
 scr, row = fw.screen()
 fw.fill(scr)
@@ -473,7 +536,9 @@ for name, head, begin, end in (("LatinIME.smali", "public onCreateInputView()", 
                                ("LatinIME.smali", "private setSuggestions(Ljava/util/List;ZZZ)V", "suggShowBegin", "suggShowEnd"),
                                ("LatinKeyboardBaseView.smali", "protected onLongPress(Lcom/mrkeyboard/app/Keyboard$Key;)Z", "popupBegin", "popupEnd"),
                                ("LatinIME.smali", "private updateSuggestions()V", "suggBegin", "suggEnd"),
-                               ("LatinKeyboardBaseView.smali", "public onDraw(Landroid/graphics/Canvas;)V", "frameBegin", "frameEnd")):
+                               ("LatinKeyboardBaseView.smali", "public onDraw(Landroid/graphics/Canvas;)V", "frameBegin", "frameEnd"),
+                               ("LatinIME.smali", "public onUpdateSelection(IIIIII)V", "selBegin", "selEnd"),
+                               ("LatinIME$1.smali", "public handleMessage(Landroid/os/Message;)V", "msgBegin", "msgEnd")):
     good, info = wrapped(name, head, begin, end)
     check("%s %s: %s first, %s before every return" % (name[:-6], head.split("(")[0].split()[-1], begin, end), good, info)
 
@@ -579,7 +644,7 @@ for f in os.listdir(APP):
     if f.endswith(".smali") and not f.startswith("MrPerf"):
         called |= set(re.findall(re.escape(PERF) + r"->(\w+\([^)]*\)\S+)", open(os.path.join(APP, f), encoding="utf-8").read()))
 missing = [m for m in sorted(called) if not re.search(r"\.method public static " + re.escape(m) + r"\n", perf_src)]
-check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 31,
+check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 35,
       (missing, len(called)))
 
 xml = open(os.path.join(ROOT, "res", "xml", "prefs_advanced.xml"), encoding="utf-8").read()

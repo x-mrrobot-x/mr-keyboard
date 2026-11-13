@@ -132,6 +132,8 @@ class ImeVM(dm.VM):
             return None
         if name == "isPredictionOn":
             return 0
+        if name in ("mrSepSent", "mrSepClear"):     # the note of the echo of our own separator: test_echo_questions.py
+            return None
         return super().run(key, args)
 
 

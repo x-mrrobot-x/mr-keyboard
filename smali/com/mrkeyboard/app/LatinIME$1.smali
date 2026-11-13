@@ -39,6 +39,9 @@
 .method public handleMessage(Landroid/os/Message;)V
     .locals 1
 
+    # Performance meter (MrPerf, docs/plan-performance.md stage 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->msgBegin()V
+
     .line 342
     iget p1, p1, Landroid/os/Message;->what:I
 
@@ -83,5 +86,8 @@
     invoke-static {p1}, Lcom/mrkeyboard/app/LatinIME;->access$100(Lcom/mrkeyboard/app/LatinIME;)V
 
     :goto_0
+    # Performance meter (MrPerf, docs/plan-performance.md stage 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->msgEnd()V
+
     return-void
 .end method

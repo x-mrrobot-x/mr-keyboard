@@ -16,11 +16,11 @@ measured is not shown.
 | Build the keyboard | the keyboard view and the tool bar made (first open of a process, theme, app language, rotation) | `LatinIME.onCreateInputView` |
 | Open in a field | the keyboard getting ready for a field | `LatinIME.onStartInputView` |
 | Until it appears | from the start of the open to the end of the first frame after it; not counted beyond 2 s (nothing was redrawn) | `onStartInputView` → `LatinKeyboardBaseView.onDraw` |
-| Draw a frame | one frame of the keyboard or of a popup of variants; on a GPU window it is the time to record the drawing, not the GPU's | `LatinKeyboardBaseView.onDraw` |
+| Draw a frame (GPU) / Draw a frame (CPU) | one frame of the keyboard or of a popup of variants. The name says how this phone draws the keyboard window (`MrAccel.state`): **GPU** is the time to record the drawing, not the GPU's work; **CPU** is the whole drawing. The two are not comparable, so they are never mixed in one line. Before the mode is known the line is just "Draw a frame" | `LatinKeyboardBaseView.onDraw` |
 | Handle a key | all the work of a key, the waits for the app included | `LatinIME.onKey` |
 | Key: letter or digit / space, punctuation, Enter / delete / shift, symbols, modes | the same time of "Handle a key", split by the primary code of the key: letters and digits; any other positive code (space, Enter, punctuation); delete (-5); the other negative codes and 0. A key is in "Handle a key" and in one of the four | `LatinIME.onKey` |
 | Touch wait | how late a finger down (first or another) reached the keyboard: the clock against the time of the event. A busy main thread shows here | `LatinKeyboardView.onTouchEvent` |
-| Wait for the app | every question that waits for the app's answer: the text before and after the cursor (the previous word, the word under the cursor, the old word on open), the selected text, the caps mode, and the whole text of a field that does not report its selection | `getTextBeforeCursor`, `getTextAfterCursor`, `getSelectedText`, `getCursorCapsMode`, `getExtractedText` in `LatinIME` and `EditingUtil` (the Java layer, e.g. `MrPredict`, is not in it yet) |
+| Wait for the app | every question that waits for the app's answer: the text before and after the cursor (the previous word, the word under the cursor, the old word on open), the selected text, the caps mode, and the whole text of a field that does not report its selection | `getTextBeforeCursor`, `getTextAfterCursor`, `getSelectedText`, `getCursorCapsMode`, `getExtractedText` in `LatinIME`, `EditingUtil` and the Java layer (`MrPredict`, `MrRecorrect`, `MrGestureInput`) |
 | Suggestions | the suggestions of the strip computed | `LatinIME.updateSuggestions` |
 | Suggestions: the engine | the call to the suggestion engine, wherever it comes from (typing a word, a space) | `Suggest.getSuggestions` |
 | Suggestions: show the strip | the strip filled and drawn | `LatinIME.setSuggestions` |
@@ -29,7 +29,9 @@ measured is not shown.
 | Open the long-press popup | the popup of variants of a key built and shown | `LatinKeyboardBaseView.onLongPress` |
 | Popup: put the variants together | inside "Open the long-press popup": the variants of the key built (`Key.getPopupKeyboard`). Only when the popup of that key was not kept from before, so its count against the count of the popup line is how many long presses found the variants ready | `LatinKeyboardBaseView.getLongPressKeyboard` |
 | Popup: show the window | inside "Open the long-press popup": the popup window shown (`PopupWindow.showAtLocation`, a call to the system) | `LatinKeyboardBaseView.onLongPress` |
-| Wait for the app: inside a key / in the suggestions / when opening / at other times | the same waits as "Wait for the app", counted again by where they are asked: inside a key (not in its suggestions), inside the suggestions, inside an open, and anywhere else (the keyboard told about a new selection, a delayed message). The innermost piece of work under way decides, so a wait is in "Wait for the app" and in exactly one of the four. A piece of work that began more than 10 s ago and never ended is not taken as the place | `MrPerf.appEnd` |
+| Selection change | the keyboard's reaction when the app reports a new cursor or selection (after every key typed, and when the user moves the cursor). Includes the questions it asks the app back | `LatinIME.onUpdateSelection` |
+| Message | the work of the keyboard's own delayed messages (the shift state, the suggestions after a key) | `LatinIME$1.handleMessage` |
+| Wait for the app: inside a key / in the suggestions / when opening / in a selection change / in a message / at other times | the same waits as "Wait for the app", counted again by where they are asked: inside a key (not in its suggestions), inside the suggestions, inside an open, inside the reaction to a selection change, inside a message, and anywhere else. The innermost piece of work under way decides, so a wait is in "Wait for the app" and in exactly one of the six. A piece of work that began more than 10 s ago and never ended is not taken as the place | `MrPerf.appEnd` |
 
 Then the memory of the process when the screen opens: Java heap in use and native heap (the screens share the process with the
 keyboard, so their own memory is in it too).
@@ -52,6 +54,17 @@ the maximum and the count are since the reset.
 
 The meter costs two clock readings per piece of work and allocates nothing while the keyboard works.
 
+## Why the questions to the app are counted
+
+Every question to the app (`getTextBeforeCursor`, `getTextAfterCursor`...) blocks the main thread of the keyboard until the app answers,
+and how long that takes depends on the app and the phone. The keyboard is judged by what can be counted: how many questions each key
+asks, not how long they took on one phone. After a separator (space, punctuation, Enter) the app reports the new cursor and the
+keyboard used to ask two questions (the character before the cursor and the one after it); now, when the cursor is exactly where the
+keyboard's own separator should have put it, it asks only for the character after. In any other case (another position, a selection,
+another key typed in between, no separator typed by us) the full check runs as before. `docs/tools/test_echo_questions.py` counts the
+questions on the PC with the real smali.
+
 Tests: `docs/tools/perf_test/PerfTest.java` (the Java, in `run_java_tests.sh`), `docs/tools/test_perf_meter.py` (the smali in the
 mini Dalvik interpreter and every call in the keyboard, in `mr-checks.yml`), `docs/tools/test_open_selection.py` (the selection when
-a field opens, without a copy of its text) and `docs/tools/test_popup_cache.py` (the popups of variants kept between field opens).
+a field opens, without a copy of its text) and `docs/tools/test_popup_cache.py` (the popups of variants kept between field opens) and `docs/tools/test_echo_questions.py` (the questions to
+the app after a separator the keyboard typed, counted).

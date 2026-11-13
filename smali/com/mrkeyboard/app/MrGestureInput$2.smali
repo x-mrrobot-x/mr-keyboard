@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 181
+    .line 191
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .locals 1
 
     .prologue
-    .line 183
+    .line 193
     if-eqz p2, :cond_0
 
     const-string v0, "pref_gesture_typing"
@@ -66,7 +66,7 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrGestureInput;->reload(Landroid/content/Context;)V
 
-    .line 184
+    .line 194
     :cond_1
     return-void
 .end method
