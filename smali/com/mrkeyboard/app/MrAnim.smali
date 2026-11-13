@@ -2,21 +2,23 @@
 .super Ljava/lang/Object;
 .source "MrAnim.java"
 
-# The animations of the toolbar row (bar_main). Only fades and a short slide (ViewPropertyAnimator): the height of the
-# keyboard window never animates, because the app behind it would be resized on every frame.
+# The animations of the toolbar row (bar_main). Only fades and a vertical scale (ViewPropertyAnimator): the height of the keyboard
+# window never animates, because the app behind it would be resized on every frame.
 #
 #   swap(in, out)  the row changes from one group to the other (tools <-> suggestions, MrSugg.applyInner): crossfade of
 #                  bar_tools and bar_sugg, which overlay each other in bar_main (a FrameLayout). With the row off screen,
 #                  or with a group missing, they change at once.
-#   show(row)      bar_main comes back (grid key, a tool closed): fades in sliding down 8dp. A fade-out in progress turns back.
-#   hide(row)      bar_main goes away (grid key, row off): fades out sliding up, and only at the end it leaves the layout (GONE),
-#                  so the keyboard does not jump up before the row has gone.
+#   show(row)      bar_main comes back (grid key, a tool closed): the SAME entrance as the card of the emoji search (MrEmojiSearch.enter):
+#                  it grows upward from its bottom edge (scaleY 0.6 -> 1, pivot at the bottom) while it fades in, 240 ms. A fade-out
+#                  in progress turns back.
+#   hide(row)      bar_main goes away (grid key, row off): the same movement backwards (shrinks towards its bottom edge while it fades
+#                  out, 140 ms), and only at the end it leaves the layout (GONE), so the keyboard does not jump up before the row has gone.
 #   gone(row)      bar_main goes away at once, no fade. When a tool owns the row (MrTools.rowOwned) its header takes the place in
 #                  the same frame, so the row cannot linger on screen above it.
 #
 # RULES: an animation that is cancelled never runs its end action (ViewPropertyAnimator), so every change of state starts by
-# stopping the one in progress (stop) and ends with alpha 1 and no slide (rest) on the views that stay. The end action is this
-# class itself (Runnable): the view leaves the layout (GONE) and gets alpha 1 and no slide back for the next time. sTo and
+# stopping the one in progress (stop) and ends with alpha 1 and scale 1 (rest) on the views that stay. The end action is this
+# class itself (Runnable): the view leaves the layout (GONE) and gets alpha 1 and scale 1 back for the next time. sTo and
 # sHiding are views, not flags, so views of a keyboard that was built again never take a state of the old ones. They are cleared in
 # reset() (MrSugg.release). The animator scale of the system (developer options, battery saver) is respected by the animator
 # itself: at 0 everything ends at once, the end action included, which is why the state is written before it is started.
@@ -44,7 +46,7 @@
     return-void
 .end method
 
-# Alpha 1 and no slide: how a view stays after an animation and how it starts the next one.
+# Alpha 1 and scale 1: how a view stays after an animation and how it starts the next one.
 .method private static rest(Landroid/view/View;)V
     .locals 1
 
@@ -52,9 +54,7 @@
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setAlpha(F)V
 
-    const/4 v0, 0x0
-
-    invoke-virtual {p0, v0}, Landroid/view/View;->setTranslationY(F)V
+    invoke-virtual {p0, v0}, Landroid/view/View;->setScaleY(F)V
 
     return-void
 .end method
@@ -72,28 +72,37 @@
     return-void
 .end method
 
-# The slide of the row, in pixels: 8dp up (negative translationY), where it comes from and where it goes.
-.method private static slide(Landroid/view/View;)F
+# The row grows from, and shrinks to, its bottom edge (as the card of the emoji search): the pivot is its height in pixels, from its layout
+# params (it can be gone, with no size of its own yet), or what it measures when the params give no number.
+.method private static pivot(Landroid/view/View;)V
     .locals 2
 
-    invoke-virtual {p0}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
+    invoke-virtual {p0}, Landroid/view/View;->getLayoutParams()Landroid/view/ViewGroup$LayoutParams;
 
     move-result-object v0
 
-    invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
+    const/4 v1, 0x0
 
-    move-result-object v0
+    if-eqz v0, :cond_measured
 
-    iget v0, v0, Landroid/util/DisplayMetrics;->density:F
+    iget v1, v0, Landroid/view/ViewGroup$LayoutParams;->height:I
 
-    const/high16 v1, -0x3f000000    # -8.0f
+    :cond_measured
+    if-gtz v1, :cond_set
 
-    mul-float/2addr v0, v1
+    invoke-virtual {p0}, Landroid/view/View;->getHeight()I
 
-    return v0
+    move-result v1
+
+    :cond_set
+    int-to-float v0, v1
+
+    invoke-virtual {p0, v0}, Landroid/view/View;->setPivotY(F)V
+
+    return-void
 .end method
 
-# Animates the view to alpha and translationY in ms. end (can be null) runs when it ends, not when it is cancelled.
+# Animates the view to alpha and scaleY in ms. end (can be null) runs when it ends, not when it is cancelled.
 .method private static to(Landroid/view/View;FFLjava/lang/Runnable;I)V
     .locals 3
 
@@ -105,7 +114,7 @@
 
     move-result-object v0
 
-    invoke-virtual {v0, p2}, Landroid/view/ViewPropertyAnimator;->translationY(F)Landroid/view/ViewPropertyAnimator;
+    invoke-virtual {v0, p2}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
 
@@ -164,7 +173,8 @@
     return-void
 .end method
 
-# Shows the row. Gone: fades in sliding down (180 ms). Fading out: turns back (120 ms). Visible: nothing.
+# Shows the row. Gone: grows upward from its bottom edge while it fades in (240 ms, as the card of the emoji search). Fading out: turns back (120 ms).
+# Visible: nothing.
 .method static show(Landroid/view/View;)V
     .locals 4
 
@@ -180,15 +190,15 @@
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrAnim;->stop(Landroid/view/View;)V
 
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrAnim;->pivot(Landroid/view/View;)V
+
     const/4 v0, 0x0
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setAlpha(F)V
 
-    invoke-static {p0}, Lcom/mrkeyboard/app/MrAnim;->slide(Landroid/view/View;)F
+    const v1, 0x3f19999a    # 0.6f, the same as MrEmojiSearch.ENTER_FROM
 
-    move-result v1
-
-    invoke-virtual {p0, v1}, Landroid/view/View;->setTranslationY(F)V
+    invoke-virtual {p0, v1}, Landroid/view/View;->setScaleY(F)V
 
     const/4 v0, 0x0
 
@@ -196,11 +206,9 @@
 
     const/high16 v0, 0x3f800000    # 1.0f
 
-    const/4 v1, 0x0
+    const/16 v2, 0xf0
 
-    const/16 v2, 0xb4
-
-    invoke-static {p0, v0, v1, v3, v2}, Lcom/mrkeyboard/app/MrAnim;->to(Landroid/view/View;FFLjava/lang/Runnable;I)V
+    invoke-static {p0, v0, v0, v3, v2}, Lcom/mrkeyboard/app/MrAnim;->to(Landroid/view/View;FFLjava/lang/Runnable;I)V
 
     return-void
 
@@ -215,17 +223,16 @@
 
     const/high16 v0, 0x3f800000    # 1.0f
 
-    const/4 v1, 0x0
-
     const/16 v2, 0x78
 
-    invoke-static {p0, v0, v1, v3, v2}, Lcom/mrkeyboard/app/MrAnim;->to(Landroid/view/View;FFLjava/lang/Runnable;I)V
+    invoke-static {p0, v0, v0, v3, v2}, Lcom/mrkeyboard/app/MrAnim;->to(Landroid/view/View;FFLjava/lang/Runnable;I)V
 
     :cond_done
     return-void
 .end method
 
-# Hides the row with a fade (140 ms) sliding up; it leaves the layout (GONE) at the end. Gone, or already fading: nothing.
+# Hides the row: the entrance backwards (shrinks towards its bottom edge while it fades out, 140 ms); it leaves the layout (GONE) at the end.
+# Gone, or already fading: nothing.
 .method static hide(Landroid/view/View;)V
     .locals 4
 
@@ -243,15 +250,15 @@
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrAnim;->stop(Landroid/view/View;)V
 
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrAnim;->pivot(Landroid/view/View;)V
+
     new-instance v3, Lcom/mrkeyboard/app/MrAnim;
 
     invoke-direct {v3, p0}, Lcom/mrkeyboard/app/MrAnim;-><init>(Landroid/view/View;)V
 
     const/4 v0, 0x0
 
-    invoke-static {p0}, Lcom/mrkeyboard/app/MrAnim;->slide(Landroid/view/View;)F
-
-    move-result v1
+    const v1, 0x3f19999a    # 0.6f
 
     const/16 v2, 0x8c
 
@@ -342,7 +349,7 @@
     :cond_up
     const/high16 v0, 0x3f800000    # 1.0f
 
-    const/4 v1, 0x0
+    const/high16 v1, 0x3f800000    # 1.0f: the groups only fade, they keep their size
 
     const/4 v3, 0x0
 

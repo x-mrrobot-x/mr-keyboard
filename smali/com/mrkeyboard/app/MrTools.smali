@@ -433,7 +433,7 @@
 
 # Main row (bar_main): hidden while a tool uses the row (rowOwned); otherwise MrSugg.mode decides between
 # tools (1), suggestions (2) or nothing (0). See MrSugg.
-# The changes are animated by MrAnim: the row comes in with a fade (show) and goes out with a fade that ends in GONE (hide, mode 0);
+# The changes are animated by MrAnim: the row comes in like the card of the emoji search (show) and goes out the same way backwards, ending in GONE (hide, mode 0);
 # under a tool it goes at once (gone), because the header takes its place in the same frame. The tools and the strip change
 # with a crossfade (MrSugg.applyInner -> MrAnim.swap), only when the row is on screen.
 .method static applyMain()V

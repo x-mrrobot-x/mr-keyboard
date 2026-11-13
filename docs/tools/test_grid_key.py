@@ -350,7 +350,7 @@ w.key()
 check("grid key hides the row: it fades out, and is still in the layout while it does", w.row_on() == 0 and w.main.f["vis"] == 0 and w.anim.s_hiding is w.main,
       (w.row_on(), w.main.f["vis"]))
 w.anim.finish()
-check("... at the end of the fade the row leaves the layout, clean", w.in_view() == "hidden" and w.main.f["alpha"] == 1.0 and w.main.f["ty"] == 0.0, (w.main.f["vis"], w.main.f["alpha"]))
+check("... at the end of the fade the row leaves the layout, clean", w.in_view() == "hidden" and w.main.f["alpha"] == 1.0 and w.main.f["sy"] == 1.0, (w.main.f["vis"], w.main.f["alpha"]))
 w.key()
 check("grid key shows the row again: it comes back at alpha 0 (fading in), with the tools", w.main.f["vis"] == 0 and w.main.f["alpha"] == 0.0 and w.tools_v.f["vis"] == 0 and w.sugg_v.f["vis"] == 8,
       (w.main.f["vis"], w.main.f["alpha"]))

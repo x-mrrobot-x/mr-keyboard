@@ -226,9 +226,9 @@ class VM:
         elif op == 'move-exception': setr(rest, exc)
         elif op in ('return', 'return-object', 'return-wide'): return pc, res, exc, True, R[r(rest)]
         elif op == 'return-void': return pc, res, exc, True, None
-        elif op in ('iget', 'iget-boolean', 'iget-object'):
+        elif op in ('iget', 'iget-boolean', 'iget-object', 'iget-wide'):
             a, b, c = ops(rest); setr(a, R[r(b)].f[c.split('->')[1].split(':')[0]])
-        elif op in ('iput', 'iput-boolean', 'iput-object'):
+        elif op in ('iput', 'iput-boolean', 'iput-object', 'iput-wide'):
             a, b, c = ops(rest); R[r(b)].f[c.split('->')[1].split(':')[0]] = R[r(a)]
         elif op in ('sget', 'sget-object', 'sget-boolean'):
             a, b = ops(rest)
@@ -270,6 +270,10 @@ class VM:
                          'and': lambda: x & lit, 'xor': lambda: x ^ lit, 'rsub': lambda: lit - x,
                          'ushr': lambda: (x & 0xffffffff) >> (lit & 31), 'shl': lambda: x << (lit & 31),
                          'shr': lambda: x >> (lit & 31)}[k]()))
+        elif op in ('div-int', 'div-int/2addr'):          # Dalvik truncates towards zero; a division by zero is an ArithmeticException
+            t = ops(rest); x, y = (iv(R[r(t[0])]), iv(R[r(t[1])])) if op == 'div-int/2addr' else (iv(R[r(t[1])]), iv(R[r(t[2])]))
+            if y == 0: raise JavaExc('Ljava/lang/ArithmeticException;', 'divide by zero')
+            setr(t[0], i32(math.trunc(x / y)))
         elif op == 'int-to-long': a, b = ops(rest); setr(a, iv(R[r(b)]))
         elif op == 'mul-long/2addr': a, b = ops(rest); setr(a, R[r(a)] * R[r(b)])
         elif op == 'cmp-long': a, b, c = ops(rest); setr(a, (R[r(b)] > R[r(c)]) - (R[r(b)] < R[r(c)]))

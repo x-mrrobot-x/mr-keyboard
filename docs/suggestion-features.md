@@ -110,14 +110,16 @@ The toolbar row (`bar_main`) holds the tools and the strip, one at a time. `MrSu
   empties the strip. There is **no punctuation list** (`!?,` on the strip) and no "Suggested punctuation" setting: the list was only on screen for that
   second, and the strip draws 3 slots, so only 3 of its characters could show. The fixed set `!?,"':;()-/@_` stays inside `LatinIME.isSuggestedPunctuation`,
   where it tells `isCursorTouchingWord` and `pickSuggestionManually` what is not a word.
-- **Animations** (`MrAnim`, smali only). Fades and a short slide (`ViewPropertyAnimator`), never the height of the keyboard window: animating it would resize the app
+- **Animations** (`MrAnim`, smali only). Fades and a vertical scale (`ViewPropertyAnimator`), never the height of the keyboard window: animating it would resize the app
   behind the keyboard on every frame. **Tools <-> strip**: `bar_tools` and `bar_sugg` overlay each other in `bar_main` (a `FrameLayout`) and change with a 150 ms
   crossfade (`MrSugg.applyInner` -> `MrAnim.swap`), only while the row is on screen (with the row hidden they change at once); the same target again does not restart
-  it and turning back in the middle of it reverses it. **Showing the row** (grid key, a tool closed): it fades in sliding 8dp down (180 ms). **Hiding it** (grid key,
-  row off): it fades out sliding up (140 ms) and only at the end leaves the layout (GONE), so the keyboard does not jump up before the row has gone; showing it again
-  in the middle turns the fade back. **A tool taking the row** (`rowOwned`) takes `bar_main` out at once, with no fade: its header takes the place in the same frame,
-  so the row never lingers above it. A cancelled animation never runs its end action; every view stays at alpha 1 with no slide after any change. The system animator
-  scale is respected by the animator itself (at 0 everything is final at once). The height of the keyboard still changes at once when the row appears or goes.
+  it and turning back in the middle of it reverses it. **Showing the row** (grid key, a tool closed): the same entrance as the card of the emoji search
+  (`MrEmojiSearch.enter`): it grows upward from its bottom edge (scaleY 0.6 -> 1, pivot at the bottom) while it fades in, 240 ms. **Hiding it** (grid key, row off): the
+  same movement backwards (140 ms), and only at the end it leaves the layout (GONE), so the keyboard does not jump up before the row has gone; showing it again in the
+  middle turns it back. **A tool taking the row** (`rowOwned`) takes `bar_main` out at once, with no fade: its header takes the place in the same frame, so the row never
+  lingers above it. A cancelled animation never runs its end action; every view stays at alpha 1 and scale 1 after any change. The system animator scale is respected by
+  the animator itself (at 0 everything is final at once). The height of the keyboard still changes at once when the row appears or goes. If the entrance of the emoji
+  search card changes (`ENTER_FROM`, `ENTER_MS`), change `MrAnim.show` with it.
 Checks: `test_sugg_idle.py` (the real smali of `MrSugg` in the mini Dalvik interpreter with a fake handler and clock); `test_anim.py` (the real smali of `MrAnim` with a
 fake animator that keeps the animations waiting; `test_grid_key.py` also runs it with the animations in progress).
 

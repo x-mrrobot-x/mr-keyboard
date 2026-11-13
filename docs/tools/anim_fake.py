@@ -17,12 +17,12 @@ ANIM = "Lcom/mrkeyboard/app/MrAnim;"
 VIEW = "Landroid/view/View;"
 PROPS = "Landroid/view/ViewPropertyAnimator;"
 APP = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "smali", "com", "mrkeyboard", "app")
-DENSITY = 2.5
+HEIGHT = 120          # the height of bar_main in pixels (48dp at a density of 2.5)
 
 
 def make_view(tag, vis=0, **kw):
-    """A fake view: visibility, alpha, translationY and the animator it owns."""
-    return dm.Obj(VIEW, vis=vis, tag=tag, alpha=1.0, ty=0.0, animator=None, parent=None, kids=[], **kw)
+    """A fake view: visibility, alpha, scaleY, pivotY, height in its layout params and the animator it owns."""
+    return dm.Obj(VIEW, vis=vis, tag=tag, alpha=1.0, sy=1.0, pivot=None, lp_height=HEIGHT, animator=None, parent=None, kids=[], **kw)
 
 
 class AnimWorld:
@@ -30,7 +30,7 @@ class AnimWorld:
         self.instant = instant
         self.main = bar_main
         self.running = []          # animators waiting for finish()
-        self.log = []              # (tag, alpha, translationY, ms, has end action) of each animation started
+        self.log = []              # (tag, alpha, scaleY, ms, has end action) of each animation started
         self.ended = []            # tags of the views whose end action ran
         self.vm = dm.VM(ANIM, dm.parse_methods(os.path.join(APP, "MrAnim.smali")), self)
 
@@ -89,17 +89,21 @@ class AnimWorld:
             if mem == "setAlpha(F)V":
                 a0.f["alpha"] = dm.fv(args[1])
                 return None
-            if mem == "setTranslationY(F)V":
-                a0.f["ty"] = dm.fv(args[1])
+            if mem == "setScaleY(F)V":
+                a0.f["sy"] = dm.fv(args[1])
                 return None
-            if mem == "getResources()Landroid/content/res/Resources;":
-                return dm.Obj("Landroid/content/res/Resources;")
+            if mem == "setPivotY(F)V":
+                a0.f["pivot"] = dm.fv(args[1])
+                return None
+            if mem == "getHeight()I":
+                return a0.f.get("height", 0)
+            if mem == "getLayoutParams()Landroid/view/ViewGroup$LayoutParams;":
+                h = a0.f.get("lp_height")
+                return None if h is None else dm.Obj("Landroid/view/ViewGroup$LayoutParams;", height=h)
             if mem == "animate()" + PROPS:
                 if a0.f.get("animator") is None:
                     a0.f["animator"] = dm.Obj(PROPS, view=a0, target={}, ms=None, end=None)
                 return a0.f["animator"]
-        if cls == "Landroid/content/res/Resources;" and mem == "getDisplayMetrics()Landroid/util/DisplayMetrics;":
-            return dm.Obj("Landroid/util/DisplayMetrics;", density=DENSITY)
         if cls == PROPS:
             if mem == "cancel()V":
                 if a0 in self.running:
@@ -109,8 +113,8 @@ class AnimWorld:
             if mem == "alpha(F)" + PROPS:
                 a0.f["target"]["alpha"] = dm.fv(args[1])
                 return a0
-            if mem == "translationY(F)" + PROPS:
-                a0.f["target"]["ty"] = dm.fv(args[1])
+            if mem == "scaleY(F)" + PROPS:
+                a0.f["target"]["sy"] = dm.fv(args[1])
                 return a0
             if mem == "setDuration(J)" + PROPS:
                 a0.f["ms"] = args[1]
@@ -120,7 +124,7 @@ class AnimWorld:
                 return a0
             if mem == "start()V":
                 t = a0.f["target"]
-                self.log.append((a0.f["view"].f.get("tag"), t.get("alpha"), t.get("ty"), a0.f["ms"], a0.f["end"] is not None))
+                self.log.append((a0.f["view"].f.get("tag"), t.get("alpha"), t.get("sy"), a0.f["ms"], a0.f["end"] is not None))
                 if a0 in self.running:
                     self.running.remove(a0)
                 self.running.append(a0)

@@ -41,6 +41,12 @@ the feature: what exists, how it works, where the words come from and what is le
   fades in (`alpha` 0 to 1), `ENTER_MS` = 240 ms, with `ViewPropertyAnimator`. The window is already as tall as it will be (`MrBar.expand` is
   one step), so only the drawing moves: the keyboard is not resized on every frame, which would make the app below it lay out again 15 times. On
   leaving, the animation is cancelled and the header put back opaque and full size for the next time. With the animations of the system off, it ends at once.
+- **The popups follow the keyboard.** The header makes the keyboard sit lower in the window (the row had 48 dp, the header has 195 dp), and the popup of a long
+  press (the accents of the "a") and the balloon of a key were left where they had been, far above the key. The original code read the place of the keyboard in the
+  window **once** (`LatinKeyboardBaseView.mWindowOffset` for the popup, `mOffsetInWindow` and `mWindowY` for the balloon) and kept it. The toolbar shares the window with
+  the keyboard, so it moves whenever the height above it changes (this header, the panels, Fonts, the row hidden or shown by the grid key): the popup came out too
+  high or too low in all of those. Both are read at every use now (`getLocationInWindow` costs nothing next to a key press). The popups of `CandidateView`, of
+  `LatinKeyboardView` (extension) and of the sheets already read it each time. `test_popup_position.py` runs the real `onLongPress` and `showKey` moving the keyboard.
 - **An error here never takes the keyboard down.** `setup` runs while the keyboard is made and `onPanel` runs every time a field is bound
   (`MrTools.reset` goes through `showPanel(0)`); both catch what the search throws, give the keyboard back as it was (redirect and field of the
   translator, header closed, height restored) and forget the search, so the keyboard works without it.
@@ -108,6 +114,8 @@ the feature: what exists, how it works, where the words come from and what is le
 - `docs/tools/emoji_search_test/EmojiPanelTest.java` (in `run_java_tests.sh`): the state of the panel with fake views: open, back, the other panels,
   redirect and field, height given and taken back, the entrance (alpha, scale, pivot, duration, cancelled on leaving), an error in setup or in opening (nothing escapes, the keyboard is given back), the service destroyed with the delete button held, the delete button (press, repeat, release, cancel), a tap writing in the app only, words loaded
   late or dropped, a keyboard view made again with the search open.
+- `docs/tools/test_popup_position.py` (in `mr-checks.yml`): the real smali of `LatinKeyboardBaseView.onLongPress` and `showKey` in the mini Dalvik interpreter, with the
+  keyboard moving in the window (the header open, the row hidden): the popup of the accents and the balloon of the key follow it. It fails with the original, cached code.
 - `docs/tools/emoji_search_test/EmojiNewTest.java` (in `run_java_tests.sh`): the table (one group per anchor, no emoji twice), the merge (after the anchor,
   at the end when the anchor is missing, never twice), a phone whose font lacks some of them (left out of the list and of the results, the
   answers kept), and words in the three languages for every emoji of the table.

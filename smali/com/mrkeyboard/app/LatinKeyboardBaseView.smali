@@ -4707,6 +4707,9 @@
 
     iput-object v6, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mOffsetInWindow:[I
 
+    # The place of the keyboard in the window is read at EVERY use, not once (the original cached it): the toolbar shares the window with the
+    # keyboard and its height changes (the header of the emoji search, the panels, the row hidden), which moves the keyboard down or up.
+    :cond_5
     .line 1250
     iget-object v6, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mOffsetInWindow:[I
 
@@ -4746,7 +4749,6 @@
     iput v6, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mWindowY:I
 
     .line 1259
-    :cond_5
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getLongPressKeyboard(Lcom/mrkeyboard/app/Keyboard$Key;)Lcom/mrkeyboard/app/Keyboard;
 
     move-result-object v6
@@ -5506,13 +5508,15 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mWindowOffset:[I
 
+    # Read at EVERY long press, not once (the original cached it): the keyboard moves in the window when the toolbar above it changes height
+    # (header of the emoji search, panels, the row hidden or shown), and the popup was left too high or too low.
     .line 1453
+    :cond_4
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mWindowOffset:[I
 
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getLocationInWindow([I)V
 
     .line 1464
-    :cond_4
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboard:Lcom/mrkeyboard/app/LatinKeyboardBaseView;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getKeyboard()Lcom/mrkeyboard/app/Keyboard;
