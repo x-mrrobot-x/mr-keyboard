@@ -5420,11 +5420,17 @@
     .locals 13
 
     .line 1437
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupBegin()V
+
     iget v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mPopupLayout:I
 
     const/4 v1, 0x0
 
     if-nez v0, :cond_0
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupEnd()V
 
     return v1
 
@@ -5435,6 +5441,9 @@
     move-result-object v0
 
     if-nez v0, :cond_1
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupEnd()V
 
     return v1
 
@@ -5452,6 +5461,9 @@
     iget-object v2, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboard:Lcom/mrkeyboard/app/LatinKeyboardBaseView;
 
     if-nez v2, :cond_3
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupEnd()V
 
     return v1
 
@@ -5840,6 +5852,9 @@
 
     .line 1512
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->invalidateAllKeys()V
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupEnd()V
 
     return v6
 .end method

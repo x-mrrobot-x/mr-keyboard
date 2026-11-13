@@ -59,6 +59,15 @@
     <string name="mr_ui_perf_touch">Touch wait</string>
     <string name="mr_ui_perf_app">Wait for the app</string>
     <string name="mr_ui_perf_sugg">Suggestions</string>
+    <string name="mr_ui_perf_key_letter">Key: letter or digit</string>
+    <string name="mr_ui_perf_key_sep">Key: space, punctuation, Enter</string>
+    <string name="mr_ui_perf_key_del">Key: delete</string>
+    <string name="mr_ui_perf_key_other">Key: shift, symbols, modes</string>
+    <string name="mr_ui_perf_sugg_engine">Suggestions: the engine</string>
+    <string name="mr_ui_perf_sugg_show">Suggestions: show the strip</string>
+    <string name="mr_ui_perf_open_kb">Open: choose the keyboard for the field</string>
+    <string name="mr_ui_perf_open_set">Open: read the settings</string>
+    <string name="mr_ui_perf_popup">Open the long-press popup</string>
     <string name="mr_ui_cat_haptic">Vibration</string>
     <string name="mr_ui_cat_sound">Sound</string>
     <string name="mr_ui_cat_visual">Visual</string>

@@ -14,7 +14,8 @@ import java.util.Arrays;
  * Performance meter of the keyboard (docs/plan-performance.md, stage 2): how long the keyboard takes for the things the person
  * feels, measured on the phone itself, so each stage of the plan can be judged by numbers and not by guesses.
  *
- * <p>The smali of the keyboard calls a begin and an end around each piece of work (no argument, no register taken):
+ * <p>The smali of the keyboard calls a begin and an end around each piece of work (no register taken; only the key code goes to
+ * {@link #keyBegin}):
  * <ul>
  * <li>CREATE: LatinIME.onCreate, the start of the keyboard service (a new process: after a reboot, an update, or when Android
  *     killed the keyboard);</li>
@@ -25,11 +26,19 @@ import java.util.Arrays;
  *     open redrew nothing and the next frame came from something else);</li>
  * <li>FRAME: LatinKeyboardBaseView.onDraw (the keyboard and the popups of variants). With a window drawn by the GPU this is
  *     the time to record the drawing, not the time of the GPU;</li>
- * <li>KEY: LatinIME.onKey, all the work of a key, the questions to the app included;</li>
+ * <li>KEY: LatinIME.onKey, all the work of a key, the questions to the app included. The same time is also counted by kind of
+ *     key: KEY_LETTER (letters and digits), KEY_SEP (space, punctuation, Enter and the other positive codes), KEY_DEL (delete)
+ *     and KEY_OTHER (shift, symbols, modes: the negative codes), to see which kind of key has the slow tail;</li>
  * <li>TOUCH: how late a touch (finger down) reaches the keyboard: the time of the event against the clock when the keyboard
  *     view gets it. A busy main thread shows here;</li>
- * <li>APP: the questions that wait for the app (InputConnection.getCursorCapsMode, getExtractedText when a field opens);</li>
- * <li>SUGG: LatinIME.updateSuggestions, the suggestions of the strip computed (native engine).</li>
+ * <li>APP: the questions that wait for the app: every InputConnection.getTextBeforeCursor, getTextAfterCursor and
+ *     getCursorCapsMode of LatinIME and of EditingUtil (the previous word, the word under the cursor), and the getExtractedText
+ *     that a field without a reported selection still needs when it opens;</li>
+ * <li>SUGG: LatinIME.updateSuggestions, the suggestions of the strip computed (native engine). Inside it: SUGG_ENGINE, the
+ *     call to the engine (Suggest.getSuggestions), and SUGG_SHOW, the strip filled and drawn (setSuggestions);</li>
+ * <li>OPEN_KB: inside OPEN, the keyboard chosen and put on the view for the field (makeKeyboards, setKeyboardMode and the
+ *     reading of the field type); OPEN_SET: inside OPEN, loadSettings;</li>
+ * <li>POPUP: the popup of variants (long press) built and shown (LatinKeyboardBaseView.onLongPress).</li>
  * </ul>
  * Times are kept in microseconds: the last {@link #SIZE} of each kind for the average and the p95, the count and the maximum
  * since the last reset. All of it runs on the main thread (the keyboard and the screens share the process and its main thread),
@@ -42,7 +51,9 @@ public final class MrPerf {
     /** Key of the row of the Advanced screen. */
     static final String ROW = "mr_perf";
 
-    static final int CREATE = 0, VIEW = 1, OPEN = 2, SHOWN = 3, FRAME = 4, KEY = 5, TOUCH = 6, APP = 7, SUGG = 8, KINDS = 9;
+    static final int CREATE = 0, VIEW = 1, OPEN = 2, SHOWN = 3, FRAME = 4, KEY = 5, TOUCH = 6, APP = 7, SUGG = 8,
+            KEY_LETTER = 9, KEY_SEP = 10, KEY_DEL = 11, KEY_OTHER = 12, SUGG_ENGINE = 13, SUGG_SHOW = 14,
+            OPEN_KB = 15, OPEN_SET = 16, POPUP = 17, KINDS = 18;
     /** Samples kept per kind (a power of two) for the average and the p95. */
     static final int SIZE = 256;
     /** A first frame later than this (in microseconds) after the field opened is not counted. */
@@ -50,9 +61,12 @@ public final class MrPerf {
     /** Names of the strings of each kind, in the order of the kinds. */
     static final String[] NAMES = {
             "mr_ui_perf_create", "mr_ui_perf_view", "mr_ui_perf_open", "mr_ui_perf_shown", "mr_ui_perf_frame",
-            "mr_ui_perf_key", "mr_ui_perf_touch", "mr_ui_perf_app", "mr_ui_perf_sugg" };
+            "mr_ui_perf_key", "mr_ui_perf_touch", "mr_ui_perf_app", "mr_ui_perf_sugg",
+            "mr_ui_perf_key_letter", "mr_ui_perf_key_sep", "mr_ui_perf_key_del", "mr_ui_perf_key_other",
+            "mr_ui_perf_sugg_engine", "mr_ui_perf_sugg_show", "mr_ui_perf_open_kb", "mr_ui_perf_open_set", "mr_ui_perf_popup" };
     /** Names of the kinds in the log line. */
-    static final String[] LOG = { "create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg" };
+    static final String[] LOG = { "create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
+            "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup" };
 
     private static final int[] sRing = new int[KINDS * SIZE];
     private static final int[] sCount = new int[KINDS];
@@ -60,6 +74,8 @@ public final class MrPerf {
     private static final int[] sLast = new int[KINDS];
     /** Start (System.nanoTime) of the piece of work of each kind under way; -1 = none. */
     private static final long[] sStart = new long[KINDS];
+    /** The split kind (KEY_LETTER...) of the key under way, so that its end closes the same one. */
+    private static int sKeyKind = KEY_OTHER;
     /** Start of the last open whose first frame is awaited; -1 = none. */
     private static long sShownFrom = -1;
     /** Count of KEY when the log line was last written. */
@@ -102,12 +118,39 @@ public final class MrPerf {
         if (us <= SHOWN_MAX_US) add(SHOWN, us);
     }
 
-    public static void keyBegin() { begin(KEY); }
-    public static void keyEnd() { end(KEY); }
+    /** LatinIME.onKey, first line: <code>code</code> is the primary code of the key. */
+    public static void keyBegin(int code) {
+        sKeyKind = keyKind(code);
+        begin(KEY);
+        begin(sKeyKind);
+    }
+
+    public static void keyEnd() {
+        end(KEY);
+        end(sKeyKind);
+    }
+
+    /** The split kind of a key: delete, the other special keys (negative codes), letters and digits, and the rest (separators). */
+    static int keyKind(int code) {
+        if (code == -5) return KEY_DEL;             // Keyboard.KEYCODE_DELETE
+        if (code <= 0) return KEY_OTHER;
+        return Character.isLetterOrDigit(code) ? KEY_LETTER : KEY_SEP;
+    }
+
     public static void appBegin() { begin(APP); }
     public static void appEnd() { end(APP); }
     public static void suggBegin() { begin(SUGG); }
     public static void suggEnd() { end(SUGG); }
+    public static void suggEngineBegin() { begin(SUGG_ENGINE); }
+    public static void suggEngineEnd() { end(SUGG_ENGINE); }
+    public static void suggShowBegin() { begin(SUGG_SHOW); }
+    public static void suggShowEnd() { end(SUGG_SHOW); }
+    public static void openKbBegin() { begin(OPEN_KB); }
+    public static void openKbEnd() { end(OPEN_KB); }
+    public static void openSetBegin() { begin(OPEN_SET); }
+    public static void openSetEnd() { end(OPEN_SET); }
+    public static void popupBegin() { begin(POPUP); }
+    public static void popupEnd() { end(POPUP); }
 
     /** LatinKeyboardView.onTouchEvent, first line: how late a finger down (first or another) reached the keyboard. */
     public static void touch(MotionEvent e) {

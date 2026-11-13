@@ -59,6 +59,15 @@
     <string name="mr_ui_perf_touch">Espera del toque</string>
     <string name="mr_ui_perf_app">Espera por la app</string>
     <string name="mr_ui_perf_sugg">Sugerencias</string>
+    <string name="mr_ui_perf_key_letter">Tecla: letra o número</string>
+    <string name="mr_ui_perf_key_sep">Tecla: espacio, puntuación, Enter</string>
+    <string name="mr_ui_perf_key_del">Tecla: borrar</string>
+    <string name="mr_ui_perf_key_other">Tecla: mayús, símbolos, modos</string>
+    <string name="mr_ui_perf_sugg_engine">Sugerencias: el motor</string>
+    <string name="mr_ui_perf_sugg_show">Sugerencias: mostrar la barra</string>
+    <string name="mr_ui_perf_open_kb">Abrir: elegir el teclado del campo</string>
+    <string name="mr_ui_perf_open_set">Abrir: leer los ajustes</string>
+    <string name="mr_ui_perf_popup">Abrir el popup de variantes</string>
     <string name="mr_ui_cat_haptic">Vibración</string>
     <string name="mr_ui_cat_sound">Sonido</string>
     <string name="mr_ui_cat_visual">Visual</string>

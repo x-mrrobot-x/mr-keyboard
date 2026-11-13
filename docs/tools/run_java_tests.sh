@@ -35,7 +35,8 @@
 #     files, a file mapped twice), the matching of the path, the texts, the report of a pack folder, and on Linux a real mapping seen as resident.
 #   - PerfTest: the performance meter of the keyboard (MrPerf, docs/plan-performance.md stage 2): begin/end pairs in microseconds, the
 #     average and p95 of the last 256 samples with the count and maximum since the reset, the first frame after a field opens (not after
-#     2 s), how late a finger down reaches the keyboard, the Advanced row (lines, memory, a tap resets) and one log line per hide with keys.
+#     2 s), how late a finger down reaches the keyboard, a key counted by its kind (letter, separator, delete, other), the Advanced row
+#     (lines, memory, a tap resets) and one log line per hide with keys.
 #   - GridTest: the drawn key grid of the sheet editor (SheetGridView, Java since 1.92.0): the geometry of the cells
 #     (margins, gaps, key height, the "+" of a row, the locked "⌫" and the locked bottom row), the limits (6 rows, 10 keys
 #     per row and 9 in the last one) and the touch rules (tap, cancel, long press, drag and drop, a full row refusing it).

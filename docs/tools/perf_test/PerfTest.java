@@ -34,6 +34,10 @@ public class PerfTest {
             {"mr_ui_perf_create", "Start the keyboard"}, {"mr_ui_perf_view", "Build the view"}, {"mr_ui_perf_open", "Open in a field"},
             {"mr_ui_perf_shown", "Until the first frame"}, {"mr_ui_perf_frame", "Draw a frame"}, {"mr_ui_perf_key", "Handle a key"},
             {"mr_ui_perf_touch", "Touch wait"}, {"mr_ui_perf_app", "Questions to the app"}, {"mr_ui_perf_sugg", "Suggestions"},
+            {"mr_ui_perf_key_letter", "Key letter"}, {"mr_ui_perf_key_sep", "Key separator"}, {"mr_ui_perf_key_del", "Key delete"},
+            {"mr_ui_perf_key_other", "Key other"}, {"mr_ui_perf_sugg_engine", "Suggestions engine"},
+            {"mr_ui_perf_sugg_show", "Suggestions strip"}, {"mr_ui_perf_open_kb", "Open keyboard"},
+            {"mr_ui_perf_open_set", "Open settings"}, {"mr_ui_perf_popup", "Popup"},
             {"mr_ui_perf_stat", "%1$s: average %2$s ms · p95 %3$s · max %4$s (%5$d×)"}, {"mr_ui_perf_one", "%1$s: %2$s ms (once)"},
             {"mr_ui_perf_none", "Nothing measured yet."}, {"mr_ui_perf_mem", "Memory: Java %1$s · native %2$s"},
             {"mr_ui_perf_reset", "Tap to start again from zero."}};
@@ -104,12 +108,39 @@ public class PerfTest {
         check("a tap listener is set", scr.row.click != null);
 
         // ---------------------------------------------------------------- begin / end
-        MrPerf.keyBegin(); tick(1500); MrPerf.keyEnd();
+        MrPerf.keyBegin('a'); tick(1500); MrPerf.keyEnd();
         check("a key of 1.5 ms: 1500 us", "1,1500,1500,1500,1500", join(st(MrPerf.KEY)));
+        check("... also counted as a letter", "1,1500,1500,1500,1500", join(st(MrPerf.KEY_LETTER)));
         MrPerf.keyEnd();
-        check("an end with no begin is ignored", 1, st(MrPerf.KEY)[0]);
-        MrPerf.keyBegin(); tick(900); MrPerf.keyBegin(); tick(300); MrPerf.keyEnd();
+        check("an end with no begin is ignored", 1, st(MrPerf.KEY)[0] + st(MrPerf.KEY_LETTER)[0] - 1);
+        MrPerf.keyBegin('a'); tick(900); MrPerf.keyBegin('a'); tick(300); MrPerf.keyEnd();
         check("a second begin starts again", 300, st(MrPerf.KEY)[4]);
+        check("the kind of each key code: letters, digits, accents",
+                MrPerf.keyKind('a') == MrPerf.KEY_LETTER && MrPerf.keyKind('Z') == MrPerf.KEY_LETTER
+                        && MrPerf.keyKind('7') == MrPerf.KEY_LETTER && MrPerf.keyKind('\u00e9') == MrPerf.KEY_LETTER
+                        && MrPerf.keyKind('\u00e7') == MrPerf.KEY_LETTER);
+        check("... space, Enter, punctuation",
+                MrPerf.keyKind(' ') == MrPerf.KEY_SEP && MrPerf.keyKind('\n') == MrPerf.KEY_SEP && MrPerf.keyKind('.') == MrPerf.KEY_SEP
+                        && MrPerf.keyKind(',') == MrPerf.KEY_SEP && MrPerf.keyKind('?') == MrPerf.KEY_SEP && MrPerf.keyKind('\'') == MrPerf.KEY_SEP);
+        check("... delete, and the negative codes and 0 (shift, symbols, modes)",
+                MrPerf.keyKind(-5) == MrPerf.KEY_DEL && MrPerf.keyKind(-1) == MrPerf.KEY_OTHER && MrPerf.keyKind(-2) == MrPerf.KEY_OTHER
+                        && MrPerf.keyKind(-3) == MrPerf.KEY_OTHER && MrPerf.keyKind(0) == MrPerf.KEY_OTHER
+                        && MrPerf.keyKind(-100) == MrPerf.KEY_OTHER);
+        MrPerf.reset();
+        int[] kinds = {MrPerf.KEY_LETTER, MrPerf.KEY_SEP, MrPerf.KEY_DEL, MrPerf.KEY_OTHER};
+        int[] codes = {'d', ' ', -5, -1};
+        for (int i = 0; i < 4; i++) {
+            MrPerf.keyBegin(codes[i]); tick(700); MrPerf.keyEnd();
+            boolean only = st(kinds[i])[4] == 700;
+            for (int j = 0; j < 4; j++) if (j != i && st(kinds[j])[0] != 0) only = false;
+            check("key code " + codes[i] + ": KEY and its own kind, no other kind", only && st(MrPerf.KEY)[0] == 1);
+            MrPerf.reset();
+        }
+        for (int c : codes) { MrPerf.keyBegin(c); tick(10); MrPerf.keyEnd(); }
+        check("four keys: KEY counts 4, each kind 1", "4,1,1,1,1",
+                st(MrPerf.KEY)[0] + "," + st(MrPerf.KEY_LETTER)[0] + "," + st(MrPerf.KEY_SEP)[0] + "," + st(MrPerf.KEY_DEL)[0]
+                        + "," + st(MrPerf.KEY_OTHER)[0]);
+        MrPerf.reset();
         MrPerf.sFakeNanos = 5_000_000;
         MrPerf.appBegin(); MrPerf.sFakeNanos = 4_000_000; MrPerf.appEnd();
         check("a clock going back counts 0", 0, st(MrPerf.APP)[4]);
@@ -123,6 +154,15 @@ public class PerfTest {
         check("create, view and sugg go to their kinds", "180000,95000,2000",
                 st(MrPerf.CREATE)[4] + "," + st(MrPerf.VIEW)[4] + "," + st(MrPerf.SUGG)[4]);
         check("... and nowhere else", st(MrPerf.OPEN)[0] == 0 && st(MrPerf.FRAME)[0] == 0);
+        MrPerf.suggEngineBegin(); tick(1200); MrPerf.suggEngineEnd();
+        MrPerf.suggShowBegin(); tick(800); MrPerf.suggShowEnd();
+        MrPerf.openKbBegin(); tick(6000); MrPerf.openKbEnd();
+        MrPerf.openSetBegin(); tick(1500); MrPerf.openSetEnd();
+        MrPerf.popupBegin(); tick(9000); MrPerf.popupEnd();
+        check("engine, strip, open keyboard, open settings and popup go to their kinds", "1200,800,6000,1500,9000",
+                st(MrPerf.SUGG_ENGINE)[4] + "," + st(MrPerf.SUGG_SHOW)[4] + "," + st(MrPerf.OPEN_KB)[4] + ","
+                        + st(MrPerf.OPEN_SET)[4] + "," + st(MrPerf.POPUP)[4]);
+        check("... and they leave the whole-open and whole-suggestion kinds alone", st(MrPerf.OPEN)[0] == 0 && st(MrPerf.SUGG)[0] == 1);
 
         // ---------------------------------------------------------------- statistics
         MrPerf.reset();
@@ -213,9 +253,10 @@ public class PerfTest {
         scr = new Advanced();
         MrPerf.fill(scr);
         lines = String.valueOf(scr.row.summary).split("\n");
-        check("every kind: 9 lines, memory, reset", 11, lines.length);
+        check("every kind: " + MrPerf.KINDS + " lines, memory, reset", MrPerf.KINDS + 2, lines.length);
         String[] order = {"Start the keyboard", "Build the view", "Open in a field", "Until the first frame", "Draw a frame",
-                "Handle a key", "Touch wait", "Questions to the app", "Suggestions"};
+                "Handle a key", "Touch wait", "Questions to the app", "Suggestions", "Key letter", "Key separator", "Key delete",
+                "Key other", "Suggestions engine", "Suggestions strip", "Open keyboard", "Open settings", "Popup"};
         boolean inOrder = true;
         for (int k = 0; k < order.length; k++) inOrder &= lines[k].startsWith(order[k] + ": average " + (k + 1) + ".0 ms");
         check("in the order of the kinds", inOrder);

@@ -1110,18 +1110,18 @@
 .end method
 
 .method private checkReCorrectionOnStart()V
-    .locals 3
+    .locals 4
 
     .line 921
     iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mReCorrectionEnabled:Z
 
-    if-eqz v0, :cond_2
+    if-eqz v0, :cond_end
 
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isPredictionOn()Z
 
     move-result v0
 
-    if-eqz v0, :cond_2
+    if-eqz v0, :cond_end
 
     .line 929
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
@@ -1132,8 +1132,44 @@
 
     return-void
 
-    .line 932
     :cond_0
+    # Stage 5 (docs/plan-performance.md): the selection comes from what the field told when it opened
+    # (EditorInfo.initialSelStart/End), with no question to the app and no copy of the whole text.
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputEditorInfo()Landroid/view/inputmethod/EditorInfo;
+
+    move-result-object v1
+
+    if-eqz v1, :cond_text
+
+    iget v2, v1, Landroid/view/inputmethod/EditorInfo;->initialSelStart:I
+
+    iget v1, v1, Landroid/view/inputmethod/EditorInfo;->initialSelEnd:I
+
+    if-ltz v2, :cond_text
+
+    if-ltz v1, :cond_text
+
+    iput v2, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionStart:I
+
+    iput v1, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionEnd:I
+
+    # A cursor at the very start has no word before it and the field is most often empty: nothing to correct.
+    or-int v3, v2, v1
+
+    if-eqz v3, :cond_end
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isCursorTouchingWord()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_end
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->postUpdateOldSuggestions()V
+
+    goto :cond_end
+
+    # The field did not tell its selection (-1): the text is asked as before.
+    :cond_text
     new-instance v1, Landroid/view/inputmethod/ExtractedTextRequest;
 
     invoke-direct {v1}, Landroid/view/inputmethod/ExtractedTextRequest;-><init>()V
@@ -1143,7 +1179,6 @@
     .line 933
     iput v2, v1, Landroid/view/inputmethod/ExtractedTextRequest;->token:I
 
-    .line 934
     # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
@@ -1183,18 +1218,18 @@
 
     move-result v0
 
-    if-nez v0, :cond_2
+    if-nez v0, :cond_end
 
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isCursorTouchingWord()Z
 
     move-result v0
 
-    if-eqz v0, :cond_2
+    if-eqz v0, :cond_end
 
     .line 943
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->postUpdateOldSuggestions()V
 
-    :cond_2
+    :cond_end
     return-void
 .end method
 
@@ -1796,9 +1831,15 @@
     const/4 v2, 0x0
 
     .line 1399
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
+
     invoke-interface {v0, v1, v2}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     if-eqz v3, :cond_2
 
@@ -2419,9 +2460,15 @@
     const/4 v3, 0x0
 
     .line 2518
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->suggEngineBegin()V
+
     invoke-virtual {v0, v1, p1, v2, v3}, Lcom/mrkeyboard/app/Suggest;->getSuggestions(Landroid/view/View;Lcom/mrkeyboard/app/WordComposer;ZLjava/lang/CharSequence;)Ljava/util/List;
 
     move-result-object p1
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->suggEngineEnd()V
 
     return-object p1
 .end method
@@ -3661,14 +3708,26 @@
     const/4 v2, 0x1
 
     .line 2841
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
+
     invoke-interface {v0, v2, v1}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
 
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
+
     .line 2842
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
+
     invoke-interface {v0, v2, v1}, Landroid/view/inputmethod/InputConnection;->getTextAfterCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v0
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     .line 2843
     invoke-static {v3}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
@@ -4200,9 +4259,15 @@
     const/4 v2, 0x0
 
     .line 1420
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
+
     invoke-interface {v0, v1, v2}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     if-eqz v3, :cond_1
 
@@ -4877,9 +4942,15 @@
     const/4 v2, 0x1
 
     .line 1433
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
+
     invoke-interface {v0, v2, v1}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     if-eqz v3, :cond_1
 
@@ -4996,9 +5067,15 @@
     const/4 v2, 0x3
 
     .line 1379
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
+
     invoke-interface {v0, v2, v1}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     if-eqz v3, :cond_1
 
@@ -5073,9 +5150,15 @@
 
     const/4 v1, 0x0
 
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
+
     invoke-interface {p1, v0, v1}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object p1
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     .line 2856
     invoke-static {p2, p1}, Landroid/text/TextUtils;->equals(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Z
@@ -6592,6 +6675,9 @@
     .end annotation
 
     .line 2490
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->suggShowBegin()V
+
     iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mIsShowingHint:Z
 
     if-eqz v0, :cond_0
@@ -6662,6 +6748,9 @@
 
     :cond_mrcall
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrSugg;->onList(ZZ)V
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->suggShowEnd()V
 
     return-void
 .end method
@@ -6846,9 +6935,15 @@
     const/4 v3, 0x0
 
     .line 2536
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->suggEngineBegin()V
+
     invoke-virtual {v1, v2, p1, v3, v0}, Lcom/mrkeyboard/app/Suggest;->getSuggestions(Landroid/view/View;Lcom/mrkeyboard/app/WordComposer;ZLjava/lang/CharSequence;)Ljava/util/List;
 
     move-result-object v0
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->suggEngineEnd()V
 
     .line 2541
     iget-object v1, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggest:Lcom/mrkeyboard/app/Suggest;
@@ -7084,9 +7179,15 @@
     const/4 v2, 0x2
 
     .line 1362
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
+
     invoke-interface {v0, v2, v1}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     if-eqz v3, :cond_1
 
@@ -11372,6 +11473,9 @@
 
     .line 781
     :cond_1
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->openKbBegin()V
+
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
 
     invoke-virtual {v0, v2}, Lcom/mrkeyboard/app/KeyboardSwitcher;->makeKeyboards(Z)V
@@ -11733,13 +11837,22 @@
     .line 893
     :cond_10
     :goto_4
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->openKbEnd()V
+
     invoke-virtual {p2}, Lcom/mrkeyboard/app/LatinKeyboardView;->closing()V
 
     .line 894
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->resetPrediction()V
 
     .line 895
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->openSetBegin()V
+
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->loadSettings()V
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->openSetEnd()V
 
     .line 896
     invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->updateShiftKeyState(Landroid/view/inputmethod/EditorInfo;)V
@@ -12555,9 +12668,15 @@
     const/4 v2, 0x0
 
     .line 2864
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
+
     invoke-interface {v0, v1, v2}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     iput-object v3, p0, Lcom/mrkeyboard/app/LatinIME;->mJustRevertedSeparator:Ljava/lang/CharSequence;
 
@@ -12574,9 +12693,15 @@
     iget v3, p0, Lcom/mrkeyboard/app/LatinIME;->mCommittedLength:I
 
     .line 2869
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
+
     invoke-interface {v0, v3, v2}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     if-eqz v3, :cond_1
 
@@ -13320,7 +13445,7 @@
     # A sentence sign right after a gesture word and its automatic space is written there, glued to the word with the space
     # after it (LatinIME.mrGlue): the key is dealt with.
     # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
-    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->keyBegin()V
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrPerf;->keyBegin(I)V
 
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrGestureInput;->onKey(Lcom/mrkeyboard/app/LatinIME;I)Z
 
@@ -13797,9 +13922,15 @@
 
     const/4 v1, 0x0
 
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
+
     invoke-interface {p1, v0, v1}, Landroid/view/inputmethod/InputConnection;->getTextAfterCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v2
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     if-nez v2, :cond_aw_have
 
