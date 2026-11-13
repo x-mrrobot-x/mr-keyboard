@@ -33,6 +33,9 @@
 #     appear for the original field, once, soon after leaving, and the dialog reopens when the keyboard window shows.
 #   - DiagTest: the "Dictionary memory" line (MrDiag, 1.90.0): the reading of /proc/self/smaps on made-up text (headers, Pss/Rss, deleted
 #     files, a file mapped twice), the matching of the path, the texts, the report of a pack folder, and on Linux a real mapping seen as resident.
+#   - PerfTest: the performance meter of the keyboard (MrPerf, docs/plan-performance.md stage 2): begin/end pairs in microseconds, the
+#     average and p95 of the last 256 samples with the count and maximum since the reset, the first frame after a field opens (not after
+#     2 s), how late a finger down reaches the keyboard, the Advanced row (lines, memory, a tap resets) and one log line per hide with keys.
 #   - GridTest: the drawn key grid of the sheet editor (SheetGridView, Java since 1.92.0): the geometry of the cells
 #     (margins, gaps, key height, the "+" of a row, the locked "⌫" and the locked bottom row), the limits (6 rows, 10 keys
 #     per row and 9 in the last one) and the touch rules (tap, cancel, long press, drag and drop, a full row refusing it).
@@ -97,6 +100,10 @@ java -cp "$T/test_recent:$T/stubs:$T/main" com.mrkeyboard.app.RecentTest
 echo "== DiagTest (memory and load time line)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_diag" $D/diag_test/DiagTest.java
 java -cp "$T/test_diag:$T/stubs:$T/main" com.mrkeyboard.app.DiagTest
+
+echo "== PerfTest (performance meter: begin/end, average/p95/max, first frame, touch wait, the Advanced row, the log)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_perf" $D/perf_test/PerfTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_perf:$T/stubs:$T/main" com.mrkeyboard.app.PerfTest
 
 echo "== NoLibTest (without libmrengine.so: no exception, no results)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_native" $D/native_test/NoLibTest.java

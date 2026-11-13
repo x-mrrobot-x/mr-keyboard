@@ -46,6 +46,7 @@
 #   test_popup_position.py  the real smali of LatinKeyboardBaseView.onLongPress and showKey: the popup of a long press (accents) and the balloon of a key follow the keyboard when it moves in the window (emoji search header open, row hidden)
 #                        fading in/out (it leaves the layout only at the end, a cancelled fade never runs its end action, a tool takes the row at once), the animator scale at 0; the layout overlays the two groups
 #   test_haptic.py       the vibration of a key press (MrHaptic.smali, VibratePreference.onChange): strength 1..100 %, primitives / predefined effect / system haptic / one-shot by Android version, built once, from the setting
+#   test_perf_meter.py   the performance meter (MrPerf.smali in the mini interpreter: begin/end in microseconds, average/p95 of the last 256, count/max since the reset, first frame after an open, touch wait, the Advanced row and its reset, the log line) and where the keyboard calls it (begin first, end before every return, the questions to the app, the touch, the hide, the Advanced screen)
 #   test_shadow_cache.py the blurred icon shadows (ShadowDrawHelper.smali): blurred once and kept (24 places, oldest replaced, never recycled), found by drawable, key size, bounds, alpha, level and radius, colour applied when drawn; render mode 0 (no software layer)
 #   test_notes_text.py   the notes of the update dialog (MrNotesText.smali, MrUpdate$Notice.raw, MrUpdateDialog.fill): bullet, hanging indent, label bold and colored by kind (new, improved, fixed, how to get it, other), thin line between items, **bold** kept, marks gone; every notes block of docs/release-notes against a reference
 #   test_field_keys.py   keys with a modifier (Ctrl+A, Shift+arrows...) in the fields of the toolbar (translator, emoji search): LatinIME.sendKeyDown/sendKeyUp and MrTools.sendEvent on the real smali: the
@@ -211,6 +212,9 @@ jobs:
 
       - name: Icon shadows blurred once and kept; keyboard view without a software layer
         run: python3 -I docs/tools/test_shadow_cache.py
+
+      - name: Performance meter of the keyboard (MrPerf) and its calls in the keyboard
+        run: python3 -I docs/tools/test_perf_meter.py
 
       - name: Keys with a modifier in the fields of the toolbar (Ctrl+A, Shift+arrows)
         run: python3 -I docs/tools/test_field_keys.py

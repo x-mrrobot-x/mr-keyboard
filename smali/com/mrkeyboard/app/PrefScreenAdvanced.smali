@@ -90,6 +90,8 @@
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrAccel;->fill(Landroid/preference/PreferenceActivity;)V
 
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPerf;->fill(Landroid/preference/PreferenceActivity;)V
+
     return-void
 .end method
 

@@ -1267,6 +1267,9 @@
 
     # Gesture typing (MrGestureInput, 1.96.0): an event that belongs to a gesture is taken there and goes no further.
     # With the setting off this call returns false on its first line.
+    # Performance meter (MrPerf, docs/plan-performance.md stage 2): how late a finger down reached the keyboard.
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrPerf;->touch(Landroid/view/MotionEvent;)V
+
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrGestureInput;->onTouch(Lcom/mrkeyboard/app/LatinKeyboardView;Landroid/view/MotionEvent;)Z
 
     move-result v0

@@ -3,31 +3,41 @@
 Live plan of the performance round started after v1.98.0. One stage = one zip and one commit; the version of the release does
 not change. When the round is over this file is deleted (the history stays in Git), like docs/plan-suggestions.md was.
 
-Everything below was found by reading the code (smali, the Java layer, the manifest), not by measuring on a phone: the
-environment has no device. Costs are estimates, marked as such. Stage 2 adds the numbers from the phone.
+Everything below was found by reading the code (smali, the Java layer, the manifest); the environment has no device. Costs
+are estimates, marked as such. Stage 2 (the meter on the Advanced screen) gives the numbers of the phone.
+
+Read on the owner's phone (2026-11-13, Advanced screen): the keyboard window is drawn by the GPU, and so is the Advanced screen
+although the app does not ask for it: the system (or the ROM) turns the acceleration on by itself. The first finding below was
+written before that reading and is kept corrected.
 
 ## 1. Findings
 
 ### Drawing the keyboard
 
-- **The keyboard window is drawn by the processor.** The manifest has `hardwareAccelerated="false"` for the app. A window with no
-  parent (the keyboard window is one) takes its acceleration from the app flag (`WindowManagerGlobal.addView`), and
-  `InputMethodService` only adds `FLAG_HARDWARE_ACCELERATED` when `enableHardwareAcceleration()` was called. So the keyboard,
-  the suggestion strip and every panel (emoji list, clipboard, screenshots) are rasterized on the CPU, frame by frame. The
-  "keyboard window" row of the Advanced screen (`MrAccel`, never read on a phone so far) shows what the system really did.
-  Consequences: scrolling the emoji list redraws the whole list on the CPU each frame; the background blur of the translucent
-  themes (`MrTranslucentBlur`) never runs, because it needs an accelerated window.
-- **The first keyboard view of each process has a software layer.** `GlobalKeyboardSettings.renderMode` is always 1
-  (`LAYER_TYPE_SOFTWARE`; the setting that changed it is gone) and `LatinKeyboardBaseView.setRenderModeIfPossible` only applies it
-  when it differs from a STATIC "previous mode" that starts at -1. The first view made in a process gets the layer, every later
-  one (after a theme change, a rotation, the popups of variants) does not. In a window drawn by the CPU a view with a software
-  layer is a drawing cache: any `invalidate(rect)` throws the whole cache away, so each key press and each release redraws ALL
-  keys (shadows and glows included) into a bitmap the size of the keyboard and copies it. Without the layer only the pressed key
-  is redrawn. The same keyboard is fast or slow depending on whether its view is the first of the process.
-- **Icon shadows are blurred again on every frame.** `ShadowDrawHelper.draw` (dark outline of the icons on dark themes, the
-  light of the icons on neon themes) creates a bitmap of the key, draws the icon, blurs it with a `BlurMaskFilter`
-  (`extractAlpha`), draws the result and recycles both bitmaps: two allocations and one blur per icon key per frame. Recycling a
-  bitmap right after drawing it is also unsafe once the window is accelerated (the frame is drawn later, on the render thread).
+- **Whether the keyboard window is drawn by the GPU depends on the phone.** The manifest has `hardwareAccelerated="false"` for
+  the app. A window with no parent (the keyboard window is one) takes its acceleration from the app flag
+  (`WindowManagerGlobal.addView`), and `InputMethodService` does not ask for it (`enableHardwareAcceleration()` only returns
+  whether the device is high end since Android 5). Some systems turn it on anyway: the owner's phone does, for every window of
+  the app. Where the system does not, the keyboard, the suggestion strip and the panels are drawn by the processor and the
+  background blur of the translucent themes (`MrTranslucentBlur`) does not run. The "Keyboard drawing" row of the Advanced
+  screen (`MrAccel`) tells which case a phone is.
+- **The first keyboard view of each process had a software layer** (fixed in stage 1). `GlobalKeyboardSettings.renderMode` was
+  always 1 (`LAYER_TYPE_SOFTWARE`; the setting that changed it is gone) and `LatinKeyboardBaseView.setRenderModeIfPossible` only
+  applies it when it differs from a STATIC "previous mode" that starts at -1: the first view made in a process got the layer,
+  every later one (after a theme change, a rotation, the popups of variants) did not. With a software layer any invalidation
+  throws the whole layer away: each key press and each release redrew ALL keys (shadows and glows included) on the processor
+  into a bitmap the size of the keyboard, and on a GPU window that bitmap was then sent whole to the GPU again. The same
+  keyboard was fast or slow depending on whether its view was the first of the process.
+- **On a GPU window every key press records every key again.** Since Android 5 the area passed to `invalidate(rect)` is ignored
+  by the GPU pipeline: the view's `onDraw` runs with the whole view as its clip, so `onBufferDraw` records all keys (faces,
+  labels, text shadows, icon shadows) for one pressed key, and the GPU draws all of them. Recording is far cheaper than drawing
+  on the processor, but it grows with the theme (neon: two drawings with a shadow per label). The meter says how long a frame
+  takes on the phone ("Draw a frame"); stage 3 acts on it.
+- **Icon shadows were blurred again on every frame** (fixed in stage 1). `ShadowDrawHelper.draw` (dark outline of the icons on
+  dark themes, the light of the icons on neon themes) created a bitmap of the key, drew the icon, blurred it with a
+  `BlurMaskFilter` (`extractAlpha`), drew the result and recycled both bitmaps: two allocations and one blur per icon key per
+  frame, and on a GPU window each new bitmap is a new texture sent to the GPU. Recycling a bitmap right after drawing it is also
+  unsafe on a GPU window (the frame is drawn later, on the render thread).
 - Small, per frame (`onBufferDraw`): two lists with every key's width and height are filled (boxed) and sorted to find the
   median size, and two `PorterDuffColorFilter` are created when the theme recolours symbols. Cheap next to the rasterizing,
   but it is garbage on every frame.
@@ -97,8 +107,8 @@ environment has no device. Costs are estimates, marked as such. Stage 2 adds the
   heavy ones (import, packs, learned words, update) already work on background threads.
 - A change of theme, layout or app language rebuilds the keyboard view at once, while the user is still in the screen; it is
   wasted work when several themes are tried in a row, but it also leaves the next open ready, so it stays.
-- The screens are drawn by the CPU by default (`pref_ui_hw_accel`, Advanced, off); only the three screens that draw on their own
-  ask for acceleration in the manifest.
+- The app does not ask the GPU for the screens by default (`pref_ui_hw_accel`, Advanced, off); only the three screens that draw on
+  their own ask for it in the manifest. Some systems give it anyway (the owner's phone does).
 - Writes made by the keyboard while typing (recent emojis, clipboard, tool bar state) go through `apply()` and the listeners
   ignore the keys they do not care about.
 
@@ -107,14 +117,14 @@ environment has no device. Costs are estimates, marked as such. Stage 2 adds the
 | # | Stage | What changes | Risk |
 |---|-------|--------------|------|
 | 1 | Drawing in the current mode | no software layer on the keyboard view (every view the same); icon shadows blurred once and kept | low |
-| 2 | Performance meter | Advanced screen + `MrPerf` log: time to open, time per frame (average, p95, max), touch to text, time of the synchronous calls to the app; memory: Java heap, native heap, kept bitmaps and caches (to see stage 4 work) | low |
-| 3 | Hardware acceleration of the keyboard window | on by default, switch in Advanced to turn it off; view without layer; check every theme, gestures, popups, the AI Editor dialog; translucent blur starts working | medium |
+| 2 | Performance meter | Advanced screen ("Performance"), `MrPerf` log: start and build of the keyboard, open in a field, until it appears, time per frame, per key, touch wait, waits for the app, suggestions (average, 95 %, maximum, count); Java and native memory. A tap resets | low |
+| 3 | Draw only what changed | decided by the meter ("Draw a frame"): on a GPU window (Android 10+) each key recorded in its own `RenderNode`, so a press records one key and the GPU reuses the others; acceleration asked for the keyboard window where the system does not turn it on by itself, with a switch in Advanced to turn it off; check every theme, gestures, popups, the AI Editor dialog | medium |
 | 4 | Cleanup by the keyboard itself | `onTrimMemory`/`onLowMemory`: by level, drop the keyboards not in use, the popups of variants, the kept shadows, the label metrics, the screenshot thumbnails, the emoji search index and the panels that are closed; release (recycle) the bitmaps of the space bar and of the shadows at the safe moments (window hidden, view replaced, theme change); `onDestroy` closes the engine and the databases and stops the threads; the meter shows the effect | medium |
 | 5 | Opening in each field | re-correction from `initialSelStart/End` (no full text); popups of variants and label metrics kept while the keyboard is the same; `setKeyboard` with the same keyboard does less | low-medium |
 | 6 | Typing | no `getCursorCapsMode` in the middle of a word (except all-caps fields); click volume kept and refreshed on change; the small per-frame garbage of `onBufferDraw`; the log lines | low |
 | 7 | Cold start | compose tables built on first use; plugin dictionaries only looked up when a language has no pack; locale resources through a configuration context instead of `updateConfiguration` | medium |
 | 8 | Tool bar and panels | panels inflated the first time they open, only if stage 2 shows the creation of the input view is slow on the phone | medium-high |
-| 9 | Settings screens | hardware acceleration on by default for the screens once stage 3 is confirmed on the phone; nothing else needed for typing | low |
+| 9 | Settings screens | hardware acceleration on by default for the screens once stage 3 is confirmed (the owner's phone already draws them with the GPU); nothing else needed for typing | low |
 
 Stage 4 comes after stage 3 on purpose: when a bitmap may be recycled depends on whether the window is accelerated. Stage 5
 keeps more in its caches, so it relies on stage 4 to give that memory back when Android asks.
@@ -125,3 +135,7 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
 ## 3. Status
 
 - Stage 1: done (render mode 0; `ShadowDrawHelper` keeps 24 blurred shadows; `docs/tools/test_shadow_cache.py`).
+- Stage 2: done (`MrPerf`, row "Keyboard times" of the Advanced screen, docs/performance-meter.md; `docs/tools/perf_test/PerfTest.java`,
+  `docs/tools/test_perf_meter.py`). The smali of `MrPerf` is the one generated by the mr-smali workflow.
+  Next: the owner reads the numbers on the phone (after a reset, typing a few minutes in a long field and in a chat) and stage 3
+  is shaped by "Draw a frame", "Handle a key", "Touch wait" and "Wait for the app".

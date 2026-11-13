@@ -19,6 +19,12 @@ def i32(x):
     return x - 2 ** 32 if x >= 2 ** 31 else x
 
 
+def i64(x):
+    """A Java long: wraps at 64 bits."""
+    x &= 0xffffffffffffffff
+    return x - (1 << 64) if x >= 1 << 63 else x
+
+
 def f32(x):
     try:
         return struct.unpack('>f', struct.pack('>f', x))[0]
@@ -224,8 +230,10 @@ class VM:
 
         def setr(t, v): R[r(t)] = v
 
-        if op in ('const/4', 'const/16', 'const', 'const/high16', 'const-wide/16', 'const-wide/32'):
+        if op in ('const/4', 'const/16', 'const', 'const/high16', 'const-wide/16', 'const-wide/32', 'const-wide'):
             a, b = ops(rest); setr(a, parse_int(b))
+        elif op == 'const-wide/high16':
+            a, b = ops(rest); setr(a, i64(parse_int(b) << 48))
         elif op == 'const-string':
             a, b = rest.split(',', 1); setr(a, unescape(b.strip()[1:-1]))
         elif op in ('move', 'move/from16', 'move-object', 'move-object/from16'):
@@ -243,27 +251,27 @@ class VM:
             a, b, c = ops(rest); setr(a, R[r(b)].f[c.split('->')[1].split(':')[0]])
         elif op in ('iput', 'iput-boolean', 'iput-object', 'iput-wide'):
             a, b, c = ops(rest); R[r(b)].f[c.split('->')[1].split(':')[0]] = R[r(a)]
-        elif op in ('sget', 'sget-object', 'sget-boolean'):
+        elif op in ('sget', 'sget-object', 'sget-boolean', 'sget-wide'):
             a, b = ops(rest)
             cls, _, nm = b.partition('->')
             nm = nm.split(':')[0]
             setr(a, self.statics.get(nm, 0) if cls == self.cls else self.host.sget(cls, nm))
-        elif op in ('sput', 'sput-object', 'sput-boolean'):
+        elif op in ('sput', 'sput-object', 'sput-boolean', 'sput-wide'):
             a, b = ops(rest)
             cls, _, nm = b.partition('->')
             nm = nm.split(':')[0]
             assert cls == self.cls, f'sput outside the class: {b}'
             self.statics[nm] = R[r(a)]
-        elif op in ('aget', 'aget-object'):
+        elif op in ('aget', 'aget-object', 'aget-wide'):
             a, b, c = ops(rest); setr(a, R[r(b)][iv(R[r(c)])])
-        elif op in ('aput', 'aput-object'):
+        elif op in ('aput', 'aput-object', 'aput-wide'):
             a, b, c = ops(rest); arr = R[r(b)]
             arr[iv(R[r(c)])] = fv(R[r(a)]) if isinstance(arr, FArr) else R[r(a)]
         elif op == 'array-length':
             a, b = ops(rest); setr(a, len(R[r(b)]))
         elif op == 'new-array':
             a, b, c = ops(rest)
-            n = iv(R[r(b)]); setr(a, FArr([0.0] * n) if c == '[F' else [0 if c == '[I' else None] * n)
+            n = iv(R[r(b)]); setr(a, FArr([0.0] * n) if c == '[F' else [0 if c in ('[I', '[J', '[S', '[B', '[C', '[Z') else None] * n)
         elif op == 'new-instance':
             a, b = ops(rest); setr(a, self.host.new_instance(b))
         elif op == 'instance-of':
@@ -288,7 +296,25 @@ class VM:
             if y == 0: raise JavaExc('Ljava/lang/ArithmeticException;', 'divide by zero')
             setr(t[0], i32(math.trunc(x / y)))
         elif op == 'int-to-long': a, b = ops(rest); setr(a, iv(R[r(b)]))
-        elif op == 'mul-long/2addr': a, b = ops(rest); setr(a, R[r(a)] * R[r(b)])
+        elif op == 'long-to-int': a, b = ops(rest); setr(a, i32(R[r(b)]))
+        elif op in ('add-long', 'sub-long', 'mul-long', 'div-long', 'rem-long',
+                    'add-long/2addr', 'sub-long/2addr', 'div-long/2addr', 'rem-long/2addr'):
+            t = ops(rest)
+            x, y = (R[r(t[0])], R[r(t[1])]) if op.endswith('/2addr') else (R[r(t[1])], R[r(t[2])])
+            k = op[:3]
+            if k in ('div', 'rem') and y == 0: raise JavaExc('Ljava/lang/ArithmeticException;', 'divide by zero')
+            q = 0
+            if k in ('div', 'rem'):                         # truncated towards zero, exact for any long
+                q = abs(x) // abs(y)
+                if (x < 0) != (y < 0): q = -q
+            setr(t[0], i64({'add': x + y, 'sub': x - y, 'mul': x * y, 'div': q, 'rem': x - q * y if k == 'rem' else 0}[k]))
+        elif op in ('and-int/lit16', 'or-int/lit16', 'rem-int/lit8', 'rem-int/lit16', 'div-int/lit16'):
+            a, b, c = ops(rest); lit = parse_int(c); x = iv(R[r(b)])
+            k = op.split('-int')[0]
+            if k in ('rem', 'div') and lit == 0: raise JavaExc('Ljava/lang/ArithmeticException;', 'divide by zero')
+            setr(a, i32({'and': lambda: x & lit, 'or': lambda: x | lit, 'rem': lambda: x - math.trunc(x / lit) * lit,
+                         'div': lambda: math.trunc(x / lit)}[k]()))
+        elif op == 'mul-long/2addr': a, b = ops(rest); setr(a, i64(R[r(a)] * R[r(b)]))
         elif op == 'cmp-long': a, b, c = ops(rest); setr(a, (R[r(b)] > R[r(c)]) - (R[r(b)] < R[r(c)]))
         elif op == 'int-to-char': a, b = ops(rest); setr(a, iv(R[r(b)]) & 0xffff)
         elif op == 'neg-int': a, b = ops(rest); setr(a, i32(-iv(R[r(b)])))

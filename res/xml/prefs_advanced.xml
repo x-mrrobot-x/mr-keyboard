@@ -14,4 +14,7 @@
     <Preference android:layout="@layout/mr_ui_pref_row_static" android:persistent="false" android:selectable="false" android:title="@string/mr_ui_kbd_accel" android:key="mr_kbd_accel" android:summary="@string/mr_ui_kbd_accel_unknown"/>
     <Preference android:layout="@layout/mr_ui_pref_row_static" android:persistent="false" android:selectable="false" android:title="@string/mr_ui_scr_accel" android:key="mr_scr_accel" android:summary="@string/mr_ui_scr_accel_unknown"/>
   </PreferenceCategory>
+  <PreferenceCategory android:title="@string/mr_ui_cat_perf" android:key="keyboard_perf" android:summary="@string/mr_ui_cat_perf_sum" android:icon="@drawable/mr_ui_ic_keyboard_cyan">
+    <Preference android:layout="@layout/mr_ui_pref_row_metrics" android:persistent="false" android:title="@string/mr_ui_perf" android:key="mr_perf" android:summary="@string/mr_ui_perf_none"/>
+  </PreferenceCategory>
 </PreferenceScreen>

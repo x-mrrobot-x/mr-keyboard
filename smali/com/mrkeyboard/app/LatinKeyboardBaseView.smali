@@ -5371,6 +5371,9 @@
     .locals 3
 
     .line 869
+    # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->frameBegin()V
+
     invoke-super {p0, p1}, Landroid/view/View;->onDraw(Landroid/graphics/Canvas;)V
 
     .line 871
@@ -5408,6 +5411,8 @@
     invoke-virtual {p1, v0, v2, v2, v1}, Landroid/graphics/Canvas;->drawBitmap(Landroid/graphics/Bitmap;FFLandroid/graphics/Paint;)V
 
     :cond_2
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->frameEnd()V
+
     return-void
 .end method
 
