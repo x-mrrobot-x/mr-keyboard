@@ -119,7 +119,7 @@
 
 .field static final PREF_SWIPE_UP:Ljava/lang/String; = "pref_swipe_up"
 
-.field static final PREF_VIBRATE_LEN:Ljava/lang/String; = "vibrate_len"
+.field static final PREF_VIBRATE_STRENGTH:Ljava/lang/String; = "vibrate_strength"
 
 .field private static final PREF_VIBRATE_ON:Ljava/lang/String; = "vibrate_on"
 
@@ -328,7 +328,7 @@
 
 .field private mUserDictionary:Lcom/mrkeyboard/app/UserDictionary;
 
-.field private mVibrateLen:I
+.field private mVibrateStrength:I
 
 .field private mVibrateOn:Z
 
@@ -3929,24 +3929,12 @@
 
     iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mVibrateOn:Z
 
-    const-string v1, "vibrate_len"
-
     .line 3384
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getResources()Landroid/content/res/Resources;
-
-    move-result-object v3
-
-    const v4, 0x7f0c019d
-
-    invoke-virtual {v3, v4}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
-
-    move-result-object v3
-
-    invoke-static {v0, v1, v3}, Lcom/mrkeyboard/app/LatinIME;->getPrefInt(Landroid/content/SharedPreferences;Ljava/lang/String;Ljava/lang/String;)I
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrHaptic;->level(Landroid/content/SharedPreferences;)I
 
     move-result v1
 
-    iput v1, p0, Lcom/mrkeyboard/app/LatinIME;->mVibrateLen:I
+    iput v1, p0, Lcom/mrkeyboard/app/LatinIME;->mVibrateStrength:I
 
     const-string v1, "sound_on"
 
@@ -7556,7 +7544,7 @@
 
     .line 3308
     :cond_0
-    iget v0, p0, Lcom/mrkeyboard/app/LatinIME;->mVibrateLen:I
+    iget v0, p0, Lcom/mrkeyboard/app/LatinIME;->mVibrateStrength:I
 
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinIME;->vibrate(I)V
 
@@ -11201,7 +11189,7 @@
     goto :goto_1
 
     :cond_1a
-    const-string v0, "vibrate_len"
+    const-string v0, "vibrate_strength"
 
     .line 3037
     invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -11210,24 +11198,12 @@
 
     if-eqz p2, :cond_1b
 
-    const-string p2, "vibrate_len"
-
     .line 3038
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getResources()Landroid/content/res/Resources;
-
-    move-result-object v0
-
-    const v3, 0x7f0c019d
-
-    invoke-virtual {v0, v3}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-static {p1, p2, v0}, Lcom/mrkeyboard/app/LatinIME;->getPrefInt(Landroid/content/SharedPreferences;Ljava/lang/String;Ljava/lang/String;)I
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrHaptic;->level(Landroid/content/SharedPreferences;)I
 
     move-result p1
 
-    iput p1, p0, Lcom/mrkeyboard/app/LatinIME;->mVibrateLen:I
+    iput p1, p0, Lcom/mrkeyboard/app/LatinIME;->mVibrateStrength:I
 
     .line 3041
     :cond_1b
@@ -13288,7 +13264,7 @@
     const/4 v0, 0x0
 
     :goto_0
-    invoke-static {p0, p1, v0}, Lcom/mrkeyboard/app/HapticHelper;->vibrate(Landroid/content/Context;ILandroid/view/View;)V
+    invoke-static {p0, p1, v0}, Lcom/mrkeyboard/app/MrHaptic;->play(Landroid/content/Context;ILandroid/view/View;)V
 
     return-void
 .end method

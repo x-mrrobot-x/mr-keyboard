@@ -134,7 +134,7 @@
 
     const/16 v1, 0x12
 
-    const-string v2, "vibrate_len"
+    const-string v2, "vibrate_strength"
 
     aput-object v2, v0, v1
 

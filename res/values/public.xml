@@ -529,7 +529,6 @@
     <public type="string" name="title_vol_down" id="0x7f0c0197" />
     <public type="string" name="title_vol_up" id="0x7f0c0198" />
     <public type="string" name="toast_ctrl_a_override_info" id="0x7f0c0199" />
-    <public type="string" name="vibrate_duration_ms" id="0x7f0c019d" />
     <public type="string" name="vibrate_on_keypress" id="0x7f0c019e" />
     <public type="string" name="voice_input" id="0x7f0c01a3" />
     <public type="string" name="voice_mode_main" id="0x7f0c01a5" />

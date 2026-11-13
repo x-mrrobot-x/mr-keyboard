@@ -272,19 +272,19 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sKc:[C
 
-    .line 658
+    .line 659
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0, v3}, Ljava/util/ArrayList;-><init>(I)V
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->NONE:Ljava/util/List;
 
-    .line 737
+    .line 738
     new-array v0, v2, [Ljava/lang/String;
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewBest:[Ljava/lang/String;
 
-    .line 741
+    .line 742
     new-instance v0, Lcom/mrkeyboard/app/MrGestureInput$3;
 
     invoke-direct {v0}, Lcom/mrkeyboard/app/MrGestureInput$3;-><init>()V
@@ -1237,8 +1237,8 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 713
     .line 714
+    .line 715
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrGesture$Result;->count()I
 
     move-result v5
@@ -1247,7 +1247,7 @@
 
     move v0, v2
 
-    .line 715
+    .line 716
     :goto_0
     if-ge v4, v5, :cond_2
 
@@ -1255,19 +1255,19 @@
 
     if-ge v0, v1, :cond_2
 
-    .line 716
+    .line 717
     invoke-virtual {p0, v4}, Lcom/mrkeyboard/app/MrGesture$Result;->word(I)Ljava/lang/String;
 
     move-result-object v6
 
-    .line 717
+    .line 718
     invoke-static {v6}, Lcom/mrkeyboard/app/MrLearned;->isBlocked(Ljava/lang/String;)Z
 
     move-result v1
 
     if-eqz v1, :cond_1
 
-    .line 715
+    .line 716
     :cond_0
     :goto_1
     add-int/lit8 v1, v4, 0x1
@@ -1276,7 +1276,7 @@
 
     goto :goto_0
 
-    .line 718
+    .line 719
     :cond_1
     if-nez v0, :cond_3
 
@@ -1292,7 +1292,7 @@
 
     move v0, v2
 
-    .line 723
+    .line 724
     :cond_2
     return v0
 
@@ -1301,7 +1301,7 @@
 
     move v3, v2
 
-    .line 720
+    .line 721
     :goto_2
     if-ge v1, v0, :cond_4
 
@@ -1317,7 +1317,7 @@
 
     goto :goto_2
 
-    .line 721
+    .line 722
     :cond_4
     if-nez v3, :cond_0
 
@@ -1381,7 +1381,7 @@
     .locals 2
 
     .prologue
-    .line 648
+    .line 649
     sget v0, Lcom/mrkeyboard/app/MrGestureInput;->sState:I
 
     const/4 v1, 0x2
@@ -1396,12 +1396,12 @@
 
     if-eq p0, v0, :cond_1
 
-    .line 654
+    .line 655
     :cond_0
     :goto_0
     return-void
 
-    .line 650
+    .line 651
     :cond_1
     :try_start_0
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPath:Landroid/graphics/Path;
@@ -1414,11 +1414,11 @@
 
     goto :goto_0
 
-    .line 651
+    .line 652
     :catch_0
     move-exception v0
 
-    .line 652
+    .line 653
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sTrailOn:Z
@@ -1694,10 +1694,10 @@
     .prologue
     const/4 v8, 0x0
 
-    .line 668
+    .line 669
     sget v5, Lcom/mrkeyboard/app/MrGestureInput;->sCount:I
 
-    .line 669
+    .line 670
     sget-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sFull:Z
 
     if-nez v0, :cond_0
@@ -1721,11 +1721,11 @@
     :cond_0
     move v0, v8
 
-    .line 692
+    .line 693
     :goto_0
     return v0
 
-    .line 670
+    .line 671
     :cond_1
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPy:[F
 
@@ -1741,7 +1741,7 @@
 
     div-float/2addr v0, v1
 
-    .line 671
+    .line 672
     const/high16 v1, 0x3f000000    # 0.5f
 
     sget v2, Lcom/mrkeyboard/app/MrGestureInput;->sRows:I
@@ -1750,7 +1750,7 @@
 
     div-float/2addr v1, v2
 
-    .line 672
+    .line 673
     neg-float v2, v1
 
     cmpg-float v2, v0, v2
@@ -1770,63 +1770,63 @@
 
     goto :goto_0
 
-    .line 673
+    .line 674
     :cond_3
     sget-object v1, Lcom/mrkeyboard/app/LatinIME;->sInstance:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 674
+    .line 675
     if-nez v1, :cond_4
 
     move v0, v8
 
     goto :goto_0
 
-    .line 675
+    .line 676
     :cond_4
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardView;->getShiftState()I
 
     move-result v9
 
-    .line 676
+    .line 677
     invoke-virtual {v1}, Lcom/mrkeyboard/app/LatinIME;->mrCommit()V
 
-    .line 677
+    .line 678
     invoke-virtual {v1}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
 
     move-result-object v10
 
-    .line 678
+    .line 679
     if-nez v10, :cond_5
 
     move v0, v8
 
     goto :goto_0
 
-    .line 679
+    .line 680
     :cond_5
     invoke-interface {v10}, Landroid/view/inputmethod/InputConnection;->finishComposingText()Z
 
-    .line 680
+    .line 681
     const/16 v0, 0x60
 
     invoke-interface {v10, v0, v8}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v11
 
-    .line 681
+    .line 682
     invoke-static {v11}, Lcom/mrkeyboard/app/MrText;->lastWord(Ljava/lang/CharSequence;)Ljava/lang/String;
 
     move-result-object v6
 
-    .line 682
+    .line 683
     invoke-static {v5}, Lcom/mrkeyboard/app/MrGestureInput;->frame(I)V
 
-    .line 683
+    .line 684
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
     move-result-wide v12
 
-    .line 684
+    .line 685
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sEngine:Lcom/mrkeyboard/app/MrGestureInput$Engine;
 
     sget-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sFx:[F
@@ -1841,7 +1841,7 @@
 
     move-result v0
 
-    .line 685
+    .line 686
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
     move-result-wide v2
@@ -1850,34 +1850,34 @@
 
     invoke-static {v2, v3}, Lcom/mrkeyboard/app/MrGestureInput;->stat(J)V
 
-    .line 686
+    .line 687
     if-gtz v0, :cond_6
 
     move v0, v8
 
     goto :goto_0
 
-    .line 687
+    .line 688
     :cond_6
     const/4 v0, 0x4
 
     new-array v0, v0, [Ljava/lang/String;
 
-    .line 688
+    .line 689
     sget-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sResult:Lcom/mrkeyboard/app/MrGesture$Result;
 
     invoke-static {v2, v0}, Lcom/mrkeyboard/app/MrGestureInput;->candidates(Lcom/mrkeyboard/app/MrGesture$Result;[Ljava/lang/String;)I
 
     move-result v2
 
-    .line 689
+    .line 690
     if-gtz v2, :cond_7
 
     move v0, v8
 
     goto :goto_0
 
-    .line 690
+    .line 691
     :cond_7
     :goto_1
     if-ge v8, v2, :cond_8
@@ -1894,7 +1894,7 @@
 
     goto :goto_1
 
-    .line 691
+    .line 692
     :cond_8
     invoke-static {v11}, Lcom/mrkeyboard/app/MrGestureInput;->needsSpace(Ljava/lang/CharSequence;)Z
 
@@ -1902,7 +1902,7 @@
 
     invoke-static {v1, v10, v3, v0, v2}, Lcom/mrkeyboard/app/MrGestureInput;->write(Lcom/mrkeyboard/app/LatinIME;Landroid/view/inputmethod/InputConnection;Z[Ljava/lang/String;I)V
 
-    .line 692
+    .line 693
     const/4 v0, 0x1
 
     goto/16 :goto_0
@@ -1914,16 +1914,16 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 911
+    .line 912
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sLastWord:Ljava/lang/String;
 
-    .line 912
+    .line 913
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sLastEditor:Landroid/view/inputmethod/EditorInfo;
 
-    .line 913
+    .line 914
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sAlts:[Ljava/lang/String;
 
-    .line 914
+    .line 915
     return-void
 .end method
 
@@ -1933,29 +1933,29 @@
     .prologue
     const/16 v1, 0x1000
 
-    .line 697
+    .line 698
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sFx:[F
 
     if-nez v0, :cond_0
 
-    .line 698
+    .line 699
     new-array v0, v1, [F
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sFx:[F
 
-    .line 699
+    .line 700
     new-array v0, v1, [F
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sFy:[F
 
-    .line 701
+    .line 702
     :cond_0
     const/4 v0, 0x0
 
     :goto_0
     if-ge v0, p0, :cond_1
 
-    .line 702
+    .line 703
     sget-object v1, Lcom/mrkeyboard/app/MrGestureInput;->sFx:[F
 
     sget-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sPx:[F
@@ -1968,7 +1968,7 @@
 
     aput v2, v1, v0
 
-    .line 703
+    .line 704
     sget-object v1, Lcom/mrkeyboard/app/MrGestureInput;->sFy:[F
 
     sget-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sPy:[F
@@ -1985,12 +1985,12 @@
 
     aput v2, v1, v0
 
-    .line 701
+    .line 702
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 705
+    .line 706
     :cond_1
     return-void
 .end method
@@ -2092,20 +2092,20 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 1017
+    .line 1018
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
 
     move-result-object v1
 
-    .line 1018
+    .line 1019
     sget-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sLastWord:Ljava/lang/String;
 
-    .line 1019
+    .line 1020
     if-eqz v1, :cond_0
 
     if-nez v2, :cond_1
 
-    .line 1020
+    .line 1021
     :cond_0
     :goto_0
     return v0
@@ -2138,7 +2138,7 @@
     .locals 1
 
     .prologue
-    .line 1077
+    .line 1078
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sHandler:Landroid/os/Handler;
 
     return-object v0
@@ -2435,7 +2435,7 @@
     .prologue
     const/16 v0, 0xfa
 
-    .line 585
+    .line 586
     sget v1, Lcom/mrkeyboard/app/MrGestureInput;->sState:I
 
     const/4 v2, 0x1
@@ -2543,31 +2543,31 @@
 
     const/4 v1, 0x0
 
-    .line 860
+    .line 861
     if-nez p0, :cond_1
 
-    .line 870
+    .line 871
     :cond_0
     :goto_0
     return v1
 
-    .line 861
+    .line 862
     :cond_1
     invoke-interface {p0}, Ljava/lang/CharSequence;->length()I
 
     move-result v2
 
-    .line 862
+    .line 863
     if-eqz v2, :cond_0
 
-    .line 863
+    .line 864
     add-int/lit8 v3, v2, -0x1
 
     invoke-interface {p0, v3}, Ljava/lang/CharSequence;->charAt(I)C
 
     move-result v3
 
-    .line 864
+    .line 865
     invoke-static {v3}, Ljava/lang/Character;->isWhitespace(C)Z
 
     move-result v4
@@ -2580,7 +2580,7 @@
 
     if-nez v4, :cond_0
 
-    .line 865
+    .line 866
     const/16 v4, 0x22
 
     if-eq v3, v4, :cond_2
@@ -2589,18 +2589,18 @@
 
     if-ne v3, v4, :cond_4
 
-    .line 866
+    .line 867
     :cond_2
     if-eq v2, v0, :cond_0
 
-    .line 867
+    .line 868
     add-int/lit8 v2, v2, -0x2
 
     invoke-interface {p0, v2}, Ljava/lang/CharSequence;->charAt(I)C
 
     move-result v2
 
-    .line 868
+    .line 869
     invoke-static {v2}, Ljava/lang/Character;->isWhitespace(C)Z
 
     move-result v3
@@ -2626,7 +2626,7 @@
     :cond_4
     move v1, v0
 
-    .line 870
+    .line 871
     goto :goto_0
 .end method
 
@@ -2638,7 +2638,7 @@
 
     const/4 v1, 0x0
 
-    .line 976
+    .line 977
     sget-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sLastWord:Ljava/lang/String;
 
     if-eqz v2, :cond_0
@@ -2647,32 +2647,32 @@
 
     if-eqz v2, :cond_1
 
-    .line 993
+    .line 994
     :cond_0
     :goto_0
     return-void
 
-    .line 978
+    .line 979
     :cond_1
     :try_start_0
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
 
     move-result-object v3
 
-    .line 979
+    .line 980
     invoke-static {p0, v3}, Lcom/mrkeyboard/app/MrGestureInput;->written(Lcom/mrkeyboard/app/LatinIME;Landroid/view/inputmethod/InputConnection;)I
 
     move-result v2
 
-    .line 980
+    .line 981
     if-lez v2, :cond_3
 
-    .line 981
+    .line 982
     sget-boolean v4, Lcom/mrkeyboard/app/MrGestureInput;->sLastSpace:Z
 
     if-eqz v4, :cond_2
 
-    .line 982
+    .line 983
     add-int/lit8 v4, v2, 0x1
 
     const/4 v5, 0x0
@@ -2681,7 +2681,7 @@
 
     move-result-object v4
 
-    .line 983
+    .line 984
     if-eqz v4, :cond_2
 
     invoke-interface {v4}, Ljava/lang/CharSequence;->length()I
@@ -2704,7 +2704,7 @@
 
     add-int/lit8 v2, v2, 0x1
 
-    .line 985
+    .line 986
     :cond_2
     if-le v2, v0, :cond_3
 
@@ -2714,17 +2714,17 @@
 
     invoke-interface {v3, v2, v4}, Landroid/view/inputmethod/InputConnection;->deleteSurroundingText(II)Z
 
-    .line 987
+    .line 988
     :cond_3
     sget-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sAlts:[Ljava/lang/String;
 
     if-eqz v2, :cond_4
 
-    .line 988
+    .line 989
     :goto_1
     invoke-static {}, Lcom/mrkeyboard/app/MrGestureInput;->forget()V
 
-    .line 989
+    .line 990
     if-eqz v0, :cond_0
 
     const/4 v0, 0x0
@@ -2735,11 +2735,11 @@
 
     goto :goto_0
 
-    .line 990
+    .line 991
     :catch_0
     move-exception v0
 
-    .line 991
+    .line 992
     invoke-static {}, Lcom/mrkeyboard/app/MrGestureInput;->forget()V
 
     goto :goto_0
@@ -2747,7 +2747,7 @@
     :cond_4
     move v0, v1
 
-    .line 987
+    .line 988
     goto :goto_1
 .end method
 
@@ -2757,7 +2757,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 1001
+    .line 1002
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sLastWord:Ljava/lang/String;
 
     if-nez v0, :cond_1
@@ -2768,12 +2768,12 @@
 
     move v0, v1
 
-    .line 1012
+    .line 1013
     :cond_0
     :goto_0
     return v0
 
-    .line 1002
+    .line 1003
     :cond_1
     const/4 v0, -0x5
 
@@ -2788,7 +2788,7 @@
 
     goto :goto_0
 
-    .line 1005
+    .line 1006
     :cond_3
     :try_start_0
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sLastWord:Ljava/lang/String;
@@ -2811,7 +2811,7 @@
 
     move-result v0
 
-    .line 1006
+    .line 1007
     :goto_1
     :try_start_1
     sget-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sAlts:[Ljava/lang/String;
@@ -2820,11 +2820,11 @@
 
     const/4 v1, 0x1
 
-    .line 1007
+    .line 1008
     :cond_4
     invoke-static {}, Lcom/mrkeyboard/app/MrGestureInput;->forget()V
 
-    .line 1008
+    .line 1009
     if-eqz v1, :cond_0
 
     const/4 v1, 0x0
@@ -2835,17 +2835,17 @@
 
     goto :goto_0
 
-    .line 1009
+    .line 1010
     :catch_0
     move-exception v1
 
-    .line 1010
+    .line 1011
     :goto_2
     invoke-static {}, Lcom/mrkeyboard/app/MrGestureInput;->forget()V
 
     goto :goto_0
 
-    .line 1009
+    .line 1010
     :catch_1
     move-exception v0
 
@@ -2869,18 +2869,18 @@
 
     const/4 v2, 0x0
 
-    .line 937
+    .line 938
     sget-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sWriting:Z
 
     if-eqz v0, :cond_0
 
     move v0, v2
 
-    .line 967
+    .line 968
     :goto_0
     return v0
 
-    .line 938
+    .line 939
     :cond_0
     sget-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewShown:Z
 
@@ -2890,7 +2890,7 @@
 
     goto :goto_0
 
-    .line 939
+    .line 940
     :cond_1
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sAlts:[Ljava/lang/String;
 
@@ -2900,7 +2900,7 @@
 
     goto :goto_0
 
-    .line 941
+    .line 942
     :cond_2
     :try_start_0
     sget-object v6, Lcom/mrkeyboard/app/MrGestureInput;->sAlts:[Ljava/lang/String;
@@ -2909,7 +2909,7 @@
 
     move v0, v4
 
-    .line 943
+    .line 944
     :goto_1
     array-length v5, v6
 
@@ -2926,7 +2926,7 @@
 
     goto :goto_1
 
-    .line 944
+    .line 945
     :cond_4
     if-ltz v0, :cond_5
 
@@ -2936,7 +2936,7 @@
 
     move-object v5, v1
 
-    .line 945
+    .line 946
     :goto_2
     if-ltz v0, :cond_6
 
@@ -2944,19 +2944,19 @@
 
     move-result v1
 
-    .line 946
+    .line 947
     :goto_3
     if-gez v1, :cond_7
 
-    .line 947
+    .line 948
     invoke-static {}, Lcom/mrkeyboard/app/MrGestureInput;->forget()V
 
     move v0, v2
 
-    .line 948
+    .line 949
     goto :goto_0
 
-    .line 944
+    .line 945
     :cond_5
     const/4 v1, 0x0
 
@@ -2967,62 +2967,62 @@
     :cond_6
     move v1, v4
 
-    .line 945
+    .line 946
     goto :goto_3
 
-    .line 950
+    .line 951
     :cond_7
     aget-object v4, v6, v0
 
-    .line 951
+    .line 952
     sget-object v7, Lcom/mrkeyboard/app/MrGestureInput;->sLastWord:Ljava/lang/String;
 
     aput-object v7, v6, v0
 
-    .line 952
+    .line 953
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sWriting:Z
 
-    .line 953
+    .line 954
     invoke-interface {v5}, Landroid/view/inputmethod/InputConnection;->beginBatchEdit()Z
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 955
+    .line 956
     const/4 v0, 0x0
 
     :try_start_1
     invoke-interface {v5, v1, v0}, Landroid/view/inputmethod/InputConnection;->deleteSurroundingText(II)Z
 
-    .line 956
+    .line 957
     const/4 v0, -0x1
 
     invoke-virtual {p0, v0, v4}, Lcom/mrkeyboard/app/LatinIME;->pickSuggestionManually(ILjava/lang/CharSequence;)V
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 958
+    .line 959
     const/4 v0, 0x0
 
     :try_start_2
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sWriting:Z
 
-    .line 959
+    .line 960
     invoke-interface {v5}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
 
-    .line 961
+    .line 962
     sput-object v4, Lcom/mrkeyboard/app/MrGestureInput;->sLastWord:Ljava/lang/String;
 
-    .line 962
+    .line 963
     invoke-static {p0}, Lcom/mrkeyboard/app/MrGestureInput;->showAlternatives(Lcom/mrkeyboard/app/LatinIME;)V
 
     move v0, v3
 
-    .line 963
+    .line 964
     goto :goto_0
 
-    .line 958
+    .line 959
     :catchall_0
     move-exception v0
 
@@ -3030,27 +3030,27 @@
 
     sput-boolean v1, Lcom/mrkeyboard/app/MrGestureInput;->sWriting:Z
 
-    .line 959
+    .line 960
     invoke-interface {v5}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
 
-    .line 960
+    .line 961
     throw v0
     :try_end_2
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_2} :catch_0
 
-    .line 964
+    .line 965
     :catch_0
     move-exception v0
 
-    .line 965
+    .line 966
     sput-boolean v2, Lcom/mrkeyboard/app/MrGestureInput;->sWriting:Z
 
-    .line 966
+    .line 967
     invoke-static {}, Lcom/mrkeyboard/app/MrGestureInput;->forget()V
 
     move v0, v2
 
-    .line 967
+    .line 968
     goto :goto_0
 .end method
 
@@ -3202,7 +3202,7 @@
     .locals 1
 
     .prologue
-    .line 874
+    .line 875
     const-string v0, "([{<\u00ab\u201c\u2018\u00bf\u00a1/\\@#_-"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->indexOf(I)I
@@ -3230,10 +3230,10 @@
 
     const/4 v2, 0x0
 
-    .line 831
+    .line 832
     sput-boolean v2, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewOn:Z
 
-    .line 832
+    .line 833
     sget-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewPosted:Z
 
     if-eqz v0, :cond_0
@@ -3248,40 +3248,40 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 833
+    .line 834
     :cond_0
     sput-boolean v2, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewPosted:Z
 
-    .line 834
+    .line 835
     sget-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewShown:Z
 
-    .line 835
+    .line 836
     sput-boolean v2, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewShown:Z
 
-    .line 836
+    .line 837
     sput-object v3, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewWord:Ljava/lang/String;
 
-    .line 837
+    .line 838
     sput-object v3, Lcom/mrkeyboard/app/MrGestureInput;->sPrevWord:Ljava/lang/String;
 
-    .line 838
+    .line 839
     if-eqz v0, :cond_1
 
     if-nez p0, :cond_2
 
-    .line 842
+    .line 843
     :cond_1
     :goto_0
     return-void
 
-    .line 839
+    .line 840
     :cond_2
     sget-object v0, Lcom/mrkeyboard/app/LatinIME;->sInstance:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 840
+    .line 841
     if-eqz v0, :cond_1
 
-    .line 841
+    .line 842
     sget-object v1, Lcom/mrkeyboard/app/MrGestureInput;->sAlts:[Ljava/lang/String;
 
     if-eqz v1, :cond_3
@@ -3304,7 +3304,7 @@
     .locals 4
 
     .prologue
-    .line 784
+    .line 785
     :try_start_0
     sget-wide v0, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewDue:J
 
@@ -3314,28 +3314,28 @@
 
     sub-long/2addr v0, v2
 
-    .line 785
+    .line 786
     const-wide/16 v2, 0x0
 
     cmp-long v2, v0, v2
 
     if-gtz v2, :cond_1
 
-    .line 786
+    .line 787
     invoke-static {p0}, Lcom/mrkeyboard/app/MrGestureInput;->previewNow(Lcom/mrkeyboard/app/LatinKeyboardView;)V
 
-    .line 794
+    .line 795
     :cond_0
     :goto_0
     return-void
 
-    .line 787
+    .line 788
     :cond_1
     sget-boolean v2, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewPosted:Z
 
     if-nez v2, :cond_0
 
-    .line 788
+    .line 789
     sget-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sHandler:Landroid/os/Handler;
 
     if-nez v2, :cond_2
@@ -3350,7 +3350,7 @@
 
     sput-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sHandler:Landroid/os/Handler;
 
-    .line 789
+    .line 790
     :cond_2
     sget-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sHandler:Landroid/os/Handler;
 
@@ -3366,11 +3366,11 @@
 
     goto :goto_0
 
-    .line 791
+    .line 792
     :catch_0
     move-exception v0
 
-    .line 792
+    .line 793
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewOn:Z
@@ -3386,13 +3386,13 @@
 
     const/4 v12, 0x1
 
-    .line 797
+    .line 798
     sget v5, Lcom/mrkeyboard/app/MrGestureInput;->sCount:I
 
-    .line 798
+    .line 799
     sput v5, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewCount:I
 
-    .line 799
+    .line 800
     sget-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sFull:Z
 
     if-nez v0, :cond_0
@@ -3409,32 +3409,32 @@
 
     if-gtz v0, :cond_1
 
-    .line 823
+    .line 824
     :cond_0
     :goto_0
     return-void
 
-    .line 800
+    .line 801
     :cond_1
     sget-object v1, Lcom/mrkeyboard/app/LatinIME;->sInstance:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 801
+    .line 802
     if-eqz v1, :cond_0
 
-    .line 802
+    .line 803
     sget-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sPrevRead:Z
 
     if-nez v0, :cond_2
 
-    .line 805
+    .line 806
     sput-boolean v12, Lcom/mrkeyboard/app/MrGestureInput;->sPrevRead:Z
 
-    .line 806
+    .line 807
     invoke-virtual {v1}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
 
     move-result-object v0
 
-    .line 807
+    .line 808
     if-eqz v0, :cond_4
 
     const/16 v2, 0x60
@@ -3450,16 +3450,16 @@
     :goto_1
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPrevWord:Ljava/lang/String;
 
-    .line 809
+    .line 810
     :cond_2
     invoke-static {v5}, Lcom/mrkeyboard/app/MrGestureInput;->frame(I)V
 
-    .line 810
+    .line 811
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
     move-result-wide v8
 
-    .line 811
+    .line 812
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sEngine:Lcom/mrkeyboard/app/MrGestureInput$Engine;
 
     sget-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sFx:[F
@@ -3476,17 +3476,17 @@
 
     move-result v0
 
-    .line 812
+    .line 813
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
     move-result-wide v2
 
     sub-long/2addr v2, v8
 
-    .line 813
+    .line 814
     invoke-static {v2, v3}, Lcom/mrkeyboard/app/MrGestureInput;->statPreview(J)V
 
-    .line 814
+    .line 815
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v4
@@ -3509,7 +3509,7 @@
 
     sput-wide v2, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewDue:J
 
-    .line 815
+    .line 816
     if-lez v0, :cond_0
 
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sResult:Lcom/mrkeyboard/app/MrGesture$Result;
@@ -3522,7 +3522,7 @@
 
     if-lez v0, :cond_0
 
-    .line 816
+    .line 817
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewBest:[Ljava/lang/String;
 
     aget-object v0, v0, v13
@@ -3535,7 +3535,7 @@
 
     move-result-object v0
 
-    .line 817
+    .line 818
     sget-boolean v2, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewShown:Z
 
     if-eqz v2, :cond_3
@@ -3548,27 +3548,27 @@
 
     if-nez v2, :cond_0
 
-    .line 818
+    .line 819
     :cond_3
     new-instance v2, Ljava/util/ArrayList;
 
     invoke-direct {v2, v12}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 819
+    .line 820
     invoke-virtual {v2, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 820
+    .line 821
     invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/LatinIME;->mrStrip(Ljava/util/List;)V
 
-    .line 821
+    .line 822
     sput-boolean v12, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewShown:Z
 
-    .line 822
+    .line 823
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewWord:Ljava/lang/String;
 
     goto/16 :goto_0
 
-    .line 807
+    .line 808
     :cond_4
     const/4 v0, 0x0
 
@@ -3583,45 +3583,45 @@
 
     const/4 v1, 0x0
 
-    .line 754
+    .line 755
     sput-boolean v1, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewShown:Z
 
-    .line 755
+    .line 756
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewWord:Ljava/lang/String;
 
-    .line 756
+    .line 757
     sput v1, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewCount:I
 
-    .line 757
+    .line 758
     sput-boolean v1, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewPosted:Z
 
-    .line 758
+    .line 759
     sput-boolean v1, Lcom/mrkeyboard/app/MrGestureInput;->sPrevRead:Z
 
-    .line 759
+    .line 760
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPrevWord:Ljava/lang/String;
 
-    .line 760
+    .line 761
     sput-boolean v1, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewOn:Z
 
-    .line 762
+    .line 763
     :try_start_0
     sget-object v0, Lcom/mrkeyboard/app/LatinIME;->sInstance:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 763
+    .line 764
     if-nez v0, :cond_0
 
-    .line 770
+    .line 771
     :goto_0
     return-void
 
-    .line 764
+    .line 765
     :cond_0
     sget-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sEngine:Lcom/mrkeyboard/app/MrGestureInput$Engine;
 
     invoke-interface {v2, v0}, Lcom/mrkeyboard/app/MrGestureInput$Engine;->prepare(Lcom/mrkeyboard/app/LatinIME;)V
 
-    .line 765
+    .line 766
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v2
@@ -3632,7 +3632,7 @@
 
     sput-wide v2, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewDue:J
 
-    .line 766
+    .line 767
     sget-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sPreview:Z
 
     if-eqz v0, :cond_1
@@ -3652,11 +3652,11 @@
 
     goto :goto_0
 
-    .line 767
+    .line 768
     :catch_0
     move-exception v0
 
-    .line 768
+    .line 769
     sput-boolean v1, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewOn:Z
 
     goto :goto_0
@@ -3664,7 +3664,7 @@
     :cond_1
     move v0, v1
 
-    .line 766
+    .line 767
     goto :goto_1
 .end method
 
@@ -3843,7 +3843,7 @@
     .locals 4
 
     .prologue
-    .line 1052
+    .line 1053
     const-class v1, Lcom/mrkeyboard/app/MrGestureInput;
 
     monitor-enter v1
@@ -3851,22 +3851,22 @@
     :try_start_0
     invoke-static {}, Lcom/mrkeyboard/app/MrGestureInput;->toIdle()V
 
-    .line 1053
+    .line 1054
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sOn:Z
 
-    .line 1054
+    .line 1055
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sTrail:Z
 
-    .line 1055
+    .line 1056
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sPreview:Z
 
-    .line 1056
+    .line 1057
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sPrevRead:Z
@@ -3877,84 +3877,84 @@
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewOn:Z
 
-    .line 1057
+    .line 1058
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPrevWord:Ljava/lang/String;
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewWord:Ljava/lang/String;
 
-    .line 1058
+    .line 1059
     const-wide/16 v2, 0x0
 
     sput-wide v2, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewDue:J
 
-    .line 1059
+    .line 1060
     const/4 v0, 0x0
 
     sput v0, Lcom/mrkeyboard/app/MrGestureInput;->sPreviewCount:I
 
-    .line 1060
+    .line 1061
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sHandler:Landroid/os/Handler;
 
-    .line 1061
+    .line 1062
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->REAL:Lcom/mrkeyboard/app/MrGestureInput$Engine;
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sEngine:Lcom/mrkeyboard/app/MrGestureInput$Engine;
 
-    .line 1062
+    .line 1063
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sApp:Landroid/content/Context;
 
-    .line 1063
+    .line 1064
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sListener:Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;
 
-    .line 1064
+    .line 1065
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sLayoutOf:Ljava/lang/ref/WeakReference;
 
-    .line 1065
+    .line 1066
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sLayoutOk:Z
 
-    .line 1066
+    .line 1067
     const/4 v0, 0x0
 
     sput v0, Lcom/mrkeyboard/app/MrGestureInput;->sKeyCount:I
 
-    .line 1067
+    .line 1068
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sTrailOn:Z
 
-    .line 1068
+    .line 1069
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sWriting:Z
 
-    .line 1069
+    .line 1070
     invoke-static {}, Lcom/mrkeyboard/app/MrGestureInput;->forget()V
 
-    .line 1070
+    .line 1071
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sLastSpace:Z
 
-    .line 1071
+    .line 1072
     const/4 v0, 0x0
 
     sput v0, Lcom/mrkeyboard/app/MrGestureInput;->sStatPreviews:I
 
     sput v0, Lcom/mrkeyboard/app/MrGestureInput;->sStatCount:I
 
-    .line 1072
+    .line 1073
     const-wide/16 v2, 0x0
 
     sput-wide v2, Lcom/mrkeyboard/app/MrGestureInput;->sStatPreviewMax:J
@@ -3969,12 +3969,12 @@
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 1073
+    .line 1074
     monitor-exit v1
 
     return-void
 
-    .line 1052
+    .line 1053
     :catchall_0
     move-exception v0
 
@@ -3989,17 +3989,17 @@
     .prologue
     const/4 v0, 0x2
 
-    .line 902
+    .line 903
     sget-object v1, Lcom/mrkeyboard/app/MrGestureInput;->sAlts:[Ljava/lang/String;
 
-    .line 903
+    .line 904
     new-instance v2, Ljava/util/ArrayList;
 
     const/4 v3, 0x3
 
     invoke-direct {v2, v3}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 904
+    .line 905
     array-length v3, v1
 
     if-lt v3, v0, :cond_0
@@ -4010,7 +4010,7 @@
 
     invoke-virtual {v2, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 905
+    .line 906
     :cond_0
     const/4 v3, 0x0
 
@@ -4018,7 +4018,7 @@
 
     invoke-virtual {v2, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 906
+    .line 907
     :goto_0
     array-length v3, v1
 
@@ -4032,11 +4032,11 @@
 
     goto :goto_0
 
-    .line 907
+    .line 908
     :cond_1
     invoke-virtual {p0, v2}, Lcom/mrkeyboard/app/LatinIME;->mrStrip(Ljava/util/List;)V
 
-    .line 908
+    .line 909
     return-void
 .end method
 
@@ -4044,7 +4044,7 @@
     .locals 4
 
     .prologue
-    .line 1029
+    .line 1030
     const-class v1, Lcom/mrkeyboard/app/MrGestureInput;
 
     monitor-enter v1
@@ -4056,17 +4056,17 @@
 
     sput v0, Lcom/mrkeyboard/app/MrGestureInput;->sStatCount:I
 
-    .line 1030
+    .line 1031
     sput-wide p0, Lcom/mrkeyboard/app/MrGestureInput;->sStatLast:J
 
-    .line 1031
+    .line 1032
     sget-wide v2, Lcom/mrkeyboard/app/MrGestureInput;->sStatSum:J
 
     add-long/2addr v2, p0
 
     sput-wide v2, Lcom/mrkeyboard/app/MrGestureInput;->sStatSum:J
 
-    .line 1032
+    .line 1033
     sget-wide v2, Lcom/mrkeyboard/app/MrGestureInput;->sStatMax:J
 
     cmp-long v0, p0, v2
@@ -4077,13 +4077,13 @@
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 1033
+    .line 1034
     :cond_0
     monitor-exit v1
 
     return-void
 
-    .line 1029
+    .line 1030
     :catchall_0
     move-exception v0
 
@@ -4096,7 +4096,7 @@
     .locals 4
 
     .prologue
-    .line 1036
+    .line 1037
     const-class v1, Lcom/mrkeyboard/app/MrGestureInput;
 
     monitor-enter v1
@@ -4108,14 +4108,14 @@
 
     sput v0, Lcom/mrkeyboard/app/MrGestureInput;->sStatPreviews:I
 
-    .line 1037
+    .line 1038
     sget-wide v2, Lcom/mrkeyboard/app/MrGestureInput;->sStatPreviewSum:J
 
     add-long/2addr v2, p0
 
     sput-wide v2, Lcom/mrkeyboard/app/MrGestureInput;->sStatPreviewSum:J
 
-    .line 1038
+    .line 1039
     sget-wide v2, Lcom/mrkeyboard/app/MrGestureInput;->sStatPreviewMax:J
 
     cmp-long v0, p0, v2
@@ -4126,13 +4126,13 @@
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 1039
+    .line 1040
     :cond_0
     monitor-exit v1
 
     return-void
 
-    .line 1036
+    .line 1037
     :catchall_0
     move-exception v0
 
@@ -4145,7 +4145,7 @@
     .locals 1
 
     .prologue
-    .line 1082
+    .line 1083
     sget v0, Lcom/mrkeyboard/app/MrGestureInput;->sState:I
 
     return v0
@@ -4155,7 +4155,7 @@
     .locals 6
 
     .prologue
-    .line 1047
+    .line 1048
     const-class v1, Lcom/mrkeyboard/app/MrGestureInput;
 
     monitor-enter v1
@@ -4229,10 +4229,10 @@
     .locals 1
 
     .prologue
-    .line 777
+    .line 778
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sBarMain:Landroid/view/View;
 
-    .line 778
+    .line 779
     if-eqz v0, :cond_0
 
     invoke-virtual {v0}, Landroid/view/View;->getVisibility()I
@@ -4534,23 +4534,23 @@
     .locals 5
 
     .prologue
-    .line 639
+    .line 640
     sget-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sTrailOn:Z
 
     if-nez v0, :cond_1
 
-    .line 644
+    .line 645
     :cond_0
     :goto_0
     return-void
 
-    .line 640
+    .line 641
     :cond_1
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sTrailOn:Z
 
-    .line 641
+    .line 642
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPath:Landroid/graphics/Path;
 
     if-eqz v0, :cond_2
@@ -4559,7 +4559,7 @@
 
     invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
 
-    .line 642
+    .line 643
     :cond_2
     sget v0, Lcom/mrkeyboard/app/MrGestureInput;->sTrailWidth:F
 
@@ -4567,7 +4567,7 @@
 
     add-int/lit8 v0, v0, 0x2
 
-    .line 643
+    .line 644
     if-eqz p0, :cond_0
 
     sget v1, Lcom/mrkeyboard/app/MrGestureInput;->sBoundL:F
@@ -4605,29 +4605,29 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 618
+    .line 619
     sget-boolean v1, Lcom/mrkeyboard/app/MrGestureInput;->sTrailOn:Z
 
     if-nez v1, :cond_1
 
-    .line 636
+    .line 637
     :cond_0
     :goto_0
     return-void
 
-    .line 619
+    .line 620
     :cond_1
     if-ge p1, v0, :cond_2
 
     move p1, v0
 
-    .line 620
+    .line 621
     :cond_2
     sget v0, Lcom/mrkeyboard/app/MrGestureInput;->sCount:I
 
     if-ge p1, v0, :cond_0
 
-    .line 621
+    .line 622
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPx:[F
 
     add-int/lit8 v1, p1, -0x1
@@ -4646,13 +4646,13 @@
 
     move v1, v0
 
-    .line 622
+    .line 623
     :goto_1
     sget v4, Lcom/mrkeyboard/app/MrGestureInput;->sCount:I
 
     if-ge p1, v4, :cond_7
 
-    .line 623
+    .line 624
     sget-object v4, Lcom/mrkeyboard/app/MrGestureInput;->sPx:[F
 
     aget v5, v4, p1
@@ -4661,19 +4661,19 @@
 
     aget v4, v4, p1
 
-    .line 624
+    .line 625
     sget-object v6, Lcom/mrkeyboard/app/MrGestureInput;->sPath:Landroid/graphics/Path;
 
     invoke-virtual {v6, v5, v4}, Landroid/graphics/Path;->lineTo(FF)V
 
-    .line 625
+    .line 626
     cmpg-float v6, v5, v3
 
     if-gez v6, :cond_3
 
     move v3, v5
 
-    .line 626
+    .line 627
     :cond_3
     cmpl-float v6, v5, v2
 
@@ -4681,7 +4681,7 @@
 
     move v2, v5
 
-    .line 627
+    .line 628
     :cond_4
     cmpg-float v5, v4, v1
 
@@ -4689,7 +4689,7 @@
 
     move v1, v4
 
-    .line 628
+    .line 629
     :cond_5
     cmpl-float v5, v4, v0
 
@@ -4697,13 +4697,13 @@
 
     move v0, v4
 
-    .line 622
+    .line 623
     :cond_6
     add-int/lit8 p1, p1, 0x1
 
     goto :goto_1
 
-    .line 630
+    .line 631
     :cond_7
     sget v4, Lcom/mrkeyboard/app/MrGestureInput;->sBoundL:F
 
@@ -4713,7 +4713,7 @@
 
     sput v3, Lcom/mrkeyboard/app/MrGestureInput;->sBoundL:F
 
-    .line 631
+    .line 632
     :cond_8
     sget v4, Lcom/mrkeyboard/app/MrGestureInput;->sBoundR:F
 
@@ -4723,7 +4723,7 @@
 
     sput v2, Lcom/mrkeyboard/app/MrGestureInput;->sBoundR:F
 
-    .line 632
+    .line 633
     :cond_9
     sget v4, Lcom/mrkeyboard/app/MrGestureInput;->sBoundT:F
 
@@ -4733,7 +4733,7 @@
 
     sput v1, Lcom/mrkeyboard/app/MrGestureInput;->sBoundT:F
 
-    .line 633
+    .line 634
     :cond_a
     sget v4, Lcom/mrkeyboard/app/MrGestureInput;->sBoundB:F
 
@@ -4743,7 +4743,7 @@
 
     sput v0, Lcom/mrkeyboard/app/MrGestureInput;->sBoundB:F
 
-    .line 634
+    .line 635
     :cond_b
     sget v4, Lcom/mrkeyboard/app/MrGestureInput;->sTrailWidth:F
 
@@ -4751,7 +4751,7 @@
 
     add-int/lit8 v4, v4, 0x2
 
-    .line 635
+    .line 636
     float-to-int v3, v3
 
     sub-int/2addr v3, v4
@@ -4781,7 +4781,7 @@
 
     const/4 v2, 0x0
 
-    .line 597
+    .line 598
     sget-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sTrail:Z
 
     if-eqz v0, :cond_0
@@ -4795,69 +4795,69 @@
     :goto_0
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sTrailOn:Z
 
-    .line 598
+    .line 599
     sget-boolean v0, Lcom/mrkeyboard/app/MrGestureInput;->sTrailOn:Z
 
     if-nez v0, :cond_1
 
-    .line 614
+    .line 615
     :goto_1
     return-void
 
     :cond_0
     move v0, v2
 
-    .line 597
+    .line 598
     goto :goto_0
 
-    .line 599
+    .line 600
     :cond_1
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPath:Landroid/graphics/Path;
 
     if-nez v0, :cond_2
 
-    .line 600
+    .line 601
     new-instance v0, Landroid/graphics/Path;
 
     invoke-direct {v0}, Landroid/graphics/Path;-><init>()V
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPath:Landroid/graphics/Path;
 
-    .line 601
+    .line 602
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPaint:Landroid/graphics/Paint;
 
-    .line 602
+    .line 603
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPaint:Landroid/graphics/Paint;
 
     sget-object v3, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v3}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 603
+    .line 604
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPaint:Landroid/graphics/Paint;
 
     sget-object v3, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v3}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 604
+    .line 605
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPaint:Landroid/graphics/Paint;
 
     sget-object v3, Landroid/graphics/Paint$Join;->ROUND:Landroid/graphics/Paint$Join;
 
     invoke-virtual {v0, v3}, Landroid/graphics/Paint;->setStrokeJoin(Landroid/graphics/Paint$Join;)V
 
-    .line 606
+    .line 607
     :cond_2
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->accent()I
 
     move-result v0
 
-    .line 607
+    .line 608
     sget-object v3, Lcom/mrkeyboard/app/MrGestureInput;->sPaint:Landroid/graphics/Paint;
 
     const/high16 v4, -0x34000000    # -3.3554432E7f
@@ -4869,19 +4869,19 @@
 
     invoke-virtual {v3, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 608
+    .line 609
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPaint:Landroid/graphics/Paint;
 
     sget v3, Lcom/mrkeyboard/app/MrGestureInput;->sTrailWidth:F
 
     invoke-virtual {v0, v3}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 609
+    .line 610
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPath:Landroid/graphics/Path;
 
     invoke-virtual {v0}, Landroid/graphics/Path;->reset()V
 
-    .line 610
+    .line 611
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPath:Landroid/graphics/Path;
 
     sget-object v3, Lcom/mrkeyboard/app/MrGestureInput;->sPx:[F
@@ -4894,7 +4894,7 @@
 
     invoke-virtual {v0, v3, v4}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 611
+    .line 612
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPx:[F
 
     aget v0, v0, v2
@@ -4903,7 +4903,7 @@
 
     sput v0, Lcom/mrkeyboard/app/MrGestureInput;->sBoundL:F
 
-    .line 612
+    .line 613
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sPy:[F
 
     aget v0, v0, v2
@@ -4912,12 +4912,12 @@
 
     sput v0, Lcom/mrkeyboard/app/MrGestureInput;->sBoundT:F
 
-    .line 613
+    .line 614
     invoke-static {p0, v1}, Lcom/mrkeyboard/app/MrGestureInput;->trailGrow(Lcom/mrkeyboard/app/LatinKeyboardView;I)V
 
     goto :goto_1
 
-    .line 607
+    .line 608
     :cond_3
     const v0, 0x40c4ff
 
@@ -4930,7 +4930,7 @@
     .prologue
     const/4 v2, 0x1
 
-    .line 846
+    .line 847
     if-eqz p0, :cond_0
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -4939,12 +4939,12 @@
 
     if-nez v0, :cond_1
 
-    .line 852
+    .line 853
     :cond_0
     :goto_0
     return-object p0
 
-    .line 847
+    .line 848
     :cond_1
     const/4 v0, 0x2
 
@@ -4961,7 +4961,7 @@
 
     goto :goto_0
 
-    .line 848
+    .line 849
     :cond_3
     if-eq p1, v2, :cond_4
 
@@ -4969,7 +4969,7 @@
 
     if-ne p1, v0, :cond_0
 
-    .line 849
+    .line 850
     :cond_4
     const/4 v0, 0x0
 
@@ -4981,7 +4981,7 @@
 
     move-result v1
 
-    .line 850
+    .line 851
     if-eq v1, v0, :cond_0
 
     new-instance v0, Ljava/lang/StringBuilder;
@@ -5015,16 +5015,16 @@
 
     const/4 v3, 0x0
 
-    .line 878
+    .line 879
     aget-object v0, p3, v3
 
-    .line 879
+    .line 880
     sput-boolean v4, Lcom/mrkeyboard/app/MrGestureInput;->sWriting:Z
 
-    .line 880
+    .line 881
     invoke-interface {p1}, Landroid/view/inputmethod/InputConnection;->beginBatchEdit()Z
 
-    .line 882
+    .line 883
     if-eqz p2, :cond_0
 
     :try_start_0
@@ -5034,77 +5034,77 @@
 
     invoke-interface {p1, v1, v2}, Landroid/view/inputmethod/InputConnection;->commitText(Ljava/lang/CharSequence;I)Z
 
-    .line 883
+    .line 884
     :cond_0
     sget-object v1, Lcom/mrkeyboard/app/MrGestureInput;->NONE:Ljava/util/List;
 
     invoke-virtual {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->mrStrip(Ljava/util/List;)V
 
-    .line 884
+    .line 885
     const/4 v1, -0x1
 
     invoke-virtual {p0, v1, v0}, Lcom/mrkeyboard/app/LatinIME;->pickSuggestionManually(ILjava/lang/CharSequence;)V
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 886
+    .line 887
     sput-boolean v3, Lcom/mrkeyboard/app/MrGestureInput;->sWriting:Z
 
-    .line 887
+    .line 888
     invoke-interface {p1}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
 
-    .line 889
+    .line 890
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sLastWord:Ljava/lang/String;
 
-    .line 890
+    .line 891
     sput-boolean p2, Lcom/mrkeyboard/app/MrGestureInput;->sLastSpace:Z
 
-    .line 891
+    .line 892
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputEditorInfo()Landroid/view/inputmethod/EditorInfo;
 
     move-result-object v0
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sLastEditor:Landroid/view/inputmethod/EditorInfo;
 
-    .line 892
+    .line 893
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sAlts:[Ljava/lang/String;
 
-    .line 893
+    .line 894
     if-le p4, v4, :cond_1
 
-    .line 894
+    .line 895
     add-int/lit8 v0, p4, -0x1
 
     new-array v0, v0, [Ljava/lang/String;
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sAlts:[Ljava/lang/String;
 
-    .line 895
+    .line 896
     sget-object v0, Lcom/mrkeyboard/app/MrGestureInput;->sAlts:[Ljava/lang/String;
 
     add-int/lit8 v1, p4, -0x1
 
     invoke-static {p3, v4, v0, v3, v1}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 896
+    .line 897
     invoke-static {p0}, Lcom/mrkeyboard/app/MrGestureInput;->showAlternatives(Lcom/mrkeyboard/app/LatinIME;)V
 
-    .line 898
+    .line 899
     :cond_1
     return-void
 
-    .line 886
+    .line 887
     :catchall_0
     move-exception v0
 
     sput-boolean v3, Lcom/mrkeyboard/app/MrGestureInput;->sWriting:Z
 
-    .line 887
+    .line 888
     invoke-interface {p1}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
 
-    .line 888
+    .line 889
     throw v0
 .end method
 
@@ -5114,10 +5114,10 @@
     .prologue
     const/4 v1, -0x1
 
-    .line 921
+    .line 922
     sget-object v2, Lcom/mrkeyboard/app/MrGestureInput;->sLastWord:Ljava/lang/String;
 
-    .line 922
+    .line 923
     if-eqz v2, :cond_0
 
     if-eqz p1, :cond_0
@@ -5130,18 +5130,18 @@
 
     if-eq v0, v3, :cond_1
 
-    .line 928
+    .line 929
     :cond_0
     :goto_0
     return v1
 
-    .line 923
+    .line 924
     :cond_1
     invoke-virtual {v2}, Ljava/lang/String;->length()I
 
     move-result v0
 
-    .line 924
+    .line 925
     add-int/lit8 v3, v0, 0x1
 
     const/4 v4, 0x0
@@ -5150,15 +5150,15 @@
 
     move-result-object v3
 
-    .line 925
+    .line 926
     if-eqz v3, :cond_0
 
-    .line 926
+    .line 927
     invoke-interface {v3}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
 
     move-result-object v3
 
-    .line 927
+    .line 928
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v4
@@ -5185,7 +5185,7 @@
 
     goto :goto_0
 
-    .line 928
+    .line 929
     :cond_2
     invoke-virtual {v3, v2}, Ljava/lang/String;->endsWith(Ljava/lang/String;)Z
 

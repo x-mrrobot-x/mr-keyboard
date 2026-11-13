@@ -299,11 +299,10 @@
     <string name="title_swipe_right">Swipe right</string>
     <string name="title_swipe_up">Swipe up</string>
     <string name="title_version">Version</string>
-    <string name="title_vibrate_len">Vibrate duration</string>
+    <string name="title_vibrate_len">Vibration strength</string>
     <string name="title_vol_down">Volume down</string>
     <string name="title_vol_up">Volume up</string>
     <string name="toast_ctrl_a_override_info">Ctrl-A is disabled. Use Ctrl-Alt-A instead, or enable it in settings.</string>
-    <string name="vibrate_duration_ms">1 ms</string>
     <string name="vibrate_on_keypress">Vibrate on keypress</string>
     <string name="voice_input">Voice input</string>
     <string name="voice_mode_main">0</string>

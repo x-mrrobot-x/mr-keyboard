@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" xmlns:hk="http://schemas.android.com/apk/res-auto" android:title="@string/pref_screen_feedback_title" android:key="feedback_settings">
   <PreferenceCategory android:title="@string/mr_ui_cat_haptic" android:key="haptic_settings" android:icon="@drawable/mr_ui_ic_vibrate_amber">
     <CheckBoxPreference android:persistent="true" android:title="@string/vibrate_on_keypress" android:key="vibrate_on" android:defaultValue="false"/>
-    <com.mrkeyboard.app.VibratePreference android:persistent="true" android:title="@string/title_vibrate_len" android:key="vibrate_len" android:defaultValue="1" hk:displayFormat="%.0f ms" hk:logScale="true" hk:maxValue="200.0" hk:minValue="1.0"/>
+    <com.mrkeyboard.app.VibratePreference android:persistent="true" android:title="@string/title_vibrate_len" android:key="vibrate_strength" android:defaultValue="0.5" hk:asPercent="true" hk:maxValue="1.0" hk:minValue="0.05" hk:step="0.05"/>
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_sound" android:key="sound_settings" android:icon="@drawable/mr_ui_ic_speaker_mint">
     <CheckBoxPreference android:persistent="true" android:title="@string/sound_on_keypress" android:key="sound_on" android:defaultValue="true"/>

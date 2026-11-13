@@ -58,7 +58,7 @@
     <string name="title_swipe_up">Deslizar hacia arriba</string>
     <string name="title_ui_language">Idioma de la app</string>
     <string name="title_version">Versión</string>
-    <string name="title_vibrate_len">Duración de la vibración</string>
+    <string name="title_vibrate_len">Intensidad de la vibración</string>
     <string name="title_vol_down">Bajar volumen</string>
     <string name="title_vol_up">Subir volumen</string>
     <string name="ui_language_system">Predeterminado del sistema</string>
