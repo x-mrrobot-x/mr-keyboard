@@ -29,6 +29,10 @@
 
 .field private static sPrevRenderMode:I = -0x1
 
+# Popups of variants kept between field opens (docs/plan-performance.md, stage 5): the number of the last change of a setting.
+# Each view remembers the number its caches were made at; when it differs, the caches are dropped.
+.field private static sPopupEpoch:I
+
 # instance fields
 .field private final KEY_LABEL_HEIGHT_REFERENCE_CHAR:Ljava/lang/String;
 
@@ -101,6 +105,8 @@
 .field private mLabelMetricsCache:Lcom/mrkeyboard/app/MrLabelMetricsCache;
 
 .field private mLabelScale:F
+
+.field private mPopupEpoch:I
 
 .field private mLabelTextSize:F
 
@@ -249,6 +255,62 @@
 .field protected mWindowY:I
 
 # direct methods
+# Popups of variants kept between field opens (docs/plan-performance.md, stage 5). The popup of a key (its variants, a Keyboard) is
+# kept in mMiniKeyboardCacheMain/Shift/Caps, keyed by the Key, so it can only be found again for the same key of the same keyboard.
+# Before, every open of a field cleared the three maps (closing() and setKeyboard()), so the first long press of each key in each
+# field built the variants again. Now they are kept while the keyboard is the same one (setKeyboard() is given the same object) and
+# no setting changed (the popup depends on the settings of the popups and of the sheets); a different keyboard or a changed
+# setting drops them as before, and so does the view leaving the window (onDetachedFromWindow).
+.method public static bumpPopupEpoch()V
+    .locals 1
+
+    sget v0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->sPopupEpoch:I
+
+    add-int/lit8 v0, v0, 0x1
+
+    sput v0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->sPopupEpoch:I
+
+    return-void
+.end method
+
+.method private clearPopupCaches()V
+    .locals 1
+
+    # The view now holds the popups of the current number of changes of the settings.
+    sget v0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->sPopupEpoch:I
+
+    iput v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mPopupEpoch:I
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardCacheMain:Ljava/util/WeakHashMap;
+
+    invoke-virtual {v0}, Ljava/util/WeakHashMap;->clear()V
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardCacheShift:Ljava/util/WeakHashMap;
+
+    invoke-virtual {v0}, Ljava/util/WeakHashMap;->clear()V
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardCacheCaps:Ljava/util/WeakHashMap;
+
+    invoke-virtual {v0}, Ljava/util/WeakHashMap;->clear()V
+
+    return-void
+.end method
+
+.method private dropPopupCachesIfStale()V
+    .locals 2
+
+    sget v0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->sPopupEpoch:I
+
+    iget v1, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mPopupEpoch:I
+
+    if-eq v0, v1, :cond_keep
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->clearPopupCaches()V
+
+    :cond_keep
+    return-void
+.end method
+
 .method static constructor <clinit>()V
     .locals 1
 
@@ -1410,9 +1472,14 @@
 
     add-int/2addr v2, v3
 
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupBuildBegin()V
     invoke-virtual {p1, v1, v2}, Lcom/mrkeyboard/app/Keyboard$Key;->getPopupKeyboard(Landroid/content/Context;I)Lcom/mrkeyboard/app/Keyboard;
 
     move-result-object v1
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupBuildEnd()V
 
     if-eqz v1, :cond_2
 
@@ -4947,20 +5014,8 @@
     .line 1777
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->dismissPopupKeyboard()V
 
-    .line 1788
-    iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardCacheMain:Ljava/util/WeakHashMap;
-
-    invoke-virtual {v0}, Ljava/util/WeakHashMap;->clear()V
-
-    .line 1789
-    iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardCacheShift:Ljava/util/WeakHashMap;
-
-    invoke-virtual {v0}, Ljava/util/WeakHashMap;->clear()V
-
-    .line 1790
-    iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardCacheCaps:Ljava/util/WeakHashMap;
-
-    invoke-virtual {v0}, Ljava/util/WeakHashMap;->clear()V
+    # The popups of variants are kept (not cleared here) unless a setting changed; see dropPopupCachesIfStale.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->dropPopupCachesIfStale()V
 
     const/4 v0, 0x0
     iput-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mLabelMetricsCache:Lcom/mrkeyboard/app/MrLabelMetricsCache;
@@ -5363,6 +5418,9 @@
 
     .line 1797
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->closing()V
+
+    # The view leaves the window: the popups of variants kept between opens go with it.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->clearPopupCaches()V
 
     return-void
 .end method
@@ -5804,7 +5862,12 @@
     .line 1501
     iget-object v4, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardPopup:Landroid/widget/PopupWindow;
 
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupShowBegin()V
     invoke-virtual {v4, p0, v1, v0, v3}, Landroid/widget/PopupWindow;->showAtLocation(Landroid/view/View;III)V
+
+    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupShowEnd()V
 
     .line 1502
     iput-boolean v6, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardVisible:Z
@@ -6506,7 +6569,10 @@
 .end method
 
 .method public setKeyboard(Lcom/mrkeyboard/app/Keyboard;)V
-    .locals 4
+    .locals 5
+
+    # The keyboard that was on the view, to know at the end whether it is the same one again (the popups of variants are kept).
+    iget-object v4, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mKeyboard:Lcom/mrkeyboard/app/Keyboard;
 
     .line 664
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mKeyboard:Lcom/mrkeyboard/app/Keyboard;
@@ -6607,21 +6673,18 @@
     .line 685
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->computeProximityThreshold(Lcom/mrkeyboard/app/Keyboard;)V
 
-    .line 686
-    iget-object p1, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardCacheMain:Ljava/util/WeakHashMap;
+    # The popups of variants are kept when the same keyboard is set again (a field opened with the keyboard it already had) and no
+    # setting changed; a different keyboard has other keys, so its popups start empty, as before.
+    if-eq v4, p1, :cond_mr_same_keyboard
 
-    invoke-virtual {p1}, Ljava/util/WeakHashMap;->clear()V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->clearPopupCaches()V
 
-    .line 687
-    iget-object p1, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardCacheShift:Ljava/util/WeakHashMap;
+    goto :cond_mr_keep_popups
 
-    invoke-virtual {p1}, Ljava/util/WeakHashMap;->clear()V
+    :cond_mr_same_keyboard
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->dropPopupCachesIfStale()V
 
-    .line 688
-    iget-object p1, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardCacheCaps:Ljava/util/WeakHashMap;
-
-    invoke-virtual {p1}, Ljava/util/WeakHashMap;->clear()V
-
+    :cond_mr_keep_popups
     .line 689
     sget-object p1, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
 

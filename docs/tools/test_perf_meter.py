@@ -52,7 +52,9 @@ TEXTS = {
     "mr_ui_perf_frame": "Frame", "mr_ui_perf_key": "Key", "mr_ui_perf_touch": "Touch", "mr_ui_perf_app": "App",
     "mr_ui_perf_sugg": "Sugg", "mr_ui_perf_key_letter": "KeyLetter", "mr_ui_perf_key_sep": "KeySep", "mr_ui_perf_key_del": "KeyDel",
     "mr_ui_perf_key_other": "KeyOther", "mr_ui_perf_sugg_engine": "SuggEngine", "mr_ui_perf_sugg_show": "SuggShow",
-    "mr_ui_perf_open_kb": "OpenKb", "mr_ui_perf_open_set": "OpenSet", "mr_ui_perf_popup": "Popup", "mr_ui_perf_stat": "%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)",
+    "mr_ui_perf_open_kb": "OpenKb", "mr_ui_perf_open_set": "OpenSet", "mr_ui_perf_popup": "Popup",
+    "mr_ui_perf_app_key": "AppKey", "mr_ui_perf_app_sugg": "AppSugg", "mr_ui_perf_app_open": "AppOpen", "mr_ui_perf_app_other": "AppOther",
+    "mr_ui_perf_popup_build": "PopupBuild", "mr_ui_perf_popup_show": "PopupShow", "mr_ui_perf_stat": "%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)",
     "mr_ui_perf_one": "%1$s: %2$s ms", "mr_ui_perf_none": "Nothing yet.", "mr_ui_perf_mem": "Memory: Java %1$s · native %2$s",
     "mr_ui_perf_reset": "Tap to reset."}
 
@@ -210,10 +212,11 @@ def j(a):
 
 
 KINDS = ["create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
-         "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup"]
+         "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
+         "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show"]
 N = len(KINDS)
 CREATE, VIEW, OPEN, SHOWN, FRAME, KEY, TOUCH, APP_, SUGG, KEY_LETTER, KEY_SEP, KEY_DEL, KEY_OTHER, SUGG_ENGINE, SUGG_SHOW, \
-    OPEN_KB, OPEN_SET, POPUP = range(N)
+    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW = range(N)
 
 # ======================================================================== part 1: the smali of MrPerf
 fw = Fw()
@@ -262,9 +265,78 @@ for begin, end, kind, us in (("createBegin", "createEnd", CREATE, 180000), ("vie
                              ("openBegin", "openEnd", OPEN, 4000), ("appBegin", "appEnd", APP_, 250),
                              ("suggEngineBegin", "suggEngineEnd", SUGG_ENGINE, 1200), ("suggShowBegin", "suggShowEnd", SUGG_SHOW, 800),
                              ("openKbBegin", "openKbEnd", OPEN_KB, 6000), ("openSetBegin", "openSetEnd", OPEN_SET, 1500),
-                             ("popupBegin", "popupEnd", POPUP, 9000)):
+                             ("popupBegin", "popupEnd", POPUP, 9000), ("popupBuildBegin", "popupBuildEnd", POPUP_BUILD, 4500),
+                             ("popupShowBegin", "popupShowEnd", POPUP_SHOW, 7000)):
     fw.run(begin + "()V"); fw.tick(us); fw.run(end + "()V")
     check("%s/%s go to their kind" % (begin, end), fw.stats(kind)[4] == us, fw.stats(kind))
+
+# ---- the wait for the app, counted again by where it is asked (the innermost piece of work under way decides)
+PLACES = (APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER)
+
+
+def wait(us):
+    """One question to the app of `us` microseconds, between appBegin and appEnd."""
+    fw.run("appBegin()V"); fw.tick(us); fw.run("appEnd()V")
+
+
+def only(place, us):
+    """APP and `place` hold exactly one sample of `us`; the other places hold nothing."""
+    return (fw.stats(APP_)[0] == 1 and fw.stats(APP_)[4] == us and fw.stats(place)[0] == 1 and fw.stats(place)[4] == us
+            and all(fw.stats(k)[0] == 0 for k in PLACES if k != place))
+
+
+fw.run("reset()V"); fw.set_nanos(100000000000)
+wait(300)
+check("a wait with no work under way: APP and APP_OTHER", only(APP_OTHER, 300), [fw.stats(k) for k in (APP_,) + PLACES])
+check("... appPlace says APP_OTHER", fw.run("appPlace()I") == APP_OTHER)
+fw.run("reset()V")
+fw.run("keyBegin(I)V", 32); fw.tick(100); wait(250)
+check("a wait inside a key: APP and APP_KEY", only(APP_KEY, 250), [fw.stats(k) for k in (APP_,) + PLACES])
+fw.run("keyEnd()V")
+fw.run("reset()V")
+fw.run("keyBegin(I)V", 32); fw.tick(100); fw.run("suggBegin()V"); fw.tick(50); wait(400)
+check("a wait inside the suggestions of a key: APP_SUGG, not APP_KEY", only(APP_SUGG, 400), [fw.stats(k) for k in (APP_,) + PLACES])
+fw.run("suggEnd()V"); fw.tick(10); fw.run("reset()V")
+fw.run("openBegin()V"); fw.tick(100); wait(500)
+check("a wait inside an open: APP and APP_OPEN", only(APP_OPEN, 500), [fw.stats(k) for k in (APP_,) + PLACES])
+fw.run("reset()V")
+fw.run("openBegin()V"); fw.tick(100); fw.run("suggBegin()V"); fw.tick(100); wait(600)
+check("suggestions inside an open (began later): APP_SUGG", only(APP_SUGG, 600), [fw.stats(k) for k in (APP_,) + PLACES])
+fw.run("suggEnd()V"); fw.tick(10)
+wait(700)
+check("after the suggestions ended, the open is the place again", fw.stats(APP_OPEN)[0] == 1 and fw.stats(APP_SUGG)[0] == 1
+      and fw.stats(APP_OPEN)[4] == 700, [fw.stats(k) for k in PLACES])
+fw.run("openEnd()V"); fw.tick(10); fw.run("reset()V")
+wait(800)
+check("after the open ended: APP_OTHER again", only(APP_OTHER, 800), [fw.stats(k) for k in PLACES])
+fw.run("reset()V")
+fw.run("suggBegin()V"); fw.tick(100); fw.run("keyBegin(I)V", 97); fw.tick(100); wait(900)
+check("a key that began inside suggestions work: the key is the innermost", only(APP_KEY, 900), [fw.stats(k) for k in PLACES])
+fw.run("keyEnd()V"); fw.run("suggEnd()V"); fw.run("reset()V")
+fw.run("keyBegin(I)V", 97); fw.tick(10)
+for us in (100, 200, 300):
+    wait(us)
+fw.run("suggBegin()V"); fw.tick(10); wait(400); fw.run("suggEnd()V"); fw.run("keyEnd()V"); wait(500)
+check("several waits: each counted once in APP and once in one place (the counts add up)",
+      fw.stats(APP_)[0] == 5 and sum(fw.stats(k)[0] for k in PLACES) == 5
+      and [fw.stats(k)[0] for k in PLACES] == [3, 1, 0, 1], [fw.stats(k)[0] for k in (APP_,) + PLACES])
+check("... and the same time: APP holds the sum of the places",
+      fw.stats(APP_)[1] * 5 == 1500 and sum(fw.stats(k)[1] * fw.stats(k)[0] for k in PLACES) == 1500)
+# a piece of work that lost its end must not take every later wait
+fw.run("reset()V"); fw.set_nanos(100000000000)
+fw.run("keyBegin(I)V", 97); fw.tick(10000000)          # 10 s later
+wait(250)
+check("a key that began exactly 10 s ago still counts as the place", fw.stats(APP_KEY)[0] == 1, [fw.stats(k)[0] for k in PLACES])
+fw.run("reset()V"); fw.set_nanos(100000000000)
+fw.run("keyBegin(I)V", 97); fw.tick(10001000)          # 10.001 s later
+wait(250)
+check("a key that began more than 10 s ago (lost its end) is not the place: APP_OTHER", only(APP_OTHER, 250), [fw.stats(k)[0] for k in PLACES])
+fw.run("keyEnd()V"); fw.run("reset()V")
+wait(0)
+check("a wait of 0 us is counted in both", fw.stats(APP_)[0] == 1 and fw.stats(APP_OTHER)[0] == 1)
+fw.run("appEnd()V")
+check("an appEnd with no appBegin is ignored", fw.stats(APP_)[0] == 1 and fw.stats(APP_OTHER)[0] == 1)
+fw.run("reset()V")
 
 fw.run("reset()V")
 for i in range(1, 21):
@@ -328,7 +400,7 @@ scr, row = fw.screen()
 fw.fill(scr)
 lines = row.f["summary"].split("\n")
 names = ["Start", "View", "Open", "Shown", "Frame", "Key", "Touch", "App", "Sugg", "KeyLetter", "KeySep", "KeyDel", "KeyOther",
-         "SuggEngine", "SuggShow", "OpenKb", "OpenSet", "Popup"]
+         "SuggEngine", "SuggShow", "OpenKb", "OpenSet", "Popup", "AppKey", "AppSugg", "AppOpen", "AppOther", "PopupBuild", "PopupShow"]
 check("every kind in order, then memory and reset", len(lines) == N + 2
       and all(lines[k].startswith("%s: average %d.0 ms" % (names[k], k + 1)) for k in range(N)), lines)
 fw.missing = {"mr_ui_perf_reset", "mr_ui_perf_mem", "mr_ui_perf_stat"}
@@ -427,6 +499,18 @@ for head, call in (("private getCursorCapsMode(", "InputConnection;->getCursorCa
           c[i - 1] == CALL + "appBegin()V" and c[i + 1].startswith("move-result") and c[i + 2] == CALL + "appEnd()V"
           and c.count(CALL + "appBegin()V") == 1, c[i - 1:i + 3])
 
+# the popup: the variants put together (only when not kept) and the window shown
+c = code(body("LatinKeyboardBaseView.smali", "private getLongPressKeyboard("))
+i = next(k for k, l in enumerate(c) if "Keyboard$Key;->getPopupKeyboard(" in l)
+check("the variants of a key are timed around Key.getPopupKeyboard (so only a build, not a kept popup, is counted)",
+      c[i - 1] == CALL + "popupBuildBegin()V" and c[i + 1].startswith("move-result") and c[i + 2] == CALL + "popupBuildEnd()V"
+      and c.count(CALL + "popupBuildBegin()V") == 1 and c.count(CALL + "popupBuildEnd()V") == 1, c[i - 1:i + 3])
+c = code(body("LatinKeyboardBaseView.smali", "protected onLongPress(Lcom/mrkeyboard/app/Keyboard$Key;)Z"))
+i = next(k for k, l in enumerate(c) if "PopupWindow;->showAtLocation(" in l)
+check("the popup window shown is timed around showAtLocation",
+      c[i - 1] == CALL + "popupShowBegin()V" and c[i + 1] == CALL + "popupShowEnd()V"
+      and c.count(CALL + "popupShowBegin()V") == 1 and c.count(CALL + "popupShowEnd()V") == 1, c[i - 1:i + 2])
+
 # a call put inside an annotation block (the Signature of a method) would not assemble: smali stops at "value {"
 inside_annotation = []
 for name in sorted(f for f in os.listdir(APP) if f.endswith(".smali")):
@@ -495,7 +579,7 @@ for f in os.listdir(APP):
     if f.endswith(".smali") and not f.startswith("MrPerf"):
         called |= set(re.findall(re.escape(PERF) + r"->(\w+\([^)]*\)\S+)", open(os.path.join(APP, f), encoding="utf-8").read()))
 missing = [m for m in sorted(called) if not re.search(r"\.method public static " + re.escape(m) + r"\n", perf_src)]
-check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 27,
+check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 31,
       (missing, len(called)))
 
 xml = open(os.path.join(ROOT, "res", "xml", "prefs_advanced.xml"), encoding="utf-8").read()

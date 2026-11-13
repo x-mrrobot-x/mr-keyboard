@@ -143,15 +143,26 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   first frame, 7.7 ms of it waiting for the app), the tail of "Handle a key" (95 % at 21 ms in a chat, maximum 107 ms), the
   suggestions (maximum 307 ms) and the "Touch wait" (95 % at 47 ms, maximum 221 ms, probably touches that arrived while the main
   thread was busy with one of those). Memory: Java 11.5 MB, native 54.0 MB, not growing.
-- Stage 5: partly done. `checkReCorrectionOnStart` takes the selection from `EditorInfo.initialSelStart/End` and no longer asks the
-  app for the whole text of the field at every open (the old question stays only for a field that reports -1);
-  `docs/tools/test_open_selection.py`. A cursor at the very start (0/0, most often an empty field) offers no old-word suggestions on
-  open (before: only if the field had text and a word right after the cursor). Not done yet: popups of variants kept between opens and
-  a cheaper `setKeyboard` for the same keyboard; they wait for the numbers of "Open: choose the keyboard for the field" and
-  "Open the long-press popup".
+- Stage 5: done, with one thing left to confirm on the phone. `checkReCorrectionOnStart` takes the selection from
+  `EditorInfo.initialSelStart/End` and no longer asks the app for the whole text of the field at every open (the old question stays
+  only for a field that reports -1); `docs/tools/test_open_selection.py`. A cursor at the very start (0/0, most often an empty field)
+  offers no old-word suggestions on open (before: only if the field had text and a word right after the cursor). The popups of
+  variants are kept between opens: `closing()` and `setKeyboard()` clear the three maps only for a different keyboard or after a
+  change of any preference (`LatinIME.onSharedPreferenceChanged` bumps a number that each view compares with its own), and the view
+  leaving the window clears them; `docs/tools/test_popup_cache.py`. The gain is only the part of a long press that put the variants
+  together (the new line "Popup: put the variants together"); showing the popup window is a call to the system and stays. Whether
+  that part is large is what the next numbers show (count of the popup line against the count of the build line).
 - Stage 6, first part: the meter is finer (keys by kind, the engine and the strip of the suggestions, the keyboard and the settings
   inside an open, the popup of variants, and every question to the app of `LatinIME` and `EditingUtil`), to find what is inside the
   107 ms key and the 307 ms suggestion. The fixes of stage 6 (caps mode in the middle of a word, click volume, garbage per frame, log
   lines) wait for those numbers.
+  Second round of numbers (gestures on and off made no difference): letters 1-2 ms, delete 0.4 ms, the engine 1.5 ms, the strip 0.3 ms,
+  a frame 2.6-2.8 ms; space, punctuation and Enter 11-14 ms on average (95 % at 35-45 ms, maximum 67 ms); a wait for the app 3.6-4.4 ms
+  on average (95 % at 19-20 ms, maximum 124-128 ms), about 2.5 per key; the popup of variants 18-19 ms; open 37-43 ms. The waits
+  for the app are the biggest cost of typing.
+- Stage 6, second part: the wait for the app is also counted by where it is asked (inside a key, in the suggestions, in an open, elsewhere),
+  and the popup of variants by what it spends (the variants put together, the window shown). The next fixes cut the questions to the app
+  where the numbers show them: per key, per separator, per selection update. `isCursorTouchingWord` (two questions) with
+  `getSurroundingText` on Android 12+ is a candidate.
   Next: the owner reads the new lines (reset, then open several apps, type words and punctuation in a chat and a long field, delete,
-  long-press a few keys).
+  long-press a few keys, open the same kind of field twice).

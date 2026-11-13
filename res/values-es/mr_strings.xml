@@ -68,6 +68,12 @@
     <string name="mr_ui_perf_open_kb">Abrir: elegir el teclado del campo</string>
     <string name="mr_ui_perf_open_set">Abrir: leer los ajustes</string>
     <string name="mr_ui_perf_popup">Abrir el popup de variantes</string>
+    <string name="mr_ui_perf_app_key">Espera por la app: dentro de una tecla</string>
+    <string name="mr_ui_perf_app_sugg">Espera por la app: en las sugerencias</string>
+    <string name="mr_ui_perf_app_open">Espera por la app: al abrir</string>
+    <string name="mr_ui_perf_app_other">Espera por la app: en otros momentos</string>
+    <string name="mr_ui_perf_popup_build">Popup: montar las variantes</string>
+    <string name="mr_ui_perf_popup_show">Popup: mostrar la ventana</string>
     <string name="mr_ui_cat_haptic">Vibración</string>
     <string name="mr_ui_cat_sound">Sonido</string>
     <string name="mr_ui_cat_visual">Visual</string>

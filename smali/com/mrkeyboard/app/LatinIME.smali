@@ -10633,6 +10633,10 @@
 .method public onSharedPreferenceChanged(Landroid/content/SharedPreferences;Ljava/lang/String;)V
     .locals 8
 
+    # Any setting that changes drops the popups of variants kept between field opens (docs/plan-performance.md, stage 5): the
+    # popups depend on the settings of the popups and of the sheets. No register used.
+    invoke-static {}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->bumpPopupEpoch()V
+
     const-string v0, "PCKeyboard"
 
     const-string v1, "onSharedPreferenceChanged()"

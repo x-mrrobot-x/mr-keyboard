@@ -38,7 +38,14 @@ import java.util.Arrays;
  *     call to the engine (Suggest.getSuggestions), and SUGG_SHOW, the strip filled and drawn (setSuggestions);</li>
  * <li>OPEN_KB: inside OPEN, the keyboard chosen and put on the view for the field (makeKeyboards, setKeyboardMode and the
  *     reading of the field type); OPEN_SET: inside OPEN, loadSettings;</li>
- * <li>POPUP: the popup of variants (long press) built and shown (LatinKeyboardBaseView.onLongPress).</li>
+ * <li>POPUP: the popup of variants (long press) built and shown (LatinKeyboardBaseView.onLongPress). Inside it: POPUP_BUILD, the
+ *     variants of the key put together (Key.getPopupKeyboard; only when the popup of that key was not kept from before), and
+ *     POPUP_SHOW, the popup window shown (PopupWindow.showAtLocation). Counting POPUP against POPUP_BUILD gives how many
+ *     long presses found the variants ready;</li>
+ * <li>APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER: the same questions as APP, counted again by where they are asked: inside a key
+ *     (not in its suggestions), inside the suggestions, inside an open, and anywhere else (the keyboard told about a new
+ *     selection, a delayed message). The innermost piece of work under way decides; every wait is counted once in APP and once
+ *     here.</li>
  * </ul>
  * Times are kept in microseconds: the last {@link #SIZE} of each kind for the average and the p95, the count and the maximum
  * since the last reset. All of it runs on the main thread (the keyboard and the screens share the process and its main thread),
@@ -53,7 +60,10 @@ public final class MrPerf {
 
     static final int CREATE = 0, VIEW = 1, OPEN = 2, SHOWN = 3, FRAME = 4, KEY = 5, TOUCH = 6, APP = 7, SUGG = 8,
             KEY_LETTER = 9, KEY_SEP = 10, KEY_DEL = 11, KEY_OTHER = 12, SUGG_ENGINE = 13, SUGG_SHOW = 14,
-            OPEN_KB = 15, OPEN_SET = 16, POPUP = 17, KINDS = 18;
+            OPEN_KB = 15, OPEN_SET = 16, POPUP = 17, APP_KEY = 18, APP_SUGG = 19, APP_OPEN = 20, APP_OTHER = 21,
+            POPUP_BUILD = 22, POPUP_SHOW = 23, KINDS = 24;
+    /** A piece of work that began longer ago than this (milliseconds) and never ended is not taken as the place of a wait. */
+    static final int PLACE_MAX_MS = 10000;
     /** Samples kept per kind (a power of two) for the average and the p95. */
     static final int SIZE = 256;
     /** A first frame later than this (in microseconds) after the field opened is not counted. */
@@ -63,10 +73,13 @@ public final class MrPerf {
             "mr_ui_perf_create", "mr_ui_perf_view", "mr_ui_perf_open", "mr_ui_perf_shown", "mr_ui_perf_frame",
             "mr_ui_perf_key", "mr_ui_perf_touch", "mr_ui_perf_app", "mr_ui_perf_sugg",
             "mr_ui_perf_key_letter", "mr_ui_perf_key_sep", "mr_ui_perf_key_del", "mr_ui_perf_key_other",
-            "mr_ui_perf_sugg_engine", "mr_ui_perf_sugg_show", "mr_ui_perf_open_kb", "mr_ui_perf_open_set", "mr_ui_perf_popup" };
+            "mr_ui_perf_sugg_engine", "mr_ui_perf_sugg_show", "mr_ui_perf_open_kb", "mr_ui_perf_open_set", "mr_ui_perf_popup",
+            "mr_ui_perf_app_key", "mr_ui_perf_app_sugg", "mr_ui_perf_app_open", "mr_ui_perf_app_other",
+            "mr_ui_perf_popup_build", "mr_ui_perf_popup_show" };
     /** Names of the kinds in the log line. */
     static final String[] LOG = { "create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
-            "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup" };
+            "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
+            "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show" };
 
     private static final int[] sRing = new int[KINDS * SIZE];
     private static final int[] sCount = new int[KINDS];
@@ -138,7 +151,34 @@ public final class MrPerf {
     }
 
     public static void appBegin() { begin(APP); }
-    public static void appEnd() { end(APP); }
+
+    /** The wait ends: counted in APP and, by where it was asked, in APP_KEY, APP_SUGG, APP_OPEN or APP_OTHER. */
+    public static void appEnd() {
+        long start = sStart[APP];
+        if (start < 0) return;
+        sStart[APP] = -1;
+        long us = (nanos() - start) / 1000;
+        add(APP, us);
+        add(appPlace(), us);
+    }
+
+    /**
+     * Where a wait for the app is asked: the one of OPEN, SUGG and KEY that began last (the innermost, whatever the nesting),
+     * or APP_OTHER when none is under way. One that began more than {@link #PLACE_MAX_MS} ago is left out: it lost its end.
+     */
+    static int appPlace() {
+        long now = nanos();
+        int place = APP_OTHER;
+        long latest = -1;
+        long s = sStart[OPEN];
+        if (s > latest && (now - s) / 1000000 <= PLACE_MAX_MS) { latest = s; place = APP_OPEN; }
+        s = sStart[SUGG];
+        if (s > latest && (now - s) / 1000000 <= PLACE_MAX_MS) { latest = s; place = APP_SUGG; }
+        s = sStart[KEY];
+        if (s > latest && (now - s) / 1000000 <= PLACE_MAX_MS) place = APP_KEY;
+        return place;
+    }
+
     public static void suggBegin() { begin(SUGG); }
     public static void suggEnd() { end(SUGG); }
     public static void suggEngineBegin() { begin(SUGG_ENGINE); }
@@ -151,6 +191,10 @@ public final class MrPerf {
     public static void openSetEnd() { end(OPEN_SET); }
     public static void popupBegin() { begin(POPUP); }
     public static void popupEnd() { end(POPUP); }
+    public static void popupBuildBegin() { begin(POPUP_BUILD); }
+    public static void popupBuildEnd() { end(POPUP_BUILD); }
+    public static void popupShowBegin() { begin(POPUP_SHOW); }
+    public static void popupShowEnd() { end(POPUP_SHOW); }
 
     /** LatinKeyboardView.onTouchEvent, first line: how late a finger down (first or another) reached the keyboard. */
     public static void touch(MotionEvent e) {

@@ -68,6 +68,12 @@
     <string name="mr_ui_perf_open_kb">Open: choose the keyboard for the field</string>
     <string name="mr_ui_perf_open_set">Open: read the settings</string>
     <string name="mr_ui_perf_popup">Open the long-press popup</string>
+    <string name="mr_ui_perf_app_key">Wait for the app: inside a key</string>
+    <string name="mr_ui_perf_app_sugg">Wait for the app: in the suggestions</string>
+    <string name="mr_ui_perf_app_open">Wait for the app: when opening</string>
+    <string name="mr_ui_perf_app_other">Wait for the app: at other times</string>
+    <string name="mr_ui_perf_popup_build">Popup: put the variants together</string>
+    <string name="mr_ui_perf_popup_show">Popup: show the window</string>
     <string name="mr_ui_cat_haptic">Vibration</string>
     <string name="mr_ui_cat_sound">Sound</string>
     <string name="mr_ui_cat_visual">Visual</string>

@@ -27,6 +27,9 @@ measured is not shown.
 | Open: choose the keyboard for the field | inside "Open in a field": the keyboards made if needed, the field type read and the keyboard put on the view | `onStartInputView`, from `makeKeyboards` to the `closing()` of the view |
 | Open: read the settings | inside "Open in a field": `loadSettings` | `onStartInputView` |
 | Open the long-press popup | the popup of variants of a key built and shown | `LatinKeyboardBaseView.onLongPress` |
+| Popup: put the variants together | inside "Open the long-press popup": the variants of the key built (`Key.getPopupKeyboard`). Only when the popup of that key was not kept from before, so its count against the count of the popup line is how many long presses found the variants ready | `LatinKeyboardBaseView.getLongPressKeyboard` |
+| Popup: show the window | inside "Open the long-press popup": the popup window shown (`PopupWindow.showAtLocation`, a call to the system) | `LatinKeyboardBaseView.onLongPress` |
+| Wait for the app: inside a key / in the suggestions / when opening / at other times | the same waits as "Wait for the app", counted again by where they are asked: inside a key (not in its suggestions), inside the suggestions, inside an open, and anywhere else (the keyboard told about a new selection, a delayed message). The innermost piece of work under way decides, so a wait is in "Wait for the app" and in exactly one of the four. A piece of work that began more than 10 s ago and never ended is not taken as the place | `MrPerf.appEnd` |
 
 Then the memory of the process when the screen opens: Java heap in use and native heap (the screens share the process with the
 keyboard, so their own memory is in it too).
@@ -50,5 +53,5 @@ the maximum and the count are since the reset.
 The meter costs two clock readings per piece of work and allocates nothing while the keyboard works.
 
 Tests: `docs/tools/perf_test/PerfTest.java` (the Java, in `run_java_tests.sh`), `docs/tools/test_perf_meter.py` (the smali in the
-mini Dalvik interpreter and every call in the keyboard, in `mr-checks.yml`) and `docs/tools/test_open_selection.py` (the selection when
-a field opens, without a copy of its text).
+mini Dalvik interpreter and every call in the keyboard, in `mr-checks.yml`), `docs/tools/test_open_selection.py` (the selection when
+a field opens, without a copy of its text) and `docs/tools/test_popup_cache.py` (the popups of variants kept between field opens).

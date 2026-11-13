@@ -38,6 +38,9 @@ public class PerfTest {
             {"mr_ui_perf_key_other", "Key other"}, {"mr_ui_perf_sugg_engine", "Suggestions engine"},
             {"mr_ui_perf_sugg_show", "Suggestions strip"}, {"mr_ui_perf_open_kb", "Open keyboard"},
             {"mr_ui_perf_open_set", "Open settings"}, {"mr_ui_perf_popup", "Popup"},
+            {"mr_ui_perf_app_key", "App in a key"}, {"mr_ui_perf_app_sugg", "App in suggestions"},
+            {"mr_ui_perf_app_open", "App in an open"}, {"mr_ui_perf_app_other", "App elsewhere"},
+            {"mr_ui_perf_popup_build", "Popup build"}, {"mr_ui_perf_popup_show", "Popup show"},
             {"mr_ui_perf_stat", "%1$s: average %2$s ms · p95 %3$s · max %4$s (%5$d×)"}, {"mr_ui_perf_one", "%1$s: %2$s ms (once)"},
             {"mr_ui_perf_none", "Nothing measured yet."}, {"mr_ui_perf_mem", "Memory: Java %1$s · native %2$s"},
             {"mr_ui_perf_reset", "Tap to start again from zero."}};
@@ -163,6 +166,46 @@ public class PerfTest {
                 st(MrPerf.SUGG_ENGINE)[4] + "," + st(MrPerf.SUGG_SHOW)[4] + "," + st(MrPerf.OPEN_KB)[4] + ","
                         + st(MrPerf.OPEN_SET)[4] + "," + st(MrPerf.POPUP)[4]);
         check("... and they leave the whole-open and whole-suggestion kinds alone", st(MrPerf.OPEN)[0] == 0 && st(MrPerf.SUGG)[0] == 1);
+        MrPerf.popupBuildBegin(); tick(4500); MrPerf.popupBuildEnd();
+        MrPerf.popupShowBegin(); tick(7000); MrPerf.popupShowEnd();
+        check("the popup built and the popup window shown go to their kinds", "4500,7000",
+                st(MrPerf.POPUP_BUILD)[4] + "," + st(MrPerf.POPUP_SHOW)[4]);
+        check("... and the whole popup was not touched by them", st(MrPerf.POPUP)[0] == 1);
+
+        // ---------------------------------------------------------------- the wait for the app by where it is asked
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 100_000_000_000L;
+        MrPerf.appBegin(); tick(300); MrPerf.appEnd();
+        check("no work under way: APP and APP_OTHER (the other places stay at 0)", "1,300,1,300,000",
+                st(MrPerf.APP)[0] + "," + st(MrPerf.APP)[4] + "," + st(MrPerf.APP_OTHER)[0] + "," + st(MrPerf.APP_OTHER)[4] + ","
+                        + st(MrPerf.APP_KEY)[0] + st(MrPerf.APP_SUGG)[0] + st(MrPerf.APP_OPEN)[0]);
+        MrPerf.keyBegin(32); tick(100);
+        MrPerf.appBegin(); tick(250); MrPerf.appEnd();
+        check("inside a key: APP_KEY", "1,250", st(MrPerf.APP_KEY)[0] + "," + st(MrPerf.APP_KEY)[4]);
+        MrPerf.suggBegin(); tick(10);
+        MrPerf.appBegin(); tick(400); MrPerf.appEnd();
+        check("inside the suggestions of a key: APP_SUGG, not APP_KEY", "1,400,1",
+                st(MrPerf.APP_SUGG)[0] + "," + st(MrPerf.APP_SUGG)[4] + "," + st(MrPerf.APP_KEY)[0]);
+        MrPerf.suggEnd(); MrPerf.keyEnd();
+        MrPerf.openBegin(); tick(10);
+        MrPerf.appBegin(); tick(500); MrPerf.appEnd();
+        check("inside an open: APP_OPEN", "1,500", st(MrPerf.APP_OPEN)[0] + "," + st(MrPerf.APP_OPEN)[4]);
+        MrPerf.openEnd();
+        MrPerf.appBegin(); tick(600); MrPerf.appEnd();
+        check("after the open: APP_OTHER again", 2, st(MrPerf.APP_OTHER)[0]);
+        check("each wait once in APP and once in one place", "5,5",
+                st(MrPerf.APP)[0] + "," + (st(MrPerf.APP_KEY)[0] + st(MrPerf.APP_SUGG)[0] + st(MrPerf.APP_OPEN)[0] + st(MrPerf.APP_OTHER)[0]));
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 100_000_000_000L;
+        MrPerf.keyBegin(97); tick(10_001_000);
+        MrPerf.appBegin(); MrPerf.appEnd();
+        check("a key that lost its end (more than 10 s) is not the place", "0,1", st(MrPerf.APP_KEY)[0] + "," + st(MrPerf.APP_OTHER)[0]);
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 100_000_000_000L;
+        MrPerf.keyBegin(97); tick(10_000_000);
+        MrPerf.appBegin(); MrPerf.appEnd();
+        check("a key of exactly 10 s is still the place", "1,0", st(MrPerf.APP_KEY)[0] + "," + st(MrPerf.APP_OTHER)[0]);
+        MrPerf.keyEnd();
 
         // ---------------------------------------------------------------- statistics
         MrPerf.reset();
@@ -256,7 +299,8 @@ public class PerfTest {
         check("every kind: " + MrPerf.KINDS + " lines, memory, reset", MrPerf.KINDS + 2, lines.length);
         String[] order = {"Start the keyboard", "Build the view", "Open in a field", "Until the first frame", "Draw a frame",
                 "Handle a key", "Touch wait", "Questions to the app", "Suggestions", "Key letter", "Key separator", "Key delete",
-                "Key other", "Suggestions engine", "Suggestions strip", "Open keyboard", "Open settings", "Popup"};
+                "Key other", "Suggestions engine", "Suggestions strip", "Open keyboard", "Open settings", "Popup",
+                "App in a key", "App in suggestions", "App in an open", "App elsewhere", "Popup build", "Popup show"};
         boolean inOrder = true;
         for (int k = 0; k < order.length; k++) inOrder &= lines[k].startsWith(order[k] + ": average " + (k + 1) + ".0 ms");
         check("in the order of the kinds", inOrder);
