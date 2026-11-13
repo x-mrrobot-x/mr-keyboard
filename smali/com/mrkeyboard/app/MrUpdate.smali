@@ -79,7 +79,7 @@
     .locals 1
 
     .prologue
-    .line 168
+    .line 172
     const-string v0, "https://github.com/x-mrrobot-x/mr-keyboard/releases/latest/download/update.json"
 
     sput-object v0, Lcom/mrkeyboard/app/MrUpdate;->sUrl:Ljava/lang/String;
@@ -101,7 +101,7 @@
     .locals 3
 
     .prologue
-    .line 227
+    .line 231
     :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getPackageManager()Landroid/content/pm/PackageManager;
 
@@ -119,14 +119,14 @@
 
     iget-object v0, v0, Landroid/content/pm/PackageInfo;->versionName:Ljava/lang/String;
 
-    .line 228
+    .line 232
     if-eqz v0, :cond_0
 
-    .line 230
+    .line 234
     :goto_0
     return-object v0
 
-    .line 228
+    .line 232
     :cond_0
     const-string v0, ""
     :try_end_0
@@ -134,11 +134,11 @@
 
     goto :goto_0
 
-    .line 229
+    .line 233
     :catch_0
     move-exception v0
 
-    .line 230
+    .line 234
     const-string v0, ""
 
     goto :goto_0
@@ -148,7 +148,7 @@
     .locals 3
 
     .prologue
-    .line 196
+    .line 200
     invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdate;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -170,22 +170,22 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 255
+    .line 259
     new-instance v1, Lcom/mrkeyboard/app/MrUpdate$Result;
 
     invoke-direct {v1}, Lcom/mrkeyboard/app/MrUpdate$Result;-><init>()V
 
-    .line 256
+    .line 260
     iput-boolean v0, v1, Lcom/mrkeyboard/app/MrUpdate$Result;->fromCache:Z
 
-    .line 257
+    .line 261
     invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdate;->pending(Landroid/content/Context;)Lcom/mrkeyboard/app/MrUpdate$Notice;
 
     move-result-object v2
 
     iput-object v2, v1, Lcom/mrkeyboard/app/MrUpdate$Result;->notice:Lcom/mrkeyboard/app/MrUpdate$Notice;
 
-    .line 258
+    .line 262
     iget-object v2, v1, Lcom/mrkeyboard/app/MrUpdate$Result;->notice:Lcom/mrkeyboard/app/MrUpdate$Notice;
 
     if-eqz v2, :cond_1
@@ -196,10 +196,10 @@
     :goto_0
     iput v0, v1, Lcom/mrkeyboard/app/MrUpdate$Result;->status:I
 
-    .line 259
+    .line 263
     return-object v1
 
-    .line 258
+    .line 262
     :cond_1
     invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdate;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -226,7 +226,7 @@
     .prologue
     const/4 v1, 0x1
 
-    .line 269
+    .line 273
     const-class v2, Lcom/mrkeyboard/app/MrUpdate;
 
     monitor-enter v2
@@ -236,12 +236,12 @@
 
     move-result-object v0
 
-    .line 270
+    .line 274
     invoke-static {}, Lcom/mrkeyboard/app/MrUpdate;->now()J
 
     move-result-wide v4
 
-    .line 271
+    .line 275
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
     move-result-object v3
@@ -256,7 +256,7 @@
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 273
+    .line 277
     :try_start_1
     sget-object v3, Lcom/mrkeyboard/app/MrUpdate;->sUrl:Ljava/lang/String;
 
@@ -268,12 +268,12 @@
 
     move-result-object v3
 
-    .line 274
+    .line 278
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->certs(Landroid/content/Context;)[Ljava/security/cert/X509Certificate;
 
     move-result-object v6
 
-    .line 275
+    .line 279
     const/4 v7, 0x1
 
     const-string v8, "mr-keyboard/update/v1\n"
@@ -288,7 +288,7 @@
 
     move-result-object v3
 
-    .line 276
+    .line 280
     const-string v6, "seen_code"
 
     const-wide/16 v8, 0x0
@@ -297,7 +297,7 @@
 
     move-result-wide v6
 
-    .line 277
+    .line 281
     iget-wide v8, v3, Lcom/mrkeyboard/app/MrUpdate$Notice;->versionCode:J
 
     cmp-long v8, v8, v6
@@ -315,13 +315,13 @@
 
     move-result-object v0
 
-    .line 285
+    .line 289
     :goto_0
     monitor-exit v2
 
     return-object v0
 
-    .line 278
+    .line 282
     :cond_0
     :try_start_2
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -350,26 +350,26 @@
 
     const-string v3, "checked_at"
 
-    .line 279
+    .line 283
     invoke-interface {v0, v3, v4, v5}, Landroid/content/SharedPreferences$Editor;->putLong(Ljava/lang/String;J)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->commit()Z
 
-    .line 280
+    .line 284
     new-instance v0, Lcom/mrkeyboard/app/MrUpdate$Result;
 
     invoke-direct {v0}, Lcom/mrkeyboard/app/MrUpdate$Result;-><init>()V
 
-    .line 281
+    .line 285
     invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdate;->pending(Landroid/content/Context;)Lcom/mrkeyboard/app/MrUpdate$Notice;
 
     move-result-object v3
 
     iput-object v3, v0, Lcom/mrkeyboard/app/MrUpdate$Result;->notice:Lcom/mrkeyboard/app/MrUpdate$Notice;
 
-    .line 282
+    .line 286
     iget-object v3, v0, Lcom/mrkeyboard/app/MrUpdate$Result;->notice:Lcom/mrkeyboard/app/MrUpdate$Notice;
 
     if-eqz v3, :cond_1
@@ -384,11 +384,11 @@
 
     goto :goto_0
 
-    .line 284
+    .line 288
     :catch_0
     move-exception v0
 
-    .line 285
+    .line 289
     :try_start_3
     invoke-static {v0}, Lcom/mrkeyboard/app/MrUpdate;->failure(Lcom/mrkeyboard/app/MrPacks$PackException;)Lcom/mrkeyboard/app/MrUpdate$Result;
     :try_end_3
@@ -398,7 +398,7 @@
 
     goto :goto_0
 
-    .line 269
+    .line 273
     :catchall_0
     move-exception v0
 
@@ -411,7 +411,7 @@
     .locals 11
 
     .prologue
-    .line 294
+    .line 298
     const-class v2, Lcom/mrkeyboard/app/MrUpdate;
 
     monitor-enter v2
@@ -421,12 +421,12 @@
 
     move-result-object v0
 
-    .line 295
+    .line 299
     invoke-static {}, Lcom/mrkeyboard/app/MrUpdate;->now()J
 
     move-result-wide v4
 
-    .line 296
+    .line 300
     const-string v1, "checked_at"
 
     const-wide/16 v6, 0x0
@@ -443,7 +443,7 @@
 
     move-result-wide v8
 
-    .line 297
+    .line 301
     const-wide/16 v0, 0x0
 
     cmp-long v0, v6, v0
@@ -464,7 +464,7 @@
 
     move v1, v0
 
-    .line 298
+    .line 302
     :goto_0
     const-wide/16 v6, 0x0
 
@@ -486,7 +486,7 @@
 
     const/4 v0, 0x1
 
-    .line 299
+    .line 303
     :goto_1
     if-nez v1, :cond_0
 
@@ -499,13 +499,13 @@
 
     move-result-object v0
 
-    .line 300
+    .line 304
     :goto_2
     monitor-exit v2
 
     return-object v0
 
-    .line 297
+    .line 301
     :cond_1
     const/4 v0, 0x0
 
@@ -513,13 +513,13 @@
 
     goto :goto_0
 
-    .line 298
+    .line 302
     :cond_2
     const/4 v0, 0x0
 
     goto :goto_1
 
-    .line 300
+    .line 304
     :cond_3
     :try_start_1
     invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdate;->check(Landroid/content/Context;)Lcom/mrkeyboard/app/MrUpdate$Result;
@@ -530,7 +530,7 @@
 
     goto :goto_2
 
-    .line 294
+    .line 298
     :catchall_0
     move-exception v0
 
@@ -545,7 +545,7 @@
     .prologue
     const/4 v6, 0x1
 
-    .line 102
+    .line 106
     invoke-virtual {p0, v6}, Ljava/lang/String;->substring(I)Ljava/lang/String;
 
     move-result-object v0
@@ -556,7 +556,7 @@
 
     move-result-object v0
 
-    .line 103
+    .line 107
     const/4 v1, 0x0
 
     aget-object v1, v0, v1
@@ -598,41 +598,41 @@
     .locals 1
 
     .prologue
-    .line 238
+    .line 242
     packed-switch p0, :pswitch_data_0
 
-    .line 243
+    .line 247
     :pswitch_0
     const-string v0, "mr_update_err_file"
 
     :goto_0
     return-object v0
 
-    .line 239
+    .line 243
     :pswitch_1
     const-string v0, "mr_update_err_network"
 
     goto :goto_0
 
-    .line 240
+    .line 244
     :pswitch_2
     const-string v0, "mr_update_err_http"
 
     goto :goto_0
 
-    .line 241
+    .line 245
     :pswitch_3
     const-string v0, "mr_update_err_signature"
 
     goto :goto_0
 
-    .line 242
+    .line 246
     :pswitch_4
     const-string v0, "mr_update_err_old"
 
     goto :goto_0
 
-    .line 238
+    .line 242
     :pswitch_data_0
     .packed-switch 0x1
         :pswitch_1
@@ -647,23 +647,23 @@
     .locals 2
 
     .prologue
-    .line 304
+    .line 308
     new-instance v0, Lcom/mrkeyboard/app/MrUpdate$Result;
 
     invoke-direct {v0}, Lcom/mrkeyboard/app/MrUpdate$Result;-><init>()V
 
-    .line 305
+    .line 309
     const/4 v1, 0x3
 
     iput v1, v0, Lcom/mrkeyboard/app/MrUpdate$Result;->status:I
 
-    .line 306
+    .line 310
     iput p0, v0, Lcom/mrkeyboard/app/MrUpdate$Result;->error:I
 
-    .line 307
+    .line 311
     iput p1, v0, Lcom/mrkeyboard/app/MrUpdate$Result;->httpCode:I
 
-    .line 308
+    .line 312
     return-object v0
 .end method
 
@@ -673,10 +673,10 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 312
+    .line 316
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacks$PackException;->key:Ljava/lang/String;
 
-    .line 313
+    .line 317
     const-string v2, "mr_dicts_err_network"
 
     invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -691,11 +691,11 @@
 
     move-result-object v0
 
-    .line 316
+    .line 320
     :goto_0
     return-object v0
 
-    .line 314
+    .line 318
     :cond_0
     const-string v2, "mr_dicts_err_http"
 
@@ -738,7 +738,7 @@
 
     goto :goto_0
 
-    .line 315
+    .line 319
     :cond_2
     const-string v2, "mr_dicts_err_signature"
 
@@ -765,7 +765,7 @@
 
     goto :goto_0
 
-    .line 316
+    .line 320
     :cond_4
     const/4 v1, 0x3
 
@@ -780,7 +780,7 @@
     .locals 4
 
     .prologue
-    .line 173
+    .line 177
     sget-wide v0, Lcom/mrkeyboard/app/MrUpdate;->sTestNow:J
 
     const-wide/16 v2, 0x0
@@ -808,7 +808,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 182
+    .line 186
     invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdate;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -819,21 +819,21 @@
 
     move-result-object v0
 
-    .line 183
+    .line 187
     if-nez v0, :cond_0
 
-    .line 188
+    .line 192
     :goto_0
     return-object v1
 
-    .line 185
+    .line 189
     :cond_0
     :try_start_0
     invoke-static {v0}, Lcom/mrkeyboard/app/MrUpdate;->readData(Ljava/lang/String;)Lcom/mrkeyboard/app/MrUpdate$Notice;
 
     move-result-object v0
 
-    .line 186
+    .line 190
     iget-wide v2, v0, Lcom/mrkeyboard/app/MrUpdate$Notice;->versionCode:J
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->appVersion(Landroid/content/Context;)J
@@ -856,7 +856,7 @@
 
     goto :goto_1
 
-    .line 187
+    .line 191
     :catch_0
     move-exception v0
 
@@ -869,16 +869,16 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 144
+    .line 148
     if-nez p0, :cond_0
 
     const-string v0, ""
 
-    .line 162
+    .line 166
     :goto_0
     return-object v0
 
-    .line 145
+    .line 149
     :cond_0
     const-string v0, "\r\n"
 
@@ -896,7 +896,7 @@
 
     move-result-object v4
 
-    .line 146
+    .line 150
     new-instance v5, Ljava/lang/StringBuilder;
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -905,7 +905,7 @@
 
     invoke-direct {v5, v0}, Ljava/lang/StringBuilder;-><init>(I)V
 
-    .line 148
+    .line 152
     array-length v6, v4
 
     move v3, v2
@@ -917,7 +917,7 @@
 
     aget-object v0, v4, v3
 
-    .line 149
+    .line 153
     const-string v7, "**"
 
     const-string v8, ""
@@ -934,12 +934,12 @@
 
     move-result-object v7
 
-    .line 150
+    .line 154
     invoke-virtual {v7}, Ljava/lang/String;->length()I
 
     move-result v0
 
-    .line 151
+    .line 155
     :goto_2
     if-lez v0, :cond_2
 
@@ -968,13 +968,13 @@
 
     goto :goto_2
 
-    .line 152
+    .line 156
     :cond_2
     invoke-virtual {v7, v2, v0}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 153
+    .line 157
     const-string v7, "- "
 
     invoke-virtual {v0, v7}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
@@ -1016,7 +1016,7 @@
 
     move-result-object v0
 
-    .line 154
+    .line 158
     :cond_4
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -1024,14 +1024,14 @@
 
     if-nez v7, :cond_5
 
-    .line 155
+    .line 159
     add-int/lit8 v1, v1, 0x1
 
     const/4 v7, 0x1
 
     if-le v1, v7, :cond_6
 
-    .line 148
+    .line 152
     :goto_3
     add-int/lit8 v0, v3, 0x1
 
@@ -1042,7 +1042,7 @@
     :cond_5
     move v1, v2
 
-    .line 159
+    .line 163
     :cond_6
     invoke-virtual {v5}, Ljava/lang/StringBuilder;->length()I
 
@@ -1054,13 +1054,13 @@
 
     invoke-virtual {v5, v7}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 160
+    .line 164
     :cond_7
     invoke-virtual {v5, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     goto :goto_3
 
-    .line 162
+    .line 166
     :cond_8
     invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -1077,7 +1077,7 @@
     .locals 2
 
     .prologue
-    .line 177
+    .line 181
     const-string v0, "mr_update"
 
     const/4 v1, 0x0
@@ -1102,7 +1102,7 @@
 
     const/4 v8, 0x0
 
-    .line 109
+    .line 113
     :try_start_0
     invoke-static {p0}, Lcom/mrkeyboard/app/MrJson;->parse(Ljava/lang/String;)Ljava/lang/Object;
 
@@ -1112,7 +1112,7 @@
 
     move-result-object v0
 
-    .line 110
+    .line 114
     const-string v1, "format"
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrJson;->num(Ljava/util/Map;Ljava/lang/String;)J
@@ -1140,24 +1140,24 @@
     .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_0 .. :try_end_0} :catch_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_1
 
-    .line 132
+    .line 136
     :catch_0
     move-exception v0
 
-    .line 133
+    .line 137
     throw v0
 
-    .line 111
+    .line 115
     :cond_0
     :try_start_1
     new-instance v1, Lcom/mrkeyboard/app/MrUpdate$Notice;
 
     invoke-direct {v1}, Lcom/mrkeyboard/app/MrUpdate$Notice;-><init>()V
 
-    .line 112
+    .line 116
     iput-object p0, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->data:Ljava/lang/String;
 
-    .line 113
+    .line 117
     const-string v2, "versionName"
 
     invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrJson;->str(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
@@ -1166,7 +1166,7 @@
 
     iput-object v2, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->versionName:Ljava/lang/String;
 
-    .line 114
+    .line 118
     iget-object v2, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->versionName:Ljava/lang/String;
 
     invoke-static {v2}, Lcom/mrkeyboard/app/MrPacks;->validTag(Ljava/lang/String;)Z
@@ -1186,11 +1186,11 @@
     .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_1 .. :try_end_1} :catch_0
     .catch Ljava/lang/RuntimeException; {:try_start_1 .. :try_end_1} :catch_1
 
-    .line 134
+    .line 138
     :catch_1
     move-exception v0
 
-    .line 135
+    .line 139
     new-instance v0, Lcom/mrkeyboard/app/MrPacks$PackException;
 
     const-string v1, "mr_dicts_err_corrupt"
@@ -1207,7 +1207,7 @@
 
     throw v0
 
-    .line 115
+    .line 119
     :cond_1
     :try_start_2
     const-string v2, "versionCode"
@@ -1218,7 +1218,7 @@
 
     iput-wide v2, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->versionCode:J
 
-    .line 116
+    .line 120
     iget-wide v2, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->versionCode:J
 
     iget-object v4, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->versionName:Ljava/lang/String;
@@ -1239,7 +1239,7 @@
 
     throw v0
 
-    .line 117
+    .line 121
     :cond_2
     const-string v2, "generated"
 
@@ -1251,7 +1251,7 @@
 
     iput-object v2, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->generated:Ljava/lang/String;
 
-    .line 118
+    .line 122
     const-string v2, "apk"
 
     invoke-interface {v0, v2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -1262,7 +1262,7 @@
 
     move-result-object v2
 
-    .line 119
+    .line 123
     const-string v3, "name"
 
     invoke-static {v2, v3}, Lcom/mrkeyboard/app/MrJson;->str(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
@@ -1271,7 +1271,7 @@
 
     iput-object v3, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->apkName:Ljava/lang/String;
 
-    .line 120
+    .line 124
     iget-object v3, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->apkName:Ljava/lang/String;
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -1314,7 +1314,7 @@
 
     throw v0
 
-    .line 121
+    .line 125
     :cond_3
     const-string v3, "size"
 
@@ -1324,7 +1324,7 @@
 
     iput-wide v4, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->apkSize:J
 
-    .line 122
+    .line 126
     iget-wide v4, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->apkSize:J
 
     const-wide/16 v6, 0x0
@@ -1350,7 +1350,7 @@
 
     throw v0
 
-    .line 123
+    .line 127
     :cond_5
     const-string v3, "sha256"
 
@@ -1360,7 +1360,7 @@
 
     iput-object v2, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->apkSha256:Ljava/lang/String;
 
-    .line 124
+    .line 128
     const-string v2, "notes"
 
     invoke-interface {v0, v2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -1371,7 +1371,7 @@
 
     move-result-object v0
 
-    .line 125
+    .line 129
     const-string v2, "en"
 
     invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrJson;->str(Ljava/util/Map;Ljava/lang/String;)Ljava/lang/String;
@@ -1380,7 +1380,7 @@
 
     iput-object v2, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesEn:Ljava/lang/String;
 
-    .line 126
+    .line 130
     const-string v2, "pt-BR"
 
     const/4 v3, 0x0
@@ -1391,7 +1391,7 @@
 
     iput-object v0, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesPt:Ljava/lang/String;
 
-    .line 127
+    .line 131
     iget-object v0, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesEn:Ljava/lang/String;
 
     invoke-virtual {v0}, Ljava/lang/String;->trim()Ljava/lang/String;
@@ -1418,14 +1418,14 @@
 
     iget-object v0, v1, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesPt:Ljava/lang/String;
 
-    .line 128
+    .line 132
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v0
 
     if-le v0, v9, :cond_7
 
-    .line 129
+    .line 133
     :cond_6
     new-instance v0, Ljava/lang/IllegalArgumentException;
 
@@ -1438,7 +1438,7 @@
     .catch Lcom/mrkeyboard/app/MrPacks$PackException; {:try_start_2 .. :try_end_2} :catch_0
     .catch Ljava/lang/RuntimeException; {:try_start_2 .. :try_end_2} :catch_1
 
-    .line 131
+    .line 135
     :cond_7
     return-object v1
 .end method
@@ -1447,7 +1447,7 @@
     .locals 2
 
     .prologue
-    .line 200
+    .line 204
     invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdate;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -1464,7 +1464,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->commit()Z
 
-    .line 201
+    .line 205
     return-void
 .end method
 
@@ -1476,7 +1476,7 @@
 
     const/4 v8, 0x0
 
-    .line 249
+    .line 253
     const-wide/32 v0, 0xf4240
 
     cmp-long v0, p0, v0
@@ -1511,7 +1511,7 @@
 
     move-result-object v0
 
-    .line 250
+    .line 254
     :goto_0
     return-object v0
 
@@ -1543,7 +1543,7 @@
     .locals 4
 
     .prologue
-    .line 208
+    .line 212
     invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdate;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -1572,7 +1572,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->commit()Z
 
-    .line 209
+    .line 213
     return-void
 .end method
 
@@ -1582,12 +1582,12 @@
     .prologue
     const-wide/16 v8, 0x0
 
-    .line 213
+    .line 217
     invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdate;->prefs(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
 
-    .line 214
+    .line 218
     const-string v1, "snooze_at"
 
     invoke-interface {v0, v1, v8, v9}, Landroid/content/SharedPreferences;->getLong(Ljava/lang/String;J)J
@@ -1598,7 +1598,7 @@
 
     move-result-wide v4
 
-    .line 215
+    .line 219
     const-string v1, "snooze_code"
 
     invoke-interface {v0, v1, v8, v9}, Landroid/content/SharedPreferences;->getLong(Ljava/lang/String;J)J
@@ -1642,12 +1642,12 @@
     .locals 2
 
     .prologue
-    .line 220
+    .line 224
     invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdate;->pending(Landroid/content/Context;)Lcom/mrkeyboard/app/MrUpdate$Notice;
 
     move-result-object v0
 
-    .line 221
+    .line 225
     if-eqz v0, :cond_0
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrUpdate;->snoozed(Landroid/content/Context;Lcom/mrkeyboard/app/MrUpdate$Notice;)Z

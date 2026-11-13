@@ -6,7 +6,7 @@
 #   - RecentTest: recent words in the prediction and when completing (MrRecent).
 #   - NoLibTest: without libmrengine.so (native engine, 1.77) the search answers no results and the trigrams nothing, with no exception (since 1.87.0 there is no Java search).
 #   - UpdateTest: the notice of a new version (MrUpdate): signature, every field, versions, replay, checking windows,
-#     notes by language, the switch and "Not now", the glue of the screens (MrUpdateUi) with a fake screen, and the
+#     notes by language and styled for the dialog (MrNotesText: bullets, colored labels, thin lines, hanging indent), the switch and "Not now", the glue of the screens (MrUpdateUi) with a fake screen, and the
 #     download and install (MrUpdateInstall) with a fake session: nothing is committed unless size and hash match, and the
 #     morning check (MrUpdateSchedule/Notify/Job): time of the next morning in several zones and with daylight saving time,
 #     the job in a fake JobScheduler, one notification per version, no request when the notifications are blocked; it also

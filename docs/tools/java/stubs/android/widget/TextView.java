@@ -11,6 +11,8 @@ public class TextView extends android.view.View {
     public int getSelectionEnd() { return selEnd; }
     protected void stubSelect(int start, int end) { selStart = start; selEnd = end; }
     public void setTextColor(int color) { }
+    private final android.text.TextPaint stubPaint = new android.text.TextPaint();
+    public android.text.TextPaint getPaint() { return stubPaint; }
     public android.view.inputmethod.InputConnection onCreateInputConnection(android.view.inputmethod.EditorInfo outAttrs) { return null; }
     public int getCurrentTextColor() { return 0; }
     public void setTextSize(float size) { }

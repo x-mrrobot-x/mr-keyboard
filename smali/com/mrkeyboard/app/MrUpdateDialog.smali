@@ -460,12 +460,16 @@
     invoke-virtual {v0, v6}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     .line 137
-    invoke-virtual {p2, v5}, Lcom/mrkeyboard/app/MrUpdate$Notice;->notes(Ljava/util/Locale;)Ljava/lang/String;
+    invoke-virtual {p2, v5}, Lcom/mrkeyboard/app/MrUpdate$Notice;->raw(Ljava/util/Locale;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v1, v0}, Lcom/mrkeyboard/app/MrNotesText;->forView(Landroid/widget/TextView;Ljava/lang/String;)Ljava/lang/CharSequence;
 
     move-result-object v0
 
     .line 138
-    invoke-virtual {v0}, Ljava/lang/String;->length()I
+    invoke-interface {v0}, Ljava/lang/CharSequence;->length()I
 
     move-result v5
 

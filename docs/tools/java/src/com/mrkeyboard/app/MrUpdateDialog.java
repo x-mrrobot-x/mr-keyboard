@@ -12,8 +12,8 @@ import android.widget.TextView;
 import java.util.Locale;
 
 /**
- * "New version available" dialog (v1.82.0): title, "v1.83.0 · 1.2 MB · you're on v1.82.0", the notes (plain text, they
- * scroll) and three actions: Download and install, View on GitHub, Not now. It belongs to a screen (Main or Settings),
+ * "New version available" dialog (v1.82.0): title, "v1.83.0 · 1.2 MB · you're on v1.82.0", the notes (styled by MrNotesText since
+ * v1.98.0: colored labels, space between the items; they scroll) and three actions: Download and install, View on GitHub, Not now. It belongs to a screen (Main or Settings),
  * uses the settings theme (Theme.MrKeyboard.Dialog) and the layout mr_update_dialog; the views are found by tag, like
  * the AI Editor dialog.
  *
@@ -134,7 +134,7 @@ final class MrUpdateDialog {
                 || root.findViewWithTag("upd_bar") == null || root.findViewWithTag("upd_error") == null) return false;
         Locale loc = a.getResources().getConfiguration().locale;
         sub.setText(text(a, "mr_update_sub", n.versionName, MrUpdate.sizeText(n.apkSize, loc), MrUpdate.appName(a)));
-        String body = n.notes(loc);
+        CharSequence body = MrNotesText.forView(notes, n.raw(loc));
         notes.setText(body.length() > 0 ? body : text(a, "mr_update_notes_none"));
         install.setOnClickListener(new Click(a, n, BTN_INSTALL));
         github.setOnClickListener(new Click(a, n, BTN_GITHUB));

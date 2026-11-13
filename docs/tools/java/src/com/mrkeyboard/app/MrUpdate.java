@@ -74,10 +74,14 @@ public final class MrUpdate {
         long versionCode, apkSize;
         String versionName, generated, apkName, apkSha256, notesPt, notesEn, data;
 
-        /** The notes in the language of the phone: Portuguese for pt, English for the rest (Spanish included); plain text. */
+        /** The notes in the language of the phone (Portuguese for pt, English for the rest, Spanish included), as written: Markdown. */
+        String raw(Locale l) {
+            return l != null && "pt".equals(l.getLanguage()) && notesPt != null ? notesPt : notesEn;
+        }
+
+        /** The same notes as plain text. The dialog shows them styled instead (MrNotesText). */
         String notes(Locale l) {
-            String md = l != null && "pt".equals(l.getLanguage()) && notesPt != null ? notesPt : notesEn;
-            return plain(md);
+            return plain(raw(l));
         }
 
         /** Where the APK is: the exact tag of the signed notice (never "latest", which may change before the download). */

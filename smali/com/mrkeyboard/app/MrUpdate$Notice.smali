@@ -51,7 +51,7 @@
     .locals 2
 
     .prologue
-    .line 85
+    .line 89
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -88,6 +88,22 @@
 .end method
 
 .method notes(Ljava/util/Locale;)Ljava/lang/String;
+    .locals 1
+
+    .prologue
+    .line 84
+    invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/MrUpdate$Notice;->raw(Ljava/util/Locale;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrUpdate;->plain(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method raw(Ljava/util/Locale;)Ljava/lang/String;
     .locals 2
 
     .prologue
@@ -112,15 +128,9 @@
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesPt:Ljava/lang/String;
 
-    .line 80
     :goto_0
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrUpdate;->plain(Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
     return-object v0
 
-    .line 79
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesEn:Ljava/lang/String;
 

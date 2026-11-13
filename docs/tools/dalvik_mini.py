@@ -54,6 +54,16 @@ def parse_int(tok):
     return i32(-v if neg else v)
 
 
+_ESC = {'n': '\n', 'r': '\r', 't': '\t', 'b': '\b', 'f': '\f', '"': '"', "'": "'", '\\': '\\'}
+
+
+def unescape(s):
+    """The text of a smali string literal as ART sees it: \\n, \\r, \\t, \\", \\\\ and \\uXXXX turned into their characters."""
+    if '\\' not in s:
+        return s
+    return re.sub(r'\\(u[0-9a-fA-F]{4}|.)', lambda m: chr(int(m.group(1)[1:], 16)) if len(m.group(1)) == 5 else _ESC.get(m.group(1), m.group(0)), s)
+
+
 class FArr(list):
     """float[]: aput converts constants (bit pattern) to float, as ART does."""
 
@@ -217,7 +227,7 @@ class VM:
         if op in ('const/4', 'const/16', 'const', 'const/high16', 'const-wide/16', 'const-wide/32'):
             a, b = ops(rest); setr(a, parse_int(b))
         elif op == 'const-string':
-            a, b = rest.split(',', 1); setr(a, b.strip()[1:-1])
+            a, b = rest.split(',', 1); setr(a, unescape(b.strip()[1:-1]))
         elif op in ('move', 'move/from16', 'move-object', 'move-object/from16'):
             a, b = ops(rest); setr(a, R[r(b)])
         elif op in ('move-wide', 'move-wide/from16'):       # a long or double takes two registers: both are copied (the value is kept in both)
@@ -294,7 +304,7 @@ class VM:
         elif op in ('cmpl-float', 'cmpg-float'):
             a, b, c = ops(rest); x, y = fv(R[r(b)]), fv(R[r(c)])
             setr(a, (1 if op == 'cmpg-float' else -1) if math.isnan(x) or math.isnan(y) else (x > y) - (x < y))
-        elif op == 'goto': pc = labels[rest[1:]]
+        elif op in ('goto', 'goto/16', 'goto/32'): pc = labels[rest.strip()[1:]]
         elif op in ('packed-switch', 'sparse-switch'):
             reg, tab = ops(rest)
             first, targets = labels['@' + tab[1:]]
