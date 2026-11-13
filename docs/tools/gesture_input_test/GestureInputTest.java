@@ -298,8 +298,9 @@ public class GestureInputTest {
         // ---- B. a tap and a short slide stay with the usual path
         scene();
         check(!down(cx('c'), cy('c')) && MrGestureInput.stateForTest() == 1, "tap: the touch is followed and the event goes on");
-        check(MrGestureInput.longPress(100) == 300 && MrGestureInput.longPress(250) == 300 && MrGestureInput.longPress(500) == 500,
-                "tap: while it may become a gesture the long press waits at least 300 ms, and a longer setting stays");
+        check(MrGestureInput.longPress(100) == 250 && MrGestureInput.longPress(200) == 250 && MrGestureInput.longPress(249) == 250
+                && MrGestureInput.longPress(250) == 250 && MrGestureInput.longPress(300) == 300 && MrGestureInput.longPress(500) == 500,
+                "tap: while it may become a gesture the long press waits at least 250 ms, and a longer setting stays");
         check(!up(60, cx('c'), cy('c')) && MrGestureInput.stateForTest() == 0, "tap: the up goes on and nothing is followed any more");
         check(MrGestureInput.longPress(100) == 100, "tap: after it the long press is back to its time");
         check(v.stubBase.isEmpty() && eng.decodes == 0 && ime.ic.text.length() == 0 && ime.commits == 0, "tap: nothing was cancelled, recognised or written");

@@ -85,7 +85,7 @@ public final class MrGestureInput {
     /** ...and never less than this, in dp (3.5 mm): a finger that rolls during a tap moves a millimetre or two, whatever the key size. */
     static final float START_MIN_DP = 22f;
     /** While a touch may still become a gesture, the long press of its key waits at least this long, in ms. */
-    static final int LONG_PRESS_MIN = 300;
+    static final int LONG_PRESS_MIN = 250;
     /** A gesture whose finger lifts further than this outside the rows of letters, in rows, writes nothing. */
     static final float END_MARGIN_ROWS = 0.5f;
     /** Nothing is written when the best word has a log-probability under this (it only stops traces that are absurd). */
@@ -579,7 +579,8 @@ public final class MrGestureInput {
     /**
      * PointerTracker.startLongPressTimer: the time before the long press of a key, in ms. While a touch may become a gesture
      * the popup of accents waits at least LONG_PRESS_MIN: in real gestures the finger is still within a quarter of a key of
-     * where it went down after 100 ms in 19% of them, after 300 ms in 0.5%.
+     * where it went down after 100 ms in 19% of them, after 200 ms in 1.5%, after 300 ms in 0.5% (250 ms is between the last two: it
+     * was chosen on the phone, there is no measurement at exactly that time).
      */
     public static int longPress(int ms) {
         return sState == TRACK && ms < LONG_PRESS_MIN ? LONG_PRESS_MIN : ms;

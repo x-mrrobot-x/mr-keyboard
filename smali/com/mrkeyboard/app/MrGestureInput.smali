@@ -26,7 +26,7 @@
 
 .field private static final KEYCODE_DELETE:I = -0x5
 
-.field static final LONG_PRESS_MIN:I = 0x12c
+.field static final LONG_PRESS_MIN:I = 0xfa
 
 .field static final LOOKBACK:I = 0x60
 
@@ -2433,7 +2433,7 @@
     .locals 3
 
     .prologue
-    const/16 v0, 0x12c
+    const/16 v0, 0xfa
 
     .line 585
     sget v1, Lcom/mrkeyboard/app/MrGestureInput;->sState:I

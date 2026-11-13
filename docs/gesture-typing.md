@@ -111,9 +111,9 @@ The rule, and the numbers behind it (tables in "What was measured"):
    (not a password, an address or an e-mail field, not a field that refuses suggestions), with the weights open and the
    dictionary of the language loaded. Anywhere else the touch is not looked at again.
 2. While it only may be one, **every event still goes to the usual path**: the key is pressed, its preview shows, a tap types
-   it exactly as before. One thing changes: the long press of that key waits at least **300 ms**
+   it exactly as before. One thing changes: the long press of that key waits at least **250 ms**
    (`LONG_PRESS_MIN`; the app's default is 200 ms, and 1.5% of real gestures are still within a quarter of a key of their
-   start after 200 ms, 0.5% after 300 ms). A longer value chosen by the user is kept.
+   start after 200 ms, 0.5% after 300 ms; 250 ms was chosen on the phone, between the two measured points). A longer value chosen by the user is kept.
 3. It **is** a gesture when the finger gets **0.7 key width** away from where it went down (`START_KEYS`; never less than
    22 dp, 3.5 mm). At that moment the usual path receives one cancel event (the key is let go without being typed, its
    timers stop, the detector of the slide actions forgets the touch) and from there to the last finger up every event is
@@ -223,7 +223,7 @@ gesture goes on as a plain one, one that was already cancelled on the usual path
 |---|---|---|
 | `LatinKeyboardView.onTouchEvent`, first line | `onTouch(view, event)`; true = taken | following the touch |
 | `LatinKeyboardView.draw`, last line | `draw(view, canvas)` | the trail |
-| `PointerTracker.startLongPressTimer` | `longPress(ms)` | the 300 ms of rule 2 |
+| `PointerTracker.startLongPressTimer` | `longPress(ms)` | the 250 ms of rule 2 |
 | `LatinIME.pickSuggestionManually`, first line | `onPick(ime, index, word)`; true = it was a candidate of the gesture | the swap |
 | `LatinIME.handleBackspace`, first line | `onBackspace(ime)` | the whole word |
 | `LatinIME.onKey`, first line | `onKey(ime, code)`; true = a sentence sign glued to the word, the key is dealt with | ending what is pending; the sign after a word |
@@ -600,7 +600,7 @@ this file. Item 13 was done with the weights installed from a file; the download
    shows only for this.
 5. Backspace right after a gesture; backspace after another key.
 6. **Fast typing by taps**, with one and with two thumbs: no false gesture, no letter lost.
-7. Long press on a letter (the accents popup now takes 300 ms where it took 100), on a key outside the letters (unchanged).
+7. Long press on a letter (the accents popup now takes 250 ms where it took 100), on a key outside the letters (unchanged).
 8. The slide actions starting outside the letters (they must work, the language switch on the space bar among them) and
    starting on a letter (they must not).
 9. The trail: every theme, with and without hardware acceleration ("Advanced"), no leftover after the finger lifts.

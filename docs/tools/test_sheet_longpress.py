@@ -98,8 +98,8 @@ check("the setting at 500 ms: a letter waits 500 ms", delay(host, vm, this, 0) =
 check("the setting at 500 ms: the sheet key still 150 ms", delay(host, vm, this, 1) == 150)
 host.timeout = 200
 
-host.gesture = 300
-check("a touch that may become a gesture: a letter waits 300 ms", delay(host, vm, this, 0) == 300)
+host.gesture = 250
+check("a touch that may become a gesture: a letter waits 250 ms", delay(host, vm, this, 0) == 250)
 check("... and the sheet key still 150 ms", delay(host, vm, this, 1) == 150)
 host.gesture = None
 
