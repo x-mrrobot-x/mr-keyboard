@@ -433,6 +433,9 @@
 
 # Main row (bar_main): hidden while a tool uses the row (rowOwned); otherwise MrSugg.mode decides between
 # tools (1), suggestions (2) or nothing (0). See MrSugg.
+# The changes are animated by MrAnim: the row comes in with a fade (show) and goes out with a fade that ends in GONE (hide, mode 0);
+# under a tool it goes at once (gone), because the header takes its place in the same frame. The tools and the strip change
+# with a crossfade (MrSugg.applyInner -> MrAnim.swap), only when the row is on screen.
 .method static applyMain()V
     .locals 4
 
@@ -440,13 +443,11 @@
 
     if-eqz v0, :cond_am_end
 
-    const/16 v1, 0x8
-
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->rowOwned()Z
 
     move-result v2
 
-    if-nez v2, :cond_am_set
+    if-nez v2, :cond_am_gone
 
     sget-boolean v3, Lcom/mrkeyboard/app/MrTools;->sBarOn:Z
 
@@ -454,14 +455,21 @@
 
     move-result v2
 
-    if-eqz v2, :cond_am_set
+    if-eqz v2, :cond_am_hide
 
     invoke-static {v2, v3}, Lcom/mrkeyboard/app/MrSugg;->applyInner(IZ)V
 
-    const/4 v1, 0x0
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrAnim;->show(Landroid/view/View;)V
 
-    :cond_am_set
-    invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
+    return-void
+
+    :cond_am_hide
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrAnim;->hide(Landroid/view/View;)V
+
+    return-void
+
+    :cond_am_gone
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrAnim;->gone(Landroid/view/View;)V
 
     :cond_am_end
     return-void

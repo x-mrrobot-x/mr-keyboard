@@ -42,6 +42,8 @@
 #                        off, restart, cancel by typing), nothing counts under a tool or with the row hidden, the 1 s hold of an empty list; MrTools.toggleBar only shows/hides the row
 #   test_grid_key.py     the grid key (MrTools.toggleBar) on the real smali of MrTools and MrSugg together: a tool open (header, AI Editor or Customize dialog) is closed as its back button does and the tools
 #                        take the row; the strip in view gives way to the tools; only with the tools in view it shows/hides the row
+#   test_anim.py         the animations of the toolbar row (MrAnim.smali, in the mini Dalvik interpreter with a fake animator): crossfade tools <-> strip (only with the row on screen, not restarted, reversible), the row
+#                        fading in/out (it leaves the layout only at the end, a cancelled fade never runs its end action, a tool takes the row at once), the animator scale at 0; the layout overlays the two groups
 #   test_field_keys.py   keys with a modifier (Ctrl+A, Shift+arrows...) in the fields of the toolbar (translator, emoji search): LatinIME.sendKeyDown/sendKeyUp and MrTools.sendEvent on the real smali: the
 #                        field gets the event with its meta state and its shortcut is tried; the connection of the app is used as before
 #   test_gesture_comma.py  the real smali of LatinIME (pickSuggestionManually, handleSeparator, swapPunctuationAndSpace, onUpdateSelection, mrGlue) and TextEntryState over a fake text field: after a word
@@ -190,6 +192,9 @@ jobs:
 
       - name: Grid key (closes the tool open, strip to tools, else shows/hides the row)
         run: python3 -I docs/tools/test_grid_key.py
+
+      - name: Animations of the toolbar row (tools <-> suggestions, showing/hiding the row)
+        run: python3 -I docs/tools/test_anim.py
 
       - name: Keys with a modifier in the fields of the toolbar (Ctrl+A, Shift+arrows)
         run: python3 -I docs/tools/test_field_keys.py

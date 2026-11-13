@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 121
+    .line 123
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,19 +34,19 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 148
+    .line 150
     invoke-virtual {p1}, Lcom/mrkeyboard/app/LatinIME;->mrSuggest()Lcom/mrkeyboard/app/Suggest;
 
     move-result-object v1
 
-    .line 149
+    .line 151
     if-eqz v1, :cond_1
 
     invoke-virtual {v1}, Lcom/mrkeyboard/app/Suggest;->mrMainDict()Lcom/mrkeyboard/app/BinaryDictionary;
 
     move-result-object v1
 
-    .line 150
+    .line 152
     :goto_0
     if-eqz v1, :cond_0
 
@@ -60,7 +60,7 @@
     :cond_1
     move-object v1, v0
 
-    .line 149
+    .line 151
     goto :goto_0
 .end method
 
@@ -70,12 +70,12 @@
     .locals 9
 
     .prologue
-    .line 139
+    .line 141
     invoke-virtual {p1}, Lcom/mrkeyboard/app/LatinIME;->mrSuggest()Lcom/mrkeyboard/app/Suggest;
 
     move-result-object v0
 
-    .line 140
+    .line 142
     if-eqz v0, :cond_0
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/Suggest;->mrMainDict()Lcom/mrkeyboard/app/BinaryDictionary;
@@ -84,7 +84,7 @@
 
     move-object v1, v0
 
-    .line 141
+    .line 143
     :goto_0
     if-eqz v1, :cond_1
 
@@ -92,17 +92,17 @@
 
     move-result-object v0
 
-    .line 142
+    .line 144
     :goto_1
     if-nez v0, :cond_2
 
     const/4 v0, -0x1
 
-    .line 144
+    .line 146
     :goto_2
     return v0
 
-    .line 140
+    .line 142
     :cond_0
     const/4 v0, 0x0
 
@@ -110,13 +110,13 @@
 
     goto :goto_0
 
-    .line 141
+    .line 143
     :cond_1
     const/4 v0, 0x0
 
     goto :goto_1
 
-    .line 144
+    .line 146
     :cond_2
     invoke-virtual {v1}, Lcom/mrkeyboard/app/BinaryDictionary;->mrLength()I
 
@@ -149,7 +149,7 @@
     .locals 1
 
     .prologue
-    .line 131
+    .line 133
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/MrGestureInput$1;->buffer(Lcom/mrkeyboard/app/LatinIME;)Ljava/nio/ByteBuffer;
 
     move-result-object v0
@@ -171,7 +171,7 @@
     .locals 1
 
     .prologue
-    .line 127
+    .line 129
     invoke-static {p1, p2}, Lcom/mrkeyboard/app/MrGesture;->setLayout([C[F)Z
 
     move-result v0
@@ -183,10 +183,10 @@
     .locals 0
 
     .prologue
-    .line 135
+    .line 137
     invoke-static {p1}, Lcom/mrkeyboard/app/MrGestureWords;->get(Lcom/mrkeyboard/app/LatinIME;)Ljava/nio/ByteBuffer;
 
-    .line 136
+    .line 138
     return-void
 .end method
 
@@ -194,7 +194,7 @@
     .locals 1
 
     .prologue
-    .line 123
+    .line 125
     invoke-static {}, Lcom/mrkeyboard/app/MrGesture;->ready()Z
 
     move-result v0

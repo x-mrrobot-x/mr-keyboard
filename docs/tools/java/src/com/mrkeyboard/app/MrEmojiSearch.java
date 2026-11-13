@@ -52,7 +52,7 @@ final class MrEmojiSearch {
     /** Emojis shown at most (the card scrolls sideways). */
     static final int MAX_RESULTS = 60;
     /** Press and repeat of the Backspace key of the keyboard (LatinKeyboardBaseView). */
-    static final int REPEAT_START = 400;   // the same as config_delay_before_key_repeat_start (res/values/integers.xml)
+    static final int REPEAT_START = 300;   // the same as config_delay_before_key_repeat_start (res/values/integers.xml)
     static final int REPEAT_EVERY = 50;
     private static final int CELL_DP = 44;
     private static final int CELL_SP = 26;

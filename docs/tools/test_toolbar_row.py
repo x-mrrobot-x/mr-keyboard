@@ -9,7 +9,8 @@ bar_main stays hidden, whatever the suggestions are doing. It was broken for Fon
 applyMain did not have: a suggestion arriving while Fonts was open put the strip above the fonts.
 
 This runs the REAL smali of MrTools.rowOwned and MrTools.applyMain in the mini Dalvik interpreter (dalvik_mini.py) with fake views, and reads
-mr_toolbar.xml to check that every header of the layout starts hidden and that the headers the rule has to cover are there.
+mr_toolbar.xml to check that every header of the layout starts hidden and that the headers the rule has to cover are there. What it does to bar_main goes through the real
+MrAnim (anim_fake.py) with the animations ending at once: the animations themselves are in test_anim.py.
 """
 import os
 import re
@@ -19,6 +20,7 @@ import xml.etree.ElementTree as ET
 ROOT = os.getcwd()
 sys.path.insert(0, os.path.join(ROOT, "docs", "tools"))
 import dalvik_mini as dm  # noqa: E402
+import anim_fake as af  # noqa: E402
 
 ok = fails = 0
 
@@ -47,6 +49,7 @@ class Host:
     def __init__(self):
         self.mode = 1            # what MrSugg.mode answers: 0 hidden, 1 tools, 2 suggestions
         self.inner = []          # MrSugg.applyInner calls
+        self.anim = af.AnimWorld(None, instant=True)     # the real MrAnim (show/hide/gone); here the animations end at once
 
     def sget(self, cls, name):
         raise AssertionError("static of another class: %s.%s" % (cls, name))
@@ -79,6 +82,8 @@ class Host:
             return v.f["tag"]
         if mem == "startsWith(Ljava/lang/String;)Z":
             return 1 if v.startswith(args[1]) else 0
+        if cls == af.ANIM:
+            return self.anim.run(mem, args)
         if cls == "Lcom/mrkeyboard/app/MrSugg;" and mem == "mode(Z)I":
             return self.mode if args[0] else 0
         if cls == "Lcom/mrkeyboard/app/MrSugg;" and mem == "applyInner(IZ)V":

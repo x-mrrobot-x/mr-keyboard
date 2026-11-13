@@ -100,7 +100,7 @@
 
     move-result-object v1
 
-    const-wide/16 v2, 0x190
+    const-wide/16 v2, 0x12c
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 

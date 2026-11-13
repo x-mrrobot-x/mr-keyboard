@@ -19,6 +19,7 @@ import sys
 ROOT = os.getcwd()
 sys.path.insert(0, os.path.join(ROOT, "docs", "tools"))
 import dalvik_mini as dm  # noqa: E402
+import anim_fake as af  # noqa: E402
 
 ok = fails = 0
 
@@ -89,6 +90,8 @@ class ToolsHost:
         cls, _, mem = target.partition("->")
         if cls == SUGG:
             return w.sugg.run(mem, args)
+        if cls == af.ANIM:
+            return w.anim.run(mem, args)
         if cls == "Lcom/mrkeyboard/app/MrAiDialog;":
             if mem == "isShowing()Z":
                 return 1 if w.ai else 0
@@ -142,6 +145,8 @@ class SuggHost:
         cls, _, mem = target.partition("->")
         if cls == TOOLS:
             return w.tools.run(mem, args)
+        if cls == af.ANIM:
+            return w.anim.run(mem, args)
         if mem in ("<init>(Landroid/os/Looper;)V", "<init>()V"):
             return None
         if cls == "Landroid/os/Looper;":
@@ -167,7 +172,8 @@ class SuggHost:
 
 
 class World:
-    def __init__(self):
+    def __init__(self, instant=True):
+        self.anim = af.AnimWorld(None, instant)         # the real MrAnim; instant: the animations end inside start()
         self.log = []
         self.now = 0
         self.pending = None
@@ -180,6 +186,7 @@ class World:
         # the views: a root with bar_main (tools + strip inside) and the headers beside it
         self.root = dm.Obj("Landroid/view/ViewGroup;", vis=0, tag="root", parent=None, kids=[])
         self.main = view("bar_main", parent=self.root, ctx=dm.Obj("Landroid/content/Context;"))
+        self.anim.main = self.main
         self.hdr = {}
         self.root.f["kids"] = [self.main]
         for t in HEADERS:
@@ -334,6 +341,52 @@ w.open("bar_fonts")
 w.key()
 w.key()
 check("after a tool was closed by the key, the next press hides the row", w.row_on() == 0 and w.in_view() == "hidden")
+
+# ---- the animations (the animator takes its time): what the person sees while the row changes
+w = World(instant=False)
+w.apply()
+w.anim.finish()
+w.key()
+check("grid key hides the row: it fades out, and is still in the layout while it does", w.row_on() == 0 and w.main.f["vis"] == 0 and w.anim.s_hiding is w.main,
+      (w.row_on(), w.main.f["vis"]))
+w.anim.finish()
+check("... at the end of the fade the row leaves the layout, clean", w.in_view() == "hidden" and w.main.f["alpha"] == 1.0 and w.main.f["ty"] == 0.0, (w.main.f["vis"], w.main.f["alpha"]))
+w.key()
+check("grid key shows the row again: it comes back at alpha 0 (fading in), with the tools", w.main.f["vis"] == 0 and w.main.f["alpha"] == 0.0 and w.tools_v.f["vis"] == 0 and w.sugg_v.f["vis"] == 8,
+      (w.main.f["vis"], w.main.f["alpha"]))
+w.anim.finish()
+check("... and ends in view at alpha 1", w.in_view() == "tools" and w.main.f["alpha"] == 1.0)
+w.anim.ended.clear()
+w.key()
+w.key()
+check("grid key twice within the fade (off, on): the row stays, turned back, and the end of the fade-out never runs",
+      w.row_on() == 1 and w.main.f["vis"] == 0 and not w.anim.s_hiding and w.anim.ended == [], (w.row_on(), w.main.f["vis"], w.anim.ended))
+w.anim.finish()
+check("... and it ends in view at alpha 1", w.in_view() == "tools" and w.main.f["alpha"] == 1.0 and w.anim.ended == [], (w.main.f["alpha"], w.anim.ended))
+
+w = World(instant=False)
+w.lst(True, True)
+mid = (w.sugg_v.f["vis"], w.tools_v.f["vis"], w.sugg_v.f["alpha"])
+w.anim.finish()
+check("typing, in the middle of the crossfade the two are in view and the strip starts at alpha 0; at the end only the strip is",
+      mid == (0, 0, 0.0) and w.in_view() == "strip" and w.tools_v.f["vis"] == 8 and w.tools_v.f["alpha"] == 1.0, (mid, w.in_view()))
+w.key()
+check("grid key with the strip in view: the tools come back with a crossfade", w.sugg_v.f["vis"] == 0 and w.tools_v.f["vis"] == 0 and w.tools_v.f["alpha"] == 0.0,
+      (w.sugg_v.f["vis"], w.tools_v.f["vis"], w.tools_v.f["alpha"]))
+w.anim.finish()
+check("... and at the end only the tools are in view", w.in_view() == "tools" and w.sugg_v.f["vis"] == 8)
+
+w = World(instant=False)
+w.anim.finish()
+w.lst(True, True)
+w.open("bar_fonts")
+check("a tool takes the row in the middle of the crossfade: the row is gone at once (the header takes its place in the same frame)",
+      w.in_view() == "hidden" and w.main.f["vis"] == 8 and w.main.f["alpha"] == 1.0, (w.main.f["vis"], w.main.f["alpha"]))
+w.anim.finish()
+check("... and nothing comes back by itself at the end of the animations", w.main.f["vis"] == 8)
+w.key()
+w.anim.finish()
+check("the tool closed by the key: the row comes back with the tools", w.in_view() == "tools" and w.main.f["alpha"] == 1.0, (w.in_view(), w.main.f["alpha"]))
 
 print("%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

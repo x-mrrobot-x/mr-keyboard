@@ -7,6 +7,7 @@
 # The suggestions strip (candidates.xml container with the CandidateView) lives in "sg_host",
 # inside bar_main, and not in the InputMethodService candidates area. bar_main has two
 # groups that alternate in the same 48dp row: bar_tools (tools) and bar_sugg.
+# They overlay each other (bar_main is a FrameLayout) and change with a crossfade (MrAnim.swap, from applyInner), only with the row on screen.
 #
 # RULE of the row: while a tool uses it (a header beside bar_main is visible, MrTools.rowOwned: clipboard, translator, attachments,
 # emojis, Customize, Fonts, emoji search...), bar_main is hidden whatever the suggestions do, and LatinIME stops the suggestions flow
@@ -634,46 +635,26 @@
     return v0
 .end method
 
-# Applies the mode to the internal groups of bar_main (the visibility of bar_main belongs to MrTools).
+# Applies the mode to the internal groups of bar_main (the visibility of bar_main belongs to MrTools). MrAnim.swap does it: the two
+# groups overlay each other and change with a crossfade when the row is on screen, at once when it is not.
 .method static applyInner(IZ)V
-    .locals 4
+    .locals 3
 
-    const/16 v0, 0x8
+    sget-object v0, Lcom/mrkeyboard/app/MrSugg;->sTools:Landroid/view/View;
 
-    const/4 v1, 0x0
+    sget-object v1, Lcom/mrkeyboard/app/MrSugg;->sSugg:Landroid/view/View;
 
     const/4 v2, 0x2
 
-    sget-object v3, Lcom/mrkeyboard/app/MrSugg;->sTools:Landroid/view/View;
+    if-ne p0, v2, :cond_tools
 
-    if-eqz v3, :cond_1
+    invoke-static {v1, v0}, Lcom/mrkeyboard/app/MrAnim;->swap(Landroid/view/View;Landroid/view/View;)V
 
-    if-ne p0, v2, :cond_0
+    return-void
 
-    invoke-virtual {v3, v0}, Landroid/view/View;->setVisibility(I)V
+    :cond_tools
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAnim;->swap(Landroid/view/View;Landroid/view/View;)V
 
-    goto :goto_0
-
-    :cond_0
-    invoke-virtual {v3, v1}, Landroid/view/View;->setVisibility(I)V
-
-    :cond_1
-    :goto_0
-    sget-object v3, Lcom/mrkeyboard/app/MrSugg;->sSugg:Landroid/view/View;
-
-    if-eqz v3, :cond_3
-
-    if-ne p0, v2, :cond_2
-
-    invoke-virtual {v3, v1}, Landroid/view/View;->setVisibility(I)V
-
-    goto :goto_1
-
-    :cond_2
-    invoke-virtual {v3, v0}, Landroid/view/View;->setVisibility(I)V
-
-    :cond_3
-    :goto_1
     return-void
 .end method
 
@@ -696,6 +677,8 @@
     sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sHas:Z
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrSugg;->sIdle:Z
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrAnim;->reset()V
 
     return-void
 .end method
