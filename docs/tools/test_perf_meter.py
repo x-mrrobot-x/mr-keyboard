@@ -55,7 +55,7 @@ TEXTS = {
     "mr_ui_perf_open_kb": "OpenKb", "mr_ui_perf_open_set": "OpenSet", "mr_ui_perf_popup": "Popup",
     "mr_ui_perf_app_key": "AppKey", "mr_ui_perf_app_sugg": "AppSugg", "mr_ui_perf_app_open": "AppOpen", "mr_ui_perf_app_other": "AppOther",
     "mr_ui_perf_popup_build": "PopupBuild", "mr_ui_perf_popup_show": "PopupShow", "mr_ui_perf_sel": "Sel", "mr_ui_perf_msg": "Msg",
-    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_echo_one": "EchoOne", "mr_ui_perf_echo_run": "EchoRun", "mr_ui_perf_echo_drop": "EchoDrop", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
+    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_echo_one": "EchoOne", "mr_ui_perf_echo_run": "EchoRun", "mr_ui_perf_echo_drop": "EchoDrop", "mr_ui_perf_caps_run": "CapsRun", "mr_ui_perf_caps_flush": "CapsFlush", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
     "mr_ui_perf_stat": "%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)",
     "mr_ui_perf_one": "%1$s: %2$s ms", "mr_ui_perf_none": "Nothing yet.", "mr_ui_perf_mem": "Memory: Java %1$s · native %2$s",
     "mr_ui_perf_reset": "Tap to reset."}
@@ -220,10 +220,10 @@ def j(a):
 KINDS = ["create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
          "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
          "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg",
-         "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop"]
+         "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop", "caps-run", "caps-flush"]
 N = len(KINDS)
 CREATE, VIEW, OPEN, SHOWN, FRAME, KEY, TOUCH, APP_, SUGG, KEY_LETTER, KEY_SEP, KEY_DEL, KEY_OTHER, SUGG_ENGINE, SUGG_SHOW, \
-    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW, SEL, MSG, APP_SEL, APP_MSG, ECHO_CUT, ECHO_FULL, ECHO_ONE, ECHO_RUN, ECHO_DROP = range(N)
+    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW, SEL, MSG, APP_SEL, APP_MSG, ECHO_CUT, ECHO_FULL, ECHO_ONE, ECHO_RUN, ECHO_DROP, CAPS_RUN, CAPS_FLUSH = range(N)
 
 # ======================================================================== part 1: the smali of MrPerf
 fw = Fw()
@@ -296,6 +296,27 @@ fw.run("echoDropped()V"); fw.run("echoRan()V")
 check("... and it is not counted again by the next key or by a late run", fw.stats(ECHO_DROP)[0] == 1 and fw.stats(ECHO_RUN)[0] == 1)
 fw.run("echoPosted()V"); fw.run("reset()V"); fw.tick(5000); fw.run("echoRan()V")
 check("a reset forgets the reaction that waited", fw.stats(ECHO_RUN)[0] == 0 and fw.stats(ECHO_DROP)[0] == 0)
+
+# ---- the update of the shift state that waits after a separator (LatinIME.mrShiftPost / mrShiftRun / mrShiftFlush / mrShiftCancel, stage 6 part 8)
+fw.run("reset()V"); fw.set_nanos(0)
+fw.run("capsRan()V"); fw.run("capsFlushed()V"); fw.run("capsForget()V")
+check("capsRan, capsFlushed and capsForget with nothing waiting count nothing (every flush of a key calls capsFlushed)",
+      fw.stats(CAPS_RUN)[0] == 0 and fw.stats(CAPS_FLUSH)[0] == 0)
+fw.run("capsPosted()V"); fw.tick(100400); fw.run("capsRan()V")
+check("an update that waited and was run by the message: CAPS_RUN holds how long it waited", fw.stats(CAPS_RUN)[0] == 1
+      and fw.stats(CAPS_RUN)[4] == 100400 and fw.stats(CAPS_FLUSH)[0] == 0, (fw.stats(CAPS_RUN), fw.stats(CAPS_FLUSH)))
+fw.run("capsRan()V")
+check("... one wait is counted once", fw.stats(CAPS_RUN)[0] == 1)
+fw.run("capsPosted()V"); fw.tick(40000); fw.run("capsFlushed()V")
+check("an update that a key asked for early: CAPS_FLUSH holds how long it had waited, CAPS_RUN is left alone",
+      fw.stats(CAPS_FLUSH)[0] == 1 and fw.stats(CAPS_FLUSH)[4] == 40000 and fw.stats(CAPS_RUN)[0] == 1)
+fw.run("capsFlushed()V"); fw.run("capsRan()V")
+check("... and it is not counted again by the next key or by a late run", fw.stats(CAPS_FLUSH)[0] == 1 and fw.stats(CAPS_RUN)[0] == 1)
+fw.run("capsPosted()V"); fw.run("capsForget()V"); fw.tick(5000); fw.run("capsRan()V"); fw.run("capsFlushed()V")
+check("an update that was dropped without being asked (replaced, or the field ended) is not counted at all",
+      fw.stats(CAPS_RUN)[0] == 1 and fw.stats(CAPS_FLUSH)[0] == 1)
+fw.run("capsPosted()V"); fw.run("reset()V"); fw.tick(5000); fw.run("capsRan()V")
+check("a reset forgets the update that waited", fw.stats(CAPS_RUN)[0] == 0 and fw.stats(CAPS_FLUSH)[0] == 0)
 
 # ---- the wait for the app, counted again by where it is asked (the innermost piece of work under way decides)
 PLACES = (APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, APP_SEL, APP_MSG)
@@ -464,7 +485,7 @@ fw.fill(scr)
 lines = row.f["summary"].split("\n")
 names = ["Start", "View", "Open", "Shown", "Frame", "Key", "Touch", "App", "Sugg", "KeyLetter", "KeySep", "KeyDel", "KeyOther",
          "SuggEngine", "SuggShow", "OpenKb", "OpenSet", "Popup", "AppKey", "AppSugg", "AppOpen", "AppOther", "PopupBuild", "PopupShow",
-         "Sel", "Msg", "AppSel", "AppMsg", "EchoCut", "EchoFull", "EchoOne", "EchoRun", "EchoDrop"]
+         "Sel", "Msg", "AppSel", "AppMsg", "EchoCut", "EchoFull", "EchoOne", "EchoRun", "EchoDrop", "CapsRun", "CapsFlush"]
 check("every kind in order, then memory and reset", len(lines) == N + 2
       and all(lines[k].startswith("%s: average %d.0 ms" % (names[k], k + 1)) for k in range(N)), lines)
 # the frame line says what a frame measures, by how this device draws the window (MrAccel.state: 0 unknown, 1 GPU, 2 CPU)
@@ -685,7 +706,7 @@ for f in os.listdir(APP):
     if f.endswith(".smali") and not f.startswith("MrPerf"):
         called |= set(re.findall(re.escape(PERF) + r"->(\w+\([^)]*\)\S+)", open(os.path.join(APP, f), encoding="utf-8").read()))
 missing = [m for m in sorted(called) if not re.search(r"\.method public static " + re.escape(m) + r"\n", perf_src)]
-check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 44,
+check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 48,
       (missing, len(called)))
 
 xml = open(os.path.join(ROOT, "res", "xml", "prefs_advanced.xml"), encoding="utf-8").read()

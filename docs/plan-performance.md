@@ -271,3 +271,48 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   still appear after a space, a double space still becomes a period, the screen "What the keyboard learned" still works, and closing and
   opening the keyboard, switching keyboards, leaving the app and a password field show nothing odd. If the echo line does not fall, the
   switch goes off by default or the change is reverted.
+  Measured by the owner on build _75 (block S, "casa " 20 times, in Telegram; Autocompletar off and on, each with the switch off and on).
+  The counts are the same in the four runs (101 questions: 60 inside keys, 21 in the suggestions, 20 in the echo) and no reaction was
+  dropped by a key (the line is not shown). "Selection echo: one question for both sides" went from 13.2 to 3.4 ms on average
+  (Autocompletar off) and from 12.6 to 2.8 ms (on); its 95 % stays at about 15 ms, so some reactions (about 3 of 20, estimated from the
+  average) still find the app busy after 100 ms. The wait for the app in all (average times count) went from about 475 to 253 ms and
+  from about 455 to 242 ms per 20 words: -47 % in both. "Selection change" went from 2.7 and 2.6 ms to 0.0 ms. The reaction ran after
+  100.4 ms on average (maximum 101.2). The next-word suggestions, the double space, the screen "What the keyboard learned" and the
+  lifecycle (close and open, switch keyboard, leave the app, password field) checked out. Decision: the switch stays on by default.
+  To watch: "Touch wait" is about 1 ms higher with the switch on (3.7 -> 5.2 and 3.3 -> 4.4 ms on average, 95 % about 1 ms higher):
+  it can be noise (100 samples, one outlier of about 70 ms in three runs) or the question now falling closer to the next finger down.
+  What is left in the same runs: inside keys 60 questions, about 120 ms per 20 words (half of what is left); letters take about 1 ms;
+  the space key keeps a tail (average 3.3-5.1 ms, 95 % at 12.7-18.2 ms in three of the four runs), most likely the caps mode asked right
+  after the app got the space (the first question after a change of the app's text). Open: reading the smali (and the mini Dalvik
+  with a fake app) the first letter of a word asks three things (before, after, caps) and the space one (caps), 4 per word, but the
+  phone shows 3 per word; one of them is not asked in Telegram and it is not explained yet.
+- Stage 6, eighth part (build _76): what is left after the echo is the question that ends every separator: `handleSeparator` finishes
+  with `updateShiftKeyState`, which asks the app for the caps mode of the cursor (does the next letter start a sentence?). It is asked
+  right after the app got the space, so it is the first question after a change of the app's text (the slow one, about 13 ms, as the echo
+  was). It is the likely cause of the tail of the space key measured on build _75 (95 % at 12.7-18.2 ms). The decision made with the owner:
+  ask it later, as with the echo, not remove it.
+  F. The update of the shift state at the end of `handleSeparator` is sent as message 6 of the keyboard's handler with the delay of the
+  suggestions (100 ms: `mrShiftPost`) and runs in `mrShiftRun`. What the answer decides (the shift key and the capital of the next
+  letter) must be the same when anything looks at it, so anything that could look first asks at once (`mrShiftFlush`, which also removes
+  the message): every key (first thing in `onKey`, after the meter of the key starts), `onText` and `pickSuggestionManually` (a suggestion
+  or the word of a gesture is written with the shift state of the text before it). Any other update of the shift state replaces the one
+  that waits (`mrShiftCancel` is the first thing in `updateShiftKeyState`), and the end of the field, the window hidden and the service
+  destroyed drop it without asking (next to each `MrPrevWord.reset`). The switch off and a missing handler ask at the end of the separator
+  as before. The switch is on the Advanced screen ("Delay the capital-letter check", `pref_mr_caps_defer`, on by default, read when a
+  field opens, in "Restore defaults"). Two new meter lines: how long a check waited before the message ran it, and how long it waited
+  before a key, text or suggestion asked it at once.
+  Counted on the PC with the real smali (`test_caps_defer.py`: 400 random sentences with random timings, in three timings: mixed, idle
+  before every key and no pause at all; `PerfTest.java`, `test_perf_meter.py`): every key sees the same shift state as with the switch off,
+  the text and the final shift state are the same and the app is asked exactly as many times (the question moves, none is added or lost).
+  It is NOT a cut by count: a fast typist's next key asks the same question inside its own time. The gain is an estimate: when the app is
+  idle after 100 ms the question costs about 0.4 ms instead of about 12 ms; per 20 words that is about 50 ms of the waiting inside keys and
+  the 12-18 ms tail of the space key. What is paid: if some path reads the shift state without going through one of the places above, it
+  would see the state of before the space (a wrong capital after ". ", "! " or Enter); the places are covered by tests, but a phone is
+  the real check. Nothing ran on a device in this stage.
+  Next: the owner resets the meter and types block S (20 words) in Telegram, Autocompletar off and on, with the new switch off and on
+  (the echo switch stays on): compare "Key: space, punctuation, Enter" (average and 95 %), "Wait for the app: inside a key", the total
+  waiting for the app and the two new lines (how many checks the message ran and how many a key asked at once). Also: the capital after
+  ". ", "! " and Enter, a capital at the start of a sentence typed fast (less than 100 ms between the space and the letter) and slow, a
+  gesture word and the suggestions at the start of a sentence, the shift key tapped right after a space, and closing and opening the
+  keyboard, switching keyboards, leaving the app and a password field. If the space key does not fall, the switch goes off by default or
+  the change is reverted.

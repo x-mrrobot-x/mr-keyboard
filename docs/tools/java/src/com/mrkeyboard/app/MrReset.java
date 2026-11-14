@@ -58,6 +58,7 @@ public final class MrReset implements Preference.OnPreferenceClickListener {
             "force_keyboard_on",
             "pref_ui_hw_accel",
             "pref_mr_echo_defer",
+            "pref_mr_caps_defer",
             "show_suggestions",
             "auto_complete",
             "quick_fixes",

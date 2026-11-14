@@ -149,6 +149,7 @@ METHODS = load()
 def make(stubs, **fields):
     host = Host()
     vm = VM(METHODS, host, stubs)
+    fields.setdefault("mMrCapsPending", 0)      # pickSuggestionManually asks first whether a capital-letter check waits (stage _76)
     this = dm.Obj(IME, **fields)
     return vm, host, this
 

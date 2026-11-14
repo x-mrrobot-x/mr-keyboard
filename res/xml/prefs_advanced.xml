@@ -16,6 +16,7 @@
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_perf" android:key="keyboard_perf" android:summary="@string/mr_ui_cat_perf_sum" android:icon="@drawable/mr_ui_ic_keyboard_cyan">
     <CheckBoxPreference android:persistent="true" android:title="@string/mr_ui_echo_defer" android:key="pref_mr_echo_defer" android:defaultValue="true" android:summaryOn="@string/mr_ui_echo_defer_on" android:summaryOff="@string/mr_ui_echo_defer_off"/>
+    <CheckBoxPreference android:persistent="true" android:title="@string/mr_ui_caps_defer" android:key="pref_mr_caps_defer" android:defaultValue="true" android:summaryOn="@string/mr_ui_caps_defer_on" android:summaryOff="@string/mr_ui_caps_defer_off"/>
     <Preference android:layout="@layout/mr_ui_pref_row_metrics" android:persistent="false" android:title="@string/mr_ui_perf" android:key="mr_perf" android:summary="@string/mr_ui_perf_none"/>
   </PreferenceCategory>
 </PreferenceScreen>

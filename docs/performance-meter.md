@@ -33,6 +33,7 @@ measured is not shown.
 | Selection echo: one question / full check | inside "Selection change": the check "is the cursor touching a word" after a new selection. **One question**: the report was the echo of a separator the keyboard typed itself, so only the character after the cursor was asked. **Full check**: any other report (another cursor position, a selection, a key typed in between, no separator of ours). The count of each line says how many echoes took each way | `LatinIME.mrEchoTouchingWord` |
 | Selection echo: one question for both sides (Android 12+) | inside "Selection change", in the same echo of our own separator: ONE `getSurroundingText` answered both "is a word character after the cursor" and the text before the cursor that the next-word prediction reads. Counted only when the app answered it. On Android 11 or older, in an app that does not answer it (asked once per field, then not again) and with a selection, this line stays empty and the echo asks as before | `MrSurround.echo` |
 | Delayed echo reaction: wait until it ran / dropped before it ran | the reaction to the echo of our own separator can wait 100 ms for the app to be idle (switch "Delay the reaction to the echo" on the Advanced screen, on by default; stage 6 part 7). **Wait until it ran**: how long the reaction waited before it ran (the count is how many ran). **Dropped**: how long it had waited when a key, a new report of the selection or the end of the field ended the wait (the count is how many were not needed). With the switch off both lines stay empty | `LatinIME.mrEchoRun` / `LatinIME.mrEchoCancel` |
+| Delayed capital-letter check: wait until the message ran it / until a key asked it at once | the check of the shift state at the end of a separator (the question to the app "does the next letter start a sentence?") can wait 100 ms for the app to be idle (switch "Delay the capital-letter check" on the Advanced screen, on by default). The first line is how long it waited when its message ran it, the second how long when a key, a text or a suggestion asked it at once before the message. A check that the end of a field dropped, or that another update of the shift state replaced, is counted in neither | `LatinIME.mrShiftRun` / `mrShiftFlush` |
 | Message | the work of the keyboard's own delayed messages (the shift state, the suggestions after a key) | `LatinIME$1.handleMessage` |
 | Wait for the app: inside a key / in the suggestions / when opening / in a selection change / in a message / at other times | the same waits as "Wait for the app", counted again by where they are asked: inside a key (not in its suggestions), inside the suggestions, inside an open, inside the reaction to a selection change, inside a message, and anywhere else. The innermost piece of work under way decides, so a wait is in "Wait for the app" and in exactly one of the six. A piece of work that began more than 10 s ago and never ended is not taken as the place | `MrPerf.appEnd` |
 
@@ -202,12 +203,67 @@ off, on the same block of typing:
 
 If there is no gain, the switch goes off by default (or the change is reverted); nothing else depends on it.
 
+Measured on the phone with build _75 (block S in Telegram, 20 words, switch off against on):
+
+| Autocompletar | Echo, one question (average) | Wait for the app in all (average x count) |
+|---------------|------------------------------|-------------------------------------------|
+| off | 13.2 -> 3.4 ms | about 475 -> 253 ms (-47 %) |
+| on | 12.6 -> 2.8 ms | about 455 -> 242 ms (-47 %) |
+
+The counts did not change (101 in all), the reaction ran after 100.4 ms on average and none was dropped. The 95 % of the echo line stays
+at about 15 ms: some reactions still find the app busy after 100 ms. "Touch wait" is about 1 ms higher with the switch on (can be noise;
+to watch). The switch stays on by default.
+
 Tests: `docs/tools/test_echo_questions.py` (the real smali in the mini Dalvik with a fake handler: switch on asks nothing and sends one
 message, the message asks one question and gives the same suggestions as before for every neighbourhood and in the three modes of Android
 12+; every key, report and end of field cancels; correction in progress, no handler, a word being typed, redirected input and the switch off
 run as before; what is looked at again when it arrives; fast and slow typing; the shape of every place that cancels, `loadSettings`, the
 handler's case 5, the switch on the Advanced screen and its texts in three languages), `PerfTest.java` and `docs/tools/test_perf_meter.py`
 (the two new lines), `docs/tools/check_reset_keys.py` (the switch is in "Restore defaults").
+
+### Stage 6 part 8 (build _76): the capital-letter check after a separator waits for the app
+
+Every separator ends with the update of the shift state (`handleSeparator` -> `updateShiftKeyState`), and that asks the app for the caps
+mode of the cursor: does the next letter start a sentence? The app has just been given the separator, so this is the first question after
+a change of its text (the slow one, about 13 ms against about 0.4 ms for a second). On build _75 the space key kept a tail (95 % at
+12.7-18.2 ms) that is most likely this question. As with the echo (part 7) it is moved in time, not removed: the check is sent as message 6
+of the keyboard's handler with the delay of the suggestions (100 ms) and runs when it arrives (`mrShiftRun`).
+
+- **It waits** only when the switch is on (Advanced screen, "Delay the capital-letter check", on by default, read when a field opens) and
+  the handler exists. The switch off, or no handler, asks at the end of the separator as before (the keyboard of build _75).
+- **It is asked at once** (`mrShiftFlush`: the flag goes down, the message is removed, the check runs, the meter counts a flush) by
+  everything that could read the shift state before the message: every key (first thing in `onKey`, after the meter of the key starts),
+  `onText` and `pickSuggestionManually` (a suggestion, or the word of a gesture, is written with the shift state of the text before it).
+  So the key after a separator sees the shift state it would have seen with the switch off, at any speed of typing.
+- **It is replaced** by any other update of the shift state (`mrShiftCancel` is the first thing in `updateShiftKeyState`: the update made now
+  says what the one that waits would say) and **dropped without asking** by the end of the field, the window hidden, the end of the input
+  view, the start of a new field and the service being destroyed (next to each `MrPrevWord.reset`).
+- **The other updates stay inline**: after a letter, a double space, a swap of punctuation and space, a mode change, the open of a field.
+  Only the one at the end of `handleSeparator` waits.
+
+**It is not a cut by count.** The same question is asked once, later; a fast typist's next key asks it inside its own time (the same
+number of questions as before, in the key instead of in the separator). Only when the user pauses (the app idle after 100 ms) is it asked
+outside the keys, cheaper. What changes on the screen: with a pause longer than 100 ms the shift key (the capital state of the keys)
+is updated about 100 ms after the space instead of at once; a letter typed before that gets the right state all the same.
+
+**The gain is an estimate, to be measured on the phone**: about 12 ms less in the space key when the app is idle after 100 ms, and about
+50 ms per 20 words of the waiting inside keys. The meter decides, in the same block of typing (20 words in Telegram, Autocompletar off and
+on, the new switch off against on; the echo switch stays on):
+
+- "Key: space, punctuation, Enter" (average and 95 %): expected to fall, mostly the 95 %;
+- "Wait for the app: inside a key": expected to fall by about one question per separator at a pause, and to stay the same at a fast pace;
+  "Wait for the app: in a message": takes the question;
+- the new lines "Delayed capital-letter check": how many ran by the message (a pause) and how many a key asked at once (a fast pace), and
+  how long the checks waited;
+- the capital after ". ", "! " and Enter, at a fast pace and at a slow one, must be right.
+
+Tests: `docs/tools/test_caps_defer.py` (the real smali in the mini Dalvik with a fake handler and a fake app that answers like
+`TextUtils.getCapsMode`: the switch off asks at the end of the separator; on asks nothing and sends message 6 with 100 ms; the message
+asks one question; the next key asks at once and removes the message; another update replaces it; the end of the field drops it; no
+handler asks at once; 400 random sentences in three timings give the same shift state at every key, the same text and the same number of
+questions as with the switch off; the shape of every place that flushes or cancels, `mrShiftPost`, `loadSettings`, the handler's case 6,
+the switch on the Advanced screen and its texts in three languages), `PerfTest.java` and `docs/tools/test_perf_meter.py` (the two new
+lines), `docs/tools/check_reset_keys.py` (the switch is in "Restore defaults").
 
 Tests: `docs/tools/perf_test/PerfTest.java` (the Java, in `run_java_tests.sh`), `docs/tools/test_perf_meter.py` (the smali in the
 mini Dalvik interpreter and every call in the keyboard, in `mr-checks.yml`), `docs/tools/test_open_selection.py` (the selection when

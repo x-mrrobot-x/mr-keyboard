@@ -90,7 +90,7 @@ class World:
             mReCorrectionEnabled=recorrection, mLastSelectionStart=0, mLastSelectionEnd=0, mExpectingUpdateSelection=0,
             mLastKeyTime=0, mDeleteCount=0, mKeyboardSwitcher=dm.Obj("Lcom/mrkeyboard/app/KeyboardSwitcher;"), mComposeMode=0,
             mDeadKeysActive=0, mEnteredText=None, mModAlt=0, mModCtrl=0, mModMeta=0, mModFn=0, mMrSepAt=0, mMrSepHit=0,
-            mHandler=None, mMrEchoDefer=0,
+            mHandler=None, mMrEchoDefer=0, mMrCapsDefer=0, mMrCapsPending=0,
         )
 
     # ---- the field

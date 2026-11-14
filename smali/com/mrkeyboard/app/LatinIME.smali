@@ -251,6 +251,10 @@
 
 .field private mMrEchoDefer:Z
 
+.field private mMrCapsDefer:Z
+
+.field private mMrCapsPending:Z
+
 # Caps question cut (docs/plan-performance.md stage 6): true only inside handleCharacter, from the letter typed until the shift
 # state is updated: the character before the cursor is that letter. TextUtils.getCapsMode gives 0 in the middle of a word, so
 # asking the app is pointless then. It never outlives the key.
@@ -3387,7 +3391,10 @@
 
     move-result-object p1
 
-    invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->updateShiftKeyState(Landroid/view/inputmethod/EditorInfo;)V
+    # Delayed caps question (docs/plan-performance.md stage 6 part 8): the shift state after a separator is asked of the app
+    # (the caps mode of the cursor), and the app has just been given the separator, so the answer is the slow one. It waits a
+    # little (Handler message 6) and runs at once when a key, a text or a suggestion comes first (mrShiftFlush).
+    invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->mrShiftPost(Landroid/view/inputmethod/EditorInfo;)V
 
     if-eqz v0, :cond_c
 
@@ -4045,6 +4052,136 @@
     return-void
 .end method
 
+.method private mrShiftPost(Landroid/view/inputmethod/EditorInfo;)V
+    .locals 5
+
+    # The update of the shift state at the end of a separator: with the switch on and a handler it waits as long as the
+    # suggestions do (0x64 = 100 ms, the delay of postUpdateSuggestions; no number of this project), as message 6 of mHandler
+    # (LatinIME$1.handleMessage -> mrShiftRun). Otherwise it is asked here, as before.
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrCapsDefer:Z
+
+    if-eqz v0, :cond_now
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mHandler:Landroid/os/Handler;
+
+    if-eqz v0, :cond_now
+
+    const/4 v1, 0x6
+
+    invoke-virtual {v0, v1}, Landroid/os/Handler;->removeMessages(I)V
+
+    invoke-virtual {v0, v1}, Landroid/os/Handler;->obtainMessage(I)Landroid/os/Message;
+
+    move-result-object v2
+
+    const-wide/16 v3, 0x64
+
+    invoke-virtual {v0, v2, v3, v4}, Landroid/os/Handler;->sendMessageDelayed(Landroid/os/Message;J)Z
+
+    const/4 v0, 0x1
+
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrCapsPending:Z
+
+    # Performance meter (MrPerf): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->capsPosted()V
+
+    return-void
+
+    :cond_now
+    invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->updateShiftKeyState(Landroid/view/inputmethod/EditorInfo;)V
+
+    return-void
+.end method
+
+.method public mrShiftRun()V
+    .locals 2
+
+    # Delayed caps question: the message arrived (message 6 of mHandler). The shift state is asked now, when the app is less busy.
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrCapsPending:Z
+
+    if-eqz v0, :cond_end
+
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrCapsPending:Z
+
+    # Performance meter (MrPerf): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->capsRan()V
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputEditorInfo()Landroid/view/inputmethod/EditorInfo;
+
+    move-result-object v0
+
+    invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinIME;->updateShiftKeyState(Landroid/view/inputmethod/EditorInfo;)V
+
+    :cond_end
+    return-void
+.end method
+
+.method private mrShiftFlush()V
+    .locals 2
+
+    # Delayed caps question: a key, a text or a suggestion came before the message. What waits is asked now and the message is
+    # removed, so the key sees the shift state it would have seen with the switch off.
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrCapsPending:Z
+
+    if-eqz v0, :cond_end
+
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrCapsPending:Z
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mHandler:Landroid/os/Handler;
+
+    if-eqz v0, :cond_ask
+
+    const/4 v1, 0x6
+
+    invoke-virtual {v0, v1}, Landroid/os/Handler;->removeMessages(I)V
+
+    :cond_ask
+    # Performance meter (MrPerf): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->capsFlushed()V
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputEditorInfo()Landroid/view/inputmethod/EditorInfo;
+
+    move-result-object v0
+
+    invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinIME;->updateShiftKeyState(Landroid/view/inputmethod/EditorInfo;)V
+
+    :cond_end
+    return-void
+.end method
+
+.method private mrShiftCancel()V
+    .locals 2
+
+    # Delayed caps question: drops what waits without asking (an update of the shift state made now replaces it; the end of the
+    # field, the window hidden and the service destroyed leave nothing to update).
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrCapsPending:Z
+
+    if-eqz v0, :cond_end
+
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrCapsPending:Z
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mHandler:Landroid/os/Handler;
+
+    if-eqz v0, :cond_forget
+
+    const/4 v1, 0x6
+
+    invoke-virtual {v0, v1}, Landroid/os/Handler;->removeMessages(I)V
+
+    :cond_forget
+    # Performance meter (MrPerf): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->capsForget()V
+
+    :cond_end
+    return-void
+.end method
+
 .method private mrEchoCancel()V
     .locals 2
 
@@ -4549,6 +4686,15 @@
     move-result v1
 
     iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrEchoDefer:Z
+
+    # Delayed caps question (docs/plan-performance.md stage 6 part 8): on by default; the Advanced screen turns it off (v3 is 1 here).
+    const-string v1, "pref_mr_caps_defer"
+
+    invoke-interface {v0, v1, v3}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v1
+
+    iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrCapsDefer:Z
 
     const-string v1, "show_suggestions"
 
@@ -9481,6 +9627,7 @@
     # Previous word (MrPrevWord): the service is over; nothing typed is left behind.
     invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoCancel()V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrShiftCancel()V
 
     invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
     move-result-object v0
@@ -9783,6 +9930,7 @@
     # Previous word (MrPrevWord) and MrSurround: the field is over.
     invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoCancel()V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrShiftCancel()V
     invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->fieldChanged()V
 
     const/4 v0, 0x0
@@ -9920,6 +10068,7 @@
     # Previous word (MrPrevWord): the window is hidden; nothing typed is left behind.
     invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoCancel()V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrShiftCancel()V
 
     # If the tool is open, MrKeep remembers it before it is closed with the window (a turn of the screen hides it).
     invoke-static {}, Lcom/mrkeyboard/app/MrKeep;->onHidden()V
@@ -9943,6 +10092,7 @@
     # Previous word (MrPrevWord): the keyboard is going away; nothing typed is left behind.
     invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoCancel()V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrShiftCancel()V
 
     .line 967
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mHandler:Landroid/os/Handler;
@@ -11893,6 +12043,7 @@
     # Previous word (MrPrevWord) and the one question after an echo (MrSurround): a new field forgets what was kept.
     invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoCancel()V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrShiftCancel()V
     invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->fieldChanged()V
 
     iget-object v0, p1, Landroid/view/inputmethod/EditorInfo;->packageName:Ljava/lang/String;
@@ -12805,6 +12956,9 @@
 
 .method public pickSuggestionManually(ILjava/lang/CharSequence;)V
     .locals 5
+
+    # Delayed caps question: a suggestion (a word of a gesture too) is written with the shift state of the text before it.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrShiftFlush()V
 
     # Mr Keyboard v1.63: "Baixar dicionario" (download dictionary) item (MrPacks.offerList) opens the dictionaries screen
     invoke-static {p0, p2}, Lcom/mrkeyboard/app/MrPacks;->onPick(Landroid/content/Context;Ljava/lang/CharSequence;)Z
@@ -13802,6 +13956,9 @@
 .method public updateShiftKeyState(Landroid/view/inputmethod/EditorInfo;)V
     .locals 7
 
+    # Delayed caps question: an update made now says what the one that waits would say.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrShiftCancel()V
+
     .line 1301
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
 
@@ -13960,6 +14117,9 @@
     # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
     invoke-static {p1}, Lcom/mrkeyboard/app/MrPerf;->keyBegin(I)V
 
+    # Delayed caps question: a key needs the shift state of the text before it, so what waits is asked now (inside the time of the key).
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrShiftFlush()V
+
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrGestureInput;->onKey(Lcom/mrkeyboard/app/LatinIME;I)Z
 
     move-result v0
@@ -14052,6 +14212,9 @@
     return-void
 
     :cond_not_tasker_cmd
+    # Delayed caps question: the text inserted below needs the shift state of the text before it.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrShiftFlush()V
+
     # Echo question cut: inserted text ends the expectation of the separator echo.
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrSepClear()V
 

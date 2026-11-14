@@ -59,6 +59,10 @@
 
     if-eq p1, v0, :cond_mr_echo
 
+    const/4 v0, 0x6
+
+    if-eq p1, v0, :cond_mr_shift
+
     goto :goto_0
 
     # Delayed echo (docs/plan-performance.md stage 6 part 7): the reaction to the echo of our own separator that waited.
@@ -66,6 +70,14 @@
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME$1;->this$0:Lcom/mrkeyboard/app/LatinIME;
 
     invoke-virtual {p1}, Lcom/mrkeyboard/app/LatinIME;->mrEchoRun()V
+
+    goto :goto_0
+
+    # Delayed caps question (docs/plan-performance.md stage 6 part 8): the update of the shift state that waited.
+    :cond_mr_shift
+    iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME$1;->this$0:Lcom/mrkeyboard/app/LatinIME;
+
+    invoke-virtual {p1}, Lcom/mrkeyboard/app/LatinIME;->mrShiftRun()V
 
     goto :goto_0
 

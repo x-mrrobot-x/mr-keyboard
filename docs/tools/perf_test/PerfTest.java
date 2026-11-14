@@ -42,7 +42,7 @@ public class PerfTest {
             {"mr_ui_perf_app_open", "App in an open"}, {"mr_ui_perf_app_other", "App elsewhere"},
             {"mr_ui_perf_popup_build", "Popup build"}, {"mr_ui_perf_popup_show", "Popup show"},
             {"mr_ui_perf_sel", "Selection change"}, {"mr_ui_perf_msg", "Message"}, {"mr_ui_perf_app_sel", "App in a selection change"},
-            {"mr_ui_perf_app_msg", "App in a message"}, {"mr_ui_perf_echo_cut", "Echo short check"}, {"mr_ui_perf_echo_full", "Echo full check"}, {"mr_ui_perf_echo_one", "Echo one question"}, {"mr_ui_perf_echo_run", "Echo reaction that waited"}, {"mr_ui_perf_echo_drop", "Echo reaction dropped"}, {"mr_ui_perf_frame_gpu", "Frame (GPU)"}, {"mr_ui_perf_frame_cpu", "Frame (CPU)"},
+            {"mr_ui_perf_app_msg", "App in a message"}, {"mr_ui_perf_echo_cut", "Echo short check"}, {"mr_ui_perf_echo_full", "Echo full check"}, {"mr_ui_perf_echo_one", "Echo one question"}, {"mr_ui_perf_echo_run", "Echo reaction that waited"}, {"mr_ui_perf_echo_drop", "Echo reaction dropped"}, {"mr_ui_perf_caps_run", "Caps update that waited"}, {"mr_ui_perf_caps_flush", "Caps update asked early"}, {"mr_ui_perf_frame_gpu", "Frame (GPU)"}, {"mr_ui_perf_frame_cpu", "Frame (CPU)"},
             {"mr_ui_perf_stat", "%1$s: average %2$s ms · p95 %3$s · max %4$s (%5$d×)"}, {"mr_ui_perf_one", "%1$s: %2$s ms (once)"},
             {"mr_ui_perf_none", "Nothing measured yet."}, {"mr_ui_perf_mem", "Memory: Java %1$s · native %2$s"},
             {"mr_ui_perf_reset", "Tap to start again from zero."}};
@@ -203,6 +203,26 @@ public class PerfTest {
         check("... and it is not counted again by the next key or by a late run", "1,1", st(MrPerf.ECHO_DROP)[0] + "," + st(MrPerf.ECHO_RUN)[0]);
         MrPerf.echoPosted(); MrPerf.reset(); tick(5); MrPerf.echoRan();
         check("a reset forgets the reaction that waited", "0,0", st(MrPerf.ECHO_RUN)[0] + "," + st(MrPerf.ECHO_DROP)[0]);
+
+        // stage 6, part 8: the update of the shift state after a separator can wait; the meter counts how long it waited and how it ended
+        MrPerf.capsRan(); MrPerf.capsFlushed(); MrPerf.capsForget();
+        check("a run, a flush or a forget with nothing waiting counts nothing (every key calls the flush)", "0,0",
+                st(MrPerf.CAPS_RUN)[0] + "," + st(MrPerf.CAPS_FLUSH)[0]);
+        MrPerf.capsPosted(); tick(100_400); MrPerf.capsRan();
+        check("an update that waited and was run by the message: CAPS_RUN holds how long it waited, CAPS_FLUSH is left alone", "1,100400,0",
+                st(MrPerf.CAPS_RUN)[0] + "," + st(MrPerf.CAPS_RUN)[4] + "," + st(MrPerf.CAPS_FLUSH)[0]);
+        MrPerf.capsRan();
+        check("... one wait is counted once", 1L, (long) st(MrPerf.CAPS_RUN)[0]);
+        MrPerf.capsPosted(); tick(40_000); MrPerf.capsFlushed();
+        check("an update that a key asked for early: CAPS_FLUSH holds how long it had waited, CAPS_RUN is left alone", "1,40000,1",
+                st(MrPerf.CAPS_FLUSH)[0] + "," + st(MrPerf.CAPS_FLUSH)[4] + "," + st(MrPerf.CAPS_RUN)[0]);
+        MrPerf.capsFlushed(); MrPerf.capsRan();
+        check("... and it is not counted again by the next key or by a late run", "1,1", st(MrPerf.CAPS_FLUSH)[0] + "," + st(MrPerf.CAPS_RUN)[0]);
+        MrPerf.capsPosted(); MrPerf.capsForget(); tick(5); MrPerf.capsRan(); MrPerf.capsFlushed();
+        check("an update dropped without being asked (replaced, or the field ended) is not counted", "1,1",
+                st(MrPerf.CAPS_FLUSH)[0] + "," + st(MrPerf.CAPS_RUN)[0]);
+        MrPerf.capsPosted(); MrPerf.reset(); tick(5); MrPerf.capsRan();
+        check("a reset forgets the update that waited", "0,0", st(MrPerf.CAPS_RUN)[0] + "," + st(MrPerf.CAPS_FLUSH)[0]);
         MrPerf.sFakeNanos = 100_000_000_000L;
 
         // ---------------------------------------------------------------- the wait for the app by where it is asked

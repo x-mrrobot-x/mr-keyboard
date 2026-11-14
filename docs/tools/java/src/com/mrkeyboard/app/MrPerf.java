@@ -55,6 +55,10 @@ import java.util.Arrays;
  *     reaction waited before it ran (the count says how many ran). ECHO_DROP: how long it had waited when a key, a new report of the
  *     selection, the end of the field or the window hiding ended the wait before it ran (the count says how many did not run; their
  *     question to the app was never asked). With the switch off neither line shows;</li>
+ * <li>CAPS_RUN, CAPS_FLUSH: the update of the shift state at the end of a separator asks the app for the caps mode of the cursor, and
+ *     the app has just been given the separator, so the answer is the slow one (stage 6, part 8). It can wait a little. CAPS_RUN: how
+ *     long it waited before the message ran it (the count says how many ran that way). CAPS_FLUSH: how long it had waited when a
+ *     key, a text or a suggestion came first and it was asked at once (the count says how many). With the switch off neither line shows;</li>
  * <li>APP_KEY, APP_SUGG, APP_OPEN, APP_SEL, APP_MSG, APP_OTHER: the same questions as APP, counted again by where they are asked:
  *     inside a key (not in its suggestions), inside the suggestions, inside an open, inside the reaction to a new selection,
  *     inside a delayed message, and anywhere else. The innermost piece of work under way decides; every wait is counted once in
@@ -75,7 +79,7 @@ public final class MrPerf {
             KEY_LETTER = 9, KEY_SEP = 10, KEY_DEL = 11, KEY_OTHER = 12, SUGG_ENGINE = 13, SUGG_SHOW = 14,
             OPEN_KB = 15, OPEN_SET = 16, POPUP = 17, APP_KEY = 18, APP_SUGG = 19, APP_OPEN = 20, APP_OTHER = 21,
             POPUP_BUILD = 22, POPUP_SHOW = 23, SEL = 24, MSG = 25, APP_SEL = 26, APP_MSG = 27, ECHO_CUT = 28, ECHO_FULL = 29, ECHO_ONE = 30, ECHO_RUN = 31, ECHO_DROP = 32,
-            KINDS = 33;
+            CAPS_RUN = 33, CAPS_FLUSH = 34, KINDS = 35;
     /** A piece of work that began longer ago than this (milliseconds) and never ended is not taken as the place of a wait. */
     static final int PLACE_MAX_MS = 10000;
     /** Samples kept per kind (a power of two) for the average and the p95. */
@@ -91,12 +95,12 @@ public final class MrPerf {
             "mr_ui_perf_app_key", "mr_ui_perf_app_sugg", "mr_ui_perf_app_open", "mr_ui_perf_app_other",
             "mr_ui_perf_popup_build", "mr_ui_perf_popup_show", "mr_ui_perf_sel", "mr_ui_perf_msg",
             "mr_ui_perf_app_sel", "mr_ui_perf_app_msg", "mr_ui_perf_echo_cut", "mr_ui_perf_echo_full", "mr_ui_perf_echo_one",
-            "mr_ui_perf_echo_run", "mr_ui_perf_echo_drop" };
+            "mr_ui_perf_echo_run", "mr_ui_perf_echo_drop", "mr_ui_perf_caps_run", "mr_ui_perf_caps_flush" };
     /** Names of the kinds in the log line. */
     static final String[] LOG = { "create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
             "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
             "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg",
-            "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop" };
+            "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop", "caps-run", "caps-flush" };
 
     private static final int[] sRing = new int[KINDS * SIZE];
     private static final int[] sCount = new int[KINDS];
@@ -108,6 +112,8 @@ public final class MrPerf {
     private static int sKeyKind = KEY_OTHER;
     /** When the reaction to the echo of our own separator was told to wait (System.nanoTime); -1 = nothing waits. */
     private static long sEchoAt = -1;
+    /** Start of the wait of the update of the shift state that waits after a separator (stage 6, part 8); -1 when none waits. */
+    private static long sCapsAt = -1;
     /** Start of the last open whose first frame is awaited; -1 = none. */
     private static long sShownFrom = -1;
     /** Count of KEY when the log line was last written. */
@@ -255,6 +261,28 @@ public final class MrPerf {
         add(ECHO_DROP, (nanos() - at) / 1000);
     }
 
+    /** LatinIME.mrShiftPost: the update of the shift state after a separator is told to wait; the clock of its wait starts. */
+    public static void capsPosted() { sCapsAt = nanos(); }
+
+    /** LatinIME.mrShiftRun: the message ran the update that waited. CAPS_RUN is how long it waited. */
+    public static void capsRan() {
+        long at = sCapsAt;
+        if (at < 0) return;
+        sCapsAt = -1;
+        add(CAPS_RUN, (nanos() - at) / 1000);
+    }
+
+    /** LatinIME.mrShiftFlush: a key, a text or a suggestion came first and the update was asked at once. CAPS_FLUSH is how long it had waited. */
+    public static void capsFlushed() {
+        long at = sCapsAt;
+        if (at < 0) return;
+        sCapsAt = -1;
+        add(CAPS_FLUSH, (nanos() - at) / 1000);
+    }
+
+    /** LatinIME.mrShiftCancel: the update that waited was dropped without being asked (replaced by another, or the field ended): not counted. */
+    public static void capsForget() { sCapsAt = -1; }
+
     /** LatinKeyboardView.onTouchEvent, first line: how late a finger down (first or another) reached the keyboard. */
     public static void touch(MotionEvent e) {
         if (e == null) return;
@@ -334,6 +362,7 @@ public final class MrPerf {
         sShownFrom = -1;
         sLoggedKeys = 0;
         sEchoAt = -1;
+        sCapsAt = -1;
     }
 
     static long heapUsed() {
