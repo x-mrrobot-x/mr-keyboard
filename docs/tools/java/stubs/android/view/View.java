@@ -59,6 +59,9 @@ public class View {
     /** Focus, window focus, position, root insets and posted work: kept so that the PC tests can drive and read them. */
     public boolean requestFocus() { stubFocus = true; return true; }
     public boolean hasFocus() { return stubFocus; }
+    /** Tests only: what isShown answers (the view and everything above it visible, and attached). */
+    public boolean stubShown = true;
+    public boolean isShown() { return stubShown; }
     public void stubClearFocus() { stubFocus = false; }
     public View findFocus() { return stubFocus ? this : null; }
     public boolean hasWindowFocus() { return stubWindowFocus; }

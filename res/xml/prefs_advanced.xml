@@ -18,5 +18,6 @@
     <CheckBoxPreference android:persistent="true" android:title="@string/mr_ui_echo_defer" android:key="pref_mr_echo_defer" android:defaultValue="true" android:summaryOn="@string/mr_ui_echo_defer_on" android:summaryOff="@string/mr_ui_echo_defer_off"/>
     <CheckBoxPreference android:persistent="true" android:title="@string/mr_ui_caps_defer" android:key="pref_mr_caps_defer" android:defaultValue="true" android:summaryOn="@string/mr_ui_caps_defer_on" android:summaryOff="@string/mr_ui_caps_defer_off"/>
     <Preference android:layout="@layout/mr_ui_pref_row_metrics" android:persistent="false" android:title="@string/mr_ui_perf" android:key="mr_perf" android:summary="@string/mr_ui_perf_none"/>
+    <Preference android:layout="@layout/mr_ui_pref_row" android:persistent="false" android:title="@string/mr_ui_perf_trim_now" android:key="mr_perf_trim" android:summary="@string/mr_ui_perf_trim_now_sum"/>
   </PreferenceCategory>
 </PreferenceScreen>

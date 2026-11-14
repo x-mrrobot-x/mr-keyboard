@@ -313,3 +313,26 @@ mini Dalvik interpreter and every call in the keyboard, in `mr-checks.yml`), `do
 a field opens, without a copy of its text) and `docs/tools/test_popup_cache.py` (the popups of variants kept between field opens) and `docs/tools/test_echo_questions.py` (the questions to
 the app after a separator the keyboard typed, counted, with and without the one question of Android 12+), `docs/tools/prevword_test/PrevWordTest.java` and
 `docs/tools/test_prev_word.py` (the word before the one being typed asked once per word; one question after our own separator).
+
+### Stage 4 part 1 (build _82): the memory cleanup
+
+`LatinIME.onTrimMemory` now lets go of what the keyboard keeps and can make again (see the plan, stage 4). The meter shows it:
+
+- **"Memory cleanup"**: how many times the system asked (this process, since the last reset) and how long the cleanup took (average,
+  95 %, maximum). It is cheap: it clears maps and drops references, nothing is rebuilt at that moment.
+- **"Last cleanup: level N · let go of K keyboards, P popups, S shadows (bytes)"**: what the last one did. The level is the one the system
+  sent (5, 10, 15 while the process runs; 20, 40, 60, 80 when it is in the background). Keyboards are the ones that were not on screen;
+  popups are the variants of long presses that were kept; shadows are the kept blurred icon outlines, and the bytes are what they held.
+  Popups and shadows are only counted when they were let go: on screen at level 5 only keyboards go (so the line says 0 and 0), on screen at
+  level 10 or more the popups go too, with the keyboard hidden everything goes. A reset of the meter removes the line.
+- **"Free memory now (test)"** (a row under the times, same Advanced screen): runs the highest level by hand and asks for a collection, then shows
+  the times again. Use it to see the effect without adb: note "Memory: Java ... native ..." before, tap it, look at the row above (a second
+  look after a few seconds shows the native memory, which is freed by the collector's cleaners a little after it). The Advanced screen is in
+  front, so the keyboard is hidden and everything the cleanup can let go of goes (shadows included). To see it with the keyboard on screen,
+  the system level has to come from the system itself (adb: `adb shell am send-trim-memory <pid> RUNNING_LOW`).
+
+What it does not touch: the engine and the dictionaries (closed when the service ends, `onDestroy`), the emoji index (dropped when its
+panel is left), the native trigram and gesture files. After a cleanup the first long press of each key builds its variants again, and the
+next draw of each icon blurs its outline again (the "Draw a frame" line goes up for that frame only).
+
+Tests: `docs/tools/test_trim_memory.py`, `docs/tools/test_shadow_cache.py`, `PerfTest.java`, `docs/tools/test_perf_meter.py`.

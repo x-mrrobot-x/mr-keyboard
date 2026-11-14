@@ -12,6 +12,21 @@ public class KeyboardSwitcher {
 
     public static KeyboardSwitcher getInstance() { return sInstance; }
 
+    /** Tests only: the keyboards the next dropUnused reports, and how many times it ran. */
+    public static int stubUnused;
+    public static int stubDrops;
+    /** Tests only: dropUnused throws. */
+    public static boolean stubFail;
+
+    /** Lets go of the keyboards that are not on screen (onTrimMemory); how many. */
+    public static int dropUnused() {
+        stubDrops++;
+        if (stubFail) throw new IllegalStateException("stub");
+        int n = stubUnused;
+        stubUnused = 0;
+        return n;
+    }
+
     public LatinKeyboardView getInputView() { return view; }
 
     public boolean isAlphabetMode() { return stubAlphabet; }

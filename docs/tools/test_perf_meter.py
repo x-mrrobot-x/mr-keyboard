@@ -55,7 +55,7 @@ TEXTS = {
     "mr_ui_perf_open_kb": "OpenKb", "mr_ui_perf_open_set": "OpenSet", "mr_ui_perf_popup": "Popup",
     "mr_ui_perf_app_key": "AppKey", "mr_ui_perf_app_sugg": "AppSugg", "mr_ui_perf_app_open": "AppOpen", "mr_ui_perf_app_other": "AppOther",
     "mr_ui_perf_popup_build": "PopupBuild", "mr_ui_perf_popup_show": "PopupShow", "mr_ui_perf_sel": "Sel", "mr_ui_perf_msg": "Msg",
-    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_echo_one": "EchoOne", "mr_ui_perf_echo_run": "EchoRun", "mr_ui_perf_echo_drop": "EchoDrop", "mr_ui_perf_caps_run": "CapsRun", "mr_ui_perf_caps_flush": "CapsFlush", "mr_ui_perf_create_super": "CreateSuper", "mr_ui_perf_create_sugg": "CreateSugg", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
+    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_echo_one": "EchoOne", "mr_ui_perf_echo_run": "EchoRun", "mr_ui_perf_echo_drop": "EchoDrop", "mr_ui_perf_caps_run": "CapsRun", "mr_ui_perf_caps_flush": "CapsFlush", "mr_ui_perf_create_super": "CreateSuper", "mr_ui_perf_create_sugg": "CreateSugg", "mr_ui_perf_trim": "Trim", "mr_ui_perf_trim_last": "Last cleanup: level %1$d · %2$d keyboards, %3$d popups, %4$d shadows (%5$s)", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
     "mr_ui_perf_stat": "%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)",
     "mr_ui_perf_one": "%1$s: %2$s ms", "mr_ui_perf_none": "Nothing yet.", "mr_ui_perf_mem": "Memory: Java %1$s · native %2$s",
     "mr_ui_perf_reset": "Tap to reset.",
@@ -94,6 +94,8 @@ class Fw:
         self.prefs = {}          # the file of the history of the starts (key -> text)
         self.prefs_files = []    # the names of the files asked for
         self.storage_broken = False   # a phone that cannot read or write the file
+        self.trim_forgets = 0         # MrTrim.forget calls (the reset)
+        self.trim = {"sCount": 0, "sLevel": 0, "sKeyboards": 0, "sPopups": 0, "sShadows": 0, "sBytes": 0}
         self.perf = dm.VM(PERF, dm.parse_methods(os.path.join(APP, "MrPerf.smali")), self)
         self.reset_cls = dm.VM(RESET, dm.parse_methods(os.path.join(APP, "MrPerf$Reset.smali")), self)
         self.perf.run("<clinit>()V", [])
@@ -114,6 +116,8 @@ class Fw:
     accel = 0                    # MrAccel.state of this device: UNKNOWN
 
     def sget(self, cls, name):
+        if cls == "Lcom/mrkeyboard/app/MrTrim;" and name in self.trim:
+            return self.trim[name]    # what the last memory cleanup did (MrTrim), read by the summary
         raise AssertionError("static not faked: %s.%s" % (cls, name))
 
     def new_instance(self, cls):
@@ -130,6 +134,9 @@ class Fw:
         if cls == RESET and mem == "<init>(Landroid/content/Context;)V":
             return self.reset_cls.run(mem, args)
         if cls == "Ljava/lang/Object;" and mem == "<init>()V":
+            return None
+        if cls == "Lcom/mrkeyboard/app/MrTrim;" and mem == "forget()V":
+            self.trim_forgets += 1   # the reset takes the line of the last memory cleanup away (MrTrim.forget)
             return None
         if cls == "Lcom/mrkeyboard/app/MrAccel;" and mem == "state(Landroid/content/Context;)I":
             return self.accel
@@ -260,10 +267,10 @@ def j(a):
 KINDS = ["create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
          "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
          "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg",
-         "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop", "caps-run", "caps-flush", "create-super", "create-sugg"]
+         "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop", "caps-run", "caps-flush", "create-super", "create-sugg", "trim"]
 N = len(KINDS)
 CREATE, VIEW, OPEN, SHOWN, FRAME, KEY, TOUCH, APP_, SUGG, KEY_LETTER, KEY_SEP, KEY_DEL, KEY_OTHER, SUGG_ENGINE, SUGG_SHOW, \
-    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW, SEL, MSG, APP_SEL, APP_MSG, ECHO_CUT, ECHO_FULL, ECHO_ONE, ECHO_RUN, ECHO_DROP, CAPS_RUN, CAPS_FLUSH, CREATE_SUPER, CREATE_SUGG = range(N)
+    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW, SEL, MSG, APP_SEL, APP_MSG, ECHO_CUT, ECHO_FULL, ECHO_ONE, ECHO_RUN, ECHO_DROP, CAPS_RUN, CAPS_FLUSH, CREATE_SUPER, CREATE_SUGG, TRIM = range(N)
 
 # ======================================================================== part 1: the smali of MrPerf
 fw = Fw()
@@ -292,7 +299,9 @@ for code_, want in ((97, KEY_LETTER), (65, KEY_LETTER), (53, KEY_LETTER), (233, 
     kind_of[code_] = fw.run("keyKind(I)I", code_) == want
 check("the kind of each key code (letters, digits, accents / space, Enter, punctuation / delete / the negative codes and 0)",
       all(kind_of.values()), [c_ for c_, v in kind_of.items() if not v])
+forgets = fw.trim_forgets
 fw.run("reset()V")
+check("the reset tells MrTrim to forget the line of the last cleanup (once)", fw.trim_forgets == forgets + 1, (forgets, fw.trim_forgets))
 for code_, kind in ((100, KEY_LETTER), (32, KEY_SEP), (-5, KEY_DEL), (-1, KEY_OTHER)):
     fw.run("keyBegin(I)V", code_); fw.tick(700); fw.run("keyEnd()V")
     check("key %d: KEY and %s, no other kind" % (code_, KINDS[kind]), fw.stats(kind)[4] == 700
@@ -504,7 +513,7 @@ scr, row = fw.screen()
 fw.fill(scr)
 check("nothing measured: 'nothing yet' and the memory", row.f["summary"] == "Nothing yet.\nMemory: Java 24.1 MB · native 18.3 MB",
       row.f["summary"])
-check("the row is asked by its key and gets a tap listener", scr.f["asked"] == ["mr_perf"] and row.f["click"] is not None
+check("the row is asked by its key and gets a tap listener", scr.f["asked"] == ["mr_perf", "mr_perf_trim"] and row.f["click"] is not None
       and row.f["click"].cls == RESET)
 fw.set_nanos(0)
 fw.run("createBegin()V"); fw.tick(182400); fw.run("createEnd()V")
@@ -525,7 +534,7 @@ fw.fill(scr)
 lines = row.f["summary"].split("\n")
 names = ["Start", "View", "Open", "Shown", "Frame", "Key", "Touch", "App", "Sugg", "KeyLetter", "KeySep", "KeyDel", "KeyOther",
          "SuggEngine", "SuggShow", "OpenKb", "OpenSet", "Popup", "AppKey", "AppSugg", "AppOpen", "AppOther", "PopupBuild", "PopupShow",
-         "Sel", "Msg", "AppSel", "AppMsg", "EchoCut", "EchoFull", "EchoOne", "EchoRun", "EchoDrop", "CapsRun", "CapsFlush", "CreateSuper", "CreateSugg"]
+         "Sel", "Msg", "AppSel", "AppMsg", "EchoCut", "EchoFull", "EchoOne", "EchoRun", "EchoDrop", "CapsRun", "CapsFlush", "CreateSuper", "CreateSugg", "Trim"]
 check("every kind in order, then memory and reset", len(lines) == N + 2
       and all(lines[k].startswith("%s: average %d.0 ms" % (names[k], k + 1)) for k in range(N)), lines)
 # the frame line says what a frame measures, by how this device draws the window (MrAccel.state: 0 unknown, 1 GPU, 2 CPU)
@@ -554,7 +563,18 @@ fw.missing = {"mr_ui_perf_frame_gpu", "mr_ui_perf_frame"}
 check("... no name of the frame at all: the line is left out, the others stay, and no 'None' is written",
       "None" not in summary_for(mode=1) and len(summary_for(mode=1).split("\n")) == (N - 1) + 2, summary_for(mode=1))
 fw.missing = set()
+
+# the line of the last memory cleanup (stage 4): only after one ran, before the memory line, with its five values; the reset forgets it
+check("no cleanup yet: no line of it", "Last cleanup" not in summary_for())
+fw.trim.update(sCount=2, sLevel=40, sKeyboards=3, sPopups=5, sShadows=7, sBytes=2048)
+tl = summary_for().split("\n")
+check("a cleanup ran: its line comes after the kinds and before the memory and the reset", len(tl) == N + 3
+      and tl[N] == "Last cleanup: level 40 · 3 keyboards, 5 popups, 7 shadows (2 KB)" and tl[N + 1].startswith("Memory:"), tl[N:])
+fw.missing = {"mr_ui_perf_trim_last"}
+check("its text missing: the line is left out and no 'None' is written", "None" not in summary_for() and len(summary_for().split("\n")) == N + 2)
 fw.missing = set()
+fw.trim.update(sCount=0)
+
 fw.missing = {"mr_ui_perf_reset", "mr_ui_perf_mem", "mr_ui_perf_stat"}
 scr, row = fw.screen()
 fw.fill(scr)
@@ -910,7 +930,8 @@ check("the Advanced screen fills the row when it resumes",
 perf_src = open(os.path.join(APP, "MrPerf.smali"), encoding="utf-8").read()
 called = set()
 for f in os.listdir(APP):
-    if f.endswith(".smali") and not f.startswith("MrPerf"):
+    # MrTrim is of the Java layer (the same package, so it calls begin/end, which are not public)
+    if f.endswith(".smali") and not f.startswith("MrPerf") and not f.startswith("MrTrim"):
         called |= set(re.findall(re.escape(PERF) + r"->(\w+\([^)]*\)\S+)", open(os.path.join(APP, f), encoding="utf-8").read()))
 missing = [m for m in sorted(called) if not re.search(r"\.method public static " + re.escape(m) + r"\n", perf_src)]
 check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 52,

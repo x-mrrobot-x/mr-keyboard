@@ -10,8 +10,9 @@
 # child of a state list), the size of the key, the bounds, alpha and level of the drawable, and the radius. The colour is not
 # part of it: the shadow is only alpha, coloured at drawing time by the filter of the call. When the places are full the oldest
 # is replaced (round robin). A kept bitmap is not recycled while drawing: a frame drawn later by the render thread may still
-# use it. Stage 4 of docs/plan-performance.md adds the explicit release at the safe moments (window hidden, view replaced,
-# onTrimMemory); until then the replaced ones go to the garbage collector. Stage 1; test: docs/tools/test_shadow_cache.py.
+# use it, and drawing a recycled bitmap throws; the replaced ones go to the garbage collector. Stage 1; test:
+# docs/tools/test_shadow_cache.py. Stage 4: release() lets go of all the places when the system asks for memory (onTrimMemory), also
+# without recycling, for the same reason; heldBytes() says what they hold, for the meter.
 
 
 # static fields
@@ -421,6 +422,82 @@
     invoke-virtual {v1}, Landroid/graphics/Bitmap;->recycle()V
 
     throw v0
+.end method
+
+# Bytes the kept shadows hold now (the sum of Bitmap.getByteCount of the places that are filled).
+.method static heldBytes()I
+    .locals 4
+
+    sget-object v0, Lcom/mrkeyboard/app/ShadowDrawHelper;->sBmp:[Landroid/graphics/Bitmap;
+
+    const/4 v1, 0x0
+
+    const/4 v2, 0x0
+
+    :loop
+    const/16 v3, 0x18
+
+    if-ge v2, v3, :done
+
+    aget-object v3, v0, v2
+
+    if-eqz v3, :next
+
+    invoke-virtual {v3}, Landroid/graphics/Bitmap;->getByteCount()I
+
+    move-result v3
+
+    add-int/2addr v1, v3
+
+    :next
+    add-int/lit8 v2, v2, 0x1
+
+    goto :loop
+
+    :done
+    return v1
+.end method
+
+# Lets go of every kept shadow (stage 4 of docs/plan-performance.md, onTrimMemory): the places are emptied and the bitmaps are left to
+# the garbage collector, NOT recycled: a frame that the render thread has not drawn yet may still use one, and drawing a recycled
+# bitmap throws. The next draw of an icon finds no place for it and blurs it again. Returns how many places were filled.
+.method static release()I
+    .locals 6
+
+    sget-object v0, Lcom/mrkeyboard/app/ShadowDrawHelper;->sDraw:[Landroid/graphics/drawable/Drawable;
+
+    sget-object v1, Lcom/mrkeyboard/app/ShadowDrawHelper;->sBmp:[Landroid/graphics/Bitmap;
+
+    const/4 v2, 0x0
+
+    const/4 v3, 0x0
+
+    const/4 v4, 0x0
+
+    :loop
+    const/16 v5, 0x18
+
+    if-ge v3, v5, :done
+
+    aget-object v5, v1, v3
+
+    if-eqz v5, :empty
+
+    add-int/lit8 v2, v2, 0x1
+
+    :empty
+    aput-object v4, v0, v3
+
+    aput-object v4, v1, v3
+
+    add-int/lit8 v3, v3, 0x1
+
+    goto :loop
+
+    :done
+    sput v4, Lcom/mrkeyboard/app/ShadowDrawHelper;->sNext:I
+
+    return v2
 .end method
 
 # Draws the shadow of the icon d of key k (d already has its bounds, the canvas is at the corner of the key), blurred with

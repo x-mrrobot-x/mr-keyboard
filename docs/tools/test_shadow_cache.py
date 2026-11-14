@@ -130,6 +130,8 @@ class Fw:
             if mem == "recycle()V":
                 a0.f["recycled"] = True
                 return None
+            if mem == "getByteCount()I":
+                return a0.f["w"] * a0.f["h"]      # an alpha-only bitmap: one byte a pixel
         if cls == "Landroid/graphics/Canvas;":
             if mem == "setBitmap(Landroid/graphics/Bitmap;)V":
                 a0.f["bitmap"] = args[1]
@@ -271,6 +273,30 @@ fw.draw(icons[0], k)
 check("the first one is blurred again", fw.blurs == 26)
 alphas = [b for b in fw.bitmaps if b.f["kind"] == "alpha"]
 check("no blurred alpha was ever recycled", not any(b.f["recycled"] for b in alphas))
+
+# ---------------------------------------------------------------- let go of the kept shadows (stage 4: onTrimMemory)
+fw = Fw()
+check("nothing kept: heldBytes 0 and release 0", fw.vm.run("heldBytes()I", []) == 0 and fw.vm.run("release()I", []) == 0)
+icons = [fw.drawable(i, 0, i + 30, 30) for i in range(3)]
+k = fw.key()
+for d in icons:
+    fw.draw(d, k)
+alphas = [b for b in fw.bitmaps if b.f["kind"] == "alpha"]
+held = fw.vm.run("heldBytes()I", [])
+check("heldBytes is the sum of the kept bitmaps", held == sum(b.f["w"] * b.f["h"] for b in alphas) and held > 0, (held, len(alphas)))
+check("release says how many places were filled", fw.vm.run("release()I", []) == 3)
+check("... the places are empty", all(x is None or x == 0 for x in fw.vm.statics["sDraw"]) and all(x is None or x == 0 for x in fw.vm.statics["sBmp"]))
+check("... the next place to fill is the first again", fw.vm.statics["sNext"] == 0)
+check("... nothing is held, and a second release finds nothing", fw.vm.run("heldBytes()I", []) == 0 and fw.vm.run("release()I", []) == 0)
+check("... NOT recycled: a frame still to be drawn may use them", not any(b.f["recycled"] for b in alphas))
+blurs = fw.blurs
+fw.draw(icons[0], k)
+check("the next draw of an icon blurs it again and draws the new bitmap", fw.blurs == blurs + 1 and fw.drawn[-1][0] not in alphas, (blurs, fw.blurs))
+check("... and it is kept again", fw.vm.run("release()I", []) == 1)
+for d in icons:
+    fw.draw(d, k)
+check("after a release the places are filled from the first one again (round robin from 0)", fw.vm.statics["sNext"] == 3
+      and fw.vm.run("heldBytes()I", []) > 0, fw.vm.statics["sNext"])
 
 # ---------------------------------------------------------------- render mode of the keyboard view
 lines = [l.strip() for l in open(os.path.join(APP, "GlobalKeyboardSettings.smali"), encoding="utf-8")]

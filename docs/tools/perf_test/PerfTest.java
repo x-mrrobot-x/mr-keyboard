@@ -46,6 +46,8 @@ public class PerfTest {
             {"mr_ui_perf_popup_build", "Popup build"}, {"mr_ui_perf_popup_show", "Popup show"},
             {"mr_ui_perf_sel", "Selection change"}, {"mr_ui_perf_msg", "Message"}, {"mr_ui_perf_app_sel", "App in a selection change"},
             {"mr_ui_perf_app_msg", "App in a message"}, {"mr_ui_perf_echo_cut", "Echo short check"}, {"mr_ui_perf_echo_full", "Echo full check"}, {"mr_ui_perf_echo_one", "Echo one question"}, {"mr_ui_perf_echo_run", "Echo reaction that waited"}, {"mr_ui_perf_echo_drop", "Echo reaction dropped"}, {"mr_ui_perf_caps_run", "Caps update that waited"}, {"mr_ui_perf_caps_flush", "Caps update asked early"}, {"mr_ui_perf_create_super", "Start: Android"}, {"mr_ui_perf_create_sugg", "Start: engine"}, {"mr_ui_perf_frame_gpu", "Frame (GPU)"}, {"mr_ui_perf_frame_cpu", "Frame (CPU)"},
+            {"mr_ui_perf_trim", "Memory cleanup"},
+            {"mr_ui_perf_trim_last", "Last cleanup: level %1$d · let go of %2$d keyboards, %3$d popups, %4$d shadows (%5$s)"},
             {"mr_ui_perf_starts", "%1$s, last %2$d starts: min %3$s ms · median %4$s · max %5$s"},
             {"mr_ui_perf_stat", "%1$s: average %2$s ms · p95 %3$s · max %4$s (%5$d×)"}, {"mr_ui_perf_one", "%1$s: %2$s ms (once)"},
             {"mr_ui_perf_none", "Nothing measured yet."}, {"mr_ui_perf_mem", "Memory: Java %1$s · native %2$s"},
@@ -66,11 +68,13 @@ public class PerfTest {
 
     static class Advanced extends PreferenceActivity {
         final Row row = new Row();
+        final Row trimRow = new Row();
         final ArrayList<String> asked = new ArrayList<String>();
         boolean hasRow = true, broken;
         public Preference findPreference(CharSequence key) {
             if (broken) throw new IllegalStateException("no screen");
             asked.add(String.valueOf(key));
+            if (hasRow && "mr_perf_trim".equals(String.valueOf(key))) return trimRow;
             return hasRow && "mr_perf".equals(String.valueOf(key)) ? row : null;
         }
         public String getPackageName() { return "com.mrkeyboard.app"; }
@@ -150,7 +154,8 @@ public class PerfTest {
         String sum = String.valueOf(scr.row.summary);
         check("empty: 'nothing yet', the memory, no reset line", sum.startsWith("Nothing measured yet.\nMemory: Java ")
                 && sum.endsWith(" · native 18.3 MB") && !sum.contains("Tap"));
-        check("the row was looked up by its key", "[mr_perf]", scr.asked.toString());
+        check("the rows were looked up by their keys", "[mr_perf, mr_perf_trim]", scr.asked.toString());
+        check("the cleanup row has a tap listener", scr.trimRow.click != null);
         check("a tap listener is set", scr.row.click != null);
 
         // ---------------------------------------------------------------- begin / end
@@ -564,6 +569,96 @@ public class PerfTest {
         check("no storage: no exception, the process is not marked saved, the lines are the plain ones", "false|Start the keyboard: 40.0 ms (once)",
                 MrPerf.sStartSaved + "|" + String.valueOf(bad.row.summary).split("\n")[0]);
         MrPerf.sStartSaved = true;
+
+        // ---------------------------------------------------------------- the memory cleanup (docs/plan-performance.md, stage 4)
+        MrPerf.reset();
+        LatinKeyboardView tview = new LatinKeyboardView();
+        KeyboardSwitcher.getInstance().view = tview;
+        tview.stubShown = true;
+        MrTrim.onTrim(0);
+        check("below the lowest level of a running process: nothing runs", "0,0,0,0",
+                KeyboardSwitcher.stubDrops + "," + tview.stubTrims + "," + ShadowDrawHelper.stubReleases + "," + MrTrim.sCount);
+        check("... and nothing is measured", "0,0,0,0,0", join(st(MrPerf.TRIM)));
+
+        // the keyboard is on screen, the level is the lowest: only the keyboards that are not in use
+        KeyboardSwitcher.stubUnused = 3;
+        tview.stubPopups = 9;
+        ShadowDrawHelper.stubKept = 12;
+        ShadowDrawHelper.stubBytes = 36000;
+        MrTrim.onTrim(MrTrim.MODERATE);
+        check("on screen, level 5: the unused keyboards go, the view and the shadows are left",
+                "1,0,0", KeyboardSwitcher.stubDrops + "," + tview.stubTrims + "," + ShadowDrawHelper.stubReleases);
+        check("... what it did is kept", "5,3,0,0,0,1", MrTrim.sLevel + "," + MrTrim.sKeyboards + "," + MrTrim.sPopups + ","
+                + MrTrim.sShadows + "," + MrTrim.sBytes + "," + MrTrim.sCount);
+        check("... and the time of it is one sample of TRIM", 1, st(MrPerf.TRIM)[0]);
+
+        // on screen, the level LOW: the popups and the measures of the view go too, the shadows (in use) are left
+        KeyboardSwitcher.stubUnused = 2;
+        MrTrim.onTrim(MrTrim.LOW);
+        check("on screen, level 10: the view lets go of its caches, the shadows are left", "2,1,0",
+                KeyboardSwitcher.stubDrops + "," + tview.stubTrims + "," + ShadowDrawHelper.stubReleases);
+        check("... popups counted", "10,2,9,0,0,2", MrTrim.sLevel + "," + MrTrim.sKeyboards + "," + MrTrim.sPopups + ","
+                + MrTrim.sShadows + "," + MrTrim.sBytes + "," + MrTrim.sCount);
+
+        // the keyboard is not on screen (hidden): everything it keeps goes, whatever the level
+        tview.stubShown = false;
+        KeyboardSwitcher.stubUnused = 4;
+        tview.stubPopups = 5;
+        MrTrim.onTrim(MrTrim.MODERATE);
+        check("hidden, level 5: keyboards, view caches and shadows", "3,2,1",
+                KeyboardSwitcher.stubDrops + "," + tview.stubTrims + "," + ShadowDrawHelper.stubReleases);
+        check("... what it did", "5,4,5,12,36000,3", MrTrim.sLevel + "," + MrTrim.sKeyboards + "," + MrTrim.sPopups + ","
+                + MrTrim.sShadows + "," + MrTrim.sBytes + "," + MrTrim.sCount);
+        check("... nothing is kept in the stub afterwards", "0,0", ShadowDrawHelper.stubKept + "," + ShadowDrawHelper.stubBytes);
+
+        // no view at all (the keyboard was never shown in this process): the shadows are static, so they still go
+        KeyboardSwitcher.getInstance().view = null;
+        KeyboardSwitcher.stubUnused = 1;
+        ShadowDrawHelper.stubKept = 2;
+        ShadowDrawHelper.stubBytes = 800;
+        MrTrim.onTrim(MrTrim.COMPLETE);
+        check("no view: the keyboards and the shadows go, no view call", "4,2,2",
+                KeyboardSwitcher.stubDrops + "," + tview.stubTrims + "," + ShadowDrawHelper.stubReleases);
+        check("... what it did", "80,1,0,2,800,4", MrTrim.sLevel + "," + MrTrim.sKeyboards + "," + MrTrim.sPopups + ","
+                + MrTrim.sShadows + "," + MrTrim.sBytes + "," + MrTrim.sCount);
+
+        // something throws: the system is waiting, so nothing goes up, and the cleanup is still counted and timed
+        KeyboardSwitcher.getInstance().view = tview;
+        KeyboardSwitcher.stubFail = true;
+        boolean trimThrew = false;
+        try { MrTrim.onTrim(MrTrim.COMPLETE); } catch (Throwable t) { trimThrew = true; }
+        KeyboardSwitcher.stubFail = false;
+        check("a failure inside does not go up", false, trimThrew);
+        check("... it is counted and timed, and it did nothing", "80,0,0,0,0,5,5", MrTrim.sLevel + "," + MrTrim.sKeyboards + "," + MrTrim.sPopups
+                + "," + MrTrim.sShadows + "," + MrTrim.sBytes + "," + MrTrim.sCount + "," + st(MrPerf.TRIM)[0]);
+
+        // the meter: the line of the last cleanup, and the reset takes it away
+        Advanced tscr = new Advanced();
+        MrPerf.fill(tscr);
+        String tsum = String.valueOf(tscr.row.summary);
+        check("the row has the time line of the cleanup", true, tsum.contains("Memory cleanup: average "));
+        check("... and the line of what the last one let go of", true,
+                tsum.contains("Last cleanup: level 80 · let go of 0 keyboards, 0 popups, 0 shadows ("));
+        MrPerf.reset();
+        check("the reset takes the line away", 0, MrTrim.sCount);
+        MrPerf.fill(tscr);
+        check("... also from the row", false, String.valueOf(tscr.row.summary).contains("Last cleanup"));
+
+        // the row of the Advanced screen that runs it by hand: the highest level, then the meter again
+        KeyboardSwitcher.stubUnused = 6;
+        tview.stubShown = false;
+        tview.stubPopups = 1;
+        ShadowDrawHelper.stubKept = 7;
+        ShadowDrawHelper.stubBytes = 4096;
+        Advanced bscr = new Advanced();
+        MrPerf.fill(bscr);
+        boolean tapped = bscr.trimRow.click.onPreferenceClick(bscr.trimRow);
+        check("a tap on the cleanup row is handled", true, tapped);
+        check("... it ran the highest level", "80,6,1,7,4096,1", MrTrim.sLevel + "," + MrTrim.sKeyboards + "," + MrTrim.sPopups + ","
+                + MrTrim.sShadows + "," + MrTrim.sBytes + "," + MrTrim.sCount);
+        check("... and the meter row shows it at once", true, String.valueOf(bscr.row.summary).contains("Last cleanup: level 80 · let go of 6 keyboards, 1 popups, 7 shadows ("));
+        MrPerf.reset();
+        KeyboardSwitcher.getInstance().view = null;
 
         // ---------------------------------------------------------------- the log
         MrPerf.reset();

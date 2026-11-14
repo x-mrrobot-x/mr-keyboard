@@ -19,6 +19,18 @@ public class LatinKeyboardBaseView extends android.view.View {
 
     public void invalidateAllKeys() { }
 
+    /** Tests only: the popups the next trimCaches reports, and how many times it ran. */
+    public int stubPopups;
+    public int stubTrims;
+
+    /** Lets go of the popups of variants and the measures that the view keeps (onTrimMemory); how many popups were kept. */
+    public int trimCaches() {
+        stubTrims++;
+        int n = stubPopups;
+        stubPopups = 0;
+        return n;
+    }
+
     public int getShiftState() { return stubShift; }
 
     protected boolean popupKeyboardIsShowing() { return stubPopup; }

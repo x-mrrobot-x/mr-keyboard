@@ -108,6 +108,8 @@ it measured.
 - Rule for any explicit release of a bitmap: never during a draw, and only when no frame can still use it (the window hidden, or
   the view that drew it replaced), followed by an invalidation; with an accelerated window a frame is drawn later by the render
   thread, so "after the next frame" is not enough.
+- Already handled before stage 4: the emoji search index is dropped when its panel is left (`MrEmojiSearch.release`); the translator
+  and the AI editor keep no connection of their own (the platform keeps the sockets of finished requests in its pool).
 
 ### Settings screens
 
@@ -440,3 +442,26 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   Next (the owner): install, tap the row, then 5 or more times: force stop the keyboard, open a field, type a little, open the Advanced
   screen and look. Report the four lines "last N starts".
 
+- Stage 4, part 1 (build _82): the keyboard answers `onTrimMemory` and closes everything in `onDestroy`.
+  `LatinIME.onTrimMemory` calls the system class and then `MrTrim.onTrim(level)` (Java, never throws into the system). By what the
+  keyboard can count, not by a memory threshold: any level from 5 up lets go of the keyboards that are not on screen
+  (`KeyboardSwitcher.dropUnused`; the one on screen stays in the map, so what is kept for it keeps being found); from level 10 up, or
+  when the keyboard is not on screen (no view, detached or hidden: `View.isShown`), also the popups of variants, the label measures and
+  the text heights of the view (`LatinKeyboardBaseView.trimCaches`); when it is not on screen, also the 24 kept shadows
+  (`ShadowDrawHelper.release`). `onDestroy` closes the suggestion engine, the auto dictionary and the bigram dictionary
+  (`LatinIME.mrCloseEngine`, each close in its own try, after the receivers are unregistered); before only the user dictionary was.
+  Decisions that differ from the first plan: (1) nothing is recycled: `Bitmap.recycle` while a frame recorded for the GPU may still use
+  the bitmap throws or draws garbage, and what it saves over dropping the reference (the collector frees it at the next collection) is
+  a few hundred KB at most (24 shadows), so the references are dropped; the space bar bitmap is small and goes with its keyboard.
+  (2) The emoji search index needed nothing: `MrEmojiSearch.release` already drops it when the panel is left. (3) The native trigram
+  and gesture files (`MrNative.nTriOpen`, `nGestureOpen`) are process-wide and are opened by `MrTrigram.use` / `MrGesture.use` when a
+  pack is installed or the settings change, not at every start, so closing them at `onDestroy` could leave them closed in the next
+  service of the same process: they stay as they are. (4) The main dictionary and the native engine are not released on trim: building
+  them again is the 15 ms of "Start: the suggestion engine" plus reading the dictionary, on the first key after the next open.
+  The meter: new line "Memory cleanup" (time and count of `onTrimMemory` calls), a line with what the last one let go of (level,
+  keyboards, popups, shadows and their bytes), and a row "Free memory now (test)" on the Advanced screen that runs the highest level and
+  asks for a collection, so the memory line can be compared before and after without adb.
+  Tests: `docs/tools/test_trim_memory.py` (24: `dropUnused`, `trimCaches`, `mrCloseEngine` with a failing close, `onTrimMemory`, the
+  order in `onDestroy`), `test_shadow_cache.py` +9 (47: `release`, `heldBytes`, not recycled, blurred again, round robin from 0),
+  PerfTest +23 (190: every level against the view on screen / hidden / absent, a failure inside, the meter lines, the row),
+  test_perf_meter 171.

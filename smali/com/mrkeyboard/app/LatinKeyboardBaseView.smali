@@ -4974,6 +4974,47 @@
 .end method
 
 # virtual methods
+# Stage 4 of docs/plan-performance.md (onTrimMemory): what the view keeps between two frames or two opens is let go when the system
+# asks for memory: the popups of variants, the measures of the labels and of the text height. All of it is made again when it is
+# needed (lazily, in the draw and in the long press). Returns how many popups of variants were kept.
+.method public trimCaches()I
+    .locals 3
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardCacheMain:Ljava/util/WeakHashMap;
+
+    invoke-virtual {v0}, Ljava/util/WeakHashMap;->size()I
+
+    move-result v0
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardCacheShift:Ljava/util/WeakHashMap;
+
+    invoke-virtual {v1}, Ljava/util/WeakHashMap;->size()I
+
+    move-result v1
+
+    add-int/2addr v0, v1
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardCacheCaps:Ljava/util/WeakHashMap;
+
+    invoke-virtual {v1}, Ljava/util/WeakHashMap;->size()I
+
+    move-result v1
+
+    add-int/2addr v0, v1
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->clearPopupCaches()V
+
+    const/4 v1, 0x0
+
+    iput-object v1, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mLabelMetricsCache:Lcom/mrkeyboard/app/MrLabelMetricsCache;
+
+    iget-object v2, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mTextHeightCache:Ljava/util/HashMap;
+
+    invoke-virtual {v2}, Ljava/util/HashMap;->clear()V
+
+    return v0
+.end method
+
 .method public closing()V
     .locals 3
 

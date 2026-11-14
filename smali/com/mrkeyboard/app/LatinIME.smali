@@ -9749,7 +9749,81 @@
 
     .line 660
     :cond_1
+    # Stage 4 (docs/plan-performance.md): the engine and the dictionaries are closed too (before, only the user dictionary was).
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrCloseEngine()V
+
     invoke-super {p0}, Landroid/inputmethodservice/InputMethodService;->onDestroy()V
+
+    return-void
+.end method
+
+# Stage 4 of docs/plan-performance.md: the service is over, so the suggestion engine (its main dictionary, native), the automatic
+# dictionary and the bigram dictionary are closed, as initSuggest already does with the old ones before it builds new ones. The two
+# user ones flush what is waiting to be written first (their close does). Each close is alone in its try: one that fails does not stop
+# the others, and onDestroy is already past the receivers. The fields are left as they are: a closed engine answers nothing, and a
+# reader that still holds the dead service finds an engine and not a null.
+.method private mrCloseEngine()V
+    .locals 1
+
+    :try_suggest
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mSuggest:Lcom/mrkeyboard/app/Suggest;
+
+    if-eqz v0, :suggest_done
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/Suggest;->close()V
+    :try_suggest_end
+    .catch Ljava/lang/Throwable; {:try_suggest .. :try_suggest_end} :catch_suggest
+
+    :suggest_done
+    goto :auto
+
+    :catch_suggest
+    move-exception v0
+
+    :auto
+    :try_auto
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mAutoDictionary:Lcom/mrkeyboard/app/AutoDictionary;
+
+    if-eqz v0, :auto_done
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/AutoDictionary;->close()V
+    :try_auto_end
+    .catch Ljava/lang/Throwable; {:try_auto .. :try_auto_end} :catch_auto
+
+    :auto_done
+    goto :bigram
+
+    :catch_auto
+    move-exception v0
+
+    :bigram
+    :try_bigram
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mUserBigramDictionary:Lcom/mrkeyboard/app/UserBigramDictionary;
+
+    if-eqz v0, :bigram_done
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/UserBigramDictionary;->close()V
+    :try_bigram_end
+    .catch Ljava/lang/Throwable; {:try_bigram .. :try_bigram_end} :catch_bigram
+
+    :bigram_done
+    goto :engine_end
+
+    :catch_bigram
+    move-exception v0
+
+    :engine_end
+    return-void
+.end method
+
+# Stage 4 of docs/plan-performance.md: the system asks the process for memory (ComponentCallbacks2). MrTrim lets go, by the level, of what
+# the keyboard keeps and can make again; it never throws into the system.
+.method public onTrimMemory(I)V
+    .locals 0
+
+    invoke-super {p0, p1}, Landroid/inputmethodservice/InputMethodService;->onTrimMemory(I)V
+
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrTrim;->onTrim(I)V
 
     return-void
 .end method

@@ -91,7 +91,7 @@ public final class MrPerf {
             KEY_LETTER = 9, KEY_SEP = 10, KEY_DEL = 11, KEY_OTHER = 12, SUGG_ENGINE = 13, SUGG_SHOW = 14,
             OPEN_KB = 15, OPEN_SET = 16, POPUP = 17, APP_KEY = 18, APP_SUGG = 19, APP_OPEN = 20, APP_OTHER = 21,
             POPUP_BUILD = 22, POPUP_SHOW = 23, SEL = 24, MSG = 25, APP_SEL = 26, APP_MSG = 27, ECHO_CUT = 28, ECHO_FULL = 29, ECHO_ONE = 30, ECHO_RUN = 31, ECHO_DROP = 32,
-            CAPS_RUN = 33, CAPS_FLUSH = 34, CREATE_SUPER = 35, CREATE_SUGG = 36, KINDS = 37;
+            CAPS_RUN = 33, CAPS_FLUSH = 34, CREATE_SUPER = 35, CREATE_SUGG = 36, TRIM = 37, KINDS = 38;
     /** A piece of work that began longer ago than this (milliseconds) and never ended is not taken as the place of a wait. */
     static final int PLACE_MAX_MS = 10000;
     /** Samples kept per kind (a power of two) for the average and the p95. */
@@ -116,12 +116,12 @@ public final class MrPerf {
             "mr_ui_perf_popup_build", "mr_ui_perf_popup_show", "mr_ui_perf_sel", "mr_ui_perf_msg",
             "mr_ui_perf_app_sel", "mr_ui_perf_app_msg", "mr_ui_perf_echo_cut", "mr_ui_perf_echo_full", "mr_ui_perf_echo_one",
             "mr_ui_perf_echo_run", "mr_ui_perf_echo_drop", "mr_ui_perf_caps_run", "mr_ui_perf_caps_flush",
-            "mr_ui_perf_create_super", "mr_ui_perf_create_sugg" };
+            "mr_ui_perf_create_super", "mr_ui_perf_create_sugg", "mr_ui_perf_trim" };
     /** Names of the kinds in the log line. */
     static final String[] LOG = { "create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
             "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
             "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg",
-            "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop", "caps-run", "caps-flush", "create-super", "create-sugg" };
+            "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop", "caps-run", "caps-flush", "create-super", "create-sugg", "trim" };
 
     private static final int[] sRing = new int[KINDS * SIZE];
     private static final int[] sCount = new int[KINDS];
@@ -390,6 +390,7 @@ public final class MrPerf {
         sLoggedKeys = 0;
         sEchoAt = -1;
         sCapsAt = -1;
+        MrTrim.forget();
     }
 
     // ------------------------------------------------------------------ the history of the starts
@@ -555,6 +556,15 @@ public final class MrPerf {
                 }
             }
         }
+        if (MrTrim.sCount > 0) {
+            // what the last memory cleanup let go of (the time of it is the line above)
+            String last = MrPacks.text(c, "mr_ui_perf_trim_last", Integer.valueOf(MrTrim.sLevel), Integer.valueOf(MrTrim.sKeyboards),
+                    Integer.valueOf(MrTrim.sPopups), Integer.valueOf(MrTrim.sShadows), MrDiag.bytesText(MrTrim.sBytes));
+            if (last != null) {
+                if (sb.length() > 0) sb.append('\n');
+                sb.append(last);
+            }
+        }
         boolean measured = sb.length() > 0;
         if (!measured) {
             String none = MrPacks.text(c, "mr_ui_perf_none");
@@ -591,8 +601,32 @@ public final class MrPerf {
             saveStart(screen);
             row.setSummary(summary(screen));
             row.setOnPreferenceClickListener(new Reset(screen));
+            Preference trim = screen.findPreference(MrTrim.ROW);
+            if (trim != null) trim.setOnPreferenceClickListener(new Trim(screen, row));
         } catch (RuntimeException e) {
             // the row keeps the text of the XML
+        }
+    }
+
+    /**
+     * A tap on the row of the cleanup: it runs the cleanup of the highest level, as if the system had asked for memory, and shows the
+     * meter again (the memory line says what it freed once the garbage collector ran: the collection is asked for here, only here; the
+     * system does it by itself).
+     */
+    static final class Trim implements Preference.OnPreferenceClickListener {
+        private final Context mContext;
+        private final Preference mRow;
+
+        Trim(Context c, Preference row) {
+            mContext = c;
+            mRow = row;
+        }
+
+        public boolean onPreferenceClick(Preference p) {
+            MrTrim.onTrim(MrTrim.COMPLETE);
+            System.gc();
+            mRow.setSummary(summary(mContext));
+            return true;
         }
     }
 

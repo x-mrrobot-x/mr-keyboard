@@ -37,7 +37,8 @@
 #     average and p95 of the last 256 samples with the count and maximum since the reset, the first frame after a field opens (not after
 #     2 s), how late a finger down reaches the keyboard, a key counted by its kind (letter, separator, delete, other), the Advanced row
 #     (lines, memory, a tap resets), the history of the last 9 starts (minimum, median, maximum; saved when the screen opens, cleared by a
-#     tap) and one log line per hide with keys.
+#     tap), one log line per hide with keys, and the memory cleanup of stage 4 (MrTrim: by level, against the view on screen, hidden or
+#     absent, a failure inside never goes up, the line of the last cleanup, the row that runs it by hand).
 #   - PrevWordTest: stage 6, part 5 of docs/plan-performance.md, the questions to the app counted on a fake app: the word before the one being
 #     typed (MrPrevWord) asked once per word instead of once per letter, with the answer of EditingUtil.getPreviousWord for every letter of
 #     thousands of random words (long words, long previous words cut by the 15 characters, any text); when it asks as before (the app does not show
@@ -109,7 +110,7 @@ echo "== DiagTest (memory and load time line)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_diag" $D/diag_test/DiagTest.java
 java -cp "$T/test_diag:$T/stubs:$T/main" com.mrkeyboard.app.DiagTest
 
-echo "== PerfTest (performance meter: begin/end, average/p95/max, first frame, touch wait, the Advanced row, the history of the starts, the log)"
+echo "== PerfTest (performance meter: begin/end, average/p95/max, first frame, touch wait, the Advanced row, the history of the starts, the memory cleanup, the log)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_perf" $D/perf_test/PerfTest.java
 java -Dfile.encoding=UTF-8 -cp "$T/test_perf:$T/stubs:$T/main" com.mrkeyboard.app.PerfTest
 

@@ -2424,6 +2424,30 @@
     return-void
 .end method
 
+# Stage 4 of docs/plan-performance.md (onTrimMemory): the keyboards that are not on screen are let go (each is built again from its XML when
+# it is needed). The one on screen stays in the map, so what is kept for it (the popups of variants, found again for the same keyboard
+# object) keeps being found. Returns how many were let go.
+.method public static dropUnused()I
+ .locals 5
+ sget-object v0, Lcom/mrkeyboard/app/KeyboardSwitcher;->sInstance:Lcom/mrkeyboard/app/KeyboardSwitcher;
+ iget-object v1, v0, Lcom/mrkeyboard/app/KeyboardSwitcher;->mKeyboards:Ljava/util/HashMap;
+ invoke-virtual {v1}, Ljava/util/HashMap;->size()I
+ move-result v2
+ iget-object v3, v0, Lcom/mrkeyboard/app/KeyboardSwitcher;->mCurrentId:Lcom/mrkeyboard/app/KeyboardSwitcher$KeyboardId;
+ if-eqz v3, :all
+ invoke-virtual {v1, v3}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+ move-result-object v4
+ invoke-virtual {v1}, Ljava/util/HashMap;->clear()V
+ if-eqz v4, :counted
+ invoke-virtual {v1, v3, v4}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+ add-int/lit8 v2, v2, -0x1
+ :counted
+ return v2
+ :all
+ invoke-virtual {v1}, Ljava/util/HashMap;->clear()V
+ return v2
+.end method
+
 .method public static release(Lcom/mrkeyboard/app/LatinIME;)V
  .locals 3
  sget-object v0, Lcom/mrkeyboard/app/KeyboardSwitcher;->sInstance:Lcom/mrkeyboard/app/KeyboardSwitcher;
