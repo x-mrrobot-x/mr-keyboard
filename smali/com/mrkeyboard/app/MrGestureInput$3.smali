@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 752
+    .line 756
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -36,10 +36,10 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 754
+    .line 758
     invoke-static {v2}, Lcom/mrkeyboard/app/MrGestureInput;->access$002(Z)Z
 
-    .line 756
+    .line 760
     :try_start_0
     invoke-static {}, Lcom/mrkeyboard/app/MrGestureInput;->access$100()I
 
@@ -79,16 +79,16 @@
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 760
+    .line 764
     :cond_0
     :goto_0
     return-void
 
-    .line 757
+    .line 761
     :catch_0
     move-exception v0
 
-    .line 758
+    .line 762
     invoke-static {v2}, Lcom/mrkeyboard/app/MrGestureInput;->access$202(Z)Z
 
     goto :goto_0

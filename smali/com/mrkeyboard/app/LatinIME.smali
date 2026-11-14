@@ -260,6 +260,12 @@
 # asking the app is pointless then. It never outlives the key.
 .field private mMrLetter:Z
 
+# Caps question cut after a picked word (docs/plan-performance.md stage 10): true only inside pickSuggestionManually, from the
+# moment a word that ends in a letter is written until its space and the shift update are done. What is before the cursor is
+# then that letter or the space after it, so TextUtils.getCapsMode answers 0 unless the field asks for capitals on every
+# word or all capitals (0x3000). It never outlives the pick.
+.field private mMrPick:Z
+
 .field private mMetaKeyState:Lcom/mrkeyboard/app/ModifierKeyState;
 
 .field private mModAlt:Z
@@ -1979,9 +1985,24 @@
     # (0x1000): what the app answers in the middle of a word is 0 (TextUtils.getCapsMode), so it is not asked.
     iget-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrLetter:Z
 
-    if-eqz v1, :cond_mr_ask
+    if-eqz v1, :cond_mr_pick
 
     and-int/lit16 v1, p2, 0x1000
+
+    if-nez v1, :cond_mr_ask
+
+    const/4 p1, 0x0
+
+    goto :goto_0
+
+    # Same cut after a picked word (mMrPick): the letter or the space after it is before the cursor; 0x2000 (capital on every
+    # word) would ask for a capital after the space, so there the app is still asked.
+    :cond_mr_pick
+    iget-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrPick:Z
+
+    if-eqz v1, :cond_mr_ask
+
+    and-int/lit16 v1, p2, 0x3000
 
     if-nez v1, :cond_mr_ask
 
@@ -4058,6 +4079,12 @@
     # The update of the shift state at the end of a separator: with the switch on and a handler it waits as long as the
     # suggestions do (0x64 = 100 ms, the delay of postUpdateSuggestions; no number of this project), as message 6 of mHandler
     # (LatinIME$1.handleMessage -> mrShiftRun). Otherwise it is asked here, as before.
+    # With Auto-capitalization off the update asks the app nothing (getCursorCapsMode answers 0 without a question), so there is
+    # nothing to wait for: it runs here and no message is sent.
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mAutoCapActive:Z
+
+    if-eqz v0, :cond_now
+
     iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrCapsDefer:Z
 
     if-eqz v0, :cond_now
@@ -13125,6 +13152,27 @@
     :cond_7
     iput-boolean v4, p0, Lcom/mrkeyboard/app/LatinIME;->mJustAccepted:Z
 
+    # Caps question cut (mMrPick): a word that ends in a letter leaves a letter, or the letter and its space, before the cursor.
+    # v2 is free here; the flag is cleared again once the space and the shift update are done.
+    invoke-interface {p2}, Ljava/lang/CharSequence;->length()I
+
+    move-result v2
+
+    if-lez v2, :cond_mr_nopick
+
+    add-int/lit8 v2, v2, -0x1
+
+    invoke-interface {p2, v2}, Ljava/lang/CharSequence;->charAt(I)C
+
+    move-result v2
+
+    invoke-static {v2}, Ljava/lang/Character;->isLetter(C)Z
+
+    move-result v2
+
+    iput-boolean v2, p0, Lcom/mrkeyboard/app/LatinIME;->mMrPick:Z
+
+    :cond_mr_nopick
     .line 2639
     invoke-direct {p0, p2, v0}, Lcom/mrkeyboard/app/LatinIME;->pickSuggestion(Ljava/lang/CharSequence;Z)V
 
@@ -13183,7 +13231,16 @@
     .line 2650
     iput-boolean v4, p0, Lcom/mrkeyboard/app/LatinIME;->mJustAddedAutoSpace:Z
 
+    # Word tapped with its automatic space: a sentence sign typed next (also from the symbols sheet) is glued to it, as after a
+    # gesture (MrGestureInput.afterTap does nothing while a gesture is being written).
+    invoke-static {p0, p2}, Lcom/mrkeyboard/app/MrGestureInput;->afterTap(Lcom/mrkeyboard/app/LatinIME;Ljava/lang/CharSequence;)V
+
     :cond_9
+    # The pick is written (word, space and shift update): nothing after this may rely on the cut.
+    const/4 v2, 0x0
+
+    iput-boolean v2, p0, Lcom/mrkeyboard/app/LatinIME;->mMrPick:Z
+
     if-nez p1, :cond_a
 
     .line 2653

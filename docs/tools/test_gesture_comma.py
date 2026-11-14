@@ -11,6 +11,10 @@ on a suggestion). The rest of LatinIME (dictionaries, shift state, strip) is a s
 Since the usual swap did not happen on the device (it depends on the state of TextEntryState and on what the editor says about the text it has just
 received), MrGestureInput.onKey calls LatinIME.mrGlue for it; the last tests run that real method.
 
+The last tests (stage 6, part 9 of docs/plan-performance.md) check the notes that pickSuggestionManually makes for a picked word: mMrPick (up while
+the word and its automatic space are written when the word ends in a letter, down after; the caps question is not asked then, see
+test_letter_questions.py and test_pick_caps.py) and the call to MrGestureInput.afterTap after the automatic space (a suggestion tapped).
+
 The rule: after a word written by gesture (and its automatic space), a comma or another sentence separator is written glued to the word and
 followed by the space: "olá ," becomes "olá, " (swapPunctuationAndSpace), as after a suggestion tapped on the strip.
 """
@@ -68,6 +72,8 @@ class World:
     def __init__(self, recorrection=0):
         self.text = ""
         self.log = []
+        self.pick_flags = []          # (call, mMrPick at that moment) for pickSuggestion and sendSpace
+        self.taps = []                # MrGestureInput.afterTap(ime, word) calls
         self.ic = dm.Obj("Landroid/view/inputmethod/InputConnection;")
         self.enum = {n: dm.Obj(ENUM, name=n) for n in NAMES}
         self.tes = dm.VM(TES, dm.parse_methods(os.path.join(APP, "TextEntryState.smali")), TesHost(self))
@@ -90,7 +96,7 @@ class World:
             mReCorrectionEnabled=recorrection, mLastSelectionStart=0, mLastSelectionEnd=0, mExpectingUpdateSelection=0,
             mLastKeyTime=0, mDeleteCount=0, mKeyboardSwitcher=dm.Obj("Lcom/mrkeyboard/app/KeyboardSwitcher;"), mComposeMode=0,
             mDeadKeysActive=0, mEnteredText=None, mModAlt=0, mModCtrl=0, mModMeta=0, mModFn=0, mMrSepAt=0, mMrSepHit=0,
-            mHandler=None, mMrEchoDefer=0, mMrCapsDefer=0, mMrCapsPending=0,
+            mHandler=None, mMrEchoDefer=0, mMrCapsDefer=0, mMrCapsPending=0, mAutoCapActive=0, mMrPick=0,
         )
 
     # ---- the field
@@ -160,6 +166,8 @@ class World:
             return ord(args[0][args[1]])
         if short == "String.valueOf":
             return chr(args[0])
+        if short == "Character.isLetter":
+            return 1 if chr(args[0]).isalpha() else 0
         if short == "String.concat":
             return str(args[0]) + str(args[1])
         if short == "String.contains":
@@ -173,6 +181,9 @@ class World:
             return args[0] if isinstance(args[0], str) else "".join(args[0].f["parts"]) if isinstance(args[0], dm.Obj) else str(args[0])
         if short in ("MrPacks.onPick", "MrGestureInput.onPick"):
             return 0
+        if short == "MrGestureInput.afterTap":
+            self.taps.append(str(args[1]))
+            return None
         if short == "CandidateView.getSuggestions":
             return []
         if short == "CandidateView.dismissAddToDictionaryHint":
@@ -236,9 +247,11 @@ class ImeVM(dm.VM):
         name = key.split("(")[0]
         w = self.w
         if name == "pickSuggestion":
+            w.pick_flags.append(("pickSuggestion", w.this.f["mMrPick"]))
             w.commit(args[1])                       # LatinIME.pickSuggestion: writes the word
             return None
         if name in ("sendSpace",):
+            w.pick_flags.append(("sendSpace", w.this.f["mMrPick"]))
             w.commit(" ")
             return None
         if name == "sendModifiableKeyChar":
@@ -361,6 +374,38 @@ w.text = "bom"
 w.gesture_word("dia", space=True)
 w.stubs["isShiftMod"] = 1
 check("mrGlue with Shift held or locked: nothing is written", glue(w, ",") == 0 and w.text == "bom dia ", (w.text,))
+
+# ---------------------------------------------------------------- the caps question cut after a picked word (mMrPick) and the hook for a tapped word
+w = World()
+w.text = "bom"
+w.gesture_word("dia", space=True)
+check("a picked word ending in a letter: mMrPick is up for pickSuggestion and for the automatic space, down when the method returns",
+      w.pick_flags == [("pickSuggestion", 1), ("sendSpace", 1)] and w.this.f["mMrPick"] == 0, (w.pick_flags, w.this.f["mMrPick"]))
+check("... and afterTap is told the word once, after the automatic space", w.taps == ["dia"], w.taps)
+
+for word in ("etc.", "ok)", "3", "a-", "\u00e9"):
+    w = World()
+    w.gesture_word(word, space=False)
+    up = 1 if word[-1].isalpha() else 0
+    check("a picked word %r: mMrPick is %s while it is written" % (word, "up" if up else "down (it does not end in a letter)"),
+          [f for _, f in w.pick_flags] == [up, up] and w.this.f["mMrPick"] == 0, w.pick_flags)
+
+w = World()
+w.this.f["mAutoSpace"] = 0
+w.gesture_word("dia", space=False)
+check("no automatic space in the field: mMrPick is up for the word only, down after, and afterTap is not told (nothing to glue to)",
+      w.pick_flags == [("pickSuggestion", 1)] and w.this.f["mMrPick"] == 0 and w.taps == [], (w.pick_flags, w.taps))
+
+w = World()
+w.gesture_word("", space=False)
+check("an empty word: mMrPick stays down", [f for _, f in w.pick_flags] == [0, 0] and w.this.f["mMrPick"] == 0, w.pick_flags)
+
+w = World()
+w.text = "bom"
+w.gesture_word("dia", space=True)
+w.gesture_word("tudo", space=False)
+check("two words in a row: the note goes up and down for each, one afterTap each", w.pick_flags == [("pickSuggestion", 1), ("sendSpace", 1)] * 2
+      and w.taps == ["dia", "tudo"] and w.this.f["mMrPick"] == 0, (w.pick_flags, w.taps))
 
 print("%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

@@ -120,7 +120,7 @@ class Host:
                           mBestWord="", mWord=dm.Obj("Lcom/mrkeyboard/app/WordComposer;"), mAutoCapActive=1 if auto_cap else 0,
                           mKeyboardSwitcher=dm.Obj("Lcom/mrkeyboard/app/KeyboardSwitcher;"),
                           mShiftKeyState=dm.Obj("Lcom/mrkeyboard/app/ModifierKeyState;"), mSavedShiftState=0,
-                          mMrSepAt=0, mMrSepHit=0, mMrLetter=0, mHandler=None, mMrEchoDefer=0, mMrCapsDefer=0, mMrCapsPending=0)
+                          mMrSepAt=0, mMrSepHit=0, mMrLetter=0, mHandler=None, mMrEchoDefer=0, mMrCapsDefer=0, mMrCapsPending=0, mMrPick=0)
         self.noted_during_shift = []        # mMrLetter at the moment of each update of the shift state
 
     # --- the fake app
@@ -299,6 +299,40 @@ check("caps mode, %d contexts x %d field types x 2 letters, with and without the
 check("... the cut happened (%d cases) and the all-capitals fields were still asked (%d cases)" % (cuts, asked_when_flagged),
       cuts > 0 and asked_when_flagged > 0)
 
+# 3b. the same after a picked word (a suggestion tapped, a gesture): mMrPick is up from the word written until its space and the shift update
+# are done. The word ends in a letter, so before the cursor is that letter or the space after it: the app answers 0 unless the field asks for a
+# capital on every word (0x2000) or all capitals (0x1000); there it is still asked.
+bad, cuts, asked_flagged = [], 0, 0
+for ctx in CONTEXTS:
+    for flags in FLAGS:
+        for word in ("casa", "É", "x"):
+            for tail in ("", " "):                    # with the automatic space, or without it (no auto space, a word reopened in the middle)
+                text = ctx + word + tail
+                h = Host(text, input_type=flags)
+                h.ime.f["mMrPick"] = 1
+                got = h.vm.run("getCursorCapsMode(" + IC + EI + ")I", [h.ime, h.ic, h.ei])
+                want = caps_mode(text, len(text), flags)
+                asked = len(h.questions) == 1
+                must_ask = flags != 0 and bool(flags & (CAP_WORDS | CAP_CHARACTERS))
+                if got != want or asked != must_ask or (not asked and h.questions):
+                    bad.append((ctx, hex(flags), word, tail, got, want, h.questions))
+                cuts += (not asked)
+                asked_flagged += (asked and bool(flags & (CAP_WORDS | CAP_CHARACTERS)))
+check("caps mode after a picked word, %d contexts x %d field types x 3 words x 2 tails: same answer as the app's, asked exactly when the field "
+      "asks for capitals on every word or all capitals, never for a field with no input type" % (len(CONTEXTS), len(FLAGS)), not bad, bad[:3])
+check("... the cut happened (%d cases) and the fields that ask for capitals on every word or all capitals were still asked (%d cases)" % (cuts, asked_flagged),
+      cuts > 0 and asked_flagged > 0)
+h = Host("hello ", input_type=TEXT | CAP_SENTENCES, auto_cap=False)
+h.ime.f["mMrPick"] = 1
+check("after a picked word with auto capitalization off: no question", h.vm.run("getCursorCapsMode(" + IC + EI + ")I", [h.ime, h.ic, h.ei]) == 0
+      and h.questions == [])
+# the note is down: asked as before (a word ending in a sign, nothing picked)
+h = Host("Hello. ", input_type=TEXT | CAP_SENTENCES)
+h.ime.f["mMrPick"] = 0
+check("mMrPick down: the question is asked and the answer is the app's (a sentence ended before the cursor)",
+      h.vm.run("getCursorCapsMode(" + IC + EI + ")I", [h.ime, h.ic, h.ei]) == caps_mode("Hello. ", 7, TEXT | CAP_SENTENCES) and len(h.questions) == 1
+      and caps_mode("Hello. ", 7, TEXT | CAP_SENTENCES) != 0)
+
 h = Host("hello", input_type=TEXT | CAP_SENTENCES, auto_cap=False)
 h.ime.f["mMrLetter"] = 0
 check("auto capitalization off: no question, as before", h.vm.run("getCursorCapsMode(" + IC + EI + ")I", [h.ime, h.ic, h.ei]) == 0
@@ -427,6 +461,31 @@ if not OTHER:
     users = sorted(m.split("\n", 1)[0].split()[-1] for m in src.split("\n.method ")[1:] if "->mMrLetter:Z" in m.split("\n.end method")[0])
     check("the note is touched only by mrLetterTyped, mrLetterDone and read only by getCursorCapsMode",
           users == ["getCursorCapsMode(" + IC + EI + ")I", "mrLetterDone()V", "mrLetterTyped(I)V"], users)
+
+    # the note of the picked word (mMrPick)
+    c = code(body("LatinIME.smali", "public pickSuggestionManually(ILjava/lang/CharSequence;)V"))
+    sets = [i for i, l in enumerate(c) if l.endswith("->mMrPick:Z") and l.startswith("iput-boolean")]
+    i_pick = next(i for i, l in enumerate(c) if "->pickSuggestion(Ljava/lang/CharSequence;Z)V" in l)
+    i_space = next(i for i, l in enumerate(c) if "->sendSpace()V" in l)
+    i_tap = next(i for i, l in enumerate(c) if "MrGestureInput;->afterTap(" in l)
+    rets = [i for i, l in enumerate(c) if l.startswith("return")]
+    after_set = [r for r in rets if r > sets[0]] if sets else []
+    check("pickSuggestionManually: mMrPick goes up (the last character of the word is a letter) right before pickSuggestion, down right after the "
+          "automatic space, and the only way out after it is the end of the method",
+          len(sets) == 2 and sets[0] < i_pick < i_space < i_tap < sets[1] and c[sets[0] - 1].startswith("move-result v2")
+          and c[sets[0] - 2] == "invoke-static {v2}, Ljava/lang/Character;->isLetter(C)Z" and c[sets[1] - 1] == "const/4 v2, 0x0"
+          and len(after_set) == 1 and after_set[0] > sets[1], (sets, i_pick, i_space, i_tap, rets))
+    src = open(os.path.join(APP, "LatinIME.smali"), encoding="utf-8").read()
+    users = sorted(m.split("\n", 1)[0].split()[-1] for m in src.split("\n.method ")[1:] if "->mMrPick:Z" in m.split("\n.end method")[0])
+    check("mMrPick is touched only by pickSuggestionManually and read only by getCursorCapsMode",
+          users == ["getCursorCapsMode(" + IC + EI + ")I", "pickSuggestionManually(ILjava/lang/CharSequence;)V"], users)
+    c = code(body("LatinIME.smali", "private getCursorCapsMode(" + IC + EI + ")I"))
+    i_pk = next(i for i, l in enumerate(c) if "->mMrPick:Z" in l)
+    i_ask = next(i for i, l in enumerate(c) if "InputConnection;->getCursorCapsMode(I)I" in l)
+    check("getCursorCapsMode: mMrPick is read before the question, 0x3000 (every word or all capitals) is what still asks, and the question is still timed",
+          c[i_pk + 1].startswith("if-eqz v1") and c[i_pk + 2] == "and-int/lit16 v1, p2, 0x3000" and c[i_pk + 3].startswith("if-nez v1")
+          and i_pk < i_ask and c[i_ask - 1] == "invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V"
+          and sum("getCursorCapsMode(I)I" in l for l in c) == 1, c[i_pk:i_pk + 4])
 
 print("\n%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

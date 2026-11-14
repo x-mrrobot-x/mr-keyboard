@@ -15,7 +15,8 @@ the second). Now, with the switch "Delay the capital-letter check" on (the defau
   - any other update of the shift state (updateShiftKeyState, the first thing it does is mrShiftCancel) replaces the one that waits;
   - the end of the field, the window hidden and the service destroyed drop it without asking (mrShiftCancel next to each
     MrPrevWord.reset);
-  - with the switch off, or no handler, it is asked at the end of the separator as before.
+  - with the switch off, no handler or Auto-capitalization off (the update asks the app nothing then, so nothing is worth waiting
+    for), it runs at the end of the separator as before.
 The answers do not change, only the moment the question is asked: the part 1 test runs the REAL smali in the mini Dalvik
 interpreter (dalvik_mini.py) with a fake app that answers like TextUtils.getCapsMode and compares the shift state every key sees, the
 text and the number of questions with the switch off and on, for random sentences and random timings. Part 2 reads the smali for the
@@ -89,7 +90,7 @@ def caps_mode(text, off, req):
 class Host:
     """The fake keyboard around the methods under test, the fake handler and the fake app (a text, a cursor, a composing region)."""
 
-    def __init__(self, defer=False, handler=True, input_type=TEXT | CAP_SENTENCES, text=""):
+    def __init__(self, defer=False, handler=True, input_type=TEXT | CAP_SENTENCES, text="", auto_cap=True):
         self.text = text
         self.cursor = len(text)
         self.comp = None
@@ -107,13 +108,13 @@ class Host:
         self.vm = dm.VM(IME, METHODS, self)
         self.ime = dm.Obj(IME, mLastSelectionStart=self.cursor, mLastSelectionEnd=self.cursor, mPredicting=0,
                           mModCtrl=0, mModAlt=0, mModMeta=0, mComposing=dm.Obj("Ljava/lang/StringBuilder;", s=""),
-                          mBestWord="", mWord=dm.Obj("Lcom/mrkeyboard/app/WordComposer;"), mAutoCapActive=1,
+                          mBestWord="", mWord=dm.Obj("Lcom/mrkeyboard/app/WordComposer;"), mAutoCapActive=1 if auto_cap else 0,
                           mKeyboardSwitcher=dm.Obj("Lcom/mrkeyboard/app/KeyboardSwitcher;"),
                           mShiftKeyState=dm.Obj("Lcom/mrkeyboard/app/ModifierKeyState;"), mSavedShiftState=0,
                           mMrSepAt=0, mMrSepHit=0, mMrLetter=0, mMrEchoDefer=0, mAutoCorrectOn=0, mJustAddedAutoSpace=0,
                           mCandidateView=None, mJustRevertedSeparator=None, mAutoCorrectEnabled=0,
                           mHandler=dm.Obj("Landroid/os/Handler;") if handler else None,
-                          mMrCapsDefer=1 if defer else 0, mMrCapsPending=0)
+                          mMrCapsDefer=1 if defer else 0, mMrCapsPending=0, mMrPick=0)
 
     # --- the fake app
     def commit(self, s):
@@ -355,6 +356,21 @@ h.reset_count()
 h.sep(" ")
 check("no handler: the question is asked at the end of the separator, as before", h.questions == ["caps"] and h.posts == [], (h.questions, h.posts))
 
+# 6b. Auto-capitalization off: nothing to ask, so nothing waits (even with the switch on)
+h = Host(defer=True, auto_cap=False)
+typed_word(h, "casa")
+h.reset_count()
+shift_before = h.shift_calls
+h.sep(" ")
+check("Auto-capitalization off (switch on): the separator updates the shift state at once, sends no message, asks the app nothing and the meter sees nothing",
+      h.questions == [] and h.posts == [] and h.pending == [] and h.shift_calls == shift_before + 1 and h.ime.f["mMrCapsPending"] == 0
+      and h.perf["capsPosted"] == 0 and h.perf["capsRan"] == 0, (h.questions, h.posts, h.shift_calls - shift_before, h.perf))
+h = Host(defer=False, auto_cap=False)
+typed_word(h, "casa")
+h.reset_count()
+h.sep(" ")
+check("... the same with the switch off", h.questions == [] and h.posts == [])
+
 # 7. a run with nothing waiting does nothing (a late message)
 h = Host(defer=True)
 h.reset_count()
@@ -423,6 +439,25 @@ for _ in range(trials):
         bad.append((keys, k_off, k_on, m_on))
 check("a fast typist (no pause before any key): the next key asks the question inside its own time, as many as before; only the last "
       "separator, which has no next key, is asked by its message; every key sees the same shift state", not bad, bad[:1])
+
+bad = []
+for _ in range(200):
+    keys = "".join(random.choice(ALPHABET) for _ in range(random.randint(6, 40)))
+    def session_off(defer):
+        h = Host(defer=defer, auto_cap=False)
+        seen = []
+        for ch in keys:
+            h.flush()
+            seen.append(h.shift)
+            (h.sep if ch in SEPARATORS else h.letter)(ch)
+        h.fire()
+        return h, seen
+    a, seen_a = session_off(False)
+    b, seen_b = session_off(True)
+    if seen_a != seen_b or a.text != b.text or a.shift != b.shift or b.posts or b.questions != a.questions or "caps" in b.questions:
+        bad.append((keys, seen_a, seen_b))
+check("200 random sentences with Auto-capitalization off: the switch on changes nothing (no message, no caps question, same shift states and text)",
+      not bad, bad[:1])
 
 # the sentence that starts with a capital: ". " then a letter, with and without the pause
 for pause in (True, False):
@@ -502,8 +537,9 @@ for head in ("public onDestroy()V", "public onFinishInput()V", "public onWindowH
           len(r) == 1 and c[r[0] + 2] == CANCEL and c.count(CANCEL) == 1, [c[i + 1:i + 3] for i in r])
 
 c = code(body("LatinIME.smali", "private mrShiftPost(" + EI + ")V"))
-check("mrShiftPost: only with the switch on and a handler; message 6, the one that waits replaced, 0x64 ms (the delay of the suggestions); the flag and the meter",
-      c[0] == "iget-boolean v0, p0, " + IME + "->mMrCapsDefer:Z" and c[1].startswith("if-eqz v0, :cond_")
+check("mrShiftPost: only with Auto-capitalization on (first), the switch on and a handler; message 6, the one that waits replaced, 0x64 ms (the delay of the suggestions); the flag and the meter",
+      c[0] == "iget-boolean v0, p0, " + IME + "->mAutoCapActive:Z" and c[1].startswith("if-eqz v0, :cond_")
+      and c[2] == "iget-boolean v0, p0, " + IME + "->mMrCapsDefer:Z" and c[3].startswith("if-eqz v0, :cond_")
       and "iget-object v0, p0, " + IME + "->mHandler:Landroid/os/Handler;" in c and "const/4 v1, 0x6" in c
       and c.count("invoke-virtual {v0, v1}, Landroid/os/Handler;->removeMessages(I)V") == 1
       and "const-wide/16 v3, 0x64" in c
@@ -558,8 +594,12 @@ for loc in ("values", "values-pt-rBR", "values-es"):
     check("the texts of the switch and of the two meter lines are in %s" % loc,
           all(sx.count('<string name="%s">' % n) == 1 and sx.split('<string name="%s">' % n)[1].split("</string>")[0].strip() for n in names),
           [n for n in names if sx.count('<string name="%s">' % n) != 1])
+bools = open(os.path.join(ROOT, "res", "values", "bools.xml"), encoding="utf-8").read()
+check("Auto-capitalization is on by default (default_auto_cap) and the screen takes its default from there",
+      '<bool name="default_auto_cap">true</bool>' in bools
+      and 'android:key="auto_cap" android:defaultValue="@bool/default_auto_cap"' in open(os.path.join(ROOT, "res", "xml", "prefs.xml"), encoding="utf-8").read())
 reset = open(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrReset.java"), encoding="utf-8").read()
-check("\"Restore defaults\" clears the switch (MrReset.KEYS)", reset.count('"pref_mr_caps_defer"') == 1)
+check("\"Restore defaults\" clears the switch and Auto-capitalization (MrReset.KEYS)", reset.count('"pref_mr_caps_defer"') == 1 and reset.count('"auto_cap"') == 1)
 
 print("\n%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

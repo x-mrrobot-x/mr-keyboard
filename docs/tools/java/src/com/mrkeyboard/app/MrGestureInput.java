@@ -673,6 +673,10 @@ public final class MrGestureInput {
     private static EditorInfo sLastEditor;    // in which field
     private static String[] sAlts;            // the other candidates on the strip, best first
     private static boolean sWriting;          // pickSuggestionManually is being called from here
+    // The word of a suggestion tapped on the strip (not a gesture) and the automatic space after it: only the sentence sign typed
+    // next is dealt with (afterTap, onKey). Nothing else is pending: the strip, the backspace and the rest stay as they were.
+    private static String sTapWord;
+    private static EditorInfo sTapEditor;
 
     /** The finger lifted: recognises the trace and writes the word. false = nothing was written. */
     private static boolean finish(LatinKeyboardView view) {
@@ -900,6 +904,8 @@ public final class MrGestureInput {
         sLastWord = word;
         sLastSpace = space;
         sLastEditor = ime.getCurrentInputEditorInfo();
+        sTapWord = null;
+        sTapEditor = null;
         sAlts = null;
         if (k > 1) {
             sAlts = new String[k - 1];
@@ -921,6 +927,8 @@ public final class MrGestureInput {
     private static void forget() {
         sLastWord = null;
         sLastEditor = null;
+        sTapWord = null;
+        sTapEditor = null;
         sAlts = null;
     }
 
@@ -929,8 +937,11 @@ public final class MrGestureInput {
      * -1 when the text is no longer what was written (another field, the cursor moved, something was typed).
      */
     private static int written(LatinIME ime, InputConnection ic) {
-        final String word = sLastWord;
-        if (word == null || ic == null || ime.getCurrentInputEditorInfo() != sLastEditor) return -1;
+        return written(ime, ic, sLastWord, sLastEditor);
+    }
+
+    private static int written(LatinIME ime, InputConnection ic, String word, EditorInfo editor) {
+        if (word == null || ic == null || ime.getCurrentInputEditorInfo() != editor) return -1;
         final int n = word.length();
         final CharSequence b = textBefore(ic, n + 1);
         if (b == null) return -1;
@@ -984,7 +995,10 @@ public final class MrGestureInput {
      * put before it): everything but its last character is removed here, and the backspace itself removes that one.
      */
     public static void onBackspace(LatinIME ime) {
-        if (sLastWord == null || sWriting) return;
+        if (sWriting) return;
+        sTapWord = null;                  // the text changes: no sign to glue any more; the backspace itself is the usual one
+        sTapEditor = null;
+        if (sLastWord == null) return;
         try {
             final InputConnection ic = ime.getCurrentInputConnection();
             int del = written(ime, ic);
@@ -1004,16 +1018,23 @@ public final class MrGestureInput {
     }
 
     /**
-     * First line of LatinIME.onKey: any key but the backspace ends what the last gesture left pending. A sentence sign typed
-     * right after the word and its automatic space is written here, glued to the word with the space after it ("casa " and ","
-     * give "casa, "): true = the key is dealt with and LatinIME does not handle it again.
+     * First line of LatinIME.onKey: any key but the backspace and the keys that only change the sheet or the Shift ends what the
+     * last gesture (or tapped suggestion) left pending. A sentence sign typed right after the word and its automatic space is
+     * written here, glued to the word with the space after it ("casa " and "," give "casa, "): true = the key is dealt with and
+     * LatinIME does not handle it again.
      */
     public static boolean onKey(LatinIME ime, int code) {
-        if (sLastWord == null && sAlts == null) return false;     // nothing pending: the common case
+        if (sLastWord == null && sAlts == null && sTapWord == null) return false;     // nothing pending: the common case
         if (code == KEYCODE_DELETE || sWriting) return false;     // onBackspace() decides; and the word being written is not a key
+        // "?", "!" and ":" are on the symbols sheet (and in the popup of the period): the key that goes there writes nothing and
+        // must not end the pending word, or the sign typed next would no longer know it follows one.
+        if (isLayoutKey(code)) return false;
         boolean glued = false;
         try {
-            if (sLastWord != null && code > 0 && GLUE.indexOf(code) >= 0) glued = glue(ime, code);
+            if (code > 0 && GLUE.indexOf(code) >= 0) {
+                if (sLastWord != null) glued = glue(ime, code, sLastWord, sLastEditor);
+                else if (sTapWord != null) glued = glue(ime, code, sTapWord, sTapEditor);
+            }
             final boolean strip = sAlts != null;
             forget();
             if (strip) ime.mrStrip(null);                     // the strip goes back to what it shows between two words
@@ -1023,12 +1044,31 @@ public final class MrGestureInput {
         return glued;
     }
 
-    /** The word of the last gesture and its automatic space are right before the cursor: the sign takes the place of the space (LatinIME.mrGlue). */
-    private static boolean glue(LatinIME ime, int code) {
+    /** Keys that only change the sheet of the keyboard or the Shift and write nothing: Shift (-1), Symbols (-2), the sheets (-299..-305 and -399..-499). */
+    static boolean isLayoutKey(int code) {
+        return code == -1 || code == -2 || (code <= -299 && code >= -305) || (code <= -399 && code >= -499);
+    }
+
+    /**
+     * Last lines of the main path of LatinIME.pickSuggestionManually, after the automatic space was put: the word was tapped on the
+     * strip (a gesture is not told here: write() has its own state). A sentence sign typed next is glued to it, as after a gesture.
+     */
+    public static void afterTap(LatinIME ime, CharSequence word) {
+        if (sWriting) return;
+        try {
+            sTapWord = word == null || word.length() == 0 ? null : word.toString();
+            sTapEditor = sTapWord == null ? null : ime.getCurrentInputEditorInfo();
+        } catch (Throwable t) {
+            sTapWord = null;
+            sTapEditor = null;
+        }
+    }
+
+    /** The word and its automatic space are right before the cursor: the sign takes the place of the space (LatinIME.mrGlue). */
+    private static boolean glue(LatinIME ime, int code, String word, EditorInfo editor) {
         final InputConnection ic = ime.getCurrentInputConnection();
-        final String word = sLastWord;
         if (ic == null || word == null) return false;
-        return written(ime, ic) == word.length() + 1 && ime.mrGlue(code);
+        return written(ime, ic, word, editor) == word.length() + 1 && ime.mrGlue(code);
     }
 
     // ------------------------------------------------------------------ how long the recognition takes on this device

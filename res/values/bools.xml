@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <bool name="config_swipeDisambiguation">true</bool>
-    <bool name="default_auto_cap">false</bool>
+    <bool name="default_auto_cap">true</bool>
     <bool name="default_force_keyboard_on">false</bool>
     <bool name="default_fullscreen_override">false</bool>
     <bool name="default_keyboard_notification">false</bool>

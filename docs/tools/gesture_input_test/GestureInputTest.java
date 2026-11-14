@@ -152,8 +152,15 @@ public class GestureInputTest {
             if (failPick) throw new IllegalStateException("pick");
             picks.add(index + ":" + word);
             ic.commitText(word, 1);
-            if (autoSpace) ic.commitText(" ", 1);
+            if (autoSpace) {
+                ic.commitText(" ", 1);
+                MrGestureInput.afterTap(this, word);        // the hook after the automatic space in the real method
+            }
         }
+        /** A suggestion tapped on the strip (not a gesture). */
+        void tap(String word) { pickSuggestionManually(0, word); }
+        /** A key that writes nothing in the text (the sheet and Shift keys): only onKey sees it. */
+        void layoutKey(int code) { MrGestureInput.onKey(this, code); }
         List<CharSequence> strip() { return strips.isEmpty() ? null : strips.get(strips.size() - 1); }
         /** A key that is not the backspace, as LatinIME.onKey does. */
         void key(char c) { if (!MrGestureInput.onKey(this, c)) ic.commitText(String.valueOf(c), 1); }
@@ -442,6 +449,126 @@ public class GestureInputTest {
         ime.key(',');
         ime.key(',');
         check(ime.ic.text.toString().equals("casa, ,") && ime.glues == 1, "sign: only the first one after the word is glued: [" + ime.ic.text + "]");
+        // "?", "!" and ":" are on the symbols sheet: the keys that only change the sheet or the Shift do not end the pending word
+        int[] layoutCodes = {-1, -2, -299, -300, -301, -302, -303, -304, -305, -399, -400, -450, -499};
+        for (int lc : layoutCodes) {
+            scene();
+            swipe("casa");
+            ime.layoutKey(lc);
+            check(ime.ic.text.toString().equals("casa ") && ime.strip() != null && ime.glues == 0,
+                    "layout key " + lc + ": nothing is written, the candidates stay on the strip: [" + ime.ic.text + "]");
+            ime.key('?');
+            check(ime.ic.text.toString().equals("casa? ") && ime.glues == 1 && ime.strip() == null,
+                    "layout key " + lc + ", then ?: glued to the word, the space after it: [" + ime.ic.text + "]");
+        }
+        for (char sign : ".,!?);:".toCharArray()) {
+            scene();
+            swipe("casa");
+            ime.layoutKey(-2);
+            ime.layoutKey(-1);
+            ime.key(sign);
+            check(ime.ic.text.toString().equals("casa" + sign + " ") && ime.glues == 1,
+                    "Symbols and Shift, then " + sign + ": glued: [" + ime.ic.text + "]");
+        }
+        int[] otherCodes = {-3, -4, -100, -102, -306, -5000, 0, 10, 'x'};
+        for (int oc : otherCodes) {
+            scene();
+            swipe("casa");
+            MrGestureInput.onKey(ime, oc);
+            ime.key(',');
+            check(ime.ic.text.toString().equals("casa ,") && ime.glues == 0 && ime.strip() == null,
+                    "key " + oc + " is not a layout key: it ends the pending word, the comma after it goes the usual way: [" + ime.ic.text + "]");
+        }
+        check(!MrGestureInput.isLayoutKey(-298) && !MrGestureInput.isLayoutKey(-306) && !MrGestureInput.isLayoutKey(-398) && !MrGestureInput.isLayoutKey(-500)
+                && !MrGestureInput.isLayoutKey(-5) && !MrGestureInput.isLayoutKey(0) && MrGestureInput.isLayoutKey(-299) && MrGestureInput.isLayoutKey(-305),
+                "isLayoutKey: only Shift, Symbols and the sheet codes");
+
+        // ---- a suggestion tapped on the strip: the same for the sign typed next
+        for (char sign : ".,!?);:".toCharArray()) {
+            scene();
+            ime.tap("casa");
+            check(ime.ic.text.toString().equals("casa "), "tap: the word and its automatic space: [" + ime.ic.text + "]");
+            ime.key(sign);
+            check(ime.ic.text.toString().equals("casa" + sign + " ") && ime.glues == 1,
+                    "tap, then " + sign + ": glued to the word, the space after it: [" + ime.ic.text + "]");
+        }
+        for (char sign : "?!:".toCharArray()) {
+            scene();
+            ime.tap("casa");
+            ime.layoutKey(-2);
+            ime.key(sign);
+            check(ime.ic.text.toString().equals("casa" + sign + " ") && ime.glues == 1,
+                    "tap, Symbols key, then " + sign + ": glued to the word, the space after it: [" + ime.ic.text + "]");
+        }
+        scene();
+        ime.tap("casa");
+        ime.layoutKey(-2);
+        ime.layoutKey(-1);
+        ime.layoutKey(-301);
+        ime.key(',');
+        check(ime.ic.text.toString().equals("casa, ") && ime.glues == 1, "tap, three layout keys, then a comma: glued: [" + ime.ic.text + "]");
+        scene();
+        ime.tap("casa");
+        ime.key('x');
+        ime.key(',');
+        check(ime.ic.text.toString().equals("casa x,") && ime.glues == 0, "tap, another key, then a comma: nothing pending: [" + ime.ic.text + "]");
+        scene();
+        ime.tap("casa");
+        ime.key(',');
+        ime.key(',');
+        check(ime.ic.text.toString().equals("casa, ,") && ime.glues == 1, "tap: only the first sign after the word is glued: [" + ime.ic.text + "]");
+        scene();
+        ime.autoSpace = false;
+        ime.tap("casa");
+        ime.key(',');
+        check(ime.ic.text.toString().equals("casa,") && ime.glues == 0, "tap with no automatic space in this field: nothing to glue: [" + ime.ic.text + "]");
+        scene();
+        ime.tap("casa");
+        ime.ic.text.append("mais ");
+        ime.key(',');
+        check(ime.ic.text.toString().equals("casa mais ,") && ime.glues == 0, "tap, text changed without a key: the comma goes the usual way: [" + ime.ic.text + "]");
+        scene();
+        ime.tap("casa");
+        ime.modifierOn = true;
+        ime.key(',');
+        check(ime.ic.text.toString().equals("casa ,") && ime.glues == 0, "tap, with a modifier on LatinIME does not glue: the usual way: [" + ime.ic.text + "]");
+        scene();
+        ime.tap("casa");
+        Ime elsewhere = new Ime();
+        elsewhere.ic.text.append("casa ");
+        LatinIME.sInstance = elsewhere;
+        elsewhere.key(',');
+        check(elsewhere.ic.text.toString().equals("casa ,") && elsewhere.glues == 0, "tap in one field, comma in another with the same text: not glued");
+        // the backspace after a tapped word is the usual one: one character, not the whole word
+        scene();
+        ime.tap("casa");
+        ime.backspace();
+        check(ime.ic.text.toString().equals("casa"), "tap, then backspace: one character (the space), the word stays: [" + ime.ic.text + "]");
+        ime.key(',');
+        check(ime.ic.text.toString().equals("casa,") && ime.glues == 0, "tap, backspace, then a comma: nothing pending any more: [" + ime.ic.text + "]");
+        // the strip of a gesture is not touched by a tap, and a gesture after a tap replaces it
+        scene();
+        ime.tap("casa");
+        eng.words = new String[] {"caso", "casa", "cada", "cara"};
+        swipe("caso");
+        check(ime.ic.text.toString().equals("casa caso "), "tap, then a gesture: [" + ime.ic.text + "]");
+        ime.key(',');
+        check(ime.ic.text.toString().equals("casa caso, ") && ime.glues == 1, "tap, gesture, then a comma: glued to the gesture word: [" + ime.ic.text + "]");
+        scene();
+        eng.words = new String[] {"caso", "casa", "cada", "cara"};
+        swipe("caso");
+        ime.tap("casa");
+        ime.backspace();
+        check(ime.ic.text.toString().equals("caso casa"), "gesture, tap, then backspace: one character, the gesture's whole-word backspace is over: [" + ime.ic.text + "]");
+        // the gesture itself does not leave the tapped state behind
+        scene();
+        ime.tap("casa");
+        eng.words = new String[] {"caso", "casa", "cada", "cara"};
+        swipe("caso");
+        ime.key('x');
+        ime.key(',');
+        check(ime.ic.text.toString().equals("casa caso x,") && ime.glues == 0, "tap, gesture, another key, then a comma: nothing pending: [" + ime.ic.text + "]");
+
         scene();
         swipe("casa");
         List<CharSequence> old = ime.strip();

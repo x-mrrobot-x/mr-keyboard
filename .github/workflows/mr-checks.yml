@@ -53,6 +53,7 @@
 #   test_caps_defer.py   the capital-letter check at the end of a separator, delayed while the app is busy (LatinIME.handleSeparator, mrShiftPost/Run/Flush/Cancel, updateShiftKeyState in the mini interpreter): the same shift state at every key, the same text and as many questions as with the switch off for random sentences and timings; asked by the message (100 ms) or at once by the next key, text or suggestion; dropped at the end of the field; with the switch off or no handler as before
 #   test_prev_word.py    the keyboard's side of the word before the one being typed (MrPrevWord) and of the text kept after our own separator (MrSurround): forgotten at EVERY write of mPredicting, in WordComposer.reset, backspace, separator, onText, new field and end of input; the suggestions ask MrPrevWord and nothing else asks for the previous word per letter
 #   test_letter_questions.py the questions to the app for each letter typed (LatinIME.handleCharacter, getCursorCapsMode in the mini interpreter): none for the touching-a-word check while a word is predicted, none for the caps mode in the middle of a word unless the field asks for all capitals; counted, with an app that answers like TextUtils.getCapsMode
+#   test_pick_caps.py    the shift state after a word picked on the strip or written by a gesture (LatinIME.pickSuggestionManually, updateShiftKeyState, getCursorCapsMode, mrGlue in the mini interpreter, over the harness of test_gesture_comma.py): only the first word of an empty field gets the capital with an app that follows the text and with one that answers with the text of before the batch; the two caps-mode questions of a picked word are gone; fields with a capital on every word or all capitals still ask
 #   test_shadow_cache.py the blurred icon shadows (ShadowDrawHelper.smali): blurred once and kept (24 places, oldest replaced, never recycled), found by drawable, key size, bounds, alpha, level and radius, colour applied when drawn; render mode 0 (no software layer)
 #   test_notes_text.py   the notes of the update dialog (MrNotesText.smali, MrUpdate$Notice.raw, MrUpdateDialog.fill): bullet, hanging indent, label bold and colored by kind (new, improved, fixed, how to get it, other), thin line between items, **bold** kept, marks gone; every notes block of docs/release-notes against a reference
 #   test_field_keys.py   keys with a modifier (Ctrl+A, Shift+arrows...) in the fields of the toolbar (translator, emoji search): LatinIME.sendKeyDown/sendKeyUp and MrTools.sendEvent on the real smali: the
@@ -236,6 +237,9 @@ jobs:
 
       - name: Questions to the app for each letter typed (counted)
         run: python3 -I docs/tools/test_letter_questions.py
+
+      - name: Shift state after a picked or gesture word (no question to the app, no capital on the second word)
+        run: python3 -I docs/tools/test_pick_caps.py
 
       - name: The word before the one being typed, forgotten wherever the word changes (MrPrevWord, MrSurround)
         run: python3 -I docs/tools/test_prev_word.py

@@ -316,3 +316,65 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   gesture word and the suggestions at the start of a sentence, the shift key tapped right after a space, and closing and opening the
   keyboard, switching keyboards, leaving the app and a password field. If the space key does not fall, the switch goes off by default or
   the change is reverted.
+  Measured by the owner on build _76 (block S, "casa " 20 times, in Telegram; Autocompletar off and on, each with the new switch off and
+  on; the echo switch on; Auto-capitalization ON). The first attempt had Auto-capitalization off (its default in this keyboard, `default_auto_cap`
+  false): the counts did not change, because with it off the shift update asks the app nothing, and the switch only added 20 messages that
+  asked nothing (100 -> 120 keyboard messages), so that run measured nothing. With it on: the counts moved exactly as designed, inside a key
+  120 -> 100 and in a message 20 -> 40, total 162 in the four runs, the 20 checks all ran by their message (about 100.1-100.4 ms) and none was
+  asked early by a key. The space key went from 23.5 to 11.9 ms on average (95 %: 46.2 -> 25.1) with Autocompletar off and from 23.8 to 11.1 ms
+  (95 %: 43.6 -> 18.9) with it on, about -50 %. "Handle a key" went from 6.6 to 3.3 ms and from 6.0 to 3.9 ms on average. The wait for the app in
+  all (average x count) went from about 761 to 502 ms (-34 %) and from about 680 to 535 ms (-21 %) per 20 words; the two runs with the switch
+  off differ by 11 % between themselves, the space key does not (23.5 and 23.8). Each question costs about 10-17 ms inside the key and about
+  3.6-4 ms in the message. Letters, the touch wait (4.5, 3.6, 3.2 and 2.6 ms on average) and the suggestions did not change. Usage checks
+  all passed (capital at the start of a field, after a period, "!" and Enter, typed fast and slow, the shift key after a space, the next-word
+  suggestions, the lifecycle) and the double space turned into a period in all four runs. Decision: the switch stays on by default.
+  A first usage check before the Auto-capitalization run reported a double space that needed three spaces to become a period; it was not
+  reproduced (the real smali in the mini Dalvik gives the period at two spaces in every combination) and it passed in the four runs above.
+  What is left: with Auto-capitalization on the same block asks 162 questions (against 101 with it off): 6 per word inside keys before the
+  switch (3 per word with it off), 5 after it; the ones in the first letter of each word are not explained yet. With Auto-capitalization off
+  the new switch posts a message per separator that asks nothing (nothing to defer): to run inline in that case is a candidate.
+- Stage 6, ninth part (build _77): three changes, asked by the owner after the run of build _76.
+  A. With Auto-capitalization off the delayed check has nothing to delay (the shift update asks the app nothing), so `mrShiftPost` now
+  starts with `mAutoCapActive`: off = the update at once, no message (before: 20 messages per 20 words that asked nothing). And
+  Auto-capitalization is on by default (`default_auto_cap` true; the screen takes its default from there; it is in "Restore defaults"
+  already). `test_caps_defer.py`: auto-capitalization off with the switch on or off sends no message, asks nothing and gives the same
+  text, and 200 random sentences give the same result.
+  B. Capital on the second word of a gesture (owner's report: with Auto-capitalization on, the first word written by gesture in an empty
+  field has a capital, right, and so does the second, wrong). Not reproduced with an app that answers from the text as it is. Reproduced
+  in the PC test with an app that answers `getCursorCapsMode` from the text of before the batch edit (`MrGestureInput.write` writes the
+  word and its space inside `beginBatchEdit`/`endBatchEdit`; both `pickSuggestion` and `sendSpace` end with `updateShiftKeyState`):
+  the empty field says "capital", the shift state after the first word stays on and the second word is written with a capital (the third
+  is right, because the answer then is the one of the text with a word). That this is what the owner's app does is not proved: the
+  phone has to confirm it. The change does not depend on the app: `pickSuggestionManually` sets `mMrPick` (new field) when the picked
+  word ends in a letter, and `getCursorCapsMode` does not ask while it is up unless the field asks for a capital on every word or all
+  capitals (`inputType & 0x3000`, where the answer after the space is a capital). Before the cursor is that letter or the space after it, and
+  `TextUtils.getCapsMode` gives 0 there for every other field. It is a cut by certainty, not by time or count: no threshold. It also
+  removes two questions per picked word with the automatic space (one without it): the same cut as `mMrLetter` for typed letters. The
+  note goes down right after the space (before the dictionary and strip steps) and when the method returns; nothing else reads it.
+  `test_pick_caps.py` (26 checks, new), `test_letter_questions.py` (41), `test_gesture_comma.py` (40): with the old smali the stale
+  app gives "Casa Mesa bonita" and the other 7 checks fail; with the new one only the first word has the capital with both kinds of app,
+  the field with a capital on every word still capitalizes every word, locked shift is untouched, a word that does not end in a letter
+  asks as before, and the sign glued after a gesture word still makes the next word start a sentence.
+  C. `? ! :` after a word. `. , ! ? ) ; :` were already glued after a gesture word (`MrGestureInput.onKey` -> `LatinIME.mrGlue`), but
+  `? ! :` are not on the main sheet: they are on the symbols sheet (and `:` in the popup of the period), and the key that goes there
+  was one more key that ended the pending word (`forget()`), so the sign typed next was no longer glued. Now Shift (-1), Symbols (-2) and
+  the sheet keys (-299..-305, -399..-499) are not "other keys": the pending word stays. And the same for a suggestion tapped on the
+  strip: after its automatic space `pickSuggestionManually` calls `MrGestureInput.afterTap(ime, word)` (it does nothing while a gesture is
+  being written) and the sign typed next goes through the same `mrGlue`, with the same `written()` check (the word and its space are right
+  before the cursor, same field) instead of depending on `TextEntryState` and on what the editor answers about the text just given (the
+  usual swap, which failed on the device after a gesture). Nothing else is pending after a tap: the backspace stays the usual one (one
+  character; after a gesture it still takes the whole word), the strip is not touched. A letter, a space, Enter or any other key ends it;
+  a tap in another field or a text changed without a key is not glued. `GestureInputTest.java` (330 checks).
+  Questions added by C: none on any key but a glued sign: `written()` asks the app for the text before the cursor, once, and that
+  replaces the one the usual swap (`swapPunctuationAndSpace`) asked (and the sign is not written and then swapped: one deletion and one
+  commit), so a glued sign costs the same as before or less; the keys of the sheet and Shift add nothing; a tap writes two strings and one `getCurrentInputEditorInfo` (not a question to the app). If the glue is not
+  possible the sign goes the usual way and asks what it asked before. A letter after a tapped word asks nothing more than before (the
+  pending word is dropped).
+  Risk of C: `:` glued to a word breaks things like `http: //` and `12: 30` typed by hand after a suggestion, and emoticons (`:)`); it
+  was already so for a gesture word and for the usual swap (`:` is in the sentence separators of the keyboard), now it holds from the
+  symbols sheet too. Not asked for: `;` and `)` are glued as before.
+  Phone test (the owner): Auto-capitalization on (default now) and off, in an empty field of Telegram and of another app: three gesture
+  words in a row (only the first has a capital); a tapped suggestion and then a letter; a field with a capital on every word (a name
+  field); after a gesture word and after a tapped suggestion, Symbols and `?`, `!`, `:` and `,` `.` on the main sheet (glued, one space
+  after); then a letter; the backspace after a tapped word (one character). Autocompletar off and on.
+

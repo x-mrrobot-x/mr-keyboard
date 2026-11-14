@@ -257,6 +257,28 @@ on, the new switch off against on; the echo switch stays on):
   how long the checks waited;
 - the capital after ". ", "! " and Enter, at a fast pace and at a slow one, must be right.
 
+**The meter only shows it with Auto-capitalization on** (Settings -> Typing; on by default since build _77, it was off before). With it off
+the update of the shift state asks the app nothing, so there is no question to move. Since build _77 the switch does nothing then: with
+Auto-capitalization off `mrShiftPost` runs the update at once (nothing to defer, no message is sent) and the counts and the keyboard
+messages are those of the switch off (`test_caps_defer.py`).
+
+Measured on the phone with build _76 (block S in Telegram, 20 words, Auto-capitalization on, new switch off against on):
+
+| Autocompletar | Space key, average (95 %) | Inside a key (count x average) | In a message | Wait for the app in all |
+|---------------|---------------------------|--------------------------------|--------------|-------------------------|
+| off | 23.5 (46.2) -> 11.9 (25.1) ms | 120 x 5.2 -> 100 x 2.8 ms | 20 -> 40 | about 761 -> 502 ms (-34 %) |
+| on | 23.8 (43.6) -> 11.1 (18.9) ms | 120 x 4.5 -> 100 x 3.3 ms | 20 -> 40 | about 680 -> 535 ms (-21 %) |
+
+The total count did not change (162), the 20 checks ran by the message after about 100.1-100.4 ms and none was asked early by a key
+("asked early" line not shown). "Handle a key" went from 6.6 to 3.3 and from 6.0 to 3.9 ms on average. Each question costs about
+10-17 ms inside the key and about 3.6-4 ms in the message. The two runs with the switch off differ by 11 % in the total, the space key
+does not, so the gain of the space key is far outside the noise. The switch stays on by default.
+
+After a word picked on the strip or written by a gesture (build _77) the app is not asked for the caps mode at all when the word ends in a
+letter (`LatinIME.mMrPick`): before the cursor is that letter or the automatic space after it, and the app answers 0 there unless the field
+asks for a capital on every word or for all capitals. That removes the two questions of every picked word (the one of `pickSuggestion` and
+the one of `sendSpace`, both inside `pickSuggestionManually`); `docs/tools/test_pick_caps.py` counts them with the real smali.
+
 Tests: `docs/tools/test_caps_defer.py` (the real smali in the mini Dalvik with a fake handler and a fake app that answers like
 `TextUtils.getCapsMode`: the switch off asks at the end of the separator; on asks nothing and sends message 6 with 100 ms; the message
 asks one question; the next key asks at once and removes the message; another update replaces it; the end of the field drops it; no
