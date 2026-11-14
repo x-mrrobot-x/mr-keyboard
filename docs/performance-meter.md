@@ -95,8 +95,8 @@ they are the keyboard's, not the app's:
 | a suggestion tapped | 3 (at other times) | 3 (full check) | 0 |
 
 A word of 4 letters and a space therefore cost 5 questions inside keys (2 + 3), 2 in the echo and 4 in the suggestions: the suggestions were
-37 % of all the waits (82 of 223 in the block that typed "casa " twenty times). An answer in the echo took about 7 ms against about 1.3 ms
-inside a key on the phone that ran it, so the echo was about half of the time spent waiting.
+37 % of all the waits (82 of 223 in the block that typed "casa " twenty times). The echo was about half of the time spent waiting (the
+first reading of this paragraph said "about 7 ms an answer": it was the average of two very different answers, see the next section).
 
 Two cuts (stage 6 part 5), both with the same answers as before and counted by tests:
 
@@ -117,6 +117,50 @@ Two cuts (stage 6 part 5), both with the same answers as before and counted by t
 
 Expected on the same block ("casa " twenty times, Android 12+, an app that answers `getSurroundingText`): inside keys 100 (same), in
 the selection change 20 (was 40), in the suggestions about 22 (was 82): 142 questions instead of 223.
+
+Measured on the phone with build _73 (same block; the counts matched the expected ones): inside keys 100, selection change 20,
+suggestions 22 (21 in Telegram), 142 in all. What it did to the time:
+
+- the suggestions (cut A) are the real gain: the waits in them went from about 131 ms to about 31 ms per 20 words in one app and from about
+  227 ms to about 59 ms in Telegram, and the total time waiting for the app went down by 21 to 24 %;
+- the echo (cut B) went from two questions to one but the time hardly moved (about 12 ms per 20 words in one app, about 42 ms in
+  Telegram). The reason is in the numbers of one answer: the **first** question after the app has changed its text takes about 13.5 ms
+  (13.6 ms before cut B, 13.4 ms after: the app's main thread is still busy with the change), and a **second** question right after takes
+  about 0.4 ms. Taking the second one away saves almost nothing; what costs is the first one.
+
+### Stage 6 part 6 (build _74): what is left inside a separator
+
+Inside a space or a punctuation mark the keyboard asked three questions: the caps mode of the cursor after it, `doubleSpace` (the three
+characters before the cursor, to turn two spaces into ". ") and, once per word learned, the word before the committed one for the user
+bigrams (`checkAddToDictionary`, `EditingUtil.getPreviousWord`). Two of them have an answer the keyboard already has when the key commits a
+word:
+
+- **`doubleSpace`** looks for a space before the space just sent. When the same key committed a word (typed as it is, or the suggestion
+  picked), the character before the space is the last one of that word. `MrPrevWord.endsPlain` says it is not white space, so
+  `doubleSpace` is not called and the app is not asked. With no word being typed (the second space of two), an empty word, or a picked
+  suggestion that ends with a space, it asks as before.
+- **The word before the committed one** is the same text `showSuggestions` already read for the same word, and `MrPrevWord` still has it
+  at the start of the separator. The separator now **holds** it for that one key (`MrPrevWord.hold`, before it forgets the word as it
+  always did), the learning works the answer out from it (`previousForLearning`: the 15 characters of the window, filled by the text kept
+  plus the word that was really committed, whatever its length, so an autocorrection or a suggestion in capitals gives the same answer
+  the app would) and the key **releases** it before it returns. When the text kept does not fill the window and is not all there is, when
+  the word was never kept (the strip was off) and in every other key (a suggestion tapped, a pick in the middle of the text), the app is
+  asked as before.
+
+What stays in memory, and when it goes: one window of at most 15 characters of the text before the word being typed (plus the same, held,
+for the length of one separator key), overwritten by the next word, never written to disk, never a list. Since this build forgetting
+drops the text as well as the flag (before, only the flag went down and the characters stayed until the next word overwrote them), and the
+end of the input, the window hidden, the input view finishing and the service being destroyed drop everything (`MrPrevWord.reset`). A
+password field never starts a word, so nothing is kept there.
+
+Expected on the block that typed "casa " twenty times: inside keys 60 (was 100: first letter 2 + separator 1), selection change 20,
+suggestions 22: 102 questions instead of 142 (223 before stage 6 part 5). The time gain is small by design: the question that costs is the
+first one after the app's change, and the caps mode, still asked inside the key, is now that first one. What would cut time, not only
+count, is not asking at that moment at all; that is a different kind of change (see docs/plan-performance.md).
+
+Tests: `PrevWordTest.java` section C (6,000 random texts against the original rule, no question when the 15 characters are known, memory
+after fifty words, reset), `docs/tools/test_prev_word.py` (the real smali of `handleSeparator` and `checkAddToDictionary` in the mini Dalvik:
+`doubleSpace` called or not in each case, hold and release, the arguments of `previousForLearning`; every place that forgets).
 
 Tests: `docs/tools/perf_test/PerfTest.java` (the Java, in `run_java_tests.sh`), `docs/tools/test_perf_meter.py` (the smali in the
 mini Dalvik interpreter and every call in the keyboard, in `mr-checks.yml`), `docs/tools/test_open_selection.py` (the selection when

@@ -13,6 +13,13 @@ places where the word changes have to drop it:
   - every write of mPredicting in LatinIME (the word starts or ends);
   - WordComposer.reset (a word composer that starts again);
   - a backspace, a separator, a text written by the keyboard (onText), a new field and the end of the input.
+Stage 7 adds two things the smali has to get right:
+  - the separator HOLDS what was known about the word for that one key (MrPrevWord.hold, first thing in handleSeparator) so that the learning of
+    the pair (checkAddToDictionary) can work out the word before it with no question, and RELEASES it before the key returns;
+  - the end of the input, the hidden window, the hidden input view and the destroyed service RESET everything (the word and what was held),
+    so no text typed in one field is left in memory for another;
+  - doubleSpace (the three characters before the cursor) is not asked when this key committed a word that ends with a character that is not
+    white space: the character before the space about to be sent cannot be a space.
 The text MrSurround keeps for the next-word prediction lives only inside the reaction to one report of the selection (see
 test_echo_questions.py for its hooks in onUpdateSelection, mrSepEcho and mrSepClear); here: new field, end of input.
 """
@@ -27,6 +34,10 @@ import dalvik_mini as dm  # noqa: E402
 APP = os.path.join(ROOT, "smali", "com", "mrkeyboard", "app")
 JAVA = os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app")
 CLEAR = "invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V"
+RESET = "invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V"
+RELEASE = "invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->release()V"
+HOLD = "invoke-static {v0}, Lcom/mrkeyboard/app/MrPrevWord;->hold(Ljava/lang/CharSequence;)V"
+ENDS_PLAIN = "Lcom/mrkeyboard/app/MrPrevWord;->endsPlain(Ljava/lang/CharSequence;)Z"
 FIELD = "invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->fieldChanged()V"
 ok = fails = 0
 
@@ -89,28 +100,67 @@ for f in sorted(os.listdir(APP)):
         if n:
             users[f] = n
 c = code_of(ime, "private checkAddToDictionary(Ljava/lang/CharSequence;IZ)V")
-check("the only other ask of EditingUtil.getPreviousWord is checkAddToDictionary (once per word that is learned, with the sentence "
-      "separators), not the suggestions", users == {"LatinIME.smali": 1} and sum("EditingUtil;->getPreviousWord(" in l for l in c) == 1, users)
+check("nobody asks EditingUtil.getPreviousWord any more: the suggestions and the learning of the pairs go through MrPrevWord", users == {}, users)
+calls = [i for i, l in enumerate(c) if "MrPrevWord;->previousForLearning(" in l]
+check("checkAddToDictionary gets the word before the committed one from MrPrevWord.previousForLearning(ic, sentence separators, mCommittedLength)",
+      len(calls) == 1 and c[calls[0]].startswith("invoke-static {p2, p3, v0}, Lcom/mrkeyboard/app/MrPrevWord;->previousForLearning("
+                                                 "Landroid/view/inputmethod/InputConnection;Ljava/lang/String;I)Ljava/lang/CharSequence;")
+      and c[calls[0] - 1] == "iget v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCommittedLength:I"
+      and c[calls[0] - 2].startswith("iget-object p3, p0, Lcom/mrkeyboard/app/LatinIME;->mSentenceSeparators:Ljava/lang/String;"), c[calls[0] - 3:calls[0] + 1] if calls else c)
+check("... and that call is after the guards of the learning (incognito, prediction off, a suggestion with a space)",
+      calls and next(i for i, l in enumerate(c) if "MrText;->learnable(" in l) < calls[0] and next(i for i, l in enumerate(c) if "mMrNoLearn" in l) < calls[0])
 check("MrPrevWord has no other user than the suggestions", sorted(f for f in os.listdir(APP) if f.endswith(".smali") and f.startswith("LatinIME")
       and "MrPrevWord;->get(" in read(os.path.join(APP, f))) == ["LatinIME.smali"])
 
 # 3. the other places where the word being typed changes
-for head, what in (("private handleBackspace()V", "a backspace"), ("private handleSeparator(I)V", "a separator"),
-                   ("public onText(Ljava/lang/CharSequence;)V", "a text written by the keyboard"),
-                   ("public onStartInputView(", "a new field"), ("public onFinishInput()V", "the end of the input")):
+for head, what in (("private handleBackspace()V", "a backspace"),
+                   ("public onText(Ljava/lang/CharSequence;)V", "a text written by the keyboard")):
     c = code_of(ime, head)
     check("%s forgets the word kept (MrPrevWord.clear)" % what, CLEAR in c, c[:3])
+c = code_of(ime, "private handleSeparator(I)V")
+check("a separator holds what is known about the word and forgets it (MrPrevWord.hold(mComposing), the first thing it does)",
+      c[0] == "iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;" and c[1] == HOLD and CLEAR not in c, c[:3])
+check("... and releases it as the last thing before the key returns (every path ends there: one return)",
+      c.count("return-void") == 1 and c[-1] == "return-void" and c[-2] == RELEASE and c.count(RELEASE) == 1, c[-3:])
+for head, what in (("public onStartInputView(", "a new field"), ("public onFinishInput()V", "the end of the input"),
+                   ("public onFinishInputView(Z)V", "the input view going away (the keyboard closed)"),
+                   ("public onWindowHidden()V", "the window hidden (leaving the app, the keyboard closed, another keyboard)"),
+                   ("public onDestroy()V", "the service destroyed")):
+    c = code_of(ime, head)
+    check("%s forgets everything, the word kept and what was held (MrPrevWord.reset)" % what, c.count(RESET) == 1 and CLEAR not in c, c[:3])
 for head in ("public onStartInputView(", "public onFinishInput()V"):
     c = code_of(ime, head)
     check("%s forgets that the app does not answer getSurroundingText (MrSurround.fieldChanged)" % head.split("(")[0].split()[-1], FIELD in c)
 c = code_of(ime, "public onFinishInput()V")
 check("onFinishInput: the hooks come after the call to the super class (the framework's own work runs first)",
-      next(i for i, l in enumerate(c) if l.startswith("invoke-super")) < c.index(CLEAR) < c.index(FIELD), c[:6])
+      next(i for i, l in enumerate(c) if l.startswith("invoke-super")) < c.index(RESET) < c.index(FIELD), c[:6])
 c = code_of(ime, "private handleBackspace()V")
 check("handleBackspace: the word is forgotten before anything is asked or deleted",
       c.index(CLEAR) < next(i for i, l in enumerate(c) if "getCurrentInputConnection" in l), c[:6])
 c = code_of(ime, "private handleSeparator(I)V")
-check("handleSeparator: the word is forgotten before the separator is sent", c.index(CLEAR) < next(i for i, l in enumerate(c) if "sendModifiableKeyChar" in l), c[:6])
+check("handleSeparator: the word is held and forgotten before the separator is sent", c.index(HOLD) < next(i for i, l in enumerate(c) if "sendModifiableKeyChar" in l), c[:6])
+check("handleSeparator: what was held is taken before the word is committed (commitTyped, pickDefaultSuggestion) so the learning can use it",
+      c.index(HOLD) < next(i for i, l in enumerate(c) if "commitTyped(" in l) and c.index(HOLD) < next(i for i, l in enumerate(c) if "pickDefaultSuggestion()Z" in l))
+
+# 3b. doubleSpace: not asked after a word committed by this key
+dbl = [i for i, l in enumerate(c) if l.endswith("LatinIME;->doubleSpace()V")]
+check("handleSeparator calls doubleSpace in one place", len(dbl) == 1, dbl)
+pre = c[:dbl[0]] if dbl else []
+ends = [i for i, l in enumerate(pre) if ENDS_PLAIN in l]
+check("doubleSpace question cut: handleSeparator asks MrPrevWord.endsPlain of the word typed (mComposing) when a word is being predicted, and of "
+      "the word picked (mBestWord) when one is picked", len(ends) == 2
+      and pre[ends[0] - 1] == "iget-object v5, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;"
+      and pre[ends[1] - 1] == "iget-object v1, p0, Lcom/mrkeyboard/app/LatinIME;->mBestWord:Ljava/lang/CharSequence;", ends)
+# the flag is false unless a word is being predicted: set before the branch on mPredicting, taken from endsPlain after it
+i_pred = next(i for i, l in enumerate(c) if l.endswith("LatinIME;->mPredicting:Z") and l.startswith("iget-boolean v2"))
+i_zero = next(i for i, l in enumerate(c) if l == "const/4 v8, 0x0")
+check("... v8 (the word committed ends plain) starts false before the branch on mPredicting, so every path to doubleSpace has it set",
+      i_pred < i_zero < next(i for i, l in enumerate(c) if l == "if-eqz v2, :cond_5") < ends[0], (i_pred, i_zero))
+writers = [l for l in c if re.match(r"(const\S*|move\S*|iget\S*|invoke-\S+ \{v8\})\s+v8\b", l) or re.match(r"move-result\S* v8$", l)]
+check("... v8 is the answer of the first endsPlain and nothing else writes it", c[ends[0] + 1] == "move-result v8" and writers == ["const/4 v8, 0x0", "move-result v8"], writers)
+tail = c[dbl[0] - 12:dbl[0]] if dbl else []
+check("... the call is skipped when v8 is true and (the typed word was committed as it is, or the picked word ends plain); otherwise doubleSpace asks as before",
+      tail[:1] == ["if-eqz v8, :cond_mr_ask_double"] or "if-eqz v8, :cond_mr_ask_double" in tail, tail)
 c = code_of(ime, "public onText(Ljava/lang/CharSequence;)V")
 check("onText: the word is forgotten before the text is inserted", c.index(CLEAR) < next(i for i, l in enumerate(c) if "onTextOrig" in l), c)
 
@@ -146,6 +196,118 @@ obj = dm.Obj("Lcom/mrkeyboard/app/WordComposer;", mCodes=dm.Obj("Ljava/util/Arra
 vm.run(KEY, [obj])
 check("... run for real: reset() calls MrPrevWord.clear once and still empties the word",
       h.calls.count("MrPrevWord.clear") == 1 and obj.f["mCapsCount"] == 0 and obj.f["mIsFirstCharCapitalized"] == 0 and not obj.f["mPreferredWord"], (h.calls, obj.f))
+
+# 4b. the real smali of handleSeparator and checkAddToDictionary, run in the mini Dalvik with a fake keyboard around them
+IME = "Lcom/mrkeyboard/app/LatinIME;"
+ALLM = dm.parse_methods(os.path.join(APP, "LatinIME.smali"))
+SEP = "handleSeparator(I)V"
+CHK = "checkAddToDictionary(Ljava/lang/CharSequence;IZ)V"
+
+
+class KHost:
+    """Everything around the method under test: the calls are written down, the answers are the ones of a keyboard that learns words."""
+
+    def __init__(self, picked=0):
+        self.calls, self.args = [], {}
+        self.picked = picked
+        self.ic = dm.Obj("Landroid/view/inputmethod/InputConnection;")
+        self.state = dm.Obj("Lcom/mrkeyboard/app/TextEntryState$State;")
+
+    def sget(self, cls, name):
+        return dm.Obj(cls + "." + name)
+
+    def new_instance(self, cls):
+        return dm.Obj(cls)
+
+    def instance_of(self, obj, cls):
+        return False
+
+    def invoke(self, vm, op, target, args):
+        cls, _, mem = target.partition("->")
+        name = mem.split("(")[0]
+        who = cls.split("/")[-1].rstrip(";") + "." + name
+        self.calls.append(who)
+        self.args.setdefault(who, []).append(args)
+        if name == "getCurrentInputConnection":
+            return self.ic
+        if name in ("dismissAddToDictionaryHint", "suggestionsSuspended"):
+            return 0
+        if name == "pickDefaultSuggestion":
+            return self.picked
+        if name in ("isPredictionOn", "learnable"):
+            return 1
+        if name == "getState":
+            return self.state
+        if name == "endsPlain":                       # the real one is tested in Java (PrevWordTest)
+            return 1 if args[0] and not args[0][-1].isspace() else 0
+        if name == "isValidWord":
+            return 1
+        if name == "previousForLearning":
+            return "dois"
+        if name == "isEmpty":
+            return 1 if not args[0] else 0
+        if name == "toString":
+            return args[0]
+        if name == "length":
+            return len(args[0])
+        return None
+
+
+def run_separator(code, composing, predicting, picked=0, best="", autocorrect=0):
+    h = KHost(picked)
+    vm = dm.VM(IME, {SEP: ALLM[SEP]}, h)
+    ime = dm.Obj(IME, mComposing=composing, mPredicting=1 if predicting else 0, mAutoCorrectOn=autocorrect, mAutoCorrectEnabled=1,
+                 mJustRevertedSeparator=None, mJustAddedAutoSpace=0, mBestWord=best, mWord=dm.Obj("Lcom/mrkeyboard/app/WordComposer;"),
+                 mCandidateView=dm.Obj("Candidate"))
+    vm.run(SEP, [ime, ord(code)])
+    return h
+
+
+def asks_double_space(h):
+    return h.calls.count("LatinIME.doubleSpace") == 1
+
+
+h = run_separator(" ", "casa", True)
+check("run: a space that commits the word typed (autocorrect off): doubleSpace is NOT called, so the app is not asked the three characters",
+      not asks_double_space(h) and h.calls.count("LatinIME.commitTyped") == 1, h.calls)
+check("run: ... and the key holds the word with the composing text, releases it, and sends the space",
+      h.args["MrPrevWord.hold"] == [["casa"]] and h.calls.count("MrPrevWord.release") == 1 and h.calls.count("LatinIME.sendModifiableKeyChar") == 1
+      and h.calls.index("MrPrevWord.hold") < h.calls.index("LatinIME.commitTyped") < h.calls.index("LatinIME.sendModifiableKeyChar") < h.calls.index("MrPrevWord.release"), h.calls)
+h = run_separator(" ", "casa", True, picked=1, best="casa", autocorrect=1)
+check("run: a space that picks the default suggestion (it ends with a letter): doubleSpace is NOT called",
+      not asks_double_space(h) and h.calls.count("LatinIME.pickDefaultSuggestion") == 1, h.calls)
+h = run_separator(" ", "casa", True, picked=1, best="a casa ", autocorrect=1)
+check("run: a picked suggestion that ends with a space: doubleSpace asks as before (a second space could be there)", asks_double_space(h), h.calls)
+h = run_separator(" ", "", False)
+check("run: a space with no word being typed (the second space of two): doubleSpace asks as before", asks_double_space(h), h.calls)
+h = run_separator(" ", "", True)
+check("run: a word being predicted but empty (nothing to commit): doubleSpace asks as before", asks_double_space(h), h.calls)
+h = run_separator(" ", "casa ", True)
+check("run: a typed word that somehow ends with a space: doubleSpace asks as before", asks_double_space(h), h.calls)
+h = run_separator(",", "casa", True)
+check("run: a comma never called doubleSpace (as before)", not asks_double_space(h), h.calls)
+for code in " ,.!":
+    for pred in (True, False):
+        h = run_separator(code, "casa" if pred else "", pred)
+        check("run: separator %r, predicting=%s: hold once, release once, release is the last call of the key" % (code, pred),
+              h.calls.count("MrPrevWord.hold") == 1 and h.calls.count("MrPrevWord.release") == 1 and h.calls[-1] == "MrPrevWord.release", h.calls[-3:])
+
+# checkAddToDictionary: the word before, from MrPrevWord, and the pair learned with it
+h = KHost()
+vm = dm.VM(IME, {CHK: ALLM[CHK]}, h)
+ime = dm.Obj(IME, mMrNoLearn=0, mSuggest=dm.Obj("Suggest"), mAutoDictionary=dm.Obj("Auto"), mUserBigramDictionary=dm.Obj("Bigram"),
+             mSentenceSeparators=".!?", mCommittedLength=4)
+vm.run(CHK, [ime, "tres", 1, 0])
+check("run: checkAddToDictionary asks MrPrevWord.previousForLearning(ic, '.!?', 4) once and no EditingUtil",
+      h.args.get("MrPrevWord.previousForLearning") == [[h.ic, ".!?", 4]] and "EditingUtil.getPreviousWord" not in h.calls, h.args.get("MrPrevWord.previousForLearning"))
+check("run: ... and learns the pair with the answer: ('dois', 'tres')",
+      [a[1:] for a in h.args.get("UserBigramDictionary.addBigrams", [])] == [["dois", "tres"]], h.args.get("UserBigramDictionary.addBigrams"))
+h = KHost()
+vm = dm.VM(IME, {CHK: ALLM[CHK]}, h)
+ime = dm.Obj(IME, mMrNoLearn=1, mSuggest=dm.Obj("Suggest"), mAutoDictionary=dm.Obj("Auto"), mUserBigramDictionary=dm.Obj("Bigram"),
+             mSentenceSeparators=".!?", mCommittedLength=4)
+vm.run(CHK, [ime, "tres", 1, 0])
+check("run: in incognito mode nothing is learned and nothing is asked", "MrPrevWord.previousForLearning" not in h.calls and "UserBigramDictionary.addBigrams" not in h.calls, h.calls)
 
 # 5. the Java side the smali relies on
 pred = read(os.path.join(JAVA, "MrPredict.java"))

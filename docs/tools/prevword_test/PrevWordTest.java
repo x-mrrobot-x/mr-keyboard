@@ -86,6 +86,11 @@ public class PrevWordTest {
 
     static String show(CharSequence c) { return c == null ? "null" : "'" + c + "'"; }
 
+    /** What LatinIME.mSentenceSeparators holds for the learning of the pairs. */
+    static final String SENTENCE_SEPARATORS = ".!?";
+
+    static int WINDOW() { return MrPrevWord.WINDOW; }
+
     static final String LETTERS = "abcdefghijklmnopqrstuvwxyzáéíóõçABCDEFG";
     static final String OTHERS = " \n\t.,;:!?()-'\"@#/ 0123456789";
 
@@ -370,6 +375,198 @@ public class PrevWordTest {
             check("Android 11: the same two questions as before (the character after the cursor is asked by LatinIME; here the prediction's own)", e.surround == 0 && e.before == 1,
                     e.surround + "," + e.before);
             Build.VERSION.SDK_INT = 0;
+        }
+
+        // ---------------------------------------------------------------- C: the pair learned with the word before (stage 7)
+        // checkAddToDictionary asked the app for the word before the one a separator commits. MrPrevWord.hold keeps what is known about the
+        // word for that key; previousForLearning gives the same answer as the original, with no question when it is certain.
+        {
+            final String SENTENCE = ".!?";
+            int trials = 0, wrong = 0, asked0 = 0, asked1 = 0, badCount = 0;
+            String firstWrong = null;
+            for (int t = 0; t < 6000; t++) {
+                Editor e = new Editor();
+                String base = randomText(r, 40);
+                if (!base.isEmpty() && r.nextInt(3) > 0 && !Character.isWhitespace(base.charAt(base.length() - 1))) base += " ";
+                if (r.nextInt(8) == 0) base += randomWord(r, 25) + " ";
+                e.set(base, base.length());
+                String typed = randomWord(r, r.nextInt(6) == 0 ? 24 : 9);
+                // the suggestions ran for the first letters only (the strip lags behind a fast typist), or for all of them
+                int ran = 1 + r.nextInt(typed.length());
+                MrPrevWord.reset();
+                for (int k = 1; k <= typed.length(); k++) {
+                    e.type(typed.substring(k - 1, k));
+                    if (k <= ran) MrPrevWord.get(e, SEPARATORS, new StringBuilder(typed.substring(0, k)));
+                }
+                // the key: the separator holds what is known and forgets the word as before; then the word is committed (as typed, or another
+                // word that replaces it: an autocorrection, a suggestion in capitals), which writes mPredicting and clears the word kept
+                MrPrevWord.hold(new StringBuilder(typed));
+                MrPrevWord.clear();
+                String committed = r.nextInt(3) == 0 ? randomWord(r, r.nextInt(5) == 0 ? 24 : 9) : typed;
+                e.set(base + committed, base.length() + committed.length());
+                String seps = r.nextBoolean() ? SENTENCE : SEPARATORS;
+                e.reset();
+                CharSequence got = MrPrevWord.previousForLearning(e, seps, committed.length());
+                int asked = e.before;
+                e.reset();
+                CharSequence want = original(e, seps);
+                trials++;
+                if (!same(got, want)) {
+                    wrong++;
+                    if (firstWrong == null) firstWrong = "text='" + e.text + "' typed='" + typed + "' ran=" + ran + " seps=" + seps + " got " + show(got) + " want " + show(want);
+                }
+                // certain when the 15 characters are filled by what was kept plus the word, or what was kept is all there is
+                int k0 = 1;
+                int tail = Math.min(WINDOW(), base.length() + k0) - k0;
+                boolean complete = base.length() + k0 < WINDOW();
+                int need = WINDOW() - Math.min(committed.length(), WINDOW());
+                boolean sure = tail >= need || complete;
+                if (asked == 0) asked0++; else asked1++;
+                if (asked != (sure ? 0 : 1)) badCount++;
+                MrPrevWord.release();
+            }
+            check("learning: the answer is the one of the original on " + trials + " random texts, words typed or replaced by another, two separator lists",
+                    wrong == 0, firstWrong);
+            // the word is read at its first letter here, so the text kept always fills the window; the case where it does not (the word was
+            // first read at a later letter and the one committed is shorter) is the next block
+            check("learning: no question when the 15 characters are known (" + asked0 + " of " + trials + " without, " + asked1 + " with)",
+                    badCount == 0 && asked1 == 0, badCount + "," + asked0 + "," + asked1);
+        }
+        {
+            // what is held survives the writes of mPredicting that the commit makes (clear), not the end of the key (release)
+            Editor e = new Editor();
+            e.set("um dois ", 8);
+            MrPrevWord.reset();
+            e.type("t");
+            MrPrevWord.get(e, SEPARATORS, new StringBuilder("t"));
+            e.type("res");
+            MrPrevWord.hold(new StringBuilder("tres"));
+            MrPrevWord.clear();
+            e.reset();
+            CharSequence got = MrPrevWord.previousForLearning(e, SENTENCE_SEPARATORS, 4);
+            check("learning: held for the key, the commit clears the word kept and the learning still has its answer, with no question",
+                    same(got, "dois") && e.before == 0, show(got) + "," + e.before);
+            MrPrevWord.release();
+            e.reset();
+            got = MrPrevWord.previousForLearning(e, SENTENCE_SEPARATORS, 4);
+            check("learning: after the key (release) it asks the app as before", same(got, "dois") && e.before == 1, show(got) + "," + e.before);
+        }
+        {
+            Editor e = new Editor();
+            e.set("um dois ", 8);
+            // the word was never kept (the strip was off or nothing ran yet)
+            MrPrevWord.reset();
+            e.type("tres");
+            MrPrevWord.hold(new StringBuilder("tres"));
+            e.reset();
+            CharSequence got = MrPrevWord.previousForLearning(e, SENTENCE_SEPARATORS, 4);
+            check("learning: a word that was never kept is not held, one question", same(got, "dois") && e.before == 1, show(got) + "," + e.before);
+            MrPrevWord.release();
+            // the word kept is not the one being committed (it does not start with it)
+            MrPrevWord.reset();
+            e.set("um dois ", 8);
+            e.type("t");
+            MrPrevWord.get(e, SEPARATORS, new StringBuilder("t"));
+            e.set("um dois x", 9);
+            MrPrevWord.hold(new StringBuilder("x"));
+            e.reset();
+            got = MrPrevWord.previousForLearning(e, SENTENCE_SEPARATORS, 1);
+            check("learning: a word that is not the one kept grown by letters is not held, one question", same(got, "dois") && e.before == 1, show(got) + "," + e.before);
+            MrPrevWord.release();
+            // the kept text was a short window of a long field and the word committed is shorter than the one it was read with
+            MrPrevWord.reset();
+            e.set("um dois tres quatro cinco seis ", 31);
+            e.type("abc");
+            MrPrevWord.get(e, SEPARATORS, new StringBuilder("abc"));   // asked at the third letter: 12 characters before the word kept
+            MrPrevWord.hold(new StringBuilder("abc"));
+            MrPrevWord.clear();
+            e.set("um dois tres quatro cinco seis ab", 33);
+            e.reset();
+            got = MrPrevWord.previousForLearning(e, SEPARATORS, 2);
+            check("learning: when what was kept does not fill the 15 characters and is not all there is, it asks, and the answer is the original's",
+                    e.before == 1 && same(got, original(e, SEPARATORS)), show(got) + "," + e.before);
+            MrPrevWord.release();
+            e.reset();
+            e.surround = 0;
+            check("learning: nothing to work with and no connection: null, no exception", MrPrevWord.previousForLearning(null, SENTENCE_SEPARATORS, 4) == null);
+        }
+        {
+            // what stays in memory: one window at most, dropped with the word, with the key and with the end of the input
+            Editor e = new Editor();
+            e.set("um dois tres", 12);
+            MrPrevWord.reset();
+            check("memory: nothing kept at the start", MrPrevWord.textInMemory() == 0, MrPrevWord.textInMemory());
+            MrPrevWord.get(e, SEPARATORS, new StringBuilder("tres"));
+            int kept = MrPrevWord.textInMemory();
+            check("memory: after one word, no more than the 15 characters of the window (and the word) are kept", kept > 0 && kept <= 15 + 24, kept);
+            for (int i = 0; i < 50; i++) {
+                e.set("a" + i + " b" + i + " word" + i, ("a" + i + " b" + i + " word" + i).length());
+                MrPrevWord.clear();
+                MrPrevWord.get(e, SEPARATORS, new StringBuilder("word" + i));
+            }
+            check("memory: fifty words later it is still one window, nothing piled up", MrPrevWord.textInMemory() <= 15 + 24, MrPrevWord.textInMemory());
+            MrPrevWord.clear();
+            check("memory: forgetting the word drops its text, not only the flag", MrPrevWord.textInMemory() == 0, MrPrevWord.textInMemory());
+            e.set("um dois tres", 12);
+            MrPrevWord.get(e, SEPARATORS, new StringBuilder("tres"));
+            MrPrevWord.hold(new StringBuilder("tres"));
+            MrPrevWord.clear();
+            check("memory: what is held stays after the word is forgotten (the key is not over)", MrPrevWord.textInMemory() > 0);
+            MrPrevWord.release();
+            check("memory: the end of the key drops it", MrPrevWord.textInMemory() == 0, MrPrevWord.textInMemory());
+            MrPrevWord.get(e, SEPARATORS, new StringBuilder("tres"));
+            MrPrevWord.hold(new StringBuilder("tres"));
+            MrPrevWord.get(e, SEPARATORS, new StringBuilder("tres"));
+            MrPrevWord.reset();
+            check("memory: the end of the input, the keyboard hidden or destroyed (reset) drops everything", MrPrevWord.textInMemory() == 0, MrPrevWord.textInMemory());
+            e.reset();
+            MrPrevWord.get(e, SEPARATORS, new StringBuilder("tres"));
+            check("memory: after a reset the next word asks the app, it does not use what the last field left", e.before == 1, e.before);
+            MrPrevWord.reset();
+        }
+        {
+            check("endsPlain: a word", MrPrevWord.endsPlain("casa"));
+            check("endsPlain: a word with an apostrophe or a hyphen at the end", MrPrevWord.endsPlain("d'") && MrPrevWord.endsPlain("guarda-"));
+            check("endsPlain: a space, a tab, a line break or a no-break space at the end", !MrPrevWord.endsPlain("casa ") && !MrPrevWord.endsPlain("casa\t")
+                    && !MrPrevWord.endsPlain("casa\n") && !MrPrevWord.endsPlain("casa "));
+            check("endsPlain: empty and null", !MrPrevWord.endsPlain("") && !MrPrevWord.endsPlain(null));
+        }
+        {
+            // a typed sentence: the questions of the learning, word by word (the first word of a field has no word before it)
+            Editor e = new Editor();
+            e.set("", 0);
+            MrPrevWord.reset();
+            String[] words = {"eu", "queria", "uma", "casa", "grande", "perto", "do", "mar"};
+            int learningAsks = 0, wrong = 0;
+            for (String w : words) {
+                for (int k = 1; k <= w.length(); k++) {
+                    e.type(w.substring(k - 1, k));
+                    MrPrevWord.get(e, SEPARATORS, new StringBuilder(w.substring(0, k)));
+                }
+                MrPrevWord.hold(new StringBuilder(w));
+                MrPrevWord.clear();
+                e.reset();
+                CharSequence got = MrPrevWord.previousForLearning(e, SENTENCE_SEPARATORS, w.length());
+                learningAsks += e.before;
+                e.reset();
+                if (!same(got, original(e, SENTENCE_SEPARATORS))) wrong++;
+                MrPrevWord.release();
+                e.type(" ");
+            }
+            check("a typed sentence of " + words.length + " words: the learning asks the app " + learningAsks + " times (before: " + words.length + "), the answers are the original's",
+                    learningAsks <= 2 && wrong == 0, learningAsks + "," + wrong);
+            MrPrevWord.reset();
+        }
+        {
+            // the question that is left is timed by the meter like every other
+            MrPerf.reset();
+            MrPerf.sFakeNanos = 100_000_000_000L;
+            Editor e = new Editor();
+            e.set("um dois", 7);
+            MrPrevWord.reset();
+            MrPrevWord.previousForLearning(e, SENTENCE_SEPARATORS, 4);
+            check("learning: the question that is left is counted by the meter as a wait for the app", MrPerf.stats(MrPerf.APP)[0] == 1, MrPerf.stats(MrPerf.APP)[0]);
+            MrPerf.reset();
         }
 
         System.out.println();

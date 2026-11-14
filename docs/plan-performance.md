@@ -223,3 +223,31 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   (+1 inside, +2 in the echo), the revert of an autocorrect (+4 inside per cycle), the popup window (18 ms, a system call).
   Next: the owner resets the meter and repeats the blocks L and S (and S in Telegram): "Wait for the app: in the suggestions" should be
   about one per word, and "in a selection change" about one per separator, with the new echo line counting them.
+- Stage 6, sixth part (build _74): the owner's run of the blocks L, S, S in Telegram, D, T, C1 and C2 on build _73: the counts were the
+  expected ones (S: inside keys 100, selection 20, suggestions 22; 142 against 223; L 5 against about 44) and no regression showed. A is a
+  real gain in time (the suggestions' waits about 131 -> 31 ms per 20 words; total waiting -21 to -24 %); B cut the count and not the
+  time (about 12 ms per 20 words), because the first question after the app's change costs about 13.5 ms and the second about 0.4 ms
+  (an earlier line of this plan said "about 7 ms an answer": wrong, an average of the two). So the count is no longer what costs: what
+  costs is the first synchronous question after a change of the app's text.
+  Cuts of this build, with the same answers and counted on the PC (`PrevWordTest.java` section C, `test_prev_word.py`):
+  C. the word before the committed one, for the user bigrams (`checkAddToDictionary`): `MrPrevWord.hold` (start of a separator) /
+  `previousForLearning` / `release` (end of the key); the answer is worked out from the text kept, asked of the app when that is not
+  certain; `EditingUtil.getPreviousWord` has no caller left.
+  D. `doubleSpace` is not called when the key committed a word that ends with a character that is not white space (the character before
+  the space about to be sent cannot be a space); `MrPrevWord.endsPlain`.
+  Hygiene (asked by the owner, found while checking): `MrPrevWord.clear` drops the text and not only the flag; `MrPrevWord.reset` (end of
+  the input, window hidden, input view finished, service destroyed) drops everything.
+  Expected on the block "casa " twenty times: inside keys 60 (was 100), 102 questions in all (was 142). Nothing ran on a device in this
+  stage. Time: small, the caps mode is now the first question after the change.
+  Not done, and why: the caps mode after a separator (the answer can be worked out only by assuming that the app answers like
+  `TextUtils.getCapsMode`; the cut of stage 6 for letters already assumes it for the middle of a word, this one would assume it for the
+  start of one), the two questions of the first letter (`isCursorTouchingWord`: an answer kept from the echo of the separator would need
+  every write of the keyboard to forget it, and a stale answer starts a word in the middle of another; `getSurroundingText(1, 1)` would
+  make it one question, count only, and a wrong answer from an app would break typing inside a word), the suggestion tapped (6 questions),
+  the second space of a double space, the revert of an autocorrect. The one change that would cut time and not only count is to not ask
+  at the moment of the app's change: the check after the echo of a separator posted a few milliseconds later, when the app is idle. It
+  changes the order of what happens after a key (a key typed in between has to cancel it) and its gain can only be measured on a
+  device; to be decided with the owner before it is made.
+  Next: the owner repeats the blocks S and C1/C2: "Wait for the app: inside a key" should be 60 for the 20 words of S (first letter 2
+  + separator 1 per word), and the learned screen, a password field, closing and opening the keyboard and switching keyboards must show
+  nothing odd (the previous word is dropped at each).

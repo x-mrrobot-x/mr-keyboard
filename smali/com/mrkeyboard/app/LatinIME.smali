@@ -1086,8 +1086,10 @@
 
     iget-object p3, p0, Lcom/mrkeyboard/app/LatinIME;->mSentenceSeparators:Ljava/lang/String;
 
-    .line 2827
-    invoke-static {p2, p3}, Lcom/mrkeyboard/app/EditingUtil;->getPreviousWord(Landroid/view/inputmethod/InputConnection;Ljava/lang/String;)Ljava/lang/CharSequence;
+    # Previous word (MrPrevWord): the word before the committed one, worked out from what the key held when that is certain, asked of
+    # the app otherwise (the same answer as EditingUtil.getPreviousWord). mCommittedLength is the length of the word in the field.
+    iget v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCommittedLength:I
+    invoke-static {p2, p3, v0}, Lcom/mrkeyboard/app/MrPrevWord;->previousForLearning(Landroid/view/inputmethod/InputConnection;Ljava/lang/String;I)Ljava/lang/CharSequence;
 
     move-result-object p2
 
@@ -3141,10 +3143,12 @@
 .end method
 
 .method private handleSeparator(I)V
-    .locals 8
+    .locals 9
 
-    # Previous word (MrPrevWord): a separator ends the word being typed.
-    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
+    # Previous word (MrPrevWord): a separator ends the word being typed. What was known about the word is held for this key only (the
+    # learning of the pair asks for the word before it, and the word is forgotten as before); it is released before the key returns.
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPrevWord;->hold(Ljava/lang/CharSequence;)V
 
     .line 2342
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
@@ -3187,7 +3191,15 @@
 
     const/4 v4, 0x1
 
+    # Double space question cut: v8 = the word typed so far ends with a character that is not white space. When this key commits that
+    # word, the character before the space about to be sent is its last one, so it cannot be the second space of two.
+    const/4 v8, 0x0
+
     if-eqz v2, :cond_5
+
+    iget-object v5, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
+    invoke-static {v5}, Lcom/mrkeyboard/app/MrPrevWord;->endsPlain(Ljava/lang/CharSequence;)Z
+    move-result v8
 
     .line 2361
     iget-boolean v2, p0, Lcom/mrkeyboard/app/LatinIME;->mAutoCorrectOn:Z
@@ -3335,6 +3347,19 @@
 
     if-ne p1, v3, :cond_a
 
+    # Double space question cut: a word was committed by this key (typed as it is, or the suggestion picked, whose last character
+    # is the one before the space): there is no second space, doubleSpace has nothing to look for, so the app is not asked.
+    if-eqz v8, :cond_mr_ask_double
+
+    if-eqz v2, :cond_a
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/LatinIME;->mBestWord:Ljava/lang/CharSequence;
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPrevWord;->endsPlain(Ljava/lang/CharSequence;)Z
+    move-result v1
+
+    if-nez v1, :cond_a
+
+    :cond_mr_ask_double
     .line 2399
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->doubleSpace()V
 
@@ -3365,6 +3390,8 @@
     invoke-interface {v0}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
 
     :cond_c
+    # Previous word (MrPrevWord): what was held for the learning of this key is dropped.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->release()V
     return-void
 .end method
 
@@ -9285,6 +9312,9 @@
 .method public onDestroy()V
     .locals 2
 
+    # Previous word (MrPrevWord): the service is over; nothing typed is left behind.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
+
     invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
     move-result-object v0
     invoke-interface {v0, p0}, Landroid/content/SharedPreferences;->unregisterOnSharedPreferenceChangeListener(Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;)V
@@ -9584,7 +9614,7 @@
     invoke-super {p0}, Landroid/inputmethodservice/InputMethodService;->onFinishInput()V
 
     # Previous word (MrPrevWord) and MrSurround: the field is over.
-    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
     invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->fieldChanged()V
 
     const/4 v0, 0x0
@@ -9719,6 +9749,9 @@
     # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->onHidden()V
 
+    # Previous word (MrPrevWord): the window is hidden; nothing typed is left behind.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
+
     # If the tool is open, MrKeep remembers it before it is closed with the window (a turn of the screen hides it).
     invoke-static {}, Lcom/mrkeyboard/app/MrKeep;->onHidden()V
 
@@ -9737,6 +9770,9 @@
 
     .line 965
     invoke-super {p0, p1}, Landroid/inputmethodservice/InputMethodService;->onFinishInputView(Z)V
+
+    # Previous word (MrPrevWord): the keyboard is going away; nothing typed is left behind.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
 
     .line 967
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mHandler:Landroid/os/Handler;
@@ -11685,7 +11721,7 @@
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->openBegin()V
 
     # Previous word (MrPrevWord) and the one question after an echo (MrSurround): a new field forgets what was kept.
-    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
     invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->fieldChanged()V
 
     iget-object v0, p1, Landroid/view/inputmethod/EditorInfo;->packageName:Ljava/lang/String;
