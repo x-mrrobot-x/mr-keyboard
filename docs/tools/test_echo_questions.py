@@ -19,6 +19,10 @@ Now:
     report is the echo of our own separator, the character before the cursor is that separator, and only the character after it
     is asked (mrEchoTouchingWord / mrTouchingRight); in any other case (no note, another cursor position, a selection, any key typed
     in between) the full check runs as before.
+  - on Android 12+ the one question that is left (the character after the cursor) also brings the 96 characters before it that the
+    next-word prediction asks for right after (MrSurround.echo = getSurroundingText, stage 6 part 5): ONE question for the whole echo
+    instead of two. MrSurround answers NONE (-2) on Android 11 or older, with an app that does not answer it and with a selection, and
+    then the old question is asked, so the answers never change. The Java class has its own test (docs/tools/prevword_test).
 Part 1 runs the REAL smali of these methods in the mini Dalvik interpreter (dalvik_mini.py) with a fake app that counts the
 questions. Part 2 reads the smali for the shape of the change.
 """
@@ -75,6 +79,9 @@ class Host:
                           mReCorrectionEnabled=1, mKeyboardSwitcher=dm.Obj("Switcher"), mJustRevertedSeparator=None,
                           mCandidateView=dm.Obj("Candidate"), mMrSepAt=0, mMrSepHit=0, mAutoCorrectOn=0)
         self.redirect = None
+        self.surround = "off"       # what MrSurround.echo finds: "off" (Android 11 or older), "ok" (answers), "null" (the app does not answer)
+        self.surround_dead = False  # MrSurround remembers that the app does not answer (until the next field)
+        self.surround_clears = 0
 
     # --- the fake app
     def type_text(self, s):
@@ -112,6 +119,23 @@ class Host:
                    "echoCutBegin": (self.cut, 0), "echoCutEnd": (self.cut, 1), "echoFullBegin": (self.full, 0), "echoFullEnd": (self.full, 1)}
             if name in idx:
                 idx[name][0][idx[name][1]] += 1
+            return None
+        if cls == "Lcom/mrkeyboard/app/MrSurround;":
+            # The Java class has its own test (docs/tools/prevword_test); here only what the keyboard does with its three answers:
+            # NONE (-2: ask as before), END (-1: nothing after the cursor) or the character after the cursor.
+            if name == "clear":
+                self.surround_clears += 1
+                return None
+            if name == "echo":
+                if self.surround == "off" or self.surround_dead:
+                    return -2
+                self.questions.append("surround")
+                if self.surround == "null":
+                    self.surround_dead = True
+                    return -2
+                return ord(self.text[self.cursor]) if self.cursor < len(self.text) else -1
+            raise AssertionError("unexpected MrSurround call: " + name)
+        if cls == "Lcom/mrkeyboard/app/MrPrevWord;":
             return None
         if cls == "Landroid/text/TextUtils;" and name == "isEmpty":
             return 1 if not args[0] else 0
@@ -157,6 +181,7 @@ class Host:
     def reset_count(self):
         self.questions, self.calls = [], []
         self.pairs, self.sel, self.cut, self.full = [0, 0], [0, 0], [0, 0], [0, 0]
+        self.surround_clears = 0
 
     def after_echo(self):
         """What the echo did to the suggestions."""
@@ -352,6 +377,97 @@ check("typing 'hello world, ok' (%d keys, %d separators): the echoes ask %d ques
       % (len(KEYS), seps, total), total == seps == 3, (total, seps))
 
 
+# 13. stage 6, part 5 (B): on Android 12+ ONE question (MrSurround.echo = getSurroundingText) answers both the character after the cursor
+# and the text before it that the next-word prediction needs; any other case asks as before
+def after_sep_echo(mode, text="hello", cursor=5, dead=False):
+    h = Host(text, cursor=cursor)
+    h.surround = mode
+    h.surround_dead = dead
+    h.ime.f["mLastSelectionStart"] = h.ime.f["mLastSelectionEnd"] = cursor
+    h.separator(" ")
+    h.reset_count()
+    h.echo()
+    return h
+
+
+h = after_sep_echo("ok")
+check("Android 12+ (the app answers getSurroundingText): the echo of our separator asks the app ONE question (before: 2)",
+      h.questions == ["surround"] and h.after_echo() == "next", (h.questions, h.after_echo()))
+check("... every question is timed and the reaction to the selection is timed once", h.pairs == [0, 0] and h.sel == [1, 1], (h.pairs, h.sel))
+h = after_sep_echo("off")
+check("Android 11 or older: the same echo asks one question the old way (the character after the cursor)",
+      h.questions == ["after"] and h.pairs == [1, 1], (h.questions, h.pairs))
+h = after_sep_echo("null")
+check("an app that does not answer: the first echo asks the surround question and then the old one (2, as it was before stage 6)",
+      h.questions == ["surround", "after"] and h.after_echo() == "next", h.questions)
+h.separator(" ")
+h.reset_count()
+h.echo(old=6)
+check("... and it is not asked again in the same field: the next echo asks only the old question", h.questions == ["after"], h.questions)
+
+bad = []
+for left in [c for c in chars if c in SEPARATORS]:      # every neighbourhood: the answer with the surround question is the one of the old check
+    for right in [None] + chars:
+        text = left + (right or "")
+        answers = []
+        for mode in ("off", "ok", "null"):
+            h = Host(text, cursor=1)
+            h.surround = mode
+            h.ime.f["mMrSepHit"] = 1
+            answers.append((bool(h.vm.run("mrEchoTouchingWord()Z", [h.ime])), tuple(h.questions)))
+        if not (answers[0][0] == answers[1][0] == answers[2][0] == full_check(text, 1)
+                and answers[0][1] == ("after",) and answers[1][1] == ("surround",) and answers[2][1] == ("surround", "after")):
+            bad.append((left, right, answers))
+check("after the echo of a separator: every neighbourhood gives the same answer in the three modes (Android 12+, older, no answer)", not bad, bad[:2])
+
+h = Host("helloworld", cursor=5)
+h.surround = "ok"
+h.ime.f["mLastSelectionStart"] = h.ime.f["mLastSelectionEnd"] = 5
+h.separator(" ")
+h.reset_count()
+h.echo()
+check("a space typed in front of a word, Android 12+: the word after the cursor is found with the one question (old suggestions)",
+      h.questions == ["surround"] and h.after_echo() == "old", (h.questions, h.after_echo()))
+h = Host("hello ")
+h.surround = "ok"
+h.ime.f["mLastSelectionStart"] = h.ime.f["mLastSelectionEnd"] = 5
+h.reset_count()
+h.echo()
+check("the full check (no note) does not use the surround question: two questions, as before, in every mode",
+      h.questions == ["before", "after"], h.questions)
+h = Host("hel", predicting=True)
+h.surround = "ok"
+h.ime.f["mLastSelectionStart"] = h.ime.f["mLastSelectionEnd"] = 2
+h.reset_count()
+h.echo(old=2, new=3)
+check("a letter echoed while predicting: still no question, with the surround question available", h.questions == [], h.questions)
+h = Host("hello")
+h.surround = "ok"
+h.ime.f["mLastSelectionStart"] = h.ime.f["mLastSelectionEnd"] = 5
+h.separator(" ")
+h.reset_count()
+h.echo()
+check("every report of the selection drops the text kept from the last one (MrSurround.clear at the start of mrSepEcho and at the exit taken)",
+      h.surround_clears == 2, h.surround_clears)
+
+# 14. the typing session of 12 again, on Android 12+: one question per separator in the echo
+h = Host("")
+h.surround = "ok"
+h.ime.f["mLastSelectionStart"] = h.ime.f["mLastSelectionEnd"] = 0
+total = 0
+for ch in KEYS:
+    if ch in SEPARATORS:
+        h.separator(ch)
+        h.ime.f["mPredicting"] = 0
+    else:
+        h.type_text(ch)
+        h.ime.f["mPredicting"] = 1
+    h.reset_count()
+    h.echo(old=h.ime.f["mLastSelectionStart"])
+    total += len(h.questions)
+check("typing 'hello world, ok' on Android 12+: %d questions in the echoes, one per separator and all of them the surround one" % total, total == seps == 3, (total, seps))
+
+
 # ---------------------------------------------------------------- part 2: the shape of the smali
 def body(name, head):
     lines = open(os.path.join(APP, name), encoding="utf-8").read().split("\n")
@@ -380,7 +496,9 @@ check("... the report of the selection is checked against the note right after t
       c[2] == "invoke-direct {p0, p3, p4}, " + IME + "->mrSepEcho(II)V", c[:4])
 ends = [i for i, l in enumerate(c) if l == "invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->selEnd()V"]
 rets = [i for i, l in enumerate(c) if l == "return-void"]
-check("... selEnd before each of the two exits", len(rets) == 2 and ends == [i - 1 for i in rets], (ends, rets))
+check("... selEnd, then MrSurround.clear (the text kept for the next-word prediction is dropped), right before each of the two exits",
+      len(rets) == 2 and ends == [i - 2 for i in rets]
+      and all(c[i + 1] == "invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->clear()V" for i in ends), (ends, rets))
 check("... the re-correction check goes through mrEchoTouchingWord and nothing else calls isCursorTouchingWord here",
       c.count("invoke-direct {p0}, " + IME + "->mrEchoTouchingWord()Z") == 1
       and not any("isCursorTouchingWord" in l for l in c))
@@ -417,6 +535,17 @@ check("mrTouchingRight asks only for the character after the cursor, timed, and 
       and c.index("invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V") < next(i for i, l in enumerate(c) if "getTextAfterCursor" in l)
       < c.index("invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V")
       and any("isWordSeparator" in l for l in c) and any("isSuggestedPunctuation" in l for l in c), c)
+
+c = code(body("LatinIME.smali", "private mrTouchingRight(" + IC + ")Z"))
+echo_i = c.index("invoke-static {p1}, Lcom/mrkeyboard/app/MrSurround;->echo(" + IC + ")I")
+after_q = next(i for i, l in enumerate(c) if "getTextAfterCursor" in l)
+check("mrTouchingRight: MrSurround.echo is asked first; the old question to the app comes after it and only runs when it answers NONE (-2)",
+      echo_i < after_q and c[echo_i + 1] == "move-result v1" and c[echo_i + 2] == "const/4 v2, -0x2"
+      and c[echo_i + 3].startswith("if-ne v1, v2, :cond_") and sum("MrSurround" in l for l in c) == 1, c[echo_i:echo_i + 4])
+c = code(body("LatinIME.smali", "private mrSepEcho(II)V"))
+check("mrSepEcho: MrSurround.clear is the first thing (before anything is read)", c[0] == "invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->clear()V", c[:2])
+c = code(body("LatinIME.smali", "private mrSepClear()V"))
+check("mrSepClear: drops the kept text too (every key that clears the note)", "invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->clear()V" in c, c)
 
 src = open(os.path.join(APP, "LatinIME.smali"), encoding="utf-8").read()
 users = sorted(m.split("\n", 1)[0].split()[-1] for m in src.split("\n.method ")[1:] if "->mMrSepAt:I" in m.split("\n.end method")[0])

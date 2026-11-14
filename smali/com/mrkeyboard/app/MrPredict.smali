@@ -154,7 +154,7 @@
     .locals 2
 
     .prologue
-    .line 304
+    .line 308
     sget-object v0, Lcom/mrkeyboard/app/MrPredict;->sPrev:Ljava/lang/String;
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->equalsIgnoreCase(Ljava/lang/String;)Z
@@ -169,12 +169,12 @@
 
     if-eqz v0, :cond_1
 
-    .line 317
+    .line 321
     :cond_0
     :goto_0
     return-void
 
-    .line 305
+    .line 309
     :cond_1
     const/4 v0, 0x0
 
@@ -183,7 +183,7 @@
 
     if-ge v0, v1, :cond_4
 
-    .line 306
+    .line 310
     sget-object v1, Lcom/mrkeyboard/app/MrPredict;->sWord:[Ljava/lang/String;
 
     aget-object v1, v1, v0
@@ -194,7 +194,7 @@
 
     if-eqz v1, :cond_3
 
-    .line 307
+    .line 311
     sget-object v1, Lcom/mrkeyboard/app/MrPredict;->sMain:[I
 
     aget v1, v1, v0
@@ -205,7 +205,7 @@
 
     aput p1, v1, v0
 
-    .line 308
+    .line 312
     :cond_2
     sget-object v1, Lcom/mrkeyboard/app/MrPredict;->sUser:[I
 
@@ -219,13 +219,13 @@
 
     goto :goto_0
 
-    .line 305
+    .line 309
     :cond_3
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
-    .line 312
+    .line 316
     :cond_4
     sget v0, Lcom/mrkeyboard/app/MrPredict;->sCount:I
 
@@ -233,28 +233,28 @@
 
     if-ge v0, v1, :cond_0
 
-    .line 313
+    .line 317
     sget-object v0, Lcom/mrkeyboard/app/MrPredict;->sWord:[Ljava/lang/String;
 
     sget v1, Lcom/mrkeyboard/app/MrPredict;->sCount:I
 
     aput-object p0, v0, v1
 
-    .line 314
+    .line 318
     sget-object v0, Lcom/mrkeyboard/app/MrPredict;->sMain:[I
 
     sget v1, Lcom/mrkeyboard/app/MrPredict;->sCount:I
 
     aput p1, v0, v1
 
-    .line 315
+    .line 319
     sget-object v0, Lcom/mrkeyboard/app/MrPredict;->sUser:[I
 
     sget v1, Lcom/mrkeyboard/app/MrPredict;->sCount:I
 
     aput p2, v0, v1
 
-    .line 316
+    .line 320
     sget v0, Lcom/mrkeyboard/app/MrPredict;->sCount:I
 
     add-int/lit8 v0, v0, 0x1
@@ -272,36 +272,36 @@
 
     const/4 v1, 0x0
 
-    .line 219
+    .line 223
     if-eqz p0, :cond_0
 
     if-nez p1, :cond_1
 
-    .line 253
+    .line 257
     :cond_0
     :goto_0
     return-void
 
-    .line 221
+    .line 225
     :cond_1
     :try_start_0
     invoke-virtual {p1}, Lcom/mrkeyboard/app/WordComposer;->size()I
 
     move-result v9
 
-    .line 222
+    .line 226
     if-lt v9, v13, :cond_0
 
     const/16 v0, 0xc
 
     if-gt v9, v0, :cond_0
 
-    .line 223
+    .line 227
     invoke-virtual {p1}, Lcom/mrkeyboard/app/WordComposer;->getTypedWord()Ljava/lang/CharSequence;
 
     move-result-object v4
 
-    .line 224
+    .line 228
     if-eqz v4, :cond_0
 
     invoke-interface {v4}, Ljava/lang/CharSequence;->length()I
@@ -310,24 +310,24 @@
 
     if-ne v0, v9, :cond_0
 
-    .line 225
+    .line 229
     const/4 v0, 0x2
 
     new-array v10, v0, [Ljava/lang/String;
 
-    .line 226
+    .line 230
     const/4 v0, 0x2
 
     new-array v5, v0, [I
 
-    .line 228
+    .line 232
     const-class v6, Lcom/mrkeyboard/app/MrPredict;
 
     monitor-enter v6
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 229
+    .line 233
     :try_start_1
     sget-boolean v0, Lcom/mrkeyboard/app/MrPredict;->sTypedCtx:Z
 
@@ -356,7 +356,7 @@
 
     goto :goto_0
 
-    .line 245
+    .line 249
     :catchall_0
     move-exception v0
 
@@ -369,7 +369,7 @@
     :try_end_2
     .catch Ljava/lang/RuntimeException; {:try_start_2 .. :try_end_2} :catch_0
 
-    .line 250
+    .line 254
     :catch_0
     move-exception v0
 
@@ -380,19 +380,19 @@
 
     move v7, v1
 
-    .line 230
+    .line 234
     :goto_1
     :try_start_3
     sget v0, Lcom/mrkeyboard/app/MrPredict;->sCount:I
 
     if-ge v3, v0, :cond_8
 
-    .line 231
+    .line 235
     sget-object v0, Lcom/mrkeyboard/app/MrPredict;->sWord:[Ljava/lang/String;
 
     aget-object v8, v0, v3
 
-    .line 232
+    .line 236
     invoke-virtual {v8}, Ljava/lang/String;->length()I
 
     move-result v0
@@ -407,7 +407,7 @@
 
     move v0, v7
 
-    .line 230
+    .line 234
     :goto_2
     add-int/lit8 v2, v3, 0x1
 
@@ -417,7 +417,7 @@
 
     goto :goto_1
 
-    .line 233
+    .line 237
     :cond_4
     invoke-static {v3}, Lcom/mrkeyboard/app/MrPredict;->score(I)I
 
@@ -425,7 +425,7 @@
 
     move v2, v7
 
-    .line 235
+    .line 239
     :goto_3
     if-lez v2, :cond_5
 
@@ -441,7 +441,7 @@
 
     goto :goto_3
 
-    .line 236
+    .line 240
     :cond_5
     if-lt v2, v13, :cond_6
 
@@ -449,7 +449,7 @@
 
     goto :goto_2
 
-    .line 237
+    .line 241
     :cond_6
     const/4 v0, 0x1
 
@@ -460,40 +460,40 @@
     :goto_4
     if-le v0, v2, :cond_7
 
-    .line 238
+    .line 242
     add-int/lit8 v12, v0, -0x1
 
     aget-object v12, v10, v12
 
     aput-object v12, v10, v0
 
-    .line 239
+    .line 243
     add-int/lit8 v12, v0, -0x1
 
     aget v12, v5, v12
 
     aput v12, v5, v0
 
-    .line 237
+    .line 241
     add-int/lit8 v0, v0, -0x1
 
     goto :goto_4
 
-    .line 241
+    .line 245
     :cond_7
     aput-object v8, v10, v2
 
-    .line 242
+    .line 246
     aput v11, v5, v2
 
-    .line 243
+    .line 247
     if-ge v7, v13, :cond_9
 
     add-int/lit8 v0, v7, 0x1
 
     goto :goto_2
 
-    .line 245
+    .line 249
     :cond_8
     monitor-exit v6
     :try_end_3
@@ -501,11 +501,11 @@
 
     move v8, v1
 
-    .line 246
+    .line 250
     :goto_5
     if-ge v8, v7, :cond_0
 
-    .line 247
+    .line 251
     :try_start_4
     aget-object v0, v10, v8
 
@@ -513,7 +513,7 @@
 
     move-result-object v1
 
-    .line 248
+    .line 252
     const/4 v2, 0x0
 
     array-length v3, v1
@@ -540,7 +540,7 @@
     :try_end_4
     .catch Ljava/lang/RuntimeException; {:try_start_4 .. :try_end_4} :catch_0
 
-    .line 246
+    .line 250
     add-int/lit8 v0, v8, 0x1
 
     move v8, v0
@@ -561,46 +561,46 @@
 
     const/4 v0, 0x0
 
-    .line 182
+    .line 186
     :try_start_0
     sget-object v3, Lcom/mrkeyboard/app/MrPredict;->sCtx1:Ljava/lang/String;
 
     sget-object v4, Lcom/mrkeyboard/app/MrPredict;->sCtx2:Ljava/lang/String;
 
-    .line 183
+    .line 187
     if-eqz p0, :cond_0
 
     if-nez p1, :cond_1
 
-    .line 211
+    .line 215
     :cond_0
     :goto_0
     return-void
 
-    .line 185
+    .line 189
     :cond_1
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrRecent;->complete(Lcom/mrkeyboard/app/Suggest;Lcom/mrkeyboard/app/WordComposer;)V
 
-    .line 187
+    .line 191
     invoke-virtual {p1}, Lcom/mrkeyboard/app/WordComposer;->size()I
 
     move-result v1
 
     if-ne v1, v2, :cond_2
 
-    .line 188
+    .line 192
     invoke-virtual {p1}, Lcom/mrkeyboard/app/WordComposer;->getTypedWord()Ljava/lang/CharSequence;
 
     move-result-object v5
 
-    .line 189
+    .line 193
     const-class v6, Lcom/mrkeyboard/app/MrPredict;
 
     monitor-enter v6
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 190
+    .line 194
     if-eqz v5, :cond_3
 
     :try_start_1
@@ -629,7 +629,7 @@
     :goto_1
     sput-boolean v1, Lcom/mrkeyboard/app/MrPredict;->sTypedCtx:Z
 
-    .line 191
+    .line 195
     sget-boolean v1, Lcom/mrkeyboard/app/MrPredict;->sTypedCtx:Z
 
     if-eqz v1, :cond_4
@@ -647,12 +647,12 @@
     :goto_2
     sput v1, Lcom/mrkeyboard/app/MrPredict;->sTypedInitial:I
 
-    .line 192
+    .line 196
     monitor-exit v6
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 194
+    .line 198
     :cond_2
     if-eqz p2, :cond_0
 
@@ -660,7 +660,7 @@
 
     if-eqz v4, :cond_0
 
-    .line 195
+    .line 199
     :try_start_2
     invoke-virtual {p1}, Lcom/mrkeyboard/app/WordComposer;->size()I
 
@@ -678,7 +678,7 @@
 
     if-eqz v1, :cond_0
 
-    .line 196
+    .line 200
     invoke-virtual {p1}, Lcom/mrkeyboard/app/WordComposer;->getTypedWord()Ljava/lang/CharSequence;
 
     move-result-object v1
@@ -689,41 +689,41 @@
 
     move-result v8
 
-    .line 197
+    .line 201
     const/4 v1, 0x3
 
     new-array v9, v1, [Ljava/lang/String;
 
-    .line 198
+    .line 202
     const/4 v1, 0x3
 
     new-array v1, v1, [I
 
-    .line 200
+    .line 204
     const-class v2, Lcom/mrkeyboard/app/MrPredict;
 
     monitor-enter v2
     :try_end_2
     .catch Ljava/lang/RuntimeException; {:try_start_2 .. :try_end_2} :catch_0
 
-    .line 201
+    .line 205
     :try_start_3
     invoke-static {v3, v4, v9, v1}, Lcom/mrkeyboard/app/MrTrigram;->find(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;[I)I
 
     move-result v10
 
-    .line 202
+    .line 206
     monitor-exit v2
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
     move v7, v0
 
-    .line 203
+    .line 207
     :goto_3
     if-ge v7, v10, :cond_0
 
-    .line 204
+    .line 208
     :try_start_4
     aget-object v0, v9, v7
 
@@ -735,7 +735,7 @@
 
     if-nez v0, :cond_5
 
-    .line 203
+    .line 207
     :goto_4
     add-int/lit8 v0, v7, 0x1
 
@@ -746,16 +746,16 @@
     :cond_3
     move v1, v0
 
-    .line 190
+    .line 194
     goto :goto_1
 
     :cond_4
     move v1, v0
 
-    .line 191
+    .line 195
     goto :goto_2
 
-    .line 192
+    .line 196
     :catchall_0
     move-exception v0
 
@@ -769,13 +769,13 @@
     :try_end_6
     .catch Ljava/lang/RuntimeException; {:try_start_6 .. :try_end_6} :catch_0
 
-    .line 208
+    .line 212
     :catch_0
     move-exception v0
 
     goto :goto_0
 
-    .line 202
+    .line 206
     :catchall_1
     move-exception v0
 
@@ -787,7 +787,7 @@
     :try_start_8
     throw v0
 
-    .line 205
+    .line 209
     :cond_5
     aget-object v0, v9, v7
 
@@ -795,7 +795,7 @@
 
     move-result-object v1
 
-    .line 206
+    .line 210
     const/4 v2, 0x0
 
     array-length v3, v1
@@ -831,7 +831,7 @@
     .end annotation
 
     .prologue
-    .line 122
+    .line 126
     const/4 v0, 0x0
 
     invoke-static {p0, v0, p1}, Lcom/mrkeyboard/app/MrPredict;->forWords(Lcom/mrkeyboard/app/Suggest;Ljava/lang/String;Ljava/lang/String;)Ljava/util/List;
@@ -868,7 +868,7 @@
 
     const/4 v3, 0x0
 
-    .line 127
+    .line 131
     const-class v5, Lcom/mrkeyboard/app/MrPredict;
 
     monitor-enter v5
@@ -878,21 +878,21 @@
     :try_start_0
     sput v4, Lcom/mrkeyboard/app/MrPredict;->sCount:I
 
-    .line 128
+    .line 132
     sput-object p2, Lcom/mrkeyboard/app/MrPredict;->sPrev:Ljava/lang/String;
 
-    .line 129
+    .line 133
     sput-object p1, Lcom/mrkeyboard/app/MrPredict;->sCtx1:Ljava/lang/String;
 
-    .line 130
+    .line 134
     sput-object p2, Lcom/mrkeyboard/app/MrPredict;->sCtx2:Ljava/lang/String;
 
-    .line 131
+    .line 135
     invoke-virtual {p2}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
 
     move-result-object v6
 
-    .line 132
+    .line 136
     invoke-virtual {v6, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v4
@@ -901,11 +901,11 @@
 
     move v4, v2
 
-    .line 133
+    .line 137
     :goto_0
     if-eqz p1, :cond_1
 
-    .line 134
+    .line 138
     sget-object v2, Lcom/mrkeyboard/app/MrPredict;->sTriWords:[Ljava/lang/String;
 
     sget-object v7, Lcom/mrkeyboard/app/MrPredict;->sTriScores:[I
@@ -916,7 +916,7 @@
 
     move v2, v3
 
-    .line 135
+    .line 139
     :goto_1
     if-ge v2, v7, :cond_1
 
@@ -941,19 +941,19 @@
     :cond_0
     move v4, v3
 
-    .line 132
+    .line 136
     goto :goto_0
 
-    .line 137
+    .line 141
     :cond_1
     invoke-virtual {p0}, Lcom/mrkeyboard/app/Suggest;->mrMainDict()Lcom/mrkeyboard/app/BinaryDictionary;
 
     move-result-object v2
 
-    .line 138
+    .line 142
     if-eqz v2, :cond_3
 
-    .line 139
+    .line 143
     sget v7, Lcom/mrkeyboard/app/MrPredict;->sInitialCount:I
 
     if-nez v7, :cond_2
@@ -966,11 +966,11 @@
 
     sput v7, Lcom/mrkeyboard/app/MrPredict;->sInitialCount:I
 
-    .line 140
+    .line 144
     :cond_2
     invoke-static {v2, p2}, Lcom/mrkeyboard/app/MrPredict;->mainBigrams(Lcom/mrkeyboard/app/BinaryDictionary;Ljava/lang/String;)V
 
-    .line 141
+    .line 145
     if-eqz v4, :cond_3
 
     invoke-virtual {v2, v6}, Lcom/mrkeyboard/app/BinaryDictionary;->isValidWord(Ljava/lang/CharSequence;)Z
@@ -981,16 +981,16 @@
 
     invoke-static {v2, v6}, Lcom/mrkeyboard/app/MrPredict;->mainBigrams(Lcom/mrkeyboard/app/BinaryDictionary;Ljava/lang/String;)V
 
-    .line 143
+    .line 147
     :cond_3
     invoke-virtual {p0}, Lcom/mrkeyboard/app/Suggest;->mrUserBigrams()Lcom/mrkeyboard/app/Dictionary;
 
     move-result-object v2
 
-    .line 144
+    .line 148
     if-eqz v2, :cond_4
 
-    .line 145
+    .line 149
     const/4 v7, 0x0
 
     sget-object v8, Lcom/mrkeyboard/app/MrPredict;->sUserCollector:Lcom/mrkeyboard/app/MrPredict$UserCollector;
@@ -999,7 +999,7 @@
 
     invoke-virtual {v2, v7, p2, v8, v9}, Lcom/mrkeyboard/app/Dictionary;->getBigrams(Lcom/mrkeyboard/app/WordComposer;Ljava/lang/CharSequence;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
 
-    .line 146
+    .line 150
     if-eqz v4, :cond_4
 
     const/4 v4, 0x0
@@ -1010,7 +1010,7 @@
 
     invoke-virtual {v2, v4, v6, v7, v8}, Lcom/mrkeyboard/app/Dictionary;->getBigrams(Lcom/mrkeyboard/app/WordComposer;Ljava/lang/CharSequence;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
 
-    .line 150
+    .line 154
     :cond_4
     const/4 v2, 0x2
 
@@ -1020,7 +1020,7 @@
 
     move v2, v3
 
-    .line 151
+    .line 155
     :goto_2
     array-length v6, v4
 
@@ -1043,13 +1043,13 @@
     :cond_5
     move v2, v3
 
-    .line 152
+    .line 156
     :goto_3
     sget v4, Lcom/mrkeyboard/app/MrPredict;->sCount:I
 
     if-ge v2, v4, :cond_7
 
-    .line 153
+    .line 157
     sget-object v4, Lcom/mrkeyboard/app/MrPredict;->sWord:[Ljava/lang/String;
 
     aget-object v4, v4, v2
@@ -1058,7 +1058,7 @@
 
     move-result v4
 
-    .line 154
+    .line 158
     if-lez v4, :cond_6
 
     sget-object v6, Lcom/mrkeyboard/app/MrPredict;->sUser:[I
@@ -1069,13 +1069,13 @@
 
     aput v4, v6, v2
 
-    .line 152
+    .line 156
     :cond_6
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_3
 
-    .line 156
+    .line 160
     :cond_7
     sget v2, Lcom/mrkeyboard/app/MrPredict;->sCount:I
     :try_end_0
@@ -1083,14 +1083,14 @@
 
     if-nez v2, :cond_9
 
-    .line 172
+    .line 176
     :cond_8
     :goto_4
     monitor-exit v5
 
     return-object v0
 
-    .line 157
+    .line 161
     :cond_9
     const/4 v0, 0x3
 
@@ -1101,24 +1101,24 @@
 
     move v4, v3
 
-    .line 158
+    .line 162
     :goto_5
     sget v0, Lcom/mrkeyboard/app/MrPredict;->sCount:I
 
     if-ge v4, v0, :cond_e
 
-    .line 159
+    .line 163
     invoke-static {v4}, Lcom/mrkeyboard/app/MrPredict;->score(I)I
 
     move-result v7
 
     move v2, v3
 
-    .line 160
+    .line 164
     :goto_6
     if-ge v2, v11, :cond_c
 
-    .line 161
+    .line 165
     aget v0, v6, v2
 
     if-ltz v0, :cond_a
@@ -1134,7 +1134,7 @@
     :cond_a
     move v0, v1
 
-    .line 162
+    .line 166
     :goto_7
     if-le v0, v2, :cond_b
 
@@ -1148,11 +1148,11 @@
 
     goto :goto_7
 
-    .line 163
+    .line 167
     :cond_b
     aput v4, v6, v2
 
-    .line 158
+    .line 162
     :cond_c
     add-int/lit8 v0, v4, 0x1
 
@@ -1160,7 +1160,7 @@
 
     goto :goto_5
 
-    .line 160
+    .line 164
     :cond_d
     add-int/lit8 v0, v2, 0x1
 
@@ -1168,7 +1168,7 @@
 
     goto :goto_6
 
-    .line 168
+    .line 172
     :cond_e
     new-instance v0, Ljava/util/ArrayList;
 
@@ -1176,7 +1176,7 @@
 
     invoke-direct {v0, v1}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 169
+    .line 173
     const/4 v1, 0x1
 
     aget v1, v6, v1
@@ -1193,7 +1193,7 @@
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 170
+    .line 174
     :cond_f
     sget-object v1, Lcom/mrkeyboard/app/MrPredict;->sWord:[Ljava/lang/String;
 
@@ -1205,7 +1205,7 @@
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 171
+    .line 175
     const/4 v1, 0x2
 
     aget v1, v6, v1
@@ -1226,7 +1226,7 @@
 
     goto :goto_4
 
-    .line 127
+    .line 131
     :catchall_0
     move-exception v0
 
@@ -1234,7 +1234,7 @@
 
     throw v0
 
-    .line 157
+    .line 161
     nop
 
     :array_0
@@ -1251,7 +1251,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 260
+    .line 264
     if-eqz p0, :cond_0
 
     invoke-interface {p0}, Ljava/lang/CharSequence;->length()I
@@ -1260,18 +1260,18 @@
 
     if-nez v1, :cond_1
 
-    .line 267
+    .line 271
     :cond_0
     :goto_0
     return v0
 
-    .line 261
+    .line 265
     :cond_1
     const-class v2, Lcom/mrkeyboard/app/MrPredict;
 
     monitor-enter v2
 
-    .line 262
+    .line 266
     :try_start_0
     sget-boolean v1, Lcom/mrkeyboard/app/MrPredict;->sTypedCtx:Z
 
@@ -1286,7 +1286,7 @@
 
     goto :goto_0
 
-    .line 266
+    .line 270
     :catchall_0
     move-exception v0
 
@@ -1299,14 +1299,14 @@
     :cond_3
     move v1, v0
 
-    .line 263
+    .line 267
     :goto_1
     :try_start_1
     sget v3, Lcom/mrkeyboard/app/MrPredict;->sCount:I
 
     if-ge v1, v3, :cond_5
 
-    .line 264
+    .line 268
     invoke-static {v1}, Lcom/mrkeyboard/app/MrPredict;->score(I)I
 
     move-result v3
@@ -1329,13 +1329,13 @@
 
     goto :goto_0
 
-    .line 263
+    .line 267
     :cond_4
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_1
 
-    .line 266
+    .line 270
     :cond_5
     monitor-exit v2
     :try_end_1
@@ -1372,7 +1372,7 @@
 
     if-nez p2, :cond_1
 
-    .line 116
+    .line 120
     :cond_0
     :goto_0
     return-object v0
@@ -1392,13 +1392,21 @@
 
     goto :goto_0
 
-    .line 89
+    .line 90
     :cond_2
+    invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->takeBefore()Ljava/lang/CharSequence;
+
+    move-result-object v1
+
+    .line 91
+    if-nez v1, :cond_3
+
+    .line 92
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 91
+    .line 94
     const/16 v1, 0x60
 
     const/4 v2, 0x0
@@ -1410,53 +1418,54 @@
 
     move-result-object v1
 
-    .line 93
+    .line 96
     :try_start_2
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
-    .line 95
+    .line 99
+    :cond_3
     invoke-static {v1}, Lcom/mrkeyboard/app/MrText;->atSentenceStart(Ljava/lang/CharSequence;)Z
 
     move-result v2
 
-    if-eqz v2, :cond_5
+    if-eqz v2, :cond_6
 
-    .line 96
+    .line 100
     const/4 v1, 0x0
 
     sput-object v1, Lcom/mrkeyboard/app/MrPredict;->sCtx1:Ljava/lang/String;
 
-    .line 97
+    .line 101
     const/4 v1, 0x0
 
     sput-object v1, Lcom/mrkeyboard/app/MrPredict;->sCtx2:Ljava/lang/String;
 
-    .line 98
+    .line 102
     invoke-static {}, Lcom/mrkeyboard/app/MrRecent;->breakPair()V
 
-    .line 99
+    .line 103
     invoke-static {}, Lcom/mrkeyboard/app/MrRules;->get()Lcom/mrkeyboard/app/MrRules;
 
     move-result-object v1
 
     iget-object v2, v1, Lcom/mrkeyboard/app/MrRules;->starters:[Ljava/lang/String;
 
-    .line 100
+    .line 104
     array-length v1, v2
 
     if-eqz v1, :cond_0
 
-    .line 102
+    .line 106
     new-instance v1, Ljava/util/ArrayList;
 
     const/4 v3, 0x3
 
     invoke-direct {v1, v3}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 103
+    .line 107
     array-length v3, v2
 
-    if-lt v3, v4, :cond_3
+    if-lt v3, v4, :cond_4
 
     const/4 v3, 0x1
 
@@ -1464,18 +1473,18 @@
 
     invoke-virtual {v1, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 104
-    :cond_3
+    .line 108
+    :cond_4
     const/4 v3, 0x0
 
     aget-object v3, v2, v3
 
     invoke-virtual {v1, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 105
+    .line 109
     array-length v3, v2
 
-    if-lt v3, v5, :cond_4
+    if-lt v3, v5, :cond_5
 
     const/4 v3, 0x2
 
@@ -1483,50 +1492,50 @@
 
     invoke-virtual {v1, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    :cond_4
+    :cond_5
     move-object v0, v1
 
-    .line 106
+    .line 110
     goto :goto_0
 
-    .line 93
+    .line 96
     :catchall_0
     move-exception v1
 
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
-    .line 94
+    .line 97
     throw v1
 
-    .line 115
+    .line 119
     :catch_0
     move-exception v1
 
     goto :goto_0
 
-    .line 108
-    :cond_5
+    .line 112
+    :cond_6
     invoke-static {v1}, Lcom/mrkeyboard/app/MrText;->lastTwoWords(Ljava/lang/CharSequence;)[Ljava/lang/String;
 
     move-result-object v1
 
-    .line 109
-    if-nez v1, :cond_6
+    .line 113
+    if-nez v1, :cond_7
 
-    .line 110
+    .line 114
     const/4 v1, 0x0
 
     sput-object v1, Lcom/mrkeyboard/app/MrPredict;->sCtx1:Ljava/lang/String;
 
-    .line 111
+    .line 115
     const/4 v1, 0x0
 
     sput-object v1, Lcom/mrkeyboard/app/MrPredict;->sCtx2:Ljava/lang/String;
 
     goto :goto_0
 
-    .line 114
-    :cond_6
+    .line 118
+    :cond_7
     const/4 v2, 0x0
 
     aget-object v2, v1, v2
@@ -1550,12 +1559,12 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 291
+    .line 295
     invoke-virtual {p1}, Ljava/lang/String;->toCharArray()[C
 
     move-result-object v1
 
-    .line 292
+    .line 296
     sget-object v2, Lcom/mrkeyboard/app/MrPredict;->sInitials:[I
 
     sget v3, Lcom/mrkeyboard/app/MrPredict;->sInitialCount:I
@@ -1570,31 +1579,31 @@
 
     move v1, v6
 
-    .line 293
+    .line 297
     :goto_0
     const/16 v0, 0x3c
 
     if-ge v1, v0, :cond_0
 
-    .line 294
+    .line 298
     sget-object v0, Lcom/mrkeyboard/app/MrPredict;->sFreq:[I
 
     aget v2, v0, v1
 
-    .line 295
+    .line 299
     if-gtz v2, :cond_1
 
-    .line 301
+    .line 305
     :cond_0
     return-void
 
-    .line 296
+    .line 300
     :cond_1
     mul-int/lit8 v3, v1, 0x30
 
     move v0, v6
 
-    .line 298
+    .line 302
     :goto_1
     const/16 v4, 0x30
 
@@ -1612,7 +1621,7 @@
 
     goto :goto_1
 
-    .line 299
+    .line 303
     :cond_2
     if-lez v0, :cond_3
 
@@ -1624,7 +1633,7 @@
 
     invoke-static {v4, v2, v6}, Lcom/mrkeyboard/app/MrPredict;->add(Ljava/lang/String;II)V
 
-    .line 293
+    .line 297
     :cond_3
     add-int/lit8 v0, v1, 0x1
 
@@ -1639,7 +1648,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 271
+    .line 275
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
     move-result v0
@@ -1650,7 +1659,7 @@
 
     if-eq v0, v2, :cond_1
 
-    .line 275
+    .line 279
     :cond_0
     :goto_0
     return v1
@@ -1658,7 +1667,7 @@
     :cond_1
     move v0, v1
 
-    .line 272
+    .line 276
     :goto_1
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -1666,7 +1675,7 @@
 
     if-ge v0, v2, :cond_2
 
-    .line 273
+    .line 277
     invoke-virtual {p0, v0}, Ljava/lang/String;->charAt(I)C
 
     move-result v2
@@ -1685,12 +1694,12 @@
 
     if-ne v2, v3, :cond_0
 
-    .line 272
+    .line 276
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
-    .line 275
+    .line 279
     :cond_2
     const/4 v1, 0x1
 
@@ -1701,7 +1710,7 @@
     .locals 2
 
     .prologue
-    .line 287
+    .line 291
     sget-object v0, Lcom/mrkeyboard/app/MrPredict;->sMain:[I
 
     aget v0, v0, p0
@@ -1721,13 +1730,13 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 280
+    .line 284
     move v1, v0
 
     :goto_0
     if-ge v1, p2, :cond_1
 
-    .line 281
+    .line 285
     invoke-virtual {p0, v1}, Ljava/lang/String;->charAt(I)C
 
     move-result v2
@@ -1746,17 +1755,17 @@
 
     if-eq v2, v3, :cond_0
 
-    .line 283
+    .line 287
     :goto_1
     return v0
 
-    .line 280
+    .line 284
     :cond_0
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_0
 
-    .line 283
+    .line 287
     :cond_1
     const/4 v0, 0x1
 

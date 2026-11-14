@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 390
+    .line 396
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPerf$Reset;->mContext:Landroid/content/Context;
@@ -40,10 +40,10 @@
     .locals 1
 
     .prologue
-    .line 393
+    .line 399
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->reset()V
 
-    .line 394
+    .line 400
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPerf$Reset;->mContext:Landroid/content/Context;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->summary(Landroid/content/Context;)Ljava/lang/String;
@@ -52,7 +52,7 @@
 
     invoke-virtual {p1, v0}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
 
-    .line 395
+    .line 401
     const/4 v0, 0x1
 
     return v0

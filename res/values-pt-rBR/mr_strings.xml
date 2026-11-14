@@ -80,6 +80,7 @@
     <string name="mr_ui_perf_app_msg">Espera pelo app: numa mensagem</string>
     <string name="mr_ui_perf_echo_cut">Eco da seleção: uma pergunta (separador do teclado)</string>
     <string name="mr_ui_perf_echo_full">Eco da seleção: verificação completa</string>
+    <string name="mr_ui_perf_echo_one">Eco da seleção: uma pergunta para os dois lados (Android 12+)</string>
     <string name="mr_ui_perf_frame_gpu">Desenhar um quadro (GPU: só o registro)</string>
     <string name="mr_ui_perf_frame_cpu">Desenhar um quadro (CPU: o desenho todo)</string>
     <string name="mr_ui_cat_haptic">Vibração</string>

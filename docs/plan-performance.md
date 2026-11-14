@@ -202,3 +202,24 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   Next: the owner resets the meter and types the same sentence in the same five apps; the count of "Wait for the app: inside a key"
   per key and of "in a selection change" per separator should be lower than in the last run, and the two echo lines say how many
   echoes took the short way.
+- Stage 6, fifth part (build _73): the owner ran an 11-block test of the meter on the build above (counts equal in every app and with
+  Autocompletar on or off, so they are the keyboard's own; the table is in docs/performance-meter.md, "Questions per key"). It showed
+  where the questions are: the first letter of a word 2 inside the key; every other letter 0 inside the key but exactly one in the
+  suggestions (the word before the one being typed), which was 37 % of all the waits; a separator 3 inside the key and 2 in the echo of the
+  cursor; a suggestion tapped 3 + 3 and no short way; an answer in the echo about 7 ms against 1.3 ms inside a key. Two cuts, both with
+  the same answers and counted on the PC:
+  A. `MrPrevWord` (the previous word for the suggestions): asked of the app once per word instead of once per letter, worked out for
+  the next letters from the text kept and the word, forgotten wherever the word starts, ends or is reopened (`PrevWordTest.java`,
+  4,000 random words against the original rule; `test_prev_word.py`).
+  B. `MrSurround` (the echo of our own separator): on Android 12+ one `getSurroundingText` answers both "is a word character after the
+  cursor" and the 96 characters before it that the next-word prediction reads; older Android, an app that answers null (asked once per
+  field), a selection and any exception ask as before (`test_echo_questions.py`, `PrevWordTest.java`). New meter line "Selection echo:
+  one question for both sides (Android 12+)".
+  Expected on the block that typed "casa " twenty times: suggestions 82 -> about 22, selection change 40 -> 20 (Android 12+, an app
+  that answers `getSurroundingText`), inside keys 100 unchanged: 223 -> about 142 questions. Nothing ran on a device in this stage.
+  Left, in the order of what the counts say: the three questions inside a separator (the caps mode after it, `doubleSpace` and, per
+  word learned, the previous word for the user bigrams in `checkAddToDictionary`, which still asks `EditingUtil.getPreviousWord`),
+  the six of a suggestion tapped (extend the short way of the echo to the space added after a pick), the second space of a double space
+  (+1 inside, +2 in the echo), the revert of an autocorrect (+4 inside per cycle), the popup window (18 ms, a system call).
+  Next: the owner resets the meter and repeats the blocks L and S (and S in Telegram): "Wait for the app: in the suggestions" should be
+  about one per word, and "in a selection change" about one per separator, with the new echo line counting them.

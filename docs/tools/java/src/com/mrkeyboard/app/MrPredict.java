@@ -85,12 +85,16 @@ public final class MrPredict {
         try {
             if (suggest == null || ic == null) return null;
             if (!suggest.hasMainDictionary()) return MrPacks.offerList(context);
-            CharSequence before;
-            MrPerf.appBegin();   // the question waits for the app: the performance meter counts it
-            try {
-                before = ic.getTextBeforeCursor(LOOKBACK, 0);
-            } finally {
-                MrPerf.appEnd();
+            // The echo of a separator typed by the keyboard may have read this text already, in the same question that gave the
+            // character after the cursor (MrSurround, Android 12+); then nothing is asked here.
+            CharSequence before = MrSurround.takeBefore();
+            if (before == null) {
+                MrPerf.appBegin();   // the question waits for the app: the performance meter counts it
+                try {
+                    before = ic.getTextBeforeCursor(LOOKBACK, 0);
+                } finally {
+                    MrPerf.appEnd();
+                }
             }
             if (MrText.atSentenceStart(before)) {
                 sCtx1 = null;

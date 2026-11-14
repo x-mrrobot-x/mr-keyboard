@@ -37,6 +37,12 @@
 #     average and p95 of the last 256 samples with the count and maximum since the reset, the first frame after a field opens (not after
 #     2 s), how late a finger down reaches the keyboard, a key counted by its kind (letter, separator, delete, other), the Advanced row
 #     (lines, memory, a tap resets) and one log line per hide with keys.
+#   - PrevWordTest: stage 6, part 5 of docs/plan-performance.md, the questions to the app counted on a fake app: the word before the one being
+#     typed (MrPrevWord) asked once per word instead of once per letter, with the answer of EditingUtil.getPreviousWord for every letter of
+#     thousands of random words (long words, long previous words cut by the 15 characters, any text); when it asks as before (the app does not show
+#     the word, a shorter or another word, clear(), nothing composed, no answer); and one question after the echo of our own separator on
+#     Android 12+ (MrSurround: getSurroundingText answers the character after the cursor and keeps the text before it for the next-word
+#     prediction; Android 11, an app that answers null (asked once per field), a selection and an exception ask as before).
 #   - GridTest: the drawn key grid of the sheet editor (SheetGridView, Java since 1.92.0): the geometry of the cells
 #     (margins, gaps, key height, the "+" of a row, the locked "⌫" and the locked bottom row), the limits (6 rows, 10 keys
 #     per row and 9 in the last one) and the touch rules (tap, cancel, long press, drag and drop, a full row refusing it).
@@ -105,6 +111,10 @@ java -cp "$T/test_diag:$T/stubs:$T/main" com.mrkeyboard.app.DiagTest
 echo "== PerfTest (performance meter: begin/end, average/p95/max, first frame, touch wait, the Advanced row, the log)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_perf" $D/perf_test/PerfTest.java
 java -Dfile.encoding=UTF-8 -cp "$T/test_perf:$T/stubs:$T/main" com.mrkeyboard.app.PerfTest
+
+echo "== PrevWordTest (questions to the app: the word before the one typed, one question after our own separator)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_prevword" $D/prevword_test/PrevWordTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_prevword:$T/stubs:$T/main" com.mrkeyboard.app.PrevWordTest
 
 echo "== NoLibTest (without libmrengine.so: no exception, no results)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_native" $D/native_test/NoLibTest.java

@@ -31,6 +31,7 @@ measured is not shown.
 | Popup: show the window | inside "Open the long-press popup": the popup window shown (`PopupWindow.showAtLocation`, a call to the system) | `LatinKeyboardBaseView.onLongPress` |
 | Selection change | the keyboard's reaction when the app reports a new cursor or selection (after every key typed, and when the user moves the cursor). Includes the questions it asks the app back | `LatinIME.onUpdateSelection` |
 | Selection echo: one question / full check | inside "Selection change": the check "is the cursor touching a word" after a new selection. **One question**: the report was the echo of a separator the keyboard typed itself, so only the character after the cursor was asked. **Full check**: any other report (another cursor position, a selection, a key typed in between, no separator of ours). The count of each line says how many echoes took each way | `LatinIME.mrEchoTouchingWord` |
+| Selection echo: one question for both sides (Android 12+) | inside "Selection change", in the same echo of our own separator: ONE `getSurroundingText` answered both "is a word character after the cursor" and the text before the cursor that the next-word prediction reads. Counted only when the app answered it. On Android 11 or older, in an app that does not answer it (asked once per field, then not again) and with a selection, this line stays empty and the echo asks as before | `MrSurround.echo` |
 | Message | the work of the keyboard's own delayed messages (the shift state, the suggestions after a key) | `LatinIME$1.handleMessage` |
 | Wait for the app: inside a key / in the suggestions / when opening / in a selection change / in a message / at other times | the same waits as "Wait for the app", counted again by where they are asked: inside a key (not in its suggestions), inside the suggestions, inside an open, inside the reaction to a selection change, inside a message, and anywhere else. The innermost piece of work under way decides, so a wait is in "Wait for the app" and in exactly one of the six. A piece of work that began more than 10 s ago and never ended is not taken as the place | `MrPerf.appEnd` |
 
@@ -78,7 +79,47 @@ For each letter typed the keyboard asked two things; both are cut now, with the 
 - Typing "hello" in an empty field with the capital at the start of a sentence, on a simulated app: 4+2+2+2+2 = 12 questions in the
   previous build, 3+0+0+0+0 = 3 now (the first letter still asks, as it decides whether the word starts a sentence).
 
+### Questions per key (counted on a phone, build before stage 6 part 5)
+
+The 11-block test with the meter (typing in several ways in two apps, with Autocompletar off and on, a suggestion tapped, an autocorrect and
+its revert) gave counts that were the same in every app and with Autocompletar on or off, so
+they are the keyboard's, not the app's:
+
+| Key | Asked inside the key | Asked in the echo of the cursor | Asked in the suggestions |
+|-----|----------------------|----------------------------------|--------------------------|
+| first letter of a word | 2 | 0 | 1 |
+| other letters | 0 | 0 | **1 per letter** (the word before the one being typed) |
+| space, punctuation, Enter | 3 | 2 | 0 |
+| second space of a double space | 4 | 2 | 0 |
+| delete | 0 | 0 | 1 |
+| a suggestion tapped | 3 (at other times) | 3 (full check) | 0 |
+
+A word of 4 letters and a space therefore cost 5 questions inside keys (2 + 3), 2 in the echo and 4 in the suggestions: the suggestions were
+37 % of all the waits (82 of 223 in the block that typed "casa " twenty times). An answer in the echo took about 7 ms against about 1.3 ms
+inside a key on the phone that ran it, so the echo was about half of the time spent waiting.
+
+Two cuts (stage 6 part 5), both with the same answers as before and counted by tests:
+
+- **The word before the one being typed** (`MrPrevWord`, asked by `showSuggestions` for the bigram context) used to be asked of the app on
+  every run, that is, once per letter. The text that is before a word cannot change while letters are added to it, so it is asked once
+  per word, when the text before the cursor ends with the word being typed (the app confirms where the word is), and for the next letters
+  of the same word the answer is worked out from what was kept, with the rule of `EditingUtil.getPreviousWord` on the same 15 characters
+  (a long previous word is cut exactly as before). Everything that starts, ends or reopens a word forgets it (every write of
+  `mPredicting`, `WordComposer.reset`, backspace, a separator, a text written by the keyboard, a new field, the end of the input);
+  with any doubt the app is asked as before. `docs/tools/prevword_test/PrevWordTest.java` compares the answer with the original's for
+  every letter of 4,000 random words and counts the questions; `docs/tools/test_prev_word.py` checks the places that forget it.
+- **The echo of our own separator on Android 12+** (`MrSurround`) asked two questions: the character after the cursor (is it touching a
+  word?) and, a moment later in the same reaction, the 96 characters before the cursor (next-word prediction, `MrPredict.list`).
+  `getSurroundingText(96, 1)` gives both, so it is asked once, the character after the cursor decides the first question and the text
+  before the cursor is handed to the second, once, inside that one reaction. It is used only on Android 12 or later, only when the
+  app answers with a text, and never with a selection; otherwise the old two questions run. The class that needs API 31 is a nested
+  class, so Android 8 to 11 never load it. An app that answers `null` is not asked again in that field.
+
+Expected on the same block ("casa " twenty times, Android 12+, an app that answers `getSurroundingText`): inside keys 100 (same), in
+the selection change 20 (was 40), in the suggestions about 22 (was 82): 142 questions instead of 223.
+
 Tests: `docs/tools/perf_test/PerfTest.java` (the Java, in `run_java_tests.sh`), `docs/tools/test_perf_meter.py` (the smali in the
 mini Dalvik interpreter and every call in the keyboard, in `mr-checks.yml`), `docs/tools/test_open_selection.py` (the selection when
 a field opens, without a copy of its text) and `docs/tools/test_popup_cache.py` (the popups of variants kept between field opens) and `docs/tools/test_echo_questions.py` (the questions to
-the app after a separator the keyboard typed, counted).
+the app after a separator the keyboard typed, counted, with and without the one question of Android 12+), `docs/tools/prevword_test/PrevWordTest.java` and
+`docs/tools/test_prev_word.py` (the word before the one being typed asked once per word; one question after our own separator).

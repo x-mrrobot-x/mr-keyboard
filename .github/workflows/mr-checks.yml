@@ -49,7 +49,8 @@
 #   test_perf_meter.py   the performance meter (MrPerf.smali in the mini interpreter: begin/end in microseconds, average/p95 of the last 256, count/max since the reset, first frame after an open, touch wait, keys by kind, the Advanced row and its reset, the log line) and where the keyboard calls it (begin first, end before every return, EVERY question to the app, the engine and the strip of suggestions, the keyboard and the settings of an open, the popup, the touch, the hide, the Advanced screen)
 #   test_open_selection.py the selection when the keyboard opens in a field (LatinIME.checkReCorrectionOnStart in the mini interpreter): taken from EditorInfo.initialSelStart/End with no question for the text of the field; the old question only when the field does not report it; cursor at the very start, selection, no EditorInfo, re-correction or prediction off
 #   test_popup_cache.py  the popups of variants (long press) kept between field opens (LatinKeyboardBaseView.closing/setKeyboard/onDetachedFromWindow in the mini interpreter): kept while the keyboard is the same one and no setting changed; cleared for a different keyboard, after any preference change (LatinIME.onSharedPreferenceChanged) and when the view leaves the window
-#   test_echo_questions.py the questions to the app after a separator the keyboard typed (LatinIME.onUpdateSelection, handleSeparator, isCursorTouchingWord in the mini interpreter): counted, not timed; one instead of two after the echo of our own separator, the full check in every other case
+#   test_echo_questions.py the questions to the app after a separator the keyboard typed (LatinIME.onUpdateSelection, handleSeparator, isCursorTouchingWord in the mini interpreter): counted, not timed; one instead of two after the echo of our own separator, the full check in every other case; on Android 12+ one question for both sides (MrSurround.echo: the answers in every neighbourhood are the old ones, an app that does not answer is asked once)
+#   test_prev_word.py    the keyboard's side of the word before the one being typed (MrPrevWord) and of the text kept after our own separator (MrSurround): forgotten at EVERY write of mPredicting, in WordComposer.reset, backspace, separator, onText, new field and end of input; the suggestions ask MrPrevWord and nothing else asks for the previous word per letter
 #   test_letter_questions.py the questions to the app for each letter typed (LatinIME.handleCharacter, getCursorCapsMode in the mini interpreter): none for the touching-a-word check while a word is predicted, none for the caps mode in the middle of a word unless the field asks for all capitals; counted, with an app that answers like TextUtils.getCapsMode
 #   test_shadow_cache.py the blurred icon shadows (ShadowDrawHelper.smali): blurred once and kept (24 places, oldest replaced, never recycled), found by drawable, key size, bounds, alpha, level and radius, colour applied when drawn; render mode 0 (no software layer)
 #   test_notes_text.py   the notes of the update dialog (MrNotesText.smali, MrUpdate$Notice.raw, MrUpdateDialog.fill): bullet, hanging indent, label bold and colored by kind (new, improved, fixed, how to get it, other), thin line between items, **bold** kept, marks gone; every notes block of docs/release-notes against a reference
@@ -231,6 +232,9 @@ jobs:
 
       - name: Questions to the app for each letter typed (counted)
         run: python3 -I docs/tools/test_letter_questions.py
+
+      - name: The word before the one being typed, forgotten wherever the word changes (MrPrevWord, MrSurround)
+        run: python3 -I docs/tools/test_prev_word.py
 
       - name: Keys with a modifier in the fields of the toolbar (Ctrl+A, Shift+arrows)
         run: python3 -I docs/tools/test_field_keys.py

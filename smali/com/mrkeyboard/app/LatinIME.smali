@@ -1299,6 +1299,9 @@
     .line 1271
     iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
 
+    # Previous word (MrPrevWord): the word being typed starts or ends here.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
+
     .line 1272
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
 
@@ -2510,6 +2513,9 @@
     # Echo question cut: a deletion ends the expectation of the separator echo.
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrSepClear()V
 
+    # Previous word (MrPrevWord): a deletion ends what was kept about the word being typed.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
+
     .line 2128
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
 
@@ -2569,6 +2575,9 @@
 
     .line 2141
     iput-boolean v3, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
+
+    # Previous word (MrPrevWord): the word being typed starts or ends here.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
 
     .line 2143
     :cond_1
@@ -2757,6 +2766,9 @@
 
     .line 2299
     iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
+
+    # Previous word (MrPrevWord): the word being typed starts or ends here.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
 
     .line 2300
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
@@ -3130,6 +3142,9 @@
 
 .method private handleSeparator(I)V
     .locals 8
+
+    # Previous word (MrPrevWord): a separator ends the word being typed.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
 
     .line 2342
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
@@ -3880,6 +3895,9 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrSepAt:I
 
+    # MrSurround: a key typed ends the text kept after the echo.
+    invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->clear()V
+
     return-void
 .end method
 
@@ -3928,6 +3946,9 @@
 
 .method private mrSepEcho(II)V
     .locals 2
+
+    # MrSurround: every report of the selection starts without the text kept after the last one.
+    invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->clear()V
 
     # Every report of the selection consumes the expectation. It is the echo of our separator only when no selection is
     # reported and the cursor is exactly where it was expected.
@@ -4002,10 +4023,20 @@
 .end method
 
 .method private mrTouchingRight(Landroid/view/inputmethod/InputConnection;)Z
-    .locals 3
+    .locals 4
 
     # The second half of isCursorTouchingWord(): is the character after the cursor part of a word?
+    # MrSurround (Android 12+) answers it, and keeps the text before the cursor for the next-word prediction, in ONE question to the
+    # app: NONE (-2) means it could not (older Android, an app that does not answer, a selection) and the question is asked as before.
     const/4 v0, 0x0
+
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrSurround;->echo(Landroid/view/inputmethod/InputConnection;)I
+
+    move-result v1
+
+    const/4 v2, -0x2
+
+    if-ne v1, v2, :cond_have
 
     const/4 v1, 0x1
 
@@ -4028,6 +4059,10 @@
     invoke-interface {v2, v0}, Ljava/lang/CharSequence;->charAt(I)C
 
     move-result v1
+
+    :cond_have
+    # v1 = the character after the cursor, or -1 when there is none
+    if-ltz v1, :cond_no
 
     invoke-virtual {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->isWordSeparator(I)Z
 
@@ -4774,6 +4809,9 @@
     .line 2705
     iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
 
+    # Previous word (MrPrevWord): the word being typed starts or ends here.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
+
     .line 2706
     invoke-interface {p1}, Ljava/lang/CharSequence;->length()I
 
@@ -5279,6 +5317,9 @@
 
     .line 756
     iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
+
+    # Previous word (MrPrevWord): the word being typed starts or ends here.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
 
     .line 757
     iput v1, p0, Lcom/mrkeyboard/app/LatinIME;->mDeleteCount:I
@@ -7170,8 +7211,12 @@
 
     iget-object v1, p0, Lcom/mrkeyboard/app/LatinIME;->mWordSeparators:Ljava/lang/String;
 
+    # Previous word (MrPrevWord, docs/plan-performance.md stage 6): the same answer as EditingUtil.getPreviousWord, asked of the app
+    # only for the first run of a word; the next letters of the same word work it out from what was kept.
+    iget-object v2, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
+
     .line 2534
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/EditingUtil;->getPreviousWord(Landroid/view/inputmethod/InputConnection;Ljava/lang/String;)Ljava/lang/CharSequence;
+    invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrPrevWord;->get(Landroid/view/inputmethod/InputConnection;Ljava/lang/String;Ljava/lang/CharSequence;)Ljava/lang/CharSequence;
 
     move-result-object v0
 
@@ -9538,6 +9583,10 @@
     .line 950
     invoke-super {p0}, Landroid/inputmethodservice/InputMethodService;->onFinishInput()V
 
+    # Previous word (MrPrevWord) and MrSurround: the field is over.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
+    invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->fieldChanged()V
+
     const/4 v0, 0x0
 
     .line 952
@@ -11635,6 +11684,10 @@
     # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->openBegin()V
 
+    # Previous word (MrPrevWord) and the one question after an echo (MrSurround): a new field forgets what was kept.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
+    invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->fieldChanged()V
+
     iget-object v0, p1, Landroid/view/inputmethod/EditorInfo;->packageName:Ljava/lang/String;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAiDialog;->onInputViewStarted(Ljava/lang/String;)V
@@ -12339,6 +12392,9 @@
     # Performance meter (MrPerf, docs/plan-performance.md stage 6): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->selEnd()V
 
+    # MrSurround: the text kept after the echo lives only inside this reaction.
+    invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->clear()V
+
     return-void
 
     .line 986
@@ -12373,6 +12429,9 @@
 
     .line 989
     iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
+
+    # Previous word (MrPrevWord): the word being typed starts or ends here.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
 
     .line 990
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->postUpdateSuggestions()V
@@ -12552,6 +12611,9 @@
     :goto_2
     # Performance meter (MrPerf, docs/plan-performance.md stage 6): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->selEnd()V
+
+    # MrSurround: the text kept after the echo lives only inside this reaction.
+    invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->clear()V
 
     return-void
 
@@ -12933,6 +12995,9 @@
 
     .line 2863
     iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
+
+    # Previous word (MrPrevWord): the word being typed starts or ends here.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
 
     const/4 v2, 0x0
 
@@ -13810,6 +13875,9 @@
     :cond_not_tasker_cmd
     # Echo question cut: inserted text ends the expectation of the separator echo.
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrSepClear()V
+
+    # Previous word (MrPrevWord): inserted text ends what was kept about the word being typed.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
 
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->onTextOrig(Ljava/lang/CharSequence;)V
 

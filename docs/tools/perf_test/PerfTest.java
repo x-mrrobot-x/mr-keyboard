@@ -42,7 +42,7 @@ public class PerfTest {
             {"mr_ui_perf_app_open", "App in an open"}, {"mr_ui_perf_app_other", "App elsewhere"},
             {"mr_ui_perf_popup_build", "Popup build"}, {"mr_ui_perf_popup_show", "Popup show"},
             {"mr_ui_perf_sel", "Selection change"}, {"mr_ui_perf_msg", "Message"}, {"mr_ui_perf_app_sel", "App in a selection change"},
-            {"mr_ui_perf_app_msg", "App in a message"}, {"mr_ui_perf_echo_cut", "Echo short check"}, {"mr_ui_perf_echo_full", "Echo full check"}, {"mr_ui_perf_frame_gpu", "Frame (GPU)"}, {"mr_ui_perf_frame_cpu", "Frame (CPU)"},
+            {"mr_ui_perf_app_msg", "App in a message"}, {"mr_ui_perf_echo_cut", "Echo short check"}, {"mr_ui_perf_echo_full", "Echo full check"}, {"mr_ui_perf_echo_one", "Echo one question"}, {"mr_ui_perf_frame_gpu", "Frame (GPU)"}, {"mr_ui_perf_frame_cpu", "Frame (CPU)"},
             {"mr_ui_perf_stat", "%1$s: average %2$s ms · p95 %3$s · max %4$s (%5$d×)"}, {"mr_ui_perf_one", "%1$s: %2$s ms (once)"},
             {"mr_ui_perf_none", "Nothing measured yet."}, {"mr_ui_perf_mem", "Memory: Java %1$s · native %2$s"},
             {"mr_ui_perf_reset", "Tap to start again from zero."}};
@@ -183,6 +183,9 @@ public class PerfTest {
         MrPerf.echoFullBegin(); tick(5200); MrPerf.echoFullEnd();
         check("the short and the full check of the selection echo go to their kinds", "1800,5200",
                 st(MrPerf.ECHO_CUT)[4] + "," + st(MrPerf.ECHO_FULL)[4]);
+        MrPerf.echoOneBegin(); tick(1400); MrPerf.echoOneEnd();
+        check("the one question of the selection echo (Android 12+) goes to its kind, the others stay as they were", "1400,1,1,1",
+                st(MrPerf.ECHO_ONE)[4] + "," + st(MrPerf.ECHO_ONE)[0] + "," + st(MrPerf.ECHO_CUT)[0] + "," + st(MrPerf.ECHO_FULL)[0]);
 
         // ---------------------------------------------------------------- the wait for the app by where it is asked
         MrPerf.reset();

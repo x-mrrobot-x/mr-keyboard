@@ -47,6 +47,9 @@ import java.util.Arrays;
  * <li>ECHO_CUT, ECHO_FULL: inside SEL, the check "is the cursor touching a word" after a new selection (re-correction). ECHO_CUT: the
  *     report was the echo of a separator the keyboard typed itself, and only the character after the cursor was asked;
  *     ECHO_FULL: any other report, the full check. Their counts say how many echoes took the short way;</li>
+ * <li>ECHO_ONE: inside ECHO_CUT, on Android 12+, the one question (getSurroundingText, MrSurround) that gave the character after the
+ *     cursor and the text before it for the next-word prediction. Its count says how many echoes were answered by one question
+ *     instead of two; a phone or an app that does not answer it shows no such line;</li>
  * <li>APP_KEY, APP_SUGG, APP_OPEN, APP_SEL, APP_MSG, APP_OTHER: the same questions as APP, counted again by where they are asked:
  *     inside a key (not in its suggestions), inside the suggestions, inside an open, inside the reaction to a new selection,
  *     inside a delayed message, and anywhere else. The innermost piece of work under way decides; every wait is counted once in
@@ -66,7 +69,7 @@ public final class MrPerf {
     static final int CREATE = 0, VIEW = 1, OPEN = 2, SHOWN = 3, FRAME = 4, KEY = 5, TOUCH = 6, APP = 7, SUGG = 8,
             KEY_LETTER = 9, KEY_SEP = 10, KEY_DEL = 11, KEY_OTHER = 12, SUGG_ENGINE = 13, SUGG_SHOW = 14,
             OPEN_KB = 15, OPEN_SET = 16, POPUP = 17, APP_KEY = 18, APP_SUGG = 19, APP_OPEN = 20, APP_OTHER = 21,
-            POPUP_BUILD = 22, POPUP_SHOW = 23, SEL = 24, MSG = 25, APP_SEL = 26, APP_MSG = 27, ECHO_CUT = 28, ECHO_FULL = 29, KINDS = 30;
+            POPUP_BUILD = 22, POPUP_SHOW = 23, SEL = 24, MSG = 25, APP_SEL = 26, APP_MSG = 27, ECHO_CUT = 28, ECHO_FULL = 29, ECHO_ONE = 30, KINDS = 31;
     /** A piece of work that began longer ago than this (milliseconds) and never ended is not taken as the place of a wait. */
     static final int PLACE_MAX_MS = 10000;
     /** Samples kept per kind (a power of two) for the average and the p95. */
@@ -81,12 +84,12 @@ public final class MrPerf {
             "mr_ui_perf_sugg_engine", "mr_ui_perf_sugg_show", "mr_ui_perf_open_kb", "mr_ui_perf_open_set", "mr_ui_perf_popup",
             "mr_ui_perf_app_key", "mr_ui_perf_app_sugg", "mr_ui_perf_app_open", "mr_ui_perf_app_other",
             "mr_ui_perf_popup_build", "mr_ui_perf_popup_show", "mr_ui_perf_sel", "mr_ui_perf_msg",
-            "mr_ui_perf_app_sel", "mr_ui_perf_app_msg", "mr_ui_perf_echo_cut", "mr_ui_perf_echo_full" };
+            "mr_ui_perf_app_sel", "mr_ui_perf_app_msg", "mr_ui_perf_echo_cut", "mr_ui_perf_echo_full", "mr_ui_perf_echo_one" };
     /** Names of the kinds in the log line. */
     static final String[] LOG = { "create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
             "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
             "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg",
-            "echo-cut", "echo-full" };
+            "echo-cut", "echo-full", "echo-one" };
 
     private static final int[] sRing = new int[KINDS * SIZE];
     private static final int[] sCount = new int[KINDS];
@@ -217,6 +220,9 @@ public final class MrPerf {
     public static void echoCutEnd() { end(ECHO_CUT); }
     public static void echoFullBegin() { begin(ECHO_FULL); }
     public static void echoFullEnd() { end(ECHO_FULL); }
+    /** MrSurround.echo: the one question (Android 12+) that served both the check after the echo and the next-word prediction. */
+    public static void echoOneBegin() { begin(ECHO_ONE); }
+    public static void echoOneEnd() { end(ECHO_ONE); }
 
     /** LatinKeyboardView.onTouchEvent, first line: how late a finger down (first or another) reached the keyboard. */
     public static void touch(MotionEvent e) {
