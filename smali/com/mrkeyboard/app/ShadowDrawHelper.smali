@@ -9,8 +9,8 @@
 # kept in one of SLOTS (24) places, found again by what decides its shape: the drawable that is really drawn (getCurrent: the
 # child of a state list), the size of the key, the bounds, alpha and level of the drawable, and the radius. The colour is not
 # part of it: the shadow is only alpha, coloured at drawing time by the filter of the call. When the places are full the oldest
-# is replaced (round robin). A kept bitmap is not recycled while drawing: a frame drawn later by the render thread may still
-# use it, and drawing a recycled bitmap throws; the replaced ones go to the garbage collector. Stage 1; test:
+# is replaced (round robin). A kept bitmap is not recycled while drawing: on a phone whose window is drawn later by a render thread
+# (the GPU; it depends on the phone) a frame may still use it, and drawing a recycled bitmap throws; the replaced ones go to the garbage collector. Stage 1; test:
 # docs/tools/test_shadow_cache.py. Stage 4: release() lets go of all the places when the system asks for memory (onTrimMemory), also
 # without recycling, for the same reason; heldBytes() says what they hold, for the meter.
 
@@ -459,8 +459,8 @@
 .end method
 
 # Lets go of every kept shadow (stage 4 of docs/plan-performance.md, onTrimMemory): the places are emptied and the bitmaps are left to
-# the garbage collector, NOT recycled: a frame that the render thread has not drawn yet may still use one, and drawing a recycled
-# bitmap throws. The next draw of an icon finds no place for it and blurs it again. Returns how many places were filled.
+# the garbage collector, NOT recycled: on a phone whose window is drawn later by a render thread (the GPU; it depends on the phone) a
+# frame that has not been drawn yet may still use one, and drawing a recycled bitmap throws. The next draw of an icon finds no place for it and blurs it again. Returns how many places were filled.
 .method static release()I
     .locals 6
 

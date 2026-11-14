@@ -3524,6 +3524,18 @@
 
     invoke-virtual {p1}, Lcom/mrkeyboard/app/Suggest;->close()V
 
+    # Stage 4 part 2: the search kept for the closed engine's main dictionary holds that dictionary's direct buffer; it is let go with
+    # the engine (the new one makes its own at the first search). Alone in its try: initSuggest goes on whatever happens.
+    :try_fuzzy
+    invoke-static {}, Lcom/mrkeyboard/app/MrFuzzy;->release()V
+    :try_fuzzy_end
+    .catch Ljava/lang/Throwable; {:try_fuzzy .. :try_fuzzy_end} :catch_fuzzy
+
+    goto :cond_0
+
+    :catch_fuzzy
+    move-exception p1
+
     .line 608
     :cond_0
     invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
@@ -9807,9 +9819,34 @@
     .catch Ljava/lang/Throwable; {:try_bigram .. :try_bigram_end} :catch_bigram
 
     :bigram_done
-    goto :engine_end
+    goto :fuzzy
 
     :catch_bigram
+    move-exception v0
+
+    # Part 2: what the engine leaves in statics. MrFuzzy keeps a search for the main dictionary (it holds the dictionary's direct
+    # buffer: the buffer of a service that ended would stay alive in the process) and MrGestureWords keeps the copy of the person's
+    # words (a direct buffer of up to 4 MB). Both are made again by the next use. Each alone in its try, like the closes above.
+    :fuzzy
+    :try_fuzzy
+    invoke-static {}, Lcom/mrkeyboard/app/MrFuzzy;->release()V
+    :try_fuzzy_end
+    .catch Ljava/lang/Throwable; {:try_fuzzy .. :try_fuzzy_end} :catch_fuzzy
+
+    goto :gesture
+
+    :catch_fuzzy
+    move-exception v0
+
+    :gesture
+    :try_gesture
+    invoke-static {}, Lcom/mrkeyboard/app/MrGestureWords;->release()V
+    :try_gesture_end
+    .catch Ljava/lang/Throwable; {:try_gesture .. :try_gesture_end} :catch_gesture
+
+    goto :engine_end
+
+    :catch_gesture
     move-exception v0
 
     :engine_end

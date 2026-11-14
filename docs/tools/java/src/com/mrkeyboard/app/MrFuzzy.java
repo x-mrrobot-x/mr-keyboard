@@ -158,6 +158,16 @@ public final class MrFuzzy {
         return f;
     }
 
+    /**
+     * Stage 4 part 2: lets go of the search that is kept for the main dictionary. It holds the dictionary's direct buffer (mDict), so
+     * without this the buffer of an engine that was closed (the service ended, the language changed) stays alive until the first
+     * search on the next dictionary replaces it, and forever when there is none. The next forDict makes it again (it is only a
+     * wrapper of the buffer, a few arrays). A search that is running keeps its own reference and finishes.
+     */
+    static synchronized void release() {
+        sCache = null;
+    }
+
     // ------------------------------------------------------------------ entry point (Suggest)
 
     /**

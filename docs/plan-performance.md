@@ -450,8 +450,8 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   the text heights of the view (`LatinKeyboardBaseView.trimCaches`); when it is not on screen, also the 24 kept shadows
   (`ShadowDrawHelper.release`). `onDestroy` closes the suggestion engine, the auto dictionary and the bigram dictionary
   (`LatinIME.mrCloseEngine`, each close in its own try, after the receivers are unregistered); before only the user dictionary was.
-  Decisions that differ from the first plan: (1) nothing is recycled: `Bitmap.recycle` while a frame recorded for the GPU may still use
-  the bitmap throws or draws garbage, and what it saves over dropping the reference (the collector frees it at the next collection) is
+  Decisions that differ from the first plan: (1) nothing is recycled: whether the window is drawn by the GPU (a frame recorded and drawn later) or by the CPU depends on the
+  phone, so the code assumes neither; `Bitmap.recycle` while a frame still to be drawn may use the bitmap throws or draws garbage, and what it saves over dropping the reference (the collector frees it at the next collection) is
   a few hundred KB at most (24 shadows), so the references are dropped; the space bar bitmap is small and goes with its keyboard.
   (2) The emoji search index needed nothing: `MrEmojiSearch.release` already drops it when the panel is left. (3) The native trigram
   and gesture files (`MrNative.nTriOpen`, `nGestureOpen`) are process-wide and are opened by `MrTrigram.use` / `MrGesture.use` when a
@@ -465,3 +465,30 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   order in `onDestroy`), `test_shadow_cache.py` +9 (47: `release`, `heldBytes`, not recycled, blurred again, round robin from 0),
   PerfTest +23 (190: every level against the view on screen / hidden / absent, a failure inside, the meter lines, the row),
   test_perf_meter 171.
+
+- Stage 4, part 2 (build _83): the audit asked by the owner (what could leave the main thread, the HTTP connections of the translator,
+  what stays behind when a tool opens and closes), and what it found that was really left behind.
+  Threads: nothing worth moving. The translator (`MrTools.fetch`, on `sTranslateExec`) and the AI editor (`MrAi.complete`, on its own
+  thread) do their network off the main thread; the databases are read by AsyncTask; no `commit()`, file or database call is on the typing
+  path; the suggestion engine answers in about 1.5 ms per key, and everything that asks the app (InputConnection) has to stay on the main
+  thread. HTTP: both requests read the whole answer, close the stream and call `disconnect()` in a `finally`; Android's
+  `HttpURLConnection` keeps the sockets in a process-wide pool (about 5 minutes, HTTP/2 where the server has it), so opening the tool again
+  within that time reuses the connection and a new `HttpURLConnection` object per request is the right pattern (an own pool or client
+  would only add a second one); `disconnect()` after a fully read answer does not close the socket, and both have connect and read
+  timeouts. Nothing is kept per tool open. The request that is in flight when the tool closes is not cancelled (a socket read cannot be
+  interrupted; it ends by itself and the answer is dropped by the session number).
+  Left behind, found and fixed: (1) `MrFuzzy.sCache` (the search kept for the main dictionary) holds the dictionary's direct buffer, so the
+  buffer of a closed engine (service ended, language changed) stayed alive until the first search of the next dictionary, and for good
+  when there was none: `MrFuzzy.release()`, called by `mrCloseEngine` and by `initSuggest` right after it closes the old engine.
+  (2) `MrGestureWords` keeps the copy of the person's words (a direct buffer, up to 4 MB): `release()`, called by `mrCloseEngine`.
+  (3) `MrFonts` kept its bar, row, buttons and the context (the service) after the service ended: `MrTools.release` now calls
+  `MrFonts.setup(null)`. (4) The Preferences dialog (`MrTune.sDlg`, its root, slider list and layout listener) was only closed by the
+  bar's close button: `MrTools.release` now calls `MrTune.dismissDialog()` first (it needs `sIme`). Checked and fine: `MrBar` (weak
+  references), the update screens (`release(Activity)` from `onDestroy`), `MrAiDialog`, `MrEmojiSearch`, `MrShots`, `MrSugg`, `MrAnim`,
+  `MrGestureInput` (the view only during a gesture), the executors of `BgTask` and `MrCacheJobs` (Application-scoped, idle threads).
+  The native trigram and gesture files stay as they are (see part 1).
+  Not done on trim: the two buffers are held by the engine anyway while it lives, so letting go of the copies on `onTrimMemory` would
+  free nothing there and cost a rebuild at the next gesture.
+  Tests: `test_trim_memory.py` 32 (+8: the releases in `mrCloseEngine`, each alone in its try and run even with no engine, the one in
+  `initSuggest`, the order in `MrTools.release`), `NoLibTest` +4 (`MrFuzzy.release`, and that the kept search is what holds the
+  buffer), `GestureWordsTest` +6 (`MrGestureWords.release`, made again, a buffer in use stays whole).

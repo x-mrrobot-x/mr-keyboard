@@ -335,4 +335,14 @@ What it does not touch: the engine and the dictionaries (closed when the service
 panel is left), the native trigram and gesture files. After a cleanup the first long press of each key builds its variants again, and the
 next draw of each icon blurs its outline again (the "Draw a frame" line goes up for that frame only).
 
+Stage 4 part 2 (build _83): what stays behind when the service or a tool closes
+
+No new line in the meter: this part lets go of things that were kept after what needed them was gone, so the effect is in the memory line,
+not in a time. When the service ends (`onDestroy`) the search kept for the main dictionary (`MrFuzzy`, it held the dictionary's buffer)
+and the copy of the person's words used by gesture typing are let go with the engine; the search is also let go when the language
+changes (`initSuggest`); the fonts tool and the Preferences dialog let go of their views and of the service. It is only seen when the
+service ends while the process goes on (switching to another keyboard, with the Advanced screen of this app open in the same process):
+the "Memory" line then does not keep the dictionary of the keyboard that is gone. It is small and the system decides when the collector
+runs, so it is not a number to chase: the point is that nothing of a finished service is kept alive by a static field.
+
 Tests: `docs/tools/test_trim_memory.py`, `docs/tools/test_shadow_cache.py`, `PerfTest.java`, `docs/tools/test_perf_meter.py`.

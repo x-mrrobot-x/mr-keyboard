@@ -5,7 +5,8 @@ import android.util.Log;
 /**
  * Stage 4 of docs/plan-performance.md: what the keyboard lets go of when the system asks the process for memory (LatinIME.onTrimMemory,
  * the levels of ComponentCallbacks2). Everything let go is made again when it is needed. Nothing that is on screen is touched, and no
- * bitmap is recycled: a frame that the render thread has not drawn yet may still use one, and drawing a recycled bitmap throws; the
+ * bitmap is recycled: whether a frame is drawn later by a render thread (a window drawn by the GPU) or at once by the CPU depends on the
+ * phone, and where it is drawn later it may still use one, and drawing a recycled bitmap throws; so on no phone is one recycled, the
  * references are dropped and the garbage collector frees them.
  *
  * It goes by what the keyboard can count, not by a threshold of memory:

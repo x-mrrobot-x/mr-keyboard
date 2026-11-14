@@ -88,6 +88,26 @@ public class NoLibTest {
         }
         check(f.ownFrequency("casa") > 0, "the dictionary lookup (valid word) does not depend on the lib");
 
+        // 2b) stage 4 part 2: the search kept for the main dictionary holds its direct buffer, so the engine that closes lets it go
+        MrFuzzy k1 = MrFuzzy.forDict(buf, bytes.length);
+        check(k1 != null && MrFuzzy.forDict(buf, bytes.length) == k1, "forDict: the same buffer and size give the search that is kept");
+        MrFuzzy.release();
+        MrFuzzy k2 = MrFuzzy.forDict(buf, bytes.length);
+        check(k2 != null && k2 != k1, "release: the kept search is gone, the next call makes it again");
+        MrFuzzy.release();
+        MrFuzzy.release();
+        check(MrFuzzy.forDict(null, 10) == null && MrFuzzy.forDict(buf, 2) == null && top(MrFuzzy.forDict(buf, bytes.length), "vda").isEmpty(),
+                "release: twice, and on nothing: no error; the arguments that gave null still do, and the search made again works");
+        ByteBuffer heldBuf = ByteBuffer.allocateDirect(64);
+        java.lang.ref.WeakReference<ByteBuffer> heldRef = new java.lang.ref.WeakReference<ByteBuffer>(heldBuf);
+        MrFuzzy.forDict(heldBuf, 64);
+        heldBuf = null;
+        for (int i = 0; i < 5; i++) { System.gc(); Thread.sleep(20); }
+        check(heldRef.get() != null, "the kept search holds the buffer of the dictionary (why it has to be let go)");
+        MrFuzzy.release();
+        for (int i = 0; i < 20 && heldRef.get() != null; i++) { System.gc(); Thread.sleep(20); }
+        check(heldRef.get() == null, "release: the buffer of a dictionary that is gone can be freed");
+
         // 3) trigrams: nothing opens, find answers 0
         File tri = new File(dir, "trigrams.bin");
         check(!MrTrigram.useNow(tri), "trigrams do not open without the lib");

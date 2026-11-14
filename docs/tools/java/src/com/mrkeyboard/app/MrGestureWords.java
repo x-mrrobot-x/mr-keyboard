@@ -115,6 +115,18 @@ public final class MrGestureWords {
         return new long[] {sWords, sLastNs, sBuffer != null ? sBuffer.capacity() : 0};
     }
 
+    /**
+     * Stage 4 part 2: lets go of the copy (direct buffer, up to MAX_BYTES) when the engine that fed it is closed. It is made again by
+     * the next get, which is what a new engine does anyway (its dictionaries are other objects). A gesture that is being decoded
+     * keeps its own reference of the buffer and finishes. The time of the last copy stays (it is a figure, not memory).
+     */
+    static synchronized void release() {
+        sAuto = sUser = null;
+        sMade = false;
+        sBuffer = null;
+        sWords = 0;
+    }
+
     /** Tests only. */
     static synchronized void resetForTest() {
         sAuto = sUser = null;

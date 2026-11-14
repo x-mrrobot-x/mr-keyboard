@@ -4,7 +4,7 @@
 #   - AuthorTest: author card and main-screen link (MrAuthor, MrLink).
 #   - RecorrectTest: word under the cursor, which words get suggestions and neighbour keys (MrRecorrect).
 #   - RecentTest: recent words in the prediction and when completing (MrRecent).
-#   - NoLibTest: without libmrengine.so (native engine, 1.77) the search answers no results and the trigrams nothing, with no exception (since 1.87.0 there is no Java search).
+#   - NoLibTest: without libmrengine.so (native engine, 1.77) the search answers no results and the trigrams nothing, with no exception (since 1.87.0 there is no Java search); and the search kept for the dictionary is let go (MrFuzzy.release, stage 4 part 2).
 #   - UpdateTest: the notice of a new version (MrUpdate): signature, every field, versions, replay, checking windows,
 #     notes by language and styled for the dialog (MrNotesText: bullets, colored labels, thin lines, hanging indent), the switch and "Not now", the glue of the screens (MrUpdateUi) with a fake screen, and the
 #     download and install (MrUpdateInstall) with a fake session: nothing is committed unless size and hash match, and the
@@ -69,7 +69,7 @@
 #   - GestureWordsTest: the words of the person in gesture typing (MrGestureWords, 1.96.0): the frequency they get, the small dictionary
 #     written from them (read back by a reader of the format: every word, every frequency, every byte), which words are read from the
 #     trees of the keyboard (learned from frequency 6, never a blocked one) and when the copy is made again (a word added, a tree thrown
-#     away or still loading, another language).
+#     away or still loading, another language), and that the copy is let go when the engine closes and made again (MrGestureWords.release, stage 4 part 2).
 #   - EmojiSearchTest: the search of the emoji panel (MrEmojiIndex, 1.97.0): the text made lower case and without accents, a word of
 #     the name or a keyword in any of the three languages at once, every word typed having to begin one of the words of the emoji,
 #     the ranking (whole word, first word of the name, the language of the app winning a tie, then the order of the panel), the

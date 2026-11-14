@@ -14,7 +14,11 @@ The rules:
   - trimCaches clears the three maps of popups, drops the measures of the labels and the text heights, and says how many popups were
     kept; the view made them again when it needs them (the label measures are made when null);
   - onDestroy closes the engine, the automatic dictionary and the bigram dictionary after the receivers are unregistered and before
-    the service ends; each close alone in its try (a failing one does not stop the others), the fields are left as they are.
+    the service ends; each close alone in its try (a failing one does not stop the others), the fields are left as they are;
+  - part 2: that same closing then lets go of what the engine leaves in statics (MrFuzzy.release: the search kept for the main
+    dictionary holds its direct buffer; MrGestureWords.release: the copy of the person's words), each alone in its try, even when
+    there is no engine; initSuggest does the first one right after it closes the old engine, and MrTools.release (the tools'
+    cleanup at the end of the service) closes the Preferences dialog before it lets go of sIme and sets up MrFonts with no view.
 """
 import os
 import re
@@ -85,10 +89,10 @@ class Host:
                 a0.f["n"] = 0
                 a0.f["cleared"] = a0.f.get("cleared", 0) + 1
                 return None
-        if mem == "close()V" and cls.startswith("Lcom/mrkeyboard/app/"):
-            self.calls.append("close " + cls.split("/")[-1].rstrip(";"))
+        if mem in ("close()V", "release()V") and cls.startswith("Lcom/mrkeyboard/app/"):
+            self.calls.append(mem[:-3] + " " + cls.split("/")[-1].rstrip(";"))
             if cls in self.fail_close:
-                raise dm.JavaExc("Ljava/lang/IllegalStateException;", "close failed")
+                raise dm.JavaExc("Ljava/lang/IllegalStateException;", "%s failed" % mem[:-3])
             return None
         if mem.startswith("onTrimMemory("):      # invoke-super: the first argument is the service
             self.calls.append("onTrimMemory(%s)" % ",".join(str(x) for x in args[1:]))
@@ -160,10 +164,16 @@ def ime(suggest=True, auto=True, big=True):
                   mUserBigramDictionary=dm.Obj(BIG) if big else None)
 
 
+FUZZY, WORDS = "Lcom/mrkeyboard/app/MrFuzzy;", "Lcom/mrkeyboard/app/MrGestureWords;"
+CLOSES = ["close Suggest", "close AutoDictionary", "close UserBigramDictionary"]
+RELEASES = ["release MrFuzzy", "release MrGestureWords"]
+
 svc = ime()
 h.run("mrCloseEngine()V", svc)
 check("the engine, the automatic dictionary and the bigram dictionary are closed, once each, in that order",
-      h.calls == ["close Suggest", "close AutoDictionary", "close UserBigramDictionary"], h.calls)
+      h.calls[:3] == CLOSES, h.calls)
+check("... then what the engine leaves in statics is let go: the search kept for the dictionary, the copy of the person's words",
+      h.calls == CLOSES + RELEASES, h.calls)
 check("... the fields are left as they are (a closed engine answers nothing; a reader of the dead service finds an engine, not a null)",
       svc.f["mSuggest"] is not None and svc.f["mAutoDictionary"] is not None and svc.f["mUserBigramDictionary"] is not None)
 for name, cls in (("the engine", SUG), ("the automatic dictionary", AUTO), ("the bigram dictionary", BIG)):
@@ -171,15 +181,24 @@ for name, cls in (("the engine", SUG), ("the automatic dictionary", AUTO), ("the
     h.fail_close = {cls}
     svc = ime()
     h.run("mrCloseEngine()V", svc)
-    others = [c for c in ("close Suggest", "close AutoDictionary", "close UserBigramDictionary") if not c.endswith(cls.split("/")[-1].rstrip(";"))]
-    check("%s fails to close: nothing goes up and the other two are still closed" % name,
-          all(o in h.calls for o in others) and len(h.calls) == 3, h.calls)
+    others = [c for c in CLOSES if not c.endswith(cls.split("/")[-1].rstrip(";"))]
+    check("%s fails to close: nothing goes up, the other two are still closed and the statics still let go" % name,
+          all(o in h.calls for o in others + RELEASES) and len(h.calls) == 5, h.calls)
+for name, cls in (("the search kept for the dictionary", FUZZY), ("the copy of the words", WORDS)):
+    h.calls = []
+    h.fail_close = {cls}
+    svc = ime()
+    h.run("mrCloseEngine()V", svc)
+    check("%s fails to let go: nothing goes up and the other one is let go as well" % name,
+          h.calls == CLOSES + RELEASES, h.calls)
 h.fail_close = set()
 h.calls = []
 h.run("mrCloseEngine()V", ime(suggest=False, auto=False, big=False))
-check("nothing built yet (the service ended before initSuggest): no call, no error", h.calls == [], h.calls)
+check("nothing built yet (the service ended before initSuggest): nothing to close, the statics are let go all the same, no error",
+      h.calls == RELEASES, h.calls)
+h.calls = []
 h.run("mrCloseEngine()V", ime(suggest=False))
-check("no engine, the dictionaries are closed", h.calls == ["close AutoDictionary", "close UserBigramDictionary"], h.calls)
+check("no engine, the dictionaries are closed and the statics let go", h.calls == CLOSES[1:] + RELEASES, h.calls)
 
 h.calls = []
 h.run("onTrimMemory(I)V", ime(), 40)
@@ -209,6 +228,39 @@ check("onTrimMemory is public, calls the system class and then only MrTrim.onTri
                                                         "invoke-static {p1}, Lcom/mrkeyboard/app/MrTrim;->onTrim(I)V"], t)
 check("the engine is closed in only one place besides initSuggest (the new helper)",
       len(re.findall(r"Lcom/mrkeyboard/app/Suggest;->close\(\)V", src)) == 2, len(re.findall(r"Suggest;->close\(\)V", src)))
+
+# initSuggest: the search kept for the old dictionary goes right after the old engine is closed, alone in a try that never stops it
+s = body("initSuggest(Ljava/lang/String;)V")
+ic = next(i for i, l in enumerate(s) if l.endswith("Lcom/mrkeyboard/app/Suggest;->close()V"))
+fz = [i for i, l in enumerate(s) if l.endswith("Lcom/mrkeyboard/app/MrFuzzy;->release()V")]
+check("initSuggest: MrFuzzy.release() once, right after the old engine is closed, inside a try that catches Throwable",
+      len(fz) == 1 and fz[0] == ic + 2 and s[ic + 1] == ":try_fuzzy" and s[fz[0] + 1] == ":try_fuzzy_end"
+      and s[fz[0] + 2] == ".catch Ljava/lang/Throwable; {:try_fuzzy .. :try_fuzzy_end} :catch_fuzzy", (ic, fz))
+cc = next(i for i, l in enumerate(s) if l == ":catch_fuzzy")
+check("... a failure there lands before the code that goes on (:cond_0) and the normal path jumps over the handler",
+      s[fz[0] + 3] == "goto :cond_0" and s[cc + 1].startswith("move-exception") and s[cc + 2] == ":cond_0", s[fz[0] + 3:cc + 3])
+check("... and the two releases of mrCloseEngine come after its three closes and before it returns",
+      [l.split(", ")[-1] for l in body("mrCloseEngine()V") if "->release()V" in l or "->close()V" in l]
+      == ["Lcom/mrkeyboard/app/Suggest;->close()V", "Lcom/mrkeyboard/app/AutoDictionary;->close()V",
+          "Lcom/mrkeyboard/app/UserBigramDictionary;->close()V", "Lcom/mrkeyboard/app/MrFuzzy;->release()V",
+          "Lcom/mrkeyboard/app/MrGestureWords;->release()V"])
+
+# MrTools.release: the Preferences dialog is closed first (it needs sIme), then everything is let go; fonts last, with no view
+tools = open(os.path.join(APP, "MrTools.smali"), encoding="utf-8").read()
+m = re.search(r"^\.method static release\(Lcom/mrkeyboard/app/LatinIME;\)V\n(.*?)^\.end method", tools, re.S | re.M)
+assert m
+r = [l.strip() for l in m.group(1).split("\n") if l.strip() and not l.strip().startswith(("#", ".line"))]
+first_ime_put = next(i for i, l in enumerate(r) if l.endswith("Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;") and l.startswith("sput"))
+guard = next(i for i, l in enumerate(r) if l.startswith("if-ne v0, p0, :done"))
+dd = [i for i, l in enumerate(r) if l.endswith("Lcom/mrkeyboard/app/MrTune;->dismissDialog()V")]
+check("MrTools.release: the Preferences dialog is closed once, right after the guard of the service and before sIme is let go",
+      len(dd) == 1 and dd[0] == guard + 1 and dd[0] < first_ime_put, (guard, dd, first_ime_put))
+mf = [i for i, l in enumerate(r) if l.endswith("Lcom/mrkeyboard/app/MrFonts;->setup(Landroid/view/View;)V")]
+zero = max(i for i, l in enumerate(r) if l == "const/4 v0, 0x0")
+check("MrTools.release: fonts are set up with no view (v0, still the zero constant) after the emoji search and before the end",
+      len(mf) == 1 and mf[0] > zero and r[mf[0]].startswith("invoke-static {v0},")
+      and all(not re.match(r"^(const\S*|sget\S*|move\S*|new-\S+|iget\S*|add-\S+) v0\b", l) for l in r[zero + 1:mf[0]])
+      and any(l.endswith("MrEmojiSearch;->setup(Landroid/view/View;)V") for l in r[zero + 1:mf[0]]) and r[-1] == "return-void", (zero, mf))
 
 print("\n%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

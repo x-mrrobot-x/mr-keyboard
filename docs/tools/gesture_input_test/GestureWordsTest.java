@@ -343,6 +343,25 @@ public class GestureWordsTest {
         ime.fail = false;
         ime.s.stubAuto = auto;
         check(read(MrGestureWords.get(ime)).containsKey("itapetinga"), "copy: and the next call works");
+        // stage 4 part 2: the copy is let go when the engine is closed, and the next call makes it again
+        ime.s.stubAuto = auto;
+        ime.s.stubUser = user;
+        MrGestureWords.resetForTest();
+        ByteBuffer relMade = MrGestureWords.get(ime);
+        check(relMade != null && MrGestureWords.stats()[0] > 0 && MrGestureWords.stats()[2] == relMade.capacity(), "release: (a copy is in use)");
+        long relTook = MrGestureWords.stats()[1];
+        MrGestureWords.release();
+        long[] relStats = MrGestureWords.stats();
+        check(relStats[0] == 0 && relStats[2] == 0 && relStats[1] == relTook, "release: the copy and its count are gone, the time of the last copy stays");
+        ByteBuffer relAgain = MrGestureWords.get(ime);
+        check(relAgain != null && relAgain != relMade && read(relAgain).equals(read(relMade)), "release: the next call makes it again (the trees did not change), with the same words");
+        MrGestureWords.release();
+        MrGestureWords.release();
+        check(MrGestureWords.stats()[2] == 0, "release: twice, and on nothing: no error, still none");
+        ByteBuffer inUse = MrGestureWords.get(ime);
+        MrGestureWords.release();
+        check(read(inUse) != null && read(inUse).containsKey("itapetinga"), "release: the buffer that a gesture was handed stays whole for it");
+        check(read(MrGestureWords.get(ime)).containsKey("itapetinga"), "release: and the call after works");
         // the trees are held weakly: a language that is gone does not stay in memory because of the copy
         MrGestureWords.resetForTest();
         Ime gone = new Ime();

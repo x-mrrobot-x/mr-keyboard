@@ -4810,6 +4810,10 @@
  .locals 3
  sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
  if-ne v0, p0, :done
+ # Stage 4 part 2: the Preferences dialog (sDlg, its root, its slider list and its layout listener) is closed before the rest is let
+ # go: it is a window of this service, and a service that ends with it open would leave the dialog and all of its views alive in
+ # these statics. It needs sIme (the decor it follows), so it goes first. It never throws.
+ invoke-static {}, Lcom/mrkeyboard/app/MrTune;->dismissDialog()V
  sget v0, Lcom/mrkeyboard/app/MrTools;->sSession:I
  add-int/lit8 v0, v0, 0x1
  sput v0, Lcom/mrkeyboard/app/MrTools;->sSession:I
@@ -4881,6 +4885,8 @@
  # Emoji search (1.97.0): the service is gone, so the search lets go of its views, its context and the repeat of the delete
  # button (setup with no root does exactly that; v0 is still the zero constant of the sputs above).
  invoke-static {v0}, Lcom/mrkeyboard/app/MrEmojiSearch;->setup(Landroid/view/View;)V
+ # Fonts (stage 4 part 2): the same, its bar, row, buttons and the context (the service) it kept from the last setup.
+ invoke-static {v0}, Lcom/mrkeyboard/app/MrFonts;->setup(Landroid/view/View;)V
  :done
  return-void
 .end method
