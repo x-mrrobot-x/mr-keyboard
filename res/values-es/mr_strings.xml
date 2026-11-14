@@ -92,6 +92,8 @@
     <string name="mr_ui_perf_echo_drop">Reacción al eco diferida: descartada antes de ejecutarse (llegó otra tecla)</string>
     <string name="mr_ui_perf_caps_run">Mayúscula diferida: tiempo hasta ejecutarse</string>
     <string name="mr_ui_perf_caps_flush">Mayúscula diferida: preguntada antes (llegó una tecla)</string>
+    <string name="mr_ui_perf_create_super">Iniciar: parte de Android</string>
+    <string name="mr_ui_perf_create_sugg">Iniciar: motor de sugerencias</string>
     <string name="mr_ui_perf_frame_gpu">Dibujar un cuadro (GPU: solo el registro)</string>
     <string name="mr_ui_perf_frame_cpu">Dibujar un cuadro (CPU: todo el dibujo)</string>
     <string name="mr_ui_cat_haptic">Vibración</string>

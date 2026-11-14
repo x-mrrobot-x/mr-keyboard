@@ -428,4 +428,15 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   PerfTest has 29 more checks (132 to 161: the record, the limit of 9, the median with an even count, damaged records, a tap, a phone that cannot write).
   Next (the owner): install, tap the row, then 5 or more times: force stop the keyboard, open a field, type a little, open the Advanced
   screen and look. Report the two lines "last N starts".
+  The owner's 5 starts with build _80: "Start the keyboard" min 28.9 / median 33.1 / max 64.5 ms; "Build the keyboard" min 16.6 / median 17.2 /
+  max 19.3 ms (the history worked on the phone). With the 4 starts of build _79 that is 9 starts, 6 of them between 29 and 35 ms and 3 slow
+  ones (53 to 72 ms): the old 67.4 ms of one start cannot be called the old typical value, so the gain of stage 7 stays what was counted. The meter
+  says stages 3 and 8 are not needed on that phone (a frame is 3.2 ms on average, 3.7 at 95 %; building the keyboard is 17 ms).
+- Build _81 (the meter, no change in what the keyboard does): "Start the keyboard" is split in two lines, "Start: the Android part"
+  (`super.onCreate()`, not ours to change) and "Start: the suggestion engine" (`initSuggest` in `onCreate`), and the history keeps four
+  numbers per start (start, build, Android, engine) with their minimum, median and maximum. What is left of "Start the keyboard" is the
+  rest of `onCreate` (settings, languages, receivers). The next cut of stage 7 (`updateConfiguration` in `initSuggest`, or the engine set-up
+  itself) is decided by these medians. PerfTest 167 checks, test_perf_meter 167.
+  Next (the owner): install, tap the row, then 5 or more times: force stop the keyboard, open a field, type a little, open the Advanced
+  screen and look. Report the four lines "last N starts".
 

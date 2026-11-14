@@ -60,6 +60,10 @@ import java.util.Arrays;
  *     the app has just been given the separator, so the answer is the slow one (stage 6, part 8). It can wait a little. CAPS_RUN: how
  *     long it waited before the message ran it (the count says how many ran that way). CAPS_FLUSH: how long it had waited when a
  *     key, a text or a suggestion came first and it was asked at once (the count says how many). With the switch off neither line shows;</li>
+ * <li>CREATE_SUPER, CREATE_SUGG: inside CREATE, what <code>onCreate</code> spends where the keyboard cannot change it and where it can:
+ *     CREATE_SUPER is <code>super.onCreate()</code> (the part of Android: the service and its window), CREATE_SUGG the set-up of the
+ *     suggestion engine (<code>initSuggest</code> in <code>onCreate</code>: the language, the dictionary, the engine). What is left of
+ *     CREATE is the rest: the settings read, the languages, the receivers;</li>
  * <li>APP_KEY, APP_SUGG, APP_OPEN, APP_SEL, APP_MSG, APP_OTHER: the same questions as APP, counted again by where they are asked:
  *     inside a key (not in its suggestions), inside the suggestions, inside an open, inside the reaction to a new selection,
  *     inside a delayed message, and anywhere else. The innermost piece of work under way decides; every wait is counted once in
@@ -71,10 +75,10 @@ import java.util.Arrays;
  * with the memory of the process; when the keyboard hides after keys were typed, one line goes to the log
  * (<code>adb logcat -s MrPerf</code>).
  *
- * <p>The start of the keyboard (CREATE) and the building of its view (VIEW) happen once per process, so one process gives one
- * sample and the time of the same build changes a lot from one start to the next (cold files, the clock of the processor). The
+ * <p>The start of the keyboard (CREATE), the building of its view (VIEW) and the two parts of CREATE (CREATE_SUPER, CREATE_SUGG)
+ * happen once per process, so one process gives one sample and the time of the same build changes a lot from one start to the next (cold files, the clock of the processor). The
  * Advanced screen therefore keeps the last {@link #STARTS_MAX} starts it saw and shows their minimum, median and maximum under
- * the two lines: {@link #saveStart} runs only when the screen is opened ({@link #fill}), never while the keyboard works, and
+ * each of those lines: {@link #saveStart} runs only when the screen is opened ({@link #fill}), never while the keyboard works, and
  * writes a file of its own ({@link #STARTS_PREFS}), not the default preferences, which the keyboard listens to. A tap on the row
  * clears the history with the numbers.
  */
@@ -87,7 +91,7 @@ public final class MrPerf {
             KEY_LETTER = 9, KEY_SEP = 10, KEY_DEL = 11, KEY_OTHER = 12, SUGG_ENGINE = 13, SUGG_SHOW = 14,
             OPEN_KB = 15, OPEN_SET = 16, POPUP = 17, APP_KEY = 18, APP_SUGG = 19, APP_OPEN = 20, APP_OTHER = 21,
             POPUP_BUILD = 22, POPUP_SHOW = 23, SEL = 24, MSG = 25, APP_SEL = 26, APP_MSG = 27, ECHO_CUT = 28, ECHO_FULL = 29, ECHO_ONE = 30, ECHO_RUN = 31, ECHO_DROP = 32,
-            CAPS_RUN = 33, CAPS_FLUSH = 34, KINDS = 35;
+            CAPS_RUN = 33, CAPS_FLUSH = 34, CREATE_SUPER = 35, CREATE_SUGG = 36, KINDS = 37;
     /** A piece of work that began longer ago than this (milliseconds) and never ended is not taken as the place of a wait. */
     static final int PLACE_MAX_MS = 10000;
     /** Samples kept per kind (a power of two) for the average and the p95. */
@@ -111,12 +115,13 @@ public final class MrPerf {
             "mr_ui_perf_app_key", "mr_ui_perf_app_sugg", "mr_ui_perf_app_open", "mr_ui_perf_app_other",
             "mr_ui_perf_popup_build", "mr_ui_perf_popup_show", "mr_ui_perf_sel", "mr_ui_perf_msg",
             "mr_ui_perf_app_sel", "mr_ui_perf_app_msg", "mr_ui_perf_echo_cut", "mr_ui_perf_echo_full", "mr_ui_perf_echo_one",
-            "mr_ui_perf_echo_run", "mr_ui_perf_echo_drop", "mr_ui_perf_caps_run", "mr_ui_perf_caps_flush" };
+            "mr_ui_perf_echo_run", "mr_ui_perf_echo_drop", "mr_ui_perf_caps_run", "mr_ui_perf_caps_flush",
+            "mr_ui_perf_create_super", "mr_ui_perf_create_sugg" };
     /** Names of the kinds in the log line. */
     static final String[] LOG = { "create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
             "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
             "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg",
-            "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop", "caps-run", "caps-flush" };
+            "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop", "caps-run", "caps-flush", "create-super", "create-sugg" };
 
     private static final int[] sRing = new int[KINDS * SIZE];
     private static final int[] sCount = new int[KINDS];
@@ -154,6 +159,10 @@ public final class MrPerf {
 
     public static void createBegin() { begin(CREATE); }
     public static void createEnd() { end(CREATE); }
+    public static void createSuperBegin() { begin(CREATE_SUPER); }
+    public static void createSuperEnd() { end(CREATE_SUPER); }
+    public static void createSuggBegin() { begin(CREATE_SUGG); }
+    public static void createSuggEnd() { end(CREATE_SUGG); }
     public static void viewBegin() { begin(VIEW); }
     public static void viewEnd() { end(VIEW); }
 
@@ -385,7 +394,20 @@ public final class MrPerf {
 
     // ------------------------------------------------------------------ the history of the starts
 
-    /** The history as the file keeps it: "create,view;create,view;..." in microseconds, oldest first; "" when there is none. */
+    /**
+     * The column of a kind in a record of the history ("create,view,super,sugg"): 0 CREATE, 1 VIEW, 2 CREATE_SUPER, 3 CREATE_SUGG;
+     * -1 for a kind whose starts are not kept.
+     */
+    static int startColumn(int kind) {
+        return kind == CREATE ? 0 : kind == VIEW ? 1 : kind == CREATE_SUPER ? 2 : kind == CREATE_SUGG ? 3 : -1;
+    }
+
+    /** The first sample of a kind since the process began, in microseconds; -1 when it was not measured. */
+    private static int firstOf(int kind) {
+        return sCount[kind] == 0 ? -1 : sRing[kind * SIZE];
+    }
+
+    /** The history as the file keeps it: "create,view,super,sugg;..." in microseconds, oldest first; "" when there is none. */
     static String startsOf(Context c) {
         try {
             String v = c.getSharedPreferences(STARTS_PREFS, Context.MODE_PRIVATE).getString(STARTS_KEY, "");
@@ -404,7 +426,7 @@ public final class MrPerf {
         if (sStartSaved || sCount[CREATE] == 0 || sCount[VIEW] == 0) return;
         try {
             SharedPreferences sp = c.getSharedPreferences(STARTS_PREFS, Context.MODE_PRIVATE);
-            String now = sRing[CREATE * SIZE] + "," + sRing[VIEW * SIZE];
+            String now = firstOf(CREATE) + "," + firstOf(VIEW) + "," + firstOf(CREATE_SUPER) + "," + firstOf(CREATE_SUGG);
             sp.edit().putString(STARTS_KEY, addStart(sp.getString(STARTS_KEY, ""), now)).apply();
             sStartSaved = true;
         } catch (RuntimeException e) {
@@ -431,9 +453,9 @@ public final class MrPerf {
     }
 
     /**
-     * {count, minimum, median, maximum} of one column of the history (0 = CREATE, 1 = VIEW), in microseconds. The median is the
-     * nearest rank (the lower one of the two in the middle when the count is even). A record that is not "number,number", or
-     * whose number is below 0, is left out of that column. All 0 when there is nothing.
+     * {count, minimum, median, maximum} of one column of the history (see {@link #startColumn}), in microseconds. The median is the
+     * nearest rank (the lower one of the two in the middle when the count is even). A record without that column, with it empty or
+     * not a number, or with a number below 0 (-1 is "not measured"), is left out of that column. All 0 when there is nothing.
      */
     static int[] startStats(String stored, int column) {
         int[] v = new int[STARTS_MAX];
@@ -442,15 +464,21 @@ public final class MrPerf {
         while (stored != null && from <= stored.length() && n < STARTS_MAX) {
             int end = stored.indexOf(';', from);
             if (end < 0) end = stored.length();
-            int comma = stored.indexOf(',', from);
-            if (comma > from && comma < end - 1) {
-                try {
-                    int a = Integer.parseInt(stored.substring(from, comma));
-                    int b = Integer.parseInt(stored.substring(comma + 1, end));
-                    int x = column == 0 ? a : b;
-                    if (x >= 0) v[n++] = x;
-                } catch (NumberFormatException e) {
-                    // a damaged record: left out
+            int f = from;
+            for (int c = 0; c < column && f >= 0; c++) {
+                f = stored.indexOf(',', f);
+                f = f < 0 || f >= end ? -1 : f + 1;
+            }
+            if (f >= 0) {
+                int e = stored.indexOf(',', f);
+                if (e < 0 || e > end) e = end;
+                if (e > f) {
+                    try {
+                        int x = Integer.parseInt(stored.substring(f, e));
+                        if (x >= 0) v[n++] = x;
+                    } catch (NumberFormatException ex) {
+                        // a damaged record: left out
+                    }
                 }
             }
             from = end + 1;
@@ -499,8 +527,9 @@ public final class MrPerf {
         String starts = startsOf(c);
         for (int kind = 0; kind < KINDS; kind++) {
             int[] s = stats(kind);
-            boolean start = kind == CREATE || kind == VIEW;
-            // the two lines of the start also show the starts of the other processes, even if this one has no sample yet
+            int column = startColumn(kind);
+            boolean start = column >= 0;
+            // the lines of the start also show the starts of the other processes, even if this one has no sample yet
             if (s[0] == 0 && !start) continue;
             String name = MrPacks.text(c, kind == FRAME ? frameName(mode(c)) : NAMES[kind]);
             // the text of the drawing mode missing: the plain name; no name at all: the line is left out
@@ -517,7 +546,7 @@ public final class MrPerf {
             }
             if (start) {
                 // one start is the line above; from two on the spread between starts is what says if a change helped
-                int[] h = startStats(starts, kind == CREATE ? 0 : 1);
+                int[] h = startStats(starts, column);
                 String line = h[0] < 2 ? null
                         : MrPacks.text(c, "mr_ui_perf_starts", name, Integer.valueOf(h[0]), ms(h[1]), ms(h[2]), ms(h[3]));
                 if (line != null) {

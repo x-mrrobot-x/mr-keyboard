@@ -92,6 +92,8 @@
     <string name="mr_ui_perf_echo_drop">Reação ao eco adiada: descartada antes de rodar (veio outra tecla)</string>
     <string name="mr_ui_perf_caps_run">Maiúscula adiada: tempo até rodar</string>
     <string name="mr_ui_perf_caps_flush">Maiúscula adiada: perguntada antes (veio uma tecla)</string>
+    <string name="mr_ui_perf_create_super">Iniciar: parte do Android</string>
+    <string name="mr_ui_perf_create_sugg">Iniciar: motor de sugestões</string>
     <string name="mr_ui_perf_frame_gpu">Desenhar um quadro (GPU: só o registro)</string>
     <string name="mr_ui_perf_frame_cpu">Desenhar um quadro (CPU: o desenho todo)</string>
     <string name="mr_ui_cat_haptic">Vibração</string>

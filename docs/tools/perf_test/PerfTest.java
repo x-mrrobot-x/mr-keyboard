@@ -45,7 +45,7 @@ public class PerfTest {
             {"mr_ui_perf_app_open", "App in an open"}, {"mr_ui_perf_app_other", "App elsewhere"},
             {"mr_ui_perf_popup_build", "Popup build"}, {"mr_ui_perf_popup_show", "Popup show"},
             {"mr_ui_perf_sel", "Selection change"}, {"mr_ui_perf_msg", "Message"}, {"mr_ui_perf_app_sel", "App in a selection change"},
-            {"mr_ui_perf_app_msg", "App in a message"}, {"mr_ui_perf_echo_cut", "Echo short check"}, {"mr_ui_perf_echo_full", "Echo full check"}, {"mr_ui_perf_echo_one", "Echo one question"}, {"mr_ui_perf_echo_run", "Echo reaction that waited"}, {"mr_ui_perf_echo_drop", "Echo reaction dropped"}, {"mr_ui_perf_caps_run", "Caps update that waited"}, {"mr_ui_perf_caps_flush", "Caps update asked early"}, {"mr_ui_perf_frame_gpu", "Frame (GPU)"}, {"mr_ui_perf_frame_cpu", "Frame (CPU)"},
+            {"mr_ui_perf_app_msg", "App in a message"}, {"mr_ui_perf_echo_cut", "Echo short check"}, {"mr_ui_perf_echo_full", "Echo full check"}, {"mr_ui_perf_echo_one", "Echo one question"}, {"mr_ui_perf_echo_run", "Echo reaction that waited"}, {"mr_ui_perf_echo_drop", "Echo reaction dropped"}, {"mr_ui_perf_caps_run", "Caps update that waited"}, {"mr_ui_perf_caps_flush", "Caps update asked early"}, {"mr_ui_perf_create_super", "Start: Android"}, {"mr_ui_perf_create_sugg", "Start: engine"}, {"mr_ui_perf_frame_gpu", "Frame (GPU)"}, {"mr_ui_perf_frame_cpu", "Frame (CPU)"},
             {"mr_ui_perf_starts", "%1$s, last %2$d starts: min %3$s ms · median %4$s · max %5$s"},
             {"mr_ui_perf_stat", "%1$s: average %2$s ms · p95 %3$s · max %4$s (%5$d×)"}, {"mr_ui_perf_one", "%1$s: %2$s ms (once)"},
             {"mr_ui_perf_none", "Nothing measured yet."}, {"mr_ui_perf_mem", "Memory: Java %1$s · native %2$s"},
@@ -452,20 +452,24 @@ public class PerfTest {
         check("a start with no view yet: nothing saved, the process can still save later", "|false", MrPerf.startsOf(hs) + "|" + MrPerf.sStartSaved);
         MrPerf.add(MrPerf.VIEW, 95000);
         MrPerf.saveStart(hs);
-        check("create and view measured: the record is saved", "180000,95000|true", MrPerf.startsOf(hs) + "|" + MrPerf.sStartSaved);
+        check("create and view measured: the record is saved (the two parts of the start not measured: -1)", "180000,95000,-1,-1|true",
+                MrPerf.startsOf(hs) + "|" + MrPerf.sStartSaved);
         MrPerf.add(MrPerf.CREATE, 1);
         MrPerf.add(MrPerf.VIEW, 2);
         MrPerf.saveStart(hs);
-        check("one process is one start: a second save adds nothing", "180000,95000", MrPerf.startsOf(hs));
+        check("one process is one start: a second save adds nothing", "180000,95000,-1,-1", MrPerf.startsOf(hs));
         for (int i = 1; i <= 11; i++) {
             newProcess();
             MrPerf.add(MrPerf.CREATE, 100000 + i * 1000);
             MrPerf.add(MrPerf.VIEW, 20000 + i * 100);
+            MrPerf.add(MrPerf.CREATE_SUPER, 10000 + i * 10);
+            MrPerf.add(MrPerf.CREATE_SUGG, 5000 + i * 5);
             MrPerf.saveStart(hs);
         }
         String kept = MrPerf.startsOf(hs);
-        check("12 starts: only the last 9 are kept, oldest first", "103000,20300;104000,20400;105000,20500;106000,20600;107000,20700;"
-                + "108000,20800;109000,20900;110000,21000;111000,21100", kept);
+        check("12 starts: only the last 9 are kept, oldest first", "103000,20300,10030,5015;104000,20400,10040,5020;105000,20500,10050,5025;"
+                + "106000,20600,10060,5030;107000,20700,10070,5035;108000,20800,10080,5040;109000,20900,10090,5045;110000,21000,10100,5050;"
+                + "111000,21100,10110,5055", kept);
         check("the file is the one of the meter, never the default preferences", true,
                 !Store.files.isEmpty() && Store.files.indexOf("mr_perf") >= 0 && new java.util.HashSet<String>(Store.files).size() == 1);
         check("addStart: nothing before, null before, one before, a full history",
@@ -474,28 +478,40 @@ public class PerfTest {
                         + MrPerf.addStart("1,1;2,2;3,3;4,4;5,5;6,6;7,7;8,8;9,9", "10,10"));
         check("startStats, 9 starts, create: count, minimum, median, maximum", "9,103000,107000,111000", join(MrPerf.startStats(kept, 0)));
         check("... and view", "9,20300,20700,21100", join(MrPerf.startStats(kept, 1)));
+        check("... and the two parts of the start", "9,10030,10070,10110|9,5015,5035,5055",
+                join(MrPerf.startStats(kept, 2)) + "|" + join(MrPerf.startStats(kept, 3)));
+        check("a record of two numbers has no column for the parts of the start; a record with -1 leaves that column only",
+                "2,6,6,8|0,0,0,0|1,9,9,9|1,10,10,10",
+                join(MrPerf.startStats("5,6;7,8", 1)) + "|" + join(MrPerf.startStats("5,6;7,8", 2)) + "|"
+                        + join(MrPerf.startStats("5,6,-1,-1;7,8,9,10", 2)) + "|" + join(MrPerf.startStats("5,6,-1,-1;7,8,9,10", 3)));
         check("an even count: the median is the lower one in the middle", "4,10,20,40", join(MrPerf.startStats("10,1;30,3;20,2;40,4", 0)));
         check("one start", "1,50,50,50", join(MrPerf.startStats("50,7", 0)));
         check("nothing, or null", "0,0,0,0|0,0,0,0", join(MrPerf.startStats("", 0)) + "|" + join(MrPerf.startStats(null, 1)));
-        check("damaged records are left out, the good ones count", "2,5,5,8|2,6,6,9",
+        check("damaged records are left out, the good ones count (a record is read by the column asked)", "3,5,7,8|2,6,6,9",
                 join(MrPerf.startStats("abc;5,6;,;7,;8,9;x,y;", 0)) + "|" + join(MrPerf.startStats("abc;5,6;,;7,;8,9;x,y;", 1)));
         check("a number below 0 is left out of its column only", "2,10,10,20|2,5,5,20",
                 join(MrPerf.startStats("-1,5;10,-1;20,20", 0)) + "|" + join(MrPerf.startStats("-1,5;10,-1;20,20", 1)));
 
-        // the lines on the screen: under "Start the keyboard" and "Build the view", from two starts on
+        // the lines on the screen: under each line of the start, from two starts on (the start, the view and the two parts of the start)
         newProcess();
         MrPerf.createBegin(); tick(34500); MrPerf.createEnd();
         MrPerf.viewBegin(); tick(32900); MrPerf.viewEnd();
+        MrPerf.createSuperBegin(); tick(9100); MrPerf.createSuperEnd();
+        MrPerf.createSuggBegin(); tick(12300); MrPerf.createSuggEnd();
         MrPerf.sStartSaved = true;     // this process is the one already in the file above
         Hist screen = new Hist();
         MrPerf.fill(screen);
         String[] hl = String.valueOf(screen.row.summary).split("\n");
-        check("history: six lines (start, its spread, view, its spread, memory, reset)", 6, hl.length);
+        check("history: ten lines (four starts, each with its spread, memory, reset)", 10, hl.length);
         check("history: start line", "Start the keyboard: 34.5 ms (once)", hl[0]);
         check("history: start spread", "Start the keyboard, last 9 starts: min 103.0 ms · median 107.0 · max 111.0", hl[1]);
         check("history: view line", "Build the view: 32.9 ms (once)", hl[2]);
         check("history: view spread", "Build the view, last 9 starts: min 20.3 ms · median 20.7 · max 21.1", hl[3]);
-        check("history: then the memory and the reset line", true, hl[4].startsWith("Memory: ") && hl[5].equals("Tap to start again from zero."));
+        check("history: the part of Android and its spread", "Start: Android: 9.1 ms (once)|Start: Android, last 9 starts: min 10.0 ms · median 10.1 · max 10.1",
+                hl[4] + "|" + hl[5]);
+        check("history: the engine and its spread", "Start: engine: 12.3 ms (once)|Start: engine, last 9 starts: min 5.0 ms · median 5.0 · max 5.1",
+                hl[6] + "|" + hl[7]);
+        check("history: then the memory and the reset line", true, hl[8].startsWith("Memory: ") && hl[9].equals("Tap to start again from zero."));
 
         // a process with no sample yet still shows the starts of the others
         newProcess();
@@ -503,20 +519,23 @@ public class PerfTest {
         screen = new Hist();
         MrPerf.fill(screen);
         hl = String.valueOf(screen.row.summary).split("\n");
-        check("no sample here: the spread of the other starts is the first line, then the other one", true,
-                hl[0].startsWith("Start the keyboard, last 9 starts: min 103.0 ms") && hl[1].startsWith("Build the view, last 9 starts: min 20.3 ms")
-                        && hl[2].startsWith("Memory: ") && hl[3].equals("Tap to start again from zero."));
+        check("no sample here: the spreads of the other starts come first, then the memory", true,
+                hl.length == 6 && hl[0].startsWith("Start the keyboard, last 9 starts: min 103.0 ms") && hl[1].startsWith("Build the view, last 9 starts: min 20.3 ms")
+                        && hl[2].startsWith("Start: Android, last 9 starts: ") && hl[3].startsWith("Start: engine, last 9 starts: ")
+                        && hl[4].startsWith("Memory: ") && hl[5].equals("Tap to start again from zero."));
 
         // one start in the file is the line above: no spread line
         Store.data.clear();
         newProcess();
         MrPerf.add(MrPerf.CREATE, 40000);
         MrPerf.add(MrPerf.VIEW, 15000);
+        MrPerf.add(MrPerf.CREATE_SUPER, 9000);
+        MrPerf.add(MrPerf.CREATE_SUGG, 12000);
         screen = new Hist();
         MrPerf.fill(screen);     // the screen saves the start of this process
-        check("fill saves the start of the process", "40000,15000|true", Store.data.get("starts") + "|" + MrPerf.sStartSaved);
+        check("fill saves the start of the process (the four numbers)", "40000,15000,9000,12000|true", Store.data.get("starts") + "|" + MrPerf.sStartSaved);
         MrPerf.fill(new Hist());
-        check("... once", "40000,15000", Store.data.get("starts"));
+        check("... once", "40000,15000,9000,12000", Store.data.get("starts"));
         hl = String.valueOf(screen.row.summary).split("\n");
         check("one start: only the plain lines, no spread", true, !String.valueOf(screen.row.summary).contains("last "));
         // a second process, saved by the screen: now there are two

@@ -55,7 +55,7 @@ TEXTS = {
     "mr_ui_perf_open_kb": "OpenKb", "mr_ui_perf_open_set": "OpenSet", "mr_ui_perf_popup": "Popup",
     "mr_ui_perf_app_key": "AppKey", "mr_ui_perf_app_sugg": "AppSugg", "mr_ui_perf_app_open": "AppOpen", "mr_ui_perf_app_other": "AppOther",
     "mr_ui_perf_popup_build": "PopupBuild", "mr_ui_perf_popup_show": "PopupShow", "mr_ui_perf_sel": "Sel", "mr_ui_perf_msg": "Msg",
-    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_echo_one": "EchoOne", "mr_ui_perf_echo_run": "EchoRun", "mr_ui_perf_echo_drop": "EchoDrop", "mr_ui_perf_caps_run": "CapsRun", "mr_ui_perf_caps_flush": "CapsFlush", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
+    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_echo_one": "EchoOne", "mr_ui_perf_echo_run": "EchoRun", "mr_ui_perf_echo_drop": "EchoDrop", "mr_ui_perf_caps_run": "CapsRun", "mr_ui_perf_caps_flush": "CapsFlush", "mr_ui_perf_create_super": "CreateSuper", "mr_ui_perf_create_sugg": "CreateSugg", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
     "mr_ui_perf_stat": "%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)",
     "mr_ui_perf_one": "%1$s: %2$s ms", "mr_ui_perf_none": "Nothing yet.", "mr_ui_perf_mem": "Memory: Java %1$s · native %2$s",
     "mr_ui_perf_reset": "Tap to reset.",
@@ -260,10 +260,10 @@ def j(a):
 KINDS = ["create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
          "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
          "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg",
-         "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop", "caps-run", "caps-flush"]
+         "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop", "caps-run", "caps-flush", "create-super", "create-sugg"]
 N = len(KINDS)
 CREATE, VIEW, OPEN, SHOWN, FRAME, KEY, TOUCH, APP_, SUGG, KEY_LETTER, KEY_SEP, KEY_DEL, KEY_OTHER, SUGG_ENGINE, SUGG_SHOW, \
-    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW, SEL, MSG, APP_SEL, APP_MSG, ECHO_CUT, ECHO_FULL, ECHO_ONE, ECHO_RUN, ECHO_DROP, CAPS_RUN, CAPS_FLUSH = range(N)
+    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW, SEL, MSG, APP_SEL, APP_MSG, ECHO_CUT, ECHO_FULL, ECHO_ONE, ECHO_RUN, ECHO_DROP, CAPS_RUN, CAPS_FLUSH, CREATE_SUPER, CREATE_SUGG = range(N)
 
 # ======================================================================== part 1: the smali of MrPerf
 fw = Fw()
@@ -525,7 +525,7 @@ fw.fill(scr)
 lines = row.f["summary"].split("\n")
 names = ["Start", "View", "Open", "Shown", "Frame", "Key", "Touch", "App", "Sugg", "KeyLetter", "KeySep", "KeyDel", "KeyOther",
          "SuggEngine", "SuggShow", "OpenKb", "OpenSet", "Popup", "AppKey", "AppSugg", "AppOpen", "AppOther", "PopupBuild", "PopupShow",
-         "Sel", "Msg", "AppSel", "AppMsg", "EchoCut", "EchoFull", "EchoOne", "EchoRun", "EchoDrop", "CapsRun", "CapsFlush"]
+         "Sel", "Msg", "AppSel", "AppMsg", "EchoCut", "EchoFull", "EchoOne", "EchoRun", "EchoDrop", "CapsRun", "CapsFlush", "CreateSuper", "CreateSugg"]
 check("every kind in order, then memory and reset", len(lines) == N + 2
       and all(lines[k].startswith("%s: average %d.0 ms" % (names[k], k + 1)) for k in range(N)), lines)
 # the frame line says what a frame measures, by how this device draws the window (MrAccel.state: 0 unknown, 1 GPU, 2 CPU)
@@ -575,7 +575,7 @@ check("a broken screen: no exception", quiet and row.f["summary"] is None)
 # ---------------------------------------------------------------- the history of the starts (build _80), with the real smali
 # One process gives one sample of "Start the keyboard" and of "Build the keyboard", and the same build varies a lot from one start to the
 # next, so the Advanced screen keeps the last 9 starts it saw and shows their minimum, median and maximum. Saved when the screen opens.
-START_RECORDS = "103000,20300;104000,20400;105000,20500;106000,20600;107000,20700;108000,20800;109000,20900;110000,21000;111000,21100"
+START_RECORDS = ";".join("%d,%d,%d,%d" % (100000 + i * 1000, 20000 + i * 100, 10000 + i * 10, 5000 + i * 5) for i in range(3, 12))
 
 
 def new_process():
@@ -583,11 +583,16 @@ def new_process():
     fw.perf.statics["sStartSaved"] = 0
 
 
-def save_start(create, view):
-    """A new process whose keyboard started in <create> us and built its view in <view> us; the screen saves it."""
+def save_start(create, view, sup=None, sugg=None):
+    """A new process whose keyboard started in <create> us and built its view in <view> us (<sup> and <sugg> are the two parts of the
+    start); the screen saves it."""
     new_process()
     fw.run("add(IJ)V", CREATE, create)
     fw.run("add(IJ)V", VIEW, view)
+    if sup is not None:
+        fw.run("add(IJ)V", CREATE_SUPER, sup)
+    if sugg is not None:
+        fw.run("add(IJ)V", CREATE_SUGG, sugg)
     scr_, row_ = fw.screen()
     fw.run("saveStart(Landroid/content/Context;)V", scr_)
 
@@ -608,14 +613,14 @@ check("history: a start with no view yet, nothing saved and the process can stil
       "starts" not in fw.prefs and not fw.perf.statics["sStartSaved"], fw.prefs)
 fw.run("add(IJ)V", VIEW, 95000)
 fw.run("saveStart(Landroid/content/Context;)V", scr)
-check("history: create and view measured, the record is saved", fw.prefs.get("starts") == "180000,95000" and fw.perf.statics["sStartSaved"] == 1,
-      fw.prefs)
+check("history: create and view measured, the record is saved (the two parts of the start not measured: -1)",
+      fw.prefs.get("starts") == "180000,95000,-1,-1" and fw.perf.statics["sStartSaved"] == 1, fw.prefs)
 fw.run("add(IJ)V", CREATE, 1)
 fw.run("add(IJ)V", VIEW, 2)
 fw.run("saveStart(Landroid/content/Context;)V", scr)
-check("history: one process is one start, a second save adds nothing", fw.prefs.get("starts") == "180000,95000", fw.prefs)
+check("history: one process is one start, a second save adds nothing", fw.prefs.get("starts") == "180000,95000,-1,-1", fw.prefs)
 for i in range(1, 12):
-    save_start(100000 + i * 1000, 20000 + i * 100)
+    save_start(100000 + i * 1000, 20000 + i * 100, 10000 + i * 10, 5000 + i * 5)
 check("history: 12 starts, only the last 9 are kept, oldest first", fw.prefs.get("starts") == START_RECORDS, fw.prefs.get("starts"))
 check("history: the file is the one of the meter, never the default preferences", set(fw.prefs_files) == {"mr_perf"}, set(fw.prefs_files))
 ADD = "addStart(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"
@@ -623,15 +628,20 @@ check("history: addStart with nothing before, null before, one before", [fw.run(
       == ["1,2", "1,2", "1,1;2,2;3,3"])
 check("history: addStart on a full history drops the oldest",
       fw.run(ADD, "1,1;2,2;3,3;4,4;5,5;6,6;7,7;8,8;9,9", "10,10") == "2,2;3,3;4,4;5,5;6,6;7,7;8,8;9,9;10,10")
-check("history: minimum, median and maximum of 9 starts (create and view)",
-      starts_stats(START_RECORDS, 0) == [9, 103000, 107000, 111000] and starts_stats(START_RECORDS, 1) == [9, 20300, 20700, 21100],
-      (starts_stats(START_RECORDS, 0), starts_stats(START_RECORDS, 1)))
+check("history: minimum, median and maximum of 9 starts (create, view and the two parts of the start)",
+      starts_stats(START_RECORDS, 0) == [9, 103000, 107000, 111000] and starts_stats(START_RECORDS, 1) == [9, 20300, 20700, 21100]
+      and starts_stats(START_RECORDS, 2) == [9, 10030, 10070, 10110] and starts_stats(START_RECORDS, 3) == [9, 5015, 5035, 5055],
+      [starts_stats(START_RECORDS, c) for c in range(4)])
+check("history: a record of two numbers (no column for the parts of the start) counts in the first two columns only",
+      starts_stats("5,6;7,8", 1) == [2, 6, 6, 8] and starts_stats("5,6;7,8", 2) == [0, 0, 0, 0] and starts_stats("5,6,-1,-1;7,8,9,10", 2) == [1, 9, 9, 9]
+      and starts_stats("5,6,-1,-1;7,8,9,10", 3) == [1, 10, 10, 10])
 check("history: an even count takes the lower one in the middle", starts_stats("10,1;30,3;20,2;40,4", 0) == [4, 10, 20, 40])
 check("history: one start, nothing, null", [starts_stats("50,7", 0), starts_stats("", 0), starts_stats(None, 1)]
       == [[1, 50, 50, 50], [0, 0, 0, 0], [0, 0, 0, 0]])
 DAMAGED = "abc;5,6;,;7,;8,9;x,y;"
-check("history: damaged records are left out and the good ones count", starts_stats(DAMAGED, 0) == [2, 5, 5, 8]
-      and starts_stats(DAMAGED, 1) == [2, 6, 6, 9], (starts_stats(DAMAGED, 0), starts_stats(DAMAGED, 1)))
+check("history: damaged records are left out and the good ones count (a record is read by the column asked)",
+      starts_stats(DAMAGED, 0) == [3, 5, 7, 8] and starts_stats(DAMAGED, 1) == [2, 6, 6, 9],
+      (starts_stats(DAMAGED, 0), starts_stats(DAMAGED, 1)))
 check("history: a number below 0 is left out of its column only", starts_stats("-1,5;10,-1;20,20", 0) == [2, 10, 10, 20]
       and starts_stats("-1,5;10,-1;20,20", 1) == [2, 5, 5, 20])
 
@@ -653,15 +663,21 @@ def summary_lines():
 
 fw.prefs["starts"] = START_RECORDS
 with_process(34500, 32900)
+fw.run("add(IJ)V", CREATE_SUPER, 9100)
+fw.run("add(IJ)V", CREATE_SUGG, 12300)
 ln = summary_lines()
-check("history on the screen: the start, its spread, the view, its spread, memory and reset",
+check("history on the screen: the start and the view, each with its spread; then the two parts of the start with theirs; memory and reset",
       ln[:4] == ["Start: 34.5 ms", "Start, last 9 starts: min 103.0 ms · median 107.0 · max 111.0", "View: 32.9 ms",
-                 "View, last 9 starts: min 20.3 ms · median 20.7 · max 21.1"] and ln[4].startswith("Memory: ") and ln[5] == "Tap to reset." and len(ln) == 6, ln)
+                 "View, last 9 starts: min 20.3 ms · median 20.7 · max 21.1"]
+      and ln[4:8] == ["CreateSuper: 9.1 ms", "CreateSuper, last 9 starts: min 10.0 ms · median 10.1 · max 10.1",
+                      "CreateSugg: 12.3 ms", "CreateSugg, last 9 starts: min 5.0 ms · median 5.0 · max 5.1"]
+      and ln[8].startswith("Memory: ") and ln[9] == "Tap to reset." and len(ln) == 10, ln)
 with_process(0, 0)
 ln = summary_lines()
 check("history on the screen: a process with no sample still shows the spread of the other starts",
-      len(ln) == 4 and ln[0].startswith("Start, last 9 starts: min 103.0 ms") and ln[1].startswith("View, last 9 starts: min 20.3 ms")
-      and ln[2].startswith("Memory: ") and ln[3] == "Tap to reset.", ln)
+      len(ln) == 6 and ln[0].startswith("Start, last 9 starts: min 103.0 ms") and ln[1].startswith("View, last 9 starts: min 20.3 ms")
+      and ln[2].startswith("CreateSuper, last 9 starts: ") and ln[3].startswith("CreateSugg, last 9 starts: ")
+      and ln[4].startswith("Memory: ") and ln[5] == "Tap to reset.", ln)
 fw.prefs["starts"] = "40000,15000"
 with_process(34500, 32900)
 check("history on the screen: one start in the file is the line above, no spread line", "last " not in "\n".join(summary_lines()))
@@ -677,13 +693,15 @@ fw.prefs.clear()
 new_process()
 fw.run("add(IJ)V", CREATE, 40000)
 fw.run("add(IJ)V", VIEW, 15000)
+fw.run("add(IJ)V", CREATE_SUPER, 9000)
+fw.run("add(IJ)V", CREATE_SUGG, 12000)
 scr, row = fw.screen()
 fw.fill(scr)
-check("history: opening the screen saves the start of the process, once", fw.prefs.get("starts") == "40000,15000" and fw.perf.statics["sStartSaved"] == 1,
-      fw.prefs)
+check("history: opening the screen saves the start of the process (the four numbers), once",
+      fw.prefs.get("starts") == "40000,15000,9000,12000" and fw.perf.statics["sStartSaved"] == 1, fw.prefs)
 scr, row = fw.screen()
 fw.fill(scr)
-check("history: ... a second look adds nothing", fw.prefs.get("starts") == "40000,15000", fw.prefs)
+check("history: ... a second look adds nothing", fw.prefs.get("starts") == "40000,15000,9000,12000", fw.prefs)
 fw.prefs["starts"] = START_RECORDS
 check("history: a tap is handled", fw.tap(row) == 1)
 check("history: ... it clears the numbers and the history, the process is not saved again, and the row says nothing yet",
@@ -790,6 +808,22 @@ c = code(body("LatinIME.smali", "public onCreate()V"))
 rets = [i for i, l in enumerate(c) if l.startswith("return")]
 check("... and ends before the return of onCreate", len(rets) == 1 and c[rets[0] - 1] == CALL + "createEnd()V"
       and CALL + "createBegin()V" not in c)
+# the two parts of the start (build _80): the part of Android and the set-up of the suggestion engine, each around its call only
+i_sup = next(k for k, l in enumerate(c) if l == "invoke-super {p0}, Landroid/inputmethodservice/InputMethodService;->onCreate()V")
+i_sug = next(k for k, l in enumerate(c) if "->initSuggest(" in l)
+check("onCreate: super.onCreate is timed (createSuper), around the call only, once; no register taken",
+      c[i_sup - 1] == CALL + "createSuperBegin()V" and c[i_sup + 1] == CALL + "createSuperEnd()V"
+      and c.count(CALL + "createSuperBegin()V") == 1 and c.count(CALL + "createSuperEnd()V") == 1, c[i_sup - 1:i_sup + 2])
+raw = "\n".join(body("LatinIME.smali", "public onCreate()V"))
+check("onCreate: the set-up of the suggestion engine is timed (createSugg): the begin before the try, the end after it, so a turn that ends in an "
+      "OutOfMemoryError is not counted; no register taken",
+      c[i_sug - 1] == CALL + "createSuggBegin()V" and c[i_sug + 1] == CALL + "createSuggEnd()V"
+      and c.count(CALL + "createSuggBegin()V") == 1 and c.count(CALL + "createSuggEnd()V") == 1
+      and re.search(r"createSuggBegin\(\)V\s+:try_start_0\s+invoke-direct \{p0, v2\}, [^\n]*->initSuggest\([^\n]*\s+:try_end_0\s+"
+                    r"\.catch Ljava/lang/OutOfMemoryError; [^\n]*\s+invoke-static \{\}, [^\n]*->createSuggEnd\(\)V", raw) is not None,
+      c[i_sug - 1:i_sug + 2])
+check("onCreate: initSuggest is called once in it (the other callers are not timed as part of the start)",
+      sum(1 for l in c if "->initSuggest(" in l) == 1)
 
 for head, call in (("private getCursorCapsMode(", "InputConnection;->getCursorCapsMode(I)I"),
                    ("private checkReCorrectionOnStart()V", "InputConnection;->getExtractedText(")):
@@ -879,7 +913,7 @@ for f in os.listdir(APP):
     if f.endswith(".smali") and not f.startswith("MrPerf"):
         called |= set(re.findall(re.escape(PERF) + r"->(\w+\([^)]*\)\S+)", open(os.path.join(APP, f), encoding="utf-8").read()))
 missing = [m for m in sorted(called) if not re.search(r"\.method public static " + re.escape(m) + r"\n", perf_src)]
-check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 48,
+check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 52,
       (missing, len(called)))
 
 xml = open(os.path.join(ROOT, "res", "xml", "prefs_advanced.xml"), encoding="utf-8").read()

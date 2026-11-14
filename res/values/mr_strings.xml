@@ -92,6 +92,8 @@
     <string name="mr_ui_perf_echo_drop">Delayed echo reaction: dropped before it ran (a key came first)</string>
     <string name="mr_ui_perf_caps_run">Delayed caps update: wait until it ran</string>
     <string name="mr_ui_perf_caps_flush">Delayed caps update: asked early (a key came first)</string>
+    <string name="mr_ui_perf_create_super">Start: the Android part</string>
+    <string name="mr_ui_perf_create_sugg">Start: the suggestion engine</string>
     <string name="mr_ui_perf_frame_gpu">Draw a frame (GPU: recording only)</string>
     <string name="mr_ui_perf_frame_cpu">Draw a frame (CPU: whole drawing)</string>
     <string name="mr_ui_cat_haptic">Vibration</string>

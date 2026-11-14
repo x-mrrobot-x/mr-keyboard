@@ -13,6 +13,8 @@ measured is not shown.
 | Line | What is timed | Where |
 |------|---------------|-------|
 | Start the keyboard | a new process of the keyboard: the fields of the service and `onCreate` (since build _78 without the compose tables and without the look-up of the dictionary apps, which wait for their first use) | `LatinIME.<init>` → end of `onCreate` |
+| Start: the Android part | inside "Start the keyboard": `super.onCreate()`, the service and its window made by Android. The keyboard cannot change it; it says how much of the start is not ours | `LatinIME.onCreate`, around `InputMethodService.onCreate` |
+| Start: the suggestion engine | inside "Start the keyboard": the set-up of the suggestion engine (`initSuggest`: the language, the dictionary, the engine) at the start. What is left of "Start the keyboard" after these two is the rest of `onCreate`: the settings read, the languages, the receivers. Only the call in `onCreate` is timed, not the later ones (language switch, a change of settings) | `LatinIME.onCreate`, around `initSuggest` |
 | Build the keyboard | the keyboard view and the tool bar made (first open of a process, theme, app language, rotation) | `LatinIME.onCreateInputView` |
 | Open in a field | the keyboard getting ready for a field | `LatinIME.onStartInputView` |
 | Until it appears | from the start of the open to the end of the first frame after it; not counted beyond 2 s (nothing was redrawn) | `onStartInputView` → `LatinKeyboardBaseView.onDraw` |
@@ -37,12 +39,15 @@ measured is not shown.
 | Message | the work of the keyboard's own delayed messages (the shift state, the suggestions after a key) | `LatinIME$1.handleMessage` |
 | Wait for the app: inside a key / in the suggestions / when opening / in a selection change / in a message / at other times | the same waits as "Wait for the app", counted again by where they are asked: inside a key (not in its suggestions), inside the suggestions, inside an open, inside the reaction to a selection change, inside a message, and anywhere else. The innermost piece of work under way decides, so a wait is in "Wait for the app" and in exactly one of the six. A piece of work that began more than 10 s ago and never ended is not taken as the place | `MrPerf.appEnd` |
 
-Under "Start the keyboard" and "Build the keyboard" a second line appears from the second start on:
+Under "Start the keyboard", "Build the keyboard" and the two parts of the start ("Start: the Android part", "Start: the suggestion
+engine") a second line appears from the second start on:
 `Start the keyboard, last 4 starts: min 33.9 ms · median 43.7 · max 72.1`. Those two lines are measured once per process, and the same
 build gives very different times from one start to the next (34 to 72 ms on the phone that measured them: cold files, the clock of the
 processor), so one start proves nothing. The screen keeps the last 9 starts it saw and shows their minimum, median (the lower of the two in
 the middle when the count is even) and maximum. A change that helps should move the median, not just one sample.
 
+- A record is "start,build,android,engine" in microseconds (-1 for a number that was not measured, which is left out of its own
+  column only). The two parts of the start are lines of their own, so the median of each says where the time of the start goes.
 - The start of a process is saved when the Advanced screen opens (never while the keyboard works), once per process, and only when
   the keyboard was shown in it (both numbers exist). A process whose start you did not look at is not in the history.
 - It is kept in a file of its own (`mr_perf`), not in the default preferences: the keyboard listens to those and would read all its

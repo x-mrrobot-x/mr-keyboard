@@ -9078,7 +9078,11 @@
     invoke-static {p0}, Lcom/mrkeyboard/app/KeyboardSwitcher;->init(Lcom/mrkeyboard/app/LatinIME;)V
 
     .line 360
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->createSuperBegin()V
+
     invoke-super {p0}, Landroid/inputmethodservice/InputMethodService;->onCreate()V
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->createSuperEnd()V
 
     .line 361
     sput-object p0, Lcom/mrkeyboard/app/LatinIME;->sInstance:Lcom/mrkeyboard/app/LatinIME;
@@ -9491,10 +9495,16 @@
     if-eqz v5, :cond_1
 
     .line 421
+    # Performance meter (MrPerf): the set-up of the suggestion engine at the start; no register used. After an OutOfMemoryError the
+    # next turn of the loop begins again, so only the turn that ends is counted.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->createSuggBegin()V
+
     :try_start_0
     invoke-direct {p0, v2}, Lcom/mrkeyboard/app/LatinIME;->initSuggest(Ljava/lang/String;)V
     :try_end_0
     .catch Ljava/lang/OutOfMemoryError; {:try_start_0 .. :try_end_0} :catch_0
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->createSuggEnd()V
 
     const/4 v5, 0x0
 
