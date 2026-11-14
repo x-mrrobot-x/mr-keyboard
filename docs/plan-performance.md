@@ -377,4 +377,35 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   words in a row (only the first has a capital); a tapped suggestion and then a letter; a field with a capital on every word (a name
   field); after a gesture word and after a tapped suggestion, Symbols and `?`, `!`, `:` and `,` `.` on the main sheet (glued, one space
   after); then a letter; the backspace after a tapped word (one character). Autocompletar off and on.
+- Stage 7, first part (build _78): the owner's run of build _77 gave the first figures of a cold start (the keyboard stopped from the
+  app settings and a field opened; one sample of each line): "Start the keyboard" 67.4 ms, "Build the keyboard" 20.3 ms, "Open in a field"
+  11.6 ms, "Until it shows" 57.6 ms, memory Java 14.6 MB and native 43.2 MB. "Start" is timed from `LatinIME.<init>` to the end of `onCreate`
+  and it held two pieces of work that nobody needs at that moment:
+  A. `LatinIME.<init>` made the compose buffer and the dead-key buffer, so the static initializers of `ComposeSequence` (883 compose
+  sequences, each one formatted) and of `DeadAccentSequence` ran before the first key; only the compose key (a hardware key code, -10024) and a
+  combining mark typed (a language that allows dead keys) use them. Now `mrComposeBuffer` / `mrDeadBuffer` make them the first time (`onKeyOrig`:
+  the compose key and the dead key; `processMultiKey`, which runs for every key, tests the dead-key buffer for null and has nothing to do when
+  it is not there). `DeadAccentSequence.getSpacing/normalize` (a key that is a dead key, `isDeadKey()`) start the same class initializers when
+  they are first used.
+  B. `LatinIME.onCreate` asked the package manager twice (`queryBroadcastReceivers` for AnySoftKeyboard, `queryIntentActivities` for Hacker's
+  Keyboard) to know the dictionary apps, although the downloaded packs are the normal source. Now `PluginManager.getDictionary` looks the apps
+  up (`ensurePlugins`, synchronized, once) only after `MrPacks.openDictionary` found no pack for the language. The change of the installed
+  packages (`PluginManager.onReceive`) no longer looks them up at once: it marks the look-up stale and asks for the languages again, and the
+  look-up happens only if one of them has no pack. A language without a pack pays the same two queries as before, in `initSuggest`, so for
+  that user there is no change (and no loss).
+  Not in this part: the locale resources (`updateConfiguration` in `initSuggest` and `KeyboardSwitcher.getKeyboard`, which throws away the
+  caches of the service's resources at each change of language): it changes how every string and drawable is loaded after a language switch,
+  so it deserves its own part and its own test.
+  `test_cold_start.py` (28 checks, new): the real smali in the mini interpreter with fake classes that count what is made and asked: the
+  constructor and `onCreate` do not make the buffers nor look the apps up; keys typed with no compose key and no dead key make nothing;
+  the buffers are made once and the same object comes back; compose mode, a dead-key sequence and the end of both still work; a language
+  with a pack asks the package manager nothing; one without asks twice, once; a plugin found still gives its dictionary; a change of the
+  installed packages asks nothing at once, marks stale and the next language without a pack asks again; `getPluginDictionaries` unchanged.
+  With the old smali the test fails (7 checks). What the saving is, in ms, is the phone's to say: the figures are an estimate until then (the
+  table is 883 `put` calls with a format each, the queries are two calls across processes), and nothing here is counted by the meter except
+  the line "Start the keyboard".
+  Next (the owner): with build _78, stop the keyboard from the app settings, open a field (Telegram), and read "Start the keyboard", "Build
+  the keyboard", "Open in a field" and "Until it shows" on the Advanced screen, as done for the baseline; repeat 2 or 3 times (each stop is one
+  sample). Also: a long press with accents, the language switch (if more than one language is on), a gesture, the tool bar, and a field of
+  each kind; if there is a hardware keyboard or an app that sends combining marks, dead keys and the compose sequence still work.
 

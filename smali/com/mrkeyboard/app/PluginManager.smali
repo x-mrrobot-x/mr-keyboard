@@ -33,6 +33,10 @@
 .field private static TAG:Ljava/lang/String; = "PCKeyboard"
 
 .field private static mPluginDicts:Ljava/util/Map;
+
+# Cold start (docs/plan-performance.md stage 7): true once the dictionary apps were looked up since the last change of the installed
+# packages. Set by getPluginDictionaries, cleared by onReceive, read by ensurePlugins (getDictionary, for a language without a pack).
+.field private static volatile sPluginsLoaded:Z
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "Ljava/util/Map<",
@@ -112,6 +116,9 @@
     return-object v0
 
     :cond_mr_no_pack
+
+    # The dictionary apps are looked up here, once, not when the keyboard starts.
+    invoke-static {p0}, Lcom/mrkeyboard/app/PluginManager;->ensurePlugins(Landroid/content/Context;)V
 
     .line 249
     sget-object v0, Lcom/mrkeyboard/app/PluginManager;->mPluginDicts:Ljava/util/Map;
@@ -512,6 +519,24 @@
     .line 244
     invoke-static {p0}, Lcom/mrkeyboard/app/PluginManager;->getHKDictionaries(Landroid/content/pm/PackageManager;)V
 
+    const/4 v0, 0x1
+
+    sput-boolean v0, Lcom/mrkeyboard/app/PluginManager;->sPluginsLoaded:Z
+
+    return-void
+.end method
+
+# Looks the dictionary apps up the first time a language without a pack needs them (and again after the installed packages changed).
+.method static declared-synchronized ensurePlugins(Landroid/content/Context;)V
+    .locals 1
+
+    sget-boolean v0, Lcom/mrkeyboard/app/PluginManager;->sPluginsLoaded:Z
+
+    if-nez v0, :cond_0
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/PluginManager;->getPluginDictionaries(Landroid/content/Context;)V
+
+    :cond_0
     return-void
 .end method
 
@@ -930,8 +955,11 @@
 
     invoke-static {p2, v0}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 127
-    invoke-static {p1}, Lcom/mrkeyboard/app/PluginManager;->getPluginDictionaries(Landroid/content/Context;)V
+    # The installed packages changed: what was looked up is stale. It is looked up again by getDictionary, if a language still needs it
+    # (the toggleLanguage below asks for the dictionaries again).
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lcom/mrkeyboard/app/PluginManager;->sPluginsLoaded:Z
 
     .line 128
     sget-object p1, Lcom/mrkeyboard/app/PluginManager;->TAG:Ljava/lang/String;

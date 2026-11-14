@@ -12,7 +12,7 @@ measured is not shown.
 
 | Line | What is timed | Where |
 |------|---------------|-------|
-| Start the keyboard | a new process of the keyboard: the fields of the service (compose tables included) and `onCreate` | `LatinIME.<init>` → end of `onCreate` |
+| Start the keyboard | a new process of the keyboard: the fields of the service and `onCreate` (since build _78 without the compose tables and without the look-up of the dictionary apps, which wait for their first use) | `LatinIME.<init>` → end of `onCreate` |
 | Build the keyboard | the keyboard view and the tool bar made (first open of a process, theme, app language, rotation) | `LatinIME.onCreateInputView` |
 | Open in a field | the keyboard getting ready for a field | `LatinIME.onStartInputView` |
 | Until it appears | from the start of the open to the end of the first frame after it; not counted beyond 2 s (nothing was redrawn) | `onStartInputView` → `LatinKeyboardBaseView.onDraw` |

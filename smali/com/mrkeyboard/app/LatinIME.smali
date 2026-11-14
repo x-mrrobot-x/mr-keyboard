@@ -427,7 +427,7 @@
     invoke-direct {p0}, Landroid/inputmethodservice/InputMethodService;-><init>()V
 
     # Performance meter (MrPerf, docs/plan-performance.md stage 2): the start of the keyboard is timed from here (the fields of
-    # the service, the compose tables among them) to the end of onCreate. No register used.
+    # the service) to the end of onCreate. No register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->createBegin()V
 
     .line 176
@@ -504,19 +504,8 @@
     .line 261
     iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposeMode:Z
 
-    .line 262
-    new-instance v1, Lcom/mrkeyboard/app/ComposeSequence;
-
-    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/ComposeSequence;-><init>(Lcom/mrkeyboard/app/ComposeSequencing;)V
-
-    iput-object v1, p0, Lcom/mrkeyboard/app/LatinIME;->mComposeBuffer:Lcom/mrkeyboard/app/ComposeSequence;
-
-    .line 263
-    new-instance v1, Lcom/mrkeyboard/app/DeadAccentSequence;
-
-    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/DeadAccentSequence;-><init>(Lcom/mrkeyboard/app/ComposeSequencing;)V
-
-    iput-object v1, p0, Lcom/mrkeyboard/app/LatinIME;->mDeadAccentBuffer:Lcom/mrkeyboard/app/ComposeSequence;
+    # Cold start (docs/plan-performance.md stage 7): the compose buffers, and with them the class that fills the table of 883 compose
+    # sequences, are made by mrComposeBuffer / mrDeadBuffer the first time the compose key or a dead key needs them.
 
     const/high16 v1, -0x40800000    # -1.0f
 
@@ -5367,16 +5356,19 @@
 .method private processMultiKey(I)Z
     .locals 2
 
+    const/4 v1, 0x1
+
     .line 1922
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mDeadAccentBuffer:Lcom/mrkeyboard/app/ComposeSequence;
+
+    # Cold start: no buffer yet means no dead-key sequence started (and nothing to build for every key).
+    if-eqz v0, :cond_0
 
     iget-object v0, v0, Lcom/mrkeyboard/app/ComposeSequence;->composeBuffer:Ljava/lang/StringBuilder;
 
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
-
-    const/4 v1, 0x1
 
     if-lez v0, :cond_0
 
@@ -5399,7 +5391,9 @@
     if-eqz v0, :cond_1
 
     .line 1929
-    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposeBuffer:Lcom/mrkeyboard/app/ComposeSequence;
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrComposeBuffer()Lcom/mrkeyboard/app/ComposeSequence;
+
+    move-result-object v0
 
     invoke-virtual {v0, p1}, Lcom/mrkeyboard/app/ComposeSequence;->execute(I)Z
 
@@ -5413,6 +5407,43 @@
     const/4 p1, 0x0
 
     return p1
+.end method
+
+# Cold start (docs/plan-performance.md stage 7): the compose buffer is made the first time the compose key is used (the class
+# fills its table of 883 sequences when it is first used, no longer when the service is constructed).
+.method private mrComposeBuffer()Lcom/mrkeyboard/app/ComposeSequence;
+    .locals 2
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposeBuffer:Lcom/mrkeyboard/app/ComposeSequence;
+
+    if-nez v0, :cond_0
+
+    new-instance v0, Lcom/mrkeyboard/app/ComposeSequence;
+
+    invoke-direct {v0, p0}, Lcom/mrkeyboard/app/ComposeSequence;-><init>(Lcom/mrkeyboard/app/ComposeSequencing;)V
+
+    iput-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposeBuffer:Lcom/mrkeyboard/app/ComposeSequence;
+
+    :cond_0
+    return-object v0
+.end method
+
+# Same for the dead-key buffer (DeadAccentSequence, which adds its accents to the table of ComposeSequence).
+.method private mrDeadBuffer()Lcom/mrkeyboard/app/ComposeSequence;
+    .locals 2
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mDeadAccentBuffer:Lcom/mrkeyboard/app/ComposeSequence;
+
+    if-nez v0, :cond_0
+
+    new-instance v0, Lcom/mrkeyboard/app/DeadAccentSequence;
+
+    invoke-direct {v0, p0}, Lcom/mrkeyboard/app/DeadAccentSequence;-><init>(Lcom/mrkeyboard/app/ComposeSequencing;)V
+
+    iput-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mDeadAccentBuffer:Lcom/mrkeyboard/app/ComposeSequence;
+
+    :cond_0
+    return-object v0
 .end method
 
 .method private refreshHeightNow()V
@@ -9397,12 +9428,8 @@
     .line 406
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->updateKeyboardOptions()V
 
-    .line 408
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getApplicationContext()Landroid/content/Context;
-
-    move-result-object v3
-
-    invoke-static {v3}, Lcom/mrkeyboard/app/PluginManager;->getPluginDictionaries(Landroid/content/Context;)V
+    # Cold start (docs/plan-performance.md stage 7): the dictionary apps (Hacker's Keyboard, AnySoftKeyboard) are looked up in the
+    # package manager (two queries) only when a language has no downloaded pack: PluginManager.getDictionary does it then, once.
 
     .line 409
     new-instance v3, Lcom/mrkeyboard/app/PluginManager;
@@ -10280,7 +10307,9 @@
     if-ne v0, v3, :cond_8
 
     .line 2063
-    iget-object p2, p0, Lcom/mrkeyboard/app/LatinIME;->mDeadAccentBuffer:Lcom/mrkeyboard/app/ComposeSequence;
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrDeadBuffer()Lcom/mrkeyboard/app/ComposeSequence;
+
+    move-result-object p2
 
     invoke-virtual {p2, p1}, Lcom/mrkeyboard/app/ComposeSequence;->execute(I)Z
 
@@ -10410,7 +10439,9 @@
     iput-boolean p2, p0, Lcom/mrkeyboard/app/LatinIME;->mComposeMode:Z
 
     .line 2001
-    iget-object p2, p0, Lcom/mrkeyboard/app/LatinIME;->mComposeBuffer:Lcom/mrkeyboard/app/ComposeSequence;
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrComposeBuffer()Lcom/mrkeyboard/app/ComposeSequence;
+
+    move-result-object p2
 
     invoke-virtual {p2}, Lcom/mrkeyboard/app/ComposeSequence;->clear()V
 
