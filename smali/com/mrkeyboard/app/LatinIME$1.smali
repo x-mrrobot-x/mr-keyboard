@@ -55,6 +55,18 @@
 
     if-eq p1, v0, :cond_0
 
+    const/4 v0, 0x5
+
+    if-eq p1, v0, :cond_mr_echo
+
+    goto :goto_0
+
+    # Delayed echo (docs/plan-performance.md stage 6 part 7): the reaction to the echo of our own separator that waited.
+    :cond_mr_echo
+    iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME$1;->this$0:Lcom/mrkeyboard/app/LatinIME;
+
+    invoke-virtual {p1}, Lcom/mrkeyboard/app/LatinIME;->mrEchoRun()V
+
     goto :goto_0
 
     .line 347

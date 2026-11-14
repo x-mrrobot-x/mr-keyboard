@@ -57,6 +57,7 @@ public final class MrReset implements Preference.OnPreferenceClickListener {
             "fullscreen_override",
             "force_keyboard_on",
             "pref_ui_hw_accel",
+            "pref_mr_echo_defer",
             "show_suggestions",
             "auto_complete",
             "quick_fixes",

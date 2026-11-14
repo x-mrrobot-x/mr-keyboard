@@ -52,7 +52,7 @@ class World:
         self.this = dm.Obj(
             IME, mCandidateView=None, mPredicting=1 if composing else 0, mAutoCorrectOn=autocorrect, mAutoCorrectEnabled=1,
             mJustRevertedSeparator=None, mJustAddedAutoSpace=0, mComposing=composing, mBestWord=best, mCommittedLength=0,
-            mWord=dm.Obj("Lcom/mrkeyboard/app/WordComposer;"),
+            mWord=dm.Obj("Lcom/mrkeyboard/app/WordComposer;"), mHandler=None, mMrEchoDefer=0,
         )
 
     def commit(self, s):

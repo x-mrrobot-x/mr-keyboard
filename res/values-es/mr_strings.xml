@@ -44,6 +44,9 @@
     <string name="mr_ui_scr_accel_refused">Se dibuja con el procesador aunque la app pide aceleración: el sistema no lo permitió.</string>
     <string name="mr_ui_cat_perf">Rendimiento</string>
     <string name="mr_ui_cat_perf_sum">Tiempos medidos en este teléfono</string>
+    <string name="mr_ui_echo_defer">Diferir la reacción al eco</string>
+    <string name="mr_ui_echo_defer_on">Tras un espacio o un signo, la comprobación de la palabra en el cursor espera 100 ms, cuando la app está menos ocupada; una tecla pulsada entretanto la cancela</string>
+    <string name="mr_ui_echo_defer_off">Tras un espacio o un signo, la comprobación de la palabra en el cursor se ejecuta de inmediato</string>
     <string name="mr_ui_perf">Tiempos del teclado</string>
     <string name="mr_ui_perf_none">Todavía no hay mediciones. Usa el teclado y vuelve aquí.</string>
     <string name="mr_ui_perf_stat">%1$s: media %2$s ms · 95%% hasta %3$s · máx. %4$s (%5$d×)</string>
@@ -81,6 +84,8 @@
     <string name="mr_ui_perf_echo_cut">Eco de la selección: una pregunta (separador del teclado)</string>
     <string name="mr_ui_perf_echo_full">Eco de la selección: comprobación completa</string>
     <string name="mr_ui_perf_echo_one">Eco de la selección: una pregunta para los dos lados (Android 12+)</string>
+    <string name="mr_ui_perf_echo_run">Reacción al eco diferida: tiempo hasta ejecutarse</string>
+    <string name="mr_ui_perf_echo_drop">Reacción al eco diferida: descartada antes de ejecutarse (llegó otra tecla)</string>
     <string name="mr_ui_perf_frame_gpu">Dibujar un cuadro (GPU: solo el registro)</string>
     <string name="mr_ui_perf_frame_cpu">Dibujar un cuadro (CPU: todo el dibujo)</string>
     <string name="mr_ui_cat_haptic">Vibración</string>

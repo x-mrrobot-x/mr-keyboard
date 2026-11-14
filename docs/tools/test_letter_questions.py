@@ -120,7 +120,7 @@ class Host:
                           mBestWord="", mWord=dm.Obj("Lcom/mrkeyboard/app/WordComposer;"), mAutoCapActive=1 if auto_cap else 0,
                           mKeyboardSwitcher=dm.Obj("Lcom/mrkeyboard/app/KeyboardSwitcher;"),
                           mShiftKeyState=dm.Obj("Lcom/mrkeyboard/app/ModifierKeyState;"), mSavedShiftState=0,
-                          mMrSepAt=0, mMrSepHit=0, mMrLetter=0)
+                          mMrSepAt=0, mMrSepHit=0, mMrLetter=0, mHandler=None, mMrEchoDefer=0)
         self.noted_during_shift = []        # mMrLetter at the moment of each update of the shift state
 
     # --- the fake app

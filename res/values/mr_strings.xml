@@ -44,6 +44,9 @@
     <string name="mr_ui_scr_accel_refused">Drawn by the processor although the app asks for acceleration: the system did not allow it.</string>
     <string name="mr_ui_cat_perf">Performance</string>
     <string name="mr_ui_cat_perf_sum">Times measured on this phone</string>
+    <string name="mr_ui_echo_defer">Delay the reaction to the echo</string>
+    <string name="mr_ui_echo_defer_on">After a space or punctuation, the check of the word at the cursor waits 100 ms, when the app is less busy; a key typed meanwhile cancels it</string>
+    <string name="mr_ui_echo_defer_off">After a space or punctuation, the check of the word at the cursor runs at once</string>
     <string name="mr_ui_perf">Keyboard times</string>
     <string name="mr_ui_perf_none">Nothing measured yet. Use the keyboard and come back here.</string>
     <string name="mr_ui_perf_stat">%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)</string>
@@ -81,6 +84,8 @@
     <string name="mr_ui_perf_echo_cut">Selection echo: one question (own separator)</string>
     <string name="mr_ui_perf_echo_full">Selection echo: full check</string>
     <string name="mr_ui_perf_echo_one">Selection echo: one question for both sides (Android 12+)</string>
+    <string name="mr_ui_perf_echo_run">Delayed echo reaction: wait until it ran</string>
+    <string name="mr_ui_perf_echo_drop">Delayed echo reaction: dropped before it ran (a key came first)</string>
     <string name="mr_ui_perf_frame_gpu">Draw a frame (GPU: recording only)</string>
     <string name="mr_ui_perf_frame_cpu">Draw a frame (CPU: whole drawing)</string>
     <string name="mr_ui_cat_haptic">Vibration</string>

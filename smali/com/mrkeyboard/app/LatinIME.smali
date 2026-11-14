@@ -249,6 +249,8 @@
 # True only while the selection report being handled is the echo of the keyboard's own separator.
 .field private mMrSepHit:Z
 
+.field private mMrEchoDefer:Z
+
 # Caps question cut (docs/plan-performance.md stage 6): true only inside handleCharacter, from the letter typed until the shift
 # state is updated: the character before the cursor is that letter. TextUtils.getCapsMode gives 0 in the middle of a word, so
 # asking the app is pointless then. It never outlives the key.
@@ -3145,6 +3147,9 @@
 .method private handleSeparator(I)V
     .locals 9
 
+    # Delayed echo: a separator typed ends the wait of the reaction to the echo of the one before it.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoCancel()V
+
     # Previous word (MrPrevWord): a separator ends the word being typed. What was known about the word is held for this key only (the
     # learning of the pair asks for the word before it, and the word is forgotten as before); it is released before the key returns.
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
@@ -3915,6 +3920,155 @@
     return-void
 .end method
 
+.method private mrEchoPost()Z
+    .locals 5
+
+    # Does the reaction to this report of the selection wait? Only when the switch is on, nothing is being corrected (a correction
+    # in progress is ended at once, as before) and the handler exists. It waits as long as the suggestions do (0x64 = 100 ms, the
+    # delay of postUpdateSuggestions; no number of this project). Message 5 of mHandler carries it (LatinIME$1.handleMessage).
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrEchoDefer:Z
+
+    if-eqz v0, :cond_now
+
+    invoke-static {}, Lcom/mrkeyboard/app/TextEntryState;->isCorrecting()Z
+
+    move-result v0
+
+    if-nez v0, :cond_now
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mHandler:Landroid/os/Handler;
+
+    if-eqz v0, :cond_now
+
+    const/4 v1, 0x5
+
+    invoke-virtual {v0, v1}, Landroid/os/Handler;->removeMessages(I)V
+
+    invoke-virtual {v0, v1}, Landroid/os/Handler;->obtainMessage(I)Landroid/os/Message;
+
+    move-result-object v2
+
+    const-wide/16 v3, 0x64
+
+    invoke-virtual {v0, v2, v3, v4}, Landroid/os/Handler;->sendMessageDelayed(Landroid/os/Message;J)Z
+
+    # Performance meter (MrPerf): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->echoPosted()V
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_now
+    const/4 v0, 0x0
+
+    return v0
+.end method
+
+.method private mrEchoReact()V
+    .locals 2
+
+    # The reaction to the report of the selection when the cursor is not in a word being typed: is the cursor touching a word (the
+    # question to the app, mrEchoTouchingWord)? Yes, or a selection: the suggestions of the old word are asked for (delayed); no: the
+    # correction is ended and the next-word suggestions are shown. It is the code that ran inside onUpdateSelection, unchanged.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoTouchingWord()Z
+
+    move-result v0
+
+    if-nez v0, :cond_old
+
+    iget v0, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionStart:I
+
+    iget v1, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionEnd:I
+
+    if-ge v0, v1, :cond_next
+
+    goto :cond_old
+
+    :cond_next
+    const/4 v0, 0x0
+
+    invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinIME;->abortCorrection(Z)V
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
+
+    if-eqz v0, :cond_end
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/CandidateView;->isShowingAddToDictionaryHint()Z
+
+    move-result v0
+
+    if-nez v0, :cond_end
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->setNextSuggestions()V
+
+    goto :cond_end
+
+    :cond_old
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->postUpdateOldSuggestions()V
+
+    :cond_end
+    return-void
+.end method
+
+.method public mrEchoRun()V
+    .locals 1
+
+    # Delayed echo: the reaction that waited (message 5 of mHandler). What was true when the app reported the selection is looked at
+    # again, because a key or a new report ends the wait (mrEchoCancel) but a path that does not tell us would still reach here: a
+    # word being typed has its own suggestions, a reverted separator and a prediction that is off leave nothing to do.
+    # Performance meter (MrPerf): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->echoRan()V
+
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
+
+    if-nez v0, :cond_end
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mJustRevertedSeparator:Ljava/lang/CharSequence;
+
+    if-nez v0, :cond_end
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isPredictionOn()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_end
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoReact()V
+
+    :cond_end
+    # MrSurround: the text kept after the echo lives only inside this reaction.
+    invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->clear()V
+
+    return-void
+.end method
+
+.method private mrEchoCancel()V
+    .locals 2
+
+    # Delayed echo: ends the wait of the reaction (a key typed, a new report of the selection, the end of the field, the window
+    # hidden, the service destroyed). Nothing is kept for later: what the next key or report brings replaces it.
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mHandler:Landroid/os/Handler;
+
+    if-eqz v0, :cond_end
+
+    const/4 v1, 0x5
+
+    invoke-virtual {v0, v1}, Landroid/os/Handler;->removeMessages(I)V
+
+    # Performance meter (MrPerf): no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->echoDropped()V
+
+    const/4 v0, 0x0
+
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mMrSepHit:Z
+
+    :cond_end
+    return-void
+.end method
+
 .method private mrSepClear()V
     .locals 1
 
@@ -3924,6 +4078,9 @@
 
     # MrSurround: a key typed ends the text kept after the echo.
     invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->clear()V
+
+    # Delayed echo: a key typed ends the wait of the reaction to the echo before it.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoCancel()V
 
     return-void
 .end method
@@ -4383,6 +4540,15 @@
     move-result v1
 
     iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mQuickFixes:Z
+
+    # Delayed echo (docs/plan-performance.md stage 6 part 7): on by default; the Advanced screen turns it off (v3 is 1 here).
+    const-string v1, "pref_mr_echo_defer"
+
+    invoke-interface {v0, v1, v3}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v1
+
+    iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrEchoDefer:Z
 
     const-string v1, "show_suggestions"
 
@@ -9314,6 +9480,7 @@
 
     # Previous word (MrPrevWord): the service is over; nothing typed is left behind.
     invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoCancel()V
 
     invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
     move-result-object v0
@@ -9615,6 +9782,7 @@
 
     # Previous word (MrPrevWord) and MrSurround: the field is over.
     invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoCancel()V
     invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->fieldChanged()V
 
     const/4 v0, 0x0
@@ -9751,6 +9919,7 @@
 
     # Previous word (MrPrevWord): the window is hidden; nothing typed is left behind.
     invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoCancel()V
 
     # If the tool is open, MrKeep remembers it before it is closed with the window (a turn of the screen hides it).
     invoke-static {}, Lcom/mrkeyboard/app/MrKeep;->onHidden()V
@@ -9773,6 +9942,7 @@
 
     # Previous word (MrPrevWord): the keyboard is going away; nothing typed is left behind.
     invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoCancel()V
 
     .line 967
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mHandler:Landroid/os/Handler;
@@ -11722,6 +11892,7 @@
 
     # Previous word (MrPrevWord) and the one question after an echo (MrSurround): a new field forgets what was kept.
     invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->reset()V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoCancel()V
     invoke-static {}, Lcom/mrkeyboard/app/MrSurround;->fieldChanged()V
 
     iget-object v0, p1, Landroid/view/inputmethod/EditorInfo;->packageName:Ljava/lang/String;
@@ -12414,6 +12585,9 @@
     .line 981
     invoke-super/range {p0 .. p6}, Landroid/inputmethodservice/InputMethodService;->onUpdateSelection(IIIIII)V
 
+    # Delayed echo: a new report of the selection ends the wait of the one before it (before the note of the echo is read).
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoCancel()V
+
     # Echo question cut: tells whether this report is the echo of the separator the keyboard typed.
     invoke-direct {p0, p3, p4}, Lcom/mrkeyboard/app/LatinIME;->mrSepEcho(II)V
 
@@ -12601,47 +12775,16 @@
 
     .line 1025
     :cond_5
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoTouchingWord()Z
-
-    move-result p1
-
-    if-nez p1, :cond_7
-
-    iget p1, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionStart:I
-
-    iget p2, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionEnd:I
-
-    if-ge p1, p2, :cond_6
-
-    goto :goto_1
-
-    .line 1029
-    :cond_6
-    invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinIME;->abortCorrection(Z)V
-
-    .line 1033
-    iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
-
-    if-eqz p1, :cond_8
-
-    iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
-
-    .line 1037
-    invoke-virtual {p1}, Lcom/mrkeyboard/app/CandidateView;->isShowingAddToDictionaryHint()Z
+    # Delayed echo (docs/plan-performance.md stage 6 part 7): the reaction (the check of the word at the cursor, which asks the
+    # app, and the suggestions that follow) waits a little when the switch is on and nothing is being corrected. When it waits
+    # it is the Handler message 5 that does it (mrEchoRun); otherwise it runs here, as before.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoPost()Z
 
     move-result p1
 
     if-nez p1, :cond_8
 
-    .line 1038
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->setNextSuggestions()V
-
-    goto :goto_2
-
-    .line 1027
-    :cond_7
-    :goto_1
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->postUpdateOldSuggestions()V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoReact()V
 
     :cond_8
     :goto_2

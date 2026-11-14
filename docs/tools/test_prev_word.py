@@ -118,8 +118,9 @@ for head, what in (("private handleBackspace()V", "a backspace"),
     c = code_of(ime, head)
     check("%s forgets the word kept (MrPrevWord.clear)" % what, CLEAR in c, c[:3])
 c = code_of(ime, "private handleSeparator(I)V")
-check("a separator holds what is known about the word and forgets it (MrPrevWord.hold(mComposing), the first thing it does)",
-      c[0] == "iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;" and c[1] == HOLD and CLEAR not in c, c[:3])
+check("a separator holds what is known about the word and forgets it (MrPrevWord.hold(mComposing), right after the cancel of the delayed echo)",
+      c[0] == "invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoCancel()V"
+      and c[1] == "iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;" and c[2] == HOLD and CLEAR not in c, c[:4])
 check("... and releases it as the last thing before the key returns (every path ends there: one return)",
       c.count("return-void") == 1 and c[-1] == "return-void" and c[-2] == RELEASE and c.count(RELEASE) == 1, c[-3:])
 for head, what in (("public onStartInputView(", "a new field"), ("public onFinishInput()V", "the end of the input"),

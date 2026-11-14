@@ -42,7 +42,7 @@ public class PerfTest {
             {"mr_ui_perf_app_open", "App in an open"}, {"mr_ui_perf_app_other", "App elsewhere"},
             {"mr_ui_perf_popup_build", "Popup build"}, {"mr_ui_perf_popup_show", "Popup show"},
             {"mr_ui_perf_sel", "Selection change"}, {"mr_ui_perf_msg", "Message"}, {"mr_ui_perf_app_sel", "App in a selection change"},
-            {"mr_ui_perf_app_msg", "App in a message"}, {"mr_ui_perf_echo_cut", "Echo short check"}, {"mr_ui_perf_echo_full", "Echo full check"}, {"mr_ui_perf_echo_one", "Echo one question"}, {"mr_ui_perf_frame_gpu", "Frame (GPU)"}, {"mr_ui_perf_frame_cpu", "Frame (CPU)"},
+            {"mr_ui_perf_app_msg", "App in a message"}, {"mr_ui_perf_echo_cut", "Echo short check"}, {"mr_ui_perf_echo_full", "Echo full check"}, {"mr_ui_perf_echo_one", "Echo one question"}, {"mr_ui_perf_echo_run", "Echo reaction that waited"}, {"mr_ui_perf_echo_drop", "Echo reaction dropped"}, {"mr_ui_perf_frame_gpu", "Frame (GPU)"}, {"mr_ui_perf_frame_cpu", "Frame (CPU)"},
             {"mr_ui_perf_stat", "%1$s: average %2$s ms · p95 %3$s · max %4$s (%5$d×)"}, {"mr_ui_perf_one", "%1$s: %2$s ms (once)"},
             {"mr_ui_perf_none", "Nothing measured yet."}, {"mr_ui_perf_mem", "Memory: Java %1$s · native %2$s"},
             {"mr_ui_perf_reset", "Tap to start again from zero."}};
@@ -186,6 +186,24 @@ public class PerfTest {
         MrPerf.echoOneBegin(); tick(1400); MrPerf.echoOneEnd();
         check("the one question of the selection echo (Android 12+) goes to its kind, the others stay as they were", "1400,1,1,1",
                 st(MrPerf.ECHO_ONE)[4] + "," + st(MrPerf.ECHO_ONE)[0] + "," + st(MrPerf.ECHO_CUT)[0] + "," + st(MrPerf.ECHO_FULL)[0]);
+
+        // stage 6, part 7: the reaction to the echo of our own separator can wait; the meter counts how long it waited and how it ended
+        MrPerf.echoRan(); MrPerf.echoDropped();
+        check("a run or a drop with nothing waiting counts nothing (every key calls the drop)", "0,0",
+                st(MrPerf.ECHO_RUN)[0] + "," + st(MrPerf.ECHO_DROP)[0]);
+        MrPerf.echoPosted(); tick(101_000); MrPerf.echoRan();
+        check("a reaction that waited and ran: ECHO_RUN holds how long it waited, ECHO_DROP is left alone", "1,101000,0",
+                st(MrPerf.ECHO_RUN)[0] + "," + st(MrPerf.ECHO_RUN)[4] + "," + st(MrPerf.ECHO_DROP)[0]);
+        MrPerf.echoRan();
+        check("... one wait is counted once (a second run counts nothing)", 1L, (long) st(MrPerf.ECHO_RUN)[0]);
+        MrPerf.echoPosted(); tick(60_000); MrPerf.echoDropped();
+        check("a reaction that was cancelled by a key: ECHO_DROP holds how long it had waited, ECHO_RUN is left alone", "1,60000,1",
+                st(MrPerf.ECHO_DROP)[0] + "," + st(MrPerf.ECHO_DROP)[4] + "," + st(MrPerf.ECHO_RUN)[0]);
+        MrPerf.echoDropped(); MrPerf.echoRan();
+        check("... and it is not counted again by the next key or by a late run", "1,1", st(MrPerf.ECHO_DROP)[0] + "," + st(MrPerf.ECHO_RUN)[0]);
+        MrPerf.echoPosted(); MrPerf.reset(); tick(5); MrPerf.echoRan();
+        check("a reset forgets the reaction that waited", "0,0", st(MrPerf.ECHO_RUN)[0] + "," + st(MrPerf.ECHO_DROP)[0]);
+        MrPerf.sFakeNanos = 100_000_000_000L;
 
         // ---------------------------------------------------------------- the wait for the app by where it is asked
         MrPerf.reset();

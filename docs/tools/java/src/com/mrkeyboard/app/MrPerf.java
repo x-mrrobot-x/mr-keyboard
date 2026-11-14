@@ -50,6 +50,11 @@ import java.util.Arrays;
  * <li>ECHO_ONE: inside ECHO_CUT, on Android 12+, the one question (getSurroundingText, MrSurround) that gave the character after the
  *     cursor and the text before it for the next-word prediction. Its count says how many echoes were answered by one question
  *     instead of two; a phone or an app that does not answer it shows no such line;</li>
+ * <li>ECHO_RUN, ECHO_DROP: the reaction to the echo of our own separator can wait a little (stage 6, part 7: the app is busy with the
+ *     key it just got, and the first question after a change is the slow one; a little later it is idle). ECHO_RUN: how long a
+ *     reaction waited before it ran (the count says how many ran). ECHO_DROP: how long it had waited when a key, a new report of the
+ *     selection, the end of the field or the window hiding ended the wait before it ran (the count says how many did not run; their
+ *     question to the app was never asked). With the switch off neither line shows;</li>
  * <li>APP_KEY, APP_SUGG, APP_OPEN, APP_SEL, APP_MSG, APP_OTHER: the same questions as APP, counted again by where they are asked:
  *     inside a key (not in its suggestions), inside the suggestions, inside an open, inside the reaction to a new selection,
  *     inside a delayed message, and anywhere else. The innermost piece of work under way decides; every wait is counted once in
@@ -69,7 +74,8 @@ public final class MrPerf {
     static final int CREATE = 0, VIEW = 1, OPEN = 2, SHOWN = 3, FRAME = 4, KEY = 5, TOUCH = 6, APP = 7, SUGG = 8,
             KEY_LETTER = 9, KEY_SEP = 10, KEY_DEL = 11, KEY_OTHER = 12, SUGG_ENGINE = 13, SUGG_SHOW = 14,
             OPEN_KB = 15, OPEN_SET = 16, POPUP = 17, APP_KEY = 18, APP_SUGG = 19, APP_OPEN = 20, APP_OTHER = 21,
-            POPUP_BUILD = 22, POPUP_SHOW = 23, SEL = 24, MSG = 25, APP_SEL = 26, APP_MSG = 27, ECHO_CUT = 28, ECHO_FULL = 29, ECHO_ONE = 30, KINDS = 31;
+            POPUP_BUILD = 22, POPUP_SHOW = 23, SEL = 24, MSG = 25, APP_SEL = 26, APP_MSG = 27, ECHO_CUT = 28, ECHO_FULL = 29, ECHO_ONE = 30, ECHO_RUN = 31, ECHO_DROP = 32,
+            KINDS = 33;
     /** A piece of work that began longer ago than this (milliseconds) and never ended is not taken as the place of a wait. */
     static final int PLACE_MAX_MS = 10000;
     /** Samples kept per kind (a power of two) for the average and the p95. */
@@ -84,12 +90,13 @@ public final class MrPerf {
             "mr_ui_perf_sugg_engine", "mr_ui_perf_sugg_show", "mr_ui_perf_open_kb", "mr_ui_perf_open_set", "mr_ui_perf_popup",
             "mr_ui_perf_app_key", "mr_ui_perf_app_sugg", "mr_ui_perf_app_open", "mr_ui_perf_app_other",
             "mr_ui_perf_popup_build", "mr_ui_perf_popup_show", "mr_ui_perf_sel", "mr_ui_perf_msg",
-            "mr_ui_perf_app_sel", "mr_ui_perf_app_msg", "mr_ui_perf_echo_cut", "mr_ui_perf_echo_full", "mr_ui_perf_echo_one" };
+            "mr_ui_perf_app_sel", "mr_ui_perf_app_msg", "mr_ui_perf_echo_cut", "mr_ui_perf_echo_full", "mr_ui_perf_echo_one",
+            "mr_ui_perf_echo_run", "mr_ui_perf_echo_drop" };
     /** Names of the kinds in the log line. */
     static final String[] LOG = { "create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
             "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
             "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg",
-            "echo-cut", "echo-full", "echo-one" };
+            "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop" };
 
     private static final int[] sRing = new int[KINDS * SIZE];
     private static final int[] sCount = new int[KINDS];
@@ -99,6 +106,8 @@ public final class MrPerf {
     private static final long[] sStart = new long[KINDS];
     /** The split kind (KEY_LETTER...) of the key under way, so that its end closes the same one. */
     private static int sKeyKind = KEY_OTHER;
+    /** When the reaction to the echo of our own separator was told to wait (System.nanoTime); -1 = nothing waits. */
+    private static long sEchoAt = -1;
     /** Start of the last open whose first frame is awaited; -1 = none. */
     private static long sShownFrom = -1;
     /** Count of KEY when the log line was last written. */
@@ -224,6 +233,28 @@ public final class MrPerf {
     public static void echoOneBegin() { begin(ECHO_ONE); }
     public static void echoOneEnd() { end(ECHO_ONE); }
 
+    /** LatinIME.mrEchoPost: the reaction to the echo of our own separator is told to wait; the clock of its wait starts. */
+    public static void echoPosted() { sEchoAt = nanos(); }
+
+    /** LatinIME.mrEchoRun: the reaction that waited ran. ECHO_RUN is how long it waited. */
+    public static void echoRan() {
+        long at = sEchoAt;
+        if (at < 0) return;
+        sEchoAt = -1;
+        add(ECHO_RUN, (nanos() - at) / 1000);
+    }
+
+    /**
+     * LatinIME.mrEchoCancel, called by every key and report of the selection, so it does nothing when no reaction waits: the wait
+     * ended before the reaction ran. ECHO_DROP is how long it had waited.
+     */
+    public static void echoDropped() {
+        long at = sEchoAt;
+        if (at < 0) return;
+        sEchoAt = -1;
+        add(ECHO_DROP, (nanos() - at) / 1000);
+    }
+
     /** LatinKeyboardView.onTouchEvent, first line: how late a finger down (first or another) reached the keyboard. */
     public static void touch(MotionEvent e) {
         if (e == null) return;
@@ -302,6 +333,7 @@ public final class MrPerf {
         Arrays.fill(sStart, -1L);
         sShownFrom = -1;
         sLoggedKeys = 0;
+        sEchoAt = -1;
     }
 
     static long heapUsed() {

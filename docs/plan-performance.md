@@ -251,3 +251,23 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   Next: the owner repeats the blocks S and C1/C2: "Wait for the app: inside a key" should be 60 for the 20 words of S (first letter 2
   + separator 1 per word), and the learned screen, a password field, closing and opening the keyboard and switching keyboards must show
   nothing odd (the previous word is dropped at each).
+- Stage 6, seventh part (build _75): the owner's run of build _74 measured the echo of our own separator at about 12 ms x 20 (51 to 60 %
+  of the waiting for the app in a block of 20 words), the same in both Autocompletar modes: the first question after the app changed its
+  text. The decision made with the owner: not to cut it but to ask it later, when the app is idle.
+  E. The reaction to the echo of our own separator (`mrEchoReact`: the question to the app and what follows) is sent as message 5 of
+  the keyboard's handler with the delay of the suggestions (100 ms) and runs in `mrEchoRun`. Any key, a new report of the selection and
+  every end of the field cancel it (`mrEchoCancel`); a correction in progress, a missing handler and the switch off run it at once. The
+  switch is on the Advanced screen ("Delay the reaction to the echo", `pref_mr_echo_defer`, on by default, read when a field opens, in
+  "Restore defaults"). Two new meter lines: how long a reaction waited before it ran, and how long it had waited when it was dropped.
+  Counted on the PC with the real smali (`test_echo_questions.py`, `PerfTest.java`, `test_perf_meter.py`): the same answers as before in
+  every neighbourhood and in the three modes of Android 12+; the echo asks nothing until the message arrives; a key before it asks
+  nothing at all.
+  It is NOT a cut by certainty (the same question is asked later, and dropped when a key replaces it) and its gain is a hypothesis: if the
+  app is idle after 100 ms the first question costs about 0.4 ms instead of about 12 ms. By count nothing changes at a normal typing
+  speed. What is paid: the next-word suggestions after a separator appear about 100 ms later. Nothing ran on a device in this stage.
+  Next: the owner resets the meter and types block S (20 words) in Telegram with the switch ON and OFF, Autocompletar off and on (four
+  runs): compare "Selection echo: one question" (average and 95 %), "Wait for the app: in a message" and in a selection change, the
+  total waiting for the app, and the two new lines (how many reactions ran and how many a key dropped). Also: the next-word suggestions
+  still appear after a space, a double space still becomes a period, the screen "What the keyboard learned" still works, and closing and
+  opening the keyboard, switching keyboards, leaving the app and a password field show nothing odd. If the echo line does not fall, the
+  switch goes off by default or the change is reverted.

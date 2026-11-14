@@ -55,7 +55,7 @@ TEXTS = {
     "mr_ui_perf_open_kb": "OpenKb", "mr_ui_perf_open_set": "OpenSet", "mr_ui_perf_popup": "Popup",
     "mr_ui_perf_app_key": "AppKey", "mr_ui_perf_app_sugg": "AppSugg", "mr_ui_perf_app_open": "AppOpen", "mr_ui_perf_app_other": "AppOther",
     "mr_ui_perf_popup_build": "PopupBuild", "mr_ui_perf_popup_show": "PopupShow", "mr_ui_perf_sel": "Sel", "mr_ui_perf_msg": "Msg",
-    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_echo_one": "EchoOne", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
+    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_echo_one": "EchoOne", "mr_ui_perf_echo_run": "EchoRun", "mr_ui_perf_echo_drop": "EchoDrop", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
     "mr_ui_perf_stat": "%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)",
     "mr_ui_perf_one": "%1$s: %2$s ms", "mr_ui_perf_none": "Nothing yet.", "mr_ui_perf_mem": "Memory: Java %1$s · native %2$s",
     "mr_ui_perf_reset": "Tap to reset."}
@@ -220,10 +220,10 @@ def j(a):
 KINDS = ["create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
          "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
          "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg",
-         "echo-cut", "echo-full", "echo-one"]
+         "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop"]
 N = len(KINDS)
 CREATE, VIEW, OPEN, SHOWN, FRAME, KEY, TOUCH, APP_, SUGG, KEY_LETTER, KEY_SEP, KEY_DEL, KEY_OTHER, SUGG_ENGINE, SUGG_SHOW, \
-    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW, SEL, MSG, APP_SEL, APP_MSG, ECHO_CUT, ECHO_FULL, ECHO_ONE = range(N)
+    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW, SEL, MSG, APP_SEL, APP_MSG, ECHO_CUT, ECHO_FULL, ECHO_ONE, ECHO_RUN, ECHO_DROP = range(N)
 
 # ======================================================================== part 1: the smali of MrPerf
 fw = Fw()
@@ -278,6 +278,24 @@ for begin, end, kind, us in (("createBegin", "createEnd", CREATE, 180000), ("vie
                              ("echoFullBegin", "echoFullEnd", ECHO_FULL, 5200), ("echoOneBegin", "echoOneEnd", ECHO_ONE, 1400)):
     fw.run(begin + "()V"); fw.tick(us); fw.run(end + "()V")
     check("%s/%s go to their kind" % (begin, end), fw.stats(kind)[4] == us, fw.stats(kind))
+
+# ---- the reaction to the echo that waits (LatinIME.mrEchoPost / mrEchoRun / mrEchoCancel, stage 6 part 7)
+fw.run("reset()V"); fw.set_nanos(0)
+fw.run("echoRan()V"); fw.run("echoDropped()V")
+check("echoRan and echoDropped with nothing waiting count nothing (every key calls echoDropped)",
+      fw.stats(ECHO_RUN)[0] == 0 and fw.stats(ECHO_DROP)[0] == 0)
+fw.run("echoPosted()V"); fw.tick(101000); fw.run("echoRan()V")
+check("a reaction that waited and ran: ECHO_RUN holds how long it waited", fw.stats(ECHO_RUN)[0] == 1 and fw.stats(ECHO_RUN)[4] == 101000
+      and fw.stats(ECHO_DROP)[0] == 0, (fw.stats(ECHO_RUN), fw.stats(ECHO_DROP)))
+fw.run("echoRan()V")
+check("... one wait is counted once (a second run counts nothing)", fw.stats(ECHO_RUN)[0] == 1)
+fw.run("echoPosted()V"); fw.tick(60000); fw.run("echoDropped()V")
+check("a reaction that was cancelled: ECHO_DROP holds how long it had waited, ECHO_RUN is left alone",
+      fw.stats(ECHO_DROP)[0] == 1 and fw.stats(ECHO_DROP)[4] == 60000 and fw.stats(ECHO_RUN)[0] == 1)
+fw.run("echoDropped()V"); fw.run("echoRan()V")
+check("... and it is not counted again by the next key or by a late run", fw.stats(ECHO_DROP)[0] == 1 and fw.stats(ECHO_RUN)[0] == 1)
+fw.run("echoPosted()V"); fw.run("reset()V"); fw.tick(5000); fw.run("echoRan()V")
+check("a reset forgets the reaction that waited", fw.stats(ECHO_RUN)[0] == 0 and fw.stats(ECHO_DROP)[0] == 0)
 
 # ---- the wait for the app, counted again by where it is asked (the innermost piece of work under way decides)
 PLACES = (APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, APP_SEL, APP_MSG)
@@ -446,7 +464,7 @@ fw.fill(scr)
 lines = row.f["summary"].split("\n")
 names = ["Start", "View", "Open", "Shown", "Frame", "Key", "Touch", "App", "Sugg", "KeyLetter", "KeySep", "KeyDel", "KeyOther",
          "SuggEngine", "SuggShow", "OpenKb", "OpenSet", "Popup", "AppKey", "AppSugg", "AppOpen", "AppOther", "PopupBuild", "PopupShow",
-         "Sel", "Msg", "AppSel", "AppMsg", "EchoCut", "EchoFull", "EchoOne"]
+         "Sel", "Msg", "AppSel", "AppMsg", "EchoCut", "EchoFull", "EchoOne", "EchoRun", "EchoDrop"]
 check("every kind in order, then memory and reset", len(lines) == N + 2
       and all(lines[k].startswith("%s: average %d.0 ms" % (names[k], k + 1)) for k in range(N)), lines)
 # the frame line says what a frame measures, by how this device draws the window (MrAccel.state: 0 unknown, 1 GPU, 2 CPU)
@@ -667,7 +685,7 @@ for f in os.listdir(APP):
     if f.endswith(".smali") and not f.startswith("MrPerf"):
         called |= set(re.findall(re.escape(PERF) + r"->(\w+\([^)]*\)\S+)", open(os.path.join(APP, f), encoding="utf-8").read()))
 missing = [m for m in sorted(called) if not re.search(r"\.method public static " + re.escape(m) + r"\n", perf_src)]
-check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 41,
+check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 44,
       (missing, len(called)))
 
 xml = open(os.path.join(ROOT, "res", "xml", "prefs_advanced.xml"), encoding="utf-8").read()

@@ -32,6 +32,7 @@ measured is not shown.
 | Selection change | the keyboard's reaction when the app reports a new cursor or selection (after every key typed, and when the user moves the cursor). Includes the questions it asks the app back | `LatinIME.onUpdateSelection` |
 | Selection echo: one question / full check | inside "Selection change": the check "is the cursor touching a word" after a new selection. **One question**: the report was the echo of a separator the keyboard typed itself, so only the character after the cursor was asked. **Full check**: any other report (another cursor position, a selection, a key typed in between, no separator of ours). The count of each line says how many echoes took each way | `LatinIME.mrEchoTouchingWord` |
 | Selection echo: one question for both sides (Android 12+) | inside "Selection change", in the same echo of our own separator: ONE `getSurroundingText` answered both "is a word character after the cursor" and the text before the cursor that the next-word prediction reads. Counted only when the app answered it. On Android 11 or older, in an app that does not answer it (asked once per field, then not again) and with a selection, this line stays empty and the echo asks as before | `MrSurround.echo` |
+| Delayed echo reaction: wait until it ran / dropped before it ran | the reaction to the echo of our own separator can wait 100 ms for the app to be idle (switch "Delay the reaction to the echo" on the Advanced screen, on by default; stage 6 part 7). **Wait until it ran**: how long the reaction waited before it ran (the count is how many ran). **Dropped**: how long it had waited when a key, a new report of the selection or the end of the field ended the wait (the count is how many were not needed). With the switch off both lines stay empty | `LatinIME.mrEchoRun` / `LatinIME.mrEchoCancel` |
 | Message | the work of the keyboard's own delayed messages (the shift state, the suggestions after a key) | `LatinIME$1.handleMessage` |
 | Wait for the app: inside a key / in the suggestions / when opening / in a selection change / in a message / at other times | the same waits as "Wait for the app", counted again by where they are asked: inside a key (not in its suggestions), inside the suggestions, inside an open, inside the reaction to a selection change, inside a message, and anywhere else. The innermost piece of work under way decides, so a wait is in "Wait for the app" and in exactly one of the six. A piece of work that began more than 10 s ago and never ended is not taken as the place | `MrPerf.appEnd` |
 
@@ -161,6 +162,52 @@ count, is not asking at that moment at all; that is a different kind of change (
 Tests: `PrevWordTest.java` section C (6,000 random texts against the original rule, no question when the 15 characters are known, memory
 after fifty words, reset), `docs/tools/test_prev_word.py` (the real smali of `handleSeparator` and `checkAddToDictionary` in the mini Dalvik:
 `doubleSpace` called or not in each case, hold and release, the arguments of `previousForLearning`; every place that forgets).
+
+### Stage 6 part 7 (build _75): the reaction to the echo waits for the app
+
+What is left in the echo of our own separator is one question to the app (the character after the cursor, and on Android 12+ the text before
+it too). Its price is not in the count: the first question after the app changed its text takes about 13 ms because the app's main thread is
+still busy with that change, and a second one takes about 0.4 ms. So the question was moved in time, not removed: the reaction (the question
+and what follows it, `mrEchoReact`) no longer runs inside `onUpdateSelection`. It is sent as message 5 of the keyboard's handler with the
+same delay the suggestions use (100 ms: `postUpdateSuggestions`, no number of this project) and runs when it arrives (`mrEchoRun`).
+
+- **It waits** only when the switch is on (Advanced screen, "Delay the reaction to the echo", on by default, read when a field opens),
+  nothing is being corrected (`TextEntryState.isCorrecting`: a correction in progress is ended at once, as before) and the handler exists.
+  Every other case runs at once, as before, so with the switch off the keyboard is the one of build _74.
+- **It is cancelled** (`mrEchoCancel`: the message is removed and the echo mark is cleared, the meter counts a drop) by any key
+  (`handleSeparator`, and `mrSepClear` from `handleBackspace`, `handleCharacter` and `onText`), by a new report of the selection (before
+  it is looked at) and by the end of the field, the window hidden, the end of the input view, the start of a new field and the service being
+  destroyed (next to each `MrPrevWord.reset`). Nothing is kept for later: what the next key or report brings replaces it.
+- **When it runs** it looks again at what must still be true (not typing a word, no separator just reverted, prediction on) and then does
+  exactly what `onUpdateSelection` did, so the answers do not change; only when the question is asked. The text kept for the next-word
+  prediction (`MrSurround`) lives only inside the reaction and is dropped when it ends.
+
+**This is not a cut by certainty.** It asks the same question later and drops it when a key supersedes it. What changes on the screen:
+the next-word suggestions after a space or a punctuation mark appear about 100 ms later (and not at all when the next key comes before that,
+because the next key replaces them). A tap on the strip inside those 100 ms works on what was there. That is why the switch exists.
+
+**The gain is a hypothesis, to be measured on the phone.** The idea: after 100 ms the app is idle, so the one question that is left costs
+about 0.4 ms instead of about 12 ms. By count nothing is saved at a normal typing speed (the question is still asked once per separator
+when the user pauses); a fast typist saves the question when the next key comes inside the 100 ms. The meter decides, with the switch on and
+off, on the same block of typing:
+
+- "Selection echo: one question" (average and 95 %): expected to fall a lot when the app is idle after 100 ms; if it stays near 12 ms the
+  hypothesis is wrong;
+- "Wait for the app: in a message": the question moved here (it is asked inside the handler's message), the total waiting for the app
+  should go down, not only move;
+- "Delayed echo reaction: wait until it ran": about 100 ms plus whatever the main thread was doing; and "dropped before it ran": how many
+  waits a key made unnecessary;
+- the next-word suggestions must still appear after a space, a double space must still become a period and the screen "What the keyboard
+  learned" must still work.
+
+If there is no gain, the switch goes off by default (or the change is reverted); nothing else depends on it.
+
+Tests: `docs/tools/test_echo_questions.py` (the real smali in the mini Dalvik with a fake handler: switch on asks nothing and sends one
+message, the message asks one question and gives the same suggestions as before for every neighbourhood and in the three modes of Android
+12+; every key, report and end of field cancels; correction in progress, no handler, a word being typed, redirected input and the switch off
+run as before; what is looked at again when it arrives; fast and slow typing; the shape of every place that cancels, `loadSettings`, the
+handler's case 5, the switch on the Advanced screen and its texts in three languages), `PerfTest.java` and `docs/tools/test_perf_meter.py`
+(the two new lines), `docs/tools/check_reset_keys.py` (the switch is in "Restore defaults").
 
 Tests: `docs/tools/perf_test/PerfTest.java` (the Java, in `run_java_tests.sh`), `docs/tools/test_perf_meter.py` (the smali in the
 mini Dalvik interpreter and every call in the keyboard, in `mr-checks.yml`), `docs/tools/test_open_selection.py` (the selection when
