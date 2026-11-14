@@ -1,6 +1,7 @@
 package com.mrkeyboard.app;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Debug;
 import android.os.SystemClock;
 import android.preference.Preference;
@@ -69,6 +70,13 @@ import java.util.Arrays;
  * takes no lock and allocates nothing while the keyboard works. The Advanced screen shows it (row {@link #ROW}, a tap resets),
  * with the memory of the process; when the keyboard hides after keys were typed, one line goes to the log
  * (<code>adb logcat -s MrPerf</code>).
+ *
+ * <p>The start of the keyboard (CREATE) and the building of its view (VIEW) happen once per process, so one process gives one
+ * sample and the time of the same build changes a lot from one start to the next (cold files, the clock of the processor). The
+ * Advanced screen therefore keeps the last {@link #STARTS_MAX} starts it saw and shows their minimum, median and maximum under
+ * the two lines: {@link #saveStart} runs only when the screen is opened ({@link #fill}), never while the keyboard works, and
+ * writes a file of its own ({@link #STARTS_PREFS}), not the default preferences, which the keyboard listens to. A tap on the row
+ * clears the history with the numbers.
  */
 public final class MrPerf {
     static final String TAG = "MrPerf";
@@ -86,6 +94,14 @@ public final class MrPerf {
     static final int SIZE = 256;
     /** A first frame later than this (in microseconds) after the field opened is not counted. */
     static final int SHOWN_MAX_US = 2000000;
+    /**
+     * File of the history of the starts. Not the default preferences of the app: the keyboard listens to those and would read all its
+     * settings again at every change.
+     */
+    static final String STARTS_PREFS = "mr_perf";
+    static final String STARTS_KEY = "starts";
+    /** Starts kept (the last ones). Odd, so that the median of a full history is one of them. */
+    static final int STARTS_MAX = 9;
     /** Names of the strings of each kind, in the order of the kinds. */
     static final String[] NAMES = {
             "mr_ui_perf_create", "mr_ui_perf_view", "mr_ui_perf_open", "mr_ui_perf_shown", "mr_ui_perf_frame",
@@ -116,6 +132,8 @@ public final class MrPerf {
     private static long sCapsAt = -1;
     /** Start of the last open whose first frame is awaited; -1 = none. */
     private static long sShownFrom = -1;
+    /** True once the start of this process went to the history (one process is one start). */
+    static boolean sStartSaved;
     /** Count of KEY when the log line was last written. */
     private static int sLoggedKeys;
     private static final int[] sScratch = new int[SIZE];
@@ -365,6 +383,88 @@ public final class MrPerf {
         sCapsAt = -1;
     }
 
+    // ------------------------------------------------------------------ the history of the starts
+
+    /** The history as the file keeps it: "create,view;create,view;..." in microseconds, oldest first; "" when there is none. */
+    static String startsOf(Context c) {
+        try {
+            String v = c.getSharedPreferences(STARTS_PREFS, Context.MODE_PRIVATE).getString(STARTS_KEY, "");
+            return v == null ? "" : v;
+        } catch (RuntimeException e) {
+            return "";
+        }
+    }
+
+    /**
+     * Adds the start of this process to the history, once: the first CREATE and the first VIEW measured since the process began.
+     * It waits until both exist (the keyboard was shown once), so every record has the two numbers. Called when the Advanced
+     * screen opens, never while the keyboard works.
+     */
+    static void saveStart(Context c) {
+        if (sStartSaved || sCount[CREATE] == 0 || sCount[VIEW] == 0) return;
+        try {
+            SharedPreferences sp = c.getSharedPreferences(STARTS_PREFS, Context.MODE_PRIVATE);
+            String now = sRing[CREATE * SIZE] + "," + sRing[VIEW * SIZE];
+            sp.edit().putString(STARTS_KEY, addStart(sp.getString(STARTS_KEY, ""), now)).apply();
+            sStartSaved = true;
+        } catch (RuntimeException e) {
+            // a phone that cannot write the file: the screen keeps showing this process only
+        }
+    }
+
+    /** The history with <code>record</code> at the end, and only the last {@link #STARTS_MAX} records. */
+    static String addStart(String stored, String record) {
+        String all = stored == null || stored.length() == 0 ? record : stored + ";" + record;
+        int records = 1;
+        for (int i = 0; i < all.length(); i++) if (all.charAt(i) == ';') records++;
+        for (; records > STARTS_MAX; records--) all = all.substring(all.indexOf(';') + 1);
+        return all;
+    }
+
+    /** A tap on the row: the history goes with the numbers. */
+    static void clearStarts(Context c) {
+        try {
+            c.getSharedPreferences(STARTS_PREFS, Context.MODE_PRIVATE).edit().remove(STARTS_KEY).apply();
+        } catch (RuntimeException e) {
+            // nothing to clear
+        }
+    }
+
+    /**
+     * {count, minimum, median, maximum} of one column of the history (0 = CREATE, 1 = VIEW), in microseconds. The median is the
+     * nearest rank (the lower one of the two in the middle when the count is even). A record that is not "number,number", or
+     * whose number is below 0, is left out of that column. All 0 when there is nothing.
+     */
+    static int[] startStats(String stored, int column) {
+        int[] v = new int[STARTS_MAX];
+        int n = 0;
+        int from = 0;
+        while (stored != null && from <= stored.length() && n < STARTS_MAX) {
+            int end = stored.indexOf(';', from);
+            if (end < 0) end = stored.length();
+            int comma = stored.indexOf(',', from);
+            if (comma > from && comma < end - 1) {
+                try {
+                    int a = Integer.parseInt(stored.substring(from, comma));
+                    int b = Integer.parseInt(stored.substring(comma + 1, end));
+                    int x = column == 0 ? a : b;
+                    if (x >= 0) v[n++] = x;
+                } catch (NumberFormatException e) {
+                    // a damaged record: left out
+                }
+            }
+            from = end + 1;
+        }
+        int[] out = new int[4];
+        out[0] = n;
+        if (n == 0) return out;
+        Arrays.sort(v, 0, n);
+        out[1] = v[0];
+        out[2] = v[(n * 50 + 99) / 100 - 1];
+        out[3] = v[n - 1];
+        return out;
+    }
+
     static long heapUsed() {
         Runtime r = Runtime.getRuntime();
         return r.totalMemory() - r.freeMemory();
@@ -396,19 +496,35 @@ public final class MrPerf {
     /** The text of the row: one line per kind measured (or "nothing yet"), the memory, and how to reset. */
     static String summary(Context c) {
         StringBuilder sb = new StringBuilder();
+        String starts = startsOf(c);
         for (int kind = 0; kind < KINDS; kind++) {
             int[] s = stats(kind);
-            if (s[0] == 0) continue;
+            boolean start = kind == CREATE || kind == VIEW;
+            // the two lines of the start also show the starts of the other processes, even if this one has no sample yet
+            if (s[0] == 0 && !start) continue;
             String name = MrPacks.text(c, kind == FRAME ? frameName(mode(c)) : NAMES[kind]);
             // the text of the drawing mode missing: the plain name; no name at all: the line is left out
             if (name == null && kind == FRAME) name = MrPacks.text(c, NAMES[FRAME]);
             if (name == null) continue;
-            String line = s[0] == 1
-                    ? MrPacks.text(c, "mr_ui_perf_one", name, ms(s[4]))
-                    : MrPacks.text(c, "mr_ui_perf_stat", name, ms(s[1]), ms(s[2]), ms(s[3]), Integer.valueOf(s[0]));
-            if (line == null) continue;
-            if (sb.length() > 0) sb.append('\n');
-            sb.append(line);
+            if (s[0] > 0) {
+                String line = s[0] == 1
+                        ? MrPacks.text(c, "mr_ui_perf_one", name, ms(s[4]))
+                        : MrPacks.text(c, "mr_ui_perf_stat", name, ms(s[1]), ms(s[2]), ms(s[3]), Integer.valueOf(s[0]));
+                if (line != null) {
+                    if (sb.length() > 0) sb.append('\n');
+                    sb.append(line);
+                }
+            }
+            if (start) {
+                // one start is the line above; from two on the spread between starts is what says if a change helped
+                int[] h = startStats(starts, kind == CREATE ? 0 : 1);
+                String line = h[0] < 2 ? null
+                        : MrPacks.text(c, "mr_ui_perf_starts", name, Integer.valueOf(h[0]), ms(h[1]), ms(h[2]), ms(h[3]));
+                if (line != null) {
+                    if (sb.length() > 0) sb.append('\n');
+                    sb.append(line);
+                }
+            }
         }
         boolean measured = sb.length() > 0;
         if (!measured) {
@@ -443,6 +559,7 @@ public final class MrPerf {
         try {
             Preference row = screen.findPreference(ROW);
             if (row == null) return;
+            saveStart(screen);
             row.setSummary(summary(screen));
             row.setOnPreferenceClickListener(new Reset(screen));
         } catch (RuntimeException e) {
@@ -458,6 +575,7 @@ public final class MrPerf {
 
         public boolean onPreferenceClick(Preference p) {
             reset();
+            clearStarts(mContext);
             p.setSummary(summary(mContext));
             return true;
         }

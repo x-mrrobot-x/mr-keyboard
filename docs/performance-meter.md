@@ -37,13 +37,29 @@ measured is not shown.
 | Message | the work of the keyboard's own delayed messages (the shift state, the suggestions after a key) | `LatinIME$1.handleMessage` |
 | Wait for the app: inside a key / in the suggestions / when opening / in a selection change / in a message / at other times | the same waits as "Wait for the app", counted again by where they are asked: inside a key (not in its suggestions), inside the suggestions, inside an open, inside the reaction to a selection change, inside a message, and anywhere else. The innermost piece of work under way decides, so a wait is in "Wait for the app" and in exactly one of the six. A piece of work that began more than 10 s ago and never ended is not taken as the place | `MrPerf.appEnd` |
 
+Under "Start the keyboard" and "Build the keyboard" a second line appears from the second start on:
+`Start the keyboard, last 4 starts: min 33.9 ms · median 43.7 · max 72.1`. Those two lines are measured once per process, and the same
+build gives very different times from one start to the next (34 to 72 ms on the phone that measured them: cold files, the clock of the
+processor), so one start proves nothing. The screen keeps the last 9 starts it saw and shows their minimum, median (the lower of the two in
+the middle when the count is even) and maximum. A change that helps should move the median, not just one sample.
+
+- The start of a process is saved when the Advanced screen opens (never while the keyboard works), once per process, and only when
+  the keyboard was shown in it (both numbers exist). A process whose start you did not look at is not in the history.
+- It is kept in a file of its own (`mr_perf`), not in the default preferences: the keyboard listens to those and would read all its
+  settings again at every change.
+- Tapping the row clears the history with the numbers. The version stays the same during a round of work, so the history cannot tell one
+  build from the next: **tap the row after installing a build** and start the series again.
+- A start that the screen showed with no sample in this process (a process in which the keyboard was not shown yet) still shows the
+  spread of the starts saved before.
+
 Then the memory of the process when the screen opens: Java heap in use and native heap (the screens share the process with the
 keyboard, so their own memory is in it too).
 
 ## How to read it
 
-1. Tap the row: everything starts again from zero. (To see "Start the keyboard" and "Build the keyboard" do not tap: force stop the
-   keyboard app, open a field in another app, type a little and come back here.)
+1. Tap the row: everything starts again from zero, the history of the starts too. (To see "Start the keyboard" and "Build the keyboard"
+   do not tap: force stop the keyboard app, open a field in another app, type a little and come back here. To compare two builds:
+   install the build, tap the row once, then repeat the force stop and the look at this screen 5 times or more and read the median.)
 2. Use the keyboard as usual for a few minutes: a long field (note, e-mail) and a chat, a theme you use.
 3. Come back to the row. The numbers are kept while the process lives; when Android ends the process they are gone ("Nothing
    measured yet").

@@ -53,6 +53,7 @@
     <string name="mr_ui_perf">Keyboard times</string>
     <string name="mr_ui_perf_none">Nothing measured yet. Use the keyboard and come back here.</string>
     <string name="mr_ui_perf_stat">%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)</string>
+    <string name="mr_ui_perf_starts">%1$s, last %2$d starts: min %3$s ms · median %4$s · max %5$s</string>
     <string name="mr_ui_perf_one">%1$s: %2$s ms</string>
     <string name="mr_ui_perf_mem">Memory: Java %1$s · native %2$s</string>
     <string name="mr_ui_perf_reset">Times since the last reset. Tap to start again from zero.</string>

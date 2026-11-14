@@ -53,6 +53,7 @@
     <string name="mr_ui_perf">Tiempos del teclado</string>
     <string name="mr_ui_perf_none">Todavía no hay mediciones. Usa el teclado y vuelve aquí.</string>
     <string name="mr_ui_perf_stat">%1$s: media %2$s ms · 95%% hasta %3$s · máx. %4$s (%5$d×)</string>
+    <string name="mr_ui_perf_starts">%1$s, últimos %2$d inicios: mín. %3$s ms · mediana %4$s · máx. %5$s</string>
     <string name="mr_ui_perf_one">%1$s: %2$s ms</string>
     <string name="mr_ui_perf_mem">Memoria: Java %1$s · nativa %2$s</string>
     <string name="mr_ui_perf_reset">Tiempos desde la última puesta a cero. Toca para empezar de cero.</string>

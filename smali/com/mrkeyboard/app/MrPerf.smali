@@ -86,6 +86,12 @@
 
 .field static final SIZE:I = 0x100
 
+.field static final STARTS_KEY:Ljava/lang/String; = "starts"
+
+.field static final STARTS_MAX:I = 0x9
+
+.field static final STARTS_PREFS:Ljava/lang/String; = "mr_perf"
+
 .field static final SUGG:I = 0x8
 
 .field static final SUGG_ENGINE:I = 0xd
@@ -124,6 +130,8 @@
 
 .field private static final sStart:[J
 
+.field static sStartSaved:Z
+
 
 # direct methods
 .method static constructor <clinit>()V
@@ -140,7 +148,7 @@
 
     const/16 v3, 0x23
 
-    .line 90
+    .line 106
     new-array v0, v3, [Ljava/lang/String;
 
     const-string v1, "mr_ui_perf_create"
@@ -349,7 +357,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrPerf;->NAMES:[Ljava/lang/String;
 
-    .line 100
+    .line 116
     new-array v0, v3, [Ljava/lang/String;
 
     const-string v1, "create"
@@ -558,61 +566,61 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrPerf;->LOG:[Ljava/lang/String;
 
-    .line 105
+    .line 121
     const/16 v0, 0x2300
 
     new-array v0, v0, [I
 
     sput-object v0, Lcom/mrkeyboard/app/MrPerf;->sRing:[I
 
-    .line 106
+    .line 122
     new-array v0, v3, [I
 
     sput-object v0, Lcom/mrkeyboard/app/MrPerf;->sCount:[I
 
-    .line 107
+    .line 123
     new-array v0, v3, [I
 
     sput-object v0, Lcom/mrkeyboard/app/MrPerf;->sMax:[I
 
-    .line 108
+    .line 124
     new-array v0, v3, [I
 
     sput-object v0, Lcom/mrkeyboard/app/MrPerf;->sLast:[I
 
-    .line 110
+    .line 126
     new-array v0, v3, [J
 
     sput-object v0, Lcom/mrkeyboard/app/MrPerf;->sStart:[J
 
-    .line 112
+    .line 128
     sput v6, Lcom/mrkeyboard/app/MrPerf;->sKeyKind:I
 
-    .line 114
+    .line 130
     sput-wide v4, Lcom/mrkeyboard/app/MrPerf;->sEchoAt:J
 
-    .line 116
+    .line 132
     sput-wide v4, Lcom/mrkeyboard/app/MrPerf;->sCapsAt:J
 
-    .line 118
+    .line 134
     sput-wide v4, Lcom/mrkeyboard/app/MrPerf;->sShownFrom:J
 
-    .line 121
+    .line 139
     const/16 v0, 0x100
 
     new-array v0, v0, [I
 
     sput-object v0, Lcom/mrkeyboard/app/MrPerf;->sScratch:[I
 
-    .line 123
+    .line 141
     sput-wide v4, Lcom/mrkeyboard/app/MrPerf;->sFakeNanos:J
 
-    .line 126
+    .line 144
     sget-object v0, Lcom/mrkeyboard/app/MrPerf;->sStart:[J
 
     invoke-static {v0, v4, v5}, Ljava/util/Arrays;->fill([JJ)V
 
-    .line 380
+    .line 480
     const/4 v0, -0x1
 
     sput v0, Lcom/mrkeyboard/app/MrPerf;->sFakeMode:I
@@ -624,7 +632,7 @@
     .locals 0
 
     .prologue
-    .line 129
+    .line 147
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -634,7 +642,7 @@
     .locals 5
 
     .prologue
-    .line 317
+    .line 335
     const-wide/16 v0, 0x0
 
     cmp-long v0, p1, v0
@@ -643,13 +651,13 @@
 
     const/4 v0, 0x0
 
-    .line 318
+    .line 336
     :goto_0
     sget-object v1, Lcom/mrkeyboard/app/MrPerf;->sCount:[I
 
     aget v1, v1, p0
 
-    .line 319
+    .line 337
     sget-object v2, Lcom/mrkeyboard/app/MrPerf;->sRing:[I
 
     mul-int/lit16 v3, p0, 0x100
@@ -660,14 +668,14 @@
 
     aput v0, v2, v3
 
-    .line 320
+    .line 338
     sget-object v2, Lcom/mrkeyboard/app/MrPerf;->sCount:[I
 
     add-int/lit8 v1, v1, 0x1
 
     aput v1, v2, p0
 
-    .line 321
+    .line 339
     sget-object v1, Lcom/mrkeyboard/app/MrPerf;->sMax:[I
 
     aget v1, v1, p0
@@ -678,16 +686,16 @@
 
     aput v0, v1, p0
 
-    .line 322
+    .line 340
     :cond_0
     sget-object v1, Lcom/mrkeyboard/app/MrPerf;->sLast:[I
 
     aput v0, v1, p0
 
-    .line 323
+    .line 341
     return-void
 
-    .line 317
+    .line 335
     :cond_1
     const-wide/32 v0, 0x7fffffff
 
@@ -705,11 +713,106 @@
     goto :goto_0
 .end method
 
+.method static addStart(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    .locals 4
+
+    .prologue
+    const/16 v3, 0x3b
+
+    .line 417
+    if-eqz p0, :cond_0
+
+    invoke-virtual {p0}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    if-nez v0, :cond_2
+
+    .line 418
+    :cond_0
+    :goto_0
+    const/4 v1, 0x1
+
+    .line 419
+    const/4 v0, 0x0
+
+    :goto_1
+    invoke-virtual {p1}, Ljava/lang/String;->length()I
+
+    move-result v2
+
+    if-ge v0, v2, :cond_3
+
+    invoke-virtual {p1, v0}, Ljava/lang/String;->charAt(I)C
+
+    move-result v2
+
+    if-ne v2, v3, :cond_1
+
+    add-int/lit8 v1, v1, 0x1
+
+    :cond_1
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_1
+
+    .line 417
+    :cond_2
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, ";"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object p1
+
+    goto :goto_0
+
+    .line 420
+    :cond_3
+    :goto_2
+    const/16 v0, 0x9
+
+    if-le v1, v0, :cond_4
+
+    invoke-virtual {p1, v3}, Ljava/lang/String;->indexOf(I)I
+
+    move-result v0
+
+    add-int/lit8 v0, v0, 0x1
+
+    invoke-virtual {p1, v0}, Ljava/lang/String;->substring(I)Ljava/lang/String;
+
+    move-result-object p1
+
+    add-int/lit8 v1, v1, -0x1
+
+    goto :goto_2
+
+    .line 421
+    :cond_4
+    return-object p1
+.end method
+
 .method public static appBegin()V
     .locals 1
 
     .prologue
-    .line 178
+    .line 196
     const/4 v0, 0x7
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -723,23 +826,23 @@
     .prologue
     const/4 v6, 0x7
 
-    .line 182
+    .line 200
     sget-object v0, Lcom/mrkeyboard/app/MrPerf;->sStart:[J
 
     aget-wide v0, v0, v6
 
-    .line 183
+    .line 201
     const-wide/16 v2, 0x0
 
     cmp-long v2, v0, v2
 
     if-gez v2, :cond_0
 
-    .line 188
+    .line 206
     :goto_0
     return-void
 
-    .line 184
+    .line 202
     :cond_0
     sget-object v2, Lcom/mrkeyboard/app/MrPerf;->sStart:[J
 
@@ -747,7 +850,7 @@
 
     aput-wide v4, v2, v6
 
-    .line 185
+    .line 203
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->nanos()J
 
     move-result-wide v2
@@ -758,10 +861,10 @@
 
     div-long/2addr v0, v2
 
-    .line 186
+    .line 204
     invoke-static {v6, v0, v1}, Lcom/mrkeyboard/app/MrPerf;->add(IJ)V
 
-    .line 187
+    .line 205
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appPlace()I
 
     move-result v2
@@ -779,25 +882,25 @@
 
     const-wide/16 v10, 0x2710
 
-    .line 195
+    .line 213
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->nanos()J
 
     move-result-wide v6
 
-    .line 196
+    .line 214
     const/16 v4, 0x15
 
-    .line 197
+    .line 215
     const-wide/16 v2, -0x1
 
-    .line 198
+    .line 216
     sget-object v0, Lcom/mrkeyboard/app/MrPerf;->sStart:[J
 
     const/4 v1, 0x2
 
     aget-wide v0, v0, v1
 
-    .line 199
+    .line 217
     cmp-long v5, v0, v2
 
     if-lez v5, :cond_4
@@ -812,7 +915,7 @@
 
     const/16 v2, 0x14
 
-    .line 200
+    .line 218
     :goto_0
     sget-object v3, Lcom/mrkeyboard/app/MrPerf;->sStart:[J
 
@@ -820,7 +923,7 @@
 
     aget-wide v4, v3, v4
 
-    .line 201
+    .line 219
     cmp-long v3, v4, v0
 
     if-lez v3, :cond_0
@@ -837,7 +940,7 @@
 
     move-wide v0, v4
 
-    .line 202
+    .line 220
     :cond_0
     sget-object v3, Lcom/mrkeyboard/app/MrPerf;->sStart:[J
 
@@ -845,7 +948,7 @@
 
     aget-wide v4, v3, v4
 
-    .line 203
+    .line 221
     cmp-long v3, v4, v0
 
     if-lez v3, :cond_1
@@ -862,7 +965,7 @@
 
     move-wide v0, v4
 
-    .line 204
+    .line 222
     :cond_1
     sget-object v3, Lcom/mrkeyboard/app/MrPerf;->sStart:[J
 
@@ -870,7 +973,7 @@
 
     aget-wide v4, v3, v4
 
-    .line 205
+    .line 223
     cmp-long v3, v4, v0
 
     if-lez v3, :cond_2
@@ -887,7 +990,7 @@
 
     move-wide v0, v4
 
-    .line 206
+    .line 224
     :cond_2
     sget-object v3, Lcom/mrkeyboard/app/MrPerf;->sStart:[J
 
@@ -895,7 +998,7 @@
 
     aget-wide v4, v3, v4
 
-    .line 207
+    .line 225
     cmp-long v0, v4, v0
 
     if-lez v0, :cond_3
@@ -910,7 +1013,7 @@
 
     const/16 v2, 0x1b
 
-    .line 208
+    .line 226
     :cond_3
     return v2
 
@@ -926,7 +1029,7 @@
     .locals 4
 
     .prologue
-    .line 305
+    .line 323
     sget-object v0, Lcom/mrkeyboard/app/MrPerf;->sStart:[J
 
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->nanos()J
@@ -935,7 +1038,7 @@
 
     aput-wide v2, v0, p0
 
-    .line 306
+    .line 324
     return-void
 .end method
 
@@ -943,27 +1046,27 @@
     .locals 6
 
     .prologue
-    .line 277
+    .line 295
     sget-wide v0, Lcom/mrkeyboard/app/MrPerf;->sCapsAt:J
 
-    .line 278
+    .line 296
     const-wide/16 v2, 0x0
 
     cmp-long v2, v0, v2
 
     if-gez v2, :cond_0
 
-    .line 281
+    .line 299
     :goto_0
     return-void
 
-    .line 279
+    .line 297
     :cond_0
     const-wide/16 v2, -0x1
 
     sput-wide v2, Lcom/mrkeyboard/app/MrPerf;->sCapsAt:J
 
-    .line 280
+    .line 298
     const/16 v2, 0x22
 
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->nanos()J
@@ -985,7 +1088,7 @@
     .locals 2
 
     .prologue
-    .line 284
+    .line 302
     const-wide/16 v0, -0x1
 
     sput-wide v0, Lcom/mrkeyboard/app/MrPerf;->sCapsAt:J
@@ -997,7 +1100,7 @@
     .locals 2
 
     .prologue
-    .line 265
+    .line 283
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->nanos()J
 
     move-result-wide v0
@@ -1011,27 +1114,27 @@
     .locals 6
 
     .prologue
-    .line 269
+    .line 287
     sget-wide v0, Lcom/mrkeyboard/app/MrPerf;->sCapsAt:J
 
-    .line 270
+    .line 288
     const-wide/16 v2, 0x0
 
     cmp-long v2, v0, v2
 
     if-gez v2, :cond_0
 
-    .line 273
+    .line 291
     :goto_0
     return-void
 
-    .line 271
+    .line 289
     :cond_0
     const-wide/16 v2, -0x1
 
     sput-wide v2, Lcom/mrkeyboard/app/MrPerf;->sCapsAt:J
 
-    .line 272
+    .line 290
     const/16 v2, 0x21
 
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->nanos()J
@@ -1049,11 +1152,50 @@
     goto :goto_0
 .end method
 
+.method static clearStarts(Landroid/content/Context;)V
+    .locals 2
+
+    .prologue
+    .line 427
+    :try_start_0
+    const-string v0, "mr_perf"
+
+    const/4 v1, 0x0
+
+    invoke-virtual {p0, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    const-string v1, "starts"
+
+    invoke-interface {v0, v1}, Landroid/content/SharedPreferences$Editor;->remove(Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+    :try_end_0
+    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+
+    .line 431
+    :goto_0
+    return-void
+
+    .line 428
+    :catch_0
+    move-exception v0
+
+    goto :goto_0
+.end method
+
 .method public static createBegin()V
     .locals 1
 
     .prologue
-    .line 137
+    .line 155
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -1065,7 +1207,7 @@
     .locals 1
 
     .prologue
-    .line 138
+    .line 156
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
@@ -1077,7 +1219,7 @@
     .locals 1
 
     .prologue
-    .line 234
+    .line 252
     const/16 v0, 0x1c
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -1089,7 +1231,7 @@
     .locals 1
 
     .prologue
-    .line 235
+    .line 253
     const/16 v0, 0x1c
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
@@ -1101,27 +1243,27 @@
     .locals 6
 
     .prologue
-    .line 258
+    .line 276
     sget-wide v0, Lcom/mrkeyboard/app/MrPerf;->sEchoAt:J
 
-    .line 259
+    .line 277
     const-wide/16 v2, 0x0
 
     cmp-long v2, v0, v2
 
     if-gez v2, :cond_0
 
-    .line 262
+    .line 280
     :goto_0
     return-void
 
-    .line 260
+    .line 278
     :cond_0
     const-wide/16 v2, -0x1
 
     sput-wide v2, Lcom/mrkeyboard/app/MrPerf;->sEchoAt:J
 
-    .line 261
+    .line 279
     const/16 v2, 0x20
 
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->nanos()J
@@ -1143,7 +1285,7 @@
     .locals 1
 
     .prologue
-    .line 236
+    .line 254
     const/16 v0, 0x1d
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -1155,7 +1297,7 @@
     .locals 1
 
     .prologue
-    .line 237
+    .line 255
     const/16 v0, 0x1d
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
@@ -1167,7 +1309,7 @@
     .locals 1
 
     .prologue
-    .line 239
+    .line 257
     const/16 v0, 0x1e
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -1179,7 +1321,7 @@
     .locals 1
 
     .prologue
-    .line 240
+    .line 258
     const/16 v0, 0x1e
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
@@ -1191,7 +1333,7 @@
     .locals 2
 
     .prologue
-    .line 243
+    .line 261
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->nanos()J
 
     move-result-wide v0
@@ -1205,27 +1347,27 @@
     .locals 6
 
     .prologue
-    .line 247
+    .line 265
     sget-wide v0, Lcom/mrkeyboard/app/MrPerf;->sEchoAt:J
 
-    .line 248
+    .line 266
     const-wide/16 v2, 0x0
 
     cmp-long v2, v0, v2
 
     if-gez v2, :cond_0
 
-    .line 251
+    .line 269
     :goto_0
     return-void
 
-    .line 249
+    .line 267
     :cond_0
     const-wide/16 v2, -0x1
 
     sput-wide v2, Lcom/mrkeyboard/app/MrPerf;->sEchoAt:J
 
-    .line 250
+    .line 268
     const/16 v2, 0x1f
 
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->nanos()J
@@ -1247,23 +1389,23 @@
     .locals 6
 
     .prologue
-    .line 309
+    .line 327
     sget-object v0, Lcom/mrkeyboard/app/MrPerf;->sStart:[J
 
     aget-wide v0, v0, p0
 
-    .line 310
+    .line 328
     const-wide/16 v2, 0x0
 
     cmp-long v2, v0, v2
 
     if-gez v2, :cond_0
 
-    .line 313
+    .line 331
     :goto_0
     return-void
 
-    .line 311
+    .line 329
     :cond_0
     sget-object v2, Lcom/mrkeyboard/app/MrPerf;->sStart:[J
 
@@ -1271,7 +1413,7 @@
 
     aput-wide v4, v2, p0
 
-    .line 312
+    .line 330
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->nanos()J
 
     move-result-wide v2
@@ -1291,7 +1433,7 @@
     .locals 2
 
     .prologue
-    .line 444
+    .line 560
     :try_start_0
     const-string v0, "mr_perf"
 
@@ -1299,22 +1441,25 @@
 
     move-result-object v0
 
-    .line 445
+    .line 561
     if-nez v0, :cond_0
 
-    .line 451
+    .line 568
     :goto_0
     return-void
 
-    .line 446
+    .line 562
     :cond_0
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPerf;->saveStart(Landroid/content/Context;)V
+
+    .line 563
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPerf;->summary(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
 
-    .line 447
+    .line 564
     new-instance v1, Lcom/mrkeyboard/app/MrPerf$Reset;
 
     invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrPerf$Reset;-><init>(Landroid/content/Context;)V
@@ -1325,7 +1470,7 @@
 
     goto :goto_0
 
-    .line 448
+    .line 565
     :catch_0
     move-exception v0
 
@@ -1336,7 +1481,7 @@
     .locals 1
 
     .prologue
-    .line 148
+    .line 166
     const/4 v0, 0x4
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -1348,33 +1493,33 @@
     .locals 4
 
     .prologue
-    .line 151
+    .line 169
     const/4 v0, 0x4
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
 
-    .line 152
+    .line 170
     sget-wide v0, Lcom/mrkeyboard/app/MrPerf;->sShownFrom:J
 
-    .line 153
+    .line 171
     const-wide/16 v2, 0x0
 
     cmp-long v2, v0, v2
 
     if-gez v2, :cond_1
 
-    .line 157
+    .line 175
     :cond_0
     :goto_0
     return-void
 
-    .line 154
+    .line 172
     :cond_1
     const-wide/16 v2, -0x1
 
     sput-wide v2, Lcom/mrkeyboard/app/MrPerf;->sShownFrom:J
 
-    .line 155
+    .line 173
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->nanos()J
 
     move-result-wide v2
@@ -1385,7 +1530,7 @@
 
     div-long/2addr v0, v2
 
-    .line 156
+    .line 174
     const-wide/32 v2, 0x1e8480
 
     cmp-long v2, v0, v2
@@ -1403,18 +1548,18 @@
     .locals 2
 
     .prologue
-    .line 391
+    .line 491
     const/4 v0, 0x1
 
     if-ne p0, v0, :cond_0
 
     const-string v0, "mr_ui_perf_frame_gpu"
 
-    .line 393
+    .line 493
     :goto_0
     return-object v0
 
-    .line 392
+    .line 492
     :cond_0
     const/4 v0, 0x2
 
@@ -1424,7 +1569,7 @@
 
     goto :goto_0
 
-    .line 393
+    .line 493
     :cond_1
     sget-object v0, Lcom/mrkeyboard/app/MrPerf;->NAMES:[Ljava/lang/String;
 
@@ -1439,12 +1584,12 @@
     .locals 4
 
     .prologue
-    .line 369
+    .line 469
     invoke-static {}, Ljava/lang/Runtime;->getRuntime()Ljava/lang/Runtime;
 
     move-result-object v0
 
-    .line 370
+    .line 470
     invoke-virtual {v0}, Ljava/lang/Runtime;->totalMemory()J
 
     move-result-wide v2
@@ -1462,24 +1607,24 @@
     .locals 1
 
     .prologue
-    .line 161
+    .line 179
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPerf;->keyKind(I)I
 
     move-result v0
 
     sput v0, Lcom/mrkeyboard/app/MrPerf;->sKeyKind:I
 
-    .line 162
+    .line 180
     const/4 v0, 0x5
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
 
-    .line 163
+    .line 181
     sget v0, Lcom/mrkeyboard/app/MrPerf;->sKeyKind:I
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
 
-    .line 164
+    .line 182
     return-void
 .end method
 
@@ -1487,17 +1632,17 @@
     .locals 1
 
     .prologue
-    .line 167
+    .line 185
     const/4 v0, 0x5
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
 
-    .line 168
+    .line 186
     sget v0, Lcom/mrkeyboard/app/MrPerf;->sKeyKind:I
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
 
-    .line 169
+    .line 187
     return-void
 .end method
 
@@ -1505,18 +1650,18 @@
     .locals 1
 
     .prologue
-    .line 173
+    .line 191
     const/4 v0, -0x5
 
     if-ne p0, v0, :cond_0
 
     const/16 v0, 0xb
 
-    .line 175
+    .line 193
     :goto_0
     return v0
 
-    .line 174
+    .line 192
     :cond_0
     if-gtz p0, :cond_1
 
@@ -1524,7 +1669,7 @@
 
     goto :goto_0
 
-    .line 175
+    .line 193
     :cond_1
     invoke-static {p0}, Ljava/lang/Character;->isLetterOrDigit(I)Z
 
@@ -1550,36 +1695,36 @@
 
     const/4 v1, 0x0
 
-    .line 429
+    .line 545
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
     move v0, v1
 
-    .line 430
+    .line 546
     :goto_0
     const/16 v3, 0x23
 
     if-ge v0, v3, :cond_1
 
-    .line 431
+    .line 547
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->stats(I)[I
 
     move-result-object v3
 
-    .line 432
+    .line 548
     aget v4, v3, v1
 
     if-nez v4, :cond_0
 
-    .line 430
+    .line 546
     :goto_1
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 433
+    .line 549
     :cond_0
     sget-object v4, Lcom/mrkeyboard/app/MrPerf;->LOG:[Ljava/lang/String;
 
@@ -1641,7 +1786,7 @@
 
     const-string v5, " ms ("
 
-    .line 434
+    .line 550
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
@@ -1658,7 +1803,7 @@
 
     goto :goto_1
 
-    .line 436
+    .line 552
     :cond_1
     const-string v0, "heap "
 
@@ -1684,7 +1829,7 @@
 
     move-result-object v0
 
-    .line 437
+    .line 553
     invoke-static {}, Landroid/os/Debug;->getNativeHeapAllocatedSize()J
 
     move-result-wide v4
@@ -1695,7 +1840,7 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 438
+    .line 554
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
@@ -1707,7 +1852,7 @@
     .locals 1
 
     .prologue
-    .line 383
+    .line 483
     sget v0, Lcom/mrkeyboard/app/MrPerf;->sFakeMode:I
 
     if-ltz v0, :cond_0
@@ -1729,7 +1874,7 @@
     .locals 4
 
     .prologue
-    .line 374
+    .line 474
     int-to-long v0, p0
 
     const-wide/16 v2, 0x3e8
@@ -1747,7 +1892,7 @@
     .locals 1
 
     .prologue
-    .line 231
+    .line 249
     const/16 v0, 0x19
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -1759,7 +1904,7 @@
     .locals 1
 
     .prologue
-    .line 232
+    .line 250
     const/16 v0, 0x19
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
@@ -1771,7 +1916,7 @@
     .locals 4
 
     .prologue
-    .line 132
+    .line 150
     sget-wide v0, Lcom/mrkeyboard/app/MrPerf;->sFakeNanos:J
 
     const-wide/16 v2, 0x0
@@ -1797,27 +1942,27 @@
     .locals 2
 
     .prologue
-    .line 296
+    .line 314
     sget-object v0, Lcom/mrkeyboard/app/MrPerf;->sCount:[I
 
     const/4 v1, 0x5
 
     aget v0, v0, v1
 
-    .line 297
+    .line 315
     sget v1, Lcom/mrkeyboard/app/MrPerf;->sLoggedKeys:I
 
     if-ne v0, v1, :cond_0
 
-    .line 300
+    .line 318
     :goto_0
     return-void
 
-    .line 298
+    .line 316
     :cond_0
     sput v0, Lcom/mrkeyboard/app/MrPerf;->sLoggedKeys:I
 
-    .line 299
+    .line 317
     const-string v0, "MrPerf"
 
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->line()Ljava/lang/String;
@@ -1835,17 +1980,17 @@
     .prologue
     const/4 v1, 0x2
 
-    .line 143
+    .line 161
     invoke-static {v1}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
 
-    .line 144
+    .line 162
     sget-object v0, Lcom/mrkeyboard/app/MrPerf;->sStart:[J
 
     aget-wide v0, v0, v1
 
     sput-wide v0, Lcom/mrkeyboard/app/MrPerf;->sShownFrom:J
 
-    .line 145
+    .line 163
     return-void
 .end method
 
@@ -1853,7 +1998,7 @@
     .locals 1
 
     .prologue
-    .line 147
+    .line 165
     const/4 v0, 0x2
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
@@ -1865,7 +2010,7 @@
     .locals 1
 
     .prologue
-    .line 217
+    .line 235
     const/16 v0, 0xf
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -1877,7 +2022,7 @@
     .locals 1
 
     .prologue
-    .line 218
+    .line 236
     const/16 v0, 0xf
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
@@ -1889,7 +2034,7 @@
     .locals 1
 
     .prologue
-    .line 219
+    .line 237
     const/16 v0, 0x10
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -1901,7 +2046,7 @@
     .locals 1
 
     .prologue
-    .line 220
+    .line 238
     const/16 v0, 0x10
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
@@ -1913,7 +2058,7 @@
     .locals 1
 
     .prologue
-    .line 352
+    .line 370
     mul-int/lit8 v0, p0, 0x5f
 
     add-int/lit8 v0, v0, 0x63
@@ -1922,7 +2067,7 @@
 
     add-int/lit8 v0, v0, -0x1
 
-    .line 353
+    .line 371
     if-gez v0, :cond_0
 
     const/4 v0, 0x0
@@ -1935,7 +2080,7 @@
     .locals 1
 
     .prologue
-    .line 221
+    .line 239
     const/16 v0, 0x11
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -1947,7 +2092,7 @@
     .locals 1
 
     .prologue
-    .line 223
+    .line 241
     const/16 v0, 0x16
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -1959,7 +2104,7 @@
     .locals 1
 
     .prologue
-    .line 224
+    .line 242
     const/16 v0, 0x16
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
@@ -1971,7 +2116,7 @@
     .locals 1
 
     .prologue
-    .line 222
+    .line 240
     const/16 v0, 0x11
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
@@ -1983,7 +2128,7 @@
     .locals 1
 
     .prologue
-    .line 225
+    .line 243
     const/16 v0, 0x17
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -1995,7 +2140,7 @@
     .locals 1
 
     .prologue
-    .line 226
+    .line 244
     const/16 v0, 0x17
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
@@ -2011,47 +2156,164 @@
 
     const/4 v1, 0x0
 
-    .line 358
+    .line 376
     sget-object v0, Lcom/mrkeyboard/app/MrPerf;->sCount:[I
 
     invoke-static {v0, v1}, Ljava/util/Arrays;->fill([II)V
 
-    .line 359
+    .line 377
     sget-object v0, Lcom/mrkeyboard/app/MrPerf;->sMax:[I
 
     invoke-static {v0, v1}, Ljava/util/Arrays;->fill([II)V
 
-    .line 360
+    .line 378
     sget-object v0, Lcom/mrkeyboard/app/MrPerf;->sLast:[I
 
     invoke-static {v0, v1}, Ljava/util/Arrays;->fill([II)V
 
-    .line 361
+    .line 379
     sget-object v0, Lcom/mrkeyboard/app/MrPerf;->sStart:[J
 
     invoke-static {v0, v2, v3}, Ljava/util/Arrays;->fill([JJ)V
 
-    .line 362
+    .line 380
     sput-wide v2, Lcom/mrkeyboard/app/MrPerf;->sShownFrom:J
 
-    .line 363
+    .line 381
     sput v1, Lcom/mrkeyboard/app/MrPerf;->sLoggedKeys:I
 
-    .line 364
+    .line 382
     sput-wide v2, Lcom/mrkeyboard/app/MrPerf;->sEchoAt:J
 
-    .line 365
+    .line 383
     sput-wide v2, Lcom/mrkeyboard/app/MrPerf;->sCapsAt:J
 
-    .line 366
+    .line 384
     return-void
+.end method
+
+.method static saveStart(Landroid/content/Context;)V
+    .locals 6
+
+    .prologue
+    const/4 v2, 0x1
+
+    const/4 v1, 0x0
+
+    .line 404
+    sget-boolean v0, Lcom/mrkeyboard/app/MrPerf;->sStartSaved:Z
+
+    if-nez v0, :cond_0
+
+    sget-object v0, Lcom/mrkeyboard/app/MrPerf;->sCount:[I
+
+    aget v0, v0, v1
+
+    if-eqz v0, :cond_0
+
+    sget-object v0, Lcom/mrkeyboard/app/MrPerf;->sCount:[I
+
+    aget v0, v0, v2
+
+    if-nez v0, :cond_1
+
+    .line 413
+    :cond_0
+    :goto_0
+    return-void
+
+    .line 406
+    :cond_1
+    :try_start_0
+    const-string v0, "mr_perf"
+
+    const/4 v1, 0x0
+
+    invoke-virtual {p0, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    .line 407
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    sget-object v2, Lcom/mrkeyboard/app/MrPerf;->sRing:[I
+
+    const/4 v3, 0x0
+
+    aget v2, v2, v3
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    const-string v2, ","
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    sget-object v2, Lcom/mrkeyboard/app/MrPerf;->sRing:[I
+
+    const/16 v3, 0x100
+
+    aget v2, v2, v3
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 408
+    invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v2
+
+    const-string v3, "starts"
+
+    const-string v4, "starts"
+
+    const-string v5, ""
+
+    invoke-interface {v0, v4, v5}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPerf;->addStart(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-interface {v2, v3, v0}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
+
+    .line 409
+    const/4 v0, 0x1
+
+    sput-boolean v0, Lcom/mrkeyboard/app/MrPerf;->sStartSaved:Z
+    :try_end_0
+    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+
+    goto :goto_0
+
+    .line 410
+    :catch_0
+    move-exception v0
+
+    goto :goto_0
 .end method
 
 .method public static selBegin()V
     .locals 1
 
     .prologue
-    .line 228
+    .line 246
     const/16 v0, 0x18
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -2063,12 +2325,236 @@
     .locals 1
 
     .prologue
-    .line 229
+    .line 247
     const/16 v0, 0x18
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
 
     return-void
+.end method
+
+.method static startStats(Ljava/lang/String;I)[I
+    .locals 8
+
+    .prologue
+    const/16 v7, 0x9
+
+    const/4 v4, 0x0
+
+    .line 439
+    new-array v5, v7, [I
+
+    move v1, v4
+
+    move v2, v4
+
+    .line 442
+    :goto_0
+    if-eqz p0, :cond_3
+
+    invoke-virtual {p0}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    if-gt v1, v0, :cond_3
+
+    if-ge v2, v7, :cond_3
+
+    .line 443
+    const/16 v0, 0x3b
+
+    invoke-virtual {p0, v0, v1}, Ljava/lang/String;->indexOf(II)I
+
+    move-result v0
+
+    .line 444
+    if-gez v0, :cond_0
+
+    invoke-virtual {p0}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    .line 445
+    :cond_0
+    const/16 v3, 0x2c
+
+    invoke-virtual {p0, v3, v1}, Ljava/lang/String;->indexOf(II)I
+
+    move-result v3
+
+    .line 446
+    if-le v3, v1, :cond_2
+
+    add-int/lit8 v6, v0, -0x1
+
+    if-ge v3, v6, :cond_2
+
+    .line 448
+    :try_start_0
+    invoke-virtual {p0, v1, v3}, Ljava/lang/String;->substring(II)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-static {v1}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+
+    move-result v1
+
+    .line 449
+    add-int/lit8 v3, v3, 0x1
+
+    invoke-virtual {p0, v3, v0}, Ljava/lang/String;->substring(II)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-static {v3}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+    :try_end_0
+    .catch Ljava/lang/NumberFormatException; {:try_start_0 .. :try_end_0} :catch_0
+
+    move-result v3
+
+    .line 450
+    if-nez p1, :cond_1
+
+    move v3, v1
+
+    .line 451
+    :cond_1
+    if-ltz v3, :cond_5
+
+    add-int/lit8 v1, v2, 0x1
+
+    :try_start_1
+    aput v3, v5, v2
+    :try_end_1
+    .catch Ljava/lang/NumberFormatException; {:try_start_1 .. :try_end_1} :catch_1
+
+    :goto_1
+    move v2, v1
+
+    .line 456
+    :cond_2
+    :goto_2
+    add-int/lit8 v0, v0, 0x1
+
+    move v1, v0
+
+    .line 457
+    goto :goto_0
+
+    .line 458
+    :cond_3
+    const/4 v0, 0x4
+
+    new-array v0, v0, [I
+
+    .line 459
+    aput v2, v0, v4
+
+    .line 460
+    if-nez v2, :cond_4
+
+    .line 465
+    :goto_3
+    return-object v0
+
+    .line 461
+    :cond_4
+    invoke-static {v5, v4, v2}, Ljava/util/Arrays;->sort([III)V
+
+    .line 462
+    const/4 v1, 0x1
+
+    aget v3, v5, v4
+
+    aput v3, v0, v1
+
+    .line 463
+    const/4 v1, 0x2
+
+    mul-int/lit8 v3, v2, 0x32
+
+    add-int/lit8 v3, v3, 0x63
+
+    div-int/lit8 v3, v3, 0x64
+
+    add-int/lit8 v3, v3, -0x1
+
+    aget v3, v5, v3
+
+    aput v3, v0, v1
+
+    .line 464
+    const/4 v1, 0x3
+
+    add-int/lit8 v2, v2, -0x1
+
+    aget v2, v5, v2
+
+    aput v2, v0, v1
+
+    goto :goto_3
+
+    .line 452
+    :catch_0
+    move-exception v1
+
+    goto :goto_2
+
+    :catch_1
+    move-exception v2
+
+    move v2, v1
+
+    goto :goto_2
+
+    :cond_5
+    move v1, v2
+
+    goto :goto_1
+.end method
+
+.method static startsOf(Landroid/content/Context;)Ljava/lang/String;
+    .locals 3
+
+    .prologue
+    .line 391
+    :try_start_0
+    const-string v0, "mr_perf"
+
+    const/4 v1, 0x0
+
+    invoke-virtual {p0, v0, v1}, Landroid/content/Context;->getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    const-string v1, "starts"
+
+    const-string v2, ""
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 392
+    if-nez v0, :cond_0
+
+    const-string v0, ""
+    :try_end_0
+    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+
+    .line 394
+    :cond_0
+    :goto_0
+    return-object v0
+
+    .line 393
+    :catch_0
+    move-exception v0
+
+    .line 394
+    const-string v0, ""
+
+    goto :goto_0
 .end method
 
 .method static stats(I)[I
@@ -2079,74 +2565,74 @@
 
     const/4 v2, 0x0
 
-    .line 330
+    .line 348
     const/4 v0, 0x5
 
     new-array v0, v0, [I
 
-    .line 331
+    .line 349
     sget-object v1, Lcom/mrkeyboard/app/MrPerf;->sCount:[I
 
     aget v1, v1, p0
 
-    .line 332
+    .line 350
     aput v1, v0, v2
 
-    .line 333
+    .line 351
     if-ge v1, v3, :cond_0
 
     move v3, v1
 
-    .line 334
+    .line 352
     :cond_0
     if-nez v3, :cond_1
 
-    .line 347
+    .line 365
     :goto_0
     return-object v0
 
-    .line 335
+    .line 353
     :cond_1
     const-wide/16 v4, 0x0
 
-    .line 336
+    .line 354
     mul-int/lit16 v6, p0, 0x100
 
     move v1, v2
 
-    .line 337
+    .line 355
     :goto_1
     if-ge v1, v3, :cond_2
 
-    .line 338
+    .line 356
     sget-object v7, Lcom/mrkeyboard/app/MrPerf;->sRing:[I
 
     add-int v8, v6, v1
 
     aget v7, v7, v8
 
-    .line 339
+    .line 357
     sget-object v8, Lcom/mrkeyboard/app/MrPerf;->sScratch:[I
 
     aput v7, v8, v1
 
-    .line 340
+    .line 358
     int-to-long v8, v7
 
     add-long/2addr v4, v8
 
-    .line 337
+    .line 355
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_1
 
-    .line 342
+    .line 360
     :cond_2
     sget-object v1, Lcom/mrkeyboard/app/MrPerf;->sScratch:[I
 
     invoke-static {v1, v2, v3}, Ljava/util/Arrays;->sort([III)V
 
-    .line 343
+    .line 361
     const/4 v1, 0x1
 
     int-to-long v6, v3
@@ -2157,7 +2643,7 @@
 
     aput v2, v0, v1
 
-    .line 344
+    .line 362
     const/4 v1, 0x2
 
     sget-object v2, Lcom/mrkeyboard/app/MrPerf;->sScratch:[I
@@ -2170,7 +2656,7 @@
 
     aput v2, v0, v1
 
-    .line 345
+    .line 363
     const/4 v1, 0x3
 
     sget-object v2, Lcom/mrkeyboard/app/MrPerf;->sMax:[I
@@ -2179,7 +2665,7 @@
 
     aput v2, v0, v1
 
-    .line 346
+    .line 364
     const/4 v1, 0x4
 
     sget-object v2, Lcom/mrkeyboard/app/MrPerf;->sLast:[I
@@ -2195,7 +2681,7 @@
     .locals 1
 
     .prologue
-    .line 211
+    .line 229
     const/16 v0, 0x8
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -2207,7 +2693,7 @@
     .locals 1
 
     .prologue
-    .line 212
+    .line 230
     const/16 v0, 0x8
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
@@ -2219,7 +2705,7 @@
     .locals 1
 
     .prologue
-    .line 213
+    .line 231
     const/16 v0, 0xd
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -2231,7 +2717,7 @@
     .locals 1
 
     .prologue
-    .line 214
+    .line 232
     const/16 v0, 0xd
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
@@ -2243,7 +2729,7 @@
     .locals 1
 
     .prologue
-    .line 215
+    .line 233
     const/16 v0, 0xe
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -2255,7 +2741,7 @@
     .locals 1
 
     .prologue
-    .line 216
+    .line 234
     const/16 v0, 0xe
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
@@ -2264,322 +2750,452 @@
 .end method
 
 .method static summary(Landroid/content/Context;)Ljava/lang/String;
-    .locals 12
+    .locals 14
 
     .prologue
-    const/16 v11, 0xa
+    const/4 v13, 0x3
 
-    const/4 v10, 0x2
+    const/4 v12, 0x4
 
-    const/4 v9, 0x4
+    const/4 v11, 0x2
 
-    const/4 v1, 0x1
+    const/4 v2, 0x1
 
-    const/4 v2, 0x0
+    const/4 v1, 0x0
 
-    .line 398
-    new-instance v4, Ljava/lang/StringBuilder;
+    .line 498
+    new-instance v6, Ljava/lang/StringBuilder;
 
-    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-direct {v6}, Ljava/lang/StringBuilder;-><init>()V
 
-    move v3, v2
+    .line 499
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPerf;->startsOf(Landroid/content/Context;)Ljava/lang/String;
 
-    .line 399
+    move-result-object v7
+
+    move v5, v1
+
+    .line 500
     :goto_0
     const/16 v0, 0x23
 
-    if-ge v3, v0, :cond_6
+    if-ge v5, v0, :cond_b
 
-    .line 400
-    invoke-static {v3}, Lcom/mrkeyboard/app/MrPerf;->stats(I)[I
+    .line 501
+    invoke-static {v5}, Lcom/mrkeyboard/app/MrPerf;->stats(I)[I
 
-    move-result-object v5
+    move-result-object v8
 
-    .line 401
-    aget v0, v5, v2
+    .line 502
+    if-eqz v5, :cond_0
 
-    if-nez v0, :cond_1
+    if-ne v5, v2, :cond_2
 
-    .line 399
     :cond_0
-    :goto_1
-    add-int/lit8 v0, v3, 0x1
+    move v0, v2
 
-    move v3, v0
+    .line 504
+    :goto_1
+    aget v3, v8, v1
+
+    if-nez v3, :cond_3
+
+    if-nez v0, :cond_3
+
+    .line 500
+    :cond_1
+    :goto_2
+    add-int/lit8 v0, v5, 0x1
+
+    move v5, v0
 
     goto :goto_0
 
-    .line 402
-    :cond_1
-    if-ne v3, v9, :cond_4
+    :cond_2
+    move v0, v1
+
+    .line 502
+    goto :goto_1
+
+    .line 505
+    :cond_3
+    if-ne v5, v12, :cond_7
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPerf;->mode(Landroid/content/Context;)I
 
-    move-result v0
+    move-result v3
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->frameName(I)Ljava/lang/String;
+    invoke-static {v3}, Lcom/mrkeyboard/app/MrPerf;->frameName(I)Ljava/lang/String;
 
-    move-result-object v0
+    move-result-object v3
 
-    :goto_2
-    new-array v6, v2, [Ljava/lang/Object;
-
-    invoke-static {p0, v0, v6}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 404
-    if-nez v0, :cond_2
-
-    if-ne v3, v9, :cond_2
-
-    sget-object v0, Lcom/mrkeyboard/app/MrPerf;->NAMES:[Ljava/lang/String;
-
-    aget-object v0, v0, v9
-
-    new-array v6, v2, [Ljava/lang/Object;
-
-    invoke-static {p0, v0, v6}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 405
-    :cond_2
-    if-eqz v0, :cond_0
-
-    .line 406
-    aget v6, v5, v2
-
-    if-ne v6, v1, :cond_5
-
-    .line 407
-    const-string v6, "mr_ui_perf_one"
-
-    new-array v7, v10, [Ljava/lang/Object;
-
-    aput-object v0, v7, v2
-
-    aget v0, v5, v9
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->ms(I)Ljava/lang/String;
-
-    move-result-object v0
-
-    aput-object v0, v7, v1
-
-    invoke-static {p0, v6, v7}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v0
-
-    .line 409
     :goto_3
-    if-eqz v0, :cond_0
+    new-array v4, v1, [Ljava/lang/Object;
 
-    .line 410
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->length()I
+    invoke-static {p0, v3, v4}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
-    move-result v5
+    move-result-object v3
 
-    if-lez v5, :cond_3
+    .line 507
+    if-nez v3, :cond_10
 
-    invoke-virtual {v4, v11}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+    if-ne v5, v12, :cond_10
 
-    .line 411
-    :cond_3
-    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    sget-object v3, Lcom/mrkeyboard/app/MrPerf;->NAMES:[Ljava/lang/String;
 
-    goto :goto_1
+    aget-object v3, v3, v12
 
-    .line 402
-    :cond_4
-    sget-object v0, Lcom/mrkeyboard/app/MrPerf;->NAMES:[Ljava/lang/String;
+    new-array v4, v1, [Ljava/lang/Object;
 
-    aget-object v0, v0, v3
+    invoke-static {p0, v3, v4}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
-    goto :goto_2
+    move-result-object v3
 
-    .line 408
-    :cond_5
-    const-string v6, "mr_ui_perf_stat"
+    move-object v4, v3
 
-    const/4 v7, 0x5
+    .line 508
+    :goto_4
+    if-eqz v4, :cond_1
 
-    new-array v7, v7, [Ljava/lang/Object;
+    .line 509
+    aget v3, v8, v1
 
-    aput-object v0, v7, v2
+    if-lez v3, :cond_5
 
-    aget v0, v5, v1
+    .line 510
+    aget v3, v8, v1
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->ms(I)Ljava/lang/String;
+    if-ne v3, v2, :cond_8
 
-    move-result-object v0
+    .line 511
+    const-string v3, "mr_ui_perf_one"
 
-    aput-object v0, v7, v1
+    new-array v9, v11, [Ljava/lang/Object;
 
-    aget v0, v5, v10
+    aput-object v4, v9, v1
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->ms(I)Ljava/lang/String;
-
-    move-result-object v0
-
-    aput-object v0, v7, v10
-
-    const/4 v0, 0x3
-
-    const/4 v8, 0x3
-
-    aget v8, v5, v8
+    aget v8, v8, v12
 
     invoke-static {v8}, Lcom/mrkeyboard/app/MrPerf;->ms(I)Ljava/lang/String;
 
     move-result-object v8
 
-    aput-object v8, v7, v0
+    aput-object v8, v9, v2
 
-    aget v0, v5, v2
+    invoke-static {p0, v3, v9}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
-    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    move-result-object v3
 
-    move-result-object v0
+    .line 513
+    :goto_5
+    if-eqz v3, :cond_5
 
-    aput-object v0, v7, v9
+    .line 514
+    invoke-virtual {v6}, Ljava/lang/StringBuilder;->length()I
 
-    invoke-static {p0, v6, v7}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+    move-result v8
 
-    move-result-object v0
+    if-lez v8, :cond_4
 
-    goto :goto_3
+    const/16 v8, 0xa
 
-    .line 413
-    :cond_6
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->length()I
+    invoke-virtual {v6, v8}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    move-result v0
+    .line 515
+    :cond_4
+    invoke-virtual {v6, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    if-lez v0, :cond_a
+    .line 518
+    :cond_5
+    if-eqz v0, :cond_1
+
+    .line 520
+    if-nez v5, :cond_9
 
     move v0, v1
 
-    .line 414
-    :goto_4
-    if-nez v0, :cond_7
+    :goto_6
+    invoke-static {v7, v0}, Lcom/mrkeyboard/app/MrPerf;->startStats(Ljava/lang/String;I)[I
 
-    .line 415
-    const-string v3, "mr_ui_perf_none"
+    move-result-object v0
 
-    new-array v5, v2, [Ljava/lang/Object;
+    .line 521
+    aget v3, v0, v1
 
-    invoke-static {p0, v3, v5}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+    if-ge v3, v11, :cond_a
+
+    const/4 v0, 0x0
+
+    .line 523
+    :goto_7
+    if-eqz v0, :cond_1
+
+    .line 524
+    invoke-virtual {v6}, Ljava/lang/StringBuilder;->length()I
+
+    move-result v3
+
+    if-lez v3, :cond_6
+
+    const/16 v3, 0xa
+
+    invoke-virtual {v6, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    .line 525
+    :cond_6
+    invoke-virtual {v6, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    goto :goto_2
+
+    .line 505
+    :cond_7
+    sget-object v3, Lcom/mrkeyboard/app/MrPerf;->NAMES:[Ljava/lang/String;
+
+    aget-object v3, v3, v5
+
+    goto :goto_3
+
+    .line 512
+    :cond_8
+    const-string v3, "mr_ui_perf_stat"
+
+    const/4 v9, 0x5
+
+    new-array v9, v9, [Ljava/lang/Object;
+
+    aput-object v4, v9, v1
+
+    aget v10, v8, v2
+
+    invoke-static {v10}, Lcom/mrkeyboard/app/MrPerf;->ms(I)Ljava/lang/String;
+
+    move-result-object v10
+
+    aput-object v10, v9, v2
+
+    aget v10, v8, v11
+
+    invoke-static {v10}, Lcom/mrkeyboard/app/MrPerf;->ms(I)Ljava/lang/String;
+
+    move-result-object v10
+
+    aput-object v10, v9, v11
+
+    aget v10, v8, v13
+
+    invoke-static {v10}, Lcom/mrkeyboard/app/MrPerf;->ms(I)Ljava/lang/String;
+
+    move-result-object v10
+
+    aput-object v10, v9, v13
+
+    aget v8, v8, v1
+
+    invoke-static {v8}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v8
+
+    aput-object v8, v9, v12
+
+    invoke-static {p0, v3, v9}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 416
-    if-eqz v3, :cond_7
+    goto :goto_5
 
-    invoke-virtual {v4, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    :cond_9
+    move v0, v2
 
-    .line 418
-    :cond_7
+    .line 520
+    goto :goto_6
+
+    .line 522
+    :cond_a
+    const-string v3, "mr_ui_perf_starts"
+
+    const/4 v8, 0x5
+
+    new-array v8, v8, [Ljava/lang/Object;
+
+    aput-object v4, v8, v1
+
+    aget v4, v0, v1
+
+    invoke-static {v4}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v4
+
+    aput-object v4, v8, v2
+
+    aget v4, v0, v2
+
+    invoke-static {v4}, Lcom/mrkeyboard/app/MrPerf;->ms(I)Ljava/lang/String;
+
+    move-result-object v4
+
+    aput-object v4, v8, v11
+
+    aget v4, v0, v11
+
+    invoke-static {v4}, Lcom/mrkeyboard/app/MrPerf;->ms(I)Ljava/lang/String;
+
+    move-result-object v4
+
+    aput-object v4, v8, v13
+
+    aget v0, v0, v13
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->ms(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    aput-object v0, v8, v12
+
+    invoke-static {p0, v3, v8}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_7
+
+    .line 529
+    :cond_b
+    invoke-virtual {v6}, Ljava/lang/StringBuilder;->length()I
+
+    move-result v0
+
+    if-lez v0, :cond_f
+
+    move v0, v2
+
+    .line 530
+    :goto_8
+    if-nez v0, :cond_c
+
+    .line 531
+    const-string v3, "mr_ui_perf_none"
+
+    new-array v4, v1, [Ljava/lang/Object;
+
+    invoke-static {p0, v3, v4}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v3
+
+    .line 532
+    if-eqz v3, :cond_c
+
+    invoke-virtual {v6, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 534
+    :cond_c
     const-string v3, "mr_ui_perf_mem"
 
-    new-array v5, v10, [Ljava/lang/Object;
+    new-array v4, v11, [Ljava/lang/Object;
 
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->heapUsed()J
 
-    move-result-wide v6
+    move-result-wide v8
 
-    invoke-static {v6, v7}, Lcom/mrkeyboard/app/MrDiag;->bytesText(J)Ljava/lang/String;
+    invoke-static {v8, v9}, Lcom/mrkeyboard/app/MrDiag;->bytesText(J)Ljava/lang/String;
 
-    move-result-object v6
+    move-result-object v5
 
-    aput-object v6, v5, v2
+    aput-object v5, v4, v1
 
     invoke-static {}, Landroid/os/Debug;->getNativeHeapAllocatedSize()J
 
-    move-result-wide v6
+    move-result-wide v8
 
-    invoke-static {v6, v7}, Lcom/mrkeyboard/app/MrDiag;->bytesText(J)Ljava/lang/String;
+    invoke-static {v8, v9}, Lcom/mrkeyboard/app/MrDiag;->bytesText(J)Ljava/lang/String;
 
-    move-result-object v6
+    move-result-object v5
 
-    aput-object v6, v5, v1
+    aput-object v5, v4, v2
 
-    invoke-static {p0, v3, v5}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+    invoke-static {p0, v3, v4}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
-    move-result-object v1
+    move-result-object v2
 
-    .line 419
-    if-eqz v1, :cond_8
+    .line 535
+    if-eqz v2, :cond_d
 
-    invoke-virtual {v4, v11}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+    const/16 v3, 0xa
+
+    invoke-virtual {v6, v3}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
     move-result-object v3
 
-    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 420
-    :cond_8
-    if-eqz v0, :cond_9
+    .line 536
+    :cond_d
+    if-eqz v0, :cond_e
 
-    .line 421
+    .line 537
     const-string v0, "mr_ui_perf_reset"
 
-    new-array v1, v2, [Ljava/lang/Object;
+    new-array v1, v1, [Ljava/lang/Object;
 
     invoke-static {p0, v0, v1}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 422
-    if-eqz v0, :cond_9
+    .line 538
+    if-eqz v0, :cond_e
 
-    invoke-virtual {v4, v11}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+    const/16 v1, 0xa
+
+    invoke-virtual {v6, v1}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
     move-result-object v1
 
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 424
-    :cond_9
-    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    .line 540
+    :cond_e
+    invoke-virtual {v6}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
     return-object v0
 
-    :cond_a
-    move v0, v2
+    :cond_f
+    move v0, v1
 
-    .line 413
-    goto :goto_4
+    .line 529
+    goto :goto_8
+
+    :cond_10
+    move-object v4, v3
+
+    goto/16 :goto_4
 .end method
 
 .method public static touch(Landroid/view/MotionEvent;)V
     .locals 6
 
     .prologue
-    .line 288
+    .line 306
     if-nez p0, :cond_1
 
-    .line 292
+    .line 310
     :cond_0
     :goto_0
     return-void
 
-    .line 289
+    .line 307
     :cond_1
     invoke-virtual {p0}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v0
 
-    .line 290
+    .line 308
     if-eqz v0, :cond_2
 
     const/4 v1, 0x5
 
     if-ne v0, v1, :cond_0
 
-    .line 291
+    .line 309
     :cond_2
     const/4 v0, 0x6
 
@@ -2606,7 +3222,7 @@
     .locals 1
 
     .prologue
-    .line 139
+    .line 157
     const/4 v0, 0x1
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
@@ -2618,7 +3234,7 @@
     .locals 1
 
     .prologue
-    .line 140
+    .line 158
     const/4 v0, 0x1
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->end(I)V

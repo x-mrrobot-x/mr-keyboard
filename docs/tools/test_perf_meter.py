@@ -58,7 +58,8 @@ TEXTS = {
     "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_echo_one": "EchoOne", "mr_ui_perf_echo_run": "EchoRun", "mr_ui_perf_echo_drop": "EchoDrop", "mr_ui_perf_caps_run": "CapsRun", "mr_ui_perf_caps_flush": "CapsFlush", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
     "mr_ui_perf_stat": "%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)",
     "mr_ui_perf_one": "%1$s: %2$s ms", "mr_ui_perf_none": "Nothing yet.", "mr_ui_perf_mem": "Memory: Java %1$s · native %2$s",
-    "mr_ui_perf_reset": "Tap to reset."}
+    "mr_ui_perf_reset": "Tap to reset.",
+    "mr_ui_perf_starts": "%1$s, last %2$d starts: min %3$s ms · median %4$s · max %5$s"}
 
 
 def jformat(fmt, args):
@@ -90,6 +91,9 @@ class Fw:
         self.native = 18300000
         self.log = []
         self.missing = set()     # names of texts the app does not have
+        self.prefs = {}          # the file of the history of the starts (key -> text)
+        self.prefs_files = []    # the names of the files asked for
+        self.storage_broken = False   # a phone that cannot read or write the file
         self.perf = dm.VM(PERF, dm.parse_methods(os.path.join(APP, "MrPerf.smali")), self)
         self.reset_cls = dm.VM(RESET, dm.parse_methods(os.path.join(APP, "MrPerf$Reset.smali")), self)
         self.perf.run("<clinit>()V", [])
@@ -184,6 +188,42 @@ class Fw:
         if cls == "Landroid/util/Log;" and mem == "i(Ljava/lang/String;Ljava/lang/String;)I":
             self.log.append(args[0] + ": " + args[1])
             return 0
+        if cls == "Landroid/content/Context;" and mem == "getSharedPreferences(Ljava/lang/String;I)Landroid/content/SharedPreferences;":
+            if self.storage_broken:
+                raise dm.JavaExc("Ljava/lang/RuntimeException;", "no storage")
+            self.prefs_files.append(args[1])
+            return dm.Obj("Landroid/content/SharedPreferences;")
+        if cls == "Landroid/content/SharedPreferences;":
+            if mem == "getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;":
+                return self.prefs.get(args[1], args[2])
+            if mem == "edit()Landroid/content/SharedPreferences$Editor;":
+                return dm.Obj("Landroid/content/SharedPreferences$Editor;")
+        if cls == "Landroid/content/SharedPreferences$Editor;":
+            if mem == "putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;":
+                self.prefs[args[1]] = args[2]
+                return a0
+            if mem == "remove(Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;":
+                self.prefs.pop(args[1], None)
+                return a0
+            if mem == "apply()V":
+                return None
+        if cls == "Ljava/lang/String;":
+            if mem == "length()I":
+                return len(a0)
+            if mem == "indexOf(I)I":
+                return a0.find(chr(args[1]))
+            if mem == "indexOf(II)I":
+                return a0.find(chr(args[1]), args[2])
+            if mem == "substring(I)Ljava/lang/String;":
+                return a0[args[1]:]
+            if mem == "substring(II)Ljava/lang/String;":
+                return a0[args[1]:args[2]]
+            if mem == "charAt(I)C":
+                return ord(a0[args[1]])
+        if cls == "Ljava/lang/Integer;" and mem == "parseInt(Ljava/lang/String;)I":
+            if not re.fullmatch(r"[+-]?[0-9]+", args[0] or "") or not -2**31 <= int(args[0]) < 2**31:
+                raise dm.JavaExc("Ljava/lang/NumberFormatException;", "For input string: " + str(args[0]))
+            return int(args[0])
         if cls == "Landroid/preference/PreferenceActivity;" and mem.startswith("findPreference("):
             if a0.f.get("broken"):
                 raise dm.JavaExc("Ljava/lang/RuntimeException;", "no screen")
@@ -532,6 +572,139 @@ except dm.JavaExc:
     quiet = False
 check("a broken screen: no exception", quiet and row.f["summary"] is None)
 
+# ---------------------------------------------------------------- the history of the starts (build _80), with the real smali
+# One process gives one sample of "Start the keyboard" and of "Build the keyboard", and the same build varies a lot from one start to the
+# next, so the Advanced screen keeps the last 9 starts it saw and shows their minimum, median and maximum. Saved when the screen opens.
+START_RECORDS = "103000,20300;104000,20400;105000,20500;106000,20600;107000,20700;108000,20800;109000,20900;110000,21000;111000,21100"
+
+
+def new_process():
+    fw.run("reset()V")
+    fw.perf.statics["sStartSaved"] = 0
+
+
+def save_start(create, view):
+    """A new process whose keyboard started in <create> us and built its view in <view> us; the screen saves it."""
+    new_process()
+    fw.run("add(IJ)V", CREATE, create)
+    fw.run("add(IJ)V", VIEW, view)
+    scr_, row_ = fw.screen()
+    fw.run("saveStart(Landroid/content/Context;)V", scr_)
+
+
+def starts_stats(text, column):
+    return list(fw.run("startStats(Ljava/lang/String;I)[I", text, column))
+
+
+fw.prefs.clear()
+fw.prefs_files.clear()
+new_process()
+scr, row = fw.screen()
+fw.run("saveStart(Landroid/content/Context;)V", scr)
+check("history: no start measured, nothing saved", "starts" not in fw.prefs and not fw.perf.statics["sStartSaved"], fw.prefs)
+fw.run("add(IJ)V", CREATE, 180000)
+fw.run("saveStart(Landroid/content/Context;)V", scr)
+check("history: a start with no view yet, nothing saved and the process can still save later",
+      "starts" not in fw.prefs and not fw.perf.statics["sStartSaved"], fw.prefs)
+fw.run("add(IJ)V", VIEW, 95000)
+fw.run("saveStart(Landroid/content/Context;)V", scr)
+check("history: create and view measured, the record is saved", fw.prefs.get("starts") == "180000,95000" and fw.perf.statics["sStartSaved"] == 1,
+      fw.prefs)
+fw.run("add(IJ)V", CREATE, 1)
+fw.run("add(IJ)V", VIEW, 2)
+fw.run("saveStart(Landroid/content/Context;)V", scr)
+check("history: one process is one start, a second save adds nothing", fw.prefs.get("starts") == "180000,95000", fw.prefs)
+for i in range(1, 12):
+    save_start(100000 + i * 1000, 20000 + i * 100)
+check("history: 12 starts, only the last 9 are kept, oldest first", fw.prefs.get("starts") == START_RECORDS, fw.prefs.get("starts"))
+check("history: the file is the one of the meter, never the default preferences", set(fw.prefs_files) == {"mr_perf"}, set(fw.prefs_files))
+ADD = "addStart(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"
+check("history: addStart with nothing before, null before, one before", [fw.run(ADD, "", "1,2"), fw.run(ADD, None, "1,2"), fw.run(ADD, "1,1;2,2", "3,3")]
+      == ["1,2", "1,2", "1,1;2,2;3,3"])
+check("history: addStart on a full history drops the oldest",
+      fw.run(ADD, "1,1;2,2;3,3;4,4;5,5;6,6;7,7;8,8;9,9", "10,10") == "2,2;3,3;4,4;5,5;6,6;7,7;8,8;9,9;10,10")
+check("history: minimum, median and maximum of 9 starts (create and view)",
+      starts_stats(START_RECORDS, 0) == [9, 103000, 107000, 111000] and starts_stats(START_RECORDS, 1) == [9, 20300, 20700, 21100],
+      (starts_stats(START_RECORDS, 0), starts_stats(START_RECORDS, 1)))
+check("history: an even count takes the lower one in the middle", starts_stats("10,1;30,3;20,2;40,4", 0) == [4, 10, 20, 40])
+check("history: one start, nothing, null", [starts_stats("50,7", 0), starts_stats("", 0), starts_stats(None, 1)]
+      == [[1, 50, 50, 50], [0, 0, 0, 0], [0, 0, 0, 0]])
+DAMAGED = "abc;5,6;,;7,;8,9;x,y;"
+check("history: damaged records are left out and the good ones count", starts_stats(DAMAGED, 0) == [2, 5, 5, 8]
+      and starts_stats(DAMAGED, 1) == [2, 6, 6, 9], (starts_stats(DAMAGED, 0), starts_stats(DAMAGED, 1)))
+check("history: a number below 0 is left out of its column only", starts_stats("-1,5;10,-1;20,20", 0) == [2, 10, 10, 20]
+      and starts_stats("-1,5;10,-1;20,20", 1) == [2, 5, 5, 20])
+
+def with_process(create, view):
+    """The process of the screen: a start of its own, already saved (or not)."""
+    new_process()
+    if create:
+        fw.run("add(IJ)V", CREATE, create)
+    if view:
+        fw.run("add(IJ)V", VIEW, view)
+    fw.perf.statics["sStartSaved"] = 1
+
+
+def summary_lines():
+    scr_, row_ = fw.screen()
+    fw.fill(scr_)
+    return row_.f["summary"].split("\n")
+
+
+fw.prefs["starts"] = START_RECORDS
+with_process(34500, 32900)
+ln = summary_lines()
+check("history on the screen: the start, its spread, the view, its spread, memory and reset",
+      ln[:4] == ["Start: 34.5 ms", "Start, last 9 starts: min 103.0 ms · median 107.0 · max 111.0", "View: 32.9 ms",
+                 "View, last 9 starts: min 20.3 ms · median 20.7 · max 21.1"] and ln[4].startswith("Memory: ") and ln[5] == "Tap to reset." and len(ln) == 6, ln)
+with_process(0, 0)
+ln = summary_lines()
+check("history on the screen: a process with no sample still shows the spread of the other starts",
+      len(ln) == 4 and ln[0].startswith("Start, last 9 starts: min 103.0 ms") and ln[1].startswith("View, last 9 starts: min 20.3 ms")
+      and ln[2].startswith("Memory: ") and ln[3] == "Tap to reset.", ln)
+fw.prefs["starts"] = "40000,15000"
+with_process(34500, 32900)
+check("history on the screen: one start in the file is the line above, no spread line", "last " not in "\n".join(summary_lines()))
+fw.prefs["starts"] = "40000,15000;60000,17000"
+ln = summary_lines()
+check("history on the screen: two starts show the spread", "Start, last 2 starts: min 40.0 ms · median 40.0 · max 60.0" in ln, ln)
+fw.missing = {"mr_ui_perf_starts"}
+check("history on the screen: no text for the spread, the line is left out and no 'None' is written",
+      "last " not in "\n".join(summary_lines()) and "None" not in "\n".join(summary_lines()))
+fw.missing = set()
+
+fw.prefs.clear()
+new_process()
+fw.run("add(IJ)V", CREATE, 40000)
+fw.run("add(IJ)V", VIEW, 15000)
+scr, row = fw.screen()
+fw.fill(scr)
+check("history: opening the screen saves the start of the process, once", fw.prefs.get("starts") == "40000,15000" and fw.perf.statics["sStartSaved"] == 1,
+      fw.prefs)
+scr, row = fw.screen()
+fw.fill(scr)
+check("history: ... a second look adds nothing", fw.prefs.get("starts") == "40000,15000", fw.prefs)
+fw.prefs["starts"] = START_RECORDS
+check("history: a tap is handled", fw.tap(row) == 1)
+check("history: ... it clears the numbers and the history, the process is not saved again, and the row says nothing yet",
+      "starts" not in fw.prefs and fw.perf.statics["sStartSaved"] == 1 and row.f["summary"].startswith("Nothing yet."), (fw.prefs, row.f["summary"]))
+scr, row = fw.screen()
+fw.fill(scr)
+check("history: ... and a new look does not bring this process back", "starts" not in fw.prefs, fw.prefs)
+
+fw.storage_broken = True
+new_process()
+fw.run("add(IJ)V", CREATE, 40000)
+fw.run("add(IJ)V", VIEW, 15000)
+ln = summary_lines()
+check("history: a phone that cannot read or write the file: no exception, the process is not marked saved, the plain lines",
+      not fw.perf.statics["sStartSaved"] and ln[0] == "Start: 40.0 ms" and "last " not in "\n".join(ln), ln)
+scr, row = fw.screen()
+fw.fill(scr)
+check("history: ... and a tap there does not fail either", fw.tap(row) == 1)
+fw.storage_broken = False
+fw.prefs.clear()
+
 fw.run("reset()V")
 fw.log.clear()
 fw.run("onHidden()V")
@@ -716,7 +889,7 @@ check("the row of the Advanced screen: key, metrics layout, tappable, not saved"
 lay = open(os.path.join(ROOT, "res", "layout", "mr_ui_pref_row_metrics.xml"), encoding="utf-8").read()
 check("its layout shows every line (no maxLines)", "android:id/summary" in lay and "maxLines" not in lay)
 needed = ["mr_ui_perf_" + k.replace("-", "_") for k in KINDS] + ["mr_ui_perf", "mr_ui_perf_stat", "mr_ui_perf_one", "mr_ui_perf_none", "mr_ui_perf_mem",
-                                              "mr_ui_perf_reset", "mr_ui_cat_perf", "mr_ui_cat_perf_sum"]
+                                              "mr_ui_perf_reset", "mr_ui_perf_starts", "mr_ui_cat_perf", "mr_ui_cat_perf_sum"]
 specs = {}
 for lang in ("values", "values-pt-rBR", "values-es"):
     src = open(os.path.join(ROOT, "res", lang, "mr_strings.xml"), encoding="utf-8").read()
@@ -726,6 +899,8 @@ for lang in ("values", "values-pt-rBR", "values-es"):
     specs[lang] = {n: sorted(re.findall(r"%\d\$[sd]", have.get(n, ""))) for n in needed}
 check("the same placeholders in the three languages", specs["values"] == specs["values-pt-rBR"] == specs["values-es"])
 check("the line of a kind has its five values", specs["values"]["mr_ui_perf_stat"] == ["%1$s", "%2$s", "%3$s", "%4$s", "%5$d"])
+check("the line of the history of the starts has its five values (name, count, minimum, median, maximum)",
+      specs["values"]["mr_ui_perf_starts"] == ["%1$s", "%2$d", "%3$s", "%4$s", "%5$s"], specs["values"]["mr_ui_perf_starts"])
 
 print("\n%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

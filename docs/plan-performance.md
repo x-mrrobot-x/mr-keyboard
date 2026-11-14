@@ -415,4 +415,17 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   `queryIntentActivities` (an empty list, like a phone with no dictionary app) and the three small classes they return. The lesson for
   the checklist: the CI steps that load the app jar (`run_strategy_tests.sh`, `run_gesture_tests.sh`, `run_gesture_input_tests.sh`,
   `run_packs_tests.sh`) are run before a delivery, not only the battery and `run_java_tests.sh`.
+  The owner's run of build _79 (4 starts after a force stop, same build): "Start the keyboard" 34.5 / 33.9 / 52.8 / 72.1 ms against 67.4
+  of one start before; "Build the keyboard" 32.9 / 19.1 / 18.7 / 15.8 ms against 20.3; "Open in a field" 8.1 / 5.9 / 5.2 / 4.7 ms against
+  11.6 (first open); "Until it appears" 54.8 / 58.0 / 50.2 / 43.0 ms against 57.6. The spread of "Start the keyboard" on one build (34 to 72 ms)
+  is as large as the gain looked for, so one start cannot judge a change. The functional checks of the build (long press with accents,
+  language switch, gesture, tool bar) passed on the phone. What the stage removes is counted (the 883 compose sequences and the two
+  queries to the system are not made at the start; test_cold_start.py); the milliseconds stay an estimate.
+- Build _80 (the meter, no change in what the keyboard does): the Advanced screen keeps the last 9 starts it saw and shows the minimum,
+  median and maximum under "Start the keyboard" and "Build the keyboard", so a change to the start is judged by the median of several
+  starts and not by one. It is saved when the screen opens (not while the keyboard works), in a file of its own, and a tap on the row clears
+  it (the version does not change during the round, so the history cannot tell builds apart: tap after installing). Costs nothing per key.
+  PerfTest has 29 more checks (132 to 161: the record, the limit of 9, the median with an even count, damaged records, a tap, a phone that cannot write).
+  Next (the owner): install, tap the row, then 5 or more times: force stop the keyboard, open a field, type a little, open the Advanced
+  screen and look. Report the two lines "last N starts".
 
