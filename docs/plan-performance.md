@@ -408,4 +408,11 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   the keyboard", "Open in a field" and "Until it shows" on the Advanced screen, as done for the baseline; repeat 2 or 3 times (each stop is one
   sample). Also: a long press with accents, the language switch (if more than one language is on), a gesture, the tool bar, and a field of
   each kind; if there is a hardware keyboard or an app that sends combining marks, dead keys and the compose sequence still work.
+  Build _79 (CI fix, no change in the app): the "assemble" job stopped in the packs step with `NoSuchMethodError PackageManager.queryBroadcastReceivers`.
+  `PacksTest` and `ThreeLangTest` build a `Suggest` for a language that has no pack (German, and the pack-less cases), and since build _78
+  that goes through `PluginManager.ensurePlugins`, which asks the package manager; the PC stub of `PackageManager` did not have the two
+  query methods (before, only `onCreate` asked, and no test runs `onCreate`). The stub now has `queryBroadcastReceivers` and
+  `queryIntentActivities` (an empty list, like a phone with no dictionary app) and the three small classes they return. The lesson for
+  the checklist: the CI steps that load the app jar (`run_strategy_tests.sh`, `run_gesture_tests.sh`, `run_gesture_input_tests.sh`,
+  `run_packs_tests.sh`) are run before a delivery, not only the battery and `run_java_tests.sh`.
 

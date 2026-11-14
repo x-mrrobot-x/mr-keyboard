@@ -23,6 +23,7 @@ for a newer app, update, remove, the "Baixar dicionário" (Download dictionary) 
    `docs/tools/SignCatalog.java` (`catalog.json`; in `ok/` also `catalog_ec.json` with the EC key
    and `catalog_tamper.json` with the series changed after signing).
 3. Stubs: `docs/tools/java/stubs/android` + the ones in this folder (`stubs/`, which replace the ones with the same name).
+   The stub `PackageManager` also answers `queryBroadcastReceivers` and `queryIntentActivities` with an empty list: a language without a pack reaches `PluginManager.ensurePlugins`, which asks for the dictionary apps.
 4. `java -XX:+UnlockDiagnosticVMOptions -XX:-BytecodeVerificationRemote -Djava.library.path=<PC lib>
    -cp classes:stubs:e2e_classes:app_v163.jar:android_stubs com.mrkeyboard.app.PacksTest`
    (the `UiLocale.java` from here goes before the jar: the real class uses APIs that the PC does not have).
