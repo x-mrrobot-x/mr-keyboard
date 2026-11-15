@@ -43,6 +43,9 @@ import java.util.Arrays;
  *     variants of the key put together (Key.getPopupKeyboard; only when the popup of that key was not kept from before), and
  *     POPUP_SHOW, the popup window shown (PopupWindow.showAtLocation). Counting POPUP against POPUP_BUILD gives how many
  *     long presses found the variants ready;</li>
+ * <li>LONG_LATE: how much later than the set time the popup of a long press came (any key with a popup): the time from the touch
+ *     to the popup shown, minus the set time. Its pieces (the touch seen late, the timer run late, the popup) are kept for the
+ *     worst one, which the Advanced screen shows as a line of its own with the key it was ({@link #longShown}, MrLongPress);</li>
  * <li>SEL: the keyboard told by the app about a new selection (LatinIME.onUpdateSelection), the whole reaction. MSG: a delayed
  *     message of the keyboard handled (suggestions, shift state, old-word suggestions; LatinIME$1.handleMessage);</li>
  * <li>ECHO_CUT, ECHO_FULL: inside SEL, the check "is the cursor touching a word" after a new selection (re-correction). ECHO_CUT: the
@@ -91,7 +94,7 @@ public final class MrPerf {
             KEY_LETTER = 9, KEY_SEP = 10, KEY_DEL = 11, KEY_OTHER = 12, SUGG_ENGINE = 13, SUGG_SHOW = 14,
             OPEN_KB = 15, OPEN_SET = 16, POPUP = 17, APP_KEY = 18, APP_SUGG = 19, APP_OPEN = 20, APP_OTHER = 21,
             POPUP_BUILD = 22, POPUP_SHOW = 23, SEL = 24, MSG = 25, APP_SEL = 26, APP_MSG = 27, ECHO_CUT = 28, ECHO_FULL = 29, ECHO_ONE = 30, ECHO_RUN = 31, ECHO_DROP = 32,
-            CAPS_RUN = 33, CAPS_FLUSH = 34, CREATE_SUPER = 35, CREATE_SUGG = 36, TRIM = 37, KINDS = 38;
+            CAPS_RUN = 33, CAPS_FLUSH = 34, CREATE_SUPER = 35, CREATE_SUGG = 36, TRIM = 37, LONG_LATE = 38, KINDS = 39;
     /** A piece of work that began longer ago than this (milliseconds) and never ended is not taken as the place of a wait. */
     static final int PLACE_MAX_MS = 10000;
     /** Samples kept per kind (a power of two) for the average and the p95. */
@@ -116,12 +119,13 @@ public final class MrPerf {
             "mr_ui_perf_popup_build", "mr_ui_perf_popup_show", "mr_ui_perf_sel", "mr_ui_perf_msg",
             "mr_ui_perf_app_sel", "mr_ui_perf_app_msg", "mr_ui_perf_echo_cut", "mr_ui_perf_echo_full", "mr_ui_perf_echo_one",
             "mr_ui_perf_echo_run", "mr_ui_perf_echo_drop", "mr_ui_perf_caps_run", "mr_ui_perf_caps_flush",
-            "mr_ui_perf_create_super", "mr_ui_perf_create_sugg", "mr_ui_perf_trim" };
+            "mr_ui_perf_create_super", "mr_ui_perf_create_sugg", "mr_ui_perf_trim", "mr_ui_perf_long_late" };
     /** Names of the kinds in the log line. */
     static final String[] LOG = { "create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
             "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
             "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg",
-            "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop", "caps-run", "caps-flush", "create-super", "create-sugg", "trim" };
+            "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop", "caps-run", "caps-flush", "create-super", "create-sugg", "trim",
+            "long-late" };
 
     private static final int[] sRing = new int[KINDS * SIZE];
     private static final int[] sCount = new int[KINDS];
@@ -141,6 +145,16 @@ public final class MrPerf {
     static boolean sStartSaved;
     /** Count of KEY when the log line was last written. */
     private static int sLoggedKeys;
+    /** The code of the key whose popup is being opened (LatinKeyboardBaseView.onLongPress), for the worst long press. */
+    private static int sPopupCode;
+    /**
+     * The worst long press since the reset: how much later than the set time its popup came (ms; -1 = none yet), and its parts (ms):
+     * the set time, how long after the touch the keyboard armed the timer, how late the timer ran, how long the popup took; and its key.
+     */
+    private static long sWorstLate = -1, sWorstPlanned, sWorstSeen, sWorstTimer, sWorstPopup;
+    private static int sWorstCode;
+    /** The code of the sheet key (123 / ABC / TSK), the one the worst long press line names. */
+    static final int SHEET_KEY = -300;
     private static final int[] sScratch = new int[SIZE];
     /** Tests: the clock in nanoseconds; -1 = System.nanoTime. */
     static long sFakeNanos = -1;
@@ -310,6 +324,29 @@ public final class MrPerf {
     /** LatinIME.mrShiftCancel: the update that waited was dropped without being asked (replaced by another, or the field ended): not counted. */
     public static void capsForget() { sCapsAt = -1; }
 
+    /** LatinKeyboardBaseView.onLongPress, right after popupBegin: the code of the key whose popup is being opened. */
+    public static void popupKey(int code) { sPopupCode = code; }
+
+    /**
+     * MrLongPress.shown: a long press showed its popup. <code>totalMs</code> is the time from the touch to the popup shown,
+     * <code>plannedMs</code> the set time, and the rest where the time beyond it went: the keyboard armed the timer
+     * <code>seenMs</code> after the touch, its message ran <code>timerMs</code> after it was due, and the popup took
+     * <code>popupMs</code>. LONG_LATE counts the time beyond the set one; the worst one keeps its parts.
+     */
+    static void longShown(long totalMs, long plannedMs, long seenMs, long timerMs, long popupMs) {
+        long late = totalMs - plannedMs;
+        if (late < 0) late = 0;
+        add(LONG_LATE, late * 1000);
+        if (late > sWorstLate) {
+            sWorstLate = late;
+            sWorstPlanned = plannedMs;
+            sWorstSeen = seenMs < 0 ? 0 : seenMs;
+            sWorstTimer = timerMs < 0 ? 0 : timerMs;
+            sWorstPopup = popupMs < 0 ? 0 : popupMs;
+            sWorstCode = sPopupCode;
+        }
+    }
+
     /** LatinKeyboardView.onTouchEvent, first line: how late a finger down (first or another) reached the keyboard. */
     public static void touch(MotionEvent e) {
         if (e == null) return;
@@ -390,6 +427,7 @@ public final class MrPerf {
         sLoggedKeys = 0;
         sEchoAt = -1;
         sCapsAt = -1;
+        sWorstLate = -1;
         MrTrim.forget();
         MrLive.forget();
     }
@@ -555,6 +593,17 @@ public final class MrPerf {
                     if (sb.length() > 0) sb.append('\n');
                     sb.append(line);
                 }
+            }
+        }
+        if (sWorstLate >= 0) {
+            // the worst long press: how long from the touch to the popup, and where the time beyond the set one went
+            String key = MrPacks.text(c, sWorstCode == SHEET_KEY ? "mr_ui_perf_long_key_sheet" : "mr_ui_perf_long_key_other");
+            String worst = key == null ? null : MrPacks.text(c, "mr_ui_perf_long_worst", key, ms((int) ((sWorstPlanned + sWorstLate) * 1000)),
+                    ms((int) (sWorstPlanned * 1000)), ms((int) (sWorstSeen * 1000)), ms((int) (sWorstTimer * 1000)),
+                    ms((int) (sWorstPopup * 1000)));
+            if (worst != null) {
+                if (sb.length() > 0) sb.append('\n');
+                sb.append(worst);
             }
         }
         if (MrTrim.sCount > 0) {

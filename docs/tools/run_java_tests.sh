@@ -35,7 +35,7 @@
 #     files, a file mapped twice), the matching of the path, the texts, the report of a pack folder, and on Linux a real mapping seen as resident.
 #   - PerfTest: the performance meter of the keyboard (MrPerf): begin/end pairs in microseconds, the
 #     average and p95 of the last 256 samples with the count and maximum since the reset, the first frame after a field opens (not after
-#     2 s), how late a finger down reaches the keyboard, a key counted by its kind (letter, separator, delete, other), the Advanced row
+#     2 s), how late a finger down reaches the keyboard, the delay of the long press timer counted from the touch and the worst long press (MrLongPress), a key counted by its kind (letter, separator, delete, other), the Advanced row
 #     (lines, memory, a tap resets), the history of the last 9 starts (minimum, median, maximum; saved when the screen opens, cleared by a
 #     tap), one log line per hide with keys, and the memory cleanup of stage 4 (MrTrim: by level, against the view on screen, hidden or
 #     absent, a failure inside never goes up, the line of the last cleanup, the row that runs it by hand), and the count of the

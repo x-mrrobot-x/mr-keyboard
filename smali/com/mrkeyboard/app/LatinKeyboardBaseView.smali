@@ -5522,6 +5522,13 @@
     # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupBegin()V
 
+    # Performance meter (MrPerf): the key whose popup this is (v0 is read again from the field right below).
+    invoke-virtual {p1}, Lcom/mrkeyboard/app/Keyboard$Key;->getPrimaryCode()I
+
+    move-result v0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->popupKey(I)V
+
     iget v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mPopupLayout:I
 
     const/4 v1, 0x0
@@ -5909,6 +5916,9 @@
 
     # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupShowEnd()V
+
+    # Long press (MrLongPress): the numbers of this long press go to the meter; no register used.
+    invoke-static {}, Lcom/mrkeyboard/app/MrLongPress;->shown()V
 
     .line 1502
     iput-boolean v6, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardVisible:Z

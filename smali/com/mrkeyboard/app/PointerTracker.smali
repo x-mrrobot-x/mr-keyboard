@@ -835,13 +835,13 @@
     iget v1, v1, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->longpressTimeout:I
 
     # Gesture typing (MrGestureInput, 1.96.0): while a touch may still become a gesture, the long press of its key waits at
-    # least 300 ms. In every other case the value comes back as it went in.
+    # least 250 ms (MrGestureInput.LONG_PRESS_MIN). In every other case the value comes back as it went in.
     invoke-static {v1}, Lcom/mrkeyboard/app/MrGestureInput;->longPress(I)I
 
     move-result v1
 
     # Sheet key (code -300: the "123" / "ABC" / "TSK" key that opens the popup of sheets): its popup comes up after a fixed
-    # 150 ms, apart from the long-press time of the other keys (the setting, and the 300 ms of a possible gesture).
+    # 150 ms, apart from the long-press time of the other keys (the setting, and the 250 ms of a possible gesture).
     invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/PointerTracker;->getKey(I)Lcom/mrkeyboard/app/Keyboard$Key;
 
     move-result-object v3

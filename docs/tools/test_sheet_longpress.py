@@ -5,8 +5,12 @@ PointerTracker.startLongPressTimer (and getKey / isValidKeyIndex) running in the
 Run it from the project root:  python3 -I docs/tools/test_sheet_longpress.py
 
 The rule: the popup of sheets comes up after a fixed 150 ms; every other key keeps the long-press time of the setting (GlobalKeyboardSettings.
-longpressTimeout, 200 ms by default; MrGestureInput.longPress may raise it to 300 while a touch can still become a gesture; the momentary
+longpressTimeout, 200 ms by default; MrGestureInput.longPress may raise it to 250 while a touch can still become a gesture; the momentary
 auto mode switch state keeps its 3x). The sheet key ignores the setting and the gesture wait.
+
+These are the times the timer is ASKED for. The delay that is really sent counts from the touch, not from the moment the keyboard handled it:
+UIHandler.startLongPressTimer takes it from MrLongPress.arm (tested in PerfTest.java and in test_perf_meter.py), so a touch that reached
+the keyboard late shortens the wait by what it already lost, down to none.
 """
 import os
 import sys

@@ -46,7 +46,9 @@ public class PerfTest {
             {"mr_ui_perf_popup_build", "Popup build"}, {"mr_ui_perf_popup_show", "Popup show"},
             {"mr_ui_perf_sel", "Selection change"}, {"mr_ui_perf_msg", "Message"}, {"mr_ui_perf_app_sel", "App in a selection change"},
             {"mr_ui_perf_app_msg", "App in a message"}, {"mr_ui_perf_echo_cut", "Echo short check"}, {"mr_ui_perf_echo_full", "Echo full check"}, {"mr_ui_perf_echo_one", "Echo one question"}, {"mr_ui_perf_echo_run", "Echo reaction that waited"}, {"mr_ui_perf_echo_drop", "Echo reaction dropped"}, {"mr_ui_perf_caps_run", "Caps update that waited"}, {"mr_ui_perf_caps_flush", "Caps update asked early"}, {"mr_ui_perf_create_super", "Start: Android"}, {"mr_ui_perf_create_sugg", "Start: engine"}, {"mr_ui_perf_frame_gpu", "Frame (GPU)"}, {"mr_ui_perf_frame_cpu", "Frame (CPU)"},
-            {"mr_ui_perf_trim", "Memory cleanup"},
+            {"mr_ui_perf_trim", "Memory cleanup"}, {"mr_ui_perf_long_late", "Long press: delay beyond the set time"},
+            {"mr_ui_perf_long_worst", "Worst long press (%1$s): %2$s ms from the touch to the popup, set %3$s ms · touch seen after %4$s ms · timer late %5$s ms · popup %6$s ms"},
+            {"mr_ui_perf_long_key_sheet", "123 key"}, {"mr_ui_perf_long_key_other", "other key"},
             {"mr_ui_perf_trim_last", "Last cleanup: level %1$d · let go of %2$d keyboards, %3$d popups, %4$d shadows (%5$s)"},
             {"mr_ui_perf_alive", "Alive after the cleanup: service %1$d · keyboard %2$d"},
             {"mr_ui_perf_starts", "%1$s, last %2$d starts: min %3$s ms · median %4$s · max %5$s"},
@@ -717,6 +719,98 @@ public class PerfTest {
         MrPerf.reset();
         svcA = null;
         viewA = null;
+
+        // ---------------------------------------------------------------- the long press (MrLongPress and the meter)
+        MrPerf.reset();
+        MrLongPress.forget();
+        // the timer counts from the touch, not from the moment the keyboard handled it
+        MrLongPress.sFakeNow = 1000;
+        MrLongPress.event(MotionEvent.stub(0, 0, 1000, 1000, new int[] {0}, new float[] {1}, new float[] {1}));
+        check("a touch seen on time: the whole set time (150 ms)", 150L, MrLongPress.arm(150));
+        MrLongPress.sFakeNow = 2040;
+        MrLongPress.event(MotionEvent.stub(0, 0, 2000, 2000, new int[] {0}, new float[] {1}, new float[] {1}));
+        check("a touch seen 40 ms late: 40 ms less (110)", 110L, MrLongPress.arm(150));
+        MrLongPress.sFakeNow = 3153;
+        MrLongPress.event(MotionEvent.stub(0, 0, 3000, 3000, new int[] {0}, new float[] {1}, new float[] {1}));
+        check("a touch seen 153 ms late for a 150 ms key: no wait (0)", 0L, MrLongPress.arm(150));
+        MrLongPress.sFakeNow = 4153;
+        MrLongPress.event(MotionEvent.stub(0, 0, 4000, 4000, new int[] {0}, new float[] {1}, new float[] {1}));
+        check("the same 153 ms for the 600 ms of the momentary state: 447", 447L, MrLongPress.arm(600));
+        check("an event arms one timer: the next one that no touch asked for counts from now (150)", 150L, MrLongPress.arm(150));
+        MrLongPress.event(null);
+        check("no event (null): counts from now", 150L, MrLongPress.arm(150));
+        MrLongPress.event(MotionEvent.stub(0, 0, 4200, 4200, new int[] {0}, new float[] {1}, new float[] {1}));
+        check("an event in the future of the clock: counts from now", 150L, MrLongPress.arm(150));
+        MrLongPress.event(MotionEvent.stub(0, 0, 3000, 3000, new int[] {0}, new float[] {1}, new float[] {1}));
+        check("an event that is long gone (1.2 s): no wait, never a negative delay", 0L, MrLongPress.arm(150));
+        check("nothing was counted by the timers alone", 0, st(MrPerf.LONG_LATE)[0]);
+
+        // the numbers: from the touch to the popup, minus the set time, and where it went
+        MrLongPress.forget();
+        MrPerf.reset();
+        MrLongPress.sFakeNow = 1000;
+        MrLongPress.event(MotionEvent.stub(0, 0, 1000, 1000, new int[] {0}, new float[] {1}, new float[] {1}));
+        MrLongPress.arm(150);
+        MrLongPress.sFakeNow = 1150;
+        MrLongPress.ran();
+        MrPerf.popupKey(-300);
+        MrLongPress.sFakeNow = 1160;
+        MrLongPress.shown();
+        check("a long press on time: 10 ms beyond the set time (the popup)", "1,10000", st(MrPerf.LONG_LATE)[0] + "," + st(MrPerf.LONG_LATE)[4]);
+        MrLongPress.shown();
+        check("the same long press is not counted twice", 1, st(MrPerf.LONG_LATE)[0]);
+        MrLongPress.forget();
+        MrLongPress.shown();
+        check("a popup that no timer asked for is not counted", 1, st(MrPerf.LONG_LATE)[0]);
+
+        // the touch seen 153 ms late, the timer 2 ms late, the popup 17 ms
+        MrLongPress.sFakeNow = 2153;
+        MrLongPress.event(MotionEvent.stub(0, 0, 2000, 2000, new int[] {0}, new float[] {1}, new float[] {1}));
+        MrLongPress.arm(150);
+        MrLongPress.sFakeNow = 2155;
+        MrLongPress.ran();
+        MrPerf.popupKey(-300);
+        MrLongPress.sFakeNow = 2172;
+        MrLongPress.shown();
+        check("the late touch: 22 ms beyond the set time", "2,22000", st(MrPerf.LONG_LATE)[0] + "," + st(MrPerf.LONG_LATE)[4]);
+        Advanced lp = new Advanced();
+        MrPerf.fill(lp);
+        String lpText = String.valueOf(lp.row.summary);
+        check("the row names the line of the delay", true, lpText.contains("Long press: delay beyond the set time: average "));
+        check("... and the worst one, its key and its parts (touch seen after 153, timer late 2, popup 17)", true,
+                lpText.contains("Worst long press (123 key): 172.0 ms from the touch to the popup, set 150.0 ms"
+                        + " · touch seen after 153.0 ms · timer late 2.0 ms · popup 17.0 ms"));
+
+        // a key that is not the sheet key, worse than that
+        MrLongPress.sFakeNow = 3400;
+        MrLongPress.event(MotionEvent.stub(0, 0, 3000, 3000, new int[] {0}, new float[] {1}, new float[] {1}));
+        MrLongPress.arm(250);
+        MrLongPress.sFakeNow = 3402;
+        MrLongPress.ran();
+        MrPerf.popupKey('x');
+        MrLongPress.sFakeNow = 3420;
+        MrLongPress.shown();
+        MrPerf.fill(lp);
+        lpText = String.valueOf(lp.row.summary);
+        check("a worse one on another key replaces it and names it 'other key' (420 ms, set 250)", true,
+                lpText.contains("Worst long press (other key): 420.0 ms from the touch to the popup, set 250.0 ms"
+                        + " · touch seen after 400.0 ms · timer late 2.0 ms · popup 18.0 ms"));
+        MrLongPress.sFakeNow = 5010;
+        MrLongPress.event(MotionEvent.stub(0, 0, 5000, 5000, new int[] {0}, new float[] {1}, new float[] {1}));
+        MrLongPress.arm(150);
+        MrLongPress.sFakeNow = 5160;
+        MrLongPress.ran();
+        MrLongPress.sFakeNow = 5170;
+        MrLongPress.shown();
+        MrPerf.fill(lp);
+        check("a milder one does not replace the worst", true, String.valueOf(lp.row.summary).contains("Worst long press (other key): 420.0 ms"));
+        check("... but is counted (4)", 4, st(MrPerf.LONG_LATE)[0]);
+        check("the log names the kind", true, MrPerf.line().contains("long-late "));
+        MrPerf.reset();
+        MrPerf.fill(lp);
+        check("the reset takes the worst one away", false, String.valueOf(lp.row.summary).contains("Worst long press"));
+        MrLongPress.forget();
+        MrLongPress.sFakeNow = -1;
 
         // ---------------------------------------------------------------- the log
         MrPerf.reset();

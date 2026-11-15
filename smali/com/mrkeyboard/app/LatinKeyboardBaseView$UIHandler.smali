@@ -163,6 +163,9 @@
 
     .line 316
     :pswitch_0
+    # Long press (MrLongPress): the message of the long press timer ran.
+    invoke-static {}, Lcom/mrkeyboard/app/MrLongPress;->ran()V
+
     iget-object v0, p1, Landroid/os/Message;->obj:Ljava/lang/Object;
 
     check-cast v0, Lcom/mrkeyboard/app/PointerTracker;
@@ -319,6 +322,11 @@
 
 .method public startLongPressTimer(JILcom/mrkeyboard/app/PointerTracker;)V
     .locals 2
+
+    # Long press (MrLongPress): the delay counts from the touch that arms the timer, not from the moment the keyboard handled it.
+    invoke-static {p1, p2}, Lcom/mrkeyboard/app/MrLongPress;->arm(J)J
+
+    move-result-wide p1
 
     const/4 v0, 0x4
 

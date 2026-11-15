@@ -96,6 +96,10 @@
     <string name="mr_ui_perf_create_sugg">Start: the suggestion engine</string>
     <string name="mr_ui_perf_trim">Memory cleanup</string>
     <string name="mr_ui_perf_trim_last">Last cleanup: level %1$d · let go of %2$d keyboards, %3$d popups, %4$d shadows (%5$s)</string>
+    <string name="mr_ui_perf_long_late">Long press: delay beyond the set time</string>
+    <string name="mr_ui_perf_long_worst">Worst long press (%1$s): %2$s ms from the touch to the popup, set %3$s ms · touch seen after %4$s ms · timer late %5$s ms · popup %6$s ms</string>
+    <string name="mr_ui_perf_long_key_sheet">123 key</string>
+    <string name="mr_ui_perf_long_key_other">other key</string>
     <string name="mr_ui_perf_alive">Alive after the cleanup: service %1$d · keyboard %2$d</string>
     <string name="mr_ui_perf_trim_now">Free memory now (test)</string>
     <string name="mr_ui_perf_trim_now_sum">Lets go of what the keyboard can make again, as if the system had asked for memory, then runs a garbage collection. “Last cleanup” shows what was let go; “Alive” shows what still exists after the collection.</string>

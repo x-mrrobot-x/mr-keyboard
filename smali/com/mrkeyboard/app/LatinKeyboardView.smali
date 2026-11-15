@@ -1270,6 +1270,9 @@
     # Performance meter (MrPerf): how late a finger down reached the keyboard.
     invoke-static {p1}, Lcom/mrkeyboard/app/MrPerf;->touch(Landroid/view/MotionEvent;)V
 
+    # Long press (MrLongPress): the time of this touch, so that the timer it arms counts from the touch and not from now.
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrLongPress;->event(Landroid/view/MotionEvent;)V
+
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrGestureInput;->onTouch(Lcom/mrkeyboard/app/LatinKeyboardView;Landroid/view/MotionEvent;)Z
 
     move-result v0

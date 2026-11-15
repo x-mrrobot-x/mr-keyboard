@@ -21,6 +21,8 @@ manifest flag `hardwareAccelerated="false"` is not flipped and nothing assumes w
 - Cold start: the compose tables are made on first use, and the dictionary apps are looked up only for a language that has no downloaded pack.
 - Memory: the keyboard lets go of what it can make again when Android asks (`onTrimMemory`), closes the engine and the databases when the
   service ends, and no longer leaves an old service alive after a switch to another keyboard (stage 4 part 4).
+- Long press: the timer counts from the moment of the touch, not from the moment the keyboard handled it, so a touch that reached the
+  keyboard late no longer makes the popup come twice as late (the section "Long press" below).
 - Not done, because the meter showed it was not needed: drawing only what changed (a frame is about 3 ms), inflating the panels late (building
   the keyboard is about 17 ms), and hardware acceleration for the settings screens.
 
@@ -51,6 +53,7 @@ measured is not shown.
 | Open the long-press popup | the popup of variants of a key built and shown | `LatinKeyboardBaseView.onLongPress` |
 | Popup: put the variants together | inside "Open the long-press popup": the variants of the key built (`Key.getPopupKeyboard`). Only when the popup of that key was not kept from before, so its count against the count of the popup line is how many long presses found the variants ready | `LatinKeyboardBaseView.getLongPressKeyboard` |
 | Popup: show the window | inside "Open the long-press popup": the popup window shown (`PopupWindow.showAtLocation`, a call to the system) | `LatinKeyboardBaseView.onLongPress` |
+| Long press: delay beyond the set time | how much later than the set time the popup of a long press came (any key with a popup): the time from the touch to the popup shown, minus the set time (150 ms for the 123 key, the setting for the other keys). On time it is only the cost of the popup; it grows when the touch reached the keyboard late, when the timer ran late or when the popup was slow | `MrLongPress.shown` → `MrPerf.longShown` |
 | Selection change | the keyboard's reaction when the app reports a new cursor or selection (after every key typed, and when the user moves the cursor). Includes the questions it asks the app back | `LatinIME.onUpdateSelection` |
 | Selection echo: one question / full check | inside "Selection change": the check "is the cursor touching a word" after a new selection. **One question**: the report was the echo of a separator the keyboard typed itself, so only the character after the cursor was asked. **Full check**: any other report (another cursor position, a selection, a key typed in between, no separator of ours). The count of each line says how many echoes took each way | `LatinIME.mrEchoTouchingWord` |
 | Selection echo: one question for both sides (Android 12+) | inside "Selection change", in the same echo of our own separator: ONE `getSurroundingText` answered both "is a word character after the cursor" and the text before the cursor that the next-word prediction reads. Counted only when the app answered it. On Android 11 or older, in an app that does not answer it (asked once per field, then not again) and with a selection, this line stays empty and the echo asks as before | `MrSurround.echo` |
@@ -58,6 +61,12 @@ measured is not shown.
 | Delayed capital-letter check: wait until the message ran it / until a key asked it at once | the check of the shift state at the end of a separator (the question to the app "does the next letter start a sentence?") can wait 100 ms for the app to be idle (switch "Delay the capital-letter check" on the Advanced screen, on by default). The first line is how long it waited when its message ran it, the second how long when a key, a text or a suggestion asked it at once before the message. A check that the end of a field dropped, or that another update of the shift state replaced, is counted in neither | `LatinIME.mrShiftRun` / `mrShiftFlush` |
 | Message | the work of the keyboard's own delayed messages (the shift state, the suggestions after a key) | `LatinIME$1.handleMessage` |
 | Wait for the app: inside a key / in the suggestions / when opening / in a selection change / in a message / at other times | the same waits as "Wait for the app", counted again by where they are asked: inside a key (not in its suggestions), inside the suggestions, inside an open, inside the reaction to a selection change, inside a message, and anywhere else. The innermost piece of work under way decides, so a wait is in "Wait for the app" and in exactly one of the six. A piece of work that began more than 10 s ago and never ended is not taken as the place | `MrPerf.appEnd` |
+
+Under the lines of the kinds, once a long press has shown a popup, one more line: **Worst long press (123 key | other key)**: the whole
+time from the touch to the popup, the set time, and where the time beyond it went: *touch seen after* (how long after the touch the keyboard
+armed the timer, the feedback of the press included), *timer late* (how long after it was due the message ran) and *popup* (how long the
+popup took to be built and shown). It keeps the worst one since the reset, so a slow long press that was felt but not seen can be read afterwards.
+The whole time is the larger of "touch seen after" and the set time, plus the other two.
 
 Under "Start the keyboard", "Build the keyboard" and the two parts of the start ("Start: the Android part", "Start: the suggestion
 engine") a second line appears from the second start on:
@@ -446,3 +455,34 @@ the old smali; `onAutoCompletionStateChanged` with no view, with a view with no 
 with a control that can see one still held), `PerfTest.java` (`MrLive` with real weak references: one and one, the same object twice, a second
 service held and let go of, null, the reset, the row) and `docs/tools/test_perf_meter.py` (the line in its place, the reset, the texts in three
 languages).
+
+## Long press: the timer counts from the touch
+
+Seen on a phone (a long press on the 123 key, whose popup of sheets comes after a fixed 150 ms; ten long presses after a reset): the popup was
+never the slow part (build 0.0 ms because it was kept, show the window 17.6 ms on average, 24.1 ms at most), and the one slow number was
+"Touch wait": one finger down that reached the keyboard 153 ms after it happened (the other eleven about 17 ms). Until then the timer was sent
+"150 ms from now", and now was when the keyboard handled the touch, so a touch seen 153 ms late brought the popup at about 300 ms after the
+finger. A heap dump taken on the same phone showed nothing held in the keyboard's state (not the momentary mode switch state, not the gesture
+state, no message waiting), and the setting of the long press was 200 ms as set: the late touch is what was left.
+
+What changed:
+
+- `UIHandler.startLongPressTimer` asks `MrLongPress.arm` for the delay it sends. The delay is the set time minus the time already lost between the
+  event time of the touch (`MotionEvent.getEventTime`, noted by `LatinKeyboardView.onTouchEvent`) and now, never below 0. It is how Android's own
+  gesture detector times a long press (from the event, not from when it was handled). The event arms one timer: a timer that no touch asked for is
+  counted from now, as before.
+- A finger that already left is not turned into a long press: its release is already in the same queue and is normally handled right after
+  its press, which cancels the timer. A finger still down after the set time (counted from the touch) gets its popup at once.
+- The meter: "Long press: delay beyond the set time" and the line of the worst one (above).
+
+**When the popup of a long press feels late again:** open Advanced → Performance → Keyboard times (do not tap it first) and read "Worst long press".
+If "touch seen after" is the large number, the main thread or the system was busy when the touch came (the line "Touch wait" says the same);
+if "timer late" is, the main thread was busy when the message was due; if "popup" is, showing the window took the time. With all three small
+and the touch still felt late, the delay is somewhere the meter does not see yet.
+
+The numbers are in milliseconds, from `SystemClock.uptimeMillis`, so each one has about 1 ms of error.
+
+Tests: `PerfTest.java` (the delay for a touch on time, 40 ms late, 153 ms late for a 150 ms key, 153 ms late for the 600 ms of the momentary
+state, no event, an event from the future, an event long gone; one timer per event; the numbers of a long press and their parts; the worst one
+and its key; the count once; the reset) and `docs/tools/test_perf_meter.py` (`longShown` in the real smali of `MrPerf`, the worst line in its
+place, texts missing, negative parts shown as 0; and where the keyboard calls `MrLongPress`: the touch, the timer, the message, the popup).

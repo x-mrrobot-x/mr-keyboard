@@ -16,12 +16,15 @@ generates from docs/tools/java/src/com/mrkeyboard/app/MrPerf.java is held to the
   - a finger down (first or another) counts how late it reached the keyboard; other actions do not count;
   - the Advanced row: one line per kind measured, in order (one sample: its time only), the memory, how to reset; nothing measured:
     "nothing yet" and the memory; a tap resets; no row or a broken screen: nothing happens;
+  - a long press that showed its popup (MrPerf.longShown, called by MrLongPress) counts how much later than the set time it came, keeps the
+    parts of the worst one with its key, and the Advanced row shows that worst one under the kinds, before the cleanup and the memory;
   - the log gets one line when the keyboard hides after new keys.
 Part 2 reads the smali of the keyboard: every piece of work measured has its begin before the work and its end right before every
 return (no register used; the key code goes to keyBegin), EVERY question to the app (text before and after the cursor, selected
 text, the caps mode, the whole text) of LatinIME and EditingUtil is wrapped right after its result, the touch is the first line of the
 keyboard view, the log is written when the window hides, the row is filled when the Advanced screen resumes; and the row, its
-layout and its texts exist in the three languages with the same placeholders.
+layout and its texts exist in the three languages with the same placeholders; the timer of the long press takes its delay from
+MrLongPress.arm before it is sent, the message that runs it tells MrLongPress, and the popup tells it again when it is shown.
 """
 import os
 import re
@@ -57,6 +60,8 @@ TEXTS = {
     "mr_ui_perf_popup_build": "PopupBuild", "mr_ui_perf_popup_show": "PopupShow", "mr_ui_perf_sel": "Sel", "mr_ui_perf_msg": "Msg",
     "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_echo_one": "EchoOne", "mr_ui_perf_echo_run": "EchoRun", "mr_ui_perf_echo_drop": "EchoDrop", "mr_ui_perf_caps_run": "CapsRun", "mr_ui_perf_caps_flush": "CapsFlush", "mr_ui_perf_create_super": "CreateSuper", "mr_ui_perf_create_sugg": "CreateSugg", "mr_ui_perf_trim": "Trim", "mr_ui_perf_trim_last": "Last cleanup: level %1$d · %2$d keyboards, %3$d popups, %4$d shadows (%5$s)", "mr_ui_perf_alive": "Alive after the cleanup: service %1$d · keyboard %2$d", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
     "mr_ui_perf_stat": "%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)",
+    "mr_ui_perf_long_late": "LongLate", "mr_ui_perf_long_worst": "Worst (%1$s) %2$s/%3$s/%4$s/%5$s/%6$s",
+    "mr_ui_perf_long_key_sheet": "sheet", "mr_ui_perf_long_key_other": "other",
     "mr_ui_perf_one": "%1$s: %2$s ms", "mr_ui_perf_none": "Nothing yet.", "mr_ui_perf_mem": "Memory: Java %1$s · native %2$s",
     "mr_ui_perf_reset": "Tap to reset.",
     "mr_ui_perf_starts": "%1$s, last %2$d starts: min %3$s ms · median %4$s · max %5$s"}
@@ -274,10 +279,11 @@ def j(a):
 KINDS = ["create", "view", "open", "shown", "frame", "key", "touch", "app", "sugg",
          "key-letter", "key-sep", "key-del", "key-other", "sugg-engine", "sugg-show", "open-kb", "open-set", "popup",
          "app-key", "app-sugg", "app-open", "app-other", "popup-build", "popup-show", "sel", "msg", "app-sel", "app-msg",
-         "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop", "caps-run", "caps-flush", "create-super", "create-sugg", "trim"]
+         "echo-cut", "echo-full", "echo-one", "echo-run", "echo-drop", "caps-run", "caps-flush", "create-super", "create-sugg", "trim",
+         "long-late"]
 N = len(KINDS)
 CREATE, VIEW, OPEN, SHOWN, FRAME, KEY, TOUCH, APP_, SUGG, KEY_LETTER, KEY_SEP, KEY_DEL, KEY_OTHER, SUGG_ENGINE, SUGG_SHOW, \
-    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW, SEL, MSG, APP_SEL, APP_MSG, ECHO_CUT, ECHO_FULL, ECHO_ONE, ECHO_RUN, ECHO_DROP, CAPS_RUN, CAPS_FLUSH, CREATE_SUPER, CREATE_SUGG, TRIM = range(N)
+    OPEN_KB, OPEN_SET, POPUP, APP_KEY, APP_SUGG, APP_OPEN, APP_OTHER, POPUP_BUILD, POPUP_SHOW, SEL, MSG, APP_SEL, APP_MSG, ECHO_CUT, ECHO_FULL, ECHO_ONE, ECHO_RUN, ECHO_DROP, CAPS_RUN, CAPS_FLUSH, CREATE_SUPER, CREATE_SUGG, TRIM, LONG_LATE = range(N)
 
 # ======================================================================== part 1: the smali of MrPerf
 fw = Fw()
@@ -542,7 +548,7 @@ fw.fill(scr)
 lines = row.f["summary"].split("\n")
 names = ["Start", "View", "Open", "Shown", "Frame", "Key", "Touch", "App", "Sugg", "KeyLetter", "KeySep", "KeyDel", "KeyOther",
          "SuggEngine", "SuggShow", "OpenKb", "OpenSet", "Popup", "AppKey", "AppSugg", "AppOpen", "AppOther", "PopupBuild", "PopupShow",
-         "Sel", "Msg", "AppSel", "AppMsg", "EchoCut", "EchoFull", "EchoOne", "EchoRun", "EchoDrop", "CapsRun", "CapsFlush", "CreateSuper", "CreateSugg", "Trim"]
+         "Sel", "Msg", "AppSel", "AppMsg", "EchoCut", "EchoFull", "EchoOne", "EchoRun", "EchoDrop", "CapsRun", "CapsFlush", "CreateSuper", "CreateSugg", "Trim", "LongLate"]
 check("every kind in order, then memory and reset", len(lines) == N + 2
       and all(lines[k].startswith("%s: average %d.0 ms" % (names[k], k + 1)) for k in range(N)), lines)
 # the frame line says what a frame measures, by how this device draws the window (MrAccel.state: 0 unknown, 1 GPU, 2 CPU)
@@ -619,6 +625,38 @@ try:
 except dm.JavaExc:
     quiet = False
 check("a broken screen: no exception", quiet and row.f["summary"] is None)
+
+# ---------------------------------------------------------------- the long press, with the real smali
+# MrLongPress (Java layer) calls longShown(total, set, seen, timer, popup) in ms when a popup of a long press was shown; popupKey gives its key.
+fw.run("reset()V")
+check("nothing of the long press measured: no worst line", "Worst" not in summary_for())
+fw.run("popupKey(I)V", -300)
+fw.run("longShown(JJJJJ)V", 172, 150, 153, 2, 17)
+check("a long press at 172 ms for a set time of 150: LONG_LATE counts the 22 ms beyond it", j(fw.stats(LONG_LATE)) == "1,22000,22000,22000,22000",
+      fw.stats(LONG_LATE))
+lp = summary_for().split("\n")
+check("the worst one is a line of its own: the key (sheet), the whole time, the set time and the three parts, after the kinds and before the memory",
+      lp[:3] == ["LongLate: 22.0 ms", "Worst (sheet) 172.0/150.0/153.0/2.0/17.0", lp[2]] and lp[2].startswith("Memory:"), lp)
+fw.run("popupKey(I)V", ord("x"))
+fw.run("longShown(JJJJJ)V", 420, 250, 400, 2, 18)
+check("a worse one on another key replaces it and names it 'other'", "Worst (other) 420.0/250.0/400.0/2.0/18.0" in summary_for().split("\n"))
+fw.run("longShown(JJJJJ)V", 160, 150, 0, 0, 10)
+check("a milder one does not replace the worst, but is counted (3)", "Worst (other) 420.0/250.0/400.0/2.0/18.0" in summary_for().split("\n")
+      and fw.stats(LONG_LATE)[0] == 3 and fw.stats(LONG_LATE)[3] == 170000, fw.stats(LONG_LATE))
+fw.run("longShown(JJJJJ)V", 100, 150, 0, 0, 10)
+check("a popup before the set time (a clock that stepped) counts 0, never a negative time", fw.stats(LONG_LATE)[4] == 0, fw.stats(LONG_LATE))
+fw.missing = {"mr_ui_perf_long_key_other"}
+check("the text of the key missing: the worst line is left out and no 'None' is written", "Worst" not in summary_for() and "None" not in summary_for())
+fw.missing = {"mr_ui_perf_long_worst"}
+check("its own text missing: the same", "Worst" not in summary_for() and "None" not in summary_for())
+fw.missing = set()
+fw.run("reset()V")
+check("the reset takes the worst one and the count away", "Worst" not in summary_for() and fw.stats(LONG_LATE)[0] == 0)
+fw.run("popupKey(I)V", -300)
+fw.run("longShown(JJJJJ)V", 160, 150, -5, -3, -1)
+check("parts that came out negative (clock steps) are shown as 0", "Worst (sheet) 160.0/150.0/0.0/0.0/0.0" in summary_for().split("\n"),
+      summary_for().split("\n"))
+fw.run("reset()V")
 
 # ---------------------------------------------------------------- the history of the starts, with the real smali
 # One process gives one sample of "Start the keyboard" and of "Build the keyboard", and the same build varies a lot from one start to the
@@ -893,6 +931,29 @@ check("the popup window shown is timed around showAtLocation",
       c[i - 1] == CALL + "popupShowBegin()V" and c[i + 1] == CALL + "popupShowEnd()V"
       and c.count(CALL + "popupShowBegin()V") == 1 and c.count(CALL + "popupShowEnd()V") == 1, c[i - 1:i + 2])
 
+LP = "Lcom/mrkeyboard/app/MrLongPress;"
+# the long press counts from the touch: the delay goes through MrLongPress.arm before it is sent, the message that runs it and the popup tell it
+c = code(body("LatinKeyboardBaseView$UIHandler.smali", "public startLongPressTimer(JILcom/mrkeyboard/app/PointerTracker;)V"))
+i_arm = next((k for k, l in enumerate(c) if "->arm(J)J" in l), -1)
+i_send = next((k for k, l in enumerate(c) if "->sendMessageDelayed(" in l), -1)
+check("the timer takes its delay from MrLongPress.arm (the first call) and sends the message with it",
+      c[0] == "invoke-static {p1, p2}, " + LP + "->arm(J)J" and c[1] == "move-result-wide p1" and 0 <= i_arm < i_send
+      and c[i_send].endswith("{p0, p3, p1, p2}, Lcom/mrkeyboard/app/LatinKeyboardBaseView$UIHandler;->sendMessageDelayed(Landroid/os/Message;J)Z")
+      and sum("->arm(J)J" in l for l in c) == 1, (c[:3], c[i_send] if i_send >= 0 else None))
+b = body("LatinKeyboardBaseView$UIHandler.smali", "public handleMessage(Landroid/os/Message;)V")
+i_case = b.index(":pswitch_0")
+check("the message of the long press timer (what 4, the last case) tells MrLongPress that it ran, before it works",
+      b[i_case + 1] == "invoke-static {}, " + LP + "->ran()V" and sum("->ran()V" in l for l in b) == 1, b[i_case:i_case + 3])
+c = code(body("LatinKeyboardBaseView.smali", "protected onLongPress(Lcom/mrkeyboard/app/Keyboard$Key;)Z"))
+check("onLongPress gives the meter the key right after popupBegin (a code read from the key, in a register read again right after)",
+      c[0] == CALL + "popupBegin()V" and c[1] == "invoke-virtual {p1}, Lcom/mrkeyboard/app/Keyboard$Key;->getPrimaryCode()I"
+      and c[2] == "move-result v0" and c[3] == "invoke-static {v0}, " + PERF + "->popupKey(I)V" and c[4].startswith("iget v0, p0, ")
+      and c.count("invoke-static {v0}, " + PERF + "->popupKey(I)V") == 1, c[:5])
+i = next(k for k, l in enumerate(c) if "PopupWindow;->showAtLocation(" in l)
+check("... and tells MrLongPress that the popup was shown, right after popupShowEnd (once)",
+      c[i + 1] == CALL + "popupShowEnd()V" and c[i + 2] == "invoke-static {}, " + LP + "->shown()V" and c.count("invoke-static {}, " + LP + "->shown()V") == 1,
+      c[i:i + 3])
+
 # a call put inside an annotation block (the Signature of a method) would not assemble: smali stops at "value {"
 inside_annotation = []
 for name in sorted(f for f in os.listdir(APP) if f.endswith(".smali")):
@@ -951,6 +1012,9 @@ check("the log line when the window hides", c.count(CALL + "onHidden()V") == 1 a
       and c[1] == CALL + "onHidden()V", c[:2])
 c = code(body("LatinKeyboardView.smali", "public onTouchEvent(Landroid/view/MotionEvent;)Z"))
 check("the touch is the first line of the keyboard view", c[0] == "invoke-static {p1}, " + PERF + "->touch(Landroid/view/MotionEvent;)V", c[0])
+check("... and its event time goes to MrLongPress right after it, before the gesture typing sees the touch",
+      c[1] == "invoke-static {p1}, " + LP + "->event(Landroid/view/MotionEvent;)V"
+      and c[2].startswith("invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrGestureInput;->onTouch("), c[:3])
 c = code(body("PrefScreenAdvanced.smali", "protected onResume()V"))
 check("the Advanced screen fills the row when it resumes",
       "invoke-static {p0}, " + PERF + "->fill(Landroid/preference/PreferenceActivity;)V" in c)
@@ -958,11 +1022,11 @@ check("the Advanced screen fills the row when it resumes",
 perf_src = open(os.path.join(APP, "MrPerf.smali"), encoding="utf-8").read()
 called = set()
 for f in os.listdir(APP):
-    # MrTrim is of the Java layer (the same package, so it calls begin/end, which are not public)
-    if f.endswith(".smali") and not f.startswith("MrPerf") and not f.startswith("MrTrim"):
+    # MrTrim and MrLongPress are of the Java layer (the same package, so they call begin/end and longShown, which are not public)
+    if f.endswith(".smali") and not f.startswith("MrPerf") and not f.startswith("MrTrim") and not f.startswith("MrLongPress"):
         called |= set(re.findall(re.escape(PERF) + r"->(\w+\([^)]*\)\S+)", open(os.path.join(APP, f), encoding="utf-8").read()))
 missing = [m for m in sorted(called) if not re.search(r"\.method public static " + re.escape(m) + r"\n", perf_src)]
-check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 52,
+check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 53,
       (missing, len(called)))
 
 xml = open(os.path.join(ROOT, "res", "xml", "prefs_advanced.xml"), encoding="utf-8").read()
@@ -973,7 +1037,8 @@ lay = open(os.path.join(ROOT, "res", "layout", "mr_ui_pref_row_metrics.xml"), en
 check("its layout shows every line (no maxLines)", "android:id/summary" in lay and "maxLines" not in lay)
 needed = ["mr_ui_perf_" + k.replace("-", "_") for k in KINDS] + ["mr_ui_perf", "mr_ui_perf_stat", "mr_ui_perf_one", "mr_ui_perf_none", "mr_ui_perf_mem",
                                               "mr_ui_perf_reset", "mr_ui_perf_starts", "mr_ui_cat_perf", "mr_ui_cat_perf_sum",
-                                              "mr_ui_perf_trim_last", "mr_ui_perf_alive",
+                                              "mr_ui_perf_trim_last", "mr_ui_perf_alive", "mr_ui_perf_long_worst",
+                                              "mr_ui_perf_long_key_sheet", "mr_ui_perf_long_key_other",
                                               "mr_ui_perf_trim_now", "mr_ui_perf_trim_now_sum"]
 specs = {}
 for lang in ("values", "values-pt-rBR", "values-es"):
