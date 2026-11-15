@@ -97,6 +97,9 @@
     <string name="mr_ui_perf_trim">Memory cleanup</string>
     <string name="mr_ui_perf_trim_last">Last cleanup: level %1$d · let go of %2$d keyboards, %3$d popups, %4$d shadows (%5$s)</string>
     <string name="mr_ui_perf_alive">Alive after the cleanup: service %1$d · keyboard %2$d</string>
+    <string name="mr_ui_perf_held">Held by: %1$s</string>
+    <string name="mr_ui_perf_held_out">No variable of the app holds the old one: the system, a thread or a message queue does</string>
+    <string name="mr_ui_perf_held_cut">The search for what holds the old one was cut (too large)</string>
     <string name="mr_ui_perf_trim_now">Free memory now (test)</string>
     <string name="mr_ui_perf_trim_now_sum">Lets go of what the keyboard can make again, as if the system had asked for memory, then runs a garbage collection. “Last cleanup” shows what was let go; “Alive” shows what still exists after the collection.</string>
     <string name="mr_ui_perf_frame_gpu">Draw a frame (GPU: recording only)</string>

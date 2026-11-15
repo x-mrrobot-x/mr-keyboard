@@ -516,3 +516,13 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   `setKeyboard`), `test_trim_memory.py` 37 (+5: where `MrLive` is called from, order in the row's click), `PerfTest` 204 (+14: `MrLive` with
   real weak references, the line, the reset, the row), `test_perf_meter.py` 185 (+14: the line in its place, its text missing, the reset, the
   texts in three languages, the text of the row naming the lines it points at).
+
+- Stage 4, part 4 (build _85): the phone test of _84 (Autocompletar on) found one service and one input view alive after a switch to another
+  keyboard and back (2 and 2, stable: it does not grow). The statics of the app were audited and are let go in `onDestroy`; the likely holder is
+  the system keeping the finished service (and, through its window, the keyboard). Two changes: `LatinIME.mrDropViews` (end of `onDestroy`)
+  lets go of the strip of suggestions and replaces the input view by an empty one, so a held service is an empty shell; and the meter now says
+  who holds an old one: "Held by: a chain from a static variable", "No variable of the app holds the old one", or a search that was cut
+  (`MrLive.search`, breadth first over the app's own objects, the arrays, lists, maps and the views). The expected result of the next
+  round (switch and back, tap the row twice): keyboard 1 whatever the service says; if the service stays at 2 with "No variable of the app", it is
+  the system and there is nothing to fix in the app. The reflection of the search is the one allowed in `res_check.py` (read only), and it goes
+  with the search once the cause is known. Tests: `test_trim_memory.py` 45 (+8), `PerfTest` 226 (+22), `test_perf_meter.py` 192 (+7).

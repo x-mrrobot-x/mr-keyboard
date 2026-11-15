@@ -552,10 +552,19 @@ TARGET37 = (
     (r'->setAccessible\(', 'setAccessible (reflection on a private member breaks with the lock-free MessageQueue and static final fields of Android 17)'),
     (r'ActivityOptions;->setPendingIntentBackgroundActivityStartMode', 'a background activity start mode (hardened for IntentSender at target 37)'),
 )
+# The one place that reads private fields by reflection: the search of MrLive (build _85, the test meter of the Advanced screen), which
+# only READS the fields of the app's own classes to find who holds an object that should be gone; it never writes a field, never touches
+# a framework class (those are not read at all) and runs only from the button of the screen. The two patterns of reflection are allowed in
+# that one file; when the search is taken out (the round of docs/plan-performance.md is closed), this allowance goes with it.
+REFLECT_READ_OK = ('MrLive$Search.smali',)
+REFLECT_PATTERNS = (r'Ljava/lang/reflect/Field;->set', r'->setAccessible\(')
 for pattern, what in TARGET37:
     if re.search(pattern, smali):
         owners = sorted({os.path.basename(f) for f in glob.glob('smali*/**/*.smali', recursive=True) if re.search(pattern, read_file(f))})
-        problems.append('target 37: %s found in %s' % (what, ', '.join(owners[:5])))
+        if pattern in REFLECT_PATTERNS:
+            owners = [o for o in owners if o not in REFLECT_READ_OK]
+        if owners:
+            problems.append('target 37: %s found in %s' % (what, ', '.join(owners[:5])))
 for tag in manifest_tags:
     for attr in ('android:screenOrientation=', 'android:resizeableActivity="false"', 'android:minAspectRatio=', 'android:maxAspectRatio='):
         if attr in tag:

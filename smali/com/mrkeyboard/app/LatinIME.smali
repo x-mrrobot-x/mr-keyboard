@@ -9769,7 +9769,44 @@
 
     invoke-super {p0}, Landroid/inputmethodservice/InputMethodService;->onDestroy()V
 
+    # Build _85: the system can keep a service that ended alive for a while (its binder and its input session are still held), and with
+    # it everything the service points to: the input frame of its window, and in it the whole tree of the keyboard. What it points to
+    # is let go of here, so that what stays behind is only the empty service.
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrDropViews()V
+
     return-void
+.end method
+
+# Build _85: the views of a service that ended. The strip of suggestions (the two fields are the app's own), and the input view that the
+# service gave to its window: it is replaced by an empty view through the same call that put it there (InputMethodService.setInputView,
+# called as the super: the override of LatinIME would wrap the view again), which takes the keyboard out of the input frame and out of the
+# service's own field. Done after the super's onDestroy, when the window is already gone; whatever a system version does with it, it
+# never stops the end of the service.
+.method private mrDropViews()V
+    .locals 2
+
+    const/4 v0, 0x0
+
+    iput-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateView:Lcom/mrkeyboard/app/CandidateView;
+
+    iput-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mCandidateViewContainer:Landroid/widget/LinearLayout;
+
+    :try_drop
+    new-instance v0, Landroid/view/View;
+
+    invoke-direct {v0, p0}, Landroid/view/View;-><init>(Landroid/content/Context;)V
+
+    invoke-super {p0, v0}, Landroid/inputmethodservice/InputMethodService;->setInputView(Landroid/view/View;)V
+    :try_drop_end
+    .catch Ljava/lang/Throwable; {:try_drop .. :try_drop_end} :catch_drop
+
+    :drop_done
+    return-void
+
+    :catch_drop
+    move-exception v1
+
+    goto :drop_done
 .end method
 
 # Stage 4 of docs/plan-performance.md: the service is over, so the suggestion engine (its main dictionary, native), the automatic

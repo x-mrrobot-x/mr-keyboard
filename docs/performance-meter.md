@@ -377,3 +377,44 @@ The text of the row "Free memory now (test)" no longer says that the memory line
 Tests: `docs/tools/test_trim_memory.py`, `docs/tools/test_shadow_cache.py`, `PerfTest.java` (it also counts with real weak references: one
 and one, the same object twice, a second service held and let go of, null, the reset, the row), `docs/tools/test_perf_meter.py` and
 `docs/tools/test_popup_cache.py` (a change of sheet keeps the popups; a change of setting clears them once).
+
+### Stage 4 part 4 (build _85): who holds the old service, and the keyboard let go when the service ends
+
+**What the phone showed.** With Autocompletar on, after a switch to another keyboard and back, "Alive after the cleanup" said service 2 · keyboard 2,
+still 2 after a second tap and after repeating the switch (it does not grow past 2: one old service and one old input view stay behind, not one
+more each time). The statics of the app were audited first (`MrTools.release`, `KeyboardSwitcher.release`, the gesture input, the emoji search,
+the clipboard listener: all let go in `onDestroy`; `MrGestureInput.sView` is only set during a gesture; `sApp` and the other kept contexts are the
+application context), and nothing there holds the service.
+
+**Where it probably stays.** After `onDestroy` the system can keep the finished service alive for a while: its binder and its input session are still
+held on the system side. The service points to its window, the window to its input frame, and the frame to the whole tree of the keyboard, so one
+held shell holds the keyboard. This is a hypothesis; the line below decides it.
+
+**What _85 changes.**
+- `LatinIME.onDestroy` ends with `mrDropViews()` (after the super's `onDestroy`, when the window is already gone): it lets go of the strip of
+  suggestions and its container, and replaces the input view by an empty `View` through `InputMethodService.setInputView` called as the super (the
+  override would wrap it again). The keyboard leaves the input frame and the service's own field; what a held service keeps is an empty shell. A
+  system version that refuses the call after the end changes nothing (it is inside a try that catches `Throwable`).
+- **"Held by: ..."** (new line, right after "Alive after the cleanup", only when an old service or input view is alive). `MrLive` takes the objects
+  alive that are not the newest registered, and searches, breadth first, the shortest chain from the static variables of the classes of the app
+  (`MrLive.ROOTS`) to them, following the fields of the app's own classes, arrays, lists, maps (the keys of a `WeakHashMap` and weak references
+  do not hold) and the children and the context of the views. The line is one of three: `Held by: MrTools.sKbd:FrameLayout > child:LatinKeyboardView`
+  (a chain; the first four and the last three steps when it has more than eight), "No variable of the app holds the old one: the system, a
+  thread or a message queue does", or "The search ... was cut (too large)" (400000 objects or 2 s). It runs only from the button of the Advanced
+  screen, right after the collection, and a reset of the meter removes it.
+- How to read the result of the same test as before (switch and back, tap the row twice):
+  - service 1 · keyboard 1: nothing stayed behind;
+  - service 2 · keyboard 1 and "No variable of the app...": the system keeps the finished service, and with the keyboard let go of it is an empty
+    shell; there is nothing left in the app to fix;
+  - keyboard 2 and a chain: the chain names the variable (or the view/listener) that holds it, and that is what is fixed next;
+  - keyboard 2 and "No variable of the app...": something outside the app holds the view (a message in the queue, a thread, the window).
+- `docs/tools/res_check.py` forbids `setAccessible` and `Field.set*` (target 37). The search reads private fields of the app's own classes, so
+  `MrLive$Search.smali` is the one file allowed (`REFLECT_READ_OK`); `test_trim_memory.py` checks that it only reads and never opens a framework
+  class. When the search is taken out the allowance goes with it.
+
+Tests: `test_trim_memory.py` (`mrDropViews` run in the mini interpreter: the two fields let go, the empty view through the super's `setInputView`,
+a refusal changes nothing, its place at the end of `onDestroy`; `MrLive.ROOTS` lists every class of the app with a static object variable, so a new
+static cannot go unseen; the search only reads), `PerfTest.java` (the search on fake classes: a static, a field, a list, an array, a map as key and
+as value, a weak reference, a weak map as key and as value, the shortest of two chains, a cycle, a view's children, a long path, a search that is
+cut, `measure` with the old ones and the row) and `docs/tools/test_perf_meter.py` (the line in its place, the three kinds, the text missing, the
+reset, the three languages).

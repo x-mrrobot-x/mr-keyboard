@@ -97,6 +97,9 @@
     <string name="mr_ui_perf_trim">Limpieza de memoria</string>
     <string name="mr_ui_perf_trim_last">Última limpieza: nivel %1$d · soltó %2$d teclados, %3$d popups, %4$d sombras (%5$s)</string>
     <string name="mr_ui_perf_alive">Vivos tras la limpieza: servicio %1$d · teclado %2$d</string>
+    <string name="mr_ui_perf_held">Retenido por: %1$s</string>
+    <string name="mr_ui_perf_held_out">Ninguna variable de la app retiene el antiguo: lo retiene el sistema, un hilo o la cola de mensajes</string>
+    <string name="mr_ui_perf_held_cut">La búsqueda de lo que retiene el antiguo se cortó (demasiado grande)</string>
     <string name="mr_ui_perf_trim_now">Liberar memoria ahora (prueba)</string>
     <string name="mr_ui_perf_trim_now_sum">Suelta lo que el teclado puede rehacer, como si el sistema pidiera memoria, y después ejecuta una recolección de basura. “Última limpieza” muestra lo que se soltó; “Vivos” muestra lo que aún existe tras la recolección.</string>
     <string name="mr_ui_perf_frame_gpu">Dibujar un cuadro (GPU: solo el registro)</string>

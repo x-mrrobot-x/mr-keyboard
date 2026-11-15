@@ -573,6 +573,15 @@ public final class MrPerf {
                 if (sb.length() > 0) sb.append('\n');
                 sb.append(alive);
             }
+            // build _85: when an old one is alive, who holds it (a chain from a variable of the app, none, or a search that was cut)
+            String held = null;
+            if (MrLive.sHeldKind == MrLive.HELD_PATH) held = MrPacks.text(c, "mr_ui_perf_held", MrLive.sHeld);
+            else if (MrLive.sHeldKind == MrLive.HELD_OUTSIDE) held = MrPacks.text(c, "mr_ui_perf_held_out");
+            else if (MrLive.sHeldKind == MrLive.HELD_CUT) held = MrPacks.text(c, "mr_ui_perf_held_cut");
+            if (held != null) {
+                if (sb.length() > 0) sb.append('\n');
+                sb.append(held);
+            }
         }
         boolean measured = sb.length() > 0;
         if (!measured) {

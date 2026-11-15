@@ -300,5 +300,72 @@ check("MrLive holds the objects only by weak references (so it cannot be what ke
       and ".field private static final sViewRefs:Ljava/util/ArrayList;" in lv
       and all(".method static declared-synchronized %s(" % m in lv for m in ("service", "view", "measure", "forget")), None)
 
+# ---------------------------------------------------------------- 5. build _85: what a service that ended points to (LatinIME.mrDropViews)
+# The system can keep a service that ended alive for a while; what the service points to stays with it: the keyboard in the input frame of
+# its window, the strip of suggestions. The service lets go of both at the end of onDestroy, after the super.
+VIEW = "Landroid/view/View;"
+
+
+class DropHost(Host):
+    fail_set = False
+
+    def invoke(self, vm, op, target, args):
+        if target.endswith("InputMethodService;->setInputView(Landroid/view/View;)V"):
+            self.calls.append(("setInputView", op, args[1].cls if args[1] is not None else None))
+            if self.fail_set:
+                raise dm.JavaExc("Ljava/lang/IllegalStateException;", "no input frame")
+            return None
+        return Host.invoke(self, vm, op, target, args)
+
+
+dh = DropHost(IME, ("mrDropViews()V",), "LatinIME.smali")
+svc = dm.Obj(IME, mCandidateView=dm.Obj("Lcom/mrkeyboard/app/CandidateView;"), mCandidateViewContainer=dm.Obj("Landroid/widget/LinearLayout;"))
+dh.run("mrDropViews()V", svc)
+check("mrDropViews: the strip of suggestions and its container are let go", svc.f["mCandidateView"] in (None, 0) and svc.f["mCandidateViewContainer"] in (None, 0),
+      (svc.f["mCandidateView"], svc.f["mCandidateViewContainer"]))
+check("... and the input view is replaced by an empty View, through the super's setInputView (the override would wrap it again)",
+      dh.calls == ["<init>", ("setInputView", "invoke-super", VIEW)], dh.calls)
+dh.calls = []
+dh.fail_set = True
+svc = dm.Obj(IME, mCandidateView=dm.Obj("Lcom/mrkeyboard/app/CandidateView;"), mCandidateViewContainer=dm.Obj("Landroid/widget/LinearLayout;"))
+dh.run("mrDropViews()V", svc)
+check("a system version that refuses setInputView after the end: nothing goes up (the end of the service is never stopped)",
+      svc.f["mCandidateView"] in (None, 0) and svc.f["mCandidateViewContainer"] in (None, 0) and dh.calls[-1][0] == "setInputView", dh.calls)
+d = body("onDestroy()V")
+call = [i for i, l in enumerate(d) if l.endswith("LatinIME;->mrDropViews()V")]
+check("onDestroy: mrDropViews is called once, after the super's onDestroy (the window is gone) and right before it returns",
+      len(call) == 1 and call[0] == idx["InputMethodService;->onDestroy()V"] + 1 and d[call[0] + 1] == "return-void", (call, idx))
+check("... and mrDropViews is private, with the try that catches Throwable around the only call that leaves the app",
+      re.search(r"^\.method private mrDropViews\(\)V", src, re.M) is not None
+      and [l for l in body("mrDropViews()V") if l.startswith(".catch")] == [".catch Ljava/lang/Throwable; {:try_drop .. :try_drop_end} :catch_drop"], None)
+
+# the classes MrLive starts its search from (ROOTS) are all the classes of the app that have a static variable that holds an object:
+# one that is missing would be a place the search never looks at, so a holder in it would be reported as "the system"
+roots_java = open(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrLive.java"), encoding="utf-8").read()
+declared = set(re.findall(r'"([A-Za-z0-9_$]+)"', re.search(r"ROOTS = \{(.*?)\};", roots_java, re.S).group(1)))
+skip_types = {"Ljava/lang/String;", "Ljava/lang/Integer;", "Ljava/lang/Long;", "Ljava/lang/Boolean;", "Ljava/lang/Float;", "Ljava/lang/Double;",
+              "Ljava/lang/Class;", "Ljava/util/regex/Pattern;", "Ljava/util/Locale;", "Ljava/lang/CharSequence;", "Ljava/lang/Character;",
+              "Ljava/lang/Short;", "Ljava/lang/Byte;"}
+needed = set()
+for f in sorted(os.listdir(APP)):
+    if not f.endswith(".smali"):
+        continue
+    t_ = open(os.path.join(APP, f), encoding="utf-8").read()
+    for fm in re.finditer(r"^\.field ([\w ]*?)(\w+):(\S+)", t_, re.M):
+        ty = fm.group(3)
+        if "static" in fm.group(1).split() and ty[0] in "L[" and ty not in skip_types and not re.match(r"^\[+[ZBSCIJFD]$", ty):
+            needed.add(f[:-6])
+check("MrLive.ROOTS lists every class of the app with a static variable that holds an object, and nothing else",
+      declared == needed, ("missing:", sorted(needed - declared), "extra:", sorted(declared - needed)))
+
+# the search of MrLive is the one place allowed to use reflection (docs/tools/res_check.py, REFLECT_READ_OK): it may only READ fields, and only of
+# classes of the app; nothing is written, and no framework class is opened
+srch = open(os.path.join(APP, "MrLive$Search.smali"), encoding="utf-8").read()
+used = sorted(set(re.findall(r"Ljava/lang/reflect/Field;->(\w+)", srch)))
+check("MrLive$Search uses reflection only to read (get, getModifiers, getName, getType, setAccessible), never to write a field",
+      used == ["get", "getModifiers", "getName", "getType", "setAccessible"], used)
+check("... and it reads the instance fields only of classes whose name starts with com.mrkeyboard. (the framework ones are left alone)",
+      'const-string v1, "com.mrkeyboard."' in srch or '"com.mrkeyboard."' in srch and srch.count("startsWith") >= 2, srch.count("startsWith"))
+
 print("\n%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)
