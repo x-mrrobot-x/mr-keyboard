@@ -537,4 +537,8 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   map (test)" of the Advanced screen writes a heap dump in a zip and opens Share (`MrHeap`); `docs/tools/heap_holders.py` prints the chain from a root of
   the heap to every service and input view, marking the one in use. The dump has the memory of the keyboard process (typed words, the clipboard), so
   it is only sent by the owner. Tests: `PerfTest` 240 (+14), `test_heap_holders.py` 18 (a JVM dump and one in the format of Android).
-
+- Stage 4, part 6 (build _89): the phone test of _88 (Autocompletar on) still showed service 2 · keyboard 2 with "No variable of the app holds the old
+  one" (the search cannot look inside the framework's objects, so the holder is behind one of them), and one crash at the end of a service:
+  `KeyboardSwitcher.onAutoCompletionStateChanged` asked the view, already let go of by `release`, for its keyboard while `hideWindow` ran inside the system's
+  `onDestroy`. Fixed (state kept, nothing redrawn when there is no view); `test_trim_memory.py` 55 (+6). The next step for the leak is the map of the memory
+  (row "Save the memory map (test)"), read with `docs/tools/heap_holders.py`.

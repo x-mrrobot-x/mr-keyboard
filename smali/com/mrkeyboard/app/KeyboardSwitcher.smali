@@ -1598,10 +1598,17 @@
     .line 667
     iput-boolean p1, p0, Lcom/mrkeyboard/app/KeyboardSwitcher;->mIsAutoCompletionActive:Z
 
+    # Build _89: the service lets go of the view in onDestroy (release), and the system hides the window after that (LatinIME.hideWindow asks
+    # for "no auto correction" while it ends). With no view there is no key to redraw: the state is kept and nothing else is done. Without this
+    # the end of the service threw ("Unable to stop service ... getKeyboard() on a null object reference"), when a correction was on the strip.
+    if-eqz v0, :cond_0
+
     .line 669
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinKeyboardView;->getKeyboard()Lcom/mrkeyboard/app/Keyboard;
 
     move-result-object v1
+
+    if-eqz v1, :cond_0
 
     check-cast v1, Lcom/mrkeyboard/app/LatinKeyboard;
 

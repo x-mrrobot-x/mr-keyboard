@@ -204,6 +204,45 @@ h.calls = []
 h.run("onTrimMemory(I)V", ime(), 40)
 check("onTrimMemory: the system class first, then MrTrim.onTrim with the level", h.calls == ["onTrimMemory(40)", "onTrim(40)"], h.calls)
 
+# ---------------------------------------------------------------- 3b. KeyboardSwitcher.onAutoCompletionStateChanged with the view let go of (build _89)
+# The phone showed "Unable to stop service LatinIME: NullPointerException ... LatinKeyboardView.getKeyboard() ... KeyboardSwitcher.onAutoCompletionStateChanged":
+# onDestroy lets go of the view (KeyboardSwitcher.release), then the system hides the window and LatinIME.hideWindow says "no auto correction".
+class SwitcherHost(Host):
+    def invoke(self, vm, op, target, args):
+        cls, _, mem = target.partition("->")
+        if cls == KS and mem == "getInputView()Lcom/mrkeyboard/app/LatinKeyboardView;":
+            self.calls.append("getInputView")
+            return args[0].f.get("mInputView")
+        if cls == "Lcom/mrkeyboard/app/LatinKeyboardView;" and mem == "getKeyboard()Lcom/mrkeyboard/app/Keyboard;":
+            self.calls.append("getKeyboard")
+            return args[0].f.get("kb")
+        return Host.invoke(self, vm, op, target, args)
+
+
+h = SwitcherHost(KS, ("onAutoCompletionStateChanged(Z)V",), "KeyboardSwitcher.smali")
+VIEWC = "Lcom/mrkeyboard/app/LatinKeyboardView;"
+sw = dm.Obj(KS, mIsAutoCompletionActive=1, mInputView=None)
+h.run("onAutoCompletionStateChanged(Z)V", sw, 0)
+check("the view was let go of and the correction was on: the state changes and nothing throws", sw.f["mIsAutoCompletionActive"] in (0, False), sw.f)
+check("... no key is asked of a view that is not there, and nothing is redrawn", h.calls == ["getInputView"], h.calls)
+h.calls = []
+sw = dm.Obj(KS, mIsAutoCompletionActive=0, mInputView=None)
+h.run("onAutoCompletionStateChanged(Z)V", sw, 1)
+check("... also when it turns on with no view: it is kept (the next view asks for it)", sw.f["mIsAutoCompletionActive"] in (1, True) and h.calls == ["getInputView"], (sw.f, h.calls))
+h.calls = []
+sw = dm.Obj(KS, mIsAutoCompletionActive=1, mInputView=None)
+h.run("onAutoCompletionStateChanged(Z)V", sw, 1)
+check("the same state again: nothing at all is asked", h.calls == [], h.calls)
+h.calls = []
+sw = dm.Obj(KS, mIsAutoCompletionActive=0, mInputView=dm.Obj(VIEWC, kb=None))
+h.run("onAutoCompletionStateChanged(Z)V", sw, 1)
+check("a view with no keyboard set yet: the state is kept and nothing throws", sw.f["mIsAutoCompletionActive"] in (1, True) and "invalidateKey" not in h.calls, (sw.f, h.calls))
+h.calls = []
+sw = dm.Obj(KS, mIsAutoCompletionActive=0, mInputView=dm.Obj(VIEWC, kb=dm.Obj("Lcom/mrkeyboard/app/LatinKeyboard;")))
+h.run("onAutoCompletionStateChanged(Z)V", sw, 1)
+check("a view with its keyboard (the normal case): the key is asked of the keyboard and redrawn, as before",
+      h.calls == ["getInputView", "getKeyboard", "onAutoCompletionStateChanged", "invalidateKey"] and sw.f["mIsAutoCompletionActive"] in (1, True), (sw.f, h.calls))
+
 # ---------------------------------------------------------------- 4. the shape of the smali
 src = open(os.path.join(APP, "LatinIME.smali"), encoding="utf-8").read()
 

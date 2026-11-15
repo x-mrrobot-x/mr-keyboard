@@ -443,6 +443,19 @@ shows the test can see a callback still held), `test_trim_memory.py` (the shape 
 on the way out and in the handler; `gateEnd` only puts null; the gate is used in one place), `PerfTest.java` (two old objects: two chains, one
 reached and one not, one held only through the other, six reached and four reported, a search that is cut after finding one).
 
+**What the phone showed with _88.** Still service 2 · keyboard 2, and now "No variable of the app holds the old one": the gate was one holder, not the only
+one, or the count before it was a different one. The search follows the app's own objects, arrays, lists, maps and views only; it does not look inside
+the framework's objects (an executor and its queue, a handler and its messages, a thread, a listener that the system keeps), because their private
+fields cannot be read from the app. So "no variable" means that no chain made of the app's own objects reaches it: what holds it is behind a framework
+object, and only the map of the memory shows which.
+
+**The crash at the end of the service (build _89).** One keyboard switch threw "Unable to stop service LatinIME: NullPointerException: LatinKeyboardView.getKeyboard()
+on a null object reference at KeyboardSwitcher.onAutoCompletionStateChanged". `onDestroy` lets go of the view (`KeyboardSwitcher.release`, stage 4) and
+then the system's own `onDestroy` hides the window, which calls `LatinIME.hideWindow`, which says "no auto correction"; when a correction was on the strip
+the switcher asked the view (already gone) for its keyboard. It happens only with a correction showing when the service ends, which is why it came once.
+`onAutoCompletionStateChanged` now keeps the state and does nothing else when the view or its keyboard is not there. Test: `test_trim_memory.py` runs
+the real smali with no view, with a view with no keyboard, with both, and with the state unchanged (the old smali fails it).
+
 **The map of the memory** is kept for what the search cannot see: if the count still says "No variable of the app holds the old one" after the fix,
 the holder is in the framework or a thread, and only the dump names it.
 
