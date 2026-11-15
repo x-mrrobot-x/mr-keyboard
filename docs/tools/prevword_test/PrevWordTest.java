@@ -8,7 +8,7 @@ import java.util.Random;
 import java.util.regex.Pattern;
 
 /**
- * PC test of the two cuts of stage 6, part 5 (docs/plan-performance.md): MrPrevWord (the word before the one being typed, asked of the
+ * PC test of the two cuts of stage 6, part 5: MrPrevWord (the word before the one being typed, asked of the
  * app once per word instead of once per letter) and MrSurround (one question after the echo of our own separator, Android 12+).
  * Runs through docs/tools/run_java_tests.sh.
  *

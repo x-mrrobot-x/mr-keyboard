@@ -242,7 +242,7 @@
 
 .field private mLastSelectionStart:I
 
-# Echo question cut (docs/plan-performance.md stage 6): cursor position the keyboard expects the app to report after the
+# Echo question cut: cursor position the keyboard expects the app to report after the
 # separator the keyboard itself typed (0 = none). The first report of the selection consumes it.
 .field private mMrSepAt:I
 
@@ -255,12 +255,12 @@
 
 .field private mMrCapsPending:Z
 
-# Caps question cut (docs/plan-performance.md stage 6): true only inside handleCharacter, from the letter typed until the shift
+# Caps question cut: true only inside handleCharacter, from the letter typed until the shift
 # state is updated: the character before the cursor is that letter. TextUtils.getCapsMode gives 0 in the middle of a word, so
 # asking the app is pointless then. It never outlives the key.
 .field private mMrLetter:Z
 
-# Caps question cut after a picked word (docs/plan-performance.md stage 10): true only inside pickSuggestionManually, from the
+# Caps question cut after a picked word: true only inside pickSuggestionManually, from the
 # moment a word that ends in a letter is written until its space and the shift update are done. What is before the cursor is
 # then that letter or the space after it, so TextUtils.getCapsMode answers 0 unless the field asks for capitals on every
 # word or all capitals (0x3000). It never outlives the pick.
@@ -426,7 +426,7 @@
     .line 86
     invoke-direct {p0}, Landroid/inputmethodservice/InputMethodService;-><init>()V
 
-    # Performance meter (MrPerf, docs/plan-performance.md stage 2): the start of the keyboard is timed from here (the fields of
+    # Performance meter (MrPerf): the start of the keyboard is timed from here (the fields of
     # the service) to the end of onCreate. No register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->createBegin()V
 
@@ -504,7 +504,7 @@
     .line 261
     iput-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposeMode:Z
 
-    # Cold start (docs/plan-performance.md stage 7): the compose buffers, and with them the class that fills the table of 883 compose
+    # Cold start: the compose buffers, and with them the class that fills the table of 883 compose
     # sequences, are made by mrComposeBuffer / mrDeadBuffer the first time the compose key or a dead key needs them.
 
     const/high16 v1, -0x40800000    # -1.0f
@@ -1148,7 +1148,7 @@
     return-void
 
     :cond_0
-    # Stage 5 (docs/plan-performance.md): the selection comes from what the field told when it opened
+    # Stage 5: the selection comes from what the field told when it opened
     # (EditorInfo.initialSelStart/End), with no question to the app and no copy of the whole text.
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputEditorInfo()Landroid/view/inputmethod/EditorInfo;
 
@@ -1194,7 +1194,7 @@
     .line 933
     iput v2, v1, Landroid/view/inputmethod/ExtractedTextRequest;->token:I
 
-    # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
     invoke-interface {v0, v1, v2}, Landroid/view/inputmethod/InputConnection;->getExtractedText(Landroid/view/inputmethod/ExtractedTextRequest;I)Landroid/view/inputmethod/ExtractedText;
@@ -1849,14 +1849,14 @@
     const/4 v2, 0x0
 
     .line 1399
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
     invoke-interface {v0, v1, v2}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     if-eqz v3, :cond_2
@@ -2000,7 +2000,7 @@
     goto :goto_0
 
     :cond_mr_ask
-    # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
     invoke-interface {p1, p2}, Landroid/view/inputmethod/InputConnection;->getCursorCapsMode(I)I
@@ -2508,14 +2508,14 @@
     const/4 v3, 0x0
 
     .line 2518
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->suggEngineBegin()V
 
     invoke-virtual {v0, v1, p1, v2, v3}, Lcom/mrkeyboard/app/Suggest;->getSuggestions(Landroid/view/View;Lcom/mrkeyboard/app/WordComposer;ZLjava/lang/CharSequence;)Ljava/util/List;
 
     move-result-object p1
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->suggEngineEnd()V
 
     return-object p1
@@ -3401,7 +3401,7 @@
 
     move-result-object p1
 
-    # Delayed caps question (docs/plan-performance.md stage 6 part 8): the shift state after a separator is asked of the app
+    # Delayed caps question: the shift state after a separator is asked of the app
     # (the caps mode of the cursor), and the app has just been given the separator, so the answer is the slow one. It waits a
     # little (Handler message 6) and runs at once when a key, a text or a suggestion comes first (mrShiftFlush).
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinIME;->mrShiftPost(Landroid/view/inputmethod/EditorInfo;)V
@@ -3832,14 +3832,14 @@
     const/4 v2, 0x1
 
     .line 2841
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
     invoke-interface {v0, v2, v1}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     .line 2843
@@ -3875,14 +3875,14 @@
     .line 2847
     :cond_1
     # Echo question cut: the character after the cursor is asked only when the one before it did not settle the answer.
-        # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+        # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
     invoke-interface {v0, v2, v1}, Landroid/view/inputmethod/InputConnection;->getTextAfterCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v0
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     invoke-static {v0}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
@@ -3921,7 +3921,7 @@
 .method private mrSepSent(I)V
     .locals 2
 
-    # Echo question cut (docs/plan-performance.md stage 6): after a separator typed by the keyboard, with the cursor known and
+    # Echo question cut: after a separator typed by the keyboard, with the cursor known and
     # no selection, the app is expected to report the cursor one place further. Otherwise nothing is expected.
     const/4 v0, 0x0
 
@@ -4253,7 +4253,7 @@
 .method private mrLetterTyped(I)V
     .locals 2
 
-    # Caps question cut (docs/plan-performance.md stage 6): after a letter typed by the keyboard (no Ctrl, Alt or Meta, so it is
+    # Caps question cut: after a letter typed by the keyboard (no Ctrl, Alt or Meta, so it is
     # text) the character before the cursor is that letter. A digit or a symbol does not count (they can go as key events).
     const/4 v0, 0x0
 
@@ -4332,14 +4332,14 @@
 
     if-nez v0, :cond_hit
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->echoFullBegin()V
 
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isCursorTouchingWord()Z
 
     move-result v0
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->echoFullEnd()V
 
     return v0
@@ -4358,14 +4358,14 @@
     return v0
 
     :cond_ic
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->echoCutBegin()V
 
     invoke-direct {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->mrTouchingRight(Landroid/view/inputmethod/InputConnection;)Z
 
     move-result v0
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->echoCutEnd()V
 
     return v0
@@ -4389,14 +4389,14 @@
 
     const/4 v1, 0x1
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
     invoke-interface {p1, v1, v0}, Landroid/view/inputmethod/InputConnection;->getTextAfterCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v2
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     invoke-static {v2}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
@@ -4706,7 +4706,7 @@
 
     iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mQuickFixes:Z
 
-    # Delayed echo (docs/plan-performance.md stage 6 part 7): on by default; the Advanced screen turns it off (v3 is 1 here).
+    # Delayed echo: on by default; the Advanced screen turns it off (v3 is 1 here).
     const-string v1, "pref_mr_echo_defer"
 
     invoke-interface {v0, v1, v3}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
@@ -4715,7 +4715,7 @@
 
     iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mMrEchoDefer:Z
 
-    # Delayed caps question (docs/plan-performance.md stage 6 part 8): on by default; the Advanced screen turns it off (v3 is 1 here).
+    # Delayed caps question: on by default; the Advanced screen turns it off (v3 is 1 here).
     const-string v1, "pref_mr_caps_defer"
 
     invoke-interface {v0, v1, v3}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
@@ -4914,14 +4914,14 @@
     const/4 v2, 0x0
 
     .line 1420
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
     invoke-interface {v0, v1, v2}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     if-eqz v3, :cond_1
@@ -5421,7 +5421,7 @@
     return p1
 .end method
 
-# Cold start (docs/plan-performance.md stage 7): the compose buffer is made the first time the compose key is used (the class
+# Cold start: the compose buffer is made the first time the compose key is used (the class
 # fills its table of 883 sequences when it is first used, no longer when the service is constructed).
 .method private mrComposeBuffer()Lcom/mrkeyboard/app/ComposeSequence;
     .locals 2
@@ -5642,14 +5642,14 @@
     const/4 v2, 0x1
 
     .line 1433
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
     invoke-interface {v0, v2, v1}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     if-eqz v3, :cond_1
@@ -5770,14 +5770,14 @@
     const/4 v2, 0x3
 
     .line 1379
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
     invoke-interface {v0, v2, v1}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     if-eqz v3, :cond_1
@@ -5853,14 +5853,14 @@
 
     const/4 v1, 0x0
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
     invoke-interface {p1, v0, v1}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object p1
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     .line 2856
@@ -7378,7 +7378,7 @@
     .end annotation
 
     .line 2490
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->suggShowBegin()V
 
     iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mIsShowingHint:Z
@@ -7452,7 +7452,7 @@
     :cond_mrcall
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrSugg;->onList(ZZ)V
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->suggShowEnd()V
 
     return-void
@@ -7620,7 +7620,7 @@
 
     iget-object v1, p0, Lcom/mrkeyboard/app/LatinIME;->mWordSeparators:Ljava/lang/String;
 
-    # Previous word (MrPrevWord, docs/plan-performance.md stage 6): the same answer as EditingUtil.getPreviousWord, asked of the app
+    # Previous word (MrPrevWord): the same answer as EditingUtil.getPreviousWord, asked of the app
     # only for the first run of a word; the next letters of the same word work it out from what was kept.
     iget-object v2, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
 
@@ -7642,14 +7642,14 @@
     const/4 v3, 0x0
 
     .line 2536
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->suggEngineBegin()V
 
     invoke-virtual {v1, v2, p1, v3, v0}, Lcom/mrkeyboard/app/Suggest;->getSuggestions(Landroid/view/View;Lcom/mrkeyboard/app/WordComposer;ZLjava/lang/CharSequence;)Ljava/util/List;
 
     move-result-object v0
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->suggEngineEnd()V
 
     .line 2541
@@ -7886,14 +7886,14 @@
     const/4 v2, 0x2
 
     .line 1362
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
     invoke-interface {v0, v2, v1}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     if-eqz v3, :cond_1
@@ -8287,7 +8287,7 @@
     .locals 2
 
     .line 2502
-    # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->suggBegin()V
 
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
@@ -9099,7 +9099,7 @@
     .line 361
     sput-object p0, Lcom/mrkeyboard/app/LatinIME;->sInstance:Lcom/mrkeyboard/app/LatinIME;
 
-    # Counts the services still alive after a collection (MrLive, docs/plan-performance.md stage 4): no register used.
+    # Counts the services still alive after a collection (MrLive): no register used.
     invoke-static {p0}, Lcom/mrkeyboard/app/MrLive;->service(Ljava/lang/Object;)V
 
     .line 363
@@ -9447,7 +9447,7 @@
     .line 406
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->updateKeyboardOptions()V
 
-    # Cold start (docs/plan-performance.md stage 7): the dictionary apps (Hacker's Keyboard, AnySoftKeyboard) are looked up in the
+    # Cold start: the dictionary apps (Hacker's Keyboard, AnySoftKeyboard) are looked up in the
     # package manager (two queries) only when a language has no downloaded pack: PluginManager.getDictionary does it then, once.
 
     .line 409
@@ -9653,7 +9653,7 @@
 .method public onCreateInputView()Landroid/view/View;
     .locals 4
 
-    # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->viewBegin()V
 
     const/4 v0, 0x0
@@ -9764,7 +9764,7 @@
 
     .line 660
     :cond_1
-    # Stage 4 (docs/plan-performance.md): the engine and the dictionaries are closed too (before, only the user dictionary was).
+    # Stage 4: the engine and the dictionaries are closed too (before, only the user dictionary was).
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrCloseEngine()V
 
     invoke-super {p0}, Landroid/inputmethodservice/InputMethodService;->onDestroy()V
@@ -9809,7 +9809,7 @@
     goto :drop_done
 .end method
 
-# Stage 4 of docs/plan-performance.md: the service is over, so the suggestion engine (its main dictionary, native), the automatic
+# Memory cleanup: the service is over, so the suggestion engine (its main dictionary, native), the automatic
 # dictionary and the bigram dictionary are closed, as initSuggest already does with the old ones before it builds new ones. The two
 # user ones flush what is waiting to be written first (their close does). Each close is alone in its try: one that fails does not stop
 # the others, and onDestroy is already past the receivers. The fields are left as they are: a closed engine answers nothing, and a
@@ -9893,7 +9893,7 @@
     return-void
 .end method
 
-# Stage 4 of docs/plan-performance.md: the system asks the process for memory (ComponentCallbacks2). MrTrim lets go, by the level, of what
+# Memory cleanup: the system asks the process for memory (ComponentCallbacks2). MrTrim lets go, by the level, of what
 # the keyboard keeps and can make again; it never throws into the system.
 .method public onTrimMemory(I)V
     .locals 0
@@ -10277,7 +10277,7 @@
 
     invoke-super {p0}, Landroid/inputmethodservice/InputMethodService;->onWindowHidden()V
 
-    # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->onHidden()V
 
     # Previous word (MrPrevWord): the window is hidden; nothing typed is left behind.
@@ -11510,7 +11510,7 @@
 .method public onSharedPreferenceChanged(Landroid/content/SharedPreferences;Ljava/lang/String;)V
     .locals 8
 
-    # Any setting that changes drops the popups of variants kept between field opens (docs/plan-performance.md, stage 5): the
+    # Any setting that changes drops the popups of variants kept between field opens: the
     # popups depend on the settings of the popups and of the sheets. No register used.
     invoke-static {}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->bumpPopupEpoch()V
 
@@ -12256,7 +12256,7 @@
 .method public onStartInputView(Landroid/view/inputmethod/EditorInfo;Z)V
     .locals 7
 
-    # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->openBegin()V
 
     # Previous word (MrPrevWord) and the one question after an echo (MrSurround): a new field forgets what was kept.
@@ -12360,7 +12360,7 @@
 
     .line 781
     :cond_1
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->openKbBegin()V
 
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mKeyboardSwitcher:Lcom/mrkeyboard/app/KeyboardSwitcher;
@@ -12724,7 +12724,7 @@
     .line 893
     :cond_10
     :goto_4
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->openKbEnd()V
 
     invoke-virtual {p2}, Lcom/mrkeyboard/app/LatinKeyboardView;->closing()V
@@ -12733,12 +12733,12 @@
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->resetPrediction()V
 
     .line 895
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->openSetBegin()V
 
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->loadSettings()V
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->openSetEnd()V
 
     .line 896
@@ -12949,7 +12949,7 @@
 .method public onUpdateSelection(IIIIII)V
     .locals 2
 
-    # Performance meter (MrPerf, docs/plan-performance.md stage 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->selBegin()V
 
     .line 981
@@ -12969,7 +12969,7 @@
 
     iput p4, p0, Lcom/mrkeyboard/app/LatinIME;->mLastSelectionEnd:I
 
-    # Performance meter (MrPerf, docs/plan-performance.md stage 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->selEnd()V
 
     # MrSurround: the text kept after the echo lives only inside this reaction.
@@ -13145,7 +13145,7 @@
 
     .line 1025
     :cond_5
-    # Delayed echo (docs/plan-performance.md stage 6 part 7): the reaction (the check of the word at the cursor, which asks the
+    # Delayed echo: the reaction (the check of the word at the cursor, which asks the
     # app, and the suggestions that follow) waits a little when the switch is on and nothing is being corrected. When it waits
     # it is the Handler message 5 that does it (mrEchoRun); otherwise it runs here, as before.
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrEchoPost()Z
@@ -13158,7 +13158,7 @@
 
     :cond_8
     :goto_2
-    # Performance meter (MrPerf, docs/plan-performance.md stage 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->selEnd()V
 
     # MrSurround: the text kept after the echo lives only inside this reaction.
@@ -13584,14 +13584,14 @@
     const/4 v2, 0x0
 
     .line 2864
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
     invoke-interface {v0, v1, v2}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     iput-object v3, p0, Lcom/mrkeyboard/app/LatinIME;->mJustRevertedSeparator:Ljava/lang/CharSequence;
@@ -13609,14 +13609,14 @@
     iget v3, p0, Lcom/mrkeyboard/app/LatinIME;->mCommittedLength:I
 
     .line 2869
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
     invoke-interface {v0, v3, v2}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v3
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     if-eqz v3, :cond_1
@@ -14363,7 +14363,7 @@
     # Gesture typing (MrGestureInput, 1.96.0): any key ends what the last gesture left pending (its candidates on the strip).
     # A sentence sign right after a gesture word and its automatic space is written there, glued to the word with the space
     # after it (LatinIME.mrGlue): the key is dealt with.
-    # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {p1}, Lcom/mrkeyboard/app/MrPerf;->keyBegin(I)V
 
     # Delayed caps question: a key needs the shift state of the text before it, so what waits is asked now (inside the time of the key).
@@ -14853,14 +14853,14 @@
 
     const/4 v1, 0x0
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
 
     invoke-interface {p1, v0, v1}, Landroid/view/inputmethod/InputConnection;->getTextAfterCursor(II)Ljava/lang/CharSequence;
 
     move-result-object v2
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
     if-nez v2, :cond_aw_have

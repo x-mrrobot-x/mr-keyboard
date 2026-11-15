@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests of the delayed caps question after a separator (LatinIME, stage 6 part 8 of docs/plan-performance.md).
+"""Tests of the delayed caps question after a separator (LatinIME).
 
 Run it from the project root:  python3 -I docs/tools/test_caps_defer.py
 

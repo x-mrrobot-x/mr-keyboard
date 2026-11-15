@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Tests of the questions the keyboard asks the app for each letter it types (LatinIME.handleCharacter, stage 6 of
-docs/plan-performance.md).
+"""Tests of the questions the keyboard asks the app for each letter it types (LatinIME.handleCharacter).
 
 Run it from the project root:  python3 -I docs/tools/test_letter_questions.py
 

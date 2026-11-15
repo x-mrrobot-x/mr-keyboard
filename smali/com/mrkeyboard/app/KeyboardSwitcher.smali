@@ -382,7 +382,7 @@
 
     iput-object v1, p0, Lcom/mrkeyboard/app/KeyboardSwitcher;->mInputView:Lcom/mrkeyboard/app/LatinKeyboardView;
 
-    # The input view just inflated, counted by MrLive (docs/plan-performance.md stage 4): no register used.
+    # The input view just inflated, counted by MrLive: no register used.
     invoke-static {v1}, Lcom/mrkeyboard/app/MrLive;->view(Ljava/lang/Object;)V
     :try_end_0
     .catch Ljava/lang/OutOfMemoryError; {:try_start_0 .. :try_end_0} :catch_1
@@ -2434,7 +2434,7 @@
     return-void
 .end method
 
-# Stage 4 of docs/plan-performance.md (onTrimMemory): the keyboards that are not on screen are let go (each is built again from its XML when
+# Memory cleanup (onTrimMemory): the keyboards that are not on screen are let go (each is built again from its XML when
 # it is needed). The one on screen stays in the map, so what is kept for it (the popups of variants, found again for the same keyboard
 # object) keeps being found. Returns how many were let go.
 .method public static dropUnused()I

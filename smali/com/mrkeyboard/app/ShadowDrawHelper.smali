@@ -458,7 +458,7 @@
     return v1
 .end method
 
-# Lets go of every kept shadow (stage 4 of docs/plan-performance.md, onTrimMemory): the places are emptied and the bitmaps are left to
+# Lets go of every kept shadow (onTrimMemory): the places are emptied and the bitmaps are left to
 # the garbage collector, NOT recycled: on a phone whose window is drawn later by a render thread (the GPU; it depends on the phone) a
 # frame that has not been drawn yet may still use one, and drawing a recycled bitmap throws. The next draw of an icon finds no place for it and blurs it again. Returns how many places were filled.
 .method static release()I

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Tests how the keyboard learns the selection when it opens in a field (LatinIME.checkReCorrectionOnStart, stage 5 of
-docs/plan-performance.md).
+"""Tests how the keyboard learns the selection when it opens in a field (LatinIME.checkReCorrectionOnStart).
 
 Run it from the project root:  python3 -I docs/tools/test_open_selection.py
 

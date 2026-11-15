@@ -144,7 +144,7 @@ public final class MrLearned {
      * Lets only the words the keyboard has accepted (learned from frequency 6, and every imported word) through to the strip: a word seen once or twice
      * is a possible typo. Used by AutoDictionary.getWords (v1.85): until then the learned words only kept the keyboard from correcting them, they never
      * completed anything. One instance, because the keyboard asks from the main thread only. The callback is kept only while the search runs:
-     * AutoDictionary.getWords calls gateEnd() when it ends (build _86: kept after it, the static Gate held the last Suggest, and through it the
+     * AutoDictionary.getWords calls gateEnd() when it ends (before, the static Gate kept the last Suggest, and through it the
      * AutoDictionary and the whole service that had ended; each switch of keyboard left one more alive).
      */
     public static Dictionary.WordCallback gate(Dictionary.WordCallback to) {

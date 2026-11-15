@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Tests of the questions the keyboard asks the app after a separator it typed itself (LatinIME, stage 6 of
-docs/plan-performance.md).
+"""Tests of the questions the keyboard asks the app after a separator it typed itself (LatinIME).
 
 Run it from the project root:  python3 -I docs/tools/test_echo_questions.py
 
@@ -23,7 +22,7 @@ Now:
     next-word prediction asks for right after (MrSurround.echo = getSurroundingText, stage 6 part 5): ONE question for the whole echo
     instead of two. MrSurround answers NONE (-2) on Android 11 or older, with an app that does not answer it and with a selection, and
     then the old question is asked, so the answers never change. The Java class has its own test (docs/tools/prevword_test).
-  - stage 6 part 7 (build _75), with the switch "Delay the reaction to the echo" on (the default): the reaction to the echo of our own
+  - stage 6 part 7, with the switch "Delay the reaction to the echo" on (the default): the reaction to the echo of our own
     separator (the question to the app and what follows) does not run inside onUpdateSelection; it waits 100 ms in message 5 of mHandler
     (the delay of the suggestions), when the app is idle and the first question is the fast one. Any key (handleSeparator, mrSepClear
     from handleBackspace/handleCharacter/onText), a new report of the selection and every end of the field cancel it (mrEchoCancel); a

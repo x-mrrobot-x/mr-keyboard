@@ -291,7 +291,7 @@ for name, table in (('values-es', es), ('values-pt-rBR', pt)):
         if k in orig and marks(v) != marks(orig[k]):
             problems.append('%s/%s: placeholders %s differ from the original %s' % (name, k, marks(v), marks(orig[k])))
 # --- an apostrophe in a string must be escaped (\') unless the whole text is inside double quotes: aapt2 refuses the file otherwise ("unescaped
-# apostrophe in string", build _89), and nothing else in the checks reads the strings the way aapt2 does
+# apostrophe in string"), and nothing else in the checks reads the strings the way aapt2 does
 for p in sorted(glob.glob('res/values*/*.xml')):
     for m in re.finditer(r'<string\s+name="([^"]+)"[^>]*>(.*?)</string>', read_file(p), re.S):
         v = m.group(2).strip()
@@ -562,17 +562,9 @@ TARGET37 = (
     (r'->setAccessible\(', 'setAccessible (reflection on a private member breaks with the lock-free MessageQueue and static final fields of Android 17)'),
     (r'ActivityOptions;->setPendingIntentBackgroundActivityStartMode', 'a background activity start mode (hardened for IntentSender at target 37)'),
 )
-# The one place that reads private fields by reflection: the search of MrLive (build _85, the test meter of the Advanced screen), which
-# only READS the fields of the app's own classes to find who holds an object that should be gone; it never writes a field, never touches
-# a framework class (those are not read at all) and runs only from the button of the screen. The two patterns of reflection are allowed in
-# that one file; when the search is taken out (the round of docs/plan-performance.md is closed), this allowance goes with it.
-REFLECT_READ_OK = ('MrLive$Search.smali',)
-REFLECT_PATTERNS = (r'Ljava/lang/reflect/Field;->set', r'->setAccessible\(')
 for pattern, what in TARGET37:
     if re.search(pattern, smali):
         owners = sorted({os.path.basename(f) for f in glob.glob('smali*/**/*.smali', recursive=True) if re.search(pattern, read_file(f))})
-        if pattern in REFLECT_PATTERNS:
-            owners = [o for o in owners if o not in REFLECT_READ_OK]
         if owners:
             problems.append('target 37: %s found in %s' % (what, ', '.join(owners[:5])))
 for tag in manifest_tags:

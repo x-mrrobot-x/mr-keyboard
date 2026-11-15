@@ -5,7 +5,7 @@ import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.SurroundingText;
 
 /**
- * One question to the app instead of two after the echo of a separator the keyboard typed itself (docs/plan-performance.md, stage 6).
+ * One question to the app instead of two after the echo of a separator the keyboard typed itself.
  *
  * After that echo LatinIME asks the app for the character after the cursor (is the cursor touching a word?) and, a moment later in the
  * same reaction, MrPredict.list asks for the 96 characters before the cursor (next-word prediction). From Android 12

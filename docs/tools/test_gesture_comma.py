@@ -11,7 +11,7 @@ on a suggestion). The rest of LatinIME (dictionaries, shift state, strip) is a s
 Since the usual swap did not happen on the device (it depends on the state of TextEntryState and on what the editor says about the text it has just
 received), MrGestureInput.onKey calls LatinIME.mrGlue for it; the last tests run that real method.
 
-The last tests (stage 6, part 9 of docs/plan-performance.md) check the notes that pickSuggestionManually makes for a picked word: mMrPick (up while
+The last tests check the notes that pickSuggestionManually makes for a picked word: mMrPick (up while
 the word and its automatic space are written when the word ends in a letter, down after; the caps question is not asked then, see
 test_letter_questions.py and test_pick_caps.py) and the call to MrGestureInput.afterTap after the automatic space (a suggestion tapped).
 

@@ -7,7 +7,7 @@ For every workflow:
   - there is a top-level "permissions:" and it grants no write permission (each job asks for what it needs);
   - no pull_request_target (it would run the code of a pull request with the repository's secrets);
   - no plain (unquoted) one-line value with ": " inside, or ending in ":" (GitHub refuses the whole file: "You have an error in your yaml syntax").
-    A step name like "Reader of the memory map (heap_holders.py: chains ...)" did exactly that and stopped both workflows (build _86). A real
+    A step name like "Reader of the report (tool.py: chains ...)" did exactly that and stopped both workflows. A real
     YAML parser is not used because this script is stdlib only; the rule covers what actually broke.
 mr-apk.yml (the one that publishes):
   - it has the jobs apk, checks and publish; "checks" calls ./.github/workflows/mr-checks.yml, which has workflow_call;

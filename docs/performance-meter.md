@@ -1,8 +1,28 @@
 # Performance meter
 
-Since the performance round after v1.98.0 the keyboard times its own work on the phone and shows it in **Settings → Advanced →
-Performance → Keyboard times**. Code: `MrPerf` (`docs/tools/java/src/com/mrkeyboard/app/MrPerf.java`); the smali of the keyboard
-calls a begin and an end around each piece of work, with no register taken.
+Since 1.99.0 the keyboard times its own work on the phone and shows it in **Settings → Advanced → Performance → Keyboard times**. Code:
+`MrPerf` (`docs/tools/java/src/com/mrkeyboard/app/MrPerf.java`); the smali of the keyboard calls a begin and an end around each piece of
+work, with no register taken.
+
+## What the performance round changed
+
+The rule of the round: the app is for other people's phones, so a cut is made where it can be **counted** (questions to the app per key,
+windows shown, work on the main thread) and by certainty (anything doubtful asks the app as before); no threshold is tuned to one phone, the
+manifest flag `hardwareAccelerated="false"` is not flipped and nothing assumes whether the window is drawn by the GPU.
+
+- Drawing: the blurred icon shadows are made once and kept (`ShadowDrawHelper`, 24 of them). A frame took about 3 ms on the phone that measured it,
+  so nothing else was done to drawing.
+- Opening a field: the selection comes from what the field reported when it opened, not from the whole text; the popups of variants are kept
+  between opens and across sheets.
+- Typing: the questions to the app were cut by count (the sections "Questions per key" and "Stage 6" below), and the two that cost time
+  (the echo of our own separator and the capital-letter check after it) wait 100 ms for the app to be idle (two switches on the Advanced screen,
+  on by default). On the phone that measured them, the first cut the waiting for the app by 47 % in a block of 20 words and the second took the
+  space key from about 23 to 11 ms.
+- Cold start: the compose tables are made on first use, and the dictionary apps are looked up only for a language that has no downloaded pack.
+- Memory: the keyboard lets go of what it can make again when Android asks (`onTrimMemory`), closes the engine and the databases when the
+  service ends, and no longer leaves an old service alive after a switch to another keyboard (stage 4 part 4).
+- Not done, because the meter showed it was not needed: drawing only what changed (a frame is about 3 ms), inflating the panels late (building
+  the keyboard is about 17 ms), and hardware acceleration for the settings screens.
 
 ## Lines
 
@@ -52,8 +72,8 @@ the middle when the count is even) and maximum. A change that helps should move 
   the keyboard was shown in it (both numbers exist). A process whose start you did not look at is not in the history.
 - It is kept in a file of its own (`mr_perf`), not in the default preferences: the keyboard listens to those and would read all its
   settings again at every change.
-- Tapping the row clears the history with the numbers. The version stays the same during a round of work, so the history cannot tell one
-  build from the next: **tap the row after installing a build** and start the series again.
+- Tapping the row clears the history with the numbers. Two builds of the same version cannot be told apart by the history:
+  **tap the row after installing a build** and start the series again.
 - A start that the screen showed with no sample in this process (a process in which the keyboard was not shown yet) still shows the
   spread of the starts saved before.
 
@@ -179,7 +199,7 @@ password field never starts a word, so nothing is kept there.
 Expected on the block that typed "casa " twenty times: inside keys 60 (was 100: first letter 2 + separator 1), selection change 20,
 suggestions 22: 102 questions instead of 142 (223 before stage 6 part 5). The time gain is small by design: the question that costs is the
 first one after the app's change, and the caps mode, still asked inside the key, is now that first one. What would cut time, not only
-count, is not asking at that moment at all; that is a different kind of change (see docs/plan-performance.md).
+count, is not asking at that moment at all; that is a different kind of change (it was made later: see "Stage 6 part 7").
 
 Tests: `PrevWordTest.java` section C (6,000 random texts against the original rule, no question when the 15 characters are known, memory
 after fifty words, reset), `docs/tools/test_prev_word.py` (the real smali of `handleSeparator` and `checkAddToDictionary` in the mini Dalvik:
@@ -316,7 +336,7 @@ the app after a separator the keyboard typed, counted, with and without the one 
 
 ### Stage 4 part 1 (build _82): the memory cleanup
 
-`LatinIME.onTrimMemory` now lets go of what the keyboard keeps and can make again (see the plan, stage 4). The meter shows it:
+`LatinIME.onTrimMemory` now lets go of what the keyboard keeps and can make again. The meter shows it:
 
 - **"Memory cleanup"**: how many times the system asked (this process, since the last reset) and how long the cleanup took (average,
   95 %, maximum). It is cheap: it clears maps and drops references, nothing is rebuilt at that moment.
@@ -370,7 +390,7 @@ where `KeyboardSwitcher` inflates it) are held by `MrLive` through weak referenc
 only after the row "Free memory now (test)" ran, because the count is made right after its collection, and a reset of the meter removes it.
 How to read it: while the service lives it is 1 and 1. Switch to another keyboard and back to Mr Keyboard (the service is made again), open the
 Advanced screen and tap the row: it must say 1 and 1. A 2 may be a collection that did not take the old one yet: tap the row again; if it
-still says 2 after two taps, the old service or view is held by something, and the number says which one.
+still says 2 after two taps, the old service or view is held by something (part 4 tells how that was found once).
 
 The text of the row "Free memory now (test)" no longer says that the memory line shows the effect (it names "Last cleanup" and "Alive").
 
@@ -378,119 +398,51 @@ Tests: `docs/tools/test_trim_memory.py`, `docs/tools/test_shadow_cache.py`, `Per
 and one, the same object twice, a second service held and let go of, null, the reset, the row), `docs/tools/test_perf_meter.py` and
 `docs/tools/test_popup_cache.py` (a change of sheet keeps the popups; a change of setting clears them once).
 
-### Stage 4 part 4 (build _85): who holds the old service, and the keyboard let go when the service ends
+### Stage 4 part 4: a service that stayed alive after switching keyboards
 
-**What the phone showed.** With Autocompletar on, after a switch to another keyboard and back, "Alive after the cleanup" said service 2 · keyboard 2,
-still 2 after a second tap and after repeating the switch (it does not grow past 2: one old service and one old input view stay behind, not one
-more each time). The statics of the app were audited first (`MrTools.release`, `KeyboardSwitcher.release`, the gesture input, the emoji search,
-the clipboard listener: all let go in `onDestroy`; `MrGestureInput.sView` is only set during a gesture; `sApp` and the other kept contexts are the
-application context), and nothing there holds the service.
+**What the phone showed.** The line "Alive after the cleanup" (part 3) said service 2 · keyboard 2 after a switch to another keyboard and back,
+and 3 and 3 after a second switch: one more service and one more input view stayed behind **at every switch**, not one kept by the system. After
+about ten switches the accumulated copies could be what made switching keyboards sluggish.
 
-**Where it probably stays.** After `onDestroy` the system can keep the finished service alive for a while: its binder and its input session are still
-held on the system side. The service points to its window, the window to its input frame, and the frame to the whole tree of the keyboard, so one
-held shell holds the keyboard. This is a hypothesis; the line below decides it.
+**What held them.** Two statics, found one after the other (first by a search from the app's own static variables, then by a heap dump of the
+phone read with a small script):
+- `MrLearned.sGate` (the gate of the learned words) kept the last `Suggest` it was given, and through it the `AutoDictionary`, the service and its
+  views.
+- `AutoDictionary.sOpenHelper` and `UserBigramDictionary.sOpenHelper`: a static `SQLiteOpenHelper` made once with the service of that moment as
+  its context (a `SQLiteOpenHelper` keeps the `Context` it is given), so the first service of the process lived as long as the process, and with
+  it its input frame, which points (through `FrameLayout.mMatchParentChildren`) to the old tree of the keyboard. The search from the app's
+  variables could not see this chain because it passes through a private field of an Android class.
 
-**What _85 changes.**
+**The fixes.**
+- `AutoDictionary.getWords` calls `MrLearned.gateEnd()` when the search ends, also when it throws, so nothing static keeps the `Suggest` between
+  two calls.
+- The helpers of `AutoDictionary` and `UserBigramDictionary` are made with `getApplicationContext()` (`MrSqlStore` already was). It is the same
+  database file and the same connection: the learned words stay where they were.
 - `LatinIME.onDestroy` ends with `mrDropViews()` (after the super's `onDestroy`, when the window is already gone): it lets go of the strip of
-  suggestions and its container, and replaces the input view by an empty `View` through `InputMethodService.setInputView` called as the super (the
-  override would wrap it again). The keyboard leaves the input frame and the service's own field; what a held service keeps is an empty shell. A
-  system version that refuses the call after the end changes nothing (it is inside a try that catches `Throwable`).
-- **"Held by: ..."** (new line, right after "Alive after the cleanup", only when an old service or input view is alive). `MrLive` takes the objects
-  alive that are not the newest registered, and searches, breadth first, the shortest chain from the static variables of the classes of the app
-  (`MrLive.ROOTS`) to them, following the fields of the app's own classes, arrays, lists, maps (the keys of a `WeakHashMap` and weak references
-  do not hold) and the children and the context of the views. The line is one of three: `Held by: MrTools.sKbd:FrameLayout > child:LatinKeyboardView`
-  (a chain; the first four and the last three steps when it has more than eight), "No variable of the app holds the old one: the system, a
-  thread or a message queue does", or "The search ... was cut (too large)" (400000 objects or 2 s). It runs only from the button of the Advanced
-  screen, right after the collection, and a reset of the meter removes it.
-- How to read the result of the same test as before (switch and back, tap the row twice):
-  - service 1 · keyboard 1: nothing stayed behind;
-  - service 2 · keyboard 1 and "No variable of the app...": the system keeps the finished service, and with the keyboard let go of it is an empty
-    shell; there is nothing left in the app to fix;
-  - keyboard 2 and a chain: the chain names the variable (or the view/listener) that holds it, and that is what is fixed next;
-  - keyboard 2 and "No variable of the app...": something outside the app holds the view (a message in the queue, a thread, the window).
-- `docs/tools/res_check.py` forbids `setAccessible` and `Field.set*` (target 37). The search reads private fields of the app's own classes, so
-  `MrLive$Search.smali` is the one file allowed (`REFLECT_READ_OK`); `test_trim_memory.py` checks that it only reads and never opens a framework
-  class. When the search is taken out the allowance goes with it.
+  suggestions and replaces the input view by an empty one, so a service that the system still holds is an empty shell. It is inside a try that
+  catches `Throwable`.
+- A crash at the end of a service ("Unable to stop service LatinIME: NullPointerException ... onAutoCompletionStateChanged"): `onDestroy` lets
+  go of the view and then the system's own `onDestroy` hides the window, which says "no auto correction" while the switcher asked the view
+  (already gone) for its keyboard. It only happened with a correction on the strip. `onAutoCompletionStateChanged` now keeps the state and does
+  nothing else when the view or its keyboard is not there.
 
-Tests: `test_trim_memory.py` (`mrDropViews` run in the mini interpreter: the two fields let go, the empty view through the super's `setInputView`,
-a refusal changes nothing, its place at the end of `onDestroy`; `MrLive.ROOTS` lists every class of the app with a static object variable, so a new
-static cannot go unseen; the search only reads), `PerfTest.java` (the search on fake classes: a static, a field, a list, an array, a map as key and
-as value, a weak reference, a weak map as key and as value, the shortest of two chains, a cycle, a view's children, a long path, a search that is
-cut, `measure` with the old ones and the row) and `docs/tools/test_perf_meter.py` (the line in its place, the three kinds, the text missing, the
-reset, the three languages).
+**Result on the phone** (Android 13, Autocompletar on and off): after switching keyboards and back, "Alive after the cleanup: service 1 · keyboard 1"
+in both modes, and the Java memory at about 5.8 to 6.0 MB. The popups kept across sheets (part 3) also checked out: long press on "a", symbols and
+back, long press again gave "Open the long-press popup" 2× and "Popup: put the variants together" 1×.
 
-**What the phone showed with _85.** After a switch to another keyboard and back, the count was service 2 · keyboard 2 with "No variable of the
-app holds the old one", and after another switch 3 and 3: one more service and one more input view stay behind **at every switch**. So it is not
-"one behind" kept by the system (that would stay at 2), the keyboard is held too (so the empty-view change did not free it, or the holder is not
-the window), and nothing the app can look at holds them: what holds them is a message queue, an animator, a thread or a registration in the
-system. After about ten switches the accumulated copies may be what made switching keyboards sluggish.
+**Cost.** On the typing path the automatic dictionary does one more static write per query (`gateEnd`), with no allocation; the helpers are made once
+per process; the work at the end of a service runs only when the service ends. Speed was not measured before and after on the phone: what changed is
+memory.
 
-**What the phone showed with _85, second count.** The search found the holder: "Held by: MrLearned.sGate > to:Suggest > mAutoDictionary:AutoDictionary >
-mIme:LatinIME", with service 3 · keyboard 3. The gate of the learned words (`MrLearned.gate`, build 1.85, used by `AutoDictionary.getWords`) is a
-static single instance and kept the callback it was last given, the `Suggest` of the service that asked. Through the `Suggest` it held the
-`AutoDictionary`, which holds the service (`mIme`) and the service its views. One callback explains one old service at a time; the count was 3 (two
-old ones), and the search reported only the first chain, so a second holder is not ruled out: the next count, with one chain per old object, says.
+**How to check it again.** Switch to another keyboard and back (twice), open the Advanced screen, tap "Free memory now (test)": the line must say
+1 and 1. A 2 that stays after two taps means something holds the old one; the way to find it is a heap dump of the process
+(`Debug.dumpHprofData`) read for the shortest chain from a root to the old `LatinIME`. The search by reflection and the row that saved the dump
+(builds _85 to _90) were taken out when the cause was closed; the Git history has them.
 
-### Stage 4 part 5 (build _86): the gate lets go, one chain per old object, and the map of the memory
-
-**The fix.** The gate keeps the callback only while the search runs: `AutoDictionary.getWords` calls `MrLearned.gateEnd()` when the search ends, also
-when it throws (a `try` with a catch-all around the search that rethrows). Nothing static keeps the `Suggest` between two calls any more.
-**The search of the meter** reports a chain for each old object it reaches (up to four, one per line): before it stopped at the first one, which
-could hide a second holder. An old object held only through another old one is not reported apart.
-
-Tests: `LearnedStoreTest.java` (after `gateEnd` the gate has no callback, and a callback of a search that ended is collected, with a control that
-shows the test can see a callback still held), `test_trim_memory.py` (the shape of `AutoDictionary.getWords`: gate, the search alone in the try, `gateEnd`
-on the way out and in the handler; `gateEnd` only puts null; the gate is used in one place), `PerfTest.java` (two old objects: two chains, one
-reached and one not, one held only through the other, six reached and four reported, a search that is cut after finding one).
-
-**What the phone showed with _88.** Still service 2 · keyboard 2, and now "No variable of the app holds the old one": the gate was one holder, not the only
-one, or the count before it was a different one. The search follows the app's own objects, arrays, lists, maps and views only; it does not look inside
-the framework's objects (an executor and its queue, a handler and its messages, a thread, a listener that the system keeps), because their private
-fields cannot be read from the app. So "no variable" means that no chain made of the app's own objects reaches it: what holds it is behind a framework
-object, and only the map of the memory shows which.
-
-**What the memory map showed (build _89 on the phone, dump of 40 MB read in 3 s by `heap_holders.py`).** Two services alive: the one in use
-(`LatinIME.sInstance`, held by the statics of `MrTools`, `MrEmojiSearch` and `MrFonts` as designed, and let go by `release`) and one that ended
-(`mDestroyed` true, its `mInputView` already the empty view of `mrDropViews`, its strip of suggestions null), held by **`AutoDictionary.sOpenHelper`**: the
-helper of the automatic dictionary is a static made once, with the service of that moment as its context (a `SQLiteOpenHelper` keeps it in
-`mContext`), so the first service of the process stayed alive for as long as the process, and with it its input frame, which still points (through the
-`mMatchParentChildren` list of the frame, filled by its last measure) to the old tree of the keyboard: that was the second "keyboard". The search of
-the meter could not see it because the chain passes through a private field of a class of Android (`SQLiteOpenHelper.mContext`) that the app cannot
-read. `UserBigramDictionary.sOpenHelper` is the same kind of static and was the same risk.
-
-**The fix (build _90).** Both helpers are made with `getApplicationContext()`. `MrSqlStore` (the store of the learned words) already was. The structure test
-reads every `SQLiteOpenHelper` of the app and where it is made. The text of the meter for "no chain of objects of the app" now says that the holder can be
-behind an Android object the app keeps (a database helper, a handler, a thread) or the system, and points to the memory map. `heap_holders.py` marks as "in use"
-the object the app itself reaches (`LatinIME.sInstance`), also when another chain to it is as short or shorter (before, a tie showed it as HELD).
-
-**The crash at the end of the service (build _89).** One keyboard switch threw "Unable to stop service LatinIME: NullPointerException: LatinKeyboardView.getKeyboard()
-on a null object reference at KeyboardSwitcher.onAutoCompletionStateChanged". `onDestroy` lets go of the view (`KeyboardSwitcher.release`, stage 4) and
-then the system's own `onDestroy` hides the window, which calls `LatinIME.hideWindow`, which says "no auto correction"; when a correction was on the strip
-the switcher asked the view (already gone) for its keyboard. It happens only with a correction showing when the service ends, which is why it came once.
-`onAutoCompletionStateChanged` now keeps the state and does nothing else when the view or its keyboard is not there. Test: `test_trim_memory.py` runs
-the real smali with no view, with a view with no keyboard, with both, and with the state unchanged (the old smali fails it).
-
-**The map of the memory** is kept for what the search cannot see: if the count still says "No variable of the app holds the old one" after the fix,
-the holder is in the framework or a thread, and only the dump names it.
-
-
-The row **"Save the memory map (test)"** of the Advanced screen (below "Free memory now"): it runs the same cleanup and collection, writes a
-heap dump of the keyboard's process (`android.os.Debug.dumpHprofData`) on a thread of its own, puts it in a zip in the cache folder that the
-screenshots already share (`shots/mr_heap.zip`, provider `com.mrkeyboard.app.shots`) and opens the system's Share. Nothing is sent by the app. **The
-dump is the memory of the keyboard's process**: it can have words that were typed and items of the clipboard, and the text of the row says so;
-do the test with nothing sensitive typed since the keyboard was started, and send the file only to whoever is looking into it.
-
-How to take it: switch to another keyboard and back three times, type a letter, open Advanced, tap "Free memory now (test)" (it must say service 3 ·
-keyboard 3), then tap "Save the memory map (test)" and send the zip.
-
-`docs/tools/heap_holders.py <file>` reads the dump (the zip or the .hprof; Android's format and the JVM's) and prints, for every service
-(`LatinIME`) and input view (`LatinKeyboardView`), the shortest chain from a root of the heap: "in use" for the one the app reaches, "HELD" with
-the chain for every other one. The references that do not keep an object alive (the referent of a weak, soft or phantom reference) are left out.
-That chain names what holds the old ones, in the app or in the framework, and it is what gets fixed.
-
-The row and the tool are a diagnostic: they leave with the search of `MrLive` when the cause is closed.
-
-Tests: `PerfTest.java` (the row gets its listener, the zip in `shots/`, what is inside, a dump that fails leaves nothing and throws nothing, the
-chooser and its flags, the texts after the end, a second tap while busy) and `docs/tools/test_heap_holders.py` (a real JVM dump with a static
-variable, lists, maps and a weak reference, and a dump built by hand in the format of Android with ids of 4 bytes and the records ART adds).
-
+Tests: `docs/tools/test_trim_memory.py` (`mrDropViews` in the mini Dalvik; the shape of `AutoDictionary.getWords`: the gate, the search alone in the
+try, `gateEnd` on the way out and in the handler; every `SQLiteOpenHelper` of the app made with the application context, with a control that fails on
+the old smali; `onAutoCompletionStateChanged` with no view, with a view with no keyboard, with both, and with the state unchanged),
+`docs/tools/learned_test/LearnedStoreTest.java` (after `gateEnd` the gate has no callback, and the callback of a search that ended is collected,
+with a control that can see one still held), `PerfTest.java` (`MrLive` with real weak references: one and one, the same object twice, a second
+service held and let go of, null, the reset, the row) and `docs/tools/test_perf_meter.py` (the line in its place, the reset, the texts in three
+languages).

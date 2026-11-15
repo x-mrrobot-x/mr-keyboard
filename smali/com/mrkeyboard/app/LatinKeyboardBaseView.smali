@@ -29,7 +29,7 @@
 
 .field private static sPrevRenderMode:I = -0x1
 
-# Popups of variants kept between field opens (docs/plan-performance.md, stage 5): the number of the last change of a setting.
+# Popups of variants kept between field opens: the number of the last change of a setting.
 # Each view remembers the number its caches were made at; when it differs, the caches are dropped.
 .field private static sPopupEpoch:I
 
@@ -255,10 +255,10 @@
 .field protected mWindowY:I
 
 # direct methods
-# Popups of variants kept between field opens (docs/plan-performance.md, stage 5). The popup of a key (its variants, a Keyboard) is
+# Popups of variants kept between field opens. The popup of a key (its variants, a Keyboard) is
 # kept in mMiniKeyboardCacheMain/Shift/Caps, keyed by the Key, so it can only be found again for the same key of the same keyboard.
 # Before, every open of a field cleared the three maps (closing() and setKeyboard()), so the first long press of each key in each
-# field built the variants again. Now they are kept, also when the sheet changes (build _84: the main sheet is the most used, and
+# field built the variants again. Now they are kept, also when the sheet changes (the main sheet is the most used, and
 # the maps are keyed by the Key, so each sheet only finds its own), until a setting changed (the popup depends on the settings of
 # the popups and of the sheets), the system asks for memory (trimCaches) or the view leaves the window (onDetachedFromWindow).
 .method public static bumpPopupEpoch()V
@@ -1472,13 +1472,13 @@
 
     add-int/2addr v2, v3
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupBuildBegin()V
     invoke-virtual {p1, v1, v2}, Lcom/mrkeyboard/app/Keyboard$Key;->getPopupKeyboard(Landroid/content/Context;I)Lcom/mrkeyboard/app/Keyboard;
 
     move-result-object v1
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupBuildEnd()V
 
     if-eqz v1, :cond_2
@@ -4974,7 +4974,7 @@
 .end method
 
 # virtual methods
-# Stage 4 of docs/plan-performance.md (onTrimMemory): what the view keeps between two frames or two opens is let go when the system
+# Memory cleanup (onTrimMemory): what the view keeps between two frames or two opens is let go when the system
 # asks for memory: the popups of variants, the measures of the labels and of the text height. All of it is made again when it is
 # needed (lazily, in the draw and in the long press). Returns how many popups of variants were kept.
 .method public trimCaches()I
@@ -5470,7 +5470,7 @@
     .locals 3
 
     .line 869
-    # Performance meter (MrPerf, docs/plan-performance.md stage 2): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->frameBegin()V
 
     invoke-super {p0, p1}, Landroid/view/View;->onDraw(Landroid/graphics/Canvas;)V
@@ -5519,7 +5519,7 @@
     .locals 13
 
     .line 1437
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupBegin()V
 
     iget v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mPopupLayout:I
@@ -5528,7 +5528,7 @@
 
     if-nez v0, :cond_0
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupEnd()V
 
     return v1
@@ -5541,7 +5541,7 @@
 
     if-nez v0, :cond_1
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupEnd()V
 
     return v1
@@ -5561,7 +5561,7 @@
 
     if-nez v2, :cond_3
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupEnd()V
 
     return v1
@@ -5903,11 +5903,11 @@
     .line 1501
     iget-object v4, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardPopup:Landroid/widget/PopupWindow;
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupShowBegin()V
     invoke-virtual {v4, p0, v1, v0, v3}, Landroid/widget/PopupWindow;->showAtLocation(Landroid/view/View;III)V
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupShowEnd()V
 
     .line 1502
@@ -5957,7 +5957,7 @@
     .line 1512
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->invalidateAllKeys()V
 
-    # Performance meter (MrPerf, docs/plan-performance.md stages 5 and 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->popupEnd()V
 
     return v6

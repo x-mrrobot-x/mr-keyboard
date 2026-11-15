@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests the shift state after a word picked on the strip or written by a gesture (stage 6, part 9 of docs/plan-performance.md).
+"""Tests the shift state after a word picked on the strip or written by a gesture.
 
 Run it from the project root:  python3 -I docs/tools/test_pick_caps.py
 

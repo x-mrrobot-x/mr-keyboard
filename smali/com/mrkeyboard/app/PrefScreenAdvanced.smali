@@ -92,9 +92,6 @@
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPerf;->fill(Landroid/preference/PreferenceActivity;)V
 
-    # Build _86: the row that saves a map of the memory (MrHeap), to find what holds an old service.
-    invoke-static {p0}, Lcom/mrkeyboard/app/MrHeap;->fill(Landroid/preference/PreferenceActivity;)V
-
     return-void
 .end method
 

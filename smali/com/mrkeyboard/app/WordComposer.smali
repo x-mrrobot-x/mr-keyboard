@@ -400,7 +400,7 @@
 .method public reset()V
     .locals 2
 
-    # Previous word (MrPrevWord, docs/plan-performance.md stage 6): a word composer that starts again is a word that starts or
+    # Previous word (MrPrevWord): a word composer that starts again is a word that starts or
     # is reopened; what was kept about the last one is of no use.
     invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
 

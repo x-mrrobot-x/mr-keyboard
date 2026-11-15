@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Tests that the popups of variants (the long-press popups) are kept between field opens (LatinKeyboardBaseView, stage 5 of
-docs/plan-performance.md).
+"""Tests that the popups of variants (the long-press popups) are kept between field opens (LatinKeyboardBaseView).
 
 Run it from the project root:  python3 -I docs/tools/test_popup_cache.py
 
@@ -11,7 +10,7 @@ together again. Now:
     preference, that each view compares with its own);
   - setKeyboard() clears them only when a setting changed, whatever keyboard is set (the same one again, or another sheet): the maps
     are keyed by the Key, so a sheet only finds its own popups, and the main sheet (abc), the most used, keeps them when the person
-    goes to the symbols and comes back (build _84; until then another keyboard cleared them);
+    goes to the symbols and comes back (until then another keyboard cleared them);
   - a view that leaves the window (onDetachedFromWindow) clears them, so a hidden view does not hold them;
   - LatinIME.onSharedPreferenceChanged bumps the number first thing, whatever the preference.
 Part 1 runs the REAL smali of these methods in the mini Dalvik interpreter (dalvik_mini.py) with a fake framework that counts the

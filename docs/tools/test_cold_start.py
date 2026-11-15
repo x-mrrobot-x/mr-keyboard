@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests of the cold start of the keyboard (stage 7 of docs/plan-performance.md): what no longer runs when the service is built.
+"""Tests of the cold start of the keyboard: what no longer runs when the service is built.
 
 Run it from the project root:  python3 -I docs/tools/test_cold_start.py
 

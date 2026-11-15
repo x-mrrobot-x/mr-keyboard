@@ -55,7 +55,7 @@ TEXTS = {
     "mr_ui_perf_open_kb": "OpenKb", "mr_ui_perf_open_set": "OpenSet", "mr_ui_perf_popup": "Popup",
     "mr_ui_perf_app_key": "AppKey", "mr_ui_perf_app_sugg": "AppSugg", "mr_ui_perf_app_open": "AppOpen", "mr_ui_perf_app_other": "AppOther",
     "mr_ui_perf_popup_build": "PopupBuild", "mr_ui_perf_popup_show": "PopupShow", "mr_ui_perf_sel": "Sel", "mr_ui_perf_msg": "Msg",
-    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_echo_one": "EchoOne", "mr_ui_perf_echo_run": "EchoRun", "mr_ui_perf_echo_drop": "EchoDrop", "mr_ui_perf_caps_run": "CapsRun", "mr_ui_perf_caps_flush": "CapsFlush", "mr_ui_perf_create_super": "CreateSuper", "mr_ui_perf_create_sugg": "CreateSugg", "mr_ui_perf_trim": "Trim", "mr_ui_perf_trim_last": "Last cleanup: level %1$d · %2$d keyboards, %3$d popups, %4$d shadows (%5$s)", "mr_ui_perf_alive": "Alive after the cleanup: service %1$d · keyboard %2$d", "mr_ui_perf_held": "Held by: %1$s", "mr_ui_perf_held_out": "No variable of the app holds the old one: the system, a thread or a message queue does", "mr_ui_perf_held_cut": "The search for what holds the old one was cut (too large)", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
+    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_echo_one": "EchoOne", "mr_ui_perf_echo_run": "EchoRun", "mr_ui_perf_echo_drop": "EchoDrop", "mr_ui_perf_caps_run": "CapsRun", "mr_ui_perf_caps_flush": "CapsFlush", "mr_ui_perf_create_super": "CreateSuper", "mr_ui_perf_create_sugg": "CreateSugg", "mr_ui_perf_trim": "Trim", "mr_ui_perf_trim_last": "Last cleanup: level %1$d · %2$d keyboards, %3$d popups, %4$d shadows (%5$s)", "mr_ui_perf_alive": "Alive after the cleanup: service %1$d · keyboard %2$d", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
     "mr_ui_perf_stat": "%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)",
     "mr_ui_perf_one": "%1$s: %2$s ms", "mr_ui_perf_none": "Nothing yet.", "mr_ui_perf_mem": "Memory: Java %1$s · native %2$s",
     "mr_ui_perf_reset": "Tap to reset.",
@@ -97,7 +97,7 @@ class Fw:
         self.trim_forgets = 0         # MrTrim.forget calls (the reset)
         self.trim = {"sCount": 0, "sLevel": 0, "sKeyboards": 0, "sPopups": 0, "sShadows": 0, "sBytes": 0}
         self.live_forgets = 0         # MrLive.forget calls (the reset)
-        self.live = {"sMeasured": 0, "sServices": 0, "sViews": 0, "sHeldKind": 0, "sHeld": ""}   # what the last count of the objects alive found (MrLive)
+        self.live = {"sMeasured": 0, "sServices": 0, "sViews": 0}   # what the last count of the objects alive found (MrLive)
         self.perf = dm.VM(PERF, dm.parse_methods(os.path.join(APP, "MrPerf.smali")), self)
         self.reset_cls = dm.VM(RESET, dm.parse_methods(os.path.join(APP, "MrPerf$Reset.smali")), self)
         self.perf.run("<clinit>()V", [])
@@ -583,7 +583,7 @@ check("its text missing: the line is left out and no 'None' is written", "None" 
 fw.missing = set()
 fw.trim.update(sCount=0)
 
-# the line of what is alive after the collection (MrLive, build _84): only after a count, after the last cleanup and before the memory
+# the line of what is alive after the collection (MrLive): only after a count, after the last cleanup and before the memory
 check("no count yet: no line of it", "Alive after" not in summary_for())
 fw.live.update(sMeasured=1, sServices=1, sViews=1)
 al = summary_for().split("\n")
@@ -603,28 +603,6 @@ fw.live.update(sMeasured=0, sServices=0, sViews=0)
 fw.trim.update(sCount=0)
 check("the count forgotten: the line is gone", "Alive after" not in summary_for())
 
-# who holds an old one (MrLive.sHeldKind, build _85): its line comes right after the count, and only with a count
-fw.live.update(sMeasured=1, sServices=2, sViews=1)
-check("nothing old alive (kind 0): no line of who holds it", "Held by" not in summary_for() and "No variable" not in summary_for()
-      and "was cut" not in summary_for())
-fw.live.update(sHeldKind=1, sHeld="MrTools.sKbd:FrameLayout > child:LatinKeyboardView")
-hl = summary_for().split("\n")
-check("held by a variable of the app (kind 1): its chain, right after the count and before the memory", len(hl) == N + 4
-      and hl[N] == "Alive after the cleanup: service 2 · keyboard 1"
-      and hl[N + 1] == "Held by: MrTools.sKbd:FrameLayout > child:LatinKeyboardView" and hl[N + 2].startswith("Memory:"), hl[N:])
-fw.live.update(sHeldKind=2, sHeld="")
-check("no variable of the app reaches it (kind 2): the system, a thread or a queue", summary_for().split("\n")[N + 1]
-      == "No variable of the app holds the old one: the system, a thread or a message queue does")
-fw.live.update(sHeldKind=3)
-check("the search was cut (kind 3): it says so", summary_for().split("\n")[N + 1] == "The search for what holds the old one was cut (too large)")
-fw.live.update(sHeldKind=1, sHeld="X.y:Z")
-fw.missing = {"mr_ui_perf_held"}
-check("its text missing: the line is left out and no 'None' is written", "None" not in summary_for() and "Held" not in summary_for()
-      and len(summary_for().split("\n")) == N + 3)
-fw.missing = set()
-fw.live.update(sMeasured=0, sServices=0, sViews=0, sHeldKind=0, sHeld="")
-check("the count forgotten: the line of who holds it is gone too", "Held by" not in summary_for())
-
 fw.missing = {"mr_ui_perf_reset", "mr_ui_perf_mem", "mr_ui_perf_stat"}
 scr, row = fw.screen()
 fw.fill(scr)
@@ -642,7 +620,7 @@ except dm.JavaExc:
     quiet = False
 check("a broken screen: no exception", quiet and row.f["summary"] is None)
 
-# ---------------------------------------------------------------- the history of the starts (build _80), with the real smali
+# ---------------------------------------------------------------- the history of the starts, with the real smali
 # One process gives one sample of "Start the keyboard" and of "Build the keyboard", and the same build varies a lot from one start to the
 # next, so the Advanced screen keeps the last 9 starts it saw and shows their minimum, median and maximum. Saved when the screen opens.
 START_RECORDS = ";".join("%d,%d,%d,%d" % (100000 + i * 1000, 20000 + i * 100, 10000 + i * 10, 5000 + i * 5) for i in range(3, 12))
@@ -878,7 +856,7 @@ c = code(body("LatinIME.smali", "public onCreate()V"))
 rets = [i for i, l in enumerate(c) if l.startswith("return")]
 check("... and ends before the return of onCreate", len(rets) == 1 and c[rets[0] - 1] == CALL + "createEnd()V"
       and CALL + "createBegin()V" not in c)
-# the two parts of the start (build _80): the part of Android and the set-up of the suggestion engine, each around its call only
+# the two parts of the start: the part of Android and the set-up of the suggestion engine, each around its call only
 i_sup = next(k for k, l in enumerate(c) if l == "invoke-super {p0}, Landroid/inputmethodservice/InputMethodService;->onCreate()V")
 i_sug = next(k for k, l in enumerate(c) if "->initSuggest(" in l)
 check("onCreate: super.onCreate is timed (createSuper), around the call only, once; no register taken",
@@ -995,7 +973,7 @@ lay = open(os.path.join(ROOT, "res", "layout", "mr_ui_pref_row_metrics.xml"), en
 check("its layout shows every line (no maxLines)", "android:id/summary" in lay and "maxLines" not in lay)
 needed = ["mr_ui_perf_" + k.replace("-", "_") for k in KINDS] + ["mr_ui_perf", "mr_ui_perf_stat", "mr_ui_perf_one", "mr_ui_perf_none", "mr_ui_perf_mem",
                                               "mr_ui_perf_reset", "mr_ui_perf_starts", "mr_ui_cat_perf", "mr_ui_cat_perf_sum",
-                                              "mr_ui_perf_trim_last", "mr_ui_perf_alive", "mr_ui_perf_held", "mr_ui_perf_held_out", "mr_ui_perf_held_cut",
+                                              "mr_ui_perf_trim_last", "mr_ui_perf_alive",
                                               "mr_ui_perf_trim_now", "mr_ui_perf_trim_now_sum"]
 specs = {}
 for lang in ("values", "values-pt-rBR", "values-es"):
@@ -1008,9 +986,6 @@ check("the same placeholders in the three languages", specs["values"] == specs["
 check("the line of a kind has its five values", specs["values"]["mr_ui_perf_stat"] == ["%1$s", "%2$s", "%3$s", "%4$s", "%5$d"])
 check("the line of what is alive has its two values (services, input views)", specs["values"]["mr_ui_perf_alive"] == ["%1$d", "%2$d"],
       specs["values"]["mr_ui_perf_alive"])
-check("the line of who holds it has its one value (the chain); the other two have none",
-      specs["values"]["mr_ui_perf_held"] == ["%1$s"] and specs["values"]["mr_ui_perf_held_out"] == [] and specs["values"]["mr_ui_perf_held_cut"] == [],
-      [specs["values"][k] for k in ("mr_ui_perf_held", "mr_ui_perf_held_out", "mr_ui_perf_held_cut")])
 # the text of the row that runs the cleanup names the two lines it points to, with the words those lines really begin with, and does not
 # say that the memory line shows the effect (it also has what the collection of the row freed)
 for lang in ("values", "values-pt-rBR", "values-es"):

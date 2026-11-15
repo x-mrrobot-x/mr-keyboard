@@ -33,14 +33,14 @@
 #     appear for the original field, once, soon after leaving, and the dialog reopens when the keyboard window shows.
 #   - DiagTest: the "Dictionary memory" line (MrDiag, 1.90.0): the reading of /proc/self/smaps on made-up text (headers, Pss/Rss, deleted
 #     files, a file mapped twice), the matching of the path, the texts, the report of a pack folder, and on Linux a real mapping seen as resident.
-#   - PerfTest: the performance meter of the keyboard (MrPerf, docs/plan-performance.md stage 2): begin/end pairs in microseconds, the
+#   - PerfTest: the performance meter of the keyboard (MrPerf): begin/end pairs in microseconds, the
 #     average and p95 of the last 256 samples with the count and maximum since the reset, the first frame after a field opens (not after
 #     2 s), how late a finger down reaches the keyboard, a key counted by its kind (letter, separator, delete, other), the Advanced row
 #     (lines, memory, a tap resets), the history of the last 9 starts (minimum, median, maximum; saved when the screen opens, cleared by a
 #     tap), one log line per hide with keys, and the memory cleanup of stage 4 (MrTrim: by level, against the view on screen, hidden or
 #     absent, a failure inside never goes up, the line of the last cleanup, the row that runs it by hand), and the count of the
-#     services and input views still alive after a collection (MrLive, stage 4 part 3: real weak references, the line, the reset, the row; part 4: the search for who holds an old one on fake classes, the line, its three kinds); the row of the memory map (MrHeap, part 5: the zip, the chooser, a dump that fails, a second tap).
-#   - PrevWordTest: stage 6, part 5 of docs/plan-performance.md, the questions to the app counted on a fake app: the word before the one being
+#     services and input views still alive after a collection (MrLive: real weak references, the line, the reset, the row).
+#   - PrevWordTest: the questions to the app counted on a fake app: the word before the one being
 #     typed (MrPrevWord) asked once per word instead of once per letter, with the answer of EditingUtil.getPreviousWord for every letter of
 #     thousands of random words (long words, long previous words cut by the 15 characters, any text); when it asks as before (the app does not show
 #     the word, a shorter or another word, clear(), nothing composed, no answer); and one question after the echo of our own separator on

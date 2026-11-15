@@ -15,7 +15,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * MrPerf (docs/plan-performance.md, stage 2): the performance meter of the keyboard. The begin/end pairs measure in
+ * MrPerf: the performance meter of the keyboard. The begin/end pairs measure in
  * microseconds; the average and the p95 come from the last 256 samples, the count and the maximum from the last reset; the
  * first frame after a field opens is timed from the start of the open (not after 2 s); a touch counts how late a finger down
  * reached the keyboard; the Advanced row shows it with the memory and a tap resets it; the log gets one line per hide with keys.
@@ -30,54 +30,6 @@ public class PerfTest {
     static void check(String w, Object want, Object got) {
         boolean c = want == null ? got == null : want.equals(got);
         if (c) { ok++; System.out.println("OK    " + w); } else { fail++; System.out.println("FAIL  " + w + " | want " + want + " got " + got); }
-    }
-
-    /** The fake classes of the search of MrLive (build _85): their names start with com.mrkeyboard., like the classes of the app. */
-    static final class Roots {
-        static Object sOne;
-        static Object sNone;
-        static Holder sHolder;
-        static Object sChain;
-        static Object sWeakOnly;
-        static Object sCycle;
-        static android.view.View sGroup;
-        static Object sLong;
-    }
-
-    static final class Holder {
-        Object a;
-        Object[] arr;
-        java.util.ArrayList<Object> list;
-        java.util.HashMap<Object, Object> map;
-        java.util.WeakHashMap<Object, Object> weak;
-        java.lang.ref.WeakReference<Object> ref;
-        int notAnObject = 7;
-        Holder next;
-    }
-
-    static final class Node {
-        Node next;
-    }
-
-    static final class Kid extends android.view.View { }
-
-    static final class Group extends android.view.ViewGroup {
-        android.view.View kid;
-        public int getChildCount() { return kid == null ? 0 : 1; }
-        public android.view.View getChildAt(int i) { return kid; }
-    }
-
-    static Object[] none() { return new Object[0]; }
-
-    static void clearRoots() {
-        Roots.sOne = null;
-        Roots.sNone = null;
-        Roots.sHolder = null;
-        Roots.sChain = null;
-        Roots.sWeakOnly = null;
-        Roots.sCycle = null;
-        Roots.sGroup = null;
-        Roots.sLong = null;
     }
 
     /** The texts of the row, as the three languages have them (the English ones). */
@@ -97,10 +49,6 @@ public class PerfTest {
             {"mr_ui_perf_trim", "Memory cleanup"},
             {"mr_ui_perf_trim_last", "Last cleanup: level %1$d · let go of %2$d keyboards, %3$d popups, %4$d shadows (%5$s)"},
             {"mr_ui_perf_alive", "Alive after the cleanup: service %1$d · keyboard %2$d"},
-            {"mr_ui_perf_held", "Held by: %1$s"}, {"mr_ui_perf_held_out", "No variable of the app holds the old one: the system, a thread or a message queue does"},
-            {"mr_ui_perf_held_cut", "The search for what holds the old one was cut (too large)"},
-            {"mr_ui_perf_heap_sum", "Saves a map of the memory"}, {"mr_ui_perf_heap_busy", "Saving the memory map..."},
-            {"mr_ui_perf_heap_fail", "The memory map could not be saved."}, {"mr_ui_perf_heap_title", "Memory map"},
             {"mr_ui_perf_starts", "%1$s, last %2$d starts: min %3$s ms · median %4$s · max %5$s"},
             {"mr_ui_perf_stat", "%1$s: average %2$s ms · p95 %3$s · max %4$s (%5$d×)"}, {"mr_ui_perf_one", "%1$s: %2$s ms (once)"},
             {"mr_ui_perf_none", "Nothing measured yet."}, {"mr_ui_perf_mem", "Memory: Java %1$s · native %2$s"},
@@ -122,21 +70,11 @@ public class PerfTest {
     static class Advanced extends PreferenceActivity {
         final Row row = new Row();
         final Row trimRow = new Row();
-        final Row heapRow = new Row();
         final ArrayList<String> asked = new ArrayList<String>();
-        final ArrayList<android.content.Intent> started = new ArrayList<android.content.Intent>();
-        java.io.File cache;
         boolean hasRow = true, broken;
-        public java.io.File getCacheDir() { return cache; }
-        public void startActivity(android.content.Intent intent) {
-            if (failShare) throw new RuntimeException("no activity");
-            started.add(intent);
-        }
-        boolean failShare;
         public Preference findPreference(CharSequence key) {
             if (broken) throw new IllegalStateException("no screen");
             asked.add(String.valueOf(key));
-            if (hasRow && "mr_perf_heap".equals(String.valueOf(key))) return heapRow;
             if (hasRow && "mr_perf_trim".equals(String.valueOf(key))) return trimRow;
             return hasRow && "mr_perf".equals(String.valueOf(key)) ? row : null;
         }
@@ -633,7 +571,7 @@ public class PerfTest {
                 MrPerf.sStartSaved + "|" + String.valueOf(bad.row.summary).split("\n")[0]);
         MrPerf.sStartSaved = true;
 
-        // ---------------------------------------------------------------- the memory cleanup (docs/plan-performance.md, stage 4)
+        // ---------------------------------------------------------------- the memory cleanup
         MrPerf.reset();
         LatinKeyboardView tview = new LatinKeyboardView();
         KeyboardSwitcher.getInstance().view = tview;
@@ -723,7 +661,7 @@ public class PerfTest {
         MrPerf.reset();
         KeyboardSwitcher.getInstance().view = null;
 
-        // ---------------------------------------------------------------- what is still alive after the collection (MrLive, build _84)
+        // ---------------------------------------------------------------- what is still alive after the collection (MrLive)
         // the services and the input views are counted by weak references, right after the collection of the "free memory now" row
         MrLive.forget();
         check("nothing counted yet: no count in the meter", false, MrLive.sMeasured);
@@ -751,8 +689,7 @@ public class PerfTest {
                 MrLive.sServices + "," + MrLive.sViews);
         MrPerf.fill(lscr);
         check("the row shows the count, after the last cleanup and before the memory", true,
-                String.valueOf(lscr.row.summary).contains("Alive after the cleanup: service 2 · keyboard 1\n"
-                        + "No variable of the app holds the old one: the system, a thread or a message queue does\nMemory: Java "));
+                String.valueOf(lscr.row.summary).contains("Alive after the cleanup: service 2 · keyboard 1\nMemory: Java "));
         svcB = null;
         for (int i = 0; i < 20 && (MrLive.sServices != 1); i++) {
             System.gc();
@@ -780,256 +717,6 @@ public class PerfTest {
         MrPerf.reset();
         svcA = null;
         viewA = null;
-
-        // ---------------------------------------------------------------- who holds an old one (MrLive.search, build _85)
-        // the chain from a static variable to the old object, by what the app keeps; the fake classes are in Roots
-        Class<?>[] fakeRoots = {Roots.class};
-        Object target = new Object();
-        Object[] want = {target};
-        Roots.sOne = target;
-        MrLive.Result r1 = MrLive.search(want, fakeRoots);
-        check("held by a static variable: a path, and it is that variable", "1,PerfTest$Roots.sOne:Object", r1.kind + "," + r1.path);
-        clearRoots();
-        r1 = MrLive.search(want, fakeRoots);
-        check("held by nothing: no variable of the app reaches it", "2,", r1.kind + "," + r1.path);
-
-        Holder hold = new Holder();
-        hold.a = new Holder();
-        ((Holder) hold.a).list = new java.util.ArrayList<Object>();
-        ((Holder) hold.a).list.add("text");
-        ((Holder) hold.a).list.add(target);
-        Roots.sHolder = hold;
-        r1 = MrLive.search(want, fakeRoots);
-        check("through a field and a list: each step is named (the field, then the item of the list)",
-                "1,PerfTest$Roots.sHolder:PerfTest$Holder > a:PerfTest$Holder > list:ArrayList > item:Object", r1.kind + "," + r1.path);
-        hold.a = null;
-        hold.arr = new Object[] {null, target};
-        r1 = MrLive.search(want, fakeRoots);
-        check("through an array", "1,PerfTest$Roots.sHolder:PerfTest$Holder > arr:Object[] > []:Object", r1.kind + "," + r1.path);
-        hold.arr = null;
-        hold.map = new java.util.HashMap<Object, Object>();
-        hold.map.put("k", target);
-        r1 = MrLive.search(want, fakeRoots);
-        check("as the value of a map", "1,PerfTest$Roots.sHolder:PerfTest$Holder > map:HashMap > value:Object", r1.kind + "," + r1.path);
-        hold.map.clear();
-        hold.map.put(target, "v");
-        r1 = MrLive.search(want, fakeRoots);
-        check("as the key of a map", "1,PerfTest$Roots.sHolder:PerfTest$Holder > map:HashMap > key:Object", r1.kind + "," + r1.path);
-        hold.map = null;
-        hold.ref = new java.lang.ref.WeakReference<Object>(target);
-        r1 = MrLive.search(want, fakeRoots);
-        check("held only through a weak reference: it does not hold it", "2,", r1.kind + "," + r1.path);
-        hold.ref = null;
-        hold.weak = new java.util.WeakHashMap<Object, Object>();
-        hold.weak.put(target, "v");
-        r1 = MrLive.search(want, fakeRoots);
-        check("as the key of a weak map: it does not hold it", "2,", r1.kind + "," + r1.path);
-        hold.weak.clear();
-        hold.weak.put("k", target);
-        r1 = MrLive.search(want, fakeRoots);
-        check("as the value of a weak map: it does", "1,PerfTest$Roots.sHolder:PerfTest$Holder > weak:WeakHashMap > value:Object", r1.kind + "," + r1.path);
-        hold.weak = null;
-        check("the fields that are not objects (a number) are not followed", "2,", MrLive.search(want, fakeRoots).kind + ",");
-
-        // the shortest chain, and a cycle that does not loop
-        Holder far = new Holder();
-        far.next = new Holder();
-        far.next.next = new Holder();
-        far.next.next.a = target;
-        Holder near = new Holder();
-        near.a = target;
-        hold.next = far;
-        hold.arr = new Object[] {near};
-        r1 = MrLive.search(want, fakeRoots);
-        check("two chains to it: the shortest is the one reported",
-                "1,PerfTest$Roots.sHolder:PerfTest$Holder > arr:Object[] > []:PerfTest$Holder > a:Object", r1.kind + "," + r1.path);
-        near.a = null;
-        far.next.next.next = hold;
-        r1 = MrLive.search(want, fakeRoots);
-        check("a cycle in the objects: it ends, and the way in is still found",
-                "1,PerfTest$Roots.sHolder:PerfTest$Holder > next:PerfTest$Holder > next:PerfTest$Holder > next:PerfTest$Holder > a:Object",
-                r1.kind + "," + r1.path);
-        Roots.sHolder = null;
-
-        // the views: the children, and the context of a view
-        Group group = new Group();
-        group.kid = new Kid();
-        Roots.sGroup = group;
-        Object[] kidWanted = {group.kid};
-        r1 = MrLive.search(kidWanted, fakeRoots);
-        check("a view held by the children of a view that a static holds", "1,PerfTest$Roots.sGroup:PerfTest$Group > child:PerfTest$Kid", r1.kind + "," + r1.path);
-        Roots.sGroup = null;
-
-        // build _86: one chain for each old object that is reached (the service held by one thing, the input view by another)
-        Object t1 = new Object();
-        Object t2 = new Object();
-        Object[] two = {t1, t2};
-        Roots.sOne = t1;
-        Holder h2 = new Holder();
-        h2.a = t2;
-        Roots.sHolder = h2;
-        r1 = MrLive.search(two, fakeRoots);
-        check("two old objects held by two variables: the two chains, one per line",
-                "1,PerfTest$Roots.sOne:Object\nPerfTest$Roots.sHolder:PerfTest$Holder > a:Object", r1.kind + "," + r1.path);
-        h2.a = null;
-        r1 = MrLive.search(two, fakeRoots);
-        check("one of the two is held by nothing: only the chain of the other, and it is still an answer", "1,PerfTest$Roots.sOne:Object",
-                r1.kind + "," + r1.path);
-        Roots.sOne = null;
-        Roots.sHolder = null;
-        Holder th1 = new Holder();
-        Holder th2 = new Holder();
-        th1.a = th2;
-        Roots.sHolder = th1;
-        r1 = MrLive.search(new Object[] {th1, th2}, fakeRoots);
-        check("an old object held only through another old one is not reported apart (the first holder is what to fix)",
-                "1,PerfTest$Roots.sHolder:PerfTest$Holder", r1.kind + "," + r1.path);
-        Roots.sHolder = null;
-        Holder many = new Holder();
-        many.list = new java.util.ArrayList<Object>();
-        Object[] six = new Object[6];
-        for (int i = 0; i < 6; i++) {
-            six[i] = new Object();
-            many.list.add(six[i]);
-        }
-        Roots.sHolder = many;
-        r1 = MrLive.search(six, fakeRoots);
-        check("six old objects reached: the chains are limited to four", 4, r1.path.split("\n").length);
-        Roots.sHolder = null;
-
-        // a long path is shortened to its start and its end
-        Node head = new Node();
-        Node tail = head;
-        Holder deep = new Holder();
-        Holder cur = deep;
-        for (int i = 0; i < 12; i++) {
-            cur.next = new Holder();
-            cur = cur.next;
-        }
-        cur.a = target;
-        Roots.sHolder = deep;
-        r1 = MrLive.search(want, fakeRoots);
-        check("a path of more than 8 steps shows the first 4, '...' and the last 3",
-                "1,PerfTest$Roots.sHolder:PerfTest$Holder > next:PerfTest$Holder > next:PerfTest$Holder > next:PerfTest$Holder > ... > "
-                        + "next:PerfTest$Holder > next:PerfTest$Holder > a:Object", r1.kind + "," + r1.path);
-        Roots.sHolder = null;
-
-        // too big to look at in full: the search says it was cut (it does not say "the system")
-        for (int i = 0; i < 450000; i++) {
-            Node n = new Node();
-            tail.next = n;
-            tail = n;
-        }
-        Roots.sLong = head;
-        r1 = MrLive.search(want, fakeRoots);
-        check("450000 objects and the target not among them: the search is cut", MrLive.HELD_CUT, r1.kind);
-        Object found1 = new Object();
-        Roots.sOne = found1;
-        r1 = MrLive.search(new Object[] {found1, target}, fakeRoots);
-        check("two old objects, one reached and the other lost in 450000 objects: the search is cut, and the chain it found is the answer",
-                "1,PerfTest$Roots.sOne:Object", r1.kind + "," + r1.path);
-        Roots.sOne = null;
-        Roots.sLong = null;
-        head = null;
-        tail = null;
-        clearRoots();
-
-        // measure(): the old ones are the alive ones but the newest registered
-        MrLive.forget();
-        for (int i = 0; i < 20; i++) {
-            System.gc();
-            MrLive.measure(fakeRoots);
-            if (MrLive.sServices == 0 && MrLive.sViews == 0) break;
-        }
-        check("the objects of the tests before are gone: nothing is alive", "0,0", MrLive.sServices + "," + MrLive.sViews);
-        Object oldSvc = new Object();
-        Object newSvc = new Object();
-        MrLive.service(oldSvc);
-        MrLive.service(newSvc);
-        MrLive.measure(fakeRoots);
-        check("an old service alive, held by nothing of the app: 2 services and 'outside'", "2,2,", MrLive.sServices + "," + MrLive.sHeldKind + "," + MrLive.sHeld);
-        Roots.sOne = oldSvc;
-        MrLive.measure(fakeRoots);
-        check("... held by a variable: the kind is path, and the chain is kept", "1,PerfTest$Roots.sOne:Object", MrLive.sHeldKind + "," + MrLive.sHeld);
-        Advanced hscr = new Advanced();
-        MrPerf.fill(hscr);
-        check("the row shows who holds it, after the count", true, String.valueOf(hscr.row.summary).contains(
-                "Alive after the cleanup: service 2 · keyboard 0\nHeld by: PerfTest$Roots.sOne:Object\nMemory: Java "));
-        Roots.sOne = null;
-        MrLive.measure(fakeRoots);
-        MrPerf.fill(hscr);
-        check("... or says that none of the variables of the app does", true, String.valueOf(hscr.row.summary).contains(
-                "keyboard 0\nNo variable of the app holds the old one: the system, a thread or a message queue does\nMemory: Java "));
-        MrLive.forget();
-        check("the reset takes the answer of who holds it away too", "0,", MrLive.sHeldKind + "," + MrLive.sHeld);
-        MrPerf.fill(hscr);
-        check("... and the lines of it from the row", false, String.valueOf(hscr.row.summary).contains("Held by")
-                || String.valueOf(hscr.row.summary).contains("No variable of the app"));
-        oldSvc = null;
-        newSvc = null;
-        target = null;
-        want = null;
-
-        // ---------------------------------------------------------------- the map of the memory (MrHeap, build _86)
-        Advanced hp = new Advanced();
-        hp.cache = java.nio.file.Files.createTempDirectory("mrheap").toFile();
-        MrHeap.fill(hp);
-        check("the row of the memory map is asked by its key and gets a tap listener", "[mr_perf_heap],true", hp.asked + "," + (hp.heapRow.click != null));
-        Advanced nohp = new Advanced();
-        nohp.hasRow = false;
-        MrHeap.fill(nohp);
-        check("a screen without the row: nothing happens", true, nohp.heapRow.click == null);
-        Advanced brokenhp = new Advanced();
-        brokenhp.broken = true;
-        MrHeap.fill(brokenhp);
-        check("a screen that cannot be asked: no exception", true, brokenhp.heapRow.click == null);
-
-        java.io.File zip = MrHeap.save(hp);
-        check("save: a zip named mr_heap.zip in the folder the screenshots share (shots/)", true,
-                zip != null && zip.getParentFile().getName().equals("shots") && zip.getName().equals("mr_heap.zip") && zip.length() > 0);
-        check("... the dump was asked for in the same folder, and it is not kept (only the zip is)", true,
-                Debug.stubDumpedTo != null && Debug.stubDumpedTo.endsWith("shots/mr_heap.hprof") && !new java.io.File(Debug.stubDumpedTo).exists());
-        java.util.zip.ZipInputStream zin = new java.util.zip.ZipInputStream(new java.io.FileInputStream(zip));
-        java.util.zip.ZipEntry entry = zin.getNextEntry();
-        byte[] body = new byte[64];
-        int len = zin.read(body);
-        zin.close();
-        check("... with one entry, mr_heap.hprof, with what the dump wrote", "mr_heap.hprof,JAVA PROFILE STUB", (entry != null ? entry.getName() : "?") + "," + new String(body, 0, Math.max(len, 0), "UTF-8"));
-        Debug.stubDumpFails = true;
-        check("a dump that fails (a full disk): null, no zip left, and no exception", true, MrHeap.save(hp) == null && !zip.exists());
-        Debug.stubDumpFails = false;
-
-        android.content.Intent chooser = MrHeap.share(new android.net.Uri(), "Memory map");
-        android.content.Intent send = (android.content.Intent) chooser.extras.get(android.content.Intent.EXTRA_INTENT);
-        check("share: a chooser with the title, around an ACTION_SEND of the zip, readable by whoever receives it", "true,Memory map,android.intent.action.SEND,true,true",
-                (chooser.extras.get(android.content.Intent.EXTRA_INTENT) != null) + "," + chooser.extras.get(android.content.Intent.EXTRA_TITLE) + ","
-                        + (send != null ? send.action : null) + "," + (send != null && send.extras.get(android.content.Intent.EXTRA_STREAM) instanceof android.net.Uri)
-                        + "," + (send != null && (send.flags & android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION) != 0));
-        check("... and the chooser starts in a task of its own (the screen may be gone)", true,
-                (chooser.flags & android.content.Intent.FLAG_ACTIVITY_NEW_TASK) != 0);
-
-        MrHeap.Click click = new MrHeap.Click(hp, hp.heapRow);
-        java.io.File zip2 = MrHeap.save(hp);
-        click.done(zip2);
-        check("done with a zip: the text of the row is back and the chooser was started", "Saves a map of the memory,1", hp.heapRow.summary + "," + hp.started.size());
-        click.done(null);
-        check("done without a zip: the text says it failed and nothing is started", "The memory map could not be saved.,1", hp.heapRow.summary + "," + hp.started.size());
-        hp.failShare = true;
-        click.done(zip2);
-        check("done when no app takes the file: the text says it failed (no exception)", "The memory map could not be saved.", String.valueOf(hp.heapRow.summary));
-        hp.failShare = false;
-
-        // a tap: the cleanup, the busy text, then the dump in a thread of its own; a second tap in the meantime does nothing
-        MrHeap.sBusy = false;
-        hp.heapRow.click.onPreferenceClick(hp.heapRow);
-        check("a tap: the row says it is saving, and it is busy", "Saving the memory map...,true", hp.heapRow.summary + "," + MrHeap.sBusy);
-        hp.heapRow.click.onPreferenceClick(hp.heapRow);
-        java.io.File made = new java.io.File(hp.cache, "shots/mr_heap.zip");
-        for (int i = 0; i < 100 && !made.exists(); i++) Thread.sleep(50);
-        check("... and the zip is made in the background", true, made.exists());
-        MrHeap.sBusy = false;
-        hp.heapRow.summary = null;
-        made.delete();
 
         // ---------------------------------------------------------------- the log
         MrPerf.reset();

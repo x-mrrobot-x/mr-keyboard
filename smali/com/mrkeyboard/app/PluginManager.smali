@@ -34,7 +34,7 @@
 
 .field private static mPluginDicts:Ljava/util/Map;
 
-# Cold start (docs/plan-performance.md stage 7): true once the dictionary apps were looked up since the last change of the installed
+# Cold start: true once the dictionary apps were looked up since the last change of the installed
 # packages. Set by getPluginDictionaries, cleared by onReceive, read by ensurePlugins (getDictionary, for a language without a pack).
 .field private static volatile sPluginsLoaded:Z
     .annotation system Ldalvik/annotation/Signature;

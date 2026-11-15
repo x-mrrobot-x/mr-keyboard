@@ -5,7 +5,7 @@ Run it from the project root:  python3 -I docs/tools/test_shadow_cache.py
 
 Runs the REAL smali in the mini Dalvik interpreter (dalvik_mini.py) with a fake framework: bitmaps that remember whether they were
 recycled, a canvas that records what it draws, drawables with bounds, alpha, level and a current child (a state list), and a blur
-(extractAlpha) that counts how many times it runs. The rules (docs/plan-performance.md, stage 1):
+(extractAlpha) that counts how many times it runs. The rules:
   - the shadow of an icon is blurred once and kept; the next frames only draw the kept bitmap, at the offset extractAlpha gave;
   - it is found again by the drawable really drawn (getCurrent), the size of the key, the bounds, alpha and level of the drawable and
     the radius; the colour filter is not part of it (it is applied when drawing) and is taken off the paint afterwards;

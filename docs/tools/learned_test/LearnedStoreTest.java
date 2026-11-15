@@ -257,7 +257,7 @@ public class LearnedStoreTest {
         check("the gate keeps a word typed once or twice (frequency 5) out of the strip and the search goes on", keepOn && seen[0] == 0);
         gate.addWord("ana".toCharArray(), 0, 3, 6, 3, Dictionary.DataType.UNIGRAM);
         check("the gate lets an accepted word (frequency 6) through, with its frequency", seen[0] == 1 && seen[1] == 6);
-        // build _86: the gate is a static, so it must not keep the callback (the Suggest, and through it the whole service) after the search
+        // The gate is a static, so it must not keep the callback (the Suggest, and through it the whole service) after the search
         MrLearned.gateEnd();
         check("after gateEnd the gate has no callback: it lets nothing through and says stop", !gate.addWord("ana".toCharArray(), 0, 3, 250, 3,
                 Dictionary.DataType.UNIGRAM) && seen[0] == 1);

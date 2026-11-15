@@ -5,7 +5,7 @@ import android.view.inputmethod.InputConnection;
 import java.util.regex.Pattern;
 
 /**
- * The word before the one being typed, for the suggestions (docs/plan-performance.md, stage 6).
+ * The word before the one being typed, for the suggestions.
  *
  * LatinIME.showSuggestions gives the suggestion engine the word before the one being typed (the bigram context). It used to ask the app
  * for it, synchronously, on every run: {@code getTextBeforeCursor(15)} and then the word before the last one of those 15 characters

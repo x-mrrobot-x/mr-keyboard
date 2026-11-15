@@ -204,7 +204,7 @@ def main():
             calls.append((m.group(1), m.group(2), m.group(3), m.group(4).strip(), 'f'))
         for op, owner, name, desc, kind in calls:
             # a class that has its smali in the APK is looked up there, whatever its package: the support library that the app carries
-            # (android.support.v4.content.FileProvider, used by MrHeap and MrShots) is not in any android.jar, and it was reported as missing
+            # (android.support.v4.content.FileProvider, used by MrShots) is not in any android.jar, and it was reported as missing
             if owner.startswith('Lcom/mrkeyboard/') or owner in smali:
                 checked_apk += 1
                 where = (os.path.basename(f), owner, name, (':' if kind == 'f' else '') + desc)

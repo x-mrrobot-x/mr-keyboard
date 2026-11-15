@@ -39,7 +39,7 @@
 .method public handleMessage(Landroid/os/Message;)V
     .locals 1
 
-    # Performance meter (MrPerf, docs/plan-performance.md stage 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->msgBegin()V
 
     .line 342
@@ -65,7 +65,7 @@
 
     goto :goto_0
 
-    # Delayed echo (docs/plan-performance.md stage 6 part 7): the reaction to the echo of our own separator that waited.
+    # Delayed echo: the reaction to the echo of our own separator that waited.
     :cond_mr_echo
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME$1;->this$0:Lcom/mrkeyboard/app/LatinIME;
 
@@ -73,7 +73,7 @@
 
     goto :goto_0
 
-    # Delayed caps question (docs/plan-performance.md stage 6 part 8): the update of the shift state that waited.
+    # Delayed caps question: the update of the shift state that waited.
     :cond_mr_shift
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME$1;->this$0:Lcom/mrkeyboard/app/LatinIME;
 
@@ -110,7 +110,7 @@
     invoke-static {p1}, Lcom/mrkeyboard/app/LatinIME;->access$100(Lcom/mrkeyboard/app/LatinIME;)V
 
     :goto_0
-    # Performance meter (MrPerf, docs/plan-performance.md stage 6): no register used.
+    # Performance meter (MrPerf): no register used.
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->msgEnd()V
 
     return-void

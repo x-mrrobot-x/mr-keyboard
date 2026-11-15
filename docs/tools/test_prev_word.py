@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests of how LatinIME uses MrPrevWord and MrSurround (stage 6, part 5 of docs/plan-performance.md).
+"""Tests of how LatinIME uses MrPrevWord and MrSurround.
 
 Run it from the project root:  python3 -I docs/tools/test_prev_word.py
 

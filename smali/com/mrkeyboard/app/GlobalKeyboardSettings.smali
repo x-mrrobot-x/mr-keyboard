@@ -181,7 +181,7 @@
     # of the process (LatinKeyboardBaseView.setRenderModeIfPossible keeps the last mode in a static): with that layer every key
     # press redrew all the keys on the processor (and, on a window drawn by the GPU, sent the whole bitmap to it again). With
     # no layer the GPU window records the keys and the GPU draws them, the processor window redraws only the key, and every
-    # view of the process is drawn the same way (docs/plan-performance.md).
+    # view of the process is drawn the same way.
     iput v2, p0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->renderMode:I
 
     const/16 v0, 0xc8

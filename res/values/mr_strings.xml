@@ -97,16 +97,8 @@
     <string name="mr_ui_perf_trim">Memory cleanup</string>
     <string name="mr_ui_perf_trim_last">Last cleanup: level %1$d · let go of %2$d keyboards, %3$d popups, %4$d shadows (%5$s)</string>
     <string name="mr_ui_perf_alive">Alive after the cleanup: service %1$d · keyboard %2$d</string>
-    <string name="mr_ui_perf_held">Held by: %1$s</string>
-    <string name="mr_ui_perf_held_out">No chain of objects of the app reaches the old one: it is behind an Android object (a database helper, a handler, a thread) or the system. The memory map shows which</string>
-    <string name="mr_ui_perf_held_cut">The search for what holds the old one was cut (too large)</string>
     <string name="mr_ui_perf_trim_now">Free memory now (test)</string>
     <string name="mr_ui_perf_trim_now_sum">Lets go of what the keyboard can make again, as if the system had asked for memory, then runs a garbage collection. “Last cleanup” shows what was let go; “Alive” shows what still exists after the collection.</string>
-    <string name="mr_ui_perf_heap">Save the memory map (test)</string>
-    <string name="mr_ui_perf_heap_sum">Saves a map of the keyboard’s memory as a zip and opens Share, to find what keeps an old service alive. It has what is in the keyboard’s memory: words typed and items of the clipboard. Send it only to whoever is looking into it.</string>
-    <string name="mr_ui_perf_heap_busy">Saving the memory map…</string>
-    <string name="mr_ui_perf_heap_fail">The memory map could not be saved.</string>
-    <string name="mr_ui_perf_heap_title">Memory map</string>
     <string name="mr_ui_perf_frame_gpu">Draw a frame (GPU: recording only)</string>
     <string name="mr_ui_perf_frame_cpu">Draw a frame (CPU: whole drawing)</string>
     <string name="mr_ui_cat_haptic">Vibration</string>

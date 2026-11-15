@@ -7,9 +7,6 @@ public class Intent implements android.os.Parcelable {
     public static final int FLAG_ACTIVITY_REORDER_TO_FRONT = 0x00020000;
     public static final int FLAG_ACTIVITY_CLEAR_TOP = 0x04000000;
     public static final int FLAG_ACTIVITY_MULTIPLE_TASK = 0x08000000;
-    public static final int FLAG_GRANT_READ_URI_PERMISSION = 0x00000001;
-    public static final String ACTION_SEND = "android.intent.action.SEND";
-    public static final String EXTRA_STREAM = "android.intent.extra.STREAM";
     public static final String ACTION_VIEW = "android.intent.action.VIEW";
     public static final String ACTION_MY_PACKAGE_REPLACED = "android.intent.action.MY_PACKAGE_REPLACED";
     public static final String EXTRA_INTENT = "android.intent.extra.INTENT";
@@ -44,13 +41,6 @@ public class Intent implements android.os.Parcelable {
     public Intent putExtra(String name, String value) { extras.put(name, value); return this; }
     public Intent putExtra(String name, String[] value) { extras.put(name, value); return this; }
     public Intent putExtra(String name, android.os.Parcelable value) { extras.put(name, value); return this; }
-    /** The chooser wraps the intent in EXTRA_INTENT, like the real one, and keeps the title. */
-    public static Intent createChooser(Intent target, CharSequence title) {
-        Intent chooser = new Intent("android.intent.action.CHOOSER");
-        chooser.extras.put(EXTRA_INTENT, target);
-        chooser.extras.put(EXTRA_TITLE, String.valueOf(title));
-        return chooser;
-    }
     public String getStringExtra(String name) {
         Object v = extras.get(name);
         return v instanceof String ? (String) v : null;

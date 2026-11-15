@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests the memory cleanup of the keyboard (stage 4 of docs/plan-performance.md): LatinIME.onTrimMemory, the closing of the engine in
+"""Tests the memory cleanup of the keyboard: LatinIME.onTrimMemory, the closing of the engine in
 LatinIME.onDestroy, KeyboardSwitcher.dropUnused and LatinKeyboardBaseView.trimCaches. (The shadows are in test_shadow_cache.py and the
 decision by level in PerfTest.java: MrTrim.)
 
@@ -204,7 +204,7 @@ h.calls = []
 h.run("onTrimMemory(I)V", ime(), 40)
 check("onTrimMemory: the system class first, then MrTrim.onTrim with the level", h.calls == ["onTrimMemory(40)", "onTrim(40)"], h.calls)
 
-# ---------------------------------------------------------------- 3b. KeyboardSwitcher.onAutoCompletionStateChanged with the view let go of (build _89)
+# ---------------------------------------------------------------- 3b. KeyboardSwitcher.onAutoCompletionStateChanged with the view let go of
 # The phone showed "Unable to stop service LatinIME: NullPointerException ... LatinKeyboardView.getKeyboard() ... KeyboardSwitcher.onAutoCompletionStateChanged":
 # onDestroy lets go of the view (KeyboardSwitcher.release), then the system hides the window and LatinIME.hideWindow says "no auto correction".
 class SwitcherHost(Host):
@@ -301,7 +301,7 @@ check("MrTools.release: fonts are set up with no view (v0, still the zero consta
       and all(not re.match(r"^(const\S*|sget\S*|move\S*|new-\S+|iget\S*|add-\S+) v0\b", l) for l in r[zero + 1:mf[0]])
       and any(l.endswith("MrEmojiSearch;->setup(Landroid/view/View;)V") for l in r[zero + 1:mf[0]]) and r[-1] == "return-void", (zero, mf))
 
-# MrLive (build _84): the service and the input view are registered where they are made, and the row that frees memory counts after its collection
+# MrLive: the service and the input view are registered where they are made, and the row that frees memory counts after its collection
 live_calls = {}
 for f in sorted(os.listdir(APP)):
     if f.endswith(".smali") and f != "MrLive.smali":
@@ -339,7 +339,7 @@ check("MrLive holds the objects only by weak references (so it cannot be what ke
       and ".field private static final sViewRefs:Ljava/util/ArrayList;" in lv
       and all(".method static declared-synchronized %s(" % m in lv for m in ("service", "view", "measure", "forget")), None)
 
-# ---------------------------------------------------------------- 5. build _85: what a service that ended points to (LatinIME.mrDropViews)
+# ---------------------------------------------------------------- 5. what a service that ended points to (LatinIME.mrDropViews)
 # The system can keep a service that ended alive for a while; what the service points to stays with it: the keyboard in the input frame of
 # its window, the strip of suggestions. The service lets go of both at the end of onDestroy, after the super.
 VIEW = "Landroid/view/View;"
@@ -378,35 +378,7 @@ check("... and mrDropViews is private, with the try that catches Throwable aroun
       re.search(r"^\.method private mrDropViews\(\)V", src, re.M) is not None
       and [l for l in body("mrDropViews()V") if l.startswith(".catch")] == [".catch Ljava/lang/Throwable; {:try_drop .. :try_drop_end} :catch_drop"], None)
 
-# the classes MrLive starts its search from (ROOTS) are all the classes of the app that have a static variable that holds an object:
-# one that is missing would be a place the search never looks at, so a holder in it would be reported as "the system"
-roots_java = open(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrLive.java"), encoding="utf-8").read()
-declared = set(re.findall(r'"([A-Za-z0-9_$]+)"', re.search(r"ROOTS = \{(.*?)\};", roots_java, re.S).group(1)))
-skip_types = {"Ljava/lang/String;", "Ljava/lang/Integer;", "Ljava/lang/Long;", "Ljava/lang/Boolean;", "Ljava/lang/Float;", "Ljava/lang/Double;",
-              "Ljava/lang/Class;", "Ljava/util/regex/Pattern;", "Ljava/util/Locale;", "Ljava/lang/CharSequence;", "Ljava/lang/Character;",
-              "Ljava/lang/Short;", "Ljava/lang/Byte;"}
-needed = set()
-for f in sorted(os.listdir(APP)):
-    if not f.endswith(".smali"):
-        continue
-    t_ = open(os.path.join(APP, f), encoding="utf-8").read()
-    for fm in re.finditer(r"^\.field ([\w ]*?)(\w+):(\S+)", t_, re.M):
-        ty = fm.group(3)
-        if "static" in fm.group(1).split() and ty[0] in "L[" and ty not in skip_types and not re.match(r"^\[+[ZBSCIJFD]$", ty):
-            needed.add(f[:-6])
-check("MrLive.ROOTS lists every class of the app with a static variable that holds an object, and nothing else",
-      declared == needed, ("missing:", sorted(needed - declared), "extra:", sorted(declared - needed)))
-
-# the search of MrLive is the one place allowed to use reflection (docs/tools/res_check.py, REFLECT_READ_OK): it may only READ fields, and only of
-# classes of the app; nothing is written, and no framework class is opened
-srch = open(os.path.join(APP, "MrLive$Search.smali"), encoding="utf-8").read()
-used = sorted(set(re.findall(r"Ljava/lang/reflect/Field;->(\w+)", srch)))
-check("MrLive$Search uses reflection only to read (get, getModifiers, getName, getType, setAccessible), never to write a field",
-      used == ["get", "getModifiers", "getName", "getType", "setAccessible"], used)
-check("... and it reads the instance fields only of classes whose name starts with com.mrkeyboard. (the framework ones are left alone)",
-      'const-string v1, "com.mrkeyboard."' in srch or '"com.mrkeyboard."' in srch and srch.count("startsWith") >= 2, srch.count("startsWith"))
-
-# build _86: the gate of the learned words (MrLearned.sGate) is a static; the callback it is given (the Suggest, and through it the whole service) is
+# The gate of the learned words (MrLearned.sGate) is a static; the callback it is given (the Suggest, and through it the whole service) is
 # kept only while AutoDictionary.getWords runs. The phone showed "Retido por: MrLearned.sGate > to:Suggest > mAutoDictionary > mIme:LatinIME"
 # with one more service and one more keyboard alive after each switch of keyboard.
 ad = open(os.path.join(APP, "AutoDictionary.smali"), encoding="utf-8").read()
@@ -437,7 +409,7 @@ callers = [f for f in sorted(os.listdir(APP)) if f.endswith(".smali") and f != "
            "MrLearned;->gate(" in open(os.path.join(APP, f), encoding="utf-8").read()]
 check("MrLearned.gate is used in one place only, AutoDictionary.getWords (the one that calls gateEnd)", callers == ["AutoDictionary.smali"], callers)
 
-# build _89: the memory map of the phone showed the first service of the process held, with its whole input view, by AutoDictionary.sOpenHelper:
+# A heap dump of the phone showed the first service of the process held, with its whole input view, by AutoDictionary.sOpenHelper:
 # a SQLiteOpenHelper keeps the Context it is given (SQLiteOpenHelper.mContext), and the helper is a static (or in one), so it lives as long as the
 # process. Every SQLiteOpenHelper of the app is made with the application context.
 helpers = []
