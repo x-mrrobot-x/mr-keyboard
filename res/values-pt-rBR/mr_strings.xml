@@ -96,8 +96,9 @@
     <string name="mr_ui_perf_create_sugg">Iniciar: motor de sugestões</string>
     <string name="mr_ui_perf_trim">Limpeza de memória</string>
     <string name="mr_ui_perf_trim_last">Última limpeza: nível %1$d · soltou %2$d teclados, %3$d popups, %4$d sombras (%5$s)</string>
+    <string name="mr_ui_perf_alive">Vivos depois da limpeza: serviço %1$d · teclado %2$d</string>
     <string name="mr_ui_perf_trim_now">Liberar memória agora (teste)</string>
-    <string name="mr_ui_perf_trim_now_sum">Solta o que o teclado consegue refazer, como se o sistema pedisse memória. A linha de memória acima mostra o efeito.</string>
+    <string name="mr_ui_perf_trim_now_sum">Solta o que o teclado consegue refazer, como se o sistema pedisse memória, e depois roda uma coleta de lixo. “Última limpeza” mostra o que foi solto; “Vivos” mostra o que ainda existe depois da coleta.</string>
     <string name="mr_ui_perf_frame_gpu">Desenhar um quadro (GPU: só o registro)</string>
     <string name="mr_ui_perf_frame_cpu">Desenhar um quadro (CPU: o desenho todo)</string>
     <string name="mr_ui_cat_haptic">Vibração</string>

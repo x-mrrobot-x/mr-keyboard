@@ -391,6 +391,7 @@ public final class MrPerf {
         sEchoAt = -1;
         sCapsAt = -1;
         MrTrim.forget();
+        MrLive.forget();
     }
 
     // ------------------------------------------------------------------ the history of the starts
@@ -565,6 +566,14 @@ public final class MrPerf {
                 sb.append(last);
             }
         }
+        if (MrLive.sMeasured) {
+            // how many services and input views of the keyboard are alive after the collection of the "free memory now" row
+            String alive = MrPacks.text(c, "mr_ui_perf_alive", Integer.valueOf(MrLive.sServices), Integer.valueOf(MrLive.sViews));
+            if (alive != null) {
+                if (sb.length() > 0) sb.append('\n');
+                sb.append(alive);
+            }
+        }
         boolean measured = sb.length() > 0;
         if (!measured) {
             String none = MrPacks.text(c, "mr_ui_perf_none");
@@ -609,9 +618,9 @@ public final class MrPerf {
     }
 
     /**
-     * A tap on the row of the cleanup: it runs the cleanup of the highest level, as if the system had asked for memory, and shows the
-     * meter again (the memory line says what it freed once the garbage collector ran: the collection is asked for here, only here; the
-     * system does it by itself).
+     * A tap on the row of the cleanup: it runs the cleanup of the highest level, as if the system had asked for memory, asks for a
+     * collection (here and nowhere else; the system does it by itself), counts what is still alive after it (MrLive) and shows the meter
+     * again. The line of the last cleanup says what the keyboard let go of; the memory line also has what the collection freed.
      */
     static final class Trim implements Preference.OnPreferenceClickListener {
         private final Context mContext;
@@ -625,6 +634,7 @@ public final class MrPerf {
         public boolean onPreferenceClick(Preference p) {
             MrTrim.onTrim(MrTrim.COMPLETE);
             System.gc();
+            MrLive.measure();
             mRow.setSummary(summary(mContext));
             return true;
         }

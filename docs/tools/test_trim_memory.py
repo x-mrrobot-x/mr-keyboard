@@ -262,5 +262,43 @@ check("MrTools.release: fonts are set up with no view (v0, still the zero consta
       and all(not re.match(r"^(const\S*|sget\S*|move\S*|new-\S+|iget\S*|add-\S+) v0\b", l) for l in r[zero + 1:mf[0]])
       and any(l.endswith("MrEmojiSearch;->setup(Landroid/view/View;)V") for l in r[zero + 1:mf[0]]) and r[-1] == "return-void", (zero, mf))
 
+# MrLive (build _84): the service and the input view are registered where they are made, and the row that frees memory counts after its collection
+live_calls = {}
+for f in sorted(os.listdir(APP)):
+    if f.endswith(".smali") and f != "MrLive.smali":
+        t_ = open(os.path.join(APP, f), encoding="utf-8").read()
+        for what in ("service", "view", "measure", "forget"):
+            n_ = t_.count("Lcom/mrkeyboard/app/MrLive;->%s(" % what)
+            if n_:
+                live_calls.setdefault(what, []).append((f, n_))
+check("MrLive: the service is registered in one place only, LatinIME.onCreate; the view in KeyboardSwitcher; measure in MrPerf$Trim; forget in MrPerf",
+      live_calls == {"service": [("LatinIME.smali", 1)], "view": [("KeyboardSwitcher.smali", 1)], "measure": [("MrPerf$Trim.smali", 1)],
+                     "forget": [("MrPerf.smali", 1)]}, live_calls)
+oc = body("onCreate()V")
+i_put = next(i for i, l in enumerate(oc) if l == "sput-object p0, Lcom/mrkeyboard/app/LatinIME;->sInstance:Lcom/mrkeyboard/app/LatinIME;")
+check("LatinIME.onCreate: the service is registered with no register used (p0), right after the instance is set, so it is a live service",
+      oc[i_put + 1] == "invoke-static {p0}, Lcom/mrkeyboard/app/MrLive;->service(Ljava/lang/Object;)V"
+      and oc.index("invoke-static {p0}, Lcom/mrkeyboard/app/MrLive;->service(Ljava/lang/Object;)V") == i_put + 1, oc[i_put:i_put + 3])
+ks = open(os.path.join(APP, "KeyboardSwitcher.smali"), encoding="utf-8").read()
+mk = re.search(r"^\.method private changeLatinKeyboardView\(IZ\)V\n(.*?)^\.end method", ks, re.S | re.M)
+assert mk
+kb = [l.strip() for l in mk.group(1).split("\n") if l.strip() and not l.strip().startswith(("#", ".line"))]
+i_view = next(i for i, l in enumerate(kb) if l == "iput-object v1, p0, Lcom/mrkeyboard/app/KeyboardSwitcher;->mInputView:Lcom/mrkeyboard/app/LatinKeyboardView;")
+check("KeyboardSwitcher: the input view just inflated (v1) is registered right after it is stored, still inside the try of the inflation",
+      kb[i_view + 1] == "invoke-static {v1}, Lcom/mrkeyboard/app/MrLive;->view(Ljava/lang/Object;)V" and kb[i_view + 2] == ":try_end_0", kb[i_view:i_view + 3])
+tr = open(os.path.join(APP, "MrPerf$Trim.smali"), encoding="utf-8").read()
+mt = re.search(r"^\.method public onPreferenceClick\(Landroid/preference/Preference;\)Z\n(.*?)^\.end method", tr, re.S | re.M)
+assert mt
+tc = [l.strip().split(", ")[-1] for l in mt.group(1).split("\n") if l.strip().startswith("invoke-")]
+check("MrPerf$Trim: the cleanup, the collection, the count of what is alive, and only then the meter is shown again",
+      [x for x in tc if "MrTrim;->onTrim" in x or "System;->gc" in x or "MrLive;->measure" in x or "MrPerf;->summary" in x] == [
+          "Lcom/mrkeyboard/app/MrTrim;->onTrim(I)V", "Ljava/lang/System;->gc()V", "Lcom/mrkeyboard/app/MrLive;->measure()V",
+          "Lcom/mrkeyboard/app/MrPerf;->summary(Landroid/content/Context;)Ljava/lang/String;"], tc)
+lv = open(os.path.join(APP, "MrLive.smali"), encoding="utf-8").read()
+check("MrLive holds the objects only by weak references (so it cannot be what keeps them alive)",
+      "Ljava/lang/ref/WeakReference;" in lv and ".field private static final sServiceRefs:Ljava/util/ArrayList;" in lv
+      and ".field private static final sViewRefs:Ljava/util/ArrayList;" in lv
+      and all(".method static declared-synchronized %s(" % m in lv for m in ("service", "view", "measure", "forget")), None)
+
 print("\n%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

@@ -48,6 +48,7 @@ public class PerfTest {
             {"mr_ui_perf_app_msg", "App in a message"}, {"mr_ui_perf_echo_cut", "Echo short check"}, {"mr_ui_perf_echo_full", "Echo full check"}, {"mr_ui_perf_echo_one", "Echo one question"}, {"mr_ui_perf_echo_run", "Echo reaction that waited"}, {"mr_ui_perf_echo_drop", "Echo reaction dropped"}, {"mr_ui_perf_caps_run", "Caps update that waited"}, {"mr_ui_perf_caps_flush", "Caps update asked early"}, {"mr_ui_perf_create_super", "Start: Android"}, {"mr_ui_perf_create_sugg", "Start: engine"}, {"mr_ui_perf_frame_gpu", "Frame (GPU)"}, {"mr_ui_perf_frame_cpu", "Frame (CPU)"},
             {"mr_ui_perf_trim", "Memory cleanup"},
             {"mr_ui_perf_trim_last", "Last cleanup: level %1$d · let go of %2$d keyboards, %3$d popups, %4$d shadows (%5$s)"},
+            {"mr_ui_perf_alive", "Alive after the cleanup: service %1$d · keyboard %2$d"},
             {"mr_ui_perf_starts", "%1$s, last %2$d starts: min %3$s ms · median %4$s · max %5$s"},
             {"mr_ui_perf_stat", "%1$s: average %2$s ms · p95 %3$s · max %4$s (%5$d×)"}, {"mr_ui_perf_one", "%1$s: %2$s ms (once)"},
             {"mr_ui_perf_none", "Nothing measured yet."}, {"mr_ui_perf_mem", "Memory: Java %1$s · native %2$s"},
@@ -659,6 +660,63 @@ public class PerfTest {
         check("... and the meter row shows it at once", true, String.valueOf(bscr.row.summary).contains("Last cleanup: level 80 · let go of 6 keyboards, 1 popups, 7 shadows ("));
         MrPerf.reset();
         KeyboardSwitcher.getInstance().view = null;
+
+        // ---------------------------------------------------------------- what is still alive after the collection (MrLive, build _84)
+        // the services and the input views are counted by weak references, right after the collection of the "free memory now" row
+        MrLive.forget();
+        check("nothing counted yet: no count in the meter", false, MrLive.sMeasured);
+        Advanced lscr = new Advanced();
+        MrPerf.fill(lscr);
+        check("... and no line of it in the row", false, String.valueOf(lscr.row.summary).contains("Alive after the cleanup"));
+        MrLive.measure();
+        check("a count with nothing registered: 0 and 0, and it is a count", "true,0,0", MrLive.sMeasured + "," + MrLive.sServices + "," + MrLive.sViews);
+        Object svcA = new Object();
+        Object viewA = new Object();
+        MrLive.service(svcA);
+        MrLive.view(viewA);
+        MrLive.measure();
+        check("one service and one input view registered: 1 and 1", "1,1", MrLive.sServices + "," + MrLive.sViews);
+        MrLive.service(svcA);
+        MrLive.view(viewA);
+        MrLive.service(null);
+        MrLive.view(null);
+        MrLive.measure();
+        check("the same objects registered again, and null: still 1 and 1", "1,1", MrLive.sServices + "," + MrLive.sViews);
+        Object svcB = new Object();
+        MrLive.service(svcB);
+        MrLive.measure();
+        check("a second service while the first is still held: 2 and 1 (what a service that stayed behind looks like)", "2,1",
+                MrLive.sServices + "," + MrLive.sViews);
+        MrPerf.fill(lscr);
+        check("the row shows the count, after the last cleanup and before the memory", true,
+                String.valueOf(lscr.row.summary).contains("Alive after the cleanup: service 2 · keyboard 1\nMemory: Java "));
+        svcB = null;
+        for (int i = 0; i < 20 && (MrLive.sServices != 1); i++) {
+            System.gc();
+            MrLive.measure();
+        }
+        check("the second service let go of: after the collection it is 1 again", "1,1", MrLive.sServices + "," + MrLive.sViews);
+        MrPerf.reset();
+        check("the reset takes the count away", false, MrLive.sMeasured);
+        MrPerf.fill(lscr);
+        check("... also from the row", false, String.valueOf(lscr.row.summary).contains("Alive after the cleanup"));
+
+        // the row that runs the cleanup by hand counts after its collection and shows it at once
+        Advanced cscr = new Advanced();
+        MrPerf.fill(cscr);
+        cscr.trimRow.click.onPreferenceClick(cscr.trimRow);
+        check("a tap on the cleanup row counts what is alive", "true,1,1", MrLive.sMeasured + "," + MrLive.sServices + "," + MrLive.sViews);
+        check("... and the row shows it", true, String.valueOf(cscr.row.summary).contains("Alive after the cleanup: service 1 · keyboard 1"));
+        Object svcC = new Object();
+        MrLive.service(svcC);
+        cscr.trimRow.click.onPreferenceClick(cscr.trimRow);
+        check("... a second service held by something stays counted after the tap (2)", 2, MrLive.sServices);
+        svcC = null;
+        for (int i = 0; i < 20 && MrLive.sServices != 1; i++) cscr.trimRow.click.onPreferenceClick(cscr.trimRow);
+        check("... and goes after another tap once nothing holds it", 1, MrLive.sServices);
+        MrPerf.reset();
+        svcA = null;
+        viewA = null;
 
         // ---------------------------------------------------------------- the log
         MrPerf.reset();

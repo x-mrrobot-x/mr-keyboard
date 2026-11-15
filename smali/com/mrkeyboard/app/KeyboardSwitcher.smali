@@ -381,6 +381,9 @@
     check-cast v1, Lcom/mrkeyboard/app/LatinKeyboardView;
 
     iput-object v1, p0, Lcom/mrkeyboard/app/KeyboardSwitcher;->mInputView:Lcom/mrkeyboard/app/LatinKeyboardView;
+
+    # The input view just inflated, counted by MrLive (docs/plan-performance.md stage 4): no register used.
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrLive;->view(Ljava/lang/Object;)V
     :try_end_0
     .catch Ljava/lang/OutOfMemoryError; {:try_start_0 .. :try_end_0} :catch_1
     .catch Landroid/view/InflateException; {:try_start_0 .. :try_end_0} :catch_0

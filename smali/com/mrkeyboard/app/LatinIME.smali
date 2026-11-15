@@ -9099,6 +9099,9 @@
     .line 361
     sput-object p0, Lcom/mrkeyboard/app/LatinIME;->sInstance:Lcom/mrkeyboard/app/LatinIME;
 
+    # Counts the services still alive after a collection (MrLive, docs/plan-performance.md stage 4): no register used.
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrLive;->service(Ljava/lang/Object;)V
+
     .line 363
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getResources()Landroid/content/res/Resources;
 

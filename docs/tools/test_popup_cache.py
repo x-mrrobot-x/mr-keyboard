@@ -9,8 +9,9 @@ field cleared the three maps (closing() and setKeyboard()), so the first long pr
 together again. Now:
   - closing() clears them only when a setting changed since the view last looked (a number, bumped by every change of a
     preference, that each view compares with its own);
-  - setKeyboard() clears them only when the keyboard is a different one from the one on the view (the same object again, the
-    keyboard the field already had, keeps them) or when a setting changed;
+  - setKeyboard() clears them only when a setting changed, whatever keyboard is set (the same one again, or another sheet): the maps
+    are keyed by the Key, so a sheet only finds its own popups, and the main sheet (abc), the most used, keeps them when the person
+    goes to the symbols and comes back (build _84; until then another keyboard cleared them);
   - a view that leaves the window (onDetachedFromWindow) clears them, so a hidden view does not hold them;
   - LatinIME.onSharedPreferenceChanged bumps the number first thing, whatever the preference.
 Part 1 runs the REAL smali of these methods in the mini Dalvik interpreter (dalvik_mini.py) with a fake framework that counts the
@@ -153,12 +154,22 @@ check("... the view still ends up marked as changed", v.f["mKeyboardChanged"] ==
 h.run("setKeyboard(" + KB + ")V", v, kb1)
 check("again the same keyboard: still kept", h.cleared(v) == [0, 0, 0], h.cleared(v))
 h.run("setKeyboard(" + KB + ")V", v, kb2)
-check("a different keyboard (other keys): the three maps are cleared, once each", h.cleared(v) == [1, 1, 1], h.cleared(v))
+check("another sheet (a different keyboard, other keys): the popups are kept, nothing cleared", h.cleared(v) == [0, 0, 0], h.cleared(v))
 check("... and the view holds the new one", v.f["mKeyboard"] is kb2)
 h.run("setKeyboard(" + KB + ")V", v, kb2)
-check("the new keyboard set again: kept", h.cleared(v) == [1, 1, 1], h.cleared(v))
+check("the new keyboard set again: kept", h.cleared(v) == [0, 0, 0], h.cleared(v))
 h.run("setKeyboard(" + KB + ")V", v, kb1)
-check("back to the first keyboard: cleared (its popups are not kept across a different keyboard)", h.cleared(v) == [2, 2, 2], h.cleared(v))
+check("back to the first sheet (abc, then symbols, then abc again): kept, so its popups are found again", h.cleared(v) == [0, 0, 0] and v.f["mKeyboard"] is kb1,
+      h.cleared(v))
+for _ in range(5):
+    h.run("setKeyboard(" + KB + ")V", v, kb2)
+    h.run("setKeyboard(" + KB + ")V", v, kb1)
+check("five more round trips between the two sheets: still nothing cleared", h.cleared(v) == [0, 0, 0], h.cleared(v))
+h.run("bumpPopupEpoch()V")
+h.run("setKeyboard(" + KB + ")V", v, kb2)
+h.run("setKeyboard(" + KB + ")V", v, kb1)
+check("a setting changed between two sheets: cleared once (at the first setKeyboard), not at every change of sheet", h.cleared(v) == [1, 1, 1],
+      h.cleared(v))
 
 h = Host()
 v = h.new_view(keyboard=kb1)
@@ -175,7 +186,7 @@ check("a different keyboard and a setting changed: cleared once, not twice", h.c
 h = Host()
 v = h.new_view(keyboard=None)
 h.run("setKeyboard(" + KB + ")V", v, kb1)
-check("the very first keyboard of a view: the (empty) maps are cleared, harmless", h.cleared(v) == [1, 1, 1] and v.f["mKeyboard"] is kb1,
+check("the very first keyboard of a view: nothing to clear (the maps are empty), the keyboard is set", h.cleared(v) == [0, 0, 0] and v.f["mKeyboard"] is kb1,
       h.cleared(v))
 
 # a field opens: setKeyboard(same) then closing(): the popups survive both
@@ -228,17 +239,13 @@ check("closing(): the label metrics and the text heights are still dropped",
       any("mLabelMetricsCache" in l and l.startswith("iput-object") for l in c) and any("mTextHeightCache" in l for l in c))
 
 c = code(body("LatinKeyboardBaseView.smali", "public setKeyboard(" + KB + ")V"))
-check("setKeyboard: the first thing is reading the keyboard that was on the view (v4)",
-      c[0] == "iget-object v4, p0, " + VIEW + "->mKeyboard:" + KB, c[:2])
-i = c.index("if-eq v4, p1, :cond_mr_same_keyboard")
-check("setKeyboard: a different keyboard clears the maps and skips the rest; the same one only runs the stale check",
-      c[i + 1] == "invoke-direct {p0}, " + VIEW + "->clearPopupCaches()V" and c[i + 2] == "goto :cond_mr_keep_popups"
-      and c[i + 3] == "invoke-direct {p0}, " + VIEW + "->dropPopupCachesIfStale()V"
-      and c.count("invoke-direct {p0}, " + VIEW + "->clearPopupCaches()V") == 1
-      and c.count("invoke-direct {p0}, " + VIEW + "->dropPopupCachesIfStale()V") == 1, c[i:i + 4])
-check("setKeyboard: the keyboard of the view is read before it is replaced, and p1 is not used as a scratch register before the check",
-      c.index("iget-object v4, p0, " + VIEW + "->mKeyboard:" + KB) < c.index("iput-object p1, p0, " + VIEW + "->mKeyboard:" + KB) < i
-      and not any(re.match(r"(iget-object|sget-object|move-object|const\S*) p1\b", l) for l in c[:i]), None)
+check("setKeyboard: no comparison with the keyboard that was on the view (no v4, no branch on it), whatever keyboard is set",
+      not any(re.search(r"\bv4\b", l) for l in c) and not any(l.startswith("if-eq") and "p1" in l for l in c), c[:3])
+check("setKeyboard: it never clears the maps itself, only the stale check runs (once), after the keyboard is set on the view",
+      c.count("invoke-direct {p0}, " + VIEW + "->clearPopupCaches()V") == 0
+      and c.count("invoke-direct {p0}, " + VIEW + "->dropPopupCachesIfStale()V") == 1
+      and c.index("iput-object p1, p0, " + VIEW + "->mKeyboard:" + KB) < c.index("invoke-direct {p0}, " + VIEW + "->dropPopupCachesIfStale()V"), c)
+check("setKeyboard: the registers fit (.locals 4: v0..v3, then p0 and p1)", ".locals 4" in body("LatinKeyboardBaseView.smali", "public setKeyboard(" + KB + ")V"), None)
 check("setKeyboard: the maps are not touched anywhere else", not any("mMiniKeyboardCache" in l for l in c), [l for l in c if "mMiniKeyboardCache" in l])
 
 b = body("LatinKeyboardBaseView.smali", "public onDetachedFromWindow()V")

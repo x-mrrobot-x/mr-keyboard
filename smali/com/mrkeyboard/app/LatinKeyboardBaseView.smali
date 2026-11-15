@@ -258,9 +258,9 @@
 # Popups of variants kept between field opens (docs/plan-performance.md, stage 5). The popup of a key (its variants, a Keyboard) is
 # kept in mMiniKeyboardCacheMain/Shift/Caps, keyed by the Key, so it can only be found again for the same key of the same keyboard.
 # Before, every open of a field cleared the three maps (closing() and setKeyboard()), so the first long press of each key in each
-# field built the variants again. Now they are kept while the keyboard is the same one (setKeyboard() is given the same object) and
-# no setting changed (the popup depends on the settings of the popups and of the sheets); a different keyboard or a changed
-# setting drops them as before, and so does the view leaving the window (onDetachedFromWindow).
+# field built the variants again. Now they are kept, also when the sheet changes (build _84: the main sheet is the most used, and
+# the maps are keyed by the Key, so each sheet only finds its own), until a setting changed (the popup depends on the settings of
+# the popups and of the sheets), the system asks for memory (trimCaches) or the view leaves the window (onDetachedFromWindow).
 .method public static bumpPopupEpoch()V
     .locals 1
 
@@ -6610,10 +6610,7 @@
 .end method
 
 .method public setKeyboard(Lcom/mrkeyboard/app/Keyboard;)V
-    .locals 5
-
-    # The keyboard that was on the view, to know at the end whether it is the same one again (the popups of variants are kept).
-    iget-object v4, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mKeyboard:Lcom/mrkeyboard/app/Keyboard;
+    .locals 4
 
     .line 664
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mKeyboard:Lcom/mrkeyboard/app/Keyboard;
@@ -6714,18 +6711,13 @@
     .line 685
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->computeProximityThreshold(Lcom/mrkeyboard/app/Keyboard;)V
 
-    # The popups of variants are kept when the same keyboard is set again (a field opened with the keyboard it already had) and no
-    # setting changed; a different keyboard has other keys, so its popups start empty, as before.
-    if-eq v4, p1, :cond_mr_same_keyboard
-
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->clearPopupCaches()V
-
-    goto :cond_mr_keep_popups
-
-    :cond_mr_same_keyboard
+    # The popups of variants are kept whatever keyboard is set (another sheet, or the same one again) as long as no setting changed:
+    # they are keyed by the Key, so the keys of another sheet never find them, and the sheet the person comes back to (the main
+    # one, the most used) finds its own. What lets them go: a setting that changed (the check below), the system asking for memory
+    # (trimCaches), the view leaving the window (onDetachedFromWindow). A sheet the switcher dropped has other Keys when it is made
+    # again, and the entries of the old Keys are weak, so nothing keeps the old keyboard alive.
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->dropPopupCachesIfStale()V
 
-    :cond_mr_keep_popups
     .line 689
     sget-object p1, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
 

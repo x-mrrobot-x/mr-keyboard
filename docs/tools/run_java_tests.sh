@@ -38,7 +38,8 @@
 #     2 s), how late a finger down reaches the keyboard, a key counted by its kind (letter, separator, delete, other), the Advanced row
 #     (lines, memory, a tap resets), the history of the last 9 starts (minimum, median, maximum; saved when the screen opens, cleared by a
 #     tap), one log line per hide with keys, and the memory cleanup of stage 4 (MrTrim: by level, against the view on screen, hidden or
-#     absent, a failure inside never goes up, the line of the last cleanup, the row that runs it by hand).
+#     absent, a failure inside never goes up, the line of the last cleanup, the row that runs it by hand), and the count of the
+#     services and input views still alive after a collection (MrLive, stage 4 part 3: real weak references, the line, the reset, the row).
 #   - PrevWordTest: stage 6, part 5 of docs/plan-performance.md, the questions to the app counted on a fake app: the word before the one being
 #     typed (MrPrevWord) asked once per word instead of once per letter, with the answer of EditingUtil.getPreviousWord for every letter of
 #     thousands of random words (long words, long previous words cut by the 15 characters, any text); when it asks as before (the app does not show

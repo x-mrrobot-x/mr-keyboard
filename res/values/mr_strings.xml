@@ -96,8 +96,9 @@
     <string name="mr_ui_perf_create_sugg">Start: the suggestion engine</string>
     <string name="mr_ui_perf_trim">Memory cleanup</string>
     <string name="mr_ui_perf_trim_last">Last cleanup: level %1$d · let go of %2$d keyboards, %3$d popups, %4$d shadows (%5$s)</string>
+    <string name="mr_ui_perf_alive">Alive after the cleanup: service %1$d · keyboard %2$d</string>
     <string name="mr_ui_perf_trim_now">Free memory now (test)</string>
-    <string name="mr_ui_perf_trim_now_sum">Lets go of what the keyboard can make again, as if the system had asked for memory. The memory line above shows the effect.</string>
+    <string name="mr_ui_perf_trim_now_sum">Lets go of what the keyboard can make again, as if the system had asked for memory, then runs a garbage collection. “Last cleanup” shows what was let go; “Alive” shows what still exists after the collection.</string>
     <string name="mr_ui_perf_frame_gpu">Draw a frame (GPU: recording only)</string>
     <string name="mr_ui_perf_frame_cpu">Draw a frame (CPU: whole drawing)</string>
     <string name="mr_ui_cat_haptic">Vibration</string>

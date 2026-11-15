@@ -157,9 +157,10 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   `EditorInfo.initialSelStart/End` and no longer asks the app for the whole text of the field at every open (the old question stays
   only for a field that reports -1); `docs/tools/test_open_selection.py`. A cursor at the very start (0/0, most often an empty field)
   offers no old-word suggestions on open (before: only if the field had text and a word right after the cursor). The popups of
-  variants are kept between opens: `closing()` and `setKeyboard()` clear the three maps only for a different keyboard or after a
+  variants are kept between opens: `closing()` and `setKeyboard()` clear the three maps only after a
   change of any preference (`LatinIME.onSharedPreferenceChanged` bumps a number that each view compares with its own), and the view
-  leaving the window clears them; `docs/tools/test_popup_cache.py`. The gain is only the part of a long press that put the variants
+  leaving the window clears them; `docs/tools/test_popup_cache.py`. (Until build _83 a different keyboard, that is another sheet, also
+  cleared them; since build _84 the maps survive a change of sheet, see stage 4 part 3.) The gain is only the part of a long press that put the variants
   together (the new line "Popup: put the variants together"); showing the popup window is a call to the system and stays. Whether
   that part is large is what the next numbers show (count of the popup line against the count of the build line).
 - Stage 6, first part: the meter is finer (keys by kind, the engine and the strip of the suggestions, the keyboard and the settings
@@ -492,3 +493,26 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   Tests: `test_trim_memory.py` 32 (+8: the releases in `mrCloseEngine`, each alone in its try and run even with no engine, the one in
   `initSuggest`, the order in `MrTools.release`), `NoLibTest` +4 (`MrFuzzy.release`, and that the kept search is what holds the
   buffer), `GestureWordsTest` +6 (`MrGestureWords.release`, made again, a buffer in use stays whole).
+
+- Stage 4, part 3 (build _84): what the phone tests of _82 and _83 showed, and three changes. Phone, Android 13, with and without
+  Autocompletar: the cleanup takes 0.1 ms; the system called `onTrimMemory` by itself (levels 5 and 10), so the callback is reached;
+  the service ended and was made again with the process alive (the second engine start 5.7 to 11 ms) and the native memory did not grow
+  with it. What the tests also showed: (1) the "Memory" line is not the effect of the cleanup (the row's own `System.gc()` moves it more:
+  a second tap let go of 0 and the native memory fell 9.7 MB), so the text of the row was corrected (pt-BR, en, es) and now points at
+  "Last cleanup" and the new line. (2) The popups are held while the keyboard is hidden (one round: 4 popups, 4 keyboards, 24 shadows,
+  1.0 MB let go): so far they were also cleared at every change of sheet, which defeats a cache whose point is the main sheet. They are
+  now kept across sheets (`setKeyboard` clears only on a change of setting; the maps are keyed by the `Key`, so a sheet only finds its
+  own; the system's request and the view leaving the window still clear them). The owner's point, adopted for all sheets and not only abc
+  (no special case for which sheet is the main one, and the memory is only the popups of the keys that were pressed). (3) Two rounds of
+  switch-keyboard-and-back gave Java +1.4 / +2.4 MB and native −3.4 / +6.8 MB: not a clean answer, because what is typed between rounds
+  changes both. Decided by a count instead of megabytes: `MrLive` registers the service (`LatinIME.onCreate`) and the input view
+  (`KeyboardSwitcher`, where it is inflated) by weak reference and counts what is alive right after the collection of the row "Free
+  memory now (test)"; the meter shows "Alive after the cleanup: service N · keyboard N", which must be 1 and 1 after a switch to another
+  keyboard and back (a 2 that stays after two taps names what is held).
+  Correction of part 1: the levels 5, 10, 15, 60 and 80 are only sent up to Android 13; from Android 14 the documentation says only 20
+  and 40 are, and `adb shell am send-trim-memory` may not be delivered there, so the row of the Advanced screen is the reliable test.
+  The code goes by level and needs no change.
+  Tests: `test_popup_cache.py` 43 (+2, and the expectations for another sheet now say kept: a change of sheet keeps, round trips keep, a change of setting clears once, the shape of
+  `setKeyboard`), `test_trim_memory.py` 37 (+5: where `MrLive` is called from, order in the row's click), `PerfTest` 204 (+14: `MrLive` with
+  real weak references, the line, the reset, the row), `test_perf_meter.py` 185 (+14: the line in its place, its text missing, the reset, the
+  texts in three languages, the text of the row naming the lines it points at).

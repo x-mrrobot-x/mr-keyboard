@@ -321,15 +321,19 @@ the app after a separator the keyboard typed, counted, with and without the one 
 - **"Memory cleanup"**: how many times the system asked (this process, since the last reset) and how long the cleanup took (average,
   95 %, maximum). It is cheap: it clears maps and drops references, nothing is rebuilt at that moment.
 - **"Last cleanup: level N · let go of K keyboards, P popups, S shadows (bytes)"**: what the last one did. The level is the one the system
-  sent (5, 10, 15 while the process runs; 20, 40, 60, 80 when it is in the background). Keyboards are the ones that were not on screen;
+  sent. Up to Android 13 the system still sends 5, 10, 15 (the process runs) and 20, 40, 60, 80 (it is in the background); from Android 14
+  the Android documentation says it no longer sends the other levels, only 20 (the UI went hidden) and 40 (the process is in the
+  background), and whether an input method process gets the 20 is not documented. The row below always asks for 80. Keyboards are the ones that were not on screen;
   popups are the variants of long presses that were kept; shadows are the kept blurred icon outlines, and the bytes are what they held.
   Popups and shadows are only counted when they were let go: on screen at level 5 only keyboards go (so the line says 0 and 0), on screen at
   level 10 or more the popups go too, with the keyboard hidden everything goes. A reset of the meter removes the line.
-- **"Free memory now (test)"** (a row under the times, same Advanced screen): runs the highest level by hand and asks for a collection, then shows
-  the times again. Use it to see the effect without adb: note "Memory: Java ... native ..." before, tap it, look at the row above (a second
-  look after a few seconds shows the native memory, which is freed by the collector's cleaners a little after it). The Advanced screen is in
-  front, so the keyboard is hidden and everything the cleanup can let go of goes (shadows included). To see it with the keyboard on screen,
-  the system level has to come from the system itself (adb: `adb shell am send-trim-memory <pid> RUNNING_LOW`).
+- **"Free memory now (test)"** (a row under the times, same Advanced screen): runs the highest level by hand, asks for a collection, counts
+  what is alive (see part 3) and shows the times again. What the keyboard let go of is the line "Last cleanup"; the "Memory" line is **not**
+  the effect of the cleanup: the collection that the row asks for frees garbage that is not what the cleanup let go of (on the phone a second
+  tap let go of 0 and the native memory still fell 9.7 MB), and what was typed in between moves it too. The Advanced screen is in front, so
+  the keyboard is hidden and everything the cleanup can let go of goes (shadows included). To see it with the keyboard on screen, the system
+  level has to come from the system itself; `adb shell am send-trim-memory <pid> RUNNING_LOW` only reaches the app where the system still
+  sends those levels (up to Android 13) and may not be delivered on newer ones, so this row is the test that always works.
 
 What it does not touch: the engine and the dictionaries (closed when the service ends, `onDestroy`), the emoji index (dropped when its
 panel is left), the native trigram and gesture files. After a cleanup the first long press of each key builds its variants again, and the
@@ -345,4 +349,31 @@ service ends while the process goes on (switching to another keyboard, with the 
 the "Memory" line then does not keep the dictionary of the keyboard that is gone. It is small and the system decides when the collector
 runs, so it is not a number to chase: the point is that nothing of a finished service is kept alive by a static field.
 
-Tests: `docs/tools/test_trim_memory.py`, `docs/tools/test_shadow_cache.py`, `PerfTest.java`, `docs/tools/test_perf_meter.py`.
+### Stage 4 part 3 (build _84): popups kept across sheets, and what is alive after a collection
+
+**Popups of variants are no longer cleared when the sheet changes.** Since stage 5 they are kept between field opens; a different keyboard
+(another sheet) still cleared them, so after the symbols sheet the main sheet (abc, the most used) built its variants again. The three maps
+are keyed by the `Key` and a popup only depends on the key, the padding of the view and the settings of the popups and of the sheets, so
+`setKeyboard` now clears them only when a setting changed (the sheets' own editor writes a preference, so it counts), and the other ways
+out stay: the system asking for memory (`trimCaches`) and the view leaving the window. `KeyboardSwitcher` keeps each sheet by id (a
+`SoftReference`), so abc, then symbols, then abc gives the same `Keyboard` and the same keys. The keys of a sheet that was dropped are
+weak map keys and a new sheet has new keys, so nothing keeps the old one alive. The gain is the part that puts the variants together
+(about 1 ms of the 11 to 15 ms that opening a popup takes; showing the window is the rest and is a call to the system), on the first long
+press of each key after a change of sheet. How to see it: reset the meter, long press a key (for instance "a") on abc, go to symbols and back,
+long press it again: "Open the long-press popup" says 2× and "Popup: put the variants together" says 1×.
+
+**"Alive after the cleanup: service N · keyboard N"** (new line, after "Last cleanup" and before "Memory"). Megabytes cannot say whether
+something of a finished service stayed behind: the Java and native memory move with what was typed, which keyboards were built and when the
+collector ran (two rounds on a phone with a switch to another keyboard and back gave native −3.4 MB and +6.8 MB, Java +1.4 and +2.4 MB,
+which is neither a clean yes nor a no). A count can. The service (`LatinIME`, registered in `onCreate`) and the input view (registered
+where `KeyboardSwitcher` inflates it) are held by `MrLive` through weak references only, so it cannot be what keeps them. The line appears
+only after the row "Free memory now (test)" ran, because the count is made right after its collection, and a reset of the meter removes it.
+How to read it: while the service lives it is 1 and 1. Switch to another keyboard and back to Mr Keyboard (the service is made again), open the
+Advanced screen and tap the row: it must say 1 and 1. A 2 may be a collection that did not take the old one yet: tap the row again; if it
+still says 2 after two taps, the old service or view is held by something, and the number says which one.
+
+The text of the row "Free memory now (test)" no longer says that the memory line shows the effect (it names "Last cleanup" and "Alive").
+
+Tests: `docs/tools/test_trim_memory.py`, `docs/tools/test_shadow_cache.py`, `PerfTest.java` (it also counts with real weak references: one
+and one, the same object twice, a second service held and let go of, null, the reset, the row), `docs/tools/test_perf_meter.py` and
+`docs/tools/test_popup_cache.py` (a change of sheet keeps the popups; a change of setting clears them once).

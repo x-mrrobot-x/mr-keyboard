@@ -55,7 +55,7 @@ TEXTS = {
     "mr_ui_perf_open_kb": "OpenKb", "mr_ui_perf_open_set": "OpenSet", "mr_ui_perf_popup": "Popup",
     "mr_ui_perf_app_key": "AppKey", "mr_ui_perf_app_sugg": "AppSugg", "mr_ui_perf_app_open": "AppOpen", "mr_ui_perf_app_other": "AppOther",
     "mr_ui_perf_popup_build": "PopupBuild", "mr_ui_perf_popup_show": "PopupShow", "mr_ui_perf_sel": "Sel", "mr_ui_perf_msg": "Msg",
-    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_echo_one": "EchoOne", "mr_ui_perf_echo_run": "EchoRun", "mr_ui_perf_echo_drop": "EchoDrop", "mr_ui_perf_caps_run": "CapsRun", "mr_ui_perf_caps_flush": "CapsFlush", "mr_ui_perf_create_super": "CreateSuper", "mr_ui_perf_create_sugg": "CreateSugg", "mr_ui_perf_trim": "Trim", "mr_ui_perf_trim_last": "Last cleanup: level %1$d · %2$d keyboards, %3$d popups, %4$d shadows (%5$s)", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
+    "mr_ui_perf_app_sel": "AppSel", "mr_ui_perf_app_msg": "AppMsg", "mr_ui_perf_echo_cut": "EchoCut", "mr_ui_perf_echo_full": "EchoFull", "mr_ui_perf_echo_one": "EchoOne", "mr_ui_perf_echo_run": "EchoRun", "mr_ui_perf_echo_drop": "EchoDrop", "mr_ui_perf_caps_run": "CapsRun", "mr_ui_perf_caps_flush": "CapsFlush", "mr_ui_perf_create_super": "CreateSuper", "mr_ui_perf_create_sugg": "CreateSugg", "mr_ui_perf_trim": "Trim", "mr_ui_perf_trim_last": "Last cleanup: level %1$d · %2$d keyboards, %3$d popups, %4$d shadows (%5$s)", "mr_ui_perf_alive": "Alive after the cleanup: service %1$d · keyboard %2$d", "mr_ui_perf_frame_gpu": "FrameGpu", "mr_ui_perf_frame_cpu": "FrameCpu",
     "mr_ui_perf_stat": "%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)",
     "mr_ui_perf_one": "%1$s: %2$s ms", "mr_ui_perf_none": "Nothing yet.", "mr_ui_perf_mem": "Memory: Java %1$s · native %2$s",
     "mr_ui_perf_reset": "Tap to reset.",
@@ -96,6 +96,8 @@ class Fw:
         self.storage_broken = False   # a phone that cannot read or write the file
         self.trim_forgets = 0         # MrTrim.forget calls (the reset)
         self.trim = {"sCount": 0, "sLevel": 0, "sKeyboards": 0, "sPopups": 0, "sShadows": 0, "sBytes": 0}
+        self.live_forgets = 0         # MrLive.forget calls (the reset)
+        self.live = {"sMeasured": 0, "sServices": 0, "sViews": 0}   # what the last count of the objects alive found (MrLive)
         self.perf = dm.VM(PERF, dm.parse_methods(os.path.join(APP, "MrPerf.smali")), self)
         self.reset_cls = dm.VM(RESET, dm.parse_methods(os.path.join(APP, "MrPerf$Reset.smali")), self)
         self.perf.run("<clinit>()V", [])
@@ -118,6 +120,8 @@ class Fw:
     def sget(self, cls, name):
         if cls == "Lcom/mrkeyboard/app/MrTrim;" and name in self.trim:
             return self.trim[name]    # what the last memory cleanup did (MrTrim), read by the summary
+        if cls == "Lcom/mrkeyboard/app/MrLive;" and name in self.live:
+            return self.live[name]    # what is alive after the last collection (MrLive), read by the summary
         raise AssertionError("static not faked: %s.%s" % (cls, name))
 
     def new_instance(self, cls):
@@ -137,6 +141,9 @@ class Fw:
             return None
         if cls == "Lcom/mrkeyboard/app/MrTrim;" and mem == "forget()V":
             self.trim_forgets += 1   # the reset takes the line of the last memory cleanup away (MrTrim.forget)
+            return None
+        if cls == "Lcom/mrkeyboard/app/MrLive;" and mem == "forget()V":
+            self.live_forgets += 1   # the reset takes the line of the count away (MrLive.forget)
             return None
         if cls == "Lcom/mrkeyboard/app/MrAccel;" and mem == "state(Landroid/content/Context;)I":
             return self.accel
@@ -302,6 +309,7 @@ check("the kind of each key code (letters, digits, accents / space, Enter, punct
 forgets = fw.trim_forgets
 fw.run("reset()V")
 check("the reset tells MrTrim to forget the line of the last cleanup (once)", fw.trim_forgets == forgets + 1, (forgets, fw.trim_forgets))
+check("... and MrLive to forget the count of the objects alive (once)", fw.live_forgets == 1, fw.live_forgets)
 for code_, kind in ((100, KEY_LETTER), (32, KEY_SEP), (-5, KEY_DEL), (-1, KEY_OTHER)):
     fw.run("keyBegin(I)V", code_); fw.tick(700); fw.run("keyEnd()V")
     check("key %d: KEY and %s, no other kind" % (code_, KINDS[kind]), fw.stats(kind)[4] == 700
@@ -574,6 +582,26 @@ fw.missing = {"mr_ui_perf_trim_last"}
 check("its text missing: the line is left out and no 'None' is written", "None" not in summary_for() and len(summary_for().split("\n")) == N + 2)
 fw.missing = set()
 fw.trim.update(sCount=0)
+
+# the line of what is alive after the collection (MrLive, build _84): only after a count, after the last cleanup and before the memory
+check("no count yet: no line of it", "Alive after" not in summary_for())
+fw.live.update(sMeasured=1, sServices=1, sViews=1)
+al = summary_for().split("\n")
+check("a count was made: its line comes after the kinds and before the memory (no cleanup line yet)", len(al) == N + 3
+      and al[N] == "Alive after the cleanup: service 1 · keyboard 1" and al[N + 1].startswith("Memory:"), al[N:])
+fw.live.update(sServices=2, sViews=1)
+check("a service that stayed behind shows as 2", summary_for().split("\n")[N] == "Alive after the cleanup: service 2 · keyboard 1")
+fw.trim.update(sCount=1, sLevel=80, sKeyboards=0, sPopups=0, sShadows=0, sBytes=0)
+al = summary_for().split("\n")
+check("with the line of the last cleanup: cleanup, then alive, then memory", len(al) == N + 4 and al[N].startswith("Last cleanup: level 80")
+      and al[N + 1] == "Alive after the cleanup: service 2 · keyboard 1" and al[N + 2].startswith("Memory:"), al[N:])
+fw.missing = {"mr_ui_perf_alive"}
+check("its text missing: the line is left out and no 'None' is written", "None" not in summary_for() and "Alive" not in summary_for()
+      and len(summary_for().split("\n")) == N + 3)
+fw.missing = set()
+fw.live.update(sMeasured=0, sServices=0, sViews=0)
+fw.trim.update(sCount=0)
+check("the count forgotten: the line is gone", "Alive after" not in summary_for())
 
 fw.missing = {"mr_ui_perf_reset", "mr_ui_perf_mem", "mr_ui_perf_stat"}
 scr, row = fw.screen()
@@ -944,7 +972,8 @@ check("the row of the Advanced screen: key, metrics layout, tappable, not saved"
 lay = open(os.path.join(ROOT, "res", "layout", "mr_ui_pref_row_metrics.xml"), encoding="utf-8").read()
 check("its layout shows every line (no maxLines)", "android:id/summary" in lay and "maxLines" not in lay)
 needed = ["mr_ui_perf_" + k.replace("-", "_") for k in KINDS] + ["mr_ui_perf", "mr_ui_perf_stat", "mr_ui_perf_one", "mr_ui_perf_none", "mr_ui_perf_mem",
-                                              "mr_ui_perf_reset", "mr_ui_perf_starts", "mr_ui_cat_perf", "mr_ui_cat_perf_sum"]
+                                              "mr_ui_perf_reset", "mr_ui_perf_starts", "mr_ui_cat_perf", "mr_ui_cat_perf_sum",
+                                              "mr_ui_perf_trim_last", "mr_ui_perf_alive", "mr_ui_perf_trim_now", "mr_ui_perf_trim_now_sum"]
 specs = {}
 for lang in ("values", "values-pt-rBR", "values-es"):
     src = open(os.path.join(ROOT, "res", lang, "mr_strings.xml"), encoding="utf-8").read()
@@ -954,6 +983,19 @@ for lang in ("values", "values-pt-rBR", "values-es"):
     specs[lang] = {n: sorted(re.findall(r"%\d\$[sd]", have.get(n, ""))) for n in needed}
 check("the same placeholders in the three languages", specs["values"] == specs["values-pt-rBR"] == specs["values-es"])
 check("the line of a kind has its five values", specs["values"]["mr_ui_perf_stat"] == ["%1$s", "%2$s", "%3$s", "%4$s", "%5$d"])
+check("the line of what is alive has its two values (services, input views)", specs["values"]["mr_ui_perf_alive"] == ["%1$d", "%2$d"],
+      specs["values"]["mr_ui_perf_alive"])
+# the text of the row that runs the cleanup names the two lines it points to, with the words those lines really begin with, and does not
+# say that the memory line shows the effect (it also has what the collection of the row freed)
+for lang in ("values", "values-pt-rBR", "values-es"):
+    src = open(os.path.join(ROOT, "res", lang, "mr_strings.xml"), encoding="utf-8").read()
+    have = dict(re.findall(r'<string name="(mr_ui_perf\w*)">([^<]*)</string>', src))
+    quoted = re.findall(r"“([^”]+)”", have["mr_ui_perf_trim_now_sum"])
+    lines_ = (have["mr_ui_perf_trim_last"], have["mr_ui_perf_alive"])
+    check("the row of the cleanup in %s names the lines of the last cleanup and of what is alive, as they begin" % lang,
+          len(quoted) == 2 and all(any(l.startswith(q) for l in lines_) for q in quoted) and quoted[0] != quoted[1], (quoted, lines_))
+    check("... and does not point at the memory line as the effect", not re.search(r"(memory line|línea de memoria|linha de memória)", have["mr_ui_perf_trim_now_sum"]),
+          have["mr_ui_perf_trim_now_sum"])
 check("the line of the history of the starts has its five values (name, count, minimum, median, maximum)",
       specs["values"]["mr_ui_perf_starts"] == ["%1$s", "%2$d", "%3$s", "%4$s", "%5$s"], specs["values"]["mr_ui_perf_starts"])
 
