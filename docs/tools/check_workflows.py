@@ -5,7 +5,10 @@ For every workflow:
   - each action is pinned by the 40-character commit SHA, with the version in a comment (uses: owner/repo@<sha> # v1.2.3);
     a tag like @v4 can be moved by whoever owns the action, a SHA cannot. The same action uses the same SHA everywhere.
   - there is a top-level "permissions:" and it grants no write permission (each job asks for what it needs);
-  - no pull_request_target (it would run the code of a pull request with the repository's secrets).
+  - no pull_request_target (it would run the code of a pull request with the repository's secrets);
+  - no plain (unquoted) one-line value with ": " inside, or ending in ":" (GitHub refuses the whole file: "You have an error in your yaml syntax").
+    A step name like "Reader of the memory map (heap_holders.py: chains ...)" did exactly that and stopped both workflows (build _86). A real
+    YAML parser is not used because this script is stdlib only; the rule covers what actually broke.
 mr-apk.yml (the one that publishes):
   - it has the jobs apk, checks and publish; "checks" calls ./.github/workflows/mr-checks.yml, which has workflow_call;
   - publish needs apk AND checks (a release is only made after the checks passed);
@@ -137,6 +140,14 @@ for f in files:
         w = has_write(perms(tp[1]))
         if w:
             problems.append('%s: the top-level permissions grant write (%s); give it to the job that needs it' % (name, ', '.join(w)))
+
+    for n, ind, text in sig:
+        m = re.match(r'^(?:-\s+)?[\w.-]+:\s+(\S.*)$', text)
+        if m:
+            val = re.sub(r'\s+#.*$', '', m.group(1)).strip()
+            if val and val[0] not in '"\'|>[{&*!%@`' and (': ' in val or val.endswith(':')):
+                problems.append('%s:%d: plain value with ": " inside (GitHub reports a yaml syntax error): put it in quotes or drop the colon: %s'
+                                % (name, n, text[:90]))
 
     for n, ind, text in sig:
         if re.match(r'pull_request_target\b', text):

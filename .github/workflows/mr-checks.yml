@@ -7,7 +7,7 @@
 # quick    (seconds, Python and Java only):
 #   check_version.py     apktool.yml/json version (and the APK name in them) is coherent and the version notes exist in docs/release-notes/
 #                        (also warns when a docs/plan-*.md whose target version was reached is still there)
-#   check_workflows.py   workflows: actions pinned by commit, minimal permissions, mr-apk.yml publishes only after these checks
+#   check_workflows.py   workflows: actions pinned by commit, minimal permissions, no plain value with ": " (a yaml error), mr-apk.yml publishes only after these checks
 #   check_catalog_url.py the app reads the dictionary catalog from the latest release (next to the APK)
 #   check_update_url.py  the update notice (update.json) is made, signed and attached with the same names the app will read
 #   check_reset_keys.py  "Restaurar padrões" (Restore defaults) covers every key of the settings screens
@@ -235,7 +235,7 @@ jobs:
       - name: Memory cleanup (onTrimMemory by level, the engine closed in onDestroy, keyboards not in use, caches of the view)
         run: python3 -I docs/tools/test_trim_memory.py
 
-      - name: Reader of the memory map (heap_holders.py: chains from a root to the service and the input view)
+      - name: Reader of the memory map (heap_holders.py, chains from a root to the service and the input view)
         run: python3 -I docs/tools/test_heap_holders.py
 
       - name: Questions to the app after a separator typed by the keyboard (counted)
