@@ -418,3 +418,52 @@ static cannot go unseen; the search only reads), `PerfTest.java` (the search on 
 as value, a weak reference, a weak map as key and as value, the shortest of two chains, a cycle, a view's children, a long path, a search that is
 cut, `measure` with the old ones and the row) and `docs/tools/test_perf_meter.py` (the line in its place, the three kinds, the text missing, the
 reset, the three languages).
+
+**What the phone showed with _85.** After a switch to another keyboard and back, the count was service 2 · keyboard 2 with "No variable of the
+app holds the old one", and after another switch 3 and 3: one more service and one more input view stay behind **at every switch**. So it is not
+"one behind" kept by the system (that would stay at 2), the keyboard is held too (so the empty-view change did not free it, or the holder is not
+the window), and nothing the app can look at holds them: what holds them is a message queue, an animator, a thread or a registration in the
+system. After about ten switches the accumulated copies may be what made switching keyboards sluggish.
+
+**What the phone showed with _85, second count.** The search found the holder: "Held by: MrLearned.sGate > to:Suggest > mAutoDictionary:AutoDictionary >
+mIme:LatinIME", with service 3 · keyboard 3. The gate of the learned words (`MrLearned.gate`, build 1.85, used by `AutoDictionary.getWords`) is a
+static single instance and kept the callback it was last given, the `Suggest` of the service that asked. Through the `Suggest` it held the
+`AutoDictionary`, which holds the service (`mIme`) and the service its views. One callback explains one old service at a time; the count was 3 (two
+old ones), and the search reported only the first chain, so a second holder is not ruled out: the next count, with one chain per old object, says.
+
+### Stage 4 part 5 (build _86): the gate lets go, one chain per old object, and the map of the memory
+
+**The fix.** The gate keeps the callback only while the search runs: `AutoDictionary.getWords` calls `MrLearned.gateEnd()` when the search ends, also
+when it throws (a `try` with a catch-all around the search that rethrows). Nothing static keeps the `Suggest` between two calls any more.
+**The search of the meter** reports a chain for each old object it reaches (up to four, one per line): before it stopped at the first one, which
+could hide a second holder. An old object held only through another old one is not reported apart.
+
+Tests: `LearnedStoreTest.java` (after `gateEnd` the gate has no callback, and a callback of a search that ended is collected, with a control that
+shows the test can see a callback still held), `test_trim_memory.py` (the shape of `AutoDictionary.getWords`: gate, the search alone in the try, `gateEnd`
+on the way out and in the handler; `gateEnd` only puts null; the gate is used in one place), `PerfTest.java` (two old objects: two chains, one
+reached and one not, one held only through the other, six reached and four reported, a search that is cut after finding one).
+
+**The map of the memory** is kept for what the search cannot see: if the count still says "No variable of the app holds the old one" after the fix,
+the holder is in the framework or a thread, and only the dump names it.
+
+
+The row **"Save the memory map (test)"** of the Advanced screen (below "Free memory now"): it runs the same cleanup and collection, writes a
+heap dump of the keyboard's process (`android.os.Debug.dumpHprofData`) on a thread of its own, puts it in a zip in the cache folder that the
+screenshots already share (`shots/mr_heap.zip`, provider `com.mrkeyboard.app.shots`) and opens the system's Share. Nothing is sent by the app. **The
+dump is the memory of the keyboard's process**: it can have words that were typed and items of the clipboard, and the text of the row says so;
+do the test with nothing sensitive typed since the keyboard was started, and send the file only to whoever is looking into it.
+
+How to take it: switch to another keyboard and back three times, type a letter, open Advanced, tap "Free memory now (test)" (it must say service 3 ·
+keyboard 3), then tap "Save the memory map (test)" and send the zip.
+
+`docs/tools/heap_holders.py <file>` reads the dump (the zip or the .hprof; Android's format and the JVM's) and prints, for every service
+(`LatinIME`) and input view (`LatinKeyboardView`), the shortest chain from a root of the heap: "in use" for the one the app reaches, "HELD" with
+the chain for every other one. The references that do not keep an object alive (the referent of a weak, soft or phantom reference) are left out.
+That chain names what holds the old ones, in the app or in the framework, and it is what gets fixed.
+
+The row and the tool are a diagnostic: they leave with the search of `MrLive` when the cause is closed.
+
+Tests: `PerfTest.java` (the row gets its listener, the zip in `shots/`, what is inside, a dump that fails leaves nothing and throws nothing, the
+chooser and its flags, the texts after the end, a second tap while busy) and `docs/tools/test_heap_holders.py` (a real JVM dump with a static
+variable, lists, maps and a weak reference, and a dump built by hand in the format of Android with ids of 4 bytes and the records ART adds).
+

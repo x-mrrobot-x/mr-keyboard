@@ -102,6 +102,11 @@
     <string name="mr_ui_perf_held_cut">La búsqueda de lo que retiene el antiguo se cortó (demasiado grande)</string>
     <string name="mr_ui_perf_trim_now">Liberar memoria ahora (prueba)</string>
     <string name="mr_ui_perf_trim_now_sum">Suelta lo que el teclado puede rehacer, como si el sistema pidiera memoria, y después ejecuta una recolección de basura. “Última limpieza” muestra lo que se soltó; “Vivos” muestra lo que aún existe tras la recolección.</string>
+    <string name="mr_ui_perf_heap">Guardar el mapa de la memoria (prueba)</string>
+    <string name="mr_ui_perf_heap_sum">Guarda un mapa de la memoria del teclado en un zip y abre Compartir, para encontrar lo que mantiene vivo un servicio antiguo. Contiene lo que hay en la memoria del teclado: palabras escritas y elementos del portapapeles. Envíalo solo a quien lo esté investigando.</string>
+    <string name="mr_ui_perf_heap_busy">Guardando el mapa de la memoria…</string>
+    <string name="mr_ui_perf_heap_fail">No se pudo guardar el mapa de la memoria.</string>
+    <string name="mr_ui_perf_heap_title">Mapa de la memoria</string>
     <string name="mr_ui_perf_frame_gpu">Dibujar un cuadro (GPU: solo el registro)</string>
     <string name="mr_ui_perf_frame_cpu">Dibujar un cuadro (CPU: todo el dibujo)</string>
     <string name="mr_ui_cat_haptic">Vibración</string>

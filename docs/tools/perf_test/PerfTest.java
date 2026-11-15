@@ -99,6 +99,8 @@ public class PerfTest {
             {"mr_ui_perf_alive", "Alive after the cleanup: service %1$d · keyboard %2$d"},
             {"mr_ui_perf_held", "Held by: %1$s"}, {"mr_ui_perf_held_out", "No variable of the app holds the old one: the system, a thread or a message queue does"},
             {"mr_ui_perf_held_cut", "The search for what holds the old one was cut (too large)"},
+            {"mr_ui_perf_heap_sum", "Saves a map of the memory"}, {"mr_ui_perf_heap_busy", "Saving the memory map..."},
+            {"mr_ui_perf_heap_fail", "The memory map could not be saved."}, {"mr_ui_perf_heap_title", "Memory map"},
             {"mr_ui_perf_starts", "%1$s, last %2$d starts: min %3$s ms · median %4$s · max %5$s"},
             {"mr_ui_perf_stat", "%1$s: average %2$s ms · p95 %3$s · max %4$s (%5$d×)"}, {"mr_ui_perf_one", "%1$s: %2$s ms (once)"},
             {"mr_ui_perf_none", "Nothing measured yet."}, {"mr_ui_perf_mem", "Memory: Java %1$s · native %2$s"},
@@ -120,11 +122,21 @@ public class PerfTest {
     static class Advanced extends PreferenceActivity {
         final Row row = new Row();
         final Row trimRow = new Row();
+        final Row heapRow = new Row();
         final ArrayList<String> asked = new ArrayList<String>();
+        final ArrayList<android.content.Intent> started = new ArrayList<android.content.Intent>();
+        java.io.File cache;
         boolean hasRow = true, broken;
+        public java.io.File getCacheDir() { return cache; }
+        public void startActivity(android.content.Intent intent) {
+            if (failShare) throw new RuntimeException("no activity");
+            started.add(intent);
+        }
+        boolean failShare;
         public Preference findPreference(CharSequence key) {
             if (broken) throw new IllegalStateException("no screen");
             asked.add(String.valueOf(key));
+            if (hasRow && "mr_perf_heap".equals(String.valueOf(key))) return heapRow;
             if (hasRow && "mr_perf_trim".equals(String.valueOf(key))) return trimRow;
             return hasRow && "mr_perf".equals(String.valueOf(key)) ? row : null;
         }
@@ -192,7 +204,7 @@ public class PerfTest {
     /** The clock moves by <code>us</code> microseconds. */
     static void tick(long us) { MrPerf.sFakeNanos += us * 1000; }
 
-    public static void main(String[] a) {
+    public static void main(String[] a) throws Exception {
         Locale.setDefault(Locale.US);
         MrPerf.sFakeNanos = 0;
         Debug.stubNativeHeap = 18300000L;
@@ -848,6 +860,43 @@ public class PerfTest {
         check("a view held by the children of a view that a static holds", "1,PerfTest$Roots.sGroup:PerfTest$Group > child:PerfTest$Kid", r1.kind + "," + r1.path);
         Roots.sGroup = null;
 
+        // build _86: one chain for each old object that is reached (the service held by one thing, the input view by another)
+        Object t1 = new Object();
+        Object t2 = new Object();
+        Object[] two = {t1, t2};
+        Roots.sOne = t1;
+        Holder h2 = new Holder();
+        h2.a = t2;
+        Roots.sHolder = h2;
+        r1 = MrLive.search(two, fakeRoots);
+        check("two old objects held by two variables: the two chains, one per line",
+                "1,PerfTest$Roots.sOne:Object\nPerfTest$Roots.sHolder:PerfTest$Holder > a:Object", r1.kind + "," + r1.path);
+        h2.a = null;
+        r1 = MrLive.search(two, fakeRoots);
+        check("one of the two is held by nothing: only the chain of the other, and it is still an answer", "1,PerfTest$Roots.sOne:Object",
+                r1.kind + "," + r1.path);
+        Roots.sOne = null;
+        Roots.sHolder = null;
+        Holder th1 = new Holder();
+        Holder th2 = new Holder();
+        th1.a = th2;
+        Roots.sHolder = th1;
+        r1 = MrLive.search(new Object[] {th1, th2}, fakeRoots);
+        check("an old object held only through another old one is not reported apart (the first holder is what to fix)",
+                "1,PerfTest$Roots.sHolder:PerfTest$Holder", r1.kind + "," + r1.path);
+        Roots.sHolder = null;
+        Holder many = new Holder();
+        many.list = new java.util.ArrayList<Object>();
+        Object[] six = new Object[6];
+        for (int i = 0; i < 6; i++) {
+            six[i] = new Object();
+            many.list.add(six[i]);
+        }
+        Roots.sHolder = many;
+        r1 = MrLive.search(six, fakeRoots);
+        check("six old objects reached: the chains are limited to four", 4, r1.path.split("\n").length);
+        Roots.sHolder = null;
+
         // a long path is shortened to its start and its end
         Node head = new Node();
         Node tail = head;
@@ -874,6 +923,12 @@ public class PerfTest {
         Roots.sLong = head;
         r1 = MrLive.search(want, fakeRoots);
         check("450000 objects and the target not among them: the search is cut", MrLive.HELD_CUT, r1.kind);
+        Object found1 = new Object();
+        Roots.sOne = found1;
+        r1 = MrLive.search(new Object[] {found1, target}, fakeRoots);
+        check("two old objects, one reached and the other lost in 450000 objects: the search is cut, and the chain it found is the answer",
+                "1,PerfTest$Roots.sOne:Object", r1.kind + "," + r1.path);
+        Roots.sOne = null;
         Roots.sLong = null;
         head = null;
         tail = null;
@@ -914,6 +969,67 @@ public class PerfTest {
         newSvc = null;
         target = null;
         want = null;
+
+        // ---------------------------------------------------------------- the map of the memory (MrHeap, build _86)
+        Advanced hp = new Advanced();
+        hp.cache = java.nio.file.Files.createTempDirectory("mrheap").toFile();
+        MrHeap.fill(hp);
+        check("the row of the memory map is asked by its key and gets a tap listener", "[mr_perf_heap],true", hp.asked + "," + (hp.heapRow.click != null));
+        Advanced nohp = new Advanced();
+        nohp.hasRow = false;
+        MrHeap.fill(nohp);
+        check("a screen without the row: nothing happens", true, nohp.heapRow.click == null);
+        Advanced brokenhp = new Advanced();
+        brokenhp.broken = true;
+        MrHeap.fill(brokenhp);
+        check("a screen that cannot be asked: no exception", true, brokenhp.heapRow.click == null);
+
+        java.io.File zip = MrHeap.save(hp);
+        check("save: a zip named mr_heap.zip in the folder the screenshots share (shots/)", true,
+                zip != null && zip.getParentFile().getName().equals("shots") && zip.getName().equals("mr_heap.zip") && zip.length() > 0);
+        check("... the dump was asked for in the same folder, and it is not kept (only the zip is)", true,
+                Debug.stubDumpedTo != null && Debug.stubDumpedTo.endsWith("shots/mr_heap.hprof") && !new java.io.File(Debug.stubDumpedTo).exists());
+        java.util.zip.ZipInputStream zin = new java.util.zip.ZipInputStream(new java.io.FileInputStream(zip));
+        java.util.zip.ZipEntry entry = zin.getNextEntry();
+        byte[] body = new byte[64];
+        int len = zin.read(body);
+        zin.close();
+        check("... with one entry, mr_heap.hprof, with what the dump wrote", "mr_heap.hprof,JAVA PROFILE STUB", (entry != null ? entry.getName() : "?") + "," + new String(body, 0, Math.max(len, 0), "UTF-8"));
+        Debug.stubDumpFails = true;
+        check("a dump that fails (a full disk): null, no zip left, and no exception", true, MrHeap.save(hp) == null && !zip.exists());
+        Debug.stubDumpFails = false;
+
+        android.content.Intent chooser = MrHeap.share(new android.net.Uri(), "Memory map");
+        android.content.Intent send = (android.content.Intent) chooser.extras.get(android.content.Intent.EXTRA_INTENT);
+        check("share: a chooser with the title, around an ACTION_SEND of the zip, readable by whoever receives it", "true,Memory map,android.intent.action.SEND,true,true",
+                (chooser.extras.get(android.content.Intent.EXTRA_INTENT) != null) + "," + chooser.extras.get(android.content.Intent.EXTRA_TITLE) + ","
+                        + (send != null ? send.action : null) + "," + (send != null && send.extras.get(android.content.Intent.EXTRA_STREAM) instanceof android.net.Uri)
+                        + "," + (send != null && (send.flags & android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION) != 0));
+        check("... and the chooser starts in a task of its own (the screen may be gone)", true,
+                (chooser.flags & android.content.Intent.FLAG_ACTIVITY_NEW_TASK) != 0);
+
+        MrHeap.Click click = new MrHeap.Click(hp, hp.heapRow);
+        java.io.File zip2 = MrHeap.save(hp);
+        click.done(zip2);
+        check("done with a zip: the text of the row is back and the chooser was started", "Saves a map of the memory,1", hp.heapRow.summary + "," + hp.started.size());
+        click.done(null);
+        check("done without a zip: the text says it failed and nothing is started", "The memory map could not be saved.,1", hp.heapRow.summary + "," + hp.started.size());
+        hp.failShare = true;
+        click.done(zip2);
+        check("done when no app takes the file: the text says it failed (no exception)", "The memory map could not be saved.", String.valueOf(hp.heapRow.summary));
+        hp.failShare = false;
+
+        // a tap: the cleanup, the busy text, then the dump in a thread of its own; a second tap in the meantime does nothing
+        MrHeap.sBusy = false;
+        hp.heapRow.click.onPreferenceClick(hp.heapRow);
+        check("a tap: the row says it is saving, and it is busy", "Saving the memory map...,true", hp.heapRow.summary + "," + MrHeap.sBusy);
+        hp.heapRow.click.onPreferenceClick(hp.heapRow);
+        java.io.File made = new java.io.File(hp.cache, "shots/mr_heap.zip");
+        for (int i = 0; i < 100 && !made.exists(); i++) Thread.sleep(50);
+        check("... and the zip is made in the background", true, made.exists());
+        MrHeap.sBusy = false;
+        hp.heapRow.summary = null;
+        made.delete();
 
         // ---------------------------------------------------------------- the log
         MrPerf.reset();

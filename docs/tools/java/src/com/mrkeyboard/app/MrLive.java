@@ -27,6 +27,11 @@ import java.util.WeakHashMap;
  * variable of the app reaches it, which leaves the system (a binder, a message queue, a thread) as what holds it. Nothing of this runs
  * while the keyboard works: only the button of the Advanced screen, right after its collection.
  *
+ * Build _86: the search no longer stops at the first chain: it reports one for each old object it reaches (up to four, one per line), because
+ * the old service and the old input view can be held by different things. An old object that is only held through another one it already
+ * reached is not reported apart. The first holder found on the phone was MrLearned.sGate (a static that kept the last Suggest, and through it
+ * the AutoDictionary and the whole service); it was fixed, and the next count says what else holds, if anything does.
+ *
  * It holds only weak references, so it cannot be what keeps them alive. Nothing runs while the keyboard works besides one registration
  * per service and one per input view; the count is made by the Advanced screen, right after the collection that its row "free memory
  * now" asks for (MrPerf.Trim), and the meter shows it in a line (MrPerf.summary).
@@ -48,6 +53,8 @@ final class MrLive {
     /** What the search may spend: the objects it looks at and the time. A search that runs out of either says so, it does not guess. */
     private static final int BUDGET = 400000;
     private static final long TIME_NS = 2000000000L;
+    /** How many chains the search reports (one per old object that it reaches). */
+    private static final int MAX_PATHS = 4;
 
     /** What the last count found about who holds an old object (sHeldKind). */
     static final int HELD_NONE = 0;     // nothing old is alive
@@ -162,27 +169,29 @@ final class MrLive {
     }
 
     /**
-     * The shortest chain from a static variable of one of the root classes to one of the targets, by what the app itself keeps. Breadth
-     * first, so the chain found is the shortest and the first one that is reached is the one reported. The targets are looked for by
-     * identity.
+     * The shortest chain from a static variable of one of the root classes to each of the targets (up to MAX_PATHS), by what the app itself keeps.
+     * Breadth first, so each chain found is the shortest one to its target. The targets are looked for by identity. A target is not looked
+     * into once found: what only it holds is held through it, and fixing the first holder is what frees them (build _86: the old service
+     * can be held by one thing and the old input view by another, and the first chain alone hid the second).
      */
     static Result search(Object[] targets, Class<?>[] roots) {
         Search s = new Search(targets);
         Result r = new Result();
         long deadline = System.nanoTime() + TIME_NS;
-        for (int i = 0; i < roots.length && s.found < 0; i++) s.addRoot(roots[i]);
-        while (s.found < 0 && s.head < s.n) {
+        for (int i = 0; i < roots.length && !s.done(); i++) s.addRoot(roots[i]);
+        boolean cut = false;
+        while (!s.done() && s.head < s.n) {
             if (s.n >= BUDGET || ((s.head & 255) == 0 && System.nanoTime() > deadline)) {
-                r.kind = HELD_CUT;
-                return r;
+                cut = true;
+                break;
             }
             s.expand(s.head++);
         }
-        if (s.found >= 0) {
-            r.kind = HELD_PATH;
-            r.path = s.path(s.found);
+        if (s.hits > 0) {
+            r.kind = HELD_PATH;         // chains already found are an answer even when the search was cut after them
+            r.path = s.paths();
         } else {
-            r.kind = HELD_OUTSIDE;
+            r.kind = cut ? HELD_CUT : HELD_OUTSIDE;
         }
         return r;
     }
@@ -203,7 +212,9 @@ final class MrLive {
         private int[] from = new int[4096];
         int n;
         int head;
-        int found = -1;
+        /** The targets reached so far, and where each one is in the queue. */
+        int hits;
+        private final int[] hitAt = new int[MAX_PATHS];
 
         Search(Object[] targets) {
             for (int i = 0; i < targets.length; i++) {
@@ -216,7 +227,12 @@ final class MrLive {
                     || o instanceof Class || o instanceof Reference;
         }
 
-        /** Puts an object in the queue; true when it is one of the targets (then found is its position). */
+        /** The search is over when every target (or MAX_PATHS of them) has been reached. */
+        boolean done() {
+            return hits >= Math.min(want.size(), MAX_PATHS);
+        }
+
+        /** Puts an object in the queue; true when it is one of the targets (then its position is kept in hitAt). */
         private boolean add(int parent, String label, Object o) {
             if (o == null || leaf(o) || seen.containsKey(o)) return false;
             seen.put(o, o);
@@ -237,7 +253,7 @@ final class MrLive {
             from[n] = parent;
             n++;
             if (want.containsKey(o)) {
-                found = n - 1;
+                if (hits < hitAt.length) hitAt[hits++] = n - 1;
                 return true;
             }
             return false;
@@ -250,7 +266,7 @@ final class MrLive {
             } catch (Throwable t) {
                 return;
             }
-            for (int i = 0; i < fs.length && found < 0; i++) {
+            for (int i = 0; i < fs.length && !done(); i++) {
                 Field f = fs[i];
                 if (!Modifier.isStatic(f.getModifiers()) || f.getType().isPrimitive()) continue;
                 try {
@@ -292,11 +308,12 @@ final class MrLive {
 
         void expand(int at) {
             Object o = objs[at];
+            if (want.containsKey(o)) return;       // a target that was reached is not looked into
             Class<?> c = o.getClass();
             if (c.isArray()) {
                 if (!c.getComponentType().isPrimitive()) {
                     Object[] a = (Object[]) o;
-                    for (int i = 0; i < a.length && found < 0; i++) add(at, "[]", a[i]);
+                    for (int i = 0; i < a.length && !done(); i++) add(at, "[]", a[i]);
                 }
                 return;
             }
@@ -307,7 +324,7 @@ final class MrLive {
                 } catch (Throwable t) {
                     // a collection that changes under us is skipped
                 }
-                if (a != null) for (int i = 0; i < a.length && found < 0; i++) add(at, "item", a[i]);
+                if (a != null) for (int i = 0; i < a.length && !done(); i++) add(at, "item", a[i]);
             } else if (o instanceof Map) {
                 Object[] keys = null;
                 Object[] values = null;
@@ -319,10 +336,10 @@ final class MrLive {
                 } catch (Throwable t) {
                     // skipped
                 }
-                if (keys != null) for (int i = 0; i < keys.length && found < 0; i++) add(at, "key", keys[i]);
-                if (values != null) for (int i = 0; i < values.length && found < 0; i++) add(at, "value", values[i]);
+                if (keys != null) for (int i = 0; i < keys.length && !done(); i++) add(at, "key", keys[i]);
+                if (values != null) for (int i = 0; i < values.length && !done(); i++) add(at, "value", values[i]);
             }
-            if (found >= 0) return;
+            if (done()) return;
             if (o instanceof View) {
                 View v = (View) o;
                 try {
@@ -330,21 +347,31 @@ final class MrLive {
                     if (o instanceof ViewGroup) {
                         ViewGroup g = (ViewGroup) o;
                         int count = g.getChildCount();
-                        for (int i = 0; i < count && found < 0; i++) add(at, "child", g.getChildAt(i));
+                        for (int i = 0; i < count && !done(); i++) add(at, "child", g.getChildAt(i));
                     }
                 } catch (Throwable t) {
                     // skipped
                 }
             }
-            if (found >= 0 || !c.getName().startsWith(PKG)) return;
+            if (done() || !c.getName().startsWith(PKG)) return;
             Field[] fs = fieldsOf(c);
-            for (int i = 0; i < fs.length && found < 0; i++) {
+            for (int i = 0; i < fs.length && !done(); i++) {
                 try {
                     add(at, fs[i].getName(), fs[i].get(o));
                 } catch (Throwable t) {
                     // skipped
                 }
             }
+        }
+
+        /** The chain of each target reached, one per line. */
+        String paths() {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < hits; i++) {
+                if (i > 0) sb.append('\n');
+                sb.append(path(hitAt[i]));
+            }
+            return sb.toString();
         }
 
         /** "MrTools.sKbd:FrameLayout > child:LatinKeyboardView": the variable it starts at and what each step of the chain is. */

@@ -57,6 +57,32 @@ public class LearnedStoreTest {
         return new ArrayList<CharSequence>(Arrays.asList((CharSequence[]) s));
     }
 
+    /** Makes a callback, gives it to the gate, and (when end is true) ends the search; returns a weak reference to it, with no local left that holds it. */
+    private static java.lang.ref.WeakReference<Object> gateCallback(boolean end) {
+        Dictionary.WordCallback cb = new Dictionary.WordCallback() {
+            public boolean addWord(char[] word, int wordOffset, int wordLength, int frequency, int dicTypeId, Dictionary.DataType dataType) {
+                return true;
+            }
+        };
+        MrLearned.gate(cb);
+        java.lang.ref.WeakReference<Object> ref = new java.lang.ref.WeakReference<Object>(cb);
+        if (end) MrLearned.gateEnd();
+        return ref;
+    }
+
+    /** True when the object was collected (the collector runs up to 20 times). */
+    private static boolean collects(java.lang.ref.WeakReference<Object> ref) {
+        for (int i = 0; i < 20 && ref.get() != null; i++) {
+            System.gc();
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                // the loop goes on
+            }
+        }
+        return ref.get() == null;
+    }
+
     public static void main(String[] a) {
         MrImport.Known pt = known("vou", "ver", "a", "o", "bom", "dia", "de", "reunião", "hoje", "usar");
 
@@ -231,6 +257,15 @@ public class LearnedStoreTest {
         check("the gate keeps a word typed once or twice (frequency 5) out of the strip and the search goes on", keepOn && seen[0] == 0);
         gate.addWord("ana".toCharArray(), 0, 3, 6, 3, Dictionary.DataType.UNIGRAM);
         check("the gate lets an accepted word (frequency 6) through, with its frequency", seen[0] == 1 && seen[1] == 6);
+        // build _86: the gate is a static, so it must not keep the callback (the Suggest, and through it the whole service) after the search
+        MrLearned.gateEnd();
+        check("after gateEnd the gate has no callback: it lets nothing through and says stop", !gate.addWord("ana".toCharArray(), 0, 3, 250, 3,
+                Dictionary.DataType.UNIGRAM) && seen[0] == 1);
+        java.lang.ref.WeakReference<Object> kept = gateCallback(false);
+        check("control: a callback the gate was not told to let go of is still alive after a collection", !collects(kept));
+        MrLearned.gateEnd();
+        java.lang.ref.WeakReference<Object> freed = gateCallback(true);
+        check("a callback of a search that ended with gateEnd is collected (nothing static holds it)", collects(freed));
         check("the word frequency grows with the weight and stays inside 6-250", MrLearned.wordFreq(50) == 130 && MrLearned.wordFreq(100) == 250
                 && MrLearned.wordFreq(1) == 6 && MrLearned.wordFreq(1000) == 250 && MrLearned.wordFreq(20) < MrLearned.wordFreq(50));
         MrLearned.load(null, words, L);

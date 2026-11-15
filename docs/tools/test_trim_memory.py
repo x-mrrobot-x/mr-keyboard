@@ -367,5 +367,36 @@ check("MrLive$Search uses reflection only to read (get, getModifiers, getName, g
 check("... and it reads the instance fields only of classes whose name starts with com.mrkeyboard. (the framework ones are left alone)",
       'const-string v1, "com.mrkeyboard."' in srch or '"com.mrkeyboard."' in srch and srch.count("startsWith") >= 2, srch.count("startsWith"))
 
+# build _86: the gate of the learned words (MrLearned.sGate) is a static; the callback it is given (the Suggest, and through it the whole service) is
+# kept only while AutoDictionary.getWords runs. The phone showed "Retido por: MrLearned.sGate > to:Suggest > mAutoDictionary > mIme:LatinIME"
+# with one more service and one more keyboard alive after each switch of keyboard.
+ad = open(os.path.join(APP, "AutoDictionary.smali"), encoding="utf-8").read()
+gw = re.search(r"^\.method public getWords\(Lcom/mrkeyboard/app/WordComposer;[^\n]*\n(.*?)^\.end method", ad, re.S | re.M)
+gl = [l.strip() for l in gw.group(1).split("\n") if l.strip() and not l.strip().startswith(("#", ".line"))]
+i_gate = next(i for i, l in enumerate(gl) if "MrLearned;->gate(" in l)
+i_try = gl.index(":try_start_0")
+i_super = next(i for i, l in enumerate(gl) if "invoke-super" in l and "ExpandableDictionary;->getWords(" in l)
+i_end = gl.index(":try_end_0")
+ends = [i for i, l in enumerate(gl) if "MrLearned;->gateEnd()V" in l]
+check("AutoDictionary.getWords: gate, then the search alone in a try, then gateEnd on the way out and again in the handler before it throws",
+      i_gate < i_try < i_super < i_end and gl[i_super + 1] == ":try_end_0" and gl[i_end + 1].startswith(".catchall {:try_start_0 .. :try_end_0}")
+      and len(ends) == 2 and ends[0] > i_end and ends[1] > ends[0] and gl[-1] == "throw v1" and gl[ends[1] + 1] == "throw v1", gl)
+ml = open(os.path.join(APP, "MrLearned.smali"), encoding="utf-8").read()
+ge = re.search(r"^\.method public static gateEnd\(\)V\n(.*?)^\.end method", ml, re.S | re.M)
+gel = [l.strip() for l in ge.group(1).split("\n") if l.strip() and not l.strip().startswith(("#", ".line", ".prologue", ".locals"))]
+check("MrLearned.gateEnd puts null in the callback of the gate (Gate.to) and does nothing else",
+      gel == ["sget-object v0, Lcom/mrkeyboard/app/MrLearned;->sGate:Lcom/mrkeyboard/app/MrLearned$Gate;", "const/4 v1, 0x0",
+              "iput-object v1, v0, Lcom/mrkeyboard/app/MrLearned$Gate;->to:Lcom/mrkeyboard/app/Dictionary$WordCallback;", "return-void"], gel)
+sets = []
+for f in sorted(os.listdir(APP)):
+    if f.endswith(".smali"):
+        t_ = open(os.path.join(APP, f), encoding="utf-8").read()
+        sets += [f for l in t_.split("\n") if "MrLearned$Gate;->to:" in l and "iput-object" in l]
+check("the callback of the gate is written only in MrLearned (gate puts it, gateEnd takes it away)", sorted(set(sets)) == ["MrLearned$Gate.smali", "MrLearned.smali"]
+      or sorted(set(sets)) == ["MrLearned.smali"], sorted(set(sets)))
+callers = [f for f in sorted(os.listdir(APP)) if f.endswith(".smali") and f != "MrLearned.smali" and
+           "MrLearned;->gate(" in open(os.path.join(APP, f), encoding="utf-8").read()]
+check("MrLearned.gate is used in one place only, AutoDictionary.getWords (the one that calls gateEnd)", callers == ["AutoDictionary.smali"], callers)
+
 print("\n%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

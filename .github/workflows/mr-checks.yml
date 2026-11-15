@@ -50,6 +50,7 @@
 #   test_open_selection.py the selection when the keyboard opens in a field (LatinIME.checkReCorrectionOnStart in the mini interpreter): taken from EditorInfo.initialSelStart/End with no question for the text of the field; the old question only when the field does not report it; cursor at the very start, selection, no EditorInfo, re-correction or prediction off
 #   test_popup_cache.py  the popups of variants (long press) kept between field opens (LatinKeyboardBaseView.closing/setKeyboard/onDetachedFromWindow in the mini interpreter): kept while the keyboard is the same one and no setting changed; cleared for a different keyboard, after any preference change (LatinIME.onSharedPreferenceChanged) and when the view leaves the window
 #   test_trim_memory.py  the memory cleanup (LatinIME.onTrimMemory and the closing of the engine in onDestroy, KeyboardSwitcher.dropUnused, LatinKeyboardBaseView.trimCaches in the mini interpreter; the decision by level is MrTrim in PerfTest)
+#   test_heap_holders.py the reader of the memory map saved by the Advanced screen (docs/tools/heap_holders.py): a real heap dump of the JVM with objects held by a static variable, through lists and maps and only by a weak reference, and a small dump built in the format of Android
 #   test_echo_questions.py the questions to the app after a separator the keyboard typed (LatinIME.onUpdateSelection, handleSeparator, isCursorTouchingWord in the mini interpreter): counted, not timed; one instead of two after the echo of our own separator, the full check in every other case; on Android 12+ one question for both sides (MrSurround.echo: the answers in every neighbourhood are the old ones, an app that does not answer is asked once)
 #   test_caps_defer.py   the capital-letter check at the end of a separator, delayed while the app is busy (LatinIME.handleSeparator, mrShiftPost/Run/Flush/Cancel, updateShiftKeyState in the mini interpreter): the same shift state at every key, the same text and as many questions as with the switch off for random sentences and timings; asked by the message (100 ms) or at once by the next key, text or suggestion; dropped at the end of the field; with the switch off or no handler as before
 #   test_prev_word.py    the keyboard's side of the word before the one being typed (MrPrevWord) and of the text kept after our own separator (MrSurround): forgotten at EVERY write of mPredicting, in WordComposer.reset, backspace, separator, onText, new field and end of input; the suggestions ask MrPrevWord and nothing else asks for the previous word per letter
@@ -233,6 +234,9 @@ jobs:
 
       - name: Memory cleanup (onTrimMemory by level, the engine closed in onDestroy, keyboards not in use, caches of the view)
         run: python3 -I docs/tools/test_trim_memory.py
+
+      - name: Reader of the memory map (heap_holders.py: chains from a root to the service and the input view)
+        run: python3 -I docs/tools/test_heap_holders.py
 
       - name: Questions to the app after a separator typed by the keyboard (counted)
         run: python3 -I docs/tools/test_echo_questions.py

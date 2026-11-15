@@ -526,3 +526,15 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   round (switch and back, tap the row twice): keyboard 1 whatever the service says; if the service stays at 2 with "No variable of the app", it is
   the system and there is nothing to fix in the app. The reflection of the search is the one allowed in `res_check.py` (read only), and it goes
   with the search once the cause is known. Tests: `test_trim_memory.py` 45 (+8), `PerfTest` 226 (+22), `test_perf_meter.py` 192 (+7).
+  Result of the phone test of _85 (Autocompletar on): keyboard still 2, "No variable of the app holds the old one"; after another switch, 3 and 3. It is
+  one more service and input view **per switch**, not one behind: a real leak that the app's own variables do not explain, and that may be what
+  made switching keyboards sluggish after about ten switches.
+  Second count of _85: "Held by: MrLearned.sGate > to:Suggest > mAutoDictionary > mIme:LatinIME" (service 3 · keyboard 3). The gate of the learned words
+  (1.85) is a static single instance that kept the last `Suggest`, and through it the `AutoDictionary`, the service and its views.
+- Stage 4, part 5 (build _86): the fix of that holder (`MrLearned.gateEnd`, called when `AutoDictionary.getWords` ends, also on an exception), the search of
+  the meter reporting a chain for each old object (up to four) instead of the first one only, and the map of the memory, kept because
+ the search from the app's variables can only say "not here". The row "Save the memory
+  map (test)" of the Advanced screen writes a heap dump in a zip and opens Share (`MrHeap`); `docs/tools/heap_holders.py` prints the chain from a root of
+  the heap to every service and input view, marking the one in use. The dump has the memory of the keyboard process (typed words, the clipboard), so
+  it is only sent by the owner. Tests: `PerfTest` 240 (+14), `test_heap_holders.py` 18 (a JVM dump and one in the format of Android).
+

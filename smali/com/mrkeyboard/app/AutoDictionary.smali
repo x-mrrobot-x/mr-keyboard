@@ -624,13 +624,27 @@
 # Mr Keyboard v1.85: the learned and imported words complete what is typed (until now they only counted as valid words). Only the ones
 # the keyboard has accepted (MrLearned.gate: frequency 6 or more) reach the strip.
 .method public getWords(Lcom/mrkeyboard/app/WordComposer;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
-    .locals 1
+    .locals 2
 
     invoke-static {p2}, Lcom/mrkeyboard/app/MrLearned;->gate(Lcom/mrkeyboard/app/Dictionary$WordCallback;)Lcom/mrkeyboard/app/Dictionary$WordCallback;
 
     move-result-object v0
 
+    # Build _86: the gate is a static, so it lets go of the callback (the Suggest, and through it this dictionary and the whole service) when the search ends,
+    # also when it throws. Kept, it held the service of every keyboard that had ended.
+    :try_start_0
     invoke-super {p0, p1, v0, p3}, Lcom/mrkeyboard/app/ExpandableDictionary;->getWords(Lcom/mrkeyboard/app/WordComposer;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catch_0
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrLearned;->gateEnd()V
 
     return-void
+
+    :catch_0
+    move-exception v1
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrLearned;->gateEnd()V
+
+    throw v1
 .end method
