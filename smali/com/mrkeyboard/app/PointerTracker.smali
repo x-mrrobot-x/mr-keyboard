@@ -1259,6 +1259,13 @@
 
     if-eqz p1, :cond_2
 
+    # Delete by words (MrWordDelete): the key that starts to repeat, before its first repeat. p1 is not read again before it is set below.
+    invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/PointerTracker;->getKey(I)Lcom/mrkeyboard/app/Keyboard$Key;
+
+    move-result-object p1
+
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrWordDelete;->down(Lcom/mrkeyboard/app/Keyboard$Key;)V
+
     .line 311
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/PointerTracker;->repeatKey(I)V
 

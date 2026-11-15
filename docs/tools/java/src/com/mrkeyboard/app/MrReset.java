@@ -33,6 +33,8 @@ public final class MrReset implements Preference.OnPreferenceClickListener {
             "auto_cap",
             "voice_mode",
             "pref_long_press_duration",
+            "pref_word_delete",
+            "pref_word_delete_after",
             "pref_popup_content",
             "pref_ui_language",
             "keyboard_notification",

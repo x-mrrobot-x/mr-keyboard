@@ -87,6 +87,9 @@
     .line 355
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView$UIHandler;->removeMessages(I)V
 
+    # Delete by words (MrWordDelete): the key was let go, or the repeat stopped; what was held is forgotten.
+    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->up()V
+
     return-void
 .end method
 
@@ -194,6 +197,11 @@
     iget-object v1, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView$UIHandler;->this$0:Lcom/mrkeyboard/app/LatinKeyboardBaseView;
 
     invoke-static {v1}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->access$100(Lcom/mrkeyboard/app/LatinKeyboardBaseView;)I
+
+    move-result v1
+
+    # Delete by words (MrWordDelete): the time to the next repeat is longer after a word was deleted.
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrWordDelete;->interval(I)I
 
     move-result v1
 

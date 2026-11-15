@@ -30,6 +30,8 @@
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_touch" android:key="altchar_settings" android:summary="@string/mr_ui_cat_touch_sum" android:icon="@drawable/mr_ui_ic_tap_amber">
     <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_long_press_duration" android:key="pref_long_press_duration" android:defaultValue="@string/default_long_press_duration" hk:displayFormat="%.0f ms" hk:logScale="true" hk:maxValue="2000.0" hk:minValue="100.0"/>
+    <CheckBoxPreference android:persistent="true" android:title="@string/mr_word_delete_title" android:key="pref_word_delete" android:summary="@string/mr_word_delete_summary" android:defaultValue="false"/>
+    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/mr_word_delete_after_title" android:key="pref_word_delete_after" android:dependency="pref_word_delete" android:defaultValue="1000" hk:displayFormat="%.0f ms" hk:maxValue="3000.0" hk:minValue="500.0" hk:step="100.0"/>
     <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/popup_content_entries" android:title="@string/title_popup_content" android:key="pref_popup_content" android:defaultValue="@string/default_popup_content" android:entryValues="@array/popup_content_values"/>
     <PreferenceScreen android:title="@string/pref_screen_feedback_title" android:summary="@string/summary_pref_screen_feedback">
       <intent android:action="com.mrkeyboard.app.PREFS_FEEDBACK"/>

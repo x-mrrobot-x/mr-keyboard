@@ -704,4 +704,7 @@
     <string name="mr_sugg_idle_5">5 seconds</string>
     <string name="mr_sugg_idle_8">8 seconds</string>
     <string name="mr_sugg_idle_10">10 seconds</string>
+    <string name="mr_word_delete_title">Delete by words when held</string>
+    <string name="mr_word_delete_summary">After holding the delete key for a while, it removes whole words instead of letters</string>
+    <string name="mr_word_delete_after_title">Time before deleting by words</string>
 </resources>

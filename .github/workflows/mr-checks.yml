@@ -65,6 +65,7 @@
 #   test_separator_suspended.py  the real smali of LatinIME.handleSeparator and suggestionsSuspended over a fake field with composing text: with the suggestions flow suspended (translator / emoji search
 #                        field, hidden toolbar row, font style) the word typed stays when a space, a sign or Enter follows (it was erased or replaced by an old suggestion)
 #   test_sheet_longpress.py  the real smali of PointerTracker.startLongPressTimer: the sheet key (code -300: 123, ABC, TSK) opens its popup after a fixed 150 ms, the other keys keep the setting
+#   test_word_delete.py  delete by words when held (MrWordDelete): the real smali of LatinIME.handleBackspace, UIHandler.cancelKeyRepeatTimer and .handleMessage (the repeat) in the mini interpreter, the order of the calls in PointerTracker.onDownEvent, who calls MrWordDelete, the screen next to the long-press time, its limits and texts
 #   test_ui_language_rebuild.py  changing the app language rebuilds the keyboard view once, on the change (LatinIME.onSharedPreferenceChanged), and the bar is inflated again in the new language
 #   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial; trigrams.bin MRT2 needs minApp 1090000;
 #                        the "models" list with the weights of the gesture recognition, which older apps do not read)
@@ -263,6 +264,9 @@ jobs:
 
       - name: Sheet key long press (150 ms, the other keys keep the setting)
         run: python3 -I docs/tools/test_sheet_longpress.py
+
+      - name: Delete by words when the delete key is held (the calls, the screen, the limits)
+        run: python3 -I docs/tools/test_word_delete.py
 
       - name: Java layer calls exist in the APK and in the Android SDK
         run: |

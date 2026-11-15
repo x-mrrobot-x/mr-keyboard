@@ -21,8 +21,6 @@ manifest flag `hardwareAccelerated="false"` is not flipped and nothing assumes w
 - Cold start: the compose tables are made on first use, and the dictionary apps are looked up only for a language that has no downloaded pack.
 - Memory: the keyboard lets go of what it can make again when Android asks (`onTrimMemory`), closes the engine and the databases when the
   service ends, and no longer leaves an old service alive after a switch to another keyboard (stage 4 part 4).
-- Long press: the timer counts from the moment of the touch, not from the moment the keyboard handled it, so a touch that reached the
-  keyboard late no longer makes the popup come twice as late (the section "Long press" below).
 - Not done, because the meter showed it was not needed: drawing only what changed (a frame is about 3 ms), inflating the panels late (building
   the keyboard is about 17 ms), and hardware acceleration for the settings screens.
 
@@ -458,6 +456,8 @@ languages).
 
 ## Long press: the timer counts from the touch
 
+Not in 1.99.0: it comes with 2.0.0 (notes in `docs/release-notes/v2.0.0.md`).
+
 Seen on a phone (a long press on the 123 key, whose popup of sheets comes after a fixed 150 ms; ten long presses after a reset): the popup was
 never the slow part (build 0.0 ms because it was kept, show the window 17.6 ms on average, 24.1 ms at most), and the one slow number was
 "Touch wait": one finger down that reached the keyboard 153 ms after it happened (the other eleven about 17 ms). Until then the timer was sent
@@ -479,6 +479,12 @@ What changed:
 If "touch seen after" is the large number, the main thread or the system was busy when the touch came (the line "Touch wait" says the same);
 if "timer late" is, the main thread was busy when the message was due; if "popup" is, showing the window took the time. With all three small
 and the touch still felt late, the delay is somewhere the meter does not see yet.
+
+On the phone that measured it, with the new timer and nothing stalling (ten long presses on the 123 key after a reset), the lines read: "Touch wait"
+2.5 ms on average and 4.0 at most; "Open the long-press popup" 16.9 ms on average; "Popup: show the window" 15.3 ms; "Long press: delay beyond
+the set time" 17.0 ms on average and 21.0 at most; and the worst one 171 ms for 150 set (touch seen after 3 ms, timer late 1 ms, popup 20 ms). That
+is what "not stalling" looks like there: the delay beyond the set time is about the cost of the popup. A long press that felt late and shows far
+more than that on the worst line says where the time went.
 
 The numbers are in milliseconds, from `SystemClock.uptimeMillis`, so each one has about 1 ms of error.
 
