@@ -11,7 +11,8 @@ have, or with another return type, the code compiles and the dex builds, and the
 That is what happened once with Paint.setTypeface and Paint.getFontMetrics (the sheet editor did not open).
 This script reads the generated smali of the Java layer and checks every method and field it touches:
 
-  - classes of the APK (com/mrkeyboard/...): compared with the smali in smali/, following .super and
+  - classes of the APK (com/mrkeyboard/..., and any other class that has its smali in smali/, like the support library the app carries:
+    android/support/v4/content/FileProvider): compared with the smali in smali/, following .super and
     .implements, so a member inherited from a hand-written class counts. A member that is in none of them must
     come from the Android class where the chain ends (LatinIME from InputMethodService, a view from View): with
     ANDROID_JAR it is looked up there; without it, it is taken on trust unless the chain only reaches
@@ -202,7 +203,9 @@ def main():
         for m in re_field.finditer(txt):
             calls.append((m.group(1), m.group(2), m.group(3), m.group(4).strip(), 'f'))
         for op, owner, name, desc, kind in calls:
-            if owner.startswith('Lcom/mrkeyboard/'):
+            # a class that has its smali in the APK is looked up there, whatever its package: the support library that the app carries
+            # (android.support.v4.content.FileProvider, used by MrHeap and MrShots) is not in any android.jar, and it was reported as missing
+            if owner.startswith('Lcom/mrkeyboard/') or owner in smali:
                 checked_apk += 1
                 where = (os.path.basename(f), owner, name, (':' if kind == 'f' else '') + desc)
                 decl = declared_in(owner, kind, name, desc)

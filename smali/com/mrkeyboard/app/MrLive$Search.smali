@@ -74,53 +74,53 @@
     .prologue
     const/16 v1, 0x1000
 
-    .line 214
+    .line 219
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 202
+    .line 207
     new-instance v0, Ljava/util/IdentityHashMap;
 
     invoke-direct {v0}, Ljava/util/IdentityHashMap;-><init>()V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrLive$Search;->want:Ljava/util/IdentityHashMap;
 
-    .line 203
+    .line 208
     new-instance v0, Ljava/util/IdentityHashMap;
 
     invoke-direct {v0}, Ljava/util/IdentityHashMap;-><init>()V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrLive$Search;->seen:Ljava/util/IdentityHashMap;
 
-    .line 204
+    .line 209
     new-instance v0, Ljava/util/HashMap;
 
     invoke-direct {v0}, Ljava/util/HashMap;-><init>()V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrLive$Search;->fields:Ljava/util/HashMap;
 
-    .line 205
+    .line 210
     new-array v0, v1, [Ljava/lang/Object;
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrLive$Search;->objs:[Ljava/lang/Object;
 
-    .line 206
+    .line 211
     new-array v0, v1, [Ljava/lang/String;
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrLive$Search;->how:[Ljava/lang/String;
 
-    .line 207
+    .line 212
     new-array v0, v1, [I
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrLive$Search;->from:[I
 
-    .line 212
+    .line 217
     const/4 v0, 0x4
 
     new-array v0, v0, [I
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrLive$Search;->hitAt:[I
 
-    .line 215
+    .line 220
     const/4 v0, 0x0
 
     :goto_0
@@ -128,7 +128,7 @@
 
     if-ge v0, v1, :cond_1
 
-    .line 216
+    .line 221
     aget-object v1, p1, v0
 
     if-eqz v1, :cond_0
@@ -141,13 +141,13 @@
 
     invoke-virtual {v1, v2, v3}, Ljava/util/IdentityHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 215
+    .line 220
     :cond_0
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 218
+    .line 223
     :cond_1
     return-void
 .end method
@@ -158,7 +158,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 232
+    .line 237
     if-eqz p3, :cond_0
 
     invoke-static {p3}, Lcom/mrkeyboard/app/MrLive$Search;->leaf(Ljava/lang/Object;)Z
@@ -175,18 +175,18 @@
 
     if-eqz v1, :cond_1
 
-    .line 254
+    .line 259
     :cond_0
     :goto_0
     return v0
 
-    .line 233
+    .line 238
     :cond_1
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLive$Search;->seen:Ljava/util/IdentityHashMap;
 
     invoke-virtual {v1, p3, p3}, Ljava/util/IdentityHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 234
+    .line 239
     iget v1, p0, Lcom/mrkeyboard/app/MrLive$Search;->n:I
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLive$Search;->objs:[Ljava/lang/Object;
@@ -195,51 +195,51 @@
 
     if-ne v1, v2, :cond_2
 
-    .line 235
+    .line 240
     iget v1, p0, Lcom/mrkeyboard/app/MrLive$Search;->n:I
 
     mul-int/lit8 v1, v1, 0x2
 
-    .line 236
+    .line 241
     new-array v2, v1, [Ljava/lang/Object;
 
-    .line 237
+    .line 242
     new-array v3, v1, [Ljava/lang/String;
 
-    .line 238
+    .line 243
     new-array v1, v1, [I
 
-    .line 239
+    .line 244
     iget-object v4, p0, Lcom/mrkeyboard/app/MrLive$Search;->objs:[Ljava/lang/Object;
 
     iget v5, p0, Lcom/mrkeyboard/app/MrLive$Search;->n:I
 
     invoke-static {v4, v0, v2, v0, v5}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 240
+    .line 245
     iget-object v4, p0, Lcom/mrkeyboard/app/MrLive$Search;->how:[Ljava/lang/String;
 
     iget v5, p0, Lcom/mrkeyboard/app/MrLive$Search;->n:I
 
     invoke-static {v4, v0, v3, v0, v5}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 241
+    .line 246
     iget-object v4, p0, Lcom/mrkeyboard/app/MrLive$Search;->from:[I
 
     iget v5, p0, Lcom/mrkeyboard/app/MrLive$Search;->n:I
 
     invoke-static {v4, v0, v1, v0, v5}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 242
+    .line 247
     iput-object v2, p0, Lcom/mrkeyboard/app/MrLive$Search;->objs:[Ljava/lang/Object;
 
-    .line 243
+    .line 248
     iput-object v3, p0, Lcom/mrkeyboard/app/MrLive$Search;->how:[Ljava/lang/String;
 
-    .line 244
+    .line 249
     iput-object v1, p0, Lcom/mrkeyboard/app/MrLive$Search;->from:[I
 
-    .line 246
+    .line 251
     :cond_2
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLive$Search;->objs:[Ljava/lang/Object;
 
@@ -247,28 +247,28 @@
 
     aput-object p3, v1, v2
 
-    .line 247
+    .line 252
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLive$Search;->how:[Ljava/lang/String;
 
     iget v2, p0, Lcom/mrkeyboard/app/MrLive$Search;->n:I
 
     aput-object p2, v1, v2
 
-    .line 248
+    .line 253
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLive$Search;->from:[I
 
     iget v2, p0, Lcom/mrkeyboard/app/MrLive$Search;->n:I
 
     aput p1, v1, v2
 
-    .line 249
+    .line 254
     iget v1, p0, Lcom/mrkeyboard/app/MrLive$Search;->n:I
 
     add-int/lit8 v1, v1, 0x1
 
     iput v1, p0, Lcom/mrkeyboard/app/MrLive$Search;->n:I
 
-    .line 250
+    .line 255
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLive$Search;->want:Ljava/util/IdentityHashMap;
 
     invoke-virtual {v1, p3}, Ljava/util/IdentityHashMap;->containsKey(Ljava/lang/Object;)Z
@@ -277,7 +277,7 @@
 
     if-eqz v1, :cond_0
 
-    .line 251
+    .line 256
     iget v0, p0, Lcom/mrkeyboard/app/MrLive$Search;->hits:I
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLive$Search;->hitAt:[I
@@ -300,7 +300,7 @@
 
     aput v2, v0, v1
 
-    .line 252
+    .line 257
     :cond_3
     const/4 v0, 0x1
 
@@ -319,7 +319,7 @@
     .end annotation
 
     .prologue
-    .line 278
+    .line 283
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLive$Search;->fields:Ljava/util/HashMap;
 
     invoke-virtual {v0, p1}, Ljava/util/HashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -328,14 +328,14 @@
 
     check-cast v0, [Ljava/lang/reflect/Field;
 
-    .line 279
+    .line 284
     if-eqz v0, :cond_0
 
-    .line 301
+    .line 306
     :goto_0
     return-object v0
 
-    .line 280
+    .line 285
     :cond_0
     new-instance v2, Ljava/util/ArrayList;
 
@@ -343,7 +343,7 @@
 
     move-object v1, p1
 
-    .line 281
+    .line 286
     :goto_1
     if-eqz v1, :cond_4
 
@@ -359,7 +359,7 @@
 
     if-eqz v0, :cond_4
 
-    .line 284
+    .line 289
     :try_start_0
     invoke-virtual {v1}, Ljava/lang/Class;->getDeclaredFields()[Ljava/lang/reflect/Field;
     :try_end_0
@@ -367,7 +367,7 @@
 
     move-result-object v3
 
-    .line 288
+    .line 293
     const/4 v0, 0x0
 
     :goto_2
@@ -375,10 +375,10 @@
 
     if-ge v0, v4, :cond_3
 
-    .line 289
+    .line 294
     aget-object v4, v3, v0
 
-    .line 290
+    .line 295
     invoke-virtual {v4}, Ljava/lang/reflect/Field;->getModifiers()I
 
     move-result v5
@@ -399,38 +399,38 @@
 
     if-eqz v5, :cond_2
 
-    .line 288
+    .line 293
     :cond_1
     :goto_3
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_2
 
-    .line 292
+    .line 297
     :cond_2
     const/4 v5, 0x1
 
     :try_start_1
     invoke-virtual {v4, v5}, Ljava/lang/reflect/Field;->setAccessible(Z)V
 
-    .line 293
+    .line 298
     invoke-virtual {v2, v4}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
     :try_end_1
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1} :catch_0
 
     goto :goto_3
 
-    .line 294
+    .line 299
     :catch_0
     move-exception v4
 
     goto :goto_3
 
-    .line 285
+    .line 290
     :catch_1
     move-exception v0
 
-    .line 281
+    .line 286
     :cond_3
     invoke-virtual {v1}, Ljava/lang/Class;->getSuperclass()Ljava/lang/Class;
 
@@ -440,7 +440,7 @@
 
     goto :goto_1
 
-    .line 299
+    .line 304
     :cond_4
     invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
 
@@ -454,7 +454,7 @@
 
     check-cast v0, [Ljava/lang/reflect/Field;
 
-    .line 300
+    .line 305
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLive$Search;->fields:Ljava/util/HashMap;
 
     invoke-virtual {v1, p1, v0}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
@@ -466,7 +466,7 @@
     .locals 1
 
     .prologue
-    .line 221
+    .line 226
     instance-of v0, p0, Ljava/lang/CharSequence;
 
     if-nez v0, :cond_0
@@ -516,7 +516,7 @@
     .end annotation
 
     .prologue
-    .line 260
+    .line 265
     :try_start_0
     invoke-virtual {p1}, Ljava/lang/Class;->getDeclaredFields()[Ljava/lang/reflect/Field;
     :try_end_0
@@ -524,7 +524,7 @@
 
     move-result-object v1
 
-    .line 264
+    .line 269
     const/4 v0, 0x0
 
     :goto_0
@@ -538,10 +538,10 @@
 
     if-nez v2, :cond_2
 
-    .line 265
+    .line 270
     aget-object v2, v1, v0
 
-    .line 266
+    .line 271
     invoke-virtual {v2}, Ljava/lang/reflect/Field;->getModifiers()I
 
     move-result v3
@@ -562,21 +562,21 @@
 
     if-eqz v3, :cond_1
 
-    .line 264
+    .line 269
     :cond_0
     :goto_1
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 268
+    .line 273
     :cond_1
     const/4 v3, 0x1
 
     :try_start_1
     invoke-virtual {v2, v3}, Ljava/lang/reflect/Field;->setAccessible(Z)V
 
-    .line 269
+    .line 274
     const/4 v3, -0x1
 
     new-instance v4, Ljava/lang/StringBuilder;
@@ -621,17 +621,17 @@
 
     goto :goto_1
 
-    .line 270
+    .line 275
     :catch_0
     move-exception v2
 
     goto :goto_1
 
-    .line 261
+    .line 266
     :catch_1
     move-exception v0
 
-    .line 274
+    .line 279
     :cond_2
     return-void
 .end method
@@ -640,7 +640,7 @@
     .locals 3
 
     .prologue
-    .line 227
+    .line 232
     iget v0, p0, Lcom/mrkeyboard/app/MrLive$Search;->hits:I
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLive$Search;->want:Ljava/util/IdentityHashMap;
@@ -676,12 +676,12 @@
 
     const/4 v3, 0x0
 
-    .line 305
+    .line 310
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLive$Search;->objs:[Ljava/lang/Object;
 
     aget-object v1, v1, p1
 
-    .line 306
+    .line 311
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLive$Search;->want:Ljava/util/IdentityHashMap;
 
     invoke-virtual {v2, v1}, Ljava/util/IdentityHashMap;->containsKey(Ljava/lang/Object;)Z
@@ -690,24 +690,24 @@
 
     if-eqz v2, :cond_1
 
-    .line 360
+    .line 365
     :cond_0
     return-void
 
-    .line 307
+    .line 312
     :cond_1
     invoke-virtual {v1}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v6
 
-    .line 308
+    .line 313
     invoke-virtual {v6}, Ljava/lang/Class;->isArray()Z
 
     move-result v2
 
     if-eqz v2, :cond_2
 
-    .line 309
+    .line 314
     invoke-virtual {v6}, Ljava/lang/Class;->getComponentType()Ljava/lang/Class;
 
     move-result-object v2
@@ -718,12 +718,12 @@
 
     if-nez v2, :cond_0
 
-    .line 310
+    .line 315
     check-cast v1, [Ljava/lang/Object;
 
     move v2, v3
 
-    .line 311
+    .line 316
     :goto_0
     array-length v3, v1
 
@@ -745,13 +745,13 @@
 
     goto :goto_0
 
-    .line 315
+    .line 320
     :cond_2
     instance-of v2, v1, Ljava/util/Collection;
 
     if-eqz v2, :cond_3
 
-    .line 318
+    .line 323
     :try_start_0
     move-object v0, v1
 
@@ -765,7 +765,7 @@
 
     move-result-object v4
 
-    .line 322
+    .line 327
     :goto_1
     if-eqz v4, :cond_5
 
@@ -792,13 +792,13 @@
 
     goto :goto_2
 
-    .line 323
+    .line 328
     :cond_3
     instance-of v2, v1, Ljava/util/Map;
 
     if-eqz v2, :cond_5
 
-    .line 327
+    .line 332
     :try_start_1
     move-object v0, v1
 
@@ -806,7 +806,7 @@
 
     move-object v2, v0
 
-    .line 328
+    .line 333
     invoke-interface {v2}, Ljava/util/Map;->values()Ljava/util/Collection;
 
     move-result-object v5
@@ -817,7 +817,7 @@
 
     move-result-object v5
 
-    .line 330
+    .line 335
     :try_start_2
     instance-of v7, v1, Ljava/util/WeakHashMap;
 
@@ -836,7 +836,7 @@
     :goto_3
     move-object v4, v2
 
-    .line 334
+    .line 339
     :goto_4
     if-eqz v4, :cond_4
 
@@ -863,7 +863,7 @@
 
     goto :goto_5
 
-    .line 331
+    .line 336
     :catch_0
     move-exception v2
 
@@ -874,7 +874,7 @@
 
     goto :goto_4
 
-    .line 335
+    .line 340
     :cond_4
     if-eqz v5, :cond_5
 
@@ -901,7 +901,7 @@
 
     goto :goto_7
 
-    .line 337
+    .line 342
     :cond_5
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrLive$Search;->done()Z
 
@@ -909,17 +909,17 @@
 
     if-nez v2, :cond_0
 
-    .line 338
+    .line 343
     instance-of v2, v1, Landroid/view/View;
 
     if-eqz v2, :cond_6
 
     move-object v2, v1
 
-    .line 339
+    .line 344
     check-cast v2, Landroid/view/View;
 
-    .line 341
+    .line 346
     :try_start_3
     const-string v4, "context"
 
@@ -929,26 +929,26 @@
 
     invoke-direct {p0, p1, v4, v2}, Lcom/mrkeyboard/app/MrLive$Search;->add(ILjava/lang/String;Ljava/lang/Object;)Z
 
-    .line 342
+    .line 347
     instance-of v2, v1, Landroid/view/ViewGroup;
 
     if-eqz v2, :cond_6
 
-    .line 343
+    .line 348
     move-object v0, v1
 
     check-cast v0, Landroid/view/ViewGroup;
 
     move-object v2, v0
 
-    .line 344
+    .line 349
     invoke-virtual {v2}, Landroid/view/ViewGroup;->getChildCount()I
 
     move-result v5
 
     move v4, v3
 
-    .line 345
+    .line 350
     :goto_8
     if-ge v4, v5, :cond_6
 
@@ -972,11 +972,11 @@
 
     goto :goto_8
 
-    .line 347
+    .line 352
     :catch_1
     move-exception v2
 
-    .line 351
+    .line 356
     :cond_6
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrLive$Search;->done()Z
 
@@ -996,12 +996,12 @@
 
     if-eqz v2, :cond_0
 
-    .line 352
+    .line 357
     invoke-direct {p0, v6}, Lcom/mrkeyboard/app/MrLive$Search;->fieldsOf(Ljava/lang/Class;)[Ljava/lang/reflect/Field;
 
     move-result-object v2
 
-    .line 353
+    .line 358
     :goto_9
     array-length v4, v2
 
@@ -1013,7 +1013,7 @@
 
     if-nez v4, :cond_0
 
-    .line 355
+    .line 360
     :try_start_4
     aget-object v4, v2, v3
 
@@ -1031,19 +1031,19 @@
     :try_end_4
     .catch Ljava/lang/Throwable; {:try_start_4 .. :try_end_4} :catch_2
 
-    .line 353
+    .line 358
     :goto_a
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_9
 
-    .line 356
+    .line 361
     :catch_2
     move-exception v4
 
     goto :goto_a
 
-    .line 331
+    .line 336
     :catch_3
     move-exception v2
 
@@ -1051,7 +1051,7 @@
 
     goto/16 :goto_6
 
-    .line 319
+    .line 324
     :catch_4
     move-exception v2
 
@@ -1069,12 +1069,12 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 374
+    .line 379
     new-instance v3, Ljava/util/ArrayList;
 
     invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
 
-    .line 375
+    .line 380
     :goto_0
     if-ltz p1, :cond_0
 
@@ -1124,7 +1124,7 @@
 
     goto :goto_0
 
-    .line 376
+    .line 381
     :cond_0
     invoke-virtual {v3}, Ljava/util/ArrayList;->size()I
 
@@ -1134,14 +1134,14 @@
 
     if-le v0, v1, :cond_5
 
-    .line 377
+    .line 382
     new-instance v2, Ljava/util/ArrayList;
 
     invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
 
     move v1, v4
 
-    .line 378
+    .line 383
     :goto_1
     const/4 v0, 0x4
 
@@ -1161,13 +1161,13 @@
 
     goto :goto_1
 
-    .line 379
+    .line 384
     :cond_1
     const-string v0, "..."
 
     invoke-virtual {v2, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 380
+    .line 385
     invoke-virtual {v3}, Ljava/util/ArrayList;->size()I
 
     move-result v0
@@ -1200,7 +1200,7 @@
     :cond_2
     move-object v1, v2
 
-    .line 383
+    .line 388
     :goto_3
     new-instance v3, Ljava/lang/StringBuilder;
 
@@ -1208,7 +1208,7 @@
 
     move v2, v4
 
-    .line 384
+    .line 389
     :goto_4
     invoke-virtual {v1}, Ljava/util/ArrayList;->size()I
 
@@ -1216,14 +1216,14 @@
 
     if-ge v2, v0, :cond_4
 
-    .line 385
+    .line 390
     if-lez v2, :cond_3
 
     const-string v0, " > "
 
     invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 386
+    .line 391
     :cond_3
     invoke-virtual {v1, v2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
@@ -1233,14 +1233,14 @@
 
     invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 384
+    .line 389
     add-int/lit8 v0, v2, 0x1
 
     move v2, v0
 
     goto :goto_4
 
-    .line 388
+    .line 393
     :cond_4
     invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -1258,12 +1258,12 @@
     .locals 3
 
     .prologue
-    .line 364
+    .line 369
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 365
+    .line 370
     const/4 v0, 0x0
 
     :goto_0
@@ -1271,14 +1271,14 @@
 
     if-ge v0, v2, :cond_1
 
-    .line 366
+    .line 371
     if-lez v0, :cond_0
 
     const/16 v2, 0xa
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 367
+    .line 372
     :cond_0
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLive$Search;->hitAt:[I
 
@@ -1290,12 +1290,12 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 365
+    .line 370
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 369
+    .line 374
     :cond_1
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
