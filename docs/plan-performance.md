@@ -542,3 +542,9 @@ seen on a phone (smoothness, look of each theme) is listed in the reply of the s
   `KeyboardSwitcher.onAutoCompletionStateChanged` asked the view, already let go of by `release`, for its keyboard while `hideWindow` ran inside the system's
   `onDestroy`. Fixed (state kept, nothing redrawn when there is no view); `test_trim_memory.py` 55 (+6). The next step for the leak is the map of the memory
   (row "Save the memory map (test)"), read with `docs/tools/heap_holders.py`.
+- Stage 4, part 7 (build _90): the memory map of the phone (build _89) named the holder: `AutoDictionary.sOpenHelper`, a static `SQLiteOpenHelper` made once with the
+  context of the first service, which therefore never died (nor did its input frame with the old tree of the keyboard). The helpers of `AutoDictionary` and
+  `UserBigramDictionary` are now made with the application context (`MrSqlStore` already was); `test_trim_memory.py` 58 (+3, with a control that fails on the old smali).
+  `heap_holders.py` marks the one in use by what the app reaches, not by the shortest chain (19 checks). The text of "no chain of the app's own objects" is more exact.
+  Expected on the phone: after switching keyboards and back, service 1 · keyboard 1.
+

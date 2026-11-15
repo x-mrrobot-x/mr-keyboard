@@ -98,7 +98,7 @@
     <string name="mr_ui_perf_trim_last">Última limpeza: nível %1$d · soltou %2$d teclados, %3$d popups, %4$d sombras (%5$s)</string>
     <string name="mr_ui_perf_alive">Vivos depois da limpeza: serviço %1$d · teclado %2$d</string>
     <string name="mr_ui_perf_held">Retido por: %1$s</string>
-    <string name="mr_ui_perf_held_out">Nenhuma variável do app segura o antigo: quem segura é o sistema, uma thread ou a fila de mensagens</string>
+    <string name="mr_ui_perf_held_out">Nenhuma cadeia de objetos do app chega ao antigo: ele está atrás de um objeto do Android (ajudante de banco, handler, thread) ou do sistema. O mapa da memória mostra qual</string>
     <string name="mr_ui_perf_held_cut">A busca do que segura o antigo foi cortada (grande demais)</string>
     <string name="mr_ui_perf_trim_now">Liberar memória agora (teste)</string>
     <string name="mr_ui_perf_trim_now_sum">Solta o que o teclado consegue refazer, como se o sistema pedisse memória, e depois roda uma coleta de lixo. “Última limpeza” mostra o que foi solto; “Vivos” mostra o que ainda existe depois da coleta.</string>

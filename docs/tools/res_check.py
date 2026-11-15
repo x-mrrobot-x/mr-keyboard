@@ -290,6 +290,16 @@ for name, table in (('values-es', es), ('values-pt-rBR', pt)):
     for k, v in table.items():
         if k in orig and marks(v) != marks(orig[k]):
             problems.append('%s/%s: placeholders %s differ from the original %s' % (name, k, marks(v), marks(orig[k])))
+# --- an apostrophe in a string must be escaped (\') unless the whole text is inside double quotes: aapt2 refuses the file otherwise ("unescaped
+# apostrophe in string", build _89), and nothing else in the checks reads the strings the way aapt2 does
+for p in sorted(glob.glob('res/values*/*.xml')):
+    for m in re.finditer(r'<string\s+name="([^"]+)"[^>]*>(.*?)</string>', read_file(p), re.S):
+        v = m.group(2).strip()
+        if v.startswith('"') and v.endswith('"') and len(v) > 1:
+            continue
+        if re.search(r"(?<!\\)'", re.sub(r'<!\[CDATA\[.*?\]\]>', '', v, flags=re.S)):
+            problems.append("%s: string %s has an apostrophe that is not escaped (write \\' or rephrase): aapt2 refuses it" % (p, m.group(1)))
+
 # --- format specifiers of the project's own strings (mr_strings.xml, every language). The original LatinIME strings.xml
 # is left out on purpose: it has literal values such as "60%" that never go through String.format.
 SPEC = re.compile(r'%(?:\d+\$)?[-#+0,(]*\d*(?:\.\d+)?(?:[bBhHsScCdoxXeEfgGaAn]|[tT][a-zA-Z])')

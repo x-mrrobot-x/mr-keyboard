@@ -168,6 +168,12 @@
 
     move-result-object p2
 
+    # Build _89: the helper is a static and lives as long as the process, so it must not keep the service (a SQLiteOpenHelper keeps the context it was
+    # given): the memory map showed the first service of the process held through here, with its whole input view. The application context does the same job.
+    invoke-virtual {p2}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
+
+    move-result-object p2
+
     invoke-direct {p1, p2}, Lcom/mrkeyboard/app/AutoDictionary$DatabaseHelper;-><init>(Landroid/content/Context;)V
 
     sput-object p1, Lcom/mrkeyboard/app/AutoDictionary;->sOpenHelper:Lcom/mrkeyboard/app/AutoDictionary$DatabaseHelper;

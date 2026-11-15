@@ -10,7 +10,7 @@ in a zip, but it reads any HPROF file, the one of Android (ART: "JAVA PROFILE 1.
 
 By default it looks for the service (com.mrkeyboard.app.LatinIME) and the input view (com.mrkeyboard.app.LatinKeyboardView). The service that
 is reached straight from the static LatinIME.sInstance, and the input view that is reached from KeyboardSwitcher.sInstance.mInputView, are the
-ones in use ("in use"); every other one is what stayed behind ("HELD"), and the chain says what holds it. The references that do not keep an object alive are left out of the chains: the referent of a java.lang.ref.Reference (weak,
+ones in use ("in use", whatever the shortest chain to it is); every other one is what stayed behind ("HELD"), and the chain says what holds it. The references that do not keep an object alive are left out of the chains: the referent of a java.lang.ref.Reference (weak,
 soft, phantom, and the finalizer references). The objects that no root reaches (garbage that the collector had not taken when the dump was
 written) are reported as unreachable. The chain is the shortest one: where two things hold the same object, the one nearer to a root is shown.
 
@@ -204,6 +204,17 @@ class Heap:
                     out.append(("static " + self.field_name(nid), value))
         return out
 
+    def resolve(self, start, hows):
+        """The object that the app itself reaches: from the class named in `start` ("class x.Y"), through each reference of `hows` ("static sInstance",
+        a field name...) in turn. None when the path is not there (the static is null, the class is not in the dump)."""
+        name = start[len("class "):] if start.startswith("class ") else start
+        cur = next((cid for cid, n in self.class_names.items() if n == name and cid in self.classes), None)
+        for how in hows:
+            if cur is None:
+                return None
+            cur = next((ref for label, ref in self.refs(cur) if label == how), None)
+        return cur
+
     def class_of(self, oid):
         if oid in self.instances:
             return self.instances[oid][0]
@@ -293,7 +304,9 @@ def report(heap, wanted):
                 out.write("  @%x  unreachable (garbage that the collector had not taken)\n" % oid)
                 continue
             start, hows = IN_USE.get(name, (None, None))
-            in_use = chain[0][0] == start and [h for _, h in chain[1:]] == hows
+            # the one in use is the one the app itself reaches (LatinIME.sInstance, KeyboardSwitcher.sInstance.mInputView), whatever the shortest
+            # chain is: a thread's stack or another static can be a shorter way to the same object, and it is in use all the same
+            in_use = start is not None and oid == heap.resolve(start, hows)
             out.write("  @%x  %s\n%s\n" % (oid, "in use" if in_use else "HELD", format_chain(chain)))
     return out.getvalue(), found
 

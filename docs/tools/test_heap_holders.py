@@ -54,8 +54,11 @@ public class Probe {
         garbage();
         com.mrkeyboard.app.LatinIME.sInstance = new com.mrkeyboard.app.LatinIME();
         com.mrkeyboard.app.LatinIME.sLeaks.add(new com.mrkeyboard.app.LatinIME());
+        // a local variable of a running thread holds the service in use too: a root straight to it, a shorter chain than the static variable
+        Object keep = com.mrkeyboard.app.LatinIME.sInstance;
         com.sun.management.HotSpotDiagnosticMXBean bean = java.lang.management.ManagementFactory.getPlatformMXBean(com.sun.management.HotSpotDiagnosticMXBean.class);
         bean.dumpHeap(a[0], false);
+        if (keep == null) System.exit(3);
     }
 }
 """
@@ -100,6 +103,9 @@ try:
 
     text, found2 = hh.report(heap, ["com.mrkeyboard.app.LatinIME"])
     check("the report: two services, one in use and one held", "2 instance(s)" in text and text.count("in use") == 1 and text.count("HELD") == 1, text)
+    check("the one in use is the one the static variable points to, also when another root (a local variable of a thread) is a shorter way to it",
+          heap.resolve("class com.mrkeyboard.app.LatinIME", ["static sInstance"]) is not None
+          and "in use" in text.split("@")[1] + text.split("@")[2] and text.count("static sLeaks") == 1, text)
     check("... the held one shows the chain through the list of leaks", "static sLeaks" in text and "elementData" in text, text)
     text2, _ = hh.report(heap, ["t.Probe$Target"])
     check("the report names an unreachable one as such", "unreachable" in text2 and text2.count("HELD") == 2, text2)

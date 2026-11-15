@@ -437,5 +437,41 @@ callers = [f for f in sorted(os.listdir(APP)) if f.endswith(".smali") and f != "
            "MrLearned;->gate(" in open(os.path.join(APP, f), encoding="utf-8").read()]
 check("MrLearned.gate is used in one place only, AutoDictionary.getWords (the one that calls gateEnd)", callers == ["AutoDictionary.smali"], callers)
 
+# build _89: the memory map of the phone showed the first service of the process held, with its whole input view, by AutoDictionary.sOpenHelper:
+# a SQLiteOpenHelper keeps the Context it is given (SQLiteOpenHelper.mContext), and the helper is a static (or in one), so it lives as long as the
+# process. Every SQLiteOpenHelper of the app is made with the application context.
+helpers = []
+for f in sorted(os.listdir(APP)):
+    if f.endswith(".smali"):
+        t_ = open(os.path.join(APP, f), encoding="utf-8").read()
+        if re.search(r"^\.super Landroid/database/sqlite/SQLiteOpenHelper;", t_, re.M):
+            helpers.append("Lcom/mrkeyboard/app/" + f[:-6] + ";")
+check("the app has three SQLiteOpenHelpers (the two dictionaries and the store of the learned words)", len(helpers) == 3, helpers)
+
+
+def creations(target_class):
+    """{file: [True when the call that makes the object has getApplicationContext() before it]} for every `new-instance` of the class."""
+    out = {}
+    for f in sorted(os.listdir(APP)):
+        if not f.endswith(".smali"):
+            continue
+        lines_ = [l.strip() for l in open(os.path.join(APP, f), encoding="utf-8").read().split("\n")]
+        for i_, l_ in enumerate(lines_):
+            m_ = re.match(r"new-instance \w+, (L[^;]+;)$", l_)
+            if m_ and m_.group(1) == target_class:
+                j_ = next(j for j in range(i_, len(lines_)) if lines_[j].startswith("invoke-direct") and target_class + "-><init>(" in lines_[j])
+                # the context is made just before the new-instance (MrLearned) or between it and the constructor call (the dictionaries)
+                out.setdefault(f, []).append("getApplicationContext()" in " ".join(lines_[max(0, i_ - 8):j_]))
+    return out
+
+
+dict_helpers = [h for h in helpers if "DatabaseHelper" in h]
+made = {h: creations(h) for h in dict_helpers}
+check("each of the two dictionaries makes its helper in one place, with the application context and not with the service",
+      all(sorted(v) == [h.split("$")[0].split("/")[-1] + ".smali"] and list(v.values()) == [[True]] for h, v in made.items()) and len(made) == 2, made)
+store = creations("Lcom/mrkeyboard/app/MrSqlStore;")
+check("the store of the learned words is made in one place (MrLearned) and with the application context",
+      store == {"MrLearned.smali": [True]}, store)
+
 print("\n%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

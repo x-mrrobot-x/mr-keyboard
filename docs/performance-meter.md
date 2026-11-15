@@ -449,6 +449,20 @@ the framework's objects (an executor and its queue, a handler and its messages, 
 fields cannot be read from the app. So "no variable" means that no chain made of the app's own objects reaches it: what holds it is behind a framework
 object, and only the map of the memory shows which.
 
+**What the memory map showed (build _89 on the phone, dump of 40 MB read in 3 s by `heap_holders.py`).** Two services alive: the one in use
+(`LatinIME.sInstance`, held by the statics of `MrTools`, `MrEmojiSearch` and `MrFonts` as designed, and let go by `release`) and one that ended
+(`mDestroyed` true, its `mInputView` already the empty view of `mrDropViews`, its strip of suggestions null), held by **`AutoDictionary.sOpenHelper`**: the
+helper of the automatic dictionary is a static made once, with the service of that moment as its context (a `SQLiteOpenHelper` keeps it in
+`mContext`), so the first service of the process stayed alive for as long as the process, and with it its input frame, which still points (through the
+`mMatchParentChildren` list of the frame, filled by its last measure) to the old tree of the keyboard: that was the second "keyboard". The search of
+the meter could not see it because the chain passes through a private field of a class of Android (`SQLiteOpenHelper.mContext`) that the app cannot
+read. `UserBigramDictionary.sOpenHelper` is the same kind of static and was the same risk.
+
+**The fix (build _90).** Both helpers are made with `getApplicationContext()`. `MrSqlStore` (the store of the learned words) already was. The structure test
+reads every `SQLiteOpenHelper` of the app and where it is made. The text of the meter for "no chain of objects of the app" now says that the holder can be
+behind an Android object the app keeps (a database helper, a handler, a thread) or the system, and points to the memory map. `heap_holders.py` marks as "in use"
+the object the app itself reaches (`LatinIME.sInstance`), also when another chain to it is as short or shorter (before, a tie showed it as HELD).
+
 **The crash at the end of the service (build _89).** One keyboard switch threw "Unable to stop service LatinIME: NullPointerException: LatinKeyboardView.getKeyboard()
 on a null object reference at KeyboardSwitcher.onAutoCompletionStateChanged". `onDestroy` lets go of the view (`KeyboardSwitcher.release`, stage 4) and
 then the system's own `onDestroy` hides the window, which calls `LatinIME.hideWindow`, which says "no auto correction"; when a correction was on the strip
