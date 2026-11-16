@@ -3,12 +3,12 @@
 .source "MrTourActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnTouchListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrTourActivity;->pressable(Landroid/view/View;)V
+    value = Lcom/mrkeyboard/app/MrTourActivity;->loopPulse(I)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,27 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
+.field final synthetic val$gen:I
+
+.field final synthetic val$t0:J
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrTourActivity;)V
-    .locals 0
+.method constructor <init>(Lcom/mrkeyboard/app/MrTourActivity;IJ)V
+    .locals 1
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 712
+    .line 710
     iput-object p1, p0, Lcom/mrkeyboard/app/MrTourActivity$9;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
+
+    iput p2, p0, Lcom/mrkeyboard/app/MrTourActivity$9;->val$gen:I
+
+    iput-wide p3, p0, Lcom/mrkeyboard/app/MrTourActivity$9;->val$t0:J
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,111 +49,65 @@
 
 
 # virtual methods
-.method public onTouch(Landroid/view/View;Landroid/view/MotionEvent;)Z
-    .locals 6
+.method public run()V
+    .locals 4
 
     .prologue
-    const-wide/16 v4, 0x0
-
-    const/high16 v2, 0x3f800000    # 1.0f
-
-    const v1, 0x3f7851ec    # 0.97f
-
-    .line 714
-    invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
-
-    move-result v0
-
-    .line 715
-    if-nez v0, :cond_1
-
-    .line 716
-    invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
-
-    move-result-object v0
-
-    invoke-virtual {v0, v1}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
-
-    move-result-object v0
-
-    invoke-virtual {v0, v1}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
-
-    move-result-object v0
-
-    invoke-virtual {v0, v4, v5}, Landroid/view/ViewPropertyAnimator;->setStartDelay(J)Landroid/view/ViewPropertyAnimator;
-
-    move-result-object v0
-
-    const-wide/16 v2, 0x5a
-
-    invoke-virtual {v0, v2, v3}, Landroid/view/ViewPropertyAnimator;->setDuration(J)Landroid/view/ViewPropertyAnimator;
-
-    move-result-object v0
+    .line 712
+    iget v0, p0, Lcom/mrkeyboard/app/MrTourActivity$9;->val$gen:I
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrTourActivity$9;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
-    invoke-static {v1}, Lcom/mrkeyboard/app/MrTourActivity;->access$1500(Lcom/mrkeyboard/app/MrTourActivity;)Landroid/view/animation/PathInterpolator;
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTourActivity;->access$1800(Lcom/mrkeyboard/app/MrTourActivity;)I
 
-    move-result-object v1
+    move-result v1
 
-    invoke-virtual {v0, v1}, Landroid/view/ViewPropertyAnimator;->setInterpolator(Landroid/animation/TimeInterpolator;)Landroid/view/ViewPropertyAnimator;
+    if-eq v0, v1, :cond_0
 
-    move-result-object v0
-
-    invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
-
-    .line 720
-    :cond_0
+    .line 722
     :goto_0
-    const/4 v0, 0x0
+    return-void
 
-    return v0
+    .line 713
+    :cond_0
+    invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
+
+    move-result-wide v0
+
+    iget-wide v2, p0, Lcom/mrkeyboard/app/MrTourActivity$9;->val$t0:J
+
+    sub-long/2addr v0, v2
+
+    const-wide/16 v2, 0x12c
+
+    cmp-long v0, v0, v2
+
+    if-gez v0, :cond_1
+
+    .line 714
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$9;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
+
+    const/4 v1, 0x0
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTourActivity;->access$1902(Lcom/mrkeyboard/app/MrTourActivity;Z)Z
+
+    goto :goto_0
 
     .line 717
     :cond_1
-    const/4 v1, 0x1
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$9;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
-    if-eq v0, v1, :cond_2
-
-    const/4 v1, 0x3
-
-    if-ne v0, v1, :cond_0
-
-    .line 718
-    :cond_2
-    invoke-virtual {p1}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTourActivity;->access$600(Lcom/mrkeyboard/app/MrTourActivity;)Landroid/os/Handler;
 
     move-result-object v0
 
-    invoke-virtual {v0, v2}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
+    new-instance v1, Lcom/mrkeyboard/app/MrTourActivity$9$1;
 
-    move-result-object v0
+    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrTourActivity$9$1;-><init>(Lcom/mrkeyboard/app/MrTourActivity$9;)V
 
-    invoke-virtual {v0, v2}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
+    const-wide/16 v2, 0x15e
 
-    move-result-object v0
-
-    invoke-virtual {v0, v4, v5}, Landroid/view/ViewPropertyAnimator;->setStartDelay(J)Landroid/view/ViewPropertyAnimator;
-
-    move-result-object v0
-
-    const-wide/16 v2, 0xb4
-
-    invoke-virtual {v0, v2, v3}, Landroid/view/ViewPropertyAnimator;->setDuration(J)Landroid/view/ViewPropertyAnimator;
-
-    move-result-object v0
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrTourActivity$9;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
-
-    invoke-static {v1}, Lcom/mrkeyboard/app/MrTourActivity;->access$1500(Lcom/mrkeyboard/app/MrTourActivity;)Landroid/view/animation/PathInterpolator;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Landroid/view/ViewPropertyAnimator;->setInterpolator(Landroid/animation/TimeInterpolator;)Landroid/view/ViewPropertyAnimator;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
+    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
     goto :goto_0
 .end method

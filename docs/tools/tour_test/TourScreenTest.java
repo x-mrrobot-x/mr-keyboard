@@ -123,6 +123,8 @@ public class TourScreenTest {
 
     static String text(Screen s, String field) { return String.valueOf(((TextView) f(s, field)).getText()); }
     static View view(Screen s, String field) { return (View) f(s, field); }
+    /** How much of the pill of the main button shows as the download fill (0 to 10000). */
+    static int fill(Screen s) { return ((android.graphics.drawable.ClipDrawable) f(s, "mFillClip")).getLevel(); }
 
     /** What the poll of the screen does in a while: runs what the handler has pending, a few times. */
     static void pump(Screen s) {
@@ -225,13 +227,15 @@ public class TourScreenTest {
         back(s);
         check("a download at 42%: the button is its progress bar with the percent, the chip says Downloading",
                 text(s, "mPrimaryLabel").equals("mr_dicts_state_downloading[42]") && text(s, "mChipText").equals("mr_tour_downloading"));
+        check("... the fill is the pill cut at 42% (a clip, not a view that is scaled: its corners stay round), and it is on show",
+                fill(s) == 4200 && view(s, "mPrimaryFill").getVisibility() == View.VISIBLE);
         check("... the quiet button is hidden and the main one does nothing", view(s, "mSecondary").getVisibility() == View.INVISIBLE && !view(s, "mPrimary").performClick());
         MrPacks.sJobPercent = 77;
         pump(s);
-        check("... the percent follows the job", text(s, "mPrimaryLabel").equals("mr_dicts_state_downloading[77]"));
+        check("... the percent follows the job, and the fill grows with it", text(s, "mPrimaryLabel").equals("mr_dicts_state_downloading[77]") && fill(s) == 7700);
         MrPacks.sJobInstalling = true;
         pump(s);
-        check("... and then it says it is checking and installing", text(s, "mPrimaryLabel").equals("mr_dicts_state_installing"));
+        check("... and then it says it is checking and installing, with the fill complete", text(s, "mPrimaryLabel").equals("mr_dicts_state_installing") && fill(s) == 10000);
 
         MrTour.sBusy = false;
         MrPacks.sJobInstalling = false;
@@ -273,10 +277,12 @@ public class TourScreenTest {
         MrTour.sStep = "gesture";
         MrPacks.sJobPercent = 5;
         back(s);
-        check("the gesture file at 5%: the progress bar of the button", text(s, "mPrimaryLabel").equals("mr_dicts_state_downloading[5]"));
+        check("the gesture file at 5%: the progress bar of the button, with a piece of the fill already there for the round end to show",
+                text(s, "mPrimaryLabel").equals("mr_dicts_state_downloading[5]") && fill(s) == 500);
         MrTour.sBusy = false;
         s.packs().m.put(MrPacks.KEY_MODEL + MrPacks.MODEL_GESTURE, 1);
         pump(s);
+        check("the file arrives: the fill is hidden and back to zero", fill(s) == 0 && view(s, "mPrimaryFill").getVisibility() == View.GONE);
         check("the file arrives: Ready, and on the last step the button says Finish", text(s, "mChipText").equals("mr_tour_ready") && text(s, "mPrimaryLabel").equals("mr_tour_finish"));
         view(s, "mPrimary").performClick();
         check("Finish closes the screen", s.finishes == 1);

@@ -16,9 +16,9 @@ something to ask are shown:
 | Step | Shown when | Buttons |
 |---|---|---|
 | **Turn on Mr Keyboard** (`enable`) | Mr Keyboard is not in the list of keyboards that are turned on in Android | **Open keyboard settings** (the keyboard list of Android) |
-| **Type with Mr Keyboard** (`select`) | it is not the keyboard in use (always there when the step above is) | **Choose keyboard** (the picker of Android) |
+| **Set as default keyboard** (`select`) | it is not the keyboard in use (always there when the step above is) | **Choose keyboard** (the picker of Android) |
 | **Word suggestions** (`dict`) | suggestions are on and no dictionary is installed | **Download** (the dictionary of the language of the phone), **Turn off suggestions** |
-| **Gesture typing** (`gesture`) | gesture typing is on and its file is not installed | **Download** (the file, about 2.4 MB; the "FUTO Swipe" notice is in the text), **Turn off gesture typing** |
+| **Gesture typing** (`gesture`) | gesture typing is on and its file is not installed | **Download** (the file, about 2.4 MB), **Turn off gesture typing** |
 
 Delete by word is on by default and needs nothing, so it has no step.
 
@@ -27,7 +27,7 @@ The two steps of Android read the system, they never connect: the list of keyboa
 settings, or the picker closes, the step turns green ("Turned on", "In use") and the button becomes **Continue**. If Android cannot be asked,
 the step counts as done, so that nothing holds the person.
 
-While a download runs, the main button is its progress bar ("Downloading… 42%"). When it ends the step shows a green check and
+While a download runs, the main button is its progress bar ("Downloading… 42%"): the fill is the same rounded pill shown up to the percent, so its left end follows the round edge of the button. When it ends the step shows a green check and
 **Continue** (**Finish** on the last step). If it fails, the step shows the reason and **Try again**; if the language of the phone has no
 dictionary, the button opens the screen of the dictionaries (**Choose language**).
 

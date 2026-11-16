@@ -50,7 +50,7 @@ catalog with no `models` at all. Their serials go up in the order the test fetch
   **the native lib opens the installed weights**; update and remove follow; "restore defaults" brings it back to on and leaves the file;
 - a file picked by the user (`MrPacks.installModelFile`): only `gesture/encoder.bin` is taken (one bit changed, another file, an empty file, a 200 MB
   file read only up to 16 MB are refused), no request is made to the network, the licence text is written from the copy in the APK;
-- the first steps (`MrTour.work`, step `gesture`): the same download, with the text of the step in the three languages (size and "FUTO Swipe" notice), no gesture file in the catalog and HTTP 404 end with a message and nothing installed;
+- the first steps (`MrTour.work`, step `gesture`): the same download, with the text of the step in the three languages (the size, and no licence notice: it is in the settings), no gesture file in the catalog and HTTP 404 end with a message and nothing installed;
   `ThreeLangTest` (33 checks) does the same for the `dict` step with the system languages pt-BR, es-MX, en-GB, fr-FR and ja-JP (the last two get the English pack) and an HTTP 404;
 - what must stay in step with `gesture/`: the table of known files (`MrPacks.MODEL_FILES`), the licence text in `res/raw/`, the size said in the
   download dialog (three languages) and the notice "FUTO Swipe" in the texts of the screen.

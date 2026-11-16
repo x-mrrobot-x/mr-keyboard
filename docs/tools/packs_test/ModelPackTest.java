@@ -355,9 +355,9 @@ public class ModelPackTest {
         check("the first steps say the same size in the 3 languages",
                 text("res/values/mr_strings.xml", "mr_tour_gesture_text").contains(mb + " MB") && text("res/values-pt-rBR/mr_strings.xml", "mr_tour_gesture_text").contains(mb.replace('.', ',') + " MB")
                 && text("res/values-es/mr_strings.xml", "mr_tour_gesture_text").contains(mb.replace('.', ',') + " MB"), text("res/values/mr_strings.xml", "mr_tour_gesture_text"));
-        check("the first steps carry the notice of the licence too (\"FUTO Swipe\") in the 3 languages",
-                text("res/values/mr_strings.xml", "mr_tour_gesture_text").contains("“FUTO Swipe”") && text("res/values-pt-rBR/mr_strings.xml", "mr_tour_gesture_text").contains("“FUTO Swipe”")
-                && text("res/values-es/mr_strings.xml", "mr_tour_gesture_text").contains("“FUTO Swipe”"), null);
+        check("the first steps do not repeat the licence notice (it is in the settings and in the download dialog), only the size",
+                !text("res/values/mr_strings.xml", "mr_tour_gesture_text").contains("FUTO") && !text("res/values-pt-rBR/mr_strings.xml", "mr_tour_gesture_text").contains("FUTO")
+                && !text("res/values-es/mr_strings.xml", "mr_tour_gesture_text").contains("FUTO"), null);
         check("the texts of the screen carry the notice the licence asks for (powered by \"FUTO Swipe\" technology)",
                 text("res/values/mr_strings.xml", "mr_gesture_notice_title").equals("Powered by “FUTO Swipe” technology")
                 && text("res/values-pt-rBR/mr_strings.xml", "mr_gesture_notice_title").contains("“FUTO Swipe”")

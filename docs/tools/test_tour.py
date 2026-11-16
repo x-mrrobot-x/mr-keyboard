@@ -161,7 +161,10 @@ check("the times are those of an onboarding (160 ms out, 340 ms in)", "T_EXIT = 
 check("a change of step that is cancelled by the system lets go of the screen", "mHandler.postDelayed(mUnstick," in screen and "private final Runnable mUnstick" in screen)
 check("the ring that pulses does not loop when the animations are off, and it stops when the screen is left",
       "SystemClock.uptimeMillis() - t0 < 300" in screen and re.search(r"protected void onPause\(\) \{[^}]*stopPulse\(\);", screen) is not None)
-check("the main button is the progress bar of a download (a fill that grows with the percent)", "mPrimaryFill.animate().scaleX(f)" in screen and "MrPacks.sJobPercent / 100f" in screen)
+check("the main button is the progress bar of a download (a fill that grows with the percent)", "growFill(" in screen and "MrPacks.sJobPercent * 100" in screen)
+check("the fill is a ClipDrawable of the pill (a view that is scaled squashes its round corners)",
+      "new ClipDrawable(k.round(k.accent, 0, 27, false), Gravity.LEFT, ClipDrawable.HORIZONTAL)" in screen and "mPrimaryFill.setBackground(mFillClip)" in screen and "mPrimaryFill.setScaleX" not in screen and "mPrimaryFill.animate()" not in screen)
+check("the animator of the fill is stopped when the screen goes away", screen.count("mFillAnim.cancel()") >= 2 and "protected void onDestroy" in screen)
 check("a done step turns the icon into a check with a bounce", '"mr_tour_ic_check"' in screen and "popIn(mGlyph, 0);" in screen and "bump(mDisc);" in screen)
 check("the quiet button (turn off) is only for the downloads", "if (setup) {\n            mSecondary.setVisibility(View.GONE);" in screen)
 check("a repaint happens only when something changed (a tap is never lost)", "if (!now.equals(mSig))" in screen)

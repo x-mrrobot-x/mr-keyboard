@@ -737,8 +737,8 @@
     <string name="mr_tour_enable_on">Activado</string>
     <string name="mr_tour_enable_open">Abrir ajustes del teclado</string>
     <string name="mr_tour_enable_note">Android muestra un aviso así para todas las aplicaciones de teclado.</string>
-    <string name="mr_tour_select_title">Escribir con Mr Keyboard</string>
-    <string name="mr_tour_select_text">Elígelo en la lista que aparece. Puedes volver a otro teclado cuando quieras.</string>
+    <string name="mr_tour_select_title">Definir teclado predeterminado</string>
+    <string name="mr_tour_select_text">Elige Mr Keyboard en la lista para escribir con él. Puedes volver a otro teclado cuando quieras.</string>
     <string name="mr_tour_select_missing">Se usa otro teclado</string>
     <string name="mr_tour_select_on">En uso</string>
     <string name="mr_tour_select_open">Elegir teclado</string>
@@ -749,7 +749,7 @@
     <string name="mr_tour_dict_nopack">Todavía no hay diccionario para tu idioma.</string>
     <string name="mr_tour_dict_off">Desactivar sugerencias</string>
     <string name="mr_tour_gesture_title">Escritura por gestos</string>
-    <string name="mr_tour_gesture_text">Desliza el dedo de letra en letra y el teclado escribe la palabra. Necesita un archivo de unos 2,4 MB, descargado una vez, hecho con la tecnología “FUTO Swipe”.</string>
+    <string name="mr_tour_gesture_text">Desliza el dedo de letra en letra y el teclado escribe la palabra. Necesita un archivo de unos 2,4 MB, descargado una vez.</string>
     <string name="mr_tour_gesture_missing">Reconocimiento de gestos: sin descargar</string>
     <string name="mr_tour_gesture_off">Desactivar escritura por gestos</string>
     <string name="mr_tour_ready">Listo</string>

@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrTourActivity;->loopPulse(I)V
+    value = Lcom/mrkeyboard/app/MrTourActivity;->bump(Landroid/view/View;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,12 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
-.field final synthetic val$gen:I
-
-.field final synthetic val$t0:J
+.field final synthetic val$v:Landroid/view/View;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrTourActivity;IJ)V
-    .locals 1
+.method constructor <init>(Lcom/mrkeyboard/app/MrTourActivity;Landroid/view/View;)V
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -38,9 +36,7 @@
     .line 685
     iput-object p1, p0, Lcom/mrkeyboard/app/MrTourActivity$8;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
-    iput p2, p0, Lcom/mrkeyboard/app/MrTourActivity$8;->val$gen:I
-
-    iput-wide p3, p0, Lcom/mrkeyboard/app/MrTourActivity$8;->val$t0:J
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrTourActivity$8;->val$v:Landroid/view/View;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -53,61 +49,41 @@
     .locals 4
 
     .prologue
+    const/high16 v1, 0x3f800000    # 1.0f
+
     .line 687
-    iget v0, p0, Lcom/mrkeyboard/app/MrTourActivity$8;->val$gen:I
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$8;->val$v:Landroid/view/View;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrTourActivity$8;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
-
-    invoke-static {v1}, Lcom/mrkeyboard/app/MrTourActivity;->access$1600(Lcom/mrkeyboard/app/MrTourActivity;)I
-
-    move-result v1
-
-    if-eq v0, v1, :cond_0
-
-    .line 697
-    :goto_0
-    return-void
-
-    .line 688
-    :cond_0
-    invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
-
-    move-result-wide v0
-
-    iget-wide v2, p0, Lcom/mrkeyboard/app/MrTourActivity$8;->val$t0:J
-
-    sub-long/2addr v0, v2
-
-    const-wide/16 v2, 0x12c
-
-    cmp-long v0, v0, v2
-
-    if-gez v0, :cond_1
-
-    .line 689
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$8;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
-
-    const/4 v1, 0x0
-
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTourActivity;->access$1702(Lcom/mrkeyboard/app/MrTourActivity;Z)Z
-
-    goto :goto_0
-
-    .line 692
-    :cond_1
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$8;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrTourActivity;->access$600(Lcom/mrkeyboard/app/MrTourActivity;)Landroid/os/Handler;
+    invoke-virtual {v0}, Landroid/view/View;->animate()Landroid/view/ViewPropertyAnimator;
 
     move-result-object v0
 
-    new-instance v1, Lcom/mrkeyboard/app/MrTourActivity$8$1;
+    invoke-virtual {v0, v1}, Landroid/view/ViewPropertyAnimator;->scaleX(F)Landroid/view/ViewPropertyAnimator;
 
-    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrTourActivity$8$1;-><init>(Lcom/mrkeyboard/app/MrTourActivity$8;)V
+    move-result-object v0
 
-    const-wide/16 v2, 0x15e
+    invoke-virtual {v0, v1}, Landroid/view/ViewPropertyAnimator;->scaleY(F)Landroid/view/ViewPropertyAnimator;
 
-    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+    move-result-object v0
 
-    goto :goto_0
+    const-wide/16 v2, 0x12c
+
+    invoke-virtual {v0, v2, v3}, Landroid/view/ViewPropertyAnimator;->setDuration(J)Landroid/view/ViewPropertyAnimator;
+
+    move-result-object v0
+
+    new-instance v1, Landroid/view/animation/OvershootInterpolator;
+
+    const v2, 0x4019999a    # 2.4f
+
+    invoke-direct {v1, v2}, Landroid/view/animation/OvershootInterpolator;-><init>(F)V
+
+    invoke-virtual {v0, v1}, Landroid/view/ViewPropertyAnimator;->setInterpolator(Landroid/animation/TimeInterpolator;)Landroid/view/ViewPropertyAnimator;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/view/ViewPropertyAnimator;->start()V
+
+    .line 688
+    return-void
 .end method

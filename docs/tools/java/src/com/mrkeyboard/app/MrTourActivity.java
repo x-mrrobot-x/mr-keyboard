@@ -1,9 +1,11 @@
 package com.mrkeyboard.app;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -102,6 +104,11 @@ public class MrTourActivity extends Activity {
     private TextView mChipText;
     private FrameLayout mPrimary;
     private View mPrimaryFill;
+    /** The fill of the main button while it downloads: the rounded pill cut at a level (0 to 10000), so its corners stay round at any percent. */
+    private ClipDrawable mFillClip;
+    /** The level shown now, where the next growth starts from. */
+    private int mFillShown;
+    private ValueAnimator mFillAnim;
     private TextView mPrimaryLabel;
     private TextView mSecondary;
     private TextView mNote;
@@ -292,6 +299,7 @@ public class MrTourActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (mFillAnim != null) mFillAnim.cancel();
         mHandler.removeCallbacks(mPoll);
         mHandler.removeCallbacks(mUnstick);
         stopPulse();
@@ -390,10 +398,12 @@ public class MrTourActivity extends Activity {
         // the main button: a pill that is also the progress bar of a download
         mPrimary = new FrameLayout(this);
         mPrimary.setClickable(true);
+        // the fill is not a view that grows (a scale squashes its corners): it is the same pill as the button, shown only up to a level,
+        // so its left end follows the round edge of the button and only the right end, where the download is, is straight
         mPrimaryFill = new View(this);
-        mPrimaryFill.setBackground(k.round(k.accent, 0, 27, false));
-        mPrimaryFill.setPivotX(0f);
-        mPrimaryFill.setScaleX(0f);
+        mFillClip = new ClipDrawable(k.round(k.accent, 0, 27, false), Gravity.LEFT, ClipDrawable.HORIZONTAL);
+        mFillClip.setLevel(0);
+        mPrimaryFill.setBackground(mFillClip);
         mPrimaryFill.setVisibility(View.GONE);
         mPrimary.addView(mPrimaryFill, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         mPrimaryLabel = k.label("", 16f, k.onAccent, true);
@@ -477,6 +487,21 @@ public class MrTourActivity extends Activity {
         paintButtons(step, st, setup, last);
     }
 
+    /** Takes the fill of the main button from where it is to a level (0 to 10000), in a straight line, as the percent comes. */
+    private void growFill(int to) {
+        final ValueAnimator a = ValueAnimator.ofInt(mFillShown, to);
+        a.setDuration(380);
+        a.setInterpolator(mLinear);
+        a.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mFillShown = ((Integer) animation.getAnimatedValue()).intValue();
+                mFillClip.setLevel(mFillShown);
+            }
+        });
+        mFillAnim = a;
+        a.start();
+    }
+
     private void paintButtons(final String step, final int st, boolean setup, boolean last) {
         String label;
         if (st == BUSY) {
@@ -491,19 +516,19 @@ public class MrTourActivity extends Activity {
             label = k.t(st == ERROR ? "mr_tour_retry" : "mr_tour_download");
         }
         mPrimaryLabel.setText(label);
-        mPrimaryFill.animate().cancel();
+        if (mFillAnim != null) mFillAnim.cancel();
         if (st == BUSY) {
             mPrimary.setBackground(k.round(k.raised, k.line, 27, false));
             mPrimaryLabel.setTextColor(k.text);
             mPrimaryFill.setVisibility(View.VISIBLE);
-            float f = MrPacks.sJobInstalling ? 1f : Math.max(0.05f, Math.min(1f, MrPacks.sJobPercent / 100f));
-            mPrimaryFill.animate().scaleX(f).setDuration(380).setInterpolator(mLinear).start();
+            growFill(MrPacks.sJobInstalling ? 10000 : Math.max(500, Math.min(10000, MrPacks.sJobPercent * 100)));
             mPrimary.setOnClickListener(null);   // stays touchable (the press is shown and ends), but does nothing while it runs
         } else {
             mPrimary.setBackground(k.round(k.accent, 0, 27, false));
             mPrimaryLabel.setTextColor(k.onAccent);
             mPrimaryFill.setVisibility(View.GONE);
-            mPrimaryFill.setScaleX(0f);
+            mFillShown = 0;
+            mFillClip.setLevel(0);
             mPrimary.setClickable(true);
             mPrimary.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {

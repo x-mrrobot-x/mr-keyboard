@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 127
+    .line 134
     iput-object p1, p0, Lcom/mrkeyboard/app/MrTourActivity$2;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,7 +40,7 @@
     .locals 2
 
     .prologue
-    .line 129
+    .line 136
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$2;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTourActivity;->access$100(Lcom/mrkeyboard/app/MrTourActivity;)Z
@@ -49,12 +49,12 @@
 
     if-nez v0, :cond_1
 
-    .line 135
+    .line 142
     :cond_0
     :goto_0
     return-void
 
-    .line 130
+    .line 137
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$2;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
@@ -62,7 +62,7 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTourActivity;->access$102(Lcom/mrkeyboard/app/MrTourActivity;Z)Z
 
-    .line 131
+    .line 138
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$2;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTourActivity;->access$000(Lcom/mrkeyboard/app/MrTourActivity;)Landroid/widget/LinearLayout;
@@ -71,7 +71,7 @@
 
     if-eqz v0, :cond_0
 
-    .line 132
+    .line 139
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$2;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTourActivity;->access$000(Lcom/mrkeyboard/app/MrTourActivity;)Landroid/widget/LinearLayout;
@@ -82,7 +82,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setAlpha(F)V
 
-    .line 133
+    .line 140
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$2;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTourActivity;->access$000(Lcom/mrkeyboard/app/MrTourActivity;)Landroid/widget/LinearLayout;

@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 112
+    .line 119
     iput-object p1, p0, Lcom/mrkeyboard/app/MrTourActivity$1;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,7 +40,7 @@
     .locals 3
 
     .prologue
-    .line 114
+    .line 121
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$1;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrTourActivity;->isFinishing()Z
@@ -57,12 +57,12 @@
 
     if-nez v0, :cond_1
 
-    .line 123
+    .line 130
     :cond_0
     :goto_0
     return-void
 
-    .line 115
+    .line 122
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$1;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
@@ -72,14 +72,14 @@
 
     if-nez v0, :cond_2
 
-    .line 116
+    .line 123
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$1;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTourActivity;->access$200(Lcom/mrkeyboard/app/MrTourActivity;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 117
+    .line 124
     iget-object v1, p0, Lcom/mrkeyboard/app/MrTourActivity$1;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrTourActivity;->access$300(Lcom/mrkeyboard/app/MrTourActivity;)Ljava/lang/String;
@@ -92,19 +92,19 @@
 
     if-nez v1, :cond_2
 
-    .line 118
+    .line 125
     iget-object v1, p0, Lcom/mrkeyboard/app/MrTourActivity$1;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
     invoke-static {v1, v0}, Lcom/mrkeyboard/app/MrTourActivity;->access$302(Lcom/mrkeyboard/app/MrTourActivity;Ljava/lang/String;)Ljava/lang/String;
 
-    .line 119
+    .line 126
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$1;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
     const/4 v1, 0x1
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTourActivity;->access$400(Lcom/mrkeyboard/app/MrTourActivity;Z)V
 
-    .line 122
+    .line 129
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$1;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
