@@ -11,7 +11,7 @@
 #   the apktool project  AndroidManifest.xml, apktool.yml, apktool.json, res/, smali/, assets/ (if any), lib/, original/, unknown/
 #   native code          native/ and engine/, with native-src.sha256, mrengine-src.sha256 and mrengine-info.txt
 #   Java layer           docs/tools/java, build_java.sh and check_java_smali.sh
-#   LICENSE and the two READMEs
+#   LICENSE, the two READMEs and the two build guides (docs/building.md, docs/building.pt-BR.md)
 # Everything goes inside one folder named mr-keyboard-<tag>/ (the same name as the APK, without the extension).
 # A path that is not in the commit (assets/, for example) is skipped; the zip must have at least the apktool project.
 set -e
@@ -25,7 +25,7 @@ PATHS=""
 for p in AndroidManifest.xml apktool.yml apktool.json res smali assets lib original unknown \
          native engine native-src.sha256 mrengine-src.sha256 mrengine-info.txt \
          docs/tools/java docs/tools/build_java.sh docs/tools/check_java_smali.sh \
-         LICENSE README.md README.pt-BR.md; do
+         LICENSE README.md README.pt-BR.md docs/building.md docs/building.pt-BR.md; do
   if git cat-file -e "$COMMIT:$p" 2> /dev/null; then PATHS="$PATHS $p"; fi
 done
 for need in apktool.yml smali res; do

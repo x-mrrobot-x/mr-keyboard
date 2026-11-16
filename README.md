@@ -1,35 +1,83 @@
+<div align="center">
+
+<img src="res/drawable-nodpi/mr_ui_logo.webp" width="96" alt="Mr Keyboard logo">
+
 # Mr Keyboard
+
+**An Android keyboard for power users: full PC keys, editable key sheets, Tasker commands, gesture typing, AI editing and private offline suggestions.**
+
+[![Release](https://img.shields.io/github/v/release/x-mrrobot-x/mr-keyboard?label=release)](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/x-mrrobot-x/mr-keyboard/total)](https://github.com/x-mrrobot-x/mr-keyboard/releases)
+[![Checks](https://img.shields.io/github/actions/workflow/status/x-mrrobot-x/mr-keyboard/mr-checks.yml?branch=main&label=checks)](https://github.com/x-mrrobot-x/mr-keyboard/actions/workflows/mr-checks.yml)
+[![Android 8.0+](https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white)](#installation)
+[![License](https://img.shields.io/github/license/x-mrrobot-x/mr-keyboard)](LICENSE)
 
 **English** · [Português](README.pt-BR.md)
 
-An Android keyboard for power users, based on [Hacker's Keyboard](https://github.com/klausw/hackerskeyboard). It has full PC keys, sheets of extra keys you can edit, commands for [Tasker](https://tasker.joaoapps.com/) and offline word suggestions.
+[Download](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) · [Features](#features) · [Installation](#installation) · [Privacy](#privacy) · [Building](#building)
 
-Requires Android 8.0 or later.
+<br>
+
+<img src=".github/preview-midnight-steel.jpg" width="32%" alt="Mr Keyboard with the Midnight Steel theme">
+<img src=".github/preview-chrome.jpg" width="32%" alt="Mr Keyboard with the Chrome theme">
+<img src=".github/preview-aurora.jpg" width="32%" alt="Mr Keyboard with the Aurora theme">
+
+<sub>Midnight Steel (default) · Chrome · Aurora, three of the twelve themes</sub>
+
+</div>
+
+Mr Keyboard is based on [Hacker's Keyboard](https://github.com/klausw/hackerskeyboard). It is open source, has no ads, no analytics and no Google Play Services, and what you type never leaves your phone.
 
 ## Features
-- **Full keyboard:** Ctrl, Alt, Esc, Tab, arrows, Home/End, PgUp/PgDn and function keys, in compact or full layouts (separate settings for portrait and landscape).
-- **Sheets:** extra pages of keys, opened from the keyboard: **123**, **TSK** (Tasker), **HTML**, **FRS** (phrases), navigation and numeric pad. You can edit them and create your own in *Settings → Sheets*.
-- **Tasker commands:** a key can trigger a Tasker task instead of typing text (see below).
-- **Toolbar** above the keys:
-  - **Suggestions:** word suggestions and corrections;
-  - **Translate:** translate text before sending it;
-  - **Edit with AI:** rewrite selected text or the text before the cursor in a modal dialog above the keyboard; configure the service in *Settings → Edit with AI*;
-  - **Attachments:** photos, videos and files, inserted into the app you are typing in;
-  - **Emotes.**
-- **Word suggestions** in Brazilian Portuguese, US English and Spanish (one dictionary per language):
-  - dictionaries are downloaded in *Settings → Suggestions and dictionaries*, so the app itself is only about 1 MB. Each language you download is added to the keyboard: slide the space bar sideways to switch between them;
-  - typo correction and next-word prediction;
-  - learns the words you use, never in password or incognito fields;
-  - *Settings → Suggestions and dictionaries → My words*: see, fix, block and forget what the keyboard learned (with an exported backup), and add names, slang and phrases from a pasted text, a file or a word list, with a preview before anything is saved;
-  - suggests the names and words you just wrote in the same conversation (kept only in memory and cleared when you change field or app);
-  - everything runs on the device;
-  - off by default: turn on *Show suggestions* on the same screen.
-- **Themes:** twelve, in this order: Midnight Steel (the default), the neon ones (Aurora, whose keys change hue across the keyboard, Neon Cyan, Neon Purple, Neon Pink and Synthwave), Aqua, Snow, Chrome (silver keys on a navy background) and Rose, then Cobalt Glass (translucent, with background blur on Android 12+ and a semi-transparent dark background where blur is unavailable), then Denim (a cobalt blue background that is only slightly see-through, with the same blur, and navy keys). Ctrl, Alt, Shift and ❖ wear the highlight style of the other special keys and show their state with a small colored dash along the lower edge; Shift distinguishes off, active and locked. Key spacing and corner roundness work in every theme, and the roundness also follows into the long-press popup and the key preview bubble. The toolbar and panels have their own fixed corners. The Edit with AI dialog always uses the settings theme.
-- **Gesture typing (off by default, since 1.96.0):** slide your finger from letter to letter and the keyboard writes the word, in the three languages of the dictionaries. Turn it on in *Settings → Suggestions and dictionaries → Gesture typing*; it needs a download of about 2.4 MB (the gesture recognition) and then runs on the device. It also writes your own words (the ones the keyboard learned from you, the ones you added and the personal dictionary of Android), never writes a word you blocked, and shows the word on the suggestion strip while your finger slides (it can be turned off). The recognition model and its licence are in *Credits and licenses* below. How it works and what was measured: `docs/gesture-typing.md`.
-- **Ctrl + delete deletes by words (since 2.0.0, off by default):** with Ctrl on, the delete key removes a word per tap, and held it goes word by word from the start, at the interval you set so you can let go at the right one. Ctrl + Z gives the words back one at a time, the last one first, and Ctrl + Y deletes again the one that came back (each one is kept for 2 minutes). Turn it on in *Settings → Touch and gestures → Delete by word*, a screen of its own that explains each option. Details: `docs/word-delete.md`.
-- **Emoji search and delete (since 1.97.0):** the emoji panel has a floating bar with two buttons. *Delete* works like the Backspace key (and repeats while held). *Search* replaces the toolbar row by a search header in the colors of the theme, with the keyboard under it; it understands Portuguese, English and Spanish at once ("coração", "heart" and "corazón" find the same emoji, accents do not matter), only emojis are found, a tap writes the emoji and the search stays open. The panel also got 170 newer emojis (the melting face, the new hearts and hands, animals, flags of England, Scotland and Wales...), shown only when the phone's font can draw them. The words are read only while the emoji panel is open. How it works: `docs/emoji-search.md`.
-- **Gestures and keys:** swipe up/down/left/right and the volume keys can run keyboard actions (by default left and right change the sheet). A sideways swipe counts by the distance travelled, not by the speed at which the finger leaves the screen. With gesture typing on, it starts outside the letters of the main sheet or on any key of the other sheets; gesture typing itself only starts on those letters. Details: `docs/swipe-actions.md`.
-- **App in English, Portuguese or Spanish:** it follows the system language, or pick one in *Settings → General → App language*.
+
+### Keys and layout
+- **Full PC keyboard:** Ctrl, Alt, Esc, Tab, arrows, Home/End, PgUp/PgDn and function keys, in compact or full layout (separate settings for portrait and landscape).
+- **Key sheets:** extra pages of keys opened from the keyboard: **123**, **TSK** (Tasker), **HTML**, **FRS** (phrases), navigation and numeric pad. Edit them and create your own in *Settings → Sheets*.
+- **Tasker commands:** a key can trigger a Tasker task instead of typing text ([how](#tasker-integration)).
+- **Gestures:** swipe up, down, left or right, and the volume keys, run keyboard actions (by default left and right change the sheet). A sideways swipe counts by distance, not by speed. [Details](docs/swipe-actions.md).
+- **Delete by word (since 2.0.0, off by default):** with Ctrl on, the delete key removes a word per tap, and held it goes word by word at the interval you set. **Ctrl + Z** gives the words back one at a time and **Ctrl + Y** deletes again the one that came back (kept for 2 minutes). *Settings → Touch and gestures → Delete by word*. [Details](docs/word-delete.md).
+- **Your own look:** twelve themes, key spacing, corner roundness, label size, keyboard height (portrait and landscape) and toolbar height. Long press, vibration strength, click volume and key preview are adjustable.
+
+### Toolbar
+- **Clipboard:** history of what you copied; tap to insert, hold to delete.
+- **Translate:** translate text before sending it (Google Translate).
+- **Edit with AI:** rewrite the selected text, or the text before the cursor, in a dialog above the keyboard. Styles: Formal, Short, Correct, Expand, Friendly, Professional, Punctuation and your own; optional emojify. Use any OpenAI-compatible (Chat Completions) service with your own address (https), model and key. [Details](docs/ai-editor.md).
+- **Attachments:** photos, videos and files inserted into the app you are typing in, with multiple selection and batch sending.
+- **Fonts:** 27 text styles (bold, italic, cursive, gothic, bubble, small caps, strikethrough and more) that work in any app.
+- **Emojis:** recent, all categories, 170 newer emojis (shown only when your phone font can draw them) and **search** in Portuguese, English and Spanish at once ("coração", "heart" and "corazón" find the same emoji). [Details](docs/emoji-search.md).
+- **Customize keyboard:** quick adjustment of height, key spacing, label size, key roundness and toolbar height, with a reset button.
+- **Show/hide:** the grid key at the top left of the keyboard hides or shows the toolbar; the tools come back by themselves after you type (time is adjustable).
+
+### Typing
+- **Suggestions, correction and next-word prediction** in Brazilian Portuguese, US English and Spanish, fully on the device (off by default: turn on *Show suggestions* in *Settings → Suggestions and dictionaries*).
+- **Small app:** dictionaries are downloaded on demand, so the app itself is about 1 MB. Each language you download is added to the keyboard: slide the space bar sideways to switch between them.
+- **Learns what you type** (never in password or incognito fields) and suggests the names and words you just wrote in the same conversation (kept only in memory).
+- **My words:** *Settings → Suggestions and dictionaries → My words* shows what the keyboard learned, lets you fix, block and forget words (with an exported backup) and add names, slang and phrases from a pasted text, a file or a list, with a preview before saving. **Format with AI** turns a loose text into that list.
+- **Gesture typing (off by default):** slide your finger from letter to letter and the keyboard writes the word, in the three languages. It also writes your own words, never a blocked one, and shows the word on the suggestion strip while you slide. Needs a one-time download of about 2.4 MB, then runs on the device. *Settings → Suggestions and dictionaries → Gesture typing*. [Details](docs/gesture-typing.md).
+- **Auto-capitalization** (on by default) and **voice input**.
+
+### Themes
+Twelve themes: **Midnight Steel** (default); the neon ones **Aurora** (keys change hue across the keyboard), **Neon Cyan**, **Neon Purple**, **Neon Pink** and **Synthwave**; the light ones **Aqua**, **Snow** and **Rose**; **Chrome** (silver keys on navy); **Cobalt Glass** (translucent) and **Denim**, both with background blur on Android 12 or newer. Ctrl, Alt and Shift show their state with a small colored dash (Shift: off, active, locked). How to add one: [docs/new-theme.md](docs/new-theme.md).
+
+### App
+- **Languages:** Portuguese, English and Spanish; follows the system or pick one in *Settings → General → App language*.
+- **Updates inside the app:** notice of new versions with what's new, **Download and install** and a signed, checked APK ([how it works](#updates)).
+- **Performance:** *Settings → Advanced → Performance → Keyboard times* shows how long the keyboard takes to open, type and suggest on your phone.
+- **Restore defaults** in *Settings → General*.
+
+## Installation
+Requires Android 8.0 or later.
+
+1. Download the APK (`mr-keyboard-v<version>.apk`) from the [latest release](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) and install it.
+2. Open **Mr Keyboard** and tap **Enable keyboard**. Turn on Mr Keyboard in the list and accept the system warning. Android shows that warning for every keyboard that doesn't come with the phone.
+3. Tap **Set input method** and choose Mr Keyboard.
+4. For word suggestions (optional): in the settings, open **Suggestions and dictionaries**, tap your language to download its dictionary, then turn on **Show suggestions**. Download more than one language and slide the space bar sideways to switch between them.
+
+## Updates
+- The app looks for a new version when it opens (at most once a day) and every morning in the background. When there is one, a dialog (or a notification, for the morning check) shows what's new, with **Download and install**, **Open on GitHub** and **Not now**. The **Check for updates** line and the two switches are in *Settings → About*, where tapping **Version** shows the notes of the installed version, with no network.
+- **Download and install** downloads the APK of that release, checks its size and SHA-256 against the signed `update.json` and hands it to Android, which asks you to confirm. The first time, Android also asks you to allow Mr Keyboard to install apps (*Install unknown apps*).
+- The morning check asks Android to run it some time after 8 a.m. (phone time), when there is a network. Android decides the exact moment: with battery saver, or on phones that put apps to sleep (some Samsung, Xiaomi and Huawei models, for example), the notice can arrive hours late or not at all. The check when the app opens always runs. On Android 13 or newer, the notice needs the notification permission.
+- You can also update by hand: download the new APK from the [latest release](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) and install it over the old one (it has to be signed with the same key).
 
 ## Tasker integration
 Any key whose output text starts with `tskcmd:` sends a command instead of typing. The first row of the **TSK** sheet already has some, and you can create your own in the sheet editor (e.g. output text `tskcmd:lights_on`).
@@ -46,9 +94,9 @@ The command is sent as a broadcast that other apps can also receive, so don't pu
 - The app connects to the internet only for these features:
   - **Translate** sends the text you type in the translate field to Google Translate (`translate.googleapis.com`). Only that text is sent, and only when you use it. The field says so ("Type to translate with Google").
   - **Edit with AI** sends only the text you choose to rewrite, and only to the AI service you configure. No request is sent until you tap a style.
-  - **Dictionaries** (*Settings → Suggestions and dictionaries*): the app only connects when you tap *Check for updates*, *Download*, *Update* or a language that isn't downloaded yet, and it only downloads files from this repository's [latest release](../../releases/latest) (the catalog, `catalog.json`, and the zip of each language, which is attached to the release where that language last changed). Every file is checked against a list signed with the app's own key before it is used.
+  - **Dictionaries** (*Settings → Suggestions and dictionaries*): the app only connects when you tap *Check for updates*, *Download*, *Update* or a language that isn't downloaded yet, and it only downloads files from this repository's [latest release](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) (the catalog, `catalog.json`, and the zip of each language, which is attached to the release where that language last changed). Every file is checked against a list signed with the app's own key before it is used.
   - **Gesture typing** (same screen): the file it needs (the gesture recognition) is downloaded the same way, from the same releases, and only when you tap *Download* or *Update* in its dialog; *From a file* installs it with no connection at all. After that the recognition runs on the phone: the path of your finger is not sent anywhere.
-  - **App updates** (*Settings → About*): the app reads `update.json` from this repository's [latest release](../../releases/latest) when it opens (at most once a day) and every morning in the background, and shows a notice when there is a newer version. Both can be turned off. The request carries nothing about you or your phone. The file is checked against a signature made with the app's own key before it is used.
+  - **App updates** (*Settings → About*): the app reads `update.json` from this repository's [latest release](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) when it opens (at most once a day) and every morning in the background, and shows a notice when there is a newer version. Both can be turned off. The request carries nothing about you or your phone. The file is checked against a signature made with the app's own key before it is used.
 
 | Permission | Why |
 |---|---|
@@ -60,52 +108,28 @@ The command is sent as a broadcast that other apps can also receive, so don't pu
 | User dictionary | Read and add words to Android's personal dictionary |
 | Vibration | Vibrate on keypress |
 
-## Installation
-1. Download the APK (`mr-keyboard-v<version>.apk`) from the [latest release](../../releases/latest) and install it.
-2. Open **Mr Keyboard** and tap **Enable keyboard**. Turn on Mr Keyboard in the list and accept the system warning. Android shows that warning for every keyboard that doesn't come with the phone.
-3. Tap **Set input method** and choose Mr Keyboard.
-4. For word suggestions (optional): in the settings, open **Suggestions and dictionaries**, tap your language to download its dictionary, then turn on **Show suggestions**. Download more than one language and slide the space bar sideways to switch between them.
-
-## Updates
-- The app looks for a new version when it opens (at most once a day) and every morning in the background. When there is one, a dialog (or a notification, for the morning check) shows what's new, with **Download and install**, **Open on GitHub** and **Not now**. The line **Check for updates** and the two switches are in *Settings → About*, where tapping **Version** shows the notes of the installed version, with no network.
-- **Download and install** downloads the APK of that release, checks its size and SHA-256 against the signed `update.json` and hands it to Android, which asks you to confirm. The first time, Android also asks you to allow Mr Keyboard to install apps (*Install unknown apps*).
-- The morning check asks Android to run it some time after 8 a.m. (phone time), when there is a network. Android decides the exact moment: with battery saver, or on phones that put apps to sleep (some Samsung, Xiaomi and Huawei models, for example), the notice can arrive hours late or not at all. The check when the app opens always runs. On Android 13 or newer, the notice needs the notification permission.
-- You can also update by hand: download the new APK from the [latest release](../../releases/latest) and install it over the old one (it has to be signed with the same key). The APK name has the version, so there is no fixed direct link; use the release page.
-
 ## Building
-This repository holds the app as an [apktool](https://apktool.org/) project (smali code and resources). It also has:
-- `native/`: the C++ dictionary reader, `libjni_pckeyboard.so` (CMake);
-- `engine/`: the native suggestion engine, `libmrengine.so` (correction search and two-word prediction in C++, with the Java code as fallback; see `docs/native-engine.md`);
-- `docs/`: notes for each version (in Portuguese) and the tools used to build the dictionary and the Java classes.
+The repository is an [apktool](https://apktool.org/) project (smali code and resources), plus `native/` (C++ dictionary reader, `libjni_pckeyboard.so`), `engine/` (native suggestion engine, `libmrengine.so`), `dicts/` (dictionary packs), `gesture/` (gesture recognition data) and `docs/` (notes of each version and the tools).
 
-**From a release (download, edit, build):** every [release](../../releases) has `mr-keyboard-v<version>-source.zip`, made from the exact commit that was published. It holds the apktool project (`smali/`, `res/`, `lib/`, `apktool.yml`), `native/` and `engine/`, the Java-layer sources (`docs/tools/java`, with `build_java.sh`), the licence and these READMEs. The dictionaries are not in it: they are in the dictionary zips of the releases and in `dicts/` in the repository. To change the app, unzip it, edit `smali/` and `res/`, and build and sign as shown in *Locally* below. Two things to know about a build signed with your own key: Android only installs it over the original app after that one is uninstalled (its settings are lost), and the app only accepts a dictionary catalog signed with its own key, so a fork needs its own releases (the *Mr Keyboard - APK* workflow makes them) and the repository address in `docs/tools/java/src/com/mrkeyboard/app/MrPacks.java` changed to yours.
-
-**With GitHub Actions** there are three workflows:
-- *Mr Keyboard - APK* runs on every push that changes the app (`smali/`, `res/`, `lib/`, `apktool.yml`). It builds the APK with apktool 2.11.1 using the libraries already in `lib/`, and signs it if these secrets exist: `KEYSTORE_B64`, `KEYSTORE_PASS`, `KEY_ALIAS`, `KEY_PASS`. Without the secrets (in a fork, for example), you get an unsigned APK in the `apk` artifact. To publish, it first runs *Mr Keyboard - checks* and only goes on if they all pass; the job that creates the release is the only one with write permission.
-- *Mr Keyboard - native lib* runs only when `native/` or `engine/` changes (or by hand). It builds both libraries for arm64-v8a, armeabi-v7a, x86 and x86_64 with NDK 27 and runs the PC tests. Extract its `native-libs` artifact at the project root (merging with `lib/`) and commit `lib/`, `native-src.sha256`, `mrengine-src.sha256` and `mrengine-info.txt`. The APK workflow compares those hashes with the current `native/` and `engine/` and refuses to publish if `lib/` is out of date.
-- *Mr Keyboard - checks* runs on pushes to `main` and on pull requests that change the app. It checks the version and release notes, the resources (including the Spanish strings), the "Restore defaults" key list, the smali registers and that the generated Java-layer smali is up to date, builds the app to verify the dex, runs the PC tests and checks that the native engine gives exactly the same results as the Java code (Java x C++, three languages). The same scripts are in `docs/tools/` and run on your computer too. `check_workflows.py` also checks the workflows themselves: every action pinned by commit, minimal permissions, and publishing only after the checks.
-
-**Publishing (maintainers):**
-- **Immutable releases (once, by the repository owner):** in *Settings → Releases*, turn on *Enable release immutability* **before** the first release made by this workflow. It only applies to releases published after it is on. From then on the files and the tag of a published release can never be changed or deleted, and the name of its tag can never be used again, so a wrong release is fixed with a new version, never by editing the old one. Releases made before it was turned on stay mutable. The workflow already does what GitHub recommends: it creates the release as a draft, attaches everything and only then publishes it.
-- **One release per launch:** raise `versionCode` and `versionName` in `apktool.yml`, write the notes in `docs/release-notes/<tag>.md` (e.g. `docs/release-notes/v1.72.0.md`, with a **Português** block and an **English** block, as a changelog: one item per change, starting with **New**, **Improved** or **Fixed** (**Novo**, **Melhorado**, **Corrigido** in Portuguese), told from the user's side) and push to `main`. *Mr Keyboard - APK* publishes a single [release](../../releases), tagged with `versionName` (e.g. `v1.72.0`), with the signed APK (`mr-keyboard-v1.72.0.apk`, the version is in the file name), the source code of that commit (`mr-keyboard-v1.72.0-source.zip`), a signed `catalog.json`, a signed `update.json` (the version, the size and SHA-256 of the APK and the notes in Portuguese and English, taken from the two blocks of the notes file) and only the zips of the dictionary languages that changed in this version. Both JSON files are signed with the same key as the APK, each with its own prefix, so one can never be taken for the other. The APK and the source zip get a build provenance attestation. The text is the notes file, the list of included dictionaries (with the ones that are new in this version) and the checksums. It needs the signing secrets; without them, with a version that is already published, or with an out-of-date `lib/`, it only warns and the APK stays in the `apk` artifact. Running it by hand with *publish* checked does the same, but treats any of these as an error. The release is created as a draft, its files are checked, and only then it is published.
-- **Notes of the next release:** they can be written ahead, in the file of the version that comes next (`docs/release-notes/v2.0.0.md` for 2.0.0), while `apktool.yml` still has the published version: what makes a push publish a release is a new `versionName` in `apktool.yml`, not a notes file.
-- **Dictionaries:** the packs live in `dicts/<language>/` (`pack.json` lists the files). Each zip is named `mr-keyboard-dict-<id>-<version>.zip` and is attached **only to the release where that language changed**; the catalog says, for each language, which release holds its zip (`release`), and the app builds the download address from it. After a change, raise `version` in that `pack.json` **and** the app version, and push: the new release brings the new zip and a `catalog.json` with a higher `serial`. Languages that did not change keep pointing to the release that made their zip, and nothing is copied. **Never delete or change a release that still holds a dictionary the catalog uses:** the script checks this before publishing and stops with an error naming the missing zip. The catalog is signed with the app's own key (the same one that signs the APK), and the app only accepts catalogs signed with the key it was installed with.
-
-**Locally:**
 ```sh
 apktool b . -o mr-keyboard-unsigned.apk
 zipalign -p -f 4 mr-keyboard-unsigned.apk aligned.apk
 apksigner sign --ks your-key.jks --out mr-keyboard.apk aligned.apk
 ```
 
+Every release also has `mr-keyboard-v<version>-source.zip`, made from the exact commit that was published. Build from a source zip, GitHub Actions workflows, signing, dictionaries and how a release is published: **[docs/building.md](docs/building.md)**.
+
+## Documentation
+[Building and publishing](docs/building.md) · [Gesture typing](docs/gesture-typing.md) · [Delete by word](docs/word-delete.md) · [Swipe actions](docs/swipe-actions.md) · [Emoji search](docs/emoji-search.md) · [Edit with AI](docs/ai-editor.md) · [Suggestion features](docs/suggestion-features.md) · [Native engine](docs/native-engine.md) · [Performance meter](docs/performance-meter.md) · [New theme](docs/new-theme.md) · [Release notes](docs/release-notes)
+
 ## Verifying a release
-Releases are [immutable](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) (see *Publishing* above): after publication their files and tag can't be changed. The APK and the source zip are built by the *Mr Keyboard - APK* workflow of this repository from the tagged commit, and each has a signed provenance attestation. With the [GitHub CLI](https://cli.github.com/), in the folder where you saved the file (replace the version):
+Releases are [immutable](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) (see [Publishing](docs/building.md#publishing-maintainers)): after publication their files and tag can't be changed. The APK and the source zip are built by the *Mr Keyboard - APK* workflow of this repository from the tagged commit, and each has a signed provenance attestation. With the [GitHub CLI](https://cli.github.com/), in the folder where you saved the file (replace the version):
 ```sh
-gh release verify v1.82.0 --repo x-mrrobot-x/mr-keyboard
-gh release verify-asset v1.82.0 mr-keyboard-v1.82.0.apk --repo x-mrrobot-x/mr-keyboard
-gh attestation verify mr-keyboard-v1.82.0.apk --repo x-mrrobot-x/mr-keyboard
+gh release verify v2.0.0 --repo x-mrrobot-x/mr-keyboard
+gh release verify-asset v2.0.0 mr-keyboard-v2.0.0.apk --repo x-mrrobot-x/mr-keyboard
+gh attestation verify mr-keyboard-v2.0.0.apk --repo x-mrrobot-x/mr-keyboard
 ```
-The first confirms that the release exists and is immutable, the second that your file is exactly the one attached to it, and the third that it was built by this repository's workflow (it works the same for `mr-keyboard-v1.82.0-source.zip`). Without the CLI, compare the SHA-256 shown in the release text with `sha256sum <file>`. Use the zip attached by the release, not the *Source code* zip that GitHub generates on its own: that one is created when it is requested and can't be verified.
+The first confirms that the release exists and is immutable, the second that your file is exactly the one attached to it, and the third that it was built by this repository's workflow (it works the same for `mr-keyboard-v2.0.0-source.zip`). Without the CLI, compare the SHA-256 shown in the release text with `sha256sum <file>`. Use the zip attached by the release, not the *Source code* zip that GitHub generates on its own: that one is created when it is requested and can't be verified.
 
 ## Credits and licenses
 Mr Keyboard is under the [Apache License 2.0](LICENSE).

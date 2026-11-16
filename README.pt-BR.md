@@ -1,35 +1,83 @@
+<div align="center">
+
+<img src="res/drawable-nodpi/mr_ui_logo.webp" width="96" alt="Logo do Mr Keyboard">
+
 # Mr Keyboard
+
+**Um teclado Android para quem usa muito o celular: teclas completas de PC, folhas de teclas editáveis, comandos do Tasker, digitação por gestos, edição com IA e sugestões offline e privadas.**
+
+[![Release](https://img.shields.io/github/v/release/x-mrrobot-x/mr-keyboard?label=release)](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/x-mrrobot-x/mr-keyboard/total)](https://github.com/x-mrrobot-x/mr-keyboard/releases)
+[![Checks](https://img.shields.io/github/actions/workflow/status/x-mrrobot-x/mr-keyboard/mr-checks.yml?branch=main&label=checks)](https://github.com/x-mrrobot-x/mr-keyboard/actions/workflows/mr-checks.yml)
+[![Android 8.0+](https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white)](#instalação)
+[![Licença](https://img.shields.io/github/license/x-mrrobot-x/mr-keyboard?label=licen%C3%A7a)](LICENSE)
 
 [English](README.md) · **Português**
 
-Teclado Android para quem usa muito o celular, baseado no [Hacker's Keyboard](https://github.com/klausw/hackerskeyboard). Tem teclas completas de PC, folhas de teclas extras que você pode editar, comandos para o [Tasker](https://tasker.joaoapps.com/) e sugestões de palavras offline.
+[Baixar](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) · [Recursos](#recursos) · [Instalação](#instalação) · [Privacidade](#privacidade) · [Como compilar](#como-compilar)
 
-Precisa de Android 8.0 ou mais novo.
+<br>
+
+<img src=".github/preview-midnight-steel.jpg" width="32%" alt="Mr Keyboard com o tema Midnight Steel">
+<img src=".github/preview-chrome.jpg" width="32%" alt="Mr Keyboard com o tema Chrome">
+<img src=".github/preview-aurora.jpg" width="32%" alt="Mr Keyboard com o tema Aurora">
+
+<sub>Midnight Steel (padrão) · Chrome · Aurora, três dos doze temas</sub>
+
+</div>
+
+O Mr Keyboard é baseado no [Hacker's Keyboard](https://github.com/klausw/hackerskeyboard). É código aberto, não tem anúncios, análise de uso nem Google Play Services, e o que você digita nunca sai do celular.
 
 ## Recursos
-- **Teclado completo:** Ctrl, Alt, Esc, Tab, setas, Home/End, PgUp/PgDn e teclas de função, em layout compacto ou completo (com configurações separadas para retrato e paisagem).
-- **Folhas:** páginas extras de teclas, abertas pelo próprio teclado: **123**, **TSK** (Tasker), **HTML**, **FRS** (frases), navegação e teclado numérico. Dá para editar as folhas e criar as suas em *Configurações → Folhas*.
-- **Comandos do Tasker:** uma tecla pode disparar uma tarefa do Tasker em vez de digitar (veja abaixo).
-- **Barra de ferramentas** acima das teclas:
-  - **Sugestões:** sugestões e correções de palavras;
-  - **Traduzir:** traduz o texto antes de enviar;
-  - **Editar com IA:** reescreve o texto selecionado ou o que está antes do cursor em um diálogo sobre o teclado; configure o serviço em *Configurações → Editar com IA*;
-  - **Anexos:** fotos, vídeos e arquivos, enviados para o app em que você está digitando;
-  - **Emotes.**
-- **Sugestões de palavras** em português do Brasil, inglês americano e espanhol (um dicionário por idioma):
-  - os dicionários são baixados em *Configurações → Sugestões e dicionários*, por isso o app em si tem só cerca de 1 MB. Cada idioma baixado entra no teclado: deslize a barra de espaço para os lados para alternar entre eles;
-  - correção de erros de digitação e previsão da próxima palavra;
-  - aprende as palavras que você usa, nunca em campos de senha ou anônimos;
-  - *Configurações → Sugestões e dicionários → Minhas palavras*: veja, corrija, bloqueie e esqueça o que o teclado aprendeu (com cópia de segurança exportada) e adicione nomes, gírias e frases a partir de um texto colado, de um arquivo ou de uma lista de palavras, com uma prévia antes de salvar qualquer coisa;
-  - sugere os nomes e as palavras que você acabou de escrever na mesma conversa (só na memória, apagados ao trocar de campo ou de app);
-  - tudo roda no aparelho;
-  - vem desligado: ligue *Mostrar sugestões* na mesma tela.
-- **Temas:** doze, nesta ordem: Midnight Steel (o padrão), os neon (Aurora, cujas teclas mudam de tom ao longo do teclado, Neon Cyan, Neon Purple, Neon Pink e Synthwave), Aqua, Snow, Chrome (teclas prateadas sobre fundo azul-marinho) e Rose, depois Cobalt Glass (translúcido, com blur de fundo no Android 12+ e com fundo escuro semitransparente onde o blur não está disponível), depois Denim (fundo azul-cobalto só levemente translúcido, com o mesmo blur, e teclas azul-marinho). Ctrl, Alt, Shift e ❖ usam o estilo de destaque das outras teclas especiais e indicam o estado por um pequeno traço colorido na parte inferior; o Shift diferencia inativo, ativo e travado. O espaçamento e o arredondamento das teclas valem em todos os temas, e o arredondamento também vale no popup do toque longo e no balão de preview. A barra e os painéis têm cantos próprios, fixos. O diálogo de Editar com IA sempre usa o tema das configurações.
-- **Digitação por gestos (vem desligada, desde a 1.96.0):** deslize o dedo de letra em letra e o teclado escreve a palavra, nos três idiomas dos dicionários. Ligue em *Configurações → Sugestões e dicionários → Digitação por gestos*; ela precisa de um download de cerca de 2,4 MB (o reconhecimento de gestos) e depois roda no aparelho. Ela também escreve as suas palavras (as que o teclado aprendeu com você, as que você adicionou e o dicionário pessoal do Android), nunca escreve uma palavra que você bloqueou e mostra a palavra na faixa de sugestões enquanto o dedo desliza (dá para desligar). O modelo de reconhecimento e a licença dele estão em *Créditos e licenças*, abaixo. Como funciona e o que foi medido: `docs/gesture-typing.md`.
-- **Ctrl + apagar apaga por palavra (desde a 2.0.0, vem desligado):** com o Ctrl ativo, a tecla apagar remove uma palavra por toque e, segurando, vai palavra por palavra desde o início, no intervalo que você definir para soltar na palavra certa. O Ctrl + Z devolve as palavras uma por vez, da última para a primeira, e o Ctrl + Y apaga de novo a que voltou (cada uma fica guardada por 2 minutos). Ligue em *Configurações → Toque e gestos → Apagar por palavra*, uma tela própria com o passo a passo. Detalhes: `docs/word-delete.md`.
-- **Pesquisa e apagar nos emojis (desde a 1.97.0):** o painel de emojis tem uma barra flutuante com dois botões. *Apagar* funciona como a tecla Backspace (e repete enquanto você segura). *Pesquisar* troca a linha da barra de ferramentas por um cabeçalho de busca nas cores do tema, com o teclado embaixo; ela entende português, inglês e espanhol ao mesmo tempo (“coração”, “heart” e “corazón” encontram o mesmo emoji, e o acento não importa), só encontra emojis, um toque escreve o emoji e a busca continua aberta. O painel também ganhou 170 emojis mais novos (o rosto derretendo, os corações e as mãos novos, animais, bandeiras da Inglaterra, Escócia e País de Gales...), mostrados só quando a fonte do celular consegue desenhá-los. As palavras só são lidas enquanto o painel de emojis está aberto. Como funciona: `docs/emoji-search.md`.
-- **Gestos e teclas:** deslizar para cima, baixo, esquerda e direita e as teclas de volume podem executar ações do teclado (por padrão, esquerda e direita trocam de folha). O deslize para os lados vale pela distância percorrida, não pela velocidade com que o dedo sai da tela. Com a digitação por gestos ligada, ele começa fora das letras da folha principal ou em qualquer tecla das outras folhas; a digitação por gestos em si só começa nessas letras. Detalhes: `docs/swipe-actions.md`.
-- **App em português, inglês ou espanhol:** segue o idioma do sistema, ou escolha em *Configurações → Geral → Idioma do app*.
+
+### Teclas e layout
+- **Teclado completo de PC:** Ctrl, Alt, Esc, Tab, setas, Home/End, PgUp/PgDn e teclas de função, em layout compacto ou completo (configurações separadas para retrato e paisagem).
+- **Folhas de teclas:** páginas extras de teclas abertas pelo próprio teclado: **123**, **TSK** (Tasker), **HTML**, **FRS** (frases), navegação e teclado numérico. Edite as folhas e crie as suas em *Configurações → Folhas*.
+- **Comandos do Tasker:** uma tecla pode disparar uma tarefa do Tasker em vez de digitar ([como](#integração-com-o-tasker)).
+- **Gestos:** deslizar para cima, baixo, esquerda ou direita, e as teclas de volume, executam ações do teclado (por padrão, esquerda e direita trocam de folha). O deslize para os lados vale pela distância, não pela velocidade. [Detalhes](docs/swipe-actions.md) (em inglês).
+- **Apagar por palavra (desde a 2.0.0, vem desligado):** com o Ctrl ativo, a tecla apagar remove uma palavra por toque e, segurando, vai palavra por palavra no intervalo que você definir. O **Ctrl + Z** devolve as palavras uma por vez e o **Ctrl + Y** apaga de novo a que voltou (ficam guardadas por 2 minutos). *Configurações → Toque e gestos → Apagar por palavra*. [Detalhes](docs/word-delete.md) (em inglês).
+- **O seu visual:** doze temas, espaçamento e arredondamento das teclas, tamanho dos rótulos, altura do teclado (retrato e paisagem) e altura da barra. Toque longo, força da vibração, volume do clique e prévia das teclas são ajustáveis.
+
+### Barra de ferramentas
+- **Área de transferência:** histórico do que você copiou; toque para inserir, segure para apagar.
+- **Traduzir:** traduz o texto antes de enviar (Google Tradutor).
+- **Editar com IA:** reescreve o texto selecionado, ou o que está antes do cursor, em um diálogo sobre o teclado. Estilos: Formal, Curto, Corrigir, Expandir, Amigável, Profissional, Pontuação e os seus; com opção de emojificar. Use qualquer serviço compatível com a OpenAI (Chat Completions), com o seu endereço (https), modelo e chave. [Detalhes](docs/ai-editor.md) (em inglês).
+- **Anexos:** fotos, vídeos e arquivos enviados para o app em que você está digitando, com seleção múltipla e envio em lote.
+- **Fontes:** 27 estilos de texto (negrito, itálico, cursivo, gótico, bolha, versalete, tachado e outros) que funcionam em qualquer app.
+- **Emojis:** recentes, todas as categorias, 170 emojis mais novos (mostrados só quando a fonte do celular consegue desenhá-los) e **pesquisa** em português, inglês e espanhol ao mesmo tempo (“coração”, “heart” e “corazón” encontram o mesmo emoji). [Detalhes](docs/emoji-search.md) (em inglês).
+- **Personalizar teclado:** ajuste rápido de altura, espaçamento das teclas, tamanho dos rótulos, arredondamento das teclas e altura da barra, com botão para restaurar.
+- **Mostrar/ocultar:** a tecla de grade, no canto superior esquerdo do teclado, oculta ou mostra a barra; as ferramentas voltam sozinhas depois que você digita (o tempo é ajustável).
+
+### Digitação
+- **Sugestões, correção e previsão da próxima palavra** em português do Brasil, inglês americano e espanhol, tudo no aparelho (vêm desligadas: ligue *Mostrar sugestões* em *Configurações → Sugestões e dicionários*).
+- **App leve:** os dicionários são baixados quando você quiser, então o app em si tem cerca de 1 MB. Cada idioma baixado entra no teclado: deslize a barra de espaço para os lados para alternar entre eles.
+- **Aprende o que você digita** (nunca em campos de senha ou anônimos) e sugere os nomes e as palavras que você acabou de escrever na mesma conversa (só na memória).
+- **Minhas palavras:** *Configurações → Sugestões e dicionários → Minhas palavras* mostra o que o teclado aprendeu, deixa corrigir, bloquear e esquecer palavras (com cópia de segurança exportada) e adicionar nomes, gírias e frases a partir de um texto colado, de um arquivo ou de uma lista, com uma prévia antes de salvar. **Formatar com IA** transforma um texto solto nessa lista.
+- **Digitação por gestos (vem desligada):** deslize o dedo de letra em letra e o teclado escreve a palavra, nos três idiomas. Ela também escreve as suas palavras, nunca uma palavra bloqueada, e mostra a palavra na faixa de sugestões enquanto você desliza. Precisa de um download único de cerca de 2,4 MB e depois roda no aparelho. *Configurações → Sugestões e dicionários → Digitação por gestos*. [Detalhes](docs/gesture-typing.md) (em inglês).
+- **Capitalização automática** (vem ligada) e **entrada de voz**.
+
+### Temas
+Doze temas: **Midnight Steel** (o padrão); os neon **Aurora** (as teclas mudam de tom ao longo do teclado), **Neon Cyan**, **Neon Purple**, **Neon Pink** e **Synthwave**; os claros **Aqua**, **Snow** e **Rose**; **Chrome** (teclas prateadas sobre azul-marinho); **Cobalt Glass** (translúcido) e **Denim**, os dois com blur de fundo no Android 12 ou mais novo. Ctrl, Alt e Shift mostram o estado com um pequeno traço colorido (Shift: inativo, ativo, travado). Como criar um tema: [docs/new-theme.md](docs/new-theme.md) (em inglês).
+
+### O app
+- **Idiomas:** português, inglês e espanhol; segue o idioma do sistema ou escolha em *Configurações → Geral → Idioma do app*.
+- **Atualização pelo próprio app:** aviso de versão nova com as novidades, **Baixar e instalar** e um APK assinado e conferido ([como funciona](#atualizações)).
+- **Desempenho:** *Configurações → Avançadas → Desempenho → Tempos do teclado* mostra quanto o teclado leva para abrir, digitar e sugerir no seu celular.
+- **Restaurar padrões** em *Configurações → Geral*.
+
+## Instalação
+Precisa de Android 8.0 ou mais novo.
+
+1. Baixe o APK (`mr-keyboard-v<versão>.apk`) na [última versão](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) e instale.
+2. Abra o **Mr Keyboard** e toque em **Ativar teclado**. Ligue o Mr Keyboard na lista e aceite o aviso do sistema. O Android mostra esse aviso para qualquer teclado que não veio com o celular.
+3. Toque em **Definir método de entrada** e escolha o Mr Keyboard.
+4. Para ter sugestões de palavras (opcional): nas configurações, abra **Sugestões e dicionários**, toque no seu idioma para baixar o dicionário e ligue **Mostrar sugestões**. Baixando mais de um idioma, deslize a barra de espaço para os lados para alternar entre eles.
+
+## Atualizações
+- O app procura versão nova quando abre (no máximo uma vez por dia) e toda manhã em segundo plano. Quando há uma, um diálogo (ou uma notificação, na verificação da manhã) mostra as novidades, com **Baixar e instalar**, **Abrir no GitHub** e **Agora não**. A linha **Procurar atualização** e os dois interruptores ficam em *Configurações → Sobre*, onde tocar em **Versão** mostra as novidades da versão instalada, sem precisar de internet.
+- **Baixar e instalar** baixa o APK dessa release, confere o tamanho e o SHA-256 com o `update.json` assinado e entrega ao Android, que pede a sua confirmação. Na primeira vez, o Android também pede que você permita ao Mr Keyboard instalar apps (*Instalar apps desconhecidos*).
+- A verificação da manhã pede ao Android que rode depois das 8h (horário do celular), quando houver rede. Quem decide o momento exato é o Android: com economia de bateria, ou em celulares que colocam apps para dormir (alguns Samsung, Xiaomi e Huawei, por exemplo), o aviso pode chegar com horas de atraso ou não chegar. A verificação ao abrir o app sempre roda. No Android 13 ou mais novo, o aviso precisa da permissão de notificações.
+- Dá para atualizar à mão: baixe o novo APK na [última versão](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) e instale por cima do antigo (precisa estar assinado com a mesma chave).
 
 ## Integração com o Tasker
 Toda tecla cujo texto de saída comece com `tskcmd:` envia um comando em vez de digitar. A primeira fileira da folha **TSK** já traz algumas, e você pode criar as suas no editor de folhas (ex.: texto de saída `tskcmd:luzes_on`).
@@ -46,9 +94,9 @@ O comando vai num broadcast que outros apps também podem receber, então não c
 - O app se conecta à internet só para estes recursos:
   - **Traduzir** envia ao Google Tradutor (`translate.googleapis.com`) o texto que você digita no campo de tradução. Só esse texto, e só quando você usa. O próprio campo avisa ("Digite para traduzir com o Google").
   - **Editar com IA** envia somente o texto que você escolhe reescrever, e apenas ao serviço de IA que configurar. Nada é enviado até você tocar num estilo.
-  - **Dicionários** (*Configurações → Sugestões e dicionários*): o app só se conecta quando você toca em *Procurar atualizações*, *Baixar*, *Atualizar* ou em um idioma que ainda não foi baixado, e só baixa arquivos da [release mais recente](../../releases/latest) deste repositório (o catálogo, `catalog.json`, e o zip de cada idioma, anexado à release em que aquele idioma mudou pela última vez). Cada arquivo é conferido com uma lista assinada com a chave do próprio app antes de ser usado.
+  - **Dicionários** (*Configurações → Sugestões e dicionários*): o app só se conecta quando você toca em *Procurar atualizações*, *Baixar*, *Atualizar* ou em um idioma que ainda não foi baixado, e só baixa arquivos da [release mais recente](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) deste repositório (o catálogo, `catalog.json`, e o zip de cada idioma, anexado à release em que aquele idioma mudou pela última vez). Cada arquivo é conferido com uma lista assinada com a chave do próprio app antes de ser usado.
   - **Digitação por gestos** (mesma tela): o arquivo de que ela precisa (o reconhecimento de gestos) é baixado do mesmo jeito, das mesmas releases, e só quando você toca em *Baixar* ou *Atualizar* no diálogo dele; *De um arquivo* instala sem nenhuma conexão. Depois disso o reconhecimento roda no celular: o caminho do dedo não é enviado para lugar nenhum.
-  - **Atualizações do app** (*Configurações → Sobre*): o app lê o `update.json` da [release mais recente](../../releases/latest) deste repositório quando abre (no máximo uma vez por dia) e toda manhã em segundo plano, e mostra um aviso quando há versão mais nova. As duas verificações podem ser desligadas. O pedido não leva nada sobre você nem sobre o celular. O arquivo é conferido com uma assinatura feita com a chave do próprio app antes de ser usado.
+  - **Atualizações do app** (*Configurações → Sobre*): o app lê o `update.json` da [release mais recente](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) deste repositório quando abre (no máximo uma vez por dia) e toda manhã em segundo plano, e mostra um aviso quando há versão mais nova. As duas verificações podem ser desligadas. O pedido não leva nada sobre você nem sobre o celular. O arquivo é conferido com uma assinatura feita com a chave do próprio app antes de ser usado.
 
 | Permissão | Para quê |
 |---|---|
@@ -60,52 +108,30 @@ O comando vai num broadcast que outros apps também podem receber, então não c
 | Dicionário do usuário | Ler e adicionar palavras ao dicionário pessoal do Android |
 | Vibração | Vibrar ao tocar nas teclas |
 
-## Instalação
-1. Baixe o APK (`mr-keyboard-v<versão>.apk`) na [última versão](../../releases/latest) e instale.
-2. Abra o **Mr Keyboard** e toque em **Ativar teclado**. Ligue o Mr Keyboard na lista e aceite o aviso do sistema. O Android mostra esse aviso para qualquer teclado que não veio com o celular.
-3. Toque em **Definir método de entrada** e escolha o Mr Keyboard.
-4. Para ter sugestões de palavras (opcional): nas configurações, abra **Sugestões e dicionários**, toque no seu idioma para baixar o dicionário e ligue **Mostrar sugestões**. Baixando mais de um idioma, deslize a barra de espaço para os lados para alternar entre eles.
-
-## Atualizações
-- O app procura versão nova quando abre (no máximo uma vez por dia) e toda manhã em segundo plano. Quando há uma, um diálogo (ou uma notificação, na verificação da manhã) mostra as novidades, com **Baixar e instalar**, **Abrir no GitHub** e **Agora não**. A linha **Procurar atualização** e os dois interruptores ficam em *Configurações → Sobre*, onde tocar em **Versão** mostra as novidades da versão instalada, sem precisar de internet.
-- **Baixar e instalar** baixa o APK dessa release, confere o tamanho e o SHA-256 com o `update.json` assinado e entrega ao Android, que pede a sua confirmação. Na primeira vez, o Android também pede que você permita ao Mr Keyboard instalar apps (*Instalar apps desconhecidos*).
-- A verificação da manhã pede ao Android que rode depois das 8h (horário do celular), quando houver rede. Quem decide o momento exato é o Android: com economia de bateria, ou em celulares que colocam apps para dormir (alguns Samsung, Xiaomi e Huawei, por exemplo), o aviso pode chegar com horas de atraso ou não chegar. A verificação ao abrir o app sempre roda. No Android 13 ou mais novo, o aviso precisa da permissão de notificações.
-- Dá para atualizar à mão: baixe o novo APK na [última versão](../../releases/latest) e instale por cima do antigo (precisa estar assinado com a mesma chave). O nome do APK leva a versão, então não existe link direto fixo; use a página da release.
-
 ## Como compilar
-Este repositório guarda o app como projeto do [apktool](https://apktool.org/) (código smali e recursos). Também tem:
-- `native/`: o leitor de dicionário em C++, `libjni_pckeyboard.so` (CMake);
-- `engine/`: o motor nativo de sugestões, `libmrengine.so` (busca de correção e previsão por duas palavras em C++, com o código Java de reserva; veja `docs/native-engine.md`);
-- `docs/`: anotações de cada versão e as ferramentas usadas para gerar o dicionário e as classes Java.
+O repositório é um projeto do [apktool](https://apktool.org/) (código smali e recursos), mais `native/` (leitor de dicionário em C++, `libjni_pckeyboard.so`), `engine/` (motor nativo de sugestões, `libmrengine.so`), `dicts/` (pacotes de dicionário), `gesture/` (dados do reconhecimento de gestos) e `docs/` (anotações de cada versão e as ferramentas).
 
-**A partir de uma release (baixar, editar, compilar):** toda [release](../../releases) tem o `mr-keyboard-v<versão>-source.zip`, feito do commit exato que foi publicado. Ele traz o projeto do apktool (`smali/`, `res/`, `lib/`, `apktool.yml`), `native/` e `engine/`, as fontes da camada Java (`docs/tools/java`, com o `build_java.sh`), a licença e estes READMEs. Os dicionários não vão nele: ficam nos zips de dicionário das releases e em `dicts/` no repositório. Para mudar o app, descompacte, edite `smali/` e `res/` e compile e assine como em *No computador*, mais abaixo. Duas coisas sobre uma compilação assinada com a sua chave: o Android só instala por cima do app original depois de desinstalar o original (as configurações dele se perdem), e o app só aceita catálogo de dicionários assinado com a própria chave, então um fork precisa das suas próprias releases (o workflow *Mr Keyboard - APK* faz isso) e do endereço do repositório em `docs/tools/java/src/com/mrkeyboard/app/MrPacks.java` trocado pelo seu.
-
-**Pelo GitHub Actions** são três workflows:
-- *Mr Keyboard - APK* roda a cada push que muda o app (`smali/`, `res/`, `lib/`, `apktool.yml`). Gera o APK com o apktool 2.11.1 usando as bibliotecas que já estão em `lib/` e assina, se existirem os secrets `KEYSTORE_B64`, `KEYSTORE_PASS`, `KEY_ALIAS` e `KEY_PASS`. Sem os secrets (num fork, por exemplo), sai um APK sem assinatura no artefato `apk`. Para publicar, ele roda antes o *Mr Keyboard - checks* e só segue se tudo passar; o job que cria a release é o único com permissão de escrita.
-- *Mr Keyboard - native lib* roda só quando `native/` ou `engine/` muda (ou à mão). Compila as duas bibliotecas para arm64-v8a, armeabi-v7a, x86 e x86_64 com o NDK 27 e roda os testes no PC. Extraia o artefato `native-libs` na raiz do projeto (mesclando com `lib/`) e faça o commit de `lib/`, `native-src.sha256`, `mrengine-src.sha256` e `mrengine-info.txt`. O workflow do APK compara esses hashes com o `native/` e o `engine/` atuais e não deixa publicar se a `lib/` estiver desatualizada.
-- *Mr Keyboard - checks* roda nos pushes na `main` e nos pull requests que mudam o app. Confere a versão e as notas, os recursos (inclusive os textos em espanhol), a lista de chaves do "Restaurar padrões", os registradores do smali e se o smali gerado da camada Java está em dia, monta o app para verificar o dex, roda os testes de PC e confere que o motor nativo dá exatamente o mesmo resultado que o código Java (Java x C++, três idiomas). Os mesmos scripts estão em `docs/tools/` e rodam também no seu computador. O `check_workflows.py` confere também os próprios workflows: toda action fixada por commit, permissões mínimas e publicação só depois dos checks.
-
-**Publicar (para quem mantém o projeto):**
-- **Releases imutáveis (uma vez, pelo dono do repositório):** em *Settings → Releases*, ligue *Enable release immutability* **antes** da primeira release feita por este workflow. Vale só para releases publicadas depois de ligar. Daí em diante os arquivos e a tag de uma release publicada nunca mais mudam nem são apagados, e o nome da tag nunca mais pode ser usado, então uma release errada se corrige com uma versão nova, nunca editando a antiga. As releases feitas antes de ligar continuam editáveis. O workflow já faz o que o GitHub recomenda: cria a release como rascunho, anexa tudo e só então publica.
-- **Uma release por lançamento:** aumente `versionCode` e `versionName` no `apktool.yml`, escreva as notas em `docs/release-notes/<tag>.md` (ex.: `docs/release-notes/v1.72.0.md`, com um bloco **Português** e um **English**, no estilo changelog: um item por mudança, começando com **Novo**, **Melhorado** ou **Corrigido** (**New**, **Improved**, **Fixed** em inglês), contado do lado de quem usa) e faça o push na `main`. O *Mr Keyboard - APK* publica uma única [release](../../releases), com a tag do `versionName` (ex.: `v1.72.0`), com o APK assinado (`mr-keyboard-v1.72.0.apk`, a versão está no nome do arquivo), o código-fonte daquele commit (`mr-keyboard-v1.72.0-source.zip`), um `catalog.json` assinado, um `update.json` assinado (a versão, o tamanho e o SHA-256 do APK e as notas em português e inglês, tiradas dos dois blocos do arquivo de notas) e só os zips dos idiomas de dicionário que mudaram nesta versão. Os dois JSON são assinados com a mesma chave do APK, cada um com o seu prefixo, então um nunca vale pelo outro. O APK e o zip do código ganham uma atestação de procedência do build. O texto é o arquivo de notas, a lista dos dicionários incluídos (com os que são novos nesta versão) e os hashes. Precisa dos secrets de assinatura; sem eles, com uma versão que já foi publicada ou com a `lib/` desatualizada, só avisa e o APK fica no artefato `apk`. Rodar à mão com *publish* marcado faz o mesmo, mas trata qualquer um desses casos como erro. A release é criada como rascunho, os arquivos são conferidos e só então ela é publicada.
-- **Notas da próxima release:** podem ser escritas antes, no arquivo da versão que vem a seguir (`docs/release-notes/v2.0.0.md` para a 2.0.0), enquanto o `apktool.yml` ainda tem a versão publicada: o que faz um push publicar uma release é um `versionName` novo no `apktool.yml`, não um arquivo de notas.
-- **Dicionários:** os pacotes ficam em `dicts/<idioma>/` (o `pack.json` lista os arquivos). Cada zip se chama `mr-keyboard-dict-<id>-<version>.zip` e é anexado **só à release em que aquele idioma mudou**; o catálogo diz, para cada idioma, qual release guarda o zip (`release`), e o app monta o endereço de download a partir dela. Depois de mudar algo, aumente `version` nesse `pack.json` **e** a versão do app e faça o push: a release nova traz o zip novo e um `catalog.json` com `serial` maior. Os idiomas que não mudaram continuam apontando para a release que fez o zip deles, sem copiar nada. **Nunca apague nem altere uma release que ainda guarda um dicionário usado pelo catálogo:** o script confere isso antes de publicar e para com um erro que diz qual zip falta. O catálogo é assinado com a própria chave do app (a mesma que assina o APK), e o app só aceita catálogo assinado com a chave com que foi instalado.
-
-**No computador:**
 ```sh
 apktool b . -o mr-keyboard-unsigned.apk
 zipalign -p -f 4 mr-keyboard-unsigned.apk aligned.apk
 apksigner sign --ks sua-chave.jks --out mr-keyboard.apk aligned.apk
 ```
 
+Toda release também tem o `mr-keyboard-v<versão>-source.zip`, feito do commit exato que foi publicado. Compilar a partir do zip, workflows do GitHub Actions, assinatura, dicionários e como uma release é publicada: **[docs/building.pt-BR.md](docs/building.pt-BR.md)**.
+
+## Documentação
+[Compilar e publicar](docs/building.pt-BR.md) · [Digitação por gestos](docs/gesture-typing.md) · [Apagar por palavra](docs/word-delete.md) · [Gestos de deslize](docs/swipe-actions.md) · [Pesquisa de emojis](docs/emoji-search.md) · [Editar com IA](docs/ai-editor.md) · [Recursos de sugestão](docs/suggestion-features.md) · [Motor nativo](docs/native-engine.md) · [Medidor de desempenho](docs/performance-meter.md) · [Novo tema](docs/new-theme.md) · [Notas de cada versão](docs/release-notes)
+
+Os documentos técnicos de `docs/` estão em inglês, exceto o guia de compilação, que também tem versão em português.
+
 ## Verificar uma release
-As releases são [imutáveis](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) (veja *Publicar*, acima): depois de publicadas, os arquivos e a tag não mudam. O APK e o zip do código são gerados pelo workflow *Mr Keyboard - APK* deste repositório a partir do commit da tag, e cada um tem uma atestação de procedência assinada. Com o [GitHub CLI](https://cli.github.com/), na pasta onde você salvou o arquivo (troque a versão):
+As releases são [imutáveis](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) (veja [Publicar](docs/building.pt-BR.md#publicar-para-quem-mantém-o-projeto)): depois de publicadas, os arquivos e a tag não mudam. O APK e o zip do código são gerados pelo workflow *Mr Keyboard - APK* deste repositório a partir do commit da tag, e cada um tem uma atestação de procedência assinada. Com o [GitHub CLI](https://cli.github.com/), na pasta onde você salvou o arquivo (troque a versão):
 ```sh
-gh release verify v1.82.0 --repo x-mrrobot-x/mr-keyboard
-gh release verify-asset v1.82.0 mr-keyboard-v1.82.0.apk --repo x-mrrobot-x/mr-keyboard
-gh attestation verify mr-keyboard-v1.82.0.apk --repo x-mrrobot-x/mr-keyboard
+gh release verify v2.0.0 --repo x-mrrobot-x/mr-keyboard
+gh release verify-asset v2.0.0 mr-keyboard-v2.0.0.apk --repo x-mrrobot-x/mr-keyboard
+gh attestation verify mr-keyboard-v2.0.0.apk --repo x-mrrobot-x/mr-keyboard
 ```
-O primeiro confirma que a release existe e é imutável, o segundo que o seu arquivo é exatamente o que está anexado a ela, e o terceiro que ele foi gerado pelo workflow deste repositório (vale igual para o `mr-keyboard-v1.82.0-source.zip`). Sem o CLI, compare o SHA-256 que aparece no texto da release com o `sha256sum <arquivo>`. Use o zip anexado pela release, não o zip *Source code* que o GitHub gera sozinho: aquele é criado na hora do pedido e não dá para verificar.
+O primeiro confirma que a release existe e é imutável, o segundo que o seu arquivo é exatamente o que está anexado a ela, e o terceiro que ele foi gerado pelo workflow deste repositório (vale igual para o `mr-keyboard-v2.0.0-source.zip`). Sem o CLI, compare o SHA-256 que aparece no texto da release com o `sha256sum <arquivo>`. Use o zip anexado pela release, não o zip *Source code* que o GitHub gera sozinho: aquele é criado na hora do pedido e não dá para verificar.
 
 ## Créditos e licenças
 O Mr Keyboard está sob a [Apache License 2.0](LICENSE).
