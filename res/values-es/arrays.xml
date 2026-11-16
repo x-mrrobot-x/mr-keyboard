@@ -27,7 +27,6 @@
     </string-array>
     <string-array name="popup_content_entries">
         <item>Desactivado: no se abre nada al mantener</item>
-        <item>Desactivado: mantener repite la tecla</item>
         <item>Solo acentos y símbolos: 3 ⇒ ³, e ⇒ é</item>
         <item>Acentos y símbolos + mayúscula: 3 ⇒ #³, e ⇒ Eé</item>
         <item>Completa (la propia tecla, mayúscula, acentos y símbolos): 3 ⇒ 3#³, e ⇒ eEé</item>

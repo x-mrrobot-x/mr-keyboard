@@ -427,15 +427,47 @@ check("icons: both sections have the same size of tile, corner, line, inset and 
 page_icon = re.search(r'android:key="altchar_settings"[^>]*android:icon="@drawable/(\w+)"', prefs_main).group(1)
 check("icons: the tile of the sections is the one of the pages of the settings", shape_of(tile(page_icon)[0])[:3] == shapes[0][:3], (page_icon, shape_of(tile(page_icon)[0])))
 
-# ---------------------------------------------------------------------------------------------- the two texts of hold time and popup
-longrow = re.search(r'<com\.mrkeyboard\.app\.SeekBarPreferenceString [^>]*android:key="pref_long_press_duration"[^>]*>', prefs_main).group(0)
-check("settings: the hold time row has the title and the text that explains it", 'android:title="@string/title_long_press_duration"' in longrow
-      and 'android:summary="@string/mr_long_press_duration_sum"' in longrow, longrow)
-withsum = sorted(re.findall(r'<com\.mrkeyboard\.app\.SeekBarPreferenceString [^>]*android:summary="[^"]*"[^>]*android:key="([^"]+)"', "".join(
-    read(os.path.join(ROOT, "res", "xml", f)) for f in os.listdir(os.path.join(ROOT, "res", "xml")) if f.endswith(".xml"))))
-check("settings: the hold time is the only slider with a text of its own (the others still show only their value)", withsum == ["pref_long_press_duration"], withsum)
+# ---------------------------------------------------------------------------------------------- the screen of the long press of a key
+second_icon = icons[1]
+check("icons: the second section (only information) has the grey information icon, the same drawable as the Privacy section of Suggestions and dictionaries",
+      second_icon == "mr_ui_ic_info_slate" and 'android:icon="@drawable/mr_ui_ic_info_slate"' in read(os.path.join(ROOT, "res", "xml", "prefs_suggestions.xml")) and tile(second_icon)[1] == "slate", second_icon)
+check("icons: the old mint undo drawable is gone (nothing uses it any more)", not os.path.exists(os.path.join(ROOT, "res", "drawable", "mr_ui_ic_undo_mint.xml")))
+
+lp = read(os.path.join(ROOT, "res", "xml", "prefs_long_press.xml"))
+lp_entries = re.findall(r"<([\w.]+)\s([^>]*?)/?>", lp)
+lp_keys = [(re.search(r'android:key="([^"]+)"', a).group(1), t, a) for t, a in lp_entries if re.search(r'android:key="([^"]+)"', a)]
+lp_names = [k[0] for k in lp_keys]
+check("long press screen: two sections, each with a title and an icon, each with its control and then the text that explains it",
+      lp_names == ["long_press_settings", "long_press_time", "pref_long_press_duration", "long_press_time_info", "long_press_action", "pref_popup_content", "long_press_action_info"]
+      and all('android:title="@string/' in k[2] and 'android:icon="@drawable/' in k[2] for k in lp_keys if k[1] == "PreferenceCategory"), lp_names)
+check("long press screen: the sections are named exactly 'Duração do toque longo nas teclas' and 'Ação do toque longo nas teclas' (and the same in English and Spanish)",
+      'android:title="@string/mr_longpress_cat_time"' in lp and 'android:title="@string/mr_longpress_cat_action"' in lp
+      and '<string name="mr_longpress_cat_time">Duração do toque longo nas teclas</string>' in read(os.path.join(ROOT, "res", "values-pt-rBR", "mr_strings.xml"))
+      and '<string name="mr_longpress_cat_action">Ação do toque longo nas teclas</string>' in read(os.path.join(ROOT, "res", "values-pt-rBR", "mr_strings.xml")))
+lp_icons = [re.search(r'android:icon="@drawable/(\w+)"', k[2]).group(1) for k in lp_keys if k[1] == "PreferenceCategory"]
+check("long press screen: the section icons are tiles of the same size as the others, and different from each other",
+      len(set(lp_icons)) == 2 and all(shape_of(tile(i)[0]) == shapes[0] for i in lp_icons), lp_icons)
+lbar = lp_keys[lp_names.index("pref_long_press_duration")]
+lpop = lp_keys[lp_names.index("pref_popup_content")]
+check("long press screen: the two settings keep their keys, defaults and limits (so what the person set before stays)",
+      lbar[1] == "com.mrkeyboard.app.SeekBarPreferenceString" and 'android:defaultValue="@string/default_long_press_duration"' in lbar[2] and 'hk:displayFormat="%.0f ms"' in lbar[2]
+      and 'hk:logScale="true"' in lbar[2] and 'hk:minValue="100.0"' in lbar[2] and 'hk:maxValue="2000.0"' in lbar[2]
+      and lpop[1] == "com.mrkeyboard.app.AutoSummaryListPreference" and 'android:entries="@array/popup_content_entries"' in lpop[2]
+      and 'android:entryValues="@array/popup_content_values"' in lpop[2] and 'android:defaultValue="@string/default_popup_content"' in lpop[2], (lbar, lpop))
+linfo = [lp_keys[lp_names.index(n)] for n in ("long_press_time_info", "long_press_action_info")]
+check("long press screen: the two rows of text are not buttons (not selectable, nothing stored), with a title and a text",
+      all(t[1] == "Preference" and 'android:selectable="false"' in t[2] and 'android:persistent="false"' in t[2] and "mr_ui_pref_row_static" in t[2]
+          and 'android:title="@string/' in t[2] and 'android:summary="@string/' in t[2] for t in linfo), linfo)
+touch2 = prefs_main[prefs_main.index('android:key="altchar_settings"'):prefs_main.index('android:key="general_settings"')]
+check("settings: Touch and gestures has one row for it, a screen that opens PREFS_LONG_PRESS, first among the screens, and the two loose rows are gone from the page",
+      re.search(r'<PreferenceScreen android:title="@string/mr_longpress_title" android:summary="@string/mr_longpress_row_sum">\s*<intent android:action="com.mrkeyboard.app.PREFS_LONG_PRESS"/>', touch2) is not None
+      and touch2.index("PREFS_LONG_PRESS") < touch2.index("PREFS_FEEDBACK") and "pref_long_press_duration" not in prefs_main and "pref_popup_content" not in prefs_main
+      and "<com.mrkeyboard.app." not in touch2)
 values_popup = re.findall(r"<item>(\d+)</item>", re.search(r'<string-array name="popup_content_values">(.*?)</string-array>', read(os.path.join(ROOT, "res", "values", "arrays.xml")), re.S).group(1))
-check("popup: the values of the five choices are untouched (the engine reads them as flags)", values_popup == ["256", "768", "0", "3", "7"], values_popup)
+check("popup: four choices, the values the engine reads as flags (no more 'holding repeats the key', 768)", values_popup == ["256", "0", "3", "7"], values_popup)
+lp_used = sorted(set(re.findall(r"@string/(mr_longpress\w*)", lp + prefs_main)))
+check("long press texts: the screen and the row use these strings", lp_used == ["mr_longpress_action_info_sum", "mr_longpress_action_info_title", "mr_longpress_cat_action", "mr_longpress_cat_time",
+      "mr_longpress_row_sum", "mr_longpress_time_info_sum", "mr_longpress_time_info_title", "mr_longpress_title"], lp_used)
 old_titles = {"values": ("Long-press duration", "Popup on key press"), "values-pt-rBR": ("Duração do toque longo", "Popup ao pressionar a tecla"),
               "values-es": ("Duración del toque largo", "Popup al presionar la tecla")}
 for d in ("values", "values-es", "values-pt-rBR"):
@@ -443,32 +475,33 @@ for d in ("values", "values-es", "values-pt-rBR"):
     t1 = re.search(r'<string name="title_long_press_duration">([^<]+)<', st).group(1)
     t2 = re.search(r'<string name="title_popup_content">([^<]+)<', st).group(1)
     check("titles in %s: both are new (not the vague ones) and say what the setting is about: holding a key, and accents and symbols" % d,
-          (t1, t2) != old_titles[d] and t1 != old_titles[d][0] and t2 != old_titles[d][1] and re.search(r"(?i)segurar|hold|mantener", t1) and re.search(r"(?i)acentos|accents", t2)
+          t1 != old_titles[d][0] and t2 != old_titles[d][1] and re.search(r"(?i)segurar|hold|mantener", t1) and re.search(r"(?i)acentos|accents", t2)
           and re.search(r"(?i)segurar|hold|mantener", t2), (t1, t2))
     ms = read(os.path.join(ROOT, "res", d, "mr_strings.xml"))
-    sm = re.search(r'<string name="mr_long_press_duration_sum">([^<]+)<', ms)
-    check("hold time text in %s: one place for the value (%%1$s), says what opens, short enough for the row" % d,
-          sm is not None and sm.group(1).count("%1$s") == 1 and "%" not in sm.group(1).replace("%1$s", "") and len(sm.group(1)) <= 110, sm.group(1) if sm else None)
+    check("long press texts in %s: the old text with a place for the value is gone" % d, "mr_long_press_duration_sum" not in ms)
+    for name in lp_used:
+        m = re.search(r'<string name="%s">([^<]+)</string>' % name, ms)
+        check("text %s in %s" % (name, d), m is not None and len(m.group(1)) >= 8, d)
+    for name in ("mr_longpress_time_info_sum", "mr_longpress_action_info_sum"):
+        m = re.search(r'<string name="%s">([^<]+)</string>' % name, ms)
+        check("text %s in %s fits the 4 lines of a row (at most 190 characters)" % (name, d), m is not None and len(m.group(1)) <= 190, len(m.group(1)) if m else 0)
     ar = read(os.path.join(ROOT, "res", d, "arrays.xml"))
     ent = re.findall(r"<item>([^<]+)</item>", re.search(r'<string-array name="popup_content_entries">(.*?)</string-array>', ar, re.S).group(1))
-    check("popup choices in %s: five, none with the vague word 'popup', the first two say they are off, the last three show an example (3 and e)" % d,
-          len(ent) == 5 and not any("popup" in e.lower() for e in ent) and all("⇒" in e for e in ent[2:]) and all("⇒" not in e for e in ent[:2])
-          and all("3 ⇒" in e and "e ⇒" in e for e in ent[2:]) and len(set(ent)) == 5, ent)
-    check("popup choices in %s: each one is only in its place (off / off + repeat / accents / + uppercase / full), so the list matches the values above" % d,
-          re.search(r"(?i)desligado|off|desactivado", ent[0]) and re.search(r"(?i)repe|repit", ent[1]) and "#" not in ent[2] and "#" in ent[3] and "3#³" in ent[4], ent)
-sbp = method_body(os.path.join(ROOT, "smali", "com", "mrkeyboard", "app", "SeekBarPreference.smali"), "getSummary()")
-sc = code_lines(sbp)
-i_fmt = index_of(sc, "formatFloatDisplay")
-i_sup = index_of(sc, "Landroid/preference/Preference;->getSummary()")
-i_null = index_of(sc, "if-eqz v1, :cond_mr_value")
-i_empty = index_of(sc, "if-eqz v2, :cond_mr_value")
-tail = sc[sc.index(":cond_mr_value"):] if ":cond_mr_value" in sc else []
-check("SeekBarPreference.getSummary: asks the row for its own text; with none, or an empty one, it gives the value alone as it always did",
-      min(i_fmt, i_sup, i_null, i_empty) >= 0 and i_fmt < i_sup < i_null < i_empty and tail[:2] == [":cond_mr_value", "return-object v0"]
-      and not any(re.match(r"(move-result-object|const-string|move-object|move) v0", l) for l in sc[i_fmt + 2:i_empty + 1]), (i_fmt, i_sup, i_null, i_empty, tail[:3]))
-check("SeekBarPreference.getSummary: '%1$s' in the text is replaced by the value; a text without it goes under the value",
-      'const-string v2, "%1$s"' in sbp and any("String;->contains(Ljava/lang/CharSequence;)Z" in l for l in sc) and any("String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)" in l for l in sc)
-      and ":cond_mr_below" in sc and 'const-string v0, "\\n"' in sbp)
+    check("popup choices in %s: four (as many as the values), none with the vague word 'popup', the first says it is off, the other three show an example (3 and e)" % d,
+          len(ent) == len(values_popup) == 4 and not any("popup" in e.lower() for e in ent) and all("⇒" in e for e in ent[1:]) and "⇒" not in ent[0]
+          and all("3 ⇒" in e and "e ⇒" in e for e in ent[1:]) and len(set(ent)) == 4 and not any(re.search(r"(?i)repe|repit", e) for e in ent), ent)
+    check("popup choices in %s: each one is only in its place (off / accents / + uppercase / full), so the list matches the values above" % d,
+          re.search(r"(?i)desligado|off|desactivado", ent[0]) and "#" not in ent[1] and "#" in ent[2] and "3#³" in ent[3], ent)
+check("SeekBarPreference.getSummary is the original again (the row shows the value alone; the text lives in a row of its own)",
+      "mr_ui" not in read(os.path.join(ROOT, "smali", "com", "mrkeyboard", "app", "SeekBarPreference.smali")) and "cond_mr_value" not in read(os.path.join(ROOT, "smali", "com", "mrkeyboard", "app", "SeekBarPreference.smali")))
+manifest0 = read(os.path.join(ROOT, "AndroidManifest.xml"))
+m0 = re.search(r'<activity ([^>]*?android:name="com\.mrkeyboard\.app\.PrefScreenLongPress"[^>]*)>(.*?)</activity>', manifest0, re.S)
+check("manifest: PrefScreenLongPress is declared, not exported, with the Settings theme and the action PREFS_LONG_PRESS",
+      m0 is not None and 'android:exported="false"' in m0.group(1) and "@style/Theme.MrKeyboard.Settings" in m0.group(1) and "com.mrkeyboard.app.PREFS_LONG_PRESS" in m0.group(2), m0.group(1) if m0 else None)
+act0 = read(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "PrefScreenLongPress.java"))
+check("PrefScreenLongPress: a PreferenceActivity in the language of the app that fills itself from prefs_long_press and follows the preferences for the backup",
+      "extends PreferenceActivity" in act0 and 'getIdentifier("prefs_long_press", "xml"' in act0 and 'getIdentifier("mr_longpress_title", "string"' in act0
+      and "UiLocale.wrap(base)" in act0 and "ListDividerFix.apply(this)" in act0 and "dataChanged()" in act0)
 
 manifest = read(os.path.join(ROOT, "AndroidManifest.xml"))
 m = re.search(r'<activity ([^>]*?android:name="com\.mrkeyboard\.app\.PrefScreenWordDelete"[^>]*)>(.*?)</activity>', manifest, re.S)
@@ -489,9 +522,9 @@ notes = read(os.path.join(ROOT, "docs", "release-notes", "v2.0.0.md"))
 check("the notes of 2.0.0 have the New / Novo line, in both languages, and say where the screen is",
       "- Novo: **Ctrl + apagar apaga por palavra**" in notes and "- New: **Ctrl + delete deletes by words**" in notes
       and "Toque e gestos → Apagar por palavra" in notes and "Touch and gestures → Delete by word" in notes)
-check("the notes of 2.0.0 tell, in both languages, that the texts of hold time and of accents and symbols are clearer",
-      "- Melhorado: Em **Toque e gestos**, **Tempo para segurar a tecla**" in notes and "- Improved: In **Touch and gestures**, **Time to hold a key**" in notes
-      and "**Acentos e símbolos ao segurar a tecla**" in notes and "**Accents and symbols on key hold**" in notes)
+check("the notes of 2.0.0 tell, in both languages, that the long press of a key has its own screen with texts that say what it does",
+      "- Melhorado: Em **Toque e gestos**, o **Toque longo nas teclas** tem tela própria" in notes and "- Improved: In **Touch and gestures**, **Long press on keys** has its own screen" in notes
+      and "**Duração do toque longo nas teclas**" in notes and "**Long-press duration on keys**" in notes)
 
 print("%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

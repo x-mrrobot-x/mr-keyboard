@@ -46,6 +46,12 @@ import java.util.Arrays;
  * <li>LONG_LATE: how much later than the set time the popup of a long press came (any key with a popup): the time from the touch
  *     to the popup shown, minus the set time. Its pieces (the touch seen late, the timer run late, the popup) are kept for the
  *     worst one, which the Advanced screen shows as a line of its own with the key it was ({@link #longShown}, MrLongPress);</li>
+ * <li>The worst press (not a kind, no average): the whole time from a finger down to the end of the first frame of the keyboard after
+ *     it, which is the one that shows the key pressed, and where it went: the touch seen after (the same time as TOUCH, of it how
+ *     much was the keyboard's own measured work still running when the event arrived), the handling of the touch by the keyboard (the
+ *     feedback of the press, the timers: {@link #handled}), the wait for that frame to begin (the vsync and the main thread, the part
+ *     a slow or low refresh rate shows in) and the drawing of it ({@link #touch}, {@link #frameBegin}, {@link #frameEnd}). It tells a
+ *     press that was felt late from one that was only drawn late;</li>
  * <li>SEL: the keyboard told by the app about a new selection (LatinIME.onUpdateSelection), the whole reaction. MSG: a delayed
  *     message of the keyboard handled (suggestions, shift state, old-word suggestions; LatinIME$1.handleMessage);</li>
  * <li>ECHO_CUT, ECHO_FULL: inside SEL, the check "is the cursor touching a word" after a new selection (re-correction). ECHO_CUT: the
@@ -155,6 +161,27 @@ public final class MrPerf {
     private static int sWorstCode;
     /** The code of the sheet key (123 / ABC / TSK), the one the worst long press line names. */
     static final int SHEET_KEY = -300;
+    /** A first frame later than this (ms) after the touch is not taken as the frame of that touch. */
+    static final int PRESS_MAX_MS = 2000;
+    /** A finger down whose first frame is awaited; the time of the event and the moment it was seen (both on the {@link #nanos} clock). */
+    private static boolean sPressOn;
+    private static long sPressEventNs, sPressSeenNs;
+    /** How much of the late sight of that touch was the keyboard's own measured work still running (ms). */
+    private static long sPressBehindMs;
+    /** When the keyboard finished handling that touch (the feedback of the press, the timers, the keys); -1 when it did not say. */
+    private static long sPressHandledNs = -1;
+    /** True from the sight of a finger down until the next touch event: the only time {@link #handled} is taken as the end of that touch. */
+    private static boolean sPressOpen;
+    /** Start of the first frame of the keyboard after that touch; -1 until one begins. */
+    private static long sPressFrameNs = -1;
+    /** The {@link #nanos} clock at the end of the last piece of measured work (any kind); -1 = none yet. */
+    private static long sLastEnd = -1;
+    /**
+     * The worst press since the reset: the whole time from the finger down to the end of the first frame after it (ms; -1 = none yet),
+     * and its parts (ms): the touch seen after, of it how much was the keyboard's own measured work, the handling of the touch, the wait
+     * for the frame to begin, the drawing of it.
+     */
+    private static long sWorstPress = -1, sWorstPressSeen, sWorstPressBehind, sWorstPressHandle, sWorstPressWait, sWorstPressDraw;
     private static final int[] sScratch = new int[SIZE];
     /** Tests: the clock in nanoseconds; -1 = System.nanoTime. */
     static long sFakeNanos = -1;
@@ -186,10 +213,14 @@ public final class MrPerf {
     }
 
     public static void openEnd() { end(OPEN); }
-    public static void frameBegin() { begin(FRAME); }
+    public static void frameBegin() {
+        begin(FRAME);
+        if (sPressOn && sPressFrameNs < 0) sPressFrameNs = sStart[FRAME];
+    }
 
     public static void frameEnd() {
         end(FRAME);
+        pressDone();
         long from = sShownFrom;
         if (from < 0) return;
         sShownFrom = -1;
@@ -351,8 +382,63 @@ public final class MrPerf {
     public static void touch(MotionEvent e) {
         if (e == null) return;
         int action = e.getActionMasked();
+        sPressOpen = false;                         // any touch event closes the handling of the one before it
         if (action != 0 && action != 5) return;     // ACTION_DOWN, ACTION_POINTER_DOWN
-        add(TOUCH, (SystemClock.uptimeMillis() - e.getEventTime()) * 1000);
+        long late = SystemClock.uptimeMillis() - e.getEventTime();
+        add(TOUCH, late * 1000);
+        pressArm(late);
+    }
+
+    /**
+     * A finger down was seen <code>lateMs</code> after it happened: from now on the keyboard waits for its first frame (the one that
+     * shows the key pressed). Only the first finger of a wait counts; one that is not drawn within {@link #PRESS_MAX_MS} is let go.
+     * The part of the late sight that was the keyboard's own measured work is how long after the event arrived the last piece of work
+     * ended, at most the whole lateness: more than that was before the event reached the main thread, or in work that is not measured.
+     */
+    static void pressArm(long lateMs) {
+        long now = nanos();
+        if (sPressOn && (now - sPressSeenNs) / 1000000L <= PRESS_MAX_MS) return;
+        if (lateMs < 0) lateMs = 0;
+        long eventNs = now - lateMs * 1000000L;
+        long behind = sLastEnd < 0 ? 0 : (sLastEnd - eventNs) / 1000000L;
+        if (behind < 0) behind = 0;
+        if (behind > lateMs) behind = lateMs;
+        sPressOn = true;
+        sPressEventNs = eventNs;
+        sPressSeenNs = now;
+        sPressBehindMs = behind;
+        sPressHandledNs = -1;
+        sPressOpen = true;
+        sPressFrameNs = -1;
+    }
+
+    /**
+     * LatinKeyboardBaseView.onTouchEvent(MotionEvent), after the touch was handled: the end of the work of the keyboard for the finger
+     * down that {@link #pressArm} is waiting for (what is left up to the first frame is the wait for it). A touch that the keyboard
+     * did not hand to that method (a gesture taking it over) leaves it unsaid, and the handling counts 0.
+     */
+    public static void handled() {
+        if (!sPressOpen) return;
+        sPressOpen = false;
+        if (sPressOn) sPressHandledNs = nanos();
+    }
+
+    /** The end of a frame of the keyboard: when it is the first one after a touch, the press is counted (the worst one is kept). */
+    static void pressDone() {
+        if (!sPressOn || sPressFrameNs < 0) return;
+        sPressOn = false;
+        long now = nanos();
+        long total = (now - sPressEventNs) / 1000000L;
+        if (total > PRESS_MAX_MS) return;
+        if (total > sWorstPress) {
+            sWorstPress = total;
+            sWorstPressSeen = (sPressSeenNs - sPressEventNs) / 1000000L;
+            sWorstPressBehind = sPressBehindMs;
+            long afterHandling = sPressHandledNs < 0 ? sPressSeenNs : sPressHandledNs;
+            sWorstPressHandle = (afterHandling - sPressSeenNs) / 1000000L;
+            sWorstPressWait = (sPressFrameNs - afterHandling) / 1000000L;
+            sWorstPressDraw = (now - sPressFrameNs) / 1000000L;
+        }
     }
 
     /** LatinIME.onWindowHidden: one line in the log when keys were typed since the last one. */
@@ -373,7 +459,9 @@ public final class MrPerf {
         long start = sStart[kind];
         if (start < 0) return;
         sStart[kind] = -1;
-        add(kind, (nanos() - start) / 1000);
+        long now = nanos();
+        sLastEnd = now;
+        add(kind, (now - start) / 1000);
     }
 
     /** One sample of <code>kind</code>, in microseconds (below 0 counts as 0; the top is Integer.MAX_VALUE). */
@@ -428,6 +516,10 @@ public final class MrPerf {
         sEchoAt = -1;
         sCapsAt = -1;
         sWorstLate = -1;
+        sWorstPress = -1;
+        sPressOn = false;
+        sPressOpen = false;
+        sLastEnd = -1;
         MrTrim.forget();
         MrLive.forget();
     }
@@ -601,6 +693,16 @@ public final class MrPerf {
             String worst = key == null ? null : MrPacks.text(c, "mr_ui_perf_long_worst", key, ms((int) ((sWorstPlanned + sWorstLate) * 1000)),
                     ms((int) (sWorstPlanned * 1000)), ms((int) (sWorstSeen * 1000)), ms((int) (sWorstTimer * 1000)),
                     ms((int) (sWorstPopup * 1000)));
+            if (worst != null) {
+                if (sb.length() > 0) sb.append('\n');
+                sb.append(worst);
+            }
+        }
+        if (sWorstPress >= 0) {
+            // the worst press: from the finger down to the first frame, and where the time went (late sight, handling, wait for the frame, drawing)
+            String worst = MrPacks.text(c, "mr_ui_perf_press_worst", ms((int) (sWorstPress * 1000)), ms((int) (sWorstPressSeen * 1000)),
+                    ms((int) (sWorstPressBehind * 1000)), ms((int) (sWorstPressHandle * 1000)), ms((int) (sWorstPressWait * 1000)),
+                    ms((int) (sWorstPressDraw * 1000)));
             if (worst != null) {
                 if (sb.length() > 0) sb.append('\n');
                 sb.append(worst);

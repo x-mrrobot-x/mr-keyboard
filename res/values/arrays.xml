@@ -80,14 +80,12 @@
     </string-array>
     <string-array name="popup_content_entries">
         <item>Off: nothing opens when holding</item>
-        <item>Off: holding repeats the key</item>
         <item>Accents and symbols only: 3 ⇒ ³, e ⇒ é</item>
         <item>Accents and symbols + uppercase: 3 ⇒ #³, e ⇒ Eé</item>
         <item>Full (the key itself, uppercase, accents and symbols): 3 ⇒ 3#³, e ⇒ eEé</item>
     </string-array>
     <string-array name="popup_content_values">
         <item>256</item>
-        <item>768</item>
         <item>0</item>
         <item>3</item>
         <item>7</item>

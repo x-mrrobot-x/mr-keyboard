@@ -17,7 +17,7 @@
     <string name="mr_ui_cat_typing">Typing</string>
     <string name="mr_ui_cat_typing_sum">Suggestions, capitalization and voice</string>
     <string name="mr_ui_cat_touch">Touch and gestures</string>
-    <string name="mr_ui_cat_touch_sum">Hold time, accents and symbols, vibration, gestures and delete by word</string>
+    <string name="mr_ui_cat_touch_sum">Long press, vibration, gestures and delete by word</string>
     <string name="mr_ui_cat_general">General</string>
     <string name="mr_ui_cat_general_sum">App language, notification, advanced options and restore defaults</string>
     <string name="mr_ui_cat_about">About</string>
@@ -100,6 +100,7 @@
     <string name="mr_ui_perf_long_worst">Worst long press (%1$s): %2$s ms from the touch to the popup, set %3$s ms · touch seen after %4$s ms · timer late %5$s ms · popup %6$s ms</string>
     <string name="mr_ui_perf_long_key_sheet">123 key</string>
     <string name="mr_ui_perf_long_key_other">other key</string>
+    <string name="mr_ui_perf_press_worst">Worst press: %1$s ms from the touch to the first frame · touch seen after %2$s ms (of it, the keyboard\'s own work %3$s ms) · handling the touch %4$s ms · wait for the frame %5$s ms · drawing %6$s ms</string>
     <string name="mr_ui_perf_alive">Alive after the cleanup: service %1$d · keyboard %2$d</string>
     <string name="mr_ui_perf_trim_now">Free memory now (test)</string>
     <string name="mr_ui_perf_trim_now_sum">Lets go of what the keyboard can make again, as if the system had asked for memory, then runs a garbage collection. “Last cleanup” shows what was let go; “Alive” shows what still exists after the collection.</string>
@@ -704,7 +705,14 @@
     <string name="mr_sugg_idle_5">5 seconds</string>
     <string name="mr_sugg_idle_8">8 seconds</string>
     <string name="mr_sugg_idle_10">10 seconds</string>
-    <string name="mr_long_press_duration_sum">Hold a key for %1$s to open its accents and symbols (é, ³…)</string>
+    <string name="mr_longpress_title">Long press on keys</string>
+    <string name="mr_longpress_row_sum">How long to hold and what opens: accents and symbols</string>
+    <string name="mr_longpress_cat_time">Long-press duration on keys</string>
+    <string name="mr_longpress_cat_action">Long-press action on keys</string>
+    <string name="mr_longpress_time_info_title">How it works</string>
+    <string name="mr_longpress_time_info_sum">How long you hold a key until its accents and symbols open (é, ³…). A shorter time opens faster, but may open by accident.</string>
+    <string name="mr_longpress_action_info_title">What each option does</string>
+    <string name="mr_longpress_action_info_sum">Off: holding opens nothing. Accents and symbols only: opens the variants of the key (e ⇒ é). The other two add the uppercase and, in Full, the key itself.</string>
     <string name="mr_word_delete_title">Delete by word</string>
     <string name="mr_word_delete_row_sum">Ctrl + delete removes whole words; Ctrl + Z and Ctrl + Y undo and redo them</string>
     <string name="mr_word_delete_cat_ctrl">Ctrl + delete</string>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" xmlns:hk="http://schemas.android.com/apk/res-auto" android:title="@string/mr_longpress_title" android:key="long_press_settings">
+  <PreferenceCategory android:title="@string/mr_longpress_cat_time" android:key="long_press_time" android:icon="@drawable/mr_ui_ic_clock_amber">
+    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_long_press_duration" android:key="pref_long_press_duration" android:defaultValue="@string/default_long_press_duration" hk:displayFormat="%.0f ms" hk:logScale="true" hk:maxValue="2000.0" hk:minValue="100.0"/>
+    <Preference android:layout="@layout/mr_ui_pref_row_static" android:persistent="false" android:selectable="false" android:key="long_press_time_info" android:title="@string/mr_longpress_time_info_title" android:summary="@string/mr_longpress_time_info_sum"/>
+  </PreferenceCategory>
+  <PreferenceCategory android:title="@string/mr_longpress_cat_action" android:key="long_press_action" android:icon="@drawable/mr_ui_ic_tap_amber">
+    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/popup_content_entries" android:title="@string/title_popup_content" android:key="pref_popup_content" android:defaultValue="@string/default_popup_content" android:entryValues="@array/popup_content_values"/>
+    <Preference android:layout="@layout/mr_ui_pref_row_static" android:persistent="false" android:selectable="false" android:key="long_press_action_info" android:title="@string/mr_longpress_action_info_title" android:summary="@string/mr_longpress_action_info_sum"/>
+  </PreferenceCategory>
+</PreferenceScreen>

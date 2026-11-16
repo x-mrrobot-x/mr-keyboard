@@ -408,7 +408,7 @@
 
 # virtual methods
 .method public getSummary()Ljava/lang/CharSequence;
-    .locals 4
+    .locals 1
 
     .line 161
     iget v0, p0, Lcom/mrkeyboard/app/SeekBarPreference;->mVal:F
@@ -421,57 +421,6 @@
 
     move-result-object v0
 
-    # Mr Keyboard 2.0.0: a row may carry an android:summary that explains the setting. "%1$s" in it stands for the value
-    # ("Hold a key for %1$s to ..."); without the token the text goes under the value. No android:summary (every other
-    # slider): the row shows the value alone, as before.
-    invoke-super {p0}, Landroid/preference/Preference;->getSummary()Ljava/lang/CharSequence;
-
-    move-result-object v1
-
-    if-eqz v1, :cond_mr_value
-
-    invoke-interface {v1}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/lang/String;->length()I
-
-    move-result v2
-
-    if-eqz v2, :cond_mr_value
-
-    const-string v2, "%1$s"
-
-    invoke-virtual {v1, v2}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
-
-    move-result v3
-
-    if-eqz v3, :cond_mr_below
-
-    invoke-virtual {v1, v2, v0}, Ljava/lang/String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Ljava/lang/String;
-
-    move-result-object v0
-
-    return-object v0
-
-    :cond_mr_below
-    new-instance v2, Ljava/lang/StringBuilder;
-
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
-
-    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const-string v0, "\n"
-
-    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    :cond_mr_value
     return-object v0
 .end method
 

@@ -17,7 +17,7 @@
     <string name="mr_ui_cat_typing">Escritura</string>
     <string name="mr_ui_cat_typing_sum">Sugerencias, mayúsculas y voz</string>
     <string name="mr_ui_cat_touch">Toque y gestos</string>
-    <string name="mr_ui_cat_touch_sum">Tiempo de pulsación, acentos y símbolos, vibración, gestos y borrar por palabra</string>
+    <string name="mr_ui_cat_touch_sum">Toque largo, vibración, gestos y borrar por palabra</string>
     <string name="mr_ui_cat_general">General</string>
     <string name="mr_ui_cat_general_sum">Idioma de la app, notificación, opciones avanzadas y restablecer valores</string>
     <string name="mr_ui_cat_about">Acerca de</string>
@@ -100,6 +100,7 @@
     <string name="mr_ui_perf_long_worst">Peor pulsación larga (%1$s): %2$s ms del toque al popup, previsto %3$s ms · toque visto tras %4$s ms · temporizador tarde %5$s ms · popup %6$s ms</string>
     <string name="mr_ui_perf_long_key_sheet">tecla 123</string>
     <string name="mr_ui_perf_long_key_other">otra tecla</string>
+    <string name="mr_ui_perf_press_worst">Peor toque: %1$s ms del toque al primer cuadro · toque visto tras %2$s ms (de ellos, trabajo del propio teclado %3$s ms) · atender el toque %4$s ms · espera del cuadro %5$s ms · dibujo %6$s ms</string>
     <string name="mr_ui_perf_alive">Vivos tras la limpieza: servicio %1$d · teclado %2$d</string>
     <string name="mr_ui_perf_trim_now">Liberar memoria ahora (prueba)</string>
     <string name="mr_ui_perf_trim_now_sum">Suelta lo que el teclado puede rehacer, como si el sistema pidiera memoria, y después ejecuta una recolección de basura. “Última limpieza” muestra lo que se soltó; “Vivos” muestra lo que aún existe tras la recolección.</string>
@@ -704,7 +705,14 @@
     <string name="mr_sugg_idle_5">5 segundos</string>
     <string name="mr_sugg_idle_8">8 segundos</string>
     <string name="mr_sugg_idle_10">10 segundos</string>
-    <string name="mr_long_press_duration_sum">Mantén la tecla durante %1$s para abrir sus acentos y símbolos (é, ³…)</string>
+    <string name="mr_longpress_title">Toque largo en las teclas</string>
+    <string name="mr_longpress_row_sum">Cuánto mantener y qué se abre: acentos y símbolos</string>
+    <string name="mr_longpress_cat_time">Duración del toque largo en las teclas</string>
+    <string name="mr_longpress_cat_action">Acción del toque largo en las teclas</string>
+    <string name="mr_longpress_time_info_title">Cómo funciona</string>
+    <string name="mr_longpress_time_info_sum">Es el tiempo que mantienes una tecla hasta que se abren sus acentos y símbolos (é, ³…). Menos tiempo abre más rápido, pero puede abrirse sin querer.</string>
+    <string name="mr_longpress_action_info_title">Qué hace cada opción</string>
+    <string name="mr_longpress_action_info_sum">Desactivado: mantener no abre nada. Solo acentos y símbolos: abre las variantes de la tecla (e ⇒ é). Las otras dos añaden la mayúscula y, en Completa, la propia tecla.</string>
     <string name="mr_word_delete_title">Borrar por palabra</string>
     <string name="mr_word_delete_row_sum">Ctrl + borrar quita palabras enteras; Ctrl + Z y Ctrl + Y deshacen y rehacen</string>
     <string name="mr_word_delete_cat_ctrl">Ctrl + borrar</string>

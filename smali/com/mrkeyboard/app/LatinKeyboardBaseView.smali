@@ -6161,6 +6161,9 @@
 
     move-result p1
 
+    # Performance meter (MrPerf): the touch was handled (no register used).
+    invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->handled()V
+
     return p1
 .end method
 

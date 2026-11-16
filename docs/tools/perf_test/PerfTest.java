@@ -49,6 +49,7 @@ public class PerfTest {
             {"mr_ui_perf_trim", "Memory cleanup"}, {"mr_ui_perf_long_late", "Long press: delay beyond the set time"},
             {"mr_ui_perf_long_worst", "Worst long press (%1$s): %2$s ms from the touch to the popup, set %3$s ms · touch seen after %4$s ms · timer late %5$s ms · popup %6$s ms"},
             {"mr_ui_perf_long_key_sheet", "123 key"}, {"mr_ui_perf_long_key_other", "other key"},
+            {"mr_ui_perf_press_worst", "Worst press: %1$s ms from the touch to the first frame · touch seen after %2$s ms (of it, the keyboard's own work %3$s ms) · handling the touch %4$s ms · wait for the frame %5$s ms · drawing %6$s ms"},
             {"mr_ui_perf_trim_last", "Last cleanup: level %1$d · let go of %2$d keyboards, %3$d popups, %4$d shadows (%5$s)"},
             {"mr_ui_perf_alive", "Alive after the cleanup: service %1$d · keyboard %2$d"},
             {"mr_ui_perf_starts", "%1$s, last %2$d starts: min %3$s ms · median %4$s · max %5$s"},
@@ -390,6 +391,157 @@ public class PerfTest {
         check("no event: nothing", 2, st(MrPerf.TOUCH)[0]);
         MrPerf.touch(MotionEvent.stub(0, 0, 0, 50_010, new int[] {0}, new float[] {1}, new float[] {1}));
         check("an event from the future counts 0", 0, st(MrPerf.TOUCH)[4]);
+
+        // ---------------------------------------------------------------- the press: from the finger down to the first frame after it
+        // (touch arms the wait, frameBegin/frameEnd close it; the worst one keeps its parts: touch seen after, of it the keyboard's own
+        // work, wait for the frame, drawing)
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 1_000_000_000L;
+        SystemClock.now = 50_000;
+        Advanced pr = new Advanced();
+        MrPerf.fill(pr);
+        check("nothing pressed: no worst press line", !String.valueOf(pr.row.summary).contains("Worst press"));
+        MrPerf.frameBegin(); tick(3000); MrPerf.frameEnd(); tick(20_000);
+        MrPerf.touch(MotionEvent.stub(0, 0, 49_990, 49_996, new int[] {0}, new float[] {1}, new float[] {1}));     // seen 4 ms late
+        tick(10_000); MrPerf.frameBegin(); tick(3000); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("a finger down seen 4 ms late, its frame begun 10 ms later and drawn in 3 ms: 17 ms = 4 + 10 + 3, none of it the keyboard's own", true,
+                String.valueOf(pr.row.summary).contains("Worst press: 17.0 ms from the touch to the first frame · touch seen after 4.0 ms (of it, the keyboard's own work 0.0 ms)"
+                        + " · handling the touch 0.0 ms · wait for the frame 10.0 ms · drawing 3.0 ms"));
+        MrPerf.frameBegin(); tick(30_000); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("the frame after it is not the press again (still 17 ms)", true, String.valueOf(pr.row.summary).contains("Worst press: 17.0 ms"));
+        SystemClock.now = 60_000;
+        MrPerf.touch(MotionEvent.stub(0, 0, 59_000, 60_000, new int[] {0}, new float[] {1}, new float[] {1}));
+        tick(2000); MrPerf.frameBegin(); tick(2000); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("a milder press (4 ms) does not replace the worst one", true, String.valueOf(pr.row.summary).contains("Worst press: 17.0 ms"));
+
+        // the keyboard's own work still running when the event arrived: a key of 150 ms, then the touch seen 130 ms late (it came 120 ms before the key ended)
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 5_000_000_000L;
+        MrPerf.keyBegin('a'); tick(150_000); MrPerf.keyEnd();
+        tick(10_000);
+        SystemClock.now = 90_000;
+        MrPerf.touch(MotionEvent.stub(0, 0, 89_000, 89_870, new int[] {0}, new float[] {1}, new float[] {1}));
+        tick(5000); MrPerf.frameBegin(); tick(4000); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("an event that came while a key was running, seen 130 ms late: 120 ms of it the keyboard's own (139 ms in all)", true,
+                String.valueOf(pr.row.summary).contains("Worst press: 139.0 ms from the touch to the first frame · touch seen after 130.0 ms (of it, the keyboard's own work 120.0 ms)"
+                        + " · handling the touch 0.0 ms · wait for the frame 5.0 ms · drawing 4.0 ms"));
+        // the work ended before the event came: none of it is ours
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 5_000_000_000L;
+        MrPerf.keyBegin('a'); tick(20_000); MrPerf.keyEnd();
+        tick(80_000);
+        MrPerf.touch(MotionEvent.stub(0, 0, 89_000, 89_950, new int[] {0}, new float[] {1}, new float[] {1}));     // 50 ms late: after the key ended
+        tick(1000); MrPerf.frameBegin(); tick(1000); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("a key that ended before the event came: 0 of the 50 ms is the keyboard's own", true,
+                String.valueOf(pr.row.summary).contains("touch seen after 50.0 ms (of it, the keyboard's own work 0.0 ms) · handling the touch 0.0 ms · wait for the frame 1.0 ms · drawing 1.0 ms"));
+        // never more than the whole lateness
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 5_000_000_000L;
+        MrPerf.msgBegin(); tick(200_000); MrPerf.msgEnd();
+        MrPerf.touch(MotionEvent.stub(0, 0, 89_000, 89_900, new int[] {0}, new float[] {1}, new float[] {1}));     // 100 ms late
+        MrPerf.frameBegin(); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("work that ended at the moment of the sight: all of the 100 ms and never more", true,
+                String.valueOf(pr.row.summary).contains("touch seen after 100.0 ms (of it, the keyboard's own work 100.0 ms)"));
+        // an event stamped in the future of the clock is seen on time (0 late), never negative
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 6_000_000_000L;
+        SystemClock.now = 90_000;
+        MrPerf.touch(MotionEvent.stub(0, 0, 89_000, 90_010, new int[] {0}, new float[] {1}, new float[] {1}));
+        tick(2000); MrPerf.frameBegin(); tick(1000); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("an event from the future: seen after 0, then 2 ms for the frame and 1 ms drawing (3 ms in all)", true,
+                String.valueOf(pr.row.summary).contains("Worst press: 3.0 ms from the touch to the first frame · touch seen after 0.0 ms (of it, the keyboard's own work 0.0 ms)"
+                        + " · handling the touch 0.0 ms · wait for the frame 2.0 ms · drawing 1.0 ms"));
+        // only the first finger of a wait counts
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 7_000_000_000L;
+        MrPerf.touch(MotionEvent.stub(0, 0, 89_000, 89_990, new int[] {0}, new float[] {1}, new float[] {1}));     // 10 ms late
+        tick(5000);
+        SystemClock.now = 90_005;
+        MrPerf.touch(MotionEvent.stub(5, 1, 89_000, 89_960, new int[] {0, 1}, new float[] {1, 2}, new float[] {1, 2}));
+        tick(5000); MrPerf.frameBegin(); tick(2000); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("a second finger before the frame does not replace the first (22 ms: 10 late, 10 for the frame, 2 drawing)", true,
+                String.valueOf(pr.row.summary).contains("Worst press: 22.0 ms from the touch to the first frame · touch seen after 10.0 ms"));
+        // the handling of the touch by the keyboard (LatinKeyboardBaseView.onTouchEvent returned): its own part between the sight and the frame
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 12_000_000_000L;
+        SystemClock.now = 90_000;
+        MrPerf.touch(MotionEvent.stub(0, 0, 89_000, 89_996, new int[] {0}, new float[] {1}, new float[] {1}));     // seen 4 ms late
+        tick(6000); MrPerf.handled();
+        tick(3000); MrPerf.frameBegin(); tick(2000); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("a finger down seen 4 ms late, handled in 6 ms, frame begun 3 ms later and drawn in 2 ms: 15 ms = 4 + 6 + 3 + 2", true,
+                String.valueOf(pr.row.summary).contains("Worst press: 15.0 ms from the touch to the first frame · touch seen after 4.0 ms (of it, the keyboard's own work 0.0 ms)"
+                        + " · handling the touch 6.0 ms · wait for the frame 3.0 ms · drawing 2.0 ms"));
+        // only the first end of the handling counts, and a call with no finger down waiting does nothing
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 13_000_000_000L;
+        MrPerf.handled();
+        MrPerf.touch(MotionEvent.stub(0, 0, 89_000, 90_000, new int[] {0}, new float[] {1}, new float[] {1}));
+        tick(2000); MrPerf.handled();
+        tick(7000); MrPerf.handled();
+        tick(1000); MrPerf.frameBegin(); tick(1000); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("the handling ends at the first call (2 ms); a second call later (7 ms) is not another end", true,
+                String.valueOf(pr.row.summary).contains("Worst press: 11.0 ms from the touch to the first frame · touch seen after 0.0 ms (of it, the keyboard's own work 0.0 ms)"
+                        + " · handling the touch 2.0 ms · wait for the frame 8.0 ms · drawing 1.0 ms"));
+        // the next touch event closes the handling of the one before it: a call after a move is not the end of the down
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 14_000_000_000L;
+        MrPerf.touch(MotionEvent.stub(0, 0, 89_000, 90_000, new int[] {0}, new float[] {1}, new float[] {1}));
+        tick(1000);
+        MrPerf.touch(MotionEvent.stub(2, 0, 89_000, 90_000, new int[] {0}, new float[] {1}, new float[] {1}));     // a move
+        tick(4000); MrPerf.handled();
+        tick(1000); MrPerf.frameBegin(); tick(1000); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("a touch the keyboard did not hand to its handler (a gesture took it): no handling, all the time is the wait (6 ms)", true,
+                String.valueOf(pr.row.summary).contains("Worst press: 7.0 ms from the touch to the first frame · touch seen after 0.0 ms (of it, the keyboard's own work 0.0 ms)"
+                        + " · handling the touch 0.0 ms · wait for the frame 6.0 ms · drawing 1.0 ms"));
+        // the reset forgets the finger that was being handled
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 15_000_000_000L;
+        MrPerf.touch(MotionEvent.stub(0, 0, 89_000, 90_000, new int[] {0}, new float[] {1}, new float[] {1}));
+        MrPerf.reset();
+        MrPerf.handled();
+        tick(1000); MrPerf.frameBegin(); tick(1000); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("the reset also forgets the handling of the touch: a call after it does nothing, and no line", !String.valueOf(pr.row.summary).contains("Worst press"));
+        // a press whose frame never came is let go after 2 s; a frame more than 2 s after is not the touch's
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 8_000_000_000L;
+        SystemClock.now = 90_000;
+        MrPerf.touch(MotionEvent.stub(0, 0, 89_000, 90_000, new int[] {0}, new float[] {1}, new float[] {1}));
+        MrPerf.sFakeNanos = 10_001_000_000L;                                                                         // 2001 ms later, no frame in between
+        SystemClock.now = 92_001;
+        MrPerf.touch(MotionEvent.stub(0, 0, 91_000, 92_000, new int[] {0}, new float[] {1}, new float[] {1}));     // a new finger, 1 ms late
+        tick(3000); MrPerf.frameBegin(); tick(2000); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("a press that no frame answered for 2 s is let go: the new one counts from its own touch (6 ms = 1 + 3 + 2)", true,
+                String.valueOf(pr.row.summary).contains("Worst press: 6.0 ms from the touch to the first frame · touch seen after 1.0 ms"));
+        MrPerf.reset();
+        MrPerf.sFakeNanos = 9_000_000_000L;
+        SystemClock.now = 90_000;
+        MrPerf.touch(MotionEvent.stub(0, 0, 89_000, 90_000, new int[] {0}, new float[] {1}, new float[] {1}));
+        MrPerf.sFakeNanos = 11_001_000_000L;
+        MrPerf.frameBegin(); tick(1000); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("a first frame more than 2 s after the touch is not that touch's: no line", !String.valueOf(pr.row.summary).contains("Worst press"));
+        MrPerf.frameBegin(); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("... and the wait is over", !String.valueOf(pr.row.summary).contains("Worst press"));
+        // the reset forgets the wait
+        MrPerf.touch(MotionEvent.stub(0, 0, 89_000, 90_000, new int[] {0}, new float[] {1}, new float[] {1}));
+        MrPerf.reset();
+        tick(1000); MrPerf.frameBegin(); tick(1000); MrPerf.frameEnd();
+        MrPerf.fill(pr);
+        check("the reset forgets the touch that waited for its frame", !String.valueOf(pr.row.summary).contains("Worst press"));
 
         // ---------------------------------------------------------------- the row
         MrPerf.reset();

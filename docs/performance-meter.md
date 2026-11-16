@@ -456,6 +456,44 @@ with a control that can see one still held), `PerfTest.java` (`MrLive` with real
 service held and let go of, null, the reset, the row) and `docs/tools/test_perf_meter.py` (the line in its place, the reset, the texts in three
 languages).
 
+## The press: from the touch to the first frame
+
+Not in 1.99.0: it comes with 2.0.0 (notes in `docs/release-notes/v2.0.0.md`).
+
+A long press can feel late for two different reasons: the touch reached the keyboard late, or the keyboard got it on time and the key was drawn late.
+"Touch wait" and the worst long press already say how late the touch was seen; they do not say how long the key took to be **shown pressed**,
+which is what a finger notices first (the highlight of the key). The line **Worst press** adds it:
+
+`Worst press: 139 ms from the touch to the first frame · touch seen after 130 ms (of it, the keyboard's own work 120 ms) · handling the touch 3 ms · wait for the frame 5 ms · drawing 4 ms`
+
+- **From the touch to the first frame**: from the event time of a finger down (the first finger of a wait) to the end of the first frame of the
+  keyboard view after it (`MrPerf.touch` arms it, `frameBegin` / `frameEnd` close it). It is the worst one since the reset (no average: tap the row
+  to start, press, read). A frame that came more than 2 s after the touch is not that touch's, and a press that no frame answered for 2 s is let go.
+- **Touch seen after**: the same time as "Touch wait" for that press. **Of it, the keyboard's own work**: how much of it the keyboard was busy with
+  work the meter measures (a key, a message, a selection change, a frame...) when the event arrived: the end of the last piece of work against the
+  moment the event came, never more than the whole lateness. What is not "of it" came before the event reached the main thread (the system, the
+  touch hardware) or was work the meter does not measure.
+- **Handling the touch**: from the touch seen to the end of `LatinKeyboardBaseView.onTouchEvent(MotionEvent)`, that is, what the keyboard does with
+  the finger down itself (the highlight, the feedback of the press, the timers, the key). It stays 0 when the keyboard did not hand the touch to that
+  method (a gesture took it over). **Wait for the frame**: from the end of that handling to the start of the frame that draws the key. A display
+  that is at a low refresh rate, or a frame that the system schedules late, shows here. **Drawing**: the frame itself (with a window drawn by the
+  GPU, the time to record it).
+
+How to read it (open Advanced → Performance → Keyboard times, tap the row, press the key that felt late, come back):
+
+| What is large | What it says |
+|---------------|--------------|
+| touch seen after, and "of it" is about the same | the keyboard's own work (or its wait for an app) held the touch: look at the line of the work |
+| touch seen after, "of it" small | the touch came late: the system or the touch hardware (a gesture bar of the system, the touch scan rate, the CPU waking) |
+| handling the touch | the keyboard itself was slow with the finger down (feedback of the press, a call to another process): look at the line of the work |
+| wait for the frame | the touch was on time, the keyboard was done with it and the frame started late: the refresh rate of the display, or the main thread |
+| none of them, and the key still felt late | the delay is after the frame was recorded (the display), which this line does not see |
+
+The cost is three clock readings per finger down and per first frame, one more store at the end of each piece of work already measured, and no
+allocation. Tests: `PerfTest.java` and `docs/tools/test_perf_meter.py` (a press of 17 ms with its parts, the work that was still running, work that
+ended before the event, the same moment, an event from the future, a second finger, the end of the handling and a touch that was not handled, a press that
+no frame answered, a frame after 2 s, the reset, the text missing).
+
 ## Long press: the timer counts from the touch
 
 Not in 1.99.0: it comes with 2.0.0 (notes in `docs/release-notes/v2.0.0.md`).

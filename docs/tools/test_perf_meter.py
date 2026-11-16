@@ -62,6 +62,7 @@ TEXTS = {
     "mr_ui_perf_stat": "%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)",
     "mr_ui_perf_long_late": "LongLate", "mr_ui_perf_long_worst": "Worst (%1$s) %2$s/%3$s/%4$s/%5$s/%6$s",
     "mr_ui_perf_long_key_sheet": "sheet", "mr_ui_perf_long_key_other": "other",
+    "mr_ui_perf_press_worst": "WorstPress %1$s/%2$s/%3$s/%4$s/%5$s/%6$s",
     "mr_ui_perf_one": "%1$s: %2$s ms", "mr_ui_perf_none": "Nothing yet.", "mr_ui_perf_mem": "Memory: Java %1$s · native %2$s",
     "mr_ui_perf_reset": "Tap to reset.",
     "mr_ui_perf_starts": "%1$s, last %2$d starts: min %3$s ms · median %4$s · max %5$s"}
@@ -658,6 +659,166 @@ check("parts that came out negative (clock steps) are shown as 0", "Worst (sheet
       summary_for().split("\n"))
 fw.run("reset()V")
 
+# ---------------------------------------------------------------- the press: from the finger down to the first frame, with the real smali
+# touch() arms the wait for the first frame of the keyboard after a finger down; frameBegin/frameEnd close it; the worst one is kept with its parts
+# (touch seen after, of it the keyboard's own measured work, handling the touch, wait for the frame, drawing), all in ms.
+def press_line():
+    return [l for l in summary_for().split("\n") if l.startswith("WorstPress")]
+
+
+fw.run("reset()V")
+fw.set_nanos(1000000 * 1000)       # 1000 ms on the nano clock
+fw.uptime = 50000
+check("nothing pressed yet: no worst press line", press_line() == [])
+fw.run("frameBegin()V"); fw.tick(3000); fw.run("frameEnd()V")
+check("a frame without a touch before it is not a press", press_line() == [])
+fw.tick(20000)
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 49996))       # seen 4 ms after it happened
+fw.tick(10000); fw.run("frameBegin()V"); fw.tick(3000); fw.run("frameEnd()V")
+check("a finger down seen 4 ms late, its frame begun 10 ms later and drawn in 3: 17 ms in all, 4 + 0 + 10 + 3",
+      press_line() == ["WorstPress 17.0/4.0/0.0/0.0/10.0/3.0"], press_line())
+fw.run("frameBegin()V"); fw.tick(30000); fw.run("frameEnd()V")
+check("the next frame is not the press again", press_line() == ["WorstPress 17.0/4.0/0.0/0.0/10.0/3.0"], press_line())
+ls = summary_for().split("\n")
+check("the line comes after the kinds and the long press ones, before the memory", ls[-3].startswith("WorstPress") or ls[-2].startswith("WorstPress"), ls)
+
+# a milder press does not replace it
+fw.uptime = 60000
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 60000))
+fw.tick(2000); fw.run("frameBegin()V"); fw.tick(2000); fw.run("frameEnd()V")
+check("a milder press (4 ms) does not replace the worst (17 ms)", press_line() == ["WorstPress 17.0/4.0/0.0/0.0/10.0/3.0"], press_line())
+
+# the keyboard's own work that was still running when the event arrived: a key of 150 ms that ended, then the touch seen 130 ms late
+fw.run("reset()V")
+fw.set_nanos(5000 * 1000000)
+fw.run("keyBegin(I)V", 97); fw.tick(150000); fw.run("keyEnd()V")        # the key ended at 5150 ms
+fw.tick(10000)                                                           # the touch is seen at 5160 ms
+fw.uptime = 90000
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 89870))         # 130 ms late: it happened at 5030 ms, when the key was still running
+fw.tick(5000); fw.run("frameBegin()V"); fw.tick(4000); fw.run("frameEnd()V")
+check("an event that came in 130 ms before it was seen, while a key was running until 120 ms after it came: seen after 130, of it 120 the keyboard's own",
+      press_line() == ["WorstPress 139.0/130.0/120.0/0.0/5.0/4.0"], press_line())
+
+# the work ended before the event arrived: none of the lateness is ours
+fw.run("reset()V")
+fw.set_nanos(5000 * 1000000)
+fw.run("keyBegin(I)V", 97); fw.tick(20000); fw.run("keyEnd()V")          # ended at 5020 ms
+fw.tick(80000)                                                           # seen at 5100 ms
+fw.uptime = 90000
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 89950))         # 50 ms late: it happened at 5050 ms, after the key ended
+fw.tick(1000); fw.run("frameBegin()V"); fw.tick(1000); fw.run("frameEnd()V")
+check("a key that ended before the event arrived: 0 of the lateness is the keyboard's own", press_line() == ["WorstPress 52.0/50.0/0.0/0.0/1.0/1.0"], press_line())
+
+# the work ended at the very moment the touch was seen: all of the lateness (never more)
+fw.run("reset()V")
+fw.set_nanos(5000 * 1000000)
+fw.run("msgBegin()V"); fw.tick(200000); fw.run("msgEnd()V")             # ended at 5200 ms = now
+fw.uptime = 90000
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 89900))         # 100 ms late
+fw.run("frameBegin()V"); fw.run("frameEnd()V")
+check("work that ended at the moment of the sight: all of the 100 ms, never more", press_line() == ["WorstPress 100.0/100.0/100.0/0.0/0.0/0.0"], press_line())
+
+# an event stamped in the future of the clock is seen on time (0 late), never negative
+fw.run("reset()V")
+fw.set_nanos(6000 * 1000000)
+fw.uptime = 90000
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 90010))
+fw.tick(2000); fw.run("frameBegin()V"); fw.tick(1000); fw.run("frameEnd()V")
+check("an event from the future: seen after 0, then 2 ms for the frame and 1 ms drawing (3 ms in all)", press_line() == ["WorstPress 3.0/0.0/0.0/0.0/2.0/1.0"], press_line())
+
+# only the first finger of a wait counts
+fw.run("reset()V")
+fw.set_nanos(7000 * 1000000)
+fw.uptime = 90000
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 89990))         # first finger: 10 ms late
+fw.tick(5000)
+fw.uptime = 90005
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(5, 89960))         # a second finger 45 ms late, before any frame
+fw.tick(5000); fw.run("frameBegin()V"); fw.tick(2000); fw.run("frameEnd()V")
+check("a second finger before the frame does not replace the first (10 ms late; waited 5 + 5 for the frame)", press_line() == ["WorstPress 22.0/10.0/0.0/0.0/10.0/2.0"], press_line())
+
+# the handling of the touch by the keyboard (handled() is called when LatinKeyboardBaseView.onTouchEvent returns)
+fw.run("reset()V")
+fw.set_nanos(12000 * 1000000)
+fw.uptime = 90000
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 89996))         # seen 4 ms late
+fw.tick(6000); fw.run("handled()V")
+fw.tick(3000); fw.run("frameBegin()V"); fw.tick(2000); fw.run("frameEnd()V")
+check("a finger down seen 4 ms late, handled in 6 ms, its frame begun 3 ms later and drawn in 2: 15 ms in all, 4 + 6 + 3 + 2",
+      press_line() == ["WorstPress 15.0/4.0/0.0/6.0/3.0/2.0"], press_line())
+
+fw.run("reset()V")
+fw.set_nanos(13000 * 1000000)
+fw.run("handled()V")                                                     # nobody touched: nothing is waiting
+fw.uptime = 90000
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 90000))
+fw.tick(2000); fw.run("handled()V")
+fw.tick(7000); fw.run("handled()V")                                      # a second call is not another end
+fw.tick(1000); fw.run("frameBegin()V"); fw.tick(1000); fw.run("frameEnd()V")
+check("the handling ends at the first call (2 ms); a call before the touch and a second one later change nothing",
+      press_line() == ["WorstPress 11.0/0.0/0.0/2.0/8.0/1.0"], press_line())
+
+fw.run("reset()V")
+fw.set_nanos(14000 * 1000000)
+fw.uptime = 90000
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 90000))
+fw.tick(1000)
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(2, 90000))         # the next touch event closes the handling of the down
+fw.tick(4000); fw.run("handled()V")
+fw.tick(1000); fw.run("frameBegin()V"); fw.tick(1000); fw.run("frameEnd()V")
+check("a touch the keyboard did not hand to its handler (a gesture took it): no handling, all the time is the wait",
+      press_line() == ["WorstPress 7.0/0.0/0.0/0.0/6.0/1.0"], press_line())
+
+fw.run("reset()V")
+fw.set_nanos(15000 * 1000000)
+fw.uptime = 90000
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 90000))
+fw.run("reset()V")
+check("the reset forgets the finger that was being handled", fw.perf.statics["sPressOpen"] == 0, fw.perf.statics["sPressOpen"])
+fw.run("handled()V")
+check("... and a call after it leaves no end of the handling", fw.perf.statics["sPressHandledNs"] == -1, fw.perf.statics["sPressHandledNs"])
+fw.tick(1000); fw.run("frameBegin()V"); fw.tick(1000); fw.run("frameEnd()V")
+check("... and no line comes of it", press_line() == [], press_line())
+
+# a press whose frame never came is let go after 2 s, and a new touch starts again
+fw.run("reset()V")
+fw.set_nanos(8000 * 1000000)
+fw.uptime = 90000
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 90000))
+fw.tick(2000001 * 1)                                                     # 2.000001 s later... (us) = 2 ms: the next lines use ms below
+fw.set_nanos(8000 * 1000000 + 2001 * 1000000)                            # 2001 ms later, no frame in between
+fw.uptime = 92001
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 92000))         # a new finger, 1 ms late
+fw.tick(3000); fw.run("frameBegin()V"); fw.tick(2000); fw.run("frameEnd()V")
+check("a press that no frame answered for 2 s is let go: the new one counts from its own touch (1 + 3 + 2 ms)", press_line() == ["WorstPress 6.0/1.0/0.0/0.0/3.0/2.0"], press_line())
+fw.run("reset()V")
+fw.set_nanos(9000 * 1000000)
+fw.uptime = 90000
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 90000))
+fw.set_nanos(9000 * 1000000 + 2001 * 1000000)
+fw.run("frameBegin()V"); fw.tick(1000); fw.run("frameEnd()V")
+check("a first frame that came more than 2 s after the touch is not the frame of that touch: no line", press_line() == [], press_line())
+check("... and the wait is over (a later frame does not count it)", (fw.run("frameBegin()V"), fw.run("frameEnd()V"), press_line())[2] == [])
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 90000))
+fw.run("frameBegin()V"); fw.tick(1000); fw.run("frameEnd()V")
+check("... and a touch after it is measured as usual", len(press_line()) == 1, press_line())
+
+# the text missing: the line is left out; the reset takes the numbers and the wait away
+fw.missing = {"mr_ui_perf_press_worst"}
+check("the text of the line missing: it is left out and no 'None' is written", press_line() == [] and "None" not in summary_for())
+fw.missing = set()
+fw.run("reset()V")
+check("the reset takes the worst press away", press_line() == [])
+fw.uptime = 90000
+fw.run("touch(Landroid/view/MotionEvent;)V", fw.event(0, 90000))         # waiting for a frame...
+fw.run("reset()V")                                                       # ...and the reset forgets the wait
+st_ = fw.perf.statics
+check("the reset leaves nothing waiting, no worst press and no end of work remembered", st_["sPressOn"] == 0 and st_["sLastEnd"] == -1 and st_["sWorstPress"] == -1,
+      (st_["sPressOn"], st_["sLastEnd"], st_["sWorstPress"]))
+fw.tick(1000); fw.run("frameBegin()V"); fw.tick(1000); fw.run("frameEnd()V")
+check("the reset also forgets the touch that waited for its frame", press_line() == [], press_line())
+fw.run("reset()V")
+
 # ---------------------------------------------------------------- the history of the starts, with the real smali
 # One process gives one sample of "Start the keyboard" and of "Build the keyboard", and the same build varies a lot from one start to the
 # next, so the Advanced screen keeps the last 9 starts it saw and shows their minimum, median and maximum. Saved when the screen opens.
@@ -1015,6 +1176,10 @@ check("the touch is the first line of the keyboard view", c[0] == "invoke-static
 check("... and its event time goes to MrLongPress right after it, before the gesture typing sees the touch",
       c[1] == "invoke-static {p1}, " + LP + "->event(Landroid/view/MotionEvent;)V"
       and c[2].startswith("invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrGestureInput;->onTouch("), c[:3])
+c = code(body("LatinKeyboardBaseView.smali", "public onTouchEvent(Landroid/view/MotionEvent;)Z"))
+check("the end of the handling of the touch: LatinKeyboardBaseView.onTouchEvent(MotionEvent) calls the real handler, then MrPerf.handled(), then returns its result",
+      sum(PERF + "->handled()V" in l for l in c) == 1 and c[-1].startswith("return ") and c[-2] == "invoke-static {}, " + PERF + "->handled()V"
+      and c[-3].startswith("move-result ") and "onTouchEvent(Landroid/view/MotionEvent;Z)Z" in c[-4], c[-5:])
 c = code(body("PrefScreenAdvanced.smali", "protected onResume()V"))
 check("the Advanced screen fills the row when it resumes",
       "invoke-static {p0}, " + PERF + "->fill(Landroid/preference/PreferenceActivity;)V" in c)
@@ -1026,7 +1191,7 @@ for f in os.listdir(APP):
     if f.endswith(".smali") and not f.startswith("MrPerf") and not f.startswith("MrTrim") and not f.startswith("MrLongPress"):
         called |= set(re.findall(re.escape(PERF) + r"->(\w+\([^)]*\)\S+)", open(os.path.join(APP, f), encoding="utf-8").read()))
 missing = [m for m in sorted(called) if not re.search(r"\.method public static " + re.escape(m) + r"\n", perf_src)]
-check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 53,
+check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 54,
       (missing, len(called)))
 
 xml = open(os.path.join(ROOT, "res", "xml", "prefs_advanced.xml"), encoding="utf-8").read()
@@ -1038,7 +1203,7 @@ check("its layout shows every line (no maxLines)", "android:id/summary" in lay a
 needed = ["mr_ui_perf_" + k.replace("-", "_") for k in KINDS] + ["mr_ui_perf", "mr_ui_perf_stat", "mr_ui_perf_one", "mr_ui_perf_none", "mr_ui_perf_mem",
                                               "mr_ui_perf_reset", "mr_ui_perf_starts", "mr_ui_cat_perf", "mr_ui_cat_perf_sum",
                                               "mr_ui_perf_trim_last", "mr_ui_perf_alive", "mr_ui_perf_long_worst",
-                                              "mr_ui_perf_long_key_sheet", "mr_ui_perf_long_key_other",
+                                              "mr_ui_perf_long_key_sheet", "mr_ui_perf_long_key_other", "mr_ui_perf_press_worst",
                                               "mr_ui_perf_trim_now", "mr_ui_perf_trim_now_sum"]
 specs = {}
 for lang in ("values", "values-pt-rBR", "values-es"):
@@ -1048,7 +1213,15 @@ for lang in ("values", "values-pt-rBR", "values-es"):
     check("the texts of the row in %s" % lang, not gone, gone)
     specs[lang] = {n: sorted(re.findall(r"%\d\$[sd]", have.get(n, ""))) for n in needed}
 check("the same placeholders in the three languages", specs["values"] == specs["values-pt-rBR"] == specs["values-es"])
+# aapt2 refuses a string with an apostrophe or a double quote that is not escaped (unless the whole text is in quotes): the APK would not build
+for lang in ("values", "values-pt-rBR", "values-es"):
+    src = open(os.path.join(ROOT, "res", lang, "mr_strings.xml"), encoding="utf-8").read()
+    unescaped = [n for n, v in re.findall(r'<string name="([^"]+)"[^>]*>([^<]*)</string>', src)
+                 if not (v.startswith('"') and v.endswith('"')) and re.search(r"(?<!\\)['\"]", v)]
+    check("mr_strings.xml (%s): no apostrophe or quote that aapt2 would refuse" % lang, not unescaped, unescaped)
 check("the line of a kind has its five values", specs["values"]["mr_ui_perf_stat"] == ["%1$s", "%2$s", "%3$s", "%4$s", "%5$d"])
+check("the worst press has its six values (the whole time, touch seen after, of it the keyboard's own work, handling the touch, wait for the frame, drawing)",
+      specs["values"]["mr_ui_perf_press_worst"] == ["%1$s", "%2$s", "%3$s", "%4$s", "%5$s", "%6$s"], specs["values"]["mr_ui_perf_press_worst"])
 check("the line of what is alive has its two values (services, input views)", specs["values"]["mr_ui_perf_alive"] == ["%1$d", "%2$d"],
       specs["values"]["mr_ui_perf_alive"])
 # the text of the row that runs the cleanup names the two lines it points to, with the words those lines really begin with, and does not

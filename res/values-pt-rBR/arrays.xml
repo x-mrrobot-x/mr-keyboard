@@ -27,7 +27,6 @@
     </string-array>
     <string-array name="popup_content_entries">
         <item>Desligado: nada abre ao segurar</item>
-        <item>Desligado: segurar repete a tecla</item>
         <item>Só acentos e símbolos: 3 ⇒ ³, e ⇒ é</item>
         <item>Acentos e símbolos + maiúscula: 3 ⇒ #³, e ⇒ Eé</item>
         <item>Completo (a própria tecla, maiúscula, acentos e símbolos): 3 ⇒ 3#³, e ⇒ eEé</item>

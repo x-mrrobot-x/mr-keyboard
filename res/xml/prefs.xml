@@ -29,8 +29,9 @@
     <ListPreference android:persistent="true" android:entries="@array/voice_input_modes" android:title="@string/voice_input" android:key="voice_mode" android:defaultValue="@string/voice_mode_symbols" android:entryValues="@array/voice_input_modes_values"/>
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_touch" android:key="altchar_settings" android:summary="@string/mr_ui_cat_touch_sum" android:icon="@drawable/mr_ui_ic_tap_amber">
-    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_long_press_duration" android:summary="@string/mr_long_press_duration_sum" android:key="pref_long_press_duration" android:defaultValue="@string/default_long_press_duration" hk:displayFormat="%.0f ms" hk:logScale="true" hk:maxValue="2000.0" hk:minValue="100.0"/>
-    <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/popup_content_entries" android:title="@string/title_popup_content" android:key="pref_popup_content" android:defaultValue="@string/default_popup_content" android:entryValues="@array/popup_content_values"/>
+    <PreferenceScreen android:title="@string/mr_longpress_title" android:summary="@string/mr_longpress_row_sum">
+      <intent android:action="com.mrkeyboard.app.PREFS_LONG_PRESS"/>
+    </PreferenceScreen>
     <PreferenceScreen android:title="@string/pref_screen_feedback_title" android:summary="@string/summary_pref_screen_feedback">
       <intent android:action="com.mrkeyboard.app.PREFS_FEEDBACK"/>
     </PreferenceScreen>
