@@ -3,6 +3,8 @@ package android.view.inputmethod;
 /** Compile stub: only what the new layer uses. */
 public interface InputConnection {
     CharSequence getTextBeforeCursor(int n, int flags);
+    /** default: whoever already implements the stub (tests) does not need to change. */
+    default CharSequence getTextAfterCursor(int n, int flags) { return null; }
     CharSequence getSelectedText(int flags);
     boolean commitText(CharSequence text, int newCursorPosition);
     boolean deleteSurroundingText(int beforeLength, int afterLength);

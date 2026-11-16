@@ -43,7 +43,10 @@ public class WordDelTest {
         StringBuilder text = new StringBuilder();
         String selected;
         boolean silent, fall;
-        int reads, deletes, begins, ends, finishes;
+        String after = "";                   // the text after the cursor (never touched by the fake)
+        boolean noAfter;                     // the text after the cursor cannot be read
+        int reads, deletes, begins, ends, finishes, commits, lastPos;
+        String lastCommit;
         int compStart = -1;                  // the composing region runs from here to the end of the text; -1 = none
 
         public CharSequence getTextBeforeCursor(int n, int flags) {
@@ -53,7 +56,21 @@ public class WordDelTest {
             return text.substring(Math.max(0, text.length() - n));
         }
         public CharSequence getSelectedText(int flags) { return selected; }
-        public boolean commitText(CharSequence t, int pos) { text.append(t); return true; }
+        public CharSequence getTextAfterCursor(int n, int flags) {
+            if (fall) throw new IllegalStateException("the app fell over");
+            if (noAfter) return null;
+            return after.substring(0, Math.min(n, after.length()));
+        }
+        /** Like Android: the composing region, when there is one, is replaced by the text. */
+        public boolean commitText(CharSequence t, int pos) {
+            commits++;
+            lastCommit = t.toString();
+            lastPos = pos;
+            if (compStart >= 0 && compStart <= text.length()) text.setLength(compStart);
+            compStart = -1;
+            text.append(t);
+            return true;
+        }
         public boolean deleteSurroundingText(int before, int after) {
             deletes++;
             int a = text.length();
@@ -80,6 +97,8 @@ public class WordDelTest {
         final Field ic = new Field();
         boolean hasIc = true;
         boolean ctrl;                // mModCtrl
+        boolean other;               // Shift, Alt or Meta is on too
+        int ctrlOnlyAsked;           // times mrCtrlOnly was asked
         boolean ctrlFall;            // asking for Ctrl throws
         int composing;               // letters of the word being typed (mComposing)
         boolean correcting;          // a word reopened by the correction (TextEntryState.isCorrecting)
@@ -88,6 +107,7 @@ public class WordDelTest {
         int dropsAtDelete = -1;      // the deletes done when it was told to (to see the order)
         @Override public InputConnection getCurrentInputConnection() { return hasIc ? ic : null; }
         @Override public boolean mrHoldsWord() { return composing > 0 || correcting; }
+        @Override public boolean mrCtrlOnly() { ctrlOnlyAsked++; return ctrl && !other; }
         @Override public boolean mrCtrlOn() {
             if (ctrlFall) throw new IllegalStateException("no keyboard");
             return ctrl;
@@ -731,6 +751,247 @@ public class WordDelTest {
         check("replay: the repeat cancelled: the next delete is the usual one", !MrWordDelete.onBackspace(cut) && MrWordDelete.interval(50) == 50);
     }
 
+
+    // ---------------------------------------------------------------- Ctrl + Z, word by word
+    /** One Ctrl + delete: a touch with Ctrl on, the word goes, the key is let go. */
+    static boolean cut(Ime ime) {
+        ime.ctrl = true;
+        touch(ime);
+        final boolean done = MrWordDelete.onBackspace(ime);
+        MrWordDelete.up();
+        return done;
+    }
+
+    /** A Ctrl + Z the keyboard sends as a character: true = it was done by the class and the key must not go to the app. */
+    static boolean undo(Ime ime) {
+        ime.ctrl = true;
+        return MrWordDelete.onUndo(ime, 'z');
+    }
+
+    static Ime on4(Prefs p) {
+        on(p);
+        p.set(MrWordDelete.PREF_ON, Boolean.TRUE);
+        final Ime ime = new Ime();
+        ime.ic.text.append("one two three four");
+        return ime;
+    }
+
+    static void undoing() {
+        // two words, then Ctrl + Z one at a time, the last one first
+        Prefs p = new Prefs();
+        Ime ime = on4(p);
+        check("undo: two words taken", cut(ime) && cut(ime) && ime.ic.text.toString().equals("one two "), ime.ic.text);
+        check("undo: the first Ctrl + Z gives back the LAST word taken (and the key is not sent to the app)",
+                undo(ime) && ime.ic.text.toString().equals("one two three "), ime.ic.text);
+        check("undo: the cursor goes after the word written (newCursorPosition 1), the word is what was taken, and the field is not left in a batch",
+                ime.ic.lastPos == 1 && ime.ic.lastCommit.equals("three ") && ime.ic.begins == ime.ic.ends);
+        check("undo: the second gives back the one before: the text is the original again",
+                undo(ime) && ime.ic.text.toString().equals("one two three four"), ime.ic.text);
+        check("undo: a third one is not for the class (nothing left): the key goes to the app", !undo(ime) && ime.ic.text.toString().equals("one two three four"));
+
+        // a capital Z counts, other keys and other modifiers do not
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime); cut(ime);
+        ime.ctrl = true;
+        check("undo: Ctrl + X is not for the class", !MrWordDelete.onUndo(ime, 'x') && ime.ic.text.toString().equals("one "));
+        check("undo: the letter alone, without Ctrl, is not for the class", !(ime.ctrl = false) && !MrWordDelete.onUndo(ime, 'z') && ime.ic.text.toString().equals("one "));
+        ime.ctrl = true;
+        ime.other = true;
+        check("undo: Ctrl with Shift, Alt or Meta (Ctrl + Shift + Z is the redo of the app) is not for the class", !MrWordDelete.onUndo(ime, 'z') && ime.ic.text.toString().equals("one "));
+        ime.other = false;
+        check("undo: ... and what was kept is still there when Ctrl comes alone", MrWordDelete.onUndo(ime, 'Z') && ime.ic.text.toString().equals("one two "), ime.ic.text);
+        check("undo: ... a capital Z does the same (CapsLock, a layout)", undo(ime) && undo(ime) && ime.ic.text.toString().equals("one two three four"));
+
+        // one word alone: the undo of the app gives it back, the class does not take part
+        ime = on4(p = new Prefs());
+        cut(ime);
+        check("undo: one word alone is left to the undo of the app (it gives the same and keeps its own history)",
+                !undo(ime) && ime.ic.commits == 0 && ime.ic.text.toString().equals("one two three "));
+        check("undo: ... and it is let go: nothing stays kept after it", !undo(ime));
+        // ... but after one was written back by the class, the last one is the class's too (the app's step has more words)
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        undo(ime);
+        check("undo: the last one of several is given back by the class as well", undo(ime) && ime.ic.commits == 2 && ime.ic.text.toString().equals("one two three four"));
+
+        // many words, held: a hold takes them one after the other
+        ime = on4(p = new Prefs());
+        ime.ctrl = true;
+        touch(ime);
+        MrWordDelete.onBackspace(ime); MrWordDelete.onBackspace(ime); MrWordDelete.onBackspace(ime);
+        MrWordDelete.up();
+        check("undo: the words of one hold come back one by one, in reverse order",
+                undo(ime) && ime.ic.text.toString().equals("one two ") && undo(ime) && ime.ic.text.toString().equals("one two three ")
+                        && undo(ime) && ime.ic.text.toString().equals("one two three four") && !undo(ime));
+    }
+
+    static void undoValid() {
+        Prefs p = new Prefs();
+        Ime ime = on4(p);
+        cut(ime); cut(ime);
+        // text typed after: the text is not the one the words left
+        ime.ic.text.append("x");
+        check("undo valid: text typed after the delete: not for the class, and everything kept is let go", !undo(ime) && ime.ic.commits == 0);
+        ime.ic.text.setLength(ime.ic.text.length() - 1);
+        check("undo valid: ... even if the text is the same again", !undo(ime) && ime.ic.commits == 0);
+
+        // the cursor moved: the text before it or after it is not the one left
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        ime.ic.after = "tail";
+        check("undo valid: the cursor moved (other text after it): not for the class", !undo(ime) && ime.ic.commits == 0);
+
+        // a selection: Ctrl + Z of the app, not ours (commitText would replace it)
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        ime.ic.selected = "ab";
+        check("undo valid: text selected: not for the class", !undo(ime) && ime.ic.commits == 0);
+        ime.ic.selected = null;
+        check("undo valid: ... and what was kept is let go", !undo(ime));
+
+        // text after the cursor, the same before and after
+        ime = on4(p = new Prefs());
+        ime.ic.after = " tail of the line";
+        cut(ime); cut(ime);
+        check("undo valid: text after the cursor that did not change: the words come back", undo(ime) && undo(ime) && ime.ic.text.toString().equals("one two three four"));
+
+        // the text kept by the first delete is not the one before the second: what was kept is let go first
+        ime = on4(p = new Prefs());
+        cut(ime);                                   // one two three |
+        ime.ic.text.append("zz");                   // typed
+        cut(ime);                                   // takes zz: one two three |
+        check("undo valid: the text changed between two deletes: only the last word is kept (and one alone is the app's)", !undo(ime) && ime.ic.commits == 0);
+
+        // the app holds composing text the keyboard knows nothing of (mrHoldsWord false): it is finished all the same
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        ime.ic.compStart = 4;                       // "one " is underlined in the app; the keyboard holds nothing
+        check("undo valid: composing text the keyboard does not hold is finished by the class: the word is written after it, nothing replaced",
+                undo(ime) && ime.ic.text.toString().equals("one two three ") && ime.ic.finishes >= 1, ime.ic.text);
+        // a word reopened by the correction when the next Ctrl + Z comes: the app holds it as composing text
+        ime = on4(p = new Prefs());
+        ime.ic.text.setLength(0);
+        ime.ic.text.append("alpha beta gamma");
+        cut(ime); cut(ime);                         // alpha |
+        undo(ime);                                  // alpha beta |
+        ime.ic.text.setLength(ime.ic.text.length() - 1);       // put the cursor against "beta" the way a re-correction sees it
+        ime.ic.text.append(' ');
+        ime.ic.compStart = 6;                       // the app holds "beta " as composing text
+        ime.correcting = true;
+        // the text is the one the first word left? "alpha beta |" yes: so the last kept word comes back over a composing region
+        boolean back = undo(ime);
+        check("undo valid: the composing text is finished before the word is written (commitText would replace it)",
+                back && ime.ic.text.toString().equals("alpha beta gamma") && ime.ic.finishes >= 1 && ime.drops >= 1 && ime.ic.compStart == -1, ime.ic.text);
+    }
+
+    static void undoExpires() {
+        Prefs p = new Prefs();
+        Ime ime = on4(p);
+        MrWordDelete.sClock = 1000;
+        cut(ime); cut(ime);
+        MrWordDelete.sClock = 1000 + MrWordDelete.UNDO_LIFETIME_MS - 1;
+        check("expire: just before its time a word is still there", undo(ime) && ime.ic.text.toString().equals("one two three "));
+        MrWordDelete.sClock = 1000 + MrWordDelete.UNDO_LIFETIME_MS;
+        check("expire: at its time it is gone: the key goes to the app and the text is left as it is", !undo(ime) && ime.ic.text.toString().equals("one two three "));
+        MrWordDelete.sClock = 1000;
+        check("expire: and it does not come back", !undo(ime) && ime.ic.commits == 1);
+
+        // only the old ones go
+        ime = on4(p = new Prefs());
+        MrWordDelete.sClock = 0;
+        cut(ime);                                   // one two three |
+        MrWordDelete.sClock = MrWordDelete.UNDO_LIFETIME_MS - 10;
+        cut(ime);                                   // one two |
+        MrWordDelete.sClock = MrWordDelete.UNDO_LIFETIME_MS + 5;
+        check("expire: the old one went, the new one is still there: the class gives that one back, not the pair (so not the app's step)",
+                undo(ime) && ime.ic.text.toString().equals("one two three "), ime.ic.text);
+        check("expire: ... and then nothing is left", !undo(ime));
+
+        // letting go happens with the next key typed, not only with a Ctrl + Z: a key other than Z purges too
+        ime = on4(p = new Prefs());
+        MrWordDelete.sClock = 0;
+        cut(ime); cut(ime);
+        MrWordDelete.sClock = MrWordDelete.UNDO_LIFETIME_MS;
+        ime.ctrl = true;
+        check("expire: another key after the time: not for the class", !MrWordDelete.onUndo(ime, 'a'));
+        MrWordDelete.sClock = 0;                     // even if the clock went back, what expired is gone
+        check("expire: ... and what expired was let go with it", !undo(ime) && ime.ic.commits == 0);
+
+        // the oldest goes when there are more than the limit
+        ime = on4(p = new Prefs());
+        MrWordDelete.sClock = 0;
+        ime.ic.text.setLength(0);
+        final int words = MrWordDelete.UNDO_MAX + 5;
+        for (int i = 0; i < words; i++) ime.ic.text.append("w").append(i).append(' ');
+        for (int i = 0; i < words; i++) cut(ime);
+        int given = 0;
+        while (undo(ime)) given++;
+        check("expire: at most UNDO_MAX words are kept (the oldest goes first)", given == MrWordDelete.UNDO_MAX, given);
+        final StringBuilder expected = new StringBuilder();
+        for (int i = 0; i < MrWordDelete.UNDO_MAX; i++) expected.append("w").append(i).append(' ');
+        check("expire: ... and they are the newest ones taken: the words nearest the start of the text, the oldest cuts are lost",
+                ime.ic.text.toString().equals(expected.toString()), ime.ic.text);
+        MrWordDelete.sClock = -1;
+    }
+
+    static void undoOff() {
+        Prefs p = new Prefs();
+        Ime ime = on4(p);
+        cut(ime); cut(ime);
+        p.set(MrWordDelete.PREF_ON, Boolean.FALSE);
+        p.set(MrWordDelete.PREF_ON, Boolean.TRUE);
+        check("undo off: setting turned off and on again: what was kept is gone (nothing is asked of the keyboard or the app)",
+                !undo(ime) && ime.ic.commits == 0 && ime.ctrlOnlyAsked == 0);
+        cut(ime); cut(ime);
+        p.set(MrWordDelete.PREF_ON, Boolean.FALSE);
+        check("undo off: setting off: the key goes to the app", !undo(ime) && ime.ic.commits == 0);
+
+        // nothing kept: the first line, the app is not asked, the keyboard is not asked
+        on(p = new Prefs());
+        ime = new Ime();
+        ime.ic.text.append("one two");
+        ime.ctrl = true;
+        check("undo off: nothing kept: false at once, nothing read, nothing asked of the keyboard",
+                !MrWordDelete.onUndo(ime, 'z') && ime.ic.reads == 0 && ime.ctrlOnlyAsked == 0 && ime.ic.commits == 0);
+        // the setting off: a Ctrl + delete never keeps anything
+        cut(ime);
+        check("undo off: setting off: Ctrl + delete keeps nothing", !undo(ime) && ime.ctrlOnlyAsked == 0);
+    }
+
+    static void undoFaults() {
+        Prefs p = new Prefs();
+        Ime ime = on4(p);
+        cut(ime); cut(ime);
+        ime.ic.fall = true;
+        boolean threw = false, r = true;
+        try { r = undo(ime); } catch (Throwable t) { threw = true; }
+        check("undo fault: the app falls over: nothing is thrown, the key goes to the app", !threw && !r);
+        ime.ic.fall = false;
+        check("undo fault: ... and what was kept is let go", !undo(ime));
+
+        // the text after the cursor cannot be read: the delete is done, nothing is kept
+        ime = on4(p = new Prefs());
+        ime.ic.noAfter = true;
+        check("undo fault: text after the cursor unreadable: the word still goes", cut(ime) && ime.ic.text.toString().equals("one two three "));
+        check("undo fault: ... nothing is kept", !cut(ime) || !undo(ime));
+        ime.ic.noAfter = false;
+        check("undo fault: ... (the one word of the second delete is the app's)", !undo(ime));
+
+        // the keyboard asked for Ctrl falls over: not for the class
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        ime.ic.silent = true;
+        check("undo fault: the text before the cursor unreadable: not for the class", !undo(ime) && ime.ic.commits == 0);
+        ime.ic.silent = false;
+        check("undo fault: ... and what was kept is let go", !undo(ime));
+
+        // no field
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        ime.hasIc = false;
+        check("undo fault: no field: not for the class", !undo(ime));
+    }
+
     public static void main(String[] args) {
         words();
         invariants();
@@ -741,6 +1002,11 @@ public class WordDelTest {
         off();
         typed();
         replays();
+        undoing();
+        undoValid();
+        undoExpires();
+        undoOff();
+        undoFaults();
         MrWordDelete.resetForTest();
         PreferenceManager.stubDefault = null;
         LatinIME.sInstance = null;

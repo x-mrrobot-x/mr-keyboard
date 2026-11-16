@@ -13,6 +13,8 @@ public class LatinIME extends android.inputmethodservice.InputMethodService {
     public boolean mrHoldsWord() { return false; }
     /** Ctrl is on (armed or held). Added to the real class in the smali (Ctrl + delete by words). */
     public boolean mrCtrlOn() { return false; }
+    /** Ctrl is on and nothing else (no Shift, Alt or Meta). Added to the real class in the smali (Ctrl + Z by words). */
+    public boolean mrCtrlOnly() { return false; }
     /** Lets go of the word the keyboard holds without committing it (not learned); the text stays. Added to the real class in the smali (Ctrl + delete by words). */
     public void mrDropComposing() { }
     /** The suggestion engine of the language in use. Added to the real class in the smali (gesture typing). */

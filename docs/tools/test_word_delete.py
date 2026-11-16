@@ -4,7 +4,8 @@
   - LatinIME.handleBackspace (its hook, and what the keyboard does with the answer) and LatinKeyboardBaseView$UIHandler.cancelKeyRepeatTimer
     and .handleMessage (the repeat) run in the mini Dalvik interpreter (dalvik_mini.py) with a fake MrWordDelete;
   - PointerTracker.onDownEvent (too big to run here): the order of the calls in the branch of the keys that repeat;
-  - the three methods added to LatinIME (mrCtrlOn, mrHoldsWord, mrDropComposing) run in the interpreter;
+  - the hook of Ctrl + Z (LatinIME.sendModifiableKeyChar: first thing, the key is not sent when the class took it) and the methods added to
+    LatinIME (mrCtrlOn, mrCtrlOnly, mrHoldsWord, mrDropComposing) run in the interpreter;
   - nobody else calls MrWordDelete, and what is called exists in the generated smali with the signature used;
   - the settings screen (next to the long-press time), the limits and default against the Java constants, the texts in the three
     languages, the keys in MrReset.
@@ -81,7 +82,7 @@ for f in sorted(glob.glob(os.path.join(APP, "*.smali"))):
 expected = {
     "PointerTracker.smali": {"down(Lcom/mrkeyboard/app/Keyboard$Key;)V"},
     "LatinKeyboardBaseView$UIHandler.smali": {"up()V", "interval(I)I"},
-    "LatinIME.smali": {"onBackspace(Lcom/mrkeyboard/app/LatinIME;)Z"},
+    "LatinIME.smali": {"onBackspace(Lcom/mrkeyboard/app/LatinIME;)Z", "onUndo(Lcom/mrkeyboard/app/LatinIME;C)Z"},
 }
 check("calls: only the four places call MrWordDelete, with these methods", calls == expected, calls)
 
@@ -118,6 +119,8 @@ class Host:
         self.factor = 1          # what MrWordDelete.interval does to the interval (the setting's, 4 = 200 ms)
         self.timer = []
         self.correcting = False  # what TextEntryState.isCorrecting answers
+        self.undo = False        # what MrWordDelete.onUndo answers
+        self.shift = False       # what LatinIME.isShiftMod answers
 
     def sget(self, cls, name):
         raise AssertionError("static %s.%s" % (cls, name))
@@ -134,6 +137,10 @@ class Host:
         self.log.append(("WD." if cls == WD else "") + name)
         if cls == WD and name == "onBackspace":
             return 1 if self.take else 0
+        if cls == WD and name == "onUndo":
+            return 1 if self.undo else 0
+        if name == "isShiftMod":
+            return 1 if self.shift else 0
         if cls == WD and name == "interval":
             return args[0] * self.factor
         if cls == "Lcom/mrkeyboard/app/LatinKeyboardBaseView;" and name == "access$100":
@@ -255,13 +262,52 @@ vm.run("mrDropComposing()V", [this])
 check("mrDropComposing: runs, in this order (run)",
       host.log == ["setLength", "clear", "abortCorrection", "postUpdateSuggestions", "reset"] and this.f["mPredicting"] in (False, 0), host.log)
 
+
+# the hook of Ctrl + Z in sendModifiableKeyChar (every character the keyboard sends goes through it)
+sm = code_lines(method_body(LIME, "public sendModifiableKeyChar(C)V"))
+check("sendModifiableKeyChar: the first thing it does is ask MrWordDelete.onUndo with the keyboard and the character",
+      len(sm) >= 3 and sm[0] == "invoke-static {p0, p1}, " + WD + "->onUndo(Lcom/mrkeyboard/app/LatinIME;C)Z" and sm[1].startswith("move-result"), sm[:3])
+j_hook = index_of(sm, "if-eqz", 0)
+j_orig = index_of(sm, "->isShiftMod()Z", 0)
+check("sendModifiableKeyChar: when the class did not take the key, the original code goes on from where it began (the first thing it asked is isShiftMod)",
+      0 < j_hook < j_orig and sm[j_hook].endswith(":cond_mr_undo") and ":cond_mr_undo" in sm[j_orig - 1], (j_hook, j_orig))
+vm, host = vm_for(LIME, IME, ["handleModifierKeysUp(ZZ)V"])
+host.undo = True
+vm.run("sendModifiableKeyChar(C)V", [dm.Obj(IME), ord("z")])
+check("sendModifiableKeyChar (run): the class took the key: the Ctrl that was on is let go the way a plain character does it (no key sent: handleModifierKeysUp(false, false)), and nothing else is done",
+      host.log == ["WD.onUndo", "handleModifierKeysUp"], host.log)
+
+cs = code_lines(method_body(LIME, "public mrCtrlOnly()Z"))
+check("mrCtrlOnly: Ctrl on, and Alt, Meta and Shift (isShiftMod) off, in this order", 
+      [i for i, l in enumerate(cs) if "->mModCtrl:Z" in l or "->mModAlt:Z" in l or "->mModMeta:Z" in l or "->isShiftMod()Z" in l] != []
+      and "->mModCtrl:Z" in cs[0] and index_of(cs, "->mModAlt:Z") < index_of(cs, "->mModMeta:Z") < index_of(cs, "->isShiftMod()Z"), cs)
+vm, host = vm_for(LIME, IME, ["isShiftMod()Z"])
+
+
+def only(ctrl, alt, meta, shift):
+    host.shift = shift
+    return bool(vm.run("mrCtrlOnly()Z", [dm.Obj(IME, mModCtrl=ctrl, mModAlt=alt, mModMeta=meta)]))
+
+
+check("mrCtrlOnly (run): Ctrl alone -> true", only(True, False, False, False) is True)
+check("mrCtrlOnly (run): no Ctrl -> false", only(False, False, False, False) is False)
+check("mrCtrlOnly (run): Ctrl with Alt -> false", only(True, True, False, False) is False)
+check("mrCtrlOnly (run): Ctrl with Meta -> false", only(True, False, True, False) is False)
+check("mrCtrlOnly (run): Ctrl with Shift (the redo) -> false", only(True, False, False, True) is False)
+
 # the word being typed is never rewritten by this class: the keyboard and the app could disagree about where the composing text is,
 # and a rewrite would then add text instead of replacing it
 mwd = read(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrWordDelete.java"))
 code_only = re.sub(r"/\*.*?\*/", "", mwd, flags=re.S)
 code_only = re.sub(r"//[^\n]*", "", code_only)
-check("MrWordDelete never writes composing text (no setComposingText / commitText / setComposingRegion), only deletes by position",
-      not any(w in code_only for w in ("setComposingText", "commitText", "setComposingRegion", "mrEndWord", "mrCommit")), "")
+check("MrWordDelete never writes composing text (no setComposingText / setComposingRegion), only deletes by position",
+      not any(w in code_only for w in ("setComposingText", "setComposingRegion", "mrEndWord", "mrCommit")), "")
+check("MrWordDelete: the only write is commitText, once, in onUndo, and the app's composing text is finished right before it (commitText replaces composing text)",
+      code_only.count("commitText") == 1 and re.search(r"ic\.finishComposingText\(\);[^;]*\n?\s*ic\.commitText\(cut\.text, 1\);", code_only) is not None)
+check("MrWordDelete: what is kept expires: a lifetime in ms and a limit in words are constants, and onUndo and onBackspace let the expired ones go first",
+      re.search(r"UNDO_LIFETIME_MS = \d+L;", code_only) is not None and re.search(r"UNDO_MAX = \d+;", code_only) is not None
+      and re.search(r"public static boolean onUndo\([^)]*\) \{[^}]*?try \{\s*purge\(\);", code_only, re.S) is not None
+      and re.search(r"n > 0\) \{[^{}]*?purge\(\);", code_only, re.S) is not None)
 check("MrWordDelete: the keyboard's word is let go of, THEN the app is told to finish its composing text, ALWAYS (not inside an if), THEN the delete by position",
       re.search(r"if \(ime\.mrHoldsWord\(\)\) ime\.mrDropComposing\(\);\s*ic\.finishComposingText\(\);\s*ic\.deleteSurroundingText\(n, 0\);", code_only) is not None)
 

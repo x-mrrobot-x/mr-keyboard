@@ -13696,6 +13696,21 @@
 .method public sendModifiableKeyChar(C)V
     .locals 9
 
+    # Ctrl + Z by words: gives back the last word taken by Ctrl + delete (nothing kept: returns at once). The key is not sent to the app.
+    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrWordDelete;->onUndo(Lcom/mrkeyboard/app/LatinIME;C)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_mr_undo
+
+    const/4 v0, 0x0
+
+    invoke-direct {p0, v0, v0}, Lcom/mrkeyboard/app/LatinIME;->handleModifierKeysUp(ZZ)V
+
+    return-void
+
+    :cond_mr_undo
+
     .line 1801
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isShiftMod()Z
 
@@ -14826,6 +14841,38 @@
     .locals 1
 
     iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mModCtrl:Z
+
+    return v0
+.end method
+
+# Ctrl + Z by words (MrWordDelete.onUndo): Ctrl is on and nothing else is (no Shift, Alt or Meta).
+.method public mrCtrlOnly()Z
+    .locals 1
+
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mModCtrl:Z
+
+    if-eqz v0, :cond_no
+
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mModAlt:Z
+
+    if-nez v0, :cond_no
+
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mModMeta:Z
+
+    if-nez v0, :cond_no
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->isShiftMod()Z
+
+    move-result v0
+
+    if-nez v0, :cond_no
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_no
+    const/4 v0, 0x0
 
     return v0
 .end method
