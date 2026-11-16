@@ -136,5 +136,20 @@ want = {"en": "Open on GitHub", "pt": "Abrir no GitHub", "es": "Abrir en GitHub"
 check("update dialog: the GitHub button says 'Open on GitHub' in each language", all(MR[k]["mr_update_github"] == want[k] for k in LANGS),
       {k: MR[k]["mr_update_github"] for k in LANGS})
 
+# ------------------------------------------------------------------ breathing space after the developer card (last row of the screen)
+prefs = read("res", "xml", "prefs.xml")
+author = re.search(r'<Preference [^>]*android:key="mr_author"[^>]*/>', prefs)
+check("developer card: it is the last row of the main settings screen (nothing after it but the closing tags)",
+      author is not None and re.fullmatch(r"\s*</PreferenceCategory>\s*</PreferenceScreen>\s*", prefs[author.end():]) is not None)
+check("developer card: it uses the last-row layout", author is not None and 'android:layout="@layout/mr_ui_pref_row_last"' in author.group(0))
+last = read("res", "layout", "mr_ui_pref_row_last.xml")
+normal = read("res", "layout", "mr_ui_pref_row.xml")
+pad = re.search(r'android:paddingBottom="([\d.]+)dip"', last)
+check("last-row layout: a breathing space of 24dp or more below the card (the normal row has 3dp)",
+      pad is not None and float(pad.group(1)) >= 24.0 and 'android:paddingBottom="3.0dip"' in normal, pad.group(1) if pad else None)
+body = lambda x: x[x.index("<LinearLayout"):]
+check("last-row layout: only that padding differs from the normal row (same card, same title, summary and widget frame)",
+      body(last).replace('android:paddingBottom="28.0dip"', 'android:paddingBottom="3.0dip"', 1) == body(normal))
+
 print("%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

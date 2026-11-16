@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Close (X) of the AI dialog header: both diagonals cross exactly at the center of the 24 viewport,
+     so the icon is centered on both axes when the ImageView is centered in its button. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="20dp" android:height="20dp" android:viewportWidth="24" android:viewportHeight="24">
+    <path android:strokeColor="#ffffffff" android:strokeWidth="2.2" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M5,5L19,19M19,5L5,19" />
+</vector>

@@ -8,7 +8,7 @@
     android:layout_height="match_parent">
     <LinearLayout
         android:orientation="vertical"
-        android:background="@drawable/mr_tune_dialog_bg"
+        android:background="@drawable/mr_ui_dialog_bg"
         android:clickable="true"
         android:layout_gravity="center"
         android:layout_width="match_parent"

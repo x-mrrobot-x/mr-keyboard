@@ -1,4 +1,6 @@
-# AI Editor ("Editor de IA")
+# AI Editor ("Editar com IA")
+
+Name seen in the app (string `mr_ai_title`) since 2.0.0: "Edit with AI" in English, "Editar com IA" in Portuguese and "Editar con IA" in Spanish (until 1.99.0: "AI Editor", "Editor de IA", "Editor con IA"). "AI Editor" stays as the internal name of the code, the tests and this file.
 
 ## Opening from the toolbar
 
@@ -14,6 +16,8 @@ The dialog card uses the height of the current content and is centered in the ar
 
 The dialog uses `Theme.MrKeyboard.Dialog` exclusively and the settings palette (`mr_ui_*`, plus `mr_ai_scrim` in the background); the colors are read straight from the resources, with no fallback values in the code. Chips, result and buttons do not consult `MrTheme` or the keyboard colors (`MrTools.shotTab`, `fieldBg`, `flatBar` etc.), so changing the keyboard theme does not change the colors of the AI Editor. The rest of the keyboard keeps supporting its themes as usual.
 
+The style chips, the result field and the unchecked "Emojificar" box use `mr_ui_slate_soft` with a `mr_ui_slate_line` outline, lighter than the card (`mr_ui_card`); the selected chip and the checked box keep `mr_ui_cyan_soft`/`mr_ui_cyan_line`. In the header, the close button is a 36dp surface with the `ic_mr_close` vector (16dp, both diagonals crossing at the center of the viewport) centered in both axes, and the gear is the same surface with `ic_mr_gear` at 16dp.
+
 ## Structure
 
 - `docs/tools/java/src/com/mrkeyboard/app/MrAi.java`: captures and validates the text, builds the dialog interface, calls the provider, updates the result and applies/copies the text. The network is only used after the person chooses a style.
@@ -24,7 +28,7 @@ The dialog uses `Theme.MrKeyboard.Dialog` exclusively and the settings palette (
 
 ## Network and privacy
 
-The request uses the Chat Completions-compatible endpoint configured in *Configurações → Editor de IA* (Settings → AI Editor). The key goes only in the `Authorization` header of that request. In password fields, the text is neither captured nor sent. The selected text — or the stretch before the cursor — is replaced only if it still matches the original; otherwise, the result can be copied.
+The request uses the Chat Completions-compatible endpoint configured in *Configurações → Editar com IA* (Settings → Edit with AI). The key goes only in the `Authorization` header of that request. In password fields, the text is neither captured nor sent. The selected text — or the stretch before the cursor — is replaced only if it still matches the original; otherwise, the result can be copied.
 
 The manifest does not enable HTTP traffic without TLS. Use an `https://` endpoint; the text of the address dialog (`mr_ai_endpoint_dlg`, in English, Portuguese and Spanish) states this requirement.
 

@@ -36,15 +36,17 @@
                 android:gravity="center_vertical"
                 android:layout_width="match_parent"
                 android:layout_height="44dp">
-                <TextView
-                    android:tag="ai_back"
-                    android:text="×"
-                    android:textSize="23sp"
-                    android:textColor="@color/mr_ui_text2"
-                    android:gravity="center"
-                    android:background="@drawable/mr_ui_card_ripple"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp" />
+                <FrameLayout
+                    style="@style/MrAiDialogIconSurface"
+                    android:tag="ai_back">
+                    <ImageView
+                        android:src="@drawable/ic_mr_close"
+                        android:tint="@color/mr_ui_text2"
+                        android:scaleType="fitCenter"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center" />
+                </FrameLayout>
                 <TextView
                     android:tag="ai_title"
                     android:text="@string/mr_ai_title"
@@ -66,8 +68,8 @@
                         android:src="@drawable/ic_mr_gear"
                         android:tint="@color/mr_ui_text2"
                         android:scaleType="fitCenter"
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
                         android:layout_gravity="center" />
                 </FrameLayout>
             </LinearLayout>

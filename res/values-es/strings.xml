@@ -52,7 +52,7 @@
     <string name="title_popup_content">Acentos y símbolos al mantener la tecla</string>
     <string name="title_suggestions_in_landscape">Sugerencias en modo horizontal</string>
     <string name="title_swipe_down">Deslizar hacia abajo</string>
-    <string name="title_swipe_gestures">Gestos de deslizamiento (experimental)</string>
+    <string name="title_swipe_gestures">Gestos de deslizamiento</string>
     <string name="title_swipe_left">Deslizar hacia la izquierda</string>
     <string name="title_swipe_right">Deslizar hacia la derecha</string>
     <string name="title_swipe_up">Deslizar hacia arriba</string>

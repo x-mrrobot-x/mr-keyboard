@@ -2053,13 +2053,13 @@
 
     .line 265
     :cond_0
-    const-string v0, "mr_ui_sunken"
+    const-string v0, "mr_ui_slate_soft"
 
     goto :goto_0
 
     .line 266
     :cond_1
-    const-string v0, "mr_ui_stroke_strong"
+    const-string v0, "mr_ui_slate_line"
 
     goto :goto_1
 .end method
@@ -2233,13 +2233,13 @@
 
     .prologue
     .line 271
-    const-string v0, "mr_ui_sunken"
+    const-string v0, "mr_ui_slate_soft"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
 
     move-result v0
 
-    const-string v1, "mr_ui_stroke_strong"
+    const-string v1, "mr_ui_slate_line"
 
     .line 272
     invoke-static {v1}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
@@ -4350,13 +4350,13 @@
     return-object v0
 
     :cond_0
-    const-string v0, "mr_ui_card"
+    const-string v0, "mr_ui_slate_soft"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
 
     move-result v0
 
-    const-string v1, "mr_ui_stroke"
+    const-string v1, "mr_ui_slate_line"
 
     .line 261
     invoke-static {v1}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
