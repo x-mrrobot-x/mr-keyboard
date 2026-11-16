@@ -46,11 +46,12 @@
 #     the word, a shorter or another word, clear(), nothing composed, no answer); and one question after the echo of our own separator on
 #     Android 12+ (MrSurround: getSurroundingText answers the character after the cursor and keeps the text before it for the next-word
 #     prediction; Android 11, an app that answers null (asked once per field), a selection and an exception ask as before).
-#   - WordDelTest: delete by words when the delete key is held (MrWordDelete, 2.0.0): what a word is (a table of texts: letters and digits,
+#   - WordDelTest: Ctrl + delete by words (MrWordDelete, 2.0.0): what a word is (a table of texts: letters and digits,
 #     apostrophe and hyphen inside a word, signs, accents as marks, emojis and joined families, blanks, line breaks) and what must hold for any text
-#     (some progress, never more than there is, no half pair of surrogates, no line break taken along with a word), the setting and its limits, the
-#     time held against a fake clock, the interval, what is left to the usual delete (a selection, a word being typed, no text, a failing app), the
-#     setting off, and whole holds replayed on a fake field (the touch, the repeat at 300 ms, then the interval asked) with the exact text left.
+#     (some progress, never more than there is, no half pair of surrogates, no line break taken along with a word), the setting and its limits, Ctrl
+#     read at the touch and kept for the hold, the interval, the word being typed taken whole by the usual delete, what is left to the usual delete
+#     (a selection, no text, a failing app), the setting off, and whole holds replayed on a fake field (the touch, the repeat at 300 ms, then the
+#     interval asked; a one-shot Ctrl goes off after the first key) with the exact text left.
 #   - GridTest: the drawn key grid of the sheet editor (SheetGridView, Java since 1.92.0): the geometry of the cells
 #     (margins, gaps, key height, the "+" of a row, the locked "⌫" and the locked bottom row), the limits (6 rows, 10 keys
 #     per row and 9 in the last one) and the touch rules (tap, cancel, long press, drag and drop, a full row refusing it).
@@ -173,7 +174,7 @@ echo "== KeepTest (tool and keyboard when the screen turns)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_keep" $D/keep_test/KeepTest.java
 java -cp "$T/test_keep:$T/stubs:$T/main" com.mrkeyboard.app.KeepTest
 
-echo "== WordDelTest (delete by words when held: the rule, the setting, the time held, the interval, whole holds replayed)"
+echo "== WordDelTest (Ctrl + delete by words: the rule, the setting, Ctrl at the touch, the interval, the word being typed, whole holds replayed)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_worddel" $D/worddel_test/WordDelTest.java
 java -Dfile.encoding=UTF-8 -cp "$T/test_worddel:$T/stubs:$T/main" com.mrkeyboard.app.WordDelTest
 

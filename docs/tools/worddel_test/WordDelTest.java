@@ -15,12 +15,13 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * PC test of delete by words (MrWordDelete, 2.0.0), run through docs/tools/run_java_tests.sh.
+ * PC test of Ctrl + delete by words (MrWordDelete, 2.0.0), run through docs/tools/run_java_tests.sh.
  *
  * It counts what can be counted: which text goes for each text before the cursor (a table, then random texts for what must always
- * hold), the setting and how it is read, the time held against the clock (a fake one), the interval, and a whole hold replayed the
- * way the keyboard replays it (a first delete on the touch, a repeat after 300 ms, then one every 50 ms or the interval that
- * MrWordDelete.interval gives) on a fake text field. No time of the device goes into it.
+ * hold), the setting and how it is read, Ctrl read at the touch and kept for the hold, the interval, the word being typed, and a
+ * whole hold replayed the way the keyboard replays it (a first delete on the touch, a repeat after 300 ms, then one every 50 ms
+ * or the interval that MrWordDelete.interval gives; a one-shot Ctrl goes off after the first key) on a fake text field. No time
+ * of the device goes into it: a hold is a list of counted repeats.
  */
 public class WordDelTest {
     static int ok = 0, fail = 0;
@@ -38,7 +39,7 @@ public class WordDelTest {
         StringBuilder text = new StringBuilder();
         String selected;
         boolean silent, fall;
-        int reads, deletes;
+        int reads, deletes, begins, ends;
 
         public CharSequence getTextBeforeCursor(int n, int flags) {
             reads++;
@@ -54,16 +55,34 @@ public class WordDelTest {
             return true;
         }
         public boolean finishComposingText() { return true; }
-        public boolean beginBatchEdit() { return true; }
-        public boolean endBatchEdit() { return true; }
+        public boolean beginBatchEdit() { begins++; return true; }
+        public boolean endBatchEdit() { ends++; return true; }
     }
 
+    /** The keyboard as far as MrWordDelete sees it: Ctrl, the word being typed, and the usual delete (handleBackspace). */
     static class Ime extends LatinIME {
         final Field ic = new Field();
         boolean hasIc = true;
-        int composing;
+        boolean ctrl;                // mModCtrl
+        boolean ctrlFall;            // asking for Ctrl throws
+        int composing;               // letters of the word being typed (composing text, the last ones of the text)
+        boolean boom;                // the usual delete throws
+        int backspaces;              // calls of the usual delete from MrWordDelete
+        int reentered;               // the usual delete called from there came back into MrWordDelete and was taken (it must not be)
         @Override public InputConnection getCurrentInputConnection() { return hasIc ? ic : null; }
         @Override public int mrComposingLength() { return composing; }
+        @Override public boolean mrCtrlOn() {
+            if (ctrlFall) throw new IllegalStateException("no keyboard");
+            return ctrl;
+        }
+        /** handleBackspace as the smali has it: MrWordDelete first, then the usual one (a letter of the composing text, or one before the cursor). */
+        @Override public void mrBackspace() {
+            backspaces++;
+            if (boom) throw new IllegalStateException("boom");
+            if (MrWordDelete.onBackspace(this)) reentered++;
+            if (composing > 0) composing--;
+            if (ic.text.length() > 0) ic.text.setLength(ic.text.length() - 1);
+        }
     }
 
     static class Prefs implements SharedPreferences {
@@ -104,6 +123,13 @@ public class WordDelTest {
         MrWordDelete.resetForTest();
         PreferenceManager.stubDefault = p;
         MrWordDelete.init(new Ctx());
+        LatinIME.sInstance = null;
+    }
+
+    /** The delete key goes down on this keyboard (the one the keyboard service is). */
+    static void touch(Ime ime) {
+        LatinIME.sInstance = ime;
+        MrWordDelete.down(DELETE);
     }
 
     // ---------------------------------------------------------------- what a word is
@@ -209,31 +235,33 @@ public class WordDelTest {
 
     // ---------------------------------------------------------------- the setting
     static void setting() {
-        check("after(): 1000.0 (how the seek bar stores it) -> 1000", MrWordDelete.after("1000.0") == 1000);
-        check("after(): 1500 -> 1500", MrWordDelete.after("1500") == 1500);
-        check("after(): 1234.6 -> rounded", MrWordDelete.after("1234.6") == 1235);
-        check("after(): below the limit -> 500", MrWordDelete.after("100") == 500 && MrWordDelete.after("-5") == 500);
-        check("after(): above the limit -> 3000", MrWordDelete.after("9999") == 3000);
-        check("after(): missing or not a number -> the default",
-                MrWordDelete.after(null) == 1000 && MrWordDelete.after("") == 1000 && MrWordDelete.after("abc") == 1000 && MrWordDelete.after("NaN") == 1000);
-        check("after(): blanks around the number are fine", MrWordDelete.after(" 800 ") == 800);
+        check("limits: 100 to 600 ms, 200 by default", MrWordDelete.INTERVAL_MIN == 100 && MrWordDelete.INTERVAL_MAX == 600 && MrWordDelete.INTERVAL_DEFAULT == 200);
+        final int d = MrWordDelete.INTERVAL_DEFAULT;
+        check("interval(): 200.0 (how the seek bar stores it) -> 200", MrWordDelete.interval("200.0", d) == 200);
+        check("interval(): 350 -> 350", MrWordDelete.interval("350", d) == 350);
+        check("interval(): 149.6 -> rounded", MrWordDelete.interval("149.6", d) == 150);
+        check("interval(): below the limit -> 100", MrWordDelete.interval("50", d) == 100 && MrWordDelete.interval("-5", d) == 100);
+        check("interval(): above the limit -> 600", MrWordDelete.interval("9999", d) == 600);
+        check("interval(): missing or not a number -> the fallback",
+                MrWordDelete.interval(null, d) == d && MrWordDelete.interval("", d) == d && MrWordDelete.interval("abc", d) == d && MrWordDelete.interval("NaN", d) == d);
+        check("interval(): blanks around the number are fine", MrWordDelete.interval(" 400 ", d) == 400);
 
         Prefs p = new Prefs();
         on(p);
-        check("setting: off by default, 1000 ms, one listener", !MrWordDelete.sOn && MrWordDelete.sAfter == 1000 && p.listeners.size() == 1);
+        check("setting: off by default, 200 ms, one listener", !MrWordDelete.sOn && MrWordDelete.sInterval == 200 && p.listeners.size() == 1);
         MrWordDelete.init(new Ctx());
         check("setting: a second init adds no listener", p.listeners.size() == 1);
         p.set(MrWordDelete.PREF_ON, Boolean.TRUE);
         check("setting: on", MrWordDelete.sOn);
-        p.set(MrWordDelete.PREF_AFTER, "2000.0");
-        check("setting: the time follows the seek bar (the listener)", MrWordDelete.sAfter == 2000);
+        p.set(MrWordDelete.PREF_INTERVAL, "400.0");
+        check("setting: the interval follows the seek bar (the listener)", MrWordDelete.sInterval == 400);
         p.set("pref_long_press_duration", "300.0");
-        check("setting: another key changes nothing", MrWordDelete.sOn && MrWordDelete.sAfter == 2000);
+        check("setting: another key changes nothing", MrWordDelete.sOn && MrWordDelete.sInterval == 400);
         p.set(MrWordDelete.PREF_ON, Boolean.FALSE);
         check("setting: switched off, off at once", !MrWordDelete.sOn);
         p.set(MrWordDelete.PREF_ON, null);
-        p.set(MrWordDelete.PREF_AFTER, null);
-        check("setting: restore defaults (keys removed): off, 1000 ms", !MrWordDelete.sOn && MrWordDelete.sAfter == 1000);
+        p.set(MrWordDelete.PREF_INTERVAL, null);
+        check("setting: restore defaults (keys removed): off, 200 ms", !MrWordDelete.sOn && MrWordDelete.sInterval == 200);
 
         MrWordDelete.resetForTest();
         PreferenceManager.stubDefault = null;
@@ -242,43 +270,64 @@ public class WordDelTest {
         check("setting: no preferences or no context: off, no fault", !MrWordDelete.sOn);
     }
 
-    // ---------------------------------------------------------------- the time held
-    static void hold() {
+    // ---------------------------------------------------------------- Ctrl at the touch
+    static void ctrlAtTouch() {
         Prefs p = new Prefs();
         on(p);
         p.set(MrWordDelete.PREF_ON, Boolean.TRUE);
         Ime ime = new Ime();
         ime.ic.text.append("one two three");
 
-        MrWordDelete.sFakeNow = 10000;
-        MrWordDelete.down(DELETE);
-        MrWordDelete.sFakeNow = 10000 + 999;
-        check("hold: 999 ms of 1000: the usual delete", !MrWordDelete.onBackspace(ime) && ime.ic.deletes == 0);
-        check("hold: the usual interval before it", MrWordDelete.interval(50) == 50);
-        MrWordDelete.sFakeNow = 10000 + 1000;
-        check("hold: 1000 ms: the word goes", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one two ") && ime.ic.deletes == 1);
-        check("hold: and the next repeat is 4 times later", MrWordDelete.interval(50) == 200 && MrWordDelete.interval(40) == 160);
-        MrWordDelete.sFakeNow = 10000 + 1200;
-        check("hold: next word", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one "));
-        check("hold: next word, the blank goes with it", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals(""));
-        check("hold: nothing left: the usual delete, the interval stays", !MrWordDelete.onBackspace(ime) && ime.ic.deletes == 3);
-
-        // a new touch starts again; letting go forgets
-        MrWordDelete.down(DELETE);
-        check("hold: a new touch: the time starts again and the interval is the usual one", !MrWordDelete.onBackspace(ime) && MrWordDelete.interval(50) == 50);
-        ime.ic.text.setLength(0);
-        ime.ic.text.append("alpha beta");
-        MrWordDelete.sFakeNow += 1000;
-        check("hold: the second hold also reaches the words", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("alpha "));
+        // a tap with Ctrl: one word at once, no time to wait
+        ime.ctrl = true;
+        touch(ime);
+        check("ctrl: a touch with Ctrl on: the word goes at once", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one two ") && ime.ic.deletes == 1);
+        ime.ctrl = false;       // a one-shot Ctrl goes off after the first key
+        check("ctrl: Ctrl off after the first key: the hold goes on by words", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one "));
+        check("ctrl: and the interval is the one set", MrWordDelete.interval(50) == 200);
         MrWordDelete.up();
-        MrWordDelete.sFakeNow += 5000;
-        check("hold: after the key was let go, the usual delete and the usual interval", !MrWordDelete.onBackspace(ime) && MrWordDelete.interval(50) == 50);
+        check("ctrl: let go: back to the usual delete and the usual interval", !MrWordDelete.onBackspace(ime) && MrWordDelete.interval(50) == 50);
 
-        // another key that repeats does not touch the hold of the delete key
-        MrWordDelete.down(DELETE);
-        MrWordDelete.sFakeNow += 1000;
+        // no Ctrl at the touch: the usual delete, even when Ctrl is armed during the hold
+        ime.ic.text.setLength(0);
+        ime.ic.text.append("one two three");
+        ime.ctrl = false;
+        touch(ime);
+        ime.ctrl = true;
+        ime.ic.reads = 0;
+        ime.ic.deletes = 0;
+        check("ctrl: no Ctrl at the touch: the usual delete (Ctrl turned on later does not count), nothing read from the app",
+                !MrWordDelete.onBackspace(ime) && ime.ic.reads == 0 && ime.ic.deletes == 0 && MrWordDelete.interval(50) == 50);
+        MrWordDelete.up();
+
+        // a new touch asks again
+        touch(ime);
+        check("ctrl: a new touch with Ctrl on works again", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one two "));
+        ime.ctrl = false;
+        touch(ime);
+        check("ctrl: a new touch without Ctrl forgets the hold by words", !MrWordDelete.onBackspace(ime) && MrWordDelete.interval(50) == 50);
+        MrWordDelete.up();
+
+        // another key that repeats (arrows) never starts a hold, and does not touch the hold of the delete key
+        ime.ctrl = true;
+        ime.ic.text.setLength(0);
+        ime.ic.text.append("one two");
+        MrWordDelete.up();
         MrWordDelete.down(LEFT);
-        check("hold: another key that repeats leaves the hold as it is", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals(""));
+        check("ctrl: an arrow key with Ctrl on starts nothing", !MrWordDelete.onBackspace(ime) && MrWordDelete.interval(50) == 50);
+        touch(ime);
+        MrWordDelete.down(LEFT);
+        check("ctrl: an arrow key during the hold leaves it as it is", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one "));
+        MrWordDelete.up();
+
+        // a keyboard that is not there, a Ctrl that cannot be asked, odd keys: the usual delete, no fault
+        LatinIME.sInstance = null;
+        MrWordDelete.down(DELETE);
+        check("ctrl: no keyboard service yet: no hold", !MrWordDelete.onBackspace(ime));
+        ime.ctrlFall = true;
+        touch(ime);
+        check("ctrl: asking for Ctrl throws: no hold, no fault", !MrWordDelete.onBackspace(ime));
+        ime.ctrlFall = false;
         MrWordDelete.down(null);
         MrWordDelete.down(new Keyboard.Key(0, 0, 0, 1, 1));
         Keyboard.Key none = new Keyboard.Key(0, 0, 0, 1, 1);
@@ -286,48 +335,43 @@ public class WordDelTest {
         MrWordDelete.down(none);
         none.codes = new int[0];
         MrWordDelete.down(none);
-        check("hold: a missing key, no codes or an empty list: no fault", true);
-        MrWordDelete.up();
-
-        // the setting at 500 and at 3000 ms
-        p.set(MrWordDelete.PREF_AFTER, "500.0");
-        ime.ic.text.setLength(0);
-        ime.ic.text.append("one two");
-        MrWordDelete.sFakeNow = 20000;
-        MrWordDelete.down(DELETE);
-        MrWordDelete.sFakeNow = 20499;
-        boolean early = MrWordDelete.onBackspace(ime);
-        MrWordDelete.sFakeNow = 20500;
-        check("hold: the time set (500 ms) decides", !early && MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one "));
-        MrWordDelete.up();
-        p.set(MrWordDelete.PREF_AFTER, "3000.0");
-        MrWordDelete.sFakeNow = 30000;
-        MrWordDelete.down(DELETE);
-        MrWordDelete.sFakeNow = 32999;
-        check("hold: 3000 ms: not at 2999", !MrWordDelete.onBackspace(ime));
-        MrWordDelete.sFakeNow = 33000;
-        check("hold: 3000 ms: at 3000", MrWordDelete.onBackspace(ime));
+        check("ctrl: a missing key, no codes or an empty list: no fault", true);
         MrWordDelete.up();
     }
 
-    /** What is left to the usual delete whatever the time held. */
+    // ---------------------------------------------------------------- the interval
+    static void intervals() {
+        Prefs p = new Prefs();
+        on(p);
+        p.set(MrWordDelete.PREF_ON, Boolean.TRUE);
+        Ime ime = new Ime();
+        check("interval: not held: the usual one, whatever the setting", MrWordDelete.interval(50) == 50 && MrWordDelete.interval(7) == 7);
+        ime.ctrl = true;
+        touch(ime);
+        check("interval: held with Ctrl: 200 ms (the default) in place of 50", MrWordDelete.interval(50) == 200);
+        p.set(MrWordDelete.PREF_INTERVAL, "100.0");
+        check("interval: 100 ms", MrWordDelete.interval(50) == 100);
+        p.set(MrWordDelete.PREF_INTERVAL, "600.0");
+        check("interval: 600 ms", MrWordDelete.interval(50) == 600);
+        check("interval: never shorter than the usual one", MrWordDelete.interval(900) == 900);
+        p.set(MrWordDelete.PREF_INTERVAL, null);
+        check("interval: the default again when the setting is removed", MrWordDelete.interval(50) == 200);
+        MrWordDelete.up();
+        check("interval: let go: the usual one", MrWordDelete.interval(50) == 50);
+    }
+
+    /** What is left to the usual delete. */
     static void left() {
         Prefs p = new Prefs();
         on(p);
         p.set(MrWordDelete.PREF_ON, Boolean.TRUE);
         Ime ime = new Ime();
-        MrWordDelete.sFakeNow = 1000;
-        MrWordDelete.down(DELETE);
-        MrWordDelete.sFakeNow = 5000;
+        ime.ctrl = true;
+        touch(ime);
 
         ime.ic.text.append("one two");
-        ime.composing = 3;
-        check("left: a word being typed (composing text): the usual delete, nothing read from the app",
-                !MrWordDelete.onBackspace(ime) && ime.ic.reads == 0 && ime.ic.deletes == 0 && MrWordDelete.interval(50) == 50);
-        ime.composing = 0;
-
         ime.ic.selected = "two";
-        check("left: text selected: the usual delete removes it", !MrWordDelete.onBackspace(ime) && ime.ic.deletes == 0 && ime.ic.reads == 0);
+        check("left: text selected: the usual delete removes it", !MrWordDelete.onBackspace(ime) && ime.ic.deletes == 0);
         ime.ic.selected = "";
         check("left: an empty selection is none", MrWordDelete.onBackspace(ime));
         ime.ic.selected = null;
@@ -349,10 +393,8 @@ public class WordDelTest {
         ime.ic.fall = true;
         check("left: the app throws: the usual delete and the hold is forgotten", !MrWordDelete.onBackspace(ime));
         ime.ic.fall = false;
-        check("left: ... and it stays forgotten (no hold until the next touch)", !MrWordDelete.onBackspace(ime) && ime.ic.deletes == 0);
-        MrWordDelete.sFakeNow = 6000;
-        MrWordDelete.down(DELETE);
-        MrWordDelete.sFakeNow = 7000;
+        check("left: ... and it stays forgotten until the next touch", !MrWordDelete.onBackspace(ime) && ime.ic.deletes == 0 && MrWordDelete.interval(50) == 50);
+        touch(ime);
         check("left: the next touch works again", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one "));
         MrWordDelete.up();
     }
@@ -363,16 +405,15 @@ public class WordDelTest {
         on(p);
         Ime ime = new Ime();
         ime.ic.text.append("one two");
-        MrWordDelete.sFakeNow = 1000;
-        MrWordDelete.down(DELETE);
-        MrWordDelete.sFakeNow = 100000;
-        check("off: a hold of any length is the usual delete, the app is not asked",
+        ime.ctrl = true;
+        touch(ime);
+        check("off: with Ctrl on: the usual delete, the app is not asked, the usual interval",
                 !MrWordDelete.onBackspace(ime) && ime.ic.reads == 0 && ime.ic.deletes == 0 && MrWordDelete.interval(50) == 50);
         // switched on during a hold that began while it was off: the next touch counts, not this one
         p.set(MrWordDelete.PREF_ON, Boolean.TRUE);
         check("off: switched on in the middle of a hold: that hold stays the usual one", !MrWordDelete.onBackspace(ime));
-        MrWordDelete.down(DELETE);
-        MrWordDelete.sFakeNow += 1000;
+        MrWordDelete.up();
+        touch(ime);
         check("off: ... the next touch counts", MrWordDelete.onBackspace(ime));
         // switched off during a hold: the usual delete at once
         p.set(MrWordDelete.PREF_ON, Boolean.FALSE);
@@ -380,27 +421,94 @@ public class WordDelTest {
         MrWordDelete.up();
     }
 
+    // ---------------------------------------------------------------- the word being typed
+    static void typed() {
+        Prefs p = new Prefs();
+        on(p);
+        p.set(MrWordDelete.PREF_ON, Boolean.TRUE);
+
+        Ime ime = new Ime();
+        ime.ic.text.append("one two three");
+        ime.composing = 5;                                    // "three" is the composing text
+        ime.ctrl = true;
+        touch(ime);
+        check("typed: Ctrl + delete takes the word being typed whole: the text", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one two "));
+        check("typed: ... letter by letter through the usual delete (5), nothing composed, none of those calls came back into the class",
+                ime.backspaces == 5 && ime.composing == 0 && ime.reentered == 0, "backspaces=" + ime.backspaces + " composing=" + ime.composing + " reentered=" + ime.reentered);
+        check("typed: ... in one batch of edits, closed", ime.ic.begins == 1 && ime.ic.ends == 1 && ime.ic.deletes == 0 && ime.ic.reads == 0);
+        check("typed: the next repeat goes on by words", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one "));
+        MrWordDelete.up();
+
+        // a word longer than one step: the rest goes with the next repeat
+        Ime big = new Ime();
+        StringBuilder sb = new StringBuilder("x ");
+        for (int i = 0; i < 100; i++) sb.append('a');
+        big.ic.text.append(sb);
+        big.composing = 100;
+        big.ctrl = true;
+        touch(big);
+        check("typed: 100 letters: 64 in one step", MrWordDelete.onBackspace(big) && big.composing == 100 - MrWordDelete.COMPOSING_MAX && big.backspaces == MrWordDelete.COMPOSING_MAX);
+        check("typed: the 36 left in the next one", MrWordDelete.onBackspace(big) && big.composing == 0 && big.backspaces == 100 && big.ic.text.toString().equals("x "));
+        check("typed: then the word before", MrWordDelete.onBackspace(big) && big.ic.text.toString().equals(""));
+        MrWordDelete.up();
+
+        // the usual delete fails: the batch is closed, the guard is released, the usual delete takes over
+        Ime bad = new Ime();
+        bad.ic.text.append("one two");
+        bad.composing = 3;
+        bad.boom = true;
+        bad.ctrl = true;
+        touch(bad);
+        check("typed: the usual delete throws: the usual delete runs (false), the batch is closed", !MrWordDelete.onBackspace(bad) && bad.ic.begins == bad.ic.ends && bad.ic.begins == 1);
+        bad.boom = false;
+        bad.composing = 0;
+        touch(bad);
+        check("typed: ... and the guard is released: the next touch works", MrWordDelete.onBackspace(bad) && bad.ic.text.toString().equals("one "));
+        MrWordDelete.up();
+
+        // no connection with a word being typed: the usual delete
+        Ime none = new Ime();
+        none.composing = 2;
+        none.hasIc = false;
+        none.ctrl = true;
+        touch(none);
+        check("typed: no connection: the usual delete", !MrWordDelete.onBackspace(none) && none.backspaces == 0);
+        MrWordDelete.up();
+
+        // without Ctrl the word being typed goes as always (the class does not touch it)
+        Ime plain = new Ime();
+        plain.ic.text.append("one two");
+        plain.composing = 3;
+        touch(plain);
+        check("typed: no Ctrl: not for this class", !MrWordDelete.onBackspace(plain) && plain.backspaces == 0 && plain.composing == 3);
+        MrWordDelete.up();
+    }
+
     // ---------------------------------------------------------------- a whole hold, replayed
-    /** One delete as LatinIME does it for the keyboard: the words when MrWordDelete takes it, one letter otherwise. */
+    /** One delete as LatinIME does it for the keyboard: the words when MrWordDelete takes it, one letter otherwise. A one-shot Ctrl goes off after it. */
     static String press(Ime ime) {
-        if (MrWordDelete.onBackspace(ime)) return "word";
-        if (ime.ic.text.length() > 0) ime.ic.text.setLength(ime.ic.text.length() - 1);
-        return "letter";
+        final String what;
+        if (MrWordDelete.onBackspace(ime)) what = "word";
+        else {
+            if (ime.composing > 0) ime.composing--;
+            if (ime.ic.text.length() > 0) ime.ic.text.setLength(ime.ic.text.length() - 1);
+            what = "letter";
+        }
+        ime.ctrl = false;
+        return what;
     }
 
     /**
      * The key down at t = 0, a repeat at 300 ms and then one after the interval the keyboard asks (50 ms, or what interval() gives),
      * until the finger lifts at endMs. Returns the log of what each delete was, with its time.
      */
-    static List<String> replay(Ime ime, int endMs) {
+    static List<String> replay(Ime ime, int endMs, boolean ctrl) {
         List<String> log = new ArrayList<String>();
-        MrWordDelete.sFakeNow = 100000;
-        final long t0 = 100000;
-        MrWordDelete.down(DELETE);
+        ime.ctrl = ctrl;
+        touch(ime);
         log.add("0:" + press(ime));
         int next = 300;
         while (next <= endMs) {
-            MrWordDelete.sFakeNow = t0 + next;
             log.add(next + ":" + press(ime));
             next += MrWordDelete.interval(50);
         }
@@ -408,95 +516,115 @@ public class WordDelTest {
         return log;
     }
 
+    static String text40() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 40; i++) sb.append("palavra").append(i).append(' ');
+        return sb.toString();
+    }
+
+    static int count(List<String> log, String what) {
+        int n = 0;
+        for (String e : log) if (e.endsWith(":" + what)) n++;
+        return n;
+    }
+
     static void replays() {
         Prefs p = new Prefs();
         on(p);
         p.set(MrWordDelete.PREF_ON, Boolean.TRUE);
+        final String sb = text40();
 
-        // 1. a long text and a 2.5 s hold, 1 s to start
+        // 1. Ctrl + a 2.5 s hold, 200 ms: the words from the touch, at 0, 300, 500 ... 2500; Ctrl went off after the first one
         Ime ime = new Ime();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 40; i++) sb.append("palavra").append(i).append(' ');
         ime.ic.text.append(sb);
-        int before = ime.ic.text.length();
-        List<String> log = replay(ime, 2500);
-        int letters = 0, wordsN = 0;
-        long firstWord = -1, last = -1, minGap = Long.MAX_VALUE;
-        for (String e : log) {
-            String[] a = e.split(":");
-            long t = Long.parseLong(a[0]);
-            if (a[1].equals("letter")) letters++;
-            else {
-                wordsN++;
-                if (firstWord < 0) firstWord = t;
-                if (last >= 0) minGap = Math.min(minGap, t - last);
-                last = t;
-            }
-        }
-        check("replay: letters first (the touch and the repeats up to 1 s): " + letters, letters == 1 + (950 - 300) / 50 + 1, log);
-        check("replay: the first word at the first repeat at or after 1 s", firstWord == 1000, "first at " + firstWord);
-        check("replay: words every 200 ms from there (1000, 1200 ... 2400): " + wordsN, wordsN == 8 && minGap == 200, "n=" + wordsN + " gap=" + minGap);
-        // 15 letters take "palavra39 " and the end of "palavra38" ("palav" is left); the first word step takes "palav", the seven
-        // after it a blank and a word each: what is left is the text up to "palavra30 "
-        check("replay: the text after it: the letters, then 8 words, to the last blank of palavra30",
-                ime.ic.text.toString().equals(sb.substring(0, sb.indexOf("palavra31 "))), ime.ic.text.length() + " of " + before);
+        List<String> log = replay(ime, 2500, true);
+        check("replay: Ctrl, 2.5 s, 200 ms: 13 words (0, 300, 500 ... 2500) and no letter", count(log, "word") == 13 && count(log, "letter") == 0, log);
+        check("replay: the repeats after the first 300 ms come 200 ms apart", log.get(1).equals("300:word") && log.get(2).equals("500:word") && log.get(12).equals("2500:word"), log);
+        check("replay: the text after it: 13 words gone, to the last blank of palavra26", ime.ic.text.toString().equals(sb.substring(0, sb.indexOf("palavra27 "))), ime.ic.text.length() + "");
 
-        // 2. a hold shorter than the time: letters only, same as before the feature
-        Ime ime2 = new Ime();
-        ime2.ic.text.append(sb);
-        List<String> log2 = replay(ime2, 900);
-        boolean allLetters = true;
-        for (String e : log2) if (!e.endsWith(":letter")) allLetters = false;
-        check("replay: a hold of 900 ms with 1 s set: letters only, every 50 ms", allLetters && log2.size() == 1 + (900 - 300) / 50 + 1, log2);
+        // 2. the interval set: 100 and 600
+        p.set(MrWordDelete.PREF_INTERVAL, "100.0");
+        Ime fast = new Ime();
+        fast.ic.text.append(sb);
+        List<String> logF = replay(fast, 2500, true);
+        check("replay: 100 ms: 24 words (0, 300, 400 ... 2500)", count(logF, "word") == 24 && count(logF, "letter") == 0, logF);
+        p.set(MrWordDelete.PREF_INTERVAL, "600.0");
+        Ime slow = new Ime();
+        slow.ic.text.append(sb);
+        List<String> logS = replay(slow, 2500, true);
+        check("replay: 600 ms: 5 words (0, 300, 900, 1500, 2100) and the text left is exactly that",
+                count(logS, "word") == 5 && slow.ic.text.toString().equals(sb.substring(0, sb.indexOf("palavra35 "))), logS);
+        p.set(MrWordDelete.PREF_INTERVAL, null);
 
-        // 3. the word being typed goes letter by letter, then the words
-        Ime ime3 = new Ime();
-        ime3.ic.text.append("one two three");
-        ime3.composing = 5;                                   // "three" is the composing text
-        MrWordDelete.sFakeNow = 200000;
-        MrWordDelete.down(DELETE);
-        MrWordDelete.sFakeNow = 202000;
-        check("replay: composing text, held long: the usual delete (letter)", press(ime3).equals("letter") && ime3.ic.text.toString().equals("one two thre"));
-        ime3.composing = 0;                                   // the usual delete took the last letter of it: nothing composed any more
-        check("replay: nothing composed any more: the word goes", press(ime3).equals("word") && ime3.ic.text.toString().equals("one two "));
-        MrWordDelete.up();
+        // 3. no Ctrl: as before the feature, one letter every 50 ms
+        Ime plain = new Ime();
+        plain.ic.text.append(sb);
+        List<String> logP = replay(plain, 2500, false);
+        check("replay: no Ctrl, 2.5 s: letters only, every 50 ms (46 deletes)", count(logP, "letter") == 46 && count(logP, "word") == 0, logP);
+        check("replay: ... the text is shorter by exactly that", plain.ic.text.length() == sb.length() - 46);
 
-        // 4. many taps in a row never start the words, however long the series
-        Ime ime4 = new Ime();
-        ime4.ic.text.append(sb);
-        boolean never = true;
-        long t = 300000;
-        for (int i = 0; i < 40; i++) {                        // a tap every 150 ms for 6 s: 150 ms apart is faster than the 200 ms of mDeleteCount
-            MrWordDelete.sFakeNow = t;
-            MrWordDelete.down(DELETE);
-            if (!press(ime4).equals("letter")) never = false;
-            MrWordDelete.sFakeNow = t + 60;
+        // 4. setting off, Ctrl on: the usual delete
+        p.set(MrWordDelete.PREF_ON, Boolean.FALSE);
+        Ime offIme = new Ime();
+        offIme.ic.text.append(sb);
+        List<String> logO = replay(offIme, 2500, true);
+        check("replay: setting off, Ctrl on: letters only", count(logO, "letter") == 46 && count(logO, "word") == 0, logO);
+        p.set(MrWordDelete.PREF_ON, Boolean.TRUE);
+
+        // 5. taps: with Ctrl one word each, without it one letter each
+        Ime taps = new Ime();
+        taps.ic.text.append("one two three");
+        List<String> got = new ArrayList<String>();
+        for (int i = 0; i < 3; i++) {
+            taps.ctrl = true;
+            touch(taps);
+            got.add(press(taps));
             MrWordDelete.up();
-            t += 150;
         }
-        check("replay: 40 quick taps over 6 s: always one letter", never && MrWordDelete.interval(50) == 50);
+        check("replay: three taps with Ctrl: three words, the text is gone", got.equals(java.util.Arrays.asList("word", "word", "word")) && taps.ic.text.length() == 0, got + " " + taps.ic.text);
+        Ime taps2 = new Ime();
+        taps2.ic.text.append(sb);
+        boolean letters = true;
+        for (int i = 0; i < 40; i++) {                        // many quick taps without Ctrl never start the words
+            taps2.ctrl = false;
+            touch(taps2);
+            if (!press(taps2).equals("letter")) letters = false;
+            MrWordDelete.up();
+        }
+        check("replay: 40 taps without Ctrl: one letter each", letters && taps2.ic.text.length() == sb.length() - 40 && MrWordDelete.interval(50) == 50);
 
-        // 5. a hold whose time comes while the finger moves to another repeating key and back is not special: a release forgets it
-        Ime ime5 = new Ime();
-        ime5.ic.text.append("one two");
-        MrWordDelete.sFakeNow = 400000;
-        MrWordDelete.down(DELETE);
-        MrWordDelete.sFakeNow = 400800;
-        MrWordDelete.up();                                    // the repeat was cancelled (a second finger, a slide off the key)
-        MrWordDelete.sFakeNow = 402000;
-        check("replay: the repeat cancelled at 800 ms, a delete at 2 s from the old touch: the usual one", !MrWordDelete.onBackspace(ime5));
+        // 6. Autocompletar on: the word being typed whole on the touch, then the words
+        Ime typedIme = new Ime();
+        typedIme.ic.text.append("alpha beta gam");
+        typedIme.composing = 3;
+        List<String> logT = replay(typedIme, 700, true);
+        check("replay: a word being typed and Ctrl held: whole on the touch, then a word per repeat (0, 300, 500) and nothing left to take",
+                logT.subList(0, 3).equals(java.util.Arrays.asList("0:word", "300:word", "500:word")) && typedIme.ic.text.length() == 0 && typedIme.reentered == 0
+                        && typedIme.ic.begins == typedIme.ic.ends, logT + " | " + typedIme.ic.text);
+
+        // 7. the repeat cancelled (a second finger, a slide off the key): the next delete is the usual one
+        Ime cut = new Ime();
+        cut.ic.text.append("one two");
+        cut.ctrl = true;
+        touch(cut);
+        press(cut);
+        MrWordDelete.up();
+        check("replay: the repeat cancelled: the next delete is the usual one", !MrWordDelete.onBackspace(cut) && MrWordDelete.interval(50) == 50);
     }
 
     public static void main(String[] args) {
         words();
         invariants();
         setting();
-        hold();
+        ctrlAtTouch();
+        intervals();
         left();
         off();
+        typed();
         replays();
         MrWordDelete.resetForTest();
         PreferenceManager.stubDefault = null;
+        LatinIME.sInstance = null;
         System.out.println(ok + " OK, " + fail + " FAIL");
         if (fail > 0) System.exit(1);
     }

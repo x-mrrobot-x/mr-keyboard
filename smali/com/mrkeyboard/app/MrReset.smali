@@ -92,7 +92,7 @@
 
     const/16 v1, 0xb
 
-    const-string v2, "pref_word_delete_after"
+    const-string v2, "pref_word_delete_interval"
 
     aput-object v2, v0, v1
 

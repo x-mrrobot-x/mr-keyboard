@@ -2534,9 +2534,9 @@
     # Previous word (MrPrevWord): a deletion ends what was kept about the word being typed.
     invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
 
-    # Delete by words (MrWordDelete, 2.0.0): the key has been held long enough, with the setting on: the word before the cursor
-    # is removed there (never while a word is being typed or text is selected; those go as always). The rest of this method is what
-    # a delete does after the text changed: the shift state and the state of the text entry.
+    # Ctrl + delete by words (MrWordDelete, 2.0.0): the key went down with Ctrl on and the setting on: the word before the cursor
+    # (or the word being typed) is removed there, never selected text (that goes as always). The rest of this method is what a
+    # delete does after the text changed: the shift state and the state of the text entry.
     invoke-static {p0}, Lcom/mrkeyboard/app/MrWordDelete;->onBackspace(Lcom/mrkeyboard/app/LatinIME;)Z
 
     move-result v0
@@ -14821,8 +14821,9 @@
     return-void
 .end method
 
-# Delete by words (MrWordDelete): how many letters of the word being typed the keyboard holds as composing text; 0 when no word is
-# being typed. A word is only deleted whole once this is 0 (the composing text is kept in step with the strip by the usual delete).
+# Ctrl + delete by words (MrWordDelete): how many letters of the word being typed the keyboard holds as composing text; 0 when no
+# word is being typed. A word being typed goes by the usual delete (mrBackspace), letter by letter; once this is 0 the word before the
+# cursor is deleted whole.
 .method public mrComposingLength()I
     .locals 1
 
@@ -14842,6 +14843,24 @@
     move-result v0
 
     return v0
+.end method
+
+# Ctrl + delete by words (MrWordDelete): Ctrl is on (armed by a tap, or held in a chord).
+.method public mrCtrlOn()Z
+    .locals 1
+
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mModCtrl:Z
+
+    return v0
+.end method
+
+# Ctrl + delete by words (MrWordDelete): the usual delete, once (a letter of the word being typed, with everything it keeps in step).
+.method public mrBackspace()V
+    .locals 0
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->handleBackspace()V
+
+    return-void
 .end method
 
 # True when the suggestions flow must not run: the toolbar row is hidden (the grid key; MrTools.sBarOn) so there is nowhere to

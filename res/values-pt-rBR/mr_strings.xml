@@ -704,7 +704,7 @@
     <string name="mr_sugg_idle_5">5 segundos</string>
     <string name="mr_sugg_idle_8">8 segundos</string>
     <string name="mr_sugg_idle_10">10 segundos</string>
-    <string name="mr_word_delete_title">Apagar por palavras ao segurar</string>
-    <string name="mr_word_delete_summary">Segurando a tecla apagar por um tempo, ela passa a apagar palavras inteiras em vez de letras</string>
-    <string name="mr_word_delete_after_title">Tempo para apagar por palavras</string>
+    <string name="mr_word_delete_title">Ctrl + apagar apaga por palavra</string>
+    <string name="mr_word_delete_summary">Com o Ctrl ativo, a tecla apagar remove uma palavra por toque; segurando, repete palavra por palavra</string>
+    <string name="mr_word_delete_interval_title">Intervalo entre palavras ao segurar</string>
 </resources>

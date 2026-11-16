@@ -2,18 +2,18 @@ package com.mrkeyboard.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.view.inputmethod.InputConnection;
 
 /**
- * Delete by words while the delete key is held (2.0.0, setting "pref_word_delete", off unless the person turns it on).
+ * Ctrl + delete deletes by words (2.0.0, setting "pref_word_delete", off unless the person turns it on).
  *
- * <p>The delete key repeats: once on the touch, then after 300 ms, then every 50 ms. With this setting on, once the key has been
- * held for the time set ("pref_word_delete_after", 1 s by default, between 0.5 s and 3 s) every repeat removes a whole word
- * instead of a letter, and the repeats come {@link #STEP_FACTOR} times slower, so that the person can let go at the word they want.
- * A tap, or a hold shorter than the time set, works exactly as before; with the setting off every method here returns on its
- * first line.
+ * <p>With the setting on and Ctrl on when the delete key is touched, the key removes a word instead of a letter: one word on the
+ * touch, and while the finger stays down one more word on every repeat. The repeats of the delete key come after 300 ms and then
+ * every 50 ms; with words they come every "pref_word_delete_interval" ms instead (200 by default, between 100 and 600), so that
+ * the person can let go at the word they want. Ctrl is read at the touch and kept for the whole hold: the keyboard puts a one-shot
+ * Ctrl off after the first key, and the repeats must not lose it. Without Ctrl, or with the setting off, the delete key works
+ * exactly as before; with the setting off every method here returns on its first line.
  *
  * <p>What is "a word": the spaces before the cursor, then the letters and digits right before them (an apostrophe or a hyphen
  * between two letters belongs to the word: don't, state-of-the-art), or, when what is there is not a letter, the run of signs
@@ -21,9 +21,10 @@ import android.view.inputmethod.InputConnection;
  * is a step of its own: the spaces before a line break are removed without crossing it, and a line break right before the cursor
  * goes alone. See {@link #wordLength}.
  *
- * <p>Left to the usual delete, whatever the time held: text selected (the delete removes it), a word still being typed with the
- * suggestions on (it is composed text that the keyboard keeps in step with the strip; it goes letter by letter and the words
- * start with the next repeat), the text before the cursor not readable, and the start of the field.
+ * <p>A word still being typed with the suggestions on is composed text that the keyboard keeps in step with the strip: it goes
+ * whole, letter by letter through the usual delete inside one batch of edits (so the strip, the state of the text entry and the
+ * dictionary stay as after a normal delete, and the word is not learned). Left to the usual delete: text selected (the delete
+ * removes it), the text before the cursor not readable, and the start of the field.
  *
  * <p>All on the main thread. The calls from the smali, each of them catching what is thrown here (a fault never stops typing):
  * <pre>
@@ -33,47 +34,40 @@ import android.view.inputmethod.InputConnection;
  *       .handleMessage (repeat)              {@link #interval}: the time to the next repeat
  *   LatinIME.handleBackspace                 {@link #onBackspace}: true = the delete was done here
  * </pre>
- * and LatinIME.mrComposingLength(), a small method added to the class for it.
+ * and LatinIME.mrCtrlOn(), mrComposingLength() and mrBackspace(), small methods added to the class for it.
  */
 public final class MrWordDelete {
     static final String PREF_ON = "pref_word_delete";
-    static final String PREF_AFTER = "pref_word_delete_after";
+    static final String PREF_INTERVAL = "pref_word_delete_interval";
 
-    /** The time held, in ms, that starts the words: default and limits of the setting. */
-    static final int AFTER_DEFAULT = 1000;
-    static final int AFTER_MIN = 500;
-    static final int AFTER_MAX = 3000;
-
-    /** The delay between two repeats is this many times the usual one while words are being deleted. */
-    static final int STEP_FACTOR = 4;
+    /** The time between two words while the key is held, in ms: default and limits of the setting. */
+    static final int INTERVAL_DEFAULT = 200;
+    static final int INTERVAL_MIN = 100;
+    static final int INTERVAL_MAX = 600;
 
     /** How many characters before the cursor are read to find the word. A longer word goes in more than one step. */
     static final int LOOKBACK = 64;
 
+    /** The most letters of a word being typed that one step takes (a longer one goes in more than one step). */
+    static final int COMPOSING_MAX = 64;
+
     /** Keyboard.KEYCODE_DELETE. */
     static final int KEYCODE_DELETE = -5;
 
-    /** Tests: the clock (uptime, ms); -1 = SystemClock.uptimeMillis. */
-    static long sFakeNow = -1;
-
-    /** The setting is on. Read on every key that repeats. */
+    /** The setting is on. Read on every delete key that goes down. */
     static volatile boolean sOn;
-    /** The time held that starts the words, ms. */
-    static volatile int sAfter = AFTER_DEFAULT;
+    /** The time between two words while the key is held, ms. */
+    static volatile int sInterval = INTERVAL_DEFAULT;
 
-    /** When the delete key under the finger went down (uptime, ms); 0 = it is not held, or the setting is off. */
-    private static long sDownAt;
-    /** The last repeat deleted a word: the next one is due later. */
-    private static boolean sStep;
+    /** The delete key under the finger went down with Ctrl on (and the setting on): it deletes by words until it is let go. */
+    private static boolean sHold;
+    /** A word being typed is being taken back letter by letter: the usual delete called from here must not come back here. */
+    private static boolean sBusy;
 
     private static Context sApp;
     private static SharedPreferences.OnSharedPreferenceChangeListener sListener;   // kept here: the preferences only hold it weakly
 
     private MrWordDelete() { }
-
-    static long now() {
-        return sFakeNow >= 0 ? sFakeNow : SystemClock.uptimeMillis();
-    }
 
     // ------------------------------------------------------------------ the setting
 
@@ -88,10 +82,9 @@ public final class MrWordDelete {
         sApp = null;
         sListener = null;
         sOn = false;
-        sAfter = AFTER_DEFAULT;
-        sDownAt = 0;
-        sStep = false;
-        sFakeNow = -1;
+        sInterval = INTERVAL_DEFAULT;
+        sHold = false;
+        sBusy = false;
     }
 
     /** Reads the setting from the preferences of the keyboard; the first call also starts following them. c: any context. */
@@ -105,7 +98,7 @@ public final class MrWordDelete {
                 if (sp != null) {
                     sListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
                         public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-                            if (key == null || PREF_ON.equals(key) || PREF_AFTER.equals(key)) reload();
+                            if (key == null || PREF_ON.equals(key) || PREF_INTERVAL.equals(key)) reload();
                         }
                     };
                     sp.registerOnSharedPreferenceChangeListener(sListener);
@@ -122,30 +115,27 @@ public final class MrWordDelete {
             if (sApp == null) return;
             final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(sApp);
             sOn = sp != null && sp.getBoolean(PREF_ON, false);
-            sAfter = sp == null ? AFTER_DEFAULT : after(sp.getString(PREF_AFTER, null));
-            if (!sOn) {
-                sDownAt = 0;
-                sStep = false;
-            }
+            sInterval = sp == null ? INTERVAL_DEFAULT : interval(sp.getString(PREF_INTERVAL, null), INTERVAL_DEFAULT);
+            if (!sOn) sHold = false;
         } catch (Throwable t) {
             sOn = false;
         }
     }
 
     /**
-     * The time held, in ms, from what the setting stored (the seek bar keeps a decimal number as text: "1000.0"). A value that
-     * is missing, is not a number or is outside the limits gives the default or the nearest limit.
+     * The time between two words, in ms, from what the setting stored (the seek bar keeps a decimal number as text: "200.0").
+     * A value that is missing or is not a number gives <code>fallback</code>; one outside the limits gives the nearest limit.
      */
-    static int after(String stored) {
-        if (stored == null) return AFTER_DEFAULT;
+    static int interval(String stored, int fallback) {
+        if (stored == null) return fallback;
         try {
             final float v = Float.parseFloat(stored.trim());
-            if (v != v) return AFTER_DEFAULT;                     // NaN
-            if (v < AFTER_MIN) return AFTER_MIN;
-            if (v > AFTER_MAX) return AFTER_MAX;
+            if (v != v) return fallback;                          // NaN
+            if (v < INTERVAL_MIN) return INTERVAL_MIN;
+            if (v > INTERVAL_MAX) return INTERVAL_MAX;
             return Math.round(v);
         } catch (Throwable t) {
-            return AFTER_DEFAULT;
+            return fallback;
         }
     }
 
@@ -153,43 +143,43 @@ public final class MrWordDelete {
 
     /**
      * PointerTracker.onDownEvent, for a key that repeats, before its first repeat. Only the delete key starts a hold; any other key
-     * (the arrows repeat too) leaves the state as it is.
+     * (the arrows repeat too) leaves the state as it is. Ctrl is asked here, once: the keyboard puts a one-shot Ctrl off after
+     * the first key, and the repeats of this hold go on by words.
      */
     public static void down(Keyboard.Key key) {
         try {
             if (key == null || key.codes == null || key.codes.length == 0 || key.codes[0] != KEYCODE_DELETE) return;
-            sStep = false;
-            sDownAt = 0;
+            sHold = false;
             if (sApp == null) init(LatinIME.sInstance);        // before the first hold of the process
-            if (sOn) sDownAt = now();
+            if (!sOn) return;
+            final LatinIME ime = LatinIME.sInstance;
+            sHold = ime != null && ime.mrCtrlOn();
         } catch (Throwable t) {
-            sDownAt = 0;
-            sStep = false;
+            sHold = false;
         }
     }
 
     /** UIHandler.cancelKeyRepeatTimer: the key was let go (or the repeat stopped for another reason). */
     public static void up() {
-        sDownAt = 0;
-        sStep = false;
+        sHold = false;
     }
 
-    /** UIHandler, when it sets the time to the next repeat: <code>normal</code> ms, or longer after a word was deleted. */
+    /** UIHandler, when it sets the time to the next repeat: <code>normal</code> ms, or the time set while words are deleted. */
     public static int interval(int normal) {
-        return sStep ? normal * STEP_FACTOR : normal;
+        return sHold ? Math.max(normal, sInterval) : normal;
     }
 
     /**
-     * LatinIME.handleBackspace, after its housekeeping and before it reads the text. true = the word before the cursor was
-     * deleted here and the usual delete must not run; false = it is not for this class (the usual delete goes on).
+     * LatinIME.handleBackspace, after its housekeeping and before it reads the text. true = the delete was done here (a word
+     * before the cursor, or the word being typed) and the usual delete must not run; false = it is not for this class (the usual
+     * delete goes on).
      */
     public static boolean onBackspace(LatinIME ime) {
-        if (sDownAt == 0) return false;                           // not held, or the setting is off: the common case
+        if (!sHold || sBusy) return false;                        // not a hold with Ctrl, or the setting is off: the common case
         try {
-            if (now() - sDownAt < sAfter) return false;
-            if (ime.mrComposingLength() > 0) return false;        // the word being typed goes letter by letter first
             final InputConnection ic = ime.getCurrentInputConnection();
             if (ic == null) return false;
+            if (ime.mrComposingLength() > 0) return takeBackTyped(ime, ic);
             final int n;
             MrPerf.appBegin();
             try {
@@ -200,14 +190,29 @@ public final class MrWordDelete {
             } finally {
                 MrPerf.appEnd();
             }
-            if (n <= 0) return false;
-            sStep = true;
-            return true;
+            return n > 0;
         } catch (Throwable t) {
-            sDownAt = 0;
-            sStep = false;
+            sHold = false;
             return false;
         }
+    }
+
+    /**
+     * The word being typed goes whole: the usual delete, once for each letter, in one batch of edits. It keeps the composing
+     * text, the strip and the state of the text entry as a normal delete leaves them, and the word is not committed (so not
+     * learned). Always true: the first call takes at least one letter.
+     */
+    private static boolean takeBackTyped(LatinIME ime, InputConnection ic) {
+        sBusy = true;
+        ic.beginBatchEdit();
+        try {
+            int guard = COMPOSING_MAX;
+            while (guard-- > 0 && ime.mrComposingLength() > 0) ime.mrBackspace();
+        } finally {
+            sBusy = false;
+            ic.endBatchEdit();
+        }
+        return true;
     }
 
     // ------------------------------------------------------------------ what a word is

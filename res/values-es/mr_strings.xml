@@ -704,7 +704,7 @@
     <string name="mr_sugg_idle_5">5 segundos</string>
     <string name="mr_sugg_idle_8">8 segundos</string>
     <string name="mr_sugg_idle_10">10 segundos</string>
-    <string name="mr_word_delete_title">Borrar por palabras al mantener</string>
-    <string name="mr_word_delete_summary">Si mantienes pulsada la tecla borrar un rato, borra palabras enteras en lugar de letras</string>
-    <string name="mr_word_delete_after_title">Tiempo para borrar por palabras</string>
+    <string name="mr_word_delete_title">Ctrl + borrar borra por palabras</string>
+    <string name="mr_word_delete_summary">Con Ctrl activo, la tecla borrar elimina una palabra por toque; manteniéndola, repite palabra por palabra</string>
+    <string name="mr_word_delete_interval_title">Intervalo entre palabras al mantener</string>
 </resources>

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Tests the places where delete by words (MrWordDelete, 2.0.0, docs/word-delete.md) is wired into the keyboard, on the REAL smali:
+"""Tests the places where Ctrl + delete by words (MrWordDelete, 2.0.0, docs/word-delete.md) is wired into the keyboard, on the REAL smali:
 
   - LatinIME.handleBackspace (its hook, and what the keyboard does with the answer) and LatinKeyboardBaseView$UIHandler.cancelKeyRepeatTimer
     and .handleMessage (the repeat) run in the mini Dalvik interpreter (dalvik_mini.py) with a fake MrWordDelete;
   - PointerTracker.onDownEvent (too big to run here): the order of the calls in the branch of the keys that repeat;
+  - the three methods added to LatinIME (mrCtrlOn, mrComposingLength, mrBackspace) run in the interpreter;
   - nobody else calls MrWordDelete, and what is called exists in the generated smali with the signature used;
   - the settings screen (next to the long-press time), the limits and default against the Java constants, the texts in the three
     languages, the keys in MrReset.
 
-The rule of what a word is, the setting, the time held and the interval are in WordDelTest.java (docs/tools/run_java_tests.sh).
+The rule of what a word is, the setting, Ctrl at the touch, the interval and the word being typed are in WordDelTest.java (docs/tools/run_java_tests.sh).
 
 Run it from the project root:  python3 -I docs/tools/test_word_delete.py
 """
@@ -114,7 +115,7 @@ class Host:
     def __init__(self):
         self.log = []
         self.take = False        # what MrWordDelete.onBackspace answers
-        self.factor = 1          # what MrWordDelete.interval does to the interval
+        self.factor = 1          # what MrWordDelete.interval does to the interval (the setting's, 4 = 200 ms)
         self.timer = []
 
     def sget(self, cls, name):
@@ -199,13 +200,31 @@ check("handleMessage (repeat): the key is repeated, then the interval is asked, 
       [x for x in host.log if x in ("repeatKey", "WD.interval", "startKeyRepeatTimer")] == ["repeatKey", "WD.interval", "startKeyRepeatTimer"], host.log)
 check("handleMessage (repeat): the usual interval (50 ms) goes to the timer, with the key and tracker of the message", host.timer == [(50, 7)], host.timer)
 repeat(4)
-check("handleMessage (repeat): after a word was deleted the timer gets 4 times the interval (200 ms)", host.timer == [(200, 7)], host.timer)
+check("handleMessage (repeat): in a hold by words the timer gets the interval MrWordDelete answers (200 ms for 50)", host.timer == [(200, 7)], host.timer)
 
-# ---------------------------------------------------------------------------------------------- the added method of LatinIME
-cl = code_lines(method_body(os.path.join(APP, "LatinIME.smali"), "public mrComposingLength()I"))
+# ---------------------------------------------------------------------------------------------- the added methods of LatinIME
+LIME = os.path.join(APP, "LatinIME.smali")
+cl = code_lines(method_body(LIME, "public mrComposingLength()I"))
 check("mrComposingLength: 0 unless a word is being typed (mPredicting), then the length of mComposing",
       any("->mPredicting:Z" in l for l in cl) and any("->mComposing:Ljava/lang/StringBuilder;" in l for l in cl)
       and any("StringBuilder;->length()I" in l for l in cl), cl)
+
+cc = code_lines(method_body(LIME, "public mrCtrlOn()Z"))
+check("mrCtrlOn: returns mModCtrl and nothing else", len(cc) == 2 and "->mModCtrl:Z" in cc[0] and cc[1].startswith("return"), cc)
+vm, host = vm_for(LIME, IME, [])
+check("mrCtrlOn: true when Ctrl is on, false when it is not (run)",
+      vm.run("mrCtrlOn()Z", [dm.Obj(IME, mModCtrl=True)]) in (True, 1) and vm.run("mrCtrlOn()Z", [dm.Obj(IME, mModCtrl=False)]) in (False, 0, None))
+
+mb = code_lines(method_body(LIME, "public mrBackspace()V"))
+check("mrBackspace: the usual delete (handleBackspace), once, and nothing else",
+      len(mb) == 2 and mb[0].startswith("invoke-direct") and mb[0].endswith(IME + "->handleBackspace()V") and mb[1] == "return-void", mb)
+vm, host = vm_for(LIME, IME, ["handleBackspace()V"])
+vm.run("mrBackspace()V", [dm.Obj(IME)])
+check("mrBackspace: runs handleBackspace once (run)", host.log == ["handleBackspace"], host.log)
+
+# the hook is inside handleBackspace, so the call above comes back into MrWordDelete.onBackspace: the class has a guard for it (sBusy)
+check("MrWordDelete guards the call it makes to the usual delete (sBusy is set around mrBackspace)",
+      "sBusy = true;" in read(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrWordDelete.java")))
 
 # ---------------------------------------------------------------------------------------------- the screen, the limits, the texts
 java = read(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrWordDelete.java"))
@@ -226,14 +245,14 @@ for tag, attrs in entries:
 names = [k[0] for k in keys]
 at = names.index("pref_long_press_duration")
 check("screen: right after the long-press time come the switch and its time, in that order",
-      names[at + 1:at + 3] == ["pref_word_delete", "pref_word_delete_after"], names[at:at + 4])
+      names[at + 1:at + 3] == ["pref_word_delete", "pref_word_delete_interval"], names[at:at + 4])
 sw = keys[at + 1]
 bar = keys[at + 2]
 check("screen: the switch is a CheckBoxPreference, off by default, persistent",
       sw[1] == "CheckBoxPreference" and 'android:defaultValue="false"' in sw[2] and 'android:persistent="true"' in sw[2], sw)
-check("screen: the time is a seek bar that depends on the switch", bar[1] == "com.mrkeyboard.app.SeekBarPreferenceString"
+check("screen: the interval is a seek bar that depends on the switch", bar[1] == "com.mrkeyboard.app.SeekBarPreferenceString"
       and 'android:dependency="pref_word_delete"' in bar[2], bar)
-check("screen: the keys are the ones of MrWordDelete", const("PREF_ON") == "pref_word_delete" and const("PREF_AFTER") == "pref_word_delete_after")
+check("screen: the keys are the ones of MrWordDelete", const("PREF_ON") == "pref_word_delete" and const("PREF_INTERVAL") == "pref_word_delete_interval")
 
 
 def attr(name, s):
@@ -242,26 +261,30 @@ def attr(name, s):
 
 
 check("screen: the limits and the default of the bar are the ones of MrWordDelete",
-      float(attr("hk:minValue", bar[2])) == float(const("AFTER_MIN")) and float(attr("hk:maxValue", bar[2])) == float(const("AFTER_MAX"))
-      and float(attr("android:defaultValue", bar[2])) == float(const("AFTER_DEFAULT")) and attr("hk:displayFormat", bar[2]) == "%.0f ms",
+      float(attr("hk:minValue", bar[2])) == float(const("INTERVAL_MIN")) and float(attr("hk:maxValue", bar[2])) == float(const("INTERVAL_MAX"))
+      and float(attr("android:defaultValue", bar[2])) == float(const("INTERVAL_DEFAULT")) and attr("hk:displayFormat", bar[2]) == "%.0f ms",
       (attr("hk:minValue", bar[2]), attr("hk:maxValue", bar[2]), attr("android:defaultValue", bar[2])))
-check("limits: the time starts after the repeat does (more than the 300 ms of config_delay_before_key_repeat_start)",
-      int(const("AFTER_MIN")) > int(re.search(r'config_delay_before_key_repeat_start">(\d+)<', read(os.path.join(ROOT, "res", "values", "integers.xml"))).group(1)))
-check("limits: the default is inside the limits", int(const("AFTER_MIN")) <= int(const("AFTER_DEFAULT")) <= int(const("AFTER_MAX")))
+check("screen: the bar moves in steps of 50 ms and every step is a value the class accepts",
+      attr("hk:step", bar[2]) is not None and float(attr("hk:step", bar[2])) == 50.0
+      and (int(const("INTERVAL_MAX")) - int(const("INTERVAL_MIN"))) % 50 == 0 and int(const("INTERVAL_DEFAULT")) % 50 == 0 and int(const("INTERVAL_MIN")) % 50 == 0)
+integers = read(os.path.join(ROOT, "res", "values", "integers.xml"))
+usual = int(re.search(r'config_key_repeat_interval">(\d+)<', integers).group(1))
+check("limits: the shortest interval is longer than the usual repeat (a hold by words is never faster than a hold by letters)", int(const("INTERVAL_MIN")) > usual, usual)
+check("limits: the default is inside the limits", int(const("INTERVAL_MIN")) <= int(const("INTERVAL_DEFAULT")) <= int(const("INTERVAL_MAX")))
 
 for d in ("values", "values-es", "values-pt-rBR"):
     x = read(os.path.join(ROOT, "res", d, "mr_strings.xml"))
-    for s in ("mr_word_delete_title", "mr_word_delete_summary", "mr_word_delete_after_title"):
+    for s in ("mr_word_delete_title", "mr_word_delete_summary", "mr_word_delete_interval_title"):
         m = re.search(r'<string name="%s">([^<]+)</string>' % s, x)
         check("text %s in %s" % (s, d), m is not None and len(m.group(1)) > 10, d)
-for s in ("mr_word_delete_title", "mr_word_delete_summary", "mr_word_delete_after_title"):
+for s in ("mr_word_delete_title", "mr_word_delete_summary", "mr_word_delete_interval_title"):
     check("screen uses @string/%s" % s, "@string/" + s in prefs)
 
 reset = read(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrReset.java"))
-check("MrReset.KEYS has both keys", '"pref_word_delete"' in reset and '"pref_word_delete_after"' in reset)
+check("MrReset.KEYS has both keys", '"pref_word_delete"' in reset and '"pref_word_delete_interval"' in reset)
 
 notes = read(os.path.join(ROOT, "docs", "release-notes", "v2.0.0.md"))
-check("the notes of 2.0.0 have the New / Novo line, in both languages", "- Novo: **Apagar por palavras ao segurar**" in notes and "- New: **Delete by words when held**" in notes)
+check("the notes of 2.0.0 have the New / Novo line, in both languages", "- Novo: **Ctrl + apagar apaga por palavra**" in notes and "- New: **Ctrl + delete deletes by words**" in notes)
 
 print("%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)
