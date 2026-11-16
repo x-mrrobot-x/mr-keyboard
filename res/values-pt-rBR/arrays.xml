@@ -26,11 +26,11 @@
         <item>Completo (linha F1–F12)</item>
     </string-array>
     <string-array name="popup_content_entries">
-        <item>Sem popups</item>
-        <item>Sem popups, usar repetição automática</item>
-        <item>Somente únicos: 3 ⇒ ³, e ⇒ é</item>
-        <item>Incluir maiúscula: 3 ⇒ #³, e ⇒ Eé</item>
-        <item>Incluir a própria tecla: 3 ⇒ 3#³, e ⇒ eEé</item>
+        <item>Desligado: nada abre ao segurar</item>
+        <item>Desligado: segurar repete a tecla</item>
+        <item>Só acentos e símbolos: 3 ⇒ ³, e ⇒ é</item>
+        <item>Acentos e símbolos + maiúscula: 3 ⇒ #³, e ⇒ Eé</item>
+        <item>Completo (a própria tecla, maiúscula, acentos e símbolos): 3 ⇒ 3#³, e ⇒ eEé</item>
     </string-array>
     <string-array name="swipe_action_entries">
         <item>(nenhuma ação)</item>

@@ -290,8 +290,8 @@
     <string name="title_keyboard_mode_portrait">Keyboard mode, portrait</string>
     <string name="title_keyboard_notification">Use permanent notification</string>
     <string name="title_label_scale">Key label scaling</string>
-    <string name="title_long_press_duration">Long-press duration</string>
-    <string name="title_popup_content">Popup on key press</string>
+    <string name="title_long_press_duration">Time to hold a key</string>
+    <string name="title_popup_content">Accents and symbols on key hold</string>
     <string name="title_suggestions_in_landscape">Suggestions in landscape mode</string>
     <string name="title_swipe_down">Swipe down</string>
     <string name="title_swipe_gestures">Swipe gestures (experimental)</string>

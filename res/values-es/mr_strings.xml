@@ -17,7 +17,7 @@
     <string name="mr_ui_cat_typing">Escritura</string>
     <string name="mr_ui_cat_typing_sum">Sugerencias, mayúsculas y voz</string>
     <string name="mr_ui_cat_touch">Toque y gestos</string>
-    <string name="mr_ui_cat_touch_sum">Toque largo, popup, vibración, gestos y borrar por palabra</string>
+    <string name="mr_ui_cat_touch_sum">Tiempo de pulsación, acentos y símbolos, vibración, gestos y borrar por palabra</string>
     <string name="mr_ui_cat_general">General</string>
     <string name="mr_ui_cat_general_sum">Idioma de la app, notificación, opciones avanzadas y restablecer valores</string>
     <string name="mr_ui_cat_about">Acerca de</string>
@@ -704,6 +704,7 @@
     <string name="mr_sugg_idle_5">5 segundos</string>
     <string name="mr_sugg_idle_8">8 segundos</string>
     <string name="mr_sugg_idle_10">10 segundos</string>
+    <string name="mr_long_press_duration_sum">Mantén la tecla durante %1$s para abrir sus acentos y símbolos (é, ³…)</string>
     <string name="mr_word_delete_title">Borrar por palabra</string>
     <string name="mr_word_delete_row_sum">Ctrl + borrar quita palabras enteras; Ctrl + Z y Ctrl + Y deshacen y rehacen</string>
     <string name="mr_word_delete_cat_ctrl">Ctrl + borrar</string>

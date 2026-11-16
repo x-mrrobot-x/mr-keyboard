@@ -17,7 +17,7 @@
     <string name="mr_ui_cat_typing">Typing</string>
     <string name="mr_ui_cat_typing_sum">Suggestions, capitalization and voice</string>
     <string name="mr_ui_cat_touch">Touch and gestures</string>
-    <string name="mr_ui_cat_touch_sum">Long press, popup, vibration, gestures and delete by word</string>
+    <string name="mr_ui_cat_touch_sum">Hold time, accents and symbols, vibration, gestures and delete by word</string>
     <string name="mr_ui_cat_general">General</string>
     <string name="mr_ui_cat_general_sum">App language, notification, advanced options and restore defaults</string>
     <string name="mr_ui_cat_about">About</string>
@@ -704,6 +704,7 @@
     <string name="mr_sugg_idle_5">5 seconds</string>
     <string name="mr_sugg_idle_8">8 seconds</string>
     <string name="mr_sugg_idle_10">10 seconds</string>
+    <string name="mr_long_press_duration_sum">Hold a key for %1$s to open its accents and symbols (é, ³…)</string>
     <string name="mr_word_delete_title">Delete by word</string>
     <string name="mr_word_delete_row_sum">Ctrl + delete removes whole words; Ctrl + Z and Ctrl + Y undo and redo them</string>
     <string name="mr_word_delete_cat_ctrl">Ctrl + delete</string>

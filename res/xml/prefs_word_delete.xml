@@ -5,7 +5,7 @@
     <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/mr_word_delete_interval_title" android:key="pref_word_delete_interval" android:dependency="pref_word_delete" android:defaultValue="200" hk:displayFormat="%.0f ms" hk:maxValue="600.0" hk:minValue="100.0" hk:step="50.0"/>
     <Preference android:layout="@layout/mr_ui_pref_row_static" android:persistent="false" android:selectable="false" android:key="word_delete_how" android:dependency="pref_word_delete" android:title="@string/mr_word_delete_how_title" android:summary="@string/mr_word_delete_how_sum"/>
   </PreferenceCategory>
-  <PreferenceCategory android:title="@string/mr_word_delete_cat_undo" android:key="word_delete_undo" android:icon="@drawable/mr_ui_ic_undo">
+  <PreferenceCategory android:title="@string/mr_word_delete_cat_undo" android:key="word_delete_undo" android:icon="@drawable/mr_ui_ic_undo_mint">
     <Preference android:layout="@layout/mr_ui_pref_row_static" android:persistent="false" android:selectable="false" android:key="word_delete_undo_info" android:dependency="pref_word_delete" android:title="@string/mr_word_delete_undo_title" android:summary="@string/mr_word_delete_undo_sum"/>
   </PreferenceCategory>
 </PreferenceScreen>

@@ -79,11 +79,11 @@
         <item>2</item>
     </string-array>
     <string-array name="popup_content_entries">
-        <item>No popups</item>
-        <item>No popups, use auto-repeat</item>
-        <item>Unique only: 3 ⇒ ³, e ⇒ é</item>
-        <item>Add upper: 3 ⇒ #³, e ⇒ Eé</item>
-        <item>Add self: 3 ⇒ 3#³, e ⇒ eEé</item>
+        <item>Off: nothing opens when holding</item>
+        <item>Off: holding repeats the key</item>
+        <item>Accents and symbols only: 3 ⇒ ³, e ⇒ é</item>
+        <item>Accents and symbols + uppercase: 3 ⇒ #³, e ⇒ Eé</item>
+        <item>Full (the key itself, uppercase, accents and symbols): 3 ⇒ 3#³, e ⇒ eEé</item>
     </string-array>
     <string-array name="popup_content_values">
         <item>256</item>

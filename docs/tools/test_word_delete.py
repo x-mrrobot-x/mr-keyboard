@@ -400,6 +400,76 @@ for d in ("values", "values-es", "values-pt-rBR"):
     check("texts in %s: the words 'Ctrl + Z' and 'Ctrl + Y' are explained in the undo row" % d,
           "Ctrl + Z" in re.search(r'<string name="mr_word_delete_undo_sum">([^<]+)', x).group(1) and "Ctrl + Y" in re.search(r'<string name="mr_word_delete_undo_sum">([^<]+)', x).group(1))
 
+# ---------------------------------------------------------------------------------------------- the icons of the sections
+def tile(name):
+    x = read(os.path.join(ROOT, "res", "drawable", name + ".xml"))
+    c = re.search(r"@color/mr_ui_(\w+?)_soft", x)
+    return x, (c.group(1) if c else None)
+
+
+def shape_of(x):
+    """Everything about the size of a section icon that is not its colour or its drawing."""
+    return (re.findall(r'<corners android:radius="(\d+)dp"', x), re.findall(r'<stroke android:width="(\d+)dp"', x),
+            re.findall(r'android:(?:left|top|right|bottom)="(\d+)dp"', x), re.findall(r'<vector [^>]*android:width="(\d+)dp"[^>]*android:height="(\d+)dp"', x))
+
+
+icons = [a for k in keys if k[1] == "PreferenceCategory" for a in re.findall(r'android:icon="@drawable/(\w+)"', k[2])]
+check("icons: the two sections have an icon, and they are two different drawables", len(icons) == 2 and icons[0] != icons[1], icons)
+shapes = []
+for ic in icons:
+    x, col = tile(ic)
+    shapes.append(shape_of(x))
+    check("icon %s: a rounded tile (soft fill + thin line of one colour) with the drawing inset in it, like the icons of the pages" % ic,
+          re.sub(r"<\?xml[^>]*\?>|<!--.*?-->", "", x, flags=re.S).lstrip().startswith("<layer-list") and col is not None and "@color/mr_ui_%s_line" % col in x and "@color/mr_ui_%s\"" % col in x
+          and '<shape android:shape="rectangle"' in x and "<vector " in x, col)
+check("icons: both sections have the same size of tile, corner, line, inset and drawing (the second is not bigger or flat)",
+      len(shapes) == 2 and shapes[0] == shapes[1] and shapes[0][0] and shapes[0][2] and shapes[0][3], shapes)
+page_icon = re.search(r'android:key="altchar_settings"[^>]*android:icon="@drawable/(\w+)"', prefs_main).group(1)
+check("icons: the tile of the sections is the one of the pages of the settings", shape_of(tile(page_icon)[0])[:3] == shapes[0][:3], (page_icon, shape_of(tile(page_icon)[0])))
+
+# ---------------------------------------------------------------------------------------------- the two texts of hold time and popup
+longrow = re.search(r'<com\.mrkeyboard\.app\.SeekBarPreferenceString [^>]*android:key="pref_long_press_duration"[^>]*>', prefs_main).group(0)
+check("settings: the hold time row has the title and the text that explains it", 'android:title="@string/title_long_press_duration"' in longrow
+      and 'android:summary="@string/mr_long_press_duration_sum"' in longrow, longrow)
+withsum = sorted(re.findall(r'<com\.mrkeyboard\.app\.SeekBarPreferenceString [^>]*android:summary="[^"]*"[^>]*android:key="([^"]+)"', "".join(
+    read(os.path.join(ROOT, "res", "xml", f)) for f in os.listdir(os.path.join(ROOT, "res", "xml")) if f.endswith(".xml"))))
+check("settings: the hold time is the only slider with a text of its own (the others still show only their value)", withsum == ["pref_long_press_duration"], withsum)
+values_popup = re.findall(r"<item>(\d+)</item>", re.search(r'<string-array name="popup_content_values">(.*?)</string-array>', read(os.path.join(ROOT, "res", "values", "arrays.xml")), re.S).group(1))
+check("popup: the values of the five choices are untouched (the engine reads them as flags)", values_popup == ["256", "768", "0", "3", "7"], values_popup)
+old_titles = {"values": ("Long-press duration", "Popup on key press"), "values-pt-rBR": ("Duração do toque longo", "Popup ao pressionar a tecla"),
+              "values-es": ("Duración del toque largo", "Popup al presionar la tecla")}
+for d in ("values", "values-es", "values-pt-rBR"):
+    st = read(os.path.join(ROOT, "res", d, "strings.xml"))
+    t1 = re.search(r'<string name="title_long_press_duration">([^<]+)<', st).group(1)
+    t2 = re.search(r'<string name="title_popup_content">([^<]+)<', st).group(1)
+    check("titles in %s: both are new (not the vague ones) and say what the setting is about: holding a key, and accents and symbols" % d,
+          (t1, t2) != old_titles[d] and t1 != old_titles[d][0] and t2 != old_titles[d][1] and re.search(r"(?i)segurar|hold|mantener", t1) and re.search(r"(?i)acentos|accents", t2)
+          and re.search(r"(?i)segurar|hold|mantener", t2), (t1, t2))
+    ms = read(os.path.join(ROOT, "res", d, "mr_strings.xml"))
+    sm = re.search(r'<string name="mr_long_press_duration_sum">([^<]+)<', ms)
+    check("hold time text in %s: one place for the value (%%1$s), says what opens, short enough for the row" % d,
+          sm is not None and sm.group(1).count("%1$s") == 1 and "%" not in sm.group(1).replace("%1$s", "") and len(sm.group(1)) <= 110, sm.group(1) if sm else None)
+    ar = read(os.path.join(ROOT, "res", d, "arrays.xml"))
+    ent = re.findall(r"<item>([^<]+)</item>", re.search(r'<string-array name="popup_content_entries">(.*?)</string-array>', ar, re.S).group(1))
+    check("popup choices in %s: five, none with the vague word 'popup', the first two say they are off, the last three show an example (3 and e)" % d,
+          len(ent) == 5 and not any("popup" in e.lower() for e in ent) and all("⇒" in e for e in ent[2:]) and all("⇒" not in e for e in ent[:2])
+          and all("3 ⇒" in e and "e ⇒" in e for e in ent[2:]) and len(set(ent)) == 5, ent)
+    check("popup choices in %s: each one is only in its place (off / off + repeat / accents / + uppercase / full), so the list matches the values above" % d,
+          re.search(r"(?i)desligado|off|desactivado", ent[0]) and re.search(r"(?i)repe|repit", ent[1]) and "#" not in ent[2] and "#" in ent[3] and "3#³" in ent[4], ent)
+sbp = method_body(os.path.join(ROOT, "smali", "com", "mrkeyboard", "app", "SeekBarPreference.smali"), "getSummary()")
+sc = code_lines(sbp)
+i_fmt = index_of(sc, "formatFloatDisplay")
+i_sup = index_of(sc, "Landroid/preference/Preference;->getSummary()")
+i_null = index_of(sc, "if-eqz v1, :cond_mr_value")
+i_empty = index_of(sc, "if-eqz v2, :cond_mr_value")
+tail = sc[sc.index(":cond_mr_value"):] if ":cond_mr_value" in sc else []
+check("SeekBarPreference.getSummary: asks the row for its own text; with none, or an empty one, it gives the value alone as it always did",
+      min(i_fmt, i_sup, i_null, i_empty) >= 0 and i_fmt < i_sup < i_null < i_empty and tail[:2] == [":cond_mr_value", "return-object v0"]
+      and not any(re.match(r"(move-result-object|const-string|move-object|move) v0", l) for l in sc[i_fmt + 2:i_empty + 1]), (i_fmt, i_sup, i_null, i_empty, tail[:3]))
+check("SeekBarPreference.getSummary: '%1$s' in the text is replaced by the value; a text without it goes under the value",
+      'const-string v2, "%1$s"' in sbp and any("String;->contains(Ljava/lang/CharSequence;)Z" in l for l in sc) and any("String;->replace(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)" in l for l in sc)
+      and ":cond_mr_below" in sc and 'const-string v0, "\\n"' in sbp)
+
 manifest = read(os.path.join(ROOT, "AndroidManifest.xml"))
 m = re.search(r'<activity ([^>]*?android:name="com\.mrkeyboard\.app\.PrefScreenWordDelete"[^>]*)>(.*?)</activity>', manifest, re.S)
 check("manifest: PrefScreenWordDelete is declared, not exported, with the Settings theme and the action PREFS_WORD_DELETE",
@@ -419,6 +489,9 @@ notes = read(os.path.join(ROOT, "docs", "release-notes", "v2.0.0.md"))
 check("the notes of 2.0.0 have the New / Novo line, in both languages, and say where the screen is",
       "- Novo: **Ctrl + apagar apaga por palavra**" in notes and "- New: **Ctrl + delete deletes by words**" in notes
       and "Toque e gestos → Apagar por palavra" in notes and "Touch and gestures → Delete by word" in notes)
+check("the notes of 2.0.0 tell, in both languages, that the texts of hold time and of accents and symbols are clearer",
+      "- Melhorado: Em **Toque e gestos**, **Tempo para segurar a tecla**" in notes and "- Improved: In **Touch and gestures**, **Time to hold a key**" in notes
+      and "**Acentos e símbolos ao segurar a tecla**" in notes and "**Accents and symbols on key hold**" in notes)
 
 print("%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)
