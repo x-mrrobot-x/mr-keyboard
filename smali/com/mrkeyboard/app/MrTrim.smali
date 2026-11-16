@@ -32,7 +32,7 @@
     .locals 0
 
     .prologue
-    .line 44
+    .line 45
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -42,12 +42,12 @@
     .locals 1
 
     .prologue
-    .line 48
+    .line 49
     const/4 v0, 0x0
 
     sput v0, Lcom/mrkeyboard/app/MrTrim;->sCount:I
 
-    .line 49
+    .line 50
     return-void
 .end method
 
@@ -59,20 +59,23 @@
 
     const/4 v1, 0x0
 
-    .line 53
+    .line 54
     const/4 v0, 0x5
 
     if-ge p0, v0, :cond_0
 
-    .line 78
+    .line 80
     :goto_0
     return-void
 
-    .line 54
+    .line 55
     :cond_0
     invoke-static {v8}, Lcom/mrkeyboard/app/MrPerf;->begin(I)V
 
     .line 60
+    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->release()V
+
+    .line 62
     :try_start_0
     invoke-static {}, Lcom/mrkeyboard/app/KeyboardSwitcher;->dropUnused()I
     :try_end_0
@@ -80,7 +83,7 @@
 
     move-result v3
 
-    .line 61
+    .line 63
     :try_start_1
     invoke-static {}, Lcom/mrkeyboard/app/KeyboardSwitcher;->getInstance()Lcom/mrkeyboard/app/KeyboardSwitcher;
 
@@ -90,7 +93,7 @@
 
     move-result-object v2
 
-    .line 62
+    .line 64
     if-eqz v2, :cond_2
 
     invoke-virtual {v2}, Lcom/mrkeyboard/app/LatinKeyboardView;->isShown()Z
@@ -101,7 +104,7 @@
 
     const/4 v0, 0x1
 
-    .line 63
+    .line 65
     :goto_1
     if-eqz v2, :cond_4
 
@@ -118,11 +121,11 @@
 
     move-result v2
 
-    .line 64
+    .line 66
     :goto_2
     if-nez v0, :cond_3
 
-    .line 65
+    .line 67
     :try_start_2
     invoke-static {}, Lcom/mrkeyboard/app/ShadowDrawHelper;->heldBytes()I
     :try_end_2
@@ -130,7 +133,7 @@
 
     move-result v0
 
-    .line 66
+    .line 68
     :try_start_3
     invoke-static {}, Lcom/mrkeyboard/app/ShadowDrawHelper;->release()I
     :try_end_3
@@ -138,26 +141,26 @@
 
     move-result v1
 
-    .line 71
+    .line 73
     :goto_3
     invoke-static {v8}, Lcom/mrkeyboard/app/MrPerf;->end(I)V
 
-    .line 72
+    .line 74
     sput p0, Lcom/mrkeyboard/app/MrTrim;->sLevel:I
 
-    .line 73
+    .line 75
     sput v3, Lcom/mrkeyboard/app/MrTrim;->sKeyboards:I
 
-    .line 74
+    .line 76
     sput v2, Lcom/mrkeyboard/app/MrTrim;->sPopups:I
 
-    .line 75
+    .line 77
     sput v1, Lcom/mrkeyboard/app/MrTrim;->sShadows:I
 
-    .line 76
+    .line 78
     sput v0, Lcom/mrkeyboard/app/MrTrim;->sBytes:I
 
-    .line 77
+    .line 79
     sget v0, Lcom/mrkeyboard/app/MrTrim;->sCount:I
 
     add-int/lit8 v0, v0, 0x1
@@ -169,10 +172,10 @@
     :cond_2
     move v0, v1
 
-    .line 62
+    .line 64
     goto :goto_1
 
-    .line 68
+    .line 70
     :catch_0
     move-exception v0
 
@@ -184,7 +187,7 @@
 
     move v0, v1
 
-    .line 69
+    .line 71
     :goto_4
     const-string v5, "MrTrim"
 
@@ -220,7 +223,7 @@
 
     goto :goto_3
 
-    .line 68
+    .line 70
     :catch_1
     move-exception v0
 

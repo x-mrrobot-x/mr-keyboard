@@ -354,6 +354,8 @@ the app after a separator the keyboard typed, counted, with and without the one 
   popups are the variants of long presses that were kept; shadows are the kept blurred icon outlines, and the bytes are what they held.
   Popups and shadows are only counted when they were let go: on screen at level 5 only keyboards go (so the line says 0 and 0), on screen at
   level 10 or more the popups go too, with the keyboard hidden everything goes. A reset of the meter removes the line.
+  The words kept for Ctrl + Z and Ctrl + Y (`docs/word-delete.md`) also go, at any level (`MrWordDelete.release`); they are not in the line,
+  which counts keyboards, popups and shadows only. Without them those keys go to the app.
 - **"Free memory now (test)"** (a row under the times, same Advanced screen): runs the highest level by hand, asks for a collection, counts
   what is alive (see part 3) and shows the times again. What the keyboard let go of is the line "Last cleanup"; the "Memory" line is **not**
   the effect of the cleanup: the collection that the row asks for frees garbage that is not what the cleanup let go of (on the phone a second

@@ -51,7 +51,7 @@
 #     (some progress, never more than there is, no half pair of surrogates, no line break taken along with a word), the setting and its limits, Ctrl
 #     read at the touch and kept for the hold, the interval, the word being typed or reopened by the correction (the field deletes like Android's, composing text counted as selected), what is left to the usual delete
 #     (a selection, no text, a failing app), the setting off, and whole holds replayed on a fake field (the touch, the repeat at 300 ms, then the
-#     interval asked; a one-shot Ctrl goes off after the first key) with the exact text left, and Ctrl + Z word by word: the last word first, a word alone left to the app, what is not the text the word left (typed, cursor moved, selection), the composing text, the words that expire (lifetime, limit, the setting turned off) and a failing app.
+#     interval asked; a one-shot Ctrl goes off after the first key) with the exact text left, and Ctrl + Z word by word: the last word first, a word alone left to the app, what is not the text the word left (typed, cursor moved, selection), the composing text, the words that expire (lifetime, limit, the setting turned off) and a failing app; Ctrl + Y, the redo (the order, a word alone, a new Ctrl + delete ending it, the text the return left, both lists expiring, the limit for both, release).
 #   - GridTest: the drawn key grid of the sheet editor (SheetGridView, Java since 1.92.0): the geometry of the cells
 #     (margins, gaps, key height, the "+" of a row, the locked "⌫" and the locked bottom row), the limits (6 rows, 10 keys
 #     per row and 9 in the last one) and the touch rules (tap, cancel, long press, drag and drop, a full row refusing it).
@@ -174,7 +174,7 @@ echo "== KeepTest (tool and keyboard when the screen turns)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_keep" $D/keep_test/KeepTest.java
 java -cp "$T/test_keep:$T/stubs:$T/main" com.mrkeyboard.app.KeepTest
 
-echo "== WordDelTest (Ctrl + delete by words: the rule, the setting, Ctrl at the touch, the interval, the word being typed, whole holds replayed, Ctrl + Z by words)"
+echo "== WordDelTest (Ctrl + delete by words: the rule, the setting, Ctrl at the touch, the interval, the word being typed, whole holds replayed, Ctrl + Z and Ctrl + Y by words)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_worddel" $D/worddel_test/WordDelTest.java
 java -Dfile.encoding=UTF-8 -cp "$T/test_worddel:$T/stubs:$T/main" com.mrkeyboard.app.WordDelTest
 

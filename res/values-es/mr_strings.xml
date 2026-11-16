@@ -17,7 +17,7 @@
     <string name="mr_ui_cat_typing">Escritura</string>
     <string name="mr_ui_cat_typing_sum">Sugerencias, mayúsculas y voz</string>
     <string name="mr_ui_cat_touch">Toque y gestos</string>
-    <string name="mr_ui_cat_touch_sum">Toque largo, popup, vista previa de la tecla, vibración y gestos</string>
+    <string name="mr_ui_cat_touch_sum">Toque largo, popup, vibración, gestos y borrar por palabra</string>
     <string name="mr_ui_cat_general">General</string>
     <string name="mr_ui_cat_general_sum">Idioma de la app, notificación, opciones avanzadas y restablecer valores</string>
     <string name="mr_ui_cat_about">Acerca de</string>
@@ -704,7 +704,15 @@
     <string name="mr_sugg_idle_5">5 segundos</string>
     <string name="mr_sugg_idle_8">8 segundos</string>
     <string name="mr_sugg_idle_10">10 segundos</string>
-    <string name="mr_word_delete_title">Ctrl + borrar borra por palabras</string>
-    <string name="mr_word_delete_summary">Con Ctrl activo, la tecla borrar elimina una palabra por toque; manteniéndola, repite palabra por palabra</string>
-    <string name="mr_word_delete_interval_title">Intervalo entre palabras al mantener</string>
+    <string name="mr_word_delete_title">Borrar por palabra</string>
+    <string name="mr_word_delete_row_sum">Ctrl + borrar quita palabras enteras; Ctrl + Z y Ctrl + Y deshacen y rehacen</string>
+    <string name="mr_word_delete_cat_ctrl">Ctrl + borrar</string>
+    <string name="mr_word_delete_switch_title">Activar borrar por palabra</string>
+    <string name="mr_word_delete_summary">Con Ctrl activo, borrar quita la palabra entera antes del cursor en vez de una letra. Sin Ctrl, la tecla funciona como siempre.</string>
+    <string name="mr_word_delete_interval_title">Tiempo entre palabras al mantener</string>
+    <string name="mr_word_delete_how_title">Cómo usarlo</string>
+    <string name="mr_word_delete_how_sum">Toca Ctrl y luego borrar, o mantén Ctrl y toca borrar. Al mantener borrar, las palabras salen una tras otra en el tiempo de arriba: menos es más rápido.</string>
+    <string name="mr_word_delete_cat_undo">Deshacer y rehacer</string>
+    <string name="mr_word_delete_undo_title">Ctrl + Z y Ctrl + Y</string>
+    <string name="mr_word_delete_undo_sum">Ctrl + Z devuelve la última palabra borrada, de una en una. Ctrl + Y vuelve a borrar la que volvió. Las palabras se guardan 2 minutos.</string>
 </resources>

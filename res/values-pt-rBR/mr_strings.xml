@@ -17,7 +17,7 @@
     <string name="mr_ui_cat_typing">Digitação</string>
     <string name="mr_ui_cat_typing_sum">Sugestões, capitalização e voz</string>
     <string name="mr_ui_cat_touch">Toque e gestos</string>
-    <string name="mr_ui_cat_touch_sum">Toque longo, popup, prévia da tecla, vibração e gestos</string>
+    <string name="mr_ui_cat_touch_sum">Toque longo, popup, vibração, gestos e apagar por palavra</string>
     <string name="mr_ui_cat_general">Geral</string>
     <string name="mr_ui_cat_general_sum">Idioma do app, notificação, opções avançadas e restaurar padrões</string>
     <string name="mr_ui_cat_about">Sobre</string>
@@ -704,7 +704,15 @@
     <string name="mr_sugg_idle_5">5 segundos</string>
     <string name="mr_sugg_idle_8">8 segundos</string>
     <string name="mr_sugg_idle_10">10 segundos</string>
-    <string name="mr_word_delete_title">Ctrl + apagar apaga por palavra</string>
-    <string name="mr_word_delete_summary">Com o Ctrl ativo, a tecla apagar remove uma palavra por toque; segurando, repete palavra por palavra</string>
-    <string name="mr_word_delete_interval_title">Intervalo entre palavras ao segurar</string>
+    <string name="mr_word_delete_title">Apagar por palavra</string>
+    <string name="mr_word_delete_row_sum">Ctrl + apagar remove palavras inteiras; Ctrl + Z e Ctrl + Y desfazem e refazem</string>
+    <string name="mr_word_delete_cat_ctrl">Ctrl + apagar</string>
+    <string name="mr_word_delete_switch_title">Ativar apagar por palavra</string>
+    <string name="mr_word_delete_summary">Com o Ctrl ativo, apagar remove a palavra inteira antes do cursor, em vez de uma letra. Sem o Ctrl, a tecla funciona como sempre.</string>
+    <string name="mr_word_delete_interval_title">Tempo entre palavras ao segurar</string>
+    <string name="mr_word_delete_how_title">Como usar</string>
+    <string name="mr_word_delete_how_sum">Toque no Ctrl e depois em apagar, ou segure o Ctrl e toque em apagar. Segurando apagar, as palavras saem uma após a outra no tempo acima: menor é mais rápido.</string>
+    <string name="mr_word_delete_cat_undo">Desfazer e refazer</string>
+    <string name="mr_word_delete_undo_title">Ctrl + Z e Ctrl + Y</string>
+    <string name="mr_word_delete_undo_sum">O Ctrl + Z devolve a última palavra apagada, uma por vez. O Ctrl + Y apaga de novo a que voltou. As palavras ficam guardadas por 2 minutos.</string>
 </resources>

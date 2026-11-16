@@ -96,6 +96,13 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+        <activity android:exported="false" android:label="@string/mr_word_delete_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.PrefScreenWordDelete" android:theme="@style/Theme.MrKeyboard.Settings">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="com.mrkeyboard.app.PREFS_WORD_DELETE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
         <activity android:excludeFromRecents="true" android:exported="false" android:launchMode="singleInstance" android:name="com.google.android.voiceime.ActivityHelper" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
         <activity android:excludeFromRecents="true" android:exported="false" android:launchMode="singleInstance" android:name="com.mrkeyboard.app.ShotPerm" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
         <activity android:excludeFromRecents="true" android:exported="false" android:launchMode="singleInstance" android:name="com.mrkeyboard.app.ShotPick" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>

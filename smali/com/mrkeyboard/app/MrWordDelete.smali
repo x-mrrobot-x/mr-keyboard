@@ -55,25 +55,43 @@
 
 .field private static sPure:Z
 
+.field private static final sRedo:Ljava/util/ArrayList;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "Ljava/util/ArrayList",
+            "<",
+            "Lcom/mrkeyboard/app/MrWordDelete$Cut;",
+            ">;"
+        }
+    .end annotation
+.end field
+
 
 # direct methods
 .method static constructor <clinit>()V
     .locals 2
 
     .prologue
-    .line 79
+    .line 86
     const/16 v0, 0xc8
 
     sput v0, Lcom/mrkeyboard/app/MrWordDelete;->sInterval:I
 
-    .line 104
+    .line 118
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     sput-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
 
-    .line 108
+    .line 120
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
+    sput-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sRedo:Ljava/util/ArrayList;
+
+    .line 124
     const-wide/16 v0, -0x1
 
     sput-wide v0, Lcom/mrkeyboard/app/MrWordDelete;->sClock:J
@@ -85,7 +103,7 @@
     .locals 0
 
     .prologue
-    .line 113
+    .line 129
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -97,7 +115,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 199
+    .line 216
     if-eqz p0, :cond_0
 
     :try_start_0
@@ -121,18 +139,18 @@
 
     if-eq v0, v2, :cond_1
 
-    .line 208
+    .line 225
     :cond_0
     :goto_0
     return-void
 
-    .line 200
+    .line 217
     :cond_1
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sHold:Z
 
-    .line 201
+    .line 218
     sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sApp:Landroid/content/Context;
 
     if-nez v0, :cond_2
@@ -141,16 +159,16 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrWordDelete;->init(Landroid/content/Context;)V
 
-    .line 202
+    .line 219
     :cond_2
     sget-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sOn:Z
 
     if-eqz v0, :cond_0
 
-    .line 203
+    .line 220
     sget-object v0, Lcom/mrkeyboard/app/LatinIME;->sInstance:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 204
+    .line 221
     if-eqz v0, :cond_3
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinIME;->mrCtrlOn()Z
@@ -168,11 +186,11 @@
 
     goto :goto_0
 
-    .line 205
+    .line 222
     :catch_0
     move-exception v0
 
-    .line 206
+    .line 223
     sput-boolean v1, Lcom/mrkeyboard/app/MrWordDelete;->sHold:Z
 
     goto :goto_0
@@ -180,7 +198,7 @@
     :cond_3
     move v0, v1
 
-    .line 204
+    .line 221
     goto :goto_1
 .end method
 
@@ -188,32 +206,32 @@
     .locals 3
 
     .prologue
-    .line 138
+    .line 155
     const-class v1, Lcom/mrkeyboard/app/MrWordDelete;
 
     monitor-enter v1
 
     if-nez p0, :cond_0
 
-    .line 156
+    .line 173
     :goto_0
     monitor-exit v1
 
     return-void
 
-    .line 139
+    .line 156
     :cond_0
     :try_start_0
     sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sApp:Landroid/content/Context;
 
     if-nez v0, :cond_2
 
-    .line 140
+    .line 157
     invoke-virtual {p0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 141
+    .line 158
     if-eqz v0, :cond_1
 
     move-object p0, v0
@@ -221,29 +239,29 @@
     :cond_1
     sput-object p0, Lcom/mrkeyboard/app/MrWordDelete;->sApp:Landroid/content/Context;
 
-    .line 142
+    .line 159
     sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sApp:Landroid/content/Context;
 
     invoke-static {v0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
 
-    .line 143
+    .line 160
     if-eqz v0, :cond_2
 
-    .line 144
+    .line 161
     new-instance v2, Lcom/mrkeyboard/app/MrWordDelete$1;
 
     invoke-direct {v2}, Lcom/mrkeyboard/app/MrWordDelete$1;-><init>()V
 
     sput-object v2, Lcom/mrkeyboard/app/MrWordDelete;->sListener:Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;
 
-    .line 149
+    .line 166
     sget-object v2, Lcom/mrkeyboard/app/MrWordDelete;->sListener:Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;
 
     invoke-interface {v0, v2}, Landroid/content/SharedPreferences;->registerOnSharedPreferenceChangeListener(Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;)V
 
-    .line 152
+    .line 169
     :cond_2
     invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->reload()V
     :try_end_0
@@ -252,11 +270,11 @@
 
     goto :goto_0
 
-    .line 153
+    .line 170
     :catch_0
     move-exception v0
 
-    .line 154
+    .line 171
     const/4 v0, 0x0
 
     :try_start_1
@@ -266,7 +284,7 @@
 
     goto :goto_0
 
-    .line 138
+    .line 155
     :catchall_0
     move-exception v0
 
@@ -279,7 +297,7 @@
     .locals 1
 
     .prologue
-    .line 217
+    .line 234
     sget-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sHold:Z
 
     if-eqz v0, :cond_0
@@ -298,15 +316,15 @@
     .locals 2
 
     .prologue
-    .line 178
+    .line 195
     if-nez p0, :cond_1
 
-    .line 186
+    .line 203
     :cond_0
     :goto_0
     return p1
 
-    .line 180
+    .line 197
     :cond_1
     :try_start_0
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
@@ -317,12 +335,12 @@
 
     move-result v0
 
-    .line 181
+    .line 198
     cmpl-float v1, v0, v0
 
     if-nez v1, :cond_0
 
-    .line 182
+    .line 199
     const/high16 v1, 0x42c80000    # 100.0f
 
     cmpg-float v1, v0, v1
@@ -333,7 +351,7 @@
 
     goto :goto_0
 
-    .line 183
+    .line 200
     :cond_2
     const/high16 v1, 0x44160000    # 600.0f
 
@@ -345,7 +363,7 @@
 
     goto :goto_0
 
-    .line 184
+    .line 201
     :cond_3
     invoke-static {v0}, Ljava/lang/Math;->round(F)I
     :try_end_0
@@ -355,7 +373,7 @@
 
     goto :goto_0
 
-    .line 185
+    .line 202
     :catch_0
     move-exception v0
 
@@ -366,7 +384,7 @@
     .locals 1
 
     .prologue
-    .line 373
+    .line 450
     invoke-static {p0}, Lcom/mrkeyboard/app/MrWordDelete;->isBreak(I)Z
 
     move-result v0
@@ -401,7 +419,7 @@
     .locals 1
 
     .prologue
-    .line 368
+    .line 445
     const/16 v0, 0xa
 
     if-eq p0, v0, :cond_0
@@ -434,7 +452,7 @@
     .locals 1
 
     .prologue
-    .line 381
+    .line 458
     const/16 v0, 0x27
 
     if-eq p0, v0, :cond_0
@@ -467,12 +485,12 @@
     .locals 2
 
     .prologue
-    .line 362
+    .line 439
     invoke-static {p0}, Ljava/lang/Character;->getType(I)I
 
     move-result v0
 
-    .line 363
+    .line 440
     const/4 v1, 0x6
 
     if-eq v0, v1, :cond_0
@@ -505,7 +523,7 @@
     .locals 1
 
     .prologue
-    .line 377
+    .line 454
     invoke-static {p0}, Ljava/lang/Character;->isLetterOrDigit(I)Z
 
     move-result v0
@@ -529,22 +547,27 @@
 .end method
 
 .method private static keep(Landroid/view/inputmethod/InputConnection;Ljava/lang/String;Ljava/lang/String;Ljava/lang/CharSequence;)V
-    .locals 7
+    .locals 6
 
     .prologue
-    .line 295
+    .line 337
+    :try_start_0
+    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sRedo:Ljava/util/ArrayList;
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
+
+    .line 338
     if-nez p3, :cond_0
 
-    :try_start_0
     sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
 
-    .line 308
+    .line 346
     :goto_0
     return-void
 
-    .line 296
+    .line 339
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
 
@@ -580,7 +603,7 @@
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
 
-    .line 297
+    .line 340
     :cond_1
     const/16 v0, 0x40
 
@@ -590,7 +613,7 @@
 
     move-result-object v1
 
-    .line 298
+    .line 341
     if-nez v1, :cond_2
 
     sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
@@ -601,60 +624,20 @@
 
     goto :goto_0
 
-    .line 305
+    .line 343
     :catch_0
     move-exception v0
 
-    .line 306
+    .line 344
     sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
 
     goto :goto_0
 
-    .line 299
+    .line 342
     :cond_2
     :try_start_1
-    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
-    invoke-virtual {v0}, Ljava/util/ArrayList;->isEmpty()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_3
-
-    const/4 v0, 0x1
-
-    sput-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sPure:Z
-
-    .line 300
-    :cond_3
-    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
-    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
-
-    move-result v0
-
-    const/16 v2, 0x20
-
-    if-lt v0, v2, :cond_4
-
-    .line 301
-    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
-    const/4 v2, 0x0
-
-    invoke-virtual {v0, v2}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
-
-    .line 302
-    const/4 v0, 0x0
-
-    sput-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sPure:Z
-
-    .line 304
-    :cond_4
-    sget-object v6, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
     new-instance v0, Lcom/mrkeyboard/app/MrWordDelete$Cut;
 
     invoke-interface {v1}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
@@ -665,26 +648,92 @@
 
     move-result-object v3
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->now()J
-
-    move-result-wide v4
+    const-wide/16 v4, 0x0
 
     move-object v1, p1
 
     invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrWordDelete$Cut;-><init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;J)V
 
-    invoke-virtual {v6, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrWordDelete;->push(Lcom/mrkeyboard/app/MrWordDelete$Cut;)V
     :try_end_1
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1} :catch_0
 
     goto :goto_0
 .end method
 
+.method private static letGo(Ljava/util/ArrayList;J)Z
+    .locals 9
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Ljava/util/ArrayList",
+            "<",
+            "Lcom/mrkeyboard/app/MrWordDelete$Cut;",
+            ">;J)Z"
+        }
+    .end annotation
+
+    .prologue
+    const/4 v2, 0x0
+
+    .line 303
+    move v1, v2
+
+    .line 304
+    :goto_0
+    invoke-virtual {p0}, Ljava/util/ArrayList;->size()I
+
+    move-result v0
+
+    if-ge v1, v0, :cond_0
+
+    invoke-virtual {p0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/mrkeyboard/app/MrWordDelete$Cut;
+
+    iget-wide v4, v0, Lcom/mrkeyboard/app/MrWordDelete$Cut;->at:J
+
+    sub-long v4, p1, v4
+
+    const-wide/32 v6, 0x1d4c0
+
+    cmp-long v0, v4, v6
+
+    if-ltz v0, :cond_0
+
+    add-int/lit8 v0, v1, 0x1
+
+    move v1, v0
+
+    goto :goto_0
+
+    .line 305
+    :cond_0
+    if-lez v1, :cond_1
+
+    invoke-virtual {p0, v2, v1}, Ljava/util/ArrayList;->subList(II)Ljava/util/List;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Ljava/util/List;->clear()V
+
+    .line 306
+    :cond_1
+    if-lez v1, :cond_2
+
+    const/4 v2, 0x1
+
+    :cond_2
+    return v2
+.end method
+
 .method private static now()J
     .locals 4
 
     .prologue
-    .line 265
+    .line 282
     sget-wide v0, Lcom/mrkeyboard/app/MrWordDelete;->sClock:J
 
     const-wide/16 v2, 0x0
@@ -716,32 +765,32 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 226
+    .line 243
     sget-boolean v1, Lcom/mrkeyboard/app/MrWordDelete;->sHold:Z
 
     if-nez v1, :cond_1
 
-    .line 258
+    .line 275
     :cond_0
     :goto_0
     return v0
 
-    .line 228
+    .line 245
     :cond_1
     :try_start_0
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
 
     move-result-object v2
 
-    .line 229
+    .line 246
     if-eqz v2, :cond_0
 
-    .line 231
+    .line 248
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appBegin()V
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 233
+    .line 250
     const/4 v1, 0x0
 
     :try_start_1
@@ -749,7 +798,7 @@
 
     move-result-object v1
 
-    .line 234
+    .line 251
     if-eqz v1, :cond_2
 
     invoke-interface {v1}, Ljava/lang/CharSequence;->length()I
@@ -760,7 +809,7 @@
 
     if-lez v1, :cond_2
 
-    .line 253
+    .line 270
     :try_start_2
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
     :try_end_2
@@ -768,16 +817,16 @@
 
     goto :goto_0
 
-    .line 256
+    .line 273
     :catch_0
     move-exception v1
 
-    .line 257
+    .line 274
     sput-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sHold:Z
 
     goto :goto_0
 
-    .line 235
+    .line 252
     :cond_2
     const/16 v1, 0x40
 
@@ -788,15 +837,15 @@
 
     move-result-object v1
 
-    .line 236
+    .line 253
     invoke-static {v1}, Lcom/mrkeyboard/app/MrWordDelete;->wordLength(Ljava/lang/CharSequence;)I
 
     move-result v3
 
-    .line 237
+    .line 254
     if-lez v3, :cond_4
 
-    .line 238
+    .line 255
     invoke-interface {v1}, Ljava/lang/CharSequence;->length()I
 
     move-result v4
@@ -815,25 +864,25 @@
 
     move-result-object v4
 
-    .line 239
+    .line 256
     invoke-interface {v1}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 240
+    .line 257
     invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->purge()V
 
-    .line 241
+    .line 258
     invoke-static {v2}, Lcom/mrkeyboard/app/MrWordDelete;->readAfter(Landroid/view/inputmethod/InputConnection;)Ljava/lang/CharSequence;
 
     move-result-object v5
 
-    .line 242
+    .line 259
     invoke-interface {v2}, Landroid/view/inputmethod/InputConnection;->beginBatchEdit()Z
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 244
+    .line 261
     :try_start_4
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->mrHoldsWord()Z
 
@@ -843,74 +892,236 @@
 
     invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->mrDropComposing()V
 
-    .line 245
+    .line 262
     :cond_3
     invoke-interface {v2}, Landroid/view/inputmethod/InputConnection;->finishComposingText()Z
 
-    .line 246
+    .line 263
     const/4 v6, 0x0
 
     invoke-interface {v2, v3, v6}, Landroid/view/inputmethod/InputConnection;->deleteSurroundingText(II)Z
     :try_end_4
     .catchall {:try_start_4 .. :try_end_4} :catchall_0
 
-    .line 248
+    .line 265
     :try_start_5
     invoke-interface {v2}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
 
-    .line 250
+    .line 267
     invoke-static {v2, v4, v1, v5}, Lcom/mrkeyboard/app/MrWordDelete;->keep(Landroid/view/inputmethod/InputConnection;Ljava/lang/String;Ljava/lang/String;Ljava/lang/CharSequence;)V
     :try_end_5
     .catchall {:try_start_5 .. :try_end_5} :catchall_1
 
-    .line 253
+    .line 270
     :cond_4
     :try_start_6
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
     :try_end_6
     .catch Ljava/lang/Throwable; {:try_start_6 .. :try_end_6} :catch_0
 
-    .line 255
+    .line 272
     if-lez v3, :cond_0
 
     const/4 v0, 0x1
 
     goto :goto_0
 
-    .line 248
+    .line 265
     :catchall_0
     move-exception v1
 
     :try_start_7
     invoke-interface {v2}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
 
-    .line 249
+    .line 266
     throw v1
     :try_end_7
     .catchall {:try_start_7 .. :try_end_7} :catchall_1
 
-    .line 253
+    .line 270
     :catchall_1
     move-exception v1
 
     :try_start_8
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->appEnd()V
 
-    .line 254
+    .line 271
     throw v1
     :try_end_8
     .catch Ljava/lang/Throwable; {:try_start_8 .. :try_end_8} :catch_0
 .end method
 
-.method public static onUndo(Lcom/mrkeyboard/app/LatinIME;C)Z
-    .locals 8
+.method public static onUndoRedo(Lcom/mrkeyboard/app/LatinIME;C)Z
+    .locals 3
 
     .prologue
-    const/4 v2, 0x1
+    const/4 v0, 0x0
 
-    const/4 v1, 0x0
+    .line 354
+    sget-object v1, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
 
-    .line 316
+    invoke-virtual {v1}, Ljava/util/ArrayList;->isEmpty()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_1
+
+    sget-object v1, Lcom/mrkeyboard/app/MrWordDelete;->sRedo:Ljava/util/ArrayList;
+
+    invoke-virtual {v1}, Ljava/util/ArrayList;->isEmpty()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_1
+
+    .line 368
+    :cond_0
+    :goto_0
+    return v0
+
+    .line 356
+    :cond_1
+    :try_start_0
+    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->purge()V
+
+    .line 357
+    sget-object v1, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
+
+    invoke-virtual {v1}, Ljava/util/ArrayList;->isEmpty()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_2
+
+    sget-object v1, Lcom/mrkeyboard/app/MrWordDelete;->sRedo:Ljava/util/ArrayList;
+
+    invoke-virtual {v1}, Ljava/util/ArrayList;->isEmpty()Z
+
+    move-result v1
+
+    if-nez v1, :cond_0
+
+    .line 358
+    :cond_2
+    sget-boolean v1, Lcom/mrkeyboard/app/MrWordDelete;->sOn:Z
+
+    if-nez v1, :cond_3
+
+    .line 359
+    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->release()V
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+
+    goto :goto_0
+
+    .line 366
+    :catch_0
+    move-exception v1
+
+    .line 367
+    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->release()V
+
+    goto :goto_0
+
+    .line 362
+    :cond_3
+    const/16 v1, 0x79
+
+    if-eq p1, v1, :cond_4
+
+    const/16 v1, 0x59
+
+    if-ne p1, v1, :cond_6
+
+    :cond_4
+    const/4 v1, 0x1
+
+    .line 363
+    :goto_1
+    if-nez v1, :cond_5
+
+    const/16 v2, 0x7a
+
+    if-eq p1, v2, :cond_5
+
+    const/16 v2, 0x5a
+
+    if-ne p1, v2, :cond_0
+
+    .line 364
+    :cond_5
+    :try_start_1
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->mrCtrlOnly()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_0
+
+    .line 365
+    if-eqz v1, :cond_7
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrWordDelete;->redo(Lcom/mrkeyboard/app/LatinIME;)Z
+
+    move-result v0
+
+    goto :goto_0
+
+    :cond_6
+    move v1, v0
+
+    .line 362
+    goto :goto_1
+
+    .line 365
+    :cond_7
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrWordDelete;->undo(Lcom/mrkeyboard/app/LatinIME;)Z
+    :try_end_1
+    .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1} :catch_0
+
+    move-result v0
+
+    goto :goto_0
+.end method
+
+.method private static purge()V
+    .locals 3
+
+    .prologue
+    .line 297
+    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->now()J
+
+    move-result-wide v0
+
+    .line 298
+    sget-object v2, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
+
+    invoke-static {v2, v0, v1}, Lcom/mrkeyboard/app/MrWordDelete;->letGo(Ljava/util/ArrayList;J)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_0
+
+    const/4 v2, 0x0
+
+    sput-boolean v2, Lcom/mrkeyboard/app/MrWordDelete;->sPure:Z
+
+    .line 299
+    :cond_0
+    sget-object v2, Lcom/mrkeyboard/app/MrWordDelete;->sRedo:Ljava/util/ArrayList;
+
+    invoke-static {v2, v0, v1}, Lcom/mrkeyboard/app/MrWordDelete;->letGo(Ljava/util/ArrayList;J)Z
+
+    .line 300
+    return-void
+.end method
+
+.method private static push(Lcom/mrkeyboard/app/MrWordDelete$Cut;)V
+    .locals 3
+
+    .prologue
+    const/4 v2, 0x0
+
+    .line 320
     sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->isEmpty()Z
@@ -919,317 +1130,44 @@
 
     if-eqz v0, :cond_0
 
-    move v0, v1
-
-    .line 355
-    :goto_0
-    return v0
-
-    .line 318
-    :cond_0
-    :try_start_0
-    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->purge()V
-
-    .line 319
-    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
-    invoke-virtual {v0}, Ljava/util/ArrayList;->isEmpty()Z
-
-    move-result v0
-
-    if-eqz v0, :cond_1
-
-    move v0, v1
-
-    goto :goto_0
-
-    .line 320
-    :cond_1
-    sget-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sOn:Z
-
-    if-nez v0, :cond_2
-
-    .line 321
-    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
-    invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
-
-    move v0, v1
-
-    .line 322
-    goto :goto_0
-
-    .line 324
-    :cond_2
-    const/16 v0, 0x7a
-
-    if-eq p1, v0, :cond_3
-
-    const/16 v0, 0x5a
-
-    if-ne p1, v0, :cond_4
-
-    :cond_3
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->mrCtrlOnly()Z
-
-    move-result v0
-
-    if-nez v0, :cond_5
-
-    :cond_4
-    move v0, v1
-
-    goto :goto_0
-
-    .line 325
-    :cond_5
-    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
-    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
-
-    move-result v0
-
-    add-int/lit8 v3, v0, -0x1
-
-    .line 326
-    if-nez v3, :cond_6
-
-    sget-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sPure:Z
-
-    if-eqz v0, :cond_6
-
-    .line 327
-    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
-    invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
-
-    move v0, v1
-
-    .line 328
-    goto :goto_0
-
-    .line 330
-    :cond_6
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
-
-    move-result-object v4
-
-    .line 331
-    if-nez v4, :cond_7
-
-    move v0, v1
-
-    goto :goto_0
-
-    .line 332
-    :cond_7
-    const/4 v0, 0x0
-
-    invoke-interface {v4, v0}, Landroid/view/inputmethod/InputConnection;->getSelectedText(I)Ljava/lang/CharSequence;
-
-    move-result-object v0
-
-    .line 333
-    if-eqz v0, :cond_8
-
-    invoke-interface {v0}, Ljava/lang/CharSequence;->length()I
-
-    move-result v0
-
-    if-lez v0, :cond_8
-
-    .line 334
-    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
-    invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
-
-    move v0, v1
-
-    .line 335
-    goto :goto_0
-
-    .line 337
-    :cond_8
-    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
-    invoke-virtual {v0, v3}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Lcom/mrkeyboard/app/MrWordDelete$Cut;
-
-    .line 338
-    const/16 v5, 0x40
-
-    const/4 v6, 0x0
-
-    invoke-interface {v4, v5, v6}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
-
-    move-result-object v5
-
-    const/16 v6, 0x40
-
-    const/4 v7, 0x0
-
-    invoke-interface {v4, v6, v7}, Landroid/view/inputmethod/InputConnection;->getTextAfterCursor(II)Ljava/lang/CharSequence;
-
-    move-result-object v6
-
-    invoke-virtual {v0, v5, v6}, Lcom/mrkeyboard/app/MrWordDelete$Cut;->matches(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Z
-
-    move-result v5
-
-    if-nez v5, :cond_9
-
-    .line 339
-    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
-    invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
-
-    move v0, v1
-
-    .line 340
-    goto :goto_0
-
-    .line 342
-    :cond_9
-    invoke-interface {v4}, Landroid/view/inputmethod/InputConnection;->beginBatchEdit()Z
-    :try_end_0
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
-
-    .line 344
-    :try_start_1
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->mrHoldsWord()Z
-
-    move-result v5
-
-    if-eqz v5, :cond_a
-
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->mrDropComposing()V
-
-    .line 345
-    :cond_a
-    invoke-interface {v4}, Landroid/view/inputmethod/InputConnection;->finishComposingText()Z
-
-    .line 346
-    iget-object v0, v0, Lcom/mrkeyboard/app/MrWordDelete$Cut;->text:Ljava/lang/String;
-
-    const/4 v5, 0x1
-
-    invoke-interface {v4, v0, v5}, Landroid/view/inputmethod/InputConnection;->commitText(Ljava/lang/CharSequence;I)Z
-    :try_end_1
-    .catchall {:try_start_1 .. :try_end_1} :catchall_0
-
-    .line 348
-    :try_start_2
-    invoke-interface {v4}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
-
-    .line 350
-    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
-    invoke-virtual {v0, v3}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
-
-    .line 351
-    const/4 v0, 0x0
+    const/4 v0, 0x1
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sPure:Z
 
-    move v0, v2
-
-    .line 352
-    goto/16 :goto_0
-
-    .line 348
-    :catchall_0
-    move-exception v0
-
-    invoke-interface {v4}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
-
-    .line 349
-    throw v0
-    :try_end_2
-    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_2} :catch_0
-
-    .line 353
-    :catch_0
-    move-exception v0
-
-    .line 354
-    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
-    invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
-
-    move v0, v1
-
-    .line 355
-    goto/16 :goto_0
-.end method
-
-.method private static purge()V
-    .locals 10
-
-    .prologue
-    const/4 v2, 0x0
-
-    .line 270
-    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->now()J
-
-    move-result-wide v4
-
-    move v1, v2
-
-    .line 272
-    :goto_0
+    .line 321
+    :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
 
     move-result v0
 
-    if-ge v1, v0, :cond_0
+    const/16 v1, 0x20
 
+    if-lt v0, v1, :cond_1
+
+    .line 322
     sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
 
-    invoke-virtual {v0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+    invoke-virtual {v0, v2}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
 
-    move-result-object v0
-
-    check-cast v0, Lcom/mrkeyboard/app/MrWordDelete$Cut;
-
-    iget-wide v6, v0, Lcom/mrkeyboard/app/MrWordDelete$Cut;->at:J
-
-    sub-long v6, v4, v6
-
-    const-wide/32 v8, 0x1d4c0
-
-    cmp-long v0, v6, v8
-
-    if-ltz v0, :cond_0
-
-    add-int/lit8 v0, v1, 0x1
-
-    move v1, v0
-
-    goto :goto_0
-
-    .line 273
-    :cond_0
-    if-lez v1, :cond_1
-
-    .line 274
-    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
-    invoke-virtual {v0, v2, v1}, Ljava/util/ArrayList;->subList(II)Ljava/util/List;
-
-    move-result-object v0
-
-    invoke-interface {v0}, Ljava/util/List;->clear()V
-
-    .line 275
+    .line 323
     sput-boolean v2, Lcom/mrkeyboard/app/MrWordDelete;->sPure:Z
 
-    .line 277
+    .line 325
     :cond_1
+    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->now()J
+
+    move-result-wide v0
+
+    iput-wide v0, p0, Lcom/mrkeyboard/app/MrWordDelete$Cut;->at:J
+
+    .line 326
+    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
+
+    invoke-virtual {v0, p0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    .line 327
     return-void
 .end method
 
@@ -1237,7 +1175,7 @@
     .locals 2
 
     .prologue
-    .line 282
+    .line 312
     const/16 v0, 0x40
 
     const/4 v1, 0x0
@@ -1249,18 +1187,199 @@
 
     move-result-object v0
 
-    .line 284
+    .line 314
     :goto_0
     return-object v0
 
-    .line 283
+    .line 313
     :catch_0
     move-exception v0
 
-    .line 284
+    .line 314
     const/4 v0, 0x0
 
     goto :goto_0
+.end method
+
+.method private static redo(Lcom/mrkeyboard/app/LatinIME;)Z
+    .locals 6
+
+    .prologue
+    const/16 v5, 0x40
+
+    const/4 v1, 0x0
+
+    .line 409
+    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sRedo:Ljava/util/ArrayList;
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->isEmpty()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    move v0, v1
+
+    .line 433
+    :goto_0
+    return v0
+
+    .line 410
+    :cond_0
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
+
+    move-result-object v2
+
+    .line 411
+    if-nez v2, :cond_1
+
+    move v0, v1
+
+    goto :goto_0
+
+    .line 412
+    :cond_1
+    invoke-interface {v2, v1}, Landroid/view/inputmethod/InputConnection;->getSelectedText(I)Ljava/lang/CharSequence;
+
+    move-result-object v0
+
+    .line 413
+    if-eqz v0, :cond_2
+
+    invoke-interface {v0}, Ljava/lang/CharSequence;->length()I
+
+    move-result v0
+
+    if-lez v0, :cond_2
+
+    .line 414
+    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->release()V
+
+    move v0, v1
+
+    .line 415
+    goto :goto_0
+
+    .line 417
+    :cond_2
+    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sRedo:Ljava/util/ArrayList;
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
+
+    move-result v0
+
+    add-int/lit8 v3, v0, -0x1
+
+    .line 418
+    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sRedo:Ljava/util/ArrayList;
+
+    invoke-virtual {v0, v3}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/mrkeyboard/app/MrWordDelete$Cut;
+
+    .line 419
+    invoke-interface {v2, v5, v1}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
+
+    move-result-object v4
+
+    invoke-interface {v2, v5, v1}, Landroid/view/inputmethod/InputConnection;->getTextAfterCursor(II)Ljava/lang/CharSequence;
+
+    move-result-object v5
+
+    invoke-virtual {v0, v4, v5}, Lcom/mrkeyboard/app/MrWordDelete$Cut;->matchesBack(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Z
+
+    move-result v4
+
+    if-nez v4, :cond_3
+
+    .line 420
+    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->release()V
+
+    move v0, v1
+
+    .line 421
+    goto :goto_0
+
+    .line 423
+    :cond_3
+    invoke-interface {v2}, Landroid/view/inputmethod/InputConnection;->beginBatchEdit()Z
+
+    .line 425
+    :try_start_0
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->mrHoldsWord()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_4
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->mrDropComposing()V
+
+    .line 426
+    :cond_4
+    invoke-interface {v2}, Landroid/view/inputmethod/InputConnection;->finishComposingText()Z
+
+    .line 427
+    iget-object v1, v0, Lcom/mrkeyboard/app/MrWordDelete$Cut;->text:Ljava/lang/String;
+
+    invoke-virtual {v1}, Ljava/lang/String;->length()I
+
+    move-result v1
+
+    const/4 v4, 0x0
+
+    invoke-interface {v2, v1, v4}, Landroid/view/inputmethod/InputConnection;->deleteSurroundingText(II)Z
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    .line 429
+    invoke-interface {v2}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
+
+    .line 431
+    sget-object v1, Lcom/mrkeyboard/app/MrWordDelete;->sRedo:Ljava/util/ArrayList;
+
+    invoke-virtual {v1, v3}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
+
+    .line 432
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrWordDelete;->push(Lcom/mrkeyboard/app/MrWordDelete$Cut;)V
+
+    .line 433
+    const/4 v0, 0x1
+
+    goto :goto_0
+
+    .line 429
+    :catchall_0
+    move-exception v0
+
+    invoke-interface {v2}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
+
+    .line 430
+    throw v0
+.end method
+
+.method public static release()V
+    .locals 1
+
+    .prologue
+    .line 290
+    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
+
+    .line 291
+    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sRedo:Ljava/util/ArrayList;
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
+
+    .line 292
+    const/4 v0, 0x0
+
+    sput-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sPure:Z
+
+    .line 293
+    return-void
 .end method
 
 .method static declared-synchronized reload()V
@@ -1271,7 +1390,7 @@
 
     const/4 v1, 0x0
 
-    .line 160
+    .line 177
     const-class v2, Lcom/mrkeyboard/app/MrWordDelete;
 
     monitor-enter v2
@@ -1284,14 +1403,14 @@
 
     if-nez v3, :cond_1
 
-    .line 171
+    .line 188
     :cond_0
     :goto_0
     monitor-exit v2
 
     return-void
 
-    .line 161
+    .line 178
     :cond_1
     :try_start_1
     sget-object v3, Lcom/mrkeyboard/app/MrWordDelete;->sApp:Landroid/content/Context;
@@ -1300,7 +1419,7 @@
 
     move-result-object v3
 
-    .line 162
+    .line 179
     if-eqz v3, :cond_2
 
     const-string v4, "pref_word_delete"
@@ -1318,37 +1437,35 @@
     :cond_2
     sput-boolean v1, Lcom/mrkeyboard/app/MrWordDelete;->sOn:Z
 
-    .line 163
+    .line 180
     if-nez v3, :cond_3
 
     :goto_1
     sput v0, Lcom/mrkeyboard/app/MrWordDelete;->sInterval:I
 
-    .line 164
+    .line 181
     sget-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sOn:Z
 
     if-nez v0, :cond_0
 
-    .line 165
+    .line 182
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sHold:Z
 
-    .line 166
-    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
-
-    invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
+    .line 183
+    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->release()V
     :try_end_1
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1} :catch_0
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
     goto :goto_0
 
-    .line 168
+    .line 185
     :catch_0
     move-exception v0
 
-    .line 169
+    .line 186
     const/4 v0, 0x0
 
     :try_start_2
@@ -1358,7 +1475,7 @@
 
     goto :goto_0
 
-    .line 160
+    .line 177
     :catchall_0
     move-exception v0
 
@@ -1366,7 +1483,7 @@
 
     throw v0
 
-    .line 163
+    .line 180
     :cond_3
     :try_start_3
     const-string v0, "pref_word_delete_interval"
@@ -1395,7 +1512,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 120
+    .line 136
     const-class v1, Lcom/mrkeyboard/app/MrWordDelete;
 
     monitor-enter v1
@@ -1405,7 +1522,7 @@
 
     if-nez v2, :cond_1
 
-    .line 121
+    .line 137
     :goto_0
     if-eqz v0, :cond_0
 
@@ -1420,7 +1537,7 @@
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 125
+    .line 141
     :cond_0
     :goto_1
     const/4 v0, 0x0
@@ -1428,49 +1545,54 @@
     :try_start_1
     sput-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sApp:Landroid/content/Context;
 
-    .line 126
+    .line 142
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sListener:Landroid/content/SharedPreferences$OnSharedPreferenceChangeListener;
 
-    .line 127
+    .line 143
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sOn:Z
 
-    .line 128
+    .line 144
     const/16 v0, 0xc8
 
     sput v0, Lcom/mrkeyboard/app/MrWordDelete;->sInterval:I
 
-    .line 129
+    .line 145
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sHold:Z
 
-    .line 130
+    .line 146
     sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
 
-    .line 131
+    .line 147
+    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sRedo:Ljava/util/ArrayList;
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
+
+    .line 148
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sPure:Z
 
-    .line 132
+    .line 149
     const-wide/16 v2, -0x1
 
     sput-wide v2, Lcom/mrkeyboard/app/MrWordDelete;->sClock:J
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 133
+    .line 150
     monitor-exit v1
 
     return-void
 
-    .line 120
+    .line 136
     :cond_1
     :try_start_2
     sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sApp:Landroid/content/Context;
@@ -1491,23 +1613,225 @@
 
     throw v0
 
-    .line 122
+    .line 138
     :catch_0
     move-exception v0
 
     goto :goto_1
 .end method
 
+.method private static undo(Lcom/mrkeyboard/app/LatinIME;)Z
+    .locals 7
+
+    .prologue
+    const/16 v6, 0x40
+
+    const/4 v2, 0x1
+
+    const/4 v1, 0x0
+
+    .line 373
+    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->isEmpty()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    move v0, v1
+
+    .line 405
+    :goto_0
+    return v0
+
+    .line 374
+    :cond_0
+    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
+
+    move-result v0
+
+    add-int/lit8 v3, v0, -0x1
+
+    .line 375
+    if-nez v3, :cond_1
+
+    sget-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sPure:Z
+
+    if-eqz v0, :cond_1
+
+    .line 376
+    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
+
+    invoke-virtual {v0, v1}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/mrkeyboard/app/MrWordDelete$Cut;
+
+    .line 377
+    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->now()J
+
+    move-result-wide v2
+
+    iput-wide v2, v0, Lcom/mrkeyboard/app/MrWordDelete$Cut;->at:J
+
+    .line 378
+    sget-object v2, Lcom/mrkeyboard/app/MrWordDelete;->sRedo:Ljava/util/ArrayList;
+
+    invoke-virtual {v2, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    move v0, v1
+
+    .line 379
+    goto :goto_0
+
+    .line 381
+    :cond_1
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
+
+    move-result-object v4
+
+    .line 382
+    if-nez v4, :cond_2
+
+    move v0, v1
+
+    goto :goto_0
+
+    .line 383
+    :cond_2
+    invoke-interface {v4, v1}, Landroid/view/inputmethod/InputConnection;->getSelectedText(I)Ljava/lang/CharSequence;
+
+    move-result-object v0
+
+    .line 384
+    if-eqz v0, :cond_3
+
+    invoke-interface {v0}, Ljava/lang/CharSequence;->length()I
+
+    move-result v0
+
+    if-lez v0, :cond_3
+
+    .line 385
+    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->release()V
+
+    move v0, v1
+
+    .line 386
+    goto :goto_0
+
+    .line 388
+    :cond_3
+    sget-object v0, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
+
+    invoke-virtual {v0, v3}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/mrkeyboard/app/MrWordDelete$Cut;
+
+    .line 389
+    invoke-interface {v4, v6, v1}, Landroid/view/inputmethod/InputConnection;->getTextBeforeCursor(II)Ljava/lang/CharSequence;
+
+    move-result-object v5
+
+    invoke-interface {v4, v6, v1}, Landroid/view/inputmethod/InputConnection;->getTextAfterCursor(II)Ljava/lang/CharSequence;
+
+    move-result-object v6
+
+    invoke-virtual {v0, v5, v6}, Lcom/mrkeyboard/app/MrWordDelete$Cut;->matches(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Z
+
+    move-result v5
+
+    if-nez v5, :cond_4
+
+    .line 390
+    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->release()V
+
+    move v0, v1
+
+    .line 391
+    goto :goto_0
+
+    .line 393
+    :cond_4
+    invoke-interface {v4}, Landroid/view/inputmethod/InputConnection;->beginBatchEdit()Z
+
+    .line 395
+    :try_start_0
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->mrHoldsWord()Z
+
+    move-result v5
+
+    if-eqz v5, :cond_5
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->mrDropComposing()V
+
+    .line 396
+    :cond_5
+    invoke-interface {v4}, Landroid/view/inputmethod/InputConnection;->finishComposingText()Z
+
+    .line 397
+    iget-object v5, v0, Lcom/mrkeyboard/app/MrWordDelete$Cut;->text:Ljava/lang/String;
+
+    const/4 v6, 0x1
+
+    invoke-interface {v4, v5, v6}, Landroid/view/inputmethod/InputConnection;->commitText(Ljava/lang/CharSequence;I)Z
+    :try_end_0
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+
+    .line 399
+    invoke-interface {v4}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
+
+    .line 401
+    sget-object v4, Lcom/mrkeyboard/app/MrWordDelete;->sCuts:Ljava/util/ArrayList;
+
+    invoke-virtual {v4, v3}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
+
+    .line 402
+    sput-boolean v1, Lcom/mrkeyboard/app/MrWordDelete;->sPure:Z
+
+    .line 403
+    invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->now()J
+
+    move-result-wide v4
+
+    iput-wide v4, v0, Lcom/mrkeyboard/app/MrWordDelete$Cut;->at:J
+
+    .line 404
+    sget-object v1, Lcom/mrkeyboard/app/MrWordDelete;->sRedo:Ljava/util/ArrayList;
+
+    invoke-virtual {v1, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    move v0, v2
+
+    .line 405
+    goto/16 :goto_0
+
+    .line 399
+    :catchall_0
+    move-exception v0
+
+    invoke-interface {v4}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
+
+    .line 400
+    throw v0
+.end method
+
 .method public static up()V
     .locals 1
 
     .prologue
-    .line 212
+    .line 229
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrWordDelete;->sHold:Z
 
-    .line 213
+    .line 230
     return-void
 .end method
 
@@ -1521,36 +1845,36 @@
 
     const/4 v2, 0x0
 
-    .line 389
+    .line 466
     if-nez p0, :cond_1
 
-    .line 430
+    .line 507
     :cond_0
     :goto_0
     return v2
 
-    .line 390
+    .line 467
     :cond_1
     invoke-interface {p0}, Ljava/lang/CharSequence;->length()I
 
     move-result v3
 
-    .line 391
+    .line 468
     if-eqz v3, :cond_0
 
-    .line 393
+    .line 470
     invoke-static {p0, v3}, Ljava/lang/Character;->codePointBefore(Ljava/lang/CharSequence;I)I
 
     move-result v4
 
-    .line 394
+    .line 471
     invoke-static {v4}, Lcom/mrkeyboard/app/MrWordDelete;->isBreak(I)Z
 
     move-result v5
 
     if-eqz v5, :cond_e
 
-    .line 395
+    .line 472
     const/16 v1, 0xa
 
     if-ne v4, v1, :cond_2
@@ -1571,7 +1895,7 @@
 
     goto :goto_0
 
-    .line 396
+    .line 473
     :cond_2
     invoke-static {v4}, Ljava/lang/Character;->charCount(I)I
 
@@ -1579,7 +1903,7 @@
 
     goto :goto_0
 
-    .line 401
+    .line 478
     :cond_3
     invoke-static {v0}, Ljava/lang/Character;->charCount(I)I
 
@@ -1587,23 +1911,23 @@
 
     sub-int/2addr v5, v0
 
-    .line 398
+    .line 475
     :goto_1
     if-lez v5, :cond_4
 
-    .line 399
+    .line 476
     invoke-static {p0, v5}, Ljava/lang/Character;->codePointBefore(Ljava/lang/CharSequence;I)I
 
     move-result v0
 
-    .line 400
+    .line 477
     invoke-static {v0}, Lcom/mrkeyboard/app/MrWordDelete;->isBlank(I)Z
 
     move-result v4
 
     if-nez v4, :cond_3
 
-    .line 403
+    .line 480
     :cond_4
     if-nez v5, :cond_5
 
@@ -1611,7 +1935,7 @@
 
     goto :goto_0
 
-    .line 404
+    .line 481
     :cond_5
     invoke-static {p0, v5}, Ljava/lang/Character;->codePointBefore(Ljava/lang/CharSequence;I)I
 
@@ -1627,40 +1951,40 @@
 
     goto :goto_0
 
-    .line 406
+    .line 483
     :cond_6
     const/4 v0, -0x1
 
     move v4, v5
 
-    .line 407
+    .line 484
     :goto_2
     if-lez v4, :cond_8
 
-    .line 408
+    .line 485
     invoke-static {p0, v4}, Ljava/lang/Character;->codePointBefore(Ljava/lang/CharSequence;I)I
 
     move-result v6
 
-    .line 409
+    .line 486
     invoke-static {v6}, Ljava/lang/Character;->charCount(I)I
 
     move-result v7
 
-    .line 410
+    .line 487
     invoke-static {v6}, Lcom/mrkeyboard/app/MrWordDelete;->isMark(I)Z
 
     move-result v8
 
     if-eqz v8, :cond_7
 
-    .line 411
+    .line 488
     sub-int/2addr v4, v7
 
-    .line 412
+    .line 489
     goto :goto_2
 
-    .line 414
+    .line 491
     :cond_7
     invoke-static {v6}, Lcom/mrkeyboard/app/MrWordDelete;->isBlank(I)Z
 
@@ -1674,48 +1998,48 @@
 
     if-eqz v8, :cond_9
 
-    .line 430
+    .line 507
     :cond_8
     :goto_3
     sub-int v2, v3, v4
 
     goto :goto_0
 
-    .line 415
+    .line 492
     :cond_9
     invoke-static {v6}, Lcom/mrkeyboard/app/MrWordDelete;->isWord(I)Z
 
     move-result v8
 
-    .line 416
+    .line 493
     if-gez v0, :cond_c
 
-    .line 417
+    .line 494
     if-eqz v8, :cond_b
 
     move v0, v1
 
-    .line 428
+    .line 505
     :cond_a
     :goto_4
     sub-int/2addr v4, v7
 
-    .line 429
+    .line 506
     goto :goto_2
 
     :cond_b
     move v0, v2
 
-    .line 417
+    .line 494
     goto :goto_4
 
-    .line 418
+    .line 495
     :cond_c
     if-ne v0, v1, :cond_d
 
     if-nez v8, :cond_d
 
-    .line 420
+    .line 497
     if-ge v4, v5, :cond_8
 
     invoke-static {v6}, Lcom/mrkeyboard/app/MrWordDelete;->isJoiner(I)Z
@@ -1740,13 +2064,13 @@
 
     if-eqz v6, :cond_8
 
-    .line 421
+    .line 498
     sub-int/2addr v4, v7
 
-    .line 422
+    .line 499
     goto :goto_2
 
-    .line 425
+    .line 502
     :cond_d
     if-nez v0, :cond_a
 

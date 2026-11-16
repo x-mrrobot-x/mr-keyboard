@@ -7,7 +7,8 @@
   - the hook of Ctrl + Z (LatinIME.sendModifiableKeyChar: first thing, the key is not sent when the class took it) and the methods added to
     LatinIME (mrCtrlOn, mrCtrlOnly, mrHoldsWord, mrDropComposing) run in the interpreter;
   - nobody else calls MrWordDelete, and what is called exists in the generated smali with the signature used;
-  - the settings screen (next to the long-press time), the limits and default against the Java constants, the texts in the three
+  - the settings screen (its own screen, PrefScreenWordDelete, opened by one row of Touch and gestures: sections, order of the rows, the texts that
+    explain it, the manifest), the limits and default against the Java constants, the texts in the three
     languages, the keys in MrReset.
 
 The rule of what a word is, the setting, Ctrl at the touch, the interval and the word being typed are in WordDelTest.java (docs/tools/run_java_tests.sh).
@@ -82,9 +83,10 @@ for f in sorted(glob.glob(os.path.join(APP, "*.smali"))):
 expected = {
     "PointerTracker.smali": {"down(Lcom/mrkeyboard/app/Keyboard$Key;)V"},
     "LatinKeyboardBaseView$UIHandler.smali": {"up()V", "interval(I)I"},
-    "LatinIME.smali": {"onBackspace(Lcom/mrkeyboard/app/LatinIME;)Z", "onUndo(Lcom/mrkeyboard/app/LatinIME;C)Z"},
+    "LatinIME.smali": {"onBackspace(Lcom/mrkeyboard/app/LatinIME;)Z", "onUndoRedo(Lcom/mrkeyboard/app/LatinIME;C)Z"},
+    "MrTrim.smali": {"release()V"},
 }
-check("calls: only the four places call MrWordDelete, with these methods", calls == expected, calls)
+check("calls: only the five places call MrWordDelete, with these methods", calls == expected, calls)
 
 wd_src = read(os.path.join(APP, "MrWordDelete.smali"))
 for sig in sorted({s for v in expected.values() for s in v}):
@@ -119,7 +121,7 @@ class Host:
         self.factor = 1          # what MrWordDelete.interval does to the interval (the setting's, 4 = 200 ms)
         self.timer = []
         self.correcting = False  # what TextEntryState.isCorrecting answers
-        self.undo = False        # what MrWordDelete.onUndo answers
+        self.undo = False        # what MrWordDelete.onUndoRedo answers
         self.shift = False       # what LatinIME.isShiftMod answers
 
     def sget(self, cls, name):
@@ -137,7 +139,7 @@ class Host:
         self.log.append(("WD." if cls == WD else "") + name)
         if cls == WD and name == "onBackspace":
             return 1 if self.take else 0
-        if cls == WD and name == "onUndo":
+        if cls == WD and name == "onUndoRedo":
             return 1 if self.undo else 0
         if name == "isShiftMod":
             return 1 if self.shift else 0
@@ -265,8 +267,8 @@ check("mrDropComposing: runs, in this order (run)",
 
 # the hook of Ctrl + Z in sendModifiableKeyChar (every character the keyboard sends goes through it)
 sm = code_lines(method_body(LIME, "public sendModifiableKeyChar(C)V"))
-check("sendModifiableKeyChar: the first thing it does is ask MrWordDelete.onUndo with the keyboard and the character",
-      len(sm) >= 3 and sm[0] == "invoke-static {p0, p1}, " + WD + "->onUndo(Lcom/mrkeyboard/app/LatinIME;C)Z" and sm[1].startswith("move-result"), sm[:3])
+check("sendModifiableKeyChar: the first thing it does is ask MrWordDelete.onUndoRedo with the keyboard and the character",
+      len(sm) >= 3 and sm[0] == "invoke-static {p0, p1}, " + WD + "->onUndoRedo(Lcom/mrkeyboard/app/LatinIME;C)Z" and sm[1].startswith("move-result"), sm[:3])
 j_hook = index_of(sm, "if-eqz", 0)
 j_orig = index_of(sm, "->isShiftMod()Z", 0)
 check("sendModifiableKeyChar: when the class did not take the key, the original code goes on from where it began (the first thing it asked is isShiftMod)",
@@ -275,7 +277,7 @@ vm, host = vm_for(LIME, IME, ["handleModifierKeysUp(ZZ)V"])
 host.undo = True
 vm.run("sendModifiableKeyChar(C)V", [dm.Obj(IME), ord("z")])
 check("sendModifiableKeyChar (run): the class took the key: the Ctrl that was on is let go the way a plain character does it (no key sent: handleModifierKeysUp(false, false)), and nothing else is done",
-      host.log == ["WD.onUndo", "handleModifierKeysUp"], host.log)
+      host.log == ["WD.onUndoRedo", "handleModifierKeysUp"], host.log)
 
 cs = code_lines(method_body(LIME, "public mrCtrlOnly()Z"))
 check("mrCtrlOnly: Ctrl on, and Alt, Meta and Shift (isShiftMod) off, in this order", 
@@ -302,14 +304,26 @@ code_only = re.sub(r"/\*.*?\*/", "", mwd, flags=re.S)
 code_only = re.sub(r"//[^\n]*", "", code_only)
 check("MrWordDelete never writes composing text (no setComposingText / setComposingRegion), only deletes by position",
       not any(w in code_only for w in ("setComposingText", "setComposingRegion", "mrEndWord", "mrCommit")), "")
-check("MrWordDelete: the only write is commitText, once, in onUndo, and the app's composing text is finished right before it (commitText replaces composing text)",
+check("MrWordDelete: the only write is commitText, once, in the Ctrl + Z (undo), and the app's composing text is finished right before it (commitText replaces composing text)",
       code_only.count("commitText") == 1 and re.search(r"ic\.finishComposingText\(\);[^;]*\n?\s*ic\.commitText\(cut\.text, 1\);", code_only) is not None)
-check("MrWordDelete: what is kept expires: a lifetime in ms and a limit in words are constants, and onUndo and onBackspace let the expired ones go first",
+check("MrWordDelete: what is kept expires: a lifetime in ms and a limit in words are constants, and onUndoRedo and onBackspace let the expired ones go first",
       re.search(r"UNDO_LIFETIME_MS = \d+L;", code_only) is not None and re.search(r"UNDO_MAX = \d+;", code_only) is not None
-      and re.search(r"public static boolean onUndo\([^)]*\) \{[^}]*?try \{\s*purge\(\);", code_only, re.S) is not None
+      and re.search(r"public static boolean onUndoRedo\([^)]*\) \{[^}]*?try \{\s*purge\(\);", code_only, re.S) is not None
       and re.search(r"n > 0\) \{[^{}]*?purge\(\);", code_only, re.S) is not None)
 check("MrWordDelete: the keyboard's word is let go of, THEN the app is told to finish its composing text, ALWAYS (not inside an if), THEN the delete by position",
       re.search(r"if \(ime\.mrHoldsWord\(\)\) ime\.mrDropComposing\(\);\s*ic\.finishComposingText\(\);\s*ic\.deleteSurroundingText\(n, 0\);", code_only) is not None)
+
+
+# Ctrl + Y: the redo takes the word out by position (never writes), after the composing text is finished, and the second list is let go with the first
+check("MrWordDelete: Ctrl + Y finishes the app's composing text, then deletes by position exactly the length of the word (never writes)",
+      re.search(r"if \(ime\.mrHoldsWord\(\)\) ime\.mrDropComposing\(\);\s*ic\.finishComposingText\(\);\s*ic\.deleteSurroundingText\(cut\.text\.length\(\), 0\);", code_only) is not None)
+check("MrWordDelete: release() clears both lists and turning the setting off calls it",
+      re.search(r"public static void release\(\) \{\s*sCuts\.clear\(\);\s*sRedo\.clear\(\);", code_only) is not None
+      and re.search(r"if \(!sOn\) \{\s*sHold = false;\s*release\(\);", code_only) is not None)
+trim = read(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrTrim.java"))
+trim_code = re.sub(r"//[^\n]*", "", re.sub(r"/\*.*?\*/", "", trim, flags=re.S))
+check("MrTrim.onTrim lets go of the words kept (MrWordDelete.release) at any level, before the part that can fail, so the cleanup button and the system both do it",
+      re.search(r"static void onTrim\(int level\) \{\s*if \(level < MODERATE\) return;.*?MrWordDelete\.release\(\);\s*try \{\s*keyboards = KeyboardSwitcher\.dropUnused\(\);", trim_code, re.S) is not None)
 
 # ---------------------------------------------------------------------------------------------- the screen, the limits, the texts
 java = read(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrWordDelete.java"))
@@ -320,7 +334,15 @@ def const(name, text=java):
     return m.group(1).strip().strip('"') if m else None
 
 
-prefs = read(os.path.join(ROOT, "res", "xml", "prefs.xml"))
+prefs_main = read(os.path.join(ROOT, "res", "xml", "prefs.xml"))
+prefs = read(os.path.join(ROOT, "res", "xml", "prefs_word_delete.xml"))
+check("settings: Touch and gestures has ONE row for this, a screen that opens PREFS_WORD_DELETE (the switch and the time are not loose among the other rows)",
+      re.search(r'<PreferenceScreen android:title="@string/mr_word_delete_title" android:summary="@string/mr_word_delete_row_sum">\s*<intent android:action="com.mrkeyboard.app.PREFS_WORD_DELETE"/>', prefs_main) is not None
+      and "pref_word_delete" not in prefs_main.replace("PREFS_WORD_DELETE", ""))
+touch = prefs_main[prefs_main.index('android:key="altchar_settings"'):prefs_main.index('android:key="general_settings"')]
+check("settings: the row is in the Touch and gestures page, after the other screens (feedback, actions)",
+      touch.index("PREFS_FEEDBACK") < touch.index("PREFS_ACTIONS") < touch.index("PREFS_WORD_DELETE"))
+
 entries = re.findall(r"<([\w.]+)\s([^>]*?)/?>", prefs)
 keys = []
 for tag, attrs in entries:
@@ -328,15 +350,19 @@ for tag, attrs in entries:
     if k:
         keys.append((k.group(1), tag, attrs))
 names = [k[0] for k in keys]
-at = names.index("pref_long_press_duration")
-check("screen: right after the long-press time come the switch and its time, in that order",
-      names[at + 1:at + 3] == ["pref_word_delete", "pref_word_delete_interval"], names[at:at + 4])
-sw = keys[at + 1]
-bar = keys[at + 2]
-check("screen: the switch is a CheckBoxPreference, off by default, persistent",
-      sw[1] == "CheckBoxPreference" and 'android:defaultValue="false"' in sw[2] and 'android:persistent="true"' in sw[2], sw)
+check("screen: two sections, each with a title and an icon, then the rows in this order: the switch, its time, how to use it; the text about undo and redo",
+      names == ["word_delete_settings", "word_delete_ctrl", "pref_word_delete", "pref_word_delete_interval", "word_delete_how", "word_delete_undo", "word_delete_undo_info"]
+      and all('android:title="@string/' in k[2] and 'android:icon="@drawable/' in k[2] for k in keys if k[1] == "PreferenceCategory"), names)
+sw = keys[names.index("pref_word_delete")]
+bar = keys[names.index("pref_word_delete_interval")]
+check("screen: the switch is a CheckBoxPreference, off by default, persistent, with a summary that says what it does",
+      sw[1] == "CheckBoxPreference" and 'android:defaultValue="false"' in sw[2] and 'android:persistent="true"' in sw[2] and 'android:summary="@string/mr_word_delete_summary"' in sw[2], sw)
 check("screen: the interval is a seek bar that depends on the switch", bar[1] == "com.mrkeyboard.app.SeekBarPreferenceString"
       and 'android:dependency="pref_word_delete"' in bar[2], bar)
+texts = [keys[names.index(n)] for n in ("word_delete_how", "word_delete_undo_info")]
+check("screen: the two rows of text are not buttons (not selectable, nothing stored), have a title and a text, and go grey with the switch",
+      all(t[1] == "Preference" and 'android:selectable="false"' in t[2] and 'android:persistent="false"' in t[2] and "mr_ui_pref_row_static" in t[2]
+          and 'android:dependency="pref_word_delete"' in t[2] and 'android:title="@string/' in t[2] and 'android:summary="@string/' in t[2] for t in texts), texts)
 check("screen: the keys are the ones of MrWordDelete", const("PREF_ON") == "pref_word_delete" and const("PREF_INTERVAL") == "pref_word_delete_interval")
 
 
@@ -357,19 +383,42 @@ usual = int(re.search(r'config_key_repeat_interval">(\d+)<', integers).group(1))
 check("limits: the shortest interval is longer than the usual repeat (a hold by words is never faster than a hold by letters)", int(const("INTERVAL_MIN")) > usual, usual)
 check("limits: the default is inside the limits", int(const("INTERVAL_MIN")) <= int(const("INTERVAL_DEFAULT")) <= int(const("INTERVAL_MAX")))
 
+used = sorted(set(re.findall(r"@string/(mr_word_delete\w*)", prefs + prefs_main)))
+check("texts: the screen and the row use these strings (and only these ones are used)",
+      used == ["mr_word_delete_cat_ctrl", "mr_word_delete_cat_undo", "mr_word_delete_how_sum", "mr_word_delete_how_title", "mr_word_delete_interval_title",
+               "mr_word_delete_row_sum", "mr_word_delete_summary", "mr_word_delete_switch_title", "mr_word_delete_title", "mr_word_delete_undo_sum",
+               "mr_word_delete_undo_title"], used)
 for d in ("values", "values-es", "values-pt-rBR"):
     x = read(os.path.join(ROOT, "res", d, "mr_strings.xml"))
-    for s in ("mr_word_delete_title", "mr_word_delete_summary", "mr_word_delete_interval_title"):
-        m = re.search(r'<string name="%s">([^<]+)</string>' % s, x)
-        check("text %s in %s" % (s, d), m is not None and len(m.group(1)) > 10, d)
-for s in ("mr_word_delete_title", "mr_word_delete_summary", "mr_word_delete_interval_title"):
-    check("screen uses @string/%s" % s, "@string/" + s in prefs)
+    for name in used:
+        m = re.search(r'<string name="%s">([^<]+)</string>' % name, x)
+        check("text %s in %s" % (name, d), m is not None and len(m.group(1)) >= 8, d)
+    # the explaining rows have to fit the 4 lines of the row (about 48 characters a line on a narrow phone)
+    for name in ("mr_word_delete_how_sum", "mr_word_delete_undo_sum", "mr_word_delete_summary"):
+        m = re.search(r'<string name="%s">([^<]+)</string>' % name, x)
+        check("text %s in %s fits the 4 lines of a row (at most 190 characters)" % (name, d), m is not None and len(m.group(1)) <= 190, len(m.group(1)) if m else 0)
+    check("texts in %s: the words 'Ctrl + Z' and 'Ctrl + Y' are explained in the undo row" % d,
+          "Ctrl + Z" in re.search(r'<string name="mr_word_delete_undo_sum">([^<]+)', x).group(1) and "Ctrl + Y" in re.search(r'<string name="mr_word_delete_undo_sum">([^<]+)', x).group(1))
+
+manifest = read(os.path.join(ROOT, "AndroidManifest.xml"))
+m = re.search(r'<activity ([^>]*?android:name="com\.mrkeyboard\.app\.PrefScreenWordDelete"[^>]*)>(.*?)</activity>', manifest, re.S)
+check("manifest: PrefScreenWordDelete is declared, not exported, with the Settings theme and the action PREFS_WORD_DELETE",
+      m is not None and 'android:exported="false"' in m.group(1) and "@style/Theme.MrKeyboard.Settings" in m.group(1) and "com.mrkeyboard.app.PREFS_WORD_DELETE" in m.group(2), m.group(1) if m else None)
+act = read(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "PrefScreenWordDelete.java"))
+check("PrefScreenWordDelete: a PreferenceActivity in the language of the app that fills itself from prefs_word_delete and follows the preferences for the backup",
+      "extends PreferenceActivity" in act and 'getIdentifier("prefs_word_delete", "xml"' in act and "UiLocale.wrap(base)" in act and "ListDividerFix.apply(this)" in act
+      and "dataChanged()" in act)
+check("the page of Touch and gestures names the new screen in its summary, in the three languages",
+      all("mr_ui_cat_touch_sum" in read(os.path.join(ROOT, "res", d, "mr_strings.xml")) for d in ("values", "values-es", "values-pt-rBR"))
+      and "delete by word" in read(os.path.join(ROOT, "res", "values", "mr_strings.xml")))
 
 reset = read(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrReset.java"))
 check("MrReset.KEYS has both keys", '"pref_word_delete"' in reset and '"pref_word_delete_interval"' in reset)
 
 notes = read(os.path.join(ROOT, "docs", "release-notes", "v2.0.0.md"))
-check("the notes of 2.0.0 have the New / Novo line, in both languages", "- Novo: **Ctrl + apagar apaga por palavra**" in notes and "- New: **Ctrl + delete deletes by words**" in notes)
+check("the notes of 2.0.0 have the New / Novo line, in both languages, and say where the screen is",
+      "- Novo: **Ctrl + apagar apaga por palavra**" in notes and "- New: **Ctrl + delete deletes by words**" in notes
+      and "Toque e gestos → Apagar por palavra" in notes and "Touch and gestures → Delete by word" in notes)
 
 print("%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

@@ -13696,8 +13696,8 @@
 .method public sendModifiableKeyChar(C)V
     .locals 9
 
-    # Ctrl + Z by words: gives back the last word taken by Ctrl + delete (nothing kept: returns at once). The key is not sent to the app.
-    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrWordDelete;->onUndo(Lcom/mrkeyboard/app/LatinIME;C)Z
+    # Ctrl + Z and Ctrl + Y by words: gives back / takes out again the last word of Ctrl + delete (nothing kept: returns at once). The key is not sent to the app.
+    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrWordDelete;->onUndoRedo(Lcom/mrkeyboard/app/LatinIME;C)Z
 
     move-result v0
 
@@ -14845,7 +14845,7 @@
     return v0
 .end method
 
-# Ctrl + Z by words (MrWordDelete.onUndo): Ctrl is on and nothing else is (no Shift, Alt or Meta).
+# Ctrl + Z / Ctrl + Y by words (MrWordDelete.onUndoRedo): Ctrl is on and nothing else is (no Shift, Alt or Meta).
 .method public mrCtrlOnly()Z
     .locals 1
 

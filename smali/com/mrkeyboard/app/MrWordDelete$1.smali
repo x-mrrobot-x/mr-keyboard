@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 144
+    .line 161
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,7 +34,7 @@
     .locals 1
 
     .prologue
-    .line 146
+    .line 163
     if-eqz p2, :cond_0
 
     const-string v0, "pref_word_delete"
@@ -56,7 +56,7 @@
     :cond_0
     invoke-static {}, Lcom/mrkeyboard/app/MrWordDelete;->reload()V
 
-    .line 147
+    .line 164
     :cond_1
     return-void
 .end method

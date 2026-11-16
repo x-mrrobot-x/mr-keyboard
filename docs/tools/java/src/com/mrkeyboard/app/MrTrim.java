@@ -10,7 +10,8 @@ import android.util.Log;
  * references are dropped and the garbage collector frees them.
  *
  * It goes by what the keyboard can count, not by a threshold of memory:
- *  - any level: the keyboards that are not on screen (KeyboardSwitcher.dropUnused; the one on screen stays);
+ *  - any level: the keyboards that are not on screen (KeyboardSwitcher.dropUnused; the one on screen stays), and the words kept for
+ *    Ctrl + Z and Ctrl + Y (MrWordDelete.release: without them those keys go to the app, which has its own undo);
  *  - the level LOW (10) or more, or the keyboard not on screen: the popups of variants and the measures that the view keeps
  *    (LatinKeyboardBaseView.trimCaches);
  *  - the keyboard not on screen (no view, detached from the window, or hidden): the kept shadows of the icons (ShadowDrawHelper.release).
@@ -56,6 +57,7 @@ final class MrTrim {
         int popups = 0;
         int shadows = 0;
         int bytes = 0;
+        MrWordDelete.release();                      // never throws, and a fault below must not keep it from running
         try {
             keyboards = KeyboardSwitcher.dropUnused();
             LatinKeyboardView view = KeyboardSwitcher.getInstance().getInputView();

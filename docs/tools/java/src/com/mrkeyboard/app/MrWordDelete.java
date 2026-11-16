@@ -43,6 +43,13 @@ import android.view.inputmethod.InputConnection;
  * is idle. The words written back are typing for the app: after the last one, a further Ctrl + Z of the app first takes them out
  * again.
  *
+ * <p>Ctrl + Y, the redo. A word given back (by this class, or by the undo of the app for a word alone) goes to a second list; Ctrl +
+ * Y (Ctrl alone) with the text exactly as that word's return left it takes the word out again, the one given back last first, and
+ * puts it back in the first list, so Ctrl + Z gives it again. Any other text, a selection or nothing to redo: the key goes to the
+ * app. A new Ctrl + delete lets go of the second list (a new edit ends the redo, as in any editor). Both lists together never
+ * hold more than {@link #UNDO_MAX} words: a word only changes list. {@link #release} lets go of both (the system asking for memory,
+ * the cleanup button).
+ *
  * <p>All on the main thread. The calls from the smali, each of them catching what is thrown here (a fault never stops typing):
  * <pre>
  *   PointerTracker.onDownEvent               {@link #down}: the key that starts to repeat, before its first repeat
@@ -50,7 +57,7 @@ import android.view.inputmethod.InputConnection;
  *       .cancelKeyRepeatTimer                {@link #up}: the key was let go, or the repeat was cancelled
  *       .handleMessage (repeat)              {@link #interval}: the time to the next repeat
  *   LatinIME.handleBackspace                 {@link #onBackspace}: true = the delete was done here
- *   LatinIME.sendModifiableKeyChar           {@link #onUndo}: true = the Ctrl + Z was done here
+ *   LatinIME.sendModifiableKeyChar           {@link #onUndoRedo}: true = the Ctrl + Z or Ctrl + Y was done here
  * </pre>
  * and LatinIME.mrCtrlOn(), mrCtrlOnly(), mrHoldsWord() and mrDropComposing(), small methods added to the class for it.
  */
@@ -86,7 +93,7 @@ public final class MrWordDelete {
         final String text;      // the characters taken from before the cursor (the blanks before the word too)
         final String before;    // the text before the cursor (at most LOOKBACK) after the delete
         final String after;     // the text after the cursor (at most LOOKBACK), the same before and after the delete
-        final long at;          // when it was taken, ms
+        long at;                // when it was taken (or last moved from one list to the other), ms
 
         Cut(String text, String before, String after, long at) {
             this.text = text;
@@ -98,10 +105,19 @@ public final class MrWordDelete {
         boolean matches(CharSequence b, CharSequence a) {
             return b != null && a != null && before.contentEquals(b) && after.contentEquals(a);
         }
+
+        /** The text as the word's return leaves it: the word is back before the cursor (the window is the last LOOKBACK characters). */
+        boolean matchesBack(CharSequence b, CharSequence a) {
+            if (b == null || a == null || !after.contentEquals(a)) return false;
+            final String back = before + text;
+            return back.substring(Math.max(0, back.length() - LOOKBACK)).contentEquals(b);
+        }
     }
 
     /** The words taken and not yet given back, the newest last. */
     private static final java.util.ArrayList<Cut> sCuts = new java.util.ArrayList<Cut>();
+    /** The words given back and not yet taken again by Ctrl + Y, the one given back last on top. */
+    private static final java.util.ArrayList<Cut> sRedo = new java.util.ArrayList<Cut>();
     /** The words kept are all the words in the last step of the undo of the app (nothing was written back, nothing was let go). */
     private static boolean sPure;
     /** Tests: the clock, ms; negative = the real one. */
@@ -128,6 +144,7 @@ public final class MrWordDelete {
         sInterval = INTERVAL_DEFAULT;
         sHold = false;
         sCuts.clear();
+        sRedo.clear();
         sPure = false;
         sClock = -1;
     }
@@ -163,7 +180,7 @@ public final class MrWordDelete {
             sInterval = sp == null ? INTERVAL_DEFAULT : interval(sp.getString(PREF_INTERVAL, null), INTERVAL_DEFAULT);
             if (!sOn) {
                 sHold = false;
-                sCuts.clear();
+                release();
             }
         } catch (Throwable t) {
             sOn = false;
@@ -259,21 +276,34 @@ public final class MrWordDelete {
         }
     }
 
-    // ------------------------------------------------------------------ Ctrl + Z, word by word
+    // ------------------------------------------------------------------ Ctrl + Z and Ctrl + Y, word by word
 
     private static long now() {
         return sClock >= 0 ? sClock : System.nanoTime() / 1000000L;
     }
 
-    /** The ones that expired are let go (the oldest are the first). Whatever goes, the words left are no longer all of the last step of the app. */
+    /**
+     * Lets go of every word kept, in both lists (the system asking for memory: MrTrim; the setting turned off). Nothing here is made
+     * again: without them Ctrl + Z and Ctrl + Y go to the app. Never throws.
+     */
+    public static void release() {
+        sCuts.clear();
+        sRedo.clear();
+        sPure = false;
+    }
+
+    /** The ones that expired are let go (the oldest are the first). Whatever goes from the first list, the words left are no longer all of the last step of the app. */
     private static void purge() {
         final long t = now();
+        if (letGo(sCuts, t)) sPure = false;
+        letGo(sRedo, t);
+    }
+
+    private static boolean letGo(java.util.ArrayList<Cut> list, long t) {
         int n = 0;
-        while (n < sCuts.size() && t - sCuts.get(n).at >= UNDO_LIFETIME_MS) n++;
-        if (n > 0) {
-            sCuts.subList(0, n).clear();
-            sPure = false;
-        }
+        while (n < list.size() && t - list.get(n).at >= UNDO_LIFETIME_MS) n++;
+        if (n > 0) list.subList(0, n).clear();
+        return n > 0;
     }
 
     /** The text after the cursor, null when it cannot be read (then nothing is kept). */
@@ -285,75 +315,122 @@ public final class MrWordDelete {
         }
     }
 
+    /** A word goes to the first list (the newest on top). When the limit is reached the oldest goes, and the list is no longer all of the app's step. */
+    private static void push(Cut cut) {
+        if (sCuts.isEmpty()) sPure = true;
+        if (sCuts.size() >= UNDO_MAX) {
+            sCuts.remove(0);
+            sPure = false;
+        }
+        cut.at = now();
+        sCuts.add(cut);
+    }
+
     /**
      * A word was taken: keeps it. <code>before</code>: the text before the cursor as it was before the delete (what was read to
      * find the word), <code>after</code>: the text after the cursor (the delete does not change it), <code>taken</code>: what the
-     * delete removed. What was kept before is kept only if the text was as it left it; otherwise it is let go first.
+     * delete removed. What was kept before is kept only if the text was as it left it; otherwise it is let go first. A new delete ends
+     * the redo.
      */
     private static void keep(InputConnection ic, String taken, String before, CharSequence after) {
         try {
+            sRedo.clear();
             if (after == null) { sCuts.clear(); return; }
             if (!sCuts.isEmpty() && !sCuts.get(sCuts.size() - 1).matches(before, after)) sCuts.clear();
             final CharSequence left = ic.getTextBeforeCursor(LOOKBACK, 0);
             if (left == null) { sCuts.clear(); return; }
-            if (sCuts.isEmpty()) sPure = true;
-            if (sCuts.size() >= UNDO_MAX) {
-                sCuts.remove(0);
-                sPure = false;
-            }
-            sCuts.add(new Cut(taken, left.toString(), after.toString(), now()));
+            push(new Cut(taken, left.toString(), after.toString(), 0));
         } catch (Throwable t) {
             sCuts.clear();
         }
     }
 
     /**
-     * LatinIME.sendModifiableKeyChar, first thing, for every character the keyboard sends: true = it was a Ctrl + Z and the last
-     * word taken by Ctrl + delete was written back (the key must not go to the app); false = not for this class.
+     * LatinIME.sendModifiableKeyChar, first thing, for every character the keyboard sends: true = it was a Ctrl + Z or a Ctrl + Y
+     * and the class did it (a word written back, or taken out again), so the key must not go to the app; false = not for this class.
      * With nothing kept it returns on its first line.
      */
-    public static boolean onUndo(LatinIME ime, char key) {
-        if (sCuts.isEmpty()) return false;                        // the common case: nothing taken
+    public static boolean onUndoRedo(LatinIME ime, char key) {
+        if (sCuts.isEmpty() && sRedo.isEmpty()) return false;     // the common case: nothing taken
         try {
             purge();
-            if (sCuts.isEmpty()) return false;
+            if (sCuts.isEmpty() && sRedo.isEmpty()) return false;
             if (!sOn) {
-                sCuts.clear();
+                release();
                 return false;
             }
-            if ((key != 'z' && key != 'Z') || !ime.mrCtrlOnly()) return false;
-            final int last = sCuts.size() - 1;
-            if (last == 0 && sPure) {                             // one word alone: the undo of the app gives it back, in step with its history
-                sCuts.clear();
-                return false;
-            }
-            final InputConnection ic = ime.getCurrentInputConnection();
-            if (ic == null) return false;
-            final CharSequence selected = ic.getSelectedText(0);
-            if (selected != null && selected.length() > 0) {
-                sCuts.clear();
-                return false;
-            }
-            final Cut cut = sCuts.get(last);
-            if (!cut.matches(ic.getTextBeforeCursor(LOOKBACK, 0), ic.getTextAfterCursor(LOOKBACK, 0))) {
-                sCuts.clear();                                    // the text is not the one left: nothing kept belongs to it
-                return false;
-            }
-            ic.beginBatchEdit();
-            try {
-                if (ime.mrHoldsWord()) ime.mrDropComposing();
-                ic.finishComposingText();                         // commitText replaces composing text: nothing may be left
-                ic.commitText(cut.text, 1);
-            } finally {
-                ic.endBatchEdit();
-            }
-            sCuts.remove(last);
-            sPure = false;
-            return true;
+            final boolean redo = key == 'y' || key == 'Y';
+            if (!redo && key != 'z' && key != 'Z') return false;
+            if (!ime.mrCtrlOnly()) return false;
+            return redo ? redo(ime) : undo(ime);
         } catch (Throwable t) {
-            sCuts.clear();
+            release();
             return false;
         }
+    }
+
+    private static boolean undo(LatinIME ime) {
+        if (sCuts.isEmpty()) return false;
+        final int last = sCuts.size() - 1;
+        if (last == 0 && sPure) {                                 // one word alone: the undo of the app gives it back, in step with its history
+            final Cut cut = sCuts.remove(0);
+            cut.at = now();
+            sRedo.add(cut);                                       // ... and Ctrl + Y is checked against the text before it is used
+            return false;
+        }
+        final InputConnection ic = ime.getCurrentInputConnection();
+        if (ic == null) return false;
+        final CharSequence selected = ic.getSelectedText(0);
+        if (selected != null && selected.length() > 0) {
+            release();
+            return false;
+        }
+        final Cut cut = sCuts.get(last);
+        if (!cut.matches(ic.getTextBeforeCursor(LOOKBACK, 0), ic.getTextAfterCursor(LOOKBACK, 0))) {
+            release();                                            // the text is not the one left: nothing kept belongs to it
+            return false;
+        }
+        ic.beginBatchEdit();
+        try {
+            if (ime.mrHoldsWord()) ime.mrDropComposing();
+            ic.finishComposingText();                             // commitText replaces composing text: nothing may be left
+            ic.commitText(cut.text, 1);
+        } finally {
+            ic.endBatchEdit();
+        }
+        sCuts.remove(last);
+        sPure = false;
+        cut.at = now();
+        sRedo.add(cut);
+        return true;
+    }
+
+    private static boolean redo(LatinIME ime) {
+        if (sRedo.isEmpty()) return false;                        // nothing given back: the key goes to the app, what is kept stays
+        final InputConnection ic = ime.getCurrentInputConnection();
+        if (ic == null) return false;
+        final CharSequence selected = ic.getSelectedText(0);
+        if (selected != null && selected.length() > 0) {
+            release();
+            return false;
+        }
+        final int last = sRedo.size() - 1;
+        final Cut cut = sRedo.get(last);
+        if (!cut.matchesBack(ic.getTextBeforeCursor(LOOKBACK, 0), ic.getTextAfterCursor(LOOKBACK, 0))) {
+            release();                                            // the text is not the one the word's return left
+            return false;
+        }
+        ic.beginBatchEdit();
+        try {
+            if (ime.mrHoldsWord()) ime.mrDropComposing();
+            ic.finishComposingText();
+            ic.deleteSurroundingText(cut.text.length(), 0);
+        } finally {
+            ic.endBatchEdit();
+        }
+        sRedo.remove(last);
+        push(cut);                                                // taken again: Ctrl + Z gives it back again
+        return true;
     }
 
     // ------------------------------------------------------------------ what a word is

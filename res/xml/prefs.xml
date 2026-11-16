@@ -30,14 +30,15 @@
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_touch" android:key="altchar_settings" android:summary="@string/mr_ui_cat_touch_sum" android:icon="@drawable/mr_ui_ic_tap_amber">
     <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_long_press_duration" android:key="pref_long_press_duration" android:defaultValue="@string/default_long_press_duration" hk:displayFormat="%.0f ms" hk:logScale="true" hk:maxValue="2000.0" hk:minValue="100.0"/>
-    <CheckBoxPreference android:persistent="true" android:title="@string/mr_word_delete_title" android:key="pref_word_delete" android:summary="@string/mr_word_delete_summary" android:defaultValue="false"/>
-    <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/mr_word_delete_interval_title" android:key="pref_word_delete_interval" android:dependency="pref_word_delete" android:defaultValue="200" hk:displayFormat="%.0f ms" hk:maxValue="600.0" hk:minValue="100.0" hk:step="50.0"/>
     <com.mrkeyboard.app.AutoSummaryListPreference android:persistent="true" android:entries="@array/popup_content_entries" android:title="@string/title_popup_content" android:key="pref_popup_content" android:defaultValue="@string/default_popup_content" android:entryValues="@array/popup_content_values"/>
     <PreferenceScreen android:title="@string/pref_screen_feedback_title" android:summary="@string/summary_pref_screen_feedback">
       <intent android:action="com.mrkeyboard.app.PREFS_FEEDBACK"/>
     </PreferenceScreen>
     <PreferenceScreen android:title="@string/pref_screen_actions_title" android:summary="@string/summary_pref_screen_actions">
       <intent android:action="com.mrkeyboard.app.PREFS_ACTIONS"/>
+    </PreferenceScreen>
+    <PreferenceScreen android:title="@string/mr_word_delete_title" android:summary="@string/mr_word_delete_row_sum">
+      <intent android:action="com.mrkeyboard.app.PREFS_WORD_DELETE"/>
     </PreferenceScreen>
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_general" android:key="general_settings" android:summary="@string/mr_ui_cat_general_sum" android:icon="@drawable/mr_ui_ic_gear_slate">

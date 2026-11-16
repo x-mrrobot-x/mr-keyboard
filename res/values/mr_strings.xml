@@ -17,7 +17,7 @@
     <string name="mr_ui_cat_typing">Typing</string>
     <string name="mr_ui_cat_typing_sum">Suggestions, capitalization and voice</string>
     <string name="mr_ui_cat_touch">Touch and gestures</string>
-    <string name="mr_ui_cat_touch_sum">Long press, popup, key preview, vibration and gestures</string>
+    <string name="mr_ui_cat_touch_sum">Long press, popup, vibration, gestures and delete by word</string>
     <string name="mr_ui_cat_general">General</string>
     <string name="mr_ui_cat_general_sum">App language, notification, advanced options and restore defaults</string>
     <string name="mr_ui_cat_about">About</string>
@@ -704,7 +704,15 @@
     <string name="mr_sugg_idle_5">5 seconds</string>
     <string name="mr_sugg_idle_8">8 seconds</string>
     <string name="mr_sugg_idle_10">10 seconds</string>
-    <string name="mr_word_delete_title">Ctrl + delete deletes by words</string>
-    <string name="mr_word_delete_summary">With Ctrl on, the delete key removes a word per tap; held, it repeats word by word</string>
-    <string name="mr_word_delete_interval_title">Interval between words when held</string>
+    <string name="mr_word_delete_title">Delete by word</string>
+    <string name="mr_word_delete_row_sum">Ctrl + delete removes whole words; Ctrl + Z and Ctrl + Y undo and redo them</string>
+    <string name="mr_word_delete_cat_ctrl">Ctrl + delete</string>
+    <string name="mr_word_delete_switch_title">Turn on delete by word</string>
+    <string name="mr_word_delete_summary">With Ctrl on, delete removes the whole word before the cursor instead of one letter. Without Ctrl the key works as usual.</string>
+    <string name="mr_word_delete_interval_title">Time between words when held</string>
+    <string name="mr_word_delete_how_title">How to use</string>
+    <string name="mr_word_delete_how_sum">Tap Ctrl and then delete, or hold Ctrl and tap delete. Holding delete removes one word after another at the time above: shorter is faster.</string>
+    <string name="mr_word_delete_cat_undo">Undo and redo</string>
+    <string name="mr_word_delete_undo_title">Ctrl + Z and Ctrl + Y</string>
+    <string name="mr_word_delete_undo_sum">Ctrl + Z gives back the last deleted word, one at a time. Ctrl + Y deletes again the one that came back. Words are kept for 2 minutes.</string>
 </resources>

@@ -765,7 +765,7 @@ public class WordDelTest {
     /** A Ctrl + Z the keyboard sends as a character: true = it was done by the class and the key must not go to the app. */
     static boolean undo(Ime ime) {
         ime.ctrl = true;
-        return MrWordDelete.onUndo(ime, 'z');
+        return MrWordDelete.onUndoRedo(ime, 'z');
     }
 
     static Ime on4(Prefs p) {
@@ -793,13 +793,13 @@ public class WordDelTest {
         ime = on4(p = new Prefs());
         cut(ime); cut(ime); cut(ime);
         ime.ctrl = true;
-        check("undo: Ctrl + X is not for the class", !MrWordDelete.onUndo(ime, 'x') && ime.ic.text.toString().equals("one "));
-        check("undo: the letter alone, without Ctrl, is not for the class", !(ime.ctrl = false) && !MrWordDelete.onUndo(ime, 'z') && ime.ic.text.toString().equals("one "));
+        check("undo: Ctrl + X is not for the class", !MrWordDelete.onUndoRedo(ime, 'x') && ime.ic.text.toString().equals("one "));
+        check("undo: the letter alone, without Ctrl, is not for the class", !(ime.ctrl = false) && !MrWordDelete.onUndoRedo(ime, 'z') && ime.ic.text.toString().equals("one "));
         ime.ctrl = true;
         ime.other = true;
-        check("undo: Ctrl with Shift, Alt or Meta (Ctrl + Shift + Z is the redo of the app) is not for the class", !MrWordDelete.onUndo(ime, 'z') && ime.ic.text.toString().equals("one "));
+        check("undo: Ctrl with Shift, Alt or Meta (Ctrl + Shift + Z is the redo of the app) is not for the class", !MrWordDelete.onUndoRedo(ime, 'z') && ime.ic.text.toString().equals("one "));
         ime.other = false;
-        check("undo: ... and what was kept is still there when Ctrl comes alone", MrWordDelete.onUndo(ime, 'Z') && ime.ic.text.toString().equals("one two "), ime.ic.text);
+        check("undo: ... and what was kept is still there when Ctrl comes alone", MrWordDelete.onUndoRedo(ime, 'Z') && ime.ic.text.toString().equals("one two "), ime.ic.text);
         check("undo: ... a capital Z does the same (CapsLock, a layout)", undo(ime) && undo(ime) && ime.ic.text.toString().equals("one two three four"));
 
         // one word alone: the undo of the app gives it back, the class does not take part
@@ -913,7 +913,7 @@ public class WordDelTest {
         cut(ime); cut(ime);
         MrWordDelete.sClock = MrWordDelete.UNDO_LIFETIME_MS;
         ime.ctrl = true;
-        check("expire: another key after the time: not for the class", !MrWordDelete.onUndo(ime, 'a'));
+        check("expire: another key after the time: not for the class", !MrWordDelete.onUndoRedo(ime, 'a'));
         MrWordDelete.sClock = 0;                     // even if the clock went back, what expired is gone
         check("expire: ... and what expired was let go with it", !undo(ime) && ime.ic.commits == 0);
 
@@ -952,7 +952,7 @@ public class WordDelTest {
         ime.ic.text.append("one two");
         ime.ctrl = true;
         check("undo off: nothing kept: false at once, nothing read, nothing asked of the keyboard",
-                !MrWordDelete.onUndo(ime, 'z') && ime.ic.reads == 0 && ime.ctrlOnlyAsked == 0 && ime.ic.commits == 0);
+                !MrWordDelete.onUndoRedo(ime, 'z') && ime.ic.reads == 0 && ime.ctrlOnlyAsked == 0 && ime.ic.commits == 0);
         // the setting off: a Ctrl + delete never keeps anything
         cut(ime);
         check("undo off: setting off: Ctrl + delete keeps nothing", !undo(ime) && ime.ctrlOnlyAsked == 0);
@@ -992,6 +992,165 @@ public class WordDelTest {
         check("undo fault: no field: not for the class", !undo(ime));
     }
 
+    // ---------------------------------------------------------------- Ctrl + Y, the redo
+    static boolean redo(Ime ime) {
+        ime.ctrl = true;
+        return MrWordDelete.onUndoRedo(ime, 'y');
+    }
+
+    static void redoing() {
+        Prefs p = new Prefs();
+        Ime ime = on4(p);
+        cut(ime); cut(ime);
+        check("redo: nothing given back yet: Ctrl + Y is not for the class", !redo(ime) && ime.ic.text.toString().equals("one two "));
+        check("redo: ... and what was kept is still there (Ctrl + Z gives the last word)", undo(ime) && ime.ic.text.toString().equals("one two three "), ime.ic.text);
+        check("redo: Ctrl + Y takes out again the word given back (the key is not sent to the app)", redo(ime) && ime.ic.text.toString().equals("one two "), ime.ic.text);
+        check("redo: the field is not left in a batch and the delete took exactly the word", ime.ic.begins == ime.ic.ends && ime.ic.deletes == 3);
+        check("redo: nothing more to redo: not for the class", !redo(ime));
+        check("redo: the word taken again can be given back again by Ctrl + Z", undo(ime) && ime.ic.text.toString().equals("one two three "), ime.ic.text);
+
+        // two words given back, taken again in the original order
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        undo(ime); undo(ime);
+        check("redo: both words are back", ime.ic.text.toString().equals("one two three four"));
+        check("redo: Ctrl + Y repeats the deletes in the order they were done: the nearest to the cursor first",
+                redo(ime) && ime.ic.text.toString().equals("one two three ") && redo(ime) && ime.ic.text.toString().equals("one two ") && !redo(ime), ime.ic.text);
+        check("redo: ... and then Ctrl + Z goes through them again, last first",
+                undo(ime) && ime.ic.text.toString().equals("one two three ") && undo(ime) && ime.ic.text.toString().equals("one two three four"), ime.ic.text);
+
+        // other keys, other modifiers
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        undo(ime);
+        ime.ctrl = true;
+        ime.other = true;
+        check("redo: Ctrl with Shift, Alt or Meta is not for the class", !MrWordDelete.onUndoRedo(ime, 'y') && ime.ic.text.toString().equals("one two three "));
+        ime.other = false;
+        ime.ctrl = false;
+        check("redo: the letter alone, without Ctrl, is not for the class", !MrWordDelete.onUndoRedo(ime, 'y') && ime.ic.text.toString().equals("one two three "));
+        check("redo: a capital Y counts, with Ctrl alone", (ime.ctrl = true) && MrWordDelete.onUndoRedo(ime, 'Y') && ime.ic.text.toString().equals("one two "), ime.ic.text);
+
+        // a new Ctrl + delete ends the redo
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        undo(ime);                                  // one two three |
+        cut(ime);                                   // takes "three ": one two |
+        check("redo: a new Ctrl + delete ends the redo", !redo(ime) && ime.ic.text.toString().equals("one two "));
+
+        // the text is not the one the return left
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        undo(ime);
+        ime.ic.text.append("x");
+        check("redo valid: text typed after the word came back: not for the class", !redo(ime) && ime.ic.deletes == 2);
+        ime.ic.text.setLength(ime.ic.text.length() - 1);
+        check("redo valid: ... and everything is let go, even if the text is the same again", !redo(ime) && !undo(ime));
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        undo(ime);
+        ime.ic.after = "tail";
+        check("redo valid: the cursor moved (other text after it): not for the class", !redo(ime) && ime.ic.deletes == 2);
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        undo(ime);
+        ime.ic.selected = "ab";
+        check("redo valid: text selected: not for the class", !redo(ime) && ime.ic.deletes == 2);
+        ime.ic.selected = null;
+        check("redo valid: ... and what was kept is let go", !redo(ime) && !undo(ime));
+
+        // text after the cursor and a long text before it (the window is the last 64 characters)
+        ime = on4(p = new Prefs());
+        final StringBuilder lead = new StringBuilder();
+        for (int i = 0; i < 40; i++) lead.append("long ");
+        ime.ic.text.insert(0, lead);
+        ime.ic.after = " the rest of the line";
+        cut(ime); cut(ime);
+        undo(ime); undo(ime);
+        check("redo valid: a long text before the cursor and text after it: the words go again in order",
+                redo(ime) && ime.ic.text.toString().endsWith("three ") && redo(ime) && ime.ic.text.toString().endsWith("two ") && !redo(ime)
+                        && undo(ime) && undo(ime) && ime.ic.text.toString().equals(lead + "one two three four"), ime.ic.text.length());
+
+        // composing text the keyboard does not hold: finished first, the delete is not taken by it
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        undo(ime);                                  // one two three |
+        ime.ic.compStart = 4;                       // "two three " is composing text in the app
+        check("redo valid: the app's composing text is finished before the delete: only the word goes",
+                redo(ime) && ime.ic.text.toString().equals("one two ") && ime.ic.compStart == -1, ime.ic.text);
+
+        // a word alone: the undo of the app gives it back, Ctrl + Y is checked against the text
+        ime = on4(p = new Prefs());
+        cut(ime);                                   // one two three |
+        check("redo: a word alone: Ctrl + Z is the app's", !undo(ime) && ime.ic.commits == 0);
+        ime.ic.text.append("four");                 // what the app's undo did
+        check("redo: ... and Ctrl + Y takes it out again once the app gave it back", redo(ime) && ime.ic.text.toString().equals("one two three "), ime.ic.text);
+        check("redo: ... a word taken again alone is again left to the app's undo", !undo(ime) && ime.ic.commits == 0);
+        ime = on4(p = new Prefs());
+        cut(ime);
+        undo(ime);                                  // the app did NOT give it back: the text is still "one two three "
+        check("redo: a word alone and the app did not give it back: Ctrl + Y is not for the class", !redo(ime) && ime.ic.text.toString().equals("one two three "));
+
+        // expiry of the second list
+        ime = on4(p = new Prefs());
+        MrWordDelete.sClock = 5;
+        cut(ime); cut(ime);
+        undo(ime);
+        MrWordDelete.sClock = 5 + MrWordDelete.UNDO_LIFETIME_MS - 1;
+        check("redo expire: just before its time the word is still there", redo(ime) && ime.ic.text.toString().equals("one two "));
+        undo(ime);
+        MrWordDelete.sClock = 5 + 2 * MrWordDelete.UNDO_LIFETIME_MS;
+        check("redo expire: after its time it is gone: the key goes to the app", !redo(ime) && ime.ic.text.toString().equals("one two three "));
+        MrWordDelete.sClock = -1;
+
+        // the limit holds for both lists together: a word only changes list
+        ime = on4(p = new Prefs());
+        ime.ic.text.setLength(0);
+        final int words = MrWordDelete.UNDO_MAX + 5;
+        for (int i = 0; i < words; i++) ime.ic.text.append("w").append(i).append(' ');
+        for (int i = 0; i < words; i++) cut(ime);
+        int back = 0, again = 0;
+        while (undo(ime)) back++;
+        while (redo(ime)) again++;
+        check("redo: all the words given back can be taken again: no more than the limit, the same number both ways", back == MrWordDelete.UNDO_MAX && again == back && ime.ic.text.length() == 0, back + "," + again);
+
+        // release: both lists
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        undo(ime);
+        MrWordDelete.release();
+        check("release: nothing is kept in either list: Ctrl + Y and Ctrl + Z are not for the class", !redo(ime) && !undo(ime) && ime.ic.text.toString().equals("one two three "));
+        MrWordDelete.release();
+        check("release: with nothing kept it does nothing and does not throw", true);
+        ime.ic.reads = 0;
+        ime.ctrlOnlyAsked = 0;
+        ime.ctrl = true;
+        check("release: nothing kept: Ctrl + Y returns at once (nothing read, the keyboard not asked)", !MrWordDelete.onUndoRedo(ime, 'y') && ime.ic.reads == 0 && ime.ctrlOnlyAsked == 0);
+
+        // the setting off
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        undo(ime);
+        p.set(MrWordDelete.PREF_ON, Boolean.FALSE);
+        p.set(MrWordDelete.PREF_ON, Boolean.TRUE);
+        check("redo off: setting turned off and on again: the second list is gone too", !redo(ime) && ime.ic.deletes == 2);
+
+        // a failing app
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        undo(ime);
+        ime.ic.fall = true;
+        boolean threw = false, r = true;
+        try { r = redo(ime); } catch (Throwable t) { threw = true; }
+        ime.ic.fall = false;
+        check("redo fault: the app falls over: nothing is thrown, the key goes to the app, and everything is let go", !threw && !r && !redo(ime) && !undo(ime));
+        ime = on4(p = new Prefs());
+        cut(ime); cut(ime);
+        undo(ime);
+        ime.hasIc = false;
+        check("redo fault: no field: not for the class", !redo(ime));
+    }
+
     public static void main(String[] args) {
         words();
         invariants();
@@ -1007,6 +1166,7 @@ public class WordDelTest {
         undoExpires();
         undoOff();
         undoFaults();
+        redoing();
         MrWordDelete.resetForTest();
         PreferenceManager.stubDefault = null;
         LatinIME.sInstance = null;
