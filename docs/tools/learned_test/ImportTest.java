@@ -171,9 +171,9 @@ public class ImportTest {
         check("checkWord: letters, apostrophe, hyphen are fine", MrImport.checkWord("d'água") == 0 && MrImport.checkWord("guarda-chuva") == 0 && MrImport.checkWord("Itaú") == 0);
 
         // ---------------------------------------------------------------- what the screen offers under the box
-        check("offer: nothing in the box (null, empty, only spaces and line breaks, a lone BOM): no button",
-                MrImport.offer(null) == MrImport.OFFER_NONE && MrImport.offer("") == MrImport.OFFER_NONE && MrImport.offer("  \n\t \r\n") == MrImport.OFFER_NONE
-                && MrImport.offer("\uFEFF") == MrImport.OFFER_NONE);
+        check("offer: nothing in the box (null, empty, only spaces and line breaks, a lone BOM) is not a list: the Format with AI button is already there",
+                MrImport.offer(null) == MrImport.OFFER_FORMAT && MrImport.offer("") == MrImport.OFFER_FORMAT && MrImport.offer("  \n\t \r\n") == MrImport.OFFER_FORMAT
+                && MrImport.offer("\uFEFF") == MrImport.OFFER_FORMAT);
         check("offer: a word typed alone, some words, a sentence or a chat is not a list yet: Format with AI",
                 MrImport.offer("Itaú") == MrImport.OFFER_FORMAT && MrImport.offer("Itaú\nNubank") == MrImport.OFFER_FORMAT
                 && MrImport.offer("vamos ao Itaú hoje") == MrImport.OFFER_FORMAT && MrImport.offer("[12/03/24 14:05] Ana: oi\n[12/03/24 14:06] Rui: oi") == MrImport.OFFER_FORMAT);

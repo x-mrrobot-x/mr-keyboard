@@ -141,23 +141,15 @@ final class MrImport {
     private static final Pattern RUN = Pattern.compile("(?i)(\\p{L})\\1{3,}");
 
     /** What the screen offers under the box (see {@link #offer}). */
-    static final int OFFER_NONE = 0;
     static final int OFFER_FORMAT = 1;
     static final int OFFER_PREVIEW = 2;
 
     /**
-     * The button that fits the text of the box: none while it has nothing to read (empty, or only spaces and line breaks), the AI formatting for a text
-     * that is not a list yet (a word typed alone, a chat, an essay: it has no header and no section), the preview for a list, whether it was typed,
-     * pasted or made by the AI. A list is what {@link #isStandard} says it is.
+     * The button that fits the text of the box: the AI formatting for anything that is not a list yet (an empty box, a word typed alone, a chat, an
+     * essay: it has no header and no section), the preview for a list, whether it was typed, pasted or made by the AI. A list is what
+     * {@link #isStandard} says it is. The formatting button is there from the start; it is the preview one that appears when the text is a list.
      */
     static int offer(String text) {
-        if (text == null) return OFFER_NONE;
-        boolean content = false;
-        for (int i = 0; i < text.length() && !content; i++) {
-            char c = text.charAt(i);
-            content = !Character.isWhitespace(c) && c != '\uFEFF';
-        }
-        if (!content) return OFFER_NONE;
         return isStandard(text) ? OFFER_PREVIEW : OFFER_FORMAT;
     }
 

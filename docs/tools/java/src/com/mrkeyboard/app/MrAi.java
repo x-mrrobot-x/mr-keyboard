@@ -67,8 +67,13 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
     static final String KEY_API_KEY = "pref_ai_key"; // only the key of the row on the screen; the value goes in PREFS/KEY_SECRET
     static final String KEY_SECRET = "api_key";
     static final String EXTRA_STYLE = "mr_ai_style_index";
-    static final String ENDPOINT_DEF = "https://api.openai.com/v1/chat/completions";
-    static final String MODEL_DEF = "gpt-6.1-terra";
+    // what the service settings are until the person changes them: Gemini (the same values as its ready-made provider and as res/xml/prefs_ai.xml)
+    static final String PROVIDER_DEF = "gemini";
+    static final String ENDPOINT_DEF = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+    static final String MODEL_DEF = "gemini-3.5-flash-lite";
+    // the ready-made OpenAI provider
+    static final String ENDPOINT_OPENAI = "https://api.openai.com/v1/chat/completions";
+    static final String MODEL_OPENAI = "gpt-6.1-terra";
     static final int MAX_CHARS = 4000;
     static final int MAX_STYLES = 50;
 

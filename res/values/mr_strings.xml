@@ -418,15 +418,18 @@
     <string name="mr_import_failed">Could not read this text.</string>
     <string name="mr_import_found">What was found in your text</string>
     <string name="mr_import_found_std">What is in your list</string>
-    <string name="mr_import_counts">%1$d new words and %2$d pairs of words</string>
     <string name="mr_import_blocked_found">%1$d words to block</string>
-    <string name="mr_import_known">%1$d words the dictionary already knows were left out.</string>
     <string name="mr_import_pairs_cut">The text is very long: only the most frequent pairs were kept.</string>
     <string name="mr_import_lang_note">The list says it is for %1$s, but it will be added to %2$s.</string>
     <string name="mr_import_see_ignored">See ignored lines (%1$d)</string>
     <string name="mr_import_ignored_more">…and %1$d more.</string>
     <string name="mr_import_line">Line %1$d</string>
-    <string name="mr_import_none_new">Nothing new to add: the dictionary already knows these words, or they showed up only once.</string>
+    <string name="mr_import_none_new">The dictionary already knows these words, or they showed up only once.</string>
+    <string name="mr_import_none_title">Nothing new to add</string>
+    <string name="mr_import_none_std">Every word of the list is already in the dictionary, or its lines were left out.</string>
+    <string name="mr_import_stat_words">New words</string>
+    <string name="mr_import_stat_pairs">Word pairs</string>
+    <string name="mr_import_stat_known">Already in the dictionary</string>
     <string name="mr_import_untick">Tap a word to leave it out (a typo, for example).</string>
     <string name="mr_import_all">Select all</string>
     <string name="mr_import_none">Select none</string>
@@ -476,14 +479,12 @@
     <string name="mr_import_ai_progress">Formatting with AI… part %1$d of %2$d</string>
     <string name="mr_import_ai_cancelled">Formatting cancelled. Your text was not changed.</string>
     <string name="mr_import_ai_back_nothing">The AI did not return a usable list. Your text was not changed.</string>
-    <string name="mr_import_ai_done">Formatted with AI: %1$d words and %2$d phrases. Check the text and tap the button below to see what will be added.</string>
+    <string name="mr_import_ai_done">Formatted with AI: %1$d words and %2$d phrases</string>
     <string name="mr_import_ai_partial_title">Only part of the text was formatted</string>
     <string name="mr_import_ai_partial">%1$d of %2$d parts are in the list now. %3$s\n\nThe rest was not converted: use Undo formatting and try again, or add the rest with the button below.</string>
     <string name="mr_import_ai_why_cancel">You cancelled.</string>
     <string name="mr_import_ai_why_unreadable">Some answers were not a list.</string>
     <string name="mr_import_ai_fail_title">The AI could not format the text</string>
-    <string name="mr_import_ai_undo">Undo formatting</string>
-    <string name="mr_import_ai_undone">Text restored.</string>
     <string name="mr_import_prompt">Turn my text into a word list for a phone keyboard.\nRules:\n- Answer with the list only, in a single code block, with no explanations.\n- The first two lines must be exactly: “# mr-words 1” and “# language: TAG” (TAG is the language of the text: pt-BR, en-US or es).\n- [words]: one word per line, only words a normal dictionary would not have (names, places, brands, slang, technical terms, my usual abbreviations). After a TAB you can give a weight from 1 to 100 (50 is normal, 80 for words I use all the time).\n- [phrases]: pairs or short phrases I write often, one per line, from 2 to 5 words.\n- [blocked]: words the keyboard must never suggest (only if I ask for it).\n- No numbers, links, e-mails, phone numbers or private data. No repeated lines. Keep the language of my text.\n\nExample of the answer:\n# mr-words 1\n# language: en-US\n[words]\nLuana\nHendrix\t70\n[phrases]\nsee you later\ngood morning everyone\n\nMy text follows:\n</string>
     <!-- /v1.85 words -->
     <!-- Sheets screen (MrSheets / PrefScreenSheets) -->

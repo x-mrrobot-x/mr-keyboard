@@ -320,6 +320,39 @@ final class MrKit {
         return b;
     }
 
+    /**
+     * A number with what it counts under it, in a small rounded box (a row of them is the summary of a preview). The number is in the accent colour
+     * when there is something to count and quiet when it is zero. Meant for a row, each box with a weight of 1.
+     */
+    LinearLayout stat(int n, String label) {
+        LinearLayout c = column();
+        c.setGravity(Gravity.CENTER_HORIZONTAL);
+        c.setPadding(dp(8), dp(12), dp(8), dp(12));
+        c.setBackground(round(raised, line, 14, false));
+        TextView num = label(String.valueOf(n), 24f, n > 0 ? accent : hint, true);
+        num.setGravity(Gravity.CENTER);
+        c.addView(num, wide(0));
+        TextView what = label(label, 12f, text2, false);
+        what.setGravity(Gravity.CENTER);
+        what.setMaxLines(2);
+        c.addView(what, wide(2));
+        return c;
+    }
+
+    /** A calm "nothing here" box: a vector, a short title and a line that says why. */
+    LinearLayout emptyState(String iconName, String title, String body) {
+        LinearLayout r = row();
+        r.setPadding(dp(14), dp(14), dp(14), dp(14));
+        r.setBackground(round(raised, line, 14, false));
+        r.addView(iconView(iconName, 36f));
+        LinearLayout words = column();
+        words.setPadding(dp(12), 0, 0, 0);
+        words.addView(label(title, 15f, text, true), wide(0));
+        words.addView(label(body, 13f, text2, false), wide(3));
+        r.addView(words, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        return r;
+    }
+
     /** A card-like row for lists: the text on the left (as large as it needs) and a small note on the right. */
     LinearLayout item(String main, String note, View.OnClickListener l) {
         LinearLayout r = row();

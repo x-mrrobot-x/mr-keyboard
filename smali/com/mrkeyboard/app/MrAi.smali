@@ -43,7 +43,9 @@
 
 .field private static final EMOJI_YES:Ljava/lang/String; = " Sprinkle a few relevant emojis through the text where they fit naturally; do not overdo it."
 
-.field static final ENDPOINT_DEF:Ljava/lang/String; = "https://api.openai.com/v1/chat/completions"
+.field static final ENDPOINT_DEF:Ljava/lang/String; = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+
+.field static final ENDPOINT_OPENAI:Ljava/lang/String; = "https://api.openai.com/v1/chat/completions"
 
 .field static final EXTRA_STYLE:Ljava/lang/String; = "mr_ai_style_index"
 
@@ -67,9 +69,13 @@
 
 .field static final MAX_STYLES:I = 0x32
 
-.field static final MODEL_DEF:Ljava/lang/String; = "gpt-6.1-terra"
+.field static final MODEL_DEF:Ljava/lang/String; = "gemini-3.5-flash-lite"
+
+.field static final MODEL_OPENAI:Ljava/lang/String; = "gpt-6.1-terra"
 
 .field static final PREFS:Ljava/lang/String; = "mr_ai"
+
+.field static final PROVIDER_DEF:Ljava/lang/String; = "gemini"
 
 .field private static final R_BG:I = 0x3e8
 
@@ -160,7 +166,7 @@
 
     const/4 v3, 0x0
 
-    .line 86
+    .line 91
     const/4 v0, 0x7
 
     new-array v0, v0, [Ljava/lang/String;
@@ -199,7 +205,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->BUILTIN_EMOJI:[Ljava/lang/String;
 
-    .line 87
+    .line 92
     const/4 v0, 0x7
 
     new-array v0, v0, [Ljava/lang/String;
@@ -238,7 +244,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->BUILTIN_NAME:[Ljava/lang/String;
 
-    .line 90
+    .line 95
     const/4 v0, 0x7
 
     new-array v0, v0, [Ljava/lang/String;
@@ -277,12 +283,12 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->BUILTIN_INSTR:[Ljava/lang/String;
 
-    .line 130
+    .line 135
     const/4 v0, -0x1
 
     sput v0, Lcom/mrkeyboard/app/MrAi;->sSel:I
 
-    .line 133
+    .line 138
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -296,13 +302,13 @@
     .locals 0
 
     .prologue
-    .line 144
+    .line 149
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 145
+    .line 150
     iput p1, p0, Lcom/mrkeyboard/app/MrAi;->mCode:I
 
-    .line 146
+    .line 151
     return-void
 .end method
 
@@ -310,22 +316,22 @@
     .locals 0
 
     .prologue
-    .line 148
+    .line 153
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 149
+    .line 154
     iput p1, p0, Lcom/mrkeyboard/app/MrAi;->mCode:I
 
-    .line 150
+    .line 155
     iput-object p2, p0, Lcom/mrkeyboard/app/MrAi;->mText:Ljava/lang/String;
 
-    .line 151
+    .line 156
     iput p3, p0, Lcom/mrkeyboard/app/MrAi;->mSeq:I
 
-    .line 152
+    .line 157
     iput-wide p4, p0, Lcom/mrkeyboard/app/MrAi;->mTemp:D
 
-    .line 153
+    .line 158
     return-void
 .end method
 
@@ -343,34 +349,34 @@
 
     const/4 v8, 0x0
 
-    .line 420
+    .line 425
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sRoot:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 421
+    .line 426
     const-string v1, "mr_ui_text2"
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
 
     move-result v1
 
-    .line 422
+    .line 427
     new-instance v2, Landroid/widget/LinearLayout;
 
     invoke-direct {v2, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 423
+    .line 428
     invoke-virtual {v2, v11}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 424
+    .line 429
     const/16 v3, 0x11
 
     invoke-virtual {v2, v3}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 426
+    .line 431
     invoke-static {v6}, Lcom/mrkeyboard/app/MrAi;->dp(F)I
 
     move-result v3
@@ -389,22 +395,22 @@
 
     invoke-virtual {v2, v3, v4, v5, v6}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 427
+    .line 432
     invoke-static {v8}, Lcom/mrkeyboard/app/MrAi;->styleChipBackground(Z)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v3
 
     invoke-virtual {v2, v3}, Landroid/widget/LinearLayout;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 430
+    .line 435
     if-nez p0, :cond_1
 
-    .line 431
+    .line 436
     new-instance v3, Landroid/widget/ImageView;
 
     invoke-direct {v3, v0}, Landroid/widget/ImageView;-><init>(Landroid/content/Context;)V
 
-    .line 432
+    .line 437
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v4
@@ -413,26 +419,26 @@
 
     const-string v6, "drawable"
 
-    .line 433
+    .line 438
     invoke-virtual {v0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
 
     move-result-object v7
 
-    .line 432
+    .line 437
     invoke-virtual {v4, v5, v6, v7}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v4
 
-    .line 434
+    .line 439
     if-eqz v4, :cond_0
 
     invoke-virtual {v3, v4}, Landroid/widget/ImageView;->setImageResource(I)V
 
-    .line 435
+    .line 440
     :cond_0
     invoke-virtual {v3, v1}, Landroid/widget/ImageView;->setColorFilter(I)V
 
-    .line 436
+    .line 441
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v5, 0x41a00000    # 20.0f
@@ -449,7 +455,7 @@
 
     invoke-direct {v4, v5, v6}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 437
+    .line 442
     const/high16 v5, 0x40000000    # 2.0f
 
     invoke-static {v5}, Lcom/mrkeyboard/app/MrAi;->dp(F)I
@@ -458,55 +464,55 @@
 
     invoke-virtual {v4, v8, v8, v8, v5}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
 
-    .line 438
+    .line 443
     invoke-virtual {v3, v4}, Landroid/widget/ImageView;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 439
+    .line 444
     invoke-virtual {v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 454
+    .line 459
     :goto_0
     new-instance v3, Landroid/widget/TextView;
 
     invoke-direct {v3, v0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 455
+    .line 460
     invoke-virtual {v3, p2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 456
+    .line 461
     invoke-virtual {v3, v1}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 457
+    .line 462
     const/high16 v0, 0x41300000    # 11.0f
 
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 458
+    .line 463
     const/16 v0, 0x11
 
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 459
+    .line 464
     invoke-virtual {v3, v11}, Landroid/widget/TextView;->setSingleLine(Z)V
 
-    .line 462
+    .line 467
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v0, v10, v10}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 464
+    .line 469
     invoke-virtual {v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 466
+    .line 471
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v1, -0x1
 
     invoke-direct {v0, v10, v1}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 468
+    .line 473
     invoke-static {v9}, Lcom/mrkeyboard/app/MrAi;->dp(F)I
 
     move-result v1
@@ -525,68 +531,68 @@
 
     invoke-virtual {v0, v1, v3, v4, v5}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
 
-    .line 469
+    .line 474
     invoke-virtual {v2, v0}, Landroid/widget/LinearLayout;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 470
+    .line 475
     new-instance v0, Lcom/mrkeyboard/app/MrAi;
 
     add-int/lit8 v1, p0, 0x64
 
     invoke-direct {v0, v1}, Lcom/mrkeyboard/app/MrAi;-><init>(I)V
 
-    .line 471
+    .line 476
     invoke-virtual {v2, v0}, Landroid/widget/LinearLayout;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 472
+    .line 477
     invoke-virtual {v2, v0}, Landroid/widget/LinearLayout;->setOnLongClickListener(Landroid/view/View$OnLongClickListener;)V
 
-    .line 473
+    .line 478
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sStrip:Landroid/view/ViewGroup;
 
     invoke-virtual {v0, v2}, Landroid/view/ViewGroup;->addView(Landroid/view/View;)V
 
-    .line 474
+    .line 479
     return-void
 
-    .line 441
+    .line 446
     :cond_1
     new-instance v3, Landroid/widget/TextView;
 
     invoke-direct {v3, v0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 442
+    .line 447
     invoke-virtual {v3, p1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 443
+    .line 448
     invoke-virtual {v3, v1}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 444
+    .line 449
     const/high16 v4, 0x41900000    # 18.0f
 
     invoke-virtual {v3, v4}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 445
+    .line 450
     const/16 v4, 0x11
 
     invoke-virtual {v3, v4}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 446
+    .line 451
     invoke-virtual {v3, v11}, Landroid/widget/TextView;->setSingleLine(Z)V
 
-    .line 447
+    .line 452
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v5, 0x41b00000    # 22.0f
 
-    .line 448
+    .line 453
     invoke-static {v5}, Lcom/mrkeyboard/app/MrAi;->dp(F)I
 
     move-result v5
 
     invoke-direct {v4, v10, v5}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 449
+    .line 454
     const/high16 v5, 0x40000000    # 2.0f
 
     invoke-static {v5}, Lcom/mrkeyboard/app/MrAi;->dp(F)I
@@ -595,10 +601,10 @@
 
     invoke-virtual {v4, v8, v8, v8, v5}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
 
-    .line 450
+    .line 455
     invoke-virtual {v3, v4}, Landroid/widget/TextView;->setLayoutParams(Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 451
+    .line 456
     invoke-virtual {v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
     goto/16 :goto_0
@@ -608,7 +614,7 @@
     .locals 3
 
     .prologue
-    .line 529
+    .line 534
     const-string v0, "mr_ai"
 
     const/4 v1, 0x0
@@ -625,7 +631,7 @@
 
     move-result-object v0
 
-    .line 530
+    .line 535
     if-nez v0, :cond_0
 
     const-string v0, ""
@@ -647,7 +653,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 781
+    .line 786
     sget-object v1, Lcom/mrkeyboard/app/MrAi;->sResultText:Ljava/lang/String;
 
     if-eqz v1, :cond_0
@@ -664,46 +670,46 @@
 
     if-nez v1, :cond_1
 
-    .line 816
+    .line 821
     :cond_0
     :goto_0
     return-void
 
-    .line 783
+    .line 788
     :cond_1
     :try_start_0
     sget-object v1, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 784
+    .line 789
     if-eqz v1, :cond_0
 
-    .line 785
+    .line 790
     invoke-virtual {v1}, Lcom/mrkeyboard/app/LatinIME;->getAppInputConnection()Landroid/view/inputmethod/InputConnection;
 
     move-result-object v1
 
-    .line 786
+    .line 791
     if-eqz v1, :cond_0
 
-    .line 787
+    .line 792
     invoke-interface {v1}, Landroid/view/inputmethod/InputConnection;->beginBatchEdit()Z
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 790
+    .line 795
     :try_start_1
     sget-boolean v2, Lcom/mrkeyboard/app/MrAi;->sIsSel:Z
 
     if-eqz v2, :cond_3
 
-    .line 791
+    .line 796
     const/4 v2, 0x0
 
     invoke-interface {v1, v2}, Landroid/view/inputmethod/InputConnection;->getSelectedText(I)Ljava/lang/CharSequence;
 
     move-result-object v2
 
-    .line 792
+    .line 797
     if-eqz v2, :cond_2
 
     sget-object v3, Lcom/mrkeyboard/app/MrAi;->sSource:Ljava/lang/String;
@@ -718,10 +724,10 @@
 
     if-eqz v2, :cond_2
 
-    .line 793
+    .line 798
     invoke-interface {v1}, Landroid/view/inputmethod/InputConnection;->finishComposingText()Z
 
-    .line 794
+    .line 799
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sResultText:Ljava/lang/String;
 
     const/4 v2, 0x1
@@ -732,27 +738,27 @@
 
     move-result v0
 
-    .line 805
+    .line 810
     :cond_2
     :goto_1
     :try_start_2
     invoke-interface {v1}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
 
-    .line 807
+    .line 812
     if-eqz v0, :cond_4
 
-    .line 808
+    .line 813
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->dismiss()V
     :try_end_2
     .catch Ljava/lang/RuntimeException; {:try_start_2 .. :try_end_2} :catch_0
 
     goto :goto_0
 
-    .line 813
+    .line 818
     :catch_0
     move-exception v0
 
-    .line 814
+    .line 819
     const-string v0, "mr_ai_changed"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -763,7 +769,7 @@
 
     goto :goto_0
 
-    .line 797
+    .line 802
     :cond_3
     :try_start_3
     sget-object v2, Lcom/mrkeyboard/app/MrAi;->sSource:Ljava/lang/String;
@@ -778,7 +784,7 @@
 
     move-result-object v2
 
-    .line 798
+    .line 803
     if-eqz v2, :cond_2
 
     sget-object v3, Lcom/mrkeyboard/app/MrAi;->sSource:Ljava/lang/String;
@@ -793,10 +799,10 @@
 
     if-eqz v2, :cond_2
 
-    .line 799
+    .line 804
     invoke-interface {v1}, Landroid/view/inputmethod/InputConnection;->finishComposingText()Z
 
-    .line 800
+    .line 805
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sSource:Ljava/lang/String;
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -807,7 +813,7 @@
 
     invoke-interface {v1, v0, v2}, Landroid/view/inputmethod/InputConnection;->deleteSurroundingText(II)Z
 
-    .line 801
+    .line 806
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sResultText:Ljava/lang/String;
 
     const/4 v2, 0x1
@@ -820,17 +826,17 @@
 
     goto :goto_1
 
-    .line 805
+    .line 810
     :catchall_0
     move-exception v0
 
     :try_start_4
     invoke-interface {v1}, Landroid/view/inputmethod/InputConnection;->endBatchEdit()Z
 
-    .line 806
+    .line 811
     throw v0
 
-    .line 810
+    .line 815
     :cond_4
     const-string v0, "mr_ai_changed"
 
@@ -840,7 +846,7 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->setStatus(Ljava/lang/String;)V
 
-    .line 811
+    .line 816
     const-string v0, "mr_ai_changed"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -858,23 +864,23 @@
     .locals 3
 
     .prologue
-    .line 222
+    .line 227
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sRoot:Landroid/view/View;
 
     invoke-virtual {v0, p0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v1
 
-    .line 223
+    .line 228
     if-nez v1, :cond_0
 
     const/4 v1, 0x0
 
-    .line 228
+    .line 233
     :goto_0
     return-object v1
 
-    .line 224
+    .line 229
     :cond_0
     instance-of v0, v1, Landroid/widget/TextView;
 
@@ -882,7 +888,7 @@
 
     move-object v0, v1
 
-    .line 225
+    .line 230
     check-cast v0, Landroid/widget/TextView;
 
     const-string v2, "mr_ui_text2"
@@ -893,7 +899,7 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 227
+    .line 232
     :cond_1
     new-instance v0, Lcom/mrkeyboard/app/MrAi;
 
@@ -912,56 +918,56 @@
 
     const/4 v0, 0x0
 
-    .line 337
+    .line 342
     sput-object v3, Lcom/mrkeyboard/app/MrAi;->sSource:Ljava/lang/String;
 
-    .line 338
+    .line 343
     sput-boolean v0, Lcom/mrkeyboard/app/MrAi;->sIsSel:Z
 
-    .line 339
+    .line 344
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->isPasswordField()Z
 
     move-result v0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrAi;->sBlocked:Z
 
-    .line 340
+    .line 345
     sget-boolean v0, Lcom/mrkeyboard/app/MrAi;->sBlocked:Z
 
     if-eqz v0, :cond_1
 
-    .line 358
+    .line 363
     :cond_0
     :goto_0
     return-void
 
-    .line 342
+    .line 347
     :cond_1
     :try_start_0
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 343
+    .line 348
     if-eqz v0, :cond_0
 
-    .line 344
+    .line 349
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinIME;->mrCommit()V
 
-    .line 345
+    .line 350
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinIME;->getAppInputConnection()Landroid/view/inputmethod/InputConnection;
 
     move-result-object v0
 
-    .line 346
+    .line 351
     if-eqz v0, :cond_0
 
-    .line 347
+    .line 352
     const/4 v1, 0x0
 
     invoke-interface {v0, v1}, Landroid/view/inputmethod/InputConnection;->getSelectedText(I)Ljava/lang/CharSequence;
 
     move-result-object v1
 
-    .line 348
+    .line 353
     if-eqz v1, :cond_2
 
     invoke-interface {v1}, Ljava/lang/CharSequence;->length()I
@@ -970,14 +976,14 @@
 
     if-lez v2, :cond_2
 
-    .line 349
+    .line 354
     invoke-interface {v1}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
 
     move-result-object v0
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->sSource:Ljava/lang/String;
 
-    .line 350
+    .line 355
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrAi;->sIsSel:Z
@@ -986,16 +992,16 @@
 
     goto :goto_0
 
-    .line 355
+    .line 360
     :catch_0
     move-exception v0
 
-    .line 356
+    .line 361
     sput-object v3, Lcom/mrkeyboard/app/MrAi;->sSource:Ljava/lang/String;
 
     goto :goto_0
 
-    .line 353
+    .line 358
     :cond_2
     const/16 v1, 0xfa0
 
@@ -1006,7 +1012,7 @@
 
     move-result-object v0
 
-    .line 354
+    .line 359
     if-eqz v0, :cond_0
 
     invoke-interface {v0}, Ljava/lang/CharSequence;->toString()Ljava/lang/String;
@@ -1024,7 +1030,7 @@
     .locals 1
 
     .prologue
-    .line 539
+    .line 544
     invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -1033,7 +1039,7 @@
 
     move-result-object v0
 
-    .line 540
+    .line 545
     if-nez v0, :cond_0
 
     :goto_0
@@ -1053,10 +1059,10 @@
     .prologue
     const/high16 v2, 0x41900000    # 18.0f
 
-    .line 247
+    .line 252
     if-eqz p0, :cond_0
 
-    .line 248
+    .line 253
     const-string v0, "mr_ui_cyan_soft"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
@@ -1065,17 +1071,17 @@
 
     const-string v1, "mr_ui_cyan_line"
 
-    .line 249
+    .line 254
     invoke-static {v1}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
 
     move-result v1
 
-    .line 248
+    .line 253
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrAi;->rounded(IIF)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v0
 
-    .line 251
+    .line 256
     :goto_0
     return-object v0
 
@@ -1088,12 +1094,12 @@
 
     const-string v1, "mr_ui_stroke"
 
-    .line 252
+    .line 257
     invoke-static {v1}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
 
     move-result v1
 
-    .line 251
+    .line 256
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrAi;->rounded(IIF)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v0
@@ -1105,12 +1111,12 @@
     .locals 3
 
     .prologue
-    .line 770
+    .line 775
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 771
+    .line 776
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v1
@@ -1135,7 +1141,7 @@
 
     if-eqz v1, :cond_0
 
-    .line 772
+    .line 777
     invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v1
@@ -1148,7 +1154,7 @@
 
     if-nez v1, :cond_0
 
-    .line 773
+    .line 778
     const/4 v1, 0x1
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -1165,7 +1171,7 @@
 
     move-result-object v0
 
-    .line 775
+    .line 780
     :cond_0
     return-object v0
 .end method
@@ -1179,30 +1185,30 @@
     .end annotation
 
     .prologue
-    .line 661
+    .line 666
     const-string v0, "pref_ai_endpoint"
 
-    const-string v1, "https://api.openai.com/v1/chat/completions"
+    const-string v1, "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 
     invoke-static {p0, v0, v1}, Lcom/mrkeyboard/app/MrAi;->cfg(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 662
+    .line 667
     const-string v1, "pref_ai_model"
 
-    const-string v2, "gpt-6.1-terra"
+    const-string v2, "gemini-3.5-flash-lite"
 
     invoke-static {p0, v1, v2}, Lcom/mrkeyboard/app/MrAi;->cfg(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 663
+    .line 668
     invoke-static {p0}, Lcom/mrkeyboard/app/MrAi;->apiKey(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 664
+    .line 669
     const-string v1, "https://"
 
     invoke-virtual {v0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
@@ -1211,7 +1217,7 @@
 
     if-nez v1, :cond_0
 
-    .line 665
+    .line 670
     new-instance v0, Lcom/mrkeyboard/app/MrAi$AiFail;
 
     const-string v1, "mr_ai_bad_url"
@@ -1228,7 +1234,7 @@
 
     throw v0
 
-    .line 667
+    .line 672
     :cond_0
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
@@ -1236,7 +1242,7 @@
 
     if-nez v1, :cond_1
 
-    .line 668
+    .line 673
     new-instance v0, Lcom/mrkeyboard/app/MrAi$AiFail;
 
     const-string v1, "mr_ai_no_key"
@@ -1253,67 +1259,67 @@
 
     throw v0
 
-    .line 670
+    .line 675
     :cond_1
     const/4 v1, 0x0
 
-    .line 672
+    .line 677
     :try_start_0
     new-instance v4, Lorg/json/JSONObject;
 
     invoke-direct {v4}, Lorg/json/JSONObject;-><init>()V
 
-    .line 673
+    .line 678
     const-string v5, "role"
 
     const-string v6, "system"
 
     invoke-virtual {v4, v5, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 674
+    .line 679
     const-string v5, "content"
 
     invoke-virtual {v4, v5, p1}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 675
+    .line 680
     new-instance v5, Lorg/json/JSONObject;
 
     invoke-direct {v5}, Lorg/json/JSONObject;-><init>()V
 
-    .line 676
+    .line 681
     const-string v6, "role"
 
     const-string v7, "user"
 
     invoke-virtual {v5, v6, v7}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 677
+    .line 682
     const-string v6, "content"
 
     invoke-virtual {v5, v6, p2}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 678
+    .line 683
     new-instance v6, Lorg/json/JSONArray;
 
     invoke-direct {v6}, Lorg/json/JSONArray;-><init>()V
 
-    .line 679
+    .line 684
     invoke-virtual {v6, v4}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
 
-    .line 680
+    .line 685
     invoke-virtual {v6, v5}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
 
-    .line 681
+    .line 686
     new-instance v4, Lorg/json/JSONObject;
 
     invoke-direct {v4}, Lorg/json/JSONObject;-><init>()V
 
-    .line 682
+    .line 687
     const-string v5, "model"
 
     invoke-virtual {v4, v5, v2}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 684
+    .line 689
     sget-object v5, Ljava/util/Locale;->US:Ljava/util/Locale;
 
     invoke-virtual {v2, v5}, Ljava/lang/String;->toLowerCase(Ljava/util/Locale;)Ljava/lang/String;
@@ -1332,13 +1338,13 @@
 
     invoke-virtual {v4, v2, p3, p4}, Lorg/json/JSONObject;->put(Ljava/lang/String;D)Lorg/json/JSONObject;
 
-    .line 685
+    .line 690
     :cond_2
     const-string v2, "messages"
 
     invoke-virtual {v4, v2, v6}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 687
+    .line 692
     new-instance v2, Ljava/net/URL;
 
     invoke-direct {v2, v0}, Ljava/net/URL;-><init>(Ljava/lang/String;)V
@@ -1354,37 +1360,37 @@
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_3
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 688
+    .line 693
     const/16 v1, 0x3a98
 
     :try_start_1
     invoke-virtual {v0, v1}, Ljava/net/HttpURLConnection;->setConnectTimeout(I)V
 
-    .line 689
+    .line 694
     const v1, 0xea60
 
     invoke-virtual {v0, v1}, Ljava/net/HttpURLConnection;->setReadTimeout(I)V
 
-    .line 690
+    .line 695
     const-string v1, "POST"
 
     invoke-virtual {v0, v1}, Ljava/net/HttpURLConnection;->setRequestMethod(Ljava/lang/String;)V
 
-    .line 691
+    .line 696
     const-string v1, "Content-Type"
 
     const-string v2, "application/json; charset=utf-8"
 
     invoke-virtual {v0, v1, v2}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 692
+    .line 697
     const-string v1, "User-Agent"
 
     const-string v2, "MrKeyboard"
 
     invoke-virtual {v0, v1, v2}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 693
+    .line 698
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v1
@@ -1413,18 +1419,18 @@
 
     invoke-virtual {v0, v1, v2}, Ljava/net/HttpURLConnection;->setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 694
+    .line 699
     :cond_3
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Ljava/net/HttpURLConnection;->setDoOutput(Z)V
 
-    .line 695
+    .line 700
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getOutputStream()Ljava/io/OutputStream;
 
     move-result-object v1
 
-    .line 696
+    .line 701
     invoke-virtual {v4}, Ljava/lang/Object;->toString()Ljava/lang/String;
 
     move-result-object v2
@@ -1437,15 +1443,15 @@
 
     invoke-virtual {v1, v2}, Ljava/io/OutputStream;->write([B)V
 
-    .line 697
+    .line 702
     invoke-virtual {v1}, Ljava/io/OutputStream;->close()V
 
-    .line 699
+    .line 704
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getResponseCode()I
 
     move-result v3
 
-    .line 700
+    .line 705
     const/16 v1, 0xc8
 
     if-lt v3, v1, :cond_8
@@ -1458,13 +1464,13 @@
 
     move-result-object v1
 
-    .line 701
+    .line 706
     :goto_0
     invoke-static {v1}, Lcom/mrkeyboard/app/MrAi;->readAll(Ljava/io/InputStream;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 702
+    .line 707
     const/16 v1, 0xc8
 
     if-lt v3, v1, :cond_4
@@ -1473,7 +1479,7 @@
 
     if-lt v3, v1, :cond_9
 
-    .line 703
+    .line 708
     :cond_4
     const-string v1, ""
     :try_end_1
@@ -1482,7 +1488,7 @@
     .catch Ljava/lang/Exception; {:try_start_1 .. :try_end_1} :catch_4
     .catchall {:try_start_1 .. :try_end_1} :catchall_1
 
-    .line 705
+    .line 710
     :try_start_2
     new-instance v4, Lorg/json/JSONObject;
 
@@ -1494,7 +1500,7 @@
 
     move-result-object v4
 
-    .line 706
+    .line 711
     if-eqz v4, :cond_5
 
     const-string v1, "message"
@@ -1508,7 +1514,7 @@
 
     move-result-object v1
 
-    .line 710
+    .line 715
     :cond_5
     :goto_1
     :try_start_3
@@ -1548,7 +1554,7 @@
 
     move-object v2, v1
 
-    .line 711
+    .line 716
     :goto_2
     const-string v1, "mr_ai_http"
 
@@ -1568,7 +1574,7 @@
 
     move-result-object v1
 
-    .line 712
+    .line 717
     new-instance v3, Lcom/mrkeyboard/app/MrAi$AiFail;
 
     invoke-virtual {v2}, Ljava/lang/String;->length()I
@@ -1609,7 +1615,7 @@
     .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_3} :catch_4
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 717
+    .line 722
     :catch_0
     move-exception v1
 
@@ -1619,14 +1625,14 @@
 
     move-object v0, v8
 
-    .line 718
+    .line 723
     :goto_3
     :try_start_4
     throw v0
     :try_end_4
     .catchall {:try_start_4 .. :try_end_4} :catchall_0
 
-    .line 724
+    .line 729
     :catchall_0
     move-exception v0
 
@@ -1635,11 +1641,11 @@
 
     invoke-virtual {v1}, Ljava/net/HttpURLConnection;->disconnect()V
 
-    .line 725
+    .line 730
     :cond_7
     throw v0
 
-    .line 700
+    .line 705
     :cond_8
     :try_start_5
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->getErrorStream()Ljava/io/InputStream;
@@ -1648,24 +1654,24 @@
 
     goto/16 :goto_0
 
-    .line 707
+    .line 712
     :catch_1
     move-exception v1
 
-    .line 708
+    .line 713
     invoke-virtual {v2}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v1
 
     goto :goto_1
 
-    .line 714
+    .line 719
     :cond_9
     invoke-static {v2}, Lcom/mrkeyboard/app/MrAi;->extract(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 715
+    .line 720
     if-eqz v1, :cond_a
 
     invoke-virtual {v1}, Ljava/lang/String;->trim()Ljava/lang/String;
@@ -1700,11 +1706,11 @@
     .catch Ljava/lang/Exception; {:try_start_5 .. :try_end_5} :catch_4
     .catchall {:try_start_5 .. :try_end_5} :catchall_1
 
-    .line 719
+    .line 724
     :catch_2
     move-exception v1
 
-    .line 720
+    .line 725
     :goto_5
     :try_start_6
     new-instance v1, Lcom/mrkeyboard/app/MrAi$AiFail;
@@ -1725,7 +1731,7 @@
     :try_end_6
     .catchall {:try_start_6 .. :try_end_6} :catchall_1
 
-    .line 724
+    .line 729
     :catchall_1
     move-exception v1
 
@@ -1742,17 +1748,17 @@
 
     invoke-virtual {v0}, Ljava/net/HttpURLConnection;->disconnect()V
 
-    .line 716
+    .line 721
     :cond_c
     return-object v1
 
-    .line 721
+    .line 726
     :catch_3
     move-exception v0
 
     move-object v0, v1
 
-    .line 722
+    .line 727
     :goto_6
     :try_start_7
     new-instance v1, Lcom/mrkeyboard/app/MrAi$AiFail;
@@ -1773,13 +1779,13 @@
     :try_end_7
     .catchall {:try_start_7 .. :try_end_7} :catchall_1
 
-    .line 721
+    .line 726
     :catch_4
     move-exception v1
 
     goto :goto_6
 
-    .line 719
+    .line 724
     :catch_5
     move-exception v0
 
@@ -1787,7 +1793,7 @@
 
     goto :goto_5
 
-    .line 717
+    .line 722
     :catch_6
     move-exception v0
 
@@ -1805,25 +1811,25 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 545
+    .line 550
     const-string v1, "pref_ai_endpoint"
 
-    const-string v2, "https://api.openai.com/v1/chat/completions"
+    const-string v2, "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 
     invoke-static {p0, v1, v2}, Lcom/mrkeyboard/app/MrAi;->cfg(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 546
+    .line 551
     const-string v2, "pref_ai_model"
 
-    const-string v3, "gpt-6.1-terra"
+    const-string v3, "gemini-3.5-flash-lite"
 
     invoke-static {p0, v2, v3}, Lcom/mrkeyboard/app/MrAi;->cfg(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 547
+    .line 552
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
     move-result v1
@@ -1836,7 +1842,7 @@
 
     if-nez v1, :cond_1
 
-    .line 548
+    .line 553
     :cond_0
     :goto_0
     return v0
@@ -1861,7 +1867,7 @@
     .locals 3
 
     .prologue
-    .line 819
+    .line 824
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sResultText:Ljava/lang/String;
 
     if-eqz v0, :cond_0
@@ -1874,12 +1880,12 @@
 
     if-nez v0, :cond_1
 
-    .line 829
+    .line 834
     :cond_0
     :goto_0
     return-void
 
-    .line 821
+    .line 826
     :cond_1
     :try_start_0
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sRoot:Landroid/view/View;
@@ -1896,10 +1902,10 @@
 
     check-cast v0, Landroid/content/ClipboardManager;
 
-    .line 822
+    .line 827
     if-eqz v0, :cond_0
 
-    .line 823
+    .line 828
     const-string v1, "mr_ai"
 
     sget-object v2, Lcom/mrkeyboard/app/MrAi;->sResultText:Ljava/lang/String;
@@ -1910,7 +1916,7 @@
 
     invoke-virtual {v0, v1}, Landroid/content/ClipboardManager;->setPrimaryClip(Landroid/content/ClipData;)V
 
-    .line 824
+    .line 829
     const-string v0, "mr_ai_copied"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -1923,7 +1929,7 @@
 
     goto :goto_0
 
-    .line 826
+    .line 831
     :catch_0
     move-exception v0
 
@@ -1938,53 +1944,53 @@
 
     const/4 v1, 0x0
 
-    .line 277
+    .line 282
     sget v0, Lcom/mrkeyboard/app/MrAi;->sSeq:I
 
     add-int/lit8 v0, v0, 0x1
 
     sput v0, Lcom/mrkeyboard/app/MrAi;->sSeq:I
 
-    .line 278
+    .line 283
     sput-boolean v2, Lcom/mrkeyboard/app/MrAi;->sOpen:Z
 
-    .line 279
+    .line 284
     sput-boolean v2, Lcom/mrkeyboard/app/MrAi;->sBusy:Z
 
-    .line 280
+    .line 285
     sput-object v1, Lcom/mrkeyboard/app/MrAi;->sRoot:Landroid/view/View;
 
-    .line 281
+    .line 286
     sput-object v1, Lcom/mrkeyboard/app/MrAi;->sStrip:Landroid/view/ViewGroup;
 
-    .line 282
+    .line 287
     sput-object v1, Lcom/mrkeyboard/app/MrAi;->sStatus:Landroid/widget/TextView;
 
-    .line 283
+    .line 288
     sput-object v1, Lcom/mrkeyboard/app/MrAi;->sResult:Landroid/widget/TextView;
 
-    .line 284
+    .line 289
     sput-object v1, Lcom/mrkeyboard/app/MrAi;->sBtnEmoji:Landroid/view/View;
 
-    .line 285
+    .line 290
     sput-object v1, Lcom/mrkeyboard/app/MrAi;->sEmojiCheck:Landroid/widget/TextView;
 
-    .line 286
+    .line 291
     sput-object v1, Lcom/mrkeyboard/app/MrAi;->sEmojiLabel:Landroid/widget/TextView;
 
-    .line 287
+    .line 292
     sput-object v1, Lcom/mrkeyboard/app/MrAi;->sBtnApply:Landroid/widget/TextView;
 
-    .line 288
+    .line 293
     sput-object v1, Lcom/mrkeyboard/app/MrAi;->sHandler:Landroid/os/Handler;
 
-    .line 289
+    .line 294
     sput-object v1, Lcom/mrkeyboard/app/MrAi;->sSource:Ljava/lang/String;
 
-    .line 290
+    .line 295
     sput-object v1, Lcom/mrkeyboard/app/MrAi;->sResultText:Ljava/lang/String;
 
-    .line 291
+    .line 296
     return-void
 .end method
 
@@ -1992,7 +1998,7 @@
     .locals 1
 
     .prologue
-    .line 168
+    .line 173
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sRoot:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -2022,7 +2028,7 @@
     .locals 3
 
     .prologue
-    .line 265
+    .line 270
     if-eqz p0, :cond_0
 
     const-string v0, "mr_ui_cyan_soft"
@@ -2032,7 +2038,7 @@
 
     move-result v1
 
-    .line 266
+    .line 271
     if-eqz p0, :cond_1
 
     const-string v0, "mr_ui_cyan"
@@ -2042,7 +2048,7 @@
 
     move-result v0
 
-    .line 267
+    .line 272
     const/high16 v2, 0x40a00000    # 5.0f
 
     invoke-static {v1, v0, v2}, Lcom/mrkeyboard/app/MrAi;->rounded(IIF)Landroid/graphics/drawable/GradientDrawable;
@@ -2051,13 +2057,13 @@
 
     return-object v0
 
-    .line 265
+    .line 270
     :cond_0
     const-string v0, "mr_ui_field"
 
     goto :goto_0
 
-    .line 266
+    .line 271
     :cond_1
     const-string v0, "mr_ui_field_line"
 
@@ -2077,19 +2083,19 @@
 
     const/4 v2, 0x0
 
-    .line 744
+    .line 749
     new-instance v0, Lorg/json/JSONObject;
 
     invoke-direct {v0, p0}, Lorg/json/JSONObject;-><init>(Ljava/lang/String;)V
 
-    .line 745
+    .line 750
     const-string v3, "choices"
 
     invoke-virtual {v0, v3}, Lorg/json/JSONObject;->optJSONArray(Ljava/lang/String;)Lorg/json/JSONArray;
 
     move-result-object v0
 
-    .line 746
+    .line 751
     if-eqz v0, :cond_0
 
     invoke-virtual {v0}, Lorg/json/JSONArray;->length()I
@@ -2098,38 +2104,38 @@
 
     if-nez v3, :cond_1
 
-    .line 765
+    .line 770
     :cond_0
     :goto_0
     return-object v2
 
-    .line 747
+    .line 752
     :cond_1
     invoke-virtual {v0, v1}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v3
 
-    .line 748
+    .line 753
     if-eqz v3, :cond_0
 
-    .line 749
+    .line 754
     const-string v0, "message"
 
     invoke-virtual {v3, v0}, Lorg/json/JSONObject;->optJSONObject(Ljava/lang/String;)Lorg/json/JSONObject;
 
     move-result-object v0
 
-    .line 750
+    .line 755
     if-eqz v0, :cond_5
 
-    .line 751
+    .line 756
     const-string v4, "content"
 
     invoke-virtual {v0, v4}, Lorg/json/JSONObject;->opt(Ljava/lang/String;)Ljava/lang/Object;
 
     move-result-object v0
 
-    .line 752
+    .line 757
     instance-of v4, v0, Ljava/lang/String;
 
     if-eqz v4, :cond_2
@@ -2140,21 +2146,21 @@
 
     goto :goto_0
 
-    .line 753
+    .line 758
     :cond_2
     instance-of v4, v0, Lorg/json/JSONArray;
 
     if-eqz v4, :cond_5
 
-    .line 754
+    .line 759
     check-cast v0, Lorg/json/JSONArray;
 
-    .line 755
+    .line 760
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 756
+    .line 761
     :goto_1
     invoke-virtual {v0}, Lorg/json/JSONArray;->length()I
 
@@ -2162,12 +2168,12 @@
 
     if-ge v1, v3, :cond_4
 
-    .line 757
+    .line 762
     invoke-virtual {v0, v1}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v3
 
-    .line 758
+    .line 763
     if-eqz v3, :cond_3
 
     const-string v4, "text"
@@ -2178,13 +2184,13 @@
 
     invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 756
+    .line 761
     :goto_2
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_1
 
-    .line 759
+    .line 764
     :cond_3
     invoke-virtual {v0, v1}, Lorg/json/JSONArray;->optString(I)Ljava/lang/String;
 
@@ -2194,7 +2200,7 @@
 
     goto :goto_2
 
-    .line 761
+    .line 766
     :cond_4
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -2202,7 +2208,7 @@
 
     goto :goto_0
 
-    .line 764
+    .line 769
     :cond_5
     const-string v0, "text"
 
@@ -2210,7 +2216,7 @@
 
     move-result-object v0
 
-    .line 765
+    .line 770
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v1
@@ -2232,7 +2238,7 @@
     .locals 3
 
     .prologue
-    .line 271
+    .line 276
     const-string v0, "mr_ui_field"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
@@ -2241,14 +2247,14 @@
 
     const-string v1, "mr_ui_field_line"
 
-    .line 272
+    .line 277
     invoke-static {v1}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
 
     move-result v1
 
     const/high16 v2, 0x41800000    # 16.0f
 
-    .line 271
+    .line 276
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrAi;->rounded(IIF)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v0
@@ -2262,7 +2268,7 @@
     .prologue
     const/4 v3, 0x1
 
-    .line 571
+    .line 576
     sget-boolean v0, Lcom/mrkeyboard/app/MrAi;->sOpen:Z
 
     if-eqz v0, :cond_0
@@ -2271,18 +2277,18 @@
 
     if-nez v0, :cond_1
 
-    .line 607
+    .line 612
     :cond_0
     :goto_0
     return-void
 
-    .line 572
+    .line 577
     :cond_1
     sget-boolean v0, Lcom/mrkeyboard/app/MrAi;->sBlocked:Z
 
     if-eqz v0, :cond_2
 
-    .line 573
+    .line 578
     const-string v0, "mr_ai_password"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -2293,7 +2299,7 @@
 
     goto :goto_0
 
-    .line 576
+    .line 581
     :cond_2
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sSource:Ljava/lang/String;
 
@@ -2311,7 +2317,7 @@
 
     if-nez v0, :cond_4
 
-    .line 577
+    .line 582
     :cond_3
     const-string v0, "mr_ai_no_text"
 
@@ -2323,7 +2329,7 @@
 
     goto :goto_0
 
-    .line 580
+    .line 585
     :cond_4
     sget v0, Lcom/mrkeyboard/app/MrAi;->sSel:I
 
@@ -2331,10 +2337,10 @@
 
     move-result-object v2
 
-    .line 581
+    .line 586
     if-nez v2, :cond_5
 
-    .line 582
+    .line 587
     const-string v0, "mr_ai_tap_style"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -2345,7 +2351,7 @@
 
     goto :goto_0
 
-    .line 585
+    .line 590
     :cond_5
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sRoot:Landroid/view/View;
 
@@ -2353,14 +2359,14 @@
 
     move-result-object v6
 
-    .line 586
+    .line 591
     invoke-static {v6}, Lcom/mrkeyboard/app/MrAi;->configured(Landroid/content/Context;)Z
 
     move-result v0
 
     if-nez v0, :cond_6
 
-    .line 587
+    .line 592
     const-string v0, "mr_ai_no_key"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -2369,7 +2375,7 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->setStatus(Ljava/lang/String;)V
 
-    .line 588
+    .line 593
     const-string v0, "mr_ai_no_key"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -2380,7 +2386,7 @@
 
     goto :goto_0
 
-    .line 591
+    .line 596
     :cond_6
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sSource:Ljava/lang/String;
 
@@ -2392,7 +2398,7 @@
 
     if-le v0, v1, :cond_7
 
-    .line 592
+    .line 597
     const-string v0, "mr_tr_long"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -2403,7 +2409,7 @@
 
     goto :goto_0
 
-    .line 595
+    .line 600
     :cond_7
     sget v0, Lcom/mrkeyboard/app/MrAi;->sSel:I
 
@@ -2424,7 +2430,7 @@
     :cond_8
     const-wide v4, 0x3fd3333333333333L    # 0.3
 
-    .line 596
+    .line 601
     :goto_1
     sget v0, Lcom/mrkeyboard/app/MrAi;->sSeq:I
 
@@ -2432,21 +2438,21 @@
 
     sput v0, Lcom/mrkeyboard/app/MrAi;->sSeq:I
 
-    .line 597
+    .line 602
     sput-boolean v3, Lcom/mrkeyboard/app/MrAi;->sBusy:Z
 
-    .line 598
+    .line 603
     sput-boolean v3, Lcom/mrkeyboard/app/MrAi;->sFired:Z
 
-    .line 599
+    .line 604
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->sResultText:Ljava/lang/String;
 
-    .line 600
+    .line 605
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->updateApply()V
 
-    .line 601
+    .line 606
     const-string v0, "mr_ai_working"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -2455,7 +2461,7 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->setStatus(Ljava/lang/String;)V
 
-    .line 602
+    .line 607
     new-instance v0, Lcom/mrkeyboard/app/MrAi;
 
     const/16 v1, 0x3e8
@@ -2464,24 +2470,24 @@
 
     invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrAi;-><init>(ILjava/lang/String;ID)V
 
-    .line 603
+    .line 608
     sget-object v1, Lcom/mrkeyboard/app/MrAi;->sSource:Ljava/lang/String;
 
     iput-object v1, v0, Lcom/mrkeyboard/app/MrAi;->mSource:Ljava/lang/String;
 
-    .line 604
+    .line 609
     sget-boolean v1, Lcom/mrkeyboard/app/MrAi;->sEmojify:Z
 
     iput-boolean v1, v0, Lcom/mrkeyboard/app/MrAi;->mEmojify:Z
 
-    .line 605
+    .line 610
     invoke-virtual {v6}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v1
 
     iput-object v1, v0, Lcom/mrkeyboard/app/MrAi;->mContext:Landroid/content/Context;
 
-    .line 606
+    .line 611
     new-instance v1, Ljava/lang/Thread;
 
     invoke-direct {v1, v0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;)V
@@ -2490,7 +2496,7 @@
 
     goto/16 :goto_0
 
-    .line 595
+    .line 600
     :cond_9
     const-wide v4, 0x3fe6666666666666L    # 0.7
 
@@ -2501,7 +2507,7 @@
     .locals 2
 
     .prologue
-    .line 564
+    .line 569
     if-ltz p0, :cond_0
 
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->BUILTIN_INSTR:[Ljava/lang/String;
@@ -2514,15 +2520,15 @@
 
     aget-object v0, v0, p0
 
-    .line 567
+    .line 572
     :goto_0
     return-object v0
 
-    .line 565
+    .line 570
     :cond_0
     add-int/lit8 v0, p0, -0x64
 
-    .line 566
+    .line 571
     if-ltz v0, :cond_1
 
     sget-object v1, Lcom/mrkeyboard/app/MrAi;->sCustom:Ljava/util/ArrayList;
@@ -2547,7 +2553,7 @@
 
     goto :goto_0
 
-    .line 567
+    .line 572
     :cond_1
     const/4 v0, 0x0
 
@@ -2562,40 +2568,40 @@
 
     const/4 v0, 0x0
 
-    .line 321
+    .line 326
     :try_start_0
     sget-object v2, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 322
+    .line 327
     if-nez v2, :cond_1
 
-    .line 331
+    .line 336
     :cond_0
     :goto_0
     return v0
 
-    .line 323
+    .line 328
     :cond_1
     invoke-virtual {v2}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputEditorInfo()Landroid/view/inputmethod/EditorInfo;
 
     move-result-object v2
 
-    .line 324
+    .line 329
     if-eqz v2, :cond_0
 
-    .line 325
+    .line 330
     iget v3, v2, Landroid/view/inputmethod/EditorInfo;->inputType:I
 
     and-int/lit8 v3, v3, 0xf
 
-    .line 326
+    .line 331
     iget v2, v2, Landroid/view/inputmethod/EditorInfo;->inputType:I
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
     and-int/lit16 v2, v2, 0xff0
 
-    .line 327
+    .line 332
     if-ne v3, v1, :cond_3
 
     const/16 v3, 0x80
@@ -2615,7 +2621,7 @@
 
     goto :goto_0
 
-    .line 328
+    .line 333
     :cond_3
     const/4 v4, 0x2
 
@@ -2635,7 +2641,7 @@
 
     goto :goto_1
 
-    .line 330
+    .line 335
     :catch_0
     move-exception v1
 
@@ -2659,12 +2665,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 364
+    .line 369
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 366
+    .line 371
     :try_start_0
     const-string v2, "mr_ai"
 
@@ -2682,15 +2688,15 @@
 
     move-result-object v2
 
-    .line 367
+    .line 372
     if-nez v2, :cond_1
 
-    .line 383
+    .line 388
     :cond_0
     :goto_0
     return-object v0
 
-    .line 368
+    .line 373
     :cond_1
     new-instance v3, Lorg/json/JSONArray;
 
@@ -2698,7 +2704,7 @@
 
     move v2, v1
 
-    .line 369
+    .line 374
     :goto_1
     invoke-virtual {v3}, Lorg/json/JSONArray;->length()I
 
@@ -2714,15 +2720,15 @@
 
     if-ge v1, v4, :cond_0
 
-    .line 370
+    .line 375
     invoke-virtual {v3, v2}, Lorg/json/JSONArray;->optJSONObject(I)Lorg/json/JSONObject;
 
     move-result-object v1
 
-    .line 371
+    .line 376
     if-nez v1, :cond_3
 
-    .line 369
+    .line 374
     :cond_2
     :goto_2
     add-int/lit8 v1, v2, 0x1
@@ -2731,7 +2737,7 @@
 
     goto :goto_1
 
-    .line 372
+    .line 377
     :cond_3
     const-string v4, "n"
 
@@ -2739,14 +2745,14 @@
 
     move-result-object v4
 
-    .line 373
+    .line 378
     const-string v5, "i"
 
     invoke-virtual {v1, v5}, Lorg/json/JSONObject;->optString(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
 
-    .line 374
+    .line 379
     invoke-virtual {v4}, Ljava/lang/String;->length()I
 
     move-result v6
@@ -2759,14 +2765,14 @@
 
     if-eqz v6, :cond_2
 
-    .line 375
+    .line 380
     const-string v6, "e"
 
     invoke-virtual {v1, v6}, Lorg/json/JSONObject;->optString(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 376
+    .line 381
     const/4 v6, 0x3
 
     new-array v6, v6, [Ljava/lang/String;
@@ -2794,13 +2800,13 @@
 
     goto :goto_2
 
-    .line 378
+    .line 383
     :catch_0
     move-exception v1
 
     goto :goto_0
 
-    .line 376
+    .line 381
     :cond_4
     const-string v1, "\u2728"
     :try_end_0
@@ -2809,7 +2815,7 @@
 
     goto :goto_3
 
-    .line 380
+    .line 385
     :catch_1
     move-exception v1
 
@@ -2820,7 +2826,7 @@
     .locals 1
 
     .prologue
-    .line 404
+    .line 409
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sRoot:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -2833,7 +2839,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->sCustom:Ljava/util/ArrayList;
 
-    .line 405
+    .line 410
     return-void
 .end method
 
@@ -2843,30 +2849,30 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 299
+    .line 304
     sget v0, Lcom/mrkeyboard/app/MrAi;->sSeq:I
 
     add-int/lit8 v0, v0, 0x1
 
     sput v0, Lcom/mrkeyboard/app/MrAi;->sSeq:I
 
-    .line 300
+    .line 305
     sput-boolean v1, Lcom/mrkeyboard/app/MrAi;->sBusy:Z
 
-    .line 301
+    .line 306
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->sResultText:Ljava/lang/String;
 
-    .line 302
+    .line 307
     const/4 v0, -0x1
 
     sput v0, Lcom/mrkeyboard/app/MrAi;->sSel:I
 
-    .line 303
+    .line 308
     sput-boolean v1, Lcom/mrkeyboard/app/MrAi;->sFired:Z
 
-    .line 304
+    .line 309
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sResult:Landroid/widget/TextView;
 
     if-eqz v0, :cond_0
@@ -2877,7 +2883,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 305
+    .line 310
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sRoot:Landroid/view/View;
 
@@ -2885,27 +2891,27 @@
 
     move-result-object v0
 
-    .line 306
+    .line 311
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->loadCustomHere()V
 
-    .line 307
+    .line 312
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->rebuildStrip()V
 
-    .line 308
+    .line 313
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->refreshChips()V
 
-    .line 309
+    .line 314
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->captureSource()V
 
-    .line 310
+    .line 315
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->updateApply()V
 
-    .line 311
+    .line 316
     sget-object v1, Lcom/mrkeyboard/app/MrAi;->sStatus:Landroid/widget/TextView;
 
     if-eqz v1, :cond_1
 
-    .line 312
+    .line 317
     sget-boolean v1, Lcom/mrkeyboard/app/MrAi;->sBlocked:Z
 
     if-eqz v1, :cond_2
@@ -2920,12 +2926,12 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 317
+    .line 322
     :cond_1
     :goto_0
     return-void
 
-    .line 313
+    .line 318
     :cond_2
     sget-object v1, Lcom/mrkeyboard/app/MrAi;->sSource:Ljava/lang/String;
 
@@ -2956,7 +2962,7 @@
 
     goto :goto_0
 
-    .line 314
+    .line 319
     :cond_4
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->configured(Landroid/content/Context;)Z
 
@@ -2976,7 +2982,7 @@
 
     goto :goto_0
 
-    .line 315
+    .line 320
     :cond_5
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sStatus:Landroid/widget/TextView;
 
@@ -2995,13 +3001,13 @@
     .locals 1
 
     .prologue
-    .line 834
+    .line 839
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->requestReopenOnReturn()V
 
-    .line 835
+    .line 840
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->dismiss()V
 
-    .line 837
+    .line 842
     :try_start_0
     const-class v0, Lcom/mrkeyboard/app/MrAiPrefs;
 
@@ -3013,15 +3019,15 @@
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 842
+    .line 847
     :goto_0
     return-void
 
-    .line 838
+    .line 843
     :catch_0
     move-exception v0
 
-    .line 839
+    .line 844
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->cancelReopenOnReturn()V
 
     goto :goto_0
@@ -3031,24 +3037,24 @@
     .locals 3
 
     .prologue
-    .line 847
+    .line 852
     instance-of v0, p0, Lcom/mrkeyboard/app/MrAiPrefs;
 
     if-nez v0, :cond_2
 
     const/4 v0, 0x1
 
-    .line 848
+    .line 853
     :goto_0
     if-eqz v0, :cond_0
 
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->requestReopenOnReturn()V
 
-    .line 849
+    .line 854
     :cond_0
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->dismiss()V
 
-    .line 851
+    .line 856
     :try_start_0
     const-class v1, Lcom/mrkeyboard/app/MrAiStyleActivity;
 
@@ -3056,32 +3062,32 @@
 
     move-result-object v1
 
-    .line 852
+    .line 857
     const-string v2, "mr_ai_style_index"
 
     invoke-virtual {v1, v2, p1}, Landroid/content/Intent;->putExtra(Ljava/lang/String;I)Landroid/content/Intent;
 
-    .line 853
+    .line 858
     invoke-virtual {p0, v1}, Landroid/content/Context;->startActivity(Landroid/content/Intent;)V
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 858
+    .line 863
     :cond_1
     :goto_1
     return-void
 
-    .line 847
+    .line 852
     :cond_2
     const/4 v0, 0x0
 
     goto :goto_0
 
-    .line 854
+    .line 859
     :catch_0
     move-exception v1
 
-    .line 855
+    .line 860
     if-eqz v0, :cond_1
 
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->cancelReopenOnReturn()V
@@ -3093,7 +3099,7 @@
     .locals 3
 
     .prologue
-    .line 172
+    .line 177
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sRoot:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -3117,7 +3123,7 @@
     .prologue
     const/16 v3, 0x5a
 
-    .line 520
+    .line 525
     const/16 v0, 0xa
 
     const/16 v1, 0x20
@@ -3130,7 +3136,7 @@
 
     move-result-object v0
 
-    .line 521
+    .line 526
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v1
@@ -3161,7 +3167,7 @@
 
     move-result-object v0
 
-    .line 522
+    .line 527
     :cond_0
     return-object v0
 .end method
@@ -3175,16 +3181,16 @@
     .end annotation
 
     .prologue
-    .line 729
+    .line 734
     if-nez p0, :cond_0
 
     const-string v0, ""
 
-    .line 739
+    .line 744
     :goto_0
     return-object v0
 
-    .line 730
+    .line 735
     :cond_0
     new-instance v0, Ljava/io/BufferedReader;
 
@@ -3196,17 +3202,17 @@
 
     invoke-direct {v0, v1}, Ljava/io/BufferedReader;-><init>(Ljava/io/Reader;)V
 
-    .line 731
+    .line 736
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 732
+    .line 737
     const/16 v2, 0x1000
 
     new-array v2, v2, [C
 
-    .line 734
+    .line 739
     :cond_1
     invoke-virtual {v0, v2}, Ljava/io/BufferedReader;->read([C)I
 
@@ -3216,12 +3222,12 @@
 
     if-eq v3, v4, :cond_2
 
-    .line 735
+    .line 740
     const/4 v4, 0x0
 
     invoke-virtual {v1, v2, v4, v3}, Ljava/lang/StringBuilder;->append([CII)Ljava/lang/StringBuilder;
 
-    .line 736
+    .line 741
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->length()I
 
     move-result v3
@@ -3230,11 +3236,11 @@
 
     if-le v3, v4, :cond_1
 
-    .line 738
+    .line 743
     :cond_2
     invoke-virtual {v0}, Ljava/io/BufferedReader;->close()V
 
-    .line 739
+    .line 744
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
@@ -3248,22 +3254,22 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 408
+    .line 413
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sStrip:Landroid/view/ViewGroup;
 
     if-nez v0, :cond_0
 
-    .line 417
+    .line 422
     :goto_0
     return-void
 
-    .line 409
+    .line 414
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sStrip:Landroid/view/ViewGroup;
 
     invoke-virtual {v0}, Landroid/view/ViewGroup;->removeAllViews()V
 
-    .line 410
+    .line 415
     const/4 v0, 0x0
 
     const-string v2, "mr_ai_create"
@@ -3276,7 +3282,7 @@
 
     move v0, v1
 
-    .line 411
+    .line 416
     :goto_1
     sget-object v2, Lcom/mrkeyboard/app/MrAi;->BUILTIN_NAME:[Ljava/lang/String;
 
@@ -3307,7 +3313,7 @@
     :cond_1
     move v2, v1
 
-    .line 412
+    .line 417
     :goto_2
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sCustom:Ljava/util/ArrayList;
 
@@ -3317,7 +3323,7 @@
 
     if-ge v2, v0, :cond_2
 
-    .line 413
+    .line 418
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sCustom:Ljava/util/ArrayList;
 
     invoke-virtual {v0, v2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -3326,7 +3332,7 @@
 
     check-cast v0, [Ljava/lang/String;
 
-    .line 414
+    .line 419
     sget-object v3, Lcom/mrkeyboard/app/MrAi;->BUILTIN_NAME:[Ljava/lang/String;
 
     array-length v3, v3
@@ -3343,14 +3349,14 @@
 
     invoke-static {v3, v4, v0}, Lcom/mrkeyboard/app/MrAi;->addChip(ILjava/lang/String;Ljava/lang/String;)V
 
-    .line 412
+    .line 417
     add-int/lit8 v0, v2, 0x1
 
     move v2, v0
 
     goto :goto_2
 
-    .line 416
+    .line 421
     :cond_2
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->refreshChips()V
 
@@ -3365,19 +3371,19 @@
 
     const/4 v3, 0x0
 
-    .line 484
+    .line 489
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sStrip:Landroid/view/ViewGroup;
 
     if-nez v0, :cond_1
 
-    .line 499
+    .line 504
     :cond_0
     return-void
 
     :cond_1
     move v2, v3
 
-    .line 485
+    .line 490
     :goto_0
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sStrip:Landroid/view/ViewGroup;
 
@@ -3387,19 +3393,19 @@
 
     if-ge v2, v0, :cond_0
 
-    .line 486
+    .line 491
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sStrip:Landroid/view/ViewGroup;
 
     invoke-virtual {v0, v2}, Landroid/view/ViewGroup;->getChildAt(I)Landroid/view/View;
 
     move-result-object v0
 
-    .line 487
+    .line 492
     instance-of v1, v0, Landroid/widget/LinearLayout;
 
     if-nez v1, :cond_3
 
-    .line 485
+    .line 490
     :cond_2
     :goto_1
     add-int/lit8 v0, v2, 0x1
@@ -3408,11 +3414,11 @@
 
     goto :goto_0
 
-    .line 488
+    .line 493
     :cond_3
     check-cast v0, Landroid/widget/LinearLayout;
 
-    .line 489
+    .line 494
     invoke-static {v2}, Lcom/mrkeyboard/app/MrAi;->styleAt(I)I
 
     move-result v1
@@ -3423,7 +3429,7 @@
 
     move v4, v5
 
-    .line 490
+    .line 495
     :goto_2
     if-eqz v4, :cond_6
 
@@ -3434,24 +3440,24 @@
 
     move-result v6
 
-    .line 491
+    .line 496
     const/high16 v1, 0x3f800000    # 1.0f
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setAlpha(F)V
 
-    .line 492
+    .line 497
     invoke-static {v4}, Lcom/mrkeyboard/app/MrAi;->styleChipBackground(Z)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 493
+    .line 498
     invoke-virtual {v0, v3}, Landroid/widget/LinearLayout;->getChildAt(I)Landroid/view/View;
 
     move-result-object v1
 
-    .line 494
+    .line 499
     instance-of v4, v1, Landroid/widget/TextView;
 
     if-eqz v4, :cond_7
@@ -3460,14 +3466,14 @@
 
     invoke-virtual {v1, v6}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 496
+    .line 501
     :cond_4
     :goto_4
     invoke-virtual {v0, v5}, Landroid/widget/LinearLayout;->getChildAt(I)Landroid/view/View;
 
     move-result-object v0
 
-    .line 497
+    .line 502
     instance-of v1, v0, Landroid/widget/TextView;
 
     if-eqz v1, :cond_2
@@ -3481,16 +3487,16 @@
     :cond_5
     move v4, v3
 
-    .line 489
+    .line 494
     goto :goto_2
 
-    .line 490
+    .line 495
     :cond_6
     const-string v1, "mr_ui_text2"
 
     goto :goto_3
 
-    .line 495
+    .line 500
     :cond_7
     instance-of v4, v1, Landroid/widget/ImageView;
 
@@ -3507,17 +3513,17 @@
     .locals 2
 
     .prologue
-    .line 502
+    .line 507
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sBtnEmoji:Landroid/view/View;
 
     if-nez v0, :cond_1
 
-    .line 513
+    .line 518
     :cond_0
     :goto_0
     return-void
 
-    .line 503
+    .line 508
     :cond_1
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sBtnEmoji:Landroid/view/View;
 
@@ -3529,12 +3535,12 @@
 
     invoke-virtual {v0, v1}, Landroid/view/View;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 504
+    .line 509
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sEmojiCheck:Landroid/widget/TextView;
 
     if-eqz v0, :cond_2
 
-    .line 505
+    .line 510
     sget-object v1, Lcom/mrkeyboard/app/MrAi;->sEmojiCheck:Landroid/widget/TextView;
 
     sget-boolean v0, Lcom/mrkeyboard/app/MrAi;->sEmojify:Z
@@ -3546,7 +3552,7 @@
     :goto_1
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 506
+    .line 511
     sget-object v1, Lcom/mrkeyboard/app/MrAi;->sEmojiCheck:Landroid/widget/TextView;
 
     sget-boolean v0, Lcom/mrkeyboard/app/MrAi;->sEmojify:Z
@@ -3562,7 +3568,7 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 507
+    .line 512
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sEmojiCheck:Landroid/widget/TextView;
 
     sget-boolean v1, Lcom/mrkeyboard/app/MrAi;->sEmojify:Z
@@ -3573,13 +3579,13 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 509
+    .line 514
     :cond_2
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sEmojiLabel:Landroid/widget/TextView;
 
     if-eqz v0, :cond_0
 
-    .line 510
+    .line 515
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sEmojiLabel:Landroid/widget/TextView;
 
     const-string v1, "mr_ai_emojify"
@@ -3590,7 +3596,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 511
+    .line 516
     sget-object v1, Lcom/mrkeyboard/app/MrAi;->sEmojiLabel:Landroid/widget/TextView;
 
     sget-boolean v0, Lcom/mrkeyboard/app/MrAi;->sEmojify:Z
@@ -3608,19 +3614,19 @@
 
     goto :goto_0
 
-    .line 505
+    .line 510
     :cond_3
     const-string v0, ""
 
     goto :goto_1
 
-    .line 506
+    .line 511
     :cond_4
     const-string v0, "mr_ui_text2"
 
     goto :goto_2
 
-    .line 511
+    .line 516
     :cond_5
     const-string v0, "mr_ui_text2"
 
@@ -3631,10 +3637,10 @@
     .locals 0
 
     .prologue
-    .line 295
+    .line 300
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->dismiss()V
 
-    .line 296
+    .line 301
     return-void
 .end method
 
@@ -3647,7 +3653,7 @@
     .end annotation
 
     .prologue
-    .line 651
+    .line 656
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -3697,14 +3703,14 @@
 
     move-result-object v0
 
-    .line 652
+    .line 657
     invoke-static {v0, p2}, Lcom/mrkeyboard/app/MrAi;->clean(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
     return-object v0
 
-    .line 651
+    .line 656
     :cond_0
     const-string v0, " Do not add emojis that are not in the original text."
 
@@ -3715,20 +3721,20 @@
     .locals 3
 
     .prologue
-    .line 238
+    .line 243
     new-instance v0, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v0}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 239
+    .line 244
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/graphics/drawable/GradientDrawable;->setShape(I)V
 
-    .line 240
+    .line 245
     invoke-virtual {v0, p0}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 241
+    .line 246
     const/4 v1, 0x1
 
     const/high16 v2, 0x3f800000    # 1.0f
@@ -3743,7 +3749,7 @@
 
     invoke-virtual {v0, v1, p1}, Landroid/graphics/drawable/GradientDrawable;->setStroke(II)V
 
-    .line 242
+    .line 247
     invoke-static {p2}, Lcom/mrkeyboard/app/MrAi;->dp(F)I
 
     move-result v1
@@ -3752,7 +3758,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 
-    .line 243
+    .line 248
     return-object v0
 .end method
 
@@ -3770,13 +3776,13 @@
     .end annotation
 
     .prologue
-    .line 388
+    .line 393
     :try_start_0
     new-instance v1, Lorg/json/JSONArray;
 
     invoke-direct {v1}, Lorg/json/JSONArray;-><init>()V
 
-    .line 389
+    .line 394
     invoke-virtual {p1}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
     move-result-object v2
@@ -3794,12 +3800,12 @@
 
     check-cast v0, [Ljava/lang/String;
 
-    .line 390
+    .line 395
     new-instance v3, Lorg/json/JSONObject;
 
     invoke-direct {v3}, Lorg/json/JSONObject;-><init>()V
 
-    .line 391
+    .line 396
     const-string v4, "e"
 
     const/4 v5, 0x0
@@ -3808,7 +3814,7 @@
 
     invoke-virtual {v3, v4, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 392
+    .line 397
     const-string v4, "n"
 
     const/4 v5, 0x1
@@ -3817,7 +3823,7 @@
 
     invoke-virtual {v3, v4, v5}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 393
+    .line 398
     const-string v4, "i"
 
     const/4 v5, 0x2
@@ -3826,20 +3832,20 @@
 
     invoke-virtual {v3, v4, v0}, Lorg/json/JSONObject;->put(Ljava/lang/String;Ljava/lang/Object;)Lorg/json/JSONObject;
 
-    .line 394
+    .line 399
     invoke-virtual {v1, v3}, Lorg/json/JSONArray;->put(Ljava/lang/Object;)Lorg/json/JSONArray;
 
     goto :goto_0
 
-    .line 398
+    .line 403
     :catch_0
     move-exception v0
 
-    .line 401
+    .line 406
     :goto_1
     return-void
 
-    .line 396
+    .line 401
     :cond_0
     const-string v0, "mr_ai"
 
@@ -3849,7 +3855,7 @@
 
     move-result-object v0
 
-    .line 397
+    .line 402
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
@@ -3875,13 +3881,13 @@
     .locals 3
 
     .prologue
-    .line 554
+    .line 559
     :try_start_0
     new-instance v0, Ljava/net/URL;
 
     const-string v1, "pref_ai_endpoint"
 
-    const-string v2, "https://api.openai.com/v1/chat/completions"
+    const-string v2, "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 
     invoke-static {p0, v1, v2}, Lcom/mrkeyboard/app/MrAi;->cfg(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -3893,23 +3899,23 @@
 
     move-result-object v0
 
-    .line 555
+    .line 560
     if-nez v0, :cond_0
 
     const-string v0, ""
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 557
+    .line 562
     :cond_0
     :goto_0
     return-object v0
 
-    .line 556
+    .line 561
     :catch_0
     move-exception v0
 
-    .line 557
+    .line 562
     const-string v0, ""
 
     goto :goto_0
@@ -3919,7 +3925,7 @@
     .locals 3
 
     .prologue
-    .line 534
+    .line 539
     const-string v0, "mr_ai"
 
     const/4 v1, 0x0
@@ -3934,7 +3940,7 @@
 
     const-string v2, "api_key"
 
-    .line 535
+    .line 540
     if-nez p1, :cond_0
 
     const-string v0, ""
@@ -3946,10 +3952,10 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 536
+    .line 541
     return-void
 
-    .line 535
+    .line 540
     :cond_0
     invoke-virtual {p1}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -3962,7 +3968,7 @@
     .locals 1
 
     .prologue
-    .line 610
+    .line 615
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sStatus:Landroid/widget/TextView;
 
     if-eqz v0, :cond_0
@@ -3971,7 +3977,7 @@
 
     invoke-virtual {v0, p0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 611
+    .line 616
     :cond_0
     return-void
 .end method
@@ -3984,18 +3990,18 @@
 
     const/4 v2, 0x0
 
-    .line 179
+    .line 184
     if-nez p0, :cond_0
 
-    .line 219
+    .line 224
     :goto_0
     return-void
 
-    .line 180
+    .line 185
     :cond_0
     sput-object p0, Lcom/mrkeyboard/app/MrAi;->sRoot:Landroid/view/View;
 
-    .line 181
+    .line 186
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -4006,7 +4012,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->sHandler:Landroid/os/Handler;
 
-    .line 182
+    .line 187
     const-string v0, "ai_strip"
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -4017,19 +4023,19 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->sStrip:Landroid/view/ViewGroup;
 
-    .line 183
+    .line 188
     const-string v0, "ai_back"
 
     invoke-static {v0, v3}, Lcom/mrkeyboard/app/MrAi;->btn(Ljava/lang/String;I)Landroid/view/View;
 
-    .line 184
+    .line 189
     const-string v0, "ai_gear"
 
     const/4 v1, 0x2
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAi;->btn(Ljava/lang/String;I)Landroid/view/View;
 
-    .line 185
+    .line 190
     const-string v0, "ai_emoji"
 
     const/4 v1, 0x5
@@ -4040,7 +4046,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->sBtnEmoji:Landroid/view/View;
 
-    .line 186
+    .line 191
     const-string v0, "ai_emoji_check"
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -4051,7 +4057,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->sEmojiCheck:Landroid/widget/TextView;
 
-    .line 187
+    .line 192
     const-string v0, "ai_emoji_label"
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -4062,21 +4068,21 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->sEmojiLabel:Landroid/widget/TextView;
 
-    .line 188
+    .line 193
     const-string v0, "ai_copy"
 
     const/4 v1, 0x6
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAi;->btn(Ljava/lang/String;I)Landroid/view/View;
 
-    .line 189
+    .line 194
     const-string v0, "ai_redo"
 
     const/16 v1, 0x8
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAi;->btn(Ljava/lang/String;I)Landroid/view/View;
 
-    .line 190
+    .line 195
     const-string v0, "ai_apply"
 
     const/4 v1, 0x7
@@ -4089,7 +4095,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->sBtnApply:Landroid/widget/TextView;
 
-    .line 192
+    .line 197
     const-string v0, "ai_title"
 
     invoke-virtual {p0, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -4098,7 +4104,7 @@
 
     check-cast v0, Landroid/widget/TextView;
 
-    .line 193
+    .line 198
     if-eqz v0, :cond_1
 
     const-string v1, "mr_ui_text"
@@ -4109,7 +4115,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 194
+    .line 199
     :cond_1
     const-string v0, "ai_hdr_result"
 
@@ -4119,7 +4125,7 @@
 
     check-cast v0, Landroid/widget/TextView;
 
-    .line 195
+    .line 200
     if-eqz v0, :cond_2
 
     const-string v1, "mr_ui_text"
@@ -4130,7 +4136,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 196
+    .line 201
     :cond_2
     const-string v0, "ai_status"
 
@@ -4142,7 +4148,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->sStatus:Landroid/widget/TextView;
 
-    .line 197
+    .line 202
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sStatus:Landroid/widget/TextView;
 
     if-eqz v0, :cond_3
@@ -4157,7 +4163,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 198
+    .line 203
     :cond_3
     const-string v0, "ai_result"
 
@@ -4169,12 +4175,12 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->sResult:Landroid/widget/TextView;
 
-    .line 199
+    .line 204
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sResult:Landroid/widget/TextView;
 
     if-eqz v0, :cond_4
 
-    .line 200
+    .line 205
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sResult:Landroid/widget/TextView;
 
     const-string v1, "mr_ui_text"
@@ -4185,7 +4191,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 201
+    .line 206
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sResult:Landroid/widget/TextView;
 
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->fieldBackground()Landroid/graphics/drawable/GradientDrawable;
@@ -4194,13 +4200,13 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 203
+    .line 208
     :cond_4
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sBtnApply:Landroid/widget/TextView;
 
     if-eqz v0, :cond_5
 
-    .line 204
+    .line 209
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sBtnApply:Landroid/widget/TextView;
 
     const-string v1, "mr_text_on_accent"
@@ -4211,13 +4217,13 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 207
+    .line 212
     :cond_5
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->prefsAi()Landroid/content/SharedPreferences;
 
     move-result-object v0
 
-    .line 208
+    .line 213
     const-string v1, "emojify_default_off_set"
 
     invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
@@ -4226,7 +4232,7 @@
 
     if-nez v1, :cond_6
 
-    .line 209
+    .line 214
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
@@ -4239,32 +4245,32 @@
 
     const-string v1, "emojify_default_off_set"
 
-    .line 210
+    .line 215
     invoke-interface {v0, v1, v3}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 211
+    .line 216
     sput-boolean v2, Lcom/mrkeyboard/app/MrAi;->sEmojify:Z
 
-    .line 215
+    .line 220
     :goto_1
     sput-boolean v3, Lcom/mrkeyboard/app/MrAi;->sOpen:Z
 
-    .line 216
+    .line 221
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->refreshEmojiBtn()V
 
-    .line 217
+    .line 222
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->updateApply()V
 
-    .line 218
+    .line 223
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->onOpen()V
 
     goto/16 :goto_0
 
-    .line 213
+    .line 218
     :cond_6
     const-string v1, "emojify"
 
@@ -4281,16 +4287,16 @@
     .locals 1
 
     .prologue
-    .line 478
+    .line 483
     if-nez p0, :cond_0
 
     const/4 v0, -0x2
 
-    .line 480
+    .line 485
     :goto_0
     return v0
 
-    .line 479
+    .line 484
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->BUILTIN_NAME:[Ljava/lang/String;
 
@@ -4302,7 +4308,7 @@
 
     goto :goto_0
 
-    .line 480
+    .line 485
     :cond_1
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->BUILTIN_NAME:[Ljava/lang/String;
 
@@ -4323,10 +4329,10 @@
     .prologue
     const/high16 v2, 0x41400000    # 12.0f
 
-    .line 256
+    .line 261
     if-eqz p0, :cond_0
 
-    .line 257
+    .line 262
     const-string v0, "mr_ui_cyan_soft"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
@@ -4335,17 +4341,17 @@
 
     const-string v1, "mr_ui_cyan_line"
 
-    .line 258
+    .line 263
     invoke-static {v1}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
 
     move-result v1
 
-    .line 257
+    .line 262
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrAi;->rounded(IIF)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v0
 
-    .line 260
+    .line 265
     :goto_0
     return-object v0
 
@@ -4358,12 +4364,12 @@
 
     const-string v1, "mr_ui_field_line"
 
-    .line 261
+    .line 266
     invoke-static {v1}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
 
     move-result v1
 
-    .line 260
+    .line 265
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrAi;->rounded(IIF)Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v0
@@ -4375,7 +4381,7 @@
     .locals 2
 
     .prologue
-    .line 156
+    .line 161
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sRoot:Landroid/view/View;
 
     if-eqz v0, :cond_1
@@ -4386,7 +4392,7 @@
 
     move-result-object v0
 
-    .line 157
+    .line 162
     :goto_0
     if-eqz v0, :cond_2
 
@@ -4398,7 +4404,7 @@
 
     move-result-object v0
 
-    .line 158
+    .line 163
     :goto_1
     if-eqz v0, :cond_0
 
@@ -4407,13 +4413,13 @@
     :cond_0
     return-object p0
 
-    .line 156
+    .line 161
     :cond_1
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;
 
     goto :goto_0
 
-    .line 157
+    .line 162
     :cond_2
     const/4 v0, 0x0
 
@@ -4424,7 +4430,7 @@
     .locals 3
 
     .prologue
-    .line 162
+    .line 167
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sRoot:Landroid/view/View;
 
     if-eqz v0, :cond_1
@@ -4435,7 +4441,7 @@
 
     move-result-object v0
 
-    .line 163
+    .line 168
     :goto_0
     if-eqz v0, :cond_2
 
@@ -4451,7 +4457,7 @@
 
     move-result-object v0
 
-    .line 164
+    .line 169
     :goto_1
     if-eqz v0, :cond_0
 
@@ -4460,13 +4466,13 @@
     :cond_0
     return-object p0
 
-    .line 162
+    .line 167
     :cond_1
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;
 
     goto :goto_0
 
-    .line 163
+    .line 168
     :cond_2
     const/4 v0, 0x0
 
@@ -4477,14 +4483,14 @@
     .locals 4
 
     .prologue
-    .line 232
+    .line 237
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sRoot:Landroid/view/View;
 
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 233
+    .line 238
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v1
@@ -4499,7 +4505,7 @@
 
     move-result v1
 
-    .line 234
+    .line 239
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -4515,7 +4521,7 @@
     .locals 2
 
     .prologue
-    .line 516
+    .line 521
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sBtnApply:Landroid/widget/TextView;
 
     if-eqz v0, :cond_1
@@ -4540,11 +4546,11 @@
     :goto_0
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setAlpha(F)V
 
-    .line 517
+    .line 522
     :cond_1
     return-void
 
-    .line 516
+    .line 521
     :cond_2
     const/high16 v0, 0x3f800000    # 1.0f
 
@@ -4557,12 +4563,12 @@
     .locals 3
 
     .prologue
-    .line 863
+    .line 868
     iget v0, p0, Lcom/mrkeyboard/app/MrAi;->mCode:I
 
     packed-switch v0, :pswitch_data_0
 
-    .line 888
+    .line 893
     :pswitch_0
     iget v0, p0, Lcom/mrkeyboard/app/MrAi;->mCode:I
 
@@ -4570,7 +4576,7 @@
 
     if-lt v0, v1, :cond_0
 
-    .line 889
+    .line 894
     iget v0, p0, Lcom/mrkeyboard/app/MrAi;->mCode:I
 
     add-int/lit8 v0, v0, -0x64
@@ -4579,12 +4585,12 @@
 
     move-result v0
 
-    .line 890
+    .line 895
     const/4 v1, -0x2
 
     if-ne v0, v1, :cond_2
 
-    .line 891
+    .line 896
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
     if-eqz v0, :cond_0
@@ -4595,18 +4601,18 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAi;->openStyleEditor(Landroid/content/Context;I)V
 
-    .line 898
+    .line 903
     :cond_0
     :goto_0
     return-void
 
-    .line 865
+    .line 870
     :pswitch_1
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->dismiss()V
 
     goto :goto_0
 
-    .line 868
+    .line 873
     :pswitch_2
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
@@ -4618,7 +4624,7 @@
 
     goto :goto_0
 
-    .line 871
+    .line 876
     :pswitch_3
     sget-boolean v0, Lcom/mrkeyboard/app/MrAi;->sEmojify:Z
 
@@ -4629,7 +4635,7 @@
     :goto_1
     sput-boolean v0, Lcom/mrkeyboard/app/MrAi;->sEmojify:Z
 
-    .line 872
+    .line 877
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->prefsAi()Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -4648,10 +4654,10 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 873
+    .line 878
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->refreshEmojiBtn()V
 
-    .line 874
+    .line 879
     sget-boolean v0, Lcom/mrkeyboard/app/MrAi;->sFired:Z
 
     if-eqz v0, :cond_0
@@ -4664,43 +4670,43 @@
 
     goto :goto_0
 
-    .line 871
+    .line 876
     :cond_1
     const/4 v0, 0x0
 
     goto :goto_1
 
-    .line 877
+    .line 882
     :pswitch_4
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->copyResult()V
 
     goto :goto_0
 
-    .line 880
+    .line 885
     :pswitch_5
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->applyResult()V
 
     goto :goto_0
 
-    .line 883
+    .line 888
     :pswitch_6
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->fire()V
 
     goto :goto_0
 
-    .line 894
+    .line 899
     :cond_2
     sput v0, Lcom/mrkeyboard/app/MrAi;->sSel:I
 
-    .line 895
+    .line 900
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->refreshChips()V
 
-    .line 896
+    .line 901
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->fire()V
 
     goto :goto_0
 
-    .line 863
+    .line 868
     nop
 
     :pswitch_data_0
@@ -4724,17 +4730,17 @@
 
     const/4 v0, 0x0
 
-    .line 901
+    .line 906
     iget v1, p0, Lcom/mrkeyboard/app/MrAi;->mCode:I
 
     if-ge v1, v2, :cond_1
 
-    .line 907
+    .line 912
     :cond_0
     :goto_0
     return v0
 
-    .line 902
+    .line 907
     :cond_1
     iget v1, p0, Lcom/mrkeyboard/app/MrAi;->mCode:I
 
@@ -4744,13 +4750,13 @@
 
     move-result v1
 
-    .line 903
+    .line 908
     if-lt v1, v2, :cond_0
 
-    .line 904
+    .line 909
     add-int/lit8 v1, v1, -0x64
 
-    .line 905
+    .line 910
     sget-object v2, Lcom/mrkeyboard/app/MrAi;->sCustom:Ljava/util/ArrayList;
 
     invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
@@ -4759,7 +4765,7 @@
 
     if-ge v1, v2, :cond_0
 
-    .line 906
+    .line 911
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
     if-eqz v0, :cond_2
@@ -4768,7 +4774,7 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAi;->openStyleEditor(Landroid/content/Context;I)V
 
-    .line 907
+    .line 912
     :cond_2
     const/4 v0, 0x1
 
@@ -4781,14 +4787,14 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 614
+    .line 619
     iget v0, p0, Lcom/mrkeyboard/app/MrAi;->mCode:I
 
     const/16 v1, 0x3e8
 
     if-ne v0, v1, :cond_4
 
-    .line 618
+    .line 623
     :try_start_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAi;->mContext:Landroid/content/Context;
 
@@ -4796,7 +4802,7 @@
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAi;->mContext:Landroid/content/Context;
 
-    .line 619
+    .line 624
     :goto_0
     if-nez v0, :cond_0
 
@@ -4810,7 +4816,7 @@
 
     move-result-object v0
 
-    .line 620
+    .line 625
     :cond_0
     if-nez v0, :cond_3
 
@@ -4825,11 +4831,11 @@
     .catch Lcom/mrkeyboard/app/MrAi$AiFail; {:try_start_0 .. :try_end_0} :catch_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_1
 
-    .line 622
+    .line 627
     :catch_0
     move-exception v0
 
-    .line 623
+    .line 628
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrAi$AiFail;->getMessage()Ljava/lang/String;
 
     move-result-object v0
@@ -4838,7 +4844,7 @@
 
     move-object v6, v0
 
-    .line 627
+    .line 632
     :goto_1
     new-instance v0, Lcom/mrkeyboard/app/MrAi;
 
@@ -4850,10 +4856,10 @@
 
     invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrAi;-><init>(ILjava/lang/String;ID)V
 
-    .line 628
+    .line 633
     iput-object v6, v0, Lcom/mrkeyboard/app/MrAi;->mError:Ljava/lang/String;
 
-    .line 629
+    .line 634
     sget-object v1, Lcom/mrkeyboard/app/MrAi;->sHandler:Landroid/os/Handler;
 
     if-eqz v1, :cond_1
@@ -4862,19 +4868,19 @@
 
     invoke-virtual {v1, v0}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 643
+    .line 648
     :cond_1
     :goto_2
     return-void
 
-    .line 618
+    .line 623
     :cond_2
     :try_start_1
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;
 
     goto :goto_0
 
-    .line 621
+    .line 626
     :cond_3
     iget-object v1, p0, Lcom/mrkeyboard/app/MrAi;->mText:Ljava/lang/String;
 
@@ -4893,11 +4899,11 @@
 
     goto :goto_1
 
-    .line 624
+    .line 629
     :catch_1
     move-exception v0
 
-    .line 625
+    .line 630
     const-string v0, "mr_ai_net_fail"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -4910,7 +4916,7 @@
 
     goto :goto_1
 
-    .line 633
+    .line 638
     :cond_4
     sget-boolean v0, Lcom/mrkeyboard/app/MrAi;->sOpen:Z
 
@@ -4926,37 +4932,37 @@
 
     if-eqz v0, :cond_1
 
-    .line 634
+    .line 639
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrAi;->sBusy:Z
 
-    .line 635
+    .line 640
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAi;->mError:Ljava/lang/String;
 
     if-eqz v0, :cond_5
 
-    .line 636
+    .line 641
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAi;->mError:Ljava/lang/String;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->setStatus(Ljava/lang/String;)V
 
     goto :goto_2
 
-    .line 639
+    .line 644
     :cond_5
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAi;->mText:Ljava/lang/String;
 
     sput-object v0, Lcom/mrkeyboard/app/MrAi;->sResultText:Ljava/lang/String;
 
-    .line 640
+    .line 645
     sget-object v0, Lcom/mrkeyboard/app/MrAi;->sResult:Landroid/widget/TextView;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrAi;->mText:Ljava/lang/String;
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 641
+    .line 646
     const-string v0, "mr_ai_original"
 
     sget-object v1, Lcom/mrkeyboard/app/MrAi;->sSource:Ljava/lang/String;
@@ -4971,7 +4977,7 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->setStatus(Ljava/lang/String;)V
 
-    .line 642
+    .line 647
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->updateApply()V
 
     goto :goto_2

@@ -275,7 +275,7 @@ public class AiImportTest {
                 "mr_import_ai_your_service", "mr_import_ai_send", "mr_import_ai_dont", "mr_import_ai_nokey_title", "mr_import_ai_nokey_text", "mr_import_ai_nokey_open",
                 "mr_import_ai_already", "mr_import_ai_nothing", "mr_import_ai_preparing", "mr_import_ai_progress", "mr_import_ai_cancelled", "mr_import_ai_back_nothing",
                 "mr_import_ai_done", "mr_import_ai_partial_title", "mr_import_ai_partial", "mr_import_ai_why_cancel", "mr_import_ai_why_unreadable",
-                "mr_import_ai_fail_title", "mr_import_ai_undo", "mr_import_ai_undone"};
+                "mr_import_ai_fail_title"};
         boolean all = true, same = true;
         for (String key : keys) {
             String en = res("values", key), pt = res("values-pt-rBR", key), es = res("values-es", key);

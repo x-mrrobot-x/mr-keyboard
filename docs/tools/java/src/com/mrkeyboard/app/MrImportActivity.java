@@ -69,12 +69,9 @@ public class MrImportActivity extends Activity {
     private TextView mStatus;
     private TextView mAiButton;
     private TextView mAiCancel;
-    private TextView mAiUndo;
     private TextView mAiNote;
     /** The cancel button was tapped while the AI was working (read by the thread that sends). */
     private volatile boolean mAiCancelled;
-    /** What the box had before the AI formatting, for "Undo formatting". */
-    private String mAiBeforeBox;
     /** The text of the box is being set by the screen itself (not typed by the person). */
     private boolean mSetting;
 
@@ -145,8 +142,8 @@ public class MrImportActivity extends Activity {
                 updateCount();
                 refreshOffer();
                 if (!mSetting) {
-                    // Another text than the one the AI made: the way back would throw the changes away.
-                    hideAiResult();
+                    // Another text than the one the AI made: what the note says about it is not true any more.
+                    hideAiNote();
                     // and the preview was made from the text that is gone
                     clearPreview();
                 }
@@ -175,13 +172,6 @@ public class MrImportActivity extends Activity {
         mAiNote.setPadding(k.dp(4), k.dp(6), k.dp(4), 0);
         mAiNote.setVisibility(View.GONE);
         main.addView(mAiNote, k.wide(0));
-        mAiUndo = k.button(k.t("mr_import_ai_undo"), false, new View.OnClickListener() {
-            public void onClick(View v) {
-                undoAi();
-            }
-        });
-        mAiUndo.setVisibility(View.GONE);
-        main.addView(mAiUndo, k.wide(8));
 
         mStatus = k.label("", 14f, k.text2, false);
         mStatus.setPadding(k.dp(4), k.dp(8), k.dp(4), 0);
@@ -382,35 +372,46 @@ public class MrImportActivity extends Activity {
         mPreview.removeAllViews();
         mPreview.setVisibility(View.VISIBLE);
         mShown = 0;
-        mPreview.addView(k.label(k.t(plan.standard ? "mr_import_found_std" : "mr_import_found"), 18f, k.text, true), k.wide(0));
-        mPreview.addView(k.label(k.t("mr_import_counts", plan.words.size(), plan.pairs.size()), 15f, k.text, false), k.wide(6));
+        // The summary is one card: the title, the three numbers, the notes that apply and, when there is nothing to add, why.
+        LinearLayout sum = k.panel();
+        mPreview.addView(sum, k.wide(0));
+        sum.addView(k.iconRow("mr_ui_ic_eye_cyan", 28f, k.t(plan.standard ? "mr_import_found_std" : "mr_import_found"), 17f, k.text, true), k.wide(0));
+        LinearLayout tiles = k.row();
+        tiles.addView(k.stat(plan.words.size(), k.t("mr_import_stat_words")), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        LinearLayout.LayoutParams gap = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        gap.setMargins(k.dp(8), 0, 0, 0);
+        tiles.addView(k.stat(plan.pairs.size(), k.t("mr_import_stat_pairs")), gap);
+        LinearLayout.LayoutParams gap2 = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        gap2.setMargins(k.dp(8), 0, 0, 0);
+        tiles.addView(k.stat(plan.knownSkipped, k.t("mr_import_stat_known")), gap2);
+        sum.addView(tiles, k.wide(14));
         if (plan.blocked.size() > 0) {
-            mPreview.addView(k.label(k.t("mr_import_blocked_found", plan.blocked.size()), 14f, k.text2, false), k.wide(4));
-        }
-        if (plan.knownSkipped > 0) {
-            mPreview.addView(k.label(k.t("mr_import_known", plan.knownSkipped), 14f, k.text2, false), k.wide(4));
+            sum.addView(k.label(k.t("mr_import_blocked_found", plan.blocked.size()), 14f, k.text2, false), k.wide(12));
         }
         if (plan.pairsCut) {
-            mPreview.addView(k.label(k.t("mr_import_pairs_cut"), 14f, k.text2, false), k.wide(4));
+            sum.addView(k.label(k.t("mr_import_pairs_cut"), 14f, k.text2, false), k.wide(12));
         }
         String hint = plan.languageHint;
         if (hint != null && hint.length() > 0 && !MrLearned.localeOf(hint).equalsIgnoreCase(mLocale)) {
-            mPreview.addView(k.label(k.t("mr_import_lang_note", hint, MrLearned.tag(mLocale)), 14f, k.rose, false), k.wide(6));
+            sum.addView(k.label(k.t("mr_import_lang_note", hint, MrLearned.tag(mLocale)), 14f, k.rose, false), k.wide(12));
+        }
+        boolean nothing = plan.words.isEmpty() && plan.pairs.isEmpty() && plan.blocked.isEmpty();
+        if (nothing) {
+            sum.addView(k.emptyState("mr_ui_ic_check_mint", k.t("mr_import_none_title"), k.t(plan.standard ? "mr_import_none_std" : "mr_import_none_new")), k.wide(14));
         }
         if (plan.ignoredCount > 0) {
-            mPreview.addView(k.button(k.t("mr_import_see_ignored", plan.ignoredCount), false, new View.OnClickListener() {
+            sum.addView(k.button(k.t("mr_import_see_ignored", plan.ignoredCount), false, new View.OnClickListener() {
                 public void onClick(View v) {
                     showIgnored();
                 }
-            }), k.wide(10));
+            }), k.wide(12));
         }
-        if (plan.words.isEmpty() && plan.pairs.isEmpty() && plan.blocked.isEmpty()) {
-            mPreview.addView(k.label(k.t("mr_import_none_new"), 14f, k.text2, false), k.wide(10));
+        if (nothing) {
             mApply = null;
             return;
         }
         if (!plan.words.isEmpty()) {
-            mPreview.addView(k.label(k.t("mr_import_untick"), 13f, k.text2, false), k.wide(14));
+            mPreview.addView(k.label(k.t("mr_import_untick"), 13f, k.text2, false), k.wide(16));
             LinearLayout both = k.row();
             TextView all = k.chip(k.t("mr_import_all"), false, new View.OnClickListener() {
                 public void onClick(View v) {
@@ -657,7 +658,6 @@ public class MrImportActivity extends Activity {
     private void runAi(final MrImportAi.Plan plan) {
         if (mBusy) return;
         final String tag = MrLearned.tag(mLocale);
-        final String beforeBox = mText.getText() == null ? "" : mText.getText().toString();
         mAiCancelled = false;
         setBusy(true, k.t("mr_import_ai_progress", 1, plan.requests()));
         mAiCancel.setVisibility(View.VISIBLE);
@@ -701,7 +701,7 @@ public class MrImportActivity extends Activity {
                 final MrImportAi.Result result = res;
                 runOnUiThread(new Runnable() {
                     public void run() {
-                        finishAi(result, beforeBox);
+                        finishAi(result);
                     }
                 });
             }
@@ -712,7 +712,7 @@ public class MrImportActivity extends Activity {
         return failure == null || failure.length() == 0 ? k.t("mr_ai_net_fail") : failure;
     }
 
-    private void finishAi(MrImportAi.Result r, String beforeBox) {
+    private void finishAi(MrImportAi.Result r) {
         setBusy(false, null);
         mAiCancel.setVisibility(View.GONE);
         if (isFinishing()) return;
@@ -731,9 +731,6 @@ public class MrImportActivity extends Activity {
         }
         setBox(r.text);
         clearPreview();
-        // the way back: what the screen had before the AI replaced it
-        mAiBeforeBox = beforeBox;
-        mAiUndo.setVisibility(View.VISIBLE);
         mAiNote.setText(k.t("mr_import_ai_done", r.words, r.phrases));
         mAiNote.setVisibility(View.VISIBLE);
         if (!r.complete()) {
@@ -746,19 +743,9 @@ public class MrImportActivity extends Activity {
         }
     }
 
-    private void hideAiResult() {
-        if (mAiUndo == null) return;
-        mAiUndo.setVisibility(View.GONE);
+    private void hideAiNote() {
+        if (mAiNote == null) return;
         mAiNote.setVisibility(View.GONE);
-        mAiBeforeBox = null;
-    }
-
-    private void undoAi() {
-        if (mBusy || mAiBeforeBox == null) return;
-        setBox(mAiBeforeBox);
-        clearPreview();
-        hideAiResult();
-        k.toast(k.t("mr_import_ai_undone"));
     }
 
     // ------------------------------------------------------------------ undo the last import

@@ -418,15 +418,18 @@
     <string name="mr_import_failed">No se pudo leer este texto.</string>
     <string name="mr_import_found">Lo que se encontró en tu texto</string>
     <string name="mr_import_found_std">Lo que hay en tu lista</string>
-    <string name="mr_import_counts">%1$d palabras nuevas y %2$d pares de palabras</string>
     <string name="mr_import_blocked_found">%1$d palabras para bloquear</string>
-    <string name="mr_import_known">%1$d palabras que el diccionario ya conoce se dejaron fuera.</string>
     <string name="mr_import_pairs_cut">El texto es muy largo: solo se conservaron los pares más frecuentes.</string>
     <string name="mr_import_lang_note">La lista dice que es para %1$s, pero se añadirá a %2$s.</string>
     <string name="mr_import_see_ignored">Ver líneas ignoradas (%1$d)</string>
     <string name="mr_import_ignored_more">…y %1$d más.</string>
     <string name="mr_import_line">Línea %1$d</string>
-    <string name="mr_import_none_new">Nada nuevo que añadir: el diccionario ya conoce estas palabras, o aparecieron solo una vez.</string>
+    <string name="mr_import_none_new">El diccionario ya conoce estas palabras, o aparecieron solo una vez.</string>
+    <string name="mr_import_none_title">Nada nuevo que añadir</string>
+    <string name="mr_import_none_std">Todas las palabras de la lista ya están en el diccionario, o sus líneas se dejaron fuera.</string>
+    <string name="mr_import_stat_words">Palabras nuevas</string>
+    <string name="mr_import_stat_pairs">Pares de palabras</string>
+    <string name="mr_import_stat_known">Ya en el diccionario</string>
     <string name="mr_import_untick">Toca una palabra para dejarla fuera (un error de escritura, por ejemplo).</string>
     <string name="mr_import_all">Marcar todas</string>
     <string name="mr_import_none">Desmarcar todas</string>
@@ -476,14 +479,12 @@
     <string name="mr_import_ai_progress">Dando formato con IA… parte %1$d de %2$d</string>
     <string name="mr_import_ai_cancelled">Formato cancelado. Tu texto no se ha cambiado.</string>
     <string name="mr_import_ai_back_nothing">La IA no devolvió una lista utilizable. Tu texto no se ha cambiado.</string>
-    <string name="mr_import_ai_done">Formato con IA hecho: %1$d palabras y %2$d frases. Revisa el texto y toca el botón de abajo para ver qué se añadirá.</string>
+    <string name="mr_import_ai_done">Formateado con IA: %1$d palabras y %2$d frases</string>
     <string name="mr_import_ai_partial_title">Solo una parte del texto tiene formato</string>
     <string name="mr_import_ai_partial">%1$d de %2$d partes están ya en la lista. %3$s\n\nEl resto no se convirtió: usa Deshacer formato e inténtalo de nuevo, o añade el resto con el botón de abajo.</string>
     <string name="mr_import_ai_why_cancel">Cancelaste.</string>
     <string name="mr_import_ai_why_unreadable">Algunas respuestas no eran una lista.</string>
     <string name="mr_import_ai_fail_title">La IA no pudo dar formato al texto</string>
-    <string name="mr_import_ai_undo">Deshacer formato</string>
-    <string name="mr_import_ai_undone">Texto restaurado.</string>
     <string name="mr_import_prompt">Convierte mi texto en una lista de palabras para un teclado de móvil.\nReglas:\n- Responde solo con la lista, en un único bloque de código, sin explicaciones.\n- Las dos primeras líneas deben ser exactamente: “# mr-words 1” y “# language: TAG” (TAG es el idioma del texto: pt-BR, en-US o es).\n- [words]: una palabra por línea, solo palabras que un diccionario común no tendría (nombres, lugares, marcas, jerga, términos técnicos, mis abreviaturas habituales). Después de un TAB puedes dar un peso de 1 a 100 (50 es normal, 80 para palabras que uso todo el tiempo).\n- [phrases]: pares o frases cortas que escribo mucho, una por línea, de 2 a 5 palabras.\n- [blocked]: palabras que el teclado nunca debe sugerir (solo si lo pido).\n- Sin números, enlaces, correos, teléfonos ni datos privados. Sin líneas repetidas. Mantén el idioma de mi texto.\n\nEjemplo de la respuesta:\n# mr-words 1\n# language: es\n[words]\nLuana\nRodrigo\t70\n[phrases]\nbuenos días a todos\nnos vemos luego\n\nMi texto viene a continuación:\n</string>
     <!-- /v1.85 words -->
     <!-- Sheets screen (MrSheets / PrefScreenSheets) -->

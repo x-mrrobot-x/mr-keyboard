@@ -291,7 +291,7 @@
     .line 130
     const-string v0, "pref_ai_provider"
 
-    const-string v2, "openai"
+    const-string v2, "gemini"
 
     invoke-interface {v1, v0, v2}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -632,7 +632,7 @@
 
     const-string v2, "pref_ai_endpoint"
 
-    const-string v3, "https://api.openai.com/v1/chat/completions"
+    const-string v3, "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 
     invoke-interface {v0, v2, v3}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
@@ -654,7 +654,7 @@
 
     const-string v2, "pref_ai_model"
 
-    const-string v3, "gpt-6.1-terra"
+    const-string v3, "gemini-3.5-flash-lite"
 
     invoke-interface {v0, v2, v3}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 

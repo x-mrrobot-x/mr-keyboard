@@ -24,6 +24,7 @@ The style chips, the result field and the unchecked "Emojificar" box use the sof
 - `docs/tools/java/src/com/mrkeyboard/app/MrAiDialog.java`: lifecycle of the dialog attached to the IME window and resizing above the keyboard.
 - `MrAiPrefs`: settings for provider, model, key and styles; `MrAiStyleActivity`: creation/editing of the styles.
 - `res/xml/prefs_ai.xml`: settings; `res/layout/mr_ai_dialog.xml`: modal interface.
+- The service is **Google Gemini** until the person changes it: provider `gemini`, the address and the model of its ready-made provider (`MrAi.PROVIDER_DEF`, `ENDPOINT_DEF`, `MODEL_DEF`, the same values as the defaults in `res/xml/prefs_ai.xml`); OpenAI keeps its own ready-made values (`ENDPOINT_OPENAI`, `MODEL_OPENAI`). The key is still always asked for. `docs/tools/test_ai_default.py` keeps the three places in step.
 - `MrTools.smali` keeps the manual hooks of the bar (button `b_aied`), calls the dialog through code `0x18` and ends the tool when the keyboard is released.
 
 ## Network and privacy

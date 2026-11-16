@@ -127,10 +127,10 @@ public class MrAiPrefs extends PreferenceActivity {
     /** Migrates only the models that were old presets; models chosen by the user stay untouched. */
     private void migratePreviousPresets() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String provider = prefs.getString(MrAi.KEY_PROVIDER, "openai");
+        String provider = prefs.getString(MrAi.KEY_PROVIDER, MrAi.PROVIDER_DEF);
         String model = prefs.getString(MrAi.KEY_MODEL, "");
         String replacement = null;
-        if ("openai".equals(provider) && "gpt-4o-mini".equals(model)) replacement = MrAi.MODEL_DEF;
+        if ("openai".equals(provider) && "gpt-4o-mini".equals(model)) replacement = MrAi.MODEL_OPENAI;
         else if ("groq".equals(provider) && "llama-3.3-70b-versatile".equals(model)) replacement = "openai/gpt-oss-120b";
         else if ("openrouter".equals(provider) && "openai/gpt-4o-mini".equals(model)) replacement = "openai/gpt-6.1-terra";
         else if ("gemini".equals(provider) && ("gemini-2.5-flash".equals(model) || "gemini-3.8-flash".equals(model) || "gemini-4-argon".equals(model))) replacement = "gemini-3.5-flash-lite";
@@ -148,11 +148,11 @@ public class MrAiPrefs extends PreferenceActivity {
             endpoint = "https://openrouter.ai/api/v1/chat/completions";
             model = "openai/gpt-6.1-terra";
         } else if ("gemini".equals(provider)) {
-            endpoint = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
-            model = "gemini-3.5-flash-lite";
-        } else if ("openai".equals(provider)) {
             endpoint = MrAi.ENDPOINT_DEF;
             model = MrAi.MODEL_DEF;
+        } else if ("openai".equals(provider)) {
+            endpoint = MrAi.ENDPOINT_OPENAI;
+            model = MrAi.MODEL_OPENAI;
         } else {
             return;
         }
