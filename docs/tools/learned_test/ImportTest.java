@@ -170,23 +170,24 @@ public class ImportTest {
                 && MrImport.splitWords("vou ver 3", 2) == null && MrImport.splitWords("vou ver", 1) == null);
         check("checkWord: letters, apostrophe, hyphen are fine", MrImport.checkWord("d'água") == 0 && MrImport.checkWord("guarda-chuva") == 0 && MrImport.checkWord("Itaú") == 0);
 
-        // ---------------------------------------------------------------- the bytes of a file
-        try {
-            byte[] u8 = "Itaú\nNubank".getBytes("UTF-8");
-            check("decode: valid UTF-8 is read as UTF-8", "Itaú\nNubank".equals(MrImport.decode(u8, false)));
-            byte[] win = "Itaú\nNubank “ok”".getBytes("windows-1252");
-            check("decode: an old Windows file (not UTF-8) is read as Windows-1252", "Itaú\nNubank “ok”".equals(MrImport.decode(win, false)));
-            byte[] cutAtChar = "casa ú".getBytes("UTF-8");
-            byte[] half = java.util.Arrays.copyOf(cutAtChar, cutAtChar.length - 1);
-            check("decode: a UTF-8 file cut in the middle of a character loses only that character", "casa ".equals(MrImport.decode(half, true)));
-            check("decode: the same bytes in a file that was not cut are not UTF-8", !"casa ".equals(MrImport.decode(half, false)));
-            byte[] bom = new byte[] {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF, '#', ' ', 'm', 'r', '-', 'w', 'o', 'r', 'd', 's', ' ', '1', '\n', '[', 'w', 'o', 'r', 'd', 's', ']', '\n', 'I', 't', 'a', (byte) 0xC3, (byte) 0xBA};
-            MrImport.Plan pb = MrImport.parse(MrImport.decode(bom, false), known());
-            check("decode: a UTF-8 file with a BOM is read as a standard list", pb.standard && pb.words.size() == 1 && pb.words.get(0).word.equals("Itaú"));
-            check("decode: empty and null", "".equals(MrImport.decode(new byte[0], false)) && MrImport.decode(null, false) == null);
-        } catch (Exception e) {
-            check("decode: no exception (" + e + ")", false);
-        }
+        // ---------------------------------------------------------------- what the screen offers under the box
+        check("offer: nothing in the box (null, empty, only spaces and line breaks, a lone BOM): no button",
+                MrImport.offer(null) == MrImport.OFFER_NONE && MrImport.offer("") == MrImport.OFFER_NONE && MrImport.offer("  \n\t \r\n") == MrImport.OFFER_NONE
+                && MrImport.offer("\uFEFF") == MrImport.OFFER_NONE);
+        check("offer: a word typed alone, some words, a sentence or a chat is not a list yet: Format with AI",
+                MrImport.offer("Itaú") == MrImport.OFFER_FORMAT && MrImport.offer("Itaú\nNubank") == MrImport.OFFER_FORMAT
+                && MrImport.offer("vamos ao Itaú hoje") == MrImport.OFFER_FORMAT && MrImport.offer("[12/03/24 14:05] Ana: oi\n[12/03/24 14:06] Rui: oi") == MrImport.OFFER_FORMAT);
+        check("offer: a list with the header, or with a section, only a section or only the header: See what will be added",
+                MrImport.offer("# mr-words 1\n[words]\nItaú\n") == MrImport.OFFER_PREVIEW && MrImport.offer("[words]\nItaú") == MrImport.OFFER_PREVIEW
+                && MrImport.offer("  [Phrases]  \nvou ver") == MrImport.OFFER_PREVIEW && MrImport.offer("[blocked]") == MrImport.OFFER_PREVIEW
+                && MrImport.offer("# mr-words 1") == MrImport.OFFER_PREVIEW && MrImport.offer("\n\n# MR-WORDS 1\n") == MrImport.OFFER_PREVIEW);
+        check("offer: a list pasted with a BOM and Windows line breaks is still a list", MrImport.offer("\uFEFF# mr-words 1\r\n[words]\r\nItaú\r\n") == MrImport.OFFER_PREVIEW);
+        check("offer: a text that only talks about the format (a header in the middle of a line, a section with more text) is not a list",
+                MrImport.offer("use [words] and the header # mr-words 1") == MrImport.OFFER_FORMAT && MrImport.offer("[words] Itaú") == MrImport.OFFER_FORMAT);
+        check("offer: what the offer says is what parse does (a list is read as a list, any other text as free text)",
+                MrImport.parse("# mr-words 1\n[words]\nItaú", known()).standard && !MrImport.parse("Itaú Itaú", known()).standard);
+        MrImport.Plan pb = MrImport.parse("\uFEFF# mr-words 1\n[words]\nItaú\n", known());
+        check("a list with a BOM (pasted) is read as a standard list", pb.standard && pb.words.size() == 1 && pb.words.get(0).word.equals("Itaú"));
 
         // ---------------------------------------------------------------- the prompt for an AI, in the three languages
         String[][] langs = {{"values", "en-US"}, {"values-pt-rBR", "pt-BR"}, {"values-es", "es"}};

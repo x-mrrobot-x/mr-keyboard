@@ -1,10 +1,5 @@
 package com.mrkeyboard.app;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CodingErrorAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -145,30 +140,25 @@ final class MrImport {
             "(?i)k{3,}|(?:ha){2,}h?|(?:he){2,}h?|(?:hi){2,}h?|(?:ho){2,}h?|(?:ja){2,}j?|(?:je){2,}j?|(?:ji){2,}j?|(?:rs){2,}|(?:kk)+k?");
     private static final Pattern RUN = Pattern.compile("(?i)(\\p{L})\\1{3,}");
 
+    /** What the screen offers under the box (see {@link #offer}). */
+    static final int OFFER_NONE = 0;
+    static final int OFFER_FORMAT = 1;
+    static final int OFFER_PREVIEW = 2;
+
     /**
-     * The bytes of a file -> text: UTF-8 when they are valid UTF-8, otherwise Windows-1252 (the old Notepad/Excel files, "Itaú" is one byte there).
-     * A file that was cut at its size limit may end in the middle of a character: up to 3 bytes of the end are dropped before giving up on UTF-8.
-     * A BOM stays in the text; parse() drops it.
+     * The button that fits the text of the box: none while it has nothing to read (empty, or only spaces and line breaks), the AI formatting for a text
+     * that is not a list yet (a word typed alone, a chat, an essay: it has no header and no section), the preview for a list, whether it was typed,
+     * pasted or made by the AI. A list is what {@link #isStandard} says it is.
      */
-    static String decode(byte[] b, boolean cut) {
-        if (b == null) return null;
-        for (int drop = 0; drop <= (cut ? 3 : 0) && drop <= b.length; drop++) {
-            try {
-                CharsetDecoder d = Charset.forName("UTF-8").newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT);
-                return d.decode(ByteBuffer.wrap(b, 0, b.length - drop)).toString();
-            } catch (CharacterCodingException e) {
-                // not (complete) UTF-8: try with fewer bytes, then the old code page
-            }
+    static int offer(String text) {
+        if (text == null) return OFFER_NONE;
+        boolean content = false;
+        for (int i = 0; i < text.length() && !content; i++) {
+            char c = text.charAt(i);
+            content = !Character.isWhitespace(c) && c != '\uFEFF';
         }
-        try {
-            return new String(b, "windows-1252");
-        } catch (Exception e) {
-            try {
-                return new String(b, "ISO-8859-1");
-            } catch (Exception e2) {
-                return new String(b);
-            }
-        }
+        if (!content) return OFFER_NONE;
+        return isStandard(text) ? OFFER_PREVIEW : OFFER_FORMAT;
     }
 
     /** The text is a standard list: it has the header or a known section. */

@@ -6,9 +6,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -21,8 +19,6 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,21 +26,20 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * v1.85: "Add words and texts" (screen B of Phase 2). The user types or pastes a text, or opens a file, and the keyboard learns from it:
+ * v1.85: "Add words and texts" (screen B of Phase 2). The user types or pastes a text and the keyboard learns from it:
  *  - a list in the standard format (mr-words 1: [words] / [phrases] / [blocked]) is taken as it is;
  *  - any other text (a chat export, an essay, notes) is read as free text: only the words the dictionary does not know and that show up
  *    at least twice are proposed, and pairs of words that are both valid and show up at least twice.
  * Nothing is saved before the preview: the user sees the new words (and can untick a typo), the pairs, what was ignored and why. "Add" saves one
  * import (one batch) that "Undo the last import" takes back. A prompt for an AI is offered to turn a big text into the standard list.
+ * Under the box there is one button, chosen by what the box holds ({@link MrImport#offer}): none while it is empty, "Format with AI" for a text that is
+ * not a list yet, "See what will be added" (the preview) once it is a list, typed, pasted or made by the AI.
  * The rules live in MrImport / MrLearned (tested on the PC); this class is only views and threads. The analysis and the saving run off the main thread.
  */
 public class MrImportActivity extends Activity {
     static final String EXTRA_LOCALE = "mr_words_locale";
-    /** A file larger than this is cut (a chat export of years is a few MB of text). */
-    static final int MAX_FILE_BYTES = 8 * 1024 * 1024;
     /** How many words of the preview are drawn at a time. */
     static final int PREVIEW_PAGE = 100;
-    private static final int REQ_OPEN = 7102;
     private static final String PREFS = "mr_words";
     private static final String P_BATCH = "last_batch";
     private static final String P_LOCALE = "last_locale";
@@ -59,15 +54,11 @@ public class MrImportActivity extends Activity {
     private String mLocale;
     private List<String> mLangs = new ArrayList<String>();
     private boolean mBusy;
-    /** The text of an opened file (kept off the field: a few MB in an EditText would be slow). Null when none is loaded. */
-    private String mFileText;
-    private int mFileKb;
     private MrImport.Plan mPlan;
     private int mShown;
 
     private LinearLayout mLangBox;
     private EditText mText;
-    private TextView mFileLabel;
     private TextView mCount;
     private TextView mAnalyze;
     private LinearLayout mPreview;
@@ -82,9 +73,8 @@ public class MrImportActivity extends Activity {
     private TextView mAiNote;
     /** The cancel button was tapped while the AI was working (read by the thread that sends). */
     private volatile boolean mAiCancelled;
-    /** What the box and the opened file had before the AI formatting, for "Undo formatting". */
+    /** What the box had before the AI formatting, for "Undo formatting". */
     private String mAiBeforeBox;
-    private String mAiBeforeFile;
     /** The text of the box is being set by the screen itself (not typed by the person). */
     private boolean mSetting;
 
@@ -131,7 +121,7 @@ public class MrImportActivity extends Activity {
         }), k.wide(0));
         col.addView(k.infoCard(k.t("mr_import_intro")), k.wide(16));
 
-        // The card with the language, the text and the two ways to bring it in (open a file, format with AI).
+        // The card with the language, the text and, under it, the one button that fits the text (format with AI, or see what will be added).
         LinearLayout main = k.panel();
         col.addView(main, k.wide(14));
         main.addView(k.iconRow("mr_ui_ic_globe", 16f, k.t("mr_lang_card_title"), 15f, k.text, false), k.wide(0));
@@ -153,10 +143,13 @@ public class MrImportActivity extends Activity {
 
             public void afterTextChanged(Editable s) {
                 updateCount();
-                // Typing over an opened file means the user wants the typed text now.
-                if (mFileText != null && s != null && s.length() > 0) dropFile();
-                // Another text than the one the AI made: the way back would throw the changes away.
-                if (!mSetting) hideAiResult();
+                refreshOffer();
+                if (!mSetting) {
+                    // Another text than the one the AI made: the way back would throw the changes away.
+                    hideAiResult();
+                    // and the preview was made from the text that is gone
+                    clearPreview();
+                }
             }
         });
         mCount = k.label("", 12f, k.hint, false);
@@ -165,27 +158,19 @@ public class MrImportActivity extends Activity {
         main.addView(k.fieldBox(mText, mCount), k.wide(10));
         updateCount();
 
-        mFileLabel = k.label("", 13f, k.text2, false);
-        mFileLabel.setPadding(k.dp(4), k.dp(6), k.dp(4), 0);
-        mFileLabel.setVisibility(View.GONE);
-        main.addView(mFileLabel, k.wide(0));
-
-        LinearLayout tools = k.row();
-        TextView open = k.iconButton(k.t("mr_import_open"), "mr_ui_ic_folder", false, new View.OnClickListener() {
-            public void onClick(View v) {
-                openFile();
-            }
-        });
+        // Only one of the two shows at a time (see refreshOffer): a text that is already a list is read as it is, any other one is formatted first.
         mAiButton = k.iconButton(k.t("mr_import_ai_button"), "mr_ui_ic_wand", false, new View.OnClickListener() {
             public void onClick(View v) {
                 formatTapped();
             }
         });
-        tools.addView(open, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        LinearLayout.LayoutParams second = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        second.setMargins(k.dp(8), 0, 0, 0);
-        tools.addView(mAiButton, second);
-        main.addView(tools, k.wide(12));
+        main.addView(mAiButton, k.wide(12));
+        mAnalyze = k.iconButton(k.t("mr_import_analyze"), "mr_ui_ic_eye", true, new View.OnClickListener() {
+            public void onClick(View v) {
+                analyze();
+            }
+        });
+        main.addView(mAnalyze, k.wide(12));
         mAiNote = k.label("", 13f, k.text2, false);
         mAiNote.setPadding(k.dp(4), k.dp(6), k.dp(4), 0);
         mAiNote.setVisibility(View.GONE);
@@ -198,12 +183,6 @@ public class MrImportActivity extends Activity {
         mAiUndo.setVisibility(View.GONE);
         main.addView(mAiUndo, k.wide(8));
 
-        mAnalyze = k.iconButton(k.t("mr_import_analyze"), "mr_ui_ic_eye", true, new View.OnClickListener() {
-            public void onClick(View v) {
-                analyze();
-            }
-        });
-        col.addView(mAnalyze, k.wide(16));
         mStatus = k.label("", 14f, k.text2, false);
         mStatus.setPadding(k.dp(4), k.dp(8), k.dp(4), 0);
         mStatus.setVisibility(View.GONE);
@@ -231,7 +210,6 @@ public class MrImportActivity extends Activity {
             }
         }), k.wide(12));
         col.addView(ai, k.wide(22));
-        col.addView(k.iconRow("mr_ui_ic_warn", 16f, k.t("mr_import_ai_warn"), 13f, k.rose, false), k.wide(12));
 
         mUndo = k.iconButton("", "mr_ui_ic_undo", false, new View.OnClickListener() {
             public void onClick(View v) {
@@ -242,6 +220,7 @@ public class MrImportActivity extends Activity {
 
         setContentView(scroll);
         MrScreenIme.restore(state, mText, null);
+        refreshOffer();
     }
 
     @Override
@@ -285,6 +264,14 @@ public class MrImportActivity extends Activity {
         mCount.setText(k.t("mr_import_count", mText.length()));
     }
 
+    /** The button under the box: none while it is empty, "Format with AI" for a text that is not a list yet, "See what will be added" for a list. */
+    private void refreshOffer() {
+        if (mAiButton == null || mAnalyze == null) return;
+        int offer = MrImport.offer(mText.getText() == null ? null : mText.getText().toString());
+        mAiButton.setVisibility(offer == MrImport.OFFER_FORMAT ? View.VISIBLE : View.GONE);
+        mAnalyze.setVisibility(offer == MrImport.OFFER_PREVIEW ? View.VISIBLE : View.GONE);
+    }
+
     private void copyPrompt() {
         try {
             ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
@@ -293,86 +280,6 @@ public class MrImportActivity extends Activity {
         } catch (RuntimeException e) {
             k.toast(k.t("mr_import_clip_empty"));
         }
-    }
-
-    private void openFile() {
-        Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        i.addCategory(Intent.CATEGORY_OPENABLE);
-        i.setType("*/*");
-        try {
-            startActivityForResult(i, REQ_OPEN);
-        } catch (RuntimeException e) {
-            k.toast(k.t("mr_words_no_files"));
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode != REQ_OPEN || resultCode != RESULT_OK || data == null || data.getData() == null) return;
-        final Uri uri = data.getData();
-        setBusy(true, k.t("mr_import_reading"));
-        new Thread(new Runnable() {
-            public void run() {
-                String text = null;
-                boolean cut = false;
-                try {
-                    InputStream in = getContentResolver().openInputStream(uri);
-                    if (in != null) {
-                        try {
-                            ByteArrayOutputStream buf = new ByteArrayOutputStream();
-                            byte[] chunk = new byte[16384];
-                            int n;
-                            while ((n = in.read(chunk)) > 0) {
-                                if (buf.size() + n > MAX_FILE_BYTES) {
-                                    buf.write(chunk, 0, MAX_FILE_BYTES - buf.size());
-                                    cut = true;
-                                    break;
-                                }
-                                buf.write(chunk, 0, n);
-                            }
-                            text = MrImport.decode(buf.toByteArray(), cut);
-                        } finally {
-                            in.close();
-                        }
-                    }
-                } catch (Exception e) {
-                    text = null;
-                } catch (OutOfMemoryError e) {
-                    text = null;
-                }
-                final String loaded = text;
-                final boolean wasCut = cut;
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        if (isFinishing()) return;
-                        setBusy(false, null);
-                        if (loaded == null || loaded.trim().length() == 0) {
-                            k.toast(k.t(loaded == null ? "mr_import_read_failed" : "mr_import_file_empty"));
-                            return;
-                        }
-                        mText.setText("");
-                        showFile(loaded);
-                        clearPreview();
-                        if (wasCut) k.toast(k.t("mr_import_file_cut", MAX_FILE_BYTES / (1024 * 1024)));
-                        // A file that is not a list: ask whether to send it to the AI (only when the AI is set up; the answer is not remembered).
-                        if (!MrImport.isStandard(loaded) && MrAi.configured(MrImportActivity.this)) prepareAi(loaded);
-                    }
-                });
-            }
-        }).start();
-    }
-
-    private void showFile(String loaded) {
-        mFileText = loaded;
-        mFileKb = Math.max(1, loaded.length() / 1024);
-        mFileLabel.setText(k.t("mr_import_file_loaded", mFileKb));
-        mFileLabel.setVisibility(View.VISIBLE);
-    }
-
-    private void dropFile() {
-        mFileText = null;
-        mFileLabel.setVisibility(View.GONE);
     }
 
     private void setBox(String text) {
@@ -385,7 +292,6 @@ public class MrImportActivity extends Activity {
     }
 
     private String source() {
-        if (mFileText != null) return mFileText;
         CharSequence t = mText.getText();
         return t == null ? "" : t.toString();
     }
@@ -645,7 +551,6 @@ public class MrImportActivity extends Activity {
                         mPlan = null;
                         clearPreview();
                         mText.setText("");
-                        dropFile();
                         refreshUndo();
                     }
                 });
@@ -753,7 +658,6 @@ public class MrImportActivity extends Activity {
         if (mBusy) return;
         final String tag = MrLearned.tag(mLocale);
         final String beforeBox = mText.getText() == null ? "" : mText.getText().toString();
-        final String beforeFile = mFileText;
         mAiCancelled = false;
         setBusy(true, k.t("mr_import_ai_progress", 1, plan.requests()));
         mAiCancel.setVisibility(View.VISIBLE);
@@ -797,7 +701,7 @@ public class MrImportActivity extends Activity {
                 final MrImportAi.Result result = res;
                 runOnUiThread(new Runnable() {
                     public void run() {
-                        finishAi(result, beforeBox, beforeFile);
+                        finishAi(result, beforeBox);
                     }
                 });
             }
@@ -808,7 +712,7 @@ public class MrImportActivity extends Activity {
         return failure == null || failure.length() == 0 ? k.t("mr_ai_net_fail") : failure;
     }
 
-    private void finishAi(MrImportAi.Result r, String beforeBox, String beforeFile) {
+    private void finishAi(MrImportAi.Result r, String beforeBox) {
         setBusy(false, null);
         mAiCancel.setVisibility(View.GONE);
         if (isFinishing()) return;
@@ -825,12 +729,10 @@ public class MrImportActivity extends Activity {
             }
             return;
         }
-        dropFile();
         setBox(r.text);
         clearPreview();
         // the way back: what the screen had before the AI replaced it
         mAiBeforeBox = beforeBox;
-        mAiBeforeFile = beforeFile;
         mAiUndo.setVisibility(View.VISIBLE);
         mAiNote.setText(k.t("mr_import_ai_done", r.words, r.phrases));
         mAiNote.setVisibility(View.VISIBLE);
@@ -849,20 +751,11 @@ public class MrImportActivity extends Activity {
         mAiUndo.setVisibility(View.GONE);
         mAiNote.setVisibility(View.GONE);
         mAiBeforeBox = null;
-        mAiBeforeFile = null;
     }
 
     private void undoAi() {
         if (mBusy || mAiBeforeBox == null) return;
-        String box = mAiBeforeBox;
-        String file = mAiBeforeFile;
-        dropFile();
-        if (file != null) {
-            setBox("");
-            showFile(file);
-        } else {
-            setBox(box);
-        }
+        setBox(mAiBeforeBox);
         clearPreview();
         hideAiResult();
         k.toast(k.t("mr_import_ai_undone"));

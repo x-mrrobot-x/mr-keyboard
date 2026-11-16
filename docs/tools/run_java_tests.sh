@@ -20,6 +20,9 @@
 #   - BarTest: the buttons of the tool bar close the dialogs that are open (MrBarClose), except the one that the button itself toggles
 #   - KeepTest: the "Customize keyboard" tool and the keyboard when the screen turns (MrKeep): the tool opens again in the form of
 #     the new orientation, the keyboard that Android 17 leaves hidden is asked to show itself, all within a short window
+#   - ImportScreenTest: the screen "Add words and texts" (MrImportActivity) run against the stubs of Android: the one button under the box (none while it is empty, Format with AI
+#     for a text that is not a list, See what will be added for a list typed, pasted, restored or made by the AI), the preview that goes when the text changes, and what the screen no
+#     longer has (the button that opens a file and its code, the warning under the AI card, the words "open a file" in the card, the new text of the box in 3 languages).
 #   - ImportTest, LearnedStoreTest: the screens "What the keyboard learned" and "Add words and texts" (MrImport, MrLearned on a MrWordStore in memory):
 #     cleaning of a free text (links, WhatsApp prefixes, laughs, numbers), the two-occurrence rule, the standard list (every kind of line left out), saving an
 #     import with its caps and undo, block, forget, edit, the export that is also the backup (export -> import -> export gives the same text), and what
@@ -154,6 +157,10 @@ java -cp "$T/test_screenime:$T/stubs:$T/main" com.mrkeyboard.app.ScreenImeTest
 echo "== ImportTest (import of words and texts)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_import" $D/learned_test/ImportTest.java
 java -Dfile.encoding=UTF-8 -cp "$T/test_import:$T/stubs:$T/main" com.mrkeyboard.app.ImportTest
+
+echo "== ImportScreenTest (the screen Add words and texts run against the stubs: the button under the box, the preview, what the screen no longer has)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_importscreen" $D/learned_test/ImportScreenTest.java $D/tour_test/TourTest.java $D/tour_test/TourScreenTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_importscreen:$T/stubs:$T/main" com.mrkeyboard.app.ImportScreenTest
 
 echo "== LearnedStoreTest (what the keyboard learned: block, forget, edit, undo, export)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_learned" $D/learned_test/LearnedStoreTest.java

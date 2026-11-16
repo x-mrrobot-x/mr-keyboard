@@ -29,23 +29,23 @@
     .locals 1
 
     .prologue
-    .line 68
+    .line 63
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 66
+    .line 61
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/mrkeyboard/app/MrImport$NewWord;->checked:Z
 
-    .line 69
+    .line 64
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImport$NewWord;->word:Ljava/lang/String;
 
-    .line 70
+    .line 65
     iput p2, p0, Lcom/mrkeyboard/app/MrImport$NewWord;->weight:I
 
-    .line 71
+    .line 66
     iput p3, p0, Lcom/mrkeyboard/app/MrImport$NewWord;->count:I
 
-    .line 72
+    .line 67
     return-void
 .end method

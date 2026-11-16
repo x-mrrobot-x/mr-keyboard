@@ -29,21 +29,21 @@
     .locals 0
 
     .prologue
-    .line 81
+    .line 76
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 82
+    .line 77
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImport$NewPair;->a:Ljava/lang/String;
 
-    .line 83
+    .line 78
     iput-object p2, p0, Lcom/mrkeyboard/app/MrImport$NewPair;->b:Ljava/lang/String;
 
-    .line 84
+    .line 79
     iput p3, p0, Lcom/mrkeyboard/app/MrImport$NewPair;->weight:I
 
-    .line 85
+    .line 80
     iput p4, p0, Lcom/mrkeyboard/app/MrImport$NewPair;->count:I
 
-    .line 86
+    .line 81
     return-void
 .end method

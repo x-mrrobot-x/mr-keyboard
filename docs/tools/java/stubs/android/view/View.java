@@ -81,16 +81,20 @@ public class View {
     public void removeOnLayoutChangeListener(OnLayoutChangeListener listener) { }
     /** Tests only: the listener of the click, and a click made by the test. */
     public OnClickListener stubClick;
-    public void setOnClickListener(OnClickListener l) { stubClick = l; }
+    public void setOnClickListener(OnClickListener l) { stubClick = l; if (l != null) stubClickable = true; }
     public boolean performClick() {
         if (stubClick == null) return false;
         stubClick.onClick(this);
         return true;
     }
     public void setOnFocusChangeListener(OnFocusChangeListener l) { }
-    public void setClickable(boolean clickable) { }
+    private boolean stubClickable;
+    private boolean stubEnabled = true;
+    public void setClickable(boolean clickable) { stubClickable = clickable; }
+    public boolean isClickable() { return stubClickable; }
     public void setContentDescription(CharSequence contentDescription) { }
-    public void setEnabled(boolean enabled) { }
+    public void setEnabled(boolean enabled) { stubEnabled = enabled; }
+    public boolean isEnabled() { return stubEnabled; }
     public android.os.IBinder getWindowToken() { return null; }
     public void setOnLongClickListener(OnLongClickListener l) { }
     public void setOnTouchListener(OnTouchListener l) { }

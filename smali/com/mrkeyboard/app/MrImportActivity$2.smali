@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 147
+    .line 137
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$2;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,48 +40,37 @@
     .locals 1
 
     .prologue
-    .line 155
+    .line 145
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$2;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$000(Lcom/mrkeyboard/app/MrImportActivity;)V
 
-    .line 157
+    .line 146
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$2;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$100(Lcom/mrkeyboard/app/MrImportActivity;)Ljava/lang/String;
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$100(Lcom/mrkeyboard/app/MrImportActivity;)V
 
-    move-result-object v0
+    .line 147
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$2;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    if-eqz v0, :cond_0
-
-    if-eqz p1, :cond_0
-
-    invoke-interface {p1}, Landroid/text/Editable;->length()I
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$200(Lcom/mrkeyboard/app/MrImportActivity;)Z
 
     move-result v0
 
-    if-lez v0, :cond_0
+    if-nez v0, :cond_0
 
+    .line 149
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$2;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$200(Lcom/mrkeyboard/app/MrImportActivity;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$300(Lcom/mrkeyboard/app/MrImportActivity;)V
 
-    .line 159
-    :cond_0
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$2;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$300(Lcom/mrkeyboard/app/MrImportActivity;)Z
-
-    move-result v0
-
-    if-nez v0, :cond_1
-
+    .line 151
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$2;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$400(Lcom/mrkeyboard/app/MrImportActivity;)V
 
-    .line 160
-    :cond_1
+    .line 153
+    :cond_0
     return-void
 .end method
 
@@ -89,7 +78,7 @@
     .locals 0
 
     .prologue
-    .line 149
+    .line 139
     return-void
 .end method
 
@@ -97,6 +86,6 @@
     .locals 0
 
     .prologue
-    .line 152
+    .line 142
     return-void
 .end method

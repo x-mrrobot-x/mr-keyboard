@@ -29,21 +29,21 @@
     .locals 0
 
     .prologue
-    .line 423
+    .line 413
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 424
+    .line 414
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImport$Tok;->text:Ljava/lang/String;
 
-    .line 425
+    .line 415
     iput-boolean p2, p0, Lcom/mrkeyboard/app/MrImport$Tok;->sentenceStart:Z
 
-    .line 426
+    .line 416
     iput-boolean p3, p0, Lcom/mrkeyboard/app/MrImport$Tok;->capMiddle:Z
 
-    .line 427
+    .line 417
     iput-boolean p4, p0, Lcom/mrkeyboard/app/MrImport$Tok;->joined:Z
 
-    .line 428
+    .line 418
     return-void
 .end method

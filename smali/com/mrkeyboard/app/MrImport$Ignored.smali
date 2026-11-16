@@ -27,18 +27,18 @@
     .locals 0
 
     .prologue
-    .line 94
+    .line 89
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 95
+    .line 90
     iput p1, p0, Lcom/mrkeyboard/app/MrImport$Ignored;->line:I
 
-    .line 96
+    .line 91
     iput-object p2, p0, Lcom/mrkeyboard/app/MrImport$Ignored;->text:Ljava/lang/String;
 
-    .line 97
+    .line 92
     iput p3, p0, Lcom/mrkeyboard/app/MrImport$Ignored;->reason:I
 
-    .line 98
+    .line 93
     return-void
 .end method

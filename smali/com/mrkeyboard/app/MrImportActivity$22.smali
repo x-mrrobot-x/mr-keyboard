@@ -3,12 +3,12 @@
 .source "MrImportActivity.java"
 
 # interfaces
-.implements Landroid/content/DialogInterface$OnClickListener;
+.implements Lcom/mrkeyboard/app/MrImportAi$Control;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrImportActivity;->askToSend(Lcom/mrkeyboard/app/MrImportAi$Plan;)V
+    value = Lcom/mrkeyboard/app/MrImportActivity;->runAi(Lcom/mrkeyboard/app/MrImportAi$Plan;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-.field final synthetic val$plan:Lcom/mrkeyboard/app/MrImportAi$Plan;
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrImportAi$Plan;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 744
+    .line 673
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$22;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
-
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$22;->val$plan:Lcom/mrkeyboard/app/MrImportAi$Plan;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,17 +36,52 @@
 
 
 # virtual methods
-.method public onClick(Landroid/content/DialogInterface;I)V
+.method public cancelled()Z
+    .locals 1
+
+    .prologue
+    .line 676
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$22;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$800(Lcom/mrkeyboard/app/MrImportActivity;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_0
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$22;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrImportActivity;->isFinishing()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1
+
+    :cond_0
+    const/4 v0, 0x1
+
+    :goto_0
+    return v0
+
+    :cond_1
+    const/4 v0, 0x0
+
+    goto :goto_0
+.end method
+
+.method public progress(II)V
     .locals 2
 
     .prologue
-    .line 746
+    .line 680
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$22;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$22;->val$plan:Lcom/mrkeyboard/app/MrImportAi$Plan;
+    new-instance v1, Lcom/mrkeyboard/app/MrImportActivity$22$1;
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrImportActivity;->access$3500(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrImportAi$Plan;)V
+    invoke-direct {v1, p0, p1, p2}, Lcom/mrkeyboard/app/MrImportActivity$22$1;-><init>(Lcom/mrkeyboard/app/MrImportActivity$22;II)V
 
-    .line 747
+    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrImportActivity;->runOnUiThread(Ljava/lang/Runnable;)V
+
+    .line 685
     return-void
 .end method

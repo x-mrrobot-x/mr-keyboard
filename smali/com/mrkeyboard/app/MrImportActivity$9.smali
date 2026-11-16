@@ -3,12 +3,12 @@
 .source "MrImportActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Lcom/mrkeyboard/app/MrKit$LangPick;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrImportActivity;->onCreate(Landroid/os/Bundle;)V
+    value = Lcom/mrkeyboard/app/MrImportActivity;->refreshLanguages()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 236
+    .line 248
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$9;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,15 +36,47 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
+.method public onPick(Ljava/lang/String;)V
     .locals 1
 
     .prologue
-    .line 238
+    .line 250
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$9;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$1200(Lcom/mrkeyboard/app/MrImportActivity;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$1200(Lcom/mrkeyboard/app/MrImportActivity;)Z
 
-    .line 239
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    .line 256
+    :goto_0
     return-void
+
+    .line 251
+    :cond_0
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$9;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    invoke-static {v0, p1}, Lcom/mrkeyboard/app/MrImportActivity;->access$1302(Lcom/mrkeyboard/app/MrImportActivity;Ljava/lang/String;)Ljava/lang/String;
+
+    .line 252
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$9;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$1400(Lcom/mrkeyboard/app/MrImportActivity;)Landroid/content/SharedPreferences;
+
+    move-result-object v0
+
+    invoke-static {v0, p1}, Lcom/mrkeyboard/app/MrLang;->remember(Landroid/content/SharedPreferences;Ljava/lang/String;)V
+
+    .line 254
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$9;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$400(Lcom/mrkeyboard/app/MrImportActivity;)V
+
+    .line 255
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$9;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$1500(Lcom/mrkeyboard/app/MrImportActivity;)V
+
+    goto :goto_0
 .end method

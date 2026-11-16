@@ -1,4 +1,4 @@
-.class Lcom/mrkeyboard/app/MrImportActivity$12$1;
+.class Lcom/mrkeyboard/app/MrImportActivity$10$1;
 .super Ljava/lang/Object;
 .source "MrImportActivity.java"
 
@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrImportActivity$12;->run()V
+    value = Lcom/mrkeyboard/app/MrImportActivity$10;->run()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,13 +18,13 @@
 
 
 # instance fields
-.field final synthetic this$1:Lcom/mrkeyboard/app/MrImportActivity$12;
+.field final synthetic this$1:Lcom/mrkeyboard/app/MrImportActivity$10;
 
 .field final synthetic val$dict:Lcom/mrkeyboard/app/BinaryDictionary;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity$12;Lcom/mrkeyboard/app/BinaryDictionary;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity$10;Lcom/mrkeyboard/app/BinaryDictionary;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 424
-    iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$12$1;->this$1:Lcom/mrkeyboard/app/MrImportActivity$12;
+    .line 330
+    iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$10$1;->this$1:Lcom/mrkeyboard/app/MrImportActivity$10;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$12$1;->val$dict:Lcom/mrkeyboard/app/BinaryDictionary;
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$10$1;->val$dict:Lcom/mrkeyboard/app/BinaryDictionary;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,12 +49,12 @@
     .locals 1
 
     .prologue
-    .line 426
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$12$1;->val$dict:Lcom/mrkeyboard/app/BinaryDictionary;
+    .line 332
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$10$1;->val$dict:Lcom/mrkeyboard/app/BinaryDictionary;
 
     if-eqz v0, :cond_0
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$12$1;->val$dict:Lcom/mrkeyboard/app/BinaryDictionary;
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$10$1;->val$dict:Lcom/mrkeyboard/app/BinaryDictionary;
 
     invoke-virtual {v0, p1}, Lcom/mrkeyboard/app/BinaryDictionary;->isValidWord(Ljava/lang/CharSequence;)Z
 
