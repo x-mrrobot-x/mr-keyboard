@@ -34,20 +34,32 @@ Of the text before the cursor (at most 64 characters are read; a longer word goe
 
 So `hello world|` removes `world`, `hello, |` removes `, `, then `hello`; `foo-|` removes only the hyphen.
 
-## The word being typed (Autocompletar on)
+## The word being typed or reopened (Autocompletar on)
 
-With the suggestions on, the word being typed, or one reopened by the correction under the cursor, is composing text
-(`LatinIME.mrComposingLength() > 0`). It is **not** rewritten letter by letter: the keyboard and the app can disagree about where the
-composing text is, and then every `setComposingText` adds text instead of replacing it (words piled up, spaces gone, the whole field
-underlined). With Ctrl the word is a word of the text like any other:
+With the suggestions on, the word touching the cursor is composing text in the app (the underline), in two ways:
 
-1. the word is found by `wordLength` in the text read from the app (the composing letters are part of it);
-2. the keyboard lets go of the composing text (`LatinIME.mrDropComposing()`: the same steps `onUpdateSelection` takes when the cursor
-   leaves the word; nothing is committed, so the word is **not** learned) and the app is told `finishComposingText()`;
-3. `deleteSurroundingText` removes the word; 2 and 3 go in one batch of edits.
+- **typed**: the letters are in `mComposing` (`mPredicting`);
+- **reopened by the correction** (the cursor ends up touching a word, e.g. after a paste or after a delete): the app marks the word with
+  `setComposingRegion`, the strip shows its suggestions (`TextEntryState.isCorrecting`) and `mComposing` stays **empty**.
+
+Android's `BaseInputConnection.deleteSurroundingText` **counts the composing region as part of the selection** and deletes before *its*
+start. So with an underlined word at the end of the field, `deleteSurroundingText(n, 0)` took the n characters from before the
+underlined word and left it stuck to the cursor; each repeat did it again, and the pieces of the words piled up glued to it
+(`diretamente no código-fonte` became `dircódigo-fonte`, then `doccomentádircódigo-fonte`, ...). Letter by letter rewriting of the
+composing text (the first try) fails the same way when the app and the keyboard disagree about where it is.
+
+So before every delete the class:
+
+1. finds the word by `wordLength` in the text read from the app (the composing letters are part of it);
+2. if the keyboard holds a word (`LatinIME.mrHoldsWord()`: typed, or `isCorrecting`) lets go of it (`mrDropComposing()`: for a typed word
+   the steps `onUpdateSelection` takes when the cursor leaves it, for a reopened one `abortCorrection`; nothing is committed, so the
+   word is **not** learned);
+3. **always** tells the app `finishComposingText()` (a no-op when there is none; it covers an app that has composing text the
+   keyboard does not know about);
+4. `deleteSurroundingText(n, 0)`. 2 to 4 go in one batch of edits.
 
 So the class never writes composing text, and what it deletes depends only on the text of the app. A word reopened after a hyphen
-(`código-fonte`, the keyboard reopens `fonte`) goes whole, as the rule says. The words before it go with the next repeat.
+(`código-fonte`) goes whole, as the rule says.
 
 ## What is left to the usual delete
 
@@ -63,7 +75,7 @@ So the class never writes composing text, and what it deletes depends only on th
 | `LatinKeyboardBaseView$UIHandler.handleMessage` (repeat) | `interval(normal)` | the setting's interval (at least the usual one) while the hold is by words |
 | `LatinIME.handleBackspace` (after its housekeeping) | `onBackspace(ime)` | true = the word was deleted there; the smali then only updates the shift state and the text entry state |
 
-`LatinIME` gets `mrCtrlOn()` (is Ctrl on), `mrComposingLength()` and `mrDropComposing()`. The setting is read once and followed by a listener
+`LatinIME` gets `mrCtrlOn()` (is Ctrl on), `mrHoldsWord()` and `mrDropComposing()`. The setting is read once and followed by a listener
 on the default preferences; both keys are in `MrReset.KEYS`.
 
 The Ctrl key is in the compact, compact-with-Fn and full layouts (`kbd_compact.xml`, `kbd_compact_fn.xml`, `kbd_full.xml`).
@@ -72,8 +84,10 @@ The Ctrl key is in the compact, compact-with-Fn and full layouts (`kbd_compact.x
 
 - `docs/tools/worddel_test/WordDelTest.java` (in `run_java_tests.sh`): the rule on a table of texts and on thousands of random ones
   (progress, no half pair, no line break taken with a word), the setting and its limits, the Ctrl latch (read at the touch, kept
-  after Ctrl goes off), the interval, the word being typed taken whole, what is left to the usual delete, the setting off, and whole
-  holds replayed on a fake field (the touch, the repeat at 300 ms, then the interval asked) with the exact text left.
+  after Ctrl goes off), the interval, the word being typed or reopened, what is left to the usual delete, the setting off, and whole
+  holds replayed on a fake field (the touch, the repeat at 300 ms, then the interval asked) with the exact text left. The fake field
+  deletes the way `BaseInputConnection` does (the composing region counts as selected), and one replay is the phrase of the video with
+  the keyboard reopening the touched word after every delete: the earlier code fails it.
 - `docs/tools/test_word_delete.py` (in `mr-checks.yml`): the real smali of `handleBackspace`, `cancelKeyRepeatTimer` and the repeat of
   `handleMessage` in the mini Dalvik interpreter with a fake `MrWordDelete`, the order of the calls in `PointerTracker.onDownEvent`,
   the three methods added to `LatinIME`, that nobody else calls the class, the place of the setting on the screen, its limits against

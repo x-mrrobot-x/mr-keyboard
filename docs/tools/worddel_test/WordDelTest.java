@@ -34,12 +34,17 @@ public class WordDelTest {
     static void check(String name, boolean cond) { check(name, cond, null); }
 
     // ---------------------------------------------------------------- fakes
-    /** A fake text field: the text before the cursor is all there is. */
+    /**
+     * A fake text field, the cursor at the end. It has the composing region (the underlined word) and deletes the way Android's
+     * BaseInputConnection.deleteSurroundingText does: the composing region counts as part of the selection, so what is deleted is
+     * what comes before ITS start (and the region stays, moved with the text).
+     */
     static class Field implements InputConnection {
         StringBuilder text = new StringBuilder();
         String selected;
         boolean silent, fall;
         int reads, deletes, begins, ends, finishes;
+        int compStart = -1;                  // the composing region runs from here to the end of the text; -1 = none
 
         public CharSequence getTextBeforeCursor(int n, int flags) {
             reads++;
@@ -51,34 +56,59 @@ public class WordDelTest {
         public boolean commitText(CharSequence t, int pos) { text.append(t); return true; }
         public boolean deleteSurroundingText(int before, int after) {
             deletes++;
-            text.setLength(Math.max(0, text.length() - before));
+            int a = text.length();
+            if (compStart >= 0 && compStart < a) a = compStart;          // "ignore the composing text": the delete starts at its start
+            final int start = Math.max(0, a - before);
+            text.delete(start, a);
+            if (compStart >= 0) compStart = Math.min(compStart, start);   // the region follows the text
+            if (compStart >= 0 && compStart > text.length()) compStart = text.length();
             return true;
         }
-        public boolean finishComposingText() { finishes++; return true; }
+        public boolean finishComposingText() { finishes++; compStart = -1; return true; }
         public boolean beginBatchEdit() { begins++; return true; }
         public boolean endBatchEdit() { ends++; return true; }
     }
 
-    /** The keyboard as far as MrWordDelete sees it: Ctrl, and the word held as composing text. */
+    /**
+     * The keyboard as far as MrWordDelete sees it: Ctrl, and the word it holds. Two ways to hold one, as in the real keyboard:
+     * a word being typed (composing = letters in mComposing, and the app has them as composing text) and a word reopened by the
+     * correction under the cursor (correcting: the app has the word as composing text, the strip shows its suggestions and
+     * mComposing is EMPTY). reopenAtCursor() is what the keyboard does when the selection report arrives: the word touching the cursor
+     * is reopened.
+     */
     static class Ime extends LatinIME {
         final Field ic = new Field();
         boolean hasIc = true;
         boolean ctrl;                // mModCtrl
         boolean ctrlFall;            // asking for Ctrl throws
-        int composing;               // letters of the word being typed (composing text, the last ones of the text)
-        int drops;                   // times the keyboard was told to let go of the composing text
+        int composing;               // letters of the word being typed (mComposing)
+        boolean correcting;          // a word reopened by the correction (TextEntryState.isCorrecting)
+        boolean reopens;             // the keyboard reopens the word under the cursor after every delete, as the selection report makes it do
+        int drops;                   // times the keyboard was told to let go of its word
         int dropsAtDelete = -1;      // the deletes done when it was told to (to see the order)
         @Override public InputConnection getCurrentInputConnection() { return hasIc ? ic : null; }
-        @Override public int mrComposingLength() { return composing; }
+        @Override public boolean mrHoldsWord() { return composing > 0 || correcting; }
         @Override public boolean mrCtrlOn() {
             if (ctrlFall) throw new IllegalStateException("no keyboard");
             return ctrl;
         }
-        /** The keyboard lets go of the word (mComposing empty, mPredicting off): the text is not touched. */
+        /** The keyboard lets go (mComposing empty, mPredicting off; a reopened word: the app is told to finish it): the text is not touched. */
         @Override public void mrDropComposing() {
             drops++;
             dropsAtDelete = ic.deletes;
+            if (correcting) ic.finishComposingText();
             composing = 0;
+            correcting = false;
+        }
+        /** A word being typed: its last n letters are composing text in the app. */
+        void type(int n) { composing = n; ic.compStart = ic.text.length() - n; }
+        /** A word reopened by the correction: its last n letters are marked in the app; the keyboard's mComposing stays empty. */
+        void reopen(int n) { correcting = true; composing = 0; ic.compStart = ic.text.length() - n; }
+        /** The selection report: when the cursor touches a word (a run without blanks), the keyboard reopens it. */
+        void reopenAtCursor() {
+            int i = ic.text.length();
+            while (i > 0 && ic.text.charAt(i - 1) != ' ' && ic.text.charAt(i - 1) != '\n') i--;
+            if (i < ic.text.length()) reopen(ic.text.length() - i);
         }
     }
 
@@ -418,7 +448,7 @@ public class WordDelTest {
         MrWordDelete.up();
     }
 
-    // ---------------------------------------------------------------- the word being typed
+    // ---------------------------------------------------------------- the word being typed or reopened
     static void typed() {
         Prefs p = new Prefs();
         on(p);
@@ -427,62 +457,101 @@ public class WordDelTest {
         // a word being typed (composing text, part of the text of the app) goes like any other word, by position
         Ime ime = new Ime();
         ime.ic.text.append("one two three");
-        ime.composing = 5;                                    // "three" is the composing text
+        ime.type(5);                                          // "three" is the composing text
         ime.ctrl = true;
         touch(ime);
         check("typed: Ctrl + delete takes the word being typed whole, from the text", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one two "));
-        check("typed: the keyboard lets go of the word, once, BEFORE the delete; the app is told to finish its composing text, once",
-                ime.drops == 1 && ime.dropsAtDelete == 0 && ime.ic.finishes == 1 && ime.ic.deletes == 1 && ime.composing == 0,
+        check("typed: the keyboard lets go of the word, once, BEFORE the delete; the app's composing text is finished", 
+                ime.drops == 1 && ime.dropsAtDelete == 0 && ime.ic.finishes >= 1 && ime.ic.deletes == 1 && ime.ic.compStart == -1 && ime.composing == 0,
                 "drops=" + ime.drops + " at=" + ime.dropsAtDelete + " finishes=" + ime.ic.finishes + " deletes=" + ime.ic.deletes);
         check("typed: all in one batch of edits, closed", ime.ic.begins == 1 && ime.ic.ends == 1);
-        check("typed: the next repeat goes on by words, with nothing more to let go of", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one ") && ime.drops == 1 && ime.ic.finishes == 1);
-        check("typed: no batch when nothing is composing", ime.ic.begins == 1);
+        check("typed: the next repeat goes on by words, with nothing more to let go of", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one ") && ime.drops == 1);
         MrWordDelete.up();
 
-        // the word reopened is the end of a longer run: the rule decides (the hyphen belongs to the word)
-        Ime hy = new Ime();
-        hy.ic.text.append("no c\u00f3digo-fonte");
-        hy.composing = 5;                                     // "fonte": the keyboard reopens what follows the hyphen
-        hy.ctrl = true;
-        touch(hy);
-        check("typed: a reopened part of a word with a hyphen: the whole word goes", MrWordDelete.onBackspace(hy) && hy.ic.text.toString().equals("no "));
+        // THE BUG OF THE VIDEO: the word touching the cursor is reopened by the correction (underlined in the app) and the keyboard
+        // holds nothing in mComposing. The delete of the app starts before the underlined word: it must be finished first.
+        Ime re = new Ime();
+        re.ic.text.append("inseridos diretamente no c\u00f3digo-fonte");
+        re.reopen(12);
+        re.ctrl = true;
+        touch(re);
+        check("reopened: the word under the cursor (underlined in the app) goes whole, not a word before it",
+                MrWordDelete.onBackspace(re) && re.ic.text.toString().equals("inseridos diretamente no "), re.ic.text);
+        check("reopened: the keyboard lets go of it and the app's composing text is finished before the delete",
+                re.drops == 1 && re.dropsAtDelete == 0 && re.ic.compStart == -1 && !re.correcting);
+        check("reopened: and the next repeats go by words from there",
+                MrWordDelete.onBackspace(re) && re.ic.text.toString().equals("inseridos diretamente ")
+                        && MrWordDelete.onBackspace(re) && re.ic.text.toString().equals("inseridos ")
+                        && MrWordDelete.onBackspace(re) && re.ic.text.toString().equals(""));
+        MrWordDelete.up();
+
+        // the same with the keyboard reopening the word under the cursor after every delete (the selection report) while the hold goes on
+        Ime again = new Ime();
+        again.ic.text.append("inseridos diretamente no c\u00f3digo-fonte");
+        again.reopen(12);
+        again.ctrl = true;
+        touch(again);
+        boolean piled = false;
+        for (int i = 0; i < 4; i++) {
+            if (!MrWordDelete.onBackspace(again)) piled = true;
+            again.reopenAtCursor();
+        }
+        check("reopened: four words in a row with the keyboard reopening the touched word each time: the field is empty, nothing left glued",
+                !piled && again.ic.text.length() == 0, again.ic.text);
+        MrWordDelete.up();
+
+        // the app has composing text that the keyboard knows nothing about (the two disagree): the delete is still by position
+        Ime lost = new Ime();
+        lost.ic.text.append("one two three");
+        lost.ic.compStart = 8;
+        lost.ctrl = true;
+        touch(lost);
+        check("desync: composing text in the app that the keyboard does not hold: still the word before the cursor, and nothing to let go of",
+                MrWordDelete.onBackspace(lost) && lost.ic.text.toString().equals("one two ") && lost.drops == 0 && lost.ic.compStart == -1);
+        MrWordDelete.up();
+
+        // nothing held and nothing composed: the app is told all the same (one batch, one finish), the keyboard is not touched
+        Ime clean = new Ime();
+        clean.ic.text.append("one two");
+        clean.ctrl = true;
+        touch(clean);
+        check("clean: nothing held: the delete, one batch, the app told to finish (a no-op), the keyboard not touched",
+                MrWordDelete.onBackspace(clean) && clean.ic.text.toString().equals("one ") && clean.ic.finishes == 1 && clean.ic.begins == 1 && clean.drops == 0);
         MrWordDelete.up();
 
         // what the keyboard holds does not change what is deleted: only the text of the app does
         Ime off = new Ime();
         off.ic.text.append("one two three");
-        off.composing = 2;                                    // the keyboard holds less (or more) than the word: the app decides
+        off.type(2);                                          // the keyboard holds only 2 letters of the word: the app's text decides
         off.ctrl = true;
         touch(off);
         check("typed: the keyboard's idea of the word does not matter: the word of the text goes", MrWordDelete.onBackspace(off) && off.ic.text.toString().equals("one two "));
-        off.composing = 40;
-        check("typed: ... even a composing text longer than the text", MrWordDelete.onBackspace(off) && off.ic.text.toString().equals("one "));
         MrWordDelete.up();
 
         // the app gives no text: nothing is let go of, the usual delete runs (and does what it always did)
         Ime silent = new Ime();
         silent.ic.text.append("one two");
         silent.ic.silent = true;
-        silent.composing = 3;
+        silent.type(3);
         silent.ctrl = true;
         touch(silent);
         check("typed: the app gives no text: the usual delete runs, the word is left as it is", !MrWordDelete.onBackspace(silent) && silent.drops == 0 && silent.ic.finishes == 0 && silent.composing == 3);
         MrWordDelete.up();
 
-        // a selection: the usual delete removes it, the word being typed is left
+        // a selection: the usual delete removes it, the word is left
         Ime sel = new Ime();
         sel.ic.text.append("one two");
         sel.ic.selected = "two";
-        sel.composing = 3;
+        sel.type(3);
         sel.ctrl = true;
         touch(sel);
-        check("typed: text selected: the usual delete, nothing let go of", !MrWordDelete.onBackspace(sel) && sel.drops == 0 && sel.ic.deletes == 0);
+        check("typed: text selected: the usual delete, nothing let go of", !MrWordDelete.onBackspace(sel) && sel.drops == 0 && sel.ic.deletes == 0 && sel.ic.finishes == 0);
         MrWordDelete.up();
 
-        // the app fails in the middle: the batch is closed
+        // the app fails: nothing is left open
         Ime bad = new Ime();
         bad.ic.text.append("one two");
-        bad.composing = 3;
+        bad.type(3);
         bad.ic.fall = true;
         bad.ctrl = true;
         touch(bad);
@@ -498,20 +567,20 @@ public class WordDelTest {
         check("typed: no connection: the usual delete", !MrWordDelete.onBackspace(none) && none.drops == 0);
         MrWordDelete.up();
 
-        // nothing before the cursor but the word being typed is not possible; an empty field: the usual delete, nothing let go of
+        // an empty field: the usual delete, nothing let go of
         Ime empty = new Ime();
         empty.composing = 1;
         empty.ctrl = true;
         touch(empty);
-        check("typed: nothing to delete: the usual delete, the composing text is not let go of", !MrWordDelete.onBackspace(empty) && empty.drops == 0 && empty.ic.finishes == 0);
+        check("typed: nothing to delete: the usual delete, nothing let go of", !MrWordDelete.onBackspace(empty) && empty.drops == 0 && empty.ic.finishes == 0);
         MrWordDelete.up();
 
-        // without Ctrl the word being typed goes as always (the class does not touch it)
+        // without Ctrl the word goes as always (the class does not touch it)
         Ime plain = new Ime();
         plain.ic.text.append("one two");
-        plain.composing = 3;
+        plain.type(3);
         touch(plain);
-        check("typed: no Ctrl: not for this class", !MrWordDelete.onBackspace(plain) && plain.drops == 0 && plain.ic.finishes == 0 && plain.composing == 3);
+        check("typed: no Ctrl: not for this class", !MrWordDelete.onBackspace(plain) && plain.drops == 0 && plain.ic.finishes == 0 && plain.composing == 3 && plain.ic.compStart == 4);
         MrWordDelete.up();
     }
 
@@ -526,6 +595,7 @@ public class WordDelTest {
             what = "letter";
         }
         ime.ctrl = false;
+        if (ime.reopens) ime.reopenAtCursor();
         return what;
     }
 
@@ -627,11 +697,29 @@ public class WordDelTest {
         // 6. Autocompletar on: the word being typed whole on the touch, then the words
         Ime typedIme = new Ime();
         typedIme.ic.text.append("alpha beta gam");
-        typedIme.composing = 3;
+        typedIme.type(3);
         List<String> logT = replay(typedIme, 700, true);
         check("replay: a word being typed and Ctrl held: whole on the touch, then a word per repeat (0, 300, 500) and nothing left to take",
                 logT.subList(0, 3).equals(java.util.Arrays.asList("0:word", "300:word", "500:word")) && typedIme.ic.text.length() == 0
                         && typedIme.drops == 1 && typedIme.ic.begins == typedIme.ic.ends, logT + " | " + typedIme.ic.text);
+
+        // 6b. the video: the keyboard reopens the word touching the cursor after every delete; a hold with Ctrl goes through the whole text
+        Ime video = new Ime();
+        video.reopens = true;
+        video.ic.text.append("Ferramenta nativa do ecossistema Java utilizada para gerar p\u00e1ginas HTML de documenta\u00e7\u00e3o a partir de coment\u00e1rios inseridos diretamente no c\u00f3digo-fonte");
+        video.reopen(12);
+        List<String> logV = replay(video, 6000, true);
+        check("replay (the video): the 20 words of the phrase held with Ctrl, the first one reopened: 20 words, the field ends empty, nothing glued or left over",
+                video.ic.text.length() == 0 && count(logV, "word") == 20, video.ic.text + " | " + logV);
+
+        // 6c. the delete of a sign leaves the cursor touching a word, and the keyboard reopens it; the hold goes on through all of it
+        Ime touching = new Ime();
+        touching.reopens = true;
+        touching.ic.text.append("inseridos diretamente (no c\u00f3digo) e state-of-the-art, fim.");
+        touching.reopenAtCursor();
+        List<String> logR = replay(touching, 8000, true);
+        check("replay (signs): signs and words held with Ctrl, the word touching the cursor reopened after each delete: the field ends empty",
+                touching.ic.text.length() == 0 && touching.ic.compStart == -1 && count(logR, "letter") == logR.size() - count(logR, "word"), touching.ic.text + " | " + logR);
 
         // 7. the repeat cancelled (a second finger, a slide off the key): the next delete is the usual one
         Ime cut = new Ime();

@@ -14821,29 +14821,6 @@
     return-void
 .end method
 
-# Ctrl + delete by words (MrWordDelete): how many letters of the word being typed the keyboard holds as composing text; 0 when no
-# word is being typed. A word still held as composing is let go first (mrDropComposing) and then deleted from the text like any other.
-.method public mrComposingLength()I
-    .locals 1
-
-    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
-
-    if-nez v0, :cond_cl_on
-
-    const/4 v0, 0x0
-
-    return v0
-
-    :cond_cl_on
-    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
-
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->length()I
-
-    move-result v0
-
-    return v0
-.end method
-
 # Ctrl + delete by words (MrWordDelete): Ctrl is on (armed by a tap, or held in a chord).
 .method public mrCtrlOn()Z
     .locals 1
@@ -14853,9 +14830,39 @@
     return v0
 .end method
 
-# Ctrl + delete by words (MrWordDelete): lets go of the word the keyboard holds as composing, the way onUpdateSelection does when the
-# cursor moves away from it (the letters stay in the text; nothing is committed, so the word is not learned). The caller then calls
-# finishComposingText on the app and deletes from the text.
+# Ctrl + delete by words (MrWordDelete): the keyboard holds a word: one being typed (composing text, mPredicting) or one reopened by
+# the correction under the cursor (TextEntryState.isCorrecting: the word is marked in the app, the strip shows its suggestions, and
+# mComposing stays empty). Either one is let go (mrDropComposing) before the word is deleted from the text.
+.method public mrHoldsWord()Z
+    .locals 1
+
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
+
+    if-eqz v0, :cond_hw_corr
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->length()I
+
+    move-result v0
+
+    if-lez v0, :cond_hw_corr
+
+    const/4 v0, 0x1
+
+    return v0
+
+    :cond_hw_corr
+    invoke-static {}, Lcom/mrkeyboard/app/TextEntryState;->isCorrecting()Z
+
+    move-result v0
+
+    return v0
+.end method
+
+# Ctrl + delete by words (MrWordDelete): lets go of the word the keyboard holds (see mrHoldsWord) without committing it, so it is not
+# learned: the word being typed the way onUpdateSelection does when the cursor leaves it, and one reopened by the correction by
+# abortCorrection (the app is told to finish it, the strip is cleared). The letters stay in the text. The caller deletes from the text.
 .method public mrDropComposing()V
     .locals 2
 
@@ -14868,6 +14875,8 @@
     iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
 
     invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
+
+    invoke-direct {p0, v1}, Lcom/mrkeyboard/app/LatinIME;->abortCorrection(Z)V
 
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->postUpdateSuggestions()V
 

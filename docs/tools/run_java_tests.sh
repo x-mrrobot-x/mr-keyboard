@@ -49,7 +49,7 @@
 #   - WordDelTest: Ctrl + delete by words (MrWordDelete, 2.0.0): what a word is (a table of texts: letters and digits,
 #     apostrophe and hyphen inside a word, signs, accents as marks, emojis and joined families, blanks, line breaks) and what must hold for any text
 #     (some progress, never more than there is, no half pair of surrogates, no line break taken along with a word), the setting and its limits, Ctrl
-#     read at the touch and kept for the hold, the interval, the word being typed taken whole by the usual delete, what is left to the usual delete
+#     read at the touch and kept for the hold, the interval, the word being typed or reopened by the correction (the field deletes like Android's, composing text counted as selected), what is left to the usual delete
 #     (a selection, no text, a failing app), the setting off, and whole holds replayed on a fake field (the touch, the repeat at 300 ms, then the
 #     interval asked; a one-shot Ctrl goes off after the first key) with the exact text left.
 #   - GridTest: the drawn key grid of the sheet editor (SheetGridView, Java since 1.92.0): the geometry of the cells

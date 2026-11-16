@@ -9,11 +9,11 @@ public class LatinIME extends android.inputmethodservice.InputMethodService {
     public void mrCommit() { }
     /** Lets go of every word the keyboard still holds as composing (the typed one, one reopened by re-correction). Added to the real class in the smali (fonts tool). */
     public void mrEndWord() { }
-    /** How many letters of the word being typed the keyboard holds as composing text; 0 when none. Added to the real class in the smali (Ctrl + delete by words). */
-    public int mrComposingLength() { return 0; }
+    /** The keyboard holds a word: one being typed (composing text) or one reopened by the correction under the cursor. Added to the real class in the smali (Ctrl + delete by words). */
+    public boolean mrHoldsWord() { return false; }
     /** Ctrl is on (armed or held). Added to the real class in the smali (Ctrl + delete by words). */
     public boolean mrCtrlOn() { return false; }
-    /** Lets go of the word held as composing without committing it (not learned); the text stays. Added to the real class in the smali (Ctrl + delete by words). */
+    /** Lets go of the word the keyboard holds without committing it (not learned); the text stays. Added to the real class in the smali (Ctrl + delete by words). */
     public void mrDropComposing() { }
     /** The suggestion engine of the language in use. Added to the real class in the smali (gesture typing). */
     public Suggest mrSuggest() { return null; }

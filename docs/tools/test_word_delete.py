@@ -4,7 +4,7 @@
   - LatinIME.handleBackspace (its hook, and what the keyboard does with the answer) and LatinKeyboardBaseView$UIHandler.cancelKeyRepeatTimer
     and .handleMessage (the repeat) run in the mini Dalvik interpreter (dalvik_mini.py) with a fake MrWordDelete;
   - PointerTracker.onDownEvent (too big to run here): the order of the calls in the branch of the keys that repeat;
-  - the three methods added to LatinIME (mrCtrlOn, mrComposingLength, mrDropComposing) run in the interpreter;
+  - the three methods added to LatinIME (mrCtrlOn, mrHoldsWord, mrDropComposing) run in the interpreter;
   - nobody else calls MrWordDelete, and what is called exists in the generated smali with the signature used;
   - the settings screen (next to the long-press time), the limits and default against the Java constants, the texts in the three
     languages, the keys in MrReset.
@@ -117,6 +117,7 @@ class Host:
         self.take = False        # what MrWordDelete.onBackspace answers
         self.factor = 1          # what MrWordDelete.interval does to the interval (the setting's, 4 = 200 ms)
         self.timer = []
+        self.correcting = False  # what TextEntryState.isCorrecting answers
 
     def sget(self, cls, name):
         raise AssertionError("static %s.%s" % (cls, name))
@@ -142,6 +143,10 @@ class Host:
             return None
         if name == "getCurrentInputConnection":
             return None          # no text field: the usual delete returns at once
+        if name == "length":
+            return len(args[0])  # StringBuilder.length of a field that holds a str
+        if name == "isCorrecting":
+            return 1 if self.correcting else 0
         return None
 
 
@@ -204,10 +209,24 @@ check("handleMessage (repeat): in a hold by words the timer gets the interval Mr
 
 # ---------------------------------------------------------------------------------------------- the added methods of LatinIME
 LIME = os.path.join(APP, "LatinIME.smali")
-cl = code_lines(method_body(LIME, "public mrComposingLength()I"))
-check("mrComposingLength: 0 unless a word is being typed (mPredicting), then the length of mComposing",
-      any("->mPredicting:Z" in l for l in cl) and any("->mComposing:Ljava/lang/StringBuilder;" in l for l in cl)
-      and any("StringBuilder;->length()I" in l for l in cl), cl)
+hw = code_lines(method_body(LIME, "public mrHoldsWord()Z"))
+check("mrHoldsWord: a word being typed (mPredicting with something in mComposing) or one reopened by the correction (TextEntryState.isCorrecting)",
+      any("->mPredicting:Z" in l for l in hw) and any("->mComposing:Ljava/lang/StringBuilder;" in l for l in hw)
+      and any("StringBuilder;->length()I" in l for l in hw) and any("TextEntryState;->isCorrecting()Z" in l for l in hw), hw)
+
+
+def holds(predicting, composing, correcting):
+    vm2, host2 = vm_for(LIME, IME, [])
+    host2.correcting = correcting
+    return bool(vm2.run("mrHoldsWord()Z", [dm.Obj(IME, mPredicting=predicting, mComposing=composing)]))
+
+
+check("mrHoldsWord (run): a word being typed -> true",  holds(True, "abc", False) is True)
+check("mrHoldsWord (run): a word reopened by the correction (nothing in mComposing) -> true", holds(False, "", True) is True)
+check("mrHoldsWord (run): predicting with nothing composed, and not correcting -> false", holds(True, "", False) is False)
+check("mrHoldsWord (run): nothing held -> false", holds(False, "", False) is False)
+check("mrHoldsWord (run): composing text left over with mPredicting off, not correcting -> false", holds(False, "abc", False) is False)
+
 
 cc = code_lines(method_body(LIME, "public mrCtrlOn()Z"))
 check("mrCtrlOn: returns mModCtrl and nothing else", len(cc) == 2 and "->mModCtrl:Z" in cc[0] and cc[1].startswith("return"), cc)
@@ -216,19 +235,25 @@ check("mrCtrlOn: true when Ctrl is on, false when it is not (run)",
       vm.run("mrCtrlOn()Z", [dm.Obj(IME, mModCtrl=True)]) in (True, 1) and vm.run("mrCtrlOn()Z", [dm.Obj(IME, mModCtrl=False)]) in (False, 0, None))
 
 dc = code_lines(method_body(LIME, "public mrDropComposing()V"))
-check("mrDropComposing: empties mComposing, turns mPredicting off, forgets the previous word, asks for the suggestions and resets the text entry state",
+check("mrDropComposing: empties mComposing, turns mPredicting off, forgets the previous word, finishes a reopened word (abortCorrection), asks for the suggestions and resets the text entry state",
       any("->mComposing:Ljava/lang/StringBuilder;" in l for l in dc) and any("StringBuilder;->setLength(I)V" in l for l in dc)
       and any("->mPredicting:Z" in l and l.startswith("iput-boolean") for l in dc)
-      and any("MrPrevWord;->clear()V" in l for l in dc) and any("->postUpdateSuggestions()V" in l for l in dc)
-      and any("TextEntryState;->reset()V" in l for l in dc), dc)
-check("mrDropComposing: writes nothing to the app and commits nothing (so the word is not learned)",
+      and any("MrPrevWord;->clear()V" in l for l in dc) and any("->abortCorrection(Z)V" in l for l in dc)
+      and any("->postUpdateSuggestions()V" in l for l in dc) and any("TextEntryState;->reset()V" in l for l in dc), dc)
+ia = index_of(dc, "->abortCorrection(Z)V")
+ir = index_of(dc, "TextEntryState;->reset()V")
+check("mrDropComposing: a reopened word is finished BEFORE the text entry state is reset (abortCorrection asks whether it is correcting)", 0 <= ia < ir, (ia, ir))
+check("mrDropComposing: abortCorrection is called with false in v1 (no force: it only acts when the keyboard is correcting), v1 being the 0 set at the start",
+      dc[ia].startswith("invoke-direct {p0, v1}") and dc[0].startswith("iget-object v0") and "const/4 v1, 0x0" in dc[:ia]
+      and sum(1 for l in dc[:ia] if re.match(r"(const|move|iget|invoke-virtual \{v1)", l) and " v1," in l and l != "const/4 v1, 0x0") == 0, dc)
+check("mrDropComposing: commits nothing and writes nothing to the app itself (so the word is not learned)",
       not any(w in l for l in dc for w in ("InputConnection", "commitTyped", "commitText", "setComposingText", "finishComposingText",
                                            "deleteSurroundingText", "AutoDictionary", "UserBigram", "addWord", "ictionary", "pickSuggestion")), dc)
-vm, host = vm_for(LIME, IME, ["postUpdateSuggestions()V"])
+vm, host = vm_for(LIME, IME, ["postUpdateSuggestions()V", "abortCorrection(Z)V"])
 this = dm.Obj(IME, mComposing="abc", mPredicting=True)
 vm.run("mrDropComposing()V", [this])
-check("mrDropComposing: runs: the same steps as onUpdateSelection takes when the cursor leaves the composing word (run)",
-      host.log == ["setLength", "clear", "postUpdateSuggestions", "reset"] and this.f["mPredicting"] in (False, 0), host.log)
+check("mrDropComposing: runs, in this order (run)",
+      host.log == ["setLength", "clear", "abortCorrection", "postUpdateSuggestions", "reset"] and this.f["mPredicting"] in (False, 0), host.log)
 
 # the word being typed is never rewritten by this class: the keyboard and the app could disagree about where the composing text is,
 # and a rewrite would then add text instead of replacing it
@@ -237,8 +262,8 @@ code_only = re.sub(r"/\*.*?\*/", "", mwd, flags=re.S)
 code_only = re.sub(r"//[^\n]*", "", code_only)
 check("MrWordDelete never writes composing text (no setComposingText / commitText / setComposingRegion), only deletes by position",
       not any(w in code_only for w in ("setComposingText", "commitText", "setComposingRegion", "mrEndWord", "mrCommit")), "")
-check("MrWordDelete lets go of the composing text before it deletes (mrDropComposing, then finishComposingText, then deleteSurroundingText)",
-      code_only.index("mrDropComposing()") < code_only.index("finishComposingText()") < code_only.index("deleteSurroundingText(n, 0)"))
+check("MrWordDelete: the keyboard's word is let go of, THEN the app is told to finish its composing text, ALWAYS (not inside an if), THEN the delete by position",
+      re.search(r"if \(ime\.mrHoldsWord\(\)\) ime\.mrDropComposing\(\);\s*ic\.finishComposingText\(\);\s*ic\.deleteSurroundingText\(n, 0\);", code_only) is not None)
 
 # ---------------------------------------------------------------------------------------------- the screen, the limits, the texts
 java = read(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrWordDelete.java"))

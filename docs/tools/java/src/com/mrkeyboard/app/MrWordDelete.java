@@ -21,12 +21,15 @@ import android.view.inputmethod.InputConnection;
  * is a step of its own: the spaces before a line break are removed without crossing it, and a line break right before the cursor
  * goes alone. See {@link #wordLength}.
  *
- * <p>A word still being typed, or reopened by the correction under the cursor, is composing text. It is not rewritten letter by
- * letter (the keyboard and the app could disagree about where the composing text is, and each rewrite would then add text instead
- * of replacing it): the keyboard lets go of it first ({@link LatinIME#mrDropComposing}, nothing is committed, so the word is not
- * learned; the app is told to finish its composing text) and the word goes from the text like any other, in one batch of edits.
- * The class only reads the text and deletes by position; it never writes composing text. Left to the usual delete: text selected (the delete removes it), the
- * text before the cursor not readable, and the start of the field.
+ * <p>The composing text. A word still being typed, or reopened by the correction under the cursor (the underlined word: the app
+ * marks it as composing text, the keyboard shows its suggestions and holds nothing in mComposing), is composing text in the app.
+ * The delete of the app (BaseInputConnection.deleteSurroundingText) counts that text as part of the selection and deletes before
+ * ITS start: with the word at the end of the field, a word is taken from before it every time and the underlined one is left,
+ * stuck to the cursor, with the pieces of the others glued to it. So before each delete the keyboard lets go of the word it
+ * holds ({@link LatinIME#mrDropComposing}, nothing is committed, so it is not learned) and the app is always told to finish its
+ * composing text, whether the keyboard knows of any or not. Then the word goes from the text like any other, all in one batch of
+ * edits. The class only reads the text and deletes by position; it never writes composing text. Left to the usual delete: text
+ * selected (the delete removes it), the text before the cursor not readable, and the start of the field.
  *
  * <p>All on the main thread. The calls from the smali, each of them catching what is thrown here (a fault never stops typing):
  * <pre>
@@ -36,7 +39,7 @@ import android.view.inputmethod.InputConnection;
  *       .handleMessage (repeat)              {@link #interval}: the time to the next repeat
  *   LatinIME.handleBackspace                 {@link #onBackspace}: true = the delete was done here
  * </pre>
- * and LatinIME.mrCtrlOn(), mrComposingLength() and mrDropComposing(), small methods added to the class for it.
+ * and LatinIME.mrCtrlOn(), mrHoldsWord() and mrDropComposing(), small methods added to the class for it.
  */
 public final class MrWordDelete {
     static final String PREF_ON = "pref_word_delete";
@@ -182,18 +185,13 @@ public final class MrWordDelete {
                 if (selected != null && selected.length() > 0) return false;      // the usual delete removes the selection
                 n = wordLength(ic.getTextBeforeCursor(LOOKBACK, 0));
                 if (n > 0) {
-                    // The text is read from the app (the composing text is part of it), so a word being typed is a word like any
-                    // other; the keyboard only has to let go of it, in the same batch as the delete.
-                    final boolean composing = ime.mrComposingLength() > 0;
-                    if (composing) ic.beginBatchEdit();
+                    ic.beginBatchEdit();
                     try {
-                        if (composing) {
-                            ime.mrDropComposing();
-                            ic.finishComposingText();
-                        }
+                        if (ime.mrHoldsWord()) ime.mrDropComposing();     // the keyboard's side: a word being typed or reopened
+                        ic.finishComposingText();                         // the app's side, always: its delete counts composing text as selected
                         ic.deleteSurroundingText(n, 0);
                     } finally {
-                        if (composing) ic.endBatchEdit();
+                        ic.endBatchEdit();
                     }
                 }
             } finally {
