@@ -727,4 +727,33 @@
     <string name="mr_word_delete_cat_undo">Deshacer y rehacer</string>
     <string name="mr_word_delete_undo_title">Ctrl + Z y Ctrl + Y</string>
     <string name="mr_word_delete_undo_sum">Ctrl + Z devuelve la última palabra borrada, de una en una. Ctrl + Y vuelve a borrar la que volvió. Las palabras se guardan 2 minutos.</string>
+    <!-- First steps (MrTour, MrTourActivity) -->
+    <string name="mr_tour_title">Primeros pasos</string>
+    <string name="mr_tour_step">Paso %1$d de %2$d</string>
+    <string name="mr_tour_skip">Omitir</string>
+    <string name="mr_tour_dict_title">Sugerencias de palabras</string>
+    <string name="mr_tour_dict_text">Las sugerencias, la corrección y la predicción de la siguiente palabra funcionan en tu teléfono, sin internet. Necesitan el diccionario de tu idioma, descargado una vez.</string>
+    <string name="mr_tour_dict_missing">Diccionario: %1$s · sin descargar</string>
+    <string name="mr_tour_dict_nopack">Todavía no hay diccionario para tu idioma.</string>
+    <string name="mr_tour_dict_off">Desactivar sugerencias</string>
+    <string name="mr_tour_gesture_title">Escritura por gestos</string>
+    <string name="mr_tour_gesture_text">Desliza el dedo de letra en letra y el teclado escribe la palabra. Necesita un archivo de unos 2,4 MB, descargado una vez, hecho con la tecnología “FUTO Swipe”.</string>
+    <string name="mr_tour_gesture_missing">Reconocimiento de gestos: sin descargar</string>
+    <string name="mr_tour_gesture_off">Desactivar escritura por gestos</string>
+    <string name="mr_tour_word_title">Borrar por palabra</string>
+    <string name="mr_tour_word_text">Con Ctrl activo, la tecla de borrar quita la palabra entera. Ctrl + Z la devuelve.</string>
+    <string name="mr_tour_word_on">Activado</string>
+    <string name="mr_tour_word_off">Desactivar</string>
+    <string name="mr_tour_ready">Listo</string>
+    <string name="mr_tour_net_note">El archivo viene de las versiones (releases) de GitHub de este proyecto. Nada de lo que escribes se envía.</string>
+    <string name="mr_tour_later">Puedes cambiar todo esto más tarde en Ajustes.</string>
+    <string name="mr_tour_download">Descargar</string>
+    <string name="mr_tour_retry">Reintentar</string>
+    <string name="mr_tour_choose">Elegir idioma</string>
+    <string name="mr_tour_continue">Continuar</string>
+    <string name="mr_tour_finish">Terminar</string>
+    <string name="mr_tour_keep">Mantener activado</string>
+    <string name="mr_tour_keep_finish">Mantener activado y terminar</string>
+    <string name="mr_tour_no_pack">No hay diccionario para tu idioma en el catálogo.</string>
+    <string name="mr_tour_no_gesture">El catálogo no tiene el archivo de reconocimiento de gestos.</string>
 </resources>

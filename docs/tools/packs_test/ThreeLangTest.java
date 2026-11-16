@@ -49,6 +49,25 @@ public class ThreeLangTest {
             public CharSequence getTextBeforeCursor(int n, int f) { return ""; }
         });
         PacksTest.check("German (no pack in the catalog): no dictionary and no download offer", !sd.hasMainDictionary() && offer == null, offer);
+        // the first steps (MrTour.work): the dictionary of the system language; a language with no dictionary gets English
+        String[][] steps = {{"pt", "BR", "pt-BR", "pt_BR,"}, {"es", "MX", "es", "es,"}, {"en", "GB", "en-US", "en_US,"}, {"fr", "FR", "en-US", "en_US,"}, {"ja", "JP", "en-US", "en_US,"}};
+        for (String[] t : steps) {
+            File dir2 = Files.createTempDirectory("mr3").toFile();
+            PacksTest.Ctx c2 = new PacksTest.Ctx(dir2);
+            String err = MrTour.work(c2, "dict", new Locale(t[0], t[1]));
+            android.content.SharedPreferences dp = c2.getSharedPreferences("default", 0);
+            PacksTest.check("first steps, system language " + t[0] + "_" + t[1] + ": downloads " + t[2] + " and nothing else", err == null && MrPacks.installedIds(c2).equals(Arrays.asList(t[2])), err + " " + MrPacks.installedIds(c2));
+            PacksTest.check("  suggestions on and the keyboard language is " + t[3], dp.getBoolean("show_suggestions", false) && t[3].equals(dp.getString("selected_languages", "-")), dp.getString("selected_languages", "-"));
+            MrPacks.deleteTree(dir2);
+        }
+        PacksTest.httpCode = 404;
+        File dir3 = Files.createTempDirectory("mr3").toFile();
+        PacksTest.Ctx c3 = new PacksTest.Ctx(dir3);
+        String err3 = MrTour.work(c3, "dict", new Locale("pt", "BR"));
+        PacksTest.httpCode = 200;
+        PacksTest.check("first steps, no connection to the catalog (HTTP 404): a failure to show on the card, nothing installed and suggestions not touched",
+                err3 != null && err3.length() > 0 && MrPacks.installedIds(c3).isEmpty() && !c3.getSharedPreferences("default", 0).getBoolean("show_suggestions", false), err3);
+        MrPacks.deleteTree(dir3);
         System.out.println(PacksTest.fails == 0 ? "ALL OK (" + PacksTest.oks + " checks)" : PacksTest.fails + " FAILURE(S)");
         MrPacks.deleteTree(tmp);
         System.exit(PacksTest.fails == 0 ? 0 : 1);

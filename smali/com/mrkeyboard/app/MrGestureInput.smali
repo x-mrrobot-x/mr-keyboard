@@ -3846,9 +3846,9 @@
     .locals 7
 
     .prologue
-    const/4 v0, 0x1
-
     const/4 v1, 0x0
+
+    const/4 v0, 0x1
 
     .line 211
     const-class v4, Lcom/mrkeyboard/app/MrGestureInput;
@@ -3885,7 +3885,7 @@
 
     const-string v2, "pref_gesture_typing"
 
-    const/4 v3, 0x0
+    const/4 v3, 0x1
 
     invoke-interface {v5, v2, v3}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
 

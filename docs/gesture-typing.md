@@ -1,4 +1,4 @@
-# Gesture typing (off by default, since 1.96.0)
+# Gesture typing (since 1.96.0, on by default)
 
 Gesture typing: the finger goes down on the first letter of a word, slides over the others and lifts on the last one, and the
 keyboard writes the word. This file is the living description of the feature: what exists, how it works, what was measured and
@@ -45,8 +45,8 @@ the person as context for a gesture ("Known limits").
 **What it changes for who uses the app.** With gesture typing off, which is how it comes: nothing on the keyboard (each of the
 six calls added to its code returns on its first line; a seventh reads the setting when a dictionary is loaded; the tree of
 learned words counts its changes, one addition each, for a copy nobody asks for while the setting is off). There is a new group,
-**Gesture typing**, in Settings, Suggestions and dictionaries. Turning it on asks for a download of 2.4 MB (the
-weights); the APK does not carry them. With it on: the word is written by sliding the finger; the words the keyboard learned
+**Gesture typing**, in Settings, Suggestions and dictionaries. It asks for a download of 2.4 MB (the
+weights); the APK does not carry them (the option is on by default: it starts working as soon as the weights are installed). With it on: the word is written by sliding the finger; the words the keyboard learned
 from the person, the ones added in "Add words and texts" and the ones of the user dictionary of Android can be written too; a
 word on the list of blocked words is never written nor offered; and the strip shows, while the finger slides, the word that
 would be written if it lifted there (a setting, on by default, in the same group). The four `libmrengine.so` grew by 85,592,
@@ -96,7 +96,7 @@ gestures, the trail, the text that goes to the app, the strip, the backspace and
 slides. `MrGestureWords` is the copy of the words of the person that the recognition searches.
 
 ### When it is on
-Two conditions, both read in `MrGestureInput.reload()`: the setting `pref_gesture_typing` is on (it is off by default) **and**
+Two conditions, both read in `MrGestureInput.reload()`: the setting `pref_gesture_typing` is on (it is on by default; without a stored value it counts as on) **and**
 the weights are installed (`MrPacks.modelFile`). Then the lib opens the weights (2.8 MB of memory); when either condition
 goes away the lib lets go of them. A listener follows the setting, and `MrPacks` calls `reload()` after it installs or removes
 the weights. Android's backup carries the setting but not the weights (it covers only the default preferences and
@@ -280,8 +280,8 @@ its version changed.
   gestures know), and the notice. The row of the file
   never connects on a tap: without a stored catalog that has the weights, a dialog says what will be downloaded and from
   where, and only its Download button connects (it fetches the catalog and then the file); with one, the dialog is the
-  one of a language, with Download or Update. Installing the weights does not turn the option on, and does not touch
-  "show suggestions". "Restore defaults" (`MrReset.KEYS`) turns the option off and leaves the file.
+  one of a language, with Download or Update. Installing the weights does not change the option (on by default, so gesture typing works at once unless the person turned it off), and does not touch
+  "show suggestions". "Restore defaults" (`MrReset.KEYS`) removes the stored value, so the option goes back to on, and leaves the file.
 - **The notice**: the licence of the weights asks for a visible notice that the product is powered by "FUTO Swipe"
   technology. It is the last row of the group, always there, with or without the file: one line that does nothing when
   tapped. The text of the licence travels with the pack (`LICENSE-FUTO-Model-Weights.md`, `NOTICE.txt`).
@@ -527,11 +527,11 @@ phone where the earlier build of the keyboard side was in use, its owner reporte
 | The ARM code | the gesture test on the arm64-v8a and armeabi-v7a builds under qemu-user | `run_android_tests.sh`, in CI (mr-native.yml) |
 | The app's classes | `MrGesture` over `MrNative` over the lib, the app's letter tables, opening in the background, closing and opening | `GestureTest` (`run_gesture_tests.sh`), in CI (mr-checks.yml) |
 | No lib | `MrGesture` answers -1 and throws nothing | `NoLibTest` (`run_java_tests.sh`), in CI |
-| The keyboard code, alone | 262 of the 330 checks of `GestureInputTest` (the rest are below), with a fake view, text field and recognition: off by default and nothing followed while off; each condition of rule 1; a tap and a long press unchanged; the cancel sent once to the usual path; two fingers; the trace handed over in the right frame (history points included); the finger lifting outside the letters; the space, the capitals, the previous word; the strip and the swap; backspace; any other key, but not the sheet and Shift keys (the sign typed on the symbols sheet is still glued); a suggestion tapped on the strip (the sign after it glued, the usual backspace, another field, no automatic space); the trail and its redraw rectangles; the time kept; an exception inside never leaving it nor typing a key | `GestureInputTest` (`run_java_tests.sh`), in CI |
+| The keyboard code, alone | 264 of the 332 checks of `GestureInputTest` (the rest are below), with a fake view, text field and recognition: on by default but off with no weights, and nothing followed while off; each condition of rule 1; a tap and a long press unchanged; the cancel sent once to the usual path; two fingers; the trace handed over in the right frame (history points included); the finger lifting outside the letters; the space, the capitals, the previous word; the strip and the swap; backspace; any other key, but not the sheet and Shift keys (the sign typed on the symbols sheet is still glued); a suggestion tapped on the strip (the sign after it glued, the usual backspace, another field, no automatic space); the trail and its redraw rectangles; the time kept; an exception inside never leaving it nor typing a key | `GestureInputTest` (`run_java_tests.sh`), in CI |
 | From touch to text | the table above; the counts must not fall under their floors | `GestureInputE2E` (`run_gesture_input_tests.sh`), in CI |
 | The stubs against the real classes | every method and field that `MrGestureInput` and the settings screen use in the hand-written classes (`LatinIME`, `LatinKeyboardView`, `Keyboard`, `KeyboardSwitcher`, `MrTools`...) exists in the real smali with that signature, is not private there, and is static or not as the code uses it; the same for what they use of `android.*` (methods and fields), against the SDK jar | `check_stub_api.py`, in CI (corrected in 1.96.0: it reported nothing on the APK side and looked at no field) |
 | The pack of the weights | the zip and the `models` list (27 checks: reuse, serial, every error of a model pack); the release end to end with a fake `gh` (11 checks: attached once, kept in its release afterwards, a zip that did not upload) | `test_make_catalog.py`, `publish_test/run.sh`, in CI |
-| The pack in the app | 66 checks through the classes of the APK and the PC lib: the catalog, a cancelled, tampered or cut download, weights with another magic, a licence of a few bytes, an extra file, a newer app or format, install, update, remove, the lib opening the installed file, "restore defaults", a picked file (only the known one is taken, 16 MB read at most, no network request), and that the table of known files, the licence in the APK and the size said in the dialog agree with `gesture/` | `ModelPackTest` (`run_packs_tests.sh`), in CI |
+| The pack in the app | 74 checks through the classes of the APK and the PC lib: the catalog, a cancelled, tampered or cut download, weights with another magic, a licence of a few bytes, an extra file, a newer app or format, install, update, remove, the lib opening the installed file, "restore defaults", a picked file (only the known one is taken, 16 MB read at most, no network request), and that the table of known files, the licence in the APK and the size said in the dialog agree with `gesture/` | `ModelPackTest` (`run_packs_tests.sh`), in CI |
 | The second dictionary in the lib | `Gesture::more` on hand-made and real data: `main.dict` cut in two halves and searched one after the other gives the list of the whole one; each result says which dictionary it came from; a word both have, in the same or in other capitals, comes once with the larger score; a weaker copy changes nothing; no dictionary, an empty one, one of digits: the results stay; -1 and the results untouched when there is no gesture to search (after open, close, a new layout, a refused gesture) or the values are refused; 16 results at most; a **corrupt second dictionary** (cut, swapped bytes, garbage): no crash, no read outside, the lists stay valid, the memory limit holds; real gestures: of the 17 words of the English file that `main.dict` lacks, 16 come first and 17 among 3, and the 256 right answers of `main.dict` stay | `mr_gesture_test` (355 checks; also ASan + UBSan, and the Android builds under qemu), in CI |
 | `nGestureMore` through the JNI | bad arguments (non-direct or null buffer, sizes, short or null arrays, a previous word longer than its array): -1 and the arrays as they were; the mask; 20 buffers of garbage; the 300 English gestures with every word of the file in the second dictionary: 276 first and 293 among 3 (256 and 272 without) | `JniSmoke` (178 checks), in CI |
 | The words of the person, Java | `MrGestureWords` alone, 52 checks: the dictionary it writes is read back by a reader of the format written for the test (20,000 words, accents, `'`, a 2-byte letter, one word in two spellings); which words go in (frequency 6 and up from the learned ones, all of the user dictionary, no blocked word, the higher frequency when both trees have it); the frequency 100 to 130; made again only after a change (a word added, the tree cleared, a word blocked or unblocked, other dictionary objects); a tree still loading is not read; the ceiling of words | `GestureWordsTest` (`run_java_tests.sh`), in CI |
@@ -597,9 +597,9 @@ Items 1 to 13 are the ones of the keyboard side; items 14 to 20 are the ones of 
 sliding. The numbers of "Recognition time" after 26 gestures, 10 words of the person and the word while sliding are in the top of
 this file. Item 13 was done with the weights installed from a file; the download from the published catalog remains to be seen.
 
-1. With the setting **off**: typing, long press, the slide actions, the language switch on the space bar, the sheets. Nothing
+1. With the setting turned **off** (it is on by default): typing, long press, the slide actions, the language switch on the space bar, the sheets. Nothing
    may differ from 1.94.0.
-2. Turn it on without the file: the dialog; "Not now" leaves the row in red; **From a file** installs; "Recognition time"
+2. On (the default) without the file: turning it off and on again shows the dialog; "Not now" leaves the row in red; **From a file** installs; "Recognition time"
    says "Ready".
 3. Words of 2, 3 and many letters, in the three languages; the space; a capital at the start of a sentence, with Shift
    tapped and with Shift locked; punctuation right after a word.

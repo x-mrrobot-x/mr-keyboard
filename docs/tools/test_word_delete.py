@@ -355,8 +355,8 @@ check("screen: two sections, each with a title and an icon, then the rows in thi
       and all('android:title="@string/' in k[2] and 'android:icon="@drawable/' in k[2] for k in keys if k[1] == "PreferenceCategory"), names)
 sw = keys[names.index("pref_word_delete")]
 bar = keys[names.index("pref_word_delete_interval")]
-check("screen: the switch is a CheckBoxPreference, off by default, persistent, with a summary that says what it does",
-      sw[1] == "CheckBoxPreference" and 'android:defaultValue="false"' in sw[2] and 'android:persistent="true"' in sw[2] and 'android:summary="@string/mr_word_delete_summary"' in sw[2], sw)
+check("screen: the switch is a CheckBoxPreference, on by default, persistent, with a summary that says what it does",
+      sw[1] == "CheckBoxPreference" and 'android:defaultValue="true"' in sw[2] and 'android:persistent="true"' in sw[2] and 'android:summary="@string/mr_word_delete_summary"' in sw[2], sw)
 check("screen: the interval is a seek bar that depends on the switch", bar[1] == "com.mrkeyboard.app.SeekBarPreferenceString"
       and 'android:dependency="pref_word_delete"' in bar[2], bar)
 texts = [keys[names.index(n)] for n in ("word_delete_how", "word_delete_undo_info")]

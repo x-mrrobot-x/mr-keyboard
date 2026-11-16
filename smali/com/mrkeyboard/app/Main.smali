@@ -211,6 +211,9 @@
     # v1.82: new-version notice on opening (once a day, in the background)
     invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdateUi;->onOpen(Landroid/app/Activity;)V
 
+    # the first steps (suggestions, gesture typing, delete by word), once, when a file is still missing (Java layer, MrTour)
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrTour;->onOpen(Landroid/app/Activity;)V
+
     return-void
 .end method
 

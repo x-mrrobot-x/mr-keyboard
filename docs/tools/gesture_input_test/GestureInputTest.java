@@ -1263,7 +1263,7 @@ public class GestureInputTest {
         Prefs def = new Prefs();
         PreferenceManager.stubDefault = def;
         MrGestureInput.init(c);
-        check(!MrGestureInput.sOn && MrGestureInput.sTrail && MrGestureInput.sPreview && def.listeners.size() == 1, "setting: off by default, the trail and the preview on, one listener");
+        check(!MrGestureInput.sOn && MrGestureInput.sTrail && MrGestureInput.sPreview && def.listeners.size() == 1, "setting: on by default but with no weights it is off, the trail and the preview on, one listener");
         MrGestureInput.init(c);
         check(def.listeners.size() == 1, "setting: a second init adds no listener");
         def.set(MrGestureInput.PREF_ON, Boolean.TRUE);
@@ -1293,7 +1293,16 @@ public class GestureInputTest {
         def.set(MrGestureInput.PREF_ON, null);
         def.set(MrGestureInput.PREF_TRAIL, null);
         def.set(MrGestureInput.PREF_PREVIEW, null);
-        check(!MrGestureInput.sOn && MrGestureInput.sTrail && MrGestureInput.sPreview, "setting: restore defaults (the keys removed) leaves it off with the trail and the preview on");
+        check(!MrGestureInput.sOn && MrGestureInput.sTrail && MrGestureInput.sPreview, "setting: restore defaults (the keys removed): on by default, but with no weights it is off, with the trail and the preview on");
+        model.mkdirs();
+        FileOutputStream out2 = new FileOutputStream(new File(model, MrPacks.ENCODER));
+        out2.write(new byte[2048]);
+        out2.close();
+        c.packs.m.put(MrPacks.KEY_MODEL + MrPacks.MODEL_GESTURE, 1);
+        MrGestureInput.reload(c);
+        check(MrGestureInput.sOn, "setting: the keys removed and the weights installed: it is on with no other step (on by default)");
+        MrPacks.removeModel(c, MrPacks.MODEL_GESTURE);
+        check(!MrGestureInput.sOn && !model.exists(), "weights removed again: off");
         MrGestureInput.resetForTest();
         PreferenceManager.stubDefault = null;
         MrGestureInput.init(c);

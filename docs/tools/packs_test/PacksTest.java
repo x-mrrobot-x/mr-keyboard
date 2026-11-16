@@ -291,7 +291,7 @@ public class PacksTest {
                 .putString("pref_render_mode", "2").putString("emote_recent", "a,b").putString("selected_languages", "xx,").commit();
         MrReset.apply(ctx);
         check("restore defaults: the settings keys go away (theme, suggestions, spacing, old keys)",
-                dp.getString("pref_keyboard_layout", "-").equals("-") && !dp.getBoolean("show_suggestions", false)
+                dp.getString("pref_keyboard_layout", "-").equals("-") && !dp.getBoolean("show_suggestions", false) && dp.getBoolean("show_suggestions", true)
                 && dp.getString("pref_key_spacing", "-").equals("-") && dp.getString("pref_render_mode", "-").equals("-"), null);
         check("restore defaults: does not delete what is not a setting and fixes the languages (emotes, pt_BR,, pack)",
                 "a,b".equals(dp.getString("emote_recent", "-")) && "pt_BR,".equals(dp.getString("selected_languages", "-"))

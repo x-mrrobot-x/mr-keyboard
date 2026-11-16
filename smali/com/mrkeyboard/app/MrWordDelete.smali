@@ -1383,64 +1383,64 @@
 .end method
 
 .method static declared-synchronized reload()V
-    .locals 6
+    .locals 7
 
     .prologue
     const/16 v0, 0xc8
 
-    const/4 v1, 0x0
+    const/4 v1, 0x1
+
+    const/4 v2, 0x0
 
     .line 177
-    const-class v2, Lcom/mrkeyboard/app/MrWordDelete;
+    const-class v3, Lcom/mrkeyboard/app/MrWordDelete;
 
-    monitor-enter v2
+    monitor-enter v3
 
     :try_start_0
-    sget-object v3, Lcom/mrkeyboard/app/MrWordDelete;->sApp:Landroid/content/Context;
+    sget-object v4, Lcom/mrkeyboard/app/MrWordDelete;->sApp:Landroid/content/Context;
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    if-nez v3, :cond_1
+    if-nez v4, :cond_1
 
     .line 188
     :cond_0
     :goto_0
-    monitor-exit v2
+    monitor-exit v3
 
     return-void
 
     .line 178
     :cond_1
     :try_start_1
-    sget-object v3, Lcom/mrkeyboard/app/MrWordDelete;->sApp:Landroid/content/Context;
+    sget-object v4, Lcom/mrkeyboard/app/MrWordDelete;->sApp:Landroid/content/Context;
 
-    invoke-static {v3}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
+    invoke-static {v4}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
-    move-result-object v3
+    move-result-object v4
 
     .line 179
-    if-eqz v3, :cond_2
-
-    const-string v4, "pref_word_delete"
-
-    const/4 v5, 0x0
-
-    invoke-interface {v3, v4, v5}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
-
-    move-result v4
-
     if-eqz v4, :cond_2
 
-    const/4 v1, 0x1
+    const-string v5, "pref_word_delete"
 
-    :cond_2
+    const/4 v6, 0x1
+
+    invoke-interface {v4, v5, v6}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_2
+
+    :goto_1
     sput-boolean v1, Lcom/mrkeyboard/app/MrWordDelete;->sOn:Z
 
     .line 180
-    if-nez v3, :cond_3
+    if-nez v4, :cond_3
 
-    :goto_1
+    :goto_2
     sput v0, Lcom/mrkeyboard/app/MrWordDelete;->sInterval:I
 
     .line 181
@@ -1479,9 +1479,15 @@
     :catchall_0
     move-exception v0
 
-    monitor-exit v2
+    monitor-exit v3
 
     throw v0
+
+    :cond_2
+    move v1, v2
+
+    .line 179
+    goto :goto_1
 
     .line 180
     :cond_3
@@ -1490,7 +1496,7 @@
 
     const/4 v1, 0x0
 
-    invoke-interface {v3, v0, v1}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-interface {v4, v0, v1}, Landroid/content/SharedPreferences;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
@@ -1503,7 +1509,7 @@
 
     move-result v0
 
-    goto :goto_1
+    goto :goto_2
 .end method
 
 .method static declared-synchronized resetForTest()V

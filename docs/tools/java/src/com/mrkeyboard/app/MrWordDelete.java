@@ -6,7 +6,7 @@ import android.preference.PreferenceManager;
 import android.view.inputmethod.InputConnection;
 
 /**
- * Ctrl + delete deletes by words (2.0.0, setting "pref_word_delete", off unless the person turns it on).
+ * Ctrl + delete deletes by words (2.0.0, setting "pref_word_delete", on unless the person turns it off).
  *
  * <p>With the setting on and Ctrl on when the delete key is touched, the key removes a word instead of a letter: one word on the
  * touch, and while the finger stays down one more word on every repeat. The repeats of the delete key come after 300 ms and then
@@ -176,7 +176,7 @@ public final class MrWordDelete {
         try {
             if (sApp == null) return;
             final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(sApp);
-            sOn = sp != null && sp.getBoolean(PREF_ON, false);
+            sOn = sp != null && sp.getBoolean(PREF_ON, true);
             sInterval = sp == null ? INTERVAL_DEFAULT : interval(sp.getString(PREF_INTERVAL, null), INTERVAL_DEFAULT);
             if (!sOn) {
                 sHold = false;

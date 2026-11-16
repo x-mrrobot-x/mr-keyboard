@@ -66,6 +66,7 @@
 #                        field, hidden toolbar row, font style) the word typed stays when a space, a sign or Enter follows (it was erased or replaced by an old suggestion)
 #   test_sheet_longpress.py  the real smali of PointerTracker.startLongPressTimer: the sheet key (code -300: 123, ABC, TSK) opens its popup after a fixed 150 ms, the other keys keep the setting
 #   test_word_delete.py  Ctrl + delete by words and Ctrl + Z (MrWordDelete): the real smali of LatinIME.handleBackspace, sendModifiableKeyChar (the Ctrl + Z hook), mrCtrlOn, mrCtrlOnly, mrBackspace, UIHandler.cancelKeyRepeatTimer and .handleMessage (the repeat) in the mini interpreter, the order of the calls in PointerTracker.onDownEvent, who calls MrWordDelete, the screen next to the long-press time, its limits and texts
+#   test_tour.py  the first steps (MrTour, MrTourActivity): the screen in the manifest (not exported), the one call in Main.onCreate after the update notice, the three options on by default in the XML and in the Java layer, the texts in the three languages with the same placeholders, the network only in MrTour.work (the Download button), docs/first-steps.md and the privacy lines of the READMEs
 #   test_swipe_release.py  the sideways swipe by distance (LatinKeyboardBaseView): the real smali of onUpEvent, mrIsSwipeRelease and mrSwipeAtRelease in the mini interpreter: more than min(width/3, height/3) and more sideways than up or down is a swipe whatever the speed, the key is cancelled and then swipeLeft/swipeRight run, from a modifier it is not one, ending on a modifier it is, a short drag is typed as before, the fling detector is untouched
 #   test_version_row.py  the settings texts and the Version line: the subtitles of Typing and of Suggestions and dictionaries say gesture typing (3 languages), gesture typing is not experimental in the settings or the docs, no ' custom' on the Version line, the line opens the notes (MrVersion), the notes inside the APK are a copy of the notes of the version, the update dialog buttons are in one row
 #   test_ui_language_rebuild.py  changing the app language rebuilds the keyboard view once, on the change (LatinIME.onSharedPreferenceChanged), and the bar is inflated again in the new language
@@ -269,6 +270,9 @@ jobs:
 
       - name: Ctrl + delete by words and Ctrl + Z (the calls, the screen, the limits)
         run: python3 -I docs/tools/test_word_delete.py
+
+      - name: First steps (the screen, the call in Main, the defaults, the texts, the network only on Download)
+        run: python3 -I docs/tools/test_tour.py
 
       - name: Sideways swipe by distance (the release is the swipe action, the fling stays)
         run: python3 -I docs/tools/test_swipe_release.py

@@ -727,4 +727,33 @@
     <string name="mr_word_delete_cat_undo">Desfazer e refazer</string>
     <string name="mr_word_delete_undo_title">Ctrl + Z e Ctrl + Y</string>
     <string name="mr_word_delete_undo_sum">O Ctrl + Z devolve a última palavra apagada, uma por vez. O Ctrl + Y apaga de novo a que voltou. As palavras ficam guardadas por 2 minutos.</string>
+    <!-- First steps (MrTour, MrTourActivity) -->
+    <string name="mr_tour_title">Primeiros passos</string>
+    <string name="mr_tour_step">Etapa %1$d de %2$d</string>
+    <string name="mr_tour_skip">Pular</string>
+    <string name="mr_tour_dict_title">Sugestões de palavras</string>
+    <string name="mr_tour_dict_text">Sugestões, correção e previsão da próxima palavra funcionam no celular, sem internet. Precisam do dicionário do seu idioma, baixado uma vez.</string>
+    <string name="mr_tour_dict_missing">Dicionário: %1$s · não baixado</string>
+    <string name="mr_tour_dict_nopack">Ainda não há dicionário para o seu idioma.</string>
+    <string name="mr_tour_dict_off">Desligar sugestões</string>
+    <string name="mr_tour_gesture_title">Digitação por gestos</string>
+    <string name="mr_tour_gesture_text">Deslize o dedo de letra em letra e o teclado escreve a palavra. Precisa de um arquivo de cerca de 2,4 MB, baixado uma vez, feito com a tecnologia “FUTO Swipe”.</string>
+    <string name="mr_tour_gesture_missing">Reconhecimento de gestos: não baixado</string>
+    <string name="mr_tour_gesture_off">Desligar digitação por gestos</string>
+    <string name="mr_tour_word_title">Apagar por palavra</string>
+    <string name="mr_tour_word_text">Com o Ctrl ativo, a tecla apagar remove a palavra inteira. O Ctrl + Z devolve a palavra.</string>
+    <string name="mr_tour_word_on">Ligado</string>
+    <string name="mr_tour_word_off">Desligar</string>
+    <string name="mr_tour_ready">Pronto</string>
+    <string name="mr_tour_net_note">O arquivo vem das versões (releases) do GitHub deste projeto. Nada do que você digita é enviado.</string>
+    <string name="mr_tour_later">Você pode mudar tudo isso depois nas Configurações.</string>
+    <string name="mr_tour_download">Baixar</string>
+    <string name="mr_tour_retry">Tentar de novo</string>
+    <string name="mr_tour_choose">Escolher idioma</string>
+    <string name="mr_tour_continue">Continuar</string>
+    <string name="mr_tour_finish">Concluir</string>
+    <string name="mr_tour_keep">Manter ligado</string>
+    <string name="mr_tour_keep_finish">Manter ligado e concluir</string>
+    <string name="mr_tour_no_pack">Não há dicionário para o seu idioma no catálogo.</string>
+    <string name="mr_tour_no_gesture">O catálogo não tem o arquivo de reconhecimento de gestos.</string>
 </resources>

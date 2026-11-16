@@ -3,7 +3,7 @@
 The settings are on their own screen, **Settings → Touch and gestures → Delete by word** (`PrefScreenWordDelete`, opened by one row of the
 Touch and gestures page; `res/xml/prefs_word_delete.xml`), in the style of *Vibration, sound and preview*:
 
-- section **Ctrl + delete**: the switch **Turn on delete by word** (`pref_word_delete`, off by default) with a summary that says what it does,
+- section **Ctrl + delete**: the switch **Turn on delete by word** (`pref_word_delete`, on by default) with a summary that says what it does,
   **Time between words when held** (`pref_word_delete_interval`, 100 ms to 600 ms in steps of 50, 200 ms by default; grey while the switch is
   off) and a text row, **How to use** (tap Ctrl and then delete, or hold Ctrl and tap delete; holding removes one word after another at that
   time, shorter is faster);

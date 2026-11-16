@@ -40,16 +40,18 @@ Since 1.86 the fixtures include a **v2 pack** (`make_fixtures.py`: `meta2['versi
 model format this app does not know, a good version 2, a `models` list with entries this version must skip, a `models` that is not a list, and a
 catalog with no `models` at all. Their serials go up in the order the test fetches them.
 
-`ModelPackTest` (66 checks) runs the classes of the APK on them, with the fake Android of `PacksTest` and the PC lib:
+`ModelPackTest` (74 checks) runs the classes of the APK on them, with the fake Android of `PacksTest` and the PC lib:
 - the catalog: the language list is what it was, the model is in its own list with its name in the three languages, the licence and the credits;
 - downloads that must not install (cancelled, one byte changed, cut, HTTP 404) and signed packs that must be refused (the cases above), with nothing
   left behind and the installed version intact;
 - install: the folder `files/models/gesture/<version>/`, the weights byte for byte the ones of the repository, the licence text whole; the model is not
   a language (no dictionary, no keyboard language) and installing it neither turns the suggestions on nor makes the keyboard reload its dictionaries;
-- the setting: off by default; on without the file is still off; on with the file, **the native lib opens the installed weights**; update and remove
-  follow; "restore defaults" turns it off and leaves the file;
+- the setting: on by default, but without the file it is still off (the test turns it off to see the file installed with it off); on with the file,
+  **the native lib opens the installed weights**; update and remove follow; "restore defaults" brings it back to on and leaves the file;
 - a file picked by the user (`MrPacks.installModelFile`): only `gesture/encoder.bin` is taken (one bit changed, another file, an empty file, a 200 MB
   file read only up to 16 MB are refused), no request is made to the network, the licence text is written from the copy in the APK;
+- the first steps (`MrTour.work`, step `gesture`): the same download, with the text of the step in the three languages (size and "FUTO Swipe" notice), no gesture file in the catalog and HTTP 404 end with a message and nothing installed;
+  `ThreeLangTest` (33 checks) does the same for the `dict` step with the system languages pt-BR, es-MX, en-GB, fr-FR and ja-JP (the last two get the English pack) and an HTTP 404;
 - what must stay in step with `gesture/`: the table of known files (`MrPacks.MODEL_FILES`), the licence text in `res/raw/`, the size said in the
   download dialog (three languages) and the notice "FUTO Swipe" in the texts of the screen.
 

@@ -26,8 +26,6 @@
 
 </div>
 
-Mr Keyboard is based on [Hacker's Keyboard](https://github.com/klausw/hackerskeyboard). It is open source, has no ads, no analytics and no Google Play Services, and what you type never leaves your phone.
-
 ## Features
 
 ### Keys and layout
@@ -35,7 +33,7 @@ Mr Keyboard is based on [Hacker's Keyboard](https://github.com/klausw/hackerskey
 - **Key sheets:** extra pages of keys opened from the keyboard: **123**, **TSK** (Tasker), **HTML**, **FRS** (phrases), navigation and numeric pad. Edit them and create your own in *Settings → Sheets*.
 - **Tasker commands:** a key can trigger a Tasker task instead of typing text ([how](#tasker-integration)).
 - **Gestures:** swipe up, down, left or right, and the volume keys, run keyboard actions (by default left and right change the sheet). A sideways swipe counts by distance, not by speed. [Details](docs/swipe-actions.md).
-- **Delete by word (since 2.0.0, off by default):** with Ctrl on, the delete key removes a word per tap, and held it goes word by word at the interval you set. **Ctrl + Z** gives the words back one at a time and **Ctrl + Y** deletes again the one that came back (kept for 2 minutes). *Settings → Touch and gestures → Delete by word*. [Details](docs/word-delete.md).
+- **Delete by word (since 2.0.0):** with Ctrl on, the delete key removes a word per tap, and held it goes word by word at the interval you set. **Ctrl + Z** gives the words back one at a time and **Ctrl + Y** deletes again the one that came back (kept for 2 minutes). On by default; *Settings → Touch and gestures → Delete by word*. [Details](docs/word-delete.md).
 - **Your own look:** twelve themes, key spacing, corner roundness, label size, keyboard height (portrait and landscape) and toolbar height. Long press, vibration strength, click volume and key preview are adjustable.
 
 ### Toolbar
@@ -49,11 +47,11 @@ Mr Keyboard is based on [Hacker's Keyboard](https://github.com/klausw/hackerskey
 - **Show/hide:** the grid key at the top left of the keyboard hides or shows the toolbar; the tools come back by themselves after you type (time is adjustable).
 
 ### Typing
-- **Suggestions, correction and next-word prediction** in Brazilian Portuguese, US English and Spanish, fully on the device (off by default: turn on *Show suggestions* in *Settings → Suggestions and dictionaries*).
+- **Suggestions, correction and next-word prediction** in Brazilian Portuguese, US English and Spanish, fully on the device. On by default: download the dictionary of your language when the suggestion bar offers it, or in *Settings → Suggestions and dictionaries*.
 - **Small app:** dictionaries are downloaded on demand, so the app itself is about 1 MB. Each language you download is added to the keyboard: slide the space bar sideways to switch between them.
 - **Learns what you type** (never in password or incognito fields) and suggests the names and words you just wrote in the same conversation (kept only in memory).
 - **My words:** *Settings → Suggestions and dictionaries → My words* shows what the keyboard learned, lets you fix, block and forget words (with an exported backup) and add names, slang and phrases from a pasted text, a file or a list, with a preview before saving. **Format with AI** turns a loose text into that list.
-- **Gesture typing (off by default):** slide your finger from letter to letter and the keyboard writes the word, in the three languages. It also writes your own words, never a blocked one, and shows the word on the suggestion strip while you slide. Needs a one-time download of about 2.4 MB, then runs on the device. *Settings → Suggestions and dictionaries → Gesture typing*. [Details](docs/gesture-typing.md).
+- **Gesture typing (on by default):** slide your finger from letter to letter and the keyboard writes the word, in the three languages. It also writes your own words, never a blocked one, and shows the word on the suggestion strip while you slide. Needs a one-time download of about 2.4 MB (*Settings → Suggestions and dictionaries → Gesture typing*), then runs on the device. [Details](docs/gesture-typing.md).
 - **Auto-capitalization** (on by default) and **voice input**.
 
 ### Themes
@@ -71,7 +69,7 @@ Requires Android 8.0 or later.
 1. Download the APK (`mr-keyboard-v<version>.apk`) from the [latest release](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) and install it.
 2. Open **Mr Keyboard** and tap **Enable keyboard**. Turn on Mr Keyboard in the list and accept the system warning. Android shows that warning for every keyboard that doesn't come with the phone.
 3. Tap **Set input method** and choose Mr Keyboard.
-4. For word suggestions (optional): in the settings, open **Suggestions and dictionaries**, tap your language to download its dictionary, then turn on **Show suggestions**. Download more than one language and slide the space bar sideways to switch between them.
+4. Download what the suggestions and gesture typing use: tap **Download dictionary** on the suggestion bar, or open **Suggestions and dictionaries** in the settings and tap your language (and the gesture typing file, about 2.4 MB). Download more than one language and slide the space bar sideways to switch between them.
 
 ## Updates
 - The app looks for a new version when it opens (at most once a day) and every morning in the background. When there is one, a dialog (or a notification, for the morning check) shows what's new, with **Download and install**, **Open on GitHub** and **Not now**. The **Check for updates** line and the two switches are in *Settings → About*, where tapping **Version** shows the notes of the installed version, with no network.
@@ -96,6 +94,7 @@ The command is sent as a broadcast that other apps can also receive, so don't pu
   - **Edit with AI** sends only the text you choose to rewrite, and only to the AI service you configure. No request is sent until you tap a style.
   - **Dictionaries** (*Settings → Suggestions and dictionaries*): the app only connects when you tap *Check for updates*, *Download*, *Update* or a language that isn't downloaded yet, and it only downloads files from this repository's [latest release](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) (the catalog, `catalog.json`, and the zip of each language, which is attached to the release where that language last changed). Every file is checked against a list signed with the app's own key before it is used.
   - **Gesture typing** (same screen): the file it needs (the gesture recognition) is downloaded the same way, from the same releases, and only when you tap *Download* or *Update* in its dialog; *From a file* installs it with no connection at all. After that the recognition runs on the phone: the path of your finger is not sent anywhere.
+  - **First steps** (the screen shown once when the app opens): it connects only when you tap *Download* or *Try again* on a step, to get the dictionary of your system language or the gesture file from the same releases, with the same checks. *Skip* and *Turn off* connect to nothing. [Details](docs/first-steps.md).
   - **App updates** (*Settings → About*): the app reads `update.json` from this repository's [latest release](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) when it opens (at most once a day) and every morning in the background, and shows a notice when there is a newer version. Both can be turned off. The request carries nothing about you or your phone. The file is checked against a signature made with the app's own key before it is used.
 
 | Permission | Why |
@@ -120,7 +119,7 @@ apksigner sign --ks your-key.jks --out mr-keyboard.apk aligned.apk
 Every release also has `mr-keyboard-v<version>-source.zip`, made from the exact commit that was published. Build from a source zip, GitHub Actions workflows, signing, dictionaries and how a release is published: **[docs/building.md](docs/building.md)**.
 
 ## Documentation
-[Building and publishing](docs/building.md) · [Gesture typing](docs/gesture-typing.md) · [Delete by word](docs/word-delete.md) · [Swipe actions](docs/swipe-actions.md) · [Emoji search](docs/emoji-search.md) · [Edit with AI](docs/ai-editor.md) · [Suggestion features](docs/suggestion-features.md) · [Native engine](docs/native-engine.md) · [Performance meter](docs/performance-meter.md) · [New theme](docs/new-theme.md) · [Release notes](docs/release-notes)
+[Building and publishing](docs/building.md) · [Gesture typing](docs/gesture-typing.md) · [First steps](docs/first-steps.md) · [Delete by word](docs/word-delete.md) · [Swipe actions](docs/swipe-actions.md) · [Emoji search](docs/emoji-search.md) · [Edit with AI](docs/ai-editor.md) · [Suggestion features](docs/suggestion-features.md) · [Native engine](docs/native-engine.md) · [Performance meter](docs/performance-meter.md) · [New theme](docs/new-theme.md) · [Release notes](docs/release-notes)
 
 ## Verifying a release
 Releases are [immutable](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) (see [Publishing](docs/building.md#publishing-maintainers)): after publication their files and tag can't be changed. The APK and the source zip are built by the *Mr Keyboard - APK* workflow of this repository from the tagged commit, and each has a signed provenance attestation. With the [GitHub CLI](https://cli.github.com/), in the folder where you saved the file (replace the version):

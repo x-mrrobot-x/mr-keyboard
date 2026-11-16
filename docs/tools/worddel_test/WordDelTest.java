@@ -295,9 +295,11 @@ public class WordDelTest {
 
         Prefs p = new Prefs();
         on(p);
-        check("setting: off by default, 200 ms, one listener", !MrWordDelete.sOn && MrWordDelete.sInterval == 200 && p.listeners.size() == 1);
+        check("setting: on by default, 200 ms, one listener", MrWordDelete.sOn && MrWordDelete.sInterval == 200 && p.listeners.size() == 1);
         MrWordDelete.init(new Ctx());
         check("setting: a second init adds no listener", p.listeners.size() == 1);
+        p.set(MrWordDelete.PREF_ON, Boolean.FALSE);
+        check("setting: switched off", !MrWordDelete.sOn);
         p.set(MrWordDelete.PREF_ON, Boolean.TRUE);
         check("setting: on", MrWordDelete.sOn);
         p.set(MrWordDelete.PREF_INTERVAL, "400.0");
@@ -308,7 +310,7 @@ public class WordDelTest {
         check("setting: switched off, off at once", !MrWordDelete.sOn);
         p.set(MrWordDelete.PREF_ON, null);
         p.set(MrWordDelete.PREF_INTERVAL, null);
-        check("setting: restore defaults (keys removed): off, 200 ms", !MrWordDelete.sOn && MrWordDelete.sInterval == 200);
+        check("setting: restore defaults (keys removed): on, 200 ms", MrWordDelete.sOn && MrWordDelete.sInterval == 200);
 
         MrWordDelete.resetForTest();
         PreferenceManager.stubDefault = null;
@@ -450,6 +452,7 @@ public class WordDelTest {
     static void off() {
         Prefs p = new Prefs();
         on(p);
+        p.set(MrWordDelete.PREF_ON, Boolean.FALSE);       // it is on by default: turned off here
         Ime ime = new Ime();
         ime.ic.text.append("one two");
         ime.ctrl = true;
@@ -954,6 +957,7 @@ public class WordDelTest {
         check("undo off: nothing kept: false at once, nothing read, nothing asked of the keyboard",
                 !MrWordDelete.onUndoRedo(ime, 'z') && ime.ic.reads == 0 && ime.ctrlOnlyAsked == 0 && ime.ic.commits == 0);
         // the setting off: a Ctrl + delete never keeps anything
+        p.set(MrWordDelete.PREF_ON, Boolean.FALSE);
         cut(ime);
         check("undo off: setting off: Ctrl + delete keeps nothing", !undo(ime) && ime.ctrlOnlyAsked == 0);
     }

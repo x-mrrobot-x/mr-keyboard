@@ -11,7 +11,7 @@
     <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_candidate_scale" android:key="pref_candidate_scale" android:dependency="show_suggestions" android:defaultValue="1.0" hk:asPercent="true" hk:logScale="true" hk:maxValue="3.0" hk:minValue="0.5"/>
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_gesture_cat" android:key="mr_cat_gesture" android:icon="@drawable/mr_ui_ic_swipe_amber">
-    <CheckBoxPreference android:persistent="true" android:title="@string/mr_gesture_on_title" android:key="pref_gesture_typing" android:summary="@string/mr_gesture_on_summary" android:defaultValue="false"/>
+    <CheckBoxPreference android:persistent="true" android:title="@string/mr_gesture_on_title" android:key="pref_gesture_typing" android:summary="@string/mr_gesture_on_summary" android:defaultValue="true"/>
     <CheckBoxPreference android:persistent="true" android:title="@string/mr_gesture_trail_title" android:key="pref_gesture_trail" android:summary="@string/mr_gesture_trail_summary" android:dependency="pref_gesture_typing" android:defaultValue="true"/>
     <CheckBoxPreference android:persistent="true" android:title="@string/mr_gesture_preview_title" android:key="pref_gesture_preview" android:summary="@string/mr_gesture_preview_summary" android:dependency="pref_gesture_typing" android:defaultValue="true"/>
   </PreferenceCategory>

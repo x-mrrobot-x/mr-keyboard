@@ -467,7 +467,7 @@ public class MrPacksActivity extends PreferenceActivity {
                             toast(fe);
                         } else if (p.model) {
                             // the weights are not a dictionary: "show suggestions" stays as it is, and so does the option of gesture
-                            // typing, which only the user turns on
+                            // typing, which is on by default and stays as the user left it
                             toast(t(gestureOn() ? "mr_gesture_installed_ok" : "mr_gesture_installed_off"));
                         } else {
                             Preference show = findPreference("show_suggestions");
@@ -558,7 +558,7 @@ public class MrPacksActivity extends PreferenceActivity {
     }
 
     private boolean gestureOn() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(MrGestureInput.PREF_ON, false);
+        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(MrGestureInput.PREF_ON, true);
     }
 
     /** Why there is no time yet, or the time of the last gesture, the average and the longest one since the keyboard started. */

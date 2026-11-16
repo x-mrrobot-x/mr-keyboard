@@ -28,7 +28,7 @@ import java.util.List;
  * words of the person are searched too (MrGestureWords), a blocked word is never written, and the strip shows the word so far
  * while the finger slides.
  *
- * It is off unless the setting "pref_gesture_typing" is on AND the weights pack is installed (MrPacks, "models"); while it is
+ * It is off unless the setting "pref_gesture_typing" (on by default) is on AND the weights pack is installed (MrPacks, "models"); while it is
  * off every method below returns on its first line and the keyboard behaves exactly as before.
  *
  * It is called at seven points, six of them in hand-edited smali (each catches whatever is thrown here: a fault never stops typing):
@@ -211,7 +211,7 @@ public final class MrGestureInput {
             if (c == null) c = sApp;
             if (c == null) return;
             final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
-            final boolean wanted = sp != null && sp.getBoolean(PREF_ON, false);
+            final boolean wanted = sp != null && sp.getBoolean(PREF_ON, true);
             sTrail = sp == null || sp.getBoolean(PREF_TRAIL, true);
             sPreview = sp == null || sp.getBoolean(PREF_PREVIEW, true);
             final File weights = wanted ? MrPacks.modelFile(c, MrPacks.MODEL_GESTURE, MrPacks.ENCODER) : null;

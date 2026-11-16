@@ -117,11 +117,12 @@ public class ModelPackTest {
 
         // ---- the option without the file
         MrGestureInput.init(ctx);
-        check("default: gesture typing is off", !MrGestureInput.sOn && !MrGesture.ready(), null);
+        check("default: the option is on, but without the file gesture typing is off and nothing is open in the lib", !MrGestureInput.sOn && !MrGesture.ready(), null);
         dp.edit().putBoolean("pref_gesture_typing", true).commit();
         MrGestureInput.reload(ctx);
         check("option on, file not downloaded: still off, nothing open in the lib", !MrGestureInput.sOn && waitReady(false), null);
-        dp.edit().remove("pref_gesture_typing").commit();
+        // the option is on by default; from here to the restore defaults it is turned off, to see the file installed with it off
+        dp.edit().putBoolean("pref_gesture_typing", false).commit();
         MrGestureInput.reload(ctx);
 
         // ---- downloads that must not install
@@ -237,14 +238,18 @@ public class ModelPackTest {
                 c0 != null && c0.serial == 10 && c0.models.isEmpty() && c0.model(G) == null && MrPacks.modelVersion(ctx, G) == 2
                 && MrPacks.updatesAvailable(ctx, c0) == 0 && MrGestureInput.sOn && MrGesture.ready(), null);
 
-        // ---- restore defaults: the option goes back to off, the file stays
+        // ---- restore defaults: the option goes back to on (its default) and works with the file that is there
         dp.edit().putBoolean("pref_gesture_trail", false).commit();
         MrReset.apply(ctx);
         MrGestureInput.reload(ctx);
-        check("restore defaults: both gesture options go away (off, trail on), and the lib lets go of the weights",
-                !dp.getBoolean("pref_gesture_typing", false) && dp.getBoolean("pref_gesture_trail", true) && !MrGestureInput.sOn && MrGestureInput.sTrail
-                && waitReady(false), MrGestureInput.sOn + " " + MrGesture.ready());
+        boolean typingGone = !dp.getBoolean("pref_gesture_typing", false) && dp.getBoolean("pref_gesture_typing", true);
+        boolean trailGone = !dp.getBoolean("pref_gesture_trail", false) && dp.getBoolean("pref_gesture_trail", true);
+        check("restore defaults: both gesture options go away (typing on by default, trail on), and the lib keeps the weights",
+                typingGone && trailGone && MrGestureInput.sOn && MrGestureInput.sTrail && waitReady(true), MrGestureInput.sOn + " " + MrGesture.ready());
         check("restore defaults: the downloaded file is not a setting (still v2, 4 files)", MrPacks.modelVersion(ctx, G) == 2 && list(d2).size() == 4, list(d2));
+        dp.edit().putBoolean("pref_gesture_typing", false).commit();
+        MrGestureInput.reload(ctx);
+        check("turned off: the lib lets go of the weights, the file stays", !MrGestureInput.sOn && waitReady(false) && MrPacks.modelVersion(ctx, G) == 2, null);
         dp.edit().putBoolean("pref_gesture_typing", true).commit();
         MrGestureInput.reload(ctx);
         check("turned on again: works without downloading again", MrGestureInput.sOn && waitReady(true), null);
@@ -313,6 +318,32 @@ public class ModelPackTest {
         MrPacks.removeModel(ctx, G);
         check("remove after a file install: nothing left, gesture typing off", MrPacks.modelVersion(ctx, G) == 0 && !home.exists() && !MrGestureInput.sOn && waitReady(false), null);
 
+        // ---- the first steps (MrTour.work) download the weights with the same code, from the catalog, in a context of their own
+        PacksTest.Ctx tc = new PacksTest.Ctx(Files.createTempDirectory("mrtour").toFile());
+        PacksTest.catalogFile = FX + "m_v2/catalog.json";
+        PacksTest.zipDir = FX + "m_v2/";
+        String tr = MrTour.work(tc, "gesture", new Locale("pt", "BR"));
+        SharedPreferences tdp = tc.getSharedPreferences("default", 0);
+        check("first steps, gesture step: the catalog and the weights are downloaded and installed (v2), the option is not touched",
+                tr == null && MrPacks.modelVersion(tc, G) == 2 && MrPacks.modelFile(tc, G, MrPacks.ENCODER) != null
+                && !tdp.getBoolean("pref_gesture_typing", false) && tdp.getBoolean("pref_gesture_typing", true), tr);
+        check("first steps, gesture step: it is on by default, so gesture typing works at once with the file (the lib opened it)",
+                MrGestureInput.sOn && waitReady(true), MrGestureInput.sOn + " " + MrGesture.ready());
+        check("first steps: the dictionary is not touched by the gesture step (no pack, suggestions not set)",
+                MrPacks.installedIds(tc).isEmpty() && !tdp.getBoolean("show_suggestions", false) && tdp.getString("selected_languages", "-").equals("-"), null);
+        MrPacks.removeModel(tc, G);
+        waitReady(false);
+        PacksTest.Ctx tn = new PacksTest.Ctx(Files.createTempDirectory("mrtour").toFile());
+        PacksTest.catalogFile = FX + "m_none/catalog.json";
+        PacksTest.zipDir = FX + "m_none/";
+        String tnr = MrTour.work(tn, "gesture", new Locale("pt", "BR"));
+        check("first steps, a catalog without the gesture recognition: the failure is the text of mr_tour_no_gesture and nothing is installed",
+                "mr_tour_no_gesture".equals(tnr) && MrPacks.modelVersion(tn, G) == 0, tnr);
+        PacksTest.httpCode = 404;
+        String t404 = MrTour.work(new PacksTest.Ctx(Files.createTempDirectory("mrtour").toFile()), "gesture", new Locale("pt", "BR"));
+        PacksTest.httpCode = 200;
+        check("first steps, no catalog (HTTP 404): a failure to show on the card, nothing installed", t404 != null && t404.length() > 0, t404);
+
         // ---- the size said in the dialog that offers the download is the one of the real zip
         long size = new File(FX + "m_ok/" + ZIP1).length();
         String mb = String.format(Locale.US, "%.1f", size / 1000000.0);
@@ -321,6 +352,12 @@ public class ModelPackTest {
         String es = text("res/values-es/mr_strings.xml", "mr_gesture_need_pack");
         check("the download dialog says the size of the real zip (" + mb + " MB) in the 3 languages",
                 en.contains(mb + " MB") && pt.contains(mb.replace('.', ',') + " MB") && es.contains(mb.replace('.', ',') + " MB"), en);
+        check("the first steps say the same size in the 3 languages",
+                text("res/values/mr_strings.xml", "mr_tour_gesture_text").contains(mb + " MB") && text("res/values-pt-rBR/mr_strings.xml", "mr_tour_gesture_text").contains(mb.replace('.', ',') + " MB")
+                && text("res/values-es/mr_strings.xml", "mr_tour_gesture_text").contains(mb.replace('.', ',') + " MB"), text("res/values/mr_strings.xml", "mr_tour_gesture_text"));
+        check("the first steps carry the notice of the licence too (\"FUTO Swipe\") in the 3 languages",
+                text("res/values/mr_strings.xml", "mr_tour_gesture_text").contains("“FUTO Swipe”") && text("res/values-pt-rBR/mr_strings.xml", "mr_tour_gesture_text").contains("“FUTO Swipe”")
+                && text("res/values-es/mr_strings.xml", "mr_tour_gesture_text").contains("“FUTO Swipe”"), null);
         check("the texts of the screen carry the notice the licence asks for (powered by \"FUTO Swipe\" technology)",
                 text("res/values/mr_strings.xml", "mr_gesture_notice_title").equals("Powered by “FUTO Swipe” technology")
                 && text("res/values-pt-rBR/mr_strings.xml", "mr_gesture_notice_title").contains("“FUTO Swipe”")

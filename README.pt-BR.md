@@ -26,8 +26,6 @@
 
 </div>
 
-O Mr Keyboard é baseado no [Hacker's Keyboard](https://github.com/klausw/hackerskeyboard). É código aberto, não tem anúncios, análise de uso nem Google Play Services, e o que você digita nunca sai do celular.
-
 ## Recursos
 
 ### Teclas e layout
@@ -35,7 +33,7 @@ O Mr Keyboard é baseado no [Hacker's Keyboard](https://github.com/klausw/hacker
 - **Folhas de teclas:** páginas extras de teclas abertas pelo próprio teclado: **123**, **TSK** (Tasker), **HTML**, **FRS** (frases), navegação e teclado numérico. Edite as folhas e crie as suas em *Configurações → Folhas*.
 - **Comandos do Tasker:** uma tecla pode disparar uma tarefa do Tasker em vez de digitar ([como](#integração-com-o-tasker)).
 - **Gestos:** deslizar para cima, baixo, esquerda ou direita, e as teclas de volume, executam ações do teclado (por padrão, esquerda e direita trocam de folha). O deslize para os lados vale pela distância, não pela velocidade. [Detalhes](docs/swipe-actions.md) (em inglês).
-- **Apagar por palavra (desde a 2.0.0, vem desligado):** com o Ctrl ativo, a tecla apagar remove uma palavra por toque e, segurando, vai palavra por palavra no intervalo que você definir. O **Ctrl + Z** devolve as palavras uma por vez e o **Ctrl + Y** apaga de novo a que voltou (ficam guardadas por 2 minutos). *Configurações → Toque e gestos → Apagar por palavra*. [Detalhes](docs/word-delete.md) (em inglês).
+- **Apagar por palavra (desde a 2.0.0):** com o Ctrl ativo, a tecla apagar remove uma palavra por toque e, segurando, vai palavra por palavra no intervalo que você definir. O **Ctrl + Z** devolve as palavras uma por vez e o **Ctrl + Y** apaga de novo a que voltou (ficam guardadas por 2 minutos). Vem ligado; *Configurações → Toque e gestos → Apagar por palavra*. [Detalhes](docs/word-delete.md) (em inglês).
 - **O seu visual:** doze temas, espaçamento e arredondamento das teclas, tamanho dos rótulos, altura do teclado (retrato e paisagem) e altura da barra. Toque longo, força da vibração, volume do clique e prévia das teclas são ajustáveis.
 
 ### Barra de ferramentas
@@ -49,11 +47,11 @@ O Mr Keyboard é baseado no [Hacker's Keyboard](https://github.com/klausw/hacker
 - **Mostrar/ocultar:** a tecla de grade, no canto superior esquerdo do teclado, oculta ou mostra a barra; as ferramentas voltam sozinhas depois que você digita (o tempo é ajustável).
 
 ### Digitação
-- **Sugestões, correção e previsão da próxima palavra** em português do Brasil, inglês americano e espanhol, tudo no aparelho (vêm desligadas: ligue *Mostrar sugestões* em *Configurações → Sugestões e dicionários*).
+- **Sugestões, correção e previsão da próxima palavra** em português do Brasil, inglês americano e espanhol, tudo no aparelho. Vêm ligadas: baixe o dicionário do seu idioma quando a barra de sugestões oferecer, ou em *Configurações → Sugestões e dicionários*.
 - **App leve:** os dicionários são baixados quando você quiser, então o app em si tem cerca de 1 MB. Cada idioma baixado entra no teclado: deslize a barra de espaço para os lados para alternar entre eles.
 - **Aprende o que você digita** (nunca em campos de senha ou anônimos) e sugere os nomes e as palavras que você acabou de escrever na mesma conversa (só na memória).
 - **Minhas palavras:** *Configurações → Sugestões e dicionários → Minhas palavras* mostra o que o teclado aprendeu, deixa corrigir, bloquear e esquecer palavras (com cópia de segurança exportada) e adicionar nomes, gírias e frases a partir de um texto colado, de um arquivo ou de uma lista, com uma prévia antes de salvar. **Formatar com IA** transforma um texto solto nessa lista.
-- **Digitação por gestos (vem desligada):** deslize o dedo de letra em letra e o teclado escreve a palavra, nos três idiomas. Ela também escreve as suas palavras, nunca uma palavra bloqueada, e mostra a palavra na faixa de sugestões enquanto você desliza. Precisa de um download único de cerca de 2,4 MB e depois roda no aparelho. *Configurações → Sugestões e dicionários → Digitação por gestos*. [Detalhes](docs/gesture-typing.md) (em inglês).
+- **Digitação por gestos (vem ligada):** deslize o dedo de letra em letra e o teclado escreve a palavra, nos três idiomas. Ela também escreve as suas palavras, nunca uma palavra bloqueada, e mostra a palavra na faixa de sugestões enquanto você desliza. Precisa de um download único de cerca de 2,4 MB (*Configurações → Sugestões e dicionários → Digitação por gestos*) e depois roda no aparelho. [Detalhes](docs/gesture-typing.md) (em inglês).
 - **Capitalização automática** (vem ligada) e **entrada de voz**.
 
 ### Temas
@@ -71,7 +69,7 @@ Precisa de Android 8.0 ou mais novo.
 1. Baixe o APK (`mr-keyboard-v<versão>.apk`) na [última versão](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) e instale.
 2. Abra o **Mr Keyboard** e toque em **Ativar teclado**. Ligue o Mr Keyboard na lista e aceite o aviso do sistema. O Android mostra esse aviso para qualquer teclado que não veio com o celular.
 3. Toque em **Definir método de entrada** e escolha o Mr Keyboard.
-4. Para ter sugestões de palavras (opcional): nas configurações, abra **Sugestões e dicionários**, toque no seu idioma para baixar o dicionário e ligue **Mostrar sugestões**. Baixando mais de um idioma, deslize a barra de espaço para os lados para alternar entre eles.
+4. Baixe o que as sugestões e a digitação por gestos usam: toque em **Baixar dicionário** na barra de sugestões, ou abra **Sugestões e dicionários** nas configurações e toque no seu idioma (e no arquivo da digitação por gestos, cerca de 2,4 MB). Baixando mais de um idioma, deslize a barra de espaço para os lados para alternar entre eles.
 
 ## Atualizações
 - O app procura versão nova quando abre (no máximo uma vez por dia) e toda manhã em segundo plano. Quando há uma, um diálogo (ou uma notificação, na verificação da manhã) mostra as novidades, com **Baixar e instalar**, **Abrir no GitHub** e **Agora não**. A linha **Procurar atualização** e os dois interruptores ficam em *Configurações → Sobre*, onde tocar em **Versão** mostra as novidades da versão instalada, sem precisar de internet.
@@ -96,6 +94,7 @@ O comando vai num broadcast que outros apps também podem receber, então não c
   - **Editar com IA** envia somente o texto que você escolhe reescrever, e apenas ao serviço de IA que configurar. Nada é enviado até você tocar num estilo.
   - **Dicionários** (*Configurações → Sugestões e dicionários*): o app só se conecta quando você toca em *Procurar atualizações*, *Baixar*, *Atualizar* ou em um idioma que ainda não foi baixado, e só baixa arquivos da [release mais recente](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) deste repositório (o catálogo, `catalog.json`, e o zip de cada idioma, anexado à release em que aquele idioma mudou pela última vez). Cada arquivo é conferido com uma lista assinada com a chave do próprio app antes de ser usado.
   - **Digitação por gestos** (mesma tela): o arquivo de que ela precisa (o reconhecimento de gestos) é baixado do mesmo jeito, das mesmas releases, e só quando você toca em *Baixar* ou *Atualizar* no diálogo dele; *De um arquivo* instala sem nenhuma conexão. Depois disso o reconhecimento roda no celular: o caminho do dedo não é enviado para lugar nenhum.
+  - **Primeiros passos** (a tela mostrada uma vez quando o app abre): só se conecta quando você toca em *Baixar* ou *Tentar de novo* em uma etapa, para pegar o dicionário do idioma do sistema ou o arquivo de gestos, das mesmas releases e com as mesmas verificações. *Pular* e *Desligar* não se conectam a nada. [Detalhes](docs/first-steps.md) (em inglês).
   - **Atualizações do app** (*Configurações → Sobre*): o app lê o `update.json` da [release mais recente](https://github.com/x-mrrobot-x/mr-keyboard/releases/latest) deste repositório quando abre (no máximo uma vez por dia) e toda manhã em segundo plano, e mostra um aviso quando há versão mais nova. As duas verificações podem ser desligadas. O pedido não leva nada sobre você nem sobre o celular. O arquivo é conferido com uma assinatura feita com a chave do próprio app antes de ser usado.
 
 | Permissão | Para quê |
@@ -120,7 +119,7 @@ apksigner sign --ks sua-chave.jks --out mr-keyboard.apk aligned.apk
 Toda release também tem o `mr-keyboard-v<versão>-source.zip`, feito do commit exato que foi publicado. Compilar a partir do zip, workflows do GitHub Actions, assinatura, dicionários e como uma release é publicada: **[docs/building.pt-BR.md](docs/building.pt-BR.md)**.
 
 ## Documentação
-[Compilar e publicar](docs/building.pt-BR.md) · [Digitação por gestos](docs/gesture-typing.md) · [Apagar por palavra](docs/word-delete.md) · [Gestos de deslize](docs/swipe-actions.md) · [Pesquisa de emojis](docs/emoji-search.md) · [Editar com IA](docs/ai-editor.md) · [Recursos de sugestão](docs/suggestion-features.md) · [Motor nativo](docs/native-engine.md) · [Medidor de desempenho](docs/performance-meter.md) · [Novo tema](docs/new-theme.md) · [Notas de cada versão](docs/release-notes)
+[Compilar e publicar](docs/building.pt-BR.md) · [Digitação por gestos](docs/gesture-typing.md) · [Primeiros passos](docs/first-steps.md) (em inglês) · [Apagar por palavra](docs/word-delete.md) · [Gestos de deslize](docs/swipe-actions.md) · [Pesquisa de emojis](docs/emoji-search.md) · [Editar com IA](docs/ai-editor.md) · [Recursos de sugestão](docs/suggestion-features.md) · [Motor nativo](docs/native-engine.md) · [Medidor de desempenho](docs/performance-meter.md) · [Novo tema](docs/new-theme.md) · [Notas de cada versão](docs/release-notes)
 
 Os documentos técnicos de `docs/` estão em inglês, exceto o guia de compilação, que também tem versão em português.
 

@@ -727,4 +727,33 @@
     <string name="mr_word_delete_cat_undo">Undo and redo</string>
     <string name="mr_word_delete_undo_title">Ctrl + Z and Ctrl + Y</string>
     <string name="mr_word_delete_undo_sum">Ctrl + Z gives back the last deleted word, one at a time. Ctrl + Y deletes again the one that came back. Words are kept for 2 minutes.</string>
+    <!-- First steps (MrTour, MrTourActivity) -->
+    <string name="mr_tour_title">First steps</string>
+    <string name="mr_tour_step">Step %1$d of %2$d</string>
+    <string name="mr_tour_skip">Skip</string>
+    <string name="mr_tour_dict_title">Word suggestions</string>
+    <string name="mr_tour_dict_text">Suggestions, correction and next-word prediction work on your phone, with no internet. They need the dictionary of your language, downloaded once.</string>
+    <string name="mr_tour_dict_missing">Dictionary: %1$s · not downloaded</string>
+    <string name="mr_tour_dict_nopack">There is no dictionary for your language yet.</string>
+    <string name="mr_tour_dict_off">Turn off suggestions</string>
+    <string name="mr_tour_gesture_title">Gesture typing</string>
+    <string name="mr_tour_gesture_text">Slide your finger from letter to letter and the keyboard writes the word. It needs a file of about 2.4 MB, downloaded once, made with “FUTO Swipe” technology.</string>
+    <string name="mr_tour_gesture_missing">Gesture recognition: not downloaded</string>
+    <string name="mr_tour_gesture_off">Turn off gesture typing</string>
+    <string name="mr_tour_word_title">Delete by word</string>
+    <string name="mr_tour_word_text">With Ctrl on, the delete key removes a whole word. Ctrl + Z gives it back.</string>
+    <string name="mr_tour_word_on">On</string>
+    <string name="mr_tour_word_off">Turn off</string>
+    <string name="mr_tour_ready">Ready</string>
+    <string name="mr_tour_net_note">The file comes from this project\'s GitHub releases. Nothing you type is sent.</string>
+    <string name="mr_tour_later">You can change all of this later in Settings.</string>
+    <string name="mr_tour_download">Download</string>
+    <string name="mr_tour_retry">Try again</string>
+    <string name="mr_tour_choose">Choose language</string>
+    <string name="mr_tour_continue">Continue</string>
+    <string name="mr_tour_finish">Finish</string>
+    <string name="mr_tour_keep">Keep on</string>
+    <string name="mr_tour_keep_finish">Keep on and finish</string>
+    <string name="mr_tour_no_pack">There is no dictionary for your language in the catalog.</string>
+    <string name="mr_tour_no_gesture">The catalog has no gesture recognition file.</string>
 </resources>
