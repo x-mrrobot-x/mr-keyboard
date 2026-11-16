@@ -79,7 +79,14 @@ public class View {
     }
     public void addOnLayoutChangeListener(OnLayoutChangeListener listener) { }
     public void removeOnLayoutChangeListener(OnLayoutChangeListener listener) { }
-    public void setOnClickListener(OnClickListener l) { }
+    /** Tests only: the listener of the click, and a click made by the test. */
+    public OnClickListener stubClick;
+    public void setOnClickListener(OnClickListener l) { stubClick = l; }
+    public boolean performClick() {
+        if (stubClick == null) return false;
+        stubClick.onClick(this);
+        return true;
+    }
     public void setOnFocusChangeListener(OnFocusChangeListener l) { }
     public void setClickable(boolean clickable) { }
     public void setContentDescription(CharSequence contentDescription) { }
@@ -93,8 +100,12 @@ public class View {
     public int getVisibility() { return stubVisibility; }
     public View findViewWithTag(Object tag) { return null; }
     public void setAlpha(float alpha) { }
+    public void setScaleX(float scaleX) { }
     public void setScaleY(float scaleY) { }
+    public void setPivotX(float pivotX) { }
     public void setPivotY(float pivotY) { }
+    public void setTranslationX(float translationX) { }
+    public void setTranslationY(float translationY) { }
     public ViewPropertyAnimator animate() { return new ViewPropertyAnimator(); }
     public void setElevation(float elevation) { }
 

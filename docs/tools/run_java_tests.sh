@@ -27,9 +27,11 @@
 #   - AiImportTest: the formatting of a text by AI (MrImportAi, MrImport.scrub) with a fake service: what is taken out before sending,
 #     the parts, the reading of the answers (introductions, code fences, bullets, weights, [blocked] dropped), the merge, a failure in the
 #     middle (what came back is kept), unreadable answers, cancelling, and that the result is a list the importer reads with no line left out.
-#   - TourTest: the first steps (MrTour): which steps there are (the dictionary, the gesture recognition, delete by word) and when the screen opens
-#     (once, and only while a file is missing for an option that is on), the dictionary of the system language (the region first, English for any
+#   - TourTest: the first steps (MrTour): which steps there are (turn the keyboard on, choose it, the dictionary, the gesture recognition) and when the screen opens
+#     (once, and again while the keyboard is not on), the keyboard read from Android, the dictionary of the system language (the region first, English for any
 #     language that has none), the choices that turn an option off, and a screen that cannot start never reaching the main screen. The downloads are in ThreeLangTest and ModelPackTest.
+#   - TourScreenTest: the screen of the first steps (MrTourActivity) run against the stubs of Android: what it says and does at each step (counter, chip, button,
+#     quiet button, note), the follow-up of the two steps of Android when the person comes back, a download's progress, a failure and Try again, Skip, the end, a rebuilt screen.
 #   - LangTest: the language card of the two word screens (MrLang): the languages offered, which one a screen starts on (its own choice,
 #     the last one chosen on either screen, the UI language) and the memory of the last choice.
 #   - AiReturnTest: coming back to the AI Editor dialog after its Settings screen (MrAiDialog): the keyboard is asked to
@@ -162,8 +164,11 @@ javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_aiimport" $D/le
 java -Dfile.encoding=UTF-8 -cp "$T/test_aiimport:$T/stubs:$T/main" com.mrkeyboard.app.AiImportTest
 
 echo "== TourTest (first steps: the steps, when the screen opens once, the dictionary of the system language with English as the fallback, the choices)"
-javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_tour" $D/tour_test/TourTest.java
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_tour" $D/tour_test/TourTest.java $D/tour_test/TourScreenTest.java
 java -cp "$T/test_tour:$T/stubs:$T/main" com.mrkeyboard.app.TourTest
+
+echo "== TourScreenTest (the screen of the first steps run against the stubs: what it says and does at each step)"
+java -cp "$T/test_tour:$T/stubs:$T/main" com.mrkeyboard.app.TourScreenTest
 
 echo "== LangTest (language choice shared by the word screens)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_lang" $D/learned_test/LangTest.java

@@ -8,6 +8,8 @@ public class Activity extends android.view.ContextThemeWrapper {
     protected void onSaveInstanceState(android.os.Bundle outState) { }
     protected void onResume() { }
     protected void onPause() { }
+    public void onWindowFocusChanged(boolean hasFocus) { }
+    public void onConfigurationChanged(android.content.res.Configuration newConfig) { }
     public void setTitle(CharSequence title) { }
     public boolean isFinishing() { return false; }
     public boolean isDestroyed() { return false; }

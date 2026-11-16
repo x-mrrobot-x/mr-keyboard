@@ -2,6 +2,10 @@
 """Tests how the first steps (MrTour, MrTourActivity, docs/first-steps.md) are wired into the app:
 
   - the manifest has the screen (not exported, no intent filter, the theme of the screens, turning the phone keeps it);
+  - the steps of Android (turn the keyboard on, choose it) read the system and open the settings and the picker of Android, the screen
+    marks itself as done when it is closed, the main screen marks it at once only when no step of Android is left;
+  - the screen: the step is centred in the middle (the scroll fills the viewport), the buttons stay out of the scroll, the step changes
+    along the horizontal axis, the ring that pulses does not loop when the animations are off, the glyphs exist;
   - the main screen opens it (the smali of Main.onCreate calls MrTour.onOpen once, after the update notice) and nothing else does;
   - the defaults that make the steps necessary are on, in the XML and in the Java layer, and the same one in each place;
   - the texts: every name used by the Java code (the step ones are built from the step name) exists in the three languages with the same
@@ -85,8 +89,8 @@ check("prefs_suggestions.xml: show_suggestions takes the bool, gesture typing is
       'android:key="show_suggestions"' in sugg and 'android:defaultValue="@bool/default_suggestions"' in sugg
       and re.search(r'android:key="pref_gesture_typing"[^>]*android:defaultValue="true"', sugg) is not None)
 check("prefs_word_delete.xml: delete by word is on by default", re.search(r'android:key="pref_word_delete"[^>]*android:defaultValue="true"', read("res", "xml", "prefs_word_delete.xml")) is not None)
-check("MrTour reads the three options with the default true, the same as the keyboard and the screens",
-      "sp.getBoolean(KEY_SUGGESTIONS, true)" in tour and "sp.getBoolean(MrGestureInput.PREF_ON, true)" in tour and "sp.getBoolean(MrWordDelete.PREF_ON, true)" in tour)
+check("MrTour reads the two options with the default true, the same as the keyboard and the screens; delete by word has no step",
+      "sp.getBoolean(KEY_SUGGESTIONS, true)" in tour and "sp.getBoolean(MrGestureInput.PREF_ON, true)" in tour and "MrWordDelete" not in tour and "WORD" not in tour)
 check("the Java layer (gesture typing, delete by word, the dictionaries screen) also defaults to on",
       "sp.getBoolean(PREF_ON, true)" in read("docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrGestureInput.java")
       and "sp.getBoolean(PREF_ON, true)" in read("docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrWordDelete.java")
@@ -95,17 +99,21 @@ check("the keys of MrTour are the keyboard's", 'KEY_SUGGESTIONS = "show_suggesti
       and "show_suggestions" in read("smali", "com", "mrkeyboard", "app", "LatinIME.smali"))
 
 # ---------------------------------------------------------------- the texts
-STEPS = {"dict": ("title", "text", "off", "missing", "nopack"), "gesture": ("title", "text", "off", "missing"), "word": ("title", "text", "off", "on")}
+STEPS = {"enable": ("title", "text", "missing", "on", "open", "note"), "select": ("title", "text", "missing", "on", "open", "note"),
+         "dict": ("title", "text", "off", "missing", "nopack"), "gesture": ("title", "text", "off", "missing")}
 STATE_KEYS = {"mr_tour_steps", "mr_tour_index"}  # saved instance state of the screen, not texts
-names = set(re.findall(r'"(mr_tour_[a-z_]+)"', tour + screen)) - STATE_KEYS
+code = tour + screen
+names = {n for n in re.findall(r'"(mr_tour_[a-z_]+)"', code) if n not in STATE_KEYS and not n.startswith("mr_tour_ic_")}
+names.add("mr_tour_title")   # the label of the screen in the manifest
 check("the screen keeps the steps and the position when it is rebuilt", all('"%s"' % k in screen for k in STATE_KEYS))
 dynamic = set()
 for step, parts in STEPS.items():
     for part in parts:
         dynamic.add("mr_tour_%s_%s" % (step, part))
-check("the screen builds the step texts as mr_tour_<step>_<part>", '"mr_tour_" + step + "_title"' in screen and '"mr_tour_" + step + "_text"' in screen
-      and '"mr_tour_" + step + "_off"' in screen)
-check("the steps of the test are the steps of the code", set(re.findall(r'static final String (DICT|GESTURE|WORD) = "([a-z]+)"', tour)) == {("DICT", "dict"), ("GESTURE", "gesture"), ("WORD", "word")})
+for part in ("title", "text", "off", "missing", "on", "open", "note"):
+    check("the screen builds the texts of the step as mr_tour_<step>_%s" % part, ('"mr_tour_" + step + "_%s"' % part) in screen)
+check("the steps of the test are the steps of the code", set(re.findall(r'static final String (ENABLE|SELECT|DICT|GESTURE) = "([a-z]+)"', tour)) ==
+      {("ENABLE", "enable"), ("SELECT", "select"), ("DICT", "dict"), ("GESTURE", "gesture")})
 needed = names | dynamic
 check("the code uses a good number of texts (more than 20)", len(needed) > 20, len(needed))
 langs = {"en": "values", "pt": "values-pt-rBR", "es": "values-es"}
@@ -127,6 +135,41 @@ check("the three languages are translated (no text equal to English except the o
       sum(1 for n in needed if table["pt"][n] == table["en"][n]) <= 2 and sum(1 for n in needed if table["es"][n] == table["en"][n]) <= 2,
       [n for n in needed if table["pt"][n] == table["en"][n]])
 check("the failure texts of MrTour exist (no pack in the catalog, no gesture file)", {"mr_tour_no_pack", "mr_tour_no_gesture"} <= names)
+
+# ---------------------------------------------------------------- the steps of Android
+check("the keyboard turned on is read from the list of keyboards of Android, by package", "getEnabledInputMethodList()" in tour and "getPackageName()" in tour)
+check("the keyboard in use is read from default_input_method, by 'package/'", "Settings.Secure.DEFAULT_INPUT_METHOD" in tour and 'startsWith(pkg + "/")' in tour)
+check("when Android cannot be asked the answer is done (a step that cannot end never holds the person)", tour.count("return true;") >= 6 and "catch (RuntimeException e)" in tour)
+check("the first step opens the keyboard settings of Android, the second the picker; neither needs a permission",
+      "Settings.ACTION_INPUT_METHOD_SETTINGS" in screen and "showInputMethodPicker()" in screen and "android.permission.WRITE_SECURE_SETTINGS" not in manifest)
+check("the steps of Android and their settings use no network class", not re.search(r"java\.net|HttpURLConnection|URL\(", screen) and "java.net" not in tour)
+check("the screen is followed while the person is in the settings: it reads again on resume, when the window has the focus back and every half second",
+      "protected void onResume()" in screen and "public void onWindowFocusChanged(boolean hasFocus)" in screen and "postDelayed(this, MrTour.sBusy ? 400 : 500)" in screen)
+check("the main screen marks it as done at once only when no step of Android is left", "if (!needsSetup(s)) markDone(a);" in tour)
+check("closing the screen (Skip, Back, the last button: finish()) marks it as done, and so does reaching a step that is not of Android",
+      re.search(r"public void finish\(\) \{\s*MrTour\.markDone\(this\);\s*super\.finish\(\);", screen) is not None
+      and "if (!MrTour.isSetup(step)) MrTour.markDone(this);" in screen)
+
+# ---------------------------------------------------------------- the screen (design)
+check("the step is in the middle: the scroll fills the viewport and the stage is centred", "scroll.setFillViewport(true);" in screen and "mStage.setGravity(Gravity.CENTER);" in screen)
+check("the buttons are under the scroll, not inside it (they stay in reach while the step scrolls)", "mBody.addView(mActions" in screen and "mStage.addView(mPrimary" not in screen and "mStage.addView(mActions" not in screen)
+check("the column is at most 440 dp wide and centred on a tablet, and it follows the turn of the phone",
+      "COLUMN_DP = 440f" in screen and "public void onConfigurationChanged(Configuration c)" in screen and "applySide();" in screen)
+check("the step changes along the horizontal axis: it leaves to the left and the next comes from the right, with the easings of Material",
+      "translationX(-dist)" in screen and "mBody.setTranslationX(dist);" in screen and "new PathInterpolator(0.3f, 0f, 1f, 1f)" in screen and "new PathInterpolator(0f, 0f, 0f, 1f)" in screen)
+check("the times are those of an onboarding (160 ms out, 340 ms in)", "T_EXIT = 160" in screen and "T_ENTER = 340" in screen)
+check("a change of step that is cancelled by the system lets go of the screen", "mHandler.postDelayed(mUnstick," in screen and "private final Runnable mUnstick" in screen)
+check("the ring that pulses does not loop when the animations are off, and it stops when the screen is left",
+      "SystemClock.uptimeMillis() - t0 < 300" in screen and re.search(r"protected void onPause\(\) \{[^}]*stopPulse\(\);", screen) is not None)
+check("the main button is the progress bar of a download (a fill that grows with the percent)", "mPrimaryFill.animate().scaleX(f)" in screen and "MrPacks.sJobPercent / 100f" in screen)
+check("a done step turns the icon into a check with a bounce", '"mr_tour_ic_check"' in screen and "popIn(mGlyph, 0);" in screen and "bump(mDisc);" in screen)
+check("the quiet button (turn off) is only for the downloads", "if (setup) {\n            mSecondary.setVisibility(View.GONE);" in screen)
+check("a repaint happens only when something changed (a tap is never lost)", "if (!now.equals(mSig))" in screen)
+check("the screen has no sleep and no loop of its own (the animators of the system run it)", "Thread.sleep" not in screen and "while (true)" not in screen)
+for name in ("keyboard", "pick", "book", "swipe", "check"):
+    path = os.path.join(ROOT, "res", "drawable", "mr_tour_ic_%s.xml" % name)
+    check("glyph mr_tour_ic_%s exists, white stroke (the screen tints it) and used" % name,
+          os.path.isfile(path) and "#ffffffff" in open(path, encoding="utf-8").read() and ('"mr_tour_ic_%s"' % name) in screen)
 
 # ---------------------------------------------------------------- the network
 check("the screen has no network code of its own", not re.search(r"java\.net|HttpURLConnection|fetchCatalog|fetchBytes|MrPacks\.install", screen))

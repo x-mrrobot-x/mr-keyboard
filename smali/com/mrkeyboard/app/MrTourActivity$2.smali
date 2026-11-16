@@ -3,12 +3,12 @@
 .source "MrTourActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
-.annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrTourActivity;->render()V
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lcom/mrkeyboard/app/MrTourActivity;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 134
+    .line 127
     iput-object p1, p0, Lcom/mrkeyboard/app/MrTourActivity$2;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,15 +36,62 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .locals 1
+.method public run()V
+    .locals 2
 
     .prologue
-    .line 136
+    .line 129
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$2;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
 
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrTourActivity;->finish()V
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTourActivity;->access$100(Lcom/mrkeyboard/app/MrTourActivity;)Z
 
-    .line 137
+    move-result v0
+
+    if-nez v0, :cond_1
+
+    .line 135
+    :cond_0
+    :goto_0
     return-void
+
+    .line 130
+    :cond_1
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$2;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
+
+    const/4 v1, 0x0
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrTourActivity;->access$102(Lcom/mrkeyboard/app/MrTourActivity;Z)Z
+
+    .line 131
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$2;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTourActivity;->access$000(Lcom/mrkeyboard/app/MrTourActivity;)Landroid/widget/LinearLayout;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_0
+
+    .line 132
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$2;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTourActivity;->access$000(Lcom/mrkeyboard/app/MrTourActivity;)Landroid/widget/LinearLayout;
+
+    move-result-object v0
+
+    const/high16 v1, 0x3f800000    # 1.0f
+
+    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setAlpha(F)V
+
+    .line 133
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrTourActivity$2;->this$0:Lcom/mrkeyboard/app/MrTourActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTourActivity;->access$000(Lcom/mrkeyboard/app/MrTourActivity;)Landroid/widget/LinearLayout;
+
+    move-result-object v0
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setTranslationX(F)V
+
+    goto :goto_0
 .end method

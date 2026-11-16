@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 176
+    .line 232
     iput-object p1, p0, Lcom/mrkeyboard/app/MrTour$1;->val$app:Landroid/content/Context;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrTour$1;->val$step:Ljava/lang/String;
@@ -57,8 +57,8 @@
 
     const/4 v6, 0x0
 
-    .line 178
-    .line 180
+    .line 234
+    .line 236
     :try_start_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrTour$1;->val$app:Landroid/content/Context;
 
@@ -73,33 +73,33 @@
 
     move-result-object v1
 
-    .line 185
+    .line 241
     sput-object v1, Lcom/mrkeyboard/app/MrTour;->sError:Ljava/lang/String;
 
-    .line 186
+    .line 242
     if-nez v1, :cond_0
 
     :goto_0
     sput-object v0, Lcom/mrkeyboard/app/MrTour;->sErrorStep:Ljava/lang/String;
 
-    .line 187
+    .line 243
     sput-boolean v6, Lcom/mrkeyboard/app/MrTour;->sBusy:Z
 
-    .line 189
+    .line 245
     :goto_1
     return-void
 
-    .line 186
+    .line 242
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTour$1;->val$step:Ljava/lang/String;
 
     goto :goto_0
 
-    .line 181
+    .line 237
     :catch_0
     move-exception v1
 
-    .line 182
+    .line 238
     :try_start_1
     iget-object v2, p0, Lcom/mrkeyboard/app/MrTour$1;->val$app:Landroid/content/Context;
 
@@ -127,7 +127,7 @@
 
     move-result-object v1
 
-    .line 183
+    .line 239
     if-nez v1, :cond_1
 
     :try_start_2
@@ -135,28 +135,28 @@
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_1
 
-    .line 185
+    .line 241
     :cond_1
     sput-object v1, Lcom/mrkeyboard/app/MrTour;->sError:Ljava/lang/String;
 
-    .line 186
+    .line 242
     if-nez v1, :cond_2
 
     :goto_2
     sput-object v0, Lcom/mrkeyboard/app/MrTour;->sErrorStep:Ljava/lang/String;
 
-    .line 187
+    .line 243
     sput-boolean v6, Lcom/mrkeyboard/app/MrTour;->sBusy:Z
 
     goto :goto_1
 
-    .line 186
+    .line 242
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTour$1;->val$step:Ljava/lang/String;
 
     goto :goto_2
 
-    .line 185
+    .line 241
     :catchall_0
     move-exception v1
 
@@ -165,25 +165,25 @@
     :goto_3
     sput-object v2, Lcom/mrkeyboard/app/MrTour;->sError:Ljava/lang/String;
 
-    .line 186
+    .line 242
     if-nez v2, :cond_3
 
     :goto_4
     sput-object v0, Lcom/mrkeyboard/app/MrTour;->sErrorStep:Ljava/lang/String;
 
-    .line 187
+    .line 243
     sput-boolean v6, Lcom/mrkeyboard/app/MrTour;->sBusy:Z
 
-    .line 188
+    .line 244
     throw v1
 
-    .line 186
+    .line 242
     :cond_3
     iget-object v0, p0, Lcom/mrkeyboard/app/MrTour$1;->val$step:Ljava/lang/String;
 
     goto :goto_4
 
-    .line 185
+    .line 241
     :catchall_1
     move-exception v2
 
