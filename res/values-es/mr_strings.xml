@@ -443,9 +443,9 @@
     <string name="mr_import_dups">%1$d ya estaban en tu lista.</string>
     <string name="mr_import_capped">%1$d quedaron fuera porque la lista está llena. Borra algunas en “Lo que el teclado aprendió”.</string>
     <string name="mr_import_blocked_skipped">%1$d se omitieron porque las habías bloqueado.</string>
-    <string name="mr_import_undo">Deshacer la última importación (%1$d elementos)</string>
-    <string name="mr_import_undo_title">Deshacer la última importación</string>
-    <string name="mr_import_undo_ask">¿Quitar las %1$d palabras y pares añadidos por la última importación en %2$s? Las palabras bloqueadas siguen bloqueadas.</string>
+    <string name="mr_import_undo">Deshacer la última adición (%1$d elementos)</string>
+    <string name="mr_import_undo_title">Deshacer la última adición</string>
+    <string name="mr_import_undo_ask">¿Quitar las %1$d palabras y pares de la última adición en %2$s? Las palabras bloqueadas siguen bloqueadas.</string>
     <string name="mr_import_undone">%1$d elementos quitados.</string>
     <string name="mr_import_why_1">Ninguna palabra en esta línea</string>
     <string name="mr_import_why_2">Un enlace o una dirección de correo</string>
@@ -465,7 +465,7 @@
     <string name="mr_import_ai_button">Dar formato con IA</string>
     <string name="mr_import_ai_ask_title">¿Dar formato con IA?</string>
     <string name="mr_import_ai_ask_text">Este texto no está en el formato de lista. Para convertirlo en una lista de palabras y frases se puede enviar a %1$s, el servicio de los ajustes de Editar con IA (%2$d caracteres, %3$d solicitud(es)).\n\nAntes de enviar se quitan enlaces, correos, teléfonos, números largos y los nombres de los autores de las conversaciones. No se envía nada si no eliges Enviar.</string>
-    <string name="mr_import_ai_ask_cut">El texto es largo: solo se enviarían los primeros %1$d caracteres (%2$d solicitudes). Para usarlo todo, elige No enviar y toca el botón de abajo para ver qué se añadirá.</string>
+    <string name="mr_import_ai_ask_cut">El texto es largo: solo se enviarían los primeros %1$d caracteres (%2$d solicitudes). Para usarlo todo, elige No enviar y usa la tarjeta \"¿Prefieres otro chat de IA?\" de abajo.</string>
     <string name="mr_import_ai_ask_many">Son %1$d solicitudes a tu cuenta de IA y pueden tener un coste allí.</string>
     <string name="mr_import_ai_your_service">tu servicio de IA</string>
     <string name="mr_import_ai_send">Enviar</string>
@@ -481,7 +481,7 @@
     <string name="mr_import_ai_back_nothing">La IA no devolvió una lista utilizable. Tu texto no se ha cambiado.</string>
     <string name="mr_import_ai_done">Formateado con IA: %1$d palabras y %2$d frases</string>
     <string name="mr_import_ai_partial_title">Solo una parte del texto tiene formato</string>
-    <string name="mr_import_ai_partial">%1$d de %2$d partes están ya en la lista. %3$s\n\nEl resto no se convirtió: usa Deshacer formato e inténtalo de nuevo, o añade el resto con el botón de abajo.</string>
+    <string name="mr_import_ai_partial">%1$d de %2$d partes están ya en la lista. %3$s\n\nEl resto no se convirtió y ya no está en la caja: pégalo de nuevo para darle formato.</string>
     <string name="mr_import_ai_why_cancel">Cancelaste.</string>
     <string name="mr_import_ai_why_unreadable">Algunas respuestas no eran una lista.</string>
     <string name="mr_import_ai_fail_title">La IA no pudo dar formato al texto</string>

@@ -308,16 +308,24 @@ final class MrKit {
     TextView iconButton(String s, String iconName, boolean primary, View.OnClickListener l) {
         MrIconButton b = new MrIconButton(act);
         b.setText(s);
-        b.setTextColor(primary ? onAccent : text);
-        b.setTextSize(primary ? 15f : 14f);
-        if (primary) b.setTypeface(null, Typeface.BOLD);
         b.setGravity(Gravity.CENTER);
         b.setPadding(dp(14), dp(13), dp(14), dp(13));
-        b.setBackground(primary ? round(accent, 0, 12, false) : round(faint, line, 12, false));
         b.setClickable(true);
         b.setOnClickListener(l);
-        b.setIcon(icon(iconName, 16f), dp(8));
+        restyleIconButton(b, primary, iconName);
         return b;
+    }
+
+    /**
+     * Gives a button made by {@link #iconButton} the look of the main action (accent fill, bold text) or the quiet one, with the vector that sits
+     * on that fill, without making another view. {@code iconName} is the vector for the look asked (the accent line of a quiet one is not seen on the fill).
+     */
+    void restyleIconButton(TextView b, boolean primary, String iconName) {
+        b.setTextColor(primary ? onAccent : text);
+        b.setTextSize(primary ? 15f : 14f);
+        b.setTypeface(null, primary ? Typeface.BOLD : Typeface.NORMAL);
+        b.setBackground(primary ? round(accent, 0, 12, false) : round(faint, line, 12, false));
+        if (b instanceof MrIconButton) ((MrIconButton) b).setIcon(icon(iconName, 16f), dp(8));
     }
 
     /**

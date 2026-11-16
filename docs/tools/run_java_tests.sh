@@ -20,9 +20,10 @@
 #   - BarTest: the buttons of the tool bar close the dialogs that are open (MrBarClose), except the one that the button itself toggles
 #   - KeepTest: the "Customize keyboard" tool and the keyboard when the screen turns (MrKeep): the tool opens again in the form of
 #     the new orientation, the keyboard that Android 17 leaves hidden is asked to show itself, all within a short window
-#   - ImportScreenTest: the screen "Add words and texts" (MrImportActivity) run against the stubs of Android: the one button under the box (none while it is empty, Format with AI
-#     for a text that is not a list, See what will be added for a list typed, pasted, restored or made by the AI), the preview that goes when the text changes, and what the screen no
-#     longer has (the button that opens a file and its code, the warning under the AI card, the words "open a file" in the card, the new text of the box in 3 languages).
+#   - ImportScreenTest: the screen "Add words and texts" (MrImportActivity) run against the stubs of Android: the one button under the box (Format with AI from the start, quiet
+#     while the box is empty and in the colour of the main action from one character on, for a text that is not a list; See what will be added for a list typed, pasted, restored or made by
+#     the AI), the preview in a dialog (the numbers, the empty state, Add and its count) that goes when the text changes, the wording of Undo the last addition, and what the screen no longer
+#     has (the button that opens a file and its code, the warning under the AI card, the way back of the formatting, the words "open a file" in the card, the new text of the box in 3 languages).
 #   - ImportTest, LearnedStoreTest: the screens "What the keyboard learned" and "Add words and texts" (MrImport, MrLearned on a MrWordStore in memory):
 #     cleaning of a free text (links, WhatsApp prefixes, laughs, numbers), the two-occurrence rule, the standard list (every kind of line left out), saving an
 #     import with its caps and undo, block, forget, edit, the export that is also the backup (export -> import -> export gives the same text), and what

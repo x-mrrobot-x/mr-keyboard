@@ -443,9 +443,9 @@
     <string name="mr_import_dups">%1$d were already on your list.</string>
     <string name="mr_import_capped">%1$d were left out because the list is full. Delete some from “What the keyboard learned”.</string>
     <string name="mr_import_blocked_skipped">%1$d were skipped because you had blocked them.</string>
-    <string name="mr_import_undo">Undo the last import (%1$d items)</string>
-    <string name="mr_import_undo_title">Undo the last import</string>
-    <string name="mr_import_undo_ask">Remove the %1$d words and pairs added by the last import in %2$s? Blocked words stay blocked.</string>
+    <string name="mr_import_undo">Undo the last addition (%1$d items)</string>
+    <string name="mr_import_undo_title">Undo the last addition</string>
+    <string name="mr_import_undo_ask">Remove the %1$d words and pairs of the last addition in %2$s? Blocked words stay blocked.</string>
     <string name="mr_import_undone">%1$d items removed.</string>
     <string name="mr_import_why_1">No words in this line</string>
     <string name="mr_import_why_2">A link or an e-mail address</string>
@@ -465,7 +465,7 @@
     <string name="mr_import_ai_button">Format with AI</string>
     <string name="mr_import_ai_ask_title">Format with AI?</string>
     <string name="mr_import_ai_ask_text">This text is not in the list format. To turn it into a list of words and phrases it can be sent to %1$s, the service of your Edit with AI settings (%2$d characters, %3$d request(s)).\n\nLinks, e-mails, phone numbers, long numbers and the names of chat authors are removed before sending. Nothing is sent unless you choose Send.</string>
-    <string name="mr_import_ai_ask_cut">The text is long: only the first %1$d characters (%2$d requests) would be sent. To use all of it, choose Don\'t send and tap the button below to see what will be added.</string>
+    <string name="mr_import_ai_ask_cut">The text is long: only the first %1$d characters (%2$d requests) would be sent. To use all of it, choose Don\'t send and use the card \"Prefer another AI chat?\" below.</string>
     <string name="mr_import_ai_ask_many">These are %1$d requests to your AI account and they may have a cost there.</string>
     <string name="mr_import_ai_your_service">your AI service</string>
     <string name="mr_import_ai_send">Send</string>
@@ -481,7 +481,7 @@
     <string name="mr_import_ai_back_nothing">The AI did not return a usable list. Your text was not changed.</string>
     <string name="mr_import_ai_done">Formatted with AI: %1$d words and %2$d phrases</string>
     <string name="mr_import_ai_partial_title">Only part of the text was formatted</string>
-    <string name="mr_import_ai_partial">%1$d of %2$d parts are in the list now. %3$s\n\nThe rest was not converted: use Undo formatting and try again, or add the rest with the button below.</string>
+    <string name="mr_import_ai_partial">%1$d of %2$d parts are in the list now. %3$s\n\nThe rest was not converted and is not in the box any more: paste it again to format it.</string>
     <string name="mr_import_ai_why_cancel">You cancelled.</string>
     <string name="mr_import_ai_why_unreadable">Some answers were not a list.</string>
     <string name="mr_import_ai_fail_title">The AI could not format the text</string>

@@ -30,10 +30,11 @@ import java.util.List;
  *  - a list in the standard format (mr-words 1: [words] / [phrases] / [blocked]) is taken as it is;
  *  - any other text (a chat export, an essay, notes) is read as free text: only the words the dictionary does not know and that show up
  *    at least twice are proposed, and pairs of words that are both valid and show up at least twice.
- * Nothing is saved before the preview: the user sees the new words (and can untick a typo), the pairs, what was ignored and why. "Add" saves one
- * import (one batch) that "Undo the last import" takes back. A prompt for an AI is offered to turn a big text into the standard list.
- * Under the box there is one button, chosen by what the box holds ({@link MrImport#offer}): none while it is empty, "Format with AI" for a text that is
- * not a list yet, "See what will be added" (the preview) once it is a list, typed, pasted or made by the AI.
+ * Nothing is saved before the preview: the user sees the new words (and can untick a typo), the pairs, what was ignored and why, in a dialog. "Add"
+ * saves one addition (one batch) that "Undo the last addition" takes back. A prompt for an AI is offered to turn a big text into the standard list.
+ * Under the box there is one button, chosen by what the box holds ({@link MrImport#offer}): "Format with AI" from the start (quiet while the box is
+ * empty, in the colour of the main action as soon as there is a character) for a text that is not a list yet, "See what will be added" (the preview)
+ * once it is a list, typed, pasted or made by the AI.
  * The rules live in MrImport / MrLearned (tested on the PC); this class is only views and threads. The analysis and the saving run off the main thread.
  */
 public class MrImportActivity extends Activity {
@@ -61,13 +62,17 @@ public class MrImportActivity extends Activity {
     private EditText mText;
     private TextView mCount;
     private TextView mAnalyze;
+    /** What the preview dialog holds (null while no preview is open). */
     private LinearLayout mPreview;
+    private AlertDialog mPreviewDialog;
     private LinearLayout mWordBox;
     private TextView mApply;
     private TextView mMoreWords;
     private TextView mUndo;
     private TextView mStatus;
     private TextView mAiButton;
+    /** How the Format with AI button is drawn now (null: not drawn yet): the main-action look once there is something typed. */
+    private Boolean mAiPrimary;
     private TextView mAiCancel;
     private TextView mAiNote;
     /** The cancel button was tapped while the AI was working (read by the thread that sends). */
@@ -87,6 +92,15 @@ public class MrImportActivity extends Activity {
         CharSequence typed = mText == null ? null : mText.getText();
         if (typed != null && typed.length() > 0 && typed.length() <= SAVE_TEXT_MAX) out.putString(S_TEXT, typed.toString());
         MrScreenIme.save(out, mText, null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        // a dialog left open with its screen is a leaked window
+        mPlan = null;
+        mPreview = null;
+        dismissPreview();
+        super.onDestroy();
     }
 
     @Override
@@ -186,10 +200,6 @@ public class MrImportActivity extends Activity {
         mAiCancel.setVisibility(View.GONE);
         col.addView(mAiCancel, k.wide(8));
 
-        mPreview = k.column();
-        mPreview.setVisibility(View.GONE);
-        col.addView(mPreview, k.wide(10));
-
         // Turning a big text into the standard list with an AI.
         LinearLayout ai = k.panel();
         ai.addView(k.iconRow("mr_ui_ic_sparkle", 20f, k.t("mr_import_ai_title"), 17f, k.text, true), k.wide(0));
@@ -254,12 +264,21 @@ public class MrImportActivity extends Activity {
         mCount.setText(k.t("mr_import_count", mText.length()));
     }
 
-    /** The button under the box: none while it is empty, "Format with AI" for a text that is not a list yet, "See what will be added" for a list. */
+    /**
+     * The button under the box: "Format with AI" for a text that is not a list yet (quiet while the box is empty, in the colour of the main action, like
+     * the other button, as soon as there is something in it), "See what will be added" for a list.
+     */
     private void refreshOffer() {
         if (mAiButton == null || mAnalyze == null) return;
-        int offer = MrImport.offer(mText.getText() == null ? null : mText.getText().toString());
+        String typed = mText.getText() == null ? null : mText.getText().toString();
+        int offer = MrImport.offer(typed);
         mAiButton.setVisibility(offer == MrImport.OFFER_FORMAT ? View.VISIBLE : View.GONE);
         mAnalyze.setVisibility(offer == MrImport.OFFER_PREVIEW ? View.VISIBLE : View.GONE);
+        boolean primary = typed != null && typed.trim().length() > 0;
+        if (mAiPrimary == null || mAiPrimary.booleanValue() != primary) {
+            mAiPrimary = Boolean.valueOf(primary);
+            k.restyleIconButton(mAiButton, primary, primary ? "mr_ui_ic_wand_on" : "mr_ui_ic_wand");
+        }
     }
 
     private void copyPrompt() {
@@ -358,24 +377,43 @@ public class MrImportActivity extends Activity {
 
     // ------------------------------------------------------------------ preview
 
+    /** Drops the preview: the plan, what the dialog holds and the dialog itself if it is open. */
     private void clearPreview() {
         mPlan = null;
         mShown = 0;
-        if (mPreview != null) {
-            mPreview.removeAllViews();
-            mPreview.setVisibility(View.GONE);
+        mPreview = null;
+        mWordBox = null;
+        mMoreWords = null;
+        mApply = null;
+        dismissPreview();
+    }
+
+    private void dismissPreview() {
+        AlertDialog d = mPreviewDialog;
+        mPreviewDialog = null;
+        if (d == null) return;
+        try {
+            d.dismiss();
+        } catch (RuntimeException e) {
+            // the window may already be gone with its screen
         }
     }
 
+    /**
+     * What will be added, in a dialog: the three numbers, the notes that apply, why there is nothing to add when that is so, and the new words with a
+     * tick each. The Add button is the one of the dialog (it stays in view while the list scrolls); closing the dialog drops the preview.
+     */
     private void showPreview() {
         final MrImport.Plan plan = mPlan;
-        mPreview.removeAllViews();
-        mPreview.setVisibility(View.VISIBLE);
+        final LinearLayout box = k.column();
+        box.setPadding(k.dp(20), k.dp(8), k.dp(20), k.dp(4));
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(box, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        mPreview = box;
         mShown = 0;
-        // The summary is one card: the title, the three numbers, the notes that apply and, when there is nothing to add, why.
-        LinearLayout sum = k.panel();
-        mPreview.addView(sum, k.wide(0));
-        sum.addView(k.iconRow("mr_ui_ic_eye_cyan", 28f, k.t(plan.standard ? "mr_import_found_std" : "mr_import_found"), 17f, k.text, true), k.wide(0));
+        mWordBox = null;
+        mMoreWords = null;
+        mApply = null;
         LinearLayout tiles = k.row();
         tiles.addView(k.stat(plan.words.size(), k.t("mr_import_stat_words")), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         LinearLayout.LayoutParams gap = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
@@ -384,34 +422,30 @@ public class MrImportActivity extends Activity {
         LinearLayout.LayoutParams gap2 = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         gap2.setMargins(k.dp(8), 0, 0, 0);
         tiles.addView(k.stat(plan.knownSkipped, k.t("mr_import_stat_known")), gap2);
-        sum.addView(tiles, k.wide(14));
+        box.addView(tiles, k.wide(0));
         if (plan.blocked.size() > 0) {
-            sum.addView(k.label(k.t("mr_import_blocked_found", plan.blocked.size()), 14f, k.text2, false), k.wide(12));
+            box.addView(k.label(k.t("mr_import_blocked_found", plan.blocked.size()), 14f, k.text2, false), k.wide(12));
         }
         if (plan.pairsCut) {
-            sum.addView(k.label(k.t("mr_import_pairs_cut"), 14f, k.text2, false), k.wide(12));
+            box.addView(k.label(k.t("mr_import_pairs_cut"), 14f, k.text2, false), k.wide(12));
         }
         String hint = plan.languageHint;
         if (hint != null && hint.length() > 0 && !MrLearned.localeOf(hint).equalsIgnoreCase(mLocale)) {
-            sum.addView(k.label(k.t("mr_import_lang_note", hint, MrLearned.tag(mLocale)), 14f, k.rose, false), k.wide(12));
+            box.addView(k.label(k.t("mr_import_lang_note", hint, MrLearned.tag(mLocale)), 14f, k.rose, false), k.wide(12));
         }
-        boolean nothing = plan.words.isEmpty() && plan.pairs.isEmpty() && plan.blocked.isEmpty();
+        final boolean nothing = plan.words.isEmpty() && plan.pairs.isEmpty() && plan.blocked.isEmpty();
         if (nothing) {
-            sum.addView(k.emptyState("mr_ui_ic_check_mint", k.t("mr_import_none_title"), k.t(plan.standard ? "mr_import_none_std" : "mr_import_none_new")), k.wide(14));
+            box.addView(k.emptyState("mr_ui_ic_check_mint", k.t("mr_import_none_title"), k.t(plan.standard ? "mr_import_none_std" : "mr_import_none_new")), k.wide(14));
         }
         if (plan.ignoredCount > 0) {
-            sum.addView(k.button(k.t("mr_import_see_ignored", plan.ignoredCount), false, new View.OnClickListener() {
+            box.addView(k.button(k.t("mr_import_see_ignored", plan.ignoredCount), false, new View.OnClickListener() {
                 public void onClick(View v) {
                     showIgnored();
                 }
             }), k.wide(12));
         }
-        if (nothing) {
-            mApply = null;
-            return;
-        }
-        if (!plan.words.isEmpty()) {
-            mPreview.addView(k.label(k.t("mr_import_untick"), 13f, k.text2, false), k.wide(16));
+        if (!nothing && !plan.words.isEmpty()) {
+            box.addView(k.label(k.t("mr_import_untick"), 13f, k.text2, false), k.wide(16));
             LinearLayout both = k.row();
             TextView all = k.chip(k.t("mr_import_all"), false, new View.OnClickListener() {
                 public void onClick(View v) {
@@ -427,24 +461,50 @@ public class MrImportActivity extends Activity {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
             lp.setMargins(k.dp(8), 0, 0, 0);
             both.addView(none, lp);
-            mPreview.addView(both, k.wide(8));
+            box.addView(both, k.wide(8));
             mWordBox = k.column();
-            mPreview.addView(mWordBox, k.wide(8));
+            box.addView(mWordBox, k.wide(8));
             mMoreWords = k.button(k.t("mr_learned_more"), false, new View.OnClickListener() {
                 public void onClick(View v) {
                     drawWords();
                 }
             });
-            mPreview.addView(mMoreWords, k.wide(8));
+            box.addView(mMoreWords, k.wide(8));
             drawWords();
         }
-        mApply = k.button("", true, new View.OnClickListener() {
-            public void onClick(View v) {
-                apply();
+        AlertDialog.Builder b = new AlertDialog.Builder(this)
+                .setTitle(k.t(plan.standard ? "mr_import_found_std" : "mr_import_found"))
+                .setView(scroll);
+        if (nothing) {
+            b.setPositiveButton(k.t("mr_words_ok"), null);
+        } else {
+            b.setNegativeButton(k.t("mr_words_cancel"), null);
+            b.setPositiveButton(k.t("mr_import_apply_none"), new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    apply();
+                }
+            });
+        }
+        AlertDialog d = b.create();
+        d.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            public void onDismiss(DialogInterface dialog) {
+                // closed by the person (or after Add): the plan goes with it; a newer preview is left alone
+                if (mPreview == box) {
+                    mPlan = null;
+                    mPreview = null;
+                    mPreviewDialog = null;
+                    mWordBox = null;
+                    mMoreWords = null;
+                    mApply = null;
+                }
             }
         });
-        mPreview.addView(mApply, k.wide(16));
-        updateApply();
+        mPreviewDialog = d;
+        d.show();
+        if (!nothing) {
+            mApply = d.getButton(AlertDialog.BUTTON_POSITIVE);
+            updateApply();
+        }
     }
 
     /** Draws the next page of words of the preview. */
@@ -493,15 +553,21 @@ public class MrImportActivity extends Activity {
         return n;
     }
 
-    private void updateApply() {
-        if (mApply == null || mPlan == null) return;
+    /** What the Add button of the dialog says now: how many words and pairs it will save (or that there is nothing to save). */
+    private String applyLabel() {
         int words = mPlan.checkedWords();
         int pairs = pairsToAdd();
-        int blocked = mPlan.blocked.size();
-        boolean any = words + pairs + blocked > 0;
-        mApply.setText(any ? k.t("mr_import_apply", words, pairs) : k.t("mr_import_apply_none"));
-        mApply.setClickable(any);
-        mApply.setAlpha(any ? 1f : 0.5f);
+        return applyAny() ? k.t("mr_import_apply", words, pairs) : k.t("mr_import_apply_none");
+    }
+
+    private boolean applyAny() {
+        return mPlan.checkedWords() + pairsToAdd() + mPlan.blocked.size() > 0;
+    }
+
+    private void updateApply() {
+        if (mApply == null || mPlan == null) return;
+        mApply.setText(applyLabel());
+        mApply.setEnabled(applyAny());
     }
 
     private void showIgnored() {

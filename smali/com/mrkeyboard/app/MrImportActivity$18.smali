@@ -3,12 +3,12 @@
 .source "MrImportActivity.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/content/DialogInterface$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrImportActivity;->prepareAi(Ljava/lang/String;)V
+    value = Lcom/mrkeyboard/app/MrImportActivity;->formatTapped()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-.field final synthetic val$text:Ljava/lang/String;
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;Ljava/lang/String;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 615
+    .line 662
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
-
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->val$text:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,46 +36,58 @@
 
 
 # virtual methods
-.method public run()V
-    .locals 3
+.method public onClick(Landroid/content/DialogInterface;I)V
+    .locals 4
 
     .prologue
-    const/4 v0, 0x0
-
-    .line 617
-    .line 619
+    .line 665
     :try_start_0
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->val$text:Ljava/lang/String;
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    invoke-static {v1}, Lcom/mrkeyboard/app/MrImportAi;->plan(Ljava/lang/String;)Lcom/mrkeyboard/app/MrImportAi$Plan;
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    const-class v2, Lcom/mrkeyboard/app/MrAiPrefs;
+
+    invoke-static {v1, v2}, Lcom/mrkeyboard/app/MrNav;->intent(Landroid/content/Context;Ljava/lang/Class;)Landroid/content/Intent;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrImportActivity;->startActivity(Landroid/content/Intent;)V
     :try_end_0
-    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_1
-    .catch Ljava/lang/OutOfMemoryError; {:try_start_0 .. :try_end_0} :catch_0
+    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+
+    .line 669
+    :goto_0
+    return-void
+
+    .line 666
+    :catch_0
+    move-exception v0
+
+    .line 667
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$1600(Lcom/mrkeyboard/app/MrImportActivity;)Lcom/mrkeyboard/app/MrKit;
 
     move-result-object v0
 
-    .line 626
-    :goto_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    new-instance v2, Lcom/mrkeyboard/app/MrImportActivity$18$1;
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrImportActivity;->access$1600(Lcom/mrkeyboard/app/MrImportActivity;)Lcom/mrkeyboard/app/MrKit;
 
-    invoke-direct {v2, p0, v0}, Lcom/mrkeyboard/app/MrImportActivity$18$1;-><init>(Lcom/mrkeyboard/app/MrImportActivity$18;Lcom/mrkeyboard/app/MrImportAi$Plan;)V
+    move-result-object v1
 
-    invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrImportActivity;->runOnUiThread(Ljava/lang/Runnable;)V
+    const-string v2, "mr_words_no_files"
 
-    .line 635
-    return-void
+    const/4 v3, 0x0
 
-    .line 622
-    :catch_0
-    move-exception v1
+    new-array v3, v3, [Ljava/lang/Object;
 
-    goto :goto_0
+    invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
-    .line 620
-    :catch_1
-    move-exception v1
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrKit;->toast(Ljava/lang/String;)V
 
     goto :goto_0
 .end method

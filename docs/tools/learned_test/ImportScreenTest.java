@@ -1,5 +1,6 @@
 package com.mrkeyboard.app;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -120,6 +121,24 @@ public class ImportScreenTest {
 
     static boolean shown(Screen s, String name) { return view(s, name).getVisibility() == View.VISIBLE; }
 
+    /** The Format with AI button is drawn like the See what will be added one (same text colour and size, which come with the accent fill). */
+    static boolean primaryLook(Screen s, String name) {
+        TextView t = (TextView) f(s, name), ref = (TextView) f(s, "mAnalyze");
+        return t.stubTextColor == ref.stubTextColor && t.stubTextSize == ref.stubTextSize;
+    }
+
+    /** The dialog with the preview is open. */
+    static boolean previewOpen(Screen s) {
+        AlertDialog d = (AlertDialog) f(s, "mPreviewDialog");
+        return d != null && d.stubShown && f(s, "mPreview") != null;
+    }
+
+    static AlertDialog dialog(Screen s) { return (AlertDialog) f(s, "mPreviewDialog"); }
+
+    static String dialogTitle(Screen s) { return String.valueOf(dialog(s).stubTitle); }
+
+    static String buttonText(android.widget.Button b) { return b == null ? null : String.valueOf(b.getText()); }
+
     /** Which of the two buttons under the box is on show: "format", "preview", "none" or "both" (neither of the last two ever happens). */
     static String under(Screen s) {
         boolean format = shown(s, "mAiButton"), preview = shown(s, "mAnalyze");
@@ -173,17 +192,21 @@ public class ImportScreenTest {
         Screen s = open(null);
         check("the screen is built with the box, the counter and the two buttons", f(s, "mText") != null && f(s, "mCount") != null && f(s, "mAiButton") != null && f(s, "mAnalyze") != null);
         check("nothing in the box yet: Format with AI is already there, See what will be added is not", under(s).equals("format"));
+        check("... and it is quiet (not the colour of the main action) while there is nothing in the box", !primaryLook(s, "mAiButton") && ((TextView) f(s, "mAiButton")).stubTextSize == 14f);
         check("the buttons are the Format with AI one (wand) and the See what will be added one", text(s, "mAiButton").equals("mr_import_ai_button") && text(s, "mAnalyze").equals("mr_import_analyze"));
 
         type(s, "Itaú");
         check("a word typed alone is not a list: Format with AI appears, See what will be added does not", under(s).equals("format"));
+        check("... and with one character in the box it is the colour of the main action, text and size as the See what will be added button", primaryLook(s, "mAiButton") && ((TextView) f(s, "mAiButton")).stubTextSize == 15f);
         check("... and the counter follows", text(s, "mCount").equals("mr_import_count[4]"));
+        type(s, "a");
+        check("a single character is enough", primaryLook(s, "mAiButton"));
         type(s, "");
-        check("the box emptied again: Format with AI", under(s).equals("format"));
+        check("the box emptied again: Format with AI, quiet again", under(s).equals("format") && !primaryLook(s, "mAiButton"));
         type(s, "   \n  \n");
-        check("only spaces and line breaks: Format with AI", under(s).equals("format"));
+        check("only spaces and line breaks: Format with AI, still quiet (nothing to format)", under(s).equals("format") && !primaryLook(s, "mAiButton"));
         type(s, CHAT);
-        check("a pasted chat is not a list: Format with AI", under(s).equals("format"));
+        check("a pasted chat is not a list: Format with AI, in the colour of the main action", under(s).equals("format") && primaryLook(s, "mAiButton"));
         type(s, LIST);
         check("a pasted list in the standard format: See what will be added (and no Format with AI)", under(s).equals("preview"));
         type(s, "[words]\nItaú");
@@ -282,9 +305,11 @@ public class ImportScreenTest {
         });
         set(s, "mPlan", plan);
         call(s, "showPreview", new Class<?>[] {});
-        check("a preview is on show for the list", shown(s, "mPreview") && f(s, "mPlan") != null);
+        check("a preview is on show for the list, in a dialog (not in the screen)", previewOpen(s) && f(s, "mPlan") != null
+                && dialogTitle(s).equals("mr_import_found_std") && dialog(s).stubView instanceof android.widget.ScrollView);
+        AlertDialog first = dialog(s);
         type(s, LIST + "Santander\n");
-        check("the person changes the text: the preview that was made from the old one is gone", !shown(s, "mPreview") && f(s, "mPlan") == null);
+        check("the person changes the text: the preview that was made from the old one is gone, and its dialog is closed", !previewOpen(s) && f(s, "mPlan") == null && f(s, "mPreview") == null && !first.stubShown);
         // the summary card
         MrImport.Plan fresh = MrImport.parse(LIST, new MrImport.Known() {
             public boolean knows(String w) { return false; }
@@ -294,11 +319,24 @@ public class ImportScreenTest {
         List<String> card = textsOf(s, "mPreview");
         // the list has two words, a phrase of two words that the dictionary does not know either (4 new words) and the pair of the phrase
         check("the list gives 4 new words and 1 pair, none known", fresh.words.size() == 4 && fresh.pairs.size() == 1 && fresh.knownSkipped == 0);
-        int iTitle = card.indexOf("mr_import_found_std"), iWords = card.indexOf("mr_import_stat_words"), iPairs = card.indexOf("mr_import_stat_pairs"), iKnown = card.indexOf("mr_import_stat_known");
-        check("the summary has a title, then the three numbers each with what it counts: 4 new words, 1 word pair, 0 already in the dictionary (in that order)",
-                iTitle == 0 && iWords > 0 && iPairs > iWords && iKnown > iPairs && card.get(iWords - 1).equals("4") && card.get(iPairs - 1).equals("1") && card.get(iKnown - 1).equals("0"));
-        check("... no sentence about \"nothing to add\", and the Add button says what will be added",
-                !card.contains("mr_import_none_title") && f(s, "mApply") != null && text(s, "mApply").equals("mr_import_apply[4, 1]"));
+        int iWords = card.indexOf("mr_import_stat_words"), iPairs = card.indexOf("mr_import_stat_pairs"), iKnown = card.indexOf("mr_import_stat_known");
+        check("the dialog has the title of the list and, first of all, the three numbers each with what it counts: 4 new words, 1 word pair, 0 already in the dictionary (in that order)",
+                dialogTitle(s).equals("mr_import_found_std") && iWords == 1 && iPairs > iWords && iKnown > iPairs && card.get(iWords - 1).equals("4") && card.get(iPairs - 1).equals("1") && card.get(iKnown - 1).equals("0"));
+        check("... no sentence about \"nothing to add\"; the buttons are Cancel and Add, and Add says what will be added",
+                !card.contains("mr_import_none_title") && f(s, "mApply") != null && text(s, "mApply").equals("mr_import_apply[4, 1]")
+                && buttonText(dialog(s).getButton(AlertDialog.BUTTON_NEGATIVE)).equals("mr_words_cancel") && dialog(s).getButton(AlertDialog.BUTTON_POSITIVE) == f(s, "mApply"));
+        check("... Add is on while there is something to add", ((TextView) f(s, "mApply")).isEnabled());
+        call(s, "tickAll", new Class<?>[] {boolean.class}, false);
+        check("every word unticked: Add says there is nothing to add and cannot be tapped", text(s, "mApply").equals("mr_import_apply_none") && !((TextView) f(s, "mApply")).isEnabled());
+        call(s, "tickAll", new Class<?>[] {boolean.class}, true);
+        check("... ticked again: it says the numbers and is on", text(s, "mApply").equals("mr_import_apply[4, 1]") && ((TextView) f(s, "mApply")).isEnabled());
+        AlertDialog open = dialog(s);
+        open.dismiss();
+        check("the person closes the dialog: the plan and what the dialog held are dropped", f(s, "mPlan") == null && f(s, "mPreview") == null && f(s, "mPreviewDialog") == null && f(s, "mApply") == null);
+        // the same list again for the checks that follow
+        set(s, "mPlan", fresh);
+        call(s, "showPreview", new Class<?>[] {});
+        card = textsOf(s, "mPreview");
         check("... the way to leave a word out, Select all and Select none, one row for each word", card.contains("mr_import_untick") && card.contains("mr_import_all") && card.contains("mr_import_none")
                 && card.contains("\u2713  Itaú") && card.contains("\u2713  Nubank"));
         check("a list in another language than the one chosen gets its note inside the card (the list says pt-BR; the screen starts on pt-BR: none)", !card.contains("mr_import_lang_note"));
@@ -314,7 +352,8 @@ public class ImportScreenTest {
                 none.contains("mr_import_none_title") && none.contains("mr_import_none_std") && !none.contains("mr_import_none_new"));
         check("... the numbers say why: 0 new words, 0 pairs, 2 already in the dictionary", none.contains("2") && none.indexOf("mr_import_stat_known") == none.indexOf("2") + 1
                 && none.indexOf("0") < none.indexOf("mr_import_stat_words"));
-        check("... and there is no Add button, no list of words and no Select all", f(s, "mApply") == null && !none.contains("mr_import_all") && !none.contains("mr_import_untick"));
+        check("... and there is no Add button (only OK), no list of words and no Select all", f(s, "mApply") == null && !none.contains("mr_import_all") && !none.contains("mr_import_untick")
+                && buttonText(dialog(s).getButton(AlertDialog.BUTTON_POSITIVE)).equals("mr_words_ok") && dialog(s).getButton(AlertDialog.BUTTON_NEGATIVE) == null && dialogTitle(s).equals("mr_import_found_std"));
         check("... and the old loose lines are not there (the old sentence of the counts, the old sentence of the known words)", !none.contains("mr_import_counts[0, 0]") && !none.contains("mr_import_known[2]"));
 
         // nothing to add in a free text: the reason is the one of a free text
@@ -324,8 +363,8 @@ public class ImportScreenTest {
         set(s, "mPlan", freeNone);
         call(s, "showPreview", new Class<?>[] {});
         List<String> freeCard = textsOf(s, "mPreview");
-        check("nothing to add in a free text: its own reason", freeCard.contains("mr_import_none_title") && freeCard.contains("mr_import_none_new") && !freeCard.contains("mr_import_none_std")
-                && freeCard.contains("mr_import_found"));
+        check("nothing to add in a free text: its own reason, and the title of a free text", freeCard.contains("mr_import_none_title") && freeCard.contains("mr_import_none_new") && !freeCard.contains("mr_import_none_std")
+                && dialogTitle(s).equals("mr_import_found"));
 
         // lines left out: the button that shows them is in the card, under the reason
         MrImport.Plan lines = MrImport.parse("# mr-words 1\n[words]\nab cd\n12345\n", new MrImport.Known() {
@@ -342,7 +381,7 @@ public class ImportScreenTest {
         set(s, "mPlan", plan);
         call(s, "showPreview", new Class<?>[] {});
         type(s, "Itaú");
-        check("... and then the button is Format with AI and no preview is on show", under(s).equals("format") && !shown(s, "mPreview"));
+        check("... and then the button is Format with AI and no preview is on show", under(s).equals("format") && !previewOpen(s));
         // a text that the screen sets by itself (the AI) clears its preview by itself, the watcher does not need to
         set(s, "mPlan", plan);
         call(s, "showPreview", new Class<?>[] {});
@@ -364,6 +403,12 @@ public class ImportScreenTest {
         check("the button that shows the preview is in the card of the box, under it (one place), the same eye icon and the primary style",
                 act.contains("main.addView(mAnalyze, k.wide(12))") && act.contains("k.iconButton(k.t(\"mr_import_analyze\"), \"mr_ui_ic_eye\", true,") && !act.contains("col.addView(mAnalyze"));
         check("the Format with AI button is in the same card and has the wand", act.contains("main.addView(mAiButton, k.wide(12))") && act.contains("\"mr_ui_ic_wand\""));
+        check("it takes the look of the main action with the wand that sits on the accent fill (MrKit.restyleIconButton, drawable with the on-accent line)",
+                act.contains("k.restyleIconButton(mAiButton, primary, primary ? \"mr_ui_ic_wand_on\" : \"mr_ui_ic_wand\")")
+                && file("res/drawable/mr_ui_ic_wand_on.xml").contains("@color/mr_text_on_accent") && !file("res/drawable/mr_ui_ic_wand_on.xml").contains("@color/mr_accent\""));
+        check("the See what will be added button and the Format with AI one use the same pill (iconButton, one place for the look)",
+                file("docs/tools/java/src/com/mrkeyboard/app/MrKit.java").contains("void restyleIconButton(TextView b, boolean primary, String iconName)")
+                && file("docs/tools/java/src/com/mrkeyboard/app/MrKit.java").contains("restyleIconButton(b, primary, iconName);"));
         check("the choice of the button is made by MrImport.offer", act.contains("MrImport.offer(") && act.contains("OFFER_FORMAT") && act.contains("OFFER_PREVIEW"));
 
         String[] dead = {"mr_import_open", "mr_import_reading", "mr_import_read_failed", "mr_import_file_empty", "mr_import_file_loaded", "mr_import_file_cut", "mr_import_ai_warn",
@@ -388,10 +433,29 @@ public class ImportScreenTest {
                 string("values", "mr_import_ai_done").equals("Formatted with AI: %1$d words and %2$d phrases")
                 && string("values-pt-rBR", "mr_import_ai_done").equals("Formatado com IA: %1$d palavras e %2$d frases")
                 && string("values-es", "mr_import_ai_done").equals("Formateado con IA: %1$d palabras y %2$d frases"));
-        check("the summary is one card (panel) with the eye, the three numbers (MrKit.stat) and the check of the empty state; its icon exists",
-                act.contains("LinearLayout sum = k.panel();") && act.contains("\"mr_ui_ic_eye_cyan\"") && act.contains("k.stat(") && act.contains("k.emptyState(\"mr_ui_ic_check_mint\"")
-                && new File("res/drawable/mr_ui_ic_check_mint.xml").exists());
+        check("the preview is a dialog (AlertDialog with a scroll inside), not a part of the screen: the three numbers (MrKit.stat) and the check of the empty state in it; its icon exists",
+                act.contains("new AlertDialog.Builder(this)") && act.contains(".setView(scroll)") && act.contains("k.stat(") && act.contains("k.emptyState(\"mr_ui_ic_check_mint\"")
+                && !act.contains("col.addView(mPreview") && !act.contains("LinearLayout sum = k.panel();") && new File("res/drawable/mr_ui_ic_check_mint.xml").exists());
+        check("the Add button is the positive button of the dialog and runs apply(); closing the dialog drops the plan; leaving the screen closes the dialog",
+                act.contains("b.setPositiveButton(k.t(\"mr_import_apply_none\"), new DialogInterface.OnClickListener()") && act.contains("apply();") && act.contains("d.setOnDismissListener(")
+                && act.contains("protected void onDestroy()") && act.contains("dismissPreview();"));
         check("the Format with AI button is not hidden by the empty box any more (no empty case in the offer)", !imp.contains("OFFER_NONE"));
+
+        check("the button that takes the last addition back says \"addition\", with the number of items (en, pt-BR, es)",
+                string("values", "mr_import_undo").equals("Undo the last addition (%1$d items)") && string("values-pt-rBR", "mr_import_undo").equals("Desfazer a última adição (%1$d itens)")
+                && string("values-es", "mr_import_undo").equals("Deshacer la última adición (%1$d elementos)"));
+        check("... and so do its question and its title (nothing says \"import\" any more)",
+                string("values", "mr_import_undo_title").equals("Undo the last addition") && string("values-pt-rBR", "mr_import_undo_title").equals("Desfazer a última adição")
+                && string("values-es", "mr_import_undo_title").equals("Deshacer la última adición")
+                && !string("values", "mr_import_undo_ask").toLowerCase().contains("import") && !string("values-pt-rBR", "mr_import_undo_ask").toLowerCase().contains("importa")
+                && !string("values-es", "mr_import_undo_ask").toLowerCase().contains("importa"));
+        boolean noStale = true;
+        for (String lang : LANGS) {
+            String partial = string(lang, "mr_import_ai_partial"), cut = string(lang, "mr_import_ai_ask_cut");
+            String all = (partial + " " + cut).toLowerCase();
+            if (all.contains("undo") || all.contains("desfazer") || all.contains("deshacer") || all.contains("button below") || all.contains("botão abaixo") || all.contains("botón de abajo")) noStale = false;
+        }
+        check("the texts of a half formatted text and of a long text do not send the person to the Undo formatting that is gone, or to a button that is not there", noStale);
 
         String en = string("values", "mr_import_intro"), pt = string("values-pt-rBR", "mr_import_intro"), es = string("values-es", "mr_import_intro");
         check("the card of information does not say to open a file (3 languages)",
