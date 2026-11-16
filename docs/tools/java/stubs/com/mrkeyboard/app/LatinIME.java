@@ -13,8 +13,8 @@ public class LatinIME extends android.inputmethodservice.InputMethodService {
     public int mrComposingLength() { return 0; }
     /** Ctrl is on (armed or held). Added to the real class in the smali (Ctrl + delete by words). */
     public boolean mrCtrlOn() { return false; }
-    /** The usual delete, once. Added to the real class in the smali (Ctrl + delete by words). */
-    public void mrBackspace() { }
+    /** Lets go of the word held as composing without committing it (not learned); the text stays. Added to the real class in the smali (Ctrl + delete by words). */
+    public void mrDropComposing() { }
     /** The suggestion engine of the language in use. Added to the real class in the smali (gesture typing). */
     public Suggest mrSuggest() { return null; }
     /** Puts these words on the strip; null = what the strip shows between two words. Added to the real class in the smali (gesture typing). */

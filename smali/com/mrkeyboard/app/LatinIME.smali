@@ -14822,8 +14822,7 @@
 .end method
 
 # Ctrl + delete by words (MrWordDelete): how many letters of the word being typed the keyboard holds as composing text; 0 when no
-# word is being typed. A word being typed goes by the usual delete (mrBackspace), letter by letter; once this is 0 the word before the
-# cursor is deleted whole.
+# word is being typed. A word still held as composing is let go first (mrDropComposing) and then deleted from the text like any other.
 .method public mrComposingLength()I
     .locals 1
 
@@ -14854,11 +14853,25 @@
     return v0
 .end method
 
-# Ctrl + delete by words (MrWordDelete): the usual delete, once (a letter of the word being typed, with everything it keeps in step).
-.method public mrBackspace()V
-    .locals 0
+# Ctrl + delete by words (MrWordDelete): lets go of the word the keyboard holds as composing, the way onUpdateSelection does when the
+# cursor moves away from it (the letters stay in the text; nothing is committed, so the word is not learned). The caller then calls
+# finishComposingText on the app and deletes from the text.
+.method public mrDropComposing()V
+    .locals 2
 
-    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->handleBackspace()V
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
+
+    const/4 v1, 0x0
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->setLength(I)V
+
+    iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->postUpdateSuggestions()V
+
+    invoke-static {}, Lcom/mrkeyboard/app/TextEntryState;->reset()V
 
     return-void
 .end method

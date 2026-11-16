@@ -36,12 +36,18 @@ So `hello world|` removes `world`, `hello, |` removes `, `, then `hello`; `foo-|
 
 ## The word being typed (Autocompletar on)
 
-With the suggestions on, the word being typed is composing text that the keyboard keeps in step with the strip
-(`LatinIME.mrComposingLength() > 0`). With Ctrl it goes **whole**: `MrWordDelete` calls the usual delete once per letter
-(`LatinIME.mrBackspace()`, the private `handleBackspace`) inside one batch of edits, so the composing text, the strip, the state of the
-text entry and the dictionaries stay as after a normal delete, and the word is **not** committed, so it is not learned. A guard
-(`sBusy`) keeps the usual delete called from there from coming back into the class. A word of more than 64 letters goes in more than
-one step. The words before it go with the next repeat.
+With the suggestions on, the word being typed, or one reopened by the correction under the cursor, is composing text
+(`LatinIME.mrComposingLength() > 0`). It is **not** rewritten letter by letter: the keyboard and the app can disagree about where the
+composing text is, and then every `setComposingText` adds text instead of replacing it (words piled up, spaces gone, the whole field
+underlined). With Ctrl the word is a word of the text like any other:
+
+1. the word is found by `wordLength` in the text read from the app (the composing letters are part of it);
+2. the keyboard lets go of the composing text (`LatinIME.mrDropComposing()`: the same steps `onUpdateSelection` takes when the cursor
+   leaves the word; nothing is committed, so the word is **not** learned) and the app is told `finishComposingText()`;
+3. `deleteSurroundingText` removes the word; 2 and 3 go in one batch of edits.
+
+So the class never writes composing text, and what it deletes depends only on the text of the app. A word reopened after a hyphen
+(`código-fonte`, the keyboard reopens `fonte`) goes whole, as the rule says. The words before it go with the next repeat.
 
 ## What is left to the usual delete
 
@@ -57,7 +63,7 @@ one step. The words before it go with the next repeat.
 | `LatinKeyboardBaseView$UIHandler.handleMessage` (repeat) | `interval(normal)` | the setting's interval (at least the usual one) while the hold is by words |
 | `LatinIME.handleBackspace` (after its housekeeping) | `onBackspace(ime)` | true = the word was deleted there; the smali then only updates the shift state and the text entry state |
 
-`LatinIME` gets `mrCtrlOn()` (is Ctrl on), `mrComposingLength()` and `mrBackspace()`. The setting is read once and followed by a listener
+`LatinIME` gets `mrCtrlOn()` (is Ctrl on), `mrComposingLength()` and `mrDropComposing()`. The setting is read once and followed by a listener
 on the default preferences; both keys are in `MrReset.KEYS`.
 
 The Ctrl key is in the compact, compact-with-Fn and full layouts (`kbd_compact.xml`, `kbd_compact_fn.xml`, `kbd_full.xml`).

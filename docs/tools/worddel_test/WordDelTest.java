@@ -39,7 +39,7 @@ public class WordDelTest {
         StringBuilder text = new StringBuilder();
         String selected;
         boolean silent, fall;
-        int reads, deletes, begins, ends;
+        int reads, deletes, begins, ends, finishes;
 
         public CharSequence getTextBeforeCursor(int n, int flags) {
             reads++;
@@ -54,34 +54,31 @@ public class WordDelTest {
             text.setLength(Math.max(0, text.length() - before));
             return true;
         }
-        public boolean finishComposingText() { return true; }
+        public boolean finishComposingText() { finishes++; return true; }
         public boolean beginBatchEdit() { begins++; return true; }
         public boolean endBatchEdit() { ends++; return true; }
     }
 
-    /** The keyboard as far as MrWordDelete sees it: Ctrl, the word being typed, and the usual delete (handleBackspace). */
+    /** The keyboard as far as MrWordDelete sees it: Ctrl, and the word held as composing text. */
     static class Ime extends LatinIME {
         final Field ic = new Field();
         boolean hasIc = true;
         boolean ctrl;                // mModCtrl
         boolean ctrlFall;            // asking for Ctrl throws
         int composing;               // letters of the word being typed (composing text, the last ones of the text)
-        boolean boom;                // the usual delete throws
-        int backspaces;              // calls of the usual delete from MrWordDelete
-        int reentered;               // the usual delete called from there came back into MrWordDelete and was taken (it must not be)
+        int drops;                   // times the keyboard was told to let go of the composing text
+        int dropsAtDelete = -1;      // the deletes done when it was told to (to see the order)
         @Override public InputConnection getCurrentInputConnection() { return hasIc ? ic : null; }
         @Override public int mrComposingLength() { return composing; }
         @Override public boolean mrCtrlOn() {
             if (ctrlFall) throw new IllegalStateException("no keyboard");
             return ctrl;
         }
-        /** handleBackspace as the smali has it: MrWordDelete first, then the usual one (a letter of the composing text, or one before the cursor). */
-        @Override public void mrBackspace() {
-            backspaces++;
-            if (boom) throw new IllegalStateException("boom");
-            if (MrWordDelete.onBackspace(this)) reentered++;
-            if (composing > 0) composing--;
-            if (ic.text.length() > 0) ic.text.setLength(ic.text.length() - 1);
+        /** The keyboard lets go of the word (mComposing empty, mPredicting off): the text is not touched. */
+        @Override public void mrDropComposing() {
+            drops++;
+            dropsAtDelete = ic.deletes;
+            composing = 0;
         }
     }
 
@@ -427,43 +424,69 @@ public class WordDelTest {
         on(p);
         p.set(MrWordDelete.PREF_ON, Boolean.TRUE);
 
+        // a word being typed (composing text, part of the text of the app) goes like any other word, by position
         Ime ime = new Ime();
         ime.ic.text.append("one two three");
         ime.composing = 5;                                    // "three" is the composing text
         ime.ctrl = true;
         touch(ime);
-        check("typed: Ctrl + delete takes the word being typed whole: the text", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one two "));
-        check("typed: ... letter by letter through the usual delete (5), nothing composed, none of those calls came back into the class",
-                ime.backspaces == 5 && ime.composing == 0 && ime.reentered == 0, "backspaces=" + ime.backspaces + " composing=" + ime.composing + " reentered=" + ime.reentered);
-        check("typed: ... in one batch of edits, closed", ime.ic.begins == 1 && ime.ic.ends == 1 && ime.ic.deletes == 0 && ime.ic.reads == 0);
-        check("typed: the next repeat goes on by words", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one "));
+        check("typed: Ctrl + delete takes the word being typed whole, from the text", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one two "));
+        check("typed: the keyboard lets go of the word, once, BEFORE the delete; the app is told to finish its composing text, once",
+                ime.drops == 1 && ime.dropsAtDelete == 0 && ime.ic.finishes == 1 && ime.ic.deletes == 1 && ime.composing == 0,
+                "drops=" + ime.drops + " at=" + ime.dropsAtDelete + " finishes=" + ime.ic.finishes + " deletes=" + ime.ic.deletes);
+        check("typed: all in one batch of edits, closed", ime.ic.begins == 1 && ime.ic.ends == 1);
+        check("typed: the next repeat goes on by words, with nothing more to let go of", MrWordDelete.onBackspace(ime) && ime.ic.text.toString().equals("one ") && ime.drops == 1 && ime.ic.finishes == 1);
+        check("typed: no batch when nothing is composing", ime.ic.begins == 1);
         MrWordDelete.up();
 
-        // a word longer than one step: the rest goes with the next repeat
-        Ime big = new Ime();
-        StringBuilder sb = new StringBuilder("x ");
-        for (int i = 0; i < 100; i++) sb.append('a');
-        big.ic.text.append(sb);
-        big.composing = 100;
-        big.ctrl = true;
-        touch(big);
-        check("typed: 100 letters: 64 in one step", MrWordDelete.onBackspace(big) && big.composing == 100 - MrWordDelete.COMPOSING_MAX && big.backspaces == MrWordDelete.COMPOSING_MAX);
-        check("typed: the 36 left in the next one", MrWordDelete.onBackspace(big) && big.composing == 0 && big.backspaces == 100 && big.ic.text.toString().equals("x "));
-        check("typed: then the word before", MrWordDelete.onBackspace(big) && big.ic.text.toString().equals(""));
+        // the word reopened is the end of a longer run: the rule decides (the hyphen belongs to the word)
+        Ime hy = new Ime();
+        hy.ic.text.append("no c\u00f3digo-fonte");
+        hy.composing = 5;                                     // "fonte": the keyboard reopens what follows the hyphen
+        hy.ctrl = true;
+        touch(hy);
+        check("typed: a reopened part of a word with a hyphen: the whole word goes", MrWordDelete.onBackspace(hy) && hy.ic.text.toString().equals("no "));
         MrWordDelete.up();
 
-        // the usual delete fails: the batch is closed, the guard is released, the usual delete takes over
+        // what the keyboard holds does not change what is deleted: only the text of the app does
+        Ime off = new Ime();
+        off.ic.text.append("one two three");
+        off.composing = 2;                                    // the keyboard holds less (or more) than the word: the app decides
+        off.ctrl = true;
+        touch(off);
+        check("typed: the keyboard's idea of the word does not matter: the word of the text goes", MrWordDelete.onBackspace(off) && off.ic.text.toString().equals("one two "));
+        off.composing = 40;
+        check("typed: ... even a composing text longer than the text", MrWordDelete.onBackspace(off) && off.ic.text.toString().equals("one "));
+        MrWordDelete.up();
+
+        // the app gives no text: nothing is let go of, the usual delete runs (and does what it always did)
+        Ime silent = new Ime();
+        silent.ic.text.append("one two");
+        silent.ic.silent = true;
+        silent.composing = 3;
+        silent.ctrl = true;
+        touch(silent);
+        check("typed: the app gives no text: the usual delete runs, the word is left as it is", !MrWordDelete.onBackspace(silent) && silent.drops == 0 && silent.ic.finishes == 0 && silent.composing == 3);
+        MrWordDelete.up();
+
+        // a selection: the usual delete removes it, the word being typed is left
+        Ime sel = new Ime();
+        sel.ic.text.append("one two");
+        sel.ic.selected = "two";
+        sel.composing = 3;
+        sel.ctrl = true;
+        touch(sel);
+        check("typed: text selected: the usual delete, nothing let go of", !MrWordDelete.onBackspace(sel) && sel.drops == 0 && sel.ic.deletes == 0);
+        MrWordDelete.up();
+
+        // the app fails in the middle: the batch is closed
         Ime bad = new Ime();
         bad.ic.text.append("one two");
         bad.composing = 3;
-        bad.boom = true;
+        bad.ic.fall = true;
         bad.ctrl = true;
         touch(bad);
-        check("typed: the usual delete throws: the usual delete runs (false), the batch is closed", !MrWordDelete.onBackspace(bad) && bad.ic.begins == bad.ic.ends && bad.ic.begins == 1);
-        bad.boom = false;
-        bad.composing = 0;
-        touch(bad);
-        check("typed: ... and the guard is released: the next touch works", MrWordDelete.onBackspace(bad) && bad.ic.text.toString().equals("one "));
+        check("typed: the app throws: the usual delete runs (false) and nothing is left open", !MrWordDelete.onBackspace(bad) && bad.ic.begins == bad.ic.ends && bad.drops == 0);
         MrWordDelete.up();
 
         // no connection with a word being typed: the usual delete
@@ -472,7 +495,15 @@ public class WordDelTest {
         none.hasIc = false;
         none.ctrl = true;
         touch(none);
-        check("typed: no connection: the usual delete", !MrWordDelete.onBackspace(none) && none.backspaces == 0);
+        check("typed: no connection: the usual delete", !MrWordDelete.onBackspace(none) && none.drops == 0);
+        MrWordDelete.up();
+
+        // nothing before the cursor but the word being typed is not possible; an empty field: the usual delete, nothing let go of
+        Ime empty = new Ime();
+        empty.composing = 1;
+        empty.ctrl = true;
+        touch(empty);
+        check("typed: nothing to delete: the usual delete, the composing text is not let go of", !MrWordDelete.onBackspace(empty) && empty.drops == 0 && empty.ic.finishes == 0);
         MrWordDelete.up();
 
         // without Ctrl the word being typed goes as always (the class does not touch it)
@@ -480,7 +511,7 @@ public class WordDelTest {
         plain.ic.text.append("one two");
         plain.composing = 3;
         touch(plain);
-        check("typed: no Ctrl: not for this class", !MrWordDelete.onBackspace(plain) && plain.backspaces == 0 && plain.composing == 3);
+        check("typed: no Ctrl: not for this class", !MrWordDelete.onBackspace(plain) && plain.drops == 0 && plain.ic.finishes == 0 && plain.composing == 3);
         MrWordDelete.up();
     }
 
@@ -599,8 +630,8 @@ public class WordDelTest {
         typedIme.composing = 3;
         List<String> logT = replay(typedIme, 700, true);
         check("replay: a word being typed and Ctrl held: whole on the touch, then a word per repeat (0, 300, 500) and nothing left to take",
-                logT.subList(0, 3).equals(java.util.Arrays.asList("0:word", "300:word", "500:word")) && typedIme.ic.text.length() == 0 && typedIme.reentered == 0
-                        && typedIme.ic.begins == typedIme.ic.ends, logT + " | " + typedIme.ic.text);
+                logT.subList(0, 3).equals(java.util.Arrays.asList("0:word", "300:word", "500:word")) && typedIme.ic.text.length() == 0
+                        && typedIme.drops == 1 && typedIme.ic.begins == typedIme.ic.ends, logT + " | " + typedIme.ic.text);
 
         // 7. the repeat cancelled (a second finger, a slide off the key): the next delete is the usual one
         Ime cut = new Ime();

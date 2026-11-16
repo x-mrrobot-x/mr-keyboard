@@ -4,7 +4,7 @@
   - LatinIME.handleBackspace (its hook, and what the keyboard does with the answer) and LatinKeyboardBaseView$UIHandler.cancelKeyRepeatTimer
     and .handleMessage (the repeat) run in the mini Dalvik interpreter (dalvik_mini.py) with a fake MrWordDelete;
   - PointerTracker.onDownEvent (too big to run here): the order of the calls in the branch of the keys that repeat;
-  - the three methods added to LatinIME (mrCtrlOn, mrComposingLength, mrBackspace) run in the interpreter;
+  - the three methods added to LatinIME (mrCtrlOn, mrComposingLength, mrDropComposing) run in the interpreter;
   - nobody else calls MrWordDelete, and what is called exists in the generated smali with the signature used;
   - the settings screen (next to the long-press time), the limits and default against the Java constants, the texts in the three
     languages, the keys in MrReset.
@@ -215,16 +215,30 @@ vm, host = vm_for(LIME, IME, [])
 check("mrCtrlOn: true when Ctrl is on, false when it is not (run)",
       vm.run("mrCtrlOn()Z", [dm.Obj(IME, mModCtrl=True)]) in (True, 1) and vm.run("mrCtrlOn()Z", [dm.Obj(IME, mModCtrl=False)]) in (False, 0, None))
 
-mb = code_lines(method_body(LIME, "public mrBackspace()V"))
-check("mrBackspace: the usual delete (handleBackspace), once, and nothing else",
-      len(mb) == 2 and mb[0].startswith("invoke-direct") and mb[0].endswith(IME + "->handleBackspace()V") and mb[1] == "return-void", mb)
-vm, host = vm_for(LIME, IME, ["handleBackspace()V"])
-vm.run("mrBackspace()V", [dm.Obj(IME)])
-check("mrBackspace: runs handleBackspace once (run)", host.log == ["handleBackspace"], host.log)
+dc = code_lines(method_body(LIME, "public mrDropComposing()V"))
+check("mrDropComposing: empties mComposing, turns mPredicting off, forgets the previous word, asks for the suggestions and resets the text entry state",
+      any("->mComposing:Ljava/lang/StringBuilder;" in l for l in dc) and any("StringBuilder;->setLength(I)V" in l for l in dc)
+      and any("->mPredicting:Z" in l and l.startswith("iput-boolean") for l in dc)
+      and any("MrPrevWord;->clear()V" in l for l in dc) and any("->postUpdateSuggestions()V" in l for l in dc)
+      and any("TextEntryState;->reset()V" in l for l in dc), dc)
+check("mrDropComposing: writes nothing to the app and commits nothing (so the word is not learned)",
+      not any(w in l for l in dc for w in ("InputConnection", "commitTyped", "commitText", "setComposingText", "finishComposingText",
+                                           "deleteSurroundingText", "AutoDictionary", "UserBigram", "addWord", "ictionary", "pickSuggestion")), dc)
+vm, host = vm_for(LIME, IME, ["postUpdateSuggestions()V"])
+this = dm.Obj(IME, mComposing="abc", mPredicting=True)
+vm.run("mrDropComposing()V", [this])
+check("mrDropComposing: runs: the same steps as onUpdateSelection takes when the cursor leaves the composing word (run)",
+      host.log == ["setLength", "clear", "postUpdateSuggestions", "reset"] and this.f["mPredicting"] in (False, 0), host.log)
 
-# the hook is inside handleBackspace, so the call above comes back into MrWordDelete.onBackspace: the class has a guard for it (sBusy)
-check("MrWordDelete guards the call it makes to the usual delete (sBusy is set around mrBackspace)",
-      "sBusy = true;" in read(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrWordDelete.java")))
+# the word being typed is never rewritten by this class: the keyboard and the app could disagree about where the composing text is,
+# and a rewrite would then add text instead of replacing it
+mwd = read(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrWordDelete.java"))
+code_only = re.sub(r"/\*.*?\*/", "", mwd, flags=re.S)
+code_only = re.sub(r"//[^\n]*", "", code_only)
+check("MrWordDelete never writes composing text (no setComposingText / commitText / setComposingRegion), only deletes by position",
+      not any(w in code_only for w in ("setComposingText", "commitText", "setComposingRegion", "mrEndWord", "mrCommit")), "")
+check("MrWordDelete lets go of the composing text before it deletes (mrDropComposing, then finishComposingText, then deleteSurroundingText)",
+      code_only.index("mrDropComposing()") < code_only.index("finishComposingText()") < code_only.index("deleteSurroundingText(n, 0)"))
 
 # ---------------------------------------------------------------------------------------------- the screen, the limits, the texts
 java = read(os.path.join(ROOT, "docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrWordDelete.java"))

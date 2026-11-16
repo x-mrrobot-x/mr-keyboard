@@ -21,10 +21,12 @@ import android.view.inputmethod.InputConnection;
  * is a step of its own: the spaces before a line break are removed without crossing it, and a line break right before the cursor
  * goes alone. See {@link #wordLength}.
  *
- * <p>A word still being typed with the suggestions on is composed text that the keyboard keeps in step with the strip: it goes
- * whole, letter by letter through the usual delete inside one batch of edits (so the strip, the state of the text entry and the
- * dictionary stay as after a normal delete, and the word is not learned). Left to the usual delete: text selected (the delete
- * removes it), the text before the cursor not readable, and the start of the field.
+ * <p>A word still being typed, or reopened by the correction under the cursor, is composing text. It is not rewritten letter by
+ * letter (the keyboard and the app could disagree about where the composing text is, and each rewrite would then add text instead
+ * of replacing it): the keyboard lets go of it first ({@link LatinIME#mrDropComposing}, nothing is committed, so the word is not
+ * learned; the app is told to finish its composing text) and the word goes from the text like any other, in one batch of edits.
+ * The class only reads the text and deletes by position; it never writes composing text. Left to the usual delete: text selected (the delete removes it), the
+ * text before the cursor not readable, and the start of the field.
  *
  * <p>All on the main thread. The calls from the smali, each of them catching what is thrown here (a fault never stops typing):
  * <pre>
@@ -34,7 +36,7 @@ import android.view.inputmethod.InputConnection;
  *       .handleMessage (repeat)              {@link #interval}: the time to the next repeat
  *   LatinIME.handleBackspace                 {@link #onBackspace}: true = the delete was done here
  * </pre>
- * and LatinIME.mrCtrlOn(), mrComposingLength() and mrBackspace(), small methods added to the class for it.
+ * and LatinIME.mrCtrlOn(), mrComposingLength() and mrDropComposing(), small methods added to the class for it.
  */
 public final class MrWordDelete {
     static final String PREF_ON = "pref_word_delete";
@@ -48,9 +50,6 @@ public final class MrWordDelete {
     /** How many characters before the cursor are read to find the word. A longer word goes in more than one step. */
     static final int LOOKBACK = 64;
 
-    /** The most letters of a word being typed that one step takes (a longer one goes in more than one step). */
-    static final int COMPOSING_MAX = 64;
-
     /** Keyboard.KEYCODE_DELETE. */
     static final int KEYCODE_DELETE = -5;
 
@@ -61,8 +60,6 @@ public final class MrWordDelete {
 
     /** The delete key under the finger went down with Ctrl on (and the setting on): it deletes by words until it is let go. */
     private static boolean sHold;
-    /** A word being typed is being taken back letter by letter: the usual delete called from here must not come back here. */
-    private static boolean sBusy;
 
     private static Context sApp;
     private static SharedPreferences.OnSharedPreferenceChangeListener sListener;   // kept here: the preferences only hold it weakly
@@ -84,7 +81,6 @@ public final class MrWordDelete {
         sOn = false;
         sInterval = INTERVAL_DEFAULT;
         sHold = false;
-        sBusy = false;
     }
 
     /** Reads the setting from the preferences of the keyboard; the first call also starts following them. c: any context. */
@@ -170,23 +166,36 @@ public final class MrWordDelete {
     }
 
     /**
-     * LatinIME.handleBackspace, after its housekeeping and before it reads the text. true = the delete was done here (a word
+     * LatinIME.handleBackspace, after its housekeeping and before it reads the text. true = the delete was done here (the word
      * before the cursor, or the word being typed) and the usual delete must not run; false = it is not for this class (the usual
      * delete goes on).
      */
     public static boolean onBackspace(LatinIME ime) {
-        if (!sHold || sBusy) return false;                        // not a hold with Ctrl, or the setting is off: the common case
+        if (!sHold) return false;                                 // not a hold with Ctrl, or the setting is off: the common case
         try {
             final InputConnection ic = ime.getCurrentInputConnection();
             if (ic == null) return false;
-            if (ime.mrComposingLength() > 0) return takeBackTyped(ime, ic);
             final int n;
             MrPerf.appBegin();
             try {
                 final CharSequence selected = ic.getSelectedText(0);
                 if (selected != null && selected.length() > 0) return false;      // the usual delete removes the selection
                 n = wordLength(ic.getTextBeforeCursor(LOOKBACK, 0));
-                if (n > 0) ic.deleteSurroundingText(n, 0);
+                if (n > 0) {
+                    // The text is read from the app (the composing text is part of it), so a word being typed is a word like any
+                    // other; the keyboard only has to let go of it, in the same batch as the delete.
+                    final boolean composing = ime.mrComposingLength() > 0;
+                    if (composing) ic.beginBatchEdit();
+                    try {
+                        if (composing) {
+                            ime.mrDropComposing();
+                            ic.finishComposingText();
+                        }
+                        ic.deleteSurroundingText(n, 0);
+                    } finally {
+                        if (composing) ic.endBatchEdit();
+                    }
+                }
             } finally {
                 MrPerf.appEnd();
             }
@@ -195,24 +204,6 @@ public final class MrWordDelete {
             sHold = false;
             return false;
         }
-    }
-
-    /**
-     * The word being typed goes whole: the usual delete, once for each letter, in one batch of edits. It keeps the composing
-     * text, the strip and the state of the text entry as a normal delete leaves them, and the word is not committed (so not
-     * learned). Always true: the first call takes at least one letter.
-     */
-    private static boolean takeBackTyped(LatinIME ime, InputConnection ic) {
-        sBusy = true;
-        ic.beginBatchEdit();
-        try {
-            int guard = COMPOSING_MAX;
-            while (guard-- > 0 && ime.mrComposingLength() > 0) ime.mrBackspace();
-        } finally {
-            sBusy = false;
-            ic.endBatchEdit();
-        }
-        return true;
     }
 
     // ------------------------------------------------------------------ what a word is
