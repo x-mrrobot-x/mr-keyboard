@@ -117,8 +117,10 @@ The rule, and the numbers behind it (tables in "What was measured"):
 3. It **is** a gesture when the finger gets **0.7 key width** away from where it went down (`START_KEYS`; never less than
    22 dp, 3.5 mm). At that moment the usual path receives one cancel event (the key is let go without being typed, its
    timers stop, the detector of the slide actions forgets the touch) and from there to the last finger up every event is
-   taken by `MrGestureInput`. So, with gesture typing on, a **slide action** only happens when the finger starts outside
-   the letters (decided by the owner of the project).
+   taken by `MrGestureInput`. So, with gesture typing on, a **slide action** (the swipes of *Touch and gestures*; left and right
+   change the sheet by default) cannot start on a letter of the main sheet: it starts outside those letters (Shift, delete, the
+   space row, the digits, the gaps between keys) or on any key of the other sheets, where gesture typing never looks (rule 1)
+   (decided by the owner of the project). How a slide action is seen: `docs/swipe-actions.md`.
 4. A second finger before that point: not a gesture (typing with two thumbs is untouched). A second finger after it: ignored
    until the gesture ends.
 5. Finger up: nothing is written when the finger lifted more than half a row outside the rows of letters (a slide that left
@@ -606,8 +608,8 @@ this file. Item 13 was done with the weights installed from a file; the download
 5. Backspace right after a gesture; backspace after another key.
 6. **Fast typing by taps**, with one and with two thumbs: no false gesture, no letter lost.
 7. Long press on a letter (the accents popup now takes 250 ms where it took 100), on a key outside the letters (unchanged).
-8. The slide actions starting outside the letters (they must work, the language switch on the space bar among them) and
-   starting on a letter (they must not).
+8. The slide actions starting outside the letters of the main sheet, on the digits and on any key of the other sheets (they must
+   work, the language switch on the space bar among them) and starting on a letter of the main sheet (they must not).
 9. The trail: every theme, with and without hardware acceleration ("Advanced"), no leftover after the finger lifts.
 10. Rotation, the three keyboard modes (standard, compact, full), the keyboard heights, a layout with `ñ`.
 11. A password field, an address bar, the symbol sheets, a style of the Fonts tool chosen, Ctrl switched on: no gesture.

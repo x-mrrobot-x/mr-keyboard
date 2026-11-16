@@ -177,7 +177,7 @@
     <string name="mr_dicts_err_io">Não foi possível gravar o dicionário (%1$s).</string>
     <string name="mr_gesture_cat">Digitação por gestos (experimental)</string>
     <string name="mr_gesture_on_title">Digitação por gestos</string>
-    <string name="mr_gesture_on_summary">Deslize o dedo pelas letras para escrever a palavra. Ligada, os gestos de deslize só valem quando começam fora das letras.</string>
+    <string name="mr_gesture_on_summary">Deslize o dedo pelas letras para escrever a palavra. Só vale começando numa letra da folha principal. Com ela ligada, os deslizes de ação (trocar de folha, fechar o teclado...) começam fora dessas letras ou em qualquer tecla das outras folhas.</string>
     <string name="mr_gesture_trail_title">Mostrar o rastro</string>
     <string name="mr_gesture_trail_summary">Desenha o caminho do dedo sobre as teclas durante o gesto</string>
     <string name="mr_gesture_preview_title">Mostrar a palavra durante o gesto</string>

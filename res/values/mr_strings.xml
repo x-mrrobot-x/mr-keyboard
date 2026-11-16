@@ -177,7 +177,7 @@
     <string name="mr_dicts_err_io">Could not save the dictionary (%1$s).</string>
     <string name="mr_gesture_cat">Gesture typing (experimental)</string>
     <string name="mr_gesture_on_title">Gesture typing</string>
-    <string name="mr_gesture_on_summary">Slide your finger over the letters to write a word. While on, swipe gestures only count when they start outside the letters.</string>
+    <string name="mr_gesture_on_summary">Slide your finger over the letters to write a word. It only works when the slide starts on a letter of the main sheet. While it is on, the swipes (change sheet, close the keyboard...) start outside those letters or on any key of the other sheets.</string>
     <string name="mr_gesture_trail_title">Show the trail</string>
     <string name="mr_gesture_trail_summary">Draws the path of your finger over the keys during a gesture</string>
     <string name="mr_gesture_preview_title">Show the word while sliding</string>

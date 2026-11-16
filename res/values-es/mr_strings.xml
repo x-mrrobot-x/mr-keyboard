@@ -177,7 +177,7 @@
     <string name="mr_dicts_err_io">No se pudo guardar el diccionario (%1$s).</string>
     <string name="mr_gesture_cat">Escritura por gestos (experimental)</string>
     <string name="mr_gesture_on_title">Escritura por gestos</string>
-    <string name="mr_gesture_on_summary">Desliza el dedo por las letras para escribir la palabra. Activada, los gestos de deslizamiento solo cuentan si empiezan fuera de las letras.</string>
+    <string name="mr_gesture_on_summary">Desliza el dedo por las letras para escribir la palabra. Solo vale si empieza en una letra de la hoja principal. Activada, los deslizamientos de acción (cambiar de hoja, cerrar el teclado...) empiezan fuera de esas letras o en cualquier tecla de las otras hojas.</string>
     <string name="mr_gesture_trail_title">Mostrar el rastro</string>
     <string name="mr_gesture_trail_summary">Dibuja el camino del dedo sobre las teclas durante el gesto</string>
     <string name="mr_gesture_preview_title">Mostrar la palabra durante el gesto</string>

@@ -4276,7 +4276,8 @@
 .method private onUpEvent(Lcom/mrkeyboard/app/PointerTracker;IIJ)V
     .locals 3
 
-    # MR FIX: a long horizontal swipe must not type the key where the finger stopped
+    # MR FIX: a long horizontal swipe must not type the key where the finger stopped, and it is the swipe action: the distance
+    # decides, not the speed at which the finger leaves the screen (the fling detector only sees the fast ones)
     invoke-direct {p0, p1, p2, p3}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mrIsSwipeRelease(Lcom/mrkeyboard/app/PointerTracker;II)Z
 
     move-result v0
@@ -4284,6 +4285,8 @@
     if-eqz v0, :cond_mr_not_swipe
 
     invoke-direct/range {p0 .. p5}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->onCancelEvent(Lcom/mrkeyboard/app/PointerTracker;IIJ)V
+
+    invoke-direct {p0, p1, p2}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mrSwipeAtRelease(Lcom/mrkeyboard/app/PointerTracker;I)V
 
     return-void
 
@@ -7167,7 +7170,11 @@
 
 # MR FIX ------------------------------------------------------------------
 # true when the touch ended in a long horizontal swipe (same minimum
-# distance used by the swipe detector: min(width/3, height/3)).
+# distance used by the swipe detector: min(width/3, height/3)), moving more
+# sideways than up or down, from a key that is not a modifier (Shift, Ctrl,
+# Alt, Meta, Symbols: the finger that holds one and slides is a chord, not a
+# swipe). Where the finger ends does not matter: a swipe to the left that
+# stops over Shift is still a swipe.
 .method private mrIsSwipeRelease(Lcom/mrkeyboard/app/PointerTracker;II)Z
     .locals 5
 
@@ -7184,12 +7191,6 @@
     sget-object v0, Lcom/mrkeyboard/app/LatinIME;->sKeyboardSettings:Lcom/mrkeyboard/app/GlobalKeyboardSettings;
 
     iget v0, v0, Lcom/mrkeyboard/app/GlobalKeyboardSettings;->sendSlideKeys:I
-
-    if-nez v0, :cond_no
-
-    invoke-virtual {p1}, Lcom/mrkeyboard/app/PointerTracker;->isModifier()Z
-
-    move-result v0
 
     if-nez v0, :cond_no
 
@@ -7247,6 +7248,35 @@
     const/4 v0, 0x0
 
     return v0
+.end method
+
+# MR FIX ------------------------------------------------------------------
+# The swipe that mrIsSwipeRelease found, as an action: to the right when the
+# finger ended to the right of where it went down, else to the left (what the
+# fling detector does for a fast one: swipeRight/swipeLeft, the actions chosen
+# in the settings; the default ones change the sheet). A swipe that the fling
+# detector already took never gets here: it ends before the pointer sees the
+# finger up.
+# p1 = the pointer tracker, p2 = x where the finger went up
+.method private mrSwipeAtRelease(Lcom/mrkeyboard/app/PointerTracker;I)V
+    .locals 1
+
+    invoke-virtual {p1}, Lcom/mrkeyboard/app/PointerTracker;->getStartX()I
+
+    move-result v0
+
+    sub-int v0, p2, v0
+
+    if-lez v0, :cond_left
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->swipeRight()Z
+
+    return-void
+
+    :cond_left
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->swipeLeft()Z
+
+    return-void
 .end method
 
 # MR FIX ------------------------------------------------------------------

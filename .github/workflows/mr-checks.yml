@@ -66,6 +66,7 @@
 #                        field, hidden toolbar row, font style) the word typed stays when a space, a sign or Enter follows (it was erased or replaced by an old suggestion)
 #   test_sheet_longpress.py  the real smali of PointerTracker.startLongPressTimer: the sheet key (code -300: 123, ABC, TSK) opens its popup after a fixed 150 ms, the other keys keep the setting
 #   test_word_delete.py  Ctrl + delete by words and Ctrl + Z (MrWordDelete): the real smali of LatinIME.handleBackspace, sendModifiableKeyChar (the Ctrl + Z hook), mrCtrlOn, mrCtrlOnly, mrBackspace, UIHandler.cancelKeyRepeatTimer and .handleMessage (the repeat) in the mini interpreter, the order of the calls in PointerTracker.onDownEvent, who calls MrWordDelete, the screen next to the long-press time, its limits and texts
+#   test_swipe_release.py  the sideways swipe by distance (LatinKeyboardBaseView): the real smali of onUpEvent, mrIsSwipeRelease and mrSwipeAtRelease in the mini interpreter: more than min(width/3, height/3) and more sideways than up or down is a swipe whatever the speed, the key is cancelled and then swipeLeft/swipeRight run, from a modifier it is not one, ending on a modifier it is, a short drag is typed as before, the fling detector is untouched
 #   test_ui_language_rebuild.py  changing the app language rebuilds the keyboard view once, on the change (LatinIME.onSharedPreferenceChanged), and the bar is inflated again in the new language
 #   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial; trigrams.bin MRT2 needs minApp 1090000;
 #                        the "models" list with the weights of the gesture recognition, which older apps do not read)
@@ -267,6 +268,9 @@ jobs:
 
       - name: Ctrl + delete by words and Ctrl + Z (the calls, the screen, the limits)
         run: python3 -I docs/tools/test_word_delete.py
+
+      - name: Sideways swipe by distance (the release is the swipe action, the fling stays)
+        run: python3 -I docs/tools/test_swipe_release.py
 
       - name: Java layer calls exist in the APK and in the Android SDK
         run: |
