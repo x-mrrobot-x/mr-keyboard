@@ -806,6 +806,9 @@
     invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdateDialog;->release(Landroid/app/Activity;)V
 
     .line 310
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrVersion;->release(Landroid/app/Activity;)V
+
+    .line 311
     return-void
 .end method
 

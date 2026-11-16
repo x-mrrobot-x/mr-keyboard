@@ -50,7 +50,7 @@
     .locals 1
 
     .prologue
-    .line 47
+    .line 48
     const/16 v0, 0xa
 
     sput v0, Lcom/mrkeyboard/app/MrUpdateDialog;->sState:I
@@ -62,7 +62,7 @@
     .locals 0
 
     .prologue
-    .line 53
+    .line 54
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -72,7 +72,7 @@
     .locals 0
 
     .prologue
-    .line 32
+    .line 33
     invoke-static {}, Lcom/mrkeyboard/app/MrUpdateDialog;->resumeAfterSettings()V
 
     return-void
@@ -82,7 +82,7 @@
     .locals 1
 
     .prologue
-    .line 32
+    .line 33
     sget-object v0, Lcom/mrkeyboard/app/MrUpdateDialog;->sOwner:Landroid/app/Activity;
 
     return-object v0
@@ -92,7 +92,7 @@
     .locals 2
 
     .prologue
-    .line 32
+    .line 33
     sget-wide v0, Lcom/mrkeyboard/app/MrUpdateDialog;->sCode:J
 
     return-wide v0
@@ -102,7 +102,7 @@
     .locals 1
 
     .prologue
-    .line 32
+    .line 33
     sget-object v0, Lcom/mrkeyboard/app/MrUpdateDialog;->sDialog:Landroid/app/Dialog;
 
     return-object v0
@@ -112,7 +112,7 @@
     .locals 1
 
     .prologue
-    .line 32
+    .line 33
     sget v0, Lcom/mrkeyboard/app/MrUpdateDialog;->sState:I
 
     return v0
@@ -122,7 +122,7 @@
     .locals 0
 
     .prologue
-    .line 32
+    .line 33
     invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdateDialog;->openSettings(Landroid/app/Activity;)V
 
     return-void
@@ -183,54 +183,54 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 61
+    .line 62
     sget-object v0, Lcom/mrkeyboard/app/MrUpdateDialog;->sDialog:Landroid/app/Dialog;
 
-    .line 62
+    .line 63
     sput-object v1, Lcom/mrkeyboard/app/MrUpdateDialog;->sDialog:Landroid/app/Dialog;
 
-    .line 63
+    .line 64
     sput-object v1, Lcom/mrkeyboard/app/MrUpdateDialog;->sRoot:Landroid/view/View;
 
-    .line 64
+    .line 65
     sput-object v1, Lcom/mrkeyboard/app/MrUpdateDialog;->sOwner:Landroid/app/Activity;
 
-    .line 65
+    .line 66
     sput-object v1, Lcom/mrkeyboard/app/MrUpdateDialog;->sNotice:Lcom/mrkeyboard/app/MrUpdate$Notice;
 
-    .line 66
+    .line 67
     const-wide/16 v2, 0x0
 
     sput-wide v2, Lcom/mrkeyboard/app/MrUpdateDialog;->sCode:J
 
-    .line 67
+    .line 68
     const/16 v1, 0xa
 
     sput v1, Lcom/mrkeyboard/app/MrUpdateDialog;->sState:I
 
-    .line 68
+    .line 69
     const/4 v1, 0x0
 
     sput-boolean v1, Lcom/mrkeyboard/app/MrUpdateDialog;->sAwaiting:Z
 
-    .line 69
+    .line 70
     invoke-static {}, Lcom/mrkeyboard/app/MrUpdateInstall;->cancel()V
 
-    .line 70
+    .line 71
     if-eqz v0, :cond_0
 
-    .line 72
+    .line 73
     :try_start_0
     invoke-virtual {v0}, Landroid/app/Dialog;->dismiss()V
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 77
+    .line 78
     :cond_0
     :goto_0
     return-void
 
-    .line 73
+    .line 74
     :catch_0
     move-exception v0
 
@@ -296,7 +296,7 @@
     .locals 12
 
     .prologue
-    .line 126
+    .line 127
     const-string v0, "upd_sub"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -305,40 +305,40 @@
 
     check-cast v0, Landroid/widget/TextView;
 
-    .line 127
+    .line 128
     const-string v1, "upd_notes"
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v1
 
-    check-cast v1, Landroid/widget/TextView;
-
-    .line 128
+    .line 129
     const-string v2, "upd_install"
 
     invoke-virtual {p1, v2}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v2
 
-    .line 129
+    .line 130
     const-string v3, "upd_github"
 
     invoke-virtual {p1, v3}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v3
 
-    .line 130
+    .line 131
     const-string v4, "upd_later"
 
     invoke-virtual {p1, v4}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v4
 
-    .line 131
+    .line 132
     if-eqz v0, :cond_0
 
-    if-eqz v1, :cond_0
+    instance-of v5, v1, Landroid/widget/LinearLayout;
+
+    if-eqz v5, :cond_0
 
     if-eqz v2, :cond_0
 
@@ -353,7 +353,7 @@
     :goto_0
     return v0
 
-    .line 132
+    .line 133
     :cond_1
     const-string v5, "upd_title"
 
@@ -373,7 +373,7 @@
 
     const-string v5, "upd_box"
 
-    .line 133
+    .line 134
     invoke-virtual {p1, v5}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v5
@@ -390,7 +390,7 @@
 
     const-string v5, "upd_bar"
 
-    .line 134
+    .line 135
     invoke-virtual {p1, v5}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v5
@@ -410,7 +410,7 @@
 
     goto :goto_0
 
-    .line 135
+    .line 136
     :cond_3
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
@@ -422,7 +422,7 @@
 
     iget-object v5, v5, Landroid/content/res/Configuration;->locale:Ljava/util/Locale;
 
-    .line 136
+    .line 137
     const-string v6, "mr_update_sub"
 
     const/4 v7, 0x3
@@ -459,24 +459,26 @@
 
     invoke-virtual {v0, v6}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 137
-    invoke-virtual {p2, v5}, Lcom/mrkeyboard/app/MrUpdate$Notice;->raw(Ljava/util/Locale;)Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-static {v1, v0}, Lcom/mrkeyboard/app/MrNotesText;->forView(Landroid/widget/TextView;Ljava/lang/String;)Ljava/lang/CharSequence;
-
-    move-result-object v0
+    move-object v0, v1
 
     .line 138
-    invoke-interface {v0}, Ljava/lang/CharSequence;->length()I
+    check-cast v0, Landroid/widget/LinearLayout;
 
-    move-result v5
+    invoke-virtual {p2, v5}, Lcom/mrkeyboard/app/MrUpdate$Notice;->raw(Ljava/util/Locale;)Ljava/lang/String;
 
-    if-lez v5, :cond_4
+    move-result-object v1
 
-    :goto_1
-    invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+    const-string v5, "mr_update_notes_none"
+
+    const/4 v6, 0x0
+
+    new-array v6, v6, [Ljava/lang/Object;
+
+    invoke-static {p0, v5, v6}, Lcom/mrkeyboard/app/MrUpdateDialog;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-static {v0, v1, v5}, Lcom/mrkeyboard/app/MrNotesText;->fill(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)I
 
     .line 139
     new-instance v0, Lcom/mrkeyboard/app/MrUpdateDialog$Click;
@@ -509,20 +511,6 @@
     const/4 v0, 0x1
 
     goto/16 :goto_0
-
-    .line 138
-    :cond_4
-    const-string v0, "mr_update_notes_none"
-
-    const/4 v5, 0x0
-
-    new-array v5, v5, [Ljava/lang/Object;
-
-    invoke-static {p0, v0, v5}, Lcom/mrkeyboard/app/MrUpdateDialog;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v0
-
-    goto :goto_1
 .end method
 
 .method private static label(Ljava/lang/String;Ljava/lang/String;)V
@@ -600,14 +588,14 @@
     .locals 1
 
     .prologue
-    .line 81
+    .line 82
     sget-object v0, Lcom/mrkeyboard/app/MrUpdateDialog;->sOwner:Landroid/app/Activity;
 
     if-ne v0, p0, :cond_0
 
     invoke-static {}, Lcom/mrkeyboard/app/MrUpdateDialog;->dismiss()V
 
-    .line 82
+    .line 83
     :cond_0
     return-void
 .end method
@@ -1045,7 +1033,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 86
+    .line 87
     if-eqz p0, :cond_0
 
     if-eqz p1, :cond_0
@@ -1062,12 +1050,12 @@
 
     if-eqz v0, :cond_1
 
-    .line 122
+    .line 123
     :cond_0
     :goto_0
     return-void
 
-    .line 87
+    .line 88
     :cond_1
     invoke-static {}, Lcom/mrkeyboard/app/MrUpdateDialog;->showing()Z
 
@@ -1087,21 +1075,21 @@
 
     if-eqz v0, :cond_0
 
-    .line 88
+    .line 89
     :cond_2
     sput-object p1, Lcom/mrkeyboard/app/MrUpdateDialog;->sAsked:Lcom/mrkeyboard/app/MrUpdate$Notice;
 
-    .line 89
+    .line 90
     sget v0, Lcom/mrkeyboard/app/MrUpdateDialog;->sAskedCount:I
 
     add-int/lit8 v0, v0, 0x1
 
     sput v0, Lcom/mrkeyboard/app/MrUpdateDialog;->sAskedCount:I
 
-    .line 90
+    .line 91
     invoke-static {}, Lcom/mrkeyboard/app/MrUpdateDialog;->dismiss()V
 
-    .line 93
+    .line 94
     :try_start_0
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
@@ -1119,14 +1107,14 @@
 
     move-result v0
 
-    .line 94
+    .line 95
     if-nez v0, :cond_3
 
     const v0, 0x7f0d00a1
 
     move v2, v0
 
-    .line 95
+    .line 96
     :goto_1
     new-instance v0, Lcom/mrkeyboard/app/MrUpdateDialog$Box;
 
@@ -1134,13 +1122,13 @@
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_1
 
-    .line 96
+    .line 97
     const/4 v1, 0x1
 
     :try_start_1
     invoke-virtual {v0, v1}, Landroid/app/Dialog;->requestWindowFeature(I)Z
 
-    .line 97
+    .line 98
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v1
@@ -1157,10 +1145,10 @@
 
     move-result v1
 
-    .line 98
+    .line 99
     if-eqz v1, :cond_0
 
-    .line 99
+    .line 100
     invoke-virtual {v0}, Landroid/app/Dialog;->getContext()Landroid/content/Context;
 
     move-result-object v2
@@ -1179,46 +1167,46 @@
 
     move-result-object v1
 
-    .line 100
+    .line 101
     invoke-static {p0, v1, p1}, Lcom/mrkeyboard/app/MrUpdateDialog;->fill(Landroid/app/Activity;Landroid/view/View;Lcom/mrkeyboard/app/MrUpdate$Notice;)Z
 
     move-result v2
 
     if-eqz v2, :cond_0
 
-    .line 101
+    .line 102
     invoke-virtual {p0}, Landroid/app/Activity;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v2
 
-    .line 103
+    .line 104
     new-instance v3, Lcom/mrkeyboard/app/MrUpdateDialog$1;
 
     invoke-direct {v3, v2, p1}, Lcom/mrkeyboard/app/MrUpdateDialog$1;-><init>(Landroid/content/Context;Lcom/mrkeyboard/app/MrUpdate$Notice;)V
 
     invoke-virtual {v0, v3}, Landroid/app/Dialog;->setOnCancelListener(Landroid/content/DialogInterface$OnCancelListener;)V
 
-    .line 110
+    .line 111
     invoke-virtual {v0, v1}, Landroid/app/Dialog;->setContentView(Landroid/view/View;)V
 
-    .line 111
+    .line 112
     sput-object v0, Lcom/mrkeyboard/app/MrUpdateDialog;->sDialog:Landroid/app/Dialog;
 
-    .line 112
+    .line 113
     sput-object v1, Lcom/mrkeyboard/app/MrUpdateDialog;->sRoot:Landroid/view/View;
 
-    .line 113
+    .line 114
     sput-object p0, Lcom/mrkeyboard/app/MrUpdateDialog;->sOwner:Landroid/app/Activity;
 
-    .line 114
+    .line 115
     sput-object p1, Lcom/mrkeyboard/app/MrUpdateDialog;->sNotice:Lcom/mrkeyboard/app/MrUpdate$Notice;
 
-    .line 115
+    .line 116
     iget-wide v2, p1, Lcom/mrkeyboard/app/MrUpdate$Notice;->versionCode:J
 
     sput-wide v2, Lcom/mrkeyboard/app/MrUpdateDialog;->sCode:J
 
-    .line 116
+    .line 117
     const/16 v1, 0xa
 
     const/4 v2, 0x0
@@ -1227,18 +1215,18 @@
 
     invoke-static {v1, v2, v3}, Lcom/mrkeyboard/app/MrUpdateDialog;->setState(IILjava/lang/String;)V
 
-    .line 117
+    .line 118
     invoke-virtual {v0}, Landroid/app/Dialog;->show()V
     :try_end_1
     .catch Ljava/lang/RuntimeException; {:try_start_1 .. :try_end_1} :catch_0
 
     goto/16 :goto_0
 
-    .line 118
+    .line 119
     :catch_0
     move-exception v1
 
-    .line 120
+    .line 121
     :goto_2
     if-eqz v0, :cond_0
 
@@ -1250,7 +1238,7 @@
 
     goto/16 :goto_0
 
-    .line 118
+    .line 119
     :catch_1
     move-exception v0
 
@@ -1268,7 +1256,7 @@
     .locals 1
 
     .prologue
-    .line 56
+    .line 57
     sget-object v0, Lcom/mrkeyboard/app/MrUpdateDialog;->sDialog:Landroid/app/Dialog;
 
     if-eqz v0, :cond_0

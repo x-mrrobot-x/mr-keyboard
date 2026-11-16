@@ -292,7 +292,6 @@
     <public type="string" name="auto_cap" id="0x7f0c003e" />
     <public type="string" name="auto_complete" id="0x7f0c0040" />
     <public type="string" name="auto_complete_summary" id="0x7f0c0042" />
-    <public type="string" name="auto_version" id="0x7f0c0049" />
     <public type="string" name="default_chording_alt_key" id="0x7f0c004e" />
     <public type="string" name="default_chording_ctrl_key" id="0x7f0c004f" />
     <public type="string" name="default_click_volume" id="0x7f0c0052" />

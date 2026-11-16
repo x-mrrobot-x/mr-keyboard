@@ -6,9 +6,10 @@ public class LinearLayout extends android.view.ViewGroup {
     public static class LayoutParams extends android.view.ViewGroup.LayoutParams {
         public LayoutParams(int width, int height) { super(width, height); }
         public LayoutParams(int width, int height, float weight) { super(width, height); }
-        public void setMargins(int l, int t, int r, int b) { }
+        public int stubLeft, stubTop, stubRight, stubBottom;
+        public void setMargins(int l, int t, int r, int b) { stubLeft = l; stubTop = t; stubRight = r; stubBottom = b; }
     }
-    public LinearLayout(android.content.Context context) { }
+    public LinearLayout(android.content.Context context) { super(context); }
     public void setOrientation(int orientation) { }
     public void setGravity(int gravity) { }
 }

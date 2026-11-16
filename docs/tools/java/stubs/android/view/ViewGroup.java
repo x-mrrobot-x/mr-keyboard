@@ -11,10 +11,14 @@ public abstract class ViewGroup extends View implements ViewParent {
         public LayoutParams(int width, int height) { this.width = width; this.height = height; }
     }
     public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) { }
-    public void addView(View child) { }
-    public void addView(View child, ViewGroup.LayoutParams params) { }
-    public void removeView(View child) { }
-    public int getChildCount() { return 0; }
-    public View getChildAt(int index) { return null; }
-    public void removeAllViews() { }
+    /** Children as added, with the layout params each came with: read by the PC tests. */
+    private final java.util.ArrayList<View> stubChildren = new java.util.ArrayList<View>();
+    private final java.util.ArrayList<LayoutParams> stubParams = new java.util.ArrayList<LayoutParams>();
+    public void addView(View child) { stubChildren.add(child); stubParams.add(null); }
+    public void addView(View child, ViewGroup.LayoutParams params) { stubChildren.add(child); stubParams.add(params); }
+    public void removeView(View child) { int i = stubChildren.indexOf(child); if (i >= 0) { stubChildren.remove(i); stubParams.remove(i); } }
+    public int getChildCount() { return stubChildren.size(); }
+    public View getChildAt(int index) { return index >= 0 && index < stubChildren.size() ? stubChildren.get(index) : null; }
+    public LayoutParams stubParamsAt(int index) { return stubParams.get(index); }
+    public void removeAllViews() { stubChildren.clear(); stubParams.clear(); }
 }

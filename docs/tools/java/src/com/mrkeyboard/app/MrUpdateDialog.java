@@ -6,14 +6,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.Locale;
 
 /**
- * "New version available" dialog (v1.82.0): title, "v1.83.0 · 1.2 MB · you're on v1.82.0", the notes (styled by MrNotesText since
- * v1.98.0: colored labels, space between the items; they scroll) and three actions: Download and install, View on GitHub, Not now. It belongs to a screen (Main or Settings),
+ * "New version available" dialog (v1.82.0): title, "v1.83.0 · 1.2 MB · you're on v1.82.0", the notes (one card for each item, made by
+ * MrNotesText since v2.0.0; they scroll) and three actions: Download and install, View on GitHub, Not now. It belongs to a screen (Main or Settings),
  * uses the settings theme (Theme.MrKeyboard.Dialog) and the layout mr_update_dialog; the views are found by tag, like
  * the AI Editor dialog.
  *
@@ -124,18 +125,17 @@ final class MrUpdateDialog {
     /** Puts the texts and the actions in the layout; false if the layout does not have what it should. */
     private static boolean fill(Activity a, View root, MrUpdate.Notice n) {
         TextView sub = (TextView) root.findViewWithTag("upd_sub");
-        TextView notes = (TextView) root.findViewWithTag("upd_notes");
+        View notes = root.findViewWithTag("upd_notes");
         View install = root.findViewWithTag("upd_install");
         View github = root.findViewWithTag("upd_github");
         View later = root.findViewWithTag("upd_later");
-        if (sub == null || notes == null || install == null || github == null || later == null) return false;
+        if (sub == null || !(notes instanceof LinearLayout) || install == null || github == null || later == null) return false;
         if (root.findViewWithTag("upd_title") == null || root.findViewWithTag("upd_scroll") == null
                 || root.findViewWithTag("upd_box") == null || root.findViewWithTag("upd_status") == null
                 || root.findViewWithTag("upd_bar") == null || root.findViewWithTag("upd_error") == null) return false;
         Locale loc = a.getResources().getConfiguration().locale;
         sub.setText(text(a, "mr_update_sub", n.versionName, MrUpdate.sizeText(n.apkSize, loc), MrUpdate.appName(a)));
-        CharSequence body = MrNotesText.forView(notes, n.raw(loc));
-        notes.setText(body.length() > 0 ? body : text(a, "mr_update_notes_none"));
+        MrNotesText.fill((LinearLayout) notes, n.raw(loc), text(a, "mr_update_notes_none"));
         install.setOnClickListener(new Click(a, n, BTN_INSTALL));
         github.setOnClickListener(new Click(a, n, BTN_GITHUB));
         later.setOnClickListener(new Click(a, n, BTN_LATER));

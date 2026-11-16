@@ -32,7 +32,8 @@ public class View {
     public ViewGroup.LayoutParams getLayoutParams() { return null; }
     public void setLayoutParams(ViewGroup.LayoutParams params) { }
     public void setBackground(android.graphics.drawable.Drawable background) { }
-    public void setBackgroundResource(int resid) { }
+    public int stubBackgroundRes;
+    public void setBackgroundResource(int resid) { stubBackgroundRes = resid; }
     public boolean postDelayed(Runnable action, long delayMillis) { stubPosted.add(action); return true; }
     public void setBackgroundDrawable(android.graphics.drawable.Drawable background) { }
     public void setBackgroundColor(int color) { }

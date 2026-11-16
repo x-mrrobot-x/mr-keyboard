@@ -57,7 +57,7 @@
 #   test_pick_caps.py    the shift state after a word picked on the strip or written by a gesture (LatinIME.pickSuggestionManually, updateShiftKeyState, getCursorCapsMode, mrGlue in the mini interpreter, over the harness of test_gesture_comma.py): only the first word of an empty field gets the capital with an app that follows the text and with one that answers with the text of before the batch; the two caps-mode questions of a picked word are gone; fields with a capital on every word or all capitals still ask
 #   test_cold_start.py   the cold start of the keyboard (LatinIME.<init>, onCreate, processMultiKey, mrComposeBuffer, mrDeadBuffer, PluginManager.getDictionary/ensurePlugins/onReceive in the mini interpreter): the compose and dead-key buffers (and the 883-sequence table) are made on first use, the dictionary apps are looked up once and only for a language without a pack, and every use still finds what it needs
 #   test_shadow_cache.py the blurred icon shadows (ShadowDrawHelper.smali): blurred once and kept (24 places, oldest replaced, never recycled), found by drawable, key size, bounds, alpha, level and radius, colour applied when drawn; render mode 0 (no software layer)
-#   test_notes_text.py   the notes of the update dialog (MrNotesText.smali, MrUpdate$Notice.raw, MrUpdateDialog.fill): bullet, hanging indent, label bold and colored by kind (new, improved, fixed, how to get it, other), thin line between items, **bold** kept, marks gone; every notes block of docs/release-notes against a reference
+#   test_notes_text.py   the notes of the update dialog and of the Version dialog (MrNotesText.smali, MrVersion.smali, MrUpdate$Notice.raw, MrUpdateDialog.fill): one card for each item (no bullet, no color by kind, the same faint card, gap between cards, sizes by the screen density), label bold and white, **bold** kept, marks gone; every notes block of docs/release-notes against a reference; the Portuguese and English blocks of the notes of the installed version, the summary and the dialog of the Version line
 #   test_field_keys.py   keys with a modifier (Ctrl+A, Shift+arrows...) in the fields of the toolbar (translator, emoji search): LatinIME.sendKeyDown/sendKeyUp and MrTools.sendEvent on the real smali: the
 #                        field gets the event with its meta state and its shortcut is tried; the connection of the app is used as before
 #   test_gesture_comma.py  the real smali of LatinIME (pickSuggestionManually, handleSeparator, swapPunctuationAndSpace, onUpdateSelection, mrGlue) and TextEntryState over a fake text field: after a word
@@ -67,6 +67,7 @@
 #   test_sheet_longpress.py  the real smali of PointerTracker.startLongPressTimer: the sheet key (code -300: 123, ABC, TSK) opens its popup after a fixed 150 ms, the other keys keep the setting
 #   test_word_delete.py  Ctrl + delete by words and Ctrl + Z (MrWordDelete): the real smali of LatinIME.handleBackspace, sendModifiableKeyChar (the Ctrl + Z hook), mrCtrlOn, mrCtrlOnly, mrBackspace, UIHandler.cancelKeyRepeatTimer and .handleMessage (the repeat) in the mini interpreter, the order of the calls in PointerTracker.onDownEvent, who calls MrWordDelete, the screen next to the long-press time, its limits and texts
 #   test_swipe_release.py  the sideways swipe by distance (LatinKeyboardBaseView): the real smali of onUpEvent, mrIsSwipeRelease and mrSwipeAtRelease in the mini interpreter: more than min(width/3, height/3) and more sideways than up or down is a swipe whatever the speed, the key is cancelled and then swipeLeft/swipeRight run, from a modifier it is not one, ending on a modifier it is, a short drag is typed as before, the fling detector is untouched
+#   test_version_row.py  the settings texts and the Version line: the subtitles of Typing and of Suggestions and dictionaries say gesture typing (3 languages), gesture typing is not experimental in the settings or the docs, no ' custom' on the Version line, the line opens the notes (MrVersion), the notes inside the APK are a copy of the notes of the version, the update dialog buttons are in one row
 #   test_ui_language_rebuild.py  changing the app language rebuilds the keyboard view once, on the change (LatinIME.onSharedPreferenceChanged), and the bar is inflated again in the new language
 #   test_make_catalog.py builds the dictionary catalog (the release of each zip, only changed languages get a zip, serial; trigrams.bin MRT2 needs minApp 1090000;
 #                        the "models" list with the weights of the gesture recognition, which older apps do not read)
@@ -271,6 +272,9 @@ jobs:
 
       - name: Sideways swipe by distance (the release is the swipe action, the fling stays)
         run: python3 -I docs/tools/test_swipe_release.py
+
+      - name: Settings texts and the Version line (gesture typing in the subtitles, no custom, notes of the version in the APK, update buttons in one row)
+        run: python3 -I docs/tools/test_version_row.py
 
       - name: Java layer calls exist in the APK and in the Android SDK
         run: |

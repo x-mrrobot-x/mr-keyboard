@@ -290,6 +290,22 @@
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setOnPreferenceClickListener(Landroid/preference/Preference$OnPreferenceClickListener;)V
 
+    # v2.0.0: tapping "Version" shows the notes of the installed version
+    const-string v0, "label_version"
+
+    invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/LatinIMESettings;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_no_version
+
+    new-instance v1, Lcom/mrkeyboard/app/MrVersion;
+
+    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrVersion;-><init>(Landroid/app/Activity;)V
+
+    invoke-virtual {v0, v1}, Landroid/preference/Preference;->setOnPreferenceClickListener(Landroid/preference/Preference$OnPreferenceClickListener;)V
+
+    :cond_no_version
     # author card: opens GitHub without closing the app if there is no browser
     const-string v0, "mr_author"
 
@@ -494,130 +510,11 @@
     :cond_1
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIMESettings;->updateSummaries()V
 
-    const-string v0, ""
-
-    .line 118
-    :try_start_0
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIMESettings;->getPackageManager()Landroid/content/pm/PackageManager;
-
-    move-result-object v3
-
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIMESettings;->getPackageName()Ljava/lang/String;
-
-    move-result-object v4
-
-    const/4 v5, 0x0
-
-    invoke-virtual {v3, v4, v5}, Landroid/content/pm/PackageManager;->getPackageInfo(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;
-
-    move-result-object v3
-
-    .line 119
-    iget-object v4, v3, Landroid/content/pm/PackageInfo;->versionName:Ljava/lang/String;
-    :try_end_0
-    .catch Landroid/content/pm/PackageManager$NameNotFoundException; {:try_start_0 .. :try_end_0} :catch_1
-
-    .line 121
-    :try_start_1
-    const/4 v0, 0x0
-
-    new-array v0, v0, [Landroid/content/pm/Signature;
-
-    array-length v3, v0
-
-    const/4 v5, 0x0
-
-    const/4 v6, 0x0
-
-    :goto_0
-    if-ge v5, v3, :cond_4
-
-    aget-object v7, v0, v5
-
-    .line 122
-    invoke-virtual {v7}, Landroid/content/pm/Signature;->toByteArray()[B
-
-    move-result-object v7
-
-    const/4 v8, 0x0
-
-    const/4 v9, 0x0
-
-    .line 124
-    :goto_1
-    array-length v10, v7
-
-    if-ge v8, v10, :cond_2
-
-    .line 125
-    rem-int/lit8 v10, v8, 0x4
-
-    .line 126
-    aget-byte v11, v7, v8
-
-    mul-int/lit8 v10, v10, 0x4
-
-    shl-int v10, v11, v10
-
-    xor-int/2addr v9, v10
-
-    add-int/lit8 v8, v8, 0x1
-
-    goto :goto_1
-
-    :cond_2
-    const v7, -0x71f89
-
-    if-ne v9, v7, :cond_3
-
-    const/4 v6, 0x1
-
-    :cond_3
-    add-int/lit8 v5, v5, 0x1
-
-    goto :goto_0
-
-    .line 133
-    :cond_4
-    new-instance v0, Ljava/lang/StringBuilder;
-
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
-
-    invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    if-eqz v6, :cond_5
-
-    const-string v1, " official"
-
-    goto :goto_2
-
-    :cond_5
-    const-string v1, " custom"
-
-    :goto_2
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+    # v2.0.0: the "Version" line shows the version name and a hint that it opens the notes (MrVersion); no custom suffix any more
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrVersion;->summary(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
-    :try_end_1
-    .catch Landroid/content/pm/PackageManager$NameNotFoundException; {:try_start_1 .. :try_end_1} :catch_0
 
-    goto :goto_3
-
-    :catch_0
-    move-object v0, v4
-
-    :catch_1
-    const-string v1, "LatinIMESettings"
-
-    const-string v2, "Could not find version info."
-
-    .line 135
-    invoke-static {v1, v2}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
-
-    .line 138
-    :goto_3
     iget-object v1, p0, Lcom/mrkeyboard/app/LatinIMESettings;->mLabelVersion:Landroid/preference/Preference;
 
     invoke-virtual {v1, v0}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V

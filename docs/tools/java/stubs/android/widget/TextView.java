@@ -10,12 +10,14 @@ public class TextView extends android.view.View {
     public int getSelectionStart() { return selStart; }
     public int getSelectionEnd() { return selEnd; }
     protected void stubSelect(int start, int end) { selStart = start; selEnd = end; }
-    public void setTextColor(int color) { }
+    public int stubTextColor;
+    public void setTextColor(int color) { stubTextColor = color; }
     private final android.text.TextPaint stubPaint = new android.text.TextPaint();
     public android.text.TextPaint getPaint() { return stubPaint; }
     public android.view.inputmethod.InputConnection onCreateInputConnection(android.view.inputmethod.EditorInfo outAttrs) { return null; }
     public int getCurrentTextColor() { return 0; }
-    public void setTextSize(float size) { }
+    public float stubTextSize;
+    public void setTextSize(float size) { stubTextSize = size; }
     public void setTypeface(android.graphics.Typeface tf, int style) { }
     public void setGravity(int gravity) { }
     public void setHint(CharSequence hint) { }
@@ -25,7 +27,8 @@ public class TextView extends android.view.View {
     public void setFilters(android.text.InputFilter[] filters) { }
     public void setMinLines(int minLines) { }
     public void setMaxLines(int maxLines) { }
-    public void setLineSpacing(float add, float mult) { }
+    public float stubLineAdd, stubLineMult;
+    public void setLineSpacing(float add, float mult) { stubLineAdd = add; stubLineMult = mult; }
     /** Shadow as last set (radius 0 = none): read by the PC tests. */
     public float stubShadowRadius;
     public int stubShadowColor;

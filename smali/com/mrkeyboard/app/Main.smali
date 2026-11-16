@@ -101,9 +101,8 @@
 
     invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    const p1, 0x7f0c0049
-
-    invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/Main;->getString(I)Ljava/lang/String;
+    # v2.0.0: the real version name (it used to print the fixed text "custom")
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdate;->appName(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object p1
 

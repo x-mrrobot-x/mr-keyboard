@@ -6,6 +6,7 @@ It also warns (without failing) when a plan for this release is still in docs/.
 Run at the project root. versionCode = major*1000000 + minor*1000 + patch (v1.72.0 -> 1072000).
 The version notes live where the publishing workflow looks for them: docs/release-notes/v<version>.md (v1.72.0 ->
 docs/release-notes/v1.72.0.md). The whole file becomes the Release text and must have both blocks, **Português** and **English**.
+The app also carries this file as assets/mr_release_notes.md (the "Version" line shows it offline, MrVersion): it must be a byte-for-byte copy.
 
 Plans: a file docs/plan-*.md that is only needed until its release is out says so with a line `<!-- target-version: v1.82.0 -->`
 near the top. Once the project version reaches that target, the plan has done its job and should be deleted in the release
@@ -62,6 +63,14 @@ else:
             label = re.match(r'([^:]{1,32}): (\S)', body)
             if label and label.group(2).islower():
                 problems.append('%s line %d: the text after "%s:" must start with a capital letter' % (found[0], n, label.group(1)))
+    # The Version line of Settings opens the notes of the installed version with no network (MrVersion): they are a copy of this version's
+    # notes inside the APK, so it must not stay on an older release.
+    if found:
+        asset = 'assets/mr_release_notes.md'
+        if not os.path.exists(asset):
+            problems.append('%s is missing: it is the copy of %s the app shows offline (cp %s %s)' % (asset, found[0], found[0], asset))
+        elif open(asset, 'rb').read() != open(found[0], 'rb').read():
+            problems.append('%s is not the same as %s: copy it again (cp %s %s)' % (asset, found[0], found[0], asset))
 
 def as_tuple(v):
     return tuple(int(x) for x in v.split('.'))

@@ -15,7 +15,7 @@
     <string name="mr_ui_cat_layout">Layout do teclado</string>
     <string name="mr_ui_cat_layout_sum">Folhas, modos de linhas e tecla de configurações</string>
     <string name="mr_ui_cat_typing">Digitação</string>
-    <string name="mr_ui_cat_typing_sum">Sugestões, capitalização e voz</string>
+    <string name="mr_ui_cat_typing_sum">Sugestões, digitação por gestos, capitalização e voz</string>
     <string name="mr_ui_cat_touch">Toque e gestos</string>
     <string name="mr_ui_cat_touch_sum">Toque longo, vibração, gestos e apagar por palavra</string>
     <string name="mr_ui_cat_general">Geral</string>
@@ -116,7 +116,7 @@
     <string name="mr_ui_sheets_summary">Edite teclas, crie, renomeie e reordene folhas</string>
     <!-- v1.63: downloadable dictionaries (MrPacks, MrPacksActivity) -->
     <string name="mr_dicts_title">Sugestões e dicionários</string>
-    <string name="mr_dicts_summary">Baixe dicionários e ajuste as sugestões de palavras</string>
+    <string name="mr_dicts_summary">Baixe dicionários e ajuste as sugestões de palavras e a digitação por gestos</string>
     <string name="mr_dicts_cat_langs">Dicionários</string>
     <string name="mr_dicts_cat_suggestions">Sugestões</string>
     <string name="mr_dicts_state_notdl">Não baixado</string>
@@ -175,7 +175,7 @@
     <string name="mr_dicts_err_space">Falta espaço: são precisos %1$s livres.</string>
     <string name="mr_dicts_err_cancel">Download cancelado.</string>
     <string name="mr_dicts_err_io">Não foi possível gravar o dicionário (%1$s).</string>
-    <string name="mr_gesture_cat">Digitação por gestos (experimental)</string>
+    <string name="mr_gesture_cat">Digitação por gestos</string>
     <string name="mr_gesture_on_title">Digitação por gestos</string>
     <string name="mr_gesture_on_summary">Deslize o dedo pelas letras para escrever a palavra. Só vale começando numa letra da folha principal. Com ela ligada, os deslizes de ação (trocar de folha, fechar o teclado...) começam fora dessas letras ou em qualquer tecla das outras folhas.</string>
     <string name="mr_gesture_trail_title">Mostrar o rastro</string>
@@ -334,8 +334,11 @@
     <string name="mr_update_title">Nova versão disponível</string>
     <string name="mr_update_sub">%1$s · %2$s · você está na %3$s</string>
     <string name="mr_update_notes_none">Esta versão não tem notas.</string>
+    <string name="mr_version_title">Novidades desta versão</string>
+    <string name="mr_version_summary">%1$s · Toque para ver as novidades</string>
+    <string name="mr_version_close">Fechar</string>
     <string name="mr_update_install">Baixar e instalar</string>
-    <string name="mr_update_github">Ver no GitHub</string>
+    <string name="mr_update_github">Abrir no GitHub</string>
     <string name="mr_update_later">Agora não</string>
     <!-- v1.82: download and install of the update (permission, progress, errors) -->
     <string name="mr_update_perm_title">Permitir instalação</string>

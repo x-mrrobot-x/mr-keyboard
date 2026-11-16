@@ -15,7 +15,7 @@
     <string name="mr_ui_cat_layout">Keyboard layout</string>
     <string name="mr_ui_cat_layout_sum">Sheets, row modes and settings key</string>
     <string name="mr_ui_cat_typing">Typing</string>
-    <string name="mr_ui_cat_typing_sum">Suggestions, capitalization and voice</string>
+    <string name="mr_ui_cat_typing_sum">Suggestions, gesture typing, capitalization and voice</string>
     <string name="mr_ui_cat_touch">Touch and gestures</string>
     <string name="mr_ui_cat_touch_sum">Long press, vibration, gestures and delete by word</string>
     <string name="mr_ui_cat_general">General</string>
@@ -116,7 +116,7 @@
     <string name="mr_ui_sheets_summary">Edit keys, create, rename and reorder sheets</string>
     <!-- v1.63: downloadable dictionaries (MrPacks, MrPacksActivity) -->
     <string name="mr_dicts_title">Suggestions and dictionaries</string>
-    <string name="mr_dicts_summary">Download dictionaries and set up word suggestions</string>
+    <string name="mr_dicts_summary">Download dictionaries and set up word suggestions and gesture typing</string>
     <string name="mr_dicts_cat_langs">Dictionaries</string>
     <string name="mr_dicts_cat_suggestions">Suggestions</string>
     <string name="mr_dicts_state_notdl">Not downloaded</string>
@@ -175,7 +175,7 @@
     <string name="mr_dicts_err_space">Not enough storage: %1$s free are needed.</string>
     <string name="mr_dicts_err_cancel">Download canceled.</string>
     <string name="mr_dicts_err_io">Could not save the dictionary (%1$s).</string>
-    <string name="mr_gesture_cat">Gesture typing (experimental)</string>
+    <string name="mr_gesture_cat">Gesture typing</string>
     <string name="mr_gesture_on_title">Gesture typing</string>
     <string name="mr_gesture_on_summary">Slide your finger over the letters to write a word. It only works when the slide starts on a letter of the main sheet. While it is on, the swipes (change sheet, close the keyboard...) start outside those letters or on any key of the other sheets.</string>
     <string name="mr_gesture_trail_title">Show the trail</string>
@@ -334,8 +334,11 @@
     <string name="mr_update_title">New version available</string>
     <string name="mr_update_sub">%1$s · %2$s · you\'re on %3$s</string>
     <string name="mr_update_notes_none">No release notes for this version.</string>
+    <string name="mr_version_title">Release notes</string>
+    <string name="mr_version_summary">%1$s · Tap for release notes</string>
+    <string name="mr_version_close">Close</string>
     <string name="mr_update_install">Download and install</string>
-    <string name="mr_update_github">View on GitHub</string>
+    <string name="mr_update_github">Open on GitHub</string>
     <string name="mr_update_later">Not now</string>
     <!-- v1.82: download and install of the update (permission, progress, errors) -->
     <string name="mr_update_perm_title">Allow installation</string>

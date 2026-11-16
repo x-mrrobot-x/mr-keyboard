@@ -15,7 +15,7 @@
     <string name="mr_ui_cat_layout">Diseño del teclado</string>
     <string name="mr_ui_cat_layout_sum">Hojas, modos de filas y tecla de configuración</string>
     <string name="mr_ui_cat_typing">Escritura</string>
-    <string name="mr_ui_cat_typing_sum">Sugerencias, mayúsculas y voz</string>
+    <string name="mr_ui_cat_typing_sum">Sugerencias, escritura por gestos, mayúsculas y voz</string>
     <string name="mr_ui_cat_touch">Toque y gestos</string>
     <string name="mr_ui_cat_touch_sum">Toque largo, vibración, gestos y borrar por palabra</string>
     <string name="mr_ui_cat_general">General</string>
@@ -116,7 +116,7 @@
     <string name="mr_ui_sheets_summary">Edita teclas y crea, renombra y reordena hojas</string>
     <!-- v1.63: downloadable dictionaries (MrPacks, MrPacksActivity) -->
     <string name="mr_dicts_title">Sugerencias y diccionarios</string>
-    <string name="mr_dicts_summary">Descarga diccionarios y ajusta las sugerencias de palabras</string>
+    <string name="mr_dicts_summary">Descarga diccionarios y ajusta las sugerencias de palabras y la escritura por gestos</string>
     <string name="mr_dicts_cat_langs">Diccionarios</string>
     <string name="mr_dicts_cat_suggestions">Sugerencias</string>
     <string name="mr_dicts_state_notdl">No descargado</string>
@@ -175,7 +175,7 @@
     <string name="mr_dicts_err_space">Falta espacio: se necesitan %1$s libres.</string>
     <string name="mr_dicts_err_cancel">Descarga cancelada.</string>
     <string name="mr_dicts_err_io">No se pudo guardar el diccionario (%1$s).</string>
-    <string name="mr_gesture_cat">Escritura por gestos (experimental)</string>
+    <string name="mr_gesture_cat">Escritura por gestos</string>
     <string name="mr_gesture_on_title">Escritura por gestos</string>
     <string name="mr_gesture_on_summary">Desliza el dedo por las letras para escribir la palabra. Solo vale si empieza en una letra de la hoja principal. Activada, los deslizamientos de acción (cambiar de hoja, cerrar el teclado...) empiezan fuera de esas letras o en cualquier tecla de las otras hojas.</string>
     <string name="mr_gesture_trail_title">Mostrar el rastro</string>
@@ -334,8 +334,11 @@
     <string name="mr_update_title">Nueva versión disponible</string>
     <string name="mr_update_sub">%1$s · %2$s · estás en la %3$s</string>
     <string name="mr_update_notes_none">Esta versión no tiene notas.</string>
+    <string name="mr_version_title">Novedades de esta versión</string>
+    <string name="mr_version_summary">%1$s · Toca para ver las novedades</string>
+    <string name="mr_version_close">Cerrar</string>
     <string name="mr_update_install">Descargar e instalar</string>
-    <string name="mr_update_github">Ver en GitHub</string>
+    <string name="mr_update_github">Abrir en GitHub</string>
     <string name="mr_update_later">Ahora no</string>
     <!-- v1.82: download and install of the update (permission, progress, errors) -->
     <string name="mr_update_perm_title">Permitir instalación</string>

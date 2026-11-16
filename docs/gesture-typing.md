@@ -1,4 +1,4 @@
-# Gesture typing (experimental, off by default, since 1.96.0)
+# Gesture typing (off by default, since 1.96.0)
 
 Gesture typing: the finger goes down on the first letter of a word, slides over the others and lifts on the last one, and the
 keyboard writes the word. This file is the living description of the feature: what exists, how it works, what was measured and
@@ -45,7 +45,7 @@ the person as context for a gesture ("Known limits").
 **What it changes for who uses the app.** With gesture typing off, which is how it comes: nothing on the keyboard (each of the
 six calls added to its code returns on its first line; a seventh reads the setting when a dictionary is loaded; the tree of
 learned words counts its changes, one addition each, for a copy nobody asks for while the setting is off). There is a new group,
-**Gesture typing (experimental)**, in Settings, Suggestions and dictionaries. Turning it on asks for a download of 2.4 MB (the
+**Gesture typing**, in Settings, Suggestions and dictionaries. Turning it on asks for a download of 2.4 MB (the
 weights); the APK does not carry them. With it on: the word is written by sliding the finger; the words the keyboard learned
 from the person, the ones added in "Add words and texts" and the ones of the user dictionary of Android can be written too; a
 word on the list of blocked words is never written nor offered; and the strip shows, while the finger slides, the word that
@@ -274,7 +274,7 @@ its version changed.
   (`res/raw/mr_futo_license.md`). This is how a version is tried on a phone **before** its release exists (the app only
   reads the catalog of the latest release, which has no weights until 1.96.0 is published), and what a device that cannot
   reach GitHub uses.
-- **The settings** (`MrPacksActivity`, the group "Gesture typing (experimental)" of `res/xml/prefs_suggestions.xml`): the
+- **The settings** (`MrPacksActivity`, the group "Gesture typing" of `res/xml/prefs_suggestions.xml`): the
   options (on or off, the trail and the word while sliding), the row of the file (state, download, update,
   remove), "Recognition time" (with the recognitions made while sliding and how many words of the person the
   gestures know), and the notice. The row of the file

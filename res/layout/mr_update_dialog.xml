@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- "New version available" dialog (MrUpdateDialog), in the fixed theme of the settings screens (Theme.MrKeyboard.Dialog).
-     The views are found by tag. upd_box and upd_error are hidden: the download and the install use them. -->
+<!-- "New version available" dialog (MrUpdateDialog) and "Version" dialog (MrVersion), in the fixed theme of the settings screens
+     (Theme.MrKeyboard.Dialog). The views are found by tag. upd_notes is the box where MrNotesText puts one card for each item of the
+     notes. upd_box and upd_error are hidden: the download and the install use them. The three actions are in one row (upd_actions:
+     Not now, Open on GitHub, Download and install); a hidden one gives its width to the others. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:paddingLeft="22dp"
@@ -42,11 +44,9 @@
         android:layout_weight="1"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="14dp">
-        <TextView
+        <LinearLayout
             android:tag="upd_notes"
-            android:textSize="14sp"
-            android:textColor="@color/mr_ui_text"
-            android:lineSpacingExtra="3dp"
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </ScrollView>
@@ -82,45 +82,70 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="14dp" />
 
-    <TextView
-        android:tag="upd_install"
-        android:text="@string/mr_update_install"
-        android:textSize="15sp"
-        android:textColor="@color/mr_text_on_accent"
-        android:fontFamily="sans-serif-medium"
-        android:gravity="center"
-        android:background="@drawable/mr_ui_primary_shape"
-        android:foreground="@drawable/mr_ui_ripple_on_accent"
-        android:clickable="true"
-        android:focusable="true"
+    <LinearLayout
+        android:tag="upd_actions"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="48dp" />
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:tag="upd_github"
-        android:text="@string/mr_update_github"
-        android:textSize="14sp"
-        android:textColor="@color/mr_ui_text"
-        android:fontFamily="sans-serif-medium"
-        android:gravity="center"
-        android:background="@drawable/mr_ui_card_ripple"
-        android:clickable="true"
-        android:focusable="true"
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        android:layout_marginTop="8dp" />
+        <TextView
+            android:tag="upd_later"
+            android:text="@string/mr_update_later"
+            android:textSize="13sp"
+            android:textColor="@color/mr_ui_text2"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:background="@drawable/mr_ui_card_ripple"
+            android:clickable="true"
+            android:focusable="true"
+            android:minHeight="48dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
 
-    <TextView
-        android:tag="upd_later"
-        android:text="@string/mr_update_later"
-        android:textSize="14sp"
-        android:textColor="@color/mr_ui_text2"
-        android:fontFamily="sans-serif-medium"
-        android:gravity="center"
-        android:background="@drawable/mr_ui_card_ripple"
-        android:clickable="true"
-        android:focusable="true"
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        android:layout_marginTop="8dp" />
+        <TextView
+            android:tag="upd_github"
+            android:text="@string/mr_update_github"
+            android:textSize="13sp"
+            android:textColor="@color/mr_ui_text"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:background="@drawable/mr_ui_card_ripple"
+            android:clickable="true"
+            android:focusable="true"
+            android:minHeight="48dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginLeft="8dp" />
+
+        <TextView
+            android:tag="upd_install"
+            android:text="@string/mr_update_install"
+            android:textSize="13sp"
+            android:textColor="@color/mr_text_on_accent"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:background="@drawable/mr_ui_primary_shape"
+            android:foreground="@drawable/mr_ui_ripple_on_accent"
+            android:clickable="true"
+            android:focusable="true"
+            android:minHeight="48dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginLeft="8dp" />
+    </LinearLayout>
 </LinearLayout>

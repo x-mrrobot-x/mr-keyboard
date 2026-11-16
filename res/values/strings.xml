@@ -30,7 +30,6 @@
     <string name="auto_cap">Auto-capitalization</string>
     <string name="auto_complete">Auto-complete</string>
     <string name="auto_complete_summary">Spacebar and punctuation automatically insert highlighted word</string>
-    <string name="auto_version">custom</string>
     <string name="default_chording_alt_key">0</string>
     <string name="default_chording_ctrl_key">0</string>
     <string name="default_click_volume">0.8</string>

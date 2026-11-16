@@ -307,5 +307,6 @@ final class MrUpdateUi {
             sNotifShown = false;
         }
         MrUpdateDialog.release(a);
+        MrVersion.release(a);
     }
 }

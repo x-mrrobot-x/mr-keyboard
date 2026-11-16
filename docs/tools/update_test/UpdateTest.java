@@ -1780,7 +1780,7 @@ public class UpdateTest {
                 && n.notes(Locale.FRANCE).startsWith("• Good news") && n.notes(null).startsWith("• Good news"));
         check("raw notes: the Markdown as it came, by language", n.raw(new Locale("pt", "BR")).startsWith("- Novidade **boa** em `Ajustes`.")
                 && n.raw(Locale.US).startsWith("- Good **news** in `Settings`.") && n.raw(null).startsWith("- Good **news**"));
-        notesStyled();
+        notesCards();
     }
 
     /** The spans of one kind that were set on the styled notes, in order, as {span, start, end}. */
@@ -1796,97 +1796,140 @@ public class UpdateTest {
         return i < list.size() && (Integer) list.get(i)[1] == start && (Integer) list.get(i)[2] == end;
     }
 
-    static void notesStyled() throws Exception {
-        final int NEW = 0xff00aa01, IMP = 0xff00aa02, FIX = 0xff00aa03, HOW = 0xff00aa04, OTH = 0xff00aa05;
-        int[] pal = { NEW, IMP, FIX, HOW, OTH };
-
-        check("notes kind: new, in Portuguese and English, in any case, with a note after it",
-                MrNotesText.kindOf("Novo") == MrNotesText.NEW && MrNotesText.kindOf("New") == MrNotesText.NEW
-                        && MrNotesText.kindOf("NOVO") == MrNotesText.NEW && MrNotesText.kindOf("Novo (experimental)") == MrNotesText.NEW
-                        && MrNotesText.kindOf("New in the packs") == MrNotesText.NEW);
-        check("notes kind: improved", MrNotesText.kindOf("Melhorado") == MrNotesText.IMPROVED && MrNotesText.kindOf("Improved") == MrNotesText.IMPROVED);
-        check("notes kind: fixed (Corrigido, Correções, Fixed, Fixes)", MrNotesText.kindOf("Corrigido") == MrNotesText.FIXED
-                && MrNotesText.kindOf("Correções") == MrNotesText.FIXED && MrNotesText.kindOf("Fixed") == MrNotesText.FIXED
-                && MrNotesText.kindOf("Fixes") == MrNotesText.FIXED);
-        check("notes kind: how to get it", MrNotesText.kindOf("Como receber") == MrNotesText.HOW && MrNotesText.kindOf("How to get it") == MrNotesText.HOW);
-        check("notes kind: anything else is other", MrNotesText.kindOf("Observações") == MrNotesText.OTHER && MrNotesText.kindOf("Notes") == MrNotesText.OTHER
-                && MrNotesText.kindOf("Under the hood") == MrNotesText.OTHER && MrNotesText.kindOf("") == MrNotesText.OTHER);
+    static void notesCards() throws Exception {
         check("notes label: ends after the colon; none without ': ', at the start or past 32 characters",
                 MrNotesText.labelEnd("Novo: texto") == 5 && MrNotesText.labelEnd("sem rótulo") == 0 && MrNotesText.labelEnd(": texto") == 0
                         && MrNotesText.labelEnd("12:30 hoje") == 0
                         && MrNotesText.labelEnd("Mesmo conteúdo, mesmas sugestões: os pacotes") == 33
                         && MrNotesText.labelEnd("Mesmo conteúdo, mesmas sugestões novas: os pacotes") == 0);
 
-        CharSequence f = MrNotesText.format("- Novo: **Mostrar** ferramentas.\r\n* Corrigido: x `y`.\n\n\nTexto solto.\n- Sem rótulo, mas com vírgula.\n", pal, 11);
-        String t = f.toString();
-        check("notes styled: the text (bullets, no marks, a blank line between paragraphs, a loose line with no bullet)",
-                t.equals("\u2022 Novo: Mostrar ferramentas.\n\n\u2022 Corrigido: x y.\n\nTexto solto.\n\n\u2022 Sem rótulo, mas com vírgula."), t);
-        int a = t.indexOf("\u2022 Novo"), b = t.indexOf("\u2022 Corrigido"), c = t.indexOf("Texto solto"), d = t.indexOf("\u2022 Sem");
+        check("notes items: one for each non-empty line, the '- ' and '* ' and the ` marks taken out, ** kept, CRLF accepted",
+                MrNotesText.items("- Novo: **Mostrar** ferramentas.\r\n* Corrigido: x `y`.\n\n\nTexto solto.\n- Sem rótulo, mas com vírgula.\n")
+                        .equals(Arrays.asList("Novo: **Mostrar** ferramentas.", "Corrigido: x y.", "Texto solto.", "Sem rótulo, mas com vírgula.")));
+        check("notes items: null, blank text and lines with only a dash or a star give none", MrNotesText.items(null).isEmpty()
+                && MrNotesText.items(" \r\n\n  \n").isEmpty() && MrNotesText.items("-\n- \n*  \n").isEmpty());
+        check("notes items: a line is trimmed; a '-x' with no space and a dash in the middle are no list marks",
+                MrNotesText.items("   - A coisa: ok   \n-x\nde-a-b").equals(Arrays.asList("A coisa: ok", "-x", "de-a-b")));
+
+        final int LAB = 0xff112233;
+        CharSequence f = MrNotesText.format("Novo: **Mostrar** ferramentas.", LAB);
+        check("notes format: no mark in the text", f.toString().equals("Novo: Mostrar ferramentas."), f.toString());
         ArrayList<Object[]> col = spansOf(f, android.text.style.ForegroundColorSpan.class);
-        check("notes styled: the bullet and the label take the color of the kind, an item with no label only the bullet, a loose line none",
-                col.size() == 3 && spanAt(col, 0, a, a + 7) && ((android.text.style.ForegroundColorSpan) col.get(0)[0]).stubColor == NEW
-                        && spanAt(col, 1, b, b + 12) && ((android.text.style.ForegroundColorSpan) col.get(1)[0]).stubColor == FIX
-                        && spanAt(col, 2, d, d + 2) && ((android.text.style.ForegroundColorSpan) col.get(2)[0]).stubColor == OTH, col.size() + " spans");
         ArrayList<Object[]> bold = spansOf(f, android.text.style.StyleSpan.class);
-        int m = t.indexOf("Mostrar");
-        check("notes styled: bold on the label (not on the bullet) and on the **bold** of the text, nowhere else",
-                bold.size() == 3 && spanAt(bold, 0, m, m + 7) && spanAt(bold, 1, a + 2, a + 7) && spanAt(bold, 2, b + 2, b + 12)
-                        && ((android.text.style.StyleSpan) bold.get(0)[0]).stubStyle == android.graphics.Typeface.BOLD, bold.size() + " spans");
-        ArrayList<Object[]> margin = spansOf(f, android.text.style.LeadingMarginSpan.Standard.class);
-        check("notes styled: hanging indent on every item (first line 0, the rest as wide as the bullet), over the whole paragraph",
-                margin.size() == 3 && spanAt(margin, 0, a, b - 2) && spanAt(margin, 1, b, c - 2) && spanAt(margin, 2, d, t.length())
-                        && ((android.text.style.LeadingMarginSpan.Standard) margin.get(0)[0]).stubFirst == 0
-                        && ((android.text.style.LeadingMarginSpan.Standard) margin.get(0)[0]).stubRest == 11, margin.size() + " spans");
-        ArrayList<Object[]> gap = spansOf(f, android.text.style.RelativeSizeSpan.class);
-        check("notes styled: the second line break of each gap is a thin line (3 gaps, half height)",
-                gap.size() == 3 && spanAt(gap, 0, b - 1, b) && spanAt(gap, 1, c - 1, c) && spanAt(gap, 2, d - 1, d)
-                        && ((android.text.style.RelativeSizeSpan) gap.get(0)[0]).stubProportion == 0.5f, gap.size() + " spans");
-
-        CharSequence g = MrNotesText.format("- Melhorado: a\n- Como receber: b\n- Observações: c\n- Resultado medido no PC, em mensagens reais: sim\n- Fixed: d", pal, 0);
-        ArrayList<Object[]> gc = spansOf(g, android.text.style.ForegroundColorSpan.class);
-        check("notes styled: each kind has its color (improved, how to get it, other, a long sentence with a colon is no label, fixed)",
-                gc.size() == 5 && ((android.text.style.ForegroundColorSpan) gc.get(0)[0]).stubColor == IMP
-                        && ((android.text.style.ForegroundColorSpan) gc.get(1)[0]).stubColor == HOW
-                        && ((android.text.style.ForegroundColorSpan) gc.get(2)[0]).stubColor == OTH
-                        && ((android.text.style.ForegroundColorSpan) gc.get(3)[0]).stubColor == OTH && (Integer) gc.get(3)[2] - (Integer) gc.get(3)[1] == 2
-                        && ((android.text.style.ForegroundColorSpan) gc.get(4)[0]).stubColor == FIX);
-
-        CharSequence h = MrNotesText.format("- Novo: a **b", pal, 0);
+        check("notes format: the label (with its colon) is bold and has the label color; the **bold** part is bold; nothing else",
+                col.size() == 1 && spanAt(col, 0, 0, 5) && ((android.text.style.ForegroundColorSpan) col.get(0)[0]).stubColor == LAB
+                        && bold.size() == 2 && spanAt(bold, 0, 6, 13) && spanAt(bold, 1, 0, 5)
+                        && ((android.text.style.StyleSpan) bold.get(0)[0]).stubStyle == android.graphics.Typeface.BOLD, bold.size() + " bold spans");
+        check("notes format: an item with no label has no span, and neither has a long sentence with a colon",
+                ((android.text.SpannableStringBuilder) MrNotesText.format("Sem rótulo, mas com vírgula.", LAB)).stubSpans.isEmpty()
+                        && spansOf(MrNotesText.format("Resultado medido no PC, em mensagens reais: sim", LAB), android.text.style.ForegroundColorSpan.class).isEmpty());
+        CharSequence h = MrNotesText.format("Novo: a **b", LAB);
         ArrayList<Object[]> hb = spansOf(h, android.text.style.StyleSpan.class);
-        check("notes styled: a ** that is never closed makes the rest bold, with no mark left", h.toString().equals("\u2022 Novo: a b")
-                && hb.size() == 2 && spanAt(hb, 0, h.length() - 1, h.length()) && spanAt(hb, 1, 2, 7));
-        check("notes styled: null and blank text give an empty text, no exception", MrNotesText.format(null, pal, 0).length() == 0
-                && MrNotesText.format(" \r\n\n  \n", pal, 0).length() == 0);
-        check("notes styled: a single paragraph has no gap before it", spansOf(MrNotesText.format("- Novo: a", pal, 0),
-                android.text.style.RelativeSizeSpan.class).isEmpty());
+        check("notes format: a ** that is never closed makes the rest bold, with no mark left", h.toString().equals("Novo: a b")
+                && hb.size() == 2 && spanAt(hb, 0, h.length() - 1, h.length()) && spanAt(hb, 1, 0, 5));
+        check("notes format: null and empty give an empty text, no exception", MrNotesText.format(null, LAB).length() == 0 && MrNotesText.format("", LAB).length() == 0);
 
-        // the glue: colors from the resources by name (white when one is missing) and the indent from the width of the bullet
+        // the cards: one for each item, in a box
         Ctx ctx = new Ctx(1081000);
         final java.util.HashMap<String, Integer> ids = new java.util.HashMap<String, Integer>();
-        ids.put("mr_ui_mint", 1);
-        ids.put("mr_ui_blue", 2);
-        ids.put("mr_ui_amber", 3);
-        ids.put("mr_ui_violet", 4);
+        ids.put("color/mr_ui_text", 1);
+        ids.put("color/mr_ui_text2", 2);
+        ids.put("drawable/mr_ui_note_card", 77);
+        final float[] density = { 2f };
         ctx.res = new android.content.res.Resources() {
             public int getIdentifier(String name, String defType, String defPackage) {
-                Integer id = defType.equals("color") && defPackage.equals("com.mrkeyboard.app") ? ids.get(name) : null;
+                Integer id = defPackage.equals("com.mrkeyboard.app") ? ids.get(defType + "/" + name) : null;
                 return id == null ? 0 : id;
             }
             public int getColor(int id) { return 0xff000000 + id; }
+            public android.util.DisplayMetrics getDisplayMetrics() {
+                android.util.DisplayMetrics m = new android.util.DisplayMetrics();
+                m.density = density[0];
+                return m;
+            }
         };
-        android.graphics.Paint.stubCharWidth = 6f;
-        CharSequence v = MrNotesText.forView(new android.widget.TextView(ctx), "- Novo: a\n- Corrigido: b\n- Notes: c");
-        ArrayList<Object[]> vc = spansOf(v, android.text.style.ForegroundColorSpan.class);
-        ArrayList<Object[]> vm = spansOf(v, android.text.style.LeadingMarginSpan.Standard.class);
-        check("notes for a view: the colors come by name from the resources, white if one is missing; the indent is the width of the bullet",
-                vc.size() == 3 && ((android.text.style.ForegroundColorSpan) vc.get(0)[0]).stubColor == 0xff000001
-                        && ((android.text.style.ForegroundColorSpan) vc.get(1)[0]).stubColor == 0xff000003
-                        && ((android.text.style.ForegroundColorSpan) vc.get(2)[0]).stubColor == 0xffffffff
-                        && vm.size() == 3 && ((android.text.style.LeadingMarginSpan.Standard) vm.get(0)[0]).stubRest == 12);
-        android.graphics.Paint.stubCharWidth = 7f;
-        check("notes color names: one palette color for each kind", MrNotesText.colorName(MrNotesText.NEW).equals("mr_ui_mint")
-                && MrNotesText.colorName(MrNotesText.IMPROVED).equals("mr_ui_blue") && MrNotesText.colorName(MrNotesText.FIXED).equals("mr_ui_amber")
-                && MrNotesText.colorName(MrNotesText.HOW).equals("mr_ui_violet") && MrNotesText.colorName(MrNotesText.OTHER).equals("mr_ui_slate"));
+        android.widget.LinearLayout box = new android.widget.LinearLayout(ctx);
+        box.addView(new android.widget.TextView(ctx));
+        int count = MrNotesText.fill(box, "- Novo: **a** b\n- Corrigido: c\n\nTexto solto.", "none");
+        boolean shape = count == 3 && box.getChildCount() == 3;
+        String[] want = { "Novo: a b", "Corrigido: c", "Texto solto." };
+        boolean texts = shape, look = shape, gaps = shape;
+        for (int i = 0; shape && i < 3; i++) {
+            android.widget.TextView tv = (android.widget.TextView) box.getChildAt(i);
+            android.widget.LinearLayout.LayoutParams lp = (android.widget.LinearLayout.LayoutParams) box.stubParamsAt(i);
+            texts &= tv.getText().toString().equals(want[i]);
+            look &= tv.stubBackgroundRes == 77 && tv.stubTextColor == 0xff000002 && tv.stubTextSize == 14f && tv.stubLineAdd == 6f && tv.stubLineMult == 1f
+                    && tv.getPaddingLeft() == 24 && tv.getPaddingTop() == 20 && tv.getPaddingRight() == 24 && tv.getPaddingBottom() == 20;
+            gaps &= lp.width == android.view.ViewGroup.LayoutParams.MATCH_PARENT && lp.height == android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                    && lp.stubTop == (i == 0 ? 0 : 16) && lp.stubLeft == 0 && lp.stubRight == 0 && lp.stubBottom == 0;
+        }
+        check("notes cards: one for each item, the old children gone, no bullet and no mark", shape && texts);
+        check("notes cards: the same faint card for all, soft text, 14 sp, 3 dp of line spacing, padding 12 dp / 10 dp (density 2)", look);
+        check("notes cards: full width; a gap of 8 dp between the cards and none before the first", gaps);
+        ArrayList<Object[]> lc = spansOf(((android.widget.TextView) box.getChildAt(0)).getText(), android.text.style.ForegroundColorSpan.class);
+        check("notes cards: the label is white (mr_ui_text) and only the label",
+                lc.size() == 1 && spanAt(lc, 0, 0, 5) && ((android.text.style.ForegroundColorSpan) lc.get(0)[0]).stubColor == 0xff000001
+                        && spansOf(((android.widget.TextView) box.getChildAt(2)).getText(), android.text.style.ForegroundColorSpan.class).isEmpty());
+        density[0] = 3f;
+        MrNotesText.fill(box, "- a\n- b", null);
+        check("notes cards: the sizes follow the density of the screen (3.0: gap 24, padding 36 / 30, spacing 9)",
+                box.getChildCount() == 2 && ((android.widget.LinearLayout.LayoutParams) box.stubParamsAt(1)).stubTop == 24
+                        && box.getChildAt(0).getPaddingLeft() == 36 && box.getChildAt(0).getPaddingTop() == 30
+                        && ((android.widget.TextView) box.getChildAt(0)).stubLineAdd == 9f);
+        density[0] = 2f;
+        check("notes cards: no notes and a 'none' text: that text is the only card; with no 'none' text the box stays empty",
+                MrNotesText.fill(box, " \n", "Sem notas.") == 1 && ((android.widget.TextView) box.getChildAt(0)).getText().toString().equals("Sem notas.")
+                        && MrNotesText.fill(box, null, null) == 0 && box.getChildCount() == 0 && MrNotesText.fill(box, "", "") == 0);
+        ids.remove("drawable/mr_ui_note_card");
+        ids.remove("color/mr_ui_text");
+        MrNotesText.fill(box, "- Novo: a", null);
+        check("notes cards: with the drawable and a color missing there is no background and the label is white",
+                ((android.widget.TextView) box.getChildAt(0)).stubBackgroundRes == 0
+                        && ((android.text.style.ForegroundColorSpan) spansOf(((android.widget.TextView) box.getChildAt(0)).getText(),
+                                android.text.style.ForegroundColorSpan.class).get(0)[0]).stubColor == 0xffffffff);
+        ids.put("color/mr_ui_text", 1);
+
+        mrVersion();
+    }
+
+    /** The "Version" line (MrVersion, v2.0.0): the blocks of the notes by language, reading the asset, and the notes that go in the APK. */
+    static void mrVersion() throws Exception {
+        String sample = "# v9.9.9\n\n**Português**\n\n- Novo: item um.\n- Corrigido: item dois.\n\n**English**\n\n- New: item one.\n- Fixed: item two.\n";
+        check("version block: the Portuguese block is what follows **Português** up to **English**, trimmed; the English one is what follows **English**",
+                MrVersion.block(sample, true).equals("- Novo: item um.\n- Corrigido: item dois.")
+                        && MrVersion.block(sample, false).equals("- New: item one.\n- Fixed: item two."));
+        check("version block: the order does not matter, CRLF and spaces around the marks are accepted",
+                MrVersion.block("**English**\n- New: a.\n**Português**\n- Novo: b.\n", true).equals("- Novo: b.")
+                        && MrVersion.block("  **Português**  \r\n- Novo: b.\r\n**English**\r\n- New: a.", false).equals("- New: a."));
+        check("version block: with one block missing or empty the other is used; with none it is null",
+                MrVersion.block("**English**\n- New: a.", true).equals("- New: a.") && MrVersion.block("**Português**\n- Novo: b.", false).equals("- Novo: b.")
+                        && MrVersion.block("**Português**\n\n**English**\n- New: a.", true).equals("- New: a.")
+                        && MrVersion.block("**Português**\n- Novo: b.\n**English**\n  \n", false).equals("- Novo: b.")
+                        && MrVersion.block("- sem blocos", true) == null && MrVersion.block("**Português**\n\n**English**\n", true) == null);
+        check("version block: a mark in the middle of a line is not a mark", MrVersion.block("texto **Português** aqui\n**English**\n- New: a.", true).equals("- New: a."));
+
+        check("version asset: read as UTF-8 text", MrVersion.readAll(new ByteArrayInputStream("Olá, versão ✓".getBytes(StandardCharsets.UTF_8))).equals("Olá, versão ✓"));
+        byte[] big = new byte[MrVersion.MAX_BYTES + 1];
+        Arrays.fill(big, (byte) 'a');
+        check("version asset: a file larger than the limit is not read (null), one of exactly the limit is",
+                MrVersion.readAll(new ByteArrayInputStream(big)) == null
+                        && MrVersion.readAll(new ByteArrayInputStream(Arrays.copyOf(big, MrVersion.MAX_BYTES))).length() == MrVersion.MAX_BYTES
+                        && MrVersion.readAll(new ByteArrayInputStream(new byte[0])).equals(""));
+
+        // the notes that go in the APK: assets/mr_release_notes.md has both blocks and the same number of items in each (check_version.py checks it is a copy)
+        File asset = new File("assets/mr_release_notes.md");
+        check("version asset: assets/mr_release_notes.md exists (run the tests at the root of the project)", asset.isFile(), asset.getAbsolutePath());
+        if (asset.isFile()) {
+            String text = new String(Files.readAllBytes(asset.toPath()), StandardCharsets.UTF_8);
+            String pt = MrVersion.block(text, true), en = MrVersion.block(text, false);
+            boolean both = pt != null && en != null && !pt.equals(en) && text.contains(MrVersion.MARK_PT) && text.contains(MrVersion.MARK_EN);
+            check("version asset: the real asset has a Portuguese and an English block, different from each other", both);
+            if (both) {
+                int ptItems = MrNotesText.items(pt).size(), enItems = MrNotesText.items(en).size();
+                check("version asset: both blocks have items, the same number in each language, and none of them keeps a mark",
+                        ptItems > 0 && ptItems == enItems && !pt.contains("**" + MrVersion.MARK_PT) && !MrNotesText.items(pt).contains(MrVersion.MARK_EN));
+            }
+        }
     }
 
     // ------------------------------------------------------------------ files made by the real tools

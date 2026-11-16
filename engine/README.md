@@ -6,7 +6,7 @@ implementation (the Java copy was removed; before, the result was identical word
 lets you check). If the lib is not in the APK, fails to load or has another contract version, the keyboard keeps typing and completing words but has no correction by search and no two-word prediction. Overview and flow: `docs/native-engine.md`.
 
 Since the contract 3 (1.96.0) the lib also has the **recognition of gesture typing** (`src/mr_gesture*`): a small neural network reads the trace of the
-finger and a search finds the words in the same `main.dict` (gesture typing, experimental and off by default). The same gesture can be searched in a second dictionary of the same
+finger and a search finds the words in the same `main.dict` (gesture typing, off by default). The same gesture can be searched in a second dictionary of the same
 format, which the app writes in memory from the words of the person (`nGestureMore`, `Gesture::more`). What it is, what was measured and what is left: `docs/gesture-typing.md`. Its weights file and test data are in `gesture/` (the weights have a licence of their own:
 `gesture/README.md`).
 
