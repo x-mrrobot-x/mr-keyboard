@@ -1,19 +1,31 @@
 **Português**
-- Novo: **Desempenho**, em **Configurações → Avançadas**: **Tempos do teclado** mostra quanto o teclado leva para abrir, digitar e sugerir neste aparelho, e **Liberar memória agora (teste)** libera a memória que o teclado pode recriar.
-- Melhorado: Digitar ficou mais leve: o teclado faz menos perguntas ao app a cada tecla e espera o app ficar livre depois do espaço e da pontuação (as sugestões da próxima palavra aparecem cerca de 0,1 segundo depois). Dá para desligar em **Configurações → Avançadas → Desempenho**.
-- Melhorado: O teclado usa menos memória: libera o que pode quando o Android pede e fecha o motor de sugestões e os bancos de dados quando é trocado por outro teclado.
-- Melhorado: A **capitalização automática** agora vem ligada por padrão.
-- Corrigido: Uma vírgula ou outro sinal (. , ! ? : ; )) logo depois de uma sugestão tocada na faixa agora fica colado na palavra, e o espaço vai depois (“bom dia, ”). Depois de uma palavra escrita por gesto, o mesmo vale para os sinais da folha de símbolos.
-- Corrigido: Com a capitalização automática ligada, a segunda palavra escrita por gesto não sai mais com a primeira letra maiúscula.
-- Corrigido: Trocar de teclado deixava uma cópia do Mr Keyboard na memória a cada troca; agora a cópia antiga é liberada.
-- Como receber: Instale o aplicativo 1.99.0 ou vá em **Configurações → Sobre → Procurar atualização**.
+- Novo: **Ctrl + apagar apaga por palavra**: com o Ctrl ativo, a tecla apagar remove uma palavra por toque e, segurando, apaga palavra por palavra desde o início. Ative em **Configurações → Toque e gestos → Apagar por palavra**, onde também ajusta o tempo entre as palavras para soltar na hora certa. O **Ctrl + Z** devolve as palavras apagadas uma por vez, da última para a primeira, e o **Ctrl + Y** apaga de novo a que voltou; as palavras ficam guardadas por até 2 minutos.
+- Corrigido: O toque longo de uma tecla (como o 123) vinha mais tarde que o tempo definido quando o teclado recebia o toque com atraso; agora o tempo conta a partir do toque.
+- Melhorado: Em **Configurações → Avançadas → Desempenho**, **Tempos do teclado** mostra o pior toque longo e o pior toque até a tecla ser desenhada, e onde o tempo foi.
+- Melhorado: Em **Toque e gestos**, o **Toque longo nas teclas** tem tela própria, com **Duração do toque longo nas teclas** e **Ação do toque longo nas teclas** explicadas e com opções descritas com exemplos.
+- Melhorado: O deslize para os lados (por padrão, trocar de folha) agora vale pela distância percorrida, não pela velocidade com que o dedo sai da tela: arrastar devagar, ou parar um instante antes de soltar, também funciona.
+- Melhorado: A descrição da **Digitação por gestos** diz onde cada gesto começa: a digitação nas letras da folha principal; os deslizes de ação fora delas ou em qualquer tecla das outras folhas.
+- Novo: Tocar em **Versão**, em **Configurações → Sobre**, mostra as novidades da versão instalada, sem precisar de internet.
+- Melhorado: As novidades da atualização e da versão aparecem em cartões, um para cada item, e os botões do aviso de atualização ficam em uma só linha, com **Abrir no GitHub**.
+- Melhorado: A **Digitação por gestos** e os **Gestos de deslize** deixaram de ser experimentais; a Digitação por gestos agora aparece nos subtítulos de **Digitação** e de **Sugestões e dicionários**.
+- Melhorado: O **Editor de IA** passou a se chamar **Editar com IA**, e o texto do resultado e os botões de estilo (Formal, Curto etc.) ficaram mais fáceis de ver.
+- Melhorado: O diálogo de **Personalizar teclado** deixou de ser translúcido, e o texto dele fica mais fácil de ler.
+- Melhorado: Na tela de **Configurações**, o card do desenvolvedor, o último item, ganhou um espaço embaixo.
+- Corrigido: A linha **Versão** não mostra mais "custom" depois do número.
+- Como receber: Instale o aplicativo 2.0.0 ou vá em **Configurações → Sobre → Procurar atualização**.
 
 **English**
-- New: **Performance**, in **Settings → Advanced**: **Keyboard times** shows how long the keyboard takes to open, type and suggest on this device, and **Free memory now (test)** frees the memory the keyboard can make again.
-- Improved: Typing is lighter: the keyboard asks the app fewer questions per key and waits for the app to be idle after a space or punctuation (the next-word suggestions show about 0.1 second later). You can turn it off in **Settings → Advanced → Performance**.
-- Improved: The keyboard uses less memory: it lets go of what it can make again when Android asks, and closes the suggestion engine and the databases when you switch to another keyboard.
-- Improved: **Auto-capitalization** is now on by default.
-- Fixed: A comma or another sign (. , ! ? : ; )) right after a suggestion tapped on the strip now stays glued to the word, and the space goes after it (“bom dia, ”). After a word written by gesture, the same goes for the signs of the symbols sheet.
-- Fixed: With auto-capitalization on, the second word written by gesture no longer comes out with a capital first letter.
-- Fixed: Switching keyboards left a copy of Mr Keyboard in memory at every switch; the old copy is now released.
-- How to get it: Install app 1.99.0 or go to **Settings → About → Check for updates**.
+- New: **Ctrl + delete deletes by words**: with Ctrl on, the delete key removes a word per tap and, when held, deletes word by word from the start. Turn it on in **Settings → Touch and gestures → Delete by word**, where you also set the time between words to let go at the right moment. **Ctrl + Z** gives the deleted words back one at a time, the last one first, and **Ctrl + Y** deletes again the one that came back; the words are kept for up to 2 minutes.
+- Fixed: The long press of a key (like 123) came later than the set time when the keyboard got the touch late; the time now counts from the touch.
+- Improved: In **Settings → Advanced → Performance**, **Keyboard times** shows the worst long press and the worst press until the key is drawn, and where the time went.
+- Improved: In **Touch and gestures**, **Long press on keys** has its own screen, with **Long-press duration on keys** and **Long-press action on keys** explained and options described with examples.
+- Improved: The sideways swipe (by default, change sheet) now counts by the distance travelled, not by the speed at which the finger leaves the screen: a slow drag, or one that pauses for a moment before lifting, also works.
+- Improved: The description of **Gesture typing** says where each gesture starts: typing on the letters of the main sheet; the action swipes outside them or on any key of the other sheets.
+- New: Tapping **Version**, in **Settings → About**, shows the notes of the installed version, with no network.
+- Improved: The notes of an update and of a version appear in cards, one for each item, and the buttons of the update notice are in a single row, with **Open on GitHub**.
+- Improved: **Gesture typing** and **Swipe gestures** are no longer experimental; Gesture typing now appears in the subtitles of **Typing** and of **Suggestions and dictionaries**.
+- Improved: The **AI Editor** is now called **Edit with AI**, and the result text and the style buttons (Formal, Short etc.) are easier to see.
+- Improved: The **Customize keyboard** dialog is no longer translucent, and its text is easier to read.
+- Improved: On the **Settings** screen, the developer card, the last item, now has some space below it.
+- Fixed: The **Version** line no longer shows "custom" after the number.
+- How to get it: Install app 2.0.0 or go to **Settings → About → Check for updates**.

@@ -245,6 +245,9 @@
     <color name="mr_ui_slate_soft">#2494a3b8</color>
     <color name="mr_ui_slate_line">#3394a3b8</color>
     <color name="mr_ui_icon_bg">#ff041028</color>
+    <!-- Lighter soft blue for the fields and chips of the AI dialog (result, style buttons, Emojify box) and its outline -->
+    <color name="mr_ui_field">#ff192a44</color>
+    <color name="mr_ui_field_line">#ff2a4066</color>
 
     <!-- ===== Initial keyboard and toolbar defaults (stage 2 of the standardization) =====
          mr_default_*: fallback of the LatinKeyboardBaseView style (the theme overrides it through the layout).

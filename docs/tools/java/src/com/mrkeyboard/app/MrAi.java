@@ -257,19 +257,19 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
             return rounded(uiColor("mr_ui_cyan_soft"),
                     uiColor("mr_ui_cyan_line"), 12f);
         }
-        return rounded(uiColor("mr_ui_slate_soft"),
-                uiColor("mr_ui_slate_line"), 12f);
+        return rounded(uiColor("mr_ui_field"),
+                uiColor("mr_ui_field_line"), 12f);
     }
 
     private static GradientDrawable emojiCheckBackground(boolean checked) {
-        int fill = uiColor(checked ? "mr_ui_cyan_soft" : "mr_ui_slate_soft");
-        int stroke = uiColor(checked ? "mr_ui_cyan" : "mr_ui_slate_line");
+        int fill = uiColor(checked ? "mr_ui_cyan_soft" : "mr_ui_field");
+        int stroke = uiColor(checked ? "mr_ui_cyan" : "mr_ui_field_line");
         return rounded(fill, stroke, 5f);
     }
 
     private static GradientDrawable fieldBackground() {
-        return rounded(uiColor("mr_ui_slate_soft"),
-                uiColor("mr_ui_slate_line"), 16f);
+        return rounded(uiColor("mr_ui_field"),
+                uiColor("mr_ui_field_line"), 16f);
     }
 
     /** Invalidates old jobs and releases all the Views when the dialog closes. */
