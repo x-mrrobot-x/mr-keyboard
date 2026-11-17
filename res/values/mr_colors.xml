@@ -209,9 +209,15 @@
     <!-- ===== Screen redesign (prefix mr_ui_) ===== -->
     <color name="mr_ui_bg">#ff060c17</color>
     <color name="mr_ui_card">#ff0d1626</color>
-    <!-- With the Matrix effect on the cards are the same colours, a little see-through (75%) so that the letters show behind them; a dialog is less (88%) -->
-    <color name="mr_ui_card_glass">#c00d1626</color>
-    <color name="mr_ui_sunken_glass">#c009111e</color>
+    <!-- With the Matrix effect on the cards are glass: a soft blue, about 70% opaque so that the letters show behind them, lighter at the top
+         (the sheen) and with a light edge. mr_ui_card_glass is the middle of the two, for the pieces that are drawn in code with one colour.
+         The fixed cards of the sheets are a little deeper. A dialog is darker and more solid (88%). -->
+    <color name="mr_ui_glass_top">#be345c8e</color>
+    <color name="mr_ui_glass_bottom">#ad1e4476</color>
+    <color name="mr_ui_card_glass">#b3295082</color>
+    <color name="mr_ui_glass_edge">#59a8d8ff</color>
+    <color name="mr_ui_glass_sunken_top">#b0284a78</color>
+    <color name="mr_ui_glass_sunken_bottom">#a41a3a64</color>
     <color name="mr_ui_dialog_glass">#e00d1626</color>
     <color name="mr_ui_faint">#ff0f1c30</color>
     <color name="mr_ui_raised">#ff111d31</color>

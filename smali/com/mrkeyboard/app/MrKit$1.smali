@@ -37,7 +37,7 @@
     .end annotation
 
     .prologue
-    .line 209
+    .line 222
     iput-object p1, p0, Lcom/mrkeyboard/app/MrKit$1;->this$0:Lcom/mrkeyboard/app/MrKit;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrKit$1;->val$langs:Ljava/util/List;
@@ -59,7 +59,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 211
+    .line 224
     iget-object v0, p0, Lcom/mrkeyboard/app/MrKit$1;->val$langs:Ljava/util/List;
 
     invoke-interface {v0}, Ljava/util/List;->size()I
@@ -68,20 +68,20 @@
 
     new-array v4, v0, [Ljava/lang/CharSequence;
 
-    .line 212
+    .line 225
     const/4 v0, -0x1
 
     move v1, v2
 
     move v3, v0
 
-    .line 213
+    .line 226
     :goto_0
     array-length v0, v4
 
     if-ge v1, v0, :cond_1
 
-    .line 214
+    .line 227
     iget-object v5, p0, Lcom/mrkeyboard/app/MrKit$1;->this$0:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrKit$1;->val$langs:Ljava/util/List;
@@ -98,7 +98,7 @@
 
     aput-object v0, v4, v1
 
-    .line 215
+    .line 228
     iget-object v0, p0, Lcom/mrkeyboard/app/MrKit$1;->val$langs:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -117,7 +117,7 @@
 
     move v3, v1
 
-    .line 213
+    .line 226
     :cond_0
     add-int/lit8 v0, v1, 0x1
 
@@ -125,7 +125,7 @@
 
     goto :goto_0
 
-    .line 217
+    .line 230
     :cond_1
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
@@ -141,7 +141,7 @@
 
     new-array v6, v2, [Ljava/lang/Object;
 
-    .line 218
+    .line 231
     invoke-virtual {v1, v5, v6}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -154,7 +154,7 @@
 
     invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrKit$1$1;-><init>(Lcom/mrkeyboard/app/MrKit$1;)V
 
-    .line 219
+    .line 232
     invoke-virtual {v0, v4, v3, v1}, Landroid/app/AlertDialog$Builder;->setSingleChoiceItems([Ljava/lang/CharSequence;ILandroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
@@ -165,7 +165,7 @@
 
     new-array v2, v2, [Ljava/lang/Object;
 
-    .line 226
+    .line 239
     invoke-virtual {v1, v3, v2}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -176,9 +176,9 @@
 
     move-result-object v0
 
-    .line 227
+    .line 240
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 228
+    .line 241
     return-void
 .end method
