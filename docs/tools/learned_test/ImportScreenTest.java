@@ -461,7 +461,7 @@ public class ImportScreenTest {
         check("the card of information does not say to open a file (3 languages)",
                 !en.toLowerCase().contains("file") && !pt.toLowerCase().contains("arquivo") && !es.toLowerCase().contains("archivo"));
         check("... and keeps the rest of it (paste or type a list, nothing saved before the preview)",
-                pt.equals("Ensine ao teclado nomes, gírias, lugares e frases. Cole um texto ou digite uma lista com uma palavra por linha. Nada é salvo antes de você ver a prévia.")
+                pt.startsWith("Ensine ao teclado nomes, gírias, lugares e frases. Cole um texto ou digite uma lista com uma palavra por linha. Nada é salvo antes de você ver a prévia.")
                 && en.contains("Paste a text or type a list with one word per line.") && es.contains("Pega un texto o escribe una lista con una palabra por línea."));
         check("the note on a list for another language does not say \"file\" (3 languages)",
                 !string("values", "mr_import_lang_note").contains("file") && !string("values-pt-rBR", "mr_import_lang_note").contains("arquivo")

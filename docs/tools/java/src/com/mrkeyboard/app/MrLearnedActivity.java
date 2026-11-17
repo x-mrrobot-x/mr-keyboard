@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -27,6 +28,8 @@ import java.util.List;
  * word, allowed again. The lists are paged (50 at a time) and searchable; "Export" writes the standard word list (mr-words 1) to a file the user picks.
  * The data lives in MrLearned / MrWordStore (the rules are tested on the PC); this class is only views. Every change tells the keyboard to read its
  * dictionaries again (MrLearned.changed).
+ * The "Added" tab can show the words added for one app (MrApp) instead of the ones added for every app: when some app has words in the language, a choice under
+ * the tabs ("Words of": every app, or one of the apps that have words, MrAppPicker) says which list is on. The learned and the blocked words are for every app.
  */
 public class MrLearnedActivity extends Activity {
     /** The language the screen opens on ("pt_BR"). */
@@ -45,10 +48,13 @@ public class MrLearnedActivity extends Activity {
     private static final String S_TYPE = "mr_words_s_type";
     private static final String S_SORT = "mr_words_s_sort";
     private static final String S_FILTER = "mr_words_s_filter";
+    private static final String S_APP = "mr_words_s_app";
 
     private MrKit k;
     private MrWordStore mStore;
     private String mLocale;
+    /** The package of the app whose added words the "Added" tab shows, or null for the words of every app. */
+    private String mApp;
     private int mTab = TAB_LEARNED;
     /** 0 = words, 1 = pairs of words. */
     private int mType;
@@ -57,9 +63,11 @@ public class MrLearnedActivity extends Activity {
     private int mLimit = PAGE;
     private List<String> mLangs = new ArrayList<String>();
     private String mExportLocale;
+    private String mExportApp;
 
     private LinearLayout mLangBox;
     private LinearLayout mTabBox;
+    private LinearLayout mScopeBox;
     private LinearLayout mTypeBox;
     private LinearLayout mListBox;
     private TextView mSortChip;
@@ -81,6 +89,7 @@ public class MrLearnedActivity extends Activity {
         out.putInt(S_TYPE, mType);
         out.putInt(S_SORT, mSort);
         out.putString(S_FILTER, mFilter);
+        if (mApp != null) out.putString(S_APP, mApp);
         MrScreenIme.save(out, mSearch, null);
     }
 
@@ -101,7 +110,9 @@ public class MrLearnedActivity extends Activity {
             mSort = state.getInt(S_SORT, MrWordStore.SORT_USED) == MrWordStore.SORT_NEW ? MrWordStore.SORT_NEW : MrWordStore.SORT_USED;
             String f = state.getString(S_FILTER);
             mFilter = f == null ? "" : f;
+            mApp = state.getString(S_APP);
         }
+        if (!MrApp.validPackage(mApp)) mApp = null;
         if (mLocale == null && getIntent() != null) mLocale = getIntent().getStringExtra(EXTRA_LOCALE);
         loadLanguages();
         MrLang.remember(getSharedPreferences(MrLang.PREFS, MODE_PRIVATE), mLocale);
@@ -125,6 +136,8 @@ public class MrLearnedActivity extends Activity {
         col.addView(mLangBox, k.wide(16));
         mTabBox = k.column();
         col.addView(mTabBox, k.wide(12));
+        mScopeBox = k.column();
+        col.addView(mScopeBox, k.wide(8));
         mTypeBox = k.column();
         col.addView(mTypeBox, k.wide(8));
 
@@ -178,6 +191,8 @@ public class MrLearnedActivity extends Activity {
             public void onClick(View v) {
                 Intent i = MrNav.intent(MrLearnedActivity.this, MrImportActivity.class);
                 i.putExtra(MrImportActivity.EXTRA_LOCALE, mLocale);
+                // from the list of an app, the words are added for that app
+                if (mTab == TAB_ADDED && mApp != null) i.putExtra(MrImportActivity.EXTRA_APP, mApp);
                 startActivity(i);
             }
         }), k.wide(22));
@@ -237,6 +252,11 @@ public class MrLearnedActivity extends Activity {
         int[] n;
         try {
             n = MrLearned.counts(mStore, mLocale);
+            if (mApp != null) {
+                // the added words are the ones of the app that is on
+                n[MrWordStore.KIND_IMPORTED_WORD] = mStore.count(MrWordStore.KIND_IMPORTED_WORD, keyFor(MrWordStore.KIND_IMPORTED_WORD));
+                n[MrWordStore.KIND_IMPORTED_PAIR] = mStore.count(MrWordStore.KIND_IMPORTED_PAIR, keyFor(MrWordStore.KIND_IMPORTED_PAIR));
+            }
         } catch (RuntimeException e) {
             n = new int[5];
         }
@@ -245,6 +265,8 @@ public class MrLearnedActivity extends Activity {
                 mLocale = locale;
                 MrLang.remember(getSharedPreferences(MrLang.PREFS, MODE_PRIVATE), locale);
                 mLimit = PAGE;
+                // the app that was on has words in the new language, or the words of every app are on again
+                if (mApp != null && !appsWithWords().contains(mApp)) mApp = null;
                 refreshAll();
             }
         });
@@ -254,6 +276,7 @@ public class MrLearnedActivity extends Activity {
         tabs.add(tabChip(TAB_ADDED, k.t("mr_learned_tab_added", n[MrWordStore.KIND_IMPORTED_WORD] + n[MrWordStore.KIND_IMPORTED_PAIR])));
         tabs.add(tabChip(TAB_BLOCKED, k.t("mr_learned_tab_blocked", n[MrWordStore.KIND_BLOCKED])));
         k.fill(mTabBox, tabs, 3);
+        refreshScope();
 
         ArrayList<TextView> types = new ArrayList<TextView>();
         if (mTab != TAB_BLOCKED) {
@@ -265,6 +288,78 @@ public class MrLearnedActivity extends Activity {
         k.fill(mTypeBox, types, 2);
         mTypeBox.setVisibility(types.isEmpty() ? View.GONE : View.VISIBLE);
         refreshList();
+    }
+
+    // ------------------------------------------------------------------ the app whose words are shown
+
+    /** The key the rows of a kind are under: the added ones, under the app that is on; everything else under the language. */
+    private String keyFor(int kind) {
+        boolean added = kind == MrWordStore.KIND_IMPORTED_WORD || kind == MrWordStore.KIND_IMPORTED_PAIR;
+        return added && mApp != null ? MrApp.scope(mLocale, mApp) : mLocale;
+    }
+
+    /** Is the list of an app on (the "Added" tab with an app chosen)? Blocking a word is for every app, so it is not offered there. */
+    private boolean appList() {
+        return mTab == TAB_ADDED && mApp != null;
+    }
+
+    /** The apps that have added words in this language, as the keys of the store say. */
+    private List<String> appsWithWords() {
+        ArrayList<String> out = new ArrayList<String>();
+        try {
+            for (String key : mStore.scopes()) {
+                if (mLocale.equals(MrApp.localeOf(key))) out.add(MrApp.packageOf(key));
+            }
+        } catch (RuntimeException e) {
+            // no choice is offered
+        }
+        return out;
+    }
+
+    /** The choice under the tabs: only on "Added", and only when some app has words in the language (or one is on already). */
+    private void refreshScope() {
+        mScopeBox.removeAllViews();
+        boolean show = mTab == TAB_ADDED && (mApp != null || !appsWithWords().isEmpty());
+        mScopeBox.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (!show) return;
+        final String name = mApp == null ? k.t("mr_app_all") : MrAppList.label(this, mApp);
+        Drawable lead = mApp == null ? null : MrAppList.icon(this, mApp);
+        mScopeBox.addView(k.select(k.t("mr_app_scope_title"), name, lead, new View.OnClickListener() {
+            public void onClick(View v) {
+                chooseApp();
+            }
+        }), k.wide(0));
+    }
+
+    /** The dialog with every app and the apps that have words in this language, each with how many (made off the main thread). */
+    private void chooseApp() {
+        final String locale = mLocale;
+        final MrWordStore store = mStore;
+        MrAppPicker.show(k, mApp, k.t("mr_app_scope_pick"), k.t("mr_app_scope_empty"), new MrAppPicker.Source() {
+            public List<MrAppList.Entry> load() {
+                ArrayList<MrAppList.Entry> out = new ArrayList<MrAppList.Entry>();
+                for (String key : store.scopes()) {
+                    if (!locale.equals(MrApp.localeOf(key))) continue;
+                    String pkg = MrApp.packageOf(key);
+                    int n = store.count(MrWordStore.KIND_IMPORTED_WORD, key) + store.count(MrWordStore.KIND_IMPORTED_PAIR, key);
+                    out.add(new MrAppList.Entry(pkg, MrAppList.label(MrLearnedActivity.this, pkg), String.valueOf(n)));
+                }
+                java.util.Collections.sort(out, new java.util.Comparator<MrAppList.Entry>() {
+                    public int compare(MrAppList.Entry a, MrAppList.Entry b) {
+                        int d = a.folded.compareTo(b.folded);
+                        return d != 0 ? d : a.pkg.compareTo(b.pkg);
+                    }
+                });
+                return out;
+            }
+        }, new MrAppPicker.Pick() {
+            public void onPick(String pkg) {
+                if (pkg == null ? mApp == null : pkg.equals(mApp)) return;
+                mApp = pkg;
+                mLimit = PAGE;
+                refreshAll();
+            }
+        });
     }
 
     private TextView tabChip(final int tab, String label) {
@@ -299,7 +394,7 @@ public class MrLearnedActivity extends Activity {
         mSortChip.setVisibility(mTab == TAB_BLOCKED ? View.GONE : View.VISIBLE);
         List<MrWordStore.Row> rows;
         try {
-            rows = mStore.list(kind(), mLocale, mFilter, mSort, 0, mLimit + 1);
+            rows = mStore.list(kind(), keyFor(kind()), mFilter, mSort, 0, mLimit + 1);
         } catch (RuntimeException e) {
             rows = new ArrayList<MrWordStore.Row>();
             k.toast(k.t("mr_learned_unavailable"));
@@ -324,7 +419,8 @@ public class MrLearnedActivity extends Activity {
         if (shown == 0) {
             if (mFilter.length() > 0) empty = k.t("mr_learned_empty_search");
             else empty = k.t(mTab == TAB_LEARNED ? "mr_learned_empty_learned"
-                    : mTab == TAB_ADDED ? "mr_learned_empty_added" : "mr_learned_empty_blocked");
+                    : mTab == TAB_ADDED ? (mApp != null ? "mr_learned_empty_added_app"
+                    : appsWithWords().isEmpty() ? "mr_learned_empty_added" : "mr_learned_empty_added_apps") : "mr_learned_empty_blocked");
         }
         mEmpty.setText(empty);
         mEmpty.setVisibility(shown == 0 ? View.VISIBLE : View.GONE);
@@ -332,8 +428,11 @@ public class MrLearnedActivity extends Activity {
         int total = 0;
         try {
             if (mTab == TAB_BLOCKED) total = mStore.count(MrWordStore.KIND_BLOCKED, mLocale);
-            else total = mStore.count(mTab == TAB_LEARNED ? MrWordStore.KIND_LEARNED_WORD : MrWordStore.KIND_IMPORTED_WORD, mLocale)
-                    + mStore.count(mTab == TAB_LEARNED ? MrWordStore.KIND_LEARNED_PAIR : MrWordStore.KIND_IMPORTED_PAIR, mLocale);
+            else {
+                int words = mTab == TAB_LEARNED ? MrWordStore.KIND_LEARNED_WORD : MrWordStore.KIND_IMPORTED_WORD;
+                int pairs = mTab == TAB_LEARNED ? MrWordStore.KIND_LEARNED_PAIR : MrWordStore.KIND_IMPORTED_PAIR;
+                total = mStore.count(words, keyFor(words)) + mStore.count(pairs, keyFor(pairs));
+            }
         } catch (RuntimeException e) {
             total = 0;
         }
@@ -352,7 +451,7 @@ public class MrLearnedActivity extends Activity {
         } else {
             codes.add(A_EDIT);
             labels.add(k.t("mr_learned_act_edit"));
-            if (r.b == null) {
+            if (r.b == null && !appList()) {
                 codes.add(A_BLOCK);
                 labels.add(k.t("mr_learned_act_block"));
             }
@@ -428,7 +527,7 @@ public class MrLearnedActivity extends Activity {
         }
         int res;
         try {
-            res = MrLearned.edit(mStore, mLocale, r, text);
+            res = MrLearned.edit(mStore, keyFor(r.kind), r, text);
         } catch (RuntimeException e) {
             k.toast(k.t("mr_learned_unavailable"));
             return;
@@ -450,7 +549,8 @@ public class MrLearnedActivity extends Activity {
         final int tab = mTab;
         new AlertDialog.Builder(this)
                 .setTitle(k.t("mr_learned_delete_all"))
-                .setMessage(k.t(tab == TAB_LEARNED ? "mr_learned_delete_ask_learned"
+                .setMessage(appList() ? k.t("mr_learned_delete_ask_app", k.langName(mLocale), MrAppList.label(this, mApp))
+                        : k.t(tab == TAB_LEARNED ? "mr_learned_delete_ask_learned"
                         : tab == TAB_ADDED ? "mr_learned_delete_ask_added" : "mr_learned_delete_ask_blocked", k.langName(mLocale)))
                 .setNegativeButton(k.t("mr_words_cancel"), null)
                 .setPositiveButton(k.t("mr_words_delete"), new DialogInterface.OnClickListener() {
@@ -465,7 +565,7 @@ public class MrLearnedActivity extends Activity {
         int n;
         try {
             if (tab == TAB_LEARNED) n = MrLearned.deleteAllLearned(mStore, mLocale);
-            else if (tab == TAB_ADDED) n = MrLearned.deleteAllImported(mStore, mLocale);
+            else if (tab == TAB_ADDED) n = MrLearned.deleteAllImported(mStore, keyFor(MrWordStore.KIND_IMPORTED_WORD));
             else n = mStore.deleteAll(MrWordStore.KIND_BLOCKED, mLocale);
         } catch (RuntimeException e) {
             k.toast(k.t("mr_learned_unavailable"));
@@ -480,10 +580,12 @@ public class MrLearnedActivity extends Activity {
 
     private void startExport() {
         mExportLocale = mLocale;
+        // from the list of an app, the file is what was added for that app (the rest is for every app)
+        mExportApp = appList() ? mApp : null;
         Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("text/plain");
-        i.putExtra(Intent.EXTRA_TITLE, "mr-keyboard-words-" + MrLearned.tag(mLocale) + ".txt");
+        i.putExtra(Intent.EXTRA_TITLE, "mr-keyboard-words-" + MrLearned.tag(mLocale) + (mExportApp != null ? "-" + mExportApp : "") + ".txt");
         try {
             startActivityForResult(i, REQ_EXPORT);
         } catch (RuntimeException e) {
@@ -497,12 +599,13 @@ public class MrLearnedActivity extends Activity {
         if (requestCode != REQ_EXPORT || resultCode != RESULT_OK || data == null || data.getData() == null) return;
         final Uri uri = data.getData();
         final String locale = mExportLocale != null ? mExportLocale : mLocale;
+        final String app = mExportApp;
         final MrWordStore store = mStore;
         new Thread(new Runnable() {
             public void run() {
                 boolean ok = false;
                 try {
-                    byte[] bytes = MrLearned.export(store, locale).getBytes("UTF-8");
+                    byte[] bytes = (app != null ? MrLearned.exportApp(store, locale, app) : MrLearned.export(store, locale)).getBytes("UTF-8");
                     OutputStream os = getContentResolver().openOutputStream(uri, "wt");
                     if (os != null) {
                         try {

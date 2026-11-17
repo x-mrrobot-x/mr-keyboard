@@ -9,7 +9,7 @@ import java.io.Reader;
 import java.util.Locale;
 
 /**
- * Numbers for the "Dictionary memory" line of the dictionaries screen (v1.90.0): how long each part took to load and how much of each
+ * Numbers for the "Dictionary memory" row of Settings → Advanced → Performance (MrDictMem; v1.90.0): how long each part took to load and how much of each
  * file is in memory now. They exist to be read on a real phone: the PC figures (docs/native-engine.md) say how the code behaves, not how
  * long a cheap phone takes to open a file or how much of it the system keeps.
  *

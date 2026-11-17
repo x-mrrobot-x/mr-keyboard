@@ -3,7 +3,7 @@
 .source "MrPacksActivity.java"
 
 # interfaces
-.implements Landroid/preference/Preference$OnPreferenceClickListener;
+.implements Landroid/preference/Preference$OnPreferenceChangeListener;
 
 
 # annotations
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 521
+    .line 493
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity$13;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,16 +36,95 @@
 
 
 # virtual methods
-.method public onPreferenceClick(Landroid/preference/Preference;)Z
-    .locals 1
+.method public onPreferenceChange(Landroid/preference/Preference;Ljava/lang/Object;)Z
+    .locals 4
 
     .prologue
-    .line 523
+    .line 496
+    sget-object v0, Ljava/lang/Boolean;->TRUE:Ljava/lang/Boolean;
+
+    invoke-virtual {v0, p2}, Ljava/lang/Boolean;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_0
+
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$13;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$2100(Lcom/mrkeyboard/app/MrPacksActivity;)V
+    const-string v1, "gesture"
 
-    .line 524
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPacks;->modelVersion(Landroid/content/Context;Ljava/lang/String;)I
+
+    move-result v0
+
+    if-nez v0, :cond_0
+
+    const-string v0, "gesture"
+
+    sget-object v1, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_0
+
+    .line 497
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$13;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$1900(Lcom/mrkeyboard/app/MrPacksActivity;)V
+
+    .line 500
+    :cond_0
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$13;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$200(Lcom/mrkeyboard/app/MrPacksActivity;)Landroid/os/Handler;
+
+    move-result-object v0
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$13;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$2000(Lcom/mrkeyboard/app/MrPacksActivity;)Ljava/lang/Runnable;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
+
+    .line 501
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$13;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$200(Lcom/mrkeyboard/app/MrPacksActivity;)Landroid/os/Handler;
+
+    move-result-object v0
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$13;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$2000(Lcom/mrkeyboard/app/MrPacksActivity;)Ljava/lang/Runnable;
+
+    move-result-object v1
+
+    const-wide/16 v2, 0x12c
+
+    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    .line 502
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$13;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$200(Lcom/mrkeyboard/app/MrPacksActivity;)Landroid/os/Handler;
+
+    move-result-object v0
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity$13;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$2000(Lcom/mrkeyboard/app/MrPacksActivity;)Ljava/lang/Runnable;
+
+    move-result-object v1
+
+    const-wide/16 v2, 0x7d0
+
+    invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
+
+    .line 503
     const/4 v0, 0x1
 
     return v0

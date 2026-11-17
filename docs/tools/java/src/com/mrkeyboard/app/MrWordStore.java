@@ -4,7 +4,8 @@ import java.util.List;
 
 /**
  * v1.85: storage behind the screens "What the keyboard learned" and "Add words and texts" (MrLearned, MrLearnedActivity, MrImportActivity).
- * Five kinds of rows, all per locale ("pt_BR", "en_US", "es": the id of the pack with "_"):
+ * Five kinds of rows, all per locale ("pt_BR", "en_US", "es": the id of the pack with "_"; the added words and pairs of an app have the language and the
+ * package in it, "pt_BR|com.whatsapp", see MrApp):
  *  - KIND_LEARNED_WORD / KIND_LEARNED_PAIR: what the keyboard learned (auto_dict.db and userbigram_dict.db, the schema of the original keyboard,
  *    which this code only reads and deletes from);
  *  - KIND_IMPORTED_WORD / KIND_IMPORTED_PAIR: what the user added on purpose (mr_words.db), with the batch of the import (to undo it) and a weight of 1 to 100;
@@ -77,8 +78,14 @@ interface MrWordStore {
     /** A new number for an import (never used before). */
     long newBatch();
 
-    /** The locales that have any row of any kind. */
+    /** The locales that have any row of any kind (not the keys of an app, see {@link #scopes()}). */
     List<String> locales();
+
+    /**
+     * The keys of the apps that have added words or pairs: "pt_BR|com.whatsapp" (MrApp.scope). The words added for one app are rows of the imported
+     * kinds whose locale is this key, so every call above works on them with the key in place of the language.
+     */
+    List<String> scopes();
 
     /** Groups many changes in one transaction (a big import is one disk write, not thousands). Always followed by end(). */
     void begin();

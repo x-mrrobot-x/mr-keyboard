@@ -489,6 +489,63 @@ if 'KEY = "pref_ui_matrix"' not in matrix_src or 'getBoolean(KEY, true)' not in 
     problems.append('MrMatrix: the key of the setting is not pref_ui_matrix or the default is not true')
 if '"pref_ui_matrix"' not in read_file('docs/tools/java/src/com/mrkeyboard/app/MrReset.java'):
     problems.append('MrReset: pref_ui_matrix is not in the list of the settings that Restore defaults resets')
+# --- "Dictionary memory" row (MrDictMem): on Settings -> Advanced -> Performance (not on the dictionaries screen), static (not tappable, not saved), filled
+# by PrefScreenAdvanced.onResume; the row of the numbers is named "Keyboard diagnostics" (it shows more than times), and the texts it reads exist in the 3 languages
+dm_rows = [t for t in re.findall(r'<Preference\b[^>]*>', adv_xml) if 'android:key="mr_dict_mem"' in t]
+perf_cat = re.search(r'<PreferenceCategory\b[^>]*android:key="keyboard_perf"[^>]*>(.*?)</PreferenceCategory>', adv_xml, re.S)
+if len(dm_rows) != 1:
+    problems.append('prefs_advanced.xml: the row mr_dict_mem is missing or repeated')
+else:
+    for attr in ('android:layout="@layout/mr_ui_pref_row_static"', 'android:persistent="false"', 'android:selectable="false"',
+                 'android:title="@string/mr_mem_title"', 'android:summary="@string/mr_mem_wait"'):
+        if attr not in dm_rows[0]:
+            problems.append('prefs_advanced.xml: mr_dict_mem needs %s' % attr)
+    if not perf_cat or 'android:key="mr_dict_mem"' not in perf_cat.group(1):
+        problems.append('prefs_advanced.xml: mr_dict_mem goes in the category Performance (keyboard_perf)')
+if 'MrDictMem;->fill(Landroid/preference/PreferenceActivity;)V' not in read_file('smali/com/mrkeyboard/app/PrefScreenAdvanced.smali'):
+    problems.append('PrefScreenAdvanced.smali: onResume must call MrDictMem.fill (the row of the dictionary memory is on this screen)')
+packs_act = read_file('docs/tools/java/src/com/mrkeyboard/app/MrPacksActivity.java')
+for old in ('mMem', 'refreshMem', 'memText', 'mr_mem_'):
+    if old in packs_act:
+        problems.append('MrPacksActivity: "%s" is still there; the dictionary memory moved to Advanced (MrDictMem)' % old)
+dm_names = ('mr_mem_title', 'mr_mem_wait', 'mr_mem_none', 'mr_mem_dict', 'mr_mem_tri', 'mr_mem_tri_none', 'mr_mem_engine', 'mr_mem_nomem')
+for folder, tab in (('values', orig), ('values-pt-rBR', pt), ('values-es', es)):
+    for k in dm_names:
+        if k not in tab:
+            problems.append('dictionary memory: %s is missing from %s' % (k, folder))
+    for k in ('mr_ui_perf', 'mr_ui_cat_perf_sum'):
+        if k in tab and re.search(r'(?i)keyboard times|tempos do teclado|tiempos del teclado', tab[k]):
+            problems.append('%s: %s still says "keyboard times" (the row shows more than times: Keyboard diagnostics)' % (folder, k))
+# --- Words for ONE app (MrApp, MrAppList, MrAppPicker; the choice on "Add words and texts" and on "What the keyboard learned"): every text of the choice is in the three
+# languages with the same %n$ holes; the manifest asks for the apps that have a launcher icon (Android 11+ hides the others) and not for every package; LatinIME,
+# AutoDictionary and UserBigramDictionary call MrApp; the Java layer cannot ask for the list of every package.
+app_names = ('mr_app_card_title', 'mr_app_all', 'mr_app_only', 'mr_app_search', 'mr_app_loading', 'mr_app_none', 'mr_app_none_installed', 'mr_app_note', 'mr_app_note_all',
+             'mr_app_scope_title', 'mr_app_scope_pick', 'mr_app_scope_empty', 'mr_import_for_app', 'mr_import_added_app', 'mr_import_undo_ask_app',
+             'mr_learned_empty_added_app', 'mr_learned_empty_added_apps', 'mr_learned_delete_ask_app')
+for k in app_names:
+    holes = []
+    for folder, tab in (('values', orig), ('values-pt-rBR', pt), ('values-es', es)):
+        if k not in tab or not tab[k].strip():
+            problems.append('words for an app: %s is missing from %s' % (k, folder))
+            holes.append(None)
+        else:
+            holes.append(sorted(re.findall(r'%\d\$[sd]', tab[k])))
+    if None not in holes and not (holes[0] == holes[1] == holes[2]):
+        problems.append('words for an app: %s has different %%n$ holes in the three languages: %s' % (k, holes))
+manifest_txt = read_file('AndroidManifest.xml')
+if 'android.intent.category.LAUNCHER' not in manifest_txt.split('<queries>')[-1].split('</queries>')[0]:
+    problems.append('AndroidManifest.xml: <queries> must ask for the apps with a launcher icon (the list of apps of the choice "Add to" on Android 11+)')
+if 'QUERY_ALL_PACKAGES' in manifest_txt:
+    problems.append('AndroidManifest.xml: QUERY_ALL_PACKAGES must not be asked for (the list uses the launcher query)')
+for smali_file, needle in (('LatinIME.smali', 'MrApp;->onInput('), ('AutoDictionary.smali', 'MrApp;->words('), ('AutoDictionary.smali', 'MrApp;->isValid('), ('UserBigramDictionary.smali', 'MrApp;->getBigrams(')):
+    if needle not in read_file('smali/com/mrkeyboard/app/' + smali_file):
+        problems.append('%s: the call %s (words for an app) is missing' % (smali_file, needle))
+if 'MrApp.onLoad(' not in read_file('docs/tools/java/src/com/mrkeyboard/app/MrLearned.java'):
+    problems.append('MrLearned.load must call MrApp.onLoad (the tree of the app is made again with the dictionaries)')
+for src_name in ('MrApp.java', 'MrAppList.java', 'MrAppPicker.java'):
+    src_txt = read_file('docs/tools/java/src/com/mrkeyboard/app/' + src_name)
+    if 'getInstalledApplications' in src_txt or 'getInstalledPackages' in src_txt:
+        problems.append('%s: the list of apps comes from the launcher query (queryIntentActivities), not from the list of every package' % src_name)
 # --- AI Editor dialog: the style chips, the result field and the "Emojificar" button and box use the lighter navy (mr_ui_raised) with mr_ui_stroke_strong
 ai_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrAi.java')
 if ai_src.count('"mr_ui_raised"') != 4 or ai_src.count('"mr_ui_stroke_strong"') != 4:

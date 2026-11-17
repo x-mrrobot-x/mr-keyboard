@@ -84,6 +84,7 @@ public final class MrLearned {
         } catch (RuntimeException e) {
             // the keyboard picks the change up the next time it starts
         }
+        MrApp.dataChanged();      // the words added for an app are read again (nothing happens when no field has opened yet)
     }
 
     // ------------------------------------------------------------------ the keyboard side
@@ -94,6 +95,8 @@ public final class MrLearned {
             MrWordStore st = store(c);
             if (st == null || sink == null || locale == null) return;
             loadFrom(st, sink, locale);
+            // the words of the app in front are made from the same rows (with the blocked words just read), once for the two sinks
+            if (sink.kind() == 0) MrApp.onLoad(c, locale);
         } catch (Throwable e) {
             // the dictionary goes on with what it has
         }
@@ -230,20 +233,32 @@ public final class MrLearned {
      * whole import, so that "Undo this import" can take it back. Never evicts learned data; stops at the caps.
      */
     static Result apply(MrWordStore st, MrImport.Plan plan, String locale, long now) {
+        return apply(st, plan, locale, null, now);
+    }
+
+    /**
+     * The same for the words of one app ({@code pkg}; null = every app, as above). The words and pairs go to the key of the app (MrApp.scope) with its
+     * own, smaller caps (MrApp.MAX_*), and are checked against the ones that app already has; the blocked words are the ones of the language, for every app,
+     * and a [blocked] section of the list is not applied to an app (blocking a word is a decision for every app, made on the screen of what was learned).
+     */
+    static Result apply(MrWordStore st, MrImport.Plan plan, String locale, String pkg, long now) {
         st.begin();
         try {
-            return applyIn(st, plan, locale, now);
+            return applyIn(st, plan, locale, pkg, now);
         } finally {
             st.end();
         }
     }
 
-    private static Result applyIn(MrWordStore st, MrImport.Plan plan, String locale, long now) {
+    private static Result applyIn(MrWordStore st, MrImport.Plan plan, String locale, String pkg, long now) {
+        final String scopeKey = MrApp.scope(locale, pkg);
+        final int maxWords = pkg == null ? IMPORT_MAX_WORDS : MrApp.MAX_WORDS;
+        final int maxPairs = pkg == null ? IMPORT_MAX_PAIRS : MrApp.MAX_PAIRS;
         Result res = new Result();
         HashSet<String> haveWords = new HashSet<String>();
-        for (MrWordStore.Row r : st.all(MrWordStore.KIND_IMPORTED_WORD, locale)) haveWords.add(r.a);
+        for (MrWordStore.Row r : st.all(MrWordStore.KIND_IMPORTED_WORD, scopeKey)) haveWords.add(r.a);
         HashSet<String> havePairs = new HashSet<String>();
-        for (MrWordStore.Row r : st.all(MrWordStore.KIND_IMPORTED_PAIR, locale)) havePairs.add(r.a + "\u0000" + r.b);
+        for (MrWordStore.Row r : st.all(MrWordStore.KIND_IMPORTED_PAIR, scopeKey)) havePairs.add(r.a + "\u0000" + r.b);
         HashSet<String> blocked = new HashSet<String>();
         for (MrWordStore.Row r : st.all(MrWordStore.KIND_BLOCKED, locale)) blocked.add(key(r.a));
         HashSet<String> unticked = new HashSet<String>();
@@ -261,12 +276,12 @@ public final class MrLearned {
                 res.dupWords++;
                 continue;
             }
-            if (wordsHave + res.words >= IMPORT_MAX_WORDS) {
+            if (wordsHave + res.words >= maxWords) {
                 res.cappedWords++;
                 continue;
             }
             if (batch == 0) batch = st.newBatch();
-            st.add(MrWordStore.KIND_IMPORTED_WORD, locale, new MrWordStore.Row(MrWordStore.KIND_IMPORTED_WORD, w.word, null, clampWeight(w.weight), batch, now));
+            st.add(MrWordStore.KIND_IMPORTED_WORD, scopeKey, new MrWordStore.Row(MrWordStore.KIND_IMPORTED_WORD, w.word, null, clampWeight(w.weight), batch, now));
             haveWords.add(w.word);
             res.words++;
         }
@@ -281,16 +296,17 @@ public final class MrLearned {
                 res.dupPairs++;
                 continue;
             }
-            if (pairsHave + res.pairs >= IMPORT_MAX_PAIRS) {
+            if (pairsHave + res.pairs >= maxPairs) {
                 res.cappedPairs++;
                 continue;
             }
             if (batch == 0) batch = st.newBatch();
-            st.add(MrWordStore.KIND_IMPORTED_PAIR, locale, new MrWordStore.Row(MrWordStore.KIND_IMPORTED_PAIR, p.a, p.b, clampWeight(p.weight), batch, now));
+            st.add(MrWordStore.KIND_IMPORTED_PAIR, scopeKey, new MrWordStore.Row(MrWordStore.KIND_IMPORTED_PAIR, p.a, p.b, clampWeight(p.weight), batch, now));
             havePairs.add(k);
             res.pairs++;
         }
         for (String w : plan.blocked) {
+            if (pkg != null) break;          // not for an app: see apply
             if (blocked.contains(key(w))) continue;
             if (batch == 0) batch = st.newBatch();
             block(st, locale, w, now);
@@ -422,6 +438,29 @@ public final class MrLearned {
         return sb.toString();
     }
 
+    /**
+     * What was added for one app and language, in the same standard list (the file can be imported again choosing the same app: the line "# app:" is a comment
+     * for the importer). Only the words and phrases that were added: what the keyboard learned and the blocked words are for every app.
+     */
+    static String exportApp(MrWordStore st, String locale, String pkg) {
+        final String scopeKey = MrApp.scope(locale, pkg);
+        java.util.TreeMap<String, Integer> words = new java.util.TreeMap<String, Integer>();
+        for (MrWordStore.Row r : st.all(MrWordStore.KIND_IMPORTED_WORD, scopeKey)) words.put(r.a, r.freq);
+        java.util.TreeSet<String> pairs = new java.util.TreeSet<String>();
+        for (MrWordStore.Row r : st.all(MrWordStore.KIND_IMPORTED_PAIR, scopeKey)) if (r.b != null) pairs.add(r.a + " " + r.b);
+        StringBuilder sb = new StringBuilder();
+        sb.append("# mr-words 1\n# language: ").append(tag(locale)).append("\n# app: ").append(pkg).append('\n');
+        sb.append("[words]\n");
+        for (java.util.Map.Entry<String, Integer> e : words.entrySet()) {
+            sb.append(e.getKey());
+            if (e.getValue() != MrImport.WEIGHT_DEFAULT) sb.append('\t').append(e.getValue());
+            sb.append('\n');
+        }
+        sb.append("[phrases]\n");
+        for (String p : pairs) sb.append(p).append('\n');
+        return sb.toString();
+    }
+
     /** The locales (ids of the packs with "_") that the screens offer: the installed ones first, then any other that has data. */
     static List<String> languages(List<String> installed, List<String> withData) {
         ArrayList<String> out = new ArrayList<String>();
@@ -430,7 +469,7 @@ public final class MrLearned {
             if (!out.contains(l)) out.add(l);
         }
         ArrayList<String> extra = new ArrayList<String>();
-        for (String l : withData) if (l != null && l.length() > 0 && !out.contains(l) && !extra.contains(l)) extra.add(l);
+        for (String l : withData) if (l != null && l.length() > 0 && !MrApp.isScope(l) && !out.contains(l) && !extra.contains(l)) extra.add(l);
         Collections.sort(extra);
         out.addAll(extra);
         return out;

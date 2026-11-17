@@ -3,12 +3,12 @@
 .source "MrLearnedActivity.java"
 
 # interfaces
-.implements Landroid/content/DialogInterface$OnClickListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrLearnedActivity;->menu(Lcom/mrkeyboard/app/MrWordStore$Row;)V
+    value = Lcom/mrkeyboard/app/MrLearnedActivity;->tabChip(ILjava/lang/String;)Landroid/widget/TextView;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,13 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-.field final synthetic val$codes:Ljava/util/ArrayList;
-
-.field final synthetic val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
+.field final synthetic val$tab:I
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;Ljava/util/ArrayList;Lcom/mrkeyboard/app/MrWordStore$Row;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;I)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -35,12 +33,10 @@
     .end annotation
 
     .prologue
-    .line 364
+    .line 366
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->val$codes:Ljava/util/ArrayList;
-
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
+    iput p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->val$tab:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,40 +45,29 @@
 
 
 # virtual methods
-.method public onClick(Landroid/content/DialogInterface;I)V
-    .locals 3
+.method public onClick(Landroid/view/View;)V
+    .locals 2
 
     .prologue
-    .line 366
-    if-ltz p2, :cond_0
+    .line 368
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->val$codes:Ljava/util/ArrayList;
+    iget v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->val$tab:I
 
-    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$502(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
 
-    move-result v0
+    .line 369
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    if-ge p2, v0, :cond_0
+    const/16 v1, 0x32
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$102(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->val$codes:Ljava/util/ArrayList;
+    .line 370
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    invoke-virtual {v0, p2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1000(Lcom/mrkeyboard/app/MrLearnedActivity;)V
 
-    move-result-object v0
-
-    check-cast v0, Ljava/lang/Integer;
-
-    invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
-
-    move-result v0
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$12;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
-
-    invoke-static {v1, v0, v2}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1100(Lcom/mrkeyboard/app/MrLearnedActivity;ILcom/mrkeyboard/app/MrWordStore$Row;)V
-
-    .line 367
-    :cond_0
+    .line 371
     return-void
 .end method

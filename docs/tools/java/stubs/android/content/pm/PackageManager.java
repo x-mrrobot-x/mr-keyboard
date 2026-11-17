@@ -7,6 +7,11 @@ public abstract class PackageManager {
     public PackageInstaller getPackageInstaller() { return null; }
     public abstract PackageInfo getPackageInfo(String packageName, int flags) throws NameNotFoundException;
 
+    /** The app by its package (MrAppList: the name and the icon of an app the person chose, which may have been removed since). */
+    public ApplicationInfo getApplicationInfo(String packageName, int flags) throws NameNotFoundException { throw new NameNotFoundException(); }
+    public CharSequence getApplicationLabel(ApplicationInfo info) { return info.packageName; }
+    public android.graphics.drawable.Drawable getApplicationIcon(String packageName) throws NameNotFoundException { throw new NameNotFoundException(); }
+
     /**
      * The look-up of the dictionary apps (PluginManager.ensurePlugins, run the first time a language without a pack needs it).
      * The PC has no other apps installed, so both answer with an empty list, like a phone with none of them.

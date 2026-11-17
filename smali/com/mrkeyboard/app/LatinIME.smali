@@ -12278,6 +12278,9 @@
 
     invoke-static {p1}, Lcom/mrkeyboard/app/MrKeep;->onInput(Landroid/view/inputmethod/EditorInfo;)V
 
+    # Words added for one app (MrApp): a field opened, so the words of its app are the ones in front (one comparison when it is the app of the last field).
+    invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrApp;->onInput(Landroid/content/Context;Landroid/view/inputmethod/EditorInfo;)V
+
     return-void
 .end method
 

@@ -20,6 +20,8 @@ public class Intent implements android.os.Parcelable {
     public int flags;
     public final java.util.Map<String, Object> extras = new java.util.HashMap<String, Object>();
 
+    public static final String ACTION_MAIN = "android.intent.action.MAIN";
+    public static final String CATEGORY_LAUNCHER = "android.intent.category.LAUNCHER";
     public Intent() { }
     public Intent(String action) { this.action = action; }
     public Intent(Context packageContext, Class<?> cls) { className = cls.getName(); }

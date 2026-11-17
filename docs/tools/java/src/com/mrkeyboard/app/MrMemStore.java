@@ -128,7 +128,13 @@ final class MrMemStore implements MrWordStore {
 
     public synchronized List<String> locales() {
         TreeSet<String> set = new TreeSet<String>();
-        for (int k = 0; k < 5; k++) set.addAll(mLocale[k]);
+        for (int k = 0; k < 5; k++) for (String l : mLocale[k]) if (!MrApp.isScope(l)) set.add(l);
+        return new ArrayList<String>(set);
+    }
+
+    public synchronized List<String> scopes() {
+        TreeSet<String> set = new TreeSet<String>();
+        for (int k = KIND_IMPORTED_WORD; k <= KIND_IMPORTED_PAIR; k++) for (String l : mLocale[k]) if (MrApp.isScope(l)) set.add(l);
         return new ArrayList<String>(set);
     }
 }

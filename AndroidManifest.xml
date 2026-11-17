@@ -22,6 +22,10 @@
         <intent>
             <action android:name="com.menny.android.anysoftkeyboard.DICTIONARY"/>
         </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+            <category android:name="android.intent.category.LAUNCHER"/>
+        </intent>
     </queries>
     <application android:allowBackup="true" android:backupAgent="com.mrkeyboard.app.LatinIMEBackupAgent" android:dataExtractionRules="@xml/data_extraction_rules" android:enableOnBackInvokedCallback="true" android:extractNativeLibs="true" android:fullBackupContent="@xml/backup_rules" android:hardwareAccelerated="false" android:icon="@drawable/icon" android:killAfterRestore="false" android:label="@string/english_ime_name" android:name="com.mrkeyboard.app.MrApplication" android:restoreAnyVersion="true">
         <service android:exported="true" android:label="@string/english_ime_name" android:name="com.mrkeyboard.app.LatinIME" android:permission="android.permission.BIND_INPUT_METHOD">

@@ -340,13 +340,27 @@ final class MrSqlStore implements MrWordStore {
         return out;
     }
 
+    /** The keys of the apps (MrApp.scope) that have added words or pairs. Two small queries on our own database. */
+    public List<String> scopes() {
+        TreeSet<String> set = new TreeSet<String>();
+        SQLiteDatabase mine = own();
+        collect(mine, "SELECT DISTINCT locale FROM words WHERE locale LIKE '%|%'", set, true);
+        collect(mine, "SELECT DISTINCT locale FROM pairs WHERE locale LIKE '%|%'", set, true);
+        return new ArrayList<String>(set);
+    }
+
     private static void collect(SQLiteDatabase db, String sql, TreeSet<String> into) {
+        collect(db, sql, into, false);
+    }
+
+    /** {@code scopes}: the keys of the apps are what is wanted; otherwise they are left out (the screens list languages). */
+    private static void collect(SQLiteDatabase db, String sql, TreeSet<String> into, boolean scopes) {
         Cursor c = null;
         try {
             c = db.rawQuery(sql, null);
             while (c.moveToNext()) {
                 String l = c.getString(0);
-                if (l != null && l.length() > 0) into.add(l);
+                if (l != null && l.length() > 0 && MrApp.isScope(l) == scopes) into.add(l);
             }
         } catch (RuntimeException e) {
             // the table is not there yet

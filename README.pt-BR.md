@@ -50,7 +50,7 @@
 - **Sugestões, correção e previsão da próxima palavra** em português do Brasil, inglês americano e espanhol, tudo no aparelho. Vêm ligadas: baixe o dicionário do seu idioma quando a barra de sugestões oferecer, ou em *Configurações → Sugestões e dicionários*.
 - **App leve:** os dicionários são baixados quando você quiser, então o app em si tem cerca de 1 MB. Cada idioma baixado entra no teclado: deslize a barra de espaço para os lados para alternar entre eles.
 - **Aprende o que você digita** (nunca em campos de senha ou anônimos) e sugere os nomes e as palavras que você acabou de escrever na mesma conversa (só na memória).
-- **Minhas palavras:** *Configurações → Sugestões e dicionários → Minhas palavras* mostra o que o teclado aprendeu, deixa corrigir, bloquear e esquecer palavras (com cópia de segurança exportada) e adicionar nomes, gírias e frases a partir de um texto colado, de um arquivo ou de uma lista, com uma prévia antes de salvar. **Formatar com IA** transforma um texto solto nessa lista.
+- **Minhas palavras:** *Configurações → Sugestões e dicionários → Minhas palavras* mostra o que o teclado aprendeu, deixa corrigir, bloquear e esquecer palavras (com cópia de segurança exportada) e adicionar nomes, gírias e frases a partir de um texto colado, de um arquivo ou de uma lista, com uma prévia antes de salvar, para todos os apps ou só para um app que você escolher (as palavras aparecem então só quando você digita nele). **Formatar com IA** transforma um texto solto nessa lista.
 - **Digitação por gestos (vem ligada):** deslize o dedo de letra em letra e o teclado escreve a palavra, nos três idiomas. Ela também escreve as suas palavras, nunca uma palavra bloqueada, e mostra a palavra na faixa de sugestões enquanto você desliza. Precisa de um download único de cerca de 2,4 MB (*Configurações → Sugestões e dicionários → Digitação por gestos*) e depois roda no aparelho. [Detalhes](docs/gesture-typing.md) (em inglês).
 - **Capitalização automática** (vem ligada) e **entrada de voz**.
 
@@ -60,7 +60,7 @@ Doze temas: **Midnight Steel** (o padrão); os neon **Aurora** (as teclas mudam 
 ### O app
 - **Idiomas:** português, inglês e espanhol; segue o idioma do sistema ou escolha em *Configurações → Geral → Idioma do app*.
 - **Atualização pelo próprio app:** aviso de versão nova com as novidades, **Baixar e instalar** e um APK assinado e conferido ([como funciona](#atualizações)).
-- **Desempenho:** *Configurações → Avançadas → Desempenho → Tempos do teclado* mostra quanto o teclado leva para abrir, digitar e sugerir no seu celular.
+- **Desempenho:** *Configurações → Avançadas → Desempenho → Diagnóstico do teclado* mostra quanto o teclado leva para abrir, digitar e sugerir no seu celular, e a memória do dicionário em uso.
 - **Restaurar padrões** em *Configurações → Geral*.
 
 ## Instalação
@@ -119,7 +119,7 @@ apksigner sign --ks sua-chave.jks --out mr-keyboard.apk aligned.apk
 Toda release também tem o `mr-keyboard-v<versão>-source.zip`, feito do commit exato que foi publicado. Compilar a partir do zip, workflows do GitHub Actions, assinatura, dicionários e como uma release é publicada: **[docs/building.pt-BR.md](docs/building.pt-BR.md)**.
 
 ## Documentação
-[Compilar e publicar](docs/building.pt-BR.md) · [Digitação por gestos](docs/gesture-typing.md) · [Primeiros passos](docs/first-steps.md) (em inglês) · [Apagar por palavra](docs/word-delete.md) · [Gestos de deslize](docs/swipe-actions.md) · [Pesquisa de emojis](docs/emoji-search.md) · [Editar com IA](docs/ai-editor.md) · [Recursos de sugestão](docs/suggestion-features.md) · [Motor nativo](docs/native-engine.md) · [Medidor de desempenho](docs/performance-meter.md) · [Novo tema](docs/new-theme.md) · [Notas de cada versão](docs/release-notes)
+[Compilar e publicar](docs/building.pt-BR.md) · [Digitação por gestos](docs/gesture-typing.md) · [Primeiros passos](docs/first-steps.md) (em inglês) · [Apagar por palavra](docs/word-delete.md) · [Gestos de deslize](docs/swipe-actions.md) · [Pesquisa de emojis](docs/emoji-search.md) · [Editar com IA](docs/ai-editor.md) · [Recursos de sugestão](docs/suggestion-features.md) · [Palavras para um app](docs/app-words.md) (em inglês) · [Motor nativo](docs/native-engine.md) · [Medidor de desempenho](docs/performance-meter.md) · [Novo tema](docs/new-theme.md) · [Notas de cada versão](docs/release-notes)
 
 Os documentos técnicos de `docs/` estão em inglês, exceto o guia de compilação, que também tem versão em português.
 

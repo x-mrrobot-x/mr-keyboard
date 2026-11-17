@@ -35,7 +35,7 @@
     .locals 0
 
     .prologue
-    .line 38
+    .line 39
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -45,28 +45,28 @@
     .locals 1
 
     .prologue
-    .line 40
+    .line 41
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 41
+    .line 42
     iput p1, p0, Lcom/mrkeyboard/app/MrWordStore$Row;->kind:I
 
-    .line 42
+    .line 43
     iput-object p2, p0, Lcom/mrkeyboard/app/MrWordStore$Row;->a:Ljava/lang/String;
 
-    .line 43
+    .line 44
     iput-object p3, p0, Lcom/mrkeyboard/app/MrWordStore$Row;->b:Ljava/lang/String;
 
-    .line 44
+    .line 45
     iput p4, p0, Lcom/mrkeyboard/app/MrWordStore$Row;->freq:I
 
-    .line 45
+    .line 46
     iput-wide p5, p0, Lcom/mrkeyboard/app/MrWordStore$Row;->batch:J
 
-    .line 46
+    .line 47
     iput-wide p7, p0, Lcom/mrkeyboard/app/MrWordStore$Row;->added:J
 
-    .line 47
+    .line 48
     return-void
 .end method
 
@@ -76,7 +76,7 @@
     .locals 2
 
     .prologue
-    .line 51
+    .line 52
     iget-object v0, p0, Lcom/mrkeyboard/app/MrWordStore$Row;->b:Ljava/lang/String;
 
     if-nez v0, :cond_0

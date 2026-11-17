@@ -3,12 +3,12 @@
 .source "MrImportActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Lcom/mrkeyboard/app/MrAppPicker$Source;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrImportActivity;->showPreview()V
+    value = Lcom/mrkeyboard/app/MrImportActivity;->chooseApp()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 441
+    .line 310
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$10;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,15 +36,25 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
+.method public load()Ljava/util/List;
     .locals 1
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()",
+            "Ljava/util/List",
+            "<",
+            "Lcom/mrkeyboard/app/MrAppList$Entry;",
+            ">;"
+        }
+    .end annotation
 
     .prologue
-    .line 443
+    .line 312
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$10;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$1900(Lcom/mrkeyboard/app/MrImportActivity;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrAppList;->load(Landroid/content/Context;)Ljava/util/List;
 
-    .line 444
-    return-void
+    move-result-object v0
+
+    return-object v0
 .end method

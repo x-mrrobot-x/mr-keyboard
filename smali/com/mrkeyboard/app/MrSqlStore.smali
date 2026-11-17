@@ -84,7 +84,7 @@
 .end method
 
 .method private static collect(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;Ljava/util/TreeSet;)V
-    .locals 4
+    .locals 1
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -98,10 +98,34 @@
     .end annotation
 
     .prologue
+    .line 353
     const/4 v0, 0x0
 
-    .line 344
-    .line 346
+    invoke-static {p0, p1, p2, v0}, Lcom/mrkeyboard/app/MrSqlStore;->collect(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;Ljava/util/TreeSet;Z)V
+
+    .line 354
+    return-void
+.end method
+
+.method private static collect(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;Ljava/util/TreeSet;Z)V
+    .locals 4
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Landroid/database/sqlite/SQLiteDatabase;",
+            "Ljava/lang/String;",
+            "Ljava/util/TreeSet",
+            "<",
+            "Ljava/lang/String;",
+            ">;Z)V"
+        }
+    .end annotation
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 358
+    .line 360
     const/4 v1, 0x0
 
     :try_start_0
@@ -112,7 +136,7 @@
 
     move-result-object v0
 
-    .line 347
+    .line 361
     :cond_0
     :goto_0
     :try_start_1
@@ -122,14 +146,14 @@
 
     if-eqz v1, :cond_2
 
-    .line 348
+    .line 362
     const/4 v1, 0x0
 
     invoke-interface {v0, v1}, Landroid/database/Cursor;->getString(I)Ljava/lang/String;
 
     move-result-object v1
 
-    .line 349
+    .line 363
     if-eqz v1, :cond_0
 
     invoke-virtual {v1}, Ljava/lang/String;->length()I
@@ -138,6 +162,12 @@
 
     if-lez v2, :cond_0
 
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrApp;->isScope(Ljava/lang/String;)Z
+
+    move-result v2
+
+    if-ne v2, p3, :cond_0
+
     invoke-virtual {p2, v1}, Ljava/util/TreeSet;->add(Ljava/lang/Object;)Z
     :try_end_1
     .catch Ljava/lang/RuntimeException; {:try_start_1 .. :try_end_1} :catch_0
@@ -145,21 +175,21 @@
 
     goto :goto_0
 
-    .line 351
+    .line 365
     :catch_0
     move-exception v1
 
-    .line 354
+    .line 368
     if-eqz v0, :cond_1
 
     invoke-interface {v0}, Landroid/database/Cursor;->close()V
 
-    .line 356
+    .line 370
     :cond_1
     :goto_1
     return-void
 
-    .line 354
+    .line 368
     :cond_2
     if-eqz v0, :cond_1
 
@@ -181,11 +211,11 @@
 
     invoke-interface {v1}, Landroid/database/Cursor;->close()V
 
-    .line 355
+    .line 369
     :cond_3
     throw v0
 
-    .line 354
+    .line 368
     :catchall_1
     move-exception v1
 
@@ -1108,7 +1138,7 @@
     .locals 1
 
     .prologue
-    .line 361
+    .line 375
     monitor-enter p0
 
     :try_start_0
@@ -1118,13 +1148,13 @@
 
     if-eqz v0, :cond_0
 
-    .line 364
+    .line 378
     :goto_0
     monitor-exit p0
 
     return-void
 
-    .line 362
+    .line 376
     :cond_0
     :try_start_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrSqlStore;->mHelper:Lcom/mrkeyboard/app/MrSqlStore$Helper;
@@ -1135,7 +1165,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrSqlStore;->mTx:Landroid/database/sqlite/SQLiteDatabase;
 
-    .line 363
+    .line 377
     iget-object v0, p0, Lcom/mrkeyboard/app/MrSqlStore;->mTx:Landroid/database/sqlite/SQLiteDatabase;
 
     invoke-virtual {v0}, Landroid/database/sqlite/SQLiteDatabase;->beginTransaction()V
@@ -1144,7 +1174,7 @@
 
     goto :goto_0
 
-    .line 361
+    .line 375
     :catchall_0
     move-exception v0
 
@@ -1760,7 +1790,7 @@
     .locals 2
 
     .prologue
-    .line 367
+    .line 381
     monitor-enter p0
 
     :try_start_0
@@ -1770,13 +1800,13 @@
 
     if-nez v0, :cond_0
 
-    .line 374
+    .line 388
     :goto_0
     monitor-exit p0
 
     return-void
 
-    .line 369
+    .line 383
     :cond_0
     :try_start_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrSqlStore;->mTx:Landroid/database/sqlite/SQLiteDatabase;
@@ -1785,13 +1815,13 @@
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_1
 
-    .line 371
+    .line 385
     :try_start_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrSqlStore;->mTx:Landroid/database/sqlite/SQLiteDatabase;
 
     invoke-virtual {v0}, Landroid/database/sqlite/SQLiteDatabase;->endTransaction()V
 
-    .line 372
+    .line 386
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrSqlStore;->mTx:Landroid/database/sqlite/SQLiteDatabase;
@@ -1800,7 +1830,7 @@
 
     goto :goto_0
 
-    .line 367
+    .line 381
     :catchall_0
     move-exception v0
 
@@ -1808,7 +1838,7 @@
 
     throw v0
 
-    .line 371
+    .line 385
     :catchall_1
     move-exception v0
 
@@ -1817,12 +1847,12 @@
 
     invoke-virtual {v1}, Landroid/database/sqlite/SQLiteDatabase;->endTransaction()V
 
-    .line 372
+    .line 386
     const/4 v1, 0x0
 
     iput-object v1, p0, Lcom/mrkeyboard/app/MrSqlStore;->mTx:Landroid/database/sqlite/SQLiteDatabase;
 
-    .line 373
+    .line 387
     throw v0
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_0
@@ -2415,4 +2445,47 @@
     monitor-exit p0
 
     throw v0
+.end method
+
+.method public scopes()Ljava/util/List;
+    .locals 4
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()",
+            "Ljava/util/List",
+            "<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+
+    .prologue
+    const/4 v3, 0x1
+
+    .line 345
+    new-instance v0, Ljava/util/TreeSet;
+
+    invoke-direct {v0}, Ljava/util/TreeSet;-><init>()V
+
+    .line 346
+    invoke-direct {p0}, Lcom/mrkeyboard/app/MrSqlStore;->own()Landroid/database/sqlite/SQLiteDatabase;
+
+    move-result-object v1
+
+    .line 347
+    const-string v2, "SELECT DISTINCT locale FROM words WHERE locale LIKE \'%|%\'"
+
+    invoke-static {v1, v2, v0, v3}, Lcom/mrkeyboard/app/MrSqlStore;->collect(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;Ljava/util/TreeSet;Z)V
+
+    .line 348
+    const-string v2, "SELECT DISTINCT locale FROM pairs WHERE locale LIKE \'%|%\'"
+
+    invoke-static {v1, v2, v0, v3}, Lcom/mrkeyboard/app/MrSqlStore;->collect(Landroid/database/sqlite/SQLiteDatabase;Ljava/lang/String;Ljava/util/TreeSet;Z)V
+
+    .line 349
+    new-instance v1, Ljava/util/ArrayList;
+
+    invoke-direct {v1, v0}, Ljava/util/ArrayList;-><init>(Ljava/util/Collection;)V
+
+    return-object v1
 .end method

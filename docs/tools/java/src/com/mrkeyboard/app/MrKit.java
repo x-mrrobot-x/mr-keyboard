@@ -176,11 +176,23 @@ final class MrKit {
      * value) only if it is not empty. A tap on it is the caller's {@code l} (usually the list of choices).
      */
     LinearLayout select(String title, String value, View.OnClickListener l) {
+        return select(title, value, null, l);
+    }
+
+    /** The same with an image before the text (the icon of an app); {@code lead} null = none. */
+    LinearLayout select(String title, String value, Drawable lead, View.OnClickListener l) {
         LinearLayout c = row();
         c.setPadding(dp(16), dp(13), dp(14), dp(13));
         c.setBackground(round(faint, line, 12, false));
         c.setClickable(true);
         c.setOnClickListener(l);
+        if (lead != null) {
+            ImageView mark = new ImageView(act);
+            mark.setImageDrawable(lead);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(28), dp(28));
+            lp.setMargins(0, 0, dp(12), 0);
+            c.addView(mark, lp);
+        }
         LinearLayout words = column();
         boolean titled = title.length() > 0;
         if (titled) words.addView(label(title, 12f, text2, false), wide(0));

@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrLearnedActivity;->tabChip(ILjava/lang/String;)Landroid/widget/TextView;
+    value = Lcom/mrkeyboard/app/MrLearnedActivity;->refreshScope()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-.field final synthetic val$tab:I
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;I)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 271
+    .line 327
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$9;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    iput p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$9;->val$tab:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,28 +37,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 2
+    .locals 1
 
     .prologue
-    .line 273
+    .line 329
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$9;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    iget v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$9;->val$tab:I
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1100(Lcom/mrkeyboard/app/MrLearnedActivity;)V
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$802(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
-
-    .line 274
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$9;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    const/16 v1, 0x32
-
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$102(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
-
-    .line 275
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$9;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$700(Lcom/mrkeyboard/app/MrLearnedActivity;)V
-
-    .line 276
+    .line 330
     return-void
 .end method

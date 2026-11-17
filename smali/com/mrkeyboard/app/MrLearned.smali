@@ -64,7 +64,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrLearned;->sBlocked:Ljava/util/HashSet;
 
-    .line 161
+    .line 164
     new-instance v0, Lcom/mrkeyboard/app/MrLearned$Gate;
 
     const/4 v1, 0x0
@@ -87,56 +87,99 @@
 .end method
 
 .method static apply(Lcom/mrkeyboard/app/MrWordStore;Lcom/mrkeyboard/app/MrImport$Plan;Ljava/lang/String;J)Lcom/mrkeyboard/app/MrLearned$Result;
-    .locals 1
+    .locals 7
 
     .prologue
-    .line 233
+    .line 236
+    const/4 v3, 0x0
+
+    move-object v0, p0
+
+    move-object v1, p1
+
+    move-object v2, p2
+
+    move-wide v4, p3
+
+    invoke-static/range {v0 .. v5}, Lcom/mrkeyboard/app/MrLearned;->apply(Lcom/mrkeyboard/app/MrWordStore;Lcom/mrkeyboard/app/MrImport$Plan;Ljava/lang/String;Ljava/lang/String;J)Lcom/mrkeyboard/app/MrLearned$Result;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method static apply(Lcom/mrkeyboard/app/MrWordStore;Lcom/mrkeyboard/app/MrImport$Plan;Ljava/lang/String;Ljava/lang/String;J)Lcom/mrkeyboard/app/MrLearned$Result;
+    .locals 2
+
+    .prologue
+    .line 245
     invoke-interface {p0}, Lcom/mrkeyboard/app/MrWordStore;->begin()V
 
-    .line 235
+    .line 247
     :try_start_0
-    invoke-static {p0, p1, p2, p3, p4}, Lcom/mrkeyboard/app/MrLearned;->applyIn(Lcom/mrkeyboard/app/MrWordStore;Lcom/mrkeyboard/app/MrImport$Plan;Ljava/lang/String;J)Lcom/mrkeyboard/app/MrLearned$Result;
+    invoke-static/range {p0 .. p5}, Lcom/mrkeyboard/app/MrLearned;->applyIn(Lcom/mrkeyboard/app/MrWordStore;Lcom/mrkeyboard/app/MrImport$Plan;Ljava/lang/String;Ljava/lang/String;J)Lcom/mrkeyboard/app/MrLearned$Result;
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
     move-result-object v0
 
-    .line 237
+    .line 249
     invoke-interface {p0}, Lcom/mrkeyboard/app/MrWordStore;->end()V
 
-    .line 235
+    .line 247
     return-object v0
 
-    .line 237
+    .line 249
     :catchall_0
     move-exception v0
 
     invoke-interface {p0}, Lcom/mrkeyboard/app/MrWordStore;->end()V
 
-    .line 238
+    .line 250
     throw v0
 .end method
 
-.method private static applyIn(Lcom/mrkeyboard/app/MrWordStore;Lcom/mrkeyboard/app/MrImport$Plan;Ljava/lang/String;J)Lcom/mrkeyboard/app/MrLearned$Result;
-    .locals 23
+.method private static applyIn(Lcom/mrkeyboard/app/MrWordStore;Lcom/mrkeyboard/app/MrImport$Plan;Ljava/lang/String;Ljava/lang/String;J)Lcom/mrkeyboard/app/MrLearned$Result;
+    .locals 26
 
     .prologue
-    .line 242
-    new-instance v14, Lcom/mrkeyboard/app/MrLearned$Result;
+    .line 254
+    invoke-static/range {p2 .. p3}, Lcom/mrkeyboard/app/MrApp;->scope(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
-    invoke-direct {v14}, Lcom/mrkeyboard/app/MrLearned$Result;-><init>()V
+    move-result-object v16
 
-    .line 243
-    new-instance v15, Ljava/util/HashSet;
+    .line 255
+    if-nez p3, :cond_0
 
-    invoke-direct {v15}, Ljava/util/HashSet;-><init>()V
+    const/16 v4, 0x4e20
 
-    .line 244
+    move v15, v4
+
+    .line 256
+    :goto_0
+    if-nez p3, :cond_1
+
+    const/16 v4, 0x7530
+
+    move v14, v4
+
+    .line 257
+    :goto_1
+    new-instance v17, Lcom/mrkeyboard/app/MrLearned$Result;
+
+    invoke-direct/range {v17 .. v17}, Lcom/mrkeyboard/app/MrLearned$Result;-><init>()V
+
+    .line 258
+    new-instance v18, Ljava/util/HashSet;
+
+    invoke-direct/range {v18 .. v18}, Ljava/util/HashSet;-><init>()V
+
+    .line 259
     const/4 v4, 0x2
 
     move-object/from16 v0, p0
 
-    move-object/from16 v1, p2
+    move-object/from16 v1, v16
 
     invoke-interface {v0, v4, v1}, Lcom/mrkeyboard/app/MrWordStore;->all(ILjava/lang/String;)Ljava/util/List;
 
@@ -146,12 +189,12 @@
 
     move-result-object v5
 
-    :goto_0
+    :goto_2
     invoke-interface {v5}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v4
 
-    if-eqz v4, :cond_0
+    if-eqz v4, :cond_2
 
     invoke-interface {v5}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -161,22 +204,40 @@
 
     iget-object v4, v4, Lcom/mrkeyboard/app/MrWordStore$Row;->a:Ljava/lang/String;
 
-    invoke-virtual {v15, v4}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+    move-object/from16 v0, v18
+
+    invoke-virtual {v0, v4}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+
+    goto :goto_2
+
+    .line 255
+    :cond_0
+    const/16 v4, 0x1388
+
+    move v15, v4
 
     goto :goto_0
 
-    .line 245
-    :cond_0
-    new-instance v16, Ljava/util/HashSet;
+    .line 256
+    :cond_1
+    const/16 v4, 0x2710
 
-    invoke-direct/range {v16 .. v16}, Ljava/util/HashSet;-><init>()V
+    move v14, v4
 
-    .line 246
+    goto :goto_1
+
+    .line 260
+    :cond_2
+    new-instance v19, Ljava/util/HashSet;
+
+    invoke-direct/range {v19 .. v19}, Ljava/util/HashSet;-><init>()V
+
+    .line 261
     const/4 v4, 0x3
 
     move-object/from16 v0, p0
 
-    move-object/from16 v1, p2
+    move-object/from16 v1, v16
 
     invoke-interface {v0, v4, v1}, Lcom/mrkeyboard/app/MrWordStore;->all(ILjava/lang/String;)Ljava/util/List;
 
@@ -186,12 +247,12 @@
 
     move-result-object v5
 
-    :goto_1
+    :goto_3
     invoke-interface {v5}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v4
 
-    if-eqz v4, :cond_1
+    if-eqz v4, :cond_3
 
     invoke-interface {v5}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -225,19 +286,19 @@
 
     move-result-object v4
 
-    move-object/from16 v0, v16
+    move-object/from16 v0, v19
 
     invoke-virtual {v0, v4}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
 
-    goto :goto_1
+    goto :goto_3
 
-    .line 247
-    :cond_1
-    new-instance v17, Ljava/util/HashSet;
+    .line 262
+    :cond_3
+    new-instance v20, Ljava/util/HashSet;
 
-    invoke-direct/range {v17 .. v17}, Ljava/util/HashSet;-><init>()V
+    invoke-direct/range {v20 .. v20}, Ljava/util/HashSet;-><init>()V
 
-    .line 248
+    .line 263
     const/4 v4, 0x4
 
     move-object/from16 v0, p0
@@ -252,12 +313,12 @@
 
     move-result-object v5
 
-    :goto_2
+    :goto_4
     invoke-interface {v5}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v4
 
-    if-eqz v4, :cond_2
+    if-eqz v4, :cond_4
 
     invoke-interface {v5}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -271,19 +332,19 @@
 
     move-result-object v4
 
-    move-object/from16 v0, v17
+    move-object/from16 v0, v20
 
     invoke-virtual {v0, v4}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
 
-    goto :goto_2
+    goto :goto_4
 
-    .line 249
-    :cond_2
-    new-instance v18, Ljava/util/HashSet;
+    .line 264
+    :cond_4
+    new-instance v21, Ljava/util/HashSet;
 
-    invoke-direct/range {v18 .. v18}, Ljava/util/HashSet;-><init>()V
+    invoke-direct/range {v21 .. v21}, Ljava/util/HashSet;-><init>()V
 
-    .line 250
+    .line 265
     move-object/from16 v0, p1
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrImport$Plan;->words:Ljava/util/ArrayList;
@@ -292,13 +353,13 @@
 
     move-result-object v5
 
-    :cond_3
-    :goto_3
+    :cond_5
+    :goto_5
     invoke-interface {v5}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v4
 
-    if-eqz v4, :cond_4
+    if-eqz v4, :cond_6
 
     invoke-interface {v5}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -308,135 +369,149 @@
 
     iget-boolean v6, v4, Lcom/mrkeyboard/app/MrImport$NewWord;->checked:Z
 
-    if-nez v6, :cond_3
+    if-nez v6, :cond_5
 
     iget-object v4, v4, Lcom/mrkeyboard/app/MrImport$NewWord;->word:Ljava/lang/String;
 
-    move-object/from16 v0, v18
+    move-object/from16 v0, v21
 
     invoke-virtual {v0, v4}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
 
-    goto :goto_3
+    goto :goto_5
 
-    .line 251
-    :cond_4
-    invoke-virtual {v15}, Ljava/util/HashSet;->size()I
+    .line 266
+    :cond_6
+    invoke-virtual/range {v18 .. v18}, Ljava/util/HashSet;->size()I
 
-    move-result v19
+    move-result v22
 
-    .line 252
-    invoke-virtual/range {v16 .. v16}, Ljava/util/HashSet;->size()I
+    .line 267
+    invoke-virtual/range {v19 .. v19}, Ljava/util/HashSet;->size()I
 
-    move-result v20
+    move-result v23
 
-    .line 253
+    .line 268
     const-wide/16 v10, 0x0
 
-    .line 254
+    .line 269
     move-object/from16 v0, p1
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrImport$Plan;->words:Ljava/util/ArrayList;
 
     invoke-virtual {v4}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
-    move-result-object v21
+    move-result-object v24
 
-    :cond_5
-    :goto_4
-    invoke-interface/range {v21 .. v21}, Ljava/util/Iterator;->hasNext()Z
+    :cond_7
+    :goto_6
+    invoke-interface/range {v24 .. v24}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v4
 
-    if-eqz v4, :cond_a
+    if-eqz v4, :cond_c
 
-    invoke-interface/range {v21 .. v21}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+    invoke-interface/range {v24 .. v24}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v4
 
     check-cast v4, Lcom/mrkeyboard/app/MrImport$NewWord;
 
-    .line 255
+    .line 270
     iget-boolean v5, v4, Lcom/mrkeyboard/app/MrImport$NewWord;->checked:Z
 
-    if-eqz v5, :cond_5
+    if-eqz v5, :cond_7
 
-    .line 256
+    .line 271
     iget-object v5, v4, Lcom/mrkeyboard/app/MrImport$NewWord;->word:Ljava/lang/String;
 
     invoke-static {v5}, Lcom/mrkeyboard/app/MrLearned;->key(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
 
-    move-object/from16 v0, v17
+    move-object/from16 v0, v20
 
     invoke-virtual {v0, v5}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
 
     move-result v5
 
-    if-eqz v5, :cond_6
+    if-eqz v5, :cond_8
 
-    .line 257
-    iget v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->blockedSkipped:I
+    .line 272
+    move-object/from16 v0, v17
+
+    iget v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->blockedSkipped:I
 
     add-int/lit8 v4, v4, 0x1
 
-    iput v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->blockedSkipped:I
+    move-object/from16 v0, v17
 
-    goto :goto_4
+    iput v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->blockedSkipped:I
 
-    .line 260
-    :cond_6
+    goto :goto_6
+
+    .line 275
+    :cond_8
     iget-object v5, v4, Lcom/mrkeyboard/app/MrImport$NewWord;->word:Ljava/lang/String;
 
-    invoke-virtual {v15, v5}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
+    move-object/from16 v0, v18
+
+    invoke-virtual {v0, v5}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
 
     move-result v5
 
-    if-eqz v5, :cond_7
+    if-eqz v5, :cond_9
 
-    .line 261
-    iget v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->dupWords:I
+    .line 276
+    move-object/from16 v0, v17
 
-    add-int/lit8 v4, v4, 0x1
-
-    iput v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->dupWords:I
-
-    goto :goto_4
-
-    .line 264
-    :cond_7
-    iget v5, v14, Lcom/mrkeyboard/app/MrLearned$Result;->words:I
-
-    add-int v5, v5, v19
-
-    const/16 v6, 0x4e20
-
-    if-lt v5, v6, :cond_8
-
-    .line 265
-    iget v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->cappedWords:I
+    iget v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->dupWords:I
 
     add-int/lit8 v4, v4, 0x1
 
-    iput v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->cappedWords:I
+    move-object/from16 v0, v17
 
-    goto :goto_4
+    iput v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->dupWords:I
 
-    .line 268
-    :cond_8
+    goto :goto_6
+
+    .line 279
+    :cond_9
+    move-object/from16 v0, v17
+
+    iget v5, v0, Lcom/mrkeyboard/app/MrLearned$Result;->words:I
+
+    add-int v5, v5, v22
+
+    if-lt v5, v15, :cond_a
+
+    .line 280
+    move-object/from16 v0, v17
+
+    iget v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->cappedWords:I
+
+    add-int/lit8 v4, v4, 0x1
+
+    move-object/from16 v0, v17
+
+    iput v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->cappedWords:I
+
+    goto :goto_6
+
+    .line 283
+    :cond_a
     const-wide/16 v6, 0x0
 
     cmp-long v5, v10, v6
 
-    if-nez v5, :cond_9
+    if-nez v5, :cond_b
 
     invoke-interface/range {p0 .. p0}, Lcom/mrkeyboard/app/MrWordStore;->newBatch()J
 
     move-result-wide v10
 
-    .line 269
-    :cond_9
-    const/16 v22, 0x2
+    .line 284
+    :cond_b
+    const/16 v25, 0x2
 
     new-instance v5, Lcom/mrkeyboard/app/MrWordStore$Row;
 
@@ -452,34 +527,40 @@
 
     move-result v9
 
-    move-wide/from16 v12, p3
+    move-wide/from16 v12, p4
 
     invoke-direct/range {v5 .. v13}, Lcom/mrkeyboard/app/MrWordStore$Row;-><init>(ILjava/lang/String;Ljava/lang/String;IJJ)V
 
     move-object/from16 v0, p0
 
-    move/from16 v1, v22
+    move/from16 v1, v25
 
-    move-object/from16 v2, p2
+    move-object/from16 v2, v16
 
     invoke-interface {v0, v1, v2, v5}, Lcom/mrkeyboard/app/MrWordStore;->add(ILjava/lang/String;Lcom/mrkeyboard/app/MrWordStore$Row;)J
 
-    .line 270
+    .line 285
     iget-object v4, v4, Lcom/mrkeyboard/app/MrImport$NewWord;->word:Ljava/lang/String;
 
-    invoke-virtual {v15, v4}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+    move-object/from16 v0, v18
 
-    .line 271
-    iget v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->words:I
+    invoke-virtual {v0, v4}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
+
+    .line 286
+    move-object/from16 v0, v17
+
+    iget v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->words:I
 
     add-int/lit8 v4, v4, 0x1
 
-    iput v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->words:I
+    move-object/from16 v0, v17
 
-    goto :goto_4
+    iput v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->words:I
 
-    .line 273
-    :cond_a
+    goto/16 :goto_6
+
+    .line 288
+    :cond_c
     move-object/from16 v0, p1
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrImport$Plan;->pairs:Ljava/util/ArrayList;
@@ -488,13 +569,13 @@
 
     move-result-object v15
 
-    :cond_b
-    :goto_5
+    :cond_d
+    :goto_7
     invoke-interface {v15}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v4
 
-    if-eqz v4, :cond_11
+    if-eqz v4, :cond_13
 
     invoke-interface {v15}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -502,41 +583,41 @@
 
     check-cast v4, Lcom/mrkeyboard/app/MrImport$NewPair;
 
-    .line 274
+    .line 289
     iget-object v5, v4, Lcom/mrkeyboard/app/MrImport$NewPair;->a:Ljava/lang/String;
 
-    move-object/from16 v0, v18
+    move-object/from16 v0, v21
 
     invoke-virtual {v0, v5}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
 
     move-result v5
 
-    if-nez v5, :cond_b
+    if-nez v5, :cond_d
 
     iget-object v5, v4, Lcom/mrkeyboard/app/MrImport$NewPair;->b:Ljava/lang/String;
 
-    move-object/from16 v0, v18
+    move-object/from16 v0, v21
 
     invoke-virtual {v0, v5}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
 
     move-result v5
 
-    if-nez v5, :cond_b
+    if-nez v5, :cond_d
 
-    .line 275
+    .line 290
     iget-object v5, v4, Lcom/mrkeyboard/app/MrImport$NewPair;->a:Ljava/lang/String;
 
     invoke-static {v5}, Lcom/mrkeyboard/app/MrLearned;->key(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v5
 
-    move-object/from16 v0, v17
+    move-object/from16 v0, v20
 
     invoke-virtual {v0, v5}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
 
     move-result v5
 
-    if-nez v5, :cond_c
+    if-nez v5, :cond_e
 
     iget-object v5, v4, Lcom/mrkeyboard/app/MrImport$NewPair;->b:Ljava/lang/String;
 
@@ -544,26 +625,30 @@
 
     move-result-object v5
 
-    move-object/from16 v0, v17
+    move-object/from16 v0, v20
 
     invoke-virtual {v0, v5}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
 
     move-result v5
 
-    if-eqz v5, :cond_d
+    if-eqz v5, :cond_f
 
-    .line 276
-    :cond_c
-    iget v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->blockedSkipped:I
+    .line 291
+    :cond_e
+    move-object/from16 v0, v17
+
+    iget v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->blockedSkipped:I
 
     add-int/lit8 v4, v4, 0x1
 
-    iput v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->blockedSkipped:I
+    move-object/from16 v0, v17
 
-    goto :goto_5
+    iput v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->blockedSkipped:I
 
-    .line 279
-    :cond_d
+    goto :goto_7
+
+    .line 294
+    :cond_f
     new-instance v5, Ljava/lang/StringBuilder;
 
     invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
@@ -588,62 +673,70 @@
 
     invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result-object v19
+    move-result-object v18
 
-    .line 280
-    move-object/from16 v0, v16
+    .line 295
+    move-object/from16 v0, v19
 
-    move-object/from16 v1, v19
+    move-object/from16 v1, v18
 
     invoke-virtual {v0, v1}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
 
     move-result v5
 
-    if-eqz v5, :cond_e
+    if-eqz v5, :cond_10
 
-    .line 281
-    iget v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->dupPairs:I
+    .line 296
+    move-object/from16 v0, v17
 
-    add-int/lit8 v4, v4, 0x1
-
-    iput v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->dupPairs:I
-
-    goto :goto_5
-
-    .line 284
-    :cond_e
-    iget v5, v14, Lcom/mrkeyboard/app/MrLearned$Result;->pairs:I
-
-    add-int v5, v5, v20
-
-    const/16 v6, 0x7530
-
-    if-lt v5, v6, :cond_f
-
-    .line 285
-    iget v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->cappedPairs:I
+    iget v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->dupPairs:I
 
     add-int/lit8 v4, v4, 0x1
 
-    iput v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->cappedPairs:I
+    move-object/from16 v0, v17
 
-    goto :goto_5
+    iput v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->dupPairs:I
 
-    .line 288
-    :cond_f
+    goto :goto_7
+
+    .line 299
+    :cond_10
+    move-object/from16 v0, v17
+
+    iget v5, v0, Lcom/mrkeyboard/app/MrLearned$Result;->pairs:I
+
+    add-int v5, v5, v23
+
+    if-lt v5, v14, :cond_11
+
+    .line 300
+    move-object/from16 v0, v17
+
+    iget v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->cappedPairs:I
+
+    add-int/lit8 v4, v4, 0x1
+
+    move-object/from16 v0, v17
+
+    iput v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->cappedPairs:I
+
+    goto/16 :goto_7
+
+    .line 303
+    :cond_11
     const-wide/16 v6, 0x0
 
     cmp-long v5, v10, v6
 
-    if-nez v5, :cond_10
+    if-nez v5, :cond_12
 
     invoke-interface/range {p0 .. p0}, Lcom/mrkeyboard/app/MrWordStore;->newBatch()J
 
     move-result-wide v10
 
-    .line 289
-    :cond_10
-    const/16 v21, 0x3
+    .line 304
+    :cond_12
+    const/16 v22, 0x3
 
     new-instance v5, Lcom/mrkeyboard/app/MrWordStore$Row;
 
@@ -659,36 +752,40 @@
 
     move-result v9
 
-    move-wide/from16 v12, p3
+    move-wide/from16 v12, p4
 
     invoke-direct/range {v5 .. v13}, Lcom/mrkeyboard/app/MrWordStore$Row;-><init>(ILjava/lang/String;Ljava/lang/String;IJJ)V
 
     move-object/from16 v0, p0
 
-    move/from16 v1, v21
+    move/from16 v1, v22
 
-    move-object/from16 v2, p2
+    move-object/from16 v2, v16
 
     invoke-interface {v0, v1, v2, v5}, Lcom/mrkeyboard/app/MrWordStore;->add(ILjava/lang/String;Lcom/mrkeyboard/app/MrWordStore$Row;)J
 
-    .line 290
-    move-object/from16 v0, v16
+    .line 305
+    move-object/from16 v0, v19
 
-    move-object/from16 v1, v19
+    move-object/from16 v1, v18
 
     invoke-virtual {v0, v1}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
 
-    .line 291
-    iget v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->pairs:I
+    .line 306
+    move-object/from16 v0, v17
+
+    iget v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->pairs:I
 
     add-int/lit8 v4, v4, 0x1
 
-    iput v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->pairs:I
+    move-object/from16 v0, v17
 
-    goto/16 :goto_5
+    iput v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->pairs:I
 
-    .line 293
-    :cond_11
+    goto/16 :goto_7
+
+    .line 308
+    :cond_13
     move-object/from16 v0, p1
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrImport$Plan;->blocked:Ljava/util/ArrayList;
@@ -697,13 +794,13 @@
 
     move-result-object v5
 
-    :cond_12
-    :goto_6
+    :cond_14
+    :goto_8
     invoke-interface {v5}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v4
 
-    if-eqz v4, :cond_14
+    if-eqz v4, :cond_15
 
     invoke-interface {v5}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
@@ -711,64 +808,74 @@
 
     check-cast v4, Ljava/lang/String;
 
-    .line 294
+    .line 309
+    if-eqz p3, :cond_16
+
+    .line 316
+    :cond_15
+    move-object/from16 v0, v17
+
+    iput-wide v10, v0, Lcom/mrkeyboard/app/MrLearned$Result;->batch:J
+
+    .line 317
+    return-object v17
+
+    .line 310
+    :cond_16
     invoke-static {v4}, Lcom/mrkeyboard/app/MrLearned;->key(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v6
 
-    move-object/from16 v0, v17
+    move-object/from16 v0, v20
 
     invoke-virtual {v0, v6}, Ljava/util/HashSet;->contains(Ljava/lang/Object;)Z
 
     move-result v6
 
-    if-nez v6, :cond_12
+    if-nez v6, :cond_14
 
-    .line 295
+    .line 311
     const-wide/16 v6, 0x0
 
     cmp-long v6, v10, v6
 
-    if-nez v6, :cond_13
+    if-nez v6, :cond_17
 
     invoke-interface/range {p0 .. p0}, Lcom/mrkeyboard/app/MrWordStore;->newBatch()J
 
     move-result-wide v10
 
-    .line 296
-    :cond_13
+    .line 312
+    :cond_17
     move-object/from16 v0, p0
 
     move-object/from16 v1, p2
 
-    move-wide/from16 v2, p3
+    move-wide/from16 v2, p4
 
     invoke-static {v0, v1, v4, v2, v3}, Lcom/mrkeyboard/app/MrLearned;->block(Lcom/mrkeyboard/app/MrWordStore;Ljava/lang/String;Ljava/lang/String;J)I
 
-    .line 297
+    .line 313
     invoke-static {v4}, Lcom/mrkeyboard/app/MrLearned;->key(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
 
-    move-object/from16 v0, v17
+    move-object/from16 v0, v20
 
     invoke-virtual {v0, v4}, Ljava/util/HashSet;->add(Ljava/lang/Object;)Z
 
-    .line 298
-    iget v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->blocked:I
+    .line 314
+    move-object/from16 v0, v17
+
+    iget v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->blocked:I
 
     add-int/lit8 v4, v4, 0x1
 
-    iput v4, v14, Lcom/mrkeyboard/app/MrLearned$Result;->blocked:I
+    move-object/from16 v0, v17
 
-    goto :goto_6
+    iput v4, v0, Lcom/mrkeyboard/app/MrLearned$Result;->blocked:I
 
-    .line 300
-    :cond_14
-    iput-wide v10, v14, Lcom/mrkeyboard/app/MrLearned$Result;->batch:J
-
-    .line 301
-    return-object v14
+    goto :goto_8
 .end method
 
 .method static block(Lcom/mrkeyboard/app/MrWordStore;Ljava/lang/String;Ljava/lang/String;J)I
@@ -779,12 +886,12 @@
 
     const/4 v5, 0x0
 
-    .line 320
+    .line 336
     if-nez p2, :cond_1
 
     const-string v3, ""
 
-    .line 321
+    .line 337
     :goto_0
     invoke-static {v3}, Lcom/mrkeyboard/app/MrImport;->checkWord(Ljava/lang/String;)I
 
@@ -794,11 +901,11 @@
 
     const/4 v0, -0x1
 
-    .line 333
+    .line 349
     :cond_0
     return v0
 
-    .line 320
+    .line 336
     :cond_1
     invoke-virtual {p2}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -814,7 +921,7 @@
 
     goto :goto_0
 
-    .line 323
+    .line 339
     :cond_2
     invoke-interface {p0, v2, p1}, Lcom/mrkeyboard/app/MrWordStore;->all(ILjava/lang/String;)Ljava/util/List;
 
@@ -862,7 +969,7 @@
 
     goto :goto_1
 
-    .line 324
+    .line 340
     :cond_3
     if-nez v1, :cond_4
 
@@ -881,13 +988,13 @@
     :cond_4
     move v0, v5
 
-    .line 326
+    .line 342
     :goto_3
     const/4 v1, 0x3
 
     if-gt v5, v1, :cond_0
 
-    .line 327
+    .line 343
     invoke-interface {p0, v5, p1}, Lcom/mrkeyboard/app/MrWordStore;->all(ILjava/lang/String;)Ljava/util/List;
 
     move-result-object v1
@@ -911,7 +1018,7 @@
 
     check-cast v0, Lcom/mrkeyboard/app/MrWordStore$Row;
 
-    .line 328
+    .line 344
     iget-object v4, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->a:Ljava/lang/String;
 
     invoke-static {v4}, Lcom/mrkeyboard/app/MrLearned;->key(Ljava/lang/String;)Ljava/lang/String;
@@ -948,7 +1055,7 @@
 
     if-eqz v4, :cond_7
 
-    .line 329
+    .line 345
     :cond_5
     iget-wide v6, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->id:J
 
@@ -965,10 +1072,10 @@
     :goto_5
     move v1, v0
 
-    .line 331
+    .line 347
     goto :goto_4
 
-    .line 326
+    .line 342
     :cond_6
     add-int/lit8 v5, v5, 0x1
 
@@ -1017,6 +1124,9 @@
 
     .line 87
     :goto_0
+    invoke-static {}, Lcom/mrkeyboard/app/MrApp;->dataChanged()V
+
+    .line 88
     return-void
 
     .line 84
@@ -1030,7 +1140,7 @@
     .locals 2
 
     .prologue
-    .line 305
+    .line 321
     const/4 v0, 0x1
 
     const/16 v1, 0x64
@@ -1052,10 +1162,10 @@
     .prologue
     const/4 v3, 0x5
 
-    .line 201
+    .line 204
     new-array v1, v3, [I
 
-    .line 202
+    .line 205
     const/4 v0, 0x0
 
     :goto_0
@@ -1071,7 +1181,7 @@
 
     goto :goto_0
 
-    .line 203
+    .line 206
     :cond_0
     return-object v1
 .end method
@@ -1080,7 +1190,7 @@
     .locals 2
 
     .prologue
-    .line 371
+    .line 387
     const/4 v0, 0x2
 
     invoke-interface {p0, v0, p1}, Lcom/mrkeyboard/app/MrWordStore;->deleteAll(ILjava/lang/String;)I
@@ -1102,7 +1212,7 @@
     .locals 2
 
     .prologue
-    .line 367
+    .line 383
     const/4 v0, 0x0
 
     invoke-interface {p0, v0, p1}, Lcom/mrkeyboard/app/MrWordStore;->deleteAll(ILjava/lang/String;)I
@@ -1132,7 +1242,7 @@
 
     const/4 v10, 0x0
 
-    .line 349
+    .line 365
     iget v0, p2, Lcom/mrkeyboard/app/MrWordStore$Row;->kind:I
 
     if-eq v0, v1, :cond_0
@@ -1146,14 +1256,14 @@
     :cond_0
     move v0, v1
 
-    .line 350
+    .line 366
     :goto_0
     const/4 v4, 0x0
 
-    .line 351
+    .line 367
     if-eqz v0, :cond_4
 
-    .line 352
+    .line 368
     if-nez p3, :cond_2
 
     const-string v0, ""
@@ -1165,22 +1275,22 @@
 
     move-result-object v0
 
-    .line 353
+    .line 369
     if-nez v0, :cond_3
 
     const/4 v0, 0x5
 
-    .line 363
+    .line 379
     :goto_2
     return v0
 
     :cond_1
     move v0, v10
 
-    .line 349
+    .line 365
     goto :goto_0
 
-    .line 352
+    .line 368
     :cond_2
     invoke-virtual {p3, v5, v3}, Ljava/lang/String;->replace(CC)Ljava/lang/String;
 
@@ -1188,14 +1298,14 @@
 
     goto :goto_1
 
-    .line 354
+    .line 370
     :cond_3
     aget-object v3, v0, v10
 
-    .line 355
+    .line 371
     aget-object v4, v0, v1
 
-    .line 361
+    .line 377
     :goto_3
     iget v0, p2, Lcom/mrkeyboard/app/MrWordStore$Row;->kind:I
 
@@ -1211,26 +1321,26 @@
 
     goto :goto_2
 
-    .line 357
+    .line 373
     :cond_4
     if-nez p3, :cond_5
 
     const-string v0, ""
 
-    .line 358
+    .line 374
     :goto_4
     invoke-static {v0}, Lcom/mrkeyboard/app/MrImport;->checkWord(Ljava/lang/String;)I
 
     move-result v1
 
-    .line 359
+    .line 375
     if-eqz v1, :cond_7
 
     move v0, v1
 
     goto :goto_2
 
-    .line 357
+    .line 373
     :cond_5
     invoke-virtual {p3}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -1242,7 +1352,7 @@
 
     goto :goto_4
 
-    .line 362
+    .line 378
     :cond_6
     iget v0, p2, Lcom/mrkeyboard/app/MrWordStore$Row;->kind:I
 
@@ -1262,7 +1372,7 @@
 
     move v0, v10
 
-    .line 363
+    .line 379
     goto :goto_2
 
     :cond_7
@@ -1277,12 +1387,12 @@
     .prologue
     const/16 v7, 0xa
 
-    .line 396
+    .line 412
     new-instance v1, Ljava/util/TreeMap;
 
     invoke-direct {v1}, Ljava/util/TreeMap;-><init>()V
 
-    .line 397
+    .line 413
     const/4 v0, 0x0
 
     invoke-interface {p0, v0, p1}, Lcom/mrkeyboard/app/MrWordStore;->all(ILjava/lang/String;)Ljava/util/List;
@@ -1307,7 +1417,7 @@
 
     check-cast v0, Lcom/mrkeyboard/app/MrWordStore$Row;
 
-    .line 398
+    .line 414
     iget v3, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->freq:I
 
     const/4 v4, 0x6
@@ -1330,7 +1440,7 @@
 
     goto :goto_0
 
-    .line 400
+    .line 416
     :cond_1
     const/4 v0, 0x2
 
@@ -1367,13 +1477,13 @@
 
     goto :goto_1
 
-    .line 401
+    .line 417
     :cond_2
     new-instance v2, Ljava/util/TreeSet;
 
     invoke-direct {v2}, Ljava/util/TreeSet;-><init>()V
 
-    .line 402
+    .line 418
     const/4 v0, 0x1
 
     invoke-interface {p0, v0, p1}, Lcom/mrkeyboard/app/MrWordStore;->all(ILjava/lang/String;)Ljava/util/List;
@@ -1398,7 +1508,7 @@
 
     check-cast v0, Lcom/mrkeyboard/app/MrWordStore$Row;
 
-    .line 403
+    .line 419
     iget-object v4, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->b:Ljava/lang/String;
 
     if-eqz v4, :cond_3
@@ -1439,7 +1549,7 @@
 
     goto :goto_2
 
-    .line 405
+    .line 421
     :cond_4
     const/4 v0, 0x3
 
@@ -1499,13 +1609,13 @@
 
     goto :goto_3
 
-    .line 406
+    .line 422
     :cond_6
     new-instance v3, Ljava/util/TreeSet;
 
     invoke-direct {v3}, Ljava/util/TreeSet;-><init>()V
 
-    .line 407
+    .line 423
     const/4 v0, 0x4
 
     invoke-interface {p0, v0, p1}, Lcom/mrkeyboard/app/MrWordStore;->all(ILjava/lang/String;)Ljava/util/List;
@@ -1535,13 +1645,13 @@
 
     goto :goto_4
 
-    .line 408
+    .line 424
     :cond_7
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 409
+    .line 425
     const-string v0, "# mr-words 1\n# language: "
 
     invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -1558,12 +1668,12 @@
 
     invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 410
+    .line 426
     const-string v0, "[words]\n"
 
     invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 411
+    .line 427
     invoke-virtual {v1}, Ljava/util/TreeMap;->entrySet()Ljava/util/Set;
 
     move-result-object v0
@@ -1585,7 +1695,7 @@
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 412
+    .line 428
     invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
     move-result-object v1
@@ -1594,7 +1704,7 @@
 
     invoke-virtual {v4, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 413
+    .line 429
     invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
     move-result-object v1
@@ -1621,19 +1731,19 @@
 
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
 
-    .line 414
+    .line 430
     :cond_8
     invoke-virtual {v4, v7}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
     goto :goto_5
 
-    .line 416
+    .line 432
     :cond_9
     const-string v0, "[phrases]\n"
 
     invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 417
+    .line 433
     invoke-virtual {v2}, Ljava/util/TreeSet;->iterator()Ljava/util/Iterator;
 
     move-result-object v1
@@ -1659,7 +1769,7 @@
 
     goto :goto_6
 
-    .line 418
+    .line 434
     :cond_a
     invoke-virtual {v3}, Ljava/util/TreeSet;->isEmpty()Z
 
@@ -1667,12 +1777,12 @@
 
     if-nez v0, :cond_b
 
-    .line 419
+    .line 435
     const-string v0, "[blocked]\n"
 
     invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 420
+    .line 436
     invoke-virtual {v3}, Ljava/util/TreeSet;->iterator()Ljava/util/Iterator;
 
     move-result-object v1
@@ -1698,8 +1808,268 @@
 
     goto :goto_7
 
-    .line 422
+    .line 438
     :cond_b
+    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
+.end method
+
+.method static exportApp(Lcom/mrkeyboard/app/MrWordStore;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    .locals 7
+
+    .prologue
+    const/16 v6, 0xa
+
+    .line 446
+    invoke-static {p1, p2}, Lcom/mrkeyboard/app/MrApp;->scope(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 447
+    new-instance v2, Ljava/util/TreeMap;
+
+    invoke-direct {v2}, Ljava/util/TreeMap;-><init>()V
+
+    .line 448
+    const/4 v0, 0x2
+
+    invoke-interface {p0, v0, v1}, Lcom/mrkeyboard/app/MrWordStore;->all(ILjava/lang/String;)Ljava/util/List;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
+    move-result-object v3
+
+    :goto_0
+    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/mrkeyboard/app/MrWordStore$Row;
+
+    iget-object v4, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->a:Ljava/lang/String;
+
+    iget v0, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->freq:I
+
+    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v0
+
+    invoke-virtual {v2, v4, v0}, Ljava/util/TreeMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    goto :goto_0
+
+    .line 449
+    :cond_0
+    new-instance v3, Ljava/util/TreeSet;
+
+    invoke-direct {v3}, Ljava/util/TreeSet;-><init>()V
+
+    .line 450
+    const/4 v0, 0x3
+
+    invoke-interface {p0, v0, v1}, Lcom/mrkeyboard/app/MrWordStore;->all(ILjava/lang/String;)Ljava/util/List;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
+
+    move-result-object v1
+
+    :cond_1
+    :goto_1
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_2
+
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/mrkeyboard/app/MrWordStore$Row;
+
+    iget-object v4, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->b:Ljava/lang/String;
+
+    if-eqz v4, :cond_1
+
+    new-instance v4, Ljava/lang/StringBuilder;
+
+    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
+
+    iget-object v5, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->a:Ljava/lang/String;
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    const-string v5, " "
+
+    invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v4
+
+    iget-object v0, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->b:Ljava/lang/String;
+
+    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    invoke-virtual {v3, v0}, Ljava/util/TreeSet;->add(Ljava/lang/Object;)Z
+
+    goto :goto_1
+
+    .line 451
+    :cond_2
+    new-instance v4, Ljava/lang/StringBuilder;
+
+    invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
+
+    .line 452
+    const-string v0, "# mr-words 1\n# language: "
+
+    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrLearned;->tag(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    const-string v1, "\n# app: "
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0, v6}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    .line 453
+    const-string v0, "[words]\n"
+
+    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 454
+    invoke-virtual {v2}, Ljava/util/TreeMap;->entrySet()Ljava/util/Set;
+
+    move-result-object v0
+
+    invoke-interface {v0}, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+
+    move-result-object v2
+
+    :goto_2
+    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_4
+
+    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/util/Map$Entry;
+
+    .line 455
+    invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
+
+    move-result-object v1
+
+    check-cast v1, Ljava/lang/String;
+
+    invoke-virtual {v4, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 456
+    invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
+
+    move-result-object v1
+
+    check-cast v1, Ljava/lang/Integer;
+
+    invoke-virtual {v1}, Ljava/lang/Integer;->intValue()I
+
+    move-result v1
+
+    const/16 v5, 0x32
+
+    if-eq v1, v5, :cond_3
+
+    const/16 v1, 0x9
+
+    invoke-virtual {v4, v1}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
+
+    move-result-object v0
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    .line 457
+    :cond_3
+    invoke-virtual {v4, v6}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    goto :goto_2
+
+    .line 459
+    :cond_4
+    const-string v0, "[phrases]\n"
+
+    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 460
+    invoke-virtual {v3}, Ljava/util/TreeSet;->iterator()Ljava/util/Iterator;
+
+    move-result-object v1
+
+    :goto_3
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_5
+
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/lang/String;
+
+    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0, v6}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    goto :goto_3
+
+    .line 461
+    :cond_5
     invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
@@ -1724,10 +2094,10 @@
 
     const/4 v1, 0x1
 
-    .line 185
+    .line 188
     sget-object v4, Lcom/mrkeyboard/app/MrLearned;->sBlocked:Ljava/util/HashSet;
 
-    .line 186
+    .line 189
     invoke-virtual {v4}, Ljava/util/HashSet;->isEmpty()Z
 
     move-result v0
@@ -1736,11 +2106,11 @@
 
     if-nez p0, :cond_1
 
-    .line 194
+    .line 197
     :cond_0
     return v2
 
-    .line 188
+    .line 191
     :cond_1
     invoke-interface {p0}, Ljava/util/List;->size()I
 
@@ -1753,7 +2123,7 @@
     :goto_0
     if-lt v3, v1, :cond_0
 
-    .line 189
+    .line 192
     invoke-interface {p0, v3}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
@@ -1774,15 +2144,15 @@
 
     if-eqz v0, :cond_2
 
-    .line 190
+    .line 193
     invoke-interface {p0, v3}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
-    .line 191
+    .line 194
     if-ne v3, v1, :cond_2
 
     move v0, v1
 
-    .line 188
+    .line 191
     :goto_1
     add-int/lit8 v2, v3, -0x1
 
@@ -1802,7 +2172,7 @@
     .locals 2
 
     .prologue
-    .line 341
+    .line 357
     invoke-interface {p0, p1, p2, p3}, Lcom/mrkeyboard/app/MrWordStore;->delete(IJ)Z
 
     move-result v0
@@ -1814,13 +2184,13 @@
     .locals 1
 
     .prologue
-    .line 151
+    .line 154
     sget-object v0, Lcom/mrkeyboard/app/MrLearned;->sGate:Lcom/mrkeyboard/app/MrLearned$Gate;
 
-    .line 152
+    .line 155
     iput-object p0, v0, Lcom/mrkeyboard/app/MrLearned$Gate;->to:Lcom/mrkeyboard/app/Dictionary$WordCallback;
 
-    .line 153
+    .line 156
     return-object v0
 .end method
 
@@ -1828,14 +2198,14 @@
     .locals 2
 
     .prologue
-    .line 158
+    .line 161
     sget-object v0, Lcom/mrkeyboard/app/MrLearned;->sGate:Lcom/mrkeyboard/app/MrLearned$Gate;
 
     const/4 v1, 0x0
 
     iput-object v1, v0, Lcom/mrkeyboard/app/MrLearned$Gate;->to:Lcom/mrkeyboard/app/Dictionary$WordCallback;
 
-    .line 159
+    .line 162
     return-void
 .end method
 
@@ -1843,10 +2213,10 @@
     .locals 2
 
     .prologue
-    .line 176
+    .line 179
     sget-object v0, Lcom/mrkeyboard/app/MrLearned;->sBlocked:Ljava/util/HashSet;
 
-    .line 177
+    .line 180
     if-eqz p0, :cond_0
 
     invoke-virtual {v0}, Ljava/util/HashSet;->isEmpty()Z
@@ -1880,7 +2250,7 @@
     .locals 1
 
     .prologue
-    .line 137
+    .line 140
     if-nez p0, :cond_0
 
     const-string v0, ""
@@ -1919,12 +2289,12 @@
     .end annotation
 
     .prologue
-    .line 427
+    .line 466
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 428
+    .line 467
     invoke-interface {p0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v2
@@ -1943,12 +2313,12 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 429
+    .line 468
     invoke-static {v0}, Lcom/mrkeyboard/app/MrLearned;->localeOf(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 430
+    .line 469
     invoke-virtual {v1, v0}, Ljava/util/ArrayList;->contains(Ljava/lang/Object;)Z
 
     move-result v3
@@ -1959,13 +2329,13 @@
 
     goto :goto_0
 
-    .line 432
+    .line 471
     :cond_1
     new-instance v2, Ljava/util/ArrayList;
 
     invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
 
-    .line 433
+    .line 472
     invoke-interface {p1}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v3
@@ -1992,6 +2362,12 @@
 
     if-lez v4, :cond_2
 
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrApp;->isScope(Ljava/lang/String;)Z
+
+    move-result v4
+
+    if-nez v4, :cond_2
+
     invoke-virtual {v1, v0}, Ljava/util/ArrayList;->contains(Ljava/lang/Object;)Z
 
     move-result v4
@@ -2008,14 +2384,14 @@
 
     goto :goto_1
 
-    .line 434
+    .line 473
     :cond_3
     invoke-static {v2}, Ljava/util/Collections;->sort(Ljava/util/List;)V
 
-    .line 435
+    .line 474
     invoke-virtual {v1, v2}, Ljava/util/ArrayList;->addAll(Ljava/util/Collection;)Z
 
-    .line 436
+    .line 475
     return-object v1
 .end method
 
@@ -2023,33 +2399,42 @@
     .locals 1
 
     .prologue
-    .line 94
+    .line 95
     :try_start_0
     invoke-static {p0}, Lcom/mrkeyboard/app/MrLearned;->store(Landroid/content/Context;)Lcom/mrkeyboard/app/MrWordStore;
 
     move-result-object v0
 
-    .line 95
+    .line 96
     if-eqz v0, :cond_0
 
     if-eqz p1, :cond_0
 
     if-nez p2, :cond_1
 
-    .line 100
+    .line 103
     :cond_0
     :goto_0
     return-void
 
-    .line 96
+    .line 97
     :cond_1
     invoke-static {v0, p1, p2}, Lcom/mrkeyboard/app/MrLearned;->loadFrom(Lcom/mrkeyboard/app/MrWordStore;Lcom/mrkeyboard/app/MrLearned$Sink;Ljava/lang/String;)V
+
+    .line 99
+    invoke-interface {p1}, Lcom/mrkeyboard/app/MrLearned$Sink;->kind()I
+
+    move-result v0
+
+    if-nez v0, :cond_0
+
+    invoke-static {p0, p2}, Lcom/mrkeyboard/app/MrApp;->onLoad(Landroid/content/Context;Ljava/lang/String;)V
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
     goto :goto_0
 
-    .line 97
+    .line 100
     :catch_0
     move-exception v0
 
@@ -2060,24 +2445,24 @@
     .locals 4
 
     .prologue
-    .line 103
+    .line 106
     invoke-interface {p1}, Lcom/mrkeyboard/app/MrLearned$Sink;->kind()I
 
     move-result v0
 
     if-nez v0, :cond_1
 
-    .line 104
+    .line 107
     invoke-static {p0, p2}, Lcom/mrkeyboard/app/MrLearned;->refreshBlocked(Lcom/mrkeyboard/app/MrWordStore;Ljava/lang/String;)V
 
-    .line 105
+    .line 108
     const/4 v0, 0x2
 
     invoke-interface {p0, v0, p2}, Lcom/mrkeyboard/app/MrWordStore;->all(ILjava/lang/String;)Ljava/util/List;
 
     move-result-object v0
 
-    .line 106
+    .line 109
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v1
@@ -2096,7 +2481,7 @@
 
     check-cast v0, Lcom/mrkeyboard/app/MrWordStore$Row;
 
-    .line 107
+    .line 110
     iget-object v2, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->a:Ljava/lang/String;
 
     invoke-static {v2}, Lcom/mrkeyboard/app/MrLearned;->isBlocked(Ljava/lang/String;)Z
@@ -2117,7 +2502,7 @@
 
     goto :goto_0
 
-    .line 110
+    .line 113
     :cond_1
     const/4 v0, 0x3
 
@@ -2125,7 +2510,7 @@
 
     move-result-object v0
 
-    .line 111
+    .line 114
     invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
     move-result-object v1
@@ -2144,7 +2529,7 @@
 
     check-cast v0, Lcom/mrkeyboard/app/MrWordStore$Row;
 
-    .line 112
+    .line 115
     iget-object v2, v0, Lcom/mrkeyboard/app/MrWordStore$Row;->b:Ljava/lang/String;
 
     if-eqz v2, :cond_2
@@ -2179,7 +2564,7 @@
 
     goto :goto_1
 
-    .line 115
+    .line 118
     :cond_3
     return-void
 .end method
@@ -2188,7 +2573,7 @@
     .locals 2
 
     .prologue
-    .line 383
+    .line 399
     if-nez p0, :cond_0
 
     const-string v0, ""
@@ -2212,7 +2597,7 @@
     .locals 2
 
     .prologue
-    .line 132
+    .line 135
     const/4 v0, 0x1
 
     const/16 v1, 0x64
@@ -2225,7 +2610,7 @@
 
     move-result v0
 
-    .line 133
+    .line 136
     add-int/lit8 v0, v0, -0x1
 
     mul-int/lit8 v0, v0, 0x5
@@ -2249,12 +2634,12 @@
     .locals 3
 
     .prologue
-    .line 118
+    .line 121
     new-instance v1, Ljava/util/HashSet;
 
     invoke-direct {v1}, Ljava/util/HashSet;-><init>()V
 
-    .line 119
+    .line 122
     const/4 v0, 0x4
 
     invoke-interface {p0, v0, p1}, Lcom/mrkeyboard/app/MrWordStore;->all(ILjava/lang/String;)Ljava/util/List;
@@ -2288,14 +2673,14 @@
 
     goto :goto_0
 
-    .line 120
+    .line 123
     :cond_0
     sput-object v1, Lcom/mrkeyboard/app/MrLearned;->sBlocked:Ljava/util/HashSet;
 
-    .line 121
+    .line 124
     invoke-static {}, Lcom/mrkeyboard/app/MrGestureWords;->changed()V
 
-    .line 122
+    .line 125
     return-void
 .end method
 
@@ -2371,7 +2756,7 @@
     .locals 2
 
     .prologue
-    .line 378
+    .line 394
     if-nez p0, :cond_0
 
     const-string v0, ""
@@ -2395,7 +2780,7 @@
     .locals 1
 
     .prologue
-    .line 337
+    .line 353
     const/4 v0, 0x4
 
     invoke-interface {p0, v0, p1, p2}, Lcom/mrkeyboard/app/MrWordStore;->delete(IJ)Z
@@ -2409,7 +2794,7 @@
     .locals 2
 
     .prologue
-    .line 310
+    .line 326
     const-wide/16 v0, 0x0
 
     cmp-long v0, p2, v0
@@ -2468,7 +2853,7 @@
     .locals 4
 
     .prologue
-    .line 387
+    .line 403
     const/4 v0, 0x1
 
     const/16 v1, 0x64
@@ -2502,7 +2887,7 @@
     .locals 4
 
     .prologue
-    .line 126
+    .line 129
     const/4 v0, 0x1
 
     const/16 v1, 0x64
@@ -2515,7 +2900,7 @@
 
     move-result v0
 
-    .line 127
+    .line 130
     const/16 v1, 0xfa
 
     const/4 v2, 0x6

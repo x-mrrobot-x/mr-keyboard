@@ -7,6 +7,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -35,30 +36,40 @@ import java.util.List;
  * Under the box there is one button, chosen by what the box holds ({@link MrImport#offer}): "Format with AI" from the start (quiet while the box is
  * empty, in the colour of the main action as soon as there is a character) for a text that is not a list yet, "See what will be added" (the preview)
  * once it is a list, typed, pasted or made by the AI.
+ * Under the language there is the choice of where the words are for ("Add to": every app, or one app chosen in a dialog with the icon and the name of each,
+ * MrAppPicker): the words added for an app are saved with the app in the key (MrApp.scope) and only the keyboard in that app suggests them.
  * The rules live in MrImport / MrLearned (tested on the PC); this class is only views and threads. The analysis and the saving run off the main thread.
  */
 public class MrImportActivity extends Activity {
     static final String EXTRA_LOCALE = "mr_words_locale";
+    /** The app the words are for when the screen opens (the package); absent = every app. */
+    static final String EXTRA_APP = "mr_words_app";
     /** How many words of the preview are drawn at a time. */
     static final int PREVIEW_PAGE = 100;
     private static final String PREFS = "mr_words";
     private static final String P_BATCH = "last_batch";
     private static final String P_LOCALE = "last_locale";
     private static final String P_COUNT = "last_count";
+    private static final String P_APP = "last_app";
     private static final String S_LOCALE = "mr_import_s_locale";
     private static final String S_TEXT = "mr_import_s_text";
+    private static final String S_APP = "mr_import_s_app";
     /** The typed text is kept through a recreation only when it is small (a Bundle that is too large makes the system fail). */
     private static final int SAVE_TEXT_MAX = 100000;
 
     private MrKit k;
     private MrWordStore mStore;
     private String mLocale;
+    /** The package of the app the words are for, or null for every app. */
+    private String mApp;
     private List<String> mLangs = new ArrayList<String>();
     private boolean mBusy;
     private MrImport.Plan mPlan;
     private int mShown;
 
     private LinearLayout mLangBox;
+    private LinearLayout mAppBox;
+    private TextView mAppNote;
     private EditText mText;
     private TextView mCount;
     private TextView mAnalyze;
@@ -89,6 +100,7 @@ public class MrImportActivity extends Activity {
     protected void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
         out.putString(S_LOCALE, mLocale);
+        if (mApp != null) out.putString(S_APP, mApp);
         CharSequence typed = mText == null ? null : mText.getText();
         if (typed != null && typed.length() > 0 && typed.length() <= SAVE_TEXT_MAX) out.putString(S_TEXT, typed.toString());
         MrScreenIme.save(out, mText, null);
@@ -113,7 +125,13 @@ public class MrImportActivity extends Activity {
             finish();
             return;
         }
-        if (state != null) mLocale = state.getString(S_LOCALE);
+        if (state != null) {
+            mLocale = state.getString(S_LOCALE);
+            mApp = state.getString(S_APP);
+        } else if (getIntent() != null) {
+            mApp = getIntent().getStringExtra(EXTRA_APP);
+        }
+        if (!MrApp.validPackage(mApp)) mApp = null;
         if (mLocale == null && getIntent() != null) mLocale = getIntent().getStringExtra(EXTRA_LOCALE);
         loadLanguages();
         MrLang.remember(prefs(), mLocale);
@@ -138,6 +156,13 @@ public class MrImportActivity extends Activity {
         main.addView(k.iconRow("mr_ui_ic_globe", 16f, k.t("mr_lang_card_title"), 15f, k.text, false), k.wide(0));
         mLangBox = k.column();
         main.addView(mLangBox, k.wide(10));
+        // Where the words are for: every app, or one app chosen from a list. The note under it says what the choice means.
+        main.addView(k.iconRow("mr_ui_ic_grid_blue", 16f, k.t("mr_app_card_title"), 15f, k.text, false), k.wide(18));
+        mAppBox = k.column();
+        main.addView(mAppBox, k.wide(10));
+        mAppNote = k.label("", 13f, k.text2, false);
+        mAppNote.setPadding(k.dp(4), 0, k.dp(4), 0);
+        main.addView(mAppNote, k.wide(8));
         main.addView(k.iconRow("mr_ui_ic_keyboard", 16f, k.t("mr_import_hint"), 15f, k.text, false), k.wide(18));
 
         mText = k.field(k.t("mr_import_placeholder"), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
@@ -221,6 +246,7 @@ public class MrImportActivity extends Activity {
         setContentView(scroll);
         MrScreenIme.restore(state, mText, null);
         refreshOffer();
+        refreshApp();
     }
 
     @Override
@@ -255,6 +281,46 @@ public class MrImportActivity extends Activity {
                 refreshLanguages();
             }
         }, false);
+    }
+
+    // ------------------------------------------------------------------ the app the words are for
+
+    /** The name of the app the words are for ("All apps" when it is every app). */
+    private String appName() {
+        return mApp == null ? k.t("mr_app_all") : MrAppList.label(this, mApp);
+    }
+
+    /** Draws the choice (the app's icon and name, or "All apps") and the note under it. */
+    private void refreshApp() {
+        if (mAppBox == null) return;
+        final String name = appName();
+        Drawable lead = mApp == null ? null : MrAppList.icon(this, mApp);
+        mAppBox.removeAllViews();
+        mAppBox.addView(k.select("", name, lead, new View.OnClickListener() {
+            public void onClick(View v) {
+                chooseApp();
+            }
+        }), k.wide(0));
+        mAppNote.setText(mApp == null ? k.t("mr_app_note_all") : k.t("mr_app_note", name));
+    }
+
+    /** The dialog with every app and the apps of the phone (loaded off the main thread, no system apps). */
+    private void chooseApp() {
+        if (mBusy) return;
+        MrAppPicker.show(k, mApp, k.t("mr_app_card_title"), k.t("mr_app_none_installed"), new MrAppPicker.Source() {
+            public List<MrAppList.Entry> load() {
+                return MrAppList.load(MrImportActivity.this);
+            }
+        }, new MrAppPicker.Pick() {
+            public void onPick(String pkg) {
+                if (mBusy || isFinishing()) return;
+                if (pkg == null ? mApp == null : pkg.equals(mApp)) return;
+                mApp = pkg;
+                // A preview was made for the words of another place: the ones the app already has may be others.
+                clearPreview();
+                refreshApp();
+            }
+        });
     }
 
     // ------------------------------------------------------------------ input
@@ -423,8 +489,11 @@ public class MrImportActivity extends Activity {
         gap2.setMargins(k.dp(8), 0, 0, 0);
         tiles.addView(k.stat(plan.knownSkipped, k.t("mr_import_stat_known")), gap2);
         box.addView(tiles, k.wide(0));
-        if (plan.blocked.size() > 0) {
-            box.addView(k.label(k.t("mr_import_blocked_found", plan.blocked.size()), 14f, k.text2, false), k.wide(12));
+        if (mApp != null) {
+            box.addView(k.label(k.t("mr_import_for_app", appName()), 14f, k.text, true), k.wide(12));
+        }
+        if (blockedCount(plan) > 0) {
+            box.addView(k.label(k.t("mr_import_blocked_found", blockedCount(plan)), 14f, k.text2, false), k.wide(12));
         }
         if (plan.pairsCut) {
             box.addView(k.label(k.t("mr_import_pairs_cut"), 14f, k.text2, false), k.wide(12));
@@ -433,7 +502,7 @@ public class MrImportActivity extends Activity {
         if (hint != null && hint.length() > 0 && !MrLearned.localeOf(hint).equalsIgnoreCase(mLocale)) {
             box.addView(k.label(k.t("mr_import_lang_note", hint, MrLearned.tag(mLocale)), 14f, k.rose, false), k.wide(12));
         }
-        final boolean nothing = plan.words.isEmpty() && plan.pairs.isEmpty() && plan.blocked.isEmpty();
+        final boolean nothing = plan.words.isEmpty() && plan.pairs.isEmpty() && blockedCount(plan) == 0;
         if (nothing) {
             box.addView(k.emptyState("mr_ui_ic_check_mint", k.t("mr_import_none_title"), k.t(plan.standard ? "mr_import_none_std" : "mr_import_none_new")), k.wide(14));
         }
@@ -561,7 +630,12 @@ public class MrImportActivity extends Activity {
     }
 
     private boolean applyAny() {
-        return mPlan.checkedWords() + pairsToAdd() + mPlan.blocked.size() > 0;
+        return mPlan.checkedWords() + pairsToAdd() + blockedCount(mPlan) > 0;
+    }
+
+    /** The words of the [blocked] section that will be applied: none for an app (blocking is a decision for every app, see MrLearned.apply). */
+    private int blockedCount(MrImport.Plan plan) {
+        return mApp == null ? plan.blocked.size() : 0;
     }
 
     private void updateApply() {
@@ -593,13 +667,14 @@ public class MrImportActivity extends Activity {
         if (mBusy || mPlan == null) return;
         final MrImport.Plan plan = mPlan;
         final String locale = mLocale;
+        final String app = mApp;
         final MrWordStore store = mStore;
         setBusy(true, k.t("mr_import_saving"));
         new Thread(new Runnable() {
             public void run() {
                 MrLearned.Result res = null;
                 try {
-                    res = MrLearned.apply(store, plan, locale, System.currentTimeMillis());
+                    res = MrLearned.apply(store, plan, locale, app, System.currentTimeMillis());
                 } catch (RuntimeException e) {
                     res = null;
                 }
@@ -612,9 +687,9 @@ public class MrImportActivity extends Activity {
                             return;
                         }
                         if (done.total() > 0) MrLearned.changed(MrImportActivity.this);
-                        remember(done, locale);
+                        remember(done, locale, app);
                         if (isFinishing()) return;
-                        report(done);
+                        report(done, app);
                         mPlan = null;
                         clearPreview();
                         mText.setText("");
@@ -625,10 +700,11 @@ public class MrImportActivity extends Activity {
         }).start();
     }
 
-    private void report(MrLearned.Result r) {
+    private void report(MrLearned.Result r, String app) {
         StringBuilder sb = new StringBuilder();
         if (r.total() == 0) sb.append(k.t("mr_import_added_none"));
         else sb.append(k.t("mr_import_added", r.words, r.pairs));
+        if (app != null && r.words + r.pairs > 0) sb.append("\n").append(k.t("mr_import_added_app", MrAppList.label(this, app)));
         if (r.blocked > 0) sb.append("\n").append(k.t("mr_import_added_blocked", r.blocked));
         if (r.dupWords + r.dupPairs > 0) sb.append("\n").append(k.t("mr_import_dups", r.dupWords + r.dupPairs));
         if (r.cappedWords + r.cappedPairs > 0) sb.append("\n").append(k.t("mr_import_capped", r.cappedWords + r.cappedPairs));
@@ -820,9 +896,12 @@ public class MrImportActivity extends Activity {
         return getSharedPreferences(PREFS, MODE_PRIVATE);
     }
 
-    private void remember(MrLearned.Result r, String locale) {
+    private void remember(MrLearned.Result r, String locale, String app) {
         if (r.batch <= 0 || r.words + r.pairs == 0) return;
-        prefs().edit().putLong(P_BATCH, r.batch).putString(P_LOCALE, locale).putInt(P_COUNT, r.words + r.pairs).apply();
+        SharedPreferences.Editor e = prefs().edit().putLong(P_BATCH, r.batch).putString(P_LOCALE, locale).putInt(P_COUNT, r.words + r.pairs);
+        if (app != null) e.putString(P_APP, app);
+        else e.remove(P_APP);
+        e.apply();
     }
 
     private void refreshUndo() {
@@ -838,21 +917,25 @@ public class MrImportActivity extends Activity {
     private void undoLast() {
         final long batch = prefs().getLong(P_BATCH, 0);
         final String locale = prefs().getString(P_LOCALE, mLocale);
+        final String app = prefs().getString(P_APP, null);
         if (batch <= 0 || locale == null) return;
+        // the addition is in the key of the language, or in the one of the app it was made for
+        final String key = MrApp.scope(locale, app);
         new AlertDialog.Builder(this)
                 .setTitle(k.t("mr_import_undo_title"))
-                .setMessage(k.t("mr_import_undo_ask", prefs().getInt(P_COUNT, 0), k.langName(locale)))
+                .setMessage(app == null ? k.t("mr_import_undo_ask", prefs().getInt(P_COUNT, 0), k.langName(locale))
+                        : k.t("mr_import_undo_ask_app", prefs().getInt(P_COUNT, 0), k.langName(locale), MrAppList.label(this, app)))
                 .setNegativeButton(k.t("mr_words_cancel"), null)
                 .setPositiveButton(k.t("mr_words_undo"), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         int n;
                         try {
-                            n = MrLearned.undo(mStore, locale, batch);
+                            n = MrLearned.undo(mStore, key, batch);
                         } catch (RuntimeException e) {
                             k.toast(k.t("mr_learned_unavailable"));
                             return;
                         }
-                        prefs().edit().remove(P_BATCH).remove(P_LOCALE).remove(P_COUNT).apply();
+                        prefs().edit().remove(P_BATCH).remove(P_LOCALE).remove(P_COUNT).remove(P_APP).apply();
                         MrLearned.changed(MrImportActivity.this);
                         k.toast(k.t("mr_import_undone", n));
                         refreshUndo();

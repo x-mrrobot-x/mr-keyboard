@@ -30,6 +30,18 @@ public class ExpandableDictionary extends Dictionary {
     }
 
     private NodeArray mRoots = new NodeArray();
+    public ExpandableDictionary() { }
+
+    /** As the APK class (package-private there): the keyboard makes small trees of its own with it (MrApp). */
+    ExpandableDictionary(android.content.Context context, int dicTypeId) {
+        stubType = dicTypeId;
+    }
+
+    /** Not in Android: the kind the tree was made with, the pairs set on it ({first, second, frequency}) and how often it was asked. */
+    public int stubType;
+    public final java.util.ArrayList<String[]> stubPairs = new java.util.ArrayList<String[]>();
+    public int stubWordsAsked, stubBigramsAsked;
+    public CharSequence stubLastPrevious;
     public boolean stubLoading;
     public int stubReloadChecks;
     public static Runnable stubChanged;
@@ -69,7 +81,32 @@ public class ExpandableDictionary extends Dictionary {
         }
     }
 
-    public void getWords(WordComposer composer, WordCallback callback, int[] nextLettersFrequencies) { }
+    protected int setBigram(String word1, String word2, int frequency) {
+        stubPairs.add(new String[] {word1, word2, String.valueOf(frequency)});
+        return frequency;
+    }
+
+    /** As the APK class: the frequency of a word of the tree, or -1 when it is not one. */
+    public int getWordFrequency(CharSequence word) {
+        NodeArray level = mRoots;
+        Node node = null;
+        for (int i = 0; i < word.length(); i++) {
+            node = null;
+            for (int k = 0; level != null && k < level.length && node == null; k++) if (level.data[k].code == word.charAt(i)) node = level.data[k];
+            if (node == null) return -1;
+            level = node.children;
+        }
+        return node != null && node.terminal ? node.frequency : -1;
+    }
+
+    public void getBigrams(WordComposer composer, CharSequence previousWord, WordCallback callback, int[] nextLettersFrequencies) {
+        stubBigramsAsked++;
+        stubLastPrevious = previousWord;
+    }
+
+    public void getWords(WordComposer composer, WordCallback callback, int[] nextLettersFrequencies) {
+        stubWordsAsked++;
+    }
 
     public boolean isValidWord(CharSequence word) { return false; }
 }

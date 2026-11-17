@@ -389,8 +389,10 @@ i_try = gl.index(":try_start_0")
 i_super = next(i for i, l in enumerate(gl) if "invoke-super" in l and "ExpandableDictionary;->getWords(" in l)
 i_end = gl.index(":try_end_0")
 ends = [i for i, l in enumerate(gl) if "MrLearned;->gateEnd()V" in l]
-check("AutoDictionary.getWords: gate, then the search alone in a try, then gateEnd on the way out and again in the handler before it throws",
-      i_gate < i_try < i_super < i_end and gl[i_super + 1] == ":try_end_0" and gl[i_end + 1].startswith(".catchall {:try_start_0 .. :try_end_0}")
+# the words added for the app in front (MrApp.words, since 2.0.0) are searched right after the dictionary's own, with the same gate, so it is inside the try too
+i_app = next(i for i, l in enumerate(gl) if "MrApp;->words(" in l)
+check("AutoDictionary.getWords: gate, then the two searches (its own words and the words of the app in front) alone in a try, then gateEnd on the way out and again in the handler before it throws",
+      i_gate < i_try < i_super < i_app < i_end and gl[i_super + 1] == gl[i_app] and gl[i_app + 1] == ":try_end_0" and gl[i_end + 1].startswith(".catchall {:try_start_0 .. :try_end_0}")
       and len(ends) == 2 and ends[0] > i_end and ends[1] > ends[0] and gl[-1] == "throw v1" and gl[ends[1] + 1] == "throw v1", gl)
 ml = open(os.path.join(APP, "MrLearned.smali"), encoding="utf-8").read()
 ge = re.search(r"^\.method public static gateEnd\(\)V\n(.*?)^\.end method", ml, re.S | re.M)

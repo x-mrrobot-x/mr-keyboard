@@ -50,7 +50,7 @@
 - **Suggestions, correction and next-word prediction** in Brazilian Portuguese, US English and Spanish, fully on the device. On by default: download the dictionary of your language when the suggestion bar offers it, or in *Settings → Suggestions and dictionaries*.
 - **Small app:** dictionaries are downloaded on demand, so the app itself is about 1 MB. Each language you download is added to the keyboard: slide the space bar sideways to switch between them.
 - **Learns what you type** (never in password or incognito fields) and suggests the names and words you just wrote in the same conversation (kept only in memory).
-- **My words:** *Settings → Suggestions and dictionaries → My words* shows what the keyboard learned, lets you fix, block and forget words (with an exported backup) and add names, slang and phrases from a pasted text, a file or a list, with a preview before saving. **Format with AI** turns a loose text into that list.
+- **My words:** *Settings → Suggestions and dictionaries → My words* shows what the keyboard learned, lets you fix, block and forget words (with an exported backup) and add names, slang and phrases from a pasted text, a file or a list, with a preview before saving, for every app or only for one app you choose (the words then show up only when you type in it). **Format with AI** turns a loose text into that list.
 - **Gesture typing (on by default):** slide your finger from letter to letter and the keyboard writes the word, in the three languages. It also writes your own words, never a blocked one, and shows the word on the suggestion strip while you slide. Needs a one-time download of about 2.4 MB (*Settings → Suggestions and dictionaries → Gesture typing*), then runs on the device. [Details](docs/gesture-typing.md).
 - **Auto-capitalization** (on by default) and **voice input**.
 
@@ -60,7 +60,7 @@ Twelve themes: **Midnight Steel** (default); the neon ones **Aurora** (keys chan
 ### App
 - **Languages:** Portuguese, English and Spanish; follows the system or pick one in *Settings → General → App language*.
 - **Updates inside the app:** notice of new versions with what's new, **Download and install** and a signed, checked APK ([how it works](#updates)).
-- **Performance:** *Settings → Advanced → Performance → Keyboard times* shows how long the keyboard takes to open, type and suggest on your phone.
+- **Performance:** *Settings → Advanced → Performance → Keyboard diagnostics* shows how long the keyboard takes to open, type and suggest on your phone, and the memory of the dictionary in use.
 - **Restore defaults** in *Settings → General*.
 
 ## Installation
@@ -119,7 +119,7 @@ apksigner sign --ks your-key.jks --out mr-keyboard.apk aligned.apk
 Every release also has `mr-keyboard-v<version>-source.zip`, made from the exact commit that was published. Build from a source zip, GitHub Actions workflows, signing, dictionaries and how a release is published: **[docs/building.md](docs/building.md)**.
 
 ## Documentation
-[Building and publishing](docs/building.md) · [Gesture typing](docs/gesture-typing.md) · [First steps](docs/first-steps.md) · [Delete by word](docs/word-delete.md) · [Swipe actions](docs/swipe-actions.md) · [Emoji search](docs/emoji-search.md) · [Edit with AI](docs/ai-editor.md) · [Suggestion features](docs/suggestion-features.md) · [Native engine](docs/native-engine.md) · [Performance meter](docs/performance-meter.md) · [New theme](docs/new-theme.md) · [Release notes](docs/release-notes)
+[Building and publishing](docs/building.md) · [Gesture typing](docs/gesture-typing.md) · [First steps](docs/first-steps.md) · [Delete by word](docs/word-delete.md) · [Swipe actions](docs/swipe-actions.md) · [Emoji search](docs/emoji-search.md) · [Edit with AI](docs/ai-editor.md) · [Suggestion features](docs/suggestion-features.md) · [Words for one app](docs/app-words.md) · [Native engine](docs/native-engine.md) · [Performance meter](docs/performance-meter.md) · [New theme](docs/new-theme.md) · [Release notes](docs/release-notes)
 
 ## Verifying a release
 Releases are [immutable](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) (see [Publishing](docs/building.md#publishing-maintainers)): after publication their files and tag can't be changed. The APK and the source zip are built by the *Mr Keyboard - APK* workflow of this repository from the tagged commit, and each has a signed provenance attestation. With the [GitHub CLI](https://cli.github.com/), in the folder where you saved the file (replace the version):

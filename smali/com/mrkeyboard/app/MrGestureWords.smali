@@ -66,7 +66,7 @@
     .locals 1
 
     .prologue
-    .line 49
+    .line 50
     new-instance v0, Ljava/util/concurrent/atomic/AtomicInteger;
 
     invoke-direct {v0}, Ljava/util/concurrent/atomic/AtomicInteger;-><init>()V
@@ -80,7 +80,7 @@
     .locals 0
 
     .prologue
-    .line 32
+    .line 33
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -90,7 +90,7 @@
     .locals 20
 
     .prologue
-    .line 228
+    .line 231
     if-eqz p0, :cond_0
 
     if-eqz p1, :cond_0
@@ -100,18 +100,18 @@
     :cond_0
     const/4 v2, 0x0
 
-    .line 334
+    .line 337
     :goto_0
     return-object v2
 
-    .line 230
+    .line 233
     :cond_1
     const/16 v11, 0x40
 
-    .line 231
+    .line 234
     new-array v10, v11, [C
 
-    .line 232
+    .line 235
     new-array v9, v11, [I
 
     new-array v8, v11, [I
@@ -122,20 +122,20 @@
 
     new-array v5, v11, [I
 
-    .line 233
+    .line 236
     const/4 v4, 0x1
 
-    .line 234
+    .line 237
     const/4 v2, 0x0
 
     const/4 v3, -0x1
 
     aput v3, v5, v2
 
-    .line 235
+    .line 238
     const/4 v13, 0x0
 
-    .line 236
+    .line 239
     const/4 v2, 0x0
 
     move v15, v2
@@ -145,10 +145,10 @@
 
     if-ge v15, v0, :cond_9
 
-    .line 237
+    .line 240
     aget-object v16, p0, v15
 
-    .line 238
+    .line 241
     if-eqz v16, :cond_26
 
     invoke-virtual/range {v16 .. v16}, Ljava/lang/String;->length()I
@@ -167,7 +167,7 @@
 
     move v2, v13
 
-    .line 236
+    .line 239
     :goto_2
     add-int/lit8 v3, v15, 0x1
 
@@ -177,14 +177,14 @@
 
     goto :goto_1
 
-    .line 239
+    .line 242
     :cond_2
     const/4 v3, 0x0
 
-    .line 240
+    .line 243
     const/4 v14, 0x1
 
-    .line 241
+    .line 244
     const/4 v2, 0x0
 
     :goto_3
@@ -194,17 +194,17 @@
 
     if-ge v2, v12, :cond_25
 
-    .line 242
+    .line 245
     move-object/from16 v0, v16
 
     invoke-virtual {v0, v2}, Ljava/lang/String;->charAt(I)C
 
     move-result v17
 
-    .line 243
+    .line 246
     aget v12, v9, v3
 
-    .line 244
+    .line 247
     :goto_4
     if-eqz v12, :cond_3
 
@@ -220,11 +220,11 @@
 
     goto :goto_4
 
-    .line 245
+    .line 248
     :cond_3
     if-nez v12, :cond_24
 
-    .line 246
+    .line 249
     aget v12, v6, v3
 
     const/16 v18, 0xff
@@ -233,10 +233,10 @@
 
     if-lt v12, v0, :cond_4
 
-    .line 247
+    .line 250
     const/4 v2, 0x0
 
-    .line 269
+    .line 272
     :goto_5
     if-nez v2, :cond_7
 
@@ -244,51 +244,51 @@
 
     goto :goto_2
 
-    .line 250
+    .line 253
     :cond_4
     if-ne v4, v11, :cond_5
 
-    .line 251
+    .line 254
     mul-int/lit8 v11, v11, 0x2
 
-    .line 252
+    .line 255
     invoke-static {v10, v11}, Ljava/util/Arrays;->copyOf([CI)[C
 
     move-result-object v10
 
-    .line 253
+    .line 256
     invoke-static {v9, v11}, Ljava/util/Arrays;->copyOf([II)[I
 
     move-result-object v9
 
-    .line 254
+    .line 257
     invoke-static {v8, v11}, Ljava/util/Arrays;->copyOf([II)[I
 
     move-result-object v8
 
-    .line 255
+    .line 258
     invoke-static {v7, v11}, Ljava/util/Arrays;->copyOf([II)[I
 
     move-result-object v7
 
-    .line 256
+    .line 259
     invoke-static {v6, v11}, Ljava/util/Arrays;->copyOf([II)[I
 
     move-result-object v6
 
-    .line 257
+    .line 260
     invoke-static {v5, v11}, Ljava/util/Arrays;->copyOf([II)[I
 
     move-result-object v5
 
-    .line 259
+    .line 262
     :cond_5
     add-int/lit8 v12, v4, 0x1
 
-    .line 260
+    .line 263
     aput-char v17, v10, v4
 
-    .line 261
+    .line 264
     const/16 v17, 0x0
 
     aput v17, v6, v4
@@ -299,23 +299,23 @@
 
     aput v17, v9, v4
 
-    .line 262
+    .line 265
     const/16 v17, -0x1
 
     aput v17, v5, v4
 
-    .line 263
+    .line 266
     aget v17, v9, v3
 
     if-nez v17, :cond_6
 
     aput v4, v9, v3
 
-    .line 264
+    .line 267
     :goto_6
     aput v4, v8, v3
 
-    .line 265
+    .line 268
     aget v17, v6, v3
 
     add-int/lit8 v17, v17, 0x1
@@ -326,13 +326,13 @@
 
     move v4, v12
 
-    .line 241
+    .line 244
     :goto_7
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_3
 
-    .line 263
+    .line 266
     :cond_6
     aget v17, v8, v3
 
@@ -340,7 +340,7 @@
 
     goto :goto_6
 
-    .line 270
+    .line 273
     :cond_7
     aget v2, p1, v15
 
@@ -348,20 +348,20 @@
 
     move-result v2
 
-    .line 271
+    .line 274
     aget v12, v5, v3
 
     if-le v2, v12, :cond_8
 
     aput v2, v5, v3
 
-    .line 272
+    .line 275
     :cond_8
     add-int/lit8 v2, v13, 0x1
 
     goto/16 :goto_2
 
-    .line 274
+    .line 277
     :cond_9
     if-nez v13, :cond_a
 
@@ -369,14 +369,14 @@
 
     goto/16 :goto_0
 
-    .line 276
+    .line 279
     :cond_a
     new-array v13, v4, [Z
 
-    .line 277
+    .line 280
     new-array v6, v4, [I
 
-    .line 278
+    .line 281
     const/4 v2, 0x0
 
     move v3, v2
@@ -402,7 +402,7 @@
 
     goto :goto_8
 
-    .line 279
+    .line 282
     :cond_c
     add-int/lit8 v2, v4, -0x1
 
@@ -411,7 +411,7 @@
 
     if-lt v2, v3, :cond_f
 
-    .line 280
+    .line 283
     aget v3, v5, v2
 
     if-ltz v3, :cond_d
@@ -420,7 +420,7 @@
 
     aput-boolean v3, v13, v2
 
-    .line 281
+    .line 284
     :cond_d
     aget-boolean v3, v13, v2
 
@@ -432,24 +432,24 @@
 
     aput-boolean v8, v13, v3
 
-    .line 279
+    .line 282
     :cond_e
     add-int/lit8 v2, v2, -0x1
 
     goto :goto_a
 
-    .line 284
+    .line 287
     :cond_f
     new-array v14, v4, [I
 
     new-array v15, v4, [I
 
-    .line 285
+    .line 288
     const/4 v6, 0x1
 
     const/4 v4, 0x2
 
-    .line 286
+    .line 289
     const/4 v2, 0x0
 
     move v11, v2
@@ -457,13 +457,13 @@
     :goto_b
     if-ge v11, v6, :cond_19
 
-    .line 287
+    .line 290
     aget v8, v15, v11
 
-    .line 288
+    .line 291
     const/4 v3, 0x0
 
-    .line 289
+    .line 292
     aget v2, v9, v8
 
     move/from16 v19, v2
@@ -486,11 +486,11 @@
 
     goto :goto_c
 
-    .line 290
+    .line 293
     :cond_11
     if-nez v2, :cond_13
 
-    .line 286
+    .line 289
     :cond_12
     add-int/lit8 v2, v11, 0x1
 
@@ -498,14 +498,14 @@
 
     goto :goto_b
 
-    .line 291
+    .line 294
     :cond_13
     aput v4, v14, v8
 
-    .line 292
+    .line 295
     add-int/lit8 v4, v4, 0x1
 
-    .line 293
+    .line 296
     aget v2, v9, v8
 
     move v8, v2
@@ -513,7 +513,7 @@
     :goto_d
     if-eqz v8, :cond_18
 
-    .line 294
+    .line 297
     aget-boolean v2, v13, v8
 
     if-nez v2, :cond_14
@@ -522,7 +522,7 @@
 
     move v3, v6
 
-    .line 293
+    .line 296
     :goto_e
     aget v4, v7, v8
 
@@ -534,7 +534,7 @@
 
     goto :goto_d
 
-    .line 295
+    .line 298
     :cond_14
     aget-char v2, v10, v8
 
@@ -567,14 +567,14 @@
 
     add-int/2addr v2, v4
 
-    .line 296
+    .line 299
     add-int/lit8 v3, v6, 0x1
 
     aput v8, v15, v6
 
     goto :goto_e
 
-    .line 295
+    .line 298
     :cond_15
     const/4 v2, 0x1
 
@@ -590,7 +590,7 @@
 
     goto :goto_11
 
-    .line 298
+    .line 301
     :cond_18
     const v2, 0x3fffff
 
@@ -600,27 +600,27 @@
 
     goto/16 :goto_0
 
-    .line 300
+    .line 303
     :cond_19
     invoke-static {v4}, Ljava/nio/ByteBuffer;->allocateDirect(I)Ljava/nio/ByteBuffer;
 
     move-result-object v8
 
-    .line 301
+    .line 304
     const/4 v2, 0x0
 
     const/16 v3, -0x38
 
     invoke-virtual {v8, v2, v3}, Ljava/nio/ByteBuffer;->put(IB)Ljava/nio/ByteBuffer;
 
-    .line 302
+    .line 305
     const/4 v2, 0x1
 
     const/4 v3, 0x1
 
     invoke-virtual {v8, v2, v3}, Ljava/nio/ByteBuffer;->put(IB)Ljava/nio/ByteBuffer;
 
-    .line 303
+    .line 306
     const/4 v2, 0x0
 
     move v12, v2
@@ -628,15 +628,15 @@
     :goto_12
     if-ge v12, v6, :cond_23
 
-    .line 304
+    .line 307
     aget v4, v15, v12
 
-    .line 305
+    .line 308
     aget v2, v14, v4
 
     if-nez v2, :cond_1b
 
-    .line 303
+    .line 306
     :cond_1a
     add-int/lit8 v2, v12, 0x1
 
@@ -644,13 +644,13 @@
 
     goto :goto_12
 
-    .line 306
+    .line 309
     :cond_1b
     aget v11, v14, v4
 
     const/4 v3, 0x0
 
-    .line 307
+    .line 310
     aget v2, v9, v4
 
     move/from16 v19, v2
@@ -673,7 +673,7 @@
 
     goto :goto_13
 
-    .line 308
+    .line 311
     :cond_1d
     add-int/lit8 v3, v11, 0x1
 
@@ -681,7 +681,7 @@
 
     invoke-virtual {v8, v11, v2}, Ljava/nio/ByteBuffer;->put(IB)Ljava/nio/ByteBuffer;
 
-    .line 309
+    .line 312
     aget v2, v9, v4
 
     move v11, v2
@@ -689,14 +689,14 @@
     :goto_14
     if-eqz v11, :cond_1a
 
-    .line 310
+    .line 313
     aget-boolean v2, v13, v11
 
     if-nez v2, :cond_1f
 
     move v2, v3
 
-    .line 309
+    .line 312
     :cond_1e
     :goto_15
     aget v3, v7, v11
@@ -707,16 +707,16 @@
 
     goto :goto_14
 
-    .line 311
+    .line 314
     :cond_1f
     aget-char v4, v10, v11
 
-    .line 312
+    .line 315
     const/16 v2, 0xff
 
     if-lt v4, v2, :cond_20
 
-    .line 313
+    .line 316
     add-int/lit8 v2, v3, 0x1
 
     const/16 v16, -0x1
@@ -725,7 +725,7 @@
 
     invoke-virtual {v8, v3, v0}, Ljava/nio/ByteBuffer;->put(IB)Ljava/nio/ByteBuffer;
 
-    .line 314
+    .line 317
     add-int/lit8 v3, v2, 0x1
 
     shr-int/lit8 v16, v4, 0x8
@@ -740,14 +740,14 @@
 
     invoke-virtual {v8, v2, v0}, Ljava/nio/ByteBuffer;->put(IB)Ljava/nio/ByteBuffer;
 
-    .line 315
+    .line 318
     add-int/lit8 v2, v3, 0x1
 
     int-to-byte v4, v4
 
     invoke-virtual {v8, v3, v4}, Ljava/nio/ByteBuffer;->put(IB)Ljava/nio/ByteBuffer;
 
-    .line 319
+    .line 322
     :goto_16
     aget v3, v5, v11
 
@@ -755,14 +755,14 @@
 
     const/16 v3, 0x80
 
-    .line 320
+    .line 323
     :goto_17
     aget v4, v14, v11
 
-    .line 321
+    .line 324
     if-eqz v4, :cond_22
 
-    .line 322
+    .line 325
     add-int/lit8 v16, v2, 0x1
 
     or-int/lit8 v3, v3, 0x40
@@ -775,7 +775,7 @@
 
     invoke-virtual {v8, v2, v3}, Ljava/nio/ByteBuffer;->put(IB)Ljava/nio/ByteBuffer;
 
-    .line 323
+    .line 326
     add-int/lit8 v3, v16, 0x1
 
     shr-int/lit8 v2, v4, 0x8
@@ -786,20 +786,20 @@
 
     invoke-virtual {v8, v0, v2}, Ljava/nio/ByteBuffer;->put(IB)Ljava/nio/ByteBuffer;
 
-    .line 324
+    .line 327
     add-int/lit8 v2, v3, 0x1
 
     int-to-byte v4, v4
 
     invoke-virtual {v8, v3, v4}, Ljava/nio/ByteBuffer;->put(IB)Ljava/nio/ByteBuffer;
 
-    .line 328
+    .line 331
     :goto_18
     aget v3, v5, v11
 
     if-ltz v3, :cond_1e
 
-    .line 329
+    .line 332
     add-int/lit8 v3, v2, 0x1
 
     aget v4, v5, v11
@@ -808,7 +808,7 @@
 
     invoke-virtual {v8, v2, v4}, Ljava/nio/ByteBuffer;->put(IB)Ljava/nio/ByteBuffer;
 
-    .line 330
+    .line 333
     add-int/lit8 v2, v3, 0x1
 
     const/4 v4, 0x0
@@ -817,7 +817,7 @@
 
     goto :goto_15
 
-    .line 317
+    .line 320
     :cond_20
     add-int/lit8 v2, v3, 0x1
 
@@ -827,13 +827,13 @@
 
     goto :goto_16
 
-    .line 319
+    .line 322
     :cond_21
     const/4 v3, 0x0
 
     goto :goto_17
 
-    .line 326
+    .line 329
     :cond_22
     add-int/lit8 v4, v2, 0x1
 
@@ -848,7 +848,7 @@
     :cond_23
     move-object v2, v8
 
-    .line 334
+    .line 337
     goto/16 :goto_0
 
     :cond_24
@@ -871,12 +871,12 @@
     .locals 1
 
     .prologue
-    .line 56
+    .line 57
     sget-object v0, Lcom/mrkeyboard/app/MrGestureWords;->sChanges:Ljava/util/concurrent/atomic/AtomicInteger;
 
     invoke-virtual {v0}, Ljava/util/concurrent/atomic/AtomicInteger;->incrementAndGet()I
 
-    .line 57
+    .line 58
     return-void
 .end method
 
@@ -884,18 +884,18 @@
     .locals 1
 
     .prologue
-    .line 143
+    .line 146
     const/16 v0, 0xfa
 
     if-lt p0, v0, :cond_0
 
     const/16 v0, 0x82
 
-    .line 145
+    .line 148
     :goto_0
     return v0
 
-    .line 144
+    .line 147
     :cond_0
     const/4 v0, 0x6
 
@@ -905,7 +905,7 @@
 
     goto :goto_0
 
-    .line 145
+    .line 148
     :cond_1
     add-int/lit8 v0, p0, -0x6
 
@@ -928,7 +928,7 @@
 
     const/4 v5, 0x0
 
-    .line 75
+    .line 76
     const-class v7, Lcom/mrkeyboard/app/MrGestureWords;
 
     monitor-enter v7
@@ -942,7 +942,7 @@
 
     move-object v4, v3
 
-    .line 76
+    .line 77
     :goto_0
     if-eqz v4, :cond_1
 
@@ -950,7 +950,7 @@
 
     move-result-object v3
 
-    .line 77
+    .line 78
     :goto_1
     if-eqz v4, :cond_2
 
@@ -958,7 +958,7 @@
 
     move-result-object v4
 
-    .line 78
+    .line 79
     :goto_2
     sget-object v8, Lcom/mrkeyboard/app/MrGestureWords;->sChanges:Ljava/util/concurrent/atomic/AtomicInteger;
 
@@ -966,7 +966,7 @@
 
     move-result v8
 
-    .line 79
+    .line 80
     sget-boolean v9, Lcom/mrkeyboard/app/MrGestureWords;->sMade:Z
 
     if-eqz v9, :cond_3
@@ -987,7 +987,7 @@
 
     if-eqz v9, :cond_3
 
-    .line 80
+    .line 81
     :goto_3
     if-eqz v2, :cond_4
 
@@ -1000,7 +1000,7 @@
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 100
+    .line 103
     :goto_4
     monitor-exit v7
 
@@ -1009,28 +1009,28 @@
     :cond_0
     move-object v4, v5
 
-    .line 75
+    .line 76
     goto :goto_0
 
     :cond_1
     move-object v3, v5
 
-    .line 76
+    .line 77
     goto :goto_1
 
     :cond_2
     move-object v4, v5
 
-    .line 77
+    .line 78
     goto :goto_2
 
     :cond_3
     move v2, v6
 
-    .line 79
+    .line 80
     goto :goto_3
 
-    .line 81
+    .line 82
     :cond_4
     :try_start_1
     invoke-static {v3}, Lcom/mrkeyboard/app/MrGestureWords;->loading(Lcom/mrkeyboard/app/Dictionary;)Z
@@ -1060,18 +1060,18 @@
 
     goto :goto_5
 
-    .line 82
+    .line 83
     :cond_7
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
     move-result-wide v10
 
-    .line 83
+    .line 84
     new-instance v9, Lcom/mrkeyboard/app/MrGestureWords$Collector;
 
     invoke-direct {v9}, Lcom/mrkeyboard/app/MrGestureWords$Collector;-><init>()V
 
-    .line 84
+    .line 85
     instance-of v2, v3, Lcom/mrkeyboard/app/ExpandableDictionary;
 
     if-eqz v2, :cond_8
@@ -1090,7 +1090,7 @@
 
     invoke-virtual {v9, v2, v12}, Lcom/mrkeyboard/app/MrGestureWords$Collector;->read(Lcom/mrkeyboard/app/ExpandableDictionary$NodeArray;I)V
 
-    .line 85
+    .line 86
     :cond_8
     instance-of v2, v4, Lcom/mrkeyboard/app/ExpandableDictionary;
 
@@ -1110,13 +1110,30 @@
 
     invoke-virtual {v9, v2, v12}, Lcom/mrkeyboard/app/MrGestureWords$Collector;->read(Lcom/mrkeyboard/app/ExpandableDictionary$NodeArray;I)V
 
-    .line 86
+    .line 87
     :cond_9
+    invoke-static {}, Lcom/mrkeyboard/app/MrApp;->dictionary()Lcom/mrkeyboard/app/ExpandableDictionary;
+
+    move-result-object v2
+
+    .line 88
+    if-eqz v2, :cond_a
+
+    invoke-virtual {v2}, Lcom/mrkeyboard/app/ExpandableDictionary;->mrRoots()Lcom/mrkeyboard/app/ExpandableDictionary$NodeArray;
+
+    move-result-object v2
+
+    const/4 v12, 0x6
+
+    invoke-virtual {v9, v2, v12}, Lcom/mrkeyboard/app/MrGestureWords$Collector;->read(Lcom/mrkeyboard/app/ExpandableDictionary$NodeArray;I)V
+
+    .line 89
+    :cond_a
     const/16 v2, 0x2710
 
     invoke-virtual {v9, v2}, Lcom/mrkeyboard/app/MrGestureWords$Collector;->keepBest(I)V
 
-    .line 87
+    .line 90
     iget-object v2, v9, Lcom/mrkeyboard/app/MrGestureWords$Collector;->words:[Ljava/lang/String;
 
     iget-object v12, v9, Lcom/mrkeyboard/app/MrGestureWords$Collector;->freqs:[I
@@ -1129,39 +1146,39 @@
 
     sput-object v2, Lcom/mrkeyboard/app/MrGestureWords;->sBuffer:Ljava/nio/ByteBuffer;
 
-    .line 88
+    .line 91
     sget-object v2, Lcom/mrkeyboard/app/MrGestureWords;->sBuffer:Ljava/nio/ByteBuffer;
 
-    if-eqz v2, :cond_a
+    if-eqz v2, :cond_b
 
     iget v2, v9, Lcom/mrkeyboard/app/MrGestureWords$Collector;->n:I
 
     :goto_6
     sput v2, Lcom/mrkeyboard/app/MrGestureWords;->sWords:I
 
-    .line 89
+    .line 92
     new-instance v2, Ljava/lang/ref/WeakReference;
 
     invoke-direct {v2, v3}, Ljava/lang/ref/WeakReference;-><init>(Ljava/lang/Object;)V
 
     sput-object v2, Lcom/mrkeyboard/app/MrGestureWords;->sAuto:Ljava/lang/ref/WeakReference;
 
-    .line 90
+    .line 93
     new-instance v2, Ljava/lang/ref/WeakReference;
 
     invoke-direct {v2, v4}, Ljava/lang/ref/WeakReference;-><init>(Ljava/lang/Object;)V
 
     sput-object v2, Lcom/mrkeyboard/app/MrGestureWords;->sUser:Ljava/lang/ref/WeakReference;
 
-    .line 91
+    .line 94
     sput v8, Lcom/mrkeyboard/app/MrGestureWords;->sAt:I
 
-    .line 92
+    .line 95
     const/4 v2, 0x1
 
     sput-boolean v2, Lcom/mrkeyboard/app/MrGestureWords;->sMade:Z
 
-    .line 93
+    .line 96
     invoke-static {}, Ljava/lang/System;->nanoTime()J
 
     move-result-wide v2
@@ -1170,36 +1187,36 @@
 
     sput-wide v2, Lcom/mrkeyboard/app/MrGestureWords;->sLastNs:J
 
-    .line 94
+    .line 97
     sget-object v5, Lcom/mrkeyboard/app/MrGestureWords;->sBuffer:Ljava/nio/ByteBuffer;
     :try_end_1
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1} :catch_0
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    goto :goto_4
+    goto/16 :goto_4
 
-    :cond_a
+    :cond_b
     move v2, v6
 
-    .line 88
+    .line 91
     goto :goto_6
 
-    .line 95
+    .line 98
     :catch_0
     move-exception v2
 
-    .line 97
+    .line 100
     const/4 v2, 0x0
 
     :try_start_2
     sput-boolean v2, Lcom/mrkeyboard/app/MrGestureWords;->sMade:Z
 
-    .line 98
+    .line 101
     const/4 v2, 0x0
 
     sput-object v2, Lcom/mrkeyboard/app/MrGestureWords;->sBuffer:Ljava/nio/ByteBuffer;
 
-    .line 99
+    .line 102
     const/4 v2, 0x0
 
     sput v2, Lcom/mrkeyboard/app/MrGestureWords;->sWords:I
@@ -1208,7 +1225,7 @@
 
     goto/16 :goto_4
 
-    .line 75
+    .line 76
     :catchall_0
     move-exception v2
 
@@ -1221,7 +1238,7 @@
     .locals 2
 
     .prologue
-    .line 338
+    .line 341
     aget v0, p1, p0
 
     :goto_0
@@ -1233,17 +1250,17 @@
 
     const/4 v0, 0x1
 
-    .line 339
+    .line 342
     :goto_1
     return v0
 
-    .line 338
+    .line 341
     :cond_0
     aget v0, p2, v0
 
     goto :goto_0
 
-    .line 339
+    .line 342
     :cond_1
     const/4 v0, 0x0
 
@@ -1265,7 +1282,7 @@
     .end annotation
 
     .prologue
-    .line 105
+    .line 108
     if-eqz p0, :cond_0
 
     invoke-virtual {p0}, Ljava/lang/ref/WeakReference;->get()Ljava/lang/Object;
@@ -1289,7 +1306,7 @@
     .locals 1
 
     .prologue
-    .line 110
+    .line 113
     instance-of v0, p0, Lcom/mrkeyboard/app/ExpandableDictionary;
 
     if-eqz v0, :cond_0
@@ -1317,7 +1334,7 @@
     .locals 2
 
     .prologue
-    .line 124
+    .line 127
     const-class v1, Lcom/mrkeyboard/app/MrGestureWords;
 
     monitor-enter v1
@@ -1329,29 +1346,29 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureWords;->sAuto:Ljava/lang/ref/WeakReference;
 
-    .line 125
+    .line 128
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureWords;->sMade:Z
 
-    .line 126
+    .line 129
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureWords;->sBuffer:Ljava/nio/ByteBuffer;
 
-    .line 127
+    .line 130
     const/4 v0, 0x0
 
     sput v0, Lcom/mrkeyboard/app/MrGestureWords;->sWords:I
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 128
+    .line 131
     monitor-exit v1
 
     return-void
 
-    .line 124
+    .line 127
     :catchall_0
     move-exception v0
 
@@ -1364,7 +1381,7 @@
     .locals 4
 
     .prologue
-    .line 132
+    .line 135
     const-class v1, Lcom/mrkeyboard/app/MrGestureWords;
 
     monitor-enter v1
@@ -1376,34 +1393,34 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureWords;->sAuto:Ljava/lang/ref/WeakReference;
 
-    .line 133
+    .line 136
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGestureWords;->sMade:Z
 
-    .line 134
+    .line 137
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrGestureWords;->sBuffer:Ljava/nio/ByteBuffer;
 
-    .line 135
+    .line 138
     const/4 v0, 0x0
 
     sput v0, Lcom/mrkeyboard/app/MrGestureWords;->sWords:I
 
-    .line 136
+    .line 139
     const-wide/16 v2, 0x0
 
     sput-wide v2, Lcom/mrkeyboard/app/MrGestureWords;->sLastNs:J
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 137
+    .line 140
     monitor-exit v1
 
     return-void
 
-    .line 132
+    .line 135
     :catchall_0
     move-exception v0
 
@@ -1416,7 +1433,7 @@
     .locals 6
 
     .prologue
-    .line 115
+    .line 118
     const-class v2, Lcom/mrkeyboard/app/MrGestureWords;
 
     monitor-enter v2

@@ -92,3 +92,15 @@
 
 .method public abstract newBatch()J
 .end method
+
+.method public abstract scopes()Ljava/util/List;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()",
+            "Ljava/util/List",
+            "<",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+.end method

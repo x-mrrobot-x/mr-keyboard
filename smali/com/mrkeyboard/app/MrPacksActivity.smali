@@ -32,8 +32,6 @@
 
 .field private mLangs:Landroid/preference/PreferenceCategory;
 
-.field private mMem:Landroid/preference/Preference;
-
 .field private mOpenId:Ljava/lang/String;
 
 .field private final mPackPrefs:Ljava/util/HashMap;
@@ -79,14 +77,14 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mPackPrefs:Ljava/util/HashMap;
 
-    .line 73
+    .line 71
     new-instance v0, Lcom/mrkeyboard/app/MrPacksActivity$1;
 
     invoke-direct {v0, p0}, Lcom/mrkeyboard/app/MrPacksActivity$1;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mRefresh:Ljava/lang/Runnable;
 
-    .line 79
+    .line 77
     new-instance v0, Lcom/mrkeyboard/app/MrPacksActivity$2;
 
     invoke-direct {v0, p0}, Lcom/mrkeyboard/app/MrPacksActivity$2;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
@@ -118,37 +116,7 @@
     return-void
 .end method
 
-.method static synthetic access$1000(Lcom/mrkeyboard/app/MrPacksActivity;)Ljava/lang/String;
-    .locals 1
-
-    .prologue
-    .line 53
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mOpenId:Ljava/lang/String;
-
-    return-object v0
-.end method
-
-.method static synthetic access$1002(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)Ljava/lang/String;
-    .locals 0
-
-    .prologue
-    .line 53
-    iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mOpenId:Ljava/lang/String;
-
-    return-object p1
-.end method
-
-.method static synthetic access$1100(Lcom/mrkeyboard/app/MrPacksActivity;)V
-    .locals 0
-
-    .prologue
-    .line 53
-    invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->rebuild()V
-
-    return-void
-.end method
-
-.method static synthetic access$1200(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)V
+.method static synthetic access$1000(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)V
     .locals 0
 
     .prologue
@@ -158,7 +126,7 @@
     return-void
 .end method
 
-.method static synthetic access$1300(Lcom/mrkeyboard/app/MrPacksActivity;)V
+.method static synthetic access$1100(Lcom/mrkeyboard/app/MrPacksActivity;)V
     .locals 0
 
     .prologue
@@ -168,7 +136,7 @@
     return-void
 .end method
 
-.method static synthetic access$1400(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)V
+.method static synthetic access$1200(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)V
     .locals 0
 
     .prologue
@@ -178,7 +146,7 @@
     return-void
 .end method
 
-.method static synthetic access$1500(Lcom/mrkeyboard/app/MrPacksActivity;Lcom/mrkeyboard/app/MrPacks$Pack;)V
+.method static synthetic access$1300(Lcom/mrkeyboard/app/MrPacksActivity;Lcom/mrkeyboard/app/MrPacks$Pack;)V
     .locals 0
 
     .prologue
@@ -188,7 +156,7 @@
     return-void
 .end method
 
-.method static synthetic access$1600(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;Ljava/lang/String;Z)V
+.method static synthetic access$1400(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;Ljava/lang/String;Z)V
     .locals 0
 
     .prologue
@@ -198,7 +166,7 @@
     return-void
 .end method
 
-.method static synthetic access$1700(Lcom/mrkeyboard/app/MrPacksActivity;)V
+.method static synthetic access$1500(Lcom/mrkeyboard/app/MrPacksActivity;)V
     .locals 0
 
     .prologue
@@ -208,7 +176,7 @@
     return-void
 .end method
 
-.method static synthetic access$1802(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)Ljava/lang/String;
+.method static synthetic access$1602(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)Ljava/lang/String;
     .locals 0
 
     .prologue
@@ -218,7 +186,7 @@
     return-object p1
 .end method
 
-.method static synthetic access$1902(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)Ljava/lang/String;
+.method static synthetic access$1702(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)Ljava/lang/String;
     .locals 0
 
     .prologue
@@ -226,6 +194,28 @@
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mErrorId:Ljava/lang/String;
 
     return-object p1
+.end method
+
+.method static synthetic access$1800(Lcom/mrkeyboard/app/MrPacksActivity;)Z
+    .locals 1
+
+    .prologue
+    .line 53
+    invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->gestureOn()Z
+
+    move-result v0
+
+    return v0
+.end method
+
+.method static synthetic access$1900(Lcom/mrkeyboard/app/MrPacksActivity;)V
+    .locals 0
+
+    .prologue
+    .line 53
+    invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->openModel()V
+
+    return-void
 .end method
 
 .method static synthetic access$200(Lcom/mrkeyboard/app/MrPacksActivity;)Landroid/os/Handler;
@@ -238,29 +228,7 @@
     return-object v0
 .end method
 
-.method static synthetic access$2000(Lcom/mrkeyboard/app/MrPacksActivity;)Z
-    .locals 1
-
-    .prologue
-    .line 53
-    invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->gestureOn()Z
-
-    move-result v0
-
-    return v0
-.end method
-
-.method static synthetic access$2100(Lcom/mrkeyboard/app/MrPacksActivity;)V
-    .locals 0
-
-    .prologue
-    .line 53
-    invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->openModel()V
-
-    return-void
-.end method
-
-.method static synthetic access$2200(Lcom/mrkeyboard/app/MrPacksActivity;)Ljava/lang/Runnable;
+.method static synthetic access$2000(Lcom/mrkeyboard/app/MrPacksActivity;)Ljava/lang/Runnable;
     .locals 1
 
     .prologue
@@ -290,29 +258,7 @@
     return-void
 .end method
 
-.method static synthetic access$500(Lcom/mrkeyboard/app/MrPacksActivity;Lcom/mrkeyboard/app/MrDiag$Report;)Ljava/lang/String;
-    .locals 1
-
-    .prologue
-    .line 53
-    invoke-direct {p0, p1}, Lcom/mrkeyboard/app/MrPacksActivity;->memText(Lcom/mrkeyboard/app/MrDiag$Report;)Ljava/lang/String;
-
-    move-result-object v0
-
-    return-object v0
-.end method
-
-.method static synthetic access$600(Lcom/mrkeyboard/app/MrPacksActivity;)Landroid/preference/Preference;
-    .locals 1
-
-    .prologue
-    .line 53
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mMem:Landroid/preference/Preference;
-
-    return-object v0
-.end method
-
-.method static synthetic access$702(Lcom/mrkeyboard/app/MrPacksActivity;Z)Z
+.method static synthetic access$502(Lcom/mrkeyboard/app/MrPacksActivity;Z)Z
     .locals 0
 
     .prologue
@@ -322,7 +268,7 @@
     return p1
 .end method
 
-.method static synthetic access$802(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)Ljava/lang/String;
+.method static synthetic access$602(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)Ljava/lang/String;
     .locals 0
 
     .prologue
@@ -332,7 +278,7 @@
     return-object p1
 .end method
 
-.method static synthetic access$902(Lcom/mrkeyboard/app/MrPacksActivity;Lcom/mrkeyboard/app/MrPacks$Catalog;)Lcom/mrkeyboard/app/MrPacks$Catalog;
+.method static synthetic access$702(Lcom/mrkeyboard/app/MrPacksActivity;Lcom/mrkeyboard/app/MrPacks$Catalog;)Lcom/mrkeyboard/app/MrPacks$Catalog;
     .locals 0
 
     .prologue
@@ -342,18 +288,48 @@
     return-object p1
 .end method
 
+.method static synthetic access$800(Lcom/mrkeyboard/app/MrPacksActivity;)Ljava/lang/String;
+    .locals 1
+
+    .prologue
+    .line 53
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mOpenId:Ljava/lang/String;
+
+    return-object v0
+.end method
+
+.method static synthetic access$802(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)Ljava/lang/String;
+    .locals 0
+
+    .prologue
+    .line 53
+    iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mOpenId:Ljava/lang/String;
+
+    return-object p1
+.end method
+
+.method static synthetic access$900(Lcom/mrkeyboard/app/MrPacksActivity;)V
+    .locals 0
+
+    .prologue
+    .line 53
+    invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->rebuild()V
+
+    return-void
+.end method
+
 .method private askModel()V
     .locals 4
 
     .prologue
     const/4 v3, 0x0
 
-    .line 594
+    .line 543
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
     invoke-direct {v0, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 595
+    .line 544
     const-string v1, "mr_gesture_pack_title"
 
     new-array v2, v3, [Ljava/lang/Object;
@@ -364,7 +340,7 @@
 
     invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    .line 596
+    .line 545
     const-string v1, "mr_gesture_need_pack"
 
     new-array v2, v3, [Ljava/lang/Object;
@@ -375,7 +351,7 @@
 
     invoke-virtual {v0, v1}, Landroid/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    .line 597
+    .line 546
     const-string v1, "mr_dicts_download"
 
     new-array v2, v3, [Ljava/lang/Object;
@@ -384,13 +360,13 @@
 
     move-result-object v1
 
-    new-instance v2, Lcom/mrkeyboard/app/MrPacksActivity$15;
+    new-instance v2, Lcom/mrkeyboard/app/MrPacksActivity$14;
 
-    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/MrPacksActivity$15;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
+    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/MrPacksActivity$14;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
 
     invoke-virtual {v0, v1, v2}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
-    .line 603
+    .line 552
     const-string v1, "mr_gesture_later"
 
     new-array v2, v3, [Ljava/lang/Object;
@@ -403,12 +379,12 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/app/AlertDialog$Builder;->setNegativeButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
-    .line 604
+    .line 553
     sget-object v1, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
     if-nez v1, :cond_0
 
-    .line 605
+    .line 554
     const-string v1, "mr_gesture_from_file"
 
     new-array v2, v3, [Ljava/lang/Object;
@@ -417,17 +393,17 @@
 
     move-result-object v1
 
-    new-instance v2, Lcom/mrkeyboard/app/MrPacksActivity$16;
+    new-instance v2, Lcom/mrkeyboard/app/MrPacksActivity$15;
 
-    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/MrPacksActivity$16;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
+    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/MrPacksActivity$15;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
 
     invoke-virtual {v0, v1, v2}, Landroid/app/AlertDialog$Builder;->setNeutralButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
-    .line 611
+    .line 560
     :cond_0
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 612
+    .line 561
     return-void
 .end method
 
@@ -437,40 +413,40 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 515
+    .line 464
     const-string v0, "mr_cat_gesture"
 
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/MrPacksActivity;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
 
     move-result-object v0
 
-    .line 516
+    .line 465
     instance-of v1, v0, Landroid/preference/PreferenceGroup;
 
     if-nez v1, :cond_1
 
-    .line 558
+    .line 507
     :cond_0
     :goto_0
     return-void
 
-    .line 517
+    .line 466
     :cond_1
     check-cast v0, Landroid/preference/PreferenceGroup;
 
-    .line 518
+    .line 467
     new-instance v1, Landroid/preference/Preference;
 
     invoke-direct {v1, p0}, Landroid/preference/Preference;-><init>(Landroid/content/Context;)V
 
     iput-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGPack:Landroid/preference/Preference;
 
-    .line 519
+    .line 468
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGPack:Landroid/preference/Preference;
 
     invoke-virtual {v1, v4}, Landroid/preference/Preference;->setPersistent(Z)V
 
-    .line 520
+    .line 469
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGPack:Landroid/preference/Preference;
 
     const-string v2, "mr_gesture_pack_title"
@@ -483,43 +459,43 @@
 
     invoke-virtual {v1, v2}, Landroid/preference/Preference;->setTitle(Ljava/lang/CharSequence;)V
 
-    .line 521
+    .line 470
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGPack:Landroid/preference/Preference;
 
-    new-instance v2, Lcom/mrkeyboard/app/MrPacksActivity$13;
+    new-instance v2, Lcom/mrkeyboard/app/MrPacksActivity$12;
 
-    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/MrPacksActivity$13;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
+    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/MrPacksActivity$12;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
 
     invoke-virtual {v1, v2}, Landroid/preference/Preference;->setOnPreferenceClickListener(Landroid/preference/Preference$OnPreferenceClickListener;)V
 
-    .line 527
+    .line 476
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGPack:Landroid/preference/Preference;
 
     invoke-virtual {v0, v1}, Landroid/preference/PreferenceGroup;->addPreference(Landroid/preference/Preference;)Z
 
-    .line 528
+    .line 477
     new-instance v1, Landroid/preference/Preference;
 
     invoke-direct {v1, p0}, Landroid/preference/Preference;-><init>(Landroid/content/Context;)V
 
     iput-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGTime:Landroid/preference/Preference;
 
-    .line 529
+    .line 478
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGTime:Landroid/preference/Preference;
 
     invoke-virtual {v1, v4}, Landroid/preference/Preference;->setPersistent(Z)V
 
-    .line 530
+    .line 479
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGTime:Landroid/preference/Preference;
 
     invoke-virtual {v1, v4}, Landroid/preference/Preference;->setSelectable(Z)V
 
-    .line 531
+    .line 480
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGTime:Landroid/preference/Preference;
 
     invoke-direct {p0, v1}, Lcom/mrkeyboard/app/MrPacksActivity;->plain(Landroid/preference/Preference;)V
 
-    .line 532
+    .line 481
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGTime:Landroid/preference/Preference;
 
     const-string v2, "mr_gesture_time_title"
@@ -532,24 +508,24 @@
 
     invoke-virtual {v1, v2}, Landroid/preference/Preference;->setTitle(Ljava/lang/CharSequence;)V
 
-    .line 533
+    .line 482
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGTime:Landroid/preference/Preference;
 
     invoke-virtual {v0, v1}, Landroid/preference/PreferenceGroup;->addPreference(Landroid/preference/Preference;)Z
 
-    .line 536
+    .line 485
     new-instance v1, Landroid/preference/Preference;
 
     invoke-direct {v1, p0}, Landroid/preference/Preference;-><init>(Landroid/content/Context;)V
 
     iput-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGNotice:Landroid/preference/Preference;
 
-    .line 537
+    .line 486
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGNotice:Landroid/preference/Preference;
 
     invoke-virtual {v1, v4}, Landroid/preference/Preference;->setPersistent(Z)V
 
-    .line 538
+    .line 487
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGNotice:Landroid/preference/Preference;
 
     const-string v2, "mr_gesture_notice_title"
@@ -562,35 +538,35 @@
 
     invoke-virtual {v1, v2}, Landroid/preference/Preference;->setTitle(Ljava/lang/CharSequence;)V
 
-    .line 539
+    .line 488
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGNotice:Landroid/preference/Preference;
 
     invoke-virtual {v1, v4}, Landroid/preference/Preference;->setSelectable(Z)V
 
-    .line 540
+    .line 489
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGNotice:Landroid/preference/Preference;
 
     invoke-direct {p0, v1}, Lcom/mrkeyboard/app/MrPacksActivity;->plain(Landroid/preference/Preference;)V
 
-    .line 541
+    .line 490
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGNotice:Landroid/preference/Preference;
 
     invoke-virtual {v0, v1}, Landroid/preference/PreferenceGroup;->addPreference(Landroid/preference/Preference;)Z
 
-    .line 542
+    .line 491
     const-string v0, "pref_gesture_typing"
 
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/MrPacksActivity;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
 
     move-result-object v0
 
-    .line 543
+    .line 492
     if-eqz v0, :cond_0
 
-    .line 544
-    new-instance v1, Lcom/mrkeyboard/app/MrPacksActivity$14;
+    .line 493
+    new-instance v1, Lcom/mrkeyboard/app/MrPacksActivity$13;
 
-    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrPacksActivity$14;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
+    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrPacksActivity$13;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setOnPreferenceChangeListener(Landroid/preference/Preference$OnPreferenceChangeListener;)V
 
@@ -601,46 +577,46 @@
     .locals 3
 
     .prologue
-    .line 347
+    .line 296
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mChecking:Z
 
     if-eqz v0, :cond_0
 
-    .line 383
+    .line 332
     :goto_0
     return-void
 
-    .line 348
+    .line 297
     :cond_0
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mChecking:Z
 
-    .line 349
+    .line 298
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCheckError:Ljava/lang/String;
 
-    .line 350
+    .line 299
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->update()V
 
-    .line 351
+    .line 300
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
 
-    .line 352
+    .line 301
     new-instance v1, Ljava/lang/Thread;
 
-    new-instance v2, Lcom/mrkeyboard/app/MrPacksActivity$6;
+    new-instance v2, Lcom/mrkeyboard/app/MrPacksActivity$5;
 
-    invoke-direct {v2, p0, v0}, Lcom/mrkeyboard/app/MrPacksActivity$6;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;Landroid/content/Context;)V
+    invoke-direct {v2, p0, v0}, Lcom/mrkeyboard/app/MrPacksActivity$5;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;Landroid/content/Context;)V
 
     const-string v0, "MrPacksCheck"
 
     invoke-direct {v1, v2, v0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
 
-    .line 382
+    .line 331
     invoke-virtual {v1}, Ljava/lang/Thread;->start()V
 
     goto :goto_0
@@ -656,7 +632,7 @@
 
     const/4 v5, 0x0
 
-    .line 309
+    .line 258
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mChecking:Z
 
     if-eqz v0, :cond_1
@@ -669,12 +645,12 @@
 
     move-result-object v0
 
-    .line 324
+    .line 273
     :cond_0
     :goto_0
     return-object v0
 
-    .line 310
+    .line 259
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCheckError:Ljava/lang/String;
 
@@ -690,13 +666,13 @@
 
     goto :goto_0
 
-    .line 311
+    .line 260
     :cond_2
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->checkedAt(Landroid/content/Context;)J
 
     move-result-wide v0
 
-    .line 312
+    .line 261
     const-wide/16 v2, 0x0
 
     cmp-long v2, v0, v2
@@ -713,7 +689,7 @@
 
     goto :goto_0
 
-    .line 313
+    .line 262
     :cond_3
     invoke-static {v6, v6}, Ljava/text/DateFormat;->getDateTimeInstance(II)Ljava/text/DateFormat;
 
@@ -727,7 +703,7 @@
 
     move-result-object v0
 
-    .line 314
+    .line 263
     const-string v1, "mr_dicts_check_last"
 
     new-array v2, v4, [Ljava/lang/Object;
@@ -738,7 +714,7 @@
 
     move-result-object v0
 
-    .line 315
+    .line 264
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCat:Lcom/mrkeyboard/app/MrPacks$Catalog;
 
     if-eqz v1, :cond_4
@@ -783,7 +759,7 @@
 
     move-result-object v0
 
-    .line 316
+    .line 265
     :cond_4
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCat:Lcom/mrkeyboard/app/MrPacks$Catalog;
 
@@ -791,25 +767,25 @@
 
     move-result v2
 
-    .line 317
+    .line 266
     if-eqz v2, :cond_0
 
-    .line 318
+    .line 267
     new-instance v1, Landroid/text/SpannableStringBuilder;
 
     invoke-direct {v1, v0}, Landroid/text/SpannableStringBuilder;-><init>(Ljava/lang/CharSequence;)V
 
-    .line 319
+    .line 268
     const-string v0, " \u00b7 "
 
     invoke-virtual {v1, v0}, Landroid/text/SpannableStringBuilder;->append(Ljava/lang/CharSequence;)Landroid/text/SpannableStringBuilder;
 
-    .line 320
+    .line 269
     invoke-virtual {v1}, Landroid/text/SpannableStringBuilder;->length()I
 
     move-result v3
 
-    .line 321
+    .line 270
     if-ne v2, v4, :cond_6
 
     const-string v0, "mr_dicts_updates_one"
@@ -829,14 +805,14 @@
 
     invoke-virtual {v1, v0}, Landroid/text/SpannableStringBuilder;->append(Ljava/lang/CharSequence;)Landroid/text/SpannableStringBuilder;
 
-    .line 322
+    .line 271
     const-string v0, "mr_ui_blue"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrPacksActivity;->color(Ljava/lang/String;)I
 
     move-result v0
 
-    .line 323
+    .line 272
     if-eqz v0, :cond_5
 
     new-instance v2, Landroid/text/style/ForegroundColorSpan;
@@ -854,10 +830,10 @@
     :cond_5
     move-object v0, v1
 
-    .line 324
+    .line 273
     goto/16 :goto_0
 
-    .line 321
+    .line 270
     :cond_6
     const-string v0, "mr_dicts_updates_many"
 
@@ -868,7 +844,7 @@
     .locals 3
 
     .prologue
-    .line 260
+    .line 209
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -883,7 +859,7 @@
 
     move-result v0
 
-    .line 261
+    .line 210
     if-eqz v0, :cond_0
 
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getResources()Landroid/content/res/Resources;
@@ -909,15 +885,15 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 492
+    .line 441
     new-instance v1, Landroid/app/AlertDialog$Builder;
 
     invoke-direct {v1, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 493
+    .line 442
     invoke-virtual {v1, p2}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    .line 494
+    .line 443
     if-eqz p3, :cond_0
 
     const-string v0, "mr_gesture_remove_confirm"
@@ -931,7 +907,7 @@
     :goto_0
     invoke-virtual {v1, v0}, Landroid/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    .line 495
+    .line 444
     const-string v0, "mr_dicts_remove"
 
     new-array v2, v3, [Ljava/lang/Object;
@@ -940,13 +916,13 @@
 
     move-result-object v0
 
-    new-instance v2, Lcom/mrkeyboard/app/MrPacksActivity$12;
+    new-instance v2, Lcom/mrkeyboard/app/MrPacksActivity$11;
 
-    invoke-direct {v2, p0, p3, p1}, Lcom/mrkeyboard/app/MrPacksActivity$12;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;ZLjava/lang/String;)V
+    invoke-direct {v2, p0, p3, p1}, Lcom/mrkeyboard/app/MrPacksActivity$11;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;ZLjava/lang/String;)V
 
     invoke-virtual {v1, v0, v2}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
-    .line 504
+    .line 453
     const-string v0, "mr_dicts_close"
 
     new-array v2, v3, [Ljava/lang/Object;
@@ -959,13 +935,13 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/app/AlertDialog$Builder;->setNegativeButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
-    .line 505
+    .line 454
     invoke-virtual {v1}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 506
+    .line 455
     return-void
 
-    .line 494
+    .line 443
     :cond_0
     const-string v0, "mr_dicts_remove_confirm"
 
@@ -992,14 +968,14 @@
 
     const/4 v6, 0x0
 
-    .line 392
+    .line 341
     sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v1
 
-    .line 393
+    .line 342
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -1010,20 +986,20 @@
 
     iget-object v0, v0, Landroid/content/res/Configuration;->locale:Ljava/util/Locale;
 
-    .line 394
+    .line 343
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 395
+    .line 344
     if-eqz p2, :cond_2
 
-    .line 396
+    .line 345
     invoke-virtual {p2, v0}, Lcom/mrkeyboard/app/MrPacks$Pack;->description(Ljava/util/Locale;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 397
+    .line 346
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v3
@@ -1038,7 +1014,7 @@
 
     invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 398
+    .line 347
     :cond_0
     const-string v0, "mr_dicts_size_download"
 
@@ -1066,7 +1042,7 @@
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 399
+    .line 348
     iget-object v0, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->licenses:Ljava/lang/String;
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -1095,7 +1071,7 @@
 
     invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 400
+    .line 349
     :cond_1
     iget-object v0, p2, Lcom/mrkeyboard/app/MrPacks$Pack;->credits:Ljava/lang/String;
 
@@ -1115,11 +1091,11 @@
 
     invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 402
+    .line 351
     :cond_2
     if-lez p3, :cond_4
 
-    .line 403
+    .line 352
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->length()I
 
     move-result v0
@@ -1130,7 +1106,7 @@
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 404
+    .line 353
     :cond_3
     const-string v0, "mr_dicts_state_installed"
 
@@ -1158,26 +1134,26 @@
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 406
+    .line 355
     :cond_4
     new-instance v3, Landroid/app/AlertDialog$Builder;
 
     invoke-direct {v3, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 407
+    .line 356
     invoke-virtual {v3, p4}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    .line 408
+    .line 357
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
     invoke-virtual {v3, v0}, Landroid/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
-    .line 409
+    .line 358
     if-eqz v1, :cond_7
 
-    .line 410
+    .line 359
     const-string v0, "mr_dicts_cancel"
 
     new-array v2, v6, [Ljava/lang/Object;
@@ -1186,20 +1162,20 @@
 
     move-result-object v0
 
-    new-instance v2, Lcom/mrkeyboard/app/MrPacksActivity$7;
+    new-instance v2, Lcom/mrkeyboard/app/MrPacksActivity$6;
 
-    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/MrPacksActivity$7;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
+    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/MrPacksActivity$6;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
 
     invoke-virtual {v3, v0, v2}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
-    .line 423
+    .line 372
     :cond_5
     :goto_0
     if-lez p3, :cond_9
 
     if-nez v1, :cond_9
 
-    .line 424
+    .line 373
     const-string v0, "mr_dicts_remove"
 
     new-array v1, v6, [Ljava/lang/Object;
@@ -1208,13 +1184,13 @@
 
     move-result-object v0
 
-    new-instance v1, Lcom/mrkeyboard/app/MrPacksActivity$9;
+    new-instance v1, Lcom/mrkeyboard/app/MrPacksActivity$8;
 
-    invoke-direct {v1, p0, p1, p4, p5}, Lcom/mrkeyboard/app/MrPacksActivity$9;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;Ljava/lang/String;Z)V
+    invoke-direct {v1, p0, p1, p4, p5}, Lcom/mrkeyboard/app/MrPacksActivity$8;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;Ljava/lang/String;Z)V
 
     invoke-virtual {v3, v0, v1}, Landroid/app/AlertDialog$Builder;->setNeutralButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
-    .line 436
+    .line 385
     :cond_6
     :goto_1
     const-string v0, "mr_dicts_close"
@@ -1229,13 +1205,13 @@
 
     invoke-virtual {v3, v0, v1}, Landroid/app/AlertDialog$Builder;->setNegativeButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
-    .line 437
+    .line 386
     invoke-virtual {v3}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 438
+    .line 387
     return-void
 
-    .line 415
+    .line 364
     :cond_7
     if-eqz p2, :cond_5
 
@@ -1253,7 +1229,7 @@
 
     if-nez v0, :cond_5
 
-    .line 416
+    .line 365
     if-nez p3, :cond_8
 
     const-string v0, "mr_dicts_download"
@@ -1265,9 +1241,9 @@
 
     move-result-object v0
 
-    new-instance v2, Lcom/mrkeyboard/app/MrPacksActivity$8;
+    new-instance v2, Lcom/mrkeyboard/app/MrPacksActivity$7;
 
-    invoke-direct {v2, p0, p2}, Lcom/mrkeyboard/app/MrPacksActivity$8;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;Lcom/mrkeyboard/app/MrPacks$Pack;)V
+    invoke-direct {v2, p0, p2}, Lcom/mrkeyboard/app/MrPacksActivity$7;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;Lcom/mrkeyboard/app/MrPacks$Pack;)V
 
     invoke-virtual {v3, v0, v2}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
@@ -1278,7 +1254,7 @@
 
     goto :goto_2
 
-    .line 429
+    .line 378
     :cond_9
     if-eqz p5, :cond_6
 
@@ -1286,7 +1262,7 @@
 
     if-nez v0, :cond_6
 
-    .line 430
+    .line 379
     const-string v0, "mr_gesture_from_file"
 
     new-array v1, v6, [Ljava/lang/Object;
@@ -1295,9 +1271,9 @@
 
     move-result-object v0
 
-    new-instance v1, Lcom/mrkeyboard/app/MrPacksActivity$10;
+    new-instance v1, Lcom/mrkeyboard/app/MrPacksActivity$9;
 
-    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrPacksActivity$10;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
+    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrPacksActivity$9;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;)V
 
     invoke-virtual {v3, v0, v1}, Landroid/app/AlertDialog$Builder;->setNeutralButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
@@ -1308,7 +1284,7 @@
     .locals 7
 
     .prologue
-    .line 328
+    .line 277
     if-eqz p3, :cond_0
 
     invoke-static {p0, p1, p2}, Lcom/mrkeyboard/app/MrPacks;->modelDir(Landroid/content/Context;Ljava/lang/String;I)Ljava/io/File;
@@ -1320,10 +1296,10 @@
 
     move-result-object v3
 
-    .line 329
+    .line 278
     const-wide/16 v0, 0x0
 
-    .line 330
+    .line 279
     if-eqz v3, :cond_1
 
     array-length v6, v3
@@ -1349,7 +1325,7 @@
 
     goto :goto_1
 
-    .line 328
+    .line 277
     :cond_0
     invoke-static {p0, p1, p2}, Lcom/mrkeyboard/app/MrPacks;->packDir(Landroid/content/Context;Ljava/lang/String;I)Ljava/io/File;
 
@@ -1357,7 +1333,7 @@
 
     goto :goto_0
 
-    .line 331
+    .line 280
     :cond_1
     return-wide v0
 .end method
@@ -1370,7 +1346,7 @@
 
     const/4 v1, 0x0
 
-    .line 441
+    .line 390
     sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
     if-nez v0, :cond_0
@@ -1379,59 +1355,59 @@
 
     if-nez v0, :cond_1
 
-    .line 489
+    .line 438
     :cond_0
     :goto_0
     return-void
 
-    .line 442
+    .line 391
     :cond_1
     iput-object v2, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mError:Ljava/lang/String;
 
-    .line 443
+    .line 392
     iput-object v2, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mErrorId:Ljava/lang/String;
 
-    .line 444
+    .line 393
     sput v1, Lcom/mrkeyboard/app/MrPacks;->sJobPercent:I
 
-    .line 445
+    .line 394
     sput-boolean v1, Lcom/mrkeyboard/app/MrPacks;->sJobInstalling:Z
 
-    .line 446
+    .line 395
     iget-object v0, p1, Lcom/mrkeyboard/app/MrPacks$Pack;->id:Ljava/lang/String;
 
     sput-object v0, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
-    .line 447
+    .line 396
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCat:Lcom/mrkeyboard/app/MrPacks$Catalog;
 
-    .line 448
+    .line 397
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v1
 
-    .line 449
+    .line 398
     new-instance v2, Ljava/lang/Thread;
 
-    new-instance v3, Lcom/mrkeyboard/app/MrPacksActivity$11;
+    new-instance v3, Lcom/mrkeyboard/app/MrPacksActivity$10;
 
-    invoke-direct {v3, p0, v1, v0, p1}, Lcom/mrkeyboard/app/MrPacksActivity$11;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;Landroid/content/Context;Lcom/mrkeyboard/app/MrPacks$Catalog;Lcom/mrkeyboard/app/MrPacks$Pack;)V
+    invoke-direct {v3, p0, v1, v0, p1}, Lcom/mrkeyboard/app/MrPacksActivity$10;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;Landroid/content/Context;Lcom/mrkeyboard/app/MrPacks$Catalog;Lcom/mrkeyboard/app/MrPacks$Pack;)V
 
     const-string v0, "MrPacksInstall"
 
     invoke-direct {v2, v3, v0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
 
-    .line 486
+    .line 435
     invoke-virtual {v2}, Ljava/lang/Thread;->start()V
 
-    .line 487
+    .line 436
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mPoll:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 488
+    .line 437
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mPoll:Ljava/lang/Runnable;
@@ -1447,7 +1423,7 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 676
+    .line 625
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCat:Lcom/mrkeyboard/app/MrPacks$Catalog;
 
     if-eqz v0, :cond_0
@@ -1460,11 +1436,11 @@
 
     move-result-object v2
 
-    .line 677
+    .line 626
     :goto_0
     if-nez v2, :cond_1
 
-    .line 678
+    .line 627
     const-string v0, "mr_dicts_state_unavailable"
 
     new-array v1, v4, [Ljava/lang/Object;
@@ -1475,17 +1451,17 @@
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrPacksActivity;->toast(Ljava/lang/String;)V
 
-    .line 686
+    .line 635
     :goto_1
     return-void
 
-    .line 676
+    .line 625
     :cond_0
     const/4 v2, 0x0
 
     goto :goto_0
 
-    .line 679
+    .line 628
     :cond_1
     invoke-static {p0, v2}, Lcom/mrkeyboard/app/MrPacks;->appTooOld(Landroid/content/Context;Lcom/mrkeyboard/app/MrPacks$Pack;)Z
 
@@ -1493,7 +1469,7 @@
 
     if-eqz v0, :cond_2
 
-    .line 680
+    .line 629
     const-string v0, "mr_gesture_err_app_old"
 
     new-array v1, v4, [Ljava/lang/Object;
@@ -1506,13 +1482,13 @@
 
     goto :goto_1
 
-    .line 681
+    .line 630
     :cond_2
     sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
     if-eqz v0, :cond_3
 
-    .line 682
+    .line 631
     const-string v1, "gesture"
 
     const-string v0, "gesture"
@@ -1537,7 +1513,7 @@
 
     goto :goto_1
 
-    .line 684
+    .line 633
     :cond_3
     invoke-direct {p0, v2}, Lcom/mrkeyboard/app/MrPacksActivity;->download(Lcom/mrkeyboard/app/MrPacks$Pack;)V
 
@@ -1548,7 +1524,7 @@
     .locals 3
 
     .prologue
-    .line 561
+    .line 510
     invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -1568,7 +1544,7 @@
     .locals 1
 
     .prologue
-    .line 691
+    .line 640
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->isFinishing()Z
 
     move-result v0
@@ -1597,7 +1573,7 @@
     .locals 2
 
     .prologue
-    .line 266
+    .line 215
     const-string v0, " \u00b7 "
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->indexOf(Ljava/lang/String;)I
@@ -1610,14 +1586,14 @@
 
     move-result v0
 
-    .line 267
+    .line 216
     if-gez v1, :cond_0
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
     move-result v1
 
-    .line 268
+    .line 217
     :cond_0
     if-gez v0, :cond_1
 
@@ -1625,7 +1601,7 @@
 
     move-result v0
 
-    .line 269
+    .line 218
     :cond_1
     invoke-static {v1, v0}, Ljava/lang/Math;->min(II)I
 
@@ -1638,7 +1614,7 @@
     .locals 3
 
     .prologue
-    .line 111
+    .line 109
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getListView()Landroid/widget/ListView;
 
     move-result-object v0
@@ -1651,12 +1627,12 @@
 
     if-lt v0, v1, :cond_1
 
-    .line 115
+    .line 113
     :cond_0
     :goto_0
     return-void
 
-    .line 112
+    .line 110
     :cond_1
     const-string v0, "quick_fixes"
 
@@ -1664,14 +1640,14 @@
 
     move-result-object v1
 
-    .line 113
+    .line 111
     const-string v0, "mr_cat_suggestions"
 
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/MrPacksActivity;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
 
     move-result-object v0
 
-    .line 114
+    .line 112
     if-eqz v1, :cond_0
 
     instance-of v2, v0, Landroid/preference/PreferenceGroup;
@@ -1689,7 +1665,7 @@
     .locals 4
 
     .prologue
-    .line 138
+    .line 136
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -1716,7 +1692,7 @@
 
     move-result-object v0
 
-    .line 139
+    .line 137
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v1
@@ -1745,220 +1721,11 @@
     return-object p1
 .end method
 
-.method private memText(Lcom/mrkeyboard/app/MrDiag$Report;)Ljava/lang/String;
-    .locals 11
-
-    .prologue
-    const/4 v10, 0x3
-
-    const/16 v9, 0xa
-
-    const/4 v8, 0x2
-
-    const/4 v7, 0x1
-
-    const/4 v6, 0x0
-
-    .line 234
-    new-instance v0, Ljava/lang/StringBuilder;
-
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
-
-    .line 235
-    const-string v1, "mr_mem_dict"
-
-    const/4 v2, 0x5
-
-    new-array v2, v2, [Ljava/lang/Object;
-
-    iget-object v3, p1, Lcom/mrkeyboard/app/MrDiag$Report;->id:Ljava/lang/String;
-
-    aput-object v3, v2, v6
-
-    iget v3, p1, Lcom/mrkeyboard/app/MrDiag$Report;->version:I
-
-    invoke-static {v3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v3
-
-    aput-object v3, v2, v7
-
-    iget-wide v4, p1, Lcom/mrkeyboard/app/MrDiag$Report;->dictBytes:J
-
-    invoke-static {v4, v5}, Lcom/mrkeyboard/app/MrDiag;->bytesText(J)Ljava/lang/String;
-
-    move-result-object v3
-
-    aput-object v3, v2, v8
-
-    iget-wide v4, p1, Lcom/mrkeyboard/app/MrDiag$Report;->dictMem:J
-
-    invoke-static {v4, v5}, Lcom/mrkeyboard/app/MrDiag;->bytesText(J)Ljava/lang/String;
-
-    move-result-object v3
-
-    aput-object v3, v2, v10
-
-    const/4 v3, 0x4
-
-    iget-wide v4, p1, Lcom/mrkeyboard/app/MrDiag$Report;->dictNs:J
-
-    invoke-static {v4, v5}, Lcom/mrkeyboard/app/MrDiag;->msText(J)Ljava/lang/String;
-
-    move-result-object v4
-
-    aput-object v4, v2, v3
-
-    invoke-virtual {p0, v1, v2}, Lcom/mrkeyboard/app/MrPacksActivity;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 236
-    invoke-virtual {v0, v9}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
-
-    .line 237
-    iget-boolean v1, p1, Lcom/mrkeyboard/app/MrDiag$Report;->hasTri:Z
-
-    if-eqz v1, :cond_1
-
-    .line 238
-    const-string v1, "mr_mem_tri"
-
-    const/4 v2, 0x4
-
-    new-array v2, v2, [Ljava/lang/Object;
-
-    iget v3, p1, Lcom/mrkeyboard/app/MrDiag$Report;->triFormat:I
-
-    invoke-static {v3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v3
-
-    aput-object v3, v2, v6
-
-    iget-wide v4, p1, Lcom/mrkeyboard/app/MrDiag$Report;->triBytes:J
-
-    invoke-static {v4, v5}, Lcom/mrkeyboard/app/MrDiag;->bytesText(J)Ljava/lang/String;
-
-    move-result-object v3
-
-    aput-object v3, v2, v7
-
-    iget-wide v4, p1, Lcom/mrkeyboard/app/MrDiag$Report;->triMem:J
-
-    invoke-static {v4, v5}, Lcom/mrkeyboard/app/MrDiag;->bytesText(J)Ljava/lang/String;
-
-    move-result-object v3
-
-    aput-object v3, v2, v8
-
-    iget-wide v4, p1, Lcom/mrkeyboard/app/MrDiag$Report;->triNs:J
-
-    invoke-static {v4, v5}, Lcom/mrkeyboard/app/MrDiag;->msText(J)Ljava/lang/String;
-
-    move-result-object v3
-
-    aput-object v3, v2, v10
-
-    invoke-virtual {p0, v1, v2}, Lcom/mrkeyboard/app/MrPacksActivity;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 242
-    :goto_0
-    invoke-virtual {v0, v9}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v2, "mr_mem_engine"
-
-    new-array v3, v8, [Ljava/lang/Object;
-
-    iget-wide v4, p1, Lcom/mrkeyboard/app/MrDiag$Report;->engineNs:J
-
-    invoke-static {v4, v5}, Lcom/mrkeyboard/app/MrDiag;->msText(J)Ljava/lang/String;
-
-    move-result-object v4
-
-    aput-object v4, v3, v6
-
-    iget-wide v4, p1, Lcom/mrkeyboard/app/MrDiag$Report;->rulesNs:J
-
-    invoke-static {v4, v5}, Lcom/mrkeyboard/app/MrDiag;->msText(J)Ljava/lang/String;
-
-    move-result-object v4
-
-    aput-object v4, v3, v7
-
-    invoke-virtual {p0, v2, v3}, Lcom/mrkeyboard/app/MrPacksActivity;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 243
-    iget-wide v2, p1, Lcom/mrkeyboard/app/MrDiag$Report;->dictMem:J
-
-    const-wide/16 v4, 0x0
-
-    cmp-long v1, v2, v4
-
-    if-gez v1, :cond_0
-
-    iget-wide v2, p1, Lcom/mrkeyboard/app/MrDiag$Report;->triMem:J
-
-    const-wide/16 v4, 0x0
-
-    cmp-long v1, v2, v4
-
-    if-gez v1, :cond_0
-
-    invoke-virtual {v0, v9}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    const-string v2, "mr_mem_nomem"
-
-    new-array v3, v6, [Ljava/lang/Object;
-
-    invoke-virtual {p0, v2, v3}, Lcom/mrkeyboard/app/MrPacksActivity;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    .line 244
-    :cond_0
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    return-object v0
-
-    .line 240
-    :cond_1
-    const-string v1, "mr_mem_tri_none"
-
-    new-array v2, v6, [Ljava/lang/Object;
-
-    invoke-virtual {p0, v1, v2}, Lcom/mrkeyboard/app/MrPacksActivity;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    goto :goto_0
-.end method
-
 .method private open(Ljava/lang/String;)V
     .locals 1
 
     .prologue
-    .line 338
+    .line 287
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCat:Lcom/mrkeyboard/app/MrPacks$Catalog;
 
     if-nez v0, :cond_0
@@ -1969,17 +1736,17 @@
 
     if-nez v0, :cond_0
 
-    .line 339
+    .line 288
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mOpenId:Ljava/lang/String;
 
-    .line 340
+    .line 289
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->check()V
 
-    .line 344
+    .line 293
     :goto_0
     return-void
 
-    .line 342
+    .line 291
     :cond_0
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/MrPacksActivity;->showPack(Ljava/lang/String;)V
 
@@ -1990,7 +1757,7 @@
     .locals 6
 
     .prologue
-    .line 584
+    .line 533
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCat:Lcom/mrkeyboard/app/MrPacks$Catalog;
 
     if-eqz v0, :cond_0
@@ -2003,7 +1770,7 @@
 
     move-result-object v2
 
-    .line 585
+    .line 534
     :goto_0
     if-nez v2, :cond_1
 
@@ -2017,17 +1784,17 @@
 
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->askModel()V
 
-    .line 587
+    .line 536
     :goto_1
     return-void
 
-    .line 584
+    .line 533
     :cond_0
     const/4 v2, 0x0
 
     goto :goto_0
 
-    .line 586
+    .line 535
     :cond_1
     const-string v1, "gesture"
 
@@ -2062,12 +1829,12 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 274
+    .line 223
     if-nez p2, :cond_1
 
     move v0, v2
 
-    .line 275
+    .line 224
     :goto_0
     if-eqz v0, :cond_0
 
@@ -2077,12 +1844,12 @@
 
     if-nez v1, :cond_2
 
-    .line 278
+    .line 227
     :cond_0
     :goto_1
     return-object p1
 
-    .line 274
+    .line 223
     :cond_1
     invoke-direct {p0, p2}, Lcom/mrkeyboard/app/MrPacksActivity;->color(Ljava/lang/String;)I
 
@@ -2090,13 +1857,13 @@
 
     goto :goto_0
 
-    .line 276
+    .line 225
     :cond_2
     new-instance v1, Landroid/text/SpannableString;
 
     invoke-direct {v1, p1}, Landroid/text/SpannableString;-><init>(Ljava/lang/CharSequence;)V
 
-    .line 277
+    .line 226
     new-instance v3, Landroid/text/style/ForegroundColorSpan;
 
     invoke-direct {v3, v0}, Landroid/text/style/ForegroundColorSpan;-><init>(I)V
@@ -2114,10 +1881,10 @@
 
     move-object p1, v1
 
-    .line 278
+    .line 227
     goto :goto_1
 
-    .line 277
+    .line 226
     :cond_3
     invoke-static {p1}, Lcom/mrkeyboard/app/MrPacksActivity;->headEnd(Ljava/lang/String;)I
 
@@ -2130,24 +1897,24 @@
     .locals 2
 
     .prologue
-    .line 616
+    .line 565
     new-instance v0, Landroid/content/Intent;
 
     const-string v1, "android.intent.action.OPEN_DOCUMENT"
 
     invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 617
+    .line 566
     const-string v1, "android.intent.category.OPENABLE"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 618
+    .line 567
     const-string v1, "*/*"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 620
+    .line 569
     const/16 v1, 0x1ce9
 
     :try_start_0
@@ -2155,15 +1922,15 @@
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 624
+    .line 573
     :goto_0
     return-void
 
-    .line 621
+    .line 570
     :catch_0
     move-exception v0
 
-    .line 622
+    .line 571
     const-string v0, "mr_words_no_files"
 
     const/4 v1, 0x0
@@ -2183,7 +1950,7 @@
     .locals 4
 
     .prologue
-    .line 143
+    .line 141
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -2200,12 +1967,12 @@
 
     move-result v0
 
-    .line 144
+    .line 142
     if-eqz v0, :cond_0
 
     invoke-virtual {p1, v0}, Landroid/preference/Preference;->setLayoutResource(I)V
 
-    .line 145
+    .line 143
     :cond_0
     return-void
 .end method
@@ -2216,32 +1983,32 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 149
+    .line 147
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mLangs:Landroid/preference/PreferenceCategory;
 
     if-nez v0, :cond_0
 
-    .line 204
+    .line 194
     :goto_0
     return-void
 
-    .line 150
+    .line 148
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mLangs:Landroid/preference/PreferenceCategory;
 
     invoke-virtual {v0}, Landroid/preference/PreferenceCategory;->removeAll()V
 
-    .line 151
+    .line 149
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mPackPrefs:Ljava/util/HashMap;
 
     invoke-virtual {v0}, Ljava/util/HashMap;->clear()V
 
-    .line 152
+    .line 150
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 153
+    .line 151
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCat:Lcom/mrkeyboard/app/MrPacks$Catalog;
 
     if-eqz v0, :cond_1
@@ -2273,7 +2040,7 @@
 
     goto :goto_1
 
-    .line 154
+    .line 152
     :cond_1
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getResources()Landroid/content/res/Resources;
 
@@ -2285,7 +2052,7 @@
 
     iget-object v2, v0, Landroid/content/res/Configuration;->locale:Ljava/util/Locale;
 
-    .line 155
+    .line 153
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->installedIds(Landroid/content/Context;)Ljava/util/ArrayList;
 
     move-result-object v0
@@ -2298,7 +2065,7 @@
 
     move-result-object v3
 
-    .line 156
+    .line 154
     invoke-virtual {v3}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
     move-result-object v4
@@ -2316,7 +2083,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 157
+    .line 155
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCat:Lcom/mrkeyboard/app/MrPacks$Catalog;
 
     if-eqz v1, :cond_2
@@ -2327,16 +2094,16 @@
 
     move-result-object v1
 
-    .line 158
+    .line 156
     :goto_3
     new-instance v5, Landroid/preference/Preference;
 
     invoke-direct {v5, p0}, Landroid/preference/Preference;-><init>(Landroid/content/Context;)V
 
-    .line 159
+    .line 157
     invoke-virtual {v5, v6}, Landroid/preference/Preference;->setPersistent(Z)V
 
-    .line 160
+    .line 158
     if-eqz v1, :cond_3
 
     invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrPacks$Pack;->name(Ljava/util/Locale;)Ljava/lang/String;
@@ -2346,32 +2113,32 @@
     :goto_4
     invoke-virtual {v5, v1}, Landroid/preference/Preference;->setTitle(Ljava/lang/CharSequence;)V
 
-    .line 161
+    .line 159
     new-instance v1, Lcom/mrkeyboard/app/MrPacksActivity$3;
 
     invoke-direct {v1, p0, v0}, Lcom/mrkeyboard/app/MrPacksActivity$3;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)V
 
     invoke-virtual {v5, v1}, Landroid/preference/Preference;->setOnPreferenceClickListener(Landroid/preference/Preference$OnPreferenceClickListener;)V
 
-    .line 167
+    .line 165
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mLangs:Landroid/preference/PreferenceCategory;
 
     invoke-virtual {v1, v5}, Landroid/preference/PreferenceCategory;->addPreference(Landroid/preference/Preference;)Z
 
-    .line 168
+    .line 166
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mPackPrefs:Ljava/util/HashMap;
 
     invoke-virtual {v1, v0, v5}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
     goto :goto_2
 
-    .line 157
+    .line 155
     :cond_2
     const/4 v1, 0x0
 
     goto :goto_3
 
-    .line 160
+    .line 158
     :cond_3
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrPacksActivity;->langName(Ljava/lang/String;)Ljava/lang/String;
 
@@ -2379,7 +2146,7 @@
 
     goto :goto_4
 
-    .line 170
+    .line 168
     :cond_4
     new-instance v0, Landroid/preference/Preference;
 
@@ -2387,12 +2154,12 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCheck:Landroid/preference/Preference;
 
-    .line 171
+    .line 169
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCheck:Landroid/preference/Preference;
 
     invoke-virtual {v0, v6}, Landroid/preference/Preference;->setPersistent(Z)V
 
-    .line 172
+    .line 170
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCheck:Landroid/preference/Preference;
 
     const-string v1, "mr_dicts_check"
@@ -2405,7 +2172,7 @@
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setTitle(Ljava/lang/CharSequence;)V
 
-    .line 173
+    .line 171
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCheck:Landroid/preference/Preference;
 
     new-instance v1, Lcom/mrkeyboard/app/MrPacksActivity$4;
@@ -2414,28 +2181,28 @@
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setOnPreferenceClickListener(Landroid/preference/Preference$OnPreferenceClickListener;)V
 
-    .line 179
+    .line 177
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mLangs:Landroid/preference/PreferenceCategory;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCheck:Landroid/preference/Preference;
 
     invoke-virtual {v0, v1}, Landroid/preference/PreferenceCategory;->addPreference(Landroid/preference/Preference;)Z
 
-    .line 180
+    .line 178
     new-instance v0, Landroid/preference/Preference;
 
     invoke-direct {v0, p0}, Landroid/preference/Preference;-><init>(Landroid/content/Context;)V
 
-    .line 181
+    .line 179
     invoke-virtual {v0, v6}, Landroid/preference/Preference;->setPersistent(Z)V
 
-    .line 182
+    .line 180
     invoke-virtual {v0, v6}, Landroid/preference/Preference;->setSelectable(Z)V
 
-    .line 183
+    .line 181
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrPacksActivity;->plain(Landroid/preference/Preference;)V
 
-    .line 184
+    .line 182
     const-string v1, "mr_dicts_langs_hint"
 
     new-array v2, v6, [Ljava/lang/Object;
@@ -2446,26 +2213,26 @@
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
 
-    .line 185
+    .line 183
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mLangs:Landroid/preference/PreferenceCategory;
 
     invoke-virtual {v1, v0}, Landroid/preference/PreferenceCategory;->addPreference(Landroid/preference/Preference;)Z
 
-    .line 187
+    .line 185
     new-instance v1, Landroid/preference/Preference;
 
     invoke-direct {v1, p0}, Landroid/preference/Preference;-><init>(Landroid/content/Context;)V
 
-    .line 188
+    .line 186
     invoke-virtual {v1, v6}, Landroid/preference/Preference;->setPersistent(Z)V
 
-    .line 189
+    .line 187
     invoke-virtual {v1, v6}, Landroid/preference/Preference;->setSelectable(Z)V
 
-    .line 190
+    .line 188
     invoke-direct {p0, v1}, Lcom/mrkeyboard/app/MrPacksActivity;->plain(Landroid/preference/Preference;)V
 
-    .line 191
+    .line 189
     const-string v0, "mr_engine_title"
 
     new-array v2, v6, [Ljava/lang/Object;
@@ -2476,7 +2243,7 @@
 
     invoke-virtual {v1, v0}, Landroid/preference/Preference;->setTitle(Ljava/lang/CharSequence;)V
 
-    .line 192
+    .line 190
     invoke-static {}, Lcom/mrkeyboard/app/MrNative;->ready()Z
 
     move-result v0
@@ -2494,150 +2261,31 @@
 
     invoke-virtual {v1, v0}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
 
-    .line 193
+    .line 191
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mLangs:Landroid/preference/PreferenceCategory;
 
     invoke-virtual {v0, v1}, Landroid/preference/PreferenceCategory;->addPreference(Landroid/preference/Preference;)Z
 
-    .line 194
-    new-instance v0, Landroid/preference/Preference;
-
-    invoke-direct {v0, p0}, Landroid/preference/Preference;-><init>(Landroid/content/Context;)V
-
-    iput-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mMem:Landroid/preference/Preference;
-
-    .line 195
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mMem:Landroid/preference/Preference;
-
-    invoke-virtual {v0, v6}, Landroid/preference/Preference;->setPersistent(Z)V
-
-    .line 196
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mMem:Landroid/preference/Preference;
-
-    invoke-virtual {v0, v6}, Landroid/preference/Preference;->setSelectable(Z)V
-
-    .line 197
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mMem:Landroid/preference/Preference;
-
-    invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrPacksActivity;->plain(Landroid/preference/Preference;)V
-
-    .line 198
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mMem:Landroid/preference/Preference;
-
-    const-string v1, "mr_mem_title"
-
-    new-array v2, v6, [Ljava/lang/Object;
-
-    invoke-virtual {p0, v1, v2}, Lcom/mrkeyboard/app/MrPacksActivity;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Landroid/preference/Preference;->setTitle(Ljava/lang/CharSequence;)V
-
-    .line 199
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mMem:Landroid/preference/Preference;
-
-    const-string v1, "mr_mem_wait"
-
-    new-array v2, v6, [Ljava/lang/Object;
-
-    invoke-virtual {p0, v1, v2}, Lcom/mrkeyboard/app/MrPacksActivity;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
-
-    .line 200
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mLangs:Landroid/preference/PreferenceCategory;
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mMem:Landroid/preference/Preference;
-
-    invoke-virtual {v0, v1}, Landroid/preference/PreferenceCategory;->addPreference(Landroid/preference/Preference;)Z
-
-    .line 201
-    invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->refreshMem()V
-
-    .line 202
+    .line 192
     invoke-static {p0, v3}, Lcom/mrkeyboard/app/MrPacks;->syncLanguages(Landroid/content/Context;Ljava/util/List;)V
 
-    .line 203
+    .line 193
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->update()V
 
     goto/16 :goto_0
 
-    .line 192
+    .line 190
     :cond_5
     const-string v0, "mr_engine_missing"
 
     goto :goto_5
 .end method
 
-.method private refreshMem()V
-    .locals 4
-
-    .prologue
-    .line 211
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mMem:Landroid/preference/Preference;
-
-    .line 212
-    invoke-static {}, Lcom/mrkeyboard/app/MrPacks;->activeDir()Ljava/io/File;
-
-    move-result-object v1
-
-    .line 213
-    if-nez v0, :cond_0
-
-    .line 230
-    :goto_0
-    return-void
-
-    .line 214
-    :cond_0
-    if-nez v1, :cond_1
-
-    .line 215
-    const-string v1, "mr_mem_none"
-
-    const/4 v2, 0x0
-
-    new-array v2, v2, [Ljava/lang/Object;
-
-    invoke-virtual {p0, v1, v2}, Lcom/mrkeyboard/app/MrPacksActivity;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
-
-    goto :goto_0
-
-    .line 218
-    :cond_1
-    new-instance v2, Ljava/lang/Thread;
-
-    new-instance v3, Lcom/mrkeyboard/app/MrPacksActivity$5;
-
-    invoke-direct {v3, p0, v1, v0}, Lcom/mrkeyboard/app/MrPacksActivity$5;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/io/File;Landroid/preference/Preference;)V
-
-    const-string v0, "MrDiag"
-
-    invoke-direct {v2, v3, v0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
-
-    .line 228
-    const/4 v0, 0x1
-
-    invoke-virtual {v2, v0}, Ljava/lang/Thread;->setPriority(I)V
-
-    .line 229
-    invoke-virtual {v2}, Ljava/lang/Thread;->start()V
-
-    goto :goto_0
-.end method
-
 .method private showPack(Ljava/lang/String;)V
     .locals 6
 
     .prologue
-    .line 386
+    .line 335
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCat:Lcom/mrkeyboard/app/MrPacks$Catalog;
 
     if-eqz v0, :cond_0
@@ -2648,7 +2296,7 @@
 
     move-result-object v2
 
-    .line 387
+    .line 336
     :goto_0
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrPacks;->installedVersion(Landroid/content/Context;Ljava/lang/String;)I
 
@@ -2679,10 +2327,10 @@
 
     invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrPacksActivity;->details(Ljava/lang/String;Lcom/mrkeyboard/app/MrPacks$Pack;ILjava/lang/String;Z)V
 
-    .line 388
+    .line 337
     return-void
 
-    .line 386
+    .line 335
     :cond_0
     const/4 v2, 0x0
 
@@ -2691,7 +2339,7 @@
     :cond_1
     move-object v4, p1
 
-    .line 387
+    .line 336
     goto :goto_1
 .end method
 
@@ -2705,14 +2353,14 @@
 
     const/4 v3, 0x0
 
-    .line 286
+    .line 235
     if-eqz p3, :cond_0
 
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrPacks;->modelVersion(Landroid/content/Context;Ljava/lang/String;)I
 
     move-result v0
 
-    .line 287
+    .line 236
     :goto_0
     sget-object v1, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
@@ -2722,7 +2370,7 @@
 
     if-eqz v1, :cond_2
 
-    .line 288
+    .line 237
     sget-boolean v0, Lcom/mrkeyboard/app/MrPacks;->sJobInstalling:Z
 
     if-eqz v0, :cond_1
@@ -2735,20 +2383,20 @@
 
     move-result-object v0
 
-    .line 289
+    .line 238
     :goto_1
     const-string v1, "mr_ui_amber"
 
-    .line 288
+    .line 237
     invoke-direct {p0, v0, v1, v2}, Lcom/mrkeyboard/app/MrPacksActivity;->paint(Ljava/lang/String;Ljava/lang/String;Z)Ljava/lang/CharSequence;
 
     move-result-object v0
 
-    .line 305
+    .line 254
     :goto_2
     return-object v0
 
-    .line 286
+    .line 235
     :cond_0
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrPacks;->installedVersion(Landroid/content/Context;Ljava/lang/String;)I
 
@@ -2756,7 +2404,7 @@
 
     goto :goto_0
 
-    .line 289
+    .line 238
     :cond_1
     const-string v0, "mr_dicts_state_downloading"
 
@@ -2776,7 +2424,7 @@
 
     goto :goto_1
 
-    .line 291
+    .line 240
     :cond_2
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mErrorId:Ljava/lang/String;
 
@@ -2800,7 +2448,7 @@
 
     goto :goto_2
 
-    .line 292
+    .line 241
     :cond_3
     if-eqz p2, :cond_4
 
@@ -2810,7 +2458,7 @@
 
     move v1, v2
 
-    .line 293
+    .line 242
     :goto_3
     if-eqz v1, :cond_6
 
@@ -2820,10 +2468,10 @@
 
     if-eqz v4, :cond_6
 
-    .line 294
+    .line 243
     if-lez v0, :cond_5
 
-    .line 295
+    .line 244
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -2832,7 +2480,7 @@
 
     new-array v5, v5, [Ljava/lang/Object;
 
-    .line 294
+    .line 243
     invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
     move-result-object v6
@@ -2867,7 +2515,7 @@
 
     new-array v3, v3, [Ljava/lang/Object;
 
-    .line 295
+    .line 244
     invoke-virtual {p0, v1, v3}, Lcom/mrkeyboard/app/MrPacksActivity;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -2883,7 +2531,7 @@
     :goto_4
     const-string v1, "mr_ui_rose"
 
-    .line 294
+    .line 243
     invoke-direct {p0, v0, v1, v2}, Lcom/mrkeyboard/app/MrPacksActivity;->paint(Ljava/lang/String;Ljava/lang/String;Z)Ljava/lang/CharSequence;
 
     move-result-object v0
@@ -2893,10 +2541,10 @@
     :cond_4
     move v1, v3
 
-    .line 292
+    .line 241
     goto :goto_3
 
-    .line 295
+    .line 244
     :cond_5
     const-string v0, "mr_dicts_state_needs_app"
 
@@ -2908,11 +2556,11 @@
 
     goto :goto_4
 
-    .line 297
+    .line 246
     :cond_6
     if-lez v0, :cond_8
 
-    .line 298
+    .line 247
     if-eqz v1, :cond_7
 
     const-string v0, "mr_dicts_state_update"
@@ -2947,7 +2595,7 @@
 
     goto/16 :goto_2
 
-    .line 299
+    .line 248
     :cond_7
     const-string v1, "mr_dicts_state_installed"
 
@@ -2981,7 +2629,7 @@
 
     goto/16 :goto_2
 
-    .line 302
+    .line 251
     :cond_8
     if-eqz p3, :cond_9
 
@@ -3007,7 +2655,7 @@
 
     goto/16 :goto_2
 
-    .line 303
+    .line 252
     :cond_9
     if-eqz p2, :cond_a
 
@@ -3029,7 +2677,7 @@
 
     goto/16 :goto_2
 
-    .line 305
+    .line 254
     :cond_a
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCat:Lcom/mrkeyboard/app/MrPacks$Catalog;
 
@@ -3058,7 +2706,7 @@
     .locals 10
 
     .prologue
-    .line 566
+    .line 515
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->gestureOn()Z
 
     move-result v0
@@ -3075,11 +2723,11 @@
 
     move-result-object v0
 
-    .line 579
+    .line 528
     :goto_0
     return-object v0
 
-    .line 567
+    .line 516
     :cond_0
     const-string v0, "gesture"
 
@@ -3103,7 +2751,7 @@
 
     goto :goto_0
 
-    .line 568
+    .line 517
     :cond_1
     invoke-static {}, Lcom/mrkeyboard/app/MrNative;->ready()Z
 
@@ -3123,7 +2771,7 @@
 
     goto :goto_0
 
-    .line 569
+    .line 518
     :cond_2
     invoke-static {}, Lcom/mrkeyboard/app/MrGesture;->ready()Z
 
@@ -3143,13 +2791,13 @@
 
     goto :goto_0
 
-    .line 570
+    .line 519
     :cond_3
     invoke-static {}, Lcom/mrkeyboard/app/MrGestureInput;->stats()[J
 
     move-result-object v0
 
-    .line 571
+    .line 520
     const/4 v1, 0x0
 
     aget-wide v2, v0, v1
@@ -3172,7 +2820,7 @@
 
     goto :goto_0
 
-    .line 572
+    .line 521
     :cond_4
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -3218,7 +2866,7 @@
 
     aget-wide v6, v0, v5
 
-    .line 573
+    .line 522
     invoke-static {v6, v7}, Lcom/mrkeyboard/app/MrDiag;->msText(J)Ljava/lang/String;
 
     move-result-object v5
@@ -3245,14 +2893,14 @@
 
     aput-object v5, v3, v4
 
-    .line 572
+    .line 521
     invoke-virtual {p0, v2, v3}, Lcom/mrkeyboard/app/MrPacksActivity;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v2
 
     invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 
-    .line 576
+    .line 525
     const/4 v2, 0x4
 
     aget-wide v2, v0, v2
@@ -3311,13 +2959,13 @@
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 577
+    .line 526
     :cond_5
     invoke-static {}, Lcom/mrkeyboard/app/MrGestureWords;->stats()[J
 
     move-result-object v0
 
-    .line 578
+    .line 527
     const/4 v2, 0x0
 
     aget-wide v2, v0, v2
@@ -3378,7 +3026,7 @@
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 579
+    .line 528
     :cond_6
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -3391,7 +3039,7 @@
     .locals 2
 
     .prologue
-    .line 695
+    .line 644
     if-eqz p1, :cond_0
 
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getApplicationContext()Landroid/content/Context;
@@ -3406,7 +3054,7 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 696
+    .line 645
     :cond_0
     return-void
 .end method
@@ -3417,7 +3065,7 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 249
+    .line 198
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mPackPrefs:Ljava/util/HashMap;
 
     invoke-virtual {v0}, Ljava/util/HashMap;->keySet()Ljava/util/Set;
@@ -3441,7 +3089,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 250
+    .line 199
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCat:Lcom/mrkeyboard/app/MrPacks$Catalog;
 
     if-eqz v1, :cond_0
@@ -3454,7 +3102,7 @@
 
     move-object v2, v1
 
-    .line 251
+    .line 200
     :goto_1
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mPackPrefs:Ljava/util/HashMap;
 
@@ -3477,10 +3125,10 @@
     :cond_0
     move-object v2, v3
 
-    .line 250
+    .line 199
     goto :goto_1
 
-    .line 253
+    .line 202
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCheck:Landroid/preference/Preference;
 
@@ -3494,7 +3142,7 @@
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
 
-    .line 254
+    .line 203
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGPack:Landroid/preference/Preference;
 
@@ -3525,7 +3173,7 @@
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
 
-    .line 255
+    .line 204
     :cond_4
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mGTime:Landroid/preference/Preference;
 
@@ -3539,7 +3187,7 @@
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
 
-    .line 256
+    .line 205
     :cond_5
     return-void
 .end method
@@ -3550,14 +3198,14 @@
     .locals 1
 
     .prologue
-    .line 89
+    .line 87
     invoke-static {p1}, Lcom/mrkeyboard/app/UiLocale;->wrap(Landroid/content/Context;)Landroid/content/Context;
 
     move-result-object v0
 
     invoke-super {p0, v0}, Landroid/preference/PreferenceActivity;->attachBaseContext(Landroid/content/Context;)V
 
-    .line 90
+    .line 88
     return-void
 .end method
 
@@ -3565,7 +3213,7 @@
     .locals 2
 
     .prologue
-    .line 699
+    .line 648
     iget-object v0, p1, Lcom/mrkeyboard/app/MrPacks$PackException;->key:Ljava/lang/String;
 
     iget-object v1, p1, Lcom/mrkeyboard/app/MrPacks$PackException;->args:[Ljava/lang/Object;
@@ -3574,7 +3222,7 @@
 
     move-result-object v0
 
-    .line 700
+    .line 649
     if-eqz v0, :cond_0
 
     :goto_0
@@ -3592,10 +3240,10 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 628
+    .line 577
     invoke-super {p0, p1, p2, p3}, Landroid/preference/PreferenceActivity;->onActivityResult(IILandroid/content/Intent;)V
 
-    .line 629
+    .line 578
     const/16 v0, 0x1ce9
 
     if-ne p1, v0, :cond_0
@@ -3612,70 +3260,70 @@
 
     if-nez v0, :cond_1
 
-    .line 672
+    .line 621
     :cond_0
     :goto_0
     return-void
 
-    .line 630
+    .line 579
     :cond_1
     sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
     if-nez v0, :cond_0
 
-    .line 631
+    .line 580
     invoke-virtual {p3}, Landroid/content/Intent;->getData()Landroid/net/Uri;
 
     move-result-object v0
 
-    .line 632
+    .line 581
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v1
 
-    .line 633
+    .line 582
     iput-object v2, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mError:Ljava/lang/String;
 
-    .line 634
+    .line 583
     iput-object v2, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mErrorId:Ljava/lang/String;
 
-    .line 635
+    .line 584
     const/4 v2, 0x0
 
     sput v2, Lcom/mrkeyboard/app/MrPacks;->sJobPercent:I
 
-    .line 636
+    .line 585
     const/4 v2, 0x1
 
     sput-boolean v2, Lcom/mrkeyboard/app/MrPacks;->sJobInstalling:Z
 
-    .line 637
+    .line 586
     const-string v2, "gesture"
 
     sput-object v2, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
-    .line 638
+    .line 587
     new-instance v2, Ljava/lang/Thread;
 
-    new-instance v3, Lcom/mrkeyboard/app/MrPacksActivity$17;
+    new-instance v3, Lcom/mrkeyboard/app/MrPacksActivity$16;
 
-    invoke-direct {v3, p0, v1, v0}, Lcom/mrkeyboard/app/MrPacksActivity$17;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;Landroid/content/Context;Landroid/net/Uri;)V
+    invoke-direct {v3, p0, v1, v0}, Lcom/mrkeyboard/app/MrPacksActivity$16;-><init>(Lcom/mrkeyboard/app/MrPacksActivity;Landroid/content/Context;Landroid/net/Uri;)V
 
     const-string v0, "MrModelFile"
 
     invoke-direct {v2, v3, v0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
 
-    .line 669
+    .line 618
     invoke-virtual {v2}, Ljava/lang/Thread;->start()V
 
-    .line 670
+    .line 619
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mPoll:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 671
+    .line 620
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mPoll:Ljava/lang/Runnable;
@@ -3689,10 +3337,10 @@
     .locals 4
 
     .prologue
-    .line 94
+    .line 92
     invoke-super {p0, p1}, Landroid/preference/PreferenceActivity;->onCreate(Landroid/os/Bundle;)V
 
-    .line 95
+    .line 93
     const-string v0, "mr_dicts_title"
 
     const/4 v1, 0x0
@@ -3705,7 +3353,7 @@
 
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/MrPacksActivity;->setTitle(Ljava/lang/CharSequence;)V
 
-    .line 96
+    .line 94
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -3724,10 +3372,10 @@
 
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/MrPacksActivity;->addPreferencesFromResource(I)V
 
-    .line 97
+    .line 95
     invoke-static {p0}, Lcom/mrkeyboard/app/ListDividerFix;->apply(Landroid/preference/PreferenceActivity;)V
 
-    .line 98
+    .line 96
     const-string v0, "mr_cat_langs"
 
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/MrPacksActivity;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
@@ -3738,30 +3386,30 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mLangs:Landroid/preference/PreferenceCategory;
 
-    .line 99
+    .line 97
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->hideQuickFixesIfUnsupported()V
 
-    .line 100
+    .line 98
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getApplicationContext()Landroid/content/Context;
 
     move-result-object v0
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrGestureInput;->init(Landroid/content/Context;)V
 
-    .line 101
+    .line 99
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->buildGesture()V
 
-    .line 102
+    .line 100
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->cachedCatalog(Landroid/content/Context;)Lcom/mrkeyboard/app/MrPacks$Catalog;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mCat:Lcom/mrkeyboard/app/MrPacks$Catalog;
 
-    .line 103
+    .line 101
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->rebuild()V
 
-    .line 104
+    .line 102
     return-void
 .end method
 
@@ -3769,24 +3417,24 @@
     .locals 2
 
     .prologue
-    .line 129
+    .line 127
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mPoll:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 130
+    .line 128
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mRefresh:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 131
+    .line 129
     invoke-super {p0}, Landroid/preference/PreferenceActivity;->onPause()V
 
-    .line 132
+    .line 130
     return-void
 .end method
 
@@ -3794,32 +3442,32 @@
     .locals 2
 
     .prologue
-    .line 119
+    .line 117
     invoke-super {p0}, Landroid/preference/PreferenceActivity;->onResume()V
 
-    .line 120
+    .line 118
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->rebuild()V
 
-    .line 121
+    .line 119
     sget-object v0, Lcom/mrkeyboard/app/MrPacks;->sJobId:Ljava/lang/String;
 
     if-eqz v0, :cond_0
 
-    .line 122
+    .line 120
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mPoll:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 123
+    .line 121
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mHandler:Landroid/os/Handler;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPacksActivity;->mPoll:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 125
+    .line 123
     :cond_0
     return-void
 .end method
@@ -3828,7 +3476,7 @@
     .locals 3
 
     .prologue
-    .line 704
+    .line 653
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -3843,14 +3491,14 @@
 
     move-result v0
 
-    .line 705
+    .line 654
     if-nez v0, :cond_0
 
-    .line 709
+    .line 658
     :goto_0
     return-object p1
 
-    .line 707
+    .line 656
     :cond_0
     :try_start_0
     array-length v1, p2
@@ -3883,11 +3531,11 @@
 
     goto :goto_1
 
-    .line 708
+    .line 657
     :catch_0
     move-exception v1
 
-    .line 709
+    .line 658
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPacksActivity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v1

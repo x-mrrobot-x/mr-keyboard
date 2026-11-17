@@ -476,23 +476,26 @@
 .end method
 
 .method public isValidWord(Ljava/lang/CharSequence;)Z
-    .locals 1
+    .locals 2
 
     .line 102
     invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/AutoDictionary;->getWordFrequency(Ljava/lang/CharSequence;)I
 
-    move-result p1
+    move-result v0
 
-    const/4 v0, 0x6
+    const/4 v1, 0x6
 
-    if-lt p1, v0, :cond_0
+    if-lt v0, v1, :cond_0
 
     const/4 p1, 0x1
 
     goto :goto_0
 
     :cond_0
-    const/4 p1, 0x0
+    # a word added for the app in front is a valid word there (it is not corrected away)
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrApp;->isValid(Ljava/lang/CharSequence;)Z
+
+    move-result p1
 
     :goto_0
     return p1
@@ -640,6 +643,9 @@
     # also when it throws. Kept, it held the service of every keyboard that had ended.
     :try_start_0
     invoke-super {p0, p1, v0, p3}, Lcom/mrkeyboard/app/ExpandableDictionary;->getWords(Lcom/mrkeyboard/app/WordComposer;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
+
+    # Words added for the app in front (MrApp): the same search, through the same gate. Nothing happens when the app has none.
+    invoke-static {p1, v0, p3}, Lcom/mrkeyboard/app/MrApp;->words(Lcom/mrkeyboard/app/WordComposer;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catch_0
 

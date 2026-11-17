@@ -3,12 +3,12 @@
 .source "MrLearnedActivity.java"
 
 # interfaces
-.implements Landroid/content/DialogInterface$OnClickListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrLearnedActivity;->askDeleteAll()V
+    value = Lcom/mrkeyboard/app/MrLearnedActivity;->refreshList()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-.field final synthetic val$tab:I
+.field final synthetic val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;I)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore$Row;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 456
+    .line 411
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    iput p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->val$tab:I
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,17 +45,17 @@
 
 
 # virtual methods
-.method public onClick(Landroid/content/DialogInterface;I)V
+.method public onClick(Landroid/view/View;)V
     .locals 2
 
     .prologue
-    .line 458
+    .line 413
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    iget v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->val$tab:I
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1300(Lcom/mrkeyboard/app/MrLearnedActivity;I)V
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1300(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore$Row;)V
 
-    .line 459
+    .line 414
     return-void
 .end method

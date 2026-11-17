@@ -716,3 +716,14 @@
 
     return-void
 .end method
+
+# Words added for one app (MrApp): the pairs of the app in front follow the ones of this dictionary, for the strip and for the next-word prediction.
+.method public getBigrams(Lcom/mrkeyboard/app/WordComposer;Ljava/lang/CharSequence;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
+    .locals 0
+
+    invoke-super {p0, p1, p2, p3, p4}, Lcom/mrkeyboard/app/ExpandableDictionary;->getBigrams(Lcom/mrkeyboard/app/WordComposer;Ljava/lang/CharSequence;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
+
+    invoke-static {p1, p2, p3, p4}, Lcom/mrkeyboard/app/MrApp;->getBigrams(Lcom/mrkeyboard/app/WordComposer;Ljava/lang/CharSequence;Lcom/mrkeyboard/app/Dictionary$WordCallback;[I)V
+
+    return-void
+.end method

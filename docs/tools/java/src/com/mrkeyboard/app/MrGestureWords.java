@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Which words go in:
  *   - of the learned ones, those the keyboard already suggests (frequency LEARNED_MIN or more: typed a few times), and every
  *     added word; of the user dictionary, every word;
+ *   - the words added for the app in front (MrApp), the same as the added words of every app;
  *   - never a blocked word (MrLearned.isBlocked);
  *   - a word with a character that has no key is written to the copy all the same: the search leaves it out (as it does with
  *     main.dict).
@@ -83,6 +84,8 @@ public final class MrGestureWords {
             final Collector c = new Collector();
             if (auto instanceof ExpandableDictionary) c.read(((ExpandableDictionary) auto).mrRoots(), LEARNED_MIN);
             if (user instanceof ExpandableDictionary) c.read(((ExpandableDictionary) user).mrRoots(), 0);
+            final ExpandableDictionary app = MrApp.dictionary();     // the words added for the app in front: complete when published, changed() is called when it is swapped
+            if (app != null) c.read(app.mrRoots(), LEARNED_MIN);
             c.keepBest(MAX_WORDS);
             sBuffer = build(c.words, c.freqs, c.n);
             sWords = sBuffer != null ? c.n : 0;

@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 597
+    .line 554
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPacksActivity$15;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -37,21 +37,14 @@
 
 # virtual methods
 .method public onClick(Landroid/content/DialogInterface;I)V
-    .locals 2
+    .locals 1
 
     .prologue
-    .line 599
+    .line 556
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$15;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
 
-    const-string v1, "gesture"
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$1500(Lcom/mrkeyboard/app/MrPacksActivity;)V
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrPacksActivity;->access$1002(Lcom/mrkeyboard/app/MrPacksActivity;Ljava/lang/String;)Ljava/lang/String;
-
-    .line 600
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrPacksActivity$15;->this$0:Lcom/mrkeyboard/app/MrPacksActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrPacksActivity;->access$400(Lcom/mrkeyboard/app/MrPacksActivity;)V
-
-    .line 601
+    .line 557
     return-void
 .end method

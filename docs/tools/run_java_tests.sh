@@ -35,6 +35,11 @@
 #     cleaning of a free text (links, WhatsApp prefixes, laughs, numbers), the two-occurrence rule, the standard list (every kind of line left out), saving an
 #     import with its caps and undo, block, forget, edit, the export that is also the backup (export -> import -> export gives the same text), and what
 #     the keyboard loads into its dictionaries. The SQLite store needs Android and is checked on the device.
+#   - AppWordsTest, AppScreensTest: the words that are added for ONE app (MrApp, MrAppList, MrAppPicker; screens "Add words and texts" and "What the keyboard learned"): the key
+#     "language|package" in the store and the rules of the added words on it (caps of 5000 words / 10000 pairs per app, undo, forget, edit, export and import again, the blocked words that stay
+#     for every app), the tree of the app in front (made off the main thread when a field opens in that app, kept while the person is away until a field opens in another app, replaced by the
+#     next app, one comparison and no thread for an app without words, the last request wins, a failing store breaks nothing), the list of apps (no system apps, the updated ones stay, search
+#     without accents), the dialog, the choice on both screens, the texts in three languages, the manifest and the hooks in smali.
 #   - AiImportTest: the formatting of a text by AI (MrImportAi, MrImport.scrub) with a fake service: what is taken out before sending,
 #     the parts, the reading of the answers (introductions, code fences, bullets, weights, [blocked] dropped), the merge, a failure in the
 #     middle (what came back is kept), unreadable answers, cancelling, and that the result is a list the importer reads with no line left out.
@@ -47,8 +52,10 @@
 #     the last one chosen on either screen, the UI language) and the memory of the last choice.
 #   - AiReturnTest: coming back to the AI Editor dialog after its Settings screen (MrAiDialog): the keyboard is asked to
 #     appear for the original field, once, soon after leaving, and the dialog reopens when the keyboard window shows.
-#   - DiagTest: the "Dictionary memory" line (MrDiag, 1.90.0): the reading of /proc/self/smaps on made-up text (headers, Pss/Rss, deleted
+#   - DiagTest: the numbers of the "Dictionary memory" row (MrDiag, 1.90.0): the reading of /proc/self/smaps on made-up text (headers, Pss/Rss, deleted
 #     files, a file mapped twice), the matching of the path, the texts, the report of a pack folder, and on Linux a real mapping seen as resident.
+#   - DictMemTest: the "Dictionary memory" row of Settings → Advanced → Performance (MrDictMem): no pack in use (said at once, no thread), "Reading…" and then the
+#     three lines from the thread (pack, triples, engine), a pack without triples, a newer read winning over an older one, the pack that goes away, a screen that is gone, no row, texts missing.
 #   - PerfTest: the performance meter of the keyboard (MrPerf): begin/end pairs in microseconds, the
 #     average and p95 of the last 256 samples with the count and maximum since the reset, the first frame after a field opens (not after
 #     2 s), how late a finger down reaches the keyboard, the delay of the long press timer counted from the touch and the worst long press (MrLongPress), a key counted by its kind (letter, separator, delete, other), the Advanced row
@@ -133,6 +140,10 @@ echo "== DiagTest (memory and load time line)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_diag" $D/diag_test/DiagTest.java
 java -cp "$T/test_diag:$T/stubs:$T/main" com.mrkeyboard.app.DiagTest
 
+echo "== DictMemTest (the Dictionary memory row of Advanced: no pack, Reading…, the lines from the thread, a newer read wins, a gone screen, missing texts)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_dictmem" $D/diag_test/DictMemTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_dictmem:$T/stubs:$T/main" com.mrkeyboard.app.DictMemTest
+
 echo "== PerfTest (performance meter: begin/end, average/p95/max, first frame, touch wait, the Advanced row, the history of the starts, the memory cleanup, the log)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_perf" $D/perf_test/PerfTest.java
 java -Dfile.encoding=UTF-8 -cp "$T/test_perf:$T/stubs:$T/main" com.mrkeyboard.app.PerfTest
@@ -181,6 +192,14 @@ java -Dfile.encoding=UTF-8 -cp "$T/test_importscreen:$T/stubs:$T/main" com.mrkey
 echo "== LearnedStoreTest (what the keyboard learned: block, forget, edit, undo, export)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_learned" $D/learned_test/LearnedStoreTest.java
 java -Dfile.encoding=UTF-8 -cp "$T/test_learned:$T/stubs:$T/main" com.mrkeyboard.app.LearnedStoreTest
+
+echo "== AppWordsTest (words for one app: the key, caps, undo, export, blocked words, and the tree of the app in front: off the main thread, kept while away, replaced by the next app, no cost without words)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_appwords" $D/learned_test/AppWordsTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_appwords:$T/stubs:$T/main" com.mrkeyboard.app.AppWordsTest
+
+echo "== AppScreensTest (the list of apps, the dialog, the choice on Add words and texts and on What the keyboard learned, the texts, the manifest and the hooks)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_appscreens" $D/learned_test/AppScreensTest.java $D/learned_test/AppWordsTest.java $D/learned_test/ImportScreenTest.java $D/tour_test/TourTest.java $D/tour_test/TourScreenTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_appscreens:$T/stubs:$T/main" com.mrkeyboard.app.AppScreensTest
 
 echo "== AiImportTest (formatting of a text by AI: scrub, parts, answers, merge, fake service)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_aiimport" $D/learned_test/AiImportTest.java

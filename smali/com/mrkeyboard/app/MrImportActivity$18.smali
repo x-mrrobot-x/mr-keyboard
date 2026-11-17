@@ -3,12 +3,12 @@
 .source "MrImportActivity.java"
 
 # interfaces
-.implements Landroid/content/DialogInterface$OnClickListener;
+.implements Landroid/content/DialogInterface$OnDismissListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrImportActivity;->formatTapped()V
+    value = Lcom/mrkeyboard/app/MrImportActivity;->showPreview()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
+.field final synthetic val$box:Landroid/widget/LinearLayout;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/LinearLayout;)V
     .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 662
+    .line 558
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->val$box:Landroid/widget/LinearLayout;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,58 +45,54 @@
 
 
 # virtual methods
-.method public onClick(Landroid/content/DialogInterface;I)V
-    .locals 4
+.method public onDismiss(Landroid/content/DialogInterface;)V
+    .locals 3
 
     .prologue
-    .line 665
-    :try_start_0
+    const/4 v2, 0x0
+
+    .line 561
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
-
-    const-class v2, Lcom/mrkeyboard/app/MrAiPrefs;
-
-    invoke-static {v1, v2}, Lcom/mrkeyboard/app/MrNav;->intent(Landroid/content/Context;Ljava/lang/Class;)Landroid/content/Intent;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrImportActivity;->startActivity(Landroid/content/Intent;)V
-    :try_end_0
-    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
-
-    .line 669
-    :goto_0
-    return-void
-
-    .line 666
-    :catch_0
-    move-exception v0
-
-    .line 667
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$1600(Lcom/mrkeyboard/app/MrImportActivity;)Lcom/mrkeyboard/app/MrKit;
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$2600(Lcom/mrkeyboard/app/MrImportActivity;)Landroid/widget/LinearLayout;
 
     move-result-object v0
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->val$box:Landroid/widget/LinearLayout;
 
-    invoke-static {v1}, Lcom/mrkeyboard/app/MrImportActivity;->access$1600(Lcom/mrkeyboard/app/MrImportActivity;)Lcom/mrkeyboard/app/MrKit;
+    if-ne v0, v1, :cond_0
 
-    move-result-object v1
+    .line 562
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    const-string v2, "mr_words_no_files"
+    invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrImportActivity;->access$2002(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrImport$Plan;)Lcom/mrkeyboard/app/MrImport$Plan;
 
-    const/4 v3, 0x0
+    .line 563
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    new-array v3, v3, [Ljava/lang/Object;
+    invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrImportActivity;->access$2602(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/LinearLayout;)Landroid/widget/LinearLayout;
 
-    invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+    .line 564
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    move-result-object v1
+    invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrImportActivity;->access$2702(Lcom/mrkeyboard/app/MrImportActivity;Landroid/app/AlertDialog;)Landroid/app/AlertDialog;
 
-    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrKit;->toast(Ljava/lang/String;)V
+    .line 565
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    goto :goto_0
+    invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrImportActivity;->access$2802(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/LinearLayout;)Landroid/widget/LinearLayout;
+
+    .line 566
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrImportActivity;->access$2902(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/TextView;)Landroid/widget/TextView;
+
+    .line 567
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$18;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrImportActivity;->access$3002(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/TextView;)Landroid/widget/TextView;
+
+    .line 569
+    :cond_0
+    return-void
 .end method
