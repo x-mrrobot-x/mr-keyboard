@@ -46,6 +46,7 @@ public final class MrReset implements Preference.OnPreferenceClickListener {
             "vibrate_strength",
             "sound_on",
             "pref_click_volume",
+            "pref_sound_style",
             "popup_on",
             "pref_swipe_up",
             "pref_swipe_down",

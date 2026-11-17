@@ -7,6 +7,7 @@ public abstract class Context {
     public static final String CLIPBOARD_SERVICE = "clipboard";
     public static final String NOTIFICATION_SERVICE = "notification";
     public static final String INPUT_METHOD_SERVICE = "input_method";
+    public static final String AUDIO_SERVICE = "audio";
     public abstract android.content.res.AssetManager getAssets();
     public abstract Context getApplicationContext();
     public abstract android.content.res.Resources getResources();

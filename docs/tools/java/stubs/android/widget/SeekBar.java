@@ -11,5 +11,7 @@ public class SeekBar extends ProgressBar {
 
     public SeekBar(android.content.Context context) { super(context); }
 
-    public void setOnSeekBarChangeListener(OnSeekBarChangeListener listener) { }
+    /** The listener the screen set: the PC tests move the bar by calling it. */
+    public OnSeekBarChangeListener stubListener;
+    public void setOnSeekBarChangeListener(OnSeekBarChangeListener listener) { stubListener = listener; }
 }

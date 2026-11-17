@@ -31,7 +31,9 @@ public class View {
     public void getLocationOnScreen(int[] location) { }
     public ViewGroup.LayoutParams getLayoutParams() { return null; }
     public void setLayoutParams(ViewGroup.LayoutParams params) { }
-    public void setBackground(android.graphics.drawable.Drawable background) { }
+    /** The last background given (the PC tests read the colours of a GradientDrawable from it). */
+    public android.graphics.drawable.Drawable stubBackground;
+    public void setBackground(android.graphics.drawable.Drawable background) { stubBackground = background; }
     public int stubBackgroundRes;
     public void setBackgroundResource(int resid) { stubBackgroundRes = resid; }
     public boolean postDelayed(Runnable action, long delayMillis) { stubPosted.add(action); return true; }
@@ -92,7 +94,9 @@ public class View {
     private boolean stubEnabled = true;
     public void setClickable(boolean clickable) { stubClickable = clickable; }
     public boolean isClickable() { return stubClickable; }
-    public void setContentDescription(CharSequence contentDescription) { }
+    private CharSequence stubDescription;
+    public void setContentDescription(CharSequence contentDescription) { stubDescription = contentDescription; }
+    public CharSequence getContentDescription() { return stubDescription; }
     public void setEnabled(boolean enabled) { stubEnabled = enabled; }
     public boolean isEnabled() { return stubEnabled; }
     public android.os.IBinder getWindowToken() { return null; }
@@ -103,7 +107,9 @@ public class View {
     public void setVisibility(int visibility) { stubVisibility = visibility; }
     public int getVisibility() { return stubVisibility; }
     public View findViewWithTag(Object tag) { return null; }
-    public void setAlpha(float alpha) { }
+    private float stubAlpha = 1f;
+    public void setAlpha(float alpha) { stubAlpha = alpha; }
+    public float getAlpha() { return stubAlpha; }
     public void setScaleX(float scaleX) { }
     public void setScaleY(float scaleY) { }
     public void setPivotX(float pivotX) { }

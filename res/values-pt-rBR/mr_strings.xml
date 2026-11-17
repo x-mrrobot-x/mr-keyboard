@@ -760,4 +760,25 @@
     <string name="mr_tour_settings_error">Não foi possível abrir as configurações do Android. Procure por Teclado nelas.</string>
     <string name="mr_tour_no_pack">Não há dicionário para o seu idioma no catálogo.</string>
     <string name="mr_tour_no_gesture">O catálogo não tem o arquivo de reconhecimento de gestos.</string>
+    <string name="mr_sound_title">Som do teclado</string>
+    <string name="mr_sound_summary">Escolha o som das teclas</string>
+    <string name="mr_sound_styles">Estilo de som</string>
+    <string name="mr_sound_volume">Volume</string>
+    <string name="mr_sound_default">Padrão</string>
+    <string name="mr_sound_default_note">O som padrão segue o volume do sistema.</string>
+    <string name="mr_sound_muted">As teclas ficam sem som.</string>
+    <string name="mr_sound_name_mute">Sem som</string>
+    <string name="mr_sound_name_bubble">Bolha 1</string>
+    <string name="mr_sound_name_bubble2">Bolha 2</string>
+    <string name="mr_sound_name_bell">Sino</string>
+    <string name="mr_sound_name_duck">Pato</string>
+    <string name="mr_sound_name_keyboard">Teclado</string>
+    <string name="mr_sound_name_fox">Raposa</string>
+    <string name="mr_sound_name_pistol">Pistola</string>
+    <string name="mr_sound_name_wand">Varinha mágica</string>
+    <string name="mr_sound_name_frog">Sapo</string>
+    <string name="mr_sound_name_cat">Gato</string>
+    <string name="mr_sound_name_drop">Gota de água</string>
+    <string name="mr_sound_name_rocket">Foguete</string>
+    <string name="mr_sound_name_mouse">Rato</string>
 </resources>

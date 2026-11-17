@@ -5294,6 +5294,14 @@
 
     .line 3300
     :goto_0
+    # Mr Keyboard: the sound style chosen in "Keyboard sound" (MrKeySound) plays the key by itself; the default style and any failure
+    # answer false and the system sound below plays as before.
+    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrKeySound;->play(Landroid/content/Context;I)Z
+
+    move-result v1
+
+    if-nez v1, :cond_4
+
     iget-object p1, p0, Lcom/mrkeyboard/app/LatinIME;->mAudioManager:Landroid/media/AudioManager;
 
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->getKeyClickVolume()F

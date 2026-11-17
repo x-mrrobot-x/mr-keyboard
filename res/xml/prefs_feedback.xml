@@ -6,6 +6,9 @@
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_sound" android:key="sound_settings" android:icon="@drawable/mr_ui_ic_speaker_mint">
     <CheckBoxPreference android:persistent="true" android:title="@string/sound_on_keypress" android:key="sound_on" android:defaultValue="true"/>
+    <Preference android:persistent="false" android:title="@string/mr_sound_title" android:key="mr_sound_style" android:summary="@string/mr_sound_summary">
+      <intent android:targetPackage="com.mrkeyboard.app" android:targetClass="com.mrkeyboard.app.MrSoundActivity"/>
+    </Preference>
     <com.mrkeyboard.app.SeekBarPreferenceString android:persistent="true" android:title="@string/title_click_volume" android:key="pref_click_volume" android:dependency="sound_on" android:defaultValue="@string/default_click_volume" hk:asPercent="true" hk:maxValue="1.0" hk:minValue="0.0" hk:step="0.05"/>
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_visual" android:key="visual_feedback_settings" android:icon="@drawable/mr_ui_ic_eye_cyan">

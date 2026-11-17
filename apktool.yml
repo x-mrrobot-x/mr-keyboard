@@ -20,3 +20,4 @@ compactEntries: false
 doNotCompress:
 - arsc
 - webp
+- ogg

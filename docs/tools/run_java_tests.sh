@@ -16,6 +16,10 @@
 #   - MatrixTest: the Matrix effect of the settings screens (MrRain, MrRainDrawable, MrMatrix, and what MrScreens does with it): the drops and their
 #     trails, what is drawn and the beats that stop when the window is hidden, which screens get it (all of them but the helper windows), the
 #     see-through cards and dialogs that are laid over the theme with it, the screen that is created again when the setting changed and never in a loop.
+#   - SoundTest: the key sounds (MrKeySound, MrSoundActivity): the style and the volume read from the preferences, what is played for each key (the speed of space, delete and
+#     return), a sound that is still loading, fails or is missing (the system click plays as before), a style that changes, a preview asked for before the sound has loaded; the
+#     screen (fifteen tiles in the order of the picture, the choice written in sound_on / pref_sound_style, mute, the volume, the note of the default sound); and the files
+#     (the thirteen .ogg of res/raw read byte by byte, the strings in 3 languages, the manifest, the row of the feedback screen, the reset and the call in LatinIME.playKeyClick).
 #   - NavTest: opening screens without stacking copies (MrNav): flags from the keyboard window and from a screen, and
 #     what the AI style editor does when it is asked for again while it is already open.
 #   - ScreenImeTest: the keyboard on the editor screens (MrScreenIme): which field has it saved when the screen is
@@ -153,6 +157,10 @@ java -cp "$T/test_screens:$T/stubs:$T/main" com.mrkeyboard.app.ScreensTest
 echo "== MatrixTest (the Matrix effect of the settings screens)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_matrix" $D/screens_test/MatrixTest.java
 java -cp "$T/test_matrix:$T/stubs:$T/main" com.mrkeyboard.app.MatrixTest
+
+echo "== SoundTest (the key sounds: MrKeySound, the screen Keyboard sound and its files)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_sound" $D/screens_test/SoundTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_sound:$T/stubs:$T/main" com.mrkeyboard.app.SoundTest
 
 echo "== NavTest (screens without copies)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_nav" $D/nav_test/NavTest.java

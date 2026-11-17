@@ -470,6 +470,28 @@ if ai_src.count('"mr_ui_raised"') != 4 or ai_src.count('"mr_ui_stroke_strong"') 
     problems.append('MrAi: the chips, the result field and the Emojificar button and box (4 places) must use mr_ui_raised with mr_ui_stroke_strong')
 if 'mr_ui_field' in ai_src:
     problems.append('MrAi: mr_ui_field and mr_ui_field_line were replaced by mr_ui_raised and mr_ui_stroke_strong')
+# --- Key sounds (MrKeySound, MrSoundActivity): the screen builds the names of its strings and of the raw files from the style ids, so the references below are
+# not seen by the unused-resource check. Every style needs its sound file and its name (mute too) in the three languages, and no sound file may be left without a style.
+snd_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrKeySound.java')
+snd_styles = re.findall(r'"([a-z0-9]+)"', snd_src[snd_src.index('STYLES = {'):snd_src.index('};', snd_src.index('STYLES = {'))])
+if len(snd_styles) != 13:
+    problems.append('MrKeySound.STYLES: 13 styles expected, found %d' % len(snd_styles))
+snd_files = sorted(f for f in os.listdir('res/raw') if f.startswith('mr_snd_'))
+if snd_files != sorted('mr_snd_%s.ogg' % st for st in snd_styles):
+    problems.append('res/raw: the mr_snd_*.ogg files and MrKeySound.STYLES do not match')
+for lang in ('values', 'values-es', 'values-pt-rBR'):
+    texts = read_file('res/%s/mr_strings.xml' % lang)
+    for name in ['mr_sound_' + k for k in ('title', 'summary', 'styles', 'volume', 'default', 'default_note', 'muted')] + ['mr_sound_name_' + st for st in ['mute'] + snd_styles]:
+        if '<string name="%s">' % name not in texts:
+            problems.append('%s/mr_strings.xml: string %s of the Keyboard sound screen is missing' % (lang, name))
+# SoundPool.load(Context, int, int) opens the raw resource as a file descriptor, which Android refuses for a compressed entry (the sound would never play and
+# every key would fall back to the system click): the sounds must be stored. apktool reads apktool.yml (apktool.json is the same list for the other tool).
+if '\n- ogg' not in read_file('apktool.yml').split('doNotCompress:')[-1]:
+    problems.append('apktool.yml: ogg must be in doNotCompress (SoundPool.load of a raw resource needs it stored; the APK is built from this file)')
+if '"ogg"' not in read_file('apktool.json'):
+    problems.append('apktool.json: ogg must stay in doNotCompress (same list as apktool.yml)')
+if 'MrKeySound;->play' not in read_file('smali/com/mrkeyboard/app/LatinIME.smali'):
+    problems.append('LatinIME.playKeyClick: the call to MrKeySound.play is missing')
 # The see-through cards: a layout that takes its card or its background from the theme (?attr/mrCard...) must find the attribute in every theme it
 # is inflated under (every screen of the app has Theme.MrKeyboard.Settings or its child), and MrMatrixGlass must replace each one that is used.
 # Only the rows of the settings, the home screen and the sheets use them: the dialogs and the notification layouts are inflated under other themes.
