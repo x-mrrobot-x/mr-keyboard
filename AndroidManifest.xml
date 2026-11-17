@@ -40,32 +40,32 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:excludeFromRecents="true" android:exported="true" android:label="@string/english_ime_settings" android:launchMode="singleTop" android:name="com.mrkeyboard.app.LatinIMESettings" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Settings">
+        <activity android:exported="true" android:label="@string/english_ime_settings" android:launchMode="singleTop" android:name="com.mrkeyboard.app.LatinIMESettings" android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="com.mrkeyboard.app.SETTINGS"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:excludeFromRecents="true" android:exported="false" android:label="@string/mr_dicts_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrPacksActivity" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Settings">
+        <activity android:exported="false" android:label="@string/mr_dicts_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrPacksActivity" android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="com.mrkeyboard.app.PREFS_DICTS"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:excludeFromRecents="true" android:exported="false" android:label="@string/mr_ai_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrAiPrefs" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Settings">
+        <activity android:exported="false" android:label="@string/mr_ai_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrAiPrefs" android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="com.mrkeyboard.app.PREFS_AI"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:excludeFromRecents="true" android:exported="false" android:hardwareAccelerated="true" android:label="@string/mr_ai_new_style" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrAiStyleActivity" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Main" android:windowSoftInputMode="adjustResize"/>
-        <activity android:excludeFromRecents="true" android:exported="false" android:label="@string/mr_learned_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrLearnedActivity" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Main" android:windowSoftInputMode="adjustResize"/>
-        <activity android:excludeFromRecents="true" android:exported="false" android:label="@string/mr_sound_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrSoundActivity" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Main" android:windowSoftInputMode="adjustResize"/>
+        <activity android:exported="false" android:hardwareAccelerated="true" android:label="@string/mr_ai_new_style" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrAiStyleActivity" android:theme="@style/Theme.MrKeyboard.Main" android:windowSoftInputMode="adjustResize"/>
+        <activity android:exported="false" android:label="@string/mr_learned_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrLearnedActivity" android:theme="@style/Theme.MrKeyboard.Main" android:windowSoftInputMode="adjustResize"/>
+        <activity android:exported="false" android:label="@string/mr_sound_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrSoundActivity" android:theme="@style/Theme.MrKeyboard.Main" android:windowSoftInputMode="adjustResize"/>
         <activity android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize" android:exported="false" android:label="@string/mr_tour_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrTourActivity" android:theme="@style/Theme.MrKeyboard.Main"/>
-        <activity android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize" android:excludeFromRecents="true" android:exported="false" android:label="@string/mr_import_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrImportActivity" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Main" android:windowSoftInputMode="adjustResize"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize" android:exported="false" android:label="@string/mr_import_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.MrImportActivity" android:theme="@style/Theme.MrKeyboard.Main" android:windowSoftInputMode="adjustResize"/>
         <activity android:exported="false" android:label="@string/pref_screen_actions_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.PrefScreenActions" android:theme="@style/Theme.MrKeyboard.Settings">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -80,7 +80,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:excludeFromRecents="true" android:exported="false" android:hardwareAccelerated="true" android:label="@string/pref_screen_sheets_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.PrefScreenSheets" android:taskAffinity="com.mrkeyboard.app.screens" android:theme="@style/Theme.MrKeyboard.Main">
+        <activity android:exported="false" android:hardwareAccelerated="true" android:label="@string/pref_screen_sheets_title" android:launchMode="singleTop" android:name="com.mrkeyboard.app.PrefScreenSheets" android:theme="@style/Theme.MrKeyboard.Main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="com.mrkeyboard.app.PREFS_SHEETS"/>

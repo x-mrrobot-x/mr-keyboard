@@ -6,28 +6,31 @@ import android.content.Intent;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.WeakHashMap;
 
 /**
  * The one place that builds the Intent that opens a screen of the app (Settings, Packs, Sheets, AI Editor settings and
  * its style editor).
  * <p>
- * From the keyboard (a Service, not an Activity) the screen has to start in a task: NEW_TASK, which the manifest sends
- * to the shared task of those screens (taskAffinity), so that Back returns to the app being typed in. REORDER_TO_FRONT
- * brings the screen to the front if it is already open in that task, instead of stacking another copy: tapping the
- * gear three times no longer needs three Backs. CLEAR_TOP is deliberately not used (it would also close what the user
- * has open above the screen, such as a style being edited) and, if it were set, REORDER_TO_FRONT would be ignored.
+ * The app is ONE task and ONE window in the list of recent apps: no screen has a <code>taskAffinity</code> of its own in the manifest, so
+ * everything (the home screen and every screen that the keyboard opens) lives in the task of the package, under the single title that
+ * {@link MrScreens} gives it. The screens are not hidden from the list: the person sees that the app is open and can close it there.
+ * <p>
+ * From the keyboard (a Service, not an Activity) the screen has to start in a task: NEW_TASK, which with the affinity of the package puts
+ * it on top of the task of the app when that is alive (and creates the task when it is not). REORDER_TO_FRONT brings the screen to the
+ * front if it is already open in that task, instead of stacking another copy: tapping the gear three times no longer needs three Backs.
+ * CLEAR_TOP is deliberately not used (it would also close what the user has open above the screen, such as a style being edited) and,
+ * if it were set, REORDER_TO_FRONT would be ignored.
  * <p>
  * From a screen (an Activity) the new screen goes on the stack of the one that opened it, so no NEW_TASK; but
  * REORDER_TO_FRONT is kept, so that a copy that is already in that stack (a style editor left under the list of styles,
  * for instance) is brought to the front instead of getting a second one. The manifest's launchMode="singleTop" answers
  * a double tap with a call to onNewIntent of the screen already on top.
  * <p>
- * That task of the keyboard is a second task of the app, next to the one of the home screen, and it must not be a second
- * window in the list of recent apps: the screens that can start it say <code>excludeFromRecents</code> in the manifest (the
- * task is left out of the list; the screens are still reached by the gear). The screens that the keyboard opens carry
- * {@link #EXTRA_FROM_KEYBOARD}, MrScreens tells {@link #opened} and {@link #gone} about them, and when the person is back in the
- * app that they were typing in, a screen that is no longer needed is closed with its task ({@link #closeOpenedByKeyboard}) instead of being
- * left in the background.
+ * The screens that the keyboard opens carry {@link #EXTRA_FROM_KEYBOARD}, MrScreens tells {@link #opened} and {@link #gone} about them,
+ * and when the person is back in the app that they were typing in, a screen that is no longer needed is closed
+ * ({@link #closeOpenedByKeyboard}) instead of being left in the background spending memory: the whole task goes only when that screen is
+ * alone in it ({@link #aloneInTask}), otherwise only the screen, so that nothing the person has open next to it is lost.
  */
 public final class MrNav {
     /** Flag of every screen: an open copy in the task is brought to the front, not duplicated. */
@@ -39,6 +42,9 @@ public final class MrNav {
 
     /** The screens that the keyboard opened and that are still alive (weak: a screen that is gone does not stay here). */
     private static final ArrayList<WeakReference<Activity>> OPENED = new ArrayList<WeakReference<Activity>>();
+
+    /** Every screen of the app that is alive and the task it was created in (weak: a screen that is gone does not stay here). */
+    private static final WeakHashMap<Activity, Integer> TASKS = new WeakHashMap<Activity, Integer>();
 
     private MrNav() { }
 
@@ -69,12 +75,50 @@ public final class MrNav {
         }
     }
 
+    /** MrScreens: a screen was created (any screen of the app): remembers which task it is in. */
+    static void born(Activity screen) {
+        if (screen == null) return;
+        int task;
+        try {
+            task = screen.getTaskId();
+        } catch (RuntimeException e) {
+            return;
+        }
+        synchronized (TASKS) {
+            TASKS.put(screen, Integer.valueOf(task));
+        }
+    }
+
     /** MrScreens: a screen was destroyed. */
     static void gone(Activity screen) {
         if (screen == null) return;
+        synchronized (TASKS) {
+            TASKS.remove(screen);
+        }
         synchronized (OPENED) {
             forget(screen);
         }
+    }
+
+    /**
+     * True when no other screen of the app that is still alive (not finishing) is in the task of {@code screen}: closing it would not take
+     * anything else with it. A screen that MrScreens never told about counts as alone.
+     */
+    static boolean aloneInTask(Activity screen) {
+        int task;
+        try {
+            task = screen.getTaskId();
+        } catch (RuntimeException e) {
+            return false;
+        }
+        synchronized (TASKS) {
+            for (java.util.Map.Entry<Activity, Integer> e : TASKS.entrySet()) {
+                Activity other = e.getKey();
+                if (other == null || other == screen || other.isFinishing() || other.isDestroyed()) continue;
+                if (e.getValue() != null && e.getValue().intValue() == task) return false;
+            }
+        }
+        return true;
     }
 
     /** Takes out {@code screen} (when not null) and every reference that has been cleared or whose screen is finishing. */
@@ -97,14 +141,15 @@ public final class MrNav {
     }
 
     /**
-     * Closes the screen of this class that the keyboard opened: when it is the root of its task the whole task goes (and with it the entry
-     * in the list of recent apps), otherwise only the screen. True when there was one to close. A failure leaves it open.
+     * Closes the screen of this class that the keyboard opened: when it is the root of its task and nothing else of the app is in that
+     * task the whole task goes (and with it the entry in the list of recent apps), otherwise only the screen. True when there was one
+     * to close. A failure leaves it open.
      */
     static boolean closeOpenedByKeyboard(Class<?> screen) {
         Activity a = openedByKeyboard(screen);
         if (a == null) return false;
         try {
-            if (a.isTaskRoot()) a.finishAndRemoveTask();
+            if (a.isTaskRoot() && aloneInTask(a)) a.finishAndRemoveTask();
             else a.finish();
             return true;
         } catch (RuntimeException e) {

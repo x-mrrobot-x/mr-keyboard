@@ -9,23 +9,25 @@ import android.preference.PreferenceActivity;
 import java.io.File;
 
 /**
- * The "Dictionary memory" row of Settings → Advanced → Performance, next to the other numbers measured on the phone (MrPerf). It says,
- * for the dictionary in use, the size of the files, how much of each is in memory now and how long each part took to open (MrDiag).
+ * The "Dictionary memory" lines of Settings → Advanced → Performance → Keyboard statistics (the row of MrPerf), after the memory line and before the
+ * note about resetting. They say, for the dictionary in use, the size of the files, how much of each is in memory now and how long each part took to
+ * open (MrDiag). They are not a row of their own: {@link MrPerf#summary} asks {@link #block} for them every time it makes the text of the row.
  *
- * Reading the memory map of the process takes a few milliseconds, so the text is made in a thread and put on the row when it is
- * ready, never when the screen has gone. Each time the screen opens the row says "Reading…" again and a new read starts; an answer
- * that arrives after a newer read started is dropped (the generation), so two reads never write over each other.
+ * Reading the memory map of the process takes a few milliseconds, so the text is made in a thread and, when it is ready, the row is written again
+ * with it (never when the screen has gone). Each time the screen opens the lines say "Reading…" again and a new read starts; an answer that arrives
+ * after a newer read started is dropped (the generation), so two reads never write over each other.
  */
 final class MrDictMem {
     private MrDictMem() { }
-
-    /** The key of the row in prefs_advanced.xml. */
-    static final String ROW = "mr_dict_mem";
 
     /** Number of the last read started; only the main thread changes it. */
     private static int sGeneration;
     /** Reads started since the process began (the tests count them). */
     static volatile int sReads;
+    /** Is the screen of the statistics open (or was it, in this process)? Until then the lines are not part of the text of the row. */
+    private static boolean sShown;
+    /** The lines of the last read; null while a read is running. Only the main thread writes it. */
+    private static String sText;
     /** The handler of the main thread that takes the answers; made on the first use (only the main thread asks for it). */
     private static Handler sMain;
 
@@ -34,19 +36,33 @@ final class MrDictMem {
         return sMain;
     }
 
-    /** PrefScreenAdvanced.onResume: the row says it is reading and the text arrives from a thread. */
+    /**
+     * MrPerf.summary: the title and the lines (or "Reading…"), or null when the screen of the statistics was never opened (the other users of the text
+     * of the row, like the tests of the meter, do not get them).
+     */
+    static String block(Context c) {
+        if (!sShown) return null;
+        String body = sText != null ? sText : string(c, "mr_mem_wait");
+        return string(c, "mr_mem_title") + "\n" + body;
+    }
+
+    /**
+     * PrefScreenAdvanced.onResume, BEFORE MrPerf.fill (which writes the row with the lines): the lines say it is reading and the text arrives from a
+     * thread. It does nothing when the screen has no row of the numbers.
+     */
     public static void fill(PreferenceActivity screen) {
         try {
-            final Preference row = screen.findPreference(ROW);
+            final Preference row = screen.findPreference(MrPerf.ROW);
             if (row == null) return;
             final PreferenceActivity owner = screen;
             final File dir = MrPacks.activeDir();
             final int gen = ++sGeneration;
+            sShown = true;
             if (dir == null) {
-                row.setSummary(text(owner, null));
+                sText = text(owner, null);
                 return;
             }
-            row.setSummary(string(owner, "mr_mem_wait"));
+            sText = null;
             final Handler main = main();
             Thread th = new Thread(new Runnable() {
                 public void run() {
@@ -54,13 +70,18 @@ final class MrDictMem {
                     try {
                         made = text(owner, MrDiag.collect(dir));
                     } catch (RuntimeException e) {
-                        return;   // the row keeps "Reading…"; nothing is worth a crash here
+                        return;   // the lines keep "Reading…"; nothing is worth a crash here
                     }
                     final String shown = made;
                     main.post(new Runnable() {
                         public void run() {
                             if (gen != sGeneration || owner.isFinishing() || owner.isDestroyed()) return;
-                            row.setSummary(shown);
+                            sText = shown;
+                            try {
+                                row.setSummary(MrPerf.summary(owner));
+                            } catch (RuntimeException e) {
+                                // the next time the row is written it has the lines
+                            }
                         }
                     });
                 }
@@ -69,7 +90,7 @@ final class MrDictMem {
             sReads++;
             th.start();
         } catch (RuntimeException e) {
-            // the row keeps the text of the XML
+            // the row has no lines
         }
     }
 

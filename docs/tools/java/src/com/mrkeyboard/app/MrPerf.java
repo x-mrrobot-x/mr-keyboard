@@ -653,7 +653,7 @@ public final class MrPerf {
         return NAMES[FRAME];
     }
 
-    /** The text of the row: one line per kind measured (or "nothing yet"), the memory, and how to reset. */
+    /** The text of the row: one line per kind measured (or "nothing yet"), the memory, the memory of the dictionaries (MrDictMem) and how to reset. */
     static String summary(Context c) {
         StringBuilder sb = new StringBuilder();
         String starts = startsOf(c);
@@ -732,6 +732,9 @@ public final class MrPerf {
         }
         String mem = MrPacks.text(c, "mr_ui_perf_mem", MrDiag.bytesText(heapUsed()), MrDiag.bytesText(Debug.getNativeHeapAllocatedSize()));
         if (mem != null) sb.append('\n').append(mem);
+        // the memory of the dictionaries (after a read of the screen of the statistics): its own lines, before the note about resetting
+        String dictionaries = MrDictMem.block(c);
+        if (dictionaries != null) sb.append('\n').append(dictionaries);
         if (measured) {
             String reset = MrPacks.text(c, "mr_ui_perf_reset");
             if (reset != null) sb.append('\n').append(reset);

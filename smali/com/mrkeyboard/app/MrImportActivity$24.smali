@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 806
+    .line 809
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$24;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,7 +45,7 @@
     .end annotation
 
     .prologue
-    .line 809
+    .line 812
     :try_start_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$24;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
@@ -59,11 +59,11 @@
 
     return-object v0
 
-    .line 810
+    .line 813
     :catch_0
     move-exception v0
 
-    .line 811
+    .line 814
     new-instance v1, Lcom/mrkeyboard/app/MrImportAi$Fail;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrAi$AiFail;->getMessage()Ljava/lang/String;

@@ -1,7 +1,9 @@
 package com.mrkeyboard.app;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Application;
+import android.content.pm.PackageManager;
 import android.graphics.Insets;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,6 +36,10 @@ import java.util.WeakHashMap;
  * the window is handed to the system (the flag is read when the window is added, after onResume). It never touches the
  * windows without a screen of their own (the translucent helpers) or the keyboard and its dialogs.
  *
+ * One window in the list of recent apps: no screen has an affinity of its own, so they all share the task of the app, and every one of them
+ * gives that task the same title (the name of the app: {@link #titleTask}), whichever screen is on top. The person sees the app open
+ * there, once, and closes it from the list.
+ *
  * Matrix effect (the setting "pref_ui_matrix", Settings, Appearance, on by default): on the screens of the app (MrMatrix.eligible) the window gets
  * the falling letters as its background (MrMatrix.attach) and, since they are animated, it is accelerated whatever the other setting says. Both
  * are decided when the screen is created; the screens that are open when the setting changes are created again when they come back
@@ -53,6 +59,9 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
     private static final String[] HELPERS = {
             "com.google.android.voiceime.ActivityHelper", "com.mrkeyboard.app.ShotPerm", "com.mrkeyboard.app.ShotPick"};
 
+    /** Title of the app in the list of recent apps when the system does not tell the name of the application. */
+    static final String APP_TITLE = "Mr Keyboard";
+
     /** What each screen was drawn with when it was created: the rain or not (so that a change of the setting is seen when it comes back). */
     private final WeakHashMap<Activity, Boolean> mRain = new WeakHashMap<Activity, Boolean>();
 
@@ -69,6 +78,31 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
      */
     public static void onSetting(Activity screen, String key) {
         if (screen != null && (KEY_HW_ACCEL.equals(key) || MrMatrix.KEY.equals(key))) screen.recreate();
+    }
+
+    /** The name of the app as the person sees it on the home screen of the phone. */
+    static String appTitle(Activity screen) {
+        try {
+            PackageManager pm = screen.getPackageManager();
+            CharSequence label = pm == null ? null : pm.getApplicationLabel(screen.getApplicationInfo());
+            if (label != null && label.length() > 0) return label.toString();
+        } catch (RuntimeException e) {
+            // the fixed name below is as good
+        }
+        return APP_TITLE;
+    }
+
+    /**
+     * Gives the task the one title of the app: the list of recent apps shows the title of the task, which is the label of its first screen
+     * unless a screen says otherwise, so a task whose first screen is "Settings" would be listed as "Settings". Not on the helper windows.
+     */
+    static void titleTask(Activity screen) {
+        if (isHelper(screen.getClass().getName())) return;
+        try {
+            screen.setTaskDescription(new ActivityManager.TaskDescription(appTitle(screen)));
+        } catch (RuntimeException e) {
+            // the title is a courtesy: the list shows the label of the screen without it
+        }
     }
 
     /** True for the windows that are not screens of the app (see HELPERS). */
@@ -117,7 +151,9 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
     }
 
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+        MrNav.born(activity);
         MrNav.opened(activity);
+        titleTask(activity);
         boolean rain = MrMatrix.wanted(activity);
         if (MrMatrix.eligible(activity)) mRain.put(activity, Boolean.valueOf(rain));
         if (rain) MrMatrix.attach(activity);

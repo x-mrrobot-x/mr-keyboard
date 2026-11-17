@@ -102,6 +102,7 @@ class Fw:
         self.storage_broken = False   # a phone that cannot read or write the file
         self.trim_forgets = 0         # MrTrim.forget calls (the reset)
         self.trim = {"sCount": 0, "sLevel": 0, "sKeyboards": 0, "sPopups": 0, "sShadows": 0, "sBytes": 0}
+        self.dict_block = None        # what MrDictMem.block answers: the lines of the dictionary memory (None until the screen read them)
         self.live_forgets = 0         # MrLive.forget calls (the reset)
         self.live = {"sMeasured": 0, "sServices": 0, "sViews": 0}   # what the last count of the objects alive found (MrLive)
         self.perf = dm.VM(PERF, dm.parse_methods(os.path.join(APP, "MrPerf.smali")), self)
@@ -256,6 +257,8 @@ class Fw:
             if mem.startswith("setOnPreferenceClickListener("):
                 a0.f["click"] = args[1]
                 return None
+        if target == "Lcom/mrkeyboard/app/MrDictMem;->block(Landroid/content/Context;)Ljava/lang/String;":
+            return self.dict_block        # the lines of the dictionary memory, written inside this row (MrDictMem)
         raise AssertionError("not faked: " + target)
 
     # --- the Advanced screen
@@ -609,6 +612,17 @@ fw.missing = set()
 fw.live.update(sMeasured=0, sServices=0, sViews=0)
 fw.trim.update(sCount=0)
 check("the count forgotten: the line is gone", "Alive after" not in summary_for())
+
+# the dictionary memory (MrDictMem.block) is inside this row: after the memory line, before the note to reset; nothing until the screen has read it
+base = summary_for().split("\n")
+mi = [i for i, t in enumerate(base) if t.startswith("Memory:")]
+check("no dictionary memory yet: the row is as it was (no 'None')", len(mi) == 1 and "None" not in "\n".join(base))
+fw.dict_block = "Dictionary memory:\nPortuguese 3.1 MB"
+dl = summary_for().split("\n")
+check("the lines of the dictionary memory come right after the memory line, and the rest of the row follows them",
+      len(dl) == len(base) + 2 and dl[mi[0] + 1] == "Dictionary memory:" and dl[mi[0] + 2] == "Portuguese 3.1 MB" and dl[mi[0] + 3:] == base[mi[0] + 1:], dl[mi[0]:])
+fw.dict_block = None
+check("the answer gone (None): the row is as it was", summary_for().split("\n") == base)
 
 fw.missing = {"mr_ui_perf_reset", "mr_ui_perf_mem", "mr_ui_perf_stat"}
 scr, row = fw.screen()
@@ -1187,8 +1201,8 @@ check("the Advanced screen fills the row when it resumes",
 perf_src = open(os.path.join(APP, "MrPerf.smali"), encoding="utf-8").read()
 called = set()
 for f in os.listdir(APP):
-    # MrTrim and MrLongPress are of the Java layer (the same package, so they call begin/end and longShown, which are not public)
-    if f.endswith(".smali") and not f.startswith("MrPerf") and not f.startswith("MrTrim") and not f.startswith("MrLongPress"):
+    # MrTrim, MrLongPress and MrDictMem are of the Java layer (the same package, so they call begin/end, longShown and summary, which are not public)
+    if f.endswith(".smali") and not f.startswith("MrPerf") and not f.startswith("MrTrim") and not f.startswith("MrLongPress") and not f.startswith("MrDictMem"):
         called |= set(re.findall(re.escape(PERF) + r"->(\w+\([^)]*\)\S+)", open(os.path.join(APP, f), encoding="utf-8").read()))
 missing = [m for m in sorted(called) if not re.search(r"\.method public static " + re.escape(m) + r"\n", perf_src)]
 check("every MrPerf call of the keyboard is a public static method of MrPerf (%d)" % len(called), not missing and len(called) == 54,

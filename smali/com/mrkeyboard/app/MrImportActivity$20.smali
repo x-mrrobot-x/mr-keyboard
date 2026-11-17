@@ -39,7 +39,7 @@
     .end annotation
 
     .prologue
-    .line 673
+    .line 676
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$20;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$20;->val$store:Lcom/mrkeyboard/app/MrWordStore;
@@ -61,8 +61,8 @@
     .locals 6
 
     .prologue
-    .line 675
-    .line 677
+    .line 678
+    .line 680
     :try_start_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$20;->val$store:Lcom/mrkeyboard/app/MrWordStore;
 
@@ -82,7 +82,7 @@
 
     move-result-object v0
 
-    .line 682
+    .line 685
     :goto_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$20;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
@@ -92,14 +92,14 @@
 
     invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrImportActivity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 699
+    .line 702
     return-void
 
-    .line 678
+    .line 681
     :catch_0
     move-exception v0
 
-    .line 679
+    .line 682
     const/4 v0, 0x0
 
     goto :goto_0

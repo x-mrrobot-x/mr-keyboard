@@ -28,16 +28,16 @@
     .locals 0
 
     .prologue
-    .line 780
+    .line 783
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 781
+    .line 784
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPerf$Trim;->mContext:Landroid/content/Context;
 
-    .line 782
+    .line 785
     iput-object p2, p0, Lcom/mrkeyboard/app/MrPerf$Trim;->mRow:Landroid/preference/Preference;
 
-    .line 783
+    .line 786
     return-void
 .end method
 
@@ -47,18 +47,18 @@
     .locals 2
 
     .prologue
-    .line 786
+    .line 789
     const/16 v0, 0x50
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTrim;->onTrim(I)V
 
-    .line 787
+    .line 790
     invoke-static {}, Ljava/lang/System;->gc()V
 
-    .line 788
+    .line 791
     invoke-static {}, Lcom/mrkeyboard/app/MrLive;->measure()V
 
-    .line 789
+    .line 792
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPerf$Trim;->mRow:Landroid/preference/Preference;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPerf$Trim;->mContext:Landroid/content/Context;
@@ -69,7 +69,7 @@
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
 
-    .line 790
+    .line 793
     const/4 v0, 0x1
 
     return v0

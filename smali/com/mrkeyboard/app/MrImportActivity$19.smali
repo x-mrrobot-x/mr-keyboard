@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 587
+    .line 590
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$19;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$19;->val$w:Lcom/mrkeyboard/app/MrImport$NewWord;
@@ -55,7 +55,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 589
+    .line 592
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity$19;->val$w:Lcom/mrkeyboard/app/MrImport$NewWord;
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$19;->val$w:Lcom/mrkeyboard/app/MrImport$NewWord;
@@ -69,7 +69,7 @@
     :goto_0
     iput-boolean v0, v2, Lcom/mrkeyboard/app/MrImport$NewWord;->checked:Z
 
-    .line 590
+    .line 593
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$19;->val$item:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->getChildAt(I)Landroid/view/View;
@@ -86,17 +86,17 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 591
+    .line 594
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$19;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$3200(Lcom/mrkeyboard/app/MrImportActivity;)V
 
-    .line 592
+    .line 595
     return-void
 
     :cond_0
     move v0, v1
 
-    .line 589
+    .line 592
     goto :goto_0
 .end method

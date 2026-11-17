@@ -37,7 +37,7 @@
     .end annotation
 
     .prologue
-    .line 396
+    .line 399
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->val$locale:Ljava/lang/String;
@@ -59,11 +59,11 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 398
-    .line 399
+    .line 401
+    .line 402
     const/4 v0, 0x0
 
-    .line 400
+    .line 403
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->val$locale:Ljava/lang/String;
@@ -72,7 +72,7 @@
 
     move-result-object v3
 
-    .line 402
+    .line 405
     if-nez v3, :cond_1
 
     :try_start_0
@@ -84,16 +84,16 @@
 
     if-nez v2, :cond_1
 
-    .line 403
+    .line 406
     const/4 v0, 0x1
 
-    .line 422
+    .line 425
     :goto_0
     if-eqz v3, :cond_0
 
     invoke-virtual {v3}, Lcom/mrkeyboard/app/BinaryDictionary;->close()V
 
-    .line 426
+    .line 429
     :cond_0
     :goto_1
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
@@ -104,10 +104,10 @@
 
     invoke-virtual {v2, v3}, Lcom/mrkeyboard/app/MrImportActivity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 440
+    .line 443
     return-void
 
-    .line 405
+    .line 408
     :cond_1
     :try_start_1
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity$12;->val$text:Ljava/lang/String;
@@ -120,7 +120,7 @@
 
     move-result-object v2
 
-    .line 411
+    .line 414
     iget-object v4, v2, Lcom/mrkeyboard/app/MrImport$Plan;->words:Ljava/util/ArrayList;
 
     new-instance v5, Lcom/mrkeyboard/app/MrImportActivity$12$2;
@@ -137,22 +137,22 @@
 
     goto :goto_0
 
-    .line 417
+    .line 420
     :catch_0
     move-exception v2
 
-    .line 422
+    .line 425
     if-eqz v3, :cond_0
 
     invoke-virtual {v3}, Lcom/mrkeyboard/app/BinaryDictionary;->close()V
 
     goto :goto_1
 
-    .line 419
+    .line 422
     :catch_1
     move-exception v2
 
-    .line 422
+    .line 425
     if-eqz v3, :cond_0
 
     invoke-virtual {v3}, Lcom/mrkeyboard/app/BinaryDictionary;->close()V
@@ -166,7 +166,7 @@
 
     invoke-virtual {v3}, Lcom/mrkeyboard/app/BinaryDictionary;->close()V
 
-    .line 423
+    .line 426
     :cond_2
     throw v0
 .end method

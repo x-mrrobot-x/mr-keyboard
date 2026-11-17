@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 231
+    .line 233
     iput-object p1, p0, Lcom/mrkeyboard/app/MrKit$1$1;->this$1:Lcom/mrkeyboard/app/MrKit$1;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,10 +40,10 @@
     .locals 2
 
     .prologue
-    .line 233
+    .line 235
     invoke-interface {p1}, Landroid/content/DialogInterface;->dismiss()V
 
-    .line 234
+    .line 236
     iget-object v0, p0, Lcom/mrkeyboard/app/MrKit$1$1;->this$1:Lcom/mrkeyboard/app/MrKit$1;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrKit$1;->val$langs:Ljava/util/List;
@@ -54,7 +54,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 235
+    .line 237
     iget-object v1, p0, Lcom/mrkeyboard/app/MrKit$1$1;->this$1:Lcom/mrkeyboard/app/MrKit$1;
 
     iget-object v1, v1, Lcom/mrkeyboard/app/MrKit$1;->val$current:Ljava/lang/String;
@@ -71,7 +71,7 @@
 
     invoke-interface {v1, v0}, Lcom/mrkeyboard/app/MrKit$LangPick;->onPick(Ljava/lang/String;)V
 
-    .line 236
+    .line 238
     :cond_0
     return-void
 .end method

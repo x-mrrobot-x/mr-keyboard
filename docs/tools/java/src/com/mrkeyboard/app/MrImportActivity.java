@@ -70,6 +70,9 @@ public class MrImportActivity extends Activity {
     private LinearLayout mLangBox;
     private LinearLayout mAppBox;
     private TextView mAppNote;
+    /** The box of the text starts with 6 lines and stops growing at 12: a longer text (a chat pasted, the answer of the AI) is read by scrolling the box. */
+    static final int TEXT_MIN_LINES = 6;
+    static final int TEXT_MAX_LINES = 12;
     private EditText mText;
     private TextView mCount;
     private TextView mAnalyze;
@@ -167,7 +170,7 @@ public class MrImportActivity extends Activity {
 
         mText = k.field(k.t("mr_import_placeholder"), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
                 | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        mText.setMinLines(6);
+        k.scrollable(mText, TEXT_MIN_LINES, TEXT_MAX_LINES);   // it does not grow with a long text: from the last line it scrolls inside the box
         mText.setGravity(Gravity.TOP);
         if (state != null && state.getString(S_TEXT) != null) mText.setText(state.getString(S_TEXT));
         mText.addTextChangedListener(new TextWatcher() {

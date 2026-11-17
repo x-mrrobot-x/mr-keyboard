@@ -473,7 +473,20 @@ public class ImportScreenTest {
         check("the screen uses that text for the box", act.contains("k.field(k.t(\"mr_import_placeholder\")"));
     }
 
+    // ---------------------------------------------------------------- the box does not grow without limit
+
+    static void boxLimit() {
+        Screen s = open(null);
+        EditText box = box(s);
+        check("the box has a minimum of 6 lines and a maximum of 12: from the 12th line it scrolls inside, it does not grow with the text",
+                box.stubMinLines == MrImportActivity.TEXT_MIN_LINES && box.stubMaxLines == MrImportActivity.TEXT_MAX_LINES
+                        && MrImportActivity.TEXT_MIN_LINES == 6 && MrImportActivity.TEXT_MAX_LINES == 12);
+        check("... it shows a scroll bar", box.stubScrollBar);
+        check("... and the page does not take the finger while the box can still scroll (a touch listener is set)", box.stubTouch != null);
+    }
+
     public static void main(String[] args) {
+        boxLimit();
         buttons();
         restored();
         afterTheAi();

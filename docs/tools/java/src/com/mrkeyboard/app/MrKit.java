@@ -7,8 +7,10 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -251,6 +253,27 @@ final class MrKit {
         e.setPadding(dp(14), dp(12), dp(14), dp(12));
         e.setBackground(round(raised, line, 12, false));
         return e;
+    }
+
+    /**
+     * A multi-line field that does not grow for ever: it starts with {@code minLines} lines, grows up to {@code maxLines} and from there the text scrolls
+     * inside the field (with a scroll bar). While the field can scroll, the page behind it does not take the finger, so a drag in the field moves the text
+     * and not the page; with the text short enough to show whole, the page scrolls as before.
+     */
+    void scrollable(EditText e, int minLines, int maxLines) {
+        e.setMinLines(minLines);
+        e.setMaxLines(maxLines);
+        e.setVerticalScrollBarEnabled(true);
+        e.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent ev) {
+                int action = ev.getActionMasked();
+                ViewParent page = v.getParent();
+                if (page == null) return false;
+                if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) page.requestDisallowInterceptTouchEvent(false);
+                else if (v.canScrollVertically(1) || v.canScrollVertically(-1)) page.requestDisallowInterceptTouchEvent(true);
+                return false;
+            }
+        });
     }
 
     /** A vector of the screens (res/drawable/mr_ui_ic_*), square, {@code sizeDp} wide, ready to be a compound drawable. */

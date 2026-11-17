@@ -3001,75 +3001,27 @@
 .end method
 
 .method public setLanguageSwitcher(Lcom/mrkeyboard/app/LanguageSwitcher;Z)V
-    .locals 3
+    .locals 1
 
     .line 586
     iput-object p1, p0, Lcom/mrkeyboard/app/LatinKeyboard;->mLanguageSwitcher:Lcom/mrkeyboard/app/LanguageSwitcher;
 
-    .line 587
-    iget-object p1, p0, Lcom/mrkeyboard/app/LatinKeyboard;->mLanguageSwitcher:Lcom/mrkeyboard/app/LanguageSwitcher;
+    # Mr Keyboard v2.0.0: the space bar always names the language being typed. The original code left mLocale null with no language
+    # selected, or with a single one equal to the device language, so the label vanished for most people. getInputLocale() already
+    # answers the device language when nothing is selected; it is null only before the first loadLocales, and then the plain space
+    # icon stays (updateSpaceBarForLocale).
+    if-eqz p1, :cond_none
 
-    invoke-virtual {p1}, Lcom/mrkeyboard/app/LanguageSwitcher;->getLocaleCount()I
-
-    move-result p1
-
-    const/4 v0, 0x0
-
-    if-lez p1, :cond_0
-
-    iget-object p1, p0, Lcom/mrkeyboard/app/LatinKeyboard;->mLanguageSwitcher:Lcom/mrkeyboard/app/LanguageSwitcher;
-
-    .line 588
     invoke-virtual {p1}, Lcom/mrkeyboard/app/LanguageSwitcher;->getInputLocale()Ljava/util/Locale;
 
     move-result-object p1
 
-    goto :goto_0
+    goto :goto_set
 
-    :cond_0
-    move-object p1, v0
+    :cond_none
+    const/4 p1, 0x0
 
-    :goto_0
-    if-eqz p1, :cond_1
-
-    .line 591
-    iget-object v1, p0, Lcom/mrkeyboard/app/LatinKeyboard;->mLanguageSwitcher:Lcom/mrkeyboard/app/LanguageSwitcher;
-
-    .line 592
-    invoke-virtual {v1}, Lcom/mrkeyboard/app/LanguageSwitcher;->getLocaleCount()I
-
-    move-result v1
-
-    const/4 v2, 0x1
-
-    if-ne v1, v2, :cond_1
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/LatinKeyboard;->mLanguageSwitcher:Lcom/mrkeyboard/app/LanguageSwitcher;
-
-    .line 593
-    invoke-virtual {v1}, Lcom/mrkeyboard/app/LanguageSwitcher;->getSystemLocale()Ljava/util/Locale;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/util/Locale;->getLanguage()Ljava/lang/String;
-
-    move-result-object v1
-
-    .line 594
-    invoke-virtual {p1}, Ljava/util/Locale;->getLanguage()Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v1, v2}, Ljava/lang/String;->equalsIgnoreCase(Ljava/lang/String;)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_1
-
-    move-object p1, v0
-
-    .line 597
-    :cond_1
+    :goto_set
     iput-object p1, p0, Lcom/mrkeyboard/app/LatinKeyboard;->mLocale:Ljava/util/Locale;
 
     .line 598

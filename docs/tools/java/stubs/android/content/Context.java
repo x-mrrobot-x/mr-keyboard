@@ -22,4 +22,5 @@ public abstract class Context {
     public java.io.File getDatabasePath(String name) { return null; }
     public ContentResolver getContentResolver() { return null; }
     public String getString(int resId) { return ""; }
+    public android.content.pm.ApplicationInfo getApplicationInfo() { return null; }
 }

@@ -12,10 +12,11 @@ import java.nio.file.Files;
 import java.util.Locale;
 
 /**
- * MrDictMem: the "Dictionary memory" row of Settings → Advanced → Performance, run against the stubs of Android. Checks what the row says
- * with no dictionary yet (no thread started), the text that is put at once ("Reading…") and the one that arrives from the thread (the pack, the
- * triples, the engine), a pack without triples, an answer that arrives after a newer read started (dropped), a screen that is gone when the
- * answer arrives (nothing written), a screen without the row, a screen that fails, and texts that are missing (the name is shown, nothing is thrown).
+ * MrDictMem: the "Dictionary memory" lines inside the row of the numbers (Settings → Advanced → Performance → Keyboard statistics), run against the stubs of
+ * Android. Checks that the text of the row has no lines before the screen was opened, what the lines say with no dictionary yet (no thread started), the
+ * text that is there at once ("Reading…") and the one that arrives from the thread (the pack, the triples, the engine) and is written into the row, a pack
+ * without triples, an answer that arrives after a newer read started (dropped), a screen that is gone when the answer arrives (nothing written), a screen
+ * without the row, a screen that fails, and texts that are missing (the name is shown, nothing is thrown).
  */
 public class DictMemTest {
     static int fails = 0, checks = 0;
@@ -27,7 +28,7 @@ public class DictMemTest {
     }
 
     static final String[][] TEXTS = {
-        {"mr_mem_title", "Dictionary memory"}, {"mr_mem_wait", "Reading…"}, {"mr_mem_none", "No dictionary loaded yet."},
+        {"mr_mem_title", "Dictionary memory:"}, {"mr_mem_wait", "Reading…"}, {"mr_mem_none", "No dictionary loaded yet."},
         {"mr_mem_dict", "%1$s v%2$d · words %3$s, %4$s in memory, opened in %5$s ms"},
         {"mr_mem_tri", "Word triples (MRT%1$d) %2$s, %3$s in memory, opened in %4$s ms"},
         {"mr_mem_tri_none", "Word triples: none in this pack"}, {"mr_mem_engine", "Engine started in %1$s ms, rules in %2$s ms"},
@@ -45,7 +46,7 @@ public class DictMemTest {
         boolean hasRow = true, broken, gone, noTexts;
         public Preference findPreference(CharSequence key) {
             if (broken) throw new IllegalStateException("no screen");
-            return hasRow && "mr_dict_mem".equals(String.valueOf(key)) ? row : null;
+            return hasRow && "mr_perf".equals(String.valueOf(key)) ? row : null;
         }
         public boolean isFinishing() { return gone; }
         public String getPackageName() { return "com.mrkeyboard.app"; }
@@ -101,13 +102,18 @@ public class DictMemTest {
         Locale.setDefault(Locale.US);
         File root = Files.createTempDirectory("mrdictmem").toFile();
 
-        // ---- no dictionary yet: the text says so at once, no thread, no memory map read
+        // ---- the screen was never opened: the text of the row has no lines of the dictionary memory
+        Screen s = new Screen();
+        check(MrDictMem.block(s) == null, "before the screen is opened there are no lines (the other users of the text of the row do not get them)");
+        check(!MrPerf.summary(s).contains("Dictionary memory"), "... and the text of the row does not have them");
+
+        // ---- no dictionary yet: the lines say so at once, no thread, no memory map read
         setActive(null);
         int reads = MrDictMem.sReads;
-        Screen s = new Screen();
         MrDictMem.fill(s);
-        check("No dictionary loaded yet.".equals(String.valueOf(s.row.summary)), "no pack in use: the row says there is none");
-        check(MrDictMem.sReads == reads && MrDictMem.main().stubPending() == 0, "... and no thread was started");
+        check("Dictionary memory:\nNo dictionary loaded yet.".equals(MrDictMem.block(s)), "no pack in use: the lines say there is none (" + MrDictMem.block(s) + ")");
+        check(MrDictMem.sReads == reads && MrDictMem.main().stubPending() == 0 && s.row.sets == 0, "... no thread, and the row is left to MrPerf.fill (it writes it next)");
+        check(MrPerf.summary(s).contains("Dictionary memory:\nNo dictionary loaded yet."), "the text of the row has the lines");
 
         // ---- a pack in use: "Reading…" at once, the lines when the thread is done
         File pt = pack(root, "pt-BR", 8, true);
@@ -118,16 +124,18 @@ public class DictMemTest {
         MrDiag.sEngineNs = 9000000; MrDiag.sRulesNs = 3000000;
         s = new Screen();
         MrDictMem.fill(s);
-        check("Reading…".equals(String.valueOf(s.row.summary)), "a pack in use: the row says it is reading until the thread is done");
-        check(MrDictMem.sReads == reads + 1, "... one read started");
+        check("Dictionary memory:\nReading…".equals(MrDictMem.block(s)), "a pack in use: the lines say it is reading until the thread is done");
+        check(MrDictMem.sReads == reads + 1 && s.row.sets == 0, "... one read started, and the row is not written yet");
         arrive(1);
         String text = String.valueOf(s.row.summary);
-        String[] lines = text.split("\n");
+        String[] lines = text.substring(text.indexOf("Dictionary memory:\n") + "Dictionary memory:\n".length()).split("\n");
+        check(text.contains("Dictionary memory:\n"), "the row is written with the lines when the read ends");
         check(lines[0].startsWith("pt-BR v8 · words 300 KB, ") && lines[0].endsWith(" in memory, opened in 4.1 ms"),
                 "line 1: the pack, its size and the time it took to open (" + lines[0] + ")");
         check(lines[1].startsWith("Word triples (MRT2) 200 KB, ") && lines[1].endsWith(" in memory, opened in 0.9 ms"), "line 2: the triples, their format, size and time (" + lines[1] + ")");
         check(lines[2].equals("Engine started in 9.0 ms, rules in 3.0 ms"), "line 3: the engine and the rules (" + lines[2] + ")");
-        check(s.row.sets == 2, "the row was written twice only: Reading… and the text");
+        check(lines.length == 3 && s.row.sets == 1, "nothing else after them in the row of the test, and the row was written once");
+        check(MrDictMem.block(s).startsWith("Dictionary memory:\npt-BR v8"), "the lines stay for the next time the row is written (the reset, the cleanup)");
 
         // ---- the same text is made by text() from a report (a pack without triples, nothing measured, no memory read)
         File en = pack(root, "en-US", 7, false);
@@ -147,8 +155,8 @@ public class DictMemTest {
         setActive(en);
         MrDictMem.fill(s2);          // newer read of en-US on the same row
         arrive(2);
-        check(String.valueOf(s2.row.summary).startsWith("en-US v7"), "two reads one after the other: the row shows the newer one (" + String.valueOf(s2.row.summary).split("\n")[0] + ")");
-        check(s2.row.sets == 3, "... and the older answer wrote nothing (Reading…, Reading…, the newer text)");
+        check(String.valueOf(s2.row.summary).contains("en-US v7"), "two reads one after the other: the row shows the newer one (" + String.valueOf(s2.row.summary).replace('\n', '|') + ")");
+        check(!String.valueOf(s2.row.summary).contains("pt-BR v8") && s2.row.sets == 1, "... and the older answer wrote nothing");
 
         // ---- the pack goes away while a read is running: the late answer is dropped
         setActive(pt);
@@ -157,7 +165,7 @@ public class DictMemTest {
         setActive(null);
         MrDictMem.fill(s3);          // no pack now: "none" at once
         arrive(1);
-        check("No dictionary loaded yet.".equals(String.valueOf(s3.row.summary)), "a late answer does not replace 'no dictionary yet' (" + s3.row.summary + ")");
+        check("Dictionary memory:\nNo dictionary loaded yet.".equals(MrDictMem.block(s3)) && s3.row.sets == 0, "a late answer does not replace 'no dictionary yet' (" + MrDictMem.block(s3) + ")");
 
         // ---- the screen is gone when the answer arrives
         setActive(pt);
@@ -165,7 +173,7 @@ public class DictMemTest {
         MrDictMem.fill(gone);
         gone.gone = true;
         arrive(1);
-        check("Reading…".equals(String.valueOf(gone.row.summary)) && gone.row.sets == 1, "a finished screen is not written to");
+        check(gone.row.sets == 0 && "Dictionary memory:\nReading…".equals(MrDictMem.block(gone)), "a finished screen is not written to");
 
         // ---- no row on the screen, a broken screen, texts that are missing
         Screen none = new Screen();
@@ -182,7 +190,7 @@ public class DictMemTest {
         bare.noTexts = true;
         setActive(null);
         MrDictMem.fill(bare);
-        check("mr_mem_none".equals(String.valueOf(bare.row.summary)), "texts missing: the name is shown, nothing is thrown");
+        check("mr_mem_title\nmr_mem_none".equals(MrDictMem.block(bare)), "texts missing: the names are shown, nothing is thrown");
 
         setActive(null);
         deleteTree(root);

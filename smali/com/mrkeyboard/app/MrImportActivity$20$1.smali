@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 682
+    .line 685
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$20$1;->this$1:Lcom/mrkeyboard/app/MrImportActivity$20;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$20$1;->val$done:Lcom/mrkeyboard/app/MrLearned$Result;
@@ -53,19 +53,19 @@
 
     const/4 v3, 0x0
 
-    .line 684
+    .line 687
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$20$1;->this$1:Lcom/mrkeyboard/app/MrImportActivity$20;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$20;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-static {v0, v3, v4}, Lcom/mrkeyboard/app/MrImportActivity;->access$1800(Lcom/mrkeyboard/app/MrImportActivity;ZLjava/lang/String;)V
 
-    .line 685
+    .line 688
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$20$1;->val$done:Lcom/mrkeyboard/app/MrLearned$Result;
 
     if-nez v0, :cond_1
 
-    .line 686
+    .line 689
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$20$1;->this$1:Lcom/mrkeyboard/app/MrImportActivity$20;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$20;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
@@ -102,12 +102,12 @@
 
     invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrKit;->toast(Ljava/lang/String;)V
 
-    .line 697
+    .line 700
     :cond_0
     :goto_0
     return-void
 
-    .line 689
+    .line 692
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$20$1;->val$done:Lcom/mrkeyboard/app/MrLearned$Result;
 
@@ -123,7 +123,7 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrLearned;->changed(Landroid/content/Context;)V
 
-    .line 690
+    .line 693
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$20$1;->this$1:Lcom/mrkeyboard/app/MrImportActivity$20;
 
@@ -141,7 +141,7 @@
 
     invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/MrImportActivity;->access$3300(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrLearned$Result;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 691
+    .line 694
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$20$1;->this$1:Lcom/mrkeyboard/app/MrImportActivity$20;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$20;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
@@ -152,7 +152,7 @@
 
     if-nez v0, :cond_0
 
-    .line 692
+    .line 695
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$20$1;->this$1:Lcom/mrkeyboard/app/MrImportActivity$20;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$20;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
@@ -165,21 +165,21 @@
 
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrImportActivity;->access$3400(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrLearned$Result;Ljava/lang/String;)V
 
-    .line 693
+    .line 696
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$20$1;->this$1:Lcom/mrkeyboard/app/MrImportActivity$20;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$20;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-static {v0, v4}, Lcom/mrkeyboard/app/MrImportActivity;->access$2002(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrImport$Plan;)Lcom/mrkeyboard/app/MrImport$Plan;
 
-    .line 694
+    .line 697
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$20$1;->this$1:Lcom/mrkeyboard/app/MrImportActivity$20;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$20;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$400(Lcom/mrkeyboard/app/MrImportActivity;)V
 
-    .line 695
+    .line 698
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$20$1;->this$1:Lcom/mrkeyboard/app/MrImportActivity$20;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$20;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
@@ -192,7 +192,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 696
+    .line 699
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$20$1;->this$1:Lcom/mrkeyboard/app/MrImportActivity$20;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$20;->this$0:Lcom/mrkeyboard/app/MrImportActivity;

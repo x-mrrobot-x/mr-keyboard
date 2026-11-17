@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 310
+    .line 313
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$10;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -49,7 +49,7 @@
     .end annotation
 
     .prologue
-    .line 312
+    .line 315
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$10;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAppList;->load(Landroid/content/Context;)Ljava/util/List;

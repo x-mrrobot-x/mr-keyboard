@@ -1,13 +1,15 @@
 # Performance meter
 
-Since 1.99.0 the keyboard times its own work on the phone and shows it in **Settings → Advanced → Performance → Keyboard diagnostics**. Code:
+Since 1.99.0 the keyboard times its own work on the phone and shows it in **Settings → Advanced → Performance → Keyboard statistics**. Code:
 `MrPerf` (`docs/tools/java/src/com/mrkeyboard/app/MrPerf.java`); the smali of the keyboard calls a begin and an end around each piece of
 work, with no register taken.
 
-The row is called **Keyboard diagnostics** because it shows more than times: the worst touches, the memory of the Java heap and of the native heap, what the last
-memory cleanup let go of and how many services and input views are alive. The row under it, **Dictionary memory** (`MrDictMem`, key `mr_dict_mem`), is not
-tappable: it says what the dictionary in use weighs and how long it took to open (see `docs/suggestion-features.md`). It is made in a thread each time the
-screen opens ("Reading…" until the text arrives) and the answer of an older read is dropped when a newer one has started.
+The row is called **Keyboard statistics** because it shows more than times: the worst touches, the memory of the Java heap and of the native heap, what the last
+memory cleanup let go of and how many services and input views are alive. Inside the same card, after the memory line and before the note about resetting, there are
+the lines **Dictionary memory** (`MrDictMem`; `MrPerf.summary` asks `MrDictMem.block` for them): they say what the dictionary in use weighs and how long it took to
+open (see `docs/suggestion-features.md`). They are read in a thread each time the screen opens (`PrefScreenAdvanced.onResume` calls `MrDictMem.fill` before
+`MrPerf.fill`; the lines say "Reading…" until the text arrives and the row is then written again with it) and the answer of an older read is dropped when a newer
+one has started. A process that never opened the screen has no such lines in the text of the row.
 
 ## What the performance round changed
 
@@ -484,7 +486,7 @@ which is what a finger notices first (the highlight of the key). The line **Wors
   that is at a low refresh rate, or a frame that the system schedules late, shows here. **Drawing**: the frame itself (with a window drawn by the
   GPU, the time to record it).
 
-How to read it (open Advanced → Performance → Keyboard diagnostics, tap the row, press the key that felt late, come back):
+How to read it (open Advanced → Performance → Keyboard statistics, tap the row, press the key that felt late, come back):
 
 | What is large | What it says |
 |---------------|--------------|
@@ -520,7 +522,7 @@ What changed:
   its press, which cancels the timer. A finger still down after the set time (counted from the touch) gets its popup at once.
 - The meter: "Long press: delay beyond the set time" and the line of the worst one (above).
 
-**When the popup of a long press feels late again:** open Advanced → Performance → Keyboard diagnostics (do not tap it first) and read "Worst long press".
+**When the popup of a long press feels late again:** open Advanced → Performance → Keyboard statistics (do not tap it first) and read "Worst long press".
 If "touch seen after" is the large number, the main thread or the system was busy when the touch came (the line "Touch wait" says the same);
 if "timer late" is, the main thread was busy when the message was due; if "popup" is, showing the window took the time. With all three small
 and the touch still felt late, the delay is somewhere the meter does not see yet.

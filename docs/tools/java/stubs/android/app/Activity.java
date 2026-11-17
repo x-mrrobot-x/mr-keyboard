@@ -23,6 +23,11 @@ public class Activity extends android.view.ContextThemeWrapper {
     /** Not in Android: how many times the screen was finished (and how many of them took the whole task with them), and what isTaskRoot answers. */
     public int stubFinishes, stubTaskRemovals;
     public boolean stubTaskRoot;
+    /** Not in Android: the task the screen is in, and the description it gave the task. */
+    public int stubTaskId;
+    public ActivityManager.TaskDescription stubTaskDescription;
+    public int getTaskId() { return stubTaskId; }
+    public void setTaskDescription(ActivityManager.TaskDescription description) { stubTaskDescription = description; }
     public void finish() { stubFinishes++; }
     public boolean isTaskRoot() { return stubTaskRoot; }
     public void finishAndRemoveTask() { stubFinishes++; stubTaskRemovals++; }

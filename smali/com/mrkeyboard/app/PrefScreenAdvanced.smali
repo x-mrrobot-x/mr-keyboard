@@ -90,9 +90,10 @@
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrAccel;->fill(Landroid/preference/PreferenceActivity;)V
 
-    invoke-static {p0}, Lcom/mrkeyboard/app/MrPerf;->fill(Landroid/preference/PreferenceActivity;)V
-
+    # The lines of the dictionary memory first (they start their read), then the row of the numbers, which writes them with the rest.
     invoke-static {p0}, Lcom/mrkeyboard/app/MrDictMem;->fill(Landroid/preference/PreferenceActivity;)V
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrPerf;->fill(Landroid/preference/PreferenceActivity;)V
 
     return-void
 .end method

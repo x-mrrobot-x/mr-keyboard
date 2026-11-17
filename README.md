@@ -48,7 +48,7 @@
 
 ### Typing
 - **Suggestions, correction and next-word prediction** in Brazilian Portuguese, US English and Spanish, fully on the device. On by default: download the dictionary of your language when the suggestion bar offers it, or in *Settings → Suggestions and dictionaries*.
-- **Small app:** dictionaries are downloaded on demand, so the app itself is about 1 MB. Each language you download is added to the keyboard: slide the space bar sideways to switch between them.
+- **Small app:** dictionaries are downloaded on demand, so the app itself is about 1 MB. Each language you download is added to the keyboard, and the space bar shows the one being typed: slide it sideways to switch between them.
 - **Learns what you type** (never in password or incognito fields) and suggests the names and words you just wrote in the same conversation (kept only in memory).
 - **My words:** *Settings → Suggestions and dictionaries → My words* shows what the keyboard learned, lets you fix, block and forget words (with an exported backup) and add names, slang and phrases from a pasted text, a file or a list, with a preview before saving, for every app or only for one app you choose (the words then show up only when you type in it). **Format with AI** turns a loose text into that list.
 - **Gesture typing (on by default):** slide your finger from letter to letter and the keyboard writes the word, in the three languages. It also writes your own words, never a blocked one, and shows the word on the suggestion strip while you slide. Needs a one-time download of about 2.4 MB (*Settings → Suggestions and dictionaries → Gesture typing*), then runs on the device. [Details](docs/gesture-typing.md).
@@ -60,7 +60,7 @@ Twelve themes: **Midnight Steel** (default); the neon ones **Aurora** (keys chan
 ### App
 - **Languages:** Portuguese, English and Spanish; follows the system or pick one in *Settings → General → App language*.
 - **Updates inside the app:** notice of new versions with what's new, **Download and install** and a signed, checked APK ([how it works](#updates)).
-- **Performance:** *Settings → Advanced → Performance → Keyboard diagnostics* shows how long the keyboard takes to open, type and suggest on your phone, and the memory of the dictionary in use.
+- **Performance:** *Settings → Advanced → Performance → Keyboard statistics* shows how long the keyboard takes to open, type and suggest on your phone, and the memory of the dictionary in use.
 - **Restore defaults** in *Settings → General*.
 
 ## Installation

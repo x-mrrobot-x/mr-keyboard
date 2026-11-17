@@ -39,7 +39,7 @@
     .end annotation
 
     .prologue
-    .line 829
+    .line 832
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$26;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$26;->val$plan:Lcom/mrkeyboard/app/MrImportAi$Plan;
@@ -61,7 +61,7 @@
     .locals 4
 
     .prologue
-    .line 833
+    .line 836
     :try_start_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$26;->val$plan:Lcom/mrkeyboard/app/MrImportAi$Plan;
 
@@ -78,7 +78,7 @@
 
     move-result-object v0
 
-    .line 844
+    .line 847
     :goto_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$26;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
@@ -88,19 +88,19 @@
 
     invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrImportActivity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 849
+    .line 852
     return-void
 
-    .line 834
+    .line 837
     :catch_0
     move-exception v0
 
-    .line 835
+    .line 838
     new-instance v0, Lcom/mrkeyboard/app/MrImportAi$Result;
 
     invoke-direct {v0}, Lcom/mrkeyboard/app/MrImportAi$Result;-><init>()V
 
-    .line 836
+    .line 839
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$26;->val$plan:Lcom/mrkeyboard/app/MrImportAi$Plan;
 
     invoke-virtual {v1}, Lcom/mrkeyboard/app/MrImportAi$Plan;->requests()I
@@ -109,23 +109,23 @@
 
     iput v1, v0, Lcom/mrkeyboard/app/MrImportAi$Result;->parts:I
 
-    .line 837
+    .line 840
     const-string v1, ""
 
     iput-object v1, v0, Lcom/mrkeyboard/app/MrImportAi$Result;->failure:Ljava/lang/String;
 
     goto :goto_0
 
-    .line 838
+    .line 841
     :catch_1
     move-exception v0
 
-    .line 839
+    .line 842
     new-instance v0, Lcom/mrkeyboard/app/MrImportAi$Result;
 
     invoke-direct {v0}, Lcom/mrkeyboard/app/MrImportAi$Result;-><init>()V
 
-    .line 840
+    .line 843
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$26;->val$plan:Lcom/mrkeyboard/app/MrImportAi$Plan;
 
     invoke-virtual {v1}, Lcom/mrkeyboard/app/MrImportAi$Plan;->requests()I
@@ -134,7 +134,7 @@
 
     iput v1, v0, Lcom/mrkeyboard/app/MrImportAi$Result;->parts:I
 
-    .line 841
+    .line 844
     const-string v1, ""
 
     iput-object v1, v0, Lcom/mrkeyboard/app/MrImportAi$Result;->failure:Ljava/lang/String;

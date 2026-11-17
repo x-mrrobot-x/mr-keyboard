@@ -54,8 +54,9 @@
 #     appear for the original field, once, soon after leaving, and the dialog reopens when the keyboard window shows.
 #   - DiagTest: the numbers of the "Dictionary memory" row (MrDiag, 1.90.0): the reading of /proc/self/smaps on made-up text (headers, Pss/Rss, deleted
 #     files, a file mapped twice), the matching of the path, the texts, the report of a pack folder, and on Linux a real mapping seen as resident.
-#   - DictMemTest: the "Dictionary memory" row of Settings → Advanced → Performance (MrDictMem): no pack in use (said at once, no thread), "Reading…" and then the
-#     three lines from the thread (pack, triples, engine), a pack without triples, a newer read winning over an older one, the pack that goes away, a screen that is gone, no row, texts missing.
+#   - DictMemTest: the "Dictionary memory" lines inside the card of Settings → Advanced → Performance → Keyboard statistics (MrDictMem, written into the row of MrPerf): no lines before
+#     the screen opens, no pack in use (said at once, no thread), "Reading…" and then the three lines from the thread (pack, triples, engine), a pack without triples, a newer read
+#     winning over an older one, the pack that goes away, a screen that is gone, no row, texts missing.
 #   - PerfTest: the performance meter of the keyboard (MrPerf): begin/end pairs in microseconds, the
 #     average and p95 of the last 256 samples with the count and maximum since the reset, the first frame after a field opens (not after
 #     2 s), how late a finger down reaches the keyboard, the delay of the long press timer counted from the touch and the worst long press (MrLongPress), a key counted by its kind (letter, separator, delete, other), the Advanced row

@@ -186,21 +186,62 @@ public class NavTest {
         check("a screen that the keyboard did not open is not remembered by the callbacks", MrNav.openedByKeyboard(Opened.class) == null);
         cb.onActivityDestroyed(mainScreen);
 
-        // ---- the manifest: no second window of the app in the recent apps
+        // ---- one task: closing the screen that the keyboard opened takes the task with it only when the screen is alone in it
+        MrScreens cb2 = new MrScreens();
+        Opened rootScreen = new Opened(true, true);
+        rootScreen.stubTaskId = 41;
+        Opened above = new Opened(false, false);
+        above.stubTaskId = 41;
+        Opened elsewhere = new Opened(false, true);
+        elsewhere.stubTaskId = 42;
+        cb2.onActivityCreated(rootScreen, null);
+        cb2.onActivityCreated(above, null);
+        cb2.onActivityCreated(elsewhere, null);
+        check("alone in its task: false when another screen of the app is in the same task", !MrNav.aloneInTask(rootScreen));
+        check("... and a screen of another task does not count", MrNav.aloneInTask(elsewhere));
+        MrNav.closeOpenedByKeyboard(Opened.class);
+        check("the root with another screen above it is finished alone: the task and what is above it stay (a text being typed there is not lost)",
+                rootScreen.stubFinishes == 1 && rootScreen.stubTaskRemovals == 0);
+        above.finishing = true;
+        check("the screen above is finishing: the root is alone", MrNav.aloneInTask(rootScreen));
+        rootScreen.stubFinishes = 0;
+        MrNav.closeOpenedByKeyboard(Opened.class);
+        check("alone and root: the whole task goes (and with it the entry in the recent apps)", rootScreen.stubFinishes == 1 && rootScreen.stubTaskRemovals == 1);
+        cb2.onActivityDestroyed(rootScreen);
+        cb2.onActivityDestroyed(above);
+        cb2.onActivityDestroyed(elsewhere);
+        check("a screen that MrScreens never told about counts as alone", MrNav.aloneInTask(new Opened(false, true)));
+
+        // ---- one title in the recent apps: every screen gives the task the name of the app, the helper windows do not
+        Opened titled = new Opened(false, true);
+        cb2.onActivityCreated(titled, null);
+        check("every screen sets the task description with the name of the app",
+                titled.stubTaskDescription != null && MrScreens.APP_TITLE.equals(titled.stubTaskDescription.getLabel()));
+        Screen plain = new Screen();
+        cb2.onActivityCreated(plain, null);
+        check("the same title on any other screen (the task is listed by it, not by the first screen that opened)",
+                plain.stubTaskDescription != null && MrScreens.APP_TITLE.equals(plain.stubTaskDescription.getLabel()));
+        cb2.onActivityDestroyed(titled);
+        cb2.onActivityDestroyed(plain);
+
+        // ---- the manifest: ONE task and ONE window of the app in the recent apps, and nothing hidden from the list
         String manifest = file("AndroidManifest.xml");
         Matcher m = Pattern.compile("<activity\\b[^>]*>").matcher(manifest);
-        int withAffinity = 0, excluded = 0;
-        boolean sheetsOk = false;
+        int activities = 0, withAffinity = 0, excludedScreens = 0, excludedHelpers = 0;
         while (m.find()) {
             String tag = m.group();
-            if (!tag.contains("android:taskAffinity=\"com.mrkeyboard.app.screens\"")) continue;
-            withAffinity++;
-            if (tag.contains("android:excludeFromRecents=\"true\"")) excluded++;
+            activities++;
+            if (tag.contains("android:taskAffinity=")) withAffinity++;
+            if (tag.contains("android:excludeFromRecents=\"true\"")) {
+                if (tag.contains("android:launchMode=\"singleInstance\"")) excludedHelpers++; else excludedScreens++;
+            }
         }
-        check("the manifest has the task of the keyboard screens (8 screens with its affinity)", withAffinity == 8);
-        check("every one of them is excluded from the recent apps (any of them can be the root of the task, and the task is not a second window of the app)", excluded == withAffinity);
+        check("the manifest has screens", activities >= 20);
+        check("no screen has a taskAffinity of its own (the app is one task: a second one would be a second window in the recent apps)", withAffinity == 0);
+        check("no screen is hidden from the recent apps (the person sees what is open and closes it)", excludedScreens == 0);
+        check("only the three translucent helper windows are left out of the list", excludedHelpers == 3);
         Matcher home = Pattern.compile("<activity\\b[^>]*android:name=\"com\\.mrkeyboard\\.app\\.Main\"[^>]*>").matcher(manifest);
-        check("the home screen (Main) is not excluded: it is the one window that the app has in the recent apps", home.find() && !home.group().contains("excludeFromRecents"));
+        check("the home screen (Main) is not excluded", home.find() && !home.group().contains("excludeFromRecents"));
 
         System.out.println(ok + " ok, " + fail + " failures");
         if (fail > 0) System.exit(1);

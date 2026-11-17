@@ -39,7 +39,7 @@
     .end annotation
 
     .prologue
-    .line 51
+    .line 67
     iput-object p1, p0, Lcom/mrkeyboard/app/MrDictMem$1;->val$owner:Landroid/preference/PreferenceActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrDictMem$1;->val$dir:Ljava/io/File;
@@ -61,7 +61,7 @@
     .locals 3
 
     .prologue
-    .line 55
+    .line 71
     :try_start_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrDictMem$1;->val$owner:Landroid/preference/PreferenceActivity;
 
@@ -77,7 +77,7 @@
 
     move-result-object v0
 
-    .line 60
+    .line 76
     iget-object v1, p0, Lcom/mrkeyboard/app/MrDictMem$1;->val$main:Landroid/os/Handler;
 
     new-instance v2, Lcom/mrkeyboard/app/MrDictMem$1$1;
@@ -86,11 +86,11 @@
 
     invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 66
+    .line 87
     :goto_0
     return-void
 
-    .line 56
+    .line 72
     :catch_0
     move-exception v0
 

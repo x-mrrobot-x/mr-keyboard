@@ -4,13 +4,15 @@
 
 
 # static fields
-.field static final ROW:Ljava/lang/String; = "mr_dict_mem"
-
 .field private static sGeneration:I
 
 .field private static sMain:Landroid/os/Handler;
 
 .field static volatile sReads:I
+
+.field private static sShown:Z
+
+.field private static sText:Ljava/lang/String;
 
 
 # direct methods
@@ -18,7 +20,7 @@
     .locals 0
 
     .prologue
-    .line 20
+    .line 21
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -28,84 +30,163 @@
     .locals 1
 
     .prologue
-    .line 19
+    .line 20
     sget v0, Lcom/mrkeyboard/app/MrDictMem;->sGeneration:I
 
     return v0
+.end method
+
+.method static synthetic access$102(Ljava/lang/String;)Ljava/lang/String;
+    .locals 0
+
+    .prologue
+    .line 20
+    sput-object p0, Lcom/mrkeyboard/app/MrDictMem;->sText:Ljava/lang/String;
+
+    return-object p0
+.end method
+
+.method static block(Landroid/content/Context;)Ljava/lang/String;
+    .locals 4
+
+    .prologue
+    const/4 v3, 0x0
+
+    .line 44
+    sget-boolean v0, Lcom/mrkeyboard/app/MrDictMem;->sShown:Z
+
+    if-nez v0, :cond_0
+
+    const/4 v0, 0x0
+
+    .line 46
+    :goto_0
+    return-object v0
+
+    .line 45
+    :cond_0
+    sget-object v0, Lcom/mrkeyboard/app/MrDictMem;->sText:Ljava/lang/String;
+
+    if-eqz v0, :cond_1
+
+    sget-object v0, Lcom/mrkeyboard/app/MrDictMem;->sText:Ljava/lang/String;
+
+    .line 46
+    :goto_1
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "mr_mem_title"
+
+    new-array v3, v3, [Ljava/lang/Object;
+
+    invoke-static {p0, v2, v3}, Lcom/mrkeyboard/app/MrDictMem;->string(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    const-string v2, "\n"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_0
+
+    .line 45
+    :cond_1
+    const-string v0, "mr_mem_wait"
+
+    new-array v1, v3, [Ljava/lang/Object;
+
+    invoke-static {p0, v0, v1}, Lcom/mrkeyboard/app/MrDictMem;->string(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_1
 .end method
 
 .method public static fill(Landroid/preference/PreferenceActivity;)V
     .locals 7
 
     .prologue
-    .line 40
+    .line 55
     :try_start_0
-    const-string v0, "mr_dict_mem"
+    const-string v0, "mr_perf"
 
     invoke-virtual {p0, v0}, Landroid/preference/PreferenceActivity;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
 
     move-result-object v5
 
-    .line 41
+    .line 56
     if-nez v5, :cond_0
 
-    .line 74
+    .line 95
     :goto_0
     return-void
 
-    .line 43
+    .line 58
     :cond_0
     invoke-static {}, Lcom/mrkeyboard/app/MrPacks;->activeDir()Ljava/io/File;
 
     move-result-object v2
 
-    .line 44
+    .line 59
     sget v0, Lcom/mrkeyboard/app/MrDictMem;->sGeneration:I
 
     add-int/lit8 v4, v0, 0x1
 
     sput v4, Lcom/mrkeyboard/app/MrDictMem;->sGeneration:I
 
-    .line 45
+    .line 60
+    const/4 v0, 0x1
+
+    sput-boolean v0, Lcom/mrkeyboard/app/MrDictMem;->sShown:Z
+
+    .line 61
     if-nez v2, :cond_1
 
-    .line 46
+    .line 62
     const/4 v0, 0x0
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrDictMem;->text(Landroid/content/Context;Lcom/mrkeyboard/app/MrDiag$Report;)Ljava/lang/String;
 
     move-result-object v0
 
-    invoke-virtual {v5, v0}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
+    sput-object v0, Lcom/mrkeyboard/app/MrDictMem;->sText:Ljava/lang/String;
 
     goto :goto_0
 
-    .line 71
+    .line 92
     :catch_0
     move-exception v0
 
     goto :goto_0
 
-    .line 49
+    .line 65
     :cond_1
-    const-string v0, "mr_mem_wait"
+    const/4 v0, 0x0
 
-    const/4 v1, 0x0
+    sput-object v0, Lcom/mrkeyboard/app/MrDictMem;->sText:Ljava/lang/String;
 
-    new-array v1, v1, [Ljava/lang/Object;
-
-    invoke-static {p0, v0, v1}, Lcom/mrkeyboard/app/MrDictMem;->string(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-virtual {v5, v0}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
-
-    .line 50
+    .line 66
     invoke-static {}, Lcom/mrkeyboard/app/MrDictMem;->main()Landroid/os/Handler;
 
     move-result-object v3
 
-    .line 51
+    .line 67
     new-instance v6, Ljava/lang/Thread;
 
     new-instance v0, Lcom/mrkeyboard/app/MrDictMem$1;
@@ -118,19 +199,19 @@
 
     invoke-direct {v6, v0, v1}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
 
-    .line 68
+    .line 89
     const/4 v0, 0x1
 
     invoke-virtual {v6, v0}, Ljava/lang/Thread;->setPriority(I)V
 
-    .line 69
+    .line 90
     sget v0, Lcom/mrkeyboard/app/MrDictMem;->sReads:I
 
     add-int/lit8 v0, v0, 0x1
 
     sput v0, Lcom/mrkeyboard/app/MrDictMem;->sReads:I
 
-    .line 70
+    .line 91
     invoke-virtual {v6}, Ljava/lang/Thread;->start()V
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
@@ -142,7 +223,7 @@
     .locals 2
 
     .prologue
-    .line 33
+    .line 35
     sget-object v0, Lcom/mrkeyboard/app/MrDictMem;->sMain:Landroid/os/Handler;
 
     if-nez v0, :cond_0
@@ -157,7 +238,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrDictMem;->sMain:Landroid/os/Handler;
 
-    .line 34
+    .line 36
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrDictMem;->sMain:Landroid/os/Handler;
 
@@ -168,12 +249,12 @@
     .locals 1
 
     .prologue
-    .line 96
+    .line 117
     invoke-static {p0, p1, p2}, Lcom/mrkeyboard/app/MrPacks;->text(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 97
+    .line 118
     if-eqz v0, :cond_0
 
     move-object p1, v0
@@ -196,7 +277,7 @@
 
     const/4 v6, 0x0
 
-    .line 78
+    .line 99
     if-nez p1, :cond_0
 
     const-string v0, "mr_mem_none"
@@ -207,17 +288,17 @@
 
     move-result-object v0
 
-    .line 91
+    .line 112
     :goto_0
     return-object v0
 
-    .line 79
+    .line 100
     :cond_0
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 80
+    .line 101
     const-string v1, "mr_mem_dict"
 
     const/4 v2, 0x5
@@ -256,29 +337,29 @@
 
     iget-wide v4, p1, Lcom/mrkeyboard/app/MrDiag$Report;->dictNs:J
 
-    .line 81
+    .line 102
     invoke-static {v4, v5}, Lcom/mrkeyboard/app/MrDiag;->msText(J)Ljava/lang/String;
 
     move-result-object v4
 
     aput-object v4, v2, v3
 
-    .line 80
+    .line 101
     invoke-static {p0, v1, v2}, Lcom/mrkeyboard/app/MrDictMem;->string(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 82
+    .line 103
     invoke-virtual {v0, v9}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 83
+    .line 104
     iget-boolean v1, p1, Lcom/mrkeyboard/app/MrDiag$Report;->hasTri:Z
 
     if-eqz v1, :cond_2
 
-    .line 84
+    .line 105
     const-string v1, "mr_mem_tri"
 
     const/4 v2, 0x4
@@ -311,21 +392,21 @@
 
     iget-wide v4, p1, Lcom/mrkeyboard/app/MrDiag$Report;->triNs:J
 
-    .line 85
+    .line 106
     invoke-static {v4, v5}, Lcom/mrkeyboard/app/MrDiag;->msText(J)Ljava/lang/String;
 
     move-result-object v3
 
     aput-object v3, v2, v10
 
-    .line 84
+    .line 105
     invoke-static {p0, v1, v2}, Lcom/mrkeyboard/app/MrDictMem;->string(Landroid/content/Context;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 89
+    .line 110
     :goto_1
     invoke-virtual {v0, v9}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
@@ -357,7 +438,7 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 90
+    .line 111
     iget-wide v2, p1, Lcom/mrkeyboard/app/MrDiag$Report;->dictMem:J
 
     const-wide/16 v4, 0x0
@@ -388,7 +469,7 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 91
+    .line 112
     :cond_1
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -396,7 +477,7 @@
 
     goto/16 :goto_0
 
-    .line 87
+    .line 108
     :cond_2
     const-string v1, "mr_mem_tri_none"
 

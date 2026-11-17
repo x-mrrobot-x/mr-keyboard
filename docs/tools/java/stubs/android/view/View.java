@@ -101,7 +101,13 @@ public class View {
     public boolean isEnabled() { return stubEnabled; }
     public android.os.IBinder getWindowToken() { return null; }
     public void setOnLongClickListener(OnLongClickListener l) { }
-    public void setOnTouchListener(OnTouchListener l) { }
+    /** Not in Android: the touch listener as last set, whether the view can scroll (canScrollVertically answers it) and the scroll bar switch. */
+    public OnTouchListener stubTouch;
+    public boolean stubCanScroll;
+    public boolean stubScrollBar;
+    public void setOnTouchListener(OnTouchListener l) { stubTouch = l; }
+    public boolean canScrollVertically(int direction) { return stubCanScroll; }
+    public void setVerticalScrollBarEnabled(boolean enabled) { stubScrollBar = enabled; }
     public void scrollTo(int x, int y) { }
     private int stubVisibility;
     public void setVisibility(int visibility) { stubVisibility = visibility; }

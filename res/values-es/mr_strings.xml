@@ -53,7 +53,7 @@
     <string name="mr_ui_caps_defer">Diferir la comprobación de mayúscula</string>
     <string name="mr_ui_caps_defer_on">Tras un espacio o un signo, la comprobación que dice si la siguiente letra va en mayúscula espera 100 ms, cuando la app está menos ocupada; una tecla, un texto o una sugerencia entretanto pregunta de inmediato</string>
     <string name="mr_ui_caps_defer_off">Tras un espacio o un signo, la comprobación que dice si la siguiente letra va en mayúscula se ejecuta de inmediato</string>
-    <string name="mr_ui_perf">Diagnóstico del teclado</string>
+    <string name="mr_ui_perf">Estadísticas del teclado</string>
     <string name="mr_ui_perf_none">Todavía no hay mediciones. Usa el teclado y vuelve aquí.</string>
     <string name="mr_ui_perf_stat">%1$s: media %2$s ms · 95%% hasta %3$s · máx. %4$s (%5$d×)</string>
     <string name="mr_ui_perf_starts">%1$s, últimos %2$d inicios: mín. %3$s ms · mediana %4$s · máx. %5$s</string>
@@ -128,7 +128,7 @@
     <string name="mr_engine_title">Motor de sugerencias</string>
     <string name="mr_engine_native">Nativo (C++)</string>
     <string name="mr_engine_missing">No disponible (biblioteca nativa no encontrada)</string>
-    <string name="mr_mem_title">Memoria de los diccionarios</string>
+    <string name="mr_mem_title">Memoria de los diccionarios:</string>
     <string name="mr_mem_wait">Leyendo…</string>
     <string name="mr_mem_none">Ningún diccionario cargado todavía. Escribe algo y vuelve aquí.</string>
     <string name="mr_mem_dict">%1$s v%2$d · palabras %3$s, %4$s en memoria, abierto en %5$s ms</string>
@@ -478,14 +478,14 @@
     <string name="mr_import_why_9">Los atajos aún no están soportados</string>
     <string name="mr_import_why_10">Una palabra necesita al menos 2 letras</string>
     <string name="mr_import_why_11">Más de 30 palabras en una frase</string>
-    <string name="mr_import_ai_title">¿Prefieres otro chat de IA?</string>
-    <string name="mr_import_ai_text">Copia las instrucciones de abajo, pégalas en un chat de IA (ChatGPT, Claude, Gemini…) junto con tu texto y pega aquí su respuesta.</string>
-    <string name="mr_import_ai_copy">Copiar las instrucciones para la IA</string>
+    <string name="mr_import_ai_title">Usa otra IA para dar formato</string>
+    <string name="mr_import_ai_text">Si la IA integrada no está disponible, copia las instrucciones de abajo y envíalas junto con el texto que quieres añadir. La IA preparará el contenido en el formato correcto para el teclado.</string>
+    <string name="mr_import_ai_copy">Copiar instrucciones para la IA</string>
     <string name="mr_import_ai_copied">Copiado. Pégalo en el chat de la IA y luego añade tu texto.</string>
     <string name="mr_import_ai_button">Dar formato con IA</string>
     <string name="mr_import_ai_ask_title">¿Dar formato con IA?</string>
     <string name="mr_import_ai_ask_text">Este texto no está en el formato de lista. Para convertirlo en una lista de palabras y frases se puede enviar a %1$s, el servicio de los ajustes de Editar con IA (%2$d caracteres, %3$d solicitud(es)).\n\nAntes de enviar se quitan enlaces, correos, teléfonos, números largos y los nombres de los autores de las conversaciones. No se envía nada si no eliges Enviar.</string>
-    <string name="mr_import_ai_ask_cut">El texto es largo: solo se enviarían los primeros %1$d caracteres (%2$d solicitudes). Para usarlo todo, elige No enviar y usa la tarjeta \"¿Prefieres otro chat de IA?\" de abajo.</string>
+    <string name="mr_import_ai_ask_cut">El texto es largo: solo se enviarían los primeros %1$d caracteres (%2$d solicitudes). Para usarlo todo, elige No enviar y usa la tarjeta \"Usa otra IA para dar formato\" de abajo.</string>
     <string name="mr_import_ai_ask_many">Son %1$d solicitudes a tu cuenta de IA y pueden tener un coste allí.</string>
     <string name="mr_import_ai_your_service">tu servicio de IA</string>
     <string name="mr_import_ai_send">Enviar</string>

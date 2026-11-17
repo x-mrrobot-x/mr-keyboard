@@ -29,8 +29,10 @@ public class TextView extends android.view.View {
     public int getInputType() { return stubInputType; }
     public void setSingleLine(boolean singleLine) { }
     public void setFilters(android.text.InputFilter[] filters) { }
-    public void setMinLines(int minLines) { }
-    public void setMaxLines(int maxLines) { }
+    /** Not in Android: the lines as last set (a test reads them). */
+    public int stubMinLines, stubMaxLines;
+    public void setMinLines(int minLines) { stubMinLines = minLines; }
+    public void setMaxLines(int maxLines) { stubMaxLines = maxLines; }
     public float stubLineAdd, stubLineMult;
     public void setLineSpacing(float add, float mult) { stubLineAdd = add; stubLineMult = mult; }
     /** Shadow as last set (radius 0 = none): read by the PC tests. */

@@ -53,7 +53,7 @@
     <string name="mr_ui_caps_defer">Delay the capital-letter check</string>
     <string name="mr_ui_caps_defer_on">After a space or punctuation, the check that tells whether the next letter is a capital waits 100 ms, when the app is less busy; a key, a text or a suggestion in that time asks at once</string>
     <string name="mr_ui_caps_defer_off">After a space or punctuation, the check that tells whether the next letter is a capital runs at once</string>
-    <string name="mr_ui_perf">Keyboard diagnostics</string>
+    <string name="mr_ui_perf">Keyboard statistics</string>
     <string name="mr_ui_perf_none">Nothing measured yet. Use the keyboard and come back here.</string>
     <string name="mr_ui_perf_stat">%1$s: average %2$s ms · 95%% within %3$s · max %4$s (%5$d×)</string>
     <string name="mr_ui_perf_starts">%1$s, last %2$d starts: min %3$s ms · median %4$s · max %5$s</string>
@@ -128,7 +128,7 @@
     <string name="mr_engine_title">Suggestion engine</string>
     <string name="mr_engine_native">Native (C++)</string>
     <string name="mr_engine_missing">Unavailable (native library not found)</string>
-    <string name="mr_mem_title">Dictionary memory</string>
+    <string name="mr_mem_title">Dictionary memory:</string>
     <string name="mr_mem_wait">Reading…</string>
     <string name="mr_mem_none">No dictionary loaded yet. Type something and come back.</string>
     <string name="mr_mem_dict">%1$s v%2$d · words %3$s, %4$s in memory, opened in %5$s ms</string>
@@ -478,14 +478,14 @@
     <string name="mr_import_why_9">Shortcuts are not supported yet</string>
     <string name="mr_import_why_10">A word needs at least 2 letters</string>
     <string name="mr_import_why_11">More than 30 words in one phrase</string>
-    <string name="mr_import_ai_title">Prefer another AI chat?</string>
-    <string name="mr_import_ai_text">Copy the instructions below, paste them in an AI chat (ChatGPT, Claude, Gemini…) together with your text, and paste its answer here.</string>
-    <string name="mr_import_ai_copy">Copy the instructions for the AI</string>
+    <string name="mr_import_ai_title">Use another AI to format</string>
+    <string name="mr_import_ai_text">If the built-in AI is not available, copy the instructions below and send them together with the text you want to add. The AI will prepare the content in the right format for the keyboard.</string>
+    <string name="mr_import_ai_copy">Copy instructions for the AI</string>
     <string name="mr_import_ai_copied">Copied. Paste it in the AI chat, then add your text.</string>
     <string name="mr_import_ai_button">Format with AI</string>
     <string name="mr_import_ai_ask_title">Format with AI?</string>
     <string name="mr_import_ai_ask_text">This text is not in the list format. To turn it into a list of words and phrases it can be sent to %1$s, the service of your Edit with AI settings (%2$d characters, %3$d request(s)).\n\nLinks, e-mails, phone numbers, long numbers and the names of chat authors are removed before sending. Nothing is sent unless you choose Send.</string>
-    <string name="mr_import_ai_ask_cut">The text is long: only the first %1$d characters (%2$d requests) would be sent. To use all of it, choose Don\'t send and use the card \"Prefer another AI chat?\" below.</string>
+    <string name="mr_import_ai_ask_cut">The text is long: only the first %1$d characters (%2$d requests) would be sent. To use all of it, choose Don\'t send and use the card \"Use another AI to format\" below.</string>
     <string name="mr_import_ai_ask_many">These are %1$d requests to your AI account and they may have a cost there.</string>
     <string name="mr_import_ai_your_service">your AI service</string>
     <string name="mr_import_ai_send">Send</string>

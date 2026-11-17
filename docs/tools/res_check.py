@@ -342,37 +342,30 @@ for src in ('MrUpdateDialog', 'MrAiDialog'):
     if not m or m.group(1) != theme_id:
         problems.append('%s.java: fallback id of the dialog theme (%s) is not the one of public.xml (%s)' % (src, m and m.group(1), theme_id))
 
-# --- the screens that the keyboard opens from its window (FLAG_ACTIVITY_NEW_TASK) share a task of their own: with the
-# affinity of the app they would join its task when it is alive and Back would land on the app's main page instead of
-# the app the user was typing in
+# --- the app is ONE task and ONE window in the list of recent apps, and nothing is hidden from that list: the screens that the keyboard opens from its window
+# (FLAG_ACTIVITY_NEW_TASK) land in the task of the package (no screen has a taskAffinity of its own: a second affinity was a second window, "Settings" next to
+# "Mr Keyboard") and none of them says excludeFromRecents (the person has to see what is open to close it). The only windows left out of the list are the three
+# translucent singleInstance helpers, which exist for a moment. MrScreens gives the task the one title (setTaskDescription), whichever screen is on top.
 KEYBOARD_SCREENS = ('LatinIMESettings', 'PrefScreenSheets', 'MrPacksActivity', 'MrAiPrefs', 'MrAiStyleActivity')
 manifest_tags = re.findall(r'<activity\b[^>]*>', read_file('AndroidManifest.xml'))
-affinities = set()
-for screen in KEYBOARD_SCREENS:
-    tag = [t for t in manifest_tags if 'android:name="com.mrkeyboard.app.%s"' % screen in t]
-    aff = re.search(r'android:taskAffinity="([^"]*)"', tag[0]) if tag else None
-    if not tag:
-        problems.append('manifest: activity %s not found' % screen)
-    elif not aff or '.' not in aff.group(1) or aff.group(1) == 'com.mrkeyboard.app':
-        problems.append('manifest: %s needs its own android:taskAffinity (not the package name)' % screen)
-    else:
-        affinities.add(aff.group(1))
-if len(affinities) > 1:
-    problems.append('manifest: the screens opened by the keyboard must share one taskAffinity, found %s' % sorted(affinities))
-
-# --- the task of the keyboard is a second task of the app: it must not be a second window in the list of recent apps. Every activity with that
-# affinity says excludeFromRecents (the attribute counts for the root of a task, and any of them can be the root), MrNav marks what the
-# keyboard opens and MrScreens tells it about the screens that come and go, so that the AI settings screen is closed when the person is back
 for tag in manifest_tags:
-    if 'android:taskAffinity="com.mrkeyboard.app.screens"' not in tag: continue
     name = re.search(r'android:name="([^"]+)"', tag)
-    if 'android:excludeFromRecents="true"' not in tag:
-        problems.append('manifest: %s has the affinity of the keyboard screens and must be excludeFromRecents (no second window in the recent apps)' % (name.group(1) if name else '?'))
+    who = name.group(1) if name else '?'
+    if 'android:taskAffinity=' in tag:
+        problems.append('manifest: %s has a taskAffinity of its own: the app is one task (a second affinity is a second window in the recent apps)' % who)
+    if 'android:excludeFromRecents="true"' in tag and 'android:launchMode="singleInstance"' not in tag:
+        problems.append('manifest: %s is excludeFromRecents: the screens are not hidden from the recent apps (the person closes them there)' % who)
+for screen in KEYBOARD_SCREENS:
+    if not [t for t in manifest_tags if 'android:name="com.mrkeyboard.app.%s"' % screen in t]:
+        problems.append('manifest: activity %s not found' % screen)
+
+# --- MrNav marks what the keyboard opens and MrScreens tells it about the screens that come and go (and sets the one title of the task), so that the AI settings
+# screen is closed when the person is back in the app they were typing in, and the whole task goes only when that screen is alone in it
 nav_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrNav.java')
-if 'EXTRA_FROM_KEYBOARD' not in nav_src or 'finishAndRemoveTask' not in nav_src:
-    problems.append('MrNav: the screens opened from the keyboard must carry EXTRA_FROM_KEYBOARD and be closed with their task (finishAndRemoveTask)')
+if 'EXTRA_FROM_KEYBOARD' not in nav_src or 'finishAndRemoveTask' not in nav_src or 'aloneInTask(a)' not in nav_src:
+    problems.append('MrNav: the screens opened from the keyboard must carry EXTRA_FROM_KEYBOARD and be closed with their task (finishAndRemoveTask) only when alone in it (aloneInTask)')
 _scr = read_file('docs/tools/java/src/com/mrkeyboard/app/MrScreens.java')
-for call in ('MrNav.opened(activity)', 'MrNav.gone(activity)', 'MrMatrix.pause(activity)', 'MrMatrix.resume(activity)'):
+for call in ('MrNav.born(activity)', 'MrNav.opened(activity)', 'MrNav.gone(activity)', 'titleTask(activity)', 'MrMatrix.pause(activity)', 'MrMatrix.resume(activity)'):
     if call not in _scr:
         problems.append('MrScreens: %s is missing (the screens opened by the keyboard are tracked, and the rain stops when a screen leaves the display)' % call)
 if 'MrNav.closeOpenedByKeyboard(MrAiPrefs.class)' not in read_file('docs/tools/java/src/com/mrkeyboard/app/MrAiDialog.java'):
@@ -489,21 +482,23 @@ if 'KEY = "pref_ui_matrix"' not in matrix_src or 'getBoolean(KEY, true)' not in 
     problems.append('MrMatrix: the key of the setting is not pref_ui_matrix or the default is not true')
 if '"pref_ui_matrix"' not in read_file('docs/tools/java/src/com/mrkeyboard/app/MrReset.java'):
     problems.append('MrReset: pref_ui_matrix is not in the list of the settings that Restore defaults resets')
-# --- "Dictionary memory" row (MrDictMem): on Settings -> Advanced -> Performance (not on the dictionaries screen), static (not tappable, not saved), filled
-# by PrefScreenAdvanced.onResume; the row of the numbers is named "Keyboard diagnostics" (it shows more than times), and the texts it reads exist in the 3 languages
-dm_rows = [t for t in re.findall(r'<Preference\b[^>]*>', adv_xml) if 'android:key="mr_dict_mem"' in t]
+# --- "Dictionary memory" lines (MrDictMem): inside the row of the numbers (mr_perf, "Keyboard statistics") on Settings -> Advanced -> Performance, not a row of their own
+# and not on the dictionaries screen; PrefScreenAdvanced.onResume starts the read BEFORE MrPerf.fill writes the row, MrPerf.summary asks MrDictMem.block for the lines, and
+# the texts they read exist in the 3 languages. The row of the numbers is named "Keyboard statistics" (it shows more than times).
+if 'mr_dict_mem' in adv_xml:
+    problems.append('prefs_advanced.xml: the dictionary memory is inside the row mr_perf (Keyboard statistics), not a row of its own (mr_dict_mem)')
 perf_cat = re.search(r'<PreferenceCategory\b[^>]*android:key="keyboard_perf"[^>]*>(.*?)</PreferenceCategory>', adv_xml, re.S)
-if len(dm_rows) != 1:
-    problems.append('prefs_advanced.xml: the row mr_dict_mem is missing or repeated')
-else:
-    for attr in ('android:layout="@layout/mr_ui_pref_row_static"', 'android:persistent="false"', 'android:selectable="false"',
-                 'android:title="@string/mr_mem_title"', 'android:summary="@string/mr_mem_wait"'):
-        if attr not in dm_rows[0]:
-            problems.append('prefs_advanced.xml: mr_dict_mem needs %s' % attr)
-    if not perf_cat or 'android:key="mr_dict_mem"' not in perf_cat.group(1):
-        problems.append('prefs_advanced.xml: mr_dict_mem goes in the category Performance (keyboard_perf)')
-if 'MrDictMem;->fill(Landroid/preference/PreferenceActivity;)V' not in read_file('smali/com/mrkeyboard/app/PrefScreenAdvanced.smali'):
-    problems.append('PrefScreenAdvanced.smali: onResume must call MrDictMem.fill (the row of the dictionary memory is on this screen)')
+if not perf_cat or 'android:key="mr_perf"' not in perf_cat.group(1):
+    problems.append('prefs_advanced.xml: the row mr_perf goes in the category Performance (keyboard_perf)')
+adv_smali = read_file('smali/com/mrkeyboard/app/PrefScreenAdvanced.smali')
+i_dm = adv_smali.find('MrDictMem;->fill(Landroid/preference/PreferenceActivity;)V')
+i_pf = adv_smali.find('MrPerf;->fill(Landroid/preference/PreferenceActivity;)V')
+if i_dm < 0:
+    problems.append('PrefScreenAdvanced.smali: onResume must call MrDictMem.fill (the lines of the dictionary memory are on this screen)')
+elif i_pf < 0 or i_dm > i_pf:
+    problems.append('PrefScreenAdvanced.smali: MrDictMem.fill must come BEFORE MrPerf.fill (the row is written once, with the lines)')
+if 'MrDictMem.block(' not in read_file('docs/tools/java/src/com/mrkeyboard/app/MrPerf.java'):
+    problems.append('MrPerf.summary must ask MrDictMem.block for the lines of the dictionary memory')
 packs_act = read_file('docs/tools/java/src/com/mrkeyboard/app/MrPacksActivity.java')
 for old in ('mMem', 'refreshMem', 'memText', 'mr_mem_'):
     if old in packs_act:
@@ -515,7 +510,22 @@ for folder, tab in (('values', orig), ('values-pt-rBR', pt), ('values-es', es)):
             problems.append('dictionary memory: %s is missing from %s' % (k, folder))
     for k in ('mr_ui_perf', 'mr_ui_cat_perf_sum'):
         if k in tab and re.search(r'(?i)keyboard times|tempos do teclado|tiempos del teclado', tab[k]):
-            problems.append('%s: %s still says "keyboard times" (the row shows more than times: Keyboard diagnostics)' % (folder, k))
+            problems.append('%s: %s still says "keyboard times" (the row shows more than times: Keyboard statistics)' % (folder, k))
+# --- the language on the space bar: LatinKeyboard.setLanguageSwitcher gives mLocale the language that is being typed (LanguageSwitcher.getInputLocale, which answers the
+# device language when nothing is selected), always. The original code left it null with no selected language, or with a single one equal to the device language, so the
+# name never showed up on the key for most people. It must not look at the number of languages or at the device language again (the arrows are drawn by drawSpaceBar,
+# which already asks for 2 or more).
+_kb = read_file('smali/com/mrkeyboard/app/LatinKeyboard.smali')
+_sls = re.search(r'\.method public setLanguageSwitcher\(.*?\.end method', _kb, re.S)
+if not _sls:
+    problems.append('LatinKeyboard.smali: setLanguageSwitcher not found')
+else:
+    if 'LanguageSwitcher;->getInputLocale()' not in _sls.group(0):
+        problems.append('LatinKeyboard.setLanguageSwitcher must take mLocale from LanguageSwitcher.getInputLocale (the space bar always names the language)')
+    for _bad in ('getLocaleCount', 'getSystemLocale'):
+        if _bad in _sls.group(0):
+            problems.append('LatinKeyboard.setLanguageSwitcher must not call %s: it hid the language name on the space bar when there was one language or the device language' % _bad)
+
 # --- Words for ONE app (MrApp, MrAppList, MrAppPicker; the choice on "Add words and texts" and on "What the keyboard learned"): every text of the choice is in the three
 # languages with the same %n$ holes; the manifest asks for the apps that have a launcher icon (Android 11+ hides the others) and not for every package; LatinIME,
 # AutoDictionary and UserBigramDictionary call MrApp; the Java layer cannot ask for the list of every package.
