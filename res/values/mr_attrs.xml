@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- What the settings screens and the home screen draw their cards and their background with. Theme.MrKeyboard.Settings gives the solid ones; with the Matrix
+         effect on, MrMatrix lays MrMatrixGlass over the theme of the screen (before it is inflated) and they are see-through, so the letters show a little. -->
+    <attr name="mrScreenBg" format="reference|color" />
+    <attr name="mrCard" format="reference" />
+    <attr name="mrCardFlat" format="reference" />
+    <attr name="mrHero" format="reference" />
+</resources>

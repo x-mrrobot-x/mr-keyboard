@@ -14,8 +14,8 @@
 #   - ScreensTest: the insets of the screens on Android 15+ (MrScreens): which Android registers it, the padding of the
 #     content area (bars and cutout) and what is left for the views below, which cannot reserve the bars a second time.
 #   - MatrixTest: the Matrix effect of the settings screens (MrRain, MrRainDrawable, MrMatrix, and what MrScreens does with it): the drops and their
-#     trails, what is drawn and the beats that stop when the window is hidden, which screens get it, the screen that is created again when the
-#     setting changed and never in a loop.
+#     trails, what is drawn and the beats that stop when the window is hidden, which screens get it (the home screen too), the see-through
+#     cards that are laid over the theme with it, the screen that is created again when the setting changed and never in a loop.
 #   - NavTest: opening screens without stacking copies (MrNav): flags from the keyboard window and from a screen, and
 #     what the AI style editor does when it is asked for again while it is already open.
 #   - ScreenImeTest: the keyboard on the editor screens (MrScreenIme): which field has it saved when the screen is

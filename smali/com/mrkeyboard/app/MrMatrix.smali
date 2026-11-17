@@ -4,6 +4,8 @@
 
 
 # static fields
+.field static final GLASS:Ljava/lang/String; = "MrMatrixGlass"
+
 .field private static final HOME:Ljava/lang/String; = "com.mrkeyboard.app.Main"
 
 .field static final KEY:Ljava/lang/String; = "pref_ui_matrix"
@@ -14,7 +16,7 @@
     .locals 0
 
     .prologue
-    .line 23
+    .line 24
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -26,31 +28,31 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 52
+    .line 71
     :try_start_0
     invoke-virtual {p0}, Landroid/app/Activity;->getWindow()Landroid/view/Window;
 
     move-result-object v1
 
-    .line 53
+    .line 72
     if-nez v1, :cond_0
 
-    .line 61
+    .line 81
     :goto_0
     return v0
 
-    .line 54
+    .line 73
     :cond_0
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v2
 
-    .line 55
+    .line 74
     invoke-virtual {p0}, Landroid/app/Activity;->getPackageName()Ljava/lang/String;
 
     move-result-object v3
 
-    .line 56
+    .line 75
     const-string v4, "mr_ui_bg"
 
     const-string v5, "color"
@@ -63,7 +65,7 @@
 
     move-result v4
 
-    .line 57
+    .line 76
     const-string v5, "mr_accent"
 
     const-string v6, "color"
@@ -76,7 +78,7 @@
 
     move-result v3
 
-    .line 58
+    .line 77
     new-instance v5, Lcom/mrkeyboard/app/MrRainDrawable;
 
     invoke-virtual {v2}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
@@ -88,15 +90,18 @@
     invoke-direct {v5, v4, v3, v2}, Lcom/mrkeyboard/app/MrRainDrawable;-><init>(IIF)V
 
     invoke-virtual {v1, v5}, Landroid/view/Window;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
+
+    .line 78
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrMatrix;->glass(Landroid/app/Activity;)V
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 59
+    .line 79
     const/4 v0, 0x1
 
     goto :goto_0
 
-    .line 60
+    .line 80
     :catch_0
     move-exception v1
 
@@ -109,7 +114,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 31
+    .line 32
     if-eqz p0, :cond_0
 
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
@@ -126,7 +131,7 @@
 
     if-eqz v1, :cond_1
 
-    .line 32
+    .line 33
     :cond_0
     :goto_0
     return v0
@@ -164,7 +169,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 38
+    .line 39
     :try_start_0
     invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
@@ -180,13 +185,63 @@
 
     move-result v0
 
-    .line 40
+    .line 41
     :goto_0
     return v0
 
-    .line 39
+    .line 40
     :catch_0
     move-exception v1
+
+    goto :goto_0
+.end method
+
+.method private static glass(Landroid/app/Activity;)V
+    .locals 5
+
+    .prologue
+    .line 60
+    :try_start_0
+    invoke-virtual {p0}, Landroid/app/Activity;->getTheme()Landroid/content/res/Resources$Theme;
+
+    move-result-object v0
+
+    .line 61
+    invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v1
+
+    const-string v2, "MrMatrixGlass"
+
+    const-string v3, "style"
+
+    invoke-virtual {p0}, Landroid/app/Activity;->getPackageName()Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v1, v2, v3, v4}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+
+    move-result v1
+
+    .line 62
+    if-eqz v0, :cond_0
+
+    if-eqz v1, :cond_0
+
+    const/4 v2, 0x1
+
+    invoke-virtual {v0, v1, v2}, Landroid/content/res/Resources$Theme;->applyStyle(IZ)V
+    :try_end_0
+    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+
+    .line 66
+    :cond_0
+    :goto_0
+    return-void
+
+    .line 63
+    :catch_0
+    move-exception v0
 
     goto :goto_0
 .end method
@@ -195,7 +250,7 @@
     .locals 1
 
     .prologue
-    .line 46
+    .line 47
     invoke-static {p0}, Lcom/mrkeyboard/app/MrMatrix;->eligible(Landroid/app/Activity;)Z
 
     move-result v0

@@ -13,5 +13,7 @@ public class Resources {
     public java.io.InputStream openRawResource(int id) { return null; }
     public static final class Theme {
         public void setTo(Theme other) { }
+        public final java.util.List<Integer> stubApplied = new java.util.ArrayList<Integer>();
+        public void applyStyle(int resId, boolean force) { stubApplied.add(force ? resId : -resId); }
     }
 }

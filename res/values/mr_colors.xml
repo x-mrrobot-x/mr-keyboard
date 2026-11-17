@@ -209,6 +209,8 @@
     <!-- ===== Screen redesign (prefix mr_ui_) ===== -->
     <color name="mr_ui_bg">#ff060c17</color>
     <color name="mr_ui_card">#ff0d1626</color>
+    <!-- The card of the settings with the Matrix effect on: the same colour, see-through (about 63%) so that the letters show a little -->
+    <color name="mr_ui_card_glass">#a00d1626</color>
     <color name="mr_ui_faint">#ff0f1c30</color>
     <color name="mr_ui_raised">#ff111d31</color>
     <color name="mr_ui_sunken">#ff09111e</color>

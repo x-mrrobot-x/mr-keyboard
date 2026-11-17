@@ -464,6 +464,34 @@ if 'KEY = "pref_ui_matrix"' not in matrix_src or 'getBoolean(KEY, false)' not in
     problems.append('MrMatrix: the key of the setting is not pref_ui_matrix or the default is not false')
 if '"pref_ui_matrix"' not in read_file('docs/tools/java/src/com/mrkeyboard/app/MrReset.java'):
     problems.append('MrReset: pref_ui_matrix is not in the list of the settings that Restore defaults resets')
+# The see-through cards: a layout that takes its card or its background from the theme (?attr/mrCard...) must find the attribute in every theme it
+# is inflated under (the settings screens and the home screen: Theme.MrKeyboard.Settings and its child), and MrMatrixGlass must replace each one
+# that is used. Only the rows of the settings and the home screen use them: the dialogs and the other screens are inflated under other themes.
+theme_xml = read_file('res/values/mr_theme.xml')
+settings_theme = re.search(r'<style name="Theme\.MrKeyboard\.Settings"[^>]*>(.*?)</style>', theme_xml, re.S)
+glass_style = re.search(r'<style name="MrMatrixGlass">(.*?)</style>', theme_xml, re.S)
+attrs_xml = read_file('res/values/mr_attrs.xml')
+glass_users = set()
+for f in sorted(os.listdir('res/layout')):
+    for attr in re.findall(r'\?attr/(mr(?:Card|CardFlat|Hero|ScreenBg))\b', read_file('res/layout/' + f)):
+        glass_users.add((f, attr))
+        if '<attr name="%s"' % attr not in attrs_xml:
+            problems.append('mr_attrs.xml: attribute %s (used by layout/%s) is not declared' % (attr, f))
+        if not settings_theme or '<item name="%s">' % attr not in settings_theme.group(1):
+            problems.append('mr_theme.xml: Theme.MrKeyboard.Settings has no value for %s (layout/%s uses it)' % (attr, f))
+        if not glass_style or '<item name="%s">' % attr not in glass_style.group(1):
+            problems.append('mr_theme.xml: MrMatrixGlass has no see-through value for %s (layout/%s uses it)' % (attr, f))
+allowed_glass = {'main.xml', 'mr_ui_pref_hero.xml', 'mr_ui_pref_row.xml', 'mr_ui_pref_row_value.xml', 'mr_ui_pref_row_metrics.xml',
+                 'mr_ui_pref_row_static.xml', 'mr_ui_pref_row_last.xml'}
+for f, attr in sorted(glass_users):
+    if f not in allowed_glass:
+        problems.append('layout/%s uses ?attr/%s: only the rows of the settings and the home screen are inflated under the theme that has it' % (f, attr))
+if glass_style:
+    for ref in re.findall(r'@drawable/(\w+)', glass_style.group(1)):
+        if not os.path.exists('res/drawable/%s.xml' % ref):
+            problems.append('mr_theme.xml: MrMatrixGlass uses drawable %s, which does not exist' % ref)
+if 'MrMatrixGlass' not in matrix_src or 'applyStyle(style, true)' not in matrix_src:
+    problems.append('MrMatrix: the see-through style (MrMatrixGlass) must be laid over the theme, forced, when the rain is put')
 screens_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrScreens.java')
 if 'MrMatrix.KEY.equals(key)' not in screens_src or 'MrMatrix.attach(activity)' not in screens_src:
     problems.append('MrScreens: the Matrix setting must create the screen again (onSetting) and the screen must get the rain when it is created')
