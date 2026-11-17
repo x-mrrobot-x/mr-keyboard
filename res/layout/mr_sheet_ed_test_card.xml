@@ -4,7 +4,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:tag="test_card"
     android:orientation="vertical"
-    android:background="@drawable/mr_sheet_ed_card_bg"
+    android:background="?attr/mrCardFlat"
     android:paddingLeft="14dp"
     android:paddingTop="12dp"
     android:paddingRight="14dp"

@@ -88,6 +88,7 @@
         <item name="mrCard">@drawable/mr_ui_card_ripple</item>
         <item name="mrCardFlat">@drawable/mr_ui_card_shape</item>
         <item name="mrHero">@drawable/mr_ui_hero_bg</item>
+        <item name="mrSheetFixed">@drawable/mr_sheet_fixed_bg</item>
         <item name="android:colorBackground">@color/mr_ui_bg</item>
         <item name="android:colorPrimary">@color/mr_ui_card</item>
         <item name="android:colorPrimaryDark">@color/mr_ui_bg</item>
@@ -113,12 +114,14 @@
         <item name="android:checkBoxPreferenceStyle">@style/MrPrefCheckBox</item>
         <item name="android:dialogPreferenceStyle">@style/MrPrefDialog</item>
     </style>
-    <!-- Laid over the theme of a settings screen by MrMatrix when the Matrix effect is on: the cards and the background of the screen are see-through -->
+    <!-- Laid over the theme of a screen by MrMatrix when the Matrix effect is on: the cards and the background of the screen are see-through, and so are the dialogs a little -->
     <style name="MrMatrixGlass">
         <item name="mrScreenBg">@android:color/transparent</item>
         <item name="mrCard">@drawable/mr_ui_card_ripple_glass</item>
         <item name="mrCardFlat">@drawable/mr_ui_card_shape_glass</item>
         <item name="mrHero">@drawable/mr_ui_hero_bg_glass</item>
+        <item name="mrSheetFixed">@drawable/mr_sheet_fixed_bg_glass</item>
+        <item name="android:alertDialogTheme">@style/Theme.MrKeyboard.Dialog.Glass</item>
     </style>
     <!-- Home screen (Main): no ActionBar, the header is drawn in the layout itself -->
     <style name="Theme.MrKeyboard.Main" parent="@style/Theme.MrKeyboard.Settings">
@@ -172,5 +175,9 @@
         <item name="android:textColorHint">@color/mr_ui_text3</item>
         <item name="android:textColorHighlight">@color/mr_accent_30</item>
         <item name="android:textColorAlertDialogListItem">@color/mr_ui_text</item>
+    </style>
+    <!-- The dialogs of the screens that have the Matrix effect on: the same, a little see-through -->
+    <style name="Theme.MrKeyboard.Dialog.Glass" parent="@style/Theme.MrKeyboard.Dialog">
+        <item name="android:windowBackground">@drawable/mr_ui_dialog_bg_glass</item>
     </style>
 </resources>

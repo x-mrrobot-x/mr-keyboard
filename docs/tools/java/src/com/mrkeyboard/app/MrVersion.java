@@ -161,6 +161,7 @@ public final class MrVersion implements Preference.OnPreferenceClickListener {
         try {
             int theme = a.getResources().getIdentifier("Theme.MrKeyboard.Dialog", "style", a.getPackageName());
             if (theme == 0) theme = 0x7f0d00a1;
+            theme = MrMatrix.dialogTheme(a, theme); // a little see-through with the Matrix effect
             dialog = new Dialog(a, theme);
             dialog.requestWindowFeature(1); // FEATURE_NO_TITLE: the layout has its own title
             int layout = a.getResources().getIdentifier("mr_update_dialog", "layout", a.getPackageName());

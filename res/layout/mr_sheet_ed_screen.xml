@@ -4,7 +4,7 @@
      quick test card. Colors of the settings palette (mr_ui_), texts of mr_strings.xml (mr_sheet_ed_). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:background="@color/mr_ui_bg"
+    android:background="?attr/mrScreenBg"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <LinearLayout

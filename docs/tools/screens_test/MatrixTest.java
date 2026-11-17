@@ -331,9 +331,10 @@ public class MatrixTest {
     /** The colours of the app and a display of density 2. */
     static class Res extends Resources {
         public int getIdentifier(String name, String defType, String defPackage) {
-            return name.equals("mr_ui_bg") ? 1 : name.equals("mr_accent") ? 2 : name.equals("MrMatrixGlass") && defType.equals("style") ? GLASS_ID : 0;
+            if (defType.equals("style")) return name.equals("MrMatrixGlass") ? GLASS_ID : name.equals("Theme.MrKeyboard.Dialog.Glass") ? DIALOG_GLASS_ID : 0;
+            return name.equals("mr_ui_bg") ? 1 : name.equals("mr_accent") ? 2 : name.equals("mr_ui_card") ? 5 : name.equals("mr_ui_card_glass") ? 6 : 0;
         }
-        public int getColor(int id) { return id == 1 ? BG : id == 2 ? ACCENT : 0; }
+        public int getColor(int id) { return id == 1 ? BG : id == 2 ? ACCENT : id == 5 ? CARD : id == 6 ? CARD_GLASS : 0; }
         public DisplayMetrics getDisplayMetrics() {
             DisplayMetrics m = new DisplayMetrics();
             m.density = 2f;
@@ -342,10 +343,13 @@ public class MatrixTest {
     }
 
     static final int GLASS_ID = 3;
+    static final int DIALOG_GLASS_ID = 4;
+    static final int CARD = 0xff0d1626;
+    static final int CARD_GLASS = 0xc00d1626;
 
     /** Resources that have the colours but not the see-through style. */
     static class ResNoGlass extends Res {
-        public int getIdentifier(String name, String defType, String defPackage) { return name.equals("MrMatrixGlass") ? 0 : super.getIdentifier(name, defType, defPackage); }
+        public int getIdentifier(String name, String defType, String defPackage) { return name.equals("MrMatrixGlass") || name.equals("Theme.MrKeyboard.Dialog.Glass") ? 0 : super.getIdentifier(name, defType, defPackage); }
     }
 
     static class Settings extends PreferenceActivity {
@@ -362,6 +366,8 @@ public class MatrixTest {
     }
 
     static class Plain extends Activity {
+        final Resources.Theme stubTheme = new Resources.Theme();
+        public Resources.Theme getTheme() { return stubTheme; }
         public Resources getResources() { return new Res(); }
         public String getPackageName() { return "com.mrkeyboard.app"; }
     }
@@ -374,8 +380,10 @@ public class MatrixTest {
 
     static final int HW = WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
 
+    static Prefs prefs;
+
     static void matrix() {
-        Prefs prefs = new Prefs();
+        prefs = new Prefs();
         PreferenceManager.stubDefault = prefs;
         Build.VERSION.SDK_INT = 33;
         check("the key of the setting", MrMatrix.KEY.equals("pref_ui_matrix"));
@@ -393,8 +401,9 @@ public class MatrixTest {
 
         check("the settings screens get it (a PreferenceActivity)", MrMatrix.eligible(new Settings()));
         check("the home screen gets it (Main)", MrMatrix.eligible(new com.mrkeyboard.app.Main()));
-        check("the other screens do not (word screens, tour, Sheets: a plain Activity)", !MrMatrix.eligible(new Plain()));
+        check("the other screens do too (word screens, tour, AI style, Sheets and its editor: a plain Activity)", MrMatrix.eligible(new Plain()));
         check("a helper window does not, even if it is a PreferenceActivity", !MrMatrix.eligible(new ShotPerm()));
+        check("... nor the other helper window (the picker)", !MrMatrix.eligible(new ShotPick()));
         check("no screen: no", !MrMatrix.eligible(null));
 
         prefs.map.put("pref_ui_matrix", Boolean.TRUE);
@@ -428,7 +437,8 @@ public class MatrixTest {
         check("the home screen is built the same way as the settings screens (it gets the rain and the see-through style)", homeIsTreatedLikeSettings());
         Plain plain = new Plain();
         new MrScreens().onActivityCreated(plain, null);
-        check("setting on: a screen that is not a settings screen gets neither the rain nor the acceleration", plain.getWindow().stubBackground == null && plain.getWindow().stubFlags == 0);
+        check("setting on: any other screen of the app gets the rain, the acceleration and the see-through style too", plain.getWindow().stubBackground instanceof MrRainDrawable
+                && (plain.getWindow().stubFlags & HW) == HW && plain.stubTheme.stubApplied.size() == 1 && plain.stubTheme.stubApplied.get(0) == GLASS_ID);
         ShotPerm helper = new ShotPerm();
         new MrScreens().onActivityCreated(helper, null);
         check("setting on: a helper window gets nothing", helper.getWindow().stubBackground == null && helper.getWindow().stubFlags == 0);
@@ -465,11 +475,17 @@ public class MatrixTest {
         prefs.map.put("pref_ui_matrix", Boolean.FALSE);
         cb.onActivityResumed(behindOn);
         check("made with the rain and the setting turned off meanwhile: created again", behindOn.stubRecreates == 1);
-        Plain other = new Plain();
+        ShotPerm other = new ShotPerm();
         cb.onActivityCreated(other, null);
         prefs.map.put("pref_ui_matrix", Boolean.TRUE);
         cb.onActivityResumed(other);
-        check("a screen that cannot have the rain is never created again for it", other.stubRecreates == 0);
+        check("a window that cannot have the rain (a helper) is never created again for it", other.stubRecreates == 0);
+        Plain word = new Plain();
+        prefs.map.put("pref_ui_matrix", Boolean.FALSE);
+        cb.onActivityCreated(word, null);
+        prefs.map.put("pref_ui_matrix", Boolean.TRUE);
+        cb.onActivityResumed(word);
+        check("a word screen (a plain Activity) made without the rain is created again when the setting is turned on", word.stubRecreates == 1);
         check("a screen that MrScreens never saw (created before it was installed) is left alone", skipped(cb));
         MrScreens loop = new MrScreens();
         prefs.map.put("pref_ui_matrix", Boolean.TRUE);
@@ -487,6 +503,32 @@ public class MatrixTest {
         MrScreens.onSetting(adv, "force_keyboard_on");
         check("any other setting leaves it as it is", adv.stubRecreates == 1);
         PreferenceManager.stubDefault = null;
+    }
+
+    /** The dialogs that a screen opens with an explicit theme, and the colours that the screens built in code take. */
+    static void dialogsAndKit() {
+        PreferenceManager.stubDefault = prefs;
+        prefs.map.clear();
+        check("the effect off: a dialog keeps the theme that it was given", MrMatrix.dialogTheme(new Settings(), 77) == 77);
+        prefs.map.put("pref_ui_matrix", Boolean.TRUE);
+        check("the effect on: the see-through dialog theme", MrMatrix.dialogTheme(new Settings(), 77) == DIALOG_GLASS_ID);
+        check("the effect on in a build without that theme: the one that was given", MrMatrix.dialogTheme(new Settings() { public Resources getResources() { return new ResNoGlass(); } }, 77) == 77);
+        check("resources that cannot be read: the one that was given", MrMatrix.dialogTheme(new Broken(), 77) == 77);
+        check("a helper window never gets it", MrMatrix.dialogTheme(new ShotPerm(), 77) == 77);
+        check("the name of the theme", MrMatrix.GLASS_DIALOG.equals("Theme.MrKeyboard.Dialog.Glass"));
+
+        MrKit solid = new MrKit(offScreen());
+        check("a screen built in code with the effect off: the background and the card of the settings", !solid.glass && solid.bg == BG && solid.card == CARD);
+        prefs.map.put("pref_ui_matrix", Boolean.TRUE);
+        MrKit clear = new MrKit(new Plain());
+        check("with the effect on: the background is clear (the window shows the rain) and the card a little see-through", clear.glass && clear.bg == 0 && clear.card == CARD_GLASS);
+        check("... the same for a helper window: it is never glass", !new MrKit(new ShotPerm()).glass);
+        PreferenceManager.stubDefault = null;
+    }
+
+    static Activity offScreen() {
+        prefs.map.put("pref_ui_matrix", Boolean.FALSE);
+        return new Plain();
     }
 
     /** The home screen (class Main, a plain Activity here with the same colours): rain, acceleration and the see-through style, like a settings screen. */
@@ -519,6 +561,12 @@ public class MatrixTest {
         if (i < 0) return null;
         int a = x.indexOf('>', i) + 1;
         return x.substring(a, x.indexOf("</string>", a));
+    }
+
+    /** The value of a colour of mr_colors.xml, -1 if it is missing. */
+    static int argb(String colors, String name) {
+        int i = colors.indexOf("<color name=\"" + name + "\">#");
+        return i < 0 ? -1 : (int) Long.parseLong(colors.substring(colors.indexOf('#', i) + 1, colors.indexOf('<', i + 20)), 16);
     }
 
     static void files() {
@@ -561,16 +609,30 @@ public class MatrixTest {
         int glassArgb = c1 < 0 ? -1 : (int) Long.parseLong(colors.substring(colors.indexOf('#', c1) + 1, colors.indexOf('<', c1 + 20)), 16);
         int cardArgb = c2 < 0 ? -1 : (int) Long.parseLong(colors.substring(colors.indexOf('#', c2) + 1, colors.indexOf('<', c2 + 20)), 16);
         int alpha = glassArgb >>> 24;
-        check("the see-through card is the colour of the card with an alpha between 40% and 80% (" + alpha + "/255): the letters show, the text stays readable",
-                c1 >= 0 && c2 >= 0 && (glassArgb & 0xffffff) == (cardArgb & 0xffffff) && alpha >= 102 && alpha <= 204);
+        check("the see-through card is the colour of the card with an alpha between 60% and 85% (" + alpha + "/255): the letters show, the text stays readable",
+                c1 >= 0 && c2 >= 0 && (glassArgb & 0xffffff) == (cardArgb & 0xffffff) && alpha >= 153 && alpha <= 217);
+        int sunkenGlass = argb(colors, "mr_ui_sunken_glass");
+        int sunken = argb(colors, "mr_ui_sunken");
+        check("the see-through sunken card (the fixed cards of the sheets) is its colour with the same alpha", (sunkenGlass & 0xffffff) == (sunken & 0xffffff) && (sunkenGlass >>> 24) == alpha);
+        int dialogGlass = argb(colors, "mr_ui_dialog_glass");
+        int dialogAlpha = dialogGlass >>> 24;
+        check("the dialog is the colour of the card, a little see-through (" + dialogAlpha + "/255) and less than the cards", (dialogGlass & 0xffffff) == (cardArgb & 0xffffff) && dialogAlpha > alpha && dialogAlpha >= 204 && dialogAlpha < 255);
         boolean glassFiles = true;
-        for (String f : new String[] {"mr_ui_card_ripple_glass", "mr_ui_card_shape_glass", "mr_ui_hero_bg_glass"}) {
-            String d = file("res/drawable/" + f + ".xml");
-            String solid = file("res/drawable/" + f.replace("_glass", "") + ".xml");
-            if (!d.contains("@color/mr_ui_card_glass") || d.contains("@color/mr_ui_card\"") || solid.length() == 0 || !solid.contains("@color/mr_ui_card\"")) glassFiles = false;
-            if (d.replace("mr_ui_card_glass", "mr_ui_card").length() != solid.length() || !d.replace("mr_ui_card_glass", "mr_ui_card").equals(solid)) glassFiles = false;
+        String[][] pairs = {{"mr_ui_card_ripple", "mr_ui_card", "mr_ui_card_glass"}, {"mr_ui_card_shape", "mr_ui_card", "mr_ui_card_glass"},
+                {"mr_ui_hero_bg", "mr_ui_card", "mr_ui_card_glass"}, {"mr_sheet_fixed_bg", "mr_ui_sunken", "mr_ui_sunken_glass"},
+                {"mr_ui_dialog_bg", "mr_ui_card", "mr_ui_dialog_glass"}};
+        for (String[] p : pairs) {
+            String d = file("res/drawable/" + p[0] + "_glass.xml");
+            String solid = file("res/drawable/" + p[0] + ".xml");
+            if (solid.length() == 0 || !solid.contains("@color/" + p[1] + "\"") || !d.contains("@color/" + p[2] + "\"")) glassFiles = false;
+            if (!d.replace("@color/" + p[2] + "\"", "@color/" + p[1] + "\"").equals(solid)) glassFiles = false;
         }
         check("each see-through drawable is its solid one with only the fill changed (same line, same corners, same ripple)", glassFiles);
+        int ds = theme.indexOf("<style name=\"Theme.MrKeyboard.Dialog.Glass\" parent=\"@style/Theme.MrKeyboard.Dialog\">");
+        String dialogStyle = ds < 0 ? "" : theme.substring(ds, theme.indexOf("</style>", ds));
+        check("the see-through dialog theme only changes the background of the window", dialogStyle.contains("<item name=\"android:windowBackground\">@drawable/mr_ui_dialog_bg_glass</item>") && dialogStyle.split("<item ", -1).length == 2);
+        check("the dialogs follow the screen: the solid theme is the default and the style of the effect changes it (the framework opens them with it)",
+                settingsTheme.contains("<item name=\"android:alertDialogTheme\">@style/Theme.MrKeyboard.Dialog</item>") && glassStyle.contains("<item name=\"android:alertDialogTheme\">@style/Theme.MrKeyboard.Dialog.Glass</item>"));
         boolean rows = true;
         for (String f : new String[] {"mr_ui_pref_row", "mr_ui_pref_row_value", "mr_ui_pref_row_metrics", "mr_ui_pref_row_static", "mr_ui_pref_row_last"}) {
             String l = file("res/layout/" + f + ".xml");
@@ -581,6 +643,16 @@ public class MatrixTest {
         check("the home screen takes its background, its header and its cards from the theme (so that the rain shows on it)", main.contains("android:background=\"?attr/mrScreenBg\"")
                 && main.contains("android:background=\"?attr/mrHero\"") && main.contains("android:background=\"?attr/mrCard\"") && main.split("\\?attr/mrCardFlat", -1).length - 1 == 3
                 && !main.contains("@color/mr_ui_bg") && !main.contains("@drawable/mr_ui_card_shape\"") && !main.contains("@drawable/mr_ui_card_ripple\"") && !main.contains("@drawable/mr_ui_hero_bg\""));
+        boolean sheets = file("res/layout/mr_sheets_screen.xml").contains("android:background=\"?attr/mrScreenBg\"") && file("res/layout/mr_sheet_ed_screen.xml").contains("android:background=\"?attr/mrScreenBg\"")
+                && file("res/layout/mr_sheet_card.xml").contains("android:background=\"?attr/mrCard\"") && file("res/layout/mr_sheet_ed_test_card.xml").contains("android:background=\"?attr/mrCardFlat\"")
+                && file("res/layout/mr_sheet_fixed_card.xml").contains("android:background=\"?attr/mrSheetFixed\"");
+        check("the sheets and their editor take their background and their cards from the theme too (the header stays solid)", sheets
+                && file("res/layout/mr_sheets_screen.xml").contains("android:background=\"@color/mr_ui_bg\"") && file("res/layout/mr_sheet_ed_screen.xml").contains("android:background=\"@color/mr_ui_bg\""));
+        String src = "docs/tools/java/src/com/mrkeyboard/app/";
+        check("the screens built in code (word screens, tour, AI style, the test card of the sheet editor) ask MrMatrix", file(src + "MrKit.java").contains("MrMatrix.wanted(a)")
+                && file(src + "MrAiStyleActivity.java").contains("MrMatrix.wanted(this)") && file(src + "SheetEditorActivity.java").contains("MrMatrix.wanted(SheetEditorActivity.this)"));
+        check("the dialogs that are opened with an explicit theme (the notes of the version, the update) ask MrMatrix", file(src + "MrVersion.java").contains("MrMatrix.dialogTheme(a, theme)")
+                && file(src + "MrUpdateDialog.java").contains("MrMatrix.dialogTheme(a, theme)"));
         check("the danger rows were already see-through and the dialog and the other screens do not use the attributes",
                 file("res/layout/mr_ui_pref_row_danger.xml").contains("mr_ui_card_ripple_danger") && !file("res/layout/mr_update_dialog.xml").contains("?attr/mrCard"));
         String man = file("AndroidManifest.xml");
@@ -591,6 +663,7 @@ public class MatrixTest {
         rain();
         drawable();
         matrix();
+        dialogsAndKit();
         files();
         System.out.println();
         System.out.println(fail == 0 ? "ALL OK (" + ok + " checks)" : fail + " FAIL of " + (ok + fail));
@@ -605,6 +678,9 @@ class Main extends Activity {
     public Resources getResources() { return new MatrixTest.Res(); }
     public String getPackageName() { return "com.mrkeyboard.app"; }
 }
+
+/** The other helper windows (translucent): only the names matter. */
+class ShotPick extends Activity { }
 
 /** A window that is not a screen of the app (translucent), here also a PreferenceActivity to show that the helper check comes first. */
 class ShotPerm extends PreferenceActivity {

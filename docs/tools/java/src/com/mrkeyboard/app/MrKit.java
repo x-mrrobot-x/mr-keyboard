@@ -23,6 +23,9 @@ import java.util.List;
  */
 final class MrKit {
     final Activity act;
+    /** The Matrix effect is on for this screen: its background is clear (the window shows the rain) and its cards are a little see-through. */
+    final boolean glass;
+    /** The background of the screen: the colour of the settings, clear with the Matrix effect. */
     final int bg;
     final int card;
     final int stroke;
@@ -42,8 +45,9 @@ final class MrKit {
 
     MrKit(Activity a) {
         act = a;
-        bg = color("mr_ui_bg");
-        card = color("mr_ui_card");
+        glass = MrMatrix.wanted(a);
+        bg = glass ? 0 : color("mr_ui_bg");
+        card = color(glass ? "mr_ui_card_glass" : "mr_ui_card");
         stroke = color("mr_ui_stroke_strong");
         text = color("mr_ui_text");
         text2 = color("mr_ui_text2");

@@ -368,7 +368,7 @@ public class SheetEditorActivity extends Activity {
                 mTestFieldIcon.setImageDrawable(new SheetUi.IconDrawable(SheetEditorActivity.this,
                         SheetUi.ICON_KEYBOARD, color(focused ? "mr_ui_cyan" : "mr_ui_text3"), dp(22)));
                 mTestFieldRow.setBackgroundResource(drawable(focused ? "mr_sheet_ed_field_bg_on" : "mr_sheet_ed_field_bg"));
-                mTestCard.setBackgroundResource(drawable(focused ? "mr_sheet_ed_card_bg_on" : "mr_sheet_ed_card_bg"));
+                mTestCard.setBackgroundResource(drawable(focused ? "mr_sheet_ed_card_bg_on" : MrMatrix.wanted(SheetEditorActivity.this) ? "mr_ui_card_shape_glass" : "mr_ui_card_shape"));
                 if (focused && mScrollView != null) {
                     mScrollView.postDelayed(new Runnable() {
                         public void run() {

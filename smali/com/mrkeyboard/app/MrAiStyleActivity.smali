@@ -392,17 +392,17 @@
     .locals 3
 
     .prologue
-    .line 398
+    .line 399
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mDeleteArmed:Z
 
     if-nez v0, :cond_1
 
-    .line 399
+    .line 400
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mDeleteArmed:Z
 
-    .line 400
+    .line 401
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mDelete:Landroid/widget/TextView;
 
     if-eqz v0, :cond_0
@@ -417,18 +417,18 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 410
+    .line 411
     :cond_0
     :goto_0
     return-void
 
-    .line 403
+    .line 404
     :cond_1
     invoke-static {p0}, Lcom/mrkeyboard/app/MrAi;->loadCustom(Landroid/content/Context;)Ljava/util/ArrayList;
 
     move-result-object v0
 
-    .line 404
+    .line 405
     iget v1, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mIndex:I
 
     if-ltz v1, :cond_2
@@ -441,15 +441,15 @@
 
     if-ge v1, v2, :cond_2
 
-    .line 405
+    .line 406
     iget v1, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mIndex:I
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
 
-    .line 406
+    .line 407
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrAi;->saveCustom(Landroid/content/Context;Ljava/util/ArrayList;)V
 
-    .line 407
+    .line 408
     const-string v0, "mr_ai_style_deleted"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrAiStyleActivity;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -464,7 +464,7 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 409
+    .line 410
     :cond_2
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrAiStyleActivity;->finish()V
 
@@ -505,27 +505,27 @@
 
     const/high16 v4, 0x41400000    # 12.0f
 
-    .line 327
+    .line 328
     new-instance v0, Landroid/widget/EditText;
 
     invoke-direct {v0, p0}, Landroid/widget/EditText;-><init>(Landroid/content/Context;)V
 
-    .line 328
+    .line 329
     invoke-virtual {v0, p5}, Landroid/widget/EditText;->setHint(Ljava/lang/CharSequence;)V
 
-    .line 329
+    .line 330
     invoke-virtual {v0, p4}, Landroid/widget/EditText;->setHintTextColor(I)V
 
-    .line 330
+    .line 331
     invoke-virtual {v0, p3}, Landroid/widget/EditText;->setTextColor(I)V
 
-    .line 331
+    .line 332
     invoke-virtual {v0, v5}, Landroid/widget/EditText;->setTextSize(F)V
 
-    .line 332
+    .line 333
     invoke-virtual {v0, p6}, Landroid/widget/EditText;->setInputType(I)V
 
-    .line 333
+    .line 334
     invoke-direct {p0, v3}, Lcom/mrkeyboard/app/MrAiStyleActivity;->dp(F)I
 
     move-result v1
@@ -544,7 +544,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/widget/EditText;->setPadding(IIII)V
 
-    .line 334
+    .line 335
     const/4 v1, 0x0
 
     invoke-direct {p0, p1, p2, v5, v1}, Lcom/mrkeyboard/app/MrAiStyleActivity;->round(IIFZ)Landroid/graphics/drawable/GradientDrawable;
@@ -553,7 +553,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 335
+    .line 336
     return-object v0
 .end method
 
@@ -563,7 +563,7 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 339
+    .line 340
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v1, -0x1
@@ -572,7 +572,7 @@
 
     invoke-direct {v0, v1, v2}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 341
+    .line 342
     if-lez p1, :cond_0
 
     int-to-float v1, p1
@@ -583,7 +583,7 @@
 
     invoke-virtual {v0, v3, v1, v3, v3}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
 
-    .line 342
+    .line 343
     :cond_0
     return-object v0
 .end method
@@ -816,7 +816,7 @@
     .locals 2
 
     .prologue
-    .line 355
+    .line 356
     const/16 v0, 0x64
 
     if-lt p1, v0, :cond_0
@@ -829,7 +829,7 @@
 
     if-ge p1, v0, :cond_0
 
-    .line 356
+    .line 357
     sget-object v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->EMOJIS:[Ljava/lang/String;
 
     add-int/lit8 v1, p1, -0x64
@@ -838,38 +838,38 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mEmoji:Ljava/lang/String;
 
-    .line 357
+    .line 358
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrAiStyleActivity;->refreshEmoji()V
 
-    .line 373
+    .line 374
     :goto_0
     return-void
 
-    .line 360
+    .line 361
     :cond_0
     packed-switch p1, :pswitch_data_0
 
     goto :goto_0
 
-    .line 362
+    .line 363
     :pswitch_0
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrAiStyleActivity;->finish()V
 
     goto :goto_0
 
-    .line 365
+    .line 366
     :pswitch_1
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrAiStyleActivity;->save()V
 
     goto :goto_0
 
-    .line 368
+    .line 369
     :pswitch_2
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrAiStyleActivity;->delete()V
 
     goto :goto_0
 
-    .line 360
+    .line 361
     nop
 
     :pswitch_data_0
@@ -886,14 +886,14 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 346
+    .line 347
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mCircle:Landroid/widget/TextView;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mEmoji:Ljava/lang/String;
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 347
+    .line 348
     const-string v0, "mr_ui_cyan_soft"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrAiStyleActivity;->color(Ljava/lang/String;)I
@@ -902,7 +902,7 @@
 
     move v1, v2
 
-    .line 348
+    .line 349
     :goto_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mEmojiViews:Ljava/util/ArrayList;
 
@@ -912,7 +912,7 @@
 
     if-ge v1, v0, :cond_1
 
-    .line 349
+    .line 350
     sget-object v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->EMOJIS:[Ljava/lang/String;
 
     aget-object v0, v0, v1
@@ -923,7 +923,7 @@
 
     move-result v3
 
-    .line 350
+    .line 351
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mEmojiViews:Ljava/util/ArrayList;
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -943,20 +943,20 @@
     :goto_1
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 348
+    .line 349
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
     goto :goto_0
 
-    .line 350
+    .line 351
     :cond_0
     const/4 v3, 0x0
 
     goto :goto_1
 
-    .line 352
+    .line 353
     :cond_1
     return-void
 .end method
@@ -1135,7 +1135,7 @@
 
     const/4 v5, 0x0
 
-    .line 376
+    .line 377
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mName:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -1146,7 +1146,7 @@
 
     const-string v0, ""
 
-    .line 377
+    .line 378
     :goto_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mInstr:Landroid/widget/EditText;
 
@@ -1158,7 +1158,7 @@
 
     const-string v1, ""
 
-    .line 378
+    .line 379
     :goto_1
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -1166,7 +1166,7 @@
 
     if-nez v2, :cond_2
 
-    .line 379
+    .line 380
     const-string v0, "mr_ai_style_need_name"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrAiStyleActivity;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -1179,11 +1179,11 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 395
+    .line 396
     :goto_2
     return-void
 
-    .line 376
+    .line 377
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mName:Landroid/widget/EditText;
 
@@ -1201,7 +1201,7 @@
 
     goto :goto_0
 
-    .line 377
+    .line 378
     :cond_1
     iget-object v1, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mInstr:Landroid/widget/EditText;
 
@@ -1219,7 +1219,7 @@
 
     goto :goto_1
 
-    .line 382
+    .line 383
     :cond_2
     invoke-virtual {v1}, Ljava/lang/String;->length()I
 
@@ -1227,7 +1227,7 @@
 
     if-nez v2, :cond_3
 
-    .line 383
+    .line 384
     const-string v0, "mr_ai_style_need_instr"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrAiStyleActivity;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -1242,7 +1242,7 @@
 
     goto :goto_2
 
-    .line 386
+    .line 387
     :cond_3
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -1254,13 +1254,13 @@
 
     move-result-object v0
 
-    .line 387
+    .line 388
     :cond_4
     invoke-static {p0}, Lcom/mrkeyboard/app/MrAi;->loadCustom(Landroid/content/Context;)Ljava/util/ArrayList;
 
     move-result-object v2
 
-    .line 388
+    .line 389
     const/4 v3, 0x3
 
     new-array v3, v3, [Ljava/lang/String;
@@ -1277,7 +1277,7 @@
 
     aput-object v1, v3, v0
 
-    .line 389
+    .line 390
     iget v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mIndex:I
 
     if-ltz v0, :cond_5
@@ -1294,11 +1294,11 @@
 
     invoke-virtual {v2, v0, v3}, Ljava/util/ArrayList;->set(ILjava/lang/Object;)Ljava/lang/Object;
 
-    .line 392
+    .line 393
     :goto_3
     invoke-static {p0, v2}, Lcom/mrkeyboard/app/MrAi;->saveCustom(Landroid/content/Context;Ljava/util/ArrayList;)V
 
-    .line 393
+    .line 394
     const-string v0, "mr_ai_style_saved"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrAiStyleActivity;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -1311,12 +1311,12 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 394
+    .line 395
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrAiStyleActivity;->finish()V
 
     goto :goto_2
 
-    .line 390
+    .line 391
     :cond_5
     invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
 
@@ -1330,7 +1330,7 @@
 
     goto :goto_3
 
-    .line 391
+    .line 392
     :cond_6
     invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
 
@@ -1493,24 +1493,31 @@
 
     .line 194
     :goto_2
-    const-string v2, "mr_ui_bg"
+    invoke-static/range {p0 .. p0}, Lcom/mrkeyboard/app/MrMatrix;->wanted(Landroid/app/Activity;)Z
 
-    move-object/from16 v0, p0
-
-    invoke-direct {v0, v2}, Lcom/mrkeyboard/app/MrAiStyleActivity;->color(Ljava/lang/String;)I
-
-    move-result v3
+    move-result v4
 
     .line 195
-    const-string v2, "mr_ui_card"
+    if-eqz v4, :cond_4
 
+    const/4 v2, 0x0
+
+    move v3, v2
+
+    .line 196
+    :goto_3
+    if-eqz v4, :cond_5
+
+    const-string v2, "mr_ui_card_glass"
+
+    :goto_4
     move-object/from16 v0, p0
 
     invoke-direct {v0, v2}, Lcom/mrkeyboard/app/MrAiStyleActivity;->color(Ljava/lang/String;)I
 
     move-result v13
 
-    .line 196
+    .line 197
     const-string v2, "mr_ui_stroke_strong"
 
     move-object/from16 v0, p0
@@ -1519,7 +1526,7 @@
 
     move-result v14
 
-    .line 197
+    .line 198
     const-string v2, "mr_ui_text"
 
     move-object/from16 v0, p0
@@ -1528,7 +1535,7 @@
 
     move-result v15
 
-    .line 198
+    .line 199
     const-string v2, "mr_ui_text2"
 
     move-object/from16 v0, p0
@@ -1537,7 +1544,7 @@
 
     move-result v16
 
-    .line 199
+    .line 200
     const-string v2, "mr_accent"
 
     move-object/from16 v0, p0
@@ -1546,7 +1553,7 @@
 
     move-result v17
 
-    .line 200
+    .line 201
     const-string v2, "mr_text_on_accent"
 
     move-object/from16 v0, p0
@@ -1555,7 +1562,7 @@
 
     move-result v18
 
-    .line 201
+    .line 202
     const-string v2, "mr_ui_rose"
 
     move-object/from16 v0, p0
@@ -1564,14 +1571,14 @@
 
     move-result v19
 
-    .line 203
+    .line 204
     new-instance v2, Landroid/widget/ScrollView;
 
     move-object/from16 v0, p0
 
     invoke-direct {v2, v0}, Landroid/widget/ScrollView;-><init>(Landroid/content/Context;)V
 
-    .line 204
+    .line 205
     const/4 v4, 0x0
 
     const/4 v5, 0x0
@@ -1586,19 +1593,19 @@
 
     invoke-virtual {v2, v3}, Landroid/widget/ScrollView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 205
+    .line 206
     new-instance v3, Landroid/widget/LinearLayout;
 
     move-object/from16 v0, p0
 
     invoke-direct {v3, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 206
+    .line 207
     const/4 v4, 0x1
 
     invoke-virtual {v3, v4}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 207
+    .line 208
     const/high16 v4, 0x41a00000    # 20.0f
 
     move-object/from16 v0, p0
@@ -1633,7 +1640,7 @@
 
     invoke-virtual {v3, v4, v5, v6, v7}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 208
+    .line 209
     new-instance v4, Landroid/view/ViewGroup$LayoutParams;
 
     const/4 v5, -0x1
@@ -1644,7 +1651,7 @@
 
     invoke-virtual {v2, v3, v4}, Landroid/widget/ScrollView;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 211
+    .line 212
     const/high16 v4, 0x41a00000    # 20.0f
 
     move-object/from16 v0, p0
@@ -1687,36 +1694,36 @@
 
     invoke-static/range {v2 .. v8}, Lcom/mrkeyboard/app/MrScreenIme;->lift(Landroid/widget/ScrollView;Landroid/view/View;IIIII)V
 
-    .line 214
+    .line 215
     new-instance v5, Landroid/widget/LinearLayout;
 
     move-object/from16 v0, p0
 
     invoke-direct {v5, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 215
+    .line 216
     const/4 v4, 0x0
 
     invoke-virtual {v5, v4}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 216
+    .line 217
     const/16 v4, 0x10
 
     invoke-virtual {v5, v4}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 217
+    .line 218
     new-instance v6, Landroid/widget/TextView;
 
     move-object/from16 v0, p0
 
     invoke-direct {v6, v0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 218
-    if-eqz v11, :cond_4
+    .line 219
+    if-eqz v11, :cond_6
 
     const-string v4, "mr_ai_edit_style"
 
-    :goto_3
+    :goto_5
     move-object/from16 v0, p0
 
     invoke-direct {v0, v4}, Lcom/mrkeyboard/app/MrAiStyleActivity;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -1725,22 +1732,22 @@
 
     invoke-virtual {v6, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 219
+    .line 220
     invoke-virtual {v6, v15}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 220
+    .line 221
     const/high16 v4, 0x41c00000    # 24.0f
 
     invoke-virtual {v6, v4}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 221
+    .line 222
     const/4 v4, 0x0
 
     const/4 v7, 0x1
 
     invoke-virtual {v6, v4, v7}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;I)V
 
-    .line 222
+    .line 223
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v7, 0x0
@@ -1753,32 +1760,32 @@
 
     invoke-virtual {v5, v6, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 223
+    .line 224
     new-instance v4, Landroid/widget/TextView;
 
     move-object/from16 v0, p0
 
     invoke-direct {v4, v0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 224
+    .line 225
     const-string v6, "\u2715"
 
     invoke-virtual {v4, v6}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 225
+    .line 226
     invoke-virtual {v4, v15}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 226
+    .line 227
     const/high16 v6, 0x41a00000    # 20.0f
 
     invoke-virtual {v4, v6}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 227
+    .line 228
     const/16 v6, 0x11
 
     invoke-virtual {v4, v6}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 228
+    .line 229
     const/high16 v6, 0x41200000    # 10.0f
 
     move-object/from16 v0, p0
@@ -1813,7 +1820,7 @@
 
     invoke-virtual {v4, v6, v7, v8, v9}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 229
+    .line 230
     new-instance v6, Lcom/mrkeyboard/app/MrAiStyleActivity$Act;
 
     const/4 v7, 0x1
@@ -1824,7 +1831,7 @@
 
     invoke-virtual {v4, v6}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 230
+    .line 231
     new-instance v6, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v7, -0x2
@@ -1835,7 +1842,7 @@
 
     invoke-virtual {v5, v4, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 232
+    .line 233
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v6, -0x1
@@ -1846,24 +1853,24 @@
 
     invoke-virtual {v3, v5, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 236
+    .line 237
     new-instance v4, Landroid/widget/LinearLayout;
 
     move-object/from16 v0, p0
 
     invoke-direct {v4, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 237
+    .line 238
     const/4 v5, 0x0
 
     invoke-virtual {v4, v5}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 238
+    .line 239
     const/16 v5, 0x11
 
     invoke-virtual {v4, v5}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 239
+    .line 240
     const/4 v5, 0x0
 
     const/high16 v6, 0x41900000    # 18.0f
@@ -1886,7 +1893,7 @@
 
     invoke-virtual {v4, v5, v6, v7, v8}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 240
+    .line 241
     new-instance v5, Landroid/widget/TextView;
 
     move-object/from16 v0, p0
@@ -1897,14 +1904,14 @@
 
     iput-object v5, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mCircle:Landroid/widget/TextView;
 
-    .line 241
+    .line 242
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mCircle:Landroid/widget/TextView;
 
     invoke-virtual {v5, v15}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 242
+    .line 243
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mCircle:Landroid/widget/TextView;
@@ -1913,7 +1920,7 @@
 
     invoke-virtual {v5, v6}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 243
+    .line 244
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mCircle:Landroid/widget/TextView;
@@ -1922,7 +1929,7 @@
 
     invoke-virtual {v5, v6}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 244
+    .line 245
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mCircle:Landroid/widget/TextView;
@@ -1939,7 +1946,7 @@
 
     invoke-virtual {v5, v6}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 245
+    .line 246
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mCircle:Landroid/widget/TextView;
@@ -1966,7 +1973,7 @@
 
     invoke-virtual {v4, v5, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 246
+    .line 247
     new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v6, -0x1
@@ -1977,7 +1984,7 @@
 
     invoke-virtual {v3, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 249
+    .line 250
     const-string v4, "mr_ai_style_name_hint"
 
     move-object/from16 v0, p0
@@ -2006,7 +2013,7 @@
 
     iput-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mName:Landroid/widget/EditText;
 
-    .line 251
+    .line 252
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mName:Landroid/widget/EditText;
@@ -2015,7 +2022,7 @@
 
     invoke-virtual {v4, v5}, Landroid/widget/EditText;->setSingleLine(Z)V
 
-    .line 252
+    .line 253
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mName:Landroid/widget/EditText;
@@ -2030,7 +2037,7 @@
 
     invoke-virtual {v3, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 254
+    .line 255
     const-string v4, "mr_ai_style_instr_hint"
 
     move-object/from16 v0, p0
@@ -2059,7 +2066,7 @@
 
     iput-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mInstr:Landroid/widget/EditText;
 
-    .line 257
+    .line 258
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mInstr:Landroid/widget/EditText;
@@ -2068,7 +2075,7 @@
 
     invoke-virtual {v4, v5}, Landroid/widget/EditText;->setMinLines(I)V
 
-    .line 258
+    .line 259
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mInstr:Landroid/widget/EditText;
@@ -2077,7 +2084,7 @@
 
     invoke-virtual {v4, v5}, Landroid/widget/EditText;->setGravity(I)V
 
-    .line 259
+    .line 260
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mInstr:Landroid/widget/EditText;
@@ -2092,14 +2099,14 @@
 
     invoke-virtual {v3, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 261
+    .line 262
     new-instance v4, Landroid/widget/TextView;
 
     move-object/from16 v0, p0
 
     invoke-direct {v4, v0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 262
+    .line 263
     const-string v5, "mr_ai_style_icon"
 
     move-object/from16 v0, p0
@@ -2110,17 +2117,17 @@
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 263
+    .line 264
     move/from16 v0, v16
 
     invoke-virtual {v4, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 264
+    .line 265
     const/high16 v5, 0x41500000    # 13.0f
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 265
+    .line 266
     new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v6, -0x1
@@ -2129,7 +2136,7 @@
 
     invoke-direct {v5, v6, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 267
+    .line 268
     const/high16 v6, 0x40800000    # 4.0f
 
     move-object/from16 v0, p0
@@ -2164,40 +2171,40 @@
 
     invoke-virtual {v5, v6, v7, v8, v9}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
 
-    .line 268
+    .line 269
     invoke-virtual {v3, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 270
+    .line 271
     const/4 v4, 0x0
 
-    :goto_4
+    :goto_6
     mul-int/lit8 v5, v4, 0x8
 
     sget-object v6, Lcom/mrkeyboard/app/MrAiStyleActivity;->EMOJIS:[Ljava/lang/String;
 
     array-length v6, v6
 
-    if-ge v5, v6, :cond_6
+    if-ge v5, v6, :cond_8
 
-    .line 271
+    .line 272
     new-instance v6, Landroid/widget/LinearLayout;
 
     move-object/from16 v0, p0
 
     invoke-direct {v6, v0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 272
+    .line 273
     const/4 v5, 0x0
 
     invoke-virtual {v6, v5}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 273
+    .line 274
     const/4 v5, 0x0
 
-    :goto_5
+    :goto_7
     const/16 v7, 0x8
 
-    if-ge v5, v7, :cond_5
+    if-ge v5, v7, :cond_7
 
     mul-int/lit8 v7, v4, 0x8
 
@@ -2207,38 +2214,38 @@
 
     array-length v8, v8
 
-    if-ge v7, v8, :cond_5
+    if-ge v7, v8, :cond_7
 
-    .line 274
+    .line 275
     mul-int/lit8 v7, v4, 0x8
 
     add-int/2addr v7, v5
 
-    .line 275
+    .line 276
     new-instance v8, Landroid/widget/TextView;
 
     move-object/from16 v0, p0
 
     invoke-direct {v8, v0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 276
+    .line 277
     sget-object v9, Lcom/mrkeyboard/app/MrAiStyleActivity;->EMOJIS:[Ljava/lang/String;
 
     aget-object v9, v9, v7
 
     invoke-virtual {v8, v9}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 277
+    .line 278
     const/high16 v9, 0x41b00000    # 22.0f
 
     invoke-virtual {v8, v9}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 278
+    .line 279
     const/16 v9, 0x11
 
     invoke-virtual {v8, v9}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 279
+    .line 280
     new-instance v9, Lcom/mrkeyboard/app/MrAiStyleActivity$Act;
 
     add-int/lit8 v7, v7, 0x64
@@ -2249,14 +2256,14 @@
 
     invoke-virtual {v8, v9}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 280
+    .line 281
     move-object/from16 v0, p0
 
     iget-object v7, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mEmojiViews:Ljava/util/ArrayList;
 
     invoke-virtual {v7, v8}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 281
+    .line 282
     new-instance v7, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v9, 0x0
@@ -2275,10 +2282,10 @@
 
     invoke-virtual {v6, v8, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 273
+    .line 274
     add-int/lit8 v5, v5, 0x1
 
-    goto :goto_5
+    goto :goto_7
 
     .line 187
     :cond_1
@@ -2320,21 +2327,41 @@
 
     goto/16 :goto_2
 
-    .line 218
+    .line 195
     :cond_4
-    const-string v4, "mr_ai_new_style"
+    const-string v2, "mr_ui_bg"
+
+    move-object/from16 v0, p0
+
+    invoke-direct {v0, v2}, Lcom/mrkeyboard/app/MrAiStyleActivity;->color(Ljava/lang/String;)I
+
+    move-result v2
+
+    move v3, v2
 
     goto/16 :goto_3
 
-    .line 283
+    .line 196
     :cond_5
+    const-string v2, "mr_ui_card"
+
+    goto/16 :goto_4
+
+    .line 219
+    :cond_6
+    const-string v4, "mr_ai_new_style"
+
+    goto/16 :goto_5
+
+    .line 284
+    :cond_7
     new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v7, -0x1
 
     const/high16 v8, 0x42300000    # 44.0f
 
-    .line 284
+    .line 285
     move-object/from16 v0, p0
 
     invoke-direct {v0, v8}, Lcom/mrkeyboard/app/MrAiStyleActivity;->dp(F)I
@@ -2343,28 +2370,28 @@
 
     invoke-direct {v5, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 283
+    .line 284
     invoke-virtual {v3, v6, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 270
+    .line 271
     add-int/lit8 v4, v4, 0x1
 
-    goto/16 :goto_4
+    goto/16 :goto_6
 
-    .line 287
-    :cond_6
+    .line 288
+    :cond_8
     new-instance v5, Landroid/widget/TextView;
 
     move-object/from16 v0, p0
 
     invoke-direct {v5, v0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 288
-    if-eqz v11, :cond_9
+    .line 289
+    if-eqz v11, :cond_b
 
     const-string v4, "mr_ai_style_save_btn"
 
-    :goto_6
+    :goto_8
     move-object/from16 v0, p0
 
     invoke-direct {v0, v4}, Lcom/mrkeyboard/app/MrAiStyleActivity;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -2373,29 +2400,29 @@
 
     invoke-virtual {v5, v4}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 289
+    .line 290
     move/from16 v0, v18
 
     invoke-virtual {v5, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 290
+    .line 291
     const/high16 v4, 0x41800000    # 16.0f
 
     invoke-virtual {v5, v4}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 291
+    .line 292
     const/4 v4, 0x0
 
     const/4 v6, 0x1
 
     invoke-virtual {v5, v4, v6}, Landroid/widget/TextView;->setTypeface(Landroid/graphics/Typeface;I)V
 
-    .line 292
+    .line 293
     const/16 v4, 0x11
 
     invoke-virtual {v5, v4}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 293
+    .line 294
     const/4 v4, 0x0
 
     const/high16 v6, 0x41d00000    # 26.0f
@@ -2412,7 +2439,7 @@
 
     invoke-virtual {v5, v4}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 294
+    .line 295
     new-instance v4, Lcom/mrkeyboard/app/MrAiStyleActivity$Act;
 
     const/4 v6, 0x2
@@ -2423,14 +2450,14 @@
 
     invoke-virtual {v5, v4}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 295
+    .line 296
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v6, -0x1
 
     const/high16 v7, 0x42500000    # 52.0f
 
-    .line 296
+    .line 297
     move-object/from16 v0, p0
 
     invoke-direct {v0, v7}, Lcom/mrkeyboard/app/MrAiStyleActivity;->dp(F)I
@@ -2439,7 +2466,7 @@
 
     invoke-direct {v4, v6, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 297
+    .line 298
     const/4 v6, 0x0
 
     const/high16 v7, 0x41b00000    # 22.0f
@@ -2456,13 +2483,13 @@
 
     invoke-virtual {v4, v6, v7, v8, v9}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
 
-    .line 298
+    .line 299
     invoke-virtual {v3, v5, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 300
-    if-eqz v11, :cond_7
-
     .line 301
+    if-eqz v11, :cond_9
+
+    .line 302
     new-instance v4, Landroid/widget/TextView;
 
     move-object/from16 v0, p0
@@ -2473,7 +2500,7 @@
 
     iput-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mDelete:Landroid/widget/TextView;
 
-    .line 302
+    .line 303
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mDelete:Landroid/widget/TextView;
@@ -2488,7 +2515,7 @@
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 303
+    .line 304
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mDelete:Landroid/widget/TextView;
@@ -2497,7 +2524,7 @@
 
     invoke-virtual {v4, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 304
+    .line 305
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mDelete:Landroid/widget/TextView;
@@ -2506,7 +2533,7 @@
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 305
+    .line 306
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mDelete:Landroid/widget/TextView;
@@ -2515,7 +2542,7 @@
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 306
+    .line 307
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mDelete:Landroid/widget/TextView;
@@ -2554,7 +2581,7 @@
 
     invoke-virtual {v4, v5, v6, v7, v8}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 307
+    .line 308
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mDelete:Landroid/widget/TextView;
@@ -2569,7 +2596,7 @@
 
     invoke-virtual {v4, v5}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 308
+    .line 309
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v5, -0x1
@@ -2578,7 +2605,7 @@
 
     invoke-direct {v4, v5, v6}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 310
+    .line 311
     const/4 v5, 0x0
 
     const/high16 v6, 0x41200000    # 10.0f
@@ -2595,18 +2622,18 @@
 
     invoke-virtual {v4, v5, v6, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
 
-    .line 311
+    .line 312
     move-object/from16 v0, p0
 
     iget-object v5, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mDelete:Landroid/widget/TextView;
 
     invoke-virtual {v3, v5, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 314
-    :cond_7
-    if-eqz v11, :cond_8
-
     .line 315
+    :cond_9
+    if-eqz v11, :cond_a
+
+    .line 316
     move-object/from16 v0, p0
 
     iget v3, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mIndex:I
@@ -2617,7 +2644,7 @@
 
     check-cast v3, [Ljava/lang/String;
 
-    .line 316
+    .line 317
     const/4 v4, 0x0
 
     aget-object v4, v3, v4
@@ -2626,7 +2653,7 @@
 
     iput-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mEmoji:Ljava/lang/String;
 
-    .line 317
+    .line 318
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mName:Landroid/widget/EditText;
@@ -2637,7 +2664,7 @@
 
     invoke-virtual {v4, v5}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 318
+    .line 319
     move-object/from16 v0, p0
 
     iget-object v4, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mInstr:Landroid/widget/EditText;
@@ -2648,19 +2675,19 @@
 
     invoke-virtual {v4, v3}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 320
-    :cond_8
+    .line 321
+    :cond_a
     invoke-direct/range {p0 .. p1}, Lcom/mrkeyboard/app/MrAiStyleActivity;->restoreDraft(Landroid/os/Bundle;)V
 
-    .line 321
+    .line 322
     invoke-direct/range {p0 .. p0}, Lcom/mrkeyboard/app/MrAiStyleActivity;->refreshEmoji()V
 
-    .line 322
+    .line 323
     move-object/from16 v0, p0
 
     invoke-virtual {v0, v2}, Lcom/mrkeyboard/app/MrAiStyleActivity;->setContentView(Landroid/view/View;)V
 
-    .line 323
+    .line 324
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/mrkeyboard/app/MrAiStyleActivity;->mName:Landroid/widget/EditText;
@@ -2673,14 +2700,14 @@
 
     invoke-static {v0, v2, v3}, Lcom/mrkeyboard/app/MrScreenIme;->restore(Landroid/os/Bundle;Landroid/widget/EditText;Landroid/widget/EditText;)V
 
-    .line 324
+    .line 325
     return-void
 
-    .line 288
-    :cond_9
+    .line 289
+    :cond_b
     const-string v4, "mr_ai_style_create_btn"
 
-    goto/16 :goto_6
+    goto/16 :goto_8
 .end method
 
 .method protected onNewIntent(Landroid/content/Intent;)V

@@ -162,7 +162,20 @@
 
     .line 371
     :cond_3
-    const-string v0, "mr_sheet_ed_card_bg"
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$12;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrMatrix;->wanted(Landroid/app/Activity;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_4
+
+    const-string v0, "mr_ui_card_shape_glass"
+
+    goto :goto_2
+
+    :cond_4
+    const-string v0, "mr_ui_card_shape"
 
     goto :goto_2
 .end method

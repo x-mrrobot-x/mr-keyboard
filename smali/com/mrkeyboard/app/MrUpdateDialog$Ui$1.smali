@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 264
+    .line 265
     iput-object p1, p0, Lcom/mrkeyboard/app/MrUpdateDialog$Ui$1;->this$0:Lcom/mrkeyboard/app/MrUpdateDialog$Ui;
 
     iput p2, p0, Lcom/mrkeyboard/app/MrUpdateDialog$Ui$1;->val$state:I
@@ -53,7 +53,7 @@
     .locals 3
 
     .prologue
-    .line 266
+    .line 267
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateDialog$Ui$1;->this$0:Lcom/mrkeyboard/app/MrUpdateDialog$Ui;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrUpdateDialog$Ui;->access$400(Lcom/mrkeyboard/app/MrUpdateDialog$Ui;)Z
@@ -70,7 +70,7 @@
 
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrUpdateDialog;->setState(IILjava/lang/String;)V
 
-    .line 267
+    .line 268
     :cond_0
     return-void
 .end method

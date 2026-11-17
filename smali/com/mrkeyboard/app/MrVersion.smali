@@ -302,7 +302,7 @@
 
     const/4 v4, 0x0
 
-    .line 182
+    .line 183
     const-string v0, "upd_title"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -311,7 +311,7 @@
 
     check-cast v0, Landroid/widget/TextView;
 
-    .line 183
+    .line 184
     const-string v1, "upd_sub"
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -320,14 +320,14 @@
 
     check-cast v1, Landroid/widget/TextView;
 
-    .line 184
+    .line 185
     const-string v2, "upd_notes"
 
     invoke-virtual {p1, v2}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v3
 
-    .line 185
+    .line 186
     const-string v2, "upd_later"
 
     invoke-virtual {p1, v2}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -336,35 +336,35 @@
 
     check-cast v2, Landroid/widget/TextView;
 
-    .line 186
+    .line 187
     const-string v5, "upd_install"
 
     invoke-virtual {p1, v5}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v5
 
-    .line 187
+    .line 188
     const-string v6, "upd_github"
 
     invoke-virtual {p1, v6}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v6
 
-    .line 188
+    .line 189
     const-string v7, "upd_box"
 
     invoke-virtual {p1, v7}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v7
 
-    .line 189
+    .line 190
     const-string v8, "upd_error"
 
     invoke-virtual {p1, v8}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v8
 
-    .line 190
+    .line 191
     if-eqz v0, :cond_0
 
     if-eqz v1, :cond_0
@@ -386,11 +386,11 @@
     :cond_0
     move v0, v4
 
-    .line 206
+    .line 207
     :goto_0
     return v0
 
-    .line 192
+    .line 193
     :cond_1
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
@@ -402,7 +402,7 @@
 
     iget-object v9, v9, Landroid/content/res/Configuration;->locale:Ljava/util/Locale;
 
-    .line 193
+    .line 194
     const-string v10, "mr_version_title"
 
     new-array v11, v4, [Ljava/lang/Object;
@@ -413,7 +413,7 @@
 
     invoke-virtual {v0, v10}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 194
+    .line 195
     invoke-static {p0}, Lcom/mrkeyboard/app/MrUpdate;->appName(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
@@ -422,7 +422,7 @@
 
     move-object v0, v3
 
-    .line 195
+    .line 196
     check-cast v0, Landroid/widget/LinearLayout;
 
     invoke-static {p0, v9}, Lcom/mrkeyboard/app/MrVersion;->notes(Landroid/content/Context;Ljava/util/Locale;)Ljava/lang/String;
@@ -439,19 +439,19 @@
 
     invoke-static {v0, v1, v3}, Lcom/mrkeyboard/app/MrNotesText;->fill(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 196
+    .line 197
     invoke-virtual {v5, v12}, Landroid/view/View;->setVisibility(I)V
 
-    .line 197
+    .line 198
     invoke-virtual {v6, v12}, Landroid/view/View;->setVisibility(I)V
 
-    .line 198
+    .line 199
     invoke-virtual {v7, v12}, Landroid/view/View;->setVisibility(I)V
 
-    .line 199
+    .line 200
     invoke-virtual {v8, v12}, Landroid/view/View;->setVisibility(I)V
 
-    .line 200
+    .line 201
     const-string v0, "mr_version_close"
 
     new-array v1, v4, [Ljava/lang/Object;
@@ -462,14 +462,14 @@
 
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 201
+    .line 202
     new-instance v0, Lcom/mrkeyboard/app/MrVersion$1;
 
     invoke-direct {v0}, Lcom/mrkeyboard/app/MrVersion$1;-><init>()V
 
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 206
+    .line 207
     const/4 v0, 0x1
 
     goto :goto_0
@@ -779,7 +779,7 @@
 
     if-eqz v0, :cond_1
 
-    .line 178
+    .line 179
     :cond_0
     :goto_0
     return-void
@@ -811,23 +811,26 @@
 
     const v0, 0x7f0d00a1
 
-    move v2, v0
-
     .line 164
-    :goto_1
+    :cond_2
+    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrMatrix;->dialogTheme(Landroid/app/Activity;I)I
+
+    move-result v2
+
+    .line 165
     new-instance v0, Landroid/app/Dialog;
 
     invoke-direct {v0, p0, v2}, Landroid/app/Dialog;-><init>(Landroid/content/Context;I)V
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_1
 
-    .line 165
+    .line 166
     const/4 v1, 0x1
 
     :try_start_1
     invoke-virtual {v0, v1}, Landroid/app/Dialog;->requestWindowFeature(I)Z
 
-    .line 166
+    .line 167
     invoke-virtual {p0}, Landroid/app/Activity;->getResources()Landroid/content/res/Resources;
 
     move-result-object v1
@@ -844,10 +847,10 @@
 
     move-result v1
 
-    .line 167
+    .line 168
     if-eqz v1, :cond_0
 
-    .line 168
+    .line 169
     invoke-virtual {v0}, Landroid/app/Dialog;->getContext()Landroid/content/Context;
 
     move-result-object v2
@@ -866,35 +869,35 @@
 
     move-result-object v1
 
-    .line 169
+    .line 170
     invoke-static {p0, v1}, Lcom/mrkeyboard/app/MrVersion;->fill(Landroid/app/Activity;Landroid/view/View;)Z
 
     move-result v2
 
     if-eqz v2, :cond_0
 
-    .line 170
+    .line 171
     invoke-virtual {v0, v1}, Landroid/app/Dialog;->setContentView(Landroid/view/View;)V
 
-    .line 171
+    .line 172
     sput-object v0, Lcom/mrkeyboard/app/MrVersion;->sDialog:Landroid/app/Dialog;
 
-    .line 172
+    .line 173
     sput-object p0, Lcom/mrkeyboard/app/MrVersion;->sOwner:Landroid/app/Activity;
 
-    .line 173
+    .line 174
     invoke-virtual {v0}, Landroid/app/Dialog;->show()V
     :try_end_1
     .catch Ljava/lang/RuntimeException; {:try_start_1 .. :try_end_1} :catch_0
 
     goto :goto_0
 
-    .line 174
+    .line 175
     :catch_0
     move-exception v1
 
-    .line 176
-    :goto_2
+    .line 177
+    :goto_1
     if-eqz v0, :cond_0
 
     sget-object v1, Lcom/mrkeyboard/app/MrVersion;->sDialog:Landroid/app/Dialog;
@@ -905,16 +908,11 @@
 
     goto :goto_0
 
-    .line 174
+    .line 175
     :catch_1
     move-exception v0
 
     move-object v0, v1
-
-    goto :goto_2
-
-    :cond_2
-    move v2, v0
 
     goto :goto_1
 .end method

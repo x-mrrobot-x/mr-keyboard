@@ -191,8 +191,9 @@ public class MrAiStyleActivity extends Activity {
         // The draft only counts if it was saved for this same style.
         final Bundle draft = state != null && state.getInt(S_INDEX, -2) == mIndex ? state : null;
 
-        int bg = color("mr_ui_bg");
-        int card = color("mr_ui_card");
+        boolean glass = MrMatrix.wanted(this); // the Matrix effect: clear background, cards a little see-through
+        int bg = glass ? 0 : color("mr_ui_bg");
+        int card = color(glass ? "mr_ui_card_glass" : "mr_ui_card");
         int stroke = color("mr_ui_stroke_strong");
         int text = color("mr_ui_text");
         int text2 = color("mr_ui_text2");

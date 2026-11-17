@@ -28,16 +28,16 @@
     .locals 0
 
     .prologue
-    .line 250
+    .line 251
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 251
+    .line 252
     iput-object p1, p0, Lcom/mrkeyboard/app/MrUpdateDialog$Ui;->mActivity:Landroid/app/Activity;
 
-    .line 252
+    .line 253
     iput-wide p2, p0, Lcom/mrkeyboard/app/MrUpdateDialog$Ui;->mCode:J
 
-    .line 253
+    .line 254
     return-void
 .end method
 
@@ -45,7 +45,7 @@
     .locals 1
 
     .prologue
-    .line 246
+    .line 247
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrUpdateDialog$Ui;->mine()Z
 
     move-result v0
@@ -57,7 +57,7 @@
     .locals 1
 
     .prologue
-    .line 246
+    .line 247
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateDialog$Ui;->mActivity:Landroid/app/Activity;
 
     return-object v0
@@ -67,7 +67,7 @@
     .locals 4
 
     .prologue
-    .line 260
+    .line 261
     invoke-static {}, Lcom/mrkeyboard/app/MrUpdateDialog;->access$100()Landroid/app/Activity;
 
     move-result-object v0
@@ -107,12 +107,12 @@
     .locals 1
 
     .prologue
-    .line 256
+    .line 257
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdateDialog$Ui;->mActivity:Landroid/app/Activity;
 
     invoke-virtual {v0, p1}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 257
+    .line 258
     return-void
 .end method
 
@@ -122,14 +122,14 @@
     .locals 1
 
     .prologue
-    .line 280
+    .line 281
     new-instance v0, Lcom/mrkeyboard/app/MrUpdateDialog$Ui$3;
 
     invoke-direct {v0, p0}, Lcom/mrkeyboard/app/MrUpdateDialog$Ui$3;-><init>(Lcom/mrkeyboard/app/MrUpdateDialog$Ui;)V
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrUpdateDialog$Ui;->post(Ljava/lang/Runnable;)V
 
-    .line 285
+    .line 286
     return-void
 .end method
 
@@ -137,14 +137,14 @@
     .locals 1
 
     .prologue
-    .line 272
+    .line 273
     new-instance v0, Lcom/mrkeyboard/app/MrUpdateDialog$Ui$2;
 
     invoke-direct {v0, p0, p1}, Lcom/mrkeyboard/app/MrUpdateDialog$Ui$2;-><init>(Lcom/mrkeyboard/app/MrUpdateDialog$Ui;Lcom/mrkeyboard/app/MrUpdateInstall$Failure;)V
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrUpdateDialog$Ui;->post(Ljava/lang/Runnable;)V
 
-    .line 277
+    .line 278
     return-void
 .end method
 
@@ -152,13 +152,13 @@
     .locals 1
 
     .prologue
-    .line 264
+    .line 265
     new-instance v0, Lcom/mrkeyboard/app/MrUpdateDialog$Ui$1;
 
     invoke-direct {v0, p0, p1, p2}, Lcom/mrkeyboard/app/MrUpdateDialog$Ui$1;-><init>(Lcom/mrkeyboard/app/MrUpdateDialog$Ui;II)V
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrUpdateDialog$Ui;->post(Ljava/lang/Runnable;)V
 
-    .line 269
+    .line 270
     return-void
 .end method
