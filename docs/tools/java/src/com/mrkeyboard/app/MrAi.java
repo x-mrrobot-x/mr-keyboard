@@ -253,8 +253,8 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
             return rounded(uiColor("mr_ui_cyan_soft"),
                     uiColor("mr_ui_cyan_line"), 18f);
         }
-        return rounded(uiColor("mr_ui_card"),
-                uiColor("mr_ui_stroke"), 18f);
+        return rounded(uiColor("mr_ui_raised"),
+                uiColor("mr_ui_stroke_strong"), 18f);
     }
 
     private static GradientDrawable styleChipBackground(boolean selected) {
@@ -262,19 +262,19 @@ public final class MrAi implements View.OnClickListener, View.OnLongClickListene
             return rounded(uiColor("mr_ui_cyan_soft"),
                     uiColor("mr_ui_cyan_line"), 12f);
         }
-        return rounded(uiColor("mr_ui_field"),
-                uiColor("mr_ui_field_line"), 12f);
+        return rounded(uiColor("mr_ui_raised"),
+                uiColor("mr_ui_stroke_strong"), 12f);
     }
 
     private static GradientDrawable emojiCheckBackground(boolean checked) {
-        int fill = uiColor(checked ? "mr_ui_cyan_soft" : "mr_ui_field");
-        int stroke = uiColor(checked ? "mr_ui_cyan" : "mr_ui_field_line");
+        int fill = uiColor(checked ? "mr_ui_cyan_soft" : "mr_ui_raised");
+        int stroke = uiColor(checked ? "mr_ui_cyan" : "mr_ui_stroke_strong");
         return rounded(fill, stroke, 5f);
     }
 
     private static GradientDrawable fieldBackground() {
-        return rounded(uiColor("mr_ui_field"),
-                uiColor("mr_ui_field_line"), 16f);
+        return rounded(uiColor("mr_ui_raised"),
+                uiColor("mr_ui_stroke_strong"), 16f);
     }
 
     /** Invalidates old jobs and releases all the Views when the dialog closes. */

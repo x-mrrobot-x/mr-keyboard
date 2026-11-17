@@ -1086,13 +1086,13 @@
     return-object v0
 
     :cond_0
-    const-string v0, "mr_ui_card"
+    const-string v0, "mr_ui_raised"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
 
     move-result v0
 
-    const-string v1, "mr_ui_stroke"
+    const-string v1, "mr_ui_stroke_strong"
 
     .line 257
     invoke-static {v1}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
@@ -2059,13 +2059,13 @@
 
     .line 270
     :cond_0
-    const-string v0, "mr_ui_field"
+    const-string v0, "mr_ui_raised"
 
     goto :goto_0
 
     .line 271
     :cond_1
-    const-string v0, "mr_ui_field_line"
+    const-string v0, "mr_ui_stroke_strong"
 
     goto :goto_1
 .end method
@@ -2239,13 +2239,13 @@
 
     .prologue
     .line 276
-    const-string v0, "mr_ui_field"
+    const-string v0, "mr_ui_raised"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
 
     move-result v0
 
-    const-string v1, "mr_ui_field_line"
+    const-string v1, "mr_ui_stroke_strong"
 
     .line 277
     invoke-static {v1}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
@@ -4356,13 +4356,13 @@
     return-object v0
 
     :cond_0
-    const-string v0, "mr_ui_field"
+    const-string v0, "mr_ui_raised"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I
 
     move-result v0
 
-    const-string v1, "mr_ui_field_line"
+    const-string v1, "mr_ui_stroke_strong"
 
     .line 266
     invoke-static {v1}, Lcom/mrkeyboard/app/MrAi;->uiColor(Ljava/lang/String;)I

@@ -332,10 +332,9 @@ public class MatrixTest {
     static class Res extends Resources {
         public int getIdentifier(String name, String defType, String defPackage) {
             if (defType.equals("style")) return name.equals("MrMatrixGlass") ? GLASS_ID : name.equals("Theme.MrKeyboard.Dialog.Glass") ? DIALOG_GLASS_ID : 0;
-            return name.equals("mr_ui_bg") ? 1 : name.equals("mr_accent") ? 2 : name.equals("mr_ui_card") ? 5 : name.equals("mr_ui_card_glass") ? 6
-                    : name.equals("mr_ui_glass_top") ? 7 : name.equals("mr_ui_glass_bottom") ? 8 : name.equals("mr_ui_glass_edge") ? 9 : 0;
+            return name.equals("mr_ui_bg") ? 1 : name.equals("mr_accent") ? 2 : name.equals("mr_ui_card") ? 5 : name.equals("mr_ui_card_glass") ? 6 : 0;
         }
-        public int getColor(int id) { return id == 1 ? BG : id == 2 ? ACCENT : id == 5 ? CARD : id == 6 ? CARD_GLASS : id == 7 ? TOP : id == 8 ? BOTTOM : id == 9 ? EDGE : 0; }
+        public int getColor(int id) { return id == 1 ? BG : id == 2 ? ACCENT : id == 5 ? CARD : id == 6 ? CARD_GLASS : 0; }
         public DisplayMetrics getDisplayMetrics() {
             DisplayMetrics m = new DisplayMetrics();
             m.density = 2f;
@@ -346,10 +345,7 @@ public class MatrixTest {
     static final int GLASS_ID = 3;
     static final int DIALOG_GLASS_ID = 4;
     static final int CARD = 0xff0d1626;
-    static final int CARD_GLASS = 0xb3295082;
-    static final int TOP = 0xbe345c8e;
-    static final int BOTTOM = 0xad1e4476;
-    static final int EDGE = 0x59a8d8ff;
+    static final int CARD_GLASS = 0xc00d1626;
 
     /** Resources that have the colours but not the see-through style. */
     static class ResNoGlass extends Res {
@@ -527,18 +523,6 @@ public class MatrixTest {
         MrKit clear = new MrKit(new Plain());
         check("with the effect on: the background is clear (the window shows the rain) and the card a little see-through", clear.glass && clear.bg == 0 && clear.card == CARD_GLASS);
         check("... the same for a helper window: it is never glass", !new MrKit(new ShotPerm()).glass);
-        android.graphics.drawable.GradientDrawable g = clear.round(clear.card, 0x11223344, 14, false);
-        check("a card with the effect is glass: a gradient from the top colour to the bottom one, with the light edge instead of its line",
-                g.stubColors != null && g.stubColors.length == 2 && g.stubColors[0] == TOP && g.stubColors[1] == BOTTOM
-                && g.stubOrientation == android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM && g.stubStrokeColor == EDGE);
-        android.graphics.drawable.GradientDrawable flat = clear.round(0xff112233, 0x11223344, 14, false);
-        android.graphics.drawable.GradientDrawable oval = clear.round(clear.card, 0x11223344, 0, true);
-        android.graphics.drawable.GradientDrawable noLine = clear.round(clear.card, 0, 14, false);
-        check("anything that is not a card (another colour, a circle, a fill without a line: the main buttons) keeps one flat colour and its line",
-                flat.stubColors == null && flat.stubColor == 0xff112233 && flat.stubStrokeColor == 0x11223344 && oval.stubColors == null && oval.stubColor == CARD_GLASS && noLine.stubColors == null);
-        MrKit plain = new MrKit(offScreen());
-        android.graphics.drawable.GradientDrawable p = plain.round(plain.card, 0x11223344, 14, false);
-        check("with the effect off the cards are as they were: one colour (the card) and their own line", p.stubColors == null && p.stubColor == CARD && p.stubStrokeColor == 0x11223344);
         PreferenceManager.stubDefault = null;
     }
 
@@ -585,11 +569,6 @@ public class MatrixTest {
         return i < 0 ? -1 : (int) Long.parseLong(colors.substring(colors.indexOf('#', i) + 1, colors.indexOf('<', i + 20)), 16);
     }
 
-    static int red(int c) { return (c >> 16) & 0xff; }
-    static int blue(int c) { return c & 0xff; }
-    /** The lightness of a colour (the sum of the channels: enough to tell lighter from darker). */
-    static int lum(int c) { return ((c >> 16) & 0xff) + ((c >> 8) & 0xff) + (c & 0xff); }
-
     static void files() {
         String adv = file("res/xml/prefs_advanced.xml");
         check("the setting is in the Advanced screen, a checkbox, stored, off by default", adv.contains("android:key=\"pref_ui_matrix\"") && adv.contains("android:defaultValue=\"false\" android:summaryOn=\"@string/mr_ui_matrix_on\""));
@@ -625,43 +604,30 @@ public class MatrixTest {
                 && glassStyle.contains("@drawable/mr_ui_card_ripple_glass") && glassStyle.contains("@drawable/mr_ui_card_shape_glass") && glassStyle.contains("@drawable/mr_ui_hero_bg_glass"));
         check("the home screen has the theme of the settings screens as parent (it gets the same attributes)", theme.contains("<style name=\"Theme.MrKeyboard.Main\" parent=\"@style/Theme.MrKeyboard.Settings\">"));
         String colors = file("res/values/mr_colors.xml");
-        int cardArgb = argb(colors, "mr_ui_card");
-        int top = argb(colors, "mr_ui_glass_top");
-        int bottom = argb(colors, "mr_ui_glass_bottom");
-        int mid = argb(colors, "mr_ui_card_glass");
-        int sTop = argb(colors, "mr_ui_glass_sunken_top");
-        int sBottom = argb(colors, "mr_ui_glass_sunken_bottom");
-        int edge = argb(colors, "mr_ui_glass_edge");
-        int alpha = mid >>> 24;
-        boolean alphas = true;
-        for (int c : new int[] {top, bottom, mid, sTop, sBottom}) if ((c >>> 24) < 153 || (c >>> 24) > 217) alphas = false;
-        check("the glass colours are a little see-through (alpha between 60% and 85%: " + (top >>> 24) + " at the top, " + (bottom >>> 24) + " at the bottom): the letters show, the text stays readable", alphas);
-        check("the glass is lighter at the top than at the bottom (the sheen), the fixed cards too, and the middle colour is in between", lum(top) > lum(bottom) && lum(sTop) > lum(sBottom) && lum(top) > lum(mid) && lum(mid) > lum(bottom));
-        check("it is a soft blue, bluer and lighter than the solid card (not the matte dark one) and not too light for the text: the blue is the strongest channel and the top is not too light (the average channel under 150)",
-                blue(top) > 100 && blue(top) > red(top) && blue(bottom) > red(bottom) && lum(bottom) > lum(cardArgb) && lum(top) < 450);
-        check("the edge is a light blue line, faint", (edge >>> 24) > 0x30 && (edge >>> 24) < 0x90 && blue(edge) > 0xc0 && red(edge) > 0x90);
+        int c1 = colors.indexOf("<color name=\"mr_ui_card_glass\">#");
+        int c2 = colors.indexOf("<color name=\"mr_ui_card\">#");
+        int glassArgb = c1 < 0 ? -1 : (int) Long.parseLong(colors.substring(colors.indexOf('#', c1) + 1, colors.indexOf('<', c1 + 20)), 16);
+        int cardArgb = c2 < 0 ? -1 : (int) Long.parseLong(colors.substring(colors.indexOf('#', c2) + 1, colors.indexOf('<', c2 + 20)), 16);
+        int alpha = glassArgb >>> 24;
+        check("the see-through card is the colour of the card with an alpha between 60% and 85% (" + alpha + "/255): the letters show, the text stays readable",
+                c1 >= 0 && c2 >= 0 && (glassArgb & 0xffffff) == (cardArgb & 0xffffff) && alpha >= 153 && alpha <= 217);
+        int sunkenGlass = argb(colors, "mr_ui_sunken_glass");
+        int sunken = argb(colors, "mr_ui_sunken");
+        check("the see-through sunken card (the fixed cards of the sheets) is its colour with the same alpha", (sunkenGlass & 0xffffff) == (sunken & 0xffffff) && (sunkenGlass >>> 24) == alpha);
         int dialogGlass = argb(colors, "mr_ui_dialog_glass");
         int dialogAlpha = dialogGlass >>> 24;
-        check("the dialog is the colour of the card, a little see-through (" + dialogAlpha + "/255) and less than the cards", (dialogGlass & 0xffffff) == (cardArgb & 0xffffff) && dialogAlpha > (top >>> 24) && dialogAlpha >= 204 && dialogAlpha < 255);
+        check("the dialog is the colour of the card, a little see-through (" + dialogAlpha + "/255) and less than the cards", (dialogGlass & 0xffffff) == (cardArgb & 0xffffff) && dialogAlpha > alpha && dialogAlpha >= 204 && dialogAlpha < 255);
         boolean glassFiles = true;
-        for (String[] p : new String[][] {{"mr_ui_card_ripple", "16"}, {"mr_ui_card_shape", "16"}, {"mr_sheet_fixed_bg", "16"}}) {
+        String[][] pairs = {{"mr_ui_card_ripple", "mr_ui_card", "mr_ui_card_glass"}, {"mr_ui_card_shape", "mr_ui_card", "mr_ui_card_glass"},
+                {"mr_ui_hero_bg", "mr_ui_card", "mr_ui_card_glass"}, {"mr_sheet_fixed_bg", "mr_ui_sunken", "mr_ui_sunken_glass"},
+                {"mr_ui_dialog_bg", "mr_ui_card", "mr_ui_dialog_glass"}};
+        for (String[] p : pairs) {
             String d = file("res/drawable/" + p[0] + "_glass.xml");
             String solid = file("res/drawable/" + p[0] + ".xml");
-            boolean sunken = p[0].equals("mr_sheet_fixed_bg");
-            String from = sunken ? "mr_ui_glass_sunken_top" : "mr_ui_glass_top";
-            String to = sunken ? "mr_ui_glass_sunken_bottom" : "mr_ui_glass_bottom";
-            if (!d.contains("<gradient android:angle=\"270\" android:startColor=\"@color/" + from + "\" android:endColor=\"@color/" + to + "\" />")) glassFiles = false;
-            if (!d.contains("<stroke android:width=\"1dp\" android:color=\"@color/mr_ui_glass_edge\" />") || d.contains("<solid android:color=\"@color/mr_ui")) glassFiles = false;
-            if (!d.contains("<corners android:radius=\"" + p[1] + "dp\" />") || !solid.contains("<corners android:radius=\"" + p[1] + "dp\" />")) glassFiles = false;
-            if (solid.contains("<ripple") != d.contains("<ripple") || (solid.contains("@android:id/mask") && !d.contains("@android:id/mask"))) glassFiles = false;
+            if (solid.length() == 0 || !solid.contains("@color/" + p[1] + "\"") || !d.contains("@color/" + p[2] + "\"")) glassFiles = false;
+            if (!d.replace("@color/" + p[2] + "\"", "@color/" + p[1] + "\"").equals(solid)) glassFiles = false;
         }
-        check("each glass drawable is its solid one with a sheen from the top (gradient, 270 degrees) and the light edge: same corners, same ripple and mask", glassFiles);
-        String hero = file("res/drawable/mr_ui_hero_bg_glass.xml");
-        String heroSolid = file("res/drawable/mr_ui_hero_bg.xml");
-        check("the hero card is glass too, with its own line and its glow over it", hero.contains("<gradient android:angle=\"270\" android:startColor=\"@color/mr_ui_glass_top\" android:endColor=\"@color/mr_ui_glass_bottom\" />")
-                && hero.contains("@color/mr_ui_cyan_line") && hero.contains("android:type=\"radial\"") && hero.replace("<gradient android:angle=\"270\" android:startColor=\"@color/mr_ui_glass_top\" android:endColor=\"@color/mr_ui_glass_bottom\" />",
-                "<solid android:color=\"@color/mr_ui_card\" />").equals(heroSolid));
-        check("the dialog background is the solid one with the fill changed", file("res/drawable/mr_ui_dialog_bg_glass.xml").replace("@color/mr_ui_dialog_glass", "@color/mr_ui_card").equals(file("res/drawable/mr_ui_dialog_bg.xml")));
+        check("each see-through drawable is its solid one with only the fill changed (same line, same corners, same ripple)", glassFiles);
         int ds = theme.indexOf("<style name=\"Theme.MrKeyboard.Dialog.Glass\" parent=\"@style/Theme.MrKeyboard.Dialog\">");
         String dialogStyle = ds < 0 ? "" : theme.substring(ds, theme.indexOf("</style>", ds));
         check("the see-through dialog theme only changes the background of the window", dialogStyle.contains("<item name=\"android:windowBackground\">@drawable/mr_ui_dialog_bg_glass</item>") && dialogStyle.split("<item ", -1).length == 2);

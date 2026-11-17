@@ -28,10 +28,6 @@ final class MrKit {
     /** The background of the screen: the colour of the settings, clear with the Matrix effect. */
     final int bg;
     final int card;
-    /** The glass of the cards with the Matrix effect: the colours at the top and at the bottom, and the light edge. */
-    final int cardTop;
-    final int cardBottom;
-    final int edge;
     final int stroke;
     final int text;
     final int text2;
@@ -52,9 +48,6 @@ final class MrKit {
         glass = MrMatrix.wanted(a);
         bg = glass ? 0 : color("mr_ui_bg");
         card = color(glass ? "mr_ui_card_glass" : "mr_ui_card");
-        cardTop = glass ? color("mr_ui_glass_top") : card;
-        cardBottom = glass ? color("mr_ui_glass_bottom") : card;
-        edge = glass ? color("mr_ui_glass_edge") : 0;
         stroke = color("mr_ui_stroke_strong");
         text = color("mr_ui_text");
         text2 = color("mr_ui_text2");
@@ -91,14 +84,8 @@ final class MrKit {
         GradientDrawable d = new GradientDrawable();
         if (oval) d.setShape(GradientDrawable.OVAL);
         else d.setCornerRadius(dp(radiusDp));
-        boolean glassCard = glass && !oval && fill == card && line != 0; // a card with the Matrix effect: glass (a sheen from the top and a light edge)
-        if (glassCard) {
-            d.setOrientation(GradientDrawable.Orientation.TOP_BOTTOM);
-            d.setColors(new int[] {cardTop, cardBottom});
-        } else {
-            d.setColor(fill);
-        }
-        if (line != 0) d.setStroke(Math.max(1, dp(1)), glassCard ? edge : line);
+        d.setColor(fill);
+        if (line != 0) d.setStroke(Math.max(1, dp(1)), line);
         return d;
     }
 

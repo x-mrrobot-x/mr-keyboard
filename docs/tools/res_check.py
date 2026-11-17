@@ -464,6 +464,12 @@ if 'KEY = "pref_ui_matrix"' not in matrix_src or 'getBoolean(KEY, false)' not in
     problems.append('MrMatrix: the key of the setting is not pref_ui_matrix or the default is not false')
 if '"pref_ui_matrix"' not in read_file('docs/tools/java/src/com/mrkeyboard/app/MrReset.java'):
     problems.append('MrReset: pref_ui_matrix is not in the list of the settings that Restore defaults resets')
+# --- AI Editor dialog: the style chips, the result field and the "Emojificar" button and box use the lighter navy (mr_ui_raised) with mr_ui_stroke_strong
+ai_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrAi.java')
+if ai_src.count('"mr_ui_raised"') != 4 or ai_src.count('"mr_ui_stroke_strong"') != 4:
+    problems.append('MrAi: the chips, the result field and the Emojificar button and box (4 places) must use mr_ui_raised with mr_ui_stroke_strong')
+if 'mr_ui_field' in ai_src:
+    problems.append('MrAi: mr_ui_field and mr_ui_field_line were replaced by mr_ui_raised and mr_ui_stroke_strong')
 # The see-through cards: a layout that takes its card or its background from the theme (?attr/mrCard...) must find the attribute in every theme it
 # is inflated under (every screen of the app has Theme.MrKeyboard.Settings or its child), and MrMatrixGlass must replace each one that is used.
 # Only the rows of the settings, the home screen and the sheets use them: the dialogs and the notification layouts are inflated under other themes.
