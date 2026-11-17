@@ -1,5 +1,6 @@
 package com.mrkeyboard.app;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.SystemClock;
 import android.view.inputmethod.EditorInfo;
@@ -28,6 +29,28 @@ public class AiReturnTest {
             if (refuse) throw new IllegalStateException("no editor");
         }
         public android.app.Dialog getWindow() { windowAsks++; return null; }
+    }
+
+    /** The AI settings screen: started by the keyboard or not, the root of its task or not. */
+    static class AiScreen extends MrAiPrefs {
+        final Intent in = new Intent();
+        boolean failToClose;
+        AiScreen(boolean fromKeyboard, boolean root) {
+            if (fromKeyboard) in.putExtra(MrNav.EXTRA_FROM_KEYBOARD, true);
+            stubTaskRoot = root;
+        }
+        public Intent getIntent() { return in; }
+        public void finishAndRemoveTask() {
+            if (failToClose) throw new IllegalStateException("the system refused");
+            super.finishAndRemoveTask();
+        }
+    }
+
+    /** The AI settings screen is open (as MrScreens would have told MrNav) and the person left it for the app that they were typing in. */
+    static AiScreen openSettings(boolean fromKeyboard, boolean root) {
+        AiScreen screen = new AiScreen(fromKeyboard, root);
+        MrNav.opened(screen);
+        return screen;
     }
 
     static EditorInfo editor(String pkg) {
@@ -222,6 +245,71 @@ public class AiReturnTest {
         ime.current = editor("app.a");   // when the keyboard shows there is an editor
         MrAiDialog.onImeWindowShown();
         check("... but the dialog still reopens when the keyboard shows", ime.windowAsks == 1);
+
+        // ---- the settings screen that the keyboard opened does not stay behind when the person is back in the app
+        AiScreen left = openSettings(true, true);
+        leaveToSettings("app.a");
+        backFromSettings();
+        check("the person is not back yet: the screen is still there", left.stubFinishes == 0);
+        MrAiDialog.onImeWindowShown();
+        check("back in the app they were typing in: the dialog reopens and the settings screen is closed with its task (no second window in the recent apps)",
+                ime.windowAsks == 1 && left.stubTaskRemovals == 1 && left.stubFinishes == 1);
+        MrAiDialog.onImeWindowShown();
+        check("... once (the second time the keyboard shows nothing is closed again)", left.stubFinishes == 1);
+        MrNav.gone(left);
+
+        AiScreen inner = openSettings(true, false);
+        leaveToSettings("app.a");
+        backFromSettings();
+        MrAiDialog.onImeWindowShown();
+        check("the settings screen is not the root of its task (another screen is under it): only the screen is finished", inner.stubFinishes == 1 && inner.stubTaskRemovals == 0 && ime.windowAsks == 1);
+        MrNav.gone(inner);
+
+        AiScreen fromHome = openSettings(false, true);
+        leaveToSettings("app.a");
+        backFromSettings();
+        MrAiDialog.onImeWindowShown();
+        check("a settings screen that the home screen opened (not the keyboard) is left alone", fromHome.stubFinishes == 0 && ime.windowAsks == 1);
+        MrNav.gone(fromHome);
+
+        AiScreen ownApp = openSettings(true, true);
+        leaveToSettings("com.mrkeyboard.app");
+        backFromSettings();
+        MrAiDialog.onImeWindowShown();
+        check("the field that the person left was in this app itself: the settings screen is not closed (the keyboard may be typing into it)", ownApp.stubFinishes == 0 && ime.windowAsks == 1);
+        MrNav.gone(ownApp);
+
+        AiScreen withStyle = openSettings(true, true);
+        MrAiStyleActivity.sOpen = new java.lang.ref.WeakReference<MrAiStyleActivity>(new MrAiStyleActivity());
+        leaveToSettings("app.a");
+        backFromSettings();
+        MrAiDialog.onImeWindowShown();
+        check("a style editor is open (it may hold what was typed and not saved): the settings screen stays, the dialog still reopens", withStyle.stubFinishes == 0 && ime.windowAsks == 1);
+        MrAiStyleActivity.sOpen = null;
+        MrNav.gone(withStyle);
+
+        AiScreen refusing = openSettings(true, true);
+        refusing.failToClose = true;
+        leaveToSettings("app.a");
+        backFromSettings();
+        boolean reopened = true;
+        try { MrAiDialog.onImeWindowShown(); } catch (RuntimeException e) { reopened = false; }
+        check("the system refusing to close the settings screen does not stop the dialog from reopening", reopened && ime.windowAsks == 1);
+        MrNav.gone(refusing);
+
+        leaveToSettings("app.a");
+        backFromSettings();
+        boolean nothingOpen = true;
+        try { MrAiDialog.onImeWindowShown(); } catch (RuntimeException e) { nothingOpen = false; }
+        check("no settings screen open (it was closed with Back): the dialog reopens as always", nothingOpen && ime.windowAsks == 1);
+
+        AiScreen other = openSettings(true, true);
+        leaveToSettings("app.a");
+        backFromSettings();
+        MrAiDialog.onInputViewStarted("app.b");
+        MrAiDialog.onImeWindowShown();
+        check("the person went to another app instead: the dialog is dropped and the settings screen is not touched by it", ime.windowAsks == 0 && other.stubFinishes == 0);
+        MrNav.gone(other);
 
         System.out.println(ok + " ok, " + fail + " failures");
         if (fail > 0) System.exit(1);

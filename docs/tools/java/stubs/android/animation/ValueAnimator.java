@@ -26,4 +26,7 @@ public class ValueAnimator {
         if (stubListener != null) stubListener.onAnimationUpdate(this);
     }
     public void cancel() { }
+    /** Not in Android: what the PC tests answer to "are the animations on" (the accessibility setting and the battery saver turn them off). */
+    public static boolean stubAnimatorsEnabled = true;
+    public static boolean areAnimatorsEnabled() { return stubAnimatorsEnabled; }
 }

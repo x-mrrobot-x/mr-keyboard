@@ -532,6 +532,8 @@
 
     invoke-virtual {v0}, Landroid/app/backup/BackupManager;->dataChanged()V
 
+    invoke-static {p0, p2}, Lcom/mrkeyboard/app/MrScreens;->onSetting(Landroid/app/Activity;Ljava/lang/String;)V
+
     const-string v0, "pref_ui_language"
 
     invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z

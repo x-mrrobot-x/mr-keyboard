@@ -47,7 +47,7 @@
     .locals 3
 
     .prologue
-    .line 52
+    .line 53
     const/4 v0, 0x3
 
     new-array v0, v0, [Ljava/lang/String;
@@ -79,10 +79,10 @@
     .locals 1
 
     .prologue
-    .line 42
+    .line 43
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 56
+    .line 57
     new-instance v0, Ljava/util/WeakHashMap;
 
     invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
@@ -98,7 +98,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 80
+    .line 82
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v1
@@ -113,11 +113,11 @@
 
     if-eqz v1, :cond_0
 
-    .line 84
+    .line 86
     :goto_0
     return v0
 
-    .line 82
+    .line 84
     :cond_0
     :try_start_0
     invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
@@ -136,7 +136,7 @@
 
     goto :goto_0
 
-    .line 83
+    .line 85
     :catch_0
     move-exception v1
 
@@ -147,7 +147,7 @@
     .locals 2
 
     .prologue
-    .line 98
+    .line 100
     if-eqz p0, :cond_0
 
     if-eqz p1, :cond_0
@@ -158,12 +158,12 @@
 
     if-ge v0, v1, :cond_1
 
-    .line 101
+    .line 103
     :cond_0
     :goto_0
     return-void
 
-    .line 99
+    .line 101
     :cond_1
     new-instance v0, Lcom/mrkeyboard/app/MrScreens$DialogFit;
 
@@ -171,7 +171,7 @@
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setOnApplyWindowInsetsListener(Landroid/view/View$OnApplyWindowInsetsListener;)V
 
-    .line 100
+    .line 102
     invoke-virtual {p0}, Landroid/view/View;->requestApplyInsets()V
 
     goto :goto_0
@@ -181,14 +181,14 @@
     .locals 1
 
     .prologue
-    .line 60
+    .line 61
     if-nez p0, :cond_0
 
-    .line 62
+    .line 63
     :goto_0
     return-void
 
-    .line 61
+    .line 62
     :cond_0
     new-instance v0, Lcom/mrkeyboard/app/MrScreens;
 
@@ -205,7 +205,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 74
+    .line 76
     sget-object v2, Lcom/mrkeyboard/app/MrScreens;->HELPERS:[Ljava/lang/String;
 
     array-length v3, v2
@@ -225,11 +225,11 @@
 
     const/4 v0, 0x1
 
-    .line 75
+    .line 77
     :cond_0
     return v0
 
-    .line 74
+    .line 76
     :cond_1
     add-int/lit8 v1, v1, 0x1
 
@@ -240,7 +240,7 @@
     .locals 1
 
     .prologue
-    .line 69
+    .line 71
     if-eqz p0, :cond_1
 
     const-string v0, "pref_ui_hw_accel"
@@ -262,7 +262,7 @@
     :cond_0
     invoke-virtual {p0}, Landroid/app/Activity;->recreate()V
 
-    .line 70
+    .line 72
     :cond_1
     return-void
 .end method
@@ -275,12 +275,15 @@
     .prologue
     const/high16 v3, 0x1000000
 
-    .line 117
+    .line 120
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrNav;->opened(Landroid/app/Activity;)V
+
+    .line 121
     invoke-static {p1}, Lcom/mrkeyboard/app/MrMatrix;->wanted(Landroid/app/Activity;)Z
 
     move-result v0
 
-    .line 118
+    .line 122
     invoke-static {p1}, Lcom/mrkeyboard/app/MrMatrix;->eligible(Landroid/app/Activity;)Z
 
     move-result v1
@@ -295,13 +298,13 @@
 
     invoke-virtual {v1, p1, v2}, Ljava/util/WeakHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 119
+    .line 123
     :cond_0
     if-eqz v0, :cond_1
 
     invoke-static {p1}, Lcom/mrkeyboard/app/MrMatrix;->attach(Landroid/app/Activity;)Z
 
-    .line 120
+    .line 124
     :cond_1
     if-nez v0, :cond_3
 
@@ -311,21 +314,21 @@
 
     if-nez v0, :cond_3
 
-    .line 126
+    .line 130
     :cond_2
     :goto_0
     return-void
 
-    .line 121
+    .line 125
     :cond_3
     invoke-virtual {p1}, Landroid/app/Activity;->getWindow()Landroid/view/Window;
 
     move-result-object v0
 
-    .line 122
+    .line 126
     if-eqz v0, :cond_2
 
-    .line 123
+    .line 127
     invoke-virtual {v0, v3, v3}, Landroid/view/Window;->setFlags(II)V
 
     goto :goto_0
@@ -335,7 +338,10 @@
     .locals 0
 
     .prologue
-    .line 140
+    .line 147
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrNav;->gone(Landroid/app/Activity;)V
+
+    .line 148
     return-void
 .end method
 
@@ -343,7 +349,7 @@
     .locals 0
 
     .prologue
-    .line 134
+    .line 138
     return-void
 .end method
 
@@ -351,7 +357,7 @@
     .locals 2
 
     .prologue
-    .line 130
+    .line 134
     iget-object v0, p0, Lcom/mrkeyboard/app/MrScreens;->mRain:Ljava/util/WeakHashMap;
 
     invoke-virtual {v0, p1}, Ljava/util/WeakHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -360,7 +366,7 @@
 
     check-cast v0, Ljava/lang/Boolean;
 
-    .line 131
+    .line 135
     if-eqz v0, :cond_0
 
     invoke-virtual {v0}, Ljava/lang/Boolean;->booleanValue()Z
@@ -375,7 +381,7 @@
 
     invoke-virtual {p1}, Landroid/app/Activity;->recreate()V
 
-    .line 132
+    .line 136
     :cond_0
     return-void
 .end method
@@ -384,7 +390,7 @@
     .locals 0
 
     .prologue
-    .line 138
+    .line 144
     return-void
 .end method
 
@@ -392,19 +398,22 @@
     .locals 2
 
     .prologue
-    .line 104
+    .line 106
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrMatrix;->resume(Landroid/app/Activity;)V
+
+    .line 107
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v1, 0x23
 
     if-ge v0, v1, :cond_1
 
-    .line 109
+    .line 112
     :cond_0
     :goto_0
     return-void
 
-    .line 105
+    .line 108
     :cond_1
     const v0, 0x1020002
 
@@ -412,13 +421,13 @@
 
     move-result-object v0
 
-    .line 106
+    .line 109
     if-eqz v0, :cond_0
 
-    .line 107
+    .line 110
     invoke-virtual {v0, p0}, Landroid/view/View;->setOnApplyWindowInsetsListener(Landroid/view/View$OnApplyWindowInsetsListener;)V
 
-    .line 108
+    .line 111
     invoke-virtual {v0}, Landroid/view/View;->requestApplyInsets()V
 
     goto :goto_0
@@ -428,7 +437,10 @@
     .locals 0
 
     .prologue
-    .line 136
+    .line 141
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrMatrix;->pause(Landroid/app/Activity;)V
+
+    .line 142
     return-void
 .end method
 
@@ -436,14 +448,14 @@
     .locals 2
 
     .prologue
-    .line 112
+    .line 115
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v1, 0x1e
 
     if-ge v0, v1, :cond_0
 
-    .line 113
+    .line 116
     :goto_0
     return-object p2
 

@@ -9,6 +9,7 @@
     <PreferenceScreen android:title="@string/pref_screen_view_title" android:summary="@string/summary_pref_screen_view">
       <intent android:action="com.mrkeyboard.app.PREFS_VIEW"/>
     </PreferenceScreen>
+    <CheckBoxPreference android:persistent="true" android:title="@string/mr_ui_matrix" android:key="pref_ui_matrix" android:defaultValue="true" android:summaryOn="@string/mr_ui_matrix_on" android:summaryOff="@string/mr_ui_matrix_off"/>
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/mr_ui_cat_layout" android:key="layout_settings" android:summary="@string/mr_ui_cat_layout_sum" android:icon="@drawable/mr_ui_ic_grid_blue">
     <PreferenceScreen android:title="@string/pref_screen_sheets_title" android:summary="@string/mr_ui_sheets_summary">

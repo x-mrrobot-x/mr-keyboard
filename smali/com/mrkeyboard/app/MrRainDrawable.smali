@@ -56,17 +56,17 @@
     .prologue
     const/4 v2, -0x1
 
-    .line 63
+    .line 66
     invoke-direct {p0}, Landroid/graphics/drawable/Drawable;-><init>()V
 
-    .line 43
+    .line 46
     const/16 v0, 0xd
 
     new-array v0, v0, [I
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mTrail:[I
 
-    .line 45
+    .line 48
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -75,23 +75,23 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mPaint:Landroid/graphics/Paint;
 
-    .line 51
+    .line 54
     iput v2, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mWidth:I
 
-    .line 52
+    .line 55
     iput v2, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mHeight:I
 
-    .line 54
+    .line 57
     new-instance v0, Lcom/mrkeyboard/app/MrRainDrawable$1;
 
     invoke-direct {v0, p0}, Lcom/mrkeyboard/app/MrRainDrawable$1;-><init>(Lcom/mrkeyboard/app/MrRainDrawable;)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mBeat:Ljava/lang/Runnable;
 
-    .line 64
+    .line 67
     iput p1, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mBackground:I
 
-    .line 65
+    .line 68
     const/4 v0, 0x0
 
     :goto_0
@@ -121,7 +121,7 @@
 
     goto :goto_0
 
-    .line 66
+    .line 69
     :cond_0
     const v0, 0x3f0ccccd    # 0.55f
 
@@ -137,35 +137,35 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mHead:I
 
-    .line 67
+    .line 70
     const/high16 v0, 0x41700000    # 15.0f
 
     mul-float/2addr v0, p3
 
     iput v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mTextPx:F
 
-    .line 68
+    .line 71
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mPaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Typeface;->MONOSPACE:Landroid/graphics/Typeface;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
 
-    .line 69
+    .line 72
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mPaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mTextPx:F
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 70
+    .line 73
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mPaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 71
+    .line 74
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mPaint:Landroid/graphics/Paint;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrRainDrawable;->glyphs(Landroid/graphics/Paint;)[Ljava/lang/String;
@@ -174,7 +174,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mGlyphs:[Ljava/lang/String;
 
-    .line 72
+    .line 75
     new-instance v0, Lcom/mrkeyboard/app/MrRain;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mGlyphs:[Ljava/lang/String;
@@ -189,7 +189,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mRain:Lcom/mrkeyboard/app/MrRain;
 
-    .line 73
+    .line 76
     return-void
 .end method
 
@@ -197,7 +197,7 @@
     .locals 0
 
     .prologue
-    .line 24
+    .line 27
     iput-boolean p1, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mScheduled:Z
 
     return p1
@@ -207,7 +207,7 @@
     .locals 1
 
     .prologue
-    .line 24
+    .line 27
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mRain:Lcom/mrkeyboard/app/MrRain;
 
     return-object v0
@@ -219,7 +219,7 @@
     .prologue
     const/high16 v2, 0x3f800000    # 1.0f
 
-    .line 126
+    .line 129
     iget v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mWidth:I
 
     if-ne p1, v0, :cond_0
@@ -228,18 +228,18 @@
 
     if-ne p2, v0, :cond_0
 
-    .line 132
+    .line 135
     :goto_0
     return-void
 
-    .line 127
+    .line 130
     :cond_0
     iput p1, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mWidth:I
 
-    .line 128
+    .line 131
     iput p2, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mHeight:I
 
-    .line 129
+    .line 132
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mPaint:Landroid/graphics/Paint;
 
     const-string v1, "0"
@@ -258,7 +258,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mCellW:F
 
-    .line 130
+    .line 133
     iget v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mTextPx:F
 
     const v1, 0x3f933333    # 1.15f
@@ -271,7 +271,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mCellH:F
 
-    .line 131
+    .line 134
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mRain:Lcom/mrkeyboard/app/MrRain;
 
     int-to-float v1, p1
@@ -315,10 +315,10 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 77
+    .line 80
     const-string v4, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ=+-*/<>:.\uff71\uff72\uff73\uff74\uff75\uff76\uff77\uff78\uff79\uff7a\uff7b\uff7c\uff7d\uff7e\uff7f\uff80\uff81\uff82\uff83\uff84\uff85\uff86\uff87\uff88\uff89\uff8a\uff8b\uff8c\uff8d\uff8e\uff8f\uff90\uff91\uff92\uff93\uff94\uff95\uff96\uff97\uff98\uff99\uff9a\uff9b\uff9c\uff9d"
 
-    .line 78
+    .line 81
     invoke-virtual {v4}, Ljava/lang/String;->length()I
 
     move-result v0
@@ -329,7 +329,7 @@
 
     move v2, v1
 
-    .line 80
+    .line 83
     :goto_0
     invoke-virtual {v4}, Ljava/lang/String;->length()I
 
@@ -337,7 +337,7 @@
 
     if-ge v0, v3, :cond_2
 
-    .line 81
+    .line 84
     invoke-virtual {v4, v0}, Ljava/lang/String;->charAt(I)C
 
     move-result v3
@@ -346,7 +346,7 @@
 
     move-result-object v6
 
-    .line 82
+    .line 85
     const-string v3, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ=+-*/<>:."
 
     invoke-virtual {v3}, Ljava/lang/String;->length()I
@@ -368,20 +368,20 @@
 
     move v2, v3
 
-    .line 80
+    .line 83
     :cond_1
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 84
+    .line 87
     :cond_2
     new-array v0, v2, [Ljava/lang/String;
 
-    .line 85
+    .line 88
     invoke-static {v5, v1, v0, v1, v2}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 86
+    .line 89
     return-object v0
 .end method
 
@@ -389,7 +389,7 @@
     .locals 4
 
     .prologue
-    .line 96
+    .line 99
     shr-int/lit8 v0, p0, 0x10
 
     and-int/lit16 v0, v0, 0xff
@@ -400,7 +400,7 @@
 
     and-int/lit16 v2, p0, 0xff
 
-    .line 97
+    .line 100
     rsub-int v3, v0, 0xff
 
     int-to-float v3, v3
@@ -413,7 +413,7 @@
 
     add-int/2addr v0, v3
 
-    .line 98
+    .line 101
     rsub-int v3, v1, 0xff
 
     int-to-float v3, v3
@@ -426,7 +426,7 @@
 
     add-int/2addr v1, v3
 
-    .line 99
+    .line 102
     rsub-int v3, v2, 0xff
 
     int-to-float v3, v3
@@ -439,7 +439,7 @@
 
     add-int/2addr v2, v3
 
-    .line 100
+    .line 103
     const/high16 v3, -0x1000000
 
     shl-int/lit8 v0, v0, 0x10
@@ -459,7 +459,7 @@
     .locals 2
 
     .prologue
-    .line 90
+    .line 93
     const/4 v0, 0x0
 
     const/high16 v1, 0x3f800000    # 1.0f
@@ -480,7 +480,7 @@
 
     move-result v0
 
-    .line 91
+    .line 94
     shl-int/lit8 v0, v0, 0x18
 
     const v1, 0xffffff
@@ -498,17 +498,17 @@
     .locals 8
 
     .prologue
-    .line 105
+    .line 108
     iget v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mBackground:I
 
     invoke-virtual {p1, v0}, Landroid/graphics/Canvas;->drawColor(I)V
 
-    .line 106
+    .line 109
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrRainDrawable;->getBounds()Landroid/graphics/Rect;
 
     move-result-object v0
 
-    .line 107
+    .line 110
     invoke-virtual {v0}, Landroid/graphics/Rect;->width()I
 
     move-result v1
@@ -519,7 +519,7 @@
 
     invoke-direct {p0, v1, v0}, Lcom/mrkeyboard/app/MrRainDrawable;->fit(II)V
 
-    .line 108
+    .line 111
     const/4 v0, 0x0
 
     :goto_0
@@ -531,7 +531,7 @@
 
     if-ge v0, v1, :cond_3
 
-    .line 109
+    .line 112
     int-to-float v1, v0
 
     iget v2, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mCellW:F
@@ -546,14 +546,14 @@
 
     add-float v3, v1, v2
 
-    .line 110
+    .line 113
     iget-object v1, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mRain:Lcom/mrkeyboard/app/MrRain;
 
     invoke-virtual {v1, v0}, Lcom/mrkeyboard/app/MrRain;->last(I)I
 
     move-result v4
 
-    .line 111
+    .line 114
     iget-object v1, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mRain:Lcom/mrkeyboard/app/MrRain;
 
     invoke-virtual {v1, v0}, Lcom/mrkeyboard/app/MrRain;->first(I)I
@@ -565,21 +565,21 @@
     :goto_1
     if-gt v2, v4, :cond_2
 
-    .line 112
+    .line 115
     iget-object v1, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mRain:Lcom/mrkeyboard/app/MrRain;
 
     invoke-virtual {v1, v0, v2}, Lcom/mrkeyboard/app/MrRain;->level(II)F
 
     move-result v1
 
-    .line 113
+    .line 116
     const/4 v5, 0x0
 
     cmpg-float v5, v1, v5
 
     if-gtz v5, :cond_0
 
-    .line 111
+    .line 114
     :goto_2
     add-int/lit8 v1, v2, 0x1
 
@@ -587,7 +587,7 @@
 
     goto :goto_1
 
-    .line 114
+    .line 117
     :cond_0
     iget-object v5, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mPaint:Landroid/graphics/Paint;
 
@@ -602,7 +602,7 @@
     :goto_3
     invoke-virtual {v5, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 115
+    .line 118
     iget-object v1, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mGlyphs:[Ljava/lang/String;
 
     iget-object v5, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mRain:Lcom/mrkeyboard/app/MrRain;
@@ -635,7 +635,7 @@
 
     goto :goto_2
 
-    .line 114
+    .line 117
     :cond_1
     iget-object v6, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mTrail:[I
 
@@ -651,13 +651,13 @@
 
     goto :goto_3
 
-    .line 108
+    .line 111
     :cond_2
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 118
+    .line 121
     :cond_3
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mScheduled:Z
 
@@ -669,12 +669,18 @@
 
     if-eqz v0, :cond_4
 
-    .line 119
+    invoke-static {}, Landroid/animation/ValueAnimator;->areAnimatorsEnabled()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_4
+
+    .line 122
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mScheduled:Z
 
-    .line 120
+    .line 123
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mBeat:Ljava/lang/Runnable;
 
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
@@ -687,7 +693,7 @@
 
     invoke-virtual {p0, v0, v2, v3}, Lcom/mrkeyboard/app/MrRainDrawable;->scheduleSelf(Ljava/lang/Runnable;J)V
 
-    .line 122
+    .line 125
     :cond_4
     return-void
 .end method
@@ -696,7 +702,7 @@
     .locals 1
 
     .prologue
-    .line 155
+    .line 158
     const/4 v0, -0x1
 
     return v0
@@ -706,7 +712,7 @@
     .locals 0
 
     .prologue
-    .line 148
+    .line 151
     return-void
 .end method
 
@@ -714,7 +720,7 @@
     .locals 0
 
     .prologue
-    .line 151
+    .line 154
     return-void
 .end method
 
@@ -722,34 +728,34 @@
     .locals 2
 
     .prologue
-    .line 137
+    .line 140
     invoke-super {p0, p1, p2}, Landroid/graphics/drawable/Drawable;->setVisible(ZZ)Z
 
     move-result v0
 
-    .line 138
+    .line 141
     if-nez p1, :cond_1
 
-    .line 139
+    .line 142
     iget-object v1, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mBeat:Ljava/lang/Runnable;
 
     invoke-virtual {p0, v1}, Lcom/mrkeyboard/app/MrRainDrawable;->unscheduleSelf(Ljava/lang/Runnable;)V
 
-    .line 140
+    .line 143
     const/4 v1, 0x0
 
     iput-boolean v1, p0, Lcom/mrkeyboard/app/MrRainDrawable;->mScheduled:Z
 
-    .line 144
+    .line 147
     :cond_0
     :goto_0
     return v0
 
-    .line 141
+    .line 144
     :cond_1
     if-eqz v0, :cond_0
 
-    .line 142
+    .line 145
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrRainDrawable;->invalidateSelf()V
 
     goto :goto_0

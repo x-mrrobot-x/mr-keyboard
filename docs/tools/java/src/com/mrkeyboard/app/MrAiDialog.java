@@ -191,10 +191,29 @@ final class MrAiDialog implements View.OnClickListener, View.OnLayoutChangeListe
 
     private static void reopenPendingDialog() {
         if (!sReopenAfterAuxiliaryUi) return;
+        String returnPackage = sReturnPackage;
         sReopenAfterAuxiliaryUi = false;
         sSawAuxiliaryUi = false;
         sReturnPackage = null;
+        closeSettingsLeftBehind(returnPackage);
         showDialog();
+    }
+
+    /**
+     * The person is back in the app that they were typing in (another app: the return package is not this one), so the AI settings screen that
+     * the keyboard opened is no longer wanted, and left behind it would be a second window of the app in the background. It is closed, with its
+     * task when it is the root of it. Not while a style editor is open (it may hold what the person typed and did not save yet).
+     */
+    private static void closeSettingsLeftBehind(String returnPackage) {
+        try {
+            LatinIME ime = MrTools.sIme;
+            String own = ime != null ? ime.getPackageName() : null;
+            if (returnPackage == null || own == null || returnPackage.equals(own)) return;
+            if (MrAiStyleActivity.isOpen()) return;
+            MrNav.closeOpenedByKeyboard(MrAiPrefs.class);
+        } catch (RuntimeException e) {
+            // the dialog must come back whatever happens here
+        }
     }
 
     private static void close(Dialog dialog, boolean dismissWindow) {

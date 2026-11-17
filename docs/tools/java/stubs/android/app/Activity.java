@@ -20,7 +20,12 @@ public class Activity extends android.view.ContextThemeWrapper {
     public android.view.Window getWindow() { return stubWindow; }
     public void setContentView(android.view.View view) { }
     public android.content.Intent getIntent() { return null; }
-    public void finish() { }
+    /** Not in Android: how many times the screen was finished (and how many of them took the whole task with them), and what isTaskRoot answers. */
+    public int stubFinishes, stubTaskRemovals;
+    public boolean stubTaskRoot;
+    public void finish() { stubFinishes++; }
+    public boolean isTaskRoot() { return stubTaskRoot; }
+    public void finishAndRemoveTask() { stubFinishes++; stubTaskRemovals++; }
     public android.view.View findViewById(int id) { return null; }
     public void runOnUiThread(Runnable action) { }
     public void requestPermissions(String[] permissions, int requestCode) { }

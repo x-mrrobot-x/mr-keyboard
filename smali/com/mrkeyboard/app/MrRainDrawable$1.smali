@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 54
+    .line 57
     iput-object p1, p0, Lcom/mrkeyboard/app/MrRainDrawable$1;->this$0:Lcom/mrkeyboard/app/MrRainDrawable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,14 +40,14 @@
     .locals 2
 
     .prologue
-    .line 56
+    .line 59
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable$1;->this$0:Lcom/mrkeyboard/app/MrRainDrawable;
 
     const/4 v1, 0x0
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrRainDrawable;->access$002(Lcom/mrkeyboard/app/MrRainDrawable;Z)Z
 
-    .line 57
+    .line 60
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable$1;->this$0:Lcom/mrkeyboard/app/MrRainDrawable;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrRainDrawable;->access$100(Lcom/mrkeyboard/app/MrRainDrawable;)Lcom/mrkeyboard/app/MrRain;
@@ -56,11 +56,11 @@
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrRain;->step()V
 
-    .line 58
+    .line 61
     iget-object v0, p0, Lcom/mrkeyboard/app/MrRainDrawable$1;->this$0:Lcom/mrkeyboard/app/MrRainDrawable;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrRainDrawable;->invalidateSelf()V
 
-    .line 59
+    .line 62
     return-void
 .end method

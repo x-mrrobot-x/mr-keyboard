@@ -94,61 +94,123 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 201
+    .line 220
     sget-object v0, Lcom/mrkeyboard/app/MrAiDialog;->sImeDecor:Landroid/view/View;
 
-    .line 202
+    .line 221
     sget-object v1, Lcom/mrkeyboard/app/MrAiDialog;->sListener:Lcom/mrkeyboard/app/MrAiDialog;
 
-    .line 203
+    .line 222
     sput-object v2, Lcom/mrkeyboard/app/MrAiDialog;->sDialog:Landroid/app/Dialog;
 
-    .line 204
+    .line 223
     sput-object v2, Lcom/mrkeyboard/app/MrAiDialog;->sImeDecor:Landroid/view/View;
 
-    .line 205
+    .line 224
     sput-object v2, Lcom/mrkeyboard/app/MrAiDialog;->sListener:Lcom/mrkeyboard/app/MrAiDialog;
 
-    .line 206
+    .line 225
     if-eqz v0, :cond_0
 
     if-eqz v1, :cond_0
 
-    .line 208
+    .line 227
     :try_start_0
     invoke-virtual {v0, v1}, Landroid/view/View;->removeOnLayoutChangeListener(Landroid/view/View$OnLayoutChangeListener;)V
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 213
+    .line 232
     :cond_0
     :goto_0
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->dialogClosed()V
 
-    .line 214
+    .line 233
     if-eqz p1, :cond_1
 
     if-eqz p0, :cond_1
 
-    .line 216
+    .line 235
     :try_start_1
     invoke-virtual {p0}, Landroid/app/Dialog;->dismiss()V
     :try_end_1
     .catch Ljava/lang/RuntimeException; {:try_start_1 .. :try_end_1} :catch_1
 
-    .line 221
+    .line 240
     :cond_1
     :goto_1
     return-void
 
-    .line 209
+    .line 228
     :catch_0
     move-exception v0
 
     goto :goto_0
 
-    .line 217
+    .line 236
     :catch_1
+    move-exception v0
+
+    goto :goto_1
+.end method
+
+.method private static closeSettingsLeftBehind(Ljava/lang/String;)V
+    .locals 1
+
+    .prologue
+    .line 209
+    :try_start_0
+    sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
+
+    .line 210
+    if-eqz v0, :cond_1
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinIME;->getPackageName()Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 211
+    :goto_0
+    if-eqz p0, :cond_0
+
+    if-eqz v0, :cond_0
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_2
+
+    .line 217
+    :cond_0
+    :goto_1
+    return-void
+
+    .line 210
+    :cond_1
+    const/4 v0, 0x0
+
+    goto :goto_0
+
+    .line 212
+    :cond_2
+    invoke-static {}, Lcom/mrkeyboard/app/MrAiStyleActivity;->isOpen()Z
+
+    move-result v0
+
+    if-nez v0, :cond_0
+
+    .line 213
+    const-class v0, Lcom/mrkeyboard/app/MrAiPrefs;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrNav;->closeOpenedByKeyboard(Ljava/lang/Class;)Z
+    :try_end_0
+    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+
+    goto :goto_1
+
+    .line 214
+    :catch_0
     move-exception v0
 
     goto :goto_1
@@ -160,11 +222,11 @@
     .prologue
     const/high16 v1, 0x3f800000    # 1.0f
 
-    .line 307
+    .line 326
     :try_start_0
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 308
+    .line 327
     if-eqz v0, :cond_0
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinIME;->getResources()Landroid/content/res/Resources;
@@ -183,12 +245,12 @@
 
     if-nez v2, :cond_1
 
-    .line 312
+    .line 331
     :cond_0
     :goto_0
     return v1
 
-    .line 309
+    .line 328
     :cond_1
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinIME;->getResources()Landroid/content/res/Resources;
 
@@ -202,7 +264,7 @@
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 310
+    .line 329
     const/4 v2, 0x0
 
     cmpl-float v2, v0, v2
@@ -219,7 +281,7 @@
 
     goto :goto_1
 
-    .line 311
+    .line 330
     :catch_0
     move-exception v0
 
@@ -247,24 +309,24 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 288
+    .line 307
     sget-object v1, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 289
+    .line 308
     if-nez v1, :cond_1
 
-    .line 292
+    .line 311
     :cond_0
     :goto_0
     return-object v0
 
-    .line 290
+    .line 309
     :cond_1
     invoke-virtual {v1}, Lcom/mrkeyboard/app/LatinIME;->getWindow()Landroid/app/Dialog;
 
     move-result-object v1
 
-    .line 291
+    .line 310
     if-eqz v1, :cond_0
 
     invoke-virtual {v1}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
@@ -273,7 +335,7 @@
 
     if-eqz v2, :cond_0
 
-    .line 292
+    .line 311
     invoke-virtual {v1}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
 
     move-result-object v0
@@ -293,23 +355,23 @@
 
     const/4 v0, -0x1
 
-    .line 317
+    .line 336
     sget-object v1, Lcom/mrkeyboard/app/MrAiDialog;->sImeDecor:Landroid/view/View;
 
     if-eqz v1, :cond_1
 
     sget-object v1, Lcom/mrkeyboard/app/MrAiDialog;->sImeDecor:Landroid/view/View;
 
-    .line 318
+    .line 337
     :goto_0
     if-nez v1, :cond_2
 
-    .line 321
+    .line 340
     :cond_0
     :goto_1
     return v0
 
-    .line 317
+    .line 336
     :cond_1
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->imeDecor()Landroid/view/View;
 
@@ -317,16 +379,16 @@
 
     goto :goto_0
 
-    .line 319
+    .line 338
     :cond_2
     const/4 v2, 0x2
 
     new-array v2, v2, [I
 
-    .line 320
+    .line 339
     invoke-virtual {v1, v2}, Landroid/view/View;->getLocationOnScreen([I)V
 
-    .line 321
+    .line 340
     aget v1, v2, v3
 
     if-lez v1, :cond_0
@@ -576,23 +638,29 @@
 
     if-nez v0, :cond_0
 
-    .line 198
+    .line 200
     :goto_0
     return-void
 
     .line 194
     :cond_0
-    sput-boolean v1, Lcom/mrkeyboard/app/MrAiDialog;->sReopenAfterAuxiliaryUi:Z
+    sget-object v0, Lcom/mrkeyboard/app/MrAiDialog;->sReturnPackage:Ljava/lang/String;
 
     .line 195
-    sput-boolean v1, Lcom/mrkeyboard/app/MrAiDialog;->sSawAuxiliaryUi:Z
+    sput-boolean v1, Lcom/mrkeyboard/app/MrAiDialog;->sReopenAfterAuxiliaryUi:Z
 
     .line 196
-    const/4 v0, 0x0
-
-    sput-object v0, Lcom/mrkeyboard/app/MrAiDialog;->sReturnPackage:Ljava/lang/String;
+    sput-boolean v1, Lcom/mrkeyboard/app/MrAiDialog;->sSawAuxiliaryUi:Z
 
     .line 197
+    const/4 v1, 0x0
+
+    sput-object v1, Lcom/mrkeyboard/app/MrAiDialog;->sReturnPackage:Ljava/lang/String;
+
+    .line 198
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrAiDialog;->closeSettingsLeftBehind(Ljava/lang/String;)V
+
+    .line 199
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->showDialog()V
 
     goto :goto_0
@@ -784,38 +852,38 @@
 
     const/4 v8, 0x1
 
-    .line 224
+    .line 243
     sget-object v3, Lcom/mrkeyboard/app/MrTools;->sIme:Lcom/mrkeyboard/app/LatinIME;
 
-    .line 225
+    .line 244
     if-nez v3, :cond_1
 
-    .line 285
+    .line 304
     :cond_0
     :goto_0
     return-void
 
-    .line 226
+    .line 245
     :cond_1
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->dismiss()V
 
-    .line 228
+    .line 247
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->imeDecor()Landroid/view/View;
 
     move-result-object v4
 
-    .line 229
+    .line 248
     if-eqz v4, :cond_0
 
-    .line 230
+    .line 249
     invoke-virtual {v4}, Landroid/view/View;->getWindowToken()Landroid/os/IBinder;
 
     move-result-object v5
 
-    .line 231
+    .line 250
     if-eqz v5, :cond_0
 
-    .line 235
+    .line 254
     :try_start_0
     invoke-virtual {v3}, Lcom/mrkeyboard/app/LatinIME;->getResources()Landroid/content/res/Resources;
 
@@ -825,24 +893,24 @@
 
     const-string v6, "style"
 
-    .line 236
+    .line 255
     invoke-virtual {v3}, Lcom/mrkeyboard/app/LatinIME;->getPackageName()Ljava/lang/String;
 
     move-result-object v7
 
-    .line 235
+    .line 254
     invoke-virtual {v0, v2, v6, v7}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v0
 
-    .line 237
+    .line 256
     if-nez v0, :cond_5
 
     const v0, 0x7f0d00a1
 
     move v2, v0
 
-    .line 238
+    .line 257
     :goto_1
     new-instance v0, Landroid/app/Dialog;
 
@@ -850,13 +918,13 @@
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_1
 
-    .line 239
+    .line 258
     const/4 v1, 0x1
 
     :try_start_1
     invoke-virtual {v0, v1}, Landroid/app/Dialog;->requestWindowFeature(I)Z
 
-    .line 241
+    .line 260
     invoke-virtual {v0}, Landroid/app/Dialog;->getContext()Landroid/content/Context;
 
     move-result-object v1
@@ -869,22 +937,22 @@
 
     const-string v6, "layout"
 
-    .line 242
+    .line 261
     invoke-virtual {v3}, Lcom/mrkeyboard/app/LatinIME;->getPackageName()Ljava/lang/String;
 
     move-result-object v3
 
-    .line 241
+    .line 260
     invoke-virtual {v1, v2, v6, v3}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v1
 
-    .line 243
+    .line 262
     if-nez v1, :cond_2
 
     const v1, 0x7f0a0042
 
-    .line 244
+    .line 263
     :cond_2
     invoke-virtual {v0}, Landroid/app/Dialog;->getContext()Landroid/content/Context;
 
@@ -900,82 +968,82 @@
 
     const/4 v3, 0x0
 
-    .line 245
+    .line 264
     invoke-virtual {v2, v1, v3}, Landroid/view/LayoutInflater;->inflate(ILandroid/view/ViewGroup;)Landroid/view/View;
 
     move-result-object v1
 
-    .line 246
+    .line 265
     const-string v2, "ai_card"
 
     invoke-virtual {v1, v2}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v2
 
-    .line 247
+    .line 266
     if-eqz v2, :cond_0
 
-    .line 249
+    .line 268
     new-instance v3, Lcom/mrkeyboard/app/MrAiDialog;
 
     invoke-direct {v3}, Lcom/mrkeyboard/app/MrAiDialog;-><init>()V
 
-    .line 250
+    .line 269
     sput-object v0, Lcom/mrkeyboard/app/MrAiDialog;->sDialog:Landroid/app/Dialog;
 
-    .line 251
+    .line 270
     sput-object v4, Lcom/mrkeyboard/app/MrAiDialog;->sImeDecor:Landroid/view/View;
 
-    .line 252
+    .line 271
     sput-object v3, Lcom/mrkeyboard/app/MrAiDialog;->sListener:Lcom/mrkeyboard/app/MrAiDialog;
 
-    .line 253
+    .line 272
     invoke-virtual {v1, v3}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 254
+    .line 273
     const/4 v6, 0x1
 
     invoke-virtual {v2, v6}, Landroid/view/View;->setClickable(Z)V
 
-    .line 255
+    .line 274
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Landroid/app/Dialog;->setCancelable(Z)V
 
-    .line 256
+    .line 275
     const/4 v2, 0x1
 
     invoke-virtual {v0, v2}, Landroid/app/Dialog;->setCanceledOnTouchOutside(Z)V
 
-    .line 257
+    .line 276
     invoke-virtual {v0, v3}, Landroid/app/Dialog;->setOnDismissListener(Landroid/content/DialogInterface$OnDismissListener;)V
 
-    .line 258
+    .line 277
     invoke-virtual {v0, v1}, Landroid/app/Dialog;->setContentView(Landroid/view/View;)V
 
-    .line 259
+    .line 278
     invoke-static {v1}, Lcom/mrkeyboard/app/MrAi;->setup(Landroid/view/View;)V
 
-    .line 261
+    .line 280
     invoke-virtual {v0}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
 
     move-result-object v2
 
-    .line 262
+    .line 281
     if-nez v2, :cond_3
 
-    .line 263
+    .line 282
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->dismiss()V
     :try_end_1
     .catch Ljava/lang/Throwable; {:try_start_1 .. :try_end_1} :catch_0
 
     goto/16 :goto_0
 
-    .line 281
+    .line 300
     :catch_0
     move-exception v1
 
-    .line 282
+    .line 301
     :goto_2
     if-eqz v0, :cond_4
 
@@ -987,7 +1055,7 @@
 
     goto/16 :goto_0
 
-    .line 266
+    .line 285
     :cond_3
     :try_start_2
     new-instance v6, Landroid/graphics/drawable/ColorDrawable;
@@ -998,52 +1066,52 @@
 
     invoke-virtual {v2, v6}, Landroid/view/Window;->setBackgroundDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 267
+    .line 286
     const/4 v6, 0x2
 
     invoke-virtual {v2, v6}, Landroid/view/Window;->clearFlags(I)V
 
-    .line 268
+    .line 287
     const/high16 v6, 0x20000
 
     invoke-virtual {v2, v6}, Landroid/view/Window;->clearFlags(I)V
 
-    .line 269
+    .line 288
     const/16 v6, 0x308
 
     invoke-virtual {v2, v6}, Landroid/view/Window;->addFlags(I)V
 
-    .line 270
+    .line 289
     invoke-virtual {v2}, Landroid/view/Window;->getDecorView()Landroid/view/View;
 
     move-result-object v6
 
     invoke-static {v6, v1}, Lcom/mrkeyboard/app/MrScreens;->fitDialog(Landroid/view/View;Landroid/view/View;)V
 
-    .line 271
+    .line 290
     invoke-virtual {v2}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
 
     move-result-object v1
 
-    .line 272
+    .line 291
     iput-object v5, v1, Landroid/view/WindowManager$LayoutParams;->token:Landroid/os/IBinder;
 
-    .line 273
+    .line 292
     const/16 v5, 0x3eb
 
     iput v5, v1, Landroid/view/WindowManager$LayoutParams;->type:I
 
-    .line 274
+    .line 293
     const/16 v5, 0x37
 
     iput v5, v1, Landroid/view/WindowManager$LayoutParams;->gravity:I
 
-    .line 275
+    .line 294
     const/4 v5, -0x1
 
     iput v5, v1, Landroid/view/WindowManager$LayoutParams;->width:I
 
-    .line 276
+    .line 295
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->imeTop()I
 
     move-result v5
@@ -1058,26 +1126,26 @@
 
     iput v5, v1, Landroid/view/WindowManager$LayoutParams;->height:I
 
-    .line 277
+    .line 296
     invoke-virtual {v2, v1}, Landroid/view/Window;->setAttributes(Landroid/view/WindowManager$LayoutParams;)V
 
-    .line 279
+    .line 298
     invoke-virtual {v4, v3}, Landroid/view/View;->addOnLayoutChangeListener(Landroid/view/View$OnLayoutChangeListener;)V
 
-    .line 280
+    .line 299
     invoke-virtual {v0}, Landroid/app/Dialog;->show()V
     :try_end_2
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_2} :catch_0
 
     goto/16 :goto_0
 
-    .line 283
+    .line 302
     :cond_4
     invoke-static {}, Lcom/mrkeyboard/app/MrAi;->dialogClosed()V
 
     goto/16 :goto_0
 
-    .line 281
+    .line 300
     :catch_1
     move-exception v0
 
@@ -1175,7 +1243,7 @@
     .locals 2
 
     .prologue
-    .line 301
+    .line 320
     if-lez p0, :cond_0
 
     int-to-float v0, p0
@@ -1191,7 +1259,7 @@
     :cond_0
     const/4 p0, -0x1
 
-    .line 302
+    .line 321
     :cond_1
     return p0
 .end method
@@ -1202,10 +1270,10 @@
     .locals 0
 
     .prologue
-    .line 325
+    .line 344
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->dismiss()V
 
-    .line 326
+    .line 345
     return-void
 .end method
 
@@ -1213,7 +1281,7 @@
     .locals 2
 
     .prologue
-    .line 329
+    .line 348
     sget-object v0, Lcom/mrkeyboard/app/MrAiDialog;->sDialog:Landroid/app/Dialog;
 
     if-ne p1, v0, :cond_0
@@ -1224,7 +1292,7 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAiDialog;->close(Landroid/app/Dialog;Z)V
 
-    .line 330
+    .line 349
     :cond_0
     return-void
 .end method
@@ -1233,33 +1301,33 @@
     .locals 4
 
     .prologue
-    .line 334
+    .line 353
     sget-object v0, Lcom/mrkeyboard/app/MrAiDialog;->sDialog:Landroid/app/Dialog;
 
-    .line 335
+    .line 354
     if-nez v0, :cond_1
 
-    .line 348
+    .line 367
     :cond_0
     :goto_0
     return-void
 
-    .line 337
+    .line 356
     :cond_1
     :try_start_0
     invoke-virtual {v0}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
 
     move-result-object v0
 
-    .line 338
+    .line 357
     if-eqz v0, :cond_0
 
-    .line 339
+    .line 358
     invoke-virtual {v0}, Landroid/view/Window;->getAttributes()Landroid/view/WindowManager$LayoutParams;
 
     move-result-object v1
 
-    .line 340
+    .line 359
     invoke-static {}, Lcom/mrkeyboard/app/MrAiDialog;->imeTop()I
 
     move-result v2
@@ -1272,22 +1340,22 @@
 
     move-result v2
 
-    .line 341
+    .line 360
     iget v3, v1, Landroid/view/WindowManager$LayoutParams;->height:I
 
     if-eq v3, v2, :cond_0
 
-    .line 342
+    .line 361
     iput v2, v1, Landroid/view/WindowManager$LayoutParams;->height:I
 
-    .line 343
+    .line 362
     invoke-virtual {v0, v1}, Landroid/view/Window;->setAttributes(Landroid/view/WindowManager$LayoutParams;)V
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
     goto :goto_0
 
-    .line 345
+    .line 364
     :catch_0
     move-exception v0
 

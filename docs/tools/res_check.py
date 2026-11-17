@@ -360,6 +360,24 @@ for screen in KEYBOARD_SCREENS:
 if len(affinities) > 1:
     problems.append('manifest: the screens opened by the keyboard must share one taskAffinity, found %s' % sorted(affinities))
 
+# --- the task of the keyboard is a second task of the app: it must not be a second window in the list of recent apps. Every activity with that
+# affinity says excludeFromRecents (the attribute counts for the root of a task, and any of them can be the root), MrNav marks what the
+# keyboard opens and MrScreens tells it about the screens that come and go, so that the AI settings screen is closed when the person is back
+for tag in manifest_tags:
+    if 'android:taskAffinity="com.mrkeyboard.app.screens"' not in tag: continue
+    name = re.search(r'android:name="([^"]+)"', tag)
+    if 'android:excludeFromRecents="true"' not in tag:
+        problems.append('manifest: %s has the affinity of the keyboard screens and must be excludeFromRecents (no second window in the recent apps)' % (name.group(1) if name else '?'))
+nav_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrNav.java')
+if 'EXTRA_FROM_KEYBOARD' not in nav_src or 'finishAndRemoveTask' not in nav_src:
+    problems.append('MrNav: the screens opened from the keyboard must carry EXTRA_FROM_KEYBOARD and be closed with their task (finishAndRemoveTask)')
+_scr = read_file('docs/tools/java/src/com/mrkeyboard/app/MrScreens.java')
+for call in ('MrNav.opened(activity)', 'MrNav.gone(activity)', 'MrMatrix.pause(activity)', 'MrMatrix.resume(activity)'):
+    if call not in _scr:
+        problems.append('MrScreens: %s is missing (the screens opened by the keyboard are tracked, and the rain stops when a screen leaves the display)' % call)
+if 'MrNav.closeOpenedByKeyboard(MrAiPrefs.class)' not in read_file('docs/tools/java/src/com/mrkeyboard/app/MrAiDialog.java'):
+    problems.append('MrAiDialog: the AI settings screen that the keyboard opened must be closed when the dialog comes back')
+
 # --- one screen on top of itself is not allowed: every screen except the launcher and the singleInstance helpers is
 # singleTop (a double tap on a Settings row reaches the screen already open through onNewIntent), and no method opens a
 # screen of the keyboard by hand with NEW_TASK: the intent comes from MrNav.intent
@@ -442,26 +460,33 @@ for lang in ('values', 'values-es', 'values-pt-rBR'):
                  'mr_ui_scr_accel_system', 'mr_ui_scr_accel_refused'):
         if '<string name="%s">' % name not in texts:
             problems.append('%s/mr_strings.xml: string %s of the acceleration setting is missing' % (lang, name))
-# --- Matrix effect of the settings screens (MrMatrix + MrRainDrawable + the setting pref_ui_matrix): off by default, next to the acceleration,
-# in the three languages, and the key is the same in the XML, in MrMatrix and in the list of what "Restore defaults" resets
-mx_pref = [t for t in re.findall(r'<CheckBoxPreference\b[^>]*>', adv_xml) if 'android:key="pref_ui_matrix"' in t]
+# --- Matrix effect of the screens (MrMatrix + MrRainDrawable + the setting pref_ui_matrix): ON by default, in the category Appearance of the main
+# settings screen (not on Advanced), in the three languages, and the key is the same in the XML, in MrMatrix and in the list of what "Restore
+# defaults" resets; the main settings screen has to tell MrScreens when it changes (the screen is created again to take it)
+prefs_xml = read_file('res/xml/prefs.xml')
+mx_pref = [t for t in re.findall(r'<CheckBoxPreference\b[^>]*>', prefs_xml) if 'android:key="pref_ui_matrix"' in t]
 if len(mx_pref) != 1:
-    problems.append('prefs_advanced.xml: the setting pref_ui_matrix is missing or repeated')
+    problems.append('prefs.xml: the setting pref_ui_matrix is missing or repeated')
 else:
-    for attr in ('android:persistent="true"', 'android:defaultValue="false"', 'android:summaryOn="@string/mr_ui_matrix_on"',
+    for attr in ('android:persistent="true"', 'android:defaultValue="true"', 'android:summaryOn="@string/mr_ui_matrix_on"',
                  'android:summaryOff="@string/mr_ui_matrix_off"', 'android:title="@string/mr_ui_matrix"'):
         if attr not in mx_pref[0]:
-            problems.append('prefs_advanced.xml: pref_ui_matrix needs %s (off by default)' % attr)
-    if adv_xml.find('android:key="pref_ui_matrix"') < adv_xml.find('android:key="pref_ui_hw_accel"') or adv_xml.find('android:key="pref_ui_matrix"') > adv_xml.find('android:key="mr_kbd_accel"'):
-        problems.append('prefs_advanced.xml: pref_ui_matrix goes in the category Screens, after the acceleration and before the read-only rows')
+            problems.append('prefs.xml: pref_ui_matrix needs %s (on by default)' % attr)
+    appearance = re.search(r'<PreferenceCategory\b[^>]*android:key="graphics_settings"[^>]*>(.*?)</PreferenceCategory>', prefs_xml, re.S)
+    if not appearance or 'android:key="pref_ui_matrix"' not in appearance.group(1):
+        problems.append('prefs.xml: pref_ui_matrix goes in the category Appearance (graphics_settings)')
+if 'pref_ui_matrix' in adv_xml:
+    problems.append('prefs_advanced.xml: pref_ui_matrix moved to the Appearance category of prefs.xml')
+if 'MrScreens;->onSetting(Landroid/app/Activity;Ljava/lang/String;)V' not in read_file('smali/com/mrkeyboard/app/LatinIMESettings.smali'):
+    problems.append('LatinIMESettings.smali: onSharedPreferenceChanged must call MrScreens.onSetting (the Matrix setting is on this screen)')
 for lang in ('values', 'values-es', 'values-pt-rBR'):
     texts = read_file('res/%s/mr_strings.xml' % lang)
     for name in ('mr_ui_matrix', 'mr_ui_matrix_on', 'mr_ui_matrix_off'):
         if '<string name="%s">' % name not in texts:
             problems.append('%s/mr_strings.xml: string %s of the Matrix effect is missing' % (lang, name))
 matrix_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrMatrix.java')
-if 'KEY = "pref_ui_matrix"' not in matrix_src or 'getBoolean(KEY, false)' not in matrix_src:
-    problems.append('MrMatrix: the key of the setting is not pref_ui_matrix or the default is not false')
+if 'KEY = "pref_ui_matrix"' not in matrix_src or 'getBoolean(KEY, true)' not in matrix_src:
+    problems.append('MrMatrix: the key of the setting is not pref_ui_matrix or the default is not true')
 if '"pref_ui_matrix"' not in read_file('docs/tools/java/src/com/mrkeyboard/app/MrReset.java'):
     problems.append('MrReset: pref_ui_matrix is not in the list of the settings that Restore defaults resets')
 # --- AI Editor dialog: the style chips, the result field and the "Emojificar" button and box use the lighter navy (mr_ui_raised) with mr_ui_stroke_strong

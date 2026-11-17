@@ -226,13 +226,17 @@ public class ScreensTest {
         for (int sdk : every) {
             Build.VERSION.SDK_INT = sdk;
             prefs.map.clear();
-            check("SDK " + sdk + ", setting never changed: the screen is drawn as always (no flag)", flagsAfterCreate(new Screen(null), 0) == 0);
+            check("SDK " + sdk + ", nothing ever changed: the Matrix effect is on by default and accelerates the window by itself", flagsAfterCreate(new Screen(null), 0) == HW);
+            // the Matrix effect off from here on, so that this block tests the acceleration setting alone
+            prefs.map.put("pref_ui_matrix", Boolean.FALSE);
+            check("SDK " + sdk + ", Matrix effect off and the acceleration never changed: the screen is drawn as always (no flag)", flagsAfterCreate(new Screen(null), 0) == 0);
             prefs.map.put(MrScreens.KEY_HW_ACCEL, Boolean.FALSE);
             check("SDK " + sdk + ", setting off: no flag", flagsAfterCreate(new Screen(null), 0) == 0);
             prefs.map.put(MrScreens.KEY_HW_ACCEL, Boolean.TRUE);
             check("SDK " + sdk + ", setting on: the window asks for hardware acceleration", flagsAfterCreate(new Screen(null), 0) == HW);
         }
         Build.VERSION.SDK_INT = 33;
+        prefs.map.put("pref_ui_matrix", Boolean.FALSE);
         check("setting on: the other flags of the window stay (0x80 and 0x1000)", flagsAfterCreate(new Screen(null), 0x1080) == (0x1080 | HW));
         check("setting on and the window already accelerated (manifest): it stays that way", flagsAfterCreate(new Screen(null), HW) == HW);
         prefs.map.put(MrScreens.KEY_HW_ACCEL, Boolean.FALSE);

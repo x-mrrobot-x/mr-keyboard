@@ -1,5 +1,6 @@
 package com.mrkeyboard.app;
 
+import android.animation.ValueAnimator;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
@@ -16,7 +17,9 @@ import android.os.SystemClock;
  *
  * <p>It animates itself: the first draw asks for the next beat ({@link #STEP_MS} later, about 12 beats a second: the drops move in whole rows, so
  * more would only cost battery), the beat moves the rain and invalidates, the draw asks for the next one. The window tells a background when the
- * window is shown or hidden ({@link #setVisible}): hidden, the beats stop and nothing is drawn until it is shown again.
+ * window is shown or hidden ({@link #setVisible}): hidden, the beats stop and nothing is drawn until it is shown again. When the phone has the
+ * animations turned off (the accessibility setting "remove animations", or the battery saver: {@link ValueAnimator#areAnimatorsEnabled}) it does not
+ * ask for beats at all: the letters stay where they are, one frame, and the screen costs nothing.
  *
  * <p>The glyphs are digits, capital letters and a few signs, plus the half-width katakana of the film when the font of the phone has them
  * (Paint.hasGlyph, asked once); the ones it lacks are left out, so there is never a "missing character" box.
@@ -115,7 +118,7 @@ final class MrRainDrawable extends Drawable {
                 canvas.drawText(mGlyphs[mRain.glyphAt(c, r)], x, (r + 1) * mCellH - mCellH * 0.22f, mPaint);
             }
         }
-        if (!mScheduled && isVisible()) {
+        if (!mScheduled && isVisible() && ValueAnimator.areAnimatorsEnabled()) {
             mScheduled = true;
             scheduleSelf(mBeat, SystemClock.uptimeMillis() + STEP_MS);
         }

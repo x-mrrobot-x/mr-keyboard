@@ -16,6 +16,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
@@ -69,6 +70,15 @@ public class MrAiStyleActivity extends Activity {
     /** A request for another style is being applied by recreating the screen: the old draft must not travel along. */
     private boolean mReloading;
     private final ArrayList<TextView> mEmojiViews = new ArrayList<TextView>();
+
+    /** The style editor that is open (weak). While there is one, the AI settings screen is not closed behind the person's back (see MrAiDialog). */
+    static WeakReference<MrAiStyleActivity> sOpen;   // package-private: the PC test of the return to the dialog sets it
+
+    /** A style editor is open (it may hold a draft that was not saved). */
+    static boolean isOpen() {
+        MrAiStyleActivity open = sOpen != null ? sOpen.get() : null;
+        return open != null && !open.isFinishing() && !open.isDestroyed();
+    }
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -181,6 +191,7 @@ public class MrAiStyleActivity extends Activity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+        sOpen = new WeakReference<MrAiStyleActivity>(this);
         // The style comes from the saved state when there is one (a recreation, which may be for another style than the
         // one the screen was first opened with); otherwise from the Intent.
         if (state != null && state.containsKey(S_INDEX)) mIndex = state.getInt(S_INDEX, -1);

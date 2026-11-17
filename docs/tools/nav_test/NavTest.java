@@ -5,6 +5,11 @@ import android.app.Application;
 import android.content.Intent;
 import android.inputmethodservice.InputMethodService;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Opening screens without stacking copies: the Intent that MrNav builds (flags from the keyboard window and from a
  * screen), and what the AI style editor does when it is asked for again while it is already open.
@@ -14,6 +19,35 @@ public class NavTest {
     static void check(String w, boolean c) { if (c) { ok++; System.out.println("OK    " + w); } else { fail++; System.out.println("FAIL  " + w); } }
 
     static class Screen extends Activity { }
+
+    /** A screen with the Intent it was started with, and the answers that the system would give about its state. */
+    static class Opened extends Activity {
+        final Intent in = new Intent();
+        boolean finishing, destroyed, failToClose;
+        Opened(boolean fromKeyboard, boolean root) {
+            if (fromKeyboard) in.putExtra(MrNav.EXTRA_FROM_KEYBOARD, true);
+            stubTaskRoot = root;
+        }
+        public Intent getIntent() { return in; }
+        public boolean isFinishing() { return finishing; }
+        public boolean isDestroyed() { return destroyed; }
+        public void finishAndRemoveTask() {
+            if (failToClose) throw new IllegalStateException("the system refused");
+            super.finishAndRemoveTask();
+        }
+    }
+
+    static class Other extends Opened {
+        Other(boolean fromKeyboard, boolean root) { super(fromKeyboard, root); }
+    }
+
+    static String file(String path) {
+        try {
+            return new String(Files.readAllBytes(Paths.get(path)), "UTF-8");
+        } catch (Exception e) {
+            return "";
+        }
+    }
 
     static final int NEW_TASK = Intent.FLAG_ACTIVITY_NEW_TASK;
     static final int REORDER = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT;
@@ -81,6 +115,92 @@ public class NavTest {
         check("new style, instructions typed: dirty", MrAiStyleActivity.isDirty("", "A", "✨", null));
         check("new style, another emoji chosen: dirty", MrAiStyleActivity.isDirty("", "", "🏴", null));
         check("null texts count as empty", !MrAiStyleActivity.isDirty(null, null, "✨", null));
+
+        // ---- the extra that says "the keyboard opened this" (and only the keyboard)
+        check("from the keyboard: the Intent carries the extra of the keyboard", i.getBooleanExtra(MrNav.EXTRA_FROM_KEYBOARD, false));
+        check("from a screen: no such extra (that screen goes on the stack of the one that opened it)", !s.getBooleanExtra(MrNav.EXTRA_FROM_KEYBOARD, false));
+        check("the extra does not change the flags that decide the task", i.flags == (NEW_TASK | REORDER) && s.flags == REORDER);
+
+        // ---- the screens that the keyboard opened are remembered, and closed when they are not needed
+        Opened ai = new Opened(true, true);
+        MrNav.opened(ai);
+        check("a screen that the keyboard opened is found by its class", MrNav.openedByKeyboard(Opened.class) == ai);
+        check("... and not under another class", MrNav.openedByKeyboard(Other.class) == null);
+        Opened fromMain = new Opened(false, true);
+        MrNav.opened(fromMain);
+        check("a screen that another screen opened (no extra) is not remembered: it is not the keyboard's to close", MrNav.openedByKeyboard(Opened.class) == ai);
+        MrNav.opened(null);
+        MrNav.gone(null);
+        check("null does nothing", MrNav.openedByKeyboard(Opened.class) == ai);
+        check("closing a class that has nothing open: false, nothing happens", !MrNav.closeOpenedByKeyboard(Other.class));
+        check("closing the root of the task: the whole task goes (finishAndRemoveTask, no entry left in the recent apps)",
+                MrNav.closeOpenedByKeyboard(Opened.class) && ai.stubTaskRemovals == 1);
+        MrNav.gone(ai);
+        check("destroyed: no longer there", MrNav.openedByKeyboard(Opened.class) == null && !MrNav.closeOpenedByKeyboard(Opened.class));
+
+        Opened inner = new Opened(true, false);
+        MrNav.opened(inner);
+        check("a screen that is not the root of its task: only that screen is finished, the task stays", MrNav.closeOpenedByKeyboard(Opened.class) && inner.stubFinishes == 1 && inner.stubTaskRemovals == 0);
+        MrNav.gone(inner);
+
+        Opened going = new Opened(true, true);
+        MrNav.opened(going);
+        going.finishing = true;
+        check("a screen that is already finishing is not found (and not finished again)", MrNav.openedByKeyboard(Opened.class) == null && !MrNav.closeOpenedByKeyboard(Opened.class) && going.stubFinishes == 0);
+        going.finishing = false;
+        going.destroyed = true;
+        check("a destroyed one is not found either", MrNav.openedByKeyboard(Opened.class) == null);
+        Opened later = new Opened(true, true);
+        MrNav.opened(later);
+        check("... and the one opened later is (the destroyed one is dropped from the list)", MrNav.openedByKeyboard(Opened.class) == later);
+        MrNav.gone(later);
+        MrNav.gone(going);
+
+        Opened first = new Opened(true, true);
+        Opened second = new Opened(true, true);
+        MrNav.opened(first);
+        MrNav.opened(second);
+        check("two of the same class (the screen was created again): the newest is the one", MrNav.openedByKeyboard(Opened.class) == second);
+        MrNav.gone(second);
+        check("... and when it goes the other is still there", MrNav.openedByKeyboard(Opened.class) == first);
+        MrNav.gone(first);
+
+        Opened stubborn = new Opened(true, true);
+        stubborn.failToClose = true;
+        MrNav.opened(stubborn);
+        boolean refused = true;
+        boolean closed = true;
+        try { closed = MrNav.closeOpenedByKeyboard(Opened.class); } catch (RuntimeException e) { refused = false; }
+        check("the system refusing to close it: no failure, and the answer is false", refused && !closed);
+        MrNav.gone(stubborn);
+
+        // the callbacks of MrScreens are what feeds the list
+        MrScreens cb = new MrScreens();
+        Opened viaCallbacks = new Opened(true, true);
+        cb.onActivityCreated(viaCallbacks, null);
+        check("MrScreens.onActivityCreated remembers the screen that the keyboard opened", MrNav.openedByKeyboard(Opened.class) == viaCallbacks);
+        cb.onActivityDestroyed(viaCallbacks);
+        check("MrScreens.onActivityDestroyed forgets it", MrNav.openedByKeyboard(Opened.class) == null);
+        Opened mainScreen = new Opened(false, true);
+        cb.onActivityCreated(mainScreen, null);
+        check("a screen that the keyboard did not open is not remembered by the callbacks", MrNav.openedByKeyboard(Opened.class) == null);
+        cb.onActivityDestroyed(mainScreen);
+
+        // ---- the manifest: no second window of the app in the recent apps
+        String manifest = file("AndroidManifest.xml");
+        Matcher m = Pattern.compile("<activity\\b[^>]*>").matcher(manifest);
+        int withAffinity = 0, excluded = 0;
+        boolean sheetsOk = false;
+        while (m.find()) {
+            String tag = m.group();
+            if (!tag.contains("android:taskAffinity=\"com.mrkeyboard.app.screens\"")) continue;
+            withAffinity++;
+            if (tag.contains("android:excludeFromRecents=\"true\"")) excluded++;
+        }
+        check("the manifest has the task of the keyboard screens (8 screens with its affinity)", withAffinity == 8);
+        check("every one of them is excluded from the recent apps (any of them can be the root of the task, and the task is not a second window of the app)", excluded == withAffinity);
+        Matcher home = Pattern.compile("<activity\\b[^>]*android:name=\"com\\.mrkeyboard\\.app\\.Main\"[^>]*>").matcher(manifest);
+        check("the home screen (Main) is not excluded: it is the one window that the app has in the recent apps", home.find() && !home.group().contains("excludeFromRecents"));
 
         System.out.println(ok + " ok, " + fail + " failures");
         if (fail > 0) System.exit(1);

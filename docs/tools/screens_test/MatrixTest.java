@@ -1,5 +1,6 @@
 package com.mrkeyboard.app;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -387,7 +388,9 @@ public class MatrixTest {
         PreferenceManager.stubDefault = prefs;
         Build.VERSION.SDK_INT = 33;
         check("the key of the setting", MrMatrix.KEY.equals("pref_ui_matrix"));
-        check("off by default: never changed, the setting is off", !MrMatrix.enabled(new Plain()));
+        check("on by default: never changed, the setting is on", MrMatrix.enabled(new Plain()));
+        check("... and a screen that was never touched by the person is one that wants the rain", MrMatrix.wanted(new Plain()) && MrMatrix.wanted(new Settings()));
+        check("... but not a helper window", !MrMatrix.wanted(new ShotPerm()));
         prefs.map.put("pref_ui_matrix", Boolean.TRUE);
         check("on when it is on", MrMatrix.enabled(new Plain()));
         prefs.map.put("pref_ui_matrix", Boolean.FALSE);
@@ -424,6 +427,11 @@ public class MatrixTest {
         // MrScreens: the screen is created
         PreferenceManager.stubDefault = prefs;
         prefs.map.clear();
+        Settings fresh = new Settings();
+        new MrScreens().onActivityCreated(fresh, null);
+        check("nothing was ever set (the default, on): the settings screen gets the rain, the acceleration and the see-through cards",
+                fresh.getWindow().stubBackground instanceof MrRainDrawable && (fresh.getWindow().stubFlags & HW) == HW && fresh.stubTheme.stubApplied.size() == 1);
+        prefs.map.put("pref_ui_matrix", Boolean.FALSE);
         Settings off = new Settings();
         new MrScreens().onActivityCreated(off, null);
         check("setting off: the settings screen is drawn as always (no rain, no acceleration)", off.getWindow().stubBackground == null && off.getWindow().stubFlags == 0);
@@ -459,7 +467,7 @@ public class MatrixTest {
         check("a screen whose colours cannot be read opens as always (accelerated, no rain)", noRes && broken.getWindow().stubBackground == null && (broken.getWindow().stubFlags & HW) == HW);
 
         // MrScreens: it comes back after the setting changed
-        prefs.map.clear();
+        prefs.map.put("pref_ui_matrix", Boolean.FALSE);
         MrScreens cb = new MrScreens();
         Settings behind = new Settings();
         cb.onActivityCreated(behind, null);
@@ -495,20 +503,129 @@ public class MatrixTest {
         loop.onActivityResumed(noColours);
         check("the rain could not be put (colours missing) and the setting stays on: the screen is not created again and again", noColours.stubRecreates == 0);
 
-        // the Advanced screen reports a change
+        // the screen that has the setting reports a change (the main settings screen, in Appearance)
         Settings adv = new Settings();
         MrScreens.onSetting(adv, "pref_ui_matrix");
-        check("the Matrix setting changed on the Advanced screen: it is created again at once", adv.stubRecreates == 1);
+        check("the Matrix setting changed on the settings screen: it is created again at once", adv.stubRecreates == 1);
         MrScreens.onSetting(adv, "pref_ui_matrix_x");
         MrScreens.onSetting(adv, "force_keyboard_on");
         check("any other setting leaves it as it is", adv.stubRecreates == 1);
         PreferenceManager.stubDefault = null;
     }
 
+
+    // ---------------------------------------------------------------- nothing runs in the background
+
+    /** Runs the loop of the rain (draw, ask for a beat, beat, draw...) for at most {@code max} beats and says how many there were. */
+    static int beats(MrRainDrawable d, int max) {
+        int n = 0;
+        d.draw(new Canvas());
+        while (n < max && !d.stubScheduled.isEmpty()) {
+            d.stubScheduled.remove(0).run();
+            d.draw(new Canvas());
+            n++;
+        }
+        return n;
+    }
+
+    static MrRainDrawable rainOf(Activity screen) {
+        return screen.getWindow().stubBackground instanceof MrRainDrawable ? (MrRainDrawable) screen.getWindow().stubBackground : null;
+    }
+
+    static void background() {
+        PreferenceManager.stubDefault = prefs;
+        prefs.map.clear();
+        Build.VERSION.SDK_INT = 33;
+        MrScreens cb = new MrScreens();
+        Settings screen = new Settings();
+        cb.onActivityCreated(screen, null);
+        MrRainDrawable rain = rainOf(screen);
+        rain.setBounds(0, 0, 300, 600);
+        cb.onActivityStarted(screen);
+        check("a screen that is on display: the rain runs (50 beats asked for in a row, each one after the draw of the one before)", beats(rain, 50) == 50);
+
+        // the screen leaves the display (Home, another app, the screen turns off): onStop
+        cb.onActivityStopped(screen);
+        check("onStop: the rain is told that it is hidden, and the beat that was waiting is taken back", !rain.isVisible() && rain.stubScheduled.isEmpty());
+        check("stopped: not one beat in 50 tries (nothing runs in the background)", beats(rain, 50) == 0);
+        Runnable late = null;
+        cb.onActivityStarted(screen);
+        rain.draw(new Canvas());
+        late = rain.stubScheduled.get(0);
+        cb.onActivityStopped(screen);
+        rain.stubScheduled.clear();
+        int before = rain.stubInvalidations;
+        late.run();
+        check("a beat that was already on its way when the screen stopped moves the rain once and asks for nothing more", rain.stubScheduled.isEmpty() && rain.stubInvalidations == before + 1);
+        check("... and the draw that it causes (the system skips it for a hidden window; here forced) does not ask for another", beats(rain, 50) == 0);
+
+        // back on display
+        cb.onActivityStarted(screen);
+        check("onStart: the rain is shown again", rain.isVisible());
+        check("... and it runs again (the first draw asks for the beat)", beats(rain, 20) == 20);
+
+        // stopped and started again many times: never more than one beat waiting
+        boolean oneAtATime = true;
+        for (int i = 0; i < 25; i++) {
+            cb.onActivityStopped(screen);
+            cb.onActivityStarted(screen);
+            rain.draw(new Canvas());
+            rain.draw(new Canvas());
+            if (rain.stubScheduled.size() > 1) oneAtATime = false;
+        }
+        check("stopping and starting again and again never leaves more than one beat waiting", oneAtATime);
+
+        // a screen without the rain, a window that is not a screen, nothing at all: no failure
+        prefs.map.put("pref_ui_matrix", Boolean.FALSE);
+        Settings plain = new Settings();
+        cb.onActivityCreated(plain, null);
+        boolean fine = true;
+        try {
+            cb.onActivityStarted(plain);
+            cb.onActivityStopped(plain);
+            cb.onActivityStarted(null);
+            cb.onActivityStopped(null);
+            MrMatrix.pause(null);
+            MrMatrix.resume(null);
+            cb.onActivityStopped(new Settings());
+        } catch (RuntimeException e) {
+            fine = false;
+        }
+        check("a screen without the rain, a screen that was never seen and null: stopping and starting do nothing and do not fail", fine && plain.getWindow().stubBackground == null);
+
+        // two screens: stopping one does not stop the other (the one that stays on display keeps its rain)
+        prefs.map.put("pref_ui_matrix", Boolean.TRUE);
+        Settings top = new Settings();
+        Settings below = new Settings();
+        cb.onActivityCreated(below, null);
+        cb.onActivityCreated(top, null);
+        MrRainDrawable rainBelow = rainOf(below), rainTop = rainOf(top);
+        rainBelow.setBounds(0, 0, 300, 600);
+        rainTop.setBounds(0, 0, 300, 600);
+        cb.onActivityStopped(below);
+        check("the screen under another one is stopped: its rain stops and the one on top keeps running", beats(rainBelow, 30) == 0 && beats(rainTop, 30) == 30);
+        check("the two rains are two drawables", rainBelow != rainTop);
+
+        // the phone has the animations off (the accessibility setting, the battery saver): one frame, no beats
+        cb.onActivityStarted(below);
+        ValueAnimator.stubAnimatorsEnabled = false;
+        MrRainDrawable still = rainOf(below);
+        Canvas frame = new Canvas();
+        still.draw(frame);
+        check("animations off on the phone: the letters are drawn once (a frame, with the letters over the colour of the screen)", frame.stubFill == BG && frame.stubGlyphs.size() > 30);
+        check("... and no beat is asked for, so nothing runs and nothing is drawn again", beats(still, 50) == 0);
+        ValueAnimator.stubAnimatorsEnabled = true;
+        still.setVisible(false, false);
+        still.setVisible(true, false);
+        check("the animations back on: the next draw starts the beats again", beats(still, 10) == 10);
+        ValueAnimator.stubAnimatorsEnabled = true;
+        PreferenceManager.stubDefault = null;
+    }
+
     /** The dialogs that a screen opens with an explicit theme, and the colours that the screens built in code take. */
     static void dialogsAndKit() {
         PreferenceManager.stubDefault = prefs;
-        prefs.map.clear();
+        prefs.map.put("pref_ui_matrix", Boolean.FALSE);
         check("the effect off: a dialog keeps the theme that it was given", MrMatrix.dialogTheme(new Settings(), 77) == 77);
         prefs.map.put("pref_ui_matrix", Boolean.TRUE);
         check("the effect on: the see-through dialog theme", MrMatrix.dialogTheme(new Settings(), 77) == DIALOG_GLASS_ID);
@@ -571,7 +688,15 @@ public class MatrixTest {
 
     static void files() {
         String adv = file("res/xml/prefs_advanced.xml");
-        check("the setting is in the Advanced screen, a checkbox, stored, off by default", adv.contains("android:key=\"pref_ui_matrix\"") && adv.contains("android:defaultValue=\"false\" android:summaryOn=\"@string/mr_ui_matrix_on\""));
+        String prefsXml = file("res/xml/prefs.xml");
+        int cat = prefsXml.indexOf("android:key=\"graphics_settings\"");
+        int catEnd = prefsXml.indexOf("</PreferenceCategory>", cat);
+        String appearance = cat < 0 || catEnd < 0 ? "" : prefsXml.substring(cat, catEnd);
+        check("the setting is in the Appearance category of the settings screen, a checkbox, stored, ON by default", appearance.contains("<CheckBoxPreference")
+                && appearance.contains("android:key=\"pref_ui_matrix\" android:defaultValue=\"true\" android:summaryOn=\"@string/mr_ui_matrix_on\""));
+        check("... and no longer on the Advanced screen", !adv.contains("pref_ui_matrix") && !adv.contains("mr_ui_matrix"));
+        check("the settings screen tells MrScreens when a setting changes (the screen is created again to take the Matrix setting)",
+                file("smali/com/mrkeyboard/app/LatinIMESettings.smali").contains("MrScreens;->onSetting(Landroid/app/Activity;Ljava/lang/String;)V"));
         boolean all = true;
         for (String lang : new String[] {"values", "values-pt-rBR", "values-es"}) {
             for (String k : new String[] {"mr_ui_matrix", "mr_ui_matrix_on", "mr_ui_matrix_off"}) {
@@ -582,8 +707,12 @@ public class MatrixTest {
         check("the title and the two summaries exist in the three languages", all);
         check("the titles", "Matrix effect".equals(string("values", "mr_ui_matrix")) && "Efeito Matrix".equals(string("values-pt-rBR", "mr_ui_matrix"))
                 && "Efecto Matrix".equals(string("values-es", "mr_ui_matrix")));
-        check("the summary says that the screens are drawn by the GPU while it is on (it asks for the acceleration) in the three languages",
-                string("values", "mr_ui_matrix_on").contains("GPU") && string("values-pt-rBR", "mr_ui_matrix_on").contains("GPU") && string("values-es", "mr_ui_matrix_on").contains("GPU"));
+        check("the summary is one short sentence pair (it says that it stops when the screen is left, and that it costs battery) in the three languages",
+                string("values", "mr_ui_matrix_on").contains("stop") && string("values", "mr_ui_matrix_on").contains("battery")
+                && string("values-pt-rBR", "mr_ui_matrix_on").contains("Param") && string("values-pt-rBR", "mr_ui_matrix_on").contains("bateria")
+                && string("values-es", "mr_ui_matrix_on").contains("detienen") && string("values-es", "mr_ui_matrix_on").contains("batería"));
+        check("no summary talks about Advanced, Screens or a default any more", !string("values", "mr_ui_matrix_off").contains("default") && !string("values-pt-rBR", "mr_ui_matrix_off").contains("padrão")
+                && !string("values-es", "mr_ui_matrix_off").contains("predeterminado") && !string("values", "mr_ui_matrix_on").contains("Advanced"));
         check("Restore defaults resets it", file("docs/tools/java/src/com/mrkeyboard/app/MrReset.java").contains("\"pref_ui_matrix\""));
         // the see-through cards
         String attrs = file("res/values/mr_attrs.xml");
@@ -663,6 +792,7 @@ public class MatrixTest {
         rain();
         drawable();
         matrix();
+        background();
         dialogsAndKit();
         files();
         System.out.println();

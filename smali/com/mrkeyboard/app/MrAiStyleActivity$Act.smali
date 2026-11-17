@@ -28,15 +28,15 @@
     .locals 0
 
     .prologue
-    .line 53
+    .line 54
     iput-object p1, p0, Lcom/mrkeyboard/app/MrAiStyleActivity$Act;->this$0:Lcom/mrkeyboard/app/MrAiStyleActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 54
+    .line 55
     iput p2, p0, Lcom/mrkeyboard/app/MrAiStyleActivity$Act;->code:I
 
-    .line 55
+    .line 56
     return-void
 .end method
 
@@ -46,13 +46,13 @@
     .locals 2
 
     .prologue
-    .line 58
+    .line 59
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAiStyleActivity$Act;->this$0:Lcom/mrkeyboard/app/MrAiStyleActivity;
 
     iget v1, p0, Lcom/mrkeyboard/app/MrAiStyleActivity$Act;->code:I
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAiStyleActivity;->access$000(Lcom/mrkeyboard/app/MrAiStyleActivity;I)V
 
-    .line 59
+    .line 60
     return-void
 .end method

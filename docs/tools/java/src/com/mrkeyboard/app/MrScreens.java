@@ -34,10 +34,11 @@ import java.util.WeakHashMap;
  * the window is handed to the system (the flag is read when the window is added, after onResume). It never touches the
  * windows without a screen of their own (the translucent helpers) or the keyboard and its dialogs.
  *
- * Matrix effect (the setting "pref_ui_matrix", Advanced, off by default): on the settings screens (MrMatrix.eligible) the window gets
+ * Matrix effect (the setting "pref_ui_matrix", Settings, Appearance, on by default): on the screens of the app (MrMatrix.eligible) the window gets
  * the falling letters as its background (MrMatrix.attach) and, since they are animated, it is accelerated whatever the other setting says. Both
  * are decided when the screen is created; the screens that are open when the setting changes are created again when they come back
- * (onActivityResumed) and the one that changed it at once (onSetting).
+ * (onActivityResumed) and the one that changed it at once (onSetting). A screen that leaves the display (onActivityStopped) stops its rain, and
+ * starts it again when it comes back (onActivityStarted): nothing animates in the background.
  */
 public final class MrScreens implements Application.ActivityLifecycleCallbacks, View.OnApplyWindowInsetsListener {
     /** android.R.id.content. */
@@ -62,8 +63,9 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
     }
 
     /**
-     * The Advanced screen calls this when a setting changes: the acceleration is read when the window is created, so
-     * that screen is created again to take the new value at once (the ones behind it take it the next time they open).
+     * The Advanced screen (the acceleration) and the main settings screen (the Matrix effect, in Appearance) call this when a
+     * setting changes: both are read when the window is created, so that screen is created again to take the new value at once
+     * (the ones behind it take it the next time they come back).
      */
     public static void onSetting(Activity screen, String key) {
         if (screen != null && (KEY_HW_ACCEL.equals(key) || MrMatrix.KEY.equals(key))) screen.recreate();
@@ -101,6 +103,7 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
     }
 
     public void onActivityStarted(Activity activity) {
+        MrMatrix.resume(activity);
         if (Build.VERSION.SDK_INT < EDGE_TO_EDGE_SDK) return;
         View content = activity.findViewById(CONTENT);
         if (content == null) return;
@@ -114,6 +117,7 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
     }
 
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+        MrNav.opened(activity);
         boolean rain = MrMatrix.wanted(activity);
         if (MrMatrix.eligible(activity)) mRain.put(activity, Boolean.valueOf(rain));
         if (rain) MrMatrix.attach(activity);
@@ -133,11 +137,15 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
 
     public void onActivityPaused(Activity activity) { }
 
-    public void onActivityStopped(Activity activity) { }
+    public void onActivityStopped(Activity activity) {
+        MrMatrix.pause(activity);
+    }
 
     public void onActivitySaveInstanceState(Activity activity, Bundle outState) { }
 
-    public void onActivityDestroyed(Activity activity) { }
+    public void onActivityDestroyed(Activity activity) {
+        MrNav.gone(activity);
+    }
 
     /** Padding of the dialog root from the insets that reach the decor view of its window. */
     static final class DialogFit implements View.OnApplyWindowInsetsListener {
