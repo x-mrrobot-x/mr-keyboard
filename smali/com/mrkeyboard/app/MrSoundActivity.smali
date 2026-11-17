@@ -20,6 +20,8 @@
 
 .field mNote:Landroid/widget/TextView;
 
+.field mOtherIme:Landroid/widget/TextView;
+
 .field mPercent:Landroid/widget/TextView;
 
 .field mPrefs:Landroid/content/SharedPreferences;
@@ -37,6 +39,8 @@
     .end annotation
 .end field
 
+.field mTry:Landroid/widget/EditText;
+
 
 # direct methods
 .method static constructor <clinit>()V
@@ -53,7 +57,7 @@
 
     const/4 v4, 0x0
 
-    .line 32
+    .line 38
     const/16 v0, 0xf
 
     new-array v0, v0, [Ljava/lang/String;
@@ -62,49 +66,49 @@
 
     aput-object v1, v0, v4
 
-    const-string v1, "bubble"
+    const-string v1, "default"
 
     aput-object v1, v0, v5
 
-    const-string v1, "bell"
+    const-string v1, "keyboard"
 
     aput-object v1, v0, v6
 
-    const-string v1, "duck"
+    const-string v1, "drop"
 
     aput-object v1, v0, v7
 
-    const-string v1, "keyboard"
+    const-string v1, "bubble"
 
     aput-object v1, v0, v3
 
     const/4 v1, 0x5
 
-    const-string v2, "default"
+    const-string v2, "bubble2"
 
     aput-object v2, v0, v1
 
     const/4 v1, 0x6
 
-    const-string v2, "bubble2"
+    const-string v2, "bell"
 
     aput-object v2, v0, v1
 
     const/4 v1, 0x7
 
-    const-string v2, "fox"
+    const-string v2, "duck"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x8
 
-    const-string v2, "pistol"
+    const-string v2, "mouse"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0x9
 
-    const-string v2, "wand"
+    const-string v2, "cat"
 
     aput-object v2, v0, v1
 
@@ -116,31 +120,31 @@
 
     const/16 v1, 0xb
 
-    const-string v2, "cat"
+    const-string v2, "fox"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0xc
 
-    const-string v2, "drop"
+    const-string v2, "wand"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0xd
 
-    const-string v2, "rocket"
+    const-string v2, "pistol"
 
     aput-object v2, v0, v1
 
     const/16 v1, 0xe
 
-    const-string v2, "mouse"
+    const-string v2, "rocket"
 
     aput-object v2, v0, v1
 
     sput-object v0, Lcom/mrkeyboard/app/MrSoundActivity;->TILES:[Ljava/lang/String;
 
-    .line 37
+    .line 43
     const/16 v0, 0xe
 
     new-array v0, v0, [[Ljava/lang/String;
@@ -364,10 +368,10 @@
     .locals 1
 
     .prologue
-    .line 27
+    .line 30
     invoke-direct {p0}, Landroid/app/Activity;-><init>()V
 
-    .line 55
+    .line 61
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -383,7 +387,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 153
+    .line 198
     sget-object v2, Lcom/mrkeyboard/app/MrSoundActivity;->GLYPHS:[[Ljava/lang/String;
 
     array-length v3, v2
@@ -395,7 +399,7 @@
 
     aget-object v4, v2, v0
 
-    .line 154
+    .line 199
     aget-object v5, v4, v1
 
     invoke-virtual {v5, p0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -404,12 +408,12 @@
 
     if-nez v5, :cond_0
 
-    .line 153
+    .line 198
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 155
+    .line 200
     :cond_0
     const/4 v0, 0x1
 
@@ -430,17 +434,17 @@
 
     aget-object v0, v4, v0
 
-    .line 158
+    .line 203
     :goto_2
     return-object v0
 
-    .line 155
+    .line 200
     :cond_1
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
-    .line 156
+    .line 201
     :cond_2
     array-length v0, v4
 
@@ -450,11 +454,83 @@
 
     goto :goto_2
 
-    .line 158
+    .line 203
     :cond_3
     const-string v0, ""
 
     goto :goto_2
+.end method
+
+.method static keyboardInUse(Landroid/content/Context;)Z
+    .locals 4
+
+    .prologue
+    const/4 v0, 0x1
+
+    .line 188
+    :try_start_0
+    invoke-virtual {p0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
+
+    move-result-object v1
+
+    const-string v2, "default_input_method"
+
+    invoke-static {v1, v2}, Landroid/provider/Settings$Secure;->getString(Landroid/content/ContentResolver;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 189
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+
+    move-result-object v2
+
+    .line 190
+    if-eqz v1, :cond_0
+
+    if-eqz v2, :cond_0
+
+    new-instance v3, Ljava/lang/StringBuilder;
+
+    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v3, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, "/"
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v1, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+    :try_end_0
+    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+
+    move-result v1
+
+    if-eqz v1, :cond_1
+
+    .line 192
+    :cond_0
+    :goto_0
+    return v0
+
+    .line 190
+    :cond_1
+    const/4 v0, 0x0
+
+    goto :goto_0
+
+    .line 191
+    :catch_0
+    move-exception v1
+
+    goto :goto_0
 .end method
 
 .method private tile(Ljava/lang/String;Landroid/graphics/Paint;)Landroid/widget/LinearLayout;
@@ -465,24 +541,24 @@
 
     const/4 v5, -0x2
 
-    .line 131
+    .line 165
     iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrKit;->column()Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 132
+    .line 166
     const/16 v0, 0x11
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 133
+    .line 167
     const/4 v0, 0x1
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setClickable(Z)V
 
-    .line 134
+    .line 168
     iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v0, "default"
@@ -504,14 +580,14 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setContentDescription(Ljava/lang/CharSequence;)V
 
-    .line 135
+    .line 169
     new-instance v0, Lcom/mrkeyboard/app/MrSoundActivity$3;
 
     invoke-direct {v0, p0, p1}, Lcom/mrkeyboard/app/MrSoundActivity$3;-><init>(Lcom/mrkeyboard/app/MrSoundActivity;Ljava/lang/String;)V
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 140
+    .line 174
     const-string v0, "default"
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -520,7 +596,7 @@
 
     if-eqz v0, :cond_2
 
-    .line 141
+    .line 175
     iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -549,12 +625,12 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 148
+    .line 182
     :cond_0
     :goto_1
     return-object v1
 
-    .line 134
+    .line 168
     :cond_1
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -576,7 +652,7 @@
 
     goto :goto_0
 
-    .line 143
+    .line 177
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -600,7 +676,7 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 144
+    .line 178
     const-string v0, "bubble"
 
     invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -617,7 +693,7 @@
 
     if-eqz v0, :cond_0
 
-    .line 145
+    .line 179
     :cond_3
     iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -662,14 +738,14 @@
     .locals 1
 
     .prologue
-    .line 62
+    .line 71
     invoke-static {p1}, Lcom/mrkeyboard/app/UiLocale;->wrap(Landroid/content/Context;)Landroid/content/Context;
 
     move-result-object v0
 
     invoke-super {p0, v0}, Landroid/app/Activity;->attachBaseContext(Landroid/content/Context;)V
 
-    .line 63
+    .line 72
     return-void
 .end method
 
@@ -677,14 +753,14 @@
     .locals 3
 
     .prologue
-    .line 169
+    .line 214
     iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mPrefs:Landroid/content/SharedPreferences;
 
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
 
     move-result-object v0
 
-    .line 170
+    .line 215
     const-string v1, "mute"
 
     invoke-virtual {v1, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -693,21 +769,21 @@
 
     if-eqz v1, :cond_1
 
-    .line 171
+    .line 216
     const-string v1, "sound_on"
 
     const/4 v2, 0x0
 
     invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
 
-    .line 176
+    .line 221
     :goto_0
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 177
+    .line 222
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrSoundActivity;->refresh()V
 
-    .line 178
+    .line 223
     const-string v0, "mute"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -716,17 +792,17 @@
 
     if-nez v0, :cond_0
 
-    .line 179
+    .line 224
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrKeySound;->preload(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 180
+    .line 225
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrKeySound;->preview(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 182
+    .line 227
     :cond_0
     return-void
 
-    .line 173
+    .line 218
     :cond_1
     const-string v1, "sound_on"
 
@@ -734,7 +810,7 @@
 
     invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences$Editor;->putBoolean(Ljava/lang/String;Z)Landroid/content/SharedPreferences$Editor;
 
-    .line 174
+    .line 219
     const-string v1, "pref_sound_style"
 
     invoke-interface {v0, v1, p1}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
@@ -746,7 +822,7 @@
     .locals 3
 
     .prologue
-    .line 163
+    .line 208
     iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mPrefs:Landroid/content/SharedPreferences;
 
     const-string v1, "sound_on"
@@ -761,7 +837,7 @@
 
     const-string v0, "mute"
 
-    .line 164
+    .line 209
     :goto_0
     return-object v0
 
@@ -779,71 +855,55 @@
     .locals 12
 
     .prologue
-    .line 67
+    .line 88
     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
 
-    .line 68
+    .line 89
     new-instance v0, Lcom/mrkeyboard/app/MrKit;
 
     invoke-direct {v0, p0}, Lcom/mrkeyboard/app/MrKit;-><init>(Landroid/app/Activity;)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    .line 69
+    .line 90
     invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mPrefs:Landroid/content/SharedPreferences;
 
-    .line 71
-    new-instance v4, Landroid/widget/ScrollView;
+    .line 92
+    new-instance v0, Landroid/widget/ScrollView;
 
-    invoke-direct {v4, p0}, Landroid/widget/ScrollView;-><init>(Landroid/content/Context;)V
+    invoke-direct {v0, p0}, Landroid/widget/ScrollView;-><init>(Landroid/content/Context;)V
 
-    .line 72
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
+    .line 93
     iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    iget v1, v1, Lcom/mrkeyboard/app/MrKit;->bg:I
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    const/4 v2, 0x0
+    iget v2, v2, Lcom/mrkeyboard/app/MrKit;->bg:I
 
     const/4 v3, 0x0
 
+    const/4 v4, 0x0
+
     const/4 v5, 0x0
 
-    invoke-virtual {v0, v1, v2, v3, v5}, Lcom/mrkeyboard/app/MrKit;->round(IIFZ)Landroid/graphics/drawable/GradientDrawable;
+    invoke-virtual {v1, v2, v3, v4, v5}, Lcom/mrkeyboard/app/MrKit;->round(IIFZ)Landroid/graphics/drawable/GradientDrawable;
 
-    move-result-object v0
+    move-result-object v1
 
-    invoke-virtual {v4, v0}, Landroid/widget/ScrollView;->setBackground(Landroid/graphics/drawable/Drawable;)V
+    invoke-virtual {v0, v1}, Landroid/widget/ScrollView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 73
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrKit;->column()Landroid/widget/LinearLayout;
-
-    move-result-object v5
-
-    .line 74
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    const/high16 v1, 0x41a00000    # 20.0f
-
-    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
-
-    move-result v0
-
+    .line 94
     iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    const/high16 v2, 0x41800000    # 16.0f
+    invoke-virtual {v1}, Lcom/mrkeyboard/app/MrKit;->column()Landroid/widget/LinearLayout;
 
-    invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
+    move-result-object v1
 
-    move-result v1
-
+    .line 95
     iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const/high16 v3, 0x41a00000    # 20.0f
@@ -854,395 +914,164 @@
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    const/high16 v6, 0x41c00000    # 24.0f
+    const/high16 v4, 0x41800000    # 16.0f
 
-    invoke-virtual {v3, v6}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
+    invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
 
     move-result v3
 
-    invoke-virtual {v5, v0, v1, v2, v3}, Landroid/widget/LinearLayout;->setPadding(IIII)V
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    .line 75
-    new-instance v0, Landroid/view/ViewGroup$LayoutParams;
+    const/high16 v5, 0x41a00000    # 20.0f
 
-    const/4 v1, -0x1
+    invoke-virtual {v4, v5}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
 
-    const/4 v2, -0x2
+    move-result v4
 
-    invoke-direct {v0, v1, v2}, Landroid/view/ViewGroup$LayoutParams;-><init>(II)V
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    invoke-virtual {v4, v5, v0}, Landroid/widget/ScrollView;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    const/high16 v6, 0x41c00000    # 24.0f
 
-    .line 77
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+    invoke-virtual {v5, v6}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+    move-result v5
 
-    const-string v2, "mr_sound_title"
+    invoke-virtual {v1, v2, v3, v4, v5}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    const/4 v3, 0x0
+    .line 96
+    new-instance v2, Landroid/view/ViewGroup$LayoutParams;
 
-    new-array v3, v3, [Ljava/lang/Object;
+    const/4 v3, -0x1
 
-    invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+    const/4 v4, -0x2
 
-    move-result-object v1
+    invoke-direct {v2, v3, v4}, Landroid/view/ViewGroup$LayoutParams;-><init>(II)V
 
-    new-instance v2, Lcom/mrkeyboard/app/MrSoundActivity$1;
+    invoke-virtual {v0, v1, v2}, Landroid/widget/ScrollView;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/MrSoundActivity$1;-><init>(Lcom/mrkeyboard/app/MrSoundActivity;)V
-
-    invoke-virtual {v0, v1, v2}, Lcom/mrkeyboard/app/MrKit;->backHeader(Ljava/lang/String;Landroid/view/View$OnClickListener;)Landroid/widget/LinearLayout;
-
-    move-result-object v0
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    const/4 v2, 0x0
-
-    .line 81
-    invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
-
-    move-result-object v1
-
-    .line 77
-    invoke-virtual {v5, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 82
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    const-string v2, "mr_sound_styles"
-
-    const/4 v3, 0x0
-
-    new-array v3, v3, [Ljava/lang/Object;
-
-    invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v1
-
-    const/high16 v2, 0x41800000    # 16.0f
-
-    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    iget v3, v3, Lcom/mrkeyboard/app/MrKit;->text2:I
-
-    const/4 v6, 0x1
-
-    invoke-virtual {v0, v1, v2, v3, v6}, Lcom/mrkeyboard/app/MrKit;->label(Ljava/lang/String;FIZ)Landroid/widget/TextView;
-
-    move-result-object v0
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    const/16 v2, 0x12
-
-    invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
-
-    move-result-object v1
-
-    invoke-virtual {v5, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 84
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrKit;->column()Landroid/widget/LinearLayout;
-
-    move-result-object v6
-
-    .line 85
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    const/16 v1, 0x8
-
-    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
-
-    move-result-object v0
-
-    invoke-virtual {v5, v6, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 86
-    new-instance v7, Landroid/graphics/Paint;
-
-    const/4 v0, 0x1
-
-    invoke-direct {v7, v0}, Landroid/graphics/Paint;-><init>(I)V
-
-    .line 87
-    const/4 v1, 0x0
-
-    .line 88
-    const/4 v0, 0x0
-
-    move v3, v0
-
-    move-object v0, v1
-
-    :goto_0
-    sget-object v1, Lcom/mrkeyboard/app/MrSoundActivity;->TILES:[Ljava/lang/String;
-
-    array-length v1, v1
-
-    if-ge v3, v1, :cond_4
-
-    .line 89
-    rem-int/lit8 v1, v3, 0x5
-
-    if-nez v1, :cond_0
-
-    .line 90
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrKit;->row()Landroid/widget/LinearLayout;
-
-    move-result-object v1
-
-    .line 91
+    .line 98
     iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    if-nez v3, :cond_1
+    const/high16 v3, 0x41a00000    # 20.0f
 
-    const/4 v0, 0x0
-
-    :goto_1
-    invoke-virtual {v2, v0}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
-
-    move-result-object v0
-
-    invoke-virtual {v6, v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    move-object v0, v1
-
-    .line 93
-    :cond_0
-    sget-object v1, Lcom/mrkeyboard/app/MrSoundActivity;->TILES:[Ljava/lang/String;
-
-    aget-object v1, v1, v3
-
-    invoke-direct {p0, v1, v7}, Lcom/mrkeyboard/app/MrSoundActivity;->tile(Ljava/lang/String;Landroid/graphics/Paint;)Landroid/widget/LinearLayout;
-
-    move-result-object v8
-
-    .line 94
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mTiles:Ljava/util/List;
-
-    invoke-interface {v1, v8}, Ljava/util/List;->add(Ljava/lang/Object;)Z
-
-    .line 95
-    new-instance v9, Landroid/widget/LinearLayout$LayoutParams;
-
-    const/4 v1, 0x0
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    const/high16 v10, 0x42800000    # 64.0f
-
-    invoke-virtual {v2, v10}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
+    invoke-virtual {v2, v3}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
 
     move-result v2
 
-    const/high16 v10, 0x3f800000    # 1.0f
-
-    invoke-direct {v9, v1, v2, v10}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
-
-    .line 96
-    rem-int/lit8 v1, v3, 0x5
-
-    if-nez v1, :cond_2
-
-    const/4 v1, 0x0
-
-    :goto_2
-    const/4 v10, 0x0
-
-    rem-int/lit8 v2, v3, 0x5
-
-    const/4 v11, 0x4
-
-    if-ne v2, v11, :cond_3
-
-    const/4 v2, 0x0
-
-    :goto_3
-    const/4 v11, 0x0
-
-    invoke-virtual {v9, v1, v10, v2, v11}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
-
-    .line 97
-    invoke-virtual {v0, v8, v9}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 88
-    add-int/lit8 v1, v3, 0x1
-
-    move v3, v1
-
-    goto :goto_0
-
-    .line 91
-    :cond_1
-    const/16 v0, 0x8
-
-    goto :goto_1
-
-    .line 96
-    :cond_2
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    const/high16 v2, 0x40800000    # 4.0f
-
-    invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
-
-    move-result v1
-
-    goto :goto_2
-
-    :cond_3
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    const/high16 v11, 0x40800000    # 4.0f
-
-    invoke-virtual {v2, v11}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
-
-    move-result v2
-
-    goto :goto_3
-
-    .line 100
-    :cond_4
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrKit;->panel()Landroid/widget/LinearLayout;
-
-    move-result-object v0
-
-    .line 101
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    const/16 v2, 0x14
-
-    invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
-
-    move-result-object v1
-
-    invoke-virtual {v5, v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 102
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    invoke-virtual {v1}, Lcom/mrkeyboard/app/MrKit;->row()Landroid/widget/LinearLayout;
-
-    move-result-object v1
-
-    .line 103
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    const/4 v3, 0x0
-
-    invoke-virtual {v2, v3}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
-
-    move-result-object v2
-
-    invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
-
-    .line 104
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
     iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    const-string v5, "mr_sound_volume"
+    const/high16 v4, 0x41800000    # 16.0f
 
-    const/4 v6, 0x0
+    invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
 
-    new-array v6, v6, [Ljava/lang/Object;
+    move-result v3
 
-    invoke-virtual {v3, v5, v6}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    move-result-object v3
+    const/high16 v5, 0x41a00000    # 20.0f
 
-    const/high16 v5, 0x41800000    # 16.0f
+    invoke-virtual {v4, v5}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
+
+    move-result v4
+
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const/high16 v6, 0x41c00000    # 24.0f
+
+    invoke-virtual {v5, v6}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
+
+    move-result v5
 
     iget-object v6, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    iget v6, v6, Lcom/mrkeyboard/app/MrKit;->text:I
+    const/high16 v7, 0x41400000    # 12.0f
 
-    const/4 v7, 0x1
+    invoke-virtual {v6, v7}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
 
-    invoke-virtual {v2, v3, v5, v6, v7}, Lcom/mrkeyboard/app/MrKit;->label(Ljava/lang/String;FIZ)Landroid/widget/TextView;
+    move-result v6
 
-    move-result-object v2
+    invoke-static/range {v0 .. v6}, Lcom/mrkeyboard/app/MrScreenIme;->keepVisible(Landroid/widget/ScrollView;Landroid/view/View;IIIII)V
 
-    new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
+    .line 100
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const-string v4, "mr_sound_title"
 
     const/4 v5, 0x0
 
-    const/4 v6, -0x2
+    new-array v5, v5, [Ljava/lang/Object;
 
-    const/high16 v7, 0x3f800000    # 1.0f
+    invoke-virtual {v3, v4, v5}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
-    invoke-direct {v3, v5, v6, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+    move-result-object v3
 
+    new-instance v4, Lcom/mrkeyboard/app/MrSoundActivity$1;
+
+    invoke-direct {v4, p0}, Lcom/mrkeyboard/app/MrSoundActivity$1;-><init>(Lcom/mrkeyboard/app/MrSoundActivity;)V
+
+    invoke-virtual {v2, v3, v4}, Lcom/mrkeyboard/app/MrKit;->backHeader(Ljava/lang/String;Landroid/view/View$OnClickListener;)Landroid/widget/LinearLayout;
+
+    move-result-object v2
+
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const/4 v4, 0x0
+
+    .line 104
+    invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v3
+
+    .line 100
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 105
     iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    const-string v3, ""
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    const/high16 v5, 0x41800000    # 16.0f
+    const-string v4, "mr_sound_styles"
 
-    iget-object v6, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+    const/4 v5, 0x0
 
-    iget v6, v6, Lcom/mrkeyboard/app/MrKit;->text2:I
+    new-array v5, v5, [Ljava/lang/Object;
 
-    const/4 v7, 0x0
+    invoke-virtual {v3, v4, v5}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
-    invoke-virtual {v2, v3, v5, v6, v7}, Lcom/mrkeyboard/app/MrKit;->label(Ljava/lang/String;FIZ)Landroid/widget/TextView;
+    move-result-object v3
+
+    const/high16 v4, 0x41800000    # 16.0f
+
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    iget v5, v5, Lcom/mrkeyboard/app/MrKit;->text2:I
+
+    const/4 v6, 0x1
+
+    invoke-virtual {v2, v3, v4, v5, v6}, Lcom/mrkeyboard/app/MrKit;->label(Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v2
 
-    iput-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mPercent:Landroid/widget/TextView;
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    .line 106
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mPercent:Landroid/widget/TextView;
+    const/16 v4, 0x12
 
-    new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
+    invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
 
-    const/4 v5, -0x2
-
-    const/4 v6, -0x2
-
-    invoke-direct {v3, v5, v6}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+    move-result-object v3
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
     .line 107
-    new-instance v1, Landroid/widget/SeekBar;
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    invoke-direct {v1, p0}, Landroid/widget/SeekBar;-><init>(Landroid/content/Context;)V
+    invoke-virtual {v2}, Lcom/mrkeyboard/app/MrKit;->column()Landroid/widget/LinearLayout;
 
-    iput-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mSeek:Landroid/widget/SeekBar;
+    move-result-object v6
 
     .line 108
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mSeek:Landroid/widget/SeekBar;
-
-    const/16 v2, 0x64
-
-    invoke-virtual {v1, v2}, Landroid/widget/SeekBar;->setMax(I)V
-
-    .line 109
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mSeek:Landroid/widget/SeekBar;
-
-    new-instance v2, Lcom/mrkeyboard/app/MrSoundActivity$2;
-
-    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/MrSoundActivity$2;-><init>(Lcom/mrkeyboard/app/MrSoundActivity;)V
-
-    invoke-virtual {v1, v2}, Landroid/widget/SeekBar;->setOnSeekBarChangeListener(Landroid/widget/SeekBar$OnSeekBarChangeListener;)V
-
-    .line 121
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mSeek:Landroid/widget/SeekBar;
-
     iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const/16 v3, 0x8
@@ -1251,14 +1080,396 @@
 
     move-result-object v2
 
-    invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-virtual {v1, v6, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 122
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+    .line 109
+    new-instance v7, Landroid/graphics/Paint;
 
-    const-string v2, ""
+    const/4 v2, 0x1
 
-    const/high16 v3, 0x41500000    # 13.0f
+    invoke-direct {v7, v2}, Landroid/graphics/Paint;-><init>(I)V
+
+    .line 110
+    const/4 v3, 0x0
+
+    .line 111
+    const/4 v2, 0x0
+
+    move v5, v2
+
+    move-object v2, v3
+
+    :goto_0
+    sget-object v3, Lcom/mrkeyboard/app/MrSoundActivity;->TILES:[Ljava/lang/String;
+
+    array-length v3, v3
+
+    if-ge v5, v3, :cond_4
+
+    .line 112
+    rem-int/lit8 v3, v5, 0x5
+
+    if-nez v3, :cond_0
+
+    .line 113
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    invoke-virtual {v2}, Lcom/mrkeyboard/app/MrKit;->row()Landroid/widget/LinearLayout;
+
+    move-result-object v3
+
+    .line 114
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    if-nez v5, :cond_1
+
+    const/4 v2, 0x0
+
+    :goto_1
+    invoke-virtual {v4, v2}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v2
+
+    invoke-virtual {v6, v3, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    move-object v2, v3
+
+    .line 116
+    :cond_0
+    sget-object v3, Lcom/mrkeyboard/app/MrSoundActivity;->TILES:[Ljava/lang/String;
+
+    aget-object v3, v3, v5
+
+    invoke-direct {p0, v3, v7}, Lcom/mrkeyboard/app/MrSoundActivity;->tile(Ljava/lang/String;Landroid/graphics/Paint;)Landroid/widget/LinearLayout;
+
+    move-result-object v8
+
+    .line 117
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mTiles:Ljava/util/List;
+
+    invoke-interface {v3, v8}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 118
+    new-instance v9, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v3, 0x0
+
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const/high16 v10, 0x42800000    # 64.0f
+
+    invoke-virtual {v4, v10}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
+
+    move-result v4
+
+    const/high16 v10, 0x3f800000    # 1.0f
+
+    invoke-direct {v9, v3, v4, v10}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    .line 119
+    rem-int/lit8 v3, v5, 0x5
+
+    if-nez v3, :cond_2
+
+    const/4 v3, 0x0
+
+    :goto_2
+    const/4 v10, 0x0
+
+    rem-int/lit8 v4, v5, 0x5
+
+    const/4 v11, 0x4
+
+    if-ne v4, v11, :cond_3
+
+    const/4 v4, 0x0
+
+    :goto_3
+    const/4 v11, 0x0
+
+    invoke-virtual {v9, v3, v10, v4, v11}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
+
+    .line 120
+    invoke-virtual {v2, v8, v9}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 111
+    add-int/lit8 v3, v5, 0x1
+
+    move v5, v3
+
+    goto :goto_0
+
+    .line 114
+    :cond_1
+    const/16 v2, 0x8
+
+    goto :goto_1
+
+    .line 119
+    :cond_2
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const/high16 v4, 0x40800000    # 4.0f
+
+    invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
+
+    move-result v3
+
+    goto :goto_2
+
+    :cond_3
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const/high16 v11, 0x40800000    # 4.0f
+
+    invoke-virtual {v4, v11}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
+
+    move-result v4
+
+    goto :goto_3
+
+    .line 123
+    :cond_4
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    invoke-virtual {v2}, Lcom/mrkeyboard/app/MrKit;->panel()Landroid/widget/LinearLayout;
+
+    move-result-object v2
+
+    .line 124
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const/16 v4, 0x14
+
+    invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v3
+
+    invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 125
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    invoke-virtual {v3}, Lcom/mrkeyboard/app/MrKit;->row()Landroid/widget/LinearLayout;
+
+    move-result-object v3
+
+    .line 126
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const/4 v5, 0x0
+
+    invoke-virtual {v4, v5}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v4
+
+    invoke-virtual {v2, v3, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 127
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const-string v6, "mr_sound_volume"
+
+    const/4 v7, 0x0
+
+    new-array v7, v7, [Ljava/lang/Object;
+
+    invoke-virtual {v5, v6, v7}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v5
+
+    const/high16 v6, 0x41800000    # 16.0f
+
+    iget-object v7, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    iget v7, v7, Lcom/mrkeyboard/app/MrKit;->text:I
+
+    const/4 v8, 0x1
+
+    invoke-virtual {v4, v5, v6, v7, v8}, Lcom/mrkeyboard/app/MrKit;->label(Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v4
+
+    new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v6, 0x0
+
+    const/4 v7, -0x2
+
+    const/high16 v8, 0x3f800000    # 1.0f
+
+    invoke-direct {v5, v6, v7, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
+
+    invoke-virtual {v3, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 128
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const-string v5, ""
+
+    const/high16 v6, 0x41800000    # 16.0f
+
+    iget-object v7, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    iget v7, v7, Lcom/mrkeyboard/app/MrKit;->text2:I
+
+    const/4 v8, 0x0
+
+    invoke-virtual {v4, v5, v6, v7, v8}, Lcom/mrkeyboard/app/MrKit;->label(Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v4
+
+    iput-object v4, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mPercent:Landroid/widget/TextView;
+
+    .line 129
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mPercent:Landroid/widget/TextView;
+
+    new-instance v5, Landroid/widget/LinearLayout$LayoutParams;
+
+    const/4 v6, -0x2
+
+    const/4 v7, -0x2
+
+    invoke-direct {v5, v6, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
+
+    invoke-virtual {v3, v4, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 130
+    new-instance v3, Landroid/widget/SeekBar;
+
+    invoke-direct {v3, p0}, Landroid/widget/SeekBar;-><init>(Landroid/content/Context;)V
+
+    iput-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mSeek:Landroid/widget/SeekBar;
+
+    .line 131
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mSeek:Landroid/widget/SeekBar;
+
+    const/16 v4, 0x64
+
+    invoke-virtual {v3, v4}, Landroid/widget/SeekBar;->setMax(I)V
+
+    .line 132
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mSeek:Landroid/widget/SeekBar;
+
+    new-instance v4, Lcom/mrkeyboard/app/MrSoundActivity$2;
+
+    invoke-direct {v4, p0}, Lcom/mrkeyboard/app/MrSoundActivity$2;-><init>(Lcom/mrkeyboard/app/MrSoundActivity;)V
+
+    invoke-virtual {v3, v4}, Landroid/widget/SeekBar;->setOnSeekBarChangeListener(Landroid/widget/SeekBar$OnSeekBarChangeListener;)V
+
+    .line 144
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mSeek:Landroid/widget/SeekBar;
+
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const/16 v5, 0x8
+
+    invoke-virtual {v4, v5}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v4
+
+    invoke-virtual {v2, v3, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 145
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const-string v4, ""
+
+    const/high16 v5, 0x41500000    # 13.0f
+
+    iget-object v6, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    iget v6, v6, Lcom/mrkeyboard/app/MrKit;->text2:I
+
+    const/4 v7, 0x0
+
+    invoke-virtual {v3, v4, v5, v6, v7}, Lcom/mrkeyboard/app/MrKit;->label(Ljava/lang/String;FIZ)Landroid/widget/TextView;
+
+    move-result-object v3
+
+    iput-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mNote:Landroid/widget/TextView;
+
+    .line 146
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mNote:Landroid/widget/TextView;
+
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const/4 v5, 0x6
+
+    invoke-virtual {v4, v5}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v4
+
+    invoke-virtual {v2, v3, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 149
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const-string v4, "mr_sound_try"
+
+    const/4 v5, 0x0
+
+    new-array v5, v5, [Ljava/lang/Object;
+
+    invoke-virtual {v3, v4, v5}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v3
+
+    const v4, 0xa0001
+
+    invoke-virtual {v2, v3, v4}, Lcom/mrkeyboard/app/MrKit;->field(Ljava/lang/String;I)Landroid/widget/EditText;
+
+    move-result-object v2
+
+    iput-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mTry:Landroid/widget/EditText;
+
+    .line 150
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mTry:Landroid/widget/EditText;
+
+    const/4 v3, 0x2
+
+    invoke-virtual {v2, v3}, Landroid/widget/EditText;->setMinLines(I)V
+
+    .line 151
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mTry:Landroid/widget/EditText;
+
+    const/16 v3, 0x30
+
+    invoke-virtual {v2, v3}, Landroid/widget/EditText;->setGravity(I)V
+
+    .line 152
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mTry:Landroid/widget/EditText;
+
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const/16 v4, 0x10
+
+    invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v3
+
+    invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 153
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const-string v4, "mr_sound_other_ime"
+
+    const/4 v5, 0x0
+
+    new-array v5, v5, [Ljava/lang/Object;
+
+    invoke-virtual {v3, v4, v5}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v3
+
+    const/high16 v4, 0x41500000    # 13.0f
 
     iget-object v5, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -1266,32 +1477,124 @@
 
     const/4 v6, 0x0
 
-    invoke-virtual {v1, v2, v3, v5, v6}, Lcom/mrkeyboard/app/MrKit;->label(Ljava/lang/String;FIZ)Landroid/widget/TextView;
-
-    move-result-object v1
-
-    iput-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mNote:Landroid/widget/TextView;
-
-    .line 123
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mNote:Landroid/widget/TextView;
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    const/4 v3, 0x6
-
-    invoke-virtual {v2, v3}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
+    invoke-virtual {v2, v3, v4, v5, v6}, Lcom/mrkeyboard/app/MrKit;->label(Ljava/lang/String;FIZ)Landroid/widget/TextView;
 
     move-result-object v2
 
-    invoke-virtual {v0, v1, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    iput-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mOtherIme:Landroid/widget/TextView;
 
-    .line 125
-    invoke-virtual {p0, v4}, Lcom/mrkeyboard/app/MrSoundActivity;->setContentView(Landroid/view/View;)V
+    .line 154
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mOtherIme:Landroid/widget/TextView;
 
-    .line 126
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrSoundActivity;->keyboardInUse(Landroid/content/Context;)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_5
+
+    const/16 v2, 0x8
+
+    :goto_4
+    invoke-virtual {v3, v2}, Landroid/widget/TextView;->setVisibility(I)V
+
+    .line 155
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mOtherIme:Landroid/widget/TextView;
+
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    const/16 v4, 0x8
+
+    invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
+
+    move-result-object v3
+
+    invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+
+    .line 157
+    invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/MrSoundActivity;->setContentView(Landroid/view/View;)V
+
+    .line 158
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrSoundActivity;->refresh()V
 
-    .line 127
+    .line 159
+    if-nez p1, :cond_6
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mTry:Landroid/widget/EditText;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrScreenIme;->show(Landroid/widget/EditText;)V
+
+    .line 161
+    :goto_5
+    return-void
+
+    .line 154
+    :cond_5
+    const/4 v2, 0x0
+
+    goto :goto_4
+
+    .line 160
+    :cond_6
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mTry:Landroid/widget/EditText;
+
+    const/4 v1, 0x0
+
+    invoke-static {p1, v0, v1}, Lcom/mrkeyboard/app/MrScreenIme;->restore(Landroid/os/Bundle;Landroid/widget/EditText;Landroid/widget/EditText;)V
+
+    goto :goto_5
+.end method
+
+.method protected onResume()V
+    .locals 2
+
+    .prologue
+    .line 82
+    invoke-super {p0}, Landroid/app/Activity;->onResume()V
+
+    .line 83
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mOtherIme:Landroid/widget/TextView;
+
+    if-eqz v0, :cond_0
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mOtherIme:Landroid/widget/TextView;
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrSoundActivity;->keyboardInUse(Landroid/content/Context;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1
+
+    const/16 v0, 0x8
+
+    :goto_0
+    invoke-virtual {v1, v0}, Landroid/widget/TextView;->setVisibility(I)V
+
+    .line 84
+    :cond_0
+    return-void
+
+    .line 83
+    :cond_1
+    const/4 v0, 0x0
+
+    goto :goto_0
+.end method
+
+.method protected onSaveInstanceState(Landroid/os/Bundle;)V
+    .locals 2
+
+    .prologue
+    .line 76
+    invoke-super {p0, p1}, Landroid/app/Activity;->onSaveInstanceState(Landroid/os/Bundle;)V
+
+    .line 77
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mTry:Landroid/widget/EditText;
+
+    const/4 v1, 0x0
+
+    invoke-static {p1, v0, v1}, Lcom/mrkeyboard/app/MrScreenIme;->save(Landroid/os/Bundle;Landroid/widget/EditText;Landroid/widget/EditText;)V
+
+    .line 78
     return-void
 .end method
 
@@ -1301,14 +1604,14 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 197
+    .line 242
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrSoundActivity;->current()Ljava/lang/String;
 
     move-result-object v5
 
     move v1, v2
 
-    .line 198
+    .line 243
     :goto_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mTiles:Ljava/util/List;
 
@@ -1318,7 +1621,7 @@
 
     if-ge v1, v0, :cond_2
 
-    .line 199
+    .line 244
     sget-object v0, Lcom/mrkeyboard/app/MrSoundActivity;->TILES:[Ljava/lang/String;
 
     aget-object v0, v0, v1
@@ -1327,7 +1630,7 @@
 
     move-result v6
 
-    .line 200
+    .line 245
     iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mTiles:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -1362,14 +1665,14 @@
 
     invoke-virtual {v0, v3}, Landroid/widget/LinearLayout;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 198
+    .line 243
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
     goto :goto_0
 
-    .line 200
+    .line 245
     :cond_0
     iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -1386,7 +1689,7 @@
 
     goto :goto_2
 
-    .line 202
+    .line 247
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mPrefs:Landroid/content/SharedPreferences;
 
@@ -1402,12 +1705,12 @@
 
     move-result v0
 
-    .line 203
+    .line 248
     iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mSeek:Landroid/widget/SeekBar;
 
     invoke-virtual {v1, v0}, Landroid/widget/SeekBar;->setProgress(I)V
 
-    .line 204
+    .line 249
     iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mPercent:Landroid/widget/TextView;
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -1430,7 +1733,7 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 205
+    .line 250
     const-string v0, "mute"
 
     invoke-virtual {v0, v5}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1449,13 +1752,13 @@
 
     const/4 v0, 0x1
 
-    .line 206
+    .line 251
     :goto_3
     iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mSeek:Landroid/widget/SeekBar;
 
     invoke-virtual {v1, v0}, Landroid/widget/SeekBar;->setEnabled(Z)V
 
-    .line 207
+    .line 252
     iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mSeek:Landroid/widget/SeekBar;
 
     if-eqz v0, :cond_5
@@ -1465,7 +1768,7 @@
     :goto_4
     invoke-virtual {v3, v1}, Landroid/widget/SeekBar;->setAlpha(F)V
 
-    .line 208
+    .line 253
     iget-object v3, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mNote:Landroid/widget/TextView;
 
     const-string v1, "mute"
@@ -1489,7 +1792,7 @@
     :goto_5
     invoke-virtual {v3, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 209
+    .line 254
     iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mNote:Landroid/widget/TextView;
 
     if-eqz v0, :cond_3
@@ -1499,22 +1802,22 @@
     :cond_3
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 210
+    .line 255
     return-void
 
     :cond_4
     move v0, v2
 
-    .line 205
+    .line 250
     goto :goto_3
 
-    .line 207
+    .line 252
     :cond_5
     const v1, 0x3ecccccd    # 0.4f
 
     goto :goto_4
 
-    .line 208
+    .line 253
     :cond_6
     const-string v1, "default"
 
@@ -1546,7 +1849,7 @@
     .locals 5
 
     .prologue
-    .line 185
+    .line 230
     const/4 v0, 0x0
 
     const/16 v1, 0x64
@@ -1559,7 +1862,7 @@
 
     move-result v0
 
-    .line 186
+    .line 231
     iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mPrefs:Landroid/content/SharedPreferences;
 
     invoke-interface {v1}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -1584,7 +1887,7 @@
 
     invoke-interface {v1}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 187
+    .line 232
     iget-object v1, p0, Lcom/mrkeyboard/app/MrSoundActivity;->mPercent:Landroid/widget/TextView;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -1607,7 +1910,7 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 188
+    .line 233
     return-void
 .end method
 
@@ -1615,12 +1918,12 @@
     .locals 2
 
     .prologue
-    .line 191
+    .line 236
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrSoundActivity;->current()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 192
+    .line 237
     const-string v1, "mute"
 
     invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -1631,7 +1934,7 @@
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrKeySound;->preview(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 193
+    .line 238
     :cond_0
     return-void
 .end method

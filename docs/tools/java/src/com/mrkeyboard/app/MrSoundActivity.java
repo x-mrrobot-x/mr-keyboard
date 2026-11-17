@@ -5,10 +5,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.text.InputType;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -18,8 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * "Keyboard sound": fifteen tiles in a grid (mute, the system sound that is the default, and the thirteen sounds of the app) and the volume
- * below. Touching a tile chooses it and plays it. The state is in the preferences that the keyboard reads: sound_on (the mute tile is sound_on
+ * "Keyboard sound": fifteen tiles in a grid (mute, the system sound that is the default, and the thirteen sounds of the app), the volume
+ * and, under them, a field with the keyboard already open to try the sounds by typing. Touching a tile chooses it and plays it. The state is in the preferences that the keyboard reads: sound_on (the mute tile is sound_on
  * off, any other tile turns it on) and pref_sound_style (MrKeySound.KEY); the volume is pref_click_volume. Nothing is kept here, so the screen
  * can be created again at any time. The volume is for the sounds of the app: the default one follows the volume of the system, which the
  * screen says (the slider is disabled then, and when the sound is off).
@@ -28,11 +31,14 @@ public class MrSoundActivity extends Activity {
     static final String MUTE = "mute";
     static final String SOUND_ON = "sound_on";
     static final int COLUMNS = 5;
-    /** The tiles in the order of the grid (rows of COLUMNS): the ids of MrKeySound plus MUTE and DEFAULT. */
+    /**
+     * The tiles in the order of the grid (rows of COLUMNS): the ids of MrKeySound plus MUTE and DEFAULT. Mute and the default sound come first, then the
+     * sounds from the most discreet to the most eye-catching.
+     */
     static final String[] TILES = {
-            MUTE, "bubble", "bell", "duck", "keyboard",
-            MrKeySound.DEFAULT, "bubble2", "fox", "pistol", "wand",
-            "frog", "cat", "drop", "rocket", "mouse"};
+            MUTE, MrKeySound.DEFAULT, "keyboard", "drop", "bubble",
+            "bubble2", "bell", "duck", "mouse", "cat",
+            "frog", "fox", "wand", "pistol", "rocket"};
     /** What a tile shows: the first glyph that the font of the phone has (the newest emojis come first), then the last one whatever happens. */
     private static final String[][] GLYPHS = {
             {MUTE, "🔇"},
@@ -56,10 +62,25 @@ public class MrSoundActivity extends Activity {
     SeekBar mSeek;
     TextView mPercent;
     TextView mNote;
+    /** The field to try the sounds in, and the line that says the keyboard in use is not this one. */
+    EditText mTry;
+    TextView mOtherIme;
 
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(UiLocale.wrap(base));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+        MrScreenIme.save(out, mTry, null);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mOtherIme != null) mOtherIme.setVisibility(keyboardInUse(this) ? View.GONE : View.VISIBLE);
     }
 
     @Override
@@ -73,6 +94,8 @@ public class MrSoundActivity extends Activity {
         LinearLayout col = k.column();
         col.setPadding(k.dp(20), k.dp(16), k.dp(20), k.dp(24));
         scroll.addView(col, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        // the keyboard stays open below the tiles: the room for it, and the scroll only goes down as far as the field needs
+        MrScreenIme.keepVisible(scroll, col, k.dp(20), k.dp(16), k.dp(20), k.dp(24), k.dp(12));
 
         col.addView(k.backHeader(k.t("mr_sound_title"), new View.OnClickListener() {
             public void onClick(View v) {
@@ -122,8 +145,19 @@ public class MrSoundActivity extends Activity {
         mNote = k.label("", 13f, k.text2, false);
         volume.addView(mNote, k.wide(6));
 
+        // the field to try the keys in: the keyboard opens with the screen, under the tiles, so a sound is chosen and heard typing at once
+        mTry = k.field(k.t("mr_sound_try"), InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        mTry.setMinLines(2);
+        mTry.setGravity(Gravity.TOP);
+        col.addView(mTry, k.wide(16));
+        mOtherIme = k.label(k.t("mr_sound_other_ime"), 13f, k.text2, false);
+        mOtherIme.setVisibility(keyboardInUse(this) ? View.GONE : View.VISIBLE);
+        col.addView(mOtherIme, k.wide(8));
+
         setContentView(scroll);
         refresh();
+        if (state == null) MrScreenIme.show(mTry);
+        else MrScreenIme.restore(state, mTry, null);
     }
 
     /** One tile: the glyph (and a small caption for the two bubbles and for the default one). */
@@ -146,6 +180,17 @@ public class MrSoundActivity extends Activity {
             }
         }
         return t;
+    }
+
+    /** Is Mr Keyboard the keyboard in use ("default_input_method" is "package/class")? When Android cannot say, yes: the note is only for a certain no. */
+    static boolean keyboardInUse(Context c) {
+        try {
+            String id = Settings.Secure.getString(c.getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
+            String pkg = c.getPackageName();
+            return id == null || pkg == null || id.startsWith(pkg + "/");
+        } catch (RuntimeException e) {
+            return true;
+        }
     }
 
     /** The first glyph of the tile that the font of the phone can draw (the last one when none can). */

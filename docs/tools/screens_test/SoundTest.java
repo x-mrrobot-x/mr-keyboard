@@ -6,13 +6,22 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Paint;
+import android.graphics.Insets;
 import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.preference.PreferenceManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.WindowInsets;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -48,10 +57,11 @@ public class SoundTest {
         }
     }
 
+    /** Mute and the default sound first, then from the most discreet to the most eye-catching, five to a row. */
     static final String[] EXPECTED_TILES = {
-            "mute", "bubble", "bell", "duck", "keyboard",
-            "default", "bubble2", "fox", "pistol", "wand",
-            "frog", "cat", "drop", "rocket", "mouse"};
+            "mute", "default", "keyboard", "drop", "bubble",
+            "bubble2", "bell", "duck", "mouse", "cat",
+            "frog", "fox", "wand", "pistol", "rocket"};
     static final String[] NAMES = {"mute", "bubble", "bubble2", "bell", "duck", "keyboard", "fox", "pistol", "wand", "frog", "cat", "drop", "rocket", "mouse"};
 
     // ---------------------------------------------------------------- the world of the stubs
@@ -126,6 +136,7 @@ public class SoundTest {
     static class Screen extends MrSoundActivity {
         final Res res = new Res();
         final AudioManager am = new AudioManager();
+        final InputMethodManager imm = new InputMethodManager();
         View content;
         int finishes;
         public Context getApplicationContext() { return this; }
@@ -137,7 +148,9 @@ public class SoundTest {
         public File getFilesDir() { return null; }
         public File getCacheDir() { return null; }
         public void startActivity(Intent i) { }
-        public Object getSystemService(String name) { return Context.AUDIO_SERVICE.equals(name) ? am : null; }
+        public Object getSystemService(String name) {
+            return Context.AUDIO_SERVICE.equals(name) ? am : Context.INPUT_METHOD_SERVICE.equals(name) ? imm : null;
+        }
         public void setContentView(View v) { content = v; }
         public void finish() { finishes++; }
     }
@@ -149,6 +162,8 @@ public class SoundTest {
         SoundPool.stubCreated.clear();
         Paint.stubNoGlyph.clear();
         SoundPool.stubFailAllLoads = false;
+        Settings.Secure.stubValues.clear();
+        Build.VERSION.SDK_INT = 36;
         prefs = new Prefs();
         PreferenceManager.stubDefault = prefs;
     }
@@ -501,6 +516,85 @@ public class SoundTest {
         check("the back arrow closes the screen", back.finishes == 1);
     }
 
+    static WindowInsets keyboardInsets(boolean visible) {
+        WindowInsets.Builder b = new WindowInsets.Builder();
+        b.setInsets(WindowInsets.Type.ime(), Insets.of(0, 0, 0, 900));
+        b.setInsets(WindowInsets.Type.navigationBars(), Insets.of(0, 0, 0, 48));
+        b.setVisible(WindowInsets.Type.ime(), visible);
+        return b.build();
+    }
+
+    /** The field under the volume where the sounds are tried, and the keyboard that opens with the screen. */
+    static void tryField() {
+        reset();
+        Screen s = open();
+        android.view.ViewGroup col = (android.view.ViewGroup) ((android.view.ViewGroup) s.content).getChildAt(0);
+        check("a field to type in is under the volume card, a direct child of the column (what the room for the keyboard needs)",
+                s.mTry != null && ((android.view.ViewGroup) col.getChildAt(3)).getChildCount() > 0 && col.getChildAt(4) == s.mTry && col.getChildCount() == 6);
+        int type = s.mTry.getInputType();
+        check("it is a text field with no suggestions, that takes lines (the return key is the return key)",
+                (type & InputType.TYPE_CLASS_TEXT) != 0 && (type & InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0 && (type & InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS) != 0);
+        check("it says to type there, and has no password or number type", "mr_sound_try".equals(String.valueOf(s.mTry.getHint())) && (type & 0x0f) == InputType.TYPE_CLASS_TEXT);
+        check("it has the focus from the start", s.mTry.hasFocus());
+        check("the keyboard is not asked for before the window has the focus", s.imm.shows == 0 && s.mTry.getViewTreeObserver().stubListeners() == 1);
+        s.mTry.stubWindowFocus(true);
+        s.mTry.stubRunPosted();
+        check("the keyboard opens with the screen, for that field", s.imm.shows == 1 && s.imm.lastView == s.mTry && s.imm.lastFlags == InputMethodManager.SHOW_IMPLICIT);
+        s.choose("bubble");
+        s.mTiles.get(index("bell")).performClick();
+        s.mSeek.stubListener.onProgressChanged(s.mSeek, 50, true);
+        check("touching tiles and the slider does not take the focus from the field or ask for the keyboard again", s.mTry.hasFocus() && s.imm.shows == 1);
+        check("the screen puts the keyboard room in its column (Android 11+), scrolling down only as far as needed",
+                ((ScrollView) s.content).stubInsetsListener() != null);
+        Build.VERSION.SDK_INT = 29;
+        Screen old = open();
+        check("below Android 11 the window resizes by itself (adjustResize): no listener", ((ScrollView) old.content).stubInsetsListener() == null);
+        Build.VERSION.SDK_INT = 36;
+
+        // the screen turns (or is recreated): the keyboard comes back only if it was open
+        Screen a = open();
+        a.mTry.requestFocus();
+        a.mTry.stubRootInsets(keyboardInsets(true));
+        Bundle out = new Bundle();
+        a.onSaveInstanceState(out);
+        check("the open keyboard is saved with the screen", out.getInt(MrScreenIme.KEY_FIELD, -1) == 0);
+        Screen b = new Screen();
+        b.onCreate(out);
+        check("the new screen gives the field its focus back", b.mTry.hasFocus());
+        b.mTry.stubWindowFocus(true);
+        b.mTry.stubRunPosted();
+        check("... and asks for the keyboard once", b.imm.shows == 1 && b.imm.lastView == b.mTry);
+
+        Screen c = open();
+        c.mTry.requestFocus();
+        c.mTry.stubRootInsets(keyboardInsets(false));
+        Bundle shut = new Bundle();
+        c.onSaveInstanceState(shut);
+        Screen d = new Screen();
+        d.onCreate(shut);
+        d.mTry.stubWindowFocus(true);
+        d.mTry.stubRunPosted();
+        check("a keyboard the person had closed stays closed when the screen is created again", shut.size() == 0 && !d.mTry.hasFocus() && d.imm.shows == 0);
+
+        // which keyboard is in use
+        reset();
+        Settings.Secure.stubValues.put("default_input_method", "com.mrkeyboard.app/.LatinIME");
+        Screen mine = open();
+        check("Mr Keyboard in use: no note", mine.mOtherIme.getVisibility() == View.GONE);
+        Settings.Secure.stubValues.put("default_input_method", "com.other.keyboard/.Service");
+        Screen other = open();
+        check("another keyboard in use: the note says to switch to this one", other.mOtherIme.getVisibility() == View.VISIBLE
+                && String.valueOf(other.mOtherIme.getText()).equals("mr_sound_other_ime"));
+        Settings.Secure.stubValues.put("default_input_method", "com.mrkeyboard.app/.LatinIME");
+        other.onResume();
+        check("back on the screen after switching to Mr Keyboard: the note goes", other.mOtherIme.getVisibility() == View.GONE);
+        Settings.Secure.stubValues.put("default_input_method", "com.other.keyboard/.Service");
+        mine.onResume();
+        check("back on the screen after switching to another one: the note comes", mine.mOtherIme.getVisibility() == View.VISIBLE);
+        Settings.Secure.stubValues.clear();
+        check("Android cannot say which keyboard is in use: no note", open().mOtherIme.getVisibility() == View.GONE);
+    }
+
     static void glyphs() {
         reset();
         Paint probe = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -593,7 +687,7 @@ public class SoundTest {
         for (String st : MrKeySound.STYLES) if (!gen.contains("(\"" + st + "\", ")) recipes = false;
         check("the script that makes them has a recipe for each style", recipes);
 
-        String[] keys = {"title", "summary", "styles", "volume", "default", "default_note", "muted"};
+        String[] keys = {"title", "summary", "styles", "volume", "default", "default_note", "muted", "try", "other_ime"};
         List<String> all = new ArrayList<String>();
         for (String k : keys) all.add("mr_sound_" + k);
         for (String n : NAMES) all.add("mr_sound_name_" + n);
@@ -623,8 +717,9 @@ public class SoundTest {
         int open = man.lastIndexOf("<activity", a);
         int close = man.indexOf("/>", a);
         String tag = a < 0 ? "" : man.substring(open, close);
-        check("the screen is in the manifest, private, with its own title and the theme of the other screens",
-                a > 0 && tag.contains("android:exported=\"false\"") && tag.contains("@string/mr_sound_title") && tag.contains("Theme.MrKeyboard.Main"));
+        check("the screen is in the manifest, private, with its own title, the theme of the other screens and the window that resizes for the keyboard",
+                a > 0 && tag.contains("android:exported=\"false\"") && tag.contains("@string/mr_sound_title") && tag.contains("Theme.MrKeyboard.Main")
+                        && tag.contains("android:windowSoftInputMode=\"adjustResize\""));
         check("the manifest has it once", man.indexOf("com.mrkeyboard.app.MrSoundActivity", a + 1) < 0);
 
         String fb = read("res/xml/prefs_feedback.xml");
@@ -635,9 +730,14 @@ public class SoundTest {
         check("the feedback screen has the row that opens it, with a title, a summary and no stored value",
                 row > 0 && r.contains("@string/mr_sound_title") && r.contains("@string/mr_sound_summary") && r.contains("android:persistent=\"false\"")
                         && r.contains("android:targetClass=\"com.mrkeyboard.app.MrSoundActivity\""));
-        check("the row is in the sound category, after the on/off box and before the old volume",
-                fb.indexOf("android:key=\"sound_on\"") < row && row < fb.indexOf("android:key=\"pref_click_volume\"") && row > fb.indexOf("android:key=\"sound_settings\"")
-                        && row < fb.indexOf("android:key=\"visual_feedback_settings\""));
+        check("the row is in the sound category, right after the on/off box",
+                fb.indexOf("android:key=\"sound_on\"") < row && row > fb.indexOf("android:key=\"sound_settings\"") && row < fb.indexOf("android:key=\"visual_feedback_settings\""));
+        boolean twice = false;
+        for (File x : new File("res/xml").listFiles()) if (x.getName().startsWith("prefs") && read(x.getPath()).contains("pref_click_volume")) twice = true;
+        check("the volume is on the Keyboard sound screen only: no settings screen has a second slider for pref_click_volume", !twice);
+        check("the old title of that slider is gone from the three languages",
+                !read("res/values/mr_strings.xml").contains("title_click_volume") && !read("res/values-pt-rBR/mr_strings.xml").contains("title_click_volume")
+                        && !read("res/values-es/mr_strings.xml").contains("title_click_volume"));
 
         String reset = read("docs/tools/java/src/com/mrkeyboard/app/MrReset.java");
         check("a reset forgets the style as well as the volume", reset.contains("\"pref_sound_style\"") && reset.contains("\"pref_click_volume\"") && MrKeySound.KEY.equals("pref_sound_style"));
@@ -669,6 +769,7 @@ public class SoundTest {
         playing();
         previewing();
         screen();
+        tryField();
         glyphs();
         files();
         MrKeySound.release();

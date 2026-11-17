@@ -218,7 +218,6 @@
     <string name="mr_reset_cancel">Cancelar</string>
     <string name="mr_reset_done">Valores restablecidos</string>
     <string name="summary_popup_on">Muestra la tecla ampliada sobre el dedo al escribir</string>
-    <string name="title_click_volume">Volumen del clic</string>
     <string name="title_bar_scale">Altura de la barra de herramientas y sugerencias</string>
     <string name="title_show_settings_key">Mostrar tecla de configuración</string>
     <string name="summary_show_settings_key">Engranaje en la fila inferior del modo Estándar</string>
@@ -761,12 +760,14 @@
     <string name="mr_tour_no_pack">No hay diccionario para tu idioma en el catálogo.</string>
     <string name="mr_tour_no_gesture">El catálogo no tiene el archivo de reconocimiento de gestos.</string>
     <string name="mr_sound_title">Sonido del teclado</string>
-    <string name="mr_sound_summary">Elige el sonido de las teclas</string>
+    <string name="mr_sound_summary">Elige el sonido de las teclas y el volumen</string>
     <string name="mr_sound_styles">Estilo de sonido</string>
     <string name="mr_sound_volume">Volumen</string>
     <string name="mr_sound_default">Predeterminado</string>
     <string name="mr_sound_default_note">El sonido predeterminado sigue el volumen del sistema.</string>
     <string name="mr_sound_muted">Las teclas no hacen sonido.</string>
+    <string name="mr_sound_try">Toca aquí y escribe para oír los sonidos</string>
+    <string name="mr_sound_other_ime">El teclado en uso no es Mr Keyboard. Cámbiate a él para oír estos sonidos.</string>
     <string name="mr_sound_name_mute">Sin sonido</string>
     <string name="mr_sound_name_bubble">Burbuja 1</string>
     <string name="mr_sound_name_bubble2">Burbuja 2</string>

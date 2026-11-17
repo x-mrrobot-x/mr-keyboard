@@ -72,6 +72,20 @@ public final class MrScreenIme {
         }
     }
 
+    /**
+     * Opens the keyboard for a field when its screen opens (a screen made to be used with the keyboard in view, like the one that tries the
+     * key sounds): the field gets the focus and the keyboard is asked for as soon as the window has the focus.
+     */
+    public static void show(EditText field) {
+        if (field == null) return;
+        try {
+            field.requestFocus();
+            new Show(field).arm();
+        } catch (RuntimeException e) {
+            // No keyboard then; the person taps the field.
+        }
+    }
+
     /** Shows the keyboard for the field once its window has the focus (before that the system ignores the request). */
     private static final class Show implements Runnable, ViewTreeObserver.OnWindowFocusChangeListener {
         private final EditText mField;
@@ -113,9 +127,24 @@ public final class MrScreenIme {
      */
     public static void lift(ScrollView scroll, View column, int padLeft, int padTop, int padRight, int padBottom,
             int margin) {
+        lift(scroll, column, padLeft, padTop, padRight, padBottom, margin, false);
+    }
+
+    /**
+     * Same room for the keyboard, for a screen that has other things to look at above its field (the key sounds screen: the tiles are
+     * touched while the keyboard is open). When the keyboard appears the scroll does not take the field to the top: it only goes down, and
+     * only as far as the field needs to be above the keyboard (nothing moves when it already is).
+     */
+    public static void keepVisible(ScrollView scroll, View column, int padLeft, int padTop, int padRight, int padBottom,
+            int margin) {
+        lift(scroll, column, padLeft, padTop, padRight, padBottom, margin, true);
+    }
+
+    private static void lift(ScrollView scroll, View column, int padLeft, int padTop, int padRight, int padBottom,
+            int margin, boolean onlyAsNeeded) {
         if (scroll == null || column == null || Build.VERSION.SDK_INT < IME_API_SDK) return;
         scroll.setOnApplyWindowInsetsListener(
-                new Lift(scroll, column, padLeft, padTop, padRight, padBottom, margin));
+                new Lift(scroll, column, padLeft, padTop, padRight, padBottom, margin, onlyAsNeeded));
         scroll.requestApplyInsets();
     }
 
@@ -123,9 +152,11 @@ public final class MrScreenIme {
         private final ScrollView mScroll;
         private final View mColumn;
         private final int mLeft, mTop, mRight, mBottom, mMargin;
+        private final boolean mOnlyAsNeeded;
         private int mLastExtra;
 
-        Lift(ScrollView scroll, View column, int left, int top, int right, int bottom, int margin) {
+        Lift(ScrollView scroll, View column, int left, int top, int right, int bottom, int margin, boolean onlyAsNeeded) {
+            mOnlyAsNeeded = onlyAsNeeded;
             mScroll = scroll;
             mColumn = column;
             mLeft = left;
@@ -148,7 +179,15 @@ public final class MrScreenIme {
 
         public void run() {
             View field = mScroll.findFocus();
-            if (field != null && field != mColumn) mScroll.scrollTo(0, Math.max(0, field.getTop() - mMargin));
+            if (field == null || field == mColumn) return;
+            if (mOnlyAsNeeded) {
+                // the keyboard covers the last mLastExtra pixels of what the scroll shows
+                int visibleBottom = mScroll.getScrollY() + mScroll.getHeight() - mLastExtra;
+                int missing = field.getTop() + field.getHeight() + mMargin - visibleBottom;
+                if (missing > 0) mScroll.scrollTo(0, mScroll.getScrollY() + missing);
+                return;
+            }
+            mScroll.scrollTo(0, Math.max(0, field.getTop() - mMargin));
         }
     }
 

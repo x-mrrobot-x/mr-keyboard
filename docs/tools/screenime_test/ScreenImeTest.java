@@ -296,6 +296,90 @@ public class ScreenImeTest {
         try { MrScreenIme.lift(null, col, 0, 0, 0, 0, 0); MrScreenIme.lift(sc, null, 0, 0, 0, 0, 0); } catch (RuntimeException e) { ok9 = false; }
         check("lift with null views does not break", ok9);
 
+        // ---- show: the keyboard opens with a screen made to be used with it (the key sounds screen)
+        for (int sdk : new int[] {26, 36}) {
+            Build.VERSION.SDK_INT = sdk;
+            EditText sf = field(imm, "x");
+            sf.stubWindowFocus(true);
+            imm.shows = 0;
+            MrScreenIme.show(sf);
+            check("Android SDK " + sdk + ": show gives the field the focus and posts the request (window already focused)",
+                    sf.hasFocus() && sf.stubPostedCount() == 1 && sf.getViewTreeObserver().stubListeners() == 0 && imm.shows == 0);
+            sf.stubRunPosted();
+            check("Android SDK " + sdk + ": ... and the keyboard is asked for that field, implicit", imm.shows == 1 && imm.lastView == sf && imm.lastFlags == InputMethodManager.SHOW_IMPLICIT);
+        }
+        Build.VERSION.SDK_INT = 36;
+        EditText sw = field(imm, "x");
+        imm.shows = 0;
+        MrScreenIme.show(sw);
+        check("show before the window has the focus: waits for it, shows nothing yet", sw.hasFocus() && sw.getViewTreeObserver().stubListeners() == 1 && imm.shows == 0);
+        sw.stubWindowFocus(true);
+        sw.stubRunPosted();
+        check("... and asks once the window has it", imm.shows == 1 && imm.lastView == sw);
+        boolean okShow = true;
+        try {
+            MrScreenIme.show(null);
+            EditText nk = new EditText(new Ctx(null));
+            nk.stubWindowFocus(true);
+            MrScreenIme.show(nk);
+            nk.stubRunPosted();
+        } catch (RuntimeException e) { okShow = false; }
+        check("show with no field or no keyboard service does not break", okShow);
+
+        // ---- keepVisible: the room for the keyboard, with the tiles above the field left where they are
+        for (int sdk = 26; sdk <= 29; sdk++) {
+            Build.VERSION.SDK_INT = sdk;
+            ScrollView s = new ScrollView(new Ctx(imm));
+            MrScreenIme.keepVisible(s, new View(new Ctx(imm)), 20, 16, 20, 24, 12);
+            check("Android SDK " + sdk + ": keepVisible puts no listener (the window resizes by itself)", s.stubInsetsListener() == null);
+        }
+        Build.VERSION.SDK_INT = 36;
+        ScrollView kv = new ScrollView(new Ctx(imm));
+        kv.stubSize(1080, 1500);
+        View kcol = new View(new Ctx(imm));
+        MrScreenIme.keepVisible(kv, kcol, 20, 16, 20, 24, 12);
+        check("Android 15+: keepVisible puts the listener and asks for the insets", kv.stubInsetsListener() != null && kv.stubInsetsRequests() == 1);
+        EditText low = field(imm, "t");
+        low.stubTop(1100);
+        low.stubSize(900, 140);
+        kv.stubFocused = low;
+        kv.stubInsetsListener().onApplyWindowInsets(kv, afterBars(900, 48));
+        check("the room is the same as lift's (852 beyond the bars)", kcol.getPaddingBottom() == 24 + 852);
+        check("a field under the keyboard: the scroll is asked for after the layout", kv.stubPostedCount() == 1 && kv.getScrollY() == 0);
+        kv.stubRunPosted();
+        // visible bottom = 0 + 1500 - 852 = 648; the field ends at 1240, plus the margin 12: 604 to go down
+        check("... and goes down just far enough to have the field and its margin above the keyboard", kv.getScrollY() == 1100 + 140 + 12 - (1500 - 852));
+        kv.stubInsetsListener().onApplyWindowInsets(kv, afterBars(900, 48));
+        check("same insets again: nothing more", kv.stubPostedCount() == 0);
+
+        ScrollView ks = new ScrollView(new Ctx(imm));
+        ks.stubSize(1080, 1500);
+        View kcol2 = new View(new Ctx(imm));
+        MrScreenIme.keepVisible(ks, kcol2, 20, 16, 20, 24, 12);
+        EditText high = field(imm, "t");
+        high.stubTop(300);
+        high.stubSize(900, 140);
+        ks.stubFocused = high;
+        ks.stubInsetsListener().onApplyWindowInsets(ks, afterBars(900, 48));
+        ks.stubRunPosted();
+        check("a field that already is above the keyboard: the screen stays where it is (the tiles stay in view)", ks.getScrollY() == 0);
+        ks.scrollTo(0, 500);
+        ks.stubInsetsListener().onApplyWindowInsets(ks, keyboard(false, 0, 48).inset(0, 0, 0, 48));
+        ks.stubInsetsListener().onApplyWindowInsets(ks, afterBars(900, 48));
+        ks.stubRunPosted();
+        check("it never scrolls up", ks.getScrollY() == 500);
+
+        ScrollView kn = new ScrollView(new Ctx(imm));
+        kn.stubSize(1080, 1500);
+        MrScreenIme.keepVisible(kn, new View(new Ctx(imm)), 0, 0, 0, 0, 12);
+        kn.stubInsetsListener().onApplyWindowInsets(kn, afterBars(900, 48));
+        boolean okKn = true;
+        try { kn.stubRunPosted(); } catch (RuntimeException e) { okKn = false; }
+        check("no field with the focus: nothing scrolls, no crash", okKn && kn.getScrollY() == 0);
+        boolean okNull = true;
+        try { MrScreenIme.keepVisible(null, kcol, 0, 0, 0, 0, 0); MrScreenIme.keepVisible(kv, null, 0, 0, 0, 0, 0); } catch (RuntimeException e) { okNull = false; }
+        check("keepVisible with null views does not break", okNull);
+
         System.out.println(ok + " ok, " + fail + " failures");
         if (fail > 0) System.exit(1);
     }

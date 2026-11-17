@@ -218,7 +218,6 @@
     <string name="mr_reset_cancel">Cancel</string>
     <string name="mr_reset_done">Defaults restored</string>
     <string name="summary_popup_on">Shows the key enlarged above your finger as you type</string>
-    <string name="title_click_volume">Click volume</string>
     <string name="title_bar_scale">Toolbar and suggestions height</string>
     <string name="title_show_settings_key">Show settings key</string>
     <string name="summary_show_settings_key">Gear on the bottom row of the Standard mode</string>
@@ -761,12 +760,14 @@
     <string name="mr_tour_no_pack">There is no dictionary for your language in the catalog.</string>
     <string name="mr_tour_no_gesture">The catalog has no gesture recognition file.</string>
     <string name="mr_sound_title">Keyboard sound</string>
-    <string name="mr_sound_summary">Choose the sound of the keys</string>
+    <string name="mr_sound_summary">Choose the key sound and its volume</string>
     <string name="mr_sound_styles">Sound style</string>
     <string name="mr_sound_volume">Volume</string>
     <string name="mr_sound_default">Default</string>
     <string name="mr_sound_default_note">The default sound follows the system volume.</string>
     <string name="mr_sound_muted">The keys make no sound.</string>
+    <string name="mr_sound_try">Tap here and type to hear the sounds</string>
+    <string name="mr_sound_other_ime">The keyboard in use is not Mr Keyboard. Switch to it to hear these sounds.</string>
     <string name="mr_sound_name_mute">Mute</string>
     <string name="mr_sound_name_bubble">Bubble 1</string>
     <string name="mr_sound_name_bubble2">Bubble 2</string>

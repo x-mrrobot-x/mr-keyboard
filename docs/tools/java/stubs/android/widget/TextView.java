@@ -20,9 +20,13 @@ public class TextView extends android.view.View {
     public void setTextSize(float size) { stubTextSize = size; }
     public void setTypeface(android.graphics.Typeface tf, int style) { }
     public void setGravity(int gravity) { }
-    public void setHint(CharSequence hint) { }
+    private CharSequence stubHint;
+    public void setHint(CharSequence hint) { stubHint = hint; }
+    public CharSequence getHint() { return stubHint; }
     public void setHintTextColor(int color) { }
-    public void setInputType(int type) { }
+    private int stubInputType;
+    public void setInputType(int type) { stubInputType = type; }
+    public int getInputType() { return stubInputType; }
     public void setSingleLine(boolean singleLine) { }
     public void setFilters(android.text.InputFilter[] filters) { }
     public void setMinLines(int minLines) { }

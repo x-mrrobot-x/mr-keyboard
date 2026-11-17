@@ -16,8 +16,9 @@ OLD = {'pref_render_mode', 'pref_slide_keys_int', 'connectbot_tab_hack', 'pref_t
 # keys with a screen outside the XML (pages built in code)
 # pref_ai_key: the screen row is not persistent (the value goes to "mr_ai", outside the backup, and MrReset
 # clears both), but the key stays in MrReset.KEYS to clear any copy in the default preferences
-# pref_sound_style: written by the "Keyboard sound" screen (MrSoundActivity), which the feedback screen opens with a row that stores nothing
-OUTSIDE_XML = {'pref_sheet_return', 'pref_ai_key', 'pref_sound_style'}
+# pref_sound_style, pref_click_volume: written by the "Keyboard sound" screen (MrSoundActivity), which the feedback screen opens with a row that stores
+# nothing (the volume slider that was on the feedback screen moved into it)
+OUTSIDE_XML = {'pref_sheet_return', 'pref_ai_key', 'pref_sound_style', 'pref_click_volume'}
 
 screens = set()
 for f in glob.glob('res/xml/prefs*.xml'):

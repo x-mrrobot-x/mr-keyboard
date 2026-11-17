@@ -27,13 +27,13 @@
     .locals 0
 
     .prologue
-    .line 79
+    .line 93
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 80
+    .line 94
     iput-object p1, p0, Lcom/mrkeyboard/app/MrScreenIme$Show;->mField:Landroid/widget/EditText;
 
-    .line 81
+    .line 95
     return-void
 .end method
 
@@ -43,7 +43,7 @@
     .locals 1
 
     .prologue
-    .line 84
+    .line 98
     iget-object v0, p0, Lcom/mrkeyboard/app/MrScreenIme$Show;->mField:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->hasWindowFocus()Z
@@ -56,11 +56,11 @@
 
     invoke-virtual {v0, p0}, Landroid/widget/EditText;->post(Ljava/lang/Runnable;)Z
 
-    .line 86
+    .line 100
     :goto_0
     return-void
 
-    .line 85
+    .line 99
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrScreenIme$Show;->mField:Landroid/widget/EditText;
 
@@ -77,14 +77,14 @@
     .locals 2
 
     .prologue
-    .line 89
+    .line 103
     if-nez p1, :cond_0
 
-    .line 94
+    .line 108
     :goto_0
     return-void
 
-    .line 90
+    .line 104
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrScreenIme$Show;->mField:Landroid/widget/EditText;
 
@@ -92,7 +92,7 @@
 
     move-result-object v0
 
-    .line 91
+    .line 105
     invoke-virtual {v0}, Landroid/view/ViewTreeObserver;->isAlive()Z
 
     move-result v1
@@ -101,7 +101,7 @@
 
     invoke-virtual {v0, p0}, Landroid/view/ViewTreeObserver;->removeOnWindowFocusChangeListener(Landroid/view/ViewTreeObserver$OnWindowFocusChangeListener;)V
 
-    .line 93
+    .line 107
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrScreenIme$Show;->mField:Landroid/widget/EditText;
 
@@ -114,13 +114,13 @@
     .locals 3
 
     .prologue
-    .line 98
+    .line 112
     :try_start_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrScreenIme$Show;->mField:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->requestFocus()Z
 
-    .line 99
+    .line 113
     iget-object v0, p0, Lcom/mrkeyboard/app/MrScreenIme$Show;->mField:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getContext()Landroid/content/Context;
@@ -129,14 +129,14 @@
 
     const-string v1, "input_method"
 
-    .line 100
+    .line 114
     invoke-virtual {v0, v1}, Landroid/content/Context;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Landroid/view/inputmethod/InputMethodManager;
 
-    .line 101
+    .line 115
     if-eqz v0, :cond_0
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrScreenIme$Show;->mField:Landroid/widget/EditText;
@@ -147,12 +147,12 @@
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 105
+    .line 119
     :cond_0
     :goto_0
     return-void
 
-    .line 102
+    .line 116
     :catch_0
     move-exception v0
 

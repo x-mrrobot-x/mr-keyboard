@@ -218,7 +218,6 @@
     <string name="mr_reset_cancel">Cancelar</string>
     <string name="mr_reset_done">Padrões restaurados</string>
     <string name="summary_popup_on">Mostra a tecla em destaque acima do dedo ao digitar</string>
-    <string name="title_click_volume">Volume do clique</string>
     <string name="title_bar_scale">Altura da barra de ferramentas e sugestões</string>
     <string name="title_show_settings_key">Mostrar tecla de configurações</string>
     <string name="summary_show_settings_key">Engrenagem na linha de baixo do modo Padrão</string>
@@ -761,12 +760,14 @@
     <string name="mr_tour_no_pack">Não há dicionário para o seu idioma no catálogo.</string>
     <string name="mr_tour_no_gesture">O catálogo não tem o arquivo de reconhecimento de gestos.</string>
     <string name="mr_sound_title">Som do teclado</string>
-    <string name="mr_sound_summary">Escolha o som das teclas</string>
+    <string name="mr_sound_summary">Escolha o som das teclas e o volume</string>
     <string name="mr_sound_styles">Estilo de som</string>
     <string name="mr_sound_volume">Volume</string>
     <string name="mr_sound_default">Padrão</string>
     <string name="mr_sound_default_note">O som padrão segue o volume do sistema.</string>
     <string name="mr_sound_muted">As teclas ficam sem som.</string>
+    <string name="mr_sound_try">Toque aqui e digite para ouvir os sons</string>
+    <string name="mr_sound_other_ime">O teclado em uso não é o Mr Keyboard. Troque para ele para ouvir estes sons.</string>
     <string name="mr_sound_name_mute">Sem som</string>
     <string name="mr_sound_name_bubble">Bolha 1</string>
     <string name="mr_sound_name_bubble2">Bolha 2</string>

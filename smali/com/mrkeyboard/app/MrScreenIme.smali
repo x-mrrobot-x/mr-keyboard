@@ -93,11 +93,65 @@
     goto :goto_0
 .end method
 
+.method public static keepVisible(Landroid/widget/ScrollView;Landroid/view/View;IIIII)V
+    .locals 8
+
+    .prologue
+    .line 140
+    const/4 v7, 0x1
+
+    move-object v0, p0
+
+    move-object v1, p1
+
+    move v2, p2
+
+    move v3, p3
+
+    move v4, p4
+
+    move v5, p5
+
+    move v6, p6
+
+    invoke-static/range {v0 .. v7}, Lcom/mrkeyboard/app/MrScreenIme;->lift(Landroid/widget/ScrollView;Landroid/view/View;IIIIIZ)V
+
+    .line 141
+    return-void
+.end method
+
 .method public static lift(Landroid/widget/ScrollView;Landroid/view/View;IIIII)V
     .locals 8
 
     .prologue
-    .line 116
+    .line 130
+    const/4 v7, 0x0
+
+    move-object v0, p0
+
+    move-object v1, p1
+
+    move v2, p2
+
+    move v3, p3
+
+    move v4, p4
+
+    move v5, p5
+
+    move v6, p6
+
+    invoke-static/range {v0 .. v7}, Lcom/mrkeyboard/app/MrScreenIme;->lift(Landroid/widget/ScrollView;Landroid/view/View;IIIIIZ)V
+
+    .line 131
+    return-void
+.end method
+
+.method private static lift(Landroid/widget/ScrollView;Landroid/view/View;IIIIIZ)V
+    .locals 9
+
+    .prologue
+    .line 145
     if-eqz p0, :cond_0
 
     if-eqz p1, :cond_0
@@ -108,12 +162,12 @@
 
     if-ge v0, v1, :cond_1
 
-    .line 120
+    .line 149
     :cond_0
     :goto_0
     return-void
 
-    .line 117
+    .line 146
     :cond_1
     new-instance v0, Lcom/mrkeyboard/app/MrScreenIme$Lift;
 
@@ -131,11 +185,13 @@
 
     move v7, p6
 
-    invoke-direct/range {v0 .. v7}, Lcom/mrkeyboard/app/MrScreenIme$Lift;-><init>(Landroid/widget/ScrollView;Landroid/view/View;IIIII)V
+    move/from16 v8, p7
+
+    invoke-direct/range {v0 .. v8}, Lcom/mrkeyboard/app/MrScreenIme$Lift;-><init>(Landroid/widget/ScrollView;Landroid/view/View;IIIIIZ)V
 
     invoke-virtual {p0, v0}, Landroid/widget/ScrollView;->setOnApplyWindowInsetsListener(Landroid/view/View$OnApplyWindowInsetsListener;)V
 
-    .line 119
+    .line 148
     invoke-virtual {p0}, Landroid/widget/ScrollView;->requestApplyInsets()V
 
     goto :goto_0
@@ -314,4 +370,38 @@
 
     .line 48
     goto :goto_1
+.end method
+
+.method public static show(Landroid/widget/EditText;)V
+    .locals 1
+
+    .prologue
+    .line 80
+    if-nez p0, :cond_0
+
+    .line 87
+    :goto_0
+    return-void
+
+    .line 82
+    :cond_0
+    :try_start_0
+    invoke-virtual {p0}, Landroid/widget/EditText;->requestFocus()Z
+
+    .line 83
+    new-instance v0, Lcom/mrkeyboard/app/MrScreenIme$Show;
+
+    invoke-direct {v0, p0}, Lcom/mrkeyboard/app/MrScreenIme$Show;-><init>(Landroid/widget/EditText;)V
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrScreenIme$Show;->arm()V
+    :try_end_0
+    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+
+    goto :goto_0
+
+    .line 84
+    :catch_0
+    move-exception v0
+
+    goto :goto_0
 .end method

@@ -4,9 +4,14 @@ Settings > Feedback > **Keyboard sound** opens a screen with fifteen tiles (five
 
 | row | tiles |
 |---|---|
-| 1 | mute, bubble 1, bell, duck, keyboard |
-| 2 | default, bubble 2, fox, pistol, magic wand |
-| 3 | frog, cat, water drop, rocket, mouse |
+| 1 | mute, default (the system click), keyboard, water drop, bubble 1 |
+| 2 | bubble 2, bell, duck, mouse, cat |
+| 3 | frog, fox, magic wand, pistol, rocket |
+
+Mute and the default sound come first, then the sounds from the most discreet to the most eye-catching.
+Below the volume there is a text field with the keyboard already open, to try the sounds by typing (a note appears when the keyboard
+in use is not Mr Keyboard). The screen scrolls down only as far as the field needs to be above the keyboard
+(`MrScreenIme.keepVisible`), so the tiles stay where they are.
 
 Touching a tile chooses it and plays it once.
 
@@ -17,7 +22,8 @@ The screen keeps nothing of its own. It writes the preferences the keyboard alre
 - `sound_on` (the old "Sound on keypress" box): **mute** is `sound_on = false`; every other tile sets it to `true`.
 - `pref_sound_style` (new, in `MrReset.KEYS`): `default` or one of `bubble bubble2 bell duck keyboard fox pistol wand frog cat drop rocket mouse`.
   A name that does not exist is read as `default`.
-- `pref_click_volume` (the old volume, a float in a string, 0 to 1, default 0.8): the slider writes `percent / 100`.
+- `pref_click_volume` (the volume, a float in a string, 0 to 1, default 0.8): the slider writes `percent / 100`. It is the same key the
+  "Click volume" slider of the feedback screen used; that slider was removed (it did nothing for the system click and this screen replaces it).
 
 ## How a key is played
 

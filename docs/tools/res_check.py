@@ -481,7 +481,7 @@ if snd_files != sorted('mr_snd_%s.ogg' % st for st in snd_styles):
     problems.append('res/raw: the mr_snd_*.ogg files and MrKeySound.STYLES do not match')
 for lang in ('values', 'values-es', 'values-pt-rBR'):
     texts = read_file('res/%s/mr_strings.xml' % lang)
-    for name in ['mr_sound_' + k for k in ('title', 'summary', 'styles', 'volume', 'default', 'default_note', 'muted')] + ['mr_sound_name_' + st for st in ['mute'] + snd_styles]:
+    for name in ['mr_sound_' + k for k in ('title', 'summary', 'styles', 'volume', 'default', 'default_note', 'muted', 'try', 'other_ime')] + ['mr_sound_name_' + st for st in ['mute'] + snd_styles]:
         if '<string name="%s">' % name not in texts:
             problems.append('%s/mr_strings.xml: string %s of the Keyboard sound screen is missing' % (lang, name))
 # SoundPool.load(Context, int, int) opens the raw resource as a file descriptor, which Android refuses for a compressed entry (the sound would never play and
