@@ -32,6 +32,9 @@
     <string name="mr_ui_hw_accel">Aceleración por hardware</string>
     <string name="mr_ui_hw_accel_on">Las pantallas de la app se dibujan con la GPU; usa más memoria. No afecta al teclado.</string>
     <string name="mr_ui_hw_accel_off">Las pantallas de la app se dibujan con el procesador (predeterminado). No afecta al teclado.</string>
+    <string name="mr_ui_matrix">Efecto Matrix</string>
+    <string name="mr_ui_matrix_on">Letras que caen detrás de las pantallas de ajustes, en el color del tema. Las pantallas se dibujan con la GPU mientras esté activado; gasta más batería.</string>
+    <string name="mr_ui_matrix_off">Sin efecto detrás de las pantallas de ajustes (predeterminado).</string>
     <string name="mr_ui_kbd_accel">Dibujo del teclado</string>
     <string name="mr_ui_kbd_accel_on">La ventana del teclado se dibuja con la GPU (aceleración por hardware).</string>
     <string name="mr_ui_kbd_accel_off">La ventana del teclado se dibuja con el procesador (sin aceleración por hardware).</string>

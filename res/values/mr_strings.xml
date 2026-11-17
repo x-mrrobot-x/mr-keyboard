@@ -32,6 +32,9 @@
     <string name="mr_ui_hw_accel">Hardware acceleration</string>
     <string name="mr_ui_hw_accel_on">The app screens are drawn by the GPU; uses more memory. The keyboard is not affected.</string>
     <string name="mr_ui_hw_accel_off">The app screens are drawn by the processor (default). The keyboard is not affected.</string>
+    <string name="mr_ui_matrix">Matrix effect</string>
+    <string name="mr_ui_matrix_on">Letters fall behind the settings screens, in the colour of the theme. The screens are drawn by the GPU while it is on; uses more battery.</string>
+    <string name="mr_ui_matrix_off">No effect behind the settings screens (default).</string>
     <string name="mr_ui_kbd_accel">Keyboard drawing</string>
     <string name="mr_ui_kbd_accel_on">The keyboard window is drawn by the GPU (hardware acceleration).</string>
     <string name="mr_ui_kbd_accel_off">The keyboard window is drawn by the processor (no hardware acceleration).</string>

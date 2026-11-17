@@ -11,6 +11,8 @@ import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 
+import java.util.WeakHashMap;
+
 /**
  * Behaviour shared by every screen (Activity) of the app, registered once in MrApplication.
  *
@@ -31,6 +33,11 @@ import android.view.WindowManager;
  * off, so the setting "pref_ui_hw_accel" (Advanced, off by default) is applied here, in onActivityCreated, which runs before
  * the window is handed to the system (the flag is read when the window is added, after onResume). It never touches the
  * windows without a screen of their own (the translucent helpers) or the keyboard and its dialogs.
+ *
+ * Matrix effect (the setting "pref_ui_matrix", Advanced, off by default): on the settings screens (MrMatrix.eligible) the window gets
+ * the falling letters as its background (MrMatrix.attach) and, since they are animated, it is accelerated whatever the other setting says. Both
+ * are decided when the screen is created; the screens that are open when the setting changes are created again when they come back
+ * (onActivityResumed) and the one that changed it at once (onSetting).
  */
 public final class MrScreens implements Application.ActivityLifecycleCallbacks, View.OnApplyWindowInsetsListener {
     /** android.R.id.content. */
@@ -45,6 +52,9 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
     private static final String[] HELPERS = {
             "com.google.android.voiceime.ActivityHelper", "com.mrkeyboard.app.ShotPerm", "com.mrkeyboard.app.ShotPick"};
 
+    /** What each screen was drawn with when it was created: the rain or not (so that a change of the setting is seen when it comes back). */
+    private final WeakHashMap<Activity, Boolean> mRain = new WeakHashMap<Activity, Boolean>();
+
     /** Registers the callbacks of the screens (once, in MrApplication.onCreate). */
     public static void install(Application app) {
         if (app == null) return;
@@ -56,7 +66,7 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
      * that screen is created again to take the new value at once (the ones behind it take it the next time they open).
      */
     public static void onSetting(Activity screen, String key) {
-        if (screen != null && KEY_HW_ACCEL.equals(key)) screen.recreate();
+        if (screen != null && (KEY_HW_ACCEL.equals(key) || MrMatrix.KEY.equals(key))) screen.recreate();
     }
 
     /** True for the windows that are not screens of the app (see HELPERS). */
@@ -104,7 +114,10 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
     }
 
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-        if (!accelerates(activity)) return;
+        boolean rain = MrMatrix.wanted(activity);
+        if (MrMatrix.eligible(activity)) mRain.put(activity, Boolean.valueOf(rain));
+        if (rain) MrMatrix.attach(activity);
+        if (!rain && !accelerates(activity)) return;
         Window window = activity.getWindow();
         if (window != null) {
             window.setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
@@ -112,7 +125,11 @@ public final class MrScreens implements Application.ActivityLifecycleCallbacks, 
         }
     }
 
-    public void onActivityResumed(Activity activity) { }
+    /** A settings screen that was made with the other value of the Matrix setting (changed on a screen above it) is created again. */
+    public void onActivityResumed(Activity activity) {
+        Boolean was = mRain.get(activity);
+        if (was != null && was.booleanValue() != MrMatrix.wanted(activity)) activity.recreate();
+    }
 
     public void onActivityPaused(Activity activity) { }
 

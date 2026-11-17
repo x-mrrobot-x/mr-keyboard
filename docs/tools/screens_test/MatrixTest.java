@@ -1,0 +1,533 @@
+package com.mrkeyboard.app;
+
+import android.app.Activity;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.os.Build;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
+import android.util.DisplayMetrics;
+import android.view.Window;
+import android.view.WindowManager;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+/**
+ * The Matrix effect of the settings screens, run on the PC against the stubs of Android: MrRain (the drops: where they are, how they fade, that they
+ * come back and never move together), MrRainDrawable (what it draws, the beats that it asks for and that stop when the window is hidden), MrMatrix
+ * (which screens get it, the setting, a failure that leaves the screen alone) and MrScreens (the rain and the acceleration when the screen is
+ * created, the screen that is created again when it comes back after the setting changed, never in a loop).
+ */
+public class MatrixTest {
+    static int ok, fail;
+
+    static void check(String what, boolean cond) {
+        if (cond) {
+            ok++;
+            System.out.println("OK    " + what);
+        } else {
+            fail++;
+            System.out.println("FAIL  " + what);
+        }
+    }
+
+    static final int BG = 0xff060c17;
+    static final int ACCENT = 0xff1b97fc;
+
+    // ---------------------------------------------------------------- MrRain
+
+    static int lit(MrRain r, int col) {
+        int n = 0;
+        for (int row = 0; row < r.rows(); row++) if (r.level(col, row) > 0f) n++;
+        return n;
+    }
+
+    static void rain() {
+        MrRain r = new MrRain(90, 7);
+        r.resize(40, 60);
+        check("the grid is the one asked", r.cols() == 40 && r.rows() == 60);
+        boolean headOne = true, fades = true, outside = true, inGlyphs = true, range = true;
+        for (int step = 0; step < 300; step++) {
+            for (int c = 0; c < r.cols(); c++) {
+                int first = r.first(c), last = r.last(c);
+                float before = 2f;
+                for (int row = 0; row < r.rows(); row++) {
+                    float level = r.level(c, row);
+                    if (row < first || row > last) {
+                        if (level > 0f && !(row >= first && row <= last)) outside = false;
+                    }
+                    if (level > 0f) {
+                        if (level > 1f) range = false;
+                        if (level == 1f && row != last) headOne = false;
+                        if (before <= 1f && level < before && before != 2f) { /* going down the column the level grows to the head */ }
+                        int g = r.glyphAt(c, row);
+                        if (g < 0 || g >= 90) inGlyphs = false;
+                    }
+                }
+                // along the trail, towards the head, the level only grows
+                float prev = -1f;
+                for (int row = first; row <= last; row++) {
+                    float level = r.level(c, row);
+                    if (level > 0f) {
+                        if (level < prev) fades = false;
+                        prev = level;
+                    }
+                }
+            }
+            r.step();
+        }
+        check("a cell outside of the trail of its column has no level", outside);
+        check("only the head is at full strength, nothing is above it", headOne && range);
+        check("the trail fades away from the head: the level only grows from the top of the trail down to the head", fades);
+        check("every glyph is an index of the set (300 beats, every cell that is lit)", inGlyphs);
+
+        // the trails have the length asked
+        MrRain t = new MrRain(10, 3);
+        t.resize(30, 80);
+        boolean lengths = true;
+        for (int step = 0; step < 400; step++) {
+            for (int c = 0; c < t.cols(); c++) {
+                if (t.last(c) >= MrRain.TRAIL_MAX && t.last(c) < t.rows() - 1 && t.first(c) > 0) {   // the whole drop is on the grid (the head is not at the edge)
+                    int n = lit(t, c);
+                    if (n < MrRain.TRAIL_MIN + 1 || n > MrRain.TRAIL_MAX + 1) lengths = false;
+                }
+            }
+            t.step();
+        }
+        check("a drop that is all on the grid is between " + (MrRain.TRAIL_MIN + 1) + " and " + (MrRain.TRAIL_MAX + 1) + " cells long (head included)", lengths);
+
+        // drops come back
+        MrRain b = new MrRain(10, 11);
+        b.resize(5, 30);
+        int[] comebacks = new int[5];
+        boolean[] wasOff = new boolean[5];
+        boolean[] reachedBottom = new boolean[5];
+        for (int step = 0; step < 3000; step++) {
+            for (int c = 0; c < 5; c++) {
+                boolean empty = b.first(c) > b.last(c);
+                if (b.last(c) == b.rows() - 1) reachedBottom[c] = true;
+                if (reachedBottom[c] && empty) wasOff[c] = true;
+                if (wasOff[c] && !empty) {
+                    comebacks[c]++;
+                    wasOff[c] = false;
+                    reachedBottom[c] = false;
+                }
+            }
+            b.step();
+        }
+        boolean every = true;
+        for (int c = 0; c < 5; c++) if (comebacks[c] < 3) every = false;
+        check("a drop that went off the bottom comes back (every column, at least three times in 3000 beats)", every);
+
+        // they do not move together
+        MrRain m = new MrRain(10, 5);
+        m.resize(40, 60);
+        for (int i = 0; i < 50; i++) m.step();
+        java.util.HashSet<Integer> heads = new java.util.HashSet<Integer>();
+        for (int c = 0; c < 40; c++) heads.add(m.last(c) * 1000 + m.first(c));
+        check("the columns are not in step (many different positions after 50 beats)", heads.size() > 20);
+
+        // the glyphs flicker
+        MrRain g = new MrRain(90, 2);
+        g.resize(10, 10);
+        int[] first = new int[100];
+        for (int c = 0; c < 10; c++) for (int row = 0; row < 10; row++) first[c * 10 + row] = g.glyphAt(c, row);
+        for (int i = 0; i < 40; i++) g.step();
+        int changed = 0;
+        for (int c = 0; c < 10; c++) for (int row = 0; row < 10; row++) if (g.glyphAt(c, row) != first[c * 10 + row]) changed++;
+        check("the glyphs change now and then (some cells have another one after 40 beats, not all)", changed > 5 && changed < 100);
+
+        // the same seed gives the same rain, another seed another one
+        MrRain a1 = new MrRain(90, 42), a2 = new MrRain(90, 42), a3 = new MrRain(90, 43);
+        a1.resize(20, 40);
+        a2.resize(20, 40);
+        a3.resize(20, 40);
+        boolean same = true, other = false;
+        for (int i = 0; i < 100; i++) {
+            a1.step();
+            a2.step();
+            a3.step();
+            for (int c = 0; c < 20; c++) {
+                if (a1.first(c) != a2.first(c) || a1.last(c) != a2.last(c) || a1.glyphAt(c, 0) != a2.glyphAt(c, 0)) same = false;
+                if (a1.first(c) != a3.first(c) || a1.last(c) != a3.last(c)) other = true;
+            }
+        }
+        check("the same seed makes the same rain (100 beats) and another seed another one", same && other);
+
+        // the edges
+        boolean edges = true;
+        int[][] sizes = {{0, 0}, {1, 1}, {1, 0}, {0, 5}, {3, 2}, {200, 3}};
+        for (int[] s : sizes) {
+            try {
+                MrRain e = new MrRain(1, 1);
+                e.resize(s[0], s[1]);
+                for (int i = 0; i < 60; i++) {
+                    e.step();
+                    for (int c = 0; c < e.cols(); c++) {
+                        int f = e.first(c), l = e.last(c);
+                        for (int row = Math.max(0, f); row <= l; row++) e.level(c, row);
+                    }
+                }
+            } catch (RuntimeException ex) {
+                edges = false;
+            }
+        }
+        check("empty and tiny grids (0x0, 1x1, 1x0, 0x5, 3x2, 200x3) and a set of one glyph run without failing", edges);
+        MrRain z = new MrRain(0, 1);
+        z.resize(4, 4);
+        boolean zero = true;
+        for (int i = 0; i < 20; i++) z.step();
+        for (int c = 0; c < 4; c++) for (int row = 0; row < 4; row++) if (z.glyphAt(c, row) != 0) zero = false;
+        check("a set of no glyph is taken as one (index 0)", zero);
+        MrRain again = new MrRain(10, 1);
+        again.resize(8, 8);
+        again.resize(20, 12);
+        check("a new size makes a new grid", again.cols() == 20 && again.rows() == 12 && again.last(19) <= 11);
+    }
+
+    // ---------------------------------------------------------------- MrRainDrawable
+
+    static int alphaOf(String glyphEntry) {
+        String hex = glyphEntry.substring(glyphEntry.lastIndexOf('#') + 1);
+        return (int) (Long.parseLong(hex, 16) >> 24) & 0xff;
+    }
+
+    static int rgbOf(String glyphEntry) {
+        String hex = glyphEntry.substring(glyphEntry.lastIndexOf('#') + 1);
+        return (int) (Long.parseLong(hex, 16) & 0xffffff);
+    }
+
+    static void drawable() {
+        Paint.stubNoGlyph.clear();
+        check("the colour helpers: alpha is put in the top byte, clamped, and the rgb is kept", MrRainDrawable.withAlpha(0xff1b97fc, 0.5f) == 0x801b97fc
+                && MrRainDrawable.withAlpha(0x1b97fc, 2f) == 0xff1b97fc && MrRainDrawable.withAlpha(0x1b97fc, -1f) == 0x001b97fc);
+        check("lighter(): 0 keeps the colour and 1 is white", MrRainDrawable.lighter(0xff1b97fc, 0f) == 0xff1b97fc && MrRainDrawable.lighter(0xff1b97fc, 1f) == 0xffffffff);
+        int light = MrRainDrawable.lighter(ACCENT, MrRainDrawable.HEAD_LIGHT);
+        check("the head is the accent moved towards white (lighter in every channel, the blue stays the strongest)",
+                ((light >> 16) & 0xff) > 0x1b && ((light >> 8) & 0xff) > 0x97 && (light & 0xff) >= 0xfc && ((light >> 16) & 0xff) < 0xff);
+
+        String[] all = MrRainDrawable.glyphs(new Paint(Paint.ANTI_ALIAS_FLAG));
+        check("the font has everything: the base set and the half-width katakana (" + (MrRainDrawable.BASE.length() + MrRainDrawable.KANA.length()) + " glyphs)",
+                all.length == MrRainDrawable.BASE.length() + MrRainDrawable.KANA.length() && all[0].equals("0") && all[all.length - 1].equals("ﾝ"));
+        Paint.stubNoGlyph.add("ｱ");
+        Paint.stubNoGlyph.add("ﾝ");
+        String[] some = MrRainDrawable.glyphs(new Paint(Paint.ANTI_ALIAS_FLAG));
+        boolean none = true;
+        for (String g : some) if (g.equals("ｱ") || g.equals("ﾝ")) none = false;
+        check("a katakana that the font lacks is left out (no box with a cross on the screen)", some.length == all.length - 2 && none);
+        for (int i = 0; i < MrRainDrawable.KANA.length(); i++) Paint.stubNoGlyph.add(String.valueOf(MrRainDrawable.KANA.charAt(i)));
+        String[] base = MrRainDrawable.glyphs(new Paint(Paint.ANTI_ALIAS_FLAG));
+        check("a font with no katakana: the base set only (digits, capitals and signs)", base.length == MrRainDrawable.BASE.length());
+        Paint.stubNoGlyph.clear();
+
+        MrRainDrawable d = new MrRainDrawable(BG, ACCENT, 2f);
+        d.setBounds(0, 0, 300, 600);
+        Canvas c = new Canvas();
+        d.draw(c);
+        check("it paints the colour of the screens first", c.stubFill == BG);
+        check("and then letters over it", c.stubGlyphs.size() > 30);
+        boolean alphaOk = true, rgbOk = true, withinWindow = true;
+        int maxAlpha = 0, minAlpha = 255;
+        int headRgb = light & 0xffffff;
+        for (String e : c.stubGlyphs) {
+            int a = alphaOf(e), rgb = rgbOf(e);
+            maxAlpha = Math.max(maxAlpha, a);
+            minAlpha = Math.min(minAlpha, a);
+            if (rgb != (ACCENT & 0xffffff) && rgb != headRgb) rgbOk = false;
+            String pos = e.substring(e.indexOf('@') + 1, e.indexOf('#'));
+            float x = Float.parseFloat(pos.split(",")[0]);
+            if (x < 0 || x > 300) withinWindow = false;
+        }
+        int headA = Math.round(MrRainDrawable.HEAD_ALPHA * 255f);
+        check("every letter is in the colour of the theme (or its lighter head), nothing else", rgbOk);
+        check("the letters are faint so that the text of the screen stays readable: the strongest is the head (" + headA + "/255), the rest less, none invisible",
+                maxAlpha == headA && minAlpha > 0 && minAlpha < Math.round(MrRainDrawable.TRAIL_ALPHA * 255f));
+        check("the columns are inside the width of the window", withinWindow);
+        // the grid follows the size: 300 px / (7 * 1.05) wide
+        java.util.HashSet<String> columns = new java.util.HashSet<String>();
+        for (String e : c.stubGlyphs) columns.add(e.substring(e.indexOf('@') + 1, e.indexOf('#')).split(",")[0]);
+        check("the columns are the width of a glyph apart and fill the window (at most " + (int) Math.ceil(300 / (7 * 1.05f)) + ")", columns.size() <= (int) Math.ceil(300 / (7 * 1.05f)) && columns.size() > 20);
+
+        // the beats
+        check("the first draw asks for ONE beat", d.stubScheduled.size() == 1);
+        d.draw(new Canvas());
+        check("drawing again before the beat does not ask for another", d.stubScheduled.size() == 1);
+        int inv = d.stubInvalidations;
+        Runnable beat = d.stubScheduled.get(0);
+        d.stubScheduled.clear();
+        beat.run();
+        check("the beat moves the rain and asks to be drawn", d.stubInvalidations == inv + 1 && d.stubScheduled.isEmpty());
+        Canvas c2 = new Canvas();
+        for (int i = 0; i < 5; i++) {
+            d.draw(c2);
+            Runnable next = d.stubScheduled.remove(0);
+            next.run();
+        }
+        Canvas c3 = new Canvas();
+        d.draw(c3);
+        check("the rain has moved after a few beats", !c3.stubGlyphs.equals(c.stubGlyphs));
+        check("each draw asks for the next beat again (the loop keeps itself going)", d.stubScheduled.size() == 1);
+
+        // hidden: nothing is asked
+        boolean changed = d.setVisible(false, false);
+        check("the window hides its background: the beat that was asked for is taken back", changed && d.stubScheduled.isEmpty());
+        d.draw(new Canvas());
+        check("a hidden background still paints if it is asked to but asks for no beat (battery)", d.stubScheduled.isEmpty());
+        int before = d.stubInvalidations;
+        boolean shown = d.setVisible(true, false);
+        check("shown again it asks to be drawn, and that draw starts the beats again", shown && d.stubInvalidations == before + 1);
+        d.draw(new Canvas());
+        check("... one beat", d.stubScheduled.size() == 1);
+        check("setVisible with the same value changes nothing", !d.setVisible(true, false) && d.stubInvalidations == before + 1);
+
+        // another size makes another grid
+        MrRainDrawable r = new MrRainDrawable(BG, ACCENT, 2f);
+        r.setBounds(0, 0, 100, 200);
+        Canvas small = new Canvas();
+        r.draw(small);
+        java.util.HashSet<String> narrow = new java.util.HashSet<String>();
+        for (String e : small.stubGlyphs) narrow.add(e.substring(e.indexOf('@') + 1, e.indexOf('#')).split(",")[0]);
+        r.setBounds(0, 0, 400, 200);
+        Canvas wide = new Canvas();
+        r.draw(wide);
+        java.util.HashSet<String> broad = new java.util.HashSet<String>();
+        for (String e : wide.stubGlyphs) broad.add(e.substring(e.indexOf('@') + 1, e.indexOf('#')).split(",")[0]);
+        check("turning the phone (another width) makes another grid: more columns", broad.size() > narrow.size() * 2);
+        check("it is opaque (the whole window is painted) and ignores alpha and filters", r.getOpacity() == -1);
+        r.setAlpha(10);
+        r.setColorFilter(null);
+        r.setBounds(0, 0, 0, 0);
+        boolean empty = true;
+        try { r.draw(new Canvas()); } catch (RuntimeException e) { empty = false; }
+        check("a window of no size does not break the drawing", empty);
+    }
+
+    // ---------------------------------------------------------------- MrMatrix and MrScreens
+
+    static class Prefs implements SharedPreferences {
+        final HashMap<String, Object> map = new HashMap<String, Object>();
+        boolean broken;
+        public java.util.Map<String, ?> getAll() { return map; }
+        public String getString(String key, String def) { return def; }
+        public int getInt(String key, int def) { return def; }
+        public long getLong(String key, long def) { return def; }
+        public boolean getBoolean(String key, boolean def) {
+            if (broken) throw new IllegalStateException("cannot read");
+            Object v = map.get(key);
+            return v == null ? def : ((Boolean) v).booleanValue();
+        }
+        public Editor edit() { return null; }
+        public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener l) { }
+        public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener l) { }
+    }
+
+    /** The colours of the app and a display of density 2. */
+    static class Res extends Resources {
+        public int getIdentifier(String name, String defType, String defPackage) { return name.equals("mr_ui_bg") ? 1 : name.equals("mr_accent") ? 2 : 0; }
+        public int getColor(int id) { return id == 1 ? BG : id == 2 ? ACCENT : 0; }
+        public DisplayMetrics getDisplayMetrics() {
+            DisplayMetrics m = new DisplayMetrics();
+            m.density = 2f;
+            return m;
+        }
+    }
+
+    static class Settings extends PreferenceActivity {
+        public Resources getResources() { return new Res(); }
+        public String getPackageName() { return "com.mrkeyboard.app"; }
+    }
+
+    /** A settings screen whose resources cannot be read (the colours are missing). */
+    static class Broken extends PreferenceActivity {
+        public Resources getResources() { return new Resources(); }
+        public String getPackageName() { return "com.mrkeyboard.app"; }
+    }
+
+    static class Plain extends Activity {
+        public Resources getResources() { return new Res(); }
+        public String getPackageName() { return "com.mrkeyboard.app"; }
+    }
+
+    static class NoWindow extends PreferenceActivity {
+        public Window getWindow() { return null; }
+        public Resources getResources() { return new Res(); }
+        public String getPackageName() { return "com.mrkeyboard.app"; }
+    }
+
+    static final int HW = WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
+
+    static void matrix() {
+        Prefs prefs = new Prefs();
+        PreferenceManager.stubDefault = prefs;
+        Build.VERSION.SDK_INT = 33;
+        check("the key of the setting", MrMatrix.KEY.equals("pref_ui_matrix"));
+        check("off by default: never changed, the setting is off", !MrMatrix.enabled(new Plain()));
+        prefs.map.put("pref_ui_matrix", Boolean.TRUE);
+        check("on when it is on", MrMatrix.enabled(new Plain()));
+        prefs.map.put("pref_ui_matrix", Boolean.FALSE);
+        check("off when it is off", !MrMatrix.enabled(new Plain()));
+        prefs.broken = true;
+        check("preferences that cannot be read: off", !MrMatrix.enabled(new Plain()));
+        prefs.broken = false;
+        PreferenceManager.stubDefault = null;
+        check("no preferences at all: off", !MrMatrix.enabled(new Plain()));
+        PreferenceManager.stubDefault = prefs;
+
+        check("the settings screens get it (a PreferenceActivity)", MrMatrix.eligible(new Settings()));
+        check("the home screen gets it (Main)", MrMatrix.eligible(new com.mrkeyboard.app.Main()));
+        check("the other screens do not (word screens, tour, Sheets: a plain Activity)", !MrMatrix.eligible(new Plain()));
+        check("a helper window does not, even if it is a PreferenceActivity", !MrMatrix.eligible(new ShotPerm()));
+        check("no screen: no", !MrMatrix.eligible(null));
+
+        prefs.map.put("pref_ui_matrix", Boolean.TRUE);
+        Settings s = new Settings();
+        check("attach puts the rain as the window background, with the colours and the density of the screen", MrMatrix.attach(s) && s.getWindow().stubBackground instanceof MrRainDrawable);
+        check("a screen with no window: nothing put, no failure", !MrMatrix.attach(new NoWindow()));
+        check("resources that cannot be read: nothing put, no failure", !MrMatrix.attach(new Broken()) );
+        Broken b = new Broken();
+        MrMatrix.attach(b);
+        check("... and the window keeps its own background", b.getWindow().stubBackground == null);
+
+        // MrScreens: the screen is created
+        PreferenceManager.stubDefault = prefs;
+        prefs.map.clear();
+        Settings off = new Settings();
+        new MrScreens().onActivityCreated(off, null);
+        check("setting off: the settings screen is drawn as always (no rain, no acceleration)", off.getWindow().stubBackground == null && off.getWindow().stubFlags == 0);
+        prefs.map.put("pref_ui_matrix", Boolean.TRUE);
+        Settings on = new Settings();
+        new MrScreens().onActivityCreated(on, null);
+        check("setting on: the settings screen gets the rain", on.getWindow().stubBackground instanceof MrRainDrawable);
+        check("... and is accelerated (the letters are animated), though the acceleration setting is off", (on.getWindow().stubFlags & HW) == HW);
+        Plain plain = new Plain();
+        new MrScreens().onActivityCreated(plain, null);
+        check("setting on: a screen that is not a settings screen gets neither the rain nor the acceleration", plain.getWindow().stubBackground == null && plain.getWindow().stubFlags == 0);
+        ShotPerm helper = new ShotPerm();
+        new MrScreens().onActivityCreated(helper, null);
+        check("setting on: a helper window gets nothing", helper.getWindow().stubBackground == null && helper.getWindow().stubFlags == 0);
+        prefs.map.put("pref_ui_hw_accel", Boolean.TRUE);
+        prefs.map.put("pref_ui_matrix", Boolean.FALSE);
+        Settings accel = new Settings();
+        new MrScreens().onActivityCreated(accel, null);
+        check("only the acceleration on: accelerated, no rain (the two settings do not depend on each other)", accel.getWindow().stubBackground == null && (accel.getWindow().stubFlags & HW) == HW);
+        prefs.map.remove("pref_ui_hw_accel");
+        boolean noWin = true;
+        prefs.map.put("pref_ui_matrix", Boolean.TRUE);
+        try { new MrScreens().onActivityCreated(new NoWindow(), null); } catch (RuntimeException e) { noWin = false; }
+        check("a screen with no window does not break", noWin);
+        boolean noRes = true;
+        Broken broken = new Broken();
+        try { new MrScreens().onActivityCreated(broken, null); } catch (RuntimeException e) { noRes = false; }
+        check("a screen whose colours cannot be read opens as always (accelerated, no rain)", noRes && broken.getWindow().stubBackground == null && (broken.getWindow().stubFlags & HW) == HW);
+
+        // MrScreens: it comes back after the setting changed
+        prefs.map.clear();
+        MrScreens cb = new MrScreens();
+        Settings behind = new Settings();
+        cb.onActivityCreated(behind, null);
+        cb.onActivityResumed(behind);
+        check("nothing changed (off, off): the screen is left alone when it comes back", behind.stubRecreates == 0);
+        prefs.map.put("pref_ui_matrix", Boolean.TRUE);
+        cb.onActivityResumed(behind);
+        check("the setting was turned on on a screen above: this one is created again when it comes back", behind.stubRecreates == 1);
+        Settings behindOn = new Settings();
+        cb.onActivityCreated(behindOn, null);
+        cb.onActivityResumed(behindOn);
+        check("made with the rain and the setting still on: left alone", behindOn.stubRecreates == 0);
+        prefs.map.put("pref_ui_matrix", Boolean.FALSE);
+        cb.onActivityResumed(behindOn);
+        check("made with the rain and the setting turned off meanwhile: created again", behindOn.stubRecreates == 1);
+        Plain other = new Plain();
+        cb.onActivityCreated(other, null);
+        prefs.map.put("pref_ui_matrix", Boolean.TRUE);
+        cb.onActivityResumed(other);
+        check("a screen that cannot have the rain is never created again for it", other.stubRecreates == 0);
+        check("a screen that MrScreens never saw (created before it was installed) is left alone", skipped(cb));
+        MrScreens loop = new MrScreens();
+        prefs.map.put("pref_ui_matrix", Boolean.TRUE);
+        Broken noColours = new Broken();
+        loop.onActivityCreated(noColours, null);
+        loop.onActivityResumed(noColours);
+        loop.onActivityResumed(noColours);
+        check("the rain could not be put (colours missing) and the setting stays on: the screen is not created again and again", noColours.stubRecreates == 0);
+
+        // the Advanced screen reports a change
+        Settings adv = new Settings();
+        MrScreens.onSetting(adv, "pref_ui_matrix");
+        check("the Matrix setting changed on the Advanced screen: it is created again at once", adv.stubRecreates == 1);
+        MrScreens.onSetting(adv, "pref_ui_matrix_x");
+        MrScreens.onSetting(adv, "force_keyboard_on");
+        check("any other setting leaves it as it is", adv.stubRecreates == 1);
+        PreferenceManager.stubDefault = null;
+    }
+
+    static boolean skipped(MrScreens cb) {
+        Settings unseen = new Settings();
+        cb.onActivityResumed(unseen);
+        return unseen.stubRecreates == 0;
+    }
+
+    // ---------------------------------------------------------------- what the files say
+
+    static String file(String path) {
+        try {
+            return new String(Files.readAllBytes(Paths.get(path)), "UTF-8");
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    static String string(String lang, String key) {
+        String x = file("res/" + lang + "/mr_strings.xml");
+        int i = x.indexOf("<string name=\"" + key + "\">");
+        if (i < 0) return null;
+        int a = x.indexOf('>', i) + 1;
+        return x.substring(a, x.indexOf("</string>", a));
+    }
+
+    static void files() {
+        String adv = file("res/xml/prefs_advanced.xml");
+        check("the setting is in the Advanced screen, a checkbox, stored, off by default", adv.contains("android:key=\"pref_ui_matrix\"") && adv.contains("android:defaultValue=\"false\" android:summaryOn=\"@string/mr_ui_matrix_on\""));
+        boolean all = true;
+        for (String lang : new String[] {"values", "values-pt-rBR", "values-es"}) {
+            for (String k : new String[] {"mr_ui_matrix", "mr_ui_matrix_on", "mr_ui_matrix_off"}) {
+                String t = string(lang, k);
+                if (t == null || t.trim().length() == 0) all = false;
+            }
+        }
+        check("the title and the two summaries exist in the three languages", all);
+        check("the titles", "Matrix effect".equals(string("values", "mr_ui_matrix")) && "Efeito Matrix".equals(string("values-pt-rBR", "mr_ui_matrix"))
+                && "Efecto Matrix".equals(string("values-es", "mr_ui_matrix")));
+        check("the summary says that the screens are drawn by the GPU while it is on (it asks for the acceleration) in the three languages",
+                string("values", "mr_ui_matrix_on").contains("GPU") && string("values-pt-rBR", "mr_ui_matrix_on").contains("GPU") && string("values-es", "mr_ui_matrix_on").contains("GPU"));
+        check("Restore defaults resets it", file("docs/tools/java/src/com/mrkeyboard/app/MrReset.java").contains("\"pref_ui_matrix\""));
+        String man = file("AndroidManifest.xml");
+        check("the manifest still says that the app is not accelerated (the effect asks for it by window)", man.contains("android:hardwareAccelerated=\"false\""));
+    }
+
+    public static void main(String[] args) {
+        rain();
+        drawable();
+        matrix();
+        files();
+        System.out.println();
+        System.out.println(fail == 0 ? "ALL OK (" + ok + " checks)" : fail + " FAIL of " + (ok + fail));
+        if (fail > 0) System.exit(1);
+    }
+}
+
+/** The home screen of the app (its real class is smali): only the name matters to MrMatrix. */
+class Main extends Activity { }
+
+/** A window that is not a screen of the app (translucent), here also a PreferenceActivity to show that the helper check comes first. */
+class ShotPerm extends PreferenceActivity {
+    public Resources getResources() { return new MatrixTest.Res(); }
+    public String getPackageName() { return "com.mrkeyboard.app"; }
+}

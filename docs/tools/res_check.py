@@ -442,7 +442,31 @@ for lang in ('values', 'values-es', 'values-pt-rBR'):
                  'mr_ui_scr_accel_system', 'mr_ui_scr_accel_refused'):
         if '<string name="%s">' % name not in texts:
             problems.append('%s/mr_strings.xml: string %s of the acceleration setting is missing' % (lang, name))
+# --- Matrix effect of the settings screens (MrMatrix + MrRainDrawable + the setting pref_ui_matrix): off by default, next to the acceleration,
+# in the three languages, and the key is the same in the XML, in MrMatrix and in the list of what "Restore defaults" resets
+mx_pref = [t for t in re.findall(r'<CheckBoxPreference\b[^>]*>', adv_xml) if 'android:key="pref_ui_matrix"' in t]
+if len(mx_pref) != 1:
+    problems.append('prefs_advanced.xml: the setting pref_ui_matrix is missing or repeated')
+else:
+    for attr in ('android:persistent="true"', 'android:defaultValue="false"', 'android:summaryOn="@string/mr_ui_matrix_on"',
+                 'android:summaryOff="@string/mr_ui_matrix_off"', 'android:title="@string/mr_ui_matrix"'):
+        if attr not in mx_pref[0]:
+            problems.append('prefs_advanced.xml: pref_ui_matrix needs %s (off by default)' % attr)
+    if adv_xml.find('android:key="pref_ui_matrix"') < adv_xml.find('android:key="pref_ui_hw_accel"') or adv_xml.find('android:key="pref_ui_matrix"') > adv_xml.find('android:key="mr_kbd_accel"'):
+        problems.append('prefs_advanced.xml: pref_ui_matrix goes in the category Screens, after the acceleration and before the read-only rows')
+for lang in ('values', 'values-es', 'values-pt-rBR'):
+    texts = read_file('res/%s/mr_strings.xml' % lang)
+    for name in ('mr_ui_matrix', 'mr_ui_matrix_on', 'mr_ui_matrix_off'):
+        if '<string name="%s">' % name not in texts:
+            problems.append('%s/mr_strings.xml: string %s of the Matrix effect is missing' % (lang, name))
+matrix_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrMatrix.java')
+if 'KEY = "pref_ui_matrix"' not in matrix_src or 'getBoolean(KEY, false)' not in matrix_src:
+    problems.append('MrMatrix: the key of the setting is not pref_ui_matrix or the default is not false')
+if '"pref_ui_matrix"' not in read_file('docs/tools/java/src/com/mrkeyboard/app/MrReset.java'):
+    problems.append('MrReset: pref_ui_matrix is not in the list of the settings that Restore defaults resets')
 screens_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrScreens.java')
+if 'MrMatrix.KEY.equals(key)' not in screens_src or 'MrMatrix.attach(activity)' not in screens_src:
+    problems.append('MrScreens: the Matrix setting must create the screen again (onSetting) and the screen must get the rain when it is created')
 if 'KEY_HW_ACCEL = "pref_ui_hw_accel"' not in screens_src or 'getBoolean(KEY_HW_ACCEL, false)' not in screens_src:
     problems.append('MrScreens: the key of the setting is not pref_ui_hw_accel or the default is not false')
 install_body = screens_src[screens_src.index('public static void install('):screens_src.index('public static void onSetting(')]

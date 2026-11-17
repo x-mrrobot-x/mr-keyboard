@@ -28,12 +28,26 @@
 .field static final KEY_HW_ACCEL:Ljava/lang/String; = "pref_ui_hw_accel"
 
 
+# instance fields
+.field private final mRain:Ljava/util/WeakHashMap;
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "Ljava/util/WeakHashMap",
+            "<",
+            "Landroid/app/Activity;",
+            "Ljava/lang/Boolean;",
+            ">;"
+        }
+    .end annotation
+.end field
+
+
 # direct methods
 .method static constructor <clinit>()V
     .locals 3
 
     .prologue
-    .line 45
+    .line 52
     const/4 v0, 0x3
 
     new-array v0, v0, [Ljava/lang/String;
@@ -62,11 +76,18 @@
 .end method
 
 .method public constructor <init>()V
-    .locals 0
+    .locals 1
 
     .prologue
-    .line 35
+    .line 42
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    .line 56
+    new-instance v0, Ljava/util/WeakHashMap;
+
+    invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
+
+    iput-object v0, p0, Lcom/mrkeyboard/app/MrScreens;->mRain:Ljava/util/WeakHashMap;
 
     return-void
 .end method
@@ -77,7 +98,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 70
+    .line 80
     invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 
     move-result-object v1
@@ -92,11 +113,11 @@
 
     if-eqz v1, :cond_0
 
-    .line 74
+    .line 84
     :goto_0
     return v0
 
-    .line 72
+    .line 82
     :cond_0
     :try_start_0
     invoke-static {p0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
@@ -115,7 +136,7 @@
 
     goto :goto_0
 
-    .line 73
+    .line 83
     :catch_0
     move-exception v1
 
@@ -126,7 +147,7 @@
     .locals 2
 
     .prologue
-    .line 88
+    .line 98
     if-eqz p0, :cond_0
 
     if-eqz p1, :cond_0
@@ -137,12 +158,12 @@
 
     if-ge v0, v1, :cond_1
 
-    .line 91
+    .line 101
     :cond_0
     :goto_0
     return-void
 
-    .line 89
+    .line 99
     :cond_1
     new-instance v0, Lcom/mrkeyboard/app/MrScreens$DialogFit;
 
@@ -150,7 +171,7 @@
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setOnApplyWindowInsetsListener(Landroid/view/View$OnApplyWindowInsetsListener;)V
 
-    .line 90
+    .line 100
     invoke-virtual {p0}, Landroid/view/View;->requestApplyInsets()V
 
     goto :goto_0
@@ -160,14 +181,14 @@
     .locals 1
 
     .prologue
-    .line 50
+    .line 60
     if-nez p0, :cond_0
 
-    .line 52
+    .line 62
     :goto_0
     return-void
 
-    .line 51
+    .line 61
     :cond_0
     new-instance v0, Lcom/mrkeyboard/app/MrScreens;
 
@@ -184,7 +205,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 64
+    .line 74
     sget-object v2, Lcom/mrkeyboard/app/MrScreens;->HELPERS:[Ljava/lang/String;
 
     array-length v3, v2
@@ -204,11 +225,11 @@
 
     const/4 v0, 0x1
 
-    .line 65
+    .line 75
     :cond_0
     return v0
 
-    .line 64
+    .line 74
     :cond_1
     add-int/lit8 v1, v1, 0x1
 
@@ -219,8 +240,8 @@
     .locals 1
 
     .prologue
-    .line 59
-    if-eqz p0, :cond_0
+    .line 69
+    if-eqz p0, :cond_1
 
     const-string v0, "pref_ui_hw_accel"
 
@@ -228,46 +249,84 @@
 
     move-result v0
 
-    if-eqz v0, :cond_0
+    if-nez v0, :cond_0
 
+    const-string v0, "pref_ui_matrix"
+
+    invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1
+
+    :cond_0
     invoke-virtual {p0}, Landroid/app/Activity;->recreate()V
 
-    .line 60
-    :cond_0
+    .line 70
+    :cond_1
     return-void
 .end method
 
 
 # virtual methods
 .method public onActivityCreated(Landroid/app/Activity;Landroid/os/Bundle;)V
-    .locals 2
+    .locals 4
 
     .prologue
-    const/high16 v1, 0x1000000
+    const/high16 v3, 0x1000000
 
-    .line 107
+    .line 117
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrMatrix;->wanted(Landroid/app/Activity;)Z
+
+    move-result v0
+
+    .line 118
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrMatrix;->eligible(Landroid/app/Activity;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_0
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrScreens;->mRain:Ljava/util/WeakHashMap;
+
+    invoke-static {v0}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+
+    move-result-object v2
+
+    invoke-virtual {v1, p1, v2}, Ljava/util/WeakHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 119
+    :cond_0
+    if-eqz v0, :cond_1
+
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrMatrix;->attach(Landroid/app/Activity;)Z
+
+    .line 120
+    :cond_1
+    if-nez v0, :cond_3
+
     invoke-static {p1}, Lcom/mrkeyboard/app/MrScreens;->accelerates(Landroid/app/Activity;)Z
 
     move-result v0
 
-    if-nez v0, :cond_1
+    if-nez v0, :cond_3
 
-    .line 113
-    :cond_0
+    .line 126
+    :cond_2
     :goto_0
     return-void
 
-    .line 108
-    :cond_1
+    .line 121
+    :cond_3
     invoke-virtual {p1}, Landroid/app/Activity;->getWindow()Landroid/view/Window;
 
     move-result-object v0
 
-    .line 109
-    if-eqz v0, :cond_0
+    .line 122
+    if-eqz v0, :cond_2
 
-    .line 110
-    invoke-virtual {v0, v1, v1}, Landroid/view/Window;->setFlags(II)V
+    .line 123
+    invoke-virtual {v0, v3, v3}, Landroid/view/Window;->setFlags(II)V
 
     goto :goto_0
 .end method
@@ -276,7 +335,7 @@
     .locals 0
 
     .prologue
-    .line 123
+    .line 140
     return-void
 .end method
 
@@ -284,15 +343,40 @@
     .locals 0
 
     .prologue
-    .line 117
+    .line 134
     return-void
 .end method
 
 .method public onActivityResumed(Landroid/app/Activity;)V
-    .locals 0
+    .locals 2
 
     .prologue
-    .line 115
+    .line 130
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrScreens;->mRain:Ljava/util/WeakHashMap;
+
+    invoke-virtual {v0, p1}, Ljava/util/WeakHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/lang/Boolean;
+
+    .line 131
+    if-eqz v0, :cond_0
+
+    invoke-virtual {v0}, Ljava/lang/Boolean;->booleanValue()Z
+
+    move-result v0
+
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrMatrix;->wanted(Landroid/app/Activity;)Z
+
+    move-result v1
+
+    if-eq v0, v1, :cond_0
+
+    invoke-virtual {p1}, Landroid/app/Activity;->recreate()V
+
+    .line 132
+    :cond_0
     return-void
 .end method
 
@@ -300,7 +384,7 @@
     .locals 0
 
     .prologue
-    .line 121
+    .line 138
     return-void
 .end method
 
@@ -308,19 +392,19 @@
     .locals 2
 
     .prologue
-    .line 94
+    .line 104
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v1, 0x23
 
     if-ge v0, v1, :cond_1
 
-    .line 99
+    .line 109
     :cond_0
     :goto_0
     return-void
 
-    .line 95
+    .line 105
     :cond_1
     const v0, 0x1020002
 
@@ -328,13 +412,13 @@
 
     move-result-object v0
 
-    .line 96
+    .line 106
     if-eqz v0, :cond_0
 
-    .line 97
+    .line 107
     invoke-virtual {v0, p0}, Landroid/view/View;->setOnApplyWindowInsetsListener(Landroid/view/View$OnApplyWindowInsetsListener;)V
 
-    .line 98
+    .line 108
     invoke-virtual {v0}, Landroid/view/View;->requestApplyInsets()V
 
     goto :goto_0
@@ -344,7 +428,7 @@
     .locals 0
 
     .prologue
-    .line 119
+    .line 136
     return-void
 .end method
 
@@ -352,14 +436,14 @@
     .locals 2
 
     .prologue
-    .line 102
+    .line 112
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v1, 0x1e
 
     if-ge v0, v1, :cond_0
 
-    .line 103
+    .line 113
     :goto_0
     return-object p2
 

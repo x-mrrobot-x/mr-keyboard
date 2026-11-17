@@ -1,7 +1,9 @@
 package android.view;
 
 public class Window {
-    public void setBackgroundDrawable(android.graphics.drawable.Drawable drawable) { }
+    /** Not in Android: the background that the screen asked for last (read by the PC tests). */
+    public android.graphics.drawable.Drawable stubBackground;
+    public void setBackgroundDrawable(android.graphics.drawable.Drawable drawable) { stubBackground = drawable; }
     public void clearFlags(int flags) { }
     public void addFlags(int flags) { }
     public android.view.WindowManager.LayoutParams getAttributes() { return null; }
