@@ -18,6 +18,9 @@
     <!-- Shade around the light labels and icons of the keys (role label_shadow), in place of the one of the keyboard style
          (mr_default_key_shadow): a theme whose shade is a tone of its own instead of black. 0 = the one of the style. -->
     <color name="mr_label_shadow">#00000000</color>
+    <!-- Color of the language name on the space bar (role space_text). The default is the pale grey of the keyboard style, which
+         is what the dark themes always had; a light theme declares the ink of its labels, which the pale grey would not show on. -->
+    <color name="mr_space_text">@color/latinkeyboard_dim_color_white</color>
 
     <!-- Neon themes (flag GLOW of mr_theme_flags, MrGlow.java): color of the light around the labels and icons of the
          normal keys (role glow) and of the highlight keys (accent_glow); its opacity is the strength of the light.

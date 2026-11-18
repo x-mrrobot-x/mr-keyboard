@@ -125,9 +125,11 @@ public class GlowTest {
         MrGlow.edge(label);
         check("plain theme: the label of a dead key keeps the theme's own shadow too",
                 label.stubShadowRadius == 2f && label.stubShadowColor == 0x55000000);
+        ShadowDrawHelper.stubRadius = -1f;
+        ShadowDrawHelper.stubFilter = null;
         MrGlow.icon(c, face, keyAt(0, 0), 4.5f, own);
-        check("plain theme: the icon keeps its dark outline (radius and filter of the keyboard)",
-                ShadowDrawHelper.stubRadius == 4.5f && ShadowDrawHelper.stubFilter == own);
+        check("plain theme: the icon has no outline or shadow of any kind (the helper is not called)",
+                ShadowDrawHelper.stubRadius == -1f && ShadowDrawHelper.stubFilter == null);
         check("plain theme: the icon keeps its colour filter", MrGlow.iconFilter(own) == own && MrGlow.iconFilter(null) == null);
         Paint dash = paint(DASH_ON, 0f);
         dash.setShadowLayer(9f, 0f, 0f, GREEN);                // left over from a neon theme

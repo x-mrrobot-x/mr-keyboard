@@ -36,7 +36,7 @@
     .locals 0
 
     .prologue
-    .line 350
+    .line 353
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10$1;->this$1:Lcom/mrkeyboard/app/MrLearnedActivity$10;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -50,7 +50,7 @@
     .locals 2
 
     .prologue
-    .line 352
+    .line 355
     iget-object v0, p1, Lcom/mrkeyboard/app/MrAppList$Entry;->folded:Ljava/lang/String;
 
     iget-object v1, p2, Lcom/mrkeyboard/app/MrAppList$Entry;->folded:Ljava/lang/String;
@@ -59,7 +59,7 @@
 
     move-result v0
 
-    .line 353
+    .line 356
     if-eqz v0, :cond_0
 
     :goto_0
@@ -81,7 +81,7 @@
     .locals 1
 
     .prologue
-    .line 350
+    .line 353
     check-cast p1, Lcom/mrkeyboard/app/MrAppList$Entry;
 
     check-cast p2, Lcom/mrkeyboard/app/MrAppList$Entry;

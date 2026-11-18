@@ -186,13 +186,10 @@ final class MrGlow {
         p.setShadowLayer(clamp(p.getTextSize() * MID, MID_MIN * d, MID_MAX * d), 0f, 0f, glow);
     }
 
-    /** In place of ShadowDrawHelper.draw (dark outline of the icon): on a neon theme, the light of the icon. */
+    /** In place of ShadowDrawHelper.draw (dark outline of the icon): on a neon theme, the light of the icon; on any other, nothing. */
     static void icon(Canvas c, Drawable d, Keyboard.Key k, float radius, ColorFilter shadow) {
         int glow = sGlow;
-        if (glow == 0) {
-            ShadowDrawHelper.draw(c, d, k, radius, shadow);
-            return;
-        }
+        if (glow == 0) return;
         if (sIconGlowFilter == null || sIconGlowColor != glow) {
             sIconGlowColor = glow;
             sIconGlowFilter = new PorterDuffColorFilter(glow, PorterDuff.Mode.SRC_IN);

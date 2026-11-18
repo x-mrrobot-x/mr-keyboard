@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 358
+    .line 361
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,27 +40,27 @@
     .locals 2
 
     .prologue
-    .line 360
+    .line 363
     if-nez p1, :cond_1
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$700(Lcom/mrkeyboard/app/MrLearnedActivity;)Ljava/lang/String;
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$800(Lcom/mrkeyboard/app/MrLearnedActivity;)Ljava/lang/String;
 
     move-result-object v0
 
     if-nez v0, :cond_2
 
-    .line 364
+    .line 368
     :cond_0
     :goto_0
     return-void
 
-    .line 360
+    .line 363
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$700(Lcom/mrkeyboard/app/MrLearnedActivity;)Ljava/lang/String;
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$800(Lcom/mrkeyboard/app/MrLearnedActivity;)Ljava/lang/String;
 
     move-result-object v0
 
@@ -70,23 +70,41 @@
 
     if-nez v0, :cond_0
 
-    .line 361
+    .line 364
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    invoke-static {v0, p1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$702(Lcom/mrkeyboard/app/MrLearnedActivity;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, p1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$802(Lcom/mrkeyboard/app/MrLearnedActivity;Ljava/lang/String;)Ljava/lang/String;
 
-    .line 362
+    .line 365
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     const/16 v1, 0x32
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$102(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
 
-    .line 363
+    .line 366
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1100(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$200(Lcom/mrkeyboard/app/MrLearnedActivity;)Lcom/mrkeyboard/app/MrPage;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_3
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$200(Lcom/mrkeyboard/app/MrLearnedActivity;)Lcom/mrkeyboard/app/MrPage;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrPage;->release()V
+
+    .line 367
+    :cond_3
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1200(Lcom/mrkeyboard/app/MrLearnedActivity;)V
 
     goto :goto_0
 .end method

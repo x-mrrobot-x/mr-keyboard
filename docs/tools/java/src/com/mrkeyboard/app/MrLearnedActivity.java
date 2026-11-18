@@ -160,6 +160,7 @@ public class MrLearnedActivity extends Activity {
                 if (now.equals(mFilter)) return;
                 mFilter = now;
                 mLimit = PAGE;
+                if (mScroll != null) mScroll.release();
                 refreshList();
             }
         });
@@ -168,6 +169,7 @@ public class MrLearnedActivity extends Activity {
             public void onClick(View v) {
                 mSort = mSort == MrWordStore.SORT_USED ? MrWordStore.SORT_NEW : MrWordStore.SORT_USED;
                 mLimit = PAGE;
+                if (mScroll != null) mScroll.release();
                 refreshList();
             }
         });
@@ -268,6 +270,7 @@ public class MrLearnedActivity extends Activity {
                 mLocale = locale;
                 MrLang.remember(getSharedPreferences(MrLang.PREFS, MODE_PRIVATE), locale);
                 mLimit = PAGE;
+                if (mScroll != null) mScroll.release();
                 // the app that was on has words in the new language, or the words of every app are on again
                 if (mApp != null && !appsWithWords().contains(mApp)) mApp = null;
                 refreshAll();
@@ -360,6 +363,7 @@ public class MrLearnedActivity extends Activity {
                 if (pkg == null ? mApp == null : pkg.equals(mApp)) return;
                 mApp = pkg;
                 mLimit = PAGE;
+                if (mScroll != null) mScroll.release();
                 refreshAll();
             }
         });
@@ -370,6 +374,7 @@ public class MrLearnedActivity extends Activity {
             public void onClick(View v) {
                 mTab = tab;
                 mLimit = PAGE;
+                if (mScroll != null) mScroll.release();
                 refreshAll();
             }
         });
@@ -380,6 +385,7 @@ public class MrLearnedActivity extends Activity {
             public void onClick(View v) {
                 mType = type;
                 mLimit = PAGE;
+                if (mScroll != null) mScroll.release();
                 refreshAll();
             }
         });

@@ -592,15 +592,6 @@
 
     move-result-object v1
 
-    .line 518
-    iget-object v2, p0, Lcom/mrkeyboard/app/LatinKeyboard;->mRes:Landroid/content/res/Resources;
-
-    const v3, 0x7f05003b
-
-    invoke-virtual {v2, v3}, Landroid/content/res/Resources;->getColor(I)I
-
-    move-result v2
-
     int-to-float v3, v9
 
     const v4, 0x3f19999a    # 0.6f
@@ -612,28 +603,44 @@
 
     move-result v4
 
-    .line 521
-    invoke-virtual {v12, v2}, Landroid/graphics/Paint;->setColor(I)V
-
-    .line 522
     div-int/lit8 v2, v0, 0x2
 
     int-to-float v2, v2
 
     sub-float/2addr v3, v4
 
+    # The copy of the text 1 px above, in a dark color, is a shadow: only the neon themes (MrTheme.glow) keep it.
+    invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->glow()Z
+
+    move-result v4
+
+    if-eqz v4, :cond_mr_plain
+
+    .line 518
+    iget-object v4, p0, Lcom/mrkeyboard/app/LatinKeyboard;->mRes:Landroid/content/res/Resources;
+
+    const v5, 0x7f05003b
+
+    invoke-virtual {v4, v5}, Landroid/content/res/Resources;->getColor(I)I
+
+    move-result v4
+
+    .line 521
+    invoke-virtual {v12, v4}, Landroid/graphics/Paint;->setColor(I)V
+
     const/high16 v4, 0x3f800000    # 1.0f
 
     sub-float v4, v3, v4
 
+    .line 522
     invoke-virtual {v11, v1, v2, v4, v12}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
+    :cond_mr_plain
     .line 523
-    iget-object v4, p0, Lcom/mrkeyboard/app/LatinKeyboard;->mRes:Landroid/content/res/Resources;
+    # The color of the text is the role space_text (default: the one of the keyboard style, #ddd; a light theme: the ink of its labels).
+    const-string v4, "space_text"
 
-    const v5, 0x7f05003d
-
-    invoke-virtual {v4, v5}, Landroid/content/res/Resources;->getColor(I)I
+    invoke-static {v4}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
 
     move-result v4
 

@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 539
+    .line 545
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
@@ -53,7 +53,7 @@
     .locals 3
 
     .prologue
-    .line 541
+    .line 547
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
@@ -69,12 +69,12 @@
     const-string v0, ""
 
     :goto_0
-    invoke-static {v1, v2, v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1600(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore$Row;Ljava/lang/String;)V
+    invoke-static {v1, v2, v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1700(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore$Row;Ljava/lang/String;)V
 
-    .line 542
+    .line 548
     return-void
 
-    .line 541
+    .line 547
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->val$box:Landroid/widget/EditText;
 

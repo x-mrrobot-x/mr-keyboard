@@ -37,7 +37,7 @@
     .end annotation
 
     .prologue
-    .line 247
+    .line 248
     iput-object p1, p0, Lcom/mrkeyboard/app/MrAppPicker$7;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrAppPicker$7;->val$list:Ljava/util/List;
@@ -57,7 +57,7 @@
     .locals 4
 
     .prologue
-    .line 249
+    .line 250
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$7;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrAppPicker$7;->val$list:Ljava/util/List;
@@ -68,6 +68,6 @@
 
     invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/MrAppPicker;->access$1000(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/List;II)V
 
-    .line 250
+    .line 251
     return-void
 .end method

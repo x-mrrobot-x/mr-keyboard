@@ -3924,7 +3924,7 @@
 
     if-lez v5, :cond_1b
 
-    # MrGlow.icon is ShadowDrawHelper.draw (dark outline) on every theme but the neon ones, which get the light instead.
+    # MrGlow.icon draws the light of the icon on the neon themes and nothing on the others (no dark outline).
     invoke-static {v7, v0, v15, v4, v2}, Lcom/mrkeyboard/app/MrGlow;->icon(Landroid/graphics/Canvas;Landroid/graphics/drawable/Drawable;Lcom/mrkeyboard/app/Keyboard$Key;FLandroid/graphics/ColorFilter;)V
 
     move-object/from16 v36, v2

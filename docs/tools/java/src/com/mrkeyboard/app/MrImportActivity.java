@@ -625,6 +625,7 @@ public class MrImportActivity extends Activity {
         for (MrImport.NewWord w : plan.words) w.checked = on;
         mWordBox.removeAllViews();
         mShown = 0;
+        mPreviewScroll.release();
         drawWords(mPreviewScroll);
         updateApply();
     }

@@ -717,7 +717,7 @@ def neon_drawables(th):
 # ---------------------------------------------------------------------------------------------------------------
 Solid = collections.namedtuple('Solid', 'tag name bg key mod text accent mod_text lip dash_on tint roles clear light')
 # Roles that no rule derives: a theme declares them only through `roles` (their defaults are in mr_colors.xml)
-OWN_ROLES = ('alpha_press', 'panel_field', 'panel_field_stroke', 'panel_divider', 'accent_hint', 'label_shadow', 'tool_tint', 'bars_ink')
+OWN_ROLES = ('alpha_press', 'panel_field', 'panel_field_stroke', 'panel_divider', 'accent_hint', 'label_shadow', 'tool_tint', 'bars_ink', 'tool_ink')
 
 
 def solid(tag, name, bg, key, mod, text, accent, mod_text=None, lip=1, dash_on=None, tint=None, roles=None, clear=None, light=None):
@@ -786,6 +786,7 @@ SKY = collections.OrderedDict([
     ('ink', '#99b5d3'),     # the letters of the keys, the icons of the bar, the small letters and the secondary texts
     ('vivid', '#4a76b8'),   # the key under the finger, the tint of the tools, Send, the + button, the edge of the preview bubble, the lit dash
     ('deep', '#2d4668'),    # the buttons of the system under the keyboard (bars_ink): dark, because the ink is pale and the background is light
+    ('strong', '#435c7d'),  # the texts and icons inside the tools (tool_ink): the ink 80% of the way to deep, because the buttons of the tools are darker than the keys
 ])
 
 
@@ -1138,6 +1139,12 @@ SOLID = [
               ('accent_hint', SKY['key']),           # the small letters of the highlight keys: pale, on the medium blue (the ink would not read)
               ('label_shadow', '#01000000'),         # no outline around the labels and the icons (opacity 1 of 255: the role must not be 0)
               ('bars_ink', SKY['deep']),
+              # the texts and icons inside the tools: stronger than the ink of the keys, which the darker buttons of the tools would swallow. The icons of the bar
+              # are not in the tools: panel_icon keeps the ink of the keys (without it the bar would take tool_ink too)
+              ('tool_ink', SKY['strong']),
+              ('panel_icon', SKY['ink']),
+              ('panel_tab_on_text', SKY['strong']),
+              ('sel_cancel_text', SKY['strong']),
           ])),
 ]
 
@@ -1198,6 +1205,7 @@ def plain_roles(c, n, ref, bg, mod, text, own_mod_text, accent, ctrl_bg, clear=1
     tint = tint or accent
     text = ink or text          # from here on, what is drawn on the background
     if dark_ink(text) if light is None else light:
+        c[n('space_text')] = ref('text')      # the language name on the space bar: the pale grey of the style would not show on a light key
         c[n('tool_tint')] = opaque(tint)
         c[n('alpha_btn')] = alpha(BLACK, LIGHT_ALPHA['btn'])
         c[n('alpha_tab_off')] = alpha(BLACK, LIGHT_ALPHA['tab_off'])

@@ -59,7 +59,7 @@
 
     if-eqz v1, :cond_1
 
-    .line 164
+    .line 165
     :goto_1
     return-void
 
@@ -91,7 +91,25 @@
     .line 163
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$2;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$200(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$200(Lcom/mrkeyboard/app/MrLearnedActivity;)Lcom/mrkeyboard/app/MrPage;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_2
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$2;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$200(Lcom/mrkeyboard/app/MrLearnedActivity;)Lcom/mrkeyboard/app/MrPage;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrPage;->release()V
+
+    .line 164
+    :cond_2
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$2;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$300(Lcom/mrkeyboard/app/MrLearnedActivity;)V
 
     goto :goto_1
 .end method

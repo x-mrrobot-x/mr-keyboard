@@ -7,6 +7,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.SystemClock;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
@@ -891,6 +892,137 @@ public class AppScreensTest {
         });
         pg.stubLayout();
         check("a page that went down (the finger) is never taken back up", pg.getScrollY() == 2500);
+
+        // ---- every way to "show the child that has the focus" ends in one method: quiet, it answers 0 (stay)
+        SystemClock.now = 5000;
+        MrPage q = new MrPage(null);
+        View content = new View();
+        content.stubSize(1000, 6000);
+        q.addView(content, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        q.stubSize(1000, 1000);
+        check("a page that is not quiet lets the framework say how far to scroll to the child in focus (here 7)", q.stubShowFocused() == 7 && q.stubDeltaCalls == 1);
+        q.quiet(MrPage.QUIET_MS);
+        check("a quiet page answers 0 for the child in focus (layout, resize and focus all end here) and does not even ask", q.stubShowFocused() == 0 && q.stubDeltaCalls == 1);
+        check("... and the quiet time is long enough for the layout of 30 new cards (" + MrPage.QUIET_MS + " ms)", MrPage.QUIET_MS >= 600);
+
+        // ---- the page never goes up by itself (no finger) while it is pinned after new cards, but goes down, and gives way when the content shrinks
+        q.release();
+        q.scrollTo(0, 3000);
+        q.keepPosition(new Runnable() {
+            public void run() {
+            }
+        });
+        q.stubStep(1500);
+        check("pinned: a step of the fling that would take the page up (the spring back of the old end) is held at 3000", q.getScrollY() == 3000);
+        q.scrollTo(0, 0);
+        check("pinned: nor does scrollTo (the pull to the search field) take it up", q.getScrollY() == 3000);
+        q.stubStep(3500);
+        check("pinned: going down is free (the fling goes on)", q.getScrollY() == 3500);
+        content.stubSize(1000, 2000);
+        q.stubStep(0);
+        check("pinned: content that got shorter (a new search) lets the page down to its end (1000), not to a place that is not there", q.getScrollY() == 1000);
+        content.stubSize(1000, 6000);
+        q.scrollTo(0, 3000);
+        q.stubStep(2000);
+        SystemClock.now += MrPage.QUIET_MS;
+        q.stubStep(1200);
+        check("pinned: after the quiet time the page is free again", q.getScrollY() == 1200);
+
+        q.scrollTo(0, 3000);
+        q.keepPosition(new Runnable() {
+            public void run() {
+            }
+        });
+        q.dispatchTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_DOWN, 10f, 10f));
+        q.stubStep(800);
+        check("a finger on the page frees it at once (the person decides where it goes)", !q.isQuiet() && q.getScrollY() == 800);
+        q.dispatchTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_UP, 10f, 10f));
+
+        q.scrollTo(0, 3000);
+        q.keepPosition(new Runnable() {
+            public void run() {
+            }
+        });
+        q.release();
+        q.stubStep(900);
+        check("release (a new search drew the list again): nothing is held", q.getScrollY() == 900 && !q.isQuiet());
+
+        // ---- a fling that is running goes on when the cards arrive in the middle of it
+        MrPage f = new MrPage(null);
+        View fc = new View();
+        fc.stubSize(1000, 6000);
+        f.addView(fc, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        f.stubSize(1000, 1000);
+        SystemClock.now = 10000;
+        f.dispatchTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_DOWN, 10f, 10f));
+        f.dispatchTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_UP, 10f, 10f));
+        int y = 1000;
+        for (int i = 0; i < 6; i++) {          // a fling: 50 px every 16 ms (3125 px/s)
+            f.stubStep(y);
+            y += 50;
+            SystemClock.now += 16;
+        }
+        check("the speed of a fling toward the end is known from its steps (about 3000 px/s)", f.flinging() && f.flingSpeed() > 2000f && f.flingSpeed() < 3300f);
+        f.keepPosition(new Runnable() {
+            public void run() {
+            }
+        });
+        check("cards added in the middle of the fling: nothing is started yet, the layout has not run", f.stubFlings == 0);
+        f.stubLayout();
+        check("... after the layout the fling starts again with the speed it had, the end being further now", f.stubFlings == 1 && f.stubFlingSpeed > 2000);
+
+        MrPage g = new MrPage(null);
+        g.addView(new View(), new ViewGroup.LayoutParams(-1, -2));
+        g.stubSize(1000, 1000);
+        SystemClock.now = 20000;
+        y = 1000;
+        for (int i = 0; i < 6; i++) {
+            g.stubStep(y);
+            y += 50;
+            SystemClock.now += 16;
+        }
+        SystemClock.now += 300;                 // it stopped 300 ms ago
+        g.keepPosition(new Runnable() {
+            public void run() {
+            }
+        });
+        g.stubLayout();
+        check("a page that had stopped is not started again", !g.flinging() && g.stubFlings == 0);
+
+        MrPage h = new MrPage(null);
+        h.addView(new View(), new ViewGroup.LayoutParams(-1, -2));
+        h.stubSize(1000, 1000);
+        SystemClock.now = 30000;
+        y = 3000;
+        for (int i = 0; i < 6; i++) {           // going up
+            h.stubStep(y);
+            y -= 50;
+            SystemClock.now += 16;
+        }
+        h.keepPosition(new Runnable() {
+            public void run() {
+            }
+        });
+        h.stubLayout();
+        check("a fling toward the start is not turned around (only the one toward the end goes on)", h.stubFlings == 0);
+
+        MrPage t = new MrPage(null);
+        t.addView(new View(), new ViewGroup.LayoutParams(-1, -2));
+        t.stubSize(1000, 1000);
+        SystemClock.now = 40000;
+        y = 1000;
+        for (int i = 0; i < 6; i++) {           // dragging: the finger is down
+            if (i == 0) t.dispatchTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_DOWN, 10f, 10f));
+            t.stubStep(y);
+            y += 50;
+            SystemClock.now += 16;
+        }
+        t.keepPosition(new Runnable() {
+            public void run() {
+            }
+        });
+        t.stubLayout();
+        check("with the finger on the page nothing is flung (the finger moves it)", t.stubFlings == 0);
     }
 
     public static void main(String[] args) throws Exception {

@@ -191,12 +191,12 @@
     .prologue
     const/16 v0, 0xff
 
-    .line 363
+    .line 360
     invoke-static {p0}, Ljava/lang/Math;->round(F)I
 
     move-result v1
 
-    .line 364
+    .line 361
     if-gez v1, :cond_1
 
     const/4 v0, 0x0
@@ -217,7 +217,7 @@
     .locals 1
 
     .prologue
-    .line 353
+    .line 350
     cmpg-float v0, p0, p1
 
     if-gez v0, :cond_0
@@ -252,31 +252,31 @@
 
     const v6, 0xffffff
 
-    .line 220
+    .line 217
     if-nez p0, :cond_0
 
-    .line 234
+    .line 231
     :goto_0
     return-void
 
-    .line 221
+    .line 218
     :cond_0
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sGlow:I
 
     if-nez v0, :cond_1
 
-    .line 222
+    .line 219
     invoke-virtual {p0}, Landroid/graphics/Paint;->clearShadowLayer()V
 
     goto :goto_0
 
-    .line 225
+    .line 222
     :cond_1
     invoke-virtual {p0}, Landroid/graphics/Paint;->getColor()I
 
     move-result v3
 
-    .line 226
+    .line 223
     and-int v0, v3, v6
 
     sget v4, Lcom/mrkeyboard/app/MrGlow;->sDashOff:I
@@ -287,7 +287,7 @@
 
     move v0, v1
 
-    .line 227
+    .line 224
     :goto_1
     and-int v4, v3, v6
 
@@ -297,7 +297,7 @@
 
     if-ne v4, v5, :cond_3
 
-    .line 228
+    .line 225
     :goto_2
     sget v2, Lcom/mrkeyboard/app/MrGlow;->sStep:I
 
@@ -305,7 +305,7 @@
 
     if-nez v1, :cond_5
 
-    .line 229
+    .line 226
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sMatrix:[[F
 
     sget v2, Lcom/mrkeyboard/app/MrGlow;->sStep:I
@@ -316,10 +316,10 @@
 
     move-result v1
 
-    .line 230
+    .line 227
     invoke-virtual {p0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 232
+    .line 229
     :goto_3
     if-eqz v0, :cond_4
 
@@ -330,16 +330,16 @@
     :cond_2
     move v0, v2
 
-    .line 226
+    .line 223
     goto :goto_1
 
     :cond_3
     move v1, v2
 
-    .line 227
+    .line 224
     goto :goto_2
 
-    .line 233
+    .line 230
     :cond_4
     const/high16 v0, 0x40400000    # 3.0f
 
@@ -361,7 +361,7 @@
     .locals 2
 
     .prologue
-    .line 345
+    .line 342
     :try_start_0
     invoke-virtual {p0}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
 
@@ -375,28 +375,28 @@
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 346
+    .line 343
     const/4 v1, 0x0
 
     cmpl-float v1, v0, v1
 
     if-lez v1, :cond_0
 
-    .line 348
+    .line 345
     :goto_0
     return v0
 
-    .line 346
+    .line 343
     :cond_0
     const/high16 v0, 0x3f800000    # 1.0f
 
     goto :goto_0
 
-    .line 347
+    .line 344
     :catch_0
     move-exception v0
 
-    .line 348
+    .line 345
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sDensity:F
 
     goto :goto_0
@@ -515,20 +515,20 @@
 
     const/4 v5, 0x0
 
-    .line 293
+    .line 290
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sFaceFilter:[Landroid/graphics/ColorFilter;
 
     aget-object v0, v0, p0
 
-    .line 294
+    .line 291
     if-nez v0, :cond_0
 
-    .line 295
+    .line 292
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sMatrix:[[F
 
     aget-object v1, v0, p0
 
-    .line 296
+    .line 293
     new-instance v0, Landroid/graphics/ColorMatrixColorFilter;
 
     const/16 v2, 0x14
@@ -639,12 +639,12 @@
 
     invoke-direct {v0, v2}, Landroid/graphics/ColorMatrixColorFilter;-><init>([F)V
 
-    .line 301
+    .line 298
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sFaceFilter:[Landroid/graphics/ColorFilter;
 
     aput-object v0, v1, p0
 
-    .line 303
+    .line 300
     :cond_0
     return-object v0
 .end method
@@ -653,7 +653,7 @@
     .locals 3
 
     .prologue
-    .line 358
+    .line 355
     ushr-int/lit8 v0, p0, 0x18
 
     int-to-float v0, v0
@@ -672,7 +672,7 @@
 
     move-result v0
 
-    .line 359
+    .line 356
     shl-int/lit8 v0, v0, 0x18
 
     const v1, 0xffffff
@@ -727,7 +727,7 @@
 
     const/4 v1, 0x0
 
-    .line 369
+    .line 366
     shr-int/lit8 v0, p0, 0x10
 
     and-int/lit16 v0, v0, 0xff
@@ -750,7 +750,7 @@
 
     div-float/2addr v3, v4
 
-    .line 370
+    .line 367
     invoke-static {v2, v3}, Ljava/lang/Math;->max(FF)F
 
     move-result v4
@@ -767,17 +767,17 @@
 
     move-result v5
 
-    .line 371
+    .line 368
     sub-float v5, v4, v5
 
-    .line 372
+    .line 369
     cmpg-float v6, v5, v1
 
     if-gtz v6, :cond_1
 
     move v0, v1
 
-    .line 376
+    .line 373
     :goto_0
     cmpg-float v2, v0, v1
 
@@ -787,13 +787,13 @@
 
     add-float/2addr v0, v2
 
-    .line 377
+    .line 374
     :cond_0
     const/4 v2, 0x0
 
     aput v0, p1, v2
 
-    .line 378
+    .line 375
     const/4 v2, 0x1
 
     cmpg-float v0, v4, v1
@@ -805,15 +805,15 @@
     :goto_1
     aput v0, p1, v2
 
-    .line 379
+    .line 376
     const/4 v0, 0x2
 
     aput v4, p1, v0
 
-    .line 380
+    .line 377
     return-void
 
-    .line 373
+    .line 370
     :cond_1
     cmpl-float v6, v4, v0
 
@@ -831,7 +831,7 @@
 
     goto :goto_0
 
-    .line 374
+    .line 371
     :cond_2
     cmpl-float v6, v4, v2
 
@@ -849,7 +849,7 @@
 
     goto :goto_0
 
-    .line 375
+    .line 372
     :cond_3
     sub-float/2addr v0, v2
 
@@ -863,7 +863,7 @@
 
     goto :goto_0
 
-    .line 378
+    .line 375
     :cond_4
     div-float v0, v5, v4
 
@@ -880,14 +880,11 @@
     .line 192
     if-nez v0, :cond_0
 
-    .line 193
-    invoke-static {p0, p1, p2, p3, p4}, Lcom/mrkeyboard/app/ShadowDrawHelper;->draw(Landroid/graphics/Canvas;Landroid/graphics/drawable/Drawable;Lcom/mrkeyboard/app/Keyboard$Key;FLandroid/graphics/ColorFilter;)V
-
-    .line 201
+    .line 198
     :goto_0
     return-void
 
-    .line 196
+    .line 193
     :cond_0
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sIconGlowFilter:Landroid/graphics/ColorFilter;
 
@@ -897,11 +894,11 @@
 
     if-eq v1, v0, :cond_2
 
-    .line 197
+    .line 194
     :cond_1
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sIconGlowColor:I
 
-    .line 198
+    .line 195
     new-instance v1, Landroid/graphics/PorterDuffColorFilter;
 
     sget-object v2, Landroid/graphics/PorterDuff$Mode;->SRC_IN:Landroid/graphics/PorterDuff$Mode;
@@ -910,7 +907,7 @@
 
     sput-object v1, Lcom/mrkeyboard/app/MrGlow;->sIconGlowFilter:Landroid/graphics/ColorFilter;
 
-    .line 200
+    .line 197
     :cond_2
     const/high16 v0, 0x40500000    # 3.25f
 
@@ -929,17 +926,17 @@
     .locals 3
 
     .prologue
-    .line 205
+    .line 202
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sInk:I
 
-    .line 206
+    .line 203
     if-nez v0, :cond_0
 
-    .line 211
+    .line 208
     :goto_0
     return-object p0
 
-    .line 207
+    .line 204
     :cond_0
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sInkFilter:Landroid/graphics/ColorFilter;
 
@@ -949,11 +946,11 @@
 
     if-eq v1, v0, :cond_2
 
-    .line 208
+    .line 205
     :cond_1
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sInkFilterColor:I
 
-    .line 209
+    .line 206
     new-instance v1, Landroid/graphics/PorterDuffColorFilter;
 
     sget-object v2, Landroid/graphics/PorterDuff$Mode;->SRC_ATOP:Landroid/graphics/PorterDuff$Mode;
@@ -962,7 +959,7 @@
 
     sput-object v1, Lcom/mrkeyboard/app/MrGlow;->sInkFilter:Landroid/graphics/ColorFilter;
 
-    .line 211
+    .line 208
     :cond_2
     sget-object p0, Lcom/mrkeyboard/app/MrGlow;->sInkFilter:Landroid/graphics/ColorFilter;
 
@@ -1251,14 +1248,14 @@
     .locals 6
 
     .prologue
-    .line 333
+    .line 330
     if-nez p0, :cond_0
 
-    .line 335
+    .line 332
     :goto_0
     return p1
 
-    .line 334
+    .line 331
     :cond_0
     shr-int/lit8 v0, p1, 0x10
 
@@ -1276,7 +1273,7 @@
 
     int-to-float v2, v2
 
-    .line 335
+    .line 332
     const/high16 v3, -0x1000000
 
     and-int/2addr v3, p1
@@ -1303,7 +1300,7 @@
 
     add-float/2addr v4, v5
 
-    .line 336
+    .line 333
     invoke-static {v4}, Lcom/mrkeyboard/app/MrGlow;->byteOf(F)I
 
     move-result v4
@@ -1334,7 +1331,7 @@
 
     add-float/2addr v4, v5
 
-    .line 337
+    .line 334
     invoke-static {v4}, Lcom/mrkeyboard/app/MrGlow;->byteOf(F)I
 
     move-result v4
@@ -1365,14 +1362,14 @@
 
     add-float/2addr v0, v1
 
-    .line 338
+    .line 335
     invoke-static {v0}, Lcom/mrkeyboard/app/MrGlow;->byteOf(F)I
 
     move-result v0
 
     or-int p1, v3, v0
 
-    .line 335
+    .line 332
     goto :goto_0
 .end method
 
@@ -1382,10 +1379,10 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 279
+    .line 276
     sget-object v2, Lcom/mrkeyboard/app/MrGlow;->sMatrix:[[F
 
-    .line 280
+    .line 277
     if-eqz v2, :cond_0
 
     if-ltz p0, :cond_0
@@ -1397,19 +1394,19 @@
     :cond_0
     move-object v0, v1
 
-    .line 289
+    .line 286
     :cond_1
     :goto_0
     return-object v0
 
-    .line 281
+    .line 278
     :cond_2
     aget-object v0, v2, p0
 
-    .line 282
+    .line 279
     if-nez v0, :cond_1
 
-    .line 283
+    .line 280
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sStart:I
 
     sget v3, Lcom/mrkeyboard/app/MrGlow;->sMid:I
@@ -1426,27 +1423,27 @@
 
     move-result v3
 
-    .line 284
+    .line 281
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sKeyGlow:I
 
     invoke-static {v0, v3}, Lcom/mrkeyboard/app/MrGlow;->remap(II)[F
 
     move-result-object v0
 
-    .line 285
+    .line 282
     if-nez v0, :cond_3
 
     move-object v0, v1
 
     goto :goto_0
 
-    .line 286
+    .line 283
     :cond_3
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sHue:[I
 
     aput v3, v1, p0
 
-    .line 287
+    .line 284
     aput-object v0, v2, p0
 
     goto :goto_0
@@ -1458,15 +1455,15 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 238
+    .line 235
     if-nez p0, :cond_1
 
-    .line 243
+    .line 240
     :cond_0
     :goto_0
     return-void
 
-    .line 239
+    .line 236
     :cond_1
     invoke-static {}, Lcom/mrkeyboard/app/MrGlow;->sync()Z
 
@@ -1474,7 +1471,7 @@
 
     if-eqz v0, :cond_0
 
-    .line 242
+    .line 239
     const/high16 v0, 0x40c00000    # 6.0f
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrGlow;->density(Landroid/view/View;)F
@@ -1504,14 +1501,14 @@
 
     const/high16 v5, 0x43b40000    # 360.0f
 
-    .line 257
+    .line 254
     const/high16 v0, 0x3f800000    # 1.0f
 
     invoke-static {p3, v9, v0}, Lcom/mrkeyboard/app/MrGlow;->clamp(FFF)F
 
     move-result v0
 
-    .line 258
+    .line 255
     const/4 v1, 0x3
 
     new-array v2, v1, [F
@@ -1520,25 +1517,25 @@
 
     new-array v3, v1, [F
 
-    .line 260
+    .line 257
     const/high16 v1, 0x3f000000    # 0.5f
 
     cmpg-float v1, v0, v1
 
     if-gez v1, :cond_4
 
-    .line 261
+    .line 258
     invoke-static {p0, v2}, Lcom/mrkeyboard/app/MrGlow;->hsv(I[F)V
 
-    .line 262
+    .line 259
     invoke-static {p1, v3}, Lcom/mrkeyboard/app/MrGlow;->hsv(I[F)V
 
-    .line 263
+    .line 260
     const/high16 v1, 0x40000000    # 2.0f
 
     mul-float/2addr v0, v1
 
-    .line 269
+    .line 266
     :goto_0
     aget v1, v3, v6
 
@@ -1546,7 +1543,7 @@
 
     sub-float/2addr v1, v4
 
-    .line 270
+    .line 267
     const/high16 v4, 0x43340000    # 180.0f
 
     cmpl-float v4, v1, v4
@@ -1555,7 +1552,7 @@
 
     sub-float/2addr v1, v5
 
-    .line 271
+    .line 268
     :cond_0
     const/high16 v4, -0x3ccc0000    # -180.0f
 
@@ -1565,7 +1562,7 @@
 
     add-float/2addr v1, v5
 
-    .line 272
+    .line 269
     :cond_1
     aget v4, v2, v6
 
@@ -1573,14 +1570,14 @@
 
     add-float/2addr v1, v4
 
-    .line 273
+    .line 270
     cmpg-float v4, v1, v9
 
     if-gez v4, :cond_2
 
     add-float/2addr v1, v5
 
-    .line 274
+    .line 271
     :cond_2
     cmpl-float v4, v1, v5
 
@@ -1588,7 +1585,7 @@
 
     sub-float/2addr v1, v5
 
-    .line 275
+    .line 272
     :cond_3
     aget v4, v2, v7
 
@@ -1620,14 +1617,14 @@
 
     return v0
 
-    .line 265
+    .line 262
     :cond_4
     invoke-static {p1, v2}, Lcom/mrkeyboard/app/MrGlow;->hsv(I[F)V
 
-    .line 266
+    .line 263
     invoke-static {p2, v3}, Lcom/mrkeyboard/app/MrGlow;->hsv(I[F)V
 
-    .line 267
+    .line 264
     const/high16 v1, 0x3f000000    # 0.5f
 
     sub-float/2addr v0, v1
@@ -1643,7 +1640,7 @@
     .locals 20
 
     .prologue
-    .line 313
+    .line 310
     shr-int/lit8 v1, p0, 0x10
 
     and-int/lit16 v1, v1, 0xff
@@ -1674,7 +1671,7 @@
 
     div-float/2addr v3, v4
 
-    .line 314
+    .line 311
     shr-int/lit8 v4, p1, 0x10
 
     and-int/lit16 v4, v4, 0xff
@@ -1705,21 +1702,21 @@
 
     div-float/2addr v6, v7
 
-    .line 316
+    .line 313
     sub-float v7, v2, v3
 
     sub-float v8, v3, v1
 
     sub-float v9, v1, v2
 
-    .line 318
+    .line 315
     sub-float v10, v9, v8
 
     sub-float v11, v7, v9
 
     sub-float v12, v8, v7
 
-    .line 319
+    .line 316
     mul-float v13, v1, v10
 
     mul-float v14, v2, v11
@@ -1730,7 +1727,7 @@
 
     add-float/2addr v13, v14
 
-    .line 320
+    .line 317
     invoke-static {v13}, Ljava/lang/Math;->abs(F)F
 
     move-result v14
@@ -1743,11 +1740,11 @@
 
     const/4 v1, 0x0
 
-    .line 325
+    .line 322
     :goto_0
     return-object v1
 
-    .line 321
+    .line 318
     :cond_0
     div-float/2addr v10, v13
 
@@ -1755,7 +1752,7 @@
 
     div-float/2addr v12, v13
 
-    .line 322
+    .line 319
     mul-float v14, v3, v8
 
     mul-float v15, v2, v9
@@ -1780,7 +1777,7 @@
 
     div-float v16, v16, v13
 
-    .line 323
+    .line 320
     sub-float v17, v2, v3
 
     div-float v17, v17, v13
@@ -1793,7 +1790,7 @@
 
     div-float v2, v1, v13
 
-    .line 325
+    .line 322
     const/16 v1, 0x9
 
     new-array v1, v1, [F
@@ -1955,10 +1952,10 @@
 
     const/4 v0, 0x0
 
-    .line 384
+    .line 381
     mul-float v2, p2, p1
 
-    .line 385
+    .line 382
     const/high16 v1, 0x43b40000    # 360.0f
 
     rem-float v1, p0, v1
@@ -1967,7 +1964,7 @@
 
     div-float v3, v1, v3
 
-    .line 386
+    .line 383
     rem-float v1, v3, v6
 
     sub-float/2addr v1, v4
@@ -1980,18 +1977,18 @@
 
     mul-float/2addr v1, v2
 
-    .line 388
+    .line 385
     cmpg-float v4, v3, v4
 
     if-gez v4, :cond_0
 
     move v3, v2
 
-    .line 394
+    .line 391
     :goto_0
     sub-float v2, p2, v2
 
-    .line 395
+    .line 392
     const/high16 v4, -0x1000000
 
     add-float/2addr v3, v2
@@ -2030,7 +2027,7 @@
 
     return v0
 
-    .line 389
+    .line 386
     :cond_0
     cmpg-float v4, v3, v6
 
@@ -2042,7 +2039,7 @@
 
     goto :goto_0
 
-    .line 390
+    .line 387
     :cond_1
     const/high16 v4, 0x40400000    # 3.0f
 
@@ -2058,7 +2055,7 @@
 
     goto :goto_0
 
-    .line 391
+    .line 388
     :cond_2
     const/high16 v4, 0x40800000    # 4.0f
 
@@ -2072,7 +2069,7 @@
 
     goto :goto_0
 
-    .line 392
+    .line 389
     :cond_3
     const/high16 v4, 0x40a00000    # 5.0f
 
@@ -2097,7 +2094,7 @@
 
     move v1, v7
 
-    .line 393
+    .line 390
     goto :goto_0
 .end method
 
@@ -2109,17 +2106,17 @@
 
     const/4 v0, 0x0
 
-    .line 249
+    .line 246
     if-lez p2, :cond_0
 
     if-gtz p3, :cond_1
 
-    .line 252
+    .line 249
     :cond_0
     :goto_0
     return v0
 
-    .line 250
+    .line 247
     :cond_1
     int-to-float v2, p2
 
@@ -2139,7 +2136,7 @@
 
     add-float/2addr v2, v3
 
-    .line 251
+    .line 248
     const/4 v3, 0x0
 
     const/high16 v4, 0x3f800000    # 1.0f
@@ -2156,7 +2153,7 @@
 
     move-result v2
 
-    .line 252
+    .line 249
     if-ltz v2, :cond_0
 
     if-le v2, v1, :cond_2

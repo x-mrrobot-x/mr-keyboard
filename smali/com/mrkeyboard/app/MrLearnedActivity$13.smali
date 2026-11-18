@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 379
+    .line 384
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$13;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     iput p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$13;->val$type:I
@@ -49,25 +49,43 @@
     .locals 2
 
     .prologue
-    .line 381
+    .line 386
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$13;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     iget v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$13;->val$type:I
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1302(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1402(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
 
-    .line 382
+    .line 387
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$13;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     const/16 v1, 0x32
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$102(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
 
-    .line 383
+    .line 388
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$13;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1100(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$200(Lcom/mrkeyboard/app/MrLearnedActivity;)Lcom/mrkeyboard/app/MrPage;
 
-    .line 384
+    move-result-object v0
+
+    if-eqz v0, :cond_0
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$13;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$200(Lcom/mrkeyboard/app/MrLearnedActivity;)Lcom/mrkeyboard/app/MrPage;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrPage;->release()V
+
+    .line 389
+    :cond_0
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$13;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1200(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+
+    .line 390
     return-void
 .end method

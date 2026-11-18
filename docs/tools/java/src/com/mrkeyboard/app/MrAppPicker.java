@@ -206,6 +206,7 @@ final class MrAppPicker {
     private void draw() {
         final List<MrAppList.Entry> list = mMatches;
         mDrawn++;
+        mScroll.release();      // drawn again from the start: the place of the last cards is not kept
         mListBox.removeAllViews();
         mCount = 0;
         if (list == null) return;

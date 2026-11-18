@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 427
+    .line 433
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$15;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$15;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
@@ -49,13 +49,13 @@
     .locals 2
 
     .prologue
-    .line 429
+    .line 435
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$15;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$15;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1400(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore$Row;)V
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1500(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore$Row;)V
 
-    .line 430
+    .line 436
     return-void
 .end method
