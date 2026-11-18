@@ -3,12 +3,12 @@
 .source "MrAppPicker.java"
 
 # interfaces
-.implements Landroid/view/View$OnScrollChangeListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrAppPicker;->open(Ljava/lang/String;)V
+    value = Lcom/mrkeyboard/app/MrAppPicker;->row(Lcom/mrkeyboard/app/MrAppList$Entry;Ljava/util/ArrayList;)Landroid/view/View;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
+.field final synthetic val$e:Lcom/mrkeyboard/app/MrAppList$Entry;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrAppPicker;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrAppPicker;Lcom/mrkeyboard/app/MrAppList$Entry;)V
     .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 190
+    .line 253
     iput-object p1, p0, Lcom/mrkeyboard/app/MrAppPicker$7;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
+
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrAppPicker$7;->val$e:Lcom/mrkeyboard/app/MrAppList$Entry;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,18 +45,19 @@
 
 
 # virtual methods
-.method public onScrollChange(Landroid/view/View;IIII)V
-    .locals 1
+.method public onClick(Landroid/view/View;)V
+    .locals 2
 
     .prologue
-    .line 192
-    if-le p3, p5, :cond_0
-
+    .line 255
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$7;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrAppPicker;->access$000(Lcom/mrkeyboard/app/MrAppPicker;)V
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrAppPicker$7;->val$e:Lcom/mrkeyboard/app/MrAppList$Entry;
 
-    .line 193
-    :cond_0
+    iget-object v1, v1, Lcom/mrkeyboard/app/MrAppList$Entry;->pkg:Ljava/lang/String;
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAppPicker;->access$200(Lcom/mrkeyboard/app/MrAppPicker;Ljava/lang/String;)V
+
+    .line 256
     return-void
 .end method

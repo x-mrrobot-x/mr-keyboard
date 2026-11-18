@@ -3,12 +3,12 @@
 .source "MrAppPicker.java"
 
 # interfaces
-.implements Lcom/mrkeyboard/app/MrAppPicker$Live;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrAppPicker;->show(Lcom/mrkeyboard/app/MrKit;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/mrkeyboard/app/MrAppPicker$Source;Lcom/mrkeyboard/app/MrAppPicker$Pick;)Lcom/mrkeyboard/app/MrAppPicker;
+    value = Lcom/mrkeyboard/app/MrAppPicker;->open(Ljava/lang/String;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,21 +18,16 @@
 
 
 # instance fields
-.field final synthetic val$source:Lcom/mrkeyboard/app/MrAppPicker$Source;
+.field final synthetic this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrAppPicker$Source;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrAppPicker;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 90
-    iput-object p1, p0, Lcom/mrkeyboard/app/MrAppPicker$2;->val$source:Lcom/mrkeyboard/app/MrAppPicker$Source;
+    .line 135
+    iput-object p1, p0, Lcom/mrkeyboard/app/MrAppPicker$2;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -41,60 +36,17 @@
 
 
 # virtual methods
-.method public cached()Ljava/util/List;
-    .locals 1
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()",
-            "Ljava/util/List",
-            "<",
-            "Lcom/mrkeyboard/app/MrAppList$Entry;",
-            ">;"
-        }
-    .end annotation
+.method public onClick(Landroid/view/View;)V
+    .locals 2
 
     .prologue
-    .line 92
-    const/4 v0, 0x0
+    .line 137
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$2;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
-    return-object v0
-.end method
+    const/4 v1, 0x0
 
-.method public close()V
-    .locals 0
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAppPicker;->access$200(Lcom/mrkeyboard/app/MrAppPicker;Ljava/lang/String;)V
 
-    .prologue
-    .line 101
+    .line 138
     return-void
-.end method
-
-.method public refresh()Ljava/util/List;
-    .locals 1
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()",
-            "Ljava/util/List",
-            "<",
-            "Lcom/mrkeyboard/app/MrAppList$Entry;",
-            ">;"
-        }
-    .end annotation
-
-    .prologue
-    .line 96
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$2;->val$source:Lcom/mrkeyboard/app/MrAppPicker$Source;
-
-    invoke-interface {v0}, Lcom/mrkeyboard/app/MrAppPicker$Source;->load()Ljava/util/List;
-
-    move-result-object v0
-
-    .line 97
-    if-nez v0, :cond_0
-
-    new-instance v0, Ljava/util/ArrayList;
-
-    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
-
-    :cond_0
-    return-object v0
 .end method

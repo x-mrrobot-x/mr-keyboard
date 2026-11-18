@@ -420,7 +420,7 @@ for f in sorted(os.listdir(APP)):
         t_ = open(os.path.join(APP, f), encoding="utf-8").read()
         if re.search(r"^\.super Landroid/database/sqlite/SQLiteOpenHelper;", t_, re.M):
             helpers.append("Lcom/mrkeyboard/app/" + f[:-6] + ";")
-check("the app has four SQLiteOpenHelpers (the two dictionaries, the store of the learned words and the saved list of apps)", len(helpers) == 4, helpers)
+check("the app has four SQLiteOpenHelpers (the two dictionaries, the store of the learned words and the cache of the list of apps)", len(helpers) == 4, helpers)
 
 
 def creations(target_class):
@@ -443,12 +443,13 @@ dict_helpers = [h for h in helpers if "DatabaseHelper" in h]
 made = {h: creations(h) for h in dict_helpers}
 check("each of the two dictionaries makes its helper in one place, with the application context and not with the service",
       all(sorted(v) == [h.split("$")[0].split("/")[-1] + ".smali"] and list(v.values()) == [[True]] for h, v in made.items()) and len(made) == 2, made)
-cache = creations("Lcom/mrkeyboard/app/MrAppCache$Sql$Helper;")
-check("the saved list of apps makes its helper in one place (MrAppCache.Sql) and with the application context",
-      cache == {"MrAppCache$Sql.smali": [True]}, cache)
 store = creations("Lcom/mrkeyboard/app/MrSqlStore;")
 check("the store of the learned words is made in one place (MrLearned) and with the application context",
       store == {"MrLearned.smali": [True]}, store)
+apps_db = creations("Lcom/mrkeyboard/app/MrAppCacheDb;")
+check("the cache of the list of apps is made in one place (the source of MrAppCache), with the application context, and closed when the pass ends",
+      list(apps_db) == ["MrAppCache$1.smali"] and list(apps_db.values()) == [[True]]
+      and "MrAppCacheDb;->close()V" in open(os.path.join(APP, "MrAppCache$1.smali"), encoding="utf-8").read(), apps_db)
 
 print("\n%d OK, %d FAIL" % (ok, fails))
 sys.exit(1 if fails else 0)

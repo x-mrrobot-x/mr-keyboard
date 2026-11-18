@@ -15,14 +15,5 @@
 
 
 # virtual methods
-.method public abstract load()Ljava/util/List;
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()",
-            "Ljava/util/List",
-            "<",
-            "Lcom/mrkeyboard/app/MrAppList$Entry;",
-            ">;"
-        }
-    .end annotation
+.method public abstract load(Lcom/mrkeyboard/app/MrAppPicker$Sink;)V
 .end method

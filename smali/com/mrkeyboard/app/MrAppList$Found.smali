@@ -19,26 +19,31 @@
 
 .field final pkg:Ljava/lang/String;
 
-.field final stamp:Ljava/lang/String;
+.field final source:Ljava/lang/String;
 
 
 # direct methods
-.method constructor <init>(Ljava/lang/String;Ljava/lang/String;Landroid/content/pm/ResolveInfo;)V
+.method constructor <init>(Ljava/lang/String;Landroid/content/pm/ResolveInfo;Ljava/lang/String;)V
     .locals 0
 
     .prologue
-    .line 67
+    .line 64
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 68
+    .line 65
     iput-object p1, p0, Lcom/mrkeyboard/app/MrAppList$Found;->pkg:Ljava/lang/String;
 
-    .line 69
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrAppList$Found;->stamp:Ljava/lang/String;
+    .line 66
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrAppList$Found;->info:Landroid/content/pm/ResolveInfo;
 
-    .line 70
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrAppList$Found;->info:Landroid/content/pm/ResolveInfo;
+    .line 67
+    if-nez p3, :cond_0
 
-    .line 71
+    const-string p3, ""
+
+    :cond_0
+    iput-object p3, p0, Lcom/mrkeyboard/app/MrAppList$Found;->source:Ljava/lang/String;
+
+    .line 68
     return-void
 .end method

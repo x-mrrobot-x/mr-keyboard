@@ -381,7 +381,6 @@
     <string name="mr_learned_search_hint">Buscar</string>
     <string name="mr_learned_sort_used">Mais usadas</string>
     <string name="mr_learned_sort_new">Mais novas</string>
-    <string name="mr_learned_more">Mostrar mais</string>
     <string name="mr_learned_empty_learned">Nada aprendido ainda. O teclado aprende as palavras que você digita várias vezes.</string>
     <string name="mr_learned_empty_added">Você ainda não adicionou nada. Use o botão abaixo para adicionar palavras ou um texto.</string>
     <string name="mr_learned_empty_added_app">Nada foi adicionado para este app. Use o botão abaixo para adicionar palavras ou um texto para ele.</string>

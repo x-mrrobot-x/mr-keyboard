@@ -381,7 +381,6 @@
     <string name="mr_learned_search_hint">Search</string>
     <string name="mr_learned_sort_used">Most used</string>
     <string name="mr_learned_sort_new">Newest</string>
-    <string name="mr_learned_more">Show more</string>
     <string name="mr_learned_empty_learned">Nothing learned yet. The keyboard learns the words you type again and again.</string>
     <string name="mr_learned_empty_added">You have not added anything. Use the button below to add words or a text.</string>
     <string name="mr_learned_empty_added_app">Nothing was added for this app. Use the button below to add words or a text for it.</string>

@@ -2,4 +2,5 @@ package android.view;
 
 public interface ViewParent {
     void requestDisallowInterceptTouchEvent(boolean disallowIntercept);
+    ViewParent getParent();
 }

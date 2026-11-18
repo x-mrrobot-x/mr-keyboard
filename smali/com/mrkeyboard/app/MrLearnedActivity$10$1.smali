@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrLearnedActivity$10;->load()Ljava/util/List;
+    value = Lcom/mrkeyboard/app/MrLearnedActivity$10;->list()Ljava/util/List;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -36,7 +36,7 @@
     .locals 0
 
     .prologue
-    .line 347
+    .line 351
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10$1;->this$1:Lcom/mrkeyboard/app/MrLearnedActivity$10;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -50,7 +50,7 @@
     .locals 2
 
     .prologue
-    .line 349
+    .line 353
     iget-object v0, p1, Lcom/mrkeyboard/app/MrAppList$Entry;->folded:Ljava/lang/String;
 
     iget-object v1, p2, Lcom/mrkeyboard/app/MrAppList$Entry;->folded:Ljava/lang/String;
@@ -59,7 +59,7 @@
 
     move-result v0
 
-    .line 350
+    .line 354
     if-eqz v0, :cond_0
 
     :goto_0
@@ -81,7 +81,7 @@
     .locals 1
 
     .prologue
-    .line 347
+    .line 351
     check-cast p1, Lcom/mrkeyboard/app/MrAppList$Entry;
 
     check-cast p2, Lcom/mrkeyboard/app/MrAppList$Entry;

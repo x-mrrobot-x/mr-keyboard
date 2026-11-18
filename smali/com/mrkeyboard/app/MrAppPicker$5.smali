@@ -3,7 +3,7 @@
 .source "MrAppPicker.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Landroid/content/DialogInterface$OnDismissListener;
 
 
 # annotations
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 159
+    .line 177
     iput-object p1, p0, Lcom/mrkeyboard/app/MrAppPicker$5;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,17 +36,38 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .locals 2
+.method public onDismiss(Landroid/content/DialogInterface;)V
+    .locals 3
 
     .prologue
-    .line 161
+    const/4 v2, 0x0
+
+    .line 180
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$5;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
-    const/4 v1, 0x0
+    const/4 v1, 0x1
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAppPicker;->access$300(Lcom/mrkeyboard/app/MrAppPicker;Ljava/lang/String;)V
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAppPicker;->access$802(Lcom/mrkeyboard/app/MrAppPicker;Z)Z
 
-    .line 162
+    .line 181
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$5;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
+
+    invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrAppPicker;->access$302(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/List;)Ljava/util/List;
+
+    .line 182
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$5;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
+
+    invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrAppPicker;->access$402(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/List;)Ljava/util/List;
+
+    .line 183
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$5;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrAppPicker;->access$900(Lcom/mrkeyboard/app/MrAppPicker;)Landroid/widget/LinearLayout;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
+
+    .line 184
     return-void
 .end method

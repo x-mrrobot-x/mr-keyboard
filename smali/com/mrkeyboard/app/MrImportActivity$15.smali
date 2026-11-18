@@ -3,7 +3,7 @@
 .source "MrImportActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
+.field final synthetic val$scroll:Landroid/widget/ScrollView;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/ScrollView;)V
     .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 535
+    .line 536
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$15;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$15;->val$scroll:Landroid/widget/ScrollView;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,15 +45,17 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .locals 1
+.method public run()V
+    .locals 2
 
     .prologue
-    .line 537
+    .line 538
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$15;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$2400(Lcom/mrkeyboard/app/MrImportActivity;)V
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$15;->val$scroll:Landroid/widget/ScrollView;
 
-    .line 538
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrImportActivity;->access$2400(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/ScrollView;)V
+
+    .line 539
     return-void
 .end method

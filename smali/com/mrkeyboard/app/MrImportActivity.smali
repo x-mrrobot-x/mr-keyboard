@@ -75,13 +75,13 @@
 
 .field private mLocale:Ljava/lang/String;
 
-.field private mMoreWords:Landroid/widget/TextView;
-
 .field private mPlan:Lcom/mrkeyboard/app/MrImport$Plan;
 
 .field private mPreview:Landroid/widget/LinearLayout;
 
 .field private mPreviewDialog:Landroid/app/AlertDialog;
+
+.field private mPreviewScroll:Landroid/widget/ScrollView;
 
 .field private mSetting:Z
 
@@ -298,12 +298,12 @@
     return-void
 .end method
 
-.method static synthetic access$2400(Lcom/mrkeyboard/app/MrImportActivity;)V
+.method static synthetic access$2400(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/ScrollView;)V
     .locals 0
 
     .prologue
     .line 43
-    invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->drawWords()V
+    invoke-direct {p0, p1}, Lcom/mrkeyboard/app/MrImportActivity;->wordsNearEnd(Landroid/widget/ScrollView;)V
 
     return-void
 .end method
@@ -358,12 +358,12 @@
     return-object p1
 .end method
 
-.method static synthetic access$2902(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/TextView;)Landroid/widget/TextView;
+.method static synthetic access$2902(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/ScrollView;)Landroid/widget/ScrollView;
     .locals 0
 
     .prologue
     .line 43
-    iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mMoreWords:Landroid/widget/TextView;
+    iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPreviewScroll:Landroid/widget/ScrollView;
 
     return-object p1
 .end method
@@ -576,22 +576,22 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 385
+    .line 386
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mBusy:Z
 
     if-eqz v0, :cond_0
 
-    .line 441
+    .line 442
     :goto_0
     return-void
 
-    .line 386
+    .line 387
     :cond_0
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->source()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 387
+    .line 388
     invoke-virtual {v0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v1
@@ -602,7 +602,7 @@
 
     if-nez v1, :cond_1
 
-    .line 388
+    .line 389
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -619,16 +619,16 @@
 
     goto :goto_0
 
-    .line 391
+    .line 392
     :cond_1
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mLocale:Ljava/lang/String;
 
-    .line 392
+    .line 393
     invoke-static {v0}, Lcom/mrkeyboard/app/MrImport;->isStandard(Ljava/lang/String;)Z
 
     move-result v2
 
-    .line 393
+    .line 394
     const/4 v3, 0x1
 
     iget-object v4, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -643,10 +643,10 @@
 
     invoke-direct {p0, v3, v4}, Lcom/mrkeyboard/app/MrImportActivity;->setBusy(ZLjava/lang/String;)V
 
-    .line 394
+    .line 395
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->clearPreview()V
 
-    .line 395
+    .line 396
     new-instance v3, Ljava/lang/Thread;
 
     new-instance v4, Lcom/mrkeyboard/app/MrImportActivity$11;
@@ -655,7 +655,7 @@
 
     invoke-direct {v3, v4}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;)V
 
-    .line 440
+    .line 441
     invoke-virtual {v3}, Ljava/lang/Thread;->start()V
 
     goto :goto_0
@@ -665,7 +665,7 @@
     .locals 3
 
     .prologue
-    .line 293
+    .line 294
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mApp:Ljava/lang/String;
 
     if-nez v0, :cond_0
@@ -699,7 +699,7 @@
     .locals 8
 
     .prologue
-    .line 666
+    .line 680
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mBusy:Z
 
     if-nez v0, :cond_0
@@ -708,25 +708,25 @@
 
     if-nez v0, :cond_1
 
-    .line 702
+    .line 717
     :cond_0
     :goto_0
     return-void
 
-    .line 667
+    .line 681
     :cond_1
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPlan:Lcom/mrkeyboard/app/MrImport$Plan;
 
-    .line 668
+    .line 682
     iget-object v4, p0, Lcom/mrkeyboard/app/MrImportActivity;->mLocale:Ljava/lang/String;
 
-    .line 669
+    .line 683
     iget-object v5, p0, Lcom/mrkeyboard/app/MrImportActivity;->mApp:Ljava/lang/String;
 
-    .line 670
+    .line 684
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
 
-    .line 671
+    .line 685
     const/4 v0, 0x1
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -743,18 +743,18 @@
 
     invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/MrImportActivity;->setBusy(ZLjava/lang/String;)V
 
-    .line 672
+    .line 686
     new-instance v6, Ljava/lang/Thread;
 
-    new-instance v0, Lcom/mrkeyboard/app/MrImportActivity$19;
+    new-instance v0, Lcom/mrkeyboard/app/MrImportActivity$20;
 
     move-object v1, p0
 
-    invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrImportActivity$19;-><init>(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrWordStore;Lcom/mrkeyboard/app/MrImport$Plan;Ljava/lang/String;Ljava/lang/String;)V
+    invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrImportActivity$20;-><init>(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrWordStore;Lcom/mrkeyboard/app/MrImport$Plan;Ljava/lang/String;Ljava/lang/String;)V
 
     invoke-direct {v6, v0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;)V
 
-    .line 701
+    .line 716
     invoke-virtual {v6}, Ljava/lang/Thread;->start()V
 
     goto :goto_0
@@ -764,7 +764,7 @@
     .locals 2
 
     .prologue
-    .line 632
+    .line 646
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPlan:Lcom/mrkeyboard/app/MrImport$Plan;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrImport$Plan;->checkedWords()I
@@ -804,19 +804,19 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 626
+    .line 640
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPlan:Lcom/mrkeyboard/app/MrImport$Plan;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrImport$Plan;->checkedWords()I
 
     move-result v0
 
-    .line 627
+    .line 641
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->pairsToAdd()I
 
     move-result v1
 
-    .line 628
+    .line 642
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->applyAny()Z
 
     move-result v2
@@ -876,12 +876,12 @@
 
     const/4 v6, 0x0
 
-    .line 784
+    .line 799
     invoke-static {p0}, Lcom/mrkeyboard/app/MrAi;->serviceHost(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 785
+    .line 800
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v1
@@ -898,7 +898,7 @@
 
     move-result-object v0
 
-    .line 786
+    .line 801
     :cond_0
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -936,7 +936,7 @@
 
     invoke-direct {v1, v0}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 
-    .line 787
+    .line 802
     iget-boolean v0, p1, Lcom/mrkeyboard/app/MrImportAi$Plan;->truncated:Z
 
     if-eqz v0, :cond_1
@@ -977,7 +977,7 @@
 
     invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 788
+    .line 803
     :cond_1
     invoke-virtual {p1}, Lcom/mrkeyboard/app/MrImportAi$Plan;->requests()I
 
@@ -1015,7 +1015,7 @@
 
     invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 789
+    .line 804
     :cond_2
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
@@ -1027,7 +1027,7 @@
 
     new-array v4, v6, [Ljava/lang/Object;
 
-    .line 790
+    .line 805
     invoke-virtual {v2, v3, v4}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v2
@@ -1036,7 +1036,7 @@
 
     move-result-object v0
 
-    .line 791
+    .line 806
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v1
@@ -1051,7 +1051,7 @@
 
     new-array v3, v6, [Ljava/lang/Object;
 
-    .line 792
+    .line 807
     invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -1068,23 +1068,23 @@
 
     new-array v3, v6, [Ljava/lang/Object;
 
-    .line 793
+    .line 808
     invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
 
-    new-instance v2, Lcom/mrkeyboard/app/MrImportActivity$22;
+    new-instance v2, Lcom/mrkeyboard/app/MrImportActivity$23;
 
-    invoke-direct {v2, p0, p1}, Lcom/mrkeyboard/app/MrImportActivity$22;-><init>(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrImportAi$Plan;)V
+    invoke-direct {v2, p0, p1}, Lcom/mrkeyboard/app/MrImportActivity$23;-><init>(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrImportAi$Plan;)V
 
     invoke-virtual {v0, v1, v2}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
 
-    .line 798
+    .line 813
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 799
+    .line 814
     return-void
 .end method
 
@@ -1092,7 +1092,7 @@
     .locals 1
 
     .prologue
-    .line 637
+    .line 651
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mApp:Ljava/lang/String;
 
     if-nez v0, :cond_0
@@ -1118,16 +1118,16 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 312
+    .line 313
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mBusy:Z
 
     if-eqz v0, :cond_0
 
-    .line 323
+    .line 324
     :goto_0
     return-void
 
-    .line 313
+    .line 314
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -1153,7 +1153,7 @@
 
     move-result-object v3
 
-    invoke-static {p0}, Lcom/mrkeyboard/app/MrAppCache;->open(Landroid/content/Context;)Lcom/mrkeyboard/app/MrAppCache;
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrAppCache;->source(Landroid/content/Context;)Lcom/mrkeyboard/app/MrAppPicker$Source;
 
     move-result-object v4
 
@@ -1161,7 +1161,7 @@
 
     invoke-direct {v5, p0}, Lcom/mrkeyboard/app/MrImportActivity$10;-><init>(Lcom/mrkeyboard/app/MrImportActivity;)V
 
-    invoke-static/range {v0 .. v5}, Lcom/mrkeyboard/app/MrAppPicker;->show(Lcom/mrkeyboard/app/MrKit;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/mrkeyboard/app/MrAppPicker$Live;Lcom/mrkeyboard/app/MrAppPicker$Pick;)Lcom/mrkeyboard/app/MrAppPicker;
+    invoke-static/range {v0 .. v5}, Lcom/mrkeyboard/app/MrAppPicker;->show(Lcom/mrkeyboard/app/MrKit;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/mrkeyboard/app/MrAppPicker$Source;Lcom/mrkeyboard/app/MrAppPicker$Pick;)Lcom/mrkeyboard/app/MrAppPicker;
 
     goto :goto_0
 .end method
@@ -1172,22 +1172,19 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 447
+    .line 448
     iput-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPlan:Lcom/mrkeyboard/app/MrImport$Plan;
 
-    .line 448
+    .line 449
     const/4 v0, 0x0
 
     iput v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mShown:I
 
-    .line 449
+    .line 450
     iput-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPreview:Landroid/widget/LinearLayout;
 
-    .line 450
-    iput-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mWordBox:Landroid/widget/LinearLayout;
-
     .line 451
-    iput-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mMoreWords:Landroid/widget/TextView;
+    iput-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mWordBox:Landroid/widget/LinearLayout;
 
     .line 452
     iput-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mApply:Landroid/widget/TextView;
@@ -1205,7 +1202,7 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 351
+    .line 352
     :try_start_0
     const-string v0, "clipboard"
 
@@ -1215,7 +1212,7 @@
 
     check-cast v0, Landroid/content/ClipboardManager;
 
-    .line 352
+    .line 353
     const-string v1, "Mr Keyboard"
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -1236,7 +1233,7 @@
 
     invoke-virtual {v0, v1}, Landroid/content/ClipboardManager;->setPrimaryClip(Landroid/content/ClipData;)V
 
-    .line 353
+    .line 354
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -1255,15 +1252,15 @@
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 357
+    .line 358
     :goto_0
     return-void
 
-    .line 354
+    .line 355
     :catch_0
     move-exception v0
 
-    .line 355
+    .line 356
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -1316,30 +1313,28 @@
     goto :goto_0
 .end method
 
-.method private drawWords()V
-    .locals 9
+.method private drawWords(Landroid/widget/ScrollView;)V
+    .locals 8
 
     .prologue
-    const/4 v2, 0x0
+    .line 587
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPlan:Lcom/mrkeyboard/app/MrImport$Plan;
 
-    .line 580
-    iget-object v4, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPlan:Lcom/mrkeyboard/app/MrImport$Plan;
-
-    .line 581
-    if-eqz v4, :cond_0
+    .line 588
+    if-eqz v3, :cond_0
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mWordBox:Landroid/widget/LinearLayout;
 
     if-nez v0, :cond_1
 
-    .line 597
+    .line 611
     :cond_0
     :goto_0
     return-void
 
-    .line 582
+    .line 589
     :cond_1
-    iget-object v0, v4, Lcom/mrkeyboard/app/MrImport$Plan;->words:Ljava/util/ArrayList;
+    iget-object v0, v3, Lcom/mrkeyboard/app/MrImport$Plan;->words:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
 
@@ -1351,33 +1346,33 @@
 
     invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
 
-    move-result v5
+    move-result v4
 
-    .line 583
+    .line 590
     iget v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mShown:I
 
-    move v3, v0
+    move v2, v0
 
     :goto_1
-    if-ge v3, v5, :cond_4
+    if-ge v2, v4, :cond_4
 
-    .line 584
-    iget-object v0, v4, Lcom/mrkeyboard/app/MrImport$Plan;->words:Ljava/util/ArrayList;
+    .line 591
+    iget-object v0, v3, Lcom/mrkeyboard/app/MrImport$Plan;->words:Ljava/util/ArrayList;
 
-    invoke-virtual {v0, v3}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+    invoke-virtual {v0, v2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/mrkeyboard/app/MrImport$NewWord;
 
-    .line 585
-    iget-object v6, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
+    .line 592
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->mark(Lcom/mrkeyboard/app/MrImport$NewWord;)Ljava/lang/String;
 
-    move-result-object v7
+    move-result-object v6
 
-    iget-boolean v1, v4, Lcom/mrkeyboard/app/MrImport$Plan;->standard:Z
+    iget-boolean v1, v3, Lcom/mrkeyboard/app/MrImport$Plan;->standard:Z
 
     if-eqz v1, :cond_2
 
@@ -1388,57 +1383,57 @@
     move-result-object v1
 
     :goto_2
-    const/4 v8, 0x0
+    const/4 v7, 0x0
 
-    invoke-virtual {v6, v7, v1, v8}, Lcom/mrkeyboard/app/MrKit;->item(Ljava/lang/String;Ljava/lang/String;Landroid/view/View$OnClickListener;)Landroid/widget/LinearLayout;
+    invoke-virtual {v5, v6, v1, v7}, Lcom/mrkeyboard/app/MrKit;->item(Ljava/lang/String;Ljava/lang/String;Landroid/view/View$OnClickListener;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 586
-    new-instance v6, Lcom/mrkeyboard/app/MrImportActivity$18;
-
-    invoke-direct {v6, p0, v0, v1}, Lcom/mrkeyboard/app/MrImportActivity$18;-><init>(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrImport$NewWord;Landroid/widget/LinearLayout;)V
-
-    invoke-virtual {v1, v6}, Landroid/widget/LinearLayout;->setOnClickListener(Landroid/view/View$OnClickListener;)V
-
     .line 593
-    iget-object v6, p0, Lcom/mrkeyboard/app/MrImportActivity;->mWordBox:Landroid/widget/LinearLayout;
+    new-instance v5, Lcom/mrkeyboard/app/MrImportActivity$18;
 
-    iget-object v7, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
+    invoke-direct {v5, p0, v0, v1}, Lcom/mrkeyboard/app/MrImportActivity$18;-><init>(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrImport$NewWord;Landroid/widget/LinearLayout;)V
 
-    if-nez v3, :cond_3
+    invoke-virtual {v1, v5}, Landroid/widget/LinearLayout;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    move v0, v2
+    .line 600
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrImportActivity;->mWordBox:Landroid/widget/LinearLayout;
+
+    iget-object v6, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    if-nez v2, :cond_3
+
+    const/4 v0, 0x0
 
     :goto_3
-    invoke-virtual {v7, v0}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
+    invoke-virtual {v6, v0}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v0
 
-    invoke-virtual {v6, v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-virtual {v5, v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 583
-    add-int/lit8 v0, v3, 0x1
+    .line 590
+    add-int/lit8 v0, v2, 0x1
 
-    move v3, v0
+    move v2, v0
 
     goto :goto_1
 
-    .line 585
+    .line 592
     :cond_2
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    const-string v8, "\u00d7"
+    const-string v7, "\u00d7"
 
-    invoke-virtual {v1, v8}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v1
 
-    iget v8, v0, Lcom/mrkeyboard/app/MrImport$NewWord;->count:I
+    iget v7, v0, Lcom/mrkeyboard/app/MrImport$NewWord;->count:I
 
-    invoke-virtual {v1, v8}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    invoke-virtual {v1, v7}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v1
 
@@ -1448,45 +1443,50 @@
 
     goto :goto_2
 
-    .line 593
+    .line 600
     :cond_3
     const/4 v0, 0x6
 
     goto :goto_3
 
-    .line 595
+    .line 602
     :cond_4
-    iput v5, p0, Lcom/mrkeyboard/app/MrImportActivity;->mShown:I
+    iput v4, p0, Lcom/mrkeyboard/app/MrImportActivity;->mShown:I
 
-    .line 596
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mMoreWords:Landroid/widget/TextView;
+    .line 604
+    if-eqz p1, :cond_0
 
-    iget v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mShown:I
+    iget v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mShown:I
 
-    iget-object v3, v4, Lcom/mrkeyboard/app/MrImport$Plan;->words:Ljava/util/ArrayList;
+    iget-object v1, v3, Lcom/mrkeyboard/app/MrImport$Plan;->words:Ljava/util/ArrayList;
 
-    invoke-virtual {v3}, Ljava/util/ArrayList;->size()I
+    invoke-virtual {v1}, Ljava/util/ArrayList;->size()I
 
-    move-result v3
+    move-result v1
 
-    if-ge v1, v3, :cond_5
+    if-ge v0, v1, :cond_0
 
-    :goto_4
-    invoke-virtual {v0, v2}, Landroid/widget/TextView;->setVisibility(I)V
+    invoke-virtual {p1}, Landroid/widget/ScrollView;->getHeight()I
+
+    move-result v0
+
+    if-lez v0, :cond_0
+
+    .line 605
+    new-instance v0, Lcom/mrkeyboard/app/MrImportActivity$19;
+
+    invoke-direct {v0, p0, p1}, Lcom/mrkeyboard/app/MrImportActivity$19;-><init>(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/ScrollView;)V
+
+    invoke-virtual {p1, v0}, Landroid/widget/ScrollView;->post(Ljava/lang/Runnable;)Z
 
     goto :goto_0
-
-    :cond_5
-    const/16 v2, 0x8
-
-    goto :goto_4
 .end method
 
 .method private failureText(Ljava/lang/String;)Ljava/lang/String;
     .locals 3
 
     .prologue
-    .line 855
+    .line 870
     if-eqz p1, :cond_0
 
     invoke-virtual {p1}, Ljava/lang/String;->length()I
@@ -1524,29 +1524,29 @@
 
     const/4 v6, 0x0
 
-    .line 859
+    .line 874
     invoke-direct {p0, v6, v7}, Lcom/mrkeyboard/app/MrImportActivity;->setBusy(ZLjava/lang/String;)V
 
-    .line 860
+    .line 875
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiCancel:Landroid/widget/TextView;
 
     const/16 v1, 0x8
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 861
+    .line 876
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrImportActivity;->isFinishing()Z
 
     move-result v0
 
     if-eqz v0, :cond_1
 
-    .line 887
+    .line 902
     :cond_0
     :goto_0
     return-void
 
-    .line 862
+    .line 877
     :cond_1
     invoke-virtual {p1}, Lcom/mrkeyboard/app/MrImportAi$Result;->empty()Z
 
@@ -1554,12 +1554,12 @@
 
     if-eqz v0, :cond_4
 
-    .line 864
+    .line 879
     iget-object v0, p1, Lcom/mrkeyboard/app/MrImportAi$Result;->failure:Ljava/lang/String;
 
     if-eqz v0, :cond_2
 
-    .line 865
+    .line 880
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
     invoke-direct {v0, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
@@ -1570,7 +1570,7 @@
 
     new-array v3, v6, [Ljava/lang/Object;
 
-    .line 866
+    .line 881
     invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -1581,7 +1581,7 @@
 
     iget-object v1, p1, Lcom/mrkeyboard/app/MrImportAi$Result;->failure:Ljava/lang/String;
 
-    .line 867
+    .line 882
     invoke-direct {p0, v1}, Lcom/mrkeyboard/app/MrImportActivity;->failureText(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
@@ -1596,7 +1596,7 @@
 
     new-array v3, v6, [Ljava/lang/Object;
 
-    .line 868
+    .line 883
     invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -1605,12 +1605,12 @@
 
     move-result-object v0
 
-    .line 869
+    .line 884
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     goto :goto_0
 
-    .line 871
+    .line 886
     :cond_2
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -1638,16 +1638,16 @@
 
     goto :goto_1
 
-    .line 875
+    .line 890
     :cond_4
     iget-object v0, p1, Lcom/mrkeyboard/app/MrImportAi$Result;->text:Ljava/lang/String;
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrImportActivity;->setBox(Ljava/lang/String;)V
 
-    .line 876
+    .line 891
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->clearPreview()V
 
-    .line 877
+    .line 892
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiNote:Landroid/widget/TextView;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -1678,19 +1678,19 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 878
+    .line 893
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiNote:Landroid/widget/TextView;
 
     invoke-virtual {v0, v6}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 879
+    .line 894
     invoke-virtual {p1}, Lcom/mrkeyboard/app/MrImportAi$Result;->complete()Z
 
     move-result v0
 
     if-nez v0, :cond_0
 
-    .line 880
+    .line 895
     iget-object v0, p1, Lcom/mrkeyboard/app/MrImportAi$Result;->failure:Ljava/lang/String;
 
     if-eqz v0, :cond_5
@@ -1701,7 +1701,7 @@
 
     move-result-object v0
 
-    .line 881
+    .line 896
     :goto_2
     new-instance v1, Landroid/app/AlertDialog$Builder;
 
@@ -1713,7 +1713,7 @@
 
     new-array v4, v6, [Ljava/lang/Object;
 
-    .line 882
+    .line 897
     invoke-virtual {v2, v3, v4}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v2
@@ -1732,7 +1732,7 @@
 
     iget v5, p1, Lcom/mrkeyboard/app/MrImportAi$Result;->done:I
 
-    .line 883
+    .line 898
     invoke-static {v5}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
     move-result-object v5
@@ -1763,7 +1763,7 @@
 
     new-array v3, v6, [Ljava/lang/Object;
 
-    .line 884
+    .line 899
     invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -1772,12 +1772,12 @@
 
     move-result-object v0
 
-    .line 885
+    .line 900
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     goto/16 :goto_0
 
-    .line 880
+    .line 895
     :cond_5
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -1808,22 +1808,22 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 724
+    .line 739
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mBusy:Z
 
     if-eqz v0, :cond_0
 
-    .line 752
+    .line 767
     :goto_0
     return-void
 
-    .line 725
+    .line 740
     :cond_0
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->source()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 726
+    .line 741
     invoke-virtual {v0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v1
@@ -1834,7 +1834,7 @@
 
     if-nez v1, :cond_1
 
-    .line 727
+    .line 742
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -1851,7 +1851,7 @@
 
     goto :goto_0
 
-    .line 730
+    .line 745
     :cond_1
     invoke-static {v0}, Lcom/mrkeyboard/app/MrImport;->isStandard(Ljava/lang/String;)Z
 
@@ -1859,7 +1859,7 @@
 
     if-eqz v1, :cond_2
 
-    .line 731
+    .line 746
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -1876,7 +1876,7 @@
 
     goto :goto_0
 
-    .line 734
+    .line 749
     :cond_2
     invoke-static {p0}, Lcom/mrkeyboard/app/MrAi;->configured(Landroid/content/Context;)Z
 
@@ -1884,7 +1884,7 @@
 
     if-nez v1, :cond_3
 
-    .line 735
+    .line 750
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
     invoke-direct {v0, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
@@ -1895,7 +1895,7 @@
 
     new-array v3, v4, [Ljava/lang/Object;
 
-    .line 736
+    .line 751
     invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -1910,7 +1910,7 @@
 
     new-array v3, v4, [Ljava/lang/Object;
 
-    .line 737
+    .line 752
     invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -1925,7 +1925,7 @@
 
     new-array v3, v4, [Ljava/lang/Object;
 
-    .line 738
+    .line 753
     invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -1942,25 +1942,25 @@
 
     new-array v3, v4, [Ljava/lang/Object;
 
-    .line 739
+    .line 754
     invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
 
-    new-instance v2, Lcom/mrkeyboard/app/MrImportActivity$20;
+    new-instance v2, Lcom/mrkeyboard/app/MrImportActivity$21;
 
-    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/MrImportActivity$20;-><init>(Lcom/mrkeyboard/app/MrImportActivity;)V
+    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/MrImportActivity$21;-><init>(Lcom/mrkeyboard/app/MrImportActivity;)V
 
     invoke-virtual {v0, v1, v2}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
 
-    .line 748
+    .line 763
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     goto/16 :goto_0
 
-    .line 751
+    .line 766
     :cond_3
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrImportActivity;->prepareAi(Ljava/lang/String;)V
 
@@ -1971,16 +1971,16 @@
     .locals 2
 
     .prologue
-    .line 890
+    .line 905
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiNote:Landroid/widget/TextView;
 
     if-nez v0, :cond_0
 
-    .line 892
+    .line 907
     :goto_0
     return-void
 
-    .line 891
+    .line 906
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiNote:Landroid/widget/TextView;
 
@@ -1995,7 +1995,7 @@
     .locals 4
 
     .prologue
-    .line 268
+    .line 269
     :try_start_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
 
@@ -2005,7 +2005,7 @@
 
     move-result-object v0
 
-    .line 272
+    .line 273
     :goto_0
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPacks;->installedIds(Landroid/content/Context;)Ljava/util/ArrayList;
 
@@ -2017,7 +2017,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mLangs:Ljava/util/List;
 
-    .line 273
+    .line 274
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mLangs:Ljava/util/List;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mLocale:Ljava/lang/String;
@@ -2050,14 +2050,14 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mLocale:Ljava/lang/String;
 
-    .line 274
+    .line 275
     return-void
 
-    .line 269
+    .line 270
     :catch_0
     move-exception v0
 
-    .line 270
+    .line 271
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
@@ -2069,7 +2069,7 @@
     .locals 2
 
     .prologue
-    .line 600
+    .line 614
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -2107,15 +2107,15 @@
     .locals 5
 
     .prologue
-    .line 615
+    .line 629
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPlan:Lcom/mrkeyboard/app/MrImport$Plan;
 
-    .line 616
+    .line 630
     new-instance v2, Ljava/util/HashSet;
 
     invoke-direct {v2}, Ljava/util/HashSet;-><init>()V
 
-    .line 617
+    .line 631
     iget-object v0, v1, Lcom/mrkeyboard/app/MrImport$Plan;->words:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
@@ -2146,7 +2146,7 @@
 
     goto :goto_0
 
-    .line 618
+    .line 632
     :cond_1
     invoke-virtual {v2}, Ljava/util/HashSet;->isEmpty()Z
 
@@ -2160,15 +2160,15 @@
 
     move-result v1
 
-    .line 621
+    .line 635
     :cond_2
     return v1
 
-    .line 619
+    .line 633
     :cond_3
     const/4 v0, 0x0
 
-    .line 620
+    .line 634
     iget-object v1, v1, Lcom/mrkeyboard/app/MrImport$Plan;->pairs:Ljava/util/ArrayList;
 
     invoke-virtual {v1}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
@@ -2225,7 +2225,7 @@
     .locals 2
 
     .prologue
-    .line 897
+    .line 912
     const-string v0, "mr_words"
 
     const/4 v1, 0x0
@@ -2241,16 +2241,16 @@
     .locals 4
 
     .prologue
-    .line 756
+    .line 771
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mBusy:Z
 
     if-eqz v0, :cond_0
 
-    .line 780
+    .line 795
     :goto_0
     return-void
 
-    .line 757
+    .line 772
     :cond_0
     const/4 v0, 0x1
 
@@ -2268,16 +2268,16 @@
 
     invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/MrImportActivity;->setBusy(ZLjava/lang/String;)V
 
-    .line 758
+    .line 773
     new-instance v0, Ljava/lang/Thread;
 
-    new-instance v1, Lcom/mrkeyboard/app/MrImportActivity$21;
+    new-instance v1, Lcom/mrkeyboard/app/MrImportActivity$22;
 
-    invoke-direct {v1, p0, p1}, Lcom/mrkeyboard/app/MrImportActivity$21;-><init>(Lcom/mrkeyboard/app/MrImportActivity;Ljava/lang/String;)V
+    invoke-direct {v1, p0, p1}, Lcom/mrkeyboard/app/MrImportActivity$22;-><init>(Lcom/mrkeyboard/app/MrImportActivity;Ljava/lang/String;)V
 
     invoke-direct {v0, v1}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;)V
 
-    .line 779
+    .line 794
     invoke-virtual {v0}, Ljava/lang/Thread;->start()V
 
     goto :goto_0
@@ -2289,35 +2289,35 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 298
+    .line 299
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAppBox:Landroid/widget/LinearLayout;
 
     if-nez v0, :cond_0
 
-    .line 308
+    .line 309
     :goto_0
     return-void
 
-    .line 299
+    .line 300
     :cond_0
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->appName()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 300
+    .line 301
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mApp:Ljava/lang/String;
 
     if-nez v0, :cond_1
 
     const/4 v0, 0x0
 
-    .line 301
+    .line 302
     :goto_1
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAppBox:Landroid/widget/LinearLayout;
 
     invoke-virtual {v2}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 302
+    .line 303
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAppBox:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -2334,15 +2334,15 @@
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    .line 306
+    .line 307
     invoke-virtual {v3, v6}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v3
 
-    .line 302
+    .line 303
     invoke-virtual {v2, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 307
+    .line 308
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAppNote:Landroid/widget/TextView;
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mApp:Ljava/lang/String;
@@ -2364,7 +2364,7 @@
 
     goto :goto_0
 
-    .line 300
+    .line 301
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mApp:Ljava/lang/String;
 
@@ -2374,7 +2374,7 @@
 
     goto :goto_1
 
-    .line 307
+    .line 308
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -2397,7 +2397,7 @@
     .locals 6
 
     .prologue
-    .line 277
+    .line 278
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mLangBox:Landroid/widget/LinearLayout;
@@ -2414,7 +2414,7 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/mrkeyboard/app/MrKit;->languageCard(Landroid/widget/LinearLayout;Ljava/util/List;Ljava/lang/String;Lcom/mrkeyboard/app/MrKit$LangPick;Z)V
 
-    .line 287
+    .line 288
     return-void
 .end method
 
@@ -2428,7 +2428,7 @@
 
     const/4 v2, 0x0
 
-    .line 337
+    .line 338
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiButton:Landroid/widget/TextView;
 
     if-eqz v0, :cond_0
@@ -2437,12 +2437,12 @@
 
     if-nez v0, :cond_1
 
-    .line 347
+    .line 348
     :cond_0
     :goto_0
     return-void
 
-    .line 338
+    .line 339
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mText:Landroid/widget/EditText;
 
@@ -2454,13 +2454,13 @@
 
     const/4 v0, 0x0
 
-    .line 339
+    .line 340
     :goto_1
     invoke-static {v0}, Lcom/mrkeyboard/app/MrImport;->offer(Ljava/lang/String;)I
 
     move-result v5
 
-    .line 340
+    .line 341
     iget-object v6, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiButton:Landroid/widget/TextView;
 
     if-ne v5, v4, :cond_6
@@ -2470,7 +2470,7 @@
     :goto_2
     invoke-virtual {v6, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 341
+    .line 342
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAnalyze:Landroid/widget/TextView;
 
     const/4 v6, 0x2
@@ -2482,7 +2482,7 @@
     :cond_2
     invoke-virtual {v1, v3}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 342
+    .line 343
     if-eqz v0, :cond_3
 
     invoke-virtual {v0}, Ljava/lang/String;->trim()Ljava/lang/String;
@@ -2497,7 +2497,7 @@
 
     move v2, v4
 
-    .line 343
+    .line 344
     :cond_3
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiPrimary:Ljava/lang/Boolean;
 
@@ -2511,7 +2511,7 @@
 
     if-eq v0, v2, :cond_0
 
-    .line 344
+    .line 345
     :cond_4
     invoke-static {v2}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
 
@@ -2519,7 +2519,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiPrimary:Ljava/lang/Boolean;
 
-    .line 345
+    .line 346
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiButton:Landroid/widget/TextView;
@@ -2533,7 +2533,7 @@
 
     goto :goto_0
 
-    .line 338
+    .line 339
     :cond_5
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mText:Landroid/widget/EditText;
 
@@ -2550,10 +2550,10 @@
     :cond_6
     move v1, v3
 
-    .line 340
+    .line 341
     goto :goto_2
 
-    .line 345
+    .line 346
     :cond_7
     const-string v0, "mr_ui_ic_wand"
 
@@ -2568,7 +2568,7 @@
 
     const/4 v6, 0x0
 
-    .line 909
+    .line 924
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -2579,23 +2579,23 @@
 
     move-result-wide v0
 
-    .line 910
+    .line 925
     cmp-long v0, v0, v2
 
     if-gtz v0, :cond_0
 
-    .line 911
+    .line 926
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mUndo:Landroid/widget/TextView;
 
     const/16 v1, 0x8
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 916
+    .line 931
     :goto_0
     return-void
 
-    .line 914
+    .line 929
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mUndo:Landroid/widget/TextView;
 
@@ -2629,7 +2629,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 915
+    .line 930
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mUndo:Landroid/widget/TextView;
 
     invoke-virtual {v0, v6}, Landroid/widget/TextView;->setVisibility(I)V
@@ -2641,7 +2641,7 @@
     .locals 4
 
     .prologue
-    .line 901
+    .line 916
     iget-wide v0, p1, Lcom/mrkeyboard/app/MrLearned$Result;->batch:J
 
     const-wide/16 v2, 0x0
@@ -2658,12 +2658,12 @@
 
     if-nez v0, :cond_1
 
-    .line 906
+    .line 921
     :cond_0
     :goto_0
     return-void
 
-    .line 902
+    .line 917
     :cond_1
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->prefs()Landroid/content/SharedPreferences;
 
@@ -2699,20 +2699,20 @@
 
     move-result-object v0
 
-    .line 903
+    .line 918
     if-eqz p3, :cond_2
 
     const-string v1, "last_app"
 
     invoke-interface {v0, v1, p3}, Landroid/content/SharedPreferences$Editor;->putString(Ljava/lang/String;Ljava/lang/String;)Landroid/content/SharedPreferences$Editor;
 
-    .line 905
+    .line 920
     :goto_1
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
     goto :goto_0
 
-    .line 904
+    .line 919
     :cond_2
     const-string v1, "last_app"
 
@@ -2729,12 +2729,12 @@
 
     const/4 v7, 0x0
 
-    .line 705
+    .line 720
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 706
+    .line 721
     invoke-virtual {p1}, Lcom/mrkeyboard/app/MrLearned$Result;->total()I
 
     move-result v1
@@ -2753,7 +2753,7 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 708
+    .line 723
     :goto_0
     if-eqz p2, :cond_0
 
@@ -2789,7 +2789,7 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 709
+    .line 724
     :cond_0
     iget v1, p1, Lcom/mrkeyboard/app/MrLearned$Result;->blocked:I
 
@@ -2821,7 +2821,7 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 710
+    .line 725
     :cond_1
     iget v1, p1, Lcom/mrkeyboard/app/MrLearned$Result;->dupWords:I
 
@@ -2861,7 +2861,7 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 711
+    .line 726
     :cond_2
     iget v1, p1, Lcom/mrkeyboard/app/MrLearned$Result;->cappedWords:I
 
@@ -2901,7 +2901,7 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 712
+    .line 727
     :cond_3
     iget v1, p1, Lcom/mrkeyboard/app/MrLearned$Result;->blockedSkipped:I
 
@@ -2933,7 +2933,7 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 713
+    .line 728
     :cond_4
     new-instance v1, Landroid/app/AlertDialog$Builder;
 
@@ -2945,7 +2945,7 @@
 
     new-array v4, v7, [Ljava/lang/Object;
 
-    .line 714
+    .line 729
     invoke-virtual {v2, v3, v4}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v2
@@ -2954,7 +2954,7 @@
 
     move-result-object v1
 
-    .line 715
+    .line 730
     invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
@@ -2969,7 +2969,7 @@
 
     new-array v3, v7, [Ljava/lang/Object;
 
-    .line 716
+    .line 731
     invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -2980,13 +2980,13 @@
 
     move-result-object v0
 
-    .line 717
+    .line 732
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 718
+    .line 733
     return-void
 
-    .line 707
+    .line 722
     :cond_5
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -3029,16 +3029,16 @@
 
     const/4 v5, 0x0
 
-    .line 802
+    .line 817
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mBusy:Z
 
     if-eqz v0, :cond_0
 
-    .line 852
+    .line 867
     :goto_0
     return-void
 
-    .line 803
+    .line 818
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mLocale:Ljava/lang/String;
 
@@ -3046,10 +3046,10 @@
 
     move-result-object v3
 
-    .line 804
+    .line 819
     iput-boolean v5, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiCancelled:Z
 
-    .line 805
+    .line 820
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v1, "mr_import_ai_progress"
@@ -3080,35 +3080,35 @@
 
     invoke-direct {p0, v6, v0}, Lcom/mrkeyboard/app/MrImportActivity;->setBusy(ZLjava/lang/String;)V
 
-    .line 806
+    .line 821
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiCancel:Landroid/widget/TextView;
 
     invoke-virtual {v0, v5}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 807
-    new-instance v4, Lcom/mrkeyboard/app/MrImportActivity$23;
+    .line 822
+    new-instance v4, Lcom/mrkeyboard/app/MrImportActivity$24;
 
-    invoke-direct {v4, p0}, Lcom/mrkeyboard/app/MrImportActivity$23;-><init>(Lcom/mrkeyboard/app/MrImportActivity;)V
+    invoke-direct {v4, p0}, Lcom/mrkeyboard/app/MrImportActivity$24;-><init>(Lcom/mrkeyboard/app/MrImportActivity;)V
 
-    .line 816
-    new-instance v5, Lcom/mrkeyboard/app/MrImportActivity$24;
+    .line 831
+    new-instance v5, Lcom/mrkeyboard/app/MrImportActivity$25;
 
-    invoke-direct {v5, p0}, Lcom/mrkeyboard/app/MrImportActivity$24;-><init>(Lcom/mrkeyboard/app/MrImportActivity;)V
+    invoke-direct {v5, p0}, Lcom/mrkeyboard/app/MrImportActivity$25;-><init>(Lcom/mrkeyboard/app/MrImportActivity;)V
 
-    .line 830
+    .line 845
     new-instance v6, Ljava/lang/Thread;
 
-    new-instance v0, Lcom/mrkeyboard/app/MrImportActivity$25;
+    new-instance v0, Lcom/mrkeyboard/app/MrImportActivity$26;
 
     move-object v1, p0
 
     move-object v2, p1
 
-    invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrImportActivity$25;-><init>(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrImportAi$Plan;Ljava/lang/String;Lcom/mrkeyboard/app/MrImportAi$Sender;Lcom/mrkeyboard/app/MrImportAi$Control;)V
+    invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrImportActivity$26;-><init>(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrImportAi$Plan;Ljava/lang/String;Lcom/mrkeyboard/app/MrImportAi$Sender;Lcom/mrkeyboard/app/MrImportAi$Control;)V
 
     invoke-direct {v6, v0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;)V
 
-    .line 851
+    .line 866
     invoke-virtual {v6}, Ljava/lang/Thread;->start()V
 
     goto :goto_0
@@ -3120,12 +3120,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 360
+    .line 361
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mSetting:Z
 
-    .line 362
+    .line 363
     :try_start_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mText:Landroid/widget/EditText;
 
@@ -3133,19 +3133,19 @@
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 364
+    .line 365
     iput-boolean v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mSetting:Z
 
-    .line 366
+    .line 367
     return-void
 
-    .line 364
+    .line 365
     :catchall_0
     move-exception v0
 
     iput-boolean v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mSetting:Z
 
-    .line 365
+    .line 366
     throw v0
 .end method
 
@@ -3157,10 +3157,10 @@
 
     const/4 v2, 0x0
 
-    .line 376
+    .line 377
     iput-boolean p1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mBusy:Z
 
-    .line 377
+    .line 378
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAnalyze:Landroid/widget/TextView;
 
     if-nez p1, :cond_1
@@ -3170,7 +3170,7 @@
     :goto_0
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setClickable(Z)V
 
-    .line 378
+    .line 379
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiButton:Landroid/widget/TextView;
 
     if-nez p1, :cond_2
@@ -3180,7 +3180,7 @@
     :goto_1
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setClickable(Z)V
 
-    .line 379
+    .line 380
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mText:Landroid/widget/EditText;
 
     if-nez p1, :cond_3
@@ -3188,7 +3188,7 @@
     :goto_2
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setEnabled(Z)V
 
-    .line 380
+    .line 381
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mStatus:Landroid/widget/TextView;
 
     if-nez p2, :cond_0
@@ -3198,7 +3198,7 @@
     :cond_0
     invoke-virtual {v0, p2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 381
+    .line 382
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mStatus:Landroid/widget/TextView;
 
     if-eqz p1, :cond_4
@@ -3206,28 +3206,28 @@
     :goto_3
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 382
+    .line 383
     return-void
 
     :cond_1
     move v0, v2
 
-    .line 377
+    .line 378
     goto :goto_0
 
     :cond_2
     move v0, v2
 
-    .line 378
+    .line 379
     goto :goto_1
 
     :cond_3
     move v1, v2
 
-    .line 379
+    .line 380
     goto :goto_2
 
-    .line 381
+    .line 382
     :cond_4
     const/16 v2, 0x8
 
@@ -3242,23 +3242,23 @@
 
     const/4 v8, 0x0
 
-    .line 647
+    .line 661
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPlan:Lcom/mrkeyboard/app/MrImport$Plan;
 
-    .line 648
+    .line 662
     if-nez v1, :cond_0
 
-    .line 661
+    .line 675
     :goto_0
     return-void
 
-    .line 649
+    .line 663
     :cond_0
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 650
+    .line 664
     iget-object v0, v1, Lcom/mrkeyboard/app/MrImport$Plan;->ignored:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
@@ -3278,7 +3278,7 @@
 
     check-cast v0, Lcom/mrkeyboard/app/MrImport$Ignored;
 
-    .line 651
+    .line 665
     iget-object v4, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v5, "mr_import_line"
@@ -3357,7 +3357,7 @@
 
     goto :goto_1
 
-    .line 653
+    .line 667
     :cond_1
     iget v0, v1, Lcom/mrkeyboard/app/MrImport$Plan;->ignoredCount:I
 
@@ -3369,7 +3369,7 @@
 
     if-le v0, v3, :cond_2
 
-    .line 654
+    .line 668
     const-string v0, "\n"
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -3404,7 +3404,7 @@
 
     invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 656
+    .line 670
     :cond_2
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
@@ -3418,7 +3418,7 @@
 
     iget v1, v1, Lcom/mrkeyboard/app/MrImport$Plan;->ignoredCount:I
 
-    .line 657
+    .line 671
     invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
     move-result-object v1
@@ -3433,7 +3433,7 @@
 
     move-result-object v0
 
-    .line 658
+    .line 672
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v1
@@ -3448,7 +3448,7 @@
 
     new-array v3, v8, [Ljava/lang/Object;
 
-    .line 659
+    .line 673
     invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -3459,7 +3459,7 @@
 
     move-result-object v0
 
-    .line 660
+    .line 674
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     goto/16 :goto_0
@@ -3530,6 +3530,9 @@
     invoke-direct {v6, p0}, Landroid/widget/ScrollView;-><init>(Landroid/content/Context;)V
 
     .line 476
+    iput-object v6, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPreviewScroll:Landroid/widget/ScrollView;
+
+    .line 477
     new-instance v0, Landroid/view/ViewGroup$LayoutParams;
 
     const/4 v1, -0x1
@@ -3538,21 +3541,16 @@
 
     invoke-virtual {v6, v5, v0}, Landroid/widget/ScrollView;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 477
+    .line 478
     iput-object v5, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPreview:Landroid/widget/LinearLayout;
 
-    .line 478
-    iput v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->mShown:I
-
     .line 479
-    const/4 v0, 0x0
-
-    iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mWordBox:Landroid/widget/LinearLayout;
+    iput v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->mShown:I
 
     .line 480
     const/4 v0, 0x0
 
-    iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mMoreWords:Landroid/widget/TextView;
+    iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mWordBox:Landroid/widget/LinearLayout;
 
     .line 481
     const/4 v0, 0x0
@@ -4150,44 +4148,17 @@
 
     invoke-virtual {v5, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 535
+    .line 536
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
+    new-instance v2, Lcom/mrkeyboard/app/MrImportActivity$15;
 
-    const-string v7, "mr_learned_more"
+    invoke-direct {v2, p0, v6}, Lcom/mrkeyboard/app/MrImportActivity$15;-><init>(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/ScrollView;)V
 
-    new-array v8, v3, [Ljava/lang/Object;
-
-    invoke-virtual {v2, v7, v8}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v2
-
-    new-instance v7, Lcom/mrkeyboard/app/MrImportActivity$15;
-
-    invoke-direct {v7, p0}, Lcom/mrkeyboard/app/MrImportActivity$15;-><init>(Lcom/mrkeyboard/app/MrImportActivity;)V
-
-    invoke-virtual {v0, v2, v3, v7}, Lcom/mrkeyboard/app/MrKit;->button(Ljava/lang/String;ZLandroid/view/View$OnClickListener;)Landroid/widget/TextView;
-
-    move-result-object v0
-
-    iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mMoreWords:Landroid/widget/TextView;
-
-    .line 540
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mMoreWords:Landroid/widget/TextView;
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
-
-    const/16 v7, 0x8
-
-    invoke-virtual {v2, v7}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
-
-    move-result-object v2
-
-    invoke-virtual {v5, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
+    invoke-virtual {v0, v6, v2}, Lcom/mrkeyboard/app/MrKit;->onScroll(Landroid/widget/ScrollView;Ljava/lang/Runnable;)V
 
     .line 541
-    invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->drawWords()V
+    invoke-direct {p0, v6}, Lcom/mrkeyboard/app/MrImportActivity;->drawWords(Landroid/widget/ScrollView;)V
 
     .line 543
     :cond_6
@@ -4334,14 +4305,14 @@
     .locals 1
 
     .prologue
-    .line 369
+    .line 370
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mText:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
 
     move-result-object v0
 
-    .line 370
+    .line 371
     if-nez v0, :cond_0
 
     const-string v0, ""
@@ -4361,17 +4332,17 @@
     .locals 2
 
     .prologue
-    .line 604
+    .line 618
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPlan:Lcom/mrkeyboard/app/MrImport$Plan;
 
-    .line 605
+    .line 619
     if-nez v0, :cond_0
 
-    .line 611
+    .line 625
     :goto_0
     return-void
 
-    .line 606
+    .line 620
     :cond_0
     iget-object v0, v0, Lcom/mrkeyboard/app/MrImport$Plan;->words:Ljava/util/ArrayList;
 
@@ -4396,21 +4367,23 @@
 
     goto :goto_1
 
-    .line 607
+    .line 621
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mWordBox:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 608
+    .line 622
     const/4 v0, 0x0
 
     iput v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mShown:I
 
-    .line 609
-    invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->drawWords()V
+    .line 623
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPreviewScroll:Landroid/widget/ScrollView;
 
-    .line 610
+    invoke-direct {p0, v0}, Lcom/mrkeyboard/app/MrImportActivity;->drawWords(Landroid/widget/ScrollView;)V
+
+    .line 624
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->updateApply()V
 
     goto :goto_0
@@ -4430,7 +4403,7 @@
 
     const/4 v11, 0x0
 
-    .line 919
+    .line 934
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -4441,7 +4414,7 @@
 
     move-result-wide v2
 
-    .line 920
+    .line 935
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -4454,7 +4427,7 @@
 
     move-result-object v0
 
-    .line 921
+    .line 936
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v1
@@ -4465,25 +4438,25 @@
 
     move-result-object v1
 
-    .line 922
+    .line 937
     cmp-long v4, v2, v6
 
     if-lez v4, :cond_0
 
     if-nez v0, :cond_1
 
-    .line 946
+    .line 961
     :cond_0
     :goto_0
     return-void
 
-    .line 924
+    .line 939
     :cond_1
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrApp;->scope(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
 
-    .line 925
+    .line 940
     new-instance v5, Landroid/app/AlertDialog$Builder;
 
     invoke-direct {v5, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
@@ -4494,7 +4467,7 @@
 
     new-array v8, v11, [Ljava/lang/Object;
 
-    .line 926
+    .line 941
     invoke-virtual {v6, v7, v8}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v6
@@ -4503,7 +4476,7 @@
 
     move-result-object v5
 
-    .line 927
+    .line 942
     if-nez v1, :cond_2
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -4551,7 +4524,7 @@
 
     new-array v6, v11, [Ljava/lang/Object;
 
-    .line 929
+    .line 944
     invoke-virtual {v1, v5, v6}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -4566,25 +4539,25 @@
 
     new-array v6, v11, [Ljava/lang/Object;
 
-    .line 930
+    .line 945
     invoke-virtual {v1, v5, v6}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
 
-    new-instance v5, Lcom/mrkeyboard/app/MrImportActivity$26;
+    new-instance v5, Lcom/mrkeyboard/app/MrImportActivity$27;
 
-    invoke-direct {v5, p0, v4, v2, v3}, Lcom/mrkeyboard/app/MrImportActivity$26;-><init>(Lcom/mrkeyboard/app/MrImportActivity;Ljava/lang/String;J)V
+    invoke-direct {v5, p0, v4, v2, v3}, Lcom/mrkeyboard/app/MrImportActivity$27;-><init>(Lcom/mrkeyboard/app/MrImportActivity;Ljava/lang/String;J)V
 
     invoke-virtual {v0, v1, v5}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
 
-    .line 945
+    .line 960
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     goto :goto_0
 
-    .line 928
+    .line 943
     :cond_2
     iget-object v6, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -4635,7 +4608,7 @@
     .locals 2
 
     .prologue
-    .line 641
+    .line 655
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mApply:Landroid/widget/TextView;
 
     if-eqz v0, :cond_0
@@ -4644,12 +4617,12 @@
 
     if-nez v0, :cond_1
 
-    .line 644
+    .line 658
     :cond_0
     :goto_0
     return-void
 
-    .line 642
+    .line 656
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mApply:Landroid/widget/TextView;
 
@@ -4659,7 +4632,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 643
+    .line 657
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mApply:Landroid/widget/TextView;
 
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->applyAny()Z
@@ -4675,7 +4648,7 @@
     .locals 6
 
     .prologue
-    .line 329
+    .line 330
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mCount:Landroid/widget/TextView;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -4706,8 +4679,54 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 330
+    .line 331
     return-void
+.end method
+
+.method private wordsNearEnd(Landroid/widget/ScrollView;)V
+    .locals 2
+
+    .prologue
+    .line 580
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPlan:Lcom/mrkeyboard/app/MrImport$Plan;
+
+    .line 581
+    if-eqz v0, :cond_0
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mWordBox:Landroid/widget/LinearLayout;
+
+    if-eqz v1, :cond_0
+
+    iget v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mShown:I
+
+    iget-object v0, v0, Lcom/mrkeyboard/app/MrImport$Plan;->words:Ljava/util/ArrayList;
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
+
+    move-result v0
+
+    if-ge v1, v0, :cond_0
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->mWordBox:Landroid/widget/LinearLayout;
+
+    invoke-virtual {v0, p1, v1}, Lcom/mrkeyboard/app/MrKit;->nearEnd(Landroid/widget/ScrollView;Landroid/view/ViewGroup;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_1
+
+    .line 583
+    :cond_0
+    :goto_0
+    return-void
+
+    .line 582
+    :cond_1
+    invoke-direct {p0, p1}, Lcom/mrkeyboard/app/MrImportActivity;->drawWords(Landroid/widget/ScrollView;)V
+
+    goto :goto_0
 .end method
 
 
@@ -4716,14 +4735,14 @@
     .locals 1
 
     .prologue
-    .line 99
+    .line 100
     invoke-static {p1}, Lcom/mrkeyboard/app/UiLocale;->wrap(Landroid/content/Context;)Landroid/content/Context;
 
     move-result-object v0
 
     invoke-super {p0, v0}, Landroid/app/Activity;->attachBaseContext(Landroid/content/Context;)V
 
-    .line 100
+    .line 101
     return-void
 .end method
 
@@ -4731,29 +4750,29 @@
     .locals 10
 
     .prologue
-    .line 123
+    .line 124
     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
 
-    .line 124
+    .line 125
     new-instance v0, Lcom/mrkeyboard/app/MrKit;
 
     invoke-direct {v0, p0}, Lcom/mrkeyboard/app/MrKit;-><init>(Landroid/app/Activity;)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    .line 125
+    .line 126
     invoke-static {p0}, Lcom/mrkeyboard/app/MrLearned;->store(Landroid/content/Context;)Lcom/mrkeyboard/app/MrWordStore;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
 
-    .line 126
+    .line 127
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
 
     if-nez v0, :cond_0
 
-    .line 127
+    .line 128
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -4770,18 +4789,18 @@
 
     invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrKit;->toast(Ljava/lang/String;)V
 
-    .line 128
+    .line 129
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrImportActivity;->finish()V
 
-    .line 253
+    .line 254
     :goto_0
     return-void
 
-    .line 131
+    .line 132
     :cond_0
     if-eqz p1, :cond_5
 
-    .line 132
+    .line 133
     const-string v0, "mr_import_s_locale"
 
     invoke-virtual {p1, v0}, Landroid/os/Bundle;->getString(Ljava/lang/String;)Ljava/lang/String;
@@ -4790,7 +4809,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mLocale:Ljava/lang/String;
 
-    .line 133
+    .line 134
     const-string v0, "mr_import_s_app"
 
     invoke-virtual {p1, v0}, Landroid/os/Bundle;->getString(Ljava/lang/String;)Ljava/lang/String;
@@ -4799,7 +4818,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mApp:Ljava/lang/String;
 
-    .line 137
+    .line 138
     :cond_1
     :goto_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mApp:Ljava/lang/String;
@@ -4814,7 +4833,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mApp:Ljava/lang/String;
 
-    .line 138
+    .line 139
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mLocale:Ljava/lang/String;
 
@@ -4838,11 +4857,11 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mLocale:Ljava/lang/String;
 
-    .line 139
+    .line 140
     :cond_3
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->loadLanguages()V
 
-    .line 140
+    .line 141
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v0
@@ -4851,12 +4870,12 @@
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLang;->remember(Landroid/content/SharedPreferences;Ljava/lang/String;)V
 
-    .line 142
+    .line 143
     new-instance v0, Landroid/widget/ScrollView;
 
     invoke-direct {v0, p0}, Landroid/widget/ScrollView;-><init>(Landroid/content/Context;)V
 
-    .line 143
+    .line 144
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -4875,14 +4894,14 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/ScrollView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 144
+    .line 145
     iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-virtual {v1}, Lcom/mrkeyboard/app/MrKit;->column()Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 145
+    .line 146
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const/high16 v3, 0x41a00000    # 20.0f
@@ -4917,7 +4936,7 @@
 
     invoke-virtual {v1, v2, v3, v4, v5}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 146
+    .line 147
     new-instance v2, Landroid/view/ViewGroup$LayoutParams;
 
     const/4 v3, -0x1
@@ -4928,7 +4947,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/widget/ScrollView;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 147
+    .line 148
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const/high16 v3, 0x41a00000    # 20.0f
@@ -4971,7 +4990,7 @@
 
     invoke-static/range {v0 .. v6}, Lcom/mrkeyboard/app/MrScreenIme;->lift(Landroid/widget/ScrollView;Landroid/view/View;IIIII)V
 
-    .line 149
+    .line 150
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -4998,15 +5017,15 @@
 
     const/4 v4, 0x0
 
-    .line 153
+    .line 154
     invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v3
 
-    .line 149
+    .line 150
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 154
+    .line 155
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5035,14 +5054,14 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 157
+    .line 158
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-virtual {v2}, Lcom/mrkeyboard/app/MrKit;->panel()Landroid/widget/LinearLayout;
 
     move-result-object v9
 
-    .line 158
+    .line 159
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const/16 v3, 0xe
@@ -5053,7 +5072,7 @@
 
     invoke-virtual {v1, v9, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 159
+    .line 160
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, "mr_ui_ic_globe"
@@ -5094,7 +5113,7 @@
 
     invoke-virtual {v9, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 160
+    .line 161
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-virtual {v2}, Lcom/mrkeyboard/app/MrKit;->column()Landroid/widget/LinearLayout;
@@ -5103,7 +5122,7 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mLangBox:Landroid/widget/LinearLayout;
 
-    .line 161
+    .line 162
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mLangBox:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5116,7 +5135,7 @@
 
     invoke-virtual {v9, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 163
+    .line 164
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, "mr_ui_ic_grid_blue"
@@ -5157,7 +5176,7 @@
 
     invoke-virtual {v9, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 164
+    .line 165
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-virtual {v2}, Lcom/mrkeyboard/app/MrKit;->column()Landroid/widget/LinearLayout;
@@ -5166,7 +5185,7 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAppBox:Landroid/widget/LinearLayout;
 
-    .line 165
+    .line 166
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAppBox:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5179,7 +5198,7 @@
 
     invoke-virtual {v9, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 166
+    .line 167
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, ""
@@ -5198,7 +5217,7 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAppNote:Landroid/widget/TextView;
 
-    .line 167
+    .line 168
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAppNote:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5223,7 +5242,7 @@
 
     invoke-virtual {v2, v3, v4, v5, v6}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 168
+    .line 169
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAppNote:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5236,7 +5255,7 @@
 
     invoke-virtual {v9, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 169
+    .line 170
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, "mr_ui_ic_keyboard"
@@ -5277,7 +5296,7 @@
 
     invoke-virtual {v9, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 171
+    .line 172
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5300,7 +5319,7 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mText:Landroid/widget/EditText;
 
-    .line 173
+    .line 174
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->mText:Landroid/widget/EditText;
@@ -5311,14 +5330,14 @@
 
     invoke-virtual {v2, v3, v4, v5}, Lcom/mrkeyboard/app/MrKit;->scrollable(Landroid/widget/EditText;II)V
 
-    .line 174
+    .line 175
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mText:Landroid/widget/EditText;
 
     const/16 v3, 0x30
 
     invoke-virtual {v2, v3}, Landroid/widget/EditText;->setGravity(I)V
 
-    .line 175
+    .line 176
     if-eqz p1, :cond_4
 
     const-string v2, "mr_import_s_text"
@@ -5339,7 +5358,7 @@
 
     invoke-virtual {v2, v3}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 176
+    .line 177
     :cond_4
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mText:Landroid/widget/EditText;
 
@@ -5349,7 +5368,7 @@
 
     invoke-virtual {v2, v3}, Landroid/widget/EditText;->addTextChangedListener(Landroid/text/TextWatcher;)V
 
-    .line 194
+    .line 195
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, ""
@@ -5368,14 +5387,14 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mCount:Landroid/widget/TextView;
 
-    .line 195
+    .line 196
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mCount:Landroid/widget/TextView;
 
     const v3, 0x800005
 
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setGravity(I)V
 
-    .line 196
+    .line 197
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mCount:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5406,7 +5425,7 @@
 
     invoke-virtual {v2, v3, v4, v5, v6}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 197
+    .line 198
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->mText:Landroid/widget/EditText;
@@ -5427,10 +5446,10 @@
 
     invoke-virtual {v9, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 198
+    .line 199
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->updateCount()V
 
-    .line 201
+    .line 202
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5459,7 +5478,7 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiButton:Landroid/widget/TextView;
 
-    .line 206
+    .line 207
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiButton:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5472,7 +5491,7 @@
 
     invoke-virtual {v9, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 207
+    .line 208
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5501,7 +5520,7 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAnalyze:Landroid/widget/TextView;
 
-    .line 212
+    .line 213
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAnalyze:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5514,7 +5533,7 @@
 
     invoke-virtual {v9, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 213
+    .line 214
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, ""
@@ -5533,7 +5552,7 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiNote:Landroid/widget/TextView;
 
-    .line 214
+    .line 215
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiNote:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5564,14 +5583,14 @@
 
     invoke-virtual {v2, v3, v4, v5, v6}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 215
+    .line 216
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiNote:Landroid/widget/TextView;
 
     const/16 v3, 0x8
 
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 216
+    .line 217
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiNote:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5584,7 +5603,7 @@
 
     invoke-virtual {v9, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 218
+    .line 219
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, ""
@@ -5603,7 +5622,7 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mStatus:Landroid/widget/TextView;
 
-    .line 219
+    .line 220
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mStatus:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5634,14 +5653,14 @@
 
     invoke-virtual {v2, v3, v4, v5, v6}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 220
+    .line 221
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mStatus:Landroid/widget/TextView;
 
     const/16 v3, 0x8
 
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 221
+    .line 222
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mStatus:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5654,7 +5673,7 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 222
+    .line 223
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5681,14 +5700,14 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiCancel:Landroid/widget/TextView;
 
-    .line 228
+    .line 229
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiCancel:Landroid/widget/TextView;
 
     const/16 v3, 0x8
 
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 229
+    .line 230
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mAiCancel:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5701,14 +5720,14 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 232
+    .line 233
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-virtual {v2}, Lcom/mrkeyboard/app/MrKit;->panel()Landroid/widget/LinearLayout;
 
     move-result-object v9
 
-    .line 233
+    .line 234
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, "mr_ui_ic_sparkle"
@@ -5749,7 +5768,7 @@
 
     invoke-virtual {v9, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 234
+    .line 235
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5786,7 +5805,7 @@
 
     invoke-virtual {v9, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 235
+    .line 236
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5817,15 +5836,15 @@
 
     const/16 v4, 0xc
 
-    .line 239
+    .line 240
     invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrKit;->wide(I)Landroid/widget/LinearLayout$LayoutParams;
 
     move-result-object v3
 
-    .line 235
+    .line 236
     invoke-virtual {v9, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 240
+    .line 241
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const/16 v3, 0x16
@@ -5836,7 +5855,7 @@
 
     invoke-virtual {v1, v9, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 242
+    .line 243
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
     const-string v3, ""
@@ -5855,7 +5874,7 @@
 
     iput-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mUndo:Landroid/widget/TextView;
 
-    .line 247
+    .line 248
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mUndo:Landroid/widget/TextView;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity;->k:Lcom/mrkeyboard/app/MrKit;
@@ -5868,25 +5887,25 @@
 
     invoke-virtual {v1, v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 249
+    .line 250
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/MrImportActivity;->setContentView(Landroid/view/View;)V
 
-    .line 250
+    .line 251
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mText:Landroid/widget/EditText;
 
     const/4 v1, 0x0
 
     invoke-static {p1, v0, v1}, Lcom/mrkeyboard/app/MrScreenIme;->restore(Landroid/os/Bundle;Landroid/widget/EditText;Landroid/widget/EditText;)V
 
-    .line 251
+    .line 252
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->refreshOffer()V
 
-    .line 252
+    .line 253
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->refreshApp()V
 
     goto/16 :goto_0
 
-    .line 134
+    .line 135
     :cond_5
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrImportActivity;->getIntent()Landroid/content/Intent;
 
@@ -5894,7 +5913,7 @@
 
     if-eqz v0, :cond_1
 
-    .line 135
+    .line 136
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrImportActivity;->getIntent()Landroid/content/Intent;
 
     move-result-object v0
@@ -5916,19 +5935,19 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 115
+    .line 116
     iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPlan:Lcom/mrkeyboard/app/MrImport$Plan;
 
-    .line 116
+    .line 117
     iput-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mPreview:Landroid/widget/LinearLayout;
 
-    .line 117
+    .line 118
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->dismissPreview()V
 
-    .line 118
+    .line 119
     invoke-super {p0}, Landroid/app/Activity;->onDestroy()V
 
-    .line 119
+    .line 120
     return-void
 .end method
 
@@ -5936,23 +5955,23 @@
     .locals 1
 
     .prologue
-    .line 257
+    .line 258
     invoke-super {p0}, Landroid/app/Activity;->onResume()V
 
-    .line 258
+    .line 259
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mStore:Lcom/mrkeyboard/app/MrWordStore;
 
     if-nez v0, :cond_0
 
-    .line 261
+    .line 262
     :goto_0
     return-void
 
-    .line 259
+    .line 260
     :cond_0
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->refreshLanguages()V
 
-    .line 260
+    .line 261
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrImportActivity;->refreshUndo()V
 
     goto :goto_0
@@ -5964,17 +5983,17 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 104
+    .line 105
     invoke-super {p0, p1}, Landroid/app/Activity;->onSaveInstanceState(Landroid/os/Bundle;)V
 
-    .line 105
+    .line 106
     const-string v0, "mr_import_s_locale"
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity;->mLocale:Ljava/lang/String;
 
     invoke-virtual {p1, v0, v2}, Landroid/os/Bundle;->putString(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 106
+    .line 107
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mApp:Ljava/lang/String;
 
     if-eqz v0, :cond_0
@@ -5985,7 +6004,7 @@
 
     invoke-virtual {p1, v0, v2}, Landroid/os/Bundle;->putString(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 107
+    .line 108
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mText:Landroid/widget/EditText;
 
@@ -5993,7 +6012,7 @@
 
     move-object v0, v1
 
-    .line 108
+    .line 109
     :goto_0
     if-eqz v0, :cond_1
 
@@ -6019,16 +6038,16 @@
 
     invoke-virtual {p1, v2, v0}, Landroid/os/Bundle;->putString(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 109
+    .line 110
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mText:Landroid/widget/EditText;
 
     invoke-static {p1, v0, v1}, Lcom/mrkeyboard/app/MrScreenIme;->save(Landroid/os/Bundle;Landroid/widget/EditText;Landroid/widget/EditText;)V
 
-    .line 110
+    .line 111
     return-void
 
-    .line 107
+    .line 108
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity;->mText:Landroid/widget/EditText;
 

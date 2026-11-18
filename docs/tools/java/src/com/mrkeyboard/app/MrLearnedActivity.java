@@ -72,7 +72,11 @@ public class MrLearnedActivity extends Activity {
     private LinearLayout mListBox;
     private TextView mSortChip;
     private TextView mEmpty;
-    private TextView mMore;
+    private ScrollView mScroll;
+    /** The table of the rows drawn (the last row is the last card), or null. */
+    private LinearLayout mTable;
+    /** There are more rows than the ones drawn. */
+    private boolean mHasMore;
     private EditText mSearch;
     private TextView mDeleteAll;
 
@@ -117,7 +121,7 @@ public class MrLearnedActivity extends Activity {
         loadLanguages();
         MrLang.remember(getSharedPreferences(MrLang.PREFS, MODE_PRIVATE), mLocale);
 
-        ScrollView scroll = new ScrollView(this);
+        final ScrollView scroll = new ScrollView(this);
         scroll.setBackground(k.round(k.bg, 0, 0, false));
         LinearLayout col = k.column();
         col.setPadding(k.dp(20), k.dp(16), k.dp(20), k.dp(24));
@@ -179,13 +183,13 @@ public class MrLearnedActivity extends Activity {
         mEmpty = k.label("", 14f, k.text2, false);
         mEmpty.setPadding(k.dp(4), k.dp(12), k.dp(4), k.dp(12));
         col.addView(mEmpty, k.wide(0));
-        mMore = k.button(k.t("mr_learned_more"), false, new View.OnClickListener() {
-            public void onClick(View v) {
-                mLimit += PAGE;
-                refreshList();
+        // the next rows come by themselves when the person scrolls near the last one
+        k.onScroll(scroll, new Runnable() {
+            public void run() {
+                listNearEnd();
             }
         });
-        col.addView(mMore, k.wide(10));
+        mScroll = scroll;
 
         col.addView(k.iconButton(k.t("mr_learned_add"), "mr_ui_ic_plus", true, new View.OnClickListener() {
             public void onClick(View v) {
@@ -335,8 +339,8 @@ public class MrLearnedActivity extends Activity {
     private void chooseApp() {
         final String locale = mLocale;
         final MrWordStore store = mStore;
-        MrAppPicker.show(k, mApp, k.t("mr_app_scope_pick"), k.t("mr_app_scope_empty"), new MrAppPicker.Source() {
-            public List<MrAppList.Entry> load() {
+        MrAppPicker.show(k, mApp, k.t("mr_app_scope_pick"), k.t("mr_app_scope_empty"), new MrAppPicker.Once() {
+            List<MrAppList.Entry> list() {
                 ArrayList<MrAppList.Entry> out = new ArrayList<MrAppList.Entry>();
                 for (String key : store.scopes()) {
                     if (!locale.equals(MrApp.localeOf(key))) continue;
@@ -388,6 +392,14 @@ public class MrLearnedActivity extends Activity {
         return mType == 0 ? MrWordStore.KIND_IMPORTED_WORD : MrWordStore.KIND_IMPORTED_PAIR;
     }
 
+    /** The page was scrolled (or drawn): the next rows when the person is near the last one. */
+    private void listNearEnd() {
+        if (!mHasMore || mTable == null || !k.nearEnd(mScroll, mTable)) return;
+        mHasMore = false;
+        mLimit += PAGE;
+        refreshList();
+    }
+
     private void refreshList() {
         mListBox.removeAllViews();
         mSortChip.setText(k.t(mSort == MrWordStore.SORT_USED ? "mr_learned_sort_used" : "mr_learned_sort_new"));
@@ -415,6 +427,7 @@ public class MrLearnedActivity extends Activity {
             });
         }
         if (shown > 0) mListBox.addView(table, k.wide(0));
+        mTable = shown > 0 ? table : null;
         String empty = "";
         if (shown == 0) {
             if (mFilter.length() > 0) empty = k.t("mr_learned_empty_search");
@@ -424,7 +437,15 @@ public class MrLearnedActivity extends Activity {
         }
         mEmpty.setText(empty);
         mEmpty.setVisibility(shown == 0 ? View.VISIBLE : View.GONE);
-        mMore.setVisibility(more ? View.VISIBLE : View.GONE);
+        mHasMore = more;
+        // a page that does not fill the screen asks for the next one (only once the screen has a size)
+        if (more && mScroll != null && mScroll.getHeight() > 0) {
+            mScroll.post(new Runnable() {
+                public void run() {
+                    listNearEnd();
+                }
+            });
+        }
         int total = 0;
         try {
             if (mTab == TAB_BLOCKED) total = mStore.count(MrWordStore.KIND_BLOCKED, mLocale);

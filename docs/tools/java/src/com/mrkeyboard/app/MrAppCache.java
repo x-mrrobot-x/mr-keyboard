@@ -1,141 +1,169 @@
 package com.mrkeyboard.app;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+import android.content.pm.PackageManager;
 
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-final class MrAppCache implements MrAppPicker.Live {
-    interface Disk {
-        Map<String, String[]> rows();
+/**
+ * The list of apps of the dialog that chooses an app (MrAppPicker), kept in a small local database so that it opens at once.
+ *
+ * What happens when the dialog opens (off the main thread, {@link #refresh}):
+ * <ol>
+ * <li>what was kept the last time is shown right away (nothing is asked of the system);</li>
+ * <li>the fast pass asks the system only for the packages (MrAppList.scan) and makes a signature of them: the SHA-1 of the sorted packages with the place
+ *     of their files (it changes when an app is installed, removed or updated);</li>
+ * <li>if the signature and the language of the phone are the ones that were kept, that is all: no name is asked;</li>
+ * <li>otherwise the slow pass asks for the names, only of the apps that are new or were updated (the others keep the name that was kept, unless the language
+ *     of the phone changed: the names are then asked again), keeps the result and tells the dialog, which adds and removes the rows that changed.</li>
+ * </ol>
+ * With nothing kept yet, the slow pass runs at once and its result is kept. A phone that cannot answer (the fast pass fails) leaves what was kept as it is.
+ * The database (mr_apps.db, {@link MrAppCacheDb}) has only the package, the name and the place of the files of each app: no icon, no other data.
+ */
+final class MrAppCache {
+    private MrAppCache() { }
 
-        String signature();
+    /** What was kept: the signature, the language of the names, the apps and the place of the files of each one (by package). */
+    static final class Snapshot {
+        final String signature;
+        final String locale;
+        final List<MrAppList.Entry> entries;
+        final Map<String, String> sources;
 
-        void save(Map<String, String[]> rows, String signature);
-
-        void close();
-    }
-
-    private final Context mCtx;
-    private final Disk mDisk;
-
-    MrAppCache(Context c, Disk disk) {
-        mCtx = c;
-        mDisk = disk;
-    }
-
-    static MrAppCache open(Context c) {
-        return new MrAppCache(c, new Sql(c));
-    }
-
-    public List<MrAppList.Entry> cached() {
-        final ArrayList<MrAppList.Entry> out = new ArrayList<MrAppList.Entry>();
-        final Map<String, String[]> rows = mDisk.rows();
-        for (Map.Entry<String, String[]> e : rows.entrySet()) out.add(new MrAppList.Entry(e.getKey(), e.getValue()[0]));
-        MrAppList.sort(out);
-        return out;
-    }
-
-    public List<MrAppList.Entry> refresh() {
-        final List<MrAppList.Found> found = MrAppList.scan(mCtx);
-        final String sig = MrAppList.signature(found);
-        if (sig != null && sig.equals(mDisk.signature())) return null;
-        final HashMap<String, String[]> now = new HashMap<String, String[]>();
-        final List<MrAppList.Entry> out = MrAppList.named(mCtx, found, mDisk.rows(), now);
-        mDisk.save(now, sig);
-        return out;
-    }
-
-    public void close() {
-        mDisk.close();
-    }
-
-    private static final class Sql implements Disk {
-        private static final String DB = "mr_apps.db";
-
-        private final Helper mHelper;
-
-        private static final class Helper extends SQLiteOpenHelper {
-            Helper(Context c) {
-                super(c, DB, null, 1);
-            }
-
-            @Override
-            public void onCreate(SQLiteDatabase db) {
-                db.execSQL("CREATE TABLE apps (pkg TEXT PRIMARY KEY, label TEXT NOT NULL, stamp TEXT NOT NULL)");
-                db.execSQL("CREATE TABLE meta (k TEXT PRIMARY KEY, v TEXT)");
-            }
-
-            @Override
-            public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            }
+        Snapshot(String signature, String locale, List<MrAppList.Entry> entries, Map<String, String> sources) {
+            this.signature = signature;
+            this.locale = locale;
+            this.entries = entries;
+            this.sources = sources;
         }
 
-        Sql(Context c) {
-            mHelper = new Helper(c.getApplicationContext());
+        static Snapshot empty() {
+            return new Snapshot(null, null, new ArrayList<MrAppList.Entry>(), new HashMap<String, String>());
         }
+    }
 
-        public Map<String, String[]> rows() {
-            final HashMap<String, String[]> out = new HashMap<String, String[]>();
-            Cursor c = null;
-            try {
-                final SQLiteDatabase db = mHelper.getWritableDatabase();
-                if (db == null) return out;
-                c = db.rawQuery("SELECT pkg, label, stamp FROM apps", null);
-                while (c != null && c.moveToNext()) out.put(c.getString(0), new String[] {c.getString(1), c.getString(2)});
-            } catch (RuntimeException e) {
-                out.clear();
-            } finally {
-                if (c != null) c.close();
+    /** Where it is kept (the database on the phone; a list in memory in the tests). */
+    interface Store {
+        /** What was kept, never null. */
+        Snapshot read();
+
+        /** Replaces what was kept. */
+        void write(Snapshot s);
+    }
+
+    /** The signature of the apps: SHA-1, in hexadecimal, of the packages in order with the place of their files. */
+    static String signature(List<MrAppList.Found> found) {
+        ArrayList<String> keys = new ArrayList<String>();
+        for (MrAppList.Found f : found) keys.add(f.pkg + "\n" + f.source);
+        Collections.sort(keys);
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            for (String key : keys) {
+                md.update(key.getBytes("UTF-8"));
+                md.update((byte) 0);
             }
-            return out;
-        }
-
-        public String signature() {
-            Cursor c = null;
-            try {
-                final SQLiteDatabase db = mHelper.getWritableDatabase();
-                if (db == null) return null;
-                c = db.rawQuery("SELECT v FROM meta WHERE k='sig'", null);
-                return c != null && c.moveToNext() ? c.getString(0) : null;
-            } catch (RuntimeException e) {
-                return null;
-            } finally {
-                if (c != null) c.close();
+            byte[] d = md.digest();
+            StringBuilder sb = new StringBuilder(d.length * 2);
+            for (byte b : d) {
+                sb.append(Character.forDigit((b >> 4) & 15, 16)).append(Character.forDigit(b & 15, 16));
             }
+            return sb.toString();
+        } catch (Exception e) {
+            // no SHA-1 on this phone (it always has): the list itself is the signature, only longer
+            return String.valueOf(keys);
         }
+    }
 
-        public void save(Map<String, String[]> rows, String signature) {
-            SQLiteDatabase db = null;
-            try {
-                db = mHelper.getWritableDatabase();
-                if (db == null) return;
-                db.beginTransaction();
+    /** True when both lists have the same apps with the same names in the same order. */
+    static boolean same(List<MrAppList.Entry> a, List<MrAppList.Entry> b) {
+        if (a == null || b == null || a.size() != b.size()) return false;
+        for (int i = 0; i < a.size(); i++) {
+            if (!a.get(i).pkg.equals(b.get(i).pkg) || !a.get(i).label.equals(b.get(i).label)) return false;
+        }
+        return true;
+    }
+
+    /**
+     * The steps above. Calls {@code sink} with the list that was kept (when there is one) and then with the new one (when it differs, or when nothing was
+     * published yet: the sink always hears at least once, unless the phone could not answer and nothing was kept). Off the main thread. Never throws.
+     */
+    static void refresh(Context c, Store store, MrAppPicker.Sink sink) {
+        Snapshot old;
+        try {
+            old = store.read();
+        } catch (RuntimeException e) {
+            old = null;
+        }
+        if (old == null) old = Snapshot.empty();
+        boolean published = false;
+        if (!old.entries.isEmpty()) {
+            sink.publish(old.entries);
+            published = true;
+        }
+        final List<MrAppList.Found> found = MrAppList.scan(c);
+        if (found == null) {
+            if (!published) sink.publish(new ArrayList<MrAppList.Entry>());
+            return;
+        }
+        final String locale = Locale.getDefault().toString();
+        final String sig = signature(found);
+        if (published && sig.equals(old.signature) && locale.equals(old.locale)) return;
+
+        final boolean sameLanguage = locale.equals(old.locale);
+        final HashMap<String, MrAppList.Entry> known = new HashMap<String, MrAppList.Entry>();
+        if (sameLanguage) {
+            for (MrAppList.Entry e : old.entries) known.put(e.pkg, e);
+        }
+        final ArrayList<MrAppList.Entry> fresh = new ArrayList<MrAppList.Entry>();
+        final HashMap<String, String> sources = new HashMap<String, String>();
+        PackageManager pm = null;
+        try {
+            pm = c.getPackageManager();
+        } catch (RuntimeException e) {
+            // the package is the name then (entry() copes with it)
+        }
+        for (MrAppList.Found f : found) {
+            MrAppList.Entry e = known.get(f.pkg);
+            if (e == null || !f.source.equals(old.sources.get(f.pkg))) e = MrAppList.entry(pm, f);
+            fresh.add(e);
+            sources.put(f.pkg, f.source);
+        }
+        MrAppList.sort(fresh);
+        try {
+            store.write(new Snapshot(sig, locale, fresh, sources));
+        } catch (RuntimeException e) {
+            // not kept: it is made again next time
+        }
+        if (!published || !same(old.entries, fresh)) sink.publish(fresh);
+    }
+
+    /** The source of the dialog that chooses among every app of the phone: what was kept first, then the changes. */
+    static MrAppPicker.Source source(final Context c) {
+        return new MrAppPicker.Source() {
+            public void load(MrAppPicker.Sink sink) {
+                // the helper keeps the context it is given: the one of the application, never the screen; and it is closed when the pass ends
+                MrAppCacheDb store = null;
                 try {
-                    db.execSQL("DELETE FROM apps");
-                    for (Map.Entry<String, String[]> e : rows.entrySet()) {
-                        db.execSQL("INSERT INTO apps (pkg, label, stamp) VALUES (?, ?, ?)", new Object[] {e.getKey(), e.getValue()[0], e.getValue()[1]});
-                    }
-                    if (signature == null) db.execSQL("DELETE FROM meta WHERE k='sig'");
-                    else db.execSQL("INSERT OR REPLACE INTO meta (k, v) VALUES ('sig', ?)", new Object[] {signature});
-                    db.setTransactionSuccessful();
-                } finally {
-                    db.endTransaction();
+                    store = new MrAppCacheDb(c.getApplicationContext() != null ? c.getApplicationContext() : c);
+                } catch (RuntimeException e) {
+                    // no database: the list is made every time, as before
                 }
-            } catch (RuntimeException e) {
+                if (store == null) {
+                    sink.publish(MrAppList.load(c));
+                    return;
+                }
+                try {
+                    refresh(c, store, sink);
+                } finally {
+                    store.close();
+                }
             }
-        }
-
-        public void close() {
-            try {
-                mHelper.close();
-            } catch (RuntimeException e) {
-            }
-        }
+        };
     }
 }

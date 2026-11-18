@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 376
+    .line 380
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$13;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     iput p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$13;->val$type:I
@@ -49,25 +49,25 @@
     .locals 2
 
     .prologue
-    .line 378
+    .line 382
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$13;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     iget v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$13;->val$type:I
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1202(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1302(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
 
-    .line 379
+    .line 383
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$13;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     const/16 v1, 0x32
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$102(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
 
-    .line 380
+    .line 384
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$13;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1000(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1100(Lcom/mrkeyboard/app/MrLearnedActivity;)V
 
-    .line 381
+    .line 385
     return-void
 .end method

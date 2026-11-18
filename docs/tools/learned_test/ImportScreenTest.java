@@ -295,6 +295,40 @@ public class ImportScreenTest {
         return false;
     }
 
+    // ---------------------------------------------------------------- the words of the preview come 100 at a time, by scrolling
+
+    static void previewPaging() {
+        Screen s = open(null);
+        StringBuilder text = new StringBuilder("[words]\n");
+        for (int i = 0; i < 250; i++) text.append("pal").append((char) ('a' + i / 26)).append((char) ('a' + i % 26)).append("\n");
+        type(s, text.toString());
+        MrImport.Plan plan = MrImport.parse(text.toString(), new MrImport.Known() {
+            public boolean knows(String w) { return false; }
+        });
+        set(s, "mPlan", plan);
+        call(s, "showPreview", new Class<?>[] {});
+        android.widget.ScrollView sv = (android.widget.ScrollView) dialog(s).stubView;
+        android.widget.LinearLayout words = (android.widget.LinearLayout) f(s, "mWordBox");
+        check("250 new words: the first " + MrImportActivity.PREVIEW_PAGE + " are drawn and there is no \"Show more\" button", plan.words.size() == 250
+                && words.getChildCount() == MrImportActivity.PREVIEW_PAGE && !String.valueOf(textsOf(s, "mPreview")).contains("mr_learned_more") && sv.stubScrollListener != null);
+        sv.stubSize(1000, 1000);
+        words.getChildAt(words.getChildCount() - 1).stubTop(3000);
+        sv.scrollTo(0, 1800);
+        sv.stubScrollListener.onScrollChange(sv, 0, 1800, 0, 0);
+        check("far from the last word: nothing more", words.getChildCount() == MrImportActivity.PREVIEW_PAGE);
+        sv.scrollTo(0, 1930);
+        sv.stubScrollListener.onScrollChange(sv, 0, 1930, 0, 0);
+        check("75 dp before the last word: the next " + MrImportActivity.PREVIEW_PAGE + " are added at the end", words.getChildCount() == 2 * MrImportActivity.PREVIEW_PAGE);
+        words.getChildAt(words.getChildCount() - 1).stubTop(6000);
+        sv.scrollTo(0, 5900);
+        sv.stubScrollListener.onScrollChange(sv, 0, 5900, 0, 0);
+        check("... and the last 50", words.getChildCount() == 250);
+        sv.stubScrollListener.onScrollChange(sv, 0, 5900, 0, 0);
+        check("... then nothing more", words.getChildCount() == 250);
+        call(s, "tickAll", new Class<?>[] {boolean.class}, false);
+        check("ticking all starts again from the first page, and the scroll still works", words.getChildCount() == MrImportActivity.PREVIEW_PAGE);
+    }
+
     // ---------------------------------------------------------------- a preview does not outlive its text
 
     static void preview() {
@@ -491,6 +525,7 @@ public class ImportScreenTest {
         restored();
         afterTheAi();
         preview();
+        previewPaging();
         gone();
         System.out.println();
         System.out.println(fails == 0 ? "ALL OK (" + oks + " checks)" : fails + " FAIL of " + (oks + fails));

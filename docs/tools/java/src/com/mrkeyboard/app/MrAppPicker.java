@@ -21,11 +21,13 @@ import java.util.List;
 /**
  * The dialog where the person chooses "every app" or one app ("Add to" on the screen "Add words and texts"; the same dialog, with the apps that have
  * words, filters "What the keyboard learned"). The first row is every app; under it, the apps with their icon and name and a field to search them.
- * The rows come 30 at a time: the next 30 are added as soon as the scroll reaches the last row.
  *
- * The list is made off the main thread when the dialog opens ({@link Source}, or {@link Live}: the saved list at once, then the phone is checked and the
- * rows change only if something is different) and goes with the dialog. The icons are loaded one at a time by a thread, for the rows on screen only, and a
- * row that is gone by then is not touched. Closing the dialog (a choice, Cancel, back) stops that thread at the next icon.
+ * The apps are drawn {@link #PAGE} at a time: when the person scrolls to {@link MrKit#NEAR_END_DP} dp before the last card, the next ones are added at the
+ * end (nothing is redrawn, so the page does not jump). The list is made off the main thread when the dialog opens ({@link Source}); a source may answer
+ * more than once (MrAppCache: what was kept at once, then the changes) and every answer replaces the list: the rows that appeared or went away are
+ * added or removed, and what the person typed in the search field and the page they reached stay. Nothing of the list is kept after the dialog is closed
+ * (the cache of the apps is in the database, not here). The icons are loaded one at a time by a thread, for the new rows only; a row that is gone by then is
+ * not touched, and closing the dialog stops that thread at the next icon.
  */
 final class MrAppPicker {
     /** The choice: the package of the app, or null for every app. */
@@ -33,22 +35,27 @@ final class MrAppPicker {
         void onPick(String pkg);
     }
 
-    /** Where the apps come from (run off the main thread): the apps of the phone, or the apps that already have words. */
-    interface Source {
-        List<MrAppList.Entry> load();
+    /** Receives a list of apps (any thread); every call replaces the list that was shown. */
+    interface Sink {
+        void publish(List<MrAppList.Entry> list);
     }
 
-    interface Live {
-        List<MrAppList.Entry> cached();
+    /** Where the apps come from (run off the main thread): the apps of the phone, or the apps that already have words. It answers through the sink, once or more. */
+    interface Source {
+        void load(Sink sink);
+    }
 
-        List<MrAppList.Entry> refresh();
+    /** A source that answers once, with {@link #list}. */
+    abstract static class Once implements Source {
+        abstract List<MrAppList.Entry> list();
 
-        void close();
+        public void load(Sink sink) {
+            sink.publish(list());
+        }
     }
 
     /** How many apps are drawn at a time. */
     static final int PAGE = 30;
-    static final int END_DP = 72;
     /** With this many apps or fewer there is no search field: the whole list is on the screen. */
     static final int SEARCH_FROM = 8;
 
@@ -62,14 +69,11 @@ final class MrAppPicker {
     private TextView mStatus;
     private ScrollView mScroll;
     private EditText mSearch;
-    private String mQuery = "";
     private List<MrAppList.Entry> mAll;
     private List<MrAppList.Entry> mMatches;
-    private final Runnable mCheck = new Runnable() {
-        public void run() {
-            nearEnd();
-        }
-    };
+    private int mLimit = PAGE;
+    /** How many rows of mMatches are drawn. */
+    private int mCount;
     private volatile boolean mClosed;
     /** Counts the drawings of the list: the thread of the icons of an older drawing stops at its next icon. */
     private volatile int mDrawn;
@@ -87,62 +91,33 @@ final class MrAppPicker {
      * (the tests read its dialog); the dialog is already on the screen with "Loading apps…".
      */
     static MrAppPicker show(MrKit kit, String current, String title, String emptyText, final Source source, Pick pick) {
-        return show(kit, current, title, emptyText, new Live() {
-            public List<MrAppList.Entry> cached() {
-                return null;
-            }
-
-            public List<MrAppList.Entry> refresh() {
-                List<MrAppList.Entry> list = source.load();
-                return list == null ? new ArrayList<MrAppList.Entry>() : list;
-            }
-
-            public void close() {
-            }
-        }, pick);
-    }
-
-    static MrAppPicker show(MrKit kit, String current, String title, String emptyText, final Live live, Pick pick) {
         final MrAppPicker p = new MrAppPicker(kit, current, emptyText, pick);
         p.open(title);
         Thread th = new Thread(new Runnable() {
             public void run() {
+                final boolean[] answered = new boolean[1];
+                final Sink sink = new Sink() {
+                    public void publish(List<MrAppList.Entry> list) {
+                        answered[0] = true;
+                        final List<MrAppList.Entry> done = list == null ? new ArrayList<MrAppList.Entry>() : list;
+                        p.act.runOnUiThread(new Runnable() {
+                            public void run() {
+                                p.loaded(done);
+                            }
+                        });
+                    }
+                };
                 try {
-                    List<MrAppList.Entry> first = null;
-                    try {
-                        first = live.cached();
-                    } catch (RuntimeException e) {
-                        first = null;
-                    }
-                    final boolean shown = first != null && !first.isEmpty();
-                    if (shown) p.post(first);
-                    List<MrAppList.Entry> fresh;
-                    try {
-                        fresh = live.refresh();
-                    } catch (RuntimeException e) {
-                        fresh = shown ? null : new ArrayList<MrAppList.Entry>();
-                    }
-                    if (fresh != null) p.post(fresh);
-                    else if (!shown) p.post(new ArrayList<MrAppList.Entry>());
-                } finally {
-                    try {
-                        live.close();
-                    } catch (RuntimeException e) {
-                    }
+                    source.load(sink);
+                } catch (RuntimeException e) {
+                    // what was answered stays
                 }
+                if (!answered[0]) sink.publish(new ArrayList<MrAppList.Entry>());
             }
         }, "MrAppList");
         th.setPriority(Thread.MIN_PRIORITY);
         th.start();
         return p;
-    }
-
-    private void post(final List<MrAppList.Entry> list) {
-        act.runOnUiThread(new Runnable() {
-            public void run() {
-                arrived(list);
-            }
-        });
     }
 
     AlertDialog dialog() {
@@ -152,7 +127,8 @@ final class MrAppPicker {
     private void open(String title) {
         final LinearLayout box = k.column();
         box.setPadding(k.dp(20), k.dp(8), k.dp(20), k.dp(4));
-        ScrollView scroll = new ScrollView(act);
+        final ScrollView scroll = new ScrollView(act);
+        mScroll = scroll;
         scroll.addView(box, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         // every app: always there, first, with the mark when it is the choice
@@ -174,10 +150,10 @@ final class MrAppPicker {
             }
 
             public void afterTextChanged(Editable s) {
-                mQuery = s == null ? "" : s.toString();
                 if (mAll == null) return;
-                mMatches = MrAppList.filter(mAll, mQuery);
-                draw(PAGE);
+                mMatches = MrAppList.filter(mAll, s == null ? "" : s.toString());
+                mLimit = PAGE;
+                draw();
             }
         });
         box.addView(mSearch, k.wide(8));
@@ -186,10 +162,10 @@ final class MrAppPicker {
         box.addView(mStatus, k.wide(0));
         mListBox = k.column();
         box.addView(mListBox, k.wide(8));
-        mScroll = scroll;
-        scroll.setOnScrollChangeListener(new View.OnScrollChangeListener() {
-            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                if (scrollY > oldScrollY) nearEnd();
+        // the next page comes by itself when the person scrolls near the last card
+        k.onScroll(scroll, new Runnable() {
+            public void run() {
+                checkMore();
             }
         });
 
@@ -211,33 +187,14 @@ final class MrAppPicker {
         d.show();
     }
 
-    private void arrived(List<MrAppList.Entry> all) {
+    /** A list arrived (main thread): the first one, or a newer one that replaces it (the search and the page reached stay). */
+    private void loaded(List<MrAppList.Entry> all) {
         if (mClosed || act.isFinishing()) return;
-        final boolean first = mAll == null;
-        if (!first && same(mAll, all)) return;
+        if (mAll != null && MrAppCache.same(mAll, all)) return;
         mAll = all;
-        mMatches = MrAppList.filter(all, mQuery);
+        mMatches = MrAppList.filter(all, mSearch.getText() == null ? "" : mSearch.getText().toString());
         mSearch.setVisibility(all.size() > SEARCH_FROM ? View.VISIBLE : View.GONE);
-        if (first) {
-            draw(PAGE);
-            return;
-        }
-        final int keep = Math.max(PAGE, mListBox.getChildCount());
-        final int y = mScroll.getScrollY();
-        draw(keep);
-        mScroll.post(new Runnable() {
-            public void run() {
-                if (!mClosed) mScroll.scrollTo(0, y);
-            }
-        });
-    }
-
-    private static boolean same(List<MrAppList.Entry> a, List<MrAppList.Entry> b) {
-        if (a.size() != b.size()) return false;
-        for (int i = 0; i < a.size(); i++) {
-            if (!a.get(i).pkg.equals(b.get(i).pkg) || !a.get(i).label.equals(b.get(i).label)) return false;
-        }
-        return true;
+        draw();
     }
 
     private void choose(String pkg) {
@@ -246,18 +203,21 @@ final class MrAppPicker {
         mPick.onPick(pkg);
     }
 
-    private void draw(int count) {
+    /** Draws the rows of the matches from the first one up to the page reached ({@link #mLimit}), and the note when there are none. */
+    private void draw() {
         final List<MrAppList.Entry> list = mMatches;
         mDrawn++;
         mListBox.removeAllViews();
+        mCount = 0;
         if (list == null) return;
-        addRows(list, 0, Math.min(list.size(), count));
+        final int from = 0;
+        append(list, from, Math.min(list.size(), mLimit));
         mStatus.setText(list.isEmpty() ? (mAll != null && mAll.isEmpty() ? mEmpty : k.t("mr_app_none")) : "");
         mStatus.setVisibility(list.isEmpty() ? View.VISIBLE : View.GONE);
-        mScroll.post(mCheck);
     }
 
-    private void addRows(List<MrAppList.Entry> list, int from, int to) {
+    /** Adds the rows from..to of the list at the end and loads their icons. */
+    private void append(List<MrAppList.Entry> list, int from, int to) {
         final ArrayList<MrAppList.Entry> entries = new ArrayList<MrAppList.Entry>();
         final ArrayList<ImageView> icons = new ArrayList<ImageView>();
         for (int i = from; i < to; i++) {
@@ -265,19 +225,24 @@ final class MrAppPicker {
             mListBox.addView(row(e, icons), k.wide(i == 0 ? 0 : 6));
             entries.add(e);
         }
+        mCount = to;
         if (!entries.isEmpty()) loadIcons(entries, icons);
+        // a page that does not fill the dialog asks for the next one (only once the dialog has a size)
+        if (mCount < list.size() && mScroll.getHeight() > 0) {
+            mScroll.post(new Runnable() {
+                public void run() {
+                    checkMore();
+                }
+            });
+        }
     }
 
-    private void nearEnd() {
+    /** More apps to show and the person is near the last card: the next page. */
+    private void checkMore() {
         final List<MrAppList.Entry> list = mMatches;
-        if (mClosed || list == null || mScroll == null || mScroll.getHeight() <= 0) return;
-        final int shown = mListBox.getChildCount();
-        if (shown >= list.size()) return;
-        final View content = mScroll.getChildAt(0);
-        if (content == null) return;
-        if (content.getBottom() - (mScroll.getScrollY() + mScroll.getHeight()) > k.dp(END_DP)) return;
-        addRows(list, shown, Math.min(list.size(), shown + PAGE));
-        mScroll.post(mCheck);
+        if (mClosed || list == null || mCount >= list.size() || !k.nearEnd(mScroll, mListBox)) return;
+        mLimit += PAGE;
+        append(list, mCount, Math.min(list.size(), mLimit));
     }
 
     private View row(final MrAppList.Entry e, ArrayList<ImageView> icons) {

@@ -14,6 +14,7 @@ import android.view.ViewParent;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -253,6 +254,34 @@ final class MrKit {
         e.setPadding(dp(14), dp(12), dp(14), dp(12));
         e.setBackground(round(raised, line, 12, false));
         return e;
+    }
+
+    /** How far before its last card a list asks for the next page, in dp. */
+    static final int NEAR_END_DP = 75;
+
+    /** Calls {@code r} whenever the page scrolls (to load the next page of a list: see {@link #nearEnd}). */
+    void onScroll(ScrollView scroll, final Runnable r) {
+        scroll.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                r.run();
+            }
+        });
+    }
+
+    /**
+     * True when the bottom of what is on the screen is no more than {@link #NEAR_END_DP} dp before the last card of {@code items} (or past it): time to load
+     * the next page. {@code items} is the view whose children are the cards. False for an empty list.
+     */
+    boolean nearEnd(ScrollView scroll, ViewGroup items) {
+        if (scroll == null || items == null || items.getChildCount() == 0) return false;
+        View last = items.getChildAt(items.getChildCount() - 1);
+        int top = last.getTop();
+        ViewParent p = last.getParent();
+        while (p instanceof View && p != scroll) {
+            top += ((View) p).getTop();
+            p = p.getParent();
+        }
+        return top - (scroll.getScrollY() + scroll.getHeight()) <= dp(NEAR_END_DP);
     }
 
     /**

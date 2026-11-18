@@ -556,6 +556,20 @@ for src_name in ('MrApp.java', 'MrAppList.java', 'MrAppPicker.java'):
     src_txt = read_file('docs/tools/java/src/com/mrkeyboard/app/' + src_name)
     if 'getInstalledApplications' in src_txt or 'getInstalledPackages' in src_txt:
         problems.append('%s: the list of apps comes from the launcher query (queryIntentActivities), not from the list of every package' % src_name)
+# --- the list of apps is kept in a local database (MrAppCache: fast pass of packages, SHA-1 signature, names only when it changes) and used by "Add words and texts";
+# the lists that were paged with a "Show more" button load the next page by scrolling (MrKit.nearEnd, 75 dp before the last card)
+_app_dir = 'docs/tools/java/src/com/mrkeyboard/app/'
+_cache = read_file(_app_dir + 'MrAppCache.java')
+if 'SHA-1' not in _cache or 'MrAppList.scan(' not in _cache or 'sig.equals(old.signature)' not in _cache:
+    problems.append('MrAppCache: the signature (SHA-1 of the packages) of the fast pass must decide if the names are asked again')
+if 'MrAppCache.source(' not in read_file(_app_dir + 'MrImportActivity.java'):
+    problems.append('MrImportActivity: the dialog of apps must use the cached list (MrAppCache.source)')
+if 'NEAR_END_DP = 75' not in read_file(_app_dir + 'MrKit.java'):
+    problems.append('MrKit.NEAR_END_DP must be 75 (dp before the last card at which the next page is loaded)')
+for _n in ('MrAppPicker.java', 'MrLearnedActivity.java', 'MrImportActivity.java'):
+    _t = read_file(_app_dir + _n)
+    if 'mr_learned_more' in _t or 'nearEnd(' not in _t:
+        problems.append('%s: the next page of the list comes by scrolling (k.nearEnd), not by a Show more button' % _n)
 # --- AI Editor dialog: the style chips, the result field and the "Emojificar" button and box use the lighter navy (mr_ui_raised) with mr_ui_stroke_strong
 ai_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrAi.java')
 if ai_src.count('"mr_ui_raised"') != 4 or ai_src.count('"mr_ui_stroke_strong"') != 4:

@@ -66,6 +66,8 @@ public class MrImportActivity extends Activity {
     private boolean mBusy;
     private MrImport.Plan mPlan;
     private int mShown;
+    /** The page of the open preview (to ask for the next words when it is scrolled), or null. */
+    private ScrollView mPreviewScroll;
 
     private LinearLayout mLangBox;
     private LinearLayout mAppBox;
@@ -81,7 +83,6 @@ public class MrImportActivity extends Activity {
     private AlertDialog mPreviewDialog;
     private LinearLayout mWordBox;
     private TextView mApply;
-    private TextView mMoreWords;
     private TextView mUndo;
     private TextView mStatus;
     private TextView mAiButton;
@@ -307,10 +308,10 @@ public class MrImportActivity extends Activity {
         mAppNote.setText(mApp == null ? k.t("mr_app_note_all") : k.t("mr_app_note", name));
     }
 
-    /** The dialog with every app and the apps of the phone (the saved list at once, then checked off the main thread; no system apps). */
+    /** The dialog with every app and the apps of the phone (no system apps): what was kept of the last time appears at once (MrAppCache), then the changes. */
     private void chooseApp() {
         if (mBusy) return;
-        MrAppPicker.show(k, mApp, k.t("mr_app_card_title"), k.t("mr_app_none_installed"), MrAppCache.open(this), new MrAppPicker.Pick() {
+        MrAppPicker.show(k, mApp, k.t("mr_app_card_title"), k.t("mr_app_none_installed"), MrAppCache.source(this), new MrAppPicker.Pick() {
             public void onPick(String pkg) {
                 if (mBusy || isFinishing()) return;
                 if (pkg == null ? mApp == null : pkg.equals(mApp)) return;
@@ -448,7 +449,6 @@ public class MrImportActivity extends Activity {
         mShown = 0;
         mPreview = null;
         mWordBox = null;
-        mMoreWords = null;
         mApply = null;
         dismissPreview();
     }
@@ -472,12 +472,12 @@ public class MrImportActivity extends Activity {
         final MrImport.Plan plan = mPlan;
         final LinearLayout box = k.column();
         box.setPadding(k.dp(20), k.dp(8), k.dp(20), k.dp(4));
-        ScrollView scroll = new ScrollView(this);
+        final ScrollView scroll = new ScrollView(this);
+        mPreviewScroll = scroll;
         scroll.addView(box, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         mPreview = box;
         mShown = 0;
         mWordBox = null;
-        mMoreWords = null;
         mApply = null;
         LinearLayout tiles = k.row();
         tiles.addView(k.stat(plan.words.size(), k.t("mr_import_stat_words")), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
@@ -532,13 +532,13 @@ public class MrImportActivity extends Activity {
             box.addView(both, k.wide(8));
             mWordBox = k.column();
             box.addView(mWordBox, k.wide(8));
-            mMoreWords = k.button(k.t("mr_learned_more"), false, new View.OnClickListener() {
-                public void onClick(View v) {
-                    drawWords();
+            // the next words come by themselves when the person scrolls near the last one
+            k.onScroll(scroll, new Runnable() {
+                public void run() {
+                    wordsNearEnd(scroll);
                 }
             });
-            box.addView(mMoreWords, k.wide(8));
-            drawWords();
+            drawWords(scroll);
         }
         AlertDialog.Builder b = new AlertDialog.Builder(this)
                 .setTitle(k.t(plan.standard ? "mr_import_found_std" : "mr_import_found"))
@@ -562,8 +562,8 @@ public class MrImportActivity extends Activity {
                     mPreview = null;
                     mPreviewDialog = null;
                     mWordBox = null;
-                    mMoreWords = null;
-                    mApply = null;
+                    mPreviewScroll = null;
+                                mApply = null;
                 }
             }
         });
@@ -575,8 +575,15 @@ public class MrImportActivity extends Activity {
         }
     }
 
-    /** Draws the next page of words of the preview. */
-    private void drawWords() {
+    /** The preview was scrolled: draws the next page of words when the person is near the last one. */
+    private void wordsNearEnd(ScrollView scroll) {
+        MrImport.Plan plan = mPlan;
+        if (plan == null || mWordBox == null || mShown >= plan.words.size() || !k.nearEnd(scroll, mWordBox)) return;
+        drawWords(scroll);
+    }
+
+    /** Draws the next page of words of the preview. {@code scroll}: the page of the preview (null: no check of the next page). */
+    private void drawWords(final ScrollView scroll) {
         MrImport.Plan plan = mPlan;
         if (plan == null || mWordBox == null) return;
         int end = Math.min(plan.words.size(), mShown + PREVIEW_PAGE);
@@ -593,7 +600,14 @@ public class MrImportActivity extends Activity {
             mWordBox.addView(item, k.wide(i == 0 ? 0 : 6));
         }
         mShown = end;
-        mMoreWords.setVisibility(mShown < plan.words.size() ? View.VISIBLE : View.GONE);
+        // a page that does not fill the dialog asks for the next one (only once the dialog has a size)
+        if (scroll != null && mShown < plan.words.size() && scroll.getHeight() > 0) {
+            scroll.post(new Runnable() {
+                public void run() {
+                    wordsNearEnd(scroll);
+                }
+            });
+        }
     }
 
     private static String mark(MrImport.NewWord w) {
@@ -606,7 +620,7 @@ public class MrImportActivity extends Activity {
         for (MrImport.NewWord w : plan.words) w.checked = on;
         mWordBox.removeAllViews();
         mShown = 0;
-        drawWords();
+        drawWords(mPreviewScroll);
         updateApply();
     }
 
@@ -692,6 +706,7 @@ public class MrImportActivity extends Activity {
                         mPlan = null;
                         clearPreview();
                         mText.setText("");
+                        // the words went to the place that was chosen: the choice goes back to every app, as the text box went back to empty
                         mApp = null;
                         refreshApp();
                         refreshUndo();

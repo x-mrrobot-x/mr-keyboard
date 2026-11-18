@@ -1,9 +1,6 @@
 .class Lcom/mrkeyboard/app/MrLearnedActivity$10;
-.super Ljava/lang/Object;
+.super Lcom/mrkeyboard/app/MrAppPicker$Once;
 .source "MrLearnedActivity.java"
-
-# interfaces
-.implements Lcom/mrkeyboard/app/MrAppPicker$Source;
 
 
 # annotations
@@ -28,28 +25,23 @@
 # direct methods
 .method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore;Ljava/lang/String;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 338
+    .line 342
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10;->val$store:Lcom/mrkeyboard/app/MrWordStore;
 
     iput-object p3, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10;->val$locale:Ljava/lang/String;
 
-    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+    invoke-direct {p0}, Lcom/mrkeyboard/app/MrAppPicker$Once;-><init>()V
 
     return-void
 .end method
 
 
 # virtual methods
-.method public load()Ljava/util/List;
+.method list()Ljava/util/List;
     .locals 7
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -62,12 +54,12 @@
     .end annotation
 
     .prologue
-    .line 340
+    .line 344
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 341
+    .line 345
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10;->val$store:Lcom/mrkeyboard/app/MrWordStore;
 
     invoke-interface {v0}, Lcom/mrkeyboard/app/MrWordStore;->scopes()Ljava/util/List;
@@ -92,7 +84,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 342
+    .line 346
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10;->val$locale:Ljava/lang/String;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrApp;->localeOf(Ljava/lang/String;)Ljava/lang/String;
@@ -105,12 +97,12 @@
 
     if-eqz v3, :cond_0
 
-    .line 343
+    .line 347
     invoke-static {v0}, Lcom/mrkeyboard/app/MrApp;->packageOf(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 344
+    .line 348
     iget-object v4, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10;->val$store:Lcom/mrkeyboard/app/MrWordStore;
 
     const/4 v5, 0x2
@@ -129,7 +121,7 @@
 
     add-int/2addr v0, v4
 
-    .line 345
+    .line 349
     new-instance v4, Lcom/mrkeyboard/app/MrAppList$Entry;
 
     iget-object v5, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
@@ -148,7 +140,7 @@
 
     goto :goto_0
 
-    .line 347
+    .line 351
     :cond_1
     new-instance v0, Lcom/mrkeyboard/app/MrLearnedActivity$10$1;
 
@@ -156,6 +148,6 @@
 
     invoke-static {v1, v0}, Ljava/util/Collections;->sort(Ljava/util/List;Ljava/util/Comparator;)V
 
-    .line 353
+    .line 357
     return-object v1
 .end method

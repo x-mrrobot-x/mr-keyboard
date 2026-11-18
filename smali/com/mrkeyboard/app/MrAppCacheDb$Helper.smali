@@ -1,11 +1,11 @@
-.class final Lcom/mrkeyboard/app/MrAppCache$Sql$Helper;
+.class final Lcom/mrkeyboard/app/MrAppCacheDb$Helper;
 .super Landroid/database/sqlite/SQLiteOpenHelper;
-.source "MrAppCache.java"
+.source "MrAppCacheDb.java"
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingClass;
-    value = Lcom/mrkeyboard/app/MrAppCache$Sql;
+    value = Lcom/mrkeyboard/app/MrAppCacheDb;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -19,7 +19,7 @@
     .locals 3
 
     .prologue
-    .line 65
+    .line 21
     const-string v0, "mr_apps.db"
 
     const/4 v1, 0x0
@@ -28,7 +28,7 @@
 
     invoke-direct {p0, p1, v0, v1, v2}, Landroid/database/sqlite/SQLiteOpenHelper;-><init>(Landroid/content/Context;Ljava/lang/String;Landroid/database/sqlite/SQLiteDatabase$CursorFactory;I)V
 
-    .line 66
+    .line 22
     return-void
 .end method
 
@@ -38,17 +38,17 @@
     .locals 1
 
     .prologue
-    .line 70
-    const-string v0, "CREATE TABLE apps (pkg TEXT PRIMARY KEY, label TEXT NOT NULL, stamp TEXT NOT NULL)"
+    .line 26
+    const-string v0, "CREATE TABLE apps (pkg TEXT PRIMARY KEY, label TEXT, src TEXT)"
 
     invoke-virtual {p1, v0}, Landroid/database/sqlite/SQLiteDatabase;->execSQL(Ljava/lang/String;)V
 
-    .line 71
+    .line 27
     const-string v0, "CREATE TABLE meta (k TEXT PRIMARY KEY, v TEXT)"
 
     invoke-virtual {p1, v0}, Landroid/database/sqlite/SQLiteDatabase;->execSQL(Ljava/lang/String;)V
 
-    .line 72
+    .line 28
     return-void
 .end method
 
@@ -56,6 +56,6 @@
     .locals 0
 
     .prologue
-    .line 76
+    .line 33
     return-void
 .end method

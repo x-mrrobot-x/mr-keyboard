@@ -9,13 +9,8 @@ public class View {
     public static final int GONE = 8;
     public interface OnClickListener { void onClick(View v); }
     public interface OnLongClickListener { boolean onLongClick(View v); }
-    public interface OnTouchListener { boolean onTouch(View v, MotionEvent event); }
     public interface OnScrollChangeListener { void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY); }
-    public OnScrollChangeListener stubScroll;
-    public void setOnScrollChangeListener(OnScrollChangeListener l) { stubScroll = l; }
-    private int stubBottom;
-    public int getBottom() { return stubBottom; }
-    public void stubBottom(int bottom) { stubBottom = bottom; }
+    public interface OnTouchListener { boolean onTouch(View v, MotionEvent event); }
     public interface OnFocusChangeListener { void onFocusChange(View v, boolean hasFocus); }
     public static final int FOCUS_DOWN = 130;
     public interface OnLayoutChangeListener {
@@ -109,6 +104,8 @@ public class View {
     public void setOnLongClickListener(OnLongClickListener l) { }
     /** Not in Android: the touch listener as last set, whether the view can scroll (canScrollVertically answers it) and the scroll bar switch. */
     public OnTouchListener stubTouch;
+    public OnScrollChangeListener stubScrollListener;
+    public void setOnScrollChangeListener(OnScrollChangeListener l) { stubScrollListener = l; }
     public boolean stubCanScroll;
     public boolean stubScrollBar;
     public void setOnTouchListener(OnTouchListener l) { stubTouch = l; }

@@ -3,7 +3,7 @@
 .source "MrLearnedActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 182
+    .line 187
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$4;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,22 +36,15 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .locals 2
+.method public run()V
+    .locals 1
 
     .prologue
-    .line 184
+    .line 189
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$4;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    const/16 v1, 0x32
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$400(Lcom/mrkeyboard/app/MrLearnedActivity;)V
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$112(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
-
-    .line 185
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$4;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$200(Lcom/mrkeyboard/app/MrLearnedActivity;)V
-
-    .line 186
+    .line 190
     return-void
 .end method

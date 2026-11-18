@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 404
+    .line 405
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$11$1;->this$1:Lcom/mrkeyboard/app/MrImportActivity$11;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$11$1;->val$dict:Lcom/mrkeyboard/app/BinaryDictionary;
@@ -49,7 +49,7 @@
     .locals 1
 
     .prologue
-    .line 406
+    .line 407
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11$1;->val$dict:Lcom/mrkeyboard/app/BinaryDictionary;
 
     if-eqz v0, :cond_0
