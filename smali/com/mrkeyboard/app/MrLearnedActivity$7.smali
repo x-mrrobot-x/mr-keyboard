@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 212
+    .line 211
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$7;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,11 +40,11 @@
     .locals 1
 
     .prologue
-    .line 214
+    .line 213
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$7;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$900(Lcom/mrkeyboard/app/MrLearnedActivity;)V
 
-    .line 215
+    .line 214
     return-void
 .end method

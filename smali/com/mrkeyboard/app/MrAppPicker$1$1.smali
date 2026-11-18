@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 99
+    .line 98
     iput-object p1, p0, Lcom/mrkeyboard/app/MrAppPicker$1$1;->this$0:Lcom/mrkeyboard/app/MrAppPicker$1;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrAppPicker$1$1;->val$answered:[Z
@@ -58,7 +58,7 @@
     .end annotation
 
     .prologue
-    .line 101
+    .line 100
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$1$1;->val$answered:[Z
 
     const/4 v1, 0x0
@@ -67,14 +67,14 @@
 
     aput-boolean v2, v0, v1
 
-    .line 102
+    .line 101
     if-nez p1, :cond_0
 
     new-instance p1, Ljava/util/ArrayList;
 
     invoke-direct {p1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 103
+    .line 102
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$1$1;->this$0:Lcom/mrkeyboard/app/MrAppPicker$1;
 
@@ -90,6 +90,6 @@
 
     invoke-virtual {v0, v1}, Landroid/app/Activity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 108
+    .line 107
     return-void
 .end method

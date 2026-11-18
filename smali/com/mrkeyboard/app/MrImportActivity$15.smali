@@ -20,11 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-.field final synthetic val$scroll:Landroid/widget/ScrollView;
+.field final synthetic val$scroll:Lcom/mrkeyboard/app/MrPage;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/ScrollView;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrPage;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -36,7 +36,7 @@
     .line 536
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$15;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$15;->val$scroll:Landroid/widget/ScrollView;
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$15;->val$scroll:Lcom/mrkeyboard/app/MrPage;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -52,9 +52,9 @@
     .line 538
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$15;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$15;->val$scroll:Landroid/widget/ScrollView;
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$15;->val$scroll:Lcom/mrkeyboard/app/MrPage;
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrImportActivity;->access$2400(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/ScrollView;)V
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrImportActivity;->access$2400(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrPage;)V
 
     .line 539
     return-void

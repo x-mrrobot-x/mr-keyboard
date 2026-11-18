@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 166
+    .line 165
     iput-object p1, p0, Lcom/mrkeyboard/app/MrAppPicker$4;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,11 +40,11 @@
     .locals 1
 
     .prologue
-    .line 168
+    .line 167
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$4;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAppPicker;->access$700(Lcom/mrkeyboard/app/MrAppPicker;)V
 
-    .line 169
+    .line 168
     return-void
 .end method

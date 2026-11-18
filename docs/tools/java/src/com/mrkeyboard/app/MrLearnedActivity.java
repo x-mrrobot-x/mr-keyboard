@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.io.OutputStream;
@@ -72,7 +71,7 @@ public class MrLearnedActivity extends Activity {
     private LinearLayout mListBox;
     private TextView mSortChip;
     private TextView mEmpty;
-    private ScrollView mScroll;
+    private MrPage mScroll;
     /** The table of the rows drawn (the last row is the last card), or null. */
     private LinearLayout mTable;
     /** There are more rows than the ones drawn. */
@@ -121,7 +120,7 @@ public class MrLearnedActivity extends Activity {
         loadLanguages();
         MrLang.remember(getSharedPreferences(MrLang.PREFS, MODE_PRIVATE), mLocale);
 
-        final ScrollView scroll = new ScrollView(this);
+        final MrPage scroll = new MrPage(this);
         scroll.setBackground(k.round(k.bg, 0, 0, false));
         LinearLayout col = k.column();
         col.setPadding(k.dp(20), k.dp(16), k.dp(20), k.dp(24));
@@ -397,7 +396,12 @@ public class MrLearnedActivity extends Activity {
         if (!mHasMore || mTable == null || !k.nearEnd(mScroll, mTable)) return;
         mHasMore = false;
         mLimit += PAGE;
-        refreshList();
+        // the page stays where it is while the rows are drawn again with the new ones at the end
+        mScroll.keepPosition(new Runnable() {
+            public void run() {
+                refreshList();
+            }
+        });
     }
 
     private void refreshList() {

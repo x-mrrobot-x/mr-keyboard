@@ -570,6 +570,11 @@ for _n in ('MrAppPicker.java', 'MrLearnedActivity.java', 'MrImportActivity.java'
     _t = read_file(_app_dir + _n)
     if 'mr_learned_more' in _t or 'nearEnd(' not in _t:
         problems.append('%s: the next page of the list comes by scrolling (k.nearEnd), not by a Show more button' % _n)
+    if 'new MrPage(' not in _t or 'keepPosition(' not in _t:
+        problems.append('%s: the page of a list that grows by scrolling is an MrPage and the new cards are added inside keepPosition (the page must not jump)' % _n)
+_page = read_file(_app_dir + 'MrPage.java')
+if 'requestChildRectangleOnScreen' not in _page or 'keepPosition' not in _page or 'removeOnLayoutChangeListener' not in _page:
+    problems.append('MrPage: it must refuse to scroll to a child for a moment (quiet) and put the position back after the layout (keepPosition, once)')
 # --- AI Editor dialog: the style chips, the result field and the "Emojificar" button and box use the lighter navy (mr_ui_raised) with mr_ui_stroke_strong
 ai_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrAi.java')
 if ai_src.count('"mr_ui_raised"') != 4 or ai_src.count('"mr_ui_stroke_strong"') != 4:

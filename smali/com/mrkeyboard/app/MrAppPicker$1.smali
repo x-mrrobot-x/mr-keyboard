@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 96
+    .line 95
     iput-object p1, p0, Lcom/mrkeyboard/app/MrAppPicker$1;->val$p:Lcom/mrkeyboard/app/MrAppPicker;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrAppPicker$1;->val$source:Lcom/mrkeyboard/app/MrAppPicker$Source;
@@ -49,17 +49,17 @@
     .locals 3
 
     .prologue
-    .line 98
+    .line 97
     const/4 v0, 0x1
 
     new-array v0, v0, [Z
 
-    .line 99
+    .line 98
     new-instance v1, Lcom/mrkeyboard/app/MrAppPicker$1$1;
 
     invoke-direct {v1, p0, v0}, Lcom/mrkeyboard/app/MrAppPicker$1$1;-><init>(Lcom/mrkeyboard/app/MrAppPicker$1;[Z)V
 
-    .line 111
+    .line 110
     :try_start_0
     iget-object v2, p0, Lcom/mrkeyboard/app/MrAppPicker$1;->val$source:Lcom/mrkeyboard/app/MrAppPicker$Source;
 
@@ -67,7 +67,7 @@
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 115
+    .line 114
     :goto_0
     const/4 v2, 0x0
 
@@ -81,11 +81,11 @@
 
     invoke-interface {v1, v0}, Lcom/mrkeyboard/app/MrAppPicker$Sink;->publish(Ljava/util/List;)V
 
-    .line 116
+    .line 115
     :cond_0
     return-void
 
-    .line 112
+    .line 111
     :catch_0
     move-exception v2
 

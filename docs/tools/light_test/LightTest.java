@@ -69,6 +69,7 @@ public class LightTest {
         check("a radius of 0 stays 0 on both", MrLight.shadowRadius(WHITE, 0f) == 0f && MrLight.shadowRadius(INK, 0f) == 0f);
 
         // ---- system buttons under the keyboard
+        MrTheme.stubColors.put("bars_ink", 0);      // a theme without the role: the real MrTheme answers 0, not the stub's magenta
         Bars bars = new Bars();
         Ime ime = new Ime(new Box(new Win(bars)));
         Build.VERSION.SDK_INT = 34;
@@ -84,6 +85,21 @@ public class LightTest {
         Build.VERSION.SDK_INT = 37;
         MrLight.bars(ime, BROWN);
         check("Android 17, light theme: dark buttons", bars.darkButtons());
+
+        // ---- a theme whose labels are pale on a light background (Sky) declares the ink of those buttons
+        final int skyText = 0xff99b5d3, skyBars = 0xff2d4668;
+        check("pale labels say \"dark theme\" by themselves (that is why Sky declares bars_ink)", !MrLight.is(skyText) && MrLight.is(skyBars));
+        check("the ink of the buttons: the role when there is one, else the ink of the tools",
+                MrLight.inkOfBars(skyText, skyBars) == skyBars && MrLight.inkOfBars(skyText, 0) == skyText && MrLight.inkOfBars(INK, 0) == INK);
+        MrTheme.stubColors.put("bars_ink", skyBars);
+        MrLight.bars(ime, skyText);
+        check("Sky on Android 17: dark buttons, though its labels are pale", bars.darkButtons());
+        MrTheme.stubColors.put("bars_ink", 0xffe7eef7);
+        MrLight.bars(ime, INK);
+        check("a pale bars_ink gives light buttons, whatever the labels are", !bars.darkButtons());
+        MrTheme.stubColors.put("bars_ink", 0);
+        MrLight.bars(ime, skyText);
+        check("without the role the labels decide again (pale labels: light buttons)", !bars.darkButtons());
 
         // ---- nothing to hold on to: no exception
         MrLight.bars(null, INK);

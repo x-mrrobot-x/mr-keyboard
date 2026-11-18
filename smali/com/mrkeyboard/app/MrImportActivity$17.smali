@@ -85,7 +85,7 @@
     .line 565
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$17;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrImportActivity;->access$2902(Lcom/mrkeyboard/app/MrImportActivity;Landroid/widget/ScrollView;)Landroid/widget/ScrollView;
+    invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrImportActivity;->access$2902(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrPage;)Lcom/mrkeyboard/app/MrPage;
 
     .line 566
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$17;->this$0:Lcom/mrkeyboard/app/MrImportActivity;

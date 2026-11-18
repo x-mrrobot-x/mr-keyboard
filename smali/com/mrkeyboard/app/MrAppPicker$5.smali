@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 177
+    .line 176
     iput-object p1, p0, Lcom/mrkeyboard/app/MrAppPicker$5;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -42,24 +42,24 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 180
+    .line 179
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$5;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
     const/4 v1, 0x1
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAppPicker;->access$802(Lcom/mrkeyboard/app/MrAppPicker;Z)Z
 
-    .line 181
+    .line 180
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$5;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
     invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrAppPicker;->access$302(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/List;)Ljava/util/List;
 
-    .line 182
+    .line 181
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$5;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
     invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrAppPicker;->access$402(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/List;)Ljava/util/List;
 
-    .line 183
+    .line 182
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$5;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrAppPicker;->access$900(Lcom/mrkeyboard/app/MrAppPicker;)Landroid/widget/LinearLayout;
@@ -68,6 +68,6 @@
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 184
+    .line 183
     return-void
 .end method

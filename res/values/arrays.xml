@@ -51,6 +51,7 @@
         <item>@string/layout_mr_snow</item>
         <item>@string/layout_mr_chrome</item>
         <item>@string/layout_mr_rose</item>
+        <item>@string/layout_mr_sky</item>
         <item>@string/layout_mr_glass</item>
         <item>@string/layout_mr_denim</item>
     </string-array>
@@ -67,6 +68,7 @@
         <item>9</item>
         <item>10</item>
         <item>11</item>
+        <item>12</item>
     </string-array>
     <string-array name="keyboard_mode_entries">
         <item>Standard (shortcut rows + Ctrl/Alt)</item>

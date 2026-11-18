@@ -3,7 +3,7 @@
 .source "MrLearnedActivity.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
+.field final synthetic val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore$Row;)V
     .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 443
+    .line 427
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$15;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$15;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,15 +45,17 @@
 
 
 # virtual methods
-.method public run()V
-    .locals 1
+.method public onClick(Landroid/view/View;)V
+    .locals 2
 
     .prologue
-    .line 445
+    .line 429
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$15;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$400(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$15;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
 
-    .line 446
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1400(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore$Row;)V
+
+    .line 430
     return-void
 .end method

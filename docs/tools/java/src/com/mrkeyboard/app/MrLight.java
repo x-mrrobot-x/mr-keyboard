@@ -20,6 +20,9 @@ import android.view.WindowInsetsController;
  *     there (back, keyboard switcher) sit on the keyboard's own background: {@link #bars} asks for dark ones on a
  *     light theme and for light ones on a dark theme.</li>
  * </ul>
+ *
+ * <p>A theme whose labels are pale on a light background (Sky) says what the dark text would have said by itself: the role
+ * <code>bars_ink</code> (the buttons under the keyboard) and a clear <code>label_shadow</code> (no outline around the labels).
  */
 final class MrLight {
     private MrLight() { }
@@ -43,6 +46,14 @@ final class MrLight {
     }
 
     /**
+     * The colour whose brightness decides the buttons under the keyboard: the role <code>bars_ink</code> of the theme when it declares one (a theme
+     * with a pale ink on a light background, Sky, would otherwise get pale buttons on pale), else <code>textColor</code>, the ink of the tools.
+     */
+    static int inkOfBars(int textColor, int barsInk) {
+        return barsInk != 0 ? barsInk : textColor;
+    }
+
+    /**
      * Colour of the system buttons under the keyboard, for the theme whose labels are <code>textColor</code>. Only
      * from Android 15 on: before it the system paints its own dark background behind those buttons and they must
      * stay light on every theme.
@@ -51,7 +62,7 @@ final class MrLight {
         if (ime == null || Build.VERSION.SDK_INT < EDGE_TO_EDGE_SDK) return;
         try {
             Window w = ime.getWindow() == null ? null : ime.getWindow().getWindow();
-            if (w != null) Api30.navigationButtons(w, is(textColor));
+            if (w != null) Api30.navigationButtons(w, is(inkOfBars(textColor, MrTheme.color("bars_ink"))));
         } catch (Throwable t) {
             // a keyboard without the right button colour is still a keyboard
         }

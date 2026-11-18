@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.SystemClock;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
@@ -240,7 +241,7 @@ public class AppScreensTest {
 
     // ---------------------------------------------------------------- the dialog
 
-    static void picker() {
+    static void picker() throws Exception {
         final Screen s = new Screen();
         MrLearned.useStore(new MrMemStore());
         s.onCreate(null);
@@ -268,6 +269,7 @@ public class AppScreensTest {
         check("... and with more than " + MrAppPicker.SEARCH_FROM + " apps there is a search field", t.contains("mr_app_search") || hasSearch(d.stubView));
         // scrolling: the next page is added when the bottom of the screen is 75 dp before the last card
         final ScrollView sv = (ScrollView) d.stubView;
+        check("the page of the dialog is an MrPage (it keeps its place when the next cards arrive)", sv instanceof MrPage && field(p, MrAppPicker.class, "mScroll") == sv);
         final LinearLayout listBox = (LinearLayout) field(p, MrAppPicker.class, "mListBox");
         sv.stubSize(1000, 1000);
         check("the dialog sets a scroll listener on its page", sv.stubScrollListener != null);
@@ -281,12 +283,30 @@ public class AppScreensTest {
         check("70 dp before the last card the next " + MrAppPicker.PAGE + " are added at the end", all(d.stubView).contains("App 59") && !all(d.stubView).contains("App 60")
                 && listBox.getChildCount() == before + MrAppPicker.PAGE);
         check("... the rows that were there are the same views (nothing was redrawn, the page does not jump)", listBox.getChildAt(0) == listBox.getChildAt(0) && listBox.getChildCount() == 2 * MrAppPicker.PAGE);
+        check("... the page does not scroll to a child for a moment (a field with the focus cannot pull it up)", ((MrPage) sv).isQuiet()
+                && !sv.requestChildRectangleOnScreen(listBox.getChildAt(0), new android.graphics.Rect(), true));
+        sv.scrollTo(0, 0);
+        sv.stubLayout();
+        check("... and a layout that took the page up is undone (back at 1930)", sv.getScrollY() == 1930 && ((MrPage) sv).stubLayoutListenerCount() == 0);
         listBox.getChildAt(listBox.getChildCount() - 1).stubTop(5000);
         sv.scrollTo(0, 4000);
         sv.stubScrollListener.onScrollChange(sv, 0, 4000, 0, 0);
         check("at the end of the list nothing more is added (70 apps in all)", all(d.stubView).contains("App 69") && listBox.getChildCount() == 70);
         sv.stubScrollListener.onScrollChange(sv, 0, 4000, 0, 0);
         check("... and another scroll event adds nothing", listBox.getChildCount() == 70);
+        // the search was typed and cleared: the list is drawn again from its first page, and the next pages still come with the page in its place
+        sv.stubLayout();
+        SystemClock.now += 10000;
+        setField(p, MrAppPicker.class, "mLimit", MrAppPicker.PAGE);
+        call(p, MrAppPicker.class, "draw", new Class<?>[0]);
+        check("after a search that was cleared the list starts again with " + MrAppPicker.PAGE + " cards", listBox.getChildCount() == MrAppPicker.PAGE && !((MrPage) sv).isQuiet());
+        listBox.getChildAt(listBox.getChildCount() - 1).stubTop(3000);
+        sv.scrollTo(0, 1930);
+        sv.stubScrollListener.onScrollChange(sv, 0, 1930, 0, 0);
+        check("... the next " + MrAppPicker.PAGE + " cards are added at the end", listBox.getChildCount() == 2 * MrAppPicker.PAGE);
+        sv.scrollTo(0, 0);
+        sv.stubLayout();
+        check("... and the page does not go to the top: the layout is undone (1930)", sv.getScrollY() == 1930);
         View row = clickable(d.stubView, "App 7");
         row.performClick();
         check("tapping an app chooses it and closes the dialog", picked.equals(java.util.Arrays.asList("app.n7")) && !d.stubShown);
@@ -440,6 +460,7 @@ public class AppScreensTest {
         tab.setInt(s, 1);
         call(s, cl, "refreshAll", new Class<?>[0]);
         ScrollView sv = (ScrollView) field(s, cl, "mScroll");
+        check("the page of the list is an MrPage", sv instanceof MrPage);
         sv.stubSize(1000, 1000);
         LinearLayout table = (LinearLayout) field(s, cl, "mTable");
         check("the list shows the first " + MrLearnedActivity.PAGE + " rows (a line between them) and no button", (table.getChildCount() + 1) / 2 == MrLearnedActivity.PAGE
@@ -452,6 +473,9 @@ public class AppScreensTest {
         sv.stubScrollListener.onScrollChange(sv, 0, 1930, 0, 0);
         table = (LinearLayout) field(s, cl, "mTable");
         check("75 dp before the last row: the next " + MrLearnedActivity.PAGE + " rows", (table.getChildCount() + 1) / 2 == 2 * MrLearnedActivity.PAGE);
+        sv.scrollTo(0, 0);
+        sv.stubLayout();
+        check("... the list was drawn again, and the layout that took the page up is undone (1930)", sv.getScrollY() == 1930 && ((MrPage) sv).isQuiet());
         table.getChildAt(table.getChildCount() - 1).stubTop(6000);
         sv.scrollTo(0, 5500);
         sv.stubScrollListener.onScrollChange(sv, 0, 5500, 0, 0);
@@ -821,7 +845,56 @@ public class AppScreensTest {
         check("the last card on the screen (or past it): yes", k.nearEnd(sv, items));
     }
 
+    /** MrPage: the page that keeps its place while cards are added at its end. */
+    static void page() {
+        SystemClock.now = 1000;
+        MrPage pg = new MrPage(null);
+        android.graphics.Rect r = new android.graphics.Rect();
+        View child = new View();
+        check("a new page scrolls to a child that asks for it (a field that is typed in stays on the screen)", !pg.isQuiet() && pg.requestChildRectangleOnScreen(child, r, true));
+        pg.quiet(300);
+        check("for a moment after the cards are added it does not (the answer is: nothing was scrolled)", pg.isQuiet() && !pg.requestChildRectangleOnScreen(child, r, true));
+        SystemClock.now += 299;
+        check("... still quiet 1 ms before the end", pg.isQuiet());
+        SystemClock.now += 1;
+        check("... and then it scrolls to a child again", !pg.isQuiet() && pg.requestChildRectangleOnScreen(child, r, true));
+
+        pg.scrollTo(0, 1930);
+        pg.keepPosition(new Runnable() {
+            public void run() {
+                // the layout of the new cards took the page up
+            }
+        });
+        check("keepPosition: the page is quiet while the cards settle and waits for the next layout (1 listener)", pg.isQuiet() && pg.stubLayoutListenerCount() == 1 && pg.getScrollY() == 1930);
+        pg.scrollTo(0, 0);
+        pg.stubLayout();
+        check("... a layout that took the page to the top puts it back (1930) and the listener goes (once)", pg.getScrollY() == 1930 && pg.stubLayoutListenerCount() == 0);
+        pg.scrollTo(0, 100);
+        pg.stubLayout();
+        check("... the next layouts are left alone (the person can scroll up)", pg.getScrollY() == 100);
+
+        pg.scrollTo(0, 1930);
+        final MrPage fp = pg;
+        pg.keepPosition(new Runnable() {
+            public void run() {
+                fp.scrollTo(0, 0);
+            }
+        });
+        check("a change that took the page up is undone at once, before any layout", pg.getScrollY() == 1930);
+        pg.stubLayout();
+
+        pg.scrollTo(0, 1000);
+        pg.keepPosition(new Runnable() {
+            public void run() {
+                fp.scrollTo(0, 2500);
+            }
+        });
+        pg.stubLayout();
+        check("a page that went down (the finger) is never taken back up", pg.getScrollY() == 2500);
+    }
+
     public static void main(String[] args) throws Exception {
+        page();
         list();
         cache();
         nearEnd();

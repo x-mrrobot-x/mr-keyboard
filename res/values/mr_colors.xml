@@ -84,6 +84,11 @@
          0 = the text and the hint of the layout. -->
     <color name="mr_tool_ink">#00000000</color>
     <color name="mr_tool_hint">#00000000</color>
+    <!-- Ink of the buttons that the system draws under the keyboard (back, keyboard switcher; from Android 15 on, MrLight.bars): a dark one
+         gives dark buttons, a light one light buttons, whatever the key labels are. For a theme whose labels are pale on a light
+         background (Sky), where the labels would say "dark theme" and the buttons would be pale on pale (mr_<theme>_bars_ink).
+         0 = decided by the ink of the tools (mr_<theme>_tool_ink or the key labels). -->
+    <color name="mr_bars_ink">#00000000</color>
     <!-- Pressed tool button of the bar (b_*, cat_*): the Ctrl face (ctrl_bg) at this opacity. The default is for the dark faces
          (Midnight Steel); Glass, whose face is brighter, declares a lower one to stay subtle, and the neon themes, whose faces
          are darker still, a higher one. -->

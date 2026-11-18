@@ -3,12 +3,12 @@
 .source "MrLearnedActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrLearnedActivity;->refreshList()V
+    value = Lcom/mrkeyboard/app/MrLearnedActivity;->listNearEnd()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-.field final synthetic val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore$Row;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 423
+    .line 400
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,17 +36,15 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .locals 2
+.method public run()V
+    .locals 1
 
     .prologue
-    .line 425
+    .line 402
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$200(Lcom/mrkeyboard/app/MrLearnedActivity;)V
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1400(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore$Row;)V
-
-    .line 426
+    .line 403
     return-void
 .end method

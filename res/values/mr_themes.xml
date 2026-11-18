@@ -21,6 +21,7 @@
         <item>@layout/input_mr_snow</item>
         <item>@layout/input_mr_chrome</item>
         <item>@layout/input_mr_rose</item>
+        <item>@layout/input_mr_sky</item>
         <item>@layout/input_mr_glass</item>
         <item>@layout/input_mr_denim</item>
     </array>
@@ -36,6 +37,7 @@
         <item>mr_snow</item>
         <item>mr_chrome</item>
         <item>mr_rose</item>
+        <item>mr_sky</item>
         <item>mr_glass</item>
         <item>mr_denim</item>
     </string-array>
@@ -53,6 +55,7 @@
         <item>0x4e</item>
         <item>0x0e</item>
         <item>0x4e</item>
+        <item>0x0e</item>
         <item>0x7e</item>
         <item>0x7e</item>
     </integer-array>

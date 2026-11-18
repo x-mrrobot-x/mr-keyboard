@@ -3,12 +3,12 @@
 .source "MrLearnedActivity.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/content/DialogInterface$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrLearnedActivity;->onActivityResult(IILandroid/content/Intent;)V
+    value = Lcom/mrkeyboard/app/MrLearnedActivity;->askDeleteAll()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,17 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-.field final synthetic val$app:Ljava/lang/String;
-
-.field final synthetic val$locale:Ljava/lang/String;
-
-.field final synthetic val$store:Lcom/mrkeyboard/app/MrWordStore;
-
-.field final synthetic val$uri:Landroid/net/Uri;
+.field final synthetic val$tab:I
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;Ljava/lang/String;Lcom/mrkeyboard/app/MrWordStore;Ljava/lang/String;Landroid/net/Uri;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;I)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -39,16 +33,10 @@
     .end annotation
 
     .prologue
-    .line 625
+    .line 581
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->val$app:Ljava/lang/String;
-
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->val$store:Lcom/mrkeyboard/app/MrWordStore;
-
-    iput-object p4, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->val$locale:Ljava/lang/String;
-
-    iput-object p5, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->val$uri:Landroid/net/Uri;
+    iput p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->val$tab:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -57,122 +45,17 @@
 
 
 # virtual methods
-.method public run()V
-    .locals 5
+.method public onClick(Landroid/content/DialogInterface;I)V
+    .locals 2
 
     .prologue
-    const/4 v1, 0x0
+    .line 583
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    .line 627
-    .line 629
-    :try_start_0
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->val$app:Ljava/lang/String;
+    iget v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->val$tab:I
 
-    if-eqz v0, :cond_0
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1700(Lcom/mrkeyboard/app/MrLearnedActivity;I)V
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->val$store:Lcom/mrkeyboard/app/MrWordStore;
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->val$locale:Ljava/lang/String;
-
-    iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->val$app:Ljava/lang/String;
-
-    invoke-static {v0, v2, v3}, Lcom/mrkeyboard/app/MrLearned;->exportApp(Lcom/mrkeyboard/app/MrWordStore;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    :goto_0
-    const-string v2, "UTF-8"
-
-    invoke-virtual {v0, v2}, Ljava/lang/String;->getBytes(Ljava/lang/String;)[B
-
-    move-result-object v0
-
-    .line 630
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    invoke-virtual {v2}, Lcom/mrkeyboard/app/MrLearnedActivity;->getContentResolver()Landroid/content/ContentResolver;
-
-    move-result-object v2
-
-    iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->val$uri:Landroid/net/Uri;
-
-    const-string v4, "wt"
-
-    invoke-virtual {v2, v3, v4}, Landroid/content/ContentResolver;->openOutputStream(Landroid/net/Uri;Ljava/lang/String;)Ljava/io/OutputStream;
-    :try_end_0
-    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
-
-    move-result-object v2
-
-    .line 631
-    if-eqz v2, :cond_1
-
-    .line 633
-    :try_start_1
-    invoke-virtual {v2, v0}, Ljava/io/OutputStream;->write([B)V
-
-    .line 634
-    invoke-virtual {v2}, Ljava/io/OutputStream;->flush()V
-    :try_end_1
-    .catchall {:try_start_1 .. :try_end_1} :catchall_0
-
-    .line 635
-    const/4 v0, 0x1
-
-    .line 637
-    :try_start_2
-    invoke-virtual {v2}, Ljava/io/OutputStream;->close()V
-    :try_end_2
-    .catch Ljava/lang/Exception; {:try_start_2 .. :try_end_2} :catch_0
-
-    .line 644
-    :goto_1
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    new-instance v2, Lcom/mrkeyboard/app/MrLearnedActivity$19$1;
-
-    invoke-direct {v2, p0, v0}, Lcom/mrkeyboard/app/MrLearnedActivity$19$1;-><init>(Lcom/mrkeyboard/app/MrLearnedActivity$19;Z)V
-
-    invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrLearnedActivity;->runOnUiThread(Ljava/lang/Runnable;)V
-
-    .line 649
+    .line 584
     return-void
-
-    .line 629
-    :cond_0
-    :try_start_3
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->val$store:Lcom/mrkeyboard/app/MrWordStore;
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$19;->val$locale:Ljava/lang/String;
-
-    invoke-static {v0, v2}, Lcom/mrkeyboard/app/MrLearned;->export(Lcom/mrkeyboard/app/MrWordStore;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v0
-
-    goto :goto_0
-
-    .line 637
-    :catchall_0
-    move-exception v0
-
-    invoke-virtual {v2}, Ljava/io/OutputStream;->close()V
-
-    .line 638
-    throw v0
-    :try_end_3
-    .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_3} :catch_0
-
-    .line 640
-    :catch_0
-    move-exception v0
-
-    move v0, v1
-
-    .line 641
-    goto :goto_1
-
-    :cond_1
-    move v0, v1
-
-    goto :goto_1
 .end method

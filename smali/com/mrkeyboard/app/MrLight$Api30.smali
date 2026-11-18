@@ -19,7 +19,7 @@
     .locals 0
 
     .prologue
-    .line 62
+    .line 73
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -29,23 +29,23 @@
     .locals 3
 
     .prologue
-    .line 65
+    .line 76
     invoke-virtual {p0}, Landroid/view/Window;->getInsetsController()Landroid/view/WindowInsetsController;
 
     move-result-object v2
 
-    .line 66
+    .line 77
     if-nez v2, :cond_0
 
-    .line 69
+    .line 80
     :goto_0
     return-void
 
-    .line 67
+    .line 78
     :cond_0
     const/16 v1, 0x10
 
-    .line 68
+    .line 79
     if-eqz p1, :cond_1
 
     move v0, v1

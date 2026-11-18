@@ -27,7 +27,7 @@
     .locals 0
 
     .prologue
-    .line 342
+    .line 341
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10;->val$store:Lcom/mrkeyboard/app/MrWordStore;
@@ -54,12 +54,12 @@
     .end annotation
 
     .prologue
-    .line 344
+    .line 343
     new-instance v1, Ljava/util/ArrayList;
 
     invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    .line 345
+    .line 344
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10;->val$store:Lcom/mrkeyboard/app/MrWordStore;
 
     invoke-interface {v0}, Lcom/mrkeyboard/app/MrWordStore;->scopes()Ljava/util/List;
@@ -84,7 +84,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 346
+    .line 345
     iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10;->val$locale:Ljava/lang/String;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrApp;->localeOf(Ljava/lang/String;)Ljava/lang/String;
@@ -97,12 +97,12 @@
 
     if-eqz v3, :cond_0
 
-    .line 347
+    .line 346
     invoke-static {v0}, Lcom/mrkeyboard/app/MrApp;->packageOf(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
 
-    .line 348
+    .line 347
     iget-object v4, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10;->val$store:Lcom/mrkeyboard/app/MrWordStore;
 
     const/4 v5, 0x2
@@ -121,7 +121,7 @@
 
     add-int/2addr v0, v4
 
-    .line 349
+    .line 348
     new-instance v4, Lcom/mrkeyboard/app/MrAppList$Entry;
 
     iget-object v5, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
@@ -140,7 +140,7 @@
 
     goto :goto_0
 
-    .line 351
+    .line 350
     :cond_1
     new-instance v0, Lcom/mrkeyboard/app/MrLearnedActivity$10$1;
 
@@ -148,6 +148,6 @@
 
     invoke-static {v1, v0}, Ljava/util/Collections;->sort(Ljava/util/List;Ljava/util/Comparator;)V
 
-    .line 357
+    .line 356
     return-object v1
 .end method

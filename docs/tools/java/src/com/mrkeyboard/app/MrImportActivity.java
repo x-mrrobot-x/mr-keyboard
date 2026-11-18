@@ -67,7 +67,7 @@ public class MrImportActivity extends Activity {
     private MrImport.Plan mPlan;
     private int mShown;
     /** The page of the open preview (to ask for the next words when it is scrolled), or null. */
-    private ScrollView mPreviewScroll;
+    private MrPage mPreviewScroll;
 
     private LinearLayout mLangBox;
     private LinearLayout mAppBox;
@@ -472,7 +472,7 @@ public class MrImportActivity extends Activity {
         final MrImport.Plan plan = mPlan;
         final LinearLayout box = k.column();
         box.setPadding(k.dp(20), k.dp(8), k.dp(20), k.dp(4));
-        final ScrollView scroll = new ScrollView(this);
+        final MrPage scroll = new MrPage(this);
         mPreviewScroll = scroll;
         scroll.addView(box, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         mPreview = box;
@@ -576,14 +576,19 @@ public class MrImportActivity extends Activity {
     }
 
     /** The preview was scrolled: draws the next page of words when the person is near the last one. */
-    private void wordsNearEnd(ScrollView scroll) {
+    private void wordsNearEnd(final MrPage scroll) {
         MrImport.Plan plan = mPlan;
         if (plan == null || mWordBox == null || mShown >= plan.words.size() || !k.nearEnd(scroll, mWordBox)) return;
-        drawWords(scroll);
+        // the page stays where it is while the words are added at its end
+        scroll.keepPosition(new Runnable() {
+            public void run() {
+                drawWords(scroll);
+            }
+        });
     }
 
     /** Draws the next page of words of the preview. {@code scroll}: the page of the preview (null: no check of the next page). */
-    private void drawWords(final ScrollView scroll) {
+    private void drawWords(final MrPage scroll) {
         MrImport.Plan plan = mPlan;
         if (plan == null || mWordBox == null) return;
         int end = Math.min(plan.words.size(), mShown + PREVIEW_PAGE);

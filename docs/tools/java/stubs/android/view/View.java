@@ -80,8 +80,15 @@ public class View {
     public void stubRunPosted() {
         while (!stubPosted.isEmpty()) stubPosted.remove(0).run();
     }
-    public void addOnLayoutChangeListener(OnLayoutChangeListener listener) { }
-    public void removeOnLayoutChangeListener(OnLayoutChangeListener listener) { }
+    private final java.util.ArrayList<OnLayoutChangeListener> stubLayoutListeners = new java.util.ArrayList<OnLayoutChangeListener>();
+    public void addOnLayoutChangeListener(OnLayoutChangeListener listener) { stubLayoutListeners.add(listener); }
+    public void removeOnLayoutChangeListener(OnLayoutChangeListener listener) { stubLayoutListeners.remove(listener); }
+    public int stubLayoutListenerCount() { return stubLayoutListeners.size(); }
+    /** Tests only: a layout pass happened (the listeners that are there now are called, as the real view does with a copy of its list). */
+    public void stubLayout() {
+        java.util.ArrayList<OnLayoutChangeListener> copy = new java.util.ArrayList<OnLayoutChangeListener>(stubLayoutListeners);
+        for (OnLayoutChangeListener l : copy) l.onLayoutChange(this, 0, 0, 0, 0, 0, 0, 0, 0);
+    }
     /** Tests only: the listener of the click, and a click made by the test. */
     public OnClickListener stubClick;
     public void setOnClickListener(OnClickListener l) { stubClick = l; if (l != null) stubClickable = true; }

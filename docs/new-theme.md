@@ -5,7 +5,7 @@ only reads them (`MrTheme`, `KeyStyle`, `MrTools`). A new theme does not require
 `<tema>` is the tag name without the `mr_` prefix (`glass`, `midnight`...).
 
 The **generated themes** follow every item below, but nobody writes their files: a script does, from three tables. They
-are Midnight Steel and Denim (dark), the neon ones (Aurora, Neon Cyan, Neon Purple, Neon Pink, Synthwave) and Aqua, Snow, Chrome and Rose (light, except Chrome: light keys on a dark background);
+are Midnight Steel and Denim (dark), the neon ones (Aurora, Neon Cyan, Neon Purple, Neon Pink, Synthwave) and Aqua, Snow, Chrome, Rose and Sky (light, except Chrome: light keys on a dark background);
 only Cobalt Glass is written by hand. To add or change one of the generated ones, go straight to
 [Generated themes](#generated-themes).
 
@@ -21,7 +21,7 @@ only Cobalt Glass is written by hand. To add or change one of the generated ones
    (`0x100`, only together with `GLOW`) are the light of the neon themes (section below).
 3. **Registration** (`res/values/mr_themes.xml`): one line in `mr_theme_layouts`. The index is the value stored in
    `pref_keyboard_layout` (the id of the theme: Midnight Steel 0, Aurora 1, Neon Cyan 2, Neon Purple 3, Neon Pink 4,
-   Synthwave 5, Aqua 6, Snow 7, Chrome 8, Rose 9, Cobalt Glass 10, Denim 11). The id is the position in the list, so a theme put in
+   Synthwave 5, Aqua 6, Snow 7, Chrome 8, Rose 9, Sky 10, Cobalt Glass 11, Denim 12). The id is the position in the list, so a theme put in
    the middle moves the ones after it (nothing is kept for older installs); for the generated themes the script writes the
    three lists from its `ORDER`. `mr_theme_tags` and `mr_theme_flags` are per theme, in the same order.
    The key layers' radius has no registration (item 5).
@@ -80,7 +80,8 @@ only Cobalt Glass is written by hand. To add or change one of the generated ones
    The fonts tool draws the chosen font in `accent_text` on the `ctrl_bg` face on every theme, so a theme whose accent keys
    are bright declares `mr_<tema>_accent_text` whatever its flag (the generated ones always do).
 
-   **Light theme:** there is nothing to declare. A theme whose `_text` is dark (brightness of at most 0.5) is a light
+   **Light theme:** there is nothing to declare (a pale ink on a light background is the exception: Sky declares `mr_<tema>_bars_ink`, the ink of the
+   buttons that the system draws under the keyboard, and a clear `mr_<tema>_label_shadow`; see the `light` field of the solid themes). A theme whose `_text` is dark (brightness of at most 0.5) is a light
    theme and the code adapts by itself: the tool bar takes a dark accent (`MrTools.deriveColors`), and from Android 15
    on the buttons the system draws under the keyboard are asked for in a dark color (`MrLight.bars`). Dark labels and
    icons, on any theme, are drawn without the dark outline that the light ones get (`MrLight.shadowRadius`, key by
@@ -262,7 +263,8 @@ its table:
 | `mod_text` | labels and icons of the highlight keys, when their face asks for another color than `text`. Without it the theme carries `PLAIN_ACCENT_TEXT` |
 | `lip` | height in dp of the darker edge under each key, which makes it look like a keycap (1 by default, 2 = taller, 0 = flat) |
 | `clear` | for a see-through background: (opacity without blur behind the keyboard, opacity with it), as in a gloss theme. The theme then carries `TRANSLUCENT` and declares `kbd_bg_blur` besides `kbd_bg`; the keys stay solid |
-| `roles` | for a theme whose colors are all chosen instead of derived (Midnight Steel, Snow, Aqua, Rose): `{role: color}`. Each entry replaces the derived color of that role (`hint`, `key_pressed_fill`, `alpha_btn`, `sel_send`...) or declares one that only has a default (`OWN_ROLES` in the script: `alpha_press`, `panel_field`, `panel_field_stroke`, `panel_divider`, `accent_hint`, `label_shadow`, `tool_tint`) |
+| `roles` | for a theme whose colors are all chosen instead of derived (Midnight Steel, Snow, Aqua, Rose): `{role: color}`. Each entry replaces the derived color of that role (`hint`, `key_pressed_fill`, `alpha_btn`, `sel_send`...) or declares one that only has a default (`OWN_ROLES` in the script: `alpha_press`, `panel_field`, `panel_field_stroke`, `panel_divider`, `accent_hint`, `label_shadow`, `tool_tint`, `bars_ink`) |
+| `light` | `True` for a light theme whose `text` is a pale ink (Sky: the muted blue of the letters on a pale blue background). The code finds out that a theme is light from its `text` alone (item 8), so a pale ink would make the theme a dark one everywhere: `light` makes the script treat it as light (no `TECH_PALETTE`, the light derivation of the tools) and the theme must declare, in `roles`, what the code would have decided by itself: `bars_ink` (a dark color: the buttons that the system draws under the keyboard are dark) and `label_shadow` (clear: no dark outline around pale labels). The script stops if one is missing. Default `None`: decided by the `text` |
 
 **How a solid key is drawn:**
 
@@ -286,6 +288,14 @@ off = 200, buttons = 300, selected row = 400, a button under the finger = 500; t
 The lit dash is foam and the locked one coral, told apart by hue (the rule below would make both dark on the sea blue).
 Not themed, in any theme: the panel of the adjustments in landscape, which is a dark sheet over the keyboard in the style of
 the dialogs of the app.
+
+**A light theme with a pale ink, from a picture (Sky).** The colors are the ones of a reference picture of a pale blue keyboard, sampled from it: `SKY` has seven
+colors, the background (`d9eafc`), the letter keys (`f2f9ff`), the highlight keys (`97b8e5`), the ink of the letters and of the icons of the bar (`99b5d3`), white (the labels
+and icons of the highlight keys) and two blues that the picture does not show, the vivid one of what is touched and lit (`4a76b8`: the key under the finger, the tint of the
+tools, Send, the edge of the preview bubble, the lit dash; white reads on it at 4.6) and a deep one (`2d4668`) for `bars_ink`. The keys are flat (`lip` 0, as in the picture).
+The ink is pale (2.0 of contrast with the keys, as in the picture), which is why the table says `light=True` and declares `bars_ink` and `label_shadow`
+(`#01000000`, a shade that does not show: a role of 0 means "the one of the style"). Everything else is derived by the light rules of the table: the states mix the faces with the vivid
+blue, the tools take it as their tint, the small letters are the ink, and those of the highlight keys (`accent_hint`) are the color of the letter keys.
 
 **A light theme that keeps the colors it had (Rose).** Same method as Midnight Steel and Snow, in petal pink: `ROSE` is one hue of pink in eleven steps
 (named by their lightness times 1000: 983 is the blush of the letter keys, 920 the background, 833 the highlight keys, 637 the rose of the

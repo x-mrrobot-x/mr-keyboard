@@ -82,7 +82,8 @@ the flag 0x10 (TRANSLUCENT), which blurs what is behind the keyboard where the p
 
 A solid or gloss theme with a dark text is a light theme: the code finds that out from the text color alone
 (MrLight.java). One with a light text is a dark theme, and its tools take the tint from the face of the highlight keys unless
-the table gives it (the role tool_tint).
+the table gives it (the role tool_tint). The one exception is a solid theme whose pale ink sits on a light background (Sky): its table says
+`light=True` and declares the roles bars_ink (dark: the buttons of the system under the keyboard) and label_shadow (clear).
 """
 import collections
 import colorsys
@@ -699,6 +700,7 @@ def neon_drawables(th):
 #   text      labels and icons of the letter keys. A dark text makes it a light theme: the code sees it by itself
 #             (MrLight.java: no dark outline under the labels, dark system buttons under the keyboard); a light one makes
 #             it a dark theme, which also carries the flag TECH_PALETTE
+#   light     True for a light theme whose text is pale (Sky); it must declare the roles bars_ink and label_shadow. None = by the text
 #   accent    the one vivid color: the key under the finger, the lit dash of Ctrl, Alt and Shift, the chosen
 #             variant of the popup, the edge of the preview bubble, the Send button of the attachments
 #   mod_text  labels and icons of the highlight keys, when their face asks for another color than `text` (white
@@ -713,13 +715,20 @@ def neon_drawables(th):
 #             alpha_btn, sel_send...) or declares a role that only has a default (the ones in OWN_ROLES). A color is
 #             '#rrggbb', or '#aarrggbb' where the opacity matters
 # ---------------------------------------------------------------------------------------------------------------
-Solid = collections.namedtuple('Solid', 'tag name bg key mod text accent mod_text lip dash_on tint roles clear')
+Solid = collections.namedtuple('Solid', 'tag name bg key mod text accent mod_text lip dash_on tint roles clear light')
 # Roles that no rule derives: a theme declares them only through `roles` (their defaults are in mr_colors.xml)
-OWN_ROLES = ('alpha_press', 'panel_field', 'panel_field_stroke', 'panel_divider', 'accent_hint', 'label_shadow', 'tool_tint')
+OWN_ROLES = ('alpha_press', 'panel_field', 'panel_field_stroke', 'panel_divider', 'accent_hint', 'label_shadow', 'tool_tint', 'bars_ink')
 
 
-def solid(tag, name, bg, key, mod, text, accent, mod_text=None, lip=1, dash_on=None, tint=None, roles=None, clear=None):
-    return Solid(tag, name, bg, key, mod, text, accent, mod_text, lip, dash_on, tint, roles or {}, clear)
+def solid(tag, name, bg, key, mod, text, accent, mod_text=None, lip=1, dash_on=None, tint=None, roles=None, clear=None, light=None):
+    return Solid(tag, name, bg, key, mod, text, accent, mod_text, lip, dash_on, tint, roles or {}, clear, light)
+
+
+def is_light(th):
+    """True for a light solid theme: a dark `text` (what the code looks at: MrLight), or the field `light` of the table for a theme whose labels are a
+    pale ink on a light background (Sky), which then declares the roles bars_ink and label_shadow."""
+    light = getattr(th, 'light', None)      # the gloss themes have no such field
+    return dark_ink(th.text) if light is None else light
 
 
 # The scale of Aqua: one hue of water from foam to deep sea, in even steps of lightness (OKLCH: lightness .99 to .31, the
@@ -761,6 +770,22 @@ ROSE = collections.OrderedDict([
     ('561', '#bb4371'),   # secondary texts, the rose of Send and of the + button (blush reads at 5.1), the edge of a locked key
     ('497', '#9f375f'),   # the lit dash, the small letters of the highlight keys
     ('309', '#4a2030'),   # wine: the ink
+])
+
+
+# The colors of Sky: the ones of the picture that the theme follows (sampled from it: the background, the letter keys, the highlight keys, the
+# ink of the letters and of the icons of the bar) plus the ones it does not show but the theme needs: the vivid blue of what is touched and lit
+# (white reads on it at 4.6) and a deep blue, which only the buttons that the system draws under the keyboard take. The ink is pale (2.0 of
+# contrast with the keys, as in the picture), so the theme says that it is a light one (`light`) and declares what that changes (bars_ink and
+# label_shadow). Every color of the theme is one of these seven, or a mix of them (the states, the tools, the bubble).
+SKY = collections.OrderedDict([
+    ('white', '#ffffff'),   # the labels and the icons of the highlight keys, the ink of Send
+    ('key', '#f2f9ff'),     # the letter keys, the cards, the field, the bubble, the small letters of the highlight keys
+    ('bg', '#d9eafc'),      # the keyboard background (also the bar and the panels)
+    ('mod', '#97b8e5'),     # the highlight keys
+    ('ink', '#99b5d3'),     # the letters of the keys, the icons of the bar, the small letters and the secondary texts
+    ('vivid', '#4a76b8'),   # the key under the finger, the tint of the tools, Send, the + button, the edge of the preview bubble, the lit dash
+    ('deep', '#2d4668'),    # the buttons of the system under the keyboard (bars_ink): dark, because the ink is pale and the background is light
 ])
 
 
@@ -1103,6 +1128,17 @@ SOLID = [
               ('key_acc_on_fill', AQUA['800']), ('key_acc_on_lip', AQUA['900']),
               ('key_acc_lock_fill', AQUA['900']), ('key_acc_lock_lip', AQUA['950']),
           ])),
+    # a pale blue sky, light and calm, as in the picture it follows: letter keys that are almost white and flat (no edge under them) on a pale blue background,
+    # highlight keys of a medium blue with white labels, and the muted blue of the letters and of the icons of the bar. The ink is pale, so `light` says that
+    # the theme is a light one, bars_ink is the dark blue of the buttons under the keyboard and label_shadow is clear (a dark outline around pale
+    # letters on a pale key would smudge them). The rest is derived from these colors: the states mix the faces with the vivid blue, the tools take it as their tint
+    solid('sky', 'Sky',
+          bg=SKY['bg'], key=SKY['key'], mod=SKY['mod'], text=SKY['ink'], mod_text=SKY['white'], accent=SKY['vivid'], tint=SKY['vivid'], lip=0, light=True,
+          roles=collections.OrderedDict([
+              ('accent_hint', SKY['key']),           # the small letters of the highlight keys: pale, on the medium blue (the ink would not read)
+              ('label_shadow', '#01000000'),         # no outline around the labels and the icons (opacity 1 of 255: the role must not be 0)
+              ('bars_ink', SKY['deep']),
+          ])),
 ]
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -1125,7 +1161,7 @@ def lip_color(face):
 
 
 def plain_roles(c, n, ref, bg, mod, text, own_mod_text, accent, ctrl_bg, clear=1.0, dash_accent=None, dash_face=None, dash_exact=None, tint=None,
-                ink=None, ctrl_face=None):
+                ink=None, ctrl_face=None, light=None):
     """The roles read by name (MrTheme.color) of a theme without light, shared by the solid and the gloss families:
     the text of the highlight keys, the dash of Ctrl, Alt, Shift and the Meta key, the tool bar and the panels. bg,
     mod: plain colors (the background and the face of the highlight keys, or the middle of it); ctrl_bg: name of the
@@ -1134,7 +1170,7 @@ def plain_roles(c, n, ref, bg, mod, text, own_mod_text, accent, ctrl_bg, clear=1
     highlight keys; dash_face: the color of the highlight keys at the height of the dash (default: mod); dash_exact: the
     lit dash itself, which the contrast rule does not move; tint: the color of the buttons and the field border of the
     tools (default: accent); ink: the color of what sits on the background when it is not `text` (the role tool_ink);
-    ctrl_face: the plain color that ctrl_bg points at, when it is not `mod`."""
+    ctrl_face: the plain color that ctrl_bg points at, when it is not `mod`; light: True for a light theme whose ink is pale (None = by the ink)."""
     mod_text = own_mod_text or text
     # the text and the icons of the highlight keys: the text of the layout, or the one of their own. The code asks for
     # the role on a theme with the flag PLAIN_ACCENT_TEXT only in the fonts tool (the chosen font), which draws it on
@@ -1161,7 +1197,7 @@ def plain_roles(c, n, ref, bg, mod, text, own_mod_text, accent, ctrl_bg, clear=1
     c[n('panel_tab_on_text')] = ref('tool_ink' if ink else 'text')
     tint = tint or accent
     text = ink or text          # from here on, what is drawn on the background
-    if dark_ink(text):
+    if dark_ink(text) if light is None else light:
         c[n('tool_tint')] = opaque(tint)
         c[n('alpha_btn')] = alpha(BLACK, LIGHT_ALPHA['btn'])
         c[n('alpha_tab_off')] = alpha(BLACK, LIGHT_ALPHA['tab_off'])
@@ -1195,7 +1231,7 @@ def solid_colors(th):
     """Every color of a solid theme, name -> value, in the order of the file."""
     t, bg, key, mod, text, accent = th.tag, th.bg, th.key, th.mod, th.text, th.accent
     mod_text = th.mod_text or text
-    light = dark_ink(text)
+    light = is_light(th)
     n = lambda role: 'mr_%s_%s' % (t, role)
     ref = lambda role: '@color/' + n(role)
     c = collections.OrderedDict()
@@ -1211,7 +1247,7 @@ def solid_colors(th):
     c[n('popup_hint')] = ref('hint')
 
     plain_roles(c, n, ref, bg, mod, text, th.mod_text, accent, 'key_acc_normal_fill', GLOSS_VEIL if th.clear else 1.0,
-                dash_exact=th.dash_on, tint=th.tint)
+                dash_exact=th.dash_on, tint=th.tint, light=light)
 
     # ---- preview bubble and popup of variants
     bubble = hex6(mix(key, WHITE, SOLID_BUBBLE[1 if light else 0]))
@@ -1243,6 +1279,8 @@ def solid_colors(th):
         else:
             assert role in OWN_ROLES, 'theme %s: %s is not a role of a solid theme' % (t, role)
             own[n(role)] = color
+    assert not (light and not dark_ink(text)) or (n('bars_ink') in own and n('label_shadow') in own), \
+        'theme %s: a light theme with a pale ink must declare the roles bars_ink and label_shadow' % t
     if own:
         out = collections.OrderedDict()
         for name, color in c.items():
@@ -1649,7 +1687,7 @@ LAYOUTS = collections.OrderedDict([
 #           edited by hand, the script only places them in the lists
 #   AFTER   the last theme written by hand in strings.xml: the names of the generated themes go right after it
 # ---------------------------------------------------------------------------------------------------------------
-ORDER = ['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'aqua', 'snow', 'chrome', 'rose', 'glass', 'denim']
+ORDER = ['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'aqua', 'snow', 'chrome', 'rose', 'sky', 'glass', 'denim']
 HAND = ('glass',)
 AFTER = 'glass'
 Family = collections.namedtuple('Family', 'name themes flags colors drawables intro')
@@ -1661,7 +1699,7 @@ def neon_flags(th):
 
 def solid_flags(th):
     return (FLAT_BAR | ACCENT_KEYS | ACCENT_WIDE | (0 if th.mod_text else PLAIN_ACCENT_TEXT)
-            | (0 if dark_ink(th.text) else TECH_PALETTE)     # a dark solid theme (Midnight Steel) has the "tech" palette
+            | (0 if is_light(th) else TECH_PALETTE)     # a dark solid theme (Midnight Steel) has the "tech" palette
             | (TRANSLUCENT if th.clear else 0))
 
 

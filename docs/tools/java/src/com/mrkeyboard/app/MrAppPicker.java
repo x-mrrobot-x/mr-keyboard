@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -67,7 +66,7 @@ final class MrAppPicker {
     private AlertDialog mDialog;
     private LinearLayout mListBox;
     private TextView mStatus;
-    private ScrollView mScroll;
+    private MrPage mScroll;
     private EditText mSearch;
     private List<MrAppList.Entry> mAll;
     private List<MrAppList.Entry> mMatches;
@@ -127,7 +126,7 @@ final class MrAppPicker {
     private void open(String title) {
         final LinearLayout box = k.column();
         box.setPadding(k.dp(20), k.dp(8), k.dp(20), k.dp(4));
-        final ScrollView scroll = new ScrollView(act);
+        final MrPage scroll = new MrPage(act);
         mScroll = scroll;
         scroll.addView(box, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
@@ -242,7 +241,14 @@ final class MrAppPicker {
         final List<MrAppList.Entry> list = mMatches;
         if (mClosed || list == null || mCount >= list.size() || !k.nearEnd(mScroll, mListBox)) return;
         mLimit += PAGE;
-        append(list, mCount, Math.min(list.size(), mLimit));
+        final int from = mCount;
+        final int to = Math.min(list.size(), mLimit);
+        // the page stays where it is while the cards are added at its end
+        mScroll.keepPosition(new Runnable() {
+            public void run() {
+                append(list, from, to);
+            }
+        });
     }
 
     private View row(final MrAppList.Entry e, ArrayList<ImageView> icons) {
