@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrAppList;->load(Landroid/content/Context;)Ljava/util/List;
+    value = Lcom/mrkeyboard/app/MrAppList;->scan(Landroid/content/Context;)Ljava/util/List;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -21,7 +21,7 @@
         "Ljava/lang/Object;",
         "Ljava/util/Comparator",
         "<",
-        "Lcom/mrkeyboard/app/MrAppList$Entry;",
+        "Lcom/mrkeyboard/app/MrAppList$Found;",
         ">;"
     }
 .end annotation
@@ -32,7 +32,7 @@
     .locals 0
 
     .prologue
-    .line 85
+    .line 99
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -40,47 +40,32 @@
 
 
 # virtual methods
-.method public compare(Lcom/mrkeyboard/app/MrAppList$Entry;Lcom/mrkeyboard/app/MrAppList$Entry;)I
+.method public compare(Lcom/mrkeyboard/app/MrAppList$Found;Lcom/mrkeyboard/app/MrAppList$Found;)I
     .locals 2
 
     .prologue
-    .line 87
-    iget-object v0, p1, Lcom/mrkeyboard/app/MrAppList$Entry;->folded:Ljava/lang/String;
+    .line 101
+    iget-object v0, p1, Lcom/mrkeyboard/app/MrAppList$Found;->pkg:Ljava/lang/String;
 
-    iget-object v1, p2, Lcom/mrkeyboard/app/MrAppList$Entry;->folded:Ljava/lang/String;
+    iget-object v1, p2, Lcom/mrkeyboard/app/MrAppList$Found;->pkg:Ljava/lang/String;
 
     invoke-virtual {v0, v1}, Ljava/lang/String;->compareTo(Ljava/lang/String;)I
 
     move-result v0
 
-    .line 88
-    if-eqz v0, :cond_0
-
-    :goto_0
     return v0
-
-    :cond_0
-    iget-object v0, p1, Lcom/mrkeyboard/app/MrAppList$Entry;->pkg:Ljava/lang/String;
-
-    iget-object v1, p2, Lcom/mrkeyboard/app/MrAppList$Entry;->pkg:Ljava/lang/String;
-
-    invoke-virtual {v0, v1}, Ljava/lang/String;->compareTo(Ljava/lang/String;)I
-
-    move-result v0
-
-    goto :goto_0
 .end method
 
 .method public bridge synthetic compare(Ljava/lang/Object;Ljava/lang/Object;)I
     .locals 1
 
     .prologue
-    .line 85
-    check-cast p1, Lcom/mrkeyboard/app/MrAppList$Entry;
+    .line 99
+    check-cast p1, Lcom/mrkeyboard/app/MrAppList$Found;
 
-    check-cast p2, Lcom/mrkeyboard/app/MrAppList$Entry;
+    check-cast p2, Lcom/mrkeyboard/app/MrAppList$Found;
 
-    invoke-virtual {p0, p1, p2}, Lcom/mrkeyboard/app/MrAppList$1;->compare(Lcom/mrkeyboard/app/MrAppList$Entry;Lcom/mrkeyboard/app/MrAppList$Entry;)I
+    invoke-virtual {p0, p1, p2}, Lcom/mrkeyboard/app/MrAppList$1;->compare(Lcom/mrkeyboard/app/MrAppList$Found;Lcom/mrkeyboard/app/MrAppList$Found;)I
 
     move-result v0
 

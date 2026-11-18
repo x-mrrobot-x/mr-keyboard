@@ -4,4 +4,5 @@ package android.content.pm;
 public class ActivityInfo {
     public ApplicationInfo applicationInfo;
     public String packageName;
+    public int labelRes;
 }

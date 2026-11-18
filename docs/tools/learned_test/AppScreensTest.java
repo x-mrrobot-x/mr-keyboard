@@ -34,9 +34,12 @@ public class AppScreensTest {
 
     // ---------------------------------------------------------------- a phone with apps
 
+    static int labelReads;
+
     static ResolveInfo app(final String pkg, final String label, int flags) {
         ResolveInfo ri = new ResolveInfo() {
             public CharSequence loadLabel(PackageManager pm) {
+                labelReads++;
                 if (label == null) throw new RuntimeException("no label");
                 return label;
             }
@@ -254,14 +257,25 @@ public class AppScreensTest {
         AlertDialog d = p.dialog();
         check("the dialog is open with the title and a Cancel button", d != null && d.stubShown && "Add for".equals(String.valueOf(d.stubTitle)) && d.stubNegative != null);
         check("it has every app first, then the apps, off the main thread (the list arrives after)", waitUntil(new java.util.concurrent.Callable<Boolean>() {
-            public Boolean call() { return all(((AlertDialog) AlertDialog.stubLast).stubView).contains("App 0"); }
+            public Boolean call() { return all(((AlertDialog) AlertDialog.stubLast).stubView).contains("App 29"); }
         }));
         String t = all(d.stubView);
-        check("... " + MrAppPicker.PAGE + " apps at first, with Show more", t.contains("App 29") && !t.contains("App 30") && t.contains("mr_learned_more"));
+        check("... " + MrAppPicker.PAGE + " apps at first, and no Show more button", t.contains("App 29") && !t.contains("App 30") && !t.contains("mr_learned_more"));
         check("... the app that is chosen has a mark, and a note is drawn at the right of its row", t.contains("✓") && t.contains("12"));
         check("... and with more than " + MrAppPicker.SEARCH_FROM + " apps there is a search field", t.contains("mr_app_search") || hasSearch(d.stubView));
-        clickable(d.stubView, "mr_learned_more").performClick();
-        check("Show more shows " + MrAppPicker.PAGE + " more", all(d.stubView).contains("App 59") && !all(d.stubView).contains("App 60"));
+        android.widget.ScrollView sv = (android.widget.ScrollView) d.stubView;
+        sv.stubSize(300, 400);
+        sv.getChildAt(0).stubBottom(2000);
+        sv.scrollTo(0, 300);
+        sv.stubScroll.onScrollChange(sv, 0, 300, 0, 0);
+        check("scrolling far from the last row loads nothing", !all(d.stubView).contains("App 30"));
+        sv.scrollTo(0, 1700);
+        sv.stubScroll.onScrollChange(sv, 0, 1700, 0, 300);
+        check("reaching the last row adds the next " + MrAppPicker.PAGE + " apps", all(d.stubView).contains("App 59") && !all(d.stubView).contains("App 60"));
+        sv.stubScroll.onScrollChange(sv, 0, 1700, 0, 1700);
+        check("a scroll that does not go down adds nothing", !all(d.stubView).contains("App 60"));
+        sv.stubScroll.onScrollChange(sv, 0, 1800, 0, 1700);
+        check("the last page ends the list (the 70 apps, no more)", all(d.stubView).contains("App 69") && ((ViewGroup) field(p, MrAppPicker.class, "mListBox")).getChildCount() == 70);
         View row = clickable(d.stubView, "App 7");
         row.performClick();
         check("tapping an app chooses it and closes the dialog", picked.equals(java.util.Arrays.asList("app.n7")) && !d.stubShown);
@@ -331,6 +345,168 @@ public class AppScreensTest {
         check("a list that arrives after the dialog was closed is dropped (nothing is drawn)", !all(g.dialog().stubView).contains("App 0"));
     }
 
+    static final class MemDisk implements MrAppCache.Disk {
+        java.util.Map<String, String[]> rows = new java.util.HashMap<String, String[]>();
+        String sig;
+        int saves;
+        int closes;
+
+        public java.util.Map<String, String[]> rows() {
+            return new java.util.HashMap<String, String[]>(rows);
+        }
+
+        public String signature() {
+            return sig;
+        }
+
+        public void save(java.util.Map<String, String[]> r, String s) {
+            rows = new java.util.HashMap<String, String[]>(r);
+            sig = s;
+            saves++;
+        }
+
+        public void close() {
+            closes++;
+        }
+    }
+
+    static void cache() {
+        Phone p = phone();
+        Context c = ctxOf(p);
+        MemDisk disk = new MemDisk();
+        MrAppCache cache = new MrAppCache(c, disk);
+        check("nothing saved yet: the saved list is empty", cache.cached().isEmpty());
+        labelReads = 0;
+        List<MrAppList.Entry> first = cache.refresh();
+        check("the first time there is no signature: the list is made, with the names, and saved", first != null && names(first).equals(names(MrAppList.load(c))) && disk.saves == 1 && disk.sig != null && disk.rows.size() == first.size());
+        check("the signature is a SHA-256 in hex", disk.sig.length() == 64 && disk.sig.matches("[0-9a-f]+"));
+        check("the saved list is what the next opening shows at once, by name", names(cache.cached()).equals(names(first)));
+        labelReads = 0;
+        check("the same phone again: the signature is the same and nothing changes (null)", cache.refresh() == null && disk.saves == 1);
+        check("... and no name was read for it", labelReads == 0);
+        check("the signature of the phone is the one that was saved", MrAppList.signature(MrAppList.scan(c)).equals(disk.sig));
+
+        p.apps.add(app("com.new.app", "Novo", 0));
+        labelReads = 0;
+        List<MrAppList.Entry> added = cache.refresh();
+        check("an app that came: the new list has it and is saved", added != null && names(added).contains("com.new.app=Novo") && disk.saves == 2 && disk.rows.containsKey("com.new.app"));
+        check("... and only the name of the new app was read (the others come from the saved list)", labelReads == 1);
+
+        p.apps.remove(findInfo(p, "com.itau.app"));
+        List<MrAppList.Entry> removed = cache.refresh();
+        check("an app that went: the new list does not have it and the saved one does not either", removed != null && !names(removed).toString().contains("com.itau.app") && !disk.rows.containsKey("com.itau.app")
+                && !names(cache.cached()).toString().contains("com.itau.app"));
+
+        ResolveInfo wa = findInfo(p, "com.whatsapp");
+        wa.activityInfo.labelRes = 7;
+        labelReads = 0;
+        List<MrAppList.Entry> renamed = cache.refresh();
+        check("an app whose name resource changed (an update) is read again", renamed != null && labelReads == 1);
+
+        java.util.Locale was = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(new java.util.Locale("es", "ES"));
+            labelReads = 0;
+            List<MrAppList.Entry> lang = cache.refresh();
+            check("another language of the system: every name is read again", lang != null && labelReads > 1);
+        } finally {
+            java.util.Locale.setDefault(was);
+        }
+        cache.close();
+        check("closing the cache closes its disk", disk.closes == 1);
+
+        MemDisk fresh = new MemDisk();
+        check("a phone with no apps: the list is empty and saved, the next time is unchanged", new MrAppCache(ctxOf(new Phone()), fresh).refresh().isEmpty() && fresh.sig != null
+                && new MrAppCache(ctxOf(new Phone()), fresh).refresh() == null);
+    }
+
+    static ResolveInfo findInfo(Phone p, String pkg) {
+        for (ResolveInfo r : p.apps) if (r != null && r.activityInfo != null && pkg.equals(r.activityInfo.packageName)) return r;
+        return null;
+    }
+
+    static void live() {
+        final Screen s = new Screen();
+        MrLearned.useStore(new MrMemStore());
+        s.onCreate(null);
+        MrKit k = (MrKit) field(s, MrImportActivity.class, "k");
+        final List<MrAppList.Entry> old = new ArrayList<MrAppList.Entry>();
+        for (int i = 0; i < 5; i++) old.add(new MrAppList.Entry("app.n" + i, "App " + i));
+        final List<MrAppList.Entry> now = new ArrayList<MrAppList.Entry>(old);
+        now.remove(1);
+        now.add(new MrAppList.Entry("app.new", "App 9"));
+        final java.util.concurrent.CountDownLatch gate = new java.util.concurrent.CountDownLatch(1);
+        final int[] closed = new int[1];
+        MrAppPicker p = MrAppPicker.show(k, null, "T", "Empty", new MrAppPicker.Live() {
+            public List<MrAppList.Entry> cached() {
+                return old;
+            }
+
+            public List<MrAppList.Entry> refresh() {
+                try {
+                    gate.await();
+                } catch (InterruptedException ex) {
+                }
+                return now;
+            }
+
+            public void close() {
+                closed[0]++;
+            }
+        }, new MrAppPicker.Pick() {
+            public void onPick(String pkg) {
+            }
+        });
+        check("the saved list is on the screen before the phone has answered", waitUntil(new java.util.concurrent.Callable<Boolean>() {
+            public Boolean call() { return all(AlertDialog.stubLast.stubView).contains("App 1"); }
+        }) && !all(p.dialog().stubView).contains("App 9"));
+        gate.countDown();
+        check("when the phone answers with a difference, the apps that went are taken out and the new ones come in", waitUntil(new java.util.concurrent.Callable<Boolean>() {
+            public Boolean call() { return all(AlertDialog.stubLast.stubView).contains("App 9"); }
+        }) && !all(p.dialog().stubView).contains("App 1,") && !all(p.dialog().stubView).contains("App 1]"));
+        check("the source is closed when its work is done", waitUntil(new java.util.concurrent.Callable<Boolean>() {
+            public Boolean call() { return closed[0] == 1; }
+        }));
+
+        MrAppPicker q = MrAppPicker.show(k, null, "T", "Empty", new MrAppPicker.Live() {
+            public List<MrAppList.Entry> cached() {
+                return old;
+            }
+
+            public List<MrAppList.Entry> refresh() {
+                return null;
+            }
+
+            public void close() {
+            }
+        }, new MrAppPicker.Pick() {
+            public void onPick(String pkg) {
+            }
+        });
+        check("an unchanged phone (null) keeps the saved list as it is", waitUntil(new java.util.concurrent.Callable<Boolean>() {
+            public Boolean call() { return all(AlertDialog.stubLast.stubView).contains("App 4"); }
+        }));
+
+        MrAppPicker r = MrAppPicker.show(k, null, "T", "Nothing saved", new MrAppPicker.Live() {
+            public List<MrAppList.Entry> cached() {
+                throw new RuntimeException("disk");
+            }
+
+            public List<MrAppList.Entry> refresh() {
+                return new ArrayList<MrAppList.Entry>();
+            }
+
+            public void close() {
+            }
+        }, new MrAppPicker.Pick() {
+            public void onPick(String pkg) {
+            }
+        });
+        check("a saved list that cannot be read is the same as none: the phone is asked", waitUntil(new java.util.concurrent.Callable<Boolean>() {
+            public Boolean call() { return all(AlertDialog.stubLast.stubView).contains("Nothing saved"); }
+        }));
+    }
+
     static boolean hasSearch(View v) {
         return searchShown(v);
     }
@@ -369,11 +545,13 @@ public class AppScreensTest {
         setField(s, cl, "mPlan", plan);
         call(s, cl, "apply", new Class<?>[0]);
         check("saving with an app chosen puts the words under that app, not under the language", waitUntil(new java.util.concurrent.Callable<Boolean>() {
-            public Boolean call() { return st.count(MrWordStore.KIND_IMPORTED_WORD, MrApp.scope(L, "com.itau.app")) == 2; }
+            public Boolean call() { return st.count(MrWordStore.KIND_IMPORTED_WORD, MrApp.scope(L, "com.itau.app")) == 2 && visible(field(s, cl, "mUndo")); }
         }) && st.count(MrWordStore.KIND_IMPORTED_WORD, L) == 0 && st.count(MrWordStore.KIND_IMPORTED_PAIR, MrApp.scope(L, "com.itau.app")) == 1);
         android.content.SharedPreferences pr = s.getSharedPreferences("mr_words", 0);
         check("the screen remembers the app of the last addition, with its batch and its count", "com.itau.app".equals(pr.getString("last_app", null)) && pr.getLong("last_batch", 0) > 0 && pr.getInt("last_count", 0) == 3);
         check("the answer of the save says the words work only in that app", String.valueOf(AlertDialog.stubLastMessage).contains("mr_import_added_app"));
+        check("after saving, the app goes back to every app, as the text box goes back to empty", field(s, cl, "mApp") == null && all((View) field(s, cl, "mAppBox")).contains("mr_app_all")
+                && String.valueOf(((TextView) field(s, cl, "mAppNote")).getText()).equals("mr_app_note_all"));
         check("the Undo button is there", visible(field(s, cl, "mUndo")));
         call(s, cl, "undoLast", new Class<?>[0]);
         AlertDialog ask = AlertDialog.stubLast;
@@ -556,7 +734,9 @@ public class AppScreensTest {
 
     public static void main(String[] args) throws Exception {
         list();
+        cache();
         picker();
+        live();
         importScreen();
         learned();
         files();

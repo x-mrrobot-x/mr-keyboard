@@ -10,6 +10,12 @@ public class View {
     public interface OnClickListener { void onClick(View v); }
     public interface OnLongClickListener { boolean onLongClick(View v); }
     public interface OnTouchListener { boolean onTouch(View v, MotionEvent event); }
+    public interface OnScrollChangeListener { void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY); }
+    public OnScrollChangeListener stubScroll;
+    public void setOnScrollChangeListener(OnScrollChangeListener l) { stubScroll = l; }
+    private int stubBottom;
+    public int getBottom() { return stubBottom; }
+    public void stubBottom(int bottom) { stubBottom = bottom; }
     public interface OnFocusChangeListener { void onFocusChange(View v, boolean hasFocus); }
     public static final int FOCUS_DOWN = 130;
     public interface OnLayoutChangeListener {

@@ -3,12 +3,12 @@
 .source "MrImportActivity.java"
 
 # interfaces
-.implements Lcom/mrkeyboard/app/MrAppPicker$Pick;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrImportActivity;->chooseApp()V
+    value = Lcom/mrkeyboard/app/MrImportActivity;->analyze()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,31 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
+.field final synthetic val$locale:Ljava/lang/String;
+
+.field final synthetic val$standard:Z
+
+.field final synthetic val$text:Ljava/lang/String;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;Ljava/lang/String;ZLjava/lang/String;)V
     .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 317
+    .line 395
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->val$locale:Ljava/lang/String;
+
+    iput-boolean p3, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->val$standard:Z
+
+    iput-object p4, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->val$text:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,75 +53,120 @@
 
 
 # virtual methods
-.method public onPick(Ljava/lang/String;)V
-    .locals 1
+.method public run()V
+    .locals 6
 
     .prologue
-    .line 319
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    const/4 v1, 0x0
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$1100(Lcom/mrkeyboard/app/MrImportActivity;)Z
+    .line 397
+    .line 398
+    const/4 v0, 0x0
 
-    move-result v0
+    .line 399
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    if-nez v0, :cond_0
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->val$locale:Ljava/lang/String;
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    invoke-static {v2, v3}, Lcom/mrkeyboard/app/MrPacks;->openDictionary(Landroid/content/Context;Ljava/lang/String;)Lcom/mrkeyboard/app/BinaryDictionary;
 
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrImportActivity;->isFinishing()Z
+    move-result-object v3
 
-    move-result v0
+    .line 401
+    if-nez v3, :cond_1
 
-    if-eqz v0, :cond_1
+    :try_start_0
+    iget-boolean v2, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->val$standard:Z
+    :try_end_0
+    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+    .catch Ljava/lang/OutOfMemoryError; {:try_start_0 .. :try_end_0} :catch_1
+    .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 325
-    :cond_0
+    if-nez v2, :cond_1
+
+    .line 402
+    const/4 v0, 0x1
+
+    .line 421
     :goto_0
+    if-eqz v3, :cond_0
+
+    invoke-virtual {v3}, Lcom/mrkeyboard/app/BinaryDictionary;->close()V
+
+    .line 425
+    :cond_0
+    :goto_1
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    new-instance v3, Lcom/mrkeyboard/app/MrImportActivity$11$3;
+
+    invoke-direct {v3, p0, v0, v1}, Lcom/mrkeyboard/app/MrImportActivity$11$3;-><init>(Lcom/mrkeyboard/app/MrImportActivity$11;ZLcom/mrkeyboard/app/MrImport$Plan;)V
+
+    invoke-virtual {v2, v3}, Lcom/mrkeyboard/app/MrImportActivity;->runOnUiThread(Ljava/lang/Runnable;)V
+
+    .line 439
     return-void
 
-    .line 320
+    .line 404
     :cond_1
-    if-nez p1, :cond_3
+    :try_start_1
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->val$text:Ljava/lang/String;
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    new-instance v4, Lcom/mrkeyboard/app/MrImportActivity$11$1;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$1600(Lcom/mrkeyboard/app/MrImportActivity;)Ljava/lang/String;
+    invoke-direct {v4, p0, v3}, Lcom/mrkeyboard/app/MrImportActivity$11$1;-><init>(Lcom/mrkeyboard/app/MrImportActivity$11;Lcom/mrkeyboard/app/BinaryDictionary;)V
 
-    move-result-object v0
+    invoke-static {v2, v4}, Lcom/mrkeyboard/app/MrImport;->parse(Ljava/lang/String;Lcom/mrkeyboard/app/MrImport$Known;)Lcom/mrkeyboard/app/MrImport$Plan;
 
-    if-eqz v0, :cond_0
+    move-result-object v2
 
-    .line 321
+    .line 410
+    iget-object v4, v2, Lcom/mrkeyboard/app/MrImport$Plan;->words:Ljava/util/ArrayList;
+
+    new-instance v5, Lcom/mrkeyboard/app/MrImportActivity$11$2;
+
+    invoke-direct {v5, p0}, Lcom/mrkeyboard/app/MrImportActivity$11$2;-><init>(Lcom/mrkeyboard/app/MrImportActivity$11;)V
+
+    invoke-static {v4, v5}, Ljava/util/Collections;->sort(Ljava/util/List;Ljava/util/Comparator;)V
+    :try_end_1
+    .catch Ljava/lang/RuntimeException; {:try_start_1 .. :try_end_1} :catch_0
+    .catch Ljava/lang/OutOfMemoryError; {:try_start_1 .. :try_end_1} :catch_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+
+    move-object v1, v2
+
+    goto :goto_0
+
+    .line 416
+    :catch_0
+    move-exception v2
+
+    .line 421
+    if-eqz v3, :cond_0
+
+    invoke-virtual {v3}, Lcom/mrkeyboard/app/BinaryDictionary;->close()V
+
+    goto :goto_1
+
+    .line 418
+    :catch_1
+    move-exception v2
+
+    .line 421
+    if-eqz v3, :cond_0
+
+    invoke-virtual {v3}, Lcom/mrkeyboard/app/BinaryDictionary;->close()V
+
+    goto :goto_1
+
+    :catchall_0
+    move-exception v0
+
+    if-eqz v3, :cond_2
+
+    invoke-virtual {v3}, Lcom/mrkeyboard/app/BinaryDictionary;->close()V
+
+    .line 422
     :cond_2
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
-
-    invoke-static {v0, p1}, Lcom/mrkeyboard/app/MrImportActivity;->access$1602(Lcom/mrkeyboard/app/MrImportActivity;Ljava/lang/String;)Ljava/lang/String;
-
-    .line 323
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$400(Lcom/mrkeyboard/app/MrImportActivity;)V
-
-    .line 324
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$1700(Lcom/mrkeyboard/app/MrImportActivity;)V
-
-    goto :goto_0
-
-    .line 320
-    :cond_3
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$1600(Lcom/mrkeyboard/app/MrImportActivity;)Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_2
-
-    goto :goto_0
+    throw v0
 .end method

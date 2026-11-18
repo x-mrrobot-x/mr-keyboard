@@ -3,7 +3,7 @@
 .source "MrImportActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Landroid/content/DialogInterface$OnClickListener;
 
 
 # annotations
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 539
+    .line 550
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$16;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,15 +36,15 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
+.method public onClick(Landroid/content/DialogInterface;I)V
     .locals 1
 
     .prologue
-    .line 541
+    .line 552
     iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$16;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$2400(Lcom/mrkeyboard/app/MrImportActivity;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$2500(Lcom/mrkeyboard/app/MrImportActivity;)V
 
-    .line 542
+    .line 553
     return-void
 .end method

@@ -29,12 +29,12 @@
     .locals 1
 
     .prologue
-    .line 41
+    .line 46
     const/4 v0, 0x0
 
     invoke-direct {p0, p1, p2, v0}, Lcom/mrkeyboard/app/MrAppList$Entry;-><init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 42
+    .line 47
     return-void
 .end method
 
@@ -42,16 +42,16 @@
     .locals 2
 
     .prologue
-    .line 44
+    .line 49
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 45
+    .line 50
     iput-object p1, p0, Lcom/mrkeyboard/app/MrAppList$Entry;->pkg:Ljava/lang/String;
 
-    .line 46
+    .line 51
     iput-object p2, p0, Lcom/mrkeyboard/app/MrAppList$Entry;->label:Ljava/lang/String;
 
-    .line 47
+    .line 52
     invoke-static {p2}, Lcom/mrkeyboard/app/MrMemStore;->fold(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
@@ -64,9 +64,9 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrAppList$Entry;->folded:Ljava/lang/String;
 
-    .line 48
+    .line 53
     iput-object p3, p0, Lcom/mrkeyboard/app/MrAppList$Entry;->note:Ljava/lang/String;
 
-    .line 49
+    .line 54
     return-void
 .end method

@@ -1,4 +1,4 @@
-.class Lcom/mrkeyboard/app/MrImportActivity$12$3;
+.class Lcom/mrkeyboard/app/MrImportActivity$11$3;
 .super Ljava/lang/Object;
 .source "MrImportActivity.java"
 
@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrImportActivity$12;->run()V
+    value = Lcom/mrkeyboard/app/MrImportActivity$11;->run()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,7 +18,7 @@
 
 
 # instance fields
-.field final synthetic this$1:Lcom/mrkeyboard/app/MrImportActivity$12;
+.field final synthetic this$1:Lcom/mrkeyboard/app/MrImportActivity$11;
 
 .field final synthetic val$done:Lcom/mrkeyboard/app/MrImport$Plan;
 
@@ -26,7 +26,7 @@
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity$12;ZLcom/mrkeyboard/app/MrImport$Plan;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity$11;ZLcom/mrkeyboard/app/MrImport$Plan;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -35,12 +35,12 @@
     .end annotation
 
     .prologue
-    .line 429
-    iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$12$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$12;
+    .line 425
+    iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$11$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$11;
 
-    iput-boolean p2, p0, Lcom/mrkeyboard/app/MrImportActivity$12$3;->val$missing:Z
+    iput-boolean p2, p0, Lcom/mrkeyboard/app/MrImportActivity$11$3;->val$missing:Z
 
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrImportActivity$12$3;->val$done:Lcom/mrkeyboard/app/MrImport$Plan;
+    iput-object p3, p0, Lcom/mrkeyboard/app/MrImportActivity$11$3;->val$done:Lcom/mrkeyboard/app/MrImport$Plan;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -55,10 +55,10 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 431
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$12$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$12;
+    .line 427
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$11;
 
-    iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrImportActivity;->isFinishing()Z
 
@@ -66,37 +66,37 @@
 
     if-eqz v0, :cond_0
 
-    .line 441
+    .line 437
     :goto_0
     return-void
 
-    .line 432
+    .line 428
     :cond_0
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$12$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$12;
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$11;
 
-    iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     const/4 v1, 0x0
 
     invoke-static {v0, v3, v1}, Lcom/mrkeyboard/app/MrImportActivity;->access$1800(Lcom/mrkeyboard/app/MrImportActivity;ZLjava/lang/String;)V
 
-    .line 433
-    iget-boolean v0, p0, Lcom/mrkeyboard/app/MrImportActivity$12$3;->val$missing:Z
+    .line 429
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11$3;->val$missing:Z
 
     if-eqz v0, :cond_1
 
-    .line 434
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$12$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$12;
+    .line 430
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$11;
 
-    iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$1900(Lcom/mrkeyboard/app/MrImportActivity;)Lcom/mrkeyboard/app/MrKit;
 
     move-result-object v0
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$12$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$12;
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$11$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$11;
 
-    iget-object v1, v1, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    iget-object v1, v1, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrImportActivity;->access$1900(Lcom/mrkeyboard/app/MrImportActivity;)Lcom/mrkeyboard/app/MrKit;
 
@@ -114,24 +114,24 @@
 
     goto :goto_0
 
-    .line 435
+    .line 431
     :cond_1
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$12$3;->val$done:Lcom/mrkeyboard/app/MrImport$Plan;
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11$3;->val$done:Lcom/mrkeyboard/app/MrImport$Plan;
 
     if-nez v0, :cond_2
 
-    .line 436
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$12$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$12;
+    .line 432
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$11;
 
-    iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$1900(Lcom/mrkeyboard/app/MrImportActivity;)Lcom/mrkeyboard/app/MrKit;
 
     move-result-object v0
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$12$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$12;
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$11$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$11;
 
-    iget-object v1, v1, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    iget-object v1, v1, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrImportActivity;->access$1900(Lcom/mrkeyboard/app/MrImportActivity;)Lcom/mrkeyboard/app/MrKit;
 
@@ -149,20 +149,20 @@
 
     goto :goto_0
 
-    .line 438
+    .line 434
     :cond_2
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$12$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$12;
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$11;
 
-    iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$12$3;->val$done:Lcom/mrkeyboard/app/MrImport$Plan;
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$11$3;->val$done:Lcom/mrkeyboard/app/MrImport$Plan;
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrImportActivity;->access$2002(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrImport$Plan;)Lcom/mrkeyboard/app/MrImport$Plan;
 
-    .line 439
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$12$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$12;
+    .line 435
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$11$3;->this$1:Lcom/mrkeyboard/app/MrImportActivity$11;
 
-    iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$12;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    iget-object v0, v0, Lcom/mrkeyboard/app/MrImportActivity$11;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$2100(Lcom/mrkeyboard/app/MrImportActivity;)V
 

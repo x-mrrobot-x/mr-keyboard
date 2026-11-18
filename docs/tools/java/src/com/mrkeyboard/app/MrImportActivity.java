@@ -307,14 +307,10 @@ public class MrImportActivity extends Activity {
         mAppNote.setText(mApp == null ? k.t("mr_app_note_all") : k.t("mr_app_note", name));
     }
 
-    /** The dialog with every app and the apps of the phone (loaded off the main thread, no system apps). */
+    /** The dialog with every app and the apps of the phone (the saved list at once, then checked off the main thread; no system apps). */
     private void chooseApp() {
         if (mBusy) return;
-        MrAppPicker.show(k, mApp, k.t("mr_app_card_title"), k.t("mr_app_none_installed"), new MrAppPicker.Source() {
-            public List<MrAppList.Entry> load() {
-                return MrAppList.load(MrImportActivity.this);
-            }
-        }, new MrAppPicker.Pick() {
+        MrAppPicker.show(k, mApp, k.t("mr_app_card_title"), k.t("mr_app_none_installed"), MrAppCache.open(this), new MrAppPicker.Pick() {
             public void onPick(String pkg) {
                 if (mBusy || isFinishing()) return;
                 if (pkg == null ? mApp == null : pkg.equals(mApp)) return;
@@ -696,6 +692,8 @@ public class MrImportActivity extends Activity {
                         mPlan = null;
                         clearPreview();
                         mText.setText("");
+                        mApp = null;
+                        refreshApp();
                         refreshUndo();
                     }
                 });

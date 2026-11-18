@@ -6,4 +6,5 @@ public class ApplicationInfo {
     public static final int FLAG_UPDATED_SYSTEM_APP = 128;
     public String packageName;
     public int flags;
+    public int labelRes;
 }

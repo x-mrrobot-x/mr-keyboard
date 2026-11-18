@@ -3,12 +3,12 @@
 .source "MrAppPicker.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrAppPicker;->open(Ljava/lang/String;)V
+    value = Lcom/mrkeyboard/app/MrAppPicker;->post(Ljava/util/List;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
+.field final synthetic val$list:Ljava/util/List;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrAppPicker;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/List;)V
     .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 140
+    .line 141
     iput-object p1, p0, Lcom/mrkeyboard/app/MrAppPicker$4;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
+
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrAppPicker$4;->val$list:Ljava/util/List;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,21 +45,16 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
+.method public run()V
     .locals 2
 
     .prologue
-    .line 142
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$4;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
-
-    const/16 v1, 0x1e
-
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAppPicker;->access$512(Lcom/mrkeyboard/app/MrAppPicker;I)I
-
     .line 143
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$4;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrAppPicker;->access$600(Lcom/mrkeyboard/app/MrAppPicker;)V
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrAppPicker$4;->val$list:Ljava/util/List;
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAppPicker;->access$200(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/List;)V
 
     .line 144
     return-void

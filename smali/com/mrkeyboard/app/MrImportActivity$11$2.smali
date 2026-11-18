@@ -1,4 +1,4 @@
-.class Lcom/mrkeyboard/app/MrImportActivity$12$2;
+.class Lcom/mrkeyboard/app/MrImportActivity$11$2;
 .super Ljava/lang/Object;
 .source "MrImportActivity.java"
 
@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrImportActivity$12;->run()V
+    value = Lcom/mrkeyboard/app/MrImportActivity$11;->run()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -28,16 +28,16 @@
 
 
 # instance fields
-.field final synthetic this$1:Lcom/mrkeyboard/app/MrImportActivity$12;
+.field final synthetic this$1:Lcom/mrkeyboard/app/MrImportActivity$11;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity$12;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity$11;)V
     .locals 0
 
     .prologue
-    .line 414
-    iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$12$2;->this$1:Lcom/mrkeyboard/app/MrImportActivity$12;
+    .line 410
+    iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$11$2;->this$1:Lcom/mrkeyboard/app/MrImportActivity$11;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -50,7 +50,7 @@
     .locals 2
 
     .prologue
-    .line 416
+    .line 412
     iget v0, p2, Lcom/mrkeyboard/app/MrImport$NewWord;->count:I
 
     iget v1, p1, Lcom/mrkeyboard/app/MrImport$NewWord;->count:I
@@ -89,12 +89,12 @@
     .locals 1
 
     .prologue
-    .line 414
+    .line 410
     check-cast p1, Lcom/mrkeyboard/app/MrImport$NewWord;
 
     check-cast p2, Lcom/mrkeyboard/app/MrImport$NewWord;
 
-    invoke-virtual {p0, p1, p2}, Lcom/mrkeyboard/app/MrImportActivity$12$2;->compare(Lcom/mrkeyboard/app/MrImport$NewWord;Lcom/mrkeyboard/app/MrImport$NewWord;)I
+    invoke-virtual {p0, p1, p2}, Lcom/mrkeyboard/app/MrImportActivity$11$2;->compare(Lcom/mrkeyboard/app/MrImport$NewWord;Lcom/mrkeyboard/app/MrImport$NewWord;)I
 
     move-result v0
 
