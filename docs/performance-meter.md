@@ -11,6 +11,17 @@ open (see `docs/suggestion-features.md`). They are read in a thread each time th
 `MrPerf.fill`; the lines say "Reading…" until the text arrives and the row is then written again with it) and the answer of an older read is dropped when a newer
 one has started. A process that never opened the screen has no such lines in the text of the row.
 
+After the dictionary memory and before the note about resetting come two more lines that used to be rows of "Suggestions and dictionaries" (`MrEngineStats.block`, asked by
+`MrPerf.summary`): **Suggestion engine** (Native (C++), or why the lib is missing) and **Recognition time** of the gesture typing (last gesture, average, longest, how many, the
+word shown while the finger slides, the words of the person that the gestures know; or why there is no time yet). Test: `docs/tools/perf_test/EngineStatsTest.java`.
+
+### When a tap on an edge key (123) feels late and the numbers are fine
+The press lines see only what happens from the moment the keyboard gets the event: "touch seen after" is the clock against the **event time** that the system stamped, so a
+touch that the touch controller held back before the system stamped it (a low-power scan, the rejection of a grip or palm near the edge of the glass) shows nothing there,
+and neither does a frame that the display shows late. When "Worst press" and "Worst long press" read as in a healthy sample (touch seen after a few ms, timer late 0, popup
+about one frame) and the key still felt late, the delay is outside the keyboard. A quick way to tell: when it happens, tap a button of another app at the same edge of the
+screen (and a key far from the edge), and try another keyboard; if they lag too, it is the system or the touch hardware.
+
 ## What the performance round changed
 
 The rule of the round: the app is for other people's phones, so a cut is made where it can be **counted** (questions to the app per key,

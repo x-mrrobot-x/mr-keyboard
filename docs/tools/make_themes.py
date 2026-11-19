@@ -571,6 +571,7 @@ def neon_colors(th):
     c[n('cursor')] = ref('text')
     c[n('hint')] = alpha(mix(key, WHITE, .55), .62)
     c[n('popup_hint')] = ref('hint')
+    c[n('popup_text')] = ref('text')      # the letters of the popup of variants: the text of the theme, unless its table says another
 
     # ---- roles read by name (MrTheme.color): keys
     c[n('accent_text')] = acc_text
@@ -808,6 +809,7 @@ SKY = collections.OrderedDict([
     ('deep', '#2d4668'),    # the buttons of the system under the keyboard (bars_ink): dark, because the ink is pale and the background is light
     ('lang', '#5e7898'),    # the language names of the long press on the space bar (lang_text): on the white bubble, the ink 55% of the way to deep
     ('btn', '#7e99b8'),     # the texts and icons inside the buttons of the tools (btn_ink): the ink a little darker (a quarter of the way from the picture's ink to deep), which the buttons' dark face would swallow
+    ('popup', '#465f80'),   # the letters of the popup of variants (long press on a letter): the language-name color halfway to deep, 6.4 of contrast on the bubble and 3.5 on the chosen variant (the ink had 2.7 and 1.5)
     ('red', '#d93b3b'),     # the locked dash (modifier_indicator_lock): the red that every theme uses, light enough not to be a dark wine and 2.2 of contrast with the highlight keys
 ])
 
@@ -1170,6 +1172,7 @@ SOLID = [
               ('space_text', SKY['white']),
               # Cancel of the attachments is on a pale blue button: the ink would have 1.8 of contrast with it, the language blue has 3
               ('sel_cancel_text', SKY['lang']),
+              ('popup_text', SKY['popup']),
               # the dash of Ctrl, Alt and Shift: unlit = the derived tone (the face a little darker) leaning 30% to the vivid blue, so it is not a flat grey;
               # lit = white (as the labels of the highlight keys); locked = a clear red, as in every theme (the derived one was a dark wine)
               ('modifier_indicator_off', mix(hex6(subdued(SKY['mod'])), SKY['vivid'], .30)),
@@ -1283,6 +1286,7 @@ def solid_colors(th):
     c[n('cursor')] = ref('text')
     c[n('hint')] = lively(th.tint or accent, text, [bg, key]) if light else mix(key, text, .50)
     c[n('popup_hint')] = ref('hint')
+    c[n('popup_text')] = ref('text')      # the letters of the popup of variants: the text of the theme, unless its table says another
 
     plain_roles(c, n, ref, bg, mod, text, th.mod_text, accent, 'key_acc_normal_fill', GLOSS_VEIL if th.clear else 1.0,
                 dash_exact=th.dash_on, tint=th.tint, light=light)
@@ -1542,6 +1546,7 @@ def gloss_colors(th):
     else:
         c[n('hint')] = lively(th.tint or accent, text, [bg, th.key[1]]) if dark_ink(text) else mix(th.key[1], text, .50)
     c[n('popup_hint')] = ref('hint')
+    c[n('popup_text')] = ref('text')      # the letters of the popup of variants: the text of the theme, unless its table says another
 
     # ---- roles read by name (MrTheme.color)
     ctrl_face = {'top': hex6(mix(th.mod[0], WHITE, th.coat[0])), 'mid': hex6(th.mod[1]), 'bottom': hex6(th.mod[2])}[th.ctrl]
@@ -1696,7 +1701,7 @@ LAYOUTS = collections.OrderedDict([
         latin:keyHintColor="@color/mr_%(t)s_popup_hint"
         latin:keyHysteresisDistance="0.0dip"
         latin:keyPreviewLayout="@layout/null_layout"
-        latin:keyTextColor="@color/mr_%(t)s_text"
+        latin:keyTextColor="@color/mr_%(t)s_popup_text"
         latin:popupLayout="@layout/null_layout"
         latin:verticalCorrection="@dimen/mini_keyboard_vertical_correction"
         xmlns:latin="http://schemas.android.com/apk/res-auto" />

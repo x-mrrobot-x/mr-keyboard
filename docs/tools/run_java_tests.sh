@@ -57,6 +57,8 @@
 #   - DictMemTest: the "Dictionary memory" lines inside the card of Settings → Advanced → Performance → Keyboard statistics (MrDictMem, written into the row of MrPerf): no lines before
 #     the screen opens, no pack in use (said at once, no thread), "Reading…" and then the three lines from the thread (pack, triples, engine), a pack without triples, a newer read
 #     winning over an older one, the pack that goes away, a screen that is gone, no row, texts missing.
+#   - EngineStatsTest: the engine line and the recognition time of the gestures (MrEngineStats), now in the card "Keyboard statistics" of Advanced and no longer rows of "Suggestions and dictionaries":
+#     the texts when the lib is missing, typing by gestures off or the file not downloaded, a title missing, a phone that gives no resources, and the screen of the suggestions without the two rows.
 #   - PerfTest: the performance meter of the keyboard (MrPerf): begin/end pairs in microseconds, the
 #     average and p95 of the last 256 samples with the count and maximum since the reset, the first frame after a field opens (not after
 #     2 s), how late a finger down reaches the keyboard, the delay of the long press timer counted from the touch and the worst long press (MrLongPress), a key counted by its kind (letter, separator, delete, other), the Advanced row
@@ -148,6 +150,10 @@ java -cp "$T/test_diag:$T/stubs:$T/main" com.mrkeyboard.app.DiagTest
 echo "== DictMemTest (the Dictionary memory row of Advanced: no pack, Reading…, the lines from the thread, a newer read wins, a gone screen, missing texts)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_dictmem" $D/diag_test/DictMemTest.java
 java -Dfile.encoding=UTF-8 -cp "$T/test_dictmem:$T/stubs:$T/main" com.mrkeyboard.app.DictMemTest
+
+echo "== EngineStatsTest (the engine and the recognition time of the gestures, now in the card of the statistics)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_engstats" $D/perf_test/EngineStatsTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_engstats:$T/stubs:$T/main" com.mrkeyboard.app.EngineStatsTest
 
 echo "== PerfTest (performance meter: begin/end, average/p95/max, first frame, touch wait, the Advanced row, the history of the starts, the memory cleanup, the log)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_perf" $D/perf_test/PerfTest.java

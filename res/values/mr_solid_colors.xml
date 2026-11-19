@@ -12,6 +12,7 @@
     <color name="mr_midnight_cursor">@color/mr_midnight_text</color>
     <color name="mr_midnight_hint">#ff7e94b1</color>
     <color name="mr_midnight_popup_hint">@color/mr_midnight_hint</color>
+    <color name="mr_midnight_popup_text">@color/mr_midnight_text</color>
     <color name="mr_midnight_accent_text">#ffe7eef7</color>
     <color name="mr_midnight_modifier_indicator_off">#ff263344</color>
     <color name="mr_midnight_modifier_indicator_on">#ff72a2e8</color>
@@ -72,6 +73,7 @@
     <color name="mr_denim_cursor">@color/mr_denim_text</color>
     <color name="mr_denim_hint">#ff9ec0ee</color>
     <color name="mr_denim_popup_hint">@color/mr_denim_hint</color>
+    <color name="mr_denim_popup_text">@color/mr_denim_text</color>
     <color name="mr_denim_accent_text">#ffe7eef7</color>
     <color name="mr_denim_modifier_indicator_off">#ff2e5283</color>
     <color name="mr_denim_modifier_indicator_on">#ffc5d6eb</color>
@@ -131,6 +133,7 @@
     <color name="mr_snow_cursor">@color/mr_snow_text</color>
     <color name="mr_snow_hint">#ff4b6079</color>
     <color name="mr_snow_popup_hint">@color/mr_snow_hint</color>
+    <color name="mr_snow_popup_text">@color/mr_snow_text</color>
     <color name="mr_snow_accent_text">#ff334660</color>
     <color name="mr_snow_modifier_indicator_off">#ffa6b6cc</color>
     <color name="mr_snow_modifier_indicator_on">#ff72a2e8</color>
@@ -191,6 +194,7 @@
     <color name="mr_rose_cursor">@color/mr_rose_text</color>
     <color name="mr_rose_hint">#ffbb4371</color>
     <color name="mr_rose_popup_hint">@color/mr_rose_hint</color>
+    <color name="mr_rose_popup_text">@color/mr_rose_text</color>
     <color name="mr_rose_accent_text">#ff4a2030</color>
     <color name="mr_rose_modifier_indicator_off">#ffd09eae</color>
     <color name="mr_rose_modifier_indicator_on">#ff9f375f</color>
@@ -252,6 +256,7 @@
     <color name="mr_aqua_cursor">@color/mr_aqua_text</color>
     <color name="mr_aqua_hint">#ff0f7ea3</color>
     <color name="mr_aqua_popup_hint">@color/mr_aqua_hint</color>
+    <color name="mr_aqua_popup_text">@color/mr_aqua_text</color>
     <color name="mr_aqua_accent_text">#fff6fefe</color>
     <color name="mr_aqua_modifier_indicator_off">#ff0c7695</color>
     <color name="mr_aqua_modifier_indicator_on">#fff6fefe</color>
@@ -314,6 +319,7 @@
     <color name="mr_sky_cursor">@color/mr_sky_text</color>
     <color name="mr_sky_hint">#ff839fc4</color>
     <color name="mr_sky_popup_hint">@color/mr_sky_hint</color>
+    <color name="mr_sky_popup_text">#ff465f80</color>
     <color name="mr_sky_accent_text">#ffffffff</color>
     <color name="mr_sky_modifier_indicator_off">#ff7293c3</color>
     <color name="mr_sky_modifier_indicator_on">#ffffffff</color>

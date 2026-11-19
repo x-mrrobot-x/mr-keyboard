@@ -65,7 +65,7 @@ public class MrPacksActivity extends PreferenceActivity {
     /** The id of the gesture recognition in the catalog ("models"); never the id of a language. */
     private static final String G = MrPacks.MODEL_GESTURE;
     /** Gesture typing rows (1.96.0): the file to download, the time of a gesture and the notice of the weights. */
-    private Preference mGPack, mGTime, mGNotice;
+    private Preference mGPack, mGNotice;
     private static final int REQ_MODEL_FILE = 7401;
 
     private final Runnable mRefresh = new Runnable() {
@@ -181,14 +181,6 @@ public class MrPacksActivity extends PreferenceActivity {
         plain(hint);
         hint.setSummary(t("mr_dicts_langs_hint"));
         mLangs.addPreference(hint);
-        // v1.77: says whether the native engine is in use (since 1.87.0 there is no Java fallback; this way you can check whether the lib was copied)
-        Preference engine = new Preference(this);
-        engine.setPersistent(false);
-        engine.setSelectable(false);
-        plain(engine);
-        engine.setTitle(t("mr_engine_title"));
-        engine.setSummary(t(MrNative.ready() ? "mr_engine_native" : "mr_engine_missing"));
-        mLangs.addPreference(engine);
         MrPacks.syncLanguages(this, ids);
         update();
     }
@@ -201,7 +193,6 @@ public class MrPacksActivity extends PreferenceActivity {
         }
         if (mCheck != null) mCheck.setSummary(checkState());
         if (mGPack != null) mGPack.setSummary(state(G, mCat != null ? mCat.model(G) : null, true));
-        if (mGTime != null) mGTime.setSummary(timeText());
     }
 
     /** Color from the app palette (mr_colors.xml) by name, or 0 if it does not exist. */
@@ -474,12 +465,6 @@ public class MrPacksActivity extends PreferenceActivity {
             }
         });
         group.addPreference(mGPack);
-        mGTime = new Preference(this);
-        mGTime.setPersistent(false);
-        mGTime.setSelectable(false);
-        plain(mGTime);
-        mGTime.setTitle(t("mr_gesture_time_title"));
-        group.addPreference(mGTime);
         // the notice the licence of the weights asks for ("powered by FUTO Swipe technology"), always on the screen, with or
         // without the file; one line, nothing to tap
         mGNotice = new Preference(this);
@@ -508,24 +493,6 @@ public class MrPacksActivity extends PreferenceActivity {
 
     private boolean gestureOn() {
         return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(MrGestureInput.PREF_ON, true);
-    }
-
-    /** Why there is no time yet, or the time of the last gesture, the average and the longest one since the keyboard started. */
-    private String timeText() {
-        if (!gestureOn()) return t("mr_gesture_time_off");
-        if (MrPacks.modelFile(this, G, MrPacks.ENCODER) == null) return t("mr_gesture_time_nopack");
-        if (!MrNative.ready()) return t("mr_engine_missing");
-        if (!MrGesture.ready()) return t("mr_gesture_time_loading");
-        long[] st = MrGestureInput.stats();
-        if (st[0] <= 0) return t("mr_gesture_time_none");
-        StringBuilder b = new StringBuilder(t("mr_gesture_time_stats", MrDiag.msText(st[1]), MrDiag.msText(st[2] / st[0]),
-                MrDiag.msText(st[3]), Integer.valueOf((int) Math.min(st[0], Integer.MAX_VALUE))));
-        // the recognitions made while the finger slid (the word on the strip); how many words of the person the
-        // last gesture could have written, and how long their copy took to make (once after each change, when a gesture begins)
-        if (st[4] > 0) b.append('\n').append(t("mr_gesture_time_preview", MrDiag.msText(st[5] / st[4]), MrDiag.msText(st[6])));
-        long[] own = MrGestureWords.stats();            // {words, nanoseconds the last copy took, bytes}
-        if (own[0] > 0) b.append('\n').append(t("mr_gesture_time_words", Integer.valueOf((int) Math.min(own[0], Integer.MAX_VALUE)), MrDiag.msText(own[1])));
-        return b.toString();
     }
 
     /** Tap on the row of the file, or the option turned on without it. */

@@ -1603,7 +1603,7 @@
     .locals 3
 
     .prologue
-    .line 762
+    .line 765
     :try_start_0
     const-string v0, "mr_perf"
 
@@ -1611,40 +1611,40 @@
 
     move-result-object v0
 
-    .line 763
+    .line 766
     if-nez v0, :cond_1
 
-    .line 772
+    .line 775
     :cond_0
     :goto_0
     return-void
 
-    .line 764
+    .line 767
     :cond_1
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPerf;->saveStart(Landroid/content/Context;)V
 
-    .line 765
+    .line 768
     invoke-static {p0}, Lcom/mrkeyboard/app/MrPerf;->summary(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setSummary(Ljava/lang/CharSequence;)V
 
-    .line 766
+    .line 769
     new-instance v1, Lcom/mrkeyboard/app/MrPerf$Reset;
 
     invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrPerf$Reset;-><init>(Landroid/content/Context;)V
 
     invoke-virtual {v0, v1}, Landroid/preference/Preference;->setOnPreferenceClickListener(Landroid/preference/Preference$OnPreferenceClickListener;)V
 
-    .line 767
+    .line 770
     const-string v1, "mr_perf_trim"
 
     invoke-virtual {p0, v1}, Landroid/preference/PreferenceActivity;->findPreference(Ljava/lang/CharSequence;)Landroid/preference/Preference;
 
     move-result-object v1
 
-    .line 768
+    .line 771
     if-eqz v1, :cond_0
 
     new-instance v2, Lcom/mrkeyboard/app/MrPerf$Trim;
@@ -1657,7 +1657,7 @@
 
     goto :goto_0
 
-    .line 769
+    .line 772
     :catch_0
     move-exception v0
 
@@ -1966,36 +1966,36 @@
 
     const/4 v1, 0x0
 
-    .line 747
+    .line 750
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
     move v0, v1
 
-    .line 748
+    .line 751
     :goto_0
     const/16 v3, 0x27
 
     if-ge v0, v3, :cond_1
 
-    .line 749
+    .line 752
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPerf;->stats(I)[I
 
     move-result-object v3
 
-    .line 750
+    .line 753
     aget v4, v3, v1
 
     if-nez v4, :cond_0
 
-    .line 748
+    .line 751
     :goto_1
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 751
+    .line 754
     :cond_0
     sget-object v4, Lcom/mrkeyboard/app/MrPerf;->LOG:[Ljava/lang/String;
 
@@ -2057,7 +2057,7 @@
 
     const-string v5, " ms ("
 
-    .line 752
+    .line 755
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
@@ -2074,7 +2074,7 @@
 
     goto :goto_1
 
-    .line 754
+    .line 757
     :cond_1
     const-string v0, "heap "
 
@@ -2100,7 +2100,7 @@
 
     move-result-object v0
 
-    .line 755
+    .line 758
     invoke-static {}, Landroid/os/Debug;->getNativeHeapAllocatedSize()J
 
     move-result-wide v4
@@ -2111,7 +2111,7 @@
 
     invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 756
+    .line 759
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
@@ -3563,11 +3563,11 @@
     move-result-object v1
 
     .line 668
-    if-nez v1, :cond_19
+    if-nez v1, :cond_1a
 
     const/4 v2, 0x4
 
-    if-ne v3, v2, :cond_19
+    if-ne v3, v2, :cond_1a
 
     sget-object v1, Lcom/mrkeyboard/app/MrPerf;->NAMES:[Ljava/lang/String;
 
@@ -3847,7 +3847,7 @@
 
     const/16 v1, -0x12c
 
-    if-ne v0, v1, :cond_16
+    if-ne v0, v1, :cond_17
 
     const-string v0, "mr_ui_perf_long_key_sheet"
 
@@ -3861,7 +3861,7 @@
     move-result-object v0
 
     .line 693
-    if-nez v0, :cond_17
+    if-nez v0, :cond_18
 
     const/4 v0, 0x0
 
@@ -4172,7 +4172,7 @@
 
     move-result v0
 
-    if-lez v0, :cond_18
+    if-lez v0, :cond_19
 
     const/4 v0, 0x1
 
@@ -4260,11 +4260,28 @@
 
     invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 738
-    :cond_14
-    if-eqz v0, :cond_15
-
     .line 739
+    :cond_14
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrEngineStats;->block(Landroid/content/Context;)Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 740
+    if-eqz v1, :cond_15
+
+    const/16 v2, 0xa
+
+    invoke-virtual {v4, v2}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 741
+    :cond_15
+    if-eqz v0, :cond_16
+
+    .line 742
     const-string v0, "mr_ui_perf_reset"
 
     const/4 v1, 0x0
@@ -4275,8 +4292,8 @@
 
     move-result-object v0
 
-    .line 740
-    if-eqz v0, :cond_15
+    .line 743
+    if-eqz v0, :cond_16
 
     const/16 v1, 0xa
 
@@ -4286,8 +4303,8 @@
 
     invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 742
-    :cond_15
+    .line 745
+    :cond_16
     invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
@@ -4295,13 +4312,13 @@
     return-object v0
 
     .line 692
-    :cond_16
+    :cond_17
     const-string v0, "mr_ui_perf_long_key_other"
 
     goto/16 :goto_7
 
     .line 693
-    :cond_17
+    :cond_18
     const-string v1, "mr_ui_perf_long_worst"
 
     const/4 v2, 0x6
@@ -4406,12 +4423,12 @@
     goto/16 :goto_8
 
     .line 728
-    :cond_18
+    :cond_19
     const/4 v0, 0x0
 
     goto/16 :goto_9
 
-    :cond_19
+    :cond_1a
     move-object v2, v1
 
     goto/16 :goto_4

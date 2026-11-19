@@ -8,7 +8,7 @@
 
 .field static final PREF_RECENT:Ljava/lang/String; = "symbol_recent"
 
-.field static final RECENT_DEFAULT:Ljava/lang/String; = "\u2605|\u2665|\u2714|\u279c|\u266a|\u263a|\u273f|\u2661|\u270c|\u262f|\u20ac|\u221e"
+.field static final RECENT_DEFAULT:Ljava/lang/String; = "\u2605|\u2765|\u279c|\u266a|\u273f|\u2661|\u261c|\u261e|\u20ac|\u221e|\u263b|\u2606"
 
 .field static final RECENT_MAX:I = 0x18
 
@@ -62,7 +62,7 @@
 
     aput-object v1, v0, v4
 
-    const-string v1, "\u2665"
+    const-string v1, "\u2765"
 
     aput-object v1, v0, v5
 
@@ -100,18 +100,18 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrSymbols;->TAB:[Ljava/lang/String;
 
-    .line 46
+    .line 49
     new-array v0, v3, [Ljava/lang/String;
 
-    const-string v1, "\u2605\u2606\u272a\u272b\u272c\u272d\u272e\u272f\u2730\u2729\u2726\u2727\u2721\u269d\u2b51\u2b52\u235f\u2735\u2734\u2733\u2732\u2731\u2736\u2737\u2738\u2739\u273a\u273b\u273c\u273d\u273e\u273f\u2740\u2741\u2742\u2743\u2744\u2745\u2746\u2747\u2748\u2749\u274a\u274b\u2724\u2723\u2722\u2756\u2698\u269c\u2618\u2042\u204e\u2051\u2055\u2058\u2059\u2600\u263c\u2609\u26e4\u26e5\u26e6\u26e7"
+    const-string v1, "\u2605\u2606\u272a\u272b\u272c\u272d\u272e\u272f\u2730\u2729\u2726\u2727\u269d\u2b51\u2b52\u235f\u2735\u2732\u2731\u2736\u2737\u2738\u2739\u273a\u273b\u273c\u273d\u273e\u273f\u2740\u2741\u2742\u2743\u2745\u2746\u2748\u2749\u274a\u274b\u2724\u2723\u2722\u2756\u2698\u2042\u204e\u2051\u2055\u2058\u2059\u263c\u2609\u26e4\u26e5\u26e6\u26e7"
 
     aput-object v1, v0, v4
 
-    const-string v1, "\u2661\u2665\u2764\u2763\u2765\u2766\u2767\u2619\u2762\u10d3\u10e6\u2660\u2663\u2666\u2664\u2667\u2662\u263a\u263b\u2639\u2620\u30c4\u30c3\u30b7\u30c5\u32db\u0298\u0ca0\u0ca5\u0ca1\u0e4f\u0e51\u25d5\u25d4\u25c9\u25ce\u25e0\u25e1\u203f\u2040\u1d17\u1d25\u1d54\u1d55\ua4b3\u02d8\u03c9\u2200\u25bd\u0414\u30ee\u0296\uc6c3\uc720\u3162\u3161\u3160\u315c\u3157\u3145\u314f\u3154\u3147\u3141\u2640\u2642\u26a5"
+    const-string v1, "\u2661\u2765\u2766\u2767\u2619\u2762\u10d3\u10e6\u2664\u2667\u2662\u263b\u30c4\u30c3\u30b7\u30c5\u32db\u0298\u0ca0\u0ca5\u0ca1\u0e4f\u0e51\u25d5\u25d4\u25c9\u25ce\u25e0\u25e1\u203f\u2040\u1d17\u1d25\u1d54\u1d55\ua4b3\u02d8\u03c9\u2200\u25bd\u0414\u30ee\u0296\uc6c3\uc720\u3162\u3161\u3160\u315c\u3157\u3145\u314f\u3154\u3147\u3141\u26a5"
 
     aput-object v1, v0, v5
 
-    const-string v1, "\u261c\u261d\u261e\u261f\u261a\u261b\u270c\u270d\u270b\u270a\u2190\u2191\u2192\u2193\u2194\u2195\u2196\u2197\u2198\u2199\u219a\u219b\u219c\u219d\u219e\u219f\u21a0\u21a1\u21a2\u21a3\u21a4\u21a5\u21a6\u21a7\u21a8\u21a9\u21aa\u21ab\u21ac\u21ad\u21ae\u21af\u21b0\u21b1\u21b2\u21b3\u21b4\u21b5\u21b6\u21b7\u21b8\u21b9\u21ba\u21bb\u21bc\u21bd\u21be\u21bf\u21c0\u21c1\u21c2\u21c3\u21c4\u21c5\u21c6\u21c7\u21c8\u21c9\u21ca\u21cb\u21cc\u21cd\u21ce\u21cf\u21d0\u21d1\u21d2\u21d3\u21d4\u21d5\u21d6\u21d7\u21d8\u21d9\u21da\u21db\u21dc\u21dd\u21de\u21df\u21e0\u21e1\u21e2\u21e3\u21e4\u21e5\u21e6\u21e7\u21e8\u21e9\u21ea\u21eb\u21ec\u21ed\u21ee\u21ef\u21f0\u21f1\u21f2\u21f3\u21f4\u21f5\u21f6\u21f7\u21f8\u21f9\u21fa\u21fb\u21fc\u21fd\u21fe\u21ff\u2794\u2798\u2799\u279a\u279b\u279c\u279d\u279e\u279f\u27a0\u27a1\u27a2\u27a3\u27a4\u27a5\u27a6\u27a7\u27a8\u27a9\u27aa\u27ab\u27ac\u27ad\u27ae\u27af\u27b1\u27b2\u27b3\u27b4\u27b5\u27b6\u27b7\u27b8\u27b9\u27ba\u27bb\u27bc\u27bd\u27be\u27f5\u27f6\u27f7\u27f8\u27f9\u27fa\u27fb\u27fc\u2900\u2903\u2904\u2905\u2906\u2907\u2912\u2913\u2934\u2935\u2b05\u2b06\u2b07\u2b08\u2b09\u2b0a\u2b0b\u2b0c\u2b0d\u2b60\u2b62\u2b61\u2b63"
+    const-string v1, "\u261c\u261e\u261f\u261a\u261b\u2190\u2191\u2192\u2193\u219a\u219b\u219c\u219d\u219e\u219f\u21a0\u21a1\u21a2\u21a3\u21a4\u21a5\u21a6\u21a7\u21a8\u21ab\u21ac\u21ad\u21ae\u21af\u21b0\u21b1\u21b2\u21b3\u21b4\u21b5\u21b6\u21b7\u21b8\u21b9\u21ba\u21bb\u21bc\u21bd\u21be\u21bf\u21c0\u21c1\u21c2\u21c3\u21c4\u21c5\u21c6\u21c7\u21c8\u21c9\u21ca\u21cb\u21cc\u21cd\u21ce\u21cf\u21d0\u21d1\u21d2\u21d3\u21d4\u21d5\u21d6\u21d7\u21d8\u21d9\u21da\u21db\u21dc\u21dd\u21de\u21df\u21e0\u21e1\u21e2\u21e3\u21e4\u21e5\u21e6\u21e7\u21e8\u21e9\u21ea\u21eb\u21ec\u21ed\u21ee\u21ef\u21f0\u21f1\u21f2\u21f3\u21f4\u21f5\u21f6\u21f7\u21f8\u21f9\u21fa\u21fb\u21fc\u21fd\u21fe\u21ff\u2794\u2798\u2799\u279a\u279b\u279c\u279d\u279e\u279f\u27a0\u27a2\u27a3\u27a4\u27a5\u27a6\u27a7\u27a8\u27a9\u27aa\u27ab\u27ac\u27ad\u27ae\u27af\u27b1\u27b2\u27b3\u27b4\u27b5\u27b6\u27b7\u27b8\u27b9\u27ba\u27bb\u27bc\u27bd\u27be\u27f5\u27f6\u27f7\u27f8\u27f9\u27fa\u27fb\u27fc\u2900\u2903\u2904\u2905\u2906\u2907\u2912\u2913\u2b08\u2b09\u2b0a\u2b0b\u2b0c\u2b0d\u2b60\u2b62\u2b61\u2b63"
 
     aput-object v1, v0, v6
 
@@ -121,31 +121,31 @@
 
     const/4 v1, 0x4
 
-    const-string v2, "\u2669\u266a\u266b\u266c\u266d\u266e\u266f\u2601\u2602\u2603\u2604\u2614\u263d\u263e\u2607\u2608\u03df\u26a1\u26c5\u26c8\u2668\u269b\u267b\u2672\u2673\u2674\u2675\u2676\u2677\u2678\u2679\u267a\u267c\u267d\u262f\u262e\u2638\u262a\u262d\u2626\u2625\u2627\u2628\u2629\u262c\u262b\u271d\u2648\u2649\u264a\u264b\u264c\u264d\u264e\u264f\u2650\u2651\u2652\u2653\u260a\u260b\u260c\u260d\u2641\u263f\u2643\u2644\u2645\u2646\u2647"
+    const-string v2, "\u2669\u266a\u266b\u266c\u266d\u266e\u266f\u263d\u263e\u2607\u2608\u03df\u2672\u2673\u2674\u2675\u2676\u2677\u2678\u2679\u267a\u267c\u267d\u262d\u2625\u2627\u2628\u2629\u262c\u262b\u260a\u260b\u260c\u260d\u2641\u263f\u2643\u2644\u2645\u2646\u2647\u26e2\u26e3\u2301\u237e\ud834\udd1e\ud834\udd22\ud834\udd2a\ud834\udd2b"
 
     aput-object v2, v0, v1
 
     const/4 v1, 0x5
 
-    const-string v2, "\u25a0\u25a1\u25a2\u25a3\u25a4\u25a5\u25a6\u25a7\u25a8\u25a9\u25aa\u25ab\u25ac\u25ad\u25ae\u25af\u25b0\u25b1\u25b2\u25b3\u25b4\u25b5\u25b6\u25b7\u25b8\u25b9\u25ba\u25bb\u25bc\u25be\u25bf\u25c0\u25c1\u25c2\u25c3\u25c4\u25c5\u25c6\u25c7\u25c8\u25ca\u25cb\u25cc\u25cd\u25cf\u25d0\u25d1\u25d2\u25d3\u25d6\u25d7\u25d8\u25d9\u25da\u25db\u25dc\u25dd\u25de\u25df\u25e2\u25e3\u25e4\u25e5\u25e6\u25e7\u25e8\u25e9\u25ea\u25eb\u25ec\u25ed\u25ee\u25ef\u25f0\u25f1\u25f2\u25f3\u25f4\u25f5\u25f6\u25f7\u25f8\u25f9\u25fa\u25fb\u25fc\u25fd\u25fe\u25ff\u2b12\u2b13\u2b14\u2b15\u2b16\u2b17\u2b18\u2b19\u2b1a\u2b1b\u2b1c\u2b1d\u2b1e\u2b1f\u2b20\u2b21\u2b22\u2b23\u2b24\u2b25\u2b26\u2b27\u2b28\u2b29\u2b2a\u2b2b\u2b2c\u2b2d\u2b2e\u2b2f\u2580\u2581\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258a\u258b\u258c\u258d\u258e\u258f\u2590\u2591\u2592\u2593\u2594\u2595\u2596\u2597\u2598\u2599\u259a\u259b\u259c\u259d\u259e\u259f\u2500\u2501\u2502\u2503\u250c\u250f\u2510\u2513\u2514\u2517\u2518\u251b\u251c\u2523\u2524\u252b\u252c\u2533\u2534\u253b\u253c\u254b\u2550\u2551\u2554\u2557\u255a\u255d\u2560\u2563\u2566\u2569\u256c\u256d\u256e\u256f\u2570\u2571\u2572\u2573\u2574\u2575\u2576\u2577\u3010\u3011\u300c\u300d\u300e\u300f\u300a\u300b\u3008\u3009\u3014\u3015\u3016\u3017\uff3b\uff3d\uff5b\uff5d\ufe41\ufe42\u275b\u275c\u275d\u275e\u2039\u203a\u00ab\u00bb\u201c\u201d\u2018\u2019\u201e\u2026\u2022\u2023\u2043\u2219\u00b7\u2025\u205d\u205e\u2758\u2759\u275a\u2e2e\u203d\u2047\u2048\u2049"
+    const-string v2, "\u25a0\u25a1\u25a2\u25a3\u25a4\u25a5\u25a6\u25a7\u25a8\u25a9\u25ac\u25ad\u25ae\u25af\u25b0\u25b1\u25b2\u25b3\u25b4\u25b5\u25b7\u25b8\u25b9\u25ba\u25bb\u25bc\u25be\u25bf\u25c1\u25c2\u25c3\u25c4\u25c5\u25c6\u25c7\u25c8\u25ca\u25cb\u25cc\u25cd\u25cf\u25d0\u25d1\u25d2\u25d3\u25d6\u25d7\u25d8\u25d9\u25da\u25db\u25dc\u25dd\u25de\u25df\u25e2\u25e3\u25e4\u25e5\u25e6\u25e7\u25e8\u25e9\u25ea\u25eb\u25ec\u25ed\u25ee\u25ef\u25f0\u25f1\u25f2\u25f3\u25f4\u25f5\u25f6\u25f7\u25f8\u25f9\u25fa\u25ff\u2b12\u2b13\u2b14\u2b15\u2b16\u2b17\u2b18\u2b19\u2b1a\u2b1d\u2b1e\u2b1f\u2b20\u2b21\u2b22\u2b23\u2b24\u2b25\u2b26\u2b27\u2b28\u2b29\u2b2a\u2b2b\u2b2c\u2b2d\u2b2e\u2b2f\u2580\u2581\u2582\u2583\u2584\u2585\u2586\u2587\u2588\u2589\u258a\u258b\u258c\u258d\u258e\u258f\u2590\u2591\u2592\u2593\u2594\u2595\u2596\u2597\u2598\u2599\u259a\u259b\u259c\u259d\u259e\u259f\u2500\u2501\u2502\u2503\u250c\u250f\u2510\u2513\u2514\u2517\u2518\u251b\u251c\u2523\u2524\u252b\u252c\u2533\u2534\u253b\u253c\u254b\u2550\u2551\u2554\u2557\u255a\u255d\u2560\u2563\u2566\u2569\u256c\u256d\u256e\u256f\u2570\u2571\u2572\u2573\u2574\u2575\u2576\u2577\u3010\u3011\u300c\u300d\u300e\u300f\u300a\u300b\u3008\u3009\u3014\u3015\u3016\u3017\uff3b\uff3d\uff5b\uff5d\ufe41\ufe42\u275b\u275c\u275d\u275e\u2039\u203a\u00ab\u00bb\u201c\u201d\u2018\u2019\u201e\u2026\u2022\u2023\u2043\u2219\u00b7\u2025\u205d\u205e\u2758\u2759\u275a\u2e2e\u203d\u2047\u2048"
 
     aput-object v2, v0, v1
 
     const/4 v1, 0x6
 
-    const-string v2, "\ud80c\udcd2\ud80c\udcd3\ud80c\udcd4\ud80c\udcd5\ud80c\udcd6\ud80c\udcd7\ud80c\udcd8\ud80c\udcd9\ud80c\udcda\ud80c\udcdb\ud80c\udcdc\ud80c\udcdd\ud80c\udcde\ud80c\udcdf\ud80c\udce0\ud80c\udce1\ud80c\udce2\ud80c\udce3\ud80c\udce4\ud80c\udce5\ud80c\udce6\ud80c\udce7\ud80c\udce8\ud80c\udce9\ud80c\udcea\ud80c\udceb\ud80c\udcec\ud80c\udced\ud80c\udcee\ud80c\udcef\ud80c\udcf0\ud80c\udcf1\ud80c\udcf2\ud80c\udcf3\ud80c\udcf4\ud80c\udcf5\ud80c\udcf6\ud80c\udcf7\ud80c\udcf8\ud80c\udcf9\ud80c\udcfa\ud80c\udcfb\ud80c\udcfc\ud80c\udcfd\ud80c\udd3f\ud80c\udd40\ud80c\udd41\ud80c\udd42\ud80c\udd43\ud80c\udd44\ud80c\udd45\ud80c\udd46\ud80c\udd47\ud80c\udd48\ud80c\udd49\ud80c\udd4a\ud80c\udd4b\ud80c\udd4c\ud80c\udd4d\ud80c\udd4e\ud80c\udd4f\ud80c\udd50\ud80c\udd51\ud80c\udd52\ud80c\udd53\ud80c\udd54\ud80c\udd55\ud80c\udd56\ud80c\udd57\ud80c\udd58\ud80c\udd59\ud80c\udd5a\ud80c\udd5b\ud80c\udd5c\ud80c\udd5d\ud80c\udd5e\ud80c\udd5f\ud80c\udd60\ud80c\udd61\ud80c\udd62\ud80c\udd63\ud80c\udd64\ud80c\udd65\ud80c\udd66\ud80c\udd67\ud80c\udd68\ud80c\udd69\ud80c\udd6a\ud80c\udd6b\ud80c\udd6c\ud80c\udd6d\ud80c\udd6e\ud80c\udd6f\ud80c\udd70\ud80c\udd71\ud80c\udd72\ud80c\udd73\ud80c\udd74\ud80c\udd75\ud80c\udd76\ud80c\udd77\ud80c\udd78\ud80c\udd79\ud80c\udd7a\ud80c\udd7b\ud80c\udd7c\ud80c\udd7d\ud80c\udd7e\ud80c\udd88\ud80c\udd89\ud80c\udd8a\ud80c\udd8b\ud80c\udd8c\ud80c\udd8d\ud80c\udd8e\ud80c\udd8f\ud80c\udd90\ud80c\udd91\ud80c\udd92\ud80c\udd93\ud80c\udd94\ud80c\udd95\ud80c\udd96\ud80c\udd97\ud80c\udd98\ud80c\udd99\ud80c\udd9a\ud80c\udd9b\ud80c\udd9c\ud80c\udd9d\ud80c\udd9e\ud80c\udd9f\ud80c\udda0\ud80c\udda1\ud80c\udda2\ud80c\udda3\ud80c\udda4\ud80c\udda5\ud80c\udda6\ud80c\udda7\ud80c\udda8\ud80c\udda9\ud80c\uddaa\ud80c\uddab\ud80c\uddac\ud80c\udc80\ud80c\udef9\u2654\u2655\u2656\u2657\u2658\u2659\u265a\u265b\u265c\u265d\u265e\u265f\ud83c\udca1\ud83c\udcb1\ud83c\udcc1\ud83c\udcd1\ud83c\udca0\ud83c\udccf\u2680\u2681\u2682\u2683\u2684\u2685\u26a2\u26a3\u26a4\u26a6\u26a7\u26a8\u26a9\u26b2"
+    const-string v2, "\ud80c\udcd2\ud80c\udcd3\ud80c\udcd4\ud80c\udcd5\ud80c\udcd6\ud80c\udcd7\ud80c\udcd8\ud80c\udcd9\ud80c\udcda\ud80c\udcdb\ud80c\udcdc\ud80c\udcdd\ud80c\udcde\ud80c\udcdf\ud80c\udce0\ud80c\udce1\ud80c\udce2\ud80c\udce3\ud80c\udce4\ud80c\udce5\ud80c\udce6\ud80c\udce7\ud80c\udce8\ud80c\udce9\ud80c\udcea\ud80c\udceb\ud80c\udcec\ud80c\udced\ud80c\udcee\ud80c\udcef\ud80c\udcf0\ud80c\udcf1\ud80c\udcf2\ud80c\udcf3\ud80c\udcf4\ud80c\udcf5\ud80c\udcf6\ud80c\udcf7\ud80c\udcf8\ud80c\udcf9\ud80c\udcfa\ud80c\udcfb\ud80c\udcfc\ud80c\udcfd\ud80c\udd3f\ud80c\udd40\ud80c\udd41\ud80c\udd42\ud80c\udd43\ud80c\udd44\ud80c\udd45\ud80c\udd46\ud80c\udd47\ud80c\udd48\ud80c\udd49\ud80c\udd4a\ud80c\udd4b\ud80c\udd4c\ud80c\udd4d\ud80c\udd4e\ud80c\udd4f\ud80c\udd50\ud80c\udd51\ud80c\udd52\ud80c\udd53\ud80c\udd54\ud80c\udd55\ud80c\udd56\ud80c\udd57\ud80c\udd58\ud80c\udd59\ud80c\udd5a\ud80c\udd5b\ud80c\udd5c\ud80c\udd5d\ud80c\udd5e\ud80c\udd5f\ud80c\udd60\ud80c\udd61\ud80c\udd62\ud80c\udd63\ud80c\udd64\ud80c\udd65\ud80c\udd66\ud80c\udd67\ud80c\udd68\ud80c\udd69\ud80c\udd6a\ud80c\udd6b\ud80c\udd6c\ud80c\udd6d\ud80c\udd6e\ud80c\udd6f\ud80c\udd70\ud80c\udd71\ud80c\udd72\ud80c\udd73\ud80c\udd74\ud80c\udd75\ud80c\udd76\ud80c\udd77\ud80c\udd78\ud80c\udd79\ud80c\udd7a\ud80c\udd7b\ud80c\udd7c\ud80c\udd7d\ud80c\udd7e\ud80c\udd88\ud80c\udd89\ud80c\udd8a\ud80c\udd8b\ud80c\udd8c\ud80c\udd8d\ud80c\udd8e\ud80c\udd8f\ud80c\udd90\ud80c\udd91\ud80c\udd92\ud80c\udd93\ud80c\udd94\ud80c\udd95\ud80c\udd96\ud80c\udd97\ud80c\udd98\ud80c\udd99\ud80c\udd9a\ud80c\udd9b\ud80c\udd9c\ud80c\udd9d\ud80c\udd9e\ud80c\udd9f\ud80c\udda0\ud80c\udda1\ud80c\udda2\ud80c\udda3\ud80c\udda4\ud80c\udda5\ud80c\udda6\ud80c\udda7\ud80c\udda8\ud80c\udda9\ud80c\uddaa\ud80c\uddab\ud80c\uddac\ud80c\udc80\ud80c\udef9\u2654\u2655\u2656\u2657\u2658\u2659\u265a\u265b\u265c\u265d\u265e\ud83c\udca1\ud83c\udcb1\ud83c\udcc1\ud83c\udcd1\ud83c\udca0\u2680\u2681\u2682\u2683\u2684\u2685\u26a2\u26a3\u26a4\u26a6\u26a8\u26a9\u26b2"
 
     aput-object v2, v0, v1
 
     const/4 v1, 0x7
 
-    const-string v2, "$\u00a2\u00a3\u00a4\u00a5\u20ac\u20a0\u20a1\u20a2\u20a3\u20a4\u20a5\u20a6\u20a7\u20a8\u20a9\u20aa\u20ab\u20ad\u20ae\u20af\u20b0\u20b1\u20b2\u20b3\u20b4\u20b5\u20b6\u20b7\u20b8\u20b9\u20ba\u20bb\u20bc\u20bd\u20be\u20bf\u0e3f\u17db\ufdfc\u00a9\u00ae\u2122\u2120\u2117\u00a7\u00b6\u2020\u2021\u2116\u2105\u2100\u2101\u2121\u2103\u2109\u211e\u214d\u2713\u2714\u2715\u2716\u2717\u2718\u2610\u2611\u2612\u237b\u2318\u2325\u2303\u23ce\u232b\u2326\u238b\u2328\u2702\u2709\u270e\u270f\u2706\u260e\u260f\u231a\u231b\u2615\u2708\u26a0\u2622\u2623\u2699\u2696\u2694\u2693\u267f\u2691\u2690\u2692\u2697\u26b0"
+    const-string v2, "$\u00a2\u00a3\u00a4\u00a5\u20ac\u20a0\u20a1\u20a2\u20a3\u20a4\u20a5\u20a6\u20a7\u20a8\u20a9\u20aa\u20ab\u20ad\u20ae\u20af\u20b0\u20b1\u20b2\u20b3\u20b4\u20b5\u20b6\u20b7\u20b8\u20b9\u20ba\u20bb\u20bc\u20bd\u20be\u20bf\u0e3f\u17db\ufdfc\u2120\u2117\u00a7\u00b6\u2020\u2021\u2116\u2105\u2100\u2101\u2121\u2103\u2109\u211e\u214d\u2713\u2715\u2717\u2718\u2610\u2612\u237b\u2318\u2325\u2303\u23ce\u232b\u2326\u238b\u270e\u2706\u260f\u2691\u2690"
 
     aput-object v2, v0, v1
 
     sput-object v0, Lcom/mrkeyboard/app/MrSymbols;->SETS:[Ljava/lang/String;
 
-    .line 90
+    .line 91
     new-array v0, v3, [Ljava/lang/String;
 
     sput-object v0, Lcom/mrkeyboard/app/MrSymbols;->sShown:[Ljava/lang/String;
@@ -157,7 +157,7 @@
     .locals 0
 
     .prologue
-    .line 93
+    .line 94
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -167,35 +167,35 @@
     .locals 2
 
     .prologue
-    .line 204
+    .line 205
     sget-boolean v0, Lcom/mrkeyboard/app/MrSymbols;->sOn:Z
 
     if-nez v0, :cond_0
 
-    .line 205
+    .line 206
     invoke-static {p0}, Lcom/mrkeyboard/app/MrEmotes;->addRecent(Ljava/lang/String;)V
 
-    .line 213
+    .line 214
     :goto_0
     return-void
 
-    .line 208
+    .line 209
     :cond_0
     invoke-static {}, Lcom/mrkeyboard/app/MrSymbols;->loadRecent()V
 
-    .line 209
+    .line 210
     sget-object v0, Lcom/mrkeyboard/app/MrSymbols;->sRecent:Ljava/util/ArrayList;
 
     invoke-virtual {v0, p0}, Ljava/util/ArrayList;->remove(Ljava/lang/Object;)Z
 
-    .line 210
+    .line 211
     sget-object v0, Lcom/mrkeyboard/app/MrSymbols;->sRecent:Ljava/util/ArrayList;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1, p0}, Ljava/util/ArrayList;->add(ILjava/lang/Object;)V
 
-    .line 211
+    .line 212
     :goto_1
     sget-object v0, Lcom/mrkeyboard/app/MrSymbols;->sRecent:Ljava/util/ArrayList;
 
@@ -221,7 +221,7 @@
 
     goto :goto_1
 
-    .line 212
+    .line 213
     :cond_1
     invoke-static {}, Lcom/mrkeyboard/app/MrSymbols;->save()V
 
@@ -236,7 +236,7 @@
 
     const/4 v2, 0x0
 
-    .line 153
+    .line 154
     sget-object v0, Lcom/mrkeyboard/app/MrSymbols;->sSymbols:Landroid/widget/TextView;
 
     if-eqz v0, :cond_0
@@ -245,12 +245,12 @@
 
     if-nez v0, :cond_1
 
-    .line 156
+    .line 157
     :cond_0
     :goto_0
     return-void
 
-    .line 154
+    .line 155
     :cond_1
     sget-object v3, Lcom/mrkeyboard/app/MrSymbols;->sSymbols:Landroid/widget/TextView;
 
@@ -263,7 +263,7 @@
     :goto_1
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 155
+    .line 156
     sget-object v0, Lcom/mrkeyboard/app/MrSymbols;->sEmojis:Landroid/widget/TextView;
 
     sget-boolean v3, Lcom/mrkeyboard/app/MrSymbols;->sOn:Z
@@ -278,13 +278,13 @@
     :cond_2
     move v0, v2
 
-    .line 154
+    .line 155
     goto :goto_1
 
     :cond_3
     move v2, v1
 
-    .line 155
+    .line 156
     goto :goto_2
 .end method
 
@@ -292,7 +292,7 @@
     .locals 4
 
     .prologue
-    .line 235
+    .line 236
     sget-object v0, Lcom/mrkeyboard/app/MrSymbols;->sPaint:Landroid/graphics/Paint;
 
     if-nez v0, :cond_0
@@ -305,16 +305,16 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrSymbols;->sPaint:Landroid/graphics/Paint;
 
-    .line 236
+    .line 237
     :cond_0
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 237
+    .line 238
     const/4 v0, 0x0
 
-    .line 238
+    .line 239
     :cond_1
     :goto_0
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -323,19 +323,19 @@
 
     if-ge v0, v2, :cond_3
 
-    .line 239
+    .line 240
     invoke-virtual {p0, v0}, Ljava/lang/String;->codePointAt(I)I
 
     move-result v2
 
-    .line 240
+    .line 241
     invoke-static {v2}, Ljava/lang/Character;->charCount(I)I
 
     move-result v3
 
     add-int/2addr v0, v3
 
-    .line 241
+    .line 242
     new-instance v3, Ljava/lang/String;
 
     invoke-static {v2}, Ljava/lang/Character;->toChars(I)[C
@@ -344,7 +344,7 @@
 
     invoke-direct {v3, v2}, Ljava/lang/String;-><init>([C)V
 
-    .line 242
+    .line 243
     sget-object v2, Lcom/mrkeyboard/app/MrSymbols;->sPaint:Landroid/graphics/Paint;
 
     invoke-virtual {v2, v3}, Landroid/graphics/Paint;->hasGlyph(Ljava/lang/String;)Z
@@ -353,7 +353,7 @@
 
     if-eqz v2, :cond_1
 
-    .line 243
+    .line 244
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->length()I
 
     move-result v2
@@ -364,13 +364,13 @@
 
     invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 244
+    .line 245
     :cond_2
     invoke-virtual {v1, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     goto :goto_0
 
-    .line 246
+    .line 247
     :cond_3
     invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -383,10 +383,10 @@
     .locals 1
 
     .prologue
-    .line 217
+    .line 218
     invoke-static {}, Lcom/mrkeyboard/app/MrSymbols;->loadRecent()V
 
-    .line 218
+    .line 219
     sget-object v0, Lcom/mrkeyboard/app/MrSymbols;->sRecent:Ljava/util/ArrayList;
 
     invoke-virtual {v0, p0}, Ljava/util/ArrayList;->remove(Ljava/lang/Object;)Z
@@ -397,18 +397,18 @@
 
     const/4 v0, 0x0
 
-    .line 221
+    .line 222
     :goto_0
     return v0
 
-    .line 219
+    .line 220
     :cond_0
     invoke-static {}, Lcom/mrkeyboard/app/MrSymbols;->save()V
 
-    .line 220
+    .line 221
     invoke-static {}, Lcom/mrkeyboard/app/MrEmotes;->refresh()V
 
-    .line 221
+    .line 222
     const/4 v0, 0x1
 
     goto :goto_0
@@ -428,12 +428,12 @@
     .end annotation
 
     .prologue
-    .line 250
+    .line 251
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 251
+    .line 252
     const/4 v0, 0x0
 
     move v1, v0
@@ -445,14 +445,14 @@
 
     if-ge v1, v0, :cond_1
 
-    .line 252
+    .line 253
     if-lez v1, :cond_0
 
     const/16 v0, 0x7c
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 253
+    .line 254
     :cond_0
     invoke-virtual {p0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
@@ -462,14 +462,14 @@
 
     invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 251
+    .line 252
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
     goto :goto_0
 
-    .line 255
+    .line 256
     :cond_1
     invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -482,12 +482,12 @@
     .locals 1
 
     .prologue
-    .line 136
+    .line 137
     const/4 v0, 0x0
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrSymbols;->set(Z)V
 
-    .line 137
+    .line 138
     return-void
 .end method
 
@@ -495,16 +495,16 @@
     .locals 5
 
     .prologue
-    .line 259
+    .line 260
     sget-object v0, Lcom/mrkeyboard/app/MrSymbols;->sRecent:Ljava/util/ArrayList;
 
     if-eqz v0, :cond_1
 
-    .line 268
+    .line 269
     :cond_0
     return-void
 
-    .line 260
+    .line 261
     :cond_1
     new-instance v0, Ljava/util/ArrayList;
 
@@ -512,15 +512,15 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrSymbols;->sRecent:Ljava/util/ArrayList;
 
-    .line 261
-    const-string v0, "\u2605|\u2665|\u2714|\u279c|\u266a|\u263a|\u273f|\u2661|\u270c|\u262f|\u20ac|\u221e"
-
     .line 262
+    const-string v0, "\u2605|\u2765|\u279c|\u266a|\u273f|\u2661|\u261c|\u261e|\u20ac|\u221e|\u263b|\u2606"
+
+    .line 263
     invoke-static {}, Lcom/mrkeyboard/app/MrSymbols;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v1
 
-    .line 263
+    .line 264
     if-eqz v1, :cond_2
 
     const-string v0, "symbol_recent"
@@ -531,7 +531,7 @@
 
     move-result-object v0
 
-    .line 264
+    .line 265
     :cond_2
     if-eqz v0, :cond_3
 
@@ -542,9 +542,9 @@
     if-nez v1, :cond_4
 
     :cond_3
-    const-string v0, "\u2605|\u2665|\u2714|\u279c|\u266a|\u263a|\u273f|\u2661|\u270c|\u262f|\u20ac|\u221e"
+    const-string v0, "\u2605|\u2765|\u279c|\u266a|\u273f|\u2661|\u261c|\u261e|\u20ac|\u221e|\u263b|\u2606"
 
-    .line 265
+    .line 266
     :cond_4
     const-string v1, "[|]"
 
@@ -561,7 +561,7 @@
 
     aget-object v3, v1, v0
 
-    .line 266
+    .line 267
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v4
@@ -580,7 +580,7 @@
 
     invoke-virtual {v4, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 265
+    .line 266
     :cond_5
     add-int/lit8 v0, v0, 0x1
 
@@ -591,17 +591,17 @@
     .locals 1
 
     .prologue
-    .line 190
+    .line 191
     sget-boolean v0, Lcom/mrkeyboard/app/MrSymbols;->sOn:Z
 
     if-nez v0, :cond_1
 
-    .line 192
+    .line 193
     :cond_0
     :goto_0
     return-object p0
 
-    .line 191
+    .line 192
     :cond_1
     const-string v0, "mr_sym_cats"
 
@@ -609,7 +609,7 @@
 
     move-result-object v0
 
-    .line 192
+    .line 193
     if-eqz v0, :cond_0
 
     move-object p0, v0
@@ -621,7 +621,7 @@
     .locals 1
 
     .prologue
-    .line 126
+    .line 127
     sget-boolean v0, Lcom/mrkeyboard/app/MrSymbols;->sOn:Z
 
     return v0
@@ -631,7 +631,7 @@
     .locals 1
 
     .prologue
-    .line 276
+    .line 277
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;
 
     if-nez v0, :cond_0
@@ -655,20 +655,20 @@
     .locals 1
 
     .prologue
-    .line 197
+    .line 198
     sget-boolean v0, Lcom/mrkeyboard/app/MrSymbols;->sOn:Z
 
     if-nez v0, :cond_0
 
-    .line 199
+    .line 200
     :goto_0
     return-object p0
 
-    .line 198
+    .line 199
     :cond_0
     invoke-static {}, Lcom/mrkeyboard/app/MrSymbols;->loadRecent()V
 
-    .line 199
+    .line 200
     sget-object v0, Lcom/mrkeyboard/app/MrSymbols;->sRecent:Ljava/util/ArrayList;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrSymbols;->join(Ljava/util/ArrayList;)Ljava/lang/String;
@@ -682,7 +682,7 @@
     .locals 1
 
     .prologue
-    .line 185
+    .line 186
     sget-boolean v0, Lcom/mrkeyboard/app/MrSymbols;->sOn:Z
 
     if-eqz v0, :cond_0
@@ -706,12 +706,12 @@
     .locals 3
 
     .prologue
-    .line 271
+    .line 272
     invoke-static {}, Lcom/mrkeyboard/app/MrSymbols;->prefs()Landroid/content/SharedPreferences;
 
     move-result-object v0
 
-    .line 272
+    .line 273
     if-eqz v0, :cond_0
 
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -732,7 +732,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 273
+    .line 274
     :cond_0
     return-void
 .end method
@@ -741,35 +741,35 @@
     .locals 1
 
     .prologue
-    .line 140
+    .line 141
     sget-boolean v0, Lcom/mrkeyboard/app/MrSymbols;->sOn:Z
 
     if-ne p0, v0, :cond_0
 
-    .line 149
+    .line 150
     :goto_0
     return-void
 
-    .line 141
+    .line 142
     :cond_0
     sput-boolean p0, Lcom/mrkeyboard/app/MrSymbols;->sOn:Z
 
-    .line 143
+    .line 144
     :try_start_0
     invoke-static {}, Lcom/mrkeyboard/app/MrSymbols;->tabs()V
 
-    .line 144
+    .line 145
     invoke-static {}, Lcom/mrkeyboard/app/MrSymbols;->buttons()V
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 148
+    .line 149
     :goto_1
     invoke-static {}, Lcom/mrkeyboard/app/MrEmotes;->refresh()V
 
     goto :goto_0
 
-    .line 145
+    .line 146
     :catch_0
     move-exception v0
 
@@ -784,42 +784,42 @@
 
     const/4 v1, 0x0
 
-    .line 99
+    .line 100
     sget-boolean v0, Lcom/mrkeyboard/app/MrSymbols;->sOn:Z
 
     if-eqz v0, :cond_0
 
-    .line 101
+    .line 102
     sput-boolean v2, Lcom/mrkeyboard/app/MrSymbols;->sOn:Z
 
-    .line 102
+    .line 103
     invoke-static {}, Lcom/mrkeyboard/app/MrSymbols;->tabs()V
 
-    .line 104
+    .line 105
     :cond_0
     sput-boolean v2, Lcom/mrkeyboard/app/MrSymbols;->sOn:Z
 
-    .line 105
+    .line 106
     sput-object v1, Lcom/mrkeyboard/app/MrSymbols;->sTabIcons:[Landroid/graphics/drawable/Drawable;
 
-    .line 106
+    .line 107
     sput-object v1, Lcom/mrkeyboard/app/MrSymbols;->sRecent:Ljava/util/ArrayList;
 
-    .line 107
+    .line 108
     sput-object v1, Lcom/mrkeyboard/app/MrSymbols;->sSymbols:Landroid/widget/TextView;
 
-    .line 108
+    .line 109
     sput-object v1, Lcom/mrkeyboard/app/MrSymbols;->sEmojis:Landroid/widget/TextView;
 
-    .line 109
+    .line 110
     if-nez p0, :cond_2
 
-    .line 123
+    .line 124
     :cond_1
     :goto_0
     return-void
 
-    .line 110
+    .line 111
     :cond_2
     const-string v0, "emote_sym"
 
@@ -827,14 +827,14 @@
 
     move-result-object v0
 
-    .line 111
+    .line 112
     const-string v1, "emote_emo"
 
     invoke-virtual {p0, v1}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v1
 
-    .line 112
+    .line 113
     instance-of v2, v0, Landroid/widget/TextView;
 
     if-eqz v2, :cond_1
@@ -843,34 +843,34 @@
 
     if-eqz v2, :cond_1
 
-    .line 113
+    .line 114
     check-cast v0, Landroid/widget/TextView;
 
     sput-object v0, Lcom/mrkeyboard/app/MrSymbols;->sSymbols:Landroid/widget/TextView;
 
     move-object v0, v1
 
-    .line 114
+    .line 115
     check-cast v0, Landroid/widget/TextView;
 
     sput-object v0, Lcom/mrkeyboard/app/MrSymbols;->sEmojis:Landroid/widget/TextView;
 
-    .line 115
+    .line 116
     new-instance v0, Lcom/mrkeyboard/app/MrSymbols$1;
 
     invoke-direct {v0}, Lcom/mrkeyboard/app/MrSymbols$1;-><init>()V
 
-    .line 120
+    .line 121
     sget-object v1, Lcom/mrkeyboard/app/MrSymbols;->sSymbols:Landroid/widget/TextView;
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 121
+    .line 122
     sget-object v1, Lcom/mrkeyboard/app/MrSymbols;->sEmojis:Landroid/widget/TextView;
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 122
+    .line 123
     invoke-static {}, Lcom/mrkeyboard/app/MrSymbols;->buttons()V
 
     goto :goto_0
@@ -880,7 +880,7 @@
     .locals 3
 
     .prologue
-    .line 228
+    .line 229
     const-class v1, Lcom/mrkeyboard/app/MrSymbols;
 
     monitor-enter v1
@@ -897,13 +897,13 @@
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 230
+    .line 231
     :goto_0
     monitor-exit v1
 
     return-object v0
 
-    .line 229
+    .line 230
     :cond_1
     :try_start_1
     sget-object v0, Lcom/mrkeyboard/app/MrSymbols;->sShown:[Ljava/lang/String;
@@ -924,7 +924,7 @@
 
     aput-object v2, v0, p0
 
-    .line 230
+    .line 231
     :cond_2
     sget-object v0, Lcom/mrkeyboard/app/MrSymbols;->sShown:[Ljava/lang/String;
 
@@ -934,7 +934,7 @@
 
     goto :goto_0
 
-    .line 228
+    .line 229
     :catchall_0
     move-exception v0
 
@@ -951,10 +951,10 @@
 
     const/4 v6, 0x0
 
-    .line 160
+    .line 161
     sget-object v1, Lcom/mrkeyboard/app/MrEmotes;->sTabs:[Landroid/widget/TextView;
 
-    .line 161
+    .line 162
     if-eqz v1, :cond_0
 
     array-length v2, v1
@@ -963,40 +963,40 @@
 
     if-eq v2, v3, :cond_1
 
-    .line 179
+    .line 180
     :cond_0
     :goto_0
     return-void
 
-    .line 162
+    .line 163
     :cond_1
     sget-boolean v2, Lcom/mrkeyboard/app/MrSymbols;->sOn:Z
 
     if-eqz v2, :cond_4
 
-    .line 163
+    .line 164
     array-length v2, v1
 
     new-array v2, v2, [Landroid/graphics/drawable/Drawable;
 
-    .line 164
+    .line 165
     :goto_1
     array-length v3, v1
 
     if-ge v0, v3, :cond_3
 
-    .line 165
+    .line 166
     aget-object v3, v1, v0
 
     if-nez v3, :cond_2
 
-    .line 164
+    .line 165
     :goto_2
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_1
 
-    .line 166
+    .line 167
     :cond_2
     aget-object v3, v1, v0
 
@@ -1010,12 +1010,12 @@
 
     aput-object v3, v2, v0
 
-    .line 167
+    .line 168
     aget-object v3, v1, v0
 
     invoke-virtual {v3, v6, v6, v6, v6}, Landroid/widget/TextView;->setCompoundDrawables(Landroid/graphics/drawable/Drawable;Landroid/graphics/drawable/Drawable;Landroid/graphics/drawable/Drawable;Landroid/graphics/drawable/Drawable;)V
 
-    .line 168
+    .line 169
     aget-object v3, v1, v0
 
     sget-object v4, Lcom/mrkeyboard/app/MrSymbols;->TAB:[Ljava/lang/String;
@@ -1028,36 +1028,36 @@
 
     goto :goto_2
 
-    .line 170
+    .line 171
     :cond_3
     sput-object v2, Lcom/mrkeyboard/app/MrSymbols;->sTabIcons:[Landroid/graphics/drawable/Drawable;
 
     goto :goto_0
 
-    .line 171
+    .line 172
     :cond_4
     sget-object v2, Lcom/mrkeyboard/app/MrSymbols;->sTabIcons:[Landroid/graphics/drawable/Drawable;
 
     if-eqz v2, :cond_0
 
-    .line 172
+    .line 173
     :goto_3
     array-length v2, v1
 
     if-ge v0, v2, :cond_6
 
-    .line 173
+    .line 174
     aget-object v2, v1, v0
 
     if-nez v2, :cond_5
 
-    .line 172
+    .line 173
     :goto_4
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_3
 
-    .line 174
+    .line 175
     :cond_5
     aget-object v2, v1, v0
 
@@ -1065,7 +1065,7 @@
 
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 175
+    .line 176
     aget-object v2, v1, v0
 
     sget-object v3, Lcom/mrkeyboard/app/MrSymbols;->sTabIcons:[Landroid/graphics/drawable/Drawable;
@@ -1076,7 +1076,7 @@
 
     goto :goto_4
 
-    .line 177
+    .line 178
     :cond_6
     sput-object v6, Lcom/mrkeyboard/app/MrSymbols;->sTabIcons:[Landroid/graphics/drawable/Drawable;
 
@@ -1089,17 +1089,17 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 281
+    .line 282
     sget-object v1, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;
 
     if-nez v1, :cond_1
 
-    .line 284
+    .line 285
     :cond_0
     :goto_0
     return-object v0
 
-    .line 282
+    .line 283
     :cond_1
     sget-object v1, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;
 
@@ -1107,7 +1107,7 @@
 
     move-result-object v1
 
-    .line 283
+    .line 284
     const-string v2, "string"
 
     sget-object v3, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;
@@ -1120,7 +1120,7 @@
 
     move-result v2
 
-    .line 284
+    .line 285
     if-eqz v2, :cond_0
 
     invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
@@ -1134,7 +1134,7 @@
     .locals 1
 
     .prologue
-    .line 131
+    .line 132
     sget-boolean v0, Lcom/mrkeyboard/app/MrSymbols;->sOn:Z
 
     if-nez v0, :cond_0
@@ -1144,10 +1144,10 @@
     :goto_0
     invoke-static {v0}, Lcom/mrkeyboard/app/MrSymbols;->set(Z)V
 
-    .line 132
+    .line 133
     return-void
 
-    .line 131
+    .line 132
     :cond_0
     const/4 v0, 0x0
 

@@ -13,8 +13,8 @@
     ones put in), the line format, almost every emoji with words (docs/tools/make_emoji_search.py builds them from the CLDR annotations),
     every newer emoji with words in the three languages, no stray character;
   - the symbols of the panel (MrSymbols.java, the button between Search and Delete): both buttons (emote_sym, emote_emo) inside the floating bar with a
-    contentDescription, the names of the 9 tabs (mr_sym_cats) with 9 entries in the 3 languages, the two icons, and the hooks in MrEmotes.smali
-    (the rows, the names and the recents of the tabs, the tap, the long press);
+    contentDescription, the names of the 9 tabs (mr_sym_cats) with 9 entries in the 3 languages, the two icons, the hooks in MrEmotes.smali
+    (the rows, the names and the recents of the tabs, the tap, the long press), and no symbol that is an emoji of the panel (those are drawn in colour);
   - docs/emoji-search.md carries the Unicode licence notice and the raw files say where the words come from.
 """
 import os, re, sys
@@ -116,6 +116,35 @@ for sig in (r'static String rows\(int', r'static String names\(String', r'static
             r'static boolean on\(\)', r'static boolean forget\(String'):
     if not re.search(sig, sym_java):
         problems.append('MrSymbols.java: %s not found (MrEmotes.smali calls it)' % sig.replace('\\', ''))
+
+# no symbol, tab symbol or default recent of MrSymbols is one of the emojis of the panel (they are in the panel already, and many phones draw them in colour)
+def sym_chars(text):
+    out, i = [], 0
+    units = [int(h, 16) for h in re.findall(r'\\u([0-9a-fA-F]{4})', text)]
+    while i < len(units):
+        u = units[i]
+        if 0xd800 <= u < 0xdc00 and i + 1 < len(units):
+            out.append(chr(0x10000 + ((u - 0xd800) << 10) + (units[i + 1] - 0xdc00)))
+            i += 2
+        else:
+            out.append(chr(u))
+            i += 1
+    return out
+
+
+panel_single = set()
+for e in mk.panel_emojis():
+    s = e.replace(mk.FE0F, '')
+    if len(s) == 1:
+        panel_single.add(s)
+sets_body = sym_java[sym_java.index('static final String[] SETS'):]
+tab_line = re.search(r'static final String\[\] TAB = \{([^}]*)\};', sym_java)
+rec_line = re.search(r'static final String RECENT_DEFAULT = "([^"]*)";', sym_java)
+from_panel = [c for c in sym_chars(sets_body) + sym_chars(tab_line.group(1) if tab_line else '') + sym_chars(rec_line.group(1) if rec_line else '') if c in panel_single]
+if from_panel:
+    problems.append('MrSymbols.java has symbols that are emojis of the panel (%d): %s' % (len(from_panel), ' '.join('U+%04X' % ord(c) for c in sorted(set(from_panel))[:20])))
+if not tab_line or len(sym_chars(tab_line.group(1))) != 8:
+    problems.append('MrSymbols.java: TAB must have 8 symbols')
 
 # --- hooks and mode
 tools = read('smali/com/mrkeyboard/app/MrTools.smali')

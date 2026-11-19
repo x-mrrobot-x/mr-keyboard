@@ -13,6 +13,7 @@
     <color name="mr_chrome_cursor">@color/mr_chrome_text</color>
     <color name="mr_chrome_hint">#ff53647a</color>
     <color name="mr_chrome_popup_hint">@color/mr_chrome_hint</color>
+    <color name="mr_chrome_popup_text">@color/mr_chrome_text</color>
     <color name="mr_chrome_accent_text">#fff2f6fb</color>
     <color name="mr_chrome_modifier_indicator_off">#ff3c4e66</color>
     <color name="mr_chrome_modifier_indicator_on">#ff7cc7ff</color>

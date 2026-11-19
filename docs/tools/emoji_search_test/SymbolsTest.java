@@ -137,8 +137,8 @@ public class SymbolsTest {
         for (String set : MrSymbols.SETS) if (set.length() < 40) all = false;
         check("data: every category has at least 40 symbols", all);
 
-        // the symbols of the reference pictures
-        String pics = "☯♪☘☁✌☜☝☞☟✍☕✈☮⚠☂☔⌨⌫★☆✿❀❄♡♥☺☻☹☠✝✔☎♔♕⚢⚣⚤⚥⚦웃ツッ";
+        // the symbols of the reference pictures that are not emojis (the others, such as the yellow hands and the red heart, are in the emoji panel)
+        String pics = "\u266a\u261c\u261e\u261f\u232b\u2605\u2606\u273f\u2740\u2661\u263b\u2654\u2655\u26a2\u26a3\u26a4\u26a5\u26a6\uc6c3\u30c4\u30c3\u2765";
         boolean allPics = true;
         StringBuilder missing = new StringBuilder();
         for (int i = 0; i < pics.length(); i++) {
@@ -146,7 +146,39 @@ public class SymbolsTest {
             for (String set : MrSymbols.SETS) if (set.indexOf(pics.charAt(i)) >= 0) found = true;
             if (!found) { allPics = false; missing.append(Integer.toHexString(pics.charAt(i))).append(' '); }
         }
-        check("data: the symbols of the reference pictures are all there " + missing, allPics);
+        check("data: the symbols of the reference pictures that are not emojis are all there " + missing, allPics);
+
+        // no emoji among the symbols: the Unicode Emoji property (JDK 21 and later) and the symbols that the phones draw in colour
+        java.lang.reflect.Method isEmoji = null;
+        try { isEmoji = Character.class.getMethod("isEmoji", int.class); } catch (NoSuchMethodException e) { }
+        if (isEmoji != null) {
+            StringBuilder bad = new StringBuilder();
+            String all2 = String.join("", MrSymbols.SETS) + String.join("", MrSymbols.TAB) + MrSymbols.RECENT_DEFAULT.replace("|", "");
+            for (int i = 0; i < all2.length(); ) {
+                int cp = all2.codePointAt(i);
+                i += Character.charCount(cp);
+                if ((Boolean) isEmoji.invoke(null, cp)) bad.append(Integer.toHexString(cp)).append(' ');
+            }
+            check("data: no symbol, tab symbol or default recent is an emoji (Unicode Emoji property) " + bad, bad.length() == 0);
+        } else {
+            System.out.println("SKIP  Unicode Emoji property (JDK before 21: check_emoji_search.py checks it against the panel)");
+        }
+        String[] known = {"\u2764", "\u270c", "\u261d", "\u270d", "\u2665", "\u263a", "\u2714", "\u2600", "\u2744", "\u2601", "\u2615", "\u2708", "\u26a0", "\u00a9", "\u2122", "\u2640", "\u2642", "\u262e", "\u262f"};
+        boolean gone = true;
+        StringBuilder still = new StringBuilder();
+        for (String k : known) for (String set : MrSymbols.SETS) if (set.contains(k)) { gone = false; still.append(Integer.toHexString(k.charAt(0))).append(' '); }
+        check("data: the hands, hearts, faces and signs that the emoji panel has are not here " + still, gone);
+        boolean tabsAreIn = true;
+        for (int i = 0; i < MrSymbols.TAB.length; i++) if (MrSymbols.SETS[i].indexOf(MrSymbols.TAB[i].charAt(0)) < 0) tabsAreIn = false;
+        check("tabs: eight different symbols of one code point each", new HashSet<String>(java.util.Arrays.asList(MrSymbols.TAB)).size() == 8 && MrSymbols.TAB[0].codePointCount(0, MrSymbols.TAB[0].length()) == 1);
+        check("tabs: the symbol of a tab is one of its own category", tabsAreIn);
+        boolean recentsIn = true;
+        for (String r1 : MrSymbols.RECENT_DEFAULT.split("[|]")) {
+            boolean f = false;
+            for (String set : MrSymbols.SETS) if (set.contains(r1)) f = true;
+            if (!f) recentsIn = false;
+        }
+        check("recent: the symbols a new keyboard starts with are all in the categories", recentsIn);
         check("data: the Egyptian hieroglyph animals of the picture are in the animals category (the owl G017, the eye of Horus)",
                 MrSymbols.SETS[6].indexOf("𓅓") >= 0 && MrSymbols.SETS[6].indexOf("𓂀") >= 0);
         check("data: arrows have the whole Arrows block", MrSymbols.SETS[2].indexOf('←') >= 0 && MrSymbols.SETS[2].indexOf('⇿') >= 0);
@@ -207,10 +239,10 @@ public class SymbolsTest {
 
         // ---- recents of the symbols
         String r = MrSymbols.recent("emoji recents");
-        check("recent: before any tap, a list of the usual ones, not the emoji recents", !r.equals("emoji recents") && r.startsWith("★|♥"));
-        MrSymbols.addRecent("♣");
+        check("recent: before any tap, a list of the usual ones, not the emoji recents", !r.equals("emoji recents") && r.startsWith("\u2605|\u2765"));
+        MrSymbols.addRecent("\u2664");
         MrSymbols.addRecent("★");
-        check("recent: a tapped symbol goes to the front, once", MrSymbols.recent("").startsWith("★|♣|♥") && MrSymbols.recent("").split("[|]").length == MrSymbols.RECENT_DEFAULT.split("[|]").length + 1);
+        check("recent: a tapped symbol goes to the front, once", MrSymbols.recent("").startsWith("\u2605|\u2664|\u2765") && MrSymbols.recent("").split("[|]").length == MrSymbols.RECENT_DEFAULT.split("[|]").length + 1);
         check("recent: it is saved in its own preference, apart from the emoji recents", prefs.m.containsKey(MrSymbols.PREF_RECENT) && !prefs.m.containsKey("emote_recent"));
         for (int i = 0; i < 40; i++) MrSymbols.addRecent(new String(Character.toChars(0x2660 + i)));
         check("recent: 24 at most, the oldest go first", MrSymbols.recent("").split("[|]").length == MrSymbols.RECENT_MAX

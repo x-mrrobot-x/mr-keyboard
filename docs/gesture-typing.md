@@ -164,8 +164,8 @@ handling of the punctuation that follows.
   only the rectangle around the new points is redrawn. `pref_gesture_trail` (on by default) turns it off.
 
 The recognition runs on the thread of the keyboard when the finger lifts, so the word is in the text before the next key
-is read. Its time is kept (`MrGestureInput.stats()`) and shown in the settings ("Recognition time": last, average, longest,
-how many).
+is read. Its time is kept (`MrGestureInput.stats()`) and shown in the settings, in the card "Keyboard statistics" of Advanced ("Recognition time": last, average, longest,
+how many; written by `MrPerf.gestureLines`).
 
 ### The words of the person
 `MrGestureWords` keeps, in memory, a dictionary of the `main.dict` format with the words of the person for the language in
@@ -276,8 +276,8 @@ its version changed.
   reach GitHub uses.
 - **The settings** (`MrPacksActivity`, the group "Gesture typing" of `res/xml/prefs_suggestions.xml`): the
   options (on or off, the trail and the word while sliding), the row of the file (state, download, update,
-  remove), "Recognition time" (with the recognitions made while sliding and how many words of the person the
-  gestures know), and the notice. The row of the file
+  remove), and the notice ("Recognition time", with the recognitions made while sliding and how many words of the person the
+  gestures know, is in the card "Keyboard statistics" of Advanced, not in this screen). The row of the file
   never connects on a tap: without a stored catalog that has the weights, a dialog says what will be downloaded and from
   where, and only its Download button connects (it fetches the catalog and then the file); with one, the dialog is the
   one of a language, with Download or Update. Installing the weights does not change the option (on by default, so gesture typing works at once unless the person turned it off), and does not touch

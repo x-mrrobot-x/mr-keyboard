@@ -653,7 +653,7 @@ public final class MrPerf {
         return NAMES[FRAME];
     }
 
-    /** The text of the row: one line per kind measured (or "nothing yet"), the memory, the memory of the dictionaries (MrDictMem) and how to reset. */
+    /** The text of the row: one line per kind measured (or "nothing yet"), the memory, the memory of the dictionaries (MrDictMem), the engine and the recognition time of the gestures, and how to reset. */
     static String summary(Context c) {
         StringBuilder sb = new StringBuilder();
         String starts = startsOf(c);
@@ -735,6 +735,9 @@ public final class MrPerf {
         // the memory of the dictionaries (after a read of the screen of the statistics): its own lines, before the note about resetting
         String dictionaries = MrDictMem.block(c);
         if (dictionaries != null) sb.append('\n').append(dictionaries);
+        // the engine in use and the time of the gesture recognition (they were rows of "Suggestions and dictionaries")
+        String engine = MrEngineStats.block(c);
+        if (engine != null) sb.append('\n').append(engine);
         if (measured) {
             String reset = MrPacks.text(c, "mr_ui_perf_reset");
             if (reset != null) sb.append('\n').append(reset);

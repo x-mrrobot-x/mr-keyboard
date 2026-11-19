@@ -13,6 +13,7 @@
     <color name="mr_cyan_cursor">@color/mr_cyan_text</color>
     <color name="mr_cyan_hint">#9e8cf3ff</color>
     <color name="mr_cyan_popup_hint">@color/mr_cyan_hint</color>
+    <color name="mr_cyan_popup_text">@color/mr_cyan_text</color>
     <color name="mr_cyan_accent_text">#ffd1faff</color>
     <color name="mr_cyan_glow">#ff00e5ff</color>
     <color name="mr_cyan_accent_glow">#ff00e5ff</color>
@@ -124,6 +125,7 @@
     <color name="mr_purple_cursor">@color/mr_purple_text</color>
     <color name="mr_purple_hint">#9eddb6ff</color>
     <color name="mr_purple_popup_hint">@color/mr_purple_hint</color>
+    <color name="mr_purple_popup_text">@color/mr_purple_text</color>
     <color name="mr_purple_accent_text">#fff2e2ff</color>
     <color name="mr_purple_glow">#ffb45cff</color>
     <color name="mr_purple_accent_glow">#ffb45cff</color>
@@ -235,6 +237,7 @@
     <color name="mr_pink_cursor">@color/mr_pink_text</color>
     <color name="mr_pink_hint">#9effa8d9</color>
     <color name="mr_pink_popup_hint">@color/mr_pink_hint</color>
+    <color name="mr_pink_popup_text">@color/mr_pink_text</color>
     <color name="mr_pink_accent_text">#ffffdcf0</color>
     <color name="mr_pink_glow">#ffff3daa</color>
     <color name="mr_pink_accent_glow">#ffff3daa</color>
@@ -346,6 +349,7 @@
     <color name="mr_synthwave_cursor">@color/mr_synthwave_text</color>
     <color name="mr_synthwave_hint">#9ed3c4ff</color>
     <color name="mr_synthwave_popup_hint">@color/mr_synthwave_hint</color>
+    <color name="mr_synthwave_popup_text">@color/mr_synthwave_text</color>
     <color name="mr_synthwave_accent_text">#ffffdfed</color>
     <color name="mr_synthwave_glow">#ff9d7bff</color>
     <color name="mr_synthwave_accent_glow">#ffff4d9d</color>
@@ -482,6 +486,7 @@
     <color name="mr_aurora_cursor">@color/mr_aurora_text</color>
     <color name="mr_aurora_hint">#9ebec4ff</color>
     <color name="mr_aurora_popup_hint">@color/mr_aurora_hint</color>
+    <color name="mr_aurora_popup_text">@color/mr_aurora_text</color>
     <color name="mr_aurora_accent_text">#ffe5e7ff</color>
     <color name="mr_aurora_glow">#ff6f7bff</color>
     <color name="mr_aurora_accent_glow">#ff6f7bff</color>

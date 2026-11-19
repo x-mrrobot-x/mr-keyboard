@@ -71,7 +71,7 @@ only Cobalt Glass is written by hand. To add or change one of the generated ones
    and do not follow the keys' radius. With radius 0 on the keys, the keys, popup and preview are square; a new theme needs
    no code for this.
 8. **Theme colors** (`res/values/mr_colors.xml`): `mr_<tema>_kbd_bg`, `_text`, `_cursor`, `_hint`;
-   `_popup_bg_{top,bottom,stroke}`, `_popup_key_{top,bottom,stroke}` and `_popup_hint`;
+   `_popup_bg_{top,bottom,stroke}`, `_popup_key_{top,bottom,stroke}`, `_popup_hint` and `_popup_text` (the letters of the popup of variants; the text of the theme unless its table says another);
    `_preview_{top,bottom,stroke,dots}`, plus `mr_<tema>_press_accent` (the interaction hue). Point the pressed-key edge,
    popup selected-key edge and preview stroke at that same token; make each fill a brighter, theme-tinted shade rather than
    a shared gray or cyan. (The generated themes keep their colors in `res/values/mr_solid_colors.xml`,

@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 115
+    .line 116
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .locals 0
 
     .prologue
-    .line 117
+    .line 118
     invoke-static {}, Lcom/mrkeyboard/app/MrSymbols;->toggle()V
 
-    .line 118
+    .line 119
     return-void
 .end method

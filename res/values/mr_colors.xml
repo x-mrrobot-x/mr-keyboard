@@ -159,6 +159,7 @@
     <color name="mr_glass_cursor">@color/mr_glass_text</color>
     <color name="mr_glass_hint">#e6c5d6eb</color>
     <color name="mr_glass_popup_hint">@color/mr_glass_hint</color>
+    <color name="mr_glass_popup_text">@color/mr_glass_text</color>
     <color name="mr_glass_label_shadow">#cc07101d</color>
     <!-- The light of the glass: the rim of what is under the finger, the edge of the preview bubble, the chosen variant. -->
     <color name="mr_glass_press_accent">#a091b9ec</color>
