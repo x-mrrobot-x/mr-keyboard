@@ -12,6 +12,9 @@
   - the words (res/raw/mr_emoji_en, _pt, _es): the same emojis in the same order as the panel (the base list of MrEmotes.smali with the newer
     ones put in), the line format, almost every emoji with words (docs/tools/make_emoji_search.py builds them from the CLDR annotations),
     every newer emoji with words in the three languages, no stray character;
+  - the symbols of the panel (MrSymbols.java, the button between Search and Delete): both buttons (emote_sym, emote_emo) inside the floating bar with a
+    contentDescription, the names of the 9 tabs (mr_sym_cats) with 9 entries in the 3 languages, the two icons, and the hooks in MrEmotes.smali
+    (the rows, the names and the recents of the tabs, the tap, the long press);
   - docs/emoji-search.md carries the Unicode licence notice and the raw files say where the words come from.
 """
 import os, re, sys
@@ -32,7 +35,7 @@ layout = read('res/layout/mr_toolbar.xml')
 xml.dom.minidom.parseString(layout.encode('utf-8'))
 
 # --- tags
-tags = set(re.findall(r'findViewWithTag\("([\w]+)"\)', java)) | {'es_back', 'emote_search', 'emote_del', 'emote_fab', 'es_card', 'es_div', 'es_title', 'es_icon'}
+tags = set(re.findall(r'findViewWithTag\("([\w]+)"\)', java)) | {'es_back', 'emote_search', 'emote_sym', 'emote_emo', 'emote_del', 'emote_fab', 'es_card', 'es_div', 'es_title', 'es_icon'}
 for t in sorted(tags):
     if 'android:tag="%s"' % t not in layout:
         problems.append('MrEmojiSearch looks for the tag "%s" and mr_toolbar.xml has no view with it' % t)
@@ -60,7 +63,7 @@ def inside(node, ancestor):
 fab, pemote = by_tag('emote_fab'), by_tag('p_emote')
 if fab is None or pemote is None or not inside(fab, pemote):
     problems.append('the floating bar (emote_fab) must be inside the emoji panel (p_emote)')
-for t in ('emote_search', 'emote_del'):
+for t in ('emote_search', 'emote_sym', 'emote_emo', 'emote_del'):
     n = by_tag(t)
     if n is None or not inside(n, fab):
         problems.append('the button "%s" must be inside emote_fab' % t)
@@ -73,7 +76,7 @@ if bar is not None and bar.getAttribute('android:visibility') != 'gone':
     problems.append('bar_es must start gone')
 
 # --- texts and sizes
-STRINGS = ('mr_es_title', 'mr_es_hint', 'mr_es_empty', 'mr_es_search', 'mr_es_delete')
+STRINGS = ('mr_es_title', 'mr_es_hint', 'mr_es_empty', 'mr_es_search', 'mr_es_delete', 'mr_es_symbols', 'mr_es_emojis', 'mr_sym_cats')
 for d in ('values', 'values-pt-rBR', 'values-es'):
     text = read('res/%s/mr_strings.xml' % d)
     for k in STRINGS:
@@ -86,9 +89,33 @@ for d in ('values', 'values-land'):
             problems.append('res/%s/dimens.xml: no dimen %s' % (d, k))
     if 'name="mr_es_rows"' not in read('res/%s/integers.xml' % d):
         problems.append('res/%s/integers.xml: no integer mr_es_rows' % d)
-for k in ('mr_es_title', 'mr_es_hint', 'mr_es_empty', 'mr_es_search', 'mr_es_delete'):
+for k in ('mr_es_title', 'mr_es_hint', 'mr_es_empty', 'mr_es_search', 'mr_es_delete', 'mr_es_symbols', 'mr_es_emojis'):
     if '@string/%s' % k not in layout:
         problems.append('mr_toolbar.xml does not use @string/%s' % k)
+
+# --- the symbols (MrSymbols): names of the tabs, icons, hooks in the panel
+for d in ('values', 'values-pt-rBR', 'values-es'):
+    m = re.search(r'<string name="mr_sym_cats">([^<]+)</string>', read('res/%s/mr_strings.xml' % d))
+    if m and len(m.group(1).split('|')) != 9:
+        problems.append('res/%s/mr_strings.xml: mr_sym_cats has %d names, expected 9 (Recent and the 8 categories)' % (d, len(m.group(1).split('|'))))
+for f in ('ic_mr_symbols', 'ic_mr_emoji_s'):
+    if not os.path.exists('res/drawable/%s.xml' % f):
+        problems.append('res/drawable/%s.xml is missing' % f)
+    elif '@drawable/%s' % f not in layout:
+        problems.append('mr_toolbar.xml does not use @drawable/%s' % f)
+sym_smali = read('smali/com/mrkeyboard/app/MrEmotes.smali')
+for sig in ('MrSymbols;->rows(I)Ljava/lang/String;', 'MrSymbols;->names(Ljava/lang/String;)Ljava/lang/String;',
+            'MrSymbols;->recent(Ljava/lang/String;)Ljava/lang/String;', 'MrSymbols;->addRecent(Ljava/lang/String;)V',
+            'MrSymbols;->on()Z', 'MrSymbols;->forget(Ljava/lang/String;)Z'):
+    if sig not in sym_smali:
+        problems.append('MrEmotes.smali does not call %s' % sig)
+sym_java = read('docs/tools/java/src/com/mrkeyboard/app/MrSymbols.java')
+if 'MrSymbols.setup(root)' not in java or 'MrSymbols.leave()' not in java:
+    problems.append('MrEmojiSearch.java must call MrSymbols.setup(root) (build) and MrSymbols.leave() (onPanel)')
+for sig in (r'static String rows\(int', r'static String names\(String', r'static String recent\(String', r'static void addRecent\(String',
+            r'static boolean on\(\)', r'static boolean forget\(String'):
+    if not re.search(sig, sym_java):
+        problems.append('MrSymbols.java: %s not found (MrEmotes.smali calls it)' % sig.replace('\\', ''))
 
 # --- hooks and mode
 tools = read('smali/com/mrkeyboard/app/MrTools.smali')

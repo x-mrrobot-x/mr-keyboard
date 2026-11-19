@@ -310,9 +310,9 @@
 
     <!-- ===== Sky ===== -->
     <color name="mr_sky_kbd_bg">#ffd9eafc</color>
-    <color name="mr_sky_text">#ff99b5d3</color>
+    <color name="mr_sky_text">#ff839fc4</color>
     <color name="mr_sky_cursor">@color/mr_sky_text</color>
-    <color name="mr_sky_hint">#ff99b5d3</color>
+    <color name="mr_sky_hint">#ff839fc4</color>
     <color name="mr_sky_popup_hint">@color/mr_sky_hint</color>
     <color name="mr_sky_accent_text">#ffffffff</color>
     <color name="mr_sky_modifier_indicator_off">#ff7293c3</color>
@@ -322,7 +322,7 @@
     <color name="mr_sky_alpha_flat">#b3000000</color>
     <color name="mr_sky_panel_icon">@color/mr_sky_text</color>
     <color name="mr_sky_panel_tab_on_text">@color/mr_sky_text</color>
-    <color name="mr_sky_space_text">@color/mr_sky_text</color>
+    <color name="mr_sky_space_text">#ffffffff</color>
     <color name="mr_sky_tool_tint">#ff4a76b8</color>
     <color name="mr_sky_alpha_btn">#38000000</color>
     <color name="mr_sky_alpha_tab_off">#1f000000</color>
@@ -332,7 +332,7 @@
     <color name="mr_sky_panel_btn">#ffc2d7f1</color>
     <color name="mr_sky_sel_cancel">#ffc2d7f1</color>
     <color name="mr_sky_sel_cancel_stroke">#ffa0bce1</color>
-    <color name="mr_sky_sel_cancel_text">@color/mr_sky_text</color>
+    <color name="mr_sky_sel_cancel_text">#ff5e7898</color>
     <color name="mr_sky_sel_send">#ff4a76b8</color>
     <color name="mr_sky_sel_send_stroke">#ff7798ca</color>
     <color name="mr_sky_sel_send_text">#ffffffff</color>
@@ -347,7 +347,7 @@
     <color name="mr_sky_btn_ink">#ff7e99b8</color>
     <color name="mr_sky_lang_text">#ff5e7898</color>
     <color name="mr_sky_bubble_fill">#fffafdff</color>
-    <color name="mr_sky_bubble_stroke">#ffe9f0f7</color>
+    <color name="mr_sky_bubble_stroke">#ffe5ecf4</color>
     <color name="mr_sky_preview_stroke">#ff4a76b8</color>
     <color name="mr_sky_preview_dots">#d94a76b8</color>
     <color name="mr_sky_popup_key_fill">#ffabc0df</color>

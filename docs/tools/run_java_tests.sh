@@ -110,6 +110,10 @@
 #     and given back, the delete button (press feedback, Backspace, the repeat, release and cancel), a tap on a result written in the
 #     app and not in the search field, the words read in a background thread, dropped when the emoji panel is left, thrown away when
 #     they arrive late, and a keyboard view made again while the search is open.
+#   - SymbolsTest: the symbols page of the emoji panel (MrSymbols, 2.0.0): the eight categories of one code point each (none twice, the ones of the reference pictures
+#     among them, ASCII source), the swap between the emojis and the symbols with the two buttons of the floating bar (tabs with a symbol in place of the icon and the icon back, the list built
+#     again), the recent symbols (their own preference, 24 at most, a long press removes), the names of the tabs, the symbols the font of the phone cannot draw left out (asked once per
+#     category), the way back to the emojis when the panel is left, and the hooks in MrEmotes.smali.
 #   - EmojiNewTest: the emojis newer than the base list of the panel (MrEmojiNew, 1.97.0): the table (one group per anchor, no emoji
 #     twice), the merge into a base list (right after the anchor, at the end of the category when the anchor is not there, none added
 #     twice), what a phone whose font cannot draw some of them gets (Paint.hasGlyph: left out of the panel and of the search results,
@@ -267,6 +271,10 @@ java -Dfile.encoding=UTF-8 -cp "$T/test_es_emoji:$T/stubs:$T/main" com.mrkeyboar
 echo "== EmojiPanelTest (emoji search and delete in the panel: redirect, height, buttons, results, words in the background)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_es_panel" $D/emoji_search_test/EmojiPanelTest.java
 java -Dfile.encoding=UTF-8 -cp "$T/test_es_panel:$T/stubs:$T/main" com.mrkeyboard.app.EmojiPanelTest
+
+echo "== SymbolsTest (symbols page of the emoji panel: data, swap, recents, names, fonts)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_symbols" $D/emoji_search_test/SymbolsTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_symbols:$T/stubs:$T/main" com.mrkeyboard.app.SymbolsTest
 
 echo "== EmojiNewTest (the emojis newer than the panel: table, merge, phones that cannot draw them)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_es_new" $D/emoji_search_test/EmojiNewTest.java

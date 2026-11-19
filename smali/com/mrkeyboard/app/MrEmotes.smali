@@ -369,6 +369,11 @@
 
     move-result-object v1
 
+    # the names above the categories: the emoji ones, or the ones of the symbols while MrSymbols shows them
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrSymbols;->names(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
     const-string v2, "\\|"
 
     invoke-virtual {v1, v2}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
@@ -408,12 +413,17 @@
 
     move-result-object v4
 
+    # the recent symbols while MrSymbols shows them
+    invoke-static {v4}, Lcom/mrkeyboard/app/MrSymbols;->recent(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
     goto :cond_cat_split
 
     :cond_cat_data
     add-int/lit8 v4, v3, -0x1
 
-    invoke-static {v4}, Lcom/mrkeyboard/app/MrEmotes;->data(I)Ljava/lang/String;
+    invoke-static {v4}, Lcom/mrkeyboard/app/MrSymbols;->rows(I)Ljava/lang/String;
 
     move-result-object v4
 
@@ -816,7 +826,7 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTools;->commit(Ljava/lang/String;)V
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrEmotes;->addRecent(Ljava/lang/String;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrSymbols;->addRecent(Ljava/lang/String;)V
 
     # updates the recents WITHOUT scrolling the list to the top
     invoke-static {}, Lcom/mrkeyboard/app/MrEmotes;->refreshKeepScroll()V
@@ -857,6 +867,20 @@
 
     if-eqz v1, :cond_lc_end
 
+    # while the symbols are on, their recents are the ones that lose the cell
+    invoke-static {}, Lcom/mrkeyboard/app/MrSymbols;->on()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_lc_emoji
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrSymbols;->forget(Ljava/lang/String;)Z
+
+    move-result v0
+
+    return v0
+
+    :cond_lc_emoji
     sget-object v1, Lcom/mrkeyboard/app/MrEmotes;->sRecent:Ljava/util/ArrayList;
 
     if-eqz v1, :cond_lc_end

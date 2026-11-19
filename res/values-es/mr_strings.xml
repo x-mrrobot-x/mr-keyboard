@@ -247,6 +247,9 @@
     <string name="mr_es_empty">No se encontraron emojis</string>
     <string name="mr_es_search">Buscar emojis</string>
     <string name="mr_es_delete">Borrar</string>
+    <string name="mr_es_symbols">Símbolos</string>
+    <string name="mr_es_emojis">Emojis</string>
+    <string name="mr_sym_cats">Recientes|Estrellas y flores|Corazones y caras|Flechas y manos|Matemáticas y números|Música y naturaleza|Formas y líneas|Animales y juegos|Monedas y signos</string>
     <string name="mr_tb_emoji_recent">Recientes</string>
     <string name="mr_tb_emoji_people">Caras y personas</string>
     <string name="mr_tb_emoji_nature">Animales y naturaleza</string>

@@ -25,7 +25,7 @@ import java.util.Locale;
 /**
  * Search and delete of the emoji panel (1.97.0).
  *
- * The emoji panel (MrEmotes, panel mode 4) got a floating bar at the bottom with two buttons: search and delete.
+ * The emoji panel (MrEmotes, panel mode 4) got a floating bar at the bottom with two buttons: search and delete (a third one, symbols, came later).
  *  - Delete does what the Backspace key does (LatinIME.onKey with the delete code, with the press feedback and the repeat
  *    while it is held), in the field of the app.
  *  - Search is a panel mode of its own, MODE (7), built like the Fonts tool (MrFonts): the toolbar row is replaced by the
@@ -34,6 +34,9 @@ import java.util.Locale;
  *    the keyboard works as it always does. Each text change searches again (MrEmojiIndex) and the emojis found replace
  *    those of the card; a tap on one writes it in the app (and in the recents of the panel) and the search stays open.
  *    Back goes back to the emoji panel.
+ *
+ * Between Search and Delete there is a third button (MrSymbols): it swaps the emojis of the panel for text symbols and back.
+ * Search is of emojis, so opening it (like leaving the panel) brings the emojis back.
  *
  * The header is taller than the bar: MrBar.expand makes it so while the search is open, and MrBar.restore gives the old
  * height back on the way out (the same two calls serve any other tool that needs more room).
@@ -122,6 +125,7 @@ final class MrEmojiSearch {
     /** Lets go of everything of the search (the state of a keyboard view that is gone). */
     private static void forget() {
         stopRepeat();
+        MrSymbols.setup(null);
         sBar = null;
         sMainBar = null;
         sField = null;
@@ -181,6 +185,7 @@ final class MrEmojiSearch {
                 }
             });
         }
+        MrSymbols.setup(root);   // the button between Search and Delete: emojis or symbols in the panel
     }
 
     /** The card of the other panels (same colors, flat themes included) with rounder corners. */
@@ -209,7 +214,7 @@ final class MrEmojiSearch {
         if (fab != null) fab.setBackgroundDrawable(MrTools.floatBg());
         // what sits on it takes the colour of the labels of the keys, which is the one that reads on that face
         int ink = MrTools.sKeyText;
-        String[] tags = {"emote_search", "emote_del"};
+        String[] tags = {"emote_search", "emote_sym", "emote_emo", "emote_del"};
         for (String tag : tags) {
             View b = root.findViewWithTag(tag);
             if (b == null) continue;
@@ -225,6 +230,7 @@ final class MrEmojiSearch {
         if (sBar == null) return;
         try {
             stopRepeat();
+            if (mode != EMOJI_MODE) MrSymbols.leave();   // the symbols are only for as long as the panel is open: the search is of emojis
             if (mode == MODE) {
                 if (!sOpen) open();
                 return;

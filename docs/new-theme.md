@@ -293,10 +293,10 @@ Not themed, in any theme: the panel of the adjustments in landscape, which is a 
 the dialogs of the app.
 
 **A light theme with a pale ink, from a picture (Sky).** The colors are the ones of a reference picture of a pale blue keyboard, sampled from it: `SKY` has the
-colors of the picture, the background (`d9eafc`), the letter keys (`f2f9ff`), the highlight keys (`97b8e5`), the ink of the letters and of the icons of the bar (`99b5d3`), white (the labels
+colors of the picture, the background (`d9eafc`), the letter keys (`f2f9ff`), the highlight keys (`97b8e5`), the ink of the letters and of the icons of the bar (`839fc4`), white (the labels
 and icons of the highlight keys) and two blues that the picture does not show, the vivid one of what is touched and lit (`4a76b8`: the key under the finger, the tint of the
 tools, Send, the edge of the preview bubble, the lit dash; white reads on it at 4.6) and a deep one (`2d4668`) for `bars_ink`. The keys are flat (`lip` 0, as in the picture).
-The ink is pale (2.0 of contrast with the keys, as in the picture), which is why the table says `light=True` and declares `bars_ink` and `label_shadow`
+The ink is pale (2.6 of contrast with the keys; the picture's own was 2.0, which looked washed out), which is why the table says `light=True` and declares `bars_ink` and `label_shadow`
 (`#01000000`, a shade that does not show: a role of 0 means "the one of the style"). Everything else is derived by the light rules of the table: the states mix the faces with the vivid
 blue, the tools take it as their tint, the small letters are the ink, and those of the highlight keys (`accent_hint`) are the color of the letter keys.
 The buttons inside the tools are darker than the keys (`alpha_btn`) and the pale ink of the keys would almost disappear on them, so Sky declares `btn_ink`
@@ -305,6 +305,8 @@ Recording, Clear, the buttons of the sheets, of the tune screen and of the scree
 cards keep the ink of the keys; `btn_ink` is one of the `OWN_ROLES` of the script and, at 0 (the default), changes nothing.
 The dash of Ctrl, Alt and Shift: unlit it is the derived tone leaning 30% to the vivid blue (so it is not a flat grey), lit it is white and locked it is a clear red
 (`d93b3b`, 2.2 of contrast with the highlight keys: the red of every theme, not the dark wine that the derivation gave); `modifier_indicator_off`, `_on` and `_lock` replace the derived ones.
+The label of Space (`space_text`) is white, as the labels of the other highlight keys (the ink would be the tone of the key itself), and the Cancel of the attachments
+(`sel_cancel_text`) is the language blue, because the ink would have 1.8 of contrast with its pale blue button.
 The language names of the long press on the space bar are drawn on the preview bubble, which is white in the light themes: the role `lang_text` (default white) is the
 ink of those themes (`lang_text`, generated, checked for 3 of contrast with the bubble) and `5e7898` in Sky.
 

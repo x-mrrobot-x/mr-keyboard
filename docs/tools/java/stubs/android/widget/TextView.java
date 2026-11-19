@@ -20,6 +20,12 @@ public class TextView extends android.view.View {
     public void setTextSize(float size) { stubTextSize = size; }
     public void setTypeface(android.graphics.Typeface tf, int style) { }
     public void setGravity(int gravity) { }
+
+    private android.graphics.drawable.Drawable[] stubCompound = new android.graphics.drawable.Drawable[4];
+    public android.graphics.drawable.Drawable[] getCompoundDrawables() { return stubCompound.clone(); }
+    public void setCompoundDrawables(android.graphics.drawable.Drawable left, android.graphics.drawable.Drawable top, android.graphics.drawable.Drawable right, android.graphics.drawable.Drawable bottom) {
+        stubCompound = new android.graphics.drawable.Drawable[] {left, top, right, bottom};
+    }
     private CharSequence stubHint;
     public void setHint(CharSequence hint) { stubHint = hint; }
     public CharSequence getHint() { return stubHint; }

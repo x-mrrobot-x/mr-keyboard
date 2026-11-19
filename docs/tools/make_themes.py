@@ -803,11 +803,11 @@ SKY = collections.OrderedDict([
     ('key', '#f2f9ff'),     # the letter keys, the cards, the field, the bubble, the small letters of the highlight keys
     ('bg', '#d9eafc'),      # the keyboard background (also the bar and the panels)
     ('mod', '#97b8e5'),     # the highlight keys
-    ('ink', '#99b5d3'),     # the letters of the keys, the icons of the bar, the small letters and the secondary texts
+    ('ink', '#839fc4'),     # the letters of the keys, the icons of the bar and the Cancel of the attachments (2.6 of contrast with the keys; the picture's was 2.0, which looked washed out)
     ('vivid', '#4a76b8'),   # the key under the finger, the tint of the tools, Send, the + button, the edge of the preview bubble, the lit dash
     ('deep', '#2d4668'),    # the buttons of the system under the keyboard (bars_ink): dark, because the ink is pale and the background is light
     ('lang', '#5e7898'),    # the language names of the long press on the space bar (lang_text): on the white bubble, the ink 55% of the way to deep
-    ('btn', '#7e99b8'),     # the texts and icons inside the buttons of the tools (btn_ink): the ink a quarter of the way to deep, a little darker than the buttons' dark face swallows
+    ('btn', '#7e99b8'),     # the texts and icons inside the buttons of the tools (btn_ink): the ink a little darker (a quarter of the way from the picture's ink to deep), which the buttons' dark face would swallow
     ('red', '#d93b3b'),     # the locked dash (modifier_indicator_lock): the red that every theme uses, light enough not to be a dark wine and 2.2 of contrast with the highlight keys
 ])
 
@@ -1166,6 +1166,10 @@ SOLID = [
               # buttons would swallow. The bar, the labels and the cards keep the ink
               ('btn_ink', SKY['btn']),
               ('lang_text', SKY['lang']),
+              # the label of Space is on a highlight key, where the ink (the face's own tone) would not show: white, as the labels of the other highlight keys
+              ('space_text', SKY['white']),
+              # Cancel of the attachments is on a pale blue button: the ink would have 1.8 of contrast with it, the language blue has 3
+              ('sel_cancel_text', SKY['lang']),
               # the dash of Ctrl, Alt and Shift: unlit = the derived tone (the face a little darker) leaning 30% to the vivid blue, so it is not a flat grey;
               # lit = white (as the labels of the highlight keys); locked = a clear red, as in every theme (the derived one was a dark wine)
               ('modifier_indicator_off', mix(hex6(subdued(SKY['mod'])), SKY['vivid'], .30)),

@@ -247,6 +247,9 @@
     <string name="mr_es_empty">No emojis found</string>
     <string name="mr_es_search">Search emojis</string>
     <string name="mr_es_delete">Delete</string>
+    <string name="mr_es_symbols">Symbols</string>
+    <string name="mr_es_emojis">Emojis</string>
+    <string name="mr_sym_cats">Recent|Stars &amp; Flowers|Hearts &amp; Faces|Arrows &amp; Hands|Math &amp; Numbers|Music &amp; Nature|Shapes &amp; Lines|Animals &amp; Games|Currency &amp; Signs</string>
     <string name="mr_tb_emoji_recent">Recent</string>
     <string name="mr_tb_emoji_people">Smileys &amp; People</string>
     <string name="mr_tb_emoji_nature">Animals &amp; Nature</string>
