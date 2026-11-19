@@ -22,15 +22,18 @@ that the window already ends above the bar, and this space is all there is under
 
 ## The navigation bar takes the color of the theme
 
-With the three buttons the bar of the system sits under the keyboard. From Android 15 on the keyboard is drawn under that bar, and the
-system puts a veil on it (80% of an opaque color, the "contrast" of the bar), so the bar looks like a band of another shade under the
-keys. `MrBottom.bar` asks the window of the keyboard for a **transparent** bar and **no contrast veil**
-(`setNavigationBarColor(TRANSPARENT)` and `setNavigationBarContrastEnforced(false)`), so the buttons sit on the background of the theme,
-the same color (or gradient) as the rest of the keyboard, as they do with Gboard. The color of the buttons (dark or light) already follows
-the theme (`MrLight.bars`). It is asked when the keyboard view is put in the window and again when the window is shown.
+The bar of the system (with the three buttons) sits under the keyboard, and `MrBottom.bar` asks the window of the keyboard to paint it with
+the background of the theme, the same color as the rest of the keyboard, as Gboard does. It depends on the Android:
 
-Before Android 15 the window ends above the bar and the system paints its own bar there, so nothing is asked. With the home gesture the
-bar is already transparent, so the request changes nothing there.
+| Android | What is asked of the window |
+| --- | --- |
+| 15 and up | **Transparent** bar and **no contrast veil** (`setNavigationBarColor(TRANSPARENT)`, `setNavigationBarContrastEnforced(false)`). The keyboard is drawn under the bar, so the buttons sit on its background. Without this the system puts a veil (80% of an opaque color) on the three buttons, a band of another shade under the keys. |
+| 11 to 14 | The bar gets the **color of the keyboard background** (the role `kbd_bg` of the theme), with its opacity, and no contrast veil. The window ends above the bar there and the system paints it black if nobody asks. |
+| 10 and before | Nothing is asked (the system paints its own bar). |
+
+The color of the buttons (dark or light) follows the theme from Android 11 on (`MrLight.bars`: dark buttons on a light theme, light buttons
+on a dark one). Everything is asked when the keyboard view is put in the window and again when the window is shown, because a window that
+the system made again has the defaults. With the home gesture the bar is already transparent, so the request changes nothing there.
 
 ## Where it is
 

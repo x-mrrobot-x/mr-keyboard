@@ -10,6 +10,7 @@ import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowInsetsController;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -22,8 +23,8 @@ import java.util.regex.Pattern;
  * from the settings (navigation_mode, the resource, the settings of Samsung and Xiaomi), the pixels by the density, the height that is left
  * to the rows of keys (the space is part of the height of the keyboard: the keys give way by the same amount), the padding of the view that
  * holds the toolbar and the keys (once, and again when the way of navigating changes), what happens when Android answers with an error, the new
- * default heights (the keys keep their size), the navigation bar that shows the background of the theme (transparent, without the veil of
- * the three buttons, from Android 15 on) and the places of the code that call it.
+ * default heights (the keys keep their size), the navigation bar that shows the background of the theme (its colour from Android 11 to 14,
+ * transparent and without the veil of the three buttons from Android 15 on, and the colour of its buttons) and the places of the code that call it.
  */
 public class BottomSpaceTest {
     static int ok, fail;
@@ -58,6 +59,20 @@ public class BottomSpaceTest {
             if (noDialog) return null;
             return new Dialog(null, 0) { public Window getWindow() { return window; } };
         }
+    }
+
+    /** Remembers the appearance of the bars like the real controller does (what MrLight.bars asks for). */
+    static class Bars implements WindowInsetsController {
+        int appearance;
+        int calls;
+        public void setSystemBarsAppearance(int value, int mask) { calls++; appearance = (appearance & ~mask) | (value & mask); }
+        boolean darkButtons() { return (appearance & WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS) != 0; }
+    }
+
+    static class Win extends Window {
+        final WindowInsetsController bars;
+        Win(WindowInsetsController bars) { this.bars = bars; }
+        public WindowInsetsController getInsetsController() { return bars; }
     }
 
     static class BrokenIme extends InputMethodService {
@@ -168,25 +183,59 @@ public class BottomSpaceTest {
         check("the setting still goes from 15% to 75% in steps of 1", prefs.contains("settings_height_portrait") && prefs.contains("hk:maxValue=\"75.0\"") && prefs.contains("hk:minValue=\"15.0\""));
 
         // ---- the navigation bar under the keyboard: the background of the theme shows through it
-        Window win = new Window();
+        final int NIGHT_BG = 0xff171e27, NIGHT_TEXT = 0xffe7eef7, DAY_BG = 0xffe7eaef, DAY_TEXT = 0xff1f2329, GLASS_BG = 0x8007101d;
+        MrTheme.stubColors.put("bars_ink", 0);          // a theme without that role: the real MrTheme answers 0 for it
+        MrTheme.stubColors.put("kbd_bg", NIGHT_BG);
+        MrTools.sTextColor = NIGHT_TEXT;
+        Bars bars = new Bars();
+        Win win = new Win(bars);
         Ime ime0 = new Ime(win, false);
-        Build.VERSION.SDK_INT = 34;
+        Build.VERSION.SDK_INT = 29;
         MrBottom.bar(ime0);
-        check("Android 14: nothing is asked (the system paints its own bar under the window there)", win.stubBarCalls == 0 && win.stubNavigationBarColor == 0xff000000 && win.stubNavigationBarContrastEnforced);
+        check("Android 10: nothing is asked (only the system paints that bar)", win.stubBarCalls == 0 && win.stubNavigationBarColor == 0xff000000 && win.stubNavigationBarContrastEnforced && bars.calls == 0);
+        Build.VERSION.SDK_INT = 33;
+        MrBottom.bar(ime0);
+        check("Android 13: the bar has the color of the keyboard background (the system would paint it black)", win.stubNavigationBarColor == NIGHT_BG);
+        check("... without the veil of the system", !win.stubNavigationBarContrastEnforced);
+        check("... and the buttons on it are light on a dark theme", bars.calls == 1 && !bars.darkButtons());
+        MrTheme.stubColors.put("kbd_bg", DAY_BG);
+        MrTools.sTextColor = DAY_TEXT;
+        MrBottom.bar(ime0);
+        check("a light theme: the bar takes its background and the buttons are dark", win.stubNavigationBarColor == DAY_BG && bars.darkButtons());
+        MrTheme.stubColors.put("kbd_bg", NIGHT_BG);
+        MrTools.sTextColor = NIGHT_TEXT;
+        Build.VERSION.SDK_INT = 30;
+        MrBottom.bar(ime0);
+        check("Android 11 (the first with the controller of the buttons): the same, and a new theme is followed when it is asked again", win.stubNavigationBarColor == NIGHT_BG && !bars.darkButtons());
+        Build.VERSION.SDK_INT = 34;
+        MrTheme.stubColors.put("kbd_bg", GLASS_BG);
+        MrBottom.bar(ime0);
+        check("Android 14: a see-through theme (Glass) gets a see-through bar, its opacity is kept", win.stubNavigationBarColor == GLASS_BG);
+        MrTheme.stubColors.remove("kbd_bg");
+        win.stubNavigationBarColor = 0xff000000;
+        win.stubNavigationBarContrastEnforced = true;
+        int calls = bars.calls;
+        MrBottom.bar(ime0);
+        check("a theme that has no keyboard background yet (the role answers magenta): nothing is asked", win.stubNavigationBarColor == 0xff000000 && win.stubNavigationBarContrastEnforced && bars.calls == calls);
+        MrTheme.stubColors.put("kbd_bg", NIGHT_BG);
         Build.VERSION.SDK_INT = 35;
         MrBottom.bar(ime0);
-        check("Android 15: the bar is transparent", win.stubNavigationBarColor == 0);
+        check("Android 15: the keyboard is drawn under the bar, so the bar is transparent", win.stubNavigationBarColor == 0);
         check("... and without the veil of the three buttons", !win.stubNavigationBarContrastEnforced);
+        check("... and the buttons follow the theme as before", !bars.darkButtons());
         win.stubNavigationBarColor = 0xff000000;
         win.stubNavigationBarContrastEnforced = true;
         Build.VERSION.SDK_INT = 37;
+        MrTheme.stubColors.remove("kbd_bg");
         MrBottom.bar(ime0);
-        check("Android 17: the same, again when it is asked again (a window that was made again has the defaults)", win.stubNavigationBarColor == 0 && !win.stubNavigationBarContrastEnforced);
+        check("Android 17: the same, again when it is asked again (a window that was made again has the defaults), whatever the role says", win.stubNavigationBarColor == 0 && !win.stubNavigationBarContrastEnforced);
+        MrTheme.stubColors.put("kbd_bg", NIGHT_BG);
         MrBottom.bar(null);
         MrBottom.bar(new Ime(null, false));
         MrBottom.bar(new Ime(null, true));
+        MrBottom.bar(new Ime(new Win(null), false));
         MrBottom.bar(new BrokenIme());
-        check("no service, no dialog, no window or a window that is not ready: nothing happens, no exception", true);
+        check("no service, no dialog, no window, no controller or a window that is not ready: nothing happens, no exception", true);
         Build.VERSION.SDK_INT = 35;
 
         // ---- the places of the code
@@ -197,11 +246,11 @@ public class BottomSpaceTest {
         check("... before ImeInsets, which takes the padding it finds as its base and adds the bars of the system on top", apply > 0 && insets > apply);
         int setView = index(ime, ".method public setInputView(Landroid/view/View;)V");
         String viewBody = setView > 0 ? ime.substring(setView, ime.indexOf(".end method", setView)) : "";
-        int bars = index(viewBody, "Lcom/mrkeyboard/app/MrLight;->bars(Landroid/inputmethodservice/InputMethodService;I)V");
         int bar = index(viewBody, "Lcom/mrkeyboard/app/MrBottom;->bar(Landroid/inputmethodservice/InputMethodService;)V");
-        check("LatinIME.setInputView asks for the transparent bar, after the colour of the buttons and inside the Android 15 block",
-                bars > 0 && bar > bars && bar < index(viewBody, "invoke-super {p0, p1}, Landroid/inputmethodservice/InputMethodService;->setInputView(Landroid/view/View;)V")
-                && viewBody.lastIndexOf(":cond_1") > bar);
+        check("LatinIME.setInputView asks for the bar of the theme, for every Android (the call decides by itself), after the Android 15 block",
+                bar > 0 && bar > index(viewBody, "ImeInsets;->apply") && bar > viewBody.lastIndexOf(":cond_1")
+                && bar < index(viewBody, "invoke-super {p0, p1}, Landroid/inputmethodservice/InputMethodService;->setInputView(Landroid/view/View;)V"));
+        check("... and MrBottom.bar sets the colour of the buttons itself (setInputView no longer calls MrLight.bars)", !viewBody.contains("MrLight;->bars"));
         int shown = index(ime, ".method public onWindowShown()V");
         int shownEnd = ime.indexOf(".end method", shown);
         String shownBody = shown > 0 ? ime.substring(shown, shownEnd) : "";

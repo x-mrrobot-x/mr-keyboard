@@ -19,24 +19,24 @@
     .locals 0
 
     .prologue
-    .line 156
+    .line 177
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
 .end method
 
-.method static transparentBar(Landroid/view/Window;)V
+.method static bar(Landroid/view/Window;I)V
     .locals 1
 
     .prologue
+    .line 180
+    invoke-virtual {p0, p1}, Landroid/view/Window;->setNavigationBarColor(I)V
+
+    .line 181
     const/4 v0, 0x0
 
-    .line 159
-    invoke-virtual {p0, v0}, Landroid/view/Window;->setNavigationBarColor(I)V
-
-    .line 160
     invoke-virtual {p0, v0}, Landroid/view/Window;->setNavigationBarContrastEnforced(Z)V
 
-    .line 161
+    .line 182
     return-void
 .end method

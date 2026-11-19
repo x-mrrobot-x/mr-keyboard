@@ -10286,7 +10286,7 @@
 
     invoke-super {p0}, Landroid/inputmethodservice/InputMethodService;->onWindowShown()V
 
-    # Asked again when the window is shown: a window that the system made again has the bar and the veil of the system (MrBottom)
+    # Asked again when the window is shown: a window that the system made again has the bar and the buttons of the system (MrBottom)
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBottom;->bar(Landroid/inputmethodservice/InputMethodService;)V
 
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->resetSheetToAbc()V
@@ -14619,16 +14619,11 @@
 
     invoke-static {p1}, Lcom/mrkeyboard/app/ImeInsets;->apply(Landroid/view/View;)V
 
-    # Light theme (dark labels): the buttons the system draws under the keyboard, which sit on the keyboard's own
-    # background from Android 15 on, are asked for in a dark color; a dark theme asks for the light ones (MrLight).
-    sget v0, Lcom/mrkeyboard/app/MrTools;->sTextColor:I
-
-    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrLight;->bars(Landroid/inputmethodservice/InputMethodService;I)V
-
-    # The bar of the system under the keyboard shows the background of the theme, without the veil of the three buttons (MrBottom)
+    :cond_1
+    # The bar of the system under the keyboard shows the background of the theme: transparent from Android 15 on, its colour from Android 11 to 14
+    # (the system would paint it black), and the buttons on it in the colour that the theme asks for, dark on a light theme (MrBottom, MrLight)
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBottom;->bar(Landroid/inputmethodservice/InputMethodService;)V
 
-    :cond_1
     invoke-super {p0, p1}, Landroid/inputmethodservice/InputMethodService;->setInputView(Landroid/view/View;)V
 
     return-void

@@ -12,7 +12,7 @@
 
 
 # static fields
-.field static final EDGE_TO_EDGE_SDK:I = 0x23
+.field static final BARS_SDK:I = 0x1e
 
 
 # direct methods
@@ -20,7 +20,7 @@
     .locals 0
 
     .prologue
-    .line 28
+    .line 29
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -30,21 +30,21 @@
     .locals 2
 
     .prologue
-    .line 62
+    .line 63
     if-eqz p0, :cond_0
 
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
-    const/16 v1, 0x23
+    const/16 v1, 0x1e
 
     if-ge v0, v1, :cond_1
 
-    .line 69
+    .line 70
     :cond_0
     :goto_0
     return-void
 
-    .line 64
+    .line 65
     :cond_1
     :try_start_0
     invoke-virtual {p0}, Landroid/inputmethodservice/InputMethodService;->getWindow()Landroid/app/Dialog;
@@ -55,7 +55,7 @@
 
     const/4 v0, 0x0
 
-    .line 65
+    .line 66
     :goto_1
     if-eqz v0, :cond_0
 
@@ -77,13 +77,13 @@
 
     goto :goto_0
 
-    .line 66
+    .line 67
     :catch_0
     move-exception v0
 
     goto :goto_0
 
-    .line 64
+    .line 65
     :cond_2
     invoke-virtual {p0}, Landroid/inputmethodservice/InputMethodService;->getWindow()Landroid/app/Dialog;
 
@@ -102,7 +102,7 @@
     .locals 0
 
     .prologue
-    .line 53
+    .line 54
     if-eqz p1, :cond_0
 
     :goto_0
@@ -118,7 +118,7 @@
     .locals 3
 
     .prologue
-    .line 35
+    .line 36
     shr-int/lit8 v0, p0, 0x10
 
     and-int/lit16 v0, v0, 0xff
@@ -129,7 +129,7 @@
 
     and-int/lit16 v2, p0, 0xff
 
-    .line 36
+    .line 37
     invoke-static {v1, v2}, Ljava/lang/Math;->max(II)I
 
     move-result v1
@@ -138,7 +138,7 @@
 
     move-result v0
 
-    .line 37
+    .line 38
     mul-int/lit8 v0, v0, 0x2
 
     const/16 v1, 0xff
@@ -160,7 +160,7 @@
     .locals 1
 
     .prologue
-    .line 45
+    .line 46
     invoke-static {p0}, Lcom/mrkeyboard/app/MrLight;->is(I)Z
 
     move-result v0

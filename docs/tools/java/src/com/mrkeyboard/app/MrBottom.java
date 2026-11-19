@@ -24,9 +24,11 @@ import java.util.WeakHashMap;
  * adds it as bottom padding of the view that holds the toolbar and the keys (it has the background of the theme, so the space is painted
  * like the keyboard). From Android 15 on ImeInsets adds the system bar on top of it.
  * <p>
- * From Android 15 on the keyboard is drawn under the navigation bar, and with the three buttons the system puts a veil of its own on that
- * bar (80% of an opaque colour, so the bar looks like a band of another shade under the keyboard). {@link #bar} asks the window of the
- * keyboard for a transparent bar and no veil, so the buttons sit on the background of the theme, as they do with Gboard.
+ * The navigation bar under the keyboard shows the background of the theme ({@link #bar}), as it does with Gboard. From Android 15 on the
+ * keyboard is drawn under the bar, and with the three buttons the system puts a veil of its own on it (80% of an opaque colour, so the bar
+ * looks like a band of another shade): the window is asked for a transparent bar and no veil, and the buttons sit on the background of the
+ * theme. From Android 11 to 14 the window ends above the bar and the system paints a bar of its own under it (black): the window is asked
+ * for a bar of the colour of the keyboard background. In both the colour of the buttons follows the theme ({@link MrLight#bars}).
  * <p>
  * The way of navigating is <code>Settings.Secure navigation_mode</code> (0 three buttons, 1 two, 2 gestures; the same value as the
  * resource <code>config_navBarInteractionMode</code>); Samsung and Xiaomi have settings of their own for their full-screen gestures.
@@ -47,6 +49,10 @@ public final class MrBottom {
 
     /** From this Android on the keyboard is drawn under the navigation bar (LatinIME.setInputView calls ImeInsets), so the bar can show it. */
     static final int EDGE_TO_EDGE_SDK = 35;
+    /** From this Android on the window of the keyboard can colour the navigation bar and its buttons (the controller of Android 11). */
+    static final int BAR_SDK = 30;
+    /** What MrTheme.color answers for a role it does not have (opaque magenta). */
+    static final int NO_COLOR = 0xffff00ff;
 
     /** The keys never give up more than half of their share of the screen, whatever the space. */
     static final int MIN_KEYS_PERCENT = 50;
@@ -135,17 +141,32 @@ public final class MrBottom {
     }
 
     /**
-     * Lets the navigation bar of the system show the background of the keyboard theme: transparent, and without the veil that Android 15 puts
-     * on the three buttons (the "contrast" of the bar). Only from Android 15 on, where the keyboard reaches under the bar; before it the
-     * system paints its own bar under the window. The window keeps the values, but it is asked again when it is shown, because a window
-     * that is made again by the system has the defaults.
+     * The colour to ask for the navigation bar, for the Android in use and the keyboard background of the theme (<code>background</code>, as
+     * MrTheme.color gives it): nothing (0, transparent) from Android 15 on, where the keyboard is drawn under the bar and shows through;
+     * the background itself before, where the system paints the bar. Opacity included: a see-through theme gets a see-through bar.
+     * A theme without that role gives {@link #NO_COLOR}, which {@link #bar} does not ask for.
+     */
+    static int barColor(int sdk, int background) {
+        if (sdk >= EDGE_TO_EDGE_SDK) return 0;
+        return background;
+    }
+
+    /**
+     * Lets the navigation bar of the system show the background of the keyboard theme, and sets the colour of its buttons for it. From Android
+     * 15 on the bar is transparent and without the veil that the system puts on the three buttons (the "contrast" of the bar); from Android 11
+     * to 14 it has the colour of the background, which the system would otherwise paint black. Before Android 11 nothing is asked. The window
+     * keeps the values, but it is asked again when it is shown, because a window that the system made again has the defaults.
      */
     public static void bar(InputMethodService ime) {
-        if (ime == null || Build.VERSION.SDK_INT < EDGE_TO_EDGE_SDK) return;
+        if (ime == null || Build.VERSION.SDK_INT < BAR_SDK) return;
         try {
             android.app.Dialog dialog = ime.getWindow();
             Window w = dialog == null ? null : dialog.getWindow();
-            if (w != null) Api29.transparentBar(w);
+            if (w == null) return;
+            int color = barColor(Build.VERSION.SDK_INT, MrTheme.color("kbd_bg"));
+            if (Build.VERSION.SDK_INT < EDGE_TO_EDGE_SDK && color == NO_COLOR) return;
+            Api29.bar(w, color);
+            MrLight.bars(ime, MrTools.sTextColor);
         } catch (Throwable t) {
             // a keyboard with the bar of the system is still a keyboard
         }
@@ -155,8 +176,8 @@ public final class MrBottom {
     static final class Api29 {
         private Api29() { }
 
-        static void transparentBar(Window w) {
-            w.setNavigationBarColor(0);                 // Color.TRANSPARENT
+        static void bar(Window w, int color) {
+            w.setNavigationBarColor(color);
             w.setNavigationBarContrastEnforced(false);
         }
     }

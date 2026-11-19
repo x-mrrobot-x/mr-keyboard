@@ -8,7 +8,7 @@ import android.view.WindowInsetsController;
 
 /**
  * Light keyboard themes (MrLight): which text colours make a theme light, the dark outline that a dark label or
- * icon does not get, and the colour of the system buttons under the keyboard (only from Android 15 on, dark on a
+ * icon does not get, and the colour of the system buttons under the keyboard (only from Android 11 on, dark on a
  * light theme, light again on a dark one, and never an exception out of it).
  */
 public class LightTest {
@@ -72,16 +72,22 @@ public class LightTest {
         MrTheme.stubColors.put("bars_ink", 0);      // a theme without the role: the real MrTheme answers 0, not the stub's magenta
         Bars bars = new Bars();
         Ime ime = new Ime(new Box(new Win(bars)));
-        Build.VERSION.SDK_INT = 34;
+        Build.VERSION.SDK_INT = 29;
         MrLight.bars(ime, INK);
-        check("Android 14: nothing is asked (the system paints its own dark bar there)", bars.calls == 0 && !bars.darkButtons());
+        check("Android 10: nothing is asked (the system paints its own dark bar there)", bars.calls == 0 && !bars.darkButtons());
+        Build.VERSION.SDK_INT = 30;
+        MrLight.bars(ime, INK);
+        check("Android 11, light theme: dark buttons (the bar has the colour of the keyboard from there on)", bars.calls == 1 && bars.darkButtons());
+        Build.VERSION.SDK_INT = 34;
+        MrLight.bars(ime, MIDNIGHT_TEXT);
+        check("Android 14, dark theme: light buttons", bars.calls == 2 && !bars.darkButtons());
         Build.VERSION.SDK_INT = 35;
         MrLight.bars(ime, INK);
-        check("Android 15, light theme: dark buttons", bars.calls == 1 && bars.darkButtons());
+        check("Android 15, light theme: dark buttons", bars.calls == 3 && bars.darkButtons());
         check("the rest of the appearance is left alone",
                 (bars.appearance & WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS) != 0);
         MrLight.bars(ime, MIDNIGHT_TEXT);
-        check("back to a dark theme: light buttons again", bars.calls == 2 && !bars.darkButtons());
+        check("back to a dark theme: light buttons again", bars.calls == 4 && !bars.darkButtons());
         Build.VERSION.SDK_INT = 37;
         MrLight.bars(ime, BROWN);
         check("Android 17, light theme: dark buttons", bars.darkButtons());

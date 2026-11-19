@@ -16,9 +16,10 @@ import android.view.WindowInsetsController;
  *     smudge dark letters on a light key): {@link #shadowRadius} gives a radius of 0 for it. This one goes key by
  *     key, by the colour of what is drawn on that key, because a dark theme can have highlight keys with a light
  *     face and dark labels;</li>
- * <li>from Android 15 on the keyboard reaches under the navigation bar (ImeInsets), so the buttons the system draws
- *     there (back, keyboard switcher) sit on the keyboard's own background: {@link #bars} asks for dark ones on a
- *     light theme and for light ones on a dark theme.</li>
+ * <li>from Android 11 on the navigation bar under the keyboard has the colour of the keyboard background (MrBottom.bar: the
+ *     background itself up to Android 14, transparent from 15 on, where the keyboard reaches under it, ImeInsets), so the
+ *     buttons the system draws there (back, keyboard switcher) sit on it: {@link #bars} asks for dark ones on a light theme
+ *     and for light ones on a dark theme.</li>
  * </ul>
  *
  * <p>A theme whose labels are pale on a light background (Sky) says what the dark text would have said by itself: the role
@@ -27,8 +28,8 @@ import android.view.WindowInsetsController;
 final class MrLight {
     private MrLight() { }
 
-    /** From this Android on the keyboard draws under the navigation bar (LatinIME.setInputView calls ImeInsets). */
-    static final int EDGE_TO_EDGE_SDK = 35;
+    /** From this Android on the bar has the colour of the keyboard (the controller of Android 11 sets the colour of its buttons). */
+    static final int BARS_SDK = 30;
 
     /** True when <code>textColor</code>, the colour of the key labels, is dark: the theme is light. */
     static boolean is(int textColor) {
@@ -55,11 +56,11 @@ final class MrLight {
 
     /**
      * Colour of the system buttons under the keyboard, for the theme whose labels are <code>textColor</code>. Only
-     * from Android 15 on: before it the system paints its own dark background behind those buttons and they must
-     * stay light on every theme.
+     * from Android 11 on, where the bar has the colour of the keyboard: before it the system paints its own dark
+     * background behind those buttons and they must stay light on every theme.
      */
     static void bars(InputMethodService ime, int textColor) {
-        if (ime == null || Build.VERSION.SDK_INT < EDGE_TO_EDGE_SDK) return;
+        if (ime == null || Build.VERSION.SDK_INT < BARS_SDK) return;
         try {
             Window w = ime.getWindow() == null ? null : ime.getWindow().getWindow();
             if (w != null) Api30.navigationButtons(w, is(inkOfBars(textColor, MrTheme.color("bars_ink"))));
