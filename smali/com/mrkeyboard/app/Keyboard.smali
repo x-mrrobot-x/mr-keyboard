@@ -306,6 +306,12 @@
 
     move-result p2
 
+    # The space under the last row (MrBottom: 10 dp with the home gesture, 4 dp with the buttons) is part of this height: the rows of
+    # keys have what is left of it, so that the keyboard is as tall as the setting says
+    invoke-static {p1, p2}, Lcom/mrkeyboard/app/MrBottom;->keysHeight(Landroid/content/Context;I)I
+
+    move-result p2
+
     iput p2, p0, Lcom/mrkeyboard/app/Keyboard;->mKeyboardHeight:I
 
     .line 840

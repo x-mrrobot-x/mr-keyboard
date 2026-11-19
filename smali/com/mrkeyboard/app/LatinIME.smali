@@ -14604,6 +14604,10 @@
 
     :cond_0
     :goto_0
+    # The space under the last row, by the way of navigating (MrBottom): before ImeInsets, which takes the padding the view has as its base
+    # and puts the bars of the system on top of it
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrBottom;->apply(Landroid/view/View;)V
+
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v1, 0x23

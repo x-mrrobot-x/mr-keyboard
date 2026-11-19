@@ -5,7 +5,7 @@ only reads them (`MrTheme`, `KeyStyle`, `MrTools`). A new theme does not require
 `<tema>` is the tag name without the `mr_` prefix (`glass`, `midnight`...).
 
 The **generated themes** follow every item below, but nobody writes their files: a script does, from three tables. They
-are Midnight Steel and Denim (dark), the neon ones (Aurora, Neon Cyan, Neon Purple, Neon Pink, Synthwave, Neon Teal) and Aqua, Sky, Snow, Chrome and Rose (light, except Chrome: light keys on a dark background);
+are Midnight Steel and Denim (dark), the neon ones (Aurora, Neon Cyan, Neon Purple, Neon Pink, Synthwave) and Aqua, Sky, Snow, Chrome and Rose (light, except Chrome: light keys on a dark background);
 only Cobalt Glass is written by hand. To add or change one of the generated ones, go straight to
 [Generated themes](#generated-themes).
 
@@ -21,7 +21,7 @@ only Cobalt Glass is written by hand. To add or change one of the generated ones
    (`0x100`, only together with `GLOW`) are the light of the neon themes (section below).
 3. **Registration** (`res/values/mr_themes.xml`): one line in `mr_theme_layouts`. The index is the value stored in
    `pref_keyboard_layout` (the id of the theme: Midnight Steel 0, Aurora 1, Neon Cyan 2, Neon Purple 3, Neon Pink 4,
-   Synthwave 5, Neon Teal 6, Aqua 7, Sky 8, Snow 9, Chrome 10, Rose 11, Cobalt Glass 12, Denim 13). The id is the position in the list, so a theme put in
+   Synthwave 5, Aqua 6, Sky 7, Snow 8, Chrome 9, Rose 10, Cobalt Glass 11, Denim 12). The id is the position in the list, so a theme put in
    the middle moves the ones after it (nothing is kept for older installs); for the generated themes the script writes the
    three lists from its `ORDER`. `mr_theme_tags` and `mr_theme_flags` are per theme, in the same order.
    The key layers' radius has no registration (item 5).
@@ -196,9 +196,6 @@ that shine. The other fields of its table:
 | `accent` | hue of the highlight keys (Delete, arrows, Space, Enter...) in a two-color theme; without it they take `key`, with more light |
 | `core` | color of the tube itself, when it is not the hue with a little white (the white neon) |
 | `text` | color of the letters, when it is not the hue with 72% of white |
-| `face` | the (top, bottom) colors of the face of a letter key at rest, when it is not the hue mixed into the background: a glass key filled with its own color (Neon Teal). A key that is touched, on or locked has the hue added over it |
-| `acc_face` | the same for the highlight keys (Neon Teal: one step above the letter keys) |
-| `soft` | strength of the halo and of the light inside the tube, 0 to 1: a glass key with a thin soft edge instead of a lit tube (Neon Teal: .5) |
 | `spectrum` | three hues (left edge, middle, right edge of the keyboard): turns on `SPECTRUM` |
 | `glow` | strength of the light of labels and icons, 0 to 1 |
 | `lite` | a lighter key: 7 layers instead of 11 (every neon theme but Synthwave) |

@@ -17,7 +17,6 @@
         <item>@layout/input_mr_purple</item>
         <item>@layout/input_mr_pink</item>
         <item>@layout/input_mr_synthwave</item>
-        <item>@layout/input_mr_teal</item>
         <item>@layout/input_mr_aqua</item>
         <item>@layout/input_mr_sky</item>
         <item>@layout/input_mr_snow</item>
@@ -34,7 +33,6 @@
         <item>mr_purple</item>
         <item>mr_pink</item>
         <item>mr_synthwave</item>
-        <item>mr_teal</item>
         <item>mr_aqua</item>
         <item>mr_sky</item>
         <item>mr_snow</item>
@@ -53,7 +51,6 @@
         <item>0x8e</item>
         <item>0x8e</item>
         <item>0x8c</item>
-        <item>0x8e</item>
         <item>0x0e</item>
         <item>0x0e</item>
         <item>0x4e</item>

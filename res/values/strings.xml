@@ -34,8 +34,8 @@
     <string name="default_chording_ctrl_key">0</string>
     <string name="default_click_volume">0.8</string>
     <string name="default_ctrl_a_override">2</string>
-    <string name="default_height_landscape">60%</string>
-    <string name="default_height_portrait">34%</string>
+    <string name="default_height_landscape">62%</string>
+    <string name="default_height_portrait">35%</string>
     <string name="default_hint_mode">1</string>
     <string name="default_keyboard_mode_landscape">0</string>
     <string name="default_keyboard_mode_portrait">0</string>
@@ -210,7 +210,6 @@
     <string name="layout_mr_purple">Neon Purple</string>
     <string name="layout_mr_pink">Neon Pink</string>
     <string name="layout_mr_synthwave">Synthwave</string>
-    <string name="layout_mr_teal">Neon Teal</string>
     <string name="layout_mr_aqua">Aqua</string>
     <string name="layout_mr_snow">Snow</string>
     <string name="layout_mr_chrome">Chrome</string>

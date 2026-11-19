@@ -1,6 +1,9 @@
 package android.content.res;
 
 public class Resources {
+    /** Tests only: what getSystem answers. */
+    public static Resources stubSystem = new Resources();
+    public static Resources getSystem() { return stubSystem; }
     public int getIdentifier(String name, String defType, String defPackage) { return 0; }
     public String getString(int id) { return null; }
     public String getString(int id, Object... formatArgs) { return null; }
