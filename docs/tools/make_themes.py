@@ -11,7 +11,7 @@ these themes or add one, edit its table and run, at the project root:
     python3 docs/tools/make_themes.py --check    # writes nothing; exits with 1 if a file is out of date
 
 The list of the setting "Keyboard theme" is ORDER (below): Midnight Steel, the neon themes, the light themes (Aqua, Sky, Snow, Chrome, Rose), Cobalt
-Glass (the only one written by hand) and Denim; after them the two themes of the backgrounds (overlight and overdark), which the themes screen does not list. The id of a theme is the value stored in the preference pref_keyboard_layout and its position in ORDER (and in
+Glass (the only one written by hand) and Denim; after them the themes of the backgrounds (overlight and overdark, then the five with more body: overline, overshade, overslate, overblue and overviolet), which the themes screen does not list. The id of a theme is the value stored in the preference pref_keyboard_layout and its position in ORDER (and in
 mr_theme_layouts): change the list, run the script and the lists follow. Ids are not kept between versions.
 
 What it writes, for each theme <t> of the tables:
@@ -1212,6 +1212,54 @@ SOLID = [
           ])),
 ]
 
+# The keys of a background that are not see-through: a landscape or a picture with a busy sky shows through the keys of overlight and the letters
+# lose their edge, so the person can pick a key style in the dialog of the background (MrBackdrop.STYLE_TAGS). Each style is a theme of its own,
+# like overlight (flat keys, white ink, the same toolbar and bar colours), with fills that are dense: the face is what the key is, with the
+# background showing through only a little (alpha 0xec = 93%, or 60% for the dark glass). Letters, then the highlight keys (a step lighter or
+# stronger), then the dash of Ctrl, Alt and Shift, which has to read on the highlight key at rest: off a pale tone of the family, on white, locked amber.
+OVER_STYLES = [
+    # tag, name, key (opaque, what the tables derive from), mod (the highlight key), fills: normal, pressed, on, lock (letters) and the same for the highlight keys,
+    # bubble fill, bubble stroke, popup key fill, dash off / on / lock, and (the outlined style only) the outline of the same four states, letters then highlight keys
+    # outlined keys: a light 1 dp outline and a dark veil inside, so every key stands apart from a busy picture without covering it
+    ('overline', 'Background, outlined keys', '#0d111b', '#18233a',
+     ('#59000000', '#8c000000', '#7320406e', '#99a23a3a'), ('#8c0b1424', '#a6101c33', '#9926487a', '#99a23a3a'),
+     '#141b2b', '#6f7fa6', '#33446b', ('#8d99b6', '#ffffff', '#ffe082'),
+     ('#b3ffffff', '#ffffffff', '#e6bcd6ff', '#e6ffc2c2'), ('#e6a8c8ff', '#ffffffff', '#ffd2e4ff', '#ffffc2c2')),
+    ('overshade', 'Background, dark glass', '#10141f', '#1c2438',
+     ('#99000000', '#b3465170', '#b3344a78', '#d9a23a3a'), ('#b31c2438', '#cc4f5b7c', '#cc3d5486', '#d9a23a3a'),
+     '#1a2030', '#4d5873', '#3b4a6e', ('#8d99b6', '#ffffff', '#ffe082')),
+    ('overslate', 'Background, dark keys', '#1f2636', '#2c364d',
+     ('#ec1f2636', '#f2465273', '#f2364466', '#f2a23a3a'), ('#ec2c364d', '#f2566485', '#f2425377', '#f2a23a3a'),
+     '#1f2636', '#5b688a', '#3d4a6a', ('#8d99b6', '#ffffff', '#ffe082')),
+    ('overblue', 'Background, blue keys', '#1d4690', '#2f66c9',
+     ('#ec1d4690', '#f23a6cc8', '#f2325fb8', '#f2b3362d'), ('#ec2f66c9', '#f24f82e3', '#f23d6ccc', '#f2b3362d'),
+     '#163a7a', '#6f93d6', '#2f5db0', ('#9db8ee', '#ffffff', '#ffe082')),
+    ('overviolet', 'Background, violet keys', '#4527a0', '#6a3fd0',
+     ('#ec4527a0', '#f2673ab7', '#f25b34b0', '#f2b3362d'), ('#ec6a3fd0', '#f28a5fe0', '#f2784ad8', '#f2b3362d'),
+     '#38208a', '#8e75d6', '#5a3bb0', ('#bda9f0', '#ffffff', '#ffe082')),
+]
+
+
+def over_style(tag, name, key, mod, fills, acc_fills, bubble_fill, bubble_stroke, popup_key, dash, edges=None, acc_edges=None):
+    """A theme of the backgrounds with dense keys (see OVER_STYLES): the same as overlight with other fills."""
+    roles = collections.OrderedDict([
+        ('ctrl_bg', mod),
+        ('hint', '#c8ccd6'),
+        ('modifier_indicator_off', dash[0]), ('modifier_indicator_on', dash[1]), ('modifier_indicator_lock', dash[2]),
+        ('bubble_fill', bubble_fill), ('bubble_stroke', bubble_stroke), ('popup_key_fill', popup_key),
+        ('key_normal_fill', fills[0]), ('key_pressed_fill', fills[1]), ('key_on_fill', fills[2]), ('key_lock_fill', fills[3]),
+        ('key_acc_normal_fill', acc_fills[0]), ('key_acc_pressed_fill', acc_fills[1]), ('key_acc_on_fill', acc_fills[2]), ('key_acc_lock_fill', acc_fills[3]),
+    ])
+    if edges:
+        for state, color in zip(('normal', 'pressed', 'on', 'lock'), edges):
+            roles['key_%s_edge' % state] = color
+        for state, color in zip(('acc_normal', 'acc_pressed', 'acc_on', 'acc_lock'), acc_edges):
+            roles['key_%s_edge' % state] = color
+    return solid(tag, name, bg='#1b2030', key=key, mod=mod, text=WHITE, accent='#9ecbff', tint='#9ecbff', lip=0, roles=roles)
+
+
+SOLID.extend(over_style(*t) for t in OVER_STYLES)
+
 # ---------------------------------------------------------------------------------------------------------------
 # The look of a solid key in each state: share of the accent mixed into the face of the key at rest.
 # ---------------------------------------------------------------------------------------------------------------
@@ -1350,7 +1398,7 @@ def solid_colors(th):
         if n(role) in c:
             c[n(role)] = color
         else:
-            assert role in OWN_ROLES, 'theme %s: %s is not a role of a solid theme' % (t, role)
+            assert role in OWN_ROLES or role.endswith('_edge'), 'theme %s: %s is not a role of a solid theme' % (t, role)
             own[n(role)] = color
     assert not (light and not dark_ink(text)) or (n('bars_ink') in own and n('label_shadow') in own), \
         'theme %s: a light theme with a pale ink must declare the roles bars_ink and label_shadow' % t
@@ -1373,12 +1421,14 @@ def plain(color, radius, extra=''):
             '            <corners android:radius="%sdp" />\n' % (color, extra, num(radius)))
 
 
-def solid_key(t, state, lip):
+def solid_key(t, state, lip, edge=False):
     """A key: the lip, then the face. The face is the last layer: KeyStyle gives it the key radius and puts it at
-    half the key spacing from the cell edge; the lip, with the same side insets, gets the same radius."""
+    half the key spacing from the cell edge; the lip, with the same side insets, gets the same radius. A theme that
+    names the role key_<state>_edge draws the face with a 1 dp outline of that colour (the outlined keys of the backgrounds)."""
     p = 'mr_%s_key_%s' % (t, state)
     out = layer(plain(p + '_lip', 8), top=lip) if lip else ''
-    out += layer(plain(p + '_fill', 8), bottom=lip)
+    outline = '            <stroke android:width="1dp" android:color="@color/%s_edge" />\n' % p if edge else ''
+    out += layer(plain(p + '_fill', 8, outline), bottom=lip)
     return '%s<layer-list %s>\n%s</layer-list>\n' % (HEAD, NS, out)
 
 
@@ -1398,9 +1448,9 @@ def solid_drawables(th):
     d['btn_keyboard_key_%s.xml' % t] = key_selector(t, False)
     d['btn_keyboard_key_%s_accent.xml' % t] = key_selector(t, True)
     # asked of every theme (res_check.py): what LatinKey.isHl highlights on the normal selector is a highlight key
-    d['key_%s_hl.xml' % t] = solid_key(t, 'acc_normal', th.lip)
+    d['key_%s_hl.xml' % t] = solid_key(t, 'acc_normal', th.lip, 'key_acc_normal_edge' in th.roles)
     for state in ['normal'] + list(SOLID_STATES) + ['acc_normal'] + list(SOLID_ACCENT_STATES):
-        d['key_%s_%s.xml' % (t, state)] = solid_key(t, state, th.lip)
+        d['key_%s_%s.xml' % (t, state)] = solid_key(t, state, th.lip, ('key_%s_edge' % state) in th.roles)
     d['btn_keyboard_key_popup_%s.xml' % t] = selector([(('pressed',), 'key_popup_%s_pressed' % t)])
     d['key_popup_%s_pressed.xml' % t] = ('%s<layer-list %s>\n%s</layer-list>\n'
                                          % (HEAD, NS, layer(plain('mr_%s_popup_key_fill' % t, 8), 2, 2, 2, 2)))
@@ -1763,7 +1813,7 @@ LAYOUTS = collections.OrderedDict([
 #           edited by hand, the script only places them in the lists
 #   AFTER   the last theme written by hand in strings.xml: the names of the generated themes go right after it
 # ---------------------------------------------------------------------------------------------------------------
-ORDER = ['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'aqua', 'sky', 'snow', 'chrome', 'rose', 'glass', 'denim', 'overlight', 'overdark']
+ORDER = ['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'aqua', 'sky', 'snow', 'chrome', 'rose', 'glass', 'denim', 'overlight', 'overdark', 'overline', 'overshade', 'overslate', 'overblue', 'overviolet']
 HAND = ('glass',)
 AFTER = 'glass'
 Family = collections.namedtuple('Family', 'name themes flags colors drawables intro')

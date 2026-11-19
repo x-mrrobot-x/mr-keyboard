@@ -24,16 +24,16 @@ import java.io.OutputStream;
 
 /**
  * The background of the keyboard: what is drawn behind the toolbar and the keys instead of the flat colour of a theme (the colours, gradients, landscapes
- * and the picture of the gallery of the themes screen). A background is a theme of its own: choosing one puts the keyboard in one of the two themes of
- * the backgrounds ({@link #themeTag}: flat, see-through keys, light ink or dark ink) and choosing any other theme puts the background away, so the
- * two are never mixed and the themes of the list always look the way they do.
+ * and the picture of the gallery of the themes screen). A background is a theme of its own: choosing one puts the keyboard in one of the themes of
+ * the backgrounds ({@link #themeTag}: flat keys, see-through with light ink or dark ink, or one of the styles of dense keys, {@link #STYLE_TAGS}) and
+ * choosing any other theme puts the background away, so the two are never mixed and the themes of the list always look the way they do.
  *
  * <h3>The preference</h3>
  * {@link #PREF} holds one text, the spec: empty = no background; {@code c<N>} = colour N; {@code g<N>} = gradient N; {@code s<N>} = landscape N
  * ({@link MrScenes}: a picture of the app, drawn as the one of the gallery is); {@code i<zoom>,<dx>,<dy>,<stamp>} = the picture of the gallery the person chose ({@link #FILE}, in the files of the app),
  * with the zoom in per cent (100 .. 400), the position (dx and dy, -100 .. 100: how far the shown part is moved between the two edges) and the
  * time the picture was chosen (so that a new picture of the same settings is a new value, and the caches know it). A text that does not parse
- * is "no background". {@link #PREF_SOFT} is how much a picture is softened (0 .. {@link #MAX_SOFT} per cent): only a picture is softened.
+ * is "no background". {@link #PREF_SOFT} is how much a gradient, a landscape or a picture is softened (0 .. {@link #MAX_SOFT} per cent): a plain colour is not.
  *
  * <h3>Legibility</h3>
  * Whatever the background, the ink of the toolbar (the suggestions, the icons) must stay readable: the theme of the background has light ink or
@@ -440,7 +440,6 @@ final class MrBackdrop {
             float l = MrThemeColors.luminance(COLORS[spec.index]);
             return new Look(l, l, 0, veilColor, COLORS[spec.index]);
         }
-        if (spec.kind != IMAGE) soft = 0;
         int h = Math.max(1, Math.round(PROBE_W / ASPECT));
         Bitmap small = Bitmap.createBitmap(PROBE_W, h, Bitmap.Config.ARGB_8888);
         draw(new Canvas(small), spec, PROBE_W, h, image);
@@ -498,10 +497,39 @@ final class MrBackdrop {
 
     /** The tag of the theme that a background puts the keyboard in: the one with the light ink or the one with the dark ink. */
     static String themeTag(Spec spec) {
-        return darkInk(spec) ? TAG_DARK_INK : TAG_LIGHT_INK;
+        return themeTag(spec, 0);
+    }
+
+    /**
+     * The tag of the theme that a background puts the keyboard in, with the style of keys chosen ({@link #STYLE_TAGS}). A background that needs
+     * dark ink has only the see-through keys with dark ink (the dense styles all have white ink and would not read on the toolbar).
+     */
+    static String themeTag(Spec spec, int style) {
+        if (darkInk(spec)) return TAG_DARK_INK;
+        return STYLE_TAGS[clamp(style, 0, STYLES - 1)];
+    }
+
+    /** Whether the styles of keys can be chosen for this background (all but the plain colours that need dark ink). */
+    static boolean hasStyles(Spec spec) {
+        return spec != null && spec.kind != NONE && !darkInk(spec);
+    }
+
+    /** The style of keys that a theme tag stands for: its position in {@link #STYLE_TAGS}, 0 for any other theme (the see-through keys). */
+    static int styleOf(String tag) {
+        for (int i = 0; i < STYLES; i++) {
+            if (STYLE_TAGS[i].equals(tag)) return i;
+        }
+        return 0;
     }
 
     static final String TAG_LIGHT_INK = "mr_overlight", TAG_DARK_INK = "mr_overdark";
+    /**
+     * The styles of the keys of a background, each one a theme of the backgrounds with white ink: see-through, outlined (a light outline over a dark
+     * veil), dark glass and three dense ones (dark slate, blue, violet). The dialog of a background lets the person pick one, so the letters stay
+     * clear on a busy picture.
+     */
+    static final String[] STYLE_TAGS = {TAG_LIGHT_INK, "mr_overline", "mr_overshade", "mr_overslate", "mr_overblue", "mr_overviolet"};
+    static final int STYLES = STYLE_TAGS.length;
 
     // ---- the picture of the gallery
 

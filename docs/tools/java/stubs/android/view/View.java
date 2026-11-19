@@ -122,6 +122,10 @@ public class View {
     public void setOnTouchListener(OnTouchListener l) { stubTouch = l; }
     public boolean canScrollVertically(int direction) { return stubCanScroll; }
     public void setVerticalScrollBarEnabled(boolean enabled) { stubScrollBar = enabled; }
+    public void setHorizontalScrollBarEnabled(boolean enabled) { }
+    /** Tests only: where the view sits in its parent (the stub has no layout). */
+    public int stubLeft;
+    public final int getLeft() { return stubLeft; }
     public void scrollTo(int x, int y) { }
     private int stubVisibility;
     public void setVisibility(int visibility) { stubVisibility = visibility; }

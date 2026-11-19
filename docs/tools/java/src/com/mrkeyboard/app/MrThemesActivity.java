@@ -17,6 +17,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -27,29 +28,60 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * "Keyboard theme": the screen that replaces the list of names. At the top the keyboard as it is now, under it the themes, each one a small keyboard to
- * touch, and under them the colours, the gradients, the landscapes and the pictures of the gallery ({@link MrBackdrop}).
+ * "Keyboard theme": the screen that replaces the list of names. At the top the keyboard as it is now, with its name; under it a row of tabs, one
+ * for each category (the themes, the colours, the gradients, each category of landscapes and the gallery), and under the tabs the cards of the one
+ * that is open: a small keyboard with the name of the theme or of the background under it and a "View" on the right.
  *
- * <p>A theme and a background are never mixed. A touch on a theme is the choice: it is written at once and the background goes away. A touch on a
- * background opens a dialog with the keyboard as it will look, and only "Apply" writes it (the keyboard is then in one of the two themes of the
- * backgrounds: flat, see-through keys with light or dark ink). Only the keyboard at the top shows the choice in use; the tiles of the themes always
- * show the themes as they are.
+ * <p>Only the tab that is open is made. Its cards are added a few at a time (so the screen answers while they come) and the small copies of the
+ * landscapes are read apart from the main thread, one category when its tab opens.
+ *
+ * <p>A theme and a background are never mixed. A touch on any card opens a dialog with the complete keyboard as it will look, and only "Apply"
+ * writes it: a theme goes in at once and takes the background away; a background puts the keyboard in one of the themes of the backgrounds (flat
+ * keys with light or dark ink, in the style of keys chosen in the dialog, {@link MrBackdrop#STYLE_TAGS}). The dialog of a gradient or a landscape
+ * also has the softening of the background, and the one of any background but a light colour the style of the keys. Only the keyboard at the top
+ * shows the choice in use; the cards of the themes always show the themes as they are.
  *
  * <p>A picture of the gallery is chosen with the photo picker of the system ({@link #pickers}) and read once into a waiting file
  * ({@link MrBackdrop#importPending}); a dialog shows it with the frame of the keyboard over it, to drag and to pinch ({@link MrCropView}), with
  * the softening of the background under it; "Next" shows the keyboard as it will look and "Apply" makes the waiting picture the background. A picture
  * that is not applied costs the one that was there nothing. Everything is in the preferences that the keyboard reads: {@code pref_keyboard_layout}
- * (the theme), {@code pref_kbd_bg} and {@code pref_kbd_bg_soft}. Nothing else is kept here, so the screen can be made again at any time.
+ * (the theme, which also says the style of the keys), {@code pref_kbd_bg} and {@code pref_kbd_bg_soft}. Nothing else is kept here, so the screen
+ * can be made again at any time.
  */
 public class MrThemesActivity extends Activity {
     static final String THEME_KEY = "pref_keyboard_layout";
-    static final int COLUMNS = 3;
+    /** The cards in a row. */
+    static final int COLUMNS = 2;
+    /** How many cards are added in one go (the rest follow, so that a long tab does not hold the screen). */
+    static final int CHUNK = 4;
+    /** The tabs: the themes, the colours, the gradients, then one for each category of landscapes, and the gallery last. */
+    static final int TAB_THEMES = 0, TAB_COLORS = 1, TAB_GRADIENTS = 2, TAB_SCENES = 3;
+    static final int TAB_GALLERY = TAB_SCENES + MrScenes.CATEGORIES;
+    static final int TABS = TAB_GALLERY + 1;
     static final int REQ_PICK = 71;
-    /** The longest side of the small copy of the picture that the tiles show. */
+    /** The longest side of the small copy of the picture that the cards show. */
     static final int THUMB_SIDE = 320;
     /** The photo picker of Android 13 (and of the phones that got it later through the system updates). */
     static final String ACTION_PICK_IMAGES = "android.provider.action.PICK_IMAGES";
     static final String IMAGES_URI = "content://media/external/images/media";
+
+    /** What a card stands for. */
+    static final int CARD_THEME = 0, CARD_BACKGROUND = 1, CARD_PLUS = 2, CARD_MINE = 3;
+
+    /** A card to make: what it stands for, and its name. */
+    static final class Card {
+        final int kind;
+        final int index;
+        final MrBackdrop.Spec spec;
+        final String name;
+
+        Card(int kind, int index, MrBackdrop.Spec spec, String name) {
+            this.kind = kind;
+            this.index = index;
+            this.spec = spec;
+            this.name = name;
+        }
+    }
 
     MrKit k;
     SharedPreferences mPrefs;
@@ -63,25 +95,41 @@ public class MrThemesActivity extends Activity {
     /** The background in use: none unless the keyboard is in one of the themes of the backgrounds. */
     MrBackdrop.Spec mSpec = MrBackdrop.Spec.NO;
     int mSoft;
-    /** The picture of the gallery that is the background (for the big keyboard and for the crop) and the small copy of it that the tiles show. */
+    /** The style of the keys in use (the position in {@link MrBackdrop#STYLE_TAGS}); 0 when the keyboard is in a theme of the list. */
+    int mStyle;
+    /** The picture of the gallery that is the background (for the big keyboard and for the crop) and the small copy of it that the cards show. */
     Bitmap mImage, mThumb;
     /** Bumped with every load of the picture, so that a slow one that comes late is let go. */
     int mLoad;
-    /** The small copies of the landscapes that the tiles show (null until each one is read), and the whole one that the big keyboard shows. */
+    /** The small copies of the landscapes that the cards show (null until each one is read, read once), and the whole one that the big keyboard shows. */
     final Bitmap[] mScenes = new Bitmap[MrScenes.COUNT];
+    final boolean[] mSceneBusy = new boolean[MrScenes.COUNT];
     Bitmap mBigScene;
     int mBigSceneIndex = -1;
-    /** The landscapes are read in halves of their size for the tiles. */
+    /** The landscapes are read in halves of their size for the cards. */
     static final int SCENE_SAMPLE = 2;
 
     MrThemePreview mBig;
     TextView mCaption;
     TextView mRemove;
+    HorizontalScrollView mStrip;
+    ScrollView mScroll;
+    LinearLayout mGrid;
+    final List<TextView> mTabViews = new ArrayList<TextView>();
+    /** The tab that is open, how many times a tab was opened (a slow step of an old one is let go), the cards it has and how many are made. */
+    int mTab = -1;
+    int mTabLoad;
+    List<Card> mCards = new ArrayList<Card>();
+    int mBuilt;
+    LinearLayout mRow;
+    /** The cards of the tab that is open: the preview of each and the "View" of each (the same order). */
     final List<MrThemePreview> mThemeTiles = new ArrayList<MrThemePreview>();
-    /** The tiles of the backgrounds, in the order they were made, each with what it stands for. */
+    final List<TextView> mThemeActions = new ArrayList<TextView>();
+    /** The cards of the backgrounds, in the order they were made, each with what it stands for. */
     final List<MrThemePreview> mBgTiles = new ArrayList<MrThemePreview>();
     final List<MrBackdrop.Spec> mBgSpecs = new ArrayList<MrBackdrop.Spec>();
-    /** The tile of the picture of the gallery (hidden while there is none). */
+    final List<TextView> mBgActions = new ArrayList<TextView>();
+    /** The card of the picture of the gallery (null while there is none, or the tab is not the gallery). */
     MrThemePreview mMineTile;
 
     /** The dialog that is open (the preview or the crop), and what is in it. */
@@ -107,106 +155,69 @@ public class MrThemesActivity extends Activity {
         mListed = MrThemeColors.listed(mTags);
         readPrefs();
 
-        ScrollView scroll = new ScrollView(this);
-        scroll.setBackground(k.round(k.bg, 0, 0, false));
-        LinearLayout col = k.column();
-        col.setPadding(k.dp(20), k.dp(16), k.dp(20), k.dp(24));
-        scroll.addView(col, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        col.addView(k.backHeader(k.t("mr_themes_title"), new View.OnClickListener() {
+        LinearLayout root = k.column();
+        root.setBackground(k.round(k.bg, 0, 0, false));
+        root.setPadding(k.dp(20), k.dp(16), k.dp(20), 0);
+        root.addView(k.backHeader(k.t("mr_themes_title"), new View.OnClickListener() {
             public void onClick(View v) {
                 finish();
             }
         }), k.wide(0));
 
-        // the keyboard as it is now: the only place that shows the choice in use
+        // the keyboard as it is now, with its name: the only place that shows the choice in use
+        LinearLayout top = k.row();
         mBig = new MrThemePreview(this);
-        col.addView(mBig, k.wide(14));
-        mCaption = k.label("", 14f, k.text2, false);
-        mCaption.setGravity(Gravity.CENTER);
-        col.addView(mCaption, k.wide(8));
+        top.addView(mBig, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.25f));
+        LinearLayout info = k.column();
+        info.setPadding(k.dp(14), 0, 0, 0);
+        info.addView(k.label(k.t("mr_themes_current"), 12f, k.text2, false), k.wide(0));
+        mCaption = k.label("", 17f, k.text, true);
+        info.addView(mCaption, k.wide(4));
+        top.addView(info, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        root.addView(top, k.wide(12));
 
-        // the themes
-        col.addView(k.label(k.t("mr_themes_themes"), 16f, k.text2, true), k.wide(22));
-        LinearLayout themes = k.column();
-        col.addView(themes, k.wide(8));
-        LinearLayout row = null;
-        for (int i = 0; i < mListed; i++) {
-            if (i % COLUMNS == 0) {
-                row = tileRow(themes);
-            }
-            final int index = i;
-            MrThemePreview p = new MrThemePreview(this);
-            mThemeTiles.add(p);
-            row.addView(tileBox(p, i < mNames.length ? mNames[i] : mTags[i], i % COLUMNS, new View.OnClickListener() {
+        // the tabs: one for each category
+        mStrip = new HorizontalScrollView(this);
+        mStrip.setHorizontalScrollBarEnabled(false);
+        LinearLayout tabs = k.row();
+        for (int i = 0; i < TABS; i++) {
+            final int tab = i;
+            TextView t = k.label(tabName(i), 15f, k.text2, false);
+            t.setGravity(Gravity.CENTER);
+            t.setPadding(k.dp(14), k.dp(8), k.dp(14), k.dp(8));
+            t.setClickable(true);
+            t.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    chooseTheme(index);
+                    if (tab != mTab) showTab(tab);
                 }
-            }), tileParams(i % COLUMNS));
+            });
+            LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (i > 0) p.setMargins(k.dp(6), 0, 0, 0);
+            tabs.addView(t, p);
+            mTabViews.add(t);
         }
-        fillRow(row, mListed);
+        mStrip.addView(tabs, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        root.addView(mStrip, k.wide(14));
 
-        // the backgrounds: colours, gradients, landscapes (drawings: the name goes in the description only), and the gallery
-        col.addView(k.label(k.t("mr_themes_colors"), 16f, k.text2, true), k.wide(22));
-        LinearLayout colours = k.column();
-        col.addView(colours, k.wide(8));
-        row = null;
-        for (int i = 0; i < MrBackdrop.COLORS.length; i++) {
-            if (i % COLUMNS == 0) row = tileRow(colours);
-            addBg(row, MrBackdrop.Spec.color(i), k.t("mr_themes_color", i + 1), i % COLUMNS);
-        }
-        fillRow(row, MrBackdrop.COLORS.length);
+        // the cards of the tab that is open
+        mScroll = new ScrollView(this);
+        mGrid = k.column();
+        mGrid.setPadding(0, 0, 0, k.dp(24));
+        mScroll.addView(mGrid, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        LinearLayout.LayoutParams area = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+        area.setMargins(0, k.dp(12), 0, 0);
+        root.addView(mScroll, area);
 
-        col.addView(k.label(k.t("mr_themes_gradients"), 16f, k.text2, true), k.wide(18));
-        LinearLayout gradients = k.column();
-        col.addView(gradients, k.wide(8));
-        row = null;
-        for (int i = 0; i < MrBackdrop.GRADIENT_COUNT; i++) {
-            if (i % COLUMNS == 0) row = tileRow(gradients);
-            addBg(row, MrBackdrop.Spec.gradient(i), k.t("mr_themes_gradient", i + 1), i % COLUMNS);
-        }
-        fillRow(row, MrBackdrop.GRADIENT_COUNT);
-
-        // the landscapes: six categories of six pictures (the pictures are not words: the name goes in the description only)
-        col.addView(k.label(k.t("mr_themes_landscapes"), 16f, k.text2, true), k.wide(18));
-        for (int cat = 0; cat < MrScenes.CATEGORIES; cat++) {
-            col.addView(k.label(categoryName(this, cat), 14f, k.text2, false), k.wide(cat == 0 ? 8 : 14));
-            LinearLayout scenes = k.column();
-            col.addView(scenes, k.wide(6));
-            row = null;
-            for (int n = 0; n < MrScenes.PER_CATEGORY; n++) {
-                int i = MrScenes.scene(cat, n);
-                if (n % COLUMNS == 0) row = tileRow(scenes);
-                addBg(row, MrBackdrop.Spec.scene(i), sceneName(this, i), n % COLUMNS);
-            }
-            fillRow(row, MrScenes.PER_CATEGORY);
-        }
-
-        col.addView(k.label(k.t("mr_themes_gallery"), 16f, k.text2, true), k.wide(18));
-        LinearLayout gallery = k.row();
-        gallery.setGravity(Gravity.TOP);
-        col.addView(gallery, k.wide(8));
-        addGallery(gallery);
-        mMineTile = addMine(gallery);
-        View gap = new View(this);
-        gallery.addView(gap, tileParams(2));
-
-        mRemove = k.button(k.t("mr_themes_remove"), false, new View.OnClickListener() {
-            public void onClick(View v) {
-                removeImage();
-            }
-        });
-        col.addView(mRemove, k.wide(22));
-
-        setContentView(scroll);
+        setContentView(root);
         refresh();
+        showTab(tabOfChoice());
         loadImage();
-        loadScenes();
     }
 
     @Override
     protected void onDestroy() {
         mLoad++;
+        mTabLoad++;
         closeDialog();
         // a picture that was chosen and not applied is let go of
         MrBackdrop.discardPending(this);
@@ -216,76 +227,251 @@ public class MrThemesActivity extends Activity {
         super.onDestroy();
     }
 
-    // ---- the tiles
+    // ---- the tabs
 
-    private LinearLayout tileRow(LinearLayout parent) {
-        LinearLayout row = k.row();
-        row.setGravity(Gravity.TOP);
-        parent.addView(row, k.wide(parent.getChildCount() == 0 ? 0 : 10));
-        return row;
+    /** The name of tab {@code tab}. */
+    String tabName(int tab) {
+        if (tab == TAB_THEMES) return k.t("mr_themes_themes");
+        if (tab == TAB_COLORS) return k.t("mr_themes_colors");
+        if (tab == TAB_GRADIENTS) return k.t("mr_themes_gradients");
+        if (tab == TAB_GALLERY) return k.t("mr_themes_gallery");
+        return categoryName(this, tab - TAB_SCENES);
     }
 
-    private LinearLayout.LayoutParams tileParams(int column) {
+    /** The tab that the choice in use lives in (the themes when there is no background), so that the card that is chosen is in view. */
+    int tabOfChoice() {
+        switch (mSpec.kind) {
+            case MrBackdrop.COLOR: return TAB_COLORS;
+            case MrBackdrop.GRADIENT: return TAB_GRADIENTS;
+            case MrBackdrop.SCENE: return TAB_SCENES + MrScenes.category(mSpec.index);
+            case MrBackdrop.IMAGE: return TAB_GALLERY;
+            default: return TAB_THEMES;
+        }
+    }
+
+    /** The cards of tab {@code tab}, in order. */
+    List<Card> cardsOf(int tab) {
+        List<Card> list = new ArrayList<Card>();
+        if (tab == TAB_THEMES) {
+            for (int i = 0; i < mListed; i++) {
+                list.add(new Card(CARD_THEME, i, null, i < mNames.length ? mNames[i] : mTags[i]));
+            }
+        } else if (tab == TAB_COLORS) {
+            for (int i = 0; i < MrBackdrop.COLORS.length; i++) {
+                list.add(new Card(CARD_BACKGROUND, i, MrBackdrop.Spec.color(i), k.t("mr_themes_color", i + 1)));
+            }
+        } else if (tab == TAB_GRADIENTS) {
+            for (int i = 0; i < MrBackdrop.GRADIENT_COUNT; i++) {
+                list.add(new Card(CARD_BACKGROUND, i, MrBackdrop.Spec.gradient(i), k.t("mr_themes_gradient", i + 1)));
+            }
+        } else if (tab == TAB_GALLERY) {
+            list.add(new Card(CARD_PLUS, 0, null, k.t("mr_themes_photo")));
+            if (MrBackdrop.hasImage(this)) list.add(new Card(CARD_MINE, 0, MrBackdrop.Spec.image(100, 0, 0, 0L), k.t("mr_themes_mine")));
+        } else {
+            int cat = tab - TAB_SCENES;
+            for (int n = 0; n < MrScenes.PER_CATEGORY; n++) {
+                int i = MrScenes.scene(cat, n);
+                list.add(new Card(CARD_BACKGROUND, i, MrBackdrop.Spec.scene(i), sceneName(this, i)));
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Opens tab {@code tab}: the cards of the one that was open are let go, the first few of this one are made now and the rest a few at a time (each
+     * step is posted, so a tab of twenty cards does not stop the screen), and the landscapes of its category are read apart from the main thread.
+     */
+    void showTab(int tab) {
+        mTab = tab;
+        int load = ++mTabLoad;
+        mGrid.removeAllViews();
+        mThemeTiles.clear();
+        mThemeActions.clear();
+        mBgTiles.clear();
+        mBgSpecs.clear();
+        mBgActions.clear();
+        mMineTile = null;
+        mRemove = null;
+        mRow = null;
+        mCards = cardsOf(tab);
+        mBuilt = 0;
+        styleTabs();
+        mScroll.scrollTo(0, 0);
+        if (tab >= TAB_SCENES && tab < TAB_GALLERY) loadScenes(tab - TAB_SCENES);
+        buildMore(load);
+    }
+
+    /** The next few cards of the tab that is open (nothing if another tab was opened since this step was posted). */
+    void buildMore(final int load) {
+        if (load != mTabLoad || isFinishing()) return;
+        int end = Math.min(mCards.size(), mBuilt + CHUNK);
+        while (mBuilt < end) {
+            addCard(mCards.get(mBuilt), mBuilt);
+            mBuilt++;
+        }
+        if (mBuilt < mCards.size()) {
+            mGrid.post(new Runnable() {
+                public void run() {
+                    buildMore(load);
+                }
+            });
+            return;
+        }
+        fillRow(mRow, mCards.size());
+        if (mTab == TAB_GALLERY && MrBackdrop.hasImage(this)) {
+            mRemove = k.button(k.t("mr_themes_remove"), false, new View.OnClickListener() {
+                public void onClick(View v) {
+                    removeImage();
+                }
+            });
+            mGrid.addView(mRemove, k.wide(20));
+        }
+    }
+
+    /** The tabs as they are now: the one that is open filled, the others plain; the strip is moved so that the open one shows. */
+    void styleTabs() {
+        for (int i = 0; i < mTabViews.size(); i++) {
+            TextView t = mTabViews.get(i);
+            boolean on = i == mTab;
+            t.setTextColor(on ? k.onAccent : k.text2);
+            t.setTypeface(null, on ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+            t.setBackground(on ? k.round(k.accent, 0, 18, false) : new ColorDrawable(0));
+        }
+        if (mTab >= 0 && mTab < mTabViews.size()) {
+            final TextView open = mTabViews.get(mTab);
+            mStrip.post(new Runnable() {
+                public void run() {
+                    mStrip.smoothScrollTo(Math.max(0, open.getLeft() - k.dp(48)), 0);
+                }
+            });
+        }
+    }
+
+    // ---- the cards
+
+    private LinearLayout.LayoutParams cardParams(int column) {
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        p.setMargins(column == 0 ? 0 : k.dp(5), 0, column == COLUMNS - 1 ? 0 : k.dp(5), 0);
+        p.setMargins(column == 0 ? 0 : k.dp(6), 0, column == COLUMNS - 1 ? 0 : k.dp(6), 0);
         return p;
     }
 
-    /** A row that does not end on a full line gets empty places, so that its tiles are as wide as the others. */
+    /** A row that does not end on a full line gets empty places, so that its cards are as wide as the others. */
     private void fillRow(LinearLayout row, int count) {
         if (row == null) return;
         for (int c = count % COLUMNS; c != 0 && c < COLUMNS; c++) {
             View gap = new View(this);
-            row.addView(gap, tileParams(c));
+            row.addView(gap, cardParams(c));
         }
     }
 
-    /** A tile: the preview with its name under it (no name when {@code name} is null), touched to choose. */
-    private LinearLayout tileBox(MrThemePreview p, String name, int column, View.OnClickListener l) {
+    /** Makes the card {@code card}, the {@code position}-th of the tab, and puts it in its row. */
+    private void addCard(final Card card, int position) {
+        int column = position % COLUMNS;
+        if (column == 0) {
+            mRow = k.row();
+            mRow.setGravity(Gravity.TOP);
+            mGrid.addView(mRow, k.wide(mGrid.getChildCount() == 0 ? 0 : 12));
+        }
+        MrThemePreview p = new MrThemePreview(this);
+        TextView action = new TextView(this);
+        View.OnClickListener open;
+        switch (card.kind) {
+            case CARD_THEME:
+                open = new View.OnClickListener() {
+                    public void onClick(View v) {
+                        showThemePreview(card.index);
+                    }
+                };
+                mThemeTiles.add(p);
+                mThemeActions.add(action);
+                break;
+            case CARD_PLUS:
+                p.showPlus(k.card, k.stroke, k.accent);
+                open = new View.OnClickListener() {
+                    public void onClick(View v) {
+                        pick();
+                    }
+                };
+                break;
+            case CARD_MINE:
+                open = new View.OnClickListener() {
+                    public void onClick(View v) {
+                        editImage();
+                    }
+                };
+                mBgTiles.add(p);
+                mBgSpecs.add(card.spec);
+                mBgActions.add(action);
+                mMineTile = p;
+                break;
+            default:
+                open = new View.OnClickListener() {
+                    public void onClick(View v) {
+                        openBackdrop(card.spec);
+                    }
+                };
+                mBgTiles.add(p);
+                mBgSpecs.add(card.spec);
+                mBgActions.add(action);
+                break;
+        }
+        mRow.addView(cardBox(p, card.name, action, card.kind == CARD_PLUS ? k.t("mr_themes_choose") : null, open), cardParams(column));
+        bindCard(card.kind, p, card.kind == CARD_THEME ? card.index : mBgTiles.size() - 1);
+    }
+
+    /**
+     * A card: the small keyboard with its name under it on the left and the "View" pill on the right, in a rounded frame; the whole card is touched
+     * to open it. {@code word} is the text of the pill when it is not "View" (the card that picks a photo).
+     */
+    private LinearLayout cardBox(MrThemePreview p, String name, TextView action, String word, View.OnClickListener l) {
         LinearLayout box = k.column();
+        box.setPadding(k.dp(6), k.dp(6), k.dp(6), k.dp(6));
+        box.setBackground(k.round(k.card, k.stroke, 12, false));
         box.setClickable(true);
         box.setOnClickListener(l);
         box.setContentDescription(name);
         box.addView(p, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        LinearLayout foot = k.row();
+        foot.setPadding(k.dp(4), 0, k.dp(2), 0);
+        TextView label = k.label(name, 13f, k.text, false);
+        label.setMaxLines(2);
+        foot.addView(label, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        action.setTextSize(12f);
+        action.setGravity(Gravity.CENTER);
+        action.setPadding(k.dp(10), k.dp(4), k.dp(10), k.dp(4));
+        action.setMinWidth(k.dp(40));
+        action.setText(word != null ? word : k.t("mr_themes_view"));
+        action.setTextColor(k.accent);
+        action.setBackground(k.round(k.raised, MrBackdrop.mix(k.card, k.accent, 0.5f), 8, false));
+        foot.addView(action, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        LinearLayout.LayoutParams fp = k.wide(8);
+        fp.setMargins(0, k.dp(8), 0, k.dp(2));
+        box.addView(foot, fp);
         return box;
     }
 
-    /** The tile of a background (a drawing, not words: its name is the description for the screen readers). */
-    private MrThemePreview addBg(LinearLayout row, final MrBackdrop.Spec spec, String name, int column) {
-        MrThemePreview p = new MrThemePreview(this);
-        mBgTiles.add(p);
-        mBgSpecs.add(spec);
-        row.addView(tileBox(p, name, column, new View.OnClickListener() {
-            public void onClick(View v) {
-                openBackdrop(spec);
-            }
-        }), tileParams(column));
-        return p;
+    /** Draws card {@code p} for what it stands for ({@code index}: the theme, or the position among the cards of the backgrounds). */
+    private void bindCard(int kind, MrThemePreview p, int index) {
+        if (kind == CARD_THEME) {
+            p.show(mTags[index], MrBackdrop.Spec.NO, null, 0);
+            boolean on = mSpec.kind == MrBackdrop.NONE && index == mTheme;
+            p.setChecked(on, k.accent, k.onAccent);
+            markAction(mThemeActions.get(index), on, (View) p.getParent());
+        } else if (kind == CARD_BACKGROUND || kind == CARD_MINE) {
+            MrBackdrop.Spec s = tileSpec(mBgSpecs.get(index));
+            p.show(MrBackdrop.themeTag(s), s, tileImage(s), s.kind == MrBackdrop.IMAGE ? mSoft : 0);
+            boolean on = mSpec.kind != MrBackdrop.NONE && s.kind == mSpec.kind && (s.kind == MrBackdrop.IMAGE || s.index == mSpec.index);
+            p.setChecked(on, k.accent, k.onAccent);
+            markAction(mBgActions.get(index), on, (View) p.getParent());
+        }
     }
 
-    /** The tile that opens the photo picker. */
-    private void addGallery(LinearLayout row) {
-        MrThemePreview p = new MrThemePreview(this);
-        p.showPlus(k.card, k.stroke, k.accent);
-        row.addView(tileBox(p, k.t("mr_themes_gallery"), 0, new View.OnClickListener() {
-            public void onClick(View v) {
-                pick();
-            }
-        }), tileParams(0));
-    }
-
-    /** The tile of the picture that is kept: it opens the crop again. */
-    private MrThemePreview addMine(LinearLayout row) {
-        MrThemePreview p = new MrThemePreview(this);
-        final MrBackdrop.Spec spec = MrBackdrop.Spec.image(100, 0, 0, 0L);
-        mBgTiles.add(p);
-        mBgSpecs.add(spec);
-        row.addView(tileBox(p, k.t("mr_themes_mine"), 1, new View.OnClickListener() {
-            public void onClick(View v) {
-                editImage();
-            }
-        }), tileParams(1));
-        return p;
+    /** The pill of a card and the frame of it: the card in use has the pill filled and says so, and a frame in the colour of the accent. */
+    private void markAction(TextView action, boolean on, View frame) {
+        action.setText(k.t(on ? "mr_themes_in_use" : "mr_themes_view"));
+        action.setTextColor(on ? k.onAccent : k.accent);
+        action.setBackground(on ? k.round(k.accent, 0, 8, false) : k.round(k.raised, MrBackdrop.mix(k.card, k.accent, 0.5f), 8, false));
+        if (frame != null) frame.setBackground(k.round(k.card, on ? k.accent : k.stroke, 12, false));
     }
 
     // ---- state
@@ -296,6 +482,7 @@ public class MrThemesActivity extends Activity {
         // a background counts only in the themes of the backgrounds: in any other theme an old value of the preference is let be
         boolean inBackdropTheme = mTheme < mTags.length && MrThemeColors.hidden(mTags[mTheme]);
         mSpec = inBackdropTheme ? MrBackdrop.current(this) : MrBackdrop.Spec.NO;
+        mStyle = inBackdropTheme ? MrBackdrop.styleOf(mTags[mTheme]) : 0;
         mSoft = MrBackdrop.soft(this);
     }
 
@@ -303,12 +490,12 @@ public class MrThemesActivity extends Activity {
         return mTheme < mTags.length ? mTags[mTheme] : null;
     }
 
-    /** The spec that a tile of the backgrounds stands for now: the picture keeps the zoom and the position it has when it is the one in use. */
+    /** The spec that a card of the backgrounds stands for now: the picture keeps the zoom and the position it has when it is the one in use. */
     MrBackdrop.Spec tileSpec(MrBackdrop.Spec s) {
         return s.kind == MrBackdrop.IMAGE && mSpec.kind == MrBackdrop.IMAGE ? mSpec : s;
     }
 
-    /** The small picture that a tile of the backgrounds shows: the copy of the picture of the gallery or of the landscape (null while it is being read). */
+    /** The small picture that a card of the backgrounds shows: the copy of the picture of the gallery or of the landscape (null while it is being read). */
     Bitmap tileImage(MrBackdrop.Spec s) {
         if (s.kind == MrBackdrop.IMAGE) return mThumb;
         if (s.kind == MrBackdrop.SCENE && s.index >= 0 && s.index < mScenes.length) return mScenes[s.index];
@@ -328,27 +515,18 @@ public class MrThemesActivity extends Activity {
         return null;
     }
 
-    /** Draws everything again from the state: the big keyboard, the tiles that are chosen, the controls that apply. */
+    /** Draws everything again from the state: the big keyboard and its name, the cards of the tab that is open, the controls that apply. */
     void refresh() {
         mBig.show(tag(), mSpec, bigImage(mSpec), mSoft);
-        for (int i = 0; i < mThemeTiles.size(); i++) {
-            MrThemePreview p = mThemeTiles.get(i);
-            p.show(mTags[i], MrBackdrop.Spec.NO, null, 0);
-            p.setChecked(mSpec.kind == MrBackdrop.NONE && i == mTheme, k.accent, k.onAccent);
-        }
-        boolean mine = MrBackdrop.hasImage(this);
-        for (int i = 0; i < mBgTiles.size(); i++) {
-            MrThemePreview p = mBgTiles.get(i);
-            MrBackdrop.Spec s = tileSpec(mBgSpecs.get(i));
-            p.show(MrBackdrop.themeTag(s), s, tileImage(s), s.kind == MrBackdrop.IMAGE ? mSoft : 0);
-            p.setChecked(mSpec.kind != MrBackdrop.NONE && s.kind == mSpec.kind && (s.kind == MrBackdrop.IMAGE || s.index == mSpec.index), k.accent, k.onAccent);
-        }
-        if (mMineTile != null) {
-            View box = (View) mMineTile.getParent();
-            if (box != null) box.setVisibility(mine ? View.VISIBLE : View.INVISIBLE);
-        }
         mCaption.setText(caption());
-        mRemove.setVisibility(mine ? View.VISIBLE : View.GONE);
+        for (int i = 0; i < mThemeTiles.size(); i++) bindCard(CARD_THEME, mThemeTiles.get(i), i);
+        for (int i = 0; i < mBgTiles.size(); i++) bindCard(CARD_BACKGROUND, mBgTiles.get(i), i);
+    }
+
+    /** The gallery got or lost its picture: that tab is made again (the card of my image comes or goes); any other only draws again. */
+    void galleryChanged() {
+        refresh();
+        if (mTab == TAB_GALLERY) showTab(TAB_GALLERY);
     }
 
     String caption() {
@@ -368,13 +546,19 @@ public class MrThemesActivity extends Activity {
         return s != null ? s : "";
     }
 
+    /** The name of the style of keys {@code style}. */
+    static String styleName(Context c, int style) {
+        String s = MrPacks.text(c, "mr_themes_style_" + style);
+        return s != null ? s : "";
+    }
+
     /** The name of a background for the captions and the summary of the setting. */
     static String backgroundName(Context c, MrBackdrop.Spec spec) {
         String s;
         switch (spec.kind) {
             case MrBackdrop.COLOR: s = MrPacks.text(c, "mr_themes_color", spec.index + 1); break;
             case MrBackdrop.GRADIENT: s = MrPacks.text(c, "mr_themes_gradient", spec.index + 1); break;
-            case MrBackdrop.SCENE: s = categoryName(c, MrScenes.category(spec.index)) + " \u00b7 " + sceneName(c, spec.index); break;
+            case MrBackdrop.SCENE: s = categoryName(c, MrScenes.category(spec.index)) + " · " + sceneName(c, spec.index); break;
             case MrBackdrop.IMAGE: s = MrPacks.text(c, "mr_themes_mine"); break;
             default: s = ""; break;
         }
@@ -396,11 +580,20 @@ public class MrThemesActivity extends Activity {
             editImage();
             return;
         }
-        showPreview(spec, null, mSoft, false);
+        showPreview(spec, null, startSoft(spec), false);
     }
 
-    /** The background goes on the keyboard: the theme of the backgrounds that suits it, and the background itself (one write). */
-    void applyBackdrop(MrBackdrop.Spec spec, int soft, boolean pending) {
+    /** The softening the dialog of a background starts with: the one in use when this is the background in use, else none. */
+    int startSoft(MrBackdrop.Spec spec) {
+        if (spec.kind != MrBackdrop.GRADIENT && spec.kind != MrBackdrop.SCENE) return 0;
+        return mSpec.kind == spec.kind && mSpec.index == spec.index ? mSoft : 0;
+    }
+
+    /**
+     * The background goes on the keyboard: the theme of the backgrounds that suits it with the style of keys chosen, and the background itself (one
+     * write). A gradient, a landscape or a picture also writes its softening.
+     */
+    void applyBackdrop(MrBackdrop.Spec spec, int soft, int style, boolean pending) {
         MrBackdrop.Spec chosen = spec;
         if (spec.kind == MrBackdrop.IMAGE && pending) {
             // the picture that was waiting becomes the one of the background; its time is the one of the file that is kept
@@ -410,7 +603,7 @@ public class MrThemesActivity extends Activity {
             }
             chosen = MrBackdrop.Spec.image(spec.zoom, spec.dx, spec.dy, MrBackdrop.imageStamp(this));
         }
-        int index = MrThemeColors.indexOfTag(mTags, MrBackdrop.themeTag(chosen));
+        int index = MrThemeColors.indexOfTag(mTags, MrBackdrop.themeTag(chosen, style));
         if (index < 0) {
             k.toast(k.t("mr_themes_image_failed"));
             return;
@@ -418,11 +611,11 @@ public class MrThemesActivity extends Activity {
         SharedPreferences.Editor e = mPrefs.edit();
         e.putString(THEME_KEY, index < mValues.length ? mValues[index] : String.valueOf(index));
         e.putString(MrBackdrop.PREF, chosen.format());
-        if (chosen.kind == MrBackdrop.IMAGE) e.putInt(MrBackdrop.PREF_SOFT, MrBackdrop.clamp(soft, 0, MrBackdrop.MAX_SOFT));
+        if (chosen.kind != MrBackdrop.COLOR) e.putInt(MrBackdrop.PREF_SOFT, MrBackdrop.clamp(soft, 0, MrBackdrop.MAX_SOFT));
         e.apply();
         readPrefs();
         if (chosen.kind == MrBackdrop.IMAGE) loadImage();
-        refresh();
+        galleryChanged();
     }
 
     // ---- the dialogs
@@ -451,22 +644,17 @@ public class MrThemesActivity extends Activity {
         if (d != null && d.isShowing()) d.dismiss();
     }
 
-    /**
-     * The keyboard as it will look with this background, over the screen: "Cancel" and "Apply". {@code image} is the picture of an IMAGE spec,
-     * {@code pending} that it is the one that is waiting (it becomes the background only with "Apply"; with "Cancel" or back it is let go of).
-     */
-    void showPreview(final MrBackdrop.Spec spec, Bitmap image, final int soft, final boolean pending) {
-        closeDialog();
-        final Dialog d = newDialog(false);
+    /** The sheet of a preview: its rounded box with the title on top. */
+    private LinearLayout sheetBox(String title) {
         LinearLayout box = k.column();
         box.setPadding(k.dp(20), k.dp(18), k.dp(20), k.dp(18));
         box.setBackground(k.round(k.solidBg(), 0, 22, false));
-        box.addView(k.label(backgroundName(this, spec), 16f, k.text, true), k.wide(0));
-        MrThemePreview pv = new MrThemePreview(this);
-        // the complete keyboard, so that the highlight keys and the dash of the modifier keys are seen on the background as well
-        pv.setFull(true);
-        pv.show(MrBackdrop.themeTag(spec), spec, image != null || spec.kind != MrBackdrop.SCENE ? image : MrScenes.load(this, spec.index), soft);
-        box.addView(pv, k.wide(14));
+        box.addView(k.label(title, 16f, k.text, true), k.wide(0));
+        return box;
+    }
+
+    /** "Cancel" and "Apply" under the sheet; {@code pending}: a waiting picture that "Cancel" lets go of. Shows the dialog. */
+    private void sheetShow(Dialog d, LinearLayout box, MrThemePreview pv, SeekBar soft, final boolean pending, final Runnable onApply) {
         LinearLayout buttons = k.row();
         box.addView(buttons, k.wide(18));
         TextView cancel = k.button(k.t("mr_themes_cancel"), false, new View.OnClickListener() {
@@ -478,7 +666,7 @@ public class MrThemesActivity extends Activity {
         TextView apply = k.button(k.t("mr_themes_apply"), true, new View.OnClickListener() {
             public void onClick(View v) {
                 closeDialog();
-                applyBackdrop(spec, soft, pending);
+                onApply.run();
             }
         });
         LinearLayout.LayoutParams left = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
@@ -495,9 +683,112 @@ public class MrThemesActivity extends Activity {
         });
         mDialog = d;
         mDialogPreview = pv;
+        mDialogSoft = soft;
         mDialogCancel = cancel;
         mDialogApply = apply;
         d.show();
+    }
+
+    /** A theme of the list, as the complete keyboard: "Cancel" and "Apply" (which chooses it). */
+    void showThemePreview(final int index) {
+        closeDialog();
+        Dialog d = newDialog(false);
+        LinearLayout box = sheetBox(index < mNames.length ? mNames[index] : mTags[index]);
+        MrThemePreview pv = new MrThemePreview(this);
+        pv.setFull(true);
+        pv.show(mTags[index], MrBackdrop.Spec.NO, null, 0);
+        box.addView(pv, k.wide(14));
+        sheetShow(d, box, pv, null, false, new Runnable() {
+            public void run() {
+                chooseTheme(index);
+            }
+        });
+    }
+
+    /**
+     * The complete keyboard as it will look with this background, over the screen: "Cancel" and "Apply". {@code image} is the picture of an IMAGE spec,
+     * {@code pending} that it is the one that is waiting (it becomes the background only with "Apply"; with "Cancel" or back it is let go of).
+     * A gradient or a landscape has the softening of the background under the keyboard (a picture has it in the crop already), and every background
+     * but a light colour has the styles of the keys, so that the letters can be made to stand out from a busy picture.
+     */
+    void showPreview(final MrBackdrop.Spec spec, Bitmap image, final int soft, final boolean pending) {
+        closeDialog();
+        final Dialog d = newDialog(false);
+        final LinearLayout box = sheetBox(backgroundName(this, spec));
+        final MrThemePreview pv = new MrThemePreview(this);
+        // the complete keyboard, so that the highlight keys and the dash of the modifier keys are seen on the background as well
+        pv.setFull(true);
+        final Bitmap shown = image != null || spec.kind != MrBackdrop.SCENE ? image : MrScenes.load(this, spec.index);
+        final int[] softNow = {soft};
+        final int[] style = {mStyle};
+        final Runnable redraw = new Runnable() {
+            public void run() {
+                pv.show(MrBackdrop.themeTag(spec, style[0]), spec, shown, softNow[0]);
+            }
+        };
+        redraw.run();
+        box.addView(pv, k.wide(14));
+
+        SeekBar bar = null;
+        if (spec.kind == MrBackdrop.GRADIENT || spec.kind == MrBackdrop.SCENE) {
+            LinearLayout softLine = k.row();
+            box.addView(softLine, k.wide(14));
+            softLine.addView(k.label(k.t("mr_themes_soften"), 15f, k.text, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            final TextView softText = k.label(soft + "%", 15f, k.text2, false);
+            softLine.addView(softText, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            bar = new SeekBar(this);
+            bar.setMax(MrBackdrop.MAX_SOFT);
+            bar.setProgress(soft);
+            bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                public void onProgressChanged(SeekBar b, int progress, boolean fromUser) {
+                    if (!fromUser) return;
+                    softNow[0] = MrBackdrop.clamp(progress, 0, MrBackdrop.MAX_SOFT);
+                    softText.setText(softNow[0] + "%");
+                    redraw.run();
+                }
+
+                public void onStartTrackingTouch(SeekBar b) {
+                }
+
+                public void onStopTrackingTouch(SeekBar b) {
+                }
+            });
+            box.addView(bar, k.wide(4));
+        }
+
+        if (MrBackdrop.hasStyles(spec)) {
+            box.addView(k.label(k.t("mr_themes_keys"), 15f, k.text, true), k.wide(12));
+            HorizontalScrollView scroll = new HorizontalScrollView(this);
+            scroll.setHorizontalScrollBarEnabled(false);
+            final LinearLayout chips = k.row();
+            scroll.addView(chips, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            box.addView(scroll, k.wide(8));
+            final Runnable[] draw = new Runnable[1];
+            draw[0] = new Runnable() {
+                public void run() {
+                    chips.removeAllViews();
+                    for (int i = 0; i < MrBackdrop.STYLES; i++) {
+                        final int n = i;
+                        TextView c = k.chip(styleName(MrThemesActivity.this, n), n == style[0], new View.OnClickListener() {
+                            public void onClick(View v) {
+                                style[0] = n;
+                                redraw.run();
+                                draw[0].run();
+                            }
+                        });
+                        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                        if (n > 0) p.setMargins(k.dp(8), 0, 0, 0);
+                        chips.addView(c, p);
+                    }
+                }
+            };
+            draw[0].run();
+        }
+        sheetShow(d, box, pv, bar, pending, new Runnable() {
+            public void run() {
+                applyBackdrop(spec, softNow[0], style[0], pending);
+            }
+        });
     }
 
     /**
@@ -677,7 +968,7 @@ public class MrThemesActivity extends Activity {
         mThumb = null;
         mLoad++;
         readPrefs();
-        refresh();
+        galleryChanged();
     }
 
     /** Reads the picture (and makes its small copy) apart from the main thread, and draws again when it is there. */
@@ -704,13 +995,25 @@ public class MrThemesActivity extends Activity {
         }).start();
     }
 
-    /** Reads the small copies of the landscapes (one after the other, apart from the main thread); each tile is drawn as its copy is there. */
-    void loadScenes() {
+    /**
+     * Reads the small copies of the landscapes of category {@code cat} that are not read yet (one after the other, apart from the main thread);
+     * each card is drawn as its copy is there. A copy is read once for the whole life of the screen.
+     */
+    void loadScenes(int cat) {
+        final List<Integer> todo = new ArrayList<Integer>();
+        for (int n = 0; n < MrScenes.PER_CATEGORY; n++) {
+            int i = MrScenes.scene(cat, n);
+            if (mScenes[i] == null && !mSceneBusy[i]) {
+                mSceneBusy[i] = true;
+                todo.add(i);
+            }
+        }
+        if (todo.isEmpty()) return;
         new Thread(new Runnable() {
             public void run() {
-                for (int i = 0; i < MrScenes.COUNT; i++) {
-                    final int index = i;
-                    final Bitmap small = MrScenes.load(MrThemesActivity.this, i, SCENE_SAMPLE);
+                for (int n = 0; n < todo.size(); n++) {
+                    final int index = todo.get(n);
+                    final Bitmap small = MrScenes.load(MrThemesActivity.this, index, SCENE_SAMPLE);
                     runOnUiThread(new Runnable() {
                         public void run() {
                             if (isFinishing()) return;
@@ -722,10 +1025,11 @@ public class MrThemesActivity extends Activity {
         }).start();
     }
 
-    /** The small copy of landscape {@code index} is there: the tile that stands for it shows it. */
+    /** The small copy of landscape {@code index} is there: the card that stands for it (if its tab is open) shows it. */
     void sceneLoaded(int index, Bitmap small) {
         if (index < 0 || index >= mScenes.length) return;
         mScenes[index] = small;
+        mSceneBusy[index] = false;
         for (int i = 0; i < mBgTiles.size(); i++) {
             MrBackdrop.Spec s = mBgSpecs.get(i);
             if (s.kind == MrBackdrop.SCENE && s.index == index) {

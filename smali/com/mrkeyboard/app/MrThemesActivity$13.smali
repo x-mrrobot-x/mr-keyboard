@@ -3,12 +3,12 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Landroid/content/DialogInterface$OnCancelListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->showCrop(Landroid/graphics/Bitmap;Lcom/mrkeyboard/app/MrBackdrop$Spec;IZ)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->showThemePreview(I)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$pending:Z
+.field final synthetic val$index:I
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Z)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;I)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 569
+    .line 701
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput-boolean p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->val$pending:Z
+    iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->val$index:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,20 +45,17 @@
 
 
 # virtual methods
-.method public onCancel(Landroid/content/DialogInterface;)V
-    .locals 1
+.method public run()V
+    .locals 2
 
     .prologue
-    .line 571
-    iget-boolean v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->val$pending:Z
-
-    if-eqz v0, :cond_0
-
+    .line 703
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->discardPending(Landroid/content/Context;)V
+    iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->val$index:I
 
-    .line 572
-    :cond_0
+    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrThemesActivity;->chooseTheme(I)V
+
+    .line 704
     return-void
 .end method

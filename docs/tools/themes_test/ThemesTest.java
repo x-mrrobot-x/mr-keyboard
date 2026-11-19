@@ -73,12 +73,13 @@ import org.w3c.dom.NodeList;
  * The themes screen (v2.0.0, "Keyboard theme"), run on the PC against the stubs of Android: the spec of the background that the preference holds
  * (MrBackdrop.Spec: colours, gradients, landscapes, a picture with zoom and position), the part of a picture that fills the keyboard and how a finger
  * moves and pinches its frame (crop, pan, shift, rezoom), the gradients drawn as CSS does and the 36 landscapes (the pictures of the app, in six categories, drawn as a picture of the gallery is), the veil that keeps the toolbar readable
- * over every colour, gradient and landscape (veil, look; the softening is for pictures only), the picture of the gallery (importPending: the size, the
- * photo turned, a failure that keeps the one that waits; commitPending, discardPending), the background put on the keyboard only in the two themes of the
- * backgrounds (apply, MrBackdropDrawable, bottomColor), the colours of the fifteen themes read from the real res/ files (MrThemeColors: thirteen on the
- * list, two hidden, their see-through keys and their ink), the small keyboards (MrThemePreview: every key and label, the faces made once, the neon light, the
- * ring), the screen (MrThemesActivity: a theme chosen at once and a background only after the preview dialog, the themes never changed by a background, the
- * photo picker and its fallbacks, the crop dialog with its pinch, drag and softening, the picture that waits and is applied, cancelled or let go, remove),
+ * over every colour, gradient and landscape (veil, look; the softening is for gradients, landscapes and pictures), the picture of the gallery (importPending: the size, the
+ * photo turned, a failure that keeps the one that waits; commitPending, discardPending), the background put on the keyboard only in the themes of the
+ * backgrounds (apply, MrBackdropDrawable, bottomColor), the colours of the twenty themes read from the real res/ files (MrThemeColors: thirteen on the
+ * list, seven hidden: the see-through keys and the ink, and the five styles of keys), the small keyboards (MrThemePreview: every key and label, the faces made once, the neon light, the
+ * ring), the screen (MrThemesActivity: the tabs (the themes, the colours, the gradients, one for each category of landscapes, the gallery) with their cards made a
+ * few at a time and the pictures read apart, a theme or a background chosen only after its dialog, the styles of the keys and the softening in the dialog of a
+ * background, the themes never changed by a background, the photo picker and its fallbacks, the crop dialog with its pinch, drag and softening, the picture that waits and is applied, cancelled or let go, remove),
  * the crop view (MrCropView), the row of the settings (MrThemeRow) and the files (strings in three languages, the manifest, prefs.xml, the smali hooks).
  *
  * <p>What is drawn is rasterized with Java2D behind the Canvas stub (AwtBackend), so that the pixels can be read and the pictures are dumped as PNG
@@ -323,7 +324,7 @@ public class ThemesTest {
         public void setContentView(View v) { content = v; }
         public void finish() { finishes++; }
         public boolean isFinishing() { return finishing; }
-        public void runOnUiThread(Runnable r) { r.run(); }
+        public void runOnUiThread(Runnable r) { UI.add(r); }
         /** How many pickers refuse to start before one does (ActivityNotFoundException), how many were tried, and a picker that fails with another exception once. */
         int refuse, tried;
         boolean crash;
@@ -629,11 +630,21 @@ public class ThemesTest {
         return b;
     }
 
+    /** What the threads of the screens post to the main thread: it runs here, on the thread of the test (the one that owns the views). */
+    static final java.util.concurrent.ConcurrentLinkedQueue<Runnable> UI = new java.util.concurrent.ConcurrentLinkedQueue<Runnable>();
+
+    static void pump() {
+        Runnable r;
+        while ((r = UI.poll()) != null) r.run();
+    }
+
     static boolean waitFor(BooleanSupplier s) throws InterruptedException {
         for (int i = 0; i < 250; i++) {
+            pump();
             if (s.getAsBoolean()) return true;
             Thread.sleep(20);
         }
+        pump();
         return s.getAsBoolean();
     }
 
@@ -1103,7 +1114,7 @@ public class ThemesTest {
         List<MrBackdrop.Spec> specs = new ArrayList<MrBackdrop.Spec>();
         for (int i = 0; i < MrScenes.COUNT; i++) specs.add(MrBackdrop.Spec.scene(i));
         for (int i = 0; i < MrBackdrop.GRADIENT_COUNT; i++) specs.add(MrBackdrop.Spec.gradient(i));
-        boolean softIgnored = true;
+        boolean softApplied = true, softMoves = false;
         for (MrBackdrop.Spec s : specs) {
             for (int soft : new int[] {0, 25, 70}) {
                 for (boolean dark : new boolean[] {true, false}) {
@@ -1120,8 +1131,10 @@ public class ThemesTest {
                         if (!dark && after < MrBackdrop.LIGHT_TARGET - 0.01f && !capped) covered = false;
                     }
                     if (look.veilColor != (dark ? 0xff000000 : 0xffffffff)) covered = false;
-                    // the softening is for the picture of the gallery only: a landscape or a gradient has the veil it needs and no more
-                    if (look.veilAlpha != MrBackdrop.look(s, imageFor(s), dark, 0).veilAlpha || look.bottom != MrBackdrop.look(s, imageFor(s), dark, 0).bottom) softIgnored = false;
+                    // the softening is for the gradients, the landscapes and the pictures: the veil is the one the picture needs, or the softening when that is more
+                    int needed = MrBackdrop.look(s, imageFor(s), dark, 0).veilAlpha;
+                    if (look.veilAlpha < needed || look.veilAlpha < Math.min(Math.round(soft * 255 / 100f), Math.round(MrBackdrop.MAX_VEIL * 255)) - 2) softApplied = false;
+                    if (soft == 70 && look.veilAlpha > needed) softMoves = true;
                     if ((look.bottom >>> 24) != 255) bottomOpaque = false;
                     if (soft == 0 && dark) worstDark = Math.max(worstDark, look.veilAlpha);
                     if (soft == 0 && !dark) worstLight = Math.max(worstLight, look.veilAlpha);
@@ -1130,7 +1143,7 @@ public class ThemesTest {
         }
         check("every landscape and gradient is brought to the target brightness, over all of it and over the toolbar at the top, under a dark and a light theme (or to the limit of the veil)", covered);
         check("the colour of the lower edge, for the navigation bar, is opaque", bottomOpaque);
-        check("the softening changes nothing on a landscape or a gradient (it is for pictures)", softIgnored);
+        check("the softening gives a landscape or a gradient a veil at least as dense as the softening (and the one the picture needs, when that is more)", softApplied && softMoves);
         // the plain colours: no veil, the colour is the lower edge, whatever the softening and the theme
         boolean colourLook = true;
         for (int i = 0; i < MrBackdrop.COLORS.length; i++) {
@@ -1268,15 +1281,33 @@ public class ThemesTest {
     static void colours() {
         Context c = new Ctx();
         String[] tags = MrThemeColors.tags(c), names = MrThemeColors.names(c), values = MrThemeColors.values(c);
-        check("fifteen themes with a tag, a name and a value each: thirteen on the list and the two of the backgrounds", tags.length == 15 && names.length == 15 && values.length == 15);
+        check("twenty themes with a tag, a name and a value each: thirteen on the list and the seven of the backgrounds", tags.length == 20 && names.length == 20 && values.length == 20);
         boolean named = true, valued = true;
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 20; i++) {
             if (names[i] == null || names[i].length() == 0) named = false;
             if (!values[i].equals(String.valueOf(i))) valued = false;
         }
-        check("the names are the ones of the list (no empty one) and the values are 0 .. 14", named && valued);
-        check("the list shows the first thirteen: the two themes of the backgrounds come after them and are hidden", MrThemeColors.listed(tags) == 13 && !MrThemeColors.hidden(tags[12])
-                && MrThemeColors.hidden(tags[13]) && MrThemeColors.hidden(tags[14]) && tags[13].equals(MrBackdrop.TAG_LIGHT_INK) && tags[14].equals(MrBackdrop.TAG_DARK_INK));
+        check("the names are the ones of the list (no empty one) and the values are 0 .. 19", named && valued);
+        boolean allHidden = true;
+        for (int i = 13; i < 20; i++) if (!MrThemeColors.hidden(tags[i])) allHidden = false;
+        check("the list shows the first thirteen: the seven themes of the backgrounds come after them and are hidden", MrThemeColors.listed(tags) == 13 && !MrThemeColors.hidden(tags[12])
+                && allHidden && tags[13].equals(MrBackdrop.TAG_LIGHT_INK) && tags[14].equals(MrBackdrop.TAG_DARK_INK));
+        check("the styles of the keys are themes of the backgrounds too, in this order: outlined, dark glass, dark, blue, violet (the first one is the theme with light ink)",
+                MrBackdrop.STYLES == 6 && MrBackdrop.STYLE_TAGS[0].equals(MrBackdrop.TAG_LIGHT_INK) && tags[15].equals("mr_overline") && tags[16].equals("mr_overshade") && tags[17].equals("mr_overslate")
+                        && tags[18].equals("mr_overblue") && tags[19].equals("mr_overviolet"));
+        boolean exist = true;
+        for (int i = 0; i < MrBackdrop.STYLES; i++) if (MrThemeColors.indexOfTag(tags, MrBackdrop.STYLE_TAGS[i]) < 13) exist = false;
+        check("every style is a theme that exists, hidden", exist);
+        MrBackdrop.Spec lightColour = MrBackdrop.Spec.color(1), darkColour = MrBackdrop.Spec.color(4), landscape = MrBackdrop.Spec.scene(0);
+        check("a background has the theme of the style asked: a gradient, a landscape, a picture and a dark colour take it, and the style is kept inside the six",
+                MrBackdrop.themeTag(landscape, 3).equals("mr_overslate") && MrBackdrop.themeTag(MrBackdrop.Spec.gradient(2), 4).equals("mr_overblue") && MrBackdrop.themeTag(darkColour, 5).equals("mr_overviolet")
+                        && MrBackdrop.themeTag(MrBackdrop.Spec.image(100, 0, 0, 1), 1).equals("mr_overline") && MrBackdrop.themeTag(landscape, 99).equals("mr_overviolet")
+                        && MrBackdrop.themeTag(landscape, -3).equals(MrBackdrop.TAG_LIGHT_INK) && MrBackdrop.themeTag(landscape).equals(MrBackdrop.TAG_LIGHT_INK));
+        check("a light colour has the theme with dark ink whatever the style (its keys have no styles)", MrBackdrop.themeTag(lightColour, 4).equals(MrBackdrop.TAG_DARK_INK) && MrBackdrop.themeTag(lightColour).equals(MrBackdrop.TAG_DARK_INK));
+        check("the styles are offered for every background but a light colour, and for no background", MrBackdrop.hasStyles(darkColour) && MrBackdrop.hasStyles(landscape) && MrBackdrop.hasStyles(MrBackdrop.Spec.gradient(0))
+                && MrBackdrop.hasStyles(MrBackdrop.Spec.image(100, 0, 0, 1)) && !MrBackdrop.hasStyles(lightColour) && !MrBackdrop.hasStyles(MrBackdrop.Spec.NO) && !MrBackdrop.hasStyles(null));
+        check("the style of a theme is read back from its tag, and 0 for any other theme", MrBackdrop.styleOf("mr_overline") == 1 && MrBackdrop.styleOf("mr_overviolet") == 5 && MrBackdrop.styleOf(MrBackdrop.TAG_LIGHT_INK) == 0
+                && MrBackdrop.styleOf("mr_midnight") == 0 && MrBackdrop.styleOf(MrBackdrop.TAG_DARK_INK) == 0 && MrBackdrop.styleOf(null) == 0);
         check("hidden is by the tag, and no theme of the list is hidden", MrThemeColors.hidden("mr_overlight") && !MrThemeColors.hidden("mr_midnight") && !MrThemeColors.hidden(null) && !MrThemeColors.hidden(""));
         check("indexOfTag finds a theme by its tag, and -1 for any other", MrThemeColors.indexOfTag(tags, "mr_midnight") == 0 && MrThemeColors.indexOfTag(tags, "mr_overdark") == 14
                 && MrThemeColors.indexOfTag(tags, "mr_nothing") == -1 && MrThemeColors.indexOfTag(tags, null) == -1);
@@ -1330,14 +1361,14 @@ public class ThemesTest {
                 MrThemeColors.declared(c, "mr_midnight", "glow") == 0 && MrThemeColors.declared(c, "mr_cyan", "glow") != 0 && MrThemeColors.declared(c, "mr_midnight", "no_such_role") == 0);
 
         StringBuilder row = new StringBuilder();
-        boolean[] dark = new boolean[15];
-        for (int i = 0; i < 15; i++) {
+        boolean[] dark = new boolean[20];
+        for (int i = 0; i < 20; i++) {
             dark[i] = MrThemeColors.dark(c, tags[i]);
             row.append(tags[i].substring(3)).append(dark[i] ? "=dark " : "=light ");
         }
         System.out.println("      " + row);
-        boolean[] want = {true, true, true, true, true, true, false, false, false, true, false, true, true, true, false};
-        check("a theme is dark when its background is: the nine of dark background (Chrome, with dark letters on its keys, and Glass and Denim, which are see-through, among them), not Aqua, Sky, Snow and Rose; of the two of the backgrounds the one with light ink is dark and the one with dark ink is light",
+        boolean[] want = {true, true, true, true, true, true, false, false, false, true, false, true, true, true, false, true, true, true, true, true};
+        check("a theme is dark when its background is: the nine of dark background (Chrome, with dark letters on its keys, and Glass and Denim, which are see-through, among them), not Aqua, Sky, Snow and Rose; of the seven of the backgrounds the one with dark ink is light and the six with light ink (the styles of the keys) are dark",
                 java.util.Arrays.equals(dark, want));
         int toolInk = MrThemeColors.declared(c, "mr_chrome", "tool_ink");
         check("Chrome, whose keys and background are of opposite brightness, has the ink of its toolbar from tool_ink (light), though its key letters are dark", toolInk != 0
@@ -1565,7 +1596,8 @@ public class ThemesTest {
         {
             List<MrBackdrop.Spec> specs = all;
             for (MrBackdrop.Spec s : specs) {
-                String tag = MrBackdrop.themeTag(s);
+              for (int style = 0; style < (MrBackdrop.hasStyles(s) ? MrBackdrop.STYLES : 1); style++) {
+                String tag = MrBackdrop.themeTag(s, style);
                 int ink = MrThemeColors.ink(c, tag);
                 MrThemePreview p = preview(c, 600);
                 p.show(tag, s, imageFor(s), 0);
@@ -1597,6 +1629,7 @@ public class ThemesTest {
                     contrast = false;
                     System.out.println("      " + tag + " " + s.format() + ": the letters on the keys have a contrast of " + String.format("%.2f", keyRatio));
                 }
+              }
             }
         }
         System.out.println("      the worst contrast of the ink of the toolbar with the bar: " + String.format("%.2f", worstRatio) + ", of the letters with their keys: " + String.format("%.2f", worstKey));
@@ -1709,14 +1742,14 @@ public class ThemesTest {
         // on every background of the backgrounds the dash reads over the faces
         boolean reads = true;
         double worstOn = 99, worstLock = 99, worstOff = 99;
-        for (int t = 0; t < 2; t++) {
-            String tag = t == 0 ? MrBackdrop.TAG_LIGHT_INK : MrBackdrop.TAG_DARK_INK;
+        for (int t = 0; t < 1 + MrBackdrop.STYLES; t++) {
+            String tag = t == 0 ? MrBackdrop.TAG_DARK_INK : MrBackdrop.STYLE_TAGS[t - 1];
             int off = MrThemeColors.color(c, tag, "modifier_indicator_off") | 0xff000000, on = MrThemeColors.color(c, tag, "modifier_indicator_on") | 0xff000000;
             int lock = MrThemeColors.color(c, tag, "modifier_indicator_lock") | 0xff000000;
             int fNormal = MrThemeColors.color(c, tag, "key_normal_fill"), fOn = MrThemeColors.color(c, tag, "key_on_fill"), fLock = MrThemeColors.color(c, tag, "key_lock_fill");
             List<Integer> backs = new ArrayList<Integer>();
-            for (int i = 0; i < MrBackdrop.COLORS.length; i++) if (MrBackdrop.themeTag(MrBackdrop.Spec.color(i)).equals(tag)) backs.add(MrBackdrop.COLORS[i]);
-            if (t == 0) for (MrBackdrop.Grad g : MrBackdrop.GRADS) for (int col : g.colours) backs.add(col);
+            for (int i = 0; i < MrBackdrop.COLORS.length; i++) if (MrBackdrop.themeTag(MrBackdrop.Spec.color(i), t - 1).equals(tag)) backs.add(MrBackdrop.COLORS[i]);
+            if (t > 0) for (MrBackdrop.Grad g : MrBackdrop.GRADS) for (int col : g.colours) backs.add(col);
             for (int bgc : backs) {
                 int a = MrBackdrop.mix(bgc, fNormal | 0xff000000, (fNormal >>> 24) / 255f), bOn = MrBackdrop.mix(bgc, fOn | 0xff000000, (fOn >>> 24) / 255f);
                 int bLock = MrBackdrop.mix(bgc, fLock | 0xff000000, (fLock >>> 24) / 255f);
@@ -1731,7 +1764,7 @@ public class ThemesTest {
             }
         }
         System.out.println("      the dash over the faces, worst case: on " + String.format("%.2f", worstOn) + ", locked " + String.format("%.2f", worstLock) + ", off " + String.format("%.2f", worstOff));
-        check("over every colour and gradient the dash 'on' and the dash 'locked' have a contrast of 2.2 or more with the face they are on, and 'off' one of 1.15 or more", reads);
+        check("over every colour and gradient, in each of the seven themes of the backgrounds (the six styles of keys and the dark ink), the dash 'on' and the dash 'locked' have a contrast of 2.2 or more with the face they are on, and 'off' one of 1.15 or more", reads);
 
         // the bubble and the popup of variants: the letters read on them, and the popup key is told apart from the bubble
         boolean popups = true;
@@ -1757,6 +1790,28 @@ public class ThemesTest {
             sheet.add(draw(v));
         }
         sheet(sheet, 3, "full_keyboard");
+        // the six styles of the keys, over a landscape that is busy, a gradient and a dark colour (for the eye), and the softening over the landscape
+        MrBackdrop.Spec[] over = {MrBackdrop.Spec.scene(2), MrBackdrop.Spec.scene(26), MrBackdrop.Spec.gradient(8), MrBackdrop.Spec.color(5)};
+        boolean different = true;
+        for (MrBackdrop.Spec sp : over) {
+            List<Bitmap> styles = new ArrayList<Bitmap>();
+            List<int[]> seen = new ArrayList<int[]>();
+            for (int style = 0; style < MrBackdrop.STYLES; style++) {
+                MrThemePreview v = fullPreview(c, 360);
+                v.show(MrBackdrop.themeTag(sp, style), sp, imageFor(sp), 0);
+                Bitmap shown = draw(v);
+                styles.add(shown);
+                for (int[] before : seen) if (java.util.Arrays.equals(before, shown.stubPixels)) different = false;
+                seen.add(shown.stubPixels.clone());
+            }
+            for (int soft : new int[] {30, 70}) {
+                MrThemePreview v = fullPreview(c, 360);
+                v.show(MrBackdrop.themeTag(sp, 0), sp, imageFor(sp), soft);
+                styles.add(draw(v));
+            }
+            sheet(styles, 4, "styles_" + sp.format());
+        }
+        check("the six styles of the keys draw six different keyboards over a landscape, a gradient and a colour", different);
         RES.flatFaces = false;
     }
 
@@ -1801,7 +1856,8 @@ public class ThemesTest {
         MrTheme.stubTag = MrBackdrop.TAG_LIGHT_INK;
         prefs.edit().putInt(MrBackdrop.PREF_SOFT, 40).apply();
         MrBackdrop.Look soft = MrBackdrop.lookNow(c);
-        check("the softening that was left from a picture does nothing to a gradient", soft.veilAlpha == dark.veilAlpha && soft.bottom == dark.bottom);
+        check("the softening that was left from a picture or a dialog gives a gradient the veil of the softening (at least), and keeps the edge of the bar opaque",
+                soft.veilAlpha >= dark.veilAlpha && soft.veilAlpha >= Math.round(0.4f * 255) - 2 && (soft.bottom >>> 24) == 255);
         prefs.edit().putInt(MrBackdrop.PREF_SOFT, 0).apply();
         prefs.edit().putString(MrBackdrop.PREF, "c7").apply();
         MrBackdrop.Look colour = MrBackdrop.lookNow(c);
@@ -1910,23 +1966,82 @@ public class ThemesTest {
 
     // ---------------------------------------------------------------- the screen
 
-    static Screen open() {
+    /** The screen as onCreate leaves it: the first cards of the tab are made and the rest is posted. */
+    static Screen openRaw() {
         Screen s = new Screen();
         s.onCreate((Bundle) null);
         s.mBig.stubSize(1000, 417);
         return s;
     }
 
+    /** The screen with its tab made (the posted steps run, as the main thread does after onCreate). */
+    static Screen open() {
+        Screen s = openRaw();
+        s.mGrid.stubRunPosted();
+        return s;
+    }
+
+    static final int COLOURS = 16, GRADIENTS = 20, SCENES = 36;
+    static final int FIRST_GRADIENT = COLOURS, FIRST_SCENE = COLOURS + GRADIENTS, MINE = COLOURS + GRADIENTS + SCENES;
+
+    /** The tab that holds tile {@code i} of the backgrounds (numbered as they were when they were all on one page: colours, gradients, landscapes, my image). */
+    static int tabOfTile(int i) {
+        if (i < FIRST_GRADIENT) return MrThemesActivity.TAB_COLORS;
+        if (i < FIRST_SCENE) return MrThemesActivity.TAB_GRADIENTS;
+        if (i < MINE) return MrThemesActivity.TAB_SCENES + MrScenes.category(i - FIRST_SCENE);
+        return MrThemesActivity.TAB_GALLERY;
+    }
+
+    /** The number of the first tile of the backgrounds of tab {@code tab}. */
+    static int firstOfTab(int tab) {
+        if (tab == MrThemesActivity.TAB_COLORS) return 0;
+        if (tab == MrThemesActivity.TAB_GRADIENTS) return FIRST_GRADIENT;
+        if (tab == MrThemesActivity.TAB_GALLERY) return MINE;
+        return FIRST_SCENE + (tab - MrThemesActivity.TAB_SCENES) * MrScenes.PER_CATEGORY;
+    }
+
+    static MrBackdrop.Spec specOf(int i) {
+        if (i < FIRST_GRADIENT) return MrBackdrop.Spec.color(i);
+        if (i < FIRST_SCENE) return MrBackdrop.Spec.gradient(i - FIRST_GRADIENT);
+        return MrBackdrop.Spec.scene(i - FIRST_SCENE);
+    }
+
+    /** Opens tab {@code t} (if another is open) and makes all its cards, as the posted steps do. */
+    static void tab(Screen s, int t) {
+        if (s.mTab != t) s.showTab(t);
+        s.mGrid.stubRunPosted();
+    }
+
+    /** Card {@code i} of the themes (the tab of the themes is opened if it is not). */
+    static MrThemePreview th(Screen s, int i) {
+        tab(s, MrThemesActivity.TAB_THEMES);
+        return s.mThemeTiles.get(i);
+    }
+
+    /** Tile {@code i} of the backgrounds, as numbered when they were on one page (the tab that holds it is opened if it is not). */
+    static MrThemePreview bg(Screen s, int i) {
+        int t = tabOfTile(i);
+        tab(s, t);
+        return s.mBgTiles.get(i - firstOfTab(t));
+    }
+
+    /** The whole card of theme {@code i}: its frame with the keyboard, the name and the pill. */
+    static View cardOf(Screen s, int i) {
+        return (View) th(s, i).getParent();
+    }
+
+    /** The theme whose card is the one in use on the open tab (-1: none, -2: more than one). */
     static int checkedTheme(Screen s) {
         int n = -1;
         for (int i = 0; i < s.mThemeTiles.size(); i++) if (s.mThemeTiles.get(i).checked()) n = n == -1 ? i : -2;
         return n;
     }
 
+    /** The tile of the backgrounds that is the one in use on the open tab, numbered as {@link #bg} does (-1: none, -2: more than one). */
     static int checkedBackground(Screen s) {
         int n = -1;
         for (int i = 0; i < s.mBgTiles.size(); i++) if (s.mBgTiles.get(i).checked()) n = n == -1 ? i : -2;
-        return n;
+        return n < 0 ? n : n + firstOfTab(s.mTab);
     }
 
     static String themeKey() {
@@ -1992,115 +2107,210 @@ public class ThemesTest {
         return true;
     }
 
-    static final int COLOURS = 16, GRADIENTS = 20, SCENES = 36;
-    static final int FIRST_GRADIENT = COLOURS, FIRST_SCENE = COLOURS + GRADIENTS, MINE = COLOURS + GRADIENTS + SCENES;
-
     /** Touches a tile of the backgrounds and applies what the dialog shows. */
     static void apply(Screen s, int tile) {
-        click(s.mBgTiles.get(tile));
+        click(bg(s, tile));
         press("Apply");
     }
 
     static void screen() throws Exception {
         reset();
-        Screen s = open();
+        // the screen opens on the tab of the choice and makes only that tab, a few cards at a time
+        Screen s = openRaw();
         String[] names = MrThemeColors.names(s);
-        check("the screen lists the thirteen themes (the two of the backgrounds are not on it) and knows all fifteen", s.mThemeTiles.size() == 13 && s.mListed == 13 && s.mTags.length == 15);
-        check("and has the tiles of the backgrounds: 16 colours, 20 gradients, 36 landscapes and my image", s.mBgTiles.size() == MINE + 1 && s.mBgSpecs.size() == MINE + 1);
-        check("in that order: the colours, the gradients, the landscapes, then my image", s.mBgSpecs.get(0).format().equals("c0") && s.mBgSpecs.get(COLOURS - 1).format().equals("c15")
-                && s.mBgSpecs.get(FIRST_GRADIENT).format().equals("g0") && s.mBgSpecs.get(FIRST_SCENE - 1).format().equals("g19")
-                && s.mBgSpecs.get(FIRST_SCENE).format().equals("s0") && s.mBgSpecs.get(MINE - 1).format().equals("s35") && s.mBgSpecs.get(MINE).kind == MrBackdrop.IMAGE);
-        check("the landscapes are in six sections, one for each category, with its name above it",
-                byText(s.content, "Landscapes") != null && byText(s.content, "Sports") != null && byText(s.content, "Animals") != null && byText(s.content, "Snow") != null
-                        && byText(s.content, "Nature") != null && byText(s.content, "Anime") != null && byText(s.content, "AI") != null);
-        check("the tiles of a category follow one another: six sports, then six animals", s.mBgSpecs.get(FIRST_SCENE + 5).format().equals("s5") && s.mBgSpecs.get(FIRST_SCENE + 6).format().equals("s6")
+        check("the screen knows all twenty themes and lists the thirteen (the seven of the backgrounds are not on it)", s.mListed == 13 && s.mTags.length == 20);
+        check("it opens on the themes (no background is chosen) and has made only the first few cards, the rest are posted",
+                s.mTab == MrThemesActivity.TAB_THEMES && s.mThemeTiles.size() == MrThemesActivity.CHUNK && s.mBgTiles.isEmpty() && s.mGrid.stubPostedCount() == 1);
+        s.mGrid.stubRunPosted();
+        check("then the thirteen themes are all there, in rows of two", s.mThemeTiles.size() == 13 && s.mGrid.getChildCount() == 7 && s.mBgTiles.isEmpty());
+        check("the tabs are the themes, the colours, the gradients, the six categories of landscapes (each one a tab, there is no tab of landscapes) and the gallery",
+                s.mTabViews.size() == 10 && byText(s.content, "Themes") != null && byText(s.content, "Colors") != null && byText(s.content, "Gradients") != null
+                        && byText(s.content, "Sports") != null && byText(s.content, "Animals") != null && byText(s.content, "Snow") != null && byText(s.content, "Nature") != null
+                        && byText(s.content, "Anime") != null && byText(s.content, "AI") != null && byText(s.content, "Gallery") != null && byText(s.content, "Landscapes") == null);
+        check("the keyboard at the top says it is the one in use, with its name", byText(s.content, "In use") != null && s.mCaption.getText().toString().equals(names[0])
+                && s.mBig.tag().equals("mr_midnight") && s.mBig.spec().kind == MrBackdrop.NONE);
+        check("a card is the small keyboard with its name under it and a View on the right; the one in use says so", cardOf(s, 1) != null && byText(cardOf(s, 1), names[1]) != null && byText(cardOf(s, 1), "View") != null
+                && byText(cardOf(s, 0), "In use") != null && byText(cardOf(s, 0), "View") == null);
+        boolean own = true;
+        for (int i = 0; i < s.mThemeTiles.size(); i++) if (!s.mThemeTiles.get(i).tag().equals(s.mTags[i]) || s.mThemeTiles.get(i).spec().kind != MrBackdrop.NONE) own = false;
+        check("every card of a theme shows that theme and no background", own && checkedTheme(s) == 0 && s.mSpec.kind == MrBackdrop.NONE);
+
+        // the other tabs are made when they are opened, and let go when they are left
+        s.mTabViews.get(MrThemesActivity.TAB_COLORS).performClick();
+        s.mGrid.stubRunPosted();
+        check("a tab is opened by touching it: the cards of the themes are let go and the sixteen colours are made, c0 to c15",
+                s.mTab == MrThemesActivity.TAB_COLORS && s.mThemeTiles.isEmpty() && s.mBgTiles.size() == COLOURS && s.mBgSpecs.get(0).format().equals("c0") && s.mBgSpecs.get(15).format().equals("c15"));
+        s.mTabViews.get(MrThemesActivity.TAB_GRADIENTS).performClick();
+        s.mGrid.stubRunPosted();
+        check("the twenty gradients, g0 to g19", s.mBgTiles.size() == GRADIENTS && s.mBgSpecs.get(0).format().equals("g0") && s.mBgSpecs.get(19).format().equals("g19"));
+        boolean sixEach = true;
+        for (int cat = 0; cat < MrScenes.CATEGORIES; cat++) {
+            s.mTabViews.get(MrThemesActivity.TAB_SCENES + cat).performClick();
+            s.mGrid.stubRunPosted();
+            if (s.mBgTiles.size() != 6) sixEach = false;
+            for (int n = 0; n < 6; n++) if (!s.mBgSpecs.get(n).format().equals("s" + (cat * 6 + n))) sixEach = false;
+        }
+        check("each category of landscapes is a tab of its own with its six, in order: s0 to s5 the sports, then the animals, the snow, the nature, the anime and the AI", sixEach
                 && MrScenes.category(5) == MrScenes.SPORTS && MrScenes.category(6) == MrScenes.ANIMALS);
         final Screen live = s;
         boolean loaded = waitFor(() -> {
-            for (Bitmap b : live.mScenes) if (b == null) return false;
+            for (int i = 0; i < MrScenes.COUNT; i++) if (live.mScenes[i] == null) return false;
             return true;
         });
-        check("the small copies of the 36 landscapes are read apart from the main thread, at half the size", loaded && s.mScenes[0].getWidth() * 2 <= scene(0).getWidth() + 1 && s.mScenes[35].getHeight() * 2 <= scene(35).getHeight() + 1);
-        MrThemePreview withPicture = s.mBgTiles.get(FIRST_SCENE + 3), without = new MrThemePreview(s);
-        without.show(MrBackdrop.TAG_LIGHT_INK, MrBackdrop.Spec.scene(3), null, 0);
-        check("each tile of a landscape shows its picture as soon as it is read (until then, the colour of the theme)", !java.util.Arrays.equals(tileImage(withPicture), tileImage(without)));
-        check("the theme of the preference is the one chosen, and no background", checkedTheme(s) == 0 && checkedBackground(s) == -1 && s.mSpec.kind == MrBackdrop.NONE);
-        check("the caption says the theme", s.mCaption.getText().toString().equals(names[0]));
-        check("no remove button and no tile of my image until there is a picture", s.mRemove.getVisibility() == View.GONE && boxOf(s.mMineTile).getVisibility() == View.INVISIBLE);
-        check("the big keyboard is the theme as it is", s.mBig.tag().equals("mr_midnight") && s.mBig.spec().kind == MrBackdrop.NONE);
-        boolean own = true;
-        for (int i = 0; i < s.mThemeTiles.size(); i++) if (!s.mThemeTiles.get(i).tag().equals(s.mTags[i]) || s.mThemeTiles.get(i).spec().kind != MrBackdrop.NONE) own = false;
-        check("every tile of a theme shows that theme and no background", own);
+        check("the small copies are read apart from the main thread, at half the size, as the tab of their category is opened",
+                loaded && s.mScenes[35].getHeight() * 2 <= scene(35).getHeight() + 1 && s.mScenes[0] != null && s.mScenes[30].getWidth() * 2 <= scene(30).getWidth() + 1);
+        final Screen fresh = open();
+        tab(fresh, MrThemesActivity.TAB_SCENES + MrScenes.NATURE);
+        check("a screen that opens only one category reads only its six landscapes", waitFor(() -> {
+            for (int i = 18; i < 24; i++) if (fresh.mScenes[i] == null) return false;
+            return true;
+        }) && fresh.mScenes[0] == null && fresh.mScenes[35] == null);
+        tab(s, MrThemesActivity.TAB_SCENES + MrScenes.AI);
+        MrThemePreview withPicture = s.mBgTiles.get(5), without = new MrThemePreview(s);
+        without.show(MrBackdrop.TAG_LIGHT_INK, MrBackdrop.Spec.scene(35), null, 0);
+        check("a card of a landscape shows its picture as soon as it is read (until then, the colour of the theme)", !java.util.Arrays.equals(tileImage(withPicture), tileImage(without)));
+        tab(s, MrThemesActivity.TAB_GALLERY);
+        check("the gallery has the card that picks a photo (no card of my image and no remove button until there is a picture)",
+                byText(s.content, "Choose a photo") != null && byText(s.content, "Choose") != null && s.mMineTile == null && s.mRemove == null && s.mBgTiles.isEmpty());
         boolean suited = true;
         for (int i = 0; i < MINE; i++) {
-            MrBackdrop.Spec sp = s.mBgSpecs.get(i);
-            if (!s.mBgTiles.get(i).spec().same(sp) || !s.mBgTiles.get(i).tag().equals(MrBackdrop.themeTag(sp))) suited = false;
+            MrBackdrop.Spec sp = specOf(i);
+            MrThemePreview t = bg(s, i);
+            if (!t.spec().same(sp) || !t.tag().equals(MrBackdrop.themeTag(sp))) suited = false;
         }
-        check("every tile of a background shows that background in the theme that suits it (light ink, or dark ink on the light colours)", suited
-                && s.mBgTiles.get(0).tag().equals("mr_overlight") && s.mBgTiles.get(1).tag().equals("mr_overdark") && s.mBgTiles.get(FIRST_SCENE).tag().equals("mr_overlight"));
-        // a theme is the choice at once
-        s.chooseTheme(5);
-        check("a theme chosen is written in the preference the keyboard reads, with no background", "5".equals(themeKey()) && s.mTheme == 5 && "".equals(bgKey()));
-        check("only that tile is chosen", checkedTheme(s) == 5 && s.mCaption.getText().toString().equals(names[5]) && s.mBig.tag().equals(s.mTags[5]));
+        check("every card of a background shows that background in the theme that suits it (light ink, or dark ink on the light colours)", suited
+                && bg(s, 0).tag().equals("mr_overlight") && bg(s, 1).tag().equals("mr_overdark") && bg(s, FIRST_SCENE).tag().equals("mr_overlight"));
+
+        // a theme: a dialog with the complete keyboard, and nothing is chosen until Apply
+        tab(s, MrThemesActivity.TAB_THEMES);
+        click(th(s, 5));
+        Dialog d = Dialog.stubLast;
+        check("touching a theme opens a dialog with the complete keyboard of that theme, its name, Cancel and Apply (and no softening or styles: they are for the backgrounds)",
+                d.stubShowing && s.mDialogPreview.full() && s.mDialogPreview.tag().equals(s.mTags[5]) && s.mDialogPreview.spec().kind == MrBackdrop.NONE && byText(d.stubContent, names[5]) != null
+                        && byText(d.stubContent, "Cancel") != null && byText(d.stubContent, "Apply") != null && s.mDialogSoft == null && byText(d.stubContent, "Keys") == null);
+        check("nothing is chosen yet", "0".equals(themeKey()) || themeKey() == null);
+        check("Cancel closes it and writes nothing", press("Cancel") && !d.stubShowing && !"5".equals(themeKey()) && s.mTheme == 0);
+        click(th(s, 5));
+        check("Apply chooses it, writes it with no background, and the card and the keyboard at the top show it",
+                press("Apply") && "5".equals(themeKey()) && s.mTheme == 5 && "".equals(bgKey()) && checkedTheme(s) == 5 && s.mCaption.getText().toString().equals(names[5])
+                        && s.mBig.tag().equals(s.mTags[5]) && byText(cardOf(s, 5), "In use") != null && byText(cardOf(s, 0), "View") != null);
         s.chooseTheme(12);
         check("the last theme of the list", "12".equals(themeKey()) && checkedTheme(s) == 12);
 
         // a colour: a dialog, and nothing is applied until Apply
-        click(s.mBgTiles.get(4));
-        Dialog d = Dialog.stubLast;
+        click(bg(s, 4));
+        d = Dialog.stubLast;
         check("touching a colour opens a dialog with the keyboard as it will look, in the theme of the colour", d.stubShowing && s.mDialogPreview != null
                 && s.mDialogPreview.spec().format().equals("c4") && s.mDialogPreview.tag().equals(MrBackdrop.themeTag(MrBackdrop.Spec.color(4))));
         check("the dialog has Cancel and Apply, and is a sheet at the bottom as wide as the screen", byText(d.stubContent, "Cancel") != null && byText(d.stubContent, "Apply") != null
                 && d.getWindow().stubGravity == android.view.Gravity.BOTTOM && d.getWindow().stubWidth == android.view.ViewGroup.LayoutParams.MATCH_PARENT);
-        check("nothing is applied yet: the preferences, the keyboard at the top and the tiles are as they were", "12".equals(themeKey()) && "".equals(bgKey()) && s.mSpec.kind == MrBackdrop.NONE
-                && s.mBig.spec().kind == MrBackdrop.NONE && checkedTheme(s) == 12 && checkedBackground(s) == -1);
+        check("a colour has the styles of the keys (all six, one to choose) and no softening",
+                byText(d.stubContent, "Keys") != null && byText(d.stubContent, "See-through") != null && byText(d.stubContent, "Outlined") != null && byText(d.stubContent, "Dark glass") != null
+                        && byText(d.stubContent, "Dark") != null && byText(d.stubContent, "Blue") != null && byText(d.stubContent, "Violet") != null && s.mDialogSoft == null
+                        && byText(d.stubContent, "Soften background") == null);
+        check("nothing is applied yet: the preferences, the keyboard at the top and the cards are as they were", "12".equals(themeKey()) && "".equals(bgKey()) && s.mSpec.kind == MrBackdrop.NONE
+                && s.mBig.spec().kind == MrBackdrop.NONE);
         check("the dialog shows the complete keyboard (the row of Ctrl and Alt, the numbers, the letters, the bottom row, the dash of the modifier keys), the big keyboard of the screen stays the small one",
-                s.mDialogPreview.full() && !s.mBig.full() && !s.mBgTiles.get(4).full() && !s.mThemeTiles.get(0).full());
+                s.mDialogPreview.full() && !s.mBig.full() && !bg(s, 4).full() && !th(s, 0).full());
+        tab(s, MrThemesActivity.TAB_COLORS);
         {
             MrThemePreview shown = s.mDialogPreview;
             shown.onMeasure(View.MeasureSpec.makeMeasureSpec(600, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
             check("it is as tall as the complete keyboard is (1.7 to 1)", shown.stubMeasuredHeight() == Math.round(600 / MrThemePreview.FULL_ASPECT));
         }
         check("Cancel closes it and writes nothing", press("Cancel") && !d.stubShowing && "12".equals(themeKey()) && "".equals(bgKey()) && s.mDialog == null);
-        click(s.mBgTiles.get(4));
+        click(bg(s, 4));
         Dialog.stubLast.stubBack();
         check("so does the back button", !Dialog.stubLast.stubShowing && "12".equals(themeKey()) && "".equals(bgKey()));
-        click(s.mBgTiles.get(4));
+        click(bg(s, 4));
         check("Apply closes it", press("Apply") && !Dialog.stubLast.stubShowing);
         check("a dark colour is written with the theme of the backgrounds with light ink (13), and as c4", "13".equals(themeKey()) && "c4".equals(bgKey()) && s.mSpec.format().equals("c4"));
-        check("only the keyboard at the top shows it: the tile of the colour is the one chosen and no theme is", checkedBackground(s) == 4 && checkedTheme(s) == -1
-                && s.mBig.spec().format().equals("c4") && s.mBig.tag().equals("mr_overlight") && s.mCaption.getText().toString().equals("Color 5"));
-        check("the softening is for pictures only: a colour does not write it", prefs.getInt(MrBackdrop.PREF_SOFT, -1) == -1);
-        List<int[]> themesBefore = themeTiles(s);
-        check("the tiles of the themes show the themes as they are (a tile is its theme with no background, whatever is chosen)", themeTilesAreThemes(s));
+        check("only the keyboard at the top shows it: the card of the colour is the one in use and no theme is", checkedBackground(s) == 4 && s.mBig.spec().format().equals("c4")
+                && s.mBig.tag().equals("mr_overlight") && s.mCaption.getText().toString().equals("Color 5") && byText(boxOf(bg(s, 4)), "In use") != null);
+        check("the softening is for gradients, landscapes and pictures: a colour does not write it", prefs.getInt(MrBackdrop.PREF_SOFT, -1) == -1);
+        tab(s, MrThemesActivity.TAB_THEMES);
+        check("the cards of the themes show the themes as they are (a card is its theme with no background, whatever is chosen), and no theme is the one in use", themeTilesAreThemes(s) && checkedTheme(s) == -1
+                && s.mThemeTiles.size() == 13);
         apply(s, 1);
-        check("a light colour is written with the theme with dark ink (14)", "14".equals(themeKey()) && "c1".equals(bgKey()) && s.mBig.tag().equals("mr_overdark") && checkedBackground(s) == 1);
+        check("a light colour is written with the theme with dark ink (14), and it has no styles of keys to choose (they all have white ink)",
+                "14".equals(themeKey()) && "c1".equals(bgKey()) && s.mBig.tag().equals("mr_overdark") && checkedBackground(s) == 1);
+        click(bg(s, 1));
+        check("its dialog has no styles", byText(Dialog.stubLast.stubContent, "Keys") == null && byText(Dialog.stubLast.stubContent, "Violet") == null && s.mDialogPreview.tag().equals("mr_overdark"));
+        press("Cancel");
+
+        // a gradient: the softening and the styles
         apply(s, FIRST_GRADIENT + 3);
-        check("a gradient: g3, in the theme with light ink, and its tile is the one chosen", "13".equals(themeKey()) && "g3".equals(bgKey()) && checkedBackground(s) == FIRST_GRADIENT + 3
+        check("a gradient: g3, in the theme with light ink, and its card is the one in use", "13".equals(themeKey()) && "g3".equals(bgKey()) && checkedBackground(s) == FIRST_GRADIENT + 3
                 && s.mCaption.getText().toString().equals("Gradient 4"));
+        check("it wrote the softening it had in the dialog: none", prefs.getInt(MrBackdrop.PREF_SOFT, -1) == 0);
+
+        // a landscape: the softening and the style of the keys, both in the dialog
         apply(s, FIRST_SCENE + 4);
         check("a landscape: s4", "13".equals(themeKey()) && "s4".equals(bgKey()) && checkedBackground(s) == FIRST_SCENE + 4 && s.mCaption.getText().toString().equals("Sports \u00b7 Esports"));
-        check("none of them wrote the softening, and the themes of the list are still as they were", prefs.getInt(MrBackdrop.PREF_SOFT, -1) == -1 && sameImages(themesBefore, themeTiles(s)));
-        click(s.mBgTiles.get(FIRST_SCENE + 1));
-        check("the dialog of a landscape shows that landscape, with its picture, on the complete keyboard", s.mDialogPreview.spec().format().equals("s1") && "s4".equals(bgKey()) && s.mDialogPreview.full()
-                && byText(Dialog.stubLast.stubContent, "Sports \u00b7 Soccer ball".replace("Soccer ball", "Basketball")) != null);
+        click(bg(s, FIRST_SCENE + 1));
+        d = Dialog.stubLast;
+        check("the dialog of a landscape shows that landscape, with its picture, on the complete keyboard, with the title, the softening and the styles of the keys",
+                s.mDialogPreview.spec().format().equals("s1") && "s4".equals(bgKey()) && s.mDialogPreview.full() && byText(d.stubContent, "Sports \u00b7 Basketball") != null
+                        && s.mDialogSoft != null && s.mDialogSoft.getMax() == 70 && byText(d.stubContent, "Soften background") != null && byText(d.stubContent, "Keys") != null);
+        check("another landscape starts with no softening (the one in use is another), and the style that is in use (see-through)", s.mDialogSoft.getProgress() == 0 && s.mDialogPreview.tag().equals("mr_overlight"));
+        int[] plain = tileImage(s.mDialogPreview);
+        s.mDialogSoft.stubListener.onProgressChanged(s.mDialogSoft, 60, true);
+        int[] softened = tileImage(s.mDialogPreview);
+        check("moving the softening draws the keyboard of the dialog again with the veil it gives (nothing is written)", !java.util.Arrays.equals(plain, softened) && byText(d.stubContent, "60%") != null
+                && prefs.getInt(MrBackdrop.PREF_SOFT, -1) == 0);
+        s.mDialogSoft.stubListener.onProgressChanged(s.mDialogSoft, 999, true);
+        check("it stops at 70", byText(d.stubContent, "70%") != null);
+        s.mDialogSoft.stubListener.onProgressChanged(s.mDialogSoft, 5, false);
+        check("a change that is not the finger's (the code setting the bar) is not a choice", byText(d.stubContent, "70%") != null);
+        View blue = byText(d.stubContent, "Blue");
+        check("a style of keys is chosen by touching it: the keyboard of the dialog is drawn with its keys", blue != null && blue.performClick() && s.mDialogPreview.tag().equals("mr_overblue"));
+        View outlined = byText(Dialog.stubLast.stubContent, "Outlined");
+        check("and another one replaces it", outlined != null && outlined.performClick() && s.mDialogPreview.tag().equals("mr_overline"));
+        blue = byText(Dialog.stubLast.stubContent, "Blue");
+        blue.performClick();
+        check("Cancel after all that writes nothing: the landscape, the theme and the softening are as they were", press("Cancel") && "s4".equals(bgKey()) && "13".equals(themeKey()) && prefs.getInt(MrBackdrop.PREF_SOFT, -1) == 0);
+        click(bg(s, FIRST_SCENE + 1));
+        Dialog.stubLast.stubBack();
+        click(bg(s, FIRST_SCENE + 1));
+        s.mDialogSoft.stubListener.onProgressChanged(s.mDialogSoft, 45, true);
+        byText(Dialog.stubLast.stubContent, "Blue").performClick();
+        check("Apply writes the landscape, the softening and the theme of the style chosen (blue: 18), in one edit", press("Apply") && "s1".equals(bgKey()) && prefs.getInt(MrBackdrop.PREF_SOFT, -1) == 45
+                && "18".equals(themeKey()) && s.mTheme == 18 && s.mStyle == 4);
+        check("the keyboard at the top shows it, with the style, the softening and its name", s.mBig.tag().equals("mr_overblue") && s.mBig.spec().format().equals("s1")
+                && s.mCaption.getText().toString().equals("Sports \u00b7 Basketball") && checkedBackground(s) == FIRST_SCENE + 1);
+        click(bg(s, FIRST_SCENE + 1));
+        check("the dialog of the landscape in use starts with its softening and its style", s.mDialogSoft.getProgress() == 45 && s.mDialogPreview.tag().equals("mr_overblue")
+                && byText(Dialog.stubLast.stubContent, "45%") != null);
         press("Cancel");
-        check("cancelled: the landscape in use is still s4", "s4".equals(bgKey()) && checkedBackground(s) == FIRST_SCENE + 4);
+        click(bg(s, FIRST_SCENE + 2));
+        check("another landscape starts with no softening, but with the style that is in use", s.mDialogSoft.getProgress() == 0 && s.mDialogPreview.tag().equals("mr_overblue"));
+        press("Cancel");
+        tab(s, MrThemesActivity.TAB_COLORS);
+        click(bg(s, 5));
+        check("a colour opens in the style in use as well (blue)", s.mDialogPreview.tag().equals("mr_overblue"));
+        press("Apply");
+        check("a dark colour with the style chosen is written with that theme (18), and no softening is written for it", "18".equals(themeKey()) && "c5".equals(bgKey()) && prefs.getInt(MrBackdrop.PREF_SOFT, -1) == 45);
+        click(bg(s, 1));
+        check("and a light colour keeps its dark ink whatever the style in use", s.mDialogPreview.tag().equals("mr_overdark"));
+        press("Apply");
+        check("it is written with the theme with dark ink (14)", "14".equals(themeKey()) && "c1".equals(bgKey()) && s.mStyle == 0);
 
         // a theme after a background takes the background away
-        click(s.mThemeTiles.get(7));
-        check("touching the tile of a theme chooses it at once and takes the background off", "7".equals(themeKey()) && "".equals(bgKey()) && checkedTheme(s) == 7 && checkedBackground(s) == -1
-                && s.mSpec.kind == MrBackdrop.NONE && s.mBig.tag().equals(s.mTags[7]) && s.mBig.spec().kind == MrBackdrop.NONE && s.mCaption.getText().toString().equals(names[7]));
-        check("each tile has its name for the screen readers", boxOf(s.mThemeTiles.get(2)).getContentDescription().toString().equals(names[2])
-                && boxOf(s.mBgTiles.get(4)).getContentDescription().toString().equals("Color 5") && boxOf(s.mBgTiles.get(FIRST_GRADIENT + 4)).getContentDescription().toString().equals("Gradient 5")
-                && boxOf(s.mBgTiles.get(FIRST_SCENE)).getContentDescription().toString().equals("Soccer ball"));
+        click(th(s, 7));
+        press("Apply");
+        check("applying a theme chooses it and takes the background off", "7".equals(themeKey()) && "".equals(bgKey()) && checkedTheme(s) == 7 && s.mSpec.kind == MrBackdrop.NONE
+                && s.mBig.tag().equals(s.mTags[7]) && s.mBig.spec().kind == MrBackdrop.NONE && s.mCaption.getText().toString().equals(names[7]) && s.mStyle == 0);
+        check("each card has its name for the screen readers", boxOf(th(s, 2)).getContentDescription().toString().equals(names[2])
+                && boxOf(bg(s, 4)).getContentDescription().toString().equals("Color 5") && boxOf(bg(s, FIRST_GRADIENT + 4)).getContentDescription().toString().equals("Gradient 5")
+                && boxOf(bg(s, FIRST_SCENE)).getContentDescription().toString().equals("Soccer ball"));
 
         // the texts
         check("the texts of the screen are the ones of the strings", MrThemesActivity.sceneName(s, 0).equals("Soccer ball") && MrThemesActivity.sceneName(s, 8).equals("Panther") && MrThemesActivity.sceneName(s, 35).equals("Network")
                 && MrThemesActivity.categoryName(s, 0).equals("Sports") && MrThemesActivity.categoryName(s, 5).equals("AI") && MrThemesActivity.categoryName(s, 6).equals("")
                 && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.scene(13)).equals("Snow \u00b7 Katana")
                 && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.gradient(4)).equals("Gradient 5") && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.color(0)).equals("Color 1")
-                && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.image(100, 0, 0, 1)).equals("My image") && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.NO).equals(""));
+                && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.image(100, 0, 0, 1)).equals("My image") && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.NO).equals("")
+                && MrThemesActivity.styleName(s, 0).equals("See-through") && MrThemesActivity.styleName(s, 5).equals("Violet") && MrThemesActivity.styleName(s, 9).equals(""));
         check("a scene that has no name is empty and no exception", MrThemesActivity.sceneName(s, 99).equals(""));
 
         // what the preferences say when the screen is made
@@ -2108,12 +2318,20 @@ public class ThemesTest {
         prefs.edit().putString("pref_keyboard_layout", "5").putString(MrBackdrop.PREF, "c3").apply();
         s = open();
         check("a background that is left in the preference of a theme of the list is let be: the screen shows the theme", s.mSpec.kind == MrBackdrop.NONE && checkedTheme(s) == 5
-                && checkedBackground(s) == -1 && s.mBig.tag().equals(s.mTags[5]) && s.mBig.spec().kind == MrBackdrop.NONE);
+                && s.mBig.tag().equals(s.mTags[5]) && s.mBig.spec().kind == MrBackdrop.NONE && s.mTab == MrThemesActivity.TAB_THEMES);
         reset();
         prefs.edit().putString("pref_keyboard_layout", "13").putString(MrBackdrop.PREF, "c3").apply();
         s = open();
-        check("in the theme of the backgrounds the background in the preference is the choice: its tile is chosen and no theme is", s.mSpec.format().equals("c3") && checkedBackground(s) == 3 && checkedTheme(s) == -1
-                && s.mCaption.getText().toString().equals("Color 4"));
+        check("in the theme of the backgrounds the background in the preference is the choice: it opens on the tab of the colours, its card is the one in use and no theme is",
+                s.mSpec.format().equals("c3") && s.mTab == MrThemesActivity.TAB_COLORS && checkedBackground(s) == 3 && checkedTheme(s) == -1 && s.mCaption.getText().toString().equals("Color 4"));
+        reset();
+        prefs.edit().putString("pref_keyboard_layout", "13").putString(MrBackdrop.PREF, "g7").apply();
+        check("a gradient opens on the tab of the gradients", open().mTab == MrThemesActivity.TAB_GRADIENTS);
+        reset();
+        prefs.edit().putString("pref_keyboard_layout", "15").putString(MrBackdrop.PREF, "s20").apply();
+        s = open();
+        check("a landscape opens on the tab of its category (s20 is nature) and the style comes from the theme (outlined: 1)", s.mTab == MrThemesActivity.TAB_SCENES + MrScenes.NATURE && s.mStyle == 1
+                && s.mSpec.format().equals("s20") && checkedBackground(s) == FIRST_SCENE + 20);
         reset();
         prefs.edit().putString("pref_keyboard_layout", "13").apply();
         s = open();
@@ -2125,6 +2343,15 @@ public class ThemesTest {
         reset();
         prefs.edit().putString("pref_keyboard_layout", "14").putString(MrBackdrop.PREF, "nonsense").apply();
         check("a background that does not parse is none", open().mSpec.kind == MrBackdrop.NONE);
+
+        // a tab opened while the cards of another are still being made: the old ones stop
+        reset();
+        s = new Screen();
+        s.onCreate((Bundle) null);
+        s.showTab(MrThemesActivity.TAB_GRADIENTS);
+        s.mGrid.stubRunPosted();
+        check("a step posted by a tab that was left does nothing to the one that was opened after it (20 gradients, no card of the themes)", s.mBgTiles.size() == GRADIENTS && s.mThemeTiles.isEmpty()
+                && s.mGrid.getChildCount() == 10);
     }
 
     static View boxOf(View tile) {
@@ -2160,8 +2387,9 @@ public class ThemesTest {
         check("before Android 11 there is no photo picker to ask: the gallery first", MrThemesActivity.pickers(29).size() == 2 && Intent.ACTION_PICK.equals(MrThemesActivity.pickers(29).get(0).getAction())
                 && Intent.ACTION_OPEN_DOCUMENT.equals(MrThemesActivity.pickers(29).get(1).getAction()) && MrThemesActivity.pickers(30).size() == 3);
 
-        View gal = find(s.content, "Gallery");
-        check("the tile of the gallery opens the photo picker of Android, not the file manager", gal != null && gal.performClick() && s.started != null
+        tab(s, MrThemesActivity.TAB_GALLERY);
+        View gal = find(s.content, "Choose a photo");
+        check("the card that picks a photo, in the gallery, opens the photo picker of Android, not the file manager", gal != null && gal.performClick() && s.started != null
                 && "android.provider.action.PICK_IMAGES".equals(s.started.getAction()) && "image/*".equals(s.started.stubType) && s.startedCode == 71);
         s.started = null;
         s.refuse = 1;
@@ -2215,6 +2443,7 @@ public class ThemesTest {
         BitmapFactory.stubWidth = 3000;
         BitmapFactory.stubHeight = 2000;
         apply(s, FIRST_SCENE + 1);
+        tab(s, MrThemesActivity.TAB_GALLERY);
         String theme0 = themeKey(), bg0 = bgKey();
         check("a landscape is the background", "13".equals(theme0) && "s1".equals(bg0));
 
@@ -2224,6 +2453,7 @@ public class ThemesTest {
         s.onActivityResult(71, Activity.RESULT_OK, null);
         s.onActivityResult(71, Activity.RESULT_OK, new Chosen(null));
         Thread.sleep(100);
+        pump();
         check("a cancelled pick, another request, no answer and no picture change nothing and open nothing", bgKey().equals(bg0) && !MrBackdrop.hasPending(s) && !MrBackdrop.hasImage(s) && !showing());
 
         // a picture: the dialog of the crop, and nothing is applied
@@ -2289,8 +2519,8 @@ public class ThemesTest {
         crop.onDraw(new Canvas(soft));
         Rect fr = crop.frame();
         int cx = (fr.left + fr.right) / 2, cy = (fr.top + fr.bottom) / 2;
-        check("the slider of the softening darkens the part inside the frame, and does not write anything", MrThemeColors.luminance(soft.getPixel(cx, cy)) < MrThemeColors.luminance(plain.getPixel(cx, cy)) - 0.01f
-                && prefs.getInt(MrBackdrop.PREF_SOFT, -1) == -1);
+        check("the slider of the softening darkens the part inside the frame, and does not write anything (the 0 is the one the landscape wrote)", MrThemeColors.luminance(soft.getPixel(cx, cy)) < MrThemeColors.luminance(plain.getPixel(cx, cy)) - 0.01f
+                && prefs.getInt(MrBackdrop.PREF_SOFT, -1) == 0);
         s.mDialogSoft.stubListener.onProgressChanged(s.mDialogSoft, 999, true);
         s.mDialogSoft.stubListener.onProgressChanged(s.mDialogSoft, 40, true);
         crop.set(bright, 250, 20, -30, 40);
@@ -2326,17 +2556,17 @@ public class ThemesTest {
                 "13".equals(themeKey()) && bgKey().equals("i200,10,20," + MrBackdrop.imageStamp(s)) && s.mSpec.kind == MrBackdrop.IMAGE);
         check("and the softening is written, because it is a picture", prefs.getInt(MrBackdrop.PREF_SOFT, -1) == 40 && s.mSoft == 40);
         check("it is loaded for the keyboard at the top and for the tiles (the small copy is at most 320)", waitFor(() -> s.mImage != null && s.mThumb != null) && s.mThumb.getWidth() <= 320 && s.mThumb.getHeight() <= 320);
-        check("my image is the tile that is chosen, the caption says so, and the remove button and the tile appear", waitFor(() -> boxOf(s.mMineTile).getVisibility() == View.VISIBLE)
-                && checkedBackground(s) == MINE && s.mCaption.getText().toString().equals("My image") && s.mRemove.getVisibility() == View.VISIBLE && checkedTheme(s) == -1);
-        check("the tile of my image shows the picture as it is placed", s.mBgTiles.get(MINE).spec().zoom == 200 && s.mBgTiles.get(MINE).spec().dx == 10);
+        check("my image is the card that is in use, the caption says so, and its card and the remove button appear in the gallery", waitFor(() -> mineThere(s))
+                && checkedBackground(s) == MINE && s.mCaption.getText().toString().equals("My image") && byText(boxOf(s.mMineTile), "In use") != null);
+        check("the card of my image shows the picture as it is placed", s.mMineTile.spec().zoom == 200 && s.mMineTile.spec().dx == 10);
 
         // a failure to apply
         String kept = bgKey();
-        s.applyBackdrop(MrBackdrop.Spec.image(100, 0, 0, 1), 0, true);
+        s.applyBackdrop(MrBackdrop.Spec.image(100, 0, 0, 1), 0, 0, true);
         check("applying a waiting picture that is not there changes nothing", bgKey().equals(kept) && themeKey().equals("13") && MrBackdrop.hasImage(s));
 
         // my image again: the crop with the picture that is kept
-        click(s.mBgTiles.get(MINE));
+        click(mine(s));
         check("touching my image opens the crop with the picture that is kept, where the frame is now", s.mDialogCrop != null && showing() && s.mDialogCrop.zoom() == 200 && s.mDialogCrop.dx() == 10 && s.mDialogCrop.dy() == 20
                 && s.mDialogSoft.getProgress() == 40);
         s.mDialogCrop.stubSize(900, 500);
@@ -2347,15 +2577,18 @@ public class ThemesTest {
         check("Next and Apply put the picture where it was moved to; the file is the same one (the time does not change) and is not copied", press("Next") && press("Apply")
                 && bgKey().startsWith("i200,") && !bgKey().startsWith("i200,10,20,") && bgKey().endsWith("," + stamp) && MrBackdrop.imageStamp(s) == stamp && !MrBackdrop.hasPending(s));
         String placed = bgKey();
-        click(s.mBgTiles.get(MINE));
+        click(mine(s));
         press("Cancel");
         check("Cancel there changes nothing, and the picture that is kept stays", bgKey().equals(placed) && MrBackdrop.hasImage(s));
 
         // a theme after the picture: the picture is kept for later
-        click(s.mThemeTiles.get(2));
-        check("a theme chosen takes the picture off the keyboard but the picture is kept: its tile and the remove button stay", "2".equals(themeKey()) && "".equals(bgKey()) && MrBackdrop.hasImage(s)
-                && boxOf(s.mMineTile).getVisibility() == View.VISIBLE && s.mRemove.getVisibility() == View.VISIBLE && checkedTheme(s) == 2 && checkedBackground(s) == -1);
-        click(s.mBgTiles.get(MINE));
+        click(th(s, 2));
+        press("Apply");
+        boolean themeIn = "2".equals(themeKey()) && "".equals(bgKey()) && MrBackdrop.hasImage(s) && checkedTheme(s) == 2;
+        tab(s, MrThemesActivity.TAB_GALLERY);
+        check("a theme chosen takes the picture off the keyboard but the picture is kept: in the gallery its card and the remove button stay, and the card is not the one in use", themeIn
+                && s.mMineTile != null && s.mRemove != null && checkedBackground(s) == -1 && byText(boxOf(s.mMineTile), "View") != null);
+        click(s.mMineTile);
         check("touching my image then opens the crop centred and not zoomed", s.mDialogCrop != null && s.mDialogCrop.zoom() == 100 && s.mDialogCrop.dx() == 0 && s.mDialogCrop.dy() == 0);
         press("Next");
         press("Apply");
@@ -2366,11 +2599,13 @@ public class ThemesTest {
         s.unreadable = true;
         s.onActivityResult(71, Activity.RESULT_OK, new Chosen(new android.net.Uri()));
         Thread.sleep(150);
+        pump();
         s.unreadable = false;
         check("a document that cannot be opened: no dialog, nothing waiting, the choice stays", s.mDialog == null && !MrBackdrop.hasPending(s) && bgKey().equals(now) && MrBackdrop.hasImage(s));
         BitmapFactory.stubFail = true;
         s.onActivityResult(71, Activity.RESULT_OK, new Chosen(new android.net.Uri()));
         Thread.sleep(150);
+        pump();
         BitmapFactory.stubFail = false;
         check("a file that is not a picture: the same, and the picture that is kept stays", s.mDialog == null && !MrBackdrop.hasPending(s) && bgKey().equals(now) && MrBackdrop.hasImage(s));
         check("a picture, and the screen is closing when it is read: it is let go and no dialog opens",
@@ -2383,17 +2618,18 @@ public class ThemesTest {
         // a screen opened again with the picture kept
         Screen again = open();
         check("opened again: the choice is the one kept, and the picture loads", again.mSpec.kind == MrBackdrop.IMAGE && waitFor(() -> again.mImage != null && again.mThumb != null)
-                && again.mRemove.getVisibility() == View.VISIBLE);
+                && again.mTab == MrThemesActivity.TAB_GALLERY && again.mRemove != null && again.mMineTile != null);
         again.onDestroy();
 
         // remove
         final Screen r = open();
-        waitFor(() -> boxOf(r.mMineTile).getVisibility() == View.VISIBLE);
+        waitFor(() -> r.mMineTile != null);
         r.removeImage();
+        tab(r, MrThemesActivity.TAB_GALLERY);
         check("remove while the picture is the background: the file is gone, the keyboard goes to the first theme with no background", !MrBackdrop.hasImage(r) && "0".equals(themeKey()) && "".equals(bgKey())
-                && r.mSpec.kind == MrBackdrop.NONE && r.mImage == null && r.mThumb == null && checkedTheme(r) == 0);
-        check("the remove button and the tile of my image are hidden again", r.mRemove.getVisibility() == View.GONE && boxOf(r.mMineTile).getVisibility() == View.INVISIBLE);
-        check("my image touched when there is none opens nothing", !clickAndShowing(r, MINE));
+                && r.mSpec.kind == MrBackdrop.NONE && r.mImage == null && r.mThumb == null && r.mTheme == 0);
+        check("the remove button and the card of my image are gone, and the card that picks a photo stays", r.mRemove == null && r.mMineTile == null && byText(r.content, "Choose a photo") != null
+                && byText(r.content, "My image") == null);
         check("a picture again", choose(r) && press("Next") && press("Apply") && waitFor(() -> r.mImage != null && MrBackdrop.hasImage(r)));
         apply(r, FIRST_SCENE + 2);
         r.removeImage();
@@ -2409,14 +2645,20 @@ public class ThemesTest {
         s.finishing = true;
         s.onActivityResult(71, Activity.RESULT_OK, new Chosen(new android.net.Uri()));
         Thread.sleep(200);
+        pump();
         s.finishing = false;
         return true;
     }
 
-    static boolean clickAndShowing(Screen s, int tile) {
-        Dialog before = Dialog.stubLast;
-        click(s.mBgTiles.get(tile));
-        return Dialog.stubLast != before && Dialog.stubLast.stubShowing;
+    /** The card of my image and the remove button are there on the gallery tab (its posted steps run first). */
+    static boolean mineThere(Screen s) {
+        tab(s, MrThemesActivity.TAB_GALLERY);
+        return s.mMineTile != null && s.mRemove != null;
+    }
+
+    static MrThemePreview mine(Screen s) {
+        tab(s, MrThemesActivity.TAB_GALLERY);
+        return s.mMineTile;
     }
 
     // ---------------------------------------------------------------- the row of the settings
@@ -2478,13 +2720,14 @@ public class ThemesTest {
     }
 
     static void files() throws Exception {
-        List<String> list = new ArrayList<String>(java.util.Arrays.asList("mr_themes_title", "mr_themes_themes", "mr_themes_colors", "mr_themes_color", "mr_themes_landscapes", "mr_themes_gradients",
+        List<String> list = new ArrayList<String>(java.util.Arrays.asList("mr_themes_title", "mr_themes_themes", "mr_themes_colors", "mr_themes_color", "mr_themes_gradients",
                 "mr_themes_gallery", "mr_themes_mine", "mr_themes_soften", "mr_themes_soften_hint", "mr_themes_remove", "mr_themes_image_failed", "mr_themes_gradient", "mr_themes_cancel",
-                "mr_themes_apply", "mr_themes_next", "mr_themes_crop_hint"));
+                "mr_themes_apply", "mr_themes_next", "mr_themes_crop_hint", "mr_themes_current", "mr_themes_view", "mr_themes_in_use", "mr_themes_choose", "mr_themes_photo", "mr_themes_keys"));
+        for (int i = 0; i < MrBackdrop.STYLES; i++) list.add("mr_themes_style_" + i);
         for (int i = 0; i < MrScenes.CATEGORIES; i++) list.add("mr_themes_scene_cat_" + i);
         for (int i = 0; i < MrScenes.COUNT; i++) list.add("mr_themes_scene_" + i);
         String[] names = list.toArray(new String[0]);
-        check("the screen has 59 texts: the 17 of the screen, the 6 categories and the 36 landscapes", names.length == 59 && MrScenes.COUNT == 36 && MrScenes.CATEGORIES == 6);
+        check("the screen has 70 texts: the 22 of the screen, the 6 styles of the keys, the 6 categories and the 36 landscapes", names.length == 70 && MrScenes.COUNT == 36 && MrScenes.CATEGORIES == 6);
         boolean all = true;
         for (String lang : new String[] {"en", "es", "pt-rBR"}) {
             Map<String, String> m = lang.equals("en") ? STRINGS : LANG.get(lang);
@@ -2498,7 +2741,7 @@ public class ThemesTest {
                     System.out.println("      " + lang + " " + n + " has no number");
                 }
             }
-            for (String gone : new String[] {"mr_themes_backgrounds", "mr_themes_none", "mr_themes_zoom", "mr_themes_drag"}) {
+            for (String gone : new String[] {"mr_themes_backgrounds", "mr_themes_none", "mr_themes_zoom", "mr_themes_drag", "mr_themes_landscapes"}) {
                 if (m.get(gone) != null) {
                     all = false;
                     System.out.println("      " + lang + " still has " + gone);
@@ -2507,7 +2750,8 @@ public class ThemesTest {
         }
         check("every text is there in English, Spanish and Portuguese, the gradient and the colour have their number in each, and the texts of the old screen are gone", all);
         boolean distinct = true;
-        for (String n : new String[] {"mr_themes_colors", "mr_themes_cancel", "mr_themes_apply", "mr_themes_next", "mr_themes_crop_hint", "mr_themes_soften_hint"}) {
+        for (String n : new String[] {"mr_themes_colors", "mr_themes_cancel", "mr_themes_apply", "mr_themes_next", "mr_themes_crop_hint", "mr_themes_soften_hint", "mr_themes_current", "mr_themes_in_use",
+                "mr_themes_choose", "mr_themes_photo", "mr_themes_keys", "mr_themes_style_0", "mr_themes_style_2", "mr_themes_style_3", "mr_themes_style_4"}) {
             if (LANG.get("es").get(n).equals(STRINGS.get(n)) || LANG.get("pt-rBR").get(n).equals(STRINGS.get(n))) {
                 distinct = false;
                 System.out.println("      " + n + " is not translated");
@@ -2515,9 +2759,9 @@ public class ThemesTest {
         }
         check("the new texts are translated, not copied", distinct);
 
-        // the two themes of the backgrounds: layouts, key faces, the entries of the lists
+        // the seven themes of the backgrounds: layouts, key faces, the entries of the lists
         boolean themeFiles = true;
-        for (String t : new String[] {"overlight", "overdark"}) {
+        for (String t : new String[] {"overlight", "overdark", "overline", "overshade", "overslate", "overblue", "overviolet"}) {
             for (String f : new String[] {"res/layout/input_mr_" + t + ".xml", "res/layout/input_popup_" + t + ".xml", "res/layout/key_preview_" + t + ".xml",
                     "res/drawable/btn_keyboard_key_" + t + ".xml", "res/drawable/btn_keyboard_key_" + t + "_accent.xml"}) {
                 if (!new File(f).isFile()) {
@@ -2526,9 +2770,15 @@ public class ThemesTest {
                 }
             }
         }
-        check("the two themes of the backgrounds are complete (layouts, popup, key preview and key faces)", themeFiles);
+        check("the seven themes of the backgrounds are complete (layouts, popup, key preview and key faces)", themeFiles);
         String arrays = read("res/values/arrays.xml");
-        check("they are in the lists of themes after the thirteen of the list", arrays.contains("mr_overlight") && arrays.indexOf("mr_overlight") > arrays.indexOf("mr_denim") && arrays.indexOf("mr_overdark") > arrays.indexOf("mr_overlight"));
+        boolean ordered = arrays.indexOf("mr_overlight") > arrays.indexOf("mr_denim") && arrays.indexOf("mr_overdark") > arrays.indexOf("mr_overlight");
+        String before = "mr_overdark";
+        for (String t : new String[] {"mr_overline", "mr_overshade", "mr_overslate", "mr_overblue", "mr_overviolet"}) {
+            if (arrays.indexOf(t) <= arrays.indexOf(before)) ordered = false;
+            before = t;
+        }
+        check("they are in the lists of themes after the thirteen of the list, in the order of the values (13 to 19)", arrays.contains("mr_overlight") && ordered);
         check("the class of the crop (MrCropView) is in the build list and its smali is there", read("docs/tools/build_java.sh").contains("MrCropView") && new File("smali/com/mrkeyboard/app/MrCropView.smali").isFile());
 
         String manifest = read("AndroidManifest.xml");

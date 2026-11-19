@@ -7,4 +7,5 @@ public class PreferenceManager {
     }
     public PreferenceScreen createPreferenceScreen(android.content.Context context) { return null; }
     public void setSharedPreferencesName(String name) { }
+    public android.content.SharedPreferences getSharedPreferences() { return null; }   // the stub of Preference (docs/tools/java/stubs) asks for it
 }

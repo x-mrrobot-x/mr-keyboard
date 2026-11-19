@@ -20,7 +20,7 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$index:I
+.field final synthetic val$tab:I
 
 
 # direct methods
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 141
+    .line 189
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->val$index:I
+    iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->val$tab:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,13 +49,22 @@
     .locals 2
 
     .prologue
-    .line 143
+    .line 191
+    iget v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->val$tab:I
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+
+    iget v1, v1, Lcom/mrkeyboard/app/MrThemesActivity;->mTab:I
+
+    if-eq v0, v1, :cond_0
+
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->val$index:I
+    iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->val$tab:I
 
-    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrThemesActivity;->chooseTheme(I)V
+    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrThemesActivity;->showTab(I)V
 
-    .line 144
+    .line 192
+    :cond_0
     return-void
 .end method
