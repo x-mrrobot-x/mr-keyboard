@@ -1,11 +1,15 @@
 package com.mrkeyboard.app;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.inputmethodservice.InputMethodService;
+import android.os.Build;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.Window;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -18,7 +22,8 @@ import java.util.regex.Pattern;
  * from the settings (navigation_mode, the resource, the settings of Samsung and Xiaomi), the pixels by the density, the height that is left
  * to the rows of keys (the space is part of the height of the keyboard: the keys give way by the same amount), the padding of the view that
  * holds the toolbar and the keys (once, and again when the way of navigating changes), what happens when Android answers with an error, the new
- * default heights (the keys keep their size) and the places of the code that call it.
+ * default heights (the keys keep their size), the navigation bar that shows the background of the theme (transparent, without the veil of
+ * the three buttons, from Android 15 on) and the places of the code that call it.
  */
 public class BottomSpaceTest {
     static int ok, fail;
@@ -42,6 +47,21 @@ public class BottomSpaceTest {
         public java.io.File getFilesDir() { return null; }
         public java.io.File getCacheDir() { return null; }
         public void startActivity(android.content.Intent i) { }
+    }
+
+    /** The window of the keyboard: remembers what it was asked (the stub of Window keeps the colour of the bar and its veil). */
+    static class Ime extends InputMethodService {
+        final Window window;
+        final boolean noDialog;
+        Ime(Window window, boolean noDialog) { this.window = window; this.noDialog = noDialog; }
+        public Dialog getWindow() {
+            if (noDialog) return null;
+            return new Dialog(null, 0) { public Window getWindow() { return window; } };
+        }
+    }
+
+    static class BrokenIme extends InputMethodService {
+        public Dialog getWindow() { throw new IllegalStateException("window not ready"); }
     }
 
     static void settings(String navigationMode, String samsung, String xiaomi) {
@@ -147,18 +167,52 @@ public class BottomSpaceTest {
         String prefs = read("res/xml/prefs.xml");
         check("the setting still goes from 15% to 75% in steps of 1", prefs.contains("settings_height_portrait") && prefs.contains("hk:maxValue=\"75.0\"") && prefs.contains("hk:minValue=\"15.0\""));
 
+        // ---- the navigation bar under the keyboard: the background of the theme shows through it
+        Window win = new Window();
+        Ime ime0 = new Ime(win, false);
+        Build.VERSION.SDK_INT = 34;
+        MrBottom.bar(ime0);
+        check("Android 14: nothing is asked (the system paints its own bar under the window there)", win.stubBarCalls == 0 && win.stubNavigationBarColor == 0xff000000 && win.stubNavigationBarContrastEnforced);
+        Build.VERSION.SDK_INT = 35;
+        MrBottom.bar(ime0);
+        check("Android 15: the bar is transparent", win.stubNavigationBarColor == 0);
+        check("... and without the veil of the three buttons", !win.stubNavigationBarContrastEnforced);
+        win.stubNavigationBarColor = 0xff000000;
+        win.stubNavigationBarContrastEnforced = true;
+        Build.VERSION.SDK_INT = 37;
+        MrBottom.bar(ime0);
+        check("Android 17: the same, again when it is asked again (a window that was made again has the defaults)", win.stubNavigationBarColor == 0 && !win.stubNavigationBarContrastEnforced);
+        MrBottom.bar(null);
+        MrBottom.bar(new Ime(null, false));
+        MrBottom.bar(new Ime(null, true));
+        MrBottom.bar(new BrokenIme());
+        check("no service, no dialog, no window or a window that is not ready: nothing happens, no exception", true);
+        Build.VERSION.SDK_INT = 35;
+
         // ---- the places of the code
         String ime = read("smali/com/mrkeyboard/app/LatinIME.smali");
         int apply = index(ime, "Lcom/mrkeyboard/app/MrBottom;->apply(Landroid/view/View;)V");
         int insets = index(ime, "Lcom/mrkeyboard/app/ImeInsets;->apply(Landroid/view/View;)V");
         check("LatinIME.setInputView adds the space to the view", apply > 0);
         check("... before ImeInsets, which takes the padding it finds as its base and adds the bars of the system on top", apply > 0 && insets > apply);
+        int setView = index(ime, ".method public setInputView(Landroid/view/View;)V");
+        String viewBody = setView > 0 ? ime.substring(setView, ime.indexOf(".end method", setView)) : "";
+        int bars = index(viewBody, "Lcom/mrkeyboard/app/MrLight;->bars(Landroid/inputmethodservice/InputMethodService;I)V");
+        int bar = index(viewBody, "Lcom/mrkeyboard/app/MrBottom;->bar(Landroid/inputmethodservice/InputMethodService;)V");
+        check("LatinIME.setInputView asks for the transparent bar, after the colour of the buttons and inside the Android 15 block",
+                bars > 0 && bar > bars && bar < index(viewBody, "invoke-super {p0, p1}, Landroid/inputmethodservice/InputMethodService;->setInputView(Landroid/view/View;)V")
+                && viewBody.lastIndexOf(":cond_1") > bar);
+        int shown = index(ime, ".method public onWindowShown()V");
+        int shownEnd = ime.indexOf(".end method", shown);
+        String shownBody = shown > 0 ? ime.substring(shown, shownEnd) : "";
+        check("... and again in onWindowShown, after the call of the system", shownBody.contains("MrBottom;->bar(Landroid/inputmethodservice/InputMethodService;)V") && shownBody.indexOf("MrBottom;->bar") > shownBody.indexOf("InputMethodService;->onWindowShown()V"));
         String kbd = read("smali/com/mrkeyboard/app/Keyboard.smali");
         check("the Keyboard takes the space out of the height of its rows (MrBottom.keysHeight)",
                 kbd.contains("Lcom/mrkeyboard/app/MrBottom;->keysHeight(Landroid/content/Context;I)I"));
         int round = index(kbd, "mKeyboardHeight:I");
         check("... where it is made, before the height is kept", round > 0 && index(kbd, "MrBottom;->keysHeight") > 0 && index(kbd, "MrBottom;->keysHeight") < index(kbd, "iput p2, p0, Lcom/mrkeyboard/app/Keyboard;->mKeyboardHeight:I"));
         check("the doc says what is done and why", read("docs/bottom-space.md").contains("32 dp") && read("docs/bottom-space.md").contains("10 dp"));
+        check("the doc says what the navigation bar does", read("docs/bottom-space.md").contains("transparent") && read("docs/bottom-space.md").contains("contrast"));
 
         System.out.println();
         System.out.println(ok + " ok, " + fail + " fail");

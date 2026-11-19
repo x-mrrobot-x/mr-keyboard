@@ -3,6 +3,14 @@
 .source "MrBottom.java"
 
 
+# annotations
+.annotation system Ldalvik/annotation/MemberClasses;
+    value = {
+        Lcom/mrkeyboard/app/MrBottom$Api29;
+    }
+.end annotation
+
+
 # static fields
 .field private static final APPLIED:Ljava/util/WeakHashMap;
     .annotation system Ldalvik/annotation/Signature;
@@ -17,6 +25,8 @@
 .end field
 
 .field static final BUTTONS_DP:F = 4.0f
+
+.field static final EDGE_TO_EDGE_SDK:I = 0x23
 
 .field static final GESTURE_DP:F = 10.0f
 
@@ -38,7 +48,7 @@
     .locals 1
 
     .prologue
-    .line 45
+    .line 55
     new-instance v0, Ljava/util/WeakHashMap;
 
     invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
@@ -52,7 +62,7 @@
     .locals 0
 
     .prologue
-    .line 47
+    .line 57
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -64,19 +74,19 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 115
+    .line 125
     if-eqz p0, :cond_0
 
     instance-of v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;
 
     if-eqz v0, :cond_1
 
-    .line 125
+    .line 135
     :cond_0
     :goto_0
     return-void
 
-    .line 117
+    .line 127
     :cond_1
     :try_start_0
     invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -87,7 +97,7 @@
 
     move-result v2
 
-    .line 118
+    .line 128
     sget-object v0, Lcom/mrkeyboard/app/MrBottom;->APPLIED:Ljava/util/WeakHashMap;
 
     invoke-virtual {v0, p0}, Ljava/util/WeakHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -96,7 +106,7 @@
 
     check-cast v0, Ljava/lang/Integer;
 
-    .line 119
+    .line 129
     invoke-virtual {p0}, Landroid/view/View;->getPaddingBottom()I
 
     move-result v3
@@ -108,7 +118,7 @@
     :goto_1
     sub-int v0, v3, v0
 
-    .line 120
+    .line 130
     invoke-virtual {p0}, Landroid/view/View;->getPaddingLeft()I
 
     move-result v1
@@ -131,7 +141,7 @@
 
     invoke-virtual {p0, v1, v3, v4, v0}, Landroid/view/View;->setPadding(IIII)V
 
-    .line 121
+    .line 131
     sget-object v0, Lcom/mrkeyboard/app/MrBottom;->APPLIED:Ljava/util/WeakHashMap;
 
     invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
@@ -142,13 +152,13 @@
 
     goto :goto_0
 
-    .line 122
+    .line 132
     :catch_0
     move-exception v0
 
     goto :goto_0
 
-    .line 119
+    .line 129
     :cond_2
     invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
     :try_end_0
@@ -159,11 +169,66 @@
     goto :goto_1
 .end method
 
+.method public static bar(Landroid/inputmethodservice/InputMethodService;)V
+    .locals 2
+
+    .prologue
+    .line 144
+    if-eqz p0, :cond_0
+
+    sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
+
+    const/16 v1, 0x23
+
+    if-ge v0, v1, :cond_1
+
+    .line 152
+    :cond_0
+    :goto_0
+    return-void
+
+    .line 146
+    :cond_1
+    :try_start_0
+    invoke-virtual {p0}, Landroid/inputmethodservice/InputMethodService;->getWindow()Landroid/app/Dialog;
+
+    move-result-object v0
+
+    .line 147
+    if-nez v0, :cond_2
+
+    const/4 v0, 0x0
+
+    .line 148
+    :goto_1
+    if-eqz v0, :cond_0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrBottom$Api29;->transparentBar(Landroid/view/Window;)V
+
+    goto :goto_0
+
+    .line 149
+    :catch_0
+    move-exception v0
+
+    goto :goto_0
+
+    .line 147
+    :cond_2
+    invoke-virtual {v0}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+
+    move-result-object v0
+
+    goto :goto_1
+.end method
+
 .method static gapDp(Z)F
     .locals 1
 
     .prologue
-    .line 83
+    .line 93
     if-eqz p0, :cond_0
 
     const/high16 v0, 0x41200000    # 10.0f
@@ -181,7 +246,7 @@
     .locals 2
 
     .prologue
-    .line 89
+    .line 99
     :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
@@ -193,7 +258,7 @@
 
     iget v0, v0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 90
+    .line 100
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBottom;->gestures(Landroid/content/Context;)Z
 
     move-result v1
@@ -210,15 +275,15 @@
 
     move-result v0
 
-    .line 92
+    .line 102
     :goto_0
     return v0
 
-    .line 91
+    .line 101
     :catch_0
     move-exception v0
 
-    .line 92
+    .line 102
     const/4 v0, 0x0
 
     goto :goto_0
@@ -230,13 +295,13 @@
     .prologue
     const/4 v0, -0x1
 
-    .line 59
+    .line 69
     :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
 
     move-result-object v1
 
-    .line 60
+    .line 70
     const-string v2, "navigation_mode"
 
     const/4 v3, -0x1
@@ -245,14 +310,14 @@
 
     move-result v2
 
-    .line 62
+    .line 72
     if-gez v2, :cond_0
 
     invoke-static {}, Lcom/mrkeyboard/app/MrBottom;->resourceMode()I
 
     move-result v0
 
-    .line 63
+    .line 73
     :cond_0
     const-string v3, "navigation_bar_gesture_while_hidden"
 
@@ -262,7 +327,7 @@
 
     move-result v3
 
-    .line 64
+    .line 74
     const-string v4, "force_fsg_nav_bar"
 
     const/4 v5, -0x1
@@ -271,22 +336,22 @@
 
     move-result v1
 
-    .line 65
+    .line 75
     invoke-static {v2, v0, v3, v1}, Lcom/mrkeyboard/app/MrBottom;->gesturesFrom(IIII)Z
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
     move-result v0
 
-    .line 67
+    .line 77
     :goto_0
     return v0
 
-    .line 66
+    .line 76
     :catch_0
     move-exception v0
 
-    .line 67
+    .line 77
     const/4 v0, 0x0
 
     goto :goto_0
@@ -302,17 +367,17 @@
 
     const/4 v0, 0x1
 
-    .line 51
+    .line 61
     if-eq p2, v0, :cond_0
 
     if-ne p3, v0, :cond_1
 
-    .line 53
+    .line 63
     :cond_0
     :goto_0
     return v0
 
-    .line 52
+    .line 62
     :cond_1
     if-ltz p0, :cond_2
 
@@ -322,7 +387,7 @@
 
     goto :goto_0
 
-    .line 53
+    .line 63
     :cond_2
     if-eq p1, v2, :cond_0
 
@@ -335,12 +400,12 @@
     .locals 2
 
     .prologue
-    .line 101
+    .line 111
     if-lez p0, :cond_0
 
     if-gtz p1, :cond_1
 
-    .line 102
+    .line 112
     :cond_0
     :goto_0
     return p0
@@ -363,7 +428,7 @@
     .locals 1
 
     .prologue
-    .line 107
+    .line 117
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBottom;->gapPx(Landroid/content/Context;)I
 
     move-result v0
@@ -381,13 +446,13 @@
     .prologue
     const/4 v0, -0x1
 
-    .line 73
+    .line 83
     :try_start_0
     invoke-static {}, Landroid/content/res/Resources;->getSystem()Landroid/content/res/Resources;
 
     move-result-object v1
 
-    .line 74
+    .line 84
     const-string v2, "config_navBarInteractionMode"
 
     const-string v3, "integer"
@@ -398,14 +463,14 @@
 
     move-result v2
 
-    .line 75
+    .line 85
     if-nez v2, :cond_0
 
-    .line 77
+    .line 87
     :goto_0
     return v0
 
-    .line 75
+    .line 85
     :cond_0
     invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getInteger(I)I
     :try_end_0
@@ -415,7 +480,7 @@
 
     goto :goto_0
 
-    .line 76
+    .line 86
     :catch_0
     move-exception v1
 

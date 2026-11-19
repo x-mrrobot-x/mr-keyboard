@@ -3,8 +3,11 @@ package com.mrkeyboard.app;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
+import android.inputmethodservice.InputMethodService;
+import android.os.Build;
 import android.provider.Settings;
 import android.view.View;
+import android.view.Window;
 
 import java.util.WeakHashMap;
 
@@ -20,6 +23,10 @@ import java.util.WeakHashMap;
  * "Keyboard height" gives (the keys give way by the same amount, so the keyboard keeps the height the person chose), and {@link #apply}
  * adds it as bottom padding of the view that holds the toolbar and the keys (it has the background of the theme, so the space is painted
  * like the keyboard). From Android 15 on ImeInsets adds the system bar on top of it.
+ * <p>
+ * From Android 15 on the keyboard is drawn under the navigation bar, and with the three buttons the system puts a veil of its own on that
+ * bar (80% of an opaque colour, so the bar looks like a band of another shade under the keyboard). {@link #bar} asks the window of the
+ * keyboard for a transparent bar and no veil, so the buttons sit on the background of the theme, as they do with Gboard.
  * <p>
  * The way of navigating is <code>Settings.Secure navigation_mode</code> (0 three buttons, 1 two, 2 gestures; the same value as the
  * resource <code>config_navBarInteractionMode</code>); Samsung and Xiaomi have settings of their own for their full-screen gestures.
@@ -37,6 +44,9 @@ public final class MrBottom {
     /** Settings.Global of the full-screen gestures of Samsung (One UI) and of Xiaomi (MIUI/HyperOS): 1 = on. */
     static final String SAMSUNG_GESTURES = "navigation_bar_gesture_while_hidden";
     static final String XIAOMI_GESTURES = "force_fsg_nav_bar";
+
+    /** From this Android on the keyboard is drawn under the navigation bar (LatinIME.setInputView calls ImeInsets), so the bar can show it. */
+    static final int EDGE_TO_EDGE_SDK = 35;
 
     /** The keys never give up more than half of their share of the screen, whatever the space. */
     static final int MIN_KEYS_PERCENT = 50;
@@ -121,6 +131,33 @@ public final class MrBottom {
             APPLIED.put(root, Integer.valueOf(gap));
         } catch (RuntimeException e) {
             // Without it the keyboard is as it was: the last row at the edge of the window.
+        }
+    }
+
+    /**
+     * Lets the navigation bar of the system show the background of the keyboard theme: transparent, and without the veil that Android 15 puts
+     * on the three buttons (the "contrast" of the bar). Only from Android 15 on, where the keyboard reaches under the bar; before it the
+     * system paints its own bar under the window. The window keeps the values, but it is asked again when it is shown, because a window
+     * that is made again by the system has the defaults.
+     */
+    public static void bar(InputMethodService ime) {
+        if (ime == null || Build.VERSION.SDK_INT < EDGE_TO_EDGE_SDK) return;
+        try {
+            android.app.Dialog dialog = ime.getWindow();
+            Window w = dialog == null ? null : dialog.getWindow();
+            if (w != null) Api29.transparentBar(w);
+        } catch (Throwable t) {
+            // a keyboard with the bar of the system is still a keyboard
+        }
+    }
+
+    /** The call of Android 10, apart so that this class loads on any Android. */
+    static final class Api29 {
+        private Api29() { }
+
+        static void transparentBar(Window w) {
+            w.setNavigationBarColor(0);                 // Color.TRANSPARENT
+            w.setNavigationBarContrastEnforced(false);
         }
     }
 }

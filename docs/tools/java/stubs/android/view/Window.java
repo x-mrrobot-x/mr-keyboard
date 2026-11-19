@@ -13,5 +13,12 @@ public class Window {
     public android.view.WindowInsetsController getInsetsController() { return null; }
     /** Flags kept so that the PC tests can read what a screen asked for (Window.setFlags: new value under a mask). */
     public int stubFlags;
+    /** Not in Android: what the navigation bar was asked for last (the colour, and the veil of API 29 that the system puts on three buttons). */
+    public int stubNavigationBarColor = 0xff000000;
+    public boolean stubNavigationBarContrastEnforced = true;
+    public int stubBarCalls;
+    public void setNavigationBarColor(int color) { stubNavigationBarColor = color; stubBarCalls++; }
+    /** API 29. */
+    public void setNavigationBarContrastEnforced(boolean enforce) { stubNavigationBarContrastEnforced = enforce; stubBarCalls++; }
     public void setFlags(int flags, int mask) { stubFlags = (stubFlags & ~mask) | (flags & mask); }
 }

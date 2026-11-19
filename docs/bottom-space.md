@@ -20,6 +20,18 @@ navigates in Android.
 From Android 15 on the keyboard is drawn under the system bar and `ImeInsets` adds the height of the bar on top of this space. Before
 that the window already ends above the bar, and this space is all there is under the keys.
 
+## The navigation bar takes the color of the theme
+
+With the three buttons the bar of the system sits under the keyboard. From Android 15 on the keyboard is drawn under that bar, and the
+system puts a veil on it (80% of an opaque color, the "contrast" of the bar), so the bar looks like a band of another shade under the
+keys. `MrBottom.bar` asks the window of the keyboard for a **transparent** bar and **no contrast veil**
+(`setNavigationBarColor(TRANSPARENT)` and `setNavigationBarContrastEnforced(false)`), so the buttons sit on the background of the theme,
+the same color (or gradient) as the rest of the keyboard, as they do with Gboard. The color of the buttons (dark or light) already follows
+the theme (`MrLight.bars`). It is asked when the keyboard view is put in the window and again when the window is shown.
+
+Before Android 15 the window ends above the bar and the system paints its own bar there, so nothing is asked. With the home gesture the
+bar is already transparent, so the request changes nothing there.
+
 ## Where it is
 
 `MrBottom` (Java layer) decides the space and does two things with it:

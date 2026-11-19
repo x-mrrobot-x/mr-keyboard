@@ -10286,6 +10286,9 @@
 
     invoke-super {p0}, Landroid/inputmethodservice/InputMethodService;->onWindowShown()V
 
+    # Asked again when the window is shown: a window that the system made again has the bar and the veil of the system (MrBottom)
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrBottom;->bar(Landroid/inputmethodservice/InputMethodService;)V
+
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->resetSheetToAbc()V
 
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->applyTranslucentBlur()V
@@ -14621,6 +14624,9 @@
     sget v0, Lcom/mrkeyboard/app/MrTools;->sTextColor:I
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrLight;->bars(Landroid/inputmethodservice/InputMethodService;I)V
+
+    # The bar of the system under the keyboard shows the background of the theme, without the veil of the three buttons (MrBottom)
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrBottom;->bar(Landroid/inputmethodservice/InputMethodService;)V
 
     :cond_1
     invoke-super {p0, p1}, Landroid/inputmethodservice/InputMethodService;->setInputView(Landroid/view/View;)V
