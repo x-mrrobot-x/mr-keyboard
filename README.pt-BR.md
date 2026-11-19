@@ -22,7 +22,7 @@
 <img src=".github/preview-chrome.jpg" width="32%" alt="Mr Keyboard com o tema Chrome">
 <img src=".github/preview-aurora.jpg" width="32%" alt="Mr Keyboard com o tema Aurora">
 
-<sub>Midnight Steel (padrão) · Chrome · Aurora, três dos quinze temas</sub>
+<sub>Midnight Steel (padrão) · Chrome · Aurora, três dos quatorze temas</sub>
 
 </div>
 
@@ -34,7 +34,7 @@
 - **Comandos do Tasker:** uma tecla pode disparar uma tarefa do Tasker em vez de digitar ([como](#integração-com-o-tasker)).
 - **Gestos:** deslizar para cima, baixo, esquerda ou direita, e as teclas de volume, executam ações do teclado (por padrão, esquerda e direita trocam de folha). O deslize para os lados vale pela distância, não pela velocidade. [Detalhes](docs/swipe-actions.md) (em inglês).
 - **Apagar por palavra (desde a 2.0.0):** com o Ctrl ativo, a tecla apagar remove uma palavra por toque e, segurando, vai palavra por palavra no intervalo que você definir. O **Ctrl + Z** devolve as palavras uma por vez e o **Ctrl + Y** apaga de novo a que voltou (ficam guardadas por 2 minutos). Vem ligado; *Configurações → Toque e gestos → Apagar por palavra*. [Detalhes](docs/word-delete.md) (em inglês).
-- **O seu visual:** quinze temas, espaçamento e arredondamento das teclas, tamanho dos rótulos, altura do teclado (retrato e paisagem) e altura da barra. Toque longo, força da vibração, volume do clique e prévia das teclas são ajustáveis.
+- **O seu visual:** quatorze temas, espaçamento e arredondamento das teclas, tamanho dos rótulos, altura do teclado (retrato e paisagem) e altura da barra. Toque longo, força da vibração, volume do clique e prévia das teclas são ajustáveis.
 
 ### Barra de ferramentas
 - **Área de transferência:** histórico do que você copiou; toque para inserir, segure para apagar.
@@ -55,7 +55,7 @@
 - **Capitalização automática** (vem ligada) e **entrada de voz**.
 
 ### Temas
-Quinze temas: **Midnight Steel** (o padrão); os neon **Aurora** (as teclas mudam de tom ao longo do teclado), **Neon Cyan**, **Neon Purple**, **Neon Pink**, **Synthwave**, **Neon Violet** (teclas índigo, destaques violeta) e **Neon Teal** (teclas verde-água, destaques verdes); os claros **Aqua**, **Sky** (azul claro, com as letras em azul suave da sua referência), **Snow** e **Rose**; **Chrome** (teclas prateadas sobre azul-marinho); **Cobalt Glass** (translúcido) e **Denim**, os dois com blur de fundo no Android 12 ou mais novo. Ctrl, Alt e Shift mostram o estado com um pequeno traço colorido (Shift: inativo, ativo, travado). Como criar um tema: [docs/new-theme.md](docs/new-theme.md) (em inglês).
+Quatorze temas: **Midnight Steel** (o padrão); os neon **Aurora** (as teclas mudam de tom ao longo do teclado), **Neon Cyan**, **Neon Purple**, **Neon Pink**, **Synthwave** e **Neon Teal** (teclas de vidro em verde-água); os claros **Aqua**, **Sky** (azul claro, com as letras em azul suave da sua referência), **Snow** e **Rose**; **Chrome** (teclas prateadas sobre azul-marinho); **Cobalt Glass** (translúcido) e **Denim**, os dois com blur de fundo no Android 12 ou mais novo. Ctrl, Alt e Shift mostram o estado com um pequeno traço colorido (Shift: inativo, ativo, travado). Como criar um tema: [docs/new-theme.md](docs/new-theme.md) (em inglês).
 
 ### O app
 - **Idiomas:** português, inglês e espanhol; segue o idioma do sistema ou escolha em *Configurações → Geral → Idioma do app*.

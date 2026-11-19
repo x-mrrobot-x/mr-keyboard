@@ -316,15 +316,21 @@ def key_selector(t, accent):
 #             of 11, the same for the preview bubble and the popup of variants). Less to draw, and less glare around the tube
 #   flat      the tools take the roles of the flat themes (flag FLAT_BAR): tabs, cards and icons painted from the alpha_* and panel_*
 #             roles, as in Midnight Steel and the light themes, instead of the older look (half opacity for what is off)
+#   face      None, or (top, bottom): the colors of the face of a letter key at rest, when it is not the hue mixed into the background
+#             (a glass key filled with its own color). A key that is touched, on or locked has the hue added over it
+#   acc_face  the same for the highlight keys (None = the hue `accent`/`key` mixed into the background)
+#   soft      strength of the light of the halo and of the bands inside the tube, 0..1 (1 = a neon tube; less = a glass key
+#             with a thin edge)
 #   roles     None, or {role: color} for a theme whose tools are chosen, not derived (Aurora: every color of the bar and the
 #             panels is a step of one scale of indigo): each entry replaces the derived color of that role or declares one that
 #             only has a default (NEON_OWN_ROLES). A color is '#rrggbb', or '#aarrggbb' where the opacity matters
 # ---------------------------------------------------------------------------------------------------------------
-Neon = collections.namedtuple('Neon', 'tag name bg key accent core text spectrum glow lite flat roles')
+Neon = collections.namedtuple('Neon', 'tag name bg key accent core text spectrum glow lite flat roles face acc_face soft')
 
 
-def neon(tag, name, bg, key, accent=None, core=None, text=None, spectrum=None, glow=1.0, lite=False, flat=False, roles=None):
-    return Neon(tag, name, bg, key, accent, core, text, spectrum, glow, lite, flat, roles or {})
+def neon(tag, name, bg, key, accent=None, core=None, text=None, spectrum=None, glow=1.0, lite=False, flat=False, roles=None,
+         face=None, acc_face=None, soft=1.0):
+    return Neon(tag, name, bg, key, accent, core, text, spectrum, glow, lite, flat, roles or {}, face, acc_face, soft)
 
 
 # The tools of a neon theme that chooses them (the field `roles`) are steps of ONE scale: the hue of what is not a key, from the
@@ -400,36 +406,23 @@ PINK = collections.OrderedDict([
     ('892', '#ffc9e7'),   # the text
 ])
 
-# Neon Violet and Neon Teal (the two pictures of a violet and a teal keyboard): the recipe of Purple and Cyan in their hue. VIOLET is the
-# one of Purple (the key over the background at 5.5%, 11%, 18%, 36% and 45%), TEAL the one of Cyan (4%, 8%, 15%, 30% and 34%, for a hue
-# that the eye sees brighter). The faces of the highlight keys (the selected row, a marked file) are taken in the hue of THEIR keys: the
-# violet of Violet (26% of it over the background) and the green of Teal (21%), which is what the highlight keys have at rest.
-VIOLET = collections.OrderedDict([
-    ('127', '#030614'),   # the keyboard background, the ink on the violet
-    ('163', '#090b21'),   # tabs that are off, the field of the tools
-    ('194', '#0e112e'),   # the face of the letter keys, the buttons of the tools, the cards, Cancel
-    ('230', '#16173e'),   # the divider, a tool of the bar under the finger
-    ('281', '#2e1c51'),   # the face of the highlight keys (violet), the selected row, a marked file
-    ('321', '#282969'),   # a button under the finger
-    ('362', '#31317e'),   # the unlit dash, outlines
-    ('601', '#6a66ff'),   # the hue of the keys: the tint of the tools, Send, the + button
-    ('631', '#8586a6'),   # secondary texts
-    ('796', '#b5b3ff'),   # the tube of a lit key, the lit dash, the ring of Send
-    ('885', '#d5d4ff'),   # the text
-])
+# Neon Teal (the picture of a teal keyboard): glass keys filled with the colors measured on the picture, not a hue mixed into the
+# background. 189 is the background (the gap between the keys), 307 the face of a letter key at rest (the middle of its face), 364 the
+# face of a highlight key (one step above), 257 and 336 the steps between; 409 is the tube of the Cancel button, 848 the tint of the
+# tools (the hue of the faces, so that a button of the tools is the face of a key at the opacities of TOOL_ALPHAS_TEAL), 671 what a
+# large surface in that tint is (Send, the + button), 921 the tube of a lit key and 951 the text.
 TEAL = collections.OrderedDict([
-    ('141', '#020b10'),   # the keyboard background, the ink on the teal
-    ('175', '#041318'),   # tabs that are off, the field of the tools
-    ('210', '#051c20'),   # the face of the letter keys, the buttons of the tools, the cards, Cancel
-    ('263', '#082a2d'),   # the divider, a tool of the bar under the finger
-    ('312', '#10392d'),   # the face of the highlight keys (green), the selected row, a marked file
-    ('373', '#0e4a4a'),   # a button under the finger
-    ('400', '#105252'),   # the unlit dash, outlines
-    ('667', '#7a9c9c'),   # secondary texts
-    ('692', '#23b2ab'),   # the hue of the keys at the lightness of a large surface: Send, the + button
-    ('810', '#2bdcd2'),   # the hue of the keys: the tint of the tools
-    ('892', '#95eee9'),   # the tube of a lit key, the lit dash, the ring of Send
-    ('935', '#c4f5f2'),   # the text
+    ('189', '#04161e'),   # the keyboard background, the ink on the teal
+    ('257', '#0e2730'),   # tabs that are off, the field of the tools
+    ('307', '#16343e'),   # the face of the letter keys, the buttons of the tools, the cards, Cancel
+    ('336', '#1b3c47'),   # the divider, a tool of the bar under the finger
+    ('364', '#1f444f'),   # the face of the highlight keys, the selected row, a marked file
+    ('409', '#305057'),   # the unlit dash, outlines
+    ('671', '#58a2b3'),   # the tint at the lightness of a large surface: Send, the + button
+    ('690', '#86a1a6'),   # secondary texts
+    ('848', '#7cdef3'),   # the tint of the tools
+    ('921', '#beeff9'),   # the tube of a lit key, the lit dash, the ring of Send
+    ('951', '#d6f6fa'),   # the text
 ])
 
 # The opacities of the tint of the tools (the hue of the keys, role tool_tint) over the background, which land on steps of the
@@ -439,6 +432,10 @@ TEAL = collections.OrderedDict([
 # (MID: the middle of the face).
 TOOL_ALPHAS_TOP = dict(flat='#b1000000', btn='#1c000000', press='#5b000000', tab_off='#0e000000', sel='#43000000', card='#1c000000')
 TOOL_ALPHAS_MID = dict(flat='#99000000', btn='#15000000', press='#4b000000', tab_off='#0a000000', sel='#36000000', card='#15000000')
+
+# Teal: the tint of the tools is the hue of its faces (848), and these opacities of it over the background land on its faces: tabs that are
+# off (257), buttons and cards (307) and the selected row (364)
+TOOL_ALPHAS_TEAL = dict(flat='#99000000', btn='#26000000', press='#59000000', tab_off='#16000000', sel='#3b000000', card='#26000000')
 
 
 def tool_roles(scale, alphas, ink, tint, send, ring, field, btn, divider, sel, dim, text2):
@@ -490,16 +487,13 @@ NEON = [
                           divider='252', sel='300', dim='406', text2='638')),
     neon('synthwave', 'Synthwave',
           bg='#0b0618', key='#9d7bff', accent='#ff4d9d'),
-    # the two keyboards of the pictures: indigo keys with violet highlight keys on a navy night, and teal keys with green highlight
-    # keys on a green-black night
-    neon('violet', 'Neon Violet',
-         bg='#030614', key='#6a66ff', accent='#a85cff', lite=True, flat=True,
-         roles=tool_roles(VIOLET, TOOL_ALPHAS_TOP, ink='127', tint='601', send='601', ring='796', field='163', btn='194',
-                          divider='230', sel='281', dim='362', text2='631')),
+    # Neon Teal: glass keys of the colors of the picture (the field `face`: filled keys, with a thin soft edge instead of a lit tube); the highlight
+    # keys have the same hue, one step above
     neon('teal', 'Neon Teal',
-         bg='#020b10', key='#2bdcd2', accent='#46e69a', lite=True, flat=True,
-         roles=tool_roles(TEAL, TOOL_ALPHAS_MID, ink='141', tint='810', send='692', ring='892', field='175', btn='210',
-                          divider='263', sel='312', dim='400', text2='667')),
+         bg='#04161e', key='#33d6dc', core='#43696f', text='#d6f6fa', glow=.35, lite=True, flat=True, soft=.5,
+         face=('#122d37', '#193a45'), acc_face=('#1a3d48', '#244a56'),
+         roles=tool_roles(TEAL, TOOL_ALPHAS_TEAL, ink='189', tint='848', send='671', ring='921', field='257', btn='307',
+                          divider='336', sel='364', dim='409', text2='690')),
     # a light spectrum: the keys have a thin tube and a soft light, and the tools are chosen on one scale of indigo (the hue of
     # what is not a key), so that they belong to the keyboard instead of being the default of the other themes
     neon('aurora', 'Aurora',
@@ -576,15 +570,21 @@ def tube_color(hue, core, white):
     return mix(hue, WHITE, white)
 
 
-def state_colors(prefix, st, hue, bg, core):
-    """Colors of one key state, in the order they are written: name -> value. core: the theme's own tube color, or None."""
+def state_colors(prefix, st, hue, bg, core, face=None, rest=None, soft=1.0):
+    """Colors of one key state, in the order they are written: name -> value. core: the theme's own tube color, or None.
+    face: None, or the (top, bottom) colors of the face at rest (the field `face` of the table); `rest` is then the state at rest and
+    a state that is more lit than it has the hue added over the face by the difference. soft: strength of halo and inner light."""
     c = collections.OrderedDict()
-    for i, a in enumerate(layer_alphas(st.halo)):
+    for i, a in enumerate(layer_alphas([x * soft for x in st.halo])):
         c['%s_halo%d' % (prefix, i + 1)] = alpha(hue, a)
-    c[prefix + '_top'] = mix(bg, hue, st.face[0])
-    c[prefix + '_bottom'] = mix(bg, hue, st.face[1])
+    if face:
+        c[prefix + '_top'] = mix(face[0], hue, max(0.0, st.face[0] - rest.face[0]))
+        c[prefix + '_bottom'] = mix(face[1], hue, max(0.0, st.face[1] - rest.face[1]))
+    else:
+        c[prefix + '_top'] = mix(bg, hue, st.face[0])
+        c[prefix + '_bottom'] = mix(bg, hue, st.face[1])
     # inner bands: the widest is drawn first and is the faintest
-    for i, a in enumerate(layer_alphas(st.inner[::-1])):
+    for i, a in enumerate(layer_alphas([x * soft for x in st.inner[::-1]])):
         c['%s_in%d' % (prefix, i + 1)] = alpha(hue, a)
     c[prefix + '_stroke'] = tube_color(hue, core, TUBE_REST if st.tube is None else st.tube)
     return c
@@ -624,7 +624,8 @@ def neon_colors(th):
             c[n(role)] = opaque(col)
     # the dash of Ctrl, Alt, Shift and the Meta key, which are highlight keys: see dash_colors(). Off = a subdued tone of
     # their face; on and lock shine (MrGlow.dash)
-    off, on, lock = dash_colors(mix(bg, acc, DASH_FACE), mix(acc, WHITE, DASH_WHITE), acc)
+    dash_face = mix(th.acc_face[0], th.acc_face[1], .5) if th.acc_face else mix(bg, acc, DASH_FACE)
+    off, on, lock = dash_colors(dash_face, mix(acc, WHITE, DASH_WHITE), acc)
     c[n('modifier_indicator_off')] = off
     c[n('modifier_indicator_on')] = on
     c[n('modifier_indicator_lock')] = lock
@@ -651,14 +652,15 @@ def neon_colors(th):
 
     # ---- preview bubble and popup of variants
     shape = lite_state if th.lite else (lambda st: st)
-    c.update(state_colors(n('bubble'), shape(BUBBLE), key, bg, core))
+    rest, acc_rest = KEY_STATES['normal'], ACCENT_STATES['acc_normal']
+    c.update(state_colors(n('bubble'), shape(BUBBLE), key, bg, core, th.face, rest, th.soft))
     c[n('preview_dots')] = alpha(mix(key, WHITE, .45), .85)
 
     # ---- keys
     for name, st in KEY_STATES.items():
-        c.update(state_colors(n('key_' + name), shape(st), key, bg, core))
+        c.update(state_colors(n('key_' + name), shape(st), key, bg, core, th.face, rest, th.soft))
     for name, st in ACCENT_STATES.items():
-        c.update(state_colors(n('key_' + name), shape(st), acc, bg, acc_core))
+        c.update(state_colors(n('key_' + name), shape(st), acc, bg, acc_core, th.acc_face, acc_rest, th.soft))
 
     # ---- a theme with chosen tools: they replace the derived colors (same place in the file); the roles that only have a
     # default go after the roles read by name
@@ -1774,7 +1776,7 @@ LAYOUTS = collections.OrderedDict([
 #           edited by hand, the script only places them in the lists
 #   AFTER   the last theme written by hand in strings.xml: the names of the generated themes go right after it
 # ---------------------------------------------------------------------------------------------------------------
-ORDER = ['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'violet', 'teal', 'aqua', 'sky', 'snow', 'chrome', 'rose', 'glass', 'denim']
+ORDER = ['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'teal', 'aqua', 'sky', 'snow', 'chrome', 'rose', 'glass', 'denim']
 HAND = ('glass',)
 AFTER = 'glass'
 Family = collections.namedtuple('Family', 'name themes flags colors drawables intro')

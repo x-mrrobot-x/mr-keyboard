@@ -47,7 +47,6 @@
         <item>@string/layout_mr_purple</item>
         <item>@string/layout_mr_pink</item>
         <item>@string/layout_mr_synthwave</item>
-        <item>@string/layout_mr_violet</item>
         <item>@string/layout_mr_teal</item>
         <item>@string/layout_mr_aqua</item>
         <item>@string/layout_mr_sky</item>
@@ -72,7 +71,6 @@
         <item>11</item>
         <item>12</item>
         <item>13</item>
-        <item>14</item>
     </string-array>
     <string-array name="keyboard_mode_entries">
         <item>Standard (shortcut rows + Ctrl/Alt)</item>
