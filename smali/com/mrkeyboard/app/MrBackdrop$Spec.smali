@@ -39,7 +39,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 116
+    .line 159
     new-instance v0, Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
     const/16 v3, 0x64
@@ -63,29 +63,67 @@
     .locals 0
 
     .prologue
-    .line 107
+    .line 150
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 108
+    .line 151
     iput p1, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
 
-    .line 109
+    .line 152
     iput p2, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->index:I
 
-    .line 110
+    .line 153
     iput p3, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->zoom:I
 
-    .line 111
+    .line 154
     iput p4, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->dx:I
 
-    .line 112
+    .line 155
     iput p5, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->dy:I
 
-    .line 113
+    .line 156
     iput-wide p6, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->stamp:J
 
-    .line 114
+    .line 157
     return-void
+.end method
+
+.method static color(I)Lcom/mrkeyboard/app/MrBackdrop$Spec;
+    .locals 8
+
+    .prologue
+    const/4 v4, 0x0
+
+    .line 162
+    if-ltz p0, :cond_0
+
+    sget-object v0, Lcom/mrkeyboard/app/MrBackdrop;->COLORS:[I
+
+    array-length v0, v0
+
+    if-ge p0, v0, :cond_0
+
+    new-instance v0, Lcom/mrkeyboard/app/MrBackdrop$Spec;
+
+    const/4 v1, 0x4
+
+    const/16 v3, 0x64
+
+    const-wide/16 v6, 0x0
+
+    move v2, p0
+
+    move v5, v4
+
+    invoke-direct/range {v0 .. v7}, Lcom/mrkeyboard/app/MrBackdrop$Spec;-><init>(IIIIIJ)V
+
+    :goto_0
+    return-object v0
+
+    :cond_0
+    sget-object v0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->NO:Lcom/mrkeyboard/app/MrBackdrop$Spec;
+
+    goto :goto_0
 .end method
 
 .method static gradient(I)Lcom/mrkeyboard/app/MrBackdrop$Spec;
@@ -94,10 +132,10 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 119
+    .line 166
     if-ltz p0, :cond_0
 
-    sget-object v0, Lcom/mrkeyboard/app/MrBackdrop;->GRADIENTS:[[I
+    sget-object v0, Lcom/mrkeyboard/app/MrBackdrop;->GRADS:[Lcom/mrkeyboard/app/MrBackdrop$Grad;
 
     array-length v0, v0
 
@@ -134,7 +172,7 @@
 
     const/16 v5, 0x64
 
-    .line 127
+    .line 174
     new-instance v0, Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
     const/4 v1, 0x3
@@ -168,7 +206,7 @@
     .prologue
     const/4 v1, 0x2
 
-    .line 137
+    .line 184
     if-eqz p0, :cond_0
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -180,11 +218,11 @@
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->NO:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
-    .line 151
+    .line 199
     :goto_0
     return-object v0
 
-    .line 139
+    .line 186
     :cond_1
     const/4 v0, 0x1
 
@@ -193,7 +231,7 @@
 
     move-result-object v0
 
-    .line 140
+    .line 187
     const/4 v1, 0x0
 
     invoke-virtual {p0, v1}, Ljava/lang/String;->charAt(I)C
@@ -202,13 +240,25 @@
 
     sparse-switch v1, :sswitch_data_0
 
-    .line 148
+    .line 196
     sget-object v0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->NO:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
     goto :goto_0
 
-    .line 141
+    .line 188
     :sswitch_0
+    invoke-static {v0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+
+    move-result v0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop$Spec;->color(I)Lcom/mrkeyboard/app/MrBackdrop$Spec;
+
+    move-result-object v0
+
+    goto :goto_0
+
+    .line 189
+    :sswitch_1
     invoke-static {v0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
 
     move-result v0
@@ -219,8 +269,8 @@
 
     goto :goto_0
 
-    .line 142
-    :sswitch_1
+    .line 190
+    :sswitch_2
     invoke-static {v0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
 
     move-result v0
@@ -231,8 +281,8 @@
 
     goto :goto_0
 
-    .line 144
-    :sswitch_2
+    .line 192
+    :sswitch_3
     const-string v1, ","
 
     const/4 v2, -0x1
@@ -241,7 +291,7 @@
 
     move-result-object v0
 
-    .line 145
+    .line 193
     array-length v1, v0
 
     const/4 v2, 0x4
@@ -252,7 +302,7 @@
 
     goto :goto_0
 
-    .line 146
+    .line 194
     :cond_2
     const/4 v1, 0x0
 
@@ -294,23 +344,22 @@
 
     goto :goto_0
 
-    .line 150
+    .line 198
     :catch_0
     move-exception v0
 
-    .line 151
+    .line 199
     sget-object v0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->NO:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
     goto :goto_0
 
-    .line 140
-    nop
-
+    .line 187
     :sswitch_data_0
     .sparse-switch
-        0x67 -> :sswitch_0
-        0x69 -> :sswitch_2
-        0x73 -> :sswitch_1
+        0x63 -> :sswitch_0
+        0x67 -> :sswitch_1
+        0x69 -> :sswitch_3
+        0x73 -> :sswitch_2
     .end sparse-switch
 .end method
 
@@ -320,10 +369,10 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 123
+    .line 170
     if-ltz p0, :cond_0
 
-    const/4 v0, 0x6
+    const/16 v0, 0x9
 
     if-ge p0, v0, :cond_0
 
@@ -356,19 +405,43 @@
     .locals 4
 
     .prologue
-    .line 157
+    .line 205
     iget v0, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
 
     packed-switch v0, :pswitch_data_0
 
-    .line 161
+    .line 210
     const-string v0, ""
 
     :goto_0
     return-object v0
 
-    .line 158
+    .line 206
     :pswitch_0
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "c"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    iget v1, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->index:I
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
+
+    goto :goto_0
+
+    .line 207
+    :pswitch_1
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -391,8 +464,8 @@
 
     goto :goto_0
 
-    .line 159
-    :pswitch_1
+    .line 208
+    :pswitch_2
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -415,8 +488,8 @@
 
     goto :goto_0
 
-    .line 160
-    :pswitch_2
+    .line 209
+    :pswitch_3
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -475,12 +548,13 @@
 
     goto :goto_0
 
-    .line 157
+    .line 205
     :pswitch_data_0
     .packed-switch 0x1
-        :pswitch_0
         :pswitch_1
         :pswitch_2
+        :pswitch_3
+        :pswitch_0
     .end packed-switch
 .end method
 
@@ -488,7 +562,7 @@
     .locals 2
 
     .prologue
-    .line 132
+    .line 179
     iget v0, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
 
     const/4 v1, 0x3
@@ -509,7 +583,7 @@
     .locals 2
 
     .prologue
-    .line 166
+    .line 215
     if-eqz p1, :cond_0
 
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrBackdrop$Spec;->format()Ljava/lang/String;

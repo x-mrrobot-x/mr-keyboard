@@ -69,6 +69,11 @@ final class MrKit {
         return act.getResources().getColor(act.getResources().getIdentifier(name, "color", act.getPackageName()));
     }
 
+    /** The background of the settings, always opaque (a dialog has nothing behind it that the Matrix effect could show through). */
+    int solidBg() {
+        return color("mr_ui_bg");
+    }
+
     int dp(float v) {
         return Math.round(v * act.getResources().getDisplayMetrics().density);
     }

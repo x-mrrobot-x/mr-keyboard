@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.media.ExifInterface;
@@ -22,23 +23,25 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * The background of the keyboard: what is drawn behind the toolbar and the keys instead of the flat colour of the theme (the "Backgrounds" of the
- * themes screen). It is independent of the theme: the theme gives the keys, the toolbar ink and the colours, this gives
- * what shows around them.
+ * The background of the keyboard: what is drawn behind the toolbar and the keys instead of the flat colour of a theme (the colours, gradients, landscapes
+ * and the picture of the gallery of the themes screen). A background is a theme of its own: choosing one puts the keyboard in one of the two themes of
+ * the backgrounds ({@link #themeTag}: flat, see-through keys, light ink or dark ink) and choosing any other theme puts the background away, so the
+ * two are never mixed and the themes of the list always look the way they do.
  *
  * <h3>The preference</h3>
- * {@link #PREF} holds one text, the spec: empty = no background (the colour of the theme); {@code g<N>} = gradient N; {@code s<N>} = landscape N
+ * {@link #PREF} holds one text, the spec: empty = no background; {@code c<N>} = colour N; {@code g<N>} = gradient N; {@code s<N>} = landscape N
  * ({@link MrScenes}); {@code i<zoom>,<dx>,<dy>,<stamp>} = the picture of the gallery the person chose ({@link #FILE}, in the files of the app),
  * with the zoom in per cent (100 .. 400), the position (dx and dy, -100 .. 100: how far the shown part is moved between the two edges) and the
  * time the picture was chosen (so that a new picture of the same settings is a new value, and the caches know it). A text that does not parse
- * is "no background". {@link #PREF_SOFT} is how much the background is softened (0 .. {@link #MAX_SOFT} per cent).
+ * is "no background". {@link #PREF_SOFT} is how much a picture is softened (0 .. {@link #MAX_SOFT} per cent): only a picture is softened.
  *
  * <h3>Legibility</h3>
- * Whatever the background, the ink of the toolbar (the suggestions, the icons) must stay readable: a dark theme has light ink, a light theme has
- * dark ink. A veil of the opposite colour (black over a dark theme, white over a light one) is laid over the background; how strong it is comes
+ * Whatever the background, the ink of the toolbar (the suggestions, the icons) must stay readable: the theme of the background has light ink or
+ * dark ink. A veil of the opposite colour (black under light ink, white under dark ink) is laid over the background; how strong it is comes
  * from the brightness of the background itself ({@link #look}): the average of a small copy of it, and the average of its upper part where the
- * toolbar is, must end up no brighter than {@link #DARK_TARGET} for a dark theme, no darker than {@link #LIGHT_TARGET} for a light one, and never
- * less than the softening that the person set. The keys have their own faces and do not need it.
+ * toolbar is, must end up no brighter than {@link #DARK_TARGET} under light ink, no darker than {@link #LIGHT_TARGET} under dark ink, and never
+ * less than the softening that the person set. A plain colour has no veil (it is shown as it is: its ink is the one that reads on it,
+ * {@link #darkInk}).
  *
  * <h3>On the keyboard</h3>
  * {@link #apply} (MrTools.applyTranslucentBlur calls it when the keyboard is made and when it is shown) puts a {@link MrBackdropDrawable} as the
@@ -51,8 +54,10 @@ final class MrBackdrop {
     static final String PREF_SOFT = "pref_kbd_bg_soft";
     /** The picture, in the files of the app (JPEG). */
     static final String FILE = "kbd_bg.jpg";
+    /** The picture that was just chosen and is not the background yet (it becomes {@link #FILE} when the person applies it). */
+    static final String PENDING = "kbd_bg_new.jpg";
 
-    static final int NONE = 0, GRADIENT = 1, SCENE = 2, IMAGE = 3;
+    static final int NONE = 0, GRADIENT = 1, SCENE = 2, IMAGE = 3, COLOR = 4;
 
     /** The longest side of the stored picture, in pixels (a keyboard shows a part of it: more would only cost memory). */
     static final int MAX_SIDE = 1280;
@@ -73,23 +78,61 @@ final class MrBackdrop {
     /** The share of the height of the keyboard that the toolbar (the line of suggestions, the ink that must stay readable) takes at the top. */
     static final float BAR_SHARE = 0.17f;
 
-    /**
-     * The gradients: the angle in degrees as in CSS (0 = from the bottom up, 90 = from the left to the right, 180 = from the top down; 135 = from the
-     * top left corner to the bottom right one), then the colours from the start to the end.
-     */
-    static final int[][] GRADIENTS = {
-            {135, 0xff0f2027, 0xff203a43, 0xff2c5364},
-            {150, 0xff41295a, 0xff2f0743},
-            {160, 0xff134e5e, 0xff71b280},
-            {135, 0xffee0979, 0xffff6a00},
-            {135, 0xff00c6ff, 0xff0072ff},
-            {135, 0xff654ea3, 0xffeaafc8},
-            {160, 0xff232526, 0xff414345},
-            {135, 0xfff953c6, 0xffb91d73},
-            {135, 0xff11998e, 0xff38ef7d},
-            {135, 0xff1e3c72, 0xff2a5298},
-            {135, 0xfff2994a, 0xfff2c94c},
-            {135, 0xffe0eafc, 0xffcfdef3}};
+    /** The plain colours (opaque), in the order of the tiles. */
+    static final int[] COLORS = {
+            0xffeceff1, 0xff263238, 0xfff8f9fa, 0xff37393d,
+            0xffc62828, 0xff43a047, 0xff00695c, 0xff1565c0,
+            0xff80deea, 0xff6a1b9a, 0xffef6c00, 0xffad1457};
+
+    /** The contrast with white that a colour needs to carry white ink; under it the ink is dark. */
+    static final float WHITE_INK_CONTRAST = 4.5f;
+
+    /** A gradient: the angle, its colours from the start to the end (and where each one sits, or null for even steps) and a soft light (or null). */
+    static final class Grad {
+        /** Degrees as in CSS: 0 = from the bottom up, 90 = from the left to the right, 180 = from the top down. */
+        final int angle;
+        final int[] colours;
+        final float[] stops;
+        /** {x, y, radius}, each in per cent of the width (the radius too), and the colour that fades out to nothing at the radius; or null. */
+        final int[] glow;
+
+        Grad(int angle, int[] colours, float[] stops, int[] glow) {
+            this.angle = angle;
+            this.colours = colours;
+            this.stops = stops;
+            this.glow = glow;
+        }
+    }
+
+    private static Grad down(int... colours) {
+        return new Grad(180, colours, null, null);
+    }
+
+    /** The gradients: dark ones, from the top down; two of them have a light in a corner. */
+    static final Grad[] GRADS = {
+            down(0xff1b1464, 0xff5b2a86, 0xffb24fa4),
+            down(0xff62656a, 0xff38393d, 0xff060607),
+            down(0xff5c6b73, 0xff2b363c),
+            down(0xff00836f, 0xff00594f),
+            down(0xff1a75e3, 0xff0d4fb3),
+            new Grad(180, new int[] {0xff376896, 0xff2f587d, 0xff1c3249, 0xff0e1826}, new float[] {0f, 0.55f, 0.88f, 1f}, null),
+            down(0xff595b60, 0xff2f3338),
+            down(0xff0b564c, 0xff011f1e),
+            down(0xff00858a, 0xff115761),
+            down(0xff8479a5, 0xff4a4258),
+            down(0xff8b3a3d, 0xff3e1a20),
+            down(0xff514b9c, 0xff1f5f75),
+            down(0xff00708f, 0xff1c4560),
+            down(0xff4e2cc0, 0xff2c1a82),
+            down(0xffb0175a, 0xff8c0d48),
+            down(0xff0594e0, 0xff0235ae),
+            new Grad(180, new int[] {0xff2f2745, 0xff6a58a6, 0xffa77c88}, new float[] {0f, 0.7f, 1f}, null),
+            down(0xff0a4fa0, 0xff53309f),
+            new Grad(180, new int[] {0xff1040c4, 0xff0c68a8}, null, new int[] {50, 92, 62, 0xd90eb060}),
+            down(0xff5c3a62, 0xff8c5068),
+            new Grad(180, new int[] {0xff3a5f92, 0xff3b4f82}, null, new int[] {100, 100, 78, 0xe6e8707c})};
+
+    static final int GRADIENT_COUNT = GRADS.length;
 
     private MrBackdrop() { }
 
@@ -98,7 +141,7 @@ final class MrBackdrop {
     /** What the preference says, parsed. Immutable. */
     static final class Spec {
         final int kind;
-        /** Gradient or landscape number. */
+        /** Colour, gradient or landscape number. */
         final int index;
         /** Picture: zoom in per cent, position, and the time it was chosen. */
         final int zoom, dx, dy;
@@ -115,8 +158,12 @@ final class MrBackdrop {
 
         static final Spec NO = new Spec(NONE, 0, 100, 0, 0, 0L);
 
+        static Spec color(int n) {
+            return n >= 0 && n < COLORS.length ? new Spec(COLOR, n, 100, 0, 0, 0L) : NO;
+        }
+
         static Spec gradient(int n) {
-            return n >= 0 && n < GRADIENTS.length ? new Spec(GRADIENT, n, 100, 0, 0, 0L) : NO;
+            return n >= 0 && n < GRADS.length ? new Spec(GRADIENT, n, 100, 0, 0, 0L) : NO;
         }
 
         static Spec scene(int n) {
@@ -138,6 +185,7 @@ final class MrBackdrop {
             try {
                 String body = s.substring(1);
                 switch (s.charAt(0)) {
+                    case 'c': return color(Integer.parseInt(body));
                     case 'g': return gradient(Integer.parseInt(body));
                     case 's': return scene(Integer.parseInt(body));
                     case 'i': {
@@ -155,6 +203,7 @@ final class MrBackdrop {
         /** The text for the preference (empty for no background). */
         String format() {
             switch (kind) {
+                case COLOR: return "c" + index;
                 case GRADIENT: return "g" + index;
                 case SCENE: return "s" + index;
                 case IMAGE: return "i" + zoom + "," + dx + "," + dy + "," + stamp;
@@ -198,6 +247,9 @@ final class MrBackdrop {
     static void draw(Canvas canvas, Spec spec, int w, int h, Bitmap image) {
         if (canvas == null || spec == null || w <= 0 || h <= 0) return;
         switch (spec.kind) {
+            case COLOR:
+                canvas.drawColor(COLORS[spec.index]);
+                break;
             case GRADIENT:
                 gradient(canvas, spec.index, w, h);
                 break;
@@ -213,18 +265,23 @@ final class MrBackdrop {
     }
 
     private static void gradient(Canvas canvas, int n, int w, int h) {
-        int[] g = GRADIENTS[n];
-        int[] colours = new int[g.length - 1];
-        System.arraycopy(g, 1, colours, 0, colours.length);
-        double a = Math.toRadians(g[0]);
+        Grad g = GRADS[n];
+        double a = Math.toRadians(g.angle);
         float dx = (float) Math.sin(a), dy = (float) -Math.cos(a);
         // the gradient runs along the angle through the centre, as long as the shape is deep in that direction
         float half = (Math.abs(dx) * w + Math.abs(dy) * h) / 2f;
         float cx = w / 2f, cy = h / 2f;
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setDither(true);
-        p.setShader(new LinearGradient(cx - dx * half, cy - dy * half, cx + dx * half, cy + dy * half, colours, null, Shader.TileMode.CLAMP));
+        p.setShader(new LinearGradient(cx - dx * half, cy - dy * half, cx + dx * half, cy + dy * half, g.colours, g.stops, Shader.TileMode.CLAMP));
         canvas.drawRect(0, 0, w, h, p);
+        if (g.glow != null) {
+            // a soft light that fades out to nothing at its radius
+            float gx = w * g.glow[0] / 100f, gy = h * g.glow[1] / 100f, gr = Math.max(1f, w * g.glow[2] / 100f);
+            int c = g.glow[3];
+            p.setShader(new RadialGradient(gx, gy, gr, new int[] {c, c & 0x00ffffff}, new float[] {0f, 1f}, Shader.TileMode.CLAMP));
+            canvas.drawRect(0, 0, w, h, p);
+        }
     }
 
     private static void picture(Canvas canvas, Spec spec, Bitmap image, int w, int h) {
@@ -282,6 +339,35 @@ final class MrBackdrop {
         return new int[] {nx, ny};
     }
 
+    /**
+     * The new position after the frame that shows a part of a picture of {@code iw} x {@code ih} (the shape {@code w} x {@code h}, at this zoom) is
+     * moved by {@code moveX} and {@code moveY} pixels of the picture: the frame goes where the finger goes. Returns {dx, dy}; a direction in which
+     * the frame has no room is left as it was.
+     */
+    static int[] shift(int iw, int ih, int w, int h, int zoom, int dx, int dy, float moveX, float moveY) {
+        Rect r = crop(iw, ih, w, h, zoom, dx, dy);
+        double freeX = iw - r.width(), freeY = ih - r.height();
+        int nx = dx, ny = dy;
+        if (freeX > 0.5) nx = clamp((int) Math.round((r.left + moveX) / freeX * 200.0 - 100.0), -100, 100);
+        if (freeY > 0.5) ny = clamp((int) Math.round((r.top + moveY) / freeY * 200.0 - 100.0), -100, 100);
+        return new int[] {nx, ny};
+    }
+
+    /**
+     * The position that keeps the middle of the frame where it is when the zoom goes from {@code zoom} to {@code newZoom} (the frame grows or
+     * shrinks around its middle). Returns {dx, dy}.
+     */
+    static int[] rezoom(int iw, int ih, int w, int h, int zoom, int dx, int dy, int newZoom) {
+        Rect r = crop(iw, ih, w, h, zoom, dx, dy);
+        double cx = r.left + r.width() / 2.0, cy = r.top + r.height() / 2.0;
+        Rect n = crop(iw, ih, w, h, newZoom, 0, 0);
+        double freeX = iw - n.width(), freeY = ih - n.height();
+        int nx = dx, ny = dy;
+        if (freeX > 0.5) nx = clamp((int) Math.round((cx - n.width() / 2.0) / freeX * 200.0 - 100.0), -100, 100);
+        if (freeY > 0.5) ny = clamp((int) Math.round((cy - n.height() / 2.0) / freeY * 200.0 - 100.0), -100, 100);
+        return new int[] {nx, ny};
+    }
+
     // ---- brightness and veil
 
     /** What the veil is and what the background looks like under it. */
@@ -330,6 +416,13 @@ final class MrBackdrop {
     static Look look(Spec spec, Bitmap image, boolean dark, int soft) {
         if (spec == null || spec.kind == NONE) return null;
         if (spec.kind == IMAGE && image == null) return null;
+        int veilColor = dark ? 0xff000000 : 0xffffffff;
+        if (spec.kind == COLOR) {
+            // a plain colour is shown as it is: no veil, and the colour itself is the lower edge for the navigation bar
+            float l = MrThemeColors.luminance(COLORS[spec.index]);
+            return new Look(l, l, 0, veilColor, COLORS[spec.index]);
+        }
+        if (spec.kind != IMAGE) soft = 0;
         int h = Math.max(1, Math.round(PROBE_W / ASPECT));
         Bitmap small = Bitmap.createBitmap(PROBE_W, h, Bitmap.Config.ARGB_8888);
         draw(new Canvas(small), spec, PROBE_W, h, image);
@@ -346,7 +439,6 @@ final class MrBackdrop {
         float lum = (float) (sum / (PROBE_W * h));
         float barLum = (float) (barSum / (PROBE_W * barRows));
         float a = Math.max(veil(dark, lum, soft), veil(dark, barLum, soft));
-        int veilColor = dark ? 0xff000000 : 0xffffffff;
         int r = 0, g = 0, b = 0;
         for (int x = 0; x < PROBE_W; x++) {
             int p = small.getPixel(x, h - 1);
@@ -358,12 +450,56 @@ final class MrBackdrop {
         return new Look(lum, barLum, Math.round(a * 255f), veilColor, bottom);
     }
 
+    // ---- the theme of a background
+
+    /** The contrast ratio of two opaque colours as WCAG gives it (1 .. 21), on the linear brightness. */
+    static float contrast(int a, int b) {
+        float la = linear(a), lb = linear(b);
+        float hi = Math.max(la, lb), lo = Math.min(la, lb);
+        return (hi + 0.05f) / (lo + 0.05f);
+    }
+
+    private static float linear(int argb) {
+        double r = channel((argb >> 16) & 0xff), g = channel((argb >> 8) & 0xff), b = channel(argb & 0xff);
+        return (float) (0.2126 * r + 0.7152 * g + 0.0722 * b);
+    }
+
+    private static double channel(int v) {
+        double c = v / 255.0;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    }
+
+    /**
+     * Whether the ink on this background is dark. White is the ink of every background by default; only a plain colour that is too light to carry
+     * it (less than {@link #WHITE_INK_CONTRAST} to 1 against white, the AA level for text: the glass of the keys lightens it a little more) has a dark ink. The gradients and the landscapes are dark, and a picture has its
+     * veil, so none of them needs it.
+     */
+    static boolean darkInk(Spec spec) {
+        return spec != null && spec.kind == COLOR && contrast(0xffffffff, COLORS[spec.index]) < WHITE_INK_CONTRAST;
+    }
+
+    /** The tag of the theme that a background puts the keyboard in: the one with the light ink or the one with the dark ink. */
+    static String themeTag(Spec spec) {
+        return darkInk(spec) ? TAG_DARK_INK : TAG_LIGHT_INK;
+    }
+
+    static final String TAG_LIGHT_INK = "mr_overlight", TAG_DARK_INK = "mr_overdark";
+
     // ---- the picture of the gallery
 
     /** The stored picture, or null when there is none (or it cannot be read). The caller owns the bitmap. */
     static Bitmap load(Context c) {
+        return decode(c, FILE);
+    }
+
+    /** The picture that was just chosen and is not the background yet, or null. The caller owns the bitmap. */
+    static Bitmap loadPending(Context c) {
+        return decode(c, PENDING);
+    }
+
+    private static Bitmap decode(Context c, String name) {
         try {
-            File f = new File(c.getFilesDir(), FILE);
+            File f = new File(c.getFilesDir(), name);
             if (!f.isFile()) return null;
             return BitmapFactory.decodeFile(f.getPath());
         } catch (RuntimeException e) {
@@ -374,8 +510,16 @@ final class MrBackdrop {
     }
 
     static boolean hasImage(Context c) {
+        return has(c, FILE);
+    }
+
+    static boolean hasPending(Context c) {
+        return has(c, PENDING);
+    }
+
+    private static boolean has(Context c, String name) {
         try {
-            return new File(c.getFilesDir(), FILE).isFile();
+            return new File(c.getFilesDir(), name).isFile();
         } catch (RuntimeException e) {
             return false;
         }
@@ -383,8 +527,17 @@ final class MrBackdrop {
 
     /** The time the stored picture was written (0 when there is none): what a picture that was chosen before is told apart by. */
     static long imageStamp(Context c) {
+        return stamp(c, FILE);
+    }
+
+    /** The same for the picture that is waiting to be applied. */
+    static long pendingStamp(Context c) {
+        return stamp(c, PENDING);
+    }
+
+    private static long stamp(Context c, String name) {
         try {
-            File f = new File(c.getFilesDir(), FILE);
+            File f = new File(c.getFilesDir(), name);
             return f.isFile() ? f.lastModified() : 0L;
         } catch (RuntimeException e) {
             return 0L;
@@ -392,11 +545,30 @@ final class MrBackdrop {
     }
 
     static void removeImage(Context c) {
+        delete(c, FILE);
+    }
+
+    /** The picture that was chosen is let go of (the person cancelled). */
+    static void discardPending(Context c) {
+        delete(c, PENDING);
+    }
+
+    private static void delete(Context c, String name) {
         try {
-            File f = new File(c.getFilesDir(), FILE);
+            File f = new File(c.getFilesDir(), name);
             if (f.exists() && !f.delete()) f.deleteOnExit();
         } catch (RuntimeException e) {
             // the file stays; the next picture replaces it
+        }
+    }
+
+    /** The picture that was chosen becomes the one of the background (in one step: a failure leaves the one that was there). */
+    static boolean commitPending(Context c) {
+        try {
+            File from = new File(c.getFilesDir(), PENDING);
+            return from.isFile() && from.renameTo(new File(c.getFilesDir(), FILE));
+        } catch (RuntimeException e) {
+            return false;
         }
     }
 
@@ -420,10 +592,11 @@ final class MrBackdrop {
 
     /**
      * Reads the picture that the person chose (the stream of the document that the gallery gave), makes it at most {@link #MAX_SIDE} on its longest
-     * side, turned the way the photo says it was taken, and keeps it as {@link #FILE}. Returns {width, height} of what was kept, or null when it was
+     * side, turned the way the photo says it was taken, and keeps it as {@link #PENDING}: it becomes the background only when {@link #commitPending} says so, so a picture that is not applied costs
+     * nothing to the one that was there. Returns {width, height} of what was kept, or null when it was
      * not a picture the phone can read (what was there before stays). Slow (it decodes a photo): not for the main thread.
      */
-    static int[] importImage(Context c, InputStream in) {
+    static int[] importPending(Context c, InputStream in) {
         File tmp = null, out = null;
         try {
             tmp = new File(c.getCacheDir(), "kbd_bg_in");
@@ -439,7 +612,7 @@ final class MrBackdrop {
             if (bm == null) return null;
             bm = fit(bm);
             bm = turn(bm, orientation(tmp));
-            out = new File(c.getFilesDir(), FILE + ".new");
+            out = new File(c.getFilesDir(), PENDING + ".tmp");
             OutputStream os = new FileOutputStream(out);
             boolean ok;
             try {
@@ -447,8 +620,8 @@ final class MrBackdrop {
             } finally {
                 os.close();
             }
-            // renameTo replaces the old picture in one step (Android is Linux): a failure leaves what was there
-            if (!ok || !out.renameTo(new File(c.getFilesDir(), FILE))) return null;
+            // renameTo replaces the old pending picture in one step (Android is Linux): a failure leaves what was there
+            if (!ok || !out.renameTo(new File(c.getFilesDir(), PENDING))) return null;
             return new int[] {bm.getWidth(), bm.getHeight()};
         } catch (IOException e) {
             return null;
@@ -510,6 +683,8 @@ final class MrBackdrop {
 
     /** The veil and the lower edge of the background in use, measured once for the same spec, theme and softening. Null: no background. */
     static synchronized Look lookNow(Context c) {
+        // a background belongs to the themes of the backgrounds: in any other theme there is none (an old value of the preference is let be)
+        if (!MrThemeColors.hidden(MrTheme.tag())) return null;
         Spec spec = current(c);
         if (spec.kind == NONE) return null;
         boolean dark = darkNow(c);
@@ -552,6 +727,7 @@ final class MrBackdrop {
             View root = MrTools.sBarRoot;
             if (root == null) return;
             Context c = root.getContext();
+            if (!MrThemeColors.hidden(MrTheme.tag())) return;
             Spec spec = current(c);
             if (spec.kind == NONE) return;
             boolean dark = darkNow(c);

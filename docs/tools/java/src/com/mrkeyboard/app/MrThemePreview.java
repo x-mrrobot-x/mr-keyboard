@@ -87,6 +87,15 @@ final class MrThemePreview extends View {
         invalidate();
     }
 
+    /** The theme and the background that this keyboard shows (what the screen asked it to show; test help). */
+    String tag() {
+        return mTag;
+    }
+
+    MrBackdrop.Spec spec() {
+        return mSpec;
+    }
+
     /** Whether the ring and the check mark are on (test help). */
     boolean checked() {
         return mChecked;
@@ -280,6 +289,12 @@ final class MrThemePreview extends View {
         float gap = 3f * mDensity, r = 8f * mDensity;
         mPaint.setShader(null);
         mPaint.setStyle(Paint.Style.FILL);
+        if (lip == fill && (fill >>> 24) != 255) {
+            // a see-through face has no lip: drawn twice it would be less see-through
+            mPaint.setColor(fill);
+            canvas.drawRoundRect(gap, gap, w - gap, h - gap, r, r, mPaint);
+            return;
+        }
         mPaint.setColor(lip);
         canvas.drawRoundRect(gap, gap, w - gap, h - gap, r, r, mPaint);
         mPaint.setColor(fill);

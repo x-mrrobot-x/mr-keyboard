@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 296
+    .line 301
     iput-object p1, p0, Lcom/mrkeyboard/app/MrKit$3;->this$0:Lcom/mrkeyboard/app/MrKit;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -44,25 +44,25 @@
 
     const/4 v3, 0x0
 
-    .line 298
+    .line 303
     invoke-virtual {p2}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v0
 
-    .line 299
+    .line 304
     invoke-virtual {p1}, Landroid/view/View;->getParent()Landroid/view/ViewParent;
 
     move-result-object v1
 
-    .line 300
+    .line 305
     if-nez v1, :cond_1
 
-    .line 303
+    .line 308
     :cond_0
     :goto_0
     return v3
 
-    .line 301
+    .line 306
     :cond_1
     if-eq v0, v4, :cond_2
 
@@ -75,7 +75,7 @@
 
     goto :goto_0
 
-    .line 302
+    .line 307
     :cond_3
     invoke-virtual {p1, v4}, Landroid/view/View;->canScrollVertically(I)Z
 

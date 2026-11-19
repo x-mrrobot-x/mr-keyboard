@@ -4,6 +4,8 @@
 
 
 # static fields
+.field static final BACKDROP_PREFIX:Ljava/lang/String; = "mr_over"
+
 .field static final NONE:I = -0xff01
 
 
@@ -12,7 +14,7 @@
     .locals 0
 
     .prologue
-    .line 15
+    .line 22
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -24,13 +26,13 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 50
+    .line 77
     :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
 
-    .line 51
+    .line 78
     const-string v1, "array"
 
     invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
@@ -41,25 +43,25 @@
 
     move-result v1
 
-    .line 52
+    .line 79
     if-nez v1, :cond_1
 
     const/4 v0, 0x0
 
     new-array v0, v0, [Ljava/lang/String;
 
-    .line 56
+    .line 83
     :cond_0
     :goto_0
     return-object v0
 
-    .line 53
+    .line 80
     :cond_1
     invoke-virtual {v0, v1}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
 
     move-result-object v0
 
-    .line 54
+    .line 81
     if-nez v0, :cond_0
 
     const/4 v0, 0x0
@@ -70,11 +72,11 @@
 
     goto :goto_0
 
-    .line 55
+    .line 82
     :catch_0
     move-exception v0
 
-    .line 56
+    .line 83
     new-array v0, v3, [Ljava/lang/String;
 
     goto :goto_0
@@ -86,21 +88,21 @@
     .prologue
     const v0, -0xff01
 
-    .line 63
+    .line 90
     :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v1
 
-    .line 64
+    .line 91
     invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
 
     move-result-object v2
 
-    .line 65
+    .line 92
     if-eqz p1, :cond_1
 
-    .line 66
+    .line 93
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -129,19 +131,19 @@
 
     move-result v3
 
-    .line 67
+    .line 94
     if-eqz v3, :cond_1
 
     invoke-virtual {v1, v3}, Landroid/content/res/Resources;->getColor(I)I
 
     move-result v0
 
-    .line 72
+    .line 99
     :cond_0
     :goto_0
     return v0
 
-    .line 69
+    .line 96
     :cond_1
     new-instance v3, Ljava/lang/StringBuilder;
 
@@ -167,7 +169,7 @@
 
     move-result v2
 
-    .line 70
+    .line 97
     if-eqz v2, :cond_0
 
     invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getColor(I)I
@@ -178,7 +180,7 @@
 
     goto :goto_0
 
-    .line 71
+    .line 98
     :catch_0
     move-exception v1
 
@@ -189,12 +191,12 @@
     .locals 2
 
     .prologue
-    .line 78
+    .line 105
     invoke-static {p0, p1, p2}, Lcom/mrkeyboard/app/MrThemeColors;->color(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v0
 
-    .line 79
+    .line 106
     const v1, -0xff01
 
     if-ne v0, v1, :cond_0
@@ -212,7 +214,7 @@
     .locals 3
 
     .prologue
-    .line 104
+    .line 131
     const/high16 v0, -0x1000000
 
     const-string v1, "kbd_bg"
@@ -250,12 +252,12 @@
     .locals 2
 
     .prologue
-    .line 87
+    .line 114
     invoke-static {p0, p1, p2}, Lcom/mrkeyboard/app/MrThemeColors;->color(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v0
 
-    .line 88
+    .line 115
     const v1, -0xff01
 
     if-ne v0, v1, :cond_0
@@ -266,13 +268,39 @@
     return v0
 .end method
 
+.method static hidden(Ljava/lang/String;)Z
+    .locals 1
+
+    .prologue
+    .line 26
+    if-eqz p0, :cond_0
+
+    const-string v0, "mr_over"
+
+    invoke-virtual {p0, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    const/4 v0, 0x1
+
+    :goto_0
+    return v0
+
+    :cond_0
+    const/4 v0, 0x0
+
+    goto :goto_0
+.end method
+
 .method static indexOf([Ljava/lang/String;Ljava/lang/String;)I
     .locals 3
 
     .prologue
     const/4 v1, 0x0
 
-    .line 42
+    .line 69
     move v0, v1
 
     :goto_0
@@ -280,7 +308,7 @@
 
     if-ge v0, v2, :cond_1
 
-    .line 43
+    .line 70
     aget-object v2, p0, v0
 
     invoke-virtual {v2, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -289,11 +317,11 @@
 
     if-eqz v2, :cond_0
 
-    .line 45
+    .line 72
     :goto_1
     return v0
 
-    .line 42
+    .line 69
     :cond_0
     add-int/lit8 v0, v0, 0x1
 
@@ -302,7 +330,45 @@
     :cond_1
     move v0, v1
 
-    .line 45
+    .line 72
+    goto :goto_1
+.end method
+
+.method static indexOfTag([Ljava/lang/String;Ljava/lang/String;)I
+    .locals 2
+
+    .prologue
+    .line 38
+    const/4 v0, 0x0
+
+    :goto_0
+    array-length v1, p0
+
+    if-ge v0, v1, :cond_1
+
+    .line 39
+    aget-object v1, p0, v0
+
+    invoke-virtual {v1, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_0
+
+    .line 41
+    :goto_1
+    return v0
+
+    .line 38
+    :cond_0
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_0
+
+    .line 41
+    :cond_1
+    const/4 v0, -0x1
+
     goto :goto_1
 .end method
 
@@ -310,21 +376,21 @@
     .locals 2
 
     .prologue
-    .line 93
+    .line 120
     const-string v0, "tool_ink"
 
     invoke-static {p0, p1, v0}, Lcom/mrkeyboard/app/MrThemeColors;->declared(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v0
 
-    .line 94
+    .line 121
     if-eqz v0, :cond_0
 
     const/high16 v1, -0x1000000
 
     or-int/2addr v0, v1
 
-    .line 95
+    .line 122
     :goto_0
     return v0
 
@@ -346,14 +412,14 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 117
+    .line 144
     if-nez p1, :cond_0
 
-    .line 122
+    .line 149
     :goto_0
     return v0
 
-    .line 119
+    .line 146
     :cond_0
     :try_start_0
     const-string v1, "mr_"
@@ -370,7 +436,7 @@
 
     move-result-object p1
 
-    .line 120
+    .line 147
     :cond_1
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
@@ -422,11 +488,41 @@
 
     goto :goto_1
 
-    .line 121
+    .line 148
     :catch_0
     move-exception v1
 
     goto :goto_0
+.end method
+
+.method static listed([Ljava/lang/String;)I
+    .locals 2
+
+    .prologue
+    .line 31
+    const/4 v0, 0x0
+
+    .line 32
+    :goto_0
+    array-length v1, p0
+
+    if-ge v0, v1, :cond_0
+
+    aget-object v1, p0, v0
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrThemeColors;->hidden(Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_0
+
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_0
+
+    .line 33
+    :cond_0
+    return v0
 .end method
 
 .method static luminance(I)F
@@ -435,7 +531,7 @@
     .prologue
     const/high16 v3, 0x437f0000    # 255.0f
 
-    .line 109
+    .line 136
     shr-int/lit8 v0, p0, 0x10
 
     and-int/lit16 v0, v0, 0xff
@@ -444,7 +540,7 @@
 
     div-float/2addr v0, v3
 
-    .line 110
+    .line 137
     shr-int/lit8 v1, p0, 0x8
 
     and-int/lit16 v1, v1, 0xff
@@ -453,14 +549,14 @@
 
     div-float/2addr v1, v3
 
-    .line 111
+    .line 138
     and-int/lit16 v2, p0, 0xff
 
     int-to-float v2, v2
 
     div-float/2addr v2, v3
 
-    .line 112
+    .line 139
     const v3, 0x3e59b3d0    # 0.2126f
 
     mul-float/2addr v0, v3
@@ -484,7 +580,7 @@
     .locals 1
 
     .prologue
-    .line 24
+    .line 51
     const-string v0, "keyboard_layout_modes"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrThemeColors;->array(Landroid/content/Context;Ljava/lang/String;)[Ljava/lang/String;
@@ -498,7 +594,7 @@
     .locals 1
 
     .prologue
-    .line 19
+    .line 46
     const-string v0, "mr_theme_tags"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrThemeColors;->array(Landroid/content/Context;Ljava/lang/String;)[Ljava/lang/String;
@@ -512,34 +608,34 @@
     .locals 4
 
     .prologue
-    .line 32
+    .line 59
     const-string v0, "keyboard_layout_modes_values"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrThemeColors;->array(Landroid/content/Context;Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v0
 
-    .line 33
+    .line 60
     invoke-static {p0}, Lcom/mrkeyboard/app/MrThemeColors;->tags(Landroid/content/Context;)[Ljava/lang/String;
 
     move-result-object v1
 
     array-length v2, v1
 
-    .line 34
+    .line 61
     array-length v1, v0
 
     if-ne v1, v2, :cond_1
 
-    .line 37
+    .line 64
     :cond_0
     return-object v0
 
-    .line 35
+    .line 62
     :cond_1
     new-array v0, v2, [Ljava/lang/String;
 
-    .line 36
+    .line 63
     const/4 v1, 0x0
 
     :goto_0

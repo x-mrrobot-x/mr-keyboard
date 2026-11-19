@@ -5,6 +5,10 @@ public class Window {
     public android.graphics.drawable.Drawable stubBackground;
     public void setBackgroundDrawable(android.graphics.drawable.Drawable drawable) { stubBackground = drawable; }
     public void clearFlags(int flags) { }
+    /** What a dialog asked of its window (the PC tests read it). */
+    public int stubGravity, stubWidth, stubHeight;
+    public void setGravity(int gravity) { stubGravity = gravity; }
+    public void setLayout(int width, int height) { stubWidth = width; stubHeight = height; }
     public void addFlags(int flags) { }
     public android.view.WindowManager.LayoutParams getAttributes() { return null; }
     public void setAttributes(android.view.WindowManager.LayoutParams attrs) { }

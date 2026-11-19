@@ -11,7 +11,7 @@ these themes or add one, edit its table and run, at the project root:
     python3 docs/tools/make_themes.py --check    # writes nothing; exits with 1 if a file is out of date
 
 The list of the setting "Keyboard theme" is ORDER (below): Midnight Steel, the neon themes, the light themes (Aqua, Sky, Snow, Chrome, Rose), Cobalt
-Glass (the only one written by hand) and Denim, last. The id of a theme is the value stored in the preference pref_keyboard_layout and its position in ORDER (and in
+Glass (the only one written by hand) and Denim; after them the two themes of the backgrounds (overlight and overdark), which the themes screen does not list. The id of a theme is the value stored in the preference pref_keyboard_layout and its position in ORDER (and in
 mr_theme_layouts): change the list, run the script and the lists follow. Ids are not kept between versions.
 
 What it writes, for each theme <t> of the tables:
@@ -1179,6 +1179,28 @@ SOLID = [
               ('modifier_indicator_on', SKY['white']),
               ('modifier_indicator_lock', SKY['red']),
           ])),
+    # ---- the two themes of the backgrounds (colours, gradients, landscapes and the picture of the gallery). They are not in the list of themes of the
+    # screen: a background chooses one of them (MrBackdrop.themeTag), and the choice of any other theme puts the background away. The keys are flat
+    # (no lip, no edge) and see-through: white at about a fifth over a dark background, black at a tenth over a light one, so what shows
+    # through is the background itself; only the ink changes between the two themes. The opaque colours of the table (bg, key, mod) are what the
+    # rules derive from (the bubble and the popup of variants, the dash, the tools), and the fills of the keys are the roles below. bg is also what the
+    # keyboard shows if the background cannot be made.
+    solid('overlight', 'Background, light ink',
+          bg='#1b2030', key='#3a4152', mod='#5a6580', text=WHITE, accent='#9ecbff', tint='#9ecbff', lip=0,
+          roles=collections.OrderedDict([
+              ('ctrl_bg', '#5a6580'),
+              ('hint', '#c8ccd6'),                    # the small letters of the keys: pale, on whatever the background is
+              ('key_normal_fill', '#38ffffff'), ('key_pressed_fill', '#66ffffff'), ('key_on_fill', '#52ffffff'), ('key_lock_fill', '#8cff6b6b'),
+              ('key_acc_normal_fill', '#38ffffff'), ('key_acc_pressed_fill', '#66ffffff'), ('key_acc_on_fill', '#52ffffff'), ('key_acc_lock_fill', '#8cff6b6b'),   # the same as the letters
+          ])),
+    solid('overdark', 'Background, dark ink',
+          bg='#e9edf2', key='#ffffff', mod='#d5dbe3', text='#202124', accent='#1a73e8', tint='#1a73e8', lip=0,
+          roles=collections.OrderedDict([
+              ('ctrl_bg', '#d5dbe3'),
+              ('hint', '#5f6368'),                    # the small letters of the keys: a neutral grey, not the blue that a light theme would derive
+              ('key_normal_fill', '#12000000'), ('key_pressed_fill', '#2e000000'), ('key_on_fill', '#24000000'), ('key_lock_fill', '#59d93b3b'),
+              ('key_acc_normal_fill', '#12000000'), ('key_acc_pressed_fill', '#2e000000'), ('key_acc_on_fill', '#24000000'), ('key_acc_lock_fill', '#59d93b3b'),   # the same as the letters
+          ])),
 ]
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -1732,7 +1754,7 @@ LAYOUTS = collections.OrderedDict([
 #           edited by hand, the script only places them in the lists
 #   AFTER   the last theme written by hand in strings.xml: the names of the generated themes go right after it
 # ---------------------------------------------------------------------------------------------------------------
-ORDER = ['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'aqua', 'sky', 'snow', 'chrome', 'rose', 'glass', 'denim']
+ORDER = ['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'aqua', 'sky', 'snow', 'chrome', 'rose', 'glass', 'denim', 'overlight', 'overdark']
 HAND = ('glass',)
 AFTER = 'glass'
 Family = collections.namedtuple('Family', 'name themes flags colors drawables intro')

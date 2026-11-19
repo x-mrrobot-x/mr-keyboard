@@ -13,6 +13,7 @@ public class Intent implements android.os.Parcelable {
     public static final String EXTRA_INTENT = "android.intent.extra.INTENT";
     public static final String ACTION_CREATE_DOCUMENT = "android.intent.action.CREATE_DOCUMENT";
     public static final String ACTION_OPEN_DOCUMENT = "android.intent.action.OPEN_DOCUMENT";
+    public static final String ACTION_PICK = "android.intent.action.PICK";
     public static final String CATEGORY_OPENABLE = "android.intent.category.OPENABLE";
     public static final String EXTRA_TITLE = "android.intent.extra.TITLE";
     public static final String EXTRA_MIME_TYPES = "android.intent.extra.MIME_TYPES";
@@ -35,9 +36,16 @@ public class Intent implements android.os.Parcelable {
         return this;
     }
     public String getAction() { return action; }
-    public Intent addCategory(String category) { return this; }
-    public Intent setType(String type) { return this; }
-    public android.net.Uri getData() { return null; }
+    /** Not in Android: the categories that were added (the PC tests read them). */
+    public final java.util.Set<String> stubCategories = new java.util.HashSet<String>();
+    public Intent addCategory(String category) { stubCategories.add(category); return this; }
+    public Intent setType(String type) { stubType = type; return this; }
+    /** What the picker was asked for (the PC tests read it): the data and the type. */
+    public android.net.Uri stubData;
+    public String stubType;
+    public Intent setDataAndType(android.net.Uri data, String type) { stubData = data; stubType = type; return this; }
+    public android.net.Uri getData() { return stubData; }
+    public Intent setData(android.net.Uri data) { stubData = data; return this; }
     public <T extends android.os.Parcelable> T getParcelableExtra(String name) { return null; }
     public Intent putExtra(String name, int value) { extras.put(name, value); return this; }
     public Intent putExtra(String name, boolean value) { extras.put(name, value); return this; }

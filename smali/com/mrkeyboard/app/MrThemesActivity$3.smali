@@ -3,7 +3,7 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Landroid/widget/SeekBar$OnSeekBarChangeListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 124
+    .line 183
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$3;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,41 +36,15 @@
 
 
 # virtual methods
-.method public onProgressChanged(Landroid/widget/SeekBar;IZ)V
-    .locals 2
-
-    .prologue
-    .line 126
-    if-eqz p3, :cond_0
-
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$3;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    add-int/lit8 v1, p2, 0x64
-
-    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrThemesActivity;->zoomChanged(I)V
-
-    .line 127
-    :cond_0
-    return-void
-.end method
-
-.method public onStartTrackingTouch(Landroid/widget/SeekBar;)V
-    .locals 0
-
-    .prologue
-    .line 130
-    return-void
-.end method
-
-.method public onStopTrackingTouch(Landroid/widget/SeekBar;)V
+.method public onClick(Landroid/view/View;)V
     .locals 1
 
     .prologue
-    .line 133
+    .line 185
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$3;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->saveSpec()V
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->removeImage()V
 
-    .line 134
+    .line 186
     return-void
 .end method

@@ -20,12 +20,13 @@
 #     return), a sound that is still loading, fails or is missing (the system click plays as before), a style that changes, a preview asked for before the sound has loaded; the
 #     screen (fifteen tiles in the order of the picture, the choice written in sound_on / pref_sound_style, mute, the volume, the note of the default sound); and the files
 #     (the thirteen .ogg of res/raw read byte by byte, the strings in 3 languages, the manifest, the row of the feedback screen, the reset and the call in LatinIME.playKeyClick).
-#   - ThemesTest: the themes screen (MrThemesActivity, MrThemePreview, MrThemeRow, MrBackdrop, MrBackdropDrawable, MrScenes, MrThemeColors) with the real colours and texts of res/ and Java2D behind the
-#     Canvas stub (the first argument is a folder where it dumps the previews as PNG): the spec of the background (gradient, landscape, picture with zoom and position, anything else is none), the part
-#     of a picture that fills the keyboard and how a finger moves it, the gradients drawn as CSS does, the veil that keeps the toolbar readable over every landscape and gradient under dark and light
-#     themes (over all of the background and over the toolbar), the picture of the gallery (size, turned as the photo says, a failure keeps the old one), the background put on the keyboard and the
-#     colour of the navigation bar (up to Android 15), the thirteen themes (dark or light by their background), the small keyboards (every key, the faces made once, the neon light, the ring), the screen
-#     (theme and background chosen apart, zoom, drag, softening, gallery, remove, a picture that is gone), the row of the settings, and the files (texts in three languages, manifest, prefs.xml, smali hooks).
+#   - ThemesTest: the themes screen (MrThemesActivity, MrThemePreview, MrCropView, MrThemeRow, MrBackdrop, MrBackdropDrawable, MrScenes, MrThemeColors) with the real colours and texts of res/ and Java2D behind the
+#     Canvas stub (the first argument is a folder where it dumps the previews as PNG): the spec of the background (colour, gradient, landscape, picture with zoom and position, anything else is none), the part
+#     of a picture that fills the keyboard and how a finger moves and pinches its frame, the 21 gradients drawn as CSS does (stops and lights included), the veil that keeps the toolbar readable over every
+#     colour, gradient and landscape (a plain colour has none; the softening is for pictures only), the picture of the gallery (size, turned as the photo says, a failure keeps what waits, applied, cancelled, let go),
+#     the background put on the keyboard only in the two themes of the backgrounds and the colour of the navigation bar (up to Android 15), the fifteen themes (thirteen listed, two hidden with see-through keys and
+#     light or dark ink), the small keyboards (every key, the faces made once, the neon light, the ring), the screen (a theme chosen at once, a background only after its preview dialog, the themes never changed by a
+#     background, the photo picker and its fallbacks, the crop dialog, remove, a picture that is gone), the row of the settings, and the files (texts in three languages, manifest, prefs.xml, smali hooks).
 #   - NavTest: opening screens without stacking copies (MrNav): a settings screen opened from the keyboard goes in a task of its own (the affinity of the settings), cleared and out of
 #     the recents; opened from another screen it comes to the front instead of piling up; the AI style editor with an unsaved draft is the exception and is brought back, not cleared.
 #   - BottomSpaceTest: the space under the last row of keys (MrBottom): 4 dp whatever the way of navigating, the height that is left to the rows (the space is

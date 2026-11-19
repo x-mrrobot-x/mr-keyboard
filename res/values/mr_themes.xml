@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Registry of the keyboard themes. The index of mr_theme_layouts is the value stored in the preference
      pref_keyboard_layout (the same positions as keyboard_layout_modes_values): 0 Midnight Steel, 1 Aurora, 2 Neon Cyan,
-     3 Neon Purple, 4 Neon Pink, 5 Synthwave, 6 Aqua, 7 Sky, 8 Snow, 9 Chrome, 10 Rose, 11 Cobalt Glass, 12 Denim. Glass is written by hand;
+     3 Neon Purple, 4 Neon Pink, 5 Synthwave, 6 Aqua, 7 Sky, 8 Snow, 9 Chrome, 10 Rose, 11 Cobalt Glass, 12 Denim, and the two themes of the backgrounds, which the themes screen does not list: 13 overlight (light ink) and 14 overdark
+     (dark ink). Glass is written by hand;
      the others (dark: Midnight, Denim; neon: Aurora, Cyan, Purple, Pink, Synthwave; light: Aqua, Sky, Snow, Chrome, Rose) are written
      by docs/tools/make_themes.py, which also writes the three lists below and keyboard_layout_modes (the order is its
      ORDER). New theme: create res/layout/input_mr_<theme>.xml with the tag mr_<theme>, one line in mr_theme_layouts, one
@@ -24,6 +25,8 @@
         <item>@layout/input_mr_rose</item>
         <item>@layout/input_mr_glass</item>
         <item>@layout/input_mr_denim</item>
+        <item>@layout/input_mr_overlight</item>
+        <item>@layout/input_mr_overdark</item>
     </array>
     <!-- Tag of each theme layout (android:tag of LatinKeyboardView) -->
     <string-array name="mr_theme_tags">
@@ -40,6 +43,8 @@
         <item>mr_rose</item>
         <item>mr_glass</item>
         <item>mr_denim</item>
+        <item>mr_overlight</item>
+        <item>mr_overdark</item>
     </string-array>
     <!-- Flags of each tag, in the same order as mr_theme_tags (the bits are at the top of MrTheme.smali):
          0x02 flat bar, 0x04 highlight keys, 0x08 enlarged highlight group, 0x10 translucent,
@@ -58,5 +63,7 @@
         <item>0x4e</item>
         <item>0x7e</item>
         <item>0x7e</item>
+        <item>0x6e</item>
+        <item>0x4e</item>
     </integer-array>
 </resources>

@@ -3,12 +3,12 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Landroid/widget/SeekBar$OnSeekBarChangeListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->onCreate(Landroid/os/Bundle;)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->addBg(Landroid/widget/LinearLayout;Lcom/mrkeyboard/app/MrBackdrop$Spec;Ljava/lang/String;I)Lcom/mrkeyboard/app/MrThemePreview;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
+.field final synthetic val$spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Lcom/mrkeyboard/app/MrBackdrop$Spec;)V
     .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 147
+    .line 245
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$4;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$4;->val$spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,39 +45,17 @@
 
 
 # virtual methods
-.method public onProgressChanged(Landroid/widget/SeekBar;IZ)V
-    .locals 1
+.method public onClick(Landroid/view/View;)V
+    .locals 2
 
     .prologue
-    .line 149
-    if-eqz p3, :cond_0
-
+    .line 247
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$4;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    invoke-virtual {v0, p2}, Lcom/mrkeyboard/app/MrThemesActivity;->softChanged(I)V
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$4;->val$spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
-    .line 150
-    :cond_0
-    return-void
-.end method
+    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrThemesActivity;->openBackdrop(Lcom/mrkeyboard/app/MrBackdrop$Spec;)V
 
-.method public onStartTrackingTouch(Landroid/widget/SeekBar;)V
-    .locals 0
-
-    .prologue
-    .line 153
-    return-void
-.end method
-
-.method public onStopTrackingTouch(Landroid/widget/SeekBar;)V
-    .locals 1
-
-    .prologue
-    .line 156
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$4;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->saveSoft()V
-
-    .line 157
+    .line 248
     return-void
 .end method

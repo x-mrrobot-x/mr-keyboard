@@ -1,19 +1,22 @@
 package com.mrkeyboard.app;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
+import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -24,17 +27,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * "Keyboard theme": the screen that replaces the list of names. At the top the keyboard as it is now (the theme
- * with its background, drawn with its real keys); under it the themes, each one a small keyboard to touch, and the backgrounds: none (the colour
- * of the theme), the picture of the gallery, the landscapes and the gradients ({@link MrBackdrop}). The theme and the background are chosen
- * apart: every tile of the themes shows the background in use, and every tile of the backgrounds shows the theme in use, so what a touch gives is
- * what the tile shows.
+ * "Keyboard theme": the screen that replaces the list of names. At the top the keyboard as it is now, under it the themes, each one a small keyboard to
+ * touch, and under them the colours, the gradients, the landscapes and the pictures of the gallery ({@link MrBackdrop}).
  *
- * <p>A picture of the gallery is read once ({@link MrBackdrop#importImage}) and kept; it is moved by dragging the big keyboard and zoomed with a
- * slider. How much the background is softened is a slider too. Everything is in the
- * preferences that the keyboard reads: {@code pref_keyboard_layout} (the theme, as it always was), {@code pref_kbd_bg} and
- * {@code pref_kbd_bg_soft}. Nothing is kept here, so the screen can be made again at any time. The keys that change often (the zoom, the
- * position, the softening) are written when the finger lets go, not on every step, because the keyboard is made again at every write.
+ * <p>A theme and a background are never mixed. A touch on a theme is the choice: it is written at once and the background goes away. A touch on a
+ * background opens a dialog with the keyboard as it will look, and only "Apply" writes it (the keyboard is then in one of the two themes of the
+ * backgrounds: flat, see-through keys with light or dark ink). Only the keyboard at the top shows the choice in use; the tiles of the themes always
+ * show the themes as they are.
+ *
+ * <p>A picture of the gallery is chosen with the photo picker of the system ({@link #pickers}) and read once into a waiting file
+ * ({@link MrBackdrop#importPending}); a dialog shows it with the frame of the keyboard over it, to drag and to pinch ({@link MrCropView}), with
+ * the softening of the background under it; "Next" shows the keyboard as it will look and "Apply" makes the waiting picture the background. A picture
+ * that is not applied costs the one that was there nothing. Everything is in the preferences that the keyboard reads: {@code pref_keyboard_layout}
+ * (the theme), {@code pref_kbd_bg} and {@code pref_kbd_bg_soft}. Nothing else is kept here, so the screen can be made again at any time.
  */
 public class MrThemesActivity extends Activity {
     static final String THEME_KEY = "pref_keyboard_layout";
@@ -42,6 +47,9 @@ public class MrThemesActivity extends Activity {
     static final int REQ_PICK = 71;
     /** The longest side of the small copy of the picture that the tiles show. */
     static final int THUMB_SIDE = 320;
+    /** The photo picker of Android 13 (and of the phones that got it later through the system updates). */
+    static final String ACTION_PICK_IMAGES = "android.provider.action.PICK_IMAGES";
+    static final String IMAGES_URI = "content://media/external/images/media";
 
     MrKit k;
     SharedPreferences mPrefs;
@@ -49,28 +57,33 @@ public class MrThemesActivity extends Activity {
     String[] mNames = new String[0];
     /** What the theme preference holds for each theme (the same order). */
     String[] mValues = new String[0];
+    /** How many themes the screen lists (the themes of the backgrounds come after them). */
+    int mListed;
     int mTheme;
+    /** The background in use: none unless the keyboard is in one of the themes of the backgrounds. */
     MrBackdrop.Spec mSpec = MrBackdrop.Spec.NO;
     int mSoft;
-    /** The picture of the gallery (to move and zoom on the big keyboard) and the small copy of it that the tiles show. */
+    /** The picture of the gallery that is the background (for the big keyboard and for the crop) and the small copy of it that the tiles show. */
     Bitmap mImage, mThumb;
     /** Bumped with every load of the picture, so that a slow one that comes late is let go. */
     int mLoad;
 
     MrThemePreview mBig;
     TextView mCaption;
-    LinearLayout mEditor, mSoftBox;
-    SeekBar mZoom, mSoftBar;
-    TextView mZoomText, mSoftText, mRemove;
+    TextView mRemove;
     final List<MrThemePreview> mThemeTiles = new ArrayList<MrThemePreview>();
     /** The tiles of the backgrounds, in the order they were made, each with what it stands for. */
     final List<MrThemePreview> mBgTiles = new ArrayList<MrThemePreview>();
     final List<MrBackdrop.Spec> mBgSpecs = new ArrayList<MrBackdrop.Spec>();
     /** The tile of the picture of the gallery (hidden while there is none). */
     MrThemePreview mMineTile;
-    /** The finger on the big keyboard: where it was last. */
-    float mLastX, mLastY;
-    boolean mDragging;
+
+    /** The dialog that is open (the preview or the crop), and what is in it. */
+    Dialog mDialog;
+    MrThemePreview mDialogPreview;
+    MrCropView mDialogCrop;
+    SeekBar mDialogSoft;
+    TextView mDialogApply, mDialogCancel, mDialogNext;
 
     @Override
     protected void attachBaseContext(Context base) {
@@ -85,6 +98,7 @@ public class MrThemesActivity extends Activity {
         mTags = MrThemeColors.tags(this);
         mNames = MrThemeColors.names(this);
         mValues = MrThemeColors.values(this);
+        mListed = MrThemeColors.listed(mTags);
         readPrefs();
 
         ScrollView scroll = new ScrollView(this);
@@ -99,72 +113,19 @@ public class MrThemesActivity extends Activity {
             }
         }), k.wide(0));
 
-        // the keyboard as it is now: to see the choice, and (with a picture) to drag
+        // the keyboard as it is now: the only place that shows the choice in use
         mBig = new MrThemePreview(this);
         col.addView(mBig, k.wide(14));
-        mBig.setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent e) {
-                return drag(v, e);
-            }
-        });
         mCaption = k.label("", 14f, k.text2, false);
         mCaption.setGravity(Gravity.CENTER);
         col.addView(mCaption, k.wide(8));
-
-        mEditor = k.panel();
-        col.addView(mEditor, k.wide(12));
-        mEditor.addView(k.label(k.t("mr_themes_drag"), 13f, k.text2, false), k.wide(0));
-        LinearLayout zoomLine = k.row();
-        mEditor.addView(zoomLine, k.wide(10));
-        zoomLine.addView(k.label(k.t("mr_themes_zoom"), 16f, k.text, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        mZoomText = k.label("", 16f, k.text2, false);
-        zoomLine.addView(mZoomText, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        mZoom = new SeekBar(this);
-        mZoom.setMax(MrBackdrop.ZOOM_MAX - MrBackdrop.ZOOM_MIN);
-        mZoom.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            public void onProgressChanged(SeekBar bar, int progress, boolean fromUser) {
-                if (fromUser) zoomChanged(MrBackdrop.ZOOM_MIN + progress);
-            }
-
-            public void onStartTrackingTouch(SeekBar bar) {
-            }
-
-            public void onStopTrackingTouch(SeekBar bar) {
-                saveSpec();
-            }
-        });
-        mEditor.addView(mZoom, k.wide(6));
-
-        mSoftBox = k.panel();
-        col.addView(mSoftBox, k.wide(12));
-        LinearLayout softLine = k.row();
-        mSoftBox.addView(softLine, k.wide(0));
-        softLine.addView(k.label(k.t("mr_themes_soften"), 16f, k.text, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        mSoftText = k.label("", 16f, k.text2, false);
-        softLine.addView(mSoftText, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        mSoftBar = new SeekBar(this);
-        mSoftBar.setMax(MrBackdrop.MAX_SOFT);
-        mSoftBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            public void onProgressChanged(SeekBar bar, int progress, boolean fromUser) {
-                if (fromUser) softChanged(progress);
-            }
-
-            public void onStartTrackingTouch(SeekBar bar) {
-            }
-
-            public void onStopTrackingTouch(SeekBar bar) {
-                saveSoft();
-            }
-        });
-        mSoftBox.addView(mSoftBar, k.wide(6));
-        mSoftBox.addView(k.label(k.t("mr_themes_soften_hint"), 13f, k.text2, false), k.wide(4));
 
         // the themes
         col.addView(k.label(k.t("mr_themes_themes"), 16f, k.text2, true), k.wide(22));
         LinearLayout themes = k.column();
         col.addView(themes, k.wide(8));
         LinearLayout row = null;
-        for (int i = 0; i < mTags.length; i++) {
+        for (int i = 0; i < mListed; i++) {
             if (i % COLUMNS == 0) {
                 row = tileRow(themes);
             }
@@ -177,15 +138,28 @@ public class MrThemesActivity extends Activity {
                 }
             }), tileParams(i % COLUMNS));
         }
-        fillRow(row, mTags.length);
+        fillRow(row, mListed);
 
-        // the backgrounds
-        col.addView(k.label(k.t("mr_themes_backgrounds"), 16f, k.text2, true), k.wide(22));
-        LinearLayout first = k.row();
-        col.addView(first, k.wide(8));
-        addBg(first, MrBackdrop.Spec.NO, k.t("mr_themes_none"), 0, false);
-        addGallery(first);
-        mMineTile = addBg(first, MrBackdrop.Spec.image(100, 0, 0, 0L), k.t("mr_themes_mine"), 2, false);
+        // the backgrounds: colours, gradients, landscapes (drawings: the name goes in the description only), and the gallery
+        col.addView(k.label(k.t("mr_themes_colors"), 16f, k.text2, true), k.wide(22));
+        LinearLayout colours = k.column();
+        col.addView(colours, k.wide(8));
+        row = null;
+        for (int i = 0; i < MrBackdrop.COLORS.length; i++) {
+            if (i % COLUMNS == 0) row = tileRow(colours);
+            addBg(row, MrBackdrop.Spec.color(i), k.t("mr_themes_color", i + 1), i % COLUMNS);
+        }
+        fillRow(row, MrBackdrop.COLORS.length);
+
+        col.addView(k.label(k.t("mr_themes_gradients"), 16f, k.text2, true), k.wide(18));
+        LinearLayout gradients = k.column();
+        col.addView(gradients, k.wide(8));
+        row = null;
+        for (int i = 0; i < MrBackdrop.GRADIENT_COUNT; i++) {
+            if (i % COLUMNS == 0) row = tileRow(gradients);
+            addBg(row, MrBackdrop.Spec.gradient(i), k.t("mr_themes_gradient", i + 1), i % COLUMNS);
+        }
+        fillRow(row, MrBackdrop.GRADIENT_COUNT);
 
         col.addView(k.label(k.t("mr_themes_landscapes"), 16f, k.text2, true), k.wide(18));
         LinearLayout scenes = k.column();
@@ -193,19 +167,18 @@ public class MrThemesActivity extends Activity {
         row = null;
         for (int i = 0; i < MrScenes.COUNT; i++) {
             if (i % COLUMNS == 0) row = tileRow(scenes);
-            addBg(row, MrBackdrop.Spec.scene(i), sceneName(this, i), i % COLUMNS, true);
+            addBg(row, MrBackdrop.Spec.scene(i), sceneName(this, i), i % COLUMNS);
         }
         fillRow(row, MrScenes.COUNT);
 
-        col.addView(k.label(k.t("mr_themes_gradients"), 16f, k.text2, true), k.wide(18));
-        LinearLayout gradients = k.column();
-        col.addView(gradients, k.wide(8));
-        row = null;
-        for (int i = 0; i < MrBackdrop.GRADIENTS.length; i++) {
-            if (i % COLUMNS == 0) row = tileRow(gradients);
-            addBg(row, MrBackdrop.Spec.gradient(i), k.t("mr_themes_gradient", i + 1), i % COLUMNS, true);
-        }
-        fillRow(row, MrBackdrop.GRADIENTS.length);
+        col.addView(k.label(k.t("mr_themes_gallery"), 16f, k.text2, true), k.wide(18));
+        LinearLayout gallery = k.row();
+        gallery.setGravity(Gravity.TOP);
+        col.addView(gallery, k.wide(8));
+        addGallery(gallery);
+        mMineTile = addMine(gallery);
+        View gap = new View(this);
+        gallery.addView(gap, tileParams(2));
 
         mRemove = k.button(k.t("mr_themes_remove"), false, new View.OnClickListener() {
             public void onClick(View v) {
@@ -222,6 +195,9 @@ public class MrThemesActivity extends Activity {
     @Override
     protected void onDestroy() {
         mLoad++;
+        closeDialog();
+        // a picture that was chosen and not applied is let go of
+        MrBackdrop.discardPending(this);
         mImage = null;
         mThumb = null;
         super.onDestroy();
@@ -258,89 +234,93 @@ public class MrThemesActivity extends Activity {
         box.setOnClickListener(l);
         box.setContentDescription(name);
         box.addView(p, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        if (name != null) {
-            TextView t = k.label(name, 12f, k.text2, false);
-            t.setGravity(Gravity.CENTER);
-            t.setSingleLine(true);
-            box.addView(t, k.wide(4));
-        }
         return box;
     }
 
-    /** The tile of a background. {@code captioned}: the name goes in the description only (landscapes and gradients are drawings, not words). */
-    private MrThemePreview addBg(LinearLayout row, final MrBackdrop.Spec spec, String name, int column, boolean captioned) {
+    /** The tile of a background (a drawing, not words: its name is the description for the screen readers). */
+    private MrThemePreview addBg(LinearLayout row, final MrBackdrop.Spec spec, String name, int column) {
         MrThemePreview p = new MrThemePreview(this);
         mBgTiles.add(p);
         mBgSpecs.add(spec);
-        LinearLayout box = tileBox(p, captioned ? null : name, column, new View.OnClickListener() {
+        row.addView(tileBox(p, name, column, new View.OnClickListener() {
             public void onClick(View v) {
-                chooseBackground(spec);
+                openBackdrop(spec);
             }
-        });
-        if (captioned) box.setContentDescription(name);
-        row.addView(box, tileParams(column));
+        }), tileParams(column));
         return p;
     }
 
-    /** The tile that opens the gallery. */
+    /** The tile that opens the photo picker. */
     private void addGallery(LinearLayout row) {
         MrThemePreview p = new MrThemePreview(this);
         p.showPlus(k.card, k.stroke, k.accent);
-        row.addView(tileBox(p, k.t("mr_themes_gallery"), 1, new View.OnClickListener() {
+        row.addView(tileBox(p, k.t("mr_themes_gallery"), 0, new View.OnClickListener() {
             public void onClick(View v) {
                 pick();
             }
+        }), tileParams(0));
+    }
+
+    /** The tile of the picture that is kept: it opens the crop again. */
+    private MrThemePreview addMine(LinearLayout row) {
+        MrThemePreview p = new MrThemePreview(this);
+        final MrBackdrop.Spec spec = MrBackdrop.Spec.image(100, 0, 0, 0L);
+        mBgTiles.add(p);
+        mBgSpecs.add(spec);
+        row.addView(tileBox(p, k.t("mr_themes_mine"), 1, new View.OnClickListener() {
+            public void onClick(View v) {
+                editImage();
+            }
         }), tileParams(1));
+        return p;
     }
 
     // ---- state
 
     /** Reads what the keyboard reads. */
     void readPrefs() {
-        mSpec = MrBackdrop.current(this);
-        mSoft = MrBackdrop.soft(this);
         mTheme = MrThemeColors.indexOf(mValues, mPrefs.getString(THEME_KEY, "0"));
+        // a background counts only in the themes of the backgrounds: in any other theme an old value of the preference is let be
+        boolean inBackdropTheme = mTheme < mTags.length && MrThemeColors.hidden(mTags[mTheme]);
+        mSpec = inBackdropTheme ? MrBackdrop.current(this) : MrBackdrop.Spec.NO;
+        mSoft = MrBackdrop.soft(this);
     }
 
     String tag() {
         return mTheme < mTags.length ? mTags[mTheme] : null;
     }
 
+    /** The spec that a tile of the backgrounds stands for now: the picture keeps the zoom and the position it has when it is the one in use. */
+    MrBackdrop.Spec tileSpec(MrBackdrop.Spec s) {
+        return s.kind == MrBackdrop.IMAGE && mSpec.kind == MrBackdrop.IMAGE ? mSpec : s;
+    }
+
     /** Draws everything again from the state: the big keyboard, the tiles that are chosen, the controls that apply. */
     void refresh() {
-        String tag = tag();
-        boolean image = mSpec.kind == MrBackdrop.IMAGE;
-        mBig.show(tag, mSpec, mImage, mSoft);
+        mBig.show(tag(), mSpec, mImage, mSoft);
         for (int i = 0; i < mThemeTiles.size(); i++) {
             MrThemePreview p = mThemeTiles.get(i);
-            p.show(i < mTags.length ? mTags[i] : null, mSpec, mThumb, mSoft);
-            p.setChecked(i == mTheme, k.accent, k.onAccent);
+            p.show(mTags[i], MrBackdrop.Spec.NO, null, 0);
+            p.setChecked(mSpec.kind == MrBackdrop.NONE && i == mTheme, k.accent, k.onAccent);
         }
         boolean mine = MrBackdrop.hasImage(this);
         for (int i = 0; i < mBgTiles.size(); i++) {
             MrThemePreview p = mBgTiles.get(i);
-            MrBackdrop.Spec s = mBgSpecs.get(i);
-            p.show(tag, s, mThumb, mSoft);
-            p.setChecked(s.kind == mSpec.kind && (s.kind == MrBackdrop.NONE || s.kind == MrBackdrop.IMAGE || s.index == mSpec.index), k.accent, k.onAccent);
+            MrBackdrop.Spec s = tileSpec(mBgSpecs.get(i));
+            p.show(MrBackdrop.themeTag(s), s, s.kind == MrBackdrop.IMAGE ? mThumb : null, s.kind == MrBackdrop.IMAGE ? mSoft : 0);
+            p.setChecked(mSpec.kind != MrBackdrop.NONE && s.kind == mSpec.kind && (s.kind == MrBackdrop.IMAGE || s.index == mSpec.index), k.accent, k.onAccent);
         }
         if (mMineTile != null) {
             View box = (View) mMineTile.getParent();
             if (box != null) box.setVisibility(mine ? View.VISIBLE : View.INVISIBLE);
         }
         mCaption.setText(caption());
-        mEditor.setVisibility(image ? View.VISIBLE : View.GONE);
-        mSoftBox.setVisibility(mSpec.kind == MrBackdrop.NONE ? View.GONE : View.VISIBLE);
-        mZoom.setProgress(mSpec.zoom - MrBackdrop.ZOOM_MIN);
-        mZoomText.setText((mSpec.zoom) + "%");
-        mSoftBar.setProgress(mSoft);
-        mSoftText.setText(mSoft + "%");
         mRemove.setVisibility(mine ? View.VISIBLE : View.GONE);
     }
 
     String caption() {
-        String name = mTheme < mNames.length ? mNames[mTheme] : "";
-        if (mSpec.kind == MrBackdrop.NONE) return name;
-        return name + " · " + backgroundName(this, mSpec);
+        if (mSpec.kind != MrBackdrop.NONE) return backgroundName(this, mSpec);
+        return mTheme < mListed && mTheme < mNames.length ? mNames[mTheme] : "";
     }
 
     /** The name of the landscape {@code i}. */
@@ -353,99 +333,241 @@ public class MrThemesActivity extends Activity {
     static String backgroundName(Context c, MrBackdrop.Spec spec) {
         String s;
         switch (spec.kind) {
+            case MrBackdrop.COLOR: s = MrPacks.text(c, "mr_themes_color", spec.index + 1); break;
             case MrBackdrop.GRADIENT: s = MrPacks.text(c, "mr_themes_gradient", spec.index + 1); break;
             case MrBackdrop.SCENE: s = sceneName(c, spec.index); break;
             case MrBackdrop.IMAGE: s = MrPacks.text(c, "mr_themes_mine"); break;
-            default: s = MrPacks.text(c, "mr_themes_none"); break;
+            default: s = ""; break;
         }
         return s != null ? s : "";
     }
 
     // ---- choosing
 
+    /** A theme of the list: it is the choice (written at once) and the background goes away, so the two are never mixed. */
     void chooseTheme(int index) {
-        mTheme = index;
-        mPrefs.edit().putString(THEME_KEY, index < mValues.length ? mValues[index] : String.valueOf(index)).apply();
+        mPrefs.edit().putString(THEME_KEY, index < mValues.length ? mValues[index] : String.valueOf(index)).putString(MrBackdrop.PREF, "").apply();
+        readPrefs();
         refresh();
     }
 
-    void chooseBackground(MrBackdrop.Spec spec) {
-        MrBackdrop.Spec next = spec;
+    /** A colour, a gradient or a landscape: the dialog that shows the keyboard with it, to apply or to cancel. Nothing is written yet. */
+    void openBackdrop(MrBackdrop.Spec spec) {
         if (spec.kind == MrBackdrop.IMAGE) {
-            // the picture keeps the zoom and the position it had; its time is the one of the file that is kept
-            next = mSpec.kind == MrBackdrop.IMAGE ? mSpec : MrBackdrop.Spec.image(100, 0, 0, MrBackdrop.imageStamp(this));
+            editImage();
+            return;
         }
-        mSpec = next;
-        mPrefs.edit().putString(MrBackdrop.PREF, next.format()).apply();
+        showPreview(spec, null, mSoft, false);
+    }
+
+    /** The background goes on the keyboard: the theme of the backgrounds that suits it, and the background itself (one write). */
+    void applyBackdrop(MrBackdrop.Spec spec, int soft, boolean pending) {
+        MrBackdrop.Spec chosen = spec;
+        if (spec.kind == MrBackdrop.IMAGE && pending) {
+            // the picture that was waiting becomes the one of the background; its time is the one of the file that is kept
+            if (!MrBackdrop.commitPending(this)) {
+                k.toast(k.t("mr_themes_image_failed"));
+                return;
+            }
+            chosen = MrBackdrop.Spec.image(spec.zoom, spec.dx, spec.dy, MrBackdrop.imageStamp(this));
+        }
+        int index = MrThemeColors.indexOfTag(mTags, MrBackdrop.themeTag(chosen));
+        if (index < 0) {
+            k.toast(k.t("mr_themes_image_failed"));
+            return;
+        }
+        SharedPreferences.Editor e = mPrefs.edit();
+        e.putString(THEME_KEY, index < mValues.length ? mValues[index] : String.valueOf(index));
+        e.putString(MrBackdrop.PREF, chosen.format());
+        if (chosen.kind == MrBackdrop.IMAGE) e.putInt(MrBackdrop.PREF_SOFT, MrBackdrop.clamp(soft, 0, MrBackdrop.MAX_SOFT));
+        e.apply();
+        readPrefs();
+        if (chosen.kind == MrBackdrop.IMAGE) loadImage();
         refresh();
     }
 
-    void zoomChanged(int zoom) {
-        mSpec = mSpec.moved(zoom, mSpec.dx, mSpec.dy);
-        mBig.show(tag(), mSpec, mImage, mSoft);
-        mZoomText.setText(mSpec.zoom + "%");
-    }
+    // ---- the dialogs
 
-    void softChanged(int percent) {
-        mSoft = MrBackdrop.clamp(percent, 0, MrBackdrop.MAX_SOFT);
-        mBig.show(tag(), mSpec, mImage, mSoft);
-        mSoftText.setText(mSoft + "%");
-    }
-
-    /** The finger let go of the zoom or of the picture: the position is kept (the keyboard is made again once). */
-    void saveSpec() {
-        mPrefs.edit().putString(MrBackdrop.PREF, mSpec.format()).apply();
-        refresh();
-    }
-
-    void saveSoft() {
-        mPrefs.edit().putInt(MrBackdrop.PREF_SOFT, mSoft).apply();
-        refresh();
-    }
-
-    /** The finger on the big keyboard moves the picture under it. */
-    boolean drag(View v, MotionEvent e) {
-        if (mSpec.kind != MrBackdrop.IMAGE || mImage == null) return false;
-        int action = e.getActionMasked();
-        if (action == MotionEvent.ACTION_DOWN) {
-            mLastX = e.getX();
-            mLastY = e.getY();
-            mDragging = true;
-            ViewParent parent = v.getParent();
-            if (parent != null) parent.requestDisallowInterceptTouchEvent(true);
-            return true;
+    private Dialog newDialog(boolean full) {
+        int theme = getResources().getIdentifier("Theme.MrKeyboard.Dialog", "style", getPackageName());
+        Dialog d = new Dialog(this, theme);
+        d.requestWindowFeature(1); // FEATURE_NO_TITLE: the content has its own
+        Window w = d.getWindow();
+        if (w != null) {
+            // the crop is a black page; the preview is a sheet at the bottom with its own rounded background
+            w.setBackgroundDrawable(new ColorDrawable(full ? 0xff000000 : 0));
+            w.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, full ? ViewGroup.LayoutParams.MATCH_PARENT : ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (!full) w.setGravity(Gravity.BOTTOM);
         }
-        if (!mDragging) return false;
-        if (action == MotionEvent.ACTION_MOVE) {
-            int[] now = MrBackdrop.pan(mImage.getWidth(), mImage.getHeight(), v.getWidth(), v.getHeight(), mSpec.zoom, mSpec.dx, mSpec.dy,
-                    e.getX() - mLastX, e.getY() - mLastY);
-            mLastX = e.getX();
-            mLastY = e.getY();
-            mSpec = mSpec.moved(mSpec.zoom, now[0], now[1]);
-            mBig.show(tag(), mSpec, mImage, mSoft);
-            return true;
-        }
-        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-            mDragging = false;
-            saveSpec();
-            return true;
-        }
-        return false;
+        return d;
+    }
+
+    void closeDialog() {
+        Dialog d = mDialog;
+        mDialog = null;
+        mDialogPreview = null;
+        mDialogCrop = null;
+        mDialogSoft = null;
+        mDialogApply = mDialogCancel = mDialogNext = null;
+        if (d != null && d.isShowing()) d.dismiss();
+    }
+
+    /**
+     * The keyboard as it will look with this background, over the screen: "Cancel" and "Apply". {@code image} is the picture of an IMAGE spec,
+     * {@code pending} that it is the one that is waiting (it becomes the background only with "Apply"; with "Cancel" or back it is let go of).
+     */
+    void showPreview(final MrBackdrop.Spec spec, Bitmap image, final int soft, final boolean pending) {
+        closeDialog();
+        final Dialog d = newDialog(false);
+        LinearLayout box = k.column();
+        box.setPadding(k.dp(20), k.dp(18), k.dp(20), k.dp(18));
+        box.setBackground(k.round(k.solidBg(), 0, 22, false));
+        box.addView(k.label(backgroundName(this, spec), 16f, k.text, true), k.wide(0));
+        MrThemePreview pv = new MrThemePreview(this);
+        pv.show(MrBackdrop.themeTag(spec), spec, image, soft);
+        box.addView(pv, k.wide(14));
+        LinearLayout buttons = k.row();
+        box.addView(buttons, k.wide(18));
+        TextView cancel = k.button(k.t("mr_themes_cancel"), false, new View.OnClickListener() {
+            public void onClick(View v) {
+                closeDialog();
+                if (pending) MrBackdrop.discardPending(MrThemesActivity.this);
+            }
+        });
+        TextView apply = k.button(k.t("mr_themes_apply"), true, new View.OnClickListener() {
+            public void onClick(View v) {
+                closeDialog();
+                applyBackdrop(spec, soft, pending);
+            }
+        });
+        LinearLayout.LayoutParams left = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        left.setMargins(0, 0, k.dp(6), 0);
+        LinearLayout.LayoutParams right = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        right.setMargins(k.dp(6), 0, 0, 0);
+        buttons.addView(cancel, left);
+        buttons.addView(apply, right);
+        d.setContentView(box);
+        d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            public void onCancel(DialogInterface dialog) {
+                if (pending) MrBackdrop.discardPending(MrThemesActivity.this);
+            }
+        });
+        mDialog = d;
+        mDialogPreview = pv;
+        mDialogCancel = cancel;
+        mDialogApply = apply;
+        d.show();
+    }
+
+    /**
+     * The picture with the frame of the keyboard over it (drag to move, pinch to resize) and the softening of the background under it; "Next" goes on
+     * to the preview, "Cancel" and back let the picture go (a waiting one is deleted).
+     */
+    void showCrop(final Bitmap bitmap, MrBackdrop.Spec start, int soft, final boolean pending) {
+        if (bitmap == null) return;
+        closeDialog();
+        final Dialog d = newDialog(true);
+        LinearLayout root = k.column();
+        root.setPadding(k.dp(16), k.dp(24), k.dp(16), k.dp(16));
+        TextView hint = k.label(k.t("mr_themes_crop_hint"), 16f, 0xffffffff, false);
+        hint.setGravity(Gravity.CENTER);
+        root.addView(hint, k.wide(0));
+        final MrCropView crop = new MrCropView(this);
+        crop.set(bitmap, start.zoom, start.dx, start.dy, soft);
+        LinearLayout.LayoutParams area = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+        area.setMargins(0, k.dp(14), 0, k.dp(10));
+        root.addView(crop, area);
+
+        LinearLayout softLine = k.row();
+        root.addView(softLine, k.wide(0));
+        softLine.addView(k.label(k.t("mr_themes_soften"), 16f, 0xffffffff, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        final TextView softText = k.label(soft + "%", 16f, 0xffc8ccd6, false);
+        softLine.addView(softText, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        final int[] softNow = {soft};
+        SeekBar bar = new SeekBar(this);
+        bar.setMax(MrBackdrop.MAX_SOFT);
+        bar.setProgress(soft);
+        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onProgressChanged(SeekBar b, int progress, boolean fromUser) {
+                if (!fromUser) return;
+                softNow[0] = MrBackdrop.clamp(progress, 0, MrBackdrop.MAX_SOFT);
+                crop.setSoft(softNow[0]);
+                softText.setText(softNow[0] + "%");
+            }
+
+            public void onStartTrackingTouch(SeekBar b) {
+            }
+
+            public void onStopTrackingTouch(SeekBar b) {
+            }
+        });
+        root.addView(bar, k.wide(6));
+        root.addView(k.label(k.t("mr_themes_soften_hint"), 13f, 0xffc8ccd6, false), k.wide(2));
+
+        LinearLayout buttons = k.row();
+        root.addView(buttons, k.wide(14));
+        TextView cancel = k.button(k.t("mr_themes_cancel"), false, new View.OnClickListener() {
+            public void onClick(View v) {
+                closeDialog();
+                if (pending) MrBackdrop.discardPending(MrThemesActivity.this);
+            }
+        });
+        TextView next = k.button(k.t("mr_themes_next"), true, new View.OnClickListener() {
+            public void onClick(View v) {
+                long stamp = pending ? MrBackdrop.pendingStamp(MrThemesActivity.this) : MrBackdrop.imageStamp(MrThemesActivity.this);
+                showPreview(MrBackdrop.Spec.image(crop.zoom(), crop.dx(), crop.dy(), stamp), bitmap, softNow[0], pending);
+            }
+        });
+        LinearLayout.LayoutParams left = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        left.setMargins(0, 0, k.dp(6), 0);
+        LinearLayout.LayoutParams right = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        right.setMargins(k.dp(6), 0, 0, 0);
+        buttons.addView(cancel, left);
+        buttons.addView(next, right);
+        d.setContentView(root);
+        d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            public void onCancel(DialogInterface dialog) {
+                if (pending) MrBackdrop.discardPending(MrThemesActivity.this);
+            }
+        });
+        mDialog = d;
+        mDialogCrop = crop;
+        mDialogSoft = bar;
+        mDialogCancel = cancel;
+        mDialogNext = next;
+        d.show();
     }
 
     // ---- the picture of the gallery
 
+    /**
+     * The intents that ask for a picture, in the order to try them: the photo picker of the system (Android 11 and later where it exists, and always on
+     * 13), the gallery, and last the picker of documents, which is the file manager. Each one is tried when the one before it has no app to answer.
+     */
+    static List<Intent> pickers(int sdk) {
+        List<Intent> list = new ArrayList<Intent>();
+        if (sdk >= 30) list.add(new Intent(ACTION_PICK_IMAGES).setType("image/*"));
+        list.add(new Intent(Intent.ACTION_PICK).setDataAndType(Uri.parse(IMAGES_URI), "image/*"));
+        Intent doc = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        doc.addCategory(Intent.CATEGORY_OPENABLE);
+        doc.setType("image/*");
+        list.add(doc);
+        return list;
+    }
+
     void pick() {
-        try {
-            Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            i.addCategory(Intent.CATEGORY_OPENABLE);
-            i.setType("image/*");
-            startActivityForResult(i, REQ_PICK);
-        } catch (ActivityNotFoundException e) {
-            k.toast(k.t("mr_themes_image_failed"));
-        } catch (RuntimeException e) {
-            k.toast(k.t("mr_themes_image_failed"));
+        List<Intent> tries = pickers(Build.VERSION.SDK_INT);
+        for (int i = 0; i < tries.size(); i++) {
+            try {
+                startActivityForResult(tries.get(i), REQ_PICK);
+                return;
+            } catch (ActivityNotFoundException e) {
+                // no app answers this one: the next
+            } catch (RuntimeException e) {
+                // a picker that cannot be started is not the end: the next
+            }
         }
+        k.toast(k.t("mr_themes_image_failed"));
     }
 
     @Override
@@ -458,49 +580,62 @@ public class MrThemesActivity extends Activity {
         new Thread(new Runnable() {
             public void run() {
                 int[] size = null;
+                Bitmap picture = null;
                 try {
                     InputStream in = getContentResolver().openInputStream(uri);
                     if (in != null) {
                         try {
-                            size = MrBackdrop.importImage(MrThemesActivity.this, in);
+                            size = MrBackdrop.importPending(MrThemesActivity.this, in);
                         } finally {
                             in.close();
                         }
                     }
+                    if (size != null) picture = MrBackdrop.loadPending(MrThemesActivity.this);
                 } catch (Exception e) {
                     size = null;
+                    picture = null;
                 }
-                final boolean ok = size != null;
+                final Bitmap shown = picture;
                 runOnUiThread(new Runnable() {
                     public void run() {
-                        imported(ok);
+                        imported(shown);
                     }
                 });
             }
         }).start();
     }
 
-    /** The picture was read (or not): it becomes the background, centred and not zoomed. */
-    void imported(boolean ok) {
-        if (isFinishing()) return;
-        if (!ok) {
+    /** The picture was read into the waiting file (or not): the crop opens with it, centred and not zoomed. Nothing is the background yet. */
+    void imported(Bitmap picture) {
+        if (isFinishing()) {
+            MrBackdrop.discardPending(this);
+            return;
+        }
+        if (picture == null) {
+            MrBackdrop.discardPending(this);
             k.toast(k.t("mr_themes_image_failed"));
             return;
         }
-        mSpec = MrBackdrop.Spec.image(100, 0, 0, System.currentTimeMillis());
-        mPrefs.edit().putString(MrBackdrop.PREF, mSpec.format()).apply();
-        loadImage();
-        refresh();
+        showCrop(picture, MrBackdrop.Spec.image(100, 0, 0, MrBackdrop.pendingStamp(this)), mSoft, true);
+    }
+
+    /** The picture that is kept, to put the frame somewhere else (it starts where the frame is when it is the background in use). */
+    void editImage() {
+        if (mImage == null) return;
+        MrBackdrop.Spec start = mSpec.kind == MrBackdrop.IMAGE ? mSpec : MrBackdrop.Spec.image(100, 0, 0, MrBackdrop.imageStamp(this));
+        showCrop(mImage, start, mSoft, false);
     }
 
     void removeImage() {
         MrBackdrop.removeImage(this);
         if (mSpec.kind == MrBackdrop.IMAGE) {
-            mSpec = MrBackdrop.Spec.NO;
-            mPrefs.edit().putString(MrBackdrop.PREF, "").apply();
+            // the picture was the background: the keyboard goes back to the first theme, with none
+            mPrefs.edit().putString(MrBackdrop.PREF, "").putString(THEME_KEY, mValues.length > 0 ? mValues[0] : "0").apply();
         }
         mImage = null;
         mThumb = null;
+        mLoad++;
+        readPrefs();
         refresh();
     }
 

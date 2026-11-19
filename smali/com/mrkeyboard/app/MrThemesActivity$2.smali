@@ -3,7 +3,7 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnTouchListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
+.field final synthetic val$index:I
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;I)V
     .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 105
+    .line 135
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+
+    iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->val$index:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,16 +45,17 @@
 
 
 # virtual methods
-.method public onTouch(Landroid/view/View;Landroid/view/MotionEvent;)Z
-    .locals 1
+.method public onClick(Landroid/view/View;)V
+    .locals 2
 
     .prologue
-    .line 107
+    .line 137
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    invoke-virtual {v0, p1, p2}, Lcom/mrkeyboard/app/MrThemesActivity;->drag(Landroid/view/View;Landroid/view/MotionEvent;)Z
+    iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->val$index:I
 
-    move-result v0
+    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrThemesActivity;->chooseTheme(I)V
 
-    return v0
+    .line 138
+    return-void
 .end method

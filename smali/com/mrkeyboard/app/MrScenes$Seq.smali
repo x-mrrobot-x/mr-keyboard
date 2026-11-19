@@ -23,7 +23,7 @@
     .locals 1
 
     .prologue
-    .line 67
+    .line 114
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     iput-wide p1, p0, Lcom/mrkeyboard/app/MrScenes$Seq;->s:J
@@ -37,7 +37,7 @@
     .locals 4
 
     .prologue
-    .line 70
+    .line 117
     iget-wide v0, p0, Lcom/mrkeyboard/app/MrScenes$Seq;->s:J
 
     const-wide/32 v2, 0x41c64e6d
@@ -54,7 +54,7 @@
 
     iput-wide v0, p0, Lcom/mrkeyboard/app/MrScenes$Seq;->s:J
 
-    .line 71
+    .line 118
     iget-wide v0, p0, Lcom/mrkeyboard/app/MrScenes$Seq;->s:J
 
     const/16 v2, 0x8

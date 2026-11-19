@@ -12,7 +12,34 @@ final class MrThemeColors {
     /** What a missing role answers (opaque magenta, as MrTheme.color does). */
     static final int NONE = 0xffff00ff;
 
+    /**
+     * The two themes of the backgrounds (colours, gradients, landscapes, the picture of the gallery) have tags that start like this: they are
+     * themes of the keyboard like the others (a layout, key faces, colours), but the themes screen does not list them, because a background
+     * chooses one of them ({@link MrBackdrop#themeTag}) and the choice of a theme of the list puts the background away.
+     */
+    static final String BACKDROP_PREFIX = "mr_over";
+
     private MrThemeColors() { }
+
+    /** Whether {@code tag} is one of the themes of the backgrounds. */
+    static boolean hidden(String tag) {
+        return tag != null && tag.startsWith(BACKDROP_PREFIX);
+    }
+
+    /** How many themes the screen lists: the ones that are not themes of the backgrounds (these are put last, so they are the tail of the lists). */
+    static int listed(String[] tags) {
+        int n = 0;
+        while (n < tags.length && !hidden(tags[n])) n++;
+        return n;
+    }
+
+    /** The position of the theme with this tag, or -1. */
+    static int indexOfTag(String[] tags, String tag) {
+        for (int i = 0; i < tags.length; i++) {
+            if (tags[i].equals(tag)) return i;
+        }
+        return -1;
+    }
 
     /** The tags of the themes, in the order of the preference value (0 .. n - 1); empty when the resource is missing. */
     static String[] tags(Context c) {

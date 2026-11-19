@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 
 /**
  * The "Keyboard theme" row of the settings: it opens the themes screen ({@link MrThemesActivity}, through the intent that the XML gives it) and
- * says on its second line what is chosen now, the theme and, when there is one, its background ("Midnight Steel · Dusk"). The summary is read
+ * says on its second line what is chosen now: the theme ("Midnight Steel") or, when a background is applied, its name ("Dusk"). The summary is read
  * from the preferences every time it is drawn, and the row draws itself again when the screen changes them, so it is right when the person comes
  * back from the themes screen. The row stores nothing; the theme is still the preference {@code pref_keyboard_layout}.
  */
@@ -24,15 +24,20 @@ public class MrThemeRow extends Preference implements SharedPreferences.OnShared
         return summary(getContext());
     }
 
-    /** What the row says: the name of the theme in use, and after a dot the background when there is one. */
+    /**
+     * What the row says: the name of the theme in use; when the keyboard is in one of the themes of the backgrounds (a colour, a gradient, a landscape or a
+     * picture) it is the name of that background instead, since those themes are not on the list.
+     */
     static String summary(Context c) {
         try {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(c);
+            String[] tags = MrThemeColors.tags(c);
             String[] names = MrThemeColors.names(c);
             int i = MrThemeColors.indexOf(MrThemeColors.values(c), sp == null ? "0" : sp.getString(MrThemesActivity.THEME_KEY, "0"));
-            String name = i < names.length ? names[i] : "";
-            MrBackdrop.Spec spec = MrBackdrop.current(c);
-            return spec.kind == MrBackdrop.NONE ? name : name + " · " + MrThemesActivity.backgroundName(c, spec);
+            if (i < tags.length && MrThemeColors.hidden(tags[i])) {
+                return MrThemesActivity.backgroundName(c, MrBackdrop.current(c));
+            }
+            return i < names.length ? names[i] : "";
         } catch (RuntimeException e) {
             return "";
         }
