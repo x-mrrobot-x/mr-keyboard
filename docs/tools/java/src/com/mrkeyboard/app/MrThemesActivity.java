@@ -795,9 +795,9 @@ public class MrThemesActivity extends Activity {
         if (p != null && p.isShowing()) p.dismiss();
     }
 
-    /** The sheet of a preview: its rounded box with the title on top. */
-    private LinearLayout sheetBox(String title) {
-        LinearLayout box = k.column();
+    /** The sheet of a preview: its rounded box with the title on top, that grows up to {@link #SHEET_SHARE} of the screen height. */
+    private MrSheetBox sheetBox(String title) {
+        MrSheetBox box = new MrSheetBox(this, Math.round(getResources().getDisplayMetrics().heightPixels * SHEET_SHARE), k.dp(MIN_CONTROLS_DP));
         box.setPadding(k.dp(20), k.dp(18), k.dp(20), k.dp(18));
         box.setBackground(k.round(k.solidBg(), 0, 22, false));
         box.addView(k.label(title, 16f, k.text, true), k.wide(0));
@@ -859,13 +859,13 @@ public class MrThemesActivity extends Activity {
     /**
      * The complete keyboard as it will look with this background, over the screen: "Cancel" and "Apply". {@code image} is the picture of an IMAGE spec,
      * {@code pending} that it is the one that is waiting (it becomes the background only with "Apply"; with "Cancel" or back it is let go of).
-     * A gradient or a landscape has the softening of the background under the keyboard (a picture has it in the crop already), and every background
-     * but a light colour has the styles of the keys, so that the letters can be made to stand out from a busy picture.
+     * A gradient, a landscape or a picture has the softening of the background under the keyboard (that of a picture is set here, after the part of it
+     * was chosen), and every background but a light colour has the styles of the keys, so that the letters can be made to stand out from a busy picture.
      */
     void showPreview(final MrBackdrop.Spec spec, Bitmap image, final int soft, final boolean pending) {
         closeDialog();
         final Dialog d = newDialog(false);
-        final LinearLayout box = sheetBox(backgroundName(this, spec));
+        final MrSheetBox box = sheetBox(backgroundName(this, spec));
         final MrThemePreview pv = new MrThemePreview(this);
         // the complete keyboard, so that the highlight keys and the dash of the modifier keys are seen on the background as well
         pv.setFull(true);
@@ -885,18 +885,20 @@ public class MrThemesActivity extends Activity {
 
         // the controls scroll between the keyboard and the buttons, so that they are all within reach on a short screen
         final LinearLayout controls = k.column();
-        MrCappedScroll scroll = new MrCappedScroll(this, Math.round(getResources().getDisplayMetrics().heightPixels * CONTROLS_SHARE));
+        MrCappedScroll scroll = new MrCappedScroll(this);
         scroll.addView(controls, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         box.addView(scroll, k.wide(0));
+        box.limit(scroll);
 
         SeekBar bar = null;
-        if (spec.kind == MrBackdrop.GRADIENT || spec.kind == MrBackdrop.SCENE) {
+        if (spec.kind == MrBackdrop.GRADIENT || spec.kind == MrBackdrop.SCENE || spec.kind == MrBackdrop.IMAGE) {
             bar = slider(controls, k.t("mr_themes_soften"), MrBackdrop.MAX_SOFT, soft, 14, new Setter() {
                 public void set(int v) {
                     softNow[0] = MrBackdrop.clamp(v, 0, MrBackdrop.MAX_SOFT);
                     redraw.run();
                 }
             });
+            controls.addView(k.label(k.t("mr_themes_soften_hint"), 13f, k.text2, false), k.wide(2));
         }
 
         final boolean styled = MrBackdrop.hasStyles(spec);
@@ -944,8 +946,9 @@ public class MrThemesActivity extends Activity {
         mDialogText = textBox;
     }
 
-    /** How much of the screen height the controls of the dialog of a background can take before they scroll. */
-    static final float CONTROLS_SHARE = 0.38f;
+    /** How much of the screen height the sheet of a dialog can take: the controls of a background scroll when the sheet reaches it. At least {@code MIN_CONTROLS_DP} of them show. */
+    static final float SHEET_SHARE = 0.90f;
+    static final int MIN_CONTROLS_DP = 96;
 
     /** Takes the value of a slider while the finger moves it. */
     interface Setter {
@@ -1171,10 +1174,10 @@ public class MrThemesActivity extends Activity {
     }
 
     /**
-     * The picture with the frame of the keyboard over it (drag to move, pinch to resize) and the softening of the background under it; "Next" goes on
-     * to the preview, "Cancel" and back let the picture go (a waiting one is deleted).
+     * The picture with the frame of the keyboard over it (drag to move, pinch to resize); "Next" goes on to the preview, where the background is softened
+     * (it starts at {@code soft}), "Cancel" and back let the picture go (a waiting one is deleted).
      */
-    void showCrop(final Bitmap bitmap, MrBackdrop.Spec start, int soft, final boolean pending) {
+    void showCrop(final Bitmap bitmap, MrBackdrop.Spec start, final int soft, final boolean pending) {
         if (bitmap == null) return;
         closeDialog();
         final Dialog d = newDialog(true);
@@ -1184,36 +1187,10 @@ public class MrThemesActivity extends Activity {
         hint.setGravity(Gravity.CENTER);
         root.addView(hint, k.wide(0));
         final MrCropView crop = new MrCropView(this);
-        crop.set(bitmap, start.zoom, start.dx, start.dy, soft);
+        crop.set(bitmap, start.zoom, start.dx, start.dy);
         LinearLayout.LayoutParams area = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
         area.setMargins(0, k.dp(14), 0, k.dp(10));
         root.addView(crop, area);
-
-        LinearLayout softLine = k.row();
-        root.addView(softLine, k.wide(0));
-        softLine.addView(k.label(k.t("mr_themes_soften"), 16f, 0xffffffff, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        final TextView softText = k.label(soft + "%", 16f, 0xffc8ccd6, false);
-        softLine.addView(softText, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        final int[] softNow = {soft};
-        SeekBar bar = new SeekBar(this);
-        bar.setMax(MrBackdrop.MAX_SOFT);
-        bar.setProgress(soft);
-        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            public void onProgressChanged(SeekBar b, int progress, boolean fromUser) {
-                if (!fromUser) return;
-                softNow[0] = MrBackdrop.clamp(progress, 0, MrBackdrop.MAX_SOFT);
-                crop.setSoft(softNow[0]);
-                softText.setText(softNow[0] + "%");
-            }
-
-            public void onStartTrackingTouch(SeekBar b) {
-            }
-
-            public void onStopTrackingTouch(SeekBar b) {
-            }
-        });
-        root.addView(bar, k.wide(6));
-        root.addView(k.label(k.t("mr_themes_soften_hint"), 13f, 0xffc8ccd6, false), k.wide(2));
 
         LinearLayout buttons = k.row();
         root.addView(buttons, k.wide(14));
@@ -1226,7 +1203,7 @@ public class MrThemesActivity extends Activity {
         TextView next = k.button(k.t("mr_themes_next"), true, new View.OnClickListener() {
             public void onClick(View v) {
                 long stamp = pending ? MrBackdrop.pendingStamp(MrThemesActivity.this) : MrBackdrop.imageStamp(MrThemesActivity.this);
-                showPreview(MrBackdrop.Spec.image(crop.zoom(), crop.dx(), crop.dy(), stamp), bitmap, softNow[0], pending);
+                showPreview(MrBackdrop.Spec.image(crop.zoom(), crop.dx(), crop.dy(), stamp), bitmap, soft, pending);
             }
         });
         LinearLayout.LayoutParams left = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
@@ -1243,7 +1220,6 @@ public class MrThemesActivity extends Activity {
         });
         mDialog = d;
         mDialogCrop = crop;
-        mDialogSoft = bar;
         mDialogCancel = cancel;
         mDialogNext = next;
         d.show();

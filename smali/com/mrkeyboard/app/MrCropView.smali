@@ -38,8 +38,6 @@
 
 .field private mScale:F
 
-.field private mSoft:I
-
 .field private mStartDistance:F
 
 .field private mStartZoom:I
@@ -52,10 +50,10 @@
     .locals 2
 
     .prologue
-    .line 41
+    .line 40
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 27
+    .line 26
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -64,24 +62,24 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mPaint:Landroid/graphics/Paint;
 
-    .line 30
+    .line 29
     const/16 v0, 0x64
 
     iput v0, p0, Lcom/mrkeyboard/app/MrCropView;->mZoom:I
 
-    .line 33
+    .line 32
     new-instance v0, Landroid/graphics/Rect;
 
     invoke-direct {v0}, Landroid/graphics/Rect;-><init>()V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mDest:Landroid/graphics/Rect;
 
-    .line 34
+    .line 33
     const/high16 v0, 0x3f800000    # 1.0f
 
     iput v0, p0, Lcom/mrkeyboard/app/MrCropView;->mScale:F
 
-    .line 42
+    .line 41
     invoke-virtual {p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -94,7 +92,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/MrCropView;->mDensity:F
 
-    .line 43
+    .line 42
     return-void
 .end method
 
@@ -102,10 +100,10 @@
     .locals 1
 
     .prologue
-    .line 204
+    .line 193
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrCropView;->invalidate()V
 
-    .line 205
+    .line 194
     iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mListener:Lcom/mrkeyboard/app/MrCropView$Listener;
 
     if-eqz v0, :cond_0
@@ -114,7 +112,7 @@
 
     invoke-interface {v0}, Lcom/mrkeyboard/app/MrCropView$Listener;->changed()V
 
-    .line 206
+    .line 195
     :cond_0
     return-void
 .end method
@@ -127,7 +125,7 @@
 
     const/4 v2, 0x0
 
-    .line 177
+    .line 166
     invoke-virtual {p0, v2}, Landroid/view/MotionEvent;->getX(I)F
 
     move-result v0
@@ -148,7 +146,7 @@
 
     sub-float/2addr v1, v2
 
-    .line 178
+    .line 167
     mul-float/2addr v0, v0
 
     mul-float/2addr v1, v1
@@ -174,7 +172,7 @@
 
     const/4 v9, 0x0
 
-    .line 183
+    .line 172
     iget v0, p0, Lcom/mrkeyboard/app/MrCropView;->mScale:F
 
     const/4 v1, 0x0
@@ -183,12 +181,12 @@
 
     if-gtz v0, :cond_1
 
-    .line 189
+    .line 178
     :cond_0
     :goto_0
     return-void
 
-    .line 184
+    .line 173
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mImage:Landroid/graphics/Bitmap;
 
@@ -226,7 +224,7 @@
 
     move-result-object v0
 
-    .line 185
+    .line 174
     aget v1, v0, v9
 
     iget v2, p0, Lcom/mrkeyboard/app/MrCropView;->mDx:I
@@ -239,18 +237,18 @@
 
     if-eq v1, v2, :cond_0
 
-    .line 186
+    .line 175
     :cond_2
     aget v1, v0, v9
 
     iput v1, p0, Lcom/mrkeyboard/app/MrCropView;->mDx:I
 
-    .line 187
+    .line 176
     aget v0, v0, v10
 
     iput v0, p0, Lcom/mrkeyboard/app/MrCropView;->mDy:I
 
-    .line 188
+    .line 177
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrCropView;->changed()V
 
     goto :goto_0
@@ -264,7 +262,7 @@
 
     const/high16 v1, 0x3f800000    # 1.0f
 
-    .line 193
+    .line 182
     iget v0, p0, Lcom/mrkeyboard/app/MrCropView;->mStartDistance:F
 
     cmpg-float v0, v0, v1
@@ -275,12 +273,12 @@
 
     if-gez v0, :cond_1
 
-    .line 201
+    .line 190
     :cond_0
     :goto_0
     return-void
 
-    .line 194
+    .line 183
     :cond_1
     iget v0, p0, Lcom/mrkeyboard/app/MrCropView;->mStartZoom:I
 
@@ -302,12 +300,12 @@
 
     move-result v7
 
-    .line 195
+    .line 184
     iget v0, p0, Lcom/mrkeyboard/app/MrCropView;->mZoom:I
 
     if-eq v7, v0, :cond_0
 
-    .line 196
+    .line 185
     iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mImage:Landroid/graphics/Bitmap;
 
     invoke-virtual {v0}, Landroid/graphics/Bitmap;->getWidth()I
@@ -334,24 +332,24 @@
 
     move-result-object v0
 
-    .line 197
+    .line 186
     iput v7, p0, Lcom/mrkeyboard/app/MrCropView;->mZoom:I
 
-    .line 198
+    .line 187
     const/4 v1, 0x0
 
     aget v1, v0, v1
 
     iput v1, p0, Lcom/mrkeyboard/app/MrCropView;->mDx:I
 
-    .line 199
+    .line 188
     const/4 v1, 0x1
 
     aget v0, v0, v1
 
     iput v0, p0, Lcom/mrkeyboard/app/MrCropView;->mDy:I
 
-    .line 200
+    .line 189
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrCropView;->changed()V
 
     goto :goto_0
@@ -363,7 +361,7 @@
     .prologue
     const/4 v5, 0x1
 
-    .line 83
+    .line 76
     iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mImage:Landroid/graphics/Bitmap;
 
     invoke-virtual {v0}, Landroid/graphics/Bitmap;->getWidth()I
@@ -376,7 +374,7 @@
 
     move-result v1
 
-    .line 84
+    .line 77
     int-to-float v2, p1
 
     int-to-float v3, v0
@@ -395,7 +393,7 @@
 
     iput v2, p0, Lcom/mrkeyboard/app/MrCropView;->mScale:F
 
-    .line 85
+    .line 78
     int-to-float v0, v0
 
     iget v2, p0, Lcom/mrkeyboard/app/MrCropView;->mScale:F
@@ -424,7 +422,7 @@
 
     move-result v1
 
-    .line 86
+    .line 79
     sub-int v2, p1, v0
 
     div-int/lit8 v2, v2, 0x2
@@ -433,7 +431,7 @@
 
     div-int/lit8 v3, v3, 0x2
 
-    .line 87
+    .line 80
     iget-object v4, p0, Lcom/mrkeyboard/app/MrCropView;->mDest:Landroid/graphics/Rect;
 
     add-int/2addr v0, v2
@@ -442,7 +440,7 @@
 
     invoke-virtual {v4, v2, v3, v0, v1}, Landroid/graphics/Rect;->set(IIII)V
 
-    .line 88
+    .line 81
     return-void
 .end method
 
@@ -450,8 +448,8 @@
     .locals 1
 
     .prologue
-    .line 92
-    const v0, 0x43700001    # 240.00002f
+    .line 85
+    const/high16 v0, 0x432a0000    # 170.0f
 
     invoke-static {v0}, Ljava/lang/Math;->round(F)I
 
@@ -466,7 +464,7 @@
     .locals 1
 
     .prologue
-    .line 69
+    .line 62
     iget v0, p0, Lcom/mrkeyboard/app/MrCropView;->mDx:I
 
     return v0
@@ -476,7 +474,7 @@
     .locals 1
 
     .prologue
-    .line 73
+    .line 66
     iget v0, p0, Lcom/mrkeyboard/app/MrCropView;->mDy:I
 
     return v0
@@ -488,7 +486,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 97
+    .line 90
     iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mImage:Landroid/graphics/Bitmap;
 
     if-eqz v0, :cond_0
@@ -510,11 +508,11 @@
 
     invoke-direct {v0, v1, v1, v1, v1}, Landroid/graphics/Rect;-><init>(IIII)V
 
-    .line 100
+    .line 93
     :goto_0
     return-object v0
 
-    .line 98
+    .line 91
     :cond_1
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrCropView;->getWidth()I
 
@@ -526,7 +524,7 @@
 
     invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/MrCropView;->place(II)V
 
-    .line 99
+    .line 92
     iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mImage:Landroid/graphics/Bitmap;
 
     invoke-virtual {v0}, Landroid/graphics/Bitmap;->getWidth()I
@@ -555,7 +553,7 @@
 
     move-result-object v1
 
-    .line 100
+    .line 93
     new-instance v0, Landroid/graphics/Rect;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrCropView;->mDest:Landroid/graphics/Rect;
@@ -606,7 +604,7 @@
 
     mul-float/2addr v5, v6
 
-    .line 101
+    .line 94
     invoke-static {v5}, Ljava/lang/Math;->round(F)I
 
     move-result v5
@@ -644,7 +642,7 @@
 
     const/high16 v8, 0x40000000    # 2.0f
 
-    .line 106
+    .line 99
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrCropView;->getWidth()I
 
     move-result v0
@@ -653,7 +651,7 @@
 
     move-result v1
 
-    .line 107
+    .line 100
     iget-object v2, p0, Lcom/mrkeyboard/app/MrCropView;->mImage:Landroid/graphics/Bitmap;
 
     if-eqz v2, :cond_0
@@ -662,32 +660,32 @@
 
     if-gtz v1, :cond_1
 
-    .line 128
+    .line 117
     :cond_0
     :goto_0
     return-void
 
-    .line 108
+    .line 101
     :cond_1
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrCropView;->frame()Landroid/graphics/Rect;
 
     move-result-object v6
 
-    .line 109
+    .line 102
     iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mPaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 110
+    .line 103
     iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mPaint:Landroid/graphics/Paint;
 
     const/4 v1, 0x1
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setFilterBitmap(Z)V
 
-    .line 111
+    .line 104
     iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mImage:Landroid/graphics/Bitmap;
 
     new-instance v1, Landroid/graphics/Rect;
@@ -730,14 +728,14 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawBitmap(Landroid/graphics/Bitmap;Landroid/graphics/Rect;Landroid/graphics/Rect;Landroid/graphics/Paint;)V
 
-    .line 113
+    .line 106
     iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mPaint:Landroid/graphics/Paint;
 
     const/high16 v1, -0x67000000
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 114
+    .line 107
     iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mDest:Landroid/graphics/Rect;
 
     iget v0, v0, Landroid/graphics/Rect;->left:I
@@ -766,7 +764,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawRect(FFFFLandroid/graphics/Paint;)V
 
-    .line 115
+    .line 108
     iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mDest:Landroid/graphics/Rect;
 
     iget v0, v0, Landroid/graphics/Rect;->left:I
@@ -795,7 +793,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawRect(FFFFLandroid/graphics/Paint;)V
 
-    .line 116
+    .line 109
     iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mDest:Landroid/graphics/Rect;
 
     iget v0, v0, Landroid/graphics/Rect;->left:I
@@ -820,7 +818,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawRect(FFFFLandroid/graphics/Paint;)V
 
-    .line 117
+    .line 110
     iget v0, v6, Landroid/graphics/Rect;->right:I
 
     int-to-float v1, v0
@@ -845,49 +843,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawRect(FFFFLandroid/graphics/Paint;)V
 
-    .line 118
-    iget v0, p0, Lcom/mrkeyboard/app/MrCropView;->mSoft:I
-
-    if-lez v0, :cond_2
-
-    .line 119
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mPaint:Landroid/graphics/Paint;
-
-    iget v1, p0, Lcom/mrkeyboard/app/MrCropView;->mSoft:I
-
-    mul-int/lit16 v1, v1, 0xff
-
-    div-int/lit8 v1, v1, 0x64
-
-    shl-int/lit8 v1, v1, 0x18
-
-    invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
-
-    .line 120
-    iget v0, v6, Landroid/graphics/Rect;->left:I
-
-    int-to-float v1, v0
-
-    iget v0, v6, Landroid/graphics/Rect;->top:I
-
-    int-to-float v2, v0
-
-    iget v0, v6, Landroid/graphics/Rect;->right:I
-
-    int-to-float v3, v0
-
-    iget v0, v6, Landroid/graphics/Rect;->bottom:I
-
-    int-to-float v4, v0
-
-    iget-object v5, p0, Lcom/mrkeyboard/app/MrCropView;->mPaint:Landroid/graphics/Paint;
-
-    move-object v0, p1
-
-    invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawRect(FFFFLandroid/graphics/Paint;)V
-
-    .line 122
-    :cond_2
+    .line 111
     const/high16 v0, 0x3f800000    # 1.0f
 
     iget v1, p0, Lcom/mrkeyboard/app/MrCropView;->mDensity:F
@@ -900,26 +856,26 @@
 
     move-result v0
 
-    .line 123
+    .line 112
     iget-object v1, p0, Lcom/mrkeyboard/app/MrCropView;->mPaint:Landroid/graphics/Paint;
 
     sget-object v2, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 124
+    .line 113
     iget-object v1, p0, Lcom/mrkeyboard/app/MrCropView;->mPaint:Landroid/graphics/Paint;
 
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 125
+    .line 114
     iget-object v1, p0, Lcom/mrkeyboard/app/MrCropView;->mPaint:Landroid/graphics/Paint;
 
     const/4 v2, -0x1
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 126
+    .line 115
     iget v1, v6, Landroid/graphics/Rect;->left:I
 
     int-to-float v1, v1
@@ -958,7 +914,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawRect(FFFFLandroid/graphics/Paint;)V
 
-    .line 127
+    .line 116
     iget-object v0, p0, Lcom/mrkeyboard/app/MrCropView;->mPaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
@@ -972,7 +928,7 @@
     .locals 2
 
     .prologue
-    .line 78
+    .line 71
     invoke-static {p1}, Landroid/view/View$MeasureSpec;->getSize(I)I
 
     move-result v0
@@ -983,7 +939,7 @@
 
     invoke-virtual {p0, v0, v1}, Lcom/mrkeyboard/app/MrCropView;->setMeasuredDimension(II)V
 
-    .line 79
+    .line 72
     return-void
 .end method
 
@@ -997,7 +953,7 @@
 
     const/4 v1, 0x1
 
-    .line 134
+    .line 123
     iget-object v2, p0, Lcom/mrkeyboard/app/MrCropView;->mImage:Landroid/graphics/Bitmap;
 
     if-eqz v2, :cond_0
@@ -1017,27 +973,27 @@
     :cond_0
     move v1, v0
 
-    .line 172
+    .line 161
     :cond_1
     :goto_0
     return v1
 
-    .line 135
+    .line 124
     :cond_2
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v2
 
-    .line 136
+    .line 125
     packed-switch v2, :pswitch_data_0
 
     :pswitch_0
     move v1, v0
 
-    .line 172
+    .line 161
     goto :goto_0
 
-    .line 138
+    .line 127
     :pswitch_1
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getX()F
 
@@ -1045,19 +1001,19 @@
 
     iput v2, p0, Lcom/mrkeyboard/app/MrCropView;->mLastX:F
 
-    .line 139
+    .line 128
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getY()F
 
     move-result v2
 
     iput v2, p0, Lcom/mrkeyboard/app/MrCropView;->mLastY:F
 
-    .line 140
+    .line 129
     iput-boolean v0, p0, Lcom/mrkeyboard/app/MrCropView;->mPinching:Z
 
     goto :goto_0
 
-    .line 143
+    .line 132
     :pswitch_2
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getPointerCount()I
 
@@ -1065,24 +1021,24 @@
 
     if-lt v0, v3, :cond_1
 
-    .line 144
+    .line 133
     iput-boolean v1, p0, Lcom/mrkeyboard/app/MrCropView;->mPinching:Z
 
-    .line 145
+    .line 134
     invoke-static {p1}, Lcom/mrkeyboard/app/MrCropView;->distance(Landroid/view/MotionEvent;)F
 
     move-result v0
 
     iput v0, p0, Lcom/mrkeyboard/app/MrCropView;->mStartDistance:F
 
-    .line 146
+    .line 135
     iget v0, p0, Lcom/mrkeyboard/app/MrCropView;->mZoom:I
 
     iput v0, p0, Lcom/mrkeyboard/app/MrCropView;->mStartZoom:I
 
     goto :goto_0
 
-    .line 150
+    .line 139
     :pswitch_3
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getPointerCount()I
 
@@ -1090,10 +1046,10 @@
 
     if-gt v2, v3, :cond_1
 
-    .line 152
+    .line 141
     iput-boolean v0, p0, Lcom/mrkeyboard/app/MrCropView;->mPinching:Z
 
-    .line 153
+    .line 142
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getActionIndex()I
 
     move-result v2
@@ -1102,7 +1058,7 @@
 
     move v0, v1
 
-    .line 154
+    .line 143
     :cond_3
     invoke-virtual {p1, v0}, Landroid/view/MotionEvent;->getX(I)F
 
@@ -1110,7 +1066,7 @@
 
     iput v2, p0, Lcom/mrkeyboard/app/MrCropView;->mLastX:F
 
-    .line 155
+    .line 144
     invoke-virtual {p1, v0}, Landroid/view/MotionEvent;->getY(I)F
 
     move-result v0
@@ -1119,7 +1075,7 @@
 
     goto :goto_0
 
-    .line 159
+    .line 148
     :pswitch_4
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrCropView;->mPinching:Z
 
@@ -1131,7 +1087,7 @@
 
     if-lt v0, v3, :cond_4
 
-    .line 160
+    .line 149
     invoke-static {p1}, Lcom/mrkeyboard/app/MrCropView;->distance(Landroid/view/MotionEvent;)F
 
     move-result v0
@@ -1140,7 +1096,7 @@
 
     goto :goto_0
 
-    .line 161
+    .line 150
     :cond_4
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrCropView;->mPinching:Z
 
@@ -1152,7 +1108,7 @@
 
     if-lt v0, v1, :cond_1
 
-    .line 162
+    .line 151
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getX()F
 
     move-result v0
@@ -1171,14 +1127,14 @@
 
     invoke-direct {p0, v0, v2}, Lcom/mrkeyboard/app/MrCropView;->drag(FF)V
 
-    .line 163
+    .line 152
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getX()F
 
     move-result v0
 
     iput v0, p0, Lcom/mrkeyboard/app/MrCropView;->mLastX:F
 
-    .line 164
+    .line 153
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getY()F
 
     move-result v0
@@ -1187,13 +1143,13 @@
 
     goto/16 :goto_0
 
-    .line 169
+    .line 158
     :pswitch_5
     iput-boolean v0, p0, Lcom/mrkeyboard/app/MrCropView;->mPinching:Z
 
     goto/16 :goto_0
 
-    .line 136
+    .line 125
     nop
 
     :pswitch_data_0
@@ -1208,7 +1164,7 @@
     .end packed-switch
 .end method
 
-.method set(Landroid/graphics/Bitmap;IIII)V
+.method set(Landroid/graphics/Bitmap;III)V
     .locals 3
 
     .prologue
@@ -1216,10 +1172,10 @@
 
     const/16 v1, 0x64
 
-    .line 47
+    .line 46
     iput-object p1, p0, Lcom/mrkeyboard/app/MrCropView;->mImage:Landroid/graphics/Bitmap;
 
-    .line 48
+    .line 47
     const/16 v0, 0x190
 
     invoke-static {p2, v1, v0}, Lcom/mrkeyboard/app/MrBackdrop;->clamp(III)I
@@ -1228,35 +1184,24 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/MrCropView;->mZoom:I
 
-    .line 49
+    .line 48
     invoke-static {p3, v2, v1}, Lcom/mrkeyboard/app/MrBackdrop;->clamp(III)I
 
     move-result v0
 
     iput v0, p0, Lcom/mrkeyboard/app/MrCropView;->mDx:I
 
-    .line 50
+    .line 49
     invoke-static {p4, v2, v1}, Lcom/mrkeyboard/app/MrBackdrop;->clamp(III)I
 
     move-result v0
 
     iput v0, p0, Lcom/mrkeyboard/app/MrCropView;->mDy:I
 
-    .line 51
-    const/4 v0, 0x0
-
-    const/16 v1, 0x46
-
-    invoke-static {p5, v0, v1}, Lcom/mrkeyboard/app/MrBackdrop;->clamp(III)I
-
-    move-result v0
-
-    iput v0, p0, Lcom/mrkeyboard/app/MrCropView;->mSoft:I
-
-    .line 52
+    .line 50
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrCropView;->invalidate()V
 
-    .line 53
+    .line 51
     return-void
 .end method
 
@@ -1264,32 +1209,10 @@
     .locals 0
 
     .prologue
-    .line 61
+    .line 54
     iput-object p1, p0, Lcom/mrkeyboard/app/MrCropView;->mListener:Lcom/mrkeyboard/app/MrCropView$Listener;
 
-    .line 62
-    return-void
-.end method
-
-.method setSoft(I)V
-    .locals 2
-
-    .prologue
-    .line 56
-    const/4 v0, 0x0
-
-    const/16 v1, 0x46
-
-    invoke-static {p1, v0, v1}, Lcom/mrkeyboard/app/MrBackdrop;->clamp(III)I
-
-    move-result v0
-
-    iput v0, p0, Lcom/mrkeyboard/app/MrCropView;->mSoft:I
-
-    .line 57
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/MrCropView;->invalidate()V
-
-    .line 58
+    .line 55
     return-void
 .end method
 
@@ -1297,7 +1220,7 @@
     .locals 1
 
     .prologue
-    .line 65
+    .line 58
     iget v0, p0, Lcom/mrkeyboard/app/MrCropView;->mZoom:I
 
     return v0

@@ -1530,8 +1530,11 @@ def solid_key(t, state, lip, edge=False):
     out = layer(plain(p + '_lip', 8), top=lip) if lip else ''
     out += layer(plain(p + '_fill', 8), bottom=lip)
     if edge:
-        # the line is a layer of its own over the fill, so that the keyboard can give each its opacity (MrGlow.drawKey)
-        out += layer('            <stroke android:width="1dp" android:color="@color/%s_edge" />\n            <corners android:radius="8dp" />\n' % p, bottom=lip)
+        # the line is a layer of its own over the fill, so that the keyboard can give each its opacity (MrGlow.drawKey). The transparent <solid> is not
+        # decoration (see stroke): without it GradientDrawable fills the shape with opaque black when it is drawn through a color filter, which is how the
+        # keyboard gives the line its opacity and its hue, and the line would black out the key
+        out += layer('            <solid android:color="@android:color/transparent" />\n'
+                     '            <stroke android:width="1dp" android:color="@color/%s_edge" />\n            <corners android:radius="8dp" />\n' % p, bottom=lip)
     return '%s<layer-list %s>\n%s</layer-list>\n' % (HEAD, NS, out)
 
 

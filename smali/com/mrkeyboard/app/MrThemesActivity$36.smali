@@ -3,12 +3,12 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Landroid/content/DialogInterface$OnCancelListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->showCrop(Landroid/graphics/Bitmap;Lcom/mrkeyboard/app/MrBackdrop$Spec;IZ)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->onActivityResult(IILandroid/content/Intent;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$pending:Z
+.field final synthetic val$uri:Landroid/net/Uri;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Z)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Landroid/net/Uri;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 1239
+    .line 1267
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$36;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput-boolean p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$36;->val$pending:Z
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$36;->val$uri:Landroid/net/Uri;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,20 +45,92 @@
 
 
 # virtual methods
-.method public onCancel(Landroid/content/DialogInterface;)V
-    .locals 1
+.method public run()V
+    .locals 3
 
     .prologue
-    .line 1241
-    iget-boolean v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$36;->val$pending:Z
+    const/4 v0, 0x0
 
-    if-eqz v0, :cond_0
+    .line 1269
+    .line 1272
+    :try_start_0
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$36;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$36;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+    invoke-virtual {v1}, Lcom/mrkeyboard/app/MrThemesActivity;->getContentResolver()Landroid/content/ContentResolver;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->discardPending(Landroid/content/Context;)V
+    move-result-object v1
 
-    .line 1242
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$36;->val$uri:Landroid/net/Uri;
+
+    invoke-virtual {v1, v2}, Landroid/content/ContentResolver;->openInputStream(Landroid/net/Uri;)Ljava/io/InputStream;
+    :try_end_0
+    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+
+    move-result-object v2
+
+    .line 1273
+    if-eqz v2, :cond_1
+
+    .line 1275
+    :try_start_1
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$36;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+
+    invoke-static {v1, v2}, Lcom/mrkeyboard/app/MrBackdrop;->importPending(Landroid/content/Context;Ljava/io/InputStream;)[I
+    :try_end_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+
+    move-result-object v1
+
+    .line 1277
+    :try_start_2
+    invoke-virtual {v2}, Ljava/io/InputStream;->close()V
+
+    .line 1280
+    :goto_0
+    if-eqz v1, :cond_0
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$36;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrBackdrop;->loadPending(Landroid/content/Context;)Landroid/graphics/Bitmap;
+    :try_end_2
+    .catch Ljava/lang/Exception; {:try_start_2 .. :try_end_2} :catch_0
+
+    move-result-object v0
+
+    .line 1286
     :cond_0
+    :goto_1
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$36;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+
+    new-instance v2, Lcom/mrkeyboard/app/MrThemesActivity$36$1;
+
+    invoke-direct {v2, p0, v0}, Lcom/mrkeyboard/app/MrThemesActivity$36$1;-><init>(Lcom/mrkeyboard/app/MrThemesActivity$36;Landroid/graphics/Bitmap;)V
+
+    invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrThemesActivity;->runOnUiThread(Ljava/lang/Runnable;)V
+
+    .line 1291
     return-void
+
+    .line 1277
+    :catchall_0
+    move-exception v1
+
+    :try_start_3
+    invoke-virtual {v2}, Ljava/io/InputStream;->close()V
+
+    .line 1278
+    throw v1
+    :try_end_3
+    .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_3} :catch_0
+
+    .line 1281
+    :catch_0
+    move-exception v1
+
+    goto :goto_1
+
+    :cond_1
+    move-object v1, v0
+
+    goto :goto_0
 .end method

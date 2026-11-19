@@ -79,7 +79,7 @@ import org.w3c.dom.NodeList;
  * list, nineteen hidden: the see-through keys and the ink, the fourteen styles of keys and the three of the colour the person picks: glass, outline and gradient, audited over every background), the small keyboards (MrThemePreview: every key and label, the faces made once, the neon light, the
  * ring), the screen (MrThemesActivity: the tabs (the themes, the colours, the gradients, one for each category of landscapes, the gallery) with their cards made a
  * few at a time and the pictures read apart, a theme or a background chosen only after its dialog, the styles of the keys and the softening in the dialog of a
- * background, the themes never changed by a background, the photo picker and its fallbacks, the crop dialog with its pinch, drag and softening, the picture that waits and is applied, cancelled or let go, remove),
+ * background, the themes never changed by a background, the photo picker and its fallbacks, the crop dialog with its pinch and drag (the softening is in the preview after it), the picture that waits and is applied, cancelled or let go, remove),
  * the crop view (MrCropView), the row of the settings (MrThemeRow) and the files (strings in three languages, the manifest, prefs.xml, the smali hooks).
  *
  * <p>What is drawn is rasterized with Java2D behind the Canvas stub (AwtBackend), so that the pixels can be read and the pictures are dumped as PNG
@@ -754,11 +754,17 @@ public class ThemesTest {
         Dialog d = Dialog.stubLast;
         check("the dialog of a landscape has the slider of the opacity of the keys and the one of their border (up to 250%, at the 100% of the style), and the colour of the letters in automatic",
                 s.mDialogKey != null && s.mDialogEdge != null && s.mDialogKey.getMax() == 250 && s.mDialogEdge.getMax() == 250 && s.mDialogKey.getProgress() == 100 && s.mDialogEdge.getProgress() == 100
-                        && byText(d.stubContent, "Key opacity") != null && byText(d.stubContent, "Border opacity") != null && byText(d.stubContent, "Text colour") != null
+                        && byText(d.stubContent, "Background opacity") != null && byText(d.stubContent, "Border opacity") != null && byText(d.stubContent, "Text colour") != null
                         && byText(d.stubContent, "Automatic") != null && colourDots(s).size() == 1 && ((MrColorDot) colourDots(s).get(0)).color() == 0);
-        check("the controls scroll between the keyboard and the buttons, in a view that is not taller than a share of the screen",
-                all(d.stubContent, MrCappedScroll.class).size() == 1 && ((MrCappedScroll) all(d.stubContent, MrCappedScroll.class).get(0)).maxPx() == Math.round(2400 * MrThemesActivity.CONTROLS_SHARE)
+        check("the controls scroll between the keyboard and the buttons, in a view that the sheet limits (the sheet grows up to 90% of the screen height, the controls take what is left)",
+                all(d.stubContent, MrCappedScroll.class).size() == 1 && d.stubContent instanceof MrSheetBox && ((MrSheetBox) d.stubContent).maxPx() == Math.round(2400 * MrThemesActivity.SHEET_SHARE)
+                        && MrThemesActivity.SHEET_SHARE == 0.90f && ((MrSheetBox) d.stubContent).scroll() == all(d.stubContent, MrCappedScroll.class).get(0)
                         && byText(d.stubContent, "Cancel") != null && byText(d.stubContent, "Apply") != null);
+        MrSheetBox sheet = (MrSheetBox) d.stubContent;
+        check("what the controls may take is the limit less what the others need (and never less than the least they keep)", MrSheetBox.room(2160, 1000, 288) == 1160 && MrSheetBox.room(2160, 2000, 288) == 288
+                && MrSheetBox.room(2160, 0, 288) == 2160 && MrThemesActivity.MIN_CONTROLS_DP == 96);
+        sheet.measure(android.view.View.MeasureSpec.makeMeasureSpec(1080, android.view.View.MeasureSpec.EXACTLY), android.view.View.MeasureSpec.makeMeasureSpec(2400, android.view.View.MeasureSpec.AT_MOST));
+        check("the sheet can be measured, and the scroll view has a limit that it did not have before (it is free until the sheet is measured)", sheet.scroll().maxPx() > 0 && sheet.scroll().maxPx() < MrCappedScroll.FREE);
         check("the keyboard of the dialog starts with nothing tuned", s.mDialogPreview.look().isNone() && s.mDialogLook[0].isNone() && s.mDialogStyle[0] == 0);
         finger(s, s.mDialogKey, 40);
         check("the slider of the keys tunes the keyboard of the dialog while the finger moves it, and says the value", s.mDialogPreview.look().key == 40 && s.mDialogPreview.look().edge == 100 && byText(d.stubContent, "40%") != null);
@@ -899,7 +905,7 @@ public class ThemesTest {
         check("and a colour that has been tuned keeps it when it is opened again", s.mDialogKey.getProgress() == 60 && s.mDialogPreview.look().key == 60);
         press("Cancel");
         click(bg(s, 1));
-        check("a light colour (dark ink, no styles) has the colour of the letters but no opacity sliders", s.mDialogKey == null && s.mDialogEdge == null && byText(Dialog.stubLast.stubContent, "Key opacity") == null
+        check("a light colour (dark ink, no styles) has the colour of the letters but no opacity sliders", s.mDialogKey == null && s.mDialogEdge == null && byText(Dialog.stubLast.stubContent, "Background opacity") == null
                 && byText(Dialog.stubLast.stubContent, "Text colour") != null && colourDots(s).size() == 1 && dots(Dialog.stubLast.stubContent) == 0);
         pressMain(s, "Cancel");
         // a theme of the list: the tuning is of the backgrounds
@@ -3208,12 +3214,13 @@ public class ThemesTest {
                 && s.mSpec.format().equals("s1") && s.mBig.spec().format().equals("s1"));
         MrCropView crop = s.mDialogCrop;
         crop.stubSize(900, 500);
-        check("the dialog is a full page with the hint, the picture with its frame, the softening and two buttons", Dialog.stubLast.getWindow().stubHeight == android.view.ViewGroup.LayoutParams.MATCH_PARENT
-                && byText(Dialog.stubLast.stubContent, "Drag to move and pinch to zoom the part the keyboard will show.") != null && byText(Dialog.stubLast.stubContent, "Soften background") != null
-                && byText(Dialog.stubLast.stubContent, "Cancel") != null && byText(Dialog.stubLast.stubContent, "Next") != null && s.mDialogSoft != null && s.mDialogSoft.getMax() == 70);
+        check("the dialog is a full page with the hint, the picture with its frame and two buttons (the softening is not here: it is in the preview that follows)", Dialog.stubLast.getWindow().stubHeight == android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                && byText(Dialog.stubLast.stubContent, "Drag to move and pinch to zoom the part the keyboard will show.") != null && byText(Dialog.stubLast.stubContent, "Soften background") == null
+                && byText(Dialog.stubLast.stubContent, "Cancel") != null && byText(Dialog.stubLast.stubContent, "Next") != null && s.mDialogSoft == null);
         check("it starts centred and not zoomed", crop.zoom() == 100 && crop.dx() == 0 && crop.dy() == 0);
         Rect f = crop.frame();
-        check("the frame has the shape of the keyboard and is inside the view", f.width() > 0 && near((float) (f.width() / (double) f.height()), MrBackdrop.ASPECT, 0.15f)
+        check("the frame has the shape of the complete keyboard (1.7 to 1, as tall as the one of the preview that follows) and is inside the view", f.width() > 0 && near((float) (f.width() / (double) f.height()), MrThemePreview.FULL_ASPECT, 0.15f)
+                && MrThemePreview.FULL_ASPECT < MrBackdrop.ASPECT
                 && f.left >= 0 && f.top >= 0 && f.right <= 900 && f.bottom <= 500);
         Bitmap shot = bitmap(900, 500);
         crop.onDraw(new Canvas(shot));
@@ -3225,7 +3232,7 @@ public class ThemesTest {
         crop.onTouchEvent(finger(MotionEvent.ACTION_MOVE, 0, 400f, 250f, 500f, 250f));
         check("fingers brought together to half the distance double the zoom", crop.zoom() == 200);
         Rect small = crop.frame();
-        check("the frame is smaller and keeps the shape", small.width() < f.width() * 0.6 && near((float) (small.width() / (double) small.height()), MrBackdrop.ASPECT, 0.2f));
+        check("the frame is smaller and keeps the shape", small.width() < f.width() * 0.6 && near((float) (small.width() / (double) small.height()), MrThemePreview.FULL_ASPECT, 0.2f));
         crop.onTouchEvent(finger(MotionEvent.ACTION_MOVE, 0, 450f, 250f, 450f, 250f));
         check("fingers on the same point change nothing (no division by zero)", crop.zoom() == 200);
         crop.onTouchEvent(finger(MotionEvent.ACTION_MOVE, 0, 300f, 250f, 600f, 250f));
@@ -3255,30 +3262,23 @@ public class ThemesTest {
         check("a view without size takes no touch", !crop.onTouchEvent(finger(MotionEvent.ACTION_DOWN, 0, 1f, 1f)) && crop.frame().width() == 0);
         crop.stubSize(900, 500);
 
-        // the softening, drawn on the frame
-        Bitmap plain = bitmap(900, 500);
         Bitmap bright = photo(1500, 1000);
-        crop.set(bright, 100, 0, 0, 0);
-        crop.onDraw(new Canvas(plain));
-        s.mDialogSoft.stubListener.onProgressChanged(s.mDialogSoft, 60, true);
-        Bitmap soft = bitmap(900, 500);
-        crop.onDraw(new Canvas(soft));
-        Rect fr = crop.frame();
-        int cx = (fr.left + fr.right) / 2, cy = (fr.top + fr.bottom) / 2;
-        check("the slider of the softening darkens the part inside the frame, and does not write anything (the 0 is the one the landscape wrote)", MrThemeColors.luminance(soft.getPixel(cx, cy)) < MrThemeColors.luminance(plain.getPixel(cx, cy)) - 0.01f
-                && prefs.getInt(MrBackdrop.PREF_SOFT, -1) == 0);
-        s.mDialogSoft.stubListener.onProgressChanged(s.mDialogSoft, 999, true);
-        s.mDialogSoft.stubListener.onProgressChanged(s.mDialogSoft, 40, true);
-        crop.set(bright, 250, 20, -30, 40);
+        crop.set(bright, 250, 20, -30);
         check("set puts the frame where it is told, inside the limits", crop.zoom() == 250 && crop.dx() == 20 && crop.dy() == -30);
-        crop.set(bright, 9999, 999, -999, 999);
+        crop.set(bright, 9999, 999, -999);
         check("and never outside them", crop.zoom() == 400 && crop.dx() == 100 && crop.dy() == -100);
-        crop.set(bright, 200, 10, 20, 40);
+        crop.set(bright, 200, 10, 20);
 
         // Next: the preview, and still nothing is applied
         check("Next opens the preview with the picture in the frame", press("Next") && s.mDialogPreview != null && s.mDialogCrop == null && s.mDialogPreview.spec().kind == MrBackdrop.IMAGE
                 && s.mDialogPreview.spec().zoom == 200 && s.mDialogPreview.spec().dx == 10 && s.mDialogPreview.spec().dy == 20 && s.mDialogPreview.tag().equals("mr_overlight"));
         check("it is still not applied: the picture waits, the background is the landscape", MrBackdrop.hasPending(s) && !MrBackdrop.hasImage(s) && bgKey().equals(bg0) && themeKey().equals(theme0));
+        check("the preview of the picture has the softening of the background (the slider is here, after the part of the picture was chosen), at the one in use, and the hint under it",
+                s.mDialogSoft != null && s.mDialogSoft.getMax() == 70 && s.mDialogSoft.getProgress() == s.mSoft && byText(Dialog.stubLast.stubContent, "Soften background") != null
+                        && byText(Dialog.stubLast.stubContent, "A veil keeps the suggestions readable over any background.") != null);
+        int plainPic[] = tileImage(s.mDialogPreview);
+        s.mDialogSoft.stubListener.onProgressChanged(s.mDialogSoft, 60, true);
+        check("moving it draws the keyboard of the preview again with the veil it gives, and writes nothing", !java.util.Arrays.equals(plainPic, tileImage(s.mDialogPreview)) && prefs.getInt(MrBackdrop.PREF_SOFT, -1) == 0);
         check("Cancel there lets the picture go", press("Cancel") && !MrBackdrop.hasPending(s) && !showing() && bgKey().equals(bg0));
 
         // Cancel and back in the crop let it go too
@@ -3294,9 +3294,10 @@ public class ThemesTest {
         // Apply
         check("a picture, softened to 40, with the frame at zoom 200", choose(s));
         s.mDialogCrop.stubSize(900, 500);
-        s.mDialogCrop.set(MrBackdrop.loadPending(s), 200, 10, 20, 40);
+        s.mDialogCrop.set(MrBackdrop.loadPending(s), 200, 10, 20);
+        check("Next, the softening in the preview, and Apply", press("Next") && s.mDialogSoft != null && s.mDialogSoft.stubListener != null);
         s.mDialogSoft.stubListener.onProgressChanged(s.mDialogSoft, 40, true);
-        check("Next and Apply", press("Next") && press("Apply") && !showing());
+        check("Apply", press("Apply") && !showing());
         check("the picture is the background now, and nothing waits", MrBackdrop.hasImage(s) && !MrBackdrop.hasPending(s));
         check("the keyboard goes to the theme of the backgrounds and the preference holds the zoom, the position and the time of the file",
                 "13".equals(themeKey()) && bgKey().equals("i200,10,20," + MrBackdrop.imageStamp(s)) && s.mSpec.kind == MrBackdrop.IMAGE);
@@ -3314,13 +3315,14 @@ public class ThemesTest {
         // my image again: the crop with the picture that is kept
         click(mine(s));
         check("touching my image opens the crop with the picture that is kept, where the frame is now", s.mDialogCrop != null && showing() && s.mDialogCrop.zoom() == 200 && s.mDialogCrop.dx() == 10 && s.mDialogCrop.dy() == 20
-                && s.mDialogSoft.getProgress() == 40);
+                && s.mDialogSoft == null);
         s.mDialogCrop.stubSize(900, 500);
         s.mDialogCrop.onTouchEvent(finger(MotionEvent.ACTION_DOWN, 0, 450f, 250f));
         s.mDialogCrop.onTouchEvent(finger(MotionEvent.ACTION_MOVE, 0, 470f, 250f));
         s.mDialogCrop.onTouchEvent(finger(MotionEvent.ACTION_UP, 0, 470f, 250f));
         long stamp = MrBackdrop.imageStamp(s);
-        check("Next and Apply put the picture where it was moved to; the file is the same one (the time does not change) and is not copied", press("Next") && press("Apply")
+        check("Next shows the preview with the softening that is in use (40)", press("Next") && s.mDialogSoft != null && s.mDialogSoft.getProgress() == 40);
+        check("and Apply puts the picture where it was moved to; the file is the same one (the time does not change) and is not copied", press("Apply")
                 && bgKey().startsWith("i200,") && !bgKey().startsWith("i200,10,20,") && bgKey().endsWith("," + stamp) && MrBackdrop.imageStamp(s) == stamp && !MrBackdrop.hasPending(s));
         String placed = bgKey();
         click(mine(s));
@@ -3524,6 +3526,39 @@ public class ThemesTest {
             }
         }
         check("the nineteen themes of the backgrounds are complete (layouts, popup, key preview and key faces)", themeFiles && hidden.size() == 19);
+        // the scroll bar of every screen and dialog (not only the themes screen) is the thin faint one at the right edge: the themes of the two give it
+        String themeXml = read("res/values/mr_theme.xml");
+        boolean bars = true;
+        for (String style : new String[] {"Theme.MrKeyboard.Settings", "Theme.MrKeyboard.Dialog"}) {
+            int at = themeXml.indexOf("<style name=\"" + style + "\"");
+            int end = themeXml.indexOf("</style>", at);
+            String body = at < 0 ? "" : themeXml.substring(at, end);
+            if (!body.contains("<item name=\"android:scrollbarThumbVertical\">@drawable/mr_scrollbar_thumb</item>") || !body.contains("<item name=\"android:scrollbarSize\">3.0dip</item>")
+                    || !body.contains("<item name=\"android:scrollbarStyle\">outsideOverlay</item>")) {
+                bars = false;
+                System.out.println("      the theme " + style + " lacks the scroll bar");
+            }
+        }
+        String colours = read("res/values/mr_colors.xml");
+        java.util.regex.Matcher thumb = java.util.regex.Pattern.compile("name=\"mr_scrollbar_thumb\">#([0-9a-f]{8})<").matcher(colours);
+        java.util.regex.Matcher text2 = java.util.regex.Pattern.compile("name=\"mr_ui_text2\">#([0-9a-f]{8})<").matcher(colours);
+        boolean tone = thumb.find() && text2.find() && Integer.parseInt(thumb.group(1).substring(0, 2), 16) == MrThemesActivity.SCROLL_THUMB_ALPHA && thumb.group(1).substring(2).equals(text2.group(1).substring(2));
+        check("every screen and every dialog has the scroll bar of the themes screen from its theme: a 3 dp thumb in the secondary text at 35%, at the edge of the view (outside the padding)",
+                bars && tone && new File("res/drawable/mr_scrollbar_thumb.xml").isFile() && read("res/drawable/mr_scrollbar_thumb.xml").contains("@color/mr_scrollbar_thumb"));
+        // a layer that has only a stroke is filled with opaque black by GradientDrawable when it is drawn through a colour filter (the keyboard draws the line of the
+        // keys through one, to give it its opacity and its hue), so every layer of every key face that has a stroke has a (transparent) solid too
+        int faceFiles = 0;
+        List<String> bare = new ArrayList<String>();
+        File[] drawables = new File("res/drawable").listFiles();
+        for (File f : drawables) {
+            if (!f.getName().startsWith("key_") || !f.getName().endsWith(".xml")) continue;
+            faceFiles++;
+            for (String layer : read("res/drawable/" + f.getName()).split("<item")) {
+                if (layer.contains("<stroke") && !layer.contains("<solid")) bare.add(f.getName());
+            }
+        }
+        check("every layer of a key face that has a stroke has a solid too (transparent), so that a colour filter cannot fill it with black", faceFiles > 150 && bare.isEmpty());
+        if (!bare.isEmpty()) System.out.println("      without a solid: " + bare.subList(0, Math.min(5, bare.size())));
         String arrays = read("res/values/arrays.xml");
         boolean ordered = arrays.indexOf("mr_overlight") > arrays.indexOf("mr_denim") && arrays.indexOf("mr_overdark") > arrays.indexOf("mr_overlight");
         String before = "mr_overdark";

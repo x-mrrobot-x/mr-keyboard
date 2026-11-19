@@ -11,10 +11,9 @@ import android.view.View;
 /**
  * The picture of the gallery with the frame of the keyboard over it, to choose which part of the picture the keyboard will show: the whole picture is
  * drawn as large as the view allows, the part outside the frame is dimmed, and the frame has the shape of the keyboard
- * ({@link MrBackdrop#ASPECT}). One finger drags the frame; two fingers pinched make it smaller, spread make it bigger (the zoom of the picture goes
+ * ({@link MrThemePreview#FULL_ASPECT}: the complete keyboard, with its line of suggestions). One finger drags the frame; two fingers pinched make it smaller, spread make it bigger (the zoom of the picture goes
  * the other way: a smaller frame is a bigger zoom). The frame is the {@link MrBackdrop#crop} of the zoom and the position, so what is chosen here
- * is what the keyboard shows. How much the background is softened is drawn as a veil over what is inside the frame (a hint: the preview that
- * follows is the exact one).
+ * is what the keyboard shows. The softening of the background is not set here: it is in the preview that follows.
  */
 final class MrCropView extends View {
     /** What the person did to the frame. */
@@ -27,7 +26,7 @@ final class MrCropView extends View {
     private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final float mDensity;
     private Bitmap mImage;
-    private int mZoom = MrBackdrop.ZOOM_MIN, mDx, mDy, mSoft;
+    private int mZoom = MrBackdrop.ZOOM_MIN, mDx, mDy;
     private Listener mListener;
     /** Where the picture is drawn in the view, and how many pixels of the view one pixel of the picture takes. */
     private final Rect mDest = new Rect();
@@ -42,18 +41,12 @@ final class MrCropView extends View {
         mDensity = c.getResources().getDisplayMetrics().density;
     }
 
-    /** The picture and where the frame is on it (zoom 100 .. 400, position -100 .. 100), and how much is softened. */
-    void set(Bitmap image, int zoom, int dx, int dy, int soft) {
+    /** The picture and where the frame is on it (zoom 100 .. 400, position -100 .. 100). */
+    void set(Bitmap image, int zoom, int dx, int dy) {
         mImage = image;
         mZoom = MrBackdrop.clamp(zoom, MrBackdrop.ZOOM_MIN, MrBackdrop.ZOOM_MAX);
         mDx = MrBackdrop.clamp(dx, -100, 100);
         mDy = MrBackdrop.clamp(dy, -100, 100);
-        mSoft = MrBackdrop.clamp(soft, 0, MrBackdrop.MAX_SOFT);
-        invalidate();
-    }
-
-    void setSoft(int soft) {
-        mSoft = MrBackdrop.clamp(soft, 0, MrBackdrop.MAX_SOFT);
         invalidate();
     }
 
@@ -87,9 +80,9 @@ final class MrCropView extends View {
         mDest.set(l, t, l + dw, t + dh);
     }
 
-    /** The shape of the frame as two whole numbers (what {@link MrBackdrop#crop} takes). */
+    /** The shape of the frame (that of the complete keyboard) as two whole numbers (what {@link MrBackdrop#crop} takes). */
     private static int shapeW() {
-        return Math.round(MrBackdrop.ASPECT * 100f);
+        return Math.round(MrThemePreview.FULL_ASPECT * 100f);
     }
 
     /** The frame on the view: the {@link MrBackdrop#crop} of the picture, moved to where the picture is drawn. */
@@ -109,16 +102,12 @@ final class MrCropView extends View {
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setFilterBitmap(true);
         canvas.drawBitmap(mImage, new Rect(0, 0, mImage.getWidth(), mImage.getHeight()), new Rect(mDest.left, mDest.top, mDest.right, mDest.bottom), mPaint);
-        // what is outside the frame is dimmed, what is inside is the keyboard (with the softening laid on it)
+        // what is outside the frame is dimmed, what is inside is the keyboard
         mPaint.setColor(OUTSIDE);
         canvas.drawRect(mDest.left, mDest.top, mDest.right, f.top, mPaint);
         canvas.drawRect(mDest.left, f.bottom, mDest.right, mDest.bottom, mPaint);
         canvas.drawRect(mDest.left, f.top, f.left, f.bottom, mPaint);
         canvas.drawRect(f.right, f.top, mDest.right, f.bottom, mPaint);
-        if (mSoft > 0) {
-            mPaint.setColor(((mSoft * 255 / 100) << 24));
-            canvas.drawRect(f.left, f.top, f.right, f.bottom, mPaint);
-        }
         float line = Math.max(1f, mDensity * 1.2f);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(line);

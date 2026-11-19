@@ -236,6 +236,8 @@
     <color name="mr_ui_stroke_strong">#ff1a2a45</color>
     <color name="mr_ui_text">#ffffffff</color>
     <color name="mr_ui_text2">#ffc2dcf6</color>
+    <!-- The thumb of the scroll bars: the secondary text, faint -->
+    <color name="mr_scrollbar_thumb">#59c2dcf6</color>
     <color name="mr_ui_text3">#ff8aa4cc</color>
     <color name="mr_ui_text_dis">#ff4a5c7a</color>
     <color name="mr_ui_text2_dis">#ff3b4a63</color>

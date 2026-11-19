@@ -839,7 +839,7 @@
     <string name="mr_themes_mine">Mi imagen</string>
     <string name="mr_themes_soften">Suavizar fondo</string>
     <string name="mr_themes_soften_hint">Un velo mantiene legibles las sugerencias sobre cualquier fondo.</string>
-    <string name="mr_themes_key_opacity">Opacidad de la tecla</string>
+    <string name="mr_themes_key_opacity">Opacidad del fondo</string>
     <string name="mr_themes_edge_opacity">Opacidad del borde</string>
     <string name="mr_themes_text_color">Color del texto</string>
     <string name="mr_themes_grad_end">Final del degradado</string>

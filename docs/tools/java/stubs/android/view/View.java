@@ -168,6 +168,7 @@ public class View {
     protected final void setMeasuredDimension(int measuredWidth, int measuredHeight) { stubMeasuredW = measuredWidth; stubMeasuredH = measuredHeight; }
     private int stubMeasuredW, stubMeasuredH;
     public int stubMeasuredHeight() { return stubMeasuredH; }
+    public final int getMeasuredHeight() { return stubMeasuredH; }
     public int stubMeasuredWidth() { return stubMeasuredW; }
     /** Runs the measure step (a real view is measured by its parent). */
     public final void measure(int widthMeasureSpec, int heightMeasureSpec) { onMeasure(widthMeasureSpec, heightMeasureSpec); }

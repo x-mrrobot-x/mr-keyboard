@@ -3,16 +3,26 @@ package com.mrkeyboard.app;
 import android.content.Context;
 import android.widget.ScrollView;
 
-/** A scroll view that is never taller than a given height: the controls of a dialog scroll inside it while the keyboard above and the buttons below stay in sight. */
+/**
+ * A scroll view that is never taller than a given height, that the sheet it is in ({@link MrSheetBox}) sets: the controls of a dialog scroll inside it
+ * while the keyboard above and the buttons below stay in sight. Until it is told, it is as tall as its content (up to the room the parent gives).
+ */
 final class MrCappedScroll extends ScrollView {
-    private final int mMaxPx;
+    /** No limit: the largest size a measure spec can hold. */
+    static final int FREE = 0x3fffffff;
 
-    MrCappedScroll(Context c, int maxPx) {
+    private int mMaxPx = FREE;
+
+    MrCappedScroll(Context c) {
         super(c);
-        mMaxPx = maxPx;
     }
 
-    /** The most it measures, in pixels (test help). */
+    /** Sets the most it measures, in pixels (0 .. {@link #FREE}). */
+    void cap(int px) {
+        mMaxPx = px < 0 ? 0 : px > FREE ? FREE : px;
+    }
+
+    /** The most it measures, in pixels. */
     int maxPx() {
         return mMaxPx;
     }

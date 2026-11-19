@@ -39,7 +39,7 @@
     .end annotation
 
     .prologue
-    .line 1071
+    .line 1074
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$26;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$26;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
@@ -63,7 +63,7 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 1073
+    .line 1076
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$26;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$26;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
@@ -78,18 +78,18 @@
 
     aput-object v1, v0, v3
 
-    .line 1074
+    .line 1077
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$26;->val$redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1075
+    .line 1078
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$26;->val$draw:[Ljava/lang/Runnable;
 
     aget-object v0, v0, v3
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1076
+    .line 1079
     return-void
 .end method

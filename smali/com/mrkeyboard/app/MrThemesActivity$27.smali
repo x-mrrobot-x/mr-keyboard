@@ -39,7 +39,7 @@
     .end annotation
 
     .prologue
-    .line 1082
+    .line 1085
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$27;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$27;->val$which:I
@@ -61,7 +61,7 @@
     .locals 6
 
     .prologue
-    .line 1084
+    .line 1087
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$27;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$27;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
@@ -88,6 +88,6 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/mrkeyboard/app/MrThemesActivity;->showColorPicker(Ljava/lang/String;I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
 
-    .line 1085
+    .line 1088
     return-void
 .end method

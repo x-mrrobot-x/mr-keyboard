@@ -29,6 +29,11 @@ Every list is one card wide (`MrThemesActivity.COLUMNS`), and the margin on the 
 its padding, not clipped, and the scroll bar is drawn there (`SCROLLBARS_OUTSIDE_OVERLAY`, 3 dp wide, the thumb in a faint tone of the secondary text,
 `SCROLL_THUMB_ALPHA`, from Android 10; it fades when the list is still), so it is never over the cards.
 
+That bar is not only of this screen: the themes of the screens and of the dialogs (`Theme.MrKeyboard.Settings`, which `Main` extends, and
+`Theme.MrKeyboard.Dialog`) give every list and every scroll view the same one (`scrollbarThumbVertical` = `mr_scrollbar_thumb`, `scrollbarSize` 3 dp,
+`scrollbarStyle` = `outsideOverlay`, so that it is at the right edge of the view and the padding does not move it). The colour `mr_scrollbar_thumb` is the
+secondary text (`mr_ui_text2`) at 35% (`SCROLL_THUMB_ALPHA`); `ThemesTest.files` keeps the two in step.
+
 There is no "Landscapes" group: each category of landscapes is a tab of its own, like the colors and the gradients. The screen opens on the tab of
 what is in use (the themes when there is no background).
 
@@ -45,8 +50,9 @@ copy arrives. The card of a theme is the theme with no background, the card of a
 - A **color, a gradient or a landscape** opens a dialog with the **complete keyboard** as it will look (a sheet at the bottom: **Cancel** / **Apply**):
   the row of Ctrl, Alt and the arrows, the numbers, the letters and the bottom row, every highlight key with its own face and the dash of the
   modifier keys in its three states (see [The small keyboards](#the-small-keyboards)). It also has the controls below, so that the keys can be told
-  apart from a busy background and given the colors the person wants; they scroll between the keyboard and the buttons (`MrCappedScroll`, at most
-  38% of the screen height). Nothing is written until **Apply**, and only the keyboard at the top of the screen shows the result.
+  apart from a busy background and given the colors the person wants; the sheet grows with them up to 90% of the screen height (`MrSheetBox`,
+  `SHEET_SHARE`) and, from there, they scroll between the keyboard and the buttons (`MrCappedScroll`, which takes what the keyboard, the title and the
+  buttons leave; the sheet measures twice, first with the scroll view empty). Nothing is written until **Apply**, and only the keyboard at the top of the screen shows the result.
 - A **picture of the gallery** goes through the crop dialog first (below), then through the same preview.
 
 ### Soften background, key styles and the tuning of the keys
@@ -60,9 +66,11 @@ Keys that blend with the background are the main problem of a picture, so the di
   **Gradient** chips and, under them, the dots of the colors of the kind in use, with a round button that picks a color at the end, and the name of the
   one chosen), for every background but the light colors (their keys already have dark ink on a pale background). Every face is translucent: a hue at
   low opacity over the background, never a solid fill.
-- **Key opacity** and **Border opacity** (sliders, 0 to 250% of what the style gives, 100% by default; with the styles, so not for the light colors):
-  how much the face of a key and its line show, so the keys can be made more see-through or denser. The face of a key of these themes is two layers (the
-  fill and the line), each drawn through its own color filter (`MrGlow.drawKey`), so each slider changes only its part.
+- **Background opacity** and **Border opacity** (sliders, 0 to 250% of what the style gives, 100% by default; with the styles, so not for the light colors):
+  how much the fill of a key and its line show, so the keys can be made more see-through or denser; they change only the opacity, never the color. The
+  face of a key of these themes is two layers (the fill and the line), each drawn through its own color filter (`MrGlow.drawKey`), so each slider changes
+  only its part. The layer of the line has a transparent `<solid>` (`make_themes.py`, `solid_key`): a shape with only a stroke is filled with opaque black
+  by `GradientDrawable` when it is drawn through a color filter, and the line would black out the key.
 - **Text color** (a round button that opens the picker, and **Automatic**, which keeps the color of the theme; every background has it): the color of the
   letters, the small letters (fainter) and the icons (`MrGlow.key`, `hint`, `iconFilter`).
 - The **color the person picks** (the round button at the end of the dots: the rainbow ring, a plus while none was picked): touching it chooses the
@@ -138,11 +146,12 @@ back (`MrReset.KEYS`).
 
 ## A picture: the crop dialog
 
-After the pick a full page opens (`MrCropView`): the picture as large as the screen allows, the frame of the keyboard over it (its shape is
-`MrBackdrop.ASPECT`) and what is outside the frame dimmed. **One finger** drags the frame (`MrBackdrop.shift`), **two fingers** pinched make it smaller
-(a bigger zoom) and spread make it bigger, around its middle (`MrBackdrop.rezoom`). Under it **Soften background** (0 to 70%) darkens the part inside
-the frame as a hint. **Next** shows the keyboard with that frame in the preview; **Apply** there writes the picture, its zoom and position, the
-softening and the theme of the backgrounds in one edit. **My image** (the card that appears in the Gallery tab when there is a picture, next to
+After the pick a full page opens (`MrCropView`): the picture as large as the screen allows, the frame of the keyboard over it (its shape is that of the
+complete keyboard, `MrThemePreview.FULL_ASPECT`, 1.7 to 1: as tall as the keyboard of the preview that follows and as the real one) and what is outside
+the frame dimmed. **One finger** drags the frame (`MrBackdrop.shift`), **two fingers** pinched make it smaller
+(a bigger zoom) and spread make it bigger, around its middle (`MrBackdrop.rezoom`). There is no softening here: **Next** shows the keyboard with that frame in the preview, and
+**Soften background** (0 to 70%, with the hint under it) is there, with the styles and the colours of the keys; **Apply** there writes the picture, its zoom
+and position, the softening and the theme of the backgrounds in one edit. **My image** (the card that appears in the Gallery tab when there is a picture, next to
 the one that picks a photo and with a **Remove my image** button under them) opens the same crop on the picture that is kept, with the frame where it is now.
 
 ## Legibility: the veil

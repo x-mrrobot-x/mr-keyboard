@@ -41,7 +41,7 @@
     .end annotation
 
     .prologue
-    .line 1031
+    .line 1034
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->val$style:[I
@@ -67,14 +67,14 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 1033
+    .line 1036
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->val$style:[I
 
     iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->val$own:I
 
     aput v1, v0, v3
 
-    .line 1034
+    .line 1037
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
     aget-object v0, v0, v3
@@ -97,20 +97,20 @@
 
     aput-object v1, v0, v3
 
-    .line 1035
+    .line 1038
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->val$redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1036
+    .line 1039
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->val$draw:[Ljava/lang/Runnable;
 
     aget-object v0, v0, v3
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1037
+    .line 1040
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
@@ -135,6 +135,6 @@
 
     invoke-virtual/range {v0 .. v5}, Lcom/mrkeyboard/app/MrThemesActivity;->showColorPicker(Ljava/lang/String;I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
 
-    .line 1038
+    .line 1041
     return-void
 .end method
