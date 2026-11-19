@@ -3,7 +3,7 @@
 .source "MrImportActivity.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Lcom/mrkeyboard/app/MrImportAi$Control;
 
 
 # annotations
@@ -20,35 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-.field final synthetic val$control:Lcom/mrkeyboard/app/MrImportAi$Control;
-
-.field final synthetic val$plan:Lcom/mrkeyboard/app/MrImportAi$Plan;
-
-.field final synthetic val$sender:Lcom/mrkeyboard/app/MrImportAi$Sender;
-
-.field final synthetic val$tag:Ljava/lang/String;
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrImportAi$Plan;Ljava/lang/String;Lcom/mrkeyboard/app/MrImportAi$Sender;Lcom/mrkeyboard/app/MrImportAi$Control;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 851
+    .line 849
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
-
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->val$plan:Lcom/mrkeyboard/app/MrImportAi$Plan;
-
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->val$tag:Ljava/lang/String;
-
-    iput-object p4, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->val$sender:Lcom/mrkeyboard/app/MrImportAi$Sender;
-
-    iput-object p5, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->val$control:Lcom/mrkeyboard/app/MrImportAi$Control;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -57,87 +36,52 @@
 
 
 # virtual methods
-.method public run()V
-    .locals 4
+.method public cancelled()Z
+    .locals 1
 
     .prologue
-    .line 855
-    :try_start_0
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->val$plan:Lcom/mrkeyboard/app/MrImportAi$Plan;
+    .line 852
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->val$tag:Ljava/lang/String;
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrImportActivity;->access$700(Lcom/mrkeyboard/app/MrImportActivity;)Z
 
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->val$sender:Lcom/mrkeyboard/app/MrImportAi$Sender;
+    move-result v0
 
-    iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->val$control:Lcom/mrkeyboard/app/MrImportAi$Control;
+    if-nez v0, :cond_0
 
-    invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/MrImportAi;->run(Lcom/mrkeyboard/app/MrImportAi$Plan;Ljava/lang/String;Lcom/mrkeyboard/app/MrImportAi$Sender;Lcom/mrkeyboard/app/MrImportAi$Control;)Lcom/mrkeyboard/app/MrImportAi$Result;
-    :try_end_0
-    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
-    .catch Ljava/lang/OutOfMemoryError; {:try_start_0 .. :try_end_0} :catch_1
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    move-result-object v0
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrImportActivity;->isFinishing()Z
 
-    .line 866
+    move-result v0
+
+    if-eqz v0, :cond_1
+
+    :cond_0
+    const/4 v0, 0x1
+
     :goto_0
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+    return v0
 
-    new-instance v2, Lcom/mrkeyboard/app/MrImportActivity$27$1;
-
-    invoke-direct {v2, p0, v0}, Lcom/mrkeyboard/app/MrImportActivity$27$1;-><init>(Lcom/mrkeyboard/app/MrImportActivity$27;Lcom/mrkeyboard/app/MrImportAi$Result;)V
-
-    invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrImportActivity;->runOnUiThread(Ljava/lang/Runnable;)V
-
-    .line 871
-    return-void
-
-    .line 856
-    :catch_0
-    move-exception v0
-
-    .line 857
-    new-instance v0, Lcom/mrkeyboard/app/MrImportAi$Result;
-
-    invoke-direct {v0}, Lcom/mrkeyboard/app/MrImportAi$Result;-><init>()V
-
-    .line 858
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->val$plan:Lcom/mrkeyboard/app/MrImportAi$Plan;
-
-    invoke-virtual {v1}, Lcom/mrkeyboard/app/MrImportAi$Plan;->requests()I
-
-    move-result v1
-
-    iput v1, v0, Lcom/mrkeyboard/app/MrImportAi$Result;->parts:I
-
-    .line 859
-    const-string v1, ""
-
-    iput-object v1, v0, Lcom/mrkeyboard/app/MrImportAi$Result;->failure:Ljava/lang/String;
+    :cond_1
+    const/4 v0, 0x0
 
     goto :goto_0
+.end method
 
-    .line 860
-    :catch_1
-    move-exception v0
+.method public progress(II)V
+    .locals 2
+
+    .prologue
+    .line 856
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
+
+    new-instance v1, Lcom/mrkeyboard/app/MrImportActivity$27$1;
+
+    invoke-direct {v1, p0, p1, p2}, Lcom/mrkeyboard/app/MrImportActivity$27$1;-><init>(Lcom/mrkeyboard/app/MrImportActivity$27;II)V
+
+    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrImportActivity;->runOnUiThread(Ljava/lang/Runnable;)V
 
     .line 861
-    new-instance v0, Lcom/mrkeyboard/app/MrImportAi$Result;
-
-    invoke-direct {v0}, Lcom/mrkeyboard/app/MrImportAi$Result;-><init>()V
-
-    .line 862
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$27;->val$plan:Lcom/mrkeyboard/app/MrImportAi$Plan;
-
-    invoke-virtual {v1}, Lcom/mrkeyboard/app/MrImportAi$Plan;->requests()I
-
-    move-result v1
-
-    iput v1, v0, Lcom/mrkeyboard/app/MrImportAi$Result;->parts:I
-
-    .line 863
-    const-string v1, ""
-
-    iput-object v1, v0, Lcom/mrkeyboard/app/MrImportAi$Result;->failure:Ljava/lang/String;
-
-    goto :goto_0
+    return-void
 .end method

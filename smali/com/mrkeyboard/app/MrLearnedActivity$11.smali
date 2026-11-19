@@ -1,9 +1,6 @@
 .class Lcom/mrkeyboard/app/MrLearnedActivity$11;
-.super Ljava/lang/Object;
+.super Lcom/mrkeyboard/app/MrAppPicker$Once;
 .source "MrLearnedActivity.java"
-
-# interfaces
-.implements Lcom/mrkeyboard/app/MrAppPicker$Pick;
 
 
 # annotations
@@ -20,91 +17,137 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
+.field final synthetic val$locale:Ljava/lang/String;
+
+.field final synthetic val$store:Lcom/mrkeyboard/app/MrWordStore;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore;Ljava/lang/String;)V
     .locals 0
 
     .prologue
-    .line 361
+    .line 350
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->val$store:Lcom/mrkeyboard/app/MrWordStore;
+
+    iput-object p3, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->val$locale:Ljava/lang/String;
+
+    invoke-direct {p0}, Lcom/mrkeyboard/app/MrAppPicker$Once;-><init>()V
 
     return-void
 .end method
 
 
 # virtual methods
-.method public onPick(Ljava/lang/String;)V
-    .locals 2
+.method list()Ljava/util/List;
+    .locals 7
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()",
+            "Ljava/util/List",
+            "<",
+            "Lcom/mrkeyboard/app/MrAppList$Entry;",
+            ">;"
+        }
+    .end annotation
 
     .prologue
-    .line 363
-    if-nez p1, :cond_1
+    .line 352
+    new-instance v1, Ljava/util/ArrayList;
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+    invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$800(Lcom/mrkeyboard/app/MrLearnedActivity;)Ljava/lang/String;
+    .line 353
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->val$store:Lcom/mrkeyboard/app/MrWordStore;
+
+    invoke-interface {v0}, Lcom/mrkeyboard/app/MrWordStore;->scopes()Ljava/util/List;
 
     move-result-object v0
 
-    if-nez v0, :cond_2
+    invoke-interface {v0}, Ljava/util/List;->iterator()Ljava/util/Iterator;
 
-    .line 368
+    move-result-object v2
+
     :cond_0
     :goto_0
-    return-void
-
-    .line 363
-    :cond_1
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$800(Lcom/mrkeyboard/app/MrLearnedActivity;)Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-interface {v2}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-nez v0, :cond_0
+    if-eqz v0, :cond_1
 
-    .line 364
-    :cond_2
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    invoke-static {v0, p1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$802(Lcom/mrkeyboard/app/MrLearnedActivity;Ljava/lang/String;)Ljava/lang/String;
-
-    .line 365
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    const/16 v1, 0x32
-
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$102(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
-
-    .line 366
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$200(Lcom/mrkeyboard/app/MrLearnedActivity;)Lcom/mrkeyboard/app/MrPage;
+    invoke-interface {v2}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v0
 
-    if-eqz v0, :cond_3
+    check-cast v0, Ljava/lang/String;
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+    .line 354
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->val$locale:Ljava/lang/String;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$200(Lcom/mrkeyboard/app/MrLearnedActivity;)Lcom/mrkeyboard/app/MrPage;
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrApp;->localeOf(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v3, v4}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v3
+
+    if-eqz v3, :cond_0
+
+    .line 355
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrApp;->packageOf(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    .line 356
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->val$store:Lcom/mrkeyboard/app/MrWordStore;
+
+    const/4 v5, 0x2
+
+    invoke-interface {v4, v5, v0}, Lcom/mrkeyboard/app/MrWordStore;->count(ILjava/lang/String;)I
+
+    move-result v4
+
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->val$store:Lcom/mrkeyboard/app/MrWordStore;
+
+    const/4 v6, 0x3
+
+    invoke-interface {v5, v6, v0}, Lcom/mrkeyboard/app/MrWordStore;->count(ILjava/lang/String;)I
+
+    move-result v0
+
+    add-int/2addr v0, v4
+
+    .line 357
+    new-instance v4, Lcom/mrkeyboard/app/MrAppList$Entry;
+
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+
+    invoke-static {v5, v3}, Lcom/mrkeyboard/app/MrAppList;->label(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
 
     move-result-object v0
 
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrPage;->release()V
+    invoke-direct {v4, v3, v5, v0}, Lcom/mrkeyboard/app/MrAppList$Entry;-><init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 367
-    :cond_3
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1200(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+    invoke-virtual {v1, v4}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     goto :goto_0
+
+    .line 359
+    :cond_1
+    new-instance v0, Lcom/mrkeyboard/app/MrLearnedActivity$11$1;
+
+    invoke-direct {v0, p0}, Lcom/mrkeyboard/app/MrLearnedActivity$11$1;-><init>(Lcom/mrkeyboard/app/MrLearnedActivity$11;)V
+
+    invoke-static {v1, v0}, Ljava/util/Collections;->sort(Ljava/util/List;Ljava/util/Comparator;)V
+
+    .line 365
+    return-object v1
 .end method

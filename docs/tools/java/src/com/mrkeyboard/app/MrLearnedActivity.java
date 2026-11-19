@@ -191,6 +191,12 @@ public class MrLearnedActivity extends Activity {
             }
         });
         mScroll = scroll;
+        // a fling that would reach the last row finds the next page there already
+        scroll.setPager(new MrPage.Pager() {
+            public boolean more() {
+                return addPage();
+            }
+        });
 
         col.addView(k.iconButton(k.t("mr_learned_add"), "mr_ui_ic_plus", true, new View.OnClickListener() {
             public void onClick(View v) {
@@ -399,7 +405,12 @@ public class MrLearnedActivity extends Activity {
 
     /** The page was scrolled (or drawn): the next rows when the person is near the last one. */
     private void listNearEnd() {
-        if (!mHasMore || mTable == null || !k.nearEnd(mScroll, mTable)) return;
+        if (k.nearEnd(mScroll, mTable)) addPage();
+    }
+
+    /** Draws the rows again with the next page at the end; false when there is none. */
+    private boolean addPage() {
+        if (!mHasMore || mTable == null) return false;
         mHasMore = false;
         mLimit += PAGE;
         // the page stays where it is while the rows are drawn again with the new ones at the end
@@ -408,6 +419,7 @@ public class MrLearnedActivity extends Activity {
                 refreshList();
             }
         });
+        return true;
     }
 
     private void refreshList() {

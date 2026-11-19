@@ -3,12 +3,12 @@
 .source "MrLearnedActivity.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrLearnedActivity;->listNearEnd()V
+    value = Lcom/mrkeyboard/app/MrLearnedActivity;->typeChip(ILjava/lang/String;)Landroid/widget/TextView;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
+.field final synthetic val$type:I
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;I)V
     .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 406
+    .line 390
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+
+    iput p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->val$type:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,15 +45,47 @@
 
 
 # virtual methods
-.method public run()V
-    .locals 1
+.method public onClick(Landroid/view/View;)V
+    .locals 2
 
     .prologue
-    .line 408
+    .line 392
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$300(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+    iget v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->val$type:I
 
-    .line 409
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1502(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
+
+    .line 393
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+
+    const/16 v1, 0x32
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$102(Lcom/mrkeyboard/app/MrLearnedActivity;I)I
+
+    .line 394
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$200(Lcom/mrkeyboard/app/MrLearnedActivity;)Lcom/mrkeyboard/app/MrPage;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_0
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$200(Lcom/mrkeyboard/app/MrLearnedActivity;)Lcom/mrkeyboard/app/MrPage;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrPage;->release()V
+
+    .line 395
+    :cond_0
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$14;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1300(Lcom/mrkeyboard/app/MrLearnedActivity;)V
+
+    .line 396
     return-void
 .end method

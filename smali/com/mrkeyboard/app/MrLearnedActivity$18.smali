@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrLearnedActivity;->askEdit(Lcom/mrkeyboard/app/MrWordStore$Row;)V
+    value = Lcom/mrkeyboard/app/MrLearnedActivity;->menu(Lcom/mrkeyboard/app/MrWordStore$Row;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,13 +20,13 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-.field final synthetic val$box:Landroid/widget/EditText;
+.field final synthetic val$codes:Ljava/util/ArrayList;
 
 .field final synthetic val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore$Row;Landroid/widget/EditText;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity;Ljava/util/ArrayList;Lcom/mrkeyboard/app/MrWordStore$Row;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -35,12 +35,12 @@
     .end annotation
 
     .prologue
-    .line 545
+    .line 506
     iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->val$codes:Ljava/util/ArrayList;
 
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->val$box:Landroid/widget/EditText;
+    iput-object p3, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -53,38 +53,36 @@
     .locals 3
 
     .prologue
-    .line 547
+    .line 508
+    if-ltz p2, :cond_0
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->val$codes:Ljava/util/ArrayList;
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
+
+    move-result v0
+
+    if-ge p2, v0, :cond_0
+
     iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->val$codes:Ljava/util/ArrayList;
+
+    invoke-virtual {v0, p2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/lang/Integer;
+
+    invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
+
+    move-result v0
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->val$r:Lcom/mrkeyboard/app/MrWordStore$Row;
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->val$box:Landroid/widget/EditText;
+    invoke-static {v1, v0, v2}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1700(Lcom/mrkeyboard/app/MrLearnedActivity;ILcom/mrkeyboard/app/MrWordStore$Row;)V
 
-    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
-
-    move-result-object v0
-
-    if-nez v0, :cond_0
-
-    const-string v0, ""
-
-    :goto_0
-    invoke-static {v1, v2, v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$1700(Lcom/mrkeyboard/app/MrLearnedActivity;Lcom/mrkeyboard/app/MrWordStore$Row;Ljava/lang/String;)V
-
-    .line 548
-    return-void
-
-    .line 547
+    .line 509
     :cond_0
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$18;->val$box:Landroid/widget/EditText;
-
-    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
-
-    move-result-object v0
-
-    invoke-interface {v0}, Landroid/text/Editable;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    goto :goto_0
+    return-void
 .end method

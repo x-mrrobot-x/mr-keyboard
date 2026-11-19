@@ -947,82 +947,75 @@ public class AppScreensTest {
         q.stubStep(900);
         check("release (a new search drew the list again): nothing is held", q.getScrollY() == 900 && !q.isQuiet());
 
-        // ---- a fling that is running goes on when the cards arrive in the middle of it
+        // ---- a fling that would reach the end of the list finds the next page there: the cards are added BEFORE it starts, it starts with its own speed
+        final int[] pages = {0};
         MrPage f = new MrPage(null);
-        View fc = new View();
+        final View fc = new View();
         fc.stubSize(1000, 6000);
         f.addView(fc, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         f.stubSize(1000, 1000);
+        final MrPage fp2 = f;
+        final int[] left = {10};
+        f.setPager(new MrPage.Pager() {
+            public boolean more() {
+                if (left[0] == 0) return false;
+                left[0]--;
+                pages[0]++;
+                fp2.keepPosition(new Runnable() {
+                    public void run() {
+                        fc.stubSize(1000, fc.getHeight() + 3000);
+                    }
+                });
+                return true;
+            }
+        });
         SystemClock.now = 10000;
-        f.dispatchTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_DOWN, 10f, 10f));
-        f.dispatchTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_UP, 10f, 10f));
-        int y = 1000;
-        for (int i = 0; i < 6; i++) {          // a fling: 50 px every 16 ms (3125 px/s)
-            f.stubStep(y);
-            y += 50;
-            SystemClock.now += 16;
-        }
-        check("the speed of a fling toward the end is known from its steps (about 3000 px/s)", f.flinging() && f.flingSpeed() > 2000f && f.flingSpeed() < 3300f);
-        f.keepPosition(new Runnable() {
-            public void run() {
-            }
-        });
-        check("cards added in the middle of the fling: nothing is started yet, the layout has not run", f.stubFlings == 0);
+        f.scrollTo(0, 100);
+        f.fling(2500);
+        check("far from the end (the fling stops 2 screens before it): the fling starts at once and no page is added", f.stubFlings == 1 && f.stubFlingSpeed == 2500 && pages[0] == 0);
+        f.scrollTo(0, 3000);
+        f.fling(-4000);
+        check("a fling toward the start never adds a page", f.stubFlings == 2 && f.stubFlingSpeed == -4000 && pages[0] == 0);
+
+        f.scrollTo(0, 5000);
+        f.fling(2500);
+        check("a fling that would stop at the end: the next page is added first and the fling waits for the layout", pages[0] == 1 && f.stubFlings == 2 && fc.getHeight() == 9000);
         f.stubLayout();
-        check("... after the layout the fling starts again with the speed it had, the end being further now", f.stubFlings == 1 && f.stubFlingSpeed > 2000);
+        check("... after the layout it starts with the speed it was given (not faster), over the longer list", f.stubFlings == 3 && f.stubFlingSpeed == 2500 && pages[0] == 1);
+        check("... and the page was held where it was meanwhile", f.getScrollY() == 5000);
 
-        MrPage g = new MrPage(null);
-        g.addView(new View(), new ViewGroup.LayoutParams(-1, -2));
-        g.stubSize(1000, 1000);
-        SystemClock.now = 20000;
-        y = 1000;
-        for (int i = 0; i < 6; i++) {
-            g.stubStep(y);
-            y += 50;
-            SystemClock.now += 16;
-        }
-        SystemClock.now += 300;                 // it stopped 300 ms ago
-        g.keepPosition(new Runnable() {
-            public void run() {
-            }
-        });
-        g.stubLayout();
-        check("a page that had stopped is not started again", !g.flinging() && g.stubFlings == 0);
+        f.scrollTo(0, 5000);
+        fc.stubSize(1000, 6000);
+        pages[0] = 0;
+        f.fling(20000);
+        for (int i = 0; i < 8 && f.stubFlings == 3; i++) f.stubLayout();
+        check("a very fast fling asks for the page again after each layout until the list is long enough, then starts with its own speed",
+                pages[0] == 3 && f.stubFlings == 4 && f.stubFlingSpeed == 20000);
 
-        MrPage h = new MrPage(null);
-        h.addView(new View(), new ViewGroup.LayoutParams(-1, -2));
-        h.stubSize(1000, 1000);
-        SystemClock.now = 30000;
-        y = 3000;
-        for (int i = 0; i < 6; i++) {           // going up
-            h.stubStep(y);
-            y -= 50;
-            SystemClock.now += 16;
-        }
-        h.keepPosition(new Runnable() {
-            public void run() {
-            }
-        });
-        h.stubLayout();
-        check("a fling toward the start is not turned around (only the one toward the end goes on)", h.stubFlings == 0);
+        f.scrollTo(0, 5000);
+        fc.stubSize(1000, 6000);
+        left[0] = 0;
+        f.fling(2500);
+        check("the list has no more cards: the fling goes as usual (the end is the end)", f.stubFlings == 5 && f.stubFlingSpeed == 2500);
 
-        MrPage t = new MrPage(null);
-        t.addView(new View(), new ViewGroup.LayoutParams(-1, -2));
-        t.stubSize(1000, 1000);
-        SystemClock.now = 40000;
-        y = 1000;
-        for (int i = 0; i < 6; i++) {           // dragging: the finger is down
-            if (i == 0) t.dispatchTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_DOWN, 10f, 10f));
-            t.stubStep(y);
-            y += 50;
-            SystemClock.now += 16;
-        }
-        t.keepPosition(new Runnable() {
-            public void run() {
-            }
-        });
-        t.stubLayout();
-        check("with the finger on the page nothing is flung (the finger moves it)", t.stubFlings == 0);
+        f.scrollTo(0, 5000);
+        fc.stubSize(1000, 6000);
+        left[0] = 5;
+        pages[0] = 0;
+        f.fling(2500);
+        f.dispatchTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_DOWN, 10f, 10f));
+        f.stubLayout();
+        check("the finger touches the page while the fling waits: it does not start", pages[0] == 1 && f.stubFlings == 5);
+        f.dispatchTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_UP, 10f, 10f));
+
+        MrPage n = new MrPage(null);
+        View nc = new View();
+        nc.stubSize(1000, 6000);
+        n.addView(nc, new ViewGroup.LayoutParams(-1, -2));
+        n.stubSize(1000, 1000);
+        n.scrollTo(0, 5000);
+        n.fling(2500);
+        check("a page with no pager (the other pages of the app) flings as usual", n.stubFlings == 1 && n.stubFlingSpeed == 2500);
     }
 
     public static void main(String[] args) throws Exception {

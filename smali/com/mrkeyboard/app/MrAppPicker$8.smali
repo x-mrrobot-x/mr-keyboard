@@ -3,12 +3,12 @@
 .source "MrAppPicker.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrAppPicker;->row(Lcom/mrkeyboard/app/MrAppList$Entry;Ljava/util/ArrayList;)Landroid/view/View;
+    value = Lcom/mrkeyboard/app/MrAppPicker;->addPage()Z
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,15 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
-.field final synthetic val$e:Lcom/mrkeyboard/app/MrAppList$Entry;
+.field final synthetic val$from:I
+
+.field final synthetic val$list:Ljava/util/List;
+
+.field final synthetic val$to:I
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrAppPicker;Lcom/mrkeyboard/app/MrAppList$Entry;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/List;II)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +37,14 @@
     .end annotation
 
     .prologue
-    .line 260
+    .line 259
     iput-object p1, p0, Lcom/mrkeyboard/app/MrAppPicker$8;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrAppPicker$8;->val$e:Lcom/mrkeyboard/app/MrAppList$Entry;
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrAppPicker$8;->val$list:Ljava/util/List;
+
+    iput p3, p0, Lcom/mrkeyboard/app/MrAppPicker$8;->val$from:I
+
+    iput p4, p0, Lcom/mrkeyboard/app/MrAppPicker$8;->val$to:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,19 +53,21 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .locals 2
+.method public run()V
+    .locals 4
 
     .prologue
-    .line 262
+    .line 261
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker$8;->this$0:Lcom/mrkeyboard/app/MrAppPicker;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrAppPicker$8;->val$e:Lcom/mrkeyboard/app/MrAppList$Entry;
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrAppPicker$8;->val$list:Ljava/util/List;
 
-    iget-object v1, v1, Lcom/mrkeyboard/app/MrAppList$Entry;->pkg:Ljava/lang/String;
+    iget v2, p0, Lcom/mrkeyboard/app/MrAppPicker$8;->val$from:I
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrAppPicker;->access$200(Lcom/mrkeyboard/app/MrAppPicker;Ljava/lang/String;)V
+    iget v3, p0, Lcom/mrkeyboard/app/MrAppPicker$8;->val$to:I
 
-    .line 263
+    invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/MrAppPicker;->access$1100(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/List;II)V
+
+    .line 262
     return-void
 .end method

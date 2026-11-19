@@ -3,7 +3,7 @@
 .source "MrLearnedActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Lcom/mrkeyboard/app/MrPage$Pager;
 
 
 # annotations
@@ -36,65 +36,16 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .locals 3
+.method public more()Z
+    .locals 1
 
     .prologue
     .line 197
     iget-object v0, p0, Lcom/mrkeyboard/app/MrLearnedActivity$5;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
 
-    const-class v1, Lcom/mrkeyboard/app/MrImportActivity;
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$600(Lcom/mrkeyboard/app/MrLearnedActivity;)Z
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrNav;->intent(Landroid/content/Context;Ljava/lang/Class;)Landroid/content/Intent;
+    move-result v0
 
-    move-result-object v0
-
-    .line 198
-    const-string v1, "mr_words_locale"
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$5;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    invoke-static {v2}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$600(Lcom/mrkeyboard/app/MrLearnedActivity;)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v0, v1, v2}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
-
-    .line 200
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$5;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    invoke-static {v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$700(Lcom/mrkeyboard/app/MrLearnedActivity;)I
-
-    move-result v1
-
-    const/4 v2, 0x1
-
-    if-ne v1, v2, :cond_0
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$5;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    invoke-static {v1}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$800(Lcom/mrkeyboard/app/MrLearnedActivity;)Ljava/lang/String;
-
-    move-result-object v1
-
-    if-eqz v1, :cond_0
-
-    const-string v1, "mr_words_app"
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrLearnedActivity$5;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    invoke-static {v2}, Lcom/mrkeyboard/app/MrLearnedActivity;->access$800(Lcom/mrkeyboard/app/MrLearnedActivity;)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v0, v1, v2}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
-
-    .line 201
-    :cond_0
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$5;->this$0:Lcom/mrkeyboard/app/MrLearnedActivity;
-
-    invoke-virtual {v1, v0}, Lcom/mrkeyboard/app/MrLearnedActivity;->startActivity(Landroid/content/Intent;)V
-
-    .line 202
-    return-void
+    return v0
 .end method

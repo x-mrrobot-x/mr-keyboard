@@ -1,4 +1,4 @@
-.class Lcom/mrkeyboard/app/MrLearnedActivity$10$1;
+.class Lcom/mrkeyboard/app/MrLearnedActivity$11$1;
 .super Ljava/lang/Object;
 .source "MrLearnedActivity.java"
 
@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrLearnedActivity$10;->list()Ljava/util/List;
+    value = Lcom/mrkeyboard/app/MrLearnedActivity$11;->list()Ljava/util/List;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -28,16 +28,16 @@
 
 
 # instance fields
-.field final synthetic this$1:Lcom/mrkeyboard/app/MrLearnedActivity$10;
+.field final synthetic this$1:Lcom/mrkeyboard/app/MrLearnedActivity$11;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity$10;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrLearnedActivity$11;)V
     .locals 0
 
     .prologue
-    .line 353
-    iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$10$1;->this$1:Lcom/mrkeyboard/app/MrLearnedActivity$10;
+    .line 359
+    iput-object p1, p0, Lcom/mrkeyboard/app/MrLearnedActivity$11$1;->this$1:Lcom/mrkeyboard/app/MrLearnedActivity$11;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -50,7 +50,7 @@
     .locals 2
 
     .prologue
-    .line 355
+    .line 361
     iget-object v0, p1, Lcom/mrkeyboard/app/MrAppList$Entry;->folded:Ljava/lang/String;
 
     iget-object v1, p2, Lcom/mrkeyboard/app/MrAppList$Entry;->folded:Ljava/lang/String;
@@ -59,7 +59,7 @@
 
     move-result v0
 
-    .line 356
+    .line 362
     if-eqz v0, :cond_0
 
     :goto_0
@@ -81,12 +81,12 @@
     .locals 1
 
     .prologue
-    .line 353
+    .line 359
     check-cast p1, Lcom/mrkeyboard/app/MrAppList$Entry;
 
     check-cast p2, Lcom/mrkeyboard/app/MrAppList$Entry;
 
-    invoke-virtual {p0, p1, p2}, Lcom/mrkeyboard/app/MrLearnedActivity$10$1;->compare(Lcom/mrkeyboard/app/MrAppList$Entry;Lcom/mrkeyboard/app/MrAppList$Entry;)I
+    invoke-virtual {p0, p1, p2}, Lcom/mrkeyboard/app/MrLearnedActivity$11$1;->compare(Lcom/mrkeyboard/app/MrAppList$Entry;Lcom/mrkeyboard/app/MrAppList$Entry;)I
 
     move-result v0
 

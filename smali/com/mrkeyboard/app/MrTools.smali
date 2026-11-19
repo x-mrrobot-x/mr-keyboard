@@ -651,7 +651,7 @@
 .end method
 
 .method static btn(Landroid/view/View;Ljava/lang/String;I)Landroid/widget/TextView;
-    .locals 4
+    .locals 5
 
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/MrTools;->tag(Landroid/view/View;Ljava/lang/String;)Landroid/view/View;
 
@@ -662,6 +662,54 @@
     sget v1, Lcom/mrkeyboard/app/MrTools;->sTextColor:I
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setTextColor(I)V
+
+    # The ink of the buttons of the panels (role btn_ink, 0 = the one of the tools): not the buttons of the bar (b_), the fields, nor the two labels
+    # that sit in the row of a panel (clip_count, tune_info). v4 = 0 when there is none.
+    const/4 v4, 0x0
+
+    const-string v1, "b_"
+
+    invoke-virtual {p1, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_mr_noink
+
+    instance-of v1, v0, Landroid/widget/EditText;
+
+    if-nez v1, :cond_mr_noink
+
+    const-string v1, "clip_count"
+
+    invoke-virtual {p1, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_mr_noink
+
+    const-string v1, "tune_info"
+
+    invoke-virtual {p1, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_mr_noink
+
+    const-string v1, "btn_ink"
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v4
+
+    if-eqz v4, :cond_mr_noink
+
+    const/high16 v1, -0x1000000
+
+    or-int/2addr v4, v1
+
+    invoke-virtual {v0, v4}, Landroid/widget/TextView;->setTextColor(I)V
+
+    :cond_mr_noink
 
     instance-of v1, v0, Landroid/widget/EditText;
 
@@ -759,6 +807,13 @@
     invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
     :cond_4
+    if-eqz v4, :cond_mr_plainicon
+
+    invoke-static {v0, v4}, Lcom/mrkeyboard/app/MrTools;->tintColor(Landroid/widget/TextView;I)V
+
+    goto :goto_1
+
+    :cond_mr_plainicon
     invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->flatBar()Z
 
     move-result v1

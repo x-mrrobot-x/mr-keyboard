@@ -538,6 +538,12 @@ public class MrImportActivity extends Activity {
                     wordsNearEnd(scroll);
                 }
             });
+            // a fling that would reach the last word finds the next page there already
+            scroll.setPager(new MrPage.Pager() {
+                public boolean more() {
+                    return addWords(scroll);
+                }
+            });
             drawWords(scroll);
         }
         AlertDialog.Builder b = new AlertDialog.Builder(this)
@@ -577,14 +583,20 @@ public class MrImportActivity extends Activity {
 
     /** The preview was scrolled: draws the next page of words when the person is near the last one. */
     private void wordsNearEnd(final MrPage scroll) {
+        if (k.nearEnd(scroll, mWordBox)) addWords(scroll);
+    }
+
+    /** Draws the next page of words at the end of the preview; false when there is none. */
+    private boolean addWords(final MrPage scroll) {
         MrImport.Plan plan = mPlan;
-        if (plan == null || mWordBox == null || mShown >= plan.words.size() || !k.nearEnd(scroll, mWordBox)) return;
+        if (plan == null || mWordBox == null || mShown >= plan.words.size()) return false;
         // the page stays where it is while the words are added at its end
         scroll.keepPosition(new Runnable() {
             public void run() {
                 drawWords(scroll);
             }
         });
+        return true;
     }
 
     /** Draws the next page of words of the preview. {@code scroll}: the page of the preview (null: no check of the next page). */

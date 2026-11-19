@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrImportActivity;->apply()V
+    value = Lcom/mrkeyboard/app/MrImportActivity;->drawWords(Lcom/mrkeyboard/app/MrPage;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,17 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-.field final synthetic val$app:Ljava/lang/String;
-
-.field final synthetic val$locale:Ljava/lang/String;
-
-.field final synthetic val$plan:Lcom/mrkeyboard/app/MrImport$Plan;
-
-.field final synthetic val$store:Lcom/mrkeyboard/app/MrWordStore;
+.field final synthetic val$scroll:Lcom/mrkeyboard/app/MrPage;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrWordStore;Lcom/mrkeyboard/app/MrImport$Plan;Ljava/lang/String;Ljava/lang/String;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrPage;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -39,16 +33,10 @@
     .end annotation
 
     .prologue
-    .line 692
+    .line 622
     iput-object p1, p0, Lcom/mrkeyboard/app/MrImportActivity$21;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$21;->val$store:Lcom/mrkeyboard/app/MrWordStore;
-
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrImportActivity$21;->val$plan:Lcom/mrkeyboard/app/MrImport$Plan;
-
-    iput-object p4, p0, Lcom/mrkeyboard/app/MrImportActivity$21;->val$locale:Ljava/lang/String;
-
-    iput-object p5, p0, Lcom/mrkeyboard/app/MrImportActivity$21;->val$app:Ljava/lang/String;
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrImportActivity$21;->val$scroll:Lcom/mrkeyboard/app/MrPage;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -58,49 +46,16 @@
 
 # virtual methods
 .method public run()V
-    .locals 6
+    .locals 2
 
     .prologue
-    .line 694
-    .line 696
-    :try_start_0
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$21;->val$store:Lcom/mrkeyboard/app/MrWordStore;
+    .line 624
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrImportActivity$21;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$21;->val$plan:Lcom/mrkeyboard/app/MrImport$Plan;
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$21;->val$scroll:Lcom/mrkeyboard/app/MrPage;
 
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrImportActivity$21;->val$locale:Ljava/lang/String;
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrImportActivity;->access$2400(Lcom/mrkeyboard/app/MrImportActivity;Lcom/mrkeyboard/app/MrPage;)V
 
-    iget-object v3, p0, Lcom/mrkeyboard/app/MrImportActivity$21;->val$app:Ljava/lang/String;
-
-    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
-
-    move-result-wide v4
-
-    invoke-static/range {v0 .. v5}, Lcom/mrkeyboard/app/MrLearned;->apply(Lcom/mrkeyboard/app/MrWordStore;Lcom/mrkeyboard/app/MrImport$Plan;Ljava/lang/String;Ljava/lang/String;J)Lcom/mrkeyboard/app/MrLearned$Result;
-    :try_end_0
-    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
-
-    move-result-object v0
-
-    .line 701
-    :goto_0
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrImportActivity$21;->this$0:Lcom/mrkeyboard/app/MrImportActivity;
-
-    new-instance v2, Lcom/mrkeyboard/app/MrImportActivity$21$1;
-
-    invoke-direct {v2, p0, v0}, Lcom/mrkeyboard/app/MrImportActivity$21$1;-><init>(Lcom/mrkeyboard/app/MrImportActivity$21;Lcom/mrkeyboard/app/MrLearned$Result;)V
-
-    invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrImportActivity;->runOnUiThread(Ljava/lang/Runnable;)V
-
-    .line 721
+    .line 625
     return-void
-
-    .line 697
-    :catch_0
-    move-exception v0
-
-    .line 698
-    const/4 v0, 0x0
-
-    goto :goto_0
 .end method

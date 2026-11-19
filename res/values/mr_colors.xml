@@ -87,6 +87,10 @@
          0 = the text and the hint of the layout. -->
     <color name="mr_tool_ink">#00000000</color>
     <color name="mr_tool_hint">#00000000</color>
+    <!-- Ink of the texts and icons inside the buttons of the tools (back, Recording, Clear, the buttons of the panels; MrTools.btn), when it must not be
+         the one of the rest of the tools: the bar, the labels and the cards keep tool_ink / the key labels. A theme whose buttons are darker than the keys
+         (Sky) declares an ink that stays readable on them (mr_<theme>_btn_ink). 0 = the ink of the tools. -->
+    <color name="mr_btn_ink">#00000000</color>
     <!-- Ink of the buttons that the system draws under the keyboard (back, keyboard switcher; from Android 15 on, MrLight.bars): a dark one
          gives dark buttons, a light one light buttons, whatever the key labels are. For a theme whose labels are pale on a light
          background (Sky), where the labels would say "dark theme" and the buttons would be pale on pale (mr_<theme>_bars_ink).

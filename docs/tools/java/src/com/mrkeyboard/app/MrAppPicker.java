@@ -167,6 +167,12 @@ final class MrAppPicker {
                 checkMore();
             }
         });
+        // a fling that would reach the last card finds the next page there already
+        scroll.setPager(new MrPage.Pager() {
+            public boolean more() {
+                return addPage();
+            }
+        });
 
         AlertDialog d = new AlertDialog.Builder(act)
                 .setTitle(title)
@@ -239,8 +245,13 @@ final class MrAppPicker {
 
     /** More apps to show and the person is near the last card: the next page. */
     private void checkMore() {
+        if (k.nearEnd(mScroll, mListBox)) addPage();
+    }
+
+    /** Adds the next page of apps at the end of the list; false when there is none. */
+    private boolean addPage() {
         final List<MrAppList.Entry> list = mMatches;
-        if (mClosed || list == null || mCount >= list.size() || !k.nearEnd(mScroll, mListBox)) return;
+        if (mClosed || list == null || mCount >= list.size()) return false;
         mLimit += PAGE;
         final int from = mCount;
         final int to = Math.min(list.size(), mLimit);
@@ -250,6 +261,7 @@ final class MrAppPicker {
                 append(list, from, to);
             }
         });
+        return true;
     }
 
     private View row(final MrAppList.Entry e, ArrayList<ImageView> icons) {

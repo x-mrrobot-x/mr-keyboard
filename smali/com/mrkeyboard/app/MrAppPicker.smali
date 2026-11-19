@@ -126,7 +126,17 @@
     return-object v0
 .end method
 
-.method static synthetic access$1000(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/List;II)V
+.method static synthetic access$1000(Lcom/mrkeyboard/app/MrAppPicker;)Landroid/widget/LinearLayout;
+    .locals 1
+
+    .prologue
+    .line 31
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mListBox:Landroid/widget/LinearLayout;
+
+    return-object v0
+.end method
+
+.method static synthetic access$1100(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/List;II)V
     .locals 0
 
     .prologue
@@ -136,7 +146,7 @@
     return-void
 .end method
 
-.method static synthetic access$1100(Lcom/mrkeyboard/app/MrAppPicker;)I
+.method static synthetic access$1200(Lcom/mrkeyboard/app/MrAppPicker;)I
     .locals 1
 
     .prologue
@@ -221,12 +231,24 @@
 
     .prologue
     .line 31
+    invoke-direct {p0}, Lcom/mrkeyboard/app/MrAppPicker;->addPage()Z
+
+    move-result v0
+
+    return v0
+.end method
+
+.method static synthetic access$900(Lcom/mrkeyboard/app/MrAppPicker;)Z
+    .locals 1
+
+    .prologue
+    .line 31
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mClosed:Z
 
     return v0
 .end method
 
-.method static synthetic access$802(Lcom/mrkeyboard/app/MrAppPicker;Z)Z
+.method static synthetic access$902(Lcom/mrkeyboard/app/MrAppPicker;Z)Z
     .locals 0
 
     .prologue
@@ -236,14 +258,70 @@
     return p1
 .end method
 
-.method static synthetic access$900(Lcom/mrkeyboard/app/MrAppPicker;)Landroid/widget/LinearLayout;
-    .locals 1
+.method private addPage()Z
+    .locals 5
 
     .prologue
-    .line 31
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mListBox:Landroid/widget/LinearLayout;
+    .line 253
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mMatches:Ljava/util/List;
 
-    return-object v0
+    .line 254
+    iget-boolean v1, p0, Lcom/mrkeyboard/app/MrAppPicker;->mClosed:Z
+
+    if-nez v1, :cond_0
+
+    if-eqz v0, :cond_0
+
+    iget v1, p0, Lcom/mrkeyboard/app/MrAppPicker;->mCount:I
+
+    invoke-interface {v0}, Ljava/util/List;->size()I
+
+    move-result v2
+
+    if-lt v1, v2, :cond_1
+
+    :cond_0
+    const/4 v0, 0x0
+
+    .line 264
+    :goto_0
+    return v0
+
+    .line 255
+    :cond_1
+    iget v1, p0, Lcom/mrkeyboard/app/MrAppPicker;->mLimit:I
+
+    add-int/lit8 v1, v1, 0x1e
+
+    iput v1, p0, Lcom/mrkeyboard/app/MrAppPicker;->mLimit:I
+
+    .line 256
+    iget v1, p0, Lcom/mrkeyboard/app/MrAppPicker;->mCount:I
+
+    .line 257
+    invoke-interface {v0}, Ljava/util/List;->size()I
+
+    move-result v2
+
+    iget v3, p0, Lcom/mrkeyboard/app/MrAppPicker;->mLimit:I
+
+    invoke-static {v2, v3}, Ljava/lang/Math;->min(II)I
+
+    move-result v2
+
+    .line 259
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrAppPicker;->mScroll:Lcom/mrkeyboard/app/MrPage;
+
+    new-instance v4, Lcom/mrkeyboard/app/MrAppPicker$8;
+
+    invoke-direct {v4, p0, v0, v1, v2}, Lcom/mrkeyboard/app/MrAppPicker$8;-><init>(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/List;II)V
+
+    invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrPage;->keepPosition(Ljava/lang/Runnable;)V
+
+    .line 264
+    const/4 v0, 0x1
+
+    goto :goto_0
 .end method
 
 .method private append(Ljava/util/List;II)V
@@ -259,28 +337,28 @@
     .end annotation
 
     .prologue
-    .line 221
+    .line 227
     new-instance v2, Ljava/util/ArrayList;
 
     invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
 
-    .line 222
+    .line 228
     new-instance v3, Ljava/util/ArrayList;
 
     invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
 
-    .line 223
+    .line 229
     :goto_0
     if-ge p2, p3, :cond_1
 
-    .line 224
+    .line 230
     invoke-interface {p1, p2}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/mrkeyboard/app/MrAppList$Entry;
 
-    .line 225
+    .line 231
     iget-object v4, p0, Lcom/mrkeyboard/app/MrAppPicker;->mListBox:Landroid/widget/LinearLayout;
 
     invoke-direct {p0, v0, v3}, Lcom/mrkeyboard/app/MrAppPicker;->row(Lcom/mrkeyboard/app/MrAppList$Entry;Ljava/util/ArrayList;)Landroid/view/View;
@@ -300,25 +378,25 @@
 
     invoke-virtual {v4, v5, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 226
+    .line 232
     invoke-virtual {v2, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 223
+    .line 229
     add-int/lit8 p2, p2, 0x1
 
     goto :goto_0
 
-    .line 225
+    .line 231
     :cond_0
     const/4 v1, 0x6
 
     goto :goto_1
 
-    .line 228
+    .line 234
     :cond_1
     iput p3, p0, Lcom/mrkeyboard/app/MrAppPicker;->mCount:I
 
-    .line 229
+    .line 235
     invoke-virtual {v2}, Ljava/util/ArrayList;->isEmpty()Z
 
     move-result v0
@@ -327,7 +405,7 @@
 
     invoke-direct {p0, v2, v3}, Lcom/mrkeyboard/app/MrAppPicker;->loadIcons(Ljava/util/ArrayList;Ljava/util/ArrayList;)V
 
-    .line 231
+    .line 237
     :cond_2
     iget v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mCount:I
 
@@ -345,112 +423,63 @@
 
     if-lez v0, :cond_3
 
-    .line 232
+    .line 238
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mScroll:Lcom/mrkeyboard/app/MrPage;
 
-    new-instance v1, Lcom/mrkeyboard/app/MrAppPicker$6;
+    new-instance v1, Lcom/mrkeyboard/app/MrAppPicker$7;
 
-    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrAppPicker$6;-><init>(Lcom/mrkeyboard/app/MrAppPicker;)V
+    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrAppPicker$7;-><init>(Lcom/mrkeyboard/app/MrAppPicker;)V
 
     invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrPage;->post(Ljava/lang/Runnable;)Z
 
-    .line 238
+    .line 244
     :cond_3
     return-void
 .end method
 
 .method private checkMore()V
-    .locals 5
+    .locals 3
 
     .prologue
-    .line 242
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mMatches:Ljava/util/List;
+    .line 248
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->k:Lcom/mrkeyboard/app/MrKit;
 
-    .line 243
-    iget-boolean v1, p0, Lcom/mrkeyboard/app/MrAppPicker;->mClosed:Z
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrAppPicker;->mScroll:Lcom/mrkeyboard/app/MrPage;
 
-    if-nez v1, :cond_0
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrAppPicker;->mListBox:Landroid/widget/LinearLayout;
+
+    invoke-virtual {v0, v1, v2}, Lcom/mrkeyboard/app/MrKit;->nearEnd(Landroid/widget/ScrollView;Landroid/view/ViewGroup;)Z
+
+    move-result v0
 
     if-eqz v0, :cond_0
 
-    iget v1, p0, Lcom/mrkeyboard/app/MrAppPicker;->mCount:I
+    invoke-direct {p0}, Lcom/mrkeyboard/app/MrAppPicker;->addPage()Z
 
-    invoke-interface {v0}, Ljava/util/List;->size()I
-
-    move-result v2
-
-    if-ge v1, v2, :cond_0
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrAppPicker;->k:Lcom/mrkeyboard/app/MrKit;
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrAppPicker;->mScroll:Lcom/mrkeyboard/app/MrPage;
-
-    iget-object v3, p0, Lcom/mrkeyboard/app/MrAppPicker;->mListBox:Landroid/widget/LinearLayout;
-
-    invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->nearEnd(Landroid/widget/ScrollView;Landroid/view/ViewGroup;)Z
-
-    move-result v1
-
-    if-nez v1, :cond_1
-
-    .line 253
+    .line 249
     :cond_0
-    :goto_0
     return-void
-
-    .line 244
-    :cond_1
-    iget v1, p0, Lcom/mrkeyboard/app/MrAppPicker;->mLimit:I
-
-    add-int/lit8 v1, v1, 0x1e
-
-    iput v1, p0, Lcom/mrkeyboard/app/MrAppPicker;->mLimit:I
-
-    .line 245
-    iget v1, p0, Lcom/mrkeyboard/app/MrAppPicker;->mCount:I
-
-    .line 246
-    invoke-interface {v0}, Ljava/util/List;->size()I
-
-    move-result v2
-
-    iget v3, p0, Lcom/mrkeyboard/app/MrAppPicker;->mLimit:I
-
-    invoke-static {v2, v3}, Ljava/lang/Math;->min(II)I
-
-    move-result v2
-
-    .line 248
-    iget-object v3, p0, Lcom/mrkeyboard/app/MrAppPicker;->mScroll:Lcom/mrkeyboard/app/MrPage;
-
-    new-instance v4, Lcom/mrkeyboard/app/MrAppPicker$7;
-
-    invoke-direct {v4, p0, v0, v1, v2}, Lcom/mrkeyboard/app/MrAppPicker$7;-><init>(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/List;II)V
-
-    invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrPage;->keepPosition(Ljava/lang/Runnable;)V
-
-    goto :goto_0
 .end method
 
 .method private choose(Ljava/lang/String;)V
     .locals 1
 
     .prologue
-    .line 200
+    .line 206
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mDialog:Landroid/app/AlertDialog;
 
-    .line 201
+    .line 207
     if-eqz v0, :cond_0
 
     invoke-virtual {v0}, Landroid/app/AlertDialog;->dismiss()V
 
-    .line 202
+    .line 208
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mPick:Lcom/mrkeyboard/app/MrAppPicker$Pick;
 
     invoke-interface {v0, p1}, Lcom/mrkeyboard/app/MrAppPicker$Pick;->onPick(Ljava/lang/String;)V
 
-    .line 203
+    .line 209
     return-void
 .end method
 
@@ -460,37 +489,37 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 207
+    .line 213
     iget-object v2, p0, Lcom/mrkeyboard/app/MrAppPicker;->mMatches:Ljava/util/List;
 
-    .line 208
+    .line 214
     iget v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mDrawn:I
 
     add-int/lit8 v0, v0, 0x1
 
     iput v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mDrawn:I
 
-    .line 209
+    .line 215
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mScroll:Lcom/mrkeyboard/app/MrPage;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrPage;->release()V
 
-    .line 210
+    .line 216
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mListBox:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 211
+    .line 217
     iput v1, p0, Lcom/mrkeyboard/app/MrAppPicker;->mCount:I
 
-    .line 212
+    .line 218
     if-nez v2, :cond_0
 
-    .line 217
+    .line 223
     :goto_0
     return-void
 
-    .line 214
+    .line 220
     :cond_0
     invoke-interface {v2}, Ljava/util/List;->size()I
 
@@ -504,7 +533,7 @@
 
     invoke-direct {p0, v2, v1, v0}, Lcom/mrkeyboard/app/MrAppPicker;->append(Ljava/util/List;II)V
 
-    .line 215
+    .line 221
     iget-object v3, p0, Lcom/mrkeyboard/app/MrAppPicker;->mStatus:Landroid/widget/TextView;
 
     invoke-interface {v2}, Ljava/util/List;->isEmpty()Z
@@ -530,7 +559,7 @@
     :goto_1
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 216
+    .line 222
     iget-object v3, p0, Lcom/mrkeyboard/app/MrAppPicker;->mStatus:Landroid/widget/TextView;
 
     invoke-interface {v2}, Ljava/util/List;->isEmpty()Z
@@ -546,7 +575,7 @@
 
     goto :goto_0
 
-    .line 215
+    .line 221
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->k:Lcom/mrkeyboard/app/MrKit;
 
@@ -565,7 +594,7 @@
 
     goto :goto_1
 
-    .line 216
+    .line 222
     :cond_3
     const/16 v0, 0x8
 
@@ -589,29 +618,29 @@
     .end annotation
 
     .prologue
-    .line 283
+    .line 295
     iget v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mDrawn:I
 
-    .line 284
+    .line 296
     new-instance v1, Ljava/lang/Thread;
 
-    new-instance v2, Lcom/mrkeyboard/app/MrAppPicker$9;
+    new-instance v2, Lcom/mrkeyboard/app/MrAppPicker$10;
 
-    invoke-direct {v2, p0, p1, v0, p2}, Lcom/mrkeyboard/app/MrAppPicker$9;-><init>(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/ArrayList;ILjava/util/ArrayList;)V
+    invoke-direct {v2, p0, p1, v0, p2}, Lcom/mrkeyboard/app/MrAppPicker$10;-><init>(Lcom/mrkeyboard/app/MrAppPicker;Ljava/util/ArrayList;ILjava/util/ArrayList;)V
 
     const-string v0, "MrAppIcons"
 
     invoke-direct {v1, v2, v0}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;Ljava/lang/String;)V
 
-    .line 299
+    .line 311
     const/4 v0, 0x1
 
     invoke-virtual {v1, v0}, Ljava/lang/Thread;->setPriority(I)V
 
-    .line 300
+    .line 312
     invoke-virtual {v1}, Ljava/lang/Thread;->start()V
 
-    .line 301
+    .line 313
     return-void
 .end method
 
@@ -630,7 +659,7 @@
     .prologue
     const/16 v1, 0x8
 
-    .line 191
+    .line 197
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mClosed:Z
 
     if-nez v0, :cond_0
@@ -643,12 +672,12 @@
 
     if-eqz v0, :cond_1
 
-    .line 197
+    .line 203
     :cond_0
     :goto_0
     return-void
 
-    .line 192
+    .line 198
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mAll:Ljava/util/List;
 
@@ -662,11 +691,11 @@
 
     if-nez v0, :cond_0
 
-    .line 193
+    .line 199
     :cond_2
     iput-object p1, p0, Lcom/mrkeyboard/app/MrAppPicker;->mAll:Ljava/util/List;
 
-    .line 194
+    .line 200
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mSearch:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -684,7 +713,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mMatches:Ljava/util/List;
 
-    .line 195
+    .line 201
     iget-object v2, p0, Lcom/mrkeyboard/app/MrAppPicker;->mSearch:Landroid/widget/EditText;
 
     invoke-interface {p1}, Ljava/util/List;->size()I
@@ -698,12 +727,12 @@
     :goto_2
     invoke-virtual {v2, v0}, Landroid/widget/EditText;->setVisibility(I)V
 
-    .line 196
+    .line 202
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrAppPicker;->draw()V
 
     goto :goto_0
 
-    .line 194
+    .line 200
     :cond_3
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mSearch:Landroid/widget/EditText;
 
@@ -720,7 +749,7 @@
     :cond_4
     move v0, v1
 
-    .line 195
+    .line 201
     goto :goto_2
 .end method
 
@@ -1014,18 +1043,25 @@
     invoke-virtual {v0, v2, v1}, Lcom/mrkeyboard/app/MrKit;->onScroll(Landroid/widget/ScrollView;Ljava/lang/Runnable;)V
 
     .line 171
+    new-instance v0, Lcom/mrkeyboard/app/MrAppPicker$5;
+
+    invoke-direct {v0, p0}, Lcom/mrkeyboard/app/MrAppPicker$5;-><init>(Lcom/mrkeyboard/app/MrAppPicker;)V
+
+    invoke-virtual {v2, v0}, Lcom/mrkeyboard/app/MrPage;->setPager(Lcom/mrkeyboard/app/MrPage$Pager;)V
+
+    .line 177
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrAppPicker;->act:Landroid/app/Activity;
 
     invoke-direct {v0, v1}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 172
+    .line 178
     invoke-virtual {v0, p1}, Landroid/app/AlertDialog$Builder;->setTitle(Ljava/lang/CharSequence;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
 
-    .line 173
+    .line 179
     invoke-virtual {v0, v2}, Landroid/app/AlertDialog$Builder;->setView(Landroid/view/View;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
@@ -1036,7 +1072,7 @@
 
     new-array v3, v7, [Ljava/lang/Object;
 
-    .line 174
+    .line 180
     invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -1047,25 +1083,25 @@
 
     move-result-object v0
 
-    .line 175
+    .line 181
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->create()Landroid/app/AlertDialog;
 
     move-result-object v0
 
-    .line 176
-    new-instance v1, Lcom/mrkeyboard/app/MrAppPicker$5;
+    .line 182
+    new-instance v1, Lcom/mrkeyboard/app/MrAppPicker$6;
 
-    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrAppPicker$5;-><init>(Lcom/mrkeyboard/app/MrAppPicker;)V
+    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/MrAppPicker$6;-><init>(Lcom/mrkeyboard/app/MrAppPicker;)V
 
     invoke-virtual {v0, v1}, Landroid/app/AlertDialog;->setOnDismissListener(Landroid/content/DialogInterface$OnDismissListener;)V
 
-    .line 185
+    .line 191
     iput-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->mDialog:Landroid/app/AlertDialog;
 
-    .line 186
+    .line 192
     invoke-virtual {v0}, Landroid/app/AlertDialog;->show()V
 
-    .line 187
+    .line 193
     return-void
 
     .line 134
@@ -1100,14 +1136,14 @@
 
     const/4 v5, 0x0
 
-    .line 256
+    .line 268
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrKit;->row()Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 257
+    .line 269
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-virtual {v0, v7}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
@@ -1134,7 +1170,7 @@
 
     invoke-virtual {v1, v0, v2, v3, v4}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 258
+    .line 270
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrAppPicker;->k:Lcom/mrkeyboard/app/MrKit;
@@ -1151,26 +1187,26 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 259
+    .line 271
     const/4 v0, 0x1
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setClickable(Z)V
 
-    .line 260
-    new-instance v0, Lcom/mrkeyboard/app/MrAppPicker$8;
+    .line 272
+    new-instance v0, Lcom/mrkeyboard/app/MrAppPicker$9;
 
-    invoke-direct {v0, p0, p1}, Lcom/mrkeyboard/app/MrAppPicker$8;-><init>(Lcom/mrkeyboard/app/MrAppPicker;Lcom/mrkeyboard/app/MrAppList$Entry;)V
+    invoke-direct {v0, p0, p1}, Lcom/mrkeyboard/app/MrAppPicker$9;-><init>(Lcom/mrkeyboard/app/MrAppPicker;Lcom/mrkeyboard/app/MrAppList$Entry;)V
 
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 265
+    .line 277
     new-instance v0, Landroid/widget/ImageView;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrAppPicker;->act:Landroid/app/Activity;
 
     invoke-direct {v0, v2}, Landroid/widget/ImageView;-><init>(Landroid/content/Context;)V
 
-    .line 266
+    .line 278
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrAppPicker;->k:Lcom/mrkeyboard/app/MrKit;
@@ -1187,7 +1223,7 @@
 
     invoke-direct {v2, v3, v4}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
-    .line 267
+    .line 279
     iget-object v3, p0, Lcom/mrkeyboard/app/MrAppPicker;->k:Lcom/mrkeyboard/app/MrKit;
 
     const/high16 v4, 0x41400000    # 12.0f
@@ -1198,13 +1234,13 @@
 
     invoke-virtual {v2, v5, v5, v3, v5}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
 
-    .line 268
+    .line 280
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 269
+    .line 281
     invoke-virtual {p2, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 270
+    .line 282
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAppPicker;->k:Lcom/mrkeyboard/app/MrKit;
 
     iget-object v2, p1, Lcom/mrkeyboard/app/MrAppList$Entry;->label:Ljava/lang/String;
@@ -1219,7 +1255,7 @@
 
     move-result-object v0
 
-    .line 271
+    .line 283
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v3, 0x3f800000    # 1.0f
@@ -1228,7 +1264,7 @@
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 272
+    .line 284
     iget-object v0, p1, Lcom/mrkeyboard/app/MrAppList$Entry;->pkg:Ljava/lang/String;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrAppPicker;->mCurrent:Ljava/lang/String;
@@ -1241,7 +1277,7 @@
 
     const-string v0, "\u2713"
 
-    .line 273
+    .line 285
     :goto_0
     if-eqz v0, :cond_0
 
@@ -1251,7 +1287,7 @@
 
     if-lez v2, :cond_0
 
-    .line 274
+    .line 286
     iget-object v2, p0, Lcom/mrkeyboard/app/MrAppPicker;->k:Lcom/mrkeyboard/app/MrKit;
 
     const/high16 v3, 0x41500000    # 13.0f
@@ -1264,7 +1300,7 @@
 
     move-result-object v0
 
-    .line 275
+    .line 287
     iget-object v2, p0, Lcom/mrkeyboard/app/MrAppPicker;->k:Lcom/mrkeyboard/app/MrKit;
 
     invoke-virtual {v2, v6}, Lcom/mrkeyboard/app/MrKit;->dp(F)I
@@ -1273,18 +1309,18 @@
 
     invoke-virtual {v0, v2, v5, v5, v5}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 276
+    .line 288
     new-instance v2, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v2, v8, v8}, Landroid/widget/LinearLayout$LayoutParams;-><init>(II)V
 
     invoke-virtual {v1, v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 278
+    .line 290
     :cond_0
     return-object v1
 
-    .line 272
+    .line 284
     :cond_1
     iget-object v0, p1, Lcom/mrkeyboard/app/MrAppList$Entry;->note:Ljava/lang/String;
 

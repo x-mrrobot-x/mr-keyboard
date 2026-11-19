@@ -266,7 +266,7 @@ its table:
 | `mod_text` | labels and icons of the highlight keys, when their face asks for another color than `text`. Without it the theme carries `PLAIN_ACCENT_TEXT` |
 | `lip` | height in dp of the darker edge under each key, which makes it look like a keycap (1 by default, 2 = taller, 0 = flat) |
 | `clear` | for a see-through background: (opacity without blur behind the keyboard, opacity with it), as in a gloss theme. The theme then carries `TRANSLUCENT` and declares `kbd_bg_blur` besides `kbd_bg`; the keys stay solid |
-| `roles` | for a theme whose colors are all chosen instead of derived (Midnight Steel, Snow, Aqua, Rose): `{role: color}`. Each entry replaces the derived color of that role (`hint`, `key_pressed_fill`, `alpha_btn`, `sel_send`...) or declares one that only has a default (`OWN_ROLES` in the script: `alpha_press`, `panel_field`, `panel_field_stroke`, `panel_divider`, `accent_hint`, `label_shadow`, `tool_tint`, `bars_ink`, `tool_ink`) |
+| `roles` | for a theme whose colors are all chosen instead of derived (Midnight Steel, Snow, Aqua, Rose): `{role: color}`. Each entry replaces the derived color of that role (`hint`, `key_pressed_fill`, `alpha_btn`, `sel_send`...) or declares one that only has a default (`OWN_ROLES` in the script: `alpha_press`, `panel_field`, `panel_field_stroke`, `panel_divider`, `accent_hint`, `label_shadow`, `tool_tint`, `bars_ink`, `btn_ink`) |
 | `light` | `True` for a light theme whose `text` is a pale ink (Sky: the muted blue of the letters on a pale blue background). The code finds out that a theme is light from its `text` alone (item 8), so a pale ink would make the theme a dark one everywhere: `light` makes the script treat it as light (no `TECH_PALETTE`, the light derivation of the tools) and the theme must declare, in `roles`, what the code would have decided by itself: `bars_ink` (a dark color: the buttons that the system draws under the keyboard are dark) and `label_shadow` (clear: no dark outline around pale labels). The script stops if one is missing. Default `None`: decided by the `text` |
 
 **How a solid key is drawn:**
@@ -299,10 +299,12 @@ tools, Send, the edge of the preview bubble, the lit dash; white reads on it at 
 The ink is pale (2.0 of contrast with the keys, as in the picture), which is why the table says `light=True` and declares `bars_ink` and `label_shadow`
 (`#01000000`, a shade that does not show: a role of 0 means "the one of the style"). Everything else is derived by the light rules of the table: the states mix the faces with the vivid
 blue, the tools take it as their tint, the small letters are the ink, and those of the highlight keys (`accent_hint`) are the color of the letter keys.
-The buttons inside the tools are darker than the keys (`alpha_btn`), and the pale ink would be lost on them (1.2 of contrast), so Sky declares a stronger ink for the
-inside of the tools, `strong` (`435c7d`, the ink 80% of the way to the deep blue): the roles `tool_ink` (texts and icons of the tools; it also reaches the text of the
-suggestions), `panel_tab_on_text` and `sel_cancel_text`. The icons of the tool bar are not in the tools: `panel_icon` is declared with the ink of the keys, because the
-bar takes `tool_ink` otherwise (`tool_ink` is one of the `OWN_ROLES` of the script).
+The buttons inside the tools are darker than the keys (`alpha_btn`) and the pale ink of the keys would almost disappear on them, so Sky declares `btn_ink`
+(`7e99b8`, the ink a quarter of the way to the deep blue, only a little darker): the ink of the texts and icons of the buttons of the panels (`MrTools.btn`: back,
+Recording, Clear, the buttons of the sheets, of the tune screen and of the screenshots). The bar (`b_` buttons), the labels (the count of the clipboard), the fields and the
+cards keep the ink of the keys; `btn_ink` is one of the `OWN_ROLES` of the script and, at 0 (the default), changes nothing.
+The dash of Ctrl, Alt and Shift is white when lit and the vivid blue when locked (`modifier_indicator_on` and `_lock` replace the derived ones: a navy and a red,
+which did not fit a pale blue theme).
 
 **A light theme that keeps the colors it had (Rose).** Same method as Midnight Steel and Snow, in petal pink: `ROSE` is one hue of pink in eleven steps
 (named by their lightness times 1000: 983 is the blush of the letter keys, 920 the background, 833 the highlight keys, 637 the rose of the
