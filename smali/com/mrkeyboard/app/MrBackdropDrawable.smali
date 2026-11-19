@@ -72,7 +72,7 @@
 
     if-nez v1, :cond_1
 
-    .line 41
+    .line 42
     :cond_0
     :goto_0
     return-object v0
@@ -93,6 +93,22 @@
 
     .line 41
     :cond_2
+    iget v1, p1, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
+
+    const/4 v2, 0x2
+
+    if-ne v1, v2, :cond_3
+
+    iget v1, p1, Lcom/mrkeyboard/app/MrBackdrop$Spec;->index:I
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrScenes;->valid(I)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_0
+
+    .line 42
+    :cond_3
     new-instance v0, Lcom/mrkeyboard/app/MrBackdropDrawable;
 
     move-object v1, p0
@@ -116,8 +132,8 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 58
-    .line 60
+    .line 59
+    .line 61
     :try_start_0
     iget-object v1, p0, Lcom/mrkeyboard/app/MrBackdropDrawable;->mCache:Landroid/graphics/Bitmap;
 
@@ -127,25 +143,27 @@
 
     invoke-virtual {v1}, Landroid/graphics/Bitmap;->recycle()V
 
-    .line 61
+    .line 62
     :cond_0
     const/4 v1, 0x0
 
     iput-object v1, p0, Lcom/mrkeyboard/app/MrBackdropDrawable;->mCache:Landroid/graphics/Bitmap;
 
-    .line 62
+    .line 63
     iget-object v1, p0, Lcom/mrkeyboard/app/MrBackdropDrawable;->mSpec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
-    iget v1, v1, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrBackdrop;->needsBitmap(Lcom/mrkeyboard/app/MrBackdrop$Spec;)Z
 
-    const/4 v2, 0x3
+    move-result v1
 
-    if-ne v1, v2, :cond_2
+    if-eqz v1, :cond_2
 
-    .line 63
+    .line 64
     iget-object v1, p0, Lcom/mrkeyboard/app/MrBackdropDrawable;->mContext:Landroid/content/Context;
 
-    invoke-static {v1}, Lcom/mrkeyboard/app/MrBackdrop;->load(Landroid/content/Context;)Landroid/graphics/Bitmap;
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrBackdropDrawable;->mSpec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
+
+    invoke-static {v1, v2}, Lcom/mrkeyboard/app/MrBackdrop;->bitmap(Landroid/content/Context;Lcom/mrkeyboard/app/MrBackdrop$Spec;)Landroid/graphics/Bitmap;
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
     .catch Ljava/lang/OutOfMemoryError; {:try_start_0 .. :try_end_0} :catch_1
@@ -153,10 +171,10 @@
 
     move-result-object v0
 
-    .line 64
+    .line 65
     if-nez v0, :cond_2
 
-    .line 65
+    .line 66
     const/4 v1, 0x1
 
     :try_start_1
@@ -166,17 +184,17 @@
     .catch Ljava/lang/OutOfMemoryError; {:try_start_1 .. :try_end_1} :catch_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_1
 
-    .line 79
+    .line 80
     if-eqz v0, :cond_1
 
     invoke-virtual {v0}, Landroid/graphics/Bitmap;->recycle()V
 
-    .line 81
+    .line 82
     :cond_1
     :goto_0
     return-void
 
-    .line 69
+    .line 70
     :cond_2
     :try_start_2
     sget-object v1, Landroid/graphics/Bitmap$Config;->ARGB_8888:Landroid/graphics/Bitmap$Config;
@@ -185,17 +203,17 @@
 
     move-result-object v1
 
-    .line 70
+    .line 71
     new-instance v2, Landroid/graphics/Canvas;
 
     invoke-direct {v2, v1}, Landroid/graphics/Canvas;-><init>(Landroid/graphics/Bitmap;)V
 
-    .line 71
+    .line 72
     iget-object v3, p0, Lcom/mrkeyboard/app/MrBackdropDrawable;->mSpec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
     invoke-static {v2, v3, p1, p2, v0}, Lcom/mrkeyboard/app/MrBackdrop;->draw(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/MrBackdrop$Spec;IILandroid/graphics/Bitmap;)V
 
-    .line 72
+    .line 73
     iget-object v3, p0, Lcom/mrkeyboard/app/MrBackdropDrawable;->mSpec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
     iget-boolean v4, p0, Lcom/mrkeyboard/app/MrBackdropDrawable;->mDark:Z
@@ -212,25 +230,25 @@
 
     invoke-virtual {v2, v3}, Landroid/graphics/Canvas;->drawColor(I)V
 
-    .line 73
+    .line 74
     iput-object v1, p0, Lcom/mrkeyboard/app/MrBackdropDrawable;->mCache:Landroid/graphics/Bitmap;
     :try_end_2
     .catch Ljava/lang/RuntimeException; {:try_start_2 .. :try_end_2} :catch_0
     .catch Ljava/lang/OutOfMemoryError; {:try_start_2 .. :try_end_2} :catch_1
     .catchall {:try_start_2 .. :try_end_2} :catchall_1
 
-    .line 79
+    .line 80
     if-eqz v0, :cond_1
 
     invoke-virtual {v0}, Landroid/graphics/Bitmap;->recycle()V
 
     goto :goto_0
 
-    .line 74
+    .line 75
     :catch_0
     move-exception v1
 
-    .line 75
+    .line 76
     const/4 v1, 0x1
 
     :try_start_3
@@ -238,18 +256,18 @@
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 79
+    .line 80
     if-eqz v0, :cond_1
 
     invoke-virtual {v0}, Landroid/graphics/Bitmap;->recycle()V
 
     goto :goto_0
 
-    .line 76
+    .line 77
     :catch_1
     move-exception v1
 
-    .line 77
+    .line 78
     const/4 v1, 0x1
 
     :try_start_4
@@ -257,7 +275,7 @@
     :try_end_4
     .catchall {:try_start_4 .. :try_end_4} :catchall_1
 
-    .line 79
+    .line 80
     if-eqz v0, :cond_1
 
     invoke-virtual {v0}, Landroid/graphics/Bitmap;->recycle()V
@@ -278,11 +296,11 @@
 
     invoke-virtual {v1}, Landroid/graphics/Bitmap;->recycle()V
 
-    .line 80
+    .line 81
     :cond_3
     throw v0
 
-    .line 79
+    .line 80
     :catchall_1
     move-exception v1
 
@@ -299,7 +317,7 @@
     .locals 3
 
     .prologue
-    .line 85
+    .line 86
     if-eqz p0, :cond_0
 
     iget v0, p0, Lcom/mrkeyboard/app/MrBackdrop$Look;->veilAlpha:I
@@ -309,7 +327,7 @@
     :cond_0
     const/4 v0, 0x0
 
-    .line 86
+    .line 87
     :goto_0
     return v0
 
@@ -337,12 +355,12 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 46
+    .line 47
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrBackdropDrawable;->getBounds()Landroid/graphics/Rect;
 
     move-result-object v0
 
-    .line 47
+    .line 48
     invoke-virtual {v0}, Landroid/graphics/Rect;->width()I
 
     move-result v1
@@ -351,17 +369,17 @@
 
     move-result v2
 
-    .line 48
+    .line 49
     if-lez v1, :cond_0
 
     if-gtz v2, :cond_1
 
-    .line 55
+    .line 56
     :cond_0
     :goto_0
     return-void
 
-    .line 49
+    .line 50
     :cond_1
     iget-object v3, p0, Lcom/mrkeyboard/app/MrBackdropDrawable;->mCache:Landroid/graphics/Bitmap;
 
@@ -390,20 +408,20 @@
 
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/MrBackdropDrawable;->render(II)V
 
-    .line 50
+    .line 51
     :cond_3
     iget-object v3, p0, Lcom/mrkeyboard/app/MrBackdropDrawable;->mCache:Landroid/graphics/Bitmap;
 
     if-nez v3, :cond_4
 
-    .line 51
+    .line 52
     iget v0, p0, Lcom/mrkeyboard/app/MrBackdropDrawable;->mFallback:I
 
     invoke-virtual {p1, v0}, Landroid/graphics/Canvas;->drawColor(I)V
 
     goto :goto_0
 
-    .line 54
+    .line 55
     :cond_4
     iget-object v3, p0, Lcom/mrkeyboard/app/MrBackdropDrawable;->mCache:Landroid/graphics/Bitmap;
 
@@ -434,7 +452,7 @@
     .locals 1
 
     .prologue
-    .line 96
+    .line 97
     const/4 v0, -0x1
 
     return v0
@@ -444,11 +462,11 @@
     .locals 1
 
     .prologue
-    .line 91
+    .line 92
     iget-object v0, p0, Lcom/mrkeyboard/app/MrBackdropDrawable;->mPaint:Landroid/graphics/Paint;
 
     invoke-virtual {v0, p1}, Landroid/graphics/Paint;->setAlpha(I)V
 
-    .line 92
+    .line 93
     return-void
 .end method

@@ -1190,6 +1190,11 @@ SOLID = [
           roles=collections.OrderedDict([
               ('ctrl_bg', '#5a6580'),
               ('hint', '#c8ccd6'),                    # the small letters of the keys: pale, on whatever the background is
+              # the dash of Ctrl, Alt and Shift: the face under it is the background lightened by the key (any colour), so the three are told apart by
+              # their own brightness and hue: off a muted blue-grey, on white, locked an amber (on the red face of a locked key it reads at 2.4 or more)
+              ('modifier_indicator_off', '#a9b4cc'), ('modifier_indicator_on', '#ffffff'), ('modifier_indicator_lock', '#ffe082'),
+              # the bubble of the key that is pressed and the popup of variants: a deep blue slate that sits on every colour, with a pale edge
+              ('bubble_fill', '#222a3b'), ('bubble_stroke', '#4d5873'), ('popup_key_fill', '#46557a'),
               ('key_normal_fill', '#38ffffff'), ('key_pressed_fill', '#66ffffff'), ('key_on_fill', '#52ffffff'), ('key_lock_fill', '#8cff6b6b'),
               ('key_acc_normal_fill', '#38ffffff'), ('key_acc_pressed_fill', '#66ffffff'), ('key_acc_on_fill', '#52ffffff'), ('key_acc_lock_fill', '#8cff6b6b'),   # the same as the letters
           ])),
@@ -1198,6 +1203,10 @@ SOLID = [
           roles=collections.OrderedDict([
               ('ctrl_bg', '#d5dbe3'),
               ('hint', '#5f6368'),                    # the small letters of the keys: a neutral grey, not the blue that a light theme would derive
+              # the dash: off a slate grey (it reads at 1.9 on the faces of the light colours), on a deep blue, locked a red that is not a wine
+              ('modifier_indicator_off', '#7d8799'), ('modifier_indicator_on', '#0842a0'), ('modifier_indicator_lock', '#b71c1c'),
+              # the bubble and the popup of variants: white, with an edge that shows on a white background too
+              ('bubble_fill', '#ffffff'), ('bubble_stroke', '#c4cad3'), ('popup_key_fill', '#a9c8f4'),
               ('key_normal_fill', '#12000000'), ('key_pressed_fill', '#2e000000'), ('key_on_fill', '#24000000'), ('key_lock_fill', '#59d93b3b'),
               ('key_acc_normal_fill', '#12000000'), ('key_acc_pressed_fill', '#2e000000'), ('key_acc_on_fill', '#24000000'), ('key_acc_lock_fill', '#59d93b3b'),   # the same as the letters
           ])),

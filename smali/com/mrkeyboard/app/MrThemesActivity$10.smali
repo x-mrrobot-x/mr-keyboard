@@ -37,7 +37,7 @@
     .end annotation
 
     .prologue
-    .line 490
+    .line 531
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$10;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$10;->val$softNow:[I
@@ -59,14 +59,14 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 492
+    .line 533
     if-nez p3, :cond_0
 
-    .line 496
+    .line 537
     :goto_0
     return-void
 
-    .line 493
+    .line 534
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$10;->val$softNow:[I
 
@@ -78,7 +78,7 @@
 
     aput v1, v0, v3
 
-    .line 494
+    .line 535
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$10;->val$crop:Lcom/mrkeyboard/app/MrCropView;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$10;->val$softNow:[I
@@ -87,7 +87,7 @@
 
     invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrCropView;->setSoft(I)V
 
-    .line 495
+    .line 536
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$10;->val$softText:Landroid/widget/TextView;
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -121,7 +121,7 @@
     .locals 0
 
     .prologue
-    .line 499
+    .line 540
     return-void
 .end method
 
@@ -129,6 +129,6 @@
     .locals 0
 
     .prologue
-    .line 502
+    .line 543
     return-void
 .end method

@@ -72,7 +72,7 @@ import org.w3c.dom.NodeList;
 /**
  * The themes screen (v2.0.0, "Keyboard theme"), run on the PC against the stubs of Android: the spec of the background that the preference holds
  * (MrBackdrop.Spec: colours, gradients, landscapes, a picture with zoom and position), the part of a picture that fills the keyboard and how a finger
- * moves and pinches its frame (crop, pan, shift, rezoom), the gradients drawn as CSS does and the nine landscapes, the veil that keeps the toolbar readable
+ * moves and pinches its frame (crop, pan, shift, rezoom), the gradients drawn as CSS does and the 36 landscapes (the pictures of the app, in six categories, drawn as a picture of the gallery is), the veil that keeps the toolbar readable
  * over every colour, gradient and landscape (veil, look; the softening is for pictures only), the picture of the gallery (importPending: the size, the
  * photo turned, a failure that keeps the one that waits; commitPending, discardPending), the background put on the keyboard only in the two themes of the
  * backgrounds (apply, MrBackdropDrawable, bottomColor), the colours of the fifteen themes read from the real res/ files (MrThemeColors: thirteen on the
@@ -280,7 +280,7 @@ public class ThemesTest {
     /** A context for the engine: the real colours and texts, the folders of the app, the preferences. */
     static class Ctx extends Activity {
         public Context getApplicationContext() { return this; }
-        public android.content.res.AssetManager getAssets() { return null; }
+        public android.content.res.AssetManager getAssets() { return new android.content.res.AssetManager(); }
         public Resources getResources() { return RES; }
         public String getPackageName() { return "com.mrkeyboard.app"; }
         public android.content.pm.PackageManager getPackageManager() { return null; }
@@ -312,7 +312,7 @@ public class ThemesTest {
         boolean unreadable;
 
         public Context getApplicationContext() { return this; }
-        public android.content.res.AssetManager getAssets() { return null; }
+        public android.content.res.AssetManager getAssets() { return new android.content.res.AssetManager(); }
         public Resources getResources() { return RES; }
         public String getPackageName() { return "com.mrkeyboard.app"; }
         public android.content.pm.PackageManager getPackageManager() { return null; }
@@ -680,13 +680,13 @@ public class ThemesTest {
             MrBackdrop.Spec s = MrBackdrop.Spec.parse("g" + i);
             if (s.kind != MrBackdrop.GRADIENT || s.index != i || !s.format().equals("g" + i)) round = false;
         }
-        check("each of the " + MrBackdrop.GRADIENT_COUNT + " gradients is read back as it was written", round && MrBackdrop.GRADIENT_COUNT == 21);
+        check("each of the " + MrBackdrop.GRADIENT_COUNT + " gradients is read back as it was written", round && MrBackdrop.GRADIENT_COUNT == 20);
         round = true;
         for (int i = 0; i < MrBackdrop.COLORS.length; i++) {
             MrBackdrop.Spec s = MrBackdrop.Spec.parse("c" + i);
             if (s.kind != MrBackdrop.COLOR || s.index != i || !s.format().equals("c" + i) || !s.same(MrBackdrop.Spec.color(i))) round = false;
         }
-        check("each of the " + MrBackdrop.COLORS.length + " plain colours is read back as it was written", round && MrBackdrop.COLORS.length == 12);
+        check("each of the " + MrBackdrop.COLORS.length + " plain colours is read back as it was written", round && MrBackdrop.COLORS.length == 16);
         boolean opaque = true;
         for (int col : MrBackdrop.COLORS) if ((col >>> 24) != 255) opaque = false;
         check("the plain colours are opaque", opaque);
@@ -697,8 +697,8 @@ public class ThemesTest {
         }
         check("each of the " + MrScenes.COUNT + " landscapes is read back as it was written", round);
         check("a gradient or a landscape that is not there is no background",
-                MrBackdrop.Spec.parse("g21").kind == MrBackdrop.NONE && MrBackdrop.Spec.parse("g-1").kind == MrBackdrop.NONE
-                        && MrBackdrop.Spec.parse("c12").kind == MrBackdrop.NONE && MrBackdrop.Spec.parse("c-1").kind == MrBackdrop.NONE
+                MrBackdrop.Spec.parse("g20").kind == MrBackdrop.NONE && MrBackdrop.Spec.parse("g-1").kind == MrBackdrop.NONE
+                        && MrBackdrop.Spec.parse("c16").kind == MrBackdrop.NONE && MrBackdrop.Spec.parse("c-1").kind == MrBackdrop.NONE
                         && MrBackdrop.Spec.parse("s" + MrScenes.COUNT).kind == MrBackdrop.NONE && MrBackdrop.Spec.parse("s-3").kind == MrBackdrop.NONE);
         MrBackdrop.Spec img = MrBackdrop.Spec.parse("i150,-20,35,1700000000123");
         check("a picture: zoom, position and the time it was chosen", img.kind == MrBackdrop.IMAGE && img.zoom == 150 && img.dx == -20 && img.dy == 35 && img.stamp == 1700000000123L);
@@ -853,7 +853,7 @@ public class ThemesTest {
         return g.colours[n];
     }
 
-    static void pixels() {
+    static void pixels() throws Exception {
         // a picture of two halves: red on the left, blue on the right
         Bitmap two = bitmap(1000, 500);
         for (int y = 0; y < 500; y++) for (int x = 0; x < 1000; x++) two.setPixel(x, y, x < 500 ? 0xffff0000 : 0xff0000ff);
@@ -910,9 +910,9 @@ public class ThemesTest {
         check("a gradient with stops has its second colour where the stop says (55% of the height)", g5.stops != null && maxDiff(out.getPixel(120, 55), g5.colours[1]) <= 8 && maxDiff(out.getPixel(120, 88), g5.colours[2]) <= 8);
         // the light in a corner
         Bitmap lit1 = bitmap(240, 100), lit2 = bitmap(240, 100);
-        MrBackdrop.draw(new Canvas(lit1), MrBackdrop.Spec.gradient(18), 240, 100, null);
-        MrBackdrop.draw(new Canvas(lit2), MrBackdrop.Spec.gradient(20), 240, 100, null);
-        MrBackdrop.Grad g18 = MrBackdrop.GRADS[18], g20 = MrBackdrop.GRADS[20];
+        MrBackdrop.draw(new Canvas(lit1), MrBackdrop.Spec.gradient(17), 240, 100, null);
+        MrBackdrop.draw(new Canvas(lit2), MrBackdrop.Spec.gradient(19), 240, 100, null);
+        MrBackdrop.Grad g18 = MrBackdrop.GRADS[17], g20 = MrBackdrop.GRADS[19];
         int base18 = css(new MrBackdrop.Grad(180, g18.colours, g18.stops, null), 120.5, 92.5, 240, 100);
         int base20 = css(new MrBackdrop.Grad(180, g20.colours, g20.stops, null), 239.5, 99.5, 240, 100);
         check("the light of the green gradient is brightest low in the middle, and its corner is as the gradient says",
@@ -926,10 +926,109 @@ public class ThemesTest {
             if (out.getPixel(0, 0) != MrBackdrop.COLORS[i] || out.getPixel(239, 99) != MrBackdrop.COLORS[i] || out.getPixel(120, 50) != MrBackdrop.COLORS[i]) plain = false;
         }
         check("a plain colour is the whole of its shape, as it is", plain);
+        scenes();
+    }
+
+    // ---------------------------------------------------------------- the landscapes
+
+    static Bitmap[] SCENE_BITMAPS;
+
+    /** The bitmap of landscape {@code i}, read once (the PC has no WebP decoder: with PNG files named like the assets in the folder of AssetManager.stubRoot they are the real pictures). */
+    static Bitmap scene(int i) {
+        if (SCENE_BITMAPS == null) {
+            SCENE_BITMAPS = new Bitmap[MrScenes.COUNT];
+            Ctx c = new Ctx();
+            for (int n = 0; n < MrScenes.COUNT; n++) SCENE_BITMAPS[n] = MrScenes.load(c, n);
+        }
+        return SCENE_BITMAPS[i];
+    }
+
+    /** The bitmap that a background is drawn from in these tests: the landscape for a landscape, none for the others. */
+    static Bitmap imageFor(MrBackdrop.Spec s) {
+        return s != null && s.kind == MrBackdrop.SCENE ? scene(s.index) : null;
+    }
+
+    /** The size of a lossy WebP from its header (what the PC can read of it): {width, height}, or null when it is not one. */
+    static int[] webpSize(byte[] d) {
+        if (d.length < 30 || d[0] != 'R' || d[1] != 'I' || d[2] != 'F' || d[3] != 'F' || d[8] != 'W' || d[9] != 'E' || d[10] != 'B' || d[11] != 'P') return null;
+        if (d[12] != 'V' || d[13] != 'P' || d[14] != '8' || d[15] != ' ') return null;
+        if ((d[23] & 0xff) != 0x9d || (d[24] & 0xff) != 0x01 || (d[25] & 0xff) != 0x2a) return null;
+        return new int[] {(d[26] & 0xff) | ((d[27] & 0x3f) << 8), (d[28] & 0xff) | ((d[29] & 0x3f) << 8)};
+    }
+
+    static void scenes() throws Exception {
+        reset();
+        // the landscapes are 36 pictures of the app: six categories of six
+        check("36 landscapes: six categories of six", MrScenes.COUNT == 36 && MrScenes.CATEGORIES == 6 && MrScenes.PER_CATEGORY == 6);
+        boolean map = true;
+        for (int i = 0; i < MrScenes.COUNT; i++) {
+            if (MrScenes.category(i) != i / 6 || MrScenes.number(i) != i % 6 || MrScenes.scene(MrScenes.category(i), MrScenes.number(i)) != i || !MrScenes.valid(i)) map = false;
+        }
+        check("a landscape is told by its category and its place in it", map && MrScenes.category(-1) == -1 && MrScenes.category(36) == -1 && MrScenes.number(99) == -1
+                && !MrScenes.valid(-1) && !MrScenes.valid(36));
+        check("the categories are sports, animals, snow, nature, anime and AI, in this order", MrScenes.SPORTS == 0 && MrScenes.ANIMALS == 1 && MrScenes.SNOW == 2 && MrScenes.NATURE == 3
+                && MrScenes.ANIME == 4 && MrScenes.AI == 5 && "mr_scenes/sports_1.webp".equals(MrScenes.path(0)) && "mr_scenes/animals_3.webp".equals(MrScenes.path(8))
+                && "mr_scenes/snow_6.webp".equals(MrScenes.path(17)) && "mr_scenes/nature_2.webp".equals(MrScenes.path(19)) && "mr_scenes/anime_4.webp".equals(MrScenes.path(27))
+                && "mr_scenes/ai_6.webp".equals(MrScenes.path(35)) && MrScenes.path(36) == null && MrScenes.path(-1) == null);
+        // the files: one small WebP for each, a picture of its own (the crop of the sheet, without the frame)
+        boolean files = true, sizes = true;
+        long total = 0;
+        java.util.Set<String> seen = new java.util.HashSet<String>();
+        for (int i = 0; i < MrScenes.COUNT; i++) {
+            File f = new File("assets/" + MrScenes.path(i));
+            if (!f.isFile()) {
+                files = false;
+                System.out.println("      missing: " + f);
+                continue;
+            }
+            byte[] d = java.nio.file.Files.readAllBytes(f.toPath());
+            total += d.length;
+            int[] size = webpSize(d);
+            if (size == null || size[0] < 330 || size[1] < 330 || size[0] > 560 || size[1] > 560 || d.length > 110 * 1024 || d.length < 8 * 1024) {
+                sizes = false;
+                System.out.println("      " + f + ": " + d.length + " bytes, " + (size == null ? "not a WebP" : size[0] + "x" + size[1]));
+            }
+            if (!seen.add(java.util.Arrays.toString(java.util.Arrays.copyOf(d, Math.min(d.length, 4096))))) files = false;
+        }
+        check("every landscape has its file in the assets, and no two are the same file", files);
+        check("each is a WebP of 330 to 560 pixels a side and 8 to 110 KB", sizes);
+        System.out.println("      the 36 landscapes take " + total / 1024 + " KB in the app");
+        check("together they are under 2 MB", total < 2 * 1024 * 1024);
+        check("the apk stores the WebP as it is (doNotCompress), as it is compressed already", new String(java.nio.file.Files.readAllBytes(new File("apktool.yml").toPath()), "UTF-8").contains("- webp"));
+        // reading one
+        Ctx c = new Ctx();
+        Bitmap whole = MrScenes.load(c, 0), half = MrScenes.load(c, 0, 2);
+        check("a landscape is read whole, and at half the size for the small tiles", whole != null && half != null && half.getWidth() == whole.getWidth() / 2 && half.getHeight() == whole.getHeight() / 2
+                && whole.getWidth() >= 330 && whole.getHeight() >= 330);
+        check("an unknown landscape and no context give no picture and no exception", MrScenes.load(c, 36) == null && MrScenes.load(c, -1) == null && MrScenes.load(null, 0) == null);
+        File root = android.content.res.AssetManager.stubRoot;
+        android.content.res.AssetManager.stubRoot = new File("no_such_folder");
+        check("a file that is gone gives no picture", MrScenes.load(c, 3) == null);
+        android.content.res.AssetManager.stubRoot = root;
+        BitmapFactory.stubFail = true;
+        check("a picture that cannot be decoded gives none", MrScenes.load(c, 3) == null);
+        BitmapFactory.stubFail = false;
+
+        // where the strip goes: inside the picture, and the spec carries it
+        boolean focus = true;
+        for (int i = 0; i < MrScenes.COUNT; i++) {
+            int f = MrScenes.focus(i);
+            MrBackdrop.Spec sp = MrBackdrop.Spec.scene(i);
+            if (f < -100 || f > 100 || sp.dy != f || sp.dx != 0 || sp.zoom != 100 || sp.kind != MrBackdrop.SCENE || !sp.format().equals("s" + i)) focus = false;
+        }
+        check("every landscape says where its strip goes (-100 .. 100) and the spec carries it, with no zoom and no sideways move", focus && MrScenes.focus(99) == 0 && MrScenes.focus(-1) == 0);
+        check("a landscape is drawn from a bitmap, as the picture of the gallery is; a colour or a gradient or none is not",
+                MrBackdrop.needsBitmap(MrBackdrop.Spec.scene(3)) && MrBackdrop.needsBitmap(MrBackdrop.Spec.image(100, 0, 0, 1)) && !MrBackdrop.needsBitmap(MrBackdrop.Spec.color(2))
+                        && !MrBackdrop.needsBitmap(MrBackdrop.Spec.gradient(2)) && !MrBackdrop.needsBitmap(MrBackdrop.Spec.NO) && !MrBackdrop.needsBitmap(null));
+        check("the bitmap of a background: the landscape for a landscape, none for a colour or a gradient or none",
+                MrBackdrop.bitmap(c, MrBackdrop.Spec.scene(5)) != null && MrBackdrop.bitmap(c, MrBackdrop.Spec.color(1)) == null && MrBackdrop.bitmap(c, MrBackdrop.Spec.gradient(1)) == null
+                        && MrBackdrop.bitmap(c, MrBackdrop.Spec.NO) == null && MrBackdrop.bitmap(c, null) == null && MrBackdrop.bitmap(null, MrBackdrop.Spec.scene(5)) == null);
+
+        // drawing: the strip of the picture fills the shape, as the picture of the gallery does
         boolean every = true;
         for (int i = 0; i < MrScenes.COUNT; i++) {
-            out = bitmap(240, 100);
-            MrScenes.draw(new Canvas(out), i, 240, 100);
+            Bitmap out = bitmap(240, 100);
+            MrBackdrop.draw(new Canvas(out), MrBackdrop.Spec.scene(i), 240, 100, scene(i));
             int opaque = 0;
             for (int px : out.stubPixels) if ((px >>> 24) == 255) opaque++;
             if (opaque < out.stubPixels.length * 0.98) {
@@ -937,33 +1036,37 @@ public class ThemesTest {
                 System.out.println("      scene " + i + ": " + opaque + " of " + out.stubPixels.length + " pixels covered");
             }
         }
-        check("each landscape covers the whole of its shape (nine of them, all new)", every && MrScenes.COUNT == 9);
-        Bitmap a = bitmap(240, 100), b = bitmap(240, 100);
+        check("each landscape covers the whole of its shape", every);
         boolean repeatable = true;
         for (int i = 0; i < MrScenes.COUNT; i++) {
-            a = bitmap(240, 100);
-            b = bitmap(240, 100);
-            MrScenes.draw(new Canvas(a), i, 240, 100);
-            MrScenes.draw(new Canvas(b), i, 240, 100);
+            Bitmap a = bitmap(240, 100), b = bitmap(240, 100);
+            MrBackdrop.draw(new Canvas(a), MrBackdrop.Spec.scene(i), 240, 100, scene(i));
+            MrBackdrop.draw(new Canvas(b), MrBackdrop.Spec.scene(i), 240, 100, scene(i));
             if (!java.util.Arrays.equals(a.stubPixels, b.stubPixels)) repeatable = false;
         }
         check("a landscape looks the same every time it is drawn", repeatable);
-        out = bitmap(240, 100);
-        MrScenes.draw(new Canvas(out), 99, 240, 100);
-        MrScenes.draw(new Canvas(out), -1, 240, 100);
-        MrScenes.draw(null, 1, 240, 100);
-        MrScenes.draw(new Canvas(out), 1, 0, 0);
-        check("an unknown landscape, no canvas and no size draw nothing", out.getPixel(5, 5) == 0);
+        Bitmap out = bitmap(240, 100);
+        MrBackdrop.draw(new Canvas(out), MrBackdrop.Spec.scene(1), 240, 100, null);
+        MrBackdrop.draw(new Canvas(out), MrBackdrop.Spec.NO, 240, 100, scene(1));
+        check("a landscape without its picture, and a picture without a background, draw nothing", out.getPixel(5, 5) == 0 && out.getPixel(200, 90) == 0);
         boolean differ = true;
         for (int i = 0; i < MrScenes.COUNT && differ; i++) {
             for (int j = i + 1; j < MrScenes.COUNT; j++) {
                 Bitmap x = bitmap(120, 50), y = bitmap(120, 50);
-                MrScenes.draw(new Canvas(x), i, 120, 50);
-                MrScenes.draw(new Canvas(y), j, 120, 50);
+                MrBackdrop.draw(new Canvas(x), MrBackdrop.Spec.scene(i), 120, 50, scene(i));
+                MrBackdrop.draw(new Canvas(y), MrBackdrop.Spec.scene(j), 120, 50, scene(j));
                 if (java.util.Arrays.equals(x.stubPixels, y.stubPixels)) differ = false;
             }
         }
         check("no two landscapes are the same picture", differ);
+        // the strip follows the focus: the same picture drawn at the top and at the bottom shows different parts
+        Bitmap top = bitmap(240, 100), bottom = bitmap(240, 100), mine = bitmap(240, 100), same = bitmap(240, 100);
+        MrBackdrop.draw(new Canvas(top), MrBackdrop.Spec.image(100, 0, -100, 1), 240, 100, scene(2));
+        MrBackdrop.draw(new Canvas(bottom), MrBackdrop.Spec.image(100, 0, 100, 1), 240, 100, scene(2));
+        MrBackdrop.draw(new Canvas(mine), MrBackdrop.Spec.scene(2), 240, 100, scene(2));
+        MrBackdrop.draw(new Canvas(same), MrBackdrop.Spec.image(100, 0, MrScenes.focus(2), 1), 240, 100, scene(2));
+        check("the strip of a landscape is the part of the picture that its focus says (neither the top nor the bottom of it)",
+                java.util.Arrays.equals(mine.stubPixels, same.stubPixels) && !java.util.Arrays.equals(top.stubPixels, bottom.stubPixels) && !java.util.Arrays.equals(mine.stubPixels, top.stubPixels));
     }
 
     // ---------------------------------------------------------------- the veil
@@ -1004,7 +1107,7 @@ public class ThemesTest {
         for (MrBackdrop.Spec s : specs) {
             for (int soft : new int[] {0, 25, 70}) {
                 for (boolean dark : new boolean[] {true, false}) {
-                    MrBackdrop.Look look = MrBackdrop.look(s, null, dark, soft);
+                    MrBackdrop.Look look = MrBackdrop.look(s, imageFor(s), dark, soft);
                     if (look == null) {
                         covered = false;
                         continue;
@@ -1018,7 +1121,7 @@ public class ThemesTest {
                     }
                     if (look.veilColor != (dark ? 0xff000000 : 0xffffffff)) covered = false;
                     // the softening is for the picture of the gallery only: a landscape or a gradient has the veil it needs and no more
-                    if (look.veilAlpha != MrBackdrop.look(s, null, dark, 0).veilAlpha || look.bottom != MrBackdrop.look(s, null, dark, 0).bottom) softIgnored = false;
+                    if (look.veilAlpha != MrBackdrop.look(s, imageFor(s), dark, 0).veilAlpha || look.bottom != MrBackdrop.look(s, imageFor(s), dark, 0).bottom) softIgnored = false;
                     if ((look.bottom >>> 24) != 255) bottomOpaque = false;
                     if (soft == 0 && dark) worstDark = Math.max(worstDark, look.veilAlpha);
                     if (soft == 0 && !dark) worstLight = Math.max(worstLight, look.veilAlpha);
@@ -1037,13 +1140,13 @@ public class ThemesTest {
             }
         }
         check("a plain colour is shown as it is: no veil, whatever the theme or the softening, and its own colour is the lower edge", colourLook);
-        boolean[] darkInk = {true, false, true, false, false, true, false, false, true, false, true, false};
+        boolean[] darkInk = {false, true, false, false, false, false, true, false, false, false, true, true, false, false, false, false};
         boolean inkRight = true;
         for (int i = 0; i < MrBackdrop.COLORS.length; i++) {
             if (MrBackdrop.darkInk(MrBackdrop.Spec.color(i)) != darkInk[i]) inkRight = false;
             if (MrBackdrop.themeTag(MrBackdrop.Spec.color(i)).equals(MrBackdrop.TAG_DARK_INK) != darkInk[i]) inkRight = false;
         }
-        check("white is the ink of a colour unless white would not read on it (under 4.5 to 1): the five light and light-medium ones have dark ink, the other seven white", inkRight);
+        check("white is the ink of a colour unless white would not read on it (under 4.5 to 1): the four light ones have dark ink, the other twelve white", inkRight);
         boolean whiteInk = !MrBackdrop.darkInk(null) && !MrBackdrop.darkInk(MrBackdrop.Spec.NO) && !MrBackdrop.darkInk(MrBackdrop.Spec.image(100, 0, 0, 1));
         for (int i = 0; i < MrBackdrop.GRADIENT_COUNT; i++) if (MrBackdrop.darkInk(MrBackdrop.Spec.gradient(i))) whiteInk = false;
         for (int i = 0; i < MrScenes.COUNT; i++) if (MrBackdrop.darkInk(MrBackdrop.Spec.scene(i))) whiteInk = false;
@@ -1298,7 +1401,7 @@ public class ThemesTest {
         p.show(tags[1], MrBackdrop.Spec.NO, null, 0);
         p.onDraw(new Canvas(bitmap(360, 150)));
         check("another theme makes its own", Face.copies == 4);
-        p.show(tags[1], MrBackdrop.Spec.scene(1), null, 20);
+        p.show(tags[1], MrBackdrop.Spec.scene(1), scene(1), 20);
         p.onDraw(new Canvas(bitmap(360, 150)));
         check("another background of the same theme does not", Face.copies == 4);
 
@@ -1421,7 +1524,7 @@ public class ThemesTest {
             List<Bitmap> t = new ArrayList<Bitmap>();
             for (int i = ranges[g][0]; i < ranges[g][1]; i++) {
                 MrThemePreview p = preview(c, 330);
-                p.show(MrBackdrop.themeTag(all.get(i)), all.get(i), null, 0);
+                p.show(MrBackdrop.themeTag(all.get(i)), all.get(i), imageFor(all.get(i)), 0);
                 t.add(draw(p));
             }
             sheet(t, 3, "backgrounds_" + groups[g]);
@@ -1465,7 +1568,7 @@ public class ThemesTest {
                 String tag = MrBackdrop.themeTag(s);
                 int ink = MrThemeColors.ink(c, tag);
                 MrThemePreview p = preview(c, 600);
-                p.show(tag, s, null, 0);
+                p.show(tag, s, imageFor(s), 0);
                 Bitmap b = draw(p);
                 // the bar is the top 17% of the keyboard: the background there, without the bars of the suggestions (WCAG contrast, on linear light)
                 double sum = 0;
@@ -1520,6 +1623,140 @@ public class ThemesTest {
         q.show(MrBackdrop.TAG_LIGHT_INK, MrBackdrop.Spec.image(100, 0, 0, 1), null, 0);
         Bitmap without = draw(q);
         check("a picture spec whose picture is not loaded yet shows the colour of the theme", maxDiff(without.getPixel(210, 4), MrThemeColors.color(c, MrBackdrop.TAG_LIGHT_INK, "kbd_bg")) <= 12);
+        RES.flatFaces = false;
+    }
+
+    // ---------------------------------------------------------------- the complete keyboard and the dash
+
+    static MrThemePreview fullPreview(Context c, int w) {
+        MrThemePreview p = new MrThemePreview(c);
+        p.setFull(true);
+        p.onMeasure(View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        p.stubSize(w, p.stubMeasuredHeight());
+        return p;
+    }
+
+    /** The middle of the dash of a key of the complete keyboard (row 0 .. 5, the left edge and the width of the key as a share of the width of the keys) on a view {@code w} wide. */
+    static int[] dashAt(int w, int row, float leftShare, float widthShare) {
+        float vw = 1080f, vh = vw / MrThemePreview.FULL_ASPECT, k = w / vw;
+        float top = vh * MrThemePreview.FULL_BAR_SHARE, rowH = (vh - top) / 6f, side = vw * 0.008f, width = vw - 2f * side;
+        float kx = side + width * leftShare, kw = width * widthShare;
+        float density = 2f;
+        float y = top + row * rowH + Math.round(rowH) - 8f * density - 1.5f * density;
+        return new int[] {Math.round((kx + kw / 2f) * k), Math.round(y * k)};
+    }
+
+    static void fullKeyboard() throws Exception {
+        reset();
+        RES.flatFaces = true;
+        Context c = new Ctx();
+        MrThemePreview small = preview(c, 600);
+        check("a keyboard preview is the small one until it is told otherwise: 2.4 to 1, and it is not full", !small.full() && small.getHeight() == Math.round(600 / MrBackdrop.ASPECT));
+        MrThemePreview p = fullPreview(c, 600);
+        check("the complete keyboard is taller: 1.7 to 1", p.full() && p.getHeight() == Math.round(600 / MrThemePreview.FULL_ASPECT) && p.getHeight() > small.getHeight() * 1.3);
+        p.setFull(false);
+        check("and goes back to the small one", !p.full());
+        p.setFull(true);
+
+        // the dash of the modifier keys, in the colours of the theme, in the three states: Ctrl on, Alt off, Shift locked, F1 off
+        for (String tag : new String[] {MrBackdrop.TAG_LIGHT_INK, MrBackdrop.TAG_DARK_INK}) {
+            MrBackdrop.Spec sp = tag.equals(MrBackdrop.TAG_LIGHT_INK) ? MrBackdrop.Spec.color(5) : MrBackdrop.Spec.color(1);
+            p = fullPreview(c, 720);
+            p.show(tag, sp, null, 0);
+            Bitmap b = draw(p);
+            int off = MrThemeColors.color(c, tag, "modifier_indicator_off"), on = MrThemeColors.color(c, tag, "modifier_indicator_on"), lock = MrThemeColors.color(c, tag, "modifier_indicator_lock");
+            int[] ctrl = dashAt(720, 0, 0f, 14.2f / 100.4f), alt = dashAt(720, 0, 14.2f / 100.4f, 13.2f / 100.4f), shift = dashAt(720, 4, 0f, 0.15f), f1 = dashAt(720, 5, 0.20f, 0.10f);
+            int[] plain = dashAt(720, 1, 0f, 0.10f), angle = dashAt(720, 0, (14.2f + 13.2f + 13.3f) / 100.4f, 10.2f / 100.4f), letter = dashAt(720, 2, 0f, 0.10f);
+            check(tag + ": Ctrl, lit, has the dash of the colour 'on'", b.getPixel(ctrl[0], ctrl[1]) == on);
+            check(tag + ": Alt has the dash 'off', Shift, locked, the dash 'lock' and F1 the dash 'off'", b.getPixel(alt[0], alt[1]) == off && b.getPixel(shift[0], shift[1]) == lock && b.getPixel(f1[0], f1[1]) == off);
+            check(tag + ": the keys that are not modifier keys have no dash (a number, a letter and the key of the angles)", b.getPixel(plain[0], plain[1]) != off && b.getPixel(plain[0], plain[1]) != on
+                    && b.getPixel(letter[0], letter[1]) != off && b.getPixel(angle[0], angle[1]) != off && b.getPixel(angle[0], angle[1]) != on);
+            check(tag + ": the three dashes are three different colours", on != off && on != lock && off != lock);
+            Bitmap compact = draw(preview(c, 720));
+            check(tag + ": the small keyboard has no dash (it has no modifier keys)", compact.getPixel(ctrl[0], Math.round(compact.stubH * 0.9f)) != on);
+        }
+
+        // the keys are drawn in their states: the face of Ctrl lit and of Shift locked are not the one of a letter, and the locked one is red-tinted
+        MrThemePreview q = fullPreview(c, 720);
+        q.show(MrBackdrop.TAG_LIGHT_INK, MrBackdrop.Spec.color(5), null, 0);
+        Bitmap qb = draw(q);
+        float vw = 1080f, vh = vw / MrThemePreview.FULL_ASPECT, k = 720 / vw, top = vh * MrThemePreview.FULL_BAR_SHARE, rowH = (vh - top) / 6f;
+        int ctrlFace = qb.getPixel(Math.round(30 * k), Math.round((top + rowH * 0.25f) * k));
+        int altFace = qb.getPixel(Math.round((8.64f + 1062.7f * 0.142f / 1.004f + 30) * k), Math.round((top + rowH * 0.25f) * k));
+        int shiftFace = qb.getPixel(Math.round(30 * k), Math.round((top + 4 * rowH + rowH * 0.25f) * k));
+        int letterFace = qb.getPixel(Math.round((8.64f + 1062.7f * 0.05f) * k), Math.round((top + 2 * rowH + rowH * 0.25f) * k));
+        check("the lit Ctrl is lighter than the Alt that is off, and the locked Shift is redder than a letter",
+                MrThemeColors.luminance(ctrlFace) > MrThemeColors.luminance(altFace) + 0.004f && ((shiftFace >> 16) & 0xff) - ((shiftFace >> 8) & 0xff) > ((letterFace >> 16) & 0xff) - ((letterFace >> 8) & 0xff) + 20);
+        // every key of the complete keyboard is there: the row of Ctrl, Alt and the arrows, the numbers, three rows of letters and the bottom row
+        boolean rows = true;
+        for (int r = 0; r < 6; r++) {
+            int yy = Math.round((top + r * rowH + rowH * 0.2f) * k);
+            // along the row, most of the width is key faces (lighter than the colour behind them) and the rest the gaps between them
+            int faces = 0;
+            for (int x = 6; x < 714; x += 6) if (maxDiff(qb.getPixel(x, yy), MrBackdrop.COLORS[5]) > 8) faces++;
+            if (faces < 60) {
+                rows = false;
+                System.out.println("      row " + r + ": " + faces + " of 118 samples are key faces");
+            }
+        }
+        check("the six rows of keys are all drawn", rows);
+        // the line of suggestions is above them, in the ink of the toolbar
+        int ink = MrThemeColors.ink(c, MrBackdrop.TAG_LIGHT_INK);
+        boolean words = false;
+        for (int y = 0; y < Math.round(top * k) && !words; y++) for (int x = 0; x < 720 && !words; x++) if (maxDiff(qb.getPixel(x, y), MrBackdrop.mix(MrBackdrop.COLORS[5], ink | 0xff000000, 0.70f)) <= 6) words = true;
+        check("the line of suggestions is on top, in the ink of the toolbar", words);
+
+        // on every background of the backgrounds the dash reads over the faces
+        boolean reads = true;
+        double worstOn = 99, worstLock = 99, worstOff = 99;
+        for (int t = 0; t < 2; t++) {
+            String tag = t == 0 ? MrBackdrop.TAG_LIGHT_INK : MrBackdrop.TAG_DARK_INK;
+            int off = MrThemeColors.color(c, tag, "modifier_indicator_off") | 0xff000000, on = MrThemeColors.color(c, tag, "modifier_indicator_on") | 0xff000000;
+            int lock = MrThemeColors.color(c, tag, "modifier_indicator_lock") | 0xff000000;
+            int fNormal = MrThemeColors.color(c, tag, "key_normal_fill"), fOn = MrThemeColors.color(c, tag, "key_on_fill"), fLock = MrThemeColors.color(c, tag, "key_lock_fill");
+            List<Integer> backs = new ArrayList<Integer>();
+            for (int i = 0; i < MrBackdrop.COLORS.length; i++) if (MrBackdrop.themeTag(MrBackdrop.Spec.color(i)).equals(tag)) backs.add(MrBackdrop.COLORS[i]);
+            if (t == 0) for (MrBackdrop.Grad g : MrBackdrop.GRADS) for (int col : g.colours) backs.add(col);
+            for (int bgc : backs) {
+                int a = MrBackdrop.mix(bgc, fNormal | 0xff000000, (fNormal >>> 24) / 255f), bOn = MrBackdrop.mix(bgc, fOn | 0xff000000, (fOn >>> 24) / 255f);
+                int bLock = MrBackdrop.mix(bgc, fLock | 0xff000000, (fLock >>> 24) / 255f);
+                double cOn = MrBackdrop.contrast(on, bOn), cLock = MrBackdrop.contrast(lock, bLock), cOff = MrBackdrop.contrast(off, a);
+                worstOn = Math.min(worstOn, cOn);
+                worstLock = Math.min(worstLock, cLock);
+                worstOff = Math.min(worstOff, cOff);
+                if (cOn < 2.2 || cLock < 2.2 || cOff < 1.15) {
+                    reads = false;
+                    System.out.println("      " + tag + " on " + Integer.toHexString(bgc) + ": on " + String.format("%.2f", cOn) + ", lock " + String.format("%.2f", cLock) + ", off " + String.format("%.2f", cOff));
+                }
+            }
+        }
+        System.out.println("      the dash over the faces, worst case: on " + String.format("%.2f", worstOn) + ", locked " + String.format("%.2f", worstLock) + ", off " + String.format("%.2f", worstOff));
+        check("over every colour and gradient the dash 'on' and the dash 'locked' have a contrast of 2.2 or more with the face they are on, and 'off' one of 1.15 or more", reads);
+
+        // the bubble and the popup of variants: the letters read on them, and the popup key is told apart from the bubble
+        boolean popups = true;
+        for (String tag : new String[] {MrBackdrop.TAG_LIGHT_INK, MrBackdrop.TAG_DARK_INK}) {
+            int fill = MrThemeColors.color(c, tag, "bubble_fill"), text = MrThemeColors.color(c, tag, "popup_text"), keyFill = MrThemeColors.color(c, tag, "popup_key_fill"), stroke = MrThemeColors.color(c, tag, "bubble_stroke");
+            if ((fill >>> 24) != 255 || (keyFill >>> 24) != 255 || MrBackdrop.contrast(text | 0xff000000, fill) < 7f || MrBackdrop.contrast(text | 0xff000000, keyFill) < 4.5f
+                    || MrBackdrop.contrast(keyFill, fill) < 1.3f || MrBackdrop.contrast(stroke, fill) < 1.15f) {
+                popups = false;
+                System.out.println("      " + tag + ": bubble " + Integer.toHexString(fill) + ", key " + Integer.toHexString(keyFill) + ", text " + Integer.toHexString(text) + ", edge " + Integer.toHexString(stroke));
+            }
+        }
+        check("the popup: opaque, its letters read on the bubble (7 to 1) and on the key that is held (4.5), the key and the edge show against the bubble", popups);
+        int dFill = MrThemeColors.color(c, MrBackdrop.TAG_LIGHT_INK, "bubble_fill"), lFill = MrThemeColors.color(c, MrBackdrop.TAG_DARK_INK, "bubble_fill");
+        check("light ink has a dark bubble and dark ink a light one (not the grey of before)", MrThemeColors.luminance(dFill) < 0.2f && MrThemeColors.luminance(lFill) > 0.9f);
+
+        // the complete keyboard on a colour, a gradient, a landscape and a light colour (for the eye)
+        List<Bitmap> sheet = new ArrayList<Bitmap>();
+        MrBackdrop.Spec[] some = {MrBackdrop.Spec.color(5), MrBackdrop.Spec.color(1), MrBackdrop.Spec.color(10), MrBackdrop.Spec.color(14), MrBackdrop.Spec.gradient(3), MrBackdrop.Spec.gradient(17),
+                MrBackdrop.Spec.scene(2), MrBackdrop.Spec.scene(20), MrBackdrop.Spec.scene(30)};
+        for (MrBackdrop.Spec sp : some) {
+            MrThemePreview v = fullPreview(c, 360);
+            v.show(MrBackdrop.themeTag(sp), sp, imageFor(sp), 0);
+            sheet.add(draw(v));
+        }
+        sheet(sheet, 3, "full_keyboard");
         RES.flatFaces = false;
     }
 
@@ -1755,7 +1992,7 @@ public class ThemesTest {
         return true;
     }
 
-    static final int COLOURS = 12, GRADIENTS = 21, SCENES = 9;
+    static final int COLOURS = 16, GRADIENTS = 20, SCENES = 36;
     static final int FIRST_GRADIENT = COLOURS, FIRST_SCENE = COLOURS + GRADIENTS, MINE = COLOURS + GRADIENTS + SCENES;
 
     /** Touches a tile of the backgrounds and applies what the dialog shows. */
@@ -1769,10 +2006,24 @@ public class ThemesTest {
         Screen s = open();
         String[] names = MrThemeColors.names(s);
         check("the screen lists the thirteen themes (the two of the backgrounds are not on it) and knows all fifteen", s.mThemeTiles.size() == 13 && s.mListed == 13 && s.mTags.length == 15);
-        check("and has the tiles of the backgrounds: 12 colours, 21 gradients, 9 landscapes and my image", s.mBgTiles.size() == MINE + 1 && s.mBgSpecs.size() == MINE + 1);
-        check("in that order: the colours, the gradients, the landscapes, then my image", s.mBgSpecs.get(0).format().equals("c0") && s.mBgSpecs.get(COLOURS - 1).format().equals("c11")
-                && s.mBgSpecs.get(FIRST_GRADIENT).format().equals("g0") && s.mBgSpecs.get(FIRST_SCENE - 1).format().equals("g20")
-                && s.mBgSpecs.get(FIRST_SCENE).format().equals("s0") && s.mBgSpecs.get(MINE - 1).format().equals("s8") && s.mBgSpecs.get(MINE).kind == MrBackdrop.IMAGE);
+        check("and has the tiles of the backgrounds: 16 colours, 20 gradients, 36 landscapes and my image", s.mBgTiles.size() == MINE + 1 && s.mBgSpecs.size() == MINE + 1);
+        check("in that order: the colours, the gradients, the landscapes, then my image", s.mBgSpecs.get(0).format().equals("c0") && s.mBgSpecs.get(COLOURS - 1).format().equals("c15")
+                && s.mBgSpecs.get(FIRST_GRADIENT).format().equals("g0") && s.mBgSpecs.get(FIRST_SCENE - 1).format().equals("g19")
+                && s.mBgSpecs.get(FIRST_SCENE).format().equals("s0") && s.mBgSpecs.get(MINE - 1).format().equals("s35") && s.mBgSpecs.get(MINE).kind == MrBackdrop.IMAGE);
+        check("the landscapes are in six sections, one for each category, with its name above it",
+                byText(s.content, "Landscapes") != null && byText(s.content, "Sports") != null && byText(s.content, "Animals") != null && byText(s.content, "Snow") != null
+                        && byText(s.content, "Nature") != null && byText(s.content, "Anime") != null && byText(s.content, "AI") != null);
+        check("the tiles of a category follow one another: six sports, then six animals", s.mBgSpecs.get(FIRST_SCENE + 5).format().equals("s5") && s.mBgSpecs.get(FIRST_SCENE + 6).format().equals("s6")
+                && MrScenes.category(5) == MrScenes.SPORTS && MrScenes.category(6) == MrScenes.ANIMALS);
+        final Screen live = s;
+        boolean loaded = waitFor(() -> {
+            for (Bitmap b : live.mScenes) if (b == null) return false;
+            return true;
+        });
+        check("the small copies of the 36 landscapes are read apart from the main thread, at half the size", loaded && s.mScenes[0].getWidth() * 2 <= scene(0).getWidth() + 1 && s.mScenes[35].getHeight() * 2 <= scene(35).getHeight() + 1);
+        MrThemePreview withPicture = s.mBgTiles.get(FIRST_SCENE + 3), without = new MrThemePreview(s);
+        without.show(MrBackdrop.TAG_LIGHT_INK, MrBackdrop.Spec.scene(3), null, 0);
+        check("each tile of a landscape shows its picture as soon as it is read (until then, the colour of the theme)", !java.util.Arrays.equals(tileImage(withPicture), tileImage(without)));
         check("the theme of the preference is the one chosen, and no background", checkedTheme(s) == 0 && checkedBackground(s) == -1 && s.mSpec.kind == MrBackdrop.NONE);
         check("the caption says the theme", s.mCaption.getText().toString().equals(names[0]));
         check("no remove button and no tile of my image until there is a picture", s.mRemove.getVisibility() == View.GONE && boxOf(s.mMineTile).getVisibility() == View.INVISIBLE);
@@ -1786,7 +2037,7 @@ public class ThemesTest {
             if (!s.mBgTiles.get(i).spec().same(sp) || !s.mBgTiles.get(i).tag().equals(MrBackdrop.themeTag(sp))) suited = false;
         }
         check("every tile of a background shows that background in the theme that suits it (light ink, or dark ink on the light colours)", suited
-                && s.mBgTiles.get(0).tag().equals("mr_overdark") && s.mBgTiles.get(1).tag().equals("mr_overlight") && s.mBgTiles.get(FIRST_SCENE).tag().equals("mr_overlight"));
+                && s.mBgTiles.get(0).tag().equals("mr_overlight") && s.mBgTiles.get(1).tag().equals("mr_overdark") && s.mBgTiles.get(FIRST_SCENE).tag().equals("mr_overlight"));
         // a theme is the choice at once
         s.chooseTheme(5);
         check("a theme chosen is written in the preference the keyboard reads, with no background", "5".equals(themeKey()) && s.mTheme == 5 && "".equals(bgKey()));
@@ -1803,28 +2054,36 @@ public class ThemesTest {
                 && d.getWindow().stubGravity == android.view.Gravity.BOTTOM && d.getWindow().stubWidth == android.view.ViewGroup.LayoutParams.MATCH_PARENT);
         check("nothing is applied yet: the preferences, the keyboard at the top and the tiles are as they were", "12".equals(themeKey()) && "".equals(bgKey()) && s.mSpec.kind == MrBackdrop.NONE
                 && s.mBig.spec().kind == MrBackdrop.NONE && checkedTheme(s) == 12 && checkedBackground(s) == -1);
+        check("the dialog shows the complete keyboard (the row of Ctrl and Alt, the numbers, the letters, the bottom row, the dash of the modifier keys), the big keyboard of the screen stays the small one",
+                s.mDialogPreview.full() && !s.mBig.full() && !s.mBgTiles.get(4).full() && !s.mThemeTiles.get(0).full());
+        {
+            MrThemePreview shown = s.mDialogPreview;
+            shown.onMeasure(View.MeasureSpec.makeMeasureSpec(600, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+            check("it is as tall as the complete keyboard is (1.7 to 1)", shown.stubMeasuredHeight() == Math.round(600 / MrThemePreview.FULL_ASPECT));
+        }
         check("Cancel closes it and writes nothing", press("Cancel") && !d.stubShowing && "12".equals(themeKey()) && "".equals(bgKey()) && s.mDialog == null);
         click(s.mBgTiles.get(4));
         Dialog.stubLast.stubBack();
         check("so does the back button", !Dialog.stubLast.stubShowing && "12".equals(themeKey()) && "".equals(bgKey()));
         click(s.mBgTiles.get(4));
         check("Apply closes it", press("Apply") && !Dialog.stubLast.stubShowing);
-        check("a dark red colour is written with the theme of the backgrounds with light ink (13), and as c4", "13".equals(themeKey()) && "c4".equals(bgKey()) && s.mSpec.format().equals("c4"));
+        check("a dark colour is written with the theme of the backgrounds with light ink (13), and as c4", "13".equals(themeKey()) && "c4".equals(bgKey()) && s.mSpec.format().equals("c4"));
         check("only the keyboard at the top shows it: the tile of the colour is the one chosen and no theme is", checkedBackground(s) == 4 && checkedTheme(s) == -1
                 && s.mBig.spec().format().equals("c4") && s.mBig.tag().equals("mr_overlight") && s.mCaption.getText().toString().equals("Color 5"));
         check("the softening is for pictures only: a colour does not write it", prefs.getInt(MrBackdrop.PREF_SOFT, -1) == -1);
         List<int[]> themesBefore = themeTiles(s);
         check("the tiles of the themes show the themes as they are (a tile is its theme with no background, whatever is chosen)", themeTilesAreThemes(s));
-        apply(s, 0);
-        check("a light colour is written with the theme with dark ink (14)", "14".equals(themeKey()) && "c0".equals(bgKey()) && s.mBig.tag().equals("mr_overdark") && checkedBackground(s) == 0);
+        apply(s, 1);
+        check("a light colour is written with the theme with dark ink (14)", "14".equals(themeKey()) && "c1".equals(bgKey()) && s.mBig.tag().equals("mr_overdark") && checkedBackground(s) == 1);
         apply(s, FIRST_GRADIENT + 3);
         check("a gradient: g3, in the theme with light ink, and its tile is the one chosen", "13".equals(themeKey()) && "g3".equals(bgKey()) && checkedBackground(s) == FIRST_GRADIENT + 3
                 && s.mCaption.getText().toString().equals("Gradient 4"));
         apply(s, FIRST_SCENE + 4);
-        check("a landscape: s4", "13".equals(themeKey()) && "s4".equals(bgKey()) && checkedBackground(s) == FIRST_SCENE + 4 && s.mCaption.getText().toString().equals("Orbit"));
+        check("a landscape: s4", "13".equals(themeKey()) && "s4".equals(bgKey()) && checkedBackground(s) == FIRST_SCENE + 4 && s.mCaption.getText().toString().equals("Sports \u00b7 Esports"));
         check("none of them wrote the softening, and the themes of the list are still as they were", prefs.getInt(MrBackdrop.PREF_SOFT, -1) == -1 && sameImages(themesBefore, themeTiles(s)));
         click(s.mBgTiles.get(FIRST_SCENE + 1));
-        check("the dialog of a landscape shows that landscape", s.mDialogPreview.spec().format().equals("s1") && "s4".equals(bgKey()));
+        check("the dialog of a landscape shows that landscape, with its picture, on the complete keyboard", s.mDialogPreview.spec().format().equals("s1") && "s4".equals(bgKey()) && s.mDialogPreview.full()
+                && byText(Dialog.stubLast.stubContent, "Sports \u00b7 Soccer ball".replace("Soccer ball", "Basketball")) != null);
         press("Cancel");
         check("cancelled: the landscape in use is still s4", "s4".equals(bgKey()) && checkedBackground(s) == FIRST_SCENE + 4);
 
@@ -1834,10 +2093,12 @@ public class ThemesTest {
                 && s.mSpec.kind == MrBackdrop.NONE && s.mBig.tag().equals(s.mTags[7]) && s.mBig.spec().kind == MrBackdrop.NONE && s.mCaption.getText().toString().equals(names[7]));
         check("each tile has its name for the screen readers", boxOf(s.mThemeTiles.get(2)).getContentDescription().toString().equals(names[2])
                 && boxOf(s.mBgTiles.get(4)).getContentDescription().toString().equals("Color 5") && boxOf(s.mBgTiles.get(FIRST_GRADIENT + 4)).getContentDescription().toString().equals("Gradient 5")
-                && boxOf(s.mBgTiles.get(FIRST_SCENE)).getContentDescription().toString().equals("Neon city"));
+                && boxOf(s.mBgTiles.get(FIRST_SCENE)).getContentDescription().toString().equals("Soccer ball"));
 
         // the texts
-        check("the texts of the screen are the ones of the strings", MrThemesActivity.sceneName(s, 0).equals("Neon city") && MrThemesActivity.sceneName(s, 8).equals("Hex grid")
+        check("the texts of the screen are the ones of the strings", MrThemesActivity.sceneName(s, 0).equals("Soccer ball") && MrThemesActivity.sceneName(s, 8).equals("Panther") && MrThemesActivity.sceneName(s, 35).equals("Network")
+                && MrThemesActivity.categoryName(s, 0).equals("Sports") && MrThemesActivity.categoryName(s, 5).equals("AI") && MrThemesActivity.categoryName(s, 6).equals("")
+                && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.scene(13)).equals("Snow \u00b7 Katana")
                 && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.gradient(4)).equals("Gradient 5") && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.color(0)).equals("Color 1")
                 && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.image(100, 0, 0, 1)).equals("My image") && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.NO).equals(""));
         check("a scene that has no name is empty and no exception", MrThemesActivity.sceneName(s, 99).equals(""));
@@ -2171,7 +2432,7 @@ public class ThemesTest {
         prefs.edit().putString(MrBackdrop.PREF, "s3").apply();
         check("a background that is left in the preference of a theme of the list is not part of the choice: the row says the theme", MrThemeRow.summary(c).equals(names[5]));
         prefs.edit().putString("pref_keyboard_layout", "13").apply();
-        check("in the theme of the backgrounds the row says the background (the themes of the backgrounds are not on the list)", MrThemeRow.summary(c).equals("Network"));
+        check("in the theme of the backgrounds the row says the background (the themes of the backgrounds are not on the list)", MrThemeRow.summary(c).equals("Sports \u00b7 Tennis"));
         prefs.edit().putString(MrBackdrop.PREF, "g0").apply();
         check("a gradient has its number", MrThemeRow.summary(c).equals("Gradient 1"));
         prefs.edit().putString(MrBackdrop.PREF, "c4").apply();
@@ -2217,11 +2478,13 @@ public class ThemesTest {
     }
 
     static void files() throws Exception {
-        String[] names = {"mr_themes_title", "mr_themes_themes", "mr_themes_colors", "mr_themes_color", "mr_themes_landscapes", "mr_themes_gradients", "mr_themes_gallery",
-                "mr_themes_mine", "mr_themes_soften", "mr_themes_soften_hint", "mr_themes_remove", "mr_themes_image_failed", "mr_themes_gradient", "mr_themes_cancel", "mr_themes_apply",
-                "mr_themes_next", "mr_themes_crop_hint", "mr_themes_scene_0", "mr_themes_scene_1", "mr_themes_scene_2", "mr_themes_scene_3", "mr_themes_scene_4", "mr_themes_scene_5",
-                "mr_themes_scene_6", "mr_themes_scene_7", "mr_themes_scene_8"};
-        check("the screen has 26 texts", names.length == 26 && MrScenes.COUNT == 9);
+        List<String> list = new ArrayList<String>(java.util.Arrays.asList("mr_themes_title", "mr_themes_themes", "mr_themes_colors", "mr_themes_color", "mr_themes_landscapes", "mr_themes_gradients",
+                "mr_themes_gallery", "mr_themes_mine", "mr_themes_soften", "mr_themes_soften_hint", "mr_themes_remove", "mr_themes_image_failed", "mr_themes_gradient", "mr_themes_cancel",
+                "mr_themes_apply", "mr_themes_next", "mr_themes_crop_hint"));
+        for (int i = 0; i < MrScenes.CATEGORIES; i++) list.add("mr_themes_scene_cat_" + i);
+        for (int i = 0; i < MrScenes.COUNT; i++) list.add("mr_themes_scene_" + i);
+        String[] names = list.toArray(new String[0]);
+        check("the screen has 59 texts: the 17 of the screen, the 6 categories and the 36 landscapes", names.length == 59 && MrScenes.COUNT == 36 && MrScenes.CATEGORIES == 6);
         boolean all = true;
         for (String lang : new String[] {"en", "es", "pt-rBR"}) {
             Map<String, String> m = lang.equals("en") ? STRINGS : LANG.get(lang);
@@ -2291,6 +2554,9 @@ public class ThemesTest {
         FILES = Files.createTempDirectory("mr_files").toFile();
         CACHE = Files.createTempDirectory("mr_cache").toFile();
         loadResources();
+        // the assets of the app: the folder of the project (the WebP files, which the PC cannot decode: they give a pattern of their size); with
+        // -Dmr.assets=<folder> the real pictures, as PNG files that have the names of the WebP ones
+        android.content.res.AssetManager.stubRoot = new File(System.getProperty("mr.assets", "assets"));
         Canvas.stubBackend = new AwtBackend();
         System.setProperty("java.awt.headless", "true");
 
@@ -2303,6 +2569,7 @@ public class ThemesTest {
         colours();
         previews();
         previewPictures();
+        fullKeyboard();
         onKeyboard();
         screen();
         pickerChain();

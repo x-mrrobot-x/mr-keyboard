@@ -30,7 +30,7 @@ import java.io.OutputStream;
  *
  * <h3>The preference</h3>
  * {@link #PREF} holds one text, the spec: empty = no background; {@code c<N>} = colour N; {@code g<N>} = gradient N; {@code s<N>} = landscape N
- * ({@link MrScenes}); {@code i<zoom>,<dx>,<dy>,<stamp>} = the picture of the gallery the person chose ({@link #FILE}, in the files of the app),
+ * ({@link MrScenes}: a picture of the app, drawn as the one of the gallery is); {@code i<zoom>,<dx>,<dy>,<stamp>} = the picture of the gallery the person chose ({@link #FILE}, in the files of the app),
  * with the zoom in per cent (100 .. 400), the position (dx and dy, -100 .. 100: how far the shown part is moved between the two edges) and the
  * time the picture was chosen (so that a new picture of the same settings is a new value, and the caches know it). A text that does not parse
  * is "no background". {@link #PREF_SOFT} is how much a picture is softened (0 .. {@link #MAX_SOFT} per cent): only a picture is softened.
@@ -80,9 +80,10 @@ final class MrBackdrop {
 
     /** The plain colours (opaque), in the order of the tiles. */
     static final int[] COLORS = {
-            0xffeceff1, 0xff263238, 0xfff8f9fa, 0xff37393d,
-            0xffc62828, 0xff43a047, 0xff00695c, 0xff1565c0,
-            0xff80deea, 0xff6a1b9a, 0xffef6c00, 0xffad1457};
+            0xff263238, 0xfff8f9fa, 0xff37393d, 0xffc62828,
+            0xff00695c, 0xff1565c0, 0xff80deea, 0xff4527a0,
+            0xff6a1b9a, 0xffad1457, 0xfff8bbd0, 0xffd7ccc8,
+            0xff4e342e, 0xff37474f, 0xff000000, 0xff161616};
 
     /** The contrast with white that a colour needs to carry white ink; under it the ink is dark. */
     static final float WHITE_INK_CONTRAST = 4.5f;
@@ -120,7 +121,6 @@ final class MrBackdrop {
             down(0xff0b564c, 0xff011f1e),
             down(0xff00858a, 0xff115761),
             down(0xff8479a5, 0xff4a4258),
-            down(0xff8b3a3d, 0xff3e1a20),
             down(0xff514b9c, 0xff1f5f75),
             down(0xff00708f, 0xff1c4560),
             down(0xff4e2cc0, 0xff2c1a82),
@@ -167,7 +167,8 @@ final class MrBackdrop {
         }
 
         static Spec scene(int n) {
-            return n >= 0 && n < MrScenes.COUNT ? new Spec(SCENE, n, 100, 0, 0, 0L) : NO;
+            // the strip of the picture that suits it (MrScenes.focus): it is drawn as a picture, from the bitmap that MrScenes.load gives
+            return MrScenes.valid(n) ? new Spec(SCENE, n, 100, 0, MrScenes.focus(n), 0L) : NO;
         }
 
         static Spec image(int zoom, int dx, int dy, long stamp) {
@@ -243,7 +244,10 @@ final class MrBackdrop {
 
     // ---- drawing
 
-    /** Draws the background (no veil) over {@code w} x {@code h}; {@code image} is the picture for an IMAGE spec (null: nothing is drawn). */
+    /**
+     * Draws the background (no veil) over {@code w} x {@code h}; {@code image} is the picture for an IMAGE spec and for a SCENE one (the bitmap of
+     * the landscape, {@link #bitmap}); null: nothing is drawn.
+     */
     static void draw(Canvas canvas, Spec spec, int w, int h, Bitmap image) {
         if (canvas == null || spec == null || w <= 0 || h <= 0) return;
         switch (spec.kind) {
@@ -254,8 +258,6 @@ final class MrBackdrop {
                 gradient(canvas, spec.index, w, h);
                 break;
             case SCENE:
-                MrScenes.draw(canvas, spec.index, w, h);
-                break;
             case IMAGE:
                 if (image != null) picture(canvas, spec, image, w, h);
                 break;
@@ -368,6 +370,22 @@ final class MrBackdrop {
         return new int[] {nx, ny};
     }
 
+    /** Whether the background is drawn from a bitmap: the picture of the gallery and the landscapes. */
+    static boolean needsBitmap(Spec spec) {
+        return spec != null && (spec.kind == IMAGE || spec.kind == SCENE);
+    }
+
+    /**
+     * The bitmap that a background is drawn from: the picture of the gallery (the one that is kept) or the landscape of the app; null for the
+     * others and when it cannot be read. The caller owns it. Reads a file.
+     */
+    static Bitmap bitmap(Context c, Spec spec) {
+        if (spec == null || c == null) return null;
+        if (spec.kind == IMAGE) return load(c);
+        if (spec.kind == SCENE) return MrScenes.load(c, spec.index);
+        return null;
+    }
+
     // ---- brightness and veil
 
     /** What the veil is and what the background looks like under it. */
@@ -415,7 +433,7 @@ final class MrBackdrop {
     /** Measures a small copy of the background: the veil it needs and the colour of its lower edge. A picture that is not there gives null. */
     static Look look(Spec spec, Bitmap image, boolean dark, int soft) {
         if (spec == null || spec.kind == NONE) return null;
-        if (spec.kind == IMAGE && image == null) return null;
+        if (needsBitmap(spec) && image == null) return null;
         int veilColor = dark ? 0xff000000 : 0xffffffff;
         if (spec.kind == COLOR) {
             // a plain colour is shown as it is: no veil, and the colour itself is the lower edge for the navigation bar
@@ -471,7 +489,7 @@ final class MrBackdrop {
 
     /**
      * Whether the ink on this background is dark. White is the ink of every background by default; only a plain colour that is too light to carry
-     * it (less than {@link #WHITE_INK_CONTRAST} to 1 against white, the AA level for text: the glass of the keys lightens it a little more) has a dark ink. The gradients and the landscapes are dark, and a picture has its
+     * it (less than {@link #WHITE_INK_CONTRAST} to 1 against white, the AA level for text: the glass of the keys lightens it a little more) has a dark ink. The gradients are dark, and a landscape or a picture has its
      * veil, so none of them needs it.
      */
     static boolean darkInk(Spec spec) {
@@ -691,11 +709,8 @@ final class MrBackdrop {
         int soft = soft(c);
         String key = spec.format() + "|" + dark + "|" + soft;
         if (key.equals(sLookKey)) return sLook;
-        Bitmap image = null;
-        if (spec.kind == IMAGE) {
-            image = load(c);
-            if (image == null) return null;
-        }
+        Bitmap image = bitmap(c, spec);
+        if (needsBitmap(spec) && image == null) return null;
         Look look = look(spec, image, dark, soft);
         if (image != null) image.recycle();
         sLookKey = key;

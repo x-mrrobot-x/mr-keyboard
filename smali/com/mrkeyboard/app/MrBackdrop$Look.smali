@@ -31,24 +31,24 @@
     .locals 0
 
     .prologue
-    .line 382
+    .line 400
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 383
+    .line 401
     iput p1, p0, Lcom/mrkeyboard/app/MrBackdrop$Look;->luminance:F
 
-    .line 384
+    .line 402
     iput p2, p0, Lcom/mrkeyboard/app/MrBackdrop$Look;->barLuminance:F
 
-    .line 385
+    .line 403
     iput p3, p0, Lcom/mrkeyboard/app/MrBackdrop$Look;->veilAlpha:I
 
-    .line 386
+    .line 404
     iput p4, p0, Lcom/mrkeyboard/app/MrBackdrop$Look;->veilColor:I
 
-    .line 387
+    .line 405
     iput p5, p0, Lcom/mrkeyboard/app/MrBackdrop$Look;->bottom:I
 
-    .line 388
+    .line 406
     return-void
 .end method

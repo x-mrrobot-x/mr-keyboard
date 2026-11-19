@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 270
+    .line 283
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$6;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,11 +40,11 @@
     .locals 1
 
     .prologue
-    .line 272
+    .line 285
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$6;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->editImage()V
 
-    .line 273
+    .line 286
     return-void
 .end method

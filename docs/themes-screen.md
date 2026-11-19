@@ -12,9 +12,9 @@ small keyboard with the real keys, so what is chosen is seen before it is chosen
 │  Midnight Steel              │
 │  Themes                      │
 │  ▭ ▭ ▭   13 tiles, 3 a row   │   touch = chosen at once; the check mark is on the one in use
-│  Colors       12 tiles       │   touch = dialog with the preview: Cancel / Apply
-│  Gradients    21 tiles       │   (same dialog)
-│  Landscapes    9 tiles       │   (same dialog)
+│  Colors       16 tiles       │   touch = dialog with the complete keyboard: Cancel / Apply
+│  Gradients    20 tiles       │   (same dialog)
+│  Landscapes   36 tiles       │   six sections of six: Sports, Animals, Snow, Nature, Anime, AI
 │  Gallery      ＋ · my image   │   ＋ = photo picker, then the crop, then the preview
 │  [ Remove my image ]         │
 └──────────────────────────────┘
@@ -24,8 +24,10 @@ small keyboard with the real keys, so what is chosen is seen before it is chosen
 
 - A **theme** (Midnight, Aurora…) is chosen with one touch and written at once. It takes the background away (`pref_kbd_bg` is cleared in the same
   write), and its tile, like every tile of the list, always shows the theme as it is: a background chosen never changes them.
-- A **color, a gradient or a landscape** opens a dialog with the keyboard as it will look (a sheet at the bottom: **Cancel** / **Apply**). Nothing
-  is written until **Apply**, and only the keyboard at the top of the screen shows the result.
+- A **color, a gradient or a landscape** opens a dialog with the **complete keyboard** as it will look (a sheet at the bottom: **Cancel** / **Apply**):
+  the row of Ctrl, Alt and the arrows, the numbers, the letters and the bottom row, every highlight key with its own face and the dash of the
+  modifier keys in its three states (see [The small keyboards](#the-small-keyboards)). Nothing is written until **Apply**, and only the keyboard
+  at the top of the screen shows the result.
 - A **picture of the gallery** goes through the crop dialog first (below), then through the same preview.
 
 The backgrounds have two themes of their own, which the list does not show (`MrThemeColors.hidden`, tags `mr_overlight` and `mr_overdark`, the last
@@ -44,7 +46,7 @@ right one of the two in the same edit as the background itself (`MrBackdrop.them
 | Preference | Holds |
 | --- | --- |
 | `pref_keyboard_layout` | The theme (`keyboard_layout_modes_values`): 0 to 12 the themes of the list, 13 and 14 the themes of the backgrounds. |
-| `pref_kbd_bg` | The background: empty = none, `c<N>` = color N (0 to 11), `g<N>` = gradient N (0 to 20), `s<N>` = landscape N (0 to 8), `i<zoom>,<dx>,<dy>,<time>` = the picture of the gallery. Anything that does not parse is "none". It counts only when the theme is one of the two of the backgrounds: in any other theme an old value is let be (`MrBackdrop.lookNow` / `apply`, the screen and the row of the settings all go by this). |
+| `pref_kbd_bg` | The background: empty = none, `c<N>` = color N (0 to 15), `g<N>` = gradient N (0 to 19), `s<N>` = landscape N (0 to 35, six per category in the order of `MrScenes.SLUGS`), `i<zoom>,<dx>,<dy>,<time>` = the picture of the gallery. Anything that does not parse is "none". It counts only when the theme is one of the two of the backgrounds: in any other theme an old value is let be (`MrBackdrop.lookNow` / `apply`, the screen and the row of the settings all go by this). |
 | `pref_kbd_bg_soft` | How much a **picture** is softened, 0 to 70 (%). Colors, gradients and landscapes ignore it. |
 
 For a picture, the zoom is in per cent (100 to 400), the position goes from -100 (against the left or top edge) to 100 (against the right or
@@ -53,12 +55,14 @@ three back (`MrReset.KEYS`).
 
 ## Where the backgrounds come from
 
-- **Colors** (`MrBackdrop.COLORS`): twelve plain colors, shown as they are (no veil: the color itself is the lower edge for the navigation bar).
-- **Gradients** (`MrBackdrop.GRADS`): twenty-one dark ones, all from the top down (some with stops, two with a soft light in a corner), like the dark
+- **Colors** (`MrBackdrop.COLORS`): sixteen plain colors, shown as they are (no veil: the color itself is the lower edge for the navigation bar).
+- **Gradients** (`MrBackdrop.GRADS`): twenty dark ones, all from the top down (some with stops, two with a soft light in a corner), like the dark
   gradients of the GB examples without the brown and orange ones.
-- **Landscapes** (`MrScenes`): nine technological ones drawn by the code (nothing is stored or downloaded): neon city, synthwave, circuit board,
-  network, orbit, hologram, data streams, signal waves and hex grid. They look the same every time (the "random" parts come from a fixed sequence)
-  and fill any shape, so one routine draws the keyboard, the tiles and the previews.
+- **Landscapes** (`MrScenes`): thirty-six pictures kept in the app as WebP files, `assets/mr_scenes/<category>_<n>.webp`, six for each of the
+  categories **Sports, Animals, Snow, Nature, Anime** and **AI** (`sports`, `animals`, `snow`, `nature`, `anime`, `ai`). They are cropped from the
+  source sheets to the shape of the keyboard (about 500 px wide, quality 72, about 1.5 MB all together) and read from the assets (`MrScenes.load`),
+  then drawn like a picture of the gallery: scaled to fill the keyboard, with the vertical position that suits each one (`MrScenes.FOCUS`) and the
+  veil of the background. The screen shows them in six sections, each with its name above; the names are in `mr_strings.xml`.
 - **The gallery**: the photo picker of the system (`MrThemesActivity.pickers`): `android.provider.action.PICK_IMAGES` (Android 11 and later where it
   exists, always on 13), then `ACTION_PICK` on the images of the media store, and last `ACTION_OPEN_DOCUMENT` (the file manager), each tried when the one
   before it has no app to answer. No permission is asked. The photo is read once, off the main thread (`MrBackdrop.importPending`), made at most
@@ -84,7 +88,8 @@ end up no brighter than 0.40 under white ink and no darker than 0.62 under dark 
 than the softening set with **Soften background**. A plain color has no veil.
 
 `ThemesTest` runs it over every color, gradient and landscape and checks that the contrast of the ink of the toolbar with the bar is at least 3 to 1
-in the worst case, and that of the letters with their see-through keys at least 2.5 to 1.
+in the worst case, and that of the letters with their see-through keys at least 2.5 to 1. It also checks that over every color and gradient the
+dash of the modifier keys has a contrast of 2.2 to 1 or more when on and when locked, and 1.15 to 1 or more when off, with the key it is on.
 
 ## On the keyboard
 
@@ -108,6 +113,14 @@ the keyboard) and the whole is scaled to the tile, so the radius, the lips and t
 drawable falls back to flat faces in its colors. The chosen one has a ring and a check mark. A tile of a background is drawn with the theme of the
 backgrounds that suits it; a tile of a theme is the theme with no background.
 
+The dialog of a color, a gradient or a landscape uses the **complete keyboard** (`setFull`): the row of tools, Ctrl, Alt, Tab, the arrows, the
+numbers, the three rows of letters with shift and delete, and the bottom row (123, F1, space, period and enter), with the same proportions as
+`kbd_qwerty.xml`. The highlight keys use the accent face of the theme. Ctrl is drawn lit (on) and shift locked, and each modifier key has its
+**dash** in the colors the real keyboard uses: `modifier_indicator_off`, `_on` and `_lock`. In the two themes of the backgrounds these roles, and
+those of the popups and key previews (`popup_*`, `key_preview_*`), are set in `make_themes.py` so that the dash is seen on any color, gradient or
+landscape: in `overlight` (white ink) it is a light slate when off, white when on and amber when locked, and in `overdark` (dark ink) a mid slate
+when off, a deep blue when on and a red when locked; the colors are opaque because the keyboard draws the dash with the alpha of the keys.
+
 ## Files
 
 | File | What it is |
@@ -123,10 +136,13 @@ backgrounds that suits it; a tile of a theme is the theme with no background.
 ## Testing
 
 `ThemesTest` (`docs/tools/run_java_tests.sh`) draws the previews with Java2D behind the `Canvas` stub and reads the pixels. Give it a folder as the
-first argument and it dumps PNGs of the themes, of the colors, gradients and landscapes in their theme, of the picture with several zooms and
-positions, and of the crop dialog, to look at. The real key faces are drawn by `KeyStyle` (smali) and are not in those pictures: how it looks on the
+first argument and it dumps PNGs of the themes, of the colors, gradients and landscapes in their theme, of the complete keyboard, of the picture with
+several zooms and positions, and of the crop dialog, to look at. The WebP files cannot be decoded on the PC: the stub gives a pattern of the size
+the file says, unless `-Dmr.assets=<folder>` points to a folder with PNG copies named like the assets (`mr_scenes/sports_1.webp`…), whose real pixels
+are then drawn. The real key faces are drawn by `KeyStyle` (smali) and are not in those pictures: how it looks on the
 phone is for the person to try, with **Autocompletar** on and off.
 
-New `android` calls (to check against the real API with `ANDROID_JAR` in CI, `check_stub_api.py`): `Bitmap`, `BitmapFactory`, `LinearGradient`,
+New `android` calls (to check against the real API with `ANDROID_JAR` in CI, `check_stub_api.py`): `AssetManager.open`, `Context.getAssets`,
+`BitmapFactory.decodeStream`, `Drawable.setState`, `Bitmap`, `BitmapFactory`, `LinearGradient`,
 `RadialGradient`, `Matrix`, `Canvas.drawBitmap` / `clipPath` / `drawRect`, `ExifInterface`, `Dialog` / `Window.setGravity` / `setLayout`,
 `Intent.setDataAndType` / `addCategory`, `SeekBar`, `MotionEvent.getPointerCount` / `getActionMasked`.

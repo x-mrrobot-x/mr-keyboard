@@ -172,7 +172,7 @@
 
     const/16 v5, 0x64
 
-    .line 174
+    .line 175
     new-instance v0, Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
     const/4 v1, 0x3
@@ -206,7 +206,7 @@
     .prologue
     const/4 v1, 0x2
 
-    .line 184
+    .line 185
     if-eqz p0, :cond_0
 
     invoke-virtual {p0}, Ljava/lang/String;->length()I
@@ -218,11 +218,11 @@
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->NO:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
-    .line 199
+    .line 200
     :goto_0
     return-object v0
 
-    .line 186
+    .line 187
     :cond_1
     const/4 v0, 0x1
 
@@ -231,7 +231,7 @@
 
     move-result-object v0
 
-    .line 187
+    .line 188
     const/4 v1, 0x0
 
     invoke-virtual {p0, v1}, Ljava/lang/String;->charAt(I)C
@@ -240,12 +240,12 @@
 
     sparse-switch v1, :sswitch_data_0
 
-    .line 196
+    .line 197
     sget-object v0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->NO:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
     goto :goto_0
 
-    .line 188
+    .line 189
     :sswitch_0
     invoke-static {v0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
 
@@ -257,7 +257,7 @@
 
     goto :goto_0
 
-    .line 189
+    .line 190
     :sswitch_1
     invoke-static {v0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
 
@@ -269,7 +269,7 @@
 
     goto :goto_0
 
-    .line 190
+    .line 191
     :sswitch_2
     invoke-static {v0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
 
@@ -281,7 +281,7 @@
 
     goto :goto_0
 
-    .line 192
+    .line 193
     :sswitch_3
     const-string v1, ","
 
@@ -291,7 +291,7 @@
 
     move-result-object v0
 
-    .line 193
+    .line 194
     array-length v1, v0
 
     const/4 v2, 0x4
@@ -302,7 +302,7 @@
 
     goto :goto_0
 
-    .line 194
+    .line 195
     :cond_2
     const/4 v1, 0x0
 
@@ -344,16 +344,16 @@
 
     goto :goto_0
 
-    .line 198
+    .line 199
     :catch_0
     move-exception v0
 
-    .line 199
+    .line 200
     sget-object v0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->NO:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
     goto :goto_0
 
-    .line 187
+    .line 188
     :sswitch_data_0
     .sparse-switch
         0x63 -> :sswitch_0
@@ -367,14 +367,12 @@
     .locals 8
 
     .prologue
-    const/4 v4, 0x0
+    .line 171
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrScenes;->valid(I)Z
 
-    .line 170
-    if-ltz p0, :cond_0
+    move-result v0
 
-    const/16 v0, 0x9
-
-    if-ge p0, v0, :cond_0
+    if-eqz v0, :cond_0
 
     new-instance v0, Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
@@ -382,11 +380,15 @@
 
     const/16 v3, 0x64
 
+    const/4 v4, 0x0
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrScenes;->focus(I)I
+
+    move-result v5
+
     const-wide/16 v6, 0x0
 
     move v2, p0
-
-    move v5, v4
 
     invoke-direct/range {v0 .. v7}, Lcom/mrkeyboard/app/MrBackdrop$Spec;-><init>(IIIIIJ)V
 
@@ -405,18 +407,18 @@
     .locals 4
 
     .prologue
-    .line 205
+    .line 206
     iget v0, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
 
     packed-switch v0, :pswitch_data_0
 
-    .line 210
+    .line 211
     const-string v0, ""
 
     :goto_0
     return-object v0
 
-    .line 206
+    .line 207
     :pswitch_0
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -440,7 +442,7 @@
 
     goto :goto_0
 
-    .line 207
+    .line 208
     :pswitch_1
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -464,7 +466,7 @@
 
     goto :goto_0
 
-    .line 208
+    .line 209
     :pswitch_2
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -488,7 +490,7 @@
 
     goto :goto_0
 
-    .line 209
+    .line 210
     :pswitch_3
     new-instance v0, Ljava/lang/StringBuilder;
 
@@ -548,7 +550,7 @@
 
     goto :goto_0
 
-    .line 205
+    .line 206
     :pswitch_data_0
     .packed-switch 0x1
         :pswitch_1
@@ -562,7 +564,7 @@
     .locals 2
 
     .prologue
-    .line 179
+    .line 180
     iget v0, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
 
     const/4 v1, 0x3
@@ -583,7 +585,7 @@
     .locals 2
 
     .prologue
-    .line 215
+    .line 216
     if-eqz p1, :cond_0
 
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrBackdrop$Spec;->format()Ljava/lang/String;

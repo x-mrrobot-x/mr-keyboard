@@ -67,6 +67,12 @@ public class MrThemesActivity extends Activity {
     Bitmap mImage, mThumb;
     /** Bumped with every load of the picture, so that a slow one that comes late is let go. */
     int mLoad;
+    /** The small copies of the landscapes that the tiles show (null until each one is read), and the whole one that the big keyboard shows. */
+    final Bitmap[] mScenes = new Bitmap[MrScenes.COUNT];
+    Bitmap mBigScene;
+    int mBigSceneIndex = -1;
+    /** The landscapes are read in halves of their size for the tiles. */
+    static final int SCENE_SAMPLE = 2;
 
     MrThemePreview mBig;
     TextView mCaption;
@@ -161,15 +167,20 @@ public class MrThemesActivity extends Activity {
         }
         fillRow(row, MrBackdrop.GRADIENT_COUNT);
 
+        // the landscapes: six categories of six pictures (the pictures are not words: the name goes in the description only)
         col.addView(k.label(k.t("mr_themes_landscapes"), 16f, k.text2, true), k.wide(18));
-        LinearLayout scenes = k.column();
-        col.addView(scenes, k.wide(8));
-        row = null;
-        for (int i = 0; i < MrScenes.COUNT; i++) {
-            if (i % COLUMNS == 0) row = tileRow(scenes);
-            addBg(row, MrBackdrop.Spec.scene(i), sceneName(this, i), i % COLUMNS);
+        for (int cat = 0; cat < MrScenes.CATEGORIES; cat++) {
+            col.addView(k.label(categoryName(this, cat), 14f, k.text2, false), k.wide(cat == 0 ? 8 : 14));
+            LinearLayout scenes = k.column();
+            col.addView(scenes, k.wide(6));
+            row = null;
+            for (int n = 0; n < MrScenes.PER_CATEGORY; n++) {
+                int i = MrScenes.scene(cat, n);
+                if (n % COLUMNS == 0) row = tileRow(scenes);
+                addBg(row, MrBackdrop.Spec.scene(i), sceneName(this, i), n % COLUMNS);
+            }
+            fillRow(row, MrScenes.PER_CATEGORY);
         }
-        fillRow(row, MrScenes.COUNT);
 
         col.addView(k.label(k.t("mr_themes_gallery"), 16f, k.text2, true), k.wide(18));
         LinearLayout gallery = k.row();
@@ -190,6 +201,7 @@ public class MrThemesActivity extends Activity {
         setContentView(scroll);
         refresh();
         loadImage();
+        loadScenes();
     }
 
     @Override
@@ -200,6 +212,7 @@ public class MrThemesActivity extends Activity {
         MrBackdrop.discardPending(this);
         mImage = null;
         mThumb = null;
+        mBigScene = null;
         super.onDestroy();
     }
 
@@ -295,9 +308,29 @@ public class MrThemesActivity extends Activity {
         return s.kind == MrBackdrop.IMAGE && mSpec.kind == MrBackdrop.IMAGE ? mSpec : s;
     }
 
+    /** The small picture that a tile of the backgrounds shows: the copy of the picture of the gallery or of the landscape (null while it is being read). */
+    Bitmap tileImage(MrBackdrop.Spec s) {
+        if (s.kind == MrBackdrop.IMAGE) return mThumb;
+        if (s.kind == MrBackdrop.SCENE && s.index >= 0 && s.index < mScenes.length) return mScenes[s.index];
+        return null;
+    }
+
+    /** The picture that the big keyboard shows for a background: the one of the gallery, or the landscape as it is (read when it is asked for). */
+    Bitmap bigImage(MrBackdrop.Spec s) {
+        if (s.kind == MrBackdrop.IMAGE) return mImage;
+        if (s.kind == MrBackdrop.SCENE) {
+            if (mBigScene == null || mBigSceneIndex != s.index) {
+                mBigScene = MrScenes.load(this, s.index);
+                mBigSceneIndex = s.index;
+            }
+            return mBigScene;
+        }
+        return null;
+    }
+
     /** Draws everything again from the state: the big keyboard, the tiles that are chosen, the controls that apply. */
     void refresh() {
-        mBig.show(tag(), mSpec, mImage, mSoft);
+        mBig.show(tag(), mSpec, bigImage(mSpec), mSoft);
         for (int i = 0; i < mThemeTiles.size(); i++) {
             MrThemePreview p = mThemeTiles.get(i);
             p.show(mTags[i], MrBackdrop.Spec.NO, null, 0);
@@ -307,7 +340,7 @@ public class MrThemesActivity extends Activity {
         for (int i = 0; i < mBgTiles.size(); i++) {
             MrThemePreview p = mBgTiles.get(i);
             MrBackdrop.Spec s = tileSpec(mBgSpecs.get(i));
-            p.show(MrBackdrop.themeTag(s), s, s.kind == MrBackdrop.IMAGE ? mThumb : null, s.kind == MrBackdrop.IMAGE ? mSoft : 0);
+            p.show(MrBackdrop.themeTag(s), s, tileImage(s), s.kind == MrBackdrop.IMAGE ? mSoft : 0);
             p.setChecked(mSpec.kind != MrBackdrop.NONE && s.kind == mSpec.kind && (s.kind == MrBackdrop.IMAGE || s.index == mSpec.index), k.accent, k.onAccent);
         }
         if (mMineTile != null) {
@@ -329,13 +362,19 @@ public class MrThemesActivity extends Activity {
         return s != null ? s : "";
     }
 
+    /** The name of the category {@code cat} of the landscapes. */
+    static String categoryName(Context c, int cat) {
+        String s = MrPacks.text(c, "mr_themes_scene_cat_" + cat);
+        return s != null ? s : "";
+    }
+
     /** The name of a background for the captions and the summary of the setting. */
     static String backgroundName(Context c, MrBackdrop.Spec spec) {
         String s;
         switch (spec.kind) {
             case MrBackdrop.COLOR: s = MrPacks.text(c, "mr_themes_color", spec.index + 1); break;
             case MrBackdrop.GRADIENT: s = MrPacks.text(c, "mr_themes_gradient", spec.index + 1); break;
-            case MrBackdrop.SCENE: s = sceneName(c, spec.index); break;
+            case MrBackdrop.SCENE: s = categoryName(c, MrScenes.category(spec.index)) + " \u00b7 " + sceneName(c, spec.index); break;
             case MrBackdrop.IMAGE: s = MrPacks.text(c, "mr_themes_mine"); break;
             default: s = ""; break;
         }
@@ -424,7 +463,9 @@ public class MrThemesActivity extends Activity {
         box.setBackground(k.round(k.solidBg(), 0, 22, false));
         box.addView(k.label(backgroundName(this, spec), 16f, k.text, true), k.wide(0));
         MrThemePreview pv = new MrThemePreview(this);
-        pv.show(MrBackdrop.themeTag(spec), spec, image, soft);
+        // the complete keyboard, so that the highlight keys and the dash of the modifier keys are seen on the background as well
+        pv.setFull(true);
+        pv.show(MrBackdrop.themeTag(spec), spec, image != null || spec.kind != MrBackdrop.SCENE ? image : MrScenes.load(this, spec.index), soft);
         box.addView(pv, k.wide(14));
         LinearLayout buttons = k.row();
         box.addView(buttons, k.wide(18));
@@ -661,6 +702,36 @@ public class MrThemesActivity extends Activity {
                 });
             }
         }).start();
+    }
+
+    /** Reads the small copies of the landscapes (one after the other, apart from the main thread); each tile is drawn as its copy is there. */
+    void loadScenes() {
+        new Thread(new Runnable() {
+            public void run() {
+                for (int i = 0; i < MrScenes.COUNT; i++) {
+                    final int index = i;
+                    final Bitmap small = MrScenes.load(MrThemesActivity.this, i, SCENE_SAMPLE);
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            if (isFinishing()) return;
+                            sceneLoaded(index, small);
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+    /** The small copy of landscape {@code index} is there: the tile that stands for it shows it. */
+    void sceneLoaded(int index, Bitmap small) {
+        if (index < 0 || index >= mScenes.length) return;
+        mScenes[index] = small;
+        for (int i = 0; i < mBgTiles.size(); i++) {
+            MrBackdrop.Spec s = mBgSpecs.get(i);
+            if (s.kind == MrBackdrop.SCENE && s.index == index) {
+                mBgTiles.get(i).show(MrBackdrop.themeTag(s), s, small, 0);
+            }
+        }
     }
 
     /** The small copy of a picture for the tiles. */

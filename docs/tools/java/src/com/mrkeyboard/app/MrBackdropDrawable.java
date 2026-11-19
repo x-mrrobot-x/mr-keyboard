@@ -10,7 +10,7 @@ import android.graphics.drawable.Drawable;
 /**
  * The background of the keyboard that {@link MrBackdrop} describes: the background itself and, over it, the veil that keeps the toolbar readable.
  * What is drawn is the same on every frame, so it is made once for the size it has (a bitmap of that size) and drawn from there; a new size (the
- * phone turned, the height setting changed) makes it again. The picture of the gallery is read only while that bitmap is made and let go of
+ * phone turned, the height setting changed) makes it again. The picture of the gallery or of the landscape is read only while that bitmap is made and let go of
  * after it.
  *
  * <p>When the bitmap cannot be made (not enough memory, a picture that is gone) the drawable paints {@code fallback}, the colour of the theme,
@@ -38,6 +38,7 @@ final class MrBackdropDrawable extends Drawable {
     static MrBackdropDrawable create(Context c, MrBackdrop.Spec spec, boolean dark, int soft, int fallback) {
         if (c == null || spec == null || spec.kind == MrBackdrop.NONE) return null;
         if (spec.kind == MrBackdrop.IMAGE && !MrBackdrop.hasImage(c)) return null;
+        if (spec.kind == MrBackdrop.SCENE && !MrScenes.valid(spec.index)) return null;
         return new MrBackdropDrawable(c, spec, dark, soft, fallback);
     }
 
@@ -59,8 +60,8 @@ final class MrBackdropDrawable extends Drawable {
         try {
             if (mCache != null) mCache.recycle();
             mCache = null;
-            if (mSpec.kind == MrBackdrop.IMAGE) {
-                image = MrBackdrop.load(mContext);
+            if (MrBackdrop.needsBitmap(mSpec)) {
+                image = MrBackdrop.bitmap(mContext, mSpec);
                 if (image == null) {
                     mFailed = true;
                     return;
