@@ -210,6 +210,8 @@
     <string name="layout_mr_purple">Neon Purple</string>
     <string name="layout_mr_pink">Neon Pink</string>
     <string name="layout_mr_synthwave">Synthwave</string>
+    <string name="layout_mr_violet">Neon Violet</string>
+    <string name="layout_mr_teal">Neon Teal</string>
     <string name="layout_mr_aqua">Aqua</string>
     <string name="layout_mr_snow">Snow</string>
     <string name="layout_mr_chrome">Chrome</string>

@@ -22,7 +22,7 @@
 <img src=".github/preview-chrome.jpg" width="32%" alt="Mr Keyboard with the Chrome theme">
 <img src=".github/preview-aurora.jpg" width="32%" alt="Mr Keyboard with the Aurora theme">
 
-<sub>Midnight Steel (default) · Chrome · Aurora, three of the thirteen themes</sub>
+<sub>Midnight Steel (default) · Chrome · Aurora, three of the fifteen themes</sub>
 
 </div>
 
@@ -34,7 +34,7 @@
 - **Tasker commands:** a key can trigger a Tasker task instead of typing text ([how](#tasker-integration)).
 - **Gestures:** swipe up, down, left or right, and the volume keys, run keyboard actions (by default left and right change the sheet). A sideways swipe counts by distance, not by speed. [Details](docs/swipe-actions.md).
 - **Delete by word (since 2.0.0):** with Ctrl on, the delete key removes a word per tap, and held it goes word by word at the interval you set. **Ctrl + Z** gives the words back one at a time and **Ctrl + Y** deletes again the one that came back (kept for 2 minutes). On by default; *Settings → Touch and gestures → Delete by word*. [Details](docs/word-delete.md).
-- **Your own look:** thirteen themes, key spacing, corner roundness, label size, keyboard height (portrait and landscape) and toolbar height. Long press, vibration strength, click volume and key preview are adjustable.
+- **Your own look:** fifteen themes, key spacing, corner roundness, label size, keyboard height (portrait and landscape) and toolbar height. Long press, vibration strength, click volume and key preview are adjustable.
 
 ### Toolbar
 - **Clipboard:** history of what you copied; tap to insert, hold to delete.
@@ -55,7 +55,7 @@
 - **Auto-capitalization** (on by default) and **voice input**.
 
 ### Themes
-Thirteen themes: **Midnight Steel** (default); the neon ones **Aurora** (keys change hue across the keyboard), **Neon Cyan**, **Neon Purple**, **Neon Pink** and **Synthwave**; the light ones **Aqua**, **Sky** (pale blue, with the muted blue letters of its reference), **Snow** and **Rose**; **Chrome** (silver keys on navy); **Cobalt Glass** (translucent) and **Denim**, both with background blur on Android 12 or newer. Ctrl, Alt and Shift show their state with a small colored dash (Shift: off, active, locked). How to add one: [docs/new-theme.md](docs/new-theme.md).
+Fifteen themes: **Midnight Steel** (default); the neon ones **Aurora** (keys change hue across the keyboard), **Neon Cyan**, **Neon Purple**, **Neon Pink**, **Synthwave**, **Neon Violet** (indigo keys, violet highlight keys) and **Neon Teal** (teal keys, green highlight keys); the light ones **Aqua**, **Sky** (pale blue, with the muted blue letters of its reference), **Snow** and **Rose**; **Chrome** (silver keys on navy); **Cobalt Glass** (translucent) and **Denim**, both with background blur on Android 12 or newer. Ctrl, Alt and Shift show their state with a small colored dash (Shift: off, active, locked). How to add one: [docs/new-theme.md](docs/new-theme.md).
 
 ### App
 - **Languages:** Portuguese, English and Spanish; follows the system or pick one in *Settings → General → App language*.

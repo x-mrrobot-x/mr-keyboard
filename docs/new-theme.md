@@ -5,7 +5,7 @@ only reads them (`MrTheme`, `KeyStyle`, `MrTools`). A new theme does not require
 `<tema>` is the tag name without the `mr_` prefix (`glass`, `midnight`...).
 
 The **generated themes** follow every item below, but nobody writes their files: a script does, from three tables. They
-are Midnight Steel and Denim (dark), the neon ones (Aurora, Neon Cyan, Neon Purple, Neon Pink, Synthwave) and Aqua, Sky, Snow, Chrome and Rose (light, except Chrome: light keys on a dark background);
+are Midnight Steel and Denim (dark), the neon ones (Aurora, Neon Cyan, Neon Purple, Neon Pink, Synthwave, Neon Violet, Neon Teal) and Aqua, Sky, Snow, Chrome and Rose (light, except Chrome: light keys on a dark background);
 only Cobalt Glass is written by hand. To add or change one of the generated ones, go straight to
 [Generated themes](#generated-themes).
 
@@ -21,7 +21,7 @@ only Cobalt Glass is written by hand. To add or change one of the generated ones
    (`0x100`, only together with `GLOW`) are the light of the neon themes (section below).
 3. **Registration** (`res/values/mr_themes.xml`): one line in `mr_theme_layouts`. The index is the value stored in
    `pref_keyboard_layout` (the id of the theme: Midnight Steel 0, Aurora 1, Neon Cyan 2, Neon Purple 3, Neon Pink 4,
-   Synthwave 5, Aqua 6, Sky 7, Snow 8, Chrome 9, Rose 10, Cobalt Glass 11, Denim 12). The id is the position in the list, so a theme put in
+   Synthwave 5, Neon Violet 6, Neon Teal 7, Aqua 8, Sky 9, Snow 10, Chrome 11, Rose 12, Cobalt Glass 13, Denim 14). The id is the position in the list, so a theme put in
    the middle moves the ones after it (nothing is kept for older installs); for the generated themes the script writes the
    three lists from its `ORDER`. `mr_theme_tags` and `mr_theme_flags` are per theme, in the same order.
    The key layers' radius has no registration (item 5).

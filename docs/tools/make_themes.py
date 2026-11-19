@@ -400,6 +400,38 @@ PINK = collections.OrderedDict([
     ('892', '#ffc9e7'),   # the text
 ])
 
+# Neon Violet and Neon Teal (the two pictures of a violet and a teal keyboard): the recipe of Purple and Cyan in their hue. VIOLET is the
+# one of Purple (the key over the background at 5.5%, 11%, 18%, 36% and 45%), TEAL the one of Cyan (4%, 8%, 15%, 30% and 34%, for a hue
+# that the eye sees brighter). The faces of the highlight keys (the selected row, a marked file) are taken in the hue of THEIR keys: the
+# violet of Violet (26% of it over the background) and the green of Teal (21%), which is what the highlight keys have at rest.
+VIOLET = collections.OrderedDict([
+    ('127', '#030614'),   # the keyboard background, the ink on the violet
+    ('163', '#090b21'),   # tabs that are off, the field of the tools
+    ('194', '#0e112e'),   # the face of the letter keys, the buttons of the tools, the cards, Cancel
+    ('230', '#16173e'),   # the divider, a tool of the bar under the finger
+    ('281', '#2e1c51'),   # the face of the highlight keys (violet), the selected row, a marked file
+    ('321', '#282969'),   # a button under the finger
+    ('362', '#31317e'),   # the unlit dash, outlines
+    ('601', '#6a66ff'),   # the hue of the keys: the tint of the tools, Send, the + button
+    ('631', '#8586a6'),   # secondary texts
+    ('796', '#b5b3ff'),   # the tube of a lit key, the lit dash, the ring of Send
+    ('885', '#d5d4ff'),   # the text
+])
+TEAL = collections.OrderedDict([
+    ('141', '#020b10'),   # the keyboard background, the ink on the teal
+    ('175', '#041318'),   # tabs that are off, the field of the tools
+    ('210', '#051c20'),   # the face of the letter keys, the buttons of the tools, the cards, Cancel
+    ('263', '#082a2d'),   # the divider, a tool of the bar under the finger
+    ('312', '#10392d'),   # the face of the highlight keys (green), the selected row, a marked file
+    ('373', '#0e4a4a'),   # a button under the finger
+    ('400', '#105252'),   # the unlit dash, outlines
+    ('667', '#7a9c9c'),   # secondary texts
+    ('692', '#23b2ab'),   # the hue of the keys at the lightness of a large surface: Send, the + button
+    ('810', '#2bdcd2'),   # the hue of the keys: the tint of the tools
+    ('892', '#95eee9'),   # the tube of a lit key, the lit dash, the ring of Send
+    ('935', '#c4f5f2'),   # the text
+])
+
 # The opacities of the tint of the tools (the hue of the keys, role tool_tint) over the background, which land on steps of the
 # scales: tabs that are off, buttons and cards (the face of a letter key), selected row (the face of a highlight key) and a button
 # under the finger; a tool of the bar under the finger is the highlight face (ctrl_bg) at the `flat` opacity. The darker the hue of
@@ -458,6 +490,16 @@ NEON = [
                           divider='252', sel='300', dim='406', text2='638')),
     neon('synthwave', 'Synthwave',
           bg='#0b0618', key='#9d7bff', accent='#ff4d9d'),
+    # the two keyboards of the pictures: indigo keys with violet highlight keys on a navy night, and teal keys with green highlight
+    # keys on a green-black night
+    neon('violet', 'Neon Violet',
+         bg='#030614', key='#6a66ff', accent='#a85cff', lite=True, flat=True,
+         roles=tool_roles(VIOLET, TOOL_ALPHAS_TOP, ink='127', tint='601', send='601', ring='796', field='163', btn='194',
+                          divider='230', sel='281', dim='362', text2='631')),
+    neon('teal', 'Neon Teal',
+         bg='#020b10', key='#2bdcd2', accent='#46e69a', lite=True, flat=True,
+         roles=tool_roles(TEAL, TOOL_ALPHAS_MID, ink='141', tint='810', send='692', ring='892', field='175', btn='210',
+                          divider='263', sel='312', dim='400', text2='667')),
     # a light spectrum: the keys have a thin tube and a soft light, and the tools are chosen on one scale of indigo (the hue of
     # what is not a key), so that they belong to the keyboard instead of being the default of the other themes
     neon('aurora', 'Aurora',
@@ -1732,7 +1774,7 @@ LAYOUTS = collections.OrderedDict([
 #           edited by hand, the script only places them in the lists
 #   AFTER   the last theme written by hand in strings.xml: the names of the generated themes go right after it
 # ---------------------------------------------------------------------------------------------------------------
-ORDER = ['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'aqua', 'sky', 'snow', 'chrome', 'rose', 'glass', 'denim']
+ORDER = ['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'violet', 'teal', 'aqua', 'sky', 'snow', 'chrome', 'rose', 'glass', 'denim']
 HAND = ('glass',)
 AFTER = 'glass'
 Family = collections.namedtuple('Family', 'name themes flags colors drawables intro')
