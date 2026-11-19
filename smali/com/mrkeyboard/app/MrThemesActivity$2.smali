@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$tab:I
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;I)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 205
+    .line 193
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->val$tab:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,25 +37,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 2
+    .locals 1
 
     .prologue
-    .line 207
-    iget v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->val$tab:I
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    iget v1, v1, Lcom/mrkeyboard/app/MrThemesActivity;->mTab:I
-
-    if-eq v0, v1, :cond_0
-
+    .line 195
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$2;->val$tab:I
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->showChoice()V
 
-    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrThemesActivity;->showTab(I)V
-
-    .line 208
-    :cond_0
+    .line 196
     return-void
 .end method

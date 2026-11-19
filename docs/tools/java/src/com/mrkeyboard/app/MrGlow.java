@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.view.View;
 import android.widget.TextView;
 
@@ -27,6 +28,11 @@ import android.widget.TextView;
  * when the label is a dead key; {@link #icon} in place of ShadowDrawHelper.draw; {@link #iconFilter} for the colour
  * of the icon; {@link #dash} before the modifier dash and {@link #preview} when the bubble is filled. On a theme
  * without the flag each call does exactly what the keyboard did before it existed.
+ *
+ * <p>The same calls carry what the person tuned for a theme of the backgrounds ({@link MrKeyLook}): the opacity of the face and of the line of
+ * each key (the face is two layers, the fill and the line, each drawn through a filter that scales its opacity, see {@link #drawKey}), the colour of
+ * the letters, the icons and the small letters (set in {@link #key} and {@link #hint}) and the colours of the styles of the person's own colour (the
+ * spectrum of those themes is made from the look and not from the roles). The dash of a modifier key that is off is drawn faint on these themes.
  *
  * <p>Only text shadows, a bitmap blur (ShadowDrawHelper) and colour filters are used: all three work the same on a
  * software canvas and on an accelerated one, and the keyboard window can be either (see MrAccel).
@@ -58,6 +64,16 @@ final class MrGlow {
     private static ColorFilter[] sFaceFilter;
     private static int[] sHue;              // [step] hue of the step, opaque; 0 = not computed yet
 
+    // ---- what the person tuned (MrKeyLook) for the theme on the keyboard, read again when the theme or the preferences change ----
+    private static String sLookTag;
+    private static int sLookVersion = -1;
+    private static MrKeyLook sLook = MrKeyLook.NONE;
+    private static int sText;               // the colour of the letters that the person chose; 0 = the theme's
+    private static int sOverOff = -1;       // theme of the backgrounds: the colour (RGB) of the dash that is off, to be drawn faint; -1 = any other theme
+    private static ColorFilter[] sFillFilter, sEdgeFilter;   // [step, or STEPS + 1 for none] the face and the line of the key with the opacity chosen
+    /** Opacity of the small letters of a key when the person chose the colour of the letters (a share of it). */
+    static final float HINT_SHARE = 0.70f;
+
     // ---- key being drawn (set by key()) ----
     private static float sDensity = 1f;
     private static int sGlow;               // glow colour of this key; 0 = the theme has none
@@ -70,10 +86,27 @@ final class MrGlow {
 
     /** True on a neon theme; reads the colours of the theme the first time and after a theme change. */
     private static boolean sync() {
+        tuning();
         if (!MrTheme.glow()) return false;
         String tag = MrTheme.tag();
         if (tag == null ? sTag != null : !tag.equals(sTag)) load(tag);
         return true;
+    }
+
+    /** Reads what the person tuned when the theme or the preferences changed; a style of their own colour is made again from it. */
+    private static void tuning() {
+        String tag = MrTheme.tag();
+        int version = MrKeyLook.version();
+        if (version == sLookVersion && (tag == null ? sLookTag == null : tag.equals(sLookTag))) return;
+        sLookTag = tag;
+        sLookVersion = version;
+        boolean over = MrThemeColors.hidden(tag);
+        sLook = over ? MrKeyLook.current(MrTools.sApp) : MrKeyLook.NONE;
+        sText = sLook.text;
+        sOverOff = over ? MrTheme.color("modifier_indicator_off") & 0xffffff : -1;
+        sFillFilter = null;
+        sEdgeFilter = null;
+        if (MrBackdrop.isOwn(tag)) sTag = null;      // its hues come from the look: load() runs again
     }
 
     private static void load(String tag) {
@@ -92,6 +125,12 @@ final class MrGlow {
             sStart = MrTheme.color("spectrum_start");
             sMid = MrTheme.color("spectrum_mid");
             sEnd = MrTheme.color("spectrum_end");
+            int[] own = MrKeyLook.spectrum(tag, sLook);      // the styles of the person's own colour
+            if (own != null) {
+                sStart = own[0];
+                sMid = own[1];
+                sEnd = own[2];
+            }
             sMatrix = new float[STEPS + 1][];
             sFaceFilter = new ColorFilter[STEPS + 1];
             sHue = new int[STEPS + 1];
@@ -101,6 +140,13 @@ final class MrGlow {
     /** Forgets the theme that was read (tests). */
     static void reset() {
         sTag = null;
+        sLookTag = null;
+        sLookVersion = -1;
+        sLook = MrKeyLook.NONE;
+        sText = 0;
+        sOverOff = -1;
+        sFillFilter = null;
+        sEdgeFilter = null;
         sGlow = 0;
         sStep = -1;
         sInk = 0;
@@ -119,19 +165,28 @@ final class MrGlow {
         sInk = 0;
         if (!sync()) {
             sGlow = 0;
-            return;
+        } else {
+            sDensity = density(v);
+            sGlow = accent ? sAccentGlow : sKeyGlow;
+            boolean lit = (sGlow >>> 24) != 0;       // a style of the person's own colour has the hue of the drawables and no light of its own
+            if (!lit) sGlow = 0;
+            if (sSpectrum && v != null && k != null && v.getTag() != null) {       // the popup of variants has no tag
+                int step = step(k.x + k.width * 0.5f, k.y + k.height * 0.5f, v.getWidth(), v.getHeight());
+                float[] m = matrix(step);
+                if (m != null) {
+                    sStep = step;
+                    sGlow = lit ? (sGlow & 0xff000000) | (sHue[step] & 0xffffff) : 0;
+                    if (p != null) {
+                        sInk = map(m, p.getColor());
+                        p.setColor(sInk);
+                    }
+                }
+            }
         }
-        sDensity = density(v);
-        sGlow = accent ? sAccentGlow : sKeyGlow;
-        if (!sSpectrum || v == null || k == null || v.getTag() == null) return;   // the popup of variants has no tag
-        int step = step(k.x + k.width * 0.5f, k.y + k.height * 0.5f, v.getWidth(), v.getHeight());
-        float[] m = matrix(step);
-        if (m == null) return;
-        sStep = step;
-        sGlow = (sGlow & 0xff000000) | (sHue[step] & 0xffffff);
-        if (p != null) {
-            sInk = map(m, p.getColor());
-            p.setColor(sInk);
+        // the colour of the letters that the person chose: the letters, and the icons through sInk
+        if (sText != 0) {
+            sInk = sText;
+            if (p != null) p.setColor(sText);
         }
     }
 
@@ -141,23 +196,76 @@ final class MrGlow {
      * other the paint is left alone (the keyboard sets it once, before the first key).
      */
     static void hint(Paint p, int color) {
-        if (p == null || sStep < 0) return;
+        if (p == null) return;
+        if (sText != 0) {
+            p.setColor(fade(sText, HINT_SHARE));
+            return;
+        }
+        if (sStep < 0) return;
         p.setColor(map(sMatrix[sStep], color));
     }
 
-    /** In place of KeyStyle.drawKey: on a spectrum theme the face is drawn in the hue of the key. */
+    /**
+     * In place of KeyStyle.drawKey: on a spectrum theme the face is drawn in the hue of the key, and when the person gave the keys of a background
+     * another opacity the face is drawn through filters that scale it: the fill and the line (the last two layers of the face) each with its own,
+     * a face of one layer (the clear glass) with the opacity of the fill.
+     */
     static void drawKey(Drawable d, Canvas c, int w, int h) {
         int step = sStep;
-        if (step < 0 || d == null) {
+        boolean tuned = sLook.faceTuned();
+        if (d == null || (step < 0 && !tuned)) {
             KeyStyle.drawKey(d, c, w, h);
             return;
         }
-        d.setColorFilter(faceFilter(step));
+        drawFace(d, c, w, h, step < 0 ? null : faceFilter(step), tuned ? fillFilter(step) : null, tuned ? edgeFilter(step) : null);
+    }
+
+    /**
+     * Draws the face {@code d}: through {@code whole} (the hue of the key; null = as it is), or, when {@code fill} and {@code edge} are given (the
+     * opacities the person chose), with the fill and the line, the last two layers of the face, each through its own filter; a face of one layer
+     * goes through {@code fill}. The filters are taken off afterwards.
+     */
+    static void drawFace(Drawable d, Canvas c, int w, int h, ColorFilter whole, ColorFilter fill, ColorFilter edge) {
+        if (d == null) {
+            KeyStyle.drawKey(d, c, w, h);
+            return;
+        }
+        if (fill != null) {
+            if (edge == null || !splitFace(d, fill, edge)) d.setColorFilter(fill);
+        } else if (whole != null) {
+            d.setColorFilter(whole);
+        }
         try {
             KeyStyle.drawKey(d, c, w, h);
         } finally {
             d.setColorFilter(null);
         }
+    }
+
+    /** Gives the fill and the line of the face (its last two layers) their own filters; false when the face has not two layers. */
+    private static boolean splitFace(Drawable d, ColorFilter fill, ColorFilter edge) {
+        Drawable now = d.getCurrent();
+        if (!(now instanceof LayerDrawable)) return false;
+        LayerDrawable layers = (LayerDrawable) now;
+        int n = layers.getNumberOfLayers();
+        if (n < 2) return false;
+        layers.getDrawable(n - 2).setColorFilter(fill);
+        layers.getDrawable(n - 1).setColorFilter(edge);
+        return true;
+    }
+
+    private static ColorFilter fillFilter(int step) {
+        if (sFillFilter == null) sFillFilter = new ColorFilter[STEPS + 2];
+        int i = step < 0 ? STEPS + 1 : step;
+        if (sFillFilter[i] == null) sFillFilter[i] = filter(step < 0 ? null : sMatrix[step], sLook.key / 100f);
+        return sFillFilter[i];
+    }
+
+    private static ColorFilter edgeFilter(int step) {
+        if (sEdgeFilter == null) sEdgeFilter = new ColorFilter[STEPS + 2];
+        int i = step < 0 ? STEPS + 1 : step;
+        if (sEdgeFilter[i] == null) sEdgeFilter[i] = filter(step < 0 ? null : sMatrix[step], sLook.edge / 100f);
+        return sEdgeFilter[i];
     }
 
     /**
@@ -215,18 +323,20 @@ final class MrGlow {
      */
     static void dash(Paint p) {
         if (p == null) return;
-        if (sGlow == 0) {
+        int c = p.getColor();
+        // a theme of the backgrounds draws the dash that is off faint (it is only a hint of where the modifier keys are)
+        boolean faint = sOverOff >= 0 && (c & 0xffffff) == sOverOff;
+        if (sGlow == 0 && sStep < 0) {
             p.clearShadowLayer();
+            if (faint) p.setColor(MrKeyLook.dashOff(c));
             return;
         }
-        int c = p.getColor();
         boolean off = (c & 0xffffff) == (sDashOff & 0xffffff);
         boolean lock = (c & 0xffffff) == (sDashLock & 0xffffff);
-        if (sStep >= 0 && !lock) {
-            c = map(sMatrix[sStep], c);
-            p.setColor(c);
-        }
-        if (off) p.clearShadowLayer();
+        if (sStep >= 0 && !lock) c = map(sMatrix[sStep], c);
+        if (faint) c = MrKeyLook.dashOff(c);
+        p.setColor(c);
+        if (off || sGlow == 0) p.clearShadowLayer();
         else p.setShadowLayer(DASH_DP * sDensity, 0f, 0f, c);
     }
 
@@ -236,6 +346,7 @@ final class MrGlow {
         if (!sync()) {
             return;
         }
+        if ((sKeyGlow >>> 24) == 0) return;       // a style of the person's own colour has no light
         t.setShadowLayer(PREVIEW_DP * density(t), 0f, 0f, sKeyGlow);
     }
 
@@ -297,11 +408,23 @@ final class MrGlow {
 
     /** The colour filter that draws a drawable written in the hue of {@link #remap}'s <code>from</code> in the hue of its <code>to</code> (the opacity is kept). */
     static ColorFilter filter(float[] m) {
+        return filter(m, 1f);
+    }
+
+    /** The same, with the opacity multiplied by {@code alpha}; {@code m} null: the colours are left as they are (only the opacity changes). */
+    static ColorFilter filter(float[] m, float alpha) {
+        if (m == null) {
+            return new ColorMatrixColorFilter(new float[] {
+                    1f, 0f, 0f, 0f, 0f,
+                    0f, 1f, 0f, 0f, 0f,
+                    0f, 0f, 1f, 0f, 0f,
+                    0f, 0f, 0f, alpha, 0f });
+        }
         return new ColorMatrixColorFilter(new float[] {
                 m[0], m[1], m[2], 0f, 0f,
                 m[3], m[4], m[5], 0f, 0f,
                 m[6], m[7], m[8], 0f, 0f,
-                0f, 0f, 0f, 1f, 0f });
+                0f, 0f, 0f, alpha, 0f });
     }
 
     /**
@@ -358,6 +481,12 @@ final class MrGlow {
     static int fade(int color, float k) {
         int a = Math.round((color >>> 24) * clamp(k, 0f, 1f));
         return (a << 24) | (color & 0xffffff);
+    }
+
+    /** The colour with its opacity multiplied by <code>k</code>, which can be more than 1 (up to full opacity). */
+    static int scale(int color, float k) {
+        int a = Math.round((color >>> 24) * Math.max(0f, k));
+        return (Math.min(255, a) << 24) | (color & 0xffffff);
     }
 
     private static int byteOf(float v) {

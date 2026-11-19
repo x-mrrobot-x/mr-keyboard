@@ -7,6 +7,8 @@ public abstract class Drawable {
     }
     public ConstantState getConstantState() { return null; }
     public Drawable mutate() { return this; }
+    /** A selector answers the face of its state; any other drawable is its own current one. */
+    public Drawable getCurrent() { return this; }
     public void setAlpha(int alpha) { }
     private final android.graphics.Rect stubBounds = new android.graphics.Rect();
     public void setBounds(int left, int top, int right, int bottom) { stubBounds.left = left; stubBounds.top = top; stubBounds.right = right; stubBounds.bottom = bottom; }

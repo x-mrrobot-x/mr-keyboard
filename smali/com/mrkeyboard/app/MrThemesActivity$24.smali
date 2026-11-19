@@ -3,12 +3,12 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->loadScenes(I)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->fillKeys(Landroid/widget/LinearLayout;[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,17 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$todo:Ljava/util/List;
+.field final synthetic val$draw:[Ljava/lang/Runnable;
+
+.field final synthetic val$n:I
+
+.field final synthetic val$redraw:Ljava/lang/Runnable;
+
+.field final synthetic val$style:[I
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Ljava/util/List;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;[IILjava/lang/Runnable;[Ljava/lang/Runnable;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +39,16 @@
     .end annotation
 
     .prologue
-    .line 1088
+    .line 1017
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$todo:Ljava/util/List;
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$style:[I
+
+    iput p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$n:I
+
+    iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$redraw:Ljava/lang/Runnable;
+
+    iput-object p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$draw:[Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,63 +57,31 @@
 
 
 # virtual methods
-.method public run()V
-    .locals 5
+.method public onClick(Landroid/view/View;)V
+    .locals 3
 
     .prologue
-    .line 1090
-    const/4 v0, 0x0
+    const/4 v2, 0x0
 
-    move v1, v0
+    .line 1019
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$style:[I
 
-    :goto_0
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$todo:Ljava/util/List;
+    iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$n:I
 
-    invoke-interface {v0}, Ljava/util/List;->size()I
+    aput v1, v0, v2
 
-    move-result v0
+    .line 1020
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$redraw:Ljava/lang/Runnable;
 
-    if-ge v1, v0, :cond_0
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1091
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$todo:Ljava/util/List;
+    .line 1021
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$draw:[Ljava/lang/Runnable;
 
-    invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
+    aget-object v0, v0, v2
 
-    move-result-object v0
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    check-cast v0, Ljava/lang/Integer;
-
-    invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
-
-    move-result v0
-
-    .line 1092
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    const/4 v3, 0x2
-
-    invoke-static {v2, v0, v3}, Lcom/mrkeyboard/app/MrScenes;->load(Landroid/content/Context;II)Landroid/graphics/Bitmap;
-
-    move-result-object v2
-
-    .line 1093
-    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    new-instance v4, Lcom/mrkeyboard/app/MrThemesActivity$24$1;
-
-    invoke-direct {v4, p0, v0, v2}, Lcom/mrkeyboard/app/MrThemesActivity$24$1;-><init>(Lcom/mrkeyboard/app/MrThemesActivity$24;ILandroid/graphics/Bitmap;)V
-
-    invoke-virtual {v3, v4}, Lcom/mrkeyboard/app/MrThemesActivity;->runOnUiThread(Ljava/lang/Runnable;)V
-
-    .line 1090
-    add-int/lit8 v0, v1, 0x1
-
-    move v1, v0
-
-    goto :goto_0
-
-    .line 1100
-    :cond_0
+    .line 1022
     return-void
 .end method

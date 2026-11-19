@@ -3,12 +3,12 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/widget/SeekBar$OnSeekBarChangeListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->onActivityResult(IILandroid/content/Intent;)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->slider(Landroid/widget/LinearLayout;Ljava/lang/String;IIILcom/mrkeyboard/app/MrThemesActivity$Setter;)Landroid/widget/SeekBar;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,15 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$uri:Landroid/net/Uri;
+.field final synthetic val$max:I
+
+.field final synthetic val$onChange:Lcom/mrkeyboard/app/MrThemesActivity$Setter;
+
+.field final synthetic val$value:Landroid/widget/TextView;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Landroid/net/Uri;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;ILandroid/widget/TextView;Lcom/mrkeyboard/app/MrThemesActivity$Setter;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +37,14 @@
     .end annotation
 
     .prologue
-    .line 988
+    .line 965
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$uri:Landroid/net/Uri;
+    iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$max:I
+
+    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$value:Landroid/widget/TextView;
+
+    iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$onChange:Lcom/mrkeyboard/app/MrThemesActivity$Setter;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,92 +53,70 @@
 
 
 # virtual methods
-.method public run()V
-    .locals 3
+.method public onProgressChanged(Landroid/widget/SeekBar;IZ)V
+    .locals 4
 
     .prologue
+    .line 967
+    if-nez p3, :cond_0
+
+    .line 971
+    :goto_0
+    return-void
+
+    .line 968
+    :cond_0
     const/4 v0, 0x0
 
-    .line 990
-    .line 993
-    :try_start_0
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+    iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$max:I
 
-    invoke-virtual {v1}, Lcom/mrkeyboard/app/MrThemesActivity;->getContentResolver()Landroid/content/ContentResolver;
+    invoke-static {p2, v0, v1}, Lcom/mrkeyboard/app/MrBackdrop;->clamp(III)I
 
-    move-result-object v1
+    move-result v0
 
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$uri:Landroid/net/Uri;
+    .line 969
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$value:Landroid/widget/TextView;
 
-    invoke-virtual {v1, v2}, Landroid/content/ContentResolver;->openInputStream(Landroid/net/Uri;)Ljava/io/InputStream;
-    :try_end_0
-    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
 
     move-result-object v2
 
-    .line 994
-    if-eqz v2, :cond_1
+    const-string v3, "%"
 
-    .line 996
-    :try_start_1
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-static {v1, v2}, Lcom/mrkeyboard/app/MrBackdrop;->importPending(Landroid/content/Context;Ljava/io/InputStream;)[I
-    :try_end_1
-    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+    move-result-object v2
 
-    move-result-object v1
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    .line 998
-    :try_start_2
-    invoke-virtual {v2}, Ljava/io/InputStream;->close()V
+    move-result-object v2
 
-    .line 1001
-    :goto_0
-    if-eqz v1, :cond_0
+    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+    .line 970
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$onChange:Lcom/mrkeyboard/app/MrThemesActivity$Setter;
 
-    invoke-static {v1}, Lcom/mrkeyboard/app/MrBackdrop;->loadPending(Landroid/content/Context;)Landroid/graphics/Bitmap;
-    :try_end_2
-    .catch Ljava/lang/Exception; {:try_start_2 .. :try_end_2} :catch_0
-
-    move-result-object v0
-
-    .line 1007
-    :cond_0
-    :goto_1
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    new-instance v2, Lcom/mrkeyboard/app/MrThemesActivity$22$1;
-
-    invoke-direct {v2, p0, v0}, Lcom/mrkeyboard/app/MrThemesActivity$22$1;-><init>(Lcom/mrkeyboard/app/MrThemesActivity$22;Landroid/graphics/Bitmap;)V
-
-    invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrThemesActivity;->runOnUiThread(Ljava/lang/Runnable;)V
-
-    .line 1012
-    return-void
-
-    .line 998
-    :catchall_0
-    move-exception v1
-
-    :try_start_3
-    invoke-virtual {v2}, Ljava/io/InputStream;->close()V
-
-    .line 999
-    throw v1
-    :try_end_3
-    .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_3} :catch_0
-
-    .line 1002
-    :catch_0
-    move-exception v1
-
-    goto :goto_1
-
-    :cond_1
-    move-object v1, v0
+    invoke-interface {v1, v0}, Lcom/mrkeyboard/app/MrThemesActivity$Setter;->set(I)V
 
     goto :goto_0
+.end method
+
+.method public onStartTrackingTouch(Landroid/widget/SeekBar;)V
+    .locals 0
+
+    .prologue
+    .line 974
+    return-void
+.end method
+
+.method public onStopTrackingTouch(Landroid/widget/SeekBar;)V
+    .locals 0
+
+    .prologue
+    .line 977
+    return-void
 .end method

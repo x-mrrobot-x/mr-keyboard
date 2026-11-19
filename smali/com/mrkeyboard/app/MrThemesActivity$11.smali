@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->sheetShow(Landroid/app/Dialog;Landroid/widget/LinearLayout;Lcom/mrkeyboard/app/MrThemePreview;Landroid/widget/SeekBar;ZLjava/lang/Runnable;)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->addCard(Lcom/mrkeyboard/app/MrThemesActivity$Card;I)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$onApply:Ljava/lang/Runnable;
+.field final synthetic val$card:Lcom/mrkeyboard/app/MrThemesActivity$Card;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Ljava/lang/Runnable;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Lcom/mrkeyboard/app/MrThemesActivity$Card;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 716
+    .line 503
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$11;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$11;->val$onApply:Ljava/lang/Runnable;
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$11;->val$card:Lcom/mrkeyboard/app/MrThemesActivity$Card;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,19 +46,18 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 1
+    .locals 2
 
     .prologue
-    .line 718
+    .line 505
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$11;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->closeDialog()V
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$11;->val$card:Lcom/mrkeyboard/app/MrThemesActivity$Card;
 
-    .line 719
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$11;->val$onApply:Ljava/lang/Runnable;
+    iget-object v1, v1, Lcom/mrkeyboard/app/MrThemesActivity$Card;->spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrThemesActivity;->openBackdrop(Lcom/mrkeyboard/app/MrBackdrop$Spec;)V
 
-    .line 720
+    .line 506
     return-void
 .end method

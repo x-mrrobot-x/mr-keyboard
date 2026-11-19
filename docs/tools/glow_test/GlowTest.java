@@ -1,5 +1,7 @@
 package com.mrkeyboard.app;
 
+import android.content.ContextWrapper;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -8,6 +10,8 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.TextView;
@@ -97,6 +101,192 @@ public class GlowTest {
     }
 
     static String hex(int c) { return Integer.toHexString(c); }
+
+
+    /** A preferences file that is only a map (what the PC tests need of it). */
+    static class Map2 implements SharedPreferences {
+        final java.util.Map<String, Object> m = new java.util.HashMap<String, Object>();
+        public java.util.Map<String, ?> getAll() { return m; }
+        public String getString(String key, String def) { Object o = m.get(key); return o == null ? def : (String) o; }
+        public int getInt(String key, int def) { Object o = m.get(key); return o == null ? def : ((Integer) o).intValue(); }
+        public long getLong(String key, long def) { Object o = m.get(key); return o == null ? def : ((Long) o).longValue(); }
+        public boolean getBoolean(String key, boolean def) { Object o = m.get(key); return o == null ? def : ((Boolean) o).booleanValue(); }
+        public Editor edit() {
+            return new Editor() {
+                public Editor putString(String k, String v) { m.put(k, v); return this; }
+                public Editor putInt(String k, int v) { m.put(k, Integer.valueOf(v)); return this; }
+                public Editor putLong(String k, long v) { m.put(k, Long.valueOf(v)); return this; }
+                public Editor putBoolean(String k, boolean v) { m.put(k, Boolean.valueOf(v)); return this; }
+                public Editor remove(String k) { m.remove(k); return this; }
+                public boolean commit() { return true; }
+                public void apply() { }
+            };
+        }
+        public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener l) { }
+        public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener l) { }
+    }
+
+    /** A layer of a face that remembers every colour filter it was given. */
+    static class Layer extends Drawable {
+        final java.util.List<ColorFilter> seen = new java.util.ArrayList<ColorFilter>();
+        @Override
+        public void setColorFilter(ColorFilter f) { super.setColorFilter(f); seen.add(f); }
+    }
+
+    static float alphaOf(ColorFilter f) { return ((ColorMatrixColorFilter) f).stubMatrix[18]; }
+
+    static void keyLook(Kbd kbd, Drawable face) {
+        Map2 prefs = new Map2();
+        PreferenceManager.stubDefault = prefs;
+        MrTools.sApp = new ContextWrapper(null);
+        Keyboard.Key key = keyAt(500, 200);
+
+        // nothing tuned: what the theme gives
+        theme("mr_overice", false, false);
+        MrKeyLook.invalidate();
+        MrGlow.reset();
+        Paint label = paint(TEXT, 60f);
+        MrGlow.key(kbd, key, false, label);
+        KeyStyle.stubDrawn.clear();
+        MrGlow.drawKey(face, new Canvas(), 100, 100);
+        check("a theme of the backgrounds with nothing tuned: the letters and the face are the theme's", label.getColor() == TEXT && KeyStyle.stubDrawn.size() == 1 && KeyStyle.stubDrawn.get(0) == null
+                && MrGlow.iconFilter(null) == null);
+
+        // the colour of the letters
+        prefs.edit().putInt(MrKeyLook.PREF_TEXT, 0xffff8800).apply();
+        MrKeyLook.changed(MrKeyLook.PREF_TEXT);
+        label = paint(TEXT, 60f);
+        MrGlow.key(kbd, key, false, label);
+        Paint hint = paint(HINT, 20f);
+        MrGlow.hint(hint, HINT);
+        check("the colour of the letters that the person chose is the one of the labels", label.getColor() == 0xffff8800);
+        check("the small letters take it too, fainter than the labels", (hint.getColor() & 0xffffff) == 0xff8800 && (hint.getColor() >>> 24) < 0xff && (hint.getColor() >>> 24) > 0x40);
+        check("and the icons are drawn in it", MrGlow.iconFilter(null) instanceof PorterDuffColorFilter && ((PorterDuffColorFilter) MrGlow.iconFilter(null)).stubColor == 0xffff8800);
+        Paint accentLabel = paint(0xff112233, 60f);
+        MrGlow.key(kbd, keyAt(10, 10), true, accentLabel);
+        check("a highlight key has it as well", accentLabel.getColor() == 0xffff8800);
+        theme("mr_plain", false, false);
+        MrGlow.reset();
+        Paint plain = paint(TEXT, 60f);
+        MrGlow.key(kbd, key, false, plain);
+        check("a theme of the list does not read it (the preference may be left from a background)", plain.getColor() == TEXT && MrGlow.iconFilter(null) == null);
+        theme("mr_overice", false, false);
+        MrGlow.reset();
+
+        // opacity of the face and of the line
+        prefs.edit().putInt(MrKeyLook.PREF_TEXT, 0).putInt(MrKeyLook.PREF_KEY, 50).putInt(MrKeyLook.PREF_EDGE, 200).apply();
+        MrKeyLook.changed(MrKeyLook.PREF_KEY);
+        MrGlow.key(kbd, key, false, paint(TEXT, 60f));
+        Layer fill = new Layer(), line = new Layer();
+        LayerDrawable two = new LayerDrawable(new Drawable[] {fill, line});
+        KeyStyle.stubDrawn.clear();
+        MrGlow.drawKey(two, new Canvas(), 100, 100);
+        check("the face of two layers is drawn with the fill at half of its opacity and the line at twice (each layer has its own filter)",
+                fill.seen.size() == 2 && line.seen.size() == 2 && alphaOf(fill.seen.get(0)) == 0.5f && alphaOf(line.seen.get(0)) == 2f);
+        check("both filters are taken off afterwards (a face is shared by the keys)", fill.seen.get(1) == null && line.seen.get(1) == null && two.stubFilter == null);
+        Layer under = new Layer(), fill2 = new Layer(), line2 = new Layer();
+        MrGlow.drawKey(new LayerDrawable(new Drawable[] {under, fill2, line2}), new Canvas(), 100, 100);
+        check("of a face of more layers only the last two are the fill and the line", under.seen.size() == 1 && under.seen.get(0) == null && alphaOf(fill2.seen.get(0)) == 0.5f && alphaOf(line2.seen.get(0)) == 2f);
+        Layer one = new Layer();
+        MrGlow.drawKey(one, new Canvas(), 100, 100);
+        check("a face of one layer (the clear glass) goes through the opacity of the fill", alphaOf(one.seen.get(0)) == 0.5f && one.seen.get(1) == null);
+        prefs.edit().putInt(MrKeyLook.PREF_KEY, 100).putInt(MrKeyLook.PREF_EDGE, 100).apply();
+        MrKeyLook.changed(MrKeyLook.PREF_EDGE);
+        MrGlow.key(kbd, key, false, paint(TEXT, 60f));
+        KeyStyle.stubDrawn.clear();
+        Layer a = new Layer(), b = new Layer();
+        MrGlow.drawKey(new LayerDrawable(new Drawable[] {a, b}), new Canvas(), 100, 100);
+        check("back to the opacity of the theme: the face is drawn as before (no filter on any layer)", a.seen.isEmpty() && b.seen.isEmpty() && KeyStyle.stubDrawn.size() == 1);
+        prefs.edit().putInt(MrKeyLook.PREF_KEY, 999).apply();
+        MrKeyLook.changed(MrKeyLook.PREF_KEY);
+        MrGlow.key(kbd, key, false, paint(TEXT, 60f));
+        Layer c1 = new Layer();
+        MrGlow.drawKey(c1, new Canvas(), 100, 100);
+        check("the opacity is at most 250% of the theme's", alphaOf(c1.seen.get(0)) == 2.5f);
+
+        // the dash that is off is faint on a theme of the backgrounds and as it is on any other
+        prefs.edit().putInt(MrKeyLook.PREF_KEY, 100).apply();
+        MrKeyLook.changed(MrKeyLook.PREF_KEY);
+        MrGlow.reset();
+        MrGlow.key(kbd, key, false, paint(TEXT, 60f));
+        Paint off = paint(DASH_OFF, 0f);
+        MrGlow.dash(off);
+        check("the dash that is off is its colour at 45% of the opacity on a theme of the backgrounds", (off.getColor() & 0xffffff) == (DASH_OFF & 0xffffff)
+                && Math.abs((off.getColor() >>> 24) - Math.round(255 * MrKeyLook.DASH_OFF_SHARE)) <= 1);
+        Paint on = paint(DASH_ON, 0f);
+        MrGlow.dash(on);
+        Paint lock = paint(DASH_LOCK, 0f);
+        MrGlow.dash(lock);
+        check("the dash that is on and the one that is locked are as they were", on.getColor() == DASH_ON && lock.getColor() == DASH_LOCK);
+        theme("mr_plain", false, false);
+        MrGlow.reset();
+        MrGlow.key(kbd, key, false, paint(TEXT, 60f));
+        Paint offPlain = paint(DASH_OFF, 0f);
+        MrGlow.dash(offPlain);
+        check("on a theme of the list the dash that is off is as it was", offPlain.getColor() == DASH_OFF);
+
+        // the styles of the person's own colour: the hues come from the look
+        theme("mr_overownglass", true, true);
+        MrTheme.stubColors.put("glow", 0x006f7bff);
+        MrTheme.stubColors.put("accent_glow", 0x006f7bff);
+        MrTheme.stubColors.put("spectrum_start", MrBackdrop.OWN_DEFAULT);
+        MrTheme.stubColors.put("spectrum_mid", MrBackdrop.OWN_DEFAULT);
+        MrTheme.stubColors.put("spectrum_end", MrBackdrop.OWN_DEFAULT);
+        prefs.edit().putInt(MrKeyLook.PREF_HUE, 0x00cc3322).putInt(MrKeyLook.PREF_TEXT, 0).apply();
+        MrKeyLook.changed(MrKeyLook.PREF_HUE);
+        MrGlow.reset();
+        Paint inkOwn = paint(0xff808080, 60f);
+        MrGlow.key(kbd, key, false, inkOwn);
+        KeyStyle.stubDrawn.clear();
+        Layer own1 = new Layer();
+        MrGlow.drawKey(own1, new Canvas(), 100, 100);
+        check("a style of the person's own colour draws the face through the filter that moves its hue (and nothing is lit: its glow is clear)", own1.stubFilter == null && KeyStyle.stubDrawn.size() == 1
+                && KeyStyle.stubDrawn.get(0) instanceof ColorMatrixColorFilter);
+        Canvas cv = new Canvas();
+        MrGlow.bloom(cv, "a", 0f, 0f, inkOwn);
+        check("it has no light under the letters", cv.stubTexts.isEmpty());
+        int[] glassSpectrum = MrKeyLook.spectrum("mr_overownglass", MrKeyLook.current(MrTools.sApp));
+        check("its three hues are the colour that was picked", glassSpectrum != null && glassSpectrum[0] == 0xffcc3322 && glassSpectrum[1] == 0xffcc3322 && glassSpectrum[2] == 0xffcc3322);
+        int[] noRoles = MrKeyLook.spectrum("mr_overice", MrKeyLook.current(MrTools.sApp));
+        check("a style that is not of the own colour has no hues from the look", noRoles == null && MrKeyLook.spectrum("mr_overlight", MrKeyLook.current(MrTools.sApp)) == null && MrKeyLook.spectrum(null, null) == null);
+        prefs.edit().putInt(MrKeyLook.PREF_HUE, 0x0000aa44).putInt(MrKeyLook.PREF_HUE2, 0x00aa00cc).apply();
+        MrKeyLook.changed(MrKeyLook.PREF_HUE2);
+        int[] grad = MrKeyLook.spectrum("mr_overowngrad", MrKeyLook.current(MrTools.sApp));
+        check("a gradient of the own colour goes from the first colour to the second", grad != null && grad[0] == 0xff00aa44 && grad[2] == 0xffaa00cc && grad[1] != grad[0] && grad[1] != grad[2]);
+        prefs.edit().putInt(MrKeyLook.PREF_HUE2, 0).apply();
+        MrKeyLook.changed(MrKeyLook.PREF_HUE2);
+        int[] auto = MrKeyLook.spectrum("mr_overowngrad", MrKeyLook.current(MrTools.sApp));
+        check("without a second colour the keyboard makes one up, a turn of the hue away from the first", auto != null && auto[0] == 0xff00aa44 && auto[2] != auto[0] && (auto[2] >>> 24) == 0xff);
+        // the face of such a theme at two places of the keyboard has two hues only in the gradient
+        MrGlow.reset();
+        theme("mr_overowngrad", true, true);
+        MrTheme.stubColors.put("glow", 0x666f7bff);
+        MrTheme.stubColors.put("accent_glow", 0x666f7bff);
+        MrTheme.stubColors.put("spectrum_start", MrBackdrop.OWN_DEFAULT);
+        MrTheme.stubColors.put("spectrum_mid", MrBackdrop.OWN_DEFAULT);
+        MrTheme.stubColors.put("spectrum_end", MrBackdrop.OWN_DEFAULT);
+        MrKeyLook.invalidate();
+        MrGlow.reset();
+        Paint lp = paint(0xff808080, 60f);
+        MrGlow.key(kbd, keyAt(0, 0), false, lp);
+        KeyStyle.stubDrawn.clear();
+        MrGlow.drawKey(new Layer(), new Canvas(), 100, 100);
+        ColorFilter left = KeyStyle.stubDrawn.get(0);
+        MrGlow.key(kbd, keyAt(900, 300), false, paint(0xff808080, 60f));
+        KeyStyle.stubDrawn.clear();
+        MrGlow.drawKey(new Layer(), new Canvas(), 100, 100);
+        ColorFilter right = KeyStyle.stubDrawn.get(0);
+        check("the gradient of the own colour has another hue at each end of the keyboard", left != null && right != null
+                && !java.util.Arrays.equals(((ColorMatrixColorFilter) left).stubMatrix, ((ColorMatrixColorFilter) right).stubMatrix));
+        // when the colour moves the keyboard makes its hues again
+        int before = MrKeyLook.version();
+        prefs.edit().putInt(MrKeyLook.PREF_HUE, 0x00ff0000).apply();
+        MrKeyLook.changed(MrKeyLook.PREF_HUE);
+        check("a change of a preference of the look is told to the keyboard (and any other key is not)", MrKeyLook.version() == before + 1 && !MrKeyLook.changed("pref_kbd_bg") && !MrKeyLook.changed(null)
+                && MrKeyLook.version() == before + 1);
+        MrGlow.reset();
+        MrKeyLook.invalidate();
+    }
 
     public static void main(String[] a) {
         Drawable face = new Drawable() { };
@@ -374,6 +564,12 @@ public class GlowTest {
         MrGlow.drawKey(face, new Canvas(), 100, 100);
         check("after a neon theme, a plain theme is plain again", c.stubTexts.isEmpty() && back.getColor() == TEXT
                 && back.stubShadowRadius == 0f && KeyStyle.stubDrawn.get(0) == null && MrGlow.iconFilter(own) == own);
+
+        // ================= the keys that the person tuned (MrKeyLook) on a theme of the backgrounds
+        keyLook(kbd, face);
+        MrTools.sApp = null;
+        PreferenceManager.stubDefault = null;
+        MrKeyLook.invalidate();
 
         System.out.println(fail == 0 ? ok + " ok, 0 failures" : fail + " FAILURE(S)");
         System.exit(fail == 0 ? 0 : 1);

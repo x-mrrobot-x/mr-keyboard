@@ -816,7 +816,7 @@
     <string name="mr_themes_style_1">Hielo</string>
     <string name="mr_themes_style_2">Lila</string>
     <string name="mr_themes_style_3">Menta</string>
-    <string name="mr_themes_style_4">Brasa</string>
+    <string name="mr_themes_style_4">Oscuro</string>
     <string name="mr_themes_style_5">Blanco</string>
     <string name="mr_themes_style_6">Cian</string>
     <string name="mr_themes_style_7">Violeta</string>
@@ -827,6 +827,9 @@
     <string name="mr_themes_style_12">Marea</string>
     <string name="mr_themes_style_13">Prisma</string>
     <string name="mr_themes_style_14">Laguna</string>
+    <string name="mr_themes_style_15">Color propio</string>
+    <string name="mr_themes_style_16">Color propio</string>
+    <string name="mr_themes_style_17">Color propio</string>
     <string name="mr_themes_kind_0">Cristal</string>
     <string name="mr_themes_kind_1">Contorno</string>
     <string name="mr_themes_kind_2">Degradado</string>
@@ -836,6 +839,13 @@
     <string name="mr_themes_mine">Mi imagen</string>
     <string name="mr_themes_soften">Suavizar fondo</string>
     <string name="mr_themes_soften_hint">Un velo mantiene legibles las sugerencias sobre cualquier fondo.</string>
+    <string name="mr_themes_key_opacity">Opacidad de la tecla</string>
+    <string name="mr_themes_edge_opacity">Opacidad del borde</string>
+    <string name="mr_themes_text_color">Color del texto</string>
+    <string name="mr_themes_grad_end">Final del degradado</string>
+    <string name="mr_themes_auto">Automático</string>
+    <string name="mr_themes_pick_color">Elegir color</string>
+    <string name="mr_themes_done">Listo</string>
     <string name="mr_themes_remove">Quitar mi imagen</string>
     <string name="mr_themes_image_failed">No se pudo usar esta imagen.</string>
     <string name="mr_themes_gradient">Degradado %1$d</string>

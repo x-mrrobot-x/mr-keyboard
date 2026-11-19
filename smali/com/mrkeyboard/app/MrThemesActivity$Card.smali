@@ -29,21 +29,21 @@
     .locals 0
 
     .prologue
-    .line 81
+    .line 83
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 82
+    .line 84
     iput p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$Card;->kind:I
 
-    .line 83
+    .line 85
     iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$Card;->index:I
 
-    .line 84
+    .line 86
     iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$Card;->spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
-    .line 85
+    .line 87
     iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$Card;->name:Ljava/lang/String;
 
-    .line 86
+    .line 88
     return-void
 .end method

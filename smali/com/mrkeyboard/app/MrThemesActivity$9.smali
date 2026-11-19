@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$card:Lcom/mrkeyboard/app/MrThemesActivity$Card;
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Lcom/mrkeyboard/app/MrThemesActivity$Card;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 438
+    .line 485
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$9;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$9;->val$card:Lcom/mrkeyboard/app/MrThemesActivity$Card;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,18 +37,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 2
+    .locals 1
 
     .prologue
-    .line 440
+    .line 487
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$9;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$9;->val$card:Lcom/mrkeyboard/app/MrThemesActivity$Card;
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->pick()V
 
-    iget-object v1, v1, Lcom/mrkeyboard/app/MrThemesActivity$Card;->spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
-
-    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrThemesActivity;->openBackdrop(Lcom/mrkeyboard/app/MrBackdrop$Spec;)V
-
-    .line 441
+    .line 488
     return-void
 .end method

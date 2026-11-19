@@ -28,13 +28,14 @@ only Cobalt Glass is written by hand. To add or change one of the generated ones
 4. **Selector:** the name in `keyboard_layout_modes` (the name of a theme is in English in every language: it is in `values/strings.xml` only, `layout_mr_<tema>`) and the value in `keyboard_layout_modes_values`.
    The themes screen ([themes-screen.md](themes-screen.md)) lists every theme from these two lists and `mr_theme_tags`, as a small keyboard drawn
    with the theme's own key drawables and the roles `kbd_bg`, `text`, `accent_text` and `key_normal_*` / `key_acc_normal_*`, so a new theme appears
-   there with no more registration, except a tag that starts with `mr_over`: those are the sixteen themes of the backgrounds (`overlight`, `overdark` and the fourteen key styles: glass
-   `overice`, `overlilac`, `overmint`, `overember`; outline `overline`, `overteal`, `overviolet`, `overfuchsia`, `overlime`, `overgold`; gradient `overdawn`, `overtide`,
-   `overprism`, `overlagoon`; see [themes-screen.md](themes-screen.md)), which the screen does not list and which a color, a
-   gradient, a landscape or a picture puts the keyboard in (they are the last sixteen of `ORDER` in `make_themes.py`, and a theme added to the list goes
+   there with no more registration, except a tag that starts with `mr_over`: those are the nineteen themes of the backgrounds (`overlight`, `overdark` and the seventeen key styles: glass
+   `overice`, `overlilac`, `overmint`, `overshade`; outline `overline`, `overteal`, `overviolet`, `overfuchsia`, `overlime`, `overgold`; gradient `overdawn`, `overtide`,
+   `overprism`, `overlagoon`; and the three of the color that the person picks, `overownglass`, `overownline`, `overowngrad`; see [themes-screen.md](themes-screen.md)), which the screen does not list and which a color, a
+   gradient, a landscape or a picture puts the keyboard in (they are the last nineteen of `ORDER` in `make_themes.py`, and a theme added to the list goes
    before them, so their values move: no migration is kept). A key style is added in `OVER_GLASS`, `OVER_OUTLINE` or `OVER_GRADIENT` of `make_themes.py` (the hue, or the three hues of a gradient;
    the generator makes the faces, the dash, the popup and, for an outline or a gradient, the edge roles `key_<state>_edge`, the `<stroke>` of the key face)
-   and in `MrBackdrop.STYLE_TAGS` (with its kind in `KIND_FIRST` and its colours in `STYLE_COLORS`), with its name `mr_themes_style_<n>`. Every face is a translucent hue over the background,
+   and in `MrBackdrop.STYLE_TAGS` (with its kind in `KIND_FIRST` and its colours in `STYLE_COLORS`), with its name `mr_themes_style_<n>`. The styles of the person's own color are the last three of `STYLE_TAGS` (`PRESETS` is the number of the ones before them; `OVER_OWN` in the generator
+   writes them in one base hue, which the keyboard moves at run time, see `MrKeyLook`). Every face is a translucent hue over the background,
    never a solid fill, and `ThemesTest.styleAudit` checks the letters and the lines over every background.
    The veil of a background is black or white by the ink of the theme of the backgrounds, which follows the brightness of its `kbd_bg`.
 5. **Keys:** `btn_keyboard_key_<tema>` and `key_<tema>_{normal,pressed,on,lock,hl}`. The drawables only reference

@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->addCard(Lcom/mrkeyboard/app/MrThemesActivity$Card;I)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->buildMore(I)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$card:Lcom/mrkeyboard/app/MrThemesActivity$Card;
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Lcom/mrkeyboard/app/MrThemesActivity$Card;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
     .line 410
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$6;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$6;->val$card:Lcom/mrkeyboard/app/MrThemesActivity$Card;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,17 +37,13 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 2
+    .locals 1
 
     .prologue
     .line 412
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$6;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$6;->val$card:Lcom/mrkeyboard/app/MrThemesActivity$Card;
-
-    iget v1, v1, Lcom/mrkeyboard/app/MrThemesActivity$Card;->index:I
-
-    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrThemesActivity;->showThemePreview(I)V
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->removeImage()V
 
     .line 413
     return-void

@@ -221,7 +221,7 @@
     <string name="layout_mr_overice">Background, ice glass</string>
     <string name="layout_mr_overlilac">Background, lilac glass</string>
     <string name="layout_mr_overmint">Background, mint glass</string>
-    <string name="layout_mr_overember">Background, ember glass</string>
+    <string name="layout_mr_overshade">Background, dark glass</string>
     <string name="layout_mr_overline">Background, white outline</string>
     <string name="layout_mr_overteal">Background, cyan outline</string>
     <string name="layout_mr_overviolet">Background, violet outline</string>
@@ -232,6 +232,9 @@
     <string name="layout_mr_overtide">Background, tide gradient</string>
     <string name="layout_mr_overprism">Background, prism gradient</string>
     <string name="layout_mr_overlagoon">Background, lagoon gradient</string>
+    <string name="layout_mr_overownglass">Background, own colour glass</string>
+    <string name="layout_mr_overownline">Background, own colour outline</string>
+    <string name="layout_mr_overowngrad">Background, own colour gradient</string>
     <string name="main_body">" 
         &lt;h2>Enabling Mr Keyboard&lt;/h2>
         

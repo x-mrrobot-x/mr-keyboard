@@ -1808,8 +1808,15 @@
 
     goto :goto_0
 
-    # the background of the keyboard (themes screen: MrBackdrop) or how much it is softened: the keyboard is made again, which paints it
+    # the background of the keyboard (themes screen: MrBackdrop), how much it is softened or how its keys are tuned (MrKeyLook, the preferences
+    # pref_kbd_look_*, which it reads again): the keyboard is made again, which paints it
     :cond_1
+    invoke-static {p2}, Lcom/mrkeyboard/app/MrKeyLook;->changed(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_bg
+
     const-string v0, "pref_kbd_bg"
 
     invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z

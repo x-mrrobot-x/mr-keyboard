@@ -9,6 +9,9 @@ public class ScrollView extends android.view.ViewGroup {
     public void scrollTo(int x, int y) { scrollY = y; }
     public int getScrollY() { return scrollY; }
     public int getScrollX() { return 0; }
+    /** Tests only: where the last smoothScrollTo went, and how many there were. */
+    public int stubSmoothY = -1, stubSmooths;
+    public final void smoothScrollTo(int x, int y) { stubSmoothY = y; stubSmooths++; }
     /** Real ScrollView: scrolls to show the rectangle of the child. The stub only answers that it did (the tests override it to see the calls). */
     public boolean requestChildRectangleOnScreen(android.view.View child, android.graphics.Rect rectangle, boolean immediate) { return true; }
     public android.view.View findFocus() { return stubFocused; }

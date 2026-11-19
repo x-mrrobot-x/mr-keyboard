@@ -44,41 +44,62 @@ copy arrives. The card of a theme is the theme with no background, the card of a
   a background chosen never changes them.
 - A **color, a gradient or a landscape** opens a dialog with the **complete keyboard** as it will look (a sheet at the bottom: **Cancel** / **Apply**):
   the row of Ctrl, Alt and the arrows, the numbers, the letters and the bottom row, every highlight key with its own face and the dash of the
-  modifier keys in its three states (see [The small keyboards](#the-small-keyboards)). It also has two controls, so that the keys can be told
-  apart from a busy background (below). Nothing is written until **Apply**, and only the keyboard at the top of the screen shows the result.
+  modifier keys in its three states (see [The small keyboards](#the-small-keyboards)). It also has the controls below, so that the keys can be told
+  apart from a busy background and given the colors the person wants; they scroll between the keyboard and the buttons (`MrCappedScroll`, at most
+  38% of the screen height). Nothing is written until **Apply**, and only the keyboard at the top of the screen shows the result.
 - A **picture of the gallery** goes through the crop dialog first (below), then through the same preview.
 
-### Soften background and key styles
+### Soften background, key styles and the tuning of the keys
 
 Keys that blend with the background are the main problem of a picture, so the dialog of a background has:
 
 - **Soften background** (0 to 70%, a slider; gradients, landscapes and pictures, not the plain colors): a veil over the background itself, in the
   opposite color of the ink, that is at least as dense as the setting. The keyboard of the dialog is drawn again while the slider moves; it starts
   at the softening in use when the background is the one in use, and at none for another. It is written (`pref_kbd_bg_soft`) with **Apply**.
-- **Keys**, fifteen **styles** in three kinds, to choose in two levels (the **Glass**, **Outline** and **Gradient** chips and, under them, the dots of
-  the colours of the kind in use with the name of the one chosen), for every background but the light colors (their keys already have dark ink on a
-  pale background). Every face is translucent: a hue at low opacity over the background, never a solid fill.
+- **Keys**, fourteen **styles** and, for each kind, the color the person picks, in three kinds, to choose in two levels (the **Glass**, **Outline** and
+  **Gradient** chips and, under them, the dots of the colors of the kind in use, with a round button that picks a color at the end, and the name of the
+  one chosen), for every background but the light colors (their keys already have dark ink on a pale background). Every face is translucent: a hue at
+  low opacity over the background, never a solid fill.
+- **Key opacity** and **Border opacity** (sliders, 0 to 250% of what the style gives, 100% by default; with the styles, so not for the light colors):
+  how much the face of a key and its line show, so the keys can be made more see-through or denser. The face of a key of these themes is two layers (the
+  fill and the line), each drawn through its own color filter (`MrGlow.drawKey`), so each slider changes only its part.
+- **Text color** (a round button that opens the picker, and **Automatic**, which keeps the color of the theme; every background has it): the color of the
+  letters, the small letters (fainter) and the icons (`MrGlow.key`, `hint`, `iconFilter`).
+- The **color the person picks** (the round button at the end of the dots: the rainbow ring, a plus while none was picked): touching it chooses the
+  style of the own color of that kind (glass, outline or gradient) and opens the picker; the color is shared by the three kinds. The gradient of the own
+  color also has **End of the gradient** (a second color, **Automatic** makes one up a turn of the hue away). The picker (`MrColorPicker`: a square of
+  saturation and brightness over a bar of hues) is a second dialog over the first, which stays; the keyboard in it follows the finger, **Done** keeps
+  the color and **Cancel** or back gives the one there was back.
+
+A background that is not in use always starts with the **See-through** style, nothing tuned: what was chosen for one background is not carried to the
+next. The background in use opens with its own style and tuning.
 
 | Kind | Styles | Keys |
 | --- | --- | --- |
-| Glass | See-through (the default), Ice, Lilac, Mint, Ember | The first is a white veil (`#38ffffff`); the others a veil of the hue (about 26%, a little more on the highlight keys) with a lighter rim of the hue. The letters stay white. |
-| Outline | White, Cyan, Violet, Fuchsia, Lime, Gold | A bright 1 dp outline of the hue around a faint face of the same hue (8%, 16% on the highlight keys); the letters are a very light tone of the hue. |
-| Gradient | Dawn, Tide, Prism, Lagoon | The outline, the letters, the icons and the light of the keys are gradients: each key takes the hue of its place on the keyboard (`MrGlow`, the same mechanism as the neon themes, three hues from the left to the right and a little down). |
+| Glass | See-through (the default), Ice, Lilac, Mint, Dark, own color | The first is a white veil (`#38ffffff`); the others a veil of the hue (about 26%, a little more on the highlight keys) with a lighter rim of the hue; Dark is a deep slate at about half of opacity with a pale rim. The letters stay white. |
+| Outline | White, Cyan, Violet, Fuchsia, Lime, Gold, own color | A bright 1 dp outline of the hue around a faint face of the same hue (8%, 16% on the highlight keys); the letters are a very light tone of the hue. |
+| Gradient | Dawn, Tide, Prism, Lagoon, own colors | The outline, the letters, the icons and the light of the keys are gradients: each key takes the hue of its place on the keyboard (`MrGlow`, the same mechanism as the neon themes, three hues from the left to the right and a little down). |
 
 The style is not a preference of its own: **each style is a hidden theme** and the one chosen is the theme stored in `pref_keyboard_layout` along
 with the background (`MrBackdrop.themeTag(spec, style)`, `styleOf(tag)`), so the keyboard and the screen read it from there and nothing needs
-migrating. The dialog of the next background starts with the style in use.
+migrating. What is tuned (the opacities, the colors) is kept in `pref_kbd_look_*` (`MrKeyLook`), read only by these themes.
 
-The backgrounds have sixteen themes of their own, which the list does not show (`MrThemeColors.hidden`, tags starting with `mr_over`, the last
-sixteen of `make_themes.ORDER`, values 13 to 28 of `pref_keyboard_layout`):
+The **own color** styles are themes like the others (`overownglass`, `overownline`, `overowngrad`), written in one base hue (`MrBackdrop.OWN_DEFAULT`,
+`SPECTRUM_FROM` of the generator) with the flags of a spectrum theme; at run time `MrGlow` draws every key through the filter that moves that hue to
+the colors of `MrKeyLook.spectrum(tag, look)` (one color for the glass and the outline, three for the gradient). Their glow is clear (no light under
+the letters) but for the gradient.
+
+The backgrounds have nineteen themes of their own, which the list does not show (`MrThemeColors.hidden`, tags starting with `mr_over`, the last
+nineteen of `make_themes.ORDER`, values 13 to 31 of `pref_keyboard_layout`):
 
 | Theme | Value | For | Ink |
 | --- | --- | --- | --- |
 | `overlight` | 13 | gradients, landscapes, pictures and the dark colors (the see-through style) | white (`#ffffff`) |
 | `overdark` | 14 | the light colors | dark (`#202124`) |
-| `overice`, `overlilac`, `overmint`, `overember` | 15 to 18 | the tinted glass styles (`MrBackdrop.STYLE_TAGS`) | white |
+| `overice`, `overlilac`, `overmint`, `overshade` | 15 to 18 | the tinted glass styles (`MrBackdrop.STYLE_TAGS`) | white |
 | `overline`, `overteal`, `overviolet`, `overfuchsia`, `overlime`, `overgold` | 19 to 24 | the outline styles | a light tone of the hue |
 | `overdawn`, `overtide`, `overprism`, `overlagoon` | 25 to 28 | the gradient styles | a light tone, redrawn per key |
+| `overownglass`, `overownline`, `overowngrad` | 29 to 31 | the styles of the color that the person picks | the color's, redrawn per key |
 
 Their keys are flat (no lip, no border; the outline and gradient styles have a 1 dp stroke in the face), and the accent keys (shift, delete, enter…) have the face of
 the letters in the see-through style; only the ink of the letters and of the icons changes between `overlight` and `overdark`. A color has dark ink
@@ -87,13 +108,16 @@ Applying a background writes the right theme in the same edit as the background 
 
 | Preference | Holds |
 | --- | --- |
-| `pref_keyboard_layout` | The theme (`keyboard_layout_modes_values`): 0 to 12 the themes of the list, 13 to 28 the themes of the backgrounds (the style of the keys). |
-| `pref_kbd_bg` | The background: empty = none, `c<N>` = color N (0 to 15), `g<N>` = gradient N (0 to 19), `s<N>` = landscape N (0 to 35, six per category in the order of `MrScenes.SLUGS`), `i<zoom>,<dx>,<dy>,<time>` = the picture of the gallery. Anything that does not parse is "none". It counts only when the theme is one of the sixteen of the backgrounds: in any other theme an old value is let be (`MrBackdrop.lookNow` / `apply`, the screen and the row of the settings all go by this). |
+| `pref_keyboard_layout` | The theme (`keyboard_layout_modes_values`): 0 to 12 the themes of the list, 13 to 31 the themes of the backgrounds (the style of the keys). |
+| `pref_kbd_bg` | The background: empty = none, `c<N>` = color N (0 to 15), `g<N>` = gradient N (0 to 19), `s<N>` = landscape N (0 to 35, six per category in the order of `MrScenes.SLUGS`), `i<zoom>,<dx>,<dy>,<time>` = the picture of the gallery. Anything that does not parse is "none". It counts only when the theme is one of the nineteen of the backgrounds: in any other theme an old value is let be (`MrBackdrop.lookNow` / `apply`, the screen and the row of the settings all go by this). |
 | `pref_kbd_bg_soft` | How much a **gradient, a landscape or a picture** is softened, 0 to 70 (%). Colors ignore it. |
+| `pref_kbd_look_key`, `pref_kbd_look_edge` | The opacity of the face and of the line of the keys, in per cent of what the style gives (0 to 250, 100 = as it is). |
+| `pref_kbd_look_text` | The color of the letters (opaque ARGB; 0 = the theme's). |
+| `pref_kbd_look_hue`, `pref_kbd_look_hue2` | The color of the own color styles and the end of their gradient (opaque ARGB; 0 = none picked: the base hue, and a hue made up for the end). |
 
 For a picture, the zoom is in per cent (100 to 400), the position goes from -100 (against the left or top edge) to 100 (against the right or
-bottom one), and the time is when the picture was chosen, so a new picture is a new value and the caches know it. **Reset settings** puts the
-three back (`MrReset.KEYS`).
+bottom one), and the time is when the picture was chosen, so a new picture is a new value and the caches know it. **Reset settings** puts them
+back (`MrReset.KEYS`).
 
 ## Where the backgrounds come from
 
@@ -132,13 +156,16 @@ than the softening set with **Soften background** (a gradient, a landscape or a 
 `ThemesTest` runs it over every color, gradient and landscape and checks that the contrast of the ink of the toolbar with the bar is at least 3 to 1
 in the worst case, and that of the letters with their keys at least 2.5 to 1, in the clear glass. It also checks that over every color and
 gradient, in each of the themes of the backgrounds, the dash of the modifier keys has a contrast of 2.2 to 1 or more when on and when locked,
-and 1.15 to 1 or more when off, with the key it is on.
+and 1.15 to 1 or more when off, with the key it is on (the faint dash that the keyboard draws, at 45% of its opacity, is checked as a pixel of the preview).
+
+The line of suggestions of the previews has its three bars centred (the same margin on both sides, and the middle of the height between the top of the
+keyboard and the first row of keys); `ThemesTest` measures it in every theme, in the small and in the complete keyboard.
 
 ## On the keyboard
 
 `MrBackdrop.apply` (called by `MrTools.applyTranslucentBlur`, when the keyboard is made and when it is shown) puts a `MrBackdropDrawable` as the
 background of the root of the toolbar, which holds the bar, the panels and the keys on the same sheet, and leaves the keyboard view clear (it
-would paint the color of the theme over it). It does so only in one of the sixteen themes of the backgrounds. The drawable draws once for the size it has
+would paint the color of the theme over it). It does so only in one of the nineteen themes of the backgrounds. The drawable draws once for the size it has
 and the picture of the gallery is let go of after it. When it cannot be made (no memory, a picture that is gone) it paints the color of the theme, so
 the keyboard is never see-through.
 
@@ -164,7 +191,8 @@ Caps Lock), and only Ctrl, Alt and Shift have the **dash** under them, in the `m
 those of the popups and key previews (`popup_*`, `key_preview_*`), are set in `make_themes.py` so that the dash is seen on any color, gradient or
 landscape: in `overlight` (white ink) it is a light slate when off, white when on and amber when locked, in the styles with a hue the off dash is
 a pale tone of the family, and in `overdark` (dark ink) a mid slate when off, a deep blue when on and a red when locked; the colors are opaque
-because the keyboard draws the dash with the alpha of the keys. The key styles are listed in `OVER_GLASS`, `OVER_OUTLINE` and `OVER_GRADIENT` of `make_themes.py` (the edge roles `key_<state>_edge` are the
+because the keyboard draws the dash with the alpha of the keys. In these themes the dash that is **off** is drawn faint, at 45% of its opacity
+(`MrKeyLook.DASH_OFF_SHARE`, applied in `MrGlow.dash` and in the preview): it is only a hint of where the modifier keys are. The key styles are listed in `OVER_GLASS`, `OVER_OUTLINE` and `OVER_GRADIENT` of `make_themes.py` (the edge roles `key_<state>_edge` are the
 outline of the outline and gradient ones).
 
 ## Files
@@ -172,7 +200,7 @@ outline of the outline and gradient ones).
 | File | What it is |
 | --- | --- |
 | `MrThemesActivity` | The screen (the current keyboard, the tabs, the cards) and its dialogs (a theme, a background with the softening and the styles, the crop). Nothing is kept in it: it reads the preferences, so it can be made again at any time. |
-| `MrThemeRow` | The row of the settings: it opens the screen and says on its second line what is chosen (the theme, or the background when the theme is one of the sixteen of the backgrounds). |
+| `MrThemeRow` | The row of the settings: it opens the screen and says on its second line what is chosen (the theme, or the background when the theme is one of the nineteen of the backgrounds). |
 | `MrThemePreview` | The small keyboard (at rest, as the real one: no key is lit or locked). |
 | `MrStyleDot` | The dot of a colour of the styles of keys in the dialog (a chip of the colours of the style, with its name as the description). |
 | `MrCropView` | The picture with the frame to drag and pinch. |
@@ -183,7 +211,7 @@ outline of the outline and gradient ones).
 ## Testing
 
 `ThemesTest` (`docs/tools/run_java_tests.sh`) draws the previews with Java2D behind the `Canvas` stub and reads the pixels. Give it a folder as the
-first argument and it dumps PNGs of the themes, of the colors, gradients and landscapes in their theme, of the complete keyboard, of the fifteen styles of
+first argument and it dumps PNGs of the themes, of the colors, gradients and landscapes in their theme, of the complete keyboard, of the styles of
 keys (`styles_big_*`, and the softening) over a landscape, a gradient and a colour, of the picture with several zooms and positions, and of the crop dialog, to look at.
 The test double of the screen queues what the loading threads post to the main thread (`UI`, `pump()`, run by `waitFor`), and the posted steps of the
 cards run with `stubRunPosted()`. The WebP files cannot be decoded on the PC: the stub gives a pattern of the size

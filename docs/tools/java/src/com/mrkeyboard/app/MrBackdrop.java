@@ -80,7 +80,7 @@ final class MrBackdrop {
 
     /** The plain colours (opaque), in the order of the tiles. */
     static final int[] COLORS = {
-            0xff263238, 0xfff8f9fa, 0xff37393d, 0xffc62828,
+            0xff263238, 0xffd9eafc, 0xff37393d, 0xffc62828,
             0xff00695c, 0xff1565c0, 0xff80deea, 0xff4527a0,
             0xff6a1b9a, 0xffad1457, 0xfff8bbd0, 0xffd7ccc8,
             0xff4e342e, 0xff37474f, 0xff000000, 0xff161616};
@@ -525,34 +525,56 @@ final class MrBackdrop {
     static final String TAG_LIGHT_INK = "mr_overlight", TAG_DARK_INK = "mr_overdark";
     /**
      * The styles of the keys of a background, each one a theme of the backgrounds with light ink, all of them see-through (what shows through the
-     * key is the background): the clear glass, four tinted glasses, six outlines (a line of one hue around an almost empty face) and four gradients
+     * key is the background): the clear glass, three tinted glasses and a dark one, six outlines (a line of one hue around an almost empty face) and four gradients
      * (the line, the labels and the light of the labels change hue along the keyboard). The dialog of a background lets the person pick one by kind
      * ({@link #KIND_FIRST}) and then by colour.
      */
-    static final String[] STYLE_TAGS = {TAG_LIGHT_INK, "mr_overice", "mr_overlilac", "mr_overmint", "mr_overember",
+    static final String[] STYLE_TAGS = {TAG_LIGHT_INK, "mr_overice", "mr_overlilac", "mr_overmint", "mr_overshade",
             "mr_overline", "mr_overteal", "mr_overviolet", "mr_overfuchsia", "mr_overlime", "mr_overgold",
-            "mr_overdawn", "mr_overtide", "mr_overprism", "mr_overlagoon"};
+            "mr_overdawn", "mr_overtide", "mr_overprism", "mr_overlagoon",
+            // the styles of the colour that the person picks, one for each kind (glass, outline, gradient): the keyboard draws them in that colour (MrKeyLook)
+            "mr_overownglass", "mr_overownline", "mr_overowngrad"};
     static final int STYLES = STYLE_TAGS.length;
+    /** The styles that have a place of their own in the dialog (the others, the last three, are the colour that the person picks). */
+    static final int PRESETS = 15;
     /** The kinds of style: glass, outline and gradient. */
     static final int KIND_GLASS = 0, KIND_OUTLINE = 1, KIND_GRADIENT = 2, KINDS = 3;
-    /** The first style of each kind (and, last, the number of styles): the styles of a kind are the ones from {@code KIND_FIRST[k]} up to the next. */
-    static final int[] KIND_FIRST = {0, 5, 11, STYLES};
+    /** The first style of each kind (and, last, the number of presets): the presets of a kind are the ones from {@code KIND_FIRST[k]} up to the next. */
+    static final int[] KIND_FIRST = {0, 5, 11, PRESETS};
+    /** The colour that a style of the person's own colour has when none was picked yet (the hue its drawables are written in). */
+    static final int OWN_DEFAULT = 0xff6f7bff;
     /**
      * The colours that show a style in the dialog (the hue of the glass or of the line; the three hues a gradient turns through), opaque; the
-     * see-through glass is white. Same order as {@link #STYLE_TAGS}.
+     * see-through glass is white. Same order as {@link #STYLE_TAGS} (the presets only).
      */
     static final int[][] STYLE_COLORS = {
-            {0xffffffff}, {0xff4da3ff}, {0xffa77bff}, {0xff3ddc97}, {0xffff8a4c},
+            {0xffffffff}, {0xff4da3ff}, {0xffa77bff}, {0xff3ddc97}, {0xff2a3350},
             {0xffffffff}, {0xff2de2e6}, {0xffa78bfa}, {0xffff5fd2}, {0xffa6e22e}, {0xffffc83d},
             {0xffffb347, 0xffff5fa2, 0xff9b6bff}, {0xff22e1ff, 0xff4d7cff, 0xffb06bff}, {0xffff4d6d, 0xff4dff9a, 0xff4d8dff}, {0xffa3ff5c, 0xff19e6b0, 0xff3d8bff}};
 
     /** The kind of a style: glass, outline or gradient. */
     static int kindOf(int style) {
         int s = clamp(style, 0, STYLES - 1);
+        if (s >= PRESETS) return s - PRESETS;
         for (int k = KINDS - 1; k > 0; k--) {
             if (s >= KIND_FIRST[k]) return k;
         }
         return KIND_GLASS;
+    }
+
+    /** The style of the person's own colour of the kind {@code kind}. */
+    static int ownStyle(int kind) {
+        return PRESETS + clamp(kind, 0, KINDS - 1);
+    }
+
+    /** Whether the style is one of the person's own colour. */
+    static boolean isOwnStyle(int style) {
+        return style >= PRESETS && style < STYLES;
+    }
+
+    /** Whether the theme {@code tag} is the style of the person's own colour of a kind. */
+    static boolean isOwn(String tag) {
+        return tag != null && isOwnStyle(styleOf(tag)) && STYLE_TAGS[styleOf(tag)].equals(tag);
     }
 
     // ---- the picture of the gallery

@@ -3,12 +3,12 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->showThemePreview(I)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->sheetShow(Landroid/app/Dialog;Landroid/widget/LinearLayout;Lcom/mrkeyboard/app/MrThemePreview;Landroid/widget/SeekBar;ZLjava/lang/Runnable;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$index:I
+.field final synthetic val$onApply:Ljava/lang/Runnable;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;I)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Ljava/lang/Runnable;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 751
+    .line 817
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->val$index:I
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->val$onApply:Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,17 +45,20 @@
 
 
 # virtual methods
-.method public run()V
-    .locals 2
+.method public onClick(Landroid/view/View;)V
+    .locals 1
 
     .prologue
-    .line 753
+    .line 819
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->val$index:I
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->closeDialog()V
 
-    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrThemesActivity;->chooseTheme(I)V
+    .line 820
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->val$onApply:Ljava/lang/Runnable;
 
-    .line 754
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+
+    .line 821
     return-void
 .end method

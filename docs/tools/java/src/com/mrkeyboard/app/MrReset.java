@@ -18,8 +18,8 @@ import android.widget.Toast;
  * downloaded file stays.
  *
  * KEYS must have every key that the settings screens (res/xml/prefs*.xml) offer, the
- * "pref_sheet_return" (which is on the keyboard Sheets page), the ones that the themes screen writes (the theme, the background and how much it is
- * softened: the settings row only opens that screen) and the old keys, which the keyboard no longer
+ * "pref_sheet_return" (which is on the keyboard Sheets page), the ones that the themes screen writes (the theme, the background, how much it is
+ * softened and how its keys are tuned: the settings row only opens that screen) and the old keys, which the keyboard no longer
  * reads and are only here to clear stored values; the script docs/tools/check_reset_keys.py checks this.
  */
 public final class MrReset implements Preference.OnPreferenceClickListener {
@@ -27,6 +27,11 @@ public final class MrReset implements Preference.OnPreferenceClickListener {
             "pref_keyboard_layout",
             "pref_kbd_bg",
             "pref_kbd_bg_soft",
+            "pref_kbd_look_key",
+            "pref_kbd_look_edge",
+            "pref_kbd_look_text",
+            "pref_kbd_look_hue",
+            "pref_kbd_look_hue2",
             "settings_height_portrait",
             "settings_height_landscape",
             "pref_bar_scale",

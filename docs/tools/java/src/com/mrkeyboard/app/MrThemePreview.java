@@ -19,6 +19,9 @@ import android.view.View;
  * draws them at rest: nothing is lit or locked (no red shift) and no key but those three has a dash.
  *
  * <p>The themes of the gradient styles (the roles {@code spectrum_*}) are drawn with the hue of each key's place, as {@link MrGlow} does on the real keyboard.
+ * What the person tuned ({@link #setLook}, a {@link MrKeyLook}) is drawn the same way on a theme of the backgrounds: the opacity of the fill and of the
+ * line of each face, the colour of the letters, the colours of the styles of their own colour (the end of a gradient included) and the faint dash that is off.
+ * The line of suggestions is centred in the width and in the height of its part of the keyboard.
  *
  * <p>The keys are drawn as large as the real ones on this phone (the width of the screen is the width of the keyboard) and the whole is scaled to
  * the size of the view, so the radius, the lips and the gaps of the key faces are the ones of the keyboard. A theme that has no key drawable falls
@@ -52,6 +55,8 @@ final class MrThemePreview extends View {
     private final float mDensity;
 
     private String mTag;
+    /** What the person tuned about the keys of the background (the opacities, the colour of the letters, their own colour); only a theme of the backgrounds is drawn with it. */
+    private MrKeyLook mLook = MrKeyLook.NONE;
     private MrBackdrop.Spec mSpec = MrBackdrop.Spec.NO;
     private Bitmap mImage;
     private int mSoft;
@@ -64,6 +69,7 @@ final class MrThemePreview extends View {
     private String mBgKey;
     private Drawable mFace, mAccent;
     private String mFaceTag;
+    private MrKeyLook mFacesLook;
     private int mDrawn;
     /** The "add a picture" tile: a plain face with a plus, not a keyboard. */
     private boolean mPlus;
@@ -99,6 +105,22 @@ final class MrThemePreview extends View {
         mImage = image;
         mSoft = soft;
         invalidate();
+    }
+
+    /** The tuning of the keys to draw with (null = none): the opacity of the face and of the line, the colour of the letters, the colour of the person's own styles. Draws again. */
+    void setLook(MrKeyLook look) {
+        mLook = look == null ? MrKeyLook.NONE : look;
+        invalidate();
+    }
+
+    /** What the keys are drawn with (test help). */
+    MrKeyLook look() {
+        return mLook;
+    }
+
+    /** Whether the tuning counts here: only for a theme of the backgrounds. */
+    private boolean tuned() {
+        return MrThemeColors.hidden(mTag);
     }
 
     /** Draws the tile that adds a picture (a plus on a plain face) instead of a keyboard. */
@@ -233,23 +255,33 @@ final class MrThemePreview extends View {
         canvas.drawBitmap(mBg, new Rect(0, 0, w, h), new Rect(0, 0, w, h), mPaint);
     }
 
-    /** The line of suggestions: three bars of the ink of the toolbar, between thin dividers. */
+    /** The gap that the face of a key keeps round it, in dp (the first row of keys starts this much under the line of suggestions). */
+    static final float FACE_GAP_DP = 3f;
+    /** The space between two of the bars of the line of suggestions, as a share of the width. */
+    static final float WORD_GAP = 0.11f;
+
+    /**
+     * The line of suggestions: three bars of the ink of the toolbar, between thin dividers. The group is centred in the width of the keyboard (the same
+     * margin on both sides) and in the height between the top of the keyboard and the top of the first row of keys (the face of a key keeps a small gap).
+     */
     private void bar(Canvas canvas, Context c, float vw, float vh, float share) {
         int ink = MrThemeColors.ink(c, mTag);
-        float top = 0f, bottom = vh * share;
-        float cy = (top + bottom) / 2f;
+        float bottom = vh * share;
+        float cy = (bottom + FACE_GAP_DP * mDensity) / 2f;
         float bh = bottom * 0.22f;
+        float sum = WORD_GAP * vw * (WORDS.length - 1);
+        for (float f : WORDS) sum += f * vw;
         mPaint.setShader(null);
         mPaint.setStyle(Paint.Style.FILL);
-        float x = vw * 0.09f;
+        float x = (vw - sum) / 2f;
         for (int i = 0; i < WORDS.length; i++) {
             float bw = vw * WORDS[i];
             mPaint.setColor(withAlpha(ink, 0.70f));
             canvas.drawRoundRect(x, cy - bh / 2f, x + bw, cy + bh / 2f, bh / 2f, bh / 2f, mPaint);
-            x += bw + vw * 0.11f;
+            x += bw + vw * WORD_GAP;
             if (i < WORDS.length - 1) {
                 mPaint.setColor(withAlpha(ink, 0.25f));
-                canvas.drawRect(x - vw * 0.055f - 1f, bottom * 0.28f, x - vw * 0.055f + 1f, bottom * 0.72f, mPaint);
+                canvas.drawRect(x - vw * WORD_GAP / 2f - 1f, cy - bottom * 0.22f, x - vw * WORD_GAP / 2f + 1f, cy + bottom * 0.22f, mPaint);
             }
         }
     }
@@ -263,6 +295,7 @@ final class MrThemePreview extends View {
         float unit = (vw - 2f * side) / 10f;
         int text = MrThemeColors.colorOr(c, mTag, "text", 0xffffffff);
         int accentText = MrThemeColors.colorOr(c, mTag, "accent_text", text);
+        if (tuned() && mLook.text != 0) text = accentText = mLook.text;
         // the neon themes light up their labels
         int glow = MrThemeColors.declared(c, mTag, "glow");
         float glowPx = glow == 0 ? 0f : 5f * mDensity;
@@ -321,6 +354,7 @@ final class MrThemePreview extends View {
         float unit = width / 10f;
         int text = MrThemeColors.colorOr(c, mTag, "text", 0xffffffff);
         int accentText = MrThemeColors.colorOr(c, mTag, "accent_text", text);
+        if (tuned() && mLook.text != 0) text = accentText = mLook.text;
         int glow = MrThemeColors.declared(c, mTag, "glow");
         float glowPx = glow == 0 ? 0f : 5f * mDensity;
         float letter = rowH * 0.42f, word = rowH * 0.30f;
@@ -390,7 +424,7 @@ final class MrThemePreview extends View {
         spectrum(x, y, w, h);
         float[] m = mCurrent;
         if (m != null) {
-            ink = MrGlow.map(m, ink);
+            if (!(tuned() && mLook.text != 0)) ink = MrGlow.map(m, ink);
             if (glowPx > 0f) glow = (glow & 0xff000000) | (mCurrentHue & 0xffffff);
         }
         canvas.save();
@@ -400,12 +434,8 @@ final class MrThemePreview extends View {
             // a key of the keyboard is "single" at rest (the selector then takes its resting face) and checkable when it is a modifier key
             face.setState(state == FACE_LOCK ? STATE_LOCK : state == FACE_ON ? STATE_ON : dash != DASH_NONE ? STATE_MOD : STATE_NORMAL);
             KeyStyle.prepare(face, iw, ih, getContext());
-            face.setColorFilter(mCurrentFilter);
-            try {
-                KeyStyle.drawKey(face, canvas, iw, ih);
-            } finally {
-                face.setColorFilter(null);
-            }
+            boolean tune = tuned() && mLook.faceTuned();
+            MrGlow.drawFace(face, canvas, iw, ih, mCurrentFilter, tune ? opacityFilter(true) : null, tune ? opacityFilter(false) : null);
         } else {
             flat(canvas, iw, ih, accent, state);
         }
@@ -428,6 +458,7 @@ final class MrThemePreview extends View {
         String role = state == DASH_LOCK ? "modifier_indicator_lock" : state == DASH_ON ? "modifier_indicator_on" : "modifier_indicator_off";
         int colour = MrThemeColors.colorOr(c, mTag, role, 0xff808080);
         if (mCurrent != null && state != DASH_LOCK) colour = MrGlow.map(mCurrent, colour);
+        if (state == DASH_OFF && tuned()) colour = MrKeyLook.dashOff(colour);     // the dash that is off is only a hint: faint on the backgrounds
         float dw = Math.min(14f * mDensity, w * 0.3f), dh = 3f * mDensity;
         float bottom = h - 8f * mDensity;
         mPaint.setShader(null);
@@ -454,10 +485,17 @@ final class MrThemePreview extends View {
             lip = MrGlow.map(mCurrent, lip);
             edge = MrGlow.map(mCurrent, edge);
         }
+        boolean seeThrough = lip == fill && (fill >>> 24) != 255;
+        if (tuned()) {
+            // the opacities that the person chose
+            fill = MrGlow.scale(fill, mLook.key / 100f);
+            lip = seeThrough ? fill : MrGlow.scale(lip, mLook.key / 100f);
+            edge = edge == 0 ? 0 : MrGlow.scale(edge, mLook.edge / 100f);
+        }
         float gap = 3f * mDensity, r = 8f * mDensity;
         mPaint.setShader(null);
         mPaint.setStyle(Paint.Style.FILL);
-        if (lip == fill && (fill >>> 24) != 255) {
+        if (seeThrough) {
             // a see-through face has no lip: drawn twice it would be less see-through
             mPaint.setColor(fill);
             canvas.drawRoundRect(gap, gap, w - gap, h - gap, r, r, mPaint);
@@ -478,16 +516,33 @@ final class MrThemePreview extends View {
 
     /** The key faces of the theme: made once for each theme (the drawable is a copy, so that making it ready does not change the shared one). */
     private void faces(Context c) {
-        if (mFace != null && (mTag == null ? mFaceTag == null : mTag.equals(mFaceTag))) return;
-        mFaceTag = mTag;
-        mFace = face(c, MrThemeColors.keyDrawable(c, mTag, false));
-        mAccent = face(c, MrThemeColors.keyDrawable(c, mTag, true));
+        boolean same = mFace != null && (mTag == null ? mFaceTag == null : mTag.equals(mFaceTag));
+        if (!same) {
+            mFaceTag = mTag;
+            mFace = face(c, MrThemeColors.keyDrawable(c, mTag, false));
+            mAccent = face(c, MrThemeColors.keyDrawable(c, mTag, true));
+            mFacesLook = null;
+        }
+        if (same && mFacesLook == mLook) return;
+        mFacesLook = mLook;
         mStart = MrThemeColors.own(c, mTag, "spectrum_start");
-        mFrom = mStart == 0 ? 0 : MrThemeColors.own(c, mTag, "glow");
         mMid = MrThemeColors.own(c, mTag, "spectrum_mid");
         mEnd = MrThemeColors.own(c, mTag, "spectrum_end");
+        int[] own = tuned() ? MrKeyLook.spectrum(mTag, mLook) : null;      // the styles of the person's own colour
+        if (own != null) {
+            mStart = own[0];
+            mMid = own[1];
+            mEnd = own[2];
+        }
+        mFrom = mStart == 0 ? 0 : MrThemeColors.own(c, mTag, "glow");
         mMatrix = mFrom == 0 ? null : new float[MrGlow.STEPS + 1][];
         mFilter = mFrom == 0 ? null : new android.graphics.ColorFilter[MrGlow.STEPS + 1];
+    }
+
+    /** The filter that gives a face its opacity ({@code fill}: of the fill, else of the line) and, on a gradient theme, the hue of the key being drawn. */
+    private android.graphics.ColorFilter opacityFilter(boolean fill) {
+        float k = (fill ? mLook.key : mLook.edge) / 100f;
+        return MrGlow.filter(mCurrent, k);
     }
 
     /** Where the keys are (the area under the line of suggestions): the position of a key in it gives its hue on a gradient theme. */

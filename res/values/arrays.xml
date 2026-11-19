@@ -59,7 +59,7 @@
         <item>@string/layout_mr_overice</item>
         <item>@string/layout_mr_overlilac</item>
         <item>@string/layout_mr_overmint</item>
-        <item>@string/layout_mr_overember</item>
+        <item>@string/layout_mr_overshade</item>
         <item>@string/layout_mr_overline</item>
         <item>@string/layout_mr_overteal</item>
         <item>@string/layout_mr_overviolet</item>
@@ -70,6 +70,9 @@
         <item>@string/layout_mr_overtide</item>
         <item>@string/layout_mr_overprism</item>
         <item>@string/layout_mr_overlagoon</item>
+        <item>@string/layout_mr_overownglass</item>
+        <item>@string/layout_mr_overownline</item>
+        <item>@string/layout_mr_overowngrad</item>
     </string-array>
     <string-array name="keyboard_layout_modes_values">
         <item>0</item>
@@ -101,6 +104,9 @@
         <item>26</item>
         <item>27</item>
         <item>28</item>
+        <item>29</item>
+        <item>30</item>
+        <item>31</item>
     </string-array>
     <string-array name="keyboard_mode_entries">
         <item>Standard (shortcut rows + Ctrl/Alt)</item>

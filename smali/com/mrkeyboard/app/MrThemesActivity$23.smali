@@ -3,12 +3,12 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->loadImage()V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->fillKeys(Landroid/widget/LinearLayout;[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,17 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$load:I
+.field final synthetic val$draw:[Ljava/lang/Runnable;
+
+.field final synthetic val$n:I
+
+.field final synthetic val$redraw:Ljava/lang/Runnable;
+
+.field final synthetic val$style:[I
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;I)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;[IILjava/lang/Runnable;[Ljava/lang/Runnable;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +39,16 @@
     .end annotation
 
     .prologue
-    .line 1058
+    .line 995
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$23;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$23;->val$load:I
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$23;->val$style:[I
+
+    iput p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$23;->val$n:I
+
+    iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$23;->val$redraw:Ljava/lang/Runnable;
+
+    iput-object p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$23;->val$draw:[Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,40 +57,52 @@
 
 
 # virtual methods
-.method public run()V
+.method public onClick(Landroid/view/View;)V
     .locals 4
 
     .prologue
-    .line 1060
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$23;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+    const/4 v3, 0x0
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->load(Landroid/content/Context;)Landroid/graphics/Bitmap;
+    .line 997
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$23;->val$style:[I
 
-    move-result-object v1
+    aget v0, v0, v3
 
-    .line 1061
-    if-nez v1, :cond_0
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->kindOf(I)I
 
-    const/4 v0, 0x0
+    move-result v0
 
-    .line 1062
+    iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$23;->val$n:I
+
+    if-ne v0, v1, :cond_0
+
+    .line 1001
     :goto_0
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$23;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    new-instance v3, Lcom/mrkeyboard/app/MrThemesActivity$23$1;
-
-    invoke-direct {v3, p0, v1, v0}, Lcom/mrkeyboard/app/MrThemesActivity$23$1;-><init>(Lcom/mrkeyboard/app/MrThemesActivity$23;Landroid/graphics/Bitmap;Landroid/graphics/Bitmap;)V
-
-    invoke-virtual {v2, v3}, Lcom/mrkeyboard/app/MrThemesActivity;->runOnUiThread(Ljava/lang/Runnable;)V
-
-    .line 1070
     return-void
 
-    .line 1061
+    .line 998
     :cond_0
-    invoke-static {v1}, Lcom/mrkeyboard/app/MrThemesActivity;->thumb(Landroid/graphics/Bitmap;)Landroid/graphics/Bitmap;
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$23;->val$style:[I
 
-    move-result-object v0
+    sget-object v1, Lcom/mrkeyboard/app/MrBackdrop;->KIND_FIRST:[I
+
+    iget v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$23;->val$n:I
+
+    aget v1, v1, v2
+
+    aput v1, v0, v3
+
+    .line 999
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$23;->val$redraw:Ljava/lang/Runnable;
+
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+
+    .line 1000
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$23;->val$draw:[Ljava/lang/Runnable;
+
+    aget-object v0, v0, v3
+
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
     goto :goto_0
 .end method

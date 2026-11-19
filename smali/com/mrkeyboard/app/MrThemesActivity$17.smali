@@ -3,7 +3,7 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Lcom/mrkeyboard/app/MrThemesActivity$Setter;
 
 
 # annotations
@@ -20,17 +20,13 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$pending:Z
+.field final synthetic val$redraw:Ljava/lang/Runnable;
 
 .field final synthetic val$softNow:[I
 
-.field final synthetic val$spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
-
-.field final synthetic val$style:[I
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Lcom/mrkeyboard/app/MrBackdrop$Spec;[I[IZ)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;[ILjava/lang/Runnable;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -39,16 +35,12 @@
     .end annotation
 
     .prologue
-    .line 863
+    .line 894
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$softNow:[I
 
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$softNow:[I
-
-    iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$style:[I
-
-    iput-boolean p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$pending:Z
+    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$redraw:Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -57,29 +49,28 @@
 
 
 # virtual methods
-.method public run()V
-    .locals 5
+.method public set(I)V
+    .locals 3
 
     .prologue
-    const/4 v4, 0x0
+    const/4 v2, 0x0
 
-    .line 865
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+    .line 896
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$softNow:[I
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
+    const/16 v1, 0x46
 
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$softNow:[I
+    invoke-static {p1, v2, v1}, Lcom/mrkeyboard/app/MrBackdrop;->clamp(III)I
 
-    aget v2, v2, v4
+    move-result v1
 
-    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$style:[I
+    aput v1, v0, v2
 
-    aget v3, v3, v4
+    .line 897
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$redraw:Ljava/lang/Runnable;
 
-    iget-boolean v4, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$pending:Z
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    invoke-virtual {v0, v1, v2, v3, v4}, Lcom/mrkeyboard/app/MrThemesActivity;->applyBackdrop(Lcom/mrkeyboard/app/MrBackdrop$Spec;IIZ)V
-
-    .line 866
+    .line 898
     return-void
 .end method

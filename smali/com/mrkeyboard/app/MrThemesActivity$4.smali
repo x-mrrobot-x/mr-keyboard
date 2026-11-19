@@ -3,12 +3,12 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->buildMore(I)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->revealRow(Landroid/view/View;I)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,27 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
+.field final synthetic val$row:Landroid/view/View;
+
+.field final synthetic val$tries:I
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Landroid/view/View;I)V
     .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 345
+    .line 330
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$4;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$4;->val$row:Landroid/view/View;
+
+    iput p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$4;->val$tries:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,15 +49,21 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .locals 1
+.method public run()V
+    .locals 3
 
     .prologue
-    .line 347
+    .line 332
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$4;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->removeImage()V
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$4;->val$row:Landroid/view/View;
 
-    .line 348
+    iget v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$4;->val$tries:I
+
+    add-int/lit8 v2, v2, -0x1
+
+    invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrThemesActivity;->access$000(Lcom/mrkeyboard/app/MrThemesActivity;Landroid/view/View;I)V
+
+    .line 333
     return-void
 .end method
