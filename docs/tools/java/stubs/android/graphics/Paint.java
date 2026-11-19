@@ -27,13 +27,24 @@ public class Paint {
 
     public void setColor(int color) { stubColor = color; }
     public int getColor() { return stubColor; }
-    public void setStyle(Style style) { }
-    public void setStrokeWidth(float width) { }
-    public float getStrokeWidth() { return 0f; }
+    /** What was asked (the PC tests and their drawing backend read it). */
+    public Style stubStyle = Style.FILL;
+    public Shader stubShader;
+    public int stubAlpha = 255;
+    public void setStyle(Style style) { stubStyle = style; }
+    public Shader setShader(Shader shader) { Shader old = stubShader; stubShader = shader; return old; }
+    public void setAlpha(int a) { stubAlpha = a; }
+    public void setAntiAlias(boolean aa) { }
+    public void setDither(boolean dither) { }
+    public void setFilterBitmap(boolean filter) { }
+    public float stubStroke;
+    public void setStrokeWidth(float width) { stubStroke = width; }
+    public float getStrokeWidth() { return stubStroke; }
     public void setStrokeCap(Cap cap) { }
     public void setStrokeJoin(Join join) { }
     public PathEffect setPathEffect(PathEffect effect) { return null; }
-    public void setTextAlign(Align align) { }
+    public Align stubAlign = Align.LEFT;
+    public void setTextAlign(Align align) { stubAlign = align; }
     public void setTextSize(float textSize) { stubTextSize = textSize; }
     public float getTextSize() { return stubTextSize; }
     public void setShadowLayer(float radius, float dx, float dy, int shadowColor) {

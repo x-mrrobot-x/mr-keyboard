@@ -6,7 +6,7 @@ Run it from the project root:  python3 -I docs/tools/test_haptic.py
 Runs the REAL smali in the mini Dalvik interpreter (dalvik_mini.py) with a fake phone: a vibrator that records what it is asked to play (an effect
 of the composition, a predefined one, a one-shot, with or without the usage "touch"), a keyboard view that records the system haptic, and an Android
 version (Build.VERSION.SDK_INT) that the test chooses. The rules (docs/haptics.md):
-  - by default (the setting "vibrate_system" on, how Gboard does it) the strength is 0 and the keyboard only asks the phone for its own key tap
+  - by default (the setting "vibrate_system" on) the strength is 0 and the keyboard only asks the phone for its own key tap
     (KEYBOARD_TAP on the view, with the flag "ignore the global setting" before API 33); no effect of the keyboard is built. When the tap is not
     played (the touch vibration of the system is off) or there is no view, the effect of the keyboard plays at 50 %;
   - with "vibrate_system" off the strength is 1..100 %; what is above is brought down;
@@ -233,7 +233,7 @@ p = Phone(34, prims=True)
 p.play(500)
 check("a strength above 100 is played as 100 % (a CLICK at full scale)", effect_of(p) == ("composition", ((1, 1.0),), 0x12), p.played)
 
-# ------------------------------------------------------------------ the system mode (strength 0): the key tap of the phone, as Gboard does
+# ------------------------------------------------------------------ the system mode (strength 0): the key tap of the phone
 for sdk, flags in ((26, 2), (28, 2), (29, 2), (32, 2), (33, None), (34, None), (36, None)):
     p = Phone(sdk, prims=True)
     p.play(0)

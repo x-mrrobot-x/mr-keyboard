@@ -1,6 +1,12 @@
 package android.graphics.drawable;
 
 public abstract class Drawable {
+    /** The state that a copy of a drawable is made from (Android nested class). */
+    public abstract static class ConstantState {
+        public abstract Drawable newDrawable();
+    }
+    public ConstantState getConstantState() { return null; }
+    public Drawable mutate() { return this; }
     public void setAlpha(int alpha) { }
     private final android.graphics.Rect stubBounds = new android.graphics.Rect();
     public void setBounds(int left, int top, int right, int bottom) { stubBounds.left = left; stubBounds.top = top; stubBounds.right = right; stubBounds.bottom = bottom; }

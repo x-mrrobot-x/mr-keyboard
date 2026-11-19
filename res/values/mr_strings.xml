@@ -804,4 +804,25 @@
     <string name="mr_sound_name_drop">Water drop</string>
     <string name="mr_sound_name_rocket">Rocket</string>
     <string name="mr_sound_name_mouse">Mouse</string>
+    <string name="mr_themes_title">Keyboard theme</string>
+    <string name="mr_themes_themes">Themes</string>
+    <string name="mr_themes_backgrounds">Backgrounds</string>
+    <string name="mr_themes_landscapes">Landscapes</string>
+    <string name="mr_themes_gradients">Gradients</string>
+    <string name="mr_themes_none">None</string>
+    <string name="mr_themes_gallery">Gallery</string>
+    <string name="mr_themes_mine">My image</string>
+    <string name="mr_themes_soften">Soften background</string>
+    <string name="mr_themes_soften_hint">A veil keeps the suggestions readable over any background.</string>
+    <string name="mr_themes_zoom">Zoom</string>
+    <string name="mr_themes_drag">Drag the keyboard above to move the image.</string>
+    <string name="mr_themes_remove">Remove my image</string>
+    <string name="mr_themes_image_failed">Could not use this image.</string>
+    <string name="mr_themes_gradient">Gradient %1$d</string>
+    <string name="mr_themes_scene_0">Dusk</string>
+    <string name="mr_themes_scene_1">Dunes</string>
+    <string name="mr_themes_scene_2">Sea</string>
+    <string name="mr_themes_scene_3">Forest</string>
+    <string name="mr_themes_scene_4">Northern lights</string>
+    <string name="mr_themes_scene_5">City</string>
 </resources>

@@ -5,5 +5,6 @@ public class PreferenceManager {
     public static android.content.SharedPreferences stubDefault;
     public static android.content.SharedPreferences getDefaultSharedPreferences(android.content.Context context) { return stubDefault; }
     public PreferenceScreen createPreferenceScreen(android.content.Context context) { return null; }
+    public android.content.SharedPreferences getSharedPreferences() { return stubDefault; }
     public void setSharedPreferencesName(String name) { }
 }

@@ -22,7 +22,9 @@ public class View {
     private Object stubTag;
     public Object getTag() { return stubTag; }
     public void setTag(Object tag) { stubTag = tag; }
-    public ViewParent getParent() { return null; }
+    /** Not in Android: the group this view was added to (ViewGroup.addView sets it), so that the PC tests can walk up from a view. */
+    ViewParent stubParent;
+    public ViewParent getParent() { return stubParent; }
     public View getRootView() { return this; }
     private int stubW, stubH;
     /** Size of the view, set by the PC tests (a real view gets it from the layout). */
@@ -39,7 +41,9 @@ public class View {
     public void setBackgroundResource(int resid) { stubBackgroundRes = resid; }
     public boolean postDelayed(Runnable action, long delayMillis) { stubPosted.add(action); return true; }
     public void setBackgroundDrawable(android.graphics.drawable.Drawable background) { }
-    public void setBackgroundColor(int color) { }
+    /** The last colour given as a background (tests read it; the setBackground of a drawable leaves it as it was). */
+    public int stubBackgroundColor;
+    public void setBackgroundColor(int color) { stubBackgroundColor = color; stubBackground = null; }
     private int padL, padT, padR, padB;
     private OnApplyWindowInsetsListener insetsListener;
     private int insetsRequests;
@@ -137,7 +141,10 @@ public class View {
 
     /** Measure modes and the helpers of onMeasure (Android nested class View.MeasureSpec). */
     public static class MeasureSpec {
-        public static int getSize(int measureSpec) { return 0; }
+        public static final int UNSPECIFIED = 0, EXACTLY = 1 << 30, AT_MOST = 2 << 30;
+        public static int makeMeasureSpec(int size, int mode) { return (size & 0x3fffffff) | mode; }
+        public static int getSize(int measureSpec) { return measureSpec & 0x3fffffff; }
+        public static int getMode(int measureSpec) { return measureSpec & (3 << 30); }
     }
     /** Drawing and measuring hooks of a drawn view (the key grid of the sheet editor). */
     protected void onDraw(android.graphics.Canvas canvas) { }
@@ -145,9 +152,10 @@ public class View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) { }
     public boolean onTouchEvent(MotionEvent event) { return false; }
     public static int resolveSize(int size, int measureSpec) { return size; }
-    protected final void setMeasuredDimension(int measuredWidth, int measuredHeight) { stubMeasuredH = measuredHeight; }
-    private int stubMeasuredH;
+    protected final void setMeasuredDimension(int measuredWidth, int measuredHeight) { stubMeasuredW = measuredWidth; stubMeasuredH = measuredHeight; }
+    private int stubMeasuredW, stubMeasuredH;
     public int stubMeasuredHeight() { return stubMeasuredH; }
+    public int stubMeasuredWidth() { return stubMeasuredW; }
     /** Runs the measure step (a real view is measured by its parent). */
     public final void measure(int widthMeasureSpec, int heightMeasureSpec) { onMeasure(widthMeasureSpec, heightMeasureSpec); }
     public void requestLayout() { }

@@ -12,15 +12,15 @@ import java.util.WeakHashMap;
  * The one place that builds the Intent that opens a screen of the app (Settings, Packs, Sheets, AI Editor settings and
  * its style editor).
  * <p>
- * The app is ONE task and ONE window in the list of recent apps: no screen has a <code>taskAffinity</code> of its own in the manifest, so
- * everything (the home screen and every screen that the keyboard opens) lives in the task of the package, under the single title that
- * {@link MrScreens} gives it. The screens are not hidden from the list: the person sees that the app is open and can close it there.
+ * The screens have an affinity of their own in the manifest ({@link #SETTINGS_AFFINITY}), so they
+ * live in a task apart from the one of the home screen ({@code Main}), and what the keyboard opens is started with
+ * {@code NEW_TASK | CLEAR_TASK | EXCLUDE_FROM_RECENTS}: the task is emptied before the screen starts (tapping the gear again shows the
+ * Settings from its first page, not whatever screen was left open above it) and it is not in the list of recent apps (leaving the Settings
+ * leaves nothing behind there). The settings reached from the home screen stay in the task of the home screen, which is listed as usual.
  * <p>
- * From the keyboard (a Service, not an Activity) the screen has to start in a task: NEW_TASK, which with the affinity of the package puts
- * it on top of the task of the app when that is alive (and creates the task when it is not). REORDER_TO_FRONT brings the screen to the
- * front if it is already open in that task, instead of stacking another copy: tapping the gear three times no longer needs three Backs.
- * CLEAR_TOP is deliberately not used (it would also close what the user has open above the screen, such as a style being edited) and,
- * if it were set, REORDER_TO_FRONT would be ignored.
+ * The one exception is a style of the AI Editor being edited ({@link MrAiStyleActivity#isOpen}): it may hold a draft that was not saved, and
+ * emptying the task would throw it away, so then the screen is started on top of the task that is open (NEW_TASK with REORDER_TO_FRONT: a copy
+ * that is already open is brought to the front, not stacked again).
  * <p>
  * From a screen (an Activity) the new screen goes on the stack of the one that opened it, so no NEW_TASK; but
  * REORDER_TO_FRONT is kept, so that a copy that is already in that stack (a style editor left under the list of styles,
@@ -35,8 +35,12 @@ import java.util.WeakHashMap;
 public final class MrNav {
     /** Flag of every screen: an open copy in the task is brought to the front, not duplicated. */
     static final int REUSE = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT;
-    /** Flags of a screen opened from the keyboard window. */
-    static final int FROM_KEYBOARD = Intent.FLAG_ACTIVITY_NEW_TASK | REUSE;
+    /** The affinity that every screen of the app but the home screen has in the manifest: their task, apart from the home screen's. */
+    static final String SETTINGS_AFFINITY = "com.mrkeyboard.app.settings";
+    /** Flags of a screen opened from the keyboard window: its own task, emptied first, not listed in the recent apps. */
+    static final int FROM_KEYBOARD = Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
+    /** Flags when a style is being edited: on top of the open task, so that the draft is not lost. */
+    static final int KEEPING_DRAFT = Intent.FLAG_ACTIVITY_NEW_TASK | REUSE;
     /** Extra of the Intent of a screen opened from the keyboard window (not of the ones opened from another screen). */
     static final String EXTRA_FROM_KEYBOARD = "mr_from_keyboard";
 
@@ -54,7 +58,7 @@ public final class MrNav {
         if (from instanceof Activity) {
             i.addFlags(REUSE);
         } else {
-            i.addFlags(FROM_KEYBOARD);
+            i.addFlags(MrAiStyleActivity.isOpen() ? KEEPING_DRAFT : FROM_KEYBOARD);
             i.putExtra(EXTRA_FROM_KEYBOARD, true);
         }
         return i;

@@ -40,7 +40,7 @@
     .locals 1
 
     .prologue
-    .line 42
+    .line 43
     new-instance v0, Ljava/util/WeakHashMap;
 
     invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
@@ -54,7 +54,7 @@
     .locals 0
 
     .prologue
-    .line 44
+    .line 45
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -66,19 +66,19 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 75
+    .line 76
     if-eqz p0, :cond_0
 
     instance-of v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;
 
     if-eqz v0, :cond_1
 
-    .line 85
+    .line 86
     :cond_0
     :goto_0
     return-void
 
-    .line 77
+    .line 78
     :cond_1
     :try_start_0
     invoke-virtual {p0}, Landroid/view/View;->getContext()Landroid/content/Context;
@@ -89,7 +89,7 @@
 
     move-result v2
 
-    .line 78
+    .line 79
     sget-object v0, Lcom/mrkeyboard/app/MrBottom;->APPLIED:Ljava/util/WeakHashMap;
 
     invoke-virtual {v0, p0}, Ljava/util/WeakHashMap;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -98,7 +98,7 @@
 
     check-cast v0, Ljava/lang/Integer;
 
-    .line 79
+    .line 80
     invoke-virtual {p0}, Landroid/view/View;->getPaddingBottom()I
 
     move-result v3
@@ -110,7 +110,7 @@
     :goto_1
     sub-int v0, v3, v0
 
-    .line 80
+    .line 81
     invoke-virtual {p0}, Landroid/view/View;->getPaddingLeft()I
 
     move-result v1
@@ -133,7 +133,7 @@
 
     invoke-virtual {p0, v1, v3, v4, v0}, Landroid/view/View;->setPadding(IIII)V
 
-    .line 81
+    .line 82
     sget-object v0, Lcom/mrkeyboard/app/MrBottom;->APPLIED:Ljava/util/WeakHashMap;
 
     invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
@@ -144,13 +144,13 @@
 
     goto :goto_0
 
-    .line 82
+    .line 83
     :catch_0
     move-exception v0
 
     goto :goto_0
 
-    .line 79
+    .line 80
     :cond_2
     invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
     :try_end_0
@@ -165,7 +165,7 @@
     .locals 4
 
     .prologue
-    .line 105
+    .line 106
     if-eqz p0, :cond_0
 
     sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
@@ -174,69 +174,80 @@
 
     if-ge v0, v1, :cond_1
 
-    .line 117
+    .line 121
     :cond_0
     :goto_0
     return-void
 
-    .line 107
+    .line 108
     :cond_1
     :try_start_0
     invoke-virtual {p0}, Landroid/inputmethodservice/InputMethodService;->getWindow()Landroid/app/Dialog;
 
     move-result-object v0
 
-    .line 108
+    .line 109
     if-nez v0, :cond_3
 
     const/4 v0, 0x0
 
-    .line 109
-    :goto_1
-    if-eqz v0, :cond_0
+    move-object v2, v0
 
     .line 110
-    sget v1, Landroid/os/Build$VERSION;->SDK_INT:I
+    :goto_1
+    if-eqz v2, :cond_0
 
-    const-string v2, "kbd_bg"
+    .line 111
+    sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
 
-    invoke-static {v2}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+    const-string v1, "kbd_bg"
 
-    move-result v2
-
-    invoke-static {v1, v2}, Lcom/mrkeyboard/app/MrBottom;->barColor(II)I
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
 
     move-result v1
 
-    .line 111
-    sget v2, Landroid/os/Build$VERSION;->SDK_INT:I
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrBottom;->barColor(II)I
+
+    move-result v1
+
+    .line 113
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->bottomColor(Landroid/content/Context;)I
+
+    move-result v0
+
+    .line 114
+    if-eqz v0, :cond_4
+
+    .line 115
+    :goto_2
+    sget v1, Landroid/os/Build$VERSION;->SDK_INT:I
 
     const/16 v3, 0x24
 
-    if-ge v2, v3, :cond_2
+    if-ge v1, v3, :cond_2
 
-    const v2, -0xff01
+    const v1, -0xff01
 
-    if-eq v1, v2, :cond_0
+    if-eq v0, v1, :cond_0
 
-    .line 112
+    .line 116
     :cond_2
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/MrBottom$Api29;->bar(Landroid/view/Window;I)V
+    invoke-static {v2, v0}, Lcom/mrkeyboard/app/MrBottom$Api29;->bar(Landroid/view/Window;I)V
 
-    .line 113
+    .line 117
     sget v0, Lcom/mrkeyboard/app/MrTools;->sTextColor:I
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrLight;->bars(Landroid/inputmethodservice/InputMethodService;I)V
 
     goto :goto_0
 
-    .line 114
+    .line 118
     :catch_0
     move-exception v0
 
     goto :goto_0
 
-    .line 108
+    .line 109
     :cond_3
     invoke-virtual {v0}, Landroid/app/Dialog;->getWindow()Landroid/view/Window;
     :try_end_0
@@ -244,21 +255,28 @@
 
     move-result-object v0
 
+    move-object v2, v0
+
     goto :goto_1
+
+    :cond_4
+    move v0, v1
+
+    goto :goto_2
 .end method
 
 .method static barColor(II)I
     .locals 1
 
     .prologue
-    .line 94
+    .line 95
     const/16 v0, 0x24
 
     if-lt p0, v0, :cond_0
 
     const/4 p1, 0x0
 
-    .line 95
+    .line 96
     :cond_0
     return p1
 .end method
@@ -267,7 +285,7 @@
     .locals 2
 
     .prologue
-    .line 49
+    .line 50
     :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
@@ -279,7 +297,7 @@
 
     iget v0, v0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 50
+    .line 51
     const/high16 v1, 0x40800000    # 4.0f
 
     mul-float/2addr v0, v1
@@ -290,15 +308,15 @@
 
     move-result v0
 
-    .line 52
+    .line 53
     :goto_0
     return v0
 
-    .line 51
+    .line 52
     :catch_0
     move-exception v0
 
-    .line 52
+    .line 53
     const/4 v0, 0x0
 
     goto :goto_0
@@ -308,12 +326,12 @@
     .locals 2
 
     .prologue
-    .line 61
+    .line 62
     if-lez p0, :cond_0
 
     if-gtz p1, :cond_1
 
-    .line 62
+    .line 63
     :cond_0
     :goto_0
     return p0
@@ -336,7 +354,7 @@
     .locals 1
 
     .prologue
-    .line 67
+    .line 68
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBottom;->gapPx(Landroid/content/Context;)I
 
     move-result v0

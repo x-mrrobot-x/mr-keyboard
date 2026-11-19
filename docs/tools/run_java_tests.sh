@@ -20,9 +20,15 @@
 #     return), a sound that is still loading, fails or is missing (the system click plays as before), a style that changes, a preview asked for before the sound has loaded; the
 #     screen (fifteen tiles in the order of the picture, the choice written in sound_on / pref_sound_style, mute, the volume, the note of the default sound); and the files
 #     (the thirteen .ogg of res/raw read byte by byte, the strings in 3 languages, the manifest, the row of the feedback screen, the reset and the call in LatinIME.playKeyClick).
-#   - NavTest: opening screens without stacking copies (MrNav): flags from the keyboard window and from a screen, and
-#     what the AI style editor does when it is asked for again while it is already open.
-#   - BottomSpaceTest: the space under the last row of keys (MrBottom): 4 dp whatever the way of navigating (as in Gboard), the height that is left to the rows (the space is
+#   - ThemesTest: the themes screen (MrThemesActivity, MrThemePreview, MrThemeRow, MrBackdrop, MrBackdropDrawable, MrScenes, MrThemeColors) with the real colours and texts of res/ and Java2D behind the
+#     Canvas stub (the first argument is a folder where it dumps the previews as PNG): the spec of the background (gradient, landscape, picture with zoom and position, anything else is none), the part
+#     of a picture that fills the keyboard and how a finger moves it, the gradients drawn as CSS does, the veil that keeps the toolbar readable over every landscape and gradient under dark and light
+#     themes (over all of the background and over the toolbar), the picture of the gallery (size, turned as the photo says, a failure keeps the old one), the background put on the keyboard and the
+#     colour of the navigation bar (up to Android 15), the thirteen themes (dark or light by their background), the small keyboards (every key, the faces made once, the neon light, the ring), the screen
+#     (theme and background chosen apart, zoom, drag, softening, gallery, remove, a picture that is gone), the row of the settings, and the files (texts in three languages, manifest, prefs.xml, smali hooks).
+#   - NavTest: opening screens without stacking copies (MrNav): a settings screen opened from the keyboard goes in a task of its own (the affinity of the settings), cleared and out of
+#     the recents; opened from another screen it comes to the front instead of piling up; the AI style editor with an unsaved draft is the exception and is brought back, not cleared.
+#   - BottomSpaceTest: the space under the last row of keys (MrBottom): 4 dp whatever the way of navigating, the height that is left to the rows (the space is
 #     part of the height of the keyboard), the padding of the view once, errors from Android, the new default heights (34% / 61%), the navigation bar that takes the colour of the
 #     theme (opaque up to Android 15, transparent from 16 on) and the calls in LatinIME.setInputView and in the Keyboard.
 #   - ScreenImeTest: the keyboard on the editor screens (MrScreenIme): which field has it saved when the screen is
@@ -186,6 +192,10 @@ java -cp "$T/test_matrix:$T/stubs:$T/main" com.mrkeyboard.app.MatrixTest
 echo "== SoundTest (the key sounds: MrKeySound, the screen Keyboard sound and its files)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_sound" $D/screens_test/SoundTest.java
 java -Dfile.encoding=UTF-8 -cp "$T/test_sound:$T/stubs:$T/main" com.mrkeyboard.app.SoundTest
+
+echo "== ThemesTest (the themes screen, the backgrounds and the picture of the gallery)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_themes" $D/themes_test/ThemesTest.java
+java -Djava.awt.headless=true -Dfile.encoding=UTF-8 -cp "$T/test_themes:$T/stubs:$T/main" com.mrkeyboard.app.ThemesTest "$T/themes_png"
 
 echo "== NavTest (screens without copies)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_nav" $D/nav_test/NavTest.java

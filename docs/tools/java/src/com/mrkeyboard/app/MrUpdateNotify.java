@@ -60,11 +60,11 @@ final class MrUpdateNotify {
         }
     }
 
-    /** The intent of the tap: Settings, in a new task, with the extra that asks for the dialog. */
+    /** The intent of the tap: Settings, in a task of its own that is emptied first and not listed in the recent apps (as MrNav does), with the extra that asks for the dialog. */
     static Intent tapIntent(Context c) {
         return new Intent().setClassName(c.getPackageName(), TARGET)
                 .putExtra(MrUpdateUi.EXTRA_SHOW, true)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
     }
 
     /** Posts the notification of that version. False if it could not be posted (the job then does not mark it as notified). */

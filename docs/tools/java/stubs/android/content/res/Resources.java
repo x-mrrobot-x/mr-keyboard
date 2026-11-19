@@ -6,6 +6,7 @@ public class Resources {
     public static Resources getSystem() { return stubSystem; }
     public int getIdentifier(String name, String defType, String defPackage) { return 0; }
     public String getString(int id) { return null; }
+    public String[] getStringArray(int id) { return new String[0]; }
     public String getString(int id, Object... formatArgs) { return null; }
     public Configuration getConfiguration() { return null; }
     public int getColor(int id) { return 0; }

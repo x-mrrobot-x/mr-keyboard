@@ -1396,7 +1396,7 @@ public class UpdateTest {
         check("notification: it opens the Settings of the app in a clean task, asking for the dialog",
                 i != null && "com.mrkeyboard.app".equals(i.packageName) && "com.mrkeyboard.app.LatinIMESettings".equals(i.className)
                         && Boolean.TRUE.equals(i.extras.get(MrUpdateUi.EXTRA_SHOW))
-                        && i.flags == (android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                        && i.flags == (android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK | android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS));
         android.content.Intent s = MrUpdateNotify.settingsIntent(c);
         check("notification: the line 'Allow notifications' opens the notification settings of this app",
                 "android.settings.APP_NOTIFICATION_SETTINGS".equals(s.action) && "com.mrkeyboard.app".equals(s.extras.get("android.provider.extra.APP_PACKAGE")));

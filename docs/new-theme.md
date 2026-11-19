@@ -26,6 +26,9 @@ only Cobalt Glass is written by hand. To add or change one of the generated ones
    three lists from its `ORDER`. `mr_theme_tags` and `mr_theme_flags` are per theme, in the same order.
    The key layers' radius has no registration (item 5).
 4. **Selector:** the name in `keyboard_layout_modes` (the name of a theme is in English in every language: it is in `values/strings.xml` only, `layout_mr_<tema>`) and the value in `keyboard_layout_modes_values`.
+   The themes screen ([themes-screen.md](themes-screen.md)) lists every theme from these two lists and `mr_theme_tags`, as a small keyboard drawn
+   with the theme's own key drawables and the roles `kbd_bg`, `text`, `accent_text` and `key_normal_*` / `key_acc_normal_*`, so a new theme appears
+   there with no more registration. Whether the veil of a background is black or white follows the brightness of its `kbd_bg`.
 5. **Keys:** `btn_keyboard_key_<tema>` and `key_<tema>_{normal,pressed,on,lock,hl}`. The drawables only reference
    `@color`, with no hex: the colors live in `res/values/mr_key_colors.xml`, named
    `mr_<tema>_key_<estado>_<parte>` (state `normal`, `pressed`, `hl`, `on`, `lock` or `acc_<estado>`; part `halo`, `base`,

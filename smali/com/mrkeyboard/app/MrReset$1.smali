@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 104
+    .line 107
     iput-object p1, p0, Lcom/mrkeyboard/app/MrReset$1;->this$0:Lcom/mrkeyboard/app/MrReset;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -42,7 +42,7 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 106
+    .line 109
     iget-object v0, p0, Lcom/mrkeyboard/app/MrReset$1;->this$0:Lcom/mrkeyboard/app/MrReset;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrReset;->access$000(Lcom/mrkeyboard/app/MrReset;)Landroid/content/Context;
@@ -51,7 +51,7 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrReset;->apply(Landroid/content/Context;)V
 
-    .line 107
+    .line 110
     iget-object v0, p0, Lcom/mrkeyboard/app/MrReset$1;->this$0:Lcom/mrkeyboard/app/MrReset;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrReset;->access$000(Lcom/mrkeyboard/app/MrReset;)Landroid/content/Context;
@@ -82,7 +82,7 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 108
+    .line 111
     iget-object v0, p0, Lcom/mrkeyboard/app/MrReset$1;->this$0:Lcom/mrkeyboard/app/MrReset;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrReset;->access$000(Lcom/mrkeyboard/app/MrReset;)Landroid/content/Context;
@@ -103,7 +103,7 @@
 
     invoke-virtual {v0}, Landroid/app/Activity;->recreate()V
 
-    .line 109
+    .line 112
     :cond_0
     return-void
 .end method

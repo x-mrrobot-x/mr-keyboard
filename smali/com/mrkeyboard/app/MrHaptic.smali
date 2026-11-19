@@ -2,7 +2,7 @@
 .super Ljava/lang/Object;
 .source "MrHaptic.java"
 
-# The vibration of a key press. By default (the setting "vibrate_system" on, which is how Gboard does it) the keyboard asks the phone for its own
+# The vibration of a key press. By default (the setting "vibrate_system" on, the default) the keyboard asks the phone for its own
 # key tap (View.performHapticFeedback KEYBOARD_TAP): the effect that the maker tuned for the keyboard, soft, with no strength of ours.
 # The person who turns "vibrate_system" off sets a STRENGTH (1..100 %, "vibrate_strength"), not a duration in milliseconds: a one-shot pulse
 # of 1 ms is only the start and the stop of the motor (the actuator keeps ringing after it), which is what felt rough. The phone

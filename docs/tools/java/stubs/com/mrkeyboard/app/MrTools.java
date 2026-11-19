@@ -6,6 +6,8 @@ public class MrTools {
     public static android.content.Context sApp;
     /** The keyboard view (MrFonts redraws its keys). */
     public static android.view.View sKbd;
+    /** The root of the toolbar: it holds the bar, the panels and the keyboard, and has the background of the theme (MrBackdrop paints it). */
+    static android.view.View sBarRoot;
     /** The main row of the tool bar: the tools or, in their place, the suggestion strip (MrSugg). Visible while the bar is in view. */
     static android.view.View sBarMain;
 

@@ -9,28 +9,29 @@ import android.view.Window;
 import java.util.WeakHashMap;
 
 /**
- * The space under the last row of keys and the navigation bar under the keyboard, as Gboard does them.
+ * The space under the last row of keys and the navigation bar under the keyboard.
  * <p>
- * The last row does not touch the edge of the window: there is {@link #GAP_DP} (4 dp, the value of Gboard) under it, the same with the
- * home gesture and with the buttons (Gboard does not choose it by the way of navigating either). The space is part of the height of the
+ * The last row does not touch the edge of the window: there is {@link #GAP_DP} (4 dp) under it, the same with the
+ * home gesture and with the buttons (it does not depend on the way of navigating). The space is part of the height of the
  * keyboard: {@link #keysHeight} takes it out of the share of the screen that the setting "Keyboard height" gives (the keys give way by the
  * same amount, so the keyboard keeps the height the person chose), and {@link #apply} adds it as bottom padding of the view that holds the
  * toolbar and the keys (it has the background of the theme, so the space is painted like the keyboard). From Android 15 on ImeInsets adds
  * the system bar on top of it.
  * <p>
- * The navigation bar under the keyboard shows the background of the theme ({@link #bar}), as it does with Gboard: the window is asked for
+ * The navigation bar under the keyboard shows the background of the theme ({@link #bar}): the window is asked for
  * a bar of the colour of the keyboard background and no veil of the system (the "contrast" that Android puts on the three buttons: 80% of an
  * opaque colour, a band of another shade). From Android 16 on the keyboard is drawn under the bar (ImeInsets), so the bar is asked to be
  * transparent and the background shows through; before that it is asked for the background colour itself, because the system paints the bar
- * of its own (black) under a window that ends above it. In both the colour of the buttons follows the theme ({@link MrLight#bars}).
+ * of its own (black) under a window that ends above it. When the person chose a background for the keyboard ({@link MrBackdrop}) that colour is
+ * the colour of its lower edge. In both the colour of the buttons follows the theme ({@link MrLight#bars}).
  */
 public final class MrBottom {
-    /** Space under the last row of keys, in dp (the bottom row gap of Gboard). */
+    /** Space under the last row of keys, in dp. */
     static final float GAP_DP = 4f;
 
     /** From this Android on the window of the keyboard can colour the navigation bar and its buttons (the controller of Android 11). */
     static final int BAR_SDK = 30;
-    /** From this Android on the bar is transparent and the keyboard, drawn under it, shows through (Gboard also paints the bar itself up to Android 15). */
+    /** From this Android on the bar is transparent and the keyboard, drawn under it, shows through (up to Android 15 the bar is painted by the window itself). */
     static final int TRANSPARENT_BAR_SDK = 36;
     /** What MrTheme.color answers for a role it does not have (opaque magenta). */
     static final int NO_COLOR = 0xffff00ff;
@@ -86,7 +87,7 @@ public final class MrBottom {
 
     /**
      * The colour to ask for the navigation bar, for the Android in use and the keyboard background of the theme (<code>background</code>, as
-     * MrTheme.color gives it): the background itself up to Android 15, as Gboard does, with its opacity (a see-through theme gets a
+     * MrTheme.color gives it): the background itself up to Android 15, with its opacity (a see-through theme gets a
      * see-through bar); nothing (0, transparent) from Android 16 on, where the keyboard is drawn under the bar and shows through. A theme
      * without that role gives {@link #NO_COLOR}, which {@link #bar} does not ask for before Android 16.
      */
@@ -108,6 +109,9 @@ public final class MrBottom {
             Window w = dialog == null ? null : dialog.getWindow();
             if (w == null) return;
             int color = barColor(Build.VERSION.SDK_INT, MrTheme.color("kbd_bg"));
+            // a background chosen on the themes screen (a landscape, a picture) has its own lower edge: the bar takes that colour, not the theme's
+            int under = MrBackdrop.bottomColor(ime);
+            if (under != 0) color = under;
             if (Build.VERSION.SDK_INT < TRANSPARENT_BAR_SDK && color == NO_COLOR) return;
             Api29.bar(w, color);
             MrLight.bars(ime, MrTools.sTextColor);

@@ -804,4 +804,25 @@
     <string name="mr_sound_name_drop">Gota de agua</string>
     <string name="mr_sound_name_rocket">Cohete</string>
     <string name="mr_sound_name_mouse">Ratón</string>
+    <string name="mr_themes_title">Tema del teclado</string>
+    <string name="mr_themes_themes">Temas</string>
+    <string name="mr_themes_backgrounds">Fondos</string>
+    <string name="mr_themes_landscapes">Paisajes</string>
+    <string name="mr_themes_gradients">Degradados</string>
+    <string name="mr_themes_none">Ninguno</string>
+    <string name="mr_themes_gallery">Galería</string>
+    <string name="mr_themes_mine">Mi imagen</string>
+    <string name="mr_themes_soften">Suavizar fondo</string>
+    <string name="mr_themes_soften_hint">Un velo mantiene legibles las sugerencias sobre cualquier fondo.</string>
+    <string name="mr_themes_zoom">Zoom</string>
+    <string name="mr_themes_drag">Arrastra el teclado de arriba para mover la imagen.</string>
+    <string name="mr_themes_remove">Quitar mi imagen</string>
+    <string name="mr_themes_image_failed">No se pudo usar esta imagen.</string>
+    <string name="mr_themes_gradient">Degradado %1$d</string>
+    <string name="mr_themes_scene_0">Atardecer</string>
+    <string name="mr_themes_scene_1">Dunas</string>
+    <string name="mr_themes_scene_2">Mar</string>
+    <string name="mr_themes_scene_3">Bosque</string>
+    <string name="mr_themes_scene_4">Aurora boreal</string>
+    <string name="mr_themes_scene_5">Ciudad</string>
 </resources>

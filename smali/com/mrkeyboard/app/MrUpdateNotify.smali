@@ -412,7 +412,7 @@
 
     move-result-object v0
 
-    const v1, 0x10008000
+    const v1, 0x10808000
 
     .line 67
     invoke-virtual {v0, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;

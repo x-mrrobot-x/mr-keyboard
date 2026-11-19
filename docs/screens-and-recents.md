@@ -1,38 +1,43 @@
 # Screens opened by the keyboard and the recent apps
 
-The app is **one task**, so it is **one window** in the list of recent apps. Every screen is in that task: the home screen (`Main`), the settings, the dictionaries, the AI Editor settings and its style editor, the sheets, "What the keyboard learned", "Add words and texts" and the key sounds. Nothing is hidden from the list: the person sees that the app is open there and can close it, so it does not stay in memory.
+What the keyboard opens (the gear, the buttons of the AI Editor, the notification of a new version) lives in **a task of its own**, which is **emptied at every opening** and is **not in the list of recent apps**. Leaving the Settings leaves nothing behind in the list, and tapping the gear again shows the Settings from its first page, not whatever screen was left open above it.
 
-## Why there were two windows
+## The task of the Settings
 
-The keyboard (a Service) has to start a screen with `NEW_TASK`. The screens used to have an affinity of their own (`com.mrkeyboard.app.screens`), so that *Back* returned to the app being typed in. That made a second task next to the one of the home screen: two entries in the recent apps. The first fix hid the second one (`excludeFromRecents`), and the person could no longer see, or close, what was still open.
+- Every screen but the home screen has a `taskAffinity` of its own in the manifest (`MrNav.SETTINGS_AFFINITY`), so it is not in the task of the launcher.
+- Every Intent that the keyboard builds to open a screen has the flags `0x10808000`: `FLAG_ACTIVITY_NEW_TASK` (0x10000000) + `FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS` (0x00800000) + `FLAG_ACTIVITY_CLEAR_TASK` (0x00008000).
 
 ## What is done
 
-1. **One identity (manifest).** No screen has a `taskAffinity` of its own: the screens belong to the task of the package. `NEW_TASK` from the keyboard puts the screen on top of the task of the app when that is alive (and creates the task when it is not), so there is never a second task. No screen says `excludeFromRecents`; only the three translucent helper windows (voice, screenshot permission and picker) are left out of the list, because they exist for a moment.
-2. **One title.** `MrScreens` gives the task `setTaskDescription` with the name of the app on every screen, so the entry is always listed as "Mr Keyboard", whichever screen is on top (not "Settings" or "Dictionaries").
-3. **No copy of a screen on top of itself.** Every screen is `singleTop`. `MrNav.intent` adds `REORDER_TO_FRONT`: a screen that is already open is brought to the front, not stacked again (three taps on the gear do not need three Backs). `CLEAR_TOP` is not used (it would close what the person has open above the screen, such as a style being edited).
-4. **Closed when it is not needed.** `MrNav.intent` marks what the keyboard opens (`EXTRA_FROM_KEYBOARD`) and `MrScreens` tells `MrNav` when a screen is created and destroyed (`MrNav.opened`, `MrNav.born`, `MrNav.gone`; weak references only). When the person is back in the app they were typing in, the AI Editor dialog reopens (`MrAiDialog.reopenPendingDialog`) and the AI settings screen that the keyboard opened is closed with `MrNav.closeOpenedByKeyboard(MrAiPrefs.class)`:
-   - `finishAndRemoveTask()` only when that screen is the root of the task **and alone in it** (`MrNav.aloneInTask`): the entry goes;
-   - otherwise `finish()`: only that screen, and whatever the person has open next to it (a text being typed in "Add words and texts", for example) stays.
-   - Not closed when a style editor is open (`MrAiStyleActivity.isOpen()`: it may hold a draft that was not saved), when the field they left belonged to this app itself, or when the screen was opened by the home screen (no extra).
+1. **Affinity (manifest).** Every screen but the home screen (`Main`) and the three translucent helper windows has `android:taskAffinity="com.mrkeyboard.app.settings"` (`MrNav.SETTINGS_AFFINITY`). `NEW_TASK` puts a screen in the task of that affinity, so all the screens that the keyboard opens are together in one task, apart from the task of the home screen. The home screen has no affinity: it is the task of the package, listed as usual.
+2. **Flags (`MrNav.intent`).** From the keyboard (a Service): `NEW_TASK | CLEAR_TASK | EXCLUDE_FROM_RECENTS` (`MrNav.FROM_KEYBOARD`). `CLEAR_TASK` empties the task before the screen starts; `EXCLUDE_FROM_RECENTS` keeps it out of the list. The notification of a new version (`MrUpdateNotify.tapIntent`) has the same flags. The manifest does not say `excludeFromRecents` on any screen: the Intent does it, so the Settings reached from the **home screen** (no `NEW_TASK`: it goes on top of the home screen's task) are listed with it as usual.
+3. **The one exception: a style being edited.** While a style of the AI Editor is open (`MrAiStyleActivity.isOpen()`) it may hold a draft that was not saved, and emptying the task would throw it away. The screen is then started on top of the task that is open (`NEW_TASK | REORDER_TO_FRONT`, `MrNav.KEEPING_DRAFT`), as before.
+4. **No copy of a screen on top of itself.** Every screen is `singleTop`. From a screen, `MrNav.intent` adds `REORDER_TO_FRONT`: a copy that is already in the stack is brought to the front, not stacked again.
+5. **Closed when it is not needed.** `MrNav.intent` marks what the keyboard opens (`EXTRA_FROM_KEYBOARD`) and `MrScreens` tells `MrNav` when a screen is created and destroyed (`MrNav.opened`, `MrNav.born`, `MrNav.gone`; weak references only). When the person is back in the app they were typing in, the AI Editor dialog reopens (`MrAiDialog.reopenPendingDialog`) and the AI settings screen that the keyboard opened is closed with `MrNav.closeOpenedByKeyboard(MrAiPrefs.class)`:
+   - `finishAndRemoveTask()` only when that screen is the root of the task **and alone in it** (`MrNav.aloneInTask`);
+   - otherwise `finish()`: only that screen.
+   - Not closed when a style editor is open, when the field they left belonged to this app itself, or when the screen was opened by the home screen (no extra).
+6. **One title.** `MrScreens` gives every task of the app `setTaskDescription` with the name of the app, so a task that is listed shows "Mr Keyboard" whichever screen is on top.
 
-## What changes for *Back*
+## What changed from before
 
-With one task, *Back* from a screen that the keyboard opened goes to the previous screen of the app when the app was already open (its home screen, for example), and one more *Back* returns to the app being typed in. When the screen was the only one, *Back* returns straight to that app.
+Until then the app was one task and one window, and nothing was hidden from the list (the person could see what was open and close it). Now the Settings keep no window in the list and start again from the first page: the task of the Settings is emptied at every opening, so nothing stale is left, and the exception for a draft keeps the one thing that could be lost.
 
-## What is not done
+## What does not change
 
-- The app does not finish the screens when the person leaves them by Home: a file picker or the system screens (permissions, notifications) are also "leaving", and finishing there would break them. The person closes them from the recent apps.
+- The Settings opened by the system (Settings > Languages & input > the gear of the keyboard) go on top of the task that opened them: Android decides that, an app cannot ask for another task there.
+- The app does not finish the screens when the person leaves them by Home: a file picker or the system screens (permissions, notifications) are also "leaving", and finishing there would break them. They stay in the background, out of the list, until the next opening of the Settings empties the task.
 
 ## Tests
 
-`nav_test/NavTest.java`: the extra only on what the keyboard opens, the list of open screens (by class, root or not, finishing, destroyed, two of the same class, a refusal), the close (the whole task only when alone in it), the one title on every screen, and the manifest (no affinity, no screen excluded, only the 3 helpers). `ai_return_test/AiReturnTest.java`: the screen is closed when the dialog reopens, and the cases where it is not. `res_check.py` keeps the manifest, the extra and the calls.
+`nav_test/NavTest.java`: the flags from the keyboard (`0x10808000`, no `REORDER_TO_FRONT`, no `CLEAR_TOP`) for the five screens and for any context that is not a screen; the exception while a style is open (and not while it is finishing); the flags from a screen; the extra only on what the keyboard opens; the list of open screens; the close (the whole task only when alone in it); the one title on every screen; and the manifest (the affinity on every screen but the home screen and the helpers, no other affinity, no screen excluded, only the 3 helpers). `update_test/UpdateTest.java`: the flags of the notification. `ai_return_test/AiReturnTest.java`: the screen is closed when the dialog reopens, and the cases where it is not. `res_check.py` keeps the manifest and the flags in `MrNav`.
 
 ## Test on the phone
 
 Do each one with the keyboard's *Autocompletar* on and off.
-1. In another app: open the AI Editor dialog → gear → the AI settings → return to the app by the **recent apps**: the dialog reopens and the list shows **one** window, "Mr Keyboard", never two or more.
-2. Same, returning by **Back**: the dialog reopens, and the list shows one window or none (when the AI settings was the only screen).
-3. Open the app by its icon, then the gear of the keyboard in another app, then the dictionaries from the settings: the recent apps list has **one** "Mr Keyboard" card. Swipe it away: all the screens close.
-4. Gear of the keyboard → Home → open the app by its icon: one window in the list.
-5. Tap *New style*, type a name without saving, return to the app by the recent apps: the dialog reopens and the style editor is still there when you tap the gear again (the draft is kept).
+1. In another app: tap the gear of the keyboard, open "Dictionaries" from the Settings, then press **Home**. Open the **recent apps**: there is **no** window of the Settings. Tap the gear again: the Settings opens on its **first page**, not on the Dictionaries.
+2. Gear → Settings → *Back* until it closes: you are in the app you were typing in, and the recent apps list has no window of the Settings.
+3. Open the app by its **icon** (the home screen) and tap the button to the Settings: it opens, and *Back* returns to the home screen.
+4. Open the AI Editor dialog → gear → the AI settings → return to the app by *Back*: the dialog reopens and the AI settings is closed (as before).
+5. AI settings → *New style*, type a name without saving, tap *Back* to the other app, open the AI dialog and tap the gear again: the style editor is still there with the draft (the task was not emptied).
+6. With the notification of a new version: tap it. The Settings opens with the update dialog, and it is not listed in the recent apps afterwards.

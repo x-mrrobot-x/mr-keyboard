@@ -37,6 +37,12 @@ public class NavTest {
         }
     }
 
+    /** A style editor whose state (finishing) the test decides. */
+    static class Editor extends MrAiStyleActivity {
+        boolean fin;
+        public boolean isFinishing() { return fin; }
+    }
+
     static class Other extends Opened {
         Other(boolean fromKeyboard, boolean root) { super(fromKeyboard, root); }
     }
@@ -51,28 +57,48 @@ public class NavTest {
 
     static final int NEW_TASK = Intent.FLAG_ACTIVITY_NEW_TASK;
     static final int REORDER = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT;
+    /** What a screen opened from the keyboard is started with: its own task, emptied first, not in the recent apps. */
+    static final int SETTINGS_TASK = NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 
     public static void main(String[] a) {
-        // ---- from the keyboard (a Service): a task, and the open screen is brought to the front
+        // ---- from the keyboard (a Service): a task of its own, emptied first, not in the recent apps
+        MrAiStyleActivity.sOpen = null;
         Intent i = MrNav.intent(new InputMethodService(), MrAiPrefs.class);
         check("keyboard: the screen is the class asked for", MrAiPrefs.class.getName().equals(i.className));
-        check("keyboard: NEW_TASK and REORDER_TO_FRONT", i.flags == (NEW_TASK | REORDER));
-        check("keyboard: no CLEAR_TOP (it would cancel REORDER_TO_FRONT and close what is above)",
-                (i.flags & Intent.FLAG_ACTIVITY_CLEAR_TOP) == 0);
+        check("keyboard: NEW_TASK, CLEAR_TASK and EXCLUDE_FROM_RECENTS (0x10808000)",
+                i.flags == SETTINGS_TASK && SETTINGS_TASK == 0x10808000);
+        check("keyboard: the task is emptied before the screen starts (tapping the gear again shows the first page)",
+                (i.flags & Intent.FLAG_ACTIVITY_CLEAR_TASK) != 0);
+        check("keyboard: the task is left out of the recent apps", (i.flags & Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) != 0);
+        check("keyboard: no CLEAR_TOP", (i.flags & Intent.FLAG_ACTIVITY_CLEAR_TOP) == 0);
         check("keyboard: no MULTIPLE_TASK (it would open a new task on every tap)",
                 (i.flags & Intent.FLAG_ACTIVITY_MULTIPLE_TASK) == 0);
-        check("keyboard: no CLEAR_TASK (it would erase the screens the user has open)",
-                (i.flags & Intent.FLAG_ACTIVITY_CLEAR_TASK) == 0);
+        check("keyboard: no REORDER_TO_FRONT (there is nothing left to bring to the front once the task is emptied)",
+                (i.flags & REORDER) == 0);
         Class<?>[] screens = {LatinIMESettings.class, PrefScreenSheets.class, MrPacksActivity.class,
                 MrAiPrefs.class, MrAiStyleActivity.class};
         boolean same = true;
         for (Class<?> c : screens) {
             Intent x = MrNav.intent(new InputMethodService(), c);
-            same &= c.getName().equals(x.className) && x.flags == (NEW_TASK | REORDER);
+            same &= c.getName().equals(x.className) && x.flags == SETTINGS_TASK;
         }
         check("the five screens that the keyboard opens get the same flags", same);
         check("another context that is not a screen (the application) is treated as the keyboard",
-                MrNav.intent(new Application(), MrPacksActivity.class).flags == (NEW_TASK | REORDER));
+                MrNav.intent(new Application(), MrPacksActivity.class).flags == SETTINGS_TASK);
+
+        // ---- a style being edited may hold a draft: the task is not emptied then
+        Editor editor = new Editor();
+        MrAiStyleActivity.sOpen = new java.lang.ref.WeakReference<MrAiStyleActivity>(editor);
+        Intent keep = MrNav.intent(new InputMethodService(), LatinIMESettings.class);
+        check("a style editor is open: NEW_TASK and REORDER_TO_FRONT, on top of the open task", keep.flags == (NEW_TASK | REORDER));
+        check("... and the draft is safe: no CLEAR_TASK, nothing is left out of the recent apps by this call",
+                (keep.flags & Intent.FLAG_ACTIVITY_CLEAR_TASK) == 0 && (keep.flags & Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) == 0);
+        check("... but it is still a screen that the keyboard opened (the extra)", keep.getBooleanExtra(MrNav.EXTRA_FROM_KEYBOARD, false));
+        editor.fin = true;
+        check("a style editor that is finishing does not count: the task is emptied again",
+                MrNav.intent(new InputMethodService(), LatinIMESettings.class).flags == SETTINGS_TASK);
+        MrAiStyleActivity.sOpen = null;
+        check("no style editor: the task is emptied", MrNav.intent(new InputMethodService(), LatinIMESettings.class).flags == SETTINGS_TASK);
 
         // ---- from a screen: no flags, the new one goes on top of the one that opened it
         Intent s = MrNav.intent(new Screen(), MrAiStyleActivity.class);
@@ -86,7 +112,7 @@ public class NavTest {
         check("the caller can add its extras", s.getIntExtra(MrAi.EXTRA_STYLE, -1) == 3);
         check("the keyboard intent also takes extras without losing the flags",
                 MrNav.intent(new InputMethodService(), MrAiStyleActivity.class)
-                        .putExtra(MrAi.EXTRA_STYLE, 1).flags == (NEW_TASK | REORDER));
+                        .putExtra(MrAi.EXTRA_STYLE, 1).flags == SETTINGS_TASK);
 
         // ---- the style editor already open
         check("index inside the list is kept", MrAiStyleActivity.normalIndex(0, 3) == 0 && MrAiStyleActivity.normalIndex(2, 3) == 2);
@@ -119,7 +145,7 @@ public class NavTest {
         // ---- the extra that says "the keyboard opened this" (and only the keyboard)
         check("from the keyboard: the Intent carries the extra of the keyboard", i.getBooleanExtra(MrNav.EXTRA_FROM_KEYBOARD, false));
         check("from a screen: no such extra (that screen goes on the stack of the one that opened it)", !s.getBooleanExtra(MrNav.EXTRA_FROM_KEYBOARD, false));
-        check("the extra does not change the flags that decide the task", i.flags == (NEW_TASK | REORDER) && s.flags == REORDER);
+        check("the extra does not change the flags that decide the task", i.flags == SETTINGS_TASK && s.flags == REORDER);
 
         // ---- the screens that the keyboard opened are remembered, and closed when they are not needed
         Opened ai = new Opened(true, true);
@@ -224,24 +250,35 @@ public class NavTest {
         cb2.onActivityDestroyed(titled);
         cb2.onActivityDestroyed(plain);
 
-        // ---- the manifest: ONE task and ONE window of the app in the recent apps, and nothing hidden from the list
+        // ---- the manifest: the screens that the keyboard opens have the affinity of their own (a task apart from the home screen's)
         String manifest = file("AndroidManifest.xml");
         Matcher m = Pattern.compile("<activity\\b[^>]*>").matcher(manifest);
-        int activities = 0, withAffinity = 0, excludedScreens = 0, excludedHelpers = 0;
+        int activities = 0, appScreens = 0, withAffinity = 0, otherAffinity = 0, excludedScreens = 0, excludedHelpers = 0;
         while (m.find()) {
             String tag = m.group();
             activities++;
-            if (tag.contains("android:taskAffinity=")) withAffinity++;
+            boolean helper = tag.contains("android:launchMode=\"singleInstance\"");
+            boolean home = tag.contains("android:name=\"com.mrkeyboard.app.Main\"");
+            if (!helper && !home) appScreens++;
+            if (tag.contains("android:taskAffinity=\"" + MrNav.SETTINGS_AFFINITY + "\"")) {
+                if (!helper && !home) withAffinity++;
+            } else if (tag.contains("android:taskAffinity=")) {
+                otherAffinity++;
+            }
             if (tag.contains("android:excludeFromRecents=\"true\"")) {
-                if (tag.contains("android:launchMode=\"singleInstance\"")) excludedHelpers++; else excludedScreens++;
+                if (helper) excludedHelpers++; else excludedScreens++;
             }
         }
         check("the manifest has screens", activities >= 20);
-        check("no screen has a taskAffinity of its own (the app is one task: a second one would be a second window in the recent apps)", withAffinity == 0);
-        check("no screen is hidden from the recent apps (the person sees what is open and closes it)", excludedScreens == 0);
+        check("every screen but the home screen and the helper windows has the settings affinity (so that NEW_TASK puts them in the task of the settings)",
+                appScreens >= 15 && withAffinity == appScreens);
+        check("no activity has any other affinity", otherAffinity == 0);
+        check("the affinity is not the one of the package (that is the task of the home screen)", !MrNav.SETTINGS_AFFINITY.equals("com.mrkeyboard.app"));
+        check("no screen says excludeFromRecents in the manifest (the Intent does it: the settings reached from the home screen are listed with it)", excludedScreens == 0);
         check("only the three translucent helper windows are left out of the list", excludedHelpers == 3);
         Matcher home = Pattern.compile("<activity\\b[^>]*android:name=\"com\\.mrkeyboard\\.app\\.Main\"[^>]*>").matcher(manifest);
-        check("the home screen (Main) is not excluded", home.find() && !home.group().contains("excludeFromRecents"));
+        check("the home screen (Main) has no affinity of its own and is not excluded",
+                home.find() && !home.group().contains("excludeFromRecents") && !home.group().contains("taskAffinity"));
 
         System.out.println(ok + " ok, " + fail + " failures");
         if (fail > 0) System.exit(1);

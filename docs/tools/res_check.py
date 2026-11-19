@@ -343,19 +343,27 @@ for src in ('MrUpdateDialog', 'MrAiDialog'):
     if not m or m.group(1) != theme_id:
         problems.append('%s.java: fallback id of the dialog theme (%s) is not the one of public.xml (%s)' % (src, m and m.group(1), theme_id))
 
-# --- the app is ONE task and ONE window in the list of recent apps, and nothing is hidden from that list: the screens that the keyboard opens from its window
-# (FLAG_ACTIVITY_NEW_TASK) land in the task of the package (no screen has a taskAffinity of its own: a second affinity was a second window, "Settings" next to
-# "Mr Keyboard") and none of them says excludeFromRecents (the person has to see what is open to close it). The only windows left out of the list are the three
-# translucent singleInstance helpers, which exist for a moment. MrScreens gives the task the one title (setTaskDescription), whichever screen is on top.
+# --- every screen but the home screen (Main) has the affinity of the settings (MrNav.SETTINGS_AFFINITY), so that what
+# the keyboard opens (NEW_TASK | CLEAR_TASK | EXCLUDE_FROM_RECENTS, from MrNav.intent) lands in a task apart from the one of the home screen, is emptied at every
+# opening and is not listed in the recent apps. The home screen has no affinity (it is the task of the package, listed as usual); no screen says excludeFromRecents in the
+# manifest (the Intent does); the only windows left out of the list in the manifest are the three translucent singleInstance helpers, which exist for a moment.
+# MrScreens gives the task of the home screen the one title (setTaskDescription), whichever screen is on top.
 KEYBOARD_SCREENS = ('LatinIMESettings', 'PrefScreenSheets', 'MrPacksActivity', 'MrAiPrefs', 'MrAiStyleActivity')
+SETTINGS_AFFINITY = 'com.mrkeyboard.app.settings'
 manifest_tags = re.findall(r'<activity\b[^>]*>', read_file('AndroidManifest.xml'))
 for tag in manifest_tags:
     name = re.search(r'android:name="([^"]+)"', tag)
     who = name.group(1) if name else '?'
-    if 'android:taskAffinity=' in tag:
-        problems.append('manifest: %s has a taskAffinity of its own: the app is one task (a second affinity is a second window in the recent apps)' % who)
-    if 'android:excludeFromRecents="true"' in tag and 'android:launchMode="singleInstance"' not in tag:
-        problems.append('manifest: %s is excludeFromRecents: the screens are not hidden from the recent apps (the person closes them there)' % who)
+    helper = 'android:launchMode="singleInstance"' in tag
+    home = 'android:name="com.mrkeyboard.app.Main"' in tag
+    affinity = re.search(r'android:taskAffinity="([^"]*)"', tag)
+    if helper or home:
+        if affinity:
+            problems.append('manifest: %s has a taskAffinity: only the screens of the settings have one (the home screen is the task of the package)' % who)
+    elif not affinity or affinity.group(1) != SETTINGS_AFFINITY:
+        problems.append('manifest: %s must have android:taskAffinity="%s" (MrNav.SETTINGS_AFFINITY): the screens that the keyboard opens are one task, apart from the home screen' % (who, SETTINGS_AFFINITY))
+    if 'android:excludeFromRecents="true"' in tag and not helper:
+        problems.append('manifest: %s is excludeFromRecents: the Intent of MrNav does it, not the manifest (the settings reached from the home screen are listed)' % who)
 for screen in KEYBOARD_SCREENS:
     if not [t for t in manifest_tags if 'android:name="com.mrkeyboard.app.%s"' % screen in t]:
         problems.append('manifest: activity %s not found' % screen)
@@ -363,6 +371,8 @@ for screen in KEYBOARD_SCREENS:
 # --- MrNav marks what the keyboard opens and MrScreens tells it about the screens that come and go (and sets the one title of the task), so that the AI settings
 # screen is closed when the person is back in the app they were typing in, and the whole task goes only when that screen is alone in it
 nav_src = read_file('docs/tools/java/src/com/mrkeyboard/app/MrNav.java')
+if 'SETTINGS_AFFINITY = "%s"' % SETTINGS_AFFINITY not in nav_src or 'FLAG_ACTIVITY_CLEAR_TASK' not in nav_src or 'FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS' not in nav_src:
+    problems.append('MrNav: the screens that the keyboard opens must be started with NEW_TASK | CLEAR_TASK | EXCLUDE_FROM_RECENTS and SETTINGS_AFFINITY must be the affinity of the manifest')
 if 'EXTRA_FROM_KEYBOARD' not in nav_src or 'finishAndRemoveTask' not in nav_src or 'aloneInTask(a)' not in nav_src:
     problems.append('MrNav: the screens opened from the keyboard must carry EXTRA_FROM_KEYBOARD and be closed with their task (finishAndRemoveTask) only when alone in it (aloneInTask)')
 _scr = read_file('docs/tools/java/src/com/mrkeyboard/app/MrScreens.java')

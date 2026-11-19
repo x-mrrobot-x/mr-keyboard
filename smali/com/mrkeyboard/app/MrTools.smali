@@ -908,6 +908,9 @@
     invoke-virtual {v0, v1}, Landroid/view/View;->setBackgroundColor(I)V
 
     :cond_ag_end
+    # the background chosen on the themes screen (a landscape, a gradient, a picture) goes over the colour of the theme; nothing chosen: nothing changes
+    invoke-static {}, Lcom/mrkeyboard/app/MrBackdrop;->apply()V
+
     return-void
 .end method
 

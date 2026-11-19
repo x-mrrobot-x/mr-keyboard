@@ -6,7 +6,9 @@
 # static fields
 .field static final EXTRA_FROM_KEYBOARD:Ljava/lang/String; = "mr_from_keyboard"
 
-.field static final FROM_KEYBOARD:I = 0x10020000
+.field static final FROM_KEYBOARD:I = 0x10808000
+
+.field static final KEEPING_DRAFT:I = 0x10020000
 
 .field private static final OPENED:Ljava/util/ArrayList;
     .annotation system Ldalvik/annotation/Signature;
@@ -22,6 +24,8 @@
 .end field
 
 .field static final REUSE:I = 0x20000
+
+.field static final SETTINGS_AFFINITY:Ljava/lang/String; = "com.mrkeyboard.app.settings"
 
 .field private static final TASKS:Ljava/util/WeakHashMap;
     .annotation system Ldalvik/annotation/Signature;
@@ -41,14 +45,14 @@
     .locals 1
 
     .prologue
-    .line 44
+    .line 48
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
     sput-object v0, Lcom/mrkeyboard/app/MrNav;->OPENED:Ljava/util/ArrayList;
 
-    .line 47
+    .line 51
     new-instance v0, Ljava/util/WeakHashMap;
 
     invoke-direct {v0}, Ljava/util/WeakHashMap;-><init>()V
@@ -62,7 +66,7 @@
     .locals 0
 
     .prologue
-    .line 49
+    .line 53
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -74,7 +78,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 110
+    .line 114
     :try_start_0
     invoke-virtual {p0}, Landroid/app/Activity;->getTaskId()I
     :try_end_0
@@ -82,12 +86,12 @@
 
     move-result v3
 
-    .line 114
+    .line 118
     sget-object v4, Lcom/mrkeyboard/app/MrNav;->TASKS:Ljava/util/WeakHashMap;
 
     monitor-enter v4
 
-    .line 115
+    .line 119
     :try_start_1
     sget-object v0, Lcom/mrkeyboard/app/MrNav;->TASKS:Ljava/util/WeakHashMap;
 
@@ -112,14 +116,14 @@
 
     check-cast v0, Ljava/util/Map$Entry;
 
-    .line 116
+    .line 120
     invoke-interface {v0}, Ljava/util/Map$Entry;->getKey()Ljava/lang/Object;
 
     move-result-object v1
 
     check-cast v1, Landroid/app/Activity;
 
-    .line 117
+    .line 121
     if-eqz v1, :cond_0
 
     if-eq v1, p0, :cond_0
@@ -136,7 +140,7 @@
 
     if-nez v1, :cond_0
 
-    .line 118
+    .line 122
     invoke-interface {v0}, Ljava/util/Map$Entry;->getValue()Ljava/lang/Object;
 
     move-result-object v1
@@ -159,29 +163,29 @@
 
     move v0, v2
 
-    .line 121
+    .line 125
     :goto_0
     return v0
 
-    .line 111
+    .line 115
     :catch_0
     move-exception v0
 
     move v0, v2
 
-    .line 112
+    .line 116
     goto :goto_0
 
-    .line 120
+    .line 124
     :cond_1
     monitor-exit v4
 
-    .line 121
+    .line 125
     const/4 v0, 0x1
 
     goto :goto_0
 
-    .line 120
+    .line 124
     :catchall_0
     move-exception v0
 
@@ -196,14 +200,14 @@
     .locals 3
 
     .prologue
-    .line 80
+    .line 84
     if-nez p0, :cond_0
 
-    .line 90
+    .line 94
     :goto_0
     return-void
 
-    .line 83
+    .line 87
     :cond_0
     :try_start_0
     invoke-virtual {p0}, Landroid/app/Activity;->getTaskId()I
@@ -212,12 +216,12 @@
 
     move-result v0
 
-    .line 87
+    .line 91
     sget-object v1, Lcom/mrkeyboard/app/MrNav;->TASKS:Ljava/util/WeakHashMap;
 
     monitor-enter v1
 
-    .line 88
+    .line 92
     :try_start_1
     sget-object v2, Lcom/mrkeyboard/app/MrNav;->TASKS:Ljava/util/WeakHashMap;
 
@@ -227,7 +231,7 @@
 
     invoke-virtual {v2, p0, v0}, Ljava/util/WeakHashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 89
+    .line 93
     monitor-exit v1
 
     goto :goto_0
@@ -241,7 +245,7 @@
 
     throw v0
 
-    .line 84
+    .line 88
     :catch_0
     move-exception v0
 
@@ -261,19 +265,19 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 149
+    .line 153
     invoke-static {p0}, Lcom/mrkeyboard/app/MrNav;->openedByKeyboard(Ljava/lang/Class;)Landroid/app/Activity;
 
     move-result-object v1
 
-    .line 150
+    .line 154
     if-nez v1, :cond_0
 
-    .line 156
+    .line 160
     :goto_0
     return v0
 
-    .line 152
+    .line 156
     :cond_0
     :try_start_0
     invoke-virtual {v1}, Landroid/app/Activity;->isTaskRoot()Z
@@ -290,13 +294,13 @@
 
     invoke-virtual {v1}, Landroid/app/Activity;->finishAndRemoveTask()V
 
-    .line 154
+    .line 158
     :goto_1
     const/4 v0, 0x1
 
     goto :goto_0
 
-    .line 153
+    .line 157
     :cond_1
     invoke-virtual {v1}, Landroid/app/Activity;->finish()V
     :try_end_0
@@ -304,7 +308,7 @@
 
     goto :goto_1
 
-    .line 155
+    .line 159
     :catch_0
     move-exception v1
 
@@ -315,7 +319,7 @@
     .locals 2
 
     .prologue
-    .line 126
+    .line 130
     sget-object v0, Lcom/mrkeyboard/app/MrNav;->OPENED:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
@@ -329,7 +333,7 @@
     :goto_0
     if-ltz v1, :cond_2
 
-    .line 127
+    .line 131
     sget-object v0, Lcom/mrkeyboard/app/MrNav;->OPENED:Ljava/util/ArrayList;
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -344,7 +348,7 @@
 
     check-cast v0, Landroid/app/Activity;
 
-    .line 128
+    .line 132
     if-eqz v0, :cond_0
 
     if-eq v0, p0, :cond_0
@@ -360,7 +364,7 @@
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
 
-    .line 126
+    .line 130
     :cond_1
     add-int/lit8 v0, v1, -0x1
 
@@ -368,7 +372,7 @@
 
     goto :goto_0
 
-    .line 130
+    .line 134
     :cond_2
     return-void
 .end method
@@ -377,40 +381,40 @@
     .locals 2
 
     .prologue
-    .line 94
+    .line 98
     if-nez p0, :cond_0
 
-    .line 101
+    .line 105
     :goto_0
     return-void
 
-    .line 95
+    .line 99
     :cond_0
     sget-object v1, Lcom/mrkeyboard/app/MrNav;->TASKS:Ljava/util/WeakHashMap;
 
     monitor-enter v1
 
-    .line 96
+    .line 100
     :try_start_0
     sget-object v0, Lcom/mrkeyboard/app/MrNav;->TASKS:Ljava/util/WeakHashMap;
 
     invoke-virtual {v0, p0}, Ljava/util/WeakHashMap;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 97
+    .line 101
     monitor-exit v1
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_1
 
-    .line 98
+    .line 102
     sget-object v1, Lcom/mrkeyboard/app/MrNav;->OPENED:Ljava/util/ArrayList;
 
     monitor-enter v1
 
-    .line 99
+    .line 103
     :try_start_1
     invoke-static {p0}, Lcom/mrkeyboard/app/MrNav;->forget(Landroid/app/Activity;)V
 
-    .line 100
+    .line 104
     monitor-exit v1
 
     goto :goto_0
@@ -424,7 +428,7 @@
 
     throw v0
 
-    .line 97
+    .line 101
     :catchall_1
     move-exception v0
 
@@ -449,61 +453,74 @@
     .end annotation
 
     .prologue
-    .line 53
-    new-instance v0, Landroid/content/Intent;
-
-    invoke-direct {v0, p0, p1}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
-
-    .line 54
-    instance-of v1, p0, Landroid/app/Activity;
-
-    if-eqz v1, :cond_0
-
-    .line 55
-    const/high16 v1, 0x20000
-
-    invoke-virtual {v0, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
-
-    .line 60
-    :goto_0
-    return-object v0
-
     .line 57
-    :cond_0
-    const/high16 v1, 0x10020000
+    new-instance v1, Landroid/content/Intent;
 
-    invoke-virtual {v0, v1}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
+    invoke-direct {v1, p0, p1}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
 
     .line 58
-    const-string v1, "mr_from_keyboard"
+    instance-of v0, p0, Landroid/app/Activity;
+
+    if-eqz v0, :cond_0
+
+    .line 59
+    const/high16 v0, 0x20000
+
+    invoke-virtual {v1, v0}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
+
+    .line 64
+    :goto_0
+    return-object v1
+
+    .line 61
+    :cond_0
+    invoke-static {}, Lcom/mrkeyboard/app/MrAiStyleActivity;->isOpen()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_1
+
+    const/high16 v0, 0x10020000
+
+    :goto_1
+    invoke-virtual {v1, v0}, Landroid/content/Intent;->addFlags(I)Landroid/content/Intent;
+
+    .line 62
+    const-string v0, "mr_from_keyboard"
 
     const/4 v2, 0x1
 
-    invoke-virtual {v0, v1, v2}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Z)Landroid/content/Intent;
+    invoke-virtual {v1, v0, v2}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Z)Landroid/content/Intent;
 
     goto :goto_0
+
+    .line 61
+    :cond_1
+    const v0, 0x10808000
+
+    goto :goto_1
 .end method
 
 .method static opened(Landroid/app/Activity;)V
     .locals 3
 
     .prologue
-    .line 65
+    .line 69
     if-nez p0, :cond_1
 
-    .line 76
+    .line 80
     :cond_0
     :goto_0
     return-void
 
-    .line 67
+    .line 71
     :cond_1
     :try_start_0
     invoke-virtual {p0}, Landroid/app/Activity;->getIntent()Landroid/content/Intent;
 
     move-result-object v0
 
-    .line 68
+    .line 72
     if-eqz v0, :cond_0
 
     const-string v1, "mr_from_keyboard"
@@ -518,18 +535,18 @@
 
     if-eqz v0, :cond_0
 
-    .line 72
+    .line 76
     sget-object v1, Lcom/mrkeyboard/app/MrNav;->OPENED:Ljava/util/ArrayList;
 
     monitor-enter v1
 
-    .line 73
+    .line 77
     const/4 v0, 0x0
 
     :try_start_1
     invoke-static {v0}, Lcom/mrkeyboard/app/MrNav;->forget(Landroid/app/Activity;)V
 
-    .line 74
+    .line 78
     sget-object v0, Lcom/mrkeyboard/app/MrNav;->OPENED:Ljava/util/ArrayList;
 
     new-instance v2, Ljava/lang/ref/WeakReference;
@@ -538,7 +555,7 @@
 
     invoke-virtual {v0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 75
+    .line 79
     monitor-exit v1
 
     goto :goto_0
@@ -552,7 +569,7 @@
 
     throw v0
 
-    .line 69
+    .line 73
     :catch_0
     move-exception v0
 
@@ -571,12 +588,12 @@
     .end annotation
 
     .prologue
-    .line 134
+    .line 138
     sget-object v2, Lcom/mrkeyboard/app/MrNav;->OPENED:Ljava/util/ArrayList;
 
     monitor-enter v2
 
-    .line 135
+    .line 139
     :try_start_0
     sget-object v0, Lcom/mrkeyboard/app/MrNav;->OPENED:Ljava/util/ArrayList;
 
@@ -591,7 +608,7 @@
     :goto_0
     if-ltz v1, :cond_1
 
-    .line 136
+    .line 140
     sget-object v0, Lcom/mrkeyboard/app/MrNav;->OPENED:Ljava/util/ArrayList;
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -606,7 +623,7 @@
 
     check-cast v0, Landroid/app/Activity;
 
-    .line 137
+    .line 141
     if-eqz v0, :cond_0
 
     invoke-virtual {p0, v0}, Ljava/lang/Class;->isInstance(Ljava/lang/Object;)Z
@@ -629,11 +646,11 @@
 
     monitor-exit v2
 
-    .line 140
+    .line 144
     :goto_1
     return-object v0
 
-    .line 135
+    .line 139
     :cond_0
     add-int/lit8 v0, v1, -0x1
 
@@ -641,16 +658,16 @@
 
     goto :goto_0
 
-    .line 139
+    .line 143
     :cond_1
     monitor-exit v2
 
-    .line 140
+    .line 144
     const/4 v0, 0x0
 
     goto :goto_1
 
-    .line 139
+    .line 143
     :catchall_0
     move-exception v0
 

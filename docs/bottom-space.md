@@ -1,12 +1,11 @@
 # Space under the last row of keys and the navigation bar
 
-Two things at the bottom of the keyboard, done as Gboard does them (its code was read to get the values).
+Two things at the bottom of the keyboard.
 
 ## The space under the last row
 
 The last row of keys does not touch the bottom of the keyboard: there is a space of **4 dp** under it. It is the same with the home
-gesture and with the three buttons (or two): Gboard does not choose it by the way of navigating either, it has a fixed gap of 4 dp
-under its bottom row.
+gesture and with the three buttons (or two): the gap is fixed, it does not depend on the way of navigating.
 
 The space is part of the height of the keyboard, and it is painted with the background of the theme:
 
@@ -25,12 +24,12 @@ one of 1080 px, so the rows of keys keep about the size they had when the keyboa
 ## The navigation bar takes the color of the theme
 
 The bar of the system (with the three buttons) sits under the keyboard, and `MrBottom.bar` asks the window of the keyboard to paint it with
-the background of the theme, the same color as the rest of the keyboard, as Gboard does. It depends on the Android:
+the background of the theme, the same color as the rest of the keyboard. It depends on the Android:
 
 | Android | What is asked of the window |
 | --- | --- |
 | 16 and up | **Transparent** bar and **no contrast veil** (`setNavigationBarColor(TRANSPARENT)`, `setNavigationBarContrastEnforced(false)`). The keyboard is drawn under the bar, so the buttons sit on its background. |
-| 11 to 15 | The bar gets the **color of the keyboard background** (the role `kbd_bg` of the theme), with its opacity, and no contrast veil. Gboard does the same up to Android 15 (an opaque theme color). Without it the system paints the bar black, or puts a veil (80% of an opaque color) on the three buttons, a band of another shade under the keys. |
+| 11 to 15 | The bar gets the **color of the keyboard background** (the role `kbd_bg` of the theme), with its opacity, and no contrast veil. Without it the system paints the bar black, or puts a veil (80% of an opaque color) on the three buttons, a band of another shade under the keys. |
 | 10 and before | Nothing is asked (the system paints its own bar). |
 
 The color of the buttons (dark or light) follows the theme from Android 11 on (`MrLight.bars`: dark buttons on a light theme, light buttons

@@ -1796,9 +1796,9 @@
     .line 658
     invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
-    move-result p2
+    move-result v0
 
-    if-eqz p2, :cond_1
+    if-eqz v0, :cond_1
 
     .line 659
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/KeyboardSwitcher;->updateSettingsKeyState(Landroid/content/SharedPreferences;)V
@@ -1806,7 +1806,29 @@
     .line 660
     invoke-virtual {p0}, Lcom/mrkeyboard/app/KeyboardSwitcher;->recreateInputView()V
 
+    goto :goto_0
+
+    # the background of the keyboard (themes screen: MrBackdrop) or how much it is softened: the keyboard is made again, which paints it
     :cond_1
+    const-string v0, "pref_kbd_bg"
+
+    invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_bg
+
+    const-string v0, "pref_kbd_bg_soft"
+
+    invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :goto_0
+
+    :cond_bg
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/KeyboardSwitcher;->recreateInputView()V
+
     :goto_0
     return-void
 .end method

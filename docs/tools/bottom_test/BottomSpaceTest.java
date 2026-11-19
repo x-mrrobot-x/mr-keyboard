@@ -19,7 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * MrBottom (2.0.0): the space under the last row of keys (4 dp, the same with the home gesture and with the buttons, as in Gboard) and the
+ * MrBottom (2.0.0): the space under the last row of keys (4 dp, the same with the home gesture and with the buttons) and the
  * navigation bar under the keyboard. Checks the pixels by the density, the height that is left to the rows of keys (the space is part of the
  * height of the keyboard: the keys give way by the same amount), the padding of the view that holds the toolbar and the keys (once, and again
  * when the density changes), what happens when Android answers with an error, the new default heights, the navigation bar that shows the
@@ -86,7 +86,7 @@ public class BottomSpaceTest {
     static int index(String text, String what) { return text.indexOf(what); }
 
     public static void main(String[] args) throws Exception {
-        // ---- the space: 4 dp, the same whatever the way of navigating (as in Gboard)
+        // ---- the space: 4 dp, the same whatever the way of navigating
         check("the space under the last row is 4 dp", MrBottom.GAP_DP == 4f);
         Ctx c = new Ctx();
         check("density 3: 12 px", MrBottom.gapPx(c) == 12);
@@ -186,7 +186,7 @@ public class BottomSpaceTest {
         MrTheme.stubColors.put("kbd_bg", NIGHT_BG);
         Build.VERSION.SDK_INT = 35;
         MrBottom.bar(ime0);
-        check("Android 15: the bar has the colour of the keyboard background, opaque, as Gboard does", win.stubNavigationBarColor == NIGHT_BG);
+        check("Android 15: the bar has the colour of the keyboard background, opaque", win.stubNavigationBarColor == NIGHT_BG);
         check("... without the veil of the three buttons", !win.stubNavigationBarContrastEnforced);
         check("... and the buttons follow the theme as before", !bars.darkButtons());
         Build.VERSION.SDK_INT = 36;
@@ -231,7 +231,7 @@ public class BottomSpaceTest {
                 kbd.contains("Lcom/mrkeyboard/app/MrBottom;->keysHeight(Landroid/content/Context;I)I"));
         int round = index(kbd, "mKeyboardHeight:I");
         check("... where it is made, before the height is kept", round > 0 && index(kbd, "MrBottom;->keysHeight") > 0 && index(kbd, "MrBottom;->keysHeight") < index(kbd, "iput p2, p0, Lcom/mrkeyboard/app/Keyboard;->mKeyboardHeight:I"));
-        check("the doc says what is done and why", read("docs/bottom-space.md").contains("4 dp") && read("docs/bottom-space.md").contains("Gboard"));
+        check("the doc says what is done and why", read("docs/bottom-space.md").contains("4 dp") && read("docs/bottom-space.md").contains("navigation bar"));
         check("the doc says what the navigation bar does", read("docs/bottom-space.md").toLowerCase().contains("transparent") && read("docs/bottom-space.md").contains("contrast") && read("docs/bottom-space.md").contains("Android 15"));
 
         System.out.println();
