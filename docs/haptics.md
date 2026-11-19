@@ -1,7 +1,20 @@
 # Key vibration (since 1.98.0)
 
-The keyboard vibrates on every key press when "Vibrate on keypress" is on (Settings > Vibration, sound and preview). The person sets a **strength**
-(5 % to 100 %, steps of 5 %, 50 % by default; the key `vibrate_strength`, kept as a fraction in text, like the click volume), not a duration.
+The keyboard vibrates on every key press when "Vibrate on keypress" is on (Settings > Vibration, sound and preview). By default it uses the
+**system vibration**: the phone's own key tap, the soft effect that the maker tuned for keyboards, which is what Gboard plays. The person who
+turns "Use system vibration" off sets a **strength** instead (5 % to 100 %, steps of 5 %, 50 % by default; the key `vibrate_strength`, kept as a
+fraction in text, like the click volume), not a duration. The slider is only enabled while the system vibration is off.
+
+## System vibration (default, since 2.0.0)
+Gboard (its code was read) plays `View.performHapticFeedback(KEYBOARD_TAP)` on every key press and builds an effect of its own only when the person
+sets a custom strength. Until now the keyboard always built one (a TICK primitive at full scale by default), which is sharper than the key tap
+of most phones, and the system one felt softer. Now the default is the same as Gboard's: `vibrate_system` is on, `MrHaptic.level` gives the strength **0**
+and `MrHaptic.play` only asks the system for the key tap. No effect is built and no usage is set: the system decides, with its own tuning.
+- Before API 33 the key tap carries `FLAG_IGNORE_GLOBAL_SETTING`, as the keyboard always did (the keyboard's own switch decides). From API 33 the system
+  always follows its own "touch vibration" setting.
+- When the system does not play the tap (that setting is off, or there is no keyboard view) the keyboard's effect plays at 50 %, so that "Vibrate
+  on keypress" on still vibrates.
+- Gboard also plays a second effect when a key is released after more than 200 ms; the keyboard does not.
 
 ## Why not a duration in milliseconds
 Until 1.97.0 the setting was a duration (1 to 200 ms) and every key press played `VibrationEffect.createOneShot(ms, DEFAULT_AMPLITUDE)`: a square pulse.
@@ -13,8 +26,8 @@ Even at 1 ms it did not feel smooth, and no value fixed it, because the duration
   and the primitives, and asks apps to use them instead of one-shots.
 So the keyboard now asks for a short, clear click of a given strength and lets the phone play it.
 
-## What plays (`MrHaptic.play`, called by `LatinIME.vibrate`)
-Each device takes the first it can do. The strength is brought to 1..100 first.
+## What plays with the system vibration off (`MrHaptic.play`, called by `LatinIME.vibrate`)
+Each device takes the first it can do. The strength is brought down to 100 first (0 or less is the system vibration, above).
 
 | Tier | When | What |
 |---|---|---|
@@ -35,15 +48,19 @@ On API 26 to 28 and on a device with no effect the slider has no effect (the sys
 (`VibratePreference.onChange` -> `LatinIME.vibrate`), so the person feels what they choose.
 
 ## Where it is
-- `smali/com/mrkeyboard/app/MrHaptic.smali` (hand-written smali, no Java source): `play(Context, int strength, View)`, `level(SharedPreferences)` (the setting as 1..100,
-  50 when missing or unreadable). It replaced `HapticHelper` and its `Api26`/`Api33` classes.
-- `LatinIME`: `mVibrateStrength` (loaded in `loadSettings` and when the key changes), `vibrate(I)V`.
+- `smali/com/mrkeyboard/app/MrHaptic.smali` (hand-written smali, no Java source): `play(Context, int strength, View)` (0 = system vibration), `level(SharedPreferences)` (0 when
+  `vibrate_system` is on, which is the default; otherwise the setting as 1..100, 50 when missing or unreadable), `tap(View)` (the key tap). It replaced `HapticHelper` and its
+  `Api26`/`Api33` classes.
+- `LatinIME`: `mVibrateStrength` (loaded in `loadSettings` and when `vibrate_strength` or `vibrate_system` changes), `vibrate(I)V`.
 - `VibratePreference.onChange(F)`: the slider fraction x 100 -> `LatinIME.vibrate`.
-- `res/xml/prefs_feedback.xml`: the slider (`vibrate_strength`, 0.05..1.0, step 0.05, default 0.5, shown as a percentage); `MrReset` resets the key.
+- `res/xml/prefs_feedback.xml`: the checkbox `vibrate_system` (default on, `disableDependentsState`) and the slider that depends on it (`vibrate_strength`, 0.05..1.0,
+  step 0.05, default 0.5, shown as a percentage); `MrReset` resets both keys; the strings are `mr_vibrate_system_title` and `mr_vibrate_system_sum` (`mr_strings.xml`, 3 languages).
 
 Check: `docs/tools/test_haptic.py` (in `mr-checks.yml`): the real smali in the mini Dalvik interpreter with a fake vibrator and view, on API 26, 28, 29, 30, 32, 33, 34 and 36:
-the tiers and their mapping, the exceptions, the effect built once, the usage touch, no motor, the setting read as a fraction, the slider, the key equal in the xml, `MrHaptic`, `LatinIME` and `MrReset`.
+the system mode (only the key tap, with and without the flag, the fallback when it is not played), the tiers and their mapping, the exceptions, the effect built once, the usage touch, no motor,
+the setting read as 0 or as a fraction, the slider, the keys equal in the xml, `MrHaptic`, `LatinIME` and `MrReset`.
 
-**Device checklist** (the feel needs a phone): on a recent phone with a linear actuator the key press should be a short, crisp tick at 50 % and a firmer click at 100 %;
+**Device checklist** (the feel needs a phone): with "Use system vibration" on (the default) the key press should feel like Gboard's, soft and the same as the keyboard of the system, and the
+slider is grayed out; with it off the slider works as below. On a recent phone with a linear actuator the key press should be a short, crisp tick at 50 % and a firmer click at 100 %;
 at 5 % it should still be felt but light; with the vibration off nothing vibrates; on a phone with API 26 to 28 the slider does not change anything; a phone with a motor
 that does not support primitives (tier 2) changes between three steps (light, medium, strong) as the slider goes up.

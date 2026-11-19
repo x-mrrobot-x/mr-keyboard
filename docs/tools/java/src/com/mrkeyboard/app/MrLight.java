@@ -17,7 +17,7 @@ import android.view.WindowInsetsController;
  *     key, by the colour of what is drawn on that key, because a dark theme can have highlight keys with a light
  *     face and dark labels;</li>
  * <li>from Android 11 on the navigation bar under the keyboard has the colour of the keyboard background (MrBottom.bar: the
- *     background itself up to Android 14, transparent from 15 on, where the keyboard reaches under it, ImeInsets), so the
+ *     background itself up to Android 15, transparent from 16 on, where the keyboard reaches under it, ImeInsets), so the
  *     buttons the system draws there (back, keyboard switcher) sit on it: {@link #bars} asks for dark ones on a light theme
  *     and for light ones on a dark theme.</li>
  * </ul>

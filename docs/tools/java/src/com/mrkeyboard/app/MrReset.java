@@ -43,6 +43,7 @@ public final class MrReset implements Preference.OnPreferenceClickListener {
             "pref_hint_mode",
             "pref_label_scale_v2",
             "vibrate_on",
+            "vibrate_system",
             "vibrate_strength",
             "sound_on",
             "pref_click_volume",

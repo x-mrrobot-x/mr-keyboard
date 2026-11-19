@@ -22,9 +22,9 @@
 #     (the thirteen .ogg of res/raw read byte by byte, the strings in 3 languages, the manifest, the row of the feedback screen, the reset and the call in LatinIME.playKeyClick).
 #   - NavTest: opening screens without stacking copies (MrNav): flags from the keyboard window and from a screen, and
 #     what the AI style editor does when it is asked for again while it is already open.
-#   - BottomSpaceTest: the space under the last row of keys by the way of navigating (MrBottom): 10 dp with the home gesture, 4 dp with the buttons, read from navigation_mode
-#     (and the resource, and the settings of Samsung and Xiaomi), the height that is left to the rows (the space is part of the height of the keyboard), the padding of the view
-#     once, errors from Android, the new default heights (35% / 62%: the keys keep their size) and the calls in LatinIME.setInputView and in the Keyboard.
+#   - BottomSpaceTest: the space under the last row of keys (MrBottom): 4 dp whatever the way of navigating (as in Gboard), the height that is left to the rows (the space is
+#     part of the height of the keyboard), the padding of the view once, errors from Android, the new default heights (34% / 61%), the navigation bar that takes the colour of the
+#     theme (opaque up to Android 15, transparent from 16 on) and the calls in LatinIME.setInputView and in the Keyboard.
 #   - ScreenImeTest: the keyboard on the editor screens (MrScreenIme): which field has it saved when the screen is
 #     recreated, how it is asked for again once the new window has the focus, and the room made for it on Android 15+.
 #   - BarTest: the buttons of the tool bar close the dialogs that are open (MrBarClose), except the one that the button itself toggles

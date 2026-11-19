@@ -2,10 +2,14 @@
 .super Ljava/lang/Object;
 .source "MrHaptic.java"
 
-# The vibration of a key press. The user sets a STRENGTH (1..100 %, "vibrate_strength"), not a duration in milliseconds: a one-shot pulse
+# The vibration of a key press. By default (the setting "vibrate_system" on, which is how Gboard does it) the keyboard asks the phone for its own
+# key tap (View.performHapticFeedback KEYBOARD_TAP): the effect that the maker tuned for the keyboard, soft, with no strength of ours.
+# The person who turns "vibrate_system" off sets a STRENGTH (1..100 %, "vibrate_strength"), not a duration in milliseconds: a one-shot pulse
 # of 1 ms is only the start and the stop of the motor (the actuator keeps ringing after it), which is what felt rough. The phone
-# is asked for a short, clear click and plays it with its own tuning. Each device takes the first of these it can do:
+# is asked for a short, clear click and plays it with its own tuning. The strength 0 is the system mode ("level" gives it); each device
+# takes the first of these it can do:
 #
+#   0. system mode (strength 0): the key tap of the system. When it is not played (the touch vibration of the system is off, no view), tiers 1 to 4 at 50 %
 #   1. primitives (API 30+, when the device supports TICK and CLICK): TICK scaled by strength/50 up to 50 %, CLICK scaled by strength/100 above
 #   2. predefined effect (API 29+): TICK up to 50 %, CLICK up to 80 %, HEAVY_CLICK above
 #   3. the system haptic of the keyboard (View.performHapticFeedback KEYBOARD_TAP): no strength, but the device's own tuning
@@ -201,10 +205,26 @@
     return-void
 .end method
 
-# The strength saved in the settings: the slider keeps a fraction as text ("0.5"), 1..100 here. 50 when it is missing or unreadable.
+# The strength saved in the settings: 0 when "vibrate_system" is on (the default: the key tap of the system, no strength); otherwise the slider,
+# which keeps a fraction as text ("0.5"), 1..100 here. 50 when it is missing or unreadable.
 .method public static level(Landroid/content/SharedPreferences;)I
     .locals 3
 
+    const-string v0, "vibrate_system"
+
+    const/4 v1, 0x1
+
+    invoke-interface {p0, v0, v1}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_custom
+
+    const/4 v0, 0x0
+
+    return v0
+
+    :cond_custom
     const-string v0, "vibrate_strength"
 
     const-string v1, "0.5"
@@ -251,17 +271,29 @@
     return v0
 .end method
 
-# Called for every key press (LatinIME.vibrate): strength 1..100, the keyboard view for the system haptic (may be null).
+# Called for every key press (LatinIME.vibrate): strength 0 = the key tap of the system, 1..100 = the strength of the effect; the keyboard view
+# for the system haptic (may be null).
 .method public static play(Landroid/content/Context;ILandroid/view/View;)V
     .locals 4
 
-    const/4 v0, 0x1
+    if-gtz p1, :goto_range
 
-    if-ge p1, v0, :goto_min
+    # system mode: the key tap of the phone. If it is not played (the touch vibration of the system is off, no view) the effect of the keyboard
+    # plays at 50 %, so that "vibrate on keypress" on still vibrates
+    if-eqz p2, :cond_default
 
-    move p1, v0
+    invoke-static {p2}, Lcom/mrkeyboard/app/MrHaptic;->tap(Landroid/view/View;)Z
 
-    :goto_min
+    move-result v0
+
+    if-eqz v0, :cond_default
+
+    return-void
+
+    :cond_default
+    const/16 p1, 0x32
+
+    :goto_range
     const/16 v0, 0x64
 
     if-le p1, v0, :goto_max
@@ -301,26 +333,11 @@
 
     return-void
 
-    # tier 3: KEYBOARD_TAP (3); before API 33 with FLAG_IGNORE_GLOBAL_SETTING (2), as the keyboard always did
+    # tier 3: the key tap of the system
     :cond_system
     if-eqz p2, :cond_legacy
 
-    sget v1, Landroid/os/Build$VERSION;->SDK_INT:I
-
-    const/16 v2, 0x21
-
-    const/4 v3, 0x3
-
-    if-lt v1, v2, :cond_flag
-
-    invoke-virtual {p2, v3}, Landroid/view/View;->performHapticFeedback(I)Z
-
-    return-void
-
-    :cond_flag
-    const/4 v1, 0x2
-
-    invoke-virtual {p2, v3, v1}, Landroid/view/View;->performHapticFeedback(II)Z
+    invoke-static {p2}, Lcom/mrkeyboard/app/MrHaptic;->tap(Landroid/view/View;)Z
 
     return-void
 
@@ -331,6 +348,35 @@
 
     :cond_end
     return-void
+.end method
+
+# The key tap of the system: KEYBOARD_TAP (3) on the view; before API 33 with FLAG_IGNORE_GLOBAL_SETTING (2), as the keyboard always did. True when
+# the system played it (false when the touch vibration of the system is off or the view does not allow it).
+.method private static tap(Landroid/view/View;)Z
+    .locals 3
+
+    sget v0, Landroid/os/Build$VERSION;->SDK_INT:I
+
+    const/16 v1, 0x21
+
+    const/4 v2, 0x3
+
+    if-lt v0, v1, :cond_flag
+
+    invoke-virtual {p0, v2}, Landroid/view/View;->performHapticFeedback(I)Z
+
+    move-result v0
+
+    return v0
+
+    :cond_flag
+    const/4 v0, 0x2
+
+    invoke-virtual {p0, v2, v0}, Landroid/view/View;->performHapticFeedback(II)Z
+
+    move-result v0
+
+    return v0
 .end method
 
 # Tier 2 (API 29): TICK (2) up to 50 %, CLICK (0) up to 80 %, HEAVY_CLICK (5) above.

@@ -19,7 +19,7 @@
     .locals 0
 
     .prologue
-    .line 177
+    .line 121
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -29,14 +29,14 @@
     .locals 1
 
     .prologue
-    .line 180
+    .line 124
     invoke-virtual {p0, p1}, Landroid/view/Window;->setNavigationBarColor(I)V
 
-    .line 181
+    .line 125
     const/4 v0, 0x0
 
     invoke-virtual {p0, v0}, Landroid/view/Window;->setNavigationBarContrastEnforced(Z)V
 
-    .line 182
+    .line 126
     return-void
 .end method

@@ -1,56 +1,37 @@
 package com.mrkeyboard.app;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.res.Resources;
 import android.inputmethodservice.InputMethodService;
 import android.os.Build;
-import android.provider.Settings;
 import android.view.View;
 import android.view.Window;
 
 import java.util.WeakHashMap;
 
 /**
- * The space under the last row of keys, by the way the person navigates in Android.
+ * The space under the last row of keys and the navigation bar under the keyboard, as Gboard does them.
  * <p>
- * With the home gesture the system keeps the bottom of the screen for the swipe (the gesture bar is 24 dp and the area that detects the
- * swipe is 32 dp, <code>navigation_bar_gesture_height</code> of AOSP), so a last row that touches the edge of the window sits right
- * where a swipe up starts, and a finger that slides while typing by gestures leaves the keyboard. Gboard leaves about 10 dp under the
- * row. With the three buttons (or two) the system draws its own bar of 48 dp under the keyboard and a thin margin is enough.
+ * The last row does not touch the edge of the window: there is {@link #GAP_DP} (4 dp, the value of Gboard) under it, the same with the
+ * home gesture and with the buttons (Gboard does not choose it by the way of navigating either). The space is part of the height of the
+ * keyboard: {@link #keysHeight} takes it out of the share of the screen that the setting "Keyboard height" gives (the keys give way by the
+ * same amount, so the keyboard keeps the height the person chose), and {@link #apply} adds it as bottom padding of the view that holds the
+ * toolbar and the keys (it has the background of the theme, so the space is painted like the keyboard). From Android 15 on ImeInsets adds
+ * the system bar on top of it.
  * <p>
- * The space is part of the height of the keyboard: {@link #keysHeight} takes it out of the share of the screen that the setting
- * "Keyboard height" gives (the keys give way by the same amount, so the keyboard keeps the height the person chose), and {@link #apply}
- * adds it as bottom padding of the view that holds the toolbar and the keys (it has the background of the theme, so the space is painted
- * like the keyboard). From Android 15 on ImeInsets adds the system bar on top of it.
- * <p>
- * The navigation bar under the keyboard shows the background of the theme ({@link #bar}), as it does with Gboard. From Android 15 on the
- * keyboard is drawn under the bar, and with the three buttons the system puts a veil of its own on it (80% of an opaque colour, so the bar
- * looks like a band of another shade): the window is asked for a transparent bar and no veil, and the buttons sit on the background of the
- * theme. From Android 11 to 14 the window ends above the bar and the system paints a bar of its own under it (black): the window is asked
- * for a bar of the colour of the keyboard background. In both the colour of the buttons follows the theme ({@link MrLight#bars}).
- * <p>
- * The way of navigating is <code>Settings.Secure navigation_mode</code> (0 three buttons, 1 two, 2 gestures; the same value as the
- * resource <code>config_navBarInteractionMode</code>); Samsung and Xiaomi have settings of their own for their full-screen gestures.
+ * The navigation bar under the keyboard shows the background of the theme ({@link #bar}), as it does with Gboard: the window is asked for
+ * a bar of the colour of the keyboard background and no veil of the system (the "contrast" that Android puts on the three buttons: 80% of an
+ * opaque colour, a band of another shade). From Android 16 on the keyboard is drawn under the bar (ImeInsets), so the bar is asked to be
+ * transparent and the background shows through; before that it is asked for the background colour itself, because the system paints the bar
+ * of its own (black) under a window that ends above it. In both the colour of the buttons follows the theme ({@link MrLight#bars}).
  */
 public final class MrBottom {
-    /** Space under the last row with the home gesture, in dp (the gesture area of the system, 32 dp, less its bar, 24 dp, is 8 dp; Gboard leaves about 10). */
-    static final float GESTURE_DP = 10f;
-    /** The same with the buttons of the system, in dp. */
-    static final float BUTTONS_DP = 4f;
+    /** Space under the last row of keys, in dp (the bottom row gap of Gboard). */
+    static final float GAP_DP = 4f;
 
-    /** Values of Settings.Secure navigation_mode. */
-    static final int MODE_GESTURES = 2;
-    static final String NAVIGATION_MODE = "navigation_mode";
-    static final String NAV_BAR_MODE_RES = "config_navBarInteractionMode";
-    /** Settings.Global of the full-screen gestures of Samsung (One UI) and of Xiaomi (MIUI/HyperOS): 1 = on. */
-    static final String SAMSUNG_GESTURES = "navigation_bar_gesture_while_hidden";
-    static final String XIAOMI_GESTURES = "force_fsg_nav_bar";
-
-    /** From this Android on the keyboard is drawn under the navigation bar (LatinIME.setInputView calls ImeInsets), so the bar can show it. */
-    static final int EDGE_TO_EDGE_SDK = 35;
     /** From this Android on the window of the keyboard can colour the navigation bar and its buttons (the controller of Android 11). */
     static final int BAR_SDK = 30;
+    /** From this Android on the bar is transparent and the keyboard, drawn under it, shows through (Gboard also paints the bar itself up to Android 15). */
+    static final int TRANSPARENT_BAR_SDK = 36;
     /** What MrTheme.color answers for a role it does not have (opaque magenta). */
     static final int NO_COLOR = 0xffff00ff;
 
@@ -62,48 +43,11 @@ public final class MrBottom {
 
     private MrBottom() { }
 
-    /** True when the home gesture is the way of navigating, from the values of the settings (-1 = not found). */
-    static boolean gesturesFrom(int navigationMode, int resourceMode, int samsung, int xiaomi) {
-        if (samsung == 1 || xiaomi == 1) return true;
-        if (navigationMode >= 0) return navigationMode == MODE_GESTURES;
-        return resourceMode == MODE_GESTURES;
-    }
-
-    /** True when the person navigates with the home gesture. A value that cannot be read counts as not found. */
-    static boolean gestures(Context c) {
-        try {
-            ContentResolver cr = c.getContentResolver();
-            int mode = Settings.Secure.getInt(cr, NAVIGATION_MODE, -1);
-            int res = -1;
-            if (mode < 0) res = resourceMode();
-            int samsung = Settings.Global.getInt(cr, SAMSUNG_GESTURES, -1);
-            int xiaomi = Settings.Global.getInt(cr, XIAOMI_GESTURES, -1);
-            return gesturesFrom(mode, res, samsung, xiaomi);
-        } catch (RuntimeException e) {
-            return false;
-        }
-    }
-
-    private static int resourceMode() {
-        try {
-            Resources r = Resources.getSystem();
-            int id = r.getIdentifier(NAV_BAR_MODE_RES, "integer", "android");
-            return id == 0 ? -1 : r.getInteger(id);
-        } catch (RuntimeException e) {
-            return -1;
-        }
-    }
-
-    /** The space under the last row, in dp, for the way of navigating. */
-    static float gapDp(boolean gestures) {
-        return gestures ? GESTURE_DP : BUTTONS_DP;
-    }
-
     /** The space under the last row, in pixels, now. */
     public static int gapPx(Context c) {
         try {
             float density = c.getResources().getDisplayMetrics().density;
-            return Math.round(gapDp(gestures(c)) * density);
+            return Math.round(GAP_DP * density);
         } catch (RuntimeException e) {
             return 0;
         }
@@ -125,7 +69,7 @@ public final class MrBottom {
 
     /**
      * Adds the space under the last row as bottom padding of <code>root</code>, the view that holds the toolbar and the keys. Asked again
-     * for the same view it sets the space again (a new way of navigating), it does not add it a second time.
+     * for the same view it sets the space again (a new density, say), it does not add it a second time.
      */
     public static void apply(View root) {
         if (root == null || root instanceof LatinKeyboardBaseView) return;
@@ -142,20 +86,20 @@ public final class MrBottom {
 
     /**
      * The colour to ask for the navigation bar, for the Android in use and the keyboard background of the theme (<code>background</code>, as
-     * MrTheme.color gives it): nothing (0, transparent) from Android 15 on, where the keyboard is drawn under the bar and shows through;
-     * the background itself before, where the system paints the bar. Opacity included: a see-through theme gets a see-through bar.
-     * A theme without that role gives {@link #NO_COLOR}, which {@link #bar} does not ask for.
+     * MrTheme.color gives it): the background itself up to Android 15, as Gboard does, with its opacity (a see-through theme gets a
+     * see-through bar); nothing (0, transparent) from Android 16 on, where the keyboard is drawn under the bar and shows through. A theme
+     * without that role gives {@link #NO_COLOR}, which {@link #bar} does not ask for before Android 16.
      */
     static int barColor(int sdk, int background) {
-        if (sdk >= EDGE_TO_EDGE_SDK) return 0;
+        if (sdk >= TRANSPARENT_BAR_SDK) return 0;
         return background;
     }
 
     /**
      * Lets the navigation bar of the system show the background of the keyboard theme, and sets the colour of its buttons for it. From Android
-     * 15 on the bar is transparent and without the veil that the system puts on the three buttons (the "contrast" of the bar); from Android 11
-     * to 14 it has the colour of the background, which the system would otherwise paint black. Before Android 11 nothing is asked. The window
-     * keeps the values, but it is asked again when it is shown, because a window that the system made again has the defaults.
+     * 11 to 15 the bar has the colour of the background, which the system would otherwise paint black; from Android 16 on it is transparent.
+     * Both without the veil that the system puts on the three buttons (the "contrast" of the bar). Before Android 11 nothing is asked. The
+     * window keeps the values, but it is asked again when it is shown, because a window that the system made again has the defaults.
      */
     public static void bar(InputMethodService ime) {
         if (ime == null || Build.VERSION.SDK_INT < BAR_SDK) return;
@@ -164,7 +108,7 @@ public final class MrBottom {
             Window w = dialog == null ? null : dialog.getWindow();
             if (w == null) return;
             int color = barColor(Build.VERSION.SDK_INT, MrTheme.color("kbd_bg"));
-            if (Build.VERSION.SDK_INT < EDGE_TO_EDGE_SDK && color == NO_COLOR) return;
+            if (Build.VERSION.SDK_INT < TRANSPARENT_BAR_SDK && color == NO_COLOR) return;
             Api29.bar(w, color);
             MrLight.bars(ime, MrTools.sTextColor);
         } catch (Throwable t) {

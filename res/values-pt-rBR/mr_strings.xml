@@ -110,6 +110,8 @@
     <string name="mr_ui_perf_frame_gpu">Desenhar um quadro (GPU: só o registro)</string>
     <string name="mr_ui_perf_frame_cpu">Desenhar um quadro (CPU: o desenho todo)</string>
     <string name="mr_ui_cat_haptic">Vibração</string>
+    <string name="mr_vibrate_system_title">Usar vibração do sistema</string>
+    <string name="mr_vibrate_system_sum">O toque suave do próprio Android, como nos teclados do sistema. Desative para escolher a intensidade.</string>
     <string name="mr_ui_cat_sound">Som</string>
     <string name="mr_ui_cat_visual">Visual</string>
     <string name="mr_ui_cat_labels">Rótulos</string>

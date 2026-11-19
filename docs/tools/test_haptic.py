@@ -6,15 +6,19 @@ Run it from the project root:  python3 -I docs/tools/test_haptic.py
 Runs the REAL smali in the mini Dalvik interpreter (dalvik_mini.py) with a fake phone: a vibrator that records what it is asked to play (an effect
 of the composition, a predefined one, a one-shot, with or without the usage "touch"), a keyboard view that records the system haptic, and an Android
 version (Build.VERSION.SDK_INT) that the test chooses. The rules (docs/haptics.md):
-  - the strength is 1..100 %; what is out of it is brought into it;
+  - by default (the setting "vibrate_system" on, how Gboard does it) the strength is 0 and the keyboard only asks the phone for its own key tap
+    (KEYBOARD_TAP on the view, with the flag "ignore the global setting" before API 33); no effect of the keyboard is built. When the tap is not
+    played (the touch vibration of the system is off) or there is no view, the effect of the keyboard plays at 50 %;
+  - with "vibrate_system" off the strength is 1..100 %; what is above is brought down;
   - each device takes the first it can do: primitives (API 30+ with TICK and CLICK supported: TICK at strength/50 up to 50 %, CLICK at strength/100
     above), a predefined effect (API 29+: TICK up to 50 %, CLICK up to 80 %, HEAVY_CLICK above), the system haptic of the view (KEYBOARD_TAP, with
     the flag "ignore the global setting" before API 33), a 15 ms one-shot (only with no view; the amplitude follows the strength);
   - an effect that cannot be built (an exception) goes down to the next tier; the effect of a strength is built once and reused;
   - from API 33 the vibration carries the usage "touch" (0x12), made once;
   - no motor: no vibration, the system haptic of the view only.
-Also: the setting is read as a fraction kept as text and brought to 1..100 (50 when it is missing or unreadable); the slider hands the strength
-to LatinIME.vibrate in per cent; nothing of the old duration setting is left, and the key is the same in the xml, in MrHaptic and in MrReset.
+Also: the setting is read as 0 (system mode, the default) or as a fraction kept as text and brought to 1..100 (50 when it is missing or unreadable); the
+slider hands the strength to LatinIME.vibrate in per cent; nothing of the old duration setting is left, and the keys are the same in the xml, in MrHaptic,
+in LatinIME and in MrReset; the slider is only enabled when the system mode is off.
 """
 import math
 import os
@@ -54,8 +58,9 @@ class Phone:
     """The fake phone. sdk: Build.VERSION.SDK_INT. has: the vibrator has a motor. prims: it supports TICK and CLICK. amp: amplitude control.
     fail: the names of the calls that throw (createPredefined, startComposition)."""
 
-    def __init__(self, sdk, has=True, prims=False, amp=False, fail=(), no_service=False):
+    def __init__(self, sdk, has=True, prims=False, amp=False, fail=(), no_service=False, tap=True):
         self.sdk, self.has, self.prims, self.amp, self.fail, self.no_service = sdk, has, prims, amp, set(fail), no_service
+        self.tap = tap            # the system plays the key tap (false: the touch vibration of the system is off)
         self.played = []          # what the vibrator was asked to play: ('effect', kind, ..., attrs usage or None)
         self.haptic = []          # performHapticFeedback calls of the view: (constant, flags or None)
         self.calls = []           # every call made on the framework, by name (to count the effects built)
@@ -116,10 +121,10 @@ class Phone:
         if cls == "Landroid/view/View;":
             if mem == "performHapticFeedback(I)Z":
                 self.haptic.append((args[1], None))
-                return 1
+                return 1 if self.tap else 0
             if mem == "performHapticFeedback(II)Z":
                 self.haptic.append((args[1], args[2]))
-                return 1
+                return 1 if self.tap else 0
         if cls == "Ljava/lang/Float;" and mem == "parseFloat(Ljava/lang/String;)F":
             if args[0] is None:
                 raise dm.JavaExc("Ljava/lang/NullPointerException;")
@@ -131,6 +136,8 @@ class Phone:
             return jround(args[0])
         if cls == "Landroid/content/SharedPreferences;" and mem == "getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;":
             return a0.f["data"].get(args[1], args[2])
+        if cls == "Landroid/content/SharedPreferences;" and mem == "getBoolean(Ljava/lang/String;Z)Z":
+            return 1 if a0.f["data"].get(args[1], bool(args[2])) else 0
         raise AssertionError("not faked: " + target)
 
 
@@ -221,16 +228,57 @@ p = Phone(34, no_service=True)
 p.play(50, view=False)
 check("no vibrator service and no view: nothing, and no crash", p.played == [] and p.haptic == [], (p.played, p.haptic))
 
-# ------------------------------------------------------------------ the strength is brought to 1..100
-p = Phone(34, prims=True)
-p.play(0)
-check("strength 0 is played as 1 % (a TICK at 1/50)", effect_of(p) == ("composition", ((7, f32(1 / 50)),), 0x12), p.played)
-p = Phone(34, prims=True)
-p.play(-30)
-check("a negative strength is played as 1 %", effect_of(p) == ("composition", ((7, f32(1 / 50)),), 0x12), p.played)
+# ------------------------------------------------------------------ the strength is brought down to 100
 p = Phone(34, prims=True)
 p.play(500)
 check("a strength above 100 is played as 100 % (a CLICK at full scale)", effect_of(p) == ("composition", ((1, 1.0),), 0x12), p.played)
+
+# ------------------------------------------------------------------ the system mode (strength 0): the key tap of the phone, as Gboard does
+for sdk, flags in ((26, 2), (28, 2), (29, 2), (32, 2), (33, None), (34, None), (36, None)):
+    p = Phone(sdk, prims=True)
+    p.play(0)
+    check("system mode, API %d: only the key tap of the system (KEYBOARD_TAP%s), no effect of the keyboard" % (sdk, " with the flag ignore-global-setting" if flags else ""),
+          p.haptic == [(3, flags)] and p.played == [] and "startComposition" not in p.calls and "createPredefined" not in p.calls and "createOneShot" not in p.calls,
+          (p.haptic, p.played, p.calls))
+p = Phone(34, prims=True)
+for _ in range(3):
+    p.play(0)
+check("system mode: every key press asks the key tap again, and no effect is ever built", len(p.haptic) == 3 and p.played == [] and "areAllPrimitivesSupported" not in p.calls
+      and "createForUsage" not in p.calls, (p.haptic, p.calls))
+p = Phone(34, has=False)
+p.play(0)
+check("system mode on a phone with no motor: the key tap is still asked, nothing else", p.haptic == [(3, None)] and p.played == [], (p.haptic, p.played))
+p = Phone(34, no_service=True)
+p.play(0)
+check("system mode with no vibrator service: the key tap is enough", p.haptic == [(3, None)] and p.played == [], (p.haptic, p.played))
+
+# the key tap is not played (the touch vibration of the system is off): the effect of the keyboard plays at 50 %, so that "vibrate on keypress" on still vibrates
+p = Phone(34, prims=True, tap=False)
+p.play(0)
+check("system mode, tap not played, primitives: the key tap was asked once, then a TICK at full scale (50 %)",
+      p.haptic == [(3, None)] and effect_of(p) == ("composition", ((7, 1.0),), 0x12), (p.haptic, p.played))
+p = Phone(34, prims=False, tap=False)
+p.play(0)
+check("system mode, tap not played, no primitives: the predefined TICK (50 %)", effect_of(p) == ("predefined", 2, 0x12) and p.haptic == [(3, None)], (p.haptic, p.played))
+p = Phone(28, tap=False, amp=True)
+p.play(0)
+check("system mode, tap not played, API 28: nothing of the keyboard can play, the key tap is asked again by the last tier and no more",
+      p.haptic == [(3, 2), (3, 2)] and p.played == [], (p.haptic, p.played))
+p = Phone(34, prims=True)
+p.play(0, view=False)
+check("system mode with no keyboard view: the effect at 50 % (a TICK at full scale)", p.haptic == [] and effect_of(p) == ("composition", ((7, 1.0),), 0x12), (p.haptic, p.played))
+p = Phone(28, amp=True)
+p.play(0, view=False)
+check("system mode, no view, API 28: the one-shot at 50 %", effect_of(p) == ("oneshot", 15, 127, None), p.played)
+p = Phone(34, has=False)
+p.play(0, view=False)
+check("system mode, no view, no motor: nothing at all", p.haptic == [] and p.played == [], (p.haptic, p.played))
+p = Phone(34, prims=True)
+p.play(-30)
+check("a negative strength is the system mode too", p.haptic == [(3, None)] and p.played == [], (p.haptic, p.played))
+p = Phone(34, prims=True)
+p.play(1)
+check("strength 1 is not the system mode: a TICK at 1/50 and no key tap", p.haptic == [] and effect_of(p) == ("composition", ((7, f32(1 / 50)),), 0x12), (p.haptic, p.played))
 
 # ------------------------------------------------------------------ the effect of a strength is built once
 p = Phone(34, prims=True)
@@ -263,9 +311,12 @@ def level(data):
 
 for text, want in (("0.5", 50), ("0.05", 5), ("1.0", 100), ("0.35000002", 35), ("0.8", 80), ("0.0", 1), ("0", 1), ("2.0", 100), ("-1", 1),
                    ("5", 100), ("abc", 50), ("", 50), ("NaN", 1)):
-    check("the setting %r is read as %d %%" % (text, want), level({"vibrate_strength": text}) == want, level({"vibrate_strength": text}))
-check("the setting missing is 50 %", level({}) == 50, level({}))
-check("the old key (vibrate_len, a duration in ms) is not read", level({"vibrate_len": "30"}) == 50, level({"vibrate_len": "30"}))
+    check("system vibration off, the setting %r is read as %d %%" % (text, want), level({"vibrate_system": False, "vibrate_strength": text}) == want,
+          level({"vibrate_system": False, "vibrate_strength": text}))
+check("system vibration off, the setting missing is 50 %", level({"vibrate_system": False}) == 50, level({"vibrate_system": False}))
+check("system vibration off, the old key (vibrate_len, a duration in ms) is not read", level({"vibrate_system": False, "vibrate_len": "30"}) == 50)
+check("system vibration on (the default, nothing saved): the strength is 0, the key tap of the system", level({}) == 0, level({}))
+check("system vibration on: the strength of the slider is kept but not used", level({"vibrate_system": True, "vibrate_strength": "0.8"}) == 0)
 
 # ------------------------------------------------------------------ the slider
 class SliderHost:
@@ -309,6 +360,17 @@ check("... the one LatinIME listens to when it changes", 'const-string v0, "%s"'
 check("... the one 'Restore defaults' resets (smali and Java)", ('const-string v2, "%s"' % key) in read("smali", "com", "mrkeyboard", "app", "MrReset.smali")
       and ('"%s",' % key) in read("docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrReset.java"), key)
 default = re.search(r'VibratePreference[^>]*android:defaultValue="([^"]+)"', xml).group(1)
+sysrow = re.search(r'<CheckBoxPreference[^>]*android:key="vibrate_system"[^>]*/>', xml)
+check("the screen has the row 'vibrate_system', on by default, with the slider off while it is on (disableDependentsState)",
+      sysrow is not None and 'android:defaultValue="true"' in sysrow.group(0) and 'android:disableDependentsState="true"' in sysrow.group(0)
+      and 'android:persistent="true"' in sysrow.group(0), sysrow and sysrow.group(0))
+check("the slider depends on it (it is only enabled when the system vibration is off)", 'android:key="vibrate_strength" android:dependency="vibrate_system"' in xml)
+check("MrHaptic.level reads 'vibrate_system' (default true) and LatinIME listens to it",
+      'const-string v0, "vibrate_system"' in haptic and 'const-string v0, "vibrate_system"' in read("smali", "com", "mrkeyboard", "app", "LatinIME.smali"))
+check("'Restore defaults' resets it (smali and Java)", 'const-string v2, "vibrate_system"' in read("smali", "com", "mrkeyboard", "app", "MrReset.smali")
+      and '"vibrate_system",' in read("docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrReset.java"))
+mr = [read("res", d, "mr_strings.xml") for d in ("values", "values-es", "values-pt-rBR")]
+check("the row has its title and summary in the three languages", all('name="mr_vibrate_system_title"' in t and 'name="mr_vibrate_system_sum"' in t for t in mr))
 check("the slider starts at 50 %% like MrHaptic.level (default %s)" % default, float(default) == 0.5, default)
 rng = re.search(r'hk:maxValue="([\d.]+)"[^>]*hk:minValue="([\d.]+)"|hk:minValue="([\d.]+)"', xml)
 vp = xml[xml.index("VibratePreference"):]

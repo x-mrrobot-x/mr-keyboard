@@ -12242,10 +12242,20 @@
     .line 3037
     invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
+    move-result v0
+
+    if-nez v0, :cond_vibrate
+
+    # the key tap of the system on or off (the strength is 0 in the system mode)
+    const-string v0, "vibrate_system"
+
+    invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
     move-result p2
 
     if-eqz p2, :cond_1b
 
+    :cond_vibrate
     .line 3038
     invoke-static {p1}, Lcom/mrkeyboard/app/MrHaptic;->level(Landroid/content/SharedPreferences;)I
 
