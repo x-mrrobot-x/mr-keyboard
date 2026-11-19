@@ -296,7 +296,7 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 144
     if-lez p1, :cond_0
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPage;->mPager:Lcom/mrkeyboard/app/MrPage$Pager;
@@ -321,21 +321,21 @@
 
     if-eqz v0, :cond_0
 
-    .line 142
+    .line 145
     iput p1, p0, Lcom/mrkeyboard/app/MrPage;->mWaiting:I
 
-    .line 143
+    .line 146
     new-instance v0, Lcom/mrkeyboard/app/MrPage$1;
 
     invoke-direct {v0, p0}, Lcom/mrkeyboard/app/MrPage$1;-><init>(Lcom/mrkeyboard/app/MrPage;)V
 
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/MrPage;->addOnLayoutChangeListener(Landroid/view/View$OnLayoutChangeListener;)V
 
-    .line 154
+    .line 157
     :goto_0
     return-void
 
-    .line 153
+    .line 156
     :cond_0
     invoke-super {p0, p1}, Landroid/widget/ScrollView;->fling(I)V
 
@@ -372,23 +372,23 @@
     .locals 2
 
     .prologue
-    .line 162
+    .line 165
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPage;->getScrollY()I
 
     move-result v0
 
-    .line 163
+    .line 166
     iput v0, p0, Lcom/mrkeyboard/app/MrPage;->mPin:I
 
-    .line 164
+    .line 167
     const/16 v1, 0x320
 
     invoke-virtual {p0, v1}, Lcom/mrkeyboard/app/MrPage;->quiet(I)V
 
-    .line 165
+    .line 168
     invoke-interface {p1}, Ljava/lang/Runnable;->run()V
 
-    .line 166
+    .line 169
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPage;->getScrollY()I
 
     move-result v1
@@ -401,7 +401,7 @@
 
     invoke-virtual {p0, v1, v0}, Lcom/mrkeyboard/app/MrPage;->scrollTo(II)V
 
-    .line 167
+    .line 170
     :cond_0
     new-instance v1, Lcom/mrkeyboard/app/MrPage$2;
 
@@ -409,7 +409,7 @@
 
     invoke-virtual {p0, v1}, Lcom/mrkeyboard/app/MrPage;->addOnLayoutChangeListener(Landroid/view/View$OnLayoutChangeListener;)V
 
-    .line 174
+    .line 177
     return-void
 .end method
 
@@ -467,20 +467,20 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 128
+    .line 131
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/MrPage;->getChildAt(I)Landroid/view/View;
 
     move-result-object v1
 
-    .line 129
+    .line 132
     if-nez v1, :cond_1
 
-    .line 132
+    .line 135
     :cond_0
     :goto_0
     return v0
 
-    .line 130
+    .line 133
     :cond_1
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPage;->getHeight()I
 
@@ -498,7 +498,7 @@
 
     sub-int/2addr v2, v3
 
-    .line 131
+    .line 134
     invoke-virtual {p0}, Lcom/mrkeyboard/app/MrPage;->getScrollY()I
 
     move-result v3
@@ -511,7 +511,9 @@
 
     add-int/2addr v3, v2
 
-    .line 132
+    .line 135
+    div-int/lit8 v2, v2, 0x2
+
     add-int/2addr v2, v3
 
     invoke-virtual {v1}, Landroid/view/View;->getHeight()I

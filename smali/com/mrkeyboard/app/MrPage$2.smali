@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 167
+    .line 170
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPage$2;->this$0:Lcom/mrkeyboard/app/MrPage;
 
     iput p2, p0, Lcom/mrkeyboard/app/MrPage$2;->val$y:I
@@ -49,12 +49,12 @@
     .locals 3
 
     .prologue
-    .line 170
+    .line 173
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPage$2;->this$0:Lcom/mrkeyboard/app/MrPage;
 
     invoke-virtual {v0, p0}, Lcom/mrkeyboard/app/MrPage;->removeOnLayoutChangeListener(Landroid/view/View$OnLayoutChangeListener;)V
 
-    .line 171
+    .line 174
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPage$2;->this$0:Lcom/mrkeyboard/app/MrPage;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrPage;->getScrollY()I
@@ -77,7 +77,7 @@
 
     invoke-virtual {v0, v1, v2}, Lcom/mrkeyboard/app/MrPage;->scrollTo(II)V
 
-    .line 172
+    .line 175
     :cond_0
     return-void
 .end method

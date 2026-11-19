@@ -684,7 +684,7 @@
     <string name="mr_grid_add_key">+ Add key</string>
     <!-- ===== Fonts tool (MrFonts, prefixes mr_tb_fonts, mr_font_) ===== -->
     <string name="mr_tb_fonts">Fonts</string>
-    <string name="mr_font_default">System font</string>
+    <string name="mr_font_default">Normal</string>
     <!-- Style names: N = the style index = the place of its button in the row (see MrFonts) -->
     <string name="mr_font_style_0">Bold</string>
     <string name="mr_font_style_1">Italic</string>

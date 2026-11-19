@@ -55,7 +55,7 @@
 - **Capitalização automática** (vem ligada) e **entrada de voz**.
 
 ### Temas
-Treze temas: **Midnight Steel** (o padrão); os neon **Aurora** (as teclas mudam de tom ao longo do teclado), **Neon Cyan**, **Neon Purple**, **Neon Pink** e **Synthwave**; os claros **Aqua**, **Snow**, **Rose** e **Sky** (azul claro, com as letras em azul suave da sua referência); **Chrome** (teclas prateadas sobre azul-marinho); **Cobalt Glass** (translúcido) e **Denim**, os dois com blur de fundo no Android 12 ou mais novo. Ctrl, Alt e Shift mostram o estado com um pequeno traço colorido (Shift: inativo, ativo, travado). Como criar um tema: [docs/new-theme.md](docs/new-theme.md) (em inglês).
+Treze temas: **Midnight Steel** (o padrão); os neon **Aurora** (as teclas mudam de tom ao longo do teclado), **Neon Cyan**, **Neon Purple**, **Neon Pink** e **Synthwave**; os claros **Aqua**, **Sky** (azul claro, com as letras em azul suave da sua referência), **Snow** e **Rose**; **Chrome** (teclas prateadas sobre azul-marinho); **Cobalt Glass** (translúcido) e **Denim**, os dois com blur de fundo no Android 12 ou mais novo. Ctrl, Alt e Shift mostram o estado com um pequeno traço colorido (Shift: inativo, ativo, travado). Como criar um tema: [docs/new-theme.md](docs/new-theme.md) (em inglês).
 
 ### O app
 - **Idiomas:** português, inglês e espanhol; segue o idioma do sistema ou escolha em *Configurações → Geral → Idioma do app*.

@@ -379,15 +379,12 @@
     sub-float/2addr v2, v7
 
     .line 925
-    iget-object v7, p0, Lcom/mrkeyboard/app/LatinKeyboard$SlidingLocaleDrawable;->this$0:Lcom/mrkeyboard/app/LatinKeyboard;
+    # The color of the language names is the role lang_text (default: the white of the style; a theme with a light bubble declares its own).
+    const-string v7, "lang_text"
 
-    invoke-static {v7}, Lcom/mrkeyboard/app/LatinKeyboard;->access$400(Lcom/mrkeyboard/app/LatinKeyboard;)Landroid/content/res/Resources;
+    const/4 v8, -0x1
 
-    move-result-object v7
-
-    const v8, 0x7f05003f
-
-    invoke-virtual {v7, v8}, Landroid/content/res/Resources;->getColor(I)I
+    invoke-static {v7, v8}, Lcom/mrkeyboard/app/MrTheme;->colorOr(Ljava/lang/String;I)I
 
     move-result v7
 

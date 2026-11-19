@@ -21,6 +21,9 @@
     <!-- Color of the language name on the space bar (role space_text). The default is the pale grey of the keyboard style, which
          is what the dark themes always had; a light theme declares the ink of its labels, which the pale grey would not show on. -->
     <color name="mr_space_text">@color/latinkeyboard_dim_color_white</color>
+    <!-- Color of the language names that the long press on the space bar shows on the preview bubble (role lang_text). The default is the
+         white of the keyboard style, which reads on the dark bubbles; a theme whose bubble is light declares a color that reads on it. -->
+    <color name="mr_lang_text">@color/latinkeyboard_feedback_language_text</color>
 
     <!-- Neon themes (flag GLOW of mr_theme_flags, MrGlow.java): color of the light around the labels and icons of the
          normal keys (role glow) and of the highlight keys (accent_glow); its opacity is the strength of the light.

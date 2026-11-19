@@ -640,7 +640,9 @@
     # The color of the text is the role space_text (default: the one of the keyboard style, #ddd; a light theme: the ink of its labels).
     const-string v4, "space_text"
 
-    invoke-static {v4}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+    const v5, -0x222223
+
+    invoke-static {v4, v5}, Lcom/mrkeyboard/app/MrTheme;->colorOr(Ljava/lang/String;I)I
 
     move-result v4
 

@@ -19,7 +19,7 @@ import android.widget.ScrollView;
  * added the page does not move to show a child ({@link #quiet}), and it does not go up by itself either ({@link #keepPosition}).</li>
  * <li>A fling has its end fixed when it starts. Cards added in the middle of it do not move the end: the page ran past it and the spring of the end
  * pulled it back up, as if the list had bounced. Starting the fling again with the speed it had made it faster than it was. So the cards are added
- * before the fling starts: {@link #fling} asks where it would stop and, when too little of the list is left after that place, adds the next page first and
+ * before the fling starts: {@link #fling} asks where it would stop and, when it would stop within half a screen of the end of the list, adds the next page first and
  * starts the fling, with the same speed, when the new cards are laid out ({@link Pager}).</li>
  * </ul>
  */
@@ -123,13 +123,16 @@ final class MrPage extends ScrollView {
         return mProbe.getFinalY();
     }
 
-    /** True when a fling of this speed would stop with less than a screen of the list left below it. */
+    /**
+     * True when a fling of this speed would stop within half a screen of the end of the list (or past it): only then the next page is needed. A fling that
+     * stops further up leaves the list as it is, and the page comes, as always, when the person scrolls near the last card.
+     */
     boolean reachesEnd(int velocityY) {
         View child = getChildAt(0);
         if (child == null) return false;
         int viewport = getHeight() - getPaddingTop() - getPaddingBottom();
         int bottom = getScrollY() + distance(velocityY) + viewport;      // the lower edge of the page where the fling would stop
-        return bottom + viewport > child.getHeight();
+        return bottom + viewport / 2 > child.getHeight();
     }
 
     /**

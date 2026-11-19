@@ -131,7 +131,8 @@ prefixes = [l for l in lits if l.endswith('_') and len(l) > 3]
 for k in list(defs):
     if any(k[1].startswith(pf) for pf in prefixes): roots.add(k)
 # colors by role (MrTheme.color): the smali passes the role and the final name is built at run time
-roles = set(re.findall(r'const-string [vp]\d+, "(\w+)"\s+invoke-static \{[vp]\d+\}, Lcom/mrkeyboard/app/MrTheme;->color\(', smali))
+# (color(role), or colorOr(role, fallback) with the register of the fallback loaded between the role and the call)
+roles = set(re.findall(r'const-string [vp]\d+, "(\w+)"\s+(?:const\S* [vp]\d+, -?0x[0-9a-f]+\s+)?invoke-static \{[vp]\d+(?:, [vp]\d+)?\}, Lcom/mrkeyboard/app/MrTheme;->color(?:Or)?\(', smali))
 # theme registry arrays (mr_themes.xml)
 def array_items(name):
     for p in glob.glob('res/values/*.xml'):

@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 143
+    .line 146
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPage$1;->this$0:Lcom/mrkeyboard/app/MrPage;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,26 +40,26 @@
     .locals 3
 
     .prologue
-    .line 145
+    .line 148
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPage$1;->this$0:Lcom/mrkeyboard/app/MrPage;
 
     invoke-virtual {v0, p0}, Lcom/mrkeyboard/app/MrPage;->removeOnLayoutChangeListener(Landroid/view/View$OnLayoutChangeListener;)V
 
-    .line 146
+    .line 149
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPage$1;->this$0:Lcom/mrkeyboard/app/MrPage;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrPage;->access$000(Lcom/mrkeyboard/app/MrPage;)I
 
     move-result v0
 
-    .line 147
+    .line 150
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPage$1;->this$0:Lcom/mrkeyboard/app/MrPage;
 
     const/4 v2, 0x0
 
     invoke-static {v1, v2}, Lcom/mrkeyboard/app/MrPage;->access$002(Lcom/mrkeyboard/app/MrPage;I)I
 
-    .line 148
+    .line 151
     if-eqz v0, :cond_0
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrPage$1;->this$0:Lcom/mrkeyboard/app/MrPage;
@@ -74,7 +74,7 @@
 
     invoke-virtual {v1, v0}, Lcom/mrkeyboard/app/MrPage;->fling(I)V
 
-    .line 149
+    .line 152
     :cond_0
     return-void
 .end method

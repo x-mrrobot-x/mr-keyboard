@@ -285,6 +285,25 @@
     return v4
 .end method
 
+# Like color(), but a context that is not there yet (the bitmap of the space bar is drawn while the keyboard is being created, before
+# MrTools.wrap) gives the fallback instead of the magenta of a missing role.
+.method static colorOr(Ljava/lang/String;I)I
+    .locals 2
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v0
+
+    const v1, -0xff01
+
+    if-ne v0, v1, :cond_have
+
+    return p1
+
+    :cond_have
+    return v0
+.end method
+
 # Tag of the current keyboard layout (mr_cyan, mr_glass...); null when there is no keyboard. MrGlow uses it to notice
 # that the theme changed.
 .method static tag()Ljava/lang/String;

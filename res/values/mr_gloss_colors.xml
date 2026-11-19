@@ -94,4 +94,5 @@
     <color name="mr_chrome_key_acc_lock_rim_top">#ff87b3da</color>
     <color name="mr_chrome_key_acc_lock_rim_bottom">#ff395d79</color>
     <color name="mr_chrome_key_lip">#ff05090f</color>
+    <color name="mr_chrome_lang_text">@color/mr_chrome_text</color>
 </resources>

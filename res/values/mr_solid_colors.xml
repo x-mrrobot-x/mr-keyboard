@@ -127,11 +127,11 @@
 
     <!-- ===== Snow ===== -->
     <color name="mr_snow_kbd_bg">#ffe7eaef</color>
-    <color name="mr_snow_text">#ff1f2329</color>
+    <color name="mr_snow_text">#ff334660</color>
     <color name="mr_snow_cursor">@color/mr_snow_text</color>
     <color name="mr_snow_hint">#ff4b6079</color>
     <color name="mr_snow_popup_hint">@color/mr_snow_hint</color>
-    <color name="mr_snow_accent_text">#ff1f2329</color>
+    <color name="mr_snow_accent_text">#ff334660</color>
     <color name="mr_snow_modifier_indicator_off">#ffa6b6cc</color>
     <color name="mr_snow_modifier_indicator_on">#ff72a2e8</color>
     <color name="mr_snow_modifier_indicator_lock">#ffcc4248</color>
@@ -183,6 +183,7 @@
     <color name="mr_snow_key_acc_on_lip">#ff5b87c8</color>
     <color name="mr_snow_key_acc_lock_fill">#ff90a5c1</color>
     <color name="mr_snow_key_acc_lock_lip">#ff3868b0</color>
+    <color name="mr_snow_lang_text">@color/mr_snow_text</color>
 
     <!-- ===== Rose ===== -->
     <color name="mr_rose_kbd_bg">#fff4dee5</color>
@@ -243,6 +244,7 @@
     <color name="mr_rose_key_acc_on_lip">#ffe04e86</color>
     <color name="mr_rose_key_acc_lock_fill">#ffe46f98</color>
     <color name="mr_rose_key_acc_lock_lip">#ffbb4371</color>
+    <color name="mr_rose_lang_text">@color/mr_rose_text</color>
 
     <!-- ===== Aqua ===== -->
     <color name="mr_aqua_kbd_bg">#ffc9eef2</color>
@@ -304,6 +306,7 @@
     <color name="mr_aqua_key_acc_on_lip">#ff104969</color>
     <color name="mr_aqua_key_acc_lock_fill">#ff104969</color>
     <color name="mr_aqua_key_acc_lock_lip">#ff0a3550</color>
+    <color name="mr_aqua_lang_text">@color/mr_aqua_text</color>
 
     <!-- ===== Sky ===== -->
     <color name="mr_sky_kbd_bg">#ffd9eafc</color>
@@ -312,9 +315,9 @@
     <color name="mr_sky_hint">#ff99b5d3</color>
     <color name="mr_sky_popup_hint">@color/mr_sky_hint</color>
     <color name="mr_sky_accent_text">#ffffffff</color>
-    <color name="mr_sky_modifier_indicator_off">#ff83a0c7</color>
+    <color name="mr_sky_modifier_indicator_off">#ff7293c3</color>
     <color name="mr_sky_modifier_indicator_on">#ffffffff</color>
-    <color name="mr_sky_modifier_indicator_lock">#ff4a76b8</color>
+    <color name="mr_sky_modifier_indicator_lock">#ffd93b3b</color>
     <color name="mr_sky_ctrl_bg">@color/mr_sky_key_acc_normal_fill</color>
     <color name="mr_sky_alpha_flat">#b3000000</color>
     <color name="mr_sky_panel_icon">@color/mr_sky_text</color>
@@ -342,6 +345,7 @@
     <color name="mr_sky_label_shadow">#01000000</color>
     <color name="mr_sky_bars_ink">#ff2d4668</color>
     <color name="mr_sky_btn_ink">#ff7e99b8</color>
+    <color name="mr_sky_lang_text">#ff5e7898</color>
     <color name="mr_sky_bubble_fill">#fffafdff</color>
     <color name="mr_sky_bubble_stroke">#ffe9f0f7</color>
     <color name="mr_sky_preview_stroke">#ff4a76b8</color>

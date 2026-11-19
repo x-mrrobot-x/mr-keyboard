@@ -10,7 +10,7 @@ these themes or add one, edit its table and run, at the project root:
     python3 docs/tools/make_themes.py            # writes the files
     python3 docs/tools/make_themes.py --check    # writes nothing; exits with 1 if a file is out of date
 
-The list of the setting "Keyboard theme" is ORDER (below): Midnight Steel, the neon themes, Aqua, the light themes, Cobalt
+The list of the setting "Keyboard theme" is ORDER (below): Midnight Steel, the neon themes, the light themes (Aqua, Sky, Snow, Chrome, Rose), Cobalt
 Glass (the only one written by hand) and Denim, last. The id of a theme is the value stored in the preference pref_keyboard_layout and its position in ORDER (and in
 mr_theme_layouts): change the list, run the script and the lists follow. Ids are not kept between versions.
 
@@ -146,6 +146,26 @@ def contrast(a, b):
 def dark_ink(c):
     """True for a dark text color. The same rule as MrLight.is and MrTools.deriveColors: brightness of at most 0.5."""
     return max(rgb(hex6(c))) * 2 <= 255
+
+
+LANG_MIN = 3.0      # contrast that the language names of the long press on the space bar need on the preview bubble
+
+
+def lang_text(c, n, ref, bubbles, text, t):
+    """The language names of the long press on the space bar are drawn on the preview bubble in white, a color that the layouts cannot change (role
+    lang_text, default white). A theme whose bubble is light would have white on white: it gets the ink of its labels, or must declare the role
+    when that ink is too pale as well (Sky). bubbles: the colors of the bubble (one, or the two ends of a gradient)."""
+    if all(contrast(WHITE, b) >= LANG_MIN for b in bubbles):
+        assert n('lang_text') not in c, 'theme %s: lang_text declared, but the white default reads on its bubble' % t
+        return
+    if n('lang_text') in c:
+        ink = c[n('lang_text')]
+    elif all(contrast(text, b) >= LANG_MIN for b in bubbles):
+        c[n('lang_text')] = ref('text')
+        return
+    else:
+        raise AssertionError('theme %s: the bubble is light and the ink is too pale for the language names: declare the role lang_text' % t)
+    assert all(contrast(ink, b) >= LANG_MIN for b in bubbles), 'theme %s: lang_text does not read on the bubble' % t
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -717,7 +737,7 @@ def neon_drawables(th):
 # ---------------------------------------------------------------------------------------------------------------
 Solid = collections.namedtuple('Solid', 'tag name bg key mod text accent mod_text lip dash_on tint roles clear light')
 # Roles that no rule derives: a theme declares them only through `roles` (their defaults are in mr_colors.xml)
-OWN_ROLES = ('alpha_press', 'panel_field', 'panel_field_stroke', 'panel_divider', 'accent_hint', 'label_shadow', 'tool_tint', 'bars_ink', 'btn_ink')
+OWN_ROLES = ('alpha_press', 'panel_field', 'panel_field_stroke', 'panel_divider', 'accent_hint', 'label_shadow', 'tool_tint', 'bars_ink', 'btn_ink', 'lang_text')
 
 
 def solid(tag, name, bg, key, mod, text, accent, mod_text=None, lip=1, dash_on=None, tint=None, roles=None, clear=None, light=None):
@@ -777,7 +797,7 @@ ROSE = collections.OrderedDict([
 # ink of the letters and of the icons of the bar) plus the ones it does not show but the theme needs: the vivid blue of what is touched and lit
 # (white reads on it at 4.6) and a deep blue, which only the buttons that the system draws under the keyboard take. The ink is pale (2.0 of
 # contrast with the keys, as in the picture), so the theme says that it is a light one (`light`) and declares what that changes (bars_ink and
-# label_shadow). Every color of the theme is one of these seven, or a mix of them (the states, the tools, the bubble).
+# label_shadow). Every color of the theme is one of these, or a mix of them (the states, the tools, the bubble).
 SKY = collections.OrderedDict([
     ('white', '#ffffff'),   # the labels and the icons of the highlight keys, the ink of Send
     ('key', '#f2f9ff'),     # the letter keys, the cards, the field, the bubble, the small letters of the highlight keys
@@ -786,7 +806,9 @@ SKY = collections.OrderedDict([
     ('ink', '#99b5d3'),     # the letters of the keys, the icons of the bar, the small letters and the secondary texts
     ('vivid', '#4a76b8'),   # the key under the finger, the tint of the tools, Send, the + button, the edge of the preview bubble, the lit dash
     ('deep', '#2d4668'),    # the buttons of the system under the keyboard (bars_ink): dark, because the ink is pale and the background is light
+    ('lang', '#5e7898'),    # the language names of the long press on the space bar (lang_text): on the white bubble, the ink 55% of the way to deep
     ('btn', '#7e99b8'),     # the texts and icons inside the buttons of the tools (btn_ink): the ink a quarter of the way to deep, a little darker than the buttons' dark face swallows
+    ('red', '#d93b3b'),     # the locked dash (modifier_indicator_lock): the red that every theme uses, light enough not to be a dark wine and 2.2 of contrast with the highlight keys
 ])
 
 
@@ -815,8 +837,9 @@ STEEL_RED = collections.OrderedDict([('340', '#592627'), ('420', '#7a3336'), ('7
 
 
 # The scale of Snow: one hue of cold slate from white to ink, named by lightness (OKLCH, times 1000; hue 255 to 258, the chroma
-# low in the pale steps and higher as they get darker). 1000, 936, 855, 551, 482 and 255 are the white of the keys, the
-# background, the highlight keys, the tint of the tools, the secondary text and the ink that the theme always had; 707 is the lit dash
+# low in the pale steps and higher as they get darker). 1000, 936, 855, 551 and 482 are the white of the keys, the
+# background, the highlight keys, the tint of the tools and the secondary text; 390 is the ink, a dark slate of the hue of the
+# highlight keys (a near black before: it was too hard on the white keys); 707 is the lit dash
 # of Midnight Steel. Every color of the theme is a step of this scale, so that any two of them belong together; the only one from
 # outside is the red of the locked dash.
 SNOW = collections.OrderedDict([
@@ -833,7 +856,7 @@ SNOW = collections.OrderedDict([
     ('551', '#5a7494'),   # slate: the tint of the tools
     ('520', '#3868b0'),   # the blue of Send and of the + button (white reads at 5.6), the edge of a locked key
     ('482', '#4b6079'),   # secondary texts
-    ('255', '#1f2329'),   # the ink
+    ('390', '#334660'),   # the ink: the labels of the keys, the icons of the bar, the icons and texts of the buttons (9.6 of contrast with the white keys, 6.2 with the highlight keys)
 ])
 
 
@@ -974,7 +997,7 @@ SOLID = [
     # cold snow, light and quiet: white letter keys with a soft slate edge under them on a pale grey background, slate highlight
     # keys, one blue for what is lit. The colors are chosen, not derived: every one below is a step of the scale SNOW
     solid('snow', 'Snow',
-          bg=SNOW['936'], key=SNOW['1000'], mod=SNOW['855'], text=SNOW['255'], accent=SNOW['520'], tint=SNOW['551'], lip=1.5,
+          bg=SNOW['936'], key=SNOW['1000'], mod=SNOW['855'], text=SNOW['390'], accent=SNOW['520'], tint=SNOW['551'], lip=1.5,
           dash_on=SNOW['707'],        # the lit dash of Midnight Steel, as it is
           roles=collections.OrderedDict([
               # ---- labels
@@ -1142,9 +1165,12 @@ SOLID = [
               # the texts and icons inside the buttons of the tools (back, Recording, Clear...): a little darker than the ink of the keys, which the darker
               # buttons would swallow. The bar, the labels and the cards keep the ink
               ('btn_ink', SKY['btn']),
-              # the dash of Ctrl, Alt and Shift: lit = white (as the labels of the highlight keys), locked = the vivid blue; the derived ones (a navy and a red) did not fit
+              ('lang_text', SKY['lang']),
+              # the dash of Ctrl, Alt and Shift: unlit = the derived tone (the face a little darker) leaning 30% to the vivid blue, so it is not a flat grey;
+              # lit = white (as the labels of the highlight keys); locked = a clear red, as in every theme (the derived one was a dark wine)
+              ('modifier_indicator_off', mix(hex6(subdued(SKY['mod'])), SKY['vivid'], .30)),
               ('modifier_indicator_on', SKY['white']),
-              ('modifier_indicator_lock', SKY['vivid']),
+              ('modifier_indicator_lock', SKY['red']),
           ])),
 ]
 
@@ -1296,6 +1322,7 @@ def solid_colors(th):
                 out.update(own)
             out[name] = color
         c = out
+    lang_text(c, n, ref, [c[n('bubble_fill')]], text, t)
     return c
 
 
@@ -1561,6 +1588,7 @@ def gloss_colors(th):
                 out.update(own)
             out[name] = color
         c = out
+    lang_text(c, n, ref, [c[n('bubble_top')], c[n('bubble_bottom')]], text, t)
     return c
 
 
@@ -1695,7 +1723,7 @@ LAYOUTS = collections.OrderedDict([
 #           edited by hand, the script only places them in the lists
 #   AFTER   the last theme written by hand in strings.xml: the names of the generated themes go right after it
 # ---------------------------------------------------------------------------------------------------------------
-ORDER = ['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'aqua', 'snow', 'chrome', 'rose', 'sky', 'glass', 'denim']
+ORDER = ['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'aqua', 'sky', 'snow', 'chrome', 'rose', 'glass', 'denim']
 HAND = ('glass',)
 AFTER = 'glass'
 Family = collections.namedtuple('Family', 'name themes flags colors drawables intro')

@@ -55,7 +55,7 @@
 - **Auto-capitalization** (on by default) and **voice input**.
 
 ### Themes
-Thirteen themes: **Midnight Steel** (default); the neon ones **Aurora** (keys change hue across the keyboard), **Neon Cyan**, **Neon Purple**, **Neon Pink** and **Synthwave**; the light ones **Aqua**, **Snow**, **Rose** and **Sky** (pale blue, with the muted blue letters of its reference); **Chrome** (silver keys on navy); **Cobalt Glass** (translucent) and **Denim**, both with background blur on Android 12 or newer. Ctrl, Alt and Shift show their state with a small colored dash (Shift: off, active, locked). How to add one: [docs/new-theme.md](docs/new-theme.md).
+Thirteen themes: **Midnight Steel** (default); the neon ones **Aurora** (keys change hue across the keyboard), **Neon Cyan**, **Neon Purple**, **Neon Pink** and **Synthwave**; the light ones **Aqua**, **Sky** (pale blue, with the muted blue letters of its reference), **Snow** and **Rose**; **Chrome** (silver keys on navy); **Cobalt Glass** (translucent) and **Denim**, both with background blur on Android 12 or newer. Ctrl, Alt and Shift show their state with a small colored dash (Shift: off, active, locked). How to add one: [docs/new-theme.md](docs/new-theme.md).
 
 ### App
 - **Languages:** Portuguese, English and Spanish; follows the system or pick one in *Settings → General → App language*.

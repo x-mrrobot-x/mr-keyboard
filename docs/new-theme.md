@@ -5,7 +5,7 @@ only reads them (`MrTheme`, `KeyStyle`, `MrTools`). A new theme does not require
 `<tema>` is the tag name without the `mr_` prefix (`glass`, `midnight`...).
 
 The **generated themes** follow every item below, but nobody writes their files: a script does, from three tables. They
-are Midnight Steel and Denim (dark), the neon ones (Aurora, Neon Cyan, Neon Purple, Neon Pink, Synthwave) and Aqua, Snow, Chrome, Rose and Sky (light, except Chrome: light keys on a dark background);
+are Midnight Steel and Denim (dark), the neon ones (Aurora, Neon Cyan, Neon Purple, Neon Pink, Synthwave) and Aqua, Sky, Snow, Chrome and Rose (light, except Chrome: light keys on a dark background);
 only Cobalt Glass is written by hand. To add or change one of the generated ones, go straight to
 [Generated themes](#generated-themes).
 
@@ -21,7 +21,7 @@ only Cobalt Glass is written by hand. To add or change one of the generated ones
    (`0x100`, only together with `GLOW`) are the light of the neon themes (section below).
 3. **Registration** (`res/values/mr_themes.xml`): one line in `mr_theme_layouts`. The index is the value stored in
    `pref_keyboard_layout` (the id of the theme: Midnight Steel 0, Aurora 1, Neon Cyan 2, Neon Purple 3, Neon Pink 4,
-   Synthwave 5, Aqua 6, Snow 7, Chrome 8, Rose 9, Sky 10, Cobalt Glass 11, Denim 12). The id is the position in the list, so a theme put in
+   Synthwave 5, Aqua 6, Sky 7, Snow 8, Chrome 9, Rose 10, Cobalt Glass 11, Denim 12). The id is the position in the list, so a theme put in
    the middle moves the ones after it (nothing is kept for older installs); for the generated themes the script writes the
    three lists from its `ORDER`. `mr_theme_tags` and `mr_theme_flags` are per theme, in the same order.
    The key layers' radius has no registration (item 5).
@@ -292,8 +292,8 @@ The lit dash is foam and the locked one coral, told apart by hue (the rule below
 Not themed, in any theme: the panel of the adjustments in landscape, which is a dark sheet over the keyboard in the style of
 the dialogs of the app.
 
-**A light theme with a pale ink, from a picture (Sky).** The colors are the ones of a reference picture of a pale blue keyboard, sampled from it: `SKY` has seven
-colors, the background (`d9eafc`), the letter keys (`f2f9ff`), the highlight keys (`97b8e5`), the ink of the letters and of the icons of the bar (`99b5d3`), white (the labels
+**A light theme with a pale ink, from a picture (Sky).** The colors are the ones of a reference picture of a pale blue keyboard, sampled from it: `SKY` has the
+colors of the picture, the background (`d9eafc`), the letter keys (`f2f9ff`), the highlight keys (`97b8e5`), the ink of the letters and of the icons of the bar (`99b5d3`), white (the labels
 and icons of the highlight keys) and two blues that the picture does not show, the vivid one of what is touched and lit (`4a76b8`: the key under the finger, the tint of the
 tools, Send, the edge of the preview bubble, the lit dash; white reads on it at 4.6) and a deep one (`2d4668`) for `bars_ink`. The keys are flat (`lip` 0, as in the picture).
 The ink is pale (2.0 of contrast with the keys, as in the picture), which is why the table says `light=True` and declares `bars_ink` and `label_shadow`
@@ -303,8 +303,10 @@ The buttons inside the tools are darker than the keys (`alpha_btn`) and the pale
 (`7e99b8`, the ink a quarter of the way to the deep blue, only a little darker): the ink of the texts and icons of the buttons of the panels (`MrTools.btn`: back,
 Recording, Clear, the buttons of the sheets, of the tune screen and of the screenshots). The bar (`b_` buttons), the labels (the count of the clipboard), the fields and the
 cards keep the ink of the keys; `btn_ink` is one of the `OWN_ROLES` of the script and, at 0 (the default), changes nothing.
-The dash of Ctrl, Alt and Shift is white when lit and the vivid blue when locked (`modifier_indicator_on` and `_lock` replace the derived ones: a navy and a red,
-which did not fit a pale blue theme).
+The dash of Ctrl, Alt and Shift: unlit it is the derived tone leaning 30% to the vivid blue (so it is not a flat grey), lit it is white and locked it is a clear red
+(`d93b3b`, 2.2 of contrast with the highlight keys: the red of every theme, not the dark wine that the derivation gave); `modifier_indicator_off`, `_on` and `_lock` replace the derived ones.
+The language names of the long press on the space bar are drawn on the preview bubble, which is white in the light themes: the role `lang_text` (default white) is the
+ink of those themes (`lang_text`, generated, checked for 3 of contrast with the bubble) and `5e7898` in Sky.
 
 **A light theme that keeps the colors it had (Rose).** Same method as Midnight Steel and Snow, in petal pink: `ROSE` is one hue of pink in eleven steps
 (named by their lightness times 1000: 983 is the blush of the letter keys, 920 the background, 833 the highlight keys, 637 the rose of the

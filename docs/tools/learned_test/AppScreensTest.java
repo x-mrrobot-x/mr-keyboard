@@ -973,30 +973,34 @@ public class AppScreensTest {
         f.scrollTo(0, 100);
         f.fling(2500);
         check("far from the end (the fling stops 2 screens before it): the fling starts at once and no page is added", f.stubFlings == 1 && f.stubFlingSpeed == 2500 && pages[0] == 0);
+        f.scrollTo(0, 2000);
+        f.fling(2500);
+        check("in the middle of the list: a fling that stops 2 screens before the end adds nothing (the cards come when the person gets near the last one)",
+                f.stubFlings == 2 && f.stubFlingSpeed == 2500 && pages[0] == 0 && fc.getHeight() == 6000);
         f.scrollTo(0, 3000);
         f.fling(-4000);
-        check("a fling toward the start never adds a page", f.stubFlings == 2 && f.stubFlingSpeed == -4000 && pages[0] == 0);
+        check("a fling toward the start never adds a page", f.stubFlings == 3 && f.stubFlingSpeed == -4000 && pages[0] == 0);
 
         f.scrollTo(0, 5000);
         f.fling(2500);
-        check("a fling that would stop at the end: the next page is added first and the fling waits for the layout", pages[0] == 1 && f.stubFlings == 2 && fc.getHeight() == 9000);
+        check("a fling that would stop at the end: the next page is added first and the fling waits for the layout", pages[0] == 1 && f.stubFlings == 3 && fc.getHeight() == 9000);
         f.stubLayout();
-        check("... after the layout it starts with the speed it was given (not faster), over the longer list", f.stubFlings == 3 && f.stubFlingSpeed == 2500 && pages[0] == 1);
+        check("... after the layout it starts with the speed it was given (not faster), over the longer list", f.stubFlings == 4 && f.stubFlingSpeed == 2500 && pages[0] == 1);
         check("... and the page was held where it was meanwhile", f.getScrollY() == 5000);
 
         f.scrollTo(0, 5000);
         fc.stubSize(1000, 6000);
         pages[0] = 0;
         f.fling(20000);
-        for (int i = 0; i < 8 && f.stubFlings == 3; i++) f.stubLayout();
+        for (int i = 0; i < 8 && f.stubFlings == 4; i++) f.stubLayout();
         check("a very fast fling asks for the page again after each layout until the list is long enough, then starts with its own speed",
-                pages[0] == 3 && f.stubFlings == 4 && f.stubFlingSpeed == 20000);
+                pages[0] == 3 && f.stubFlings == 5 && f.stubFlingSpeed == 20000);
 
         f.scrollTo(0, 5000);
         fc.stubSize(1000, 6000);
         left[0] = 0;
         f.fling(2500);
-        check("the list has no more cards: the fling goes as usual (the end is the end)", f.stubFlings == 5 && f.stubFlingSpeed == 2500);
+        check("the list has no more cards: the fling goes as usual (the end is the end)", f.stubFlings == 6 && f.stubFlingSpeed == 2500);
 
         f.scrollTo(0, 5000);
         fc.stubSize(1000, 6000);
@@ -1005,7 +1009,7 @@ public class AppScreensTest {
         f.fling(2500);
         f.dispatchTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_DOWN, 10f, 10f));
         f.stubLayout();
-        check("the finger touches the page while the fling waits: it does not start", pages[0] == 1 && f.stubFlings == 5);
+        check("the finger touches the page while the fling waits: it does not start", pages[0] == 1 && f.stubFlings == 6);
         f.dispatchTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_UP, 10f, 10f));
 
         MrPage n = new MrPage(null);
