@@ -15,8 +15,10 @@ import android.view.View;
  * on the keys before it is chosen. The themes screen has one for every theme and every background, and a big one for the choice in use.
  *
  * <p>{@link #setFull} makes it the complete keyboard (the dialog of a background): the row of Ctrl, Alt and the arrows, the numbers, the three rows
- * of letters and the bottom row, every highlight key with the face of its kind, and the dash of the modifier keys in its three states (off, on and
- * locked), as the real keyboard draws them.
+ * of letters and the bottom row, every highlight key with the face of its kind, and the dash (off) under Ctrl, Alt and Shift, as the real keyboard
+ * draws them at rest: nothing is lit or locked (no red shift) and no key but those three has a dash.
+ *
+ * <p>The themes of the gradient styles (the roles {@code spectrum_*}) are drawn with the hue of each key's place, as {@link MrGlow} does on the real keyboard.
  *
  * <p>The keys are drawn as large as the real ones on this phone (the width of the screen is the width of the keyboard) and the whole is scaled to
  * the size of the view, so the radius, the lips and the gaps of the key faces are the ones of the keyboard. A theme that has no key drawable falls
@@ -66,6 +68,17 @@ final class MrThemePreview extends View {
     /** The "add a picture" tile: a plain face with a plus, not a keyboard. */
     private boolean mPlus;
     private int mPlusFill, mPlusLine, mPlusInk;
+    /**
+     * The gradient themes (the roles spectrum_*, as the keyboard has them): the hue the key drawables are written in, the three hues the keyboard turns
+     * through, the filters of the faces made once for each step, and the area of the keys that the position of a key is taken in. 0 in mFrom: no gradient.
+     */
+    private int mFrom, mStart, mMid, mEnd;
+    private float[][] mMatrix;
+    private android.graphics.ColorFilter[] mFilter;
+    private float mAreaW, mAreaTop, mAreaH;
+    private float[] mCurrent;       // the matrix of the key being drawn; null = the theme's own colours
+    private android.graphics.ColorFilter mCurrentFilter;
+    private int mCurrentHue;        // its hue, opaque
 
     MrThemePreview(Context c) {
         super(c);
@@ -244,6 +257,7 @@ final class MrThemePreview extends View {
     private void keys(Canvas canvas, Context c, float vw, float vh) {
         faces(c);
         float top = vh * BAR_SHARE;
+        area(vw, top, vh);
         float side = vw * 0.008f;
         float rowH = (vh - top) / 4f;
         float unit = (vw - 2f * side) / 10f;
@@ -293,12 +307,14 @@ final class MrThemePreview extends View {
     private static final boolean[] MOD_KEYS = {true, true, true, false, true, true, true, false};
 
     /**
-     * The complete keyboard under the line of suggestions: the row of Ctrl, Alt and the arrows (Ctrl lit, to show the dash that is on), the numbers,
-     * the three rows of letters (Shift locked, to show the one that is locked) and the bottom row, each key with the face of its kind.
+     * The complete keyboard under the line of suggestions, at rest as the real one is when it opens: the row of Ctrl, Alt and the arrows, the numbers,
+     * the three rows of letters and the bottom row, each key with the face of its kind. Only Ctrl, Alt and Shift have the dash of the modifier keys
+     * (off); nothing is lit or locked, because the keyboard shows a lit face only while a key is on.
      */
     private void fullKeys(Canvas canvas, Context c, float vw, float vh) {
         faces(c);
         float top = vh * FULL_BAR_SHARE;
+        area(vw, top, vh);
         float side = vw * 0.008f;
         float rowH = (vh - top) / 6f;
         float width = vw - 2f * side;
@@ -317,8 +333,9 @@ final class MrThemePreview extends View {
             float kw = width * MOD_WIDTHS[i] / sum;
             boolean mod = MOD_KEYS[i];
             String label = MOD_LABELS[i];
+            // the keyboard draws the dash under Ctrl and Alt only (Tab and the arrows have none)
             key(canvas, x, top, kw, rowH, mod, label, mod ? accentText : text, glow, glowPx,
-                    i == 0 ? FACE_ON : FACE_NORMAL, !mod ? DASH_NONE : i == 0 ? DASH_ON : DASH_OFF, label.length() > 1 && mod && i < 2 ? word : letter);
+                    FACE_NORMAL, i < 2 ? DASH_OFF : DASH_NONE, label.length() > 1 && mod && i < 2 ? word : letter);
             x += kw;
         }
         // the numbers and the letters
@@ -332,9 +349,9 @@ final class MrThemePreview extends View {
             float rowW = letters.length() * unit;
             float left = side + (10f * unit - rowW) / 2f;
             if (r == 2) {
-                // Shift (locked) and delete, 15% of the width each, as the layout gives them
+                // Shift and delete, 15% of the width each, as the layout gives them (Shift is at rest and has the dash of the modifier keys)
                 float edge = width * 0.15f;
-                key(canvas, side, y, edge, rowH, true, "\u21e7", accentText, glow, glowPx, FACE_LOCK, DASH_LOCK, letter);
+                key(canvas, side, y, edge, rowH, true, "\u21e7", accentText, glow, glowPx, FACE_NORMAL, DASH_OFF, letter);
                 key(canvas, side + width - edge, y, edge, rowH, true, "\u232b", accentText, glow, glowPx, FACE_NORMAL, DASH_NONE, letter);
                 left = side + edge;
             }
@@ -348,7 +365,7 @@ final class MrThemePreview extends View {
         x = side;
         key(canvas, x, y, a, rowH, true, "123", accentText, glow, glowPx, FACE_NORMAL, DASH_NONE, word);
         x += a;
-        key(canvas, x, y, b, rowH, true, "F1", accentText, glow, glowPx, FACE_NORMAL, DASH_OFF, word);
+        key(canvas, x, y, b, rowH, true, "F1", accentText, glow, glowPx, FACE_NORMAL, DASH_NONE, word);
         x += b;
         key(canvas, x, y, space, rowH, false, "", text, glow, glowPx, FACE_NORMAL, DASH_NONE, letter);
         x += space;
@@ -369,6 +386,13 @@ final class MrThemePreview extends View {
     private void key(Canvas canvas, float x, float y, float w, float h, boolean accent, String label, int ink, int glow, float glowPx, int state, int dash, float size) {
         int iw = Math.max(1, Math.round(w)), ih = Math.max(1, Math.round(h));
         Drawable face = accent ? mAccent : mFace;
+        // on a gradient theme every key has the hue of its place, as on the keyboard: the face, the label, the dash and the light of the label
+        spectrum(x, y, w, h);
+        float[] m = mCurrent;
+        if (m != null) {
+            ink = MrGlow.map(m, ink);
+            if (glowPx > 0f) glow = (glow & 0xff000000) | (mCurrentHue & 0xffffff);
+        }
         canvas.save();
         canvas.translate(x, y);
         if (face != null) {
@@ -376,7 +400,12 @@ final class MrThemePreview extends View {
             // a key of the keyboard is "single" at rest (the selector then takes its resting face) and checkable when it is a modifier key
             face.setState(state == FACE_LOCK ? STATE_LOCK : state == FACE_ON ? STATE_ON : dash != DASH_NONE ? STATE_MOD : STATE_NORMAL);
             KeyStyle.prepare(face, iw, ih, getContext());
-            KeyStyle.drawKey(face, canvas, iw, ih);
+            face.setColorFilter(mCurrentFilter);
+            try {
+                KeyStyle.drawKey(face, canvas, iw, ih);
+            } finally {
+                face.setColorFilter(null);
+            }
         } else {
             flat(canvas, iw, ih, accent, state);
         }
@@ -398,6 +427,7 @@ final class MrThemePreview extends View {
         Context c = getContext();
         String role = state == DASH_LOCK ? "modifier_indicator_lock" : state == DASH_ON ? "modifier_indicator_on" : "modifier_indicator_off";
         int colour = MrThemeColors.colorOr(c, mTag, role, 0xff808080);
+        if (mCurrent != null && state != DASH_LOCK) colour = MrGlow.map(mCurrent, colour);
         float dw = Math.min(14f * mDensity, w * 0.3f), dh = 3f * mDensity;
         float bottom = h - 8f * mDensity;
         mPaint.setShader(null);
@@ -417,6 +447,13 @@ final class MrThemePreview extends View {
         int restLip = MrThemeColors.colorOr(c, mTag, rest + "lip", MrThemeColors.colorOr(c, mTag, rest + "bottom", restFill));
         int fill = MrThemeColors.colorOr(c, mTag, pre + "fill", MrThemeColors.colorOr(c, mTag, pre + "top", restFill));
         int lip = MrThemeColors.colorOr(c, mTag, pre + "lip", MrThemeColors.colorOr(c, mTag, pre + "bottom", state == FACE_NORMAL ? restLip : fill));
+        // the key styles of the backgrounds draw the face with a line of 1 dp (the role key_<state>_edge)
+        int edge = MrThemeColors.own(c, mTag, (accent ? "key_acc_" : "key_") + name + "_edge");
+        if (mCurrent != null) {
+            fill = MrGlow.map(mCurrent, fill);
+            lip = MrGlow.map(mCurrent, lip);
+            edge = MrGlow.map(mCurrent, edge);
+        }
         float gap = 3f * mDensity, r = 8f * mDensity;
         mPaint.setShader(null);
         mPaint.setStyle(Paint.Style.FILL);
@@ -424,6 +461,13 @@ final class MrThemePreview extends View {
             // a see-through face has no lip: drawn twice it would be less see-through
             mPaint.setColor(fill);
             canvas.drawRoundRect(gap, gap, w - gap, h - gap, r, r, mPaint);
+            if (edge != 0) {
+                mPaint.setStyle(Paint.Style.STROKE);
+                mPaint.setStrokeWidth(mDensity);
+                mPaint.setColor(edge);
+                canvas.drawRoundRect(gap, gap, w - gap, h - gap, r, r, mPaint);
+                mPaint.setStyle(Paint.Style.FILL);
+            }
             return;
         }
         mPaint.setColor(lip);
@@ -438,6 +482,38 @@ final class MrThemePreview extends View {
         mFaceTag = mTag;
         mFace = face(c, MrThemeColors.keyDrawable(c, mTag, false));
         mAccent = face(c, MrThemeColors.keyDrawable(c, mTag, true));
+        mStart = MrThemeColors.own(c, mTag, "spectrum_start");
+        mFrom = mStart == 0 ? 0 : MrThemeColors.own(c, mTag, "glow");
+        mMid = MrThemeColors.own(c, mTag, "spectrum_mid");
+        mEnd = MrThemeColors.own(c, mTag, "spectrum_end");
+        mMatrix = mFrom == 0 ? null : new float[MrGlow.STEPS + 1][];
+        mFilter = mFrom == 0 ? null : new android.graphics.ColorFilter[MrGlow.STEPS + 1];
+    }
+
+    /** Where the keys are (the area under the line of suggestions): the position of a key in it gives its hue on a gradient theme. */
+    private void area(float w, float top, float h) {
+        mAreaW = w;
+        mAreaTop = top;
+        mAreaH = h - top;
+    }
+
+    /** Chooses the hue of the key at ({@code x}, {@code y}) of size {@code w} x {@code h} on a gradient theme (as the keyboard does): sets mCurrent, null on any other. */
+    private void spectrum(float x, float y, float w, float h) {
+        mCurrent = null;
+        mCurrentFilter = null;
+        if (mFrom == 0 || mMatrix == null) return;
+        int step = MrGlow.step(x + w / 2f, y + h / 2f - mAreaTop, Math.round(mAreaW), Math.round(mAreaH));
+        float[] m = mMatrix[step];
+        int hue = MrGlow.ramp(mStart, mMid, mEnd, step / (float) MrGlow.STEPS);
+        if (m == null) {
+            m = MrGlow.remap(mFrom, hue);
+            if (m == null) return;
+            mMatrix[step] = m;
+            mFilter[step] = MrGlow.filter(m);
+        }
+        mCurrent = m;
+        mCurrentFilter = mFilter[step];
+        mCurrentHue = hue;
     }
 
     private static Drawable face(Context c, int id) {

@@ -2,7 +2,8 @@
 <!-- Registry of the keyboard themes. The index of mr_theme_layouts is the value stored in the preference
      pref_keyboard_layout (the same positions as keyboard_layout_modes_values): 0 Midnight Steel, 1 Aurora, 2 Neon Cyan,
      3 Neon Purple, 4 Neon Pink, 5 Synthwave, 6 Aqua, 7 Sky, 8 Snow, 9 Chrome, 10 Rose, 11 Cobalt Glass, 12 Denim, and the themes of the backgrounds, which the themes screen does not list: 13 overlight (see-through keys, light ink), 14 overdark
-     (see-through keys, dark ink) and the styles of keys with more body, 15 overline (outlined), 16 overshade (dark glass), 17 overslate, 18 overblue and 19 overviolet. Glass is written by hand;
+     (see-through keys, dark ink) and the other styles of keys, all see-through: tinted glass (15 overice, 16 overlilac, 17 overmint, 18 overember), outlines (19 overline, 20 overteal, 21 overviolet,
+     22 overfuchsia, 23 overlime, 24 overgold) and gradients (25 overdawn, 26 overtide, 27 overprism, 28 overlagoon). Glass is written by hand;
      the others (dark: Midnight, Denim; neon: Aurora, Cyan, Purple, Pink, Synthwave; light: Aqua, Sky, Snow, Chrome, Rose) are written
      by docs/tools/make_themes.py, which also writes the three lists below and keyboard_layout_modes (the order is its
      ORDER). New theme: create res/layout/input_mr_<theme>.xml with the tag mr_<theme>, one line in mr_theme_layouts, one
@@ -27,11 +28,20 @@
         <item>@layout/input_mr_denim</item>
         <item>@layout/input_mr_overlight</item>
         <item>@layout/input_mr_overdark</item>
+        <item>@layout/input_mr_overice</item>
+        <item>@layout/input_mr_overlilac</item>
+        <item>@layout/input_mr_overmint</item>
+        <item>@layout/input_mr_overember</item>
         <item>@layout/input_mr_overline</item>
-        <item>@layout/input_mr_overshade</item>
-        <item>@layout/input_mr_overslate</item>
-        <item>@layout/input_mr_overblue</item>
+        <item>@layout/input_mr_overteal</item>
         <item>@layout/input_mr_overviolet</item>
+        <item>@layout/input_mr_overfuchsia</item>
+        <item>@layout/input_mr_overlime</item>
+        <item>@layout/input_mr_overgold</item>
+        <item>@layout/input_mr_overdawn</item>
+        <item>@layout/input_mr_overtide</item>
+        <item>@layout/input_mr_overprism</item>
+        <item>@layout/input_mr_overlagoon</item>
     </array>
     <!-- Tag of each theme layout (android:tag of LatinKeyboardView) -->
     <string-array name="mr_theme_tags">
@@ -50,11 +60,20 @@
         <item>mr_denim</item>
         <item>mr_overlight</item>
         <item>mr_overdark</item>
+        <item>mr_overice</item>
+        <item>mr_overlilac</item>
+        <item>mr_overmint</item>
+        <item>mr_overember</item>
         <item>mr_overline</item>
-        <item>mr_overshade</item>
-        <item>mr_overslate</item>
-        <item>mr_overblue</item>
+        <item>mr_overteal</item>
         <item>mr_overviolet</item>
+        <item>mr_overfuchsia</item>
+        <item>mr_overlime</item>
+        <item>mr_overgold</item>
+        <item>mr_overdawn</item>
+        <item>mr_overtide</item>
+        <item>mr_overprism</item>
+        <item>mr_overlagoon</item>
     </string-array>
     <!-- Flags of each tag, in the same order as mr_theme_tags (the bits are at the top of MrTheme.smali):
          0x02 flat bar, 0x04 highlight keys, 0x08 enlarged highlight group, 0x10 translucent,
@@ -80,5 +99,14 @@
         <item>0x6e</item>
         <item>0x6e</item>
         <item>0x6e</item>
+        <item>0x6e</item>
+        <item>0x6e</item>
+        <item>0x6e</item>
+        <item>0x6e</item>
+        <item>0x6e</item>
+        <item>0x1ee</item>
+        <item>0x1ee</item>
+        <item>0x1ee</item>
+        <item>0x1ee</item>
     </integer-array>
 </resources>

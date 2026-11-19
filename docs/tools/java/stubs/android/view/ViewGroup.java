@@ -11,6 +11,9 @@ public abstract class ViewGroup extends View implements ViewParent {
         public LayoutParams(int width, int height) { this.width = width; this.height = height; }
     }
     public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) { }
+    /** Not in Android: whether the children are clipped to the padding (the default of Android: yes). */
+    public boolean stubClipToPadding = true;
+    public void setClipToPadding(boolean clipToPadding) { stubClipToPadding = clipToPadding; }
     /** Children as added, with the layout params each came with: read by the PC tests. */
     private final java.util.ArrayList<View> stubChildren = new java.util.ArrayList<View>();
     private final java.util.ArrayList<LayoutParams> stubParams = new java.util.ArrayList<LayoutParams>();

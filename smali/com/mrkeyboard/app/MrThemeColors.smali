@@ -214,7 +214,7 @@
     .locals 3
 
     .prologue
-    .line 131
+    .line 146
     const/high16 v0, -0x1000000
 
     const-string v1, "kbd_bg"
@@ -376,21 +376,21 @@
     .locals 2
 
     .prologue
-    .line 120
+    .line 135
     const-string v0, "tool_ink"
 
     invoke-static {p0, p1, v0}, Lcom/mrkeyboard/app/MrThemeColors;->declared(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v0
 
-    .line 121
+    .line 136
     if-eqz v0, :cond_0
 
     const/high16 v1, -0x1000000
 
     or-int/2addr v0, v1
 
-    .line 122
+    .line 137
     :goto_0
     return v0
 
@@ -412,14 +412,14 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 144
+    .line 159
     if-nez p1, :cond_0
 
-    .line 149
+    .line 164
     :goto_0
     return v0
 
-    .line 146
+    .line 161
     :cond_0
     :try_start_0
     const-string v1, "mr_"
@@ -436,7 +436,7 @@
 
     move-result-object p1
 
-    .line 147
+    .line 162
     :cond_1
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
@@ -488,7 +488,7 @@
 
     goto :goto_1
 
-    .line 148
+    .line 163
     :catch_0
     move-exception v1
 
@@ -531,7 +531,7 @@
     .prologue
     const/high16 v3, 0x437f0000    # 255.0f
 
-    .line 136
+    .line 151
     shr-int/lit8 v0, p0, 0x10
 
     and-int/lit16 v0, v0, 0xff
@@ -540,7 +540,7 @@
 
     div-float/2addr v0, v3
 
-    .line 137
+    .line 152
     shr-int/lit8 v1, p0, 0x8
 
     and-int/lit16 v1, v1, 0xff
@@ -549,14 +549,14 @@
 
     div-float/2addr v1, v3
 
-    .line 138
+    .line 153
     and-int/lit16 v2, p0, 0xff
 
     int-to-float v2, v2
 
     div-float/2addr v2, v3
 
-    .line 139
+    .line 154
     const v3, 0x3e59b3d0    # 0.2126f
 
     mul-float/2addr v0, v3
@@ -588,6 +588,78 @@
     move-result-object v0
 
     return-object v0
+.end method
+
+.method static own(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;)I
+    .locals 5
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 123
+    if-nez p1, :cond_1
+
+    .line 129
+    :cond_0
+    :goto_0
+    return v0
+
+    .line 125
+    :cond_1
+    :try_start_0
+    invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+
+    move-result-object v1
+
+    .line 126
+    new-instance v2, Ljava/lang/StringBuilder;
+
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    const-string v3, "_"
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2, p2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    const-string v3, "color"
+
+    invoke-virtual {p0}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+
+    move-result-object v4
+
+    invoke-virtual {v1, v2, v3, v4}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+
+    move-result v2
+
+    .line 127
+    if-eqz v2, :cond_0
+
+    invoke-virtual {v1, v2}, Landroid/content/res/Resources;->getColor(I)I
+    :try_end_0
+    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+
+    move-result v0
+
+    goto :goto_0
+
+    .line 128
+    :catch_0
+    move-exception v1
+
+    goto :goto_0
 .end method
 
 .method static tags(Landroid/content/Context;)[Ljava/lang/String;

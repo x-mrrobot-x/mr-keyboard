@@ -115,6 +115,21 @@ final class MrThemeColors {
         return v == NONE ? 0 : v;
     }
 
+    /**
+     * The colour of a role that the theme itself says (the shared default is no answer): 0 when it does not. The gradient themes are the ones that say
+     * spectrum_start (the hues the keyboard turns through) and the glow (the hue their drawables are written in).
+     */
+    static int own(Context c, String tag, String role) {
+        if (tag == null) return 0;
+        try {
+            Resources r = c.getResources();
+            int id = r.getIdentifier(tag + "_" + role, "color", c.getPackageName());
+            return id == 0 ? 0 : r.getColor(id);
+        } catch (RuntimeException e) {
+            return 0;
+        }
+    }
+
     /** The ink of what sits on the background of the keyboard (the suggestions, the icons of the bar): the one the theme declares, else the text of its keys. */
     static int ink(Context c, String tag) {
         int tool = declared(c, tag, "tool_ink");

@@ -218,11 +218,20 @@
     <string name="layout_mr_denim">Denim</string>
     <string name="layout_mr_overlight">Background, light ink</string>
     <string name="layout_mr_overdark">Background, dark ink</string>
-    <string name="layout_mr_overline">Background, outlined keys</string>
-    <string name="layout_mr_overshade">Background, dark glass</string>
-    <string name="layout_mr_overslate">Background, dark keys</string>
-    <string name="layout_mr_overblue">Background, blue keys</string>
-    <string name="layout_mr_overviolet">Background, violet keys</string>
+    <string name="layout_mr_overice">Background, ice glass</string>
+    <string name="layout_mr_overlilac">Background, lilac glass</string>
+    <string name="layout_mr_overmint">Background, mint glass</string>
+    <string name="layout_mr_overember">Background, ember glass</string>
+    <string name="layout_mr_overline">Background, white outline</string>
+    <string name="layout_mr_overteal">Background, cyan outline</string>
+    <string name="layout_mr_overviolet">Background, violet outline</string>
+    <string name="layout_mr_overfuchsia">Background, fuchsia outline</string>
+    <string name="layout_mr_overlime">Background, lime outline</string>
+    <string name="layout_mr_overgold">Background, gold outline</string>
+    <string name="layout_mr_overdawn">Background, dawn gradient</string>
+    <string name="layout_mr_overtide">Background, tide gradient</string>
+    <string name="layout_mr_overprism">Background, prism gradient</string>
+    <string name="layout_mr_overlagoon">Background, lagoon gradient</string>
     <string name="main_body">" 
         &lt;h2>Enabling Mr Keyboard&lt;/h2>
         

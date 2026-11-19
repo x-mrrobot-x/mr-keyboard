@@ -524,12 +524,36 @@ final class MrBackdrop {
 
     static final String TAG_LIGHT_INK = "mr_overlight", TAG_DARK_INK = "mr_overdark";
     /**
-     * The styles of the keys of a background, each one a theme of the backgrounds with white ink: see-through, outlined (a light outline over a dark
-     * veil), dark glass and three dense ones (dark slate, blue, violet). The dialog of a background lets the person pick one, so the letters stay
-     * clear on a busy picture.
+     * The styles of the keys of a background, each one a theme of the backgrounds with light ink, all of them see-through (what shows through the
+     * key is the background): the clear glass, four tinted glasses, six outlines (a line of one hue around an almost empty face) and four gradients
+     * (the line, the labels and the light of the labels change hue along the keyboard). The dialog of a background lets the person pick one by kind
+     * ({@link #KIND_FIRST}) and then by colour.
      */
-    static final String[] STYLE_TAGS = {TAG_LIGHT_INK, "mr_overline", "mr_overshade", "mr_overslate", "mr_overblue", "mr_overviolet"};
+    static final String[] STYLE_TAGS = {TAG_LIGHT_INK, "mr_overice", "mr_overlilac", "mr_overmint", "mr_overember",
+            "mr_overline", "mr_overteal", "mr_overviolet", "mr_overfuchsia", "mr_overlime", "mr_overgold",
+            "mr_overdawn", "mr_overtide", "mr_overprism", "mr_overlagoon"};
     static final int STYLES = STYLE_TAGS.length;
+    /** The kinds of style: glass, outline and gradient. */
+    static final int KIND_GLASS = 0, KIND_OUTLINE = 1, KIND_GRADIENT = 2, KINDS = 3;
+    /** The first style of each kind (and, last, the number of styles): the styles of a kind are the ones from {@code KIND_FIRST[k]} up to the next. */
+    static final int[] KIND_FIRST = {0, 5, 11, STYLES};
+    /**
+     * The colours that show a style in the dialog (the hue of the glass or of the line; the three hues a gradient turns through), opaque; the
+     * see-through glass is white. Same order as {@link #STYLE_TAGS}.
+     */
+    static final int[][] STYLE_COLORS = {
+            {0xffffffff}, {0xff4da3ff}, {0xffa77bff}, {0xff3ddc97}, {0xffff8a4c},
+            {0xffffffff}, {0xff2de2e6}, {0xffa78bfa}, {0xffff5fd2}, {0xffa6e22e}, {0xffffc83d},
+            {0xffffb347, 0xffff5fa2, 0xff9b6bff}, {0xff22e1ff, 0xff4d7cff, 0xffb06bff}, {0xffff4d6d, 0xff4dff9a, 0xff4d8dff}, {0xffa3ff5c, 0xff19e6b0, 0xff3d8bff}};
+
+    /** The kind of a style: glass, outline or gradient. */
+    static int kindOf(int style) {
+        int s = clamp(style, 0, STYLES - 1);
+        for (int k = KINDS - 1; k > 0; k--) {
+            if (s >= KIND_FIRST[k]) return k;
+        }
+        return KIND_GLASS;
+    }
 
     // ---- the picture of the gallery
 

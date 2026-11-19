@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 772
+    .line 829
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$16$1;->this$1:Lcom/mrkeyboard/app/MrThemesActivity$16;
 
     iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$16$1;->val$n:I
@@ -46,36 +46,59 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 3
+    .locals 4
 
     .prologue
-    const/4 v2, 0x0
+    const/4 v3, 0x0
 
-    .line 774
+    .line 831
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$16$1;->this$1:Lcom/mrkeyboard/app/MrThemesActivity$16;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrThemesActivity$16;->val$style:[I
 
+    aget v0, v0, v3
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->kindOf(I)I
+
+    move-result v0
+
     iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$16$1;->val$n:I
 
-    aput v1, v0, v2
+    if-ne v0, v1, :cond_0
 
-    .line 775
+    .line 835
+    :goto_0
+    return-void
+
+    .line 832
+    :cond_0
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$16$1;->this$1:Lcom/mrkeyboard/app/MrThemesActivity$16;
+
+    iget-object v0, v0, Lcom/mrkeyboard/app/MrThemesActivity$16;->val$style:[I
+
+    sget-object v1, Lcom/mrkeyboard/app/MrBackdrop;->KIND_FIRST:[I
+
+    iget v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$16$1;->val$n:I
+
+    aget v1, v1, v2
+
+    aput v1, v0, v3
+
+    .line 833
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$16$1;->this$1:Lcom/mrkeyboard/app/MrThemesActivity$16;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrThemesActivity$16;->val$redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 776
+    .line 834
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$16$1;->this$1:Lcom/mrkeyboard/app/MrThemesActivity$16;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrThemesActivity$16;->val$draw:[Ljava/lang/Runnable;
 
-    aget-object v0, v0, v2
+    aget-object v0, v0, v3
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 777
-    return-void
+    goto :goto_0
 .end method

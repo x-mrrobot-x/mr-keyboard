@@ -123,6 +123,15 @@ public class View {
     public boolean canScrollVertically(int direction) { return stubCanScroll; }
     public void setVerticalScrollBarEnabled(boolean enabled) { stubScrollBar = enabled; }
     public void setHorizontalScrollBarEnabled(boolean enabled) { }
+    public static final int SCROLLBARS_INSIDE_OVERLAY = 0, SCROLLBARS_INSIDE_INSET = 0x01000000, SCROLLBARS_OUTSIDE_OVERLAY = 0x02000000, SCROLLBARS_OUTSIDE_INSET = 0x03000000;
+    /** Not in Android: what the scroll bar was given (the style, the size, whether it fades, the thumb). */
+    public int stubScrollBarStyle = SCROLLBARS_INSIDE_OVERLAY, stubScrollBarSize = -1;
+    public boolean stubScrollBarFades = true;
+    public android.graphics.drawable.Drawable stubScrollBarThumb;
+    public void setScrollBarStyle(int style) { stubScrollBarStyle = style; }
+    public void setScrollBarSize(int size) { stubScrollBarSize = size; }
+    public void setScrollbarFadingEnabled(boolean fadeScrollbars) { stubScrollBarFades = fadeScrollbars; }
+    public void setVerticalScrollbarThumbDrawable(android.graphics.drawable.Drawable drawable) { stubScrollBarThumb = drawable; }
     /** Tests only: where the view sits in its parent (the stub has no layout). */
     public int stubLeft;
     public final int getLeft() { return stubLeft; }

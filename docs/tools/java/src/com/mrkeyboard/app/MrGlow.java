@@ -289,15 +289,19 @@ final class MrGlow {
     private static ColorFilter faceFilter(int step) {
         ColorFilter f = sFaceFilter[step];
         if (f == null) {
-            float[] m = sMatrix[step];
-            f = new ColorMatrixColorFilter(new float[] {
-                    m[0], m[1], m[2], 0f, 0f,
-                    m[3], m[4], m[5], 0f, 0f,
-                    m[6], m[7], m[8], 0f, 0f,
-                    0f, 0f, 0f, 1f, 0f });
+            f = filter(sMatrix[step]);
             sFaceFilter[step] = f;
         }
         return f;
+    }
+
+    /** The colour filter that draws a drawable written in the hue of {@link #remap}'s <code>from</code> in the hue of its <code>to</code> (the opacity is kept). */
+    static ColorFilter filter(float[] m) {
+        return new ColorMatrixColorFilter(new float[] {
+                m[0], m[1], m[2], 0f, 0f,
+                m[3], m[4], m[5], 0f, 0f,
+                m[6], m[7], m[8], 0f, 0f,
+                0f, 0f, 0f, 1f, 0f });
     }
 
     /**

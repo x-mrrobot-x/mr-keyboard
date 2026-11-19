@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 342
+    .line 365
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$5;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$5;->val$open:Landroid/widget/TextView;
@@ -51,7 +51,7 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 344
+    .line 367
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$5;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrThemesActivity;->mStrip:Landroid/widget/HorizontalScrollView;
@@ -80,6 +80,6 @@
 
     invoke-virtual {v0, v1, v4}, Landroid/widget/HorizontalScrollView;->smoothScrollTo(II)V
 
-    .line 345
+    .line 368
     return-void
 .end method

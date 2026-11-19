@@ -50,10 +50,10 @@ import java.util.List;
  */
 public class MrThemesActivity extends Activity {
     static final String THEME_KEY = "pref_keyboard_layout";
-    /** The cards in a row. */
-    static final int COLUMNS = 2;
+    /** The cards in a row: one, so that each keyboard is as wide as the screen allows and its keys can be seen. */
+    static final int COLUMNS = 1;
     /** How many cards are added in one go (the rest follow, so that a long tab does not hold the screen). */
-    static final int CHUNK = 4;
+    static final int CHUNK = 3;
     /** The tabs: the themes, the colours, the gradients, then one for each category of landscapes, and the gallery last. */
     static final int TAB_THEMES = 0, TAB_COLORS = 1, TAB_GRADIENTS = 2, TAB_SCENES = 3;
     static final int TAB_GALLERY = TAB_SCENES + MrScenes.CATEGORIES;
@@ -64,6 +64,9 @@ public class MrThemesActivity extends Activity {
     /** The photo picker of Android 13 (and of the phones that got it later through the system updates). */
     static final String ACTION_PICK_IMAGES = "android.provider.action.PICK_IMAGES";
     static final String IMAGES_URI = "content://media/external/images/media";
+
+    /** The margin on the right of the list of cards (where its scroll bar is, not over the cards) and the opacity (0..255) of the thumb of the bar. */
+    static final int SCROLL_MARGIN_DP = 20, SCROLL_THUMB_ALPHA = 0x59;
 
     /** What a card stands for. */
     static final int CARD_THEME = 0, CARD_BACKGROUND = 1, CARD_PLUS = 2, CARD_MINE = 3;
@@ -110,7 +113,7 @@ public class MrThemesActivity extends Activity {
     static final int SCENE_SAMPLE = 2;
 
     MrThemePreview mBig;
-    TextView mCaption;
+    TextView mCaption, mDetail;
     TextView mRemove;
     HorizontalScrollView mStrip;
     ScrollView mScroll;
@@ -157,24 +160,37 @@ public class MrThemesActivity extends Activity {
 
         LinearLayout root = k.column();
         root.setBackground(k.round(k.bg, 0, 0, false));
-        root.setPadding(k.dp(20), k.dp(16), k.dp(20), 0);
+        // no padding on the right: the list of cards takes the margin for itself, so that its scroll bar sits at the edge of the screen and not over the cards
+        root.setPadding(k.dp(20), k.dp(16), 0, 0);
         root.addView(k.backHeader(k.t("mr_themes_title"), new View.OnClickListener() {
             public void onClick(View v) {
                 finish();
             }
-        }), k.wide(0));
+        }), side(0));
 
-        // the keyboard as it is now, with its name: the only place that shows the choice in use
+        // the choice in use, in a card of its own: the keyboard as it is now on the left and, on the right, the tag, its name and what it is (the only
+        // place that shows the choice in use besides the "In use" pill of the card that is chosen)
         LinearLayout top = k.row();
+        top.setGravity(Gravity.CENTER_VERTICAL);
+        top.setPadding(k.dp(10), k.dp(10), k.dp(12), k.dp(10));
+        top.setBackground(k.round(k.card, MrBackdrop.mix(k.card, k.accent, 0.55f), 14, false));
         mBig = new MrThemePreview(this);
-        top.addView(mBig, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.25f));
+        top.addView(mBig, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.3f));
         LinearLayout info = k.column();
         info.setPadding(k.dp(14), 0, 0, 0);
-        info.addView(k.label(k.t("mr_themes_current"), 12f, k.text2, false), k.wide(0));
+        info.setGravity(Gravity.CENTER_VERTICAL);
+        TextView tag = k.label(k.t("mr_themes_current").toUpperCase(java.util.Locale.ROOT), 11f, k.onAccent, true);
+        tag.setPadding(k.dp(8), k.dp(3), k.dp(8), k.dp(3));
+        tag.setBackground(k.round(k.accent, 0, 8, false));
+        info.addView(tag, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         mCaption = k.label("", 17f, k.text, true);
-        info.addView(mCaption, k.wide(4));
+        mCaption.setMaxLines(2);
+        info.addView(mCaption, k.wide(8));
+        mDetail = k.label("", 13f, k.text2, false);
+        mDetail.setMaxLines(3);
+        info.addView(mDetail, k.wide(4));
         top.addView(info, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        root.addView(top, k.wide(12));
+        root.addView(top, side(12));
 
         // the tabs: one for each category
         mStrip = new HorizontalScrollView(this);
@@ -197,10 +213,17 @@ public class MrThemesActivity extends Activity {
             mTabViews.add(t);
         }
         mStrip.addView(tabs, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        root.addView(mStrip, k.wide(14));
+        root.addView(mStrip, side(14));
 
-        // the cards of the tab that is open
+        // the cards of the tab that is open. The margin of the right side is the padding of the list (not clipped), and the scroll bar is drawn outside of the
+        // content, in that margin: thin, in a faint tone of the secondary text, and it fades when the list is still
         mScroll = new ScrollView(this);
+        mScroll.setPadding(0, 0, k.dp(SCROLL_MARGIN_DP), 0);
+        mScroll.setClipToPadding(false);
+        mScroll.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
+        mScroll.setScrollBarSize(k.dp(3));
+        mScroll.setScrollbarFadingEnabled(true);
+        if (Build.VERSION.SDK_INT >= 29) mScroll.setVerticalScrollbarThumbDrawable(k.round((SCROLL_THUMB_ALPHA << 24) | (k.text2 & 0xffffff), 0, 2, false));
         mGrid = k.column();
         mGrid.setPadding(0, 0, 0, k.dp(24));
         mScroll.addView(mGrid, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -348,6 +371,13 @@ public class MrThemesActivity extends Activity {
     }
 
     // ---- the cards
+
+    /** The width of the screen less the margin on the right (the screen has no padding on that side), {@code topDp} from what is above. */
+    private LinearLayout.LayoutParams side(int topDp) {
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        p.setMargins(0, k.dp(topDp), k.dp(SCROLL_MARGIN_DP), 0);
+        return p;
+    }
 
     private LinearLayout.LayoutParams cardParams(int column) {
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
@@ -519,6 +549,7 @@ public class MrThemesActivity extends Activity {
     void refresh() {
         mBig.show(tag(), mSpec, bigImage(mSpec), mSoft);
         mCaption.setText(caption());
+        mDetail.setText(detail());
         for (int i = 0; i < mThemeTiles.size(); i++) bindCard(CARD_THEME, mThemeTiles.get(i), i);
         for (int i = 0; i < mBgTiles.size(); i++) bindCard(CARD_BACKGROUND, mBgTiles.get(i), i);
     }
@@ -534,6 +565,19 @@ public class MrThemesActivity extends Activity {
         return mTheme < mListed && mTheme < mNames.length ? mNames[mTheme] : "";
     }
 
+    /**
+     * What the choice in use is, under its name: "Theme" for a theme of the list; for a background the tab it is in and, when it has the style of the
+     * keys to choose, the kind and the name of the style ("Keys: Outline · Violet").
+     */
+    String detail() {
+        if (mSpec.kind == MrBackdrop.NONE) return k.t("mr_themes_theme_one");
+        String line = tabName(tabOfChoice());
+        if (MrBackdrop.hasStyles(mSpec)) {
+            line += "\n" + k.t("mr_themes_keys") + ": " + kindName(this, MrBackdrop.kindOf(mStyle)) + " \u00b7 " + styleName(this, mStyle);
+        }
+        return line;
+    }
+
     /** The name of the landscape {@code i}. */
     static String sceneName(Context c, int i) {
         String s = MrPacks.text(c, "mr_themes_scene_" + i);
@@ -543,6 +587,12 @@ public class MrThemesActivity extends Activity {
     /** The name of the category {@code cat} of the landscapes. */
     static String categoryName(Context c, int cat) {
         String s = MrPacks.text(c, "mr_themes_scene_cat_" + cat);
+        return s != null ? s : "";
+    }
+
+    /** The name of the kind of style of keys {@code kind} (glass, outline, gradient). */
+    static String kindName(Context c, int kind) {
+        String s = MrPacks.text(c, "mr_themes_kind_" + kind);
         return s != null ? s : "";
     }
 
@@ -758,28 +808,54 @@ public class MrThemesActivity extends Activity {
 
         if (MrBackdrop.hasStyles(spec)) {
             box.addView(k.label(k.t("mr_themes_keys"), 15f, k.text, true), k.wide(12));
+            // two levels: the kind (glass, outline, gradient) as chips, then the colours of that kind as dots, and the name of the one chosen under them
+            final LinearLayout kinds = k.row();
+            box.addView(kinds, k.wide(8));
             HorizontalScrollView scroll = new HorizontalScrollView(this);
             scroll.setHorizontalScrollBarEnabled(false);
-            final LinearLayout chips = k.row();
-            scroll.addView(chips, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            box.addView(scroll, k.wide(8));
+            final LinearLayout dots = k.row();
+            scroll.addView(dots, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            box.addView(scroll, k.wide(10));
+            final TextView styleLabel = k.label("", 14f, k.text2, false);
+            styleLabel.setGravity(Gravity.CENTER);
+            box.addView(styleLabel, k.wide(4));
             final Runnable[] draw = new Runnable[1];
             draw[0] = new Runnable() {
                 public void run() {
-                    chips.removeAllViews();
-                    for (int i = 0; i < MrBackdrop.STYLES; i++) {
+                    int kind = MrBackdrop.kindOf(style[0]);
+                    kinds.removeAllViews();
+                    for (int i = 0; i < MrBackdrop.KINDS; i++) {
                         final int n = i;
-                        TextView c = k.chip(styleName(MrThemesActivity.this, n), n == style[0], new View.OnClickListener() {
+                        TextView c = k.chip(kindName(MrThemesActivity.this, n), n == kind, new View.OnClickListener() {
+                            public void onClick(View v) {
+                                if (MrBackdrop.kindOf(style[0]) == n) return;
+                                style[0] = MrBackdrop.KIND_FIRST[n];
+                                redraw.run();
+                                draw[0].run();
+                            }
+                        });
+                        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                        if (n > 0) p.setMargins(k.dp(8), 0, 0, 0);
+                        kinds.addView(c, p);
+                    }
+                    dots.removeAllViews();
+                    for (int i = MrBackdrop.KIND_FIRST[kind]; i < MrBackdrop.KIND_FIRST[kind + 1]; i++) {
+                        final int n = i;
+                        MrStyleDot dot = new MrStyleDot(MrThemesActivity.this, n, n == style[0], k.accent);
+                        dot.setContentDescription(styleName(MrThemesActivity.this, n));
+                        dot.setClickable(true);
+                        dot.setOnClickListener(new View.OnClickListener() {
                             public void onClick(View v) {
                                 style[0] = n;
                                 redraw.run();
                                 draw[0].run();
                             }
                         });
-                        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                        if (n > 0) p.setMargins(k.dp(8), 0, 0, 0);
-                        chips.addView(c, p);
+                        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(k.dp(MrStyleDot.SIZE_DP), k.dp(MrStyleDot.SIZE_DP));
+                        if (i > MrBackdrop.KIND_FIRST[kind]) p.setMargins(k.dp(12), 0, 0, 0);
+                        dots.addView(dot, p);
                     }
+                    styleLabel.setText(styleName(MrThemesActivity.this, style[0]));
                 }
             };
             draw[0].run();

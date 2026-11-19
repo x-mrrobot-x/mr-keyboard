@@ -11,7 +11,7 @@ these themes or add one, edit its table and run, at the project root:
     python3 docs/tools/make_themes.py --check    # writes nothing; exits with 1 if a file is out of date
 
 The list of the setting "Keyboard theme" is ORDER (below): Midnight Steel, the neon themes, the light themes (Aqua, Sky, Snow, Chrome, Rose), Cobalt
-Glass (the only one written by hand) and Denim; after them the themes of the backgrounds (overlight and overdark, then the five with more body: overline, overshade, overslate, overblue and overviolet), which the themes screen does not list. The id of a theme is the value stored in the preference pref_keyboard_layout and its position in ORDER (and in
+Glass (the only one written by hand) and Denim; after them the themes of the backgrounds (overlight and overdark, then the key styles: four tinted glasses, six outlines and four gradients, see OVER_GLASS, OVER_OUTLINE and OVER_GRADIENT), which the themes screen does not list. The id of a theme is the value stored in the preference pref_keyboard_layout and its position in ORDER (and in
 mr_theme_layouts): change the list, run the script and the lists follow. Ids are not kept between versions.
 
 What it writes, for each theme <t> of the tables:
@@ -738,7 +738,7 @@ def neon_drawables(th):
 # ---------------------------------------------------------------------------------------------------------------
 Solid = collections.namedtuple('Solid', 'tag name bg key mod text accent mod_text lip dash_on tint roles clear light')
 # Roles that no rule derives: a theme declares them only through `roles` (their defaults are in mr_colors.xml)
-OWN_ROLES = ('alpha_press', 'panel_field', 'panel_field_stroke', 'panel_divider', 'accent_hint', 'label_shadow', 'tool_tint', 'bars_ink', 'btn_ink', 'lang_text')
+OWN_ROLES = ('glow', 'accent_glow', 'spectrum_start', 'spectrum_mid', 'spectrum_end', 'alpha_press', 'panel_field', 'panel_field_stroke', 'panel_divider', 'accent_hint', 'label_shadow', 'tool_tint', 'bars_ink', 'btn_ink', 'lang_text')
 
 
 def solid(tag, name, bg, key, mod, text, accent, mod_text=None, lip=1, dash_on=None, tint=None, roles=None, clear=None, light=None):
@@ -1212,53 +1212,107 @@ SOLID = [
           ])),
 ]
 
-# The keys of a background that are not see-through: a landscape or a picture with a busy sky shows through the keys of overlight and the letters
-# lose their edge, so the person can pick a key style in the dialog of the background (MrBackdrop.STYLE_TAGS). Each style is a theme of its own,
-# like overlight (flat keys, white ink, the same toolbar and bar colours), with fills that are dense: the face is what the key is, with the
-# background showing through only a little (alpha 0xec = 93%, or 60% for the dark glass). Letters, then the highlight keys (a step lighter or
-# stronger), then the dash of Ctrl, Alt and Shift, which has to read on the highlight key at rest: off a pale tone of the family, on white, locked amber.
-OVER_STYLES = [
-    # tag, name, key (opaque, what the tables derive from), mod (the highlight key), fills: normal, pressed, on, lock (letters) and the same for the highlight keys,
-    # bubble fill, bubble stroke, popup key fill, dash off / on / lock, and (the outlined style only) the outline of the same four states, letters then highlight keys
-    # outlined keys: a light 1 dp outline and a dark veil inside, so every key stands apart from a busy picture without covering it
-    ('overline', 'Background, outlined keys', '#0d111b', '#18233a',
-     ('#59000000', '#8c000000', '#7320406e', '#99a23a3a'), ('#8c0b1424', '#a6101c33', '#9926487a', '#99a23a3a'),
-     '#141b2b', '#6f7fa6', '#33446b', ('#8d99b6', '#ffffff', '#ffe082'),
-     ('#b3ffffff', '#ffffffff', '#e6bcd6ff', '#e6ffc2c2'), ('#e6a8c8ff', '#ffffffff', '#ffd2e4ff', '#ffffc2c2')),
-    ('overshade', 'Background, dark glass', '#10141f', '#1c2438',
-     ('#99000000', '#b3465170', '#b3344a78', '#d9a23a3a'), ('#b31c2438', '#cc4f5b7c', '#cc3d5486', '#d9a23a3a'),
-     '#1a2030', '#4d5873', '#3b4a6e', ('#8d99b6', '#ffffff', '#ffe082')),
-    ('overslate', 'Background, dark keys', '#1f2636', '#2c364d',
-     ('#ec1f2636', '#f2465273', '#f2364466', '#f2a23a3a'), ('#ec2c364d', '#f2566485', '#f2425377', '#f2a23a3a'),
-     '#1f2636', '#5b688a', '#3d4a6a', ('#8d99b6', '#ffffff', '#ffe082')),
-    ('overblue', 'Background, blue keys', '#1d4690', '#2f66c9',
-     ('#ec1d4690', '#f23a6cc8', '#f2325fb8', '#f2b3362d'), ('#ec2f66c9', '#f24f82e3', '#f23d6ccc', '#f2b3362d'),
-     '#163a7a', '#6f93d6', '#2f5db0', ('#9db8ee', '#ffffff', '#ffe082')),
-    ('overviolet', 'Background, violet keys', '#4527a0', '#6a3fd0',
-     ('#ec4527a0', '#f2673ab7', '#f25b34b0', '#f2b3362d'), ('#ec6a3fd0', '#f28a5fe0', '#f2784ad8', '#f2b3362d'),
-     '#38208a', '#8e75d6', '#5a3bb0', ('#bda9f0', '#ffffff', '#ffe082')),
-]
+# The key styles of the backgrounds (MrBackdrop.STYLE_TAGS): the person picks one in the dialog of a colour, a gradient, a landscape or a picture.
+# Each style is a theme of its own, like overlight (flat keys, the same toolbar and bar colours, the same bubble and popup of variants), whose
+# keys are ALWAYS see-through: what shows through is the background, and no face is dense (the fill is a fifth of the opacity or less; the
+# strongest, a key under the finger, is a half). Three kinds:
+#   glass     the key is a tint of one hue at about a quarter of opacity, with a soft rim of the same hue (the first style, overlight, is the clear
+#             glass with no tint and no rim)
+#   outline   the key is a 1 dp line of one vivid hue around an almost empty face (8%), the label in a pale tone of the same hue
+#   gradient  the same as the outline, but the hue changes along the keyboard, for the lines, the labels, the icons and the light of the labels:
+#             the drawables are written in one hue (SPECTRUM_FROM) and MrGlow draws every key through a colour filter that moves it to the hue
+#             of the position of the key, between the roles spectrum_start, spectrum_mid and spectrum_end (flags GLOW and SPECTRUM, as Aurora)
+# Every colour of a style is built from one hue (or three) by the functions below, so that the styles stay in the same family: the states
+# (at rest, pressed, on, locked) mix the hue with white and change the opacity, and the locked key is the red of every theme (the gradient styles
+# lock with a bright face, because their drawables are all in one hue, and the dash of the locked Shift tells it).
+LOCK_FILL, LOCK_EDGE = '#66ff6b6b', '#ffffb4b4'
+SPECTRUM_FROM = '#6f7bff'
+# the roles that the styles share with overlight (a deep slate bubble, a pale small letter)
+OVER_BASE = dict(bg='#1b2030', key='#3a4152', mod='#5a6580', accent='#9ecbff')
 
 
-def over_style(tag, name, key, mod, fills, acc_fills, bubble_fill, bubble_stroke, popup_key, dash, edges=None, acc_edges=None):
-    """A theme of the backgrounds with dense keys (see OVER_STYLES): the same as overlight with other fills."""
+def tone(hue, white, opacity):
+    """The hue mixed with `white` (0..1) at `opacity` (0..1): '#aarrggbb'."""
+    return alpha(mix(hue, WHITE, white), opacity)
+
+
+def over_theme(tag, name, text, roles):
+    return solid(tag, name, bg=OVER_BASE['bg'], key=OVER_BASE['key'], mod=OVER_BASE['mod'], text=hex6(text), accent=OVER_BASE['accent'], tint=OVER_BASE['accent'], lip=0,
+                 roles=roles)
+
+
+def over_roles(hue, fills, acc_fills, edges, acc_edges, dash, bubble_hue=None, hint=None):
+    """The roles of a style: fills and edges are (normal, pressed, on, lock) for the letters and for the highlight keys."""
+    bubble_hue = bubble_hue or hue
     roles = collections.OrderedDict([
-        ('ctrl_bg', mod),
-        ('hint', '#c8ccd6'),
+        ('ctrl_bg', OVER_BASE['mod']),
+        ('hint', hint or '#c8ccd6'),
         ('modifier_indicator_off', dash[0]), ('modifier_indicator_on', dash[1]), ('modifier_indicator_lock', dash[2]),
-        ('bubble_fill', bubble_fill), ('bubble_stroke', bubble_stroke), ('popup_key_fill', popup_key),
+        ('bubble_fill', '#222a3b'), ('bubble_stroke', mix('#4d5873', bubble_hue, .35)), ('popup_key_fill', mix('#46557a', bubble_hue, .25)),
         ('key_normal_fill', fills[0]), ('key_pressed_fill', fills[1]), ('key_on_fill', fills[2]), ('key_lock_fill', fills[3]),
         ('key_acc_normal_fill', acc_fills[0]), ('key_acc_pressed_fill', acc_fills[1]), ('key_acc_on_fill', acc_fills[2]), ('key_acc_lock_fill', acc_fills[3]),
     ])
-    if edges:
-        for state, color in zip(('normal', 'pressed', 'on', 'lock'), edges):
-            roles['key_%s_edge' % state] = color
-        for state, color in zip(('acc_normal', 'acc_pressed', 'acc_on', 'acc_lock'), acc_edges):
-            roles['key_%s_edge' % state] = color
-    return solid(tag, name, bg='#1b2030', key=key, mod=mod, text=WHITE, accent='#9ecbff', tint='#9ecbff', lip=0, roles=roles)
+    for state, color in zip(('normal', 'pressed', 'on', 'lock'), edges):
+        roles['key_%s_edge' % state] = color
+    for state, color in zip(('acc_normal', 'acc_pressed', 'acc_on', 'acc_lock'), acc_edges):
+        roles['key_%s_edge' % state] = color
+    return roles
 
 
-SOLID.extend(over_style(*t) for t in OVER_STYLES)
+def over_glass(tag, name, hue):
+    """Tinted glass: the hue at 26% over the background (36% on the highlight keys), a rim of the hue lightened, at 30%."""
+    roles = over_roles(
+        hue,
+        (alpha(hue, .26), tone(hue, .25, .52), alpha(hue, .40), '#8cff6b6b'),
+        (alpha(hue, .36), tone(hue, .25, .60), alpha(hue, .48), '#8cff6b6b'),
+        (tone(hue, .55, .30), tone(hue, .60, .55), tone(hue, .60, .45), '#59ffc2c2'),
+        (tone(hue, .55, .36), tone(hue, .60, .60), tone(hue, .60, .50), '#59ffc2c2'),
+        (mix(hue, WHITE, .55), '#ffffff', '#ffe082'))
+    return over_theme(tag, name, mix(hue, WHITE, .90), roles)
+
+
+def over_outline(tag, name, hue):
+    """Outline: a line of the hue (85%) around a face of 8% of the hue (16% on the highlight keys)."""
+    roles = over_roles(
+        hue,
+        (alpha(hue, .08), alpha(hue, .35), alpha(hue, .22), LOCK_FILL),
+        (alpha(hue, .16), alpha(hue, .40), alpha(hue, .28), LOCK_FILL),
+        (alpha(hue, .85), tone(hue, .50, 1), tone(hue, .35, 1), LOCK_EDGE),
+        (tone(hue, .15, .95), tone(hue, .55, 1), tone(hue, .40, 1), LOCK_EDGE),
+        (mix(hue, WHITE, .35), '#ffffff', '#ffe082'))
+    return over_theme(tag, name, mix(hue, WHITE, .82), roles)
+
+
+def over_gradient(tag, name, start, mid, end):
+    """Gradient: the outline in SPECTRUM_FROM, redrawn per key in the hue of its position (MrGlow). `glow` is the hue the drawables are in (and the
+    strength of the light of the labels, 40%), the three spectrum_* the hues the keyboard turns through."""
+    hue = SPECTRUM_FROM
+    roles = over_roles(
+        hue,
+        (alpha(hue, .10), alpha(hue, .35), alpha(hue, .22), tone(hue, .20, .55)),
+        (alpha(hue, .18), alpha(hue, .40), alpha(hue, .28), tone(hue, .20, .60)),
+        (tone(hue, .20, .90), tone(hue, .55, 1), tone(hue, .40, 1), '#ffffffff'),
+        (tone(hue, .30, .95), tone(hue, .60, 1), tone(hue, .45, 1), '#ffffffff'),
+        (mix(hue, WHITE, .45), '#ffffff', '#ffe082'), hint=mix(hue, WHITE, .65))
+    roles['glow'] = alpha(hue, .40)
+    roles['accent_glow'] = alpha(hue, .40)
+    roles['spectrum_start'], roles['spectrum_mid'], roles['spectrum_end'] = opaque(start), opaque(mid), opaque(end)
+    return over_theme(tag, name, mix(hue, WHITE, .82), roles)
+
+
+# tag, name, hue (the order of MrBackdrop.STYLE_TAGS; the first, overlight, is in the table above)
+OVER_GLASS = [('overice', 'Background, ice glass', '#4da3ff'), ('overlilac', 'Background, lilac glass', '#a77bff'),
+              ('overmint', 'Background, mint glass', '#3ddc97'), ('overember', 'Background, ember glass', '#ff8a4c')]
+OVER_OUTLINE = [('overline', 'Background, white outline', '#ffffff'), ('overteal', 'Background, cyan outline', '#2de2e6'),
+                ('overviolet', 'Background, violet outline', '#a78bfa'), ('overfuchsia', 'Background, fuchsia outline', '#ff5fd2'),
+                ('overlime', 'Background, lime outline', '#a6e22e'), ('overgold', 'Background, gold outline', '#ffc83d')]
+OVER_GRADIENT = [('overdawn', 'Background, dawn gradient', '#ffb347', '#ff5fa2', '#9b6bff'),
+                 ('overtide', 'Background, tide gradient', '#22e1ff', '#4d7cff', '#b06bff'),
+                 ('overprism', 'Background, prism gradient', '#ff4d6d', '#4dff9a', '#4d8dff'),
+                 ('overlagoon', 'Background, lagoon gradient', '#a3ff5c', '#19e6b0', '#3d8bff')]
+SOLID.extend(over_glass(*t) for t in OVER_GLASS)
+SOLID.extend(over_outline(*t) for t in OVER_OUTLINE)
+SOLID.extend(over_gradient(*t) for t in OVER_GRADIENT)
 
 # ---------------------------------------------------------------------------------------------------------------
 # The look of a solid key in each state: share of the accent mixed into the face of the key at rest.
@@ -1813,7 +1867,8 @@ LAYOUTS = collections.OrderedDict([
 #           edited by hand, the script only places them in the lists
 #   AFTER   the last theme written by hand in strings.xml: the names of the generated themes go right after it
 # ---------------------------------------------------------------------------------------------------------------
-ORDER = ['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'aqua', 'sky', 'snow', 'chrome', 'rose', 'glass', 'denim', 'overlight', 'overdark', 'overline', 'overshade', 'overslate', 'overblue', 'overviolet']
+ORDER = (['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'aqua', 'sky', 'snow', 'chrome', 'rose', 'glass', 'denim', 'overlight', 'overdark']
+         + [t[0] for t in OVER_GLASS + OVER_OUTLINE + OVER_GRADIENT])
 HAND = ('glass',)
 AFTER = 'glass'
 Family = collections.namedtuple('Family', 'name themes flags colors drawables intro')
@@ -1826,7 +1881,8 @@ def neon_flags(th):
 def solid_flags(th):
     return (FLAT_BAR | ACCENT_KEYS | ACCENT_WIDE | (0 if th.mod_text else PLAIN_ACCENT_TEXT)
             | (0 if is_light(th) else TECH_PALETTE)     # a dark solid theme (Midnight Steel) has the "tech" palette
-            | (TRANSLUCENT if th.clear else 0))
+            | (TRANSLUCENT if th.clear else 0)
+            | ((GLOW | SPECTRUM) if 'spectrum_start' in th.roles else 0))      # the gradient styles of the backgrounds (see OVER_GRADIENT)
 
 
 def gloss_flags(th):
