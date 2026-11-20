@@ -43,7 +43,7 @@
     .end annotation
 
     .prologue
-    .line 1053
+    .line 1068
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$style:[I
@@ -71,7 +71,7 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 1055
+    .line 1070
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$style:[I
 
     aget v0, v0, v4
@@ -84,11 +84,11 @@
 
     if-ne v0, v1, :cond_0
 
-    .line 1059
+    .line 1074
     :goto_0
     return-void
 
-    .line 1056
+    .line 1071
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrBackdrop;->KIND_FIRST:[I
 
@@ -104,12 +104,12 @@
 
     invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/MrThemesActivity;->choosePreset(IZ[I[Lcom/mrkeyboard/app/MrKeyLook;)V
 
-    .line 1057
+    .line 1072
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1058
+    .line 1073
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$draw:[Ljava/lang/Runnable;
 
     aget-object v0, v0, v4

@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
 /**
- * The colours that stand out in a background, to offer them as the colour of the keys: a few of them, the ones that a person would point at ("the red of
+ * The colours that stand out in a background (and, for a plain colour, the ones close to its tone: {@link #near}), to offer them as the colour of the keys: a few of them, the ones that a person would point at ("the red of
  * the sunset, the blue of the sea"), not the average of the picture.
  *
  * <p>The picture is drawn small, its colours are counted (four bits of each channel) and grouped in a few clusters (k-means, from the heaviest colour and
@@ -31,11 +31,12 @@ final class MrPalette {
     private static final float DARK_VALUE = 0.26f;
 
     /**
-     * The colours that stand out in {@code spec} ({@code image} is the picture of a landscape or of the gallery): none for a plain colour or no
-     * background (there is nothing to choose from).
+     * The colours that stand out in {@code spec} ({@code image} is the picture of a landscape or of the gallery); for a plain colour, the ones close to its
+     * tone ({@link #near}); none for no background.
      */
     static int[] of(MrBackdrop.Spec spec, Bitmap image) {
-        if (spec == null || spec.kind == MrBackdrop.NONE || spec.kind == MrBackdrop.COLOR) return new int[0];
+        if (spec != null && spec.kind == MrBackdrop.COLOR) return spec.index >= 0 && spec.index < MrBackdrop.COLORS.length ? near(MrBackdrop.COLORS[spec.index]) : new int[0];
+        if (spec == null || spec.kind == MrBackdrop.NONE) return new int[0];
         if ((spec.kind == MrBackdrop.SCENE || spec.kind == MrBackdrop.IMAGE) && image == null) return new int[0];
         Bitmap b = null;
         try {
@@ -221,6 +222,39 @@ final class MrPalette {
             }
         }
         return 0xff000000 | (clamp(r) << 16) | (clamp(g) << 8) | clamp(b);
+    }
+
+    /** How far, in degrees of hue, the colours next to the tone of a plain colour are from it. */
+    private static final float HUE_STEP = 36f;
+
+    /**
+     * Five colours close to the tone of a plain colour ({@code base}), to be the colour of the keys over it: the same hue, the hues next to it on both sides
+     * and a softer (or deeper) one of the same hue, and one more hue step beyond; the most like the colour first. On a dark colour they are bright (a key
+     * that is the colour of the background is not seen) and on a light one they are deep; the ones of a colour with no hue (black, greys) are greys of
+     * different depths and a cool and a warm one. Each is at least 36 from the others in RGB. Opaque.
+     */
+    static int[] near(int base) {
+        float[] hsv = new float[3];
+        MrGlow.hsv(base, hsv);
+        boolean light = MrThemeColors.luminance(0xff000000 | base) > 0.5f;
+        float h = hsv[0];
+        if (hsv[1] < 0.10f || hsv[2] < 0.12f) {
+            // no hue to speak of: greys of three depths, one cool and one warm
+            if (light) return new int[] {MrGlow.rgb(0f, 0f, 0.58f), MrGlow.rgb(0f, 0f, 0.42f), MrGlow.rgb(0f, 0f, 0.28f), MrGlow.rgb(215f, 0.40f, 0.60f), MrGlow.rgb(30f, 0.40f, 0.60f)};
+            return new int[] {MrGlow.rgb(0f, 0f, 0.84f), MrGlow.rgb(0f, 0f, 0.64f), MrGlow.rgb(0f, 0f, 0.46f), MrGlow.rgb(215f, 0.30f, 0.92f), MrGlow.rgb(30f, 0.30f, 0.92f)};
+        }
+        float s = Math.min(0.95f, Math.max(hsv[1], light ? 0.55f : 0.50f));
+        float v = light ? 0.62f : 0.92f;
+        return new int[] {
+                MrGlow.rgb(h, s, v),
+                MrGlow.rgb(turn(h, -HUE_STEP), s, v),
+                MrGlow.rgb(turn(h, HUE_STEP), s, v),
+                light ? MrGlow.rgb(h, s, 0.38f) : MrGlow.rgb(h, 0.36f, 1f),
+                MrGlow.rgb(turn(h, 2f * HUE_STEP), s, v)};
+    }
+
+    private static float turn(float hue, float by) {
+        return ((hue + by) % 360f + 360f) % 360f;
     }
 
     /** A dark colour of the hue of {@code colour} (its brightest channel is {@link #DARK_VALUE}); grey for black. Opaque. */

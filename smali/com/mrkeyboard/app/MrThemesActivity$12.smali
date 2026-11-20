@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 824
+    .line 829
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$12;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,7 +40,7 @@
     .locals 1
 
     .prologue
-    .line 826
+    .line 831
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$12;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrThemesActivity;->mDialogCancel:Landroid/widget/TextView;
@@ -53,7 +53,7 @@
 
     invoke-virtual {v0}, Landroid/widget/TextView;->performClick()Z
 
-    .line 827
+    .line 832
     :cond_0
     return-void
 .end method

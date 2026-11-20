@@ -43,7 +43,7 @@
     .end annotation
 
     .prologue
-    .line 1140
+    .line 1155
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$n:I
@@ -69,7 +69,7 @@
     .locals 4
 
     .prologue
-    .line 1142
+    .line 1157
     iget v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$n:I
 
     iget-boolean v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$pale:Z
@@ -80,12 +80,12 @@
 
     invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/MrThemesActivity;->choosePreset(IZ[I[Lcom/mrkeyboard/app/MrKeyLook;)V
 
-    .line 1143
+    .line 1158
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1144
+    .line 1159
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$draw:[Ljava/lang/Runnable;
 
     const/4 v1, 0x0
@@ -94,6 +94,6 @@
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1145
+    .line 1160
     return-void
 .end method

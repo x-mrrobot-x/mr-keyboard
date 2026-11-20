@@ -794,7 +794,7 @@ public class ThemesTest {
         return v != null && v.stubBackground instanceof android.graphics.drawable.GradientDrawable ? ((android.graphics.drawable.GradientDrawable) v.stubBackground).stubRadius : -1f;
     }
 
-    /** The X at the top right of the dialog, and the buttons of the kinds and "Automatic" with the corners of the cards. */
+    /** The X at the top right of the dialog, and the corners of the buttons of the kinds (12 dp) and of "Automatic" (a round pill). */
     static void closeButton() throws Exception {
         reset();
         Screen s = open();
@@ -804,13 +804,23 @@ public class ThemesTest {
         android.view.ViewGroup top = d.stubContent instanceof android.view.ViewGroup ? (android.view.ViewGroup) ((android.view.ViewGroup) d.stubContent).getChildAt(0) : null;
         check("the dialog of a background has an X at the top right, after the title, in the first line", close != null && top != null && top.getChildCount() == 2 && top.getChildAt(1) == close
                 && byText(top, "Sports \u00b7 Basketball") == top.getChildAt(0) && close instanceof android.widget.TextView && close.isClickable());
+        MrCappedScroll scroll = ((MrSheetBox) d.stubContent).scroll();
+        android.view.ViewGroup sheet = (android.view.ViewGroup) d.stubContent;
+        android.widget.LinearLayout.LayoutParams sp = null;
+        for (int i = 0; i < sheet.getChildCount(); i++) if (sheet.getChildAt(i) == scroll) sp = (android.widget.LinearLayout.LayoutParams) sheet.stubParamsAt(i);
+        check("the bar of the controls is near the right margin of the dialog, not over the cards: the scroll view goes out into the margin by its padding (the cards stay where they were), the bar is drawn in that padding, thin and faint",
+                scroll != null && sp != null && sp.stubRight == -s.k.dp(MrThemesActivity.SCROLLBAR_DP) && scroll.getPaddingRight() == s.k.dp(MrThemesActivity.SCROLLBAR_DP) && !((MrSheetBox) d.stubContent).stubClipToPadding
+                        && scroll.stubScrollBarStyle == android.view.View.SCROLLBARS_OUTSIDE_OVERLAY && scroll.stubScrollBarSize == s.k.dp(3) && scroll.stubScrollBarFades && MrThemesActivity.SCROLLBAR_DP < 20);
         View keyCard = cardOf(s, "Key background colour"), lineCard = cardOf(s, "Key border colour");
         float card = radiusOf(keyCard);
-        check("the buttons of the kinds and \"Automatic\" have the corners of the cards of the sections (on and off)", card > 0 && radiusOf(byText(keyCard, "Glass")) == card && radiusOf(byText(keyCard, "Outline")) == card
-                && radiusOf(byText(keyCard, "Gradient")) == card && radiusOf(byText(lineCard, "Automatic")) == card && radiusOf(byText(cardOf(s, "Text and toolbar icon colour"), "Automatic")) == card);
+        check("the buttons of the kinds have corners of 12 dp (the cards of the sections have 14), and \"Automatic\" is a round pill (18), on and off", card > 0 && Math.abs(radiusOf(byText(keyCard, "Glass")) * 14f - card * 12f) < 0.01f
+                && Math.abs(radiusOf(byText(keyCard, "Outline")) * 14f - card * 12f) < 0.01f && Math.abs(radiusOf(byText(keyCard, "Gradient")) * 14f - card * 12f) < 0.01f
+                && Math.abs(radiusOf(byText(lineCard, "Automatic")) * 14f - card * 18f) < 0.01f && Math.abs(radiusOf(byText(cardOf(s, "Text and toolbar icon colour"), "Automatic")) * 14f - card * 18f) < 0.01f
+                && MrThemesActivity.BUTTON_RADIUS == 12f && MrThemesActivity.CARD_RADIUS == 14f);
         byText(keyCard, "Outline").performClick();
         keyCard = cardOf(s, "Key background colour");
-        check("and so they do when another kind is chosen (the dialog is made again)", radiusOf(byText(keyCard, "Glass")) == card && radiusOf(byText(keyCard, "Outline")) == card && radiusOf(byText(keyCard, "Gradient")) == card);
+        check("and so they do when another kind is chosen (the dialog is made again)", Math.abs(radiusOf(byText(keyCard, "Glass")) * 14f - card * 12f) < 0.01f && Math.abs(radiusOf(byText(keyCard, "Outline")) * 14f - card * 12f) < 0.01f
+                && Math.abs(radiusOf(byText(keyCard, "Gradient")) * 14f - card * 12f) < 0.01f);
         swatches(keyCard).get(0).performClick();
         check("a colour was chosen in it", s.mDialogStyle[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_OUTLINE));
         close.performClick();
@@ -830,6 +840,11 @@ public class ThemesTest {
         check("the picker over it has no X (it has Cancel and Done)", s.mPicker != null && anyDescription(s.mPicker.stubContent, "Close") == null);
         pressPicker(s, "Cancel");
         press("Cancel");
+    }
+
+    /** The value of a colour: its brightest channel (0 .. 1). */
+    static float value(int c) {
+        return Math.max((c >> 16) & 0xff, Math.max((c >> 8) & 0xff, c & 0xff)) / 255f;
     }
 
     /** True when {@code a} is {@code b} made darker or lighter (the same share of each channel, to the rounding of a channel). */
@@ -925,9 +940,12 @@ public class ThemesTest {
         press("Cancel");
         // a plain colour has none to offer (it is one), and has the fixed colours; a landscape has them
         click(bg(s, 5));
-        check("a plain colour has no colours to suggest (it is one): the glass has its fixed colours", swatches(Dialog.stubLast.stubContent).isEmpty() && byText(Dialog.stubLast.stubContent, "From the background") == null
-                && byDescription(Dialog.stubLast.stubContent, "Ice") != null && byDescription(Dialog.stubLast.stubContent, "Lilac") != null && byDescription(Dialog.stubLast.stubContent, "Mint") != null
-                && byDescription(Dialog.stubLast.stubContent, "Dark") != null && dots(Dialog.stubLast.stubContent) == 6);
+        check("a plain colour has the colours close to its tone in place of the fixed ones: the clear glass, five colours, the dark one and the round button", swatches(Dialog.stubLast.stubContent).size() == MrPalette.COUNT + 1
+                && byText(Dialog.stubLast.stubContent, "From the background") == null && byDescription(Dialog.stubLast.stubContent, "Ice") == null && byDescription(Dialog.stubLast.stubContent, "Lilac") == null
+                && byDescription(Dialog.stubLast.stubContent, "Mint") == null && byDescription(Dialog.stubLast.stubContent, "Dark") != null && dots(Dialog.stubLast.stubContent) == 2
+                && swatches(Dialog.stubLast.stubContent).get(0).own() == MrPalette.near(MrBackdrop.COLORS[5])[0]);
+        check("the fixed colours are for a background whose colours could not be read: no colours offered, a row of fixed ones", MrThemesActivity.offeredFor(MrBackdrop.KIND_GLASS, new int[0]).length == 0
+                && MrThemesActivity.offeredFor(MrBackdrop.KIND_OUTLINE, new int[0]).length == 0 && MrThemesActivity.offeredFor(MrBackdrop.KIND_GRADIENT, new int[0]).length == 0);
         press("Cancel");
         click(bg(s, FIRST_SCENE + 2));
         check("a landscape has them, up to five and the dark one", swatches(Dialog.stubLast.stubContent).size() >= 2 && swatches(Dialog.stubLast.stubContent).size() <= MrPalette.COUNT + 1);
@@ -1144,7 +1162,7 @@ public class ThemesTest {
         press("Cancel");
         click(bg(s, 1));
         check("a light colour (dark ink) has the styles of the keys as well, with the clear glass first, and the colour of the border and of the letters",
-                byText(Dialog.stubLast.stubContent, "Text and toolbar icon colour") != null && byText(Dialog.stubLast.stubContent, "Key background colour") != null && colourDots(s).size() == 2 && dots(Dialog.stubLast.stubContent) == 6
+                byText(Dialog.stubLast.stubContent, "Text and toolbar icon colour") != null && byText(Dialog.stubLast.stubContent, "Key background colour") != null && colourDots(s).size() == 2 && dots(Dialog.stubLast.stubContent) == 2
                         && s.mDialogStyle[0] == 0 && s.mDialogPreview.tag().equals("mr_overdark") && chosenDots(Dialog.stubLast.stubContent) == 1);
         pressMain(s, "Cancel");
         // a theme of the list: the tuning is of the backgrounds
@@ -1474,31 +1492,42 @@ public class ThemesTest {
         click(bg(s, scene));
         d = Dialog.stubLast;
 
-        // a colour of the glass brings its line: the same colour one tone above
-        byDescription(d.stubContent, "Ice").performClick();
-        int ice = MrKeyLook.toneAbove(MrBackdrop.STYLE_COLORS[1][0]);
-        check("choosing a glass colour changes the border to that colour one tone above, in the dialog and in the keyboard it shows", s.mDialogStyle[0] == 1 && s.mDialogLook[0].line == ice && lineDot(s).color() == ice && s.mDialogPreview.look().line == ice);
+        // a colour of the background (near the tone of the plain colour) leaves the border Automatic; the dark one is the last
+        List<MrStyleDot> near = swatches(d.stubContent);
+        int tone = near.get(0).own();
+        near.get(0).performClick();
+        check("choosing a colour of the glass leaves the border Automatic, in the dialog and in the keyboard it shows", s.mDialogStyle[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_GLASS) && s.mDialogLook[0].line == 0 && lineDot(s).color() == 0
+                && s.mDialogPreview.look().line == 0);
         byDescription(d.stubContent, "Dark").performClick();
-        check("another one changes it again", s.mDialogLook[0].line == MrKeyLook.toneAbove(MrBackdrop.STYLE_COLORS[4][0]) && lineDot(s).color() == s.mDialogLook[0].line);
+        check("another one leaves it as well", s.mDialogLook[0].line == 0 && lineDot(s).color() == 0 && (s.mDialogLook[0].hue & 0xffffff) == (MrPalette.dark(tone) & 0xffffff));
+        int ice = MrKeyLook.toneAbove(MrPalette.dark(tone));
         lineDot(s).performClick();
+        check("the round button of the border opens the picker over the dialog; with no line it opens on the colour the glass goes with (one tone above its colour)", s.mPicker != null && s.mPickerView != null
+                && byText(s.mPicker.stubContent, "Pick a colour") != null && (s.mPickerView.color() & 0xffffff) == (ice & 0xffffff));
         dragOpacity(s, 170);
         pressPicker(s, "Done");
-        check("the opacity of the border, in its picker, is the opacity of that line, and the colour that was not moved stays (the one that goes with the glass)", s.mDialogPreview.look().edge == 170 && s.mDialogPreview.look().line == s.mDialogLook[0].line
-                && s.mDialogLook[0].line == MrKeyLook.toneAbove(MrBackdrop.STYLE_COLORS[4][0]));
+        check("the opacity of the border, in its picker, is the opacity of that line, and the colour that was not moved stays Automatic", s.mDialogPreview.look().edge == 170 && s.mDialogPreview.look().line == 0 && s.mDialogLook[0].line == 0);
+        lineDot(s).performClick();
+        s.mPickerView.stubSize(600, 400);
+        s.mPickerView.drag(2, 0, 10);
+        s.mPickerView.drag(1, 600, 0);
+        int picked = s.mPickerView.color();
+        pressPicker(s, "Done");
+        near.get(1).performClick();
+        check("a colour chosen afterwards does not take away the border that was picked (the border is the person's now)", picked != 0 && s.mDialogLook[0].line == picked && lineDot(s).color() == picked && s.mDialogLook[0].edge == 170);
         byDescription(d.stubContent, "See-through").performClick();
         check("the see-through glass takes it away again (automatic)", s.mDialogLook[0].line == 0 && lineDot(s).color() == 0);
-        byDescription(d.stubContent, "Ice").performClick();
+        near.get(0).performClick();
         check("Automatic lets the line of the glass go (the line of the style)", pressIn(s.mDialogLine, "Automatic") && s.mDialogLook[0].line == 0 && s.mDialogPreview.look().line == 0 && lineDot(s).color() == 0);
 
         // the round picker of the border
         lineDot(s).performClick();
-        check("the round button of the border opens the picker over the dialog; with no line it opens on the colour the glass goes with (white where it has none)", s.mPicker != null && s.mPickerView != null && byText(s.mPicker.stubContent, "Pick a colour") != null
-                && (s.mPickerView.color() & 0xffffff) == (ice & 0xffffff));
+        check("the picker of the border opens on the colour the glass goes with when there is no line", s.mPicker != null && s.mPickerView != null && (s.mPickerView.color() & 0xffffff) == (MrKeyLook.toneAbove(tone) & 0xffffff));
         s.mPickerView.stubSize(600, 400);
         s.mPickerView.drag(2, 0, 10);
         s.mPickerView.drag(1, 600, 0);
         int red = s.mPickerView.color();
-        check("the colour that the finger picks is the border of the keyboard of the dialog at once", (red & 0xffffff) == 0xff0000 && s.mDialogPreview.look().line == (0xff000000 | red) && s.mDialogLook[0].hue == 0);
+        check("the colour that the finger picks is the border of the keyboard of the dialog at once", (red & 0xffffff) == 0xff0000 && s.mDialogPreview.look().line == (0xff000000 | red) && (s.mDialogLook[0].hue & 0xffffff) == (tone & 0xffffff));
         check("Cancel gives the border that there was back", pressPicker(s, "Cancel") && s.mPicker == null && s.mDialogPreview.look().line == 0 && lineDot(s).color() == 0);
         lineDot(s).performClick();
         s.mPickerView.stubSize(600, 400);
@@ -1506,7 +1535,7 @@ public class ThemesTest {
         s.mPickerView.drag(1, 600, 0);
         check("Done keeps it, and the round button shows it", pressPicker(s, "Done") && s.mDialogLook[0].line == (0xff000000 | red) && lineDot(s).color() == (0xff000000 | red));
         byDescription(d.stubContent, "Dark").performClick();
-        check("a colour chosen for the keys afterwards takes the border that goes with it (the colour of the keys is what leads)", s.mDialogLook[0].line == MrKeyLook.toneAbove(MrBackdrop.STYLE_COLORS[4][0]));
+        check("a colour chosen for the keys afterwards keeps the border that was picked", s.mDialogLook[0].line == (0xff000000 | red));
         lineDot(s).performClick();
         s.mPickerView.stubSize(600, 400);
         s.mPickerView.drag(2, 0, 10);
@@ -1520,6 +1549,7 @@ public class ThemesTest {
         check("and the first glass again, the see-through one, has none", s.mDialogStyle[0] == 0 && s.mDialogLook[0].line == 0);
 
         // the glass of the person's own colour: the line follows the colour while it is picked
+        int hueBefore = s.mDialogLook[0].hue;
         byDescription(d.stubContent, "Pick a colour").performClick();
         check("the picker of the keys opens on the colour that they have; the style is the own colour only once it is moved", s.mDialogStyle[0] == 0 && s.mDialogLook[0].line == 0);
         s.mPickerView.stubSize(600, 400);
@@ -1528,7 +1558,7 @@ public class ThemesTest {
         int own = s.mPickerView.color();
         check("while the colour is picked the style is the glass of the own colour and the line is that colour one tone above, at once", s.mDialogStyle[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_GLASS) && s.mDialogPreview.look().hue == (0xff000000 | own)
                 && s.mDialogPreview.look().line == MrKeyLook.toneAbove(own));
-        check("Cancel in that picker gives back the style, the colour and the line that there were", pressPicker(s, "Cancel") && s.mDialogStyle[0] == 0 && s.mDialogLook[0].hue == 0 && s.mDialogLook[0].line == 0);
+        check("Cancel in that picker gives back the style, the colour and the line that there were", pressPicker(s, "Cancel") && s.mDialogStyle[0] == 0 && s.mDialogLook[0].hue == hueBefore && s.mDialogLook[0].line == 0);
         byDescription(d.stubContent, "Pick a colour").performClick();
         s.mPickerView.stubSize(600, 400);
         s.mPickerView.drag(2, 0, 10);
@@ -2380,9 +2410,37 @@ public class ThemesTest {
 
         // the backgrounds of the app
         Context c = new Ctx();
-        boolean colour = MrPalette.of(MrBackdrop.Spec.color(5), null).length == 0 && MrPalette.of(MrBackdrop.Spec.NO, null).length == 0 && MrPalette.of(null, null).length == 0
-                && MrPalette.of(MrBackdrop.Spec.scene(0), null).length == 0;
-        check("a plain colour, no background and a landscape that was not read have nothing to choose from", colour);
+        boolean colour = MrPalette.of(MrBackdrop.Spec.NO, null).length == 0 && MrPalette.of(null, null).length == 0 && MrPalette.of(MrBackdrop.Spec.scene(0), null).length == 0;
+        check("no background and a landscape that was not read have nothing to choose from", colour);
+        // a plain colour: the colours close to its tone
+        boolean nearOk = true;
+        StringBuilder nearBad = new StringBuilder();
+        for (int i = 0; i < MrBackdrop.COLORS.length; i++) {
+            int base = MrBackdrop.COLORS[i];
+            int[] n = MrPalette.of(MrBackdrop.Spec.color(i), null);
+            boolean ok = n.length == MrPalette.COUNT && java.util.Arrays.equals(n, MrPalette.near(base)) && apart(n, 36);
+            boolean lighter = MrThemeColors.luminance(base) <= 0.5f;
+            for (int j = 0; ok && j < n.length; j++) {
+                // a key the colour of the background is not seen: brighter (more value) than a dark colour, deeper than a light one
+                ok = (n[j] >>> 24) == 0xff && (lighter ? value(n[j]) > value(base) : value(n[j]) < value(base));
+            }
+            if (!ok) {
+                nearOk = false;
+                nearBad.append(i).append(' ');
+            }
+        }
+        check("every plain colour (" + MrBackdrop.COLORS.length + ") gives five colours close to its tone, far from each other, brighter than a dark colour and deeper than a light one " + nearBad, nearOk);
+        int[] nb = MrPalette.near(0xff1565c0), grey = MrPalette.near(0xff37393d);
+        float[] hb = new float[3], hg = new float[3];
+        MrGlow.hsv(0xff1565c0, hb);
+        MrGlow.hsv(nb[0], hg);
+        check("the first is the hue of the colour itself, the next two the hues at each side of it (36 degrees)", Math.abs(hg[0] - hb[0]) < 3f);
+        float[] left = new float[3], right = new float[3];
+        MrGlow.hsv(nb[1], left);
+        MrGlow.hsv(nb[2], right);
+        check("the hues at each side", Math.abs(((left[0] - hb[0] + 540f) % 360f) - 180f - (-36f)) < 3f && Math.abs(((right[0] - hb[0] + 540f) % 360f) - 180f - 36f) < 3f);
+        check("a colour with no hue (a grey, black) gives greys of three depths and a cool and a warm one", ((grey[0] >> 16) & 0xff) == (grey[0] & 0xff) && ((grey[1] >> 8) & 0xff) == (grey[1] & 0xff) && (grey[3] & 0xff) > ((grey[3] >> 16) & 0xff)
+                && ((grey[4] >> 16) & 0xff) > (grey[4] & 0xff) && java.util.Arrays.equals(MrPalette.near(0xff000000), MrPalette.near(0xff161616)));
         boolean grads = true;
         int manyGrads = 0;
         for (int n = 0; n < MrBackdrop.GRADS.length; n++) {
@@ -3714,7 +3772,8 @@ public class ThemesTest {
                 && d.getWindow().stubGravity == android.view.Gravity.BOTTOM && d.getWindow().stubWidth == android.view.ViewGroup.LayoutParams.MATCH_PARENT);
         check("a colour has the styles of the keys in two levels (the three kinds as chips, the colours of the kind in use as dots and the round one that picks a colour, the name of the one chosen under them) and no softening",
                 byText(d.stubContent, "Key background colour") != null && byText(d.stubContent, "Glass") != null && byText(d.stubContent, "Outline") != null && byText(d.stubContent, "Gradient") != null
-                        && dots(d.stubContent) == 6 && byDescription(d.stubContent, "See-through") != null && byDescription(d.stubContent, "Pick a colour") != null && byDescription(d.stubContent, "Ice") != null && byDescription(d.stubContent, "Dark") != null
+                        && dots(d.stubContent) == 2 && swatches(d.stubContent).size() == MrPalette.COUNT + 1 && byDescription(d.stubContent, "See-through") != null && byDescription(d.stubContent, "Pick a colour") != null
+                        && byDescription(d.stubContent, "Ice") == null && byDescription(d.stubContent, "Dark") != null
                         && byDescription(d.stubContent, "Violet") == null && byText(d.stubContent, "See-through") != null && s.mDialogSoft == null && byText(d.stubContent, "Soften background") == null);
         check("nothing is applied yet: the preferences, the keyboard at the top and the cards are as they were", "12".equals(themeKey()) && "".equals(bgKey()) && s.mSpec.kind == MrBackdrop.NONE
                 && s.mBig.spec().kind == MrBackdrop.NONE);
@@ -3743,7 +3802,7 @@ public class ThemesTest {
         check("a light colour is written with the theme with dark ink (14), the clear glass, and has the styles of the keys to choose (the three of the own colour are written for dark ink)",
                 "14".equals(themeKey()) && "c1".equals(bgKey()) && s.mBig.tag().equals("mr_overdark") && checkedBackground(s) == 1);
         click(bg(s, 1));
-        check("its dialog has the styles: the kinds and their colours, the clear glass chosen", byText(Dialog.stubLast.stubContent, "Glass") != null && dots(Dialog.stubLast.stubContent) == 6 && s.mDialogPreview.tag().equals("mr_overdark")
+        check("its dialog has the styles: the kinds and their colours, the clear glass chosen", byText(Dialog.stubLast.stubContent, "Glass") != null && dots(Dialog.stubLast.stubContent) == 2 && s.mDialogPreview.tag().equals("mr_overdark")
                 && s.mDialogStyle[0] == 0 && chosenDots(Dialog.stubLast.stubContent) == 1);
         press("Cancel");
 
@@ -3808,10 +3867,11 @@ public class ThemesTest {
         press("Cancel");
         tab(s, MrThemesActivity.TAB_COLORS);
         click(bg(s, 5));
-        check("a colour opens in the see-through glass too, not in the style in use (ice)", s.mDialogPreview.tag().equals("mr_overlight") && s.mDialogLook[0].isNone());
-        dot("Ice");
+        check("a colour opens in the see-through glass too, not in the style in use (its own glass)", s.mDialogPreview.tag().equals("mr_overlight") && s.mDialogLook[0].isNone());
+        swatches(Dialog.stubLast.stubContent).get(0).performClick();
         press("Apply");
-        check("a dark colour with the style chosen is written with that theme (15), and no softening is written for it", "15".equals(themeKey()) && "c5".equals(bgKey()) && prefs.getInt(MrBackdrop.PREF_SOFT, -1) == 45);
+        check("a dark colour with a colour near its tone chosen is written with the theme of the own glass, and no softening is written for it", s.mTags[s.mTheme].equals("mr_overownglass") && themeKey().equals(String.valueOf(s.mTheme))
+                && "c5".equals(bgKey()) && prefs.getInt(MrBackdrop.PREF_SOFT, -1) == 45);
         click(bg(s, 1));
         check("and a light colour keeps its dark ink whatever the style in use", s.mDialogPreview.tag().equals("mr_overdark"));
         press("Apply");

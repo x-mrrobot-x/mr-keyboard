@@ -41,7 +41,7 @@
     .end annotation
 
     .prologue
-    .line 1155
+    .line 1170
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->val$rgb:I
@@ -65,7 +65,7 @@
     .locals 3
 
     .prologue
-    .line 1157
+    .line 1172
     iget v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->val$rgb:I
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->val$style:[I
@@ -74,12 +74,12 @@
 
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrThemesActivity;->chooseSuggested(I[I[Lcom/mrkeyboard/app/MrKeyLook;)V
 
-    .line 1158
+    .line 1173
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->val$redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1159
+    .line 1174
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$25;->val$draw:[Ljava/lang/Runnable;
 
     const/4 v1, 0x0
@@ -88,6 +88,6 @@
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1160
+    .line 1175
     return-void
 .end method

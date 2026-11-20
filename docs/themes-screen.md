@@ -77,7 +77,8 @@ Keys that blend with the background are the main problem of a picture, so the di
   not touch it. The face of a key of these themes is two layers (the fill and the line), each drawn through its own color filter (`MrGlow.drawKey`), so each
   opacity changes only its part. The layer of the line has a transparent `<solid>` (`make_themes.py`, `solid_key`): a shape with only a stroke is filled with opaque black
   by `GradientDrawable` when it is drawn through a color filter, and the line would black out the key.
-- **Colors from the background** (gradients, landscapes and pictures; a plain color has none to offer, and then every kind keeps its fixed colors): up to
+- **Colors from the background** (every background: a gradient, a landscape or a picture gives the colors that stand out in it, a plain color gives **colors close to
+  its tone**, see below; the fixed colors stay only for a background whose colors could not be read): up to
   five colors that stand out in the background, as swatches of the own style of the kind that is open (no ring of hues: that ring is the picker's). They are
   in **the same row of colors** as the fixed ones (one row, no row of their own; `offeredFor`): the **glass** has the **See-through** glass, those colors and, **last, a
   dark color** (`MrPalette.dark`: the first color made dark, 0.26 of the value, in its hue; grey for black), in place of Ice, Lilac, Mint and Dark; the **outline** has
@@ -89,9 +90,14 @@ Keys that blend with the background are the main problem of a picture, so the di
   square root of the share it covers times how vivid it is (near blacks, near whites and greys count little), and they are taken in that order at least
   72, 48 or 36 apart in RGB (the distance relaxes when there are few), each made bright enough to be seen over a dark background (value of 0.40 or more).
   It all runs on the phone, in a few milliseconds, and the picture is not sent anywhere. The dark gradients of one hue give one or two colors.
+  **Plain colors** (`MrPalette.near`): five colors of the tone itself, the most like it first: its hue, the hues 36 degrees at each side of it, a softer one of
+  its hue (a deeper one on a light color) and the hue one more step beyond. Over a dark color they are bright and over a light one (dark ink) they are deep,
+  so that a key is never the color of the background; a color with no hue (black, greys) gives three greys and a cool and a warm one. They are at least 36 apart in RGB.
 - **The X** at the top right of the dialog of a theme or of a background closes it as **Cancel** does (`sheetBox`: the title and the X in the first line); the picker of
-  a color has Cancel and Done only. The buttons of the kinds (**Glass**, **Outline**, **Gradient**) and **Automatic** have the corners of the cards of the sections
-  (`CARD_RADIUS`, 14 dp).
+  a color has Cancel and Done only. The buttons of the kinds (**Glass**, **Outline**, **Gradient**) have corners of 12 dp (`BUTTON_RADIUS`; the cards of the sections have
+  14 dp, `CARD_RADIUS`) and **Automatic** is a round pill. The controls scroll inside the dialog, and their bar is **near the right edge of the dialog, not over the cards**:
+  the scroll view goes out into the margin of the sheet by `SCROLLBAR_DP` (12 dp, a negative margin and the same padding, the sheet does not clip to its padding), so the
+  cards stay where they were and the bar (thin, faint and fading, as in the list of the screen) is drawn in that padding.
 - **Key border color** (**Automatic** on the left, which keeps the line of the style, and the round button that opens the picker on the right) and
   **Key border opacity** (the bar inside that picker, the same range): the color of the line round the keys. Choosing a color of the **glass** (or picking the
   color of the own glass, while the finger moves) changes the border to **that color one tone above** (`MrKeyLook.lineFor`, `toneAbove`: 28% of white

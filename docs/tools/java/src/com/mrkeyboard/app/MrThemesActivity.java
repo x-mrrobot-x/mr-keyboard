@@ -246,10 +246,7 @@ public class MrThemesActivity extends Activity {
         mScroll = new ScrollView(this);
         mScroll.setPadding(0, 0, k.dp(SCROLL_MARGIN_DP), 0);
         mScroll.setClipToPadding(false);
-        mScroll.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
-        mScroll.setScrollBarSize(k.dp(3));
-        mScroll.setScrollbarFadingEnabled(true);
-        if (Build.VERSION.SDK_INT >= 29) mScroll.setVerticalScrollbarThumbDrawable(k.round((SCROLL_THUMB_ALPHA << 24) | (k.text2 & 0xffffff), 0, 2, false));
+        faintBar(mScroll);
         mGrid = k.column();
         mGrid.setPadding(0, 0, 0, k.dp(24));
         mScroll.addView(mGrid, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -441,6 +438,14 @@ public class MrThemesActivity extends Activity {
     }
 
     // ---- the cards
+
+    /** The bar of a scroll view: drawn outside of the content (in the padding on the right), thin, in a faint tone of the secondary text, and it fades when the view is still. */
+    private void faintBar(ScrollView scroll) {
+        scroll.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
+        scroll.setScrollBarSize(k.dp(3));
+        scroll.setScrollbarFadingEnabled(true);
+        if (Build.VERSION.SDK_INT >= 29) scroll.setVerticalScrollbarThumbDrawable(k.round((SCROLL_THUMB_ALPHA << 24) | (k.text2 & 0xffffff), 0, 2, false));
+    }
 
     /** The width of the screen less the margin on the right (the screen has no padding on that side), {@code topDp} from what is above. */
     private LinearLayout.LayoutParams side(int topDp) {
@@ -833,6 +838,9 @@ public class MrThemesActivity extends Activity {
         return box;
     }
 
+    /** How far (dp) the scroll view of the controls goes out into the right margin of the sheet, where its bar is drawn (the sheet has 20 dp of margin). */
+    static final int SCROLLBAR_DP = 12;
+
     /** The size (dp) of the round X at the top right of the dialog of a theme or of a background. */
     static final int CLOSE_DP = 36;
 
@@ -919,7 +927,14 @@ public class MrThemesActivity extends Activity {
         final LinearLayout controls = k.column();
         MrCappedScroll scroll = new MrCappedScroll(this);
         scroll.addView(controls, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        box.addView(scroll, k.wide(0));
+        // the bar of the scroll is in the margin of the sheet, near its right edge, not over the cards: the scroll view goes out into the margin by the
+        // width of its padding (the cards stay where they were) and its bar is drawn in that padding
+        faintBar(scroll);
+        scroll.setPadding(0, 0, k.dp(SCROLLBAR_DP), 0);
+        box.setClipToPadding(false);
+        LinearLayout.LayoutParams scrollParams = k.wide(0);
+        scrollParams.setMargins(0, 0, -k.dp(SCROLLBAR_DP), 0);
+        box.addView(scroll, scrollParams);
         box.limit(scroll);
 
         SeekBar bar = null;
@@ -978,8 +993,8 @@ public class MrThemesActivity extends Activity {
     /** How far from the background of the dialog the fill and the line of a card go, towards the colours of the cards of the screens (0 = the background itself): a step, not a block. */
     static final float CARD_FILL = 0.45f, CARD_LINE = 0.60f;
 
-    /** The radius (dp) of the corners of the cards of the sections of the dialog, and of the buttons in them (the kinds and "Automatic"): the same. */
-    static final float CARD_RADIUS = 14f;
+    /** The radius (dp) of the corners of the cards of the sections of the dialog, and of the buttons of the kinds in them (glass, outline, gradient). "Automatic" is a round pill. */
+    static final float CARD_RADIUS = 14f, BUTTON_RADIUS = 12f;
 
     /** The colour {@code t} of the way from {@code from} to {@code to} (opaque). */
     static int towards(int from, int to, float t) {
@@ -1050,7 +1065,7 @@ public class MrThemesActivity extends Activity {
         box.addView(kinds, k.wide(8));
         for (int i = 0; i < MrBackdrop.KINDS; i++) {
             final int n = i;
-            TextView c = k.chip(kindName(this, n), n == kind, CARD_RADIUS, new View.OnClickListener() {
+            TextView c = k.chip(kindName(this, n), n == kind, BUTTON_RADIUS, new View.OnClickListener() {
                 public void onClick(View v) {
                     if (MrBackdrop.kindOf(style[0]) == n) return;
                     choosePreset(MrBackdrop.KIND_FIRST[n], pale, style, look);
@@ -1247,7 +1262,7 @@ public class MrThemesActivity extends Activity {
     private LinearLayout colourLine(int colour, boolean auto, final int which, final int[] style, final MrKeyLook[] look, final Runnable redraw, final Runnable[] draw) {
         LinearLayout line = k.row();
         line.setGravity(Gravity.CENTER_VERTICAL);
-        TextView autoChip = k.chip(k.t("mr_themes_auto"), auto, CARD_RADIUS, new View.OnClickListener() {
+        TextView autoChip = k.chip(k.t("mr_themes_auto"), auto, new View.OnClickListener() {
             public void onClick(View v) {
                 look[0] = withColor(look[0], which, 0);
                 redraw.run();
