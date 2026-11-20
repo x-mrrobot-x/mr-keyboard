@@ -2610,6 +2610,29 @@ public class ThemesTest {
         }
     }
 
+    /**
+     * Whether the faint dash is under the column {@code x} somewhere in the low part of the row of Ctrl, Alt and Tab of the small keyboard: the pixel is the
+     * dash over the face that the key has beside it (the labels are in the middle of the key and a font that is wider reaches higher and lower).
+     */
+    static boolean dashInRow(Bitmap b, int x, int off) {
+        int top = Math.round(b.stubH * MrThemePreview.BAR_SHARE);
+        float rowH = (b.stubH - top) / (float) MrThemePreview.SMALL_ROWS;
+        for (int y = Math.round(top + rowH * 0.74f); y < Math.round(top + rowH * 0.90f); y++) {
+            int face = b.getPixel(x + 22, y);
+            if (maxDiff(b.getPixel(x, y), blend(off, MrKeyLook.DASH_OFF_SHARE, face)) <= 4) return true;
+        }
+        return false;
+    }
+
+    /** The middle of the dash of a key of the row of Ctrl, Alt and Tab of the small keyboard (the left edge and the width of the key as a share of the width of the keys) on a view {@code w} wide. */
+    static int[] smallDashAt(int w, float leftShare, float widthShare) {
+        float side = w * 0.008f, width = w - 2f * side;
+        float h = Math.round(w / MrBackdrop.ASPECT), top = h * MrThemePreview.BAR_SHARE, rowH = (h - top) / MrThemePreview.SMALL_ROWS;
+        float kx = side + width * leftShare, kw = width * widthShare;
+        float y = top + Math.round(rowH) - 8f * 2f - 1.5f * 2f;
+        return new int[] {Math.round(kx + kw / 2f), Math.round(y)};
+    }
+
     /** The middle of the dash of a key of the complete keyboard (row 0 .. 5, counted from the row of Ctrl, the left edge and the width of the key as a share of the width of the keys) on a view {@code w} wide. */
     static int[] dashAt(int w, int row, float leftShare, float widthShare) {
         Full f = new Full();
@@ -2650,8 +2673,13 @@ public class ThemesTest {
             check(tag + ": the keys that are not modifier keys have no dash (a number, a letter and the key of the angles)", !faintDash(b, plain, off) && b.getPixel(plain[0], plain[1]) != on
                     && !faintDash(b, letter, off) && !faintDash(b, angle, off) && b.getPixel(angle[0], angle[1]) != on);
             check(tag + ": the three dashes are three different colours", on != off && on != lock && off != lock);
-            Bitmap compact = draw(preview(c, 720));
-            check(tag + ": the small keyboard has no dash (it has no modifier keys)", compact.getPixel(ctrl[0], Math.round(compact.stubH * 0.9f)) != on);
+            MrThemePreview smallP = preview(c, 720);
+            smallP.show(tag, sp, null, 0);
+            Bitmap compact = draw(smallP);
+            // the small keyboard has the row of Ctrl, Alt, Tab and the arrows as well: the dash 'off' under Ctrl and Alt (somewhere low in their key), none under Tab
+            int[] sCtrl = smallDashAt(720, 0f, 14.2f / 100.4f), sAlt = smallDashAt(720, 14.2f / 100.4f, 13.2f / 100.4f), sTab = smallDashAt(720, (14.2f + 13.2f) / 100.4f, 13.3f / 100.4f);
+            check(tag + ": the small keyboard has the dash 'off' under Ctrl and Alt only, faint as at rest (none under Tab)",
+                    dashInRow(compact, sCtrl[0], off) && dashInRow(compact, sAlt[0], off) && !dashInRow(compact, sTab[0], off));
         }
 
         // the keys are drawn at rest: Ctrl is the same face as Alt, and Shift is the same face as delete (no lit key, no red lock)
@@ -4006,7 +4034,7 @@ public class ThemesTest {
             if (arrays.indexOf(t) <= arrays.indexOf(before)) ordered = false;
             before = t;
         }
-        check("they are in the lists of themes after the thirteen of the list, in the order of the values (13 to 31)", arrays.contains("mr_overlight") && ordered);
+        check("they are in the lists of themes after the thirteen of the list, in the order of the values (13 to 34)", arrays.contains("mr_overlight") && ordered);
         check("the class of the crop (MrCropView) is in the build list and its smali is there", read("docs/tools/build_java.sh").contains("MrCropView") && new File("smali/com/mrkeyboard/app/MrCropView.smali").isFile());
 
         String build = read("docs/tools/build_java.sh");

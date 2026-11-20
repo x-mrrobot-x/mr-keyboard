@@ -224,7 +224,7 @@ The navigation bar (`MrBottom.bar`, up to Android 15) takes the color of the **l
 per tile, so that making them ready does not change the ones of the keyboard), its colors and labels, the neon light of the neon themes, a line of
 suggestions in the ink of the toolbar. The keys are drawn as large as the real ones on this phone (the narrow side of the screen is the width of
 the keyboard) and the whole is scaled to the tile, so the radius, the lips and the gaps are the ones of the keyboard. A theme that has no key
-drawable falls back to flat faces in its colors. The card in use has a frame in the accent color and a filled **In use** pill. A card of a background
+drawable falls back to flat faces in its colors. A card has the line of suggestions and five rows: the one of Ctrl, Alt, Tab and the arrows first (with the dash that is off under Ctrl and Alt, as at rest), then the three rows of letters and the bottom row. The card in use has a frame in the accent color and a filled **In use** pill. A card of a background
 is drawn with the theme of the backgrounds that suits it (the style in use is only in the dialog and in the keyboard at the top); a card of a theme is
 the theme with no background.
 
