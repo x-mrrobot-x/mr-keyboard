@@ -24,13 +24,17 @@
 
 .field final synthetic val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
+.field final synthetic val$n:I
+
+.field final synthetic val$pale:Z
+
 .field final synthetic val$redraw:Ljava/lang/Runnable;
 
 .field final synthetic val$style:[I
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;[IIZ[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -39,16 +43,20 @@
     .end annotation
 
     .prologue
-    .line 1071
+    .line 1053
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$style:[I
 
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+    iput p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$n:I
 
-    iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$redraw:Ljava/lang/Runnable;
+    iput-boolean p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$pale:Z
 
-    iput-object p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$draw:[Ljava/lang/Runnable;
+    iput-object p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+
+    iput-object p6, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$redraw:Ljava/lang/Runnable;
+
+    iput-object p7, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$draw:[Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -58,38 +66,55 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 7
+    .locals 5
 
     .prologue
-    .line 1073
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+    const/4 v4, 0x0
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+    .line 1055
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$style:[I
 
-    iget-object v1, v1, Lcom/mrkeyboard/app/MrThemesActivity;->k:Lcom/mrkeyboard/app/MrKit;
+    aget v0, v0, v4
 
-    const-string v2, "mr_themes_pick_color"
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->kindOf(I)I
 
-    const/4 v3, 0x0
+    move-result v0
 
-    new-array v3, v3, [Ljava/lang/Object;
+    iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$n:I
 
-    invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+    if-ne v0, v1, :cond_0
 
-    move-result-object v1
-
-    const/4 v2, 0x1
-
-    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$style:[I
-
-    iget-object v4, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
-
-    iget-object v5, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$redraw:Ljava/lang/Runnable;
-
-    iget-object v6, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$draw:[Ljava/lang/Runnable;
-
-    invoke-virtual/range {v0 .. v6}, Lcom/mrkeyboard/app/MrThemesActivity;->showColorPicker(Ljava/lang/String;I[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
-
-    .line 1074
+    .line 1059
+    :goto_0
     return-void
+
+    .line 1056
+    :cond_0
+    sget-object v0, Lcom/mrkeyboard/app/MrBackdrop;->KIND_FIRST:[I
+
+    iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$n:I
+
+    aget v0, v0, v1
+
+    iget-boolean v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$pale:Z
+
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$style:[I
+
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+
+    invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/MrThemesActivity;->choosePreset(IZ[I[Lcom/mrkeyboard/app/MrKeyLook;)V
+
+    .line 1057
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$redraw:Ljava/lang/Runnable;
+
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+
+    .line 1058
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$draw:[Ljava/lang/Runnable;
+
+    aget-object v0, v0, v4
+
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+
+    goto :goto_0
 .end method

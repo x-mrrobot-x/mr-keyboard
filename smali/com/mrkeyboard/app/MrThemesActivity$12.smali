@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->sheetShow(Landroid/app/Dialog;Landroid/widget/LinearLayout;Lcom/mrkeyboard/app/MrThemePreview;Landroid/widget/SeekBar;ZLjava/lang/Runnable;)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->sheetBox(Ljava/lang/String;Z)Lcom/mrkeyboard/app/MrSheetBox;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$pending:Z
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Z)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 819
+    .line 824
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$12;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    iput-boolean p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$12;->val$pending:Z
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,21 +40,20 @@
     .locals 1
 
     .prologue
-    .line 821
+    .line 826
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$12;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->closeDialog()V
-
-    .line 822
-    iget-boolean v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$12;->val$pending:Z
+    iget-object v0, v0, Lcom/mrkeyboard/app/MrThemesActivity;->mDialogCancel:Landroid/widget/TextView;
 
     if-eqz v0, :cond_0
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$12;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->discardPending(Landroid/content/Context;)V
+    iget-object v0, v0, Lcom/mrkeyboard/app/MrThemesActivity;->mDialogCancel:Landroid/widget/TextView;
 
-    .line 823
+    invoke-virtual {v0}, Landroid/widget/TextView;->performClick()Z
+
+    .line 827
     :cond_0
     return-void
 .end method

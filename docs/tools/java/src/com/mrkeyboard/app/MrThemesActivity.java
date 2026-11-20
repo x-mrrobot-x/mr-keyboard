@@ -804,13 +804,37 @@ public class MrThemesActivity extends Activity {
     }
 
     /** The sheet of a preview: its rounded box with the title on top, that grows up to {@link #SHEET_SHARE} of the screen height. */
-    private MrSheetBox sheetBox(String title) {
+    private MrSheetBox sheetBox(String title, boolean closable) {
         MrSheetBox box = new MrSheetBox(this, Math.round(getResources().getDisplayMetrics().heightPixels * SHEET_SHARE), k.dp(MIN_CONTROLS_DP));
         box.setPadding(k.dp(20), k.dp(18), k.dp(20), k.dp(18));
         box.setBackground(k.round(k.solidBg(), 0, 22, false));
-        box.addView(k.label(title, 16f, k.text, true), k.wide(0));
+        if (!closable) {
+            box.addView(k.label(title, 16f, k.text, true), k.wide(0));
+            return box;
+        }
+        // the title and, at the right of the top, the X that closes the dialog (it does what "Cancel" does)
+        LinearLayout top = k.row();
+        top.setGravity(Gravity.CENTER_VERTICAL);
+        top.addView(k.label(title, 16f, k.text, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView close = k.label("\u2715", 16f, k.text2, false);
+        close.setGravity(Gravity.CENTER);
+        close.setBackground(k.round(towards(k.solidBg(), k.faint, CARD_FILL), 0, CLOSE_DP / 2f, true));
+        close.setContentDescription(k.t("mr_themes_close"));
+        close.setClickable(true);
+        close.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (mDialogCancel != null) mDialogCancel.performClick();
+            }
+        });
+        LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(k.dp(CLOSE_DP), k.dp(CLOSE_DP));
+        cp.setMargins(k.dp(12), 0, 0, 0);
+        top.addView(close, cp);
+        box.addView(top, k.wide(0));
         return box;
     }
+
+    /** The size (dp) of the round X at the top right of the dialog of a theme or of a background. */
+    static final int CLOSE_DP = 36;
 
     /** "Cancel" and "Apply" under the sheet; {@code pending}: a waiting picture that "Cancel" lets go of. Shows the dialog. */
     private void sheetShow(Dialog d, LinearLayout box, MrThemePreview pv, SeekBar soft, final boolean pending, final Runnable onApply) {
@@ -852,7 +876,7 @@ public class MrThemesActivity extends Activity {
     void showThemePreview(final int index) {
         closeDialog();
         Dialog d = newDialog(false);
-        LinearLayout box = sheetBox(index < mNames.length ? mNames[index] : mTags[index]);
+        LinearLayout box = sheetBox(index < mNames.length ? mNames[index] : mTags[index], true);
         MrThemePreview pv = new MrThemePreview(this);
         pv.setFull(true);
         pv.show(mTags[index], MrBackdrop.Spec.NO, null, 0);
@@ -873,7 +897,7 @@ public class MrThemesActivity extends Activity {
     void showPreview(final MrBackdrop.Spec spec, Bitmap image, final int soft, final boolean pending) {
         closeDialog();
         final Dialog d = newDialog(false);
-        final MrSheetBox box = sheetBox(backgroundName(this, spec));
+        final MrSheetBox box = sheetBox(backgroundName(this, spec), true);
         final MrThemePreview pv = new MrThemePreview(this);
         // the complete keyboard, so that the highlight keys and the dash of the modifier keys are seen on the background as well
         pv.setFull(true);
@@ -954,6 +978,9 @@ public class MrThemesActivity extends Activity {
     /** How far from the background of the dialog the fill and the line of a card go, towards the colours of the cards of the screens (0 = the background itself): a step, not a block. */
     static final float CARD_FILL = 0.45f, CARD_LINE = 0.60f;
 
+    /** The radius (dp) of the corners of the cards of the sections of the dialog, and of the buttons in them (the kinds and "Automatic"): the same. */
+    static final float CARD_RADIUS = 14f;
+
     /** The colour {@code t} of the way from {@code from} to {@code to} (opaque). */
     static int towards(int from, int to, float t) {
         int r = Math.round(((from >> 16) & 0xff) + (((to >> 16) & 0xff) - ((from >> 16) & 0xff)) * t);
@@ -970,7 +997,7 @@ public class MrThemesActivity extends Activity {
         LinearLayout c = k.column();
         c.setPadding(k.dp(14), k.dp(12), k.dp(14), k.dp(14));
         int base = k.solidBg();
-        c.setBackground(k.round(towards(base, k.faint, CARD_FILL), towards(base, k.line, CARD_LINE), 14, false));
+        c.setBackground(k.round(towards(base, k.faint, CARD_FILL), towards(base, k.line, CARD_LINE), CARD_RADIUS, false));
         c.addView(k.label(name, 15f, k.text, true), k.wide(0));
         c.addView(box, k.wide(8));
         into.addView(c, k.wide(topDp));
@@ -1023,7 +1050,7 @@ public class MrThemesActivity extends Activity {
         box.addView(kinds, k.wide(8));
         for (int i = 0; i < MrBackdrop.KINDS; i++) {
             final int n = i;
-            TextView c = k.chip(kindName(this, n), n == kind, new View.OnClickListener() {
+            TextView c = k.chip(kindName(this, n), n == kind, CARD_RADIUS, new View.OnClickListener() {
                 public void onClick(View v) {
                     if (MrBackdrop.kindOf(style[0]) == n) return;
                     choosePreset(MrBackdrop.KIND_FIRST[n], pale, style, look);
@@ -1046,22 +1073,22 @@ public class MrThemesActivity extends Activity {
         colours.addView(scroll, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         final int shown = presetShown(kind, pale, style[0], look[0]);
         final int own = MrBackdrop.ownStyle(kind);
-        // the glass, when the background gives colours: the clear glass, the colours that stand out in the background and a dark one of the hue of the
-        // first of them, in place of the fixed colours (a fixed one that the keys are in stays, to be seen); the others keep their fixed colours and have
-        // the colours of the background in a row of their own below
-        final boolean fromBackground = kind == MrBackdrop.KIND_GLASS && suggested.length > 0;
-        final int[] offered = fromBackground ? withDark(suggested) : suggested;
+        // one row of colours for each kind. With colours from the background: the glass has the clear glass, those colours and a dark one last; the outline has
+        // the white one and those colours; the gradient keeps its four and has the first two of those colours at the end (a fixed colour that the keys are in
+        // stays in the row, to be seen). With none (a plain colour has none to offer) every kind has its fixed colours.
+        final int[] offered = offeredFor(kind, suggested);
         final int match = offeredShown(offered, own, style[0], look[0]);
-        if (fromBackground) {
-            addPresetDot(dots, 0, shown == 0, pale, style, look, redraw, draw);
-            if (shown > 0) addPresetDot(dots, shown, true, pale, style, look, redraw, draw);
-            for (int i = 0; i < offered.length; i++) {
-                boolean dark = i == offered.length - 1;
-                addSwatchDot(dots, offered[i], dark ? styleName(this, 4) : k.t("mr_themes_from_background") + " #" + String.format("%06X", offered[i] & 0xffffff),
-                        i == match, own, style, look, redraw, draw);
-            }
+        final int first = MrBackdrop.KIND_FIRST[kind];
+        if (offered.length == 0 || kind == MrBackdrop.KIND_GRADIENT) {
+            for (int i = first; i < MrBackdrop.KIND_FIRST[kind + 1]; i++) addPresetDot(dots, i, i == shown, pale, style, look, redraw, draw);
         } else {
-            for (int i = MrBackdrop.KIND_FIRST[kind]; i < MrBackdrop.KIND_FIRST[kind + 1]; i++) addPresetDot(dots, i, i == shown, pale, style, look, redraw, draw);
+            addPresetDot(dots, first, shown == first, pale, style, look, redraw, draw);
+            if (shown > first) addPresetDot(dots, shown, true, pale, style, look, redraw, draw);
+        }
+        for (int i = 0; i < offered.length; i++) {
+            boolean dark = kind == MrBackdrop.KIND_GLASS && i == offered.length - 1;
+            addSwatchDot(dots, offered[i], dark ? styleName(this, 4) : k.t("mr_themes_from_background") + " #" + String.format("%06X", offered[i] & 0xffffff),
+                    i == match, own, style, look, redraw, draw);
         }
         // the colour that the person picks: touching it opens the picker, with the colour that the keys have now; the style of the person's own colour is the
         // one chosen as soon as the colour is moved (the opacity of the keys is in the picker as well, and moving it leaves the style as it is)
@@ -1079,15 +1106,6 @@ public class MrThemesActivity extends Activity {
         TextView label = k.label(styleName(this, shown >= 0 ? shown : style[0]), 14f, k.text2, false);
         label.setGravity(Gravity.CENTER);
         box.addView(label, k.wide(4));
-        if (!fromBackground && suggested.length > 0) {
-            // the colours that stand out in the background, as the person's own colour of the kind that is open: touching one chooses it (the opacity stays)
-            box.addView(k.label(k.t("mr_themes_from_background"), 14f, k.text2, false), k.wide(12));
-            LinearLayout row = k.row();
-            box.addView(row, k.wide(6));
-            for (int i = 0; i < suggested.length; i++) {
-                addSwatchDot(row, suggested[i], k.t("mr_themes_from_background") + " #" + String.format("%06X", suggested[i] & 0xffffff), i == match, own, style, look, redraw, draw);
-            }
-        }
         if (style[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_GRADIENT)) {
             // the end of the gradient: the one the keyboard makes up until the person picks it
             int end = look[0].hue2 != 0 ? look[0].hue2 : 0;
@@ -1142,6 +1160,22 @@ public class MrThemesActivity extends Activity {
             }
         });
         addDot(dots, dot, dots.getChildCount() > 0);
+    }
+
+    /** How many colours of the background the gradient has, after its fixed colours. */
+    static final int GRADIENT_OFFERED = 2;
+
+    /**
+     * The colours from the background that the row of the kind {@code kind} has, from the ones that stand out in it ({@code suggested}): the glass has all of
+     * them and, last, a dark one; the outline has all of them; the gradient has the first {@link #GRADIENT_OFFERED}. None when there are none.
+     */
+    static int[] offeredFor(int kind, int[] suggested) {
+        if (suggested.length == 0) return new int[0];
+        if (kind == MrBackdrop.KIND_GLASS) return withDark(suggested);
+        if (kind == MrBackdrop.KIND_OUTLINE) return suggested;
+        int[] two = new int[Math.min(GRADIENT_OFFERED, suggested.length)];
+        System.arraycopy(suggested, 0, two, 0, two.length);
+        return two;
     }
 
     /** The colours that the glass offers from the background: the ones that stand out and, last, a dark one of the hue of the first of them. */
@@ -1213,7 +1247,7 @@ public class MrThemesActivity extends Activity {
     private LinearLayout colourLine(int colour, boolean auto, final int which, final int[] style, final MrKeyLook[] look, final Runnable redraw, final Runnable[] draw) {
         LinearLayout line = k.row();
         line.setGravity(Gravity.CENTER_VERTICAL);
-        TextView autoChip = k.chip(k.t("mr_themes_auto"), auto, new View.OnClickListener() {
+        TextView autoChip = k.chip(k.t("mr_themes_auto"), auto, CARD_RADIUS, new View.OnClickListener() {
             public void onClick(View v) {
                 look[0] = withColor(look[0], which, 0);
                 redraw.run();
@@ -1284,7 +1318,7 @@ public class MrThemesActivity extends Activity {
         Window w = p.getWindow();
         // the keyboard under it is looked at while the colour is moved, so it is not dimmed
         if (w != null) w.clearFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        LinearLayout pbox = sheetBox(title);
+        LinearLayout pbox = sheetBox(title, false);
         final MrColorPicker cp = new MrColorPicker(this);
         cp.setColor(start);
         // the opacity: of the face of the keys for the colour of the keys, of the line for the colour of the line (none for the others)

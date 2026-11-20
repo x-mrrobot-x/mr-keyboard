@@ -3,7 +3,7 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Lcom/mrkeyboard/app/MrThemesActivity$Setter;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
@@ -20,13 +20,21 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$redraw:Ljava/lang/Runnable;
+.field final synthetic val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+
+.field final synthetic val$pv:Lcom/mrkeyboard/app/MrThemePreview;
+
+.field final synthetic val$shown:Landroid/graphics/Bitmap;
 
 .field final synthetic val$softNow:[I
 
+.field final synthetic val$spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
+
+.field final synthetic val$style:[I
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;[ILjava/lang/Runnable;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Lcom/mrkeyboard/app/MrThemePreview;Lcom/mrkeyboard/app/MrBackdrop$Spec;[ILandroid/graphics/Bitmap;[I[Lcom/mrkeyboard/app/MrKeyLook;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -35,12 +43,20 @@
     .end annotation
 
     .prologue
-    .line 903
+    .line 909
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$softNow:[I
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$pv:Lcom/mrkeyboard/app/MrThemePreview;
 
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$redraw:Ljava/lang/Runnable;
+    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
+
+    iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$style:[I
+
+    iput-object p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$shown:Landroid/graphics/Bitmap;
+
+    iput-object p6, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$softNow:[I
+
+    iput-object p7, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,28 +65,44 @@
 
 
 # virtual methods
-.method public set(I)V
-    .locals 3
+.method public run()V
+    .locals 6
 
     .prologue
-    const/4 v2, 0x0
+    const/4 v5, 0x0
 
-    .line 905
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$softNow:[I
+    .line 911
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$pv:Lcom/mrkeyboard/app/MrThemePreview;
 
-    const/16 v1, 0x46
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
-    invoke-static {p1, v2, v1}, Lcom/mrkeyboard/app/MrBackdrop;->clamp(III)I
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$style:[I
 
-    move-result v1
+    aget v2, v2, v5
 
-    aput v1, v0, v2
+    invoke-static {v1, v2}, Lcom/mrkeyboard/app/MrBackdrop;->themeTag(Lcom/mrkeyboard/app/MrBackdrop$Spec;I)Ljava/lang/String;
 
-    .line 906
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$redraw:Ljava/lang/Runnable;
+    move-result-object v1
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
-    .line 907
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$shown:Landroid/graphics/Bitmap;
+
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$softNow:[I
+
+    aget v4, v4, v5
+
+    invoke-virtual {v0, v1, v2, v3, v4}, Lcom/mrkeyboard/app/MrThemePreview;->show(Ljava/lang/String;Lcom/mrkeyboard/app/MrBackdrop$Spec;Landroid/graphics/Bitmap;I)V
+
+    .line 912
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$pv:Lcom/mrkeyboard/app/MrThemePreview;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$17;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+
+    aget-object v1, v1, v5
+
+    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrThemePreview;->setLook(Lcom/mrkeyboard/app/MrKeyLook;)V
+
+    .line 913
     return-void
 .end method

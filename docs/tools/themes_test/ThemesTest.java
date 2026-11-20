@@ -775,6 +775,63 @@ public class ThemesTest {
         return h == null ? null : (View) h.getParent();
     }
 
+    /** The view with the content description {@code text} (of any kind, not only a dot) under {@code v}. */
+    static View anyDescription(View v, String text) {
+        if (v == null) return null;
+        if (v.getContentDescription() != null && text.equals(v.getContentDescription().toString())) return v;
+        if (v instanceof android.view.ViewGroup) {
+            android.view.ViewGroup g = (android.view.ViewGroup) v;
+            for (int i = 0; i < g.getChildCount(); i++) {
+                View f = anyDescription(g.getChildAt(i), text);
+                if (f != null) return f;
+            }
+        }
+        return null;
+    }
+
+    /** The radius of the corners of the background of {@code v} (-1 when it is not a rounded one). */
+    static float radiusOf(View v) {
+        return v != null && v.stubBackground instanceof android.graphics.drawable.GradientDrawable ? ((android.graphics.drawable.GradientDrawable) v.stubBackground).stubRadius : -1f;
+    }
+
+    /** The X at the top right of the dialog, and the buttons of the kinds and "Automatic" with the corners of the cards. */
+    static void closeButton() throws Exception {
+        reset();
+        Screen s = open();
+        click(bg(s, FIRST_SCENE + 1));
+        Dialog d = Dialog.stubLast;
+        View close = anyDescription(d.stubContent, "Close");
+        android.view.ViewGroup top = d.stubContent instanceof android.view.ViewGroup ? (android.view.ViewGroup) ((android.view.ViewGroup) d.stubContent).getChildAt(0) : null;
+        check("the dialog of a background has an X at the top right, after the title, in the first line", close != null && top != null && top.getChildCount() == 2 && top.getChildAt(1) == close
+                && byText(top, "Sports \u00b7 Basketball") == top.getChildAt(0) && close instanceof android.widget.TextView && close.isClickable());
+        View keyCard = cardOf(s, "Key background colour"), lineCard = cardOf(s, "Key border colour");
+        float card = radiusOf(keyCard);
+        check("the buttons of the kinds and \"Automatic\" have the corners of the cards of the sections (on and off)", card > 0 && radiusOf(byText(keyCard, "Glass")) == card && radiusOf(byText(keyCard, "Outline")) == card
+                && radiusOf(byText(keyCard, "Gradient")) == card && radiusOf(byText(lineCard, "Automatic")) == card && radiusOf(byText(cardOf(s, "Text and toolbar icon colour"), "Automatic")) == card);
+        byText(keyCard, "Outline").performClick();
+        keyCard = cardOf(s, "Key background colour");
+        check("and so they do when another kind is chosen (the dialog is made again)", radiusOf(byText(keyCard, "Glass")) == card && radiusOf(byText(keyCard, "Outline")) == card && radiusOf(byText(keyCard, "Gradient")) == card);
+        swatches(keyCard).get(0).performClick();
+        check("a colour was chosen in it", s.mDialogStyle[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_OUTLINE));
+        close.performClick();
+        check("the X closes it as Cancel does: nothing is written and nothing is applied", !d.stubShowing && s.mDialog == null && (bgKey() == null || bgKey().isEmpty()) && s.mSpec.kind == MrBackdrop.NONE);
+        click(bg(s, FIRST_SCENE + 1));
+        Dialog.stubLast.stubBack();
+        check("it can still be closed with the back button", !Dialog.stubLast.stubShowing && (bgKey() == null || bgKey().isEmpty()));
+        // a theme of the list has it too
+        click(th(s, 7));
+        d = Dialog.stubLast;
+        close = anyDescription(d.stubContent, "Close");
+        check("the dialog of a theme of the list has the X too, and it closes it without choosing the theme", close != null && d.stubShowing && close.performClick() && !d.stubShowing && s.mDialog == null && !"7".equals(themeKey()));
+        // the picker of a colour is not the dialog of a theme: it keeps its Cancel and Done
+        click(bg(s, FIRST_SCENE + 1));
+        d = Dialog.stubLast;
+        lineDot(s).performClick();
+        check("the picker over it has no X (it has Cancel and Done)", s.mPicker != null && anyDescription(s.mPicker.stubContent, "Close") == null);
+        pressPicker(s, "Cancel");
+        press("Cancel");
+    }
+
     /** True when {@code a} is {@code b} made darker or lighter (the same share of each channel, to the rounding of a channel). */
     static boolean sameHue(int a, int b) {
         int[] x = {(a >> 16) & 0xff, (a >> 8) & 0xff, a & 0xff}, y = {(b >> 16) & 0xff, (b >> 8) & 0xff, b & 0xff};
@@ -840,15 +897,31 @@ public class ThemesTest {
         lk[0] = MrKeyLook.NONE.withHue(0xff884422).withLine(0xffabcdef).withKey(60).withEdge(40);
         MrThemesActivity.chooseSuggested(0xff2288cc, st, lk);
         check("a line that the person picked stays, and the opacities too", lk[0].line == 0xffabcdef && lk[0].hue == 0xff2288cc && lk[0].key == 60 && lk[0].edge == 40);
-        // on the outline kind the colours are outlines, in a row of their own (the outlines keep their fixed colours)
+        // one row of colours in every kind: the outline has white and the colours of the background, the gradient has its four and the first two of them
         byText(Dialog.stubLast.stubContent, "Outline").performClick();
         card = cardOf(s, "Key background colour");
-        check("on the outline kind the fixed colours stay and the colours of the background are in a row of their own below them", byText(card, "From the background") != null && dots(card) == 7 && byDescription(card, "Gold") != null
-                && swatches(card).size() == expected.length);
+        check("on the outline kind the fixed colours are replaced by the colours of the background, except white, in one row (no row of their own)", byText(card, "From the background") == null && dots(card) == 2
+                && byDescription(card, "White") != null && byDescription(card, "Gold") == null && byDescription(card, "Cyan") == null && byDescription(card, "Violet") == null && swatches(card).size() == expected.length);
+        List<View> outlineRow = all(card, MrStyleDot.class);
+        check("the row is white, the colours in the order of what stands out, and the round button of the picker", outlineRow.size() == expected.length + 2 && ((MrStyleDot) outlineRow.get(0)).style() == MrBackdrop.KIND_FIRST[MrBackdrop.KIND_OUTLINE]
+                && !((MrStyleDot) outlineRow.get(0)).isSwatch() && ((MrStyleDot) outlineRow.get(1)).own() == expected[0]);
         check("on the outline kind they are outlines of the colours, and one chosen is the own outline", MrBackdrop.kindOf(swatches(cardOf(s, "Key background colour")).get(0).style()) == MrBackdrop.KIND_OUTLINE);
         swatches(cardOf(s, "Key background colour")).get(0).performClick();
         check("and chosen it is the own outline in that colour, the colour button is not marked too, and the border stays Automatic", s.mDialogStyle[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_OUTLINE)
                 && (s.mDialogLook[0].hue & 0xffffff) == (expected[0] & 0xffffff) && chosenDots(cardOf(s, "Key background colour")) == 0 && swatches(cardOf(s, "Key background colour")).get(0).chosen() && s.mDialogLook[0].line == 0);
+        check("white goes back to the first outline", dot("White") && s.mDialogStyle[0] == MrBackdrop.KIND_FIRST[MrBackdrop.KIND_OUTLINE] && chosenDots(cardOf(s, "Key background colour")) == 1);
+        byText(Dialog.stubLast.stubContent, "Gradient").performClick();
+        card = cardOf(s, "Key background colour");
+        int two = Math.min(MrThemesActivity.GRADIENT_OFFERED, expected.length);
+        List<View> gradientRow = all(card, MrStyleDot.class);
+        boolean four = gradientRow.size() == MrBackdrop.KIND_FIRST[MrBackdrop.KINDS] - MrBackdrop.KIND_FIRST[MrBackdrop.KIND_GRADIENT] + two + 1;
+        for (int i = 0; four && i < 4; i++) four = ((MrStyleDot) gradientRow.get(i)).style() == MrBackdrop.KIND_FIRST[MrBackdrop.KIND_GRADIENT] + i && !((MrStyleDot) gradientRow.get(i)).isSwatch();
+        for (int i = 0; four && i < two; i++) four = ((MrStyleDot) gradientRow.get(4 + i)).isSwatch() && ((MrStyleDot) gradientRow.get(4 + i)).own() == expected[i];
+        check("the gradient keeps its four colours and has the first two colours of the background after them, in one row, then the round button of the picker", four && byText(card, "From the background") == null
+                && byDescription(card, "Dawn") != null && byDescription(card, "Lagoon") != null && swatches(card).size() == two);
+        swatches(card).get(0).performClick();
+        check("one of them chosen is the own gradient in that colour, the border stays Automatic and it is the only one marked", s.mDialogStyle[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_GRADIENT)
+                && (s.mDialogLook[0].hue & 0xffffff) == (expected[0] & 0xffffff) && s.mDialogLook[0].line == 0 && swatches(cardOf(s, "Key background colour")).get(0).chosen() && chosenDots(cardOf(s, "Key background colour")) == 0);
         press("Cancel");
         // a plain colour has none to offer (it is one), and has the fixed colours; a landscape has them
         click(bg(s, 5));
@@ -978,7 +1051,7 @@ public class ThemesTest {
                 && ((MrStyleDot) byDescription(d.stubContent, "Pick a colour")).chosen() && byText(d.stubContent, "Own colour") != null);
         byText(d.stubContent, "Outline").performClick();
         check("the other kinds have their round button with the same colour; the style is the first of the kind until it is touched", s.mDialogStyle[0] == MrBackdrop.KIND_FIRST[MrBackdrop.KIND_OUTLINE]
-                && ((MrStyleDot) byDescription(d.stubContent, "Pick a colour")).own() == (0xff000000 | red) && !((MrStyleDot) byDescription(d.stubContent, "Pick a colour")).chosen() && dots(d.stubContent) == 7);
+                && ((MrStyleDot) byDescription(d.stubContent, "Pick a colour")).own() == (0xff000000 | red) && !((MrStyleDot) byDescription(d.stubContent, "Pick a colour")).chosen() && dots(d.stubContent) == 2);
         byDescription(d.stubContent, "Pick a colour").performClick();
         s.mPickerView.stubSize(600, 400);
         s.mPickerView.drag(2, 0, 10);
@@ -3707,10 +3780,12 @@ public class ThemesTest {
         check("a colour is chosen by touching its dot: the keyboard of the dialog is drawn with the own glass in that colour, and the name under the dots says it", offered.get(0).performClick() && s.mDialogPreview.tag().equals("mr_overownglass")
                 && s.mDialogStyle[0] == ownGlass && (s.mDialogLook[0].hue & 0xffffff) == (first & 0xffffff) && byText(Dialog.stubLast.stubContent, "Own colour") != null && byText(Dialog.stubLast.stubContent, "See-through") == null && s.mStyle == 0);
         check("another one replaces it (the dark one)", dot("Dark") && s.mDialogPreview.tag().equals("mr_overownglass") && (s.mDialogLook[0].hue & 0xffffff) == (MrPalette.dark(first) & 0xffffff));
-        check("a kind is chosen by touching its chip: its first colour is in the keyboard, and the dots are the ones of that kind (six outlines, four gradients, each with the round one that picks a colour)",
-                byText(Dialog.stubLast.stubContent, "Outline").performClick() && s.mDialogPreview.tag().equals("mr_overline") && dots(Dialog.stubLast.stubContent) == 7
-                        && byDescription(Dialog.stubLast.stubContent, "Gold") != null && byDescription(Dialog.stubLast.stubContent, "Ice") == null
+        check("a kind is chosen by touching its chip: its first colour is in the keyboard, and its row is the one of that kind (the outline: white and the colours of the picture; the gradient: its four and the first two colours of the picture; each with the round one that picks a colour)",
+                byText(Dialog.stubLast.stubContent, "Outline").performClick() && s.mDialogPreview.tag().equals("mr_overline") && dots(Dialog.stubLast.stubContent) == 2
+                        && byDescription(Dialog.stubLast.stubContent, "White") != null && byDescription(Dialog.stubLast.stubContent, "Gold") == null && byDescription(Dialog.stubLast.stubContent, "Cyan") == null
+                        && swatches(Dialog.stubLast.stubContent).size() == offered.size() - 1 && byDescription(Dialog.stubLast.stubContent, "Ice") == null
                         && byText(Dialog.stubLast.stubContent, "Gradient").performClick() && s.mDialogPreview.tag().equals("mr_overdawn") && dots(Dialog.stubLast.stubContent) == 5
+                        && swatches(Dialog.stubLast.stubContent).size() == MrThemesActivity.GRADIENT_OFFERED
                         && dot("Prism") && s.mDialogPreview.tag().equals("mr_overprism") && byText(Dialog.stubLast.stubContent, "Prism") != null);
         check("touching the kind that is chosen keeps the colour", byText(Dialog.stubLast.stubContent, "Gradient").performClick() && s.mDialogPreview.tag().equals("mr_overprism"));
         check("and the chosen dot is the only one with a second ring", chosenDots(Dialog.stubLast.stubContent) == 1);
@@ -4326,6 +4401,7 @@ public class ThemesTest {
         heroClick();
         dialogLook();
         suggestions();
+        closeButton();
         lineEditor();
         colourPicker();
         pickerChain();

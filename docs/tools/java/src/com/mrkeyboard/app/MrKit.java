@@ -155,10 +155,15 @@ final class MrKit {
 
     /** A small selectable pill (language, list, type): the selected one is filled. */
     TextView chip(String s, boolean on, View.OnClickListener l) {
+        return chip(s, on, 18, l);
+    }
+
+    /** The same, with the corners of the radius {@code radiusDp}. */
+    TextView chip(String s, boolean on, float radiusDp, View.OnClickListener l) {
         TextView c = label(s, 14f, on ? onAccent : text, on);
         c.setGravity(Gravity.CENTER);
         c.setPadding(dp(12), dp(8), dp(12), dp(8));
-        c.setBackground(on ? round(accent, 0, 18, false) : round(card, stroke, 18, false));
+        c.setBackground(on ? round(accent, 0, radiusDp, false) : round(card, stroke, radiusDp, false));
         c.setClickable(true);
         c.setOnClickListener(l);
         return c;

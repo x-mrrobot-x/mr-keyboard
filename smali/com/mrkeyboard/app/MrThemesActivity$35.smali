@@ -3,7 +3,7 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Landroid/content/DialogInterface$OnCancelListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
@@ -20,11 +20,17 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
+.field final synthetic val$bitmap:Landroid/graphics/Bitmap;
+
+.field final synthetic val$crop:Lcom/mrkeyboard/app/MrCropView;
+
 .field final synthetic val$pending:Z
+
+.field final synthetic val$soft:I
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Z)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;ZLcom/mrkeyboard/app/MrCropView;Landroid/graphics/Bitmap;I)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +39,16 @@
     .end annotation
 
     .prologue
-    .line 1414
+    .line 1435
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-boolean p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->val$pending:Z
+
+    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->val$crop:Lcom/mrkeyboard/app/MrCropView;
+
+    iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->val$bitmap:Landroid/graphics/Bitmap;
+
+    iput p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->val$soft:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,20 +57,65 @@
 
 
 # virtual methods
-.method public onCancel(Landroid/content/DialogInterface;)V
-    .locals 1
+.method public onClick(Landroid/view/View;)V
+    .locals 6
 
     .prologue
-    .line 1416
+    .line 1437
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->val$pending:Z
 
     if-eqz v0, :cond_0
 
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->discardPending(Landroid/content/Context;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->pendingStamp(Landroid/content/Context;)J
 
-    .line 1417
-    :cond_0
+    move-result-wide v0
+
+    .line 1438
+    :goto_0
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->val$crop:Lcom/mrkeyboard/app/MrCropView;
+
+    invoke-virtual {v3}, Lcom/mrkeyboard/app/MrCropView;->zoom()I
+
+    move-result v3
+
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->val$crop:Lcom/mrkeyboard/app/MrCropView;
+
+    invoke-virtual {v4}, Lcom/mrkeyboard/app/MrCropView;->dx()I
+
+    move-result v4
+
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->val$crop:Lcom/mrkeyboard/app/MrCropView;
+
+    invoke-virtual {v5}, Lcom/mrkeyboard/app/MrCropView;->dy()I
+
+    move-result v5
+
+    invoke-static {v3, v4, v5, v0, v1}, Lcom/mrkeyboard/app/MrBackdrop$Spec;->image(IIIJ)Lcom/mrkeyboard/app/MrBackdrop$Spec;
+
+    move-result-object v0
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->val$bitmap:Landroid/graphics/Bitmap;
+
+    iget v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->val$soft:I
+
+    iget-boolean v4, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->val$pending:Z
+
+    invoke-virtual {v2, v0, v1, v3, v4}, Lcom/mrkeyboard/app/MrThemesActivity;->showPreview(Lcom/mrkeyboard/app/MrBackdrop$Spec;Landroid/graphics/Bitmap;IZ)V
+
+    .line 1439
     return-void
+
+    .line 1437
+    :cond_0
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$35;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->imageStamp(Landroid/content/Context;)J
+
+    move-result-wide v0
+
+    goto :goto_0
 .end method

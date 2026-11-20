@@ -77,18 +77,21 @@ Keys that blend with the background are the main problem of a picture, so the di
   not touch it. The face of a key of these themes is two layers (the fill and the line), each drawn through its own color filter (`MrGlow.drawKey`), so each
   opacity changes only its part. The layer of the line has a transparent `<solid>` (`make_themes.py`, `solid_key`): a shape with only a stroke is filled with opaque black
   by `GradientDrawable` when it is drawn through a color filter, and the line would black out the key.
-- **Colors from the background** (gradients, landscapes and pictures; a plain color has none to offer, and then the glass keeps its fixed colors): up to five
-  colors that stand out in the background, as swatches of the own style of the kind that is open (no ring of hues: that ring is the picker's). On the
-  **glass** they take the place of the fixed colors (Ice, Lilac, Mint, Dark): the row is the **See-through** glass, the colors of the background in the order
-  of what stands out and, **last, a dark color** (`MrPalette.dark`: the first color made dark, 0.26 of the value, in its hue; grey for black), then the round
-  button of the picker. A fixed color that the keys are already in (a theme saved with it) stays in the row, marked, until another is chosen. The
-  **outline** and the **gradient** keep their fixed colors and have the colors of the background in a row of their own under them. Touching one chooses it as
+- **Colors from the background** (gradients, landscapes and pictures; a plain color has none to offer, and then every kind keeps its fixed colors): up to
+  five colors that stand out in the background, as swatches of the own style of the kind that is open (no ring of hues: that ring is the picker's). They are
+  in **the same row of colors** as the fixed ones (one row, no row of their own; `offeredFor`): the **glass** has the **See-through** glass, those colors and, **last, a
+  dark color** (`MrPalette.dark`: the first color made dark, 0.26 of the value, in its hue; grey for black), in place of Ice, Lilac, Mint and Dark; the **outline** has
+  **White** and those colors, in place of the others; the **gradient** keeps its four and has **the first two** of those colors after them. Then comes the round
+  button of the picker. A fixed color that the keys are already in (a theme saved with it) stays in the row, marked, until another is chosen. Touching one chooses it as
   the person's own color (`chooseSuggested`): the opacities stay and so does **Key border color: Automatic** (the line that went with the color before is let
   go; a line that the person picked stays). `MrPalette` finds them: the
   background is drawn at 96 x 48, its colors are counted (four bits of each channel) and grouped (k-means, twelve clusters), each cluster is scored by the
   square root of the share it covers times how vivid it is (near blacks, near whites and greys count little), and they are taken in that order at least
   72, 48 or 36 apart in RGB (the distance relaxes when there are few), each made bright enough to be seen over a dark background (value of 0.40 or more).
   It all runs on the phone, in a few milliseconds, and the picture is not sent anywhere. The dark gradients of one hue give one or two colors.
+- **The X** at the top right of the dialog of a theme or of a background closes it as **Cancel** does (`sheetBox`: the title and the X in the first line); the picker of
+  a color has Cancel and Done only. The buttons of the kinds (**Glass**, **Outline**, **Gradient**) and **Automatic** have the corners of the cards of the sections
+  (`CARD_RADIUS`, 14 dp).
 - **Key border color** (**Automatic** on the left, which keeps the line of the style, and the round button that opens the picker on the right) and
   **Key border opacity** (the bar inside that picker, the same range): the color of the line round the keys. Choosing a color of the **glass** (or picking the
   color of the own glass, while the finger moves) changes the border to **that color one tone above** (`MrKeyLook.lineFor`, `toneAbove`: 28% of white

@@ -20,11 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$onApply:Ljava/lang/Runnable;
+.field final synthetic val$pending:Z
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Ljava/lang/Runnable;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Z)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 825
+    .line 843
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->val$onApply:Ljava/lang/Runnable;
+    iput-boolean p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->val$pending:Z
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,16 +49,21 @@
     .locals 1
 
     .prologue
-    .line 827
+    .line 845
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->closeDialog()V
 
-    .line 828
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->val$onApply:Ljava/lang/Runnable;
+    .line 846
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->val$pending:Z
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    if-eqz v0, :cond_0
 
-    .line 829
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->discardPending(Landroid/content/Context;)V
+
+    .line 847
+    :cond_0
     return-void
 .end method

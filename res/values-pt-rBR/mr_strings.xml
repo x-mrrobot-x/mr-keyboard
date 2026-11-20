@@ -854,6 +854,7 @@
     <string name="mr_themes_gradient">Degradê %1$d</string>
     <string name="mr_themes_colors">Cores</string>
     <string name="mr_themes_color">Cor %1$d</string>
+    <string name="mr_themes_close">Fechar</string>
     <string name="mr_themes_cancel">Cancelar</string>
     <string name="mr_themes_apply">Aplicar</string>
     <string name="mr_themes_next">Avançar</string>
