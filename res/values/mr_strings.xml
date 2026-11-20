@@ -845,6 +845,7 @@
     <string name="mr_themes_edge_opacity">Key border opacity</string>
     <string name="mr_themes_text_color">Text and toolbar icon colour</string>
     <string name="mr_themes_grad_end">End of the gradient</string>
+    <string name="mr_themes_from_background">From the background</string>
     <string name="mr_themes_auto">Automatic</string>
     <string name="mr_themes_pick_color">Pick a colour</string>
     <string name="mr_themes_done">Done</string>

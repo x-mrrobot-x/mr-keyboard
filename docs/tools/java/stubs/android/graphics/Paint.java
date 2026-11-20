@@ -3,6 +3,7 @@ package android.graphics;
 /** Compile stub (Android signature): only what the drawn grid uses. */
 public class Paint {
     public static final int ANTI_ALIAS_FLAG = 1;
+    public static final int FILTER_BITMAP_FLAG = 2;
 
     public enum Style { FILL, STROKE, FILL_AND_STROKE }
 
@@ -25,7 +26,12 @@ public class Paint {
     public float stubShadowRadius;
     public int stubShadowColor;
 
-    public void setColor(int color) { stubColor = color; }
+    public void setColor(int color) {
+        stubColor = color;
+        stubPaintAlpha = color >>> 24;
+    }
+    /** The alpha that the real paint has (the one of its colour, or the one set after it): what a bitmap is drawn with. */
+    public int stubPaintAlpha = 255;
     public int getColor() { return stubColor; }
     /** What was asked (the PC tests and their drawing backend read it). */
     public Style stubStyle = Style.FILL;
@@ -33,7 +39,10 @@ public class Paint {
     public int stubAlpha = 255;
     public void setStyle(Style style) { stubStyle = style; }
     public Shader setShader(Shader shader) { Shader old = stubShader; stubShader = shader; return old; }
-    public void setAlpha(int a) { stubAlpha = a; }
+    public void setAlpha(int a) {
+        stubAlpha = a;
+        stubPaintAlpha = a;
+    }
     public void setAntiAlias(boolean aa) { }
     public void setDither(boolean dither) { }
     public void setFilterBitmap(boolean filter) { }

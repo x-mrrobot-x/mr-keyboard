@@ -23,6 +23,7 @@ import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -521,7 +522,8 @@ public class ThemesTest {
         public void drawBitmap(Canvas c, Bitmap bm, Rect src, Rect dst, Paint p) {
             Pen pen = pen(c);
             if (pen == null) return;
-            pen.g.setComposite(p.stubAlpha < 255 ? AlphaComposite.getInstance(AlphaComposite.SRC_OVER, p.stubAlpha / 255f) : AlphaComposite.SrcOver);
+            int alpha = Math.min(p.stubAlpha, p.stubPaintAlpha);
+            pen.g.setComposite(alpha < 255 ? AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha / 255f) : AlphaComposite.SrcOver);
             pen.g.drawImage(image(bm), dst.left, dst.top, dst.right, dst.bottom, src.left, src.top, src.right, src.bottom, null);
         }
 
@@ -771,6 +773,48 @@ public class ThemesTest {
     static View cardOf(Screen s, String heading) {
         View h = byText(s.mDialog.stubContent, heading);
         return h == null ? null : (View) h.getParent();
+    }
+
+    /** The colours that stand out in the background, in the card of the colour of the keys. */
+    static void suggestions() throws Exception {
+        reset();
+        Screen s = open();
+        click(bg(s, FIRST_GRADIENT + 8));
+        View card = cardOf(s, "Key background colour");
+        List<MrStyleDot> sw = swatches(card);
+        int[] expected = MrPalette.of(MrBackdrop.Spec.gradient(8), null);
+        check("the card of the colour of the keys of a gradient has the colours that stand out in it, under the styles (" + expected.length + ")", sw.size() == expected.length && expected.length >= 1
+                && byText(card, "From the background") != null && dots(card) == 6);
+        check("they are shown as the own colour of the kind that is open, each in its colour, with no ring of hues (that ring is the picker's)", sw.get(0).own() == expected[0] && MrBackdrop.isOwnStyle(sw.get(0).style())
+                && MrBackdrop.kindOf(sw.get(0).style()) == MrBackdrop.KIND_GLASS && sw.get(0).isSwatch() && chosenDots(card) == 1);
+        View first = sw.get(0);
+        first.performClick();
+        card = cardOf(s, "Key background colour");
+        check("touching one chooses it: the own glass in that colour, the line that goes with it, and the opacities as they were (a colour does not change them)",
+                s.mDialogStyle[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_GLASS) && (s.mDialogLook[0].hue & 0xffffff) == (expected[0] & 0xffffff) && s.mDialogLook[0].key == MrKeyLook.OPACITY_DEFAULT
+                        && s.mDialogLook[0].edge == MrKeyLook.OPACITY_DEFAULT && s.mDialogLook[0].line != 0 && s.mDialogPreview.tag().equals("mr_overownglass"));
+        List<MrStyleDot> again = swatches(card);
+        boolean chosenOne = true;
+        for (int i = 0; i < again.size(); i++) chosenOne &= again.get(i).chosen() == (i == 0);
+        check("it is the one marked as chosen (and the colour button, the own dot, is not the one chosen twice)", chosenOne && again.size() == expected.length);
+        if (expected.length > 1) {
+            again.get(1).performClick();
+            check("another one takes its place, and the first is no longer chosen", (s.mDialogLook[0].hue & 0xffffff) == (expected[1] & 0xffffff) && !swatches(cardOf(s, "Key background colour")).get(0).chosen()
+                    && swatches(cardOf(s, "Key background colour")).get(1).chosen());
+        }
+        // on the outline kind the swatches are outlines, and the colour is the person's own of that kind
+        byText(Dialog.stubLast.stubContent, "Outline").performClick();
+        check("on the outline kind they are outlines of the colours, and one chosen is the own outline", MrBackdrop.kindOf(swatches(cardOf(s, "Key background colour")).get(0).style()) == MrBackdrop.KIND_OUTLINE);
+        swatches(cardOf(s, "Key background colour")).get(0).performClick();
+        check("and chosen it is the own outline in that colour", s.mDialogStyle[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_OUTLINE) && (s.mDialogLook[0].hue & 0xffffff) == (expected[0] & 0xffffff));
+        press("Cancel");
+        // a plain colour has none to offer; a landscape and a picture have
+        click(bg(s, 5));
+        check("a plain colour has no colours to suggest (it is one)", swatches(Dialog.stubLast.stubContent).isEmpty() && byText(Dialog.stubLast.stubContent, "From the background") == null);
+        press("Cancel");
+        click(bg(s, FIRST_SCENE + 2));
+        check("a landscape has them, up to five", !swatches(Dialog.stubLast.stubContent).isEmpty() && swatches(Dialog.stubLast.stubContent).size() <= MrPalette.COUNT);
+        press("Cancel");
     }
 
     static void dialogLook() throws Exception {
@@ -2143,6 +2187,99 @@ public class ThemesTest {
 
     static final String[] ROLES = {"kbd_bg", "text", "accent_text"};
 
+    /** A picture of {@code w} x {@code h} pixels made of the given colours: {@code shares} is the share of the pixels of each (in the order given, in blocks), with a little noise. */
+    static int[] blocks(int w, int h, int[] colours, float[] shares) {
+        int[] px = new int[w * h];
+        Random rnd = new Random(5);
+        int i = 0;
+        for (int c = 0; c < colours.length; c++) {
+            int end = c == colours.length - 1 ? px.length : Math.min(px.length, i + Math.round(px.length * shares[c]));
+            for (; i < end; i++) {
+                int base = colours[c];
+                int nr = ((base >> 16) & 0xff) + rnd.nextInt(7) - 3, ng = ((base >> 8) & 0xff) + rnd.nextInt(7) - 3, nb = (base & 0xff) + rnd.nextInt(7) - 3;
+                px[i] = 0xff000000 | (Math.max(0, Math.min(255, nr)) << 16) | (Math.max(0, Math.min(255, ng)) << 8) | Math.max(0, Math.min(255, nb));
+            }
+        }
+        return px;
+    }
+
+    static boolean near(int[] found, int colour, int within) {
+        for (int f : found) {
+            int dr = ((f >> 16) & 0xff) - ((colour >> 16) & 0xff), dg = ((f >> 8) & 0xff) - ((colour >> 8) & 0xff), db = (f & 0xff) - (colour & 0xff);
+            if (dr * dr + dg * dg + db * db <= within * within) return true;
+        }
+        return false;
+    }
+
+    static int distance(int a, int b) {
+        int dr = ((a >> 16) & 0xff) - ((b >> 16) & 0xff), dg = ((a >> 8) & 0xff) - ((b >> 8) & 0xff), db = (a & 0xff) - (b & 0xff);
+        return (int) Math.sqrt(dr * dr + dg * dg + db * db);
+    }
+
+    static boolean apart(int[] colours, int least) {
+        for (int i = 0; i < colours.length; i++) {
+            for (int j = i + 1; j < colours.length; j++) {
+                if (distance(colours[i], colours[j]) < least) return false;
+            }
+        }
+        return true;
+    }
+
+    /** The colours that stand out in a background (MrPalette): offered as the colour of the keys. */
+    static void palette() throws Exception {
+        int red = 0xffe53935, green = 0xff43a047, blue = 0xff1e88e5, yellow = 0xfffdd835;
+        int[] four = MrPalette.extract(blocks(96, 48, new int[] {red, green, blue, yellow}, new float[] {.25f, .25f, .25f, .25f}), 5);
+        check("a picture of four colours gives those four, no more (the others would be the same colours again)", four.length == 4 && near(four, red, 30) && near(four, green, 30) && near(four, blue, 30) && near(four, yellow, 30));
+        check("the colours are far from each other and opaque", apart(four, 48) && (four[0] >>> 24) == 0xff);
+        int sky = 0xff1565c0, sun = 0xffff6f00, grass = 0xff2e7d32, rose = 0xffd81b60;
+        int[] scene = MrPalette.extract(blocks(96, 48, new int[] {sky, sun, grass, rose}, new float[] {.85f, .05f, .05f, .05f}), 5);
+        check("a big sky does not hide the small colours that stand out: all four are there, the sky first", scene.length == 4 && near(scene, sun, 30) && near(scene, grass, 30) && near(scene, rose, 30) && distance(scene[0], sky) <= 30);
+        int[] noGrey = MrPalette.extract(blocks(96, 48, new int[] {0xff0a0a0a, 0xfff5f5f5, 0xff808080, 0xffff6f00}, new float[] {.4f, .3f, .2f, .1f}), 5);
+        check("black, white and grey count little: the one with a colour is the first, though it is the smallest", noGrey.length >= 1 && distance(noGrey[0], 0xffff6f00) <= 30);
+        int[] one = MrPalette.extract(blocks(96, 48, new int[] {0xff808080}, new float[] {1f}), 5);
+        check("a picture of one colour gives one", one.length == 1 && distance(one[0], 0xff808080) <= 12);
+        int[] dark = MrPalette.extract(blocks(96, 48, new int[] {0xff0a0000}, new float[] {1f}), 5);
+        check("a colour that is too dark to be seen over a dark background is made brighter, keeping its hue", dark.length == 1 && ((dark[0] >> 16) & 0xff) >= 100 && ((dark[0] >> 8) & 0xff) <= 14);
+        int[] clear = new int[96 * 48];
+        check("a picture with nothing in it, or with no count, gives no colour", MrPalette.extract(clear, 5).length == 0 && MrPalette.extract(null, 5).length == 0 && MrPalette.extract(four, 0).length == 0
+                && MrPalette.extract(new int[0], 5).length == 0);
+        int[] mixed = blocks(96, 48, new int[] {red, green, blue, yellow, sun, rose, grass, sky}, new float[] {.2f, .15f, .15f, .1f, .1f, .1f, .1f, .1f});
+        int[] first = MrPalette.extract(mixed, 5), again = MrPalette.extract(mixed, 5);
+        check("with more colours than are asked for, the five are far from each other, and the same picture gives the same colours", first.length == 5 && apart(first, 28) && java.util.Arrays.equals(first, again));
+        check("with fewer asked for, they are the first ones of the five", MrPalette.extract(mixed, 3).length == 3 && MrPalette.extract(mixed, 3)[0] == first[0] && MrPalette.extract(mixed, 3)[2] == first[2]);
+
+        // the backgrounds of the app
+        Context c = new Ctx();
+        boolean colour = MrPalette.of(MrBackdrop.Spec.color(5), null).length == 0 && MrPalette.of(MrBackdrop.Spec.NO, null).length == 0 && MrPalette.of(null, null).length == 0
+                && MrPalette.of(MrBackdrop.Spec.scene(0), null).length == 0;
+        check("a plain colour, no background and a landscape that was not read have nothing to choose from", colour);
+        boolean grads = true;
+        int manyGrads = 0;
+        for (int n = 0; n < MrBackdrop.GRADS.length; n++) {
+            int[] got = MrPalette.of(MrBackdrop.Spec.gradient(n), null);
+            if (got.length > 1) manyGrads++;
+            if (got.length < 1 || got.length > MrPalette.COUNT || !apart(got, 28)) {
+                grads = false;
+                System.out.println("      gradient " + n + " gives " + got.length);
+            }
+        }
+        check("every gradient gives from one to five colours, far from each other (the dark ones of one hue give one, " + manyGrads + " of " + MrBackdrop.GRADS.length + " give more)", grads && manyGrads >= MrBackdrop.GRADS.length / 2);
+        boolean scenes = true;
+        int most = 0;
+        for (int n = 0; n < MrScenes.COUNT; n++) {
+            Bitmap pic = MrScenes.load(c, n, 4);
+            int[] got = MrPalette.of(MrBackdrop.Spec.scene(n), pic);
+            most = Math.max(most, got.length);
+            if (got.length < 1 || got.length > MrPalette.COUNT || !apart(got, 28)) {
+                scenes = false;
+                System.out.println("      scene " + n + " gives " + got.length);
+            }
+        }
+        check("every landscape gives from one to five colours, far from each other (" + most + " at most)", scenes);
+        int[] shot = MrPalette.of(MrBackdrop.Spec.scene(0), photo(200, 100));
+        check("a picture of the gallery gives the colours of the part of it that the keyboard shows", shot.length >= 3 && shot.length <= MrPalette.COUNT && apart(shot, 28));
+    }
+
     static void colours() {
         Context c = new Ctx();
         String[] tags = MrThemeColors.tags(c), names = MrThemeColors.names(c), values = MrThemeColors.values(c);
@@ -2345,6 +2482,24 @@ public class ThemesTest {
         p.show(tags[1], MrBackdrop.Spec.scene(1), scene(1), 20);
         p.onDraw(new Canvas(bitmap(360, 180)));
         check("another background of the same theme does not", Face.copies == 4);
+
+        // drawn again (the system draws a card again when the app comes back from another one), a background is the one that was drawn the first time: the paint of the
+        // keys is not the one of the picture
+        for (MrBackdrop.Spec again : new MrBackdrop.Spec[] {MrBackdrop.Spec.gradient(1), MrBackdrop.Spec.scene(3)}) {
+            for (boolean checked : new boolean[] {false, true}) {
+                p.show("mr_overlight", again, again.kind == MrBackdrop.SCENE ? scene(3) : null, 0);
+                p.setChecked(checked, 0x80ff4081, 0xff102030);
+                Bitmap first = draw(p), second = draw(p), third = draw(p);
+                boolean same = true;
+                for (int y = 2; y < first.getHeight() * 3 / 4; y += 7) {
+                    for (int x = 2; x < 16; x += 3) {
+                        if (first.getPixel(x, y) != second.getPixel(x, y) || second.getPixel(x, y) != third.getPixel(x, y)) same = false;
+                    }
+                }
+                check("a card of " + again.format() + (checked ? " in use" : "") + " is the same each time it is drawn (the picture has no opacity of the keys' paint)", same);
+            }
+        }
+        p.setChecked(false, 0, 0);
 
         // the neon light and the labels
         p.show("mr_midnight", MrBackdrop.Spec.NO, null, 0);
@@ -3213,10 +3368,19 @@ public class ThemesTest {
         return null;
     }
 
-    /** How many dots of styles of keys there are under {@code v}. */
+    /** The swatches of the colours suggested from the background that are under {@code v}. */
+    static List<MrStyleDot> swatches(View v) {
+        List<MrStyleDot> out = new ArrayList<MrStyleDot>();
+        for (View d : all(v, MrStyleDot.class)) {
+            if (((MrStyleDot) d).isSwatch()) out.add((MrStyleDot) d);
+        }
+        return out;
+    }
+
+    /** How many dots of styles of keys there are under {@code v} (the swatches of the suggested colours are not styles). */
     static int dots(View v) {
         if (v == null) return 0;
-        int n = v instanceof MrStyleDot ? 1 : 0;
+        int n = v instanceof MrStyleDot && !((MrStyleDot) v).isSwatch() ? 1 : 0;
         if (v instanceof android.view.ViewGroup) {
             android.view.ViewGroup g = (android.view.ViewGroup) v;
             for (int i = 0; i < g.getChildCount(); i++) n += dots(g.getChildAt(i));
@@ -3227,7 +3391,7 @@ public class ThemesTest {
     /** How many of the dots under {@code v} are the chosen one. */
     static int chosenDots(View v) {
         if (v == null) return 0;
-        int n = v instanceof MrStyleDot && ((MrStyleDot) v).chosen() ? 1 : 0;
+        int n = v instanceof MrStyleDot && !((MrStyleDot) v).isSwatch() && ((MrStyleDot) v).chosen() ? 1 : 0;
         if (v instanceof android.view.ViewGroup) {
             android.view.ViewGroup g = (android.view.ViewGroup) v;
             for (int i = 0; i < g.getChildCount(); i++) n += chosenDots(g.getChildAt(i));
@@ -3289,7 +3453,7 @@ public class ThemesTest {
         press("Apply");
     }
 
-    /** The card of the choice in use (the keyboard at the top with its name and what it is) and the list under it (one card in each row, the bar of rolling at the margin on the right). */
+    /** The card of the choice in use (the keyboard at the top with its name and what it is) and the list under it (two cards in each row, the bar of rolling at the margin on the right). */
     static void heroAndScroll() throws Exception {
         reset();
         Screen s = open();
@@ -3301,7 +3465,9 @@ public class ThemesTest {
         Screen old = open();
         check("on Android 8 the thumb is not set (the call does not exist there)", old.mScroll.stubScrollBarThumb == null && old.mScroll.stubScrollBarSize == old.k.dp(3));
         Build.VERSION.SDK_INT = 33;
-        check("one card in each row: no row has an empty place, and every row is as wide as the list less the margin", MrThemesActivity.COLUMNS == 1 && s.mGrid.getChildCount() == s.mThemeTiles.size());
+        boolean twoEach = true;
+        for (int r = 0; r < s.mGrid.getChildCount(); r++) twoEach &= ((ViewGroup) s.mGrid.getChildAt(r)).getChildCount() == 2;
+        check("two cards in each row: every row has two places (the last one an empty place when the number is odd), so every card is as wide as the others", MrThemesActivity.COLUMNS == 2 && twoEach && s.mGrid.getChildCount() == (s.mThemeTiles.size() + 1) / 2);
         check("under the name of the keyboard in use the screen says what it is: a theme of the list", s.mDetail.getText().toString().equals("Theme") && s.detail().equals("Theme")
                 && s.mDetail.stubMaxLines == 3);
 
@@ -3333,7 +3499,8 @@ public class ThemesTest {
         check("it opens on the themes (no background is chosen) and has made only the first few cards, the rest are posted",
                 s.mTab == MrThemesActivity.TAB_THEMES && s.mThemeTiles.size() == MrThemesActivity.CHUNK && s.mBgTiles.isEmpty() && s.mGrid.stubPostedCount() == 1);
         s.mGrid.stubRunPosted();
-        check("then the thirteen themes are all there, one card in each row", MrThemesActivity.COLUMNS == 1 && s.mThemeTiles.size() == 13 && s.mGrid.getChildCount() == 13 && s.mBgTiles.isEmpty());
+        check("then the thirteen themes are all there, two cards in each row (seven rows, the last with one card and its empty place)", MrThemesActivity.COLUMNS == 2 && s.mThemeTiles.size() == 13 && s.mGrid.getChildCount() == 7 && s.mBgTiles.isEmpty()
+                && ((ViewGroup) s.mGrid.getChildAt(6)).getChildCount() == 2);
         check("the tabs are the themes, the colours, the gradients, the six categories of landscapes (each one a tab, there is no tab of landscapes) and the gallery",
                 s.mTabViews.size() == 10 && byText(s.content, "Themes") != null && byText(s.content, "Colors") != null && byText(s.content, "Gradients") != null
                         && byText(s.content, "Sports") != null && byText(s.content, "Animals") != null && byText(s.content, "Snow") != null && byText(s.content, "Nature") != null
@@ -3569,7 +3736,7 @@ public class ThemesTest {
         s.showTab(MrThemesActivity.TAB_GRADIENTS);
         s.mGrid.stubRunPosted();
         check("a step posted by a tab that was left does nothing to the one that was opened after it (20 gradients, no card of the themes)", s.mBgTiles.size() == GRADIENTS && s.mThemeTiles.isEmpty()
-                && s.mGrid.getChildCount() == GRADIENTS);
+                && s.mGrid.getChildCount() == (GRADIENTS + 1) / 2);
     }
 
     static View boxOf(View tile) {
@@ -4039,10 +4206,10 @@ public class ThemesTest {
 
         String build = read("docs/tools/build_java.sh");
         boolean listed = true;
-        for (String cls : new String[] {"MrKeyLook", "MrColorPicker", "MrColorDot", "MrCappedScroll"}) {
+        for (String cls : new String[] {"MrKeyLook", "MrColorPicker", "MrColorDot", "MrCappedScroll", "MrOpacityBar", "MrPalette"}) {
             listed &= build.contains(cls + ",") && new File("smali/com/mrkeyboard/app/" + cls + ".smali").exists();
         }
-        check("the classes of the tuning of the keys (MrKeyLook, the picker, its round button and the scroll of the controls) are in the build list and their smali is there", listed);
+        check("the classes of the tuning of the keys (MrKeyLook, the picker, its round button, its opacity bar, the colours of a background and the scroll of the controls) are in the build list and their smali is there", listed);
         String manifest = read("AndroidManifest.xml");
         check("the screen is in the manifest", manifest.contains("com.mrkeyboard.app.MrThemesActivity") || manifest.contains(".MrThemesActivity"));
         String prefsXml = read("res/xml/prefs.xml");
@@ -4081,6 +4248,7 @@ public class ThemesTest {
         veil();
         gallery();
         colours();
+        palette();
         previews();
         previewPictures();
         fullKeyboard();
@@ -4094,6 +4262,7 @@ public class ThemesTest {
         heroAndScroll();
         heroClick();
         dialogLook();
+        suggestions();
         lineEditor();
         colourPicker();
         pickerChain();

@@ -50,8 +50,8 @@ import java.util.List;
  */
 public class MrThemesActivity extends Activity {
     static final String THEME_KEY = "pref_keyboard_layout";
-    /** The cards in a row: one, so that each keyboard is as wide as the screen allows and its keys can be seen. */
-    static final int COLUMNS = 1;
+    /** The cards in a row, in every tab: two (the small keyboard of a card is a hint of the theme, the complete one opens with a touch). */
+    static final int COLUMNS = 2;
     /** How many cards are added in one go (the rest follow, so that a long tab does not hold the screen). */
     static final int CHUNK = 3;
     /** The tabs: the themes, the colours, the gradients, then one for each category of landscapes, and the gallery last. */
@@ -921,10 +921,12 @@ public class MrThemesActivity extends Activity {
         }
         card(controls, k.t("mr_themes_text_color"), textBox, 12);
         final boolean pale = MrBackdrop.darkInk(spec);
+        // the colours that stand out in the background, offered as the colour of the keys (none for a plain colour)
+        final int[] suggested = styled ? MrPalette.of(spec, shown) : new int[0];
         final Runnable[] draw = new Runnable[1];
         draw[0] = new Runnable() {
             public void run() {
-                if (keysBox != null) fillKeys(keysBox, pale, style, look, redraw, draw);
+                if (keysBox != null) fillKeys(keysBox, pale, suggested, style, look, redraw, draw);
                 if (lineBox != null) fillLine(lineBox, style, look, redraw, draw);
                 fillText(textBox, style, look, redraw, draw);
             }
@@ -949,11 +951,26 @@ public class MrThemesActivity extends Activity {
     static final float SHEET_SHARE = 0.98f;
     static final int MIN_CONTROLS_DP = 96;
 
-    /** A section of colour of the dialog: its name and what sets it, in a card with a subtle background of its own, {@code topDp} under the one before. */
+    /** How far from the background of the dialog the fill and the line of a card go, towards the colours of the cards of the screens (0 = the background itself): a step, not a block. */
+    static final float CARD_FILL = 0.45f, CARD_LINE = 0.60f;
+
+    /** The colour {@code t} of the way from {@code from} to {@code to} (opaque). */
+    static int towards(int from, int to, float t) {
+        int r = Math.round(((from >> 16) & 0xff) + (((to >> 16) & 0xff) - ((from >> 16) & 0xff)) * t);
+        int g = Math.round(((from >> 8) & 0xff) + (((to >> 8) & 0xff) - ((from >> 8) & 0xff)) * t);
+        int b = Math.round((from & 0xff) + ((to & 0xff) - (from & 0xff)) * t);
+        return 0xff000000 | (r << 16) | (g << 8) | b;
+    }
+
+    /**
+     * A section of colour of the dialog: its name and what sets it, in a card of its own, {@code topDp} under the one before. The card is only a little
+     * lighter than the dialog (a subtle fill and a thin line: the controls are what has to be seen, not the box).
+     */
     private LinearLayout card(LinearLayout into, String name, LinearLayout box, int topDp) {
         LinearLayout c = k.column();
         c.setPadding(k.dp(14), k.dp(12), k.dp(14), k.dp(14));
-        c.setBackground(k.round(k.faint, k.line, 14, false));
+        int base = k.solidBg();
+        c.setBackground(k.round(towards(base, k.faint, CARD_FILL), towards(base, k.line, CARD_LINE), 14, false));
         c.addView(k.label(name, 15f, k.text, true), k.wide(0));
         c.addView(box, k.wide(8));
         into.addView(c, k.wide(topDp));
@@ -998,7 +1015,7 @@ public class MrThemesActivity extends Activity {
      * of the style chosen and, for the gradient of the person's own colour, the line of the colour where it ends. Made again at every change. {@code pale}: the
      * background needs dark ink, so the dots are colours that the person's own style takes (see {@link #choosePreset}).
      */
-    private void fillKeys(final LinearLayout box, final boolean pale, final int[] style, final MrKeyLook[] look, final Runnable redraw, final Runnable[] draw) {
+    private void fillKeys(final LinearLayout box, final boolean pale, final int[] suggested, final int[] style, final MrKeyLook[] look, final Runnable redraw, final Runnable[] draw) {
         box.removeAllViews();
         int kind = MrBackdrop.kindOf(style[0]);
         // two levels: the kind (glass, outline, gradient) as chips, then the colours of that kind as dots, and the name of the one chosen under them
@@ -1059,6 +1076,27 @@ public class MrThemesActivity extends Activity {
         TextView label = k.label(styleName(this, shown >= 0 ? shown : style[0]), 14f, k.text2, false);
         label.setGravity(Gravity.CENTER);
         box.addView(label, k.wide(4));
+        if (suggested.length > 0) {
+            // the colours that stand out in the background, as the person's own colour of the kind that is open: touching one chooses it (the opacity stays)
+            box.addView(k.label(k.t("mr_themes_from_background"), 14f, k.text2, false), k.wide(12));
+            LinearLayout row = k.row();
+            box.addView(row, k.wide(6));
+            for (int i = 0; i < suggested.length; i++) {
+                final int rgb = suggested[i];
+                boolean chosen = style[0] == own && (look[0].hue & 0xffffff) == (rgb & 0xffffff);
+                MrStyleDot dot = new MrStyleDot(this, own, chosen, k.accent, rgb, look[0].hue2).swatch();
+                dot.setContentDescription(k.t("mr_themes_from_background") + " #" + String.format("%06X", rgb & 0xffffff));
+                dot.setClickable(true);
+                dot.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        chooseSuggested(rgb, style, look);
+                        redraw.run();
+                        draw[0].run();
+                    }
+                });
+                addDot(row, dot, i > 0);
+            }
+        }
         if (style[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_GRADIENT)) {
             // the end of the gradient: the one the keyboard makes up until the person picks it
             int end = look[0].hue2 != 0 ? look[0].hue2 : 0;
@@ -1083,6 +1121,15 @@ public class MrThemesActivity extends Activity {
             style[0] = n;
             look[0] = look[0].withLine(MrKeyLook.lineFor(n, look[0].hue));
         }
+    }
+
+    /**
+     * Chooses a colour that was suggested from the background: the style of the person's own colour of the kind that is open, with that colour and the
+     * line that goes with it (as when the colour is picked). The opacities are the ones that the keys have (a colour does not change them).
+     */
+    static void chooseSuggested(int rgb, int[] style, MrKeyLook[] look) {
+        style[0] = MrBackdrop.ownStyle(MrBackdrop.kindOf(style[0]));
+        look[0] = withPicked(look[0], PICK_HUE, style[0], rgb);
     }
 
     /**

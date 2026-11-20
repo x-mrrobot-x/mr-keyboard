@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->fillKeys(Landroid/widget/LinearLayout;Z[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->fillKeys(Landroid/widget/LinearLayout;Z[I[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -43,7 +43,7 @@
     .end annotation
 
     .prologue
-    .line 1009
+    .line 1026
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$21;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$21;->val$style:[I
@@ -71,7 +71,7 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 1011
+    .line 1028
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$21;->val$style:[I
 
     aget v0, v0, v4
@@ -84,11 +84,11 @@
 
     if-ne v0, v1, :cond_0
 
-    .line 1015
+    .line 1032
     :goto_0
     return-void
 
-    .line 1012
+    .line 1029
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrBackdrop;->KIND_FIRST:[I
 
@@ -104,12 +104,12 @@
 
     invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/MrThemesActivity;->choosePreset(IZ[I[Lcom/mrkeyboard/app/MrKeyLook;)V
 
-    .line 1013
+    .line 1030
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$21;->val$redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1014
+    .line 1031
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$21;->val$draw:[Ljava/lang/Runnable;
 
     aget-object v0, v0, v4

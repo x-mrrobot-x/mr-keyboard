@@ -3,12 +3,12 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Landroid/content/DialogInterface$OnCancelListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->showCrop(Landroid/graphics/Bitmap;Lcom/mrkeyboard/app/MrBackdrop$Spec;IZ)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->showColorPicker(Ljava/lang/String;I[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,13 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$pending:Z
+.field final synthetic val$cancelNow:Ljava/lang/Runnable;
+
+.field final synthetic val$p:Landroid/app/Dialog;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Z)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Landroid/app/Dialog;Ljava/lang/Runnable;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +35,12 @@
     .end annotation
 
     .prologue
-    .line 1308
+    .line 1320
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$32;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput-boolean p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$32;->val$pending:Z
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$32;->val$p:Landroid/app/Dialog;
+
+    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$32;->val$cancelNow:Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,25 +49,24 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .locals 1
+.method public onCancel(Landroid/content/DialogInterface;)V
+    .locals 2
 
     .prologue
-    .line 1310
+    .line 1322
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$32;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->closeDialog()V
+    iget-object v0, v0, Lcom/mrkeyboard/app/MrThemesActivity;->mPicker:Landroid/app/Dialog;
 
-    .line 1311
-    iget-boolean v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$32;->val$pending:Z
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$32;->val$p:Landroid/app/Dialog;
 
-    if-eqz v0, :cond_0
+    if-ne v0, v1, :cond_0
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$32;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$32;->val$cancelNow:Ljava/lang/Runnable;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->discardPending(Landroid/content/Context;)V
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1312
+    .line 1323
     :cond_0
     return-void
 .end method

@@ -24,13 +24,15 @@
 
 .field private final mStyle:I
 
+.field private mSwatch:Z
+
 
 # direct methods
 .method static constructor <clinit>()V
     .locals 1
 
     .prologue
-    .line 30
+    .line 32
     const/4 v0, 0x7
 
     new-array v0, v0, [I
@@ -61,7 +63,7 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 33
+    .line 35
     move-object v0, p0
 
     move-object v1, p1
@@ -76,7 +78,7 @@
 
     invoke-direct/range {v0 .. v6}, Lcom/mrkeyboard/app/MrStyleDot;-><init>(Landroid/content/Context;IZIII)V
 
-    .line 34
+    .line 36
     return-void
 .end method
 
@@ -84,7 +86,7 @@
     .locals 2
 
     .prologue
-    .line 37
+    .line 39
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
     .line 22
@@ -96,7 +98,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
 
-    .line 38
+    .line 40
     invoke-virtual {p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -109,22 +111,22 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/MrStyleDot;->mDensity:F
 
-    .line 39
+    .line 41
     iput p2, p0, Lcom/mrkeyboard/app/MrStyleDot;->mStyle:I
 
-    .line 40
+    .line 42
     iput-boolean p3, p0, Lcom/mrkeyboard/app/MrStyleDot;->mChosen:Z
 
-    .line 41
+    .line 43
     iput p4, p0, Lcom/mrkeyboard/app/MrStyleDot;->mRing:I
 
-    .line 42
+    .line 44
     iput p5, p0, Lcom/mrkeyboard/app/MrStyleDot;->mOwn:I
 
-    .line 43
+    .line 45
     iput p6, p0, Lcom/mrkeyboard/app/MrStyleDot;->mOwn2:I
 
-    .line 44
+    .line 46
     return-void
 .end method
 
@@ -138,18 +140,18 @@
 
     const/4 v3, 0x0
 
-    .line 131
+    .line 144
     iget v0, p0, Lcom/mrkeyboard/app/MrStyleDot;->mOwn:I
 
     if-nez v0, :cond_0
 
     const/4 v0, 0x0
 
-    .line 134
+    .line 147
     :goto_0
     return-object v0
 
-    .line 132
+    .line 145
     :cond_0
     if-eq p1, v5, :cond_1
 
@@ -161,7 +163,7 @@
 
     goto :goto_0
 
-    .line 133
+    .line 146
     :cond_1
     iget v0, p0, Lcom/mrkeyboard/app/MrStyleDot;->mOwn2:I
 
@@ -169,7 +171,7 @@
 
     iget v0, p0, Lcom/mrkeyboard/app/MrStyleDot;->mOwn2:I
 
-    .line 134
+    .line 147
     :goto_1
     const/4 v1, 0x3
 
@@ -193,7 +195,7 @@
 
     goto :goto_0
 
-    .line 133
+    .line 146
     :cond_2
     iget v0, p0, Lcom/mrkeyboard/app/MrStyleDot;->mOwn:I
 
@@ -210,8 +212,18 @@
     .locals 1
 
     .prologue
-    .line 58
+    .line 71
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrStyleDot;->mChosen:Z
+
+    return v0
+.end method
+
+.method isSwatch()Z
+    .locals 1
+
+    .prologue
+    .line 56
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/MrStyleDot;->mSwatch:Z
 
     return v0
 .end method
@@ -220,7 +232,7 @@
     .locals 16
 
     .prologue
-    .line 69
+    .line 82
     invoke-virtual/range {p0 .. p0}, Lcom/mrkeyboard/app/MrStyleDot;->getWidth()I
 
     move-result v1
@@ -229,17 +241,17 @@
 
     move-result v2
 
-    .line 70
+    .line 83
     if-lez v1, :cond_0
 
     if-gtz v2, :cond_1
 
-    .line 127
+    .line 140
     :cond_0
     :goto_0
     return-void
 
-    .line 71
+    .line 84
     :cond_1
     int-to-float v3, v1
 
@@ -253,7 +265,7 @@
 
     div-float/2addr v3, v4
 
-    .line 72
+    .line 85
     invoke-static {v1, v2}, Ljava/lang/Math;->min(II)I
 
     move-result v1
@@ -274,7 +286,7 @@
 
     sub-float v13, v1, v2
 
-    .line 73
+    .line 86
     const/high16 v1, 0x40a00000    # 5.0f
 
     move-object/from16 v0, p0
@@ -285,7 +297,7 @@
 
     sub-float v14, v13, v1
 
-    .line 74
+    .line 87
     move-object/from16 v0, p0
 
     iget v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mStyle:I
@@ -294,7 +306,7 @@
 
     move-result v15
 
-    .line 75
+    .line 88
     move-object/from16 v0, p0
 
     iget v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mStyle:I
@@ -303,7 +315,7 @@
 
     move-result v1
 
-    .line 76
+    .line 89
     if-eqz v15, :cond_4
 
     move-object/from16 v0, p0
@@ -312,7 +324,7 @@
 
     move-result-object v9
 
-    .line 77
+    .line 90
     :goto_1
     move-object/from16 v0, p0
 
@@ -322,7 +334,7 @@
 
     invoke-virtual {v2, v4}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 79
+    .line 92
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -331,7 +343,7 @@
 
     invoke-virtual {v2, v4}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 80
+    .line 93
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -340,7 +352,7 @@
 
     invoke-virtual {v2, v4}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 81
+    .line 94
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -349,10 +361,10 @@
 
     invoke-virtual {v0, v12, v3, v14, v2}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 82
+    .line 95
     if-nez v9, :cond_5
 
-    .line 84
+    .line 97
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -361,7 +373,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 85
+    .line 98
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -376,7 +388,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 86
+    .line 99
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -385,7 +397,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 87
+    .line 100
     const v1, 0x3ee66666    # 0.45f
 
     mul-float/2addr v1, v14
@@ -408,7 +420,7 @@
 
     invoke-virtual/range {v1 .. v6}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 88
+    .line 101
     const v1, 0x3ee66666    # 0.45f
 
     mul-float/2addr v1, v14
@@ -433,7 +445,7 @@
 
     invoke-virtual/range {v4 .. v9}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 111
+    .line 124
     :goto_2
     move-object/from16 v0, p0
 
@@ -443,10 +455,16 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 112
+    .line 125
     if-eqz v15, :cond_2
 
-    .line 114
+    move-object/from16 v0, p0
+
+    iget-boolean v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mSwatch:Z
+
+    if-nez v1, :cond_2
+
+    .line 127
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -455,7 +473,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 115
+    .line 128
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -470,7 +488,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 116
+    .line 129
     move-object/from16 v0, p0
 
     iget-object v9, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -493,7 +511,7 @@
 
     invoke-virtual {v9, v1}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 117
+    .line 130
     const/high16 v1, 0x40200000    # 2.5f
 
     move-object/from16 v0, p0
@@ -512,7 +530,7 @@
 
     invoke-virtual {v0, v12, v3, v1, v2}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 118
+    .line 131
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -521,7 +539,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 120
+    .line 133
     :cond_2
     move-object/from16 v0, p0
 
@@ -529,7 +547,7 @@
 
     if-eqz v1, :cond_3
 
-    .line 121
+    .line 134
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -538,7 +556,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 122
+    .line 135
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -553,7 +571,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 123
+    .line 136
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -564,7 +582,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 124
+    .line 137
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -573,7 +591,7 @@
 
     invoke-virtual {v0, v12, v3, v13, v1}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 126
+    .line 139
     :cond_3
     move-object/from16 v0, p0
 
@@ -585,7 +603,7 @@
 
     goto/16 :goto_0
 
-    .line 76
+    .line 89
     :cond_4
     sget-object v2, Lcom/mrkeyboard/app/MrBackdrop;->STYLE_COLORS:[[I
 
@@ -609,11 +627,11 @@
 
     goto/16 :goto_1
 
-    .line 89
+    .line 102
     :cond_5
     if-nez v1, :cond_8
 
-    .line 90
+    .line 103
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -637,7 +655,7 @@
 
     invoke-virtual {v2, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 91
+    .line 104
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -646,7 +664,7 @@
 
     invoke-virtual {v0, v12, v3, v14, v1}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 92
+    .line 105
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -655,7 +673,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 93
+    .line 106
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -666,7 +684,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 94
+    .line 107
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -690,7 +708,7 @@
 
     invoke-virtual {v2, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 95
+    .line 108
     move-object/from16 v0, p0
 
     iget v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mDensity:F
@@ -711,25 +729,25 @@
 
     goto/16 :goto_2
 
-    .line 90
+    .line 103
     :cond_6
     const v1, 0x3f0ccccd    # 0.55f
 
     goto :goto_3
 
-    .line 94
+    .line 107
     :cond_7
     const/high16 v1, 0x3f400000    # 0.75f
 
     goto :goto_4
 
-    .line 96
+    .line 109
     :cond_8
     const/4 v2, 0x1
 
     if-ne v1, v2, :cond_9
 
-    .line 97
+    .line 110
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -746,7 +764,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 98
+    .line 111
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -755,7 +773,7 @@
 
     invoke-virtual {v0, v12, v3, v14, v1}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 99
+    .line 112
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -764,7 +782,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 100
+    .line 113
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -779,7 +797,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 101
+    .line 114
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -790,7 +808,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 102
+    .line 115
     move-object/from16 v0, p0
 
     iget v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mDensity:F
@@ -807,7 +825,7 @@
 
     goto/16 :goto_2
 
-    .line 104
+    .line 117
     :cond_9
     new-instance v4, Landroid/graphics/LinearGradient;
 
@@ -833,7 +851,7 @@
 
     invoke-direct/range {v4 .. v11}, Landroid/graphics/LinearGradient;-><init>(FFFF[I[FLandroid/graphics/Shader$TileMode;)V
 
-    .line 105
+    .line 118
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -842,7 +860,7 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 106
+    .line 119
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -857,14 +875,14 @@
 
     invoke-virtual {v1, v2}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 107
+    .line 120
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
 
     invoke-virtual {v1, v4}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 108
+    .line 121
     move-object/from16 v0, p0
 
     iget v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mDensity:F
@@ -879,7 +897,7 @@
 
     invoke-virtual {v0, v12, v3, v1, v2}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 109
+    .line 122
     move-object/from16 v0, p0
 
     iget-object v1, v0, Lcom/mrkeyboard/app/MrStyleDot;->mPaint:Landroid/graphics/Paint;
@@ -895,7 +913,7 @@
     .locals 2
 
     .prologue
-    .line 63
+    .line 76
     const/high16 v0, 0x42200000    # 40.0f
 
     iget v1, p0, Lcom/mrkeyboard/app/MrStyleDot;->mDensity:F
@@ -906,10 +924,10 @@
 
     move-result v0
 
-    .line 64
+    .line 77
     invoke-virtual {p0, v0, v0}, Lcom/mrkeyboard/app/MrStyleDot;->setMeasuredDimension(II)V
 
-    .line 65
+    .line 78
     return-void
 .end method
 
@@ -917,7 +935,7 @@
     .locals 1
 
     .prologue
-    .line 48
+    .line 61
     iget v0, p0, Lcom/mrkeyboard/app/MrStyleDot;->mOwn:I
 
     return v0
@@ -927,8 +945,21 @@
     .locals 1
 
     .prologue
-    .line 53
+    .line 66
     iget v0, p0, Lcom/mrkeyboard/app/MrStyleDot;->mStyle:I
 
     return v0
+.end method
+
+.method swatch()Lcom/mrkeyboard/app/MrStyleDot;
+    .locals 1
+
+    .prologue
+    .line 50
+    const/4 v0, 0x1
+
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/MrStyleDot;->mSwatch:Z
+
+    .line 51
+    return-object p0
 .end method

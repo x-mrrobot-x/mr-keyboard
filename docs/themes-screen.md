@@ -6,26 +6,26 @@ each is a small keyboard with the real keys, the name under it on the left and a
 with a frame in the accent color), so what is chosen is seen before it is chosen.
 
 ```
-┌──────────────────────────────┐
-│ ←  Keyboard theme            │
-│ ┌──────────────────────────┐ │
-│ │ ┌────────┐  IN USE       │ │   the card of the choice in use: the keyboard as it is now on the left;
-│ │ │ big    │  Midnight     │ │   on the right the tag, the name and what it is (the tab, the keys)
-│ │ │keyboard│  Steel        │ │
-│ │ └────────┘  Theme        │ │
-│ └──────────────────────────┘ │
+┌────────────────────────────────┐
+│ ←  Keyboard theme              │
+│ ┌────────────────────────────┐ │
+│ │ ┌────────┐  IN USE         │ │   the card of the choice in use: the keyboard as it is now on the left;
+│ │ │ big    │  Midnight       │ │   on the right the tag, the name and what it is (the tab, the keys)
+│ │ │keyboard│  Steel          │ │
+│ │ └────────┘  Theme          │ │
+│ └────────────────────────────┘ │
 │ [Themes] Colors Gradients Sports Animals Snow Nature Anime AI Gallery →   the strip of tabs scrolls sideways
-│ ┌──────────────────────────┐ │
-│ │ keyboard                 │ │   one card a row; touching a card opens its dialog
-│ ├──────────────────────────┤ │
-│ │ Aurora            [View] │ │ ▏ the scroll bar is thin and faint, in the margin on the right
-│ └──────────────────────────┘ │
-└──────────────────────────────┘
+│ ┌─────────────┐ ┌────────────┐ │
+│ │ keyboard    │ │ keyboard   │ │   two cards a row; touching a card opens its dialog
+│ ├─────────────┤ ├────────────┤ │
+│ │Aurora [View]│ │Neon  [View]│ │ ▏ the scroll bar is thin and faint, in the margin on the right
+│ └─────────────┘ └────────────┘ │
+└────────────────────────────────┘
 ```
 
 The card of the choice in use is the only place that says what is chosen besides the **In use** pill of the card that is. Under the name it says what the
 choice is: **Theme** for a theme of the list, or the tab of a background and, when it has styles of keys, the kind and the style (`Keys: Outline · White`).
-Every list is one card wide (`MrThemesActivity.COLUMNS`), and the margin on the right of the screen (`SCROLL_MARGIN_DP`, 20 dp) belongs to the list: it is
+Every list is two cards wide, in every tab (`MrThemesActivity.COLUMNS`; a last row with one card keeps its empty place, so that the cards are as wide as the others), and the margin on the right of the screen (`SCROLL_MARGIN_DP`, 20 dp) belongs to the list: it is
 its padding, not clipped, and the scroll bar is drawn there (`SCROLLBARS_OUTSIDE_OVERLAY`, 3 dp wide, the thumb in a faint tone of the secondary text,
 `SCROLL_THUMB_ALPHA`, from Android 10; it fades when the list is still), so it is never over the cards.
 
@@ -63,7 +63,7 @@ Keys that blend with the background are the main problem of a picture, so the di
 - **Soften background** (0 to 70%, a slider; gradients, landscapes and pictures, not the plain colors): a veil over the background itself, in the
   opposite color of the ink, that is at least as dense as the setting. The keyboard of the dialog is drawn again while the slider moves; it starts
   at the softening in use when the background is the one in use, and at none for another. It is written (`pref_kbd_bg_soft`) with **Apply**.
-- Each of the three sections of color is **a card of its own** (`MrThemesActivity.card`: a faint background, the line of the dialog, round corners),
+- Each of the three sections of color is **a card of its own** (`MrThemesActivity.card`: only a step lighter than the dialog, `CARD_FILL` and `CARD_LINE` of the way from its background to the colours of the cards of the screens, with round corners),
   with its title and its settings inside: **Key background color**, **Key border color** and **Text and toolbar icon color**. The softening of the
   background, the only slider left, is above them with no card.
 - **Key background color** (fourteen **styles** and, for each kind, the color the person picks, in three kinds, to choose in two levels: the **Glass**,
@@ -77,6 +77,13 @@ Keys that blend with the background are the main problem of a picture, so the di
   not touch it. The face of a key of these themes is two layers (the fill and the line), each drawn through its own color filter (`MrGlow.drawKey`), so each
   opacity changes only its part. The layer of the line has a transparent `<solid>` (`make_themes.py`, `solid_key`): a shape with only a stroke is filled with opaque black
   by `GradientDrawable` when it is drawn through a color filter, and the line would black out the key.
+- **From the background** (under the styles of **Key background color**, for gradients, landscapes and pictures; a plain color has none to offer): up to
+  five colors that stand out in the background, as swatches of the own style of the kind that is open (no ring of hues: that ring is the picker's).
+  Touching one chooses it as the person's own color (`chooseSuggested`: the line that goes with it, the opacities as they are). `MrPalette` finds them: the
+  background is drawn at 96 x 48, its colors are counted (four bits of each channel) and grouped (k-means, twelve clusters), each cluster is scored by the
+  square root of the share it covers times how vivid it is (near blacks, near whites and greys count little), and they are taken in that order at least
+  72, 48 or 36 apart in RGB (the distance relaxes when there are few), each made bright enough to be seen over a dark background (value of 0.40 or more).
+  It all runs on the phone, in a few milliseconds, and the picture is not sent anywhere. The dark gradients of one hue give one or two colors.
 - **Key border color** (**Automatic** on the left, which keeps the line of the style, and the round button that opens the picker on the right) and
   **Key border opacity** (the bar inside that picker, the same range): the color of the line round the keys. Choosing a color of the **glass** (or picking the
   color of the own glass, while the finger moves) changes the border to **that color one tone above** (`MrKeyLook.lineFor`, `toneAbove`: 28% of white

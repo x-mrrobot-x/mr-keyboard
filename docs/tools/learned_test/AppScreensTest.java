@@ -418,8 +418,14 @@ public class AppScreensTest {
             public Boolean call() { return st.count(MrWordStore.KIND_IMPORTED_WORD, MrApp.scope(L, "com.itau.app")) == 2; }
         }) && st.count(MrWordStore.KIND_IMPORTED_WORD, L) == 0 && st.count(MrWordStore.KIND_IMPORTED_PAIR, MrApp.scope(L, "com.itau.app")) == 1);
         android.content.SharedPreferences pr = s.getSharedPreferences("mr_words", 0);
-        check("the screen remembers the app of the last addition, with its batch and its count", "com.itau.app".equals(pr.getString("last_app", null)) && pr.getLong("last_batch", 0) > 0 && pr.getInt("last_count", 0) == 3);
-        check("the answer of the save says the words work only in that app", String.valueOf(AlertDialog.stubLastMessage).contains("mr_import_added_app"));
+        final android.content.SharedPreferences prefsNow = pr;
+        // the screen writes these after the words are stored, from the same thread: the test waits for them
+        check("the screen remembers the app of the last addition, with its batch and its count", waitUntil(new java.util.concurrent.Callable<Boolean>() {
+            public Boolean call() { return "com.itau.app".equals(prefsNow.getString("last_app", null)) && prefsNow.getLong("last_batch", 0) > 0 && prefsNow.getInt("last_count", 0) == 3; }
+        }));
+        check("the answer of the save says the words work only in that app", waitUntil(new java.util.concurrent.Callable<Boolean>() {
+            public Boolean call() { return String.valueOf(AlertDialog.stubLastMessage).contains("mr_import_added_app"); }
+        }));
         check("after adding, the choice goes back to \"All apps\" (as the text box goes back to empty): the card and its note", waitUntil(new java.util.concurrent.Callable<Boolean>() {
             public Boolean call() throws Exception { return field(s, cl, "mApp") == null; }
         }) && all((View) field(s, cl, "mAppBox")).contains("mr_app_all") && !all((View) field(s, cl, "mAppBox")).contains("Itaú")

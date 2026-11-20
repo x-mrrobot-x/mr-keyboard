@@ -37,7 +37,7 @@
     .end annotation
 
     .prologue
-    .line 978
+    .line 995
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$20;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$20;->val$max:I
@@ -57,14 +57,14 @@
     .locals 4
 
     .prologue
-    .line 980
+    .line 997
     if-nez p3, :cond_0
 
-    .line 984
+    .line 1001
     :goto_0
     return-void
 
-    .line 981
+    .line 998
     :cond_0
     const/4 v0, 0x0
 
@@ -74,7 +74,7 @@
 
     move-result v0
 
-    .line 982
+    .line 999
     iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$20;->val$value:Landroid/widget/TextView;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -97,7 +97,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 983
+    .line 1000
     iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$20;->val$onChange:Lcom/mrkeyboard/app/MrThemesActivity$Setter;
 
     invoke-interface {v1, v0}, Lcom/mrkeyboard/app/MrThemesActivity$Setter;->set(I)V
@@ -109,7 +109,7 @@
     .locals 0
 
     .prologue
-    .line 987
+    .line 1004
     return-void
 .end method
 
@@ -117,6 +117,6 @@
     .locals 0
 
     .prologue
-    .line 990
+    .line 1007
     return-void
 .end method

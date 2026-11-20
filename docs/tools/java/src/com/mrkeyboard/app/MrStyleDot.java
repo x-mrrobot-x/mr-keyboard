@@ -26,6 +26,8 @@ final class MrStyleDot extends View {
     private final int mRing;
     /** The colour of a style of the person's own (0 = none picked yet) and, for the gradient, its end (0 = the one the keyboard makes up). */
     private final int mOwn, mOwn2;
+    /** A swatch of a colour that is offered: the colour as it is, without the ring of all the hues that says "pick another". */
+    private boolean mSwatch;
 
     private static final int[] RAINBOW = {0xffff4d4d, 0xffffc83d, 0xff3ddc97, 0xff4da3ff, 0xffa77bff, 0xffff5fd2, 0xffff4d4d};
 
@@ -41,6 +43,17 @@ final class MrStyleDot extends View {
         mRing = ring;
         mOwn = own;
         mOwn2 = own2;
+    }
+
+    /** This dot is a swatch of a colour that was suggested: it shows the style in that colour with no ring of hues. Returns it. */
+    MrStyleDot swatch() {
+        mSwatch = true;
+        return this;
+    }
+
+    /** Whether it is a swatch (test help). */
+    boolean isSwatch() {
+        return mSwatch;
     }
 
     /** The colour that the dot shows when it is of the person's own colour (0 = none; test help). */
@@ -109,7 +122,7 @@ final class MrStyleDot extends View {
             mPaint.setShader(null);
         }
         mPaint.setShader(null);
-        if (own) {
+        if (own && !mSwatch) {
             // the ring of all the hues, between the dot and the ring of the one chosen
             mPaint.setStyle(Paint.Style.STROKE);
             mPaint.setStrokeWidth(2f * mDensity);

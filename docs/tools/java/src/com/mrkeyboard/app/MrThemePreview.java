@@ -57,6 +57,8 @@ final class MrThemePreview extends View {
     static final float[] WORDS = {0.20f, 0.14f, 0.18f};
 
     private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    /** The paint of the background picture: only for it, since the one above takes the colour (and its opacity) of the last thing drawn, and a picture drawn with that is faint. */
+    private final Paint mBgPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
     private final Paint mText = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint.FontMetrics mMetrics = new Paint.FontMetrics();
     private final float mDensity;
@@ -317,7 +319,7 @@ final class MrThemePreview extends View {
             canvas.drawColor(MrThemeColors.colorOr(c, mTag, "kbd_bg", 0xff202020));
             return;
         }
-        canvas.drawBitmap(mBg, new Rect(0, 0, w, h), new Rect(0, 0, w, h), mPaint);
+        canvas.drawBitmap(mBg, new Rect(0, 0, w, h), new Rect(0, 0, w, h), mBgPaint);
     }
 
     /** The gap that the face of a key keeps round it, in dp (the first row of keys starts this much under the line of suggestions). */

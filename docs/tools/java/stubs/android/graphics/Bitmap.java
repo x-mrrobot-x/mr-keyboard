@@ -34,6 +34,11 @@ public final class Bitmap {
     public final int getHeight() { return stubH; }
     public int getPixel(int x, int y) { return stubPixels[y * stubW + x]; }
     public void setPixel(int x, int y, int color) { stubPixels[y * stubW + x] = color; }
+    public void getPixels(int[] pixels, int offset, int stride, int x, int y, int width, int height) {
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) pixels[offset + j * stride + i] = stubPixels[(y + j) * stubW + x + i];
+        }
+    }
     public void recycle() { stubRecycled = true; }
     public final boolean isRecycled() { return stubRecycled; }
 

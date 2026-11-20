@@ -845,6 +845,7 @@
     <string name="mr_themes_edge_opacity">Opacidade da borda das teclas</string>
     <string name="mr_themes_text_color">Cor do texto e ícones da barra</string>
     <string name="mr_themes_grad_end">Fim do degradê</string>
+    <string name="mr_themes_from_background">Cores do fundo</string>
     <string name="mr_themes_auto">Automático</string>
     <string name="mr_themes_pick_color">Escolher cor</string>
     <string name="mr_themes_done">Pronto</string>
