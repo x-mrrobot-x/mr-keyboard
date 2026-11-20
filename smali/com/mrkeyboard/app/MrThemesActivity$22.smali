@@ -24,17 +24,13 @@
 
 .field final synthetic val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
-.field final synthetic val$n:I
-
-.field final synthetic val$pale:Z
-
 .field final synthetic val$redraw:Ljava/lang/Runnable;
 
 .field final synthetic val$style:[I
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;IZ[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -43,20 +39,16 @@
     .end annotation
 
     .prologue
-    .line 1053
+    .line 1071
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$n:I
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$style:[I
 
-    iput-boolean p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$pale:Z
+    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
-    iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$style:[I
+    iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$redraw:Ljava/lang/Runnable;
 
-    iput-object p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
-
-    iput-object p6, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$redraw:Ljava/lang/Runnable;
-
-    iput-object p7, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$draw:[Ljava/lang/Runnable;
+    iput-object p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$draw:[Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -66,34 +58,38 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 4
+    .locals 7
 
     .prologue
-    .line 1055
-    iget v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$n:I
+    .line 1073
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iget-boolean v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$pale:Z
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$style:[I
+    iget-object v1, v1, Lcom/mrkeyboard/app/MrThemesActivity;->k:Lcom/mrkeyboard/app/MrKit;
 
-    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+    const-string v2, "mr_themes_pick_color"
 
-    invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/MrThemesActivity;->choosePreset(IZ[I[Lcom/mrkeyboard/app/MrKeyLook;)V
+    const/4 v3, 0x0
 
-    .line 1056
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$redraw:Ljava/lang/Runnable;
+    new-array v3, v3, [Ljava/lang/Object;
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    invoke-virtual {v1, v2, v3}, Lcom/mrkeyboard/app/MrKit;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
-    .line 1057
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$draw:[Ljava/lang/Runnable;
+    move-result-object v1
 
-    const/4 v1, 0x0
+    const/4 v2, 0x1
 
-    aget-object v0, v0, v1
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$style:[I
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
-    .line 1058
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$redraw:Ljava/lang/Runnable;
+
+    iget-object v6, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$draw:[Ljava/lang/Runnable;
+
+    invoke-virtual/range {v0 .. v6}, Lcom/mrkeyboard/app/MrThemesActivity;->showColorPicker(Ljava/lang/String;I[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
+
+    .line 1074
     return-void
 .end method

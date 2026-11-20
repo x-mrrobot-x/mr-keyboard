@@ -77,9 +77,14 @@ Keys that blend with the background are the main problem of a picture, so the di
   not touch it. The face of a key of these themes is two layers (the fill and the line), each drawn through its own color filter (`MrGlow.drawKey`), so each
   opacity changes only its part. The layer of the line has a transparent `<solid>` (`make_themes.py`, `solid_key`): a shape with only a stroke is filled with opaque black
   by `GradientDrawable` when it is drawn through a color filter, and the line would black out the key.
-- **From the background** (under the styles of **Key background color**, for gradients, landscapes and pictures; a plain color has none to offer): up to
-  five colors that stand out in the background, as swatches of the own style of the kind that is open (no ring of hues: that ring is the picker's).
-  Touching one chooses it as the person's own color (`chooseSuggested`: the line that goes with it, the opacities as they are). `MrPalette` finds them: the
+- **Colors from the background** (gradients, landscapes and pictures; a plain color has none to offer, and then the glass keeps its fixed colors): up to five
+  colors that stand out in the background, as swatches of the own style of the kind that is open (no ring of hues: that ring is the picker's). On the
+  **glass** they take the place of the fixed colors (Ice, Lilac, Mint, Dark): the row is the **See-through** glass, the colors of the background in the order
+  of what stands out and, **last, a dark color** (`MrPalette.dark`: the first color made dark, 0.26 of the value, in its hue; grey for black), then the round
+  button of the picker. A fixed color that the keys are already in (a theme saved with it) stays in the row, marked, until another is chosen. The
+  **outline** and the **gradient** keep their fixed colors and have the colors of the background in a row of their own under them. Touching one chooses it as
+  the person's own color (`chooseSuggested`): the opacities stay and so does **Key border color: Automatic** (the line that went with the color before is let
+  go; a line that the person picked stays). `MrPalette` finds them: the
   background is drawn at 96 x 48, its colors are counted (four bits of each channel) and grouped (k-means, twelve clusters), each cluster is scored by the
   square root of the share it covers times how vivid it is (near blacks, near whites and greys count little), and they are taken in that order at least
   72, 48 or 36 apart in RGB (the distance relaxes when there are few), each made bright enough to be seen over a dark background (value of 0.40 or more).
@@ -88,7 +93,8 @@ Keys that blend with the background are the main problem of a picture, so the di
   **Key border opacity** (the bar inside that picker, the same range): the color of the line round the keys. Choosing a color of the **glass** (or picking the
   color of the own glass, while the finger moves) changes the border to **that color one tone above** (`MrKeyLook.lineFor`, `toneAbove`: 28% of white
   mixed in, a little darker when the color is already pale), so that it is the color of the key and only a little lighter, which is subtle; the
-  See-through glass, the outlines (the outline is the line) and the gradients (the line takes the hue of the place of each key) leave it **Automatic**.
+  See-through glass, the outlines (the outline is the line) and the gradients (the line takes the hue of the place of each key) leave it **Automatic**, and so do the
+  colors taken from the background (see above).
   The color of the border can then be changed by hand, until another color of the keys is chosen. It is kept in `pref_kbd_look_line`. A color that was
   chosen is not made by the style: the keyboard draws it itself (`MrGlow.drawFace`: the line of the style is hidden with a filter that draws nothing
   and a rounded rectangle 1 dp thick is drawn along the edge of the fill, at `MrKeyLook.LINE_BASE`, 60%, times the opacity of the border), so every

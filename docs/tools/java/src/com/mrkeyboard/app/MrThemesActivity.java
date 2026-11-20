@@ -1045,24 +1045,27 @@ public class MrThemesActivity extends Activity {
         scroll.addView(dots, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         colours.addView(scroll, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         final int shown = presetShown(kind, pale, style[0], look[0]);
-        for (int i = MrBackdrop.KIND_FIRST[kind]; i < MrBackdrop.KIND_FIRST[kind + 1]; i++) {
-            final int n = i;
-            MrStyleDot dot = new MrStyleDot(this, n, n == shown, k.accent);
-            dot.setContentDescription(styleName(this, n));
-            dot.setClickable(true);
-            dot.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    choosePreset(n, pale, style, look);
-                    redraw.run();
-                    draw[0].run();
-                }
-            });
-            addDot(dots, dot, i > MrBackdrop.KIND_FIRST[kind]);
+        final int own = MrBackdrop.ownStyle(kind);
+        // the glass, when the background gives colours: the clear glass, the colours that stand out in the background and a dark one of the hue of the
+        // first of them, in place of the fixed colours (a fixed one that the keys are in stays, to be seen); the others keep their fixed colours and have
+        // the colours of the background in a row of their own below
+        final boolean fromBackground = kind == MrBackdrop.KIND_GLASS && suggested.length > 0;
+        final int[] offered = fromBackground ? withDark(suggested) : suggested;
+        final int match = offeredShown(offered, own, style[0], look[0]);
+        if (fromBackground) {
+            addPresetDot(dots, 0, shown == 0, pale, style, look, redraw, draw);
+            if (shown > 0) addPresetDot(dots, shown, true, pale, style, look, redraw, draw);
+            for (int i = 0; i < offered.length; i++) {
+                boolean dark = i == offered.length - 1;
+                addSwatchDot(dots, offered[i], dark ? styleName(this, 4) : k.t("mr_themes_from_background") + " #" + String.format("%06X", offered[i] & 0xffffff),
+                        i == match, own, style, look, redraw, draw);
+            }
+        } else {
+            for (int i = MrBackdrop.KIND_FIRST[kind]; i < MrBackdrop.KIND_FIRST[kind + 1]; i++) addPresetDot(dots, i, i == shown, pale, style, look, redraw, draw);
         }
         // the colour that the person picks: touching it opens the picker, with the colour that the keys have now; the style of the person's own colour is the
         // one chosen as soon as the colour is moved (the opacity of the keys is in the picker as well, and moving it leaves the style as it is)
-        final int own = MrBackdrop.ownStyle(kind);
-        MrStyleDot pick = new MrStyleDot(this, own, own == style[0] && shown < 0, k.accent, look[0].hue, look[0].hue2);
+        MrStyleDot pick = new MrStyleDot(this, own, own == style[0] && shown < 0 && match < 0, k.accent, look[0].hue, look[0].hue2);
         pick.setContentDescription(k.t("mr_themes_pick_color"));
         pick.setClickable(true);
         pick.setOnClickListener(new View.OnClickListener() {
@@ -1076,25 +1079,13 @@ public class MrThemesActivity extends Activity {
         TextView label = k.label(styleName(this, shown >= 0 ? shown : style[0]), 14f, k.text2, false);
         label.setGravity(Gravity.CENTER);
         box.addView(label, k.wide(4));
-        if (suggested.length > 0) {
+        if (!fromBackground && suggested.length > 0) {
             // the colours that stand out in the background, as the person's own colour of the kind that is open: touching one chooses it (the opacity stays)
             box.addView(k.label(k.t("mr_themes_from_background"), 14f, k.text2, false), k.wide(12));
             LinearLayout row = k.row();
             box.addView(row, k.wide(6));
             for (int i = 0; i < suggested.length; i++) {
-                final int rgb = suggested[i];
-                boolean chosen = style[0] == own && (look[0].hue & 0xffffff) == (rgb & 0xffffff);
-                MrStyleDot dot = new MrStyleDot(this, own, chosen, k.accent, rgb, look[0].hue2).swatch();
-                dot.setContentDescription(k.t("mr_themes_from_background") + " #" + String.format("%06X", rgb & 0xffffff));
-                dot.setClickable(true);
-                dot.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        chooseSuggested(rgb, style, look);
-                        redraw.run();
-                        draw[0].run();
-                    }
-                });
-                addDot(row, dot, i > 0);
+                addSwatchDot(row, suggested[i], k.t("mr_themes_from_background") + " #" + String.format("%06X", suggested[i] & 0xffffff), i == match, own, style, look, redraw, draw);
             }
         }
         if (style[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_GRADIENT)) {
@@ -1123,13 +1114,62 @@ public class MrThemesActivity extends Activity {
         }
     }
 
+    /** A dot of the preset {@code n}: touching it chooses it. */
+    private void addPresetDot(LinearLayout dots, final int n, boolean chosen, final boolean pale, final int[] style, final MrKeyLook[] look, final Runnable redraw, final Runnable[] draw) {
+        MrStyleDot dot = new MrStyleDot(this, n, chosen, k.accent);
+        dot.setContentDescription(styleName(this, n));
+        dot.setClickable(true);
+        dot.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                choosePreset(n, pale, style, look);
+                redraw.run();
+                draw[0].run();
+            }
+        });
+        addDot(dots, dot, dots.getChildCount() > 0);
+    }
+
+    /** A dot of the colour {@code rgb} (one that stands out in the background, or the dark one) as the person's own colour of the kind: touching it chooses it. */
+    private void addSwatchDot(LinearLayout dots, final int rgb, String description, boolean chosen, int own, final int[] style, final MrKeyLook[] look, final Runnable redraw, final Runnable[] draw) {
+        MrStyleDot dot = new MrStyleDot(this, own, chosen, k.accent, rgb, look[0].hue2).swatch();
+        dot.setContentDescription(description);
+        dot.setClickable(true);
+        dot.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                chooseSuggested(rgb, style, look);
+                redraw.run();
+                draw[0].run();
+            }
+        });
+        addDot(dots, dot, dots.getChildCount() > 0);
+    }
+
+    /** The colours that the glass offers from the background: the ones that stand out and, last, a dark one of the hue of the first of them. */
+    static int[] withDark(int[] suggested) {
+        int[] all = new int[suggested.length + 1];
+        System.arraycopy(suggested, 0, all, 0, suggested.length);
+        all[suggested.length] = MrPalette.dark(suggested[0]);
+        return all;
+    }
+
+    /** The place in {@code colours} of the colour that the keys of the person's own style have now; -1 when none is (or the style is not the person's own). */
+    static int offeredShown(int[] colours, int own, int style, MrKeyLook look) {
+        if (style != own) return -1;
+        for (int i = 0; i < colours.length; i++) if ((look.hue & 0xffffff) == (colours[i] & 0xffffff)) return i;
+        return -1;
+    }
+
     /**
-     * Chooses a colour that was suggested from the background: the style of the person's own colour of the kind that is open, with that colour and the
-     * line that goes with it (as when the colour is picked). The opacities are the ones that the keys have (a colour does not change them).
+     * Chooses a colour that was offered from the background: the style of the person's own colour of the kind that is open, with that colour. The opacities
+     * are the ones that the keys have, and so is the colour of the line: "Automatic" stays on when it was on (the line that went with the colour before is
+     * let go, since it was not the person's; a line that the person picked stays).
      */
     static void chooseSuggested(int rgb, int[] style, MrKeyLook[] look) {
+        MrKeyLook before = look[0];
+        boolean went = before.line == MrKeyLook.lineFor(style[0], before.hue);
         style[0] = MrBackdrop.ownStyle(MrBackdrop.kindOf(style[0]));
-        look[0] = withPicked(look[0], PICK_HUE, style[0], rgb);
+        MrKeyLook now = before.withHue(rgb);
+        look[0] = went ? now.withLine(0) : now;
     }
 
     /**

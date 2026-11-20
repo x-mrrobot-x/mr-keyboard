@@ -27,6 +27,8 @@ final class MrPalette {
     /** The smallest distance (in RGB) between two colours that are offered; if there are not enough, the next ones are tried. */
     private static final int[] DISTANCES = {72, 48, 36};
     private static final float MIN_VALUE = 0.40f;
+    /** How bright the dark colour is (its brightest channel, as a share of the most): darker than any colour offered, which is at least {@link #MIN_VALUE}. */
+    private static final float DARK_VALUE = 0.26f;
 
     /**
      * The colours that stand out in {@code spec} ({@code image} is the picture of a landscape or of the gallery): none for a plain colour or no
@@ -219,6 +221,17 @@ final class MrPalette {
             }
         }
         return 0xff000000 | (clamp(r) << 16) | (clamp(g) << 8) | clamp(b);
+    }
+
+    /** A dark colour of the hue of {@code colour} (its brightest channel is {@link #DARK_VALUE}); grey for black. Opaque. */
+    static int dark(int colour) {
+        int r = (colour >> 16) & 0xff, g = (colour >> 8) & 0xff, b = colour & 0xff;
+        int max = Math.max(r, Math.max(g, b));
+        int to = Math.round(DARK_VALUE * 255f);
+        if (max <= 0) return 0xff000000 | (to << 16) | (to << 8) | to;
+        if (max <= to) return 0xff000000 | (r << 16) | (g << 8) | b;
+        float f = (float) to / max;
+        return 0xff000000 | (clamp(Math.round(r * f)) << 16) | (clamp(Math.round(g * f)) << 8) | clamp(Math.round(b * f));
     }
 
     private static int clamp(int v) {

@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->fillKeys(Landroid/widget/LinearLayout;Z[I[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->addSwatchDot(Landroid/widget/LinearLayout;ILjava/lang/String;ZI[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -41,7 +41,7 @@
     .end annotation
 
     .prologue
-    .line 1090
+    .line 1137
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$rgb:I
@@ -65,7 +65,7 @@
     .locals 3
 
     .prologue
-    .line 1092
+    .line 1139
     iget v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$rgb:I
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$style:[I
@@ -74,12 +74,12 @@
 
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrThemesActivity;->chooseSuggested(I[I[Lcom/mrkeyboard/app/MrKeyLook;)V
 
-    .line 1093
+    .line 1140
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1094
+    .line 1141
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$draw:[Ljava/lang/Runnable;
 
     const/4 v1, 0x0
@@ -88,6 +88,6 @@
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1095
+    .line 1142
     return-void
 .end method

@@ -8,6 +8,8 @@
 
 .field static final COUNT:I = 0x5
 
+.field private static final DARK_VALUE:F = 0.26f
+
 .field private static final DISTANCES:[I
 
 .field static final HEIGHT:I = 0x30
@@ -62,7 +64,7 @@
     .prologue
     const/16 v0, 0xff
 
-    .line 225
+    .line 238
     if-gez p0, :cond_1
 
     const/4 p0, 0x0
@@ -79,18 +81,142 @@
     goto :goto_0
 .end method
 
+.method static dark(I)I
+    .locals 6
+
+    .prologue
+    const/high16 v5, -0x1000000
+
+    .line 228
+    shr-int/lit8 v0, p0, 0x10
+
+    and-int/lit16 v0, v0, 0xff
+
+    shr-int/lit8 v1, p0, 0x8
+
+    and-int/lit16 v1, v1, 0xff
+
+    and-int/lit16 v2, p0, 0xff
+
+    .line 229
+    invoke-static {v1, v2}, Ljava/lang/Math;->max(II)I
+
+    move-result v3
+
+    invoke-static {v0, v3}, Ljava/lang/Math;->max(II)I
+
+    move-result v3
+
+    .line 230
+    const v4, 0x42849999    # 66.299995f
+
+    invoke-static {v4}, Ljava/lang/Math;->round(F)I
+
+    move-result v4
+
+    .line 231
+    if-gtz v3, :cond_0
+
+    shl-int/lit8 v0, v4, 0x10
+
+    or-int/2addr v0, v5
+
+    shl-int/lit8 v1, v4, 0x8
+
+    or-int/2addr v0, v1
+
+    or-int/2addr v0, v4
+
+    .line 234
+    :goto_0
+    return v0
+
+    .line 232
+    :cond_0
+    if-gt v3, v4, :cond_1
+
+    shl-int/lit8 v0, v0, 0x10
+
+    or-int/2addr v0, v5
+
+    shl-int/lit8 v1, v1, 0x8
+
+    or-int/2addr v0, v1
+
+    or-int/2addr v0, v2
+
+    goto :goto_0
+
+    .line 233
+    :cond_1
+    int-to-float v4, v4
+
+    int-to-float v3, v3
+
+    div-float v3, v4, v3
+
+    .line 234
+    int-to-float v0, v0
+
+    mul-float/2addr v0, v3
+
+    invoke-static {v0}, Ljava/lang/Math;->round(F)I
+
+    move-result v0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrPalette;->clamp(I)I
+
+    move-result v0
+
+    shl-int/lit8 v0, v0, 0x10
+
+    or-int/2addr v0, v5
+
+    int-to-float v1, v1
+
+    mul-float/2addr v1, v3
+
+    invoke-static {v1}, Ljava/lang/Math;->round(F)I
+
+    move-result v1
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPalette;->clamp(I)I
+
+    move-result v1
+
+    shl-int/lit8 v1, v1, 0x8
+
+    or-int/2addr v0, v1
+
+    int-to-float v1, v2
+
+    mul-float/2addr v1, v3
+
+    invoke-static {v1}, Ljava/lang/Math;->round(F)I
+
+    move-result v1
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrPalette;->clamp(I)I
+
+    move-result v1
+
+    or-int/2addr v0, v1
+
+    goto :goto_0
+.end method
+
 .method private static dist2(FFFFFF)F
     .locals 3
 
     .prologue
-    .line 193
+    .line 195
     sub-float v0, p0, p3
 
     sub-float v1, p1, p4
 
     sub-float v2, p2, p5
 
-    .line 194
+    .line 196
     mul-float/2addr v0, v0
 
     mul-float/2addr v1, v1
@@ -108,7 +234,7 @@
     .locals 23
 
     .prologue
-    .line 59
+    .line 61
     if-eqz p0, :cond_0
 
     if-gtz p1, :cond_1
@@ -118,17 +244,17 @@
 
     new-array v1, v1, [I
 
-    .line 147
+    .line 149
     :goto_0
     return-object v1
 
-    .line 60
+    .line 62
     :cond_1
     const/16 v1, 0x1000
 
     new-array v7, v1, [I
 
-    .line 61
+    .line 63
     const/16 v1, 0x1000
 
     new-array v8, v1, [F
@@ -141,10 +267,10 @@
 
     new-array v10, v1, [F
 
-    .line 62
+    .line 64
     const/4 v2, 0x0
 
-    .line 63
+    .line 65
     const/4 v1, 0x0
 
     move v11, v2
@@ -156,10 +282,10 @@
 
     if-ge v1, v2, :cond_3
 
-    .line 64
+    .line 66
     aget v2, p0, v1
 
-    .line 65
+    .line 67
     ushr-int/lit8 v3, v2, 0x18
 
     const/16 v4, 0x80
@@ -168,7 +294,7 @@
 
     move v2, v11
 
-    .line 63
+    .line 65
     :goto_2
     add-int/lit8 v1, v1, 0x1
 
@@ -176,7 +302,7 @@
 
     goto :goto_1
 
-    .line 66
+    .line 68
     :cond_2
     shr-int/lit8 v3, v2, 0x14
 
@@ -198,14 +324,14 @@
 
     or-int/2addr v3, v4
 
-    .line 67
+    .line 69
     aget v4, v7, v3
 
     add-int/lit8 v4, v4, 0x1
 
     aput v4, v7, v3
 
-    .line 68
+    .line 70
     aget v4, v8, v3
 
     shr-int/lit8 v5, v2, 0x10
@@ -218,7 +344,7 @@
 
     aput v4, v8, v3
 
-    .line 69
+    .line 71
     aget v4, v9, v3
 
     shr-int/lit8 v5, v2, 0x8
@@ -231,7 +357,7 @@
 
     aput v4, v9, v3
 
-    .line 70
+    .line 72
     aget v4, v10, v3
 
     and-int/lit16 v2, v2, 0xff
@@ -242,12 +368,12 @@
 
     aput v2, v10, v3
 
-    .line 71
+    .line 73
     add-int/lit8 v2, v11, 0x1
 
     goto :goto_2
 
-    .line 73
+    .line 75
     :cond_3
     if-nez v11, :cond_4
 
@@ -257,11 +383,11 @@
 
     goto :goto_0
 
-    .line 74
+    .line 76
     :cond_4
     const/4 v12, 0x0
 
-    .line 75
+    .line 77
     const/4 v1, 0x0
 
     move v2, v1
@@ -271,14 +397,14 @@
 
     if-ge v2, v1, :cond_5
 
-    .line 76
+    .line 78
     aget v1, v7, v2
 
     if-lez v1, :cond_16
 
     add-int/lit8 v1, v12, 0x1
 
-    .line 75
+    .line 77
     :goto_4
     add-int/lit8 v2, v2, 0x1
 
@@ -286,7 +412,7 @@
 
     goto :goto_3
 
-    .line 78
+    .line 80
     :cond_5
     new-array v1, v12, [F
 
@@ -296,10 +422,10 @@
 
     new-array v4, v12, [F
 
-    .line 79
+    .line 81
     const/4 v6, 0x0
 
-    .line 80
+    .line 82
     const/4 v5, 0x0
 
     move/from16 v22, v5
@@ -313,18 +439,18 @@
 
     if-ge v6, v13, :cond_7
 
-    .line 81
+    .line 83
     aget v13, v7, v6
 
     if-nez v13, :cond_6
 
-    .line 80
+    .line 82
     :goto_6
     add-int/lit8 v6, v6, 0x1
 
     goto :goto_5
 
-    .line 82
+    .line 84
     :cond_6
     aget v13, v8, v6
 
@@ -336,7 +462,7 @@
 
     aput v13, v1, v5
 
-    .line 83
+    .line 85
     aget v13, v9, v6
 
     aget v14, v7, v6
@@ -347,7 +473,7 @@
 
     aput v13, v2, v5
 
-    .line 84
+    .line 86
     aget v13, v10, v6
 
     aget v14, v7, v6
@@ -358,19 +484,19 @@
 
     aput v13, v3, v5
 
-    .line 85
+    .line 87
     aget v13, v7, v6
 
     int-to-float v13, v13
 
     aput v13, v4, v5
 
-    .line 86
+    .line 88
     add-int/lit8 v5, v5, 0x1
 
     goto :goto_6
 
-    .line 88
+    .line 90
     :cond_7
     const/16 v5, 0xc
 
@@ -378,25 +504,25 @@
 
     move-result v15
 
-    .line 89
+    .line 91
     new-array v5, v15, [F
 
     new-array v6, v15, [F
 
     new-array v7, v15, [F
 
-    .line 90
+    .line 92
     invoke-static/range {v1 .. v7}, Lcom/mrkeyboard/app/MrPalette;->seed([F[F[F[F[F[F[F)V
 
-    .line 91
+    .line 93
     new-array v0, v12, [I
 
     move-object/from16 v16, v0
 
-    .line 92
+    .line 94
     new-array v9, v15, [F
 
-    .line 93
+    .line 95
     const/4 v8, 0x0
 
     move v14, v8
@@ -408,7 +534,7 @@
 
     if-ge v14, v9, :cond_c
 
-    .line 94
+    .line 96
     const/4 v8, 0x0
 
     move v13, v8
@@ -434,7 +560,7 @@
 
     goto :goto_8
 
-    .line 95
+    .line 97
     :cond_8
     new-array v10, v15, [F
 
@@ -444,19 +570,19 @@
 
     move-object/from16 v17, v0
 
-    .line 96
+    .line 98
     new-array v9, v15, [F
 
-    .line 97
+    .line 99
     const/4 v8, 0x0
 
     :goto_9
     if-ge v8, v12, :cond_9
 
-    .line 98
+    .line 100
     aget v18, v16, v8
 
-    .line 99
+    .line 101
     aget v19, v10, v18
 
     aget v20, v1, v8
@@ -469,7 +595,7 @@
 
     aput v19, v10, v18
 
-    .line 100
+    .line 102
     aget v19, v13, v18
 
     aget v20, v2, v8
@@ -482,7 +608,7 @@
 
     aput v19, v13, v18
 
-    .line 101
+    .line 103
     aget v19, v17, v18
 
     aget v20, v3, v8
@@ -495,7 +621,7 @@
 
     aput v19, v17, v18
 
-    .line 102
+    .line 104
     aget v19, v9, v18
 
     aget v20, v4, v8
@@ -504,19 +630,19 @@
 
     aput v19, v9, v18
 
-    .line 97
+    .line 99
     add-int/lit8 v8, v8, 0x1
 
     goto :goto_9
 
-    .line 104
+    .line 106
     :cond_9
     const/4 v8, 0x0
 
     :goto_a
     if-ge v8, v15, :cond_b
 
-    .line 105
+    .line 107
     aget v18, v9, v8
 
     const/16 v19, 0x0
@@ -525,13 +651,13 @@
 
     if-gtz v18, :cond_a
 
-    .line 104
+    .line 106
     :goto_b
     add-int/lit8 v8, v8, 0x1
 
     goto :goto_a
 
-    .line 106
+    .line 108
     :cond_a
     aget v18, v10, v8
 
@@ -541,7 +667,7 @@
 
     aput v18, v5, v8
 
-    .line 107
+    .line 109
     aget v18, v13, v8
 
     aget v19, v9, v8
@@ -550,7 +676,7 @@
 
     aput v18, v6, v8
 
-    .line 108
+    .line 110
     aget v18, v17, v8
 
     aget v19, v9, v8
@@ -561,7 +687,7 @@
 
     goto :goto_b
 
-    .line 93
+    .line 95
     :cond_b
     add-int/lit8 v8, v14, 0x1
 
@@ -571,17 +697,17 @@
 
     goto :goto_7
 
-    .line 112
+    .line 114
     :cond_c
     new-array v4, v15, [F
 
-    .line 113
+    .line 115
     new-array v12, v15, [Ljava/lang/Integer;
 
-    .line 114
+    .line 116
     const/4 v2, 0x0
 
-    .line 115
+    .line 117
     const/4 v1, 0x0
 
     move v3, v1
@@ -591,7 +717,7 @@
     :goto_c
     if-ge v3, v15, :cond_e
 
-    .line 116
+    .line 118
     aget v2, v8, v3
 
     const/4 v9, 0x0
@@ -600,7 +726,7 @@
 
     if-gtz v2, :cond_d
 
-    .line 115
+    .line 117
     :goto_d
     add-int/lit8 v2, v3, 0x1
 
@@ -608,7 +734,7 @@
 
     goto :goto_c
 
-    .line 117
+    .line 119
     :cond_d
     aget v2, v5, v3
 
@@ -628,7 +754,7 @@
 
     aput v2, v4, v3
 
-    .line 118
+    .line 120
     add-int/lit8 v2, v1, 0x1
 
     invoke-static {v3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
@@ -641,7 +767,7 @@
 
     goto :goto_d
 
-    .line 121
+    .line 123
     :cond_e
     const/4 v2, 0x0
 
@@ -651,7 +777,7 @@
 
     invoke-static {v12, v2, v1, v3}, Ljava/util/Arrays;->sort([Ljava/lang/Object;IILjava/util/Comparator;)V
 
-    .line 127
+    .line 129
     move/from16 v0, p1
 
     invoke-static {v0, v1}, Ljava/lang/Math;->min(II)I
@@ -660,13 +786,13 @@
 
     new-array v8, v2, [I
 
-    .line 128
+    .line 130
     new-array v11, v15, [Z
 
-    .line 129
+    .line 131
     const/4 v3, 0x0
 
-    .line 130
+    .line 132
     const/4 v2, 0x0
 
     :goto_e
@@ -680,7 +806,7 @@
 
     if-ge v3, v4, :cond_14
 
-    .line 131
+    .line 133
     sget-object v4, Lcom/mrkeyboard/app/MrPalette;->DISTANCES:[I
 
     aget v4, v4, v2
@@ -695,7 +821,7 @@
 
     mul-float v13, v4, v9
 
-    .line 132
+    .line 134
     const/4 v4, 0x0
 
     move v10, v4
@@ -707,19 +833,19 @@
 
     if-ge v3, v4, :cond_13
 
-    .line 133
+    .line 135
     aget-object v4, v12, v10
 
     invoke-virtual {v4}, Ljava/lang/Integer;->intValue()I
 
     move-result v14
 
-    .line 134
+    .line 136
     aget-boolean v4, v11, v14
 
     if-eqz v4, :cond_10
 
-    .line 132
+    .line 134
     :cond_f
     :goto_10
     add-int/lit8 v4, v10, 0x1
@@ -728,7 +854,7 @@
 
     goto :goto_f
 
-    .line 135
+    .line 137
     :cond_10
     aget v4, v5, v14
 
@@ -752,10 +878,10 @@
 
     move-result v15
 
-    .line 136
+    .line 138
     const/4 v9, 0x1
 
-    .line 137
+    .line 139
     const/4 v4, 0x0
 
     move/from16 v22, v4
@@ -769,10 +895,10 @@
 
     if-eqz v4, :cond_12
 
-    .line 138
+    .line 140
     aget v16, v8, v9
 
-    .line 139
+    .line 141
     shr-int/lit8 v17, v16, 0x10
 
     move/from16 v0, v17
@@ -839,7 +965,7 @@
 
     move/from16 v16, v0
 
-    .line 140
+    .line 142
     mul-float v17, v17, v17
 
     mul-float v18, v18, v18
@@ -856,22 +982,22 @@
 
     const/4 v4, 0x0
 
-    .line 137
+    .line 139
     :cond_11
     add-int/lit8 v9, v9, 0x1
 
     goto :goto_11
 
-    .line 142
+    .line 144
     :cond_12
     if-eqz v4, :cond_f
 
-    .line 143
+    .line 145
     const/4 v4, 0x1
 
     aput-boolean v4, v11, v14
 
-    .line 144
+    .line 146
     add-int/lit8 v4, v3, 0x1
 
     aput v15, v8, v3
@@ -880,13 +1006,13 @@
 
     goto/16 :goto_10
 
-    .line 130
+    .line 132
     :cond_13
     add-int/lit8 v2, v2, 0x1
 
     goto/16 :goto_e
 
-    .line 147
+    .line 149
     :cond_14
     array-length v1, v8
 
@@ -915,8 +1041,8 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 180
-    .line 181
+    .line 182
+    .line 183
     const v1, 0x7f7fffff    # Float.MAX_VALUE
 
     move v6, v0
@@ -925,13 +1051,13 @@
 
     move v8, v0
 
-    .line 182
+    .line 184
     :goto_0
     array-length v0, p0
 
     if-ge v6, v0, :cond_0
 
-    .line 183
+    .line 185
     aget v3, p0, v6
 
     aget v4, p1, v6
@@ -948,14 +1074,14 @@
 
     move-result v1
 
-    .line 184
+    .line 186
     cmpg-float v0, v1, v7
 
     if-gez v0, :cond_1
 
     move v2, v6
 
-    .line 182
+    .line 184
     :goto_1
     add-int/lit8 v0, v6, 0x1
 
@@ -967,7 +1093,7 @@
 
     goto :goto_0
 
-    .line 189
+    .line 191
     :cond_0
     return v8
 
@@ -985,7 +1111,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 36
+    .line 38
     if-eqz p0, :cond_0
 
     iget v0, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
@@ -1001,12 +1127,12 @@
     :cond_0
     new-array v0, v2, [I
 
-    .line 48
+    .line 50
     :cond_1
     :goto_0
     return-object v0
 
-    .line 37
+    .line 39
     :cond_2
     iget v0, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
 
@@ -1027,11 +1153,11 @@
 
     goto :goto_0
 
-    .line 38
+    .line 40
     :cond_4
     const/4 v0, 0x0
 
-    .line 40
+    .line 42
     const/16 v1, 0x60
 
     const/16 v2, 0x30
@@ -1047,7 +1173,7 @@
 
     move-result-object v0
 
-    .line 41
+    .line 43
     :try_start_1
     new-instance v1, Landroid/graphics/Canvas;
 
@@ -1059,12 +1185,12 @@
 
     invoke-static {v1, p0, v2, v3, p1}, Lcom/mrkeyboard/app/MrBackdrop;->draw(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/MrBackdrop$Spec;IILandroid/graphics/Bitmap;)V
 
-    .line 42
+    .line 44
     const/16 v1, 0x1200
 
     new-array v1, v1, [I
 
-    .line 43
+    .line 45
     const/4 v2, 0x0
 
     const/16 v3, 0x60
@@ -1079,7 +1205,7 @@
 
     invoke-virtual/range {v0 .. v7}, Landroid/graphics/Bitmap;->getPixels([IIIIIII)V
 
-    .line 44
+    .line 46
     const/4 v2, 0x5
 
     invoke-static {v1, v2}, Lcom/mrkeyboard/app/MrPalette;->extract([II)[I
@@ -1090,7 +1216,7 @@
 
     move-result-object v1
 
-    .line 50
+    .line 52
     if-eqz v0, :cond_5
 
     invoke-virtual {v0}, Landroid/graphics/Bitmap;->recycle()V
@@ -1098,16 +1224,16 @@
     :cond_5
     move-object v0, v1
 
-    .line 44
+    .line 46
     goto :goto_0
 
-    .line 45
+    .line 47
     :catch_0
     move-exception v1
 
     move-object v1, v0
 
-    .line 46
+    .line 48
     :goto_1
     const/4 v0, 0x0
 
@@ -1116,20 +1242,20 @@
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_2
 
-    .line 50
+    .line 52
     if-eqz v1, :cond_1
 
     invoke-virtual {v1}, Landroid/graphics/Bitmap;->recycle()V
 
     goto :goto_0
 
-    .line 47
+    .line 49
     :catch_1
     move-exception v1
 
     move-object v1, v0
 
-    .line 48
+    .line 50
     :goto_2
     const/4 v0, 0x0
 
@@ -1138,7 +1264,7 @@
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_2
 
-    .line 50
+    .line 52
     if-eqz v1, :cond_1
 
     invoke-virtual {v1}, Landroid/graphics/Bitmap;->recycle()V
@@ -1159,11 +1285,11 @@
 
     invoke-virtual {v1}, Landroid/graphics/Bitmap;->recycle()V
 
-    .line 51
+    .line 53
     :cond_6
     throw v0
 
-    .line 50
+    .line 52
     :catchall_1
     move-exception v1
 
@@ -1180,7 +1306,7 @@
 
     goto :goto_3
 
-    .line 47
+    .line 49
     :catch_2
     move-exception v1
 
@@ -1188,7 +1314,7 @@
 
     goto :goto_2
 
-    .line 45
+    .line 47
     :catch_3
     move-exception v1
 
@@ -1207,7 +1333,7 @@
 
     const/4 v0, 0x0
 
-    .line 199
+    .line 201
     invoke-static {p1, p2}, Ljava/lang/Math;->max(FF)F
 
     move-result v2
@@ -1228,18 +1354,18 @@
 
     div-float/2addr v2, v4
 
-    .line 200
+    .line 202
     cmpg-float v4, v3, v0
 
     if-gtz v4, :cond_1
 
     move v2, v0
 
-    .line 201
+    .line 203
     :goto_0
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 202
+    .line 204
     const v4, 0x3e4ccccd    # 0.2f
 
     cmpg-float v4, v3, v4
@@ -1248,7 +1374,7 @@
 
     const v0, 0x3e19999a    # 0.15f
 
-    .line 204
+    .line 206
     :cond_0
     :goto_1
     float-to-double v4, p3
@@ -1267,7 +1393,7 @@
 
     return v0
 
-    .line 200
+    .line 202
     :cond_1
     sub-float v0, v3, v2
 
@@ -1277,7 +1403,7 @@
 
     goto :goto_0
 
-    .line 203
+    .line 205
     :cond_2
     const v4, 0x3df5c28f    # 0.12f
 
@@ -1305,23 +1431,23 @@
     .locals 14
 
     .prologue
-    .line 152
+    .line 154
     array-length v10, p0
 
     move-object/from16 v0, p4
 
     array-length v11, v0
 
-    .line 153
+    .line 155
     const/4 v2, 0x0
 
-    .line 154
+    .line 156
     const/4 v3, 0x1
 
     :goto_0
     if-ge v3, v10, :cond_1
 
-    .line 155
+    .line 157
     aget v4, p3, v3
 
     aget v5, p3, v2
@@ -1332,13 +1458,13 @@
 
     move v2, v3
 
-    .line 154
+    .line 156
     :cond_0
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_0
 
-    .line 157
+    .line 159
     :cond_1
     const/4 v3, 0x0
 
@@ -1346,24 +1472,24 @@
 
     aput v4, p4, v3
 
-    .line 158
+    .line 160
     const/4 v3, 0x0
 
     aget v4, p1, v2
 
     aput v4, p5, v3
 
-    .line 159
+    .line 161
     const/4 v3, 0x0
 
     aget v2, p2, v2
 
     aput v2, p6, v3
 
-    .line 160
+    .line 162
     new-array v12, v10, [F
 
-    .line 161
+    .line 163
     const/4 v2, 0x0
 
     move v8, v2
@@ -1401,7 +1527,7 @@
 
     goto :goto_1
 
-    .line 162
+    .line 164
     :cond_2
     const/4 v2, 0x1
 
@@ -1410,19 +1536,19 @@
     :goto_2
     if-ge v9, v11, :cond_5
 
-    .line 163
+    .line 165
     const/4 v5, -0x1
 
-    .line 164
+    .line 166
     const/high16 v3, -0x40800000    # -1.0f
 
-    .line 165
+    .line 167
     const/4 v4, 0x0
 
     :goto_3
     if-ge v4, v10, :cond_3
 
-    .line 166
+    .line 168
     aget v2, v12, v4
 
     aget v6, p3, v4
@@ -1437,14 +1563,14 @@
 
     mul-float/2addr v2, v6
 
-    .line 167
+    .line 169
     cmpl-float v6, v2, v3
 
     if-lez v6, :cond_6
 
     move v3, v4
 
-    .line 165
+    .line 167
     :goto_4
     add-int/lit8 v4, v4, 0x1
 
@@ -1454,23 +1580,23 @@
 
     goto :goto_3
 
-    .line 172
+    .line 174
     :cond_3
     aget v2, p0, v5
 
     aput v2, p4, v9
 
-    .line 173
+    .line 175
     aget v2, p1, v5
 
     aput v2, p5, v9
 
-    .line 174
+    .line 176
     aget v2, p2, v5
 
     aput v2, p6, v9
 
-    .line 175
+    .line 177
     const/4 v2, 0x0
 
     move v8, v2
@@ -1508,7 +1634,7 @@
 
     goto :goto_5
 
-    .line 162
+    .line 164
     :cond_4
     add-int/lit8 v2, v9, 0x1
 
@@ -1516,7 +1642,7 @@
 
     goto :goto_2
 
-    .line 177
+    .line 179
     :cond_5
     return-void
 
@@ -1536,7 +1662,7 @@
 
     const/16 v3, 0xff
 
-    .line 209
+    .line 211
     invoke-static {p1, p2}, Ljava/lang/Math;->max(II)I
 
     move-result v0
@@ -1545,22 +1671,22 @@
 
     move-result v0
 
-    .line 210
+    .line 212
     int-to-float v1, v0
 
     const/high16 v2, 0x437f0000    # 255.0f
 
     div-float/2addr v1, v2
 
-    .line 211
+    .line 213
     cmpg-float v2, v1, v4
 
     if-gez v2, :cond_0
 
-    .line 212
+    .line 214
     if-gtz v0, :cond_1
 
-    .line 213
+    .line 215
     const/high16 v0, 0x42cc0000    # 102.0f
 
     invoke-static {v0}, Ljava/lang/Math;->round(F)I
@@ -1571,7 +1697,7 @@
 
     move p0, p2
 
-    .line 221
+    .line 223
     :cond_0
     :goto_0
     const/high16 v0, -0x1000000
@@ -1600,11 +1726,11 @@
 
     return v0
 
-    .line 215
+    .line 217
     :cond_1
     div-float v0, v4, v1
 
-    .line 216
+    .line 218
     int-to-float v1, p0
 
     mul-float/2addr v1, v0
@@ -1617,7 +1743,7 @@
 
     move-result p0
 
-    .line 217
+    .line 219
     int-to-float v1, p1
 
     mul-float/2addr v1, v0
@@ -1630,7 +1756,7 @@
 
     move-result p1
 
-    .line 218
+    .line 220
     int-to-float v1, p2
 
     mul-float/2addr v0, v1

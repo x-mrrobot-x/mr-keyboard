@@ -775,6 +775,15 @@ public class ThemesTest {
         return h == null ? null : (View) h.getParent();
     }
 
+    /** True when {@code a} is {@code b} made darker or lighter (the same share of each channel, to the rounding of a channel). */
+    static boolean sameHue(int a, int b) {
+        int[] x = {(a >> 16) & 0xff, (a >> 8) & 0xff, a & 0xff}, y = {(b >> 16) & 0xff, (b >> 8) & 0xff, b & 0xff};
+        for (int i = 0; i < 3; i++) {
+            for (int j = i + 1; j < 3; j++) if (Math.abs(x[i] * y[j] - x[j] * y[i]) > x[i] + x[j] + y[i] + y[j]) return false;
+        }
+        return true;
+    }
+
     /** The colours that stand out in the background, in the card of the colour of the keys. */
     static void suggestions() throws Exception {
         reset();
@@ -783,37 +792,72 @@ public class ThemesTest {
         View card = cardOf(s, "Key background colour");
         List<MrStyleDot> sw = swatches(card);
         int[] expected = MrPalette.of(MrBackdrop.Spec.gradient(8), null);
-        check("the card of the colour of the keys of a gradient has the colours that stand out in it, under the styles (" + expected.length + ")", sw.size() == expected.length && expected.length >= 1
-                && byText(card, "From the background") != null && dots(card) == 6);
+        int dark = expected.length > 0 ? MrPalette.dark(expected[0]) : 0;
+        check("the glass of a gradient has the colours that stand out in it in place of the fixed ones, and a dark one last (" + expected.length + " + 1), after the clear glass", sw.size() == expected.length + 1 && expected.length >= 1
+                && byText(card, "From the background") == null && dots(card) == 2 && byDescription(card, "See-through") != null && byDescription(card, "Ice") == null && byDescription(card, "Lilac") == null
+                && byDescription(card, "Mint") == null && byDescription(card, "Dark") != null && sw.get(sw.size() - 1).own() == dark);
+        List<View> row = all(card, MrStyleDot.class);
+        boolean order = row.size() == expected.length + 3 && ((MrStyleDot) row.get(0)).style() == 0 && !((MrStyleDot) row.get(0)).isSwatch() && !((MrStyleDot) row.get(row.size() - 1)).isSwatch()
+                && ((MrStyleDot) row.get(row.size() - 1)).own() == 0;
+        for (int i = 1; order && i < row.size() - 1; i++) order = ((MrStyleDot) row.get(i)).isSwatch();
+        check("they are in the row of the colours: the clear glass, the colours in the order of what stands out, the dark one, and the round button of the picker at the end", order);
+        boolean darker = true;
+        for (int i = 0; i < expected.length; i++) darker &= MrThemeColors.luminance(dark) < MrThemeColors.luminance(expected[i]) && MrThemeColors.luminance(dark) < 0.27;
+        check("the dark one is darker than every other colour offered and has the hue of the first", darker && sameHue(dark, expected[0]));
         check("they are shown as the own colour of the kind that is open, each in its colour, with no ring of hues (that ring is the picker's)", sw.get(0).own() == expected[0] && MrBackdrop.isOwnStyle(sw.get(0).style())
                 && MrBackdrop.kindOf(sw.get(0).style()) == MrBackdrop.KIND_GLASS && sw.get(0).isSwatch() && chosenDots(card) == 1);
         View first = sw.get(0);
         first.performClick();
         card = cardOf(s, "Key background colour");
-        check("touching one chooses it: the own glass in that colour, the line that goes with it, and the opacities as they were (a colour does not change them)",
+        check("touching one chooses it: the own glass in that colour and the opacities as they were (a colour does not change them)",
                 s.mDialogStyle[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_GLASS) && (s.mDialogLook[0].hue & 0xffffff) == (expected[0] & 0xffffff) && s.mDialogLook[0].key == MrKeyLook.OPACITY_DEFAULT
-                        && s.mDialogLook[0].edge == MrKeyLook.OPACITY_DEFAULT && s.mDialogLook[0].line != 0 && s.mDialogPreview.tag().equals("mr_overownglass"));
+                        && s.mDialogLook[0].edge == MrKeyLook.OPACITY_DEFAULT && s.mDialogPreview.tag().equals("mr_overownglass"));
+        check("the colour of the border stays \"Automatic\", in the dialog and in the keyboard it shows", s.mDialogLook[0].line == 0 && lineDot(s).color() == 0 && s.mDialogPreview.look().line == 0
+                && pressIn(s.mDialogLine, "Automatic") && s.mDialogLook[0].line == 0);
         List<MrStyleDot> again = swatches(card);
         boolean chosenOne = true;
         for (int i = 0; i < again.size(); i++) chosenOne &= again.get(i).chosen() == (i == 0);
-        check("it is the one marked as chosen (and the colour button, the own dot, is not the one chosen twice)", chosenOne && again.size() == expected.length);
+        check("it is the one marked as chosen, and no other dot is (neither the clear glass nor the colour button)", chosenOne && again.size() == expected.length + 1 && chosenDots(card) == 0);
         if (expected.length > 1) {
             again.get(1).performClick();
             check("another one takes its place, and the first is no longer chosen", (s.mDialogLook[0].hue & 0xffffff) == (expected[1] & 0xffffff) && !swatches(cardOf(s, "Key background colour")).get(0).chosen()
-                    && swatches(cardOf(s, "Key background colour")).get(1).chosen());
+                    && swatches(cardOf(s, "Key background colour")).get(1).chosen() && s.mDialogLook[0].line == 0);
         }
-        // on the outline kind the swatches are outlines, and the colour is the person's own of that kind
+        check("the dark one chooses the dark colour", dot("Dark") && (s.mDialogLook[0].hue & 0xffffff) == (dark & 0xffffff) && s.mDialogStyle[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_GLASS)
+                && swatches(cardOf(s, "Key background colour")).get(expected.length).chosen() && s.mDialogLook[0].line == 0);
+        check("the clear glass is still there to go back to", dot("See-through") && s.mDialogStyle[0] == 0 && chosenDots(cardOf(s, "Key background colour")) == 1 && s.mDialogLook[0].line == 0);
+        // the line: the one that went with a colour is let go, the one that the person picked stays
+        int[] st = {1};
+        MrKeyLook[] lk = {MrKeyLook.NONE.withLine(MrKeyLook.lineFor(1, 0))};
+        MrThemesActivity.chooseSuggested(0xff2288cc, st, lk);
+        check("the line that went with a fixed colour is let go when a colour of the background is chosen (the border goes back to Automatic)", st[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_GLASS) && lk[0].line == 0 && lk[0].hue == 0xff2288cc);
+        int own = MrBackdrop.ownStyle(MrBackdrop.KIND_GLASS);
+        st[0] = own;
+        lk[0] = MrKeyLook.NONE.withHue(0xff884422).withLine(MrKeyLook.lineFor(own, 0xff884422));
+        MrThemesActivity.chooseSuggested(0xff2288cc, st, lk);
+        check("so is the one that went with the colour of the person's own", lk[0].line == 0 && lk[0].hue == 0xff2288cc);
+        st[0] = own;
+        lk[0] = MrKeyLook.NONE.withHue(0xff884422).withLine(0xffabcdef).withKey(60).withEdge(40);
+        MrThemesActivity.chooseSuggested(0xff2288cc, st, lk);
+        check("a line that the person picked stays, and the opacities too", lk[0].line == 0xffabcdef && lk[0].hue == 0xff2288cc && lk[0].key == 60 && lk[0].edge == 40);
+        // on the outline kind the colours are outlines, in a row of their own (the outlines keep their fixed colours)
         byText(Dialog.stubLast.stubContent, "Outline").performClick();
+        card = cardOf(s, "Key background colour");
+        check("on the outline kind the fixed colours stay and the colours of the background are in a row of their own below them", byText(card, "From the background") != null && dots(card) == 7 && byDescription(card, "Gold") != null
+                && swatches(card).size() == expected.length);
         check("on the outline kind they are outlines of the colours, and one chosen is the own outline", MrBackdrop.kindOf(swatches(cardOf(s, "Key background colour")).get(0).style()) == MrBackdrop.KIND_OUTLINE);
         swatches(cardOf(s, "Key background colour")).get(0).performClick();
-        check("and chosen it is the own outline in that colour", s.mDialogStyle[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_OUTLINE) && (s.mDialogLook[0].hue & 0xffffff) == (expected[0] & 0xffffff));
+        check("and chosen it is the own outline in that colour, the colour button is not marked too, and the border stays Automatic", s.mDialogStyle[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_OUTLINE)
+                && (s.mDialogLook[0].hue & 0xffffff) == (expected[0] & 0xffffff) && chosenDots(cardOf(s, "Key background colour")) == 0 && swatches(cardOf(s, "Key background colour")).get(0).chosen() && s.mDialogLook[0].line == 0);
         press("Cancel");
-        // a plain colour has none to offer; a landscape and a picture have
+        // a plain colour has none to offer (it is one), and has the fixed colours; a landscape has them
         click(bg(s, 5));
-        check("a plain colour has no colours to suggest (it is one)", swatches(Dialog.stubLast.stubContent).isEmpty() && byText(Dialog.stubLast.stubContent, "From the background") == null);
+        check("a plain colour has no colours to suggest (it is one): the glass has its fixed colours", swatches(Dialog.stubLast.stubContent).isEmpty() && byText(Dialog.stubLast.stubContent, "From the background") == null
+                && byDescription(Dialog.stubLast.stubContent, "Ice") != null && byDescription(Dialog.stubLast.stubContent, "Lilac") != null && byDescription(Dialog.stubLast.stubContent, "Mint") != null
+                && byDescription(Dialog.stubLast.stubContent, "Dark") != null && dots(Dialog.stubLast.stubContent) == 6);
         press("Cancel");
         click(bg(s, FIRST_SCENE + 2));
-        check("a landscape has them, up to five", !swatches(Dialog.stubLast.stubContent).isEmpty() && swatches(Dialog.stubLast.stubContent).size() <= MrPalette.COUNT);
+        check("a landscape has them, up to five and the dark one", swatches(Dialog.stubLast.stubContent).size() >= 2 && swatches(Dialog.stubLast.stubContent).size() <= MrPalette.COUNT + 1);
         press("Cancel");
     }
 
@@ -831,7 +875,7 @@ public class ThemesTest {
         check("each colour is in a card of its own (three different ones, each with a background) with what sets it: the kinds and the dots of the keys, the line and the letters with their \"Automatic\" and round button",
                 keyCard != null && lineCard != null && inkCard != null && keyCard != lineCard && lineCard != inkCard && keyCard != inkCard
                         && keyCard.stubBackground != null && lineCard.stubBackground != null && inkCard.stubBackground != null
-                        && byText(keyCard, "Glass") != null && dots(keyCard) == 6 && byText(lineCard, "Automatic") != null && all(lineCard, MrColorDot.class).size() == 1
+                        && byText(keyCard, "Glass") != null && dots(keyCard) == 2 && swatches(keyCard).size() >= 2 && byText(lineCard, "Automatic") != null && all(lineCard, MrColorDot.class).size() == 1
                         && byText(inkCard, "Automatic") != null && all(inkCard, MrColorDot.class).size() == 1 && keyCard.getParent() == lineCard.getParent() && lineCard.getParent() == inkCard.getParent());
         check("the controls scroll between the keyboard and the buttons, in a view that the sheet limits (the sheet grows up to 98% of the screen height, the controls take what is left)",
                 all(d.stubContent, MrCappedScroll.class).size() == 1 && d.stubContent instanceof MrSheetBox && ((MrSheetBox) d.stubContent).maxPx() == Math.round(2400 * MrThemesActivity.SHEET_SHARE)
@@ -919,7 +963,7 @@ public class ThemesTest {
         pressIn(s.mDialogText, "Automatic");
 
         // the colour of the person's own, in each kind
-        check("each kind ends with a round button that picks a colour, which is not a style until it is touched", dots(d.stubContent) == 6 && byDescription(d.stubContent, "Pick a colour") != null
+        check("each kind ends with a round button that picks a colour, which is not a style until it is touched", dots(d.stubContent) == 2 && byDescription(d.stubContent, "Pick a colour") != null
                 && ((MrStyleDot) byDescription(d.stubContent, "Pick a colour")).own() == 0 && !((MrStyleDot) byDescription(d.stubContent, "Pick a colour")).chosen());
         byDescription(d.stubContent, "Pick a colour").performClick();
         check("touching it opens the picker on the colour that the keys have, and the style stays what it was until the colour is moved", s.mPicker != null && s.mDialogStyle[0] == 0 && s.mDialogPreview.tag().equals("mr_overlight")
@@ -1351,6 +1395,11 @@ public class ThemesTest {
                 && lineRow.getChildAt(lineRow.getChildCount() - 1) instanceof MrColorDot && inkRow.getChildAt(0) instanceof android.widget.TextView
                 && "Automatic".equals(String.valueOf(((android.widget.TextView) inkRow.getChildAt(0)).getText())) && inkRow.getChildAt(inkRow.getChildCount() - 1) instanceof MrColorDot);
         check("the first style is the see-through glass, which has no line: the border is automatic", s.mDialogStyle[0] == 0 && s.mDialogLook[0].line == 0 && lineDot(s).color() == 0 && s.mDialogPreview.look().line == 0);
+        press("Cancel");
+        // a plain colour has the fixed colours of the glass (a landscape has the colours of its picture in their place)
+        scene = 5;
+        click(bg(s, scene));
+        d = Dialog.stubLast;
 
         // a colour of the glass brings its line: the same colour one tone above
         byDescription(d.stubContent, "Ice").performClick();
@@ -1425,7 +1474,7 @@ public class ThemesTest {
         click(bg(s, scene));
         check("the dialog of the background in use opens with its line", s.mDialogLook[0].line == MrKeyLook.toneAbove(own2) && lineDot(s).color() == MrKeyLook.toneAbove(own2) && s.mDialogPreview.look().line == s.mLook.line);
         press("Cancel");
-        click(bg(s, scene + 1));
+        click(bg(s, scene - 1));
         check("another background starts clean: the see-through glass and an automatic border", s.mDialogLook[0].line == 0 && lineDot(s).color() == 0);
         press("Cancel");
         // a light colour has the styles too
@@ -2240,6 +2289,11 @@ public class ThemesTest {
         check("a picture of one colour gives one", one.length == 1 && distance(one[0], 0xff808080) <= 12);
         int[] dark = MrPalette.extract(blocks(96, 48, new int[] {0xff0a0000}, new float[] {1f}), 5);
         check("a colour that is too dark to be seen over a dark background is made brighter, keeping its hue", dark.length == 1 && ((dark[0] >> 16) & 0xff) >= 100 && ((dark[0] >> 8) & 0xff) <= 14);
+        int[] darkOf = {MrPalette.dark(red), MrPalette.dark(blue), MrPalette.dark(0xff808080), MrPalette.dark(0xff000000), MrPalette.dark(0xff0a0000)};
+        boolean darkOk = true;
+        for (int i = 0; i < darkOf.length; i++) darkOk &= (darkOf[i] >>> 24) == 0xff && MrThemeColors.luminance(darkOf[i]) < 0.27;
+        check("the dark colour is darker than any colour offered (each of those is at least value 0.40), opaque, in the hue of the colour it comes from, and grey for black", darkOk && sameHue(darkOf[0], red) && sameHue(darkOf[1], blue)
+                && ((darkOf[3] >> 16) & 0xff) == (darkOf[3] & 0xff) && (darkOf[3] & 0xff) > 0 && MrPalette.dark(darkOf[0]) == darkOf[0] && distance(darkOf[0], red) >= 36);
         int[] clear = new int[96 * 48];
         check("a picture with nothing in it, or with no count, gives no colour", MrPalette.extract(clear, 5).length == 0 && MrPalette.extract(null, 5).length == 0 && MrPalette.extract(four, 0).length == 0
                 && MrPalette.extract(new int[0], 5).length == 0);
@@ -2247,6 +2301,9 @@ public class ThemesTest {
         int[] first = MrPalette.extract(mixed, 5), again = MrPalette.extract(mixed, 5);
         check("with more colours than are asked for, the five are far from each other, and the same picture gives the same colours", first.length == 5 && apart(first, 28) && java.util.Arrays.equals(first, again));
         check("with fewer asked for, they are the first ones of the five", MrPalette.extract(mixed, 3).length == 3 && MrPalette.extract(mixed, 3)[0] == first[0] && MrPalette.extract(mixed, 3)[2] == first[2]);
+        boolean farFromDark = true;
+        for (int i = 0; i < first.length; i++) farFromDark &= distance(first[i], MrPalette.dark(first[0])) >= 36;
+        check("it is far from each colour that is offered, so that no two dots look the same", farFromDark);
 
         // the backgrounds of the app
         Context c = new Ctx();
@@ -3641,9 +3698,15 @@ public class ThemesTest {
         check("it stops at 70", byText(d.stubContent, "70%") != null);
         s.mDialogSoft.stubListener.onProgressChanged(s.mDialogSoft, 5, false);
         check("a change that is not the finger's (the code setting the bar) is not a choice", byText(d.stubContent, "70%") != null);
-        check("a style of keys is chosen by touching its dot: the keyboard of the dialog is drawn with its keys, and the name under the dots says it", dot("Ice") && s.mDialogPreview.tag().equals("mr_overice")
-                && byText(Dialog.stubLast.stubContent, "Ice") != null && byText(Dialog.stubLast.stubContent, "See-through") == null && s.mStyle == 0);
-        check("another one replaces it", dot("Mint") && s.mDialogPreview.tag().equals("mr_overmint") && byText(Dialog.stubLast.stubContent, "Mint") != null);
+        int ownGlass = MrBackdrop.ownStyle(MrBackdrop.KIND_GLASS);
+        List<MrStyleDot> offered = swatches(Dialog.stubLast.stubContent);
+        check("a landscape has, in place of the fixed colours of the glass, the colours of its picture and a dark one: the clear glass is chosen and the fixed ones are not there",
+                offered.size() >= 2 && byDescription(Dialog.stubLast.stubContent, "See-through") != null && byDescription(Dialog.stubLast.stubContent, "Ice") == null && byDescription(Dialog.stubLast.stubContent, "Mint") == null
+                        && byDescription(Dialog.stubLast.stubContent, "Dark") != null && dots(Dialog.stubLast.stubContent) == 2 && chosenDots(Dialog.stubLast.stubContent) == 1);
+        int first = offered.get(0).own();
+        check("a colour is chosen by touching its dot: the keyboard of the dialog is drawn with the own glass in that colour, and the name under the dots says it", offered.get(0).performClick() && s.mDialogPreview.tag().equals("mr_overownglass")
+                && s.mDialogStyle[0] == ownGlass && (s.mDialogLook[0].hue & 0xffffff) == (first & 0xffffff) && byText(Dialog.stubLast.stubContent, "Own colour") != null && byText(Dialog.stubLast.stubContent, "See-through") == null && s.mStyle == 0);
+        check("another one replaces it (the dark one)", dot("Dark") && s.mDialogPreview.tag().equals("mr_overownglass") && (s.mDialogLook[0].hue & 0xffffff) == (MrPalette.dark(first) & 0xffffff));
         check("a kind is chosen by touching its chip: its first colour is in the keyboard, and the dots are the ones of that kind (six outlines, four gradients, each with the round one that picks a colour)",
                 byText(Dialog.stubLast.stubContent, "Outline").performClick() && s.mDialogPreview.tag().equals("mr_overline") && dots(Dialog.stubLast.stubContent) == 7
                         && byDescription(Dialog.stubLast.stubContent, "Gold") != null && byDescription(Dialog.stubLast.stubContent, "Ice") == null
@@ -3656,17 +3719,17 @@ public class ThemesTest {
         Dialog.stubLast.stubBack();
         click(bg(s, FIRST_SCENE + 1));
         s.mDialogSoft.stubListener.onProgressChanged(s.mDialogSoft, 45, true);
-        dot("Ice");
-        check("Apply writes the landscape, the softening and the theme of the style chosen (ice: 15), in one edit", press("Apply") && "s1".equals(bgKey()) && prefs.getInt(MrBackdrop.PREF_SOFT, -1) == 45
-                && "15".equals(themeKey()) && s.mTheme == 15 && s.mStyle == 1);
-        check("the keyboard at the top shows it, with the style, the softening and its name", s.mBig.tag().equals("mr_overice") && s.mBig.spec().format().equals("s1")
+        swatches(Dialog.stubLast.stubContent).get(0).performClick();
+        check("Apply writes the landscape, the softening and the theme of the style chosen (the own glass), in one edit", press("Apply") && "s1".equals(bgKey()) && prefs.getInt(MrBackdrop.PREF_SOFT, -1) == 45
+                && s.mTags[s.mTheme].equals("mr_overownglass") && themeKey().equals(String.valueOf(s.mTheme)) && s.mStyle == MrBackdrop.ownStyle(MrBackdrop.KIND_GLASS));
+        check("the keyboard at the top shows it, with the style, the softening and its name", s.mBig.tag().equals("mr_overownglass") && s.mBig.spec().format().equals("s1")
                 && s.mCaption.getText().toString().equals("Sports \u00b7 Basketball") && checkedBackground(s) == FIRST_SCENE + 1);
         click(bg(s, FIRST_SCENE + 1));
-        check("the dialog of the landscape in use starts with its softening and its style", s.mDialogSoft.getProgress() == 45 && s.mDialogPreview.tag().equals("mr_overice")
+        check("the dialog of the landscape in use starts with its softening and its style", s.mDialogSoft.getProgress() == 45 && s.mDialogPreview.tag().equals("mr_overownglass")
                 && byText(Dialog.stubLast.stubContent, "45%") != null);
         press("Cancel");
         click(bg(s, FIRST_SCENE + 2));
-        check("another landscape starts with no softening and with the see-through glass: what was chosen for the one in use (ice) is not carried to it", s.mDialogSoft.getProgress() == 0 && s.mDialogPreview.tag().equals("mr_overlight"));
+        check("another landscape starts with no softening and with the see-through glass: what was chosen for the one in use (its own glass) is not carried to it", s.mDialogSoft.getProgress() == 0 && s.mDialogPreview.tag().equals("mr_overlight"));
         press("Cancel");
         tab(s, MrThemesActivity.TAB_COLORS);
         click(bg(s, 5));
