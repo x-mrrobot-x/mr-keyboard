@@ -3,12 +3,12 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Landroid/widget/SeekBar$OnSeekBarChangeListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->slider(Landroid/widget/LinearLayout;Ljava/lang/String;IIIZLcom/mrkeyboard/app/MrThemesActivity$Setter;)Landroid/widget/SeekBar;
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->fillKeys(Landroid/widget/LinearLayout;Z[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,15 +20,21 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$max:I
+.field final synthetic val$draw:[Ljava/lang/Runnable;
 
-.field final synthetic val$onChange:Lcom/mrkeyboard/app/MrThemesActivity$Setter;
+.field final synthetic val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
-.field final synthetic val$value:Landroid/widget/TextView;
+.field final synthetic val$n:I
+
+.field final synthetic val$pale:Z
+
+.field final synthetic val$redraw:Ljava/lang/Runnable;
+
+.field final synthetic val$style:[I
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;ILandroid/widget/TextView;Lcom/mrkeyboard/app/MrThemesActivity$Setter;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;IZ[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -37,14 +43,20 @@
     .end annotation
 
     .prologue
-    .line 978
+    .line 1036
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$max:I
+    iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$n:I
 
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$value:Landroid/widget/TextView;
+    iput-boolean p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$pale:Z
 
-    iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$onChange:Lcom/mrkeyboard/app/MrThemesActivity$Setter;
+    iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$style:[I
+
+    iput-object p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+
+    iput-object p6, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$redraw:Ljava/lang/Runnable;
+
+    iput-object p7, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$draw:[Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -53,70 +65,35 @@
 
 
 # virtual methods
-.method public onProgressChanged(Landroid/widget/SeekBar;IZ)V
+.method public onClick(Landroid/view/View;)V
     .locals 4
 
     .prologue
-    .line 980
-    if-nez p3, :cond_0
+    .line 1038
+    iget v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$n:I
 
-    .line 984
-    :goto_0
-    return-void
+    iget-boolean v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$pale:Z
 
-    .line 981
-    :cond_0
-    const/4 v0, 0x0
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$style:[I
 
-    iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$max:I
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
-    invoke-static {p2, v0, v1}, Lcom/mrkeyboard/app/MrBackdrop;->clamp(III)I
+    invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/MrThemesActivity;->choosePreset(IZ[I[Lcom/mrkeyboard/app/MrKeyLook;)V
 
-    move-result v0
+    .line 1039
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$redraw:Ljava/lang/Runnable;
 
-    .line 982
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$value:Landroid/widget/TextView;
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    new-instance v2, Ljava/lang/StringBuilder;
+    .line 1040
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$draw:[Ljava/lang/Runnable;
 
-    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+    const/4 v1, 0x0
 
-    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+    aget-object v0, v0, v1
 
-    move-result-object v2
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    const-string v3, "%"
-
-    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    .line 983
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$22;->val$onChange:Lcom/mrkeyboard/app/MrThemesActivity$Setter;
-
-    invoke-interface {v1, v0}, Lcom/mrkeyboard/app/MrThemesActivity$Setter;->set(I)V
-
-    goto :goto_0
-.end method
-
-.method public onStartTrackingTouch(Landroid/widget/SeekBar;)V
-    .locals 0
-
-    .prologue
-    .line 987
-    return-void
-.end method
-
-.method public onStopTrackingTouch(Landroid/widget/SeekBar;)V
-    .locals 0
-
-    .prologue
-    .line 990
+    .line 1041
     return-void
 .end method

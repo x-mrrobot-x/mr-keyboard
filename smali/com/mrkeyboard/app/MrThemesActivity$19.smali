@@ -3,7 +3,7 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Lcom/mrkeyboard/app/MrThemesActivity$Setter;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
@@ -22,11 +22,17 @@
 
 .field final synthetic val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
-.field final synthetic val$redraw:Ljava/lang/Runnable;
+.field final synthetic val$pending:Z
+
+.field final synthetic val$softNow:[I
+
+.field final synthetic val$spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
+
+.field final synthetic val$style:[I
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Lcom/mrkeyboard/app/MrBackdrop$Spec;[I[I[Lcom/mrkeyboard/app/MrKeyLook;Z)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -35,12 +41,18 @@
     .end annotation
 
     .prologue
-    .line 922
+    .line 934
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$redraw:Ljava/lang/Runnable;
+    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$softNow:[I
+
+    iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$style:[I
+
+    iput-object p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+
+    iput-boolean p6, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$pending:Z
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,30 +61,33 @@
 
 
 # virtual methods
-.method public set(I)V
-    .locals 3
+.method public run()V
+    .locals 6
 
     .prologue
-    const/4 v2, 0x0
+    const/4 v5, 0x0
 
-    .line 924
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+    .line 936
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$spec:Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
-    aget-object v1, v1, v2
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$softNow:[I
 
-    invoke-virtual {v1, p1}, Lcom/mrkeyboard/app/MrKeyLook;->withEdge(I)Lcom/mrkeyboard/app/MrKeyLook;
+    aget v2, v2, v5
 
-    move-result-object v1
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$style:[I
 
-    aput-object v1, v0, v2
+    aget v3, v3, v5
 
-    .line 925
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$redraw:Ljava/lang/Runnable;
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    aget-object v4, v4, v5
 
-    .line 926
+    iget-boolean v5, p0, Lcom/mrkeyboard/app/MrThemesActivity$19;->val$pending:Z
+
+    invoke-virtual/range {v0 .. v5}, Lcom/mrkeyboard/app/MrThemesActivity;->applyBackdrop(Lcom/mrkeyboard/app/MrBackdrop$Spec;IILcom/mrkeyboard/app/MrKeyLook;Z)V
+
+    .line 937
     return-void
 .end method

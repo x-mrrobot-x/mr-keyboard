@@ -11,7 +11,7 @@ import android.view.View;
 
 /**
  * A small keyboard drawn the way the real one looks: the background (the colour of the theme, or the {@link MrBackdrop} chosen, with its veil), a
- * line of suggestions and four rows of keys made with the key drawables of the theme and its colours, so that a theme or a background can be seen
+ * line of suggestions and five rows of keys (Ctrl, Alt and the arrows, three of letters and the bottom row) made with the key drawables of the theme and its colours, so that a theme or a background can be seen
  * on the keys before it is chosen. The themes screen has one for every theme and every background, and a big one for the choice in use.
  *
  * <p>{@link #setFull} makes it the complete keyboard (the dialog of a theme or of a background), as tall as the real one on this phone: the toolbar with its
@@ -405,12 +405,15 @@ final class MrThemePreview extends View {
         }
     }
 
+    /** The rows of keys of the small keyboard of a card: the row of Ctrl, Alt and the arrows, the three rows of letters and the bottom row. */
+    static final int SMALL_ROWS = 5;
+
     private void keys(Canvas canvas, Context c, float vw, float vh) {
         faces(c);
         float top = vh * BAR_SHARE;
         area(vw, top, vh);
         float side = vw * 0.008f;
-        float rowH = (vh - top) / 4f;
+        float rowH = (vh - top) / SMALL_ROWS;
         float unit = (vw - 2f * side) / 10f;
         int text = MrThemeColors.colorOr(c, mTag, "text", 0xffffffff);
         int accentText = MrThemeColors.colorOr(c, mTag, "accent_text", text);
@@ -418,10 +421,14 @@ final class MrThemePreview extends View {
         // the neon themes light up their labels
         int glow = MrThemeColors.declared(c, mTag, "glow");
         float glowPx = glow == 0 ? 0f : 5f * mDensity;
+        float letter = rowH * 0.42f, word = rowH * 0.30f;
         mText.setTextAlign(Paint.Align.CENTER);
-        mText.setTextSize(rowH * 0.42f);
+        mText.setTextSize(letter);
+        // the row of Ctrl, Alt, Tab and the arrows, over the letters as in the keyboard
+        modRow(canvas, side, top, vw - 2f * side, rowH, text, accentText, glow, glowPx, letter, word);
+        mText.setTextSize(letter);
         for (int r = 0; r < 4; r++) {
-            float y = top + r * rowH;
+            float y = top + (r + 1) * rowH;
             if (r < 3) {
                 String letters = ROWS[r];
                 float rowW = letters.length() * unit;
@@ -429,8 +436,8 @@ final class MrThemePreview extends View {
                 if (r == 2) {
                     // shift and delete at the ends, as wide as the room that the seven letters leave
                     float edge = (10f * unit - rowW) / 2f - unit * 0.1f;
-                    key(canvas, side, y, edge, rowH, false, "⇧", text, glow, glowPx);
-                    key(canvas, side + 10f * unit - edge, y, edge, rowH, false, "⌫", text, glow, glowPx);
+                    key(canvas, side, y, edge, rowH, false, "\u21e7", text, glow, glowPx);
+                    key(canvas, side + 10f * unit - edge, y, edge, rowH, false, "\u232b", text, glow, glowPx);
                 }
                 for (int i = 0; i < letters.length(); i++) {
                     key(canvas, left + i * unit, y, unit, rowH, false, String.valueOf(letters.charAt(i)), text, glow, glowPx);
@@ -447,7 +454,7 @@ final class MrThemePreview extends View {
                 x += space;
                 key(canvas, x, y, b, rowH, false, ".", text, glow, glowPx);
                 x += b;
-                key(canvas, x, y, e, rowH, true, "⏎", accentText, glow, glowPx);
+                key(canvas, x, y, e, rowH, true, "\u23ce", accentText, glow, glowPx);
             }
         }
     }
@@ -467,6 +474,23 @@ final class MrThemePreview extends View {
     private static final String[] MOD_LABELS = {"Ctrl", "Alt", "\u21b9", "<>", "\u2190", "\u2193", "\u2192", "{"};
     /** Which of them are modifier keys (the highlight ones, with a dash). */
     private static final boolean[] MOD_KEYS = {true, true, true, false, true, true, true, false};
+
+    /**
+     * The row of Ctrl, Alt, Tab and the arrows at ({@code x}, {@code y}), {@code width} wide: the keys as wide as the layout gives them. The dash of the
+     * modifier keys (off) is under Ctrl and Alt only (Tab and the arrows have none). The size of the letters is left at {@code word} or {@code letter}.
+     */
+    private void modRow(Canvas canvas, float x, float y, float width, float rowH, int text, int accentText, int glow, float glowPx, float letter, float word) {
+        float sum = 0f;
+        for (float f : MOD_WIDTHS) sum += f;
+        for (int i = 0; i < MOD_WIDTHS.length; i++) {
+            float kw = width * MOD_WIDTHS[i] / sum;
+            boolean mod = MOD_KEYS[i];
+            String label = MOD_LABELS[i];
+            key(canvas, x, y, kw, rowH, mod, label, mod ? accentText : text, glow, glowPx,
+                    FACE_NORMAL, i < 2 ? DASH_OFF : DASH_NONE, label.length() > 1 && mod && i < 2 ? word : letter);
+            x += kw;
+        }
+    }
 
     /**
      * The complete keyboard under the toolbar, at rest as the real one is when it opens: the seven rows of keys, each with the face of its kind (the row of
@@ -505,18 +529,7 @@ final class MrThemePreview extends View {
         }
         top += rowH;
         // the row of Ctrl, Alt and the arrows
-        float sum = 0f;
-        for (float f : MOD_WIDTHS) sum += f;
-        float x = side;
-        for (int i = 0; i < MOD_WIDTHS.length; i++) {
-            float kw = width * MOD_WIDTHS[i] / sum;
-            boolean mod = MOD_KEYS[i];
-            String label = MOD_LABELS[i];
-            // the keyboard draws the dash under Ctrl and Alt only (Tab and the arrows have none)
-            key(canvas, x, top, kw, rowH, mod, label, mod ? accentText : text, glow, glowPx,
-                    FACE_NORMAL, i < 2 ? DASH_OFF : DASH_NONE, label.length() > 1 && mod && i < 2 ? word : letter);
-            x += kw;
-        }
+        modRow(canvas, side, top, width, rowH, text, accentText, glow, glowPx, letter, word);
         // the numbers and the letters
         String numbers = "1234567890";
         for (int i = 0; i < numbers.length(); i++) {
@@ -541,7 +554,7 @@ final class MrThemePreview extends View {
         // the bottom row: 123, F1, space, the full stop and enter
         float y = top + 5f * rowH;
         float a = width * 0.20f, b = unit, space = width * 0.40f;
-        x = side;
+        float x = side;
         key(canvas, x, y, a, rowH, true, "123", accentText, glow, glowPx, FACE_NORMAL, DASH_NONE, word);
         x += a;
         key(canvas, x, y, b, rowH, true, "F1", accentText, glow, glowPx, FACE_NORMAL, DASH_NONE, word);

@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 817
+    .line 825
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->val$onApply:Ljava/lang/Runnable;
@@ -49,16 +49,16 @@
     .locals 1
 
     .prologue
-    .line 819
+    .line 827
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->closeDialog()V
 
-    .line 820
+    .line 828
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$13;->val$onApply:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 821
+    .line 829
     return-void
 .end method

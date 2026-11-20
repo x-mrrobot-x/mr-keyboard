@@ -3,7 +3,7 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Lcom/mrkeyboard/app/MrColorPicker$Listener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
@@ -20,17 +20,21 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
+.field final synthetic val$before:Lcom/mrkeyboard/app/MrKeyLook;
+
+.field final synthetic val$draw:[Ljava/lang/Runnable;
+
 .field final synthetic val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
 .field final synthetic val$redraw:Ljava/lang/Runnable;
 
 .field final synthetic val$style:[I
 
-.field final synthetic val$which:I
+.field final synthetic val$styleBefore:I
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;[Lcom/mrkeyboard/app/MrKeyLook;I[ILjava/lang/Runnable;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;[Lcom/mrkeyboard/app/MrKeyLook;Lcom/mrkeyboard/app/MrKeyLook;[IILjava/lang/Runnable;[Ljava/lang/Runnable;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -39,16 +43,20 @@
     .end annotation
 
     .prologue
-    .line 1167
+    .line 1240
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
-    iput p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$which:I
+    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$before:Lcom/mrkeyboard/app/MrKeyLook;
 
     iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$style:[I
 
-    iput-object p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$redraw:Ljava/lang/Runnable;
+    iput p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$styleBefore:I
+
+    iput-object p6, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$redraw:Ljava/lang/Runnable;
+
+    iput-object p7, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$draw:[Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -57,36 +65,43 @@
 
 
 # virtual methods
-.method public onColor(I)V
-    .locals 5
+.method public run()V
+    .locals 3
 
     .prologue
-    const/4 v4, 0x0
+    const/4 v2, 0x0
 
-    .line 1169
+    .line 1242
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$before:Lcom/mrkeyboard/app/MrKeyLook;
 
-    aget-object v1, v1, v4
+    aput-object v1, v0, v2
 
-    iget v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$which:I
+    .line 1243
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$style:[I
 
-    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$style:[I
+    iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$styleBefore:I
 
-    aget v3, v3, v4
+    aput v1, v0, v2
 
-    invoke-static {v1, v2, v3, p1}, Lcom/mrkeyboard/app/MrThemesActivity;->withPicked(Lcom/mrkeyboard/app/MrKeyLook;III)Lcom/mrkeyboard/app/MrKeyLook;
-
-    move-result-object v1
-
-    aput-object v1, v0, v4
-
-    .line 1170
+    .line 1244
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1171
+    .line 1245
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->closePicker()V
+
+    .line 1246
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$28;->val$draw:[Ljava/lang/Runnable;
+
+    aget-object v0, v0, v2
+
+    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+
+    .line 1247
     return-void
 .end method

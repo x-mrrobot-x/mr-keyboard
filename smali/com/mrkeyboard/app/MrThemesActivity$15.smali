@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 852
+    .line 860
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$15;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$15;->val$index:I
@@ -49,13 +49,13 @@
     .locals 2
 
     .prologue
-    .line 854
+    .line 862
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$15;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$15;->val$index:I
 
     invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrThemesActivity;->chooseTheme(I)V
 
-    .line 855
+    .line 863
     return-void
 .end method

@@ -71,8 +71,8 @@ final class MrBackdrop {
     /** The veil is never denser than this (the background must still be seen). */
     static final float MAX_VEIL = 0.75f;
 
-    /** Shape of the keyboard that a preview and the small copy stand for (width / height). */
-    static final float ASPECT = 2.4f;
+    /** Shape of the keyboard that a preview and the small copy stand for (width / height): the line of suggestions over five rows of keys. */
+    static final float ASPECT = 2.0f;
     /** Size of the small copy that the brightness is measured on. */
     static final int PROBE_W = 48;
     /** The share of the height of the keyboard that the toolbar (the line of suggestions, the ink that must stay readable) takes at the top. */
@@ -80,10 +80,10 @@ final class MrBackdrop {
 
     /** The plain colours (opaque), in the order of the tiles. */
     static final int[] COLORS = {
-            0xff263238, 0xffd9eafc, 0xff37393d, 0xffc62828,
-            0xff00695c, 0xff1565c0, 0xff80deea, 0xff4527a0,
+            0xff263238, 0xffd9eafc, 0xff1565c0, 0xffc62828,
+            0xff00695c, 0xff37393d, 0xff80deea, 0xff4527a0,
             0xff6a1b9a, 0xffad1457, 0xfff8bbd0, 0xffd7ccc8,
-            0xff4e342e, 0xff37474f, 0xff000000, 0xff161616};
+            0xff37474f, 0xff000000, 0xff161616};
 
     /** The contrast with white that a colour needs to carry white ink; under it the ink is dark. */
     static final float WHITE_INK_CONTRAST = 4.5f;
@@ -113,9 +113,9 @@ final class MrBackdrop {
     static final Grad[] GRADS = {
             down(0xff1b1464, 0xff5b2a86, 0xffb24fa4),
             down(0xff62656a, 0xff38393d, 0xff060607),
-            down(0xff5c6b73, 0xff2b363c),
-            down(0xff00836f, 0xff00594f),
             down(0xff1a75e3, 0xff0d4fb3),
+            down(0xff00836f, 0xff00594f),
+            down(0xff5c6b73, 0xff2b363c),
             new Grad(180, new int[] {0xff376896, 0xff2f587d, 0xff1c3249, 0xff0e1826}, new float[] {0f, 0.55f, 0.88f, 1f}, null),
             down(0xff595b60, 0xff2f3338),
             down(0xff0b564c, 0xff011f1e),
@@ -501,28 +501,38 @@ final class MrBackdrop {
     }
 
     /**
-     * The tag of the theme that a background puts the keyboard in, with the style of keys chosen ({@link #STYLE_TAGS}). A background that needs
-     * dark ink has only the see-through keys with dark ink (the dense styles all have white ink and would not read on the toolbar).
+     * The tag of the theme that a background puts the keyboard in, with the style of keys chosen ({@link #STYLE_TAGS}). A background that needs dark ink
+     * (a pale colour) has only the see-through keys with dark ink (the clear glass) and the three kinds of the person's own colour written for dark ink
+     * ({@link #DARK_OWN_TAGS}): the dense styles all have white ink and would not read on it.
      */
     static String themeTag(Spec spec, int style) {
-        if (darkInk(spec)) return TAG_DARK_INK;
-        return STYLE_TAGS[clamp(style, 0, STYLES - 1)];
+        int s = clamp(style, 0, STYLES - 1);
+        if (darkInk(spec)) return s == 0 ? TAG_DARK_INK : DARK_OWN_TAGS[kindOf(s)];
+        return STYLE_TAGS[s];
     }
 
-    /** Whether the styles of keys can be chosen for this background (all but the plain colours that need dark ink). */
+    /** Whether the styles of keys can be chosen for this background: any background has them, a pale colour with the ink dark (see {@link #themeTag(Spec, int)}). */
     static boolean hasStyles(Spec spec) {
-        return spec != null && spec.kind != NONE && !darkInk(spec);
+        return spec != null && spec.kind != NONE;
     }
 
-    /** The style of keys that a theme tag stands for: its position in {@link #STYLE_TAGS}, 0 for any other theme (the see-through keys). */
+    /**
+     * The style of keys that a theme tag stands for: its position in {@link #STYLE_TAGS}, the one of the person's own colour of the kind for a theme of
+     * {@link #DARK_OWN_TAGS}, 0 for any other theme (the see-through keys).
+     */
     static int styleOf(String tag) {
         for (int i = 0; i < STYLES; i++) {
             if (STYLE_TAGS[i].equals(tag)) return i;
+        }
+        for (int k = 0; k < KINDS; k++) {
+            if (DARK_OWN_TAGS[k].equals(tag)) return ownStyle(k);
         }
         return 0;
     }
 
     static final String TAG_LIGHT_INK = "mr_overlight", TAG_DARK_INK = "mr_overdark";
+    /** The styles of the person's own colour for a background with dark ink (glass, outline, gradient: the same kinds as the last three of {@link #STYLE_TAGS}). */
+    static final String[] DARK_OWN_TAGS = {"mr_overpaleglass", "mr_overpaleline", "mr_overpalegrad"};
     /**
      * The styles of the keys of a background, each one a theme of the backgrounds with light ink, all of them see-through (what shows through the
      * key is the background): the clear glass, three tinted glasses and a dark one, six outlines (a line of one hue around an almost empty face) and four gradients
@@ -572,10 +582,34 @@ final class MrBackdrop {
         return style >= PRESETS && style < STYLES;
     }
 
-    /** Whether the theme {@code tag} is the style of the person's own colour of a kind. */
+    /** Whether the theme {@code tag} is the style of the person's own colour of a kind (for light ink or for dark ink). */
     static boolean isOwn(String tag) {
-        return tag != null && isOwnStyle(styleOf(tag)) && STYLE_TAGS[styleOf(tag)].equals(tag);
+        if (tag == null) return false;
+        for (int k = 0; k < KINDS; k++) {
+            if (DARK_OWN_TAGS[k].equals(tag) || STYLE_TAGS[ownStyle(k)].equals(tag)) return true;
+        }
+        return false;
     }
+
+    /**
+     * The colour that the preset {@code style} stands for when it is chosen on a background with dark ink, where the presets are not themes of their own:
+     * the keys take it as the colour of the person's own (the hue of the glass or of the line, or where the gradient starts). A pale colour, which a pale
+     * background would swallow (the white outline), is a dark slate instead.
+     */
+    static int presetColour(int style, boolean darkInk) {
+        int c = STYLE_COLORS[clamp(style, 0, PRESETS - 1)][0];
+        return darkInk && MrThemeColors.luminance(c) > PALE_PRESET ? DARK_SLATE : c;
+    }
+
+    /** Where the preset {@code style} ends (the last colour of a gradient; the colour itself for any other), as {@link #presetColour}. */
+    static int presetEnd(int style, boolean darkInk) {
+        int[] cs = STYLE_COLORS[clamp(style, 0, PRESETS - 1)];
+        return cs.length > 1 ? cs[cs.length - 1] : presetColour(style, darkInk);
+    }
+
+    /** The brightness over which a preset is too pale for a pale background, and the colour that it is then. */
+    static final float PALE_PRESET = 0.85f;
+    static final int DARK_SLATE = 0xff3c4a5e;
 
     // ---- the picture of the gallery
 

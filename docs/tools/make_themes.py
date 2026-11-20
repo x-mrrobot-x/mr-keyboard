@@ -1360,6 +1360,55 @@ SOLID.extend(over_outline(*t) for t in OVER_OUTLINE)
 SOLID.extend(over_gradient(*t) for t in OVER_GRADIENT)
 SOLID.extend(over_own(*t) for t in OVER_OWN)
 
+# The same three styles of the person's own colour for a background that needs dark ink (a pale colour: MrBackdrop.darkInk): the base is the one of
+# overdark (a pale slate, a dark grey ink, a white bubble) and the tones go towards black where the ones above go towards white, so that the faces still
+# lighten a pale background a little under the finger and the lines and the labels are dark tones of the colour. The drawables are in SPECTRUM_FROM and the
+# keyboard moves that hue to the colour chosen, as in the styles above (MrKeyLook; flags GLOW and SPECTRUM). The light of the labels is only a hint.
+DARK_BASE = dict(bg='#e9edf2', key='#ffffff', mod='#d5dbe3', accent='#1a73e8')
+DARK_LOCK_FILL, DARK_LOCK_EDGE = '#59d93b3b', '#ffb71c1c'
+
+
+def dtone(hue, black, opacity):
+    """The hue mixed with `black` (0..1) at `opacity` (0..1): '#aarrggbb'."""
+    return alpha(mix(hue, BLACK, black), opacity)
+
+
+def over_dark_own(tag, name, kind):
+    hue = SPECTRUM_FROM
+    if kind == 'glass':
+        fills = (alpha(hue, .20), dtone(hue, .20, .40), alpha(hue, .34), DARK_LOCK_FILL)
+        acc_fills = (alpha(hue, .22), dtone(hue, .20, .44), alpha(hue, .38), DARK_LOCK_FILL)
+        edges = (dtone(hue, .25, .35), dtone(hue, .35, .55), dtone(hue, .35, .50), DARK_LOCK_EDGE)
+        acc_edges = (dtone(hue, .25, .42), dtone(hue, .35, .60), dtone(hue, .35, .55), DARK_LOCK_EDGE)
+        text, hint, light = mix(hue, BLACK, .78), '#5f6368', 0
+    else:
+        fills = (alpha(hue, .06), dtone(hue, .10, .30), alpha(hue, .20), DARK_LOCK_FILL)
+        acc_fills = (alpha(hue, .12), dtone(hue, .10, .34), alpha(hue, .26), DARK_LOCK_FILL)
+        edges = (dtone(hue, .20, .85), dtone(hue, .40, 1), dtone(hue, .30, 1), DARK_LOCK_EDGE)
+        acc_edges = (dtone(hue, .20, .92), dtone(hue, .45, 1), dtone(hue, .35, 1), DARK_LOCK_EDGE)
+        text, hint, light = mix(hue, BLACK, .72), (mix(hue, BLACK, .45) if kind == 'gradient' else '#5f6368'), (.06 if kind == 'gradient' else 0)
+    roles = collections.OrderedDict([
+        ('ctrl_bg', DARK_BASE['mod']),
+        ('hint', hint),
+        ('modifier_indicator_off', '#7d8799'), ('modifier_indicator_on', '#0842a0'), ('modifier_indicator_lock', '#b71c1c'),
+        ('bubble_fill', '#ffffff'), ('bubble_stroke', '#c4cad3'), ('popup_key_fill', '#a9c8f4'),
+        ('key_normal_fill', fills[0]), ('key_pressed_fill', fills[1]), ('key_on_fill', fills[2]), ('key_lock_fill', fills[3]),
+        ('key_acc_normal_fill', acc_fills[0]), ('key_acc_pressed_fill', acc_fills[1]), ('key_acc_on_fill', acc_fills[2]), ('key_acc_lock_fill', acc_fills[3]),
+    ])
+    for state, color in zip(('normal', 'pressed', 'on', 'lock'), edges):
+        roles['key_%s_edge' % state] = color
+    for state, color in zip(('acc_normal', 'acc_pressed', 'acc_on', 'acc_lock'), acc_edges):
+        roles['key_%s_edge' % state] = color
+    own_roles(roles, hue, light)
+    return solid(tag, name, bg=DARK_BASE['bg'], key=DARK_BASE['key'], mod=DARK_BASE['mod'], text=hex6(text), accent=DARK_BASE['accent'], tint=DARK_BASE['accent'], lip=0,
+                 roles=roles)
+
+
+# tag, name, kind (the order of MrBackdrop.DARK_OWN_TAGS; "pale" is the colour of the background that needs them)
+OVER_DARK_OWN = [('overpaleglass', 'Background, dark ink, own colour glass', 'glass'), ('overpaleline', 'Background, dark ink, own colour outline', 'outline'),
+                 ('overpalegrad', 'Background, dark ink, own colour gradient', 'gradient')]
+SOLID.extend(over_dark_own(*t) for t in OVER_DARK_OWN)
+
 # ---------------------------------------------------------------------------------------------------------------
 # The look of a solid key in each state: share of the accent mixed into the face of the key at rest.
 # ---------------------------------------------------------------------------------------------------------------
@@ -1920,7 +1969,7 @@ LAYOUTS = collections.OrderedDict([
 #   AFTER   the last theme written by hand in strings.xml: the names of the generated themes go right after it
 # ---------------------------------------------------------------------------------------------------------------
 ORDER = (['midnight', 'aurora', 'cyan', 'purple', 'pink', 'synthwave', 'aqua', 'sky', 'snow', 'chrome', 'rose', 'glass', 'denim', 'overlight', 'overdark']
-         + [t[0] for t in OVER_GLASS + OVER_DARK + OVER_OUTLINE + OVER_GRADIENT + OVER_OWN])
+         + [t[0] for t in OVER_GLASS + OVER_DARK + OVER_OUTLINE + OVER_GRADIENT + OVER_OWN + OVER_DARK_OWN])
 HAND = ('glass',)
 AFTER = 'glass'
 Family = collections.namedtuple('Family', 'name themes flags colors drawables intro')

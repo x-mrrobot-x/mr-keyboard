@@ -3,7 +3,7 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Lcom/mrkeyboard/app/MrThemesActivity$Setter;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
@@ -20,13 +20,25 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
+.field final synthetic val$draw:[Ljava/lang/Runnable;
+
+.field final synthetic val$keysBox:Landroid/widget/LinearLayout;
+
+.field final synthetic val$lineBox:Landroid/widget/LinearLayout;
+
 .field final synthetic val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+
+.field final synthetic val$pale:Z
 
 .field final synthetic val$redraw:Ljava/lang/Runnable;
 
+.field final synthetic val$style:[I
+
+.field final synthetic val$textBox:Landroid/widget/LinearLayout;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Landroid/widget/LinearLayout;Z[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;Landroid/widget/LinearLayout;Landroid/widget/LinearLayout;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -35,12 +47,24 @@
     .end annotation
 
     .prologue
-    .line 914
+    .line 925
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$keysBox:Landroid/widget/LinearLayout;
 
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$redraw:Ljava/lang/Runnable;
+    iput-boolean p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$pale:Z
+
+    iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$style:[I
+
+    iput-object p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+
+    iput-object p6, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$redraw:Ljava/lang/Runnable;
+
+    iput-object p7, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$draw:[Ljava/lang/Runnable;
+
+    iput-object p8, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$lineBox:Landroid/widget/LinearLayout;
+
+    iput-object p9, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$textBox:Landroid/widget/LinearLayout;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,30 +73,67 @@
 
 
 # virtual methods
-.method public set(I)V
-    .locals 3
+.method public run()V
+    .locals 7
 
     .prologue
-    const/4 v2, 0x0
+    .line 927
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$keysBox:Landroid/widget/LinearLayout;
 
-    .line 916
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+    if-eqz v0, :cond_0
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    aget-object v1, v1, v2
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$keysBox:Landroid/widget/LinearLayout;
 
-    invoke-virtual {v1, p1}, Lcom/mrkeyboard/app/MrKeyLook;->withKey(I)Lcom/mrkeyboard/app/MrKeyLook;
+    iget-boolean v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$pale:Z
 
-    move-result-object v1
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$style:[I
 
-    aput-object v1, v0, v2
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
-    .line 917
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$redraw:Ljava/lang/Runnable;
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$redraw:Ljava/lang/Runnable;
 
-    invoke-interface {v0}, Ljava/lang/Runnable;->run()V
+    iget-object v6, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$draw:[Ljava/lang/Runnable;
 
-    .line 918
+    invoke-static/range {v0 .. v6}, Lcom/mrkeyboard/app/MrThemesActivity;->access$100(Lcom/mrkeyboard/app/MrThemesActivity;Landroid/widget/LinearLayout;Z[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
+
+    .line 928
+    :cond_0
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$lineBox:Landroid/widget/LinearLayout;
+
+    if-eqz v0, :cond_1
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$lineBox:Landroid/widget/LinearLayout;
+
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$style:[I
+
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$redraw:Ljava/lang/Runnable;
+
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$draw:[Ljava/lang/Runnable;
+
+    invoke-static/range {v0 .. v5}, Lcom/mrkeyboard/app/MrThemesActivity;->access$200(Lcom/mrkeyboard/app/MrThemesActivity;Landroid/widget/LinearLayout;[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
+
+    .line 929
+    :cond_1
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$textBox:Landroid/widget/LinearLayout;
+
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$style:[I
+
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
+
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$redraw:Ljava/lang/Runnable;
+
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrThemesActivity$18;->val$draw:[Ljava/lang/Runnable;
+
+    invoke-static/range {v0 .. v5}, Lcom/mrkeyboard/app/MrThemesActivity;->access$300(Lcom/mrkeyboard/app/MrThemesActivity;Landroid/widget/LinearLayout;[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
+
+    .line 930
     return-void
 .end method

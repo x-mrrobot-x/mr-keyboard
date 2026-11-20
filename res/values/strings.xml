@@ -235,6 +235,9 @@
     <string name="layout_mr_overownglass">Background, own colour glass</string>
     <string name="layout_mr_overownline">Background, own colour outline</string>
     <string name="layout_mr_overowngrad">Background, own colour gradient</string>
+    <string name="layout_mr_overpaleglass">Background, dark ink, own colour glass</string>
+    <string name="layout_mr_overpaleline">Background, dark ink, own colour outline</string>
+    <string name="layout_mr_overpalegrad">Background, dark ink, own colour gradient</string>
     <string name="main_body">" 
         &lt;h2>Enabling Mr Keyboard&lt;/h2>
         
