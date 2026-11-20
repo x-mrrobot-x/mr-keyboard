@@ -32,6 +32,7 @@ public final class MrReset implements Preference.OnPreferenceClickListener {
             "pref_kbd_look_text",
             "pref_kbd_look_hue",
             "pref_kbd_look_hue2",
+            "pref_kbd_look_line",
             "settings_height_portrait",
             "settings_height_landscape",
             "pref_bar_scale",

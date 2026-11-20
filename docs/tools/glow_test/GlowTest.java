@@ -165,11 +165,13 @@ public class GlowTest {
         Paint accentLabel = paint(0xff112233, 60f);
         MrGlow.key(kbd, keyAt(10, 10), true, accentLabel);
         check("a highlight key has it as well", accentLabel.getColor() == 0xffff8800);
+        check("the toolbar takes it for its text and its icons (MrTools.wrap asks), and a fainter one of it for its secondary text", MrGlow.toolInk() == 0xffff8800
+                && (MrGlow.toolHint(0xffff8800) & 0xffffff) == 0xff8800 && (MrGlow.toolHint(0xffff8800) >>> 24) < 0xff && (MrGlow.toolHint(0xffff8800) >>> 24) > 0x40);
         theme("mr_plain", false, false);
         MrGlow.reset();
         Paint plain = paint(TEXT, 60f);
         MrGlow.key(kbd, key, false, plain);
-        check("a theme of the list does not read it (the preference may be left from a background)", plain.getColor() == TEXT && MrGlow.iconFilter(null) == null);
+        check("a theme of the list does not read it (the preference may be left from a background)", plain.getColor() == TEXT && MrGlow.iconFilter(null) == null && MrGlow.toolInk() == 0);
         theme("mr_overice", false, false);
         MrGlow.reset();
 
@@ -197,6 +199,25 @@ public class GlowTest {
         Layer a = new Layer(), b = new Layer();
         MrGlow.drawKey(new LayerDrawable(new Drawable[] {a, b}), new Canvas(), 100, 100);
         check("back to the opacity of the theme: the face is drawn as before (no filter on any layer)", a.seen.isEmpty() && b.seen.isEmpty() && KeyStyle.stubDrawn.size() == 1);
+
+        // the colour of the line: the line of the style is hidden (the keyboard draws the colour that was chosen itself) and the fill keeps its own filter
+        prefs.edit().putInt(MrKeyLook.PREF_LINE, 0xff3366ff).apply();
+        MrKeyLook.changed(MrKeyLook.PREF_LINE);
+        MrGlow.key(kbd, key, false, paint(TEXT, 60f));
+        Layer lf = new Layer(), ll = new Layer();
+        MrGlow.drawKey(new LayerDrawable(new Drawable[] {lf, ll}), new Canvas(), 100, 100);
+        check("with a colour of the line chosen the face is drawn tuned (the line only is hidden: alpha 0) even at the opacities of the style",
+                lf.seen.size() == 2 && ll.seen.size() == 2 && alphaOf(lf.seen.get(0)) == 1f && alphaOf(ll.seen.get(0)) == 0f && lf.seen.get(1) == null && ll.seen.get(1) == null);
+        Layer glass = new Layer();
+        MrGlow.drawKey(glass, new Canvas(), 100, 100);
+        check("a face of one layer (the clear glass) is drawn through the fill's filter, and the line over it", glass.seen.size() == 2 && alphaOf(glass.seen.get(0)) == 1f);
+        prefs.edit().putInt(MrKeyLook.PREF_LINE, 0).apply();
+        MrKeyLook.changed(MrKeyLook.PREF_LINE);
+        MrGlow.key(kbd, key, false, paint(TEXT, 60f));
+        Layer na = new Layer(), nb = new Layer();
+        KeyStyle.stubDrawn.clear();
+        MrGlow.drawKey(new LayerDrawable(new Drawable[] {na, nb}), new Canvas(), 100, 100);
+        check("automatic again: the face is drawn as the style has it", na.seen.isEmpty() && nb.seen.isEmpty() && KeyStyle.stubDrawn.size() == 1);
         prefs.edit().putInt(MrKeyLook.PREF_KEY, 999).apply();
         MrKeyLook.changed(MrKeyLook.PREF_KEY);
         MrGlow.key(kbd, key, false, paint(TEXT, 60f));

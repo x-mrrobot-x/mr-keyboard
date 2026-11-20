@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->showColorPicker(Ljava/lang/String;I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->showColorPicker(Ljava/lang/String;I[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 1144
+    .line 1184
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$30;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$30;->val$cancelNow:Ljava/lang/Runnable;
@@ -49,11 +49,11 @@
     .locals 1
 
     .prologue
-    .line 1146
+    .line 1186
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$30;->val$cancelNow:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1147
+    .line 1187
     return-void
 .end method

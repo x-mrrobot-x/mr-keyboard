@@ -839,9 +839,11 @@
     <string name="mr_themes_mine">My image</string>
     <string name="mr_themes_soften">Soften background</string>
     <string name="mr_themes_soften_hint">A veil keeps the suggestions readable over any background.</string>
-    <string name="mr_themes_key_opacity">Background opacity</string>
-    <string name="mr_themes_edge_opacity">Border opacity</string>
-    <string name="mr_themes_text_color">Text colour</string>
+    <string name="mr_themes_key_color">Key background colour</string>
+    <string name="mr_themes_line_color">Key border colour</string>
+    <string name="mr_themes_key_opacity">Key background opacity</string>
+    <string name="mr_themes_edge_opacity">Key border opacity</string>
+    <string name="mr_themes_text_color">Text and toolbar icon colour</string>
     <string name="mr_themes_grad_end">End of the gradient</string>
     <string name="mr_themes_auto">Automatic</string>
     <string name="mr_themes_pick_color">Pick a colour</string>

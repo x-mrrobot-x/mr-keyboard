@@ -11,7 +11,7 @@ import android.view.View;
 /**
  * The picture of the gallery with the frame of the keyboard over it, to choose which part of the picture the keyboard will show: the whole picture is
  * drawn as large as the view allows, the part outside the frame is dimmed, and the frame has the shape of the keyboard
- * ({@link MrThemePreview#FULL_ASPECT}: the complete keyboard, with its line of suggestions). One finger drags the frame; two fingers pinched make it smaller, spread make it bigger (the zoom of the picture goes
+ * ({@link MrThemePreview#fullAspect}: the complete keyboard of this phone, the toolbar and the seven rows of keys, as tall as the setting of the keyboard makes it). One finger drags the frame; two fingers pinched make it smaller, spread make it bigger (the zoom of the picture goes
  * the other way: a smaller frame is a bigger zoom). The frame is the {@link MrBackdrop#crop} of the zoom and the position, so what is chosen here
  * is what the keyboard shows. The softening of the background is not set here: it is in the preview that follows.
  */
@@ -81,8 +81,8 @@ final class MrCropView extends View {
     }
 
     /** The shape of the frame (that of the complete keyboard) as two whole numbers (what {@link MrBackdrop#crop} takes). */
-    private static int shapeW() {
-        return Math.round(MrThemePreview.FULL_ASPECT * 100f);
+    private int shapeW() {
+        return Math.round(MrThemePreview.fullAspect(getContext()) * 100f);
     }
 
     /** The frame on the view: the {@link MrBackdrop#crop} of the picture, moved to where the picture is drawn. */

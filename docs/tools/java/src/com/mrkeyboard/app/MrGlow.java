@@ -6,7 +6,10 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.view.View;
 import android.widget.TextView;
@@ -137,6 +140,20 @@ final class MrGlow {
         }
     }
 
+    /**
+     * The colour of the text and of the icons of the toolbar that the person chose (the colour of the letters of the keys), for a theme of the backgrounds;
+     * 0 = the theme's own. MrTools.wrap asks it when the keyboard is made.
+     */
+    static int toolInk() {
+        tuning();
+        return sText;
+    }
+
+    /** The secondary text of the toolbar for the ink {@code ink} that the person chose: the same colour, fainter. */
+    static int toolHint(int ink) {
+        return fade(ink, HINT_SHARE);
+    }
+
     /** Forgets the theme that was read (tests). */
     static void reset() {
         sTag = null;
@@ -217,7 +234,8 @@ final class MrGlow {
             KeyStyle.drawKey(d, c, w, h);
             return;
         }
-        drawFace(d, c, w, h, step < 0 ? null : faceFilter(step), tuned ? fillFilter(step) : null, tuned ? edgeFilter(step) : null);
+        drawFace(d, c, w, h, step < 0 ? null : faceFilter(step), tuned ? fillFilter(step) : null, tuned ? edgeFilter(step) : null,
+                tuned ? sLook.line : 0, sLook.lineAlpha(), sDensity);
     }
 
     /**
@@ -226,20 +244,68 @@ final class MrGlow {
      * goes through {@code fill}. The filters are taken off afterwards.
      */
     static void drawFace(Drawable d, Canvas c, int w, int h, ColorFilter whole, ColorFilter fill, ColorFilter edge) {
+        drawFace(d, c, w, h, whole, fill, edge, 0, 0f, 1f);
+    }
+
+    /**
+     * The same, with the colour of the line that the person chose ({@code line}, 0 = the line of the style): the line of the style is hidden and the
+     * keyboard draws a line of its own over the face, of that colour at {@code lineAlpha} (0 .. 1) and 1 dp ({@code density}). It is drawn by the
+     * keyboard, not taken from the style, so that every style can have one (the clear glass has none) and it has the colour that was chosen whatever the
+     * style's own line is.
+     */
+    static void drawFace(Drawable d, Canvas c, int w, int h, ColorFilter whole, ColorFilter fill, ColorFilter edge, int line, float lineAlpha, float density) {
         if (d == null) {
             KeyStyle.drawKey(d, c, w, h);
             return;
         }
         if (fill != null) {
-            if (edge == null || !splitFace(d, fill, edge)) d.setColorFilter(fill);
+            if (edge == null || !splitFace(d, fill, line != 0 ? hidden() : edge)) d.setColorFilter(fill);
         } else if (whole != null) {
             d.setColorFilter(whole);
         }
         try {
             KeyStyle.drawKey(d, c, w, h);
+            if (line != 0) strokeFace(d, c, line, lineAlpha, density);
         } finally {
             d.setColorFilter(null);
         }
+    }
+
+    private static ColorFilter sHidden;
+    private static final Paint sLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private static final RectF sLineRect = new RectF();
+
+    /** The filter that draws nothing (the line of the style, when the person's line is drawn in its place). */
+    private static ColorFilter hidden() {
+        if (sHidden == null) sHidden = filter(null, 0f);
+        return sHidden;
+    }
+
+    /**
+     * The line of the colour that the person chose: a rounded rectangle 1 dp thick along the edge of the fill of the face (the layer under the line of the
+     * style, or the only one), with the corners of that fill. The face has been prepared, so the bounds of its layers are those of the key.
+     */
+    private static void strokeFace(Drawable d, Canvas c, int line, float alpha, float density) {
+        Drawable fill = d.getCurrent();
+        if (fill instanceof LayerDrawable) {
+            LayerDrawable layers = (LayerDrawable) fill;
+            int n = layers.getNumberOfLayers();
+            if (n == 0) return;
+            fill = layers.getDrawable(n >= 2 ? n - 2 : 0);
+        }
+        if (fill == null) return;
+        Rect b = fill.getBounds();
+        float w = Math.max(1f, density);
+        sLineRect.set(b.left + w / 2f, b.top + w / 2f, b.right - w / 2f, b.bottom - w / 2f);
+        if (sLineRect.width() <= w || sLineRect.height() <= w) return;
+        float r = fill instanceof GradientDrawable ? ((GradientDrawable) fill).getCornerRadius() : 0f;
+        if (r <= 0f) r = 8f * density;
+        r = Math.max(0f, r - w / 2f);
+        sLinePaint.setShader(null);
+        sLinePaint.setStyle(Paint.Style.STROKE);
+        sLinePaint.setStrokeWidth(w);
+        sLinePaint.setColor((Math.round(clamp(alpha, 0f, 1f) * 255f) << 24) | (line & 0xffffff));
+        c.drawRoundRect(sLineRect.left, sLineRect.top, sLineRect.right, sLineRect.bottom, r, r, sLinePaint);
     }
 
     /** Gives the fill and the line of the face (its last two layers) their own filters; false when the face has not two layers. */

@@ -200,7 +200,7 @@
 
     move-result v1
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrCropView;->shapeW()I
+    invoke-direct {p0}, Lcom/mrkeyboard/app/MrCropView;->shapeW()I
 
     move-result v2
 
@@ -318,7 +318,7 @@
 
     move-result v1
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrCropView;->shapeW()I
+    invoke-direct {p0}, Lcom/mrkeyboard/app/MrCropView;->shapeW()I
 
     move-result v2
 
@@ -444,12 +444,22 @@
     return-void
 .end method
 
-.method private static shapeW()I
-    .locals 1
+.method private shapeW()I
+    .locals 2
 
     .prologue
     .line 85
-    const/high16 v0, 0x432a0000    # 170.0f
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/MrCropView;->getContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrThemePreview;->fullAspect(Landroid/content/Context;)F
+
+    move-result v0
+
+    const/high16 v1, 0x42c80000    # 100.0f
+
+    mul-float/2addr v0, v1
 
     invoke-static {v0}, Ljava/lang/Math;->round(F)I
 
@@ -537,7 +547,7 @@
 
     move-result v1
 
-    invoke-static {}, Lcom/mrkeyboard/app/MrCropView;->shapeW()I
+    invoke-direct {p0}, Lcom/mrkeyboard/app/MrCropView;->shapeW()I
 
     move-result v2
 

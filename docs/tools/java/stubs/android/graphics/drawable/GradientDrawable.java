@@ -8,6 +8,9 @@ public class GradientDrawable extends Drawable {
     /** What was asked (the PC tests tell the chosen tile from the others by it). */
     public int stubFill, stubLine;
     public void setColor(int argb) { stubFill = argb; }
-    public void setCornerRadius(float radius) { }
+    /** The radius as last set (the real class answers it too). */
+    public float stubRadius;
+    public void setCornerRadius(float radius) { stubRadius = radius; }
+    public float getCornerRadius() { return stubRadius; }
     public void setStroke(int width, int color) { stubLine = color; }
 }

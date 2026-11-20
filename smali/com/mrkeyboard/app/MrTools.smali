@@ -3635,6 +3635,25 @@
     sput v1, Lcom/mrkeyboard/app/MrTools;->sHint:I
 
     :cond_mr_inkh
+    # the colour that the person chose for the text of the keys and the icons of the toolbar (a theme of the backgrounds; 0 = none chosen): it is the
+    # ink of the bar, the panels and the suggestions, the text of the keys that sit in them (the clipboard cards) and, a little fainter, the secondary text
+    invoke-static {}, Lcom/mrkeyboard/app/MrGlow;->toolInk()I
+
+    move-result v1
+
+    if-eqz v1, :cond_mr_look
+
+    sput v1, Lcom/mrkeyboard/app/MrTools;->sTextColor:I
+
+    sput v1, Lcom/mrkeyboard/app/MrTools;->sKeyText:I
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrGlow;->toolHint(I)I
+
+    move-result v1
+
+    sput v1, Lcom/mrkeyboard/app/MrTools;->sHint:I
+
+    :cond_mr_look
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->getMrKeyBackground()Landroid/graphics/drawable/Drawable;
 
     move-result-object v1

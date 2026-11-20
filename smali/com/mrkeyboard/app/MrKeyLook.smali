@@ -6,11 +6,15 @@
 # static fields
 .field static final DASH_OFF_SHARE:F = 0.45f
 
+.field static final LINE_BASE:F = 0.6f
+
 .field static final NONE:Lcom/mrkeyboard/app/MrKeyLook;
 
 .field static final OPACITY_DEFAULT:I = 0x64
 
 .field static final OPACITY_MAX:I = 0xfa
+
+.field static final PALE:F = 0.85f
 
 .field static final PARTNER_SHIFT:F = 100.0f
 
@@ -26,7 +30,13 @@
 
 .field static final PREF_KEY:Ljava/lang/String; = "pref_kbd_look_key"
 
+.field static final PREF_LINE:Ljava/lang/String; = "pref_kbd_look_line"
+
 .field static final PREF_TEXT:Ljava/lang/String; = "pref_kbd_look_text"
+
+.field static final TONE_DOWN:F = 0.14f
+
+.field static final TONE_UP:F = 0.28f
 
 .field private static sCurrent:Lcom/mrkeyboard/app/MrKeyLook;
 
@@ -42,12 +52,14 @@
 
 .field final key:I
 
+.field final line:I
+
 .field final text:I
 
 
 # direct methods
 .method static constructor <clinit>()V
-    .locals 6
+    .locals 7
 
     .prologue
     const/16 v1, 0x64
@@ -55,7 +67,7 @@
     const/4 v3, 0x0
 
     .line 22
-    const/4 v0, 0x5
+    const/4 v0, 0x6
 
     new-array v0, v0, [Ljava/lang/String;
 
@@ -87,9 +99,15 @@
 
     aput-object v4, v0, v2
 
+    const/4 v2, 0x5
+
+    const-string v4, "pref_kbd_look_line"
+
+    aput-object v4, v0, v2
+
     sput-object v0, Lcom/mrkeyboard/app/MrKeyLook;->PREFS:[Ljava/lang/String;
 
-    .line 31
+    .line 41
     new-instance v0, Lcom/mrkeyboard/app/MrKeyLook;
 
     move v2, v1
@@ -98,7 +116,9 @@
 
     move v5, v3
 
-    invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIII)V
+    move v6, v3
+
+    invoke-direct/range {v0 .. v6}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIIII)V
 
     sput-object v0, Lcom/mrkeyboard/app/MrKeyLook;->NONE:Lcom/mrkeyboard/app/MrKeyLook;
 
@@ -106,6 +126,31 @@
 .end method
 
 .method constructor <init>(IIIII)V
+    .locals 7
+
+    .prologue
+    .line 50
+    const/4 v6, 0x0
+
+    move-object v0, p0
+
+    move v1, p1
+
+    move v2, p2
+
+    move v3, p3
+
+    move v4, p4
+
+    move v5, p5
+
+    invoke-direct/range {v0 .. v6}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIIII)V
+
+    .line 51
+    return-void
+.end method
+
+.method constructor <init>(IIIIII)V
     .locals 3
 
     .prologue
@@ -113,24 +158,24 @@
 
     const/high16 v2, -0x1000000
 
-    .line 36
+    .line 53
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 37
+    .line 54
     invoke-static {p1}, Lcom/mrkeyboard/app/MrKeyLook;->clampOpacity(I)I
 
     move-result v0
 
     iput v0, p0, Lcom/mrkeyboard/app/MrKeyLook;->key:I
 
-    .line 38
+    .line 55
     invoke-static {p2}, Lcom/mrkeyboard/app/MrKeyLook;->clampOpacity(I)I
 
     move-result v0
 
     iput v0, p0, Lcom/mrkeyboard/app/MrKeyLook;->edge:I
 
-    .line 39
+    .line 56
     if-nez p3, :cond_0
 
     move v0, v1
@@ -138,7 +183,7 @@
     :goto_0
     iput v0, p0, Lcom/mrkeyboard/app/MrKeyLook;->text:I
 
-    .line 40
+    .line 57
     if-nez p4, :cond_1
 
     move v0, v1
@@ -146,39 +191,53 @@
     :goto_1
     iput v0, p0, Lcom/mrkeyboard/app/MrKeyLook;->hue:I
 
-    .line 41
+    .line 58
     if-nez p5, :cond_2
 
-    :goto_2
-    iput v1, p0, Lcom/mrkeyboard/app/MrKeyLook;->hue2:I
+    move v0, v1
 
-    .line 42
+    :goto_2
+    iput v0, p0, Lcom/mrkeyboard/app/MrKeyLook;->hue2:I
+
+    .line 59
+    if-nez p6, :cond_3
+
+    :goto_3
+    iput v1, p0, Lcom/mrkeyboard/app/MrKeyLook;->line:I
+
+    .line 60
     return-void
 
-    .line 39
+    .line 56
     :cond_0
     or-int v0, v2, p3
 
     goto :goto_0
 
-    .line 40
+    .line 57
     :cond_1
     or-int v0, v2, p4
 
     goto :goto_1
 
-    .line 41
+    .line 58
     :cond_2
-    or-int v1, v2, p5
+    or-int v0, v2, p5
 
     goto :goto_2
+
+    .line 59
+    :cond_3
+    or-int v1, v2, p6
+
+    goto :goto_3
 .end method
 
 .method static changed(Ljava/lang/String;)Z
     .locals 1
 
     .prologue
-    .line 128
+    .line 156
     if-eqz p0, :cond_0
 
     const-string v0, "pref_kbd_look_"
@@ -192,15 +251,15 @@
     :cond_0
     const/4 v0, 0x0
 
-    .line 130
+    .line 158
     :goto_0
     return v0
 
-    .line 129
+    .line 157
     :cond_1
     invoke-static {}, Lcom/mrkeyboard/app/MrKeyLook;->invalidate()V
 
-    .line 130
+    .line 158
     const/4 v0, 0x1
 
     goto :goto_0
@@ -212,7 +271,7 @@
     .prologue
     const/16 v0, 0xfa
 
-    .line 45
+    .line 63
     if-gez p0, :cond_1
 
     const/4 p0, 0x0
@@ -233,23 +292,23 @@
     .locals 1
 
     .prologue
-    .line 113
+    .line 141
     sget-object v0, Lcom/mrkeyboard/app/MrKeyLook;->sCurrent:Lcom/mrkeyboard/app/MrKeyLook;
 
-    .line 114
+    .line 142
     if-nez v0, :cond_0
 
-    .line 115
+    .line 143
     invoke-static {p0}, Lcom/mrkeyboard/app/MrKeyLook;->read(Landroid/content/Context;)Lcom/mrkeyboard/app/MrKeyLook;
 
     move-result-object v0
 
-    .line 116
+    .line 144
     if-eqz p0, :cond_0
 
     sput-object v0, Lcom/mrkeyboard/app/MrKeyLook;->sCurrent:Lcom/mrkeyboard/app/MrKeyLook;
 
-    .line 118
+    .line 146
     :cond_0
     return-object v0
 .end method
@@ -258,7 +317,7 @@
     .locals 2
 
     .prologue
-    .line 164
+    .line 211
     const/high16 v0, -0x1000000
 
     or-int/2addr v0, p0
@@ -276,27 +335,84 @@
     .locals 1
 
     .prologue
-    .line 134
+    .line 162
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrKeyLook;->sCurrent:Lcom/mrkeyboard/app/MrKeyLook;
 
-    .line 135
+    .line 163
     sget v0, Lcom/mrkeyboard/app/MrKeyLook;->sVersion:I
 
     add-int/lit8 v0, v0, 0x1
 
     sput v0, Lcom/mrkeyboard/app/MrKeyLook;->sVersion:I
 
-    .line 136
+    .line 164
     return-void
+.end method
+
+.method static lineFor(II)I
+    .locals 2
+
+    .prologue
+    const/4 v0, 0x0
+
+    .line 180
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->kindOf(I)I
+
+    move-result v1
+
+    if-eqz v1, :cond_1
+
+    .line 182
+    :cond_0
+    :goto_0
+    return v0
+
+    .line 181
+    :cond_1
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->isOwnStyle(I)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_3
+
+    if-eqz p1, :cond_2
+
+    :goto_1
+    invoke-static {p1}, Lcom/mrkeyboard/app/MrKeyLook;->toneAbove(I)I
+
+    move-result v0
+
+    goto :goto_0
+
+    :cond_2
+    const p1, -0x908401
+
+    goto :goto_1
+
+    .line 182
+    :cond_3
+    if-eqz p0, :cond_0
+
+    sget-object v1, Lcom/mrkeyboard/app/MrBackdrop;->STYLE_COLORS:[[I
+
+    aget-object v1, v1, p0
+
+    aget v0, v1, v0
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrKeyLook;->toneAbove(I)I
+
+    move-result v0
+
+    goto :goto_0
 .end method
 
 .method static middle(II)I
     .locals 1
 
     .prologue
-    .line 159
+    .line 206
     const/high16 v0, 0x3e800000    # 0.25f
 
     invoke-static {p0, p1, p1, v0}, Lcom/mrkeyboard/app/MrGlow;->ramp(IIIF)I
@@ -314,15 +430,15 @@
 
     const/4 v3, 0x1
 
-    .line 151
+    .line 198
     const/4 v0, 0x3
 
     new-array v2, v0, [F
 
-    .line 152
+    .line 199
     invoke-static {p0, v2}, Lcom/mrkeyboard/app/MrGlow;->hsv(I[F)V
 
-    .line 153
+    .line 200
     aget v0, v2, v3
 
     const v1, 0x3eb33333    # 0.35f
@@ -344,7 +460,7 @@
 
     const v1, 0x3f666666    # 0.9f
 
-    .line 154
+    .line 201
     :goto_1
     const/4 v3, 0x0
 
@@ -364,7 +480,7 @@
 
     return v0
 
-    .line 153
+    .line 200
     :cond_0
     aget v0, v2, v3
 
@@ -380,7 +496,7 @@
     .locals 1
 
     .prologue
-    .line 94
+    .line 121
     if-nez p0, :cond_0
 
     sget-object v0, Lcom/mrkeyboard/app/MrKeyLook;->NONE:Lcom/mrkeyboard/app/MrKeyLook;
@@ -401,19 +517,19 @@
 .end method
 
 .method static read(Landroid/content/SharedPreferences;)Lcom/mrkeyboard/app/MrKeyLook;
-    .locals 7
+    .locals 8
 
     .prologue
-    .line 85
+    .line 112
     if-nez p0, :cond_0
 
     sget-object v0, Lcom/mrkeyboard/app/MrKeyLook;->NONE:Lcom/mrkeyboard/app/MrKeyLook;
 
-    .line 89
+    .line 116
     :goto_0
     return-object v0
 
-    .line 87
+    .line 114
     :cond_0
     :try_start_0
     new-instance v0, Lcom/mrkeyboard/app/MrKeyLook;
@@ -458,17 +574,25 @@
 
     move-result v5
 
-    invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIII)V
+    const-string v6, "pref_kbd_look_line"
+
+    const/4 v7, 0x0
+
+    invoke-interface {p0, v6, v7}, Landroid/content/SharedPreferences;->getInt(Ljava/lang/String;I)I
+
+    move-result v6
+
+    invoke-direct/range {v0 .. v6}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIIII)V
     :try_end_0
     .catch Ljava/lang/ClassCastException; {:try_start_0 .. :try_end_0} :catch_0
 
     goto :goto_0
 
-    .line 88
+    .line 115
     :catch_0
     move-exception v0
 
-    .line 89
+    .line 116
     sget-object v0, Lcom/mrkeyboard/app/MrKeyLook;->NONE:Lcom/mrkeyboard/app/MrKeyLook;
 
     goto :goto_0
@@ -486,7 +610,7 @@
 
     const/4 v3, 0x2
 
-    .line 142
+    .line 189
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->isOwn(Ljava/lang/String;)Z
 
     move-result v0
@@ -498,11 +622,11 @@
     :cond_0
     const/4 v0, 0x0
 
-    .line 146
+    .line 193
     :goto_0
     return-object v0
 
-    .line 143
+    .line 190
     :cond_1
     iget v0, p1, Lcom/mrkeyboard/app/MrKeyLook;->hue:I
 
@@ -510,7 +634,7 @@
 
     iget v0, p1, Lcom/mrkeyboard/app/MrKeyLook;->hue:I
 
-    .line 144
+    .line 191
     :goto_1
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->styleOf(Ljava/lang/String;)I
 
@@ -534,13 +658,13 @@
 
     goto :goto_0
 
-    .line 143
+    .line 190
     :cond_2
     const v0, -0x908401
 
     goto :goto_1
 
-    .line 145
+    .line 192
     :cond_3
     iget v1, p1, Lcom/mrkeyboard/app/MrKeyLook;->hue2:I
 
@@ -548,7 +672,7 @@
 
     iget v1, p1, Lcom/mrkeyboard/app/MrKeyLook;->hue2:I
 
-    .line 146
+    .line 193
     :goto_2
     new-array v2, v2, [I
 
@@ -566,7 +690,7 @@
 
     goto :goto_0
 
-    .line 145
+    .line 192
     :cond_4
     invoke-static {v0}, Lcom/mrkeyboard/app/MrKeyLook;->partner(I)I
 
@@ -575,11 +699,52 @@
     goto :goto_2
 .end method
 
+.method static toneAbove(I)I
+    .locals 4
+
+    .prologue
+    const/high16 v3, -0x1000000
+
+    .line 170
+    or-int v0, v3, p0
+
+    .line 171
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrThemeColors;->luminance(I)F
+
+    move-result v1
+
+    const v2, 0x3f59999a    # 0.85f
+
+    cmpl-float v1, v1, v2
+
+    if-lez v1, :cond_0
+
+    const v1, 0x3e0f5c29    # 0.14f
+
+    invoke-static {v0, v3, v1}, Lcom/mrkeyboard/app/MrBackdrop;->mix(IIF)I
+
+    move-result v0
+
+    :goto_0
+    return v0
+
+    :cond_0
+    const/4 v1, -0x1
+
+    const v2, 0x3e8f5c29    # 0.28f
+
+    invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrBackdrop;->mix(IIF)I
+
+    move-result v0
+
+    goto :goto_0
+.end method
+
 .method static version()I
     .locals 1
 
     .prologue
-    .line 123
+    .line 151
     sget v0, Lcom/mrkeyboard/app/MrKeyLook;->sVersion:I
 
     return v0
@@ -593,14 +758,18 @@
     .prologue
     const/16 v1, 0x64
 
-    .line 75
+    .line 97
     iget v0, p0, Lcom/mrkeyboard/app/MrKeyLook;->key:I
 
     if-ne v0, v1, :cond_0
 
     iget v0, p0, Lcom/mrkeyboard/app/MrKeyLook;->edge:I
 
-    if-eq v0, v1, :cond_1
+    if-ne v0, v1, :cond_0
+
+    iget v0, p0, Lcom/mrkeyboard/app/MrKeyLook;->line:I
+
+    if-eqz v0, :cond_1
 
     :cond_0
     const/4 v0, 0x1
@@ -620,7 +789,7 @@
     .prologue
     const/16 v1, 0x64
 
-    .line 70
+    .line 92
     iget v0, p0, Lcom/mrkeyboard/app/MrKeyLook;->key:I
 
     if-ne v0, v1, :cond_0
@@ -641,6 +810,10 @@
 
     if-nez v0, :cond_0
 
+    iget v0, p0, Lcom/mrkeyboard/app/MrKeyLook;->line:I
+
+    if-nez v0, :cond_0
+
     const/4 v0, 0x1
 
     :goto_0
@@ -652,11 +825,37 @@
     goto :goto_0
 .end method
 
+.method lineAlpha()F
+    .locals 3
+
+    .prologue
+    .line 102
+    const/high16 v0, 0x3f800000    # 1.0f
+
+    const v1, 0x3f19999a    # 0.6f
+
+    iget v2, p0, Lcom/mrkeyboard/app/MrKeyLook;->edge:I
+
+    int-to-float v2, v2
+
+    mul-float/2addr v1, v2
+
+    const/high16 v2, 0x42c80000    # 100.0f
+
+    div-float/2addr v1, v2
+
+    invoke-static {v0, v1}, Ljava/lang/Math;->min(FF)F
+
+    move-result v0
+
+    return v0
+.end method
+
 .method same(Lcom/mrkeyboard/app/MrKeyLook;)Z
     .locals 2
 
     .prologue
-    .line 79
+    .line 106
     if-eqz p1, :cond_0
 
     iget v0, p0, Lcom/mrkeyboard/app/MrKeyLook;->key:I
@@ -689,6 +888,12 @@
 
     if-ne v0, v1, :cond_0
 
+    iget v0, p0, Lcom/mrkeyboard/app/MrKeyLook;->line:I
+
+    iget v1, p1, Lcom/mrkeyboard/app/MrKeyLook;->line:I
+
+    if-ne v0, v1, :cond_0
+
     const/4 v0, 0x1
 
     :goto_0
@@ -701,10 +906,10 @@
 .end method
 
 .method withEdge(I)Lcom/mrkeyboard/app/MrKeyLook;
-    .locals 6
+    .locals 7
 
     .prologue
-    .line 53
+    .line 71
     new-instance v0, Lcom/mrkeyboard/app/MrKeyLook;
 
     iget v1, p0, Lcom/mrkeyboard/app/MrKeyLook;->key:I
@@ -715,18 +920,20 @@
 
     iget v5, p0, Lcom/mrkeyboard/app/MrKeyLook;->hue2:I
 
+    iget v6, p0, Lcom/mrkeyboard/app/MrKeyLook;->line:I
+
     move v2, p1
 
-    invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIII)V
+    invoke-direct/range {v0 .. v6}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIIII)V
 
     return-object v0
 .end method
 
 .method withHue(I)Lcom/mrkeyboard/app/MrKeyLook;
-    .locals 6
+    .locals 7
 
     .prologue
-    .line 61
+    .line 79
     new-instance v0, Lcom/mrkeyboard/app/MrKeyLook;
 
     iget v1, p0, Lcom/mrkeyboard/app/MrKeyLook;->key:I
@@ -737,18 +944,20 @@
 
     iget v5, p0, Lcom/mrkeyboard/app/MrKeyLook;->hue2:I
 
+    iget v6, p0, Lcom/mrkeyboard/app/MrKeyLook;->line:I
+
     move v4, p1
 
-    invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIII)V
+    invoke-direct/range {v0 .. v6}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIIII)V
 
     return-object v0
 .end method
 
 .method withHue2(I)Lcom/mrkeyboard/app/MrKeyLook;
-    .locals 6
+    .locals 7
 
     .prologue
-    .line 65
+    .line 83
     new-instance v0, Lcom/mrkeyboard/app/MrKeyLook;
 
     iget v1, p0, Lcom/mrkeyboard/app/MrKeyLook;->key:I
@@ -759,18 +968,20 @@
 
     iget v4, p0, Lcom/mrkeyboard/app/MrKeyLook;->hue:I
 
+    iget v6, p0, Lcom/mrkeyboard/app/MrKeyLook;->line:I
+
     move v5, p1
 
-    invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIII)V
+    invoke-direct/range {v0 .. v6}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIIII)V
 
     return-object v0
 .end method
 
 .method withKey(I)Lcom/mrkeyboard/app/MrKeyLook;
-    .locals 6
+    .locals 7
 
     .prologue
-    .line 49
+    .line 67
     new-instance v0, Lcom/mrkeyboard/app/MrKeyLook;
 
     iget v2, p0, Lcom/mrkeyboard/app/MrKeyLook;->edge:I
@@ -781,18 +992,44 @@
 
     iget v5, p0, Lcom/mrkeyboard/app/MrKeyLook;->hue2:I
 
+    iget v6, p0, Lcom/mrkeyboard/app/MrKeyLook;->line:I
+
     move v1, p1
 
-    invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIII)V
+    invoke-direct/range {v0 .. v6}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIIII)V
+
+    return-object v0
+.end method
+
+.method withLine(I)Lcom/mrkeyboard/app/MrKeyLook;
+    .locals 7
+
+    .prologue
+    .line 87
+    new-instance v0, Lcom/mrkeyboard/app/MrKeyLook;
+
+    iget v1, p0, Lcom/mrkeyboard/app/MrKeyLook;->key:I
+
+    iget v2, p0, Lcom/mrkeyboard/app/MrKeyLook;->edge:I
+
+    iget v3, p0, Lcom/mrkeyboard/app/MrKeyLook;->text:I
+
+    iget v4, p0, Lcom/mrkeyboard/app/MrKeyLook;->hue:I
+
+    iget v5, p0, Lcom/mrkeyboard/app/MrKeyLook;->hue2:I
+
+    move v6, p1
+
+    invoke-direct/range {v0 .. v6}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIIII)V
 
     return-object v0
 .end method
 
 .method withText(I)Lcom/mrkeyboard/app/MrKeyLook;
-    .locals 6
+    .locals 7
 
     .prologue
-    .line 57
+    .line 75
     new-instance v0, Lcom/mrkeyboard/app/MrKeyLook;
 
     iget v1, p0, Lcom/mrkeyboard/app/MrKeyLook;->key:I
@@ -803,9 +1040,11 @@
 
     iget v5, p0, Lcom/mrkeyboard/app/MrKeyLook;->hue2:I
 
+    iget v6, p0, Lcom/mrkeyboard/app/MrKeyLook;->line:I
+
     move v3, p1
 
-    invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIII)V
+    invoke-direct/range {v0 .. v6}, Lcom/mrkeyboard/app/MrKeyLook;-><init>(IIIIII)V
 
     return-object v0
 .end method
@@ -814,41 +1053,48 @@
     .locals 2
 
     .prologue
-    .line 99
+    .line 126
     const-string v0, "pref_kbd_look_key"
 
     iget v1, p0, Lcom/mrkeyboard/app/MrKeyLook;->key:I
 
     invoke-interface {p1, v0, v1}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 100
+    .line 127
     const-string v0, "pref_kbd_look_edge"
 
     iget v1, p0, Lcom/mrkeyboard/app/MrKeyLook;->edge:I
 
     invoke-interface {p1, v0, v1}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 101
+    .line 128
     const-string v0, "pref_kbd_look_text"
 
     iget v1, p0, Lcom/mrkeyboard/app/MrKeyLook;->text:I
 
     invoke-interface {p1, v0, v1}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 102
+    .line 129
     const-string v0, "pref_kbd_look_hue"
 
     iget v1, p0, Lcom/mrkeyboard/app/MrKeyLook;->hue:I
 
     invoke-interface {p1, v0, v1}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 103
+    .line 130
     const-string v0, "pref_kbd_look_hue2"
 
     iget v1, p0, Lcom/mrkeyboard/app/MrKeyLook;->hue2:I
 
     invoke-interface {p1, v0, v1}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
 
-    .line 104
+    .line 131
+    const-string v0, "pref_kbd_look_line"
+
+    iget v1, p0, Lcom/mrkeyboard/app/MrKeyLook;->line:I
+
+    invoke-interface {p1, v0, v1}, Landroid/content/SharedPreferences$Editor;->putInt(Ljava/lang/String;I)Landroid/content/SharedPreferences$Editor;
+
+    .line 132
     return-void
 .end method

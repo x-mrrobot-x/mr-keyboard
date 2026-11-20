@@ -21,7 +21,7 @@ OLD = {'pref_render_mode', 'pref_slide_keys_int', 'connectbot_tab_hack', 'pref_t
 # pref_keyboard_layout, pref_kbd_bg, pref_kbd_bg_soft, pref_kbd_look_*: written by the themes screen (MrThemesActivity), which the settings open with a row that stores nothing
 OUTSIDE_XML = {'pref_sheet_return', 'pref_ai_key', 'pref_sound_style', 'pref_click_volume',
                'pref_keyboard_layout', 'pref_kbd_bg', 'pref_kbd_bg_soft',
-               'pref_kbd_look_key', 'pref_kbd_look_edge', 'pref_kbd_look_text', 'pref_kbd_look_hue', 'pref_kbd_look_hue2'}
+               'pref_kbd_look_key', 'pref_kbd_look_edge', 'pref_kbd_look_text', 'pref_kbd_look_hue', 'pref_kbd_look_hue2', 'pref_kbd_look_line'}
 
 screens = set()
 for f in glob.glob('res/xml/prefs*.xml'):

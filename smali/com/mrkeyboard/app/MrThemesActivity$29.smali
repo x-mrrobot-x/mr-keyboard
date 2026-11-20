@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->showColorPicker(Ljava/lang/String;I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->showColorPicker(Ljava/lang/String;I[I[Lcom/mrkeyboard/app/MrKeyLook;Ljava/lang/Runnable;[Ljava/lang/Runnable;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -39,7 +39,7 @@
     .end annotation
 
     .prologue
-    .line 1136
+    .line 1176
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$29;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$29;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
@@ -63,30 +63,30 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 1138
+    .line 1178
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$29;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$29;->val$before:Lcom/mrkeyboard/app/MrKeyLook;
 
     aput-object v1, v0, v2
 
-    .line 1139
+    .line 1179
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$29;->val$redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1140
+    .line 1180
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$29;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->closePicker()V
 
-    .line 1141
+    .line 1181
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$29;->val$draw:[Ljava/lang/Runnable;
 
     aget-object v0, v0, v2
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1142
+    .line 1182
     return-void
 .end method

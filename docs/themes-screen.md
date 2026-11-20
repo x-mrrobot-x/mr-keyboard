@@ -48,8 +48,9 @@ copy arrives. The card of a theme is the theme with no background, the card of a
   takes the background away (`pref_kbd_bg` is cleared in the same write). Its card, like every card of the themes, always shows the theme as it is:
   a background chosen never changes them.
 - A **color, a gradient or a landscape** opens a dialog with the **complete keyboard** as it will look (a sheet at the bottom: **Cancel** / **Apply**):
-  the row of Ctrl, Alt and the arrows, the numbers, the letters and the bottom row, every highlight key with its own face and the dash of the
-  modifier keys in its three states (see [The small keyboards](#the-small-keyboards)). It also has the controls below, so that the keys can be told
+  the toolbar with its eight buttons over the seven rows of keys (the row of the toolbar key, the row of Ctrl, Alt and the arrows, the numbers, the
+  three rows of letters and the bottom row), every highlight key with its own face and the dash of the modifier keys in its three states, as tall as
+  the real keyboard (see [The size of the complete keyboard](#the-size-of-the-complete-keyboard) and [The small keyboards](#the-small-keyboards)). It also has the controls below, so that the keys can be told
   apart from a busy background and given the colors the person wants; the sheet grows with them up to 90% of the screen height (`MrSheetBox`,
   `SHEET_SHARE`) and, from there, they scroll between the keyboard and the buttons (`MrCappedScroll`, which takes what the keyboard, the title and the
   buttons leave; the sheet measures twice, first with the scroll view empty). Nothing is written until **Apply**, and only the keyboard at the top of the screen shows the result.
@@ -62,22 +63,34 @@ Keys that blend with the background are the main problem of a picture, so the di
 - **Soften background** (0 to 70%, a slider; gradients, landscapes and pictures, not the plain colors): a veil over the background itself, in the
   opposite color of the ink, that is at least as dense as the setting. The keyboard of the dialog is drawn again while the slider moves; it starts
   at the softening in use when the background is the one in use, and at none for another. It is written (`pref_kbd_bg_soft`) with **Apply**.
-- **Keys**, fourteen **styles** and, for each kind, the color the person picks, in three kinds, to choose in two levels (the **Glass**, **Outline** and
-  **Gradient** chips and, under them, the dots of the colors of the kind in use, with a round button that picks a color at the end, and the name of the
-  one chosen), for every background but the light colors (their keys already have dark ink on a pale background). Every face is translucent: a hue at
-  low opacity over the background, never a solid fill.
-- **Background opacity** and **Border opacity** (sliders, 0 to 250% of what the style gives, 100% by default; with the styles, so not for the light colors):
-  how much the fill of a key and its line show, so the keys can be made more see-through or denser; they change only the opacity, never the color. The
+- **Key background color** (fourteen **styles** and, for each kind, the color the person picks, in three kinds, to choose in two levels: the **Glass**,
+  **Outline** and **Gradient** chips and, under them, **the colors of the kind in use on the left** and **the round button that picks a color on the
+  right**, with the name of the one chosen under them), for every background but the light colors (their keys already have dark ink on a pale
+  background). Every face is translucent: a hue at low opacity over the background, never a solid fill.
+- **Key background opacity** (a slider under the colors, 0 to 250% of what the style gives, 100% by default; with the styles, so not for the light colors):
+  how much the fill of a key shows, so the keys can be made more see-through or denser; it changes only the opacity, never the color. The
   face of a key of these themes is two layers (the fill and the line), each drawn through its own color filter (`MrGlow.drawKey`), so each slider changes
   only its part. The layer of the line has a transparent `<solid>` (`make_themes.py`, `solid_key`): a shape with only a stroke is filled with opaque black
   by `GradientDrawable` when it is drawn through a color filter, and the line would black out the key.
-- **Text color** (a round button that opens the picker, and **Automatic**, which keeps the color of the theme; every background has it): the color of the
-  letters, the small letters (fainter) and the icons (`MrGlow.key`, `hint`, `iconFilter`).
-- The **color the person picks** (the round button at the end of the dots: the rainbow ring, a plus while none was picked): touching it chooses the
+- **Key border color** (**Automatic** on the left, which keeps the line of the style, and the round button that opens the picker on the right) and
+  **Key border opacity** (the slider under it, the same range): the color of the line round the keys. Choosing a color of the **glass** (or picking the
+  color of the own glass, while the finger moves) changes the border to **that color one tone above** (`MrKeyLook.lineFor`, `toneAbove`: 28% of white
+  mixed in, a little darker when the color is already pale), so that it is the color of the key and only a little lighter, which is subtle; the
+  See-through glass, the outlines (the outline is the line) and the gradients (the line takes the hue of the place of each key) leave it **Automatic**.
+  The color of the border can then be changed by hand, until another color of the keys is chosen. It is kept in `pref_kbd_look_line`. A color that was
+  chosen is not made by the style: the keyboard draws it itself (`MrGlow.drawFace`: the line of the style is hidden with a filter that draws nothing
+  and a rounded rectangle 1 dp thick is drawn along the edge of the fill, at `MrKeyLook.LINE_BASE`, 60%, times the opacity of the border), so every
+  style can have one, the clear glass that has no line included.
+- **Text and toolbar icon color** (**Automatic**, which keeps the color of the theme, on the left and a round button that opens the picker on the right;
+  every background has it): the color of the letters, the small letters (fainter) and the icons (`MrGlow.key`, `hint`, `iconFilter`) and also the **text and
+  the icons of the toolbar** (`MrTools.wrap` asks `MrGlow.toolInk`; the secondary text is the same color, fainter).
+- The **color the person picks** (the round button at the right of the colors: the rainbow ring, a plus while none was picked): touching it chooses the
   style of the own color of that kind (glass, outline or gradient) and opens the picker; the color is shared by the three kinds. The gradient of the own
   color also has **End of the gradient** (a second color, **Automatic** makes one up a turn of the hue away). The picker (`MrColorPicker`: a square of
   saturation and brightness over a bar of hues) is a second dialog over the first, which stays; the keyboard in it follows the finger, **Done** keeps
   the color and **Cancel** or back gives the one there was back.
+
+The controls come in this order: Soften background, Key background color and its opacity, Key border color and its opacity, Text and toolbar icon color.
 
 A background that is not in use always starts with the **See-through** style, nothing tuned: what was chosen for one background is not carried to the
 next. The background in use opens with its own style and tuning.
@@ -120,7 +133,8 @@ Applying a background writes the right theme in the same edit as the background 
 | `pref_kbd_bg` | The background: empty = none, `c<N>` = color N (0 to 15), `g<N>` = gradient N (0 to 19), `s<N>` = landscape N (0 to 35, six per category in the order of `MrScenes.SLUGS`), `i<zoom>,<dx>,<dy>,<time>` = the picture of the gallery. Anything that does not parse is "none". It counts only when the theme is one of the nineteen of the backgrounds: in any other theme an old value is let be (`MrBackdrop.lookNow` / `apply`, the screen and the row of the settings all go by this). |
 | `pref_kbd_bg_soft` | How much a **gradient, a landscape or a picture** is softened, 0 to 70 (%). Colors ignore it. |
 | `pref_kbd_look_key`, `pref_kbd_look_edge` | The opacity of the face and of the line of the keys, in per cent of what the style gives (0 to 250, 100 = as it is). |
-| `pref_kbd_look_text` | The color of the letters (opaque ARGB; 0 = the theme's). |
+| `pref_kbd_look_text` | The color of the letters and of the text and icons of the toolbar (opaque ARGB; 0 = the theme's). |
+| `pref_kbd_look_line` | The color of the line round the keys (opaque ARGB; 0 = automatic, the line of the style). |
 | `pref_kbd_look_hue`, `pref_kbd_look_hue2` | The color of the own color styles and the end of their gradient (opaque ARGB; 0 = none picked: the base hue, and a hue made up for the end). |
 
 For a picture, the zoom is in per cent (100 to 400), the position goes from -100 (against the left or top edge) to 100 (against the right or
@@ -147,7 +161,7 @@ back (`MrReset.KEYS`).
 ## A picture: the crop dialog
 
 After the pick a full page opens (`MrCropView`): the picture as large as the screen allows, the frame of the keyboard over it (its shape is that of the
-complete keyboard, `MrThemePreview.FULL_ASPECT`, 1.7 to 1: as tall as the keyboard of the preview that follows and as the real one) and what is outside
+complete keyboard of this phone, `MrThemePreview.fullAspect`: the toolbar and the seven rows of keys, as tall as the real one; see below) and what is outside
 the frame dimmed. **One finger** drags the frame (`MrBackdrop.shift`), **two fingers** pinched make it smaller
 (a bigger zoom) and spread make it bigger, around its middle (`MrBackdrop.rezoom`). There is no softening here: **Next** shows the keyboard with that frame in the preview, and
 **Soften background** (0 to 70%, with the hint under it) is there, with the styles and the colours of the keys; **Apply** there writes the picture, its zoom
@@ -167,8 +181,23 @@ in the worst case, and that of the letters with their keys at least 2.5 to 1, in
 gradient, in each of the themes of the backgrounds, the dash of the modifier keys has a contrast of 2.2 to 1 or more when on and when locked,
 and 1.15 to 1 or more when off, with the key it is on (the faint dash that the keyboard draws, at 45% of its opacity, is checked as a pixel of the preview).
 
+## The size of the complete keyboard
+
+The preview of a theme or of a background, and the frame of the crop, have the shape of the real keyboard of the phone (`MrThemePreview.fullAspect(Context)`,
+the one formula both use). The real one is the **toolbar** (`mr_bar_height`, 48 dp) on top of the rows of keys; the keys and the 4 dp under the last row
+(`MrBottom.GAP_DP`) take the share of the **screen height** that the setting *Keyboard height* gives (`settings_height_portrait`, 15 to 75%, 34% until it is
+changed), divided into the **seven rows** of `kbd_qwerty.xml` (`layoutRows`):
+
+```
+height = 48 dp + screen height x percent        width = the narrow side of the screen
+```
+
+On a 1080 x 2400 screen with density 2 and 34% that is 96 + 816 = 912 px for 1080 px of width (1.18 to 1). The preview draws the toolbar (its eight
+buttons with their icons, `TOOL_ICONS`) and the seven rows with the height that the real one gives them (`(height - toolbar - 4 dp) / 7`), and the frame of
+the crop is that shape over the picture, so what it frames is what the keyboard shows. The small previews of the grid (`MrBackdrop.ASPECT`, 2.4 to 1, four rows) are not this.
+
 The line of suggestions of the previews has its three bars centred (the same margin on both sides, and the middle of the height between the top of the
-keyboard and the first row of keys); `ThemesTest` measures it in every theme, in the small and in the complete keyboard.
+keyboard and the first row of keys); `ThemesTest` measures it in every theme, in the small keyboard (and, in the complete one, the eight icons of the toolbar).
 
 ## On the keyboard
 
@@ -193,7 +222,7 @@ drawable falls back to flat faces in its colors. The card in use has a frame in 
 is drawn with the theme of the backgrounds that suits it (the style in use is only in the dialog and in the keyboard at the top); a card of a theme is
 the theme with no background.
 
-The dialog of a theme, a color, a gradient or a landscape uses the **complete keyboard** (`setFull`): the row of tools, Ctrl, Alt, Tab, the arrows, the
+The dialog of a theme, a color, a gradient or a landscape uses the **complete keyboard** (`setFull`): the toolbar and the row of the toolbar key (`-`, `=`, `=>`, `/`, home, up, end and `(`), then the row of Ctrl, Alt, Tab, the arrows, the
 numbers, the three rows of letters with shift and delete, and the bottom row (123, F1, space, period and enter), with the same proportions as
 `kbd_qwerty.xml`. The highlight keys use the accent face of the theme. The keyboard is drawn **at rest**, as the real one is when nothing is pressed: no key is lit or locked (shift is not painted red; red is only for a real
 Caps Lock), and only Ctrl, Alt and Shift have the **dash** under them, in the `modifier_indicator_off` color (no dash under the arrows or any other key). In the themes of the backgrounds these roles, and

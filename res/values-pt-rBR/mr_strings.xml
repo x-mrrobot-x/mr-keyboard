@@ -839,9 +839,11 @@
     <string name="mr_themes_mine">Minha imagem</string>
     <string name="mr_themes_soften">Suavizar fundo</string>
     <string name="mr_themes_soften_hint">Um véu mantém as sugestões legíveis sobre qualquer fundo.</string>
-    <string name="mr_themes_key_opacity">Opacidade do fundo</string>
-    <string name="mr_themes_edge_opacity">Opacidade da borda</string>
-    <string name="mr_themes_text_color">Cor do texto</string>
+    <string name="mr_themes_key_color">Cor de fundo das teclas</string>
+    <string name="mr_themes_line_color">Cor da borda das teclas</string>
+    <string name="mr_themes_key_opacity">Opacidade do fundo das teclas</string>
+    <string name="mr_themes_edge_opacity">Opacidade da borda das teclas</string>
+    <string name="mr_themes_text_color">Cor do texto e ícones da barra</string>
     <string name="mr_themes_grad_end">Fim do degradê</string>
     <string name="mr_themes_auto">Automático</string>
     <string name="mr_themes_pick_color">Escolher cor</string>

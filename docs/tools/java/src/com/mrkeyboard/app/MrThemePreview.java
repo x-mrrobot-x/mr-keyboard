@@ -14,9 +14,10 @@ import android.view.View;
  * line of suggestions and four rows of keys made with the key drawables of the theme and its colours, so that a theme or a background can be seen
  * on the keys before it is chosen. The themes screen has one for every theme and every background, and a big one for the choice in use.
  *
- * <p>{@link #setFull} makes it the complete keyboard (the dialog of a background): the row of Ctrl, Alt and the arrows, the numbers, the three rows
- * of letters and the bottom row, every highlight key with the face of its kind, and the dash (off) under Ctrl, Alt and Shift, as the real keyboard
- * draws them at rest: nothing is lit or locked (no red shift) and no key but those three has a dash.
+ * <p>{@link #setFull} makes it the complete keyboard (the dialog of a theme or of a background), as tall as the real one on this phone: the toolbar with its
+ * eight buttons over the seven rows of keys (the row of the toolbar key, the row of Ctrl, Alt and Tab, the numbers, the three rows of letters and the
+ * bottom row), every highlight key with the face of its kind, and the dash (off) under Ctrl, Alt and Shift, as the real keyboard draws them at rest:
+ * nothing is lit or locked (no red shift) and no key but those three has a dash. {@link #fullAspect} is its shape, which the frame of the gallery shares.
  *
  * <p>The themes of the gradient styles (the roles {@code spectrum_*}) are drawn with the hue of each key's place, as {@link MrGlow} does on the real keyboard.
  * What the person tuned ({@link #setLook}, a {@link MrKeyLook}) is drawn the same way on a theme of the backgrounds: the opacity of the fill and of the
@@ -33,9 +34,15 @@ final class MrThemePreview extends View {
     /** Share of the height of the keyboard that the line of suggestions takes (the part of the background whose brightness the veil also looks at). */
     static final float BAR_SHARE = MrBackdrop.BAR_SHARE;
     static final float CORNER_DP = 12f;
-    /** The complete keyboard: its shape (width / height) and the share of the height that the line of suggestions takes. */
-    static final float FULL_ASPECT = 1.7f;
-    static final float FULL_BAR_SHARE = 0.12f;
+    /**
+     * The real keyboard, which the complete one stands for: the toolbar ({@code mr_bar_height}, 48 dp) over the rows of keys ({@link #FULL_ROWS}, the
+     * {@code layoutRows} of the layout) and the space under the last row ({@link MrBottom#GAP_DP}); the rows and that space take the share of the height of
+     * the screen that the setting "Keyboard height" gives (34 % until the person changes it), the toolbar comes on top of it.
+     */
+    static final float BAR_DP = 48f;
+    static final int FULL_ROWS = 7;
+    static final int HEIGHT_DEFAULT = 34, HEIGHT_MIN = 15, HEIGHT_MAX = 75;
+    static final String PREF_HEIGHT = "settings_height_portrait";
     /** The dash of a modifier key: none, off, on, locked (the colours are the roles modifier_indicator_*). */
     static final int DASH_NONE = 0, DASH_OFF = 1, DASH_ON = 2, DASH_LOCK = 3;
     /** The state of a key face: at rest, on (Ctrl lit) and locked (Shift locked). */
@@ -64,6 +71,8 @@ final class MrThemePreview extends View {
     private boolean mFull;
     private int mRing = 0xff4f8cff, mCheck = 0xffffffff;
     private int mKeyWidthPx;
+    /** The shape of the complete keyboard on this phone (width / height), with the height the person set for the keyboard. */
+    private float mFullAspect = 1f;
 
     private Bitmap mBg;
     private String mBgKey;
@@ -92,6 +101,58 @@ final class MrThemePreview extends View {
         // the keyboard is as wide as the narrow side of the screen (the screen handles its own turns, so this does not change while it is open)
         android.util.DisplayMetrics dm = c.getResources().getDisplayMetrics();
         mKeyWidthPx = Math.min(dm.widthPixels, dm.heightPixels);
+        mFullAspect = fullAspect(c);
+    }
+
+    // ---- the shape of the complete keyboard
+
+    /** Height, in pixels, of the real keyboard (the toolbar and the rows of keys) on a screen {@code screenHeightPx} tall, with {@code percent} for the keys. */
+    static float fullHeight(float screenHeightPx, float density, int percent) {
+        return BAR_DP * density + screenHeightPx * percent / 100f;
+    }
+
+    /** Width over height of the real keyboard: as wide as {@code widthPx} and as tall as {@link #fullHeight} says. */
+    static float fullAspect(float widthPx, float screenHeightPx, float density, int percent) {
+        return widthPx / fullHeight(screenHeightPx, density, percent);
+    }
+
+    /**
+     * The shape (width over height) of the complete keyboard on this phone, as the person set its height: the narrow side of the screen is its width
+     * (the keyboard of a phone held upright) and the long side the screen it takes the share from. The frame of the gallery has the same shape, so that
+     * what it frames is what the keyboard shows.
+     */
+    static float fullAspect(Context c) {
+        try {
+            android.util.DisplayMetrics dm = c.getResources().getDisplayMetrics();
+            float density = dm.density > 0f ? dm.density : 1f;
+            float a = fullAspect(Math.min(dm.widthPixels, dm.heightPixels), Math.max(dm.widthPixels, dm.heightPixels), density, heightPercent(c));
+            return a > 0f ? a : 1f;
+        } catch (RuntimeException e) {
+            return 1f;
+        }
+    }
+
+    /** The share of the screen height that the person gave the keyboard held upright (15 .. 75; {@link #HEIGHT_DEFAULT} when it was not set). */
+    static int heightPercent(Context c) {
+        float v = HEIGHT_DEFAULT;
+        try {
+            android.content.SharedPreferences sp = android.preference.PreferenceManager.getDefaultSharedPreferences(c);
+            String text = null;
+            try {
+                text = sp.getString(PREF_HEIGHT, null);
+            } catch (ClassCastException e) {
+                v = sp.getInt(PREF_HEIGHT, HEIGHT_DEFAULT);
+            }
+            if (text != null) {
+                // the setting is kept as text ("34", or "34%" in the resources): the number at its start
+                int end = 0;
+                while (end < text.length() && (Character.isDigit(text.charAt(end)) || text.charAt(end) == '.')) end++;
+                if (end > 0) v = Float.parseFloat(text.substring(0, end));
+            }
+        } catch (RuntimeException e) {
+            v = HEIGHT_DEFAULT;
+        }
+        return Math.max(HEIGHT_MIN, Math.min(HEIGHT_MAX, Math.round(v)));
     }
 
     /**
@@ -174,7 +235,7 @@ final class MrThemePreview extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int w = MeasureSpec.getSize(widthMeasureSpec);
-        setMeasuredDimension(w, Math.round(w / (mFull ? FULL_ASPECT : MrBackdrop.ASPECT)));
+        setMeasuredDimension(w, Math.round(w / (mFull ? mFullAspect : MrBackdrop.ASPECT)));
     }
 
     @Override
@@ -193,13 +254,17 @@ final class MrThemePreview extends View {
         background(canvas, c, w, h, dark);
         // the keys: drawn at the size of the real ones, then scaled to the view
         float vw = mKeyWidthPx;
-        float vh = vw / (mFull ? FULL_ASPECT : MrBackdrop.ASPECT);
+        float vh = vw / (mFull ? mFullAspect : MrBackdrop.ASPECT);
         float s = w / vw;
         canvas.save();
         canvas.scale(s, s);
-        bar(canvas, c, vw, vh, mFull ? FULL_BAR_SHARE : BAR_SHARE);
-        if (mFull) fullKeys(canvas, c, vw, vh);
-        else keys(canvas, c, vw, vh);
+        if (mFull) {
+            toolbar(canvas, c, vw);
+            fullKeys(canvas, c, vw, vh);
+        } else {
+            bar(canvas, c, vw, vh, BAR_SHARE);
+            keys(canvas, c, vw, vh);
+        }
         canvas.restore();
         canvas.restore();
         if (mChecked) badge(canvas, w, h);
@@ -265,7 +330,7 @@ final class MrThemePreview extends View {
      * margin on both sides) and in the height between the top of the keyboard and the top of the first row of keys (the face of a key keeps a small gap).
      */
     private void bar(Canvas canvas, Context c, float vw, float vh, float share) {
-        int ink = MrThemeColors.ink(c, mTag);
+        int ink = ink(c);
         float bottom = vh * share;
         float cy = (bottom + FACE_GAP_DP * mDensity) / 2f;
         float bh = bottom * 0.22f;
@@ -283,6 +348,60 @@ final class MrThemePreview extends View {
                 mPaint.setColor(withAlpha(ink, 0.25f));
                 canvas.drawRect(x - vw * WORD_GAP / 2f - 1f, cy - bottom * 0.22f, x - vw * WORD_GAP / 2f + 1f, cy + bottom * 0.22f, mPaint);
             }
+        }
+    }
+
+    /** The ink of the toolbar (its icons and its text): the colour that the person chose for them on a theme of the backgrounds, else the theme's. */
+    private int ink(Context c) {
+        return tuned() && mLook.text != 0 ? mLook.text : MrThemeColors.ink(c, mTag);
+    }
+
+    private Drawable[] mToolIcons;
+    private Drawable mToolbarKeyIcon;
+
+    /** The drawable called {@code name} (a copy, so that tinting it does not touch the shared one); null when there is none. */
+    private static Drawable icon(Context c, String name) {
+        try {
+            int id = c.getResources().getIdentifier(name, "drawable", c.getPackageName());
+            return id == 0 ? null : face(c, id);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /** {@code d} (null: a small square outline, so that the place of the icon shows) drawn in {@code ink} at the size {@link #TOOL_ICON_DP}, centred at ({@code cx}, {@code cy}). */
+    private void iconAt(Canvas canvas, Drawable d, int ink, float cx, float cy) {
+        float side = TOOL_ICON_DP * mDensity;
+        if (d == null) {
+            mPaint.setShader(null);
+            mPaint.setStyle(Paint.Style.STROKE);
+            mPaint.setStrokeWidth(Math.max(1f, mDensity));
+            mPaint.setColor(withAlpha(ink, 0.70f));
+            float r = side * 0.3f;
+            canvas.drawRoundRect(cx - r, cy - r, cx + r, cy + r, r / 3f, r / 3f, mPaint);
+            mPaint.setStyle(Paint.Style.FILL);
+            return;
+        }
+        d.setBounds(Math.round(cx - side / 2f), Math.round(cy - side / 2f), Math.round(cx + side / 2f), Math.round(cy + side / 2f));
+        d.setColorFilter(new android.graphics.PorterDuffColorFilter(ink, android.graphics.PorterDuff.Mode.SRC_IN));
+        d.draw(canvas);
+        d.setColorFilter(null);
+    }
+
+    /**
+     * The toolbar of the real keyboard: its eight buttons ({@link #TOOL_ICONS}) side by side, each as wide as the others (as the layout gives them), with
+     * its icon in the ink of the toolbar, in the 48 dp the real one has at the top.
+     */
+    private void toolbar(Canvas canvas, Context c, float vw) {
+        if (mToolIcons == null) {
+            mToolIcons = new Drawable[TOOL_ICONS.length];
+            for (int i = 0; i < TOOL_ICONS.length; i++) mToolIcons[i] = icon(c, TOOL_ICONS[i]);
+        }
+        int ink = ink(c);
+        float pad = 4f * mDensity, bar = BAR_DP * mDensity;
+        float cell = (vw - 2f * pad) / TOOL_ICONS.length;
+        for (int i = 0; i < TOOL_ICONS.length; i++) {
+            iconAt(canvas, mToolIcons[i], ink, pad + cell * (i + 0.5f), bar / 2f);
         }
     }
 
@@ -333,6 +452,16 @@ final class MrThemePreview extends View {
         }
     }
 
+    /** The row of the toolbar key (the top row of the layout): its keys, as wide as the layout gives them, which of them are highlight keys and what the others say. */
+    private static final float[] TOP_WIDTHS = {10.2f, 10.2f, 10.2f, 10.2f, 10.2f, 13.1f, 13.1f, 13.1f, 10.2f};
+    private static final String[] TOP_LABELS = {"", "-", "=", "=>", "/", "\u21e4", "\u2191", "\u21e5", "("};
+    private static final boolean[] TOP_KEYS = {true, false, false, false, false, true, true, true, false};
+    /** The drawable of the key at the start of the top row (the one that opens the toolbar), and those of the eight buttons of the toolbar. */
+    static final String TOOLBAR_KEY_ICON = "sym_keyboard_mr_toolbar";
+    static final String[] TOOL_ICONS = {"ic_mr_clip", "ic_mr_trans", "ic_mr_aied", "ic_mr_attach", "ic_mr_fonts", "ic_mr_emote", "ic_mr_sheets", "ic_mr_tune"};
+    /** Size of an icon of the toolbar, in dp. */
+    static final float TOOL_ICON_DP = 24f;
+
     /** The widths of the keys of the row of Ctrl, Alt and the arrows (share of the width, as the layout of the keyboard gives them) and what they say. */
     private static final float[] MOD_WIDTHS = {14.2f, 13.2f, 13.3f, 10.2f, 13.1f, 13.1f, 13.1f, 10.2f};
     private static final String[] MOD_LABELS = {"Ctrl", "Alt", "\u21b9", "<>", "\u2190", "\u2193", "\u2192", "{"};
@@ -340,16 +469,17 @@ final class MrThemePreview extends View {
     private static final boolean[] MOD_KEYS = {true, true, true, false, true, true, true, false};
 
     /**
-     * The complete keyboard under the line of suggestions, at rest as the real one is when it opens: the row of Ctrl, Alt and the arrows, the numbers,
-     * the three rows of letters and the bottom row, each key with the face of its kind. Only Ctrl, Alt and Shift have the dash of the modifier keys
-     * (off); nothing is lit or locked, because the keyboard shows a lit face only while a key is on.
+     * The complete keyboard under the toolbar, at rest as the real one is when it opens: the seven rows of keys, each with the face of its kind (the row of
+     * the toolbar key, the row of Ctrl, Alt and the arrows, the numbers, the three rows of letters and the bottom row). Only Ctrl, Alt and Shift have the dash
+     * of the modifier keys (off); nothing is lit or locked, because the keyboard shows a lit face only while a key is on. The rows share what the toolbar
+     * and the space under the last row leave of the height, as the real ones do.
      */
     private void fullKeys(Canvas canvas, Context c, float vw, float vh) {
         faces(c);
-        float top = vh * FULL_BAR_SHARE;
+        float top = BAR_DP * mDensity;
         area(vw, top, vh);
         float side = vw * 0.008f;
-        float rowH = (vh - top) / 6f;
+        float rowH = (vh - top - MrBottom.GAP_DP * mDensity) / FULL_ROWS;
         float width = vw - 2f * side;
         float unit = width / 10f;
         int text = MrThemeColors.colorOr(c, mTag, "text", 0xffffffff);
@@ -359,6 +489,21 @@ final class MrThemePreview extends View {
         float glowPx = glow == 0 ? 0f : 5f * mDensity;
         float letter = rowH * 0.42f, word = rowH * 0.30f;
         mText.setTextAlign(Paint.Align.CENTER);
+        // the row of the toolbar key (the first row): the key that opens the toolbar, the symbols and the keys that move the cursor
+        float topSum = 0f;
+        for (float f : TOP_WIDTHS) topSum += f;
+        float tx = side;
+        for (int i = 0; i < TOP_WIDTHS.length; i++) {
+            float kw = width * TOP_WIDTHS[i] / topSum;
+            boolean mod = TOP_KEYS[i];
+            key(canvas, tx, top, kw, rowH, mod, TOP_LABELS[i], mod ? accentText : text, glow, glowPx, FACE_NORMAL, DASH_NONE, letter);
+            if (i == 0) {
+                if (mToolbarKeyIcon == null) mToolbarKeyIcon = icon(c, TOOLBAR_KEY_ICON);
+                iconAt(canvas, mToolbarKeyIcon, accentText, tx + kw / 2f, top + rowH / 2f);
+            }
+            tx += kw;
+        }
+        top += rowH;
         // the row of Ctrl, Alt and the arrows
         float sum = 0f;
         for (float f : MOD_WIDTHS) sum += f;
@@ -435,7 +580,9 @@ final class MrThemePreview extends View {
             face.setState(state == FACE_LOCK ? STATE_LOCK : state == FACE_ON ? STATE_ON : dash != DASH_NONE ? STATE_MOD : STATE_NORMAL);
             KeyStyle.prepare(face, iw, ih, getContext());
             boolean tune = tuned() && mLook.faceTuned();
-            MrGlow.drawFace(face, canvas, iw, ih, mCurrentFilter, tune ? opacityFilter(true) : null, tune ? opacityFilter(false) : null);
+            // the colour of the line that the person chose is drawn over the face, as the keyboard does (the line of the style goes away)
+            MrGlow.drawFace(face, canvas, iw, ih, mCurrentFilter, tune ? opacityFilter(true) : null, tune ? opacityFilter(false) : null,
+                    tuned() ? mLook.line : 0, mLook.lineAlpha(), mDensity);
         } else {
             flat(canvas, iw, ih, accent, state);
         }
@@ -491,6 +638,8 @@ final class MrThemePreview extends View {
             fill = MrGlow.scale(fill, mLook.key / 100f);
             lip = seeThrough ? fill : MrGlow.scale(lip, mLook.key / 100f);
             edge = edge == 0 ? 0 : MrGlow.scale(edge, mLook.edge / 100f);
+            // the colour that the person chose for the line: the line is that colour, whatever the style has (or has not)
+            if (mLook.line != 0) edge = MrGlow.fade(mLook.line, mLook.lineAlpha());
         }
         float gap = 3f * mDensity, r = 8f * mDensity;
         mPaint.setShader(null);
