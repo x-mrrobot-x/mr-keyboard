@@ -77,7 +77,7 @@ import org.w3c.dom.NodeList;
 /**
  * The themes screen (v2.0.0, "Keyboard theme"), run on the PC against the stubs of Android: the spec of the background that the preference holds
  * (MrBackdrop.Spec: colours, gradients, landscapes, a picture with zoom and position), the part of a picture that fills the keyboard and how a finger
- * moves and pinches its frame (crop, pan, shift, rezoom), the gradients drawn as CSS does and the 36 landscapes (the pictures of the app, in six categories, drawn as a picture of the gallery is), the veil that keeps the toolbar readable
+ * moves and pinches its frame (crop, pan, shift, rezoom), the gradients drawn as CSS does and the 48 landscapes (the pictures of the app, in six categories, drawn as a picture of the gallery is), the veil that keeps the toolbar readable
  * over every colour, gradient and landscape (veil, look; the softening is for gradients, landscapes and pictures), the picture of the gallery (importPending: the size, the
  * photo turned, a failure that keeps the one that waits; commitPending, discardPending), the background put on the keyboard only in the themes of the
  * backgrounds (apply, MrBackdropDrawable, bottomColor), the colours of the thirty-five themes read from the real res/ files (MrThemeColors: thirteen on the
@@ -991,8 +991,9 @@ public class ThemesTest {
                 && MrThemeColors.luminance(tealBar) > 0.1f && MrThemeColors.luminance(tealBar) < 0.45f && MrBackdrop.contrast(tealBar, 0xff000000 | letter) >= 4.5f);
         int fontFill = MrAdapt.fontFill(0xff5a6580), fontInk = MrAdapt.fontInk(0xffffffff);
         check("the style in use of the fonts is the accent button of the tone (the one of Send) with the text that goes with it, dark pulled to the teal, and it reads",
-                fontFill == (0xff000000 | MrTheme.color("sel_send")) && hueGap(hueOf(fontFill), teal) < 10f && fontInk == MrTheme.color("sel_send_text") && fontInk != 0xff000000 && hueGap(hueOf(fontInk), teal) < 10f
-                        && MrBackdrop.contrast(fontFill, fontInk) >= 7f);
+                (fontFill & 0xffffff) == (MrTheme.color("sel_send") & 0xffffff) && hueGap(hueOf(fontFill), teal) < 10f && fontInk == MrTheme.color("sel_send_text") && fontInk != 0xff000000 && hueGap(hueOf(fontInk), teal) < 10f
+                        && MrBackdrop.contrast(0xff000000 | fontFill, fontInk) >= 7f);
+        check("...and it is a little see-through (72% opaque), not a solid colour", (fontFill >>> 24) == Math.round(MrAdapt.FONT_OPACITY * 255f) && (fontFill >>> 24) > 0x80 && (fontFill >>> 24) < 0xff);
         check("the text of the language and of the space bar, and of the button of Send, are inks too: they take the tone", MrAdapt.current().ink(0xffffffff) != 0xffffffff && MrAdapt.current().ink(0xff000000) != 0xff000000
                 && MrAdapt.adapt("lang_text", 0xffffffff) != 0xffffffff && MrAdapt.adapt("space_text", 0xffdddddd) != 0xffdddddd && MrAdapt.adapt("sel_send_text", 0xff000000) != 0xff000000);
         // the person's own opacity of the keys goes through the same tone
@@ -1042,17 +1043,17 @@ public class ThemesTest {
 
     static void heroClick() throws Exception {
         reset();
-        prefs.edit().putString("pref_keyboard_layout", "15").putString(MrBackdrop.PREF, "s20").apply();
+        prefs.edit().putString("pref_keyboard_layout", "15").putString(MrBackdrop.PREF, "s26").apply();
         Screen s = open();
         View hero = (View) s.mBig.getParent();
         check("the card of the choice in use is touchable and has a name for the screen readers", hero.isClickable() && hero.getContentDescription() != null && hero.getContentDescription().toString().equals("In use"));
-        check("the screen opens on the tab of the choice (the nature landscapes)", s.mTab == MrThemesActivity.TAB_SCENES + MrScenes.NATURE && checkedBackground(s) == FIRST_SCENE + 20);
+        check("the screen opens on the tab of the choice (the nature landscapes)", s.mTab == MrThemesActivity.TAB_SCENES + MrScenes.NATURE && checkedBackground(s) == FIRST_SCENE + 26);
         tab(s, MrThemesActivity.TAB_THEMES);
         int smooths = s.mScroll.stubSmooths;
         hero.performClick();
         s.mScroll.stubRunPosted();
         check("touching it opens the tab of the choice in use (the landscape: its category) and rolls the list, softly, once", s.mTab == MrThemesActivity.TAB_SCENES + MrScenes.NATURE
-                && s.mScroll.stubSmooths == smooths + 1 && s.mScroll.stubSmoothY >= 0 && checkedBackground(s) == FIRST_SCENE + 20);
+                && s.mScroll.stubSmooths == smooths + 1 && s.mScroll.stubSmoothY >= 0 && checkedBackground(s) == FIRST_SCENE + 26);
         int before = s.mScroll.stubSmooths;
         hero.performClick();
         s.mScroll.stubRunPosted();
@@ -2390,18 +2391,18 @@ public class ThemesTest {
 
     static void scenes() throws Exception {
         reset();
-        // the landscapes are 36 pictures of the app: six categories of six
-        check("36 landscapes: six categories of six", MrScenes.COUNT == 36 && MrScenes.CATEGORIES == 6 && MrScenes.PER_CATEGORY == 6);
+        // the landscapes are 48 pictures of the app: six categories of eight
+        check("48 landscapes: six categories of eight", MrScenes.COUNT == 48 && MrScenes.CATEGORIES == 6 && MrScenes.PER_CATEGORY == 8);
         boolean map = true;
         for (int i = 0; i < MrScenes.COUNT; i++) {
-            if (MrScenes.category(i) != i / 6 || MrScenes.number(i) != i % 6 || MrScenes.scene(MrScenes.category(i), MrScenes.number(i)) != i || !MrScenes.valid(i)) map = false;
+            if (MrScenes.category(i) != i / 8 || MrScenes.number(i) != i % 8 || MrScenes.scene(MrScenes.category(i), MrScenes.number(i)) != i || !MrScenes.valid(i)) map = false;
         }
-        check("a landscape is told by its category and its place in it", map && MrScenes.category(-1) == -1 && MrScenes.category(36) == -1 && MrScenes.number(99) == -1
-                && !MrScenes.valid(-1) && !MrScenes.valid(36));
+        check("a landscape is told by its category and its place in it", map && MrScenes.category(-1) == -1 && MrScenes.category(48) == -1 && MrScenes.number(99) == -1
+                && !MrScenes.valid(-1) && !MrScenes.valid(48));
         check("the categories are sports, animals, snow, nature, anime and AI, in this order", MrScenes.SPORTS == 0 && MrScenes.ANIMALS == 1 && MrScenes.SNOW == 2 && MrScenes.NATURE == 3
-                && MrScenes.ANIME == 4 && MrScenes.AI == 5 && "mr_scenes/sports_1.webp".equals(MrScenes.path(0)) && "mr_scenes/animals_3.webp".equals(MrScenes.path(8))
-                && "mr_scenes/snow_6.webp".equals(MrScenes.path(17)) && "mr_scenes/nature_2.webp".equals(MrScenes.path(19)) && "mr_scenes/anime_4.webp".equals(MrScenes.path(27))
-                && "mr_scenes/ai_6.webp".equals(MrScenes.path(35)) && MrScenes.path(36) == null && MrScenes.path(-1) == null);
+                && MrScenes.ANIME == 4 && MrScenes.AI == 5 && "mr_scenes/sports_1.webp".equals(MrScenes.path(0)) && "mr_scenes/animals_3.webp".equals(MrScenes.path(10))
+                && "mr_scenes/snow_6.webp".equals(MrScenes.path(21)) && "mr_scenes/nature_2.webp".equals(MrScenes.path(25)) && "mr_scenes/anime_4.webp".equals(MrScenes.path(35))
+                && "mr_scenes/ai_8.webp".equals(MrScenes.path(47)) && "mr_scenes/sports_7.webp".equals(MrScenes.path(6)) && MrScenes.path(48) == null && MrScenes.path(-1) == null);
         // the files: one small WebP for each, a picture of its own (the crop of the sheet, without the frame)
         boolean files = true, sizes = true;
         long total = 0;
@@ -2424,7 +2425,7 @@ public class ThemesTest {
         }
         check("every landscape has its file in the assets, and no two are the same file", files);
         check("each is a WebP of 330 to 560 pixels a side and 8 to 110 KB", sizes);
-        System.out.println("      the 36 landscapes take " + total / 1024 + " KB in the app");
+        System.out.println("      the 48 landscapes take " + total / 1024 + " KB in the app");
         check("together they are under 2 MB", total < 2 * 1024 * 1024);
         check("the apk stores the WebP as it is (doNotCompress), as it is compressed already", new String(java.nio.file.Files.readAllBytes(new File("apktool.yml").toPath()), "UTF-8").contains("- webp"));
         // reading one
@@ -2432,7 +2433,7 @@ public class ThemesTest {
         Bitmap whole = MrScenes.load(c, 0), half = MrScenes.load(c, 0, 2);
         check("a landscape is read whole, and at half the size for the small tiles", whole != null && half != null && half.getWidth() == whole.getWidth() / 2 && half.getHeight() == whole.getHeight() / 2
                 && whole.getWidth() >= 330 && whole.getHeight() >= 330);
-        check("an unknown landscape and no context give no picture and no exception", MrScenes.load(c, 36) == null && MrScenes.load(c, -1) == null && MrScenes.load(null, 0) == null);
+        check("an unknown landscape and no context give no picture and no exception", MrScenes.load(c, 48) == null && MrScenes.load(c, -1) == null && MrScenes.load(null, 0) == null);
         File root = android.content.res.AssetManager.stubRoot;
         android.content.res.AssetManager.stubRoot = new File("no_such_folder");
         check("a file that is gone gives no picture", MrScenes.load(c, 3) == null);
@@ -3822,7 +3823,7 @@ public class ThemesTest {
         return s;
     }
 
-    static final int COLOURS = 15, GRADIENTS = 20, SCENES = 36;
+    static final int COLOURS = 15, GRADIENTS = 20, SCENES = 48;
     static final int FIRST_GRADIENT = COLOURS, FIRST_SCENE = COLOURS + GRADIENTS, MINE = COLOURS + GRADIENTS + SCENES;
 
     /** The tab that holds tile {@code i} of the backgrounds (numbered as they were when they were all on one page: colours, gradients, landscapes, my image). */
@@ -4031,8 +4032,8 @@ public class ThemesTest {
                 && s.mStyle == outline && s.mCaption.getText().toString().equals("Color 5"));
         s.applyBackdrop(MrBackdrop.Spec.gradient(2), 0, MrBackdrop.KIND_FIRST[MrBackdrop.KIND_GRADIENT] + 2, MrKeyLook.NONE, false);
         check("a gradient with a gradient style: the tab and the kind", s.mDetail.getText().toString().equals("Gradients\nKeys: Gradient \u00b7 " + MrThemesActivity.styleName(s, MrBackdrop.KIND_FIRST[MrBackdrop.KIND_GRADIENT] + 2)));
-        s.applyBackdrop(MrBackdrop.Spec.scene(13), 0, 0, MrKeyLook.NONE, false);
-        check("a landscape says its category and the clear glass", s.mDetail.getText().toString().equals(MrThemesActivity.categoryName(s, MrScenes.category(13)) + "\nKeys: Glass \u00b7 See-through"));
+        s.applyBackdrop(MrBackdrop.Spec.scene(17), 0, 0, MrKeyLook.NONE, false);
+        check("a landscape says its category and the clear glass", s.mDetail.getText().toString().equals(MrThemesActivity.categoryName(s, MrScenes.category(17)) + "\nKeys: Glass \u00b7 See-through"));
         int light = -1;
         for (int i = 0; i < MrBackdrop.COLORS.length && light < 0; i++) if (!MrBackdrop.hasStyles(MrBackdrop.Spec.color(i))) light = i;
         if (light >= 0) {
@@ -4078,27 +4079,27 @@ public class ThemesTest {
         for (int cat = 0; cat < MrScenes.CATEGORIES; cat++) {
             s.mTabViews.get(MrThemesActivity.TAB_SCENES + cat).performClick();
             s.mGrid.stubRunPosted();
-            if (s.mBgTiles.size() != 6) sixEach = false;
-            for (int n = 0; n < 6; n++) if (!s.mBgSpecs.get(n).format().equals("s" + (cat * 6 + n))) sixEach = false;
+            if (s.mBgTiles.size() != 8) sixEach = false;
+            for (int n = 0; n < 8; n++) if (!s.mBgSpecs.get(n).format().equals("s" + (cat * 8 + n))) sixEach = false;
         }
-        check("each category of landscapes is a tab of its own with its six, in order: s0 to s5 the sports, then the animals, the snow, the nature, the anime and the AI", sixEach
-                && MrScenes.category(5) == MrScenes.SPORTS && MrScenes.category(6) == MrScenes.ANIMALS);
+        check("each category of landscapes is a tab of its own with its eight, in order: s0 to s7 the sports, then the animals, the snow, the nature, the anime and the AI", sixEach
+                && MrScenes.category(7) == MrScenes.SPORTS && MrScenes.category(8) == MrScenes.ANIMALS);
         final Screen live = s;
         boolean loaded = waitFor(() -> {
             for (int i = 0; i < MrScenes.COUNT; i++) if (live.mScenes[i] == null) return false;
             return true;
         });
         check("the small copies are read apart from the main thread, at half the size, as the tab of their category is opened",
-                loaded && s.mScenes[35].getHeight() * 2 <= scene(35).getHeight() + 1 && s.mScenes[0] != null && s.mScenes[30].getWidth() * 2 <= scene(30).getWidth() + 1);
+                loaded && s.mScenes[47].getHeight() * 2 <= scene(47).getHeight() + 1 && s.mScenes[0] != null && s.mScenes[40].getWidth() * 2 <= scene(40).getWidth() + 1);
         final Screen fresh = open();
         tab(fresh, MrThemesActivity.TAB_SCENES + MrScenes.NATURE);
-        check("a screen that opens only one category reads only its six landscapes", waitFor(() -> {
-            for (int i = 18; i < 24; i++) if (fresh.mScenes[i] == null) return false;
+        check("a screen that opens only one category reads only its eight landscapes", waitFor(() -> {
+            for (int i = 24; i < 32; i++) if (fresh.mScenes[i] == null) return false;
             return true;
-        }) && fresh.mScenes[0] == null && fresh.mScenes[35] == null);
+        }) && fresh.mScenes[0] == null && fresh.mScenes[47] == null);
         tab(s, MrThemesActivity.TAB_SCENES + MrScenes.AI);
-        MrThemePreview withPicture = s.mBgTiles.get(5), without = new MrThemePreview(s);
-        without.show(MrBackdrop.TAG_LIGHT_INK, MrBackdrop.Spec.scene(35), null, 0);
+        MrThemePreview withPicture = s.mBgTiles.get(7), without = new MrThemePreview(s);
+        without.show(MrBackdrop.TAG_LIGHT_INK, MrBackdrop.Spec.scene(47), null, 0);
         check("a card of a landscape shows its picture as soon as it is read (until then, the colour of the theme)", !java.util.Arrays.equals(tileImage(withPicture), tileImage(without)));
         tab(s, MrThemesActivity.TAB_GALLERY);
         check("the gallery has the card that picks a photo (no card of my image and no remove button until there is a picture)",
@@ -4252,9 +4253,9 @@ public class ThemesTest {
                 && boxOf(bg(s, FIRST_SCENE)).getContentDescription().toString().equals("Soccer ball"));
 
         // the texts
-        check("the texts of the screen are the ones of the strings", MrThemesActivity.sceneName(s, 0).equals("Soccer ball") && MrThemesActivity.sceneName(s, 8).equals("Panther") && MrThemesActivity.sceneName(s, 35).equals("Network")
+        check("the texts of the screen are the ones of the strings", MrThemesActivity.sceneName(s, 0).equals("Soccer ball") && MrThemesActivity.sceneName(s, 10).equals("Panther") && MrThemesActivity.sceneName(s, 45).equals("Network")
                 && MrThemesActivity.categoryName(s, 0).equals("Sports") && MrThemesActivity.categoryName(s, 5).equals("AI") && MrThemesActivity.categoryName(s, 6).equals("")
-                && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.scene(13)).equals("Snow \u00b7 Katana")
+                && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.scene(17)).equals("Snow \u00b7 Katana")
                 && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.gradient(4)).equals("Gradient 5") && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.color(0)).equals("Color 1")
                 && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.image(100, 0, 0, 1)).equals("My image") && MrThemesActivity.backgroundName(s, MrBackdrop.Spec.NO).equals("")
                 && MrThemesActivity.styleName(s, 0).equals("See-through") && MrThemesActivity.styleName(s, 5).equals("White") && MrThemesActivity.styleName(s, 14).equals("Lagoon") && MrThemesActivity.styleName(s, 15).equals("Own color") && MrThemesActivity.styleName(s, 17).equals("Own color") && MrThemesActivity.styleName(s, 18).equals("")
@@ -4276,10 +4277,10 @@ public class ThemesTest {
         prefs.edit().putString("pref_keyboard_layout", "13").putString(MrBackdrop.PREF, "g7").apply();
         check("a gradient opens on the tab of the gradients", open().mTab == MrThemesActivity.TAB_GRADIENTS);
         reset();
-        prefs.edit().putString("pref_keyboard_layout", "15").putString(MrBackdrop.PREF, "s20").apply();
+        prefs.edit().putString("pref_keyboard_layout", "15").putString(MrBackdrop.PREF, "s26").apply();
         s = open();
-        check("a landscape opens on the tab of its category (s20 is nature) and the style comes from the theme (outlined: 1)", s.mTab == MrThemesActivity.TAB_SCENES + MrScenes.NATURE && s.mStyle == 1
-                && s.mSpec.format().equals("s20") && checkedBackground(s) == FIRST_SCENE + 20);
+        check("a landscape opens on the tab of its category (s26 is nature) and the style comes from the theme (outlined: 1)", s.mTab == MrThemesActivity.TAB_SCENES + MrScenes.NATURE && s.mStyle == 1
+                && s.mSpec.format().equals("s26") && checkedBackground(s) == FIRST_SCENE + 26);
         reset();
         prefs.edit().putString("pref_keyboard_layout", "13").apply();
         s = open();
@@ -4673,7 +4674,7 @@ public class ThemesTest {
         for (int i = 0; i < MrScenes.CATEGORIES; i++) list.add("mr_themes_scene_cat_" + i);
         for (int i = 0; i < MrScenes.COUNT; i++) list.add("mr_themes_scene_" + i);
         String[] names = list.toArray(new String[0]);
-        check("the screen has 93 texts: the 30 of the screen, the 18 styles of the keys, the 3 kinds of them, the 6 categories and the 36 landscapes", names.length == 93 && MrScenes.COUNT == 36 && MrScenes.CATEGORIES == 6);
+        check("the screen has 105 texts: the 30 of the screen, the 18 styles of the keys, the 3 kinds of them, the 6 categories and the 48 landscapes", names.length == 105 && MrScenes.COUNT == 48 && MrScenes.CATEGORIES == 6);
         boolean all = true;
         for (String lang : new String[] {"en", "es", "pt-rBR"}) {
             Map<String, String> m = lang.equals("en") ? STRINGS : LANG.get(lang);

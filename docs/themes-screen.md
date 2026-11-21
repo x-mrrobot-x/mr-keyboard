@@ -217,8 +217,8 @@ landscape or a golden gradient nothing is blue and no ink is a flat white or a f
   drawn as a key.
 - **The floating bar of the emotes** (search, symbols, emojis, delete) is the tone at a medium lightness: opaque, `BAR_VALUE` 0.46 of value and up to
   `BAR_MAX_SAT` 0.80 of saturation, and a light tone of it on a pale background (`MrAdapt.bar`, called by `MrTools.floatBg`).
-- **The style in use of the fonts** is the accent button of the tone, the one of **Send**, with the text that goes with it (`MrAdapt.fontFill`,
-  `MrAdapt.fontInk`, called by `MrFonts`).
+- **The style in use of the fonts** is the accent button of the tone, the one of **Send**, a little see-through (`FONT_OPACITY` 0.72, so the background shows
+  in it), with the text that goes with it (`MrAdapt.fontFill`, `MrAdapt.fontInk`, called by `MrFonts`).
 - `MrTheme.color` answers every role through `MrAdapt.adapt`, so every tool and panel follows it with no change of its own; the letters and the small letters are
   tinted in `MrGlow.key` and `MrGlow.hint` (they read the color of the style) and the toolbar ink in `MrGlow.toolInk`; the drawable of the popup and the one of
   the bubble are set by `MrAdapt.popup` and `MrAdapt.bubble`, called where the keyboard gives them their shape (`LatinKeyboardBaseView`), and the key that is
@@ -238,11 +238,15 @@ landscape or a golden gradient nothing is blue and no ink is a flat white or a f
 - **Colors** (`MrBackdrop.COLORS`): fifteen plain colors, shown as they are (no veil: the color itself is the lower edge for the navigation bar).
 - **Gradients** (`MrBackdrop.GRADS`): twenty dark ones, all from the top down (some with stops, two with a soft light in a corner), like the dark
   gradients of the GB examples without the brown and orange ones.
-- **Landscapes** (`MrScenes`): thirty-six pictures kept in the app as WebP files, `assets/mr_scenes/<category>_<n>.webp`, six for each of the
-  categories **Sports, Animals, Snow, Nature, Anime** and **AI** (`sports`, `animals`, `snow`, `nature`, `anime`, `ai`). They are cropped from the
-  source sheets to the shape of the keyboard (about 500 px wide, quality 72, about 1.5 MB all together) and read from the assets (`MrScenes.load`),
-  then drawn like a picture of the gallery: scaled to fill the keyboard, with the vertical position that suits each one (`MrScenes.FOCUS`) and the
-  veil of the background. The screen shows them in six tabs, one for each category; the names are in `mr_strings.xml`.
+- **Landscapes** (`MrScenes`): forty-eight pictures kept in the app as WebP files, `assets/mr_scenes/<category>_<n>.webp`, eight for each of the
+  categories **Sports, Animals, Snow, Nature, Anime** and **AI** (`sports`, `animals`, `snow`, `nature`, `anime`, `ai`). The first six of each were
+  cropped from source sheets to the shape of the keyboard; the 7th and the 8th of each are drawn in code by `docs/tools/make_scenes.py` (on top of
+  the drawing kit `docs/tools/scenekit.py`, with fixed seeds, so the same files come out each time; `--png <folder>` also writes a contact sheet to look
+  at them, `--only <name>` redoes one). All are about 500 px wide at quality 72, about 1.8 MB together, and are read from the assets
+  (`MrScenes.load`), then drawn like a picture of the gallery: scaled to fill the keyboard, with the vertical position that suits each one
+  (`MrScenes.FOCUS`) and the veil of the background. The screen shows them in six tabs, one for each category; the names are in `mr_strings.xml`
+  (`mr_themes_scene_<id>`, where the id is the category times eight plus the place in it). The test of the screen checks that the ink of the toolbar
+  keeps a contrast of 3 over every one of them, so a picture with a big bright area at the top has to be dimmed.
 - **The gallery**: the photo picker of the system (`MrThemesActivity.pickers`): `android.provider.action.PICK_IMAGES` (Android 11 and later where it
   exists, always on 13), then `ACTION_PICK` on the images of the media store, and last `ACTION_OPEN_DOCUMENT` (the file manager), each tried when the one
   before it has no app to answer. No permission is asked. The photo is read once, off the main thread (`MrBackdrop.importPending`), made at most

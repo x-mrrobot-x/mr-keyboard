@@ -296,7 +296,7 @@
     .locals 4
 
     .prologue
-    const/16 v3, 0x24
+    const/16 v3, 0x30
 
     const/4 v2, -0x1
 
@@ -5719,7 +5719,7 @@
 
     .line 362
     :goto_4
-    const/4 v2, 0x6
+    const/16 v2, 0x8
 
     if-ge v1, v2, :cond_4
 
@@ -6390,7 +6390,7 @@
     const/4 v0, 0x0
 
     :goto_0
-    const/4 v2, 0x6
+    const/16 v2, 0x8
 
     if-ge v0, v2, :cond_1
 

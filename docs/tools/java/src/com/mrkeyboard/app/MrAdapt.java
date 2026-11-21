@@ -509,12 +509,18 @@ final class MrAdapt {
         }
     }
 
-    /** The button of the style in use in the tool of the fonts: the accent button of the theme in the tone (the one of Send) on a theme of the backgrounds; {@code fallback} otherwise. */
+    /** How opaque the button of the style in use of the fonts is (it is a little see-through, so the background shows in it). */
+    static final float FONT_OPACITY = 0.72f;
+
+    /**
+     * The button of the style in use in the tool of the fonts: the accent button of the theme in the tone (the one of Send), a little see-through, on a
+     * theme of the backgrounds; {@code fallback} otherwise.
+     */
     static int fontFill(int fallback) {
         try {
             if (!active()) return fallback;
             int c = MrTheme.color("sel_send");
-            return (c >>> 24) == 0 ? fallback : 0xff000000 | c;
+            return (c >>> 24) == 0 ? fallback : (Math.round(FONT_OPACITY * 255f) << 24) | (c & 0xffffff);
         } catch (RuntimeException e) {
             return fallback;
         }

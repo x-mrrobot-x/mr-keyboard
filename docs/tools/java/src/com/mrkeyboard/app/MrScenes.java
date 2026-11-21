@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * The landscapes that can be the background of the keyboard: 36 pictures, six in each of six categories (sports, animals, snow, nature, anime and AI).
- * They are stored in the app as small WebP files ({@code assets/mr_scenes/<category>_<number>.webp}, about 40 KB each: the part of the sheet that is
- * the picture, at the size it was made, without the frame) and read when one is shown. They are dark on purpose (the keys over a background carry light
+ * The landscapes that can be the background of the keyboard: 48 pictures, eight in each of six categories (sports, animals, snow, nature, anime and AI).
+ * They are stored in the app as small WebP files ({@code assets/mr_scenes/<category>_<number>.webp}, 10 to 40 KB each). The first six of each category are the
+ * part of a sheet that is the picture, at the size it was made, without the frame; the seventh and the eighth are drawn by {@code docs/tools/make_scenes.py} and read when one is shown. They are dark on purpose (the keys over a background carry light
  * ink; {@link MrBackdrop#look} sets the veil for what is not).
  *
  * <p>A keyboard is a wide strip and a picture is not, so every picture says where its strip goes ({@link #focus}: the vertical position of the part
@@ -19,9 +19,9 @@ import java.io.InputStream;
  * spec, so a landscape is drawn as a picture of the gallery is, from a bitmap that the caller reads with {@link #load}.
  */
 final class MrScenes {
-    /** The categories, six pictures in each. */
+    /** The categories, eight pictures in each. */
     static final int CATEGORIES = 6;
-    static final int PER_CATEGORY = 6;
+    static final int PER_CATEGORY = 8;
     /** The number of landscapes. */
     static final int COUNT = CATEGORIES * PER_CATEGORY;
 
@@ -33,12 +33,12 @@ final class MrScenes {
 
     /** Where the strip goes in each picture, -100 (the top of the picture) .. 100 (the bottom), 0 = the middle; in the order of the landscapes. */
     private static final int[] FOCUS = {
-            0, -25, 10, -15, -35, -25,
-            0, -10, 0, -30, -40, -30,
-            30, 0, 40, 0, -20, 10,
-            0, -40, 10, 0, 10, 0,
-            -10, 0, 0, 0, 0, -30,
-            0, 0, 0, 0, 0, 0};
+            0, -25, 10, -15, -35, -25, -10, 0,
+            0, -10, 0, -30, -40, -30, 0, 0,
+            30, 0, 40, 0, -20, 10, 30, 0,
+            0, -40, 10, 0, 10, 0, 10, 20,
+            -10, 0, 0, 0, 0, -30, 0, 10,
+            0, 0, 0, 0, 0, 0, 0, 15};
 
     private MrScenes() { }
 

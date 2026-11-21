@@ -34,6 +34,8 @@
 
 .field static final FAINT:F = 0.55f
 
+.field static final FONT_OPACITY:F = 0.72f
+
 .field static final GREY:F = 0.12f
 
 .field static final INK_DARK:F = 0.65f
@@ -1045,10 +1047,10 @@
 .end method
 
 .method static fontFill(I)I
-    .locals 2
+    .locals 3
 
     .prologue
-    .line 515
+    .line 521
     :try_start_0
     invoke-static {}, Lcom/mrkeyboard/app/MrAdapt;->active()Z
 
@@ -1056,33 +1058,43 @@
 
     if-nez v0, :cond_1
 
-    .line 519
+    .line 525
     :cond_0
     :goto_0
     return p0
 
-    .line 516
+    .line 522
     :cond_1
     const-string v0, "sel_send"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
-    :try_end_0
-    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
     move-result v0
 
-    .line 517
+    .line 523
     ushr-int/lit8 v1, v0, 0x18
 
     if-eqz v1, :cond_0
 
-    const/high16 v1, -0x1000000
+    const v1, 0x4337999a    # 183.6f
+
+    invoke-static {v1}, Ljava/lang/Math;->round(F)I
+    :try_end_0
+    .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
+
+    move-result v1
+
+    shl-int/lit8 v1, v1, 0x18
+
+    const v2, 0xffffff
+
+    and-int/2addr v0, v2
 
     or-int p0, v1, v0
 
     goto :goto_0
 
-    .line 518
+    .line 524
     :catch_0
     move-exception v0
 
@@ -1093,7 +1105,7 @@
     .locals 2
 
     .prologue
-    .line 526
+    .line 532
     :try_start_0
     invoke-static {}, Lcom/mrkeyboard/app/MrAdapt;->active()Z
 
@@ -1101,12 +1113,12 @@
 
     if-nez v0, :cond_1
 
-    .line 530
+    .line 536
     :cond_0
     :goto_0
     return p0
 
-    .line 527
+    .line 533
     :cond_1
     const-string v0, "sel_send_text"
 
@@ -1116,7 +1128,7 @@
 
     move-result v0
 
-    .line 528
+    .line 534
     ushr-int/lit8 v1, v0, 0x18
 
     if-eqz v1, :cond_0
@@ -1125,7 +1137,7 @@
 
     goto :goto_0
 
-    .line 529
+    .line 535
     :catch_0
     move-exception v0
 

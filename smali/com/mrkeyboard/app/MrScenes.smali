@@ -12,13 +12,13 @@
 
 .field static final CATEGORIES:I = 0x6
 
-.field static final COUNT:I = 0x24
+.field static final COUNT:I = 0x30
 
 .field private static final FOCUS:[I
 
 .field static final NATURE:I = 0x3
 
-.field static final PER_CATEGORY:I = 0x6
+.field static final PER_CATEGORY:I = 0x8
 
 .field private static final SLUGS:[Ljava/lang/String;
 
@@ -76,7 +76,7 @@
     sput-object v0, Lcom/mrkeyboard/app/MrScenes;->SLUGS:[Ljava/lang/String;
 
     .line 35
-    const/16 v0, 0x24
+    const/16 v0, 0x30
 
     new-array v0, v0, [I
 
@@ -96,24 +96,32 @@
         -0xf
         -0x23
         -0x19
+        -0xa
+        0x0
         0x0
         -0xa
         0x0
         -0x1e
         -0x28
         -0x1e
+        0x0
+        0x0
         0x1e
         0x0
         0x28
         0x0
         -0x14
         0xa
+        0x1e
+        0x0
         0x0
         -0x28
         0xa
         0x0
         0xa
         0x0
+        0xa
+        0x14
         -0xa
         0x0
         0x0
@@ -121,11 +129,15 @@
         0x0
         -0x1e
         0x0
+        0xa
         0x0
         0x0
         0x0
         0x0
         0x0
+        0x0
+        0x0
+        0xf
     .end array-data
 .end method
 
@@ -150,7 +162,7 @@
 
     if-eqz v0, :cond_0
 
-    div-int/lit8 v0, p0, 0x6
+    div-int/lit8 v0, p0, 0x8
 
     :goto_0
     return v0
@@ -424,7 +436,7 @@
 
     if-eqz v0, :cond_0
 
-    rem-int/lit8 v0, p0, 0x6
+    rem-int/lit8 v0, p0, 0x8
 
     :goto_0
     return v0
@@ -509,7 +521,7 @@
 
     .prologue
     .line 57
-    mul-int/lit8 v0, p0, 0x6
+    mul-int/lit8 v0, p0, 0x8
 
     add-int/2addr v0, p1
 
@@ -523,7 +535,7 @@
     .line 61
     if-ltz p0, :cond_0
 
-    const/16 v0, 0x24
+    const/16 v0, 0x30
 
     if-ge p0, v0, :cond_0
 
