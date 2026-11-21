@@ -39,7 +39,7 @@
     .end annotation
 
     .prologue
-    .line 1433
+    .line 1435
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$31;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$31;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
@@ -63,7 +63,7 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 1435
+    .line 1437
     iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$31;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
     iget v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$31;->val$which:I
@@ -83,7 +83,7 @@
     :goto_0
     aput-object v0, v1, v3
 
-    .line 1436
+    .line 1438
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$31;->val$value:Landroid/widget/TextView;
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -106,15 +106,15 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 1437
+    .line 1439
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$31;->val$redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1438
+    .line 1440
     return-void
 
-    .line 1435
+    .line 1437
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$31;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 

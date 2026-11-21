@@ -45,7 +45,7 @@
     .end annotation
 
     .prologue
-    .line 1412
+    .line 1414
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$30;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$30;->val$moved:[Z
@@ -77,12 +77,12 @@
 
     const/4 v4, 0x0
 
-    .line 1414
+    .line 1416
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$30;->val$moved:[Z
 
     aput-boolean v1, v0, v4
 
-    .line 1416
+    .line 1418
     iget v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$30;->val$which:I
 
     if-eq v0, v1, :cond_0
@@ -102,7 +102,7 @@
 
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrThemesActivity;->ownFromPreset([I[Lcom/mrkeyboard/app/MrKeyLook;Z)V
 
-    .line 1417
+    .line 1419
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$30;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
@@ -122,7 +122,7 @@
 
     aput-object v1, v0, v4
 
-    .line 1418
+    .line 1420
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$30;->val$bar:Lcom/mrkeyboard/app/MrOpacityBar;
 
     if-eqz v0, :cond_2
@@ -131,12 +131,12 @@
 
     invoke-virtual {v0, p1}, Lcom/mrkeyboard/app/MrOpacityBar;->setColor(I)V
 
-    .line 1419
+    .line 1421
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$30;->val$redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1420
+    .line 1422
     return-void
 .end method

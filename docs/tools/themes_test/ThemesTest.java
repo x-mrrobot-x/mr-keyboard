@@ -705,18 +705,20 @@ public class ThemesTest {
         String[][] dark = {{"panel_btn", "ff323645"}, {"sel_cancel", "ff323645"}, {"sel_cancel_stroke", "ff525662"}, {"sel_send", "ff9ecbff"}, {"sel_send_stroke", "ffb6d8ff"},
                 {"attach_fab", "f25a6580"}, {"attach_fab_stroke", "ff7b8499"}, {"sel_media", "599ecbff"}, {"sel_card", "ff42536e"}, {"bubble_fill", "ff222a3b"},
                 {"bubble_stroke", "ff4d5873"}, {"preview_stroke", "ff9ecbff"}, {"preview_dots", "d99ecbff"}, {"popup_key_fill", "ff46557a"}, {"ctrl_bg", "ff5a6580"},
-                {"panel_tab_off_text", "ffa4a6ac"}, {"sel_send_text", "ff000000"}, {"text", "ffffffff"}, {"alpha_btn", "42000000"}, {"kbd_bg", "ff1b2030"}};
+                {"panel_tab_off_text", "ffa4a6ac"}, {"sel_send_text", "ff000000"}, {"text", "ffffffff"}, {"alpha_btn", "42000000"}, {"kbd_bg", "ff1b2030"},
+                {"hint", "ffc8ccd6"}, {"modifier_indicator_off", "ffa9b4cc"}, {"modifier_indicator_on", "ffffffff"}, {"modifier_indicator_lock", "ffffe082"}};
         String[][] light = {{"panel_btn", "ffc8d9f0"}, {"sel_cancel", "ffc8d9f0"}, {"sel_cancel_stroke", "ff96bcee"}, {"sel_send", "ff1a73e8"}, {"sel_send_stroke", "ff5396ee"},
                 {"attach_fab", "f2d5dbe3"}, {"attach_fab_stroke", "ffb1b6bd"}, {"sel_media", "591a73e8"}, {"sel_card", "ffabc8ef"}, {"bubble_fill", "ffffffff"},
                 {"bubble_stroke", "ffc4cad3"}, {"preview_stroke", "ff1a73e8"}, {"preview_dots", "d91a73e8"}, {"popup_key_fill", "ffa9c8f4"}, {"ctrl_bg", "ffd5dbe3"},
-                {"panel_tab_off_text", "ff5f6368"}, {"sel_send_text", "ffffffff"}, {"text", "ff202124"}, {"alpha_btn", "38000000"}, {"kbd_bg", "ffe9edf2"}, {"tool_tint", "ff1a73e8"}};
+                {"panel_tab_off_text", "ff5f6368"}, {"sel_send_text", "ffffffff"}, {"text", "ff202124"}, {"alpha_btn", "38000000"}, {"kbd_bg", "ffe9edf2"}, {"tool_tint", "ff1a73e8"},
+                {"hint", "ff5f6368"}, {"modifier_indicator_off", "ff7d8799"}, {"modifier_indicator_on", "ff0842a0"}, {"modifier_indicator_lock", "ffb71c1c"}};
         MrTheme.stubColors.clear();
         for (String[] r : pale ? light : dark) MrTheme.stubColors.put(r[0], (int) Long.parseLong(r[1], 16));
     }
 
     static final String[] TONED = {"panel_btn", "sel_cancel", "sel_cancel_stroke", "sel_send", "sel_send_stroke", "attach_fab", "attach_fab_stroke", "sel_media", "sel_card",
             "bubble_fill", "bubble_stroke", "preview_stroke", "preview_dots", "popup_key_fill", "ctrl_bg"};
-    static final String[] KEPT = {"sel_send_text", "text", "alpha_btn", "kbd_bg", "mystery_role"};
+    static final String[] KEPT = {"sel_send_text", "alpha_btn", "kbd_bg", "modifier_indicator_lock", "mystery_role"};
 
     /** The cards of the landscapes and of the pictures are drawn with a line round each key (the image shows through); the cards of colours, gradients and themes keep their keys. */
     static void cardLooks() throws Exception {
@@ -776,6 +778,17 @@ public class ThemesTest {
         check("the ink (the label of the Send button, the text), the translucent black layers, the colour of the background and a role that is not known are left alone", kept);
         check("a dark face stays dark and a bright one stays bright (the 'Send' button is the lightest, the bubble the darkest)",
                 MrThemeColors.luminance(MrTheme.color("sel_send")) > 0.6f && MrThemeColors.luminance(MrTheme.color("bubble_fill")) < 0.2f);
+        int ink = MrTheme.color("text"), hintInk = MrTheme.color("hint");
+        check("the white ink is a white pulled a little to the red of the keys (still light, a hint of red, as opaque), and the small letters, a pale grey, keep their lightness",
+                hueGap(hueOf(ink), 0f) < 10f && satOf(ink) > 0.04f && satOf(ink) <= MrAdapt.INK_LIGHT + 0.01f && MrThemeColors.luminance(ink) > 0.7f && (ink >>> 24) == 0xff
+                        && hueGap(hueOf(hintInk), 0f) < 10f && satOf(hintInk) > 0.02f && Math.abs(MrThemeColors.luminance(hintInk) - MrThemeColors.luminance(0xffc8ccd6)) < 0.15f);
+        int dashOff = MrTheme.color("modifier_indicator_off"), dashOn = MrTheme.color("modifier_indicator_on");
+        check("the dash under Ctrl, Alt and Shift: off takes the hue of the tone as light as it was, on is a white pulled to it, and the locked one keeps its colour",
+                hueGap(hueOf(dashOff), 0f) < 10f && satOf(dashOff) > 0.1f && Math.abs(MrThemeColors.luminance(dashOff) - MrThemeColors.luminance(0xffa9b4cc)) < 0.03f
+                        && hueGap(hueOf(dashOn), 0f) < 10f && satOf(dashOn) > 0.04f && MrThemeColors.luminance(dashOn) > 0.7f && dashOff != dashOn
+                        && MrTheme.color("modifier_indicator_lock") == MrTheme.stubColors.get("modifier_indicator_lock"));
+        check("a colour that already has a hue is an ink with its own tone: left alone, and so is a role with no opacity (it means none)",
+                MrAdapt.current().ink(0xff9ecbff) == 0xff9ecbff && MrAdapt.current().ink(0x00ffffff) == 0x00ffffff && MrAdapt.current().ink(0x00000000) == 0x00000000);
 
         // the colour moves with the person's choice
         prefs.edit().putInt("pref_kbd_look_hue", 0xff00ff00).apply();
@@ -795,6 +808,13 @@ public class ThemesTest {
         MrKeyLook.invalidate();
         int[] sp = MrKeyLook.spectrum("mr_overowngrad", MrKeyLook.current(c));
         check("the gradient of the person's own colours: the middle of the way from the start to the end", hueGap(hueOf(MrTheme.color("panel_btn")), hueOf(sp[1])) < 10f);
+        MrTheme.stubSpectrum = true;
+        MrAdapt.reset();
+        check("on a theme that draws its keys in the hues of their place the dash follows the keys: its roles are left as they are, the ink still takes the tone",
+                MrTheme.color("modifier_indicator_off") == MrTheme.stubColors.get("modifier_indicator_off") && MrTheme.color("modifier_indicator_on") == MrTheme.stubColors.get("modifier_indicator_on")
+                        && MrTheme.color("text") != MrTheme.stubColors.get("text") && MrAdapt.current().spectrum);
+        MrTheme.stubSpectrum = false;
+        MrAdapt.reset();
         prefs.edit().remove("pref_kbd_look_hue").remove("pref_kbd_look_hue2").apply();
         MrKeyLook.invalidate();
 
@@ -815,7 +835,31 @@ public class ThemesTest {
         MrTheme.stubTag = MrBackdrop.TAG_LIGHT_INK;
         prefs.edit().putString(MrBackdrop.PREF, "s4").apply();
         MrBackdrop.Look look = MrBackdrop.lookNow(c);
-        check("a landscape: the tools take the tone of its lower edge", look != null && (satOf(look.bottom) < 0.1f || hueGap(hueOf(MrTheme.color("panel_btn")), hueOf(look.bottom)) < 12f));
+        check("a landscape has a colour that stands out in it (the first of its palette), and a colour or a gradient has none",
+                look != null && look.accent != 0 && look.accent == (0xff000000 | look.accent) && satOf(look.accent) > 0.12f);
+        prefs.edit().putString(MrBackdrop.PREF, "c4").apply();
+        check("...a plain colour has none", MrBackdrop.lookNow(c).accent == 0);
+        prefs.edit().putString(MrBackdrop.PREF, "g3").apply();
+        check("...a gradient has none", MrBackdrop.lookNow(c).accent == 0);
+        prefs.edit().putString(MrBackdrop.PREF, "s4").apply();
+        look = MrBackdrop.lookNow(c);
+        MrAdapt.reset();
+        check("a landscape: the clear glass takes the colour that stands out in it, and not the one of its lower edge: the tools, the ink and the dash are in its hue",
+                hueGap(hueOf(MrTheme.color("panel_btn")), hueOf(look.accent)) < 12f && hueGap(hueOf(MrTheme.color("text")), hueOf(look.accent)) < 12f
+                        && hueGap(hueOf(MrTheme.color("modifier_indicator_off")), hueOf(look.accent)) < 12f);
+        MrAdapt.Tone seen = MrAdapt.current();
+        check("the white veil of the clear glass is drawn in a white pulled to that colour (light, with a little of its hue) and only on a dark background, not on a theme with a colour of its own",
+                seen.see != null && seen.see.length == 9 && seen.see[0] > 0.6f && seen.see[4] > 0.6f && seen.see[8] > 0.6f && seen.seeFilter() != null && seen.seeFilter() == seen.seeFilter()
+                        && (seen.see[0] < 0.999f || seen.see[4] < 0.999f || seen.see[8] < 0.999f));
+        MrTheme.stubTag = "mr_overownglass";
+        MrAdapt.reset();
+        check("...a style with a colour has no such veil", MrAdapt.current().see == null);
+        MrTheme.stubTag = MrBackdrop.TAG_LIGHT_INK;
+        prefs.edit().putString(MrBackdrop.PREF, "c13").apply();
+        MrAdapt.reset();
+        check("...nor has the clear glass over black (it has no hue to give)", MrAdapt.current().see == null);
+        prefs.edit().putString(MrBackdrop.PREF, "s4").apply();
+        MrAdapt.reset();
 
         // a pale background: the white of the bubble is only a breath of the tone, and the ink stays dark
         MrTheme.stubTag = MrBackdrop.TAG_DARK_INK;
@@ -828,6 +872,10 @@ public class ThemesTest {
         check("pale: the buttons and the Send button take the pink, as light as they were", hueGap(hueOf(MrTheme.color("panel_btn")), pink) < 12f && hueGap(hueOf(MrTheme.color("sel_send")), pink) < 12f
                 && Math.abs(MrThemeColors.luminance(MrTheme.color("panel_btn")) - MrThemeColors.luminance(0xffc8d9f0)) < 0.03f && MrTheme.color("sel_send_text") == 0xffffffff);
         check("pale: the tint of the tools (tool_tint) follows too", hueGap(hueOf(MrTheme.color("tool_tint")), pink) < 12f);
+        int dark = MrTheme.color("text");
+        check("pale: the dark ink is a black pulled to the pink (still dark and opaque), and the dash that is on, a deep tone of it", hueGap(hueOf(dark), pink) < 12f && satOf(dark) > 0.1f && MrThemeColors.luminance(dark) < 0.2f
+                && (dark >>> 24) == 0xff && hueGap(hueOf(MrTheme.color("modifier_indicator_on")), pink) < 12f && MrThemeColors.luminance(MrTheme.color("modifier_indicator_on")) < 0.35f
+                && MrAdapt.current().see == null);
 
         // the drawables of the bubble and of the popup
         MrTheme.stubTag = "mr_overownglass";
@@ -837,13 +885,33 @@ public class ThemesTest {
         GradientDrawable shadow = new GradientDrawable(), fill = new GradientDrawable();
         Drawable dots = new Drawable() { };
         LayerDrawable layers = new LayerDrawable(new Drawable[] {shadow, fill, dots});
+        MrAdapt.reset();
+        int under = MrBackdrop.lookNow(c).bottom;
+        MrKeyLook lookNow = MrKeyLook.current(c);
+        int[] restFace = MrAdapt.face(c, "mr_overownglass", lookNow, under, false);
+        check("the face of a key for the bubble and the popup: two opaque colours (the key is see-through, so they are what it looks like over the background), the line a little lighter than the face",
+                restFace != null && (restFace[0] >>> 24) == 0xff && (restFace[1] >>> 24) == 0xff && restFace[0] != under && MrThemeColors.luminance(restFace[1]) >= MrThemeColors.luminance(restFace[0])
+                        && MrAdapt.over(0xff000000, 0x80ffffff) != 0xff000000 && Math.abs(((MrAdapt.over(0xff000000, 0x80ffffff) >> 8) & 0xff) - 128) <= 1);
         MrAdapt.bubble(layers);
-        check("the bubble: its fill and its line are the colours of the theme in the tone, the dots of the key with variants are tinted, the shadow is left",
-                fill.stubFill == MrTheme.color("bubble_fill") && fill.stubLine == MrTheme.color("preview_stroke") && dots.stubTint == MrTheme.color("preview_dots") && shadow.stubFill == 0 && shadow.stubLine == 0
-                        && fill.stubFill != raw[9]);
+        check("the bubble has the fill and the line of a key of the theme (not the deep slate any more), the dots of the key with variants are the ink of the small letters, the shadow is left",
+                fill.stubFill == restFace[0] && fill.stubLine == restFace[1] && dots.stubTint == MrTheme.color("hint") && shadow.stubFill == 0 && shadow.stubLine == 0 && fill.stubFill != raw[9]);
         GradientDrawable pshadow = new GradientDrawable(), pfill = new GradientDrawable();
         MrAdapt.popup(new LayerDrawable(new Drawable[] {pshadow, pfill}));
-        check("the popup of variants: the same, with the line of the popup", pfill.stubFill == MrTheme.color("bubble_fill") && pfill.stubLine == MrTheme.color("bubble_stroke") && pshadow.stubFill == 0);
+        check("the popup of variants: the same face and line as a key, and no dots", pfill.stubFill == restFace[0] && pfill.stubLine == restFace[1] && pshadow.stubFill == 0);
+        // the same colour of the keys: the face of the own glass is a hue of that colour over the background, and the outline one has its own line
+        int[] outline = MrAdapt.face(c, "mr_overgold", MrKeyLook.NONE, under, false);
+        int[] pressedOver = MrAdapt.face(c, "mr_overownglass", lookNow, restFace[0], true);
+        check("an outline has the line of its colour (the line of the style) over the background, and the pressed face over the face at rest is lighter than the one at rest; a theme with no face of this kind, or no look, gives none",
+                outline != null && outline[1] == MrAdapt.over(under, MrThemeColors.own(c, "mr_overgold", "key_normal_edge")) && MrThemeColors.luminance(outline[1]) > MrThemeColors.luminance(outline[0])
+                        && pressedOver != null && MrThemeColors.luminance(pressedOver[0]) > MrThemeColors.luminance(restFace[0])
+                        && MrAdapt.face(c, "mr_aurora", lookNow, under, false) == null && MrAdapt.face(c, "mr_overgold", null, under, false) == null);
+        // what the person tuned for the keys: the colour of the line, the opacity of the face
+        MrKeyLook tunedLook = new MrKeyLook(250, 100, 0, 0xffff7a00, 0, 0xff00ff00);
+        int[] strong = MrAdapt.face(c, "mr_overownglass", tunedLook, under, false);
+        int[] faint = MrAdapt.face(c, "mr_overownglass", new MrKeyLook(0, 100, 0, 0xffff7a00, 0, 0), under, false);
+        check("the opacity that the person gave the keys is the one of the face (250% is denser, 0% is the background itself) and the colour they gave the line is the line",
+                strong != null && faint != null && faint[0] == under && MrThemeColors.luminance(strong[0]) > MrThemeColors.luminance(restFace[0])
+                        && strong[1] == MrAdapt.over(under, MrGlow.fade(0xff00ff00, tunedLook.lineAlpha())));
         MrAdapt.popup(null);
         MrAdapt.bubble(null);
         MrTheme.stubTag = "mr_midnight";
@@ -854,25 +922,87 @@ public class ThemesTest {
         // the face of the key chosen in the popup
         MrTheme.stubTag = "mr_overownglass";
         PorterDuffColorFilter pf = MrAdapt.popupFilter();
-        check("the key chosen in the popup is drawn whole in the colour of the theme in the tone", pf != null && pf.stubColor == MrTheme.color("popup_key_fill") && pf.stubMode == android.graphics.PorterDuff.Mode.SRC_IN
+        check("the key chosen in the popup is drawn whole as a pressed key of the theme over the face of the popup", pf != null && pf.stubColor == pressedOver[0] && pf.stubMode == android.graphics.PorterDuff.Mode.SRC_IN
                 && MrAdapt.popupFilter() == pf);
         MrGlow.reset();
-        prefs.edit().putInt("pref_kbd_look_key", 30).apply();       // the person made the keys faint: the popup is not
+        prefs.edit().putInt("pref_kbd_look_key", 30).apply();       // the person made the keys faint: the popup follows its keys, and the filter is made again
         MrKeyLook.invalidate();
+        PorterDuffColorFilter pf2 = MrAdapt.popupFilter();
         View popupView = new View();
         Drawable face = new Drawable() { };
         KeyStyle.stubDrawn.clear();
         MrGlow.key(popupView, null, false, null);
         MrGlow.drawKey(face, null, 80, 80);
         ColorFilter drawn = KeyStyle.stubDrawn.isEmpty() ? null : KeyStyle.stubDrawn.get(0);
-        check("with the opacity of the keys tuned, the face of the popup is still the whole colour (that opacity is for the keys of the keyboard)", drawn instanceof PorterDuffColorFilter && ((PorterDuffColorFilter) drawn).stubColor == pf.stubColor
-                && face.stubFilter == null);
+        check("with the opacity of the keys tuned the face of the popup is the one of the keys then, drawn whole (not through the opacity filters of the keys)", drawn instanceof PorterDuffColorFilter && ((PorterDuffColorFilter) drawn).stubColor == pf2.stubColor
+                && pf2.stubColor != pf.stubColor && face.stubFilter == null);
         View mainView = new View();
         mainView.setTag("mr_overownglass");
         KeyStyle.stubDrawn.clear();
         MrGlow.key(mainView, null, false, null);
         MrGlow.drawKey(face, null, 80, 80);
-        check("a key of the keyboard (the view has the tag of the theme) is not drawn with it", KeyStyle.stubDrawn.isEmpty() || !(KeyStyle.stubDrawn.get(0) instanceof PorterDuffColorFilter && ((PorterDuffColorFilter) KeyStyle.stubDrawn.get(0)).stubColor == pf.stubColor));
+        check("a key of the keyboard (the view has the tag of the theme) is not drawn with it", KeyStyle.stubDrawn.isEmpty() || !(KeyStyle.stubDrawn.get(0) instanceof PorterDuffColorFilter && ((PorterDuffColorFilter) KeyStyle.stubDrawn.get(0)).stubColor == pf2.stubColor));
+
+        // the keyboard itself: the letters, the icons, the small letters, the toolbar, the dash and the clear glass take the tone
+        MrTheme.stubTag = MrBackdrop.TAG_LIGHT_INK;
+        overRoles(false);
+        prefs.edit().putString(MrBackdrop.PREF, "c4").remove("pref_kbd_look_key").remove("pref_kbd_look_hue").apply();       // over a deep teal
+        MrKeyLook.invalidate();
+        MrAdapt.reset();
+        MrGlow.reset();
+        View main = new View();
+        main.setTag(MrBackdrop.TAG_LIGHT_INK);
+        android.graphics.Paint label = new android.graphics.Paint(0);
+        label.setColor(0xffffffff);
+        MrGlow.key(main, null, false, label);
+        int letter = label.getColor();
+        ColorFilter iconInk = MrGlow.iconFilter(null);
+        check("a letter of the keyboard is the white of the ink pulled to the tone of the background (teal), and the icons have that colour",
+                letter != 0xffffffff && hueGap(hueOf(letter), teal) < 10f && satOf(letter) > 0.04f && iconInk instanceof PorterDuffColorFilter && ((PorterDuffColorFilter) iconInk).stubColor == letter);
+        android.graphics.Paint small = new android.graphics.Paint(0);
+        small.setColor(0xffc8ccd6);
+        MrGlow.hint(small, 0xffc8ccd6);
+        check("the small letters of the keys too", small.getColor() != 0xffc8ccd6 && hueGap(hueOf(small.getColor()), teal) < 10f);
+        check("the text and the icons of the toolbar: the ink of the theme in the tone (the same as the letters)", MrGlow.toolInk() == (0xff000000 | MrTheme.color("text")) && MrGlow.toolInk() == letter);
+        android.graphics.Paint dash = new android.graphics.Paint(0);
+        dash.setColor(MrTheme.color("modifier_indicator_off"));
+        MrGlow.dash(dash);
+        check("the dash that is off is drawn in the tone, faint", hueGap(hueOf(dash.getColor()), teal) < 10f && (dash.getColor() >>> 24) == Math.round(255 * MrKeyLook.DASH_OFF_SHARE));
+        Drawable glass = new Drawable() { };
+        KeyStyle.stubDrawn.clear();
+        MrGlow.drawKey(glass, null, 80, 80);
+        check("the clear glass is drawn through the filter of the tone (a white pulled to it), taken off afterwards", !KeyStyle.stubDrawn.isEmpty() && KeyStyle.stubDrawn.get(0) == MrAdapt.current().seeFilter() && MrAdapt.current().seeFilter() != null && glass.stubFilter == null);
+        // the person's own opacity of the keys goes through the same tone
+        prefs.edit().putInt("pref_kbd_look_key", 150).apply();
+        MrKeyLook.invalidate();
+        MrGlow.key(main, null, false, label);
+        KeyStyle.stubDrawn.clear();
+        MrGlow.drawKey(glass, null, 80, 80);
+        ColorFilter fillDrawn = KeyStyle.stubDrawn.isEmpty() ? null : KeyStyle.stubDrawn.get(0);
+        float[] plain = MrAdapt.current().see;
+        check("...and so does the clear glass with the opacity that the person gave the keys: the same tone, with 150% of the opacity",
+                fillDrawn instanceof android.graphics.ColorMatrixColorFilter && glass.stubFilter == null
+                        && ((android.graphics.ColorMatrixColorFilter) fillDrawn).stubMatrix[0] == plain[0] && ((android.graphics.ColorMatrixColorFilter) fillDrawn).stubMatrix[6] == plain[4]
+                        && ((android.graphics.ColorMatrixColorFilter) fillDrawn).stubMatrix[12] == plain[8] && ((android.graphics.ColorMatrixColorFilter) fillDrawn).stubMatrix[18] == 1.5f);
+        prefs.edit().remove("pref_kbd_look_key").apply();
+        MrKeyLook.invalidate();
+        // a colour of the letters chosen by the person is the one used
+        prefs.edit().putInt("pref_kbd_look_text", 0xff123456).apply();
+        MrKeyLook.invalidate();
+        label.setColor(0xffffffff);
+        MrGlow.key(main, null, false, label);
+        check("the colour that the person chose for the letters is not touched by the tone", label.getColor() == 0xff123456 && MrGlow.toolInk() == 0xff123456);
+        prefs.edit().remove("pref_kbd_look_text").apply();
+        MrKeyLook.invalidate();
+        // a theme of the list: nothing is touched
+        MrTheme.stubTag = "mr_midnight";
+        MrAdapt.reset();
+        MrGlow.reset();
+        View listView = new View();
+        listView.setTag("mr_midnight");
+        label.setColor(0xffffffff);
+        MrGlow.key(listView, null, false, label);
+        check("on a theme of the list the letters, the toolbar and the dash are as they were", label.getColor() == 0xffffffff && MrGlow.toolInk() == 0 && MrGlow.iconFilter(null) == null);
 
         // the preview of the themes screen has not got them: it draws the colours of the theme as they are
         MrTheme.stubAdapt = null;
@@ -3213,7 +3343,10 @@ public class ThemesTest {
             p = fullPreview(c, 720);
             p.show(tag, sp, null, 0);
             Bitmap b = draw(p);
-            int off = MrThemeColors.color(c, tag, "modifier_indicator_off"), on = MrThemeColors.color(c, tag, "modifier_indicator_on"), lock = MrThemeColors.color(c, tag, "modifier_indicator_lock");
+            // the preview draws the dash in the tone of the background, as the keyboard does (the locked one keeps its colour)
+            MrAdapt.Tone tn = p.tone(c);
+            int off = tn.dash(MrThemeColors.color(c, tag, "modifier_indicator_off")), on = tn.dash(MrThemeColors.color(c, tag, "modifier_indicator_on")), lock = MrThemeColors.color(c, tag, "modifier_indicator_lock");
+            check(tag + ": the preview has a tone from the background, and the dash that is off and the one that is on are in it (not the colours of the theme)", tn.on && off != MrThemeColors.color(c, tag, "modifier_indicator_off") && on != MrThemeColors.color(c, tag, "modifier_indicator_on"));
             int[] ctrl = dashAt(720, 0, 0f, 14.2f / 100.4f), alt = dashAt(720, 0, 14.2f / 100.4f, 13.2f / 100.4f), shift = dashAt(720, 4, 0f, 0.15f), f1 = dashAt(720, 5, 0.20f, 0.10f);
             int[] tab = dashAt(720, 0, (14.2f + 13.2f) / 100.4f, 13.3f / 100.4f), arrow = dashAt(720, 0, (14.2f + 13.2f + 13.3f + 10.2f) / 100.4f, 13.1f / 100.4f), arrowR = dashAt(720, 0, (14.2f + 13.2f + 13.3f + 10.2f + 13.1f + 13.1f) / 100.4f, 13.1f / 100.4f);
             int[] plain = dashAt(720, 1, 0f, 0.10f), angle = dashAt(720, 0, (14.2f + 13.2f + 13.3f) / 100.4f, 10.2f / 100.4f), letter = dashAt(720, 2, 0f, 0.10f);

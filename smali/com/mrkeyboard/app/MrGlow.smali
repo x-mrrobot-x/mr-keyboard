@@ -98,6 +98,8 @@
 
 .field private static sText:I
 
+.field private static sTone:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
 
 # direct methods
 .method static constructor <clinit>()V
@@ -117,15 +119,20 @@
     .line 75
     sput v1, Lcom/mrkeyboard/app/MrGlow;->sOverOff:I
 
-    .line 81
+    .line 76
+    sget-object v0, Lcom/mrkeyboard/app/MrAdapt$Tone;->OFF:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    sput-object v0, Lcom/mrkeyboard/app/MrGlow;->sTone:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    .line 82
     const/high16 v0, 0x3f800000    # 1.0f
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sDensity:F
 
-    .line 83
+    .line 84
     sput v1, Lcom/mrkeyboard/app/MrGlow;->sStep:I
 
-    .line 292
+    .line 316
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
@@ -134,7 +141,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrGlow;->sLinePaint:Landroid/graphics/Paint;
 
-    .line 293
+    .line 317
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
@@ -160,10 +167,10 @@
     .prologue
     const/4 v6, 0x0
 
-    .line 359
+    .line 383
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sGlow:I
 
-    .line 360
+    .line 384
     if-eqz v0, :cond_0
 
     if-eqz p0, :cond_0
@@ -172,21 +179,21 @@
 
     if-nez p4, :cond_1
 
-    .line 366
+    .line 390
     :cond_0
     :goto_0
     return-void
 
-    .line 361
+    .line 385
     :cond_1
     invoke-virtual {p4}, Landroid/graphics/Paint;->getTextSize()F
 
     move-result v1
 
-    .line 362
+    .line 386
     sget v2, Lcom/mrkeyboard/app/MrGlow;->sDensity:F
 
-    .line 363
+    .line 387
     const v3, 0x3e99999a    # 0.3f
 
     mul-float/2addr v3, v1
@@ -211,10 +218,10 @@
 
     invoke-virtual {p4, v3, v6, v6, v4}, Landroid/graphics/Paint;->setShadowLayer(FFFI)V
 
-    .line 364
+    .line 388
     invoke-virtual {p0, p1, p2, p3, p4}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 365
+    .line 389
     const v3, 0x3dae147b    # 0.085f
 
     mul-float/2addr v1, v3
@@ -242,12 +249,12 @@
     .prologue
     const/16 v0, 0xff
 
-    .line 576
+    .line 603
     invoke-static {p0}, Ljava/lang/Math;->round(F)I
 
     move-result v1
 
-    .line 577
+    .line 604
     if-gez v1, :cond_1
 
     const/4 v0, 0x0
@@ -268,7 +275,7 @@
     .locals 1
 
     .prologue
-    .line 560
+    .line 587
     cmpg-float v0, p0, p1
 
     if-gez v0, :cond_0
@@ -303,21 +310,21 @@
 
     const v7, 0xffffff
 
-    .line 408
+    .line 432
     if-nez p0, :cond_1
 
-    .line 424
+    .line 451
     :cond_0
     :goto_0
     return-void
 
-    .line 409
+    .line 433
     :cond_1
     invoke-virtual {p0}, Landroid/graphics/Paint;->getColor()I
 
     move-result v4
 
-    .line 411
+    .line 435
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sOverOff:I
 
     if-ltz v0, :cond_2
@@ -330,7 +337,7 @@
 
     move v0, v1
 
-    .line 412
+    .line 436
     :goto_1
     sget v3, Lcom/mrkeyboard/app/MrGlow;->sGlow:I
 
@@ -340,10 +347,10 @@
 
     if-gez v3, :cond_3
 
-    .line 413
+    .line 437
     invoke-virtual {p0}, Landroid/graphics/Paint;->clearShadowLayer()V
 
-    .line 414
+    .line 438
     if-eqz v0, :cond_0
 
     invoke-static {v4}, Lcom/mrkeyboard/app/MrKeyLook;->dashOff(I)I
@@ -357,10 +364,10 @@
     :cond_2
     move v0, v2
 
-    .line 411
+    .line 435
     goto :goto_1
 
-    .line 417
+    .line 441
     :cond_3
     and-int v3, v4, v7
 
@@ -368,11 +375,11 @@
 
     and-int/2addr v5, v7
 
-    if-ne v3, v5, :cond_5
+    if-ne v3, v5, :cond_6
 
     move v3, v1
 
-    .line 418
+    .line 442
     :goto_2
     and-int v5, v4, v7
 
@@ -380,16 +387,17 @@
 
     and-int/2addr v6, v7
 
-    if-ne v5, v6, :cond_6
+    if-ne v5, v6, :cond_7
 
-    .line 419
+    .line 443
     :goto_3
     sget v2, Lcom/mrkeyboard/app/MrGlow;->sStep:I
 
-    if-ltz v2, :cond_9
+    if-ltz v2, :cond_a
 
-    if-nez v1, :cond_9
+    if-nez v1, :cond_a
 
+    .line 444
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sMatrix:[[F
 
     sget v2, Lcom/mrkeyboard/app/MrGlow;->sStep:I
@@ -400,44 +408,54 @@
 
     move-result v1
 
-    .line 420
+    .line 445
+    if-nez v3, :cond_4
+
+    sget-object v2, Lcom/mrkeyboard/app/MrGlow;->sTone:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    invoke-virtual {v2, v1}, Lcom/mrkeyboard/app/MrAdapt$Tone;->ink(I)I
+
+    move-result v1
+
+    .line 447
+    :cond_4
     :goto_4
-    if-eqz v0, :cond_8
+    if-eqz v0, :cond_9
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrKeyLook;->dashOff(I)I
 
     move-result v0
 
-    .line 421
+    .line 448
     :goto_5
     invoke-virtual {p0, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 422
-    if-nez v3, :cond_4
+    .line 449
+    if-nez v3, :cond_5
 
     sget v1, Lcom/mrkeyboard/app/MrGlow;->sGlow:I
 
-    if-nez v1, :cond_7
+    if-nez v1, :cond_8
 
-    :cond_4
+    :cond_5
     invoke-virtual {p0}, Landroid/graphics/Paint;->clearShadowLayer()V
 
     goto :goto_0
 
-    :cond_5
+    :cond_6
     move v3, v2
 
-    .line 417
+    .line 441
     goto :goto_2
 
-    :cond_6
+    :cond_7
     move v1, v2
 
-    .line 418
+    .line 442
     goto :goto_3
 
-    .line 423
-    :cond_7
+    .line 450
+    :cond_8
     const/high16 v1, 0x40400000    # 3.0f
 
     sget v2, Lcom/mrkeyboard/app/MrGlow;->sDensity:F
@@ -448,12 +466,12 @@
 
     goto :goto_0
 
-    :cond_8
+    :cond_9
     move v0, v1
 
     goto :goto_5
 
-    :cond_9
+    :cond_a
     move v1, v4
 
     goto :goto_4
@@ -463,7 +481,7 @@
     .locals 2
 
     .prologue
-    .line 552
+    .line 579
     :try_start_0
     invoke-virtual {p0}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
 
@@ -477,28 +495,28 @@
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 553
+    .line 580
     const/4 v1, 0x0
 
     cmpl-float v1, v0, v1
 
     if-lez v1, :cond_0
 
-    .line 555
+    .line 582
     :goto_0
     return v0
 
-    .line 553
+    .line 580
     :cond_0
     const/high16 v0, 0x3f800000    # 1.0f
 
     goto :goto_0
 
-    .line 554
+    .line 581
     :catch_0
     move-exception v0
 
-    .line 555
+    .line 582
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sDensity:F
 
     goto :goto_0
@@ -508,7 +526,7 @@
     .locals 10
 
     .prologue
-    .line 264
+    .line 288
     const/4 v7, 0x0
 
     const/4 v8, 0x0
@@ -531,7 +549,7 @@
 
     invoke-static/range {v0 .. v9}, Lcom/mrkeyboard/app/MrGlow;->drawFace(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;IILandroid/graphics/ColorFilter;Landroid/graphics/ColorFilter;Landroid/graphics/ColorFilter;IFF)V
 
-    .line 265
+    .line 289
     return-void
 .end method
 
@@ -541,21 +559,21 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 274
+    .line 298
     if-nez p0, :cond_0
 
-    .line 275
+    .line 299
     invoke-static {p0, p1, p2, p3}, Lcom/mrkeyboard/app/KeyStyle;->drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
 
-    .line 289
+    .line 313
     :goto_0
     return-void
 
-    .line 278
+    .line 302
     :cond_0
     if-eqz p5, :cond_5
 
-    .line 279
+    .line 303
     if-eqz p6, :cond_2
 
     if-eqz p7, :cond_1
@@ -574,143 +592,180 @@
     :cond_2
     invoke-virtual {p0, p5}, Landroid/graphics/drawable/Drawable;->setColorFilter(Landroid/graphics/ColorFilter;)V
 
-    .line 284
+    .line 308
     :cond_3
     :goto_1
     :try_start_0
     invoke-static {p0, p1, p2, p3}, Lcom/mrkeyboard/app/KeyStyle;->drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
 
-    .line 285
+    .line 309
     if-eqz p7, :cond_4
 
     invoke-static {p0, p1, p7, p8, p9}, Lcom/mrkeyboard/app/MrGlow;->strokeFace(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;IFF)V
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 287
+    .line 311
     :cond_4
     invoke-virtual {p0, v1}, Landroid/graphics/drawable/Drawable;->setColorFilter(Landroid/graphics/ColorFilter;)V
 
     goto :goto_0
 
-    .line 280
+    .line 304
     :cond_5
     if-eqz p4, :cond_3
 
-    .line 281
+    .line 305
     invoke-virtual {p0, p4}, Landroid/graphics/drawable/Drawable;->setColorFilter(Landroid/graphics/ColorFilter;)V
 
     goto :goto_1
 
-    .line 287
+    .line 311
     :catchall_0
     move-exception v0
 
     invoke-virtual {p0, v1}, Landroid/graphics/drawable/Drawable;->setColorFilter(Landroid/graphics/ColorFilter;)V
 
-    .line 288
+    .line 312
     throw v0
 .end method
 
 .method static drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
-    .locals 10
+    .locals 11
 
     .prologue
-    const/4 v6, 0x0
+    const/4 v5, 0x0
 
-    .line 234
+    .line 253
     sget-boolean v0, Lcom/mrkeyboard/app/MrGlow;->sPopup:Z
 
     if-eqz v0, :cond_0
 
     if-eqz p0, :cond_0
 
-    .line 237
+    .line 256
     invoke-static {}, Lcom/mrkeyboard/app/MrAdapt;->popupFilter()Landroid/graphics/PorterDuffColorFilter;
 
     move-result-object v0
 
-    .line 238
+    .line 257
     if-eqz v0, :cond_0
 
-    .line 239
+    .line 258
     invoke-virtual {p0, v0}, Landroid/graphics/drawable/Drawable;->setColorFilter(Landroid/graphics/ColorFilter;)V
 
-    .line 241
+    .line 260
     :try_start_0
     invoke-static {p0, p1, p2, p3}, Lcom/mrkeyboard/app/KeyStyle;->drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 243
-    invoke-virtual {p0, v6}, Landroid/graphics/drawable/Drawable;->setColorFilter(Landroid/graphics/ColorFilter;)V
+    .line 262
+    invoke-virtual {p0, v5}, Landroid/graphics/drawable/Drawable;->setColorFilter(Landroid/graphics/ColorFilter;)V
 
-    .line 256
+    .line 280
     :goto_0
     return-void
 
-    .line 243
+    .line 262
     :catchall_0
     move-exception v0
 
-    invoke-virtual {p0, v6}, Landroid/graphics/drawable/Drawable;->setColorFilter(Landroid/graphics/ColorFilter;)V
+    invoke-virtual {p0, v5}, Landroid/graphics/drawable/Drawable;->setColorFilter(Landroid/graphics/ColorFilter;)V
 
-    .line 244
+    .line 263
     throw v0
 
-    .line 248
+    .line 267
     :cond_0
-    sget v0, Lcom/mrkeyboard/app/MrGlow;->sStep:I
+    sget v1, Lcom/mrkeyboard/app/MrGlow;->sStep:I
 
-    .line 249
-    sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sLook:Lcom/mrkeyboard/app/MrKeyLook;
+    .line 268
+    sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sLook:Lcom/mrkeyboard/app/MrKeyLook;
 
-    invoke-virtual {v1}, Lcom/mrkeyboard/app/MrKeyLook;->faceTuned()Z
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrKeyLook;->faceTuned()Z
 
-    move-result v1
+    move-result v2
 
-    .line 250
+    .line 269
     if-eqz p0, :cond_1
 
-    if-gez v0, :cond_2
+    if-gez v1, :cond_1
 
-    if-nez v1, :cond_2
+    if-nez v2, :cond_1
 
-    .line 251
+    sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sTone:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    iget-object v0, v0, Lcom/mrkeyboard/app/MrAdapt$Tone;->see:[F
+
+    if-eqz v0, :cond_1
+
+    .line 271
+    sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sTone:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrAdapt$Tone;->seeFilter()Landroid/graphics/ColorFilter;
+
+    move-result-object v4
+
+    move-object v0, p0
+
+    move-object v1, p1
+
+    move v2, p2
+
+    move v3, p3
+
+    move-object v6, v5
+
+    invoke-static/range {v0 .. v6}, Lcom/mrkeyboard/app/MrGlow;->drawFace(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;IILandroid/graphics/ColorFilter;Landroid/graphics/ColorFilter;Landroid/graphics/ColorFilter;)V
+
+    goto :goto_0
+
+    .line 274
     :cond_1
+    if-eqz p0, :cond_2
+
+    if-gez v1, :cond_3
+
+    if-nez v2, :cond_3
+
+    .line 275
+    :cond_2
     invoke-static {p0, p1, p2, p3}, Lcom/mrkeyboard/app/KeyStyle;->drawKey(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;II)V
 
     goto :goto_0
 
-    .line 254
-    :cond_2
-    if-gez v0, :cond_4
+    .line 278
+    :cond_3
+    if-gez v1, :cond_4
 
-    move-object v4, v6
+    move-object v4, v5
 
     :goto_1
-    if-eqz v1, :cond_5
+    if-eqz v2, :cond_5
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrGlow;->fillFilter(I)Landroid/graphics/ColorFilter;
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrGlow;->fillFilter(I)Landroid/graphics/ColorFilter;
 
-    move-result-object v5
+    move-result-object v0
+
+    move-object v10, v0
 
     :goto_2
-    if-eqz v1, :cond_3
+    if-eqz v2, :cond_6
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrGlow;->edgeFilter(I)Landroid/graphics/ColorFilter;
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrGlow;->edgeFilter(I)Landroid/graphics/ColorFilter;
 
     move-result-object v6
 
-    .line 255
-    :cond_3
-    if-eqz v1, :cond_6
+    .line 279
+    :goto_3
+    if-eqz v2, :cond_7
 
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sLook:Lcom/mrkeyboard/app/MrKeyLook;
 
     iget v7, v0, Lcom/mrkeyboard/app/MrKeyLook;->line:I
 
-    :goto_3
+    :goto_4
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sLook:Lcom/mrkeyboard/app/MrKeyLook;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/MrKeyLook;->lineAlpha()F
@@ -727,28 +782,35 @@
 
     move v3, p3
 
-    .line 254
+    move-object v5, v10
+
+    .line 278
     invoke-static/range {v0 .. v9}, Lcom/mrkeyboard/app/MrGlow;->drawFace(Landroid/graphics/drawable/Drawable;Landroid/graphics/Canvas;IILandroid/graphics/ColorFilter;Landroid/graphics/ColorFilter;Landroid/graphics/ColorFilter;IFF)V
 
     goto :goto_0
 
     :cond_4
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrGlow;->faceFilter(I)Landroid/graphics/ColorFilter;
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrGlow;->faceFilter(I)Landroid/graphics/ColorFilter;
 
     move-result-object v4
 
     goto :goto_1
 
     :cond_5
-    move-object v5, v6
+    move-object v10, v5
 
     goto :goto_2
 
-    .line 255
     :cond_6
-    const/4 v7, 0x0
+    move-object v6, v5
 
     goto :goto_3
+
+    .line 279
+    :cond_7
+    const/4 v7, 0x0
+
+    goto :goto_4
 .end method
 
 .method static edge(Landroid/graphics/Paint;)V
@@ -757,24 +819,24 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 374
+    .line 398
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sGlow:I
 
-    .line 375
+    .line 399
     if-eqz v0, :cond_0
 
     if-nez p0, :cond_1
 
-    .line 378
+    .line 402
     :cond_0
     :goto_0
     return-void
 
-    .line 376
+    .line 400
     :cond_1
     sget v1, Lcom/mrkeyboard/app/MrGlow;->sDensity:F
 
-    .line 377
+    .line 401
     invoke-virtual {p0}, Landroid/graphics/Paint;->getTextSize()F
 
     move-result v2
@@ -804,7 +866,7 @@
     .locals 5
 
     .prologue
-    .line 348
+    .line 372
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sEdgeFilter:[Landroid/graphics/ColorFilter;
 
     if-nez v0, :cond_0
@@ -815,13 +877,13 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrGlow;->sEdgeFilter:[Landroid/graphics/ColorFilter;
 
-    .line 349
+    .line 373
     :cond_0
     if-gez p0, :cond_2
 
     const/16 v0, 0x31
 
-    .line 350
+    .line 374
     :goto_0
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sEdgeFilter:[Landroid/graphics/ColorFilter;
 
@@ -833,7 +895,9 @@
 
     if-gez p0, :cond_3
 
-    const/4 v1, 0x0
+    sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sTone:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    iget-object v1, v1, Lcom/mrkeyboard/app/MrAdapt$Tone;->see:[F
 
     :goto_1
     sget-object v3, Lcom/mrkeyboard/app/MrGlow;->sLook:Lcom/mrkeyboard/app/MrKeyLook;
@@ -852,7 +916,7 @@
 
     aput-object v1, v2, v0
 
-    .line 351
+    .line 375
     :cond_1
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sEdgeFilter:[Landroid/graphics/ColorFilter;
 
@@ -863,10 +927,10 @@
     :cond_2
     move v0, p0
 
-    .line 349
+    .line 373
     goto :goto_0
 
-    .line 350
+    .line 374
     :cond_3
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sMatrix:[[F
 
@@ -879,15 +943,15 @@
     .locals 2
 
     .prologue
-    .line 484
+    .line 511
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sFaceFilter:[Landroid/graphics/ColorFilter;
 
     aget-object v0, v0, p0
 
-    .line 485
+    .line 512
     if-nez v0, :cond_0
 
-    .line 486
+    .line 513
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sMatrix:[[F
 
     aget-object v0, v0, p0
@@ -896,12 +960,12 @@
 
     move-result-object v0
 
-    .line 487
+    .line 514
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sFaceFilter:[Landroid/graphics/ColorFilter;
 
     aput-object v0, v1, p0
 
-    .line 489
+    .line 516
     :cond_0
     return-object v0
 .end method
@@ -910,7 +974,7 @@
     .locals 3
 
     .prologue
-    .line 565
+    .line 592
     ushr-int/lit8 v0, p0, 0x18
 
     int-to-float v0, v0
@@ -929,7 +993,7 @@
 
     move-result v0
 
-    .line 566
+    .line 593
     shl-int/lit8 v0, v0, 0x18
 
     const v1, 0xffffff
@@ -945,7 +1009,7 @@
     .locals 5
 
     .prologue
-    .line 341
+    .line 365
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sFillFilter:[Landroid/graphics/ColorFilter;
 
     if-nez v0, :cond_0
@@ -956,13 +1020,13 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrGlow;->sFillFilter:[Landroid/graphics/ColorFilter;
 
-    .line 342
+    .line 366
     :cond_0
     if-gez p0, :cond_2
 
     const/16 v0, 0x31
 
-    .line 343
+    .line 367
     :goto_0
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sFillFilter:[Landroid/graphics/ColorFilter;
 
@@ -974,7 +1038,9 @@
 
     if-gez p0, :cond_3
 
-    const/4 v1, 0x0
+    sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sTone:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    iget-object v1, v1, Lcom/mrkeyboard/app/MrAdapt$Tone;->see:[F
 
     :goto_1
     sget-object v3, Lcom/mrkeyboard/app/MrGlow;->sLook:Lcom/mrkeyboard/app/MrKeyLook;
@@ -993,7 +1059,7 @@
 
     aput-object v1, v2, v0
 
-    .line 344
+    .line 368
     :cond_1
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sFillFilter:[Landroid/graphics/ColorFilter;
 
@@ -1004,10 +1070,10 @@
     :cond_2
     move v0, p0
 
-    .line 342
+    .line 366
     goto :goto_0
 
-    .line 343
+    .line 367
     :cond_3
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sMatrix:[[F
 
@@ -1020,7 +1086,7 @@
     .locals 1
 
     .prologue
-    .line 494
+    .line 521
     const/high16 v0, 0x3f800000    # 1.0f
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrGlow;->filter([FF)Landroid/graphics/ColorFilter;
@@ -1044,10 +1110,10 @@
 
     const/4 v4, 0x0
 
-    .line 499
+    .line 526
     if-nez p0, :cond_0
 
-    .line 500
+    .line 527
     new-instance v0, Landroid/graphics/ColorMatrixColorFilter;
 
     const/16 v1, 0x14
@@ -1130,7 +1196,7 @@
 
     invoke-direct {v0, v1}, Landroid/graphics/ColorMatrixColorFilter;-><init>([F)V
 
-    .line 506
+    .line 533
     :goto_0
     return-object v0
 
@@ -1254,7 +1320,7 @@
     .locals 2
 
     .prologue
-    .line 297
+    .line 321
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sHidden:Landroid/graphics/ColorFilter;
 
     if-nez v0, :cond_0
@@ -1269,7 +1335,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrGlow;->sHidden:Landroid/graphics/ColorFilter;
 
-    .line 298
+    .line 322
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sHidden:Landroid/graphics/ColorFilter;
 
@@ -1280,21 +1346,20 @@
     .locals 2
 
     .prologue
-    .line 219
-    if-nez p0, :cond_1
+    .line 237
+    if-nez p0, :cond_0
 
-    .line 226
-    :cond_0
+    .line 245
     :goto_0
     return-void
 
-    .line 220
-    :cond_1
+    .line 238
+    :cond_0
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sText:I
 
-    if-eqz v0, :cond_2
+    if-eqz v0, :cond_1
 
-    .line 221
+    .line 239
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sText:I
 
     const v1, 0x3f333333    # 0.7f
@@ -1307,13 +1372,12 @@
 
     goto :goto_0
 
-    .line 224
-    :cond_2
+    .line 242
+    :cond_1
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sStep:I
 
-    if-ltz v0, :cond_0
+    if-ltz v0, :cond_3
 
-    .line 225
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sMatrix:[[F
 
     sget v1, Lcom/mrkeyboard/app/MrGlow;->sStep:I
@@ -1322,9 +1386,27 @@
 
     invoke-static {v0, p1}, Lcom/mrkeyboard/app/MrGlow;->map([FI)I
 
+    move-result p1
+
+    .line 244
+    :cond_2
+    sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sTone:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    invoke-virtual {v0, p1}, Lcom/mrkeyboard/app/MrAdapt$Tone;->ink(I)I
+
     move-result v0
 
     invoke-virtual {p0, v0}, Landroid/graphics/Paint;->setColor(I)V
+
+    goto :goto_0
+
+    .line 243
+    :cond_3
+    sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sTone:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    iget-boolean v0, v0, Lcom/mrkeyboard/app/MrAdapt$Tone;->on:Z
+
+    if-nez v0, :cond_2
 
     goto :goto_0
 .end method
@@ -1339,7 +1421,7 @@
 
     const/4 v1, 0x0
 
-    .line 582
+    .line 609
     shr-int/lit8 v0, p0, 0x10
 
     and-int/lit16 v0, v0, 0xff
@@ -1362,7 +1444,7 @@
 
     div-float/2addr v3, v4
 
-    .line 583
+    .line 610
     invoke-static {v2, v3}, Ljava/lang/Math;->max(FF)F
 
     move-result v4
@@ -1379,17 +1461,17 @@
 
     move-result v5
 
-    .line 584
+    .line 611
     sub-float v5, v4, v5
 
-    .line 585
+    .line 612
     cmpg-float v6, v5, v1
 
     if-gtz v6, :cond_1
 
     move v0, v1
 
-    .line 589
+    .line 616
     :goto_0
     cmpg-float v2, v0, v1
 
@@ -1399,13 +1481,13 @@
 
     add-float/2addr v0, v2
 
-    .line 590
+    .line 617
     :cond_0
     const/4 v2, 0x0
 
     aput v0, p1, v2
 
-    .line 591
+    .line 618
     const/4 v2, 0x1
 
     cmpg-float v0, v4, v1
@@ -1417,15 +1499,15 @@
     :goto_1
     aput v0, p1, v2
 
-    .line 592
+    .line 619
     const/4 v0, 0x2
 
     aput v4, p1, v0
 
-    .line 593
+    .line 620
     return-void
 
-    .line 586
+    .line 613
     :cond_1
     cmpl-float v6, v4, v0
 
@@ -1443,7 +1525,7 @@
 
     goto :goto_0
 
-    .line 587
+    .line 614
     :cond_2
     cmpl-float v6, v4, v2
 
@@ -1461,7 +1543,7 @@
 
     goto :goto_0
 
-    .line 588
+    .line 615
     :cond_3
     sub-float/2addr v0, v2
 
@@ -1475,7 +1557,7 @@
 
     goto :goto_0
 
-    .line 591
+    .line 618
     :cond_4
     div-float v0, v5, v4
 
@@ -1486,17 +1568,17 @@
     .locals 3
 
     .prologue
-    .line 382
+    .line 406
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sGlow:I
 
-    .line 383
+    .line 407
     if-nez v0, :cond_0
 
-    .line 389
+    .line 413
     :goto_0
     return-void
 
-    .line 384
+    .line 408
     :cond_0
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sIconGlowFilter:Landroid/graphics/ColorFilter;
 
@@ -1506,11 +1588,11 @@
 
     if-eq v1, v0, :cond_2
 
-    .line 385
+    .line 409
     :cond_1
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sIconGlowColor:I
 
-    .line 386
+    .line 410
     new-instance v1, Landroid/graphics/PorterDuffColorFilter;
 
     sget-object v2, Landroid/graphics/PorterDuff$Mode;->SRC_IN:Landroid/graphics/PorterDuff$Mode;
@@ -1519,7 +1601,7 @@
 
     sput-object v1, Lcom/mrkeyboard/app/MrGlow;->sIconGlowFilter:Landroid/graphics/ColorFilter;
 
-    .line 388
+    .line 412
     :cond_2
     const/high16 v0, 0x40500000    # 3.25f
 
@@ -1538,17 +1620,17 @@
     .locals 3
 
     .prologue
-    .line 393
+    .line 417
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sInk:I
 
-    .line 394
+    .line 418
     if-nez v0, :cond_0
 
-    .line 399
+    .line 423
     :goto_0
     return-object p0
 
-    .line 395
+    .line 419
     :cond_0
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sInkFilter:Landroid/graphics/ColorFilter;
 
@@ -1558,11 +1640,11 @@
 
     if-eq v1, v0, :cond_2
 
-    .line 396
+    .line 420
     :cond_1
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sInkFilterColor:I
 
-    .line 397
+    .line 421
     new-instance v1, Landroid/graphics/PorterDuffColorFilter;
 
     sget-object v2, Landroid/graphics/PorterDuff$Mode;->SRC_ATOP:Landroid/graphics/PorterDuff$Mode;
@@ -1571,7 +1653,7 @@
 
     sput-object v1, Lcom/mrkeyboard/app/MrGlow;->sInkFilter:Landroid/graphics/ColorFilter;
 
-    .line 399
+    .line 423
     :cond_2
     sget-object p0, Lcom/mrkeyboard/app/MrGlow;->sInkFilter:Landroid/graphics/ColorFilter;
 
@@ -1588,15 +1670,15 @@
 
     const/4 v2, 0x0
 
-    .line 183
+    .line 194
     const/4 v0, -0x1
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sStep:I
 
-    .line 184
+    .line 195
     sput v2, Lcom/mrkeyboard/app/MrGlow;->sInk:I
 
-    .line 185
+    .line 196
     if-eqz p0, :cond_2
 
     invoke-virtual {p0}, Landroid/view/View;->getTag()Ljava/lang/Object;
@@ -1610,46 +1692,47 @@
     :goto_0
     sput-boolean v0, Lcom/mrkeyboard/app/MrGlow;->sPopup:Z
 
-    .line 186
+    .line 197
     invoke-static {}, Lcom/mrkeyboard/app/MrGlow;->sync()Z
 
     move-result v0
 
     if-nez v0, :cond_3
 
-    .line 187
+    .line 198
     sput v2, Lcom/mrkeyboard/app/MrGlow;->sGlow:I
 
-    .line 207
+    .line 218
     :cond_0
     :goto_1
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sText:I
 
-    if-eqz v0, :cond_1
+    if-eqz v0, :cond_8
 
-    .line 208
+    .line 219
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sText:I
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sInk:I
 
-    .line 209
+    .line 220
     if-eqz p3, :cond_1
 
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sText:I
 
     invoke-virtual {p3, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 211
+    .line 229
     :cond_1
+    :goto_2
     return-void
 
     :cond_2
     move v0, v2
 
-    .line 185
+    .line 196
     goto :goto_0
 
-    .line 189
+    .line 200
     :cond_3
     invoke-static {p0}, Lcom/mrkeyboard/app/MrGlow;->density(Landroid/view/View;)F
 
@@ -1657,28 +1740,28 @@
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sDensity:F
 
-    .line 190
+    .line 201
     if-eqz p2, :cond_6
 
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sAccentGlow:I
 
-    :goto_2
+    :goto_3
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sGlow:I
 
-    .line 191
+    .line 202
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sGlow:I
 
     ushr-int/lit8 v0, v0, 0x18
 
     if-eqz v0, :cond_7
 
-    .line 192
-    :goto_3
+    .line 203
+    :goto_4
     if-nez v1, :cond_4
 
     sput v2, Lcom/mrkeyboard/app/MrGlow;->sGlow:I
 
-    .line 193
+    .line 204
     :cond_4
     sget-boolean v0, Lcom/mrkeyboard/app/MrGlow;->sSpectrum:Z
 
@@ -1694,7 +1777,7 @@
 
     if-eqz v0, :cond_0
 
-    .line 194
+    .line 205
     iget v0, p1, Lcom/mrkeyboard/app/Keyboard$Key;->x:I
 
     int-to-float v0, v0
@@ -1731,18 +1814,18 @@
 
     move-result v0
 
-    .line 195
+    .line 206
     invoke-static {v0}, Lcom/mrkeyboard/app/MrGlow;->matrix(I)[F
 
     move-result-object v3
 
-    .line 196
+    .line 207
     if-eqz v3, :cond_0
 
-    .line 197
+    .line 208
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sStep:I
 
-    .line 198
+    .line 209
     if-eqz v1, :cond_5
 
     sget v1, Lcom/mrkeyboard/app/MrGlow;->sGlow:I
@@ -1764,10 +1847,10 @@
     :cond_5
     sput v2, Lcom/mrkeyboard/app/MrGlow;->sGlow:I
 
-    .line 199
+    .line 210
     if-eqz p3, :cond_0
 
-    .line 200
+    .line 211
     invoke-virtual {p3}, Landroid/graphics/Paint;->getColor()I
 
     move-result v0
@@ -1778,24 +1861,56 @@
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sInk:I
 
-    .line 201
+    .line 212
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sInk:I
 
     invoke-virtual {p3, v0}, Landroid/graphics/Paint;->setColor(I)V
 
     goto :goto_1
 
-    .line 190
+    .line 201
     :cond_6
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sKeyGlow:I
 
-    goto :goto_2
+    goto :goto_3
 
     :cond_7
     move v1, v2
 
-    .line 191
-    goto :goto_3
+    .line 202
+    goto :goto_4
+
+    .line 221
+    :cond_8
+    sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sTone:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    iget-boolean v0, v0, Lcom/mrkeyboard/app/MrAdapt$Tone;->on:Z
+
+    if-eqz v0, :cond_1
+
+    if-eqz p3, :cond_1
+
+    .line 223
+    invoke-virtual {p3}, Landroid/graphics/Paint;->getColor()I
+
+    move-result v0
+
+    sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sTone:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    invoke-virtual {v1, v0}, Lcom/mrkeyboard/app/MrAdapt$Tone;->ink(I)I
+
+    move-result v1
+
+    .line 224
+    if-eq v1, v0, :cond_1
+
+    .line 225
+    invoke-virtual {p3, v1}, Landroid/graphics/Paint;->setColor(I)V
+
+    .line 226
+    sput v1, Lcom/mrkeyboard/app/MrGlow;->sInk:I
+
+    goto/16 :goto_2
 .end method
 
 .method private static load(Ljava/lang/String;)V
@@ -1806,10 +1921,10 @@
 
     const/4 v1, 0x0
 
-    .line 117
+    .line 124
     sput-object p0, Lcom/mrkeyboard/app/MrGlow;->sTag:Ljava/lang/String;
 
-    .line 118
+    .line 125
     const-string v0, "glow"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
@@ -1818,7 +1933,7 @@
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sKeyGlow:I
 
-    .line 119
+    .line 126
     const-string v0, "accent_glow"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
@@ -1827,7 +1942,7 @@
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sAccentGlow:I
 
-    .line 120
+    .line 127
     const-string v0, "modifier_indicator_off"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
@@ -1836,7 +1951,7 @@
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sDashOff:I
 
-    .line 121
+    .line 128
     const-string v0, "modifier_indicator_lock"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
@@ -1845,34 +1960,34 @@
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sDashLock:I
 
-    .line 122
+    .line 129
     invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->spectrum()Z
 
     move-result v0
 
     sput-boolean v0, Lcom/mrkeyboard/app/MrGlow;->sSpectrum:Z
 
-    .line 123
+    .line 130
     sput-object v1, Lcom/mrkeyboard/app/MrGlow;->sMatrix:[[F
 
-    .line 124
+    .line 131
     sput-object v1, Lcom/mrkeyboard/app/MrGlow;->sFaceFilter:[Landroid/graphics/ColorFilter;
 
-    .line 125
+    .line 132
     sput-object v1, Lcom/mrkeyboard/app/MrGlow;->sHue:[I
 
-    .line 126
+    .line 133
     sput-object v1, Lcom/mrkeyboard/app/MrGlow;->sIconGlowFilter:Landroid/graphics/ColorFilter;
 
-    .line 127
+    .line 134
     sput-object v1, Lcom/mrkeyboard/app/MrGlow;->sInkFilter:Landroid/graphics/ColorFilter;
 
-    .line 128
+    .line 135
     sget-boolean v0, Lcom/mrkeyboard/app/MrGlow;->sSpectrum:Z
 
     if-eqz v0, :cond_1
 
-    .line 129
+    .line 136
     const-string v0, "spectrum_start"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
@@ -1881,7 +1996,7 @@
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sStart:I
 
-    .line 130
+    .line 137
     const-string v0, "spectrum_mid"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
@@ -1890,7 +2005,7 @@
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sMid:I
 
-    .line 131
+    .line 138
     const-string v0, "spectrum_end"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
@@ -1899,54 +2014,54 @@
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sEnd:I
 
-    .line 132
+    .line 139
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sLook:Lcom/mrkeyboard/app/MrKeyLook;
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrKeyLook;->spectrum(Ljava/lang/String;Lcom/mrkeyboard/app/MrKeyLook;)[I
 
     move-result-object v0
 
-    .line 133
+    .line 140
     if-eqz v0, :cond_0
 
-    .line 134
+    .line 141
     const/4 v1, 0x0
 
     aget v1, v0, v1
 
     sput v1, Lcom/mrkeyboard/app/MrGlow;->sStart:I
 
-    .line 135
+    .line 142
     const/4 v1, 0x1
 
     aget v1, v0, v1
 
     sput v1, Lcom/mrkeyboard/app/MrGlow;->sMid:I
 
-    .line 136
+    .line 143
     const/4 v1, 0x2
 
     aget v0, v0, v1
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sEnd:I
 
-    .line 138
+    .line 145
     :cond_0
     new-array v0, v2, [[F
 
     sput-object v0, Lcom/mrkeyboard/app/MrGlow;->sMatrix:[[F
 
-    .line 139
+    .line 146
     new-array v0, v2, [Landroid/graphics/ColorFilter;
 
     sput-object v0, Lcom/mrkeyboard/app/MrGlow;->sFaceFilter:[Landroid/graphics/ColorFilter;
 
-    .line 140
+    .line 147
     new-array v0, v2, [I
 
     sput-object v0, Lcom/mrkeyboard/app/MrGlow;->sHue:[I
 
-    .line 142
+    .line 149
     :cond_1
     return-void
 .end method
@@ -1955,14 +2070,14 @@
     .locals 6
 
     .prologue
-    .line 540
+    .line 567
     if-nez p0, :cond_0
 
-    .line 542
+    .line 569
     :goto_0
     return p1
 
-    .line 541
+    .line 568
     :cond_0
     shr-int/lit8 v0, p1, 0x10
 
@@ -1980,7 +2095,7 @@
 
     int-to-float v2, v2
 
-    .line 542
+    .line 569
     const/high16 v3, -0x1000000
 
     and-int/2addr v3, p1
@@ -2007,7 +2122,7 @@
 
     add-float/2addr v4, v5
 
-    .line 543
+    .line 570
     invoke-static {v4}, Lcom/mrkeyboard/app/MrGlow;->byteOf(F)I
 
     move-result v4
@@ -2038,7 +2153,7 @@
 
     add-float/2addr v4, v5
 
-    .line 544
+    .line 571
     invoke-static {v4}, Lcom/mrkeyboard/app/MrGlow;->byteOf(F)I
 
     move-result v4
@@ -2069,14 +2184,14 @@
 
     add-float/2addr v0, v1
 
-    .line 545
+    .line 572
     invoke-static {v0}, Lcom/mrkeyboard/app/MrGlow;->byteOf(F)I
 
     move-result v0
 
     or-int p1, v3, v0
 
-    .line 542
+    .line 569
     goto :goto_0
 .end method
 
@@ -2086,10 +2201,10 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 470
+    .line 497
     sget-object v2, Lcom/mrkeyboard/app/MrGlow;->sMatrix:[[F
 
-    .line 471
+    .line 498
     if-eqz v2, :cond_0
 
     if-ltz p0, :cond_0
@@ -2101,19 +2216,19 @@
     :cond_0
     move-object v0, v1
 
-    .line 480
+    .line 507
     :cond_1
     :goto_0
     return-object v0
 
-    .line 472
+    .line 499
     :cond_2
     aget-object v0, v2, p0
 
-    .line 473
+    .line 500
     if-nez v0, :cond_1
 
-    .line 474
+    .line 501
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sStart:I
 
     sget v3, Lcom/mrkeyboard/app/MrGlow;->sMid:I
@@ -2130,27 +2245,27 @@
 
     move-result v3
 
-    .line 475
+    .line 502
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sKeyGlow:I
 
     invoke-static {v0, v3}, Lcom/mrkeyboard/app/MrGlow;->remap(II)[F
 
     move-result-object v0
 
-    .line 476
+    .line 503
     if-nez v0, :cond_3
 
     move-object v0, v1
 
     goto :goto_0
 
-    .line 477
+    .line 504
     :cond_3
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sHue:[I
 
     aput v3, v1, p0
 
-    .line 478
+    .line 505
     aput-object v0, v2, p0
 
     goto :goto_0
@@ -2162,15 +2277,15 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 428
+    .line 455
     if-nez p0, :cond_1
 
-    .line 434
+    .line 461
     :cond_0
     :goto_0
     return-void
 
-    .line 429
+    .line 456
     :cond_1
     invoke-static {}, Lcom/mrkeyboard/app/MrGlow;->sync()Z
 
@@ -2178,14 +2293,14 @@
 
     if-eqz v0, :cond_0
 
-    .line 432
+    .line 459
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sKeyGlow:I
 
     ushr-int/lit8 v0, v0, 0x18
 
     if-eqz v0, :cond_0
 
-    .line 433
+    .line 460
     const/high16 v0, 0x40c00000    # 6.0f
 
     invoke-static {p0}, Lcom/mrkeyboard/app/MrGlow;->density(Landroid/view/View;)F
@@ -2215,14 +2330,14 @@
 
     const/high16 v5, 0x43b40000    # 360.0f
 
-    .line 448
+    .line 475
     const/high16 v0, 0x3f800000    # 1.0f
 
     invoke-static {p3, v9, v0}, Lcom/mrkeyboard/app/MrGlow;->clamp(FFF)F
 
     move-result v0
 
-    .line 449
+    .line 476
     const/4 v1, 0x3
 
     new-array v2, v1, [F
@@ -2231,25 +2346,25 @@
 
     new-array v3, v1, [F
 
-    .line 451
+    .line 478
     const/high16 v1, 0x3f000000    # 0.5f
 
     cmpg-float v1, v0, v1
 
     if-gez v1, :cond_4
 
-    .line 452
+    .line 479
     invoke-static {p0, v2}, Lcom/mrkeyboard/app/MrGlow;->hsv(I[F)V
 
-    .line 453
+    .line 480
     invoke-static {p1, v3}, Lcom/mrkeyboard/app/MrGlow;->hsv(I[F)V
 
-    .line 454
+    .line 481
     const/high16 v1, 0x40000000    # 2.0f
 
     mul-float/2addr v0, v1
 
-    .line 460
+    .line 487
     :goto_0
     aget v1, v3, v6
 
@@ -2257,7 +2372,7 @@
 
     sub-float/2addr v1, v4
 
-    .line 461
+    .line 488
     const/high16 v4, 0x43340000    # 180.0f
 
     cmpl-float v4, v1, v4
@@ -2266,7 +2381,7 @@
 
     sub-float/2addr v1, v5
 
-    .line 462
+    .line 489
     :cond_0
     const/high16 v4, -0x3ccc0000    # -180.0f
 
@@ -2276,7 +2391,7 @@
 
     add-float/2addr v1, v5
 
-    .line 463
+    .line 490
     :cond_1
     aget v4, v2, v6
 
@@ -2284,14 +2399,14 @@
 
     add-float/2addr v1, v4
 
-    .line 464
+    .line 491
     cmpg-float v4, v1, v9
 
     if-gez v4, :cond_2
 
     add-float/2addr v1, v5
 
-    .line 465
+    .line 492
     :cond_2
     cmpl-float v4, v1, v5
 
@@ -2299,7 +2414,7 @@
 
     sub-float/2addr v1, v5
 
-    .line 466
+    .line 493
     :cond_3
     aget v4, v2, v7
 
@@ -2331,14 +2446,14 @@
 
     return v0
 
-    .line 456
+    .line 483
     :cond_4
     invoke-static {p1, v2}, Lcom/mrkeyboard/app/MrGlow;->hsv(I[F)V
 
-    .line 457
+    .line 484
     invoke-static {p2, v3}, Lcom/mrkeyboard/app/MrGlow;->hsv(I[F)V
 
-    .line 458
+    .line 485
     const/high16 v1, 0x3f000000    # 0.5f
 
     sub-float/2addr v0, v1
@@ -2354,7 +2469,7 @@
     .locals 20
 
     .prologue
-    .line 520
+    .line 547
     shr-int/lit8 v1, p0, 0x10
 
     and-int/lit16 v1, v1, 0xff
@@ -2385,7 +2500,7 @@
 
     div-float/2addr v3, v4
 
-    .line 521
+    .line 548
     shr-int/lit8 v4, p1, 0x10
 
     and-int/lit16 v4, v4, 0xff
@@ -2416,21 +2531,21 @@
 
     div-float/2addr v6, v7
 
-    .line 523
+    .line 550
     sub-float v7, v2, v3
 
     sub-float v8, v3, v1
 
     sub-float v9, v1, v2
 
-    .line 525
+    .line 552
     sub-float v10, v9, v8
 
     sub-float v11, v7, v9
 
     sub-float v12, v8, v7
 
-    .line 526
+    .line 553
     mul-float v13, v1, v10
 
     mul-float v14, v2, v11
@@ -2441,7 +2556,7 @@
 
     add-float/2addr v13, v14
 
-    .line 527
+    .line 554
     invoke-static {v13}, Ljava/lang/Math;->abs(F)F
 
     move-result v14
@@ -2454,11 +2569,11 @@
 
     const/4 v1, 0x0
 
-    .line 532
+    .line 559
     :goto_0
     return-object v1
 
-    .line 528
+    .line 555
     :cond_0
     div-float/2addr v10, v13
 
@@ -2466,7 +2581,7 @@
 
     div-float/2addr v12, v13
 
-    .line 529
+    .line 556
     mul-float v14, v3, v8
 
     mul-float v15, v2, v9
@@ -2491,7 +2606,7 @@
 
     div-float v16, v16, v13
 
-    .line 530
+    .line 557
     sub-float v17, v2, v3
 
     div-float v17, v17, v13
@@ -2504,7 +2619,7 @@
 
     div-float v2, v1, v13
 
-    .line 532
+    .line 559
     const/16 v1, 0x9
 
     new-array v1, v1, [F
@@ -2630,53 +2745,58 @@
 
     const/4 v1, 0x0
 
-    .line 160
+    .line 170
     sput-object v1, Lcom/mrkeyboard/app/MrGlow;->sTag:Ljava/lang/String;
 
-    .line 161
+    .line 171
     sput-object v1, Lcom/mrkeyboard/app/MrGlow;->sLookTag:Ljava/lang/String;
 
-    .line 162
+    .line 172
     sput v3, Lcom/mrkeyboard/app/MrGlow;->sLookVersion:I
 
-    .line 163
+    .line 173
     sget-object v0, Lcom/mrkeyboard/app/MrKeyLook;->NONE:Lcom/mrkeyboard/app/MrKeyLook;
 
     sput-object v0, Lcom/mrkeyboard/app/MrGlow;->sLook:Lcom/mrkeyboard/app/MrKeyLook;
 
-    .line 164
+    .line 174
     sput v2, Lcom/mrkeyboard/app/MrGlow;->sText:I
 
-    .line 165
+    .line 175
     sput v3, Lcom/mrkeyboard/app/MrGlow;->sOverOff:I
 
-    .line 166
+    .line 176
+    sget-object v0, Lcom/mrkeyboard/app/MrAdapt$Tone;->OFF:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    sput-object v0, Lcom/mrkeyboard/app/MrGlow;->sTone:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    .line 177
     sput-object v1, Lcom/mrkeyboard/app/MrGlow;->sFillFilter:[Landroid/graphics/ColorFilter;
 
-    .line 167
+    .line 178
     sput-object v1, Lcom/mrkeyboard/app/MrGlow;->sEdgeFilter:[Landroid/graphics/ColorFilter;
 
-    .line 168
+    .line 179
     sput v2, Lcom/mrkeyboard/app/MrGlow;->sGlow:I
 
-    .line 169
+    .line 180
     sput v3, Lcom/mrkeyboard/app/MrGlow;->sStep:I
 
-    .line 170
+    .line 181
     sput v2, Lcom/mrkeyboard/app/MrGlow;->sInk:I
 
-    .line 171
+    .line 182
     sput-boolean v2, Lcom/mrkeyboard/app/MrGlow;->sPopup:Z
 
-    .line 172
+    .line 183
     const/high16 v0, 0x3f800000    # 1.0f
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sDensity:F
 
-    .line 173
+    .line 184
     invoke-static {v1}, Lcom/mrkeyboard/app/MrGlow;->load(Ljava/lang/String;)V
 
-    .line 174
+    .line 185
     return-void
 .end method
 
@@ -2692,10 +2812,10 @@
 
     const/4 v0, 0x0
 
-    .line 597
+    .line 624
     mul-float v2, p2, p1
 
-    .line 598
+    .line 625
     const/high16 v1, 0x43b40000    # 360.0f
 
     rem-float v1, p0, v1
@@ -2704,7 +2824,7 @@
 
     div-float v3, v1, v3
 
-    .line 599
+    .line 626
     rem-float v1, v3, v6
 
     sub-float/2addr v1, v4
@@ -2717,18 +2837,18 @@
 
     mul-float/2addr v1, v2
 
-    .line 601
+    .line 628
     cmpg-float v4, v3, v4
 
     if-gez v4, :cond_0
 
     move v3, v2
 
-    .line 607
+    .line 634
     :goto_0
     sub-float v2, p2, v2
 
-    .line 608
+    .line 635
     const/high16 v4, -0x1000000
 
     add-float/2addr v3, v2
@@ -2767,7 +2887,7 @@
 
     return v0
 
-    .line 602
+    .line 629
     :cond_0
     cmpg-float v4, v3, v6
 
@@ -2779,7 +2899,7 @@
 
     goto :goto_0
 
-    .line 603
+    .line 630
     :cond_1
     const/high16 v4, 0x40400000    # 3.0f
 
@@ -2795,7 +2915,7 @@
 
     goto :goto_0
 
-    .line 604
+    .line 631
     :cond_2
     const/high16 v4, 0x40800000    # 4.0f
 
@@ -2809,7 +2929,7 @@
 
     goto :goto_0
 
-    .line 605
+    .line 632
     :cond_3
     const/high16 v4, 0x40a00000    # 5.0f
 
@@ -2834,7 +2954,7 @@
 
     move v1, v7
 
-    .line 606
+    .line 633
     goto :goto_0
 .end method
 
@@ -2842,7 +2962,7 @@
     .locals 2
 
     .prologue
-    .line 571
+    .line 598
     ushr-int/lit8 v0, p0, 0x18
 
     int-to-float v0, v0
@@ -2859,7 +2979,7 @@
 
     move-result v0
 
-    .line 572
+    .line 599
     const/16 v1, 0xff
 
     invoke-static {v1, v0}, Ljava/lang/Math;->min(II)I
@@ -2883,32 +3003,32 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 330
+    .line 354
     invoke-virtual {p0}, Landroid/graphics/drawable/Drawable;->getCurrent()Landroid/graphics/drawable/Drawable;
 
     move-result-object v0
 
-    .line 331
+    .line 355
     instance-of v2, v0, Landroid/graphics/drawable/LayerDrawable;
 
     if-nez v2, :cond_0
 
     move v0, v1
 
-    .line 337
+    .line 361
     :goto_0
     return v0
 
-    .line 332
+    .line 356
     :cond_0
     check-cast v0, Landroid/graphics/drawable/LayerDrawable;
 
-    .line 333
+    .line 357
     invoke-virtual {v0}, Landroid/graphics/drawable/LayerDrawable;->getNumberOfLayers()I
 
     move-result v2
 
-    .line 334
+    .line 358
     const/4 v3, 0x2
 
     if-ge v2, v3, :cond_1
@@ -2917,7 +3037,7 @@
 
     goto :goto_0
 
-    .line 335
+    .line 359
     :cond_1
     add-int/lit8 v1, v2, -0x2
 
@@ -2927,7 +3047,7 @@
 
     invoke-virtual {v1, p1}, Landroid/graphics/drawable/Drawable;->setColorFilter(Landroid/graphics/ColorFilter;)V
 
-    .line 336
+    .line 360
     add-int/lit8 v1, v2, -0x1
 
     invoke-virtual {v0, v1}, Landroid/graphics/drawable/LayerDrawable;->getDrawable(I)Landroid/graphics/drawable/Drawable;
@@ -2936,7 +3056,7 @@
 
     invoke-virtual {v0, p2}, Landroid/graphics/drawable/Drawable;->setColorFilter(Landroid/graphics/ColorFilter;)V
 
-    .line 337
+    .line 361
     const/4 v0, 0x1
 
     goto :goto_0
@@ -2950,17 +3070,17 @@
 
     const/4 v0, 0x0
 
-    .line 440
+    .line 467
     if-lez p2, :cond_0
 
     if-gtz p3, :cond_1
 
-    .line 443
+    .line 470
     :cond_0
     :goto_0
     return v0
 
-    .line 441
+    .line 468
     :cond_1
     int-to-float v2, p2
 
@@ -2980,7 +3100,7 @@
 
     add-float/2addr v2, v3
 
-    .line 442
+    .line 469
     const/4 v3, 0x0
 
     const/high16 v4, 0x3f800000    # 1.0f
@@ -2997,7 +3117,7 @@
 
     move-result v2
 
-    .line 443
+    .line 470
     if-ltz v2, :cond_0
 
     if-le v2, v1, :cond_2
@@ -3022,33 +3142,33 @@
 
     const/high16 v9, 0x40000000    # 2.0f
 
-    .line 306
+    .line 330
     invoke-virtual {p0}, Landroid/graphics/drawable/Drawable;->getCurrent()Landroid/graphics/drawable/Drawable;
 
     move-result-object v0
 
-    .line 307
+    .line 331
     instance-of v1, v0, Landroid/graphics/drawable/LayerDrawable;
 
     if-eqz v1, :cond_2
 
-    .line 308
+    .line 332
     check-cast v0, Landroid/graphics/drawable/LayerDrawable;
 
-    .line 309
+    .line 333
     invoke-virtual {v0}, Landroid/graphics/drawable/LayerDrawable;->getNumberOfLayers()I
 
     move-result v1
 
-    .line 310
+    .line 334
     if-nez v1, :cond_1
 
-    .line 326
+    .line 350
     :cond_0
     :goto_0
     return-void
 
-    .line 311
+    .line 335
     :cond_1
     const/4 v3, 0x2
 
@@ -3061,21 +3181,21 @@
 
     move-result-object v0
 
-    .line 313
+    .line 337
     :cond_2
     if-eqz v0, :cond_0
 
-    .line 314
+    .line 338
     invoke-virtual {v0}, Landroid/graphics/drawable/Drawable;->getBounds()Landroid/graphics/Rect;
 
     move-result-object v1
 
-    .line 315
+    .line 339
     invoke-static {v10, p4}, Ljava/lang/Math;->max(FF)F
 
     move-result v3
 
-    .line 316
+    .line 340
     sget-object v4, Lcom/mrkeyboard/app/MrGlow;->sLineRect:Landroid/graphics/RectF;
 
     iget v5, v1, Landroid/graphics/Rect;->left:I
@@ -3112,7 +3232,7 @@
 
     invoke-virtual {v4, v5, v6, v7, v1}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 317
+    .line 341
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sLineRect:Landroid/graphics/RectF;
 
     invoke-virtual {v1}, Landroid/graphics/RectF;->width()F
@@ -3133,7 +3253,7 @@
 
     if-lez v1, :cond_0
 
-    .line 318
+    .line 342
     instance-of v1, v0, Landroid/graphics/drawable/GradientDrawable;
 
     if-eqz v1, :cond_5
@@ -3144,7 +3264,7 @@
 
     move-result v0
 
-    .line 319
+    .line 343
     :goto_2
     cmpg-float v1, v0, v2
 
@@ -3154,7 +3274,7 @@
 
     mul-float/2addr v0, p4
 
-    .line 320
+    .line 344
     :cond_3
     div-float v1, v3, v9
 
@@ -3164,26 +3284,26 @@
 
     move-result v5
 
-    .line 321
+    .line 345
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sLinePaint:Landroid/graphics/Paint;
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 322
+    .line 346
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sLinePaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 323
+    .line 347
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sLinePaint:Landroid/graphics/Paint;
 
     invoke-virtual {v0, v3}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 324
+    .line 348
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sLinePaint:Landroid/graphics/Paint;
 
     invoke-static {p3, v2, v10}, Lcom/mrkeyboard/app/MrGlow;->clamp(FFF)F
@@ -3208,7 +3328,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 325
+    .line 349
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sLineRect:Landroid/graphics/RectF;
 
     iget v1, v0, Landroid/graphics/RectF;->left:F
@@ -3235,7 +3355,7 @@
 
     goto/16 :goto_0
 
-    .line 311
+    .line 335
     :cond_4
     const/4 v1, 0x0
 
@@ -3244,7 +3364,7 @@
     :cond_5
     move v0, v2
 
-    .line 318
+    .line 342
     goto :goto_2
 .end method
 
@@ -3252,10 +3372,10 @@
     .locals 2
 
     .prologue
-    .line 93
+    .line 94
     invoke-static {}, Lcom/mrkeyboard/app/MrGlow;->tuning()V
 
-    .line 94
+    .line 95
     invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->glow()Z
 
     move-result v0
@@ -3264,17 +3384,17 @@
 
     const/4 v0, 0x0
 
-    .line 97
+    .line 98
     :goto_0
     return v0
 
-    .line 95
+    .line 96
     :cond_0
     invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->tag()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 96
+    .line 97
     if-nez v0, :cond_2
 
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sTag:Ljava/lang/String;
@@ -3284,13 +3404,13 @@
     :goto_1
     invoke-static {v0}, Lcom/mrkeyboard/app/MrGlow;->load(Ljava/lang/String;)V
 
-    .line 97
+    .line 98
     :cond_1
     const/4 v0, 0x1
 
     goto :goto_0
 
-    .line 96
+    .line 97
     :cond_2
     sget-object v1, Lcom/mrkeyboard/app/MrGlow;->sTag:Ljava/lang/String;
 
@@ -3307,7 +3427,7 @@
     .locals 1
 
     .prologue
-    .line 155
+    .line 165
     const v0, 0x3f333333    # 0.7f
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrGlow;->fade(IF)I
@@ -3318,35 +3438,72 @@
 .end method
 
 .method static toolInk()I
-    .locals 1
+    .locals 2
 
     .prologue
-    .line 149
+    .line 157
     invoke-static {}, Lcom/mrkeyboard/app/MrGlow;->tuning()V
 
-    .line 150
+    .line 158
     sget v0, Lcom/mrkeyboard/app/MrGlow;->sText:I
 
+    if-nez v0, :cond_0
+
+    sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sTone:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    iget-boolean v0, v0, Lcom/mrkeyboard/app/MrAdapt$Tone;->on:Z
+
+    if-nez v0, :cond_1
+
+    :cond_0
+    sget v0, Lcom/mrkeyboard/app/MrGlow;->sText:I
+
+    .line 160
+    :goto_0
     return v0
+
+    .line 159
+    :cond_1
+    const-string v0, "text"
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v0
+
+    .line 160
+    ushr-int/lit8 v1, v0, 0x18
+
+    if-nez v1, :cond_2
+
+    const/4 v0, 0x0
+
+    goto :goto_0
+
+    :cond_2
+    const/high16 v1, -0x1000000
+
+    or-int/2addr v0, v1
+
+    goto :goto_0
 .end method
 
 .method private static tuning()V
-    .locals 4
+    .locals 5
 
     .prologue
-    const/4 v3, 0x0
+    const/4 v4, 0x0
 
-    .line 102
+    .line 103
     invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->tag()Ljava/lang/String;
 
     move-result-object v1
 
-    .line 103
+    .line 104
     invoke-static {}, Lcom/mrkeyboard/app/MrKeyLook;->version()I
 
     move-result v0
 
-    .line 104
+    .line 105
     sget v2, Lcom/mrkeyboard/app/MrGlow;->sLookVersion:I
 
     if-ne v0, v2, :cond_2
@@ -3357,12 +3514,12 @@
 
     if-nez v2, :cond_2
 
-    .line 114
+    .line 121
     :cond_0
     :goto_0
     return-void
 
-    .line 104
+    .line 105
     :cond_1
     sget-object v2, Lcom/mrkeyboard/app/MrGlow;->sLookTag:Ljava/lang/String;
 
@@ -3372,20 +3529,20 @@
 
     if-nez v2, :cond_0
 
-    .line 105
+    .line 106
     :cond_2
     sput-object v1, Lcom/mrkeyboard/app/MrGlow;->sLookTag:Ljava/lang/String;
 
-    .line 106
+    .line 107
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sLookVersion:I
 
-    .line 107
+    .line 108
     invoke-static {v1}, Lcom/mrkeyboard/app/MrThemeColors;->hidden(Ljava/lang/String;)Z
 
     move-result v2
 
-    .line 108
-    if-eqz v2, :cond_3
+    .line 109
+    if-eqz v2, :cond_4
 
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;
 
@@ -3396,15 +3553,25 @@
     :goto_1
     sput-object v0, Lcom/mrkeyboard/app/MrGlow;->sLook:Lcom/mrkeyboard/app/MrKeyLook;
 
-    .line 109
+    .line 110
     sget-object v0, Lcom/mrkeyboard/app/MrGlow;->sLook:Lcom/mrkeyboard/app/MrKeyLook;
 
     iget v0, v0, Lcom/mrkeyboard/app/MrKeyLook;->text:I
 
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sText:I
 
-    .line 110
-    if-eqz v2, :cond_4
+    .line 111
+    if-eqz v2, :cond_5
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrAdapt;->current()Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    move-result-object v0
+
+    :goto_2
+    sput-object v0, Lcom/mrkeyboard/app/MrGlow;->sTone:Lcom/mrkeyboard/app/MrAdapt$Tone;
+
+    .line 112
+    if-eqz v2, :cond_6
 
     const-string v0, "modifier_indicator_off"
 
@@ -3412,39 +3579,67 @@
 
     move-result v0
 
-    const v2, 0xffffff
+    const v3, 0xffffff
 
-    and-int/2addr v0, v2
+    and-int/2addr v0, v3
 
-    :goto_2
+    :goto_3
     sput v0, Lcom/mrkeyboard/app/MrGlow;->sOverOff:I
 
-    .line 111
-    sput-object v3, Lcom/mrkeyboard/app/MrGlow;->sFillFilter:[Landroid/graphics/ColorFilter;
-
-    .line 112
-    sput-object v3, Lcom/mrkeyboard/app/MrGlow;->sEdgeFilter:[Landroid/graphics/ColorFilter;
-
     .line 113
+    if-eqz v2, :cond_3
+
+    .line 115
+    const-string v0, "modifier_indicator_off"
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Lcom/mrkeyboard/app/MrGlow;->sDashOff:I
+
+    .line 116
+    const-string v0, "modifier_indicator_lock"
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v0
+
+    sput v0, Lcom/mrkeyboard/app/MrGlow;->sDashLock:I
+
+    .line 118
+    :cond_3
+    sput-object v4, Lcom/mrkeyboard/app/MrGlow;->sFillFilter:[Landroid/graphics/ColorFilter;
+
+    .line 119
+    sput-object v4, Lcom/mrkeyboard/app/MrGlow;->sEdgeFilter:[Landroid/graphics/ColorFilter;
+
+    .line 120
     invoke-static {v1}, Lcom/mrkeyboard/app/MrBackdrop;->isOwn(Ljava/lang/String;)Z
 
     move-result v0
 
     if-eqz v0, :cond_0
 
-    sput-object v3, Lcom/mrkeyboard/app/MrGlow;->sTag:Ljava/lang/String;
+    sput-object v4, Lcom/mrkeyboard/app/MrGlow;->sTag:Ljava/lang/String;
 
     goto :goto_0
 
-    .line 108
-    :cond_3
+    .line 109
+    :cond_4
     sget-object v0, Lcom/mrkeyboard/app/MrKeyLook;->NONE:Lcom/mrkeyboard/app/MrKeyLook;
 
     goto :goto_1
 
-    .line 110
-    :cond_4
-    const/4 v0, -0x1
+    .line 111
+    :cond_5
+    sget-object v0, Lcom/mrkeyboard/app/MrAdapt$Tone;->OFF:Lcom/mrkeyboard/app/MrAdapt$Tone;
 
     goto :goto_2
+
+    .line 112
+    :cond_6
+    const/4 v0, -0x1
+
+    goto :goto_3
 .end method

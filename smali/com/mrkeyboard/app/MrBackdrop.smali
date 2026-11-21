@@ -419,7 +419,7 @@
 
     sput v0, Lcom/mrkeyboard/app/MrBackdrop;->GRADIENT_COUNT:I
 
-    .line 537
+    .line 552
     new-array v0, v10, [Ljava/lang/String;
 
     const-string v1, "mr_overpaleglass"
@@ -436,7 +436,7 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrBackdrop;->DARK_OWN_TAGS:[Ljava/lang/String;
 
-    .line 544
+    .line 559
     const/16 v0, 0x12
 
     new-array v0, v0, [Ljava/lang/String;
@@ -541,21 +541,21 @@
 
     sput-object v0, Lcom/mrkeyboard/app/MrBackdrop;->STYLE_TAGS:[Ljava/lang/String;
 
-    .line 549
+    .line 564
     sget-object v0, Lcom/mrkeyboard/app/MrBackdrop;->STYLE_TAGS:[Ljava/lang/String;
 
     array-length v0, v0
 
     sput v0, Lcom/mrkeyboard/app/MrBackdrop;->STYLES:I
 
-    .line 555
+    .line 570
     new-array v0, v11, [I
 
     fill-array-data v0, :array_19
 
     sput-object v0, Lcom/mrkeyboard/app/MrBackdrop;->KIND_FIRST:[I
 
-    .line 562
+    .line 577
     const/16 v0, 0xf
 
     new-array v0, v0, [[I
@@ -891,7 +891,7 @@
         -0x19178f84
     .end array-data
 
-    .line 555
+    .line 570
     :array_19
     .array-data 4
         0x0
@@ -900,7 +900,7 @@
         0xf
     .end array-data
 
-    .line 562
+    .line 577
     :array_1a
     .array-data 4
         -0x4cb9
@@ -940,11 +940,58 @@
     return-void
 .end method
 
+.method private static accentOf(Landroid/graphics/Bitmap;I)I
+    .locals 8
+
+    .prologue
+    const/16 v3, 0x30
+
+    const/4 v2, 0x0
+
+    .line 481
+    mul-int/lit8 v0, p1, 0x30
+
+    new-array v1, v0, [I
+
+    move-object v0, p0
+
+    move v4, v2
+
+    move v5, v2
+
+    move v6, v3
+
+    move v7, p1
+
+    .line 482
+    invoke-virtual/range {v0 .. v7}, Landroid/graphics/Bitmap;->getPixels([IIIIIII)V
+
+    .line 483
+    const/4 v0, 0x1
+
+    invoke-static {v1, v0}, Lcom/mrkeyboard/app/MrPalette;->extract([II)[I
+
+    move-result-object v0
+
+    .line 484
+    array-length v1, v0
+
+    if-nez v1, :cond_0
+
+    :goto_0
+    return v2
+
+    :cond_0
+    aget v2, v0, v2
+
+    goto :goto_0
+.end method
+
 .method static declared-synchronized apply()V
     .locals 9
 
     .prologue
-    .line 852
+    .line 867
     const-class v1, Lcom/mrkeyboard/app/MrBackdrop;
 
     monitor-enter v1
@@ -955,24 +1002,24 @@
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_0
 
-    .line 853
+    .line 868
     if-nez v0, :cond_1
 
-    .line 875
+    .line 890
     :cond_0
     :goto_0
     monitor-exit v1
 
     return-void
 
-    .line 854
+    .line 869
     :cond_1
     :try_start_1
     invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
 
     move-result-object v2
 
-    .line 855
+    .line 870
     invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->tag()Ljava/lang/String;
 
     move-result-object v3
@@ -983,34 +1030,34 @@
 
     if-eqz v3, :cond_0
 
-    .line 856
+    .line 871
     invoke-static {v2}, Lcom/mrkeyboard/app/MrBackdrop;->current(Landroid/content/Context;)Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
     move-result-object v3
 
-    .line 857
+    .line 872
     iget v4, v3, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
 
     if-eqz v4, :cond_0
 
-    .line 858
+    .line 873
     invoke-static {v2}, Lcom/mrkeyboard/app/MrBackdrop;->darkNow(Landroid/content/Context;)Z
 
     move-result v4
 
-    .line 859
+    .line 874
     invoke-static {v2}, Lcom/mrkeyboard/app/MrBackdrop;->soft(Landroid/content/Context;)I
 
     move-result v5
 
-    .line 860
+    .line 875
     const-string v6, "kbd_bg"
 
     invoke-static {v6}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
 
     move-result v6
 
-    .line 862
+    .line 877
     new-instance v7, Ljava/lang/StringBuilder;
 
     invoke-direct {v7}, Ljava/lang/StringBuilder;-><init>()V
@@ -1057,7 +1104,7 @@
 
     move-result-object v7
 
-    .line 863
+    .line 878
     sget-object v8, Lcom/mrkeyboard/app/MrBackdrop;->sDrawable:Lcom/mrkeyboard/app/MrBackdropDrawable;
 
     if-eqz v8, :cond_2
@@ -1070,31 +1117,31 @@
 
     if-nez v8, :cond_3
 
-    .line 864
+    .line 879
     :cond_2
     invoke-static {v2, v3, v4, v5, v6}, Lcom/mrkeyboard/app/MrBackdropDrawable;->create(Landroid/content/Context;Lcom/mrkeyboard/app/MrBackdrop$Spec;ZII)Lcom/mrkeyboard/app/MrBackdropDrawable;
 
     move-result-object v2
 
-    .line 865
+    .line 880
     if-eqz v2, :cond_0
 
-    .line 866
+    .line 881
     sput-object v2, Lcom/mrkeyboard/app/MrBackdrop;->sDrawable:Lcom/mrkeyboard/app/MrBackdropDrawable;
 
-    .line 867
+    .line 882
     sput-object v7, Lcom/mrkeyboard/app/MrBackdrop;->sDrawableKey:Ljava/lang/String;
 
-    .line 869
+    .line 884
     :cond_3
     sget-object v2, Lcom/mrkeyboard/app/MrBackdrop;->sDrawable:Lcom/mrkeyboard/app/MrBackdropDrawable;
 
     invoke-virtual {v0, v2}, Landroid/view/View;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 870
+    .line 885
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sKbd:Landroid/view/View;
 
-    .line 871
+    .line 886
     if-eqz v0, :cond_0
 
     const/4 v2, 0x0
@@ -1106,13 +1153,13 @@
 
     goto :goto_0
 
-    .line 872
+    .line 887
     :catch_0
     move-exception v0
 
     goto :goto_0
 
-    .line 852
+    .line 867
     :catchall_0
     move-exception v0
 
@@ -1174,7 +1221,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 837
+    .line 852
     if-eqz p0, :cond_0
 
     :try_start_0
@@ -1184,18 +1231,18 @@
 
     if-lt v1, v2, :cond_1
 
-    .line 841
+    .line 856
     :cond_0
     :goto_0
     return v0
 
-    .line 838
+    .line 853
     :cond_1
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->lookNow(Landroid/content/Context;)Lcom/mrkeyboard/app/MrBackdrop$Look;
 
     move-result-object v1
 
-    .line 839
+    .line 854
     if-eqz v1, :cond_0
 
     iget v0, v1, Lcom/mrkeyboard/app/MrBackdrop$Look;->bottom:I
@@ -1204,7 +1251,7 @@
 
     goto :goto_0
 
-    .line 840
+    .line 855
     :catch_0
     move-exception v1
 
@@ -1215,14 +1262,14 @@
     .locals 4
 
     .prologue
-    .line 487
+    .line 502
     int-to-double v0, p0
 
     const-wide v2, 0x406fe00000000000L    # 255.0
 
     div-double/2addr v0, v2
 
-    .line 488
+    .line 503
     const-wide v2, 0x3fa41c8216c61523L    # 0.03928
 
     cmpg-double v2, v0, v2
@@ -1283,7 +1330,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 696
+    .line 711
     :try_start_0
     new-instance v1, Ljava/io/File;
 
@@ -1295,7 +1342,7 @@
 
     invoke-direct {v1, v2, v3}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 697
+    .line 712
     invoke-virtual {v1}, Ljava/io/File;->isFile()Z
 
     move-result v2
@@ -1322,12 +1369,12 @@
 
     const/4 v0, 0x1
 
-    .line 699
+    .line 714
     :cond_0
     :goto_0
     return v0
 
-    .line 698
+    .line 713
     :catch_0
     move-exception v1
 
@@ -1340,7 +1387,7 @@
     .prologue
     const v3, 0x3d4ccccd    # 0.05f
 
-    .line 476
+    .line 491
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->linear(I)F
 
     move-result v0
@@ -1349,7 +1396,7 @@
 
     move-result v1
 
-    .line 477
+    .line 492
     invoke-static {v0, v1}, Ljava/lang/Math;->max(FF)F
 
     move-result v2
@@ -1358,7 +1405,7 @@
 
     move-result v0
 
-    .line 478
+    .line 493
     add-float v1, v2, v3
 
     add-float/2addr v0, v3
@@ -1377,18 +1424,18 @@
     .end annotation
 
     .prologue
-    .line 767
+    .line 782
     new-instance v1, Ljava/io/FileOutputStream;
 
     invoke-direct {v1, p1}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;)V
 
-    .line 769
+    .line 784
     const/16 v0, 0x4000
 
     :try_start_0
     new-array v0, v0, [B
 
-    .line 771
+    .line 786
     :goto_0
     invoke-virtual {p0, v0}, Ljava/io/InputStream;->read([B)I
 
@@ -1404,20 +1451,20 @@
 
     goto :goto_0
 
-    .line 773
+    .line 788
     :catchall_0
     move-exception v0
 
     invoke-virtual {v1}, Ljava/io/OutputStream;->close()V
 
-    .line 774
+    .line 789
     throw v0
 
-    .line 773
+    .line 788
     :cond_0
     invoke-virtual {v1}, Ljava/io/OutputStream;->close()V
 
-    .line 775
+    .line 790
     return-void
 .end method
 
@@ -1682,7 +1729,7 @@
     .locals 3
 
     .prologue
-    .line 497
+    .line 512
     if-eqz p0, :cond_0
 
     iget v0, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
@@ -1724,7 +1771,7 @@
     .locals 1
 
     .prologue
-    .line 809
+    .line 824
     invoke-static {}, Lcom/mrkeyboard/app/MrTheme;->tag()Ljava/lang/String;
 
     move-result-object v0
@@ -1742,7 +1789,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 630
+    .line 645
     :try_start_0
     new-instance v1, Ljava/io/File;
 
@@ -1752,18 +1799,18 @@
 
     invoke-direct {v1, v2, p1}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 631
+    .line 646
     invoke-virtual {v1}, Ljava/io/File;->isFile()Z
 
     move-result v2
 
     if-nez v2, :cond_0
 
-    .line 636
+    .line 651
     :goto_0
     return-object v0
 
-    .line 632
+    .line 647
     :cond_0
     invoke-virtual {v1}, Ljava/io/File;->getPath()Ljava/lang/String;
 
@@ -1778,13 +1825,13 @@
 
     goto :goto_0
 
-    .line 635
+    .line 650
     :catch_0
     move-exception v1
 
     goto :goto_0
 
-    .line 633
+    .line 648
     :catch_1
     move-exception v1
 
@@ -1795,35 +1842,35 @@
     .locals 1
 
     .prologue
-    .line 713
+    .line 728
     packed-switch p0, :pswitch_data_0
 
-    .line 717
+    .line 732
     :pswitch_0
     const/4 v0, 0x0
 
     :goto_0
     return v0
 
-    .line 714
+    .line 729
     :pswitch_1
     const/16 v0, 0x5a
 
     goto :goto_0
 
-    .line 715
+    .line 730
     :pswitch_2
     const/16 v0, 0xb4
 
     goto :goto_0
 
-    .line 716
+    .line 731
     :pswitch_3
     const/16 v0, 0x10e
 
     goto :goto_0
 
-    .line 713
+    .line 728
     :pswitch_data_0
     .packed-switch 0x3
         :pswitch_2
@@ -1839,7 +1886,7 @@
     .locals 2
 
     .prologue
-    .line 686
+    .line 701
     :try_start_0
     new-instance v0, Ljava/io/File;
 
@@ -1849,7 +1896,7 @@
 
     invoke-direct {v0, v1, p1}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 687
+    .line 702
     invoke-virtual {v0}, Ljava/io/File;->exists()Z
 
     move-result v1
@@ -1866,12 +1913,12 @@
     :try_end_0
     .catch Ljava/lang/RuntimeException; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 691
+    .line 706
     :cond_0
     :goto_0
     return-void
 
-    .line 688
+    .line 703
     :catch_0
     move-exception v0
 
@@ -1882,12 +1929,12 @@
     .locals 1
 
     .prologue
-    .line 681
+    .line 696
     const-string v0, "kbd_bg_new.jpg"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrBackdrop;->delete(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 682
+    .line 697
     return-void
 .end method
 
@@ -1979,7 +2026,7 @@
     .prologue
     const/4 v3, 0x1
 
-    .line 779
+    .line 794
     invoke-virtual {p0}, Landroid/graphics/Bitmap;->getWidth()I
 
     move-result v0
@@ -1992,16 +2039,16 @@
 
     move-result v0
 
-    .line 780
+    .line 795
     const/16 v1, 0x500
 
     if-gt v0, v1, :cond_0
 
-    .line 782
+    .line 797
     :goto_0
     return-object p0
 
-    .line 781
+    .line 796
     :cond_0
     const/high16 v1, 0x44a00000    # 1280.0f
 
@@ -2009,7 +2056,7 @@
 
     div-float v0, v1, v0
 
-    .line 782
+    .line 797
     invoke-virtual {p0}, Landroid/graphics/Bitmap;->getWidth()I
 
     move-result v1
@@ -2297,7 +2344,7 @@
     .locals 2
 
     .prologue
-    .line 650
+    .line 665
     :try_start_0
     new-instance v0, Ljava/io/File;
 
@@ -2313,15 +2360,15 @@
 
     move-result v0
 
-    .line 652
+    .line 667
     :goto_0
     return v0
 
-    .line 651
+    .line 666
     :catch_0
     move-exception v0
 
-    .line 652
+    .line 667
     const/4 v0, 0x0
 
     goto :goto_0
@@ -2331,7 +2378,7 @@
     .locals 1
 
     .prologue
-    .line 641
+    .line 656
     const-string v0, "kbd_bg.jpg"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrBackdrop;->has(Landroid/content/Context;Ljava/lang/String;)Z
@@ -2345,7 +2392,7 @@
     .locals 1
 
     .prologue
-    .line 645
+    .line 660
     const-string v0, "kbd_bg_new.jpg"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrBackdrop;->has(Landroid/content/Context;Ljava/lang/String;)Z
@@ -2359,7 +2406,7 @@
     .locals 1
 
     .prologue
-    .line 518
+    .line 533
     if-eqz p0, :cond_0
 
     iget v0, p0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
@@ -2381,7 +2428,7 @@
     .locals 2
 
     .prologue
-    .line 658
+    .line 673
     const-string v0, "kbd_bg.jpg"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrBackdrop;->stamp(Landroid/content/Context;Ljava/lang/String;)J
@@ -2397,8 +2444,8 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 728
-    .line 730
+    .line 743
+    .line 745
     :try_start_0
     new-instance v3, Ljava/io/File;
 
@@ -2415,28 +2462,28 @@
     .catch Ljava/lang/OutOfMemoryError; {:try_start_0 .. :try_end_0} :catch_2
     .catchall {:try_start_0 .. :try_end_0} :catchall_1
 
-    .line 731
+    .line 746
     :try_start_1
     invoke-static {p1, v3}, Lcom/mrkeyboard/app/MrBackdrop;->copy(Ljava/io/InputStream;Ljava/io/File;)V
 
-    .line 732
+    .line 747
     new-instance v1, Landroid/graphics/BitmapFactory$Options;
 
     invoke-direct {v1}, Landroid/graphics/BitmapFactory$Options;-><init>()V
 
-    .line 733
+    .line 748
     const/4 v2, 0x1
 
     iput-boolean v2, v1, Landroid/graphics/BitmapFactory$Options;->inJustDecodeBounds:Z
 
-    .line 734
+    .line 749
     invoke-virtual {v3}, Ljava/io/File;->getPath()Ljava/lang/String;
 
     move-result-object v2
 
     invoke-static {v2, v1}, Landroid/graphics/BitmapFactory;->decodeFile(Ljava/lang/String;Landroid/graphics/BitmapFactory$Options;)Landroid/graphics/Bitmap;
 
-    .line 735
+    .line 750
     iget v2, v1, Landroid/graphics/BitmapFactory$Options;->outWidth:I
 
     if-lez v2, :cond_0
@@ -2450,7 +2497,7 @@
 
     if-gtz v2, :cond_3
 
-    .line 761
+    .line 776
     :cond_0
     if-eqz v3, :cond_1
 
@@ -2462,7 +2509,7 @@
 
     invoke-virtual {v3}, Ljava/io/File;->delete()Z
 
-    .line 762
+    .line 777
     :cond_1
     if-eqz v0, :cond_2
 
@@ -2474,19 +2521,19 @@
 
     invoke-virtual {v0}, Ljava/io/File;->delete()Z
 
-    .line 759
+    .line 774
     :cond_2
     :goto_0
     return-object v0
 
-    .line 736
+    .line 751
     :cond_3
     :try_start_2
     new-instance v2, Landroid/graphics/BitmapFactory$Options;
 
     invoke-direct {v2}, Landroid/graphics/BitmapFactory$Options;-><init>()V
 
-    .line 737
+    .line 752
     iget v4, v1, Landroid/graphics/BitmapFactory$Options;->outWidth:I
 
     iget v1, v1, Landroid/graphics/BitmapFactory$Options;->outHeight:I
@@ -2497,12 +2544,12 @@
 
     iput v1, v2, Landroid/graphics/BitmapFactory$Options;->inSampleSize:I
 
-    .line 738
+    .line 753
     sget-object v1, Landroid/graphics/Bitmap$Config;->ARGB_8888:Landroid/graphics/Bitmap$Config;
 
     iput-object v1, v2, Landroid/graphics/BitmapFactory$Options;->inPreferredConfig:Landroid/graphics/Bitmap$Config;
 
-    .line 739
+    .line 754
     invoke-virtual {v3}, Ljava/io/File;->getPath()Ljava/lang/String;
 
     move-result-object v1
@@ -2516,10 +2563,10 @@
 
     move-result-object v1
 
-    .line 740
+    .line 755
     if-nez v1, :cond_5
 
-    .line 761
+    .line 776
     if-eqz v3, :cond_4
 
     invoke-virtual {v3}, Ljava/io/File;->exists()Z
@@ -2530,7 +2577,7 @@
 
     invoke-virtual {v3}, Ljava/io/File;->delete()Z
 
-    .line 762
+    .line 777
     :cond_4
     if-eqz v0, :cond_2
 
@@ -2544,14 +2591,14 @@
 
     goto :goto_0
 
-    .line 741
+    .line 756
     :cond_5
     :try_start_3
     invoke-static {v1}, Lcom/mrkeyboard/app/MrBackdrop;->fit(Landroid/graphics/Bitmap;)Landroid/graphics/Bitmap;
 
     move-result-object v1
 
-    .line 742
+    .line 757
     invoke-static {v3}, Lcom/mrkeyboard/app/MrBackdrop;->orientation(Ljava/io/File;)I
 
     move-result v2
@@ -2560,7 +2607,7 @@
 
     move-result-object v4
 
-    .line 743
+    .line 758
     new-instance v2, Ljava/io/File;
 
     invoke-virtual {p0}, Landroid/content/Context;->getFilesDir()Ljava/io/File;
@@ -2576,7 +2623,7 @@
     .catch Ljava/lang/OutOfMemoryError; {:try_start_3 .. :try_end_3} :catch_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_2
 
-    .line 744
+    .line 759
     :try_start_4
     new-instance v5, Ljava/io/FileOutputStream;
 
@@ -2587,7 +2634,7 @@
     .catch Ljava/lang/OutOfMemoryError; {:try_start_4 .. :try_end_4} :catch_4
     .catchall {:try_start_4 .. :try_end_4} :catchall_3
 
-    .line 747
+    .line 762
     :try_start_5
     sget-object v1, Landroid/graphics/Bitmap$CompressFormat;->JPEG:Landroid/graphics/Bitmap$CompressFormat;
 
@@ -2599,11 +2646,11 @@
 
     move-result v1
 
-    .line 749
+    .line 764
     :try_start_6
     invoke-virtual {v5}, Ljava/io/OutputStream;->close()V
 
-    .line 752
+    .line 767
     if-eqz v1, :cond_6
 
     new-instance v1, Ljava/io/File;
@@ -2627,7 +2674,7 @@
 
     if-nez v1, :cond_9
 
-    .line 761
+    .line 776
     :cond_6
     if-eqz v3, :cond_7
 
@@ -2639,7 +2686,7 @@
 
     invoke-virtual {v3}, Ljava/io/File;->delete()Z
 
-    .line 762
+    .line 777
     :cond_7
     if-eqz v2, :cond_2
 
@@ -2653,14 +2700,14 @@
 
     goto/16 :goto_0
 
-    .line 749
+    .line 764
     :catchall_0
     move-exception v1
 
     :try_start_7
     invoke-virtual {v5}, Ljava/io/OutputStream;->close()V
 
-    .line 750
+    .line 765
     throw v1
     :try_end_7
     .catch Ljava/io/IOException; {:try_start_7 .. :try_end_7} :catch_0
@@ -2668,7 +2715,7 @@
     .catch Ljava/lang/OutOfMemoryError; {:try_start_7 .. :try_end_7} :catch_4
     .catchall {:try_start_7 .. :try_end_7} :catchall_3
 
-    .line 754
+    .line 769
     :catch_0
     move-exception v1
 
@@ -2676,7 +2723,7 @@
 
     move-object v2, v3
 
-    .line 761
+    .line 776
     :goto_1
     if-eqz v2, :cond_8
 
@@ -2688,7 +2735,7 @@
 
     invoke-virtual {v2}, Ljava/io/File;->delete()Z
 
-    .line 762
+    .line 777
     :cond_8
     if-eqz v1, :cond_2
 
@@ -2702,7 +2749,7 @@
 
     goto/16 :goto_0
 
-    .line 753
+    .line 768
     :cond_9
     const/4 v1, 0x2
 
@@ -2730,7 +2777,7 @@
     .catch Ljava/lang/OutOfMemoryError; {:try_start_8 .. :try_end_8} :catch_4
     .catchall {:try_start_8 .. :try_end_8} :catchall_3
 
-    .line 761
+    .line 776
     if-eqz v3, :cond_a
 
     invoke-virtual {v3}, Ljava/io/File;->exists()Z
@@ -2741,7 +2788,7 @@
 
     invoke-virtual {v3}, Ljava/io/File;->delete()Z
 
-    .line 762
+    .line 777
     :cond_a
     if-eqz v2, :cond_b
 
@@ -2756,10 +2803,10 @@
     :cond_b
     move-object v0, v1
 
-    .line 753
+    .line 768
     goto/16 :goto_0
 
-    .line 756
+    .line 771
     :catch_1
     move-exception v1
 
@@ -2767,7 +2814,7 @@
 
     move-object v3, v0
 
-    .line 761
+    .line 776
     :goto_2
     if-eqz v3, :cond_c
 
@@ -2779,7 +2826,7 @@
 
     invoke-virtual {v3}, Ljava/io/File;->delete()Z
 
-    .line 762
+    .line 777
     :cond_c
     if-eqz v2, :cond_2
 
@@ -2793,7 +2840,7 @@
 
     goto/16 :goto_0
 
-    .line 758
+    .line 773
     :catch_2
     move-exception v1
 
@@ -2801,7 +2848,7 @@
 
     move-object v3, v0
 
-    .line 761
+    .line 776
     :goto_3
     if-eqz v3, :cond_d
 
@@ -2813,7 +2860,7 @@
 
     invoke-virtual {v3}, Ljava/io/File;->delete()Z
 
-    .line 762
+    .line 777
     :cond_d
     if-eqz v2, :cond_2
 
@@ -2827,7 +2874,7 @@
 
     goto/16 :goto_0
 
-    .line 761
+    .line 776
     :catchall_1
     move-exception v1
 
@@ -2848,7 +2895,7 @@
 
     invoke-virtual {v3}, Ljava/io/File;->delete()Z
 
-    .line 762
+    .line 777
     :cond_e
     if-eqz v2, :cond_f
 
@@ -2860,11 +2907,11 @@
 
     invoke-virtual {v2}, Ljava/io/File;->delete()Z
 
-    .line 763
+    .line 778
     :cond_f
     throw v0
 
-    .line 761
+    .line 776
     :catchall_2
     move-exception v1
 
@@ -2879,7 +2926,7 @@
 
     goto :goto_4
 
-    .line 758
+    .line 773
     :catch_3
     move-exception v1
 
@@ -2892,7 +2939,7 @@
 
     goto :goto_3
 
-    .line 756
+    .line 771
     :catch_5
     move-exception v1
 
@@ -2905,7 +2952,7 @@
 
     goto :goto_2
 
-    .line 754
+    .line 769
     :catch_7
     move-exception v1
 
@@ -2931,10 +2978,10 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 589
+    .line 604
     if-nez p0, :cond_1
 
-    .line 593
+    .line 608
     :cond_0
     :goto_0
     return v0
@@ -2942,13 +2989,13 @@
     :cond_1
     move v1, v0
 
-    .line 590
+    .line 605
     :goto_1
     const/4 v2, 0x3
 
     if-ge v1, v2, :cond_0
 
-    .line 591
+    .line 606
     sget-object v2, Lcom/mrkeyboard/app/MrBackdrop;->DARK_OWN_TAGS:[Ljava/lang/String;
 
     aget-object v2, v2, v1
@@ -2978,7 +3025,7 @@
 
     goto :goto_0
 
-    .line 590
+    .line 605
     :cond_3
     add-int/lit8 v1, v1, 0x1
 
@@ -2989,7 +3036,7 @@
     .locals 1
 
     .prologue
-    .line 584
+    .line 599
     const/16 v0, 0xf
 
     if-lt p0, v0, :cond_0
@@ -3015,7 +3062,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 569
+    .line 584
     sget v0, Lcom/mrkeyboard/app/MrBackdrop;->STYLES:I
 
     add-int/lit8 v0, v0, -0x1
@@ -3024,33 +3071,33 @@
 
     move-result v2
 
-    .line 570
+    .line 585
     const/16 v0, 0xf
 
     if-lt v2, v0, :cond_1
 
     add-int/lit8 v0, v2, -0xf
 
-    .line 574
+    .line 589
     :cond_0
     :goto_0
     return v0
 
-    .line 571
+    .line 586
     :cond_1
     const/4 v0, 0x2
 
     :goto_1
     if-lez v0, :cond_2
 
-    .line 572
+    .line 587
     sget-object v3, Lcom/mrkeyboard/app/MrBackdrop;->KIND_FIRST:[I
 
     aget v3, v3, v0
 
     if-ge v2, v3, :cond_0
 
-    .line 571
+    .line 586
     add-int/lit8 v0, v0, -0x1
 
     goto :goto_1
@@ -3058,7 +3105,7 @@
     :cond_2
     move v0, v1
 
-    .line 574
+    .line 589
     goto :goto_0
 .end method
 
@@ -3066,7 +3113,7 @@
     .locals 8
 
     .prologue
-    .line 482
+    .line 497
     shr-int/lit8 v0, p0, 0x10
 
     and-int/lit16 v0, v0, 0xff
@@ -3089,7 +3136,7 @@
 
     move-result-wide v4
 
-    .line 483
+    .line 498
     const-wide v6, 0x3fcb367a0f9096bcL    # 0.2126
 
     mul-double/2addr v0, v6
@@ -3115,7 +3162,7 @@
     .locals 1
 
     .prologue
-    .line 620
+    .line 635
     const-string v0, "kbd_bg.jpg"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrBackdrop;->decode(Landroid/content/Context;Ljava/lang/String;)Landroid/graphics/Bitmap;
@@ -3129,7 +3176,7 @@
     .locals 1
 
     .prologue
-    .line 625
+    .line 640
     const-string v0, "kbd_bg_new.jpg"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrBackdrop;->decode(Landroid/content/Context;Ljava/lang/String;)Landroid/graphics/Bitmap;
@@ -3143,7 +3190,7 @@
     .locals 17
 
     .prologue
-    .line 437
+    .line 444
     if-eqz p0, :cond_0
 
     move-object/from16 v0, p0
@@ -3155,11 +3202,11 @@
     :cond_0
     const/4 v2, 0x0
 
-    .line 469
+    .line 476
     :goto_0
     return-object v2
 
-    .line 438
+    .line 445
     :cond_1
     invoke-static/range {p0 .. p0}, Lcom/mrkeyboard/app/MrBackdrop;->needsBitmap(Lcom/mrkeyboard/app/MrBackdrop$Spec;)Z
 
@@ -3173,13 +3220,13 @@
 
     goto :goto_0
 
-    .line 439
+    .line 446
     :cond_2
     if-eqz p2, :cond_3
 
     const/high16 v6, -0x1000000
 
-    .line 440
+    .line 447
     :goto_1
     move-object/from16 v0, p0
 
@@ -3189,7 +3236,7 @@
 
     if-ne v2, v3, :cond_4
 
-    .line 442
+    .line 449
     sget-object v2, Lcom/mrkeyboard/app/MrBackdrop;->COLORS:[I
 
     move-object/from16 v0, p0
@@ -3202,7 +3249,7 @@
 
     move-result v3
 
-    .line 443
+    .line 450
     new-instance v2, Lcom/mrkeyboard/app/MrBackdrop$Look;
 
     const/4 v5, 0x0
@@ -3221,13 +3268,13 @@
 
     goto :goto_0
 
-    .line 439
+    .line 446
     :cond_3
     const/4 v6, -0x1
 
     goto :goto_1
 
-    .line 445
+    .line 452
     :cond_4
     const/4 v2, 0x1
 
@@ -3241,7 +3288,7 @@
 
     move-result v10
 
-    .line 446
+    .line 453
     const/16 v2, 0x30
 
     sget-object v3, Landroid/graphics/Bitmap$Config;->ARGB_8888:Landroid/graphics/Bitmap$Config;
@@ -3250,7 +3297,7 @@
 
     move-result-object v11
 
-    .line 447
+    .line 454
     new-instance v2, Landroid/graphics/Canvas;
 
     invoke-direct {v2, v11}, Landroid/graphics/Canvas;-><init>(Landroid/graphics/Bitmap;)V
@@ -3263,7 +3310,7 @@
 
     invoke-static {v2, v0, v3, v10, v1}, Lcom/mrkeyboard/app/MrBackdrop;->draw(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/MrBackdrop$Spec;IILandroid/graphics/Bitmap;)V
 
-    .line 449
+    .line 456
     const/4 v2, 0x1
 
     int-to-float v3, v10
@@ -3284,12 +3331,12 @@
 
     move-result v12
 
-    .line 450
+    .line 457
     const-wide/16 v8, 0x0
 
     const-wide/16 v4, 0x0
 
-    .line 451
+    .line 458
     const/4 v2, 0x0
 
     move v7, v2
@@ -3297,7 +3344,7 @@
     :goto_2
     if-ge v7, v10, :cond_7
 
-    .line 452
+    .line 459
     const/4 v2, 0x0
 
     move/from16 v16, v2
@@ -3311,7 +3358,7 @@
 
     if-ge v4, v5, :cond_6
 
-    .line 453
+    .line 460
     invoke-virtual {v11, v4, v7}, Landroid/graphics/Bitmap;->getPixel(II)I
 
     move-result v5
@@ -3320,25 +3367,25 @@
 
     move-result v5
 
-    .line 454
+    .line 461
     float-to-double v14, v5
 
     add-double/2addr v8, v14
 
-    .line 455
+    .line 462
     if-ge v7, v12, :cond_5
 
     float-to-double v14, v5
 
     add-double/2addr v2, v14
 
-    .line 452
+    .line 459
     :cond_5
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_3
 
-    .line 451
+    .line 458
     :cond_6
     add-int/lit8 v4, v7, 0x1
 
@@ -3348,7 +3395,7 @@
 
     goto :goto_2
 
-    .line 458
+    .line 465
     :cond_7
     mul-int/lit8 v2, v10, 0x30
 
@@ -3358,7 +3405,7 @@
 
     double-to-float v3, v2
 
-    .line 459
+    .line 466
     mul-int/lit8 v2, v12, 0x30
 
     int-to-double v8, v2
@@ -3367,7 +3414,7 @@
 
     double-to-float v4, v4
 
-    .line 460
+    .line 467
     move/from16 v0, p2
 
     move/from16 v1, p3
@@ -3388,14 +3435,14 @@
 
     move-result v9
 
-    .line 461
+    .line 468
     const/4 v8, 0x0
 
     const/4 v7, 0x0
 
     const/4 v5, 0x0
 
-    .line 462
+    .line 469
     const/4 v2, 0x0
 
     :goto_4
@@ -3403,38 +3450,38 @@
 
     if-ge v2, v12, :cond_8
 
-    .line 463
+    .line 470
     add-int/lit8 v12, v10, -0x1
 
     invoke-virtual {v11, v2, v12}, Landroid/graphics/Bitmap;->getPixel(II)I
 
     move-result v12
 
-    .line 464
+    .line 471
     shr-int/lit8 v13, v12, 0x10
 
     and-int/lit16 v13, v13, 0xff
 
     add-int/2addr v8, v13
 
-    .line 465
+    .line 472
     shr-int/lit8 v13, v12, 0x8
 
     and-int/lit16 v13, v13, 0xff
 
     add-int/2addr v7, v13
 
-    .line 466
+    .line 473
     and-int/lit16 v12, v12, 0xff
 
     add-int/2addr v5, v12
 
-    .line 462
+    .line 469
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_4
 
-    .line 468
+    .line 475
     :cond_8
     const/high16 v2, -0x1000000
 
@@ -3458,7 +3505,7 @@
 
     move-result v7
 
-    .line 469
+    .line 476
     new-instance v2, Lcom/mrkeyboard/app/MrBackdrop$Look;
 
     const/high16 v5, 0x437f0000    # 255.0f
@@ -3469,9 +3516,36 @@
 
     move-result v5
 
-    invoke-direct/range {v2 .. v7}, Lcom/mrkeyboard/app/MrBackdrop$Look;-><init>(FFIII)V
+    move-object/from16 v0, p0
+
+    iget v8, v0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
+
+    const/4 v9, 0x2
+
+    if-eq v8, v9, :cond_9
+
+    move-object/from16 v0, p0
+
+    iget v8, v0, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
+
+    const/4 v9, 0x3
+
+    if-ne v8, v9, :cond_a
+
+    :cond_9
+    invoke-static {v11, v10}, Lcom/mrkeyboard/app/MrBackdrop;->accentOf(Landroid/graphics/Bitmap;I)I
+
+    move-result v8
+
+    :goto_5
+    invoke-direct/range {v2 .. v8}, Lcom/mrkeyboard/app/MrBackdrop$Look;-><init>(FFIIII)V
 
     goto/16 :goto_0
+
+    :cond_a
+    const/4 v8, 0x0
+
+    goto :goto_5
 .end method
 
 .method static declared-synchronized lookNow(Landroid/content/Context;)Lcom/mrkeyboard/app/MrBackdrop$Look;
@@ -3480,7 +3554,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 815
+    .line 830
     const-class v1, Lcom/mrkeyboard/app/MrBackdrop;
 
     monitor-enter v1
@@ -3498,36 +3572,36 @@
 
     if-nez v2, :cond_1
 
-    .line 828
+    .line 843
     :cond_0
     :goto_0
     monitor-exit v1
 
     return-object v0
 
-    .line 816
+    .line 831
     :cond_1
     :try_start_1
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->current(Landroid/content/Context;)Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
     move-result-object v2
 
-    .line 817
+    .line 832
     iget v3, v2, Lcom/mrkeyboard/app/MrBackdrop$Spec;->kind:I
 
     if-eqz v3, :cond_0
 
-    .line 818
+    .line 833
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->darkNow(Landroid/content/Context;)Z
 
     move-result v3
 
-    .line 819
+    .line 834
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->soft(Landroid/content/Context;)I
 
     move-result v4
 
-    .line 820
+    .line 835
     new-instance v5, Ljava/lang/StringBuilder;
 
     invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
@@ -3564,7 +3638,7 @@
 
     move-result-object v5
 
-    .line 821
+    .line 836
     sget-object v6, Lcom/mrkeyboard/app/MrBackdrop;->sLookKey:Ljava/lang/String;
 
     invoke-virtual {v5, v6}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -3577,13 +3651,13 @@
 
     goto :goto_0
 
-    .line 822
+    .line 837
     :cond_2
     invoke-static {p0, v2}, Lcom/mrkeyboard/app/MrBackdrop;->bitmap(Landroid/content/Context;Lcom/mrkeyboard/app/MrBackdrop$Spec;)Landroid/graphics/Bitmap;
 
     move-result-object v6
 
-    .line 823
+    .line 838
     invoke-static {v2}, Lcom/mrkeyboard/app/MrBackdrop;->needsBitmap(Lcom/mrkeyboard/app/MrBackdrop$Spec;)Z
 
     move-result v7
@@ -3592,29 +3666,29 @@
 
     if-eqz v6, :cond_0
 
-    .line 824
+    .line 839
     :cond_3
     invoke-static {v2, v6, v3, v4}, Lcom/mrkeyboard/app/MrBackdrop;->look(Lcom/mrkeyboard/app/MrBackdrop$Spec;Landroid/graphics/Bitmap;ZI)Lcom/mrkeyboard/app/MrBackdrop$Look;
 
     move-result-object v0
 
-    .line 825
+    .line 840
     if-eqz v6, :cond_4
 
     invoke-virtual {v6}, Landroid/graphics/Bitmap;->recycle()V
 
-    .line 826
+    .line 841
     :cond_4
     sput-object v5, Lcom/mrkeyboard/app/MrBackdrop;->sLookKey:Ljava/lang/String;
 
-    .line 827
+    .line 842
     sput-object v0, Lcom/mrkeyboard/app/MrBackdrop;->sLook:Lcom/mrkeyboard/app/MrBackdrop$Look;
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
     goto :goto_0
 
-    .line 815
+    .line 830
     :catchall_0
     move-exception v0
 
@@ -3629,7 +3703,7 @@
     .prologue
     const/high16 v3, 0x3f800000    # 1.0f
 
-    .line 429
+    .line 436
     shr-int/lit8 v0, p0, 0x10
 
     and-int/lit16 v0, v0, 0xff
@@ -3654,7 +3728,7 @@
 
     move-result v0
 
-    .line 430
+    .line 437
     shr-int/lit8 v1, p0, 0x8
 
     and-int/lit16 v1, v1, 0xff
@@ -3679,7 +3753,7 @@
 
     move-result v1
 
-    .line 431
+    .line 438
     and-int/lit16 v2, p0, 0xff
 
     int-to-float v2, v2
@@ -3700,7 +3774,7 @@
 
     move-result v2
 
-    .line 432
+    .line 439
     const/high16 v3, -0x1000000
 
     shl-int/lit8 v0, v0, 0x10
@@ -3753,7 +3827,7 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 787
+    .line 802
     :try_start_0
     new-instance v1, Landroid/media/ExifInterface;
 
@@ -3773,11 +3847,11 @@
 
     move-result v0
 
-    .line 789
+    .line 804
     :goto_0
     return v0
 
-    .line 788
+    .line 803
     :catch_0
     move-exception v1
 
@@ -3788,7 +3862,7 @@
     .locals 2
 
     .prologue
-    .line 579
+    .line 594
     const/4 v0, 0x0
 
     const/4 v1, 0x2
@@ -3960,7 +4034,7 @@
     .locals 2
 
     .prologue
-    .line 663
+    .line 678
     const-string v0, "kbd_bg_new.jpg"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrBackdrop;->stamp(Landroid/content/Context;Ljava/lang/String;)J
@@ -4046,7 +4120,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 602
+    .line 617
     sget-object v0, Lcom/mrkeyboard/app/MrBackdrop;->STYLE_COLORS:[[I
 
     const/16 v1, 0xe
@@ -4059,7 +4133,7 @@
 
     aget v0, v0, v2
 
-    .line 603
+    .line 618
     if-eqz p1, :cond_0
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrThemeColors;->luminance(I)F
@@ -4082,7 +4156,7 @@
     .locals 3
 
     .prologue
-    .line 608
+    .line 623
     sget-object v0, Lcom/mrkeyboard/app/MrBackdrop;->STYLE_COLORS:[[I
 
     const/4 v1, 0x0
@@ -4095,7 +4169,7 @@
 
     aget-object v0, v0, v1
 
-    .line 609
+    .line 624
     array-length v1, v0
 
     const/4 v2, 0x1
@@ -4123,12 +4197,12 @@
     .locals 1
 
     .prologue
-    .line 676
+    .line 691
     const-string v0, "kbd_bg.jpg"
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrBackdrop;->delete(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 677
+    .line 692
     return-void
 .end method
 
@@ -4318,15 +4392,15 @@
     .locals 4
 
     .prologue
-    .line 705
+    .line 720
     invoke-static {p0, p1}, Ljava/lang/Math;->max(II)I
 
     move-result v1
 
-    .line 706
+    .line 721
     const/4 v0, 0x1
 
-    .line 707
+    .line 722
     :goto_0
     mul-int/lit8 v2, v0, 0x2
 
@@ -4340,7 +4414,7 @@
 
     goto :goto_0
 
-    .line 708
+    .line 723
     :cond_0
     return v0
 .end method
@@ -4521,7 +4595,7 @@
     .prologue
     const-wide/16 v0, 0x0
 
-    .line 668
+    .line 683
     :try_start_0
     new-instance v2, Ljava/io/File;
 
@@ -4531,7 +4605,7 @@
 
     invoke-direct {v2, v3, p1}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 669
+    .line 684
     invoke-virtual {v2}, Ljava/io/File;->isFile()Z
 
     move-result v3
@@ -4544,12 +4618,12 @@
 
     move-result-wide v0
 
-    .line 671
+    .line 686
     :cond_0
     :goto_0
     return-wide v0
 
-    .line 670
+    .line 685
     :catch_0
     move-exception v2
 
@@ -4562,7 +4636,7 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 526
+    .line 541
     move v0, v1
 
     :goto_0
@@ -4570,7 +4644,7 @@
 
     if-ge v0, v2, :cond_1
 
-    .line 527
+    .line 542
     sget-object v2, Lcom/mrkeyboard/app/MrBackdrop;->STYLE_TAGS:[Ljava/lang/String;
 
     aget-object v2, v2, v0
@@ -4581,11 +4655,11 @@
 
     if-eqz v2, :cond_0
 
-    .line 532
+    .line 547
     :goto_1
     return v0
 
-    .line 526
+    .line 541
     :cond_0
     add-int/lit8 v0, v0, 0x1
 
@@ -4594,13 +4668,13 @@
     :cond_1
     move v0, v1
 
-    .line 529
+    .line 544
     :goto_2
     const/4 v2, 0x3
 
     if-ge v0, v2, :cond_3
 
-    .line 530
+    .line 545
     sget-object v2, Lcom/mrkeyboard/app/MrBackdrop;->DARK_OWN_TAGS:[Ljava/lang/String;
 
     aget-object v2, v2, v0
@@ -4617,7 +4691,7 @@
 
     goto :goto_1
 
-    .line 529
+    .line 544
     :cond_2
     add-int/lit8 v0, v0, 0x1
 
@@ -4626,7 +4700,7 @@
     :cond_3
     move v0, v1
 
-    .line 532
+    .line 547
     goto :goto_1
 .end method
 
@@ -4634,7 +4708,7 @@
     .locals 1
 
     .prologue
-    .line 502
+    .line 517
     const/4 v0, 0x0
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrBackdrop;->themeTag(Lcom/mrkeyboard/app/MrBackdrop$Spec;I)Ljava/lang/String;
@@ -4648,7 +4722,7 @@
     .locals 2
 
     .prologue
-    .line 511
+    .line 526
     const/4 v0, 0x0
 
     sget v1, Lcom/mrkeyboard/app/MrBackdrop;->STYLES:I
@@ -4659,7 +4733,7 @@
 
     move-result v0
 
-    .line 512
+    .line 527
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->darkInk(Lcom/mrkeyboard/app/MrBackdrop$Spec;)Z
 
     move-result v1
@@ -4670,11 +4744,11 @@
 
     const-string v0, "mr_overdark"
 
-    .line 513
+    .line 528
     :goto_0
     return-object v0
 
-    .line 512
+    .line 527
     :cond_0
     sget-object v1, Lcom/mrkeyboard/app/MrBackdrop;->DARK_OWN_TAGS:[Ljava/lang/String;
 
@@ -4686,7 +4760,7 @@
 
     goto :goto_0
 
-    .line 513
+    .line 528
     :cond_1
     sget-object v1, Lcom/mrkeyboard/app/MrBackdrop;->STYLE_TAGS:[Ljava/lang/String;
 
@@ -4701,30 +4775,30 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 794
+    .line 809
     invoke-static {p1}, Lcom/mrkeyboard/app/MrBackdrop;->degrees(I)I
 
     move-result v0
 
-    .line 795
+    .line 810
     if-nez v0, :cond_0
 
-    .line 798
+    .line 813
     :goto_0
     return-object p0
 
-    .line 796
+    .line 811
     :cond_0
     new-instance v5, Landroid/graphics/Matrix;
 
     invoke-direct {v5}, Landroid/graphics/Matrix;-><init>()V
 
-    .line 797
+    .line 812
     int-to-float v0, v0
 
     invoke-virtual {v5, v0}, Landroid/graphics/Matrix;->postRotate(F)Z
 
-    .line 798
+    .line 813
     invoke-virtual {p0}, Landroid/graphics/Bitmap;->getWidth()I
 
     move-result v3
@@ -4756,13 +4830,13 @@
 
     const v2, 0x3ecccccd    # 0.4f
 
-    .line 417
+    .line 424
     const/4 v0, 0x0
 
-    .line 418
+    .line 425
     if-eqz p0, :cond_1
 
-    .line 419
+    .line 426
     cmpl-float v1, p1, v2
 
     if-lez v1, :cond_0
@@ -4771,7 +4845,7 @@
 
     sub-float v0, v4, v0
 
-    .line 423
+    .line 430
     :cond_0
     :goto_0
     const/high16 v1, 0x3f400000    # 0.75f
@@ -4780,7 +4854,7 @@
 
     move-result v0
 
-    .line 424
+    .line 431
     const/4 v1, 0x0
 
     const/16 v2, 0x46
@@ -4801,13 +4875,13 @@
 
     return v0
 
-    .line 420
+    .line 427
     :cond_1
     cmpg-float v1, p1, v3
 
     if-gez v1, :cond_0
 
-    .line 421
+    .line 428
     sub-float v0, v3, p1
 
     sub-float v1, v4, p1

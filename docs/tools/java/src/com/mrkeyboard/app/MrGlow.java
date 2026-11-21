@@ -73,6 +73,7 @@ final class MrGlow {
     private static MrKeyLook sLook = MrKeyLook.NONE;
     private static int sText;               // the colour of the letters that the person chose; 0 = the theme's
     private static int sOverOff = -1;       // theme of the backgrounds: the colour (RGB) of the dash that is off, to be drawn faint; -1 = any other theme
+    private static MrAdapt.Tone sTone = MrAdapt.Tone.OFF;   // what the theme takes from the background (MrAdapt): the ink, the dash and the clear glass
     private static ColorFilter[] sFillFilter, sEdgeFilter;   // [step, or STEPS + 1 for none] the face and the line of the key with the opacity chosen
     /** Opacity of the small letters of a key when the person chose the colour of the letters (a share of it). */
     static final float HINT_SHARE = 0.70f;
@@ -107,7 +108,13 @@ final class MrGlow {
         boolean over = MrThemeColors.hidden(tag);
         sLook = over ? MrKeyLook.current(MrTools.sApp) : MrKeyLook.NONE;
         sText = sLook.text;
+        sTone = over ? MrAdapt.current() : MrAdapt.Tone.OFF;
         sOverOff = over ? MrTheme.color("modifier_indicator_off") & 0xffffff : -1;
+        if (over) {
+            // the dash follows the tone, which changes with the background (the theme, which is what load() goes by, may be the same)
+            sDashOff = MrTheme.color("modifier_indicator_off");
+            sDashLock = MrTheme.color("modifier_indicator_lock");
+        }
         sFillFilter = null;
         sEdgeFilter = null;
         if (MrBackdrop.isOwn(tag)) sTag = null;      // its hues come from the look: load() runs again
@@ -142,12 +149,15 @@ final class MrGlow {
     }
 
     /**
-     * The colour of the text and of the icons of the toolbar that the person chose (the colour of the letters of the keys), for a theme of the backgrounds;
-     * 0 = the theme's own. MrTools.wrap asks it when the keyboard is made.
+     * The colour of the text and of the icons of the toolbar, for a theme of the backgrounds: the one that the person chose (the colour of the letters of
+     * the keys) or, when the theme takes the tone of its background ({@link MrAdapt}), the ink of the theme in that tone; 0 = the theme's own.
+     * MrTools.wrap asks it when the keyboard is made.
      */
     static int toolInk() {
         tuning();
-        return sText;
+        if (sText != 0 || !sTone.on) return sText;
+        int ink = MrTheme.color("text");
+        return (ink >>> 24) == 0 ? 0 : 0xff000000 | ink;
     }
 
     /** The secondary text of the toolbar for the ink {@code ink} that the person chose: the same colour, fainter. */
@@ -163,6 +173,7 @@ final class MrGlow {
         sLook = MrKeyLook.NONE;
         sText = 0;
         sOverOff = -1;
+        sTone = MrAdapt.Tone.OFF;
         sFillFilter = null;
         sEdgeFilter = null;
         sGlow = 0;
@@ -207,6 +218,13 @@ final class MrGlow {
         if (sText != 0) {
             sInk = sText;
             if (p != null) p.setColor(sText);
+        } else if (sTone.on && p != null) {
+            // none chosen: a white or a black ink takes the tone of the theme (one that has a hue is left as it is)
+            int was = p.getColor(), now = sTone.ink(was);
+            if (now != was) {
+                p.setColor(now);
+                sInk = now;
+            }
         }
     }
 
@@ -221,8 +239,9 @@ final class MrGlow {
             p.setColor(fade(sText, HINT_SHARE));
             return;
         }
-        if (sStep < 0) return;
-        p.setColor(map(sMatrix[sStep], color));
+        if (sStep >= 0) color = map(sMatrix[sStep], color);
+        else if (!sTone.on) return;
+        p.setColor(sTone.ink(color));
     }
 
     /**
@@ -247,6 +266,11 @@ final class MrGlow {
         }
         int step = sStep;
         boolean tuned = sLook.faceTuned();
+        if (d != null && step < 0 && !tuned && sTone.see != null) {
+            // the clear glass takes the tone: its white veil is a white pulled to it
+            drawFace(d, c, w, h, sTone.seeFilter(), null, null);
+            return;
+        }
         if (d == null || (step < 0 && !tuned)) {
             KeyStyle.drawKey(d, c, w, h);
             return;
@@ -340,14 +364,14 @@ final class MrGlow {
     private static ColorFilter fillFilter(int step) {
         if (sFillFilter == null) sFillFilter = new ColorFilter[STEPS + 2];
         int i = step < 0 ? STEPS + 1 : step;
-        if (sFillFilter[i] == null) sFillFilter[i] = filter(step < 0 ? null : sMatrix[step], sLook.key / 100f);
+        if (sFillFilter[i] == null) sFillFilter[i] = filter(step < 0 ? sTone.see : sMatrix[step], sLook.key / 100f);
         return sFillFilter[i];
     }
 
     private static ColorFilter edgeFilter(int step) {
         if (sEdgeFilter == null) sEdgeFilter = new ColorFilter[STEPS + 2];
         int i = step < 0 ? STEPS + 1 : step;
-        if (sEdgeFilter[i] == null) sEdgeFilter[i] = filter(step < 0 ? null : sMatrix[step], sLook.edge / 100f);
+        if (sEdgeFilter[i] == null) sEdgeFilter[i] = filter(step < 0 ? sTone.see : sMatrix[step], sLook.edge / 100f);
         return sEdgeFilter[i];
     }
 
@@ -416,7 +440,10 @@ final class MrGlow {
         }
         boolean off = (c & 0xffffff) == (sDashOff & 0xffffff);
         boolean lock = (c & 0xffffff) == (sDashLock & 0xffffff);
-        if (sStep >= 0 && !lock) c = map(sMatrix[sStep], c);
+        if (sStep >= 0 && !lock) {
+            c = map(sMatrix[sStep], c);
+            if (!off) c = sTone.ink(c);        // the white of the dash that is on takes the tone as the letters do
+        }
         if (faint) c = MrKeyLook.dashOff(c);
         p.setColor(c);
         if (off || sGlow == 0) p.clearShadowLayer();

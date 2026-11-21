@@ -41,7 +41,7 @@
     .end annotation
 
     .prologue
-    .line 1160
+    .line 1162
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$style:[I
@@ -67,7 +67,7 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 1162
+    .line 1164
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$style:[I
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
@@ -76,7 +76,7 @@
 
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/MrThemesActivity;->ownFromPreset([I[Lcom/mrkeyboard/app/MrKeyLook;Z)V
 
-    .line 1163
+    .line 1165
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$look:[Lcom/mrkeyboard/app/MrKeyLook;
@@ -89,18 +89,18 @@
 
     aput-object v1, v0, v3
 
-    .line 1164
+    .line 1166
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$redraw:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1165
+    .line 1167
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$24;->val$draw:[Ljava/lang/Runnable;
 
     aget-object v0, v0, v3
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1166
+    .line 1168
     return-void
 .end method

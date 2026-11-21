@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 1652
+    .line 1654
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$40;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$40;->val$load:I
@@ -49,19 +49,19 @@
     .locals 4
 
     .prologue
-    .line 1654
+    .line 1656
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$40;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->load(Landroid/content/Context;)Landroid/graphics/Bitmap;
 
     move-result-object v1
 
-    .line 1655
+    .line 1657
     if-nez v1, :cond_0
 
     const/4 v0, 0x0
 
-    .line 1656
+    .line 1658
     :goto_0
     iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$40;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
@@ -71,10 +71,10 @@
 
     invoke-virtual {v2, v3}, Lcom/mrkeyboard/app/MrThemesActivity;->runOnUiThread(Ljava/lang/Runnable;)V
 
-    .line 1664
+    .line 1666
     return-void
 
-    .line 1655
+    .line 1657
     :cond_0
     invoke-static {v1}, Lcom/mrkeyboard/app/MrThemesActivity;->thumb(Landroid/graphics/Bitmap;)Landroid/graphics/Bitmap;
 

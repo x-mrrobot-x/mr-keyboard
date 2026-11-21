@@ -398,13 +398,20 @@ final class MrBackdrop {
         final int veilAlpha, veilColor;
         /** The colour of the lower edge of the background with the veil on it (opaque). */
         final int bottom;
+        /** The colour that stands out most in a landscape or a picture, the one a person would point at (opaque); 0 for any other background. */
+        final int accent;
 
         Look(float luminance, float barLuminance, int veilAlpha, int veilColor, int bottom) {
+            this(luminance, barLuminance, veilAlpha, veilColor, bottom, 0);
+        }
+
+        Look(float luminance, float barLuminance, int veilAlpha, int veilColor, int bottom, int accent) {
             this.luminance = luminance;
             this.barLuminance = barLuminance;
             this.veilAlpha = veilAlpha;
             this.veilColor = veilColor;
             this.bottom = bottom;
+            this.accent = accent;
         }
     }
 
@@ -466,7 +473,15 @@ final class MrBackdrop {
             b += p & 0xff;
         }
         int bottom = mix(0xff000000 | ((r / PROBE_W) << 16) | ((g / PROBE_W) << 8) | (b / PROBE_W), veilColor, a);
-        return new Look(lum, barLum, Math.round(a * 255f), veilColor, bottom);
+        return new Look(lum, barLum, Math.round(a * 255f), veilColor, bottom, spec.kind == SCENE || spec.kind == IMAGE ? accentOf(small, h) : 0);
+    }
+
+    /** The colour that stands out most in {@code small} (the copy of a landscape or of a picture that was measured, {@code PROBE_W} x {@code h}): the first of {@link MrPalette#extract}; 0 when it has none. */
+    private static int accentOf(Bitmap small, int h) {
+        int[] px = new int[PROBE_W * h];
+        small.getPixels(px, 0, PROBE_W, 0, 0, PROBE_W, h);
+        int[] colours = MrPalette.extract(px, 1);
+        return colours.length == 0 ? 0 : colours[0];
     }
 
     // ---- the theme of a background

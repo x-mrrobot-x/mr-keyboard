@@ -184,24 +184,44 @@ back (`MrReset.KEYS`).
 ## The tools, the popup and the bubble take the tone
 
 The themes of the backgrounds have one set of fixed colors for the buttons of the tools, for the popup of variants and for the bubble of the key that is
-pressed (a deep blue slate, a pale blue for **Send**). `MrAdapt` makes them follow the keyboard, so on a red keyboard, a green landscape or a golden gradient they are
-not blue:
+pressed (a deep blue slate, a pale blue for **Send**), and white and black for the letters. `MrAdapt` makes them follow the keyboard, so on a red keyboard, a green
+landscape or a golden gradient nothing is blue and no ink is a flat white or a flat black:
 
 - **The tone** is the color of the keys when the style has one (the own color, a preset of the glass, of the outline or of the gradient: the middle color of a
   gradient) and, when the keys have none to give (the clear glass, the dark glass, the white outline), the tone of the background under the keyboard (the plain
   color, or what a gradient, a landscape or a picture is like at its lower edge, `MrBackdrop.lookNow`). Under `GREY` (0.12) of saturation a color has no hue and
-  the background gives it.
+  the background gives it. For a **landscape** and a **picture** the background gives its **accent color** (`MrBackdrop.Look.accent`, the color that stands out most in
+  the picture, the first of `MrPalette.extract`) and not only the color of the lower edge, so the clear glass over a blue and orange racing scene is tinted by the scene.
 - **Each role keeps what it is for**: its lightness (the ink on it still reads) and its opacity; it takes the **hue** of the tone and a share of its saturation
   (`SAT_SHARE` 0.65, and for each role `FACE`, `STROKE`, `ACCENT`, `FAINT`, `TEXT`). The faces of the buttons, the strokes, the accent button, the fields, the
-  popup key that is chosen and the dots of the preview are toned; the text on **Send**, the letters and the colors of the keyboard itself are not.
+  popup key that is chosen and the dots of the preview are toned; the text on **Send** and the colors of the keyboard itself are not.
   On a pale background (dark ink) the white of the bubble and of the fields is only a breath of the tone (`WHITE_SHARE`).
-- `MrTheme.color` answers every role through `MrAdapt.adapt`, so every tool and panel follows it with no change of its own; the drawable of the popup and the one of
+- **The ink** (`MrAdapt.isInk`: the letters, the small letters, the icons, the text of the tools and of the popup) is **white pulled to the tone** on a dark
+  background (`INK_LIGHT`: it takes 22% of the saturation of the tone) and **black pulled to the tone** on a pale one (`INK_DARK`, never lighter than
+  `INK_DARK_MIN`), so it still reads as white or as black and has the hue of the theme. An ink that has a color of its own (the red of a warning, the blue of a link)
+  is left as it is, and so is the color the person chose for the letters (`pref_kbd_look_text`).
+- **The bar under Ctrl, Alt and Shift** (the dash that tells whether the modifier is off or on) takes the tone both ways (`Tone.dash`): a white or grey dash is
+  pulled to the tone like the ink, one that already has a hue takes the hue of the tone as light and as opaque as it was, and the "off" one is still only a
+  hint (`DASH_OFF_SHARE`). In a gradient or an own gradient the dash of each key keeps the hue of its place, and only the white of the "on" dash is tinted.
+- **Transparente** (the clear glass) is not a white veil anymore: the white of the veil, of the edge and of the face goes through a color matrix that pulls it
+  `SEE_TINT` (0.30) of the saturation of the tone (`Tone.see`, used by `MrGlow.fillFilter/edgeFilter` and by the preview). The dot of the style shows the same
+  tint, and for a landscape it is the accent color of the picture (`suggested[0]`).
+- **The popup and the bubble are a key.** Their fill and their line are the **face and the line of a key** as the keyboard draws it (`MrAdapt.face`: the face of
+  the style, the opacity and the line color the person tuned, flattened over the lower edge of the background so it is opaque), so the popup of variants and
+  the preview of the key that is pressed look like the key itself. A style with no line (the clear glass) gets a line lighter than its face by `RIM` (0.28);
+  the key that is chosen in the popup is the pressed face over the face at rest.
+- `MrTheme.color` answers every role through `MrAdapt.adapt`, so every tool and panel follows it with no change of its own; the letters and the small letters are
+  tinted in `MrGlow.key` and `MrGlow.hint` (they read the color of the style) and the toolbar ink in `MrGlow.toolInk`; the drawable of the popup and the one of
   the bubble are set by `MrAdapt.popup` and `MrAdapt.bubble`, called where the keyboard gives them their shape (`LatinKeyboardBaseView`), and the key that is
   chosen in the popup is drawn by `MrGlow` with `MrAdapt.popupFilter`. A theme of the list (not one of the backgrounds) is left exactly as it is, and any failure
-  gives the color of the theme back.
+  gives the color of the theme back. When the background or its softening changes, `MrKeyLook.changed` raises the version, so a landscape that replaces another
+  one under the same theme is not drawn with the tone of the first.
 - `ThemesTest.adaptation` checks it: a theme of the list, or a theme of the backgrounds with no background, is left as it is; the toned roles take the hue of the
   red own color, of the gold outline, of the Dawn gradient (its middle color) and of the own gradient (the middle of the way); each keeps its lightness and its
-  opacity (a dark face stays dark, **Send** stays the lightest); the ink, the translucent black layers and an unknown role are left alone; and the tone follows the look when it changes.
+  opacity (a dark face stays dark, **Send** stays the lightest); the white ink is white (light) with the hue of the tone, the dark ink is dark with it, the dash off and
+  on follow it, the dash of a gradient is left to its hue, the clear glass over a landscape takes the accent color of the picture, the popup and the bubble are the
+  face and the line of the key (at rest, pressed and tuned), the color the person chose for the text wins, the translucent black layers and an unknown role are
+  left alone; and the tone follows the look when it changes.
 
 ## Where the backgrounds come from
 

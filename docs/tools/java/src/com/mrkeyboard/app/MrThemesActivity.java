@@ -972,8 +972,10 @@ public class MrThemesActivity extends Activity {
         final boolean pale = MrBackdrop.darkInk(spec);
         // the colours that stand out in the background, offered as the colour of the keys (none for a plain colour)
         final int[] suggested = styled ? MrPalette.of(spec, shown) : new int[0];
-        // the tone of the background, for the clear glass to be drawn what it is over it (a white pulled towards it)
-        final int tone = styled ? MrPalette.tone(spec, shown) : 0;
+        // the tone of the background, for the clear glass to be drawn what it is over it (a white pulled towards it): of a landscape or a picture, the colour that
+        // stands out in it (the keyboard takes that one, see MrAdapt); of any other, its mean colour
+        final boolean seen = spec.kind == MrBackdrop.SCENE || spec.kind == MrBackdrop.IMAGE;
+        final int tone = !styled ? 0 : seen && suggested.length > 0 ? suggested[0] : MrPalette.tone(spec, shown);
         final Runnable[] draw = new Runnable[1];
         draw[0] = new Runnable() {
             public void run() {

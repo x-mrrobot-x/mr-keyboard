@@ -76,6 +76,11 @@ final class MrThemePreview extends View {
     /** The shape of the complete keyboard on this phone (width / height), with the height the person set for the keyboard. */
     private float mFullAspect = 1f;
 
+    /** What the theme takes from the background under it (the tone of the ink, of the dash and of the clear glass: {@link MrAdapt}), made once for the same background and look. */
+    private MrAdapt.Tone mTone = MrAdapt.Tone.OFF;
+    private String mToneKey;
+    private MrKeyLook mToneLook;
+
     private Bitmap mBg;
     private String mBgKey;
     private Drawable mFace, mAccent;
@@ -353,9 +358,41 @@ final class MrThemePreview extends View {
         }
     }
 
-    /** The ink of the toolbar (its icons and its text): the colour that the person chose for them on a theme of the backgrounds, else the theme's. */
+    /** The ink of the toolbar (its icons and its text): the colour that the person chose for them on a theme of the backgrounds, else the theme's (in the tone of the background). */
     private int ink(Context c) {
-        return tuned() && mLook.text != 0 ? mLook.text : MrThemeColors.ink(c, mTag);
+        if (!tuned()) return MrThemeColors.ink(c, mTag);
+        return mLook.text != 0 ? mLook.text : tone(c).ink(MrThemeColors.ink(c, mTag));
+    }
+
+    /** The colour of the role {@code role} of the theme, the ink of a background in its tone (the colour that the person chose for the letters is applied by the callers). */
+    private int text(Context c, String role, int fallback) {
+        int v = MrThemeColors.colorOr(c, mTag, role, fallback);
+        return tuned() ? tone(c).ink(v) : v;
+    }
+
+    /**
+     * What the keyboard on a background takes from it, as {@link MrAdapt} works it out for the one on the screen: the tone of the keys or, when they have
+     * none, of the colour that stands out in the background. {@link MrAdapt.Tone#OFF} when there is no background (or a theme of the list).
+     */
+    MrAdapt.Tone tone(Context c) {
+        if (!tuned() || mSpec.kind == MrBackdrop.NONE || (MrBackdrop.needsBitmap(mSpec) && mImage == null)) return MrAdapt.Tone.OFF;
+        String key = mTag + "|" + mSpec.format() + "|" + mSoft + "|" + System.identityHashCode(mImage);
+        if (mToneKey != null && key.equals(mToneKey) && mToneLook == mLook) return mTone;
+        MrAdapt.Tone t = MrAdapt.Tone.OFF;
+        try {
+            boolean dark = MrThemeColors.dark(c, mTag);
+            MrBackdrop.Look bg = MrBackdrop.look(mSpec, mImage, dark, mSoft);
+            if (bg != null) {
+                boolean spectrum = MrBackdrop.isOwn(mTag) || MrThemeColors.own(c, mTag, "spectrum_start") != 0;
+                t = MrAdapt.Tone.of(MrAdapt.base(MrAdapt.keyColour(mTag, mLook), bg.accent, bg.bottom), !dark, spectrum, MrBackdrop.TAG_LIGHT_INK.equals(mTag), bg.bottom);
+            }
+        } catch (RuntimeException e) {
+            // no tone: the theme's own colours
+        }
+        mTone = t;
+        mToneKey = key;
+        mToneLook = mLook;
+        return t;
     }
 
     private Drawable[] mToolIcons;
@@ -417,8 +454,8 @@ final class MrThemePreview extends View {
         float side = vw * 0.008f;
         float rowH = (vh - top) / SMALL_ROWS;
         float unit = (vw - 2f * side) / 10f;
-        int text = MrThemeColors.colorOr(c, mTag, "text", 0xffffffff);
-        int accentText = MrThemeColors.colorOr(c, mTag, "accent_text", text);
+        int text = text(c, "text", 0xffffffff);
+        int accentText = text(c, "accent_text", text);
         if (tuned() && mLook.text != 0) text = accentText = mLook.text;
         // the neon themes light up their labels
         int glow = MrThemeColors.declared(c, mTag, "glow");
@@ -508,8 +545,8 @@ final class MrThemePreview extends View {
         float rowH = (vh - top - MrBottom.GAP_DP * mDensity) / FULL_ROWS;
         float width = vw - 2f * side;
         float unit = width / 10f;
-        int text = MrThemeColors.colorOr(c, mTag, "text", 0xffffffff);
-        int accentText = MrThemeColors.colorOr(c, mTag, "accent_text", text);
+        int text = text(c, "text", 0xffffffff);
+        int accentText = text(c, "accent_text", text);
         if (tuned() && mLook.text != 0) text = accentText = mLook.text;
         int glow = MrThemeColors.declared(c, mTag, "glow");
         float glowPx = glow == 0 ? 0f : 5f * mDensity;
@@ -596,7 +633,8 @@ final class MrThemePreview extends View {
             KeyStyle.prepare(face, iw, ih, getContext());
             boolean tune = tuned() && mLook.faceTuned();
             // the colour of the line that the person chose is drawn over the face, as the keyboard does (the line of the style goes away)
-            MrGlow.drawFace(face, canvas, iw, ih, mCurrentFilter, tune ? opacityFilter(true) : null, tune ? opacityFilter(false) : null,
+            android.graphics.ColorFilter whole = mCurrentFilter != null ? mCurrentFilter : tone(getContext()).seeFilter();      // the clear glass takes the tone
+            MrGlow.drawFace(face, canvas, iw, ih, whole, tune ? opacityFilter(true) : null, tune ? opacityFilter(false) : null,
                     tuned() ? mLook.line : 0, mLook.lineAlpha(), mDensity);
         } else {
             flat(canvas, iw, ih, accent, state);
@@ -619,7 +657,12 @@ final class MrThemePreview extends View {
         Context c = getContext();
         String role = state == DASH_LOCK ? "modifier_indicator_lock" : state == DASH_ON ? "modifier_indicator_on" : "modifier_indicator_off";
         int colour = MrThemeColors.colorOr(c, mTag, role, 0xff808080);
-        if (mCurrent != null && state != DASH_LOCK) colour = MrGlow.map(mCurrent, colour);
+        if (mCurrent != null && state != DASH_LOCK) {
+            colour = MrGlow.map(mCurrent, colour);
+            if (state == DASH_ON && tuned()) colour = tone(c).ink(colour);       // the white of the dash that is on takes the tone as the letters do
+        } else if (state != DASH_LOCK && tuned()) {
+            colour = tone(c).dash(colour);
+        }
         if (state == DASH_OFF && tuned()) colour = MrKeyLook.dashOff(colour);     // the dash that is off is only a hint: faint on the backgrounds
         float dw = Math.min(14f * mDensity, w * 0.3f), dh = 3f * mDensity;
         float bottom = h - 8f * mDensity;
@@ -706,7 +749,7 @@ final class MrThemePreview extends View {
     /** The filter that gives a face its opacity ({@code fill}: of the fill, else of the line) and, on a gradient theme, the hue of the key being drawn. */
     private android.graphics.ColorFilter opacityFilter(boolean fill) {
         float k = (fill ? mLook.key : mLook.edge) / 100f;
-        return MrGlow.filter(mCurrent, k);
+        return MrGlow.filter(mCurrent != null ? mCurrent : tone(getContext()).see, k);
     }
 
     /** Where the keys are (the area under the line of suggestions): the position of a key in it gives its hue on a gradient theme. */

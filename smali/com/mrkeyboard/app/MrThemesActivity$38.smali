@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 1531
+    .line 1533
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$38;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-boolean p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$38;->val$pending:Z
@@ -49,7 +49,7 @@
     .locals 1
 
     .prologue
-    .line 1533
+    .line 1535
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$38;->val$pending:Z
 
     if-eqz v0, :cond_0
@@ -58,7 +58,7 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->discardPending(Landroid/content/Context;)V
 
-    .line 1534
+    .line 1536
     :cond_0
     return-void
 .end method

@@ -153,7 +153,10 @@ final class MrKeyLook {
 
     /** Whether the preference {@code key} is one of these; when it is, what was read is let go (the keyboard is made again by the caller). */
     static boolean changed(String key) {
-        if (key == null || !key.startsWith(PREFIX)) return false;
+        if (key == null) return false;
+        // what the keyboard takes from the background (MrAdapt: the tone of the tools, of the letters and of the dash) is worked out again when it changes
+        if (key.equals(MrBackdrop.PREF) || key.equals(MrBackdrop.PREF_SOFT)) sVersion++;
+        if (!key.startsWith(PREFIX)) return false;
         invalidate();
         return true;
     }

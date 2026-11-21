@@ -303,8 +303,11 @@ public class GlowTest {
         int before = MrKeyLook.version();
         prefs.edit().putInt(MrKeyLook.PREF_HUE, 0x00ff0000).apply();
         MrKeyLook.changed(MrKeyLook.PREF_HUE);
-        check("a change of a preference of the look is told to the keyboard (and any other key is not)", MrKeyLook.version() == before + 1 && !MrKeyLook.changed("pref_kbd_bg") && !MrKeyLook.changed(null)
+        check("a change of a preference of the look is told to the keyboard (and any other key is not)", MrKeyLook.version() == before + 1 && !MrKeyLook.changed("pref_vibrate_on") && !MrKeyLook.changed(null)
                 && MrKeyLook.version() == before + 1);
+        // the background and its softening are not a preference of the look (the keyboard is not made again), but what the tone took from them is
+        check("a change of the background or of its softening makes the tone and the hues be worked out again", !MrKeyLook.changed(MrBackdrop.PREF) && MrKeyLook.version() == before + 2
+                && !MrKeyLook.changed(MrBackdrop.PREF_SOFT) && MrKeyLook.version() == before + 3);
         MrGlow.reset();
         MrKeyLook.invalidate();
     }

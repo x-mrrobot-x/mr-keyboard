@@ -234,32 +234,58 @@
 .end method
 
 .method static changed(Ljava/lang/String;)Z
-    .locals 1
+    .locals 2
 
     .prologue
-    .line 156
-    if-eqz p0, :cond_0
-
-    const-string v0, "pref_kbd_look_"
-
-    invoke-virtual {p0, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
-
-    move-result v0
-
-    if-nez v0, :cond_1
-
-    :cond_0
     const/4 v0, 0x0
 
-    .line 158
+    .line 156
+    if-nez p0, :cond_1
+
+    .line 161
+    :cond_0
     :goto_0
     return v0
 
-    .line 157
+    .line 158
     :cond_1
+    const-string v1, "pref_kbd_bg"
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_2
+
+    const-string v1, "pref_kbd_bg_soft"
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_3
+
+    :cond_2
+    sget v1, Lcom/mrkeyboard/app/MrKeyLook;->sVersion:I
+
+    add-int/lit8 v1, v1, 0x1
+
+    sput v1, Lcom/mrkeyboard/app/MrKeyLook;->sVersion:I
+
+    .line 159
+    :cond_3
+    const-string v1, "pref_kbd_look_"
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_0
+
+    .line 160
     invoke-static {}, Lcom/mrkeyboard/app/MrKeyLook;->invalidate()V
 
-    .line 158
+    .line 161
     const/4 v0, 0x1
 
     goto :goto_0
@@ -317,7 +343,7 @@
     .locals 2
 
     .prologue
-    .line 211
+    .line 214
     const/high16 v0, -0x1000000
 
     or-int/2addr v0, p0
@@ -335,19 +361,19 @@
     .locals 1
 
     .prologue
-    .line 162
+    .line 165
     const/4 v0, 0x0
 
     sput-object v0, Lcom/mrkeyboard/app/MrKeyLook;->sCurrent:Lcom/mrkeyboard/app/MrKeyLook;
 
-    .line 163
+    .line 166
     sget v0, Lcom/mrkeyboard/app/MrKeyLook;->sVersion:I
 
     add-int/lit8 v0, v0, 0x1
 
     sput v0, Lcom/mrkeyboard/app/MrKeyLook;->sVersion:I
 
-    .line 164
+    .line 167
     return-void
 .end method
 
@@ -357,19 +383,19 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 180
+    .line 183
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->kindOf(I)I
 
     move-result v1
 
     if-eqz v1, :cond_1
 
-    .line 182
+    .line 185
     :cond_0
     :goto_0
     return v0
 
-    .line 181
+    .line 184
     :cond_1
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->isOwnStyle(I)Z
 
@@ -391,7 +417,7 @@
 
     goto :goto_1
 
-    .line 182
+    .line 185
     :cond_3
     if-eqz p0, :cond_0
 
@@ -412,7 +438,7 @@
     .locals 1
 
     .prologue
-    .line 206
+    .line 209
     const/high16 v0, 0x3e800000    # 0.25f
 
     invoke-static {p0, p1, p1, v0}, Lcom/mrkeyboard/app/MrGlow;->ramp(IIIF)I
@@ -430,15 +456,15 @@
 
     const/4 v3, 0x1
 
-    .line 198
+    .line 201
     const/4 v0, 0x3
 
     new-array v2, v0, [F
 
-    .line 199
+    .line 202
     invoke-static {p0, v2}, Lcom/mrkeyboard/app/MrGlow;->hsv(I[F)V
 
-    .line 200
+    .line 203
     aget v0, v2, v3
 
     const v1, 0x3eb33333    # 0.35f
@@ -460,7 +486,7 @@
 
     const v1, 0x3f666666    # 0.9f
 
-    .line 201
+    .line 204
     :goto_1
     const/4 v3, 0x0
 
@@ -480,7 +506,7 @@
 
     return v0
 
-    .line 200
+    .line 203
     :cond_0
     aget v0, v2, v3
 
@@ -610,7 +636,7 @@
 
     const/4 v3, 0x2
 
-    .line 189
+    .line 192
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->isOwn(Ljava/lang/String;)Z
 
     move-result v0
@@ -622,11 +648,11 @@
     :cond_0
     const/4 v0, 0x0
 
-    .line 193
+    .line 196
     :goto_0
     return-object v0
 
-    .line 190
+    .line 193
     :cond_1
     iget v0, p1, Lcom/mrkeyboard/app/MrKeyLook;->hue:I
 
@@ -634,7 +660,7 @@
 
     iget v0, p1, Lcom/mrkeyboard/app/MrKeyLook;->hue:I
 
-    .line 191
+    .line 194
     :goto_1
     invoke-static {p0}, Lcom/mrkeyboard/app/MrBackdrop;->styleOf(Ljava/lang/String;)I
 
@@ -658,13 +684,13 @@
 
     goto :goto_0
 
-    .line 190
+    .line 193
     :cond_2
     const v0, -0x908401
 
     goto :goto_1
 
-    .line 192
+    .line 195
     :cond_3
     iget v1, p1, Lcom/mrkeyboard/app/MrKeyLook;->hue2:I
 
@@ -672,7 +698,7 @@
 
     iget v1, p1, Lcom/mrkeyboard/app/MrKeyLook;->hue2:I
 
-    .line 193
+    .line 196
     :goto_2
     new-array v2, v2, [I
 
@@ -690,7 +716,7 @@
 
     goto :goto_0
 
-    .line 192
+    .line 195
     :cond_4
     invoke-static {v0}, Lcom/mrkeyboard/app/MrKeyLook;->partner(I)I
 
@@ -705,10 +731,10 @@
     .prologue
     const/high16 v3, -0x1000000
 
-    .line 170
+    .line 173
     or-int v0, v3, p0
 
-    .line 171
+    .line 174
     invoke-static {v0}, Lcom/mrkeyboard/app/MrThemeColors;->luminance(I)F
 
     move-result v1
