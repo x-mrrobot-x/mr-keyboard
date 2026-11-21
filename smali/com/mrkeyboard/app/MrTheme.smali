@@ -195,10 +195,41 @@
     return-void
 .end method
 
-# Color of a role (e.g. "panel_btn") read from colors.xml by name: first <theme tag>_<role>
+# Color of a role (e.g. "panel_btn"): the one the theme has (rawColor) moved to the tone of the theme when it is one of the
+# backgrounds (MrAdapt). The magenta of a role that is missing is not touched, and a failure of MrAdapt leaves the color as it was.
+.method static color(Ljava/lang/String;)I
+    .locals 2
+
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrTheme;->rawColor(Ljava/lang/String;)I
+
+    move-result v0
+
+    const v1, -0xff01
+
+    if-eq v0, v1, :cond_done
+
+    :try_start_adapt
+    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrAdapt;->adapt(Ljava/lang/String;I)I
+
+    move-result v1
+    :try_end_adapt
+    .catch Ljava/lang/Throwable; {:try_start_adapt .. :try_end_adapt} :catch_adapt
+
+    move v0, v1
+
+    :cond_done
+    return v0
+
+    :catch_adapt
+    move-exception v1
+
+    return v0
+.end method
+
+# Color of a role read from colors.xml by name: first <theme tag>_<role>
 # (mr_glass_panel_btn), then mr_<role> (mr_panel_btn). Without the color, returns opaque magenta so the error
 # shows up on screen instead of crashing the keyboard.
-.method static color(Ljava/lang/String;)I
+.method static rawColor(Ljava/lang/String;)I
     .locals 6
 
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sApp:Landroid/content/Context;

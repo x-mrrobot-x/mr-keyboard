@@ -3,7 +3,7 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Landroid/content/DialogInterface$OnCancelListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
@@ -22,11 +22,9 @@
 
 .field final synthetic val$cancelNow:Ljava/lang/Runnable;
 
-.field final synthetic val$p:Landroid/app/Dialog;
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Landroid/app/Dialog;Ljava/lang/Runnable;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Ljava/lang/Runnable;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -35,12 +33,10 @@
     .end annotation
 
     .prologue
-    .line 1409
+    .line 1453
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$33;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$33;->val$p:Landroid/app/Dialog;
-
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$33;->val$cancelNow:Ljava/lang/Runnable;
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$33;->val$cancelNow:Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,24 +45,15 @@
 
 
 # virtual methods
-.method public onCancel(Landroid/content/DialogInterface;)V
-    .locals 2
+.method public onClick(Landroid/view/View;)V
+    .locals 1
 
     .prologue
-    .line 1411
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$33;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    iget-object v0, v0, Lcom/mrkeyboard/app/MrThemesActivity;->mPicker:Landroid/app/Dialog;
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$33;->val$p:Landroid/app/Dialog;
-
-    if-ne v0, v1, :cond_0
-
+    .line 1455
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$33;->val$cancelNow:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 1412
-    :cond_0
+    .line 1456
     return-void
 .end method

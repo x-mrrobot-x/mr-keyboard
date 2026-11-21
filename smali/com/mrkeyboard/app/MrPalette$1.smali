@@ -41,7 +41,7 @@
     .end annotation
 
     .prologue
-    .line 124
+    .line 155
     iput-object p1, p0, Lcom/mrkeyboard/app/MrPalette$1;->val$sc:[F
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -55,7 +55,7 @@
     .locals 3
 
     .prologue
-    .line 126
+    .line 157
     iget-object v0, p0, Lcom/mrkeyboard/app/MrPalette$1;->val$sc:[F
 
     invoke-virtual {p2}, Ljava/lang/Integer;->intValue()I
@@ -76,7 +76,7 @@
 
     move-result v0
 
-    .line 127
+    .line 158
     if-eqz v0, :cond_0
 
     :goto_0
@@ -100,7 +100,7 @@
     .locals 1
 
     .prologue
-    .line 124
+    .line 155
     check-cast p1, Ljava/lang/Integer;
 
     check-cast p2, Ljava/lang/Integer;

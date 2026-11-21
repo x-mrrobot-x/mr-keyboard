@@ -3,12 +3,12 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/content/DialogInterface$OnCancelListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->loadImage()V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->showCrop(Landroid/graphics/Bitmap;Lcom/mrkeyboard/app/MrBackdrop$Spec;IZ)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$load:I
+.field final synthetic val$pending:Z
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;I)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Z)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 1584
+    .line 1531
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$38;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$38;->val$load:I
+    iput-boolean p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$38;->val$pending:Z
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,40 +45,20 @@
 
 
 # virtual methods
-.method public run()V
-    .locals 4
+.method public onCancel(Landroid/content/DialogInterface;)V
+    .locals 1
 
     .prologue
-    .line 1586
+    .line 1533
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$38;->val$pending:Z
+
+    if-eqz v0, :cond_0
+
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$38;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->load(Landroid/content/Context;)Landroid/graphics/Bitmap;
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->discardPending(Landroid/content/Context;)V
 
-    move-result-object v1
-
-    .line 1587
-    if-nez v1, :cond_0
-
-    const/4 v0, 0x0
-
-    .line 1588
-    :goto_0
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$38;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    new-instance v3, Lcom/mrkeyboard/app/MrThemesActivity$38$1;
-
-    invoke-direct {v3, p0, v1, v0}, Lcom/mrkeyboard/app/MrThemesActivity$38$1;-><init>(Lcom/mrkeyboard/app/MrThemesActivity$38;Landroid/graphics/Bitmap;Landroid/graphics/Bitmap;)V
-
-    invoke-virtual {v2, v3}, Lcom/mrkeyboard/app/MrThemesActivity;->runOnUiThread(Ljava/lang/Runnable;)V
-
-    .line 1596
-    return-void
-
-    .line 1587
+    .line 1534
     :cond_0
-    invoke-static {v1}, Lcom/mrkeyboard/app/MrThemesActivity;->thumb(Landroid/graphics/Bitmap;)Landroid/graphics/Bitmap;
-
-    move-result-object v0
-
-    goto :goto_0
+    return-void
 .end method

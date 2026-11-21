@@ -4859,6 +4859,9 @@
 
     invoke-static {v6, v7, v8}, Lcom/mrkeyboard/app/KeyStyle;->applyShape(Landroid/graphics/drawable/Drawable;Landroid/content/Context;F)V
 
+    # Themes of the backgrounds (MrAdapt): the bubble takes the tone of the theme; any other theme is left as it is.
+    invoke-static {v6}, Lcom/mrkeyboard/app/MrAdapt;->bubble(Landroid/graphics/drawable/Drawable;)V
+
     .line 1262
     iget-object v6, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mOffsetInWindow:[I
 
@@ -5596,6 +5599,9 @@
     const/high16 v11, 0x41000000    # 8.0f
 
     invoke-static {v9, v10, v11}, Lcom/mrkeyboard/app/KeyStyle;->applyShape(Landroid/graphics/drawable/Drawable;Landroid/content/Context;F)V
+
+    # Themes of the backgrounds (MrAdapt): the popup takes the tone of the theme; any other theme is left as it is.
+    invoke-static {v9}, Lcom/mrkeyboard/app/MrAdapt;->popup(Landroid/graphics/drawable/Drawable;)V
 
     .line 1448
     iget-object v0, p0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->mMiniKeyboardContainer:Landroid/view/View;

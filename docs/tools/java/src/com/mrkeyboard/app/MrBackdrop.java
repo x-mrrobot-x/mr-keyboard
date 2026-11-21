@@ -52,6 +52,8 @@ import java.io.OutputStream;
 final class MrBackdrop {
     static final String PREF = "pref_kbd_bg";
     static final String PREF_SOFT = "pref_kbd_bg_soft";
+    /** The softening a landscape or a picture is opened with in the dialog of a background that is not the one in use: wallpapers are light, so a little veil from the start (per cent). */
+    static final int DEFAULT_SOFT = 25;
     /** The picture, in the files of the app (JPEG). */
     static final String FILE = "kbd_bg.jpg";
     /** The picture that was just chosen and is not the background yet (it becomes {@link #FILE} when the person applies it). */

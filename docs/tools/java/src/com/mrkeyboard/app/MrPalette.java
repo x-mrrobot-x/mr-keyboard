@@ -36,19 +36,50 @@ final class MrPalette {
      */
     static int[] of(MrBackdrop.Spec spec, Bitmap image) {
         if (spec != null && spec.kind == MrBackdrop.COLOR) return spec.index >= 0 && spec.index < MrBackdrop.COLORS.length ? near(MrBackdrop.COLORS[spec.index]) : new int[0];
-        if (spec == null || spec.kind == MrBackdrop.NONE) return new int[0];
-        if ((spec.kind == MrBackdrop.SCENE || spec.kind == MrBackdrop.IMAGE) && image == null) return new int[0];
+        int[] px = pixels(spec, image);
+        return px == null ? new int[0] : extract(px, COUNT);
+    }
+
+    /**
+     * The tone of the background: the colour of a plain colour, the mean colour of what a gradient, a landscape or a picture draws (opaque 0xffRRGGBB);
+     * 0 when there is none (no background, or the picture is not there).
+     */
+    static int tone(MrBackdrop.Spec spec, Bitmap image) {
+        if (spec != null && spec.kind == MrBackdrop.COLOR) return spec.index >= 0 && spec.index < MrBackdrop.COLORS.length ? 0xff000000 | MrBackdrop.COLORS[spec.index] : 0;
+        return mean(pixels(spec, image));
+    }
+
+    /** The mean colour of {@code pixels} (ARGB; the clear ones are left out), opaque; 0 when there is none. */
+    static int mean(int[] pixels) {
+        if (pixels == null) return 0;
+        long r = 0, g = 0, b = 0, n = 0;
+        for (int i = 0; i < pixels.length; i++) {
+            int p = pixels[i];
+            if ((p >>> 24) < 128) continue;
+            r += (p >> 16) & 0xff;
+            g += (p >> 8) & 0xff;
+            b += p & 0xff;
+            n++;
+        }
+        if (n == 0) return 0;
+        return 0xff000000 | ((int) (r / n) << 16) | ((int) (g / n) << 8) | (int) (b / n);
+    }
+
+    /** What {@code spec} draws, at the size at which it is counted (null for none, or when the picture is not there or it cannot be drawn). */
+    private static int[] pixels(MrBackdrop.Spec spec, Bitmap image) {
+        if (spec == null || spec.kind == MrBackdrop.NONE) return null;
+        if ((spec.kind == MrBackdrop.SCENE || spec.kind == MrBackdrop.IMAGE) && image == null) return null;
         Bitmap b = null;
         try {
             b = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
             MrBackdrop.draw(new Canvas(b), spec, WIDTH, HEIGHT, image);
             int[] px = new int[WIDTH * HEIGHT];
             b.getPixels(px, 0, WIDTH, 0, 0, WIDTH, HEIGHT);
-            return extract(px, COUNT);
+            return px;
         } catch (RuntimeException e) {
-            return new int[0];
+            return null;
         } catch (OutOfMemoryError e) {
-            return new int[0];
+            return null;
         } finally {
             if (b != null) b.recycle();
         }

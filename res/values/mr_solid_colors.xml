@@ -1237,7 +1237,7 @@
     <color name="mr_overlagoon_key_acc_on_fill">#476f7bff</color>
     <color name="mr_overlagoon_key_acc_lock_fill">#998c95ff</color>
 
-    <!-- ===== Background, own colour glass ===== -->
+    <!-- ===== Background, own color glass ===== -->
     <color name="mr_overownglass_kbd_bg">#ff1b2030</color>
     <color name="mr_overownglass_text">#fff1f2ff</color>
     <color name="mr_overownglass_cursor">@color/mr_overownglass_text</color>
@@ -1296,7 +1296,7 @@
     <color name="mr_overownglass_key_acc_on_fill">#7a6f7bff</color>
     <color name="mr_overownglass_key_acc_lock_fill">#8cff6b6b</color>
 
-    <!-- ===== Background, own colour outline ===== -->
+    <!-- ===== Background, own color outline ===== -->
     <color name="mr_overownline_kbd_bg">#ff1b2030</color>
     <color name="mr_overownline_text">#ffe5e7ff</color>
     <color name="mr_overownline_cursor">@color/mr_overownline_text</color>
@@ -1355,7 +1355,7 @@
     <color name="mr_overownline_key_acc_on_fill">#476f7bff</color>
     <color name="mr_overownline_key_acc_lock_fill">#66ff6b6b</color>
 
-    <!-- ===== Background, own colour gradient ===== -->
+    <!-- ===== Background, own color gradient ===== -->
     <color name="mr_overowngrad_kbd_bg">#ff1b2030</color>
     <color name="mr_overowngrad_text">#ffe5e7ff</color>
     <color name="mr_overowngrad_cursor">@color/mr_overowngrad_text</color>
@@ -1414,7 +1414,7 @@
     <color name="mr_overowngrad_key_acc_on_fill">#476f7bff</color>
     <color name="mr_overowngrad_key_acc_lock_fill">#998c95ff</color>
 
-    <!-- ===== Background, dark ink, own colour glass ===== -->
+    <!-- ===== Background, dark ink, own color glass ===== -->
     <color name="mr_overpaleglass_kbd_bg">#ffe9edf2</color>
     <color name="mr_overpaleglass_text">#ff181b38</color>
     <color name="mr_overpaleglass_cursor">@color/mr_overpaleglass_text</color>
@@ -1476,7 +1476,7 @@
     <color name="mr_overpaleglass_key_acc_lock_fill">#59d93b3b</color>
     <color name="mr_overpaleglass_lang_text">@color/mr_overpaleglass_text</color>
 
-    <!-- ===== Background, dark ink, own colour outline ===== -->
+    <!-- ===== Background, dark ink, own color outline ===== -->
     <color name="mr_overpaleline_kbd_bg">#ffe9edf2</color>
     <color name="mr_overpaleline_text">#ff1f2247</color>
     <color name="mr_overpaleline_cursor">@color/mr_overpaleline_text</color>
@@ -1538,7 +1538,7 @@
     <color name="mr_overpaleline_key_acc_lock_fill">#59d93b3b</color>
     <color name="mr_overpaleline_lang_text">@color/mr_overpaleline_text</color>
 
-    <!-- ===== Background, dark ink, own colour gradient ===== -->
+    <!-- ===== Background, dark ink, own color gradient ===== -->
     <color name="mr_overpalegrad_kbd_bg">#ffe9edf2</color>
     <color name="mr_overpalegrad_text">#ff1f2247</color>
     <color name="mr_overpalegrad_cursor">@color/mr_overpalegrad_text</color>

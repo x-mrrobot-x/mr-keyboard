@@ -14,8 +14,15 @@ public final class MrTheme {
     public static boolean glow() { return stubGlow; }
     public static boolean spectrum() { return stubSpectrum; }
     public static String tag() { return stubTag; }
+    /** What the real color() does after reading the role: the PC tests that look at it set this to MrAdapt (nothing otherwise). */
+    public interface StubAdapt {
+        int adapt(String role, int raw);
+    }
+    public static StubAdapt stubAdapt;
+
     public static int color(String role) {
         Integer c = stubColors.get(role);
-        return c == null ? 0xffff00ff : c.intValue();
+        int raw = c == null ? 0xffff00ff : c.intValue();
+        return raw != 0xffff00ff && stubAdapt != null ? stubAdapt.adapt(role, raw) : raw;
     }
 }

@@ -3,7 +3,7 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Landroid/content/DialogInterface$OnCancelListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 1463
+    .line 1512
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$36;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
     iput-boolean p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$36;->val$pending:Z
@@ -45,11 +45,16 @@
 
 
 # virtual methods
-.method public onCancel(Landroid/content/DialogInterface;)V
+.method public onClick(Landroid/view/View;)V
     .locals 1
 
     .prologue
-    .line 1465
+    .line 1514
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$36;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->closeDialog()V
+
+    .line 1515
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$36;->val$pending:Z
 
     if-eqz v0, :cond_0
@@ -58,7 +63,7 @@
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->discardPending(Landroid/content/Context;)V
 
-    .line 1466
+    .line 1516
     :cond_0
     return-void
 .end method

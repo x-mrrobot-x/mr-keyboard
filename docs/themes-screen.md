@@ -23,6 +23,11 @@ with a frame in the accent color), so what is chosen is seen before it is chosen
 └────────────────────────────────┘
 ```
 
+The cards of the **landscapes and of the pictures** are drawn with **no face on the keys and a line of white round each one** (`MrThemesActivity.CARD_LOOK`, set in
+`bindCard`: the opacity of the face 0, of the line `CARD_LINE_EDGE` = 80%), so that the image shows through the keys and the card tells what the background is.
+The cards of the colors, of the gradients and of the themes keep the keys of their theme. The tabs are small outlined pills; the one open is filled with the
+accent color.
+
 The card of the choice in use is the only place that says what is chosen besides the **In use** pill of the card that is. Under the name it says what the
 choice is: **Theme** for a theme of the list, or the tab of a background and, when it has styles of keys, the kind and the style (`Keys: Outline · White`).
 Every list is two cards wide, in every tab (`MrThemesActivity.COLUMNS`; a last row with one card keeps its empty place, so that the cards are as wide as the others), and the margin on the right of the screen (`SCROLL_MARGIN_DP`, 20 dp) belongs to the list: it is
@@ -62,7 +67,9 @@ Keys that blend with the background are the main problem of a picture, so the di
 
 - **Soften background** (0 to 70%, a slider; gradients, landscapes and pictures, not the plain colors): a veil over the background itself, in the
   opposite color of the ink, that is at least as dense as the setting. The keyboard of the dialog is drawn again while the slider moves; it starts
-  at the softening in use when the background is the one in use, and at none for another. It is written (`pref_kbd_bg_soft`) with **Apply**.
+  at the softening in use when the background is the one in use; for another it starts at none on a gradient and at **25%** (`MrBackdrop.DEFAULT_SOFT`,
+  `MrThemesActivity.startSoft`) on a landscape or a picture, because wallpapers are light and the veil makes the keys and the letters easy to see; a
+  picture that has just been cropped starts there too. It is written (`pref_kbd_bg_soft`) with **Apply**.
 - Each of the three sections of color is **a card of its own** (`MrThemesActivity.card`: only a step lighter than the dialog, `CARD_FILL` and `CARD_LINE` of the way from its background to the colours of the cards of the screens, with round corners),
   with its title and its settings inside: **Key background color**, **Key border color** and **Text and toolbar icon color**. The softening of the
   background, the only slider left, is above them with no card.
@@ -80,7 +87,8 @@ Keys that blend with the background are the main problem of a picture, so the di
 - **Colors from the background** (every background: a gradient, a landscape or a picture gives the colors that stand out in it, a plain color gives **colors close to
   its tone**, see below; the fixed colors stay only for a background whose colors could not be read): up to
   five colors that stand out in the background, as swatches of the own style of the kind that is open (no ring of hues: that ring is the picker's). They are
-  in **the same row of colors** as the fixed ones (one row, no row of their own; `offeredFor`): the **glass** has the **See-through** glass, those colors and, **last, a
+  in **the same row of colors** as the fixed ones (one row, no row of their own; `offeredFor`): the **glass** has the **See-through** glass (its dot is a white pulled 28% towards the tone of the background,
+`MrStyleDot.SEE_PULL` and `MrPalette.tone`, not an opaque white), those colors and, **last, a
   dark color** (`MrPalette.dark`: the first color made dark, 0.26 of the value, in its hue; grey for black), in place of Ice, Lilac, Mint and Dark; the **outline** has
   **White** and those colors, in place of the others; the **gradient** keeps its four and has **the first two** of those colors after them. Then comes the round
   button of the picker. A fixed color that the keys are already in (a theme saved with it) stays in the row, marked, until another is chosen. Touching one chooses it as
@@ -93,8 +101,12 @@ Keys that blend with the background are the main problem of a picture, so the di
   **Plain colors** (`MrPalette.near`): five colors of the tone itself, the most like it first: its hue, the hues 36 degrees at each side of it, a softer one of
   its hue (a deeper one on a light color) and the hue one more step beyond. Over a dark color they are bright and over a light one (dark ink) they are deep,
   so that a key is never the color of the background; a color with no hue (black, greys) gives three greys and a cool and a warm one. They are at least 36 apart in RGB.
+- **Gradient start and end** (the **Gradient** kind, every style of it): two lines under the colors, **Gradient start** and **Gradient end**, each with the round
+  button that opens the picker on the right and the colour it has now; the end also has **Automatic** (the end that the keyboard makes up from the start). They
+  are there for a preset as well as for the own colour, so the person always sees where the gradient starts and where it ends. Touching either one on a preset turns it into
+  the own gradient with the colours that the preset had (`ownFromPreset`: its start and its end), so one end can be changed and the other stays.
 - **The X** at the top right of the dialog of a theme or of a background closes it as **Cancel** does (`sheetBox`: the title and the X in the first line); the picker of
-  a color has Cancel and Done only. The buttons of the kinds (**Glass**, **Outline**, **Gradient**) have corners of 12 dp (`BUTTON_RADIUS`; the cards of the sections have
+  a color has Cancel and Done only. The buttons of the kinds (**Glass**, **Outline**, **Gradient**) have corners of 10 dp (`BUTTON_RADIUS`; the cards of the sections have
   14 dp, `CARD_RADIUS`) and **Automatic** is a round pill. The controls scroll inside the dialog, and their bar is **near the right edge of the dialog, not over the cards**:
   the scroll view goes out into the margin of the sheet by `SCROLLBAR_DP` (12 dp, a negative margin and the same padding, the sheet does not clip to its padding), so the
   cards stay where they were and the bar (thin, faint and fading, as in the list of the screen) is drawn in that padding.
@@ -168,6 +180,28 @@ Applying a background writes the right theme in the same edit as the background 
 For a picture, the zoom is in per cent (100 to 400), the position goes from -100 (against the left or top edge) to 100 (against the right or
 bottom one), and the time is when the picture was chosen, so a new picture is a new value and the caches know it. **Reset settings** puts them
 back (`MrReset.KEYS`).
+
+## The tools, the popup and the bubble take the tone
+
+The themes of the backgrounds have one set of fixed colors for the buttons of the tools, for the popup of variants and for the bubble of the key that is
+pressed (a deep blue slate, a pale blue for **Send**). `MrAdapt` makes them follow the keyboard, so on a red keyboard, a green landscape or a golden gradient they are
+not blue:
+
+- **The tone** is the color of the keys when the style has one (the own color, a preset of the glass, of the outline or of the gradient: the middle color of a
+  gradient) and, when the keys have none to give (the clear glass, the dark glass, the white outline), the tone of the background under the keyboard (the plain
+  color, or what a gradient, a landscape or a picture is like at its lower edge, `MrBackdrop.lookNow`). Under `GREY` (0.12) of saturation a color has no hue and
+  the background gives it.
+- **Each role keeps what it is for**: its lightness (the ink on it still reads) and its opacity; it takes the **hue** of the tone and a share of its saturation
+  (`SAT_SHARE` 0.65, and for each role `FACE`, `STROKE`, `ACCENT`, `FAINT`, `TEXT`). The faces of the buttons, the strokes, the accent button, the fields, the
+  popup key that is chosen and the dots of the preview are toned; the text on **Send**, the letters and the colors of the keyboard itself are not.
+  On a pale background (dark ink) the white of the bubble and of the fields is only a breath of the tone (`WHITE_SHARE`).
+- `MrTheme.color` answers every role through `MrAdapt.adapt`, so every tool and panel follows it with no change of its own; the drawable of the popup and the one of
+  the bubble are set by `MrAdapt.popup` and `MrAdapt.bubble`, called where the keyboard gives them their shape (`LatinKeyboardBaseView`), and the key that is
+  chosen in the popup is drawn by `MrGlow` with `MrAdapt.popupFilter`. A theme of the list (not one of the backgrounds) is left exactly as it is, and any failure
+  gives the color of the theme back.
+- `ThemesTest.adaptation` checks it: a theme of the list, or a theme of the backgrounds with no background, is left as it is; the toned roles take the hue of the
+  red own color, of the gold outline, of the Dawn gradient (its middle color) and of the own gradient (the middle of the way); each keeps its lightness and its
+  opacity (a dark face stays dark, **Send** stays the lightest); the ink, the translucent black layers and an unknown role are left alone; and the tone follows the look when it changes.
 
 ## Where the backgrounds come from
 
@@ -269,6 +303,8 @@ outline of the outline and gradient ones).
 | `MrThemeRow` | The row of the settings: it opens the screen and says on its second line what is chosen (the theme, or the background when the theme is one of the twenty-two of the backgrounds). |
 | `MrThemePreview` | The small keyboard (at rest, as the real one: no key is lit or locked). |
 | `MrStyleDot` | The dot of a colour of the styles of keys in the dialog (a chip of the colours of the style, with its name as the description). |
+| `MrAdapt` | The tone of the keyboard on the buttons of the tools, the popup of variants and the bubble of the key (see above). |
+| `MrPalette` | The colors that stand out in a background, the colors close to a plain one and the tone of a background. |
 | `MrCropView` | The picture with the frame to drag and pinch. |
 | `MrBackdrop`, `MrBackdropDrawable`, `MrScenes` | The background: the spec, the drawing, the veil, the waiting and the kept picture, the keyboard. |
 | `MrThemeColors` | The colors and names of any theme (the one in use is `MrTheme`'s), which themes are hidden. |
@@ -290,7 +326,8 @@ New `android` calls (to check against the real API with `ANDROID_JAR` in CI, `ch
 `BitmapFactory.decodeStream`, `Drawable.setState`, `Bitmap`, `BitmapFactory`, `LinearGradient`,
 `RadialGradient`, `Matrix`, `Canvas.drawBitmap` / `clipPath` / `drawRect`, `ExifInterface`, `Dialog` / `Window.setGravity` / `setLayout`,
 `Intent.setDataAndType` / `addCategory`, `SeekBar`, `MotionEvent.getPointerCount` / `getActionMasked`, `View.setScrollBarStyle` / `setScrollBarSize` /
-`setScrollbarFadingEnabled` / `setVerticalScrollbarThumbDrawable` (API 29, guarded by `Build.VERSION.SDK_INT >= 29`), `ViewGroup.setClipToPadding`.
+`setScrollbarFadingEnabled` / `setVerticalScrollbarThumbDrawable` (API 29, guarded by `Build.VERSION.SDK_INT >= 29`), `ViewGroup.setClipToPadding`,
+`Drawable.setTint` / `mutate`, `LayerDrawable.getNumberOfLayers` / `getDrawable`, `GradientDrawable.setColor` / `setStroke` (`MrAdapt`).
 
 `ThemesTest` also audits the styles of keys (`styleAudit`): over every colour, gradient and landscape that has styles, in 120 places of the keyboard, the letters
 of no style may read worse than the clear glass (the reference: its dark outline of the labels does the rest on a bright landscape), and the line of an outline or

@@ -1331,8 +1331,8 @@ def over_gradient(tag, name, start, mid, end, own=False):
 # The styles of the colour that the person picks (MrBackdrop.STYLE_TAGS, the last three): one for each kind. Their drawables are the ones of the
 # kind in SPECTRUM_FROM and the keyboard moves that hue to the colour in MrKeyLook (flags GLOW and SPECTRUM, as the gradient styles; the glass and
 # the outline have no light of their own).
-OVER_OWN = [('overownglass', 'Background, own colour glass', 'glass'), ('overownline', 'Background, own colour outline', 'outline'),
-            ('overowngrad', 'Background, own colour gradient', 'gradient')]
+OVER_OWN = [('overownglass', 'Background, own color glass', 'glass'), ('overownline', 'Background, own color outline', 'outline'),
+            ('overowngrad', 'Background, own color gradient', 'gradient')]
 
 
 def over_own(tag, name, kind):
@@ -1405,8 +1405,8 @@ def over_dark_own(tag, name, kind):
 
 
 # tag, name, kind (the order of MrBackdrop.DARK_OWN_TAGS; "pale" is the colour of the background that needs them)
-OVER_DARK_OWN = [('overpaleglass', 'Background, dark ink, own colour glass', 'glass'), ('overpaleline', 'Background, dark ink, own colour outline', 'outline'),
-                 ('overpalegrad', 'Background, dark ink, own colour gradient', 'gradient')]
+OVER_DARK_OWN = [('overpaleglass', 'Background, dark ink, own color glass', 'glass'), ('overpaleline', 'Background, dark ink, own color outline', 'outline'),
+                 ('overpalegrad', 'Background, dark ink, own color gradient', 'gradient')]
 SOLID.extend(over_dark_own(*t) for t in OVER_DARK_OWN)
 
 # ---------------------------------------------------------------------------------------------------------------

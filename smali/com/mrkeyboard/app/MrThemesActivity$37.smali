@@ -3,12 +3,12 @@
 .source "MrThemesActivity.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/MrThemesActivity;->onActivityResult(IILandroid/content/Intent;)V
+    value = Lcom/mrkeyboard/app/MrThemesActivity;->showCrop(Landroid/graphics/Bitmap;Lcom/mrkeyboard/app/MrBackdrop$Spec;IZ)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,17 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-.field final synthetic val$uri:Landroid/net/Uri;
+.field final synthetic val$bitmap:Landroid/graphics/Bitmap;
+
+.field final synthetic val$crop:Lcom/mrkeyboard/app/MrCropView;
+
+.field final synthetic val$pending:Z
+
+.field final synthetic val$soft:I
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;Landroid/net/Uri;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity;ZLcom/mrkeyboard/app/MrCropView;Landroid/graphics/Bitmap;I)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +39,16 @@
     .end annotation
 
     .prologue
-    .line 1514
+    .line 1518
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->val$uri:Landroid/net/Uri;
+    iput-boolean p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->val$pending:Z
+
+    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->val$crop:Lcom/mrkeyboard/app/MrCropView;
+
+    iput-object p4, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->val$bitmap:Landroid/graphics/Bitmap;
+
+    iput p5, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->val$soft:I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,92 +57,65 @@
 
 
 # virtual methods
-.method public run()V
-    .locals 3
+.method public onClick(Landroid/view/View;)V
+    .locals 6
 
     .prologue
-    const/4 v0, 0x0
-
-    .line 1516
-    .line 1519
-    :try_start_0
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    invoke-virtual {v1}, Lcom/mrkeyboard/app/MrThemesActivity;->getContentResolver()Landroid/content/ContentResolver;
-
-    move-result-object v1
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->val$uri:Landroid/net/Uri;
-
-    invoke-virtual {v1, v2}, Landroid/content/ContentResolver;->openInputStream(Landroid/net/Uri;)Ljava/io/InputStream;
-    :try_end_0
-    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
-
-    move-result-object v2
-
     .line 1520
-    if-eqz v2, :cond_1
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->val$pending:Z
 
-    .line 1522
-    :try_start_1
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+    if-eqz v0, :cond_0
 
-    invoke-static {v1, v2}, Lcom/mrkeyboard/app/MrBackdrop;->importPending(Landroid/content/Context;Ljava/io/InputStream;)[I
-    :try_end_1
-    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    move-result-object v1
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->pendingStamp(Landroid/content/Context;)J
 
-    .line 1524
-    :try_start_2
-    invoke-virtual {v2}, Ljava/io/InputStream;->close()V
+    move-result-wide v0
 
-    .line 1527
+    .line 1521
     :goto_0
-    if-eqz v1, :cond_0
+    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+    iget-object v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->val$crop:Lcom/mrkeyboard/app/MrCropView;
 
-    invoke-static {v1}, Lcom/mrkeyboard/app/MrBackdrop;->loadPending(Landroid/content/Context;)Landroid/graphics/Bitmap;
-    :try_end_2
-    .catch Ljava/lang/Exception; {:try_start_2 .. :try_end_2} :catch_0
+    invoke-virtual {v3}, Lcom/mrkeyboard/app/MrCropView;->zoom()I
+
+    move-result v3
+
+    iget-object v4, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->val$crop:Lcom/mrkeyboard/app/MrCropView;
+
+    invoke-virtual {v4}, Lcom/mrkeyboard/app/MrCropView;->dx()I
+
+    move-result v4
+
+    iget-object v5, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->val$crop:Lcom/mrkeyboard/app/MrCropView;
+
+    invoke-virtual {v5}, Lcom/mrkeyboard/app/MrCropView;->dy()I
+
+    move-result v5
+
+    invoke-static {v3, v4, v5, v0, v1}, Lcom/mrkeyboard/app/MrBackdrop$Spec;->image(IIIJ)Lcom/mrkeyboard/app/MrBackdrop$Spec;
 
     move-result-object v0
 
-    .line 1533
-    :cond_0
-    :goto_1
-    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->val$bitmap:Landroid/graphics/Bitmap;
 
-    new-instance v2, Lcom/mrkeyboard/app/MrThemesActivity$37$1;
+    iget v3, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->val$soft:I
 
-    invoke-direct {v2, p0, v0}, Lcom/mrkeyboard/app/MrThemesActivity$37$1;-><init>(Lcom/mrkeyboard/app/MrThemesActivity$37;Landroid/graphics/Bitmap;)V
+    iget-boolean v4, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->val$pending:Z
 
-    invoke-virtual {v1, v2}, Lcom/mrkeyboard/app/MrThemesActivity;->runOnUiThread(Ljava/lang/Runnable;)V
+    invoke-virtual {v2, v0, v1, v3, v4}, Lcom/mrkeyboard/app/MrThemesActivity;->showPreview(Lcom/mrkeyboard/app/MrBackdrop$Spec;Landroid/graphics/Bitmap;IZ)V
 
-    .line 1538
+    .line 1522
     return-void
 
-    .line 1524
-    :catchall_0
-    move-exception v1
+    .line 1520
+    :cond_0
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$37;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    :try_start_3
-    invoke-virtual {v2}, Ljava/io/InputStream;->close()V
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrBackdrop;->imageStamp(Landroid/content/Context;)J
 
-    .line 1525
-    throw v1
-    :try_end_3
-    .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_3} :catch_0
-
-    .line 1528
-    :catch_0
-    move-exception v1
-
-    goto :goto_1
-
-    :cond_1
-    move-object v1, v0
+    move-result-wide v0
 
     goto :goto_0
 .end method

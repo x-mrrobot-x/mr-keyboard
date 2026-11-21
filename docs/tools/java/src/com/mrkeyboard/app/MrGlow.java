@@ -24,7 +24,7 @@ import android.widget.TextView;
  * drawables are written in one hue (the one of the role <code>glow</code>) and every key draws them through a colour
  * filter that moves that hue to the one of the key, between the roles <code>spectrum_start</code>,
  * <code>spectrum_mid</code> and <code>spectrum_end</code>. The label, the icon, the dash and the light of the key
- * follow (the locked dash of Shift keeps its own reddish colour). The popup of variants and the preview bubble keep the hue of the drawables.
+ * follow (the locked dash of Shift keeps its own reddish colour). The popup of variants and the preview bubble keep the hue of the drawables, except on the themes of the backgrounds, where {@link MrAdapt} gives them (and the tools) the tone of the theme.
  *
  * <p>LatinKeyboardBaseView calls in at nine points: {@link #key} and {@link #hint} once per key, before its face;
  * {@link #drawKey} in place of KeyStyle.drawKey; {@link #bloom} right before the label is drawn, or {@link #edge}
@@ -82,6 +82,7 @@ final class MrGlow {
     private static int sGlow;               // glow colour of this key; 0 = the theme has none
     private static int sStep = -1;          // spectrum step of this key; -1 = none
     private static int sInk;                // spectrum: colour of the label and of the icon; 0 = the theme's own
+    private static boolean sPopup;          // the key is one of the popup of variants (its view has no tag)
 
     // ---- small caches ----
     private static int sIconGlowColor, sInkFilterColor;
@@ -167,6 +168,7 @@ final class MrGlow {
         sGlow = 0;
         sStep = -1;
         sInk = 0;
+        sPopup = false;
         sDensity = 1f;
         load(null);
     }
@@ -180,6 +182,7 @@ final class MrGlow {
     static void key(View v, Keyboard.Key k, boolean accent, Paint p) {
         sStep = -1;
         sInk = 0;
+        sPopup = v != null && v.getTag() == null;
         if (!sync()) {
             sGlow = 0;
         } else {
@@ -228,6 +231,20 @@ final class MrGlow {
      * a face of one layer (the clear glass) with the opacity of the fill.
      */
     static void drawKey(Drawable d, Canvas c, int w, int h) {
+        if (sPopup && d != null) {
+            // the key chosen in the popup of variants of a theme of the backgrounds: the colour that the theme gives it, in the tone of the theme, whole
+            // (the opacities that the person tuned are for the keys of the keyboard, not for this face)
+            ColorFilter f = MrAdapt.popupFilter();
+            if (f != null) {
+                d.setColorFilter(f);
+                try {
+                    KeyStyle.drawKey(d, c, w, h);
+                } finally {
+                    d.setColorFilter(null);
+                }
+                return;
+            }
+        }
         int step = sStep;
         boolean tuned = sLook.faceTuned();
         if (d == null || (step < 0 && !tuned)) {

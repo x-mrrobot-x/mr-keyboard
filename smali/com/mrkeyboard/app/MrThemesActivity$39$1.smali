@@ -20,13 +20,11 @@
 # instance fields
 .field final synthetic this$1:Lcom/mrkeyboard/app/MrThemesActivity$39;
 
-.field final synthetic val$index:I
-
-.field final synthetic val$small:Landroid/graphics/Bitmap;
+.field final synthetic val$shown:Landroid/graphics/Bitmap;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity$39;ILandroid/graphics/Bitmap;)V
+.method constructor <init>(Lcom/mrkeyboard/app/MrThemesActivity$39;Landroid/graphics/Bitmap;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -35,12 +33,10 @@
     .end annotation
 
     .prologue
-    .line 1619
+    .line 1601
     iput-object p1, p0, Lcom/mrkeyboard/app/MrThemesActivity$39$1;->this$1:Lcom/mrkeyboard/app/MrThemesActivity$39;
 
-    iput p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$39$1;->val$index:I
-
-    iput-object p3, p0, Lcom/mrkeyboard/app/MrThemesActivity$39$1;->val$small:Landroid/graphics/Bitmap;
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrThemesActivity$39$1;->val$shown:Landroid/graphics/Bitmap;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -50,35 +46,18 @@
 
 # virtual methods
 .method public run()V
-    .locals 3
+    .locals 2
 
     .prologue
-    .line 1621
+    .line 1603
     iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$39$1;->this$1:Lcom/mrkeyboard/app/MrThemesActivity$39;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/MrThemesActivity$39;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
 
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/MrThemesActivity;->isFinishing()Z
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$39$1;->val$shown:Landroid/graphics/Bitmap;
 
-    move-result v0
+    invoke-virtual {v0, v1}, Lcom/mrkeyboard/app/MrThemesActivity;->imported(Landroid/graphics/Bitmap;)V
 
-    if-eqz v0, :cond_0
-
-    .line 1623
-    :goto_0
+    .line 1604
     return-void
-
-    .line 1622
-    :cond_0
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrThemesActivity$39$1;->this$1:Lcom/mrkeyboard/app/MrThemesActivity$39;
-
-    iget-object v0, v0, Lcom/mrkeyboard/app/MrThemesActivity$39;->this$0:Lcom/mrkeyboard/app/MrThemesActivity;
-
-    iget v1, p0, Lcom/mrkeyboard/app/MrThemesActivity$39$1;->val$index:I
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/MrThemesActivity$39$1;->val$small:Landroid/graphics/Bitmap;
-
-    invoke-virtual {v0, v1, v2}, Lcom/mrkeyboard/app/MrThemesActivity;->sceneLoaded(ILandroid/graphics/Bitmap;)V
-
-    goto :goto_0
 .end method

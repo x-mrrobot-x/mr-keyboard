@@ -27,6 +27,9 @@ public abstract class Drawable {
     /** The state as last set (the key faces of the keyboard are selectors: the PC tests read which state the preview asked for). */
     public int[] stubState = new int[0];
     public boolean setState(final int[] stateSet) { boolean changed = !java.util.Arrays.equals(stubState, stateSet); stubState = stateSet; return changed; }
+    /** Tint as last set: read by the PC tests. */
+    public int stubTint;
+    public void setTint(int tintColor) { stubTint = tintColor; }
     /** Colour filter as last set: read by the PC tests. */
     public android.graphics.ColorFilter stubFilter;
     public void setColorFilter(android.graphics.ColorFilter colorFilter) { stubFilter = colorFilter; }

@@ -28,6 +28,10 @@ final class MrStyleDot extends View {
     private final int mOwn, mOwn2;
     /** A swatch of a colour that is offered: the colour as it is, without the ring of all the hues that says "pick another". */
     private boolean mSwatch;
+    /** The tone of the background that the keys are over (0 = none known): the see-through glass is a white pulled towards it. */
+    private int mTone;
+    /** How far the white of the see-through glass is pulled towards the tone of the background (0 = pure white), so that it does not look like a solid white key. */
+    static final float SEE_PULL = 0.28f;
 
     private static final int[] RAINBOW = {0xffff4d4d, 0xffffc83d, 0xff3ddc97, 0xff4da3ff, 0xffa77bff, 0xffff5fd2, 0xffff4d4d};
 
@@ -49,6 +53,17 @@ final class MrStyleDot extends View {
     MrStyleDot swatch() {
         mSwatch = true;
         return this;
+    }
+
+    /** The tone of the background under the keys, for the see-through glass to be drawn the colour that it has over it (0 = none known). Returns it. */
+    MrStyleDot tone(int tone) {
+        mTone = tone;
+        return this;
+    }
+
+    /** The colour of the see-through glass over a background of the tone {@code tone}: white pulled towards it (white itself when there is no tone). Opaque. */
+    static int seeThrough(int tone) {
+        return tone == 0 ? 0xffffffff : MrThemesActivity.towards(0xffffffff, 0xff000000 | tone, SEE_PULL);
     }
 
     /** Whether it is a swatch (test help). */
@@ -100,11 +115,12 @@ final class MrStyleDot extends View {
             canvas.drawLine(cx - r * 0.45f, cy, cx + r * 0.45f, cy, mPaint);
             canvas.drawLine(cx, cy - r * 0.45f, cx, cy + r * 0.45f, mPaint);
         } else if (kind == MrBackdrop.KIND_GLASS) {
-            mPaint.setColor(MrThemePreview.withAlpha(colours[0], mStyle == 0 ? 0.30f : 0.55f));
+            int glass = !own && mStyle == 0 ? seeThrough(mTone) : colours[0];
+            mPaint.setColor(MrThemePreview.withAlpha(glass, mStyle == 0 ? 0.30f : 0.55f));
             canvas.drawCircle(cx, cy, r, mPaint);
             mPaint.setStyle(Paint.Style.STROKE);
             mPaint.setStrokeWidth(mDensity);
-            mPaint.setColor(MrThemePreview.withAlpha(colours[0], mStyle == 0 ? 0.55f : 0.75f));
+            mPaint.setColor(MrThemePreview.withAlpha(glass, mStyle == 0 ? 0.55f : 0.75f));
             canvas.drawCircle(cx, cy, r - mDensity / 2f, mPaint);
         } else if (kind == MrBackdrop.KIND_OUTLINE) {
             mPaint.setColor(MrThemePreview.withAlpha(colours[0], 0.12f));

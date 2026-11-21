@@ -418,14 +418,14 @@ public class MrThemesActivity extends Activity {
         }
     }
 
-    /** The tabs as they are now: the one that is open filled, the others plain; the strip is moved so that the open one shows. */
+    /** The tabs as they are now: the one that is open filled, the others with a thin line; the strip is moved so that the open one shows. */
     void styleTabs() {
         for (int i = 0; i < mTabViews.size(); i++) {
             TextView t = mTabViews.get(i);
             boolean on = i == mTab;
             t.setTextColor(on ? k.onAccent : k.text2);
             t.setTypeface(null, on ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
-            t.setBackground(on ? k.round(k.accent, 0, 18, false) : new ColorDrawable(0));
+            t.setBackground(on ? k.round(k.accent, k.accent, 18, false) : k.round(0, k.stroke, 18, false));
         }
         if (mTab >= 0 && mTab < mTabViews.size()) {
             final TextView open = mTabViews.get(mTab);
@@ -564,7 +564,9 @@ public class MrThemesActivity extends Activity {
             markAction(mThemeActions.get(index), on, (View) p.getParent());
         } else if (kind == CARD_BACKGROUND || kind == CARD_MINE) {
             MrBackdrop.Spec s = tileSpec(mBgSpecs.get(index));
-            p.show(MrBackdrop.themeTag(s), s, tileImage(s), s.kind == MrBackdrop.IMAGE ? mSoft : 0);
+            p.show(MrBackdrop.themeTag(s), s, tileImage(s), s.kind == MrBackdrop.IMAGE && mSpec.kind == MrBackdrop.IMAGE ? mSoft : 0);
+            // a landscape or a picture is seen through the keys: only a line round each one, so that the keys do not cover what the card is for
+            p.setLook(s.kind == MrBackdrop.SCENE || s.kind == MrBackdrop.IMAGE ? CARD_LOOK : null);
             boolean on = mSpec.kind != MrBackdrop.NONE && s.kind == mSpec.kind && (s.kind == MrBackdrop.IMAGE || s.index == mSpec.index);
             p.setChecked(on, k.accent, k.onAccent);
             markAction(mBgActions.get(index), on, (View) p.getParent());
@@ -730,10 +732,18 @@ public class MrThemesActivity extends Activity {
         return inUse(spec, pending) ? mLook : MrKeyLook.NONE;
     }
 
-    /** The softening the dialog of a background starts with: the one in use when this is the background in use, else none. */
+    /**
+     * The softening the dialog of a background starts with: the one in use when this is the background in use; else, for a landscape or a picture (wallpapers
+     * are light), {@link MrBackdrop#DEFAULT_SOFT}; none for the others. A picture that is waiting is another one.
+     */
+    int startSoft(MrBackdrop.Spec spec, boolean pending) {
+        if (spec.kind != MrBackdrop.GRADIENT && spec.kind != MrBackdrop.SCENE && spec.kind != MrBackdrop.IMAGE) return 0;
+        if (inUse(spec, pending)) return mSoft;
+        return spec.kind == MrBackdrop.GRADIENT ? 0 : MrBackdrop.DEFAULT_SOFT;
+    }
+
     int startSoft(MrBackdrop.Spec spec) {
-        if (spec.kind != MrBackdrop.GRADIENT && spec.kind != MrBackdrop.SCENE) return 0;
-        return mSpec.kind == spec.kind && mSpec.index == spec.index ? mSoft : 0;
+        return startSoft(spec, false);
     }
 
     /**
@@ -962,10 +972,12 @@ public class MrThemesActivity extends Activity {
         final boolean pale = MrBackdrop.darkInk(spec);
         // the colours that stand out in the background, offered as the colour of the keys (none for a plain colour)
         final int[] suggested = styled ? MrPalette.of(spec, shown) : new int[0];
+        // the tone of the background, for the clear glass to be drawn what it is over it (a white pulled towards it)
+        final int tone = styled ? MrPalette.tone(spec, shown) : 0;
         final Runnable[] draw = new Runnable[1];
         draw[0] = new Runnable() {
             public void run() {
-                if (keysBox != null) fillKeys(keysBox, pale, suggested, style, look, redraw, draw);
+                if (keysBox != null) fillKeys(keysBox, pale, suggested, tone, style, look, redraw, draw);
                 if (lineBox != null) fillLine(lineBox, style, look, redraw, draw);
                 fillText(textBox, style, look, redraw, draw);
             }
@@ -993,8 +1005,12 @@ public class MrThemesActivity extends Activity {
     /** How far from the background of the dialog the fill and the line of a card go, towards the colours of the cards of the screens (0 = the background itself): a step, not a block. */
     static final float CARD_FILL = 0.45f, CARD_LINE = 0.60f;
 
+    /** How the keys of the card of a landscape or of a picture are drawn: no face and a line of white round each (the picture shows through), at {@code CARD_LINE_EDGE} per cent of the opacity of a line. */
+    static final int CARD_LINE_EDGE = 80;
+    static final MrKeyLook CARD_LOOK = new MrKeyLook(0, CARD_LINE_EDGE, 0, 0, 0, 0xffffffff);
+
     /** The radius (dp) of the corners of the cards of the sections of the dialog, and of the buttons of the kinds in them (glass, outline, gradient). "Automatic" is a round pill. */
-    static final float CARD_RADIUS = 14f, BUTTON_RADIUS = 12f;
+    static final float CARD_RADIUS = 14f, BUTTON_RADIUS = 10f;
 
     /** The colour {@code t} of the way from {@code from} to {@code to} (opaque). */
     static int towards(int from, int to, float t) {
@@ -1057,7 +1073,7 @@ public class MrThemesActivity extends Activity {
      * of the style chosen and, for the gradient of the person's own colour, the line of the colour where it ends. Made again at every change. {@code pale}: the
      * background needs dark ink, so the dots are colours that the person's own style takes (see {@link #choosePreset}).
      */
-    private void fillKeys(final LinearLayout box, final boolean pale, final int[] suggested, final int[] style, final MrKeyLook[] look, final Runnable redraw, final Runnable[] draw) {
+    private void fillKeys(final LinearLayout box, final boolean pale, final int[] suggested, final int tone, final int[] style, final MrKeyLook[] look, final Runnable redraw, final Runnable[] draw) {
         box.removeAllViews();
         int kind = MrBackdrop.kindOf(style[0]);
         // two levels: the kind (glass, outline, gradient) as chips, then the colours of that kind as dots, and the name of the one chosen under them
@@ -1095,10 +1111,10 @@ public class MrThemesActivity extends Activity {
         final int match = offeredShown(offered, own, style[0], look[0]);
         final int first = MrBackdrop.KIND_FIRST[kind];
         if (offered.length == 0 || kind == MrBackdrop.KIND_GRADIENT) {
-            for (int i = first; i < MrBackdrop.KIND_FIRST[kind + 1]; i++) addPresetDot(dots, i, i == shown, pale, style, look, redraw, draw);
+            for (int i = first; i < MrBackdrop.KIND_FIRST[kind + 1]; i++) addPresetDot(dots, i, i == shown, pale, tone, style, look, redraw, draw);
         } else {
-            addPresetDot(dots, first, shown == first, pale, style, look, redraw, draw);
-            if (shown > first) addPresetDot(dots, shown, true, pale, style, look, redraw, draw);
+            addPresetDot(dots, first, shown == first, pale, tone, style, look, redraw, draw);
+            if (shown > first) addPresetDot(dots, shown, true, pale, tone, style, look, redraw, draw);
         }
         for (int i = 0; i < offered.length; i++) {
             boolean dark = kind == MrBackdrop.KIND_GLASS && i == offered.length - 1;
@@ -1121,12 +1137,62 @@ public class MrThemesActivity extends Activity {
         TextView label = k.label(styleName(this, shown >= 0 ? shown : style[0]), 14f, k.text2, false);
         label.setGravity(Gravity.CENTER);
         box.addView(label, k.wide(4));
-        if (style[0] == MrBackdrop.ownStyle(MrBackdrop.KIND_GRADIENT)) {
-            // the end of the gradient: the one the keyboard makes up until the person picks it
-            int end = look[0].hue2 != 0 ? look[0].hue2 : 0;
-            box.addView(k.label(k.t("mr_themes_grad_end"), 14f, k.text2, false), k.wide(12));
-            box.addView(colourLine(end, look[0].hue2 == 0, PICK_HUE2, style, look, redraw, draw), k.wide(6));
+        if (kind == MrBackdrop.KIND_GRADIENT) {
+            // a gradient always has both ends in view, a preset as well as the person's own: where it starts and where it ends (the one the keyboard makes up
+            // until the person picks it). Touching either turns a preset into the person's own gradient, with the colours that it had.
+            boolean ownNow = MrBackdrop.isOwnStyle(style[0]);
+            int start = ownNow ? (look[0].hue != 0 ? look[0].hue : MrBackdrop.OWN_DEFAULT) : MrBackdrop.presetColour(style[0], pale);
+            int end = ownNow ? (look[0].hue2 != 0 ? look[0].hue2 : MrKeyLook.partner(start)) : MrBackdrop.presetEnd(style[0], pale);
+            box.addView(gradientRow(k.t("mr_themes_grad_start"), start, false, false, PICK_HUE, pale, style, look, redraw, draw), k.wide(12));
+            box.addView(gradientRow(k.t("mr_themes_grad_end"), end, true, ownNow && look[0].hue2 == 0, PICK_HUE2, pale, style, look, redraw, draw), k.wide(6));
         }
+    }
+
+    /**
+     * A line of the colour of one end of a gradient: its name on the left, "Automatic" (the end only: the one the keyboard makes up from the start) and the
+     * round button that opens the picker on the right, which shows the colour that the end has now.
+     */
+    private LinearLayout gradientRow(final String name, int colour, boolean hasAuto, boolean auto, final int which, final boolean pale, final int[] style, final MrKeyLook[] look, final Runnable redraw, final Runnable[] draw) {
+        LinearLayout line = k.row();
+        line.setGravity(Gravity.CENTER_VERTICAL);
+        line.addView(k.label(name, 14f, k.text2, false), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        if (hasAuto) {
+            TextView autoChip = k.chip(k.t("mr_themes_auto"), auto, new View.OnClickListener() {
+                public void onClick(View v) {
+                    ownFromPreset(style, look, pale);
+                    look[0] = look[0].withHue2(0);
+                    redraw.run();
+                    draw[0].run();
+                }
+            });
+            LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            cp.setMargins(0, 0, k.dp(10), 0);
+            line.addView(autoChip, cp);
+        }
+        MrColorDot dot = new MrColorDot(this, colour);
+        dot.setContentDescription(name);
+        dot.setClickable(true);
+        dot.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                showColorPicker(name, which, style, look, redraw, draw);
+            }
+        });
+        line.addView(dot, new LinearLayout.LayoutParams(k.dp(MrColorDot.SIZE_DP), k.dp(MrColorDot.SIZE_DP)));
+        return line;
+    }
+
+    /**
+     * A preset becomes the style of the person's own colour of its kind, with the colours that it had (its colour and, for a gradient, where it ends), so that
+     * one of them can be changed and the other stays. Nothing happens to a style that is the person's own already.
+     */
+    static void ownFromPreset(int[] style, MrKeyLook[] look, boolean pale) {
+        if (MrBackdrop.isOwnStyle(style[0])) return;
+        int n = style[0];
+        int kind = MrBackdrop.kindOf(n);
+        MrKeyLook l = look[0].withHue(MrBackdrop.presetColour(n, pale));
+        if (kind == MrBackdrop.KIND_GRADIENT) l = l.withHue2(MrBackdrop.presetEnd(n, pale));
+        style[0] = MrBackdrop.ownStyle(kind);
+        look[0] = l;
     }
 
     /**
@@ -1148,8 +1214,8 @@ public class MrThemesActivity extends Activity {
     }
 
     /** A dot of the preset {@code n}: touching it chooses it. */
-    private void addPresetDot(LinearLayout dots, final int n, boolean chosen, final boolean pale, final int[] style, final MrKeyLook[] look, final Runnable redraw, final Runnable[] draw) {
-        MrStyleDot dot = new MrStyleDot(this, n, chosen, k.accent);
+    private void addPresetDot(LinearLayout dots, final int n, boolean chosen, final boolean pale, int tone, final int[] style, final MrKeyLook[] look, final Runnable redraw, final Runnable[] draw) {
+        MrStyleDot dot = new MrStyleDot(this, n, chosen, k.accent).tone(tone);
         dot.setContentDescription(styleName(this, n));
         dot.setClickable(true);
         dot.setOnClickListener(new View.OnClickListener() {
@@ -1320,6 +1386,8 @@ public class MrThemesActivity extends Activity {
         if (which == PICK_HUE && !MrBackdrop.isOwnStyle(style[0])) {
             // a preset is not the person's colour yet: the picker starts at the colour that the keys have
             start = MrBackdrop.presetColour(style[0], pale);
+        } else if (which == PICK_HUE2 && !MrBackdrop.isOwnStyle(style[0])) {
+            start = MrBackdrop.presetEnd(style[0], pale);
         } else if (start == 0) {
             if (which == PICK_TEXT) start = pale ? 0xff202124 : 0xffffffff;
             else if (which == PICK_HUE) start = MrBackdrop.OWN_DEFAULT;
@@ -1345,7 +1413,7 @@ public class MrThemesActivity extends Activity {
             public void onColor(int rgb) {
                 moved[0] = true;
                 // the keys have the person's own colour of their kind from the moment that it is moved
-                if (which == PICK_HUE && !MrBackdrop.isOwnStyle(style[0])) style[0] = MrBackdrop.ownStyle(MrBackdrop.kindOf(style[0]));
+                if (which == PICK_HUE || which == PICK_HUE2) ownFromPreset(style, look, pale);
                 look[0] = withPicked(look[0], which, style[0], rgb);
                 if (bar != null) bar.setColor(rgb);
                 redraw.run();
@@ -1390,8 +1458,8 @@ public class MrThemesActivity extends Activity {
         TextView ok = k.button(k.t("mr_themes_done"), true, new View.OnClickListener() {
             public void onClick(View v) {
                 // the colour that was not moved stays as it was where it has a way of being nothing: "Automatic" (the line), a preset (the keys)
-                if (moved[0] || !hasOpacity) {
-                    if (which == PICK_HUE && !MrBackdrop.isOwnStyle(style[0])) style[0] = MrBackdrop.ownStyle(MrBackdrop.kindOf(style[0]));
+                if (moved[0] || !(hasOpacity || which == PICK_HUE2)) {
+                    if (which == PICK_HUE || which == PICK_HUE2) ownFromPreset(style, look, pale);
                     look[0] = withPicked(look[0], which, style[0], cp.color());
                 }
                 redraw.run();
@@ -1550,14 +1618,14 @@ public class MrThemesActivity extends Activity {
             k.toast(k.t("mr_themes_image_failed"));
             return;
         }
-        showCrop(picture, MrBackdrop.Spec.image(100, 0, 0, MrBackdrop.pendingStamp(this)), mSoft, true);
+        showCrop(picture, MrBackdrop.Spec.image(100, 0, 0, MrBackdrop.pendingStamp(this)), MrBackdrop.DEFAULT_SOFT, true);
     }
 
     /** The picture that is kept, to put the frame somewhere else (it starts where the frame is when it is the background in use). */
     void editImage() {
         if (mImage == null) return;
         MrBackdrop.Spec start = mSpec.kind == MrBackdrop.IMAGE ? mSpec : MrBackdrop.Spec.image(100, 0, 0, MrBackdrop.imageStamp(this));
-        showCrop(mImage, start, mSoft, false);
+        showCrop(mImage, start, startSoft(start, false), false);
     }
 
     void removeImage() {

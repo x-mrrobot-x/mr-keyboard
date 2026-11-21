@@ -76,6 +76,14 @@
     <color name="mr_modifier_indicator_lock">#ffff5252</color>
 
     <color name="mr_alpha_press">#59000000</color>
+    <!-- The bubble of the key that is pressed and the popup of variants (bubble_*, preview_*, popup_key_fill): every theme has its own in
+         the drawables (popup_<t>_bg, preview_<t>_bg, key_popup_<t>_pressed); MrAdapt asks for the roles to give them the tone of a theme of
+         the backgrounds, so each has a default here (the deep slate of the clear glass). -->
+    <color name="mr_bubble_fill">#ff222a3b</color>
+    <color name="mr_bubble_stroke">#ff4d5873</color>
+    <color name="mr_preview_stroke">#ff9ecbff</color>
+    <color name="mr_preview_dots">#d99ecbff</color>
+    <color name="mr_popup_key_fill">#ff46557a</color>
     <!-- Rim of the panes of the tools (MrTools.rim), for a theme of glass panes: every pane that has a fill and no border of
          its own (buttons, tabs, cards, the selected row, a tool of the bar under the finger) is outlined with 1 dp of this
          color. 0 = no rim, as in every theme but Cobalt Glass. -->

@@ -232,12 +232,12 @@
     <string name="layout_mr_overtide">Background, tide gradient</string>
     <string name="layout_mr_overprism">Background, prism gradient</string>
     <string name="layout_mr_overlagoon">Background, lagoon gradient</string>
-    <string name="layout_mr_overownglass">Background, own colour glass</string>
-    <string name="layout_mr_overownline">Background, own colour outline</string>
-    <string name="layout_mr_overowngrad">Background, own colour gradient</string>
-    <string name="layout_mr_overpaleglass">Background, dark ink, own colour glass</string>
-    <string name="layout_mr_overpaleline">Background, dark ink, own colour outline</string>
-    <string name="layout_mr_overpalegrad">Background, dark ink, own colour gradient</string>
+    <string name="layout_mr_overownglass">Background, own color glass</string>
+    <string name="layout_mr_overownline">Background, own color outline</string>
+    <string name="layout_mr_overowngrad">Background, own color gradient</string>
+    <string name="layout_mr_overpaleglass">Background, dark ink, own color glass</string>
+    <string name="layout_mr_overpaleline">Background, dark ink, own color outline</string>
+    <string name="layout_mr_overpalegrad">Background, dark ink, own color gradient</string>
     <string name="main_body">" 
         &lt;h2>Enabling Mr Keyboard&lt;/h2>
         
