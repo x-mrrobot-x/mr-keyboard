@@ -718,7 +718,7 @@ public class ThemesTest {
 
     static final String[] TONED = {"panel_btn", "sel_cancel", "sel_cancel_stroke", "sel_send", "sel_send_stroke", "attach_fab", "attach_fab_stroke", "sel_media", "sel_card",
             "bubble_fill", "bubble_stroke", "preview_stroke", "preview_dots", "popup_key_fill", "ctrl_bg"};
-    static final String[] KEPT = {"sel_send_text", "alpha_btn", "kbd_bg", "modifier_indicator_lock", "mystery_role"};
+    static final String[] KEPT = {"alpha_btn", "kbd_bg", "modifier_indicator_lock", "mystery_role"};
 
     /** The cards of the landscapes and of the pictures are drawn with a line round each key (the image shows through); the cards of colours, gradients and themes keep their keys. */
     static void cardLooks() throws Exception {
@@ -775,7 +775,7 @@ public class ThemesTest {
         check("the buttons really changed (they were a blue slate)", MrTheme.color("panel_btn") != raw[0] && MrTheme.color("sel_send") != raw[3] && MrTheme.color("popup_key_fill") != raw[13]);
         boolean kept = true;
         for (String r : KEPT) kept &= MrTheme.color(r) == (MrTheme.stubColors.containsKey(r) ? MrTheme.stubColors.get(r) : 0xffff00ff);
-        check("the ink (the label of the Send button, the text), the translucent black layers, the colour of the background and a role that is not known are left alone", kept);
+        check("the translucent black layers, the colour of the background, the lock of the modifier keys and a role that is not known are left alone", kept);
         check("a dark face stays dark and a bright one stays bright (the 'Send' button is the lightest, the bubble the darkest)",
                 MrThemeColors.luminance(MrTheme.color("sel_send")) > 0.6f && MrThemeColors.luminance(MrTheme.color("bubble_fill")) < 0.2f);
         int ink = MrTheme.color("text"), hintInk = MrTheme.color("hint");
@@ -870,7 +870,13 @@ public class ThemesTest {
         int white = MrTheme.color("bubble_fill");
         check("pale: the white bubble stays almost white (a breath of the tone)", MrThemeColors.luminance(white) > 0.93f && satOf(white) < 0.15f);
         check("pale: the buttons and the Send button take the pink, as light as they were", hueGap(hueOf(MrTheme.color("panel_btn")), pink) < 12f && hueGap(hueOf(MrTheme.color("sel_send")), pink) < 12f
-                && Math.abs(MrThemeColors.luminance(MrTheme.color("panel_btn")) - MrThemeColors.luminance(0xffc8d9f0)) < 0.03f && MrTheme.color("sel_send_text") == 0xffffffff);
+                && Math.abs(MrThemeColors.luminance(MrTheme.color("panel_btn")) - MrThemeColors.luminance(0xffc8d9f0)) < 0.03f);
+        int sendText = MrTheme.color("sel_send_text");
+        check("pale: the text of the Send button is a white pulled to the pink, still light and opaque, and it reads on the button", sendText != 0xffffffff && hueGap(hueOf(sendText), pink) < 12f && MrThemeColors.luminance(sendText) > 0.85f
+                && (sendText >>> 24) == 0xff && MrBackdrop.contrast(MrTheme.color("sel_send"), sendText) >= 3.5f);
+        int paleBar = MrAdapt.bar(0xff323645);
+        check("pale: the floating bar of the emotes is a light tone of the pink (the dark ink reads on it)", (paleBar >>> 24) == 0xff && hueGap(hueOf(paleBar), pink) < 12f && MrThemeColors.luminance(paleBar) > 0.6f
+                && MrBackdrop.contrast(paleBar, 0xff000000 | MrTheme.color("text")) >= 7f);
         check("pale: the tint of the tools (tool_tint) follows too", hueGap(hueOf(MrTheme.color("tool_tint")), pink) < 12f);
         int dark = MrTheme.color("text");
         check("pale: the dark ink is a black pulled to the pink (still dark and opaque), and the dash that is on, a deep tone of it", hueGap(hueOf(dark), pink) < 12f && satOf(dark) > 0.1f && MrThemeColors.luminance(dark) < 0.2f
@@ -922,8 +928,13 @@ public class ThemesTest {
         // the face of the key chosen in the popup
         MrTheme.stubTag = "mr_overownglass";
         PorterDuffColorFilter pf = MrAdapt.popupFilter();
-        check("the key chosen in the popup is drawn whole as a pressed key of the theme over the face of the popup", pf != null && pf.stubColor == pressedOver[0] && pf.stubMode == android.graphics.PorterDuff.Mode.SRC_IN
-                && MrAdapt.popupFilter() == pf);
+        int chosenFace = MrAdapt.chosen(restFace[0]);
+        check("the key chosen in the popup is drawn whole as the face of the popup a little lighter (the same hue, not greyer), no longer a pressed key over it", pf != null && pf.stubColor == chosenFace && pf.stubMode == android.graphics.PorterDuff.Mode.SRC_IN
+                && MrAdapt.popupFilter() == pf && pf.stubColor != pressedOver[0] && (chosenFace >>> 24) == 0xff && MrThemeColors.luminance(chosenFace) > MrThemeColors.luminance(restFace[0])
+                && hueGap(hueOf(chosenFace), hueOf(restFace[0])) < 8f && satOf(chosenFace) > satOf(restFace[0]) * 0.8f);
+        int paleFace = 0xffe8d0f0;
+        check("on a pale popup the chosen key is a little darker, the same hue; a grey face stays a grey", MrThemeColors.luminance(MrAdapt.chosen(paleFace)) < MrThemeColors.luminance(paleFace)
+                && hueGap(hueOf(MrAdapt.chosen(paleFace)), hueOf(paleFace)) < 8f && satOf(MrAdapt.chosen(0xff404040)) < 0.02f && MrThemeColors.luminance(MrAdapt.chosen(0xff404040)) > MrThemeColors.luminance(0xff404040));
         MrGlow.reset();
         prefs.edit().putInt("pref_kbd_look_key", 30).apply();       // the person made the keys faint: the popup follows its keys, and the filter is made again
         MrKeyLook.invalidate();
@@ -972,6 +983,18 @@ public class ThemesTest {
         KeyStyle.stubDrawn.clear();
         MrGlow.drawKey(glass, null, 80, 80);
         check("the clear glass is drawn through the filter of the tone (a white pulled to it), taken off afterwards", !KeyStyle.stubDrawn.isEmpty() && KeyStyle.stubDrawn.get(0) == MrAdapt.current().seeFilter() && MrAdapt.current().seeFilter() != null && glass.stubFilter == null);
+        // the cards of the tools, the floating bar of the emotes and the style in use of the fonts
+        MrTools.stubAccent = 0x2b6f78;
+        check("a card of the tools (the clipboard, the attachments) is the face of the buttons inside the tools: their accent at the opacity of alpha_btn", MrAdapt.card(0x33888888) == (0x42000000 | 0x2b6f78));
+        int tealBar = MrAdapt.bar(0xff323645);
+        check("the floating bar of the emotes is the tone of the background (teal) at a medium lightness, opaque, and the white ink reads on it", (tealBar >>> 24) == 0xff && hueGap(hueOf(tealBar), teal) < 10f && satOf(tealBar) > 0.3f
+                && MrThemeColors.luminance(tealBar) > 0.1f && MrThemeColors.luminance(tealBar) < 0.45f && MrBackdrop.contrast(tealBar, 0xff000000 | letter) >= 4.5f);
+        int fontFill = MrAdapt.fontFill(0xff5a6580), fontInk = MrAdapt.fontInk(0xffffffff);
+        check("the style in use of the fonts is the accent button of the tone (the one of Send) with the text that goes with it, dark pulled to the teal, and it reads",
+                fontFill == (0xff000000 | MrTheme.color("sel_send")) && hueGap(hueOf(fontFill), teal) < 10f && fontInk == MrTheme.color("sel_send_text") && fontInk != 0xff000000 && hueGap(hueOf(fontInk), teal) < 10f
+                        && MrBackdrop.contrast(fontFill, fontInk) >= 7f);
+        check("the text of the language and of the space bar, and of the button of Send, are inks too: they take the tone", MrAdapt.current().ink(0xffffffff) != 0xffffffff && MrAdapt.current().ink(0xff000000) != 0xff000000
+                && MrAdapt.adapt("lang_text", 0xffffffff) != 0xffffffff && MrAdapt.adapt("space_text", 0xffdddddd) != 0xffdddddd && MrAdapt.adapt("sel_send_text", 0xff000000) != 0xff000000);
         // the person's own opacity of the keys goes through the same tone
         prefs.edit().putInt("pref_kbd_look_key", 150).apply();
         MrKeyLook.invalidate();
@@ -1003,6 +1026,8 @@ public class ThemesTest {
         label.setColor(0xffffffff);
         MrGlow.key(listView, null, false, label);
         check("on a theme of the list the letters, the toolbar and the dash are as they were", label.getColor() == 0xffffffff && MrGlow.toolInk() == 0 && MrGlow.iconFilter(null) == null);
+        check("on a theme of the list the cards, the floating bar and the style in use of the fonts are as they were", MrAdapt.card(0x33888888) == 0x33888888 && MrAdapt.bar(0xff323645) == 0xff323645
+                && MrAdapt.fontFill(0xff5a6580) == 0xff5a6580 && MrAdapt.fontInk(0xffffffff) == 0xffffffff);
 
         // the preview of the themes screen has not got them: it draws the colours of the theme as they are
         MrTheme.stubAdapt = null;
@@ -4758,6 +4783,12 @@ public class ThemesTest {
                 && sw.contains("Lcom/mrkeyboard/app/MrKeyLook;->changed(Ljava/lang/String;)Z"));
         String tools = read("smali/com/mrkeyboard/app/MrTools.smali");
         check("the background is put on the keyboard when it is made and shown (MrTools)", tools.contains("Lcom/mrkeyboard/app/MrBackdrop;->apply()V"));
+        String adp = read("smali/com/mrkeyboard/app/MrToolsAdp.smali");
+        check("the cards of the tools take the face of the buttons on a theme of the backgrounds (MrToolsAdp, MrTools.cardBg) and the floating bar of the emotes the tone (MrTools.floatBg)",
+                adp.contains("Lcom/mrkeyboard/app/MrAdapt;->active()Z") && adp.contains("Lcom/mrkeyboard/app/MrAdapt;->card(I)I") && tools.contains("Lcom/mrkeyboard/app/MrAdapt;->card(I)I")
+                        && tools.contains("Lcom/mrkeyboard/app/MrAdapt;->bar(I)I"));
+        String fonts = read("docs/tools/java/src/com/mrkeyboard/app/MrFonts.java");
+        check("the style in use of the fonts asks MrAdapt for its colours", fonts.contains("MrAdapt.fontFill(") && fonts.contains("MrAdapt.fontInk("));
         String reset = read("docs/tools/java/src/com/mrkeyboard/app/MrReset.java");
         check("the settings that reset puts back include the background, the softening and the tuning of the keys", reset.contains("\"pref_kbd_bg\"") && reset.contains("\"pref_kbd_bg_soft\"")
                 && reset.contains("\"pref_kbd_look_key\"") && reset.contains("\"pref_kbd_look_edge\"") && reset.contains("\"pref_kbd_look_text\"") && reset.contains("\"pref_kbd_look_hue\"") && reset.contains("\"pref_kbd_look_hue2\""));

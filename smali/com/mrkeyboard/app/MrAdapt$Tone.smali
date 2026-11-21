@@ -47,7 +47,7 @@
 
     const/4 v4, 0x0
 
-    .line 90
+    .line 97
     new-instance v0, Lcom/mrkeyboard/app/MrAdapt$Tone;
 
     const/4 v7, 0x0
@@ -73,34 +73,34 @@
     .locals 0
 
     .prologue
-    .line 105
+    .line 112
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 106
+    .line 113
     iput p1, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->hue:F
 
-    .line 107
+    .line 114
     iput p2, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->sat:F
 
-    .line 108
+    .line 115
     iput p3, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->tint:F
 
-    .line 109
+    .line 116
     iput-boolean p4, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->pale:Z
 
-    .line 110
+    .line 117
     iput-boolean p5, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->on:Z
 
-    .line 111
+    .line 118
     iput-boolean p6, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->spectrum:Z
 
-    .line 112
+    .line 119
     iput-object p7, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->see:[F
 
-    .line 113
+    .line 120
     iput p8, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->under:I
 
-    .line 114
+    .line 121
     return-void
 .end method
 
@@ -118,25 +118,25 @@
 
     const/4 v6, 0x0
 
-    .line 121
+    .line 128
     const/4 v0, 0x3
 
     new-array v1, v0, [F
 
-    .line 122
+    .line 129
     invoke-static {p0, v1}, Lcom/mrkeyboard/app/MrGlow;->hsv(I[F)V
 
-    .line 123
+    .line 130
     aget v0, v1, v5
 
     invoke-static {v4, v0}, Ljava/lang/Math;->min(FF)F
 
     move-result v3
 
-    .line 124
+    .line 131
     const/4 v7, 0x0
 
-    .line 125
+    .line 132
     if-eqz p3, :cond_0
 
     if-nez p1, :cond_0
@@ -145,7 +145,7 @@
 
     if-lez v0, :cond_0
 
-    .line 126
+    .line 133
     aget v0, v1, v9
 
     const v2, 0x3e99999a    # 0.3f
@@ -156,7 +156,7 @@
 
     move-result v0
 
-    .line 127
+    .line 134
     const/16 v2, 0x9
 
     new-array v7, v2, [F
@@ -215,7 +215,7 @@
 
     aput v0, v7, v2
 
-    .line 129
+    .line 136
     :cond_0
     new-instance v0, Lcom/mrkeyboard/app/MrAdapt$Tone;
 
@@ -242,19 +242,19 @@
     .locals 3
 
     .prologue
-    .line 180
+    .line 187
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->on:Z
 
     if-eqz v0, :cond_0
 
     if-nez p1, :cond_1
 
-    .line 185
+    .line 192
     :cond_0
     :goto_0
     return p2
 
-    .line 181
+    .line 188
     :cond_1
     invoke-static {p1}, Lcom/mrkeyboard/app/MrAdapt;->access$000(Ljava/lang/String;)Z
 
@@ -268,7 +268,7 @@
 
     goto :goto_0
 
-    .line 182
+    .line 189
     :cond_2
     const-string v0, "modifier_indicator_off"
 
@@ -293,7 +293,7 @@
 
     goto :goto_0
 
-    .line 183
+    .line 190
     :cond_4
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->pale:Z
 
@@ -301,14 +301,14 @@
 
     move-result v0
 
-    .line 184
+    .line 191
     const/4 v1, 0x0
 
     cmpg-float v1, v0, v1
 
     if-lez v1, :cond_0
 
-    .line 185
+    .line 192
     iget v1, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->hue:F
 
     iget v2, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->sat:F
@@ -324,7 +324,7 @@
     .locals 3
 
     .prologue
-    .line 171
+    .line 178
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->on:Z
 
     if-eqz v0, :cond_0
@@ -340,7 +340,7 @@
     :cond_0
     move v0, p1
 
-    .line 172
+    .line 179
     :goto_0
     return v0
 
@@ -375,7 +375,7 @@
     .locals 4
 
     .prologue
-    .line 145
+    .line 152
     iget-boolean v0, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->on:Z
 
     if-eqz v0, :cond_0
@@ -384,21 +384,21 @@
 
     if-nez v0, :cond_1
 
-    .line 156
+    .line 163
     :cond_0
     :goto_0
     return p1
 
-    .line 146
+    .line 153
     :cond_1
     const/4 v0, 0x3
 
     new-array v0, v0, [F
 
-    .line 147
+    .line 154
     invoke-static {p1, v0}, Lcom/mrkeyboard/app/MrGlow;->hsv(I[F)V
 
-    .line 148
+    .line 155
     const/4 v1, 0x1
 
     aget v1, v0, v1
@@ -409,26 +409,26 @@
 
     if-gtz v1, :cond_0
 
-    .line 149
+    .line 156
     const/4 v1, 0x2
 
     aget v0, v0, v1
 
-    .line 150
+    .line 157
     const/high16 v1, 0x3f000000    # 0.5f
 
     cmpl-float v1, v0, v1
 
     if-ltz v1, :cond_2
 
-    .line 151
+    .line 158
     iget v1, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->tint:F
 
     const v2, 0x3e6147ae    # 0.22f
 
     mul-float/2addr v1, v2
 
-    .line 156
+    .line 163
     :goto_1
     const/high16 v2, -0x1000000
 
@@ -448,7 +448,7 @@
 
     goto :goto_0
 
-    .line 153
+    .line 160
     :cond_2
     iget v1, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->tint:F
 
@@ -456,7 +456,7 @@
 
     mul-float/2addr v1, v2
 
-    .line 154
+    .line 161
     const v2, 0x3e23d70a    # 0.16f
 
     invoke-static {v0, v2}, Ljava/lang/Math;->max(FF)F
@@ -472,15 +472,15 @@
     .prologue
     const/4 v0, 0x1
 
-    .line 161
+    .line 168
     const/4 v1, 0x3
 
     new-array v1, v1, [F
 
-    .line 162
+    .line 169
     invoke-static {p1, v1}, Lcom/mrkeyboard/app/MrGlow;->hsv(I[F)V
 
-    .line 163
+    .line 170
     aget v1, v1, v0
 
     const v2, 0x3e0f5c29    # 0.14f
@@ -502,7 +502,7 @@
     .locals 1
 
     .prologue
-    .line 134
+    .line 141
     monitor-enter p0
 
     :try_start_0
@@ -514,13 +514,13 @@
 
     const/4 v0, 0x0
 
-    .line 136
+    .line 143
     :goto_0
     monitor-exit p0
 
     return-object v0
 
-    .line 135
+    .line 142
     :cond_0
     :try_start_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->mSeeFilter:Landroid/graphics/ColorFilter;
@@ -535,7 +535,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->mSeeFilter:Landroid/graphics/ColorFilter;
 
-    .line 136
+    .line 143
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrAdapt$Tone;->mSeeFilter:Landroid/graphics/ColorFilter;
     :try_end_1
@@ -543,7 +543,7 @@
 
     goto :goto_0
 
-    .line 134
+    .line 141
     :catchall_0
     move-exception v0
 

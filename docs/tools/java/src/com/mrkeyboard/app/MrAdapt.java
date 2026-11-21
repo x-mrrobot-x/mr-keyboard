@@ -27,7 +27,9 @@ import android.preference.PreferenceManager;
  * ({@link Tone#ink}); a colour that already has a hue is left alone;</li>
  * <li>the dash of Ctrl, Alt and Shift, off and on ({@link Tone#dash}); the locked one keeps the colour that tells it;</li>
  * <li>the clear glass of the keys: the white veil is drawn through {@link Tone#see}, a white pulled to the tone, so it is not a flat white;</li>
- * <li>the bubble and the popup: the fill and the line of a key of the theme, as colours that hide what is behind them ({@link #face}).</li>
+ * <li>the bubble and the popup: the fill and the line of a key of the theme, as colours that hide what is behind them ({@link #face}); the key chosen in the
+ * popup is that face a little lighter ({@link #chosen});</li>
+ * <li>the cards of the tools ({@link #card}), the floating bar of the emotes ({@link #bar}) and the style in use of the fonts ({@link #fontFill}).</li>
  * </ul>
  *
  * <p>{@link MrTheme#color} answers every role through {@link #adapt}; the drawables of the bubble and of the popup are set by {@link #popup} and
@@ -54,6 +56,10 @@ final class MrAdapt {
     static final float SEE_TINT = 0.30f;
     /** The line of a key that has none (the clear glass) is this much lighter than its face when it is the line of the bubble and of the popup. */
     static final float RIM = 0.28f;
+    /** The key chosen in the popup of variants is its face made this much lighter (value, on a dark face) or darker (on a pale one), a little less saturated when lighter. */
+    static final float CHOSEN_LIGHT = 0.16f, CHOSEN_DARK = 0.10f, CHOSEN_SAT = 0.92f;
+    /** The floating bar of the emotes: the tone at a medium lightness (value) and the share of its saturation that it takes; the same on a pale background. */
+    static final float BAR_VALUE = 0.46f, BAR_SAT = 0.95f, BAR_MAX_SAT = 0.80f, BAR_PALE_VALUE = 0.92f, BAR_PALE_SAT = 0.45f;
 
     /** The roles that take the tone and how far (see above); the others are left as the theme has them. */
     private static float share(String role, boolean pale) {
@@ -76,6 +82,7 @@ final class MrAdapt {
         switch (role) {
             case "text": case "hint": case "accent_text": case "accent_hint": case "popup_text": case "popup_hint": case "cursor":
             case "panel_icon": case "panel_tab_on_text": case "sel_cancel_text": case "attach_fab_icon": case "tool_ink": case "tool_hint":
+            case "sel_send_text": case "lang_text": case "space_text":
                 return true;
             default:
                 return false;
@@ -192,7 +199,7 @@ final class MrAdapt {
     /** The filter of the face of the key chosen in the popup, and the colour it was made for. */
     private static PorterDuffColorFilter sPopupFilter;
     private static int sPopupColour;
-    /** The face of a key of the keyboard on the screen as the bubble and the popup have it: {fill, line} at rest, then {fill, line} pressed; null until worked out. */
+    /** The face of a key of the keyboard on the screen as the bubble and the popup have it: {fill, line} at rest; null until worked out. */
     private static int[] sFaces;
 
     /** Forgets what was worked out (tests, and any change of the keyboard that the key below does not tell). */
@@ -372,22 +379,18 @@ final class MrAdapt {
     }
 
     /**
-     * The face of a key of the keyboard on the screen, as {@link #face} gives it: {fill, line} at rest ({@code pressed} false) or, for the key that is chosen
-     * in the popup, {fill, line} of a pressed key drawn over the face at rest (as it would be over the popup). Null on a theme that takes no tone.
+     * The face of a key of the keyboard on the screen, as {@link #face} gives it: {fill, line} at rest. Null on a theme that takes no tone.
      */
-    private static synchronized int[] faceNow(boolean pressed) {
+    private static synchronized int[] faceNow() {
         Tone t = tone();
         if (!t.on || t.under == 0) return null;
         if (sFaces == null) {
             Context c = MrTools.sApp;
-            String tag = MrTheme.tag();
-            MrKeyLook look = MrKeyLook.current(c);
-            int[] rest = face(c, tag, look, t.under, false);
+            int[] rest = face(c, MrTheme.tag(), MrKeyLook.current(c), t.under, false);
             if (rest == null) return null;
-            int[] on = face(c, tag, look, rest[0], true);
-            sFaces = new int[] {rest[0], rest[1], on == null ? rest[0] : on[0], on == null ? rest[1] : on[1]};
+            sFaces = rest;
         }
-        return pressed ? new int[] {sFaces[2], sFaces[3]} : new int[] {sFaces[0], sFaces[1]};
+        return new int[] {sFaces[0], sFaces[1]};
     }
 
     // ---- the popup of variants and the bubble
@@ -399,7 +402,7 @@ final class MrAdapt {
     static void popup(Drawable d) {
         try {
             if (d == null || !active()) return;
-            int[] f = faceNow(false);
+            int[] f = faceNow();
             if (f != null) paint(d, f[0], f[1], 0);
             else paint(d, MrTheme.color("bubble_fill"), MrTheme.color("bubble_stroke"), 0);
         } catch (RuntimeException e) {
@@ -411,7 +414,7 @@ final class MrAdapt {
     static void bubble(Drawable d) {
         try {
             if (d == null || !active()) return;
-            int[] f = faceNow(false);
+            int[] f = faceNow();
             if (f != null) paint(d, f[0], f[1], MrTheme.color("hint"));
             else paint(d, MrTheme.color("bubble_fill"), MrTheme.color("preview_stroke"), MrTheme.color("preview_dots"));
         } catch (RuntimeException e) {
@@ -446,17 +449,85 @@ final class MrAdapt {
     }
 
     /**
-     * The filter that draws the face of the key chosen in the popup of variants: a pressed key of the theme (over the face of the popup). The face (a shape
-     * with round corners) takes the colour and keeps its form. Null on a theme that takes no tone.
+     * The face of the key chosen in the popup of variants for the popup whose face is {@code face}: the same colour a little lighter (a pale one, a little
+     * darker), so it reads as the key under the finger and keeps the hue of the popup.
+     */
+    static int chosen(int face) {
+        float[] h = new float[3];
+        MrGlow.hsv(face, h);
+        boolean pale = h[2] > 0.75f;
+        float s = pale ? Math.min(1f, h[1] / CHOSEN_SAT) : h[1] * CHOSEN_SAT;
+        float v = pale ? Math.max(0f, h[2] - CHOSEN_DARK) : Math.min(1f, h[2] + CHOSEN_LIGHT);
+        return 0xff000000 | (MrGlow.rgb(h[0], s, v) & 0xffffff);
+    }
+
+    /**
+     * The filter that draws the face of the key chosen in the popup of variants: the face of the popup made a little lighter ({@link #chosen}). The face (a
+     * shape with round corners) takes the colour and keeps its form. Null on a theme that takes no tone.
      */
     static synchronized PorterDuffColorFilter popupFilter() {
         if (!active()) return null;
-        int[] f = faceNow(true);
-        int colour = f != null ? f[0] : MrTheme.color("popup_key_fill");
+        int[] f = faceNow();
+        int colour = f != null ? chosen(f[0]) : MrTheme.color("popup_key_fill");
         if (sPopupFilter == null || sPopupColour != colour) {
             sPopupFilter = new PorterDuffColorFilter(colour, PorterDuff.Mode.SRC_IN);
             sPopupColour = colour;
         }
         return sPopupFilter;
+    }
+
+    // ---- what the tools take from the tone besides the roles
+
+    /**
+     * The fill of a card of the tools (the clipboard, the attachments, the results of the emotes): on a theme of the backgrounds the face of the buttons
+     * inside the tools (the accent of the tools at the opacity of alpha_btn, what MrTools.softBg draws), so the cards and the buttons are one colour;
+     * {@code fallback} on any other theme.
+     */
+    static int card(int fallback) {
+        try {
+            if (!active()) return fallback;
+            int accent = MrTools.accent() & 0xffffff;
+            int alpha = MrTheme.color("alpha_btn") & 0xff000000;
+            return accent == 0 || alpha == 0 ? fallback : alpha | accent;
+        } catch (RuntimeException e) {
+            return fallback;
+        }
+    }
+
+    /**
+     * The floating bar of the emotes (search, symbols, emojis, delete): on a theme of the backgrounds the tone at a medium lightness, opaque (on a pale
+     * background a light one); {@code fallback} on any other theme.
+     */
+    static int bar(int fallback) {
+        try {
+            Tone t = tone();
+            if (!active() || !t.on) return fallback;
+            float s = t.pale ? t.tint * BAR_PALE_SAT : Math.min(BAR_MAX_SAT, t.tint * BAR_SAT);
+            return 0xff000000 | (MrGlow.rgb(t.hue, s, t.pale ? BAR_PALE_VALUE : BAR_VALUE) & 0xffffff);
+        } catch (RuntimeException e) {
+            return fallback;
+        }
+    }
+
+    /** The button of the style in use in the tool of the fonts: the accent button of the theme in the tone (the one of Send) on a theme of the backgrounds; {@code fallback} otherwise. */
+    static int fontFill(int fallback) {
+        try {
+            if (!active()) return fallback;
+            int c = MrTheme.color("sel_send");
+            return (c >>> 24) == 0 ? fallback : 0xff000000 | c;
+        } catch (RuntimeException e) {
+            return fallback;
+        }
+    }
+
+    /** The text of the style in use in the tool of the fonts: the one that goes with {@link #fontFill}; {@code fallback} otherwise. */
+    static int fontInk(int fallback) {
+        try {
+            if (!active()) return fallback;
+            int c = MrTheme.color("sel_send_text");
+            return (c >>> 24) == 0 ? fallback : c;
+        } catch (RuntimeException e) {
+            return fallback;
+        }
     }
 }

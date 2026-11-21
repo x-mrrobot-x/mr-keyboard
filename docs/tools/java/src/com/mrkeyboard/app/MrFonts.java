@@ -375,23 +375,27 @@ final class MrFonts {
 
     /**
      * The buttons that are not in use have the look of the other buttons of the tools (MrTools.flatBg, MrTools.btn).
-     * The style in use takes the face color of the highlight (Ctrl) key of the theme, with the text of that key.
+     * The style in use takes the face color of the highlight (Ctrl) key of the theme, with the text of that key (on a theme of the backgrounds, the
+     * accent button of the tone, see {@link #activeBg}).
      */
     private static void select(TextView t, int i, boolean on) {
         t.setText(label(i));
         if (on) {
             t.setBackground(activeBg());
-            t.setTextColor(MrTheme.color("accent_text"));
+            t.setTextColor(MrAdapt.fontInk(MrTheme.color("accent_text")));
         } else {
             t.setBackground(MrTools.flatBg());
             t.setTextColor(sTextOff);
         }
     }
 
-    /** The face of the highlight key (ctrl_bg), at full opacity, with the corners (10 dp) of the other tool buttons. */
+    /**
+     * The face of the highlight key (ctrl_bg), at full opacity, with the corners (10 dp) of the other tool buttons; on a theme of the backgrounds the
+     * accent button of the theme in the tone of the keyboard (the one of Send), as the style in use is the one that is marked.
+     */
     private static GradientDrawable activeBg() {
         GradientDrawable g = new GradientDrawable();
-        g.setColor(MrTheme.color("ctrl_bg"));
+        g.setColor(MrAdapt.fontFill(MrTheme.color("ctrl_bg")));
         g.setCornerRadius(MrTools.radius(2.0f));
         return g;
     }

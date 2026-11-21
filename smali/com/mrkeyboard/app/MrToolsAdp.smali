@@ -45,6 +45,13 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setMinLines(I)V
 
+    # a theme of the backgrounds: the card is not a key but the face of the buttons inside the tools (MrAdapt.card, below)
+    invoke-static {}, Lcom/mrkeyboard/app/MrAdapt;->active()Z
+
+    move-result v1
+
+    if-nez v1, :cond_0
+
     sget-object v1, Lcom/mrkeyboard/app/MrTools;->sKeyBg:Landroid/graphics/drawable/Drawable;
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrTools;->dupe(Landroid/graphics/drawable/Drawable;)Landroid/graphics/drawable/Drawable;
@@ -94,6 +101,10 @@
     move-result v3
 
     or-int/2addr v2, v3
+
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrAdapt;->card(I)I
+
+    move-result v2
 
     invoke-virtual {v1, v2}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 

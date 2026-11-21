@@ -681,21 +681,25 @@
     .locals 2
 
     .prologue
-    .line 393
+    .line 397
     new-instance v0, Landroid/graphics/drawable/GradientDrawable;
 
     invoke-direct {v0}, Landroid/graphics/drawable/GradientDrawable;-><init>()V
 
-    .line 394
+    .line 398
     const-string v1, "ctrl_bg"
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
 
     move-result v1
 
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrAdapt;->fontFill(I)I
+
+    move-result v1
+
     invoke-virtual {v0, v1}, Landroid/graphics/drawable/GradientDrawable;->setColor(I)V
 
-    .line 395
+    .line 399
     const/high16 v1, 0x40000000    # 2.0f
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
@@ -704,7 +708,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/drawable/GradientDrawable;->setCornerRadius(F)V
 
-    .line 396
+    .line 400
     return-object v0
 .end method
 
@@ -977,15 +981,15 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 406
+    .line 410
     sput p0, Lcom/mrkeyboard/app/MrFonts;->sChoice:I
 
-    .line 407
+    .line 411
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sCtx:Landroid/content/Context;
 
     if-eqz v0, :cond_0
 
-    .line 408
+    .line 412
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sCtx:Landroid/content/Context;
 
     invoke-static {v0}, Landroid/preference/PreferenceManager;->getDefaultSharedPreferences(Landroid/content/Context;)Landroid/content/SharedPreferences;
@@ -1004,7 +1008,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 410
+    .line 414
     :cond_0
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sButtons:[Landroid/widget/TextView;
 
@@ -1012,7 +1016,7 @@
 
     move v0, v1
 
-    .line 411
+    .line 415
     :goto_0
     sget-object v2, Lcom/mrkeyboard/app/MrFonts;->sButtons:[Landroid/widget/TextView;
 
@@ -1020,7 +1024,7 @@
 
     if-ge v0, v2, :cond_3
 
-    .line 412
+    .line 416
     sget-object v2, Lcom/mrkeyboard/app/MrFonts;->sButtons:[Landroid/widget/TextView;
 
     aget-object v2, v2, v0
@@ -1038,7 +1042,7 @@
     :goto_1
     invoke-static {v3, v0, v2}, Lcom/mrkeyboard/app/MrFonts;->select(Landroid/widget/TextView;IZ)V
 
-    .line 411
+    .line 415
     :cond_1
     add-int/lit8 v0, v0, 0x1
 
@@ -1047,14 +1051,14 @@
     :cond_2
     move v2, v1
 
-    .line 412
+    .line 416
     goto :goto_1
 
-    .line 415
+    .line 419
     :cond_3
     invoke-static {}, Lcom/mrkeyboard/app/MrFonts;->refreshKeys()V
 
-    .line 416
+    .line 420
     return-void
 .end method
 
@@ -1164,7 +1168,7 @@
     .locals 2
 
     .prologue
-    .line 400
+    .line 404
     sget-object v0, Lcom/mrkeyboard/app/MrFonts;->sCtx:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -1177,7 +1181,7 @@
 
     iget v0, v0, Landroid/util/DisplayMetrics;->density:F
 
-    .line 401
+    .line 405
     int-to-float v1, p0
 
     mul-float/2addr v0, v1
@@ -1624,20 +1628,20 @@
     .locals 2
 
     .prologue
-    .line 420
+    .line 424
     sget-object v0, Lcom/mrkeyboard/app/MrTools;->sKbd:Landroid/view/View;
 
-    .line 421
+    .line 425
     instance-of v1, v0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;
 
     if-eqz v1, :cond_0
 
-    .line 422
+    .line 426
     check-cast v0, Lcom/mrkeyboard/app/LatinKeyboardBaseView;
 
     invoke-virtual {v0}, Lcom/mrkeyboard/app/LatinKeyboardBaseView;->invalidateAllKeys()V
 
-    .line 424
+    .line 428
     :cond_0
     return-void
 .end method
@@ -1646,37 +1650,41 @@
     .locals 1
 
     .prologue
-    .line 381
+    .line 382
     invoke-static {p1}, Lcom/mrkeyboard/app/MrFonts;->label(I)Ljava/lang/String;
 
     move-result-object v0
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 382
+    .line 383
     if-eqz p2, :cond_0
 
-    .line 383
+    .line 384
     invoke-static {}, Lcom/mrkeyboard/app/MrFonts;->activeBg()Landroid/graphics/drawable/GradientDrawable;
 
     move-result-object v0
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 384
+    .line 385
     const-string v0, "accent_text"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
 
     move-result v0
 
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrAdapt;->fontInk(I)I
+
+    move-result v0
+
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 389
+    .line 390
     :goto_0
     return-void
 
-    .line 386
+    .line 387
     :cond_0
     invoke-static {}, Lcom/mrkeyboard/app/MrTools;->flatBg()Landroid/graphics/drawable/Drawable;
 
@@ -1684,7 +1692,7 @@
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 387
+    .line 388
     sget v0, Lcom/mrkeyboard/app/MrFonts;->sTextOff:I
 
     invoke-virtual {p0, v0}, Landroid/widget/TextView;->setTextColor(I)V

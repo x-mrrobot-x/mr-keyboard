@@ -84,6 +84,9 @@
     <color name="mr_preview_stroke">#ff9ecbff</color>
     <color name="mr_preview_dots">#d99ecbff</color>
     <color name="mr_popup_key_fill">#ff46557a</color>
+    <!-- The letters and the small letters of the keys, as a theme of the backgrounds gives them (MrGlow.toolInk, MrAdapt.bubble): white, and a pale grey. -->
+    <color name="mr_text">#ffffffff</color>
+    <color name="mr_hint">#ffc8ccd6</color>
     <!-- Rim of the panes of the tools (MrTools.rim), for a theme of glass panes: every pane that has a fill and no border of
          its own (buttons, tabs, cards, the selected row, a tool of the bar under the finger) is outlined with 1 dp of this
          color. 0 = no rim, as in every theme but Cobalt Glass. -->

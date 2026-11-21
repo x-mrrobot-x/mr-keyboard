@@ -1361,6 +1361,11 @@
     move-result v0
 
     :cond_cb_go
+    # a theme of the backgrounds: the card is the face of the buttons inside the tools (MrAdapt.card)
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrAdapt;->card(I)I
+
+    move-result v0
+
     const/high16 v1, 0x40000000    # 2.0f
 
     invoke-static {v1}, Lcom/mrkeyboard/app/MrTools;->radius(F)F
@@ -1495,7 +1500,8 @@
 .end method
 
 # Background of the floating bar of the emoji panel: opaque, in the face of a letter key (panel_btn, a neutral color of the
-# theme, not the accent of the floating button of the attachments), with the thin border of the fields (panel_field_stroke)
+# theme, not the accent of the floating button of the attachments; on a theme of the backgrounds the tone of the keyboard at a medium
+# lightness), with the thin border of the fields (panel_field_stroke)
 # and fully round corners (pill: the radius is clamped to half the height). What sits on it takes sKeyText, the color of
 # the labels of the keys.
 .method static floatBg()Landroid/graphics/drawable/Drawable;
@@ -1504,6 +1510,11 @@
     const-string v0, "panel_btn"
 
     invoke-static {v0}, Lcom/mrkeyboard/app/MrTheme;->color(Ljava/lang/String;)I
+
+    move-result v0
+
+    # a theme of the backgrounds: the tone at a medium lightness (MrAdapt.bar)
+    invoke-static {v0}, Lcom/mrkeyboard/app/MrAdapt;->bar(I)I
 
     move-result v0
 
