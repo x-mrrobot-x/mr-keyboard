@@ -72,11 +72,17 @@ public final class MrUpdate {
     /** What the notice says (already checked). */
     static final class Notice {
         long versionCode, apkSize;
-        String versionName, generated, apkName, apkSha256, notesPt, notesEn, data;
+        String versionName, generated, apkName, apkSha256, notesPt, notesEn, notesEs, data;
 
-        /** The notes in the language of the phone (Portuguese for pt, English for the rest, Spanish included), as written: Markdown. */
+        /**
+         * The notes in the language of the phone (Portuguese for pt, Spanish for es, English for the rest), as written: Markdown. A language
+         * the notice has no block for (an update.json made before Spanish, or without it) gets English.
+         */
         String raw(Locale l) {
-            return l != null && "pt".equals(l.getLanguage()) && notesPt != null ? notesPt : notesEn;
+            String lang = l != null ? l.getLanguage() : "";
+            if ("pt".equals(lang) && notesPt != null) return notesPt;
+            if ("es".equals(lang) && notesEs != null) return notesEs;
+            return notesEn;
         }
 
         /** The same notes as plain text. The dialog shows them styled instead (MrNotesText). */
@@ -128,8 +134,10 @@ public final class MrUpdate {
             Map<String, Object> notes = MrJson.obj(d.get("notes"));
             n.notesEn = MrJson.str(notes, "en");
             n.notesPt = MrJson.optStr(notes, "pt-BR", null);
+            n.notesEs = MrJson.optStr(notes, "es", null);
             if (n.notesEn.trim().length() == 0 || n.notesEn.length() > MAX_NOTES
-                    || (n.notesPt != null && n.notesPt.length() > MAX_NOTES)) {
+                    || (n.notesPt != null && n.notesPt.length() > MAX_NOTES)
+                    || (n.notesEs != null && n.notesEs.length() > MAX_NOTES)) {
                 throw new IllegalArgumentException("notes");
             }
             return n;

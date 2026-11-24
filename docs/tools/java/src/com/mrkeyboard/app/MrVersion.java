@@ -18,8 +18,10 @@ import java.util.Locale;
  * The "Version" line of Settings, About (v2.0.0): shows the installed version and, when tapped, the notes of that
  * version in the same dialog as the update notice (layout mr_update_dialog, notes as cards by MrNotesText), with a
  * single Close button. The notes come from the APK, so they work without a network: assets/mr_release_notes.md is a
- * copy of docs/release-notes/v&lt;versionName&gt;.md (check_version.py fails when they differ), with the two blocks
- * **Português** and **English**; the phone gets Portuguese in Portuguese and English in any other language.
+ * copy of docs/release-notes/v&lt;versionName&gt;.md (the APK build makes it by itself, mr-apk.yml), with the blocks
+ * **Português**, **English** and **Español**; the phone gets Portuguese in Portuguese, Spanish in Spanish and English in
+ * any other language. The Spanish block is only here and in update.json: publish_release.sh leaves it out of the text of
+ * the GitHub Release, which has Portuguese and English.
  *
  * The line used to end with " custom" or " official" (an old check of the signature of Hacker's Keyboard that never
  * had anything to compare); it is just the version now, followed by a hint that the line can be tapped.
@@ -28,6 +30,7 @@ public final class MrVersion implements Preference.OnPreferenceClickListener {
     static final String ASSET = "mr_release_notes.md";
     static final String MARK_PT = "**Português**";
     static final String MARK_EN = "**English**";
+    static final String MARK_ES = "**Español**";
     /** The notes of one version are a few KB; a file far larger than that is not read. */
     static final int MAX_BYTES = 64 << 10;
 
@@ -60,8 +63,7 @@ public final class MrVersion implements Preference.OnPreferenceClickListener {
     static String notes(Context c, Locale l) {
         String all = readAsset(c);
         if (all == null) return "";
-        boolean pt = l != null && "pt".equals(l.getLanguage());
-        String body = block(all, pt);
+        String body = block(all, l != null ? l.getLanguage() : "");
         return body != null ? body : "";
     }
 
@@ -99,27 +101,37 @@ public final class MrVersion implements Preference.OnPreferenceClickListener {
     }
 
     /**
-     * The text of one language block: what follows the line "**Português**" (pt) or "**English**" up to the other
-     * mark or the end, trimmed (the same rule as make_update.py, which makes the notes of update.json). When the block
-     * asked for is missing or empty the other one is used; null when there is neither.
+     * The text of one language block: what follows the line "**Português**" (lang "pt"), "**Español**" ("es") or
+     * "**English**" (any other) up to the next mark or the end, trimmed (the same rule as make_update.py, which makes
+     * the notes of update.json). When the block asked for is missing or empty English is used, then Portuguese, then
+     * Spanish; null when there is none.
      */
-    static String block(String text, boolean pt) {
+    static String block(String text, String lang) {
         String[] lines = text.replace("\r\n", "\n").split("\n", -1);
         int ptAt = -1;
         int enAt = -1;
+        int esAt = -1;
         for (int i = 0; i < lines.length; i++) {
             String t = lines[i].trim();
             if (ptAt < 0 && t.equals(MARK_PT)) ptAt = i;
             else if (enAt < 0 && t.equals(MARK_EN)) enAt = i;
+            else if (esAt < 0 && t.equals(MARK_ES)) esAt = i;
         }
-        String body = body(lines, pt ? ptAt : enAt, pt ? enAt : ptAt);
-        return body != null ? body : body(lines, pt ? enAt : ptAt, pt ? ptAt : enAt);
+        int own = "pt".equals(lang) ? ptAt : "es".equals(lang) ? esAt : enAt;
+        String body = body(lines, own, ptAt, enAt, esAt);
+        if (body == null) body = body(lines, enAt, ptAt, enAt, esAt);
+        if (body == null) body = body(lines, ptAt, ptAt, enAt, esAt);
+        if (body == null) body = body(lines, esAt, ptAt, enAt, esAt);
+        return body;
     }
 
-    /** The trimmed lines after the mark at line at, up to the other mark (line other, -1 if there is none); null if empty. */
-    private static String body(String[] lines, int at, int other) {
+    /** The trimmed lines after the mark at line at, up to the next of the three marks (-1 = missing) or the end; null if empty. */
+    private static String body(String[] lines, int at, int a, int b, int c) {
         if (at < 0) return null;
-        int end = other > at ? other : lines.length;
+        int end = lines.length;
+        if (a > at && a < end) end = a;
+        if (b > at && b < end) end = b;
+        if (c > at && c < end) end = c;
         StringBuilder sb = new StringBuilder();
         for (int i = at + 1; i < end; i++) {
             if (sb.length() > 0) sb.append('\n');

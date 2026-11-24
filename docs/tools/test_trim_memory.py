@@ -389,7 +389,7 @@ i_try = gl.index(":try_start_0")
 i_super = next(i for i, l in enumerate(gl) if "invoke-super" in l and "ExpandableDictionary;->getWords(" in l)
 i_end = gl.index(":try_end_0")
 ends = [i for i, l in enumerate(gl) if "MrLearned;->gateEnd()V" in l]
-# the words added for the app in front (MrApp.words, since 2.0.0) are searched right after the dictionary's own, with the same gate, so it is inside the try too
+# the words added for the app in front (MrApp.words, since 2.1.0) are searched right after the dictionary's own, with the same gate, so it is inside the try too
 i_app = next(i for i, l in enumerate(gl) if "MrApp;->words(" in l)
 check("AutoDictionary.getWords: gate, then the two searches (its own words and the words of the app in front) alone in a try, then gateEnd on the way out and again in the handler before it throws",
       i_gate < i_try < i_super < i_app < i_end and gl[i_super + 1] == gl[i_app] and gl[i_app + 1] == ":try_end_0" and gl[i_end + 1].startswith(".catchall {:try_start_0 .. :try_end_0}")

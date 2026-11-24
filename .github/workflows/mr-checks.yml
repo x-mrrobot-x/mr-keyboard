@@ -80,7 +80,7 @@
 #                        nothing else in the dictionary changes, a second run changes nothing, the shipped packs match the list
 #   test_prune_order.py  the cleanup of the learned pairs (UserBigramDictionary): reads the two tables, the caps and the ORDER BY out of the smali and runs the cleanup in SQLite:
 #                        the most used pairs survive, the least used go first, the old query is told apart
-#   test_make_update.py  builds the update notice (version, APK size and SHA-256, notes in both languages, every error that must stop a release)
+#   test_make_update.py  builds the update notice (version, APK size and SHA-256, notes in both languages and the optional Spanish block, the text of the Release without it, every error that must stop a release)
 #   corpus/test_real.py  the real-message evaluation tools (sampler with fake Arctic Shift / Hugging Face servers: retries, 429, timeouts, a failing source;
 #                        cleaner and language filter; the manual workflow mr-corpus-real.yml; the acceptance rule for a candidate pack)
 #   corpus/test_pack_data.py  make_pack_data.py with made-up corpora: the optional fourth source (real messages), the admission of new words,

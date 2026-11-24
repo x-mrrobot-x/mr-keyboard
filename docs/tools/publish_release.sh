@@ -4,7 +4,8 @@
 # languages that changed in this version.
 # The tag is the versionName from apktool.yml (v1.72.0) and the notes come from docs/release-notes/<tag>.md
 # (e.g. docs/release-notes/v1.72.0.md): a short file, Portuguese and English, that is the release text itself,
-# followed by the list of included dictionaries and the checksums. The same two blocks go in update.json.
+# followed by the list of included dictionaries and the checksums. The same two blocks go in update.json. The file may also have a
+# **Español** block: it goes in update.json (and inside the APK) but NOT in the release text, which stays Portuguese and English.
 # The APK is named mr-keyboard-<tag>.apk (e.g. mr-keyboard-v1.72.0.apk), so the version shows in the asset
 # list; the app reads the catalog from .../releases/latest/download/catalog.json and the update notice from
 # .../releases/latest/download/update.json (make_update.py builds it, with the size and SHA-256 of the APK).
@@ -95,7 +96,7 @@ if [ -f gesture/pack.json ]; then MODEL_ARGS="--model gesture"; fi
 python3 -I docs/tools/make_catalog.py --dicts dicts --out out --tag "$TAG" $PREV_ARGS $MODEL_ARGS
 sh docs/tools/sign_catalog.sh out/data.json out/catalog.json catalog
 
-# ---- update notice: version, APK size and SHA-256, notes of the two languages (a failure here is a bug in any mode)
+# ---- update notice: version, APK size and SHA-256, notes of the languages in the notes file (a failure here is a bug in any mode)
 if ! python3 -I docs/tools/make_update.py --apk "$APK" --tag "$TAG" --notes "$NOTES" --apktool apktool.yml --out out/update-data.json; then
   echo "::error::Could not make update.json (see above). Nothing was published."; exit 1
 fi
@@ -115,8 +116,10 @@ while read -r REL ZIP SIZE; do
   echo "dictionaries: $ZIP stays in $REL ($SIZE bytes, checked)"
 done < out/external.txt
 
-# ---- release text: the whole notes file (short, for people downloading); make_update.py already checked it
-SUMMARY=$(sed '/./,$!d' "$NOTES")
+# ---- release text: the notes file (short, for people downloading) without the **Español** block, which is only for the app (the notes of the installed
+# version and the update notice carry it); the Release stays in Portuguese and English. make_update.py already checked the file.
+TEXT=$(python3 -I docs/tools/make_update.py --release-text "$NOTES") || { echo "::error::Could not make the release text from $NOTES. Nothing was published."; exit 1; }
+SUMMARY=$(printf '%s\n' "$TEXT" | sed '/./,$!d')
 {
   echo "Download: **$APK** · [installation / instalação](https://github.com/$GITHUB_REPOSITORY#installation)"
   echo "Código-fonte / Source code: \`$SRC\` ([como verificar / how to verify](https://github.com/$GITHUB_REPOSITORY#verifying-a-release))"

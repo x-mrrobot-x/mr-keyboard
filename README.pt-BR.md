@@ -126,11 +126,11 @@ Os documentos técnicos de `docs/` estão em inglês, exceto o guia de compilaç
 ## Verificar uma release
 As releases são [imutáveis](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) (veja [Publicar](docs/building.pt-BR.md#publicar-para-quem-mantém-o-projeto)): depois de publicadas, os arquivos e a tag não mudam. O APK e o zip do código são gerados pelo workflow *Mr Keyboard - APK* deste repositório a partir do commit da tag, e cada um tem uma atestação de procedência assinada. Com o [GitHub CLI](https://cli.github.com/), na pasta onde você salvou o arquivo (troque a versão):
 ```sh
-gh release verify v2.0.0 --repo x-mrrobot-x/mr-keyboard
-gh release verify-asset v2.0.0 mr-keyboard-v2.0.0.apk --repo x-mrrobot-x/mr-keyboard
-gh attestation verify mr-keyboard-v2.0.0.apk --repo x-mrrobot-x/mr-keyboard
+gh release verify v2.1.0 --repo x-mrrobot-x/mr-keyboard
+gh release verify-asset v2.1.0 mr-keyboard-v2.1.0.apk --repo x-mrrobot-x/mr-keyboard
+gh attestation verify mr-keyboard-v2.1.0.apk --repo x-mrrobot-x/mr-keyboard
 ```
-O primeiro confirma que a release existe e é imutável, o segundo que o seu arquivo é exatamente o que está anexado a ela, e o terceiro que ele foi gerado pelo workflow deste repositório (vale igual para o `mr-keyboard-v2.0.0-source.zip`). Sem o CLI, compare o SHA-256 que aparece no texto da release com o `sha256sum <arquivo>`. Use o zip anexado pela release, não o zip *Source code* que o GitHub gera sozinho: aquele é criado na hora do pedido e não dá para verificar.
+O primeiro confirma que a release existe e é imutável, o segundo que o seu arquivo é exatamente o que está anexado a ela, e o terceiro que ele foi gerado pelo workflow deste repositório (vale igual para o `mr-keyboard-v2.1.0-source.zip`). Sem o CLI, compare o SHA-256 que aparece no texto da release com o `sha256sum <arquivo>`. Use o zip anexado pela release, não o zip *Source code* que o GitHub gera sozinho: aquele é criado na hora do pedido e não dá para verificar.
 
 ## Créditos e licenças
 O Mr Keyboard está sob a [Apache License 2.0](LICENSE).

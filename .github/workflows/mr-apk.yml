@@ -21,6 +21,8 @@
 #   mr-keyboard-model-gesture-<version>.zip   the weights of the gesture recognition (gesture/, since 1.96.0), under the
 #                          same rule: attached only to the release where gesture/pack.json changed its version. The catalog
 #                          lists it in "models", next to "packs"; the apps before 1.96.0 do not read that list
+# The build puts the notes of the version inside the APK on its own (assets/mr_release_notes.md, the "Version" line of Settings shows them
+# offline): it copies docs/release-notes/<tag>.md there before apktool, so nobody has to keep that copy by hand.
 # The logic is in docs/tools/publish_release.sh (tested by docs/tools/publish_test/run.sh). A tag that
 # already exists is never overwritten: raise versionCode/versionName first. Changed just one dictionary? Raise its
 # version in dicts/<id>/pack.json and the app version: the new Release brings only that zip. Never delete a Release
@@ -121,6 +123,17 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+
+      - name: Put the notes of this version inside the APK
+        run: |
+          VERSION=$(grep -m1 -E '^[[:space:]]*versionName:' apktool.yml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          NOTES="docs/release-notes/v$VERSION.md"
+          if [ -f "$NOTES" ]; then
+            cp "$NOTES" assets/mr_release_notes.md
+            echo "assets/mr_release_notes.md is now $NOTES"
+          else
+            echo "::warning::$NOTES not found: the APK keeps the notes that are in assets/mr_release_notes.md (a release needs this file and fails without it)."
+          fi
 
       - name: Build the APK with apktool
         run: |

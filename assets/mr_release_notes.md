@@ -1,31 +1,62 @@
 **Português**
-- Novo: **Ctrl + apagar apaga por palavra**: com o Ctrl ativo, a tecla apagar remove uma palavra por toque e, segurando, apaga palavra por palavra desde o início. Ative em **Configurações → Toque e gestos → Apagar por palavra**, onde também ajusta o tempo entre as palavras para soltar na hora certa. O **Ctrl + Z** devolve as palavras apagadas uma por vez, da última para a primeira, e o **Ctrl + Y** apaga de novo a que voltou; as palavras ficam guardadas por até 2 minutos.
-- Corrigido: O toque longo de uma tecla (como o 123) vinha mais tarde que o tempo definido quando o teclado recebia o toque com atraso; agora o tempo conta a partir do toque.
-- Melhorado: Em **Configurações → Avançadas → Desempenho**, **Tempos do teclado** mostra o pior toque longo e o pior toque até a tecla ser desenhada, e onde o tempo foi.
-- Melhorado: Em **Toque e gestos**, o **Toque longo nas teclas** tem tela própria, com **Duração do toque longo nas teclas** e **Ação do toque longo nas teclas** explicadas e com opções descritas com exemplos.
-- Melhorado: O deslize para os lados (por padrão, trocar de folha) agora vale pela distância percorrida, não pela velocidade com que o dedo sai da tela: arrastar devagar, ou parar um instante antes de soltar, também funciona.
-- Melhorado: A descrição da **Digitação por gestos** diz onde cada gesto começa: a digitação nas letras da folha principal; os deslizes de ação fora delas ou em qualquer tecla das outras folhas.
-- Novo: Tocar em **Versão**, em **Configurações → Sobre**, mostra as novidades da versão instalada, sem precisar de internet.
-- Melhorado: As novidades da atualização e da versão aparecem em cartões, um para cada item, e os botões do aviso de atualização ficam em uma só linha, com **Abrir no GitHub**.
-- Melhorado: A **Digitação por gestos** e os **Gestos de deslize** deixaram de ser experimentais; a Digitação por gestos agora aparece nos subtítulos de **Digitação** e de **Sugestões e dicionários**.
-- Melhorado: O **Editor de IA** passou a se chamar **Editar com IA**, e o texto do resultado e os botões de estilo (Formal, Curto etc.) ficaram mais fáceis de ver.
-- Melhorado: O diálogo de **Personalizar teclado** deixou de ser translúcido, e o texto dele fica mais fácil de ler.
-- Melhorado: Na tela de **Configurações**, o card do desenvolvedor, o último item, ganhou um espaço embaixo.
-- Corrigido: A linha **Versão** não mostra mais "custom" depois do número.
-- Como receber: Instale o aplicativo 2.0.0 ou vá em **Configurações → Sobre → Procurar atualização**.
+- Novo: **Primeiros passos**: ao abrir o app, uma tela guia você, uma etapa por vez, para ativar o teclado, escolhê-lo e baixar o dicionário do idioma do aparelho e o arquivo da digitação por gestos. Aparece uma só vez e dá para pular.
+- Novo: **Tema do teclado** em tela própria, em **Configurações → Aparência**: temas, cores, degradês, 48 paisagens (Esportes, Animais, Neve, Natureza, Anime e IA) e uma galeria para usar uma foto sua, com recorte. Cada opção aparece como um teclado de verdade antes de você aplicar.
+- Novo: Em cores, degradês, paisagens e fotos, ajuste a **suavização do fundo**, o estilo das teclas (vidro, contorno ou degradê, com cores prontas ou a sua), a cor, a borda e a opacidade das teclas e a cor das letras e dos ícones.
+- Novo: Tema **Sky**, azul claro: o teclado passa a ter 13 temas.
+- Novo: **Som do teclado**, em **Configurações → Vibração, som e prévia**: 15 opções (sem som, padrão, teclado, gota de água, bolhas, sino, pato, rato, gato, sapo, raposa, varinha mágica, pistola e foguete), com volume e um campo para testar.
+- Novo: **Palavras por app**: em **Adicionar palavras e textos**, escolha se as palavras valem em todos os apps ou só em um; em **O que o teclado aprendeu**, veja e gerencie as palavras de cada app.
+- Novo: **Símbolos no painel de emojis**: um botão troca os emojis por símbolos (estrelas, corações, setas, matemática, música, formas, animais e jogos, moedas e sinais), com os recentes separados.
+- Novo: **Efeito Matrix**: letras caindo atrás das telas do app, na cor do tema. Vem ligado e gasta um pouco mais de bateria; desative em **Configurações → Aparência → Efeito Matrix**.
+- Novo: **Usar vibração do sistema**: por padrão o teclado usa o toque suave do próprio Android; desative em **Vibração, som e prévia** para escolher a intensidade.
+- Melhorado: As **sugestões**, a **digitação por gestos** (precisa do arquivo de 2,4 MB, que os Primeiros passos oferecem) e o **Ctrl + apagar por palavra** agora vêm ligados por padrão.
+- Melhorado: **Estatísticas do teclado**, em **Configurações → Avançadas → Desempenho** (antes, Tempos do teclado), mostra também a memória, a memória do dicionário em uso, o motor de sugestões e o tempo de reconhecimento da digitação por gestos.
+- Melhorado: O **Editar com IA** usa o Google Gemini como serviço inicial; a chave continua sendo a sua e os outros serviços seguem disponíveis.
+- Melhorado: **Adicionar palavras e textos** ficou mais simples: cole ou digite o texto (o botão de abrir arquivo saiu) e o botão principal muda conforme o texto, entre **Formatar com IA** e **Ver o que será adicionado**; há também instruções para formatar com outra IA. A prévia mostra as palavras novas, os pares e o que o dicionário já conhece.
+- Melhorado: As listas longas (apps, palavras aprendidas e prévia) carregam mais itens conforme você rola, sem o botão **Mostrar mais**.
+- Melhorado: As telas que o teclado abre (engrenagem, Editar com IA, aviso de atualização) ficam fora da lista de apps recentes, e a engrenagem sempre abre as Configurações pela primeira página.
+- Melhorado: Com um fundo de cor, degradê, paisagem ou foto, as ferramentas, as letras e o balão das teclas acompanham o tom do fundo, em vez de ficarem sempre azuis.
+- Melhorado: A barra de navegação do Android usa a cor do tema do teclado, sem uma faixa de outro tom embaixo das teclas (Android 11 ou mais novo).
+- Corrigido: Com o **Autocompletar** ligado, apertar **Enter** depois de uma palavra sem sugestão repetia a palavra na linha de baixo.
+- Como receber: Instale o aplicativo 2.1.0 ou vá em **Configurações → Sobre → Procurar atualização**.
 
 **English**
-- New: **Ctrl + delete deletes by words**: with Ctrl on, the delete key removes a word per tap and, when held, deletes word by word from the start. Turn it on in **Settings → Touch and gestures → Delete by word**, where you also set the time between words to let go at the right moment. **Ctrl + Z** gives the deleted words back one at a time, the last one first, and **Ctrl + Y** deletes again the one that came back; the words are kept for up to 2 minutes.
-- Fixed: The long press of a key (like 123) came later than the set time when the keyboard got the touch late; the time now counts from the touch.
-- Improved: In **Settings → Advanced → Performance**, **Keyboard times** shows the worst long press and the worst press until the key is drawn, and where the time went.
-- Improved: In **Touch and gestures**, **Long press on keys** has its own screen, with **Long-press duration on keys** and **Long-press action on keys** explained and options described with examples.
-- Improved: The sideways swipe (by default, change sheet) now counts by the distance travelled, not by the speed at which the finger leaves the screen: a slow drag, or one that pauses for a moment before lifting, also works.
-- Improved: The description of **Gesture typing** says where each gesture starts: typing on the letters of the main sheet; the action swipes outside them or on any key of the other sheets.
-- New: Tapping **Version**, in **Settings → About**, shows the notes of the installed version, with no network.
-- Improved: The notes of an update and of a version appear in cards, one for each item, and the buttons of the update notice are in a single row, with **Open on GitHub**.
-- Improved: **Gesture typing** and **Swipe gestures** are no longer experimental; Gesture typing now appears in the subtitles of **Typing** and of **Suggestions and dictionaries**.
-- Improved: The **AI Editor** is now called **Edit with AI**, and the result text and the style buttons (Formal, Short etc.) are easier to see.
-- Improved: The **Customize keyboard** dialog is no longer translucent, and its text is easier to read.
-- Improved: On the **Settings** screen, the developer card, the last item, now has some space below it.
-- Fixed: The **Version** line no longer shows "custom" after the number.
-- How to get it: Install app 2.0.0 or go to **Settings → About → Check for updates**.
+- New: **First steps**: when you open the app, a screen guides you, one step at a time, to turn the keyboard on, choose it and download the dictionary of the phone's language and the gesture typing file. It appears only once and can be skipped.
+- New: **Keyboard Theme** on a screen of its own, in **Settings → Appearance**: themes, colors, gradients, 48 landscapes (Sports, Animals, Snow, Nature, Anime and AI) and a gallery to use a photo of your own, with cropping. Each option shows as a real keyboard before you apply it.
+- New: With colors, gradients, landscapes and photos, adjust the **background softening**, the key style (glass, outline or gradient, with ready-made colors or your own), the color, border and opacity of the keys and the color of the letters and icons.
+- New: **Sky** theme, light blue: the keyboard now has 13 themes.
+- New: **Keyboard sound**, in **Settings → Vibration, sound and preview**: 15 options (no sound, default, keyboard, water drop, bubbles, bell, duck, mouse, cat, frog, fox, magic wand, pistol and rocket), with volume and a field to try them.
+- New: **Words per app**: in **Add words and texts**, choose whether the words work in every app or in just one; in **What the keyboard learned**, see and manage the words of each app.
+- New: **Symbols in the emoji panel**: a button swaps the emojis for symbols (stars, hearts, arrows, math, music, shapes, animals and games, currency and signs), with the recent ones kept apart.
+- New: **Matrix effect**: letters falling behind the screens of the app, in the color of the theme. It is on by default and uses a little more battery; turn it off in **Settings → Appearance → Matrix effect**.
+- New: **Use system vibration**: by default the keyboard uses Android's own soft tap; turn it off in **Vibration, sound and preview** to choose the strength.
+- Improved: **Suggestions**, **gesture typing** (it needs the 2.4 MB file, which First steps offers) and **Ctrl + delete by word** are now on by default.
+- Improved: **Keyboard statistics**, in **Settings → Advanced → Performance** (before, Keyboard times), also shows the memory, the memory of the dictionary in use, the suggestion engine and the recognition time of gesture typing.
+- Improved: **Edit with AI** uses Google Gemini as the initial service; the key is still yours and the other services remain available.
+- Improved: **Add words and texts** is simpler: paste or type the text (the open-file button is gone) and the main button changes with the text, between **Format with AI** and **See what will be added**; there are also instructions to format with another AI. The preview shows the new words, the pairs and what the dictionary already knows.
+- Improved: Long lists (apps, learned words and the preview) load more items as you scroll, without the **Show more** button.
+- Improved: The screens the keyboard opens (gear, Edit with AI, update notice) stay out of the recent apps list, and the gear always opens Settings on the first page.
+- Improved: With a color, gradient, landscape or photo background, the tools, the letters and the key balloon follow the tone of the background instead of always staying blue.
+- Improved: Android's navigation bar uses the keyboard theme color, with no band of another shade under the keys (Android 11 or newer).
+- Fixed: With **Auto-complete** on, pressing **Enter** after a word with no suggestion repeated the word on the line below.
+- How to get it: Install app 2.1.0 or go to **Settings → About → Check for updates**.
+
+**Español**
+- Nuevo: **Primeros pasos**: al abrir la app, una pantalla te guía, un paso a la vez, para activar el teclado, elegirlo y descargar el diccionario del idioma del teléfono y el archivo de la escritura por gestos. Aparece una sola vez y se puede omitir.
+- Nuevo: **Tema del teclado** en una pantalla propia, en **Ajustes → Apariencia**: temas, colores, degradados, 48 paisajes (Deportes, Animales, Nieve, Naturaleza, Anime e IA) y una galería para usar una foto tuya, con recorte. Cada opción se ve como un teclado real antes de aplicarla.
+- Nuevo: Con colores, degradados, paisajes y fotos, ajusta la **suavización del fondo**, el estilo de las teclas (cristal, contorno o degradado, con colores listos o el tuyo), el color, el borde y la opacidad de las teclas y el color de las letras y los iconos.
+- Nuevo: Tema **Sky**, azul claro: el teclado pasa a tener 13 temas.
+- Nuevo: **Sonido del teclado**, en **Ajustes → Vibración, sonido y vista previa**: 15 opciones (sin sonido, predeterminado, teclado, gota de agua, burbujas, campana, pato, ratón, gato, rana, zorro, varita mágica, pistola y cohete), con volumen y un campo para probarlos.
+- Nuevo: **Palabras por app**: en **Añadir palabras y textos**, elige si las palabras valen en todas las apps o solo en una; en **Lo que el teclado aprendió**, mira y gestiona las palabras de cada app.
+- Nuevo: **Símbolos en el panel de emojis**: un botón cambia los emojis por símbolos (estrellas, corazones, flechas, matemáticas, música, formas, animales y juegos, monedas y signos), con los recientes aparte.
+- Nuevo: **Efecto Matrix**: letras que caen detrás de las pantallas de la app, en el color del tema. Viene activado y gasta un poco más de batería; desactívalo en **Ajustes → Apariencia → Efecto Matrix**.
+- Nuevo: **Usar vibración del sistema**: por defecto el teclado usa el toque suave del propio Android; desactívalo en **Vibración, sonido y vista previa** para elegir la intensidad.
+- Mejorado: Las **sugerencias**, la **escritura por gestos** (necesita el archivo de 2,4 MB, que los Primeros pasos ofrecen) y **Ctrl + borrar por palabra** ahora vienen activadas por defecto.
+- Mejorado: **Estadísticas del teclado**, en **Ajustes → Avanzadas → Rendimiento** (antes, Tiempos del teclado), muestra también la memoria, la memoria del diccionario en uso, el motor de sugerencias y el tiempo de reconocimiento de la escritura por gestos.
+- Mejorado: **Editar con IA** usa Google Gemini como servicio inicial; la clave sigue siendo tuya y los otros servicios siguen disponibles.
+- Mejorado: **Añadir palabras y textos** es más simple: pega o escribe el texto (el botón de abrir archivo ya no está) y el botón principal cambia según el texto, entre **Dar formato con IA** y **Ver qué se añadirá**; también hay instrucciones para dar formato con otra IA. La vista previa muestra las palabras nuevas, los pares y lo que el diccionario ya conoce.
+- Mejorado: Las listas largas (apps, palabras aprendidas y vista previa) cargan más elementos al desplazarte, sin el botón **Mostrar más**.
+- Mejorado: Las pantallas que abre el teclado (engranaje, Editar con IA, aviso de actualización) quedan fuera de las apps recientes, y el engranaje siempre abre los Ajustes por la primera página.
+- Mejorado: Con un fondo de color, degradado, paisaje o foto, las herramientas, las letras y el globo de las teclas siguen el tono del fondo, en vez de quedarse siempre azules.
+- Mejorado: La barra de navegación de Android usa el color del tema del teclado, sin una franja de otro tono bajo las teclas (Android 11 o más nuevo).
+- Corregido: Con **Autocompletar** activado, pulsar **Enter** después de una palabra sin sugerencia repetía la palabra en la línea de abajo.
+- Cómo obtenerla: Instala la aplicación 2.1.0 o ve a **Ajustes → Acerca de → Buscar actualizaciones**.

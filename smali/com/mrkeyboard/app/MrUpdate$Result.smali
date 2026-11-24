@@ -33,13 +33,13 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 93
+    .line 99
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 94
+    .line 100
     iput v0, p0, Lcom/mrkeyboard/app/MrUpdate$Result;->status:I
 
-    .line 96
+    .line 102
     iput v0, p0, Lcom/mrkeyboard/app/MrUpdate$Result;->error:I
 
     return-void

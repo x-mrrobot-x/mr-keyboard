@@ -205,7 +205,8 @@ public class UpdateTest {
     static final class N {
         String format = "1", code = "1082000", name = "\"v1.82.0\"", apkName = "\"mr-keyboard-v1.82.0.apk\"",
                 size = "1234567", sha = "\"" + SHA + "\"", apkExtra = "", extra = "",
-                notes = "{\"pt-BR\":\"- Novidade **boa** em `Ajustes`.\\n- Outra.\",\"en\":\"- Good **news** in `Settings`.\\n- Another.\"}";
+                notes = "{\"pt-BR\":\"- Novidade **boa** em `Ajustes`.\\n- Outra.\",\"en\":\"- Good **news** in `Settings`.\\n- Another.\","
+                        + "\"es\":\"- Novedad **buena** en `Ajustes`.\\n- Otra.\"}";
 
         N code(long c, String tag) {
             code = String.valueOf(c);
@@ -364,6 +365,7 @@ public class UpdateTest {
             {"English notes empty", "notes", "{\"en\":\"   \"}"},
             {"notes that are not an object", "notes", "\"text\""},
             {"English notes over the limit", "notes", "{\"en\":\"" + "x".repeat(MrUpdate.MAX_NOTES + 1) + "\"}"},
+            {"Spanish notes over the limit", "notes", "{\"en\":\"- Ok.\",\"es\":\"" + "x".repeat(MrUpdate.MAX_NOTES + 1) + "\"}"},
         };
         for (String[] b : bad) {
             N x = new N();
@@ -387,6 +389,16 @@ public class UpdateTest {
         r = run(new Ctx(1081000), noPt);
         check("notes only in English are accepted (Portuguese falls back to English)", r.status == MrUpdate.AVAILABLE
                 && r.notice.notes(new Locale("pt", "BR")).equals("• Only English."));
+        check("notes only in English: Spanish gets English too", r.notice.notes(new Locale("es", "MX")).equals("• Only English.") && r.notice.notesEs == null);
+        N noEs = new N();
+        noEs.notes = "{\"pt-BR\":\"- Só pt.\",\"en\":\"- Only English.\"}";
+        r = run(new Ctx(1081000), noEs);
+        check("notes without Spanish (an update.json made before it) are accepted: Spanish gets English, Portuguese keeps its own",
+                r.status == MrUpdate.AVAILABLE && r.notice.notes(new Locale("es")).equals("• Only English.") && r.notice.notes(new Locale("pt")).equals("• Só pt."));
+        N esAtLimit = new N();
+        esAtLimit.notes = "{\"en\":\"- Ok.\",\"es\":\"" + "x".repeat(MrUpdate.MAX_NOTES) + "\"}";
+        r = run(new Ctx(1081000), esAtLimit);
+        check("Spanish notes of exactly the limit are accepted", r.status == MrUpdate.AVAILABLE && r.notice.notesEs.length() == MrUpdate.MAX_NOTES);
         N upper = new N();
         upper.sha = "\"" + SHA.toUpperCase(Locale.ROOT) + "\"";
         r = run(new Ctx(1081000), upper);
@@ -1776,9 +1788,11 @@ public class UpdateTest {
         check("notes by language: Portuguese for pt", n.notes(new Locale("pt", "BR")).startsWith("• Novidade boa em Ajustes."));
         check("notes by language: Portuguese for pt-PT too", n.notes(new Locale("pt", "PT")).startsWith("• Novidade"));
         check("notes by language: English for en", n.notes(Locale.US).startsWith("• Good news in Settings."));
-        check("notes by language: Spanish, French and no language get English", n.notes(new Locale("es")).startsWith("• Good news")
-                && n.notes(Locale.FRANCE).startsWith("• Good news") && n.notes(null).startsWith("• Good news"));
+        check("notes by language: Spanish for es (any country)", n.notes(new Locale("es")).startsWith("• Novedad buena en Ajustes.")
+                && n.notes(new Locale("es", "MX")).startsWith("• Novedad buena") && n.notes(new Locale("es", "ES")).startsWith("• Novedad"));
+        check("notes by language: French and no language get English", n.notes(Locale.FRANCE).startsWith("• Good news") && n.notes(null).startsWith("• Good news"));
         check("raw notes: the Markdown as it came, by language", n.raw(new Locale("pt", "BR")).startsWith("- Novidade **boa** em `Ajustes`.")
+                && n.raw(new Locale("es")).startsWith("- Novedad **buena** en `Ajustes`.")
                 && n.raw(Locale.US).startsWith("- Good **news** in `Settings`.") && n.raw(null).startsWith("- Good **news**"));
         notesCards();
     }
@@ -1896,17 +1910,29 @@ public class UpdateTest {
     static void mrVersion() throws Exception {
         String sample = "# v9.9.9\n\n**Português**\n\n- Novo: item um.\n- Corrigido: item dois.\n\n**English**\n\n- New: item one.\n- Fixed: item two.\n";
         check("version block: the Portuguese block is what follows **Português** up to **English**, trimmed; the English one is what follows **English**",
-                MrVersion.block(sample, true).equals("- Novo: item um.\n- Corrigido: item dois.")
-                        && MrVersion.block(sample, false).equals("- New: item one.\n- Fixed: item two."));
+                MrVersion.block(sample, "pt").equals("- Novo: item um.\n- Corrigido: item dois.")
+                        && MrVersion.block(sample, "en").equals("- New: item one.\n- Fixed: item two."));
         check("version block: the order does not matter, CRLF and spaces around the marks are accepted",
-                MrVersion.block("**English**\n- New: a.\n**Português**\n- Novo: b.\n", true).equals("- Novo: b.")
-                        && MrVersion.block("  **Português**  \r\n- Novo: b.\r\n**English**\r\n- New: a.", false).equals("- New: a."));
-        check("version block: with one block missing or empty the other is used; with none it is null",
-                MrVersion.block("**English**\n- New: a.", true).equals("- New: a.") && MrVersion.block("**Português**\n- Novo: b.", false).equals("- Novo: b.")
-                        && MrVersion.block("**Português**\n\n**English**\n- New: a.", true).equals("- New: a.")
-                        && MrVersion.block("**Português**\n- Novo: b.\n**English**\n  \n", false).equals("- Novo: b.")
-                        && MrVersion.block("- sem blocos", true) == null && MrVersion.block("**Português**\n\n**English**\n", true) == null);
-        check("version block: a mark in the middle of a line is not a mark", MrVersion.block("texto **Português** aqui\n**English**\n- New: a.", true).equals("- New: a."));
+                MrVersion.block("**English**\n- New: a.\n**Português**\n- Novo: b.\n", "pt").equals("- Novo: b.")
+                        && MrVersion.block("  **Português**  \r\n- Novo: b.\r\n**English**\r\n- New: a.", "en").equals("- New: a."));
+        check("version block: with one block missing or empty English is used (Portuguese, then Spanish, without English); with none it is null",
+                MrVersion.block("**English**\n- New: a.", "pt").equals("- New: a.") && MrVersion.block("**Português**\n- Novo: b.", "en").equals("- Novo: b.")
+                        && MrVersion.block("**Português**\n\n**English**\n- New: a.", "pt").equals("- New: a.")
+                        && MrVersion.block("**Português**\n- Novo: b.\n**English**\n  \n", "en").equals("- Novo: b.")
+                        && MrVersion.block("- sem blocos", "pt") == null && MrVersion.block("**Português**\n\n**English**\n", "pt") == null);
+        check("version block: a mark in the middle of a line is not a mark", MrVersion.block("texto **Português** aqui\n**English**\n- New: a.", "pt").equals("- New: a."));
+        String sample3 = sample + "\n**Español**\n\n- Nuevo: elemento uno.\n- Corregido: elemento dos.\n";
+        check("version block: three blocks, each one up to the next mark; Spanish for es, English for fr and for no language, in any order",
+                MrVersion.block(sample3, "pt").equals("- Novo: item um.\n- Corrigido: item dois.") && MrVersion.block(sample3, "en").equals("- New: item one.\n- Fixed: item two.")
+                        && MrVersion.block(sample3, "es").equals("- Nuevo: elemento uno.\n- Corregido: elemento dos.")
+                        && MrVersion.block(sample3, "fr").equals("- New: item one.\n- Fixed: item two.") && MrVersion.block(sample3, "").equals("- New: item one.\n- Fixed: item two.")
+                        && MrVersion.block("**Español**\n- Nuevo: a.\n**English**\n- New: b.\n**Português**\n- Novo: c.\n", "es").equals("- Nuevo: a.")
+                        && MrVersion.block("**Español**\n- Nuevo: a.\n**English**\n- New: b.\n**Português**\n- Novo: c.\n", "pt").equals("- Novo: c."));
+        check("version block: Spanish asked without a Spanish block (or an empty one) gets English; with only Portuguese and Spanish, Portuguese for en",
+                MrVersion.block(sample, "es").equals("- New: item one.\n- Fixed: item two.")
+                        && MrVersion.block("**English**\n- New: a.\n**Español**\n  \n", "es").equals("- New: a.")
+                        && MrVersion.block("**Português**\n- Novo: b.\n**Español**\n- Nuevo: c.", "en").equals("- Novo: b.")
+                        && MrVersion.block("**Español**\n- Nuevo: c.", "pt").equals("- Nuevo: c."));
 
         check("version asset: read as UTF-8 text", MrVersion.readAll(new ByteArrayInputStream("Olá, versão ✓".getBytes(StandardCharsets.UTF_8))).equals("Olá, versão ✓"));
         byte[] big = new byte[MrVersion.MAX_BYTES + 1];
@@ -1916,18 +1942,20 @@ public class UpdateTest {
                         && MrVersion.readAll(new ByteArrayInputStream(Arrays.copyOf(big, MrVersion.MAX_BYTES))).length() == MrVersion.MAX_BYTES
                         && MrVersion.readAll(new ByteArrayInputStream(new byte[0])).equals(""));
 
-        // the notes that go in the APK: assets/mr_release_notes.md has both blocks and the same number of items in each (check_version.py checks it is a copy)
+        // the notes that go in the APK: assets/mr_release_notes.md has the three blocks and the same number of items in each (the APK build copies the notes of the version there)
         File asset = new File("assets/mr_release_notes.md");
         check("version asset: assets/mr_release_notes.md exists (run the tests at the root of the project)", asset.isFile(), asset.getAbsolutePath());
         if (asset.isFile()) {
             String text = new String(Files.readAllBytes(asset.toPath()), StandardCharsets.UTF_8);
-            String pt = MrVersion.block(text, true), en = MrVersion.block(text, false);
-            boolean both = pt != null && en != null && !pt.equals(en) && text.contains(MrVersion.MARK_PT) && text.contains(MrVersion.MARK_EN);
-            check("version asset: the real asset has a Portuguese and an English block, different from each other", both);
+            String pt = MrVersion.block(text, "pt"), en = MrVersion.block(text, "en"), es = MrVersion.block(text, "es");
+            boolean both = pt != null && en != null && es != null && !pt.equals(en) && !es.equals(en) && !es.equals(pt)
+                    && text.contains(MrVersion.MARK_PT) && text.contains(MrVersion.MARK_EN) && text.contains(MrVersion.MARK_ES);
+            check("version asset: the real asset has a Portuguese, an English and a Spanish block, different from each other", both);
             if (both) {
-                int ptItems = MrNotesText.items(pt).size(), enItems = MrNotesText.items(en).size();
-                check("version asset: both blocks have items, the same number in each language, and none of them keeps a mark",
-                        ptItems > 0 && ptItems == enItems && !pt.contains("**" + MrVersion.MARK_PT) && !MrNotesText.items(pt).contains(MrVersion.MARK_EN));
+                int ptItems = MrNotesText.items(pt).size(), enItems = MrNotesText.items(en).size(), esItems = MrNotesText.items(es).size();
+                check("version asset: the three blocks have items, the same number in each language, and none of them keeps a mark",
+                        ptItems > 0 && ptItems == enItems && ptItems == esItems && !MrNotesText.items(pt).contains(MrVersion.MARK_EN)
+                                && !MrNotesText.items(en).contains(MrVersion.MARK_ES) && !MrNotesText.items(es).contains(MrVersion.MARK_PT));
             }
         }
     }
@@ -1956,7 +1984,8 @@ public class UpdateTest {
                 "status " + r.status + " error " + r.error);
         check("real tools: its fields are those of the APK and of the notes", r.notice != null && r.notice.versionName.equals("v1.82.0")
                 && r.notice.versionCode == 1082000 && r.notice.apkSha256.equals(shaApk) && r.notice.apkSize == 3
-                && r.notice.notes(new Locale("pt")).equals("• Novidade boa.") && r.notice.notes(Locale.US).equals("• Good news."));
+                && r.notice.notes(new Locale("pt")).equals("• Novidade boa.") && r.notice.notes(Locale.US).equals("• Good news.")
+                && r.notice.notes(new Locale("es")).equals("• Novedad buena."));
         check("real tools: the APK address", r.notice != null && r.notice.apkUrl().endsWith("/v1.82.0/mr-keyboard-v1.82.0.apk"));
 
         c = new Ctx(1081000);

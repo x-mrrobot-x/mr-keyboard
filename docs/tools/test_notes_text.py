@@ -5,15 +5,15 @@ Run it from the project root:  python3 -I docs/tools/test_notes_text.py
 
 Runs the REAL smali in the mini Dalvik interpreter (dalvik_mini.py) with a fake framework (strings, a SpannableStringBuilder that records the spans, the
 span classes, a TextView and a LinearLayout that record what they are given, resources). The same cases as the Java test (UpdateTest.notesCards), and then:
-  - every notes block of docs/release-notes (Portuguese and English) goes through the smali and through an independent reference written here from the
+  - every notes block of docs/release-notes (Portuguese and English, and the Spanish ones when the file has them) goes through the smali and through an independent reference written here from the
     rules of the class, and the items, the text and every span must be the same (the real notes are the best corpus: items with and without label,
     **bold**, `code`, long sentences with a colon, "Como receber");
   - the rules of the screen (docs/release-notes are the data): one card for each item, no bullet, no ** and no ` left, the label bold and white, the
     rest in the softer color, the same faint card for all (no color by kind), a gap between the cards and none before the first one;
-  - MrUpdate$Notice.raw / notes (language of the notes) and MrUpdateDialog.fill (one card for each item of the notes of the language, the "no notes"
+  - MrUpdate$Notice.raw / notes (language of the notes: Portuguese, Spanish, English for the rest) and MrUpdateDialog.fill (one card for each item of the notes of the language, the "no notes"
     text when there is none, the actions and the line "v1.98.0 · size · you're on...");
-  - MrVersion (the "Version" line of Settings, v2.0.0): block (the Portuguese and the English block of the notes, the same rule as make_update.py), notes
-    (Portuguese for pt, English for the rest), summary and fill (the dialog of the version: title, line, cards, only the Close button).
+  - MrVersion (the "Version" line of Settings, v2.0.0): block (the Portuguese, English and Spanish block of the notes, the same rule as make_update.py), notes
+    (Portuguese for pt, Spanish for es, English for the rest), summary and fill (the dialog of the version: title, line, cards, only the Close button).
 """
 import glob
 import math
@@ -36,7 +36,7 @@ LABEL = "labelEnd(Ljava/lang/String;)I"
 FILLC = "fill(Landroid/widget/LinearLayout;Ljava/lang/String;Ljava/lang/String;)I"
 FILL = "fill(Landroid/app/Activity;Landroid/view/View;Lcom/mrkeyboard/app/MrUpdate$Notice;)Z"
 VFILL = "fill(Landroid/app/Activity;Landroid/view/View;)Z"
-BLOCK = "block(Ljava/lang/String;Z)Ljava/lang/String;"
+BLOCK = "block(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;"
 VNOTES = "notes(Landroid/content/Context;Ljava/util/Locale;)Ljava/lang/String;"
 VSUMMARY = "summary(Landroid/content/Context;)Ljava/lang/String;"
 FLAGS = 33  # SPAN_EXCLUSIVE_EXCLUSIVE
@@ -354,9 +354,9 @@ files = sorted(glob.glob(os.path.join(ROOT, "docs", "release-notes", "*.md")))
 blocks = []
 for fn in files:
     txt = open(fn, encoding="utf-8").read().replace("\r\n", "\n")
-    parts = re.split(r"^\*\*(Português|English)\*\*$", txt, flags=re.M)
+    parts = re.split(r"^\*\*(Português|English|Español)\*\*$", txt, flags=re.M)
     for i in range(1, len(parts), 2):
-        blocks.append((os.path.basename(fn) + " " + parts[i], parts[i + 1].strip()))
+        blocks.append((os.path.relpath(fn, ROOT) + " " + parts[i], parts[i + 1].strip()))
 check("real notes: there are blocks to test", len(blocks) >= 20, len(blocks))
 bad_items, bad_fmt, marks, labels_seen = [], [], [], 0
 for name, md in blocks:
@@ -440,18 +440,22 @@ NVM = H.vm(NOTICE, "MrUpdate$Notice.smali")
 pt, en, es = dm.Obj("Ljava/util/Locale;", lang="pt"), dm.Obj("Ljava/util/Locale;", lang="en"), dm.Obj("Ljava/util/Locale;", lang="es")
 RAW = "raw(Ljava/util/Locale;)Ljava/lang/String;"
 NOTES_M = "notes(Ljava/util/Locale;)Ljava/lang/String;"
-both = dm.Obj(NOTICE, notesPt="- Novo: texto", notesEn="- New: text")
-only_en = dm.Obj(NOTICE, notesPt=None, notesEn="- New: text")
-check("Notice.raw: Portuguese for pt, English for the rest and for no language, English when there is no Portuguese",
-      NVM.run(RAW, [both, pt]) == "- Novo: texto" and NVM.run(RAW, [both, en]) == "- New: text" and NVM.run(RAW, [both, es]) == "- New: text"
-      and NVM.run(RAW, [both, None]) == "- New: text" and NVM.run(RAW, [only_en, pt]) == "- New: text")
+both = dm.Obj(NOTICE, notesPt="- Novo: texto", notesEn="- New: text", notesEs="- Nuevo: texto")
+only_en = dm.Obj(NOTICE, notesPt=None, notesEn="- New: text", notesEs=None)
+no_es = dm.Obj(NOTICE, notesPt="- Novo: texto", notesEn="- New: text", notesEs=None)
+check("Notice.raw: Portuguese for pt, Spanish for es, English for the rest and for no language",
+      NVM.run(RAW, [both, pt]) == "- Novo: texto" and NVM.run(RAW, [both, en]) == "- New: text" and NVM.run(RAW, [both, es]) == "- Nuevo: texto"
+      and NVM.run(RAW, [both, None]) == "- New: text")
+check("Notice.raw: a language the notice has no block for (update.json made without Spanish or without Portuguese) gets English",
+      NVM.run(RAW, [only_en, pt]) == "- New: text" and NVM.run(RAW, [only_en, es]) == "- New: text" and NVM.run(RAW, [no_es, es]) == "- New: text"
+      and NVM.run(RAW, [no_es, pt]) == "- Novo: texto")
 check("Notice.notes: still the plain text of the notes of the language", NVM.run(NOTES_M, [both, pt]) == "plain(- Novo: texto)"
-      and NVM.run(NOTES_M, [both, en]) == "plain(- New: text)")
+      and NVM.run(NOTES_M, [both, en]) == "plain(- New: text)" and NVM.run(NOTES_M, [both, es]) == "plain(- Nuevo: texto)")
 
 DVM = H.vm(DIALOG, "MrUpdateDialog.smali")
 
 
-def make_dialog(notes_pt, notes_en="- New: text", lang="pt", missing=None, notes_is_text=False):
+def make_dialog(notes_pt, notes_en="- New: text", lang="pt", missing=None, notes_is_text=False, notes_es=None):
     tags = ["upd_title", "upd_sub", "upd_notes", "upd_scroll", "upd_box", "upd_status", "upd_bar", "upd_error", "upd_install", "upd_github", "upd_later"]
     ctx = make_box().f["context"]
     views = {k: dm.Obj("Landroid/widget/TextView;", context=ctx) for k in tags if k != missing}
@@ -460,7 +464,7 @@ def make_dialog(notes_pt, notes_en="- New: text", lang="pt", missing=None, notes
     root = dm.Obj("Landroid/view/View;", views=views)
     act = dm.Obj("Landroid/app/Activity;", res=dm.Obj("Landroid/content/res/Resources;", conf=dm.Obj("Landroid/content/res/Configuration;",
                  locale=dm.Obj("Ljava/util/Locale;", lang=lang))))
-    n = dm.Obj(NOTICE, versionName="v1.98.0", apkSize=2300000, notesPt=notes_pt, notesEn=notes_en)
+    n = dm.Obj(NOTICE, versionName="v1.98.0", apkSize=2300000, notesPt=notes_pt, notesEn=notes_en, notesEs=notes_es)
     return act, root, n, views
 
 
@@ -478,6 +482,12 @@ check("dialog: the three actions are connected (install 1, GitHub 2, not now 3)"
       [views[k].f["click"].f["what"] for k in ("upd_install", "upd_github", "upd_later")] == [1, 2, 3])
 act, root, n, views = make_dialog(None, "- Fixed: x", lang="en")
 check("dialog: in English the notes are the English ones", DVM.run(FILL, [act, root, n]) == 1 and card_texts(views["upd_notes"]) == ["Fixed: x"])
+act, root, n, views = make_dialog("- Novo: a", "- New: a", lang="es", notes_es="- Nuevo: **búsqueda** nueva.\n- Corregido: algo.")
+check("dialog: in Spanish the notes are the Spanish ones, one card for each item", DVM.run(FILL, [act, root, n]) == 1
+      and card_texts(views["upd_notes"]) == ["Nuevo: búsqueda nueva.", "Corregido: algo."], card_texts(views["upd_notes"]))
+act, root, n, views = make_dialog("- Novo: a", "- New: a", lang="es")
+check("dialog: in Spanish with a notice that has no Spanish block the notes are the English ones", DVM.run(FILL, [act, root, n]) == 1
+      and card_texts(views["upd_notes"]) == ["New: a"], card_texts(views["upd_notes"]))
 act, root, n, views = make_dialog("  \n \n", "- New: text", lang="pt")
 check("dialog: notes with nothing in them show the 'no notes' text as the only card", DVM.run(FILL, [act, root, n]) == 1
       and card_texts(views["upd_notes"]) == ["<mr_update_notes_none>"], card_texts(views["upd_notes"]))
@@ -490,25 +500,42 @@ check("dialog: a notes view that is not the box of cards (an old layout) is refu
 VVM = H.vm(VERSION, "MrVersion.smali")
 del VVM.m["readAsset(Landroid/content/Context;)Ljava/lang/String;"]     # the host answers it (the real reading is the Java test): the VM would call itself
 SAMPLE = ("# v9.9.9\n\n**Português**\n\n- Novo: item um.\n- Corrigido: item dois.\n\n**English**\n\n- New: item one.\n- Fixed: item two.\n")
-blk = lambda text, p: VVM.run(BLOCK, [text, p])  # noqa: E731
+blk = lambda text, lang: VVM.run(BLOCK, [text, lang])  # noqa: E731
 check("block: the Portuguese block is what follows **Português** up to **English**, trimmed; the English one is what follows **English**",
-      blk(SAMPLE, 1) == "- Novo: item um.\n- Corrigido: item dois." and blk(SAMPLE, 0) == "- New: item one.\n- Fixed: item two.",
-      (blk(SAMPLE, 1), blk(SAMPLE, 0)))
+      blk(SAMPLE, "pt") == "- Novo: item um.\n- Corrigido: item dois." and blk(SAMPLE, "en") == "- New: item one.\n- Fixed: item two.",
+      (blk(SAMPLE, "pt"), blk(SAMPLE, "en")))
 swapped = "**English**\n- New: a.\n**Português**\n- Novo: b.\n"
-check("block: the order of the blocks does not matter (English first)", blk(swapped, 1) == "- Novo: b." and blk(swapped, 0) == "- New: a.")
-check("block: CRLF is accepted and the marks may have spaces around them", blk("  **Português**  \r\n- Novo: b.\r\n**English**\r\n- New: a.", 1) == "- Novo: b."
-      and blk("  **Português**  \r\n- Novo: b.\r\n**English**\r\n- New: a.", 0) == "- New: a.")
-check("block: with one block missing or empty the other is used; with none it is null",
-      blk("**English**\n- New: a.", 1) == "- New: a." and blk("**Português**\n- Novo: b.", 0) == "- Novo: b." and blk("- sem blocos", 1) in (None, 0)
-      and blk("**Português**\n\n**English**\n- New: a.", 1) == "- New: a." and blk("**Português**\n\n**English**\n", 1) in (None, 0)
-      and blk("**Português**\n- Novo: b.\n**English**\n  \n", 0) == "- Novo: b.")
-check("block: a mark in the middle of a line is not a mark", blk("texto **Português** aqui\n**English**\n- New: a.", 0) == "- New: a."
-      and blk("texto **Português** aqui\n**English**\n- New: a.", 1) == "- New: a.")
+check("block: the order of the blocks does not matter (English first)", blk(swapped, "pt") == "- Novo: b." and blk(swapped, "en") == "- New: a.")
+check("block: CRLF is accepted and the marks may have spaces around them", blk("  **Português**  \r\n- Novo: b.\r\n**English**\r\n- New: a.", "pt") == "- Novo: b."
+      and blk("  **Português**  \r\n- Novo: b.\r\n**English**\r\n- New: a.", "en") == "- New: a.")
+check("block: with one block missing or empty English is used (Portuguese, then Spanish, when English is missing); with none it is null",
+      blk("**English**\n- New: a.", "pt") == "- New: a." and blk("**Português**\n- Novo: b.", "en") == "- Novo: b." and blk("- sem blocos", "pt") in (None, 0)
+      and blk("**Português**\n\n**English**\n- New: a.", "pt") == "- New: a." and blk("**Português**\n\n**English**\n", "pt") in (None, 0)
+      and blk("**Português**\n- Novo: b.\n**English**\n  \n", "en") == "- Novo: b.")
+check("block: a mark in the middle of a line is not a mark", blk("texto **Português** aqui\n**English**\n- New: a.", "en") == "- New: a."
+      and blk("texto **Português** aqui\n**English**\n- New: a.", "pt") == "- New: a.")
+SAMPLE3 = SAMPLE + "\n**Español**\n\n- Nuevo: elemento uno.\n- Corregido: elemento dos.\n"
+check("block: three blocks, each one up to the next mark (the Spanish one up to the end), in the language asked",
+      blk(SAMPLE3, "pt") == "- Novo: item um.\n- Corrigido: item dois." and blk(SAMPLE3, "en") == "- New: item one.\n- Fixed: item two."
+      and blk(SAMPLE3, "es") == "- Nuevo: elemento uno.\n- Corregido: elemento dos.", (blk(SAMPLE3, "pt"), blk(SAMPLE3, "en"), blk(SAMPLE3, "es")))
+shuffled = "**Español**\n- Nuevo: a.\n**English**\n- New: b.\n**Português**\n- Novo: c.\n"
+check("block: the order of three blocks does not matter", blk(shuffled, "es") == "- Nuevo: a." and blk(shuffled, "en") == "- New: b." and blk(shuffled, "pt") == "- Novo: c.")
+check("block: Spanish asked and missing or empty: English; any other language (fr, empty) is English too",
+      blk(SAMPLE, "es") == "- New: item one.\n- Fixed: item two." and blk(SAMPLE3.replace("- Nuevo: elemento uno.\n- Corregido: elemento dos.", " "), "es") == "- New: item one.\n- Fixed: item two."
+      and blk(SAMPLE3, "fr") == "- New: item one.\n- Fixed: item two." and blk(SAMPLE3, "") == "- New: item one.\n- Fixed: item two.")
+check("block: only Spanish and Portuguese (no English): Portuguese for en and fr, Spanish for es, Spanish when it is the only one",
+      blk("**Português**\n- Novo: b.\n**Español**\n- Nuevo: c.", "en") == "- Novo: b." and blk("**Português**\n- Novo: b.\n**Español**\n- Nuevo: c.", "es") == "- Nuevo: c."
+      and blk("**Español**\n- Nuevo: c.", "pt") == "- Nuevo: c." and blk("**Español**\n- Nuevo: c.", "en") == "- Nuevo: c.")
 
 H.asset = SAMPLE
-check("notes: Portuguese for pt, English for any other language and for none", VVM.run(VNOTES, [None, pt]) == "- Novo: item um.\n- Corrigido: item dois."
+check("notes: Portuguese for pt, English for any other language and for none (Spanish falls on English when the asset has no Spanish block)",
+      VVM.run(VNOTES, [None, pt]) == "- Novo: item um.\n- Corrigido: item dois."
       and VVM.run(VNOTES, [None, en]) == "- New: item one.\n- Fixed: item two." and VVM.run(VNOTES, [None, es]) == "- New: item one.\n- Fixed: item two."
       and VVM.run(VNOTES, [None, None]) == "- New: item one.\n- Fixed: item two.")
+H.asset = SAMPLE3
+check("notes: with the three blocks, Spanish for es, Portuguese for pt, English for the rest and for none",
+      VVM.run(VNOTES, [None, es]) == "- Nuevo: elemento uno.\n- Corregido: elemento dos." and VVM.run(VNOTES, [None, pt]) == "- Novo: item um.\n- Corrigido: item dois."
+      and VVM.run(VNOTES, [None, en]) == "- New: item one.\n- Fixed: item two." and VVM.run(VNOTES, [None, None]) == "- New: item one.\n- Fixed: item two.")
 H.asset = None
 check("notes: with no asset (or one that cannot be read) the notes are empty, no exception", VVM.run(VNOTES, [None, pt]) == "")
 H.asset = "texto sem blocos"
@@ -545,6 +572,11 @@ check("version dialog: only Close is left (install, GitHub, the download box and
       and "visibility" not in views["upd_scroll"].f and "visibility" not in views["upd_notes"].f)
 act, root, views = make_version_dialog(lang="en")
 check("version dialog: in English the notes are the English ones", VVM.run(VFILL, [act, root]) == 1 and card_texts(views["upd_notes"]) == ["New: item one.", "Fixed: item two."])
+H.asset = SAMPLE3
+act, root, views = make_version_dialog(lang="es")
+check("version dialog: in Spanish the notes are the Spanish ones, one card for each item", VVM.run(VFILL, [act, root]) == 1
+      and card_texts(views["upd_notes"]) == ["Nuevo: elemento uno.", "Corregido: elemento dos."], card_texts(views["upd_notes"]))
+H.asset = SAMPLE
 H.asset = None
 act, root, views = make_version_dialog()
 check("version dialog: with no notes in the APK the 'no notes' text is the only card", VVM.run(VFILL, [act, root]) == 1

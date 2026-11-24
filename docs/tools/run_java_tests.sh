@@ -124,7 +124,7 @@
 #     and given back, the delete button (press feedback, Backspace, the repeat, release and cancel), a tap on a result written in the
 #     app and not in the search field, the words read in a background thread, dropped when the emoji panel is left, thrown away when
 #     they arrive late, and a keyboard view made again while the search is open.
-#   - SymbolsTest: the symbols page of the emoji panel (MrSymbols, 2.0.0): the eight categories of one code point each (none twice, the ones of the reference pictures
+#   - SymbolsTest: the symbols page of the emoji panel (MrSymbols, 2.1.0): the eight categories of one code point each (none twice, the ones of the reference pictures
 #     among them, ASCII source), the swap between the emojis and the symbols with the two buttons of the floating bar (tabs with a symbol in place of the icon and the icon back, the list built
 #     again), the recent symbols (their own preference, 24 at most, a long press removes), the names of the tabs, the symbols the font of the phone cannot draw left out (asked once per
 #     category), the way back to the emojis when the panel is left, and the hooks in MrEmotes.smali.

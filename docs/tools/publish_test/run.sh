@@ -138,6 +138,23 @@ check "update.json: APK name, size and SHA-256 are those of the APK in the relea
 check "update.json: notes in Portuguese and English, each from its own block" "$([ "$(updfield "$U" "'Corrige o fechamento' in d['notes']['pt-BR'] and 'Fixes' not in d['notes']['pt-BR']")" = True ] && [ "$(updfield "$U" "'Fixes the test app closing' in d['notes']['en'] and 'Corrige' not in d['notes']['en']")" = True ] && echo 1 || echo 0)"
 check "update.json: no link (the app builds the addresses from its own constants)" "$(! grep -q 'http' "$U" && echo 1 || echo 0)"
 
+# ---- 1d) notes with a **Español** block: it goes in update.json (notes.es) and never in the text of the release (Portuguese and English only)
+fresh; earlier v1.71.0 5
+printf '**Português**\n- Corrige o fechamento do app de teste.\n\n**English**\n- Fixes the test app closing.\n\n**Español**\n- Corrige el cierre de la app de prueba.\n' > "$W/docs/release-notes/v1.72.0.md"
+publish automatic true X=1
+U=$S/rel/v1.72.0/assets/update.json
+check "notes with Spanish: publishes" "$([ $CODE = 0 ] && [ "$(published v1.72.0)" = 1 ] && echo 1 || echo 0)" "$OUT"
+check "notes with Spanish: the release text has the Portuguese and the English notes and nothing of the Spanish block" "$(grep -q 'Corrige o fechamento do app de teste' "$S/rel/v1.72.0/notes.md" && grep -q 'Fixes the test app closing' "$S/rel/v1.72.0/notes.md" && ! grep -q 'Español' "$S/rel/v1.72.0/notes.md" && ! grep -q 'cierre de la app' "$S/rel/v1.72.0/notes.md" && grep -q 'Dicionários incluídos' "$S/rel/v1.72.0/notes.md" && echo 1 || echo 0)" "$(cat "$S/rel/v1.72.0/notes.md")"
+check "notes with Spanish: update.json has the three notes, each from its own block" "$([ "$(updfield "$U" "d['notes']['es']")" = '- Corrige el cierre de la app de prueba.' ] && [ "$(updfield "$U" "'Corrige o' in d['notes']['pt-BR'] and 'cierre' not in d['notes']['pt-BR'] and 'cierre' not in d['notes']['en']")" = True ] && echo 1 || echo 0)"
+fresh; earlier v1.71.0 5
+publish automatic true X=1
+U=$S/rel/v1.72.0/assets/update.json
+check "notes without Spanish: update.json has no notes.es (it is optional)" "$([ "$(updfield "$U" "'es' in d['notes']")" = False ] && echo 1 || echo 0)"
+fresh; earlier v1.71.0 5; printf '**Português**\n- Só em português.\n\n**Español**\n- Solo español.\n' > "$W/docs/release-notes/v1.72.0.md"
+publish automatic true X=1
+check "Spanish block but no English one: error (the Spanish block does not replace it), nothing created" "$([ $CODE != 0 ] && [ ! -d "$S/rel/v1.72.0" ] && echo "$OUT" | grep -q 'English' && echo 1 || echo 0)" "$CODE $OUT"
+U=$S/rel/v1.72.0/assets/update.json
+
 # ---- 1c) only the commit counts: a change made in the folder after the commit does not enter the zip
 fresh; earlier v1.71.0 5; commit_all; C1=$(git -C "$W" rev-parse HEAD)
 echo '.class public Lcom/x/A; # DIRTY' > "$W/smali/com/x/A.smali"; echo new > "$W/smali/com/x/Uncommitted.smali"

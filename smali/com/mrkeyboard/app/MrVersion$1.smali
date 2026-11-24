@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 202
+    .line 214
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .locals 0
 
     .prologue
-    .line 204
+    .line 216
     invoke-static {}, Lcom/mrkeyboard/app/MrVersion;->dismiss()V
 
-    .line 205
+    .line 217
     return-void
 .end method

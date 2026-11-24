@@ -5,7 +5,7 @@ The keyboard vibrates on every key press when "Vibrate on keypress" is on (Setti
 turns "Use system vibration" off sets a **strength** instead (5 % to 100 %, steps of 5 %, 50 % by default; the key `vibrate_strength`, kept as a
 fraction in text, like the click volume), not a duration. The slider is only enabled while the system vibration is off.
 
-## System vibration (default, since 2.0.0)
+## System vibration (default, since 2.1.0)
 The keyboard plays `View.performHapticFeedback(KEYBOARD_TAP)` on every key press and builds an effect of its own only when the person
 sets a custom strength. Until now the keyboard always built one (a TICK primitive at full scale by default), which is sharper than the key tap
 of most phones, and the system one felt softer. Now the default is the system tap: `vibrate_system` is on, `MrHaptic.level` gives the strength **0**

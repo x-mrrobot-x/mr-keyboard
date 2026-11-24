@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Tests make_update.py (the data of update.json) with a fake APK and fake notes. Run it from the project root.
 
-Covers the content (version, size and SHA-256 of the APK, notes of both languages, UTF-8), the same bytes for the same
+Covers the content (version, size and SHA-256 of the APK, notes of both languages and the optional Spanish block, UTF-8), the text of the Release
+(--release-text: the notes without the Spanish block), the same bytes for the same
 input, the blocks in any order and with CRLF, and every error that must stop a release: tag different from the
 version, versionCode out of the formula, wrong APK name, missing/empty/repeated/too long notes. It also runs the
 script on the real project notes, which must fit the limit.
@@ -70,6 +71,68 @@ d, apk = setup(notes=NOTES.replace('\n', '\r\n'))
 rc, msg, data, _ = run(d, apk)
 check('CRLF notes: same text, no \\r in it', rc == 0 and '\r' not in json.dumps(data['notes']) and data['notes']['en'] == '- Fixes the app closing.', msg)
 
+# ---- the Spanish block (optional, in the same file): notes.es in the data; never in the text of the Release
+NOTES_ES = NOTES + '\n**Español**\n- Corrige el cierre de la app.\n- Nuevo: **acción** en `Ajustes`.\n'
+d, apk = setup(notes=NOTES_ES)
+rc, msg, data, _ = run(d, apk)
+check('Spanish block: notes.es as written, with accents, next to the other two',
+      rc == 0 and data['notes'] == {'pt-BR': '- Corrige o fechamento do app.\n- Novo: **ação** em `Ajustes`.', 'en': '- Fixes the app closing.',
+                                    'es': '- Corrige el cierre de la app.\n- Nuevo: **acción** en `Ajustes`.'}, str(data and data['notes']))
+check('Spanish block: the message counts the three blocks', rc == 0 and msg.count(' + ') == 2, msg)
+d, apk = setup()
+rc, msg, data, _ = run(d, apk)
+check('no Spanish block: no notes.es (it is optional)', rc == 0 and 'es' not in data['notes'], str(data and data['notes']))
+d, apk = setup(notes='**Español**\n- Primero.\n\n**Português**\n- Um.\n\n**English**\n- One.\n')
+rc, msg, data, _ = run(d, apk)
+check('Spanish block first: each block ends at the next mark, in any order',
+      rc == 0 and data['notes'] == {'es': '- Primero.', 'pt-BR': '- Um.', 'en': '- One.'}, str(data and data['notes']))
+d, apk = setup(notes=NOTES + '\n**Español**\n\n')
+rc, msg, data, _ = run(d, apk)
+check('empty Spanish block: error', rc != 0 and 'empty' in msg and '**Español**' in msg, msg)
+d, apk = setup(notes=NOTES + '\n**Español**\n' + 'x' * 4001 + '\n')
+rc, msg, data, _ = run(d, apk)
+check('Spanish block over the limit: error', rc != 0 and '4001' in msg, msg)
+d, apk = setup(notes=NOTES_ES + '\n**Español**\n- Otra vez.\n')
+rc, msg, data, _ = run(d, apk)
+check('repeated Spanish block: error', rc != 0 and 'two' in msg and '**Español**' in msg, msg)
+d, apk = setup(notes=NOTES_ES.replace('\n', '\r\n'))
+rc, msg, data, _ = run(d, apk)
+check('Spanish block with CRLF: no \\r in it', rc == 0 and '\r' not in data['notes']['es'], msg)
+d, apk = setup(notes='**Português**\n- Só.\n\n**Español**\n- Solo.\n')
+rc, msg, data, _ = run(d, apk)
+check('Spanish block does not replace the missing English block (still an error)', rc != 0 and '**English**' in msg, msg)
+
+
+def release_text(d, notes_bytes=None):
+    path = os.path.join(d, 'notes.md')
+    if notes_bytes is not None:
+        open(path, 'wb').write(notes_bytes)
+    r = subprocess.run([sys.executable, '-I', MU, '--release-text', path], capture_output=True)
+    return r.returncode, r.stdout.decode('utf-8'), r.stderr.decode('utf-8')
+
+
+d, apk = setup(notes=NOTES_ES)
+rc, out, err = release_text(d)
+check('release text: the notes without the Spanish block, nothing else changed', rc == 0 and out == NOTES + '\n', repr(out) + err)
+check('release text: no **Español**, no Spanish line', '**Español**' not in out and 'cierre' not in out and 'acción' not in out)
+rc, out, err = release_text(d, NOTES.encode('utf-8'))
+check('release text: notes with no Spanish block come out exactly as they are', rc == 0 and out == NOTES, repr(out))
+rc, out, err = release_text(d, NOTES.replace('\n', '\r\n').encode('utf-8'))
+check('release text: CRLF is kept as it is', rc == 0 and out == NOTES.replace('\n', '\r\n'), repr(out))
+rc, out, err = release_text(d, ('**Español**\n- Primero.\n\n' + NOTES).encode('utf-8'))
+check('release text: Spanish block first: it goes away up to the next block and the others stay', rc == 0 and out == NOTES, repr(out))
+mid = '**Português**\n- Um.\n\n**Español**\n- Dos.\n- Tres.\n\n**English**\n- One.\n'
+rc, out, err = release_text(d, mid.encode('utf-8'))
+check('release text: Spanish block between the two: both stay, the Spanish lines go', rc == 0 and out == '**Português**\n- Um.\n\n**English**\n- One.\n', repr(out))
+rc, out, err = release_text(d, ('# v9.9.9\n\n' + NOTES_ES).encode('utf-8'))
+check('release text: the text before the first block stays', rc == 0 and out.startswith('# v9.9.9\n\n**Português**') and 'Español' not in out, repr(out))
+rc, out, err = release_text(d, b'**Portugu\xc3\xaas**\n- So pt.\n')
+check('release text: notes without the English block: error, nothing printed', rc != 0 and out == '' and '**English**' in err, err)
+rc, out, err = release_text(os.path.join(d, 'nada'))
+check('release text: notes file missing: error', rc != 0 and out == '' and 'not found' in err, err)
+r = subprocess.run([sys.executable, '-I', MU, '--tag', 'v1.82.0'], capture_output=True, text=True)
+check('without --release-text the options of the update notice are still required', r.returncode != 0 and '--apk is required' in r.stderr, r.stderr)
+
 # ---- notes errors
 d, apk = setup(notes='**Português**\n- Só português.\n')
 rc, msg, data, _ = run(d, apk)
@@ -129,6 +192,14 @@ out = os.path.join(d, 'u.json')
 r = subprocess.run([sys.executable, '-I', MU, '--apk', apk, '--tag', tag, '--notes', os.path.join(ROOT, 'docs/release-notes/%s.md' % tag),
                     '--apktool', os.path.join(ROOT, 'apktool.yml'), '--out', out], capture_output=True, text=True)
 check('real project (%s): the notes in docs/release-notes are accepted' % tag, r.returncode == 0, r.stdout + r.stderr)
+real_notes = os.path.join(ROOT, 'docs/release-notes/%s.md' % tag)
+got = json.load(open(out, encoding='utf-8'))['notes'] if r.returncode == 0 else {}
+rt = subprocess.run([sys.executable, '-I', MU, '--release-text', real_notes], capture_output=True)
+check('real project (%s): the text of the Release has no Spanish block, and it keeps both languages' % tag,
+      rt.returncode == 0 and '**Español**' not in rt.stdout.decode('utf-8') and '**Português**' in rt.stdout.decode('utf-8') and '**English**' in rt.stdout.decode('utf-8'),
+      rt.stderr.decode('utf-8'))
+if '**Español**' in open(real_notes, encoding='utf-8').read():
+    check('real project (%s): the Spanish notes are in the data and fit the limit' % tag, 0 < len(got.get('es', '')) <= 4000, str(sorted(got)))
 
 import shutil; shutil.rmtree(T, ignore_errors=True)
 if fails == 0:

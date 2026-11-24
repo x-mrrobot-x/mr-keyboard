@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests that Google Gemini is the service of the AI settings until the person changes it (v2.0.0 work). Static checks on the files.
+"""Tests that Google Gemini is the service of the AI settings until the person changes it (v2.1.0 work). Static checks on the files.
 
 Run it from the project root:  python3 -I docs/tools/test_ai_default.py
 

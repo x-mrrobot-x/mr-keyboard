@@ -11,7 +11,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 /**
- * The characters of the emoji panel (2.0.0).
+ * The characters of the emoji panel (2.1.0).
  *
  * The floating bar of the emoji panel (MrEmojiSearch) has a button between Search and Delete. It swaps what the panel shows: the
  * emojis give way to the text symbols (stars, hearts, arrows, math, music, shapes, animals and games, currency and signs), and

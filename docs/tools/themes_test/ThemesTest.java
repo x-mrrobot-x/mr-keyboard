@@ -75,7 +75,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * The themes screen (v2.0.0, "Keyboard theme"), run on the PC against the stubs of Android: the spec of the background that the preference holds
+ * The themes screen (v2.1.0, "Keyboard theme"), run on the PC against the stubs of Android: the spec of the background that the preference holds
  * (MrBackdrop.Spec: colours, gradients, landscapes, a picture with zoom and position), the part of a picture that fills the keyboard and how a finger
  * moves and pinches its frame (crop, pan, shift, rezoom), the gradients drawn as CSS does and the 48 landscapes (the pictures of the app, in six categories, drawn as a picture of the gallery is), the veil that keeps the toolbar readable
  * over every colour, gradient and landscape (veil, look; the softening is for gradients, landscapes and pictures), the picture of the gallery (importPending: the size, the

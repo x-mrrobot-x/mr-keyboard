@@ -19,7 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * MrBottom (2.0.0): the space under the last row of keys (4 dp, the same with the home gesture and with the buttons) and the
+ * MrBottom (2.1.0): the space under the last row of keys (4 dp, the same with the home gesture and with the buttons) and the
  * navigation bar under the keyboard. Checks the pixels by the density, the height that is left to the rows of keys (the space is part of the
  * height of the keyboard: the keys give way by the same amount), the padding of the view that holds the toolbar and the keys (once, and again
  * when the density changes), what happens when Android answers with an error, the new default heights, the navigation bar that shows the

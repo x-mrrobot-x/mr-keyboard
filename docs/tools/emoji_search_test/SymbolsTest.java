@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 /**
- * The symbols of the emoji panel (MrSymbols, 2.0.0): the data (eight categories of single code points, none twice, the ones of the
+ * The symbols of the emoji panel (MrSymbols, 2.1.0): the data (eight categories of single code points, none twice, the ones of the
  * reference pictures among them, nothing that the font of the phone cannot draw), the swap between the emojis and the symbols (the two
  * buttons, the tabs with a symbol in place of the icon, the list built again), the recent symbols (their own list, 24 at most, saved,
  * a long press removes), the names of the tabs, the way back to the emojis when the panel is left, and the hooks in the smali of

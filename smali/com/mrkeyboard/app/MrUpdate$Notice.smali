@@ -27,6 +27,8 @@
 
 .field notesEn:Ljava/lang/String;
 
+.field notesEs:Ljava/lang/String;
+
 .field notesPt:Ljava/lang/String;
 
 .field versionCode:J
@@ -51,7 +53,7 @@
     .locals 2
 
     .prologue
-    .line 89
+    .line 95
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -91,7 +93,7 @@
     .locals 1
 
     .prologue
-    .line 84
+    .line 90
     invoke-virtual {p0, p1}, Lcom/mrkeyboard/app/MrUpdate$Notice;->raw(Ljava/util/Locale;)Ljava/lang/String;
 
     move-result-object v0
@@ -107,32 +109,60 @@
     .locals 2
 
     .prologue
-    .line 79
+    .line 82
     if-eqz p1, :cond_0
-
-    const-string v0, "pt"
 
     invoke-virtual {p1}, Ljava/util/Locale;->getLanguage()Ljava/lang/String;
 
-    move-result-object v1
+    move-result-object v0
 
-    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    .line 83
+    :goto_0
+    const-string v1, "pt"
+
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_1
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesPt:Ljava/lang/String;
+
+    if-eqz v1, :cond_1
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesPt:Ljava/lang/String;
+
+    .line 85
+    :goto_1
+    return-object v0
+
+    .line 82
+    :cond_0
+    const-string v0, ""
+
+    goto :goto_0
+
+    .line 84
+    :cond_1
+    const-string v1, "es"
+
+    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_0
+    if-eqz v0, :cond_2
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesPt:Ljava/lang/String;
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesEs:Ljava/lang/String;
 
-    if-eqz v0, :cond_0
+    if-eqz v0, :cond_2
 
-    iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesPt:Ljava/lang/String;
+    iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesEs:Ljava/lang/String;
 
-    :goto_0
-    return-object v0
+    goto :goto_1
 
-    :cond_0
+    .line 85
+    :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/MrUpdate$Notice;->notesEn:Ljava/lang/String;
 
-    goto :goto_0
+    goto :goto_1
 .end method

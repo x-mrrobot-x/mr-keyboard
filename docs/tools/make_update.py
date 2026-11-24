@@ -3,6 +3,7 @@
 
   python3 docs/tools/make_update.py --apk mr-keyboard-v1.82.0.apk --tag v1.82.0 \\
       --notes docs/release-notes/v1.82.0.md --apktool apktool.yml --out out/update-data.json [--now ISO]
+  python3 docs/tools/make_update.py --release-text docs/release-notes/v1.82.0.md      (prints the text of the Release, see below)
 
 publish_release.sh then signs it with the APK key (sign_catalog.sh ... update) and attaches the result as update.json.
 The app reads .../releases/latest/download/update.json, checks the signature, and only offers a versionCode higher
@@ -17,6 +18,11 @@ Content (format 1):
   notes.pt-BR / notes.en     the text of the **Português** and **English** blocks of docs/release-notes/<tag>.md, as
                              written (Markdown: "- " items, **bold**, `code`); the app shows English when the
                              phone is in a language with no block
+  notes.es                   the **Español** block of the same file, when it has one (it is optional); an app of a version
+                             that does not know Spanish ignores it
+
+The Spanish block is only for the app: the text of the GitHub Release is the notes file WITHOUT it (--release-text prints that
+text, publish_release.sh uses it), so the Release stays in Portuguese and English.
 
 Fails (exit 1, message on stderr) if the tag, version, APK name or notes do not fit, so a broken notice is never published.
 """
@@ -25,7 +31,8 @@ import argparse, datetime, hashlib, json, os, re, sys
 TAG_RE = re.compile(r'^v([0-9]+)\.([0-9]+)\.([0-9]+)$')
 FORMAT = 1
 NOTES_MAX = 4000    # characters per language: the notice stays small and the dialog stays readable
-BLOCKS = (('pt-BR', '**Português**'), ('en', '**English**'))
+BLOCKS = (('pt-BR', '**Português**'), ('en', '**English**'))      # required
+BLOCK_ES = ('es', '**Español**')                                   # optional, and never in the Release text
 
 
 def fail(msg):
@@ -42,18 +49,20 @@ def read_version(path):
 
 
 def split_notes(text):
-    """{'pt-BR': ..., 'en': ...} from the lines **Português** and **English** (each alone on its line)."""
+    """{'pt-BR': ..., 'en': ..., 'es': ...} from the lines **Português**, **English** and **Español** (each alone on its line); 'es' only when it is there."""
     marks = {}
     lines = text.replace('\r\n', '\n').split('\n')
     for i, line in enumerate(lines):
-        for lang, marker in BLOCKS:
+        for lang, marker in BLOCKS + (BLOCK_ES,):
             if line.strip() == marker:
                 if lang in marks:
                     fail('the notes have two %s blocks' % marker)
                 marks[lang] = i
     out = {}
-    for lang, marker in BLOCKS:
+    for lang, marker in BLOCKS + (BLOCK_ES,):
         if lang not in marks:
+            if (lang, marker) == BLOCK_ES:
+                continue
             fail('the notes have no %s block' % marker)
         start = marks[lang] + 1
         later = [i for i in marks.values() if i > marks[lang]]
@@ -67,15 +76,44 @@ def split_notes(text):
     return out
 
 
+def release_text(text):
+    """The notes as the GitHub Release shows them: the same text without the **Español** block (from its line up to the next block, or the end).
+    The lines keep their endings and nothing else changes, so notes with no Spanish come out exactly as they went in."""
+    out, skipping = [], False
+    for line in re.split(r'(?<=\n)', text):
+        mark = line.strip()
+        if mark == BLOCK_ES[1]:
+            skipping = True
+        elif mark in (b[1] for b in BLOCKS):
+            skipping = False
+        if not skipping:
+            out.append(line)
+    result = ''.join(out)
+    if BLOCK_ES[1] in result:
+        fail('the Spanish mark is still in the text of the Release')
+    return result
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--apk', required=True, help='the signed APK, named mr-keyboard-<tag>.apk')
-    ap.add_argument('--tag', required=True, help='tag of the release (e.g. v1.82.0)')
-    ap.add_argument('--notes', required=True, help='docs/release-notes/<tag>.md')
+    ap.add_argument('--apk', help='the signed APK, named mr-keyboard-<tag>.apk')
+    ap.add_argument('--tag', help='tag of the release (e.g. v1.82.0)')
+    ap.add_argument('--notes', help='docs/release-notes/<tag>.md')
     ap.add_argument('--apktool', default='apktool.yml')
-    ap.add_argument('--out', required=True, help='where to write the data (JSON)')
+    ap.add_argument('--out', help='where to write the data (JSON)')
     ap.add_argument('--now', help='fixed time (for tests), ISO 8601')
+    ap.add_argument('--release-text', metavar='NOTES', help='prints the text of the GitHub Release for this notes file (without the Spanish block) and stops')
     a = ap.parse_args()
+
+    if a.release_text:
+        if not os.path.isfile(a.release_text):
+            fail('notes not found: %s' % a.release_text)
+        split_notes(open(a.release_text, encoding='utf-8').read())       # the same checks as for the update notice
+        sys.stdout.buffer.write(release_text(open(a.release_text, encoding='utf-8', newline='').read()).encode('utf-8'))
+        return
+    for opt in ('apk', 'tag', 'notes', 'out'):
+        if not getattr(a, opt):
+            ap.error('--%s is required' % opt.replace('_', '-'))
 
     m = TAG_RE.match(a.tag)
     if not m:
@@ -110,8 +148,8 @@ def main():
     }
     with open(a.out, 'wb') as f:
         f.write(json.dumps(data, ensure_ascii=False, indent=1).encode('utf-8'))
-    print('update notice: %s (code %d), %s %d bytes, notes %d + %d characters'
-          % (a.tag, code, apk_name, len(apk), len(notes['pt-BR']), len(notes['en'])))
+    print('update notice: %s (code %d), %s %d bytes, notes %s characters'
+          % (a.tag, code, apk_name, len(apk), ' + '.join(str(len(notes[k])) for k in ('pt-BR', 'en', 'es') if k in notes)))
 
 
 main()

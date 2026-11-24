@@ -9,7 +9,7 @@ It covers:
   a weak algorithm, a bad base64 and a bigger-than-limit answer are refused. A file signed with the **catalog prefix** is not
   an update notice, and an update notice does not pass as a catalog (`MrPacks.verifySigned` is the same code for both).
 - **Content:** tag like `v1.82.0`, `versionCode` that follows from the tag, APK named `mr-keyboard-<tag>.apk` with size and
-  SHA-256, notes in English (Portuguese optional). A link or an unknown field in the file is ignored: the APK address is
+  SHA-256, notes in English (Portuguese and Spanish optional: Spanish for a phone in Spanish, English when the notice has no block for its language). A link or an unknown field in the file is ignored: the APK address is
   always built from the app's constants and the tag.
 - **Versions:** only a `versionCode` higher than the installed one is offered; an older signed notice than one already seen
   (replay) is refused and changes nothing.

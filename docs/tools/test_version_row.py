@@ -8,8 +8,9 @@ Run it from the project root:  python3 -I docs/tools/test_version_row.py
   - gesture typing is no longer "experimental" in the settings or in the docs (the line "Swipe gestures" keeps its own label);
   - the "Version" line: no " custom"/" official" left (the dead check of the signature), the summary comes from MrVersion, the line is a normal row that can
     be tapped (no static layout) and has the listener that opens the notes; the launcher screen prints the real version name and not the old "custom" text;
-  - the notes of the installed version are inside the APK (assets/mr_release_notes.md, a byte-for-byte copy of docs/release-notes/v<versionName>.md) and the
-    screens that own the dialog close it when they go away;
+  - the notes of the installed version are inside the APK (assets/mr_release_notes.md, a copy of docs/release-notes/v<versionName>.md with its
+    **Español** block: the Release text is the same file without it) and the APK build makes that copy by itself (the step of mr-apk.yml is run here);
+    the screens that own the dialog close it when they go away;
   - the texts of the dialog exist in the three languages.
 """
 import os
@@ -102,15 +103,45 @@ yml = read("apktool.yml")
 name = re.search(r"versionName:\s*['\"]?v?([0-9.]+)", yml).group(1)
 asset = os.path.join("assets", "mr_release_notes.md")
 notes = os.path.join("docs", "release-notes", "v%s.md" % name)
-check("assets/mr_release_notes.md exists and is a byte-for-byte copy of docs/release-notes/v<versionName>.md (v%s)" % name,
-      os.path.exists(os.path.join(ROOT, asset)) and read(asset, binary=True) == read(notes, binary=True))
+check("assets/mr_release_notes.md exists (the copy that local builds and the tests read; the APK build makes its own, see the next checks)", os.path.exists(os.path.join(ROOT, asset)))
+wf = read(".github", "workflows", "mr-apk.yml")
+step = re.search(r"      - name: Put the notes of this version inside the APK\n        run: \|\n((?:          .*\n|\n)+)", wf)
+check("the APK build copies docs/release-notes/v<versionName>.md to assets/mr_release_notes.md by itself, before apktool builds the APK",
+      step is not None and 'cp "$NOTES" assets/mr_release_notes.md' in step.group(1) and 'docs/release-notes/v$VERSION.md' in step.group(1)
+      and wf.index("Put the notes of this version inside the APK") < wf.index("Build the APK with apktool"))
+if step:
+    import subprocess, tempfile, shutil
+    script = "\n".join(l[10:] for l in step.group(1).split("\n"))
+
+    def run_step(version, notes_text, asset_text):
+        d = tempfile.mkdtemp()
+        try:
+            os.makedirs(os.path.join(d, "assets")); os.makedirs(os.path.join(d, "docs", "release-notes"))
+            open(os.path.join(d, "apktool.yml"), "w").write("versionInfo:\n  versionCode: '9009009'\n  versionName: %s\n" % version)
+            if notes_text is not None:
+                open(os.path.join(d, "docs", "release-notes", "v9.9.9.md"), "w").write(notes_text)
+            open(os.path.join(d, "assets", "mr_release_notes.md"), "w").write(asset_text)
+            r = subprocess.run(["bash", "-e", "-c", script], cwd=d, capture_output=True, text=True)
+            return r.returncode, r.stdout, open(os.path.join(d, "assets", "mr_release_notes.md")).read()
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
+
+    rc, out, got = run_step("v9.9.9", "**Português**\n- Novo: A.\n\n**English**\n- New: A.\n\n**Español**\n- Nuevo: A.\n", "old notes\n")
+    check("the copy step: the notes of the versionName (with the Spanish block) replace whatever copy was committed", rc == 0 and got.startswith("**Português**") and "**Español**" in got, (rc, out, got))
+    rc, out, got = run_step("'v9.9.9'", "**Português**\n- Novo: A.\n\n**English**\n- New: A.\n", "old notes\n")
+    check("the copy step: it also reads a versionName written between quotes", rc == 0 and got.startswith("**Português**"), (rc, out, got))
+    rc, out, got = run_step("v9.9.9", None, "old notes\n")
+    check("the copy step: with no notes file it warns, does not fail and leaves the committed copy (publishing fails by itself without notes)",
+          rc == 0 and "::warning::" in out and got == "old notes\n", (rc, out, got))
 text = read(asset)
-check("the asset has the two blocks the app looks for, each alone on its line",
-      re.search(r"^\*\*Português\*\*\s*$", text, re.M) is not None and re.search(r"^\*\*English\*\*\s*$", text, re.M) is not None)
+check("the asset has the blocks the app looks for, each alone on its line and once (Portuguese and English always, Spanish when the notes have it)",
+      all(len(re.findall(r"^\*\*%s\*\*\s*$" % m, text, re.M)) == 1 for m in ("Português", "English"))
+      and len(re.findall(r"^\*\*Español\*\*\s*$", text, re.M)) == text.count("**Español**"))
 src = read("docs", "tools", "java", "src", "com", "mrkeyboard", "app", "MrVersion.java")
 check("MrVersion reads the asset by the same name that is shipped", 'ASSET = "mr_release_notes.md"' in src and os.path.basename(asset) == "mr_release_notes.md")
-check("MrVersion looks for the same two marks as make_update.py", 'MARK_PT = "**Português**"' in src and 'MARK_EN = "**English**"' in src
-      and "('pt-BR', '**Português**'), ('en', '**English**')" in read("docs", "tools", "make_update.py"))
+mu = read("docs", "tools", "make_update.py")
+check("MrVersion looks for the same three marks as make_update.py", 'MARK_PT = "**Português**"' in src and 'MARK_EN = "**English**"' in src
+      and 'MARK_ES = "**Español**"' in src and "('pt-BR', '**Português**'), ('en', '**English**')" in mu and "BLOCK_ES = ('es', '**Español**')" in mu)
 
 # ------------------------------------------------------------------ the texts of the dialog
 for k in LANGS:

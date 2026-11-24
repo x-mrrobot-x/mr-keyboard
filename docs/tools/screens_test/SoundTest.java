@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The key sounds (v2.0.0, "Keyboard sound"), run on the PC against the stubs of Android: MrKeySound (the style and the volume read from the
+ * The key sounds (v2.1.0, "Keyboard sound"), run on the PC against the stubs of Android: MrKeySound (the style and the volume read from the
  * preferences, what is played for each key, what happens while a sound loads, when it fails or is missing, a style that changes, a preview that is asked
  * for before the sound has loaded), the screen MrSoundActivity (the fifteen tiles in the order of the picture, the choice written in the preferences the
  * keyboard reads, mute, the volume, what it says for the default sound) and the files (the thirteen .ogg of res/raw read byte by byte, the strings in

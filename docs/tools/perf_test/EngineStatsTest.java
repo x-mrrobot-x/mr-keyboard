@@ -12,7 +12,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * MrEngineStats: the two lines that moved from "Suggestions and dictionaries" to the card "Keyboard statistics" of Advanced (2.0.0): the suggestion
+ * MrEngineStats: the two lines that moved from "Suggestions and dictionaries" to the card "Keyboard statistics" of Advanced (2.1.0): the suggestion
  * engine in use and the recognition time of the gesture typing. Run on the PC the native lib is not there, so the engine line says it is missing
  * and the recognition time says why there is none (typing by gestures off, the file not downloaded); the time itself needs the lib and the weights
  * (read on the phone). Also: the screen of the suggestions no longer has the two rows, and MrPerf writes the block once.
