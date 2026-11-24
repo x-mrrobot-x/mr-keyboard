@@ -64,6 +64,8 @@
 #                        written by gesture, a comma or another sentence sign goes glued to the word and the space after it (mrGlue does it without the state of TextEntryState)
 #   test_separator_suspended.py  the real smali of LatinIME.handleSeparator and suggestionsSuspended over a fake field with composing text: with the suggestions flow suspended (translator / emoji search
 #                        field, hidden toolbar row, font style) the word typed stays when a space, a sign or Enter follows (it was erased or replaced by an old suggestion)
+#   test_enter_word.py  the real smali of LatinIME.handleSeparator and commitTyped over a fake field: Enter (a key event) leaves no word waiting to be written again on the next line, with Autocompletar on and off
+#                        (a word with no default suggestion to accept stayed as the word being typed and the first letter of the new line brought it back)
 #   test_sheet_longpress.py  the real smali of PointerTracker.startLongPressTimer: the sheet key (code -300: 123, ABC, TSK) opens its popup after a fixed 150 ms, the other keys keep the setting
 #   test_word_delete.py  Ctrl + delete by words and Ctrl + Z (MrWordDelete): the real smali of LatinIME.handleBackspace, sendModifiableKeyChar (the Ctrl + Z hook), mrCtrlOn, mrCtrlOnly, mrBackspace, UIHandler.cancelKeyRepeatTimer and .handleMessage (the repeat) in the mini interpreter, the order of the calls in PointerTracker.onDownEvent, who calls MrWordDelete, the screen next to the long-press time, its limits and texts
 #   test_tour.py  the first steps (MrTour, MrTourActivity): the screen in the manifest (not exported), the one call in Main.onCreate after the update notice, the three options on by default in the XML and in the Java layer, the texts in the three languages with the same placeholders, the network only in MrTour.work (the Download button), docs/first-steps.md and the privacy lines of the READMEs
@@ -265,6 +267,9 @@ jobs:
 
       - name: Word typed with the suggestions suspended stays when a separator follows
         run: python3 -I docs/tools/test_separator_suspended.py
+
+      - name: Enter leaves no word to be written again on the next line (Autocompletar on and off)
+        run: python3 -I docs/tools/test_enter_word.py
 
       - name: Sheet key long press (150 ms, the other keys keep the setting)
         run: python3 -I docs/tools/test_sheet_longpress.py

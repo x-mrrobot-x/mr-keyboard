@@ -140,6 +140,10 @@ ends a word (space, a sign, Enter: `LatinIME.handleSeparator`) therefore does no
 word as composing text of the field, and the separator replaced it: in the translator and emoji search fields a word followed by a space emptied the field, and
 with the row hidden the word typed was replaced by an old suggestion. Check: `test_separator_suspended.py` (the real smali of `handleSeparator`, `commitTyped`
 and `suggestionsSuspended` over a field that keeps the composing text as an InputConnection does).
+Enter after a word with no default suggestion to accept (`mBestWord` empty, Autocompletar on): Enter reaches the app as a key event, which does not replace
+the composing text the way a space does, so the word stayed as the word being typed (`mPredicting`) and the first letter of the new line brought it back: the
+word was written again after the line break. `handleSeparator` now commits the word as typed and ends the composing text before the Enter key. Check:
+`test_enter_word.py` (the real smali of `handleSeparator` and `commitTyped`, Autocompletar on and off).
 Before a styled letter is written, `LatinIME.mrEndWord` lets go of the word the keyboard still holds (the typed one and a word reopened by the
 re-correction): `commitText` replaces the composing text, and the styled letter used to erase the word before it (the superscript, small caps, subscript,
 full width and the five styles made of marks, whose words the re-correction accepts, as the other styles are made of letters it ignores).

@@ -239,14 +239,13 @@ landscape or a golden gradient nothing is blue and no ink is a flat white or a f
 - **Gradients** (`MrBackdrop.GRADS`): twenty dark ones, all from the top down (some with stops, two with a soft light in a corner), like the dark
   gradients of the GB examples without the brown and orange ones.
 - **Landscapes** (`MrScenes`): forty-eight pictures kept in the app as WebP files, `assets/mr_scenes/<category>_<n>.webp`, eight for each of the
-  categories **Sports, Animals, Snow, Nature, Anime** and **AI** (`sports`, `animals`, `snow`, `nature`, `anime`, `ai`). The first six of each were
-  cropped from source sheets to the shape of the keyboard; the 7th and the 8th of each are drawn in code by `docs/tools/make_scenes.py` (on top of
-  the drawing kit `docs/tools/scenekit.py`, with fixed seeds, so the same files come out each time; `--png <folder>` also writes a contact sheet to look
-  at them, `--only <name>` redoes one). All are about 500 px wide at quality 72, about 1.8 MB together, and are read from the assets
+  categories **Sports, Animals, Snow, Nature, Anime** and **AI** (`sports`, `animals`, `snow`, `nature`, `anime`, `ai`). Each one is the part of a sheet
+  that is the picture, without its frame and round corners, at about 480 px (the longer side), quality 72, about 2.3 MB together; `docs/tools/cut_scenes.py`
+  does that cut (`python3 docs/tools/cut_scenes.py SHEET NAME [NAME2]`: a sheet of two pictures is cut in the middle). They are read from the assets
   (`MrScenes.load`), then drawn like a picture of the gallery: scaled to fill the keyboard, with the vertical position that suits each one
   (`MrScenes.FOCUS`) and the veil of the background. The screen shows them in six tabs, one for each category; the names are in `mr_strings.xml`
   (`mr_themes_scene_<id>`, where the id is the category times eight plus the place in it). The test of the screen checks that the ink of the toolbar
-  keeps a contrast of 3 over every one of them, so a picture with a big bright area at the top has to be dimmed.
+  keeps a contrast of 3 over every one of them, so a picture with a big bright area at the top has to move its strip (`FOCUS`) or be dimmed.
 - **The gallery**: the photo picker of the system (`MrThemesActivity.pickers`): `android.provider.action.PICK_IMAGES` (Android 11 and later where it
   exists, always on 13), then `ACTION_PICK` on the images of the media store, and last `ACTION_OPEN_DOCUMENT` (the file manager), each tried when the one
   before it has no app to answer. No permission is asked. The photo is read once, off the main thread (`MrBackdrop.importPending`), made at most

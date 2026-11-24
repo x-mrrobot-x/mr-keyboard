@@ -3317,6 +3317,17 @@
     .line 2381
     :cond_6
     :goto_0
+    # Enter (a key event, not text: it does not replace the composing text): a word still being typed here had no default suggestion to
+    # accept (mBestWord empty), so it stayed as composing text and as the word being typed. The first letter of the new line was added to
+    # it and the whole word was written again after the line break. The word goes in as typed, and the composing text ends before the key.
+    const/16 v6, 0xa
+    if-ne p1, v6, :cond_mr_enter_done
+    iget-boolean v5, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
+    if-eqz v5, :cond_mr_enter_done
+    invoke-direct {p0, v0, v4}, Lcom/mrkeyboard/app/LatinIME;->commitTyped(Landroid/view/inputmethod/InputConnection;Z)V
+    if-eqz v0, :cond_mr_enter_done
+    invoke-interface {v0}, Landroid/view/inputmethod/InputConnection;->finishComposingText()Z
+    :cond_mr_enter_done
     iget-boolean v5, p0, Lcom/mrkeyboard/app/LatinIME;->mJustAddedAutoSpace:Z
 
     const/16 v6, 0xa

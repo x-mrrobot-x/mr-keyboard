@@ -2426,7 +2426,7 @@ public class ThemesTest {
         check("every landscape has its file in the assets, and no two are the same file", files);
         check("each is a WebP of 330 to 560 pixels a side and 8 to 110 KB", sizes);
         System.out.println("      the 48 landscapes take " + total / 1024 + " KB in the app");
-        check("together they are under 2 MB", total < 2 * 1024 * 1024);
+        check("together they are under 2.5 MB", total < 5 * 512 * 1024);
         check("the apk stores the WebP as it is (doNotCompress), as it is compressed already", new String(java.nio.file.Files.readAllBytes(new File("apktool.yml").toPath()), "UTF-8").contains("- webp"));
         // reading one
         Ctx c = new Ctx();
