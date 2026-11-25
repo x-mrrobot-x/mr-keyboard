@@ -52,8 +52,11 @@ public final class PopupEditDialog {
 
     // ------------------------------------------------------------------ one line of the list
 
-    /** Short description of the action of a key ("tskcmd:wifi", the name of a special key, "Go to: …", "Text: …"). */
-    public static String describeActionShort(Context context, SheetModel.KeySpec key) {
+    /**
+     * Short description of the action of a key ("tskcmd:wifi", the name of a special key, "Go to: …", "Text: …"); a "switch sheet" key reads with
+     * the badge and the name of its sheet, from {@code sheets} (it used to show the id the file keeps, like "custom_1712…").
+     */
+    public static String describeActionShort(Context context, List<SheetModel.Sheet> sheets, SheetModel.KeySpec key) {
         if (SheetModel.TYPE_TASKER.equals(key.type)) return TaskerCmd.PREFIX + key.value;
         if (SheetModel.TYPE_SPECIAL.equals(key.type)) {
             int code;
@@ -64,7 +67,9 @@ public final class PopupEditDialog {
             }
             return SpecialKeyPicker.describeCode(context, code);
         }
-        if (SheetModel.TYPE_SHEET.equals(key.type)) return text(context, "mr_pop_ed_action_sheet", key.value);
+        if (SheetModel.TYPE_SHEET.equals(key.type)) {
+            return text(context, "mr_pop_ed_action_sheet", KeyEditDialog.describeTarget(context, sheets, key.value));
+        }
         return text(context, "mr_pop_ed_action_text",
                 key.value == null ? EMPTY : key.value.replace('\n', '↵'));
     }
@@ -80,7 +85,7 @@ public final class PopupEditDialog {
         View row = LayoutInflater.from(context).inflate(res(context, "mr_pop_ed_item", "layout"), null);
         String label = SheetKeyboardBuilder.effectiveDisplayLabel(key, sheets);
         ((TextView) row.findViewWithTag("item_label")).setText(label.isEmpty() ? "?" : label);
-        ((TextView) row.findViewWithTag("item_desc")).setText(describeActionShort(context, key));
+        ((TextView) row.findViewWithTag("item_desc")).setText(describeActionShort(context, sheets, key));
         row.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 onEdit.run();

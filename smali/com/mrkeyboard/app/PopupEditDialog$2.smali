@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 91
+    .line 96
     iput-object p1, p0, Lcom/mrkeyboard/app/PopupEditDialog$2;->val$onUp:Ljava/lang/Runnable;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,11 +45,11 @@
     .locals 1
 
     .prologue
-    .line 93
+    .line 98
     iget-object v0, p0, Lcom/mrkeyboard/app/PopupEditDialog$2;->val$onUp:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 94
+    .line 99
     return-void
 .end method

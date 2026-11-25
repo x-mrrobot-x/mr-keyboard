@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-.field final synthetic val$menuBtn:Landroid/widget/ImageView;
-
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;Landroid/widget/ImageView;)V
+.method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 95
+    .line 127
     iput-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$2;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
-
-    iput-object p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$2;->val$menuBtn:Landroid/widget/ImageView;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,16 +37,14 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 2
+    .locals 1
 
     .prologue
-    .line 97
+    .line 129
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$2;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$2;->val$menuBtn:Landroid/widget/ImageView;
+    invoke-static {v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$000(Lcom/mrkeyboard/app/PrefScreenSheets;)V
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$000(Lcom/mrkeyboard/app/PrefScreenSheets;Landroid/view/View;)V
-
-    .line 98
+    .line 130
     return-void
 .end method

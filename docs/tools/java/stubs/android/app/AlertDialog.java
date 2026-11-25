@@ -24,6 +24,10 @@ public class AlertDialog implements android.content.DialogInterface {
         if (was && stubDismissListener != null) stubDismissListener.onDismiss(this);
     }
     public void show() { stubShown = true; }
+    public boolean isShowing() { return stubShown; }
+    /** Not in Android: the window of the dialog (the PC tests read what was asked of it). */
+    public final android.view.Window stubWindow = new android.view.Window();
+    public android.view.Window getWindow() { return stubWindow; }
     public android.widget.Button getButton(int whichButton) {
         return whichButton == BUTTON_POSITIVE ? stubPositive : whichButton == BUTTON_NEGATIVE ? stubNegative : null;
     }

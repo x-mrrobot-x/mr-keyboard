@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 251
+    .line 256
     iput-object p1, p0, Lcom/mrkeyboard/app/PopupEditDialog$Editor$9;->this$0:Lcom/mrkeyboard/app/PopupEditDialog$Editor;
 
     iput p2, p0, Lcom/mrkeyboard/app/PopupEditDialog$Editor$9;->val$index:I
@@ -49,7 +49,7 @@
     .locals 2
 
     .prologue
-    .line 253
+    .line 258
     iget-object v0, p0, Lcom/mrkeyboard/app/PopupEditDialog$Editor$9;->this$0:Lcom/mrkeyboard/app/PopupEditDialog$Editor;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/PopupEditDialog$Editor;->access$600(Lcom/mrkeyboard/app/PopupEditDialog$Editor;)Ljava/util/ArrayList;
@@ -60,11 +60,11 @@
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
 
-    .line 254
+    .line 259
     iget-object v0, p0, Lcom/mrkeyboard/app/PopupEditDialog$Editor$9;->this$0:Lcom/mrkeyboard/app/PopupEditDialog$Editor;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/PopupEditDialog$Editor;->access$700(Lcom/mrkeyboard/app/PopupEditDialog$Editor;)V
 
-    .line 255
+    .line 260
     return-void
 .end method

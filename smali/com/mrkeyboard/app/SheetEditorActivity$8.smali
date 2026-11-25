@@ -3,12 +3,12 @@
 .source "SheetEditorActivity.java"
 
 # interfaces
-.implements Lcom/mrkeyboard/app/SheetGridView$GridListener;
+.implements Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/SheetEditorActivity;->bindGrid(Landroid/view/View;)V
+    value = Lcom/mrkeyboard/app/SheetEditorActivity;->addNewKeyToRow(I)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
+.field final synthetic val$target:Lcom/mrkeyboard/app/SheetModel$Row;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/SheetEditorActivity;)V
+.method constructor <init>(Lcom/mrkeyboard/app/SheetEditorActivity;Lcom/mrkeyboard/app/SheetModel$Row;)V
     .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 217
+    .line 284
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$8;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    iput-object p2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$8;->val$target:Lcom/mrkeyboard/app/SheetModel$Row;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,75 +45,59 @@
 
 
 # virtual methods
-.method public onAddKeyTapped(I)V
-    .locals 1
+.method public onDelete()V
+    .locals 0
 
     .prologue
-    .line 219
-    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$8;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
-
-    invoke-static {v0, p1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$500(Lcom/mrkeyboard/app/SheetEditorActivity;I)V
-
-    .line 220
+    .line 285
     return-void
 .end method
 
-.method public onKeyDragged(IIII)V
-    .locals 1
+.method public onDuplicate()V
+    .locals 0
 
     .prologue
-    .line 223
-    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$8;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
-
-    invoke-static {v0, p1, p2, p3, p4}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$600(Lcom/mrkeyboard/app/SheetEditorActivity;IIII)V
-
-    .line 224
+    .line 287
     return-void
 .end method
 
-.method public onKeyTapped(II)V
-    .locals 1
+.method public onMoveLeft()V
+    .locals 0
 
     .prologue
-    .line 227
-    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$8;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
-
-    invoke-static {v0, p1, p2}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$700(Lcom/mrkeyboard/app/SheetEditorActivity;II)V
-
-    .line 228
+    .line 289
     return-void
 .end method
 
-.method public onLockedKeyTapped(Z)V
-    .locals 5
+.method public onMoveRight()V
+    .locals 0
 
     .prologue
-    const/4 v4, 0x0
-
-    .line 231
-    iget-object v1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$8;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$8;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
-
-    if-eqz p1, :cond_0
-
-    const-string v0, "mr_sheet_ed_locked_delete"
-
-    :goto_0
-    new-array v3, v4, [Ljava/lang/Object;
-
-    invoke-static {v2, v0, v3}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$800(Lcom/mrkeyboard/app/SheetEditorActivity;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-static {v1, v0, v4}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$900(Lcom/mrkeyboard/app/SheetEditorActivity;Ljava/lang/String;Z)V
-
-    .line 232
+    .line 291
     return-void
+.end method
 
-    .line 231
-    :cond_0
-    const-string v0, "mr_sheet_ed_locked_row"
+.method public onSave(Lcom/mrkeyboard/app/SheetModel$KeySpec;)V
+    .locals 1
 
-    goto :goto_0
+    .prologue
+    .line 294
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$8;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1100(Lcom/mrkeyboard/app/SheetEditorActivity;)V
+
+    .line 295
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$8;->val$target:Lcom/mrkeyboard/app/SheetModel$Row;
+
+    iget-object v0, v0, Lcom/mrkeyboard/app/SheetModel$Row;->keys:Ljava/util/ArrayList;
+
+    invoke-virtual {v0, p1}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    .line 296
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$8;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1200(Lcom/mrkeyboard/app/SheetEditorActivity;)V
+
+    .line 297
+    return-void
 .end method

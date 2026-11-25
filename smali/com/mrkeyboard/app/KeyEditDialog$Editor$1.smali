@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/KeyEditDialog$Editor;->show()V
+    value = Lcom/mrkeyboard/app/KeyEditDialog$Editor;->show()Landroid/app/AlertDialog;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 178
+    .line 206
     iput-object p1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$1;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,7 +40,7 @@
     .locals 2
 
     .prologue
-    .line 180
+    .line 208
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$1;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$100(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)Landroid/app/AlertDialog;
@@ -59,6 +59,6 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/Button;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 185
+    .line 213
     return-void
 .end method

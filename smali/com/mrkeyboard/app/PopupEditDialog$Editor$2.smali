@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 181
+    .line 186
     iput-object p1, p0, Lcom/mrkeyboard/app/PopupEditDialog$Editor$2;->this$0:Lcom/mrkeyboard/app/PopupEditDialog$Editor;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,13 +40,13 @@
     .locals 2
 
     .prologue
-    .line 183
+    .line 188
     iget-object v0, p0, Lcom/mrkeyboard/app/PopupEditDialog$Editor$2;->this$0:Lcom/mrkeyboard/app/PopupEditDialog$Editor;
 
     const/4 v1, 0x1
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/PopupEditDialog$Editor;->access$200(Lcom/mrkeyboard/app/PopupEditDialog$Editor;I)V
 
-    .line 184
+    .line 189
     return-void
 .end method

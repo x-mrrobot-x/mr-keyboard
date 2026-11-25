@@ -90,7 +90,12 @@
 #     interval asked; a one-shot Ctrl goes off after the first key) with the exact text left, and Ctrl + Z word by word: the last word first, a word alone left to the app, what is not the text the word left (typed, cursor moved, selection), the composing text, the words that expire (lifetime, limit, the setting turned off) and a failing app; Ctrl + Y, the redo (the order, a word alone, a new Ctrl + delete ending it, the text the return left, both lists expiring, the limit for both, release).
 #   - GridTest: the drawn key grid of the sheet editor (SheetGridView, Java since 1.92.0): the geometry of the cells
 #     (margins, gaps, key height, the "+" of a row, the locked "⌫" and the locked bottom row), the limits (6 rows, 10 keys
-#     per row and 9 in the last one) and the touch rules (tap, cancel, long press, drag and drop, a full row refusing it).
+#     per row and 9 in the last one), the touch rules (tap, cancel, long press, drag and drop, a full row refusing it and
+#     telling the editor), the colours of each kind of key (the legend of the editor) and the description TalkBack reads.
+#   - SheetsTest: the "Keyboard sheets" page and the sheet editor (MrSheetTest, PrefScreenSheets, SheetEditorActivity, KeyEditDialog,
+#     PopupEditDialog): the quick test field that opens the keyboard on its sheet and keeps it there (only for this app's field, a
+#     sheet that is gone does nothing, the hooks in LatinIME), the name of the sheet of a "switch sheet" popup item, the preview of a
+#     row, the legend, the import that reads at most 1 MB, and the files (the key editor that scrolls, no repeated buttons, texts in 3 languages).
 #   - FontsTest: the Unicode styles of the fonts tool (MrFonts): 27 styles with known code points (block styles and their
 #     letter-like exceptions, small caps, superscript, Subscript with only the letters Unicode has, the combining marks,
 #     Parenthesized), the letters left as they are, accents kept, no two styles equal, the fields that take no style
@@ -266,6 +271,10 @@ java -Dfile.encoding=UTF-8 -cp "$T/test_worddel:$T/stubs:$T/main" com.mrkeyboard
 echo "== GridTest (drawn key grid of the sheet editor)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_grid" $D/grid_test/SheetGridViewTest.java
 java -cp "$T/test_grid:$T/stubs:$T/main" com.mrkeyboard.app.SheetGridViewTest
+
+echo "== SheetsTest (Keyboard sheets page and sheet editor: the quick test field on its sheet, the texts the screens make, the import limit, the files)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_sheets" $D/sheets_test/SheetsTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_sheets:$T/stubs:$T/main" com.mrkeyboard.app.SheetsTest
 
 echo "== AccelTest (log of the keyboard window)"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_accel" $D/accel_test/AccelTest.java

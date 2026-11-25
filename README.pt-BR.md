@@ -30,7 +30,7 @@
 
 ### Teclas e layout
 - **Teclado completo de PC:** Ctrl, Alt, Esc, Tab, setas, Home/End, PgUp/PgDn e teclas de função, em layout compacto ou completo (configurações separadas para retrato e paisagem).
-- **Folhas de teclas:** páginas extras de teclas abertas pelo próprio teclado: **123**, **TSK** (Tasker), **HTML**, **FRS** (frases), navegação e teclado numérico. Edite as folhas e crie as suas em *Configurações → Folhas*.
+- **Folhas de teclas:** páginas extras de teclas abertas pelo próprio teclado: **123**, **TSK** (Tasker), **HTML**, **FRS** (frases), navegação e teclado numérico. Edite as folhas, crie as suas e teste na hora em *Configurações → Folhas*. [Detalhes](docs/keyboard-sheets.md).
 - **Comandos do Tasker:** uma tecla pode disparar uma tarefa do Tasker em vez de digitar ([como](#integração-com-o-tasker)).
 - **Gestos:** deslizar para cima, baixo, esquerda ou direita, e as teclas de volume, executam ações do teclado (por padrão, esquerda e direita trocam de folha). O deslize para os lados vale pela distância, não pela velocidade. [Detalhes](docs/swipe-actions.md) (em inglês).
 - **Apagar por palavra (desde a 2.0.0):** com o Ctrl ativo, a tecla apagar remove uma palavra por toque e, segurando, vai palavra por palavra no intervalo que você definir. O **Ctrl + Z** devolve as palavras uma por vez e o **Ctrl + Y** apaga de novo a que voltou (ficam guardadas por 2 minutos). Vem ligado; *Configurações → Toque e gestos → Apagar por palavra*. [Detalhes](docs/word-delete.md) (em inglês).

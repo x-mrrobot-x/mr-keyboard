@@ -1,79 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Sheet editor: one row of the "Manage editable rows" dialog: "Row N (M keys)" and ↑ ↓ ⧉ ✕.
-     The code dims (text) and disables the buttons that do not apply to that row. -->
+<!-- Sheet editor: one row of the "Arrange rows" dialog: "Row N • M keys", the labels of its keys (so the row can be
+     told apart) and the four drawn buttons (up, down, duplicate, delete) of 38 dp. The code draws the icons, dims and
+     disables the buttons that do not apply to that row and gives each one its description. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:background="@drawable/mr_sheet_ed_row_bg"
     android:paddingLeft="12dp"
-    android:paddingTop="8dp"
-    android:paddingRight="8dp"
-    android:paddingBottom="8dp"
+    android:paddingTop="6dp"
+    android:paddingRight="4dp"
+    android:paddingBottom="6dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="6dp">
-    <TextView
-        android:tag="label"
-        android:textSize="13.5sp"
-        android:textColor="@color/mr_ui_text"
-        android:fontFamily="sans-serif-medium"
+    <LinearLayout
+        android:orientation="vertical"
+        android:paddingRight="4dp"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1" />
-    <TextView
+        android:layout_weight="1">
+        <TextView
+            android:tag="label"
+            android:textSize="13.5sp"
+            android:textColor="@color/mr_ui_text"
+            android:fontFamily="sans-serif-medium"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:tag="keys"
+            android:textSize="12sp"
+            android:textColor="@color/mr_ui_text3"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:paddingTop="1dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <ImageView
         android:tag="up"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="@color/mr_ui_cyan"
-        android:gravity="center"
+        android:scaleType="center"
         android:background="@drawable/mr_sheet_ed_row_btn_ripple"
-        android:paddingLeft="8dp"
-        android:paddingTop="5dp"
-        android:paddingRight="8dp"
-        android:paddingBottom="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="↑" />
-    <TextView
+        android:layout_width="38dp"
+        android:layout_height="38dp" />
+    <ImageView
         android:tag="down"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="@color/mr_ui_cyan"
-        android:gravity="center"
+        android:scaleType="center"
         android:background="@drawable/mr_sheet_ed_row_btn_ripple"
-        android:paddingLeft="8dp"
-        android:paddingTop="5dp"
-        android:paddingRight="8dp"
-        android:paddingBottom="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="↓" />
-    <TextView
+        android:layout_width="38dp"
+        android:layout_height="38dp" />
+    <ImageView
         android:tag="dup"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="@color/mr_ui_cyan"
-        android:gravity="center"
+        android:scaleType="center"
         android:background="@drawable/mr_sheet_ed_row_btn_ripple"
-        android:paddingLeft="8dp"
-        android:paddingTop="5dp"
-        android:paddingRight="8dp"
-        android:paddingBottom="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="⧉" />
-    <TextView
+        android:layout_width="38dp"
+        android:layout_height="38dp" />
+    <ImageView
         android:tag="del"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="@color/mr_ui_danger"
-        android:gravity="center"
+        android:scaleType="center"
         android:background="@drawable/mr_sheet_ed_row_btn_ripple"
-        android:paddingLeft="8dp"
-        android:paddingTop="5dp"
-        android:paddingRight="8dp"
-        android:paddingBottom="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="✕" />
+        android:layout_width="38dp"
+        android:layout_height="38dp" />
 </LinearLayout>

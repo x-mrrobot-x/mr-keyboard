@@ -67,7 +67,7 @@
     <string name="title_key_spacing">Espaciado de las teclas</string>
     <string name="title_key_radius">Redondeo de las esquinas de las teclas</string>
     <string name="title_sheet_return">Volver a la hoja principal al escribir</string>
-    <string name="summary_sheet_return_true">Al tocar una tecla en las hojas 123, TSK, HTML o FRS, vuelve a la hoja principal</string>
+    <string name="summary_sheet_return_true">Después de tocar una tecla de otra hoja, el teclado vuelve a ABC</string>
     <string name="summary_sheet_return_false">Permanece en la hoja actual al tocar una tecla</string>
     <string name="mr_emoji_cats">Recientes|Caras y personas|Animales y naturaleza|Comida y bebida|Actividades|Viajes y lugares|Objetos|Símbolos|Banderas</string>
     <string name="mr_shot_allow">Toca aquí para permitir el acceso a fotos y videos</string>

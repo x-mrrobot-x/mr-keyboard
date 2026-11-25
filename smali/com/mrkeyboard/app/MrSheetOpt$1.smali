@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 66
+    .line 68
     iput-object p1, p0, Lcom/mrkeyboard/app/MrSheetOpt$1;->val$sp:Landroid/content/SharedPreferences;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/MrSheetOpt$1;->val$summary:Landroid/widget/TextView;
@@ -53,7 +53,7 @@
     .locals 4
 
     .prologue
-    .line 68
+    .line 70
     iget-object v0, p0, Lcom/mrkeyboard/app/MrSheetOpt$1;->val$sp:Landroid/content/SharedPreferences;
 
     invoke-interface {v0}, Landroid/content/SharedPreferences;->edit()Landroid/content/SharedPreferences$Editor;
@@ -68,7 +68,7 @@
 
     invoke-interface {v0}, Landroid/content/SharedPreferences$Editor;->apply()V
 
-    .line 69
+    .line 71
     iget-object v1, p0, Lcom/mrkeyboard/app/MrSheetOpt$1;->val$summary:Landroid/widget/TextView;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/MrSheetOpt$1;->val$c:Landroid/content/Context;
@@ -88,10 +88,10 @@
 
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 70
+    .line 72
     return-void
 
-    .line 69
+    .line 71
     :cond_0
     const-string v0, "summary_sheet_return_false"
 

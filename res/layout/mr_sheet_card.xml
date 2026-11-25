@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- One sheet of the "Keyboard sheets" list: the badge, the name, the count of rows and keys, and the three buttons
+     (up, down, options) with touch targets of 40 dp; the code dims and disables the arrow that does not apply. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:background="?attr/mrCard"
     android:paddingLeft="14dp"
-    android:paddingTop="12dp"
-    android:paddingRight="6dp"
-    android:paddingBottom="12dp"
+    android:paddingTop="10dp"
+    android:paddingRight="4dp"
+    android:paddingBottom="10dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp">
@@ -16,6 +18,7 @@
         android:textStyle="bold"
         android:textColor="@color/mr_ui_cyan"
         android:gravity="center"
+        android:singleLine="true"
         android:background="@drawable/mr_sheet_badge_bg"
         android:paddingLeft="8dp"
         android:paddingTop="6dp"
@@ -23,7 +26,7 @@
         android:paddingBottom="6dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:minWidth="48dp" />
+        android:minWidth="52dp" />
     <LinearLayout
         android:orientation="vertical"
         android:paddingLeft="12dp"
@@ -53,18 +56,18 @@
         android:tag="up"
         android:scaleType="center"
         android:background="@drawable/mr_sheet_icon_ripple"
-        android:layout_width="34dp"
-        android:layout_height="36dp" />
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
     <ImageView
         android:tag="down"
         android:scaleType="center"
         android:background="@drawable/mr_sheet_icon_ripple"
-        android:layout_width="34dp"
-        android:layout_height="36dp" />
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
     <ImageView
         android:tag="more"
         android:scaleType="center"
         android:background="@drawable/mr_sheet_icon_ripple"
-        android:layout_width="36dp"
-        android:layout_height="36dp" />
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
 </LinearLayout>

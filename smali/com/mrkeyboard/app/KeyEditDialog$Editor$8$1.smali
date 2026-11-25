@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 346
+    .line 381
     iput-object p1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$8$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$8;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -50,35 +50,35 @@
     .end annotation
 
     .prologue
-    .line 348
+    .line 383
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$8$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$8;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$8;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1800(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)Lcom/mrkeyboard/app/SheetModel$KeySpec;
+    invoke-static {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1900(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     move-result-object v0
 
     iput-object p1, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->popupChars:Ljava/lang/String;
 
-    .line 349
+    .line 384
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$8$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$8;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$8;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1800(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)Lcom/mrkeyboard/app/SheetModel$KeySpec;
+    invoke-static {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1900(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     move-result-object v0
 
     iput-object p2, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->popupKeys:Ljava/util/ArrayList;
 
-    .line 350
+    .line 385
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$8$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$8;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$8;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1900(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$2000(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)V
 
-    .line 351
+    .line 386
     return-void
 .end method

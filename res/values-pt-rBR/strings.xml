@@ -67,7 +67,7 @@
     <string name="title_key_spacing">Espaçamento das teclas</string>
     <string name="title_key_radius">Arredondamento das bordas das teclas</string>
     <string name="title_sheet_return">Voltar à folha principal ao digitar</string>
-    <string name="summary_sheet_return_true">Ao tocar em uma tecla nas folhas 123, TSK, HTML ou FRS, volta para a folha principal</string>
+    <string name="summary_sheet_return_true">Depois de tocar numa tecla de outra folha, o teclado volta para o ABC</string>
     <string name="summary_sheet_return_false">Permanece na folha atual ao tocar em uma tecla</string>
     <string name="mr_emoji_cats">Recentes|Carinhas e pessoas|Animais e natureza|Comida e bebida|Atividades|Viagens e lugares|Objetos|Símbolos|Bandeiras</string>
     <string name="mr_shot_allow">Toque aqui para permitir o acesso a fotos e vídeos</string>

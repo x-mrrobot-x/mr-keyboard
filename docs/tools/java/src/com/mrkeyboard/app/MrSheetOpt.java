@@ -15,8 +15,9 @@ import android.widget.TextView;
 
 /**
  * Card with the "Voltar à folha principal ao digitar" (return to the main sheet when typing) switch (v1.69), at the top of the
- * keyboard Sheets page. Same look as the main ABC keyboard card. The key is
- * "pref_sheet_return" (default on), read by LatinIME.returnToMainSheet.
+ * keyboard Sheets page. Same look as the main ABC keyboard card (see-through like it with the Matrix effect). The key is
+ * "pref_sheet_return" (default on), read by LatinIME.returnToMainSheet; the quick test field of the sheet editor is the one
+ * place where it does not apply (MrSheetTest). The summary does not name the sheets: they can be renamed, deleted or new.
  */
 public final class MrSheetOpt {
     private MrSheetOpt() { }
@@ -40,7 +41,8 @@ public final class MrSheetOpt {
         card.setGravity(Gravity.CENTER_VERTICAL);
         card.setPadding(dp(c, 14), dp(c, 12), dp(c, 14), dp(c, 12));
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(color(c, "mr_ui_sunken"));
+        boolean glass = c instanceof android.app.Activity && MrMatrix.wanted((android.app.Activity) c);
+        bg.setColor(color(c, glass ? "mr_ui_sunken_glass" : "mr_ui_sunken"));
         bg.setCornerRadius(dp(c, 16));
         bg.setStroke(Math.max(1, dp(c, 1)), color(c, "mr_ui_stroke"));
         card.setBackground(bg);

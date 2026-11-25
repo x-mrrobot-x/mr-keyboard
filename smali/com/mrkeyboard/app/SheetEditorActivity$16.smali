@@ -3,12 +3,12 @@
 .source "SheetEditorActivity.java"
 
 # interfaces
-.implements Landroid/content/DialogInterface$OnClickListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/SheetEditorActivity;->showRenameDialog()V
+    value = Lcom/mrkeyboard/app/SheetEditorActivity;->renderRows(Landroid/widget/LinearLayout;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,13 +20,13 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-.field final synthetic val$badgeField:Landroid/widget/EditText;
+.field final synthetic val$idx:I
 
-.field final synthetic val$nameField:Landroid/widget/EditText;
+.field final synthetic val$list:Landroid/widget/LinearLayout;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/SheetEditorActivity;Landroid/widget/EditText;Landroid/widget/EditText;)V
+.method constructor <init>(Lcom/mrkeyboard/app/SheetEditorActivity;ILandroid/widget/LinearLayout;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -35,12 +35,12 @@
     .end annotation
 
     .prologue
-    .line 429
+    .line 553
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->val$nameField:Landroid/widget/EditText;
+    iput p2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->val$idx:I
 
-    iput-object p3, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->val$badgeField:Landroid/widget/EditText;
+    iput-object p3, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->val$list:Landroid/widget/LinearLayout;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,82 +49,64 @@
 
 
 # virtual methods
-.method public onClick(Landroid/content/DialogInterface;I)V
-    .locals 3
+.method public onClick(Landroid/view/View;)V
+    .locals 4
 
     .prologue
-    .line 431
-    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+    .line 555
+    iget v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->val$idx:I
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1000(Lcom/mrkeyboard/app/SheetEditorActivity;)V
+    if-lez v0, :cond_0
 
-    .line 432
-    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2200(Lcom/mrkeyboard/app/SheetEditorActivity;)Lcom/mrkeyboard/app/SheetModel$Sheet;
-
-    move-result-object v0
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->val$nameField:Landroid/widget/EditText;
-
-    invoke-virtual {v1}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
-
-    move-result-object v1
-
-    invoke-interface {v1}, Landroid/text/Editable;->toString()Ljava/lang/String;
-
-    move-result-object v1
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
-
-    invoke-static {v2}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2200(Lcom/mrkeyboard/app/SheetEditorActivity;)Lcom/mrkeyboard/app/SheetModel$Sheet;
-
-    move-result-object v2
-
-    iget-object v2, v2, Lcom/mrkeyboard/app/SheetModel$Sheet;->name:Ljava/lang/String;
-
-    invoke-static {v1, v2}, Lcom/mrkeyboard/app/SheetModel;->sanitizeName(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    iput-object v1, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->name:Ljava/lang/String;
-
-    .line 433
-    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2200(Lcom/mrkeyboard/app/SheetEditorActivity;)Lcom/mrkeyboard/app/SheetModel$Sheet;
-
-    move-result-object v0
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->val$badgeField:Landroid/widget/EditText;
-
-    invoke-virtual {v1}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
-
-    move-result-object v1
-
-    invoke-interface {v1}, Landroid/text/Editable;->toString()Ljava/lang/String;
-
-    move-result-object v1
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
-
-    invoke-static {v2}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2200(Lcom/mrkeyboard/app/SheetEditorActivity;)Lcom/mrkeyboard/app/SheetModel$Sheet;
-
-    move-result-object v2
-
-    iget-object v2, v2, Lcom/mrkeyboard/app/SheetModel$Sheet;->badge:Ljava/lang/String;
-
-    invoke-static {v1, v2}, Lcom/mrkeyboard/app/SheetModel;->sanitizeBadge(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    iput-object v1, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->badge:Ljava/lang/String;
-
-    .line 434
+    .line 556
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1100(Lcom/mrkeyboard/app/SheetEditorActivity;)V
 
-    .line 435
+    .line 557
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2200(Lcom/mrkeyboard/app/SheetEditorActivity;)Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    move-result-object v0
+
+    iget-object v1, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->rows:Ljava/util/ArrayList;
+
+    iget v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->val$idx:I
+
+    add-int/lit8 v2, v0, -0x1
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2200(Lcom/mrkeyboard/app/SheetEditorActivity;)Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    move-result-object v0
+
+    iget-object v0, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->rows:Ljava/util/ArrayList;
+
+    iget v3, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->val$idx:I
+
+    invoke-virtual {v0, v3}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Lcom/mrkeyboard/app/SheetModel$Row;
+
+    invoke-virtual {v1, v2, v0}, Ljava/util/ArrayList;->add(ILjava/lang/Object;)V
+
+    .line 558
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1200(Lcom/mrkeyboard/app/SheetEditorActivity;)V
+
+    .line 559
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$16;->val$list:Landroid/widget/LinearLayout;
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2300(Lcom/mrkeyboard/app/SheetEditorActivity;Landroid/widget/LinearLayout;)V
+
+    .line 561
+    :cond_0
     return-void
 .end method

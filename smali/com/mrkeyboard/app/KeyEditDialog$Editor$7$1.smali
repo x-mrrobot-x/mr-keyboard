@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 330
+    .line 365
     iput-object p1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$7$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$7;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,19 +40,19 @@
     .locals 3
 
     .prologue
-    .line 332
+    .line 367
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$7$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$7;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$7;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
-    invoke-static {v0, p1}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1402(Lcom/mrkeyboard/app/KeyEditDialog$Editor;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v0, p1}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1502(Lcom/mrkeyboard/app/KeyEditDialog$Editor;Ljava/lang/String;)Ljava/lang/String;
 
-    .line 333
+    .line 368
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$7$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$7;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$7;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1500(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)Landroid/widget/TextView;
+    invoke-static {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1600(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)Landroid/widget/TextView;
 
     move-result-object v0
 
@@ -76,7 +76,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 334
+    .line 369
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$7$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$7;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$7;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
@@ -113,7 +113,7 @@
 
     invoke-virtual {v0, p2}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 335
+    .line 370
     :cond_0
     return-void
 .end method

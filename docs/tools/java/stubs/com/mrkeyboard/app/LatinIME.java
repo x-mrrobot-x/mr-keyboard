@@ -25,6 +25,9 @@ public class LatinIME extends android.inputmethodservice.InputMethodService {
     public boolean mrGlue(int code) { return false; }
     public void pickSuggestionManually(int index, CharSequence suggestion) { }
     public void updateShiftKeyState(android.view.inputmethod.EditorInfo attr) { }
+    /** Goes to a sheet: 0 = next, -1 = previous, n = position n - 1 (1 = ABC, 2 = the first sheet...). Tests only: the last one asked. */
+    public int stubChangedTo = Integer.MIN_VALUE;
+    public void changeSheet(int which) { stubChangedTo = which; }
     /** The key listener of the keyboard (the real methods are public): the delete button of the emoji panel calls them. */
     public void onKey(int primaryCode, int[] keyCodes, int x, int y) { }
     public void onPress(int primaryCode) { }

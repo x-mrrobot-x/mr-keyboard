@@ -22,6 +22,10 @@ public final class InputMethodManager {
         return stubEnabled;
     }
 
+    /** Not in Android: the views whose input was started again (restartInput). */
+    public java.util.List<android.view.View> stubRestarted = new java.util.ArrayList<android.view.View>();
+    public void restartInput(android.view.View view) { stubRestarted.add(view); }
+
     public void showInputMethodPicker() {
         pickers++;
     }

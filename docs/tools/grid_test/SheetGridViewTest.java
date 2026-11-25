@@ -16,7 +16,8 @@ import java.util.List;
  * with the weights 0.2/0.1/0.4/0.1/0.2), the limits (6 rows, 10 keys per row and 9 in the last one) and the touch
  * rules of the old smali: a tap opens the key ("+", "⌫" and the bottom row go to the locked callbacks), a finger that
  * walks away cancels, a long press starts the drag and drops the key on the row/position under it, and a full target
- * row refuses the drop.
+ * row refuses the drop (and says so to the editor, onDropRefused). The colours of each kind of key (text, Tasker in amber, sheet
+ * switch in blue, special in violet: the legend of the editor) and the description that TalkBack reads are checked too.
  *
  * It runs the real class over the compile stubs (fake context, resources and handler) and reads the built cells by
  * reflection, so the numbers below are the ones the grid uses on the device (density 2, width 1080 px).
@@ -43,6 +44,8 @@ public class SheetGridViewTest {
         cancelAndScroll();
         drag();
         dropOnFullRow();
+        colorsByKind();
+        description();
         System.out.println(failures == 0
                 ? "ALL OK (" + checks + " checks)"
                 : failures + " FAILURE(S) of " + checks);
@@ -276,7 +279,66 @@ public class SheetGridViewTest {
         runPending(grid);
         grid.onTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_MOVE, fromX, toY));
         grid.onTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_UP, fromX, toY));
-        check("a full row does not take a key from another row", "none", rec.lastEvent);
+        check("a full row does not take a key from another row, and the editor hears which row refused it", "refused 1", rec.lastEvent);
+        check("after a refused drop the grid is no longer dragging", false, dragging(grid));
+
+        // the same drag inside its own row is still a move (only another full row refuses)
+        grid.setData(sheet, sheets(sheet));
+        List<Cell> again = cells(grid);
+        grid.onTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_DOWN, again.get(0).rect.centerX(), again.get(0).rect.centerY()));
+        runPending(grid);
+        grid.onTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_MOVE, again.get(2).rect.right + 40f, again.get(0).rect.centerY()));
+        grid.onTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_UP, again.get(2).rect.right + 40f, again.get(0).rect.centerY()));
+        check("a drag inside a row that is not full is a move", "drag 0 0 0 3", rec.lastEvent);
+    }
+
+    // ------------------------------------------------------------------ colours and description
+
+    /** The fill of each kind of key: the legend of the editor says text, Tasker, sheet switch, special and gap. */
+    private static void colorsByKind() throws Exception {
+        SheetGridView grid = grid();
+        SheetModel.Sheet sheet = oneRow(new String[]{"a"}, new float[]{1f});
+        SheetModel.Row row = sheet.rows.get(0);
+        row.keys.clear();
+        row.keys.add(new SheetModel.KeySpec("a", SheetModel.TYPE_TEXT, "a", 1f));
+        row.keys.add(new SheetModel.KeySpec("wifi", SheetModel.TYPE_TASKER, "wifi", 1f));
+        row.keys.add(new SheetModel.KeySpec("NUM", SheetModel.TYPE_SHEET, "next", 1f));
+        row.keys.add(new SheetModel.KeySpec("←", SheetModel.TYPE_SPECIAL, "-21", 1f));
+        grid.setData(sheet, sheets(sheet));
+        grid.measure(WIDTH, 2000);
+        java.lang.reflect.Method build = SheetGridView.class.getDeclaredMethod("ensureCellsBuilt");
+        build.setAccessible(true);
+        build.invoke(grid);
+        List<?> raw = (List<?>) objectField(grid, "mCells");
+        Class<?> hit = Class.forName("com.mrkeyboard.app.SheetGridView$CellHit");
+        java.lang.reflect.Method draw = SheetGridView.class.getDeclaredMethod("drawKeyCell", android.graphics.Canvas.class, hit,
+                float.class, boolean.class, boolean.class);
+        draw.setAccessible(true);
+        android.graphics.Paint fill = (android.graphics.Paint) objectField(grid, "mKeyFillPaint");
+        android.graphics.Paint label = (android.graphics.Paint) objectField(grid, "mLabelPaint");
+        int[] fills = new int[4];
+        int[] labels = new int[4];
+        for (int i = 0; i < 4; i++) {
+            draw.invoke(grid, new android.graphics.Canvas(), raw.get(i), 10f, false, false);
+            fills[i] = fill.getColor();
+            labels[i] = label.getColor();
+        }
+        check("text key: the plain key (raised)", 0xff111d31, fills[0]);
+        check("Tasker key: amber, apart from the sheet switch", 0x24fbbf24, fills[1]);
+        check("Tasker key: amber label", 0xfffbbf24, labels[1]);
+        check("sheet switch key: blue", 0x2460a5fa, fills[2]);
+        check("sheet switch key: blue label", 0xff60a5fa, labels[2]);
+        check("special key: violet", 0x24a78bfa, fills[3]);
+        check("text key: white label", 0xffffffff, labels[0]);
+    }
+
+    /** TalkBack hears the count of rows and keys of the sheet (mr_grid_desc). */
+    private static void description() throws Exception {
+        SheetGridView grid = grid();
+        SheetModel.Sheet sheet = oneRow(new String[]{"a", "b", "c"}, new float[]{1f, 1f, 1f});
+        sheet.rows.add(new SheetModel.Row());
+        grid.setData(sheet, sheets(sheet));
+        check("the grid describes itself: 2 rows, 3 keys", "Teclas da folha: 2 fileiras, 3 teclas.", String.valueOf(grid.getContentDescription()));
     }
 
     // ------------------------------------------------------------------ reading the cells
@@ -373,8 +435,12 @@ public class SheetGridViewTest {
         colors.put("mr_ui_violet_soft", 0x24a78bfa);
         colors.put("mr_ui_violet_line", 0x33a78bfa);
         colors.put("mr_ui_slate", 0xff94a3b8);
+        colors.put("mr_ui_amber", 0xfffbbf24);
+        colors.put("mr_ui_amber_soft", 0x24fbbf24);
+        colors.put("mr_ui_amber_line", 0x33fbbf24);
         final HashMap<String, String> texts = new HashMap<String, String>();
         texts.put("mr_grid_add_key", "+ Adicionar tecla");
+        texts.put("mr_grid_desc", "Teclas da folha: %1$d fileiras, %2$d teclas.");
 
         Resources res = new Resources() {
             public int getIdentifier(String name, String defType, String defPackage) {
@@ -384,6 +450,7 @@ public class SheetGridViewTest {
             }
             public int getColor(int id) { return colors.get(nameOf(colors, id)); }
             public String getString(int id) { return texts.get(nameOf(texts, id)); }
+            public String getString(int id, Object... args) { return String.format(texts.get(nameOf(texts, id)), args); }
             public DisplayMetrics getDisplayMetrics() {
                 DisplayMetrics dm = new DisplayMetrics();
                 dm.density = DENSITY;
@@ -473,5 +540,6 @@ public class SheetGridViewTest {
         }
         public void onKeyTapped(int row, int key) { lastEvent = "tap " + row + " " + key; }
         public void onLockedKeyTapped(boolean deleteKey) { lastEvent = "locked " + deleteKey; }
+        public void onDropRefused(int row) { lastEvent = "refused " + row; }
     }
 }

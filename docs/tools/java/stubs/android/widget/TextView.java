@@ -36,6 +36,10 @@ public class TextView extends android.view.View {
     public int getInputType() { return stubInputType; }
     public void setSingleLine(boolean singleLine) { }
     public void setFilters(android.text.InputFilter[] filters) { }
+    /** Not in Android: what the field tells the keyboard (setPrivateImeOptions). */
+    public String stubPrivateImeOptions;
+    public void setPrivateImeOptions(String type) { stubPrivateImeOptions = type; }
+    public String getPrivateImeOptions() { return stubPrivateImeOptions; }
     /** Not in Android: the lines as last set (a test reads them). */
     public int stubMinLines, stubMaxLines;
     public void setMinLines(int minLines) { stubMinLines = minLines; }

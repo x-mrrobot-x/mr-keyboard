@@ -20,4 +20,12 @@ public final class SheetStore {
     public static boolean resetAllToDefaults(Context c) { return false; }
     public static boolean resetBuiltinSheet(Context c, String id) { return false; }
     public static boolean consumeCorruptRecoveryFlag() { return false; }
+    /** Tests only: the sheets that findSheetIndexById looks into. */
+    public static List<SheetModel.Sheet> stubSheets = new ArrayList<SheetModel.Sheet>();
+    /** Index of the sheet with that id in the list of the keyboard, or -1. */
+    public static int findSheetIndexById(Context c, String id) {
+        if (c == null || id == null) return -1;
+        for (int i = 0; i < stubSheets.size(); i++) if (id.equals(stubSheets.get(i).id)) return i;
+        return -1;
+    }
 }

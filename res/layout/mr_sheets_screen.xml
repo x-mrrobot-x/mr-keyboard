@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- "Keyboard sheets" page (PrefScreenSheets): the header (back, title, count), the fixed ABC card, the switch of
+     "return to the main sheet", the list of the sheets in the order of the cycle with its note, the "+ New sheet"
+     button and the backup section (export, import, restore the default sheets). Colors of the settings palette
+     (mr_ui_), texts of mr_strings.xml (mr_sheets_), views found by the code through android:tag. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:background="?attr/mrScreenBg"
@@ -8,7 +12,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:background="@color/mr_ui_bg"
-        android:padding="8dp"
+        android:paddingLeft="8dp"
+        android:paddingTop="8dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <LinearLayout
@@ -18,7 +25,6 @@
         <LinearLayout
             android:orientation="vertical"
             android:paddingLeft="8dp"
-            android:paddingRight="8dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1">
@@ -27,6 +33,7 @@
                 android:textStyle="bold"
                 android:textColor="@color/mr_ui_text"
                 android:singleLine="true"
+                android:ellipsize="end"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/mr_sheets_title" />
@@ -38,10 +45,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
-        <LinearLayout
-            android:tag="more_slot"
-            android:layout_width="40dp"
-            android:layout_height="40dp" />
     </LinearLayout>
     <View
         android:background="@color/mr_ui_stroke"
@@ -57,7 +60,7 @@
             android:paddingLeft="16dp"
             android:paddingTop="14dp"
             android:paddingRight="16dp"
-            android:paddingBottom="24dp"
+            android:paddingBottom="28dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <include layout="@layout/mr_sheet_fixed_card" />
@@ -72,12 +75,21 @@
                 android:textColor="@color/mr_ui_cyan"
                 android:letterSpacing="0.06"
                 android:paddingLeft="4dp"
-                android:paddingTop="16dp"
+                android:paddingTop="14dp"
                 android:paddingRight="4dp"
-                android:paddingBottom="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/mr_sheets_section" />
+            <TextView
+                android:textSize="12.5sp"
+                android:textColor="@color/mr_ui_text3"
+                android:paddingLeft="4dp"
+                android:paddingTop="3dp"
+                android:paddingRight="4dp"
+                android:paddingBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/mr_sheets_section_note" />
             <LinearLayout
                 android:tag="list"
                 android:orientation="vertical"
@@ -96,14 +108,34 @@
                 android:paddingBottom="14dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="4dp"
                 android:text="@string/mr_sheets_new" />
+            <TextView
+                android:textSize="11.5sp"
+                android:textStyle="bold"
+                android:textColor="@color/mr_ui_cyan"
+                android:letterSpacing="0.06"
+                android:paddingLeft="4dp"
+                android:paddingTop="26dp"
+                android:paddingRight="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mr_sheets_backup_section" />
+            <TextView
+                android:textSize="12.5sp"
+                android:textColor="@color/mr_ui_text3"
+                android:paddingLeft="4dp"
+                android:paddingTop="3dp"
+                android:paddingRight="4dp"
+                android:paddingBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/mr_sheets_backup_note" />
             <LinearLayout
                 android:tag="io_row"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp" />
+                android:layout_height="wrap_content" />
             <LinearLayout
                 android:tag="restore_slot"
                 android:orientation="vertical"

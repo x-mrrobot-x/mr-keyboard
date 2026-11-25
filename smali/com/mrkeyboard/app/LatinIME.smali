@@ -10309,6 +10309,9 @@
     # One line in the log, once per process: is the keyboard window drawn with hardware acceleration? (MrAccel)
     invoke-static {p0}, Lcom/mrkeyboard/app/MrAccel;->onShown(Landroid/inputmethodservice/InputMethodService;)V
 
+    # resetSheetToAbc above put it on ABC: the quick test field of the sheet editor goes back to its sheet (MrSheetTest)
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrSheetTest;->show(Lcom/mrkeyboard/app/LatinIME;)V
+
     return-void
 .end method
 
@@ -12873,6 +12876,9 @@
     .line 912
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->checkReCorrectionOnStart()V
 
+    # The quick test field of the sheet editor opens the keyboard on the sheet being edited (MrSheetTest; any other field: nothing)
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrSheetTest;->show(Lcom/mrkeyboard/app/LatinIME;)V
+
     invoke-static {}, Lcom/mrkeyboard/app/MrPerf;->openEnd()V
 
     return-void
@@ -14596,6 +14602,13 @@
     move-result v1
 
     if-eqz v1, :cond_skip
+
+    # The quick test field of the sheet editor keeps its sheet while the person tests it (MrSheetTest)
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrSheetTest;->holds(Lcom/mrkeyboard/app/LatinIME;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_skip
 
     const/4 v1, 0x1
 

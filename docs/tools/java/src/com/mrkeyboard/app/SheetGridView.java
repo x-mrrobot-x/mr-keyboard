@@ -27,6 +27,11 @@ import java.util.List;
  * in the last one, because of the locked "⌫"). What changed is the paint: every color now comes from the settings
  * palette (mr_ui_*) instead of a fixed ARGB, so the keys are blue-leaning and the borders soft, like the screen around
  * them (the text of the empty row comes from mr_strings.xml, mr_grid_add_key).
+ *
+ * Each kind of key has its own colours, the same ones as the legend under the grid (mr_sheet_ed_legend_*): a text key is
+ * the plain key, a Tasker key amber, a key that switches the sheet blue, a special key violet and a gap a dashed outline.
+ * A key dropped on a row that is full stays where it was and the listener hears it (onDropRefused), so the editor can say
+ * why; the grid describes itself to TalkBack with the count of rows and keys (mr_grid_desc).
  */
 public class SheetGridView extends View {
     /** Width of each key of the locked bottom row, as a fraction of the row (badge, comma, space, dot, enter). */
@@ -45,6 +50,9 @@ public class SheetGridView extends View {
 
         /** A key that cannot be edited was tapped: deleteKey is true for "⌫", false for the bottom row. */
         void onLockedKeyTapped(boolean deleteKey);
+
+        /** A key was dropped on another row that is already full: it stays where it was. */
+        void onDropRefused(int row);
     }
 
     private final Resources mRes;
@@ -84,6 +92,8 @@ public class SheetGridView extends View {
     private boolean mDragging;
     private int mDropRow = -1;
     private int mDropIndex = -1;
+    /** The full row under the finger while a key is dragged (it does not take the key), or -1. */
+    private int mRefusedRow = -1;
     private float mDropLineX = -1f;
     private float mDropLineTop;
     private float mDropLineBottom;
@@ -99,6 +109,9 @@ public class SheetGridView extends View {
     private final int cSheetFill;
     private final int cSheetStroke;
     private final int cSheetLabel;
+    private final int cTaskerFill;
+    private final int cTaskerStroke;
+    private final int cTaskerLabel;
     private final int cSpecialFill;
     private final int cSpecialStroke;
     private final int cSpacerFill;
@@ -134,6 +147,9 @@ public class SheetGridView extends View {
         cSheetFill = color("mr_ui_blue_soft");
         cSheetStroke = color("mr_ui_blue_line");
         cSheetLabel = color("mr_ui_blue");
+        cTaskerFill = color("mr_ui_amber_soft");
+        cTaskerStroke = color("mr_ui_amber_line");
+        cTaskerLabel = color("mr_ui_amber");
         cSpecialFill = color("mr_ui_violet_soft");
         cSpecialStroke = color("mr_ui_violet_line");
         cSpacerFill = color("mr_ui_sunken");
@@ -224,6 +240,12 @@ public class SheetGridView extends View {
         return id == 0 ? name : mRes.getString(id);
     }
 
+    /** The same with the values of its placeholders. */
+    private String t(String name, Object... args) {
+        int id = mRes.getIdentifier(name, "string", getContext().getPackageName());
+        return id == 0 ? name : mRes.getString(id, args);
+    }
+
     private float dp(float v) {
         return v * mDensity;
     }
@@ -238,8 +260,18 @@ public class SheetGridView extends View {
         mSheet = sheet;
         mAllSheets = allSheets;
         mCellsDirty = true;
+        if (sheet != null) {
+            setContentDescription(t("mr_grid_desc", Integer.valueOf(Math.min(sheet.rows.size(), 6)), Integer.valueOf(countKeys(sheet))));
+        }
         requestLayout();
         invalidate();
+    }
+
+    /** Keys of the rows that the grid shows (the locked ones are not counted). */
+    private static int countKeys(SheetModel.Sheet sheet) {
+        int n = 0;
+        for (int r = 0; r < sheet.rows.size() && r < 6; r++) n += sheet.rows.get(r).keys.size();
+        return n;
     }
 
     @Override
@@ -400,7 +432,8 @@ public class SheetGridView extends View {
             drawCenteredText(canvas, "␣", cell.rect, mLabelPaint);
             return;
         }
-        boolean sheetTarget = SheetModel.TYPE_TASKER.equals(spec.type) || SheetModel.TYPE_SHEET.equals(spec.type);
+        boolean sheetTarget = SheetModel.TYPE_SHEET.equals(spec.type);
+        boolean tasker = SheetModel.TYPE_TASKER.equals(spec.type);
         boolean special = SheetModel.TYPE_SPECIAL.equals(spec.type);
         int fill;
         int stroke;
@@ -413,6 +446,9 @@ public class SheetGridView extends View {
         } else if (sheetTarget) {
             fill = cSheetFill;
             stroke = cSheetStroke;
+        } else if (tasker) {
+            fill = cTaskerFill;
+            stroke = cTaskerStroke;
         } else if (special) {
             fill = cSpecialFill;
             stroke = cSpecialStroke;
@@ -427,7 +463,7 @@ public class SheetGridView extends View {
 
         int len = cell.shortLabel.length();
         mLabelPaint.setTextSize(dp(len <= 2 ? 14.5f : len <= 4 ? 12f : 10.5f));
-        mLabelPaint.setColor(dragSource ? cSpacerLabel : sheetTarget ? cSheetLabel : cKeyLabel);
+        mLabelPaint.setColor(dragSource ? cSpacerLabel : sheetTarget ? cSheetLabel : tasker ? cTaskerLabel : cKeyLabel);
         drawCenteredText(canvas, cell.shortLabel, cell.rect, mLabelPaint);
 
         if (spec.hasAnyPopup()) {
@@ -508,6 +544,7 @@ public class SheetGridView extends View {
 
     /** Row and position where the dragged key drops, and the cyan line that shows it. */
     private void computeDropTarget(float x, float y) {
+        mRefusedRow = -1;
         if (mSheet == null || mSheet.rows.isEmpty()) return;
         int rowCount = Math.min(mSheet.rows.size(), 6);
         float padTop = dp(10f);
@@ -532,6 +569,7 @@ public class SheetGridView extends View {
             mDropRow = -1;
             mDropIndex = -1;
             mDropLineX = -1f;
+            mRefusedRow = row;
             return;
         }
 
@@ -583,6 +621,7 @@ public class SheetGridView extends View {
                 mDropRow = -1;
                 mDropIndex = -1;
                 mDropLineX = -1f;
+                mRefusedRow = -1;
                 mDownCell = hitTest(x, y);
                 if (mDownCell != null && mDownCell.kind == CellHit.KIND_KEY) {
                     mHandler.postDelayed(mLongPressRunnable, ViewConfiguration.getLongPressTimeout());
@@ -599,11 +638,15 @@ public class SheetGridView extends View {
                     int fromKey = mDownCell.keyIdx;
                     int toRow = mDropRow;
                     int toIndex = mDropIndex;
+                    int refused = mRefusedRow;
                     mDragging = false;
                     mDownCell = null;
+                    mRefusedRow = -1;
                     invalidate();
                     if (toRow >= 0 && toIndex >= 0 && mListener != null) {
                         mListener.onKeyDragged(fromRow, fromKey, toRow, toIndex);
+                    } else if (refused >= 0 && mListener != null) {
+                        mListener.onDropRefused(refused);
                     }
                 } else if (mDownCell != null) {
                     // the tap: only when the finger did not walk away from the cell

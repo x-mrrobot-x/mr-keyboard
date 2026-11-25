@@ -3,12 +3,12 @@
 .source "PrefScreenSheets.java"
 
 # interfaces
-.implements Lcom/mrkeyboard/app/SheetUi$OnMenuSelect;
+.implements Landroid/content/DialogInterface$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/PrefScreenSheets;->showHeaderMenu(Landroid/view/View;)V
+    value = Lcom/mrkeyboard/app/PrefScreenSheets;->showNewSheetTemplatePicker()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 242
+    .line 334
     iput-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$11;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,45 +36,30 @@
 
 
 # virtual methods
-.method public onSelect(I)V
-    .locals 1
+.method public onClick(Landroid/content/DialogInterface;I)V
+    .locals 2
 
     .prologue
-    .line 244
-    const/4 v0, 0x1
+    .line 336
+    const/4 v0, 0x3
 
-    if-ne p1, v0, :cond_1
+    if-ne p2, v0, :cond_0
 
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$11;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$200(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1100(Lcom/mrkeyboard/app/PrefScreenSheets;)V
 
-    .line 247
-    :cond_0
+    .line 338
     :goto_0
     return-void
 
-    .line 245
-    :cond_1
-    const/4 v0, 0x2
-
-    if-ne p1, v0, :cond_2
-
+    .line 337
+    :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$11;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$300(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+    const/4 v1, 0x0
 
-    goto :goto_0
-
-    .line 246
-    :cond_2
-    const/4 v0, 0x3
-
-    if-ne p1, v0, :cond_0
-
-    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$11;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
-
-    invoke-static {v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$400(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+    invoke-static {v0, p2, v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1200(Lcom/mrkeyboard/app/PrefScreenSheets;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
 
     goto :goto_0
 .end method

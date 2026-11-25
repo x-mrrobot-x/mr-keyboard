@@ -4,8 +4,13 @@
      the long-press popup, plus the action chips (move, duplicate, delete) of an existing key. The sections are shown
      or hidden by KeyEditDialog according to the type of the key; the chips and the width presets are painted there too
      (selected/unselected, disabled). Colors of the settings palette (mr_ui_*), texts of mr_strings.xml (mr_key_ed_*),
-     views found by the code through android:tag (no id is needed). -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     views found by the code through android:tag (no id is needed). The whole content scrolls: with the keyboard open the
+     dialog is short, and the width, the popup and the actions must still be reached. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fillViewport="true"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+<LinearLayout
     android:orientation="vertical"
     android:paddingLeft="20dp"
     android:paddingTop="18dp"
@@ -636,3 +641,4 @@
             android:text="@string/mr_key_ed_delete" />
     </LinearLayout>
 </LinearLayout>
+</ScrollView>

@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- The list of "Keyboard sheets" with no sheet: what it means and the two ways out (new sheet, restore). -->
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:textSize="13sp"
-    android:textColor="@color/mr_ui_text3"
+    android:textSize="13.5sp"
+    android:textColor="@color/mr_ui_text2"
     android:gravity="center"
-    android:padding="16dp"
+    android:background="?attr/mrCardFlat"
+    android:padding="18dp"
+    android:lineSpacingExtra="3dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
     android:text="@string/mr_sheets_empty" />

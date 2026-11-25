@@ -43,7 +43,7 @@
     .end annotation
 
     .prologue
-    .line 682
+    .line 783
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$Api30ImeHelper$1;->val$content:Landroid/view/View;
 
     iput p2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$Api30ImeHelper$1;->val$padLeft:I
@@ -69,7 +69,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 686
+    .line 787
     invoke-static {}, Landroid/view/WindowInsets$Type;->ime()I
 
     move-result v1
@@ -80,7 +80,7 @@
 
     iget v1, v1, Landroid/graphics/Insets;->bottom:I
 
-    .line 687
+    .line 788
     invoke-static {}, Landroid/view/WindowInsets$Type;->systemBars()I
 
     move-result v2
@@ -93,17 +93,17 @@
 
     sub-int/2addr v1, v2
 
-    .line 688
+    .line 789
     invoke-static {v0, v1}, Ljava/lang/Math;->max(II)I
 
     move-result v1
 
-    .line 689
+    .line 790
     iget v2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$Api30ImeHelper$1;->mLastExtra:I
 
     if-eq v1, v2, :cond_1
 
-    .line 690
+    .line 791
     iget v2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$Api30ImeHelper$1;->mLastExtra:I
 
     if-le v1, v2, :cond_0
@@ -112,11 +112,11 @@
 
     const/4 v0, 0x1
 
-    .line 691
+    .line 792
     :cond_0
     iput v1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$Api30ImeHelper$1;->mLastExtra:I
 
-    .line 692
+    .line 793
     iget-object v2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$Api30ImeHelper$1;->val$content:Landroid/view/View;
 
     iget v3, p0, Lcom/mrkeyboard/app/SheetEditorActivity$Api30ImeHelper$1;->val$padLeft:I
@@ -131,19 +131,19 @@
 
     invoke-virtual {v2, v3, v4, v5, v1}, Landroid/view/View;->setPadding(IIII)V
 
-    .line 693
+    .line 794
     if-eqz v0, :cond_1
 
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$Api30ImeHelper$1;->val$onKeyboardShown:Ljava/lang/Runnable;
 
     if-eqz v0, :cond_1
 
-    .line 694
+    .line 795
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$Api30ImeHelper$1;->val$onKeyboardShown:Ljava/lang/Runnable;
 
     invoke-interface {v0}, Ljava/lang/Runnable;->run()V
 
-    .line 697
+    .line 798
     :cond_1
     return-object p2
 .end method

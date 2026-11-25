@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 311
+    .line 346
     iput-object p1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,12 +40,12 @@
     .locals 4
 
     .prologue
-    .line 314
+    .line 349
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1200(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)I
+    invoke-static {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1300(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)I
 
     move-result v0
 
@@ -53,19 +53,19 @@
 
     move-result-object v0
 
-    .line 315
+    .line 350
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;
 
     iget-object v1, v1, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
-    invoke-static {v1, p1}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1202(Lcom/mrkeyboard/app/KeyEditDialog$Editor;I)I
+    invoke-static {v1, p1}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1302(Lcom/mrkeyboard/app/KeyEditDialog$Editor;I)I
 
-    .line 316
+    .line 351
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;
 
     iget-object v1, v1, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
-    invoke-static {v1}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1300(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)Landroid/widget/TextView;
+    invoke-static {v1}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1400(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)Landroid/widget/TextView;
 
     move-result-object v1
 
@@ -77,7 +77,7 @@
 
     iget-object v3, v3, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
-    invoke-static {v3}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1100(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)Landroid/content/Context;
+    invoke-static {v3}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1200(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)Landroid/content/Context;
 
     move-result-object v3
 
@@ -101,7 +101,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 317
+    .line 352
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;
 
     iget-object v1, v1, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
@@ -122,7 +122,7 @@
 
     move-result-object v1
 
-    .line 318
+    .line 353
     invoke-virtual {v1}, Ljava/lang/String;->isEmpty()Z
 
     move-result v2
@@ -146,7 +146,7 @@
 
     invoke-virtual {v0, p2}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 319
+    .line 354
     :cond_1
     return-void
 .end method

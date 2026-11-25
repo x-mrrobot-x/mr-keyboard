@@ -67,6 +67,7 @@
 #   test_enter_word.py  the real smali of LatinIME.handleSeparator and commitTyped over a fake field: Enter (a key event) leaves no word waiting to be written again on the next line, with Autocompletar on and off
 #                        (a word with no default suggestion to accept stayed as the word being typed and the first letter of the new line brought it back)
 #   test_sheet_longpress.py  the real smali of PointerTracker.startLongPressTimer: the sheet key (code -300: 123, ABC, TSK) opens its popup after a fixed 150 ms, the other keys keep the setting
+#   test_sheet_test_field.py  the real smali of LatinIME.onWindowShown and returnToMainSheet: the quick test field of the sheet editor goes to its sheet after the reset to ABC and keeps it while typing; every other field as before
 #   test_word_delete.py  Ctrl + delete by words and Ctrl + Z (MrWordDelete): the real smali of LatinIME.handleBackspace, sendModifiableKeyChar (the Ctrl + Z hook), mrCtrlOn, mrCtrlOnly, mrBackspace, UIHandler.cancelKeyRepeatTimer and .handleMessage (the repeat) in the mini interpreter, the order of the calls in PointerTracker.onDownEvent, who calls MrWordDelete, the screen next to the long-press time, its limits and texts
 #   test_tour.py  the first steps (MrTour, MrTourActivity): the screen in the manifest (not exported), the one call in Main.onCreate after the update notice, the three options on by default in the XML and in the Java layer, the texts in the three languages with the same placeholders, the network only in MrTour.work (the Download button), docs/first-steps.md and the privacy lines of the READMEs
 #   test_ai_default.py  Google Gemini is the service of the AI settings until the person changes it: the provider, the address and the model in res/xml/prefs_ai.xml, in MrAi and in the ready-made provider of MrAiPrefs are the same; OpenAI keeps its own values; the key is still required
@@ -273,6 +274,9 @@ jobs:
 
       - name: Sheet key long press (150 ms, the other keys keep the setting)
         run: python3 -I docs/tools/test_sheet_longpress.py
+
+      - name: Quick test field of the sheet editor (real smali of LatinIME.onWindowShown and returnToMainSheet)
+        run: python3 -I docs/tools/test_sheet_test_field.py
 
       - name: Ctrl + delete by words and Ctrl + Z (the calls, the screen, the limits)
         run: python3 -I docs/tools/test_word_delete.py

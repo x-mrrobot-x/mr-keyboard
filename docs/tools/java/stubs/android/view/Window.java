@@ -25,4 +25,7 @@ public class Window {
     /** API 29. */
     public void setNavigationBarContrastEnforced(boolean enforce) { stubNavigationBarContrastEnforced = enforce; stubBarCalls++; }
     public void setFlags(int flags, int mask) { stubFlags = (stubFlags & ~mask) | (flags & mask); }
+    /** Not in Android: what the window was asked to do with the keyboard (setSoftInputMode). */
+    public int stubSoftInputMode;
+    public void setSoftInputMode(int mode) { stubSoftInputMode = mode; }
 }

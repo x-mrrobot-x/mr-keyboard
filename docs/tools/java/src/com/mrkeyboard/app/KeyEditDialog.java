@@ -31,6 +31,11 @@ import java.util.Locale;
  * The views are found by android:tag, so no id is needed (public.xml is not touched). The dialog is the platform
  * AlertDialog of the screen (Theme.MrKeyboard.Dialog): the Save/Cancel buttons are the ones of the theme, and the Save
  * click is replaced on show so that an invalid key keeps the dialog open.
+ *
+ * The content scrolls (the root of mr_key_ed_dialog is a ScrollView): with the keyboard open, or on a short screen, the
+ * width, the popup and the actions are still reached (the dialog used to cut them off). A new key has no actions yet, so
+ * its editor has no row of greyed chips; the width preset that matches the width is lit. The editor answers the dialog it
+ * opened, so the sheet editor ignores a second tap while it is open.
  */
 public final class KeyEditDialog {
     /** What the caller does with the result of the editor. */
@@ -72,17 +77,39 @@ public final class KeyEditDialog {
 
     private KeyEditDialog() { }
 
-    /** Editor of a key of a row: fromNew is true for a key being added (no move, no duplicate, no delete). */
-    public static void show(Context context, List<SheetModel.Sheet> sheets, SheetModel.KeySpec key,
+    /** Editor of a key of a row (for a key being added every can* is false: no move, no duplicate, no delete); the dialog, shown. */
+    public static AlertDialog show(Context context, List<SheetModel.Sheet> sheets, SheetModel.KeySpec key,
             boolean canMoveLeft, boolean canMoveRight, boolean canDuplicate, boolean canDelete,
             OnKeyActionListener listener) {
-        new Editor(context, sheets, key, false, canMoveLeft, canMoveRight, canDuplicate, canDelete, listener).show();
+        return new Editor(context, sheets, key, false, canMoveLeft, canMoveRight, canDuplicate, canDelete, listener).show();
     }
 
-    /** Editor of one item of a long-press popup: no spacer type, no width, no popup of its own and no actions. */
-    public static void showForPopupItem(Context context, List<SheetModel.Sheet> sheets, SheetModel.KeySpec key,
+    /** Editor of one item of a long-press popup: no spacer type, no width, no popup of its own and no actions; the dialog, shown. */
+    public static AlertDialog showForPopupItem(Context context, List<SheetModel.Sheet> sheets, SheetModel.KeySpec key,
             OnKeyActionListener listener) {
-        new Editor(context, sheets, key, true, false, false, false, false, listener).show();
+        return new Editor(context, sheets, key, true, false, false, false, false, listener).show();
+    }
+
+    /**
+     * Text of a target of a "switch sheet" key: the two cycles, ABC, or the badge and the name of the sheet; a sheet that is not in
+     * {@code sheets} any more reads as the next one (it is what the keyboard does with it).
+     */
+    static String describeTarget(Context context, List<SheetModel.Sheet> sheets, String target) {
+        if (SheetModel.TARGET_PREV.equals(target)) return text(context, "mr_key_ed_target_prev");
+        if (SheetModel.TARGET_ABC.equals(target)) return text(context, "mr_key_ed_target_abc");
+        if (sheets != null && target != null) {
+            for (int i = 0; i < sheets.size(); i++) {
+                SheetModel.Sheet sheet = sheets.get(i);
+                if (target.equals(sheet.id)) return text(context, "mr_key_ed_target_sheet", sheet.badge, sheet.name);
+            }
+        }
+        return text(context, "mr_key_ed_target_next");
+    }
+
+    private static String text(Context context, String name, Object... args) {
+        int id = context.getResources().getIdentifier(name, "string", context.getPackageName());
+        if (id == 0) return name;
+        return args.length == 0 ? context.getResources().getString(id) : context.getResources().getString(id, args);
     }
 
     // ------------------------------------------------------------------ width text
@@ -141,6 +168,7 @@ public final class KeyEditDialog {
         private TextView mSpecialBtn;
         private TextView mSheetBtn;
         private TextView mPopupBtn;
+        private LinearLayout mWidthPresets;
 
         /** Integer of the selected special key (the default is the left arrow, as in the old dialog). */
         private int mSpecialCode;
@@ -165,7 +193,7 @@ public final class KeyEditDialog {
             mListener = listener;
         }
 
-        void show() {
+        AlertDialog show() {
             View content = LayoutInflater.from(mContext).inflate(res("mr_key_ed_dialog", "layout"), null);
             mDialog = new AlertDialog.Builder(mContext)
                     .setView(content)
@@ -185,6 +213,7 @@ public final class KeyEditDialog {
                 }
             });
             mDialog.show();
+            return mDialog;
         }
 
         // -------------------------------------------------------------- build
@@ -251,13 +280,16 @@ public final class KeyEditDialog {
             bindSheet();
             bindPopup();
 
-            if (mPopup) {
-                // a popup item keeps the width of one key and has no actions and no popup of its own
-                mGroupWidth.setVisibility(View.GONE);
-                mGroupPopup.setVisibility(View.GONE);
+            if (mPopup || !(mCanMoveLeft || mCanMoveRight || mCanDuplicate || mCanDelete)) {
+                // a popup item and a key being added have no actions (a row of greyed chips says nothing)
                 content.findViewWithTag("group_actions").setVisibility(View.GONE);
             } else {
                 bindActions(content);
+            }
+            if (mPopup) {
+                // a popup item keeps the width of one key and has no popup of its own
+                mGroupWidth.setVisibility(View.GONE);
+                mGroupPopup.setVisibility(View.GONE);
             }
 
             bindLabelSync();
@@ -286,6 +318,7 @@ public final class KeyEditDialog {
                 public void onProgressChanged(SeekBar bar, int progress, boolean fromUser) {
                     mStep = progress;
                     refreshWidthTitle();
+                    refreshWidthPresets();
                 }
 
                 public void onStartTrackingTouch(SeekBar bar) { }
@@ -293,6 +326,7 @@ public final class KeyEditDialog {
                 public void onStopTrackingTouch(SeekBar bar) { }
             });
             LinearLayout presets = (LinearLayout) content.findViewWithTag("width_presets");
+            mWidthPresets = presets;
             for (int i = 0; i < presets.getChildCount() && i < WIDTH_PRESETS.length; i++) {
                 final float width = WIDTH_PRESETS[i];
                 presets.getChildAt(i).setOnClickListener(new View.OnClickListener() {
@@ -302,6 +336,7 @@ public final class KeyEditDialog {
                 });
             }
             refreshWidthTitle();
+            refreshWidthPresets();
         }
 
         private void bindSpecial() {
@@ -432,6 +467,18 @@ public final class KeyEditDialog {
             mWidthTitle.setText(t("mr_key_ed_width_title", formatWidth(mStep * 0.25f + 0.5f)));
         }
 
+        /** The preset that is the width of the key is lit (the selected chip), the others plain. */
+        private void refreshWidthPresets() {
+            if (mWidthPresets == null) return;
+            float width = mStep * 0.25f + 0.5f;
+            for (int i = 0; i < mWidthPresets.getChildCount() && i < WIDTH_PRESETS.length; i++) {
+                boolean on = Math.abs(WIDTH_PRESETS[i] - width) < 0.01f;
+                TextView pill = (TextView) mWidthPresets.getChildAt(i);
+                pill.setBackgroundResource(res(on ? "mr_key_ed_chip_on" : "mr_key_ed_pill", "drawable"));
+                pill.setTextColor(color(on ? "mr_ui_text" : "mr_ui_cyan"));
+            }
+        }
+
         private void refreshPopupLabel() {
             if (mPopupBtn == null) return;
             if (mKey.hasPopupKeys()) {
@@ -445,15 +492,7 @@ public final class KeyEditDialog {
 
         /** Text of the current target: the two cycles, ABC or the badge and the name of the sheet. */
         private String describeTarget(String target) {
-            if (SheetModel.TARGET_PREV.equals(target)) return t("mr_key_ed_target_prev");
-            if (SheetModel.TARGET_ABC.equals(target)) return t("mr_key_ed_target_abc");
-            if (mSheets != null) {
-                for (int i = 0; i < mSheets.size(); i++) {
-                    SheetModel.Sheet sheet = mSheets.get(i);
-                    if (sheet.id.equals(target)) return t("mr_key_ed_target_sheet", sheet.badge, sheet.name);
-                }
-            }
-            return t("mr_key_ed_target_next");
+            return KeyEditDialog.describeTarget(mContext, mSheets, target);
         }
 
         // -------------------------------------------------------------- actions

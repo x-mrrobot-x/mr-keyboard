@@ -47,25 +47,25 @@
     .locals 4
 
     .prologue
-    .line 678
+    .line 721
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 679
+    .line 722
     iput p1, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->kind:I
 
-    .line 680
+    .line 723
     iput p2, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rowIdx:I
 
-    .line 681
+    .line 724
     iput p3, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->keyIdx:I
 
-    .line 682
+    .line 725
     iput-object p4, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
 
-    .line 683
+    .line 726
     iput-object p5, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->spec:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
-    .line 684
+    .line 727
     if-nez p6, :cond_0
 
     const-string p6, ""
@@ -73,7 +73,7 @@
     :cond_0
     iput-object p6, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->displayLabel:Ljava/lang/String;
 
-    .line 685
+    .line 728
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->displayLabel:Ljava/lang/String;
 
     const/16 v1, 0xa
@@ -94,7 +94,7 @@
 
     move-result-object v0
 
-    .line 686
+    .line 729
     :goto_0
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
@@ -133,7 +133,7 @@
     :cond_1
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->shortLabel:Ljava/lang/String;
 
-    .line 687
+    .line 730
     if-eqz p5, :cond_2
 
     iget v0, p5, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
@@ -152,23 +152,23 @@
 
     if-gtz v0, :cond_4
 
-    .line 688
+    .line 731
     :cond_2
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->widthBadge:Ljava/lang/String;
 
-    .line 694
+    .line 737
     :goto_1
     return-void
 
-    .line 685
+    .line 728
     :cond_3
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->displayLabel:Ljava/lang/String;
 
     goto :goto_0
 
-    .line 689
+    .line 732
     :cond_4
     iget v0, p5, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
 
@@ -192,7 +192,7 @@
 
     if-gez v0, :cond_5
 
-    .line 690
+    .line 733
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -221,7 +221,7 @@
 
     goto :goto_1
 
-    .line 692
+    .line 735
     :cond_5
     new-instance v0, Ljava/lang/StringBuilder;
 

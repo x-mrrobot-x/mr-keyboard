@@ -345,7 +345,7 @@
     <string name="default_key_spacing">4</string>
     <string name="default_key_radius">8</string>
     <string name="title_sheet_return">Return to main sheet after typing</string>
-    <string name="summary_sheet_return_true">Typing a key on 123, TSK, HTML or FRS goes back to the main sheet</string>
+    <string name="summary_sheet_return_true">After you tap a key on another sheet, the keyboard goes back to ABC</string>
     <string name="summary_sheet_return_false">Stay on the current sheet after typing a key</string>
     <string name="mr_bar_scale_max">1.5</string>
     <string name="mr_bar_scale_min">0.6</string>

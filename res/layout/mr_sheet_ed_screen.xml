@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Sheet editor (one sheet): header with the badge, the title and the subtitle, undo and the overflow menu,
-     the hint line, the three pills, the drawn key grid (SheetGridView, added by the code in the slot) and the
-     quick test card. Colors of the settings palette (mr_ui_), texts of mr_strings.xml (mr_sheet_ed_). -->
+<!-- Sheet editor (one sheet): the header (back; the badge, the name and the count, with the pencil that says a tap
+     changes the name and the badge; undo; the options), the hint, the two row buttons ("+ Row", "Arrange rows"),
+     the drawn key grid (SheetGridView, added by the code in the slot), the legend of its colours and the quick test
+     card. Colors of the settings palette (mr_ui_), texts of mr_strings.xml (mr_sheet_ed_). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:background="?attr/mrScreenBg"
@@ -26,7 +27,7 @@
             android:background="@drawable/mr_sheet_ed_header_pill"
             android:paddingLeft="8dp"
             android:paddingTop="4dp"
-            android:paddingRight="8dp"
+            android:paddingRight="6dp"
             android:paddingBottom="4dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -37,6 +38,7 @@
                 android:textStyle="bold"
                 android:textColor="@color/mr_ui_text"
                 android:gravity="center"
+                android:singleLine="true"
                 android:background="@drawable/mr_sheet_ed_badge_bg"
                 android:paddingLeft="8dp"
                 android:paddingTop="3.5dp"
@@ -48,6 +50,7 @@
             <LinearLayout
                 android:orientation="vertical"
                 android:paddingLeft="10dp"
+                android:paddingRight="6dp"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
@@ -69,21 +72,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </LinearLayout>
+            <ImageView
+                android:tag="edit_icon"
+                android:scaleType="center"
+                android:layout_width="18dp"
+                android:layout_height="18dp" />
         </LinearLayout>
-        <TextView
+        <ImageView
             android:tag="undo"
-            android:textSize="12.5sp"
-            android:textStyle="bold"
-            android:textColor="@color/mr_ui_cyan"
-            android:gravity="center"
-            android:background="@drawable/mr_sheet_ed_undo_bg"
-            android:paddingLeft="10dp"
-            android:paddingTop="7dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="7dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/mr_sheet_ed_undo" />
+            android:src="@drawable/mr_ui_ic_undo"
+            android:scaleType="fitCenter"
+            android:background="@drawable/mr_sheet_icon_ripple"
+            android:padding="10dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="2dp"
+            android:contentDescription="@string/mr_sheet_ed_undo" />
         <LinearLayout
             android:tag="more_slot"
             android:background="@drawable/mr_sheet_ed_header_pill"
@@ -110,7 +114,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:textSize="12sp"
+                android:textSize="12.5sp"
                 android:textColor="@color/mr_ui_text2"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
@@ -126,52 +130,49 @@
                 android:layout_marginBottom="10dp">
                 <TextView
                     android:tag="add_row"
-                    android:textSize="12.5sp"
+                    android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="@color/mr_ui_text"
                     android:gravity="center"
+                    android:singleLine="true"
                     android:background="@drawable/mr_sheet_ed_pill_primary"
-                    android:paddingLeft="13dp"
-                    android:paddingTop="8dp"
-                    android:paddingRight="13dp"
-                    android:paddingBottom="8dp"
+                    android:paddingLeft="16dp"
+                    android:paddingTop="9dp"
+                    android:paddingRight="16dp"
+                    android:paddingBottom="9dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/mr_sheet_ed_add_row" />
                 <TextView
                     android:tag="rows_btn"
-                    android:textSize="12.5sp"
+                    android:textSize="13sp"
                     android:textStyle="bold"
                     android:textColor="@color/mr_ui_text2"
                     android:gravity="center"
+                    android:singleLine="true"
                     android:background="@drawable/mr_sheet_ed_pill"
-                    android:paddingLeft="13dp"
-                    android:paddingTop="8dp"
-                    android:paddingRight="13dp"
-                    android:paddingBottom="8dp"
+                    android:paddingLeft="16dp"
+                    android:paddingTop="9dp"
+                    android:paddingRight="16dp"
+                    android:paddingBottom="9dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="8dp"
                     android:text="@string/mr_sheet_ed_rows_btn" />
-                <TextView
-                    android:tag="name_btn"
-                    android:textSize="12.5sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/mr_ui_text2"
-                    android:gravity="center"
-                    android:background="@drawable/mr_sheet_ed_pill"
-                    android:paddingLeft="13dp"
-                    android:paddingTop="8dp"
-                    android:paddingRight="13dp"
-                    android:paddingBottom="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:text="@string/mr_sheet_ed_name_btn" />
             </LinearLayout>
             <LinearLayout
                 android:tag="grid_slot"
                 android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:tag="legend"
+                android:textSize="12sp"
+                android:textColor="@color/mr_ui_text2"
+                android:lineSpacingExtra="4dp"
+                android:paddingLeft="6dp"
+                android:paddingTop="10dp"
+                android:paddingRight="6dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
             <include layout="@layout/mr_sheet_ed_test_card" />

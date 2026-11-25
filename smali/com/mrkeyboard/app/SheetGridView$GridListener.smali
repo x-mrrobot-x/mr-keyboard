@@ -18,6 +18,9 @@
 .method public abstract onAddKeyTapped(I)V
 .end method
 
+.method public abstract onDropRefused(I)V
+.end method
+
 .method public abstract onKeyDragged(IIII)V
 .end method
 

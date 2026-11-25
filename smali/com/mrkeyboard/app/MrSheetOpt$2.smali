@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 73
+    .line 75
     iput-object p1, p0, Lcom/mrkeyboard/app/MrSheetOpt$2;->val$sw:Landroid/widget/Switch;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -45,11 +45,11 @@
     .locals 1
 
     .prologue
-    .line 75
+    .line 77
     iget-object v0, p0, Lcom/mrkeyboard/app/MrSheetOpt$2;->val$sw:Landroid/widget/Switch;
 
     invoke-virtual {v0}, Landroid/widget/Switch;->toggle()V
 
-    .line 76
+    .line 78
     return-void
 .end method

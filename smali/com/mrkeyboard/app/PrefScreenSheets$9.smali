@@ -22,9 +22,13 @@
 
 .field final synthetic val$idx:I
 
+.field final synthetic val$more:Landroid/widget/ImageView;
+
+.field final synthetic val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;I)V
+.method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;Landroid/widget/ImageView;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +37,14 @@
     .end annotation
 
     .prologue
-    .line 210
+    .line 237
     iput-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$9;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    iput p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$9;->val$idx:I
+    iput-object p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$9;->val$more:Landroid/widget/ImageView;
+
+    iput p3, p0, Lcom/mrkeyboard/app/PrefScreenSheets$9;->val$idx:I
+
+    iput-object p4, p0, Lcom/mrkeyboard/app/PrefScreenSheets$9;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,20 +54,20 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 3
+    .locals 4
 
     .prologue
-    .line 212
+    .line 239
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$9;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    iget v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$9;->val$idx:I
+    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$9;->val$more:Landroid/widget/ImageView;
 
     iget v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$9;->val$idx:I
 
-    add-int/lit8 v2, v2, 0x1
+    iget-object v3, p0, Lcom/mrkeyboard/app/PrefScreenSheets$9;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
-    invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$600(Lcom/mrkeyboard/app/PrefScreenSheets;II)V
+    invoke-static {v0, v1, v2, v3}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$600(Lcom/mrkeyboard/app/PrefScreenSheets;Landroid/view/View;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
 
-    .line 213
+    .line 240
     return-void
 .end method

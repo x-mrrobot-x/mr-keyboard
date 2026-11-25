@@ -7,39 +7,56 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.InputFilter;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
 /**
- * "Folhas do teclado" (keyboard sheets) page: the fixed ABC card, the "return to the main sheet" switch, the list of editable
- * sheets (order of the cycle) with move up/down, rename, duplicate, restore and delete, the "new sheet" templates and the JSON
- * backup (export, import, restore all).
+ * "Folhas do teclado" (keyboard sheets) page: the fixed ABC card, the "return to the main sheet" switch, the list of the
+ * sheets in the order of the cycle (with its note) and, on each card, move up/down and the menu (edit, name and badge, move,
+ * duplicate, restore, delete); the "+ New sheet" button with its templates; and the backup section (export, import, restore
+ * the default sheets). The backup lives in that section only: the ⋮ of the header that repeated it is gone.
  *
  * The look is in XML, like the other settings screens: layout/mr_sheets_screen (the page), mr_sheet_card (one sheet),
- * mr_sheet_fixed_card (ABC), mr_sheet_button (+ _danger), mr_sheet_empty and mr_sheet_dialog_fields, with the drawables
- * mr_sheet_* and mr_ui_card_ripple. The colors come from the settings palette (@color/mr_ui_*) and the texts from
- * mr_strings.xml (mr_sheets_*, in English, Portuguese and Spanish); this class only fills in what changes (texts of the
+ * mr_sheet_fixed_card (ABC), mr_sheet_button (+ _danger), mr_sheet_empty and mr_sheet_dialog_fields (SheetNameDialog), with
+ * the drawables mr_sheet_* and mr_ui_card_ripple. The colors come from the settings palette (@color/mr_ui_*) and the texts
+ * from mr_strings.xml (mr_sheets_*, in English, Portuguese and Spanish); this class only fills in what changes (texts of the
  * sheets, the drawn icons, the clicks). The views are found by android:tag, so no id is needed.
  * The icons are the drawn ones of SheetUi and the data is the SheetStore/SheetModel (smali, hand written).
+ *
+ * Taps: the buttons of a card have 40 dp and say what they do to TalkBack ("Move Symbols up"); a second tap that comes within
+ * {@link #TAP_GAP_MS} of one that opened something (the editor, a dialog, the file picker) is ignored, so two quick taps do
+ * not open the editor twice. With the list full, "+ New sheet" says so on the button itself.
+ *
+ * Import: the file is read up to {@link #IMPORT_MAX_BYTES} (a backup of twelve full sheets is far smaller; a larger file is
+ * refused before it is read into memory), and a file with no sheet the app understands says so in the language of the app,
+ * with no technical message.
  */
 public class PrefScreenSheets extends Activity {
     private static final int REQ_EXPORT_JSON = 0x1005;
     private static final int REQ_IMPORT_JSON = 0x1006;
 
+    /** Two taps closer than this open one thing only (ms). */
+    static final long TAP_GAP_MS = 700L;
+
+    /** The largest file the import reads (bytes). */
+    static final int IMPORT_MAX_BYTES = 1024 * 1024;
+
     private ArrayList<SheetModel.Sheet> mSheets;
     private LinearLayout mListContainer;
     private TextView mSubtitleView;
     private TextView mNewSheetBtn;
+    private long mLastOpen = -TAP_GAP_MS;
 
     // ------------------------------------------------------------------ resources by name
 
@@ -67,6 +84,14 @@ public class PrefScreenSheets extends Activity {
         Toast.makeText(this, text, longer ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
     }
 
+    /** True for the first tap; false for one that comes right after another tap that opened something. */
+    boolean firstTap() {
+        long now = SystemClock.uptimeMillis();
+        if (now - mLastOpen < TAP_GAP_MS) return false;
+        mLastOpen = now;
+        return true;
+    }
+
     // ------------------------------------------------------------------ life cycle
 
     @Override
@@ -82,7 +107,7 @@ public class PrefScreenSheets extends Activity {
         mListContainer = (LinearLayout) root.findViewWithTag("list");
         mNewSheetBtn = (TextView) root.findViewWithTag("new_btn");
 
-        // header: back and more (drawn icons of the sheet screens)
+        // header: back (drawn icon of the sheet screens)
         ImageView back = SheetUi.makeIconButton(this, SheetUi.ICON_BACK, color("mr_ui_text"), 40, t("mr_sheets_back"));
         back.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -90,14 +115,6 @@ public class PrefScreenSheets extends Activity {
             }
         });
         slot(root, "back_slot").addView(back, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-        final ImageView menuBtn = SheetUi.makeIconButton(this, SheetUi.ICON_MORE_VERT, color("mr_ui_text"), 40, t("mr_sheets_more"));
-        menuBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                showHeaderMenu(menuBtn);
-            }
-        });
-        slot(root, "more_slot").addView(menuBtn, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
         // fixed ABC card: just the lock icon is drawn
@@ -113,7 +130,7 @@ public class PrefScreenSheets extends Activity {
             }
         });
 
-        // export, import and restore all
+        // backup: export, import and restore the default sheets
         LinearLayout ioRow = slot(root, "io_row");
         View export = secondaryButton(ioRow, false, SheetUi.ICON_EXPORT, "mr_ui_mint", "mr_sheets_export_btn");
         export.setOnClickListener(new View.OnClickListener() {
@@ -170,8 +187,11 @@ public class PrefScreenSheets extends Activity {
 
     private void reloadAndRender() {
         mSheets = SheetStore.getEditableCopy(this);
-        mSubtitleView.setText(t("mr_sheets_subtitle", mSheets.size(), SheetModel.MAX_SHEETS));
-        mNewSheetBtn.setAlpha(mSheets.size() < SheetModel.MAX_SHEETS ? 1.0f : 0.45f);
+        if (mSheets == null) mSheets = new ArrayList<SheetModel.Sheet>();
+        mSubtitleView.setText(t("mr_sheets_subtitle", Integer.valueOf(mSheets.size()), Integer.valueOf(SheetModel.MAX_SHEETS)));
+        boolean room = mSheets.size() < SheetModel.MAX_SHEETS;
+        mNewSheetBtn.setText(room ? t("mr_sheets_new") : t("mr_sheets_new_full", Integer.valueOf(SheetModel.MAX_SHEETS)));
+        mNewSheetBtn.setAlpha(room ? 1.0f : 0.45f);
         mListContainer.removeAllViews();
         int n = mSheets.size();
         if (n == 0) {
@@ -189,14 +209,14 @@ public class PrefScreenSheets extends Activity {
         ((TextView) card.findViewWithTag("name")).setText(sheet.name);
         String kind = t(sheet.builtin ? "mr_sheets_builtin" : "mr_sheets_custom");
         ((TextView) card.findViewWithTag("info")).setText(
-                t("mr_sheets_card_info", sheet.rows.size(), sheet.countKeys(), kind));
+                t("mr_sheets_card_info", Integer.valueOf(sheet.rows.size()), Integer.valueOf(sheet.countKeys()), kind));
         card.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 openEditor(sheet.id);
             }
         });
 
-        ImageView up = actionIcon(card, "up", SheetUi.ICON_ARROW_UP, idx > 0);
+        ImageView up = actionIcon(card, "up", SheetUi.ICON_ARROW_UP, idx > 0, t("mr_sheets_up_desc", sheet.name));
         if (idx > 0) {
             up.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -205,7 +225,7 @@ public class PrefScreenSheets extends Activity {
             });
         }
         boolean canDown = idx < mSheets.size() - 1;
-        ImageView down = actionIcon(card, "down", SheetUi.ICON_ARROW_DOWN, canDown);
+        ImageView down = actionIcon(card, "down", SheetUi.ICON_ARROW_DOWN, canDown, t("mr_sheets_down_desc", sheet.name));
         if (canDown) {
             down.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -213,7 +233,7 @@ public class PrefScreenSheets extends Activity {
                 }
             });
         }
-        final ImageView more = actionIcon(card, "more", SheetUi.ICON_MORE_VERT, true);
+        final ImageView more = actionIcon(card, "more", SheetUi.ICON_MORE_VERT, true, t("mr_sheets_options_desc", sheet.name));
         more.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 showCardContextMenu(more, idx, sheet);
@@ -223,10 +243,11 @@ public class PrefScreenSheets extends Activity {
     }
 
     /** Small drawn icon of a card; a disabled one is dimmed and has no ripple (the ripple is in the XML). */
-    private ImageView actionIcon(View card, String tag, int kind, boolean enabled) {
+    private ImageView actionIcon(View card, String tag, int kind, boolean enabled, String description) {
         ImageView v = (ImageView) card.findViewWithTag(tag);
         v.setImageDrawable(new SheetUi.IconDrawable(this, kind,
-                color(enabled ? "mr_ui_text2" : "mr_ui_text_dis"), dp(18)));
+                color(enabled ? "mr_ui_text2" : "mr_ui_text_dis"), dp(20)));
+        v.setContentDescription(description);
         v.setEnabled(enabled);
         if (!enabled) v.setBackground(null);
         return v;
@@ -234,27 +255,15 @@ public class PrefScreenSheets extends Activity {
 
     // ------------------------------------------------------------------ menus
 
-    private void showHeaderMenu(View anchor) {
-        ArrayList<SheetUi.MenuEntry> items = new ArrayList<SheetUi.MenuEntry>(3);
-        items.add(new SheetUi.MenuEntry(1, SheetUi.ICON_EXPORT, t("mr_sheets_menu_export")));
-        items.add(new SheetUi.MenuEntry(2, SheetUi.ICON_IMPORT, t("mr_sheets_menu_import")));
-        items.add(new SheetUi.MenuEntry(3, SheetUi.ICON_RESTORE, t("mr_sheets_restore_all"), SheetUi.TONE_WARNING, true));
-        SheetUi.showPopupMenu(this, anchor, "JSON", t("mr_sheets_menu_subtitle"), items, new SheetUi.OnMenuSelect() {
-            public void onSelect(int id) {
-                if (id == 1) startExportJson();
-                else if (id == 2) startImportJson();
-                else if (id == 3) confirmResetAll();
-            }
-        });
-    }
-
     private void showCardContextMenu(View anchor, final int idx, final SheetModel.Sheet sheet) {
         ArrayList<SheetUi.MenuEntry> items = new ArrayList<SheetUi.MenuEntry>(6);
         items.add(new SheetUi.MenuEntry(1, SheetUi.ICON_EDIT_KEYS, t("mr_sheets_menu_edit")));
         items.add(new SheetUi.MenuEntry(2, SheetUi.ICON_RENAME, t("mr_sheets_menu_rename")));
         if (idx > 0) items.add(new SheetUi.MenuEntry(3, SheetUi.ICON_ARROW_UP, t("mr_sheets_menu_up")));
         if (idx < mSheets.size() - 1) items.add(new SheetUi.MenuEntry(4, SheetUi.ICON_ARROW_DOWN, t("mr_sheets_menu_down")));
-        items.add(new SheetUi.MenuEntry(5, SheetUi.ICON_DUPLICATE, t("mr_sheets_menu_duplicate")));
+        if (mSheets.size() < SheetModel.MAX_SHEETS) {
+            items.add(new SheetUi.MenuEntry(5, SheetUi.ICON_DUPLICATE, t("mr_sheets_menu_duplicate")));
+        }
         if (sheet.builtin) {
             items.add(new SheetUi.MenuEntry(6, SheetUi.ICON_RESTORE, t("mr_sheets_menu_restore"), SheetUi.TONE_WARNING, true));
         }
@@ -287,14 +296,15 @@ public class PrefScreenSheets extends Activity {
     }
 
     private void openEditor(String sheetId) {
+        if (!firstTap()) return;
         Intent i = new Intent(this, SheetEditorActivity.class);
-        i.putExtra("sheet_id", sheetId);
+        i.putExtra(SheetEditorActivity.EXTRA_SHEET_ID, sheetId);
         startActivity(i);
     }
 
     private boolean limitReached() {
         if (mSheets.size() >= SheetModel.MAX_SHEETS) {
-            toast(t("mr_sheets_limit", SheetModel.MAX_SHEETS), false);
+            toast(t("mr_sheets_limit", Integer.valueOf(SheetModel.MAX_SHEETS)), false);
             return true;
         }
         return false;
@@ -312,7 +322,7 @@ public class PrefScreenSheets extends Activity {
     }
 
     private void showNewSheetTemplatePicker() {
-        if (limitReached()) return;
+        if (limitReached() || !firstTap()) return;
         boolean hasSheets = !mSheets.isEmpty();
         CharSequence[] items = new CharSequence[hasSheets ? 4 : 3];
         items[0] = t("mr_sheets_tpl_blank");
@@ -337,7 +347,7 @@ public class PrefScreenSheets extends Activity {
         CharSequence[] items = new CharSequence[n];
         for (int i = 0; i < n; i++) {
             SheetModel.Sheet s = mSheets.get(i);
-            items[i] = "[" + s.badge + "] " + s.name;
+            items[i] = t("mr_key_ed_target_sheet", SheetModel.sanitizeBadge(s.badge, "123"), s.name);
         }
         new AlertDialog.Builder(this)
                 .setTitle(t("mr_sheets_copy_title"))
@@ -348,22 +358,6 @@ public class PrefScreenSheets extends Activity {
                 })
                 .setNegativeButton(t("mr_sheets_cancel"), null)
                 .show();
-    }
-
-    /** Dialog with the name and the badge fields (layout mr_sheet_dialog_fields); the two fields are made by SheetUi. */
-    private View dialogFields(String badgeLabel, String name, String badge, EditText[] out) {
-        View v = inflate("mr_sheet_dialog_fields", null);
-        ((TextView) v.findViewWithTag("badge_label")).setText(badgeLabel);
-        EditText nameEt = SheetUi.makeEditText(this, name, true);
-        nameEt.setText(name);
-        slot(v, "name_slot").addView(nameEt);
-        EditText badgeEt = SheetUi.makeEditText(this, badge, true);
-        badgeEt.setFilters(new InputFilter[] { new InputFilter.LengthFilter(SheetModel.MAX_BADGE_LEN) });
-        badgeEt.setText(badge);
-        slot(v, "badge_slot").addView(badgeEt);
-        out[0] = nameEt;
-        out[1] = badgeEt;
-        return v;
     }
 
     /** templateKind: 0 blank, 1 numpad, 2 navigation/editing, 3 copy of {@code source}. */
@@ -377,23 +371,20 @@ public class PrefScreenSheets extends Activity {
             fallbackName = t("mr_sheets_default_nav");
             fallbackBadge = "NAV";
         } else if (source != null) {
-            fallbackName = source.name + " 2";
+            fallbackName = SheetModel.sanitizeName(t("mr_sheets_copy_name", source.name), source.name);
             fallbackBadge = source.badge;
         } else {
             int n = mSheets.size() + 1;
-            fallbackName = t("mr_sheets_default_name", n);
+            fallbackName = t("mr_sheets_default_name", Integer.valueOf(n));
             fallbackBadge = "F" + n;
         }
-        final EditText[] fields = new EditText[2];
-        View content = dialogFields(t("mr_sheets_badge_label_new"), fallbackName, fallbackBadge, fields);
-        new AlertDialog.Builder(this)
-                .setTitle(t("mr_sheets_new_title"))
-                .setView(content)
-                .setPositiveButton(t("mr_sheets_create_edit"), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
+        SheetNameDialog.show(this, t("mr_sheets_new_title"), t("mr_sheets_create_edit"), t("mr_sheets_cancel"),
+                fallbackName, fallbackBadge, new SheetNameDialog.OnNamed() {
+                    public void onNamed(String typedName, String typedBadge) {
+                        if (limitReached()) return;
                         String id = SheetModel.makeUniqueId(mSheets, "custom");
-                        String name = SheetModel.sanitizeName(fields[0].getText().toString(), fallbackName);
-                        String badge = SheetModel.sanitizeBadge(fields[1].getText().toString(), fallbackBadge);
+                        String name = SheetModel.sanitizeName(typedName, fallbackName);
+                        String badge = SheetModel.sanitizeBadge(typedBadge, fallbackBadge);
                         SheetModel.Sheet s;
                         if (templateKind == 1) {
                             s = SheetModel.createNumpadTemplate(id, name, badge);
@@ -411,29 +402,22 @@ public class PrefScreenSheets extends Activity {
                         mSheets.add(s);
                         SheetStore.save(PrefScreenSheets.this, mSheets);
                         reloadAndRender();
+                        mLastOpen = -TAP_GAP_MS;
                         openEditor(s.id);
                     }
-                })
-                .setNegativeButton(t("mr_sheets_cancel"), null)
-                .show();
+                });
     }
 
     private void showRenameSheetDialog(final SheetModel.Sheet sheet) {
-        final EditText[] fields = new EditText[2];
-        View content = dialogFields(t("mr_sheets_badge_label_edit"), sheet.name, sheet.badge, fields);
-        new AlertDialog.Builder(this)
-                .setTitle(t("mr_sheets_rename_title"))
-                .setView(content)
-                .setPositiveButton(t("mr_sheets_save"), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        sheet.name = SheetModel.sanitizeName(fields[0].getText().toString(), sheet.name);
-                        sheet.badge = SheetModel.sanitizeBadge(fields[1].getText().toString(), sheet.badge);
+        SheetNameDialog.show(this, t("mr_sheets_rename_title"), t("mr_sheets_save"), t("mr_sheets_cancel"),
+                sheet.name, sheet.badge, new SheetNameDialog.OnNamed() {
+                    public void onNamed(String name, String badge) {
+                        sheet.name = SheetModel.sanitizeName(name, sheet.name);
+                        sheet.badge = SheetModel.sanitizeBadge(badge, sheet.badge);
                         SheetStore.save(PrefScreenSheets.this, mSheets);
                         reloadAndRender();
                     }
-                })
-                .setNegativeButton(t("mr_sheets_cancel"), null)
-                .show();
+                });
     }
 
     private void confirmDeleteSheet(final int idx, SheetModel.Sheet sheet) {
@@ -469,6 +453,7 @@ public class PrefScreenSheets extends Activity {
     }
 
     private void confirmResetAll() {
+        if (!firstTap()) return;
         new AlertDialog.Builder(this)
                 .setTitle(t("mr_sheets_reset_all_title"))
                 .setMessage(t("mr_sheets_reset_all_msg"))
@@ -487,6 +472,7 @@ public class PrefScreenSheets extends Activity {
     // ------------------------------------------------------------------ JSON backup
 
     private void startExportJson() {
+        if (!firstTap()) return;
         try {
             Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             i.addCategory(Intent.CATEGORY_OPENABLE);
@@ -499,6 +485,7 @@ public class PrefScreenSheets extends Activity {
     }
 
     private void startImportJson() {
+        if (!firstTap()) return;
         try {
             Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             i.addCategory(Intent.CATEGORY_OPENABLE);
@@ -510,6 +497,21 @@ public class PrefScreenSheets extends Activity {
         }
     }
 
+    /**
+     * The text of the file in UTF-8, or null when it has more than {@code max} bytes (it stops reading there, so a large file that was picked by
+     * mistake is never held in memory).
+     */
+    static String readCapped(InputStream in, int max) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(8192);
+        byte[] buf = new byte[8192];
+        int n;
+        while ((n = in.read(buf)) != -1) {
+            if (out.size() + n > max) return null;
+            out.write(buf, 0, n);
+        }
+        return out.toString("UTF-8");
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -517,50 +519,79 @@ public class PrefScreenSheets extends Activity {
         final Uri uri = data.getData();
         if (uri == null) return;
         if (requestCode == REQ_EXPORT_JSON) {
-            try {
-                String json = SheetStore.exportJsonString(this);
-                OutputStream os = getContentResolver().openOutputStream(uri);
-                if (os == null) return;
-                try {
-                    os.write(json.getBytes("UTF-8"));
-                    os.flush();
-                } finally {
-                    os.close();
-                }
-                toast(t("mr_sheets_exported"), false);
-            } catch (Exception e) {
-                toast(t("mr_sheets_export_failed", e.getMessage()), true);
-            }
+            exportTo(uri);
         } else if (requestCode == REQ_IMPORT_JSON) {
-            try {
-                InputStream in = getContentResolver().openInputStream(uri);
-                if (in == null) return;
-                final String raw;
-                try {
-                    raw = SheetStore.readStreamUtf8(in);
-                } finally {
-                    in.close();
-                }
-                ArrayList<SheetModel.Sheet> parsed = SheetModel.parseSheets(raw);
-                new AlertDialog.Builder(this)
-                        .setTitle(t("mr_sheets_import_title"))
-                        .setMessage(t("mr_sheets_import_msg", parsed.size()))
-                        .setPositiveButton(t("mr_sheets_import"), new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                try {
-                                    int n = SheetStore.importJsonString(PrefScreenSheets.this, raw);
-                                    reloadAndRender();
-                                    toast(t("mr_sheets_imported", n), false);
-                                } catch (Exception e) {
-                                    toast(t("mr_sheets_import_bad", e.getMessage()), true);
-                                }
-                            }
-                        })
-                        .setNegativeButton(t("mr_sheets_cancel"), null)
-                        .show();
-            } catch (Exception e) {
-                toast(t("mr_sheets_import_bad_file", e.getMessage()), true);
-            }
+            importFrom(uri);
         }
+    }
+
+    private void exportTo(Uri uri) {
+        try {
+            String json = SheetStore.exportJsonString(this);
+            OutputStream os = getContentResolver().openOutputStream(uri);
+            if (os == null) {
+                toast(t("mr_sheets_export_failed"), true);
+                return;
+            }
+            try {
+                os.write(json.getBytes("UTF-8"));
+                os.flush();
+            } finally {
+                os.close();
+            }
+            toast(t("mr_sheets_exported"), false);
+        } catch (Exception e) {
+            toast(t("mr_sheets_export_failed"), true);
+        }
+    }
+
+    private void importFrom(Uri uri) {
+        final String raw;
+        try {
+            InputStream in = getContentResolver().openInputStream(uri);
+            if (in == null) {
+                toast(t("mr_sheets_import_bad"), true);
+                return;
+            }
+            try {
+                raw = readCapped(in, IMPORT_MAX_BYTES);
+            } finally {
+                in.close();
+            }
+        } catch (Exception e) {
+            toast(t("mr_sheets_import_bad"), true);
+            return;
+        }
+        if (raw == null) {
+            toast(t("mr_sheets_import_too_big"), true);
+            return;
+        }
+        ArrayList<SheetModel.Sheet> parsed;
+        try {
+            parsed = SheetModel.parseSheets(raw);
+        } catch (Exception e) {
+            parsed = null;
+        }
+        if (parsed == null || parsed.isEmpty()) {
+            // not JSON, JSON of something else, or no sheet that the app understands
+            toast(t("mr_sheets_import_bad_file"), true);
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(t("mr_sheets_import_title"))
+                .setMessage(t("mr_sheets_import_msg", Integer.valueOf(Math.min(parsed.size(), SheetModel.MAX_SHEETS))))
+                .setPositiveButton(t("mr_sheets_import"), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            int n = SheetStore.importJsonString(PrefScreenSheets.this, raw);
+                            reloadAndRender();
+                            toast(t("mr_sheets_imported", Integer.valueOf(n)), false);
+                        } catch (Exception e) {
+                            toast(t("mr_sheets_import_bad"), true);
+                        }
+                    }
+                })
+                .setNegativeButton(t("mr_sheets_cancel"), null)
+                .show();
     }
 }

@@ -30,7 +30,7 @@
 
 ### Keys and layout
 - **Full PC keyboard:** Ctrl, Alt, Esc, Tab, arrows, Home/End, PgUp/PgDn and function keys, in compact or full layout (separate settings for portrait and landscape).
-- **Key sheets:** extra pages of keys opened from the keyboard: **123**, **TSK** (Tasker), **HTML**, **FRS** (phrases), navigation and numeric pad. Edit them and create your own in *Settings → Sheets*.
+- **Key sheets:** extra pages of keys opened from the keyboard: **123**, **TSK** (Tasker), **HTML**, **FRS** (phrases), navigation and numeric pad. Edit them, create your own and test them on the spot in *Settings → Sheets*. [Details](docs/keyboard-sheets.md).
 - **Tasker commands:** a key can trigger a Tasker task instead of typing text ([how](#tasker-integration)).
 - **Gestures:** swipe up, down, left or right, and the volume keys, run keyboard actions (by default left and right change the sheet). A sideways swipe counts by distance, not by speed. [Details](docs/swipe-actions.md).
 - **Delete by word (since 2.0.0):** with Ctrl on, the delete key removes a word per tap, and held it goes word by word at the interval you set. **Ctrl + Z** gives the words back one at a time and **Ctrl + Y** deletes again the one that came back (kept for 2 minutes). On by default; *Settings → Touch and gestures → Delete by word*. [Details](docs/word-delete.md).

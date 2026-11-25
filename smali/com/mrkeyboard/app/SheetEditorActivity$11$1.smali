@@ -1,4 +1,4 @@
-.class Lcom/mrkeyboard/app/SheetEditorActivity$15$1;
+.class Lcom/mrkeyboard/app/SheetEditorActivity$11$1;
 .super Ljava/lang/Object;
 .source "SheetEditorActivity.java"
 
@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/SheetEditorActivity$15;->run()V
+    value = Lcom/mrkeyboard/app/SheetEditorActivity$11;->onFocusChange(Landroid/view/View;Z)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -18,16 +18,16 @@
 
 
 # instance fields
-.field final synthetic this$1:Lcom/mrkeyboard/app/SheetEditorActivity$15;
+.field final synthetic this$1:Lcom/mrkeyboard/app/SheetEditorActivity$11;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/SheetEditorActivity$15;)V
+.method constructor <init>(Lcom/mrkeyboard/app/SheetEditorActivity$11;)V
     .locals 0
 
     .prologue
-    .line 403
-    iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$15$1;->this$1:Lcom/mrkeyboard/app/SheetEditorActivity$15;
+    .line 435
+    iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$11$1;->this$1:Lcom/mrkeyboard/app/SheetEditorActivity$11;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -40,10 +40,10 @@
     .locals 2
 
     .prologue
-    .line 405
-    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$15$1;->this$1:Lcom/mrkeyboard/app/SheetEditorActivity$15;
+    .line 437
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$11$1;->this$1:Lcom/mrkeyboard/app/SheetEditorActivity$11;
 
-    iget-object v0, v0, Lcom/mrkeyboard/app/SheetEditorActivity$15;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+    iget-object v0, v0, Lcom/mrkeyboard/app/SheetEditorActivity$11;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2000(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/ScrollView;
 
@@ -53,6 +53,6 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/ScrollView;->fullScroll(I)Z
 
-    .line 406
+    .line 438
     return-void
 .end method

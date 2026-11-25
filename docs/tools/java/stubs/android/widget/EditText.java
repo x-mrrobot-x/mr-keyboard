@@ -28,4 +28,5 @@ public class EditText extends TextView {
         stubSelect(start, stop);
     }
     public void setSelection(int index) { setSelection(index, index); }
+    public void selectAll() { stubSelect(0, length()); }
 }
