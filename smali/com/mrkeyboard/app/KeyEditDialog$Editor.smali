@@ -31,6 +31,8 @@
 
 .field private mDialog:Landroid/app/AlertDialog;
 
+.field mFixedPlace:Z
+
 .field private mGroupLabel:Landroid/widget/LinearLayout;
 
 .field private mGroupPopup:Landroid/widget/LinearLayout;
@@ -112,16 +114,16 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 184
+    .line 197
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 185
+    .line 198
     iput-object p1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mContext:Landroid/content/Context;
 
-    .line 186
+    .line 199
     iput-object p2, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSheets:Ljava/util/List;
 
-    .line 187
+    .line 200
     if-eqz p3, :cond_0
 
     invoke-virtual {p3}, Lcom/mrkeyboard/app/SheetModel$KeySpec;->deepCopy()Lcom/mrkeyboard/app/SheetModel$KeySpec;
@@ -131,28 +133,28 @@
     :goto_0
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
-    .line 188
+    .line 201
     iput-boolean p4, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mPopup:Z
 
-    .line 189
+    .line 202
     iput-boolean p5, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mCanMoveLeft:Z
 
-    .line 190
+    .line 203
     iput-boolean p6, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mCanMoveRight:Z
 
-    .line 191
+    .line 204
     iput-boolean p7, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mCanDuplicate:Z
 
-    .line 192
+    .line 205
     iput-boolean p8, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mCanDelete:Z
 
-    .line 193
+    .line 206
     iput-object p9, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mListener:Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;
 
-    .line 194
+    .line 207
     return-void
 
-    .line 187
+    .line 200
     :cond_0
     new-instance v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
@@ -169,7 +171,7 @@
     .locals 0
 
     .prologue
-    .line 141
+    .line 152
     invoke-direct {p0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->save()V
 
     return-void
@@ -179,7 +181,7 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 152
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mDialog:Landroid/app/AlertDialog;
 
     return-object v0
@@ -189,7 +191,7 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 152
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mWidthBar:Landroid/widget/SeekBar;
 
     return-object v0
@@ -199,7 +201,7 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 152
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mContext:Landroid/content/Context;
 
     return-object v0
@@ -209,7 +211,7 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 152
     iget v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSpecialCode:I
 
     return v0
@@ -219,7 +221,7 @@
     .locals 0
 
     .prologue
-    .line 141
+    .line 152
     iput p1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSpecialCode:I
 
     return p1
@@ -229,7 +231,7 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 152
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSpecialBtn:Landroid/widget/TextView;
 
     return-object v0
@@ -239,7 +241,7 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 152
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mTarget:Ljava/lang/String;
 
     return-object v0
@@ -249,7 +251,7 @@
     .locals 0
 
     .prologue
-    .line 141
+    .line 152
     iput-object p1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mTarget:Ljava/lang/String;
 
     return-object p1
@@ -259,7 +261,7 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 152
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSheetBtn:Landroid/widget/TextView;
 
     return-object v0
@@ -269,7 +271,7 @@
     .locals 0
 
     .prologue
-    .line 141
+    .line 152
     invoke-direct {p0, p1, p2}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->showTargetPicker(Ljava/lang/String;Lcom/mrkeyboard/app/KeyEditDialog$OnTargetPicked;)V
 
     return-void
@@ -279,7 +281,7 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 152
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSheets:Ljava/util/List;
 
     return-object v0
@@ -289,7 +291,7 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 152
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     return-object v0
@@ -299,7 +301,7 @@
     .locals 0
 
     .prologue
-    .line 141
+    .line 152
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->selectType(Ljava/lang/String;)V
 
     return-void
@@ -309,7 +311,7 @@
     .locals 0
 
     .prologue
-    .line 141
+    .line 152
     invoke-direct {p0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->refreshPopupLabel()V
 
     return-void
@@ -319,7 +321,7 @@
     .locals 0
 
     .prologue
-    .line 141
+    .line 152
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->perform(I)V
 
     return-void
@@ -329,7 +331,7 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 152
     iget-boolean v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mAutoLabel:Z
 
     return v0
@@ -339,7 +341,7 @@
     .locals 0
 
     .prologue
-    .line 141
+    .line 152
     iput-boolean p1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mAutoLabel:Z
 
     return p1
@@ -349,7 +351,7 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 152
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mValueField:Landroid/widget/EditText;
 
     return-object v0
@@ -359,7 +361,7 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 152
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mTaskerField:Landroid/widget/EditText;
 
     return-object v0
@@ -369,7 +371,7 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 152
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mLabelField:Landroid/widget/EditText;
 
     return-object v0
@@ -379,7 +381,7 @@
     .locals 0
 
     .prologue
-    .line 141
+    .line 152
     iput p1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mStep:I
 
     return p1
@@ -389,7 +391,7 @@
     .locals 0
 
     .prologue
-    .line 141
+    .line 152
     invoke-direct {p0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->refreshWidthTitle()V
 
     return-void
@@ -399,7 +401,7 @@
     .locals 0
 
     .prologue
-    .line 141
+    .line 152
     invoke-direct {p0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->refreshWidthPresets()V
 
     return-void
@@ -409,17 +411,17 @@
     .locals 11
 
     .prologue
-    const/4 v10, 0x4
+    const/4 v10, 0x3
 
-    const/4 v9, 0x3
+    const/4 v9, 0x2
 
-    const/4 v8, 0x2
+    const/16 v8, 0x8
 
     const/4 v6, 0x1
 
     const/4 v5, 0x0
 
-    .line 222
+    .line 235
     const-string v0, "title"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -428,10 +430,10 @@
 
     check-cast v0, Landroid/widget/TextView;
 
-    .line 223
+    .line 236
     iget-boolean v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mPopup:Z
 
-    if-eqz v1, :cond_0
+    if-eqz v1, :cond_1
 
     const-string v1, "mr_key_ed_title_popup"
 
@@ -444,7 +446,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 225
+    .line 238
     const-string v0, "chip_text"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -453,7 +455,7 @@
 
     check-cast v0, Landroid/widget/TextView;
 
-    .line 226
+    .line 239
     const-string v1, "chip_tasker"
 
     invoke-virtual {p1, v1}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -462,7 +464,7 @@
 
     check-cast v1, Landroid/widget/TextView;
 
-    .line 227
+    .line 240
     const-string v2, "chip_special"
 
     invoke-virtual {p1, v2}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -471,7 +473,7 @@
 
     check-cast v2, Landroid/widget/TextView;
 
-    .line 228
+    .line 241
     const-string v3, "chip_sheet"
 
     invoke-virtual {p1, v3}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -480,7 +482,7 @@
 
     check-cast v3, Landroid/widget/TextView;
 
-    .line 229
+    .line 242
     const-string v4, "chip_spacer"
 
     invoke-virtual {p1, v4}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -489,31 +491,38 @@
 
     check-cast v4, Landroid/widget/TextView;
 
-    .line 230
+    .line 243
     iget-boolean v7, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mPopup:Z
 
-    if-eqz v7, :cond_1
+    if-nez v7, :cond_0
 
-    .line 232
-    const/16 v7, 0x8
+    iget-boolean v7, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mFixedPlace:Z
 
-    invoke-virtual {v4, v7}, Landroid/widget/TextView;->setVisibility(I)V
+    if-eqz v7, :cond_2
 
-    .line 233
-    new-array v4, v10, [Landroid/widget/TextView;
+    .line 245
+    :cond_0
+    invoke-virtual {v4, v8}, Landroid/widget/TextView;->setVisibility(I)V
+
+    .line 246
+    const/4 v4, 0x4
+
+    new-array v4, v4, [Landroid/widget/TextView;
 
     aput-object v0, v4, v5
 
     aput-object v1, v4, v6
 
-    aput-object v2, v4, v8
+    aput-object v2, v4, v9
 
-    aput-object v3, v4, v9
+    aput-object v3, v4, v10
 
     iput-object v4, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mChips:[Landroid/widget/TextView;
 
-    .line 234
-    new-array v0, v10, [Ljava/lang/String;
+    .line 247
+    const/4 v0, 0x4
+
+    new-array v0, v0, [Ljava/lang/String;
 
     const-string v1, "text"
 
@@ -525,31 +534,31 @@
 
     const-string v1, "special"
 
-    aput-object v1, v0, v8
+    aput-object v1, v0, v9
 
     const-string v1, "sheet"
 
-    aput-object v1, v0, v9
+    aput-object v1, v0, v10
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mTypes:[Ljava/lang/String;
 
     :goto_1
     move v0, v5
 
-    .line 241
+    .line 254
     :goto_2
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mChips:[Landroid/widget/TextView;
 
     array-length v1, v1
 
-    if-ge v0, v1, :cond_2
+    if-ge v0, v1, :cond_3
 
-    .line 242
+    .line 255
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mTypes:[Ljava/lang/String;
 
     aget-object v1, v1, v0
 
-    .line 243
+    .line 256
     iget-object v2, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mChips:[Landroid/widget/TextView;
 
     aget-object v2, v2, v0
@@ -560,19 +569,19 @@
 
     invoke-virtual {v2, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 241
+    .line 254
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_2
 
-    .line 223
-    :cond_0
+    .line 236
+    :cond_1
     const-string v1, "mr_key_ed_title"
 
     goto :goto_0
 
-    .line 237
-    :cond_1
+    .line 250
+    :cond_2
     const/4 v7, 0x5
 
     new-array v7, v7, [Landroid/widget/TextView;
@@ -581,15 +590,17 @@
 
     aput-object v1, v7, v6
 
-    aput-object v2, v7, v8
+    aput-object v2, v7, v9
 
-    aput-object v3, v7, v9
+    aput-object v3, v7, v10
 
-    aput-object v4, v7, v10
+    const/4 v0, 0x4
+
+    aput-object v4, v7, v0
 
     iput-object v7, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mChips:[Landroid/widget/TextView;
 
-    .line 238
+    .line 251
     const/4 v0, 0x5
 
     new-array v0, v0, [Ljava/lang/String;
@@ -604,22 +615,24 @@
 
     const-string v1, "special"
 
-    aput-object v1, v0, v8
+    aput-object v1, v0, v9
 
     const-string v1, "sheet"
 
-    aput-object v1, v0, v9
-
-    const-string v1, "spacer"
-
     aput-object v1, v0, v10
+
+    const/4 v1, 0x4
+
+    const-string v2, "spacer"
+
+    aput-object v2, v0, v1
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mTypes:[Ljava/lang/String;
 
     goto :goto_1
 
-    .line 250
-    :cond_2
+    .line 263
+    :cond_3
     const-string v0, "group_label"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -630,7 +643,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupLabel:Landroid/widget/LinearLayout;
 
-    .line 251
+    .line 264
     const-string v0, "group_value"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -641,7 +654,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupValue:Landroid/widget/LinearLayout;
 
-    .line 252
+    .line 265
     const-string v0, "group_tasker"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -652,7 +665,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupTasker:Landroid/widget/LinearLayout;
 
-    .line 253
+    .line 266
     const-string v0, "group_special"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -663,7 +676,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupSpecial:Landroid/widget/LinearLayout;
 
-    .line 254
+    .line 267
     const-string v0, "group_sheet"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -674,7 +687,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupSheet:Landroid/widget/LinearLayout;
 
-    .line 255
+    .line 268
     const-string v0, "group_width"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -685,7 +698,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupWidth:Landroid/widget/LinearLayout;
 
-    .line 256
+    .line 269
     const-string v0, "group_popup"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -696,7 +709,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupPopup:Landroid/widget/LinearLayout;
 
-    .line 257
+    .line 270
     const-string v0, "spacer_hint"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -707,7 +720,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSpacerHint:Landroid/widget/TextView;
 
-    .line 259
+    .line 272
     const-string v0, "field_label"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -718,7 +731,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mLabelField:Landroid/widget/EditText;
 
-    .line 260
+    .line 273
     const-string v0, "field_value"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -729,7 +742,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mValueField:Landroid/widget/EditText;
 
-    .line 261
+    .line 274
     const-string v0, "field_tasker"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -740,7 +753,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mTaskerField:Landroid/widget/EditText;
 
-    .line 262
+    .line 275
     const-string v0, "btn_special"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -751,7 +764,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSpecialBtn:Landroid/widget/TextView;
 
-    .line 263
+    .line 276
     const-string v0, "btn_sheet"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -762,7 +775,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSheetBtn:Landroid/widget/TextView;
 
-    .line 264
+    .line 277
     const-string v0, "btn_popup"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -773,7 +786,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mPopupBtn:Landroid/widget/TextView;
 
-    .line 265
+    .line 278
     const-string v0, "width_title"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -784,7 +797,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mWidthTitle:Landroid/widget/TextView;
 
-    .line 266
+    .line 279
     const-string v0, "width_seek"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -795,14 +808,14 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mWidthBar:Landroid/widget/SeekBar;
 
-    .line 269
+    .line 282
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mLabelField:Landroid/widget/EditText;
 
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->label:Ljava/lang/String;
 
-    if-nez v0, :cond_9
+    if-nez v0, :cond_a
 
     invoke-static {}, Lcom/mrkeyboard/app/KeyEditDialog;->access$300()Ljava/lang/String;
 
@@ -811,38 +824,8 @@
     :goto_3
     invoke-virtual {v1, v0}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 270
+    .line 283
     const-string v0, "text"
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
-
-    iget-object v1, v1, Lcom/mrkeyboard/app/SheetModel$KeySpec;->type:Ljava/lang/String;
-
-    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_3
-
-    .line 271
-    iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mValueField:Landroid/widget/EditText;
-
-    iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
-
-    iget-object v0, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->value:Ljava/lang/String;
-
-    if-nez v0, :cond_a
-
-    invoke-static {}, Lcom/mrkeyboard/app/KeyEditDialog;->access$300()Ljava/lang/String;
-
-    move-result-object v0
-
-    :goto_4
-    invoke-virtual {v1, v0}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
-
-    .line 273
-    :cond_3
-    const-string v0, "tasker"
 
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
@@ -854,7 +837,37 @@
 
     if-eqz v0, :cond_4
 
-    .line 274
+    .line 284
+    iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mValueField:Landroid/widget/EditText;
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
+
+    iget-object v0, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->value:Ljava/lang/String;
+
+    if-nez v0, :cond_b
+
+    invoke-static {}, Lcom/mrkeyboard/app/KeyEditDialog;->access$300()Ljava/lang/String;
+
+    move-result-object v0
+
+    :goto_4
+    invoke-virtual {v1, v0}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
+
+    .line 286
+    :cond_4
+    const-string v0, "tasker"
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
+
+    iget-object v1, v1, Lcom/mrkeyboard/app/SheetModel$KeySpec;->type:Ljava/lang/String;
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_5
+
+    .line 287
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mTaskerField:Landroid/widget/EditText;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
@@ -867,85 +880,80 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 277
-    :cond_4
+    .line 290
+    :cond_5
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->bindTaskerPresets(Landroid/view/View;)V
 
-    .line 278
+    .line 291
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->bindWidth(Landroid/view/View;)V
 
-    .line 279
+    .line 292
     invoke-direct {p0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->bindSpecial()V
 
-    .line 280
+    .line 293
     invoke-direct {p0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->bindSheet()V
 
-    .line 281
+    .line 294
     invoke-direct {p0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->bindPopup()V
 
-    .line 283
+    .line 296
     iget-boolean v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mPopup:Z
 
-    if-nez v0, :cond_5
+    if-nez v0, :cond_6
 
     iget-boolean v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mCanMoveLeft:Z
 
-    if-nez v0, :cond_b
+    if-nez v0, :cond_c
 
     iget-boolean v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mCanMoveRight:Z
 
-    if-nez v0, :cond_b
+    if-nez v0, :cond_c
 
     iget-boolean v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mCanDuplicate:Z
 
-    if-nez v0, :cond_b
+    if-nez v0, :cond_c
 
     iget-boolean v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mCanDelete:Z
 
-    if-nez v0, :cond_b
+    if-nez v0, :cond_c
 
-    .line 285
-    :cond_5
+    .line 298
+    :cond_6
     const-string v0, "group_actions"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v0
 
-    const/16 v1, 0x8
+    invoke-virtual {v0, v8}, Landroid/view/View;->setVisibility(I)V
 
-    invoke-virtual {v0, v1}, Landroid/view/View;->setVisibility(I)V
-
-    .line 289
+    .line 302
     :goto_5
     iget-boolean v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mPopup:Z
 
-    if-eqz v0, :cond_6
+    if-eqz v0, :cond_d
 
-    .line 291
+    .line 304
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupWidth:Landroid/widget/LinearLayout;
 
-    const/16 v1, 0x8
+    invoke-virtual {v0, v8}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setVisibility(I)V
-
-    .line 292
+    .line 305
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupPopup:Landroid/widget/LinearLayout;
 
-    const/16 v1, 0x8
+    invoke-virtual {v0, v8}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setVisibility(I)V
-
-    .line 295
-    :cond_6
+    .line 311
+    :cond_7
+    :goto_6
     invoke-direct {p0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->bindLabelSync()V
 
-    .line 296
+    .line 312
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->label:Ljava/lang/String;
 
-    if-eqz v0, :cond_7
+    if-eqz v0, :cond_8
 
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
@@ -955,7 +963,7 @@
 
     move-result v0
 
-    if-nez v0, :cond_7
+    if-nez v0, :cond_8
 
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
@@ -969,62 +977,75 @@
 
     move-result v0
 
-    if-eqz v0, :cond_8
-
-    :cond_7
-    move v5, v6
+    if-eqz v0, :cond_9
 
     :cond_8
+    move v5, v6
+
+    :cond_9
     iput-boolean v5, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mAutoLabel:Z
 
-    .line 297
+    .line 313
     return-void
 
-    .line 269
-    :cond_9
+    .line 282
+    :cond_a
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->label:Ljava/lang/String;
 
     goto/16 :goto_3
 
-    .line 271
-    :cond_a
+    .line 284
+    :cond_b
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->value:Ljava/lang/String;
 
     goto/16 :goto_4
 
-    .line 287
-    :cond_b
+    .line 300
+    :cond_c
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->bindActions(Landroid/view/View;)V
 
     goto :goto_5
+
+    .line 306
+    :cond_d
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mFixedPlace:Z
+
+    if-eqz v0, :cond_7
+
+    .line 308
+    iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupWidth:Landroid/widget/LinearLayout;
+
+    invoke-virtual {v0, v8}, Landroid/widget/LinearLayout;->setVisibility(I)V
+
+    goto :goto_6
 .end method
 
 .method private bindAction(Landroid/view/View;Ljava/lang/String;ZI)V
     .locals 2
 
     .prologue
-    .line 400
+    .line 416
     invoke-virtual {p1, p2}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v0
 
     check-cast v0, Landroid/widget/TextView;
 
-    .line 401
+    .line 417
     invoke-virtual {v0, p3}, Landroid/widget/TextView;->setEnabled(Z)V
 
-    .line 402
+    .line 418
     new-instance v1, Lcom/mrkeyboard/app/KeyEditDialog$Editor$9;
 
     invoke-direct {v1, p0, p4}, Lcom/mrkeyboard/app/KeyEditDialog$Editor$9;-><init>(Lcom/mrkeyboard/app/KeyEditDialog$Editor;I)V
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 407
+    .line 423
     return-void
 .end method
 
@@ -1032,7 +1053,7 @@
     .locals 3
 
     .prologue
-    .line 393
+    .line 409
     const-string v0, "act_left"
 
     iget-boolean v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mCanMoveLeft:Z
@@ -1041,7 +1062,7 @@
 
     invoke-direct {p0, p1, v0, v1, v2}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->bindAction(Landroid/view/View;Ljava/lang/String;ZI)V
 
-    .line 394
+    .line 410
     const-string v0, "act_right"
 
     iget-boolean v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mCanMoveRight:Z
@@ -1050,7 +1071,7 @@
 
     invoke-direct {p0, p1, v0, v1, v2}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->bindAction(Landroid/view/View;Ljava/lang/String;ZI)V
 
-    .line 395
+    .line 411
     const-string v0, "act_duplicate"
 
     iget-boolean v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mCanDuplicate:Z
@@ -1059,7 +1080,7 @@
 
     invoke-direct {p0, p1, v0, v1, v2}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->bindAction(Landroid/view/View;Ljava/lang/String;ZI)V
 
-    .line 396
+    .line 412
     const-string v0, "act_delete"
 
     iget-boolean v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mCanDelete:Z
@@ -1068,7 +1089,7 @@
 
     invoke-direct {p0, p1, v0, v1, v2}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->bindAction(Landroid/view/View;Ljava/lang/String;ZI)V
 
-    .line 397
+    .line 413
     return-void
 .end method
 
@@ -1076,7 +1097,7 @@
     .locals 2
 
     .prologue
-    .line 411
+    .line 427
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mLabelField:Landroid/widget/EditText;
 
     new-instance v1, Lcom/mrkeyboard/app/KeyEditDialog$Editor$10;
@@ -1085,7 +1106,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->addTextChangedListener(Landroid/text/TextWatcher;)V
 
-    .line 421
+    .line 437
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mValueField:Landroid/widget/EditText;
 
     new-instance v1, Lcom/mrkeyboard/app/KeyEditDialog$Editor$11;
@@ -1094,7 +1115,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->addTextChangedListener(Landroid/text/TextWatcher;)V
 
-    .line 434
+    .line 450
     return-void
 .end method
 
@@ -1102,16 +1123,16 @@
     .locals 2
 
     .prologue
-    .line 377
+    .line 393
     iget-boolean v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mPopup:Z
 
     if-eqz v0, :cond_0
 
-    .line 390
+    .line 406
     :goto_0
     return-void
 
-    .line 378
+    .line 394
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mPopupBtn:Landroid/widget/TextView;
 
@@ -1128,7 +1149,7 @@
     .locals 2
 
     .prologue
-    .line 361
+    .line 377
     const-string v0, "sheet"
 
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
@@ -1157,7 +1178,7 @@
 
     if-nez v0, :cond_0
 
-    .line 362
+    .line 378
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->value:Ljava/lang/String;
@@ -1165,7 +1186,7 @@
     :goto_0
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mTarget:Ljava/lang/String;
 
-    .line 363
+    .line 379
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSheetBtn:Landroid/widget/TextView;
 
     new-instance v1, Lcom/mrkeyboard/app/KeyEditDialog$Editor$7;
@@ -1174,10 +1195,10 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 374
+    .line 390
     return-void
 
-    .line 362
+    .line 378
     :cond_0
     const-string v0, "next"
 
@@ -1190,7 +1211,7 @@
     .prologue
     const/16 v0, -0x15
 
-    .line 343
+    .line 359
     const-string v1, "special"
 
     iget-object v2, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
@@ -1214,7 +1235,7 @@
     :cond_0
     iput v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSpecialCode:I
 
-    .line 344
+    .line 360
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSpecialBtn:Landroid/widget/TextView;
 
     new-instance v1, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;
@@ -1223,7 +1244,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 358
+    .line 374
     return-void
 .end method
 
@@ -1231,7 +1252,7 @@
     .locals 4
 
     .prologue
-    .line 300
+    .line 316
     const-string v0, "tasker_presets"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -1240,7 +1261,7 @@
 
     check-cast v0, Landroid/widget/LinearLayout;
 
-    .line 301
+    .line 317
     const/4 v1, 0x0
 
     move v2, v1
@@ -1252,28 +1273,28 @@
 
     if-ge v2, v1, :cond_0
 
-    .line 302
+    .line 318
     invoke-virtual {v0, v2}, Landroid/widget/LinearLayout;->getChildAt(I)Landroid/view/View;
 
     move-result-object v1
 
     check-cast v1, Landroid/widget/TextView;
 
-    .line 303
+    .line 319
     new-instance v3, Lcom/mrkeyboard/app/KeyEditDialog$Editor$3;
 
     invoke-direct {v3, p0, v1}, Lcom/mrkeyboard/app/KeyEditDialog$Editor$3;-><init>(Lcom/mrkeyboard/app/KeyEditDialog$Editor;Landroid/widget/TextView;)V
 
     invoke-virtual {v1, v3}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 301
+    .line 317
     add-int/lit8 v1, v2, 0x1
 
     move v2, v1
 
     goto :goto_0
 
-    .line 311
+    .line 327
     :cond_0
     return-void
 .end method
@@ -1286,7 +1307,7 @@
 
     const/4 v1, 0x0
 
-    .line 314
+    .line 330
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iget v0, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
@@ -1309,12 +1330,12 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mStep:I
 
-    .line 315
+    .line 331
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mWidthBar:Landroid/widget/SeekBar;
 
     invoke-virtual {v0, v3}, Landroid/widget/SeekBar;->setMax(I)V
 
-    .line 316
+    .line 332
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mWidthBar:Landroid/widget/SeekBar;
 
     iget v2, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mStep:I
@@ -1329,7 +1350,7 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/SeekBar;->setProgress(I)V
 
-    .line 317
+    .line 333
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mWidthBar:Landroid/widget/SeekBar;
 
     new-instance v2, Lcom/mrkeyboard/app/KeyEditDialog$Editor$4;
@@ -1338,7 +1359,7 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/SeekBar;->setOnSeekBarChangeListener(Landroid/widget/SeekBar$OnSeekBarChangeListener;)V
 
-    .line 328
+    .line 344
     const-string v0, "width_presets"
 
     invoke-virtual {p1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -1347,10 +1368,10 @@
 
     check-cast v0, Landroid/widget/LinearLayout;
 
-    .line 329
+    .line 345
     iput-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mWidthPresets:Landroid/widget/LinearLayout;
 
-    .line 330
+    .line 346
     :goto_0
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->getChildCount()I
 
@@ -1366,14 +1387,14 @@
 
     if-ge v1, v2, :cond_0
 
-    .line 331
+    .line 347
     invoke-static {}, Lcom/mrkeyboard/app/KeyEditDialog;->access$900()[F
 
     move-result-object v2
 
     aget v2, v2, v1
 
-    .line 332
+    .line 348
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->getChildAt(I)Landroid/view/View;
 
     move-result-object v3
@@ -1384,19 +1405,19 @@
 
     invoke-virtual {v3, v4}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 330
+    .line 346
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_0
 
-    .line 338
+    .line 354
     :cond_0
     invoke-direct {p0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->refreshWidthTitle()V
 
-    .line 339
+    .line 355
     invoke-direct {p0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->refreshWidthPresets()V
 
-    .line 340
+    .line 356
     return-void
 .end method
 
@@ -1404,7 +1425,7 @@
     .locals 2
 
     .prologue
-    .line 615
+    .line 631
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mContext:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -1428,7 +1449,7 @@
     .locals 2
 
     .prologue
-    .line 495
+    .line 511
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mContext:Landroid/content/Context;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSheets:Ljava/util/List;
@@ -1444,60 +1465,60 @@
     .locals 1
 
     .prologue
-    .line 502
+    .line 518
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mDialog:Landroid/app/AlertDialog;
 
     invoke-virtual {v0}, Landroid/app/AlertDialog;->dismiss()V
 
-    .line 503
+    .line 519
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mListener:Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;
 
     if-nez v0, :cond_0
 
-    .line 513
+    .line 529
     :goto_0
     return-void
 
-    .line 504
+    .line 520
     :cond_0
     const/4 v0, 0x1
 
     if-ne p1, v0, :cond_1
 
-    .line 505
+    .line 521
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mListener:Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;
 
     invoke-interface {v0}, Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;->onMoveLeft()V
 
     goto :goto_0
 
-    .line 506
+    .line 522
     :cond_1
     const/4 v0, 0x2
 
     if-ne p1, v0, :cond_2
 
-    .line 507
+    .line 523
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mListener:Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;
 
     invoke-interface {v0}, Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;->onMoveRight()V
 
     goto :goto_0
 
-    .line 508
+    .line 524
     :cond_2
     const/4 v0, 0x3
 
     if-ne p1, v0, :cond_3
 
-    .line 509
+    .line 525
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mListener:Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;
 
     invoke-interface {v0}, Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;->onDuplicate()V
 
     goto :goto_0
 
-    .line 511
+    .line 527
     :cond_3
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mListener:Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;
 
@@ -1514,7 +1535,7 @@
 
     const/4 v1, 0x0
 
-    .line 448
+    .line 464
     move v0, v1
 
     :goto_0
@@ -1524,7 +1545,7 @@
 
     if-ge v0, v2, :cond_2
 
-    .line 449
+    .line 465
     iget-object v2, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mTypes:[Ljava/lang/String;
 
     aget-object v2, v2, v0
@@ -1537,7 +1558,7 @@
 
     move-result v4
 
-    .line 450
+    .line 466
     iget-object v2, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mChips:[Landroid/widget/TextView;
 
     aget-object v5, v2, v0
@@ -1555,7 +1576,7 @@
 
     invoke-virtual {v5, v2}, Landroid/widget/TextView;->setBackgroundResource(I)V
 
-    .line 451
+    .line 467
     iget-object v2, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mChips:[Landroid/widget/TextView;
 
     aget-object v5, v2, v0
@@ -1571,24 +1592,24 @@
 
     invoke-virtual {v5, v2}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 448
+    .line 464
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 450
+    .line 466
     :cond_0
     const-string v2, "mr_key_ed_chip"
 
     goto :goto_1
 
-    .line 451
+    .line 467
     :cond_1
     const-string v2, "mr_ui_text2"
 
     goto :goto_2
 
-    .line 453
+    .line 469
     :cond_2
     const-string v0, "spacer"
 
@@ -1600,7 +1621,7 @@
 
     move-result v2
 
-    .line 454
+    .line 470
     iget-object v4, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupLabel:Landroid/widget/LinearLayout;
 
     if-eqz v2, :cond_4
@@ -1610,7 +1631,7 @@
     :goto_3
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 455
+    .line 471
     iget-object v4, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupValue:Landroid/widget/LinearLayout;
 
     const-string v0, "text"
@@ -1630,7 +1651,7 @@
     :goto_4
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 456
+    .line 472
     iget-object v4, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupTasker:Landroid/widget/LinearLayout;
 
     const-string v0, "tasker"
@@ -1650,7 +1671,7 @@
     :goto_5
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 457
+    .line 473
     iget-object v4, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupSpecial:Landroid/widget/LinearLayout;
 
     const-string v0, "special"
@@ -1670,7 +1691,7 @@
     :goto_6
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 458
+    .line 474
     iget-object v4, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mGroupSheet:Landroid/widget/LinearLayout;
 
     const-string v0, "sheet"
@@ -1690,7 +1711,7 @@
     :goto_7
     invoke-virtual {v4, v0}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 459
+    .line 475
     iget-object v4, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSpacerHint:Landroid/widget/TextView;
 
     if-eqz v2, :cond_9
@@ -1700,7 +1721,7 @@
     :goto_8
     invoke-virtual {v4, v0}, Landroid/widget/TextView;->setVisibility(I)V
 
-    .line 460
+    .line 476
     iget-boolean v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mPopup:Z
 
     if-nez v0, :cond_3
@@ -1712,7 +1733,7 @@
     :goto_9
     invoke-virtual {v0, v3}, Landroid/widget/LinearLayout;->setVisibility(I)V
 
-    .line 461
+    .line 477
     :cond_3
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSpecialBtn:Landroid/widget/TextView;
 
@@ -1744,7 +1765,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 462
+    .line 478
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSheetBtn:Landroid/widget/TextView;
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -1773,52 +1794,52 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 463
+    .line 479
     invoke-direct {p0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->refreshPopupLabel()V
 
-    .line 464
+    .line 480
     return-void
 
     :cond_4
     move v0, v1
 
-    .line 454
+    .line 470
     goto/16 :goto_3
 
     :cond_5
     move v0, v3
 
-    .line 455
+    .line 471
     goto/16 :goto_4
 
     :cond_6
     move v0, v3
 
-    .line 456
+    .line 472
     goto/16 :goto_5
 
     :cond_7
     move v0, v3
 
-    .line 457
+    .line 473
     goto :goto_6
 
     :cond_8
     move v0, v3
 
-    .line 458
+    .line 474
     goto :goto_7
 
     :cond_9
     move v0, v3
 
-    .line 459
+    .line 475
     goto :goto_8
 
     :cond_a
     move v3, v1
 
-    .line 460
+    .line 476
     goto :goto_9
 .end method
 
@@ -1830,16 +1851,16 @@
 
     const/4 v4, 0x0
 
-    .line 483
+    .line 499
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mPopupBtn:Landroid/widget/TextView;
 
     if-nez v0, :cond_0
 
-    .line 491
+    .line 507
     :goto_0
     return-void
 
-    .line 484
+    .line 500
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
@@ -1849,7 +1870,7 @@
 
     if-eqz v0, :cond_1
 
-    .line 485
+    .line 501
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mPopupBtn:Landroid/widget/TextView;
 
     const-string v1, "mr_key_ed_popup_keys"
@@ -1878,7 +1899,7 @@
 
     goto :goto_0
 
-    .line 486
+    .line 502
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
@@ -1888,7 +1909,7 @@
 
     if-eqz v0, :cond_2
 
-    .line 487
+    .line 503
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mPopupBtn:Landroid/widget/TextView;
 
     const-string v1, "mr_key_ed_popup_chars"
@@ -1909,7 +1930,7 @@
 
     goto :goto_0
 
-    .line 489
+    .line 505
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mPopupBtn:Landroid/widget/TextView;
 
@@ -1932,16 +1953,16 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 472
+    .line 488
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mWidthPresets:Landroid/widget/LinearLayout;
 
     if-nez v0, :cond_1
 
-    .line 480
+    .line 496
     :cond_0
     return-void
 
-    .line 473
+    .line 489
     :cond_1
     iget v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mStep:I
 
@@ -1957,7 +1978,7 @@
 
     move v1, v2
 
-    .line 474
+    .line 490
     :goto_0
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mWidthPresets:Landroid/widget/LinearLayout;
 
@@ -1975,7 +1996,7 @@
 
     if-ge v1, v0, :cond_0
 
-    .line 475
+    .line 491
     invoke-static {}, Lcom/mrkeyboard/app/KeyEditDialog;->access$900()[F
 
     move-result-object v0
@@ -1998,7 +2019,7 @@
 
     move v3, v0
 
-    .line 476
+    .line 492
     :goto_1
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mWidthPresets:Landroid/widget/LinearLayout;
 
@@ -2008,7 +2029,7 @@
 
     check-cast v0, Landroid/widget/TextView;
 
-    .line 477
+    .line 493
     if-eqz v3, :cond_3
 
     const-string v4, "mr_key_ed_chip_on"
@@ -2022,7 +2043,7 @@
 
     invoke-virtual {v0, v4}, Landroid/widget/TextView;->setBackgroundResource(I)V
 
-    .line 478
+    .line 494
     if-eqz v3, :cond_4
 
     const-string v3, "mr_ui_text"
@@ -2034,7 +2055,7 @@
 
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setTextColor(I)V
 
-    .line 474
+    .line 490
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
@@ -2044,16 +2065,16 @@
     :cond_2
     move v3, v2
 
-    .line 475
+    .line 491
     goto :goto_1
 
-    .line 477
+    .line 493
     :cond_3
     const-string v4, "mr_key_ed_pill"
 
     goto :goto_2
 
-    .line 478
+    .line 494
     :cond_4
     const-string v3, "mr_ui_cyan"
 
@@ -2064,7 +2085,7 @@
     .locals 6
 
     .prologue
-    .line 467
+    .line 483
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mWidthTitle:Landroid/widget/TextView;
 
     const-string v1, "mr_key_ed_width_title"
@@ -2099,7 +2120,7 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 468
+    .line 484
     return-void
 .end method
 
@@ -2107,7 +2128,7 @@
     .locals 2
 
     .prologue
-    .line 611
+    .line 627
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mContext:Landroid/content/Context;
 
     invoke-virtual {v0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -2137,7 +2158,7 @@
 
     const/4 v4, 0x0
 
-    .line 517
+    .line 533
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mLabelField:Landroid/widget/EditText;
 
     invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -2148,14 +2169,14 @@
 
     move-result-object v2
 
-    .line 518
+    .line 534
     iget-boolean v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mPopup:Z
 
     if-eqz v0, :cond_2
 
     const/high16 v0, 0x3f800000    # 1.0f
 
-    .line 519
+    .line 535
     :goto_0
     const-string v1, "spacer"
 
@@ -2167,9 +2188,9 @@
 
     move-result v1
 
-    if-eqz v1, :cond_3
+    if-eqz v1, :cond_4
 
-    .line 520
+    .line 536
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     invoke-static {}, Lcom/mrkeyboard/app/KeyEditDialog;->access$300()Ljava/lang/String;
@@ -2178,7 +2199,7 @@
 
     iput-object v2, v1, Lcom/mrkeyboard/app/SheetModel$KeySpec;->label:Ljava/lang/String;
 
-    .line 521
+    .line 537
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     invoke-static {}, Lcom/mrkeyboard/app/KeyEditDialog;->access$300()Ljava/lang/String;
@@ -2187,29 +2208,29 @@
 
     iput-object v2, v1, Lcom/mrkeyboard/app/SheetModel$KeySpec;->value:Ljava/lang/String;
 
-    .line 522
+    .line 538
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iput-object v6, v1, Lcom/mrkeyboard/app/SheetModel$KeySpec;->popupChars:Ljava/lang/String;
 
-    .line 523
+    .line 539
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iput-object v6, v1, Lcom/mrkeyboard/app/SheetModel$KeySpec;->popupKeys:Ljava/util/ArrayList;
 
-    .line 556
+    .line 572
     :cond_0
     :goto_1
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iput v0, v1, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
 
-    .line 557
+    .line 573
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mDialog:Landroid/app/AlertDialog;
 
     invoke-virtual {v0}, Landroid/app/AlertDialog;->dismiss()V
 
-    .line 558
+    .line 574
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mListener:Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;
 
     if-eqz v0, :cond_1
@@ -2220,13 +2241,24 @@
 
     invoke-interface {v0, v1}, Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;->onSave(Lcom/mrkeyboard/app/SheetModel$KeySpec;)V
 
-    .line 559
+    .line 575
     :cond_1
     :goto_2
     return-void
 
-    .line 518
+    .line 534
     :cond_2
+    iget-boolean v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mFixedPlace:Z
+
+    if-eqz v0, :cond_3
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
+
+    iget v0, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
+
+    goto :goto_0
+
+    :cond_3
     iget v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mStep:I
 
     int-to-float v0, v0
@@ -2245,8 +2277,8 @@
 
     goto :goto_0
 
-    .line 524
-    :cond_3
+    .line 540
+    :cond_4
     const-string v1, "text"
 
     iget-object v3, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
@@ -2257,9 +2289,9 @@
 
     move-result v1
 
-    if-eqz v1, :cond_7
+    if-eqz v1, :cond_8
 
-    .line 525
+    .line 541
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mValueField:Landroid/widget/EditText;
 
     invoke-virtual {v1}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -2270,20 +2302,20 @@
 
     move-result-object v1
 
-    .line 526
+    .line 542
     invoke-virtual {v1}, Ljava/lang/String;->isEmpty()Z
 
     move-result v3
 
-    if-eqz v3, :cond_4
+    if-eqz v3, :cond_5
 
     invoke-virtual {v2}, Ljava/lang/String;->isEmpty()Z
 
     move-result v3
 
-    if-eqz v3, :cond_4
+    if-eqz v3, :cond_5
 
-    .line 527
+    .line 543
     const-string v0, "mr_key_ed_toast_text"
 
     new-array v1, v4, [Ljava/lang/Object;
@@ -2296,18 +2328,18 @@
 
     goto :goto_2
 
-    .line 530
-    :cond_4
+    .line 546
+    :cond_5
     invoke-virtual {v1}, Ljava/lang/String;->isEmpty()Z
 
     move-result v3
 
-    if-eqz v3, :cond_5
+    if-eqz v3, :cond_6
 
     move-object v1, v2
 
-    .line 531
-    :cond_5
+    .line 547
+    :cond_6
     invoke-virtual {v2}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v3
@@ -2316,9 +2348,9 @@
 
     move-result v3
 
-    if-eqz v3, :cond_6
+    if-eqz v3, :cond_7
 
-    .line 533
+    .line 549
     const/16 v2, 0xa
 
     const/16 v3, 0x21b5
@@ -2327,32 +2359,32 @@
 
     move-result-object v2
 
-    .line 534
+    .line 550
     invoke-virtual {v2}, Ljava/lang/String;->length()I
 
     move-result v3
 
-    if-le v3, v5, :cond_6
+    if-le v3, v5, :cond_7
 
     invoke-virtual {v2, v4, v5}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 536
-    :cond_6
+    .line 552
+    :cond_7
     iget-object v3, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iput-object v2, v3, Lcom/mrkeyboard/app/SheetModel$KeySpec;->label:Ljava/lang/String;
 
-    .line 537
+    .line 553
     iget-object v2, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iput-object v1, v2, Lcom/mrkeyboard/app/SheetModel$KeySpec;->value:Ljava/lang/String;
 
-    goto :goto_1
+    goto/16 :goto_1
 
-    .line 538
-    :cond_7
+    .line 554
+    :cond_8
     const-string v1, "tasker"
 
     iget-object v3, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
@@ -2363,9 +2395,9 @@
 
     move-result v1
 
-    if-eqz v1, :cond_a
+    if-eqz v1, :cond_b
 
-    .line 539
+    .line 555
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mTaskerField:Landroid/widget/EditText;
 
     invoke-virtual {v1}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
@@ -2380,14 +2412,14 @@
 
     move-result-object v1
 
-    .line 540
+    .line 556
     invoke-virtual {v1}, Ljava/lang/String;->isEmpty()Z
 
     move-result v3
 
-    if-eqz v3, :cond_8
+    if-eqz v3, :cond_9
 
-    .line 541
+    .line 557
     const-string v0, "mr_key_ed_toast_tasker"
 
     new-array v1, v4, [Ljava/lang/Object;
@@ -2400,13 +2432,13 @@
 
     goto/16 :goto_2
 
-    .line 544
-    :cond_8
+    .line 560
+    :cond_9
     iget-object v3, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iput-object v1, v3, Lcom/mrkeyboard/app/SheetModel$KeySpec;->value:Ljava/lang/String;
 
-    .line 545
+    .line 561
     invoke-virtual {v2}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v3
@@ -2415,20 +2447,20 @@
 
     move-result v3
 
-    if-eqz v3, :cond_9
+    if-eqz v3, :cond_a
 
     move-object v2, v1
 
-    .line 546
-    :cond_9
+    .line 562
+    :cond_a
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iput-object v2, v1, Lcom/mrkeyboard/app/SheetModel$KeySpec;->label:Ljava/lang/String;
 
     goto/16 :goto_1
 
-    .line 547
-    :cond_a
+    .line 563
+    :cond_b
     const-string v1, "special"
 
     iget-object v3, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
@@ -2439,9 +2471,9 @@
 
     move-result v1
 
-    if-eqz v1, :cond_c
+    if-eqz v1, :cond_d
 
-    .line 548
+    .line 564
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iget v3, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSpecialCode:I
@@ -2452,7 +2484,7 @@
 
     iput-object v3, v1, Lcom/mrkeyboard/app/SheetModel$KeySpec;->value:Ljava/lang/String;
 
-    .line 549
+    .line 565
     invoke-virtual {v2}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v1
@@ -2461,7 +2493,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_b
+    if-eqz v1, :cond_c
 
     iget v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSpecialCode:I
 
@@ -2469,16 +2501,16 @@
 
     move-result-object v2
 
-    .line 550
-    :cond_b
+    .line 566
+    :cond_c
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iput-object v2, v1, Lcom/mrkeyboard/app/SheetModel$KeySpec;->label:Ljava/lang/String;
 
     goto/16 :goto_1
 
-    .line 551
-    :cond_c
+    .line 567
+    :cond_d
     const-string v1, "sheet"
 
     iget-object v3, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
@@ -2491,14 +2523,14 @@
 
     if-eqz v1, :cond_0
 
-    .line 552
+    .line 568
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mTarget:Ljava/lang/String;
 
     iput-object v3, v1, Lcom/mrkeyboard/app/SheetModel$KeySpec;->value:Ljava/lang/String;
 
-    .line 553
+    .line 569
     invoke-virtual {v2}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v1
@@ -2507,7 +2539,7 @@
 
     move-result v1
 
-    if-eqz v1, :cond_d
+    if-eqz v1, :cond_e
 
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
@@ -2517,8 +2549,8 @@
 
     move-result-object v2
 
-    .line 554
-    :cond_d
+    .line 570
+    :cond_e
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iput-object v2, v1, Lcom/mrkeyboard/app/SheetModel$KeySpec;->label:Ljava/lang/String;
@@ -2530,12 +2562,12 @@
     .locals 2
 
     .prologue
-    .line 439
+    .line 455
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mKey:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
     iput-object p1, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->type:Ljava/lang/String;
 
-    .line 440
+    .line 456
     const-string v0, "special"
 
     invoke-virtual {v0, p1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -2564,7 +2596,7 @@
 
     if-eqz v0, :cond_0
 
-    .line 441
+    .line 457
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mLabelField:Landroid/widget/EditText;
 
     iget v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSpecialCode:I
@@ -2575,11 +2607,11 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 443
+    .line 459
     :cond_0
     invoke-direct {p0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->refresh()V
 
-    .line 444
+    .line 460
     return-void
 .end method
 
@@ -2589,32 +2621,32 @@
     .prologue
     const/4 v7, 0x0
 
-    .line 563
+    .line 579
     new-instance v3, Ljava/util/ArrayList;
 
     invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
 
-    .line 564
+    .line 580
     new-instance v4, Ljava/util/ArrayList;
 
     invoke-direct {v4}, Ljava/util/ArrayList;-><init>()V
 
-    .line 565
+    .line 581
     new-instance v5, Ljava/util/ArrayList;
 
     invoke-direct {v5}, Ljava/util/ArrayList;-><init>()V
 
-    .line 566
+    .line 582
     const-string v0, "next"
 
     invoke-virtual {v3, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 567
+    .line 583
     const-string v0, "123\u25b8"
 
     invoke-virtual {v4, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 568
+    .line 584
     const-string v0, "mr_key_ed_target_next"
 
     new-array v1, v7, [Ljava/lang/Object;
@@ -2625,17 +2657,17 @@
 
     invoke-virtual {v5, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 569
+    .line 585
     const-string v0, "prev"
 
     invoke-virtual {v3, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 570
+    .line 586
     const-string v0, "\u25c2123"
 
     invoke-virtual {v4, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 571
+    .line 587
     const-string v0, "mr_key_ed_target_prev"
 
     new-array v1, v7, [Ljava/lang/Object;
@@ -2646,17 +2678,17 @@
 
     invoke-virtual {v5, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 572
+    .line 588
     const-string v0, "abc"
 
     invoke-virtual {v3, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 573
+    .line 589
     const-string v0, "ABC"
 
     invoke-virtual {v4, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 574
+    .line 590
     const-string v0, "mr_key_ed_target_abc"
 
     new-array v1, v7, [Ljava/lang/Object;
@@ -2667,14 +2699,14 @@
 
     invoke-virtual {v5, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 575
+    .line 591
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSheets:Ljava/util/List;
 
     if-eqz v0, :cond_0
 
     move v1, v7
 
-    .line 576
+    .line 592
     :goto_0
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSheets:Ljava/util/List;
 
@@ -2684,7 +2716,7 @@
 
     if-ge v1, v0, :cond_0
 
-    .line 577
+    .line 593
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mSheets:Ljava/util/List;
 
     invoke-interface {v0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
@@ -2693,17 +2725,17 @@
 
     check-cast v0, Lcom/mrkeyboard/app/SheetModel$Sheet;
 
-    .line 578
+    .line 594
     iget-object v2, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->id:Ljava/lang/String;
 
     invoke-virtual {v3, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 579
+    .line 595
     iget-object v2, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->badge:Ljava/lang/String;
 
     invoke-virtual {v4, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 580
+    .line 596
     const-string v2, "mr_key_ed_target_sheet"
 
     const/4 v6, 0x2
@@ -2726,7 +2758,7 @@
 
     invoke-virtual {v5, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 576
+    .line 592
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
@@ -2738,7 +2770,7 @@
 
     move v8, v7
 
-    .line 584
+    .line 600
     :goto_1
     invoke-virtual {v3}, Ljava/util/ArrayList;->size()I
 
@@ -2746,7 +2778,7 @@
 
     if-ge v1, v0, :cond_1
 
-    .line 585
+    .line 601
     invoke-virtual {v3, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v0
@@ -2761,7 +2793,7 @@
 
     move v2, v1
 
-    .line 584
+    .line 600
     :goto_2
     add-int/lit8 v0, v1, 0x1
 
@@ -2771,7 +2803,7 @@
 
     goto :goto_1
 
-    .line 587
+    .line 603
     :cond_1
     invoke-virtual {v5}, Ljava/util/ArrayList;->size()I
 
@@ -2787,7 +2819,7 @@
 
     check-cast v6, [Ljava/lang/CharSequence;
 
-    .line 588
+    .line 604
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mContext:Landroid/content/Context;
@@ -2798,7 +2830,7 @@
 
     new-array v2, v7, [Ljava/lang/Object;
 
-    .line 589
+    .line 605
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -2815,7 +2847,7 @@
 
     invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/KeyEditDialog$Editor$12;-><init>(Lcom/mrkeyboard/app/KeyEditDialog$Editor;Lcom/mrkeyboard/app/KeyEditDialog$OnTargetPicked;Ljava/util/ArrayList;Ljava/util/ArrayList;Ljava/util/ArrayList;)V
 
-    .line 590
+    .line 606
     invoke-virtual {v9, v6, v8, v0}, Landroid/app/AlertDialog$Builder;->setSingleChoiceItems([Ljava/lang/CharSequence;ILandroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
@@ -2824,7 +2856,7 @@
 
     new-array v2, v7, [Ljava/lang/Object;
 
-    .line 596
+    .line 612
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -2835,10 +2867,10 @@
 
     move-result-object v0
 
-    .line 597
+    .line 613
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 598
+    .line 614
     return-void
 
     :cond_2
@@ -2851,17 +2883,17 @@
     .locals 2
 
     .prologue
-    .line 603
+    .line 619
     const-string v0, "string"
 
     invoke-direct {p0, p1, v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->res(Ljava/lang/String;Ljava/lang/String;)I
 
     move-result v0
 
-    .line 604
+    .line 620
     if-nez v0, :cond_0
 
-    .line 605
+    .line 621
     :goto_0
     return-object p1
 
@@ -2870,7 +2902,7 @@
 
     if-nez v1, :cond_1
 
-    .line 606
+    .line 622
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mContext:Landroid/content/Context;
 
     invoke-virtual {v1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
@@ -2884,10 +2916,10 @@
     :goto_1
     move-object p1, v0
 
-    .line 605
+    .line 621
     goto :goto_0
 
-    .line 607
+    .line 623
     :cond_1
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mContext:Landroid/content/Context;
 
@@ -2906,7 +2938,7 @@
     .locals 2
 
     .prologue
-    .line 619
+    .line 635
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mContext:Landroid/content/Context;
 
     const/4 v1, 0x0
@@ -2917,7 +2949,7 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 620
+    .line 636
     return-void
 .end method
 
@@ -2931,7 +2963,7 @@
 
     const/4 v4, 0x0
 
-    .line 197
+    .line 210
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mContext:Landroid/content/Context;
 
     invoke-static {v0}, Landroid/view/LayoutInflater;->from(Landroid/content/Context;)Landroid/view/LayoutInflater;
@@ -2950,14 +2982,14 @@
 
     move-result-object v0
 
-    .line 198
+    .line 211
     new-instance v1, Landroid/app/AlertDialog$Builder;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mContext:Landroid/content/Context;
 
     invoke-direct {v1, v2}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
 
-    .line 199
+    .line 212
     invoke-virtual {v1, v0}, Landroid/app/AlertDialog$Builder;->setView(Landroid/view/View;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v1
@@ -2966,7 +2998,7 @@
 
     new-array v3, v5, [Ljava/lang/Object;
 
-    .line 200
+    .line 213
     invoke-direct {p0, v2, v3}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v2
@@ -2979,7 +3011,7 @@
 
     new-array v3, v5, [Ljava/lang/Object;
 
-    .line 201
+    .line 214
     invoke-direct {p0, v2, v3}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v2
@@ -2988,20 +3020,20 @@
 
     move-result-object v1
 
-    .line 202
+    .line 215
     invoke-virtual {v1}, Landroid/app/AlertDialog$Builder;->create()Landroid/app/AlertDialog;
 
     move-result-object v1
 
     iput-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mDialog:Landroid/app/AlertDialog;
 
-    .line 203
+    .line 216
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->bind(Landroid/view/View;)V
 
-    .line 204
+    .line 217
     invoke-direct {p0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->refresh()V
 
-    .line 206
+    .line 219
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mDialog:Landroid/app/AlertDialog;
 
     new-instance v1, Lcom/mrkeyboard/app/KeyEditDialog$Editor$1;
@@ -3010,12 +3042,12 @@
 
     invoke-virtual {v0, v1}, Landroid/app/AlertDialog;->setOnShowListener(Landroid/content/DialogInterface$OnShowListener;)V
 
-    .line 215
+    .line 228
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mDialog:Landroid/app/AlertDialog;
 
     invoke-virtual {v0}, Landroid/app/AlertDialog;->show()V
 
-    .line 216
+    .line 229
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mDialog:Landroid/app/AlertDialog;
 
     return-object v0

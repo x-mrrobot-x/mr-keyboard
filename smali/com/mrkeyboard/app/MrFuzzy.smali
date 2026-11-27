@@ -322,14 +322,14 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mOutScores:[J
 
-    .line 640
+    .line 666
     const/16 v0, 0x31
 
     new-array v0, v0, [C
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mLookBuf:[C
 
-    .line 641
+    .line 667
     const/16 v0, 0x31
 
     new-array v0, v0, [C
@@ -417,7 +417,7 @@
     .locals 3
 
     .prologue
-    .line 611
+    .line 637
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mDict:Ljava/nio/ByteBuffer;
 
     invoke-virtual {v0, p1}, Ljava/nio/ByteBuffer;->get(I)B
@@ -440,7 +440,7 @@
 
     or-int/2addr v0, v1
 
-    .line 612
+    .line 638
     shl-int/lit8 v0, v0, 0x8
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrFuzzy;->mDict:Ljava/nio/ByteBuffer;
@@ -455,7 +455,7 @@
 
     or-int/2addr v0, v1
 
-    .line 613
+    .line 639
     iget v1, p0, Lcom/mrkeyboard/app/MrFuzzy;->mAb:I
 
     const/4 v2, 0x3
@@ -711,14 +711,14 @@
     .locals 3
 
     .prologue
-    .line 516
+    .line 542
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
     move-result v0
 
     new-array v1, v0, [C
 
-    .line 517
+    .line 543
     const/4 v0, 0x0
 
     :goto_0
@@ -740,7 +740,7 @@
 
     goto :goto_0
 
-    .line 518
+    .line 544
     :cond_0
     new-instance v0, Ljava/lang/String;
 
@@ -1091,26 +1091,28 @@
 .end method
 
 .method static digitSlip(Ljava/lang/String;Ljava/lang/String;)Z
-    .locals 7
+    .locals 8
 
     .prologue
-    const/4 v6, 0x3
+    const/4 v3, 0x1
 
-    const/4 v2, 0x1
+    const/4 v4, 0x0
 
-    const/4 v3, 0x0
-
-    .line 479
+    .line 485
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
-    move-result v4
+    move-result v5
 
-    .line 480
+    .line 486
+    const/4 v0, 0x3
+
+    if-lt v5, v0, :cond_0
+
     invoke-virtual {p1}, Ljava/lang/String;->length()I
 
     move-result v0
 
-    if-ne v0, v4, :cond_0
+    if-ne v0, v5, :cond_0
 
     invoke-static {p1}, Lcom/mrkeyboard/app/MrFuzzy;->digitCount(Ljava/lang/CharSequence;)I
 
@@ -1118,185 +1120,184 @@
 
     if-lez v0, :cond_1
 
-    .line 496
+    .line 505
     :cond_0
     :goto_0
-    return v3
+    return v4
 
-    .line 481
+    .line 488
     :cond_1
-    const/4 v0, -0x1
+    const/4 v0, -0x2
 
-    move v1, v3
+    move v1, v4
 
-    .line 482
+    move v2, v4
+
+    .line 489
     :goto_1
-    if-ge v1, v4, :cond_3
+    if-ge v1, v5, :cond_4
 
-    .line 483
+    .line 490
     invoke-virtual {p0, v1}, Ljava/lang/String;->charAt(I)C
 
-    move-result v5
+    move-result v6
 
-    invoke-static {v5}, Ljava/lang/Character;->isDigit(C)Z
+    .line 491
+    invoke-static {v6}, Ljava/lang/Character;->isDigit(C)Z
 
-    move-result v5
+    move-result v7
 
-    if-nez v5, :cond_2
+    if-eqz v7, :cond_3
 
-    .line 482
-    :goto_2
+    .line 492
+    add-int/lit8 v0, v0, 0x1
+
+    if-eq v1, v0, :cond_0
+
+    .line 494
+    add-int/lit8 v0, v2, 0x1
+
+    .line 495
+    invoke-virtual {p1, v1}, Ljava/lang/String;->charAt(I)C
+
+    move-result v2
+
+    .line 496
+    invoke-static {v2}, Ljava/lang/Character;->isLetter(C)Z
+
+    move-result v7
+
+    if-eqz v7, :cond_0
+
+    invoke-static {v2}, Lcom/mrkeyboard/app/MrText;->base(I)C
+
+    move-result v2
+
+    invoke-static {v6, v2, v1, v5}, Lcom/mrkeyboard/app/MrFuzzy;->slipLetter(CCII)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_0
+
+    move v2, v0
+
+    move v0, v1
+
+    .line 489
+    :cond_2
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_1
 
-    .line 484
-    :cond_2
-    if-gez v0, :cond_0
-
-    move v0, v1
-
-    .line 485
-    goto :goto_2
-
-    .line 487
+    .line 497
     :cond_3
-    if-ltz v0, :cond_0
-
-    if-lt v4, v6, :cond_0
-
-    invoke-virtual {p1, v0}, Ljava/lang/String;->charAt(I)C
-
-    move-result v1
-
-    invoke-static {v1}, Ljava/lang/Character;->isLetter(C)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_0
-
-    .line 489
-    if-ne v4, v6, :cond_4
-
-    if-eq v0, v2, :cond_4
-
-    invoke-virtual {p1, v0}, Ljava/lang/String;->charAt(I)C
-
-    move-result v1
-
-    invoke-static {v1}, Lcom/mrkeyboard/app/MrText;->base(I)C
-
-    move-result v1
-
-    invoke-virtual {p0, v0}, Ljava/lang/String;->charAt(I)C
-
-    move-result v5
-
-    invoke-static {v5}, Lcom/mrkeyboard/app/MrFuzzy;->letterUnder(C)C
-
-    move-result v5
-
-    if-ne v1, v5, :cond_0
-
-    :cond_4
-    move v1, v3
-
-    .line 490
-    :goto_3
-    if-ge v1, v4, :cond_6
-
-    .line 491
-    if-eq v1, v0, :cond_5
-
-    invoke-virtual {p0, v1}, Ljava/lang/String;->charAt(I)C
-
-    move-result v5
-
-    invoke-static {v5}, Lcom/mrkeyboard/app/MrText;->base(I)C
-
-    move-result v5
-
-    invoke-virtual {p1, v1}, Ljava/lang/String;->charAt(I)C
-
-    move-result v6
-
     invoke-static {v6}, Lcom/mrkeyboard/app/MrText;->base(I)C
 
     move-result v6
 
-    if-ne v5, v6, :cond_0
+    invoke-virtual {p1, v1}, Ljava/lang/String;->charAt(I)C
 
-    .line 490
-    :cond_5
-    add-int/lit8 v1, v1, 0x1
+    move-result v7
 
-    goto :goto_3
+    invoke-static {v7}, Lcom/mrkeyboard/app/MrText;->base(I)C
 
-    .line 493
-    :cond_6
-    invoke-virtual {p0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+    move-result v7
 
-    move-result-object v1
-
-    invoke-virtual {p0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_7
-
-    invoke-virtual {p1}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {p1, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
-
-    move-result v1
-
-    if-eqz v1, :cond_8
-
-    :cond_7
-    move v3, v2
+    if-eq v6, v7, :cond_2
 
     goto :goto_0
 
-    .line 495
-    :cond_8
-    invoke-virtual {p1, v2}, Ljava/lang/String;->substring(I)Ljava/lang/String;
+    .line 501
+    :cond_4
+    if-eqz v2, :cond_0
 
-    move-result-object v1
+    const/4 v0, 0x6
 
-    .line 496
-    if-nez v0, :cond_9
+    if-lt v5, v0, :cond_6
 
-    sget-object v0, Lcom/mrkeyboard/app/MrFuzzy;->sCapTyped:Ljava/lang/String;
+    const/4 v0, 0x2
+
+    :goto_2
+    if-gt v2, v0, :cond_0
+
+    .line 502
+    invoke-virtual {p0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+
+    move-result-object v0
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_9
+    if-eqz v0, :cond_5
 
-    invoke-virtual {v1}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+    invoke-virtual {p1}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
 
     move-result-object v0
 
-    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    invoke-virtual {p1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 
     move-result v0
 
-    if-eqz v0, :cond_9
+    if-eqz v0, :cond_7
 
-    move v0, v2
+    :cond_5
+    move v4, v3
 
-    :goto_4
-    move v3, v0
+    goto :goto_0
 
-    goto/16 :goto_0
-
-    :cond_9
+    :cond_6
     move v0, v3
 
-    goto :goto_4
+    .line 501
+    goto :goto_2
+
+    .line 504
+    :cond_7
+    invoke-virtual {p1, v3}, Ljava/lang/String;->substring(I)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 505
+    invoke-virtual {p0, v4}, Ljava/lang/String;->charAt(I)C
+
+    move-result v1
+
+    invoke-static {v1}, Ljava/lang/Character;->isDigit(C)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_8
+
+    sget-object v1, Lcom/mrkeyboard/app/MrFuzzy;->sCapTyped:Ljava/lang/String;
+
+    invoke-virtual {p0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-eqz v1, :cond_8
+
+    invoke-virtual {v0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_8
+
+    move v0, v3
+
+    :goto_3
+    move v4, v0
+
+    goto :goto_0
+
+    :cond_8
+    move v0, v4
+
+    goto :goto_3
 .end method
 
 .method static digitsOf(Ljava/lang/CharSequence;)Ljava/lang/String;
@@ -1352,7 +1353,7 @@
     .locals 12
 
     .prologue
-    .line 523
+    .line 549
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
     move-result v7
@@ -1361,7 +1362,7 @@
 
     move-result v8
 
-    .line 524
+    .line 550
     sub-int v0, v7, v8
 
     invoke-static {v0}, Ljava/lang/Math;->abs(I)I
@@ -1372,11 +1373,11 @@
 
     add-int/lit8 v0, p2, 0x1
 
-    .line 542
+    .line 568
     :goto_0
     return v0
 
-    .line 525
+    .line 551
     :cond_0
     add-int/lit8 v0, v8, 0x1
 
@@ -1390,7 +1391,7 @@
 
     new-array v1, v0, [I
 
-    .line 526
+    .line 552
     const/4 v0, 0x0
 
     :goto_1
@@ -1402,7 +1403,7 @@
 
     goto :goto_1
 
-    .line 527
+    .line 553
     :cond_1
     const/4 v0, 0x1
 
@@ -1415,17 +1416,17 @@
     :goto_2
     if-gt v3, v7, :cond_6
 
-    .line 528
+    .line 554
     const/4 v0, 0x0
 
     aput v3, v4, v0
 
-    .line 529
+    .line 555
     const/4 v0, 0x0
 
     aget v1, v4, v0
 
-    .line 530
+    .line 556
     const/4 v0, 0x1
 
     move v2, v0
@@ -1433,7 +1434,7 @@
     :goto_3
     if-gt v2, v8, :cond_4
 
-    .line 531
+    .line 557
     add-int/lit8 v0, v3, -0x1
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->charAt(I)C
@@ -1450,7 +1451,7 @@
 
     const/4 v0, 0x0
 
-    .line 532
+    .line 558
     :goto_4
     aget v9, v6, v2
 
@@ -1476,7 +1477,7 @@
 
     move-result v0
 
-    .line 533
+    .line 559
     const/4 v9, 0x1
 
     if-le v3, v9, :cond_2
@@ -1513,7 +1514,7 @@
 
     if-ne v9, v10, :cond_2
 
-    .line 534
+    .line 560
     add-int/lit8 v9, v2, -0x2
 
     aget v9, v5, v9
@@ -1524,14 +1525,14 @@
 
     move-result v0
 
-    .line 536
+    .line 562
     :cond_2
     aput v0, v4, v2
 
-    .line 537
+    .line 563
     if-ge v0, v1, :cond_7
 
-    .line 530
+    .line 556
     :goto_5
     add-int/lit8 v1, v2, 0x1
 
@@ -1541,13 +1542,13 @@
 
     goto :goto_3
 
-    .line 531
+    .line 557
     :cond_3
     const/4 v0, 0x1
 
     goto :goto_4
 
-    .line 539
+    .line 565
     :cond_4
     if-le v1, p2, :cond_5
 
@@ -1555,7 +1556,7 @@
 
     goto/16 :goto_0
 
-    .line 527
+    .line 553
     :cond_5
     add-int/lit8 v0, v3, 0x1
 
@@ -1571,7 +1572,7 @@
 
     goto :goto_2
 
-    .line 542
+    .line 568
     :cond_6
     aget v0, v6, v8
 
@@ -1598,7 +1599,7 @@
     .end annotation
 
     .prologue
-    .line 507
+    .line 533
     invoke-interface {p0}, Ljava/util/List;->size()I
 
     move-result v0
@@ -1613,17 +1614,17 @@
 
     if-nez v0, :cond_1
 
-    .line 513
+    .line 539
     :cond_0
     return-void
 
-    .line 508
+    .line 534
     :cond_1
     invoke-static {p1}, Lcom/mrkeyboard/app/MrFuzzy;->digitsOf(Ljava/lang/CharSequence;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 509
+    .line 535
     invoke-interface {p0}, Ljava/util/List;->size()I
 
     move-result v0
@@ -1637,14 +1638,14 @@
 
     if-lt v1, v0, :cond_0
 
-    .line 510
+    .line 536
     invoke-interface {p0, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Ljava/lang/CharSequence;
 
-    .line 511
+    .line 537
     invoke-static {v0}, Lcom/mrkeyboard/app/MrFuzzy;->digitCount(Ljava/lang/CharSequence;)I
 
     move-result v3
@@ -1663,7 +1664,7 @@
 
     invoke-interface {p0, v1}, Ljava/util/List;->remove(I)Ljava/lang/Object;
 
-    .line 509
+    .line 535
     :cond_2
     add-int/lit8 v0, v1, -0x1
 
@@ -2296,14 +2297,14 @@
     .locals 2
 
     .prologue
-    .line 501
+    .line 527
     const-string v0, "1234567890"
 
     invoke-virtual {v0, p0}, Ljava/lang/String;->indexOf(I)I
 
     move-result v0
 
-    .line 502
+    .line 528
     if-gez v0, :cond_0
 
     const/4 v0, 0x0
@@ -2327,30 +2328,30 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 647
+    .line 673
     iput v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mLookFreq:I
 
-    .line 648
+    .line 674
     iput v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mLookLen:I
 
-    .line 649
+    .line 675
     sub-int v1, p2, p1
 
     const/16 v2, 0x30
 
     if-le v1, v2, :cond_0
 
-    .line 651
+    .line 677
     :goto_0
     return v0
 
-    .line 650
+    .line 676
     :cond_0
     iget v1, p0, Lcom/mrkeyboard/app/MrFuzzy;->mRoot:I
 
     invoke-direct {p0, v1, p1, p2, v0}, Lcom/mrkeyboard/app/MrFuzzy;->lookupRec(IIII)V
 
-    .line 651
+    .line 677
     iget v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mLookFreq:I
 
     goto :goto_0
@@ -2362,18 +2363,18 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 655
+    .line 681
     if-ltz p1, :cond_0
 
     iget v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mSize:I
 
     if-lt p1, v0, :cond_1
 
-    .line 698
+    .line 724
     :cond_0
     return-void
 
-    .line 656
+    .line 682
     :cond_1
     iget v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mGuard:I
 
@@ -2385,7 +2386,7 @@
 
     if-gt v0, v1, :cond_0
 
-    .line 657
+    .line 683
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mDict:Ljava/nio/ByteBuffer;
 
     invoke-virtual {v0, p1}, Ljava/nio/ByteBuffer;->get(I)B
@@ -2394,26 +2395,26 @@
 
     and-int/lit16 v8, v0, 0xff
 
-    .line 658
+    .line 684
     add-int/lit8 v4, p1, 0x1
 
-    .line 659
+    .line 685
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mTb:[C
 
     aget-char v9, v0, p2
 
     move v7, v3
 
-    .line 660
+    .line 686
     :goto_0
     if-ge v7, v8, :cond_0
 
-    .line 661
+    .line 687
     iget v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mSize:I
 
     if-ge v4, v0, :cond_0
 
-    .line 662
+    .line 688
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mDict:Ljava/nio/ByteBuffer;
 
     add-int/lit8 v1, v4, 0x1
@@ -2424,19 +2425,19 @@
 
     and-int/lit16 v0, v0, 0xff
 
-    .line 663
+    .line 689
     const/16 v2, 0xff
 
     if-ne v0, v2, :cond_2
 
-    .line 664
+    .line 690
     add-int/lit8 v0, v1, 0x1
 
     iget v2, p0, Lcom/mrkeyboard/app/MrFuzzy;->mSize:I
 
     if-ge v0, v2, :cond_0
 
-    .line 665
+    .line 691
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mDict:Ljava/nio/ByteBuffer;
 
     invoke-virtual {v0, v1}, Ljava/nio/ByteBuffer;->get(I)B
@@ -2459,10 +2460,10 @@
 
     or-int/2addr v0, v2
 
-    .line 666
+    .line 692
     add-int/lit8 v1, v1, 0x2
 
-    .line 668
+    .line 694
     :cond_2
     iget-object v2, p0, Lcom/mrkeyboard/app/MrFuzzy;->mDict:Ljava/nio/ByteBuffer;
 
@@ -2472,7 +2473,7 @@
 
     and-int/lit16 v4, v2, 0xff
 
-    .line 669
+    .line 695
     and-int/lit16 v2, v4, 0x80
 
     if-eqz v2, :cond_4
@@ -2481,13 +2482,13 @@
 
     move v6, v2
 
-    .line 671
+    .line 697
     :goto_1
     and-int/lit8 v2, v4, 0x40
 
     if-eqz v2, :cond_5
 
-    .line 672
+    .line 698
     iget v2, p0, Lcom/mrkeyboard/app/MrFuzzy;->mAb:I
 
     add-int/2addr v2, v1
@@ -2498,28 +2499,28 @@
 
     if-ge v2, v4, :cond_0
 
-    .line 673
+    .line 699
     invoke-direct {p0, v1}, Lcom/mrkeyboard/app/MrFuzzy;->addrAt(I)I
 
     move-result v2
 
-    .line 674
+    .line 700
     iget v4, p0, Lcom/mrkeyboard/app/MrFuzzy;->mAb:I
 
     add-int/2addr v1, v4
 
     move v5, v2
 
-    .line 679
+    .line 705
     :goto_2
     if-eqz v6, :cond_a
 
-    .line 680
+    .line 706
     iget v2, p0, Lcom/mrkeyboard/app/MrFuzzy;->mSize:I
 
     if-ge v1, v2, :cond_0
 
-    .line 681
+    .line 707
     iget-object v4, p0, Lcom/mrkeyboard/app/MrFuzzy;->mDict:Ljava/nio/ByteBuffer;
 
     add-int/lit8 v2, v1, 0x1
@@ -2530,7 +2531,7 @@
 
     and-int/lit16 v1, v1, 0xff
 
-    .line 682
+    .line 708
     iget-boolean v4, p0, Lcom/mrkeyboard/app/MrFuzzy;->mLatest:Z
 
     if-eqz v4, :cond_9
@@ -2543,7 +2544,7 @@
 
     move v2, v1
 
-    .line 684
+    .line 710
     :goto_3
     const/16 v1, 0x100
 
@@ -2553,11 +2554,11 @@
 
     aget-char v1, v1, v0
 
-    .line 685
+    .line 711
     :goto_4
     if-eq v1, v9, :cond_7
 
-    .line 660
+    .line 686
     :cond_3
     :goto_5
     add-int/lit8 v0, v7, 0x1
@@ -2569,10 +2570,10 @@
     :cond_4
     move v6, v3
 
-    .line 669
+    .line 695
     goto :goto_1
 
-    .line 676
+    .line 702
     :cond_5
     add-int/lit8 v1, v1, 0x1
 
@@ -2580,7 +2581,7 @@
 
     goto :goto_2
 
-    .line 684
+    .line 710
     :cond_6
     invoke-static {v0}, Lcom/mrkeyboard/app/MrText;->base(I)C
 
@@ -2588,21 +2589,21 @@
 
     goto :goto_4
 
-    .line 686
+    .line 712
     :cond_7
     int-to-char v0, v0
 
-    .line 687
+    .line 713
     iget-object v1, p0, Lcom/mrkeyboard/app/MrFuzzy;->mLookPath:[C
 
     aput-char v0, v1, p4
 
-    .line 688
+    .line 714
     add-int/lit8 v0, p2, 0x1
 
     if-ne v0, p3, :cond_8
 
-    .line 689
+    .line 715
     if-eqz v6, :cond_3
 
     iget v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mLookFreq:I
@@ -2619,15 +2620,15 @@
 
     if-nez v0, :cond_3
 
-    .line 690
+    .line 716
     iput v2, p0, Lcom/mrkeyboard/app/MrFuzzy;->mLookFreq:I
 
-    .line 691
+    .line 717
     add-int/lit8 v0, p4, 0x1
 
     iput v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mLookLen:I
 
-    .line 692
+    .line 718
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mLookPath:[C
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrFuzzy;->mLookBuf:[C
@@ -2638,11 +2639,11 @@
 
     goto :goto_5
 
-    .line 694
+    .line 720
     :cond_8
     if-eqz v5, :cond_3
 
-    .line 695
+    .line 721
     add-int/lit8 v0, p2, 0x1
 
     add-int/lit8 v1, p4, 0x1
@@ -2889,12 +2890,12 @@
     .prologue
     const/4 v10, 0x0
 
-    .line 582
+    .line 608
     iget v2, p0, Lcom/mrkeyboard/app/MrFuzzy;->mN:I
 
     move v0, v10
 
-    .line 583
+    .line 609
     :goto_0
     if-ge v0, v2, :cond_0
 
@@ -2914,7 +2915,7 @@
 
     goto :goto_0
 
-    .line 584
+    .line 610
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mDict:Ljava/nio/ByteBuffer;
 
@@ -2938,7 +2939,7 @@
 
     move-result v1
 
-    .line 585
+    .line 611
     if-ltz v1, :cond_1
 
     const/4 v0, 0x5
@@ -2948,18 +2949,18 @@
     :cond_1
     move v0, v10
 
-    .line 599
+    .line 625
     :goto_1
     return v0
 
     :cond_2
     move v0, v10
 
-    .line 586
+    .line 612
     :goto_2
     if-ge v0, v1, :cond_5
 
-    .line 587
+    .line 613
     iget-object v2, p0, Lcom/mrkeyboard/app/MrFuzzy;->mOutInfo:[I
 
     mul-int/lit8 v3, v0, 0x2
@@ -2968,7 +2969,7 @@
 
     aget v2, v2, v3
 
-    .line 588
+    .line 614
     if-ltz v2, :cond_3
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrFuzzy;->mResWord:[[C
@@ -2984,23 +2985,23 @@
 
     goto :goto_1
 
-    .line 586
+    .line 612
     :cond_4
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_2
 
-    .line 590
+    .line 616
     :cond_5
     iput v1, p0, Lcom/mrkeyboard/app/MrFuzzy;->mResCount:I
 
     move v0, v10
 
-    .line 591
+    .line 617
     :goto_3
     if-ge v0, v1, :cond_6
 
-    .line 592
+    .line 618
     iget-object v2, p0, Lcom/mrkeyboard/app/MrFuzzy;->mOutInfo:[I
 
     mul-int/lit8 v3, v0, 0x2
@@ -3009,7 +3010,7 @@
 
     aget v2, v2, v3
 
-    .line 593
+    .line 619
     iget-object v3, p0, Lcom/mrkeyboard/app/MrFuzzy;->mOutWords:[C
 
     mul-int/lit8 v4, v0, 0x62
@@ -3020,12 +3021,12 @@
 
     invoke-static {v3, v4, v5, v10, v2}, Ljava/lang/System;->arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V
 
-    .line 594
+    .line 620
     iget-object v3, p0, Lcom/mrkeyboard/app/MrFuzzy;->mResLen:[I
 
     aput v2, v3, v0
 
-    .line 595
+    .line 621
     iget-object v2, p0, Lcom/mrkeyboard/app/MrFuzzy;->mResCost:[I
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrFuzzy;->mOutInfo:[I
@@ -3038,7 +3039,7 @@
 
     aput v3, v2, v0
 
-    .line 596
+    .line 622
     iget-object v2, p0, Lcom/mrkeyboard/app/MrFuzzy;->mResScore:[J
 
     iget-object v3, p0, Lcom/mrkeyboard/app/MrFuzzy;->mOutScores:[J
@@ -3047,12 +3048,12 @@
 
     aput-wide v4, v2, v0
 
-    .line 591
+    .line 617
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_3
 
-    .line 598
+    .line 624
     :cond_6
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mOutInfo:[I
 
@@ -3060,7 +3061,7 @@
 
     sput v0, Lcom/mrkeyboard/app/MrFuzzy;->sLastVisits:I
 
-    .line 599
+    .line 625
     const/4 v0, 0x1
 
     goto :goto_1
@@ -3070,17 +3071,17 @@
     .locals 3
 
     .prologue
-    .line 617
+    .line 643
     iget v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mSize:I
 
     if-lt p1, v0, :cond_1
 
-    .line 627
+    .line 653
     :cond_0
     :goto_0
     return p1
 
-    .line 618
+    .line 644
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mDict:Ljava/nio/ByteBuffer;
 
@@ -3092,10 +3093,10 @@
 
     if-eqz v0, :cond_2
 
-    .line 619
+    .line 645
     const/4 v0, 0x0
 
-    .line 620
+    .line 646
     :goto_1
     iget v1, p0, Lcom/mrkeyboard/app/MrFuzzy;->mAb:I
 
@@ -3111,12 +3112,12 @@
 
     if-ge v0, v2, :cond_0
 
-    .line 621
+    .line 647
     iget v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mAb:I
 
     add-int/2addr v0, p1
 
-    .line 622
+    .line 648
     iget-object v2, p0, Lcom/mrkeyboard/app/MrFuzzy;->mDict:Ljava/nio/ByteBuffer;
 
     add-int/lit8 p1, v0, 0x1
@@ -3127,18 +3128,114 @@
 
     and-int/lit16 v0, v0, 0x80
 
-    .line 623
+    .line 649
     if-eqz v0, :cond_0
 
     move v0, v1
 
-    .line 624
+    .line 650
     goto :goto_1
 
-    .line 627
+    .line 653
     :cond_2
     add-int/lit8 p1, p1, 0x1
 
+    goto :goto_0
+.end method
+
+.method static slipLetter(CCII)Z
+    .locals 5
+
+    .prologue
+    const/4 v0, 0x1
+
+    const/4 v1, 0x0
+
+    .line 514
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrFuzzy;->letterUnder(C)C
+
+    move-result v2
+
+    .line 515
+    if-nez v2, :cond_1
+
+    .line 522
+    :cond_0
+    :goto_0
+    return v1
+
+    .line 516
+    :cond_1
+    const/4 v3, 0x3
+
+    if-eq p3, v3, :cond_2
+
+    if-nez p2, :cond_4
+
+    :cond_2
+    if-ne p1, v2, :cond_3
+
+    :goto_1
+    move v1, v0
+
+    goto :goto_0
+
+    :cond_3
+    move v0, v1
+
+    goto :goto_1
+
+    .line 517
+    :cond_4
+    add-int/lit8 v3, p3, -0x1
+
+    if-ne p2, v3, :cond_7
+
+    .line 518
+    const-string v3, "1234567890"
+
+    invoke-virtual {v3, p0}, Ljava/lang/String;->indexOf(I)I
+
+    move-result v3
+
+    .line 519
+    const-string v4, "qwertyuiop"
+
+    .line 520
+    if-eq p1, v2, :cond_6
+
+    if-lez v3, :cond_5
+
+    add-int/lit8 v2, v3, -0x1
+
+    invoke-virtual {v4, v2}, Ljava/lang/String;->charAt(I)C
+
+    move-result v2
+
+    if-eq p1, v2, :cond_6
+
+    :cond_5
+    const/16 v2, 0x9
+
+    if-ge v3, v2, :cond_0
+
+    add-int/lit8 v2, v3, 0x1
+
+    invoke-virtual {v4, v2}, Ljava/lang/String;->charAt(I)C
+
+    move-result v2
+
+    if-ne p1, v2, :cond_0
+
+    :cond_6
+    move v1, v0
+
+    goto :goto_0
+
+    :cond_7
+    move v1, v0
+
+    .line 522
     goto :goto_0
 .end method
 
@@ -3660,7 +3757,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 631
+    .line 657
     move v7, v2
 
     :goto_0
@@ -3668,12 +3765,12 @@
 
     if-ge v7, v0, :cond_0
 
-    .line 632
+    .line 658
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mResScore:[J
 
     aget-wide v4, v0, v7
 
-    .line 633
+    .line 659
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mResWord:[[C
 
     aget-object v1, v0, v7
@@ -3698,14 +3795,14 @@
 
     invoke-interface/range {v0 .. v6}, Lcom/mrkeyboard/app/Dictionary$WordCallback;->addWord([CIIIILcom/mrkeyboard/app/Dictionary$DataType;)Z
 
-    .line 631
+    .line 657
     add-int/lit8 v0, v7, 0x1
 
     move v7, v0
 
     goto :goto_0
 
-    .line 636
+    .line 662
     :cond_0
     return-void
 .end method
@@ -3768,7 +3865,7 @@
     .locals 1
 
     .prologue
-    .line 550
+    .line 576
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mResCost:[I
 
     aget v0, v0, p1
@@ -3780,7 +3877,7 @@
     .locals 1
 
     .prologue
-    .line 547
+    .line 573
     iget v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mResCount:I
 
     return v0
@@ -3790,7 +3887,7 @@
     .locals 2
 
     .prologue
-    .line 549
+    .line 575
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mResScore:[J
 
     aget-wide v0, v0, p1
@@ -3802,7 +3899,7 @@
     .locals 4
 
     .prologue
-    .line 548
+    .line 574
     new-instance v0, Ljava/lang/String;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/MrFuzzy;->mResWord:[[C
@@ -3826,7 +3923,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 558
+    .line 584
     invoke-interface {p2}, Ljava/lang/CharSequence;->length()I
 
     move-result v0
@@ -3837,16 +3934,16 @@
 
     move-result v6
 
-    .line 559
+    .line 585
     iput v6, p0, Lcom/mrkeyboard/app/MrFuzzy;->mN:I
 
     move v5, v2
 
-    .line 560
+    .line 586
     :goto_0
     if-ge v5, v6, :cond_4
 
-    .line 561
+    .line 587
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mTb:[C
 
     invoke-interface {p2, v5}, Ljava/lang/CharSequence;->charAt(I)C
@@ -3859,7 +3956,7 @@
 
     aput-char v1, v0, v5
 
-    .line 563
+    .line 589
     if-eqz p1, :cond_1
 
     invoke-virtual {p1, v5}, Lcom/mrkeyboard/app/WordComposer;->getCodesAt(I)[I
@@ -3868,11 +3965,11 @@
 
     move-object v4, v0
 
-    .line 564
+    .line 590
     :goto_1
     if-eqz v4, :cond_5
 
-    .line 565
+    .line 591
     const/4 v0, 0x1
 
     move v1, v2
@@ -3886,27 +3983,27 @@
 
     if-ge v1, v3, :cond_0
 
-    .line 566
+    .line 592
     aget v3, v4, v0
 
-    .line 567
+    .line 593
     if-gtz v3, :cond_2
 
-    .line 572
+    .line 598
     :cond_0
     :goto_3
     iget-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mNearCount:[I
 
     aput v1, v0, v5
 
-    .line 560
+    .line 586
     add-int/lit8 v0, v5, 0x1
 
     move v5, v0
 
     goto :goto_0
 
-    .line 563
+    .line 589
     :cond_1
     const/4 v0, 0x0
 
@@ -3914,13 +4011,13 @@
 
     goto :goto_1
 
-    .line 568
+    .line 594
     :cond_2
     invoke-static {v3}, Lcom/mrkeyboard/app/MrText;->base(I)C
 
     move-result v7
 
-    .line 569
+    .line 595
     iget-object v3, p0, Lcom/mrkeyboard/app/MrFuzzy;->mTb:[C
 
     aget-char v3, v3, v5
@@ -3937,13 +4034,13 @@
 
     move v1, v3
 
-    .line 565
+    .line 591
     :cond_3
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_2
 
-    .line 574
+    .line 600
     :cond_4
     invoke-static {}, Lcom/mrkeyboard/app/MrRules;->get()Lcom/mrkeyboard/app/MrRules;
 
@@ -3951,16 +4048,16 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/MrFuzzy;->mR:Lcom/mrkeyboard/app/MrRules;
 
-    .line 575
+    .line 601
     iput v2, p0, Lcom/mrkeyboard/app/MrFuzzy;->mResCount:I
 
-    .line 576
+    .line 602
     sput v2, Lcom/mrkeyboard/app/MrFuzzy;->sLastVisits:I
 
-    .line 577
+    .line 603
     invoke-direct {p0}, Lcom/mrkeyboard/app/MrFuzzy;->searchNative()Z
 
-    .line 578
+    .line 604
     return-void
 
     :cond_5

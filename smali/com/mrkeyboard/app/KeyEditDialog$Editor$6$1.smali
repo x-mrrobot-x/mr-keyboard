@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 346
+    .line 362
     iput-object p1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,7 +40,7 @@
     .locals 4
 
     .prologue
-    .line 349
+    .line 365
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
@@ -53,14 +53,14 @@
 
     move-result-object v0
 
-    .line 350
+    .line 366
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;
 
     iget-object v1, v1, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
     invoke-static {v1, p1}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1302(Lcom/mrkeyboard/app/KeyEditDialog$Editor;I)I
 
-    .line 351
+    .line 367
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;
 
     iget-object v1, v1, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
@@ -101,7 +101,7 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 352
+    .line 368
     iget-object v1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;
 
     iget-object v1, v1, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
@@ -122,7 +122,7 @@
 
     move-result-object v1
 
-    .line 353
+    .line 369
     invoke-virtual {v1}, Ljava/lang/String;->isEmpty()Z
 
     move-result v2
@@ -146,7 +146,7 @@
 
     invoke-virtual {v0, p2}, Landroid/widget/EditText;->setText(Ljava/lang/CharSequence;)V
 
-    .line 354
+    .line 370
     :cond_1
     return-void
 .end method

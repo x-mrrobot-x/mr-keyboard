@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 230
+    .line 236
     iput-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$8;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
     iput p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$8;->val$idx:I
@@ -49,17 +49,17 @@
     .locals 3
 
     .prologue
-    .line 232
+    .line 238
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$8;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
     iget v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$8;->val$idx:I
 
     iget v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$8;->val$idx:I
 
-    add-int/lit8 v2, v2, 0x1
+    add-int/lit8 v2, v2, -0x1
 
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$500(Lcom/mrkeyboard/app/PrefScreenSheets;II)V
 
-    .line 233
+    .line 239
     return-void
 .end method

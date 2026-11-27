@@ -598,6 +598,10 @@
 
     invoke-direct {v4, v5, v6, v7, v8}, Lcom/mrkeyboard/app/LatinKeyboard;-><init>(Landroid/content/Context;IIF)V
 
+    # Keys of ABC that the person edited (MrAbcKeys, Settings -> Keyboard sheets -> ABC): put on the keyboard just read from the XML (only
+    # the layouts of ABC; nothing when there is no edit).
+    invoke-static {v5, v4, v6}, Lcom/mrkeyboard/app/MrAbcKeys;->apply(Landroid/content/Context;Lcom/mrkeyboard/app/Keyboard;I)V
+
     :goto_after_kbd
     .line 334
     iget v5, p1, Lcom/mrkeyboard/app/KeyboardSwitcher$KeyboardId;->mXml:I

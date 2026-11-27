@@ -32,6 +32,10 @@ import java.util.List;
  * the plain key, a Tasker key amber, a key that switches the sheet blue, a special key violet and a gap a dashed outline.
  * A key dropped on a row that is full stays where it was and the listener hears it (onDropRefused), so the editor can say
  * why; the grid describes itself to TalkBack with the count of rows and keys (mr_grid_desc).
+ *
+ * <p>Fixed layout ({@link #setFixed}, ABC): the places of the keys do not change, so there is no "+" and no drag; the keys marked as fixed
+ * (Shift, Ctrl, the arrows...) are drawn as the locked cells, with the padlock, and a tap on them calls onLockedKeyTapped(false); a fixed gap
+ * keeps its room but is not drawn; the width badge is not drawn (the widths are the ones of the keyboard).
  */
 public class SheetGridView extends View {
     /** Width of each key of the locked bottom row, as a fraction of the row (badge, comma, space, dot, enter). */
@@ -67,6 +71,8 @@ public class SheetGridView extends View {
     private SheetModel.Sheet mSheet;
     private List<SheetModel.Sheet> mAllSheets;
     private GridListener mListener;
+    /** Fixed layout (ABC): which keys are fixed, by row and key; null = a sheet of the person (add, drag, every key edited). */
+    private boolean[][] mFixed;
 
     private final Paint mBgPaint;
     private final Paint mTrayStrokePaint;
@@ -256,6 +262,18 @@ public class SheetGridView extends View {
         mListener = listener;
     }
 
+    /** Fixed layout: no "+", no drag, and these keys (true) locked; null goes back to the normal grid. */
+    public void setFixed(boolean[][] fixed) {
+        mFixed = fixed;
+        mCellsDirty = true;
+        invalidate();
+    }
+
+    /** The key at (row, key) is fixed in a fixed layout. */
+    boolean fixedKey(int row, int key) {
+        return mFixed != null && row >= 0 && row < mFixed.length && key >= 0 && key < mFixed[row].length && mFixed[row][key];
+    }
+
     public void setData(SheetModel.Sheet sheet, List<SheetModel.Sheet> allSheets) {
         mSheet = sheet;
         mAllSheets = allSheets;
@@ -312,7 +330,7 @@ public class SheetGridView extends View {
             SheetModel.Row row = mSheet.rows.get(r);
             boolean lastRow = (r == rowCount - 1);   // the last row has the locked "⌫", so one key less
             int maxKeys = lastRow ? 9 : 10;
-            boolean showAdd = row.keys.size() < maxKeys;
+            boolean showAdd = mFixed == null && row.keys.size() < maxKeys;
             float addW = showAdd ? dp(30f) : 0f;
             float rowW = showAdd ? Math.max(20f, (usableW - addW) - gap) : usableW;
 
@@ -329,8 +347,16 @@ public class SheetGridView extends View {
                 for (int k = 0; k < row.keys.size(); k++) {
                     SheetModel.KeySpec key = row.keys.get(k);
                     float w = (SheetModel.clampWidth(key.width) / totalWeight) * availW;
-                    mCells.add(new CellHit(CellHit.KIND_KEY, r, k, new RectF(x, top, x + w, top + keyH), key,
-                            SheetKeyboardBuilder.effectiveDisplayLabel(key, mAllSheets)));
+                    if (fixedKey(r, k)) {
+                        // a fixed gap only keeps its room; a fixed key is a locked cell
+                        if (!SheetModel.TYPE_SPACER.equals(key.type)) {
+                            mCells.add(new CellHit(CellHit.KIND_LOCKED_KEY, r, k, new RectF(x, top, x + w, top + keyH), null,
+                                    key.label));
+                        }
+                    } else {
+                        mCells.add(new CellHit(CellHit.KIND_KEY, r, k, new RectF(x, top, x + w, top + keyH),
+                                mFixed != null ? withoutWidthBadge(key) : key, SheetKeyboardBuilder.effectiveDisplayLabel(key, mAllSheets)));
+                    }
                     x += w + gap;
                 }
                 if (lastRow) {
@@ -358,6 +384,14 @@ public class SheetGridView extends View {
                     new RectF(padX, top, padX + w, top + keyH), null, bottom[i]));
             padX += w + gap;
         }
+    }
+
+    /** The key drawn without the badge of its width (in a fixed layout the widths are the ones of the keyboard): a copy of width 1. */
+    private static SheetModel.KeySpec withoutWidthBadge(SheetModel.KeySpec key) {
+        SheetModel.KeySpec copy = new SheetModel.KeySpec(key.label, key.type, key.value, 1f);
+        copy.popupChars = key.popupChars;
+        copy.popupKeys = key.popupKeys;
+        return copy;
     }
 
     // ------------------------------------------------------------------ drawing
@@ -623,7 +657,7 @@ public class SheetGridView extends View {
                 mDropLineX = -1f;
                 mRefusedRow = -1;
                 mDownCell = hitTest(x, y);
-                if (mDownCell != null && mDownCell.kind == CellHit.KIND_KEY) {
+                if (mDownCell != null && mDownCell.kind == CellHit.KIND_KEY && mFixed == null) {
                     mHandler.postDelayed(mLongPressRunnable, ViewConfiguration.getLongPressTimeout());
                 }
                 if (mDownCell == null) return false;
@@ -663,7 +697,7 @@ public class SheetGridView extends View {
                             mListener.onAddKeyTapped(cell.rowIdx);
                         } else if (cell.kind == CellHit.KIND_LOCKED_DELETE) {
                             mListener.onLockedKeyTapped(true);
-                        } else if (cell.kind == CellHit.KIND_LOCKED_BOTTOM) {
+                        } else if (cell.kind == CellHit.KIND_LOCKED_BOTTOM || cell.kind == CellHit.KIND_LOCKED_KEY) {
                             mListener.onLockedKeyTapped(false);
                         }
                     }
@@ -708,6 +742,8 @@ public class SheetGridView extends View {
         static final int KIND_ADD = 1;
         static final int KIND_LOCKED_DELETE = 2;
         static final int KIND_LOCKED_BOTTOM = 3;
+        /** A key of a row that a fixed layout does not let change (Shift, Ctrl, the arrows of ABC). */
+        static final int KIND_LOCKED_KEY = 4;
 
         final int kind;
         final int rowIdx;

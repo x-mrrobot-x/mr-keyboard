@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 344
+    .line 360
     iput-object p1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,7 +40,7 @@
     .locals 3
 
     .prologue
-    .line 346
+    .line 362
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$6;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1200(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)Landroid/content/Context;
@@ -59,6 +59,6 @@
 
     invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/SpecialKeyPicker;->show(Landroid/content/Context;ILcom/mrkeyboard/app/SpecialKeyPicker$OnSpecialKeySelectedListener;)V
 
-    .line 356
+    .line 372
     return-void
 .end method

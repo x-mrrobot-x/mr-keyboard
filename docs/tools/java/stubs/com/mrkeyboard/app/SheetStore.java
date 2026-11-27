@@ -22,6 +22,8 @@ public final class SheetStore {
     public static boolean consumeCorruptRecoveryFlag() { return false; }
     /** Tests only: the sheets that findSheetIndexById looks into. */
     public static List<SheetModel.Sheet> stubSheets = new ArrayList<SheetModel.Sheet>();
+    /** The sheets of the keyboard (read only). Tests: stubSheets. */
+    public static List<SheetModel.Sheet> getSheets(Context c) { return stubSheets; }
     /** Index of the sheet with that id in the list of the keyboard, or -1. */
     public static int findSheetIndexById(Context c, String id) {
         if (c == null || id == null) return -1;

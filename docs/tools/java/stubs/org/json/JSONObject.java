@@ -14,4 +14,9 @@ public class JSONObject {
     public String optString(String name) { return ""; }
     public String optString(String name, String fallback) { return fallback; }
     public Object opt(String name) { return null; }
+    public JSONObject put(String name, boolean value) throws JSONException { return this; }
+    public boolean optBoolean(String name, boolean fallback) { return fallback; }
+    public double optDouble(String name, double fallback) { return fallback; }
+    public java.util.Iterator<String> keys() { return new java.util.ArrayList<String>().iterator(); }
+    public String toString(int indentSpaces) throws JSONException { return "{}"; }
 }

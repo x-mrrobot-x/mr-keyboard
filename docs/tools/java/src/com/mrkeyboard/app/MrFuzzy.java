@@ -25,8 +25,8 @@ import java.nio.ByteBuffer;
  *
  * Words with digits: the number row sits right above q..p, so a digit in a word is often the letter under it ("obr8gado", "5udo"); the
  * search already finds that word (the digit's touch has the letter among its neighbours). What changes is what may be done on its own and
- * what is shown: a word with a digit is replaced on its own only when the digit is the slip ({@link #digitSlip}: one digit, the same word with a
- * letter in its place), so a number written on purpose stays ("teste1", "aula2", "iphone11", "mp3", "9h", "3dias" used to lose the digit or
+ * what is shown: a word with a digit is replaced on its own only when the digit is the slip ({@link #digitSlip}: one digit, or two apart in a
+ * longer word, the same word with letters in their places), so a number written on purpose stays ("teste1", "aula2", "iphone11", "mp3", "9h", "3dias" used to lose the digit or
  * become another word); and a suggestion with another number ("MP4" for "mp3") is never shown ({@link #dropOtherNumbers}).
  */
 public final class MrFuzzy {
@@ -468,32 +468,58 @@ public final class MrFuzzy {
     }
 
     /**
-     * True when {@code best} is {@code typed} with its digit taken for a letter: the typed word has one digit and 3 or more characters (with 3
-     * and the digit at an end, only the letter right under the digit: "qu3" -> que and "4ua" -> rua, while "mp3", "ps4" and "gr8" stay),
-     * {@code best} has no digit, the same length, a letter where the digit is and the same letters everywhere else (accent and case ignored),
-     * and is not a capitalized name or acronym for a lowercase word. The one capital allowed is the first letter of a word that starts with
-     * the digit where the field asked for a capital ({@link #sCapTyped}: "5udo" at the start of a sentence -> Tudo).
-     * "obr8gado" -> obrigado and "5udo" -> tudo pass; "teste1" -> teste (the digit added, not a letter), "iphone11" (two digits) and "a4" do not.
+     * True when {@code best} is {@code typed} with its digits taken for letters (the number row sits right above q..p): {@code best} has no
+     * digit, the same length and the same letters everywhere else (accent and case ignored), and each digit stands for a letter it may be:
+     * <ul>
+     * <li>at the start of the word, or in a word of 3 characters: only the letter right under it ("5udo" -> tudo, "qu3" -> que, "t3m" -> tem;
+     * "2go", "mp3", "ps4", "p2p", "y2k" stay);</li>
+     * <li>at the end: the letter under it or one of the two beside that one ("obrigad8" -> obrigado; "win7", "top5", "web3" stay);</li>
+     * <li>inside a longer word: any letter ("obr1gado" -> obrigado).</li>
+     * </ul>
+     * One digit, or two that are not side by side in a word of 6 or more characters ("obr1gad8" -> obrigado, "s3cr3t" -> secret); two digits
+     * together are a number ("iphone11", "4h30", "covid19"). A word typed in lowercase is not replaced by a capitalized name or acronym; the
+     * one capital allowed is the first letter of a word that starts with a digit where the field asked for a capital ({@link #sCapTyped}: "5udo"
+     * at the start of a sentence -> Tudo). "teste1" -> teste (the digit added, not a letter), "a4" (2 characters) do not pass.
      */
     static boolean digitSlip(String typed, String best) {
         int n = typed.length();
-        if (best.length() != n || digitCount(best) > 0) return false;
-        int at = -1;
+        if (n < 3 || best.length() != n || digitCount(best) > 0) return false;
+        int digits = 0;
+        int last = -2;
         for (int i = 0; i < n; i++) {
-            if (!Character.isDigit(typed.charAt(i))) continue;
-            if (at >= 0) return false;
-            at = i;
+            char c = typed.charAt(i);
+            if (Character.isDigit(c)) {
+                if (i == last + 1) return false;
+                last = i;
+                digits++;
+                char b = best.charAt(i);
+                if (!Character.isLetter(b) || !slipLetter(c, MrText.base(b), i, n)) return false;
+            } else if (MrText.base(c) != MrText.base(best.charAt(i))) {
+                return false;
+            }
         }
-        if (at < 0 || n < 3 || !Character.isLetter(best.charAt(at))) return false;
-        // 3 characters with the digit at an end ("qu3", "4ua"): only the letter right under the digit, so "mp3", "ps4", "2go" stay
-        if (n == 3 && at != 1 && MrText.base(best.charAt(at)) != letterUnder(typed.charAt(at))) return false;
-        for (int i = 0; i < n; i++) {
-            if (i != at && MrText.base(typed.charAt(i)) != MrText.base(best.charAt(i))) return false;
-        }
+        if (digits == 0 || digits > (n >= 6 ? 2 : 1)) return false;
         if (!typed.equals(typed.toLowerCase()) || best.equals(best.toLowerCase())) return true;
-        // a lowercase word and a suggestion with capitals: only the capital the field asked for, in place of the digit
+        // a lowercase word and a suggestion with capitals: only the capital the field asked for, in place of a digit at the start
         String rest = best.substring(1);
-        return at == 0 && typed.equals(sCapTyped) && rest.equals(rest.toLowerCase());
+        return Character.isDigit(typed.charAt(0)) && typed.equals(sCapTyped) && rest.equals(rest.toLowerCase());
+    }
+
+    /**
+     * The letter (base, lowercase) a digit typed at position {@code i} of a word of {@code n} characters may stand for: at the start or in a word
+     * of 3 characters only the letter right under it, at the end that one or the two beside it, inside a longer word any letter. A digit that
+     * is not on the number row (another script) stands for none.
+     */
+    static boolean slipLetter(char digit, char letter, int i, int n) {
+        char under = letterUnder(digit);
+        if (under == 0) return false;
+        if (n == 3 || i == 0) return letter == under;
+        if (i == n - 1) {
+            int d = "1234567890".indexOf(digit);
+            String top = "qwertyuiop";
+            return letter == under || (d > 0 && letter == top.charAt(d - 1)) || (d < 9 && letter == top.charAt(d + 1));
+        }
+        return true;
     }
 
     /** The letter right under a digit of the number row (1 -> q ... 0 -> p), or 0 for any other character. */

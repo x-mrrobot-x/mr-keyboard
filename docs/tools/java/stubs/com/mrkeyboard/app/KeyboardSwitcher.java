@@ -29,6 +29,10 @@ public class KeyboardSwitcher {
 
     public LatinKeyboardView getInputView() { return view; }
 
+    /** The sheets (or the keys of ABC) changed: the keyboards are built again. Tests only: how many times it was asked. */
+    public static int stubSheetsChanged;
+    public void onSheetsChanged() { stubSheetsChanged++; }
+
     public boolean isAlphabetMode() { return stubAlphabet; }
 
     public int getSheet() { return stubSheet; }

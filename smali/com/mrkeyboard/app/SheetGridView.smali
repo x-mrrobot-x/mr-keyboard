@@ -131,6 +131,8 @@
 
 .field private mDropRow:I
 
+.field private mFixed:[[Z
+
 .field private final mFontMetrics:Landroid/graphics/Paint$FontMetrics;
 
 .field private final mGhostFillPaint:Landroid/graphics/Paint;
@@ -186,7 +188,7 @@
     .locals 1
 
     .prologue
-    .line 38
+    .line 42
     const/4 v0, 0x5
 
     new-array v0, v0, [F
@@ -221,10 +223,10 @@
 
     const/4 v5, 0x1
 
-    .line 134
+    .line 140
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 64
+    .line 68
     new-instance v0, Ljava/util/ArrayList;
 
     const/16 v1, 0x48
@@ -233,7 +235,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mCells:Ljava/util/ArrayList;
 
-    .line 65
+    .line 69
     new-instance v0, Ljava/util/ArrayList;
 
     const/16 v1, 0xc
@@ -242,59 +244,59 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mRowHitsScratch:Ljava/util/ArrayList;
 
-    .line 66
+    .line 70
     iput-boolean v5, p0, Lcom/mrkeyboard/app/SheetGridView;->mCellsDirty:Z
 
-    .line 82
+    .line 88
     new-instance v0, Landroid/graphics/Paint$FontMetrics;
 
     invoke-direct {v0}, Landroid/graphics/Paint$FontMetrics;-><init>()V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mFontMetrics:Landroid/graphics/Paint$FontMetrics;
 
-    .line 83
+    .line 89
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mBoundsRect:Landroid/graphics/RectF;
 
-    .line 84
+    .line 90
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mGhostRect:Landroid/graphics/RectF;
 
-    .line 85
+    .line 91
     new-instance v0, Landroid/graphics/RectF;
 
     invoke-direct {v0}, Landroid/graphics/RectF;-><init>()V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockRect:Landroid/graphics/RectF;
 
-    .line 93
+    .line 99
     iput v3, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropRow:I
 
-    .line 94
+    .line 100
     iput v3, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropIndex:I
 
-    .line 96
+    .line 102
     iput v3, p0, Lcom/mrkeyboard/app/SheetGridView;->mRefusedRow:I
 
-    .line 97
+    .line 103
     const/high16 v0, -0x40800000    # -1.0f
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLineX:F
 
-    .line 135
+    .line 141
     invoke-virtual {p1}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mRes:Landroid/content/res/Resources;
 
-    .line 136
+    .line 142
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mRes:Landroid/content/res/Resources;
 
     invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
@@ -305,7 +307,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDensity:F
 
-    .line 137
+    .line 143
     invoke-static {p1}, Landroid/view/ViewConfiguration;->get(Landroid/content/Context;)Landroid/view/ViewConfiguration;
 
     move-result-object v0
@@ -316,7 +318,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mTouchSlop:I
 
-    .line 138
+    .line 144
     new-instance v0, Landroid/os/Handler;
 
     invoke-static {}, Landroid/os/Looper;->getMainLooper()Landroid/os/Looper;
@@ -327,7 +329,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mHandler:Landroid/os/Handler;
 
-    .line 140
+    .line 146
     const-string v0, "mr_ui_sunken"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -336,7 +338,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cBg:I
 
-    .line 141
+    .line 147
     const-string v0, "mr_ui_stroke"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -345,7 +347,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cTrayStroke:I
 
-    .line 142
+    .line 148
     const-string v0, "mr_ui_raised"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -354,7 +356,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cKeyFill:I
 
-    .line 143
+    .line 149
     const-string v0, "mr_ui_stroke_strong"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -363,7 +365,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cKeyStroke:I
 
-    .line 144
+    .line 150
     const-string v0, "mr_ui_text"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -372,7 +374,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cKeyLabel:I
 
-    .line 145
+    .line 151
     const-string v0, "mr_ui_stroke_strong"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -381,7 +383,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cPressedFill:I
 
-    .line 146
+    .line 152
     const-string v0, "mr_ui_sunken"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -390,7 +392,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cDragFill:I
 
-    .line 147
+    .line 153
     const-string v0, "mr_ui_blue_soft"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -399,7 +401,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cSheetFill:I
 
-    .line 148
+    .line 154
     const-string v0, "mr_ui_blue_line"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -408,7 +410,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cSheetStroke:I
 
-    .line 149
+    .line 155
     const-string v0, "mr_ui_blue"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -417,7 +419,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cSheetLabel:I
 
-    .line 150
+    .line 156
     const-string v0, "mr_ui_amber_soft"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -426,7 +428,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cTaskerFill:I
 
-    .line 151
+    .line 157
     const-string v0, "mr_ui_amber_line"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -435,7 +437,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cTaskerStroke:I
 
-    .line 152
+    .line 158
     const-string v0, "mr_ui_amber"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -444,7 +446,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cTaskerLabel:I
 
-    .line 153
+    .line 159
     const-string v0, "mr_ui_violet_soft"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -453,7 +455,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cSpecialFill:I
 
-    .line 154
+    .line 160
     const-string v0, "mr_ui_violet_line"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -462,7 +464,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cSpecialStroke:I
 
-    .line 155
+    .line 161
     const-string v0, "mr_ui_sunken"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -471,7 +473,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cSpacerFill:I
 
-    .line 156
+    .line 162
     const-string v0, "mr_ui_bg"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -480,7 +482,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cSpacerDragFill:I
 
-    .line 157
+    .line 163
     const-string v0, "mr_ui_text3"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -489,7 +491,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cSpacerLabel:I
 
-    .line 158
+    .line 164
     const-string v0, "mr_ui_text_dis"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -498,7 +500,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cDashed:I
 
-    .line 159
+    .line 165
     const-string v0, "mr_ui_cyan"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -507,7 +509,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cAccent:I
 
-    .line 160
+    .line 166
     const-string v0, "mr_ui_cyan_soft"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -516,7 +518,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cAddFill:I
 
-    .line 161
+    .line 167
     const-string v0, "mr_ui_cyan_line"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -525,7 +527,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cAddPressedFill:I
 
-    .line 162
+    .line 168
     const-string v0, "mr_ui_cyan_line"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -534,7 +536,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cAddStroke:I
 
-    .line 163
+    .line 169
     const-string v0, "mr_ui_faint"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -543,7 +545,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cLockedFill:I
 
-    .line 164
+    .line 170
     const-string v0, "mr_ui_stroke"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -552,7 +554,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cLockedStroke:I
 
-    .line 165
+    .line 171
     const-string v0, "mr_ui_text3"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -561,7 +563,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cLockedLabel:I
 
-    .line 166
+    .line 172
     const-string v0, "mr_ui_slate"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -570,7 +572,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cLockGlyph:I
 
-    .line 167
+    .line 173
     const-string v0, "mr_ui_sunken"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -579,7 +581,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cLockHole:I
 
-    .line 168
+    .line 174
     const-string v0, "mr_ui_raised"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -588,7 +590,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cGhostFill:I
 
-    .line 169
+    .line 175
     const-string v0, "mr_ui_text2"
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->color(Ljava/lang/String;)I
@@ -597,105 +599,105 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cWidthBadge:I
 
-    .line 171
+    .line 177
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v5}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mBgPaint:Landroid/graphics/Paint;
 
-    .line 172
+    .line 178
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v5}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mTrayStrokePaint:Landroid/graphics/Paint;
 
-    .line 173
+    .line 179
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v5}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyFillPaint:Landroid/graphics/Paint;
 
-    .line 174
+    .line 180
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v5}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyStrokePaint:Landroid/graphics/Paint;
 
-    .line 175
+    .line 181
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v5}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDashedPaint:Landroid/graphics/Paint;
 
-    .line 176
+    .line 182
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v5}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLabelPaint:Landroid/graphics/Paint;
 
-    .line 177
+    .line 183
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v5}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mBadgePaint:Landroid/graphics/Paint;
 
-    .line 178
+    .line 184
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v5}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLinePaint:Landroid/graphics/Paint;
 
-    .line 179
+    .line 185
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v5}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mGhostFillPaint:Landroid/graphics/Paint;
 
-    .line 180
+    .line 186
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v5}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockBodyPaint:Landroid/graphics/Paint;
 
-    .line 181
+    .line 187
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v5}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockShacklePaint:Landroid/graphics/Paint;
 
-    .line 183
+    .line 189
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mBgPaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 184
+    .line 190
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mBgPaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cBg:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 186
+    .line 192
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mTrayStrokePaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 187
+    .line 193
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mTrayStrokePaint:Landroid/graphics/Paint;
 
     invoke-direct {p0, v2}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
@@ -708,21 +710,21 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 188
+    .line 194
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mTrayStrokePaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cTrayStroke:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 190
+    .line 196
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyStrokePaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 191
+    .line 197
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyStrokePaint:Landroid/graphics/Paint;
 
     invoke-direct {p0, v2}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
@@ -735,14 +737,14 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 193
+    .line 199
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDashedPaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 194
+    .line 200
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDashedPaint:Landroid/graphics/Paint;
 
     const v1, 0x3f99999a    # 1.2f
@@ -753,14 +755,14 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 195
+    .line 201
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDashedPaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cDashed:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 196
+    .line 202
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDashedPaint:Landroid/graphics/Paint;
 
     new-instance v1, Landroid/graphics/DashPathEffect;
@@ -791,28 +793,28 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setPathEffect(Landroid/graphics/PathEffect;)Landroid/graphics/PathEffect;
 
-    .line 198
+    .line 204
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLabelPaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Align;->CENTER:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 199
+    .line 205
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLabelPaint:Landroid/graphics/Paint;
 
     sget-object v1, Lcom/mrkeyboard/app/SheetUi;->TF_MEDIUM:Landroid/graphics/Typeface;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
 
-    .line 201
+    .line 207
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mBadgePaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Align;->RIGHT:Landroid/graphics/Paint$Align;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextAlign(Landroid/graphics/Paint$Align;)V
 
-    .line 202
+    .line 208
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mBadgePaint:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41080000    # 8.5f
@@ -823,21 +825,21 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 203
+    .line 209
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mBadgePaint:Landroid/graphics/Paint;
 
     sget-object v1, Lcom/mrkeyboard/app/SheetUi;->TF_MEDIUM:Landroid/graphics/Typeface;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTypeface(Landroid/graphics/Typeface;)Landroid/graphics/Typeface;
 
-    .line 205
+    .line 211
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLinePaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cAccent:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 206
+    .line 212
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLinePaint:Landroid/graphics/Paint;
 
     invoke-direct {p0, v6}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
@@ -846,63 +848,63 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 207
+    .line 213
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLinePaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 209
+    .line 215
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mGhostFillPaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 210
+    .line 216
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mGhostFillPaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cGhostFill:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 212
+    .line 218
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockBodyPaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 213
+    .line 219
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockShacklePaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 214
+    .line 220
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockShacklePaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Cap;->ROUND:Landroid/graphics/Paint$Cap;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeCap(Landroid/graphics/Paint$Cap;)V
 
-    .line 215
+    .line 221
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockShacklePaint:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Join;->ROUND:Landroid/graphics/Paint$Join;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeJoin(Landroid/graphics/Paint$Join;)V
 
-    .line 217
+    .line 223
     new-instance v0, Lcom/mrkeyboard/app/SheetGridView$1;
 
     invoke-direct {v0, p0}, Lcom/mrkeyboard/app/SheetGridView$1;-><init>(Lcom/mrkeyboard/app/SheetGridView;)V
 
     iput-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLongPressRunnable:Ljava/lang/Runnable;
 
-    .line 228
+    .line 234
     return-void
 .end method
 
@@ -910,7 +912,7 @@
     .locals 1
 
     .prologue
-    .line 36
+    .line 40
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
     return-object v0
@@ -920,7 +922,7 @@
     .locals 1
 
     .prologue
-    .line 36
+    .line 40
     iget-boolean v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDragging:Z
 
     return v0
@@ -930,7 +932,7 @@
     .locals 0
 
     .prologue
-    .line 36
+    .line 40
     iput-boolean p1, p0, Lcom/mrkeyboard/app/SheetGridView;->mDragging:Z
 
     return p1
@@ -940,7 +942,7 @@
     .locals 1
 
     .prologue
-    .line 36
+    .line 40
     iget v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mMoveX:F
 
     return v0
@@ -950,7 +952,7 @@
     .locals 1
 
     .prologue
-    .line 36
+    .line 40
     iget v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mMoveY:F
 
     return v0
@@ -960,7 +962,7 @@
     .locals 0
 
     .prologue
-    .line 36
+    .line 40
     invoke-direct {p0, p1, p2}, Lcom/mrkeyboard/app/SheetGridView;->computeDropTarget(FF)V
 
     return-void
@@ -970,7 +972,7 @@
     .locals 4
 
     .prologue
-    .line 234
+    .line 240
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mRes:Landroid/content/res/Resources;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mRes:Landroid/content/res/Resources;
@@ -1008,10 +1010,10 @@
 
     const/4 v4, 0x0
 
-    .line 547
+    .line 581
     iput v10, p0, Lcom/mrkeyboard/app/SheetGridView;->mRefusedRow:I
 
-    .line 548
+    .line 582
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mSheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
     if-eqz v0, :cond_0
@@ -1026,12 +1028,12 @@
 
     if-eqz v0, :cond_1
 
-    .line 608
+    .line 642
     :cond_0
     :goto_0
     return-void
 
-    .line 549
+    .line 583
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mSheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
@@ -1047,37 +1049,37 @@
 
     move-result v5
 
-    .line 550
+    .line 584
     invoke-direct {p0, v12}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
 
     move-result v6
 
-    .line 551
+    .line 585
     const/high16 v0, 0x42400000    # 48.0f
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
 
     move-result v7
 
-    .line 552
+    .line 586
     const/high16 v0, 0x40a00000    # 5.0f
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
 
     move-result v8
 
-    .line 556
+    .line 590
     const v1, 0x7f7fffff    # Float.MAX_VALUE
 
     move v2, v4
 
     move v3, v4
 
-    .line 557
+    .line 591
     :goto_1
     if-ge v2, v5, :cond_2
 
-    .line 558
+    .line 592
     int-to-float v0, v2
 
     add-float v9, v7, v8
@@ -1098,14 +1100,14 @@
 
     move-result v0
 
-    .line 559
+    .line 593
     cmpg-float v9, v0, v1
 
     if-gez v9, :cond_b
 
     move v1, v2
 
-    .line 557
+    .line 591
     :goto_2
     add-int/lit8 v2, v2, 0x1
 
@@ -1115,7 +1117,7 @@
 
     goto :goto_1
 
-    .line 566
+    .line 600
     :cond_2
     add-int/lit8 v0, v5, -0x1
 
@@ -1125,7 +1127,7 @@
 
     move v1, v0
 
-    .line 567
+    .line 601
     :goto_3
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mSheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
@@ -1137,7 +1139,7 @@
 
     check-cast v0, Lcom/mrkeyboard/app/SheetModel$Row;
 
-    .line 568
+    .line 602
     iget-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
     if-eqz v2, :cond_4
@@ -1156,23 +1158,23 @@
 
     if-lt v0, v1, :cond_4
 
-    .line 569
+    .line 603
     iput v10, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropRow:I
 
-    .line 570
+    .line 604
     iput v10, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropIndex:I
 
-    .line 571
+    .line 605
     const/high16 v0, -0x40800000    # -1.0f
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLineX:F
 
-    .line 572
+    .line 606
     iput v3, p0, Lcom/mrkeyboard/app/SheetGridView;->mRefusedRow:I
 
     goto :goto_0
 
-    .line 566
+    .line 600
     :cond_3
     const/16 v0, 0xa
 
@@ -1180,13 +1182,13 @@
 
     goto :goto_3
 
-    .line 576
+    .line 610
     :cond_4
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mRowHitsScratch:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->clear()V
 
-    .line 577
+    .line 611
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mCells:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
@@ -1195,11 +1197,11 @@
 
     move v1, v4
 
-    .line 578
+    .line 612
     :goto_4
     if-ge v1, v2, :cond_6
 
-    .line 579
+    .line 613
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mCells:Ljava/util/ArrayList;
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -1208,7 +1210,7 @@
 
     check-cast v0, Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
-    .line 580
+    .line 614
     iget v5, v0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->kind:I
 
     if-nez v5, :cond_5
@@ -1221,7 +1223,7 @@
 
     invoke-virtual {v5, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 578
+    .line 612
     :cond_5
     add-int/lit8 v0, v1, 0x1
 
@@ -1229,7 +1231,7 @@
 
     goto :goto_4
 
-    .line 583
+    .line 617
     :cond_6
     int-to-float v0, v3
 
@@ -1241,17 +1243,17 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLineTop:F
 
-    .line 584
+    .line 618
     iget v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLineTop:F
 
     add-float/2addr v0, v7
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLineBottom:F
 
-    .line 585
+    .line 619
     iput v3, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropRow:I
 
-    .line 587
+    .line 621
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mRowHitsScratch:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->isEmpty()Z
@@ -1260,10 +1262,10 @@
 
     if-eqz v0, :cond_7
 
-    .line 588
+    .line 622
     iput v4, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropIndex:I
 
-    .line 589
+    .line 623
     invoke-direct {p0, v12}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
 
     move-result v0
@@ -1272,7 +1274,7 @@
 
     goto/16 :goto_0
 
-    .line 594
+    .line 628
     :cond_7
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mRowHitsScratch:Ljava/util/ArrayList;
 
@@ -1280,7 +1282,7 @@
 
     move-result v2
 
-    .line 595
+    .line 629
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mRowHitsScratch:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
@@ -1289,11 +1291,11 @@
 
     move v1, v4
 
-    .line 596
+    .line 630
     :goto_5
     if-ge v1, v3, :cond_a
 
-    .line 597
+    .line 631
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mRowHitsScratch:Ljava/util/ArrayList;
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -1302,7 +1304,7 @@
 
     check-cast v0, Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
-    .line 598
+    .line 632
     iget-object v4, v0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
 
     invoke-virtual {v4}, Landroid/graphics/RectF;->centerX()F
@@ -1313,7 +1315,7 @@
 
     if-gez v4, :cond_9
 
-    .line 599
+    .line 633
     iget-object v0, v0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
 
     iget v0, v0, Landroid/graphics/RectF;->left:F
@@ -1326,7 +1328,7 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLineX:F
 
-    .line 604
+    .line 638
     :goto_6
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mRowHitsScratch:Ljava/util/ArrayList;
 
@@ -1336,7 +1338,7 @@
 
     if-ne v1, v0, :cond_8
 
-    .line 605
+    .line 639
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mRowHitsScratch:Ljava/util/ArrayList;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mRowHitsScratch:Ljava/util/ArrayList;
@@ -1365,13 +1367,13 @@
 
     iput v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLineX:F
 
-    .line 607
+    .line 641
     :cond_8
     iput v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropIndex:I
 
     goto/16 :goto_0
 
-    .line 596
+    .line 630
     :cond_9
     add-int/lit8 v1, v1, 0x1
 
@@ -1396,12 +1398,12 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 272
+    .line 290
     move v1, v0
 
     move v2, v0
 
-    .line 273
+    .line 291
     :goto_0
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetModel$Sheet;->rows:Ljava/util/ArrayList;
 
@@ -1437,7 +1439,7 @@
 
     goto :goto_0
 
-    .line 274
+    .line 292
     :cond_0
     return v2
 .end method
@@ -1446,7 +1448,7 @@
     .locals 1
 
     .prologue
-    .line 250
+    .line 256
     iget v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDensity:F
 
     mul-float/2addr v0, p1
@@ -1458,7 +1460,7 @@
     .locals 3
 
     .prologue
-    .line 414
+    .line 448
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyFillPaint:Landroid/graphics/Paint;
 
     if-eqz p4, :cond_0
@@ -1468,35 +1470,35 @@
     :goto_0
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 415
+    .line 449
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyFillPaint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, p3, p3, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 416
+    .line 450
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyStrokePaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cAddStroke:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 417
+    .line 451
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyStrokePaint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, p3, p3, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 418
+    .line 452
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLabelPaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cAccent:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 419
+    .line 453
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mLabelPaint:Landroid/graphics/Paint;
 
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->displayLabel:Ljava/lang/String;
@@ -1518,7 +1520,7 @@
 
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 420
+    .line 454
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->displayLabel:Ljava/lang/String;
 
     iget-object v1, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
@@ -1527,16 +1529,16 @@
 
     invoke-direct {p0, p1, v0, v1, v2}, Lcom/mrkeyboard/app/SheetGridView;->drawCenteredText(Landroid/graphics/Canvas;Ljava/lang/String;Landroid/graphics/RectF;Landroid/graphics/Paint;)V
 
-    .line 421
+    .line 455
     return-void
 
-    .line 414
+    .line 448
     :cond_0
     iget v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cAddFill:I
 
     goto :goto_0
 
-    .line 419
+    .line 453
     :cond_1
     const/high16 v0, 0x41480000    # 12.5f
 
@@ -1547,12 +1549,12 @@
     .locals 3
 
     .prologue
-    .line 494
+    .line 528
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mFontMetrics:Landroid/graphics/Paint$FontMetrics;
 
     invoke-virtual {p4, v0}, Landroid/graphics/Paint;->getFontMetrics(Landroid/graphics/Paint$FontMetrics;)F
 
-    .line 495
+    .line 529
     invoke-virtual {p3}, Landroid/graphics/RectF;->centerY()F
 
     move-result v0
@@ -1573,14 +1575,14 @@
 
     sub-float/2addr v0, v1
 
-    .line 496
+    .line 530
     invoke-virtual {p3}, Landroid/graphics/RectF;->centerX()F
 
     move-result v1
 
     invoke-virtual {p1, p2, v1, v0, p4}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 497
+    .line 531
     return-void
 .end method
 
@@ -1590,10 +1592,10 @@
     .prologue
     const/high16 v6, 0x40400000    # 3.0f
 
-    .line 425
+    .line 459
     iget-object v2, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->spec:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
-    .line 426
+    .line 460
     const-string v0, "spacer"
 
     iget-object v1, v2, Lcom/mrkeyboard/app/SheetModel$KeySpec;->type:Ljava/lang/String;
@@ -1604,7 +1606,7 @@
 
     if-eqz v0, :cond_2
 
-    .line 427
+    .line 461
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyFillPaint:Landroid/graphics/Paint;
 
     if-eqz p5, :cond_1
@@ -1614,28 +1616,28 @@
     :goto_0
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 428
+    .line 462
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyFillPaint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, p3, p3, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 429
+    .line 463
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mDashedPaint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, p3, p3, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 430
+    .line 464
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLabelPaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cSpacerLabel:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 431
+    .line 465
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLabelPaint:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41200000    # 10.0f
@@ -1646,7 +1648,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 432
+    .line 466
     const-string v0, "\u2423"
 
     iget-object v1, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
@@ -1655,18 +1657,18 @@
 
     invoke-direct {p0, p1, v0, v1, v2}, Lcom/mrkeyboard/app/SheetGridView;->drawCenteredText(Landroid/graphics/Canvas;Ljava/lang/String;Landroid/graphics/RectF;Landroid/graphics/Paint;)V
 
-    .line 477
+    .line 511
     :cond_0
     :goto_1
     return-void
 
-    .line 427
+    .line 461
     :cond_1
     iget v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cSpacerFill:I
 
     goto :goto_0
 
-    .line 435
+    .line 469
     :cond_2
     const-string v0, "sheet"
 
@@ -1676,7 +1678,7 @@
 
     move-result v3
 
-    .line 436
+    .line 470
     const-string v0, "tasker"
 
     iget-object v1, v2, Lcom/mrkeyboard/app/SheetModel$KeySpec;->type:Ljava/lang/String;
@@ -1685,7 +1687,7 @@
 
     move-result v4
 
-    .line 437
+    .line 471
     const-string v0, "special"
 
     iget-object v1, v2, Lcom/mrkeyboard/app/SheetModel$KeySpec;->type:Ljava/lang/String;
@@ -1694,48 +1696,48 @@
 
     move-result v0
 
-    .line 440
+    .line 474
     if-eqz p5, :cond_4
 
-    .line 441
+    .line 475
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cDragFill:I
 
-    .line 442
+    .line 476
     iget v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cAccent:I
 
-    .line 459
+    .line 493
     :goto_2
     iget-object v5, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyFillPaint:Landroid/graphics/Paint;
 
     invoke-virtual {v5, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 460
+    .line 494
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyStrokePaint:Landroid/graphics/Paint;
 
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 461
+    .line 495
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyFillPaint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, p3, p3, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 462
+    .line 496
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyStrokePaint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, p3, p3, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 464
+    .line 498
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->shortLabel:Ljava/lang/String;
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v0
 
-    .line 465
+    .line 499
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mLabelPaint:Landroid/graphics/Paint;
 
     const/4 v5, 0x2
@@ -1751,7 +1753,7 @@
 
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 466
+    .line 500
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mLabelPaint:Landroid/graphics/Paint;
 
     if-eqz p5, :cond_b
@@ -1761,7 +1763,7 @@
     :goto_4
     invoke-virtual {v1, v0}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 467
+    .line 501
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->shortLabel:Ljava/lang/String;
 
     iget-object v1, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
@@ -1770,21 +1772,21 @@
 
     invoke-direct {p0, p1, v0, v1, v3}, Lcom/mrkeyboard/app/SheetGridView;->drawCenteredText(Landroid/graphics/Canvas;Ljava/lang/String;Landroid/graphics/RectF;Landroid/graphics/Paint;)V
 
-    .line 469
+    .line 503
     invoke-virtual {v2}, Lcom/mrkeyboard/app/SheetModel$KeySpec;->hasAnyPopup()Z
 
     move-result v0
 
     if-eqz v0, :cond_3
 
-    .line 470
+    .line 504
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mBadgePaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cAccent:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 471
+    .line 505
     const-string v0, "\u2022\u2022\u2022"
 
     iget-object v1, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
@@ -1815,7 +1817,7 @@
 
     invoke-virtual {p1, v0, v1, v2, v3}, Landroid/graphics/Canvas;->drawText(Ljava/lang/String;FFLandroid/graphics/Paint;)V
 
-    .line 473
+    .line 507
     :cond_3
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->widthBadge:Ljava/lang/String;
 
@@ -1837,14 +1839,14 @@
 
     if-lez v0, :cond_0
 
-    .line 474
+    .line 508
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mBadgePaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cWidthBadge:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 475
+    .line 509
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->widthBadge:Ljava/lang/String;
 
     iget-object v1, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
@@ -1873,64 +1875,64 @@
 
     goto/16 :goto_1
 
-    .line 443
+    .line 477
     :cond_4
     if-eqz p4, :cond_5
 
-    .line 444
+    .line 478
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cPressedFill:I
 
-    .line 445
+    .line 479
     iget v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cAccent:I
 
     goto/16 :goto_2
 
-    .line 446
+    .line 480
     :cond_5
     if-eqz v3, :cond_6
 
-    .line 447
+    .line 481
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cSheetFill:I
 
-    .line 448
+    .line 482
     iget v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cSheetStroke:I
 
     goto/16 :goto_2
 
-    .line 449
+    .line 483
     :cond_6
     if-eqz v4, :cond_7
 
-    .line 450
+    .line 484
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cTaskerFill:I
 
-    .line 451
+    .line 485
     iget v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cTaskerStroke:I
 
     goto/16 :goto_2
 
-    .line 452
+    .line 486
     :cond_7
     if-eqz v0, :cond_8
 
-    .line 453
+    .line 487
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cSpecialFill:I
 
-    .line 454
+    .line 488
     iget v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cSpecialStroke:I
 
     goto/16 :goto_2
 
-    .line 456
+    .line 490
     :cond_8
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cKeyFill:I
 
-    .line 457
+    .line 491
     iget v0, p0, Lcom/mrkeyboard/app/SheetGridView;->cKeyStroke:I
 
     goto/16 :goto_2
 
-    .line 465
+    .line 499
     :cond_9
     const/4 v5, 0x4
 
@@ -1945,7 +1947,7 @@
 
     goto/16 :goto_3
 
-    .line 466
+    .line 500
     :cond_b
     if-eqz v3, :cond_c
 
@@ -1972,7 +1974,7 @@
     .prologue
     const/high16 v2, 0x43340000    # 180.0f
 
-    .line 501
+    .line 535
     iget v0, p2, Landroid/graphics/RectF;->right:F
 
     const v1, 0x401ccccd    # 2.45f
@@ -1983,7 +1985,7 @@
 
     sub-float v6, v0, v1
 
-    .line 502
+    .line 536
     const v0, 0x40f66666    # 7.7f
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
@@ -1992,7 +1994,7 @@
 
     sub-float v7, v6, v0
 
-    .line 503
+    .line 537
     const v0, 0x40766666    # 3.85f
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
@@ -2001,17 +2003,17 @@
 
     add-float v8, v7, v0
 
-    .line 504
+    .line 538
     iget v9, p2, Landroid/graphics/RectF;->top:F
 
-    .line 506
+    .line 540
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockShacklePaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cLockGlyph:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 507
+    .line 541
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockShacklePaint:Landroid/graphics/Paint;
 
     const v1, 0x3fa147ae    # 1.26f
@@ -2022,14 +2024,14 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 508
+    .line 542
     const v0, 0x4011999a    # 2.275f
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
 
     move-result v10
 
-    .line 509
+    .line 543
     const v0, 0x40d4cccd    # 6.65f
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
@@ -2038,7 +2040,7 @@
 
     add-float/2addr v0, v9
 
-    .line 510
+    .line 544
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockRect:Landroid/graphics/RectF;
 
     sub-float v3, v8, v10
@@ -2055,7 +2057,7 @@
 
     invoke-virtual {v1, v3, v4, v5, v0}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 511
+    .line 545
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockRect:Landroid/graphics/RectF;
 
     const/4 v4, 0x0
@@ -2068,7 +2070,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawArc(Landroid/graphics/RectF;FFZLandroid/graphics/Paint;)V
 
-    .line 513
+    .line 547
     const/high16 v0, 0x408c0000    # 4.375f
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
@@ -2077,7 +2079,7 @@
 
     add-float v2, v0, v9
 
-    .line 514
+    .line 548
     const v0, 0x40ce147b    # 6.44f
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
@@ -2086,10 +2088,10 @@
 
     add-float v4, v0, v9
 
-    .line 515
+    .line 549
     sub-float v1, v8, v10
 
-    .line 516
+    .line 550
     iget-object v5, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockShacklePaint:Landroid/graphics/Paint;
 
     move-object v0, p1
@@ -2098,10 +2100,10 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 517
+    .line 551
     add-float v1, v8, v10
 
-    .line 518
+    .line 552
     iget-object v5, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockShacklePaint:Landroid/graphics/Paint;
 
     move-object v0, p1
@@ -2110,7 +2112,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 520
+    .line 554
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockRect:Landroid/graphics/RectF;
 
     const v1, 0x40c51eb8    # 6.16f
@@ -2131,35 +2133,35 @@
 
     invoke-virtual {v0, v7, v1, v6, v2}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 521
+    .line 555
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockBodyPaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cLockGlyph:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 522
+    .line 556
     const v0, 0x3fb33333    # 1.4f
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
 
     move-result v0
 
-    .line 523
+    .line 557
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockRect:Landroid/graphics/RectF;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockBodyPaint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v1, v0, v0, v2}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 526
+    .line 560
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockBodyPaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cLockHole:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 527
+    .line 561
     const v0, 0x41066666    # 8.4f
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
@@ -2178,14 +2180,14 @@
 
     invoke-virtual {p1, v8, v0, v1, v2}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 528
+    .line 562
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockShacklePaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cLockHole:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 529
+    .line 563
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockShacklePaint:Landroid/graphics/Paint;
 
     const v1, 0x3f81eb85    # 1.015f
@@ -2196,7 +2198,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 530
+    .line 564
     const v0, 0x410ae148    # 8.68f
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
@@ -2223,7 +2225,7 @@
 
     invoke-virtual/range {v0 .. v5}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 531
+    .line 565
     return-void
 .end method
 
@@ -2231,42 +2233,42 @@
     .locals 5
 
     .prologue
-    .line 481
+    .line 515
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyFillPaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cLockedFill:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 482
+    .line 516
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyFillPaint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, p3, p3, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 483
+    .line 517
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyStrokePaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cLockedStroke:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 484
+    .line 518
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyStrokePaint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, p3, p3, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 485
+    .line 519
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLabelPaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cLockedLabel:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 486
+    .line 520
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLabelPaint:Landroid/graphics/Paint;
 
     const/high16 v1, 0x41480000    # 12.5f
@@ -2277,7 +2279,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 488
+    .line 522
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockRect:Landroid/graphics/RectF;
 
     iget-object v1, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
@@ -2306,7 +2308,7 @@
 
     invoke-virtual {v0, v1, v2, v3, v4}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 489
+    .line 523
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->displayLabel:Ljava/lang/String;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mLockRect:Landroid/graphics/RectF;
@@ -2315,12 +2317,12 @@
 
     invoke-direct {p0, p1, v0, v1, v2}, Lcom/mrkeyboard/app/SheetGridView;->drawCenteredText(Landroid/graphics/Canvas;Ljava/lang/String;Landroid/graphics/RectF;Landroid/graphics/Paint;)V
 
-    .line 490
+    .line 524
     iget-object v0, p2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
 
     invoke-direct {p0, p1, v0}, Lcom/mrkeyboard/app/SheetGridView;->drawLockIcon(Landroid/graphics/Canvas;Landroid/graphics/RectF;)V
 
-    .line 491
+    .line 525
     return-void
 .end method
 
@@ -2328,18 +2330,18 @@
     .locals 26
 
     .prologue
-    .line 296
+    .line 314
     move-object/from16 v0, p0
 
     iget-boolean v2, v0, Lcom/mrkeyboard/app/SheetGridView;->mCellsDirty:Z
 
     if-nez v2, :cond_1
 
-    .line 361
+    .line 387
     :cond_0
     return-void
 
-    .line 297
+    .line 315
     :cond_1
     const/4 v2, 0x0
 
@@ -2347,29 +2349,29 @@
 
     iput-boolean v2, v0, Lcom/mrkeyboard/app/SheetGridView;->mCellsDirty:Z
 
-    .line 298
+    .line 316
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/mrkeyboard/app/SheetGridView;->mCells:Ljava/util/ArrayList;
 
     invoke-virtual {v2}, Ljava/util/ArrayList;->clear()V
 
-    .line 299
+    .line 317
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/mrkeyboard/app/SheetGridView;->mSheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
     if-eqz v2, :cond_0
 
-    .line 300
+    .line 318
     invoke-virtual/range {p0 .. p0}, Lcom/mrkeyboard/app/SheetGridView;->getWidth()I
 
     move-result v3
 
-    .line 301
+    .line 319
     if-lez v3, :cond_0
 
-    .line 303
+    .line 321
     const/high16 v2, 0x41000000    # 8.0f
 
     move-object/from16 v0, p0
@@ -2378,7 +2380,7 @@
 
     move-result v13
 
-    .line 304
+    .line 322
     const/high16 v2, 0x41200000    # 10.0f
 
     move-object/from16 v0, p0
@@ -2387,7 +2389,7 @@
 
     move-result v2
 
-    .line 305
+    .line 323
     const/high16 v4, 0x40800000    # 4.0f
 
     move-object/from16 v0, p0
@@ -2396,7 +2398,7 @@
 
     move-result v18
 
-    .line 306
+    .line 324
     const/high16 v4, 0x40a00000    # 5.0f
 
     move-object/from16 v0, p0
@@ -2405,7 +2407,7 @@
 
     move-result v19
 
-    .line 307
+    .line 325
     const/high16 v4, 0x42400000    # 48.0f
 
     move-object/from16 v0, p0
@@ -2414,7 +2416,7 @@
 
     move-result v20
 
-    .line 308
+    .line 326
     const/high16 v4, 0x41200000    # 10.0f
 
     int-to-float v3, v3
@@ -2429,7 +2431,7 @@
 
     move-result v10
 
-    .line 309
+    .line 327
     move-object/from16 v0, p0
 
     iget-object v3, v0, Lcom/mrkeyboard/app/SheetGridView;->mSheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
@@ -2446,7 +2448,7 @@
 
     move-result v21
 
-    .line 311
+    .line 329
     const/4 v4, 0x0
 
     move/from16 v17, v2
@@ -2454,9 +2456,9 @@
     :goto_0
     move/from16 v0, v21
 
-    if-ge v4, v0, :cond_e
+    if-ge v4, v0, :cond_11
 
-    .line 312
+    .line 330
     move-object/from16 v0, p0
 
     iget-object v2, v0, Lcom/mrkeyboard/app/SheetGridView;->mSheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
@@ -2471,7 +2473,7 @@
 
     check-cast v9, Lcom/mrkeyboard/app/SheetModel$Row;
 
-    .line 313
+    .line 331
     add-int/lit8 v2, v21, -0x1
 
     if-ne v4, v2, :cond_2
@@ -2480,14 +2482,20 @@
 
     move/from16 v16, v2
 
-    .line 314
+    .line 332
     :goto_1
     if-eqz v16, :cond_3
 
     const/16 v2, 0x9
 
-    .line 315
+    .line 333
     :goto_2
+    move-object/from16 v0, p0
+
+    iget-object v3, v0, Lcom/mrkeyboard/app/SheetGridView;->mFixed:[[Z
+
+    if-nez v3, :cond_4
+
     iget-object v3, v9, Lcom/mrkeyboard/app/SheetModel$Row;->keys:Ljava/util/ArrayList;
 
     invoke-virtual {v3}, Ljava/util/ArrayList;->size()I
@@ -2500,7 +2508,7 @@
 
     move v15, v2
 
-    .line 316
+    .line 334
     :goto_3
     if-eqz v15, :cond_5
 
@@ -2514,7 +2522,7 @@
 
     move v14, v2
 
-    .line 317
+    .line 335
     :goto_4
     if-eqz v15, :cond_6
 
@@ -2530,11 +2538,11 @@
 
     move v3, v2
 
-    .line 319
+    .line 337
     :goto_5
     const/4 v5, 0x0
 
-    .line 320
+    .line 338
     const/4 v2, 0x0
 
     move v6, v5
@@ -2550,7 +2558,7 @@
 
     if-ge v5, v2, :cond_7
 
-    .line 321
+    .line 339
     iget-object v2, v9, Lcom/mrkeyboard/app/SheetModel$Row;->keys:Ljava/util/ArrayList;
 
     invoke-virtual {v2, v5}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -2567,14 +2575,14 @@
 
     add-float/2addr v6, v2
 
-    .line 320
+    .line 338
     add-int/lit8 v2, v5, 0x1
 
     move v5, v2
 
     goto :goto_6
 
-    .line 313
+    .line 331
     :cond_2
     const/4 v2, 0x0
 
@@ -2582,13 +2590,13 @@
 
     goto :goto_1
 
-    .line 314
+    .line 332
     :cond_3
     const/16 v2, 0xa
 
     goto :goto_2
 
-    .line 315
+    .line 333
     :cond_4
     const/4 v2, 0x0
 
@@ -2596,7 +2604,7 @@
 
     goto :goto_3
 
-    .line 316
+    .line 334
     :cond_5
     const/4 v2, 0x0
 
@@ -2607,12 +2615,12 @@
     :cond_6
     move v3, v10
 
-    .line 317
+    .line 335
     goto :goto_5
 
-    .line 323
+    .line 341
     :cond_7
-    if-eqz v16, :cond_f
+    if-eqz v16, :cond_12
 
     const/high16 v2, 0x3fc00000    # 1.5f
 
@@ -2620,7 +2628,7 @@
 
     move v11, v6
 
-    .line 325
+    .line 343
     :goto_7
     iget-object v2, v9, Lcom/mrkeyboard/app/SheetModel$Row;->keys:Ljava/util/ArrayList;
 
@@ -2630,9 +2638,9 @@
 
     if-eqz v2, :cond_8
 
-    if-eqz v16, :cond_d
+    if-eqz v16, :cond_10
 
-    .line 326
+    .line 344
     :cond_8
     iget-object v2, v9, Lcom/mrkeyboard/app/SheetModel$Row;->keys:Ljava/util/ArrayList;
 
@@ -2640,14 +2648,14 @@
 
     move-result v5
 
-    if-eqz v16, :cond_9
+    if-eqz v16, :cond_a
 
     const/4 v2, 0x1
 
     :goto_8
     add-int/2addr v2, v5
 
-    .line 327
+    .line 345
     const/high16 v5, 0x41200000    # 10.0f
 
     const/4 v6, 0x0
@@ -2668,7 +2676,7 @@
 
     move-result v22
 
-    .line 329
+    .line 347
     const/4 v5, 0x0
 
     move v12, v13
@@ -2680,19 +2688,21 @@
 
     move-result v2
 
-    if-ge v5, v2, :cond_a
+    if-ge v5, v2, :cond_d
 
-    .line 330
+    .line 348
     iget-object v2, v9, Lcom/mrkeyboard/app/SheetModel$Row;->keys:Ljava/util/ArrayList;
 
     invoke-virtual {v2, v5}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
-    move-result-object v7
+    move-result-object v2
 
-    check-cast v7, Lcom/mrkeyboard/app/SheetModel$KeySpec;
+    move-object v8, v2
 
-    .line 331
-    iget v2, v7, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
+    check-cast v8, Lcom/mrkeyboard/app/SheetModel$KeySpec;
+
+    .line 349
+    iget v2, v8, Lcom/mrkeyboard/app/SheetModel$KeySpec;->width:F
 
     invoke-static {v2}, Lcom/mrkeyboard/app/SheetModel;->clampWidth(F)F
 
@@ -2702,7 +2712,81 @@
 
     mul-float v23, v2, v22
 
-    .line 332
+    .line 350
+    move-object/from16 v0, p0
+
+    invoke-virtual {v0, v4, v5}, Lcom/mrkeyboard/app/SheetGridView;->fixedKey(II)Z
+
+    move-result v2
+
+    if-eqz v2, :cond_b
+
+    .line 352
+    const-string v2, "spacer"
+
+    iget-object v3, v8, Lcom/mrkeyboard/app/SheetModel$KeySpec;->type:Ljava/lang/String;
+
+    invoke-virtual {v2, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_9
+
+    .line 353
+    move-object/from16 v0, p0
+
+    iget-object v0, v0, Lcom/mrkeyboard/app/SheetGridView;->mCells:Ljava/util/ArrayList;
+
+    move-object/from16 v24, v0
+
+    new-instance v2, Lcom/mrkeyboard/app/SheetGridView$CellHit;
+
+    const/4 v3, 0x4
+
+    new-instance v6, Landroid/graphics/RectF;
+
+    add-float v7, v12, v23
+
+    add-float v25, v17, v20
+
+    move/from16 v0, v17
+
+    move/from16 v1, v25
+
+    invoke-direct {v6, v12, v0, v7, v1}, Landroid/graphics/RectF;-><init>(FFFF)V
+
+    const/4 v7, 0x0
+
+    iget-object v8, v8, Lcom/mrkeyboard/app/SheetModel$KeySpec;->label:Ljava/lang/String;
+
+    invoke-direct/range {v2 .. v8}, Lcom/mrkeyboard/app/SheetGridView$CellHit;-><init>(IIILandroid/graphics/RectF;Lcom/mrkeyboard/app/SheetModel$KeySpec;Ljava/lang/String;)V
+
+    move-object/from16 v0, v24
+
+    invoke-virtual {v0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    .line 360
+    :cond_9
+    :goto_a
+    add-float v2, v23, v18
+
+    add-float/2addr v2, v12
+
+    .line 347
+    add-int/lit8 v5, v5, 0x1
+
+    move v12, v2
+
+    goto :goto_9
+
+    .line 344
+    :cond_a
+    const/4 v2, 0x0
+
+    goto :goto_8
+
+    .line 357
+    :cond_b
     move-object/from16 v0, p0
 
     iget-object v0, v0, Lcom/mrkeyboard/app/SheetGridView;->mCells:Ljava/util/ArrayList;
@@ -2715,7 +2799,7 @@
 
     new-instance v6, Landroid/graphics/RectF;
 
-    add-float v8, v12, v23
+    add-float v7, v12, v23
 
     add-float v25, v17, v20
 
@@ -2723,54 +2807,59 @@
 
     move/from16 v1, v25
 
-    invoke-direct {v6, v12, v0, v8, v1}, Landroid/graphics/RectF;-><init>(FFFF)V
+    invoke-direct {v6, v12, v0, v7, v1}, Landroid/graphics/RectF;-><init>(FFFF)V
 
+    .line 358
     move-object/from16 v0, p0
 
-    iget-object v8, v0, Lcom/mrkeyboard/app/SheetGridView;->mAllSheets:Ljava/util/List;
+    iget-object v7, v0, Lcom/mrkeyboard/app/SheetGridView;->mFixed:[[Z
 
-    .line 333
-    invoke-static {v7, v8}, Lcom/mrkeyboard/app/SheetKeyboardBuilder;->effectiveDisplayLabel(Lcom/mrkeyboard/app/SheetModel$KeySpec;Ljava/util/List;)Ljava/lang/String;
+    if-eqz v7, :cond_c
+
+    invoke-static {v8}, Lcom/mrkeyboard/app/SheetGridView;->withoutWidthBadge(Lcom/mrkeyboard/app/SheetModel$KeySpec;)Lcom/mrkeyboard/app/SheetModel$KeySpec;
+
+    move-result-object v7
+
+    :goto_b
+    move-object/from16 v0, p0
+
+    iget-object v0, v0, Lcom/mrkeyboard/app/SheetGridView;->mAllSheets:Ljava/util/List;
+
+    move-object/from16 v25, v0
+
+    move-object/from16 v0, v25
+
+    invoke-static {v8, v0}, Lcom/mrkeyboard/app/SheetKeyboardBuilder;->effectiveDisplayLabel(Lcom/mrkeyboard/app/SheetModel$KeySpec;Ljava/util/List;)Ljava/lang/String;
 
     move-result-object v8
 
     invoke-direct/range {v2 .. v8}, Lcom/mrkeyboard/app/SheetGridView$CellHit;-><init>(IIILandroid/graphics/RectF;Lcom/mrkeyboard/app/SheetModel$KeySpec;Ljava/lang/String;)V
 
-    .line 332
+    .line 357
     move-object/from16 v0, v24
 
     invoke-virtual {v0, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 334
-    add-float v2, v23, v18
+    goto :goto_a
 
-    add-float/2addr v2, v12
+    :cond_c
+    move-object v7, v8
 
-    .line 329
-    add-int/lit8 v5, v5, 0x1
+    .line 358
+    goto :goto_b
 
-    move v12, v2
+    .line 362
+    :cond_d
+    if-eqz v16, :cond_e
 
-    goto :goto_9
-
-    .line 326
-    :cond_9
-    const/4 v2, 0x0
-
-    goto :goto_8
-
-    .line 336
-    :cond_a
-    if-eqz v16, :cond_b
-
-    .line 337
+    .line 363
     const/high16 v2, 0x3fc00000    # 1.5f
 
     div-float/2addr v2, v11
 
     mul-float v7, v2, v22
 
-    .line 338
+    .line 364
     move-object/from16 v0, p0
 
     iget-object v11, v0, Lcom/mrkeyboard/app/SheetGridView;->mCells:Ljava/util/ArrayList;
@@ -2803,14 +2892,14 @@
 
     invoke-virtual {v11, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 341
-    :cond_b
-    if-eqz v15, :cond_c
+    .line 367
+    :cond_e
+    if-eqz v15, :cond_f
 
-    .line 342
+    .line 368
     add-float v7, v13, v10
 
-    .line 343
+    .line 369
     move-object/from16 v0, p0
 
     iget-object v11, v0, Lcom/mrkeyboard/app/SheetGridView;->mCells:Ljava/util/ArrayList;
@@ -2843,22 +2932,22 @@
 
     invoke-virtual {v11, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 350
-    :cond_c
-    :goto_a
+    .line 376
+    :cond_f
+    :goto_c
     add-float v2, v20, v19
 
     add-float v2, v2, v17
 
-    .line 311
+    .line 329
     add-int/lit8 v4, v4, 0x1
 
     move/from16 v17, v2
 
     goto/16 :goto_0
 
-    .line 347
-    :cond_d
+    .line 373
+    :cond_10
     move-object/from16 v0, p0
 
     iget-object v9, v0, Lcom/mrkeyboard/app/SheetGridView;->mCells:Ljava/util/ArrayList;
@@ -2883,7 +2972,7 @@
 
     const-string v8, "mr_grid_add_key"
 
-    .line 348
+    .line 374
     move-object/from16 v0, p0
 
     invoke-direct {v0, v8}, Lcom/mrkeyboard/app/SheetGridView;->t(Ljava/lang/String;)Ljava/lang/String;
@@ -2892,13 +2981,13 @@
 
     invoke-direct/range {v2 .. v8}, Lcom/mrkeyboard/app/SheetGridView$CellHit;-><init>(IIILandroid/graphics/RectF;Lcom/mrkeyboard/app/SheetModel$KeySpec;Ljava/lang/String;)V
 
-    .line 347
+    .line 373
     invoke-virtual {v9, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    goto :goto_a
+    goto :goto_c
 
-    .line 353
-    :cond_e
+    .line 379
+    :cond_11
     const/4 v2, 0x5
 
     new-array v9, v2, [Ljava/lang/String;
@@ -2943,29 +3032,29 @@
 
     aput-object v3, v9, v2
 
-    .line 354
+    .line 380
     const/high16 v2, 0x40800000    # 4.0f
 
     mul-float v2, v2, v18
 
     sub-float/2addr v10, v2
 
-    .line 355
+    .line 381
     const/4 v5, 0x0
 
-    :goto_b
+    :goto_d
     const/4 v2, 0x5
 
     if-ge v5, v2, :cond_0
 
-    .line 356
+    .line 382
     sget-object v2, Lcom/mrkeyboard/app/SheetGridView;->BOTTOM_WEIGHTS:[F
 
     aget v2, v2, v5
 
     mul-float v11, v2, v10
 
-    .line 357
+    .line 383
     move-object/from16 v0, p0
 
     iget-object v12, v0, Lcom/mrkeyboard/app/SheetGridView;->mCells:Ljava/util/ArrayList;
@@ -2994,17 +3083,17 @@
 
     invoke-virtual {v12, v2}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 359
+    .line 385
     add-float v2, v11, v18
 
     add-float/2addr v13, v2
 
-    .line 355
+    .line 381
     add-int/lit8 v5, v5, 0x1
 
-    goto :goto_b
+    goto :goto_d
 
-    :cond_f
+    :cond_12
     move v11, v6
 
     goto/16 :goto_7
@@ -3014,17 +3103,17 @@
     .locals 4
 
     .prologue
-    .line 536
+    .line 570
     invoke-direct {p0}, Lcom/mrkeyboard/app/SheetGridView;->ensureCellsBuilt()V
 
-    .line 537
+    .line 571
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mCells:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
 
     move-result v2
 
-    .line 538
+    .line 572
     const/4 v0, 0x0
 
     move v1, v0
@@ -3032,7 +3121,7 @@
     :goto_0
     if-ge v1, v2, :cond_1
 
-    .line 539
+    .line 573
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mCells:Ljava/util/ArrayList;
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -3041,7 +3130,7 @@
 
     check-cast v0, Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
-    .line 540
+    .line 574
     iget-object v3, v0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
 
     invoke-virtual {v3, p1, p2}, Landroid/graphics/RectF;->contains(FF)Z
@@ -3050,11 +3139,11 @@
 
     if-eqz v3, :cond_0
 
-    .line 542
+    .line 576
     :goto_1
     return-object v0
 
-    .line 538
+    .line 572
     :cond_0
     add-int/lit8 v0, v1, 0x1
 
@@ -3062,7 +3151,7 @@
 
     goto :goto_0
 
-    .line 542
+    .line 576
     :cond_1
     const/4 v0, 0x0
 
@@ -3070,43 +3159,6 @@
 .end method
 
 .method private t(Ljava/lang/String;)Ljava/lang/String;
-    .locals 3
-
-    .prologue
-    .line 239
-    iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mRes:Landroid/content/res/Resources;
-
-    const-string v1, "string"
-
-    invoke-virtual {p0}, Lcom/mrkeyboard/app/SheetGridView;->getContext()Landroid/content/Context;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-virtual {v0, p1, v1, v2}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
-
-    move-result v0
-
-    .line 240
-    if-nez v0, :cond_0
-
-    :goto_0
-    return-object p1
-
-    :cond_0
-    iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mRes:Landroid/content/res/Resources;
-
-    invoke-virtual {v1, v0}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
-
-    move-result-object p1
-
-    goto :goto_0
-.end method
-
-.method private varargs t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
     .locals 3
 
     .prologue
@@ -3136,6 +3188,43 @@
     :cond_0
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mRes:Landroid/content/res/Resources;
 
+    invoke-virtual {v1, v0}, Landroid/content/res/Resources;->getString(I)Ljava/lang/String;
+
+    move-result-object p1
+
+    goto :goto_0
+.end method
+
+.method private varargs t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+    .locals 3
+
+    .prologue
+    .line 251
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mRes:Landroid/content/res/Resources;
+
+    const-string v1, "string"
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/SheetGridView;->getContext()Landroid/content/Context;
+
+    move-result-object v2
+
+    invoke-virtual {v2}, Landroid/content/Context;->getPackageName()Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-virtual {v0, p1, v1, v2}, Landroid/content/res/Resources;->getIdentifier(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+
+    move-result v0
+
+    .line 252
+    if-nez v0, :cond_0
+
+    :goto_0
+    return-object p1
+
+    :cond_0
+    iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mRes:Landroid/content/res/Resources;
+
     invoke-virtual {v1, v0, p2}, Landroid/content/res/Resources;->getString(I[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object p1
@@ -3143,8 +3232,85 @@
     goto :goto_0
 .end method
 
+.method private static withoutWidthBadge(Lcom/mrkeyboard/app/SheetModel$KeySpec;)Lcom/mrkeyboard/app/SheetModel$KeySpec;
+    .locals 5
+
+    .prologue
+    .line 391
+    new-instance v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->label:Ljava/lang/String;
+
+    iget-object v2, p0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->type:Ljava/lang/String;
+
+    iget-object v3, p0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->value:Ljava/lang/String;
+
+    const/high16 v4, 0x3f800000    # 1.0f
+
+    invoke-direct {v0, v1, v2, v3, v4}, Lcom/mrkeyboard/app/SheetModel$KeySpec;-><init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;F)V
+
+    .line 392
+    iget-object v1, p0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->popupChars:Ljava/lang/String;
+
+    iput-object v1, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->popupChars:Ljava/lang/String;
+
+    .line 393
+    iget-object v1, p0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->popupKeys:Ljava/util/ArrayList;
+
+    iput-object v1, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->popupKeys:Ljava/util/ArrayList;
+
+    .line 394
+    return-object v0
+.end method
+
 
 # virtual methods
+.method fixedKey(II)Z
+    .locals 1
+
+    .prologue
+    .line 274
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mFixed:[[Z
+
+    if-eqz v0, :cond_0
+
+    if-ltz p1, :cond_0
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mFixed:[[Z
+
+    array-length v0, v0
+
+    if-ge p1, v0, :cond_0
+
+    if-ltz p2, :cond_0
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mFixed:[[Z
+
+    aget-object v0, v0, p1
+
+    array-length v0, v0
+
+    if-ge p2, v0, :cond_0
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mFixed:[[Z
+
+    aget-object v0, v0, p1
+
+    aget-boolean v0, v0, p2
+
+    if-eqz v0, :cond_0
+
+    const/4 v0, 0x1
+
+    :goto_0
+    return v0
+
+    :cond_0
+    const/4 v0, 0x0
+
+    goto :goto_0
+.end method
+
 .method protected onDraw(Landroid/graphics/Canvas;)V
     .locals 12
 
@@ -3157,13 +3323,13 @@
 
     const/4 v7, 0x0
 
-    .line 367
+    .line 401
     invoke-super {p0, p1}, Landroid/view/View;->onDraw(Landroid/graphics/Canvas;)V
 
-    .line 368
+    .line 402
     invoke-direct {p0}, Lcom/mrkeyboard/app/SheetGridView;->ensureCellsBuilt()V
 
-    .line 371
+    .line 405
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mTrayStrokePaint:Landroid/graphics/Paint;
 
     invoke-virtual {v0}, Landroid/graphics/Paint;->getStrokeWidth()F
@@ -3172,7 +3338,7 @@
 
     mul-float/2addr v0, v10
 
-    .line 372
+    .line 406
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mBoundsRect:Landroid/graphics/RectF;
 
     invoke-virtual {p0}, Lcom/mrkeyboard/app/SheetGridView;->getWidth()I
@@ -3193,33 +3359,33 @@
 
     invoke-virtual {v1, v0, v0, v2, v3}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 373
+    .line 407
     invoke-direct {p0, v11}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
 
     move-result v0
 
-    .line 374
+    .line 408
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mBoundsRect:Landroid/graphics/RectF;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mBgPaint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v1, v0, v0, v2}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 375
+    .line 409
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mBoundsRect:Landroid/graphics/RectF;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mTrayStrokePaint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v1, v0, v0, v2}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 377
+    .line 411
     const/high16 v0, 0x40f00000    # 7.5f
 
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
 
     move-result v3
 
-    .line 378
+    .line 412
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mCells:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
@@ -3228,11 +3394,11 @@
 
     move v8, v7
 
-    .line 379
+    .line 413
     :goto_0
     if-ge v8, v9, :cond_4
 
-    .line 380
+    .line 414
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mCells:Ljava/util/ArrayList;
 
     invoke-virtual {v0, v8}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -3241,7 +3407,7 @@
 
     check-cast v2, Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
-    .line 381
+    .line 415
     iget-boolean v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDragging:Z
 
     if-nez v0, :cond_0
@@ -3252,7 +3418,7 @@
 
     move v4, v6
 
-    .line 382
+    .line 416
     :goto_1
     iget-boolean v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDragging:Z
 
@@ -3284,16 +3450,16 @@
 
     move v5, v6
 
-    .line 384
+    .line 418
     :goto_2
     iget v0, v2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->kind:I
 
     if-ne v0, v6, :cond_2
 
-    .line 385
+    .line 419
     invoke-direct {p0, p1, v2, v3, v4}, Lcom/mrkeyboard/app/SheetGridView;->drawAddCell(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/SheetGridView$CellHit;FZ)V
 
-    .line 379
+    .line 413
     :goto_3
     add-int/lit8 v0, v8, 0x1
 
@@ -3304,16 +3470,16 @@
     :cond_0
     move v4, v7
 
-    .line 381
+    .line 415
     goto :goto_1
 
     :cond_1
     move v5, v7
 
-    .line 382
+    .line 416
     goto :goto_2
 
-    .line 386
+    .line 420
     :cond_2
     iget v0, v2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->kind:I
 
@@ -3323,18 +3489,18 @@
 
     move-object v1, p1
 
-    .line 387
+    .line 421
     invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/SheetGridView;->drawKeyCell(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/SheetGridView$CellHit;FZZ)V
 
     goto :goto_3
 
-    .line 389
+    .line 423
     :cond_3
     invoke-direct {p0, p1, v2, v3}, Lcom/mrkeyboard/app/SheetGridView;->drawLockedCell(Landroid/graphics/Canvas;Lcom/mrkeyboard/app/SheetGridView$CellHit;F)V
 
     goto :goto_3
 
-    .line 393
+    .line 427
     :cond_4
     iget-boolean v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDragging:Z
 
@@ -3344,7 +3510,7 @@
 
     if-eqz v0, :cond_6
 
-    .line 394
+    .line 428
     iget v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLineX:F
 
     const/4 v1, 0x0
@@ -3353,7 +3519,7 @@
 
     if-ltz v0, :cond_5
 
-    .line 395
+    .line 429
     iget v5, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLineX:F
 
     iget v6, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLineTop:F
@@ -3368,7 +3534,7 @@
 
     invoke-virtual/range {v4 .. v9}, Landroid/graphics/Canvas;->drawLine(FFFFLandroid/graphics/Paint;)V
 
-    .line 398
+    .line 432
     :cond_5
     const/high16 v0, 0x42300000    # 44.0f
 
@@ -3390,7 +3556,7 @@
 
     mul-float/2addr v0, v10
 
-    .line 399
+    .line 433
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
     iget-object v1, v1, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rect:Landroid/graphics/RectF;
@@ -3399,7 +3565,7 @@
 
     move-result v1
 
-    .line 400
+    .line 434
     iget-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mGhostRect:Landroid/graphics/RectF;
 
     iget v4, p0, Lcom/mrkeyboard/app/SheetGridView;->mMoveX:F
@@ -3428,35 +3594,35 @@
 
     invoke-virtual {v2, v4, v5, v0, v1}, Landroid/graphics/RectF;->set(FFFF)V
 
-    .line 401
+    .line 435
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mGhostRect:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mGhostFillPaint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v3, v3, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 402
+    .line 436
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyStrokePaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cAccent:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 403
+    .line 437
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mGhostRect:Landroid/graphics/RectF;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mKeyStrokePaint:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v0, v3, v3, v1}, Landroid/graphics/Canvas;->drawRoundRect(Landroid/graphics/RectF;FFLandroid/graphics/Paint;)V
 
-    .line 404
+    .line 438
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLabelPaint:Landroid/graphics/Paint;
 
     iget v1, p0, Lcom/mrkeyboard/app/SheetGridView;->cKeyLabel:I
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 405
+    .line 439
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mLabelPaint:Landroid/graphics/Paint;
 
     invoke-direct {p0, v11}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
@@ -3465,7 +3631,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setTextSize(F)V
 
-    .line 406
+    .line 440
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->shortLabel:Ljava/lang/String;
@@ -3482,12 +3648,12 @@
 
     if-nez v0, :cond_7
 
-    .line 407
+    .line 441
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/SheetGridView$CellHit;->shortLabel:Ljava/lang/String;
 
-    .line 408
+    .line 442
     :goto_4
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetGridView;->mGhostRect:Landroid/graphics/RectF;
 
@@ -3495,11 +3661,11 @@
 
     invoke-direct {p0, p1, v0, v1, v2}, Lcom/mrkeyboard/app/SheetGridView;->drawCenteredText(Landroid/graphics/Canvas;Ljava/lang/String;Landroid/graphics/RectF;Landroid/graphics/Paint;)V
 
-    .line 410
+    .line 444
     :cond_6
     return-void
 
-    .line 407
+    .line 441
     :cond_7
     const-string v0, "\u2423"
 
@@ -3510,12 +3676,12 @@
     .locals 4
 
     .prologue
-    .line 285
+    .line 303
     invoke-static {p1}, Landroid/view/View$MeasureSpec;->getSize(I)I
 
     move-result v1
 
-    .line 286
+    .line 304
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mSheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
     if-eqz v0, :cond_0
@@ -3544,11 +3710,11 @@
 
     move-result v0
 
-    .line 287
+    .line 305
     :goto_0
     add-int/lit8 v0, v0, 0x1
 
-    .line 288
+    .line 306
     const/high16 v2, 0x41200000    # 10.0f
 
     invoke-direct {p0, v2}, Lcom/mrkeyboard/app/SheetGridView;->dp(F)F
@@ -3591,17 +3757,17 @@
 
     add-int/2addr v0, v2
 
-    .line 289
+    .line 307
     invoke-static {v0, p2}, Lcom/mrkeyboard/app/SheetGridView;->resolveSize(II)I
 
     move-result v0
 
     invoke-virtual {p0, v1, v0}, Lcom/mrkeyboard/app/SheetGridView;->setMeasuredDimension(II)V
 
-    .line 290
+    .line 308
     return-void
 
-    .line 286
+    .line 304
     :cond_0
     const/4 v0, 0x1
 
@@ -3612,10 +3778,10 @@
     .locals 1
 
     .prologue
-    .line 279
+    .line 297
     invoke-super {p0, p1, p2, p3, p4}, Landroid/view/View;->onSizeChanged(IIII)V
 
-    .line 280
+    .line 298
     if-ne p1, p3, :cond_0
 
     if-eq p2, p4, :cond_1
@@ -3625,7 +3791,7 @@
 
     iput-boolean v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mCellsDirty:Z
 
-    .line 281
+    .line 299
     :cond_1
     return-void
 .end method
@@ -3642,24 +3808,24 @@
 
     const/4 v1, 0x1
 
-    .line 612
+    .line 646
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getX()F
 
     move-result v2
 
-    .line 613
+    .line 647
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getY()F
 
     move-result v3
 
-    .line 614
+    .line 648
     invoke-virtual {p1}, Landroid/view/MotionEvent;->getActionMasked()I
 
     move-result v4
 
     packed-switch v4, :pswitch_data_0
 
-    .line 701
+    .line 735
     invoke-super {p0, p1}, Landroid/view/View;->onTouchEvent(Landroid/view/MotionEvent;)Z
 
     move-result v0
@@ -3668,44 +3834,44 @@
     :goto_0
     return v0
 
-    .line 616
+    .line 650
     :pswitch_0
     iput v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownX:F
 
-    .line 617
+    .line 651
     iput v3, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownY:F
 
-    .line 618
+    .line 652
     iput v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mMoveX:F
 
-    .line 619
+    .line 653
     iput v3, p0, Lcom/mrkeyboard/app/SheetGridView;->mMoveY:F
 
-    .line 620
+    .line 654
     iput-boolean v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDragging:Z
 
-    .line 621
+    .line 655
     iput v7, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropRow:I
 
-    .line 622
+    .line 656
     iput v7, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropIndex:I
 
-    .line 623
+    .line 657
     const/high16 v4, -0x40800000    # -1.0f
 
     iput v4, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropLineX:F
 
-    .line 624
+    .line 658
     iput v7, p0, Lcom/mrkeyboard/app/SheetGridView;->mRefusedRow:I
 
-    .line 625
+    .line 659
     invoke-direct {p0, v2, v3}, Lcom/mrkeyboard/app/SheetGridView;->hitTest(FF)Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
     move-result-object v2
 
     iput-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
-    .line 626
+    .line 660
     iget-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
     if-eqz v2, :cond_1
@@ -3716,7 +3882,11 @@
 
     if-nez v2, :cond_1
 
-    .line 627
+    iget-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mFixed:[[Z
+
+    if-nez v2, :cond_1
+
+    .line 661
     iget-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mHandler:Landroid/os/Handler;
 
     iget-object v3, p0, Lcom/mrkeyboard/app/SheetGridView;->mLongPressRunnable:Ljava/lang/Runnable;
@@ -3729,21 +3899,21 @@
 
     invoke-virtual {v2, v3, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 629
+    .line 663
     :cond_1
     iget-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
     if-eqz v2, :cond_0
 
-    .line 630
+    .line 664
     invoke-virtual {p0}, Lcom/mrkeyboard/app/SheetGridView;->invalidate()V
 
     move v0, v1
 
-    .line 631
+    .line 665
     goto :goto_0
 
-    .line 634
+    .line 668
     :pswitch_1
     iget-object v4, p0, Lcom/mrkeyboard/app/SheetGridView;->mHandler:Landroid/os/Handler;
 
@@ -3751,7 +3921,7 @@
 
     invoke-virtual {v4, v5}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 635
+    .line 669
     iget-boolean v4, p0, Lcom/mrkeyboard/app/SheetGridView;->mDragging:Z
 
     if-eqz v4, :cond_4
@@ -3760,38 +3930,38 @@
 
     if-eqz v4, :cond_4
 
-    .line 637
+    .line 671
     iget-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
     iget v2, v2, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rowIdx:I
 
-    .line 638
+    .line 672
     iget-object v3, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
     iget v3, v3, Lcom/mrkeyboard/app/SheetGridView$CellHit;->keyIdx:I
 
-    .line 639
+    .line 673
     iget v4, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropRow:I
 
-    .line 640
+    .line 674
     iget v5, p0, Lcom/mrkeyboard/app/SheetGridView;->mDropIndex:I
 
-    .line 641
+    .line 675
     iget v6, p0, Lcom/mrkeyboard/app/SheetGridView;->mRefusedRow:I
 
-    .line 642
+    .line 676
     iput-boolean v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDragging:Z
 
-    .line 643
+    .line 677
     iput-object v8, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
-    .line 644
+    .line 678
     iput v7, p0, Lcom/mrkeyboard/app/SheetGridView;->mRefusedRow:I
 
-    .line 645
+    .line 679
     invoke-virtual {p0}, Lcom/mrkeyboard/app/SheetGridView;->invalidate()V
 
-    .line 646
+    .line 680
     if-ltz v4, :cond_3
 
     if-ltz v5, :cond_3
@@ -3800,7 +3970,7 @@
 
     if-eqz v0, :cond_3
 
-    .line 647
+    .line 681
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mListener:Lcom/mrkeyboard/app/SheetGridView$GridListener;
 
     invoke-interface {v0, v2, v3, v4, v5}, Lcom/mrkeyboard/app/SheetGridView$GridListener;->onKeyDragged(IIII)V
@@ -3809,10 +3979,10 @@
     :goto_1
     move v0, v1
 
-    .line 671
+    .line 705
     goto :goto_0
 
-    .line 648
+    .line 682
     :cond_3
     if-ltz v6, :cond_2
 
@@ -3820,30 +3990,30 @@
 
     if-eqz v0, :cond_2
 
-    .line 649
+    .line 683
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mListener:Lcom/mrkeyboard/app/SheetGridView$GridListener;
 
     invoke-interface {v0, v6}, Lcom/mrkeyboard/app/SheetGridView$GridListener;->onDropRefused(I)V
 
     goto :goto_1
 
-    .line 651
+    .line 685
     :cond_4
     iget-object v4, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
     if-eqz v4, :cond_2
 
-    .line 653
+    .line 687
     iget v4, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownX:F
 
     sub-float/2addr v2, v4
 
-    .line 654
+    .line 688
     iget v4, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownY:F
 
     sub-float/2addr v3, v4
 
-    .line 655
+    .line 689
     iget v4, p0, Lcom/mrkeyboard/app/SheetGridView;->mTouchSlop:I
 
     int-to-float v4, v4
@@ -3852,16 +4022,16 @@
 
     mul-float/2addr v4, v5
 
-    .line 656
+    .line 690
     iget-object v5, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
-    .line 657
+    .line 691
     iput-object v8, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
-    .line 658
+    .line 692
     invoke-virtual {p0}, Lcom/mrkeyboard/app/SheetGridView;->invalidate()V
 
-    .line 659
+    .line 693
     mul-float/2addr v2, v2
 
     mul-float/2addr v3, v3
@@ -3878,12 +4048,12 @@
 
     if-eqz v2, :cond_2
 
-    .line 660
+    .line 694
     iget v2, v5, Lcom/mrkeyboard/app/SheetGridView$CellHit;->kind:I
 
     if-nez v2, :cond_5
 
-    .line 661
+    .line 695
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mListener:Lcom/mrkeyboard/app/SheetGridView$GridListener;
 
     iget v2, v5, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rowIdx:I
@@ -3894,13 +4064,13 @@
 
     goto :goto_1
 
-    .line 662
+    .line 696
     :cond_5
     iget v2, v5, Lcom/mrkeyboard/app/SheetGridView$CellHit;->kind:I
 
     if-ne v2, v1, :cond_6
 
-    .line 663
+    .line 697
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mListener:Lcom/mrkeyboard/app/SheetGridView$GridListener;
 
     iget v2, v5, Lcom/mrkeyboard/app/SheetGridView$CellHit;->rowIdx:I
@@ -3909,7 +4079,7 @@
 
     goto :goto_1
 
-    .line 664
+    .line 698
     :cond_6
     iget v2, v5, Lcom/mrkeyboard/app/SheetGridView$CellHit;->kind:I
 
@@ -3917,51 +4087,58 @@
 
     if-ne v2, v3, :cond_7
 
-    .line 665
+    .line 699
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mListener:Lcom/mrkeyboard/app/SheetGridView$GridListener;
 
     invoke-interface {v0, v1}, Lcom/mrkeyboard/app/SheetGridView$GridListener;->onLockedKeyTapped(Z)V
 
     goto :goto_1
 
-    .line 666
+    .line 700
     :cond_7
     iget v2, v5, Lcom/mrkeyboard/app/SheetGridView$CellHit;->kind:I
 
     const/4 v3, 0x3
 
+    if-eq v2, v3, :cond_8
+
+    iget v2, v5, Lcom/mrkeyboard/app/SheetGridView$CellHit;->kind:I
+
+    const/4 v3, 0x4
+
     if-ne v2, v3, :cond_2
 
-    .line 667
+    .line 701
+    :cond_8
     iget-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mListener:Lcom/mrkeyboard/app/SheetGridView$GridListener;
 
     invoke-interface {v2, v0}, Lcom/mrkeyboard/app/SheetGridView$GridListener;->onLockedKeyTapped(Z)V
 
     goto :goto_1
 
-    .line 674
+    .line 708
     :pswitch_2
     iput v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mMoveX:F
 
-    .line 675
+    .line 709
     iput v3, p0, Lcom/mrkeyboard/app/SheetGridView;->mMoveY:F
 
-    .line 676
+    .line 710
     iget-boolean v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDragging:Z
 
-    if-nez v0, :cond_9
+    if-nez v0, :cond_a
 
-    .line 677
+    .line 711
     iget v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownX:F
 
     sub-float v0, v2, v0
 
-    .line 678
+    .line 712
     iget v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownY:F
 
     sub-float v2, v3, v2
 
-    .line 679
+    .line 713
     mul-float/2addr v0, v0
 
     mul-float/2addr v2, v2
@@ -3978,43 +4155,43 @@
 
     cmpl-float v0, v0, v2
 
-    if-lez v0, :cond_8
+    if-lez v0, :cond_9
 
-    .line 681
+    .line 715
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mHandler:Landroid/os/Handler;
 
     iget-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mLongPressRunnable:Ljava/lang/Runnable;
 
     invoke-virtual {v0, v2}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 682
+    .line 716
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
-    if-eqz v0, :cond_8
+    if-eqz v0, :cond_9
 
-    .line 683
+    .line 717
     iput-object v8, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
-    .line 684
+    .line 718
     invoke-virtual {p0}, Lcom/mrkeyboard/app/SheetGridView;->invalidate()V
 
-    :cond_8
+    :cond_9
     :goto_2
     move v0, v1
 
-    .line 691
+    .line 725
     goto/16 :goto_0
 
-    .line 688
-    :cond_9
+    .line 722
+    :cond_a
     invoke-direct {p0, v2, v3}, Lcom/mrkeyboard/app/SheetGridView;->computeDropTarget(FF)V
 
-    .line 689
+    .line 723
     invoke-virtual {p0}, Lcom/mrkeyboard/app/SheetGridView;->invalidate()V
 
     goto :goto_2
 
-    .line 694
+    .line 728
     :pswitch_3
     iget-object v2, p0, Lcom/mrkeyboard/app/SheetGridView;->mHandler:Landroid/os/Handler;
 
@@ -4022,21 +4199,23 @@
 
     invoke-virtual {v2, v3}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 695
+    .line 729
     iput-boolean v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mDragging:Z
 
-    .line 696
+    .line 730
     iput-object v8, p0, Lcom/mrkeyboard/app/SheetGridView;->mDownCell:Lcom/mrkeyboard/app/SheetGridView$CellHit;
 
-    .line 697
+    .line 731
     invoke-virtual {p0}, Lcom/mrkeyboard/app/SheetGridView;->invalidate()V
 
     move v0, v1
 
-    .line 698
+    .line 732
     goto/16 :goto_0
 
-    .line 614
+    .line 648
+    nop
+
     :pswitch_data_0
     .packed-switch 0x0
         :pswitch_0
@@ -4062,19 +4241,19 @@
     .prologue
     const/4 v5, 0x1
 
-    .line 260
+    .line 278
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetGridView;->mSheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
-    .line 261
+    .line 279
     iput-object p2, p0, Lcom/mrkeyboard/app/SheetGridView;->mAllSheets:Ljava/util/List;
 
-    .line 262
+    .line 280
     iput-boolean v5, p0, Lcom/mrkeyboard/app/SheetGridView;->mCellsDirty:Z
 
-    .line 263
+    .line 281
     if-eqz p1, :cond_0
 
-    .line 264
+    .line 282
     const-string v0, "mr_grid_desc"
 
     const/4 v1, 0x2
@@ -4117,14 +4296,33 @@
 
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/SheetGridView;->setContentDescription(Ljava/lang/CharSequence;)V
 
-    .line 266
+    .line 284
     :cond_0
     invoke-virtual {p0}, Lcom/mrkeyboard/app/SheetGridView;->requestLayout()V
 
-    .line 267
+    .line 285
     invoke-virtual {p0}, Lcom/mrkeyboard/app/SheetGridView;->invalidate()V
 
+    .line 286
+    return-void
+.end method
+
+.method public setFixed([[Z)V
+    .locals 1
+
+    .prologue
+    .line 267
+    iput-object p1, p0, Lcom/mrkeyboard/app/SheetGridView;->mFixed:[[Z
+
     .line 268
+    const/4 v0, 0x1
+
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/SheetGridView;->mCellsDirty:Z
+
+    .line 269
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/SheetGridView;->invalidate()V
+
+    .line 270
     return-void
 .end method
 
@@ -4132,9 +4330,9 @@
     .locals 0
 
     .prologue
-    .line 256
+    .line 262
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetGridView;->mListener:Lcom/mrkeyboard/app/SheetGridView$GridListener;
 
-    .line 257
+    .line 263
     return-void
 .end method

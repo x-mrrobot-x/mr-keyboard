@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 577
+    .line 623
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$18;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
     iput p2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$18;->val$idx:I
@@ -53,32 +53,34 @@
     .locals 4
 
     .prologue
-    .line 579
-    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$18;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+    .line 625
+    iget v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$18;->val$idx:I
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2200(Lcom/mrkeyboard/app/SheetEditorActivity;)Lcom/mrkeyboard/app/SheetModel$Sheet;
+    iget-object v1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$18;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    move-result-object v0
+    invoke-static {v1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2400(Lcom/mrkeyboard/app/SheetEditorActivity;)Lcom/mrkeyboard/app/SheetModel$Sheet;
 
-    iget-object v0, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->rows:Ljava/util/ArrayList;
+    move-result-object v1
 
-    invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
+    iget-object v1, v1, Lcom/mrkeyboard/app/SheetModel$Sheet;->rows:Ljava/util/ArrayList;
 
-    move-result v0
+    invoke-virtual {v1}, Ljava/util/ArrayList;->size()I
 
-    const/4 v1, 0x6
+    move-result v1
+
+    add-int/lit8 v1, v1, -0x1
 
     if-ge v0, v1, :cond_0
 
-    .line 580
+    .line 626
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$18;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1100(Lcom/mrkeyboard/app/SheetEditorActivity;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1300(Lcom/mrkeyboard/app/SheetEditorActivity;)V
 
-    .line 581
+    .line 627
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$18;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2200(Lcom/mrkeyboard/app/SheetEditorActivity;)Lcom/mrkeyboard/app/SheetModel$Sheet;
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2400(Lcom/mrkeyboard/app/SheetEditorActivity;)Lcom/mrkeyboard/app/SheetModel$Sheet;
 
     move-result-object v0
 
@@ -90,7 +92,7 @@
 
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$18;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2200(Lcom/mrkeyboard/app/SheetEditorActivity;)Lcom/mrkeyboard/app/SheetModel$Sheet;
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2400(Lcom/mrkeyboard/app/SheetEditorActivity;)Lcom/mrkeyboard/app/SheetModel$Sheet;
 
     move-result-object v0
 
@@ -98,31 +100,27 @@
 
     iget v3, p0, Lcom/mrkeyboard/app/SheetEditorActivity$18;->val$idx:I
 
-    invoke-virtual {v0, v3}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+    invoke-virtual {v0, v3}, Ljava/util/ArrayList;->remove(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/mrkeyboard/app/SheetModel$Row;
 
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/SheetModel$Row;->deepCopy()Lcom/mrkeyboard/app/SheetModel$Row;
-
-    move-result-object v0
-
     invoke-virtual {v1, v2, v0}, Ljava/util/ArrayList;->add(ILjava/lang/Object;)V
 
-    .line 582
+    .line 628
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$18;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1200(Lcom/mrkeyboard/app/SheetEditorActivity;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1400(Lcom/mrkeyboard/app/SheetEditorActivity;)V
 
-    .line 583
+    .line 629
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$18;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$18;->val$list:Landroid/widget/LinearLayout;
 
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2300(Lcom/mrkeyboard/app/SheetEditorActivity;Landroid/widget/LinearLayout;)V
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2500(Lcom/mrkeyboard/app/SheetEditorActivity;Landroid/widget/LinearLayout;)V
 
-    .line 585
+    .line 631
     :cond_0
     return-void
 .end method

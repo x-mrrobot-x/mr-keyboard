@@ -14,6 +14,8 @@
 
 
 # instance fields
+.field private mAbcDesc:Landroid/widget/TextView;
+
 .field private mLastOpen:J
 
 .field private mListContainer:Landroid/widget/LinearLayout;
@@ -39,10 +41,10 @@
     .locals 2
 
     .prologue
-    .line 45
+    .line 46
     invoke-direct {p0}, Landroid/app/Activity;-><init>()V
 
-    .line 59
+    .line 62
     const-wide/16 v0, -0x2bc
 
     iput-wide v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mLastOpen:J
@@ -50,12 +52,12 @@
     return-void
 .end method
 
-.method static synthetic access$000(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+.method static synthetic access$000(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;)V
     .locals 0
 
     .prologue
-    .line 45
-    invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->showNewSheetTemplatePicker()V
+    .line 46
+    invoke-direct {p0, p1}, Lcom/mrkeyboard/app/PrefScreenSheets;->openEditor(Ljava/lang/String;)V
 
     return-void
 .end method
@@ -64,8 +66,8 @@
     .locals 0
 
     .prologue
-    .line 45
-    invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->startExportJson()V
+    .line 46
+    invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->showNewSheetTemplatePicker()V
 
     return-void
 .end method
@@ -74,7 +76,7 @@
     .locals 0
 
     .prologue
-    .line 45
+    .line 46
     invoke-direct {p0, p1, p2}, Lcom/mrkeyboard/app/PrefScreenSheets;->confirmDeleteSheet(ILcom/mrkeyboard/app/SheetModel$Sheet;)V
 
     return-void
@@ -84,7 +86,7 @@
     .locals 0
 
     .prologue
-    .line 45
+    .line 46
     invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->pickExistingSheetToCopy()V
 
     return-void
@@ -94,7 +96,7 @@
     .locals 0
 
     .prologue
-    .line 45
+    .line 46
     invoke-direct {p0, p1, p2}, Lcom/mrkeyboard/app/PrefScreenSheets;->promptNameForNewSheet(ILcom/mrkeyboard/app/SheetModel$Sheet;)V
 
     return-void
@@ -104,7 +106,7 @@
     .locals 1
 
     .prologue
-    .line 45
+    .line 46
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
     return-object v0
@@ -114,7 +116,7 @@
     .locals 1
 
     .prologue
-    .line 45
+    .line 46
     invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->limitReached()Z
 
     move-result v0
@@ -126,7 +128,7 @@
     .locals 0
 
     .prologue
-    .line 45
+    .line 46
     invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->reloadAndRender()V
 
     return-void
@@ -136,7 +138,7 @@
     .locals 1
 
     .prologue
-    .line 45
+    .line 46
     iput-wide p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mLastOpen:J
 
     return-wide p1
@@ -146,7 +148,7 @@
     .locals 1
 
     .prologue
-    .line 45
+    .line 46
     invoke-direct {p0, p1, p2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v0
@@ -158,7 +160,7 @@
     .locals 0
 
     .prologue
-    .line 45
+    .line 46
     invoke-direct {p0, p1, p2}, Lcom/mrkeyboard/app/PrefScreenSheets;->toast(Ljava/lang/String;Z)V
 
     return-void
@@ -168,8 +170,8 @@
     .locals 0
 
     .prologue
-    .line 45
-    invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->startImportJson()V
+    .line 46
+    invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->startExportJson()V
 
     return-void
 .end method
@@ -178,18 +180,18 @@
     .locals 0
 
     .prologue
-    .line 45
-    invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->confirmResetAll()V
+    .line 46
+    invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->startImportJson()V
 
     return-void
 .end method
 
-.method static synthetic access$400(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;)V
+.method static synthetic access$400(Lcom/mrkeyboard/app/PrefScreenSheets;)V
     .locals 0
 
     .prologue
-    .line 45
-    invoke-direct {p0, p1}, Lcom/mrkeyboard/app/PrefScreenSheets;->openEditor(Ljava/lang/String;)V
+    .line 46
+    invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->confirmResetAll()V
 
     return-void
 .end method
@@ -198,7 +200,7 @@
     .locals 0
 
     .prologue
-    .line 45
+    .line 46
     invoke-direct {p0, p1, p2}, Lcom/mrkeyboard/app/PrefScreenSheets;->moveSheet(II)V
 
     return-void
@@ -208,7 +210,7 @@
     .locals 0
 
     .prologue
-    .line 45
+    .line 46
     invoke-direct {p0, p1, p2, p3}, Lcom/mrkeyboard/app/PrefScreenSheets;->showCardContextMenu(Landroid/view/View;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
 
     return-void
@@ -218,7 +220,7 @@
     .locals 0
 
     .prologue
-    .line 45
+    .line 46
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/PrefScreenSheets;->showRenameSheetDialog(Lcom/mrkeyboard/app/SheetModel$Sheet;)V
 
     return-void
@@ -228,7 +230,7 @@
     .locals 0
 
     .prologue
-    .line 45
+    .line 46
     invoke-direct {p0, p1, p2}, Lcom/mrkeyboard/app/PrefScreenSheets;->duplicateSheet(ILcom/mrkeyboard/app/SheetModel$Sheet;)V
 
     return-void
@@ -238,7 +240,7 @@
     .locals 0
 
     .prologue
-    .line 45
+    .line 46
     invoke-direct {p0, p1}, Lcom/mrkeyboard/app/PrefScreenSheets;->confirmResetSingleBuiltin(Lcom/mrkeyboard/app/SheetModel$Sheet;)V
 
     return-void
@@ -248,17 +250,17 @@
     .locals 4
 
     .prologue
-    .line 247
+    .line 262
     invoke-virtual {p1, p2}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v0
 
     check-cast v0, Landroid/widget/ImageView;
 
-    .line 248
+    .line 263
     new-instance v2, Lcom/mrkeyboard/app/SheetUi$IconDrawable;
 
-    .line 249
+    .line 264
     if-eqz p4, :cond_1
 
     const-string v1, "mr_ui_text2"
@@ -276,27 +278,27 @@
 
     invoke-direct {v2, p0, p3, v1, v3}, Lcom/mrkeyboard/app/SheetUi$IconDrawable;-><init>(Landroid/content/Context;III)V
 
-    .line 248
+    .line 263
     invoke-virtual {v0, v2}, Landroid/widget/ImageView;->setImageDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 250
+    .line 265
     invoke-virtual {v0, p5}, Landroid/widget/ImageView;->setContentDescription(Ljava/lang/CharSequence;)V
 
-    .line 251
+    .line 266
     invoke-virtual {v0, p4}, Landroid/widget/ImageView;->setEnabled(Z)V
 
-    .line 252
+    .line 267
     if-nez p4, :cond_0
 
     const/4 v1, 0x0
 
     invoke-virtual {v0, v1}, Landroid/widget/ImageView;->setBackground(Landroid/graphics/drawable/Drawable;)V
 
-    .line 253
+    .line 268
     :cond_0
     return-object v0
 
-    .line 249
+    .line 264
     :cond_1
     const-string v1, "mr_ui_text_dis"
 
@@ -311,7 +313,7 @@
 
     const/4 v6, 0x1
 
-    .line 207
+    .line 222
     const-string v0, "mr_sheet_card"
 
     iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mListContainer:Landroid/widget/LinearLayout;
@@ -320,7 +322,7 @@
 
     move-result-object v1
 
-    .line 208
+    .line 223
     const-string v0, "badge"
 
     invoke-virtual {v1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -339,7 +341,7 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 209
+    .line 224
     const-string v0, "name"
 
     invoke-virtual {v1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -352,7 +354,7 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 210
+    .line 225
     iget-boolean v0, p2, Lcom/mrkeyboard/app/SheetModel$Sheet;->builtin:Z
 
     if-eqz v0, :cond_2
@@ -366,7 +368,7 @@
 
     move-result-object v2
 
-    .line 211
+    .line 226
     const-string v0, "info"
 
     invoke-virtual {v1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -383,7 +385,7 @@
 
     iget-object v5, p2, Lcom/mrkeyboard/app/SheetModel$Sheet;->rows:Ljava/util/ArrayList;
 
-    .line 212
+    .line 227
     invoke-virtual {v5}, Ljava/util/ArrayList;->size()I
 
     move-result v5
@@ -412,17 +414,17 @@
 
     move-result-object v2
 
-    .line 211
+    .line 226
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 213
-    new-instance v0, Lcom/mrkeyboard/app/PrefScreenSheets$6;
+    .line 228
+    new-instance v0, Lcom/mrkeyboard/app/PrefScreenSheets$7;
 
-    invoke-direct {v0, p0, p2}, Lcom/mrkeyboard/app/PrefScreenSheets$6;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;Lcom/mrkeyboard/app/SheetModel$Sheet;)V
+    invoke-direct {v0, p0, p2}, Lcom/mrkeyboard/app/PrefScreenSheets$7;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;Lcom/mrkeyboard/app/SheetModel$Sheet;)V
 
     invoke-virtual {v1, v0}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 219
+    .line 234
     const-string v2, "up"
 
     const/4 v3, 0x6
@@ -450,17 +452,17 @@
 
     move-result-object v0
 
-    .line 220
+    .line 235
     if-lez p1, :cond_0
 
-    .line 221
-    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$7;
+    .line 236
+    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$8;
 
-    invoke-direct {v2, p0, p1}, Lcom/mrkeyboard/app/PrefScreenSheets$7;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;I)V
+    invoke-direct {v2, p0, p1}, Lcom/mrkeyboard/app/PrefScreenSheets$8;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;I)V
 
     invoke-virtual {v0, v2}, Landroid/widget/ImageView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 227
+    .line 242
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
@@ -474,7 +476,7 @@
 
     move v4, v6
 
-    .line 228
+    .line 243
     :goto_2
     const-string v2, "down"
 
@@ -498,17 +500,17 @@
 
     move-result-object v0
 
-    .line 229
+    .line 244
     if-eqz v4, :cond_1
 
-    .line 230
-    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$8;
+    .line 245
+    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$9;
 
-    invoke-direct {v2, p0, p1}, Lcom/mrkeyboard/app/PrefScreenSheets$8;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;I)V
+    invoke-direct {v2, p0, p1}, Lcom/mrkeyboard/app/PrefScreenSheets$9;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;I)V
 
     invoke-virtual {v0, v2}, Landroid/widget/ImageView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 236
+    .line 251
     :cond_1
     const-string v2, "more"
 
@@ -534,17 +536,17 @@
 
     move-result-object v0
 
-    .line 237
-    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$9;
+    .line 252
+    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$10;
 
-    invoke-direct {v2, p0, v0, p1, p2}, Lcom/mrkeyboard/app/PrefScreenSheets$9;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;Landroid/widget/ImageView;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
+    invoke-direct {v2, p0, v0, p1, p2}, Lcom/mrkeyboard/app/PrefScreenSheets$10;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;Landroid/widget/ImageView;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
 
     invoke-virtual {v0, v2}, Landroid/widget/ImageView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 242
+    .line 257
     return-object v1
 
-    .line 210
+    .line 225
     :cond_2
     const-string v0, "mr_sheets_custom"
 
@@ -553,13 +555,13 @@
     :cond_3
     move v4, v7
 
-    .line 219
+    .line 234
     goto :goto_1
 
     :cond_4
     move v4, v7
 
-    .line 227
+    .line 242
     goto :goto_2
 .end method
 
@@ -567,7 +569,7 @@
     .locals 4
 
     .prologue
-    .line 71
+    .line 74
     invoke-virtual {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -599,7 +601,7 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 424
+    .line 439
     if-ltz p1, :cond_0
 
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
@@ -610,12 +612,12 @@
 
     if-lt p1, v0, :cond_1
 
-    .line 437
+    .line 452
     :cond_0
     :goto_0
     return-void
 
-    .line 425
+    .line 440
     :cond_1
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
@@ -625,7 +627,7 @@
 
     new-array v2, v4, [Ljava/lang/Object;
 
-    .line 426
+    .line 441
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -644,7 +646,7 @@
 
     aput-object v3, v2, v4
 
-    .line 427
+    .line 442
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -657,14 +659,14 @@
 
     new-array v2, v4, [Ljava/lang/Object;
 
-    .line 428
+    .line 443
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
 
-    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$15;
+    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$16;
 
-    invoke-direct {v2, p0, p1}, Lcom/mrkeyboard/app/PrefScreenSheets$15;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;I)V
+    invoke-direct {v2, p0, p1}, Lcom/mrkeyboard/app/PrefScreenSheets$16;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;I)V
 
     invoke-virtual {v0, v1, v2}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
@@ -674,7 +676,7 @@
 
     new-array v2, v4, [Ljava/lang/Object;
 
-    .line 435
+    .line 450
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -685,7 +687,7 @@
 
     move-result-object v0
 
-    .line 436
+    .line 451
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     goto :goto_0
@@ -697,18 +699,18 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 456
+    .line 471
     invoke-virtual {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->firstTap()Z
 
     move-result v0
 
     if-nez v0, :cond_0
 
-    .line 470
+    .line 485
     :goto_0
     return-void
 
-    .line 457
+    .line 472
     :cond_0
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
@@ -718,7 +720,7 @@
 
     new-array v2, v3, [Ljava/lang/Object;
 
-    .line 458
+    .line 473
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -731,7 +733,7 @@
 
     new-array v2, v3, [Ljava/lang/Object;
 
-    .line 459
+    .line 474
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -744,14 +746,14 @@
 
     new-array v2, v3, [Ljava/lang/Object;
 
-    .line 460
+    .line 475
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
 
-    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$17;
+    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$18;
 
-    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$17;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$18;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
 
     invoke-virtual {v0, v1, v2}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
@@ -761,7 +763,7 @@
 
     new-array v2, v3, [Ljava/lang/Object;
 
-    .line 468
+    .line 483
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -772,7 +774,7 @@
 
     move-result-object v0
 
-    .line 469
+    .line 484
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     goto :goto_0
@@ -784,7 +786,7 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 440
+    .line 455
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
     invoke-direct {v0, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
@@ -793,7 +795,7 @@
 
     new-array v2, v4, [Ljava/lang/Object;
 
-    .line 441
+    .line 456
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -812,7 +814,7 @@
 
     aput-object v3, v2, v4
 
-    .line 442
+    .line 457
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -825,14 +827,14 @@
 
     new-array v2, v4, [Ljava/lang/Object;
 
-    .line 443
+    .line 458
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
 
-    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$16;
+    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$17;
 
-    invoke-direct {v2, p0, p1}, Lcom/mrkeyboard/app/PrefScreenSheets$16;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;Lcom/mrkeyboard/app/SheetModel$Sheet;)V
+    invoke-direct {v2, p0, p1}, Lcom/mrkeyboard/app/PrefScreenSheets$17;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;Lcom/mrkeyboard/app/SheetModel$Sheet;)V
 
     invoke-virtual {v0, v1, v2}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
@@ -842,7 +844,7 @@
 
     new-array v2, v4, [Ljava/lang/Object;
 
-    .line 451
+    .line 466
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -853,10 +855,10 @@
 
     move-result-object v0
 
-    .line 452
+    .line 467
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
-    .line 453
+    .line 468
     return-void
 .end method
 
@@ -864,7 +866,7 @@
     .locals 1
 
     .prologue
-    .line 80
+    .line 83
     invoke-static {p0, p1}, Lcom/mrkeyboard/app/SheetUi;->dp(Landroid/content/Context;F)I
 
     move-result v0
@@ -878,24 +880,24 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 314
+    .line 329
     invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->limitReached()Z
 
     move-result v0
 
     if-eqz v0, :cond_0
 
-    .line 322
+    .line 337
     :goto_0
     return-void
 
-    .line 315
+    .line 330
     :cond_0
     invoke-virtual {p2}, Lcom/mrkeyboard/app/SheetModel$Sheet;->deepCopy()Lcom/mrkeyboard/app/SheetModel$Sheet;
 
     move-result-object v0
 
-    .line 316
+    .line 331
     iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
     const-string v2, "copy"
@@ -906,10 +908,10 @@
 
     iput-object v1, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->id:Ljava/lang/String;
 
-    .line 317
+    .line 332
     iput-boolean v4, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->builtin:Z
 
-    .line 318
+    .line 333
     const-string v1, "mr_sheets_copy_name"
 
     const/4 v2, 0x1
@@ -932,19 +934,19 @@
 
     iput-object v1, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->name:Ljava/lang/String;
 
-    .line 319
+    .line 334
     iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
     add-int/lit8 v2, p1, 0x1
 
     invoke-virtual {v1, v2, v0}, Ljava/util/ArrayList;->add(ILjava/lang/Object;)V
 
-    .line 320
+    .line 335
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/SheetStore;->save(Landroid/content/Context;Ljava/util/List;)Z
 
-    .line 321
+    .line 336
     invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->reloadAndRender()V
 
     goto :goto_0
@@ -958,13 +960,17 @@
 
     const/4 v3, 0x0
 
-    .line 530
+    .line 546
     :try_start_0
     invoke-static {p0}, Lcom/mrkeyboard/app/SheetStore;->exportJsonString(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 531
+    invoke-static {p0, v0}, Lcom/mrkeyboard/app/MrAbcKeys;->addToBackup(Landroid/content/Context;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 547
     invoke-virtual {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->getContentResolver()Landroid/content/ContentResolver;
 
     move-result-object v1
@@ -973,10 +979,10 @@
 
     move-result-object v1
 
-    .line 532
+    .line 548
     if-nez v1, :cond_0
 
-    .line 533
+    .line 549
     const-string v0, "mr_sheets_export_failed"
 
     const/4 v1, 0x0
@@ -993,11 +999,11 @@
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 546
+    .line 562
     :goto_0
     return-void
 
-    .line 537
+    .line 553
     :cond_0
     :try_start_1
     const-string v2, "UTF-8"
@@ -1008,16 +1014,16 @@
 
     invoke-virtual {v1, v0}, Ljava/io/OutputStream;->write([B)V
 
-    .line 538
+    .line 554
     invoke-virtual {v1}, Ljava/io/OutputStream;->flush()V
     :try_end_1
     .catchall {:try_start_1 .. :try_end_1} :catchall_0
 
-    .line 540
+    .line 556
     :try_start_2
     invoke-virtual {v1}, Ljava/io/OutputStream;->close()V
 
-    .line 542
+    .line 558
     const-string v0, "mr_sheets_exported"
 
     const/4 v1, 0x0
@@ -1036,11 +1042,11 @@
 
     goto :goto_0
 
-    .line 543
+    .line 559
     :catch_0
     move-exception v0
 
-    .line 544
+    .line 560
     const-string v0, "mr_sheets_export_failed"
 
     new-array v1, v3, [Ljava/lang/Object;
@@ -1053,14 +1059,14 @@
 
     goto :goto_0
 
-    .line 540
+    .line 556
     :catchall_0
     move-exception v0
 
     :try_start_3
     invoke-virtual {v1}, Ljava/io/OutputStream;->close()V
 
-    .line 541
+    .line 557
     throw v0
     :try_end_3
     .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_3} :catch_0
@@ -1076,7 +1082,7 @@
 
     const/4 v7, 0x0
 
-    .line 551
+    .line 567
     :try_start_0
     invoke-virtual {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->getContentResolver()Landroid/content/ContentResolver;
 
@@ -1086,10 +1092,10 @@
 
     move-result-object v0
 
-    .line 552
+    .line 568
     if-nez v0, :cond_0
 
-    .line 553
+    .line 569
     const-string v0, "mr_sheets_import_bad"
 
     const/4 v1, 0x0
@@ -1106,11 +1112,11 @@
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 596
+    .line 614
     :goto_0
     return-void
 
-    .line 557
+    .line 573
     :cond_0
     const/high16 v2, 0x100000
 
@@ -1121,16 +1127,16 @@
 
     move-result-object v2
 
-    .line 559
+    .line 575
     :try_start_2
     invoke-virtual {v0}, Ljava/io/InputStream;->close()V
     :try_end_2
     .catch Ljava/lang/Exception; {:try_start_2 .. :try_end_2} :catch_0
 
-    .line 565
+    .line 581
     if-nez v2, :cond_1
 
-    .line 566
+    .line 582
     const-string v0, "mr_sheets_import_too_big"
 
     new-array v1, v7, [Ljava/lang/Object;
@@ -1143,23 +1149,23 @@
 
     goto :goto_0
 
-    .line 559
+    .line 575
     :catchall_0
     move-exception v1
 
     :try_start_3
     invoke-virtual {v0}, Ljava/io/InputStream;->close()V
 
-    .line 560
+    .line 576
     throw v1
     :try_end_3
     .catch Ljava/lang/Exception; {:try_start_3 .. :try_end_3} :catch_0
 
-    .line 561
+    .line 577
     :catch_0
     move-exception v0
 
-    .line 562
+    .line 578
     const-string v0, "mr_sheets_import_bad"
 
     new-array v1, v7, [Ljava/lang/Object;
@@ -1172,7 +1178,7 @@
 
     goto :goto_0
 
-    .line 571
+    .line 587
     :cond_1
     :try_start_4
     invoke-static {v2}, Lcom/mrkeyboard/app/SheetModel;->parseSheets(Ljava/lang/String;)Ljava/util/ArrayList;
@@ -1181,7 +1187,7 @@
 
     move-result-object v0
 
-    .line 575
+    .line 591
     :goto_1
     if-eqz v0, :cond_2
 
@@ -1191,7 +1197,7 @@
 
     if-eqz v3, :cond_3
 
-    .line 577
+    .line 593
     :cond_2
     const-string v0, "mr_sheets_import_bad_file"
 
@@ -1205,16 +1211,16 @@
 
     goto :goto_0
 
-    .line 572
+    .line 588
     :catch_1
     move-exception v0
 
     move-object v0, v1
 
-    .line 573
+    .line 589
     goto :goto_1
 
-    .line 580
+    .line 596
     :cond_3
     new-instance v3, Landroid/app/AlertDialog$Builder;
 
@@ -1224,7 +1230,7 @@
 
     new-array v5, v7, [Ljava/lang/Object;
 
-    .line 581
+    .line 597
     invoke-direct {p0, v4, v5}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v4
@@ -1237,7 +1243,7 @@
 
     new-array v5, v6, [Ljava/lang/Object;
 
-    .line 582
+    .line 598
     invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
 
     move-result v0
@@ -1266,14 +1272,14 @@
 
     new-array v4, v7, [Ljava/lang/Object;
 
-    .line 583
+    .line 599
     invoke-direct {p0, v3, v4}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v3
 
-    new-instance v4, Lcom/mrkeyboard/app/PrefScreenSheets$18;
+    new-instance v4, Lcom/mrkeyboard/app/PrefScreenSheets$19;
 
-    invoke-direct {v4, p0, v2}, Lcom/mrkeyboard/app/PrefScreenSheets$18;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;)V
+    invoke-direct {v4, p0, v2}, Lcom/mrkeyboard/app/PrefScreenSheets$19;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;)V
 
     invoke-virtual {v0, v3, v4}, Landroid/app/AlertDialog$Builder;->setPositiveButton(Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
@@ -1283,7 +1289,7 @@
 
     new-array v3, v7, [Ljava/lang/Object;
 
-    .line 594
+    .line 612
     invoke-direct {p0, v2, v3}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v2
@@ -1292,7 +1298,7 @@
 
     move-result-object v0
 
-    .line 595
+    .line 613
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     goto/16 :goto_0
@@ -1302,7 +1308,7 @@
     .locals 3
 
     .prologue
-    .line 75
+    .line 78
     invoke-virtual {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -1317,7 +1323,7 @@
 
     move-result v0
 
-    .line 76
+    .line 79
     invoke-static {p0}, Landroid/view/LayoutInflater;->from(Landroid/content/Context;)Landroid/view/LayoutInflater;
 
     move-result-object v1
@@ -1341,7 +1347,7 @@
 
     const/4 v1, 0x0
 
-    .line 306
+    .line 321
     iget-object v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
     invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
@@ -1350,7 +1356,7 @@
 
     if-lt v2, v4, :cond_0
 
-    .line 307
+    .line 322
     const-string v2, "mr_sheets_limit"
 
     new-array v3, v0, [Ljava/lang/Object;
@@ -1367,7 +1373,7 @@
 
     invoke-direct {p0, v2, v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->toast(Ljava/lang/String;Z)V
 
-    .line 310
+    .line 325
     :goto_0
     return v0
 
@@ -1381,7 +1387,7 @@
     .locals 2
 
     .prologue
-    .line 291
+    .line 306
     if-ltz p1, :cond_0
 
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
@@ -1402,12 +1408,12 @@
 
     if-lt p2, v0, :cond_1
 
-    .line 296
+    .line 311
     :cond_0
     :goto_0
     return-void
 
-    .line 292
+    .line 307
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
@@ -1417,17 +1423,17 @@
 
     check-cast v0, Lcom/mrkeyboard/app/SheetModel$Sheet;
 
-    .line 293
+    .line 308
     iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
     invoke-virtual {v1, p2, v0}, Ljava/util/ArrayList;->add(ILjava/lang/Object;)V
 
-    .line 294
+    .line 309
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
     invoke-static {p0, v0}, Lcom/mrkeyboard/app/SheetStore;->save(Landroid/content/Context;Ljava/util/List;)Z
 
-    .line 295
+    .line 310
     invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->reloadAndRender()V
 
     goto :goto_0
@@ -1437,18 +1443,18 @@
     .locals 2
 
     .prologue
-    .line 299
+    .line 314
     invoke-virtual {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->firstTap()Z
 
     move-result v0
 
     if-nez v0, :cond_0
 
-    .line 303
+    .line 318
     :goto_0
     return-void
 
-    .line 300
+    .line 315
     :cond_0
     new-instance v0, Landroid/content/Intent;
 
@@ -1456,12 +1462,12 @@
 
     invoke-direct {v0, p0, v1}, Landroid/content/Intent;-><init>(Landroid/content/Context;Ljava/lang/Class;)V
 
-    .line 301
+    .line 316
     const-string v1, "sheet_id"
 
     invoke-virtual {v0, v1, p1}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 302
+    .line 317
     invoke-virtual {p0, v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->startActivity(Landroid/content/Intent;)V
 
     goto :goto_0
@@ -1473,31 +1479,31 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 345
+    .line 360
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
 
     move-result v3
 
-    .line 346
+    .line 361
     if-gtz v3, :cond_0
 
-    .line 361
+    .line 376
     :goto_0
     return-void
 
-    .line 347
+    .line 362
     :cond_0
     new-array v4, v3, [Ljava/lang/CharSequence;
 
     move v1, v2
 
-    .line 348
+    .line 363
     :goto_1
     if-ge v1, v3, :cond_1
 
-    .line 349
+    .line 364
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
     invoke-virtual {v0, v1}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -1506,7 +1512,7 @@
 
     check-cast v0, Lcom/mrkeyboard/app/SheetModel$Sheet;
 
-    .line 350
+    .line 365
     const-string v5, "mr_key_ed_target_sheet"
 
     const/4 v6, 0x2
@@ -1535,14 +1541,14 @@
 
     aput-object v0, v4, v1
 
-    .line 348
+    .line 363
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
     goto :goto_1
 
-    .line 352
+    .line 367
     :cond_1
     new-instance v0, Landroid/app/AlertDialog$Builder;
 
@@ -1552,7 +1558,7 @@
 
     new-array v3, v2, [Ljava/lang/Object;
 
-    .line 353
+    .line 368
     invoke-direct {p0, v1, v3}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -1561,11 +1567,11 @@
 
     move-result-object v0
 
-    new-instance v1, Lcom/mrkeyboard/app/PrefScreenSheets$12;
+    new-instance v1, Lcom/mrkeyboard/app/PrefScreenSheets$13;
 
-    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$12;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$13;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
 
-    .line 354
+    .line 369
     invoke-virtual {v0, v4, v1}, Landroid/app/AlertDialog$Builder;->setItems([Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
@@ -1574,7 +1580,7 @@
 
     new-array v2, v2, [Ljava/lang/Object;
 
-    .line 359
+    .line 374
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -1585,7 +1591,7 @@
 
     move-result-object v0
 
-    .line 360
+    .line 375
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     goto :goto_0
@@ -1599,10 +1605,10 @@
 
     const/4 v4, 0x0
 
-    .line 367
+    .line 382
     if-ne p1, v2, :cond_0
 
-    .line 368
+    .line 383
     const-string v0, "mr_sheets_default_numpad"
 
     new-array v1, v4, [Ljava/lang/Object;
@@ -1611,10 +1617,10 @@
 
     move-result-object v2
 
-    .line 369
+    .line 384
     const-string v3, "NUM"
 
-    .line 381
+    .line 396
     :goto_0
     const-string v0, "mr_sheets_new_title"
 
@@ -1640,7 +1646,7 @@
 
     move-result-object v7
 
-    new-instance v0, Lcom/mrkeyboard/app/PrefScreenSheets$13;
+    new-instance v0, Lcom/mrkeyboard/app/PrefScreenSheets$14;
 
     move-object v1, p0
 
@@ -1648,7 +1654,7 @@
 
     move-object v5, p2
 
-    invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/PrefScreenSheets$13;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;Ljava/lang/String;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
+    invoke-direct/range {v0 .. v5}, Lcom/mrkeyboard/app/PrefScreenSheets$14;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;Ljava/lang/String;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
 
     move-object v4, p0
 
@@ -1662,16 +1668,16 @@
 
     invoke-static/range {v4 .. v10}, Lcom/mrkeyboard/app/SheetNameDialog;->show(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/mrkeyboard/app/SheetNameDialog$OnNamed;)Landroid/app/AlertDialog;
 
-    .line 409
+    .line 424
     return-void
 
-    .line 370
+    .line 385
     :cond_0
     const/4 v0, 0x2
 
     if-ne p1, v0, :cond_1
 
-    .line 371
+    .line 386
     const-string v0, "mr_sheets_default_nav"
 
     new-array v1, v4, [Ljava/lang/Object;
@@ -1680,16 +1686,16 @@
 
     move-result-object v2
 
-    .line 372
+    .line 387
     const-string v3, "NAV"
 
     goto :goto_0
 
-    .line 373
+    .line 388
     :cond_1
     if-eqz p2, :cond_2
 
-    .line 374
+    .line 389
     const-string v0, "mr_sheets_copy_name"
 
     new-array v1, v2, [Ljava/lang/Object;
@@ -1708,12 +1714,12 @@
 
     move-result-object v2
 
-    .line 375
+    .line 390
     iget-object v3, p2, Lcom/mrkeyboard/app/SheetModel$Sheet;->badge:Ljava/lang/String;
 
     goto :goto_0
 
-    .line 377
+    .line 392
     :cond_2
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
@@ -1723,7 +1729,7 @@
 
     add-int/lit8 v0, v0, 0x1
 
-    .line 378
+    .line 393
     const-string v1, "mr_sheets_default_name"
 
     new-array v2, v2, [Ljava/lang/Object;
@@ -1738,7 +1744,7 @@
 
     move-result-object v2
 
-    .line 379
+    .line 394
     new-instance v1, Ljava/lang/StringBuilder;
 
     invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
@@ -1771,15 +1777,15 @@
     .prologue
     const/16 v1, 0x2000
 
-    .line 505
+    .line 520
     new-instance v0, Ljava/io/ByteArrayOutputStream;
 
     invoke-direct {v0, v1}, Ljava/io/ByteArrayOutputStream;-><init>(I)V
 
-    .line 506
+    .line 521
     new-array v1, v1, [B
 
-    .line 508
+    .line 523
     :goto_0
     invoke-virtual {p0, v1}, Ljava/io/InputStream;->read([B)I
 
@@ -1789,7 +1795,7 @@
 
     if-eq v2, v3, :cond_1
 
-    .line 509
+    .line 524
     invoke-virtual {v0}, Ljava/io/ByteArrayOutputStream;->size()I
 
     move-result v3
@@ -1800,11 +1806,11 @@
 
     const/4 v0, 0x0
 
-    .line 512
+    .line 527
     :goto_1
     return-object v0
 
-    .line 510
+    .line 525
     :cond_0
     const/4 v3, 0x0
 
@@ -1812,7 +1818,7 @@
 
     goto :goto_0
 
-    .line 512
+    .line 527
     :cond_1
     const-string v1, "UTF-8"
 
@@ -1833,17 +1839,44 @@
 
     const/4 v2, 0x0
 
-    .line 189
+    .line 200
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mAbcDesc:Landroid/widget/TextView;
+
+    if-eqz v0, :cond_0
+
+    .line 201
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrAbcKeys;->count(Landroid/content/Context;)I
+
+    move-result v0
+
+    .line 202
+    iget-object v3, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mAbcDesc:Landroid/widget/TextView;
+
+    if-nez v0, :cond_3
+
+    const-string v0, "mr_sheets_main_desc"
+
+    new-array v4, v2, [Ljava/lang/Object;
+
+    invoke-direct {p0, v0, v4}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v0
+
+    :goto_0
+    invoke-virtual {v3, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
+
+    .line 204
+    :cond_0
     invoke-static {p0}, Lcom/mrkeyboard/app/SheetStore;->getEditableCopy(Landroid/content/Context;)Ljava/util/ArrayList;
 
     move-result-object v0
 
     iput-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
-    .line 190
+    .line 205
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
-    if-nez v0, :cond_0
+    if-nez v0, :cond_1
 
     new-instance v0, Ljava/util/ArrayList;
 
@@ -1851,8 +1884,8 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
-    .line 191
-    :cond_0
+    .line 206
+    :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSubtitleView:Landroid/widget/TextView;
 
     const-string v3, "mr_sheets_subtitle"
@@ -1885,22 +1918,22 @@
 
     invoke-virtual {v0, v3}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 192
+    .line 207
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
 
     move-result v0
 
-    if-ge v0, v6, :cond_2
+    if-ge v0, v6, :cond_4
 
     move v0, v1
 
-    .line 193
-    :goto_0
+    .line 208
+    :goto_1
     iget-object v3, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mNewSheetBtn:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_3
+    if-eqz v0, :cond_5
 
     const-string v1, "mr_sheets_new"
 
@@ -1910,35 +1943,35 @@
 
     move-result-object v1
 
-    :goto_1
+    :goto_2
     invoke-virtual {v3, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 194
+    .line 209
     iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mNewSheetBtn:Landroid/widget/TextView;
 
-    if-eqz v0, :cond_4
+    if-eqz v0, :cond_6
 
     const/high16 v0, 0x3f800000    # 1.0f
 
-    :goto_2
+    :goto_3
     invoke-virtual {v1, v0}, Landroid/widget/TextView;->setAlpha(F)V
 
-    .line 195
+    .line 210
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mListContainer:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 196
+    .line 211
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
     invoke-virtual {v0}, Ljava/util/ArrayList;->size()I
 
     move-result v1
 
-    .line 197
-    if-nez v1, :cond_5
+    .line 212
+    if-nez v1, :cond_7
 
-    .line 198
+    .line 213
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mListContainer:Landroid/widget/LinearLayout;
 
     const-string v1, "mr_sheet_empty"
@@ -1951,18 +1984,36 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 204
-    :cond_1
+    .line 219
+    :cond_2
     return-void
 
-    :cond_2
-    move v0, v2
+    .line 202
+    :cond_3
+    const-string v4, "mr_sheets_main_edited"
 
-    .line 192
+    new-array v5, v1, [Ljava/lang/Object;
+
+    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v0
+
+    aput-object v0, v5, v2
+
+    invoke-direct {p0, v4, v5}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v0
+
     goto :goto_0
 
-    .line 193
-    :cond_3
+    :cond_4
+    move v0, v2
+
+    .line 207
+    goto :goto_1
+
+    .line 208
+    :cond_5
     const-string v4, "mr_sheets_new_full"
 
     new-array v1, v1, [Ljava/lang/Object;
@@ -1977,20 +2028,20 @@
 
     move-result-object v1
 
-    goto :goto_1
-
-    .line 194
-    :cond_4
-    const v0, 0x3ee66666    # 0.45f
-
     goto :goto_2
 
-    .line 201
-    :cond_5
-    :goto_3
-    if-ge v2, v1, :cond_1
+    .line 209
+    :cond_6
+    const v0, 0x3ee66666    # 0.45f
 
-    .line 202
+    goto :goto_3
+
+    .line 216
+    :cond_7
+    :goto_4
+    if-ge v2, v1, :cond_2
+
+    .line 217
     iget-object v3, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mListContainer:Landroid/widget/LinearLayout;
 
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
@@ -2007,17 +2058,17 @@
 
     invoke-virtual {v3, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 201
+    .line 216
     add-int/lit8 v2, v2, 0x1
 
-    goto :goto_3
+    goto :goto_4
 .end method
 
 .method private secondaryButton(Landroid/view/ViewGroup;ZILjava/lang/String;Ljava/lang/String;)Landroid/view/View;
     .locals 5
 
     .prologue
-    .line 179
+    .line 190
     if-eqz p2, :cond_0
 
     const-string v0, "mr_sheet_button_danger"
@@ -2027,7 +2078,7 @@
 
     move-result-object v1
 
-    .line 180
+    .line 191
     const-string v0, "icon"
 
     invoke-virtual {v1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -2038,7 +2089,7 @@
 
     new-instance v2, Lcom/mrkeyboard/app/SheetUi$IconDrawable;
 
-    .line 181
+    .line 192
     invoke-direct {p0, p4}, Lcom/mrkeyboard/app/PrefScreenSheets;->color(Ljava/lang/String;)I
 
     move-result v3
@@ -2051,10 +2102,10 @@
 
     invoke-direct {v2, p0, p3, v3, v4}, Lcom/mrkeyboard/app/SheetUi$IconDrawable;-><init>(Landroid/content/Context;III)V
 
-    .line 180
+    .line 191
     invoke-virtual {v0, v2}, Landroid/widget/ImageView;->setImageDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 182
+    .line 193
     const-string v0, "label"
 
     invoke-virtual {v1, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -2073,10 +2124,10 @@
 
     invoke-virtual {v0, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 183
+    .line 194
     return-object v1
 
-    .line 179
+    .line 190
     :cond_0
     const-string v0, "mr_sheet_button"
 
@@ -2097,12 +2148,12 @@
 
     const/4 v6, 0x0
 
-    .line 259
+    .line 274
     new-instance v7, Ljava/util/ArrayList;
 
     invoke-direct {v7, v1}, Ljava/util/ArrayList;-><init>(I)V
 
-    .line 260
+    .line 275
     new-instance v0, Lcom/mrkeyboard/app/SheetUi$MenuEntry;
 
     const-string v2, "mr_sheets_menu_edit"
@@ -2117,7 +2168,7 @@
 
     invoke-virtual {v7, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 261
+    .line 276
     new-instance v0, Lcom/mrkeyboard/app/SheetUi$MenuEntry;
 
     const/4 v2, 0x5
@@ -2134,7 +2185,7 @@
 
     invoke-virtual {v7, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 262
+    .line 277
     if-lez p2, :cond_0
 
     new-instance v0, Lcom/mrkeyboard/app/SheetUi$MenuEntry;
@@ -2153,7 +2204,7 @@
 
     invoke-virtual {v7, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 263
+    .line 278
     :cond_0
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
@@ -2181,7 +2232,7 @@
 
     invoke-virtual {v7, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 264
+    .line 279
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
@@ -2193,7 +2244,7 @@
 
     if-ge v0, v2, :cond_2
 
-    .line 265
+    .line 280
     new-instance v0, Lcom/mrkeyboard/app/SheetUi$MenuEntry;
 
     const/4 v2, 0x5
@@ -2212,13 +2263,13 @@
 
     invoke-virtual {v7, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 267
+    .line 282
     :cond_2
     iget-boolean v0, p3, Lcom/mrkeyboard/app/SheetModel$Sheet;->builtin:Z
 
     if-eqz v0, :cond_3
 
-    .line 268
+    .line 283
     new-instance v0, Lcom/mrkeyboard/app/SheetUi$MenuEntry;
 
     const/16 v2, 0xc
@@ -2237,7 +2288,7 @@
 
     invoke-virtual {v7, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 270
+    .line 285
     :cond_3
     new-instance v0, Lcom/mrkeyboard/app/SheetUi$MenuEntry;
 
@@ -2266,7 +2317,7 @@
 
     invoke-virtual {v7, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 271
+    .line 286
     iget-object v0, p3, Lcom/mrkeyboard/app/SheetModel$Sheet;->badge:Ljava/lang/String;
 
     const-string v1, "123"
@@ -2277,9 +2328,9 @@
 
     iget-object v3, p3, Lcom/mrkeyboard/app/SheetModel$Sheet;->name:Ljava/lang/String;
 
-    new-instance v5, Lcom/mrkeyboard/app/PrefScreenSheets$10;
+    new-instance v5, Lcom/mrkeyboard/app/PrefScreenSheets$11;
 
-    invoke-direct {v5, p0, p3, p2}, Lcom/mrkeyboard/app/PrefScreenSheets$10;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;Lcom/mrkeyboard/app/SheetModel$Sheet;I)V
+    invoke-direct {v5, p0, p3, p2}, Lcom/mrkeyboard/app/PrefScreenSheets$11;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;Lcom/mrkeyboard/app/SheetModel$Sheet;I)V
 
     move-object v0, p0
 
@@ -2289,13 +2340,13 @@
 
     invoke-static/range {v0 .. v5}, Lcom/mrkeyboard/app/SheetUi;->showPopupMenu(Landroid/content/Context;Landroid/view/View;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Lcom/mrkeyboard/app/SheetUi$OnMenuSelect;)V
 
-    .line 286
+    .line 301
     return-void
 
     :cond_4
     move v5, v6
 
-    .line 270
+    .line 285
     goto :goto_0
 .end method
 
@@ -2309,7 +2360,7 @@
 
     const/4 v4, 0x0
 
-    .line 325
+    .line 340
     invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->limitReached()Z
 
     move-result v0
@@ -2322,12 +2373,12 @@
 
     if-nez v0, :cond_1
 
-    .line 342
+    .line 357
     :cond_0
     :goto_0
     return-void
 
-    .line 326
+    .line 341
     :cond_1
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSheets:Ljava/util/ArrayList;
 
@@ -2339,7 +2390,7 @@
 
     move v2, v3
 
-    .line 327
+    .line 342
     :goto_1
     if-eqz v2, :cond_4
 
@@ -2348,7 +2399,7 @@
     :goto_2
     new-array v0, v0, [Ljava/lang/CharSequence;
 
-    .line 328
+    .line 343
     const-string v5, "mr_sheets_tpl_blank"
 
     new-array v6, v4, [Ljava/lang/Object;
@@ -2359,7 +2410,7 @@
 
     aput-object v5, v0, v4
 
-    .line 329
+    .line 344
     const-string v5, "mr_sheets_tpl_numpad"
 
     new-array v6, v4, [Ljava/lang/Object;
@@ -2370,7 +2421,7 @@
 
     aput-object v5, v0, v3
 
-    .line 330
+    .line 345
     const/4 v3, 0x2
 
     const-string v5, "mr_sheets_tpl_nav"
@@ -2383,7 +2434,7 @@
 
     aput-object v5, v0, v3
 
-    .line 331
+    .line 346
     if-eqz v2, :cond_2
 
     const-string v2, "mr_sheets_tpl_copy"
@@ -2396,7 +2447,7 @@
 
     aput-object v2, v0, v1
 
-    .line 332
+    .line 347
     :cond_2
     new-instance v1, Landroid/app/AlertDialog$Builder;
 
@@ -2406,7 +2457,7 @@
 
     new-array v3, v4, [Ljava/lang/Object;
 
-    .line 333
+    .line 348
     invoke-direct {p0, v2, v3}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v2
@@ -2415,11 +2466,11 @@
 
     move-result-object v1
 
-    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$11;
+    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$12;
 
-    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$11;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$12;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
 
-    .line 334
+    .line 349
     invoke-virtual {v1, v0, v2}, Landroid/app/AlertDialog$Builder;->setItems([Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
@@ -2428,7 +2479,7 @@
 
     new-array v2, v4, [Ljava/lang/Object;
 
-    .line 340
+    .line 355
     invoke-direct {p0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
 
     move-result-object v1
@@ -2439,7 +2490,7 @@
 
     move-result-object v0
 
-    .line 341
+    .line 356
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     goto :goto_0
@@ -2447,13 +2498,13 @@
     :cond_3
     move v2, v4
 
-    .line 326
+    .line 341
     goto :goto_1
 
     :cond_4
     move v0, v1
 
-    .line 327
+    .line 342
     goto :goto_2
 .end method
 
@@ -2463,7 +2514,7 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 412
+    .line 427
     const-string v0, "mr_sheets_rename_title"
 
     new-array v1, v3, [Ljava/lang/Object;
@@ -2492,15 +2543,15 @@
 
     iget-object v5, p1, Lcom/mrkeyboard/app/SheetModel$Sheet;->badge:Ljava/lang/String;
 
-    new-instance v6, Lcom/mrkeyboard/app/PrefScreenSheets$14;
+    new-instance v6, Lcom/mrkeyboard/app/PrefScreenSheets$15;
 
-    invoke-direct {v6, p0, p1}, Lcom/mrkeyboard/app/PrefScreenSheets$14;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;Lcom/mrkeyboard/app/SheetModel$Sheet;)V
+    invoke-direct {v6, p0, p1}, Lcom/mrkeyboard/app/PrefScreenSheets$15;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;Lcom/mrkeyboard/app/SheetModel$Sheet;)V
 
     move-object v0, p0
 
     invoke-static/range {v0 .. v6}, Lcom/mrkeyboard/app/SheetNameDialog;->show(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/mrkeyboard/app/SheetNameDialog$OnNamed;)Landroid/app/AlertDialog;
 
-    .line 421
+    .line 436
     return-void
 .end method
 
@@ -2508,7 +2559,7 @@
     .locals 1
 
     .prologue
-    .line 174
+    .line 185
     invoke-virtual {p1, p2}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
     move-result-object v0
@@ -2524,18 +2575,18 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 475
+    .line 490
     invoke-virtual {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->firstTap()Z
 
     move-result v0
 
     if-nez v0, :cond_0
 
-    .line 485
+    .line 500
     :goto_0
     return-void
 
-    .line 477
+    .line 492
     :cond_0
     :try_start_0
     new-instance v0, Landroid/content/Intent;
@@ -2544,24 +2595,24 @@
 
     invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 478
+    .line 493
     const-string v1, "android.intent.category.OPENABLE"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 479
+    .line 494
     const-string v1, "application/json"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 480
+    .line 495
     const-string v1, "android.intent.extra.TITLE"
 
     const-string v2, "mr-keyboard-sheets.json"
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Intent;->putExtra(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 481
+    .line 496
     const/16 v1, 0x1005
 
     invoke-virtual {p0, v0, v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->startActivityForResult(Landroid/content/Intent;I)V
@@ -2570,11 +2621,11 @@
 
     goto :goto_0
 
-    .line 482
+    .line 497
     :catch_0
     move-exception v0
 
-    .line 483
+    .line 498
     const-string v0, "mr_sheets_picker_error"
 
     new-array v1, v3, [Ljava/lang/Object;
@@ -2594,18 +2645,18 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 488
+    .line 503
     invoke-virtual {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->firstTap()Z
 
     move-result v0
 
     if-nez v0, :cond_0
 
-    .line 498
+    .line 513
     :goto_0
     return-void
 
-    .line 490
+    .line 505
     :cond_0
     :try_start_0
     new-instance v0, Landroid/content/Intent;
@@ -2614,17 +2665,17 @@
 
     invoke-direct {v0, v1}, Landroid/content/Intent;-><init>(Ljava/lang/String;)V
 
-    .line 491
+    .line 506
     const-string v1, "android.intent.category.OPENABLE"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->addCategory(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 492
+    .line 507
     const-string v1, "*/*"
 
     invoke-virtual {v0, v1}, Landroid/content/Intent;->setType(Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 493
+    .line 508
     const-string v1, "android.intent.extra.MIME_TYPES"
 
     const/4 v2, 0x3
@@ -2651,7 +2702,7 @@
 
     invoke-virtual {v0, v1, v2}, Landroid/content/Intent;->putExtra(Ljava/lang/String;[Ljava/lang/String;)Landroid/content/Intent;
 
-    .line 494
+    .line 509
     const/16 v1, 0x1006
 
     invoke-virtual {p0, v0, v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->startActivityForResult(Landroid/content/Intent;I)V
@@ -2660,11 +2711,11 @@
 
     goto :goto_0
 
-    .line 495
+    .line 510
     :catch_0
     move-exception v0
 
-    .line 496
+    .line 511
     const-string v0, "mr_sheets_picker_error"
 
     new-array v1, v5, [Ljava/lang/Object;
@@ -2682,7 +2733,7 @@
     .locals 3
 
     .prologue
-    .line 65
+    .line 68
     invoke-virtual {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -2697,10 +2748,10 @@
 
     move-result v0
 
-    .line 66
+    .line 69
     if-nez v0, :cond_0
 
-    .line 67
+    .line 70
     :goto_0
     return-object p1
 
@@ -2738,7 +2789,7 @@
     .locals 1
 
     .prologue
-    .line 84
+    .line 87
     if-eqz p2, :cond_0
 
     const/4 v0, 0x1
@@ -2750,10 +2801,10 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 85
+    .line 88
     return-void
 
-    .line 84
+    .line 87
     :cond_0
     const/4 v0, 0x0
 
@@ -2766,14 +2817,14 @@
     .locals 1
 
     .prologue
-    .line 99
+    .line 102
     invoke-static {p1}, Lcom/mrkeyboard/app/UiLocale;->wrap(Landroid/content/Context;)Landroid/content/Context;
 
     move-result-object v0
 
     invoke-super {p0, v0}, Landroid/app/Activity;->attachBaseContext(Landroid/content/Context;)V
 
-    .line 100
+    .line 103
     return-void
 .end method
 
@@ -2781,12 +2832,12 @@
     .locals 6
 
     .prologue
-    .line 89
+    .line 92
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v0
 
-    .line 90
+    .line 93
     iget-wide v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mLastOpen:J
 
     sub-long v2, v0, v2
@@ -2799,15 +2850,15 @@
 
     const/4 v0, 0x0
 
-    .line 92
+    .line 95
     :goto_0
     return v0
 
-    .line 91
+    .line 94
     :cond_0
     iput-wide v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mLastOpen:J
 
-    .line 92
+    .line 95
     const/4 v0, 0x1
 
     goto :goto_0
@@ -2817,47 +2868,47 @@
     .locals 2
 
     .prologue
-    .line 517
+    .line 532
     invoke-super {p0, p1, p2, p3}, Landroid/app/Activity;->onActivityResult(IILandroid/content/Intent;)V
 
-    .line 518
+    .line 533
     const/4 v0, -0x1
 
     if-ne p2, v0, :cond_0
 
     if-nez p3, :cond_1
 
-    .line 526
+    .line 541
     :cond_0
     :goto_0
     return-void
 
-    .line 519
+    .line 534
     :cond_1
     invoke-virtual {p3}, Landroid/content/Intent;->getData()Landroid/net/Uri;
 
     move-result-object v0
 
-    .line 520
+    .line 535
     if-eqz v0, :cond_0
 
-    .line 521
+    .line 536
     const/16 v1, 0x1005
 
     if-ne p1, v1, :cond_2
 
-    .line 522
+    .line 537
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->exportTo(Landroid/net/Uri;)V
 
     goto :goto_0
 
-    .line 523
+    .line 538
     :cond_2
     const/16 v1, 0x1006
 
     if-ne p1, v1, :cond_0
 
-    .line 524
+    .line 539
     invoke-direct {p0, v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->importFrom(Landroid/net/Uri;)V
 
     goto :goto_0
@@ -2875,10 +2926,10 @@
 
     const/4 v2, 0x0
 
-    .line 104
+    .line 107
     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
 
-    .line 105
+    .line 108
     const-string v0, "mr_sheets_screen"
 
     const/4 v1, 0x0
@@ -2887,7 +2938,7 @@
 
     move-result-object v6
 
-    .line 106
+    .line 109
     const-string v0, "subtitle"
 
     invoke-virtual {v6, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -2898,7 +2949,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mSubtitleView:Landroid/widget/TextView;
 
-    .line 107
+    .line 110
     const-string v0, "list"
 
     invoke-virtual {v6, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -2909,7 +2960,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mListContainer:Landroid/widget/LinearLayout;
 
-    .line 108
+    .line 111
     const-string v0, "new_btn"
 
     invoke-virtual {v6, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
@@ -2920,7 +2971,7 @@
 
     iput-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mNewSheetBtn:Landroid/widget/TextView;
 
-    .line 111
+    .line 114
     const/4 v0, 0x2
 
     const-string v1, "mr_ui_text"
@@ -2943,14 +2994,14 @@
 
     move-result-object v0
 
-    .line 112
+    .line 115
     new-instance v1, Lcom/mrkeyboard/app/PrefScreenSheets$1;
 
     invoke-direct {v1, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$1;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
 
     invoke-virtual {v0, v1}, Landroid/widget/ImageView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 117
+    .line 120
     const-string v1, "back_slot"
 
     invoke-direct {p0, v6, v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->slot(Landroid/view/View;Ljava/lang/String;)Landroid/widget/LinearLayout;
@@ -2963,8 +3014,8 @@
 
     invoke-virtual {v1, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 121
-    const-string v0, "lock"
+    .line 124
+    const-string v0, "edit_icon"
 
     invoke-virtual {v6, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
 
@@ -2972,10 +3023,10 @@
 
     check-cast v0, Landroid/widget/ImageView;
 
-    .line 122
+    .line 125
     new-instance v1, Lcom/mrkeyboard/app/SheetUi$IconDrawable;
 
-    const/16 v3, 0xf
+    const/4 v3, 0x5
 
     const-string v4, "mr_ui_text3"
 
@@ -2983,7 +3034,7 @@
 
     move-result v4
 
-    const/high16 v5, 0x41a00000    # 20.0f
+    const/high16 v5, 0x41900000    # 18.0f
 
     invoke-direct {p0, v5}, Lcom/mrkeyboard/app/PrefScreenSheets;->dp(F)I
 
@@ -2993,7 +3044,43 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/ImageView;->setImageDrawable(Landroid/graphics/drawable/Drawable;)V
 
-    .line 125
+    .line 126
+    const-string v0, "abc_desc"
+
+    invoke-virtual {v6, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v0
+
+    check-cast v0, Landroid/widget/TextView;
+
+    iput-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mAbcDesc:Landroid/widget/TextView;
+
+    .line 127
+    const-string v0, "abc_card"
+
+    invoke-virtual {v6, v0}, Landroid/view/View;->findViewWithTag(Ljava/lang/Object;)Landroid/view/View;
+
+    move-result-object v0
+
+    .line 128
+    const-string v1, "mr_sheets_abc_edit_desc"
+
+    new-array v3, v2, [Ljava/lang/Object;
+
+    invoke-direct {p0, v1, v3}, Lcom/mrkeyboard/app/PrefScreenSheets;->t(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setContentDescription(Ljava/lang/CharSequence;)V
+
+    .line 129
+    new-instance v1, Lcom/mrkeyboard/app/PrefScreenSheets$2;
+
+    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$2;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+
+    invoke-virtual {v0, v1}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    .line 136
     const-string v0, "option_slot"
 
     invoke-direct {p0, v6, v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->slot(Landroid/view/View;Ljava/lang/String;)Landroid/widget/LinearLayout;
@@ -3006,23 +3093,23 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 127
+    .line 138
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets;->mNewSheetBtn:Landroid/widget/TextView;
 
-    new-instance v1, Lcom/mrkeyboard/app/PrefScreenSheets$2;
+    new-instance v1, Lcom/mrkeyboard/app/PrefScreenSheets$3;
 
-    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$2;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$3;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 134
+    .line 145
     const-string v0, "io_row"
 
     invoke-direct {p0, v6, v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->slot(Landroid/view/View;Ljava/lang/String;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 135
+    .line 146
     const/16 v3, 0xa
 
     const-string v4, "mr_ui_mint"
@@ -3035,19 +3122,19 @@
 
     move-result-object v0
 
-    .line 136
-    new-instance v3, Lcom/mrkeyboard/app/PrefScreenSheets$3;
+    .line 147
+    new-instance v3, Lcom/mrkeyboard/app/PrefScreenSheets$4;
 
-    invoke-direct {v3, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$3;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+    invoke-direct {v3, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$4;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
 
     invoke-virtual {v0, v3}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 141
+    .line 152
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v3, v2, v8, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
-    .line 142
+    .line 153
     const/high16 v4, 0x41000000    # 8.0f
 
     invoke-direct {p0, v4}, Lcom/mrkeyboard/app/PrefScreenSheets;->dp(F)I
@@ -3056,10 +3143,10 @@
 
     invoke-virtual {v3, v2, v2, v4, v2}, Landroid/widget/LinearLayout$LayoutParams;->setMargins(IIII)V
 
-    .line 143
+    .line 154
     invoke-virtual {v1, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 144
+    .line 155
     const/16 v3, 0xb
 
     const-string v4, "mr_ui_cyan"
@@ -3072,28 +3159,28 @@
 
     move-result-object v0
 
-    .line 145
-    new-instance v3, Lcom/mrkeyboard/app/PrefScreenSheets$4;
+    .line 156
+    new-instance v3, Lcom/mrkeyboard/app/PrefScreenSheets$5;
 
-    invoke-direct {v3, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$4;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+    invoke-direct {v3, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$5;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
 
     invoke-virtual {v0, v3}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 150
+    .line 161
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     invoke-direct {v3, v2, v8, v7}, Landroid/widget/LinearLayout$LayoutParams;-><init>(IIF)V
 
     invoke-virtual {v1, v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 152
+    .line 163
     const-string v0, "restore_slot"
 
     invoke-direct {p0, v6, v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->slot(Landroid/view/View;Ljava/lang/String;)Landroid/widget/LinearLayout;
 
     move-result-object v1
 
-    .line 153
+    .line 164
     const/4 v2, 0x1
 
     const/16 v3, 0xc
@@ -3108,20 +3195,20 @@
 
     move-result-object v0
 
-    .line 154
-    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$5;
+    .line 165
+    new-instance v2, Lcom/mrkeyboard/app/PrefScreenSheets$6;
 
-    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$5;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+    invoke-direct {v2, p0}, Lcom/mrkeyboard/app/PrefScreenSheets$6;-><init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
 
     invoke-virtual {v0, v2}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 159
+    .line 170
     invoke-virtual {v1, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 161
+    .line 172
     invoke-virtual {p0, v6}, Lcom/mrkeyboard/app/PrefScreenSheets;->setContentView(Landroid/view/View;)V
 
-    .line 162
+    .line 173
     return-void
 .end method
 
@@ -3129,20 +3216,20 @@
     .locals 2
 
     .prologue
-    .line 166
+    .line 177
     invoke-super {p0}, Landroid/app/Activity;->onResume()V
 
-    .line 167
+    .line 178
     invoke-direct {p0}, Lcom/mrkeyboard/app/PrefScreenSheets;->reloadAndRender()V
 
-    .line 168
+    .line 179
     invoke-static {}, Lcom/mrkeyboard/app/SheetStore;->consumeCorruptRecoveryFlag()Z
 
     move-result v0
 
     if-eqz v0, :cond_0
 
-    .line 169
+    .line 180
     const-string v0, "mr_sheets_corrupt"
 
     const/4 v1, 0x0
@@ -3157,7 +3244,7 @@
 
     invoke-direct {p0, v0, v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->toast(Ljava/lang/String;Z)V
 
-    .line 171
+    .line 182
     :cond_0
     return-void
 .end method

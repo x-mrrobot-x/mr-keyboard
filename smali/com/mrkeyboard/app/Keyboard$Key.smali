@@ -2272,6 +2272,35 @@
     return-object v0
 .end method
 
+# Edited keys of ABC (MrAbcKeys): a key of the XML that now writes something else gets its capital for Shift again (null = no capital:
+# the label stays as it is with Shift) and forgets the hints worked out from its old label and popup (they are worked out again).
+.method public mrSetCase(Ljava/lang/CharSequence;)V
+    .locals 2
+
+    iput-object p1, p0, Lcom/mrkeyboard/app/Keyboard$Key;->shiftLabel:Ljava/lang/CharSequence;
+
+    const/4 v0, 0x0
+
+    iput-object v0, p0, Lcom/mrkeyboard/app/Keyboard$Key;->capsLabel:Ljava/lang/CharSequence;
+
+    iput-object v0, p0, Lcom/mrkeyboard/app/Keyboard$Key;->hint:Ljava/lang/String;
+
+    iput-object v0, p0, Lcom/mrkeyboard/app/Keyboard$Key;->altHint:Ljava/lang/String;
+
+    iput-boolean v0, p0, Lcom/mrkeyboard/app/Keyboard$Key;->isDistinctUppercase:Z
+
+    const/4 v1, 0x1
+
+    if-nez p1, :cond_mr_case_simple
+
+    move v1, v0
+
+    :cond_mr_case_simple
+    iput-boolean v1, p0, Lcom/mrkeyboard/app/Keyboard$Key;->isSimpleUppercase:Z
+
+    return-void
+.end method
+
 .method public squaredDistanceFrom(II)I
     .locals 2
 

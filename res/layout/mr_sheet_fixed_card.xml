@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- The ABC card of "Keyboard sheets": always the first sheet; a tap opens its keys in the editor (the pencil on the right). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:tag="abc_card"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:background="?attr/mrSheetFixed"
@@ -38,6 +43,7 @@
             android:layout_height="wrap_content"
             android:text="@string/mr_sheets_main_title" />
         <TextView
+            android:tag="abc_desc"
             android:textSize="12sp"
             android:textColor="@color/mr_ui_text3"
             android:layout_width="wrap_content"
@@ -45,7 +51,7 @@
             android:text="@string/mr_sheets_main_desc" />
     </LinearLayout>
     <ImageView
-        android:tag="lock"
+        android:tag="edit_icon"
         android:layout_width="24dp"
         android:layout_height="24dp" />
 </LinearLayout>

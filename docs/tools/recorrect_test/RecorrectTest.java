@@ -79,7 +79,10 @@ public class RecorrectTest {
                 && !MrRecorrect.eligible("9h"));
         check("one digit typed for a letter (obr8gado, 5udo, t3ma)", MrRecorrect.eligible("obr8gado") && MrRecorrect.eligible("5udo")
                 && MrRecorrect.eligible("t3ma"));
-        check("two digits or a digit and a symbol no (iphone11, ab-1c)", !MrRecorrect.eligible("iphone11") && !MrRecorrect.eligible("ab-1c"));
+        check("two digits together, two in a short word, three, or a digit and a symbol no (iphone11, a1b2, 0br1gad0, ab-1c)",
+                !MrRecorrect.eligible("iphone11") && !MrRecorrect.eligible("a1b2") && !MrRecorrect.eligible("0br1gad0")
+                && !MrRecorrect.eligible("ab-1c"));
+        check("two digits apart in a word of 6 or more (obr1gad8, s3cr3t)", MrRecorrect.eligible("obr1gad8") && MrRecorrect.eligible("s3cr3t"));
         check("only symbols no", !MrRecorrect.eligible("--") && !MrRecorrect.eligible("'\""));
         StringBuilder w48 = new StringBuilder(), w49 = new StringBuilder();
         for (int i = 0; i < 48; i++) w48.append('a');

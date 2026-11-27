@@ -22,7 +22,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 /**
- * "Folhas do teclado" (keyboard sheets) page: the fixed ABC card, the "return to the main sheet" switch, the list of the
+ * "Folhas do teclado" (keyboard sheets) page: the ABC card (always first; a tap opens its keys in the editor, MrAbcKeys, and the card says
+ * how many keys were changed), the "return to the main sheet" switch, the list of the
  * sheets in the order of the cycle (with its note) and, on each card, move up/down and the menu (edit, name and badge, move,
  * duplicate, restore, delete); the "+ New sheet" button with its templates; and the backup section (export, import, restore
  * the default sheets). The backup lives in that section only: the ⋮ of the header that repeated it is gone.
@@ -56,6 +57,8 @@ public class PrefScreenSheets extends Activity {
     private LinearLayout mListContainer;
     private TextView mSubtitleView;
     private TextView mNewSheetBtn;
+    /** The line under the title of the ABC card: what it is, or how many of its keys were changed. */
+    private TextView mAbcDesc;
     private long mLastOpen = -TAP_GAP_MS;
 
     // ------------------------------------------------------------------ resources by name
@@ -117,9 +120,17 @@ public class PrefScreenSheets extends Activity {
         slot(root, "back_slot").addView(back, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
-        // fixed ABC card: just the lock icon is drawn
-        ImageView lock = (ImageView) root.findViewWithTag("lock");
-        lock.setImageDrawable(new SheetUi.IconDrawable(this, SheetUi.ICON_LOCK, color("mr_ui_text3"), dp(20)));
+        // ABC card: first and fixed in the cycle; a tap opens its keys in the editor (the pencil says so)
+        ImageView pencil = (ImageView) root.findViewWithTag("edit_icon");
+        pencil.setImageDrawable(new SheetUi.IconDrawable(this, SheetUi.ICON_RENAME, color("mr_ui_text3"), dp(18)));
+        mAbcDesc = (TextView) root.findViewWithTag("abc_desc");
+        View abcCard = root.findViewWithTag("abc_card");
+        abcCard.setContentDescription(t("mr_sheets_abc_edit_desc"));
+        abcCard.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                openEditor(MrAbcKeys.ID);
+            }
+        });
 
         // switch "return to the main sheet when typing"
         slot(root, "option_slot").addView(MrSheetOpt.row(this));
@@ -186,6 +197,10 @@ public class PrefScreenSheets extends Activity {
     // ------------------------------------------------------------------ list
 
     private void reloadAndRender() {
+        if (mAbcDesc != null) {
+            int edited = MrAbcKeys.count(this);
+            mAbcDesc.setText(edited == 0 ? t("mr_sheets_main_desc") : t("mr_sheets_main_edited", Integer.valueOf(edited)));
+        }
         mSheets = SheetStore.getEditableCopy(this);
         if (mSheets == null) mSheets = new ArrayList<SheetModel.Sheet>();
         mSubtitleView.setText(t("mr_sheets_subtitle", Integer.valueOf(mSheets.size()), Integer.valueOf(SheetModel.MAX_SHEETS)));
@@ -527,7 +542,8 @@ public class PrefScreenSheets extends Activity {
 
     private void exportTo(Uri uri) {
         try {
-            String json = SheetStore.exportJsonString(this);
+            // the backup of the sheets also carries the keys of ABC that were changed
+            String json = MrAbcKeys.addToBackup(this, SheetStore.exportJsonString(this));
             OutputStream os = getContentResolver().openOutputStream(uri);
             if (os == null) {
                 toast(t("mr_sheets_export_failed"), true);
@@ -584,6 +600,8 @@ public class PrefScreenSheets extends Activity {
                     public void onClick(DialogInterface dialog, int which) {
                         try {
                             int n = SheetStore.importJsonString(PrefScreenSheets.this, raw);
+                            // the keys of ABC that the file has (a backup without them leaves ABC as it is)
+                            MrAbcKeys.takeFromBackup(PrefScreenSheets.this, raw);
                             reloadAndRender();
                             toast(t("mr_sheets_imported", Integer.valueOf(n)), false);
                         } catch (Exception e) {

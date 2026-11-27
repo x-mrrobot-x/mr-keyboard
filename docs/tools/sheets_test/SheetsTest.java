@@ -360,6 +360,37 @@ public class SheetsTest {
                 keySrc.contains("if (mPopup || !(mCanMoveLeft || mCanMoveRight || mCanDuplicate || mCanDelete))"));
         String listSrc = read("docs/tools/java/src/com/mrkeyboard/app/PrefScreenSheets.java");
         check("page: two quick taps open the editor once", listSrc.contains("if (!firstTap()) return;") && listSrc.contains("TAP_GAP_MS = 700L"));
+
+        // the keys of ABC (MrAbcKeys): the keyboard puts them on ABC, the editor and the page reach them
+        String switcher = read("smali/com/mrkeyboard/app/KeyboardSwitcher.smali");
+        String getKb = method(switcher, ".method private getKeyboard(");
+        String apply = "invoke-static {v5, v4, v6}, Lcom/mrkeyboard/app/MrAbcKeys;->apply(Landroid/content/Context;Lcom/mrkeyboard/app/Keyboard;I)V";
+        check("KeyboardSwitcher.getKeyboard: the edits of ABC go on the keyboard read from the XML (after it is made, before it is kept)",
+                getKb.contains(apply) && getKb.indexOf(apply) > getKb.indexOf("LatinKeyboard;-><init>(Landroid/content/Context;IIF)V")
+                        && getKb.indexOf(apply) < getKb.lastIndexOf(":goto_after_kbd") && count(switcher, "MrAbcKeys;->") == 1);
+        String key = read("smali/com/mrkeyboard/app/Keyboard$Key.smali");
+        String setCase = method(key, ".method public mrSetCase(Ljava/lang/CharSequence;)V");
+        check("Keyboard.Key.mrSetCase: the capital for Shift, and the old hints forgotten", setCase.contains("->shiftLabel:")
+                && setCase.contains("->isSimpleUppercase:Z") && setCase.contains("->isDistinctUppercase:Z") && setCase.contains("->hint:")
+                && setCase.contains("->altHint:") && setCase.contains("->capsLabel:"));
+        check("SheetKeyboardBuilder.configureKeyFromSpec is public (the keys of ABC use it)",
+                read("smali/com/mrkeyboard/app/SheetKeyboardBuilder.smali").contains(".method public static configureKeyFromSpec("));
+        String fixed = read("res/layout/mr_sheet_fixed_card.xml");
+        check("ABC card: it is a button, with the line that counts the keys changed and the pencil", fixed.contains("android:tag=\"abc_card\"")
+                && fixed.contains("android:clickable=\"true\"") && fixed.contains("android:tag=\"abc_desc\"") && fixed.contains("android:tag=\"edit_icon\""));
+        check("editor: the hint and the row tools can be changed for ABC", ed.contains("android:tag=\"hint\"") && ed.contains("android:tag=\"tools_row\""));
+        check("page: the ABC card opens ABC in the editor and the backup carries its keys", listSrc.contains("openEditor(MrAbcKeys.ID)")
+                && listSrc.contains("MrAbcKeys.addToBackup(") && listSrc.contains("MrAbcKeys.takeFromBackup("));
+        check("editor: ABC has its own key editor (no width, no actions) and saves the edits of ABC", edSrc.contains("KeyEditDialog.showForFixedKey(")
+                && edSrc.contains("MrAbcKeys.save(this, mAbc)") && edSrc.contains("mGridView.setFixed(mAbc.lockedMap())"));
+        boolean abcTexts = true;
+        for (String n : new String[] { "mr_sheets_main_edited", "mr_sheets_abc_edit_desc", "mr_abc_ed_hint", "mr_abc_ed_none", "mr_abc_ed_count",
+                "mr_abc_fixed_key", "mr_abc_menu_restore", "mr_abc_restore_title", "mr_abc_restore_msg", "mr_abc_restored", "mr_abc_save_failed" }) {
+            abcTexts &= pt.containsKey(n) && en.containsKey(n) && es.containsKey(n);
+        }
+        check("the texts of ABC in Portuguese, English and Spanish, with the count as a value", abcTexts
+                && pt.get("mr_abc_ed_count").contains("%1$d") && es.get("mr_sheets_main_edited").contains("%1$d")
+                && !pt.get("mr_sheets_main_desc").contains("Fixo"));
     }
 
     static String method(String smali, String head) {

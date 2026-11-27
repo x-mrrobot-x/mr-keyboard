@@ -24,6 +24,19 @@ public class Keyboard {
         public boolean on;
         /** Keyboard.EDGE_*: on these sides the key reaches to the edge of the keyboard. */
         public int edgeFlags;
+        /** Label, icon, gap before the key, a key of the system (Shift, delete...), long-press popup (characters and template, or keys). */
+        public CharSequence label;
+        public android.graphics.drawable.Drawable icon;
+        public int gap;
+        public boolean modifier;
+        public CharSequence popupCharacters;
+        public int popupResId;
+        public java.util.List popupKeys;
+        public CharSequence shiftLabel;
+
+        /** Added to the real class in the smali (MrAbcKeys): the capital of Shift for a key that changed. Tests only: what it got. */
+        public void mrSetCase(CharSequence shift) { shiftLabel = shift; stubCaseSet = true; }
+        public boolean stubCaseSet;
 
         public Key(int code, int x, int y, int width, int height) {
             this.codes = new int[] {code};
@@ -36,6 +49,11 @@ public class Keyboard {
             return dx * dx + dy * dy;
         }
     }
+
+    public Keyboard() { }
+
+    /** The real one reads the XML (default height, xml, mode, height in percent); here no key. */
+    public Keyboard(android.content.Context context, int defaultHeight, int xmlLayoutResId, int modeId, float kbHeightPercent) { }
 
     /** Tests only. */
     public final List<Key> keys = new ArrayList<Key>();

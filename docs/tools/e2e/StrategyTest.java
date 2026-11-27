@@ -547,8 +547,11 @@ public class StrategyTest {
             digit("5udo", true, "Tudo", true, false);
             sCenter = false;
             digit("3u", false, "eu", false, false);                 // 2 characters: only a suggestion
+            digit("obr1gado", false, "obrigado", true, false);      // inside the word: any letter
+            digit("obrigad8", false, "obrigado", true, false);      // at the end: the letter under the digit or one beside it
+            digit("obr1gad8", false, "obrigado", true, false);      // two digits apart in a longer word
             for (String t : new String[] {"teste1", "aula2", "grupo1", "iphone11", "mp3", "ps4", "a4", "f1", "gr8", "obrigado1",
-                    "9h", "3d", "5g", "2x", "5km", "3dias", "4h30", "2go"}) {
+                    "9h", "3d", "5g", "2x", "5km", "3dias", "4h30", "2go", "win7", "top5", "web3", "p2p", "obr18ado"}) {
                 digit(t, false, null, false, false);                // written on purpose: never replaced
             }
             digitNever("mp3", "MP4");
@@ -557,7 +560,10 @@ public class StrategyTest {
             digit("9nly", false, "only", true, false);
             digit("3very", false, "every", true, false);
             digit("wh9", false, "who", true, false);
-            for (String t : new String[] {"2nd", "4th", "9am", "5pm", "b4", "gr8", "k9", "2go", "mp3"}) digit(t, false, null, false, false);
+            digit("s3cr3t", false, "secret", true, false);
+            for (String t : new String[] {"2nd", "4th", "9am", "5pm", "b4", "gr8", "k9", "2go", "mp3", "p2p", "y2k", "g2g", "win7", "web3", "top5"}) {
+                digit(t, false, null, false, false);
+            }
         } else if (lang.equals("es")) {
             digit("h9la", false, "hola", true, false);
             digit("3ntonces", false, "entonces", true, false);

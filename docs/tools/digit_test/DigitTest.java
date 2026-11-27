@@ -80,10 +80,25 @@ public class DigitTest {
                 && MrFuzzy.digitSlip("4ua", "rua"));
         check("3 characters, digit at an end, another letter: no (mp3 -> mpo, 2go -> ego)", !MrFuzzy.digitSlip("mp3", "mpo")
                 && !MrFuzzy.digitSlip("2go", "ego"));
-        check("accents of the other letters ignored (n3o -> não)", MrFuzzy.digitSlip("n3o", "não"));
+        check("accents of the other letters ignored (c9ração -> coração)", MrFuzzy.digitSlip("c9ração", "coração"));
+        check("3 characters: only the letter right under the digit, also in the middle (p2p -> pep, n3o -> não no)",
+                !MrFuzzy.digitSlip("p2p", "pep") && !MrFuzzy.digitSlip("n3o", "não") && MrFuzzy.digitSlip("p9r", "por"));
+        check("start of a word: only the letter right under the digit (2go -> ego, 0br1gado -> obrigado no)",
+                !MrFuzzy.digitSlip("2go", "ego") && !MrFuzzy.digitSlip("0brigado", "obrigado") && MrFuzzy.digitSlip("9nde", "onde"));
+        check("end of a word: the letter under the digit or one beside it (obrigad8, obrigad9 -> obrigado; obrigad7 no)",
+                MrFuzzy.digitSlip("obrigad8", "obrigado") && MrFuzzy.digitSlip("obrigad9", "obrigado") && !MrFuzzy.digitSlip("obrigad7", "obrigado"));
+        check("end of a word: a number written on purpose stays (win7 -> wins, top5 -> topo, web3 -> webs)", !MrFuzzy.digitSlip("win7", "wins")
+                && !MrFuzzy.digitSlip("top5", "topo") && !MrFuzzy.digitSlip("web3", "webs"));
+        check("two digits apart in a word of 6 or more (obr1gad8 -> obrigado, s3cr3t -> secret)", MrFuzzy.digitSlip("obr1gad8", "obrigado")
+                && MrFuzzy.digitSlip("s3cr3t", "secret"));
+        check("two digits side by side: no (obr18ado -> obrigado)", !MrFuzzy.digitSlip("obr18ado", "obrigado"));
+        check("two digits in a short word or three digits: no (c4s4 -> casa, 0br1gad0 -> obrigado)", !MrFuzzy.digitSlip("c4s4", "casa")
+                && !MrFuzzy.digitSlip("ob4ig4d0", "obrigado"));
+        check("a digit of another script: no", !MrFuzzy.digitSlip("obr\u0661gado", "obrigado"));
         check("a digit added, not a letter: no (teste1 -> teste, aula2 -> aula)", !MrFuzzy.digitSlip("teste1", "teste")
                 && !MrFuzzy.digitSlip("aula2", "aula"));
-        check("two digits: no (iphone11, 4h30)", !MrFuzzy.digitSlip("iphone11", "iphones") && !MrFuzzy.digitSlip("4h30", "ahora"));
+        check("two digits together are a number: no (iphone11, 4h30)", !MrFuzzy.digitSlip("iphone11", "iphoneab")
+                && !MrFuzzy.digitSlip("4h30", "ahop"));
         check("two characters: no (a4 -> ar, 3u -> eu)", !MrFuzzy.digitSlip("a4", "ar") && !MrFuzzy.digitSlip("3u", "eu"));
         check("another letter changed too: no (obr8gado -> abrigado)", !MrFuzzy.digitSlip("obr8gado", "abrigado"));
         check("a suggestion with a digit or a symbol in its place: no", !MrFuzzy.digitSlip("obr8gado", "obr1gado")

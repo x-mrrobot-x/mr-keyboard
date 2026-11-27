@@ -20,11 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-.field final synthetic val$idx:I
+.field final synthetic val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;I)V
+.method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;Lcom/mrkeyboard/app/SheetModel$Sheet;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 221
+    .line 228
     iput-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$7;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    iput p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$7;->val$idx:I
+    iput-object p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$7;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,20 +46,18 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 3
+    .locals 2
 
     .prologue
-    .line 223
+    .line 230
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$7;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    iget v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$7;->val$idx:I
+    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$7;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
-    iget v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$7;->val$idx:I
+    iget-object v1, v1, Lcom/mrkeyboard/app/SheetModel$Sheet;->id:Ljava/lang/String;
 
-    add-int/lit8 v2, v2, -0x1
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$000(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;)V
 
-    invoke-static {v0, v1, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$500(Lcom/mrkeyboard/app/PrefScreenSheets;II)V
-
-    .line 224
+    .line 231
     return-void
 .end method

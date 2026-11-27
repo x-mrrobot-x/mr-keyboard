@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 381
+    .line 397
     iput-object p1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$8$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$8;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -50,7 +50,7 @@
     .end annotation
 
     .prologue
-    .line 383
+    .line 399
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$8$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$8;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$8;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
@@ -61,7 +61,7 @@
 
     iput-object p1, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->popupChars:Ljava/lang/String;
 
-    .line 384
+    .line 400
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$8$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$8;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$8;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
@@ -72,13 +72,13 @@
 
     iput-object p2, v0, Lcom/mrkeyboard/app/SheetModel$KeySpec;->popupKeys:Ljava/util/ArrayList;
 
-    .line 385
+    .line 401
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$8$1;->this$1:Lcom/mrkeyboard/app/KeyEditDialog$Editor$8;
 
     iget-object v0, v0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$8;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$2000(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)V
 
-    .line 386
+    .line 402
     return-void
 .end method

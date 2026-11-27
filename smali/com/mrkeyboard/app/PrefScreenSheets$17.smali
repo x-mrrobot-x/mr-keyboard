@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/PrefScreenSheets;->confirmResetAll()V
+    value = Lcom/mrkeyboard/app/PrefScreenSheets;->confirmResetSingleBuiltin(Lcom/mrkeyboard/app/SheetModel$Sheet;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
+.field final synthetic val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+.method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;Lcom/mrkeyboard/app/SheetModel$Sheet;)V
     .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 460
+    .line 458
     iput-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$17;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    iput-object p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$17;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -42,26 +51,30 @@
     .prologue
     const/4 v4, 0x0
 
-    .line 462
+    .line 460
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$17;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/SheetStore;->resetAllToDefaults(Landroid/content/Context;)Z
+    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$17;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    iget-object v1, v1, Lcom/mrkeyboard/app/SheetModel$Sheet;->id:Ljava/lang/String;
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/SheetStore;->resetBuiltinSheet(Landroid/content/Context;Ljava/lang/String;)Z
 
     move-result v0
 
     if-eqz v0, :cond_0
 
-    .line 463
+    .line 461
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$17;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1500(Lcom/mrkeyboard/app/PrefScreenSheets;)V
 
-    .line 464
+    .line 462
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$17;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$17;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    const-string v2, "mr_sheets_toast_restored_all"
+    const-string v2, "mr_sheets_toast_restored"
 
     new-array v3, v4, [Ljava/lang/Object;
 
@@ -71,7 +84,7 @@
 
     invoke-static {v0, v1, v4}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1800(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;Z)V
 
-    .line 466
+    .line 464
     :cond_0
     return-void
 .end method

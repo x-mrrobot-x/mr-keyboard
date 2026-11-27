@@ -19,7 +19,7 @@
     .locals 0
 
     .prologue
-    .line 779
+    .line 881
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -29,7 +29,7 @@
     .locals 7
 
     .prologue
-    .line 783
+    .line 885
     new-instance v0, Lcom/mrkeyboard/app/SheetEditorActivity$Api30ImeHelper$1;
 
     move-object v1, p1
@@ -48,9 +48,9 @@
 
     invoke-virtual {p0, v0}, Landroid/view/View;->setOnApplyWindowInsetsListener(Landroid/view/View$OnApplyWindowInsetsListener;)V
 
-    .line 801
+    .line 903
     invoke-virtual {p0}, Landroid/view/View;->requestApplyInsets()V
 
-    .line 802
+    .line 904
     return-void
 .end method

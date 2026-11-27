@@ -46,6 +46,7 @@ public class SheetGridViewTest {
         dropOnFullRow();
         colorsByKind();
         description();
+        fixedLayout();
         System.out.println(failures == 0
                 ? "ALL OK (" + checks + " checks)"
                 : failures + " FAILURE(S) of " + checks);
@@ -339,6 +340,48 @@ public class SheetGridViewTest {
         sheet.rows.add(new SheetModel.Row());
         grid.setData(sheet, sheets(sheet));
         check("the grid describes itself: 2 rows, 3 keys", "Teclas da folha: 2 fileiras, 3 teclas.", String.valueOf(grid.getContentDescription()));
+    }
+
+    // ------------------------------------------------------------------ fixed layout (ABC)
+
+    /** ABC: no "+", no drag, the fixed keys locked (a tap says so), a fixed gap keeps its room and is not a cell. */
+    private static void fixedLayout() throws Exception {
+        SheetGridView grid = grid();
+        SheetModel.Sheet sheet = oneRow(new String[]{"", "a", "b", ""}, new float[]{0.5f, 1f, 1f, 0.5f});
+        sheet.rows.get(0).keys.get(0).type = SheetModel.TYPE_SPACER;
+        sheet.rows.get(0).keys.get(3).type = SheetModel.TYPE_SPACER;
+        SheetModel.Row second = new SheetModel.Row();
+        second.keys.add(new SheetModel.KeySpec("⇧", SheetModel.TYPE_SPECIAL, "-1", 1.5f));
+        second.keys.add(new SheetModel.KeySpec("z", SheetModel.TYPE_TEXT, "z", 1f));
+        sheet.rows.add(second);
+        grid.setData(sheet, sheets(sheet));
+        grid.setFixed(new boolean[][] {{true, false, false, true}, {true, false}});
+        grid.measure(WIDTH, 2000);
+        List<Cell> cells = cells(grid);
+        Rec rec = lastRec;
+        check("fixed layout: no \"+\" in any row", 0, countKind(cells, 1));
+        check("fixed layout: the gaps are not cells", "a|b", cells.get(0).label + "|" + cells.get(1).label);
+        check("fixed layout: the first key starts after the gap", true, cells.get(0).rect.left > PAD_X + 10f);
+        check("fixed layout: Shift is a locked key", 4, cells.get(2).kind);
+        check("fixed layout: the last row still ends with the locked \"⌫\"", 2, cells.get(4).kind);
+
+        tap(grid, cells.get(2).rect.centerX(), cells.get(2).rect.centerY());
+        check("tap on a fixed key: onLockedKeyTapped(false)", "locked false", rec.lastEvent);
+        tap(grid, cells.get(3).rect.centerX(), cells.get(3).rect.centerY());
+        check("tap on a key that changes: onKeyTapped(1, 1)", "tap 1 1", rec.lastEvent);
+
+        rec.lastEvent = "none";
+        float x = cells.get(0).rect.centerX();
+        float y = cells.get(0).rect.centerY();
+        grid.onTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_DOWN, x, y));
+        runPending(grid);
+        grid.onTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_MOVE, x, cells.get(3).rect.centerY()));
+        check("fixed layout: a long press does not drag", false, dragging(grid));
+        grid.onTouchEvent(MotionEvent.obtain(MotionEvent.ACTION_CANCEL, x, y));
+
+        grid.setFixed(null);
+        List<Cell> normal = cells(grid);
+        check("back to a normal grid: the \"+\" comes back", true, countKind(normal, 1) > 0);
     }
 
     // ------------------------------------------------------------------ reading the cells

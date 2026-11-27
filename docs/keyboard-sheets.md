@@ -6,7 +6,7 @@ The sheets are the extra pages of keys of the keyboard (123, TSK, HTML, FRS and 
 ## The page (PrefScreenSheets)
 
 - **Header:** back, the title and how many sheets there are out of the limit (12).
-- **ABC:** the main keyboard, fixed and always first.
+- **ABC:** the main keyboard, always first. A tap opens its keys in the editor (see "ABC" below); the card says how many keys were changed.
 - **Return to the main sheet after typing** (`pref_sheet_return`, on by default): after a key of another sheet the keyboard goes back to ABC.
 - **Your sheets:** one card per sheet, in the order of the cycle. A tap opens the editor; the arrows move it up or down; ⋮ has edit, name
   and badge, move, duplicate, restore (built-in sheets) and delete. The buttons are 40 dp and say what they do to TalkBack.
@@ -39,6 +39,27 @@ The same dialog on the page and in the editor. The name (up to 40 characters) op
 - **One dialog at a time:** a second tap while a dialog of the editor is open is ignored.
 - A sheet that no longer exists (deleted while the editor waited in the background) closes the editor with a note.
 
+## ABC (MrAbcKeys)
+
+The keys of the main keyboard can be changed in the same editor, but its layout stays the one of the XML (kbd_qwerty: rows, places,
+widths, Shift, delete, space, the bottom row and the keys of the language):
+
+- **What changes:** the keys that write a character above the bottom row (letters, digits and symbols): label, what the key writes, its type
+  (text, Tasker, special key, switch sheet) and its long-press popup. The key editor has no width, no gap type and no actions
+  (`KeyEditDialog.showForFixedKey`).
+- **What stays:** Shift, delete, Ctrl, Alt, Tab, the arrows, the grid key and the bottom row carry the padlock; a tap on them says that they are
+  fixed. There is no "+ Row", no "Arrange rows", no "+" and no drag (`SheetGridView.setFixed`), and the name and the badge do not change.
+  The ⋮ has only **Restore ABC**; undo works as on the sheets.
+- **How it is kept:** only the keys that differ from the XML, in the preference `pref_abc_keys` (a JSON of keys of the sheets, by the label
+  the key has in the XML: "q", "1", "-"). A key whose popup was not touched keeps the popup of the XML, so the accents follow the language of
+  the keyboard. The same edit applies in every language and in the 5-row layouts of ABC that have that key.
+- **On the keyboard:** `KeyboardSwitcher.getKeyboard` calls `MrAbcKeys.apply` right after it reads a layout of ABC; each edited key is set up
+  by `SheetKeyboardBuilder.configureKeyFromSpec` (the code of the keys of the sheets) and `Keyboard.Key.mrSetCase` gives a key that writes one
+  letter its capital for Shift again. A save rebuilds the keyboards (`KeyboardSwitcher.onSheetsChanged`), so the quick test field shows it
+  at once. A broken preference leaves ABC as in the XML.
+- **Backup:** the export of the sheets carries the edited keys of ABC (`abcKeys`); an import of a file that has them replaces them, and a file
+  without them leaves ABC as it is. *Restore the default sheets* does not touch ABC (it has its own Restore ABC).
+
 ## Quick test (MrSheetTest)
 
 The test field at the bottom of the editor opens the keyboard on the sheet being edited and keeps it there while the person types in it, even
@@ -54,6 +75,8 @@ After a duplicate the editor edits the copy and the field asks for the copy at o
 
 ## Tests
 
-`docs/tools/grid_test/SheetGridViewTest.java` (the grid) and `docs/tools/sheets_test/SheetsTest.java` (the quick test field, the texts the
-screens make, the import limit and the files), both in `docs/tools/run_java_tests.sh`; `docs/tools/test_sheet_test_field.py` runs the real
+`docs/tools/grid_test/SheetGridViewTest.java` (the grid, also in the fixed layout of ABC), `docs/tools/sheets_test/SheetsTest.java` (the
+quick test field, the texts the screens make, the import limit and the files, the hooks of ABC) and `docs/tools/abc_test/AbcKeysTest.java`
+(the keys of ABC: which ones change, ABC in the editor, what is saved, the backup and the keys after the edits), all in
+`docs/tools/run_java_tests.sh`; `docs/tools/test_sheet_test_field.py` runs the real
 smali of `LatinIME.onWindowShown` and `returnToMainSheet` (the order of the hooks, every other field as before).

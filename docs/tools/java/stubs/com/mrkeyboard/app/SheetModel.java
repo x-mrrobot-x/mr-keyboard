@@ -38,6 +38,26 @@ public final class SheetModel {
             this.width = width;
         }
         public KeySpec deepCopy() { return null; }
+        /** The real ones write and read the JSON of a key of a sheet; the stub does the same through org.json. */
+        public org.json.JSONObject toJson() {
+            org.json.JSONObject j = new org.json.JSONObject();
+            try {
+                j.put("type", type);
+                j.put("label", label);
+                j.put("value", value);
+                j.put("width", (double) width);
+                if (popupChars != null && !popupChars.isEmpty()) j.put("popupChars", popupChars);
+            } catch (org.json.JSONException ignored) {
+            }
+            return j;
+        }
+        public static KeySpec fromJson(org.json.JSONObject j, boolean allowPopups) {
+            KeySpec k = new KeySpec(j.optString("label", ""), normalizeType(j.optString("type", "text")), j.optString("value", ""),
+                    (float) j.optDouble("width", 1.0));
+            String popup = j.optString("popupChars", "");
+            if (allowPopups && !popup.isEmpty()) k.popupChars = popup;
+            return k;
+        }
         public boolean hasAnyPopup() { return false; }
         public boolean hasPopupKeys() { return false; }
         public boolean hasPopupChars() { return false; }
@@ -58,6 +78,11 @@ public final class SheetModel {
         public int countKeys() { return 0; }
     }
 
+    /** The type of a key as the keyboard reads it (an unknown one is text). */
+    public static String normalizeType(String type) {
+        if (TYPE_TASKER.equals(type) || TYPE_SPECIAL.equals(type) || TYPE_SHEET.equals(type) || TYPE_SPACER.equals(type)) return type;
+        return TYPE_TEXT;
+    }
     public static String sanitizeName(String raw, String fallback) { return null; }
     public static String sanitizeBadge(String raw, String fallback) {
         return raw == null || raw.isEmpty() ? fallback : raw;   // stub

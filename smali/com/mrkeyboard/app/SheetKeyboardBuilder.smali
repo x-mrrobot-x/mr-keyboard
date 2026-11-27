@@ -2533,7 +2533,8 @@
     return-object v24
 .end method
 
-.method private static configureKeyFromSpec(Landroid/content/res/Resources;Ljava/util/List;Lcom/mrkeyboard/app/Keyboard$Key;Lcom/mrkeyboard/app/SheetModel$KeySpec;)V
+# Public since the edited keys of ABC (MrAbcKeys.put) are configured with it too, on the keys that the XML of ABC made.
+.method public static configureKeyFromSpec(Landroid/content/res/Resources;Ljava/util/List;Lcom/mrkeyboard/app/Keyboard$Key;Lcom/mrkeyboard/app/SheetModel$KeySpec;)V
     .registers 11
     .annotation system Ldalvik/annotation/Signature;
         value = {

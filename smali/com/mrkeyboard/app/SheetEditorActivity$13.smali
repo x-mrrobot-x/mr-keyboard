@@ -3,7 +3,7 @@
 .source "SheetEditorActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Landroid/text/TextWatcher;
 
 
 # annotations
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 452
+    .line 501
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$13;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,32 +36,53 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .locals 1
+.method public afterTextChanged(Landroid/text/Editable;)V
+    .locals 2
 
     .prologue
-    .line 454
+    .line 507
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$13;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1300(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/EditText;
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2300(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/view/View;
 
-    move-result-object v0
+    move-result-object v1
 
-    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
+    if-eqz p1, :cond_0
 
-    move-result-object v0
+    invoke-interface {p1}, Landroid/text/Editable;->length()I
 
-    invoke-interface {v0}, Landroid/text/Editable;->clear()V
+    move-result v0
 
-    .line 455
-    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$13;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+    if-nez v0, :cond_1
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1300(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/EditText;
+    :cond_0
+    const/16 v0, 0x8
 
-    move-result-object v0
+    :goto_0
+    invoke-virtual {v1, v0}, Landroid/view/View;->setVisibility(I)V
 
-    invoke-virtual {v0}, Landroid/widget/EditText;->requestFocus()Z
+    .line 508
+    return-void
 
-    .line 456
+    .line 507
+    :cond_1
+    const/4 v0, 0x0
+
+    goto :goto_0
+.end method
+
+.method public beforeTextChanged(Ljava/lang/CharSequence;III)V
+    .locals 0
+
+    .prologue
+    .line 502
+    return-void
+.end method
+
+.method public onTextChanged(Ljava/lang/CharSequence;III)V
+    .locals 0
+
+    .prologue
+    .line 504
     return-void
 .end method

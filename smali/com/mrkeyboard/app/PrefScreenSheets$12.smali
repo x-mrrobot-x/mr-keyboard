@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/PrefScreenSheets;->pickExistingSheetToCopy()V
+    value = Lcom/mrkeyboard/app/PrefScreenSheets;->showNewSheetTemplatePicker()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 354
+    .line 349
     iput-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -37,28 +37,29 @@
 
 # virtual methods
 .method public onClick(Landroid/content/DialogInterface;I)V
-    .locals 3
+    .locals 2
 
     .prologue
-    .line 356
-    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+    .line 351
+    const/4 v0, 0x3
 
-    const/4 v2, 0x3
+    if-ne p2, v0, :cond_0
 
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1300(Lcom/mrkeyboard/app/PrefScreenSheets;)Ljava/util/ArrayList;
+    invoke-static {v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1100(Lcom/mrkeyboard/app/PrefScreenSheets;)V
 
-    move-result-object v0
-
-    invoke-virtual {v0, p2}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Lcom/mrkeyboard/app/SheetModel$Sheet;
-
-    invoke-static {v1, v2, v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1200(Lcom/mrkeyboard/app/PrefScreenSheets;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
-
-    .line 357
+    .line 353
+    :goto_0
     return-void
+
+    .line 352
+    :cond_0
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$12;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    const/4 v1, 0x0
+
+    invoke-static {v0, p2, v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1200(Lcom/mrkeyboard/app/PrefScreenSheets;ILcom/mrkeyboard/app/SheetModel$Sheet;)V
+
+    goto :goto_0
 .end method
