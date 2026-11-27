@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Tests the word that starts with a digit typed for its first letter ("5udo" for tudo), with the REAL smali of LatinIME.handleCharacter (and of
-isAlphabet and isCursorTouchingWord) and of MrDigitStart (sent, take, lone) running in the mini Dalvik interpreter (dalvik_mini.py).
+"""Tests the word that starts with a digit typed for its first letter ("5udo" for tudo), with the REAL smali of LatinIME.handleCharacter and
+onUpdateSelection (and of isAlphabet and isCursorTouchingWord) and of MrDigitStart (sent, take, lone, hold) running in the mini Dalvik interpreter
+(dalvik_mini.py), over a fake app that reports the cursor and the composing region after every change, as a real one does.
 
 Run it from the project root:  python3 -I docs/tools/test_digit_start.py
 
@@ -8,7 +9,9 @@ The number row sits right above q..p, so a finger that starts a word on the top 
 word, and the letter after it did not either (the cursor was already touching the digit): no word, no suggestion, no correction. Now a lone
 digit of the letter keyboard (after a space, at the start of the text or after an opening bracket or quote) leaves the field when a letter comes
 right after it, and the word starts with both ("5u" composing, the touch of the 5 kept), so the search finds tudo. Where the field asks for a
-capital (the start of a sentence) the word is marked as capitalized, so the suggestions come with it (Tudo). A number ("10h"), a digit after a
+capital (the start of a sentence) the word is marked as capitalized, so the suggestions come with it (Tudo). The app reports the digit taken out
+(the cursor one place back, no composing region yet) before it shows the word: that report must not end the word as a move of the cursor does
+(it did on the phone in the first version: "5udo" stayed as typed), also when the report of the digit itself comes late. A number ("10h"), a digit after a
 word ("a5"), a digit of the symbols sheet and typing with the prediction off behave as before. What may be replaced on its own is in
 docs/tools/digit_test/DigitTest.java and S30 of docs/tools/e2e/StrategyTest.java. Both modes of Autocompletar are run (handleCharacter does not
 read it: the result must be the same).
@@ -73,6 +76,11 @@ class World:
         self.text = before            # the committed text before the cursor
         self.comp = ""                # the composing text (right before the cursor)
         self.after = after
+        self.reports = []             # what the app reports after each change (onUpdateSelection), in order
+        self.sel = len(before)        # the cursor as the app last reported it
+        self.reacts = 0               # times the reaction to a moved cursor (re-correction) was asked
+        self.clock = 1000             # SystemClock.uptimeMillis
+        self.late = False             # the report of the digit itself comes only after the next letter (a slow app)
         self.alpha = 1                # KeyboardSwitcher.isAlphabetMode
         self.prediction = prediction
         self.caps = caps              # what getCursorCapsMode answers; None = a capital at the start of the text or after ". "
@@ -85,18 +93,41 @@ class World:
         self.this = dm.Obj(
             IME, mLastSelectionStart=0, mLastSelectionEnd=0, mModCtrl=0, mModAlt=0, mModMeta=0, mPredicting=0, mComposing=SB(),
             mBestWord=None, mWord=self.word, mKeyboardSwitcher=self.switcher, mAutoCorrectOn=autocorrect,
+            mJustAccepted=0, mReCorrectionEnabled=1, mJustRevertedSeparator=None, mJustAddedAutoSpace=0,
         )
+        self.this.f["mLastSelectionStart"] = self.this.f["mLastSelectionEnd"] = len(before)
 
     def shown(self):
         return self.text + self.comp
 
+    def changed(self):
+        """The app reports the new cursor and composing region (it does so after every change, one report each)."""
+        new = len(self.text) + len(self.comp)
+        cs, ce = (len(self.text), new) if self.comp else (-1, -1)
+        self.reports.append((self.sel, self.sel, new, new, cs, ce))
+        self.sel = new
+
+    def deliver(self):
+        """The reports reach the keyboard after the key it was handling (they wait in the queue of its main thread)."""
+        while self.reports:
+            r = self.reports.pop(0)
+            self.ime.run("onUpdateSelection(IIIIII)V", [self.this] + list(r))
+
     def type(self, chars, alpha=1):
         self.alpha = alpha
         for ch in chars:
+            self.clock += 150
             self.ime.run("handleCharacter(I[I)V", [self.this, ord(ch), touch(ch)])
+            if self.late and ch in DIG:
+                continue                               # its report is still on the way when the next letter is typed
+            self.deliver()
 
     # ---- host
     def sget(self, cls, name):
+        if cls == "Lcom/mrkeyboard/app/MrTools;" and name == "sRedirect":
+            return None
+        if name == "$SwitchMap$com$mrkeyboard$app$TextEntryState$State":
+            return [0] * 16
         raise AssertionError("static: %s.%s" % (cls, name))
 
     def new_instance(self, cls):
@@ -112,8 +143,31 @@ class World:
             return self.digit.run(mem, args)
         if short in ("TextEntryState.isCorrecting",):
             return 0
-        if short in ("TextEntryState.typedCharacter", "MrPrevWord.clear", "MrPerf.appBegin", "MrPerf.appEnd", "Object.<init>"):
+        if short in ("TextEntryState.typedCharacter", "MrPrevWord.clear", "MrPerf.appBegin", "MrPerf.appEnd", "Object.<init>",
+                     "InputMethodService.onUpdateSelection", "TextEntryState.reset", "MrPerf.selBegin", "MrPerf.selEnd", "MrSurround.clear"):
             return None
+        if short == "SystemClock.uptimeMillis":
+            return self.clock
+        if short == "MrFuzzy.letterUnder":           # plain Java, checked by DigitTest
+            i = DIG.find(chr(args[0]))
+            return 0 if i < 0 else ord(TOP[i])
+        if short == "Arrays.copyOf":
+            return list(args[0]) + [0] * (args[1] - len(args[0]))
+        if short == "Math.max":
+            return max(args[0], args[1])
+        if short == "TextEntryState.getState":
+            return dm.Obj("Lcom/mrkeyboard/app/TextEntryState$State;")
+        if short == "TextEntryState$State.ordinal":
+            return 0
+        if short == "KeyboardSwitcher.getInputView":
+            return dm.Obj("Lcom/mrkeyboard/app/LatinKeyboardView;")
+        if short == "LatinKeyboardView.isShown":
+            return 1
+        if short == "InputConnection.finishComposingText":
+            self.text += self.comp
+            self.comp = ""
+            self.changed()
+            return 1
         if short == "KeyboardSwitcher.getInstance":
             return self.switcher
         if short == "KeyboardSwitcher.isAlphabetMode":
@@ -133,9 +187,11 @@ class World:
             assert self.comp == "", "a deletion while a word is composing"
             self.text = self.text[:len(self.text) - args[1]]
             self.deleted += args[1]
+            self.changed()
             return 1
         if short == "InputConnection.setComposingText":
             self.comp = str(args[1])
+            self.changed()
             return 1
         if short == "TextUtils.isEmpty":
             return 1 if args[0] is None or len(str(args[0])) == 0 else 0
@@ -206,7 +262,13 @@ class ImeVM(dm.VM):
             return 1 if w.text == "" or w.text.endswith(". ") or w.text.endswith("\n") else 0
         if name == "sendModifiableKeyChar":
             w.text += chr(args[1])                     # outside a word the character goes to the field as it is
+            w.changed()
             return None
+        if name in ("mrEchoCancel", "mrSepEcho", "postUpdateShiftKeyState"):
+            return None
+        if name == "mrEchoPost":
+            w.reacts += 1                              # the reaction to a moved cursor is not run here, only counted
+            return 1
         if name in ("mrSepClear", "abortCorrection", "saveWordInHistory", "postUpdateSuggestions", "mrLetterTyped", "mrLetterDone",
                     "updateShiftKeyState"):
             return None
@@ -229,6 +291,7 @@ for label, ac in (("Autocompletar on", 1), ("Autocompletar off", 0)):
     w = World(autocorrect=ac)
     w.type("5")
     check(label + ": 5 alone: written as it is, no word", w.shown() == "5" and w.this.f["mPredicting"] == 0, (w.shown(), w.this.f["mPredicting"]))
+    w.reacts = 0                                     # the 5 itself is a character outside a word: the cursor check after it is as before
     w.type("u")
     check(label + ": 5 then u: one word '5u' composing, the 5 left the committed text", w.text == "" and w.comp == "5u"
           and w.this.f["mPredicting"] == 1 and str(w.this.f["mComposing"]) == "5u", (w.text, w.comp))
@@ -239,6 +302,32 @@ for label, ac in (("Autocompletar on", 1), ("Autocompletar off", 0)):
     w.type("do")
     check(label + ": 5udo: the whole word composing, nothing else in the field", w.shown() == "5udo" and w.comp == "5udo"
           and letters(w) == "5udo", (w.text, w.comp))
+
+    check(label + ": the reports of the app (the 5 deleted, then the word) did not end it nor ask for a re-correction", w.this.f["mPredicting"] == 1
+          and str(w.this.f["mComposing"]) == "5udo" and w.reacts == 0, (w.this.f["mPredicting"], str(w.this.f["mComposing"]), w.reacts))
+
+    # a slow app: the report of the 5 itself comes after the u
+    w = World("vou ", autocorrect=ac)
+    w.late = True
+    w.type("5udo")
+    check(label + ": slow app (the report of the 5 late): '5udo' still composing", w.comp == "5udo" and w.this.f["mPredicting"] == 1
+          and str(w.this.f["mComposing"]) == "5udo", (w.text, w.comp, w.this.f["mPredicting"]))
+
+    # once the app shows the word, a real move of the cursor ends it as before
+    w = World("ok ", autocorrect=ac)
+    w.type("5ud")
+    w.reports.append((w.sel, w.sel, 0, 0, -1, -1))   # the person taps at the start of the text and the app drops the composing region
+    w.deliver()
+    check(label + ": a real move of the cursor after the word showed: the word ends as before", w.this.f["mPredicting"] == 0
+          and str(w.this.f["mComposing"]) == "", (w.this.f["mPredicting"], str(w.this.f["mComposing"])))
+
+    # a tap in the middle of the 5: the keyboard gives only the digits beside it, the letter under it is added
+    w = World("ok ", autocorrect=ac)
+    w.ime.run("handleCharacter(I[I)V", [w.this, ord("5"), [ord("5"), ord("4"), ord("6"), -1, -1]])
+    w.deliver()
+    w.type("u")
+    check(label + ": a 5 tapped in the middle: its touch gets the t (after 4 and 6)", w.word.codes[:1] == [("5", [ord(c) for c in "546t"] + [-1])]
+          and w.comp == "5u", (w.word.codes[:1], w.comp))
 
     # the middle of a sentence: no capital
     w = World("eu acho que ", autocorrect=ac)

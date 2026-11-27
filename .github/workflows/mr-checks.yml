@@ -66,8 +66,9 @@
 #                        field, hidden toolbar row, font style) the word typed stays when a space, a sign or Enter follows (it was erased or replaced by an old suggestion)
 #   test_enter_word.py  the real smali of LatinIME.handleSeparator and commitTyped over a fake field: Enter (a key event) leaves no word waiting to be written again on the next line, with Autocompletar on and off
 #                        (a word with no default suggestion to accept stayed as the word being typed and the first letter of the new line brought it back)
-#   test_digit_start.py  the real smali of LatinIME.handleCharacter and MrDigitStart: a lone digit typed for the first letter ("5udo") starts the word with its touch (the
-#                        capital asked at the start of a sentence kept); a number, a digit after a word, the symbols sheet and the prediction off as before, with Autocompletar on and off
+#   test_digit_start.py  the real smali of LatinIME.handleCharacter, onUpdateSelection and MrDigitStart over a fake app that reports every change: a lone digit typed for the
+#                        first letter ("5udo") starts the word with its touch (the capital asked at the start of a sentence kept) and the report of the digit taken out does
+#                        not end it; a number, a digit after a word, the symbols sheet, the prediction off and a real move of the cursor as before, with Autocompletar on and off
 #   test_sheet_longpress.py  the real smali of PointerTracker.startLongPressTimer: the sheet key (code -300: 123, ABC, TSK) opens its popup after a fixed 150 ms, the other keys keep the setting
 #   test_sheet_test_field.py  the real smali of LatinIME.onWindowShown and returnToMainSheet: the quick test field of the sheet editor goes to its sheet after the reset to ABC and keeps it while typing; every other field as before
 #   test_word_delete.py  Ctrl + delete by words and Ctrl + Z (MrWordDelete): the real smali of LatinIME.handleBackspace, sendModifiableKeyChar (the Ctrl + Z hook), mrCtrlOn, mrCtrlOnly, mrBackspace, UIHandler.cancelKeyRepeatTimer and .handleMessage (the repeat) in the mini interpreter, the order of the calls in PointerTracker.onDownEvent, who calls MrWordDelete, the screen next to the long-press time, its limits and texts
@@ -274,7 +275,7 @@ jobs:
       - name: Enter leaves no word to be written again on the next line (Autocompletar on and off)
         run: python3 -I docs/tools/test_enter_word.py
 
-      - name: A digit typed for the first letter starts the word (real smali of LatinIME.handleCharacter and MrDigitStart)
+      - name: A digit typed for the first letter starts the word (real smali of LatinIME.handleCharacter, onUpdateSelection and MrDigitStart)
         run: python3 -I docs/tools/test_digit_start.py
 
       - name: Sheet key long press (150 ms, the other keys keep the setting)

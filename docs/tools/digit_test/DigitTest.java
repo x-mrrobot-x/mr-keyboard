@@ -149,6 +149,18 @@ public class DigitTest {
         codes = MrDigitStart.take(ime);
         check("the touch is copied, and the digit typed is its first code", codes != null && codes[0] == '5' && codes[1] == 'r');
 
+        f = new Field("5", "");
+        ime = new Ime(f);
+        MrDigitStart.sent(ime, '5', new int[] {'5', '4', '6', -1, -1});
+        codes = MrDigitStart.take(ime);
+        check("a tap in the middle of the key (no letter among its neighbours): t joins them after the others",
+                codes != null && Arrays.equals(codes, new int[] {'5', '4', '6', 't', -1}));
+        f = new Field("8", "");
+        ime = new Ime(f);
+        MrDigitStart.sent(ime, '8', touch("879"));
+        codes = MrDigitStart.take(ime);
+        check("... also with no free place (i at the end)", codes != null && Arrays.equals(codes, touch("879i")));
+
         f = new Field("10", "");
         ime = new Ime(f);
         MrDigitStart.sent(ime, '1', touch("1qw2"));
@@ -189,6 +201,41 @@ public class DigitTest {
         check("no connection: nothing taken", MrDigitStart.take(ime) == null);
         MrDigitStart.sent(ime, '5', touch("5t"));
         check("no keyboard service: nothing taken", MrDigitStart.take(null) == null);
+
+        // ---------------------------------------------------------------- MrDigitStart.hold: the reports of the app before it shows the word
+        android.os.SystemClock.now = 10000;
+        check("nothing started: a report is not held", !MrDigitStart.hold(-1, -1));
+        f = new Field("ok 5", "");
+        ime = new Ime(f);
+        MrDigitStart.sent(ime, '5', touch("5t"));
+        MrDigitStart.take(ime);
+        check("word started: the report of the 5 deleted (no composing region) is held", MrDigitStart.hold(-1, -1));
+        check("... and a late report of the 5 itself", MrDigitStart.hold(-1, -1));
+        check("the app shows the word (composing region): not held, and the wait ends", !MrDigitStart.hold(3, 5) && !MrDigitStart.hold(-1, -1));
+
+        MrDigitStart.sent(ime, '5', touch("5t"));
+        f.before.append('5');
+        MrDigitStart.take(ime);
+        boolean three = MrDigitStart.hold(-1, -1) && MrDigitStart.hold(-1, -1) && MrDigitStart.hold(-1, -1);
+        check("at most 3 reports are held", three && !MrDigitStart.hold(-1, -1));
+
+        MrDigitStart.sent(ime, '5', touch("5t"));
+        f.before.append('5');
+        MrDigitStart.take(ime);
+        android.os.SystemClock.now += MrDigitStart.WAIT_MS + 1;
+        check("after 1.5 s nothing is held", !MrDigitStart.hold(-1, -1));
+
+        MrDigitStart.sent(ime, '5', touch("5t"));
+        f.before.append('5');
+        MrDigitStart.take(ime);
+        MrDigitStart.sent(ime, ' ', touch(" "));
+        check("a character outside a word ends the wait", !MrDigitStart.hold(-1, -1));
+
+        f = new Field("10", "");
+        ime = new Ime(f);
+        MrDigitStart.sent(ime, '0', touch("0p"));
+        MrDigitStart.take(ime);
+        check("a digit that was not taken (10): nothing held", !MrDigitStart.hold(-1, -1));
 
         System.out.println(ok + " OK, " + fail + " FAIL");
         System.exit(fail == 0 ? 0 : 1);

@@ -465,6 +465,8 @@ public class StrategyTest {
     // ------------------------------------------------------------------ S30: a digit typed for the letter under it (the number row)
 
     static final String TOP = "qwertyuiop", DIG = "1234567890";
+    /** The digits are tapped in the middle (see rowCodes). */
+    static boolean sCenter;
 
     /**
      * The touch on the keyboard with the number row above q..p: a digit has the letters under it (right under, then the two beside) and the
@@ -472,6 +474,16 @@ public class StrategyTest {
      */
     static int[] rowCodes(char c) {
         int d = DIG.indexOf(c);
+        if (d >= 0 && sCenter) {
+            // a tap in the middle of the digit: the digits beside it are nearer than any letter; MrDigitStart adds the letter under it
+            int[] out = new int[16];
+            Arrays.fill(out, -1);
+            int n = 0;
+            out[n++] = c;
+            for (int k : new int[] {d - 1, d + 1}) if (k >= 0 && k < 10) out[n++] = DIG.charAt(k);
+            out[n] = TOP.charAt(d);
+            return out;
+        }
         if (d < 0) {
             int[] base = E2ETest.codesFor(c);
             int t = TOP.indexOf(Character.toLowerCase(c));
@@ -530,6 +542,10 @@ public class StrategyTest {
             digit("5udo", false, "tudo", true, false);              // the first letter (LatinIME now starts the word with the lone digit)
             digit("5udo", true, "Tudo", true, false);               // ... at the start of a sentence: with the capital
             digit("8sso", false, "isso", true, false);
+            sCenter = true;                                         // the 5 tapped in the middle: only the letter that MrDigitStart adds
+            digit("5udo", false, "tudo", true, false);
+            digit("5udo", true, "Tudo", true, false);
+            sCenter = false;
             digit("3u", false, "eu", false, false);                 // 2 characters: only a suggestion
             for (String t : new String[] {"teste1", "aula2", "grupo1", "iphone11", "mp3", "ps4", "a4", "f1", "gr8", "obrigado1",
                     "9h", "3d", "5g", "2x", "5km", "3dias", "4h30", "2go"}) {

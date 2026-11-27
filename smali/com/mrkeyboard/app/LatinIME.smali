@@ -13105,6 +13105,16 @@
 
     .line 986
     :cond_0
+    # A word that a digit started (MrDigitStart, "5udo"): the app reports the digit deleted (and the digit itself when it comes late) before
+    # it shows the word; such a report does not end the word, as a real move of the cursor does below.
+    invoke-static {p5, p6}, Lcom/mrkeyboard/app/MrDigitStart;->hold(II)Z
+
+    move-result p2
+
+    const/4 v0, 0x0
+
+    if-nez p2, :cond_2
+
     iget-object p2, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
 
     invoke-virtual {p2}, Ljava/lang/StringBuilder;->length()I
