@@ -251,12 +251,12 @@ class VM:
             a, b, c = ops(rest); setr(a, R[r(b)].f[c.split('->')[1].split(':')[0]])
         elif op in ('iput', 'iput-boolean', 'iput-object', 'iput-wide'):
             a, b, c = ops(rest); R[r(b)].f[c.split('->')[1].split(':')[0]] = R[r(a)]
-        elif op in ('sget', 'sget-object', 'sget-boolean', 'sget-wide'):
+        elif op in ('sget', 'sget-object', 'sget-boolean', 'sget-wide', 'sget-char', 'sget-short', 'sget-byte'):
             a, b = ops(rest)
             cls, _, nm = b.partition('->')
             nm = nm.split(':')[0]
             setr(a, self.statics.get(nm, 0) if cls == self.cls else self.host.sget(cls, nm))
-        elif op in ('sput', 'sput-object', 'sput-boolean', 'sput-wide'):
+        elif op in ('sput', 'sput-object', 'sput-boolean', 'sput-wide', 'sput-char', 'sput-short', 'sput-byte'):
             a, b = ops(rest)
             cls, _, nm = b.partition('->')
             nm = nm.split(':')[0]

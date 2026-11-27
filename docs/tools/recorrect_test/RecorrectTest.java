@@ -74,8 +74,12 @@ public class RecorrectTest {
         check("accent and ç", MrRecorrect.eligible("coração") && MrRecorrect.eligible("ação"));
         check("apostrophe in the middle (don't)", MrRecorrect.eligible("don't"));
         check("hyphen in the middle", MrRecorrect.eligible("guarda-chuva"));
-        check("with a digit no (4g, abc123, 2024)", !MrRecorrect.eligible("4g") && !MrRecorrect.eligible("abc123")
-                && !MrRecorrect.eligible("2024"));
+        check("codes and numbers no (4g, abc123, 2024, mp3, 4h30, 9h)", !MrRecorrect.eligible("4g") && !MrRecorrect.eligible("abc123")
+                && !MrRecorrect.eligible("2024") && !MrRecorrect.eligible("mp3") && !MrRecorrect.eligible("4h30")
+                && !MrRecorrect.eligible("9h"));
+        check("one digit typed for a letter (obr8gado, 5udo, t3ma)", MrRecorrect.eligible("obr8gado") && MrRecorrect.eligible("5udo")
+                && MrRecorrect.eligible("t3ma"));
+        check("two digits or a digit and a symbol no (iphone11, ab-1c)", !MrRecorrect.eligible("iphone11") && !MrRecorrect.eligible("ab-1c"));
         check("only symbols no", !MrRecorrect.eligible("--") && !MrRecorrect.eligible("'\""));
         StringBuilder w48 = new StringBuilder(), w49 = new StringBuilder();
         for (int i = 0; i < 48; i++) w48.append('a');

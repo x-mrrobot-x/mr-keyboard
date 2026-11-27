@@ -153,6 +153,7 @@ public class StrategyTest {
         else if (lang.equals("en-US")) enCases();
         else if (lang.equals("es")) esCases();
         helpers();
+        digits(lang);
         importCases(lang);
         limits(lang);
         everyday(lang);
@@ -459,6 +460,94 @@ public class StrategyTest {
         typed("C1", "vam", "vamos", 3, false);
         typed("C1", "gr", "gracias", 3, false);
         typed("C1", "es", "estoy", 3, true);
+    }
+
+    // ------------------------------------------------------------------ S30: a digit typed for the letter under it (the number row)
+
+    static final String TOP = "qwertyuiop", DIG = "1234567890";
+
+    /**
+     * The touch on the keyboard with the number row above q..p: a digit has the letters under it (right under, then the two beside) and the
+     * digits beside it among its neighbours; a letter of the top row has the digits above it. Other letters are as in E2ETest.codesFor.
+     */
+    static int[] rowCodes(char c) {
+        int d = DIG.indexOf(c);
+        if (d < 0) {
+            int[] base = E2ETest.codesFor(c);
+            int t = TOP.indexOf(Character.toLowerCase(c));
+            if (t < 0) return base;
+            int n = 0;
+            while (n < base.length && base[n] > 0) n++;
+            for (int k : new int[] {t, t - 1, t + 1}) if (k >= 0 && k < 10 && n < base.length) base[n++] = DIG.charAt(k);
+            return base;
+        }
+        int[] out = new int[16];
+        Arrays.fill(out, -1);
+        out[0] = c;
+        int n = 1;
+        for (int k : new int[] {d, d - 1, d + 1}) if (k >= 0 && k < 10) out[n++] = TOP.charAt(k);
+        for (int k : new int[] {d - 1, d + 1}) if (k >= 0 && k < 10) out[n++] = DIG.charAt(k);
+        return out;
+    }
+
+    /** The strip (0 = typed) and whether space replaces the word on its own, for a word typed on the keyboard with the number row. */
+    static List<String> rowStrip(String typed, boolean capital, boolean[] auto) {
+        WordComposer wc = new WordComposer();
+        for (int i = 0; i < typed.length(); i++) wc.add(typed.charAt(i), rowCodes(typed.charAt(i)));
+        // capital = the field asked for one where the word starts (LatinIME marks a word that starts with the digit there)
+        if (capital) wc.setFirstCharCapitalized(true);
+        suggest.setCorrectionMode(3);
+        List<String> l = E2ETest.strs(suggest.getSuggestions(null, wc, false, null));
+        // like LatinIME: it only swaps on its own when the typed word is not a valid word
+        auto[0] = suggest.hasMinimalCorrection() && !suggest.isValidWord(typed);
+        suggest.setCorrectionMode(1);
+        return l;
+    }
+
+    /**
+     * S30: {@code want} must be the center of the strip (what space writes when it replaces), and space replaces the word on its own only
+     * when {@code auto}; want = null: only the second (a number written on purpose is never replaced).
+     */
+    static void digit(String typed, boolean capital, String want, boolean auto, boolean gap) {
+        boolean[] got = new boolean[1];
+        List<String> l = rowStrip(typed, capital, got);
+        boolean ok = got[0] == auto && (want == null || (l.size() > 1 && l.get(1).equals(want)));
+        record("S30", typed + (capital ? " (capital)" : "") + " -> " + (want == null ? "" : want + ", ") + (auto ? "replaced" : "kept"), ok, gap,
+                "auto=" + got[0] + " " + l.subList(0, Math.min(4, l.size())));
+    }
+
+    /** S30: a suggestion with another number is never shown ("mp3": no MP4). */
+    static void digitNever(String typed, String never) {
+        List<String> l = rowStrip(typed, false, new boolean[1]);
+        record("S30", typed + " never shows " + never, !l.contains(never), false, l.subList(0, Math.min(5, l.size())).toString());
+    }
+
+    static void digits(String lang) {
+        if (lang.equals("pt-BR")) {
+            digit("obr8gado", false, "obrigado", true, false);     // a digit in the middle: the letter under it
+            digit("t3m", false, "tem", true, false);
+            digit("qu3", false, "que", true, false);                // 3 characters, the digit at the end: only the letter right under it
+            digit("5udo", false, "tudo", true, false);              // the first letter (LatinIME now starts the word with the lone digit)
+            digit("5udo", true, "Tudo", true, false);               // ... at the start of a sentence: with the capital
+            digit("8sso", false, "isso", true, false);
+            digit("3u", false, "eu", false, false);                 // 2 characters: only a suggestion
+            for (String t : new String[] {"teste1", "aula2", "grupo1", "iphone11", "mp3", "ps4", "a4", "f1", "gr8", "obrigado1",
+                    "9h", "3d", "5g", "2x", "5km", "3dias", "4h30", "2go"}) {
+                digit(t, false, null, false, false);                // written on purpose: never replaced
+            }
+            digitNever("mp3", "MP4");
+            digitNever("mp4", "MP3");
+        } else if (lang.equals("en-US")) {
+            digit("9nly", false, "only", true, false);
+            digit("3very", false, "every", true, false);
+            digit("wh9", false, "who", true, false);
+            for (String t : new String[] {"2nd", "4th", "9am", "5pm", "b4", "gr8", "k9", "2go", "mp3"}) digit(t, false, null, false, false);
+        } else if (lang.equals("es")) {
+            digit("h9la", false, "hola", true, false);
+            digit("3ntonces", false, "entonces", true, false);
+            digit("p9r", false, "por", true, false);
+            for (String t : new String[] {"covid19", "mp3", "4g", "9h", "2x"}) digit(t, false, null, false, false);
+        }
     }
 
     // ------------------------------------------------------------------ everyday sentences

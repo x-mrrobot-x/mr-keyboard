@@ -2732,7 +2732,7 @@
 .end method
 
 .method private handleCharacter(I[I)V
-    .locals 4
+    .locals 5
 
     # Echo question cut: a typed character ends the expectation of the separator echo.
     invoke-direct {p0}, Lcom/mrkeyboard/app/LatinIME;->mrSepClear()V
@@ -2795,8 +2795,70 @@
 
     move-result v0
 
-    if-nez v0, :cond_1
+    if-eqz v0, :cond_mr_digit_none
 
+    # The cursor touches a word. When it is a lone digit typed just before (the 5 of "5udo": a slip onto the number row, right above
+    # q..p), the digit leaves the field and the word starts with it and this letter (MrDigitStart); anything else stays as before (no word).
+    invoke-static {p0}, Lcom/mrkeyboard/app/MrDigitStart;->take(Lcom/mrkeyboard/app/LatinIME;)[I
+
+    move-result-object v3
+
+    if-eqz v3, :cond_1
+
+    iput-boolean v1, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
+
+    invoke-static {}, Lcom/mrkeyboard/app/MrPrevWord;->clear()V
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->setLength(I)V
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mBestWord:Ljava/lang/CharSequence;
+
+    invoke-direct {p0, v0}, Lcom/mrkeyboard/app/LatinIME;->saveWordInHistory(Ljava/lang/CharSequence;)V
+
+    iget-object v0, p0, Lcom/mrkeyboard/app/LatinIME;->mWord:Lcom/mrkeyboard/app/WordComposer;
+
+    invoke-virtual {v0}, Lcom/mrkeyboard/app/WordComposer;->reset()V
+
+    # the digit is the first character of the word, with its own touch (codes[0] is the digit); the letter comes after it below
+    aget v0, v3, v2
+
+    int-to-char v0, v0
+
+    iget-object v4, p0, Lcom/mrkeyboard/app/LatinIME;->mComposing:Ljava/lang/StringBuilder;
+
+    invoke-virtual {v4, v0}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
+
+    iget-object v4, p0, Lcom/mrkeyboard/app/LatinIME;->mWord:Lcom/mrkeyboard/app/WordComposer;
+
+    invoke-virtual {v4, v0, v3}, Lcom/mrkeyboard/app/WordComposer;->add(I[I)V
+
+    # The digit took the place of a first letter where the field asks for a capital (the start of a sentence: the shift was on when it was
+    # typed and went off after it): the word is marked as capitalized by the keyboard, so its suggestions come with the capital ("5udo" -> Tudo).
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputConnection()Landroid/view/inputmethod/InputConnection;
+
+    move-result-object v0
+
+    if-eqz v0, :cond_1
+
+    invoke-virtual {p0}, Lcom/mrkeyboard/app/LatinIME;->getCurrentInputEditorInfo()Landroid/view/inputmethod/EditorInfo;
+
+    move-result-object v3
+
+    invoke-direct {p0, v0, v3}, Lcom/mrkeyboard/app/LatinIME;->getCursorCapsMode(Landroid/view/inputmethod/InputConnection;Landroid/view/inputmethod/EditorInfo;)I
+
+    move-result v0
+
+    if-eqz v0, :cond_1
+
+    invoke-virtual {v4, v1}, Lcom/mrkeyboard/app/WordComposer;->setFirstCharCapitalized(Z)V
+
+    invoke-virtual {v4, v1}, Lcom/mrkeyboard/app/WordComposer;->setAutoCapitalized(Z)V
+
+    goto :cond_1
+
+    :cond_mr_digit_none
     .line 2298
     iget-boolean v0, p0, Lcom/mrkeyboard/app/LatinIME;->mPredicting:Z
 
@@ -2943,6 +3005,9 @@
     goto :goto_0
 
     :cond_8
+    # A character outside a word: a digit of the letter keyboard is kept with its touch, for a letter that may come right after it (MrDigitStart)
+    invoke-static {p0, p1, p2}, Lcom/mrkeyboard/app/MrDigitStart;->sent(Lcom/mrkeyboard/app/LatinIME;I[I)V
+
     int-to-char p2, p1
 
     .line 2331

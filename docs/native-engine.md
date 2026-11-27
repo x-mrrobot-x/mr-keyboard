@@ -41,7 +41,7 @@ The step **Check that lib/ was built from the current native/ and engine/** of *
 ## Tests
 There is one implementation, so there is no Java × C++ comparison any more. The engine is checked at two levels:
 - `mr-native.yml`, on the PC and without the app: `mr_test` (search on the real dictionary, order independence, corrupt files, edge cases), `mr_gesture_test` (gesture typing; also on the ARM builds under qemu-user), ASan/UBSan, `JniSmoke` (the JNI bridge and bad arguments) and `dict_test` (every word and pair of the dictionaries read back).
-- `mr-checks.yml`, through the real app classes and the PC build of the lib: `run_strategy_tests.sh` (one check per strategy S1-S29, the data and limit checks, the floors of S28; in 3 languages, on `dicts/` and on a copy in the format v2), `run_gesture_tests.sh` (gesture typing through `MrGesture`, 3 languages), `run_gesture_input_tests.sh` (1.96.0: the keyboard code of gesture typing, from touch events to text, with the Java sources of the layer) and `packs_test/run_packs_tests.sh`.
+- `mr-checks.yml`, through the real app classes and the PC build of the lib: `run_strategy_tests.sh` (one check per strategy S1-S30, the data and limit checks, the floors of S28; in 3 languages, on `dicts/` and on a copy in the format v2), `run_gesture_tests.sh` (gesture typing through `MrGesture`, 3 languages), `run_gesture_input_tests.sh` (1.96.0: the keyboard code of gesture typing, from touch events to text, with the Java sources of the layer) and `packs_test/run_packs_tests.sh`.
 
 ## When to touch the engine
 - Changing a **cost** or a language rule in `MrFuzzy.java`/`rules.txt`: Java only; the lib receives the new values by itself.

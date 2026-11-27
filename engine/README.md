@@ -108,7 +108,7 @@ workflow compares the hashes with the current code and does not publish if `lib/
 ## What is tested
 | What | How | Where |
 |---|---|---|
-| The app's strategies through the lib | S1-S29, the data and limit checks and the floors of S28, in 3 languages, on `dicts/` and on a copy in the format v2 (the lib is the PC build) | `run_strategy_tests.sh`, in CI (mr-checks.yml) |
+| The app's strategies through the lib | S1-S30, the data and limit checks and the floors of S28, in 3 languages, on `dicts/` and on a copy in the format v2 (the lib is the PC build) | `run_strategy_tests.sh`, in CI (mr-checks.yml) |
 | Search on the real dictionary and order independence | obvious corrections; the result of a query does not change because of the previous ones | `mr_test`, in CI |
 | Corrupt dictionary/trigrams | cut off, swapped bytes, garbage, with ASan + UBSan: no crash, no read outside the file, no freeze | `mr_test`, in CI |
 | Bad arguments in the JNI | non-direct buffer, short arrays, nonexistent file | `JniSmoke`, in CI |

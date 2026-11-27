@@ -22,6 +22,12 @@ import java.nio.ByteBuffer;
  *
  * Score on the same scale as the lib: freq * 2^(n+1) for an exact hit, and every 0.25 of cost
  * divides by 2 (which is what the lib does per neighbouring key).
+ *
+ * Words with digits: the number row sits right above q..p, so a digit in a word is often the letter under it ("obr8gado", "5udo"); the
+ * search already finds that word (the digit's touch has the letter among its neighbours). What changes is what may be done on its own and
+ * what is shown: a word with a digit is replaced on its own only when the digit is the slip ({@link #digitSlip}: one digit, the same word with a
+ * letter in its place), so a number written on purpose stays ("teste1", "aula2", "iphone11", "mp3", "9h", "3dias" used to lose the digit or
+ * become another word); and a suggestion with another number ("MP4" for "mp3") is never shown ({@link #dropOtherNumbers}).
  */
 public final class MrFuzzy {
     // costs (x100)
@@ -131,6 +137,11 @@ public final class MrFuzzy {
     private static String sReserveTyped;
     private static String sReserveWord;
     private static boolean sReserveFirst;
+    /**
+     * The last word whose first character the field asked to be a capital (WordComposer.isFirstCharCapitalized: the start of a sentence),
+     * or null. A digit typed there ("5udo" at the start of a message) leaves the word lowercase while its suggestions come with the capital.
+     */
+    static String sCapTyped;
 
     MrFuzzy(ByteBuffer dict, int size) {
         mDict = dict;
@@ -179,6 +190,7 @@ public final class MrFuzzy {
             sReserveTyped = null;
             sReserveWord = null;
             sReserveFirst = false;
+            sCapTyped = null;
             if (suggest == null || composer == null) return;
             int n = composer.size();
             if (n < 2 || n > MAX_TYPED) return;
@@ -189,6 +201,7 @@ public final class MrFuzzy {
             CharSequence typed = composer.getTypedWord();
             if (typed == null) return;
             rememberTouches(composer, typed, n);
+            if (composer.isFirstCharCapitalized()) sCapTyped = typed.toString();
             String fix = MrFix.lookup(typed);
             if (fix != null) {
                 char[] c = fix.toCharArray();
@@ -352,6 +365,8 @@ public final class MrFuzzy {
                     return true;
                 }
             }
+            // a word with digits is never offered with another number ("mp3": no MP4)
+            dropOtherNumbers(list, typed);
             // v1.66: the same word with only a capital ("ds" -> DS, "cade" -> Cade) does not stay 1st
             // when the 2nd option is a neighbouring key of the touch ("ds" -> de)
             demoteCaseVariant(list, typed);
@@ -416,6 +431,8 @@ public final class MrFuzzy {
         String fix = MrFix.lookup(typed);
         if (fix != null && fix.equalsIgnoreCase(best)) return true;
         if (best.indexOf(' ') >= 0) return false;
+        // with a digit, only the digit typed for the letter under it is fixed on its own
+        if (digitCount(typed) > 0) return digitSlip(typed, best);
         String a = baseString(typed), b = baseString(best);
         int allowed = a.length() <= 5 ? 1 : 2;
         if (distance(a, b, allowed) <= allowed) return true;
@@ -434,6 +451,65 @@ public final class MrFuzzy {
             return half <= 2 * allowed;
         }
         return false;
+    }
+
+    /** How many digits (0-9 and the other Unicode digits) the word has. */
+    static int digitCount(CharSequence s) {
+        int n = 0;
+        for (int i = 0; i < s.length(); i++) if (Character.isDigit(s.charAt(i))) n++;
+        return n;
+    }
+
+    /** The digits of the word, in order ("mp3" -> "3", "4h30" -> "430"). */
+    static String digitsOf(CharSequence s) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) if (Character.isDigit(s.charAt(i))) sb.append(s.charAt(i));
+        return sb.toString();
+    }
+
+    /**
+     * True when {@code best} is {@code typed} with its digit taken for a letter: the typed word has one digit and 3 or more characters (with 3
+     * and the digit at an end, only the letter right under the digit: "qu3" -> que and "4ua" -> rua, while "mp3", "ps4" and "gr8" stay),
+     * {@code best} has no digit, the same length, a letter where the digit is and the same letters everywhere else (accent and case ignored),
+     * and is not a capitalized name or acronym for a lowercase word. The one capital allowed is the first letter of a word that starts with
+     * the digit where the field asked for a capital ({@link #sCapTyped}: "5udo" at the start of a sentence -> Tudo).
+     * "obr8gado" -> obrigado and "5udo" -> tudo pass; "teste1" -> teste (the digit added, not a letter), "iphone11" (two digits) and "a4" do not.
+     */
+    static boolean digitSlip(String typed, String best) {
+        int n = typed.length();
+        if (best.length() != n || digitCount(best) > 0) return false;
+        int at = -1;
+        for (int i = 0; i < n; i++) {
+            if (!Character.isDigit(typed.charAt(i))) continue;
+            if (at >= 0) return false;
+            at = i;
+        }
+        if (at < 0 || n < 3 || !Character.isLetter(best.charAt(at))) return false;
+        // 3 characters with the digit at an end ("qu3", "4ua"): only the letter right under the digit, so "mp3", "ps4", "2go" stay
+        if (n == 3 && at != 1 && MrText.base(best.charAt(at)) != letterUnder(typed.charAt(at))) return false;
+        for (int i = 0; i < n; i++) {
+            if (i != at && MrText.base(typed.charAt(i)) != MrText.base(best.charAt(i))) return false;
+        }
+        if (!typed.equals(typed.toLowerCase()) || best.equals(best.toLowerCase())) return true;
+        // a lowercase word and a suggestion with capitals: only the capital the field asked for, in place of the digit
+        String rest = best.substring(1);
+        return at == 0 && typed.equals(sCapTyped) && rest.equals(rest.toLowerCase());
+    }
+
+    /** The letter right under a digit of the number row (1 -> q ... 0 -> p), or 0 for any other character. */
+    static char letterUnder(char digit) {
+        int i = "1234567890".indexOf(digit);
+        return i < 0 ? 0 : "qwertyuiop".charAt(i);
+    }
+
+    /** Takes out of the list (from index 1) the suggestions with digits other than the typed ones: "mp3" keeps MP3 and loses MP4. */
+    static void dropOtherNumbers(java.util.List<CharSequence> list, String typed) {
+        if (list.size() < 2 || digitCount(typed) == 0) return;
+        String mine = digitsOf(typed);
+        for (int i = list.size() - 1; i >= 1; i--) {
+            CharSequence c = list.get(i);
+            if (digitCount(c) > 0 && !digitsOf(c).equals(mine)) list.remove(i);
+        }
     }
 
     private static String baseString(String s) {

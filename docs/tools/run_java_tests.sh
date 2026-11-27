@@ -3,6 +3,8 @@
 #   - compiles the stubs (docs/tools/java/stubs) and the sources (docs/tools/java/src), like build_java.sh;
 #   - AuthorTest: author card and main-screen link (MrAuthor, MrLink).
 #   - RecorrectTest: word under the cursor, which words get suggestions and neighbour keys (MrRecorrect).
+#   - DigitTest: a digit typed for the letter under it on the number row: what space may replace on its own (MrFuzzy.digitSlip: "obr8gado",
+#     "5udo" yes; "teste1", "mp3", "9h" no), no suggestion with another number ("mp3": no MP4), and the lone digit that starts a word (MrDigitStart).
 #   - RecentTest: recent words in the prediction and when completing (MrRecent).
 #   - NoLibTest: without libmrengine.so (native engine, 1.77) the search answers no results and the trigrams nothing, with no exception (since 1.87.0 there is no Java search); and the search kept for the dictionary is let go (MrFuzzy.release, stage 4 part 2).
 #   - UpdateTest: the notice of a new version (MrUpdate): signature, every field, versions, replay, checking windows,
@@ -155,6 +157,10 @@ java -cp "$T/test_author:$T/ov_author:$T/stubs:$T/main" com.mrkeyboard.app.Autho
 echo "== RecorrectTest"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_rec" $D/recorrect_test/RecorrectTest.java
 java -cp "$T/test_rec:$T/stubs:$T/main" com.mrkeyboard.app.RecorrectTest
+
+echo "== DigitTest (a digit typed for a letter: what is replaced on its own, other numbers, the lone digit that starts a word)"
+javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_digit" $D/digit_test/DigitTest.java
+java -Dfile.encoding=UTF-8 -cp "$T/test_digit:$T/stubs:$T/main" com.mrkeyboard.app.DigitTest
 
 echo "== RecentTest"
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_recent" $D/recent_test/RecentTest.java

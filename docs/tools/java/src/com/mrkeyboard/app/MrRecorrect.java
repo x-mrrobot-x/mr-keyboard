@@ -37,20 +37,23 @@ public final class MrRecorrect {
     static final EditingUtil.SelectedWord NO_SNAPSHOT = new EditingUtil.SelectedWord();
 
     /**
-     * Word of 2 to 48 characters, with at least one letter and no digit (codes, passwords,
-     * "4g", "abc123" do not get suggestions).
+     * Word of 2 to 48 characters with at least one letter and no digit, or a word of 4 or more characters with one digit and the rest letters
+     * (a digit typed for the letter under it on the number row: "obr8gado", "5udo" get their suggestions when tapped). Codes, passwords and
+     * numbers ("4g", "abc123", "mp3", "4h30", "9h") do not get suggestions.
      */
     static boolean eligible(CharSequence word) {
         if (word == null) return false;
         int n = word.length();
         if (n < 2 || n > MAX_WORD) return false;
-        boolean letter = false;
+        int letters = 0;
+        int digits = 0;
         for (int i = 0; i < n; i++) {
             char c = word.charAt(i);
-            if (Character.isDigit(c)) return false;
-            if (Character.isLetter(c)) letter = true;
+            if (Character.isDigit(c)) digits++;
+            else if (Character.isLetter(c)) letters++;
         }
-        return letter;
+        if (digits == 0) return letters > 0;
+        return digits == 1 && n >= 4 && letters == n - 1;
     }
 
     /**

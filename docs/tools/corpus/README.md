@@ -88,7 +88,7 @@ another language that the subtitles quote (`FOREIGN`) and the accent-free form o
 `SubtitleEval` reads a plain text file, one sentence per line (docs/tools/e2e/README.md). Use the three hold-outs (subtitles, Tatoeba, news) so a gain in one
 register does not hide a loss in another; an old pack must be compared with a pack rebuilt by the **old scripts on the same splits**
 (`make_wordlist_lang.py` + `make_trigrams.py`, news weight 1, Tatoeba weight 3), because the shipped pack has seen the sentences of its own export.
-Then `run_strategy_tests.sh` (S1-S29, the data checks and the floors of S28) with `DICTS=<folder with the new pack>`.
+Then `run_strategy_tests.sh` (S1-S30, the data checks and the floors of S28) with `DICTS=<folder with the new pack>`.
 
 ## 5. Real messages: sample, clean, split and measure (stage 2 of the plan after 1.87.0, now deleted; the Git history keeps it)
 Why: the "chat" source of the mix is Tatoeba (translated example sentences) and none of the three hold-outs is text typed by people. This section adds a **fourth test
