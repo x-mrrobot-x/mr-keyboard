@@ -84,17 +84,6 @@ public final class KeyEditDialog {
         return new Editor(context, sheets, key, false, canMoveLeft, canMoveRight, canDuplicate, canDelete, listener).show();
     }
 
-    /**
-     * Editor of a key of ABC (MrAbcKeys): its place and width are the ones of the keyboard, so no spacer type, no width and no actions; what
-     * it writes, its type, its label and its long-press popup change. The dialog, shown.
-     */
-    public static AlertDialog showForFixedKey(Context context, List<SheetModel.Sheet> sheets, SheetModel.KeySpec key,
-            OnKeyActionListener listener) {
-        Editor e = new Editor(context, sheets, key, false, false, false, false, false, listener);
-        e.mFixedPlace = true;
-        return e.show();
-    }
-
     /** Editor of one item of a long-press popup: no spacer type, no width, no popup of its own and no actions; the dialog, shown. */
     public static AlertDialog showForPopupItem(Context context, List<SheetModel.Sheet> sheets, SheetModel.KeySpec key,
             OnKeyActionListener listener) {
@@ -189,8 +178,6 @@ public final class KeyEditDialog {
         private int mStep;
         /** True while the label is only a copy of the committed text (then it follows what is typed). */
         private boolean mAutoLabel;
-        /** A key of ABC: no spacer, no width (it keeps the one it has), no actions; the popup stays. */
-        boolean mFixedPlace;
 
         Editor(Context context, List<SheetModel.Sheet> sheets, SheetModel.KeySpec key, boolean popup,
                 boolean canMoveLeft, boolean canMoveRight, boolean canDuplicate, boolean canDelete,
@@ -240,8 +227,8 @@ public final class KeyEditDialog {
             TextView specialChip = (TextView) content.findViewWithTag("chip_special");
             TextView sheetChip = (TextView) content.findViewWithTag("chip_sheet");
             TextView spacerChip = (TextView) content.findViewWithTag("chip_spacer");
-            if (mPopup || mFixedPlace) {
-                // a popup item is a key of the keyboard, and a key of ABC keeps its place: no spacer
+            if (mPopup) {
+                // a popup item is a key of the keyboard: no spacer
                 spacerChip.setVisibility(View.GONE);
                 mChips = new TextView[] { textChip, taskerChip, specialChip, sheetChip };
                 mTypes = new String[] { SheetModel.TYPE_TEXT, SheetModel.TYPE_TASKER, SheetModel.TYPE_SPECIAL,
@@ -303,9 +290,6 @@ public final class KeyEditDialog {
                 // a popup item keeps the width of one key and has no popup of its own
                 mGroupWidth.setVisibility(View.GONE);
                 mGroupPopup.setVisibility(View.GONE);
-            } else if (mFixedPlace) {
-                // a key of ABC keeps the width of the keyboard
-                mGroupWidth.setVisibility(View.GONE);
             }
 
             bindLabelSync();
@@ -531,7 +515,7 @@ public final class KeyEditDialog {
         /** Save of the platform dialog: writes the key and closes, or explains what is missing and stays open. */
         private void save() {
             String label = mLabelField.getText().toString();
-            float width = mPopup ? 1.0f : mFixedPlace ? mKey.width : SheetModel.clampWidth(mStep * 0.25f + 0.5f);
+            float width = mPopup ? 1.0f : SheetModel.clampWidth(mStep * 0.25f + 0.5f);
             if (SheetModel.TYPE_SPACER.equals(mKey.type)) {
                 mKey.label = EMPTY;
                 mKey.value = EMPTY;
@@ -586,7 +570,7 @@ public final class KeyEditDialog {
             badges.add("◂123");
             labels.add(t("mr_key_ed_target_prev"));
             values.add(SheetModel.TARGET_ABC);
-            badges.add("ABC");
+            badges.add(MrAbcKeys.badge());
             labels.add(t("mr_key_ed_target_abc"));
             if (mSheets != null) {
                 for (int i = 0; i < mSheets.size(); i++) {

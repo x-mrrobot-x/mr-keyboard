@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/PrefScreenSheets;->onCreate(Landroid/os/Bundle;)V
+    value = Lcom/mrkeyboard/app/PrefScreenSheets;->buildAbcCard()Landroid/view/View;
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 165
+    .line 224
     iput-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$6;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -37,14 +37,16 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 1
+    .locals 2
 
     .prologue
-    .line 167
+    .line 226
     iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$6;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$400(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+    const-string v1, "abc"
 
-    .line 168
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$400(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;)V
+
+    .line 227
     return-void
 .end method

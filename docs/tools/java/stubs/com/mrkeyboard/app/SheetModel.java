@@ -83,7 +83,11 @@ public final class SheetModel {
         if (TYPE_TASKER.equals(type) || TYPE_SPECIAL.equals(type) || TYPE_SHEET.equals(type) || TYPE_SPACER.equals(type)) return type;
         return TYPE_TEXT;
     }
-    public static String sanitizeName(String raw, String fallback) { return null; }
+    /** Like the real one for the tests: the name without the spaces around it, or the fallback. */
+    public static String sanitizeName(String raw, String fallback) {
+        String t = raw == null ? "" : raw.trim();
+        return t.isEmpty() ? fallback : t;
+    }
     public static String sanitizeBadge(String raw, String fallback) {
         return raw == null || raw.isEmpty() ? fallback : raw;   // stub
     }

@@ -3,8 +3,8 @@
 #   - compiles the stubs (docs/tools/java/stubs) and the sources (docs/tools/java/src), like build_java.sh;
 #   - AuthorTest: author card and main-screen link (MrAuthor, MrLink).
 #   - RecorrectTest: word under the cursor, which words get suggestions and neighbour keys (MrRecorrect).
-#   - AbcKeysTest: the keys of ABC that the person edits (MrAbcKeys): which keys change and which stay fixed, ABC as the editor shows it, what is
-#     saved (only the keys that differ; a popup not touched stays the one of the language), the backup of the sheets, and the keys after the edits.
+#   - AbcKeysTest: ABC edited as a sheet (MrAbcKeys): the XML read as a sheet, what is kept (nothing while it is the XML; the popups of the
+#     language named), the backup of the sheets, the badge, and the keyboard laid out again from it (the keys of the system moved, delete last).
 #   - DigitTest: a digit typed for the letter under it on the number row: what space may replace on its own (MrFuzzy.digitSlip: "obr8gado",
 #     "5udo" yes; "teste1", "mp3", "9h" no), no suggestion with another number ("mp3": no MP4), and the lone digit that starts a word (MrDigitStart).
 #   - RecentTest: recent words in the prediction and when completing (MrRecent).
@@ -164,7 +164,7 @@ echo "== DigitTest (a digit typed for a letter: what is replaced on its own, oth
 javac -encoding UTF-8 -nowarn -cp "$T/stubs:$T/main" -d "$T/test_digit" $D/digit_test/DigitTest.java
 java -Dfile.encoding=UTF-8 -cp "$T/test_digit:$T/stubs:$T/main" com.mrkeyboard.app.DigitTest
 
-echo "== AbcKeysTest (the keys of ABC: which ones change, ABC in the editor, what is saved, the backup, the keyboard after the edits)"
+echo "== AbcKeysTest (ABC as a sheet: the XML read as a sheet, what is kept, the backup, the badge, the keyboard laid out again)"
 javac -nowarn -cp "$T/stubs" -d "$T/ov_abc" $(find $D/abc_test/stubs -name '*.java')
 javac -encoding UTF-8 -nowarn -cp "$T/ov_abc:$T/stubs:$T/main" -d "$T/test_abc" $D/abc_test/AbcKeysTest.java
 java -Dfile.encoding=UTF-8 -cp "$T/test_abc:$T/ov_abc:$T/stubs:$T/main" com.mrkeyboard.app.AbcKeysTest

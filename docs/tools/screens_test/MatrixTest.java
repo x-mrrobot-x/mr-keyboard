@@ -742,14 +742,13 @@ public class MatrixTest {
                 c1 >= 0 && c2 >= 0 && (glassArgb & 0xffffff) == (cardArgb & 0xffffff) && alpha >= 153 && alpha <= 217);
         int sunkenGlass = argb(colors, "mr_ui_sunken_glass");
         int sunken = argb(colors, "mr_ui_sunken");
-        check("the see-through sunken card (the fixed cards of the sheets) is its colour with the same alpha", (sunkenGlass & 0xffffff) == (sunken & 0xffffff) && (sunkenGlass >>> 24) == alpha);
+        check("the see-through sunken card (the option card of the sheets) is its colour with the same alpha", (sunkenGlass & 0xffffff) == (sunken & 0xffffff) && (sunkenGlass >>> 24) == alpha);
         int dialogGlass = argb(colors, "mr_ui_dialog_glass");
         int dialogAlpha = dialogGlass >>> 24;
         check("the dialog is the colour of the card, a little see-through (" + dialogAlpha + "/255) and less than the cards", (dialogGlass & 0xffffff) == (cardArgb & 0xffffff) && dialogAlpha > alpha && dialogAlpha >= 204 && dialogAlpha < 255);
         boolean glassFiles = true;
         String[][] pairs = {{"mr_ui_card_ripple", "mr_ui_card", "mr_ui_card_glass"}, {"mr_ui_card_shape", "mr_ui_card", "mr_ui_card_glass"},
-                {"mr_ui_hero_bg", "mr_ui_card", "mr_ui_card_glass"}, {"mr_sheet_fixed_bg", "mr_ui_sunken", "mr_ui_sunken_glass"},
-                {"mr_ui_dialog_bg", "mr_ui_card", "mr_ui_dialog_glass"}};
+                {"mr_ui_hero_bg", "mr_ui_card", "mr_ui_card_glass"}, {"mr_ui_dialog_bg", "mr_ui_card", "mr_ui_dialog_glass"}};
         for (String[] p : pairs) {
             String d = file("res/drawable/" + p[0] + "_glass.xml");
             String solid = file("res/drawable/" + p[0] + ".xml");
@@ -773,8 +772,7 @@ public class MatrixTest {
                 && main.contains("android:background=\"?attr/mrHero\"") && main.contains("android:background=\"?attr/mrCard\"") && main.split("\\?attr/mrCardFlat", -1).length - 1 == 3
                 && !main.contains("@color/mr_ui_bg") && !main.contains("@drawable/mr_ui_card_shape\"") && !main.contains("@drawable/mr_ui_card_ripple\"") && !main.contains("@drawable/mr_ui_hero_bg\""));
         boolean sheets = file("res/layout/mr_sheets_screen.xml").contains("android:background=\"?attr/mrScreenBg\"") && file("res/layout/mr_sheet_ed_screen.xml").contains("android:background=\"?attr/mrScreenBg\"")
-                && file("res/layout/mr_sheet_card.xml").contains("android:background=\"?attr/mrCard\"") && file("res/layout/mr_sheet_ed_test_card.xml").contains("android:background=\"?attr/mrCardFlat\"")
-                && file("res/layout/mr_sheet_fixed_card.xml").contains("android:background=\"?attr/mrSheetFixed\"");
+                && file("res/layout/mr_sheet_card.xml").contains("android:background=\"?attr/mrCard\"") && file("res/layout/mr_sheet_ed_test_card.xml").contains("android:background=\"?attr/mrCardFlat\"");
         check("the sheets and their editor take their background and their cards from the theme too (the header stays solid)", sheets
                 && file("res/layout/mr_sheets_screen.xml").contains("android:background=\"@color/mr_ui_bg\"") && file("res/layout/mr_sheet_ed_screen.xml").contains("android:background=\"@color/mr_ui_bg\""));
         String src = "docs/tools/java/src/com/mrkeyboard/app/";

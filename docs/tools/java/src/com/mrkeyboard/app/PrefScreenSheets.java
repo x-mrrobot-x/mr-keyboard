@@ -22,14 +22,14 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 /**
- * "Folhas do teclado" (keyboard sheets) page: the ABC card (always first; a tap opens its keys in the editor, MrAbcKeys, and the card says
- * how many keys were changed), the "return to the main sheet" switch, the list of the
+ * "Folhas do teclado" (keyboard sheets) page: the "return to the main sheet" switch, the list of sheets with ABC as its first card (it is
+ * edited as any sheet, MrAbcKeys, but has a padlock where the others have up and down, and no Delete), the list of the
  * sheets in the order of the cycle (with its note) and, on each card, move up/down and the menu (edit, name and badge, move,
  * duplicate, restore, delete); the "+ New sheet" button with its templates; and the backup section (export, import, restore
  * the default sheets). The backup lives in that section only: the ⋮ of the header that repeated it is gone.
  *
- * The look is in XML, like the other settings screens: layout/mr_sheets_screen (the page), mr_sheet_card (one sheet),
- * mr_sheet_fixed_card (ABC), mr_sheet_button (+ _danger), mr_sheet_empty and mr_sheet_dialog_fields (SheetNameDialog), with
+ * The look is in XML, like the other settings screens: layout/mr_sheets_screen (the page), mr_sheet_card (one sheet, ABC
+ * too), mr_sheet_button (+ _danger), mr_sheet_empty and mr_sheet_dialog_fields (SheetNameDialog), with
  * the drawables mr_sheet_* and mr_ui_card_ripple. The colors come from the settings palette (@color/mr_ui_*) and the texts
  * from mr_strings.xml (mr_sheets_*, in English, Portuguese and Spanish); this class only fills in what changes (texts of the
  * sheets, the drawn icons, the clicks). The views are found by android:tag, so no id is needed.
@@ -57,8 +57,6 @@ public class PrefScreenSheets extends Activity {
     private LinearLayout mListContainer;
     private TextView mSubtitleView;
     private TextView mNewSheetBtn;
-    /** The line under the title of the ABC card: what it is, or how many of its keys were changed. */
-    private TextView mAbcDesc;
     private long mLastOpen = -TAP_GAP_MS;
 
     // ------------------------------------------------------------------ resources by name
@@ -120,17 +118,6 @@ public class PrefScreenSheets extends Activity {
         slot(root, "back_slot").addView(back, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
-        // ABC card: first and fixed in the cycle; a tap opens its keys in the editor (the pencil says so)
-        ImageView pencil = (ImageView) root.findViewWithTag("edit_icon");
-        pencil.setImageDrawable(new SheetUi.IconDrawable(this, SheetUi.ICON_RENAME, color("mr_ui_text3"), dp(18)));
-        mAbcDesc = (TextView) root.findViewWithTag("abc_desc");
-        View abcCard = root.findViewWithTag("abc_card");
-        abcCard.setContentDescription(t("mr_sheets_abc_edit_desc"));
-        abcCard.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                openEditor(MrAbcKeys.ID);
-            }
-        });
 
         // switch "return to the main sheet when typing"
         slot(root, "option_slot").addView(MrSheetOpt.row(this));
@@ -197,10 +184,6 @@ public class PrefScreenSheets extends Activity {
     // ------------------------------------------------------------------ list
 
     private void reloadAndRender() {
-        if (mAbcDesc != null) {
-            int edited = MrAbcKeys.count(this);
-            mAbcDesc.setText(edited == 0 ? t("mr_sheets_main_desc") : t("mr_sheets_main_edited", Integer.valueOf(edited)));
-        }
         mSheets = SheetStore.getEditableCopy(this);
         if (mSheets == null) mSheets = new ArrayList<SheetModel.Sheet>();
         mSubtitleView.setText(t("mr_sheets_subtitle", Integer.valueOf(mSheets.size()), Integer.valueOf(SheetModel.MAX_SHEETS)));
@@ -208,6 +191,9 @@ public class PrefScreenSheets extends Activity {
         mNewSheetBtn.setText(room ? t("mr_sheets_new") : t("mr_sheets_new_full", Integer.valueOf(SheetModel.MAX_SHEETS)));
         mNewSheetBtn.setAlpha(room ? 1.0f : 0.45f);
         mListContainer.removeAllViews();
+        // ABC is always the first sheet
+        View abc = buildAbcCard();
+        if (abc != null) mListContainer.addView(abc);
         int n = mSheets.size();
         if (n == 0) {
             mListContainer.addView(inflate("mr_sheet_empty", mListContainer));
@@ -216,6 +202,49 @@ public class PrefScreenSheets extends Activity {
         for (int i = 0; i < n; i++) {
             mListContainer.addView(buildSheetCard(i, mSheets.get(i)));
         }
+    }
+
+    /**
+     * The card of ABC, as the others (badge, name, rows and keys) with a padlock in the place of up and down: ABC does not move and is not
+     * deleted. Null when ABC cannot be read (the list goes on without it).
+     */
+    private View buildAbcCard() {
+        final MrAbcKeys.Model abc;
+        try {
+            abc = MrAbcKeys.load(this, t("mr_sheets_main_title"));
+        } catch (Throwable t) {
+            return null;
+        }
+        final SheetModel.Sheet sheet = abc.sheet;
+        View card = inflate("mr_sheet_card", mListContainer);
+        ((TextView) card.findViewWithTag("badge")).setText(SheetModel.sanitizeBadge(sheet.badge, "ABC"));
+        ((TextView) card.findViewWithTag("name")).setText(sheet.name);
+        ((TextView) card.findViewWithTag("info")).setText(t("mr_sheets_card_info", Integer.valueOf(sheet.rows.size()),
+                Integer.valueOf(sheet.countKeys()), t("mr_sheets_builtin")));
+        card.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                openEditor(MrAbcKeys.ID);
+            }
+        });
+        // the padlock takes the room of up and down
+        card.findViewWithTag("up").setVisibility(View.GONE);
+        ImageView lock = (ImageView) card.findViewWithTag("down");
+        lock.setImageDrawable(new SheetUi.IconDrawable(this, SheetUi.ICON_LOCK, color("mr_ui_text3"), dp(20)));
+        lock.setContentDescription(t("mr_sheets_abc_locked_desc"));
+        lock.setBackground(null);
+        lock.setClickable(false);
+        android.view.ViewGroup.LayoutParams lp = lock.getLayoutParams();
+        if (lp != null) {
+            lp.width = dp(80);
+            lock.setLayoutParams(lp);
+        }
+        final ImageView more = actionIcon(card, "more", SheetUi.ICON_MORE_VERT, true, t("mr_sheets_options_desc", sheet.name));
+        more.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                showAbcMenu(more, abc);
+            }
+        });
+        return card;
     }
 
     private View buildSheetCard(final int idx, final SheetModel.Sheet sheet) {
@@ -298,6 +327,69 @@ public class PrefScreenSheets extends Activity {
                         }
                     }
                 });
+    }
+
+    /** The ⋮ of ABC: edit, rename, duplicate and Restore ABC; Delete greyed (ABC is always the first sheet). */
+    private void showAbcMenu(View anchor, final MrAbcKeys.Model abc) {
+        ArrayList<SheetUi.MenuEntry> items = new ArrayList<SheetUi.MenuEntry>(5);
+        items.add(new SheetUi.MenuEntry(1, SheetUi.ICON_EDIT_KEYS, t("mr_sheets_menu_edit")));
+        items.add(new SheetUi.MenuEntry(2, SheetUi.ICON_RENAME, t("mr_sheets_menu_rename")));
+        if (mSheets.size() < SheetModel.MAX_SHEETS) {
+            items.add(new SheetUi.MenuEntry(5, SheetUi.ICON_DUPLICATE, t("mr_sheets_menu_duplicate")));
+        }
+        items.add(new SheetUi.MenuEntry(6, SheetUi.ICON_RESTORE, t("mr_abc_menu_restore"), SheetUi.TONE_WARNING, MrAbcKeys.edited(abc)));
+        items.add(new SheetUi.MenuEntry(7, SheetUi.ICON_DELETE, t("mr_sheets_menu_delete"), SheetUi.TONE_DANGER, false));
+        SheetUi.showPopupMenu(this, anchor, SheetModel.sanitizeBadge(abc.sheet.badge, "ABC"), abc.sheet.name, items,
+                new SheetUi.OnMenuSelect() {
+                    public void onSelect(int id) {
+                        switch (id) {
+                            case 1: openEditor(MrAbcKeys.ID); break;
+                            case 2: showRenameAbcDialog(abc); break;
+                            case 5: duplicateAbc(abc); break;
+                            case 6: confirmRestoreAbc(); break;
+                            default: break;
+                        }
+                    }
+                });
+    }
+
+    private void showRenameAbcDialog(final MrAbcKeys.Model abc) {
+        SheetNameDialog.show(this, t("mr_sheets_rename_title"), t("mr_sheets_save"), t("mr_sheets_cancel"),
+                abc.sheet.name, abc.sheet.badge, new SheetNameDialog.OnNamed() {
+                    public void onNamed(String name, String badge) {
+                        abc.sheet.name = SheetModel.sanitizeName(name, abc.sheet.name);
+                        abc.sheet.badge = SheetModel.sanitizeBadge(badge, abc.sheet.badge);
+                        if (!MrAbcKeys.save(PrefScreenSheets.this, abc)) toast(t("mr_abc_save_failed"), false);
+                        reloadAndRender();
+                    }
+                });
+    }
+
+    /** A copy of ABC as a sheet of the person, the first one after ABC. */
+    private void duplicateAbc(MrAbcKeys.Model abc) {
+        if (limitReached()) return;
+        SheetModel.Sheet copy = MrAbcKeys.copySheet(abc.sheet);
+        copy.id = SheetModel.makeUniqueId(mSheets, "copy");
+        copy.builtin = false;
+        copy.name = SheetModel.sanitizeName(t("mr_sheets_copy_name", abc.sheet.name), abc.sheet.name);
+        mSheets.add(0, copy);
+        SheetStore.save(this, mSheets);
+        reloadAndRender();
+    }
+
+    private void confirmRestoreAbc() {
+        new AlertDialog.Builder(this)
+                .setTitle(t("mr_abc_restore_title"))
+                .setMessage(t("mr_abc_restore_msg"))
+                .setPositiveButton(t("mr_sheets_reset_one_ok"), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        MrAbcKeys.reset(PrefScreenSheets.this);
+                        reloadAndRender();
+                        toast(t("mr_abc_restored"), false);
+                    }
+                })
+                .setNegativeButton(t("mr_sheets_cancel"), null)
+                .show();
     }
 
     // ------------------------------------------------------------------ actions on the list

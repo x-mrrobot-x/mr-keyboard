@@ -375,22 +375,38 @@ public class SheetsTest {
                 && setCase.contains("->altHint:") && setCase.contains("->capsLabel:"));
         check("SheetKeyboardBuilder.configureKeyFromSpec is public (the keys of ABC use it)",
                 read("smali/com/mrkeyboard/app/SheetKeyboardBuilder.smali").contains(".method public static configureKeyFromSpec("));
-        String fixed = read("res/layout/mr_sheet_fixed_card.xml");
-        check("ABC card: it is a button, with the line that counts the keys changed and the pencil", fixed.contains("android:tag=\"abc_card\"")
-                && fixed.contains("android:clickable=\"true\"") && fixed.contains("android:tag=\"abc_desc\"") && fixed.contains("android:tag=\"edit_icon\""));
-        check("editor: the hint and the row tools can be changed for ABC", ed.contains("android:tag=\"hint\"") && ed.contains("android:tag=\"tools_row\""));
-        check("page: the ABC card opens ABC in the editor and the backup carries its keys", listSrc.contains("openEditor(MrAbcKeys.ID)")
-                && listSrc.contains("MrAbcKeys.addToBackup(") && listSrc.contains("MrAbcKeys.takeFromBackup("));
-        check("editor: ABC has its own key editor (no width, no actions) and saves the edits of ABC", edSrc.contains("KeyEditDialog.showForFixedKey(")
-                && edSrc.contains("MrAbcKeys.save(this, mAbc)") && edSrc.contains("mGridView.setFixed(mAbc.lockedMap())"));
+        String builder = read("smali/com/mrkeyboard/app/SheetKeyboardBuilder.smali");
+        check("the popup of sheets and a key that switches to ABC show the badge of ABC (it can be renamed)",
+                count(builder, "Lcom/mrkeyboard/app/MrAbcKeys;->badge()Ljava/lang/String;") == 2 && !builder.contains("const-string v5, \"ABC\"")
+                        && !builder.contains("const-string p0, \"ABC\""));
+        check("page: no separate card of ABC (it is the first card of the list)", !page.contains("mr_sheet_fixed_card")
+                && !new java.io.File("res/layout/mr_sheet_fixed_card.xml").exists());
+        check("page: the card of ABC is the card of the sheets, first, with a padlock in the place of up and down and the same line of rows and keys",
+                listSrc.contains("View abc = buildAbcCard();") && listSrc.indexOf("buildAbcCard();") < listSrc.indexOf("buildSheetCard(i, mSheets.get(i))")
+                        && listSrc.contains("SheetUi.ICON_LOCK") && listSrc.contains("card.findViewWithTag(\"up\").setVisibility(View.GONE);")
+                        && listSrc.contains("t(\"mr_sheets_card_info\", Integer.valueOf(sheet.rows.size())"));
+        check("page: the ⋮ of ABC has no up, no down, and a greyed Delete", listSrc.contains("t(\"mr_sheets_menu_delete\"), SheetUi.TONE_DANGER, false)")
+                && listSrc.contains("openEditor(MrAbcKeys.ID)") && listSrc.contains("MrAbcKeys.addToBackup(") && listSrc.contains("MrAbcKeys.takeFromBackup("));
+        check("editor: ABC is edited as a sheet and saved as ABC, with a greyed Delete and Restore ABC",
+                edSrc.contains("MrAbcKeys.load(this, t(\"mr_sheets_main_title\"))") && edSrc.contains("MrAbcKeys.save(this, mAbc)")
+                        && edSrc.contains("t(\"mr_sheet_ed_menu_delete\"), SheetUi.TONE_DANGER, false)") && edSrc.contains("t(\"mr_abc_menu_restore\")")
+                        && !edSrc.contains("setFixed(") && !keySrc.contains("showForFixedKey"));
+        String test = read("res/layout/mr_sheet_ed_test_card.xml");
+        check("quick test: no badge \"live\"", !test.contains("test_badge") && !edSrc.contains("mr_sheet_ed_live")
+                && !pt.containsKey("mr_sheet_ed_live") && !en.containsKey("mr_sheet_ed_live") && !es.containsKey("mr_sheet_ed_live"));
+        check("quick test: short texts that say what to do and what happens", pt.get("mr_sheet_ed_test_footer").length() < 40
+                && !pt.get("mr_sheet_ed_test_footer").contains("fica nela") && en.get("mr_sheet_ed_test_footer").length() < 40
+                && es.get("mr_sheet_ed_test_footer").length() < 45);
         boolean abcTexts = true;
-        for (String n : new String[] { "mr_sheets_main_edited", "mr_sheets_abc_edit_desc", "mr_abc_ed_hint", "mr_abc_ed_none", "mr_abc_ed_count",
-                "mr_abc_fixed_key", "mr_abc_menu_restore", "mr_abc_restore_title", "mr_abc_restore_msg", "mr_abc_restored", "mr_abc_save_failed" }) {
+        for (String n : new String[] { "mr_sheets_abc_locked_desc", "mr_abc_menu_restore", "mr_abc_restore_title", "mr_abc_restore_msg", "mr_abc_restored",
+                "mr_abc_save_failed" }) {
             abcTexts &= pt.containsKey(n) && en.containsKey(n) && es.containsKey(n);
         }
-        check("the texts of ABC in Portuguese, English and Spanish, with the count as a value", abcTexts
-                && pt.get("mr_abc_ed_count").contains("%1$d") && es.get("mr_sheets_main_edited").contains("%1$d")
-                && !pt.get("mr_sheets_main_desc").contains("Fixo"));
+        boolean abcGone = true;
+        for (String n : new String[] { "mr_sheets_main_desc", "mr_sheets_main_edited", "mr_abc_fixed_key", "mr_abc_ed_hint" }) {
+            abcGone &= !pt.containsKey(n) && !en.containsKey(n) && !es.containsKey(n);
+        }
+        check("the texts of ABC in Portuguese, English and Spanish, and the long description of the old card gone", abcTexts && abcGone);
     }
 
     static String method(String smali, String head) {

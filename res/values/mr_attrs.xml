@@ -6,5 +6,4 @@
     <attr name="mrCard" format="reference" />
     <attr name="mrCardFlat" format="reference" />
     <attr name="mrHero" format="reference" />
-    <attr name="mrSheetFixed" format="reference" />
 </resources>

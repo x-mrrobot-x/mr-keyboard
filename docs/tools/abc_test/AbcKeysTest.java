@@ -5,15 +5,15 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
- * PC test of the keys of ABC that the person edits (MrAbcKeys): which keys of the XML change and which stay fixed, ABC as the editor shows
- * it (rows, widths, the gap of the row of A, the padlocks), what is saved (only the keys that differ; a popup not touched stays the one of
- * the language), the JSON and the backup of the sheets, and the keys of the keyboard after the edits (label, what it writes, popup, capital
- * for Shift), with the other layouts and a broken preference left alone. The real configuration of a key is the one of the sheets
- * (SheetKeyboardBuilder.configureKeyFromSpec, smali); the stub here does the same for text and special keys. Runs through
- * docs/tools/run_java_tests.sh, with the working org.json of docs/tools/abc_test/stubs.
+ * PC test of ABC edited as a sheet (MrAbcKeys): the XML read as a sheet (rows, widths, the gap of the A row, Shift and Ctrl as special keys,
+ * no delete and no bottom row), what is kept (nothing while it is the XML; the popups of the language named, not copied; the default name
+ * and badge left out), the JSON, the backup of the sheets, the badge for the keys that name ABC, and the keyboard laid out again from it
+ * (rows in the same room, the keys of the system of the XML moved, the others made as on the sheets with the popup of the language and their
+ * capital, delete at the end of the last row, the bottom row untouched), with the other layouts and a broken preference left alone. The real
+ * configuration of a key is the one of the sheets (SheetKeyboardBuilder.configureKeyFromSpec, smali); the stub does the same for text and
+ * special keys. Runs through docs/tools/run_java_tests.sh, with the working org.json of docs/tools/abc_test/stubs.
  */
 public class AbcKeysTest {
     static int ok = 0, fail = 0;
@@ -46,7 +46,7 @@ public class AbcKeysTest {
         public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener l) { }
     }
 
-    /** A key of the XML: unit = 100 px (a tenth of a keyboard of 1000). */
+    /** A key of the XML: a keyboard of 1000 px (a width of 1 = 100 px), rows of 100 px with keys of 80 px. */
     static Keyboard.Key key(String label, int code, int x, int y, int width) {
         Keyboard.Key k = new Keyboard.Key(code, x, y, width, 80);
         k.label = label;
@@ -67,201 +67,236 @@ public class AbcKeysTest {
         return k;
     }
 
-    /** A small ABC with the shape of kbd_qwerty: the grid key row, Ctrl and arrows, digits, three rows of letters and the bottom row. */
+    static Keyboard.Key bottom(String label, int code, int x) {
+        Keyboard.Key k = system(label, code, x, 600, 200);
+        k.edgeFlags = Keyboard.EDGE_BOTTOM;
+        return k;
+    }
+
+    /** A small ABC with the shape of kbd_qwerty: the grid key row, Ctrl and an arrow, digits, three rows of letters and the bottom row. */
     static List<Keyboard.Key> abc() {
         ArrayList<Keyboard.Key> keys = new ArrayList<Keyboard.Key>();
-        keys.add(system(null, -306, 0, 0, 102));
-        keys.add(letter("-", 102, 0, null));
-        keys.add(key("=>", '=', 204, 0, 102));
-        keys.add(system("Ctrl", -113, 0, 100, 142));
-        keys.add(system("←", -21, 142, 100, 100));
-        keys.add(letter("{", 242, 100, null));
-        keys.add(letter("1", 0, 200, null));
-        keys.add(letter("2", 100, 200, null));
-        keys.add(letter("q", 0, 300, "1"));
-        keys.add(letter("w", 100, 300, "2"));
-        Keyboard.Key a = letter("a", 50, 400, "áàâã");
+        keys.add(system(null, -306, 0, 0, 102));          // 0
+        keys.add(letter("-", 102, 0, null));               // 1
+        keys.add(key("=>", '=', 204, 0, 102));             // 2
+        keys.add(system("Ctrl", -113, 0, 100, 142));       // 3
+        keys.add(system("←", -21, 142, 100, 100));         // 4
+        keys.add(letter("{", 242, 100, null));             // 5
+        keys.add(letter("1", 0, 200, null));               // 6
+        keys.add(letter("2", 100, 200, null));             // 7
+        keys.add(letter("q", 0, 300, "1"));                // 8
+        keys.add(letter("w", 100, 300, "2"));              // 9
+        Keyboard.Key a = letter("a", 50, 400, "áàâã");     // 10
         a.gap = 50;
         keys.add(a);
-        keys.add(letter("s", 150, 400, "ß"));
-        keys.add(system(null, -1, 0, 500, 150));
-        keys.add(letter("z", 150, 500, null));
-        keys.add(system(null, -5, 250, 500, 150));
-        Keyboard.Key tab = key("↹", 9, 0, 600, 100);
-        keys.add(tab);
-        Keyboard.Key dot = system(".", '.', 100, 600, 100);
-        dot.edgeFlags = Keyboard.EDGE_BOTTOM;
-        keys.add(dot);
-        Keyboard.Key at = letter("@", 200, 600, null);
-        at.edgeFlags = Keyboard.EDGE_BOTTOM;
-        keys.add(at);
+        keys.add(letter("s", 150, 400, "ß"));              // 11
+        keys.add(system(null, -1, 0, 500, 150));           // 12 Shift
+        keys.add(letter("z", 150, 500, null));             // 13
+        keys.add(system(null, -5, 850, 500, 150));         // 14 delete
+        keys.add(bottom("123", -300, 0));                  // 15
+        keys.add(bottom(" ", 32, 200));                    // 16
+        keys.add(bottom("@", '@', 400));                   // 17
         return keys;
+    }
+
+    static LatinKeyboard keyboard() {
+        LatinKeyboard kb = new LatinKeyboard();
+        kb.keys.addAll(abc());
+        kb.stubWidth = 1000;
+        kb.stubHeight = 700;
+        kb.stubDefaultHeight = 100;
+        kb.mLayoutRows = 7;
+        return kb;
     }
 
     static SheetModel.KeySpec at(SheetModel.Sheet s, int row, int k) { return s.rows.get(row).keys.get(k); }
 
+    static SheetModel.KeySpec text(String label, float width) { return new SheetModel.KeySpec(label, SheetModel.TYPE_TEXT, label, width); }
+
+    static Keyboard.Key find(List<Keyboard.Key> keys, String label) {
+        for (Keyboard.Key k : keys) if (k.label != null && label.equals(k.label.toString())) return k;
+        return null;
+    }
+
     public static void main(String[] a) throws Exception {
-        // ---------------------------------------------------------------- which keys change
+        // ---------------------------------------------------------------- the keys of the XML
         List<Keyboard.Key> keys = abc();
-        check("a letter, a digit and a symbol change", MrAbcKeys.editable(keys.get(8)) && MrAbcKeys.editable(keys.get(6))
+        check("a letter, a digit and a symbol are text keys", MrAbcKeys.editable(keys.get(8)) && MrAbcKeys.editable(keys.get(6))
                 && MrAbcKeys.editable(keys.get(1)) && MrAbcKeys.editable(keys.get(2)));
-        check("Shift, delete, Ctrl, an arrow and the grid key are fixed", !MrAbcKeys.editable(keys.get(12)) && !MrAbcKeys.editable(keys.get(14))
-                && !MrAbcKeys.editable(keys.get(3)) && !MrAbcKeys.editable(keys.get(4)) && !MrAbcKeys.editable(keys.get(0)));
-        check("a key that writes a control character (Tab) is fixed", !MrAbcKeys.editable(keys.get(15)));
-        check("the bottom row is fixed, even a key that writes a character", !MrAbcKeys.editable(keys.get(16)) && !MrAbcKeys.editable(keys.get(17)));
-        Keyboard.Key icon = letter("x", 0, 0, null);
-        icon.icon = new android.graphics.drawable.ColorDrawable(0);
-        check("a key with an icon is fixed", !MrAbcKeys.editable(icon) && !MrAbcKeys.editable(null));
+        check("Shift, delete, Ctrl, an arrow and the grid key are keys of the system", !MrAbcKeys.editable(keys.get(12))
+                && !MrAbcKeys.editable(keys.get(14)) && !MrAbcKeys.editable(keys.get(3)) && !MrAbcKeys.editable(keys.get(4))
+                && !MrAbcKeys.editable(keys.get(0)));
         check("only the layouts of ABC", MrAbcKeys.isAbcXml(0x7f0f000b) && MrAbcKeys.isAbcXml(0x7f0f0005) && MrAbcKeys.isAbcXml(0x7f0f0001)
                 && !MrAbcKeys.isAbcXml(0x7f0f000c));
 
-        // ---------------------------------------------------------------- ABC in the editor
-        MrAbcKeys.Model m = MrAbcKeys.fromKeys(keys, 1000);
-        SheetModel.Sheet d = m.defaults;
-        check("six rows: the bottom row is left out", d.rows.size() == 6 && m.ids.length == 6);
-        check("row of the grid key: fixed, then '-' and '=>'", m.locked(0, 0) && "-".equals(m.ids[0][1]) && "=>".equals(m.ids[0][2])
-                && SheetModel.TYPE_SPECIAL.equals(at(d, 0, 0).type) && "-306".equals(at(d, 0, 0).value));
-        check("a key that changes is a text key with its label, text and popup", SheetModel.TYPE_TEXT.equals(at(d, 3, 0).type)
-                && "q".equals(at(d, 3, 0).label) && "q".equals(at(d, 3, 0).value) && "1".equals(at(d, 3, 0).popupChars));
-        check("widths in tenths of the keyboard (1.42 for Ctrl, 1 for a letter)", Math.abs(at(d, 1, 0).width - 1.42f) < 0.01f
-                && Math.abs(at(d, 3, 1).width - 1f) < 0.01f);
-        check("fixed keys keep their label (Ctrl, ←); one with only an icon gets a label", "Ctrl".equals(at(d, 1, 0).label)
-                && "←".equals(at(d, 1, 1).label) && at(d, 5, 0).label != null && at(d, 5, 0).label.length() > 0);
-        check("the row of A: a gap before it and the same gap after it, both fixed", d.rows.get(4).keys.size() == 4
-                && SheetModel.TYPE_SPACER.equals(at(d, 4, 0).type) && SheetModel.TYPE_SPACER.equals(at(d, 4, 3).type)
-                && Math.abs(at(d, 4, 0).width - 0.5f) < 0.01f && Math.abs(at(d, 4, 3).width - 0.5f) < 0.01f
-                && m.locked(4, 0) && m.locked(4, 3) && "a".equals(m.ids[4][1]));
-        check("the delete key is left out (the grid draws its ⌫)", d.rows.get(5).keys.size() == 2 && "z".equals(m.ids[5][1]) && m.locked(5, 0));
-        check("the editor starts with ABC as in the XML", MrAbcKeys.diff(m, m.sheet).isEmpty());
-        boolean[][] lockedMap = m.lockedMap();
-        check("the map of padlocks for the grid", lockedMap[0][0] && !lockedMap[3][0] && lockedMap[4][0] && !lockedMap[4][1]);
-        check("outside the rows is fixed", m.locked(9, 0) && m.locked(3, 9) && m.locked(-1, 0));
+        // ---------------------------------------------------------------- ABC of the XML as a sheet
+        SheetModel.Sheet d = MrAbcKeys.fromKeys(keys, 1000, "Teclado principal");
+        check("six rows, the bottom row left out", d.rows.size() == 6);
+        check("name, badge and id of ABC", "Teclado principal".equals(d.name) && "ABC".equals(d.badge) && MrAbcKeys.ID.equals(d.id) && d.builtin);
+        check("the grid key and Ctrl are special keys with their codes", SheetModel.TYPE_SPECIAL.equals(at(d, 0, 0).type)
+                && "-306".equals(at(d, 0, 0).value) && "Ctrl".equals(at(d, 1, 0).label) && "-113".equals(at(d, 1, 0).value));
+        check("a letter is a text key with its popup", SheetModel.TYPE_TEXT.equals(at(d, 3, 0).type) && "q".equals(at(d, 3, 0).value)
+                && "1".equals(at(d, 3, 0).popupChars));
+        check("widths in tenths of the keyboard", Math.abs(at(d, 1, 0).width - 1.42f) < 0.01f && Math.abs(at(d, 3, 1).width - 1f) < 0.01f);
+        check("the A row: a gap before and after it", d.rows.get(4).keys.size() == 4 && MrAbcKeys.isGap(at(d, 4, 0)) && MrAbcKeys.isGap(at(d, 4, 3))
+                && Math.abs(at(d, 4, 3).width - 0.5f) < 0.01f);
+        check("Shift has a label, delete is left out (the grid draws it)", d.rows.get(5).keys.size() == 2 && at(d, 5, 0).label.length() > 0
+                && "-1".equals(at(d, 5, 0).value));
 
-        // ---------------------------------------------------------------- what is saved
-        SheetModel.Sheet edited = MrAbcKeys.copySheet(m.defaults);
-        SheetModel.KeySpec q = at(edited, 3, 0);
-        q.label = "ç";
-        q.value = "ç";
-        SheetModel.KeySpec w = at(edited, 3, 1);
-        w.popupChars = "€£";
-        SheetModel.KeySpec one = at(edited, 2, 0);
-        one.type = SheetModel.TYPE_SPECIAL;
-        one.value = "-21";
-        one.label = "←";
-        one.popupChars = null;
-        Map<String, MrAbcKeys.Entry> diff = MrAbcKeys.diff(m, edited);
-        check("three keys differ, in the order of the keyboard", diff.size() == 3
-                && new ArrayList<String>(diff.keySet()).toString().equals("[1, q, w]"));
-        check("q: what it writes changed, its popup did not (it stays the one of the language)", diff.get("q").defaultPopup
-                && diff.get("q").spec.popupChars == null && "ç".equals(diff.get("q").spec.value));
-        check("w: only the popup changed", !diff.get("w").defaultPopup && "€£".equals(diff.get("w").spec.popupChars)
-                && "w".equals(diff.get("w").spec.value));
-        check("1: a special key now", SheetModel.TYPE_SPECIAL.equals(diff.get("1").spec.type) && "-21".equals(diff.get("1").spec.value));
-        SheetModel.Sheet back = MrAbcKeys.copySheet(edited);
-        at(back, 3, 0).label = "q";
-        at(back, 3, 0).value = "q";
-        check("a key edited back to the XML is no edit", !MrAbcKeys.diff(m, back).containsKey("q"));
-        SheetModel.Sheet popupGone = MrAbcKeys.copySheet(m.defaults);
-        at(popupGone, 3, 0).popupChars = null;
-        check("a popup removed is an edit that clears it", MrAbcKeys.diff(m, popupGone).containsKey("q")
-                && !MrAbcKeys.diff(m, popupGone).get("q").defaultPopup);
+        // ---------------------------------------------------------------- what is kept
+        check("ABC as in the XML is the same sheet", MrAbcKeys.same(MrAbcKeys.copySheet(d), d));
+        SheetModel.Sheet ed = MrAbcKeys.copySheet(d);
+        ed.rows.remove(1);                                            // the row of Ctrl goes
+        SheetModel.KeySpec aKey = ed.rows.get(3).keys.remove(1);      // the A moves to the end of the row of Q, renamed
+        aKey.label = "à";
+        aKey.value = "à";
+        ed.rows.get(2).keys.add(aKey);
+        at(ed, 2, 1).popupChars = "€£";                               // W gets a popup of its own
+        ed.rows.get(1).keys.add(text("ç", 1.5f));                     // a new key in the row of the digits
+        ed.name = "Meu ABC";
+        check("an edited ABC is not the same sheet", !MrAbcKeys.same(ed, d));
+        MrAbcKeys.Stored st = MrAbcKeys.toStored(ed, d);
+        check("kept: five rows, the new name, no badge (the default one)", st.rows.size() == 5 && "Meu ABC".equals(st.name) && st.badge == null);
+        MrAbcKeys.Item q = st.rows.get(2).get(0);
+        check("Q keeps the popup of the XML: named, not copied", "q".equals(q.popupOf) && q.spec.popupChars == null);
+        MrAbcKeys.Item movedA = st.rows.get(2).get(st.rows.get(2).size() - 1);
+        check("the A moved and renamed keeps the popup of the A of the XML", "a".equals(movedA.popupOf) && movedA.spec.popupChars == null
+                && "à".equals(movedA.spec.label));
+        MrAbcKeys.Item w = st.rows.get(2).get(1);
+        check("W keeps its own popup", w.popupOf == null && "€£".equals(w.spec.popupChars));
+        MrAbcKeys.Item c = st.rows.get(1).get(st.rows.get(1).size() - 1);
+        check("the new key, with its width", c.popupOf == null && "ç".equals(c.spec.label) && Math.abs(c.spec.width - 1.5f) < 0.01f);
+        check("the default name is not kept", MrAbcKeys.toStored(MrAbcKeys.copySheet(d), d).name == null);
 
-        String json = MrAbcKeys.toJson(diff);
-        Map<String, MrAbcKeys.Entry> read = MrAbcKeys.entries(json);
-        check("the JSON gives the same edits back", read.size() == 3 && read.get("q").defaultPopup && !read.get("w").defaultPopup
-                && "ç".equals(read.get("q").spec.label) && "€£".equals(read.get("w").spec.popupChars)
-                && SheetModel.TYPE_SPECIAL.equals(read.get("1").spec.type));
-        check("no edit: no JSON", MrAbcKeys.toJson(new java.util.HashMap<String, MrAbcKeys.Entry>()) == null && MrAbcKeys.toJson(null) == null);
-        check("a broken or foreign JSON is no edit", MrAbcKeys.entries("{oops").isEmpty() && MrAbcKeys.entries("[1,2]").isEmpty()
-                && MrAbcKeys.entries("{\"v\":1}").isEmpty() && MrAbcKeys.entries(null).isEmpty());
-        check("a gap in the JSON is not taken", MrAbcKeys.entries("{\"v\":1,\"keys\":{\"q\":{\"type\":\"spacer\"}}}").isEmpty());
+        String json = MrAbcKeys.toJson(st);
+        MrAbcKeys.Stored back = MrAbcKeys.parse(json);
+        check("the JSON gives the same ABC back", back != null && back.rows.size() == 5 && "Meu ABC".equals(back.name) && back.badge == null
+                && "q".equals(back.rows.get(2).get(0).popupOf) && "€£".equals(back.rows.get(2).get(1).spec.popupChars)
+                && MrAbcKeys.isGap(back.rows.get(3).get(0).spec));
+        check("a broken JSON, one without rows (the old format) or none: no ABC", MrAbcKeys.parse("{oops") == null
+                && MrAbcKeys.parse("{\"v\":1,\"keys\":{\"q\":{}}}") == null && MrAbcKeys.parse("{\"v\":2,\"rows\":[]}") == null
+                && MrAbcKeys.parse(null) == null);
+        SheetModel.Sheet shown = MrAbcKeys.toSheet(back, d);
+        check("the editor shows the popups of the XML where they were kept", "1".equals(at(shown, 2, 0).popupChars)
+                && "áàâã".equals(at(shown, 2, shown.rows.get(2).keys.size() - 1).popupChars) && "€£".equals(at(shown, 2, 1).popupChars));
+        check("... the name kept and the default badge", "Meu ABC".equals(shown.name) && "ABC".equals(shown.badge));
+        check("... and it is the sheet that was saved", MrAbcKeys.same(shown, ed));
 
-        SheetModel.Sheet shown = MrAbcKeys.withEdits(m, read);
-        check("the editor shows the edits, with the popup of the XML where it was not touched", "ç".equals(at(shown, 3, 0).label)
-                && "1".equals(at(shown, 3, 0).popupChars) && "€£".equals(at(shown, 3, 1).popupChars) && "-21".equals(at(shown, 2, 0).value));
-        check("... and the widths of the keyboard", Math.abs(at(shown, 3, 0).width - 1f) < 0.01f);
-        m.sheet = shown;
-        check("what the editor shows saves as the same edits", MrAbcKeys.diff(m, shown).size() == 3);
-
-        // ---------------------------------------------------------------- save, count, restore
+        // ---------------------------------------------------------------- save, restore, badge
         Prefs prefs = new Prefs();
         PreferenceManager.stubDefault = prefs;
         ContextWrapper ctx = new ContextWrapper(null);
+        MrAbcKeys.Model m = new MrAbcKeys.Model(MrAbcKeys.copySheet(d), d);
         int changed = KeyboardSwitcher.stubSheetsChanged;
-        check("save writes the preference", MrAbcKeys.save(ctx, m) && prefs.m.get(MrAbcKeys.PREF) != null);
-        check("... and the keyboard builds its keyboards again", KeyboardSwitcher.stubSheetsChanged == changed + 1);
-        check("count of the ABC card", MrAbcKeys.count(ctx) == 3);
-        m.sheet = MrAbcKeys.copySheet(m.defaults);
-        check("ABC as in the XML: the preference goes", MrAbcKeys.save(ctx, m) && !prefs.m.containsKey(MrAbcKeys.PREF)
-                && MrAbcKeys.count(ctx) == 0);
-        m.sheet = shown;
-        MrAbcKeys.save(ctx, m);
-        check("restore", MrAbcKeys.reset(ctx) && !prefs.m.containsKey(MrAbcKeys.PREF) && MrAbcKeys.count(ctx) == 0);
+        check("ABC as in the XML: nothing kept", MrAbcKeys.save(ctx, m) && !prefs.m.containsKey(MrAbcKeys.PREF) && !MrAbcKeys.edited(m));
+        m.sheet = MrAbcKeys.copySheet(ed);
+        m.sheet.badge = "AZ";
+        check("an edited ABC is kept", MrAbcKeys.save(ctx, m) && prefs.m.containsKey(MrAbcKeys.PREF) && MrAbcKeys.edited(m));
+        check("each save builds the keyboards again", KeyboardSwitcher.stubSheetsChanged == changed + 2);
+        check("the keys that name ABC show its new badge", "AZ".equals(MrAbcKeys.badge()));
+        check("restore: nothing kept, the badge back to ABC", MrAbcKeys.reset(ctx) && !prefs.m.containsKey(MrAbcKeys.PREF)
+                && "ABC".equals(MrAbcKeys.badge()));
 
         // ---------------------------------------------------------------- backup
+        m.sheet.badge = "ABC";
         MrAbcKeys.save(ctx, m);
-        String backup = MrAbcKeys.addToBackup(ctx, "{\"version\":2,\"sheets\":[]}");
-        check("the backup carries the keys of ABC", backup.contains("\"abcKeys\"") && backup.contains("\"sheets\""));
         String plain = "{\"version\":2,\"sheets\":[]}";
+        String backup = MrAbcKeys.addToBackup(ctx, plain);
+        check("the backup carries ABC", backup.contains("\"abc\"") && backup.contains("\"sheets\""));
         MrAbcKeys.reset(ctx);
-        check("no edit: the backup is the same text", MrAbcKeys.addToBackup(ctx, plain) == plain);
-        check("import: a backup with the keys of ABC brings them back", MrAbcKeys.takeFromBackup(ctx, backup) && MrAbcKeys.count(ctx) == 3);
-        check("import: a backup without them leaves ABC as it is", !MrAbcKeys.takeFromBackup(ctx, plain) && MrAbcKeys.count(ctx) == 3);
-        check("import: a broken file changes nothing", !MrAbcKeys.takeFromBackup(ctx, "{oops") && MrAbcKeys.count(ctx) == 3);
+        check("ABC as in the XML: the backup is the same text", MrAbcKeys.addToBackup(ctx, plain) == plain);
+        check("import: a backup with ABC brings it back", MrAbcKeys.takeFromBackup(ctx, backup) && MrAbcKeys.parse(MrAbcKeys.read(ctx)) != null);
+        check("import: a backup without it, or a broken one, leaves ABC as it is", !MrAbcKeys.takeFromBackup(ctx, plain)
+                && !MrAbcKeys.takeFromBackup(ctx, "{oops") && MrAbcKeys.parse(MrAbcKeys.read(ctx)) != null);
 
-        // ---------------------------------------------------------------- the keyboard
-        Keyboard kb = new Keyboard();
-        kb.keys.addAll(abc());
-        MrAbcKeys.apply(ctx, kb, 0x7f0f000b);
-        Keyboard.Key kq = kb.keys.get(8), kw = kb.keys.get(9), k1 = kb.keys.get(6), k2 = kb.keys.get(7);
-        check("q writes ç, with Ç for Shift", "ç".equals(String.valueOf(kq.label)) && kq.codes[0] == 'ç' && kq.text == null
-                && "Ç".equals(String.valueOf(kq.shiftLabel)) && kq.stubCaseSet);
-        check("q keeps the popup of the language", "1".equals(String.valueOf(kq.popupCharacters)) && kq.popupResId == 0x7f0f000a);
-        check("w: the popup of the person", "€£".equals(String.valueOf(kw.popupCharacters)) && kw.codes[0] == 'w'
-                && "W".equals(String.valueOf(kw.shiftLabel)));
-        check("1 is a special key now (no capital, its popup cleared)", k1.codes[0] == -21 && k1.modifier && k1.shiftLabel == null
-                && k1.popupCharacters == null && k1.popupResId == 0);
-        check("a key that was not edited is not touched", k2.codes[0] == '2' && !k2.stubCaseSet);
-        check("the fixed keys are not touched", kb.keys.get(12).codes[0] == -1 && !kb.keys.get(12).stubCaseSet
-                && !kb.keys.get(16).stubCaseSet);
+        // ---------------------------------------------------------------- the keyboard laid out again
+        MrAbcKeys.Stored two = new MrAbcKeys.Stored();
+        ArrayList<MrAbcKeys.Item> r0 = new ArrayList<MrAbcKeys.Item>();
+        r0.add(new MrAbcKeys.Item(new SheetModel.KeySpec("⇧", SheetModel.TYPE_SPECIAL, "-1", 1.5f), null));
+        r0.add(new MrAbcKeys.Item(text("x", 1f), null));
+        r0.add(new MrAbcKeys.Item(new SheetModel.KeySpec("", SheetModel.TYPE_SPACER, "", 0.5f), null));
+        r0.add(new MrAbcKeys.Item(text("ç", 2f), null));
+        two.rows.add(r0);
+        ArrayList<MrAbcKeys.Item> r1 = new ArrayList<MrAbcKeys.Item>();
+        r1.add(new MrAbcKeys.Item(text("1", 1f), "q"));
+        r1.add(new MrAbcKeys.Item(new SheetModel.KeySpec("Control", SheetModel.TYPE_SPECIAL, "-113", 1f), null));
+        r1.add(new MrAbcKeys.Item(new SheetModel.KeySpec("⇧", SheetModel.TYPE_SPECIAL, "-1", 1f), null));
+        two.rows.add(r1);
+        LatinKeyboard kb = keyboard();
+        Keyboard.Key xmlShift = kb.keys.get(12), xmlCtrl = kb.keys.get(3), xmlDelete = kb.keys.get(14);
+        List<Keyboard.Key> xmlBottom = new ArrayList<Keyboard.Key>(kb.keys.subList(15, 18));
+        xmlBottom.get(1).popupReversed = true;
+        check("laid out again", MrAbcKeys.relayout(null, null, kb, two));
+        List<Keyboard.Key> now = kb.getKeys();
+        check("the keys: 3, then 3 and delete, then the bottom row", now.size() == 10 && now.subList(7, 10).equals(xmlBottom));
+        Keyboard.Key x = now.get(1), ce = now.get(2), one = now.get(3), shift2 = now.get(5);
+        check("Shift of the XML in its new place (its icon and state); the second Shift is a new key", now.get(0) == xmlShift
+                && shift2 != xmlShift && shift2.codes[0] == -1);
+        check("Ctrl of the XML, with the label of the person", now.get(4) == xmlCtrl && "Control".equals(String.valueOf(xmlCtrl.label)));
+        check("new keys made as on the sheets, with their capital", "x".equals(String.valueOf(x.label)) && x.codes[0] == 'x'
+                && "X".equals(String.valueOf(x.shiftLabel)) && "Ç".equals(String.valueOf(ce.shiftLabel)) && kb.stubCreated == 4);
+        check("a key with the popup of the XML takes the popup of Q", "1".equals(String.valueOf(one.popupCharacters)) && one.popupResId == 0x7f0f000a
+                && one.codes[0] == '1' && one.shiftLabel == null);
+        check("two rows in the room of six: rows of 300 px, keys of 280 px (the gap of the XML kept)", now.get(0).y == 0 && one.y == 300
+                && now.get(0).height == 280 && one.height == 280);
+        check("widths: a width of 1 is a tenth of the keyboard, the gap keeps its room", now.get(0).x == 0 && now.get(0).width == 150
+                && x.x == 150 && x.width == 100 && ce.x == 300 && ce.width == 200);
+        check("delete closes the last row, 1.5 wide", now.get(6) == xmlDelete && xmlDelete.y == 300 && xmlDelete.x == 300 && xmlDelete.width == 150);
+        check("the bottom row untouched", xmlBottom.get(0).y == 600 && xmlBottom.get(0).x == 0 && xmlBottom.get(1).x == 200);
+        check("the popups open again from where the keys are now", !xmlBottom.get(1).popupReversed);
+        check("the keyboard finds its keys again (3 rows, same size)", kb.stubFinished != null && kb.stubFinished[0] == 1000
+                && kb.stubFinished[1] == 700 && kb.stubFinished[2] == 100 && kb.stubFinished[3] == 3 && kb.stubFinished[4] == 7 && kb.stubBound == 1);
 
-        Keyboard other = new Keyboard();
-        other.keys.addAll(abc());
-        MrAbcKeys.apply(ctx, other, 0x7f0f000c);
-        check("another keyboard (symbols, a sheet) is not touched", other.keys.get(8).codes[0] == 'q' && !other.keys.get(8).stubCaseSet);
-        Keyboard full = new Keyboard();
-        full.keys.addAll(abc());
-        MrAbcKeys.apply(ctx, full, 0x7f0f0005);
-        check("the 5-row layout of ABC gets the same edits", full.keys.get(8).codes[0] == 'ç');
+        MrAbcKeys.Stored wide = new MrAbcKeys.Stored();
+        ArrayList<MrAbcKeys.Item> w12 = new ArrayList<MrAbcKeys.Item>();
+        for (int i = 0; i < 12; i++) w12.add(new MrAbcKeys.Item(text(String.valueOf((char) ('a' + i)), 1f), null));
+        wide.rows.add(new ArrayList<MrAbcKeys.Item>(w12.subList(0, 4)));
+        wide.rows.add(w12);
+        LatinKeyboard kbWide = keyboard();
+        MrAbcKeys.relayout(null, null, kbWide, wide);
+        Keyboard.Key l = find(kbWide.getKeys(), "l");
+        check("a row wider than 10 (12 keys and delete) is narrowed to fit", l != null && l.width == Math.round(1000 / 13.5f)
+                && l.x == Math.round(11 * 1000 / 13.5f));
 
-        Keyboard text = new Keyboard();
-        text.keys.addAll(abc());
-        prefs.m.put(MrAbcKeys.PREF, "{\"v\":1,\"keys\":{\"q\":{\"type\":\"text\",\"label\":\"Oi\",\"value\":\"Olá!\",\"width\":1}}}");
-        MrAbcKeys.apply(ctx, text, 0x7f0f000b);
-        Keyboard.Key tq = text.keys.get(8);
-        check("a key that writes a text: the text, no capital", "Olá!".equals(String.valueOf(tq.text)) && "Oi".equals(String.valueOf(tq.label))
-                && tq.shiftLabel == null && tq.stubCaseSet);
+        LatinKeyboard flat = new LatinKeyboard();
+        for (Keyboard.Key k : abc()) if ((k.edgeFlags & Keyboard.EDGE_BOTTOM) == 0) flat.keys.add(k);
+        check("a keyboard without a bottom row is left alone", !MrAbcKeys.relayout(null, null, flat, two) && flat.keys.size() == 15);
+        LatinKeyboard kbEmpty = keyboard();
+        check("an ABC without rows is not laid out", !MrAbcKeys.relayout(null, null, kbEmpty, new MrAbcKeys.Stored()) && kbEmpty.keys.size() == 18);
 
-        Keyboard broken = new Keyboard();
-        broken.keys.addAll(abc());
+        // ---------------------------------------------------------------- apply (from KeyboardSwitcher.getKeyboard)
+        prefs.m.put(MrAbcKeys.PREF, MrAbcKeys.toJson(two));
+        LatinKeyboard viaPref = keyboard();
+        MrAbcKeys.apply(ctx, viaPref, 0x7f0f000b);
+        check("ABC of the preference on a layout of ABC", viaPref.keys.size() == 10 && viaPref.stubBound == 1);
+        LatinKeyboard five = keyboard();
+        MrAbcKeys.apply(ctx, five, 0x7f0f0005);
+        check("... also on the 5-row layout", five.keys.size() == 10);
+        LatinKeyboard sheet = keyboard();
+        MrAbcKeys.apply(ctx, sheet, 0x7f0f000c);
+        check("another keyboard is left alone", sheet.keys.size() == 18 && sheet.stubBound == 0);
+        Keyboard plainKb = new Keyboard();
+        plainKb.keys.addAll(abc());
+        MrAbcKeys.apply(ctx, plainKb, 0x7f0f000b);
+        check("a keyboard that is not a LatinKeyboard is left alone", plainKb.keys.size() == 18);
         prefs.m.put(MrAbcKeys.PREF, "{not json");
+        LatinKeyboard broken = keyboard();
         boolean threw = false;
         try {
             MrAbcKeys.apply(ctx, broken, 0x7f0f000b);
         } catch (Throwable t) {
             threw = true;
         }
-        check("a broken preference: the keyboard as in the XML, no exception", !threw && broken.keys.get(8).codes[0] == 'q');
+        check("a broken preference: ABC as in the XML, no exception", !threw && broken.keys.size() == 18 && broken.stubBound == 0);
         prefs.m.remove(MrAbcKeys.PREF);
-        Keyboard none = new Keyboard();
-        none.keys.addAll(abc());
+        LatinKeyboard none = keyboard();
         MrAbcKeys.apply(ctx, none, 0x7f0f000b);
         MrAbcKeys.apply(null, none, 0x7f0f000b);
         MrAbcKeys.apply(ctx, null, 0x7f0f000b);
-        check("no edit: nothing touched", !none.keys.get(8).stubCaseSet && none.keys.get(8).codes[0] == 'q');
+        check("ABC not edited: nothing touched", none.keys.size() == 18 && none.stubBound == 0);
 
-        check("capital: one letter only", "Ç".equals(MrAbcKeys.capital(kq)) && MrAbcKeys.capital(k1) == null && MrAbcKeys.capital(tq) == null
-                && MrAbcKeys.capital(key("9", '9', 0, 0, 100)) == null);
+        check("capital: one letter only", "Ç".equals(MrAbcKeys.capital(ce)) && MrAbcKeys.capital(one) == null
+                && MrAbcKeys.capital(xmlShift) == null);
 
         System.out.println(ok + " OK, " + fail + " FAIL");
         System.exit(fail == 0 ? 0 : 1);

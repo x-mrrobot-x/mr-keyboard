@@ -6,7 +6,7 @@ The sheets are the extra pages of keys of the keyboard (123, TSK, HTML, FRS and 
 ## The page (PrefScreenSheets)
 
 - **Header:** back, the title and how many sheets there are out of the limit (12).
-- **ABC:** the main keyboard, always first. A tap opens its keys in the editor (see "ABC" below); the card says how many keys were changed.
+- **ABC:** the main keyboard, always the first card of the list, with a padlock instead of up and down (see "ABC" below).
 - **Return to the main sheet after typing** (`pref_sheet_return`, on by default): after a key of another sheet the keyboard goes back to ABC.
 - **Your sheets:** one card per sheet, in the order of the cycle. A tap opens the editor; the arrows move it up or down; ⋮ has edit, name
   and badge, move, duplicate, restore (built-in sheets) and delete. The buttons are 40 dp and say what they do to TalkBack.
@@ -41,24 +41,26 @@ The same dialog on the page and in the editor. The name (up to 40 characters) op
 
 ## ABC (MrAbcKeys)
 
-The keys of the main keyboard can be changed in the same editor, but its layout stays the one of the XML (kbd_qwerty: rows, places,
-widths, Shift, delete, space, the bottom row and the keys of the language):
+ABC is edited as any sheet (rows, keys, widths, name, badge, undo), but it is always the first one:
 
-- **What changes:** the keys that write a character above the bottom row (letters, digits and symbols): label, what the key writes, its type
-  (text, Tasker, special key, switch sheet) and its long-press popup. The key editor has no width, no gap type and no actions
-  (`KeyEditDialog.showForFixedKey`).
-- **What stays:** Shift, delete, Ctrl, Alt, Tab, the arrows, the grid key and the bottom row carry the padlock; a tap on them says that they are
-  fixed. There is no "+ Row", no "Arrange rows", no "+" and no drag (`SheetGridView.setFixed`), and the name and the badge do not change.
-  The ⋮ has only **Restore ABC**; undo works as on the sheets.
-- **How it is kept:** only the keys that differ from the XML, in the preference `pref_abc_keys` (a JSON of keys of the sheets, by the label
-  the key has in the XML: "q", "1", "-"). A key whose popup was not touched keeps the popup of the XML, so the accents follow the language of
-  the keyboard. The same edit applies in every language and in the 5-row layouts of ABC that have that key.
-- **On the keyboard:** `KeyboardSwitcher.getKeyboard` calls `MrAbcKeys.apply` right after it reads a layout of ABC; each edited key is set up
-  by `SheetKeyboardBuilder.configureKeyFromSpec` (the code of the keys of the sheets) and `Keyboard.Key.mrSetCase` gives a key that writes one
-  letter its capital for Shift again. A save rebuilds the keyboards (`KeyboardSwitcher.onSheetsChanged`), so the quick test field shows it
-  at once. A broken preference leaves ABC as in the XML.
-- **Backup:** the export of the sheets carries the edited keys of ABC (`abcKeys`); an import of a file that has them replaces them, and a file
-  without them leaves ABC as it is. *Restore the default sheets* does not touch ABC (it has its own Restore ABC).
+- **On the page:** ABC is the first card of the list, with the same line as the others (rows, keys, kind) and a padlock where the others
+  have up and down. Its ⋮ has edit, rename, duplicate and **Restore ABC**; Delete is greyed. A duplicate is a sheet of the person, the first
+  one after ABC.
+- **In the editor:** the same editor as the sheets (`EXTRA_SHEET_ID` = `abc`). It starts from the XML of ABC (kbd_qwerty read as a sheet:
+  letters as text keys with the popup of the language, Shift, Ctrl, Alt, Tab, the arrows and the grid key as special keys, the room before
+  the A row as gaps) or from ABC as edited. Delete is greyed and Restore ABC brings back the XML.
+- **How it is kept:** nothing while ABC is the XML; otherwise the whole ABC in the preference `pref_abc_keys` (a JSON of rows of keys of the
+  sheets). A key whose popup is the one of a key of the XML only names that key, so the accents follow the language of the keyboard; a name
+  or badge that was not changed is not kept.
+- **On the keyboard:** `KeyboardSwitcher.getKeyboard` calls `MrAbcKeys.apply` right after it reads a layout of ABC (also the 5-row ones). The
+  rows above the bottom row are laid out again in the same room (the height of the keyboard and the bottom row of the XML stay): the keys of
+  the system of the XML are moved to their new place (they keep their icons and states), the others are made as the keys of the sheets
+  (`SheetKeyboardBuilder.configureKeyFromSpec`), a key that writes one letter gets its capital for Shift (`Keyboard.Key.mrSetCase`) and the
+  delete key of the XML closes the last row, 1.5 wide, as on the sheets. A row wider than 10 is narrowed to fit. Then the keyboard finds its
+  keys again (`finishCustomBuild`, `bindCustomSpecialKeys`). A broken preference leaves ABC as in the XML.
+- **Badge:** the popup of sheets and a key that switches to ABC show the badge of ABC (`MrAbcKeys.badge`).
+- **Backup:** the export of the sheets carries ABC (`abc`) when it was edited; an import of a file that has it replaces it, and a file without
+  it leaves ABC as it is. *Restore the default sheets* does not touch ABC (it has its own Restore ABC).
 
 ## Quick test (MrSheetTest)
 
@@ -75,8 +77,8 @@ After a duplicate the editor edits the copy and the field asks for the copy at o
 
 ## Tests
 
-`docs/tools/grid_test/SheetGridViewTest.java` (the grid, also in the fixed layout of ABC), `docs/tools/sheets_test/SheetsTest.java` (the
+`docs/tools/grid_test/SheetGridViewTest.java` (the grid), `docs/tools/sheets_test/SheetsTest.java` (the
 quick test field, the texts the screens make, the import limit and the files, the hooks of ABC) and `docs/tools/abc_test/AbcKeysTest.java`
-(the keys of ABC: which ones change, ABC in the editor, what is saved, the backup and the keys after the edits), all in
+(ABC as a sheet: the XML read as a sheet, what is kept, the backup, the badge and the keyboard laid out again), all in
 `docs/tools/run_java_tests.sh`; `docs/tools/test_sheet_test_field.py` runs the real
 smali of `LatinIME.onWindowShown` and `returnToMainSheet` (the order of the hooks, every other field as before).

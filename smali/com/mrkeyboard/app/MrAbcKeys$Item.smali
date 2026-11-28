@@ -1,4 +1,4 @@
-.class final Lcom/mrkeyboard/app/MrAbcKeys$Entry;
+.class final Lcom/mrkeyboard/app/MrAbcKeys$Item;
 .super Ljava/lang/Object;
 .source "MrAbcKeys.java"
 
@@ -10,30 +10,30 @@
 
 .annotation system Ldalvik/annotation/InnerClass;
     accessFlags = 0x18
-    name = "Entry"
+    name = "Item"
 .end annotation
 
 
 # instance fields
-.field final defaultPopup:Z
+.field final popupOf:Ljava/lang/String;
 
 .field final spec:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/SheetModel$KeySpec;Z)V
+.method constructor <init>(Lcom/mrkeyboard/app/SheetModel$KeySpec;Ljava/lang/String;)V
     .locals 0
 
     .prologue
-    .line 59
+    .line 69
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 60
-    iput-object p1, p0, Lcom/mrkeyboard/app/MrAbcKeys$Entry;->spec:Lcom/mrkeyboard/app/SheetModel$KeySpec;
+    .line 70
+    iput-object p1, p0, Lcom/mrkeyboard/app/MrAbcKeys$Item;->spec:Lcom/mrkeyboard/app/SheetModel$KeySpec;
 
-    .line 61
-    iput-boolean p2, p0, Lcom/mrkeyboard/app/MrAbcKeys$Entry;->defaultPopup:Z
+    .line 71
+    iput-object p2, p0, Lcom/mrkeyboard/app/MrAbcKeys$Item;->popupOf:Ljava/lang/String;
 
-    .line 62
+    .line 72
     return-void
 .end method

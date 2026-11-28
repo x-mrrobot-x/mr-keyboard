@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 348
+    .line 332
     iput-object p1, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$5;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
     iput p2, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$5;->val$width:F
@@ -49,7 +49,7 @@
     .locals 3
 
     .prologue
-    .line 350
+    .line 334
     iget-object v0, p0, Lcom/mrkeyboard/app/KeyEditDialog$Editor$5;->this$0:Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
     invoke-static {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->access$1000(Lcom/mrkeyboard/app/KeyEditDialog$Editor;)Landroid/widget/SeekBar;
@@ -72,6 +72,6 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/SeekBar;->setProgress(I)V
 
-    .line 351
+    .line 335
     return-void
 .end method

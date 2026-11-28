@@ -2230,7 +2230,10 @@
     .line 287
     move/from16 v19, v5
 
-    const-string v5, "ABC"
+    # the badge of ABC (the person can rename it: MrAbcKeys)
+    invoke-static {}, Lcom/mrkeyboard/app/MrAbcKeys;->badge()Ljava/lang/String;
+
+    move-result-object v5
 
     iput-object v5, v14, Lcom/mrkeyboard/app/Keyboard$Key;->label:Ljava/lang/CharSequence;
 
@@ -2942,7 +2945,10 @@
 
     if-eqz v0, :cond_4c
 
-    const-string p0, "ABC"
+    # a key that switches to ABC shows the badge of ABC (MrAbcKeys)
+    invoke-static {}, Lcom/mrkeyboard/app/MrAbcKeys;->badge()Ljava/lang/String;
+
+    move-result-object p0
 
     return-object p0
 

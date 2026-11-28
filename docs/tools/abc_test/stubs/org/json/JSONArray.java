@@ -27,6 +27,10 @@ public class JSONArray {
         Object o = index >= 0 && index < list.size() ? list.get(index) : null;
         return o instanceof JSONObject ? (JSONObject) o : null;
     }
+    public JSONArray optJSONArray(int index) {
+        Object o = index >= 0 && index < list.size() ? list.get(index) : null;
+        return o instanceof JSONArray ? (JSONArray) o : null;
+    }
     public String optString(int index) {
         Object o = index >= 0 && index < list.size() ? list.get(index) : null;
         return o == null || o == JSONObject.NULL ? "" : String.valueOf(o);

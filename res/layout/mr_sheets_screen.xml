@@ -63,7 +63,6 @@
             android:paddingBottom="28dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <include layout="@layout/mr_sheet_fixed_card" />
             <LinearLayout
                 android:tag="option_slot"
                 android:orientation="vertical"

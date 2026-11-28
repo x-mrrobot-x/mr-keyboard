@@ -34,9 +34,21 @@ public class Keyboard {
         public java.util.List popupKeys;
         public CharSequence shiftLabel;
 
+        /** The popup opens to the left (the key is on the right half). */
+        public boolean popupReversed;
+
         /** Added to the real class in the smali (MrAbcKeys): the capital of Shift for a key that changed. Tests only: what it got. */
         public void mrSetCase(CharSequence shift) { shiftLabel = shift; stubCaseSet = true; }
         public boolean stubCaseSet;
+
+        /** Like the real one: x, width and gap as given (rounded), y moved by half the vertical gap and the height without it. */
+        public void setCustomBounds(float x, float width, float gap, float verticalGap, int y, int rowHeight) {
+            this.x = Math.round(x);
+            this.width = Math.round(width);
+            this.gap = Math.round(gap);
+            this.y = (int) (y + verticalGap / 2f);
+            this.height = Math.round(rowHeight - verticalGap);
+        }
 
         public Key(int code, int x, int y, int width, int height) {
             this.codes = new int[] {code};
@@ -50,7 +62,32 @@ public class Keyboard {
         }
     }
 
+    /** A row of keys (the defaults of its keys). */
+    public static class Row {
+        public float defaultWidth;
+        public int defaultHeight;
+        public float defaultHorizontalGap;
+        public int verticalGap;
+        public int mode;
+        public boolean extension;
+        public Row(Keyboard parent) { }
+    }
+
+    /** Rows of the keyboard and rows of the layout (the bottom one included). */
+    public int mRowCount, mLayoutRows;
+
     public Keyboard() { }
+
+    /** Height of a row of the XML. */
+    public int getDefaultHeightPx() { return stubDefaultHeight; }
+    public int stubDefaultHeight;
+
+    /** The real one sets the size, finds Shift, Ctrl, Alt and the keys of the system again and the edges. Tests only: what it got. */
+    public void finishCustomBuild(int totalWidth, int totalHeight, int defaultHeight, int rowCount, int layoutRows) {
+        stubFinished = new int[] {totalWidth, totalHeight, defaultHeight, rowCount, layoutRows};
+        mRowCount = rowCount;
+    }
+    public int[] stubFinished;
 
     /** The real one reads the XML (default height, xml, mode, height in percent); here no key. */
     public Keyboard(android.content.Context context, int defaultHeight, int xmlLayoutResId, int modeId, float kbHeightPercent) { }

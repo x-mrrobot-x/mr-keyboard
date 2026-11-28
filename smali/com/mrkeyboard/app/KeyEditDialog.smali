@@ -138,7 +138,7 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 109
+    .line 98
     const-string v0, "prev"
 
     invoke-virtual {v0, p2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -155,11 +155,11 @@
 
     move-result-object v0
 
-    .line 117
+    .line 106
     :goto_0
     return-object v0
 
-    .line 110
+    .line 99
     :cond_0
     const-string v0, "abc"
 
@@ -179,7 +179,7 @@
 
     goto :goto_0
 
-    .line 111
+    .line 100
     :cond_1
     if-eqz p1, :cond_3
 
@@ -187,7 +187,7 @@
 
     move v1, v2
 
-    .line 112
+    .line 101
     :goto_1
     invoke-interface {p1}, Ljava/util/List;->size()I
 
@@ -195,14 +195,14 @@
 
     if-ge v1, v0, :cond_3
 
-    .line 113
+    .line 102
     invoke-interface {p1, v1}, Ljava/util/List;->get(I)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Lcom/mrkeyboard/app/SheetModel$Sheet;
 
-    .line 114
+    .line 103
     iget-object v3, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->id:Ljava/lang/String;
 
     invoke-virtual {p2, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
@@ -233,7 +233,7 @@
 
     goto :goto_0
 
-    .line 112
+    .line 101
     :cond_2
     add-int/lit8 v0, v1, 0x1
 
@@ -241,7 +241,7 @@
 
     goto :goto_1
 
-    .line 117
+    .line 106
     :cond_3
     const-string v0, "mr_key_ed_target_next"
 
@@ -266,7 +266,7 @@
 
     const/4 v4, 0x0
 
-    .line 130
+    .line 119
     invoke-static {p0}, Ljava/lang/Math;->round(F)I
 
     move-result v0
@@ -283,7 +283,7 @@
 
     if-gez v0, :cond_0
 
-    .line 131
+    .line 120
     sget-object v0, Ljava/util/Locale;->US:Ljava/util/Locale;
 
     const-string v1, "%.0fx"
@@ -300,11 +300,11 @@
 
     move-result-object v0
 
-    .line 136
+    .line 125
     :goto_0
     return-object v0
 
-    .line 133
+    .line 122
     :cond_0
     mul-float v0, v1, p0
 
@@ -326,7 +326,7 @@
 
     if-gez v0, :cond_1
 
-    .line 134
+    .line 123
     sget-object v0, Ljava/util/Locale;->US:Ljava/util/Locale;
 
     const-string v1, "%.1fx"
@@ -345,7 +345,7 @@
 
     goto :goto_0
 
-    .line 136
+    .line 125
     :cond_1
     sget-object v0, Ljava/util/Locale;->US:Ljava/util/Locale;
 
@@ -370,14 +370,14 @@
     .locals 1
 
     .prologue
-    .line 141
+    .line 130
     if-nez p0, :cond_0
 
-    .line 145
+    .line 134
     :goto_0
     return p1
 
-    .line 143
+    .line 132
     :cond_0
     :try_start_0
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
@@ -392,7 +392,7 @@
 
     goto :goto_0
 
-    .line 144
+    .line 133
     :catch_0
     move-exception v0
 
@@ -448,60 +448,6 @@
     return-object v0
 .end method
 
-.method public static showForFixedKey(Landroid/content/Context;Ljava/util/List;Lcom/mrkeyboard/app/SheetModel$KeySpec;Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;)Landroid/app/AlertDialog;
-    .locals 10
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "(",
-            "Landroid/content/Context;",
-            "Ljava/util/List",
-            "<",
-            "Lcom/mrkeyboard/app/SheetModel$Sheet;",
-            ">;",
-            "Lcom/mrkeyboard/app/SheetModel$KeySpec;",
-            "Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;",
-            ")",
-            "Landroid/app/AlertDialog;"
-        }
-    .end annotation
-
-    .prologue
-    const/4 v4, 0x0
-
-    .line 93
-    new-instance v0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;
-
-    move-object v1, p0
-
-    move-object v2, p1
-
-    move-object v3, p2
-
-    move v5, v4
-
-    move v6, v4
-
-    move v7, v4
-
-    move v8, v4
-
-    move-object v9, p3
-
-    invoke-direct/range {v0 .. v9}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;-><init>(Landroid/content/Context;Ljava/util/List;Lcom/mrkeyboard/app/SheetModel$KeySpec;ZZZZZLcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;)V
-
-    .line 94
-    const/4 v1, 0x1
-
-    iput-boolean v1, v0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->mFixedPlace:Z
-
-    .line 95
-    invoke-virtual {v0}, Lcom/mrkeyboard/app/KeyEditDialog$Editor;->show()Landroid/app/AlertDialog;
-
-    move-result-object v0
-
-    return-object v0
-.end method
-
 .method public static showForPopupItem(Landroid/content/Context;Ljava/util/List;Lcom/mrkeyboard/app/SheetModel$KeySpec;Lcom/mrkeyboard/app/KeyEditDialog$OnKeyActionListener;)Landroid/app/AlertDialog;
     .locals 10
     .annotation system Ldalvik/annotation/Signature;
@@ -522,7 +468,7 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 101
+    .line 90
     new-instance v0, Lcom/mrkeyboard/app/KeyEditDialog$Editor;
 
     const/4 v4, 0x1
@@ -554,7 +500,7 @@
     .locals 3
 
     .prologue
-    .line 121
+    .line 110
     invoke-virtual {p0}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
 
     move-result-object v0
@@ -569,10 +515,10 @@
 
     move-result v0
 
-    .line 122
+    .line 111
     if-nez v0, :cond_0
 
-    .line 123
+    .line 112
     :goto_0
     return-object p1
 

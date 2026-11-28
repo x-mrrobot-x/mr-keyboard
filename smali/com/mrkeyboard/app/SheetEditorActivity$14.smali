@@ -3,7 +3,7 @@
 .source "SheetEditorActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 510
+    .line 476
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$14;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,32 +36,45 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .locals 1
+.method public run()V
+    .locals 2
 
     .prologue
-    .line 512
+    .line 478
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$14;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1500(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/EditText;
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1300(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/EditText;
 
     move-result-object v0
 
-    invoke-virtual {v0}, Landroid/widget/EditText;->getText()Landroid/text/Editable;
+    if-eqz v0, :cond_0
 
-    move-result-object v0
-
-    invoke-interface {v0}, Landroid/text/Editable;->clear()V
-
-    .line 513
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$14;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1500(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/EditText;
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1300(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/EditText;
 
     move-result-object v0
 
-    invoke-virtual {v0}, Landroid/widget/EditText;->requestFocus()Z
+    invoke-virtual {v0}, Landroid/widget/EditText;->hasFocus()Z
 
-    .line 514
+    move-result v0
+
+    if-eqz v0, :cond_0
+
+    .line 479
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$14;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2000(Lcom/mrkeyboard/app/SheetEditorActivity;)Landroid/widget/ScrollView;
+
+    move-result-object v0
+
+    new-instance v1, Lcom/mrkeyboard/app/SheetEditorActivity$14$1;
+
+    invoke-direct {v1, p0}, Lcom/mrkeyboard/app/SheetEditorActivity$14$1;-><init>(Lcom/mrkeyboard/app/SheetEditorActivity$14;)V
+
+    invoke-virtual {v0, v1}, Landroid/widget/ScrollView;->post(Ljava/lang/Runnable;)Z
+
+    .line 485
+    :cond_0
     return-void
 .end method

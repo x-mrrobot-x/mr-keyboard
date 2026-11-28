@@ -633,7 +633,7 @@ for f in sorted(os.listdir('res/layout')):
             problems.append('mr_theme.xml: MrMatrixGlass has no see-through value for %s (layout/%s uses it)' % (attr, f))
 allowed_glass = {'main.xml', 'mr_ui_pref_hero.xml', 'mr_ui_pref_row.xml', 'mr_ui_pref_row_value.xml', 'mr_ui_pref_row_metrics.xml',
                  'mr_ui_pref_row_static.xml', 'mr_ui_pref_row_last.xml', 'mr_sheets_screen.xml', 'mr_sheet_ed_screen.xml', 'mr_sheet_card.xml',
-                 'mr_sheet_ed_test_card.xml', 'mr_sheet_fixed_card.xml', 'mr_sheet_empty.xml'}
+                 'mr_sheet_ed_test_card.xml', 'mr_sheet_empty.xml'}
 for f, attr in sorted(glass_users):
     if f not in allowed_glass:
         problems.append('layout/%s uses ?attr/%s: only the rows of the settings, the home screen and the sheets are inflated under the theme that has it' % (f, attr))

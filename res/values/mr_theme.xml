@@ -93,7 +93,6 @@
         <item name="mrCard">@drawable/mr_ui_card_ripple</item>
         <item name="mrCardFlat">@drawable/mr_ui_card_shape</item>
         <item name="mrHero">@drawable/mr_ui_hero_bg</item>
-        <item name="mrSheetFixed">@drawable/mr_sheet_fixed_bg</item>
         <item name="android:colorBackground">@color/mr_ui_bg</item>
         <item name="android:colorPrimary">@color/mr_ui_card</item>
         <item name="android:colorPrimaryDark">@color/mr_ui_bg</item>
@@ -125,7 +124,6 @@
         <item name="mrCard">@drawable/mr_ui_card_ripple_glass</item>
         <item name="mrCardFlat">@drawable/mr_ui_card_shape_glass</item>
         <item name="mrHero">@drawable/mr_ui_hero_bg_glass</item>
-        <item name="mrSheetFixed">@drawable/mr_sheet_fixed_bg_glass</item>
         <item name="android:alertDialogTheme">@style/Theme.MrKeyboard.Dialog.Glass</item>
     </style>
     <!-- Home screen (Main): no ActionBar, the header is drawn in the layout itself -->

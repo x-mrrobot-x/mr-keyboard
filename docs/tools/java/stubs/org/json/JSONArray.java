@@ -9,4 +9,5 @@ public class JSONArray {
     public JSONObject optJSONObject(int index) { return null; }
     public String optString(int index) { return ""; }
     public String getString(int index) throws JSONException { return null; }
+    public JSONArray optJSONArray(int index) { return null; }
 }

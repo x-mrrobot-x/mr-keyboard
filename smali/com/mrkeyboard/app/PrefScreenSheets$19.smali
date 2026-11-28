@@ -3,12 +3,12 @@
 .source "PrefScreenSheets.java"
 
 # interfaces
-.implements Landroid/content/DialogInterface$OnClickListener;
+.implements Lcom/mrkeyboard/app/SheetNameDialog$OnNamed;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/PrefScreenSheets;->importFrom(Landroid/net/Uri;)V
+    value = Lcom/mrkeyboard/app/PrefScreenSheets;->showRenameSheetDialog(Lcom/mrkeyboard/app/SheetModel$Sheet;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-.field final synthetic val$raw:Ljava/lang/String;
+.field final synthetic val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
 
 # direct methods
-.method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;)V
+.method constructor <init>(Lcom/mrkeyboard/app/PrefScreenSheets;Lcom/mrkeyboard/app/SheetModel$Sheet;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 599
+    .line 520
     iput-object p1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
 
-    iput-object p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->val$raw:Ljava/lang/String;
+    iput-object p2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,87 +45,52 @@
 
 
 # virtual methods
-.method public onClick(Landroid/content/DialogInterface;I)V
-    .locals 8
+.method public onNamed(Ljava/lang/String;Ljava/lang/String;)V
+    .locals 2
 
     .prologue
-    const/4 v7, 0x1
+    .line 522
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
-    const/4 v6, 0x0
+    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
 
-    .line 602
-    :try_start_0
-    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+    iget-object v1, v1, Lcom/mrkeyboard/app/SheetModel$Sheet;->name:Ljava/lang/String;
 
-    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->val$raw:Ljava/lang/String;
-
-    invoke-static {v0, v1}, Lcom/mrkeyboard/app/SheetStore;->importJsonString(Landroid/content/Context;Ljava/lang/String;)I
-
-    move-result v0
-
-    .line 604
-    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->val$raw:Ljava/lang/String;
-
-    invoke-static {v1, v2}, Lcom/mrkeyboard/app/MrAbcKeys;->takeFromBackup(Landroid/content/Context;Ljava/lang/String;)Z
-
-    .line 605
-    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
-
-    invoke-static {v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1500(Lcom/mrkeyboard/app/PrefScreenSheets;)V
-
-    .line 606
-    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
-
-    iget-object v2, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
-
-    const-string v3, "mr_sheets_imported"
-
-    const/4 v4, 0x1
-
-    new-array v4, v4, [Ljava/lang/Object;
-
-    const/4 v5, 0x0
-
-    invoke-static {v0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v0
-
-    aput-object v0, v4, v5
-
-    invoke-static {v2, v3, v4}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1700(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
-
-    move-result-object v0
-
-    const/4 v2, 0x0
-
-    invoke-static {v1, v0, v2}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1800(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;Z)V
-    :try_end_0
-    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
-
-    .line 610
-    :goto_0
-    return-void
-
-    .line 607
-    :catch_0
-    move-exception v0
-
-    .line 608
-    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
-
-    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
-
-    const-string v2, "mr_sheets_import_bad"
-
-    new-array v3, v6, [Ljava/lang/Object;
-
-    invoke-static {v1, v2, v3}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1700(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+    invoke-static {p1, v1}, Lcom/mrkeyboard/app/SheetModel;->sanitizeName(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    invoke-static {v0, v1, v7}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1800(Lcom/mrkeyboard/app/PrefScreenSheets;Ljava/lang/String;Z)V
+    iput-object v1, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->name:Ljava/lang/String;
 
-    goto :goto_0
+    .line 523
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->val$sheet:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    iget-object v1, v1, Lcom/mrkeyboard/app/SheetModel$Sheet;->badge:Ljava/lang/String;
+
+    invoke-static {p2, v1}, Lcom/mrkeyboard/app/SheetModel;->sanitizeBadge(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    iput-object v1, v0, Lcom/mrkeyboard/app/SheetModel$Sheet;->badge:Ljava/lang/String;
+
+    .line 524
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$2000(Lcom/mrkeyboard/app/PrefScreenSheets;)Ljava/util/ArrayList;
+
+    move-result-object v1
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/SheetStore;->save(Landroid/content/Context;Ljava/util/List;)Z
+
+    .line 525
+    iget-object v0, p0, Lcom/mrkeyboard/app/PrefScreenSheets$19;->this$0:Lcom/mrkeyboard/app/PrefScreenSheets;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/PrefScreenSheets;->access$1700(Lcom/mrkeyboard/app/PrefScreenSheets;)V
+
+    .line 526
+    return-void
 .end method

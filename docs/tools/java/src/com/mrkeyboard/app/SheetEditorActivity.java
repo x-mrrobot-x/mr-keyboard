@@ -47,11 +47,10 @@ import java.util.List;
  * screen was in the background) closes the editor with a note, instead of editing another sheet in its place.
  * The views are found by android:tag, so no id is needed (public.xml is not touched).
  *
- * ABC ({@link MrAbcKeys#ID} as the id): the main keyboard keeps its layout, so the editor has no "+ Row", no "Arrange rows", no "+" and no
- * drag, and the name and the badge do not change; a tap on a key that writes a character opens the key editor without width and actions
- * (KeyEditDialog.showForFixedKey) and the keys of the system (Shift, Ctrl, the arrows...) carry the padlock. Each change is saved as the
- * edits of ABC (MrAbcKeys.save: only the keys that differ from the XML) and the keyboard builds ABC again, so the quick test field shows it.
- * The ⋮ menu has only "Restore ABC"; undo works the same.
+ * ABC ({@link MrAbcKeys#ID} as the id): the main keyboard is edited as any sheet (rows, keys, widths, name and badge, undo), from the XML of
+ * ABC or from ABC as edited (MrAbcKeys.load). Each change is saved as ABC (MrAbcKeys.save; nothing is kept while it is the XML) and the
+ * keyboard builds ABC again, so the quick test field shows it. ABC is not deleted (its Delete is greyed, as on a built-in sheet) and its
+ * Restore brings back the XML; a duplicate is a new sheet of the person, after ABC in the cycle, and the editor goes on with it.
  */
 public class SheetEditorActivity extends Activity {
     /** Extra read by PrefScreenSheets and SettingsHeader: the id of the sheet to edit. */
@@ -82,7 +81,6 @@ public class SheetEditorActivity extends Activity {
     private View mTestClear;
     private ImageView mTestFieldIcon;
     private EditText mTestInput;
-    private TextView mTestLiveBadge;
     /** The dialog this screen opened last (key editor, name and badge, rows, confirmations): one at a time. */
     private AlertDialog mDialog;
 
@@ -141,7 +139,7 @@ public class SheetEditorActivity extends Activity {
         mAllSheets = SheetStore.getEditableCopy(this);
         if (MrAbcKeys.ID.equals(id)) {
             try {
-                mAbc = MrAbcKeys.load(this);
+                mAbc = MrAbcKeys.load(this, t("mr_sheets_main_title"));
                 mSheet = mAbc.sheet;
             } catch (Throwable t) {
                 mAbc = null;
@@ -172,11 +170,6 @@ public class SheetEditorActivity extends Activity {
         mLegend = (TextView) root.findViewWithTag("legend");
         mScrollView = (ScrollView) root.findViewWithTag("scroll");
 
-        if (mAbc != null) {
-            // ABC keeps its layout: a hint of its own and no row tools
-            ((TextView) root.findViewWithTag("hint")).setText(t("mr_abc_ed_hint"));
-            root.findViewWithTag("tools_row").setVisibility(View.GONE);
-        }
         bindHeader(root);
         bindToolbar(root);
         bindGrid(root);
@@ -209,19 +202,14 @@ public class SheetEditorActivity extends Activity {
 
         // badge + name + count, and the pencil: a tap changes the name and the badge
         View pill = root.findViewWithTag("header_pill");
-        if (mAbc != null) {
-            // ABC: no name and badge to change
-            root.findViewWithTag("edit_icon").setVisibility(View.GONE);
-        } else {
-            pill.setContentDescription(t("mr_sheet_ed_rename_desc"));
-            pill.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    showRenameDialog();
-                }
-            });
-            ((ImageView) root.findViewWithTag("edit_icon")).setImageDrawable(
-                    new SheetUi.IconDrawable(this, SheetUi.ICON_RENAME, color("mr_ui_text3"), dp(16)));
-        }
+        pill.setContentDescription(t("mr_sheet_ed_rename_desc"));
+        pill.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                showRenameDialog();
+            }
+        });
+        ((ImageView) root.findViewWithTag("edit_icon")).setImageDrawable(
+                new SheetUi.IconDrawable(this, SheetUi.ICON_RENAME, color("mr_ui_text3"), dp(16)));
 
         mUndoBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -277,18 +265,10 @@ public class SheetEditorActivity extends Activity {
             }
 
             public void onKeyTapped(int row, int key) {
-                if (mAbc != null) {
-                    openAbcKeyEditor(row, key);
-                } else {
-                    openKeyEditor(row, key);
-                }
+                openKeyEditor(row, key);
             }
 
             public void onLockedKeyTapped(boolean deleteKey) {
-                if (mAbc != null) {
-                    toast(t("mr_abc_fixed_key"), false);
-                    return;
-                }
                 toast(t(deleteKey ? "mr_sheet_ed_locked_delete" : "mr_sheet_ed_locked_row"), false);
             }
 
@@ -296,7 +276,6 @@ public class SheetEditorActivity extends Activity {
                 toast(t("mr_sheet_ed_row_limit", Integer.valueOf(maxKeysOfRow(row))), false);
             }
         });
-        if (mAbc != null) mGridView.setFixed(mAbc.lockedMap());
         LinearLayout slot = (LinearLayout) root.findViewWithTag("grid_slot");
         slot.addView(mGridView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -379,28 +358,6 @@ public class SheetEditorActivity extends Activity {
                 });
     }
 
-    /** A key of ABC: what it writes, its type, its label and its popup; it keeps its place and its width. */
-    private void openAbcKeyEditor(final int row, final int index) {
-        if (busy() || mAbc == null || mAbc.locked(row, index) || row >= mSheet.rows.size()) return;
-        final SheetModel.Row target = mSheet.rows.get(row);
-        if (index >= target.keys.size()) return;
-        mDialog = KeyEditDialog.showForFixedKey(this, mAllSheets, target.keys.get(index), new KeyEditDialog.OnKeyActionListener() {
-            public void onDelete() { }
-
-            public void onDuplicate() { }
-
-            public void onMoveLeft() { }
-
-            public void onMoveRight() { }
-
-            public void onSave(SheetModel.KeySpec saved) {
-                pushUndoSnapshot();
-                target.keys.set(index, saved);
-                persistAndRefresh();
-            }
-        });
-    }
-
     /** Key dropped on another place: same row (reorder) or another row (move), as the old screen did. */
     private void handleKeyDragMove(int fromRow, int fromKey, int toRow, int toIndex) {
         if (fromRow < 0 || fromRow >= mSheet.rows.size() || toRow < 0 || toRow >= mSheet.rows.size()) return;
@@ -460,7 +417,6 @@ public class SheetEditorActivity extends Activity {
         mTestClear = root.findViewWithTag("test_clear");
         mTestFieldIcon = (ImageView) root.findViewWithTag("test_field_icon");
         mTestInput = (EditText) root.findViewWithTag("test_input");
-        mTestLiveBadge = (TextView) root.findViewWithTag("test_badge");
         // the keyboard opens on this sheet and stays on it in this field (MrSheetTest); for ABC the field is a plain one (the keyboard
         // starts on ABC)
         if (mAbc == null) mTestInput.setPrivateImeOptions(MrSheetTest.option(mSheet.id));
@@ -723,13 +679,26 @@ public class SheetEditorActivity extends Activity {
                 });
     }
 
-    /** The ⋮ of ABC: only "Restore ABC" (it is not duplicated, renamed, arranged or deleted). */
+    /** The ⋮ of ABC: the one of a sheet, with Restore ABC and without Delete (greyed: ABC is always the first sheet). */
     private void showAbcMenu(View anchor) {
-        ArrayList<SheetUi.MenuEntry> items = new ArrayList<SheetUi.MenuEntry>(1);
-        items.add(new SheetUi.MenuEntry(1, SheetUi.ICON_RESTORE, t("mr_abc_menu_restore"), SheetUi.TONE_WARNING, true));
-        SheetUi.showPopupMenu(this, anchor, "ABC", t("mr_sheets_main_title"), items, new SheetUi.OnMenuSelect() {
+        ArrayList<SheetUi.MenuEntry> items = new ArrayList<SheetUi.MenuEntry>(5);
+        items.add(new SheetUi.MenuEntry(1, SheetUi.ICON_RENAME, t("mr_sheet_ed_menu_rename")));
+        items.add(new SheetUi.MenuEntry(2, SheetUi.ICON_ROWS, t("mr_sheet_ed_menu_rows")));
+        if (mAllSheets != null && mAllSheets.size() < SheetModel.MAX_SHEETS) {
+            items.add(new SheetUi.MenuEntry(3, SheetUi.ICON_DUPLICATE, t("mr_sheet_ed_menu_duplicate")));
+        }
+        items.add(new SheetUi.MenuEntry(4, SheetUi.ICON_RESTORE, t("mr_abc_menu_restore"), SheetUi.TONE_WARNING,
+                !MrAbcKeys.same(mSheet, mAbc.defaults)));
+        items.add(new SheetUi.MenuEntry(5, SheetUi.ICON_DELETE, t("mr_sheet_ed_menu_delete"), SheetUi.TONE_DANGER, false));
+        SheetUi.showPopupMenu(this, anchor, SheetModel.sanitizeBadge(mSheet.badge, "ABC"), mSheet.name, items, new SheetUi.OnMenuSelect() {
             public void onSelect(int id) {
-                if (id == 1) confirmRestoreAbc();
+                switch (id) {
+                    case 1: showRenameDialog(); break;
+                    case 2: showManageRowsDialog(); break;
+                    case 3: duplicateCurrentSheet(); break;
+                    case 4: confirmRestoreAbc(); break;
+                    default: break;
+                }
             }
         });
     }
@@ -762,8 +731,9 @@ public class SheetEditorActivity extends Activity {
         copy.id = SheetModel.makeUniqueId(all, "copy");
         copy.builtin = false;
         copy.name = SheetModel.sanitizeName(t("mr_sheet_ed_copy_suffix", mSheet.name), mSheet.name);
-        int at = all.size();
-        for (int i = 0; i < all.size(); i++) {
+        // the copy of ABC is the first sheet after it in the cycle
+        int at = mAbc != null ? 0 : all.size();
+        for (int i = 0; mAbc == null && i < all.size(); i++) {
             if (all.get(i).id.equals(mSheet.id)) {
                 at = i + 1;
                 break;
@@ -772,6 +742,8 @@ public class SheetEditorActivity extends Activity {
         all.add(at, copy);
         SheetStore.save(this, all);
         mUndoStack.clear();
+        // the editor goes on with the copy (a sheet of the person, also when the copy is of ABC)
+        mAbc = null;
         mSheet = copy.deepCopy();
         mAllSheets = SheetStore.getEditableCopy(this);
         refreshUi();
@@ -853,24 +825,15 @@ public class SheetEditorActivity extends Activity {
     }
 
     private void refreshUi() {
-        String badge = mAbc != null ? "ABC" : SheetModel.sanitizeBadge(mSheet.badge, "123");
+        String badge = SheetModel.sanitizeBadge(mSheet.badge, mAbc != null ? "ABC" : "123");
         mBadgeChip.setText(badge);
-        if (mAbc != null) {
-            mTitleView.setText(t("mr_sheets_main_title"));
-            int edited = MrAbcKeys.diff(mAbc, mSheet).size();
-            mSubtitleView.setText(edited == 0 ? t("mr_abc_ed_none") : t("mr_abc_ed_count", Integer.valueOf(edited)));
-        } else {
-            mTitleView.setText(mSheet.name);
-            mSubtitleView.setText(t("mr_sheet_ed_subtitle", Integer.valueOf(mSheet.rows.size()),
-                    Integer.valueOf(SheetModel.MAX_ROWS), Integer.valueOf(mSheet.countKeys())));
-        }
+        mTitleView.setText(mSheet.name);
+        mSubtitleView.setText(t("mr_sheet_ed_subtitle", Integer.valueOf(mSheet.rows.size()),
+                Integer.valueOf(SheetModel.MAX_ROWS), Integer.valueOf(mSheet.countKeys())));
         boolean canUndo = !mUndoStack.isEmpty();
         mUndoBtn.setEnabled(canUndo);
         mUndoBtn.setAlpha(canUndo ? 1.0f : 0.35f);
         mAddRowBtn.setAlpha(mSheet.rows.size() >= SheetModel.MAX_ROWS ? 0.45f : 1.0f);
-        if (mTestLiveBadge != null) {
-            mTestLiveBadge.setText(t("mr_sheet_ed_live", badge));
-        }
         mGridView.setData(mSheet, mAllSheets);
     }
 

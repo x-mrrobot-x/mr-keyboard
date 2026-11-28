@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 235
+    .line 223
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$4;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
     iput-object p2, p0, Lcom/mrkeyboard/app/SheetEditorActivity$4;->val$more:Landroid/widget/ImageView;
@@ -49,13 +49,13 @@
     .locals 2
 
     .prologue
-    .line 237
+    .line 225
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$4;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
     iget-object v1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$4;->val$more:Landroid/widget/ImageView;
 
     invoke-static {v0, v1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$200(Lcom/mrkeyboard/app/SheetEditorActivity;Landroid/view/View;)V
 
-    .line 238
+    .line 226
     return-void
 .end method

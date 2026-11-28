@@ -3,12 +3,12 @@
 .source "SheetEditorActivity.java"
 
 # interfaces
-.implements Lcom/mrkeyboard/app/SheetUi$OnMenuSelect;
+.implements Landroid/content/DialogInterface$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/mrkeyboard/app/SheetEditorActivity;->showAbcMenu(Landroid/view/View;)V
+    value = Lcom/mrkeyboard/app/SheetEditorActivity;->confirmRestoreAbc()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 730
+    .line 712
     iput-object p1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$22;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -36,20 +36,54 @@
 
 
 # virtual methods
-.method public onSelect(I)V
-    .locals 1
+.method public onClick(Landroid/content/DialogInterface;I)V
+    .locals 5
 
     .prologue
-    .line 732
-    const/4 v0, 0x1
+    const/4 v4, 0x0
 
-    if-ne p1, v0, :cond_0
-
+    .line 714
     iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$22;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
 
-    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2900(Lcom/mrkeyboard/app/SheetEditorActivity;)V
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1100(Lcom/mrkeyboard/app/SheetEditorActivity;)V
 
-    .line 733
-    :cond_0
+    .line 715
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$22;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$22;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2800(Lcom/mrkeyboard/app/SheetEditorActivity;)Lcom/mrkeyboard/app/MrAbcKeys$Model;
+
+    move-result-object v1
+
+    iget-object v1, v1, Lcom/mrkeyboard/app/MrAbcKeys$Model;->defaults:Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    invoke-static {v1}, Lcom/mrkeyboard/app/MrAbcKeys;->copySheet(Lcom/mrkeyboard/app/SheetModel$Sheet;)Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    move-result-object v1
+
+    invoke-static {v0, v1}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$2202(Lcom/mrkeyboard/app/SheetEditorActivity;Lcom/mrkeyboard/app/SheetModel$Sheet;)Lcom/mrkeyboard/app/SheetModel$Sheet;
+
+    .line 716
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$22;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    invoke-static {v0}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$1200(Lcom/mrkeyboard/app/SheetEditorActivity;)V
+
+    .line 717
+    iget-object v0, p0, Lcom/mrkeyboard/app/SheetEditorActivity$22;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    iget-object v1, p0, Lcom/mrkeyboard/app/SheetEditorActivity$22;->this$0:Lcom/mrkeyboard/app/SheetEditorActivity;
+
+    const-string v2, "mr_abc_restored"
+
+    new-array v3, v4, [Ljava/lang/Object;
+
+    invoke-static {v1, v2, v3}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$800(Lcom/mrkeyboard/app/SheetEditorActivity;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+
+    move-result-object v1
+
+    invoke-static {v0, v1, v4}, Lcom/mrkeyboard/app/SheetEditorActivity;->access$900(Lcom/mrkeyboard/app/SheetEditorActivity;Ljava/lang/String;Z)V
+
+    .line 718
     return-void
 .end method
